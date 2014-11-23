@@ -1,16 +1,33 @@
 {
-    "name": "color-convert",
-    "description": "Plain color conversion functions",
-    "version": "0.5.0",
-    "author": "Heather Arthur <fayearthur@gmail.com>",
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/harthur/color-convert.git"
-    },
-    "main": "./index",
-    "devDependencies": {
-        "browserify": ">=1.0.0",
-        "uglify-js": "1.0.x"
-    },
-    "keywords": ["color", "colour", "rgb"]
+  "name": "color-space",
+  "description": "Math & data behind color spaces and conversions between",
+  "version": "0.0.0",
+  "author": "Deema Ywanow <dfcreative@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/dfcreative/color-space.git"
+  },
+  "main": "./index",
+  "devDependencies": {
+    "mumath": "~0.2.3"
+  },
+  "keywords": [
+    "color",
+    "colour",
+    "rgb",
+    "hsl",
+    "hsv",
+    "lab",
+    "lch",
+    "husl",
+    "color-convert",
+    "gamut",
+    "color-conversions",
+    "color-space",
+    "color-translation",
+    "color-data"
+  ],
+  "scripts": {
+    "test": "node test/basic.js"
+  }
 }
