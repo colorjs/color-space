@@ -6,6 +6,7 @@ assert.deepEqual(round(convert.rgb.hsl([140, 200, 100])), [96, 48, 59]);
 assert.deepEqual(round(convert.rgb.hsv([140, 200, 100])), [96, 50, 78]);
 assert.deepEqual(round(convert.rgb.hwb([140, 200, 100])), [96, 39, 22]);
 assert.deepEqual(round(convert.rgb.cmyk([140, 200, 100])), [30, 0, 50, 22]);
+assert.deepEqual(round(convert.rgb.cmyk([0,0,0,1])), [0,0,0,100]);
 assert.deepEqual(round(convert.rgb.xyz([92, 191, 84])), [25, 40, 15]);
 assert.deepEqual(round(convert.rgb.lab([92, 191, 84])), [70, -50, 45]);
 assert.deepEqual(round(convert.rgb.lch([92, 191, 84])), [70, 67, 138]);
@@ -23,6 +24,7 @@ assert.deepEqual(round(convert.hsv.rgb([96, 50, 78])), [139, 199, 99]);
 assert.deepEqual(round(convert.hsv.hsl([96, 50, 78])), [96, 47, 59]);
 assert.deepEqual(round(convert.hsv.hwb([96, 50, 78])), [96, 39, 22]);
 assert.deepEqual(round(convert.hsv.cmyk([96, 50, 78])), [30, 0, 50, 22]);
+assert.deepEqual(round(convert.hsv.hsl([0,0,0])), [0,0,0]);
 
 assert.deepEqual(round(convert.cmyk.rgb([30, 0, 50, 22])), [139, 199, 99]);
 assert.deepEqual(round(convert.cmyk.hsl([30, 0, 50, 22])), [96, 47, 59]);
@@ -41,6 +43,7 @@ assert.deepEqual(round(convert.lab.lch([69, -48, 44])), [69, 65, 137]);
 assert.deepEqual(round(convert.lch.lab([69, 65, 137])), [69, -48, 44]);
 assert.deepEqual(round(convert.lch.xyz([69, 65, 137])), [25, 39, 15]);
 assert.deepEqual(round(convert.lch.rgb([69, 65, 137])), [98, 188, 83]);
+
 
 
 // hwb

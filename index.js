@@ -71,8 +71,8 @@ var rgb = {
     var r = val[0],
         g = val[1],
         b = val[2],
-        h = rgb.hsl(val)[0]
-        w = 1/255 * Math.min(r, Math.min(g, b))
+        h = rgb.hsl(val)[0],
+        w = 1/255 * Math.min(r, Math.min(g, b)),
         b = 1 - 1/255 * Math.max(r, Math.max(g, b));
 
     return [h, w * 100, b * 100];
@@ -85,9 +85,9 @@ var rgb = {
         c, m, y, k;
 
     k = Math.min(1 - r, 1 - g, 1 - b);
-    c = (1 - r - k) / (1 - k);
-    m = (1 - g - k) / (1 - k);
-    y = (1 - b - k) / (1 - k);
+    c = (1 - r - k) / (1 - k) || 0;
+    m = (1 - g - k) / (1 - k) || 0;
+    y = (1 - b - k) / (1 - k) || 0;
     return [c * 100, m * 100, y * 100, k * 100];
   },
 
@@ -236,13 +236,14 @@ var hsv = {
 
   hsl: function(hsv) {
     var h = hsv[0],
-        s = hsv[1] / 100,
-        v = hsv[2] / 100,
-        sl, l;
+      s = hsv[1] / 100,
+      v = hsv[2] / 100,
+      sl, l;
 
     l = (2 - s) * v;
     sl = s * v;
     sl /= (l <= 1) ? l : 2 - l;
+    sl = sl || 0;
     l /= 2;
     return [h, sl * 100, l * 100];
   },
