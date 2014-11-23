@@ -43,7 +43,6 @@ assert.deepEqual(round(convert.lch.xyz([69, 65, 137])), [25, 39, 15]);
 assert.deepEqual(round(convert.lch.rgb([69, 65, 137])), [98, 188, 83]);
 
 
-
 // hwb
 // http://dev.w3.org/csswg/css-color/#hwb-examples
 

@@ -54,12 +54,12 @@ To see details `console.log(space)`.
 
 ## Color-convert differences
 
-Color-space was initially a fork of [color-convert](https://github.com/harthur/color-convert), but then it was separated to standalone module with changes:
+Color-space was initially a fork of [color-convert](https://github.com/harthur/color-convert), but then it was separated into a standalone module with changes:
 
 * No keyword "space": actually, it is not a space, it is a different kind of knowledge. Also extra bytes saved.
 * No wrapper code: you have a natural wrapper already — [harthur/color](https://github.com/harthur/color) or faster fork [dfcreative/color](https://github.com/dfcreative/color).
 * conversions.js are placed to index.js for better use.
-* CIE spaces. (pending)
+* CIE spaces.
 * HUSL spaces (great thanks to Alexei Boronine for his [HUSL](https://github.com/boronine/husl).
 * Minimums, maximums, channel names and aliases info.
 * Better structured, easier exported (esp. for webworkers).

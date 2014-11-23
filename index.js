@@ -486,6 +486,43 @@ var lch = {
 };
 
 
+//TODO
+var xyy = {
+  alias: ['ciexyy']
+};
+
+
+//TODO
+var luv = {
+  alias: ['cieluv']
+};
+
+
+//TODO
+var lchuv = {
+  alias: ['cielchuv']
+};
+
+
+//TODO
+var cam = {
+  alias: ['ciecam']
+};
+
+
+//@link http://www.boronine.com/husl/
+//TODO
+var husl = {
+
+};
+
+
+//TODO
+var huslp = {
+
+};
+
+
 
 /**
  * @module color-space
