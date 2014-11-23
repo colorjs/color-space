@@ -1,6 +1,6 @@
 # color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
 
-Math and data behind color spaces and conversions.
+Math and data behind color spaces and color conversions.
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
@@ -54,7 +54,7 @@ To see details `console.log(space)`.
 
 ## Color-convert differences
 
-Color-space was initially a fork of [color-convert](https://github.com/harthur/color-convert), but then it separated to standalone module with changes:
+Color-space was initially a fork of [color-convert](https://github.com/harthur/color-convert), but then it was separated to standalone module with changes:
 
 * No keyword "space": actually, it is not a space, it is a different kind of knowledge. Also extra bytes saved.
 * No wrapper code: you have a natural wrapper already — [harthur/color](https://github.com/harthur/color) or faster fork [dfcreative/color](https://github.com/dfcreative/color).
