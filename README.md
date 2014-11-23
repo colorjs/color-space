@@ -1,62 +1,73 @@
-# color-space
+# color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
 
-Math and data behind the color spaces and conversions. The most complete color-conversions node module so far. Initially fork of [color-convert](https://github.com/dfcreative/color), separated to a standalone module.
+Math and data behind color spaces and conversions, nothing more. Initially fork of [color-convert](https://github.com/harthur/color-convert), separated into a standalone package due to [reasons](#differences-with-color-convert).
 
-Differences with initial color-convert:
+[![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
-* no keywords (isn’t a space - actually, it is a different king of knowledge + extra bytes saved)
-* no wrapper code (you have a natural wrapper - [color.js](https://github.com/dfcreative/color))
-	* conversions.js are placed to index.js for better use
-* CIE spaces
-* HUSL spaces (thanks to Alexei Boronine)
-* Ranges list
-* Better structured (no need `2` in function name)
-* No rounding result - one can always do it himself
 
-Color-convert is a color conversion library for JavaScript and node. It converts all ways between `rgb`, `hsl`, `hsv`, `hwb`, `cmyk`, and CSS keywords:
 
-```javascript
-var converter = require("color-convert")();
+## Use
 
-converter.rgb(140, 200, 100).hsl()   // [96, 48, 59]
+`$ npm install color-space`
 
-converter.keyword("blue").rgb()      // [0, 0, 255]
+Use [browserify](https://github.com/substack/node-browserify) for browser use.
+
+```js
+var space = require('color-space');
+
+//convert rgb to lch
+space.rgb.lch([200,230,100]);
 ```
 
-# Install
+## API
 
-### node
+Convert from one space to another space:
 
-For [node](http://nodejs.org) with [npm](http://npmjs.org):
-
-	npm install dfcreative/color-convert
-
-### browser
-
-Download the latest [color-convert.js](http://github.com/harthur/color-convert/downloads). All the methods are on the `colorConvert` object.
-
-# API
-
-```javascript
-require("color-convert").rgb2hsl([140, 200, 100]);   // [96, 48, 59]
+```js
+space.fromSpace.toSpace(array);
 ```
 
-### Unrounded
-To get the unrounded conversion, append `Raw` to the function name:
+Space data:
 
-```javascript
-convert.rgb2hslRaw([140, 200, 100]);   // [95.99999999999999, 47.619047619047606, 58.82352941176471]
+```js
+space.min //channel minimums
+space.max //channel maximums
+space.channel //channel names
+space.alias //alias space names, if any
 ```
 
-### Hash
-There's also a hash of the conversion functions keyed first by the "from" color space, then by the "to" color space:
+Available spaces:
 
-```javascript
-convert["hsl"]["hsv"]([160, 0, 20]) == convert.hsl2hsv([160, 0, 20])
-```
+* rgb
+* hsl
+* hsv (hsb)
+* hwb
+* cmyk
+* xyz
+* lab
+* lch
 
-### Other spaces
-There are some conversions from rgb (sRGB) to XYZ and LAB too, available as `rgb2xyz()`, `rgb2lab()`, `xyz2rgb()`, and `xyz2lab()`.
+
+Don’t be shy to `console.log(space)` to see the details.
+
+
+
+## Differences with color-convert
+
+* no keyword "space": actually, it is not a space, it is a different kind of knowledge. Also extra bytes saved.
+* no wrapper code: you have a natural wrapper already — [harthur/color](https://github.com/harthur/color) or faster fork [dfcreative/color](https://github.com/dfcreative/color).
+* conversions.js are placed to index.js for better use.
+* CIE spaces. (pending)
+* HUSL spaces (great thanks to Alexei Boronine for his [HUSL](https://github.com/boronine/husl).
+* Minimums, maximums, channel names and aliases info.
+* Better structured, easier exported (esp. for webworkers).
+* No result rounding — one can always do it oneself.
+
 
 # Contribute
+
 Please fork, add conversions, figure out color profile stuff for XYZ, LAB, etc. This is meant to be a basic library that can be used by other libraries to wrap color calculations in some cool way.
+
+
+
+<a href="http://unlicense.org/UNLICENSE"><img src="http://upload.wikimedia.org/wikipedia/commons/6/62/PD-icon.svg" width="40"/></a>
