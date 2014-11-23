@@ -13,10 +13,10 @@ Math and data behind color spaces and color conversions.
 Use [browserify](https://github.com/substack/node-browserify) for browser use.
 
 ```js
-var space = require('color-space');
+var convert = require('color-space');
 
 //convert rgb to lch
-space.rgb.lch([200,230,100]);
+convert.rgb.lch([200,230,100]);
 ```
 
 ## API
@@ -24,16 +24,18 @@ space.rgb.lch([200,230,100]);
 Convert from one space to another:
 
 ```js
-space.fromSpace.toSpace(array);
+var fromSpace = 'rgb', toSpace = 'hsl';
+
+convert[fromSpace][toSpace](array);
 ```
 
-Space data:
+Get space data:
 
 ```js
-space.min //channel minimums
-space.max //channel maximums
-space.channel //channel names
-space.alias //alias space names, if any
+convert[space].min //channel minimums
+convert[space].max //channel maximums
+convert[space].channel //channel names
+convert[space].alias //alias space names, if any
 ```
 
 Available spaces:
@@ -48,7 +50,7 @@ Available spaces:
 * lch (cielch)
 
 
-To see details `console.log(space)`.
+To see details `console.log(convert)`.
 
 
 
