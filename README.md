@@ -21,13 +21,13 @@ space.rgb.lch([200,230,100]);
 
 ## API
 
-Convert from one space to another space:
+Convert from one space to another:
 
 ```js
 space.fromSpace.toSpace(array);
 ```
 
-Space data:
+Space meta data:
 
 ```js
 space.min //channel minimums
