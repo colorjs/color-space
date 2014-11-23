@@ -58,7 +58,7 @@ To see details `console.log(convert)`.
 
 Color-space was initially a fork of [color-convert](https://github.com/harthur/color-convert), but then it was separated into a standalone module with changes:
 
-* Removed keyword "space": actually, it is not a space, it is a different kind of knowledge. Also extra bytes are saved.
+* Removed the keyword space: actually, it is not a space, it is a different kind of knowledge. Also extra bytes are saved.
 * Removed wrapper code: you have a natural wrapper already — [harthur/color](https://github.com/harthur/color) or a faster fork [dfcreative/color](https://github.com/dfcreative/color).
 * `conversions.js` are placed to index.js for better use.
 * [pending] CIE spaces.
