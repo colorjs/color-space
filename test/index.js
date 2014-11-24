@@ -5,6 +5,9 @@ var q = require('query-relative');
 
 
 var doc = document, win = window, body = doc.body, root = doc.documentElement;
+
+var title = q('.page-link');
+
 var table = q('#convert-table');
 var thead = q(table, 'thead');
 var tbody = q(table, 'tbody');
@@ -23,17 +26,33 @@ table.addEventListener('input', function(e){
 	var channel = target.id;
 	var srcSpace = target.getAttribute('data-space');
 	var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
-	var targetValues;
-	console.log(srcSpaceInputs)
+	var targetValues, targetSpaceInputs;
 	var srcValues = [];
 	for (var i = srcSpaceInputs.length; i--;){
-		srcValues[i] = srcSpaceInputs[i].value;
+		srcValues[i] = +srcSpaceInputs[i].value;
 	}
 
-	console.log(srcValues)
-	// for (var space in convert) {
-	// 	var
-	// }
+	//recalc all other spaces but source
+	for (var targetSpace in convert) {
+		if (targetSpace === srcSpace) continue;
+
+		try {
+			targetValues = convert[srcSpace][targetSpace](srcValues);
+
+			targetSpaceInputs = q('[data-space=' + targetSpace + ']', true);
+
+			for (var i = targetSpaceInputs.length; i--;){
+				targetSpaceInputs[i].value = targetValues[i].toFixed(1);
+			}
+		} catch (e) {
+			console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpace, e);
+		}
+	}
+
+	//Set header color according to the current converting color
+	var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
+	title.style.color = 'rgb(' + rgb + ')';
+	title.style.borderColor = 'rgba(' + rgb + ', .1)';
 });
 
 

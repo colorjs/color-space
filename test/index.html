@@ -21,12 +21,24 @@
 	}
 
 	.page-link{
-		color: rgb(88, 96, 141);
+		display: inline-block;
+		position: relative;
+		color: black;
 		text-decoration: none;
-		border-bottom: 4px solid rgba(88, 96, 141, .1);
 	}
-	.page-link:hover{
-		border-color: rgba(88, 96, 141, 1);
+	.page-link:after{
+		content: '';
+		position: absolute;
+		bottom: 3px;
+		border-bottom: 4px solid;
+		left: 0px;
+		right: 0px;
+		height: 0px;
+		opacity: .1;
+		z-index: 0;
+	}
+	.page-link:hover:after{
+		opacity: 1;
 	}
 	.page-title{
 		font-size: 2.1rem;
@@ -66,14 +78,15 @@
 	}
 	td input{
 		font-size: 12px;
+		overflow: visible;
 		margin: 0;
 		padding: 0 0 0 1px;
-		max-width: 40px;
+		max-width: 50px;
 		line-height: 24px;
 		border: none;
 		box-shadow: none!important;
 		outline: none!important;
-		text-align: left;
+		text-align: right;
 		border-bottom: 1px solid rgba(88, 96, 141, .1);
 	}
 	td input:focus{
@@ -86,7 +99,7 @@
 
 
 <section id="intro">
-	<h1 class="page-title"><a class="page-link" href="https://github.com/dfcreative/color-space/" title="dfcreative/color-space">Color-space.js</a></h1>
+	<h1 class="page-title" id="page-title"><a class="page-link" href="https://github.com/dfcreative/color-space/" title="dfcreative/color-space">Color-space.js</a></h1>
 	<h2 class='section-title'>Converter</h2>
 
 	<table id="convert-table">

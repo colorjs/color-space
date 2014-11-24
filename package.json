@@ -15,7 +15,7 @@
     "assert": "~1.x",
     "closurecompiler": "~1.x",
     "require-stub": "~1.x",
-    "query-relative": "~1.2.0"
+    "query-relative": "~1.x"
   },
   "keywords": [
     "color",
