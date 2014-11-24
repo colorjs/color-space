@@ -14,7 +14,8 @@
     "browserify": "~6.x",
     "assert": "~1.x",
     "closurecompiler": "~1.x",
-    "require-stub": "~1.x"
+    "require-stub": "~1.x",
+    "query-relative": "~1.2.0"
   },
   "keywords": [
     "color",
@@ -38,6 +39,6 @@
     "test": "mocha",
     "build": "browserify --standalone color ./index.js > dist/color.js",
     "min": "ccjs dist/color.js --language_in=ECMASCRIPT5 > dist/color.min.js && cat dist/color.min.js | gzip-size | pretty-bytes",
-    "build-test": "browserify -r mocha -r assert -r ./index.js:color-space > test/test.js"
+    "build-test": "browserify -r mocha -r assert -r mumath -r ./index.js:color-space > test/test.js"
   }
 }

@@ -3,9 +3,108 @@
 
 <title>Color-space tests</title>
 
+<style>
+	*{
+		box-sizing: border-box;
+	}
+
+	body{
+		font-family: sans-serif;
+	}
+
+	section{
+		margin: 1rem 50px;
+	}
+
+	section#mocha{
+		margin-top: 0px;
+	}
+
+	.page-link{
+		color: rgb(88, 96, 141);
+		text-decoration: none;
+		border-bottom: 4px solid rgba(88, 96, 141, .1);
+	}
+	.page-link:hover{
+		border-color: rgba(88, 96, 141, 1);
+	}
+	.page-title{
+		font-size: 2.1rem;
+		line-height: 1.5;
+		margin-bottom: 2.4rem;
+		margin-top: 3.6rem;
+	}
+
+	.section-title{
+		font-weight: bolder!important;
+		font-size: 1.6rem!important;
+		line-height: 1.5!important;
+		margin: .4rem 0;
+		cursor: auto!important;
+	}
+
+
+	table{
+		margin-left: -.5em;
+		/*border-collapse: collapse;*/
+		border-spacing: .7em .5em;
+	}
+	th{
+		font-size: 12px;
+		line-height: 24px;
+		text-align: left;
+		padding: 0;
+		font-weight: normal;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+	}
+	tr{
+	}
+	td{
+		padding: 0;
+		margin: 0!important;
+	}
+	td input{
+		font-size: 12px;
+		margin: 0;
+		padding: 0 0 0 1px;
+		max-width: 40px;
+		line-height: 24px;
+		border: none;
+		box-shadow: none!important;
+		outline: none!important;
+		text-align: left;
+		border-bottom: 1px solid rgba(88, 96, 141, .1);
+	}
+	td input:focus{
+		border-bottom: 1px solid black;
+	}
+</style>
+
 <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 
-<div id="mocha"></div>
+
+
+<section id="intro">
+	<h1 class="page-title"><a class="page-link" href="https://github.com/dfcreative/color-space/" title="dfcreative/color-space">Color-space.js</a></h1>
+	<h2 class='section-title'>Converter</h2>
+
+	<table id="convert-table">
+		<thead>
+		</thead>
+
+		<tbody>
+			<tr></tr>
+			<tr></tr>
+			<tr></tr>
+			<tr></tr>
+		</tbody>
+	</table>
+</section>
+
+<section id="mocha">
+	<h2 class="section-title">Tests</h2>
+</section>
 
 <script src="../node_modules/require-stub/index.js"></script>
 <!-- <script src="test.js"></script> -->

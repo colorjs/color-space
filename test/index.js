@@ -1,9 +1,75 @@
 var convert = require("../");
 var assert = require("assert");
 var round = require('mumath').round;
+var q = require('query-relative');
+
+
+var doc = document, win = window, body = doc.body, root = doc.documentElement;
+var table = q('#convert-table');
+var thead = q(table, 'thead');
+var tbody = q(table, 'tbody');
+var tr = q(table, 'tr', true);
+
+//select on click
+table.addEventListener('click', function(e){
+	if (e.target instanceof HTMLInputElement) {
+		e.target.select();
+	}
+});
+
+//recalc all on input
+table.addEventListener('input', function(e){
+	var target = e.target;
+	var channel = target.id;
+	var srcSpace = target.getAttribute('data-space');
+	var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
+	var targetValues;
+	console.log(srcSpaceInputs)
+	var srcValues = [];
+	for (var i = srcSpaceInputs.length; i--;){
+		srcValues[i] = srcSpaceInputs[i].value;
+	}
+
+	console.log(srcValues)
+	// for (var space in convert) {
+	// 	var
+	// }
+});
+
+
+/**
+ * Create table-column for converting
+ */
+function createSpaceCase(name){
+	var space = convert[name];
+
+	var th = document.createElement('th');
+	th.innerHTML = name;
+	thead.appendChild(th);
+
+	var td = document.createElement('td');
+	td.innerHTML = '<input id="" value="0" type="number"/>';
+
+	//for each channel create cell
+	for (var i = 0, cname; i < space.channel.length; i++){
+		cname = space.channel[i];
+		td.lastChild.id = cname;
+		td.lastChild.title = cname;
+		td.lastChild.setAttribute('data-space', name);
+		td.lastChild.min = space.min[i];
+		td.lastChild.max = space.max[i];
+		tr[i].appendChild(td);
+		td = td.cloneNode(true);
+	}
+	if (i === 3) tr[3].appendChild(td.cloneNode());
+}
 
 
 describe('rgb', function(){
+	before(function(){
+		createSpaceCase('rgb');
+	});
+
 	it('to hsl', function(){
 		assert.deepEqual(round(convert.rgb.hsl([140, 200, 100])), [96, 48, 59]);
 	});
@@ -40,6 +106,10 @@ describe('rgb', function(){
 
 
 describe('hsl', function(){
+	before(function(){
+		createSpaceCase('hsl');
+	});
+
 	it('to rgb', function(){
 		assert.deepEqual(round(convert.hsl.rgb([96, 48, 59])), [140, 201, 100]);
 	});
@@ -57,6 +127,10 @@ describe('hsl', function(){
 });
 
 describe('hsv', function(){
+	before(function(){
+		createSpaceCase('hsv');
+	});
+
 	it('to rgb', function(){
 		assert.deepEqual(round(convert.hsv.rgb([96, 50, 78])), [139, 199, 99]);
 	});
@@ -73,6 +147,10 @@ describe('hsv', function(){
 });
 
 describe('cmyk', function(){
+	before(function(){
+		createSpaceCase('cmyk');
+	});
+
 	it('to rgb', function(){
 		assert.deepEqual(round(convert.cmyk.rgb([30, 0, 50, 22])), [139, 199, 99]);
 	});
@@ -89,6 +167,10 @@ describe('cmyk', function(){
 
 
 describe('xyz', function(){
+	before(function(){
+		createSpaceCase('xyz');
+	});
+
 	it('to rgb', function(){
 		assert.deepEqual(round(convert.xyz.rgb([25, 40, 15])), [97, 190, 85]);
 		assert.deepEqual(round(convert.xyz.rgb([50, 100, 100])), [0, 255, 241]);
@@ -108,6 +190,10 @@ describe('xyz', function(){
 });
 
 describe('lab', function(){
+	before(function(){
+		createSpaceCase('lab');
+	});
+
 	it('to xyz', function(){
 		assert.deepEqual(round(convert.lab.xyz([69, -48, 44])), [25, 39, 15]);
 	});
@@ -121,6 +207,10 @@ describe('lab', function(){
 
 
 describe('lch', function(){
+	before(function(){
+		createSpaceCase('lch');
+	});
+
 	it('to lab', function(){
 		assert.deepEqual(round(convert.lch.lab([69, 65, 137])), [69, -48, 44]);
 	});
@@ -136,6 +226,10 @@ describe('lch', function(){
 
 
 describe('hwb', function(){
+	before(function(){
+		createSpaceCase('hwb');
+	});
+
 	it('to rgb', function(){
 		// hwb
 		// http://dev.w3.org/csswg/css-color/#hwb-examples
@@ -166,6 +260,10 @@ describe('hwb', function(){
 
 
 describe('luv', function(){
+	before(function(){
+		createSpaceCase('luv');
+	});
+
 	it.skip('to ', function(){
 
 	});
@@ -174,6 +272,10 @@ describe('luv', function(){
 
 
 describe('lchuv', function(){
+	before(function(){
+		createSpaceCase('lchuv');
+	});
+
 	it.skip('to rgb', function(){
 
 	});
@@ -189,6 +291,10 @@ describe('lchuv', function(){
 
 
 describe('husl', function(){
+	before(function(){
+		createSpaceCase('husl');
+	});
+
 	it.skip('to rgb', function(){
 
 	});
@@ -204,6 +310,10 @@ describe('husl', function(){
 
 
 describe('huslp', function(){
+	before(function(){
+		createSpaceCase('huslp');
+	});
+
 	it.skip('to rgb', function(){
 
 	});
@@ -219,6 +329,10 @@ describe('huslp', function(){
 
 
 describe('ciecam', function(){
+	before(function(){
+		createSpaceCase('ciecam');
+	});
+
 	it.skip('to rgb', function(){
 
 	});
