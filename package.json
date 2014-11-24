@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Math & data behind color spaces and conversions between",
+  "description": "Math & data behind color spaces and color conversions.",
   "version": "0.0.4",
   "author": "Deema Ywanow <dfcreative@gmail.com>",
   "repository": {
@@ -9,7 +9,12 @@
   },
   "main": "./index",
   "devDependencies": {
-    "mumath": "~0.2.3"
+    "mumath": "~0.x",
+    "mocha": "~2.x",
+    "browserify": "~6.x",
+    "assert": "~1.x",
+    "closurecompiler": "~1.x",
+    "require-stub": "~1.x"
   },
   "keywords": [
     "color",
@@ -19,6 +24,8 @@
     "hsv",
     "lab",
     "lch",
+    "luv",
+    "cie",
     "husl",
     "color-convert",
     "gamut",
@@ -28,6 +35,9 @@
     "color-data"
   ],
   "scripts": {
-    "test": "node test/basic.js"
+    "test": "mocha",
+    "build": "browserify --standalone color ./index.js > dist/color.js",
+    "min": "ccjs dist/color.js --language_in=ECMASCRIPT5 > dist/color.min.js && cat dist/color.min.js | gzip-size | pretty-bytes",
+    "build-test": "browserify -r mocha -r assert -r ./index.js:color-space > test/test.js"
   }
 }

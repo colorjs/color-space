@@ -134,6 +134,14 @@ var rgb = {
     return lab.lch(rgb.lab(args));
   },
 
+  luv: function(){
+
+  },
+
+  lchuv: function(args){
+    return luv.lchuv(rgb.luv(args));
+  },
+
   min: [0,0,0],
   max: [255,255,255],
   channel: ['red', 'green', 'blue']
@@ -272,6 +280,8 @@ var hwb = {
         ratio = wh + bl,
         i, v, f, n;
 
+    var r, g, b;
+
     // wh + bl cant be > 1
     if (ratio > 1) {
       wh /= ratio;
@@ -350,7 +360,6 @@ var cmyk = {
 };
 
 
-//TODO: add illuminant info?
 var xyz = {
   rgb: function(xyz) {
     var x = xyz[0] / 100,
@@ -404,10 +413,64 @@ var xyz = {
     return lab.lch(xyz.lab(args));
   },
 
+  luv: function(xyz, i) {
+    var _u, _v, l, u, v, x, y, z, yn, un, vn;
+
+    //get illuminant
+    i = i || 'D65';
+
+    x = xyz[0], y = xyz[1], z = xyz[2];
+    yn = luv.illuminant[i][0], un = luv.illuminant[i][1], vn = luv.illuminant[i][2];
+    console.log()
+    _u = (4 * x) / (x + (15 * y) + (3 * z));
+    _v = (9 * y) / (x + (15 * y) + (3 * z));
+
+    var yyn = y/yn;
+
+    yyn_ratio = 0.008856451679035631; //(6/29)^3
+
+    l = yyn <= yyn_ratio ?
+        903.2962962962961 * yyn : //(29/3)^3
+        116 * Math.pow(yyn, .333333333) - 16;
+
+    u = 13 * l * (_u - un);
+    v = 13 * l * (_v - vn);
+
+    return [l, u, v];
+  },
+
+  //TODO
+  cam: function(xyz){
+    var x = xyz[0], y = xyz[1], z = xyz[2];
+
+    //Mcat02
+    var m =[[0.7328, 0.4296, -0.1624], [-0.7036, 1.6975, 0.0061], [0.0030, 0.0136, 0.9834]];
+
+    //get lms
+    var L = x*m[0][0] + y*m[0][1]  + z*m[0][2];
+    var M =  x*m[1][0] + y*m[1][1] + z*m[1][2];
+    var S = x*m[2][0] + y*m[2][1] + z*m[2][2];
+
+    //calc lc, mc, sc
+    //FIXME: choose proper d
+    var d = 0.85;
+    var Lwr = 100, Mwr = 100, Swr = 100;
+    var Lc = (Lwr*D/Lw + 1 - D) * L;
+    var Mc = (Mwr*D/Mw + 1 - D) * M;
+    var Sc = (Swr*D/Sw + 1 - D) * S;
+  },
+
   min: [0,0,0],
   max: [100,100,100],
   channel: ['x','y','z'],
-  alias: ['ciexyz']
+  alias: ['ciexyz'],
+
+  //Xn, Yn, Zn
+  illuminant: {
+    A:[109.85, 100, 35.58],
+    C: [98.07, 100, 118.23],
+    D65: [95.04, 100, 108.88]
+  }
 };
 
 
@@ -458,7 +521,7 @@ var lab = {
   alias: ['cielab']
 };
 
-
+//cylindrical lab
 var lch = {
   lab: function(lch) {
     var l = lch[0],
@@ -487,26 +550,54 @@ var lch = {
 };
 
 
+
+//TODO
+var luv = {
+  xyz: function(luv){
+
+  },
+
+  lchuv: function(luv){
+    var C = Math.sqrt();
+  },
+
+  min: [0,-100,-100],
+  max: [100,100,100],
+  channel: ['lightness', 'u', 'v'],
+  alias: ['cieluv'],
+
+
+  //Yn, un,vn: http://www.optique-ingenieur.org/en/courses/OPI_ang_M07_C02/co/Contenu_08.html
+  illuminant: {
+    A:[100, 255.97, 524.29],
+    C: [100, 200.89, 460.89],
+    D65: [100, 197.83, 468.34]
+  }
+};
+
+
+//TODO
+//cylindrical luv
+var lchuv = {
+  luv: function(){
+
+  },
+  alias: ['cielchuv']
+};
+
+
+
 //TODO
 var xyy = {
   alias: ['ciexyy']
 };
 
 
-//TODO
-var luv = {
-  alias: ['cieluv']
-};
 
 
-//TODO
-var lchuv = {
-  alias: ['cielchuv']
-};
-
-
-//TODO
+//CIECAM02 http://en.wikipedia.org/wiki/CIECAM02
 var cam = {
+
   alias: ['ciecam']
 };
 
