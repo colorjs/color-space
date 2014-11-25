@@ -19,14 +19,14 @@ spaces.lab.lch([80,50,60]);
 ```
 
 
-To include one target space:
+If you aware of size, you can include only needed spaces:
 
 ```js
 var rgb = require('color-space/rgb');
 var hsl = require('color-space/hsl');
 
-//convert rgb to lch
-hsl.lch([200,230,100]);
+//convert rgb to hsl
+rgb.hsl([200,230,100]);
 ```
 
 Use [browserify](https://github.com/substack/node-browserify) to use in a browser.
@@ -61,9 +61,9 @@ Available spaces:
 * hwb
 * cmyk
 * xyz ([CIE XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space))
-* lab ([CIE LAB](http://en.wikipedia.org/wiki/Lab_color_space))
-* lch (CIE LCH&thinsp;—&thinsp;cylindrical LAB)
-* luv ([CIE LUV](http://en.wikipedia.org/wiki/CIELUV))
+* lab ([CIE Lab](http://en.wikipedia.org/wiki/Lab_color_space))
+* lch (CIE LCHab&thinsp;—&thinsp;cylindrical LAB)
+* luv ([CIE Luv](http://en.wikipedia.org/wiki/CIELUV))
 * lchuv ([CIE LCHuv](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation))
 
 
@@ -73,7 +73,7 @@ To see details `console.log(space)`.
 
 # Contribute
 
-Please fork, add space/convertions. If you add a space, make sure you have implemented at least to/from _XYZ_ or to/from _RGB_ conversions. Don’t forget to add a test-case.
+Please fork, add color spaces/convertions. If you add a new space, make sure you have implemented at least to/from _XYZ_ or to/from _RGB_ conversion functions. Don’t forget to add a test-case.
 
 This is meant to be a basic library that can be used by other libraries to wrap color calculations in some cool way.
 
