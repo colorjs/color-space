@@ -125,19 +125,25 @@
 	<h2 class="section-title">Tests</h2>
 </section>
 
-<!-- <script src="../node_modules/require-stub/index.js"></script> -->
 
 <script src="mocha.js"></script>
+
+
+<!-- <script src="../node_modules/require-stub/index.js"></script> -->
 <script src="test.bundle.js"></script>
+
 
 <script>
 	mocha.setup('bdd');
 </script>
 
+
 <script src="index.js"></script>
+
 
 <script>
 	var round = require('mumath').round;
+	var q = require('query-relative');
 
 	//setup converter
 	/** Converter */

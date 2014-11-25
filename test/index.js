@@ -1,7 +1,6 @@
 var convert = require("../index");
 var assert = require("assert");
 var round = require('mumath').round;
-var q = require('query-relative');
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};
