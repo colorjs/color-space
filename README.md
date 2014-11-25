@@ -60,10 +60,11 @@ Available spaces:
 * hsv (hsb)
 * hwb
 * cmyk
-* xyz (ciexyz)
-* lab (cielab)
-* luv (cieluv)
-* lch (cielch)
+* xyz ([CIE XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space))
+* lab ([CIE LAB](http://en.wikipedia.org/wiki/Lab_color_space))
+* lch (CIE LCH&thinsp;—&thinsp;cylindrical LAB)
+* luv ([CIE LUV](http://en.wikipedia.org/wiki/CIELUV))
+* lchuv ([CIE LCHuv](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation))
 
 
 To see details `console.log(space)`.
