@@ -1,4 +1,4 @@
-var xyz = require('xyz');
+var xyz = require('./xyz');
 
 var luv = module.exports = {
   name: 'luv',

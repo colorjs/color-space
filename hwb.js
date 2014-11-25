@@ -1,4 +1,4 @@
-var rgb = require('rgb');
+var rgb = require('./rgb');
 
 module.exports = {
   name: 'hwb',

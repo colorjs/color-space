@@ -1,6 +1,6 @@
-var rgb = require('rgb');
-var xyz = require('xyz');
-var lab = require('lab');
+var rgb = require('./rgb');
+var xyz = require('./xyz');
+var lab = require('./lab');
 
 //cylindrical lab
 var lch = module.exports = {

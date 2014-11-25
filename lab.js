@@ -1,5 +1,5 @@
-var rgb = require('rgb');
-var xyz = require('xyz');
+var rgb = require('./rgb');
+var xyz = require('./xyz');
 
 var lab = module.exports = {
   name: 'lab',
