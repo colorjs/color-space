@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Math & data behind color spaces and color conversions.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Deema Ywanow <dfcreative@gmail.com>",
   "repository": {
     "type": "git",
