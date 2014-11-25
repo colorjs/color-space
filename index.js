@@ -1,3 +1,12 @@
+//TODO: save hue on setting sat = 0;
+
+
+var options = {
+  illuminant: 'D65',
+  observer: '2'
+};
+
+
 var rgb = {
   hsl: function(rgb) {
     var r = rgb[0]/255,
@@ -134,8 +143,8 @@ var rgb = {
     return lab.lch(rgb.lab(args));
   },
 
-  luv: function(){
-
+  luv: function(args){
+    return xyz.luv(rgb.xyz(args));
   },
 
   lchuv: function(args){
@@ -361,17 +370,19 @@ var cmyk = {
 
 
 var xyz = {
+  //TODO: fix this maths so to return 255,255,255 in rgb
   rgb: function(xyz) {
     var x = xyz[0] / 100,
         y = xyz[1] / 100,
         z = xyz[2] / 100,
         r, g, b;
 
-    r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
-    g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
-    b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
-
     // assume sRGB
+    // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+    r = (x * 3.2404542) + (y * -1.5371385) + (z * -0.4985314);
+    g = (x * -0.9692660) + (y * 1.8760108) + (z * 0.0415560);
+    b = (x * 0.0556434) + (y * -0.2040259) + (z * 1.0572252);
+
     r = r > 0.0031308 ? ((1.055 * Math.pow(r, 1.0 / 2.4)) - 0.055)
       : r = (r * 12.92);
 
@@ -386,6 +397,22 @@ var xyz = {
     b = Math.min(Math.max(0, b), 1);
 
     return [r * 255, g * 255, b * 255];
+  },
+
+  hsl: function(arg) {
+    return rgb.hsl(xyz.rgb(arg));
+  },
+
+  hsv: function(arg) {
+    return rgb.hsv(xyz.rgb(arg));
+  },
+
+  hwb: function(arg) {
+    return rgb.hwb(xyz.rgb(arg));
+  },
+
+  cmyk: function(arg) {
+    return rgb.cmyk(xyz.rgb(arg));
   },
 
   lab: function(xyz) {
@@ -413,25 +440,29 @@ var xyz = {
     return lab.lch(xyz.lab(args));
   },
 
-  luv: function(xyz, i) {
+  //http://www.brucelindbloom.com/index.html?Equations.html
+  luv: function(arg, i) {
     var _u, _v, l, u, v, x, y, z, yn, un, vn;
 
-    //get illuminant
-    i = i || 'D65';
+    //get constants
+    var e = 0.008856451679035631; //(6/29)^3
+    var k = 903.2962962962961; //(29/3)^3
 
-    x = xyz[0], y = xyz[1], z = xyz[2];
-    yn = luv.illuminant[i][0], un = luv.illuminant[i][1], vn = luv.illuminant[i][2];
-    console.log()
+    //get illuminant
+    i = i || options.illuminant;
+
+    yn = xyz.illuminant[i][1];
+    un = luv.illuminant[i][1]/100;
+    vn = luv.illuminant[i][2]/100;
+
+    x = arg[0]/100, y = arg[1]/100, z = arg[2]/100;
+
     _u = (4 * x) / (x + (15 * y) + (3 * z));
     _v = (9 * y) / (x + (15 * y) + (3 * z));
 
-    var yyn = y/yn;
+    var yr = y/yn;
 
-    yyn_ratio = 0.008856451679035631; //(6/29)^3
-
-    l = yyn <= yyn_ratio ?
-        903.2962962962961 * yyn : //(29/3)^3
-        116 * Math.pow(yyn, .333333333) - 16;
+    l = yr <= e ? k * yr : 116 * Math.pow(yr, .333333333) - 16;
 
     u = 13 * l * (_u - un);
     v = 13 * l * (_v - vn);
@@ -461,14 +492,15 @@ var xyz = {
   },
 
   min: [0,0,0],
-  max: [100,100,100],
-  channel: ['x','y','z'],
+  max: [96,100,109],
+  channel: ['lightness','u','v'],
   alias: ['ciexyz'],
 
   //Xn, Yn, Zn
   illuminant: {
     A:[109.85, 100, 35.58],
     C: [98.07, 100, 118.23],
+    E: [100,100,100],
     D65: [95.04, 100, 108.88]
   }
 };
@@ -546,7 +578,7 @@ var lch = {
   min: [0,0,0],
   max: [100,100,360],
   channel: ['lightness', 'chroma', 'hue'],
-  alias: ['cielch']
+  alias: ['cielch', 'lchab']
 };
 
 
@@ -571,7 +603,8 @@ var luv = {
   illuminant: {
     A:[100, 255.97, 524.29],
     C: [100, 200.89, 460.89],
-    D65: [100, 197.83, 468.34]
+    E: [100,100,100],
+    D65: [100, 197, 468.34]
   }
 };
 
@@ -620,6 +653,7 @@ var huslp = {
  * @module color-space
  */
 module.exports = {
+  options: options,
   rgb: rgb,
   hsl: hsl,
   hsv: hsv,
@@ -627,5 +661,7 @@ module.exports = {
   cmyk: cmyk,
   xyz: xyz,
   lab: lab,
-  lch: lch
+  lch: lch,
+  luv: luv,
+  // lchuv: lchuv
 };

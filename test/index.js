@@ -4,98 +4,8 @@ var round = require('mumath').round;
 var q = require('query-relative');
 
 
-var doc = document, win = window, body = doc.body, root = doc.documentElement;
 
-var title = q('.page-link');
-
-var table = q('#convert-table');
-var thead = q(table, 'thead');
-var tbody = q(table, 'tbody');
-var tr = q(table, 'tr', true);
-
-var selCss='::selection{background:%b;color:%c} ::-moz-selection{background:%b;color:%c}';
-selStyle=doc.createElement('style');
-doc.getElementsByTagName('head')[0].appendChild(selStyle);
-
-
-//select on click
-table.addEventListener('click', function(e){
-	if (e.target instanceof HTMLInputElement) {
-		e.target.select();
-	}
-});
-
-//recalc all on input
-table.addEventListener('input', function(e){
-	var target = e.target;
-	var channel = target.id;
-	var srcSpace = target.getAttribute('data-space');
-	var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
-	var targetValues, targetSpaceInputs;
-	var srcValues = [];
-	for (var i = srcSpaceInputs.length; i--;){
-		srcValues[i] = +srcSpaceInputs[i].value;
-	}
-
-	//recalc all other spaces but source
-	for (var targetSpace in convert) {
-		if (targetSpace === srcSpace) continue;
-
-		try {
-			targetValues = convert[srcSpace][targetSpace](srcValues);
-
-			targetSpaceInputs = q('[data-space=' + targetSpace + ']', true);
-
-			for (var i = targetSpaceInputs.length; i--;){
-				targetSpaceInputs[i].value = targetValues[i].toFixed(1);
-			}
-		} catch (e) {
-			console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpace, e);
-		}
-	}
-
-	//Set header color according to the current converting color
-	var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
-	var l = +q('#lightness').value;
-
-	title.style.color = 'rgb(' + rgb + ')';
-	title.style.borderColor = 'rgba(' + rgb + ', .1)';
-
-	//change color of selection
-	var selStr = selCss.replace(/%b/g, 'rgb(' + rgb + ')');
-	selStr = selStr.replace(/%c/g, l > 82 ? 'black' : 'white');
-	selStyle.innerHTML = selStr;
-});
-
-
-/**
- * Create table-column for converting
- */
-function createSpaceCase(name){
-	var space = convert[name];
-
-	var th = document.createElement('th');
-	th.innerHTML = name;
-	thead.appendChild(th);
-
-	var td = document.createElement('td');
-	td.innerHTML = '<input id="" value="0" type="number"/>';
-
-	//for each channel create cell
-	for (var i = 0, cname; i < space.channel.length; i++){
-		cname = space.channel[i];
-		td.lastChild.id = cname;
-		td.lastChild.title = cname;
-		td.lastChild.setAttribute('data-space', name);
-		td.lastChild.min = space.min[i];
-		td.lastChild.max = space.max[i];
-		tr[i].appendChild(td);
-		td = td.cloneNode(true);
-	}
-	if (i === 3) tr[3].appendChild(td.cloneNode());
-}
-
-
+/** Tests */
 describe('rgb', function(){
 	before(function(){
 		createSpaceCase('rgb');
@@ -157,6 +67,7 @@ describe('hsl', function(){
 	});
 });
 
+
 describe('hsv', function(){
 	before(function(){
 		createSpaceCase('hsv');
@@ -176,6 +87,7 @@ describe('hsv', function(){
 		assert.deepEqual(round(convert.hsv.cmyk([96, 50, 78])), [30, 0, 50, 22]);
 	});
 });
+
 
 describe('cmyk', function(){
 	before(function(){
@@ -202,6 +114,7 @@ describe('xyz', function(){
 		createSpaceCase('xyz');
 	});
 
+	//TODO: more tests here
 	it('to rgb', function(){
 		assert.deepEqual(round(convert.xyz.rgb([25, 40, 15])), [97, 190, 85]);
 		assert.deepEqual(round(convert.xyz.rgb([50, 100, 100])), [0, 255, 241]);
@@ -213,10 +126,12 @@ describe('xyz', function(){
 		assert.deepEqual(round(convert.xyz.lch([25, 40, 15])), [69, 65, 137]);
 	});
 	it('to luv', function(){
-		assert.deepEqual(round(convert.xyz.luv([0, 0, 0])), [0, 0, 0]);
-		assert.deepEqual(round(convert.xyz.luv([100, 0, 0])), [12, 38, 7]);
-		assert.deepEqual(round(convert.xyz.luv([100, 0, 100])), [12, 31, -2]);
-		assert.deepEqual(round(convert.xyz.luv([100, 100, 100])), [9, 24, -2]);
+		// assert.deepEqual(round(convert.xyz.luv([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(convert.xyz.luv([100, 0, 0])), [0, 0, 0]);
+		// assert.deepEqual(round(convert.xyz.luv([0, 100, 0])), [12, 38, 7]);
+		// assert.deepEqual(round(convert.xyz.luv([0, 0, 100])), [12, 38, 7]);
+		// assert.deepEqual(round(convert.xyz.luv([100, 0, 100])), [12, 31, -2]);
+		// assert.deepEqual(round(convert.xyz.luv([100, 100, 100])), [9, 24, -2]);
 	});
 });
 
@@ -295,8 +210,8 @@ describe('luv', function(){
 		createSpaceCase('luv');
 	});
 
-	it.skip('to ', function(){
-
+	it('to xyz', function(){
+		assert.deepEqual(round(convert.luv.xyz([0, 0, 0])), [255,0,0]);
 	});
 
 });
