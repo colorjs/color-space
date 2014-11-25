@@ -1,4 +1,6 @@
 //TODO: save hue on setting sat = 0;
+//TODO: if to start with lchuv, it gets bad rgb/other values
+//TODO: specify exact lchuv/luv limits
 
 var spaces = {
   rgb: require('./rgb'),
@@ -18,7 +20,7 @@ var fromSpace, toSpace;
 for (var fromSpaceName in spaces) {
   fromSpace = spaces[fromSpaceName];
   for (var toSpaceName in spaces) {
-    if (!fromSpace[toSpaceName]) {
+    if (toSpaceName !== fromSpaceName && !fromSpace[toSpaceName]) {
       fromSpace[toSpaceName] = getConverter(fromSpace, toSpaceName);
     }
   }

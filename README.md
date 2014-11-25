@@ -51,6 +51,7 @@ space.max //channel maximums
 space.channel //channel names
 space.alias //alias space names, if any
 space.illuminant //space-specific properties
+space.observer
 ```
 
 Available spaces:
