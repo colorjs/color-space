@@ -13,6 +13,11 @@ var thead = q(table, 'thead');
 var tbody = q(table, 'tbody');
 var tr = q(table, 'tr', true);
 
+var selCss='::selection{background:%b;color:%c} ::-moz-selection{background:%b;color:%c}';
+selStyle=doc.createElement('style');
+doc.getElementsByTagName('head')[0].appendChild(selStyle);
+
+
 //select on click
 table.addEventListener('click', function(e){
 	if (e.target instanceof HTMLInputElement) {
@@ -51,8 +56,15 @@ table.addEventListener('input', function(e){
 
 	//Set header color according to the current converting color
 	var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
+	var l = +q('#lightness').value;
+
 	title.style.color = 'rgb(' + rgb + ')';
 	title.style.borderColor = 'rgba(' + rgb + ', .1)';
+
+	//change color of selection
+	var selStr = selCss.replace(/%b/g, 'rgb(' + rgb + ')');
+	selStr = selStr.replace(/%c/g, l > 82 ? 'black' : 'white');
+	selStyle.innerHTML = selStr;
 });
 
 
