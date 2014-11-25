@@ -216,6 +216,24 @@ var hsl = {
     return rgb.cmyk(hsl.rgb(args));
   },
 
+
+  xyz: function(arg) {
+    return rgb.xyz(hsl.rgb(arg));
+  },
+
+  lab: function(arg) {
+    return rgb.lab(hsl.rgb(arg));
+  },
+
+  lch: function(arg) {
+    return rgb.lch(hsl.rgb(arg));
+  },
+
+  luv: function(arg) {
+    return rgb.luv(hsl.rgb(arg));
+  },
+
+
   min: [0,0,0],
   max: [360,100,100],
   channel: ['hue', 'saturation', 'lightness']
@@ -272,6 +290,26 @@ var hsv = {
   cmyk: function(args) {
     return rgb.cmyk(hsv.rgb(args));
   },
+
+
+
+  xyz: function(arg) {
+    return rgb.xyz(hsv.rgb(arg));
+  },
+
+  lab: function(arg) {
+    return rgb.lab(hsv.rgb(arg));
+  },
+
+  lch: function(arg) {
+    return rgb.lch(hsv.rgb(arg));
+  },
+
+  luv: function(arg) {
+    return rgb.luv(hsv.rgb(arg));
+  },
+
+
 
   min: [0,0,0],
   max: [360,100,100],
@@ -331,6 +369,24 @@ var hwb = {
     return rgb.cmyk(hwb.rgb(args));
   },
 
+
+  xyz: function(args) {
+    return rgb.xyz(hwb.rgb(args));
+  },
+
+  lab: function(arg) {
+    return rgb.lab(hwb.rgb(arg));
+  },
+
+  lch: function(arg) {
+    return rgb.lch(hwb.rgb(arg));
+  },
+
+  luv: function(arg) {
+    return rgb.luv(hwb.rgb(arg));
+  },
+
+
   min: [0,0,0],
   max: [360,100,100],
   channel: ['hue', 'whiteness', 'blackness']
@@ -362,6 +418,24 @@ var cmyk = {
   hwb: function(args) {
     return rgb.hwb(cmyk.rgb(args));
   },
+
+
+  xyz: function(arg) {
+    return rgb.xyz(cmyk.rgb(arg));
+  },
+
+  lab: function(arg) {
+    return rgb.lab(cmyk.rgb(arg));
+  },
+
+  lch: function(arg) {
+    return rgb.lch(cmyk.rgb(arg));
+  },
+
+  luv: function(arg) {
+    return rgb.luv(cmyk.rgb(arg));
+  },
+
 
   min: [0,0,0,0],
   max: [100,100,100,100],
@@ -543,15 +617,37 @@ var lab = {
     return [l, c, h];
   },
 
+  luv: function(arg) {
+  },
+
+
   rgb: function(args) {
     return xyz.rgb(lab.xyz(args));
   },
+
+  hsl: function(arg) {
+    return rgb.hsl(lab.rgb(arg));
+  },
+
+  hsv: function(arg) {
+    return rgb.hsv(lab.rgb(arg));
+  },
+
+  hwb: function(arg) {
+    return rgb.hwb(lab.rgb(arg));
+  },
+
+  cmyk: function(arg) {
+    return rgb.cmyk(lab.rgb(arg));
+  },
+
 
   min: [0,-100,-100],
   max: [100,100,100],
   channel: ['lightness', 'a', 'b'],
   alias: ['cielab']
 };
+
 
 //cylindrical lab
 var lch = {
@@ -573,6 +669,27 @@ var lch = {
 
   rgb: function(args) {
     return lab.rgb(lch.lab(args));
+  },
+
+
+  hsl: function(arg) {
+    return rgb.hsl(lch.rgb(arg));
+  },
+
+  hsv: function(arg) {
+    return rgb.hsv(lch.rgb(arg));
+  },
+
+  hwb: function(arg) {
+    return rgb.hwb(lch.rgb(arg));
+  },
+
+  cmyk: function(arg) {
+    return rgb.cmyk(lch.rgb(arg));
+  },
+
+  luv: function(){
+
   },
 
   min: [0,0,0],

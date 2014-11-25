@@ -1,7 +1,9 @@
 var convert = require("../");
 var assert = require("assert");
 var round = require('mumath').round;
-var q = require('query-relative');
+
+
+var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};
 
 
 
@@ -33,7 +35,7 @@ describe('rgb', function(){
 	it('to lch', function(){
 		assert.deepEqual(round(convert.rgb.lch([92, 191, 84])), [70, 67, 138]);
 	});
-	it('to luv', function(){
+	it.skip('to luv', function(){
 		assert.deepEqual(round(convert.rgb.luv([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqual(round(convert.rgb.luv([10, 0, 0])), [1, 2, 0]);
 		assert.deepEqual(round(convert.rgb.luv([100, 0, 0])), [19, 62, 13]);
@@ -89,6 +91,40 @@ describe('hsv', function(){
 });
 
 
+describe('hwb', function(){
+	before(function(){
+		createSpaceCase('hwb');
+	});
+
+	it('to rgb', function(){
+		// hwb
+		// http://dev.w3.org/csswg/css-color/#hwb-examples
+
+		// all extrem value should give black, white or grey
+		for(var angle = 0; angle <= 360; angle ++) {
+		  assert.deepEqual(round(convert.hwb.rgb([angle, 0, 100])), [0, 0, 0]);
+		  assert.deepEqual(round(convert.hwb.rgb([angle, 100, 0])), [255, 255, 255]);
+		  assert.deepEqual(round(convert.hwb.rgb([angle, 100, 100])), [128, 128, 128]);
+		}
+
+		assert.deepEqual(round(convert.hwb.rgb([0, 0, 0])), [255,0,0]);
+		assert.deepEqual(round(convert.hwb.rgb([0, 20, 40])), [153, 51, 51]);
+		assert.deepEqual(round(convert.hwb.rgb([0, 40, 40])), [153, 102, 102]);
+		assert.deepEqual(round(convert.hwb.rgb([0, 40, 20])), [204, 102, 102]);
+
+		assert.deepEqual(round(convert.hwb.rgb([120, 0, 0])), [0,255,0]);
+		assert.deepEqual(round(convert.hwb.rgb([120, 20, 40])), [51, 153, 51]);
+		assert.deepEqual(round(convert.hwb.rgb([120, 40, 40])), [102, 153, 102]);
+		assert.deepEqual(round(convert.hwb.rgb([120, 40, 20])), [102, 204, 102]);
+
+		assert.deepEqual(round(convert.hwb.rgb([240, 0, 0])), [0,0,255]);
+		assert.deepEqual(round(convert.hwb.rgb([240, 20, 40])), [51, 51, 153]);
+		assert.deepEqual(round(convert.hwb.rgb([240, 40, 40])), [102, 102, 153]);
+		assert.deepEqual(round(convert.hwb.rgb([240, 40, 20])), [102, 102, 204]);
+	});
+});
+
+
 describe('cmyk', function(){
 	before(function(){
 		createSpaceCase('cmyk');
@@ -135,6 +171,7 @@ describe('xyz', function(){
 	});
 });
 
+
 describe('lab', function(){
 	before(function(){
 		createSpaceCase('lab');
@@ -169,43 +206,7 @@ describe('lch', function(){
 });
 
 
-
-
-describe('hwb', function(){
-	before(function(){
-		createSpaceCase('hwb');
-	});
-
-	it('to rgb', function(){
-		// hwb
-		// http://dev.w3.org/csswg/css-color/#hwb-examples
-
-		// all extrem value should give black, white or grey
-		for(var angle = 0; angle <= 360; angle ++) {
-		  assert.deepEqual(round(convert.hwb.rgb([angle, 0, 100])), [0, 0, 0]);
-		  assert.deepEqual(round(convert.hwb.rgb([angle, 100, 0])), [255, 255, 255]);
-		  assert.deepEqual(round(convert.hwb.rgb([angle, 100, 100])), [128, 128, 128]);
-		}
-
-		assert.deepEqual(round(convert.hwb.rgb([0, 0, 0])), [255,0,0]);
-		assert.deepEqual(round(convert.hwb.rgb([0, 20, 40])), [153, 51, 51]);
-		assert.deepEqual(round(convert.hwb.rgb([0, 40, 40])), [153, 102, 102]);
-		assert.deepEqual(round(convert.hwb.rgb([0, 40, 20])), [204, 102, 102]);
-
-		assert.deepEqual(round(convert.hwb.rgb([120, 0, 0])), [0,255,0]);
-		assert.deepEqual(round(convert.hwb.rgb([120, 20, 40])), [51, 153, 51]);
-		assert.deepEqual(round(convert.hwb.rgb([120, 40, 40])), [102, 153, 102]);
-		assert.deepEqual(round(convert.hwb.rgb([120, 40, 20])), [102, 204, 102]);
-
-		assert.deepEqual(round(convert.hwb.rgb([240, 0, 0])), [0,0,255]);
-		assert.deepEqual(round(convert.hwb.rgb([240, 20, 40])), [51, 51, 153]);
-		assert.deepEqual(round(convert.hwb.rgb([240, 40, 40])), [102, 102, 153]);
-		assert.deepEqual(round(convert.hwb.rgb([240, 40, 20])), [102, 102, 204]);
-	});
-});
-
-
-describe('luv', function(){
+describe.skip('luv', function(){
 	before(function(){
 		createSpaceCase('luv');
 	});
@@ -213,81 +214,80 @@ describe('luv', function(){
 	it('to xyz', function(){
 		assert.deepEqual(round(convert.luv.xyz([0, 0, 0])), [255,0,0]);
 	});
-
 });
 
 
-describe('lchuv', function(){
+describe.skip('lchuv', function(){
 	before(function(){
 		createSpaceCase('lchuv');
 	});
 
-	it.skip('to rgb', function(){
+	it('to rgb', function(){
 
 	});
 
-	it.skip('to xyz', function(){
+	it('to xyz', function(){
 
 	});
 
-	it.skip('to ', function(){
+	it('to ', function(){
 
 	});
 });
 
 
-describe('husl', function(){
+describe.skip('husl', function(){
 	before(function(){
 		createSpaceCase('husl');
 	});
 
-	it.skip('to rgb', function(){
+	it('to rgb', function(){
 
 	});
 
-	it.skip('to xyz', function(){
+	it('to xyz', function(){
 
 	});
 
-	it.skip('to ', function(){
+	it('to ', function(){
 
 	});
 });
 
 
-describe('huslp', function(){
+describe.skip('huslp', function(){
 	before(function(){
 		createSpaceCase('huslp');
 	});
 
-	it.skip('to rgb', function(){
+	it('to rgb', function(){
 
 	});
 
-	it.skip('to xyz', function(){
+	it('to xyz', function(){
 
 	});
 
-	it.skip('to ', function(){
+	it('to ', function(){
 
 	});
 });
 
 
-describe('ciecam', function(){
+describe.skip('ciecam', function(){
 	before(function(){
 		createSpaceCase('ciecam');
 	});
 
-	it.skip('to rgb', function(){
+	it('to rgb', function(){
 
 	});
 
-	it.skip('to xyz', function(){
+	it('to xyz', function(){
 
 	});
 
-	it.skip('to ', function(){
+	it('to ', function(){
 
 	});
 });
