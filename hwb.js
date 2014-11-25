@@ -1,6 +1,6 @@
 var rgb = require('./rgb');
 
-module.exports = {
+var hwb = module.exports = {
   name: 'hwb',
   min: [0,0,0],
   max: [360,100,100],

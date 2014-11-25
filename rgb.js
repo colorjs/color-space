@@ -133,13 +133,5 @@ var rgb = module.exports = {
     b = 200 * (y - z);
 
     return [l, a, b];
-  },
-
-  luv: function(args){
-    return xyz.luv(rgb.xyz(args));
-  },
-
-  lchuv: function(args){
-    return luv.lchuv(rgb.luv(args));
   }
 };

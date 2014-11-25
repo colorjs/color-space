@@ -1,4 +1,5 @@
 var xyz = require('./xyz');
+var rgb = require('./rgb');
 
 var luv = module.exports = {
   name: 'luv',
@@ -54,4 +55,9 @@ xyz.luv = function(arg, i) {
   v = 13 * l * (_v - vn);
 
   return [l, u, v];
+};
+
+
+rgb.luv = function(args){
+  return xyz.luv(rgb.xyz(args));
 };
