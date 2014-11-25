@@ -1,6 +1,6 @@
 # color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
 
-Math and data behind color spaces and color conversions. [Converter & tests](https://rawgit.com/dfcreative/color-space/master/test/index.html).
+Math and data behind color spaces and color conversions. [Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html).
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
