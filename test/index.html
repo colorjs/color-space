@@ -125,12 +125,12 @@
 	<h2 class="section-title">Tests</h2>
 </section>
 
-<script src="../node_modules/require-stub/index.js"></script>
-<!-- <script src="test.js"></script> -->
+<!-- <script src="../node_modules/require-stub/index.js"></script> -->
+
+<script src="mocha.js"></script>
+<script src="test.bundle.js"></script>
 
 <script>
-	var mocha = require('mocha');
-
 	mocha.setup('bdd');
 </script>
 
@@ -138,7 +138,6 @@
 
 <script>
 	var round = require('mumath').round;
-
 
 	//setup converter
 	/** Converter */

@@ -10,7 +10,7 @@
   "main": "./index",
   "devDependencies": {
     "mumath": "~0.x",
-    "mocha": "~2.x",
+    "mocha": "*",
     "browserify": "~6.x",
     "assert": "~1.x",
     "closurecompiler": "~1.x",
@@ -39,6 +39,6 @@
     "test": "mocha",
     "build": "browserify --standalone color ./index.js > dist/color.js",
     "min": "ccjs dist/color.js --language_in=ECMASCRIPT5 > dist/color.min.js && cat dist/color.min.js | gzip-size | pretty-bytes",
-    "build-test": "browserify -r mocha -r assert -r mumath -r ./index.js:color-space > test/test.js"
+    "build-test": "browserify -r assert -r mumath -r query-relative -r ./index.js:../index > test/test.bundle.js"
   }
 }

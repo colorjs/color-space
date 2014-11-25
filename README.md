@@ -1,10 +1,9 @@
 # color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
 
-Math and data behind color spaces and color conversions. <!-- The most complete color conversion lib so far. -->
+Math and data behind color spaces and color conversions. [Converter & tests](https://rawgit.com/dfcreative/color-space/master/test/index.html).
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
-[Tests]().
 
 ## Use
 
@@ -54,20 +53,6 @@ Available spaces:
 To see details `console.log(convert)`.
 
 
-
-## Color-convert differences
-
-Color-space was initially a fork of [color-convert](https://github.com/harthur/color-convert), but then it was separated into a standalone module with the next changes:
-
-* Keyword space is replaced with [color-name](https://github.com/dfcreative/color-name/), because it is not a space, it is a different kind of knowledge about the color.
-* Removed wrapper code: you have a natural wrapper already — [harthur/color](https://github.com/harthur/color) or a faster fork [dfcreative/color](https://github.com/dfcreative/color).
-* `conversions.js` are placed to index.js for better use.
-* [pending] CIE spaces.
-* [pending] HUSL spaces (great thanks to Alexei Boronine for his [HUSL](https://github.com/boronine/husl)).
-* Minimums, maximums, channel names and aliases info.
-* Better structured, easier exported (esp. for webworkers).
-* No result rounding — she can always do it by herself.
-* Unlicensed.
 
 # Contribute
 
