@@ -22,11 +22,11 @@
 	}
 
 	section{
-		margin: 1rem 50px;
+		margin: 1rem 50px 0;
 	}
 
 	section#mocha{
-		margin-top: 0px;
+		margin-top: 2rem;
 	}
 
 	.page-link{
@@ -129,7 +129,10 @@
 <script src="mocha.js"></script>
 
 
+<!-- dev -->
 <!-- <script src="../node_modules/require-stub/index.js"></script> -->
+
+<!-- prod -->
 <script src="test.bundle.js"></script>
 
 
@@ -177,13 +180,19 @@
 		var channel = target.id;
 		var srcSpace = target.getAttribute('data-space');
 		var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
-		var targetValues, targetSpaceInputs;
 		var srcValues = [];
 		for (var i = srcSpaceInputs.length; i--;){
 			srcValues[i] = +srcSpaceInputs[i].value;
 		}
 
-		//recalc all other spaces but source
+		recalc(srcSpace, srcValues);
+	});
+
+
+	//recalc all spaces from source
+	function recalc(srcSpace, srcValues){
+		var targetValues, targetSpaceInputs;
+
 		for (var targetSpace in convert) {
 			if (targetSpace === srcSpace || targetSpace === 'options') continue;
 
@@ -202,7 +211,9 @@
 
 		//Set header color according to the current converting color
 		var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
-		var l = +q('#lightness').value;
+
+		var lEl = +q('#lightness');
+		var l = lEl && lEl.value || 0;
 		rgb = round(rgb);
 
 		title.style.color = 'rgb(' + rgb + ')';
@@ -213,7 +224,7 @@
 		selStr = selStr.replace(/%c/g, l > 82 ? 'black' : 'white');
 
 		selStyle.innerHTML = selStr;
-	});
+	}
 
 
 	/**
@@ -241,6 +252,9 @@
 			td = td.cloneNode(true);
 		}
 		if (i === 3) tr[3].appendChild(td.cloneNode());
+
+		//initial recalc
+		recalc('rgb', [0,0,0]);
 	}
 </script>
 

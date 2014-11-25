@@ -27,46 +27,52 @@ var lab = module.exports = {
     z = z / 108.883 <= 0.008859 ? z = (108.883 * (y2 - (b / 200) - (16 / 116))) / 7.787 : 108.883 * Math.pow(y2 - (b / 200), 3);
 
     return [x, y, z];
-  },
-
-  lch: function(lab) {
-    var l = lab[0],
-        a = lab[1],
-        b = lab[2],
-        hr, h, c;
-
-    hr = Math.atan2(b, a);
-    h = hr * 360 / 2 / Math.PI;
-    if (h < 0) {
-      h += 360;
-    }
-    c = Math.sqrt(a * a + b * b);
-    return [l, c, h];
-  },
-
-  luv: function(arg) {
-  },
-
-
-  rgb: function(args) {
-    return xyz.rgb(lab.xyz(args));
-  },
-
-  hsl: function(arg) {
-    return rgb.hsl(lab.rgb(arg));
-  },
-
-  hsv: function(arg) {
-    return rgb.hsv(lab.rgb(arg));
-  },
-
-  hwb: function(arg) {
-    return rgb.hwb(lab.rgb(arg));
-  },
-
-  cmyk: function(arg) {
-    return rgb.cmyk(lab.rgb(arg));
   }
 };
 
-//
+
+//extend rgb
+rgb.lab = function(args) {
+  var xyz = rgb.xyz(args),
+        x = xyz[0],
+        y = xyz[1],
+        z = xyz[2],
+        l, a, b;
+
+  x /= 95.047;
+  y /= 100;
+  z /= 108.883;
+
+  x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
+  y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
+  z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
+
+  l = (116 * y) - 16;
+  a = 500 * (x - y);
+  b = 200 * (y - z);
+
+  return [l, a, b];
+};
+
+
+//extend xyz
+xyz.lab = function(xyz){
+  var x = xyz[0],
+      y = xyz[1],
+      z = xyz[2],
+      l, a, b;
+
+  x /= 95.047;
+  y /= 100;
+  z /= 108.883;
+
+  x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
+  y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
+  z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
+
+  l = (116 * y) - 16;
+  a = 500 * (x - y);
+  b = 200 * (y - z);
+
+  return [l, a, b];
+};

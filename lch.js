@@ -1,6 +1,6 @@
-var rgb = require('./rgb');
 var xyz = require('./xyz');
 var lab = require('./lab');
+
 
 //cylindrical lab
 var lch = module.exports = {
@@ -9,6 +9,10 @@ var lch = module.exports = {
   max: [100,100,360],
   channel: ['lightness', 'chroma', 'hue'],
   alias: ['cielch', 'lchab'],
+
+  xyz: function(arg) {
+    return lab.xyz(lch.lab(arg));
+  },
 
   lab: function(lch) {
     var l = lch[0],
@@ -20,44 +24,26 @@ var lch = module.exports = {
     a = c * Math.cos(hr);
     b = c * Math.sin(hr);
     return [l, a, b];
-  },
-
-  xyz: function(args) {
-    return lab.xyz(lch.lab(args));
-  },
-
-  rgb: function(args) {
-    return lab.rgb(lch.lab(args));
-  },
-
-
-  hsl: function(arg) {
-    return rgb.hsl(lch.rgb(arg));
-  },
-
-  hsv: function(arg) {
-    return rgb.hsv(lch.rgb(arg));
-  },
-
-  hwb: function(arg) {
-    return rgb.hwb(lch.rgb(arg));
-  },
-
-  cmyk: function(arg) {
-    return rgb.cmyk(lch.rgb(arg));
-  },
-
-  luv: function(){
-
   }
 };
 
 
-//Extend rgb space
-rgb.lch = function(args) {
-  return lab.lch(rgb.lab(args));
+//extend lab
+lab.lch = function(lab) {
+  var l = lab[0],
+      a = lab[1],
+      b = lab[2],
+      hr, h, c;
+
+  hr = Math.atan2(b, a);
+  h = hr * 360 / 2 / Math.PI;
+  if (h < 0) {
+    h += 360;
+  }
+  c = Math.sqrt(a * a + b * b);
+  return [l, c, h];
 };
 
-xyz.lch = function(args) {
-  return lab.lch(xyz.lab(args));
+xyz.lch = function(arg){
+  return lab.lch(xyz.lab(arg));
 };

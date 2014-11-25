@@ -7,12 +7,41 @@ var xyz = module.exports = {
   channel: ['lightness','u','v'],
   alias: ['ciexyz'],
 
+  //observer/illuminant
+  //http://www.easyrgb.com/index.php?X=MATH&H=15#text15
   //Xn, Yn, Zn
-  illuminant: {
-    A:[109.85, 100, 35.58],
-    C: [98.07, 100, 118.23],
-    E: [100,100,100],
-    D65: [95.04, 100, 108.88]
+  observer: {
+    2: {
+      //incadescent
+      A:[109.85, 100, 35.585],
+      C: [98.074, 100, 118.232],
+      D50: [96.422, 100, 82.521],
+      D55: [95.682, 100, 92.149],
+      //daylight
+      D65: [95.047, 100, 108.883],
+      D75: [94.972, 100, 122.638],
+      //flourescent
+      F2: [99.187, 100, 67.395],
+      F7: [95.044, 100, 108.755],
+      F11: [100.966, 100, 64.370],
+      E: [100,100,100]
+    },
+
+    10: {
+      //incadescent
+      A:[111.144, 100, 35.200],
+      C: [97.285, 100, 116.145],
+      D50: [96.720, 100, 81.427],
+      D55: [95.799, 100, 90.926],
+      //daylight
+      D65: [94.811, 100, 107.304],
+      D75: [94.416, 100, 120.641],
+      //flourescent
+      F2: [103.280, 100, 69.026],
+      F7: [95.792, 100, 107.687],
+      F11: [103.866, 100, 65.627],
+      E: [100,100,100]
+    }
   },
 
 
@@ -43,63 +72,24 @@ var xyz = module.exports = {
     b = Math.min(Math.max(0, b), 1);
 
     return [r * 255, g * 255, b * 255];
-  },
-
-  hsl: function(arg) {
-    return rgb.hsl(xyz.rgb(arg));
-  },
-
-  hsv: function(arg) {
-    return rgb.hsv(xyz.rgb(arg));
-  },
-
-  hwb: function(arg) {
-    return rgb.hwb(xyz.rgb(arg));
-  },
-
-  cmyk: function(arg) {
-    return rgb.cmyk(xyz.rgb(arg));
-  },
-
-  lab: function(xyz) {
-    var x = xyz[0],
-        y = xyz[1],
-        z = xyz[2],
-        l, a, b;
-
-    x /= 95.047;
-    y /= 100;
-    z /= 108.883;
-
-    x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
-    y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
-    z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
-
-    l = (116 * y) - 16;
-    a = 500 * (x - y);
-    b = 200 * (y - z);
-
-    return [l, a, b];
-  },
-
-  //TODO
-  cam: function(xyz){
-    var x = xyz[0], y = xyz[1], z = xyz[2];
-
-    //Mcat02
-    var m =[[0.7328, 0.4296, -0.1624], [-0.7036, 1.6975, 0.0061], [0.0030, 0.0136, 0.9834]];
-
-    //get lms
-    var L = x*m[0][0] + y*m[0][1]  + z*m[0][2];
-    var M =  x*m[1][0] + y*m[1][1] + z*m[1][2];
-    var S = x*m[2][0] + y*m[2][1] + z*m[2][2];
-
-    //calc lc, mc, sc
-    //FIXME: choose proper d
-    var d = 0.85;
-    var Lwr = 100, Mwr = 100, Swr = 100;
-    var Lc = (Lwr*D/Lw + 1 - D) * L;
-    var Mc = (Mwr*D/Mw + 1 - D) * M;
-    var Sc = (Swr*D/Sw + 1 - D) * S;
   }
+};
+
+
+//extend rgb
+rgb.xyz = function(rgb) {
+  var r = rgb[0] / 255,
+      g = rgb[1] / 255,
+      b = rgb[2] / 255;
+
+  // assume sRGB
+  r = r > 0.04045 ? Math.pow(((r + 0.055) / 1.055), 2.4) : (r / 12.92);
+  g = g > 0.04045 ? Math.pow(((g + 0.055) / 1.055), 2.4) : (g / 12.92);
+  b = b > 0.04045 ? Math.pow(((b + 0.055) / 1.055), 2.4) : (b / 12.92);
+
+  var x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
+  var y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
+  var z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
+
+  return [x * 100, y *100, z * 100];
 };

@@ -5,14 +5,11 @@ Math and data behind color spaces and color conversions. [Converter & tests](htt
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
 
-## Use
+# Use
 
 `$ npm install color-space`
 
-Use [browserify](https://github.com/substack/node-browserify) to use in browser.
-
-
-To include all spaces at once:
+To include all spaces:
 
 ```js
 var spaces = require('color-space');
@@ -32,8 +29,10 @@ var hsl = require('color-space/hsl');
 hsl.lch([200,230,100]);
 ```
 
+Use [browserify](https://github.com/substack/node-browserify) to use in a browser.
 
-## API
+
+# API
 
 Convert from one space to another:
 
@@ -73,7 +72,9 @@ To see details `console.log(space)`.
 
 # Contribute
 
-Please fork, add conversions, figure out color profile stuff for XYZ, LAB, etc. This is meant to be a basic library that can be used by other libraries to wrap color calculations in some cool way.
+Please fork, add space/convertions. If you add a space, make sure you have implemented at least to/from _XYZ_ or to/from _RGB_ conversions. Don’t forget to add a test-case.
+
+This is meant to be a basic library that can be used by other libraries to wrap color calculations in some cool way.
 
 
 

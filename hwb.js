@@ -73,3 +73,16 @@ var hwb = module.exports = {
     return rgb.luv(hwb.rgb(arg));
   }
 };
+
+
+//extend rgb
+rgb.hwb = function(val) {
+  var r = val[0],
+      g = val[1],
+      b = val[2],
+      h = rgb.hsl(val)[0],
+      w = 1/255 * Math.min(r, Math.min(g, b)),
+      b = 1 - 1/255 * Math.max(r, Math.max(g, b));
+
+  return [h, w * 100, b * 100];
+};

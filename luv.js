@@ -3,53 +3,78 @@ var rgb = require('./rgb');
 
 var luv = module.exports = {
   name: 'luv',
-
   min: [0,-100,-100],
   max: [100,100,100],
   channel: ['lightness', 'u', 'v'],
   alias: ['cieluv'],
 
-  //Yn, un,vn: http://www.optique-ingenieur.org/en/courses/OPI_ang_M07_C02/co/Contenu_08.html
-  illuminant: {
-    A:[100, 255.97, 524.29],
-    C: [100, 200.89, 460.89],
-    E: [100,100,100],
-    D65: [100, 197, 468.34]
-  },
+  xyz: function(arg, i, o){
+    var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 
-  xyz: function(luv){
+    //get constants
+    var e = 0.008856451679035631; //(6/29)^3
+    var k = 0.0011070564598794539; //(3/29)^3
 
-  },
+    //get illuminant/observer
+    i = i || 'D65';
+    o = o || 2;
 
-  lchuv: function(luv){
-    var C = Math.sqrt();
+    xn = xyz.observer[o][i][0];
+    yn = xyz.observer[o][i][1];
+    zn = xyz.observer[o][i][2];
+
+    un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
+    vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
+
+
+    l = arg[0], u = arg[1], v = arg[2];
+
+    _u = u / (13 * l) + un || 0;
+    _v = v / (13 * l) + vn || 0;
+
+    y = l > 8 ? yn * Math.pow( (l + 16) / 116 , 3) : yn * l * k;
+
+    x = y * 9 * _u / (4 * _v);
+
+    z = y * (12 - 3 * _u - 20 * _v) / (4 * _v);
+
+
+    return [x, y, z];
   }
 };
 
 
 //http://www.brucelindbloom.com/index.html?Equations.html
-xyz.luv = function(arg, i) {
-  var _u, _v, l, u, v, x, y, z, yn, un, vn;
+//i - illuminant
+//o - observer
+xyz.luv = function(arg, i, o) {
+  var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 
   //get constants
   var e = 0.008856451679035631; //(6/29)^3
   var k = 903.2962962962961; //(29/3)^3
 
-  //get illuminant
+  //get illuminant/observer
   i = i || 'D65';
+  o = o || 2;
 
-  yn = xyz.illuminant[i][1];
-  un = luv.illuminant[i][1]/100;
-  vn = luv.illuminant[i][2]/100;
+  xn = xyz.observer[o][i][0];
+  yn = xyz.observer[o][i][1];
+  zn = xyz.observer[o][i][2];
 
-  x = arg[0]/100, y = arg[1]/100, z = arg[2]/100;
+  un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
+  vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
 
-  _u = (4 * x) / (x + (15 * y) + (3 * z));
-  _v = (9 * y) / (x + (15 * y) + (3 * z));
+
+  x = arg[0], y = arg[1], z = arg[2];
+
+
+  _u = (4 * x) / (x + (15 * y) + (3 * z)) || 0;
+  _v = (9 * y) / (x + (15 * y) + (3 * z)) || 0;
 
   var yr = y/yn;
 
-  l = yr <= e ? k * yr : 116 * Math.pow(yr, .333333333) - 16;
+  l = yr <= e ? k * yr : 116 * Math.pow(yr, 1/3) - 16;
 
   u = 13 * l * (_u - un);
   v = 13 * l * (_v - vn);

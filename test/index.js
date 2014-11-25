@@ -6,6 +6,7 @@ var round = require('mumath').round;
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};
 
 
+//Check values here: http://www.easyrgb.com/index.php?X=CALC#Result
 
 /** Tests */
 describe('rgb', function(){
@@ -35,19 +36,9 @@ describe('rgb', function(){
 	it('to lch', function(){
 		assert.deepEqual(round(convert.rgb.lch([92, 191, 84])), [70, 67, 138]);
 	});
-	it.skip('to luv', function(){
-		assert.deepEqual(round(convert.rgb.luv([0, 0, 0])), [0, 0, 0]);
-		assert.deepEqual(round(convert.rgb.luv([10, 0, 0])), [1, 2, 0]);
-		assert.deepEqual(round(convert.rgb.luv([100, 0, 0])), [19, 62, 13]);
-		assert.deepEqual(round(convert.rgb.luv([255, 0, 0])), [53, 175, 38]);
-		assert.deepEqual(round(convert.rgb.luv([0, 255, 0])), [88, -83, 107]);
-		assert.deepEqual(round(convert.rgb.luv([0, 0, 255])), [32, -9, -130]);
-		assert.deepEqual(round(convert.rgb.luv([0, 255, 255])), [91, -70, -15]);
-		assert.deepEqual(round(convert.rgb.luv([255, 255, 255])), [100, 0, 0]);
-	});
 });
 
-
+//TODO: save hue on zero-saturation
 describe('hsl', function(){
 	before(function(){
 		createSpaceCase('hsl');
@@ -161,14 +152,6 @@ describe('xyz', function(){
 	it('to lch', function(){
 		assert.deepEqual(round(convert.xyz.lch([25, 40, 15])), [69, 65, 137]);
 	});
-	it('to luv', function(){
-		// assert.deepEqual(round(convert.xyz.luv([0, 0, 0])), [0, 0, 0]);
-		assert.deepEqual(round(convert.xyz.luv([100, 0, 0])), [0, 0, 0]);
-		// assert.deepEqual(round(convert.xyz.luv([0, 100, 0])), [12, 38, 7]);
-		// assert.deepEqual(round(convert.xyz.luv([0, 0, 100])), [12, 38, 7]);
-		// assert.deepEqual(round(convert.xyz.luv([100, 0, 100])), [12, 31, -2]);
-		// assert.deepEqual(round(convert.xyz.luv([100, 100, 100])), [9, 24, -2]);
-	});
 });
 
 
@@ -206,32 +189,59 @@ describe('lch', function(){
 });
 
 
-describe.skip('luv', function(){
+describe('luv', function(){
 	before(function(){
 		createSpaceCase('luv');
 	});
 
-	it('to xyz', function(){
-		assert.deepEqual(round(convert.luv.xyz([0, 0, 0])), [255,0,0]);
+	it.skip('rgb → luv', function(){
+		assert.deepEqual(round(convert.rgb.luv([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(convert.rgb.luv([10, 0, 0])), [1, 2, 0]);
+		assert.deepEqual(round(convert.rgb.luv([100, 0, 0])), [19, 62, 13]);
+		assert.deepEqual(round(convert.rgb.luv([255, 0, 0])), [53, 175, 38]);
+		assert.deepEqual(round(convert.rgb.luv([0, 255, 0])), [88, -83, 107]);
+		assert.deepEqual(round(convert.rgb.luv([0, 0, 255])), [32, -9, -130]);
+		assert.deepEqual(round(convert.rgb.luv([0, 255, 255])), [91, -70, -15]);
+		assert.deepEqual(round(convert.rgb.luv([255, 255, 255])), [100, 0, 0]);
+	});
+
+	it.skip('luv → rgb', function(){
+
+	});
+
+	it('xyz → luv', function(){
+		assert.deepEqual(round(convert.xyz.luv([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(convert.xyz.luv([95, 100, 100])), [100, 3, 9]);
+		assert.deepEqual(round(convert.xyz.luv([50, 50, 50])), [76, 13, 5]);
+		assert.deepEqual(round(convert.xyz.luv([100, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(convert.xyz.luv([0, 100, 0])), [100, -257, 171]);
+		assert.deepEqual(round(convert.xyz.luv([0, 0, 100])), [0, 0, 0]);
+		assert.deepEqual(round(convert.xyz.luv([95, 0, 100])), [0, 0, 0]);
+	});
+
+	it('luv → xyz', function(){
+		assert.deepEqual(round(convert.luv.xyz([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(convert.luv.xyz([50, -50, -50])), [13, 18, 45]);
+		assert.deepEqual(round(convert.luv.xyz([50, 50, 50])), [21, 18, 2]);
+		assert.deepEqual(round(convert.luv.xyz([100, 0, 0])), [95, 100, 109]);
 	});
 });
 
 
-describe.skip('lchuv', function(){
+describe('lchuv', function(){
 	before(function(){
 		createSpaceCase('lchuv');
 	});
 
-	it('to rgb', function(){
-
-	});
-
-	it('to xyz', function(){
-
-	});
-
-	it('to ', function(){
-
+	it('luv ←→ lchuv', function(){
+		assert.deepEqual(round(
+			convert.lchuv.luv(convert.luv.lchuv([0, 0, 0]))), [0, 0, 0]);
+		assert.deepEqual(round(
+			convert.lchuv.luv(convert.luv.lchuv([50, -50, -50]))), [50, -50, -50]);
+		assert.deepEqual(round(
+			convert.lchuv.luv(convert.luv.lchuv([50, 50, 50]))), [50, 50, 50]);
+		assert.deepEqual(round(
+			convert.lchuv.luv(convert.luv.lchuv([100, 0, 0]))), [100, 0, 0]);
 	});
 });
 

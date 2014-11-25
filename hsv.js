@@ -1,4 +1,5 @@
 var rgb = require('./rgb');
+var hsl = require('./hsl');
 
 var hsv = module.exports = {
   name: 'hsv',
@@ -47,31 +48,55 @@ var hsv = module.exports = {
     sl = sl || 0;
     l /= 2;
     return [h, sl * 100, l * 100];
-  },
-
-  hwb: function(args) {
-    return rgb.hwb(hsv.rgb(args))
-  },
-
-  cmyk: function(args) {
-    return rgb.cmyk(hsv.rgb(args));
-  },
-
-
-
-  xyz: function(arg) {
-    return rgb.xyz(hsv.rgb(arg));
-  },
-
-  lab: function(arg) {
-    return rgb.lab(hsv.rgb(arg));
-  },
-
-  lch: function(arg) {
-    return rgb.lch(hsv.rgb(arg));
-  },
-
-  luv: function(arg) {
-    return rgb.luv(hsv.rgb(arg));
   }
+};
+
+
+//append rgb
+rgb.hsv = function(rgb) {
+  var r = rgb[0],
+      g = rgb[1],
+      b = rgb[2],
+      min = Math.min(r, g, b),
+      max = Math.max(r, g, b),
+      delta = max - min,
+      h, s, v;
+
+  if (max == 0)
+    s = 0;
+  else
+    s = (delta/max * 1000)/10;
+
+  if (max == min)
+    h = 0;
+  else if (r == max)
+    h = (g - b) / delta;
+  else if (g == max)
+    h = 2 + (b - r) / delta;
+  else if (b == max)
+    h = 4 + (r - g) / delta;
+
+  h = Math.min(h * 60, 360);
+
+  if (h < 0)
+    h += 360;
+
+  v = ((max / 255) * 1000) / 10;
+
+  return [h, s, v];
+};
+
+
+
+//extend hsl
+hsl.hsv = function(hsl) {
+  var h = hsl[0],
+      s = hsl[1] / 100,
+      l = hsl[2] / 100,
+      sv, v;
+  l *= 2;
+  s *= (l <= 1) ? l : 2 - l;
+  v = (l + s) / 2;
+  sv = (2 * s) / (l + s) || 0;
+  return [h, sv * 100, v * 100];
 };
