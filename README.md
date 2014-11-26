@@ -34,7 +34,7 @@ Use [browserify](https://github.com/substack/node-browserify) to use in a browse
 
 # API
 
-Convert from one space to another:
+Convert one space to another:
 
 ```js
 var fromSpace = 'rgb', toSpace = 'hsl';
@@ -42,7 +42,7 @@ var fromSpace = 'rgb', toSpace = 'hsl';
 spaces[fromSpace][toSpace](array);
 ```
 
-Get space data:
+Space data:
 
 ```js
 space.name //space name
