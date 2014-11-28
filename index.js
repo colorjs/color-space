@@ -8,6 +8,7 @@ var spaces = {
   hwb: require('./hwb'),
   cmyk: require('./cmyk'),
   xyz: require('./xyz'),
+  xyy: require('./xyy'),
   lab: require('./lab'),
   lch: require('./lch'),
   lchuv: require('./lchuv'),

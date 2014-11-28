@@ -187,6 +187,23 @@ describe('xyz', function(){
 });
 
 
+describe('xyY', function(){
+	before(function(){
+		createSpaceCase('xyy');
+	});
+
+	//TODO: more tests here
+	it('xyz → xyy', function(){
+		assert.deepEqual(round(s.xyz.xyy([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.xyz.xyy([25, 40, 15]), .01), [.31, .5, 40]);
+		assert.deepEqual(round(s.xyz.xyy([50, 100, 100]), .01), [0.2, .4, 100]);
+	});
+	it('xyy → xyz', function(){
+		assert.deepEqual(round(s.xyy.xyz([.40, .15, 25]), .1), [66.7, 25, 75]);
+	});
+});
+
+
 describe('lab', function(){
 	before(function(){
 		createSpaceCase('lab');

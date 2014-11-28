@@ -37,9 +37,9 @@
   ],
   "scripts": {
     "test": "mocha",
-    "build": "browserify --standalone color ./index.js > dist/color.js",
-    "min": "ccjs dist/color.js --language_in=ECMASCRIPT5 > dist/color.min.js && cat dist/color.min.js | gzip-size | pretty-bytes",
-    "build-test": "browserify -r assert -r mumath -r query-relative -r ./index.js:../index > test/test.bundle.js"
+    "build": "browserify --standalone color-space ./index.js > color-space.js",
+    "min": "ccjs color-space.js --language_in=ECMASCRIPT5 --compilation_level=ADVANCED > color-space.min.js && cat color-space.min.js | gzip-size | pretty-bytes",
+    "build-test": "browserify -r assert -r mumath -r query-relative > test/test.bundle.js"
   },
   "dependencies": {
     "husl": ">=5.0"
