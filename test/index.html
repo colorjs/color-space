@@ -162,7 +162,7 @@
 	var selStyle=doc.createElement('style');
 	doc.getElementsByTagName('head')[0].appendChild(selStyle);
 
-	if (location.search) q('#converter').setAttribute('hidden', true);
+	// if (location.search) q('#converter').setAttribute('hidden', true);
 
 
 	//select on click
@@ -233,8 +233,11 @@
 	function createSpaceCase(name){
 		var space = convert[name];
 
+		if (q('#'+name)) return;
+
 		var th = document.createElement('th');
 		th.innerHTML = name;
+		th.id = name;
 		thead.appendChild(th);
 
 		var td = document.createElement('td');

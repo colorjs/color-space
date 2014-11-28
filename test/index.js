@@ -27,10 +27,6 @@ describe('hsl', function(){
 		// colorpicker says [96,50,79]
 		assert.deepEqual(round(s.hsl.hsv([96, 48, 59])), [96, 50, 79]);
 	});
-	it('hsl → hwb', function(){
-		// computer round to 21, should be 22
-		assert.deepEqual(round(s.hsl.hwb([96, 48, 59])), [96, 39, 21]);
-	});
 	it('hsl → cmyk', function(){
 		assert.deepEqual(round(s.hsl.cmyk([96, 48, 59])), [30, 0, 50, 21]);
 	});
@@ -52,9 +48,6 @@ describe('hsv', function(){
 		assert.deepEqual(round(s.hsv.hsl([96, 50, 78])), [96, 47, 59]);
 		assert.deepEqual(round(s.hsv.hsl([0,0,0])), [0,0,0]);
 	});
-	it('hsv → hwb', function(){
-		assert.deepEqual(round(s.hsv.hwb([96, 50, 78])), [96, 39, 22]);
-	});
 	it('hsv → cmyk', function(){
 		assert.deepEqual(round(s.hsv.cmyk([96, 50, 78])), [30, 0, 50, 22]);
 	});
@@ -67,6 +60,7 @@ describe('hsv', function(){
 describe('hwb', function(){
 	before(function(){
 		createSpaceCase('hwb');
+		createSpaceCase('hsv');
 	});
 
 	it('hwb → rgb', function(){
@@ -95,8 +89,41 @@ describe('hwb', function(){
 		assert.deepEqual(round(s.hwb.rgb([240, 40, 40])), [102, 102, 153]);
 		assert.deepEqual(round(s.hwb.rgb([240, 40, 20])), [102, 102, 204]);
 	});
+
 	it('rgb → hwb', function(){
 		assert.deepEqual(round(s.rgb.hwb([140, 200, 100])), [96, 39, 22]);
+	});
+
+	it('hsv → hwb', function(){
+		assert.deepEqual(round(s.hsv.hwb([10, 100, 0])), [10, 0, 100]);
+		assert.deepEqual(round(s.hsv.hwb([20, 0, 0])), [20, 0, 100]);
+		assert.deepEqual(round(s.hsv.hwb([30, 0, 100])), [30, 100, 0]);
+		assert.deepEqual(round(s.hsv.hwb([40, 0, 100])), [40, 100, 0]);
+		assert.deepEqual(round(s.hsv.hwb([96, 50, 78])), [96, 39, 22]);
+	});
+
+	it('hwb → hsv', function(){
+		assert.deepEqual(round(s.hwb.hsv([0, 50, 100])), [0, 0, 33]);
+		assert.deepEqual(round(s.hwb.hsv([0, 100, 50])), [0, 0, 67]);
+		assert.deepEqual(round(s.hwb.hsv([96, 39, 22])), [96, 50, 78]);
+		assert.deepEqual(round(s.hwb.hsv([20, 100, 0])), [20, 0, 100]);
+		assert.deepEqual(round(s.hwb.hsv([20, 0, 0])), [20, 100, 100]);
+
+		assert.deepEqual(round(s.hwb.hsv([2, 50, 50])), [2, 0, 50]);
+		assert.deepEqual(round(s.hwb.hsv([2, 90, 90])), [2, 0, 50]);
+		assert.deepEqual(round(s.hwb.hsv([2, 100, 100])), [2, 0, 50]);
+		assert.deepEqual(round(s.hwb.hsv([0, 0, 100])), [0, 0, 0]);
+		assert.deepEqual(round(s.hwb.hsv([0, 50, 50])), [0, 0, 50]);
+		assert.deepEqual(round(s.hwb.hsv([0, 50, 100])), [0, 0, 33]);
+
+	});
+
+	it('hsl ←→ hwb', function(){
+
+	});
+	it('hsl → hwb', function(){
+		// computer round to 21, should be 22
+		assert.deepEqual(round(s.hsl.hwb([96, 48, 59])), [96, 39, 21]);
 	});
 });
 
@@ -120,9 +147,9 @@ describe('cmyk', function(){
 	it('cmyk → hsv', function(){
 		assert.deepEqual(round(s.cmyk.hsv([30, 0, 50, 22])), [96, 50, 78]);
 	});
-	it('cmyk → hwb', function(){
-		assert.deepEqual(round(s.cmyk.hwb([30, 0, 50, 22])), [96, 39, 22]);
-	});
+	// it('cmyk → hwb', function(){
+	// 	assert.deepEqual(round(s.cmyk.hwb([30, 0, 50, 22])), [96, 39, 22]);
+	// });
 });
 
 

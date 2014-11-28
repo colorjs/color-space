@@ -1,4 +1,7 @@
 var rgb = require('./rgb');
+var hsv = require('./hsv');
+var hsl = require('./hsl');
+
 
 var hwb = module.exports = {
   name: 'hwb',
@@ -44,33 +47,25 @@ var hwb = module.exports = {
     return [r * 255, g * 255, b * 255];
   },
 
-  hsl: function(args) {
-    return rgb.hsl(hwb.rgb(args));
-  },
 
-  hsv: function(args) {
-    return rgb.hsv(hwb.rgb(args));
-  },
+  // http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
+  hsv: function(arg){
+    var h = arg[0], w = arg[1], b = arg[2], s, v;
 
-  cmyk: function(args) {
-    return rgb.cmyk(hwb.rgb(args));
-  },
+    //if w+b > 100% - take proportion (how many times )
+    if (w + b >= 100){
+      s = 0;
+      v = 100 * w/(w+b);
+    }
+
+    //by default - take wiki formula
+    else {
+      s = 100-(w/(1-b/100));
+      v = 100-b;
+    }
 
 
-  xyz: function(args) {
-    return rgb.xyz(hwb.rgb(args));
-  },
-
-  lab: function(arg) {
-    return rgb.lab(hwb.rgb(arg));
-  },
-
-  lch: function(arg) {
-    return rgb.lch(hwb.rgb(arg));
-  },
-
-  luv: function(arg) {
-    return rgb.luv(hwb.rgb(arg));
+    return [h, s, v];
   }
 };
 
@@ -86,3 +81,14 @@ rgb.hwb = function(val) {
 
   return [h, w * 100, b * 100];
 };
+
+
+
+//keep proper hue on 0 values (conversion to rgb loses hue on zero-lightness)
+hsv.hwb = function(arg){
+  var h = arg[0], s = arg[1], v = arg[2];
+  return [h, v === 0 ? 0 : (v * (1-s/100)), 100 - v];
+};
+
+
+//extend hsl with proper conversions
