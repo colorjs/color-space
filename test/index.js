@@ -60,7 +60,7 @@ describe('hsv', function(){
 describe('hwb', function(){
 	before(function(){
 		createSpaceCase('hwb');
-		createSpaceCase('hsv');
+		createSpaceCase('hsl');
 	});
 
 	it('hwb → rgb', function(){
@@ -118,11 +118,17 @@ describe('hwb', function(){
 
 	});
 
-	it('hsl ←→ hwb', function(){
-
+	it('hwb → hsl', function(){
+		assert.deepEqual(round(s.hwb.hsl([20, 50, 50])), [20, 0, 50]);
+		assert.deepEqual(round(s.hwb.hsl([20, 100, 100])), [20, 0, 50]);
+		assert.deepEqual(round(s.hwb.hsl([20, 100, 100])), [20, 0, 50]);
 	});
+
 	it('hsl → hwb', function(){
-		// computer round to 21, should be 22
+		assert.deepEqual(round(s.hsl.hwb([20, 100, 0])), [20, 0, 100]);
+		assert.deepEqual(round(s.hsl.hwb([20, 100, 50])), [20, 0, 0]);
+		assert.deepEqual(round(s.hsl.hwb([20, 0, 50])), [20, 50, 50]);
+		assert.deepEqual(round(s.hsl.hwb([20, 50, 100])), [20, 100, 0]);
 		assert.deepEqual(round(s.hsl.hwb([96, 48, 59])), [96, 39, 21]);
 	});
 });

@@ -66,6 +66,10 @@ var hwb = module.exports = {
 
 
     return [h, s, v];
+  },
+
+  hsl: function(arg){
+    return hsv.hsl(hwb.hsv(arg));
   }
 };
 
@@ -92,3 +96,6 @@ hsv.hwb = function(arg){
 
 
 //extend hsl with proper conversions
+hsl.hwb = function(arg){
+  return hsv.hwb(hsl.hsv(arg));
+};
