@@ -8,12 +8,14 @@ var xyz = module.exports = {
   alias: ['ciexyz'],
 
   //observer/illuminant
+  // http://en.wikipedia.org/wiki/Standard_illuminant
   //http://www.easyrgb.com/index.php?X=MATH&H=15#text15
   //Xn, Yn, Zn
   observer: {
     2: {
       //incadescent
       A:[109.85, 100, 35.585],
+      // B:[],
       C: [98.074, 100, 118.232],
       D50: [96.422, 100, 82.521],
       D55: [95.682, 100, 92.149],
@@ -21,9 +23,18 @@ var xyz = module.exports = {
       D65: [95.047, 100, 108.883],
       D75: [94.972, 100, 122.638],
       //flourescent
+      // F1: [],
       F2: [99.187, 100, 67.395],
+      // F3: [],
+      // F4: [],
+      // F5: [],
+      // F6:[],
       F7: [95.044, 100, 108.755],
+      // F8: [],
+      // F9: [],
+      // F10: [],
       F11: [100.966, 100, 64.370],
+      // F12: [],
       E: [100,100,100]
     },
 

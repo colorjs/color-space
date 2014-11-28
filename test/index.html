@@ -100,6 +100,9 @@
 	}
 </style>
 
+
+
+
 <link rel="stylesheet" href="mocha.css" />
 
 
@@ -130,23 +133,18 @@
 
 
 <!-- dev -->
-<!-- <script src="../node_modules/require-stub/index.js"></script> -->
+<script src="../node_modules/require-stub/index.js"></script>
 
 <!-- prod -->
-<script src="test.bundle.js"></script>
+<!-- <script src="test.bundle.js"></script> -->
 
 
-<script>
-	mocha.setup('bdd');
-</script>
-
-
-<script src="index.js"></script>
 
 
 <script>
 	var round = require('mumath').round;
 	var q = require('query-relative');
+	var convert = require('../index');
 
 	//setup converter
 	/** Converter */
@@ -191,21 +189,23 @@
 
 	//recalc all spaces from source
 	function recalc(srcSpace, srcValues){
-		var targetValues, targetSpaceInputs;
+		var targetValues, targetSpaceInputs, targetSpace;
 
-		for (var targetSpace in convert) {
-			if (targetSpace === srcSpace || targetSpace === 'options') continue;
+		for (var targetSpaceName in convert) {
+			if (targetSpaceName === srcSpace || targetSpaceName === 'options') continue;
+			targetSpace = convert[targetSpaceName];
 
 			try {
-				targetValues = convert[srcSpace][targetSpace](srcValues);
+				targetValues = convert[srcSpace][targetSpaceName](srcValues);
 
-				targetSpaceInputs = q('[data-space=' + targetSpace + ']', true);
+				targetSpaceInputs = q('[data-space=' + targetSpaceName + ']', true);
 
 				for (var i = targetSpaceInputs.length; i--;){
 					targetSpaceInputs[i].value = targetValues[i].toFixed(1);
+					targetSpaceInputs[i].title = targetSpace.channel[i] + ': ' + targetValues[i] + ' ∈ [' + targetSpace.min[i] + '..' + targetSpace.max[i] + ']';
 				}
 			} catch (e) {
-				console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpace, e);
+				console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpaceName, e);
 			}
 		}
 
@@ -257,6 +257,14 @@
 		recalc('rgb', [0,0,0]);
 	}
 </script>
+
+
+
+<script>
+	mocha.setup('bdd');
+</script>
+
+<script src="index.js"></script>
 
 <script>
 	//Run mocha

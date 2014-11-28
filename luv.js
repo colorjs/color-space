@@ -3,8 +3,8 @@ var rgb = require('./rgb');
 
 var luv = module.exports = {
   name: 'luv',
-  min: [0,-100,-100],
-  max: [100,100,100],
+  min: [0,-134,-140],
+  max: [100,224,122],
   channel: ['lightness', 'u', 'v'],
   alias: ['cieluv'],
 
@@ -32,12 +32,20 @@ var luv = module.exports = {
     _u = u / (13 * l) + un || 0;
     _v = v / (13 * l) + vn || 0;
 
+    //wikipedia method
     y = l > 8 ? yn * Math.pow( (l + 16) / 116 , 3) : yn * l * k;
+    x = y * 9 * _u / (4 * _v) || 0;
+    z = y * (12 - 3 * _u - 20 * _v) / (4 * _v) || 0;
 
-    x = y * 9 * _u / (4 * _v);
+    //lindbloom method (needs checking)
+    // var a = (52 * l / (u + 13 * l * un) - 1) / 3;
+    // var b =-5 * y;
+    // var c = -1/3;
+    // var d = y * ( 39 * l /(v + 13 * l * vn) - 5);
 
-    z = y * (12 - 3 * _u - 20 * _v) / (4 * _v);
-
+    // x = (d-b) / (a-c);
+    // y = l > k*e ? Math.pow( (l + 16) / 116 , 3) : l/k;
+    // z = x*a + b;
 
     return [x, y, z];
   }
