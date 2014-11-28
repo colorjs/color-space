@@ -3,7 +3,7 @@ var xyz = require('./xyz');
 var xyy = module.exports = {
   name: 'xyy',
   min: [0,0,0],
-  max: [100,100,100],
+  max: [1,1,100],
   channel: ['x','y','Y'],
   alias: ['Yxy', 'xyY', 'yxy'],
 

@@ -83,7 +83,7 @@
 		text-align: left;
 		padding: 0;
 		font-weight: normal;
-		text-transform: uppercase;
+		/*text-transform: uppercase;*/
 		letter-spacing: 1px;
 	}
 	tr{
@@ -239,13 +239,14 @@
 	 * Create table-column for converting
 	 */
 	function createSpaceCase(name){
-		var space = convert[name];
+		var lname = name.toLowerCase();
+		var space = convert[lname];
 
-		if (q('#'+name)) return;
+		if (q('#'+lname)) return;
 
 		var th = document.createElement('th');
 		th.innerHTML = name;
-		th.id = name;
+		th.id = lname;
 		thead.appendChild(th);
 
 		var td = document.createElement('td');
@@ -256,9 +257,10 @@
 			cname = space.channel[i];
 			td.lastChild.id = cname;
 			td.lastChild.title = cname;
-			td.lastChild.setAttribute('data-space', name);
+			td.lastChild.setAttribute('data-space', lname);
 			td.lastChild.min = space.min[i];
 			td.lastChild.max = space.max[i];
+			td.lastChild.step = space.max[i] === 1 ? .01 : 1;
 			tr[i].appendChild(td);
 			td = td.cloneNode(true);
 		}

@@ -16,14 +16,13 @@ var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase :
 
 
 //these two are basic spaces
-createSpaceCase('rgb');
-createSpaceCase('xyz');
+createSpaceCase('RGB');
 
 
 //TODO: save hue on zero-saturation
 describe('hsl', function(){
 	before(function(){
-		createSpaceCase('hsl');
+		createSpaceCase('HSL');
 	});
 
 	it('hsl → rgb', function(){
@@ -44,7 +43,7 @@ describe('hsl', function(){
 
 describe('hsv', function(){
 	before(function(){
-		createSpaceCase('hsv');
+		createSpaceCase('HSV');
 	});
 
 	it('hsv → rgb', function(){
@@ -65,8 +64,8 @@ describe('hsv', function(){
 
 describe('hwb', function(){
 	before(function(){
-		createSpaceCase('hwb');
-		createSpaceCase('hsl');
+		createSpaceCase('HWB');
+		createSpaceCase('HSL');
 	});
 
 	it('hwb → rgb', function(){
@@ -142,7 +141,7 @@ describe('hwb', function(){
 
 describe('cmyk', function(){
 	before(function(){
-		createSpaceCase('cmyk');
+		createSpaceCase('CMYK');
 	});
 
 	it('rgb → cmyk', function(){
@@ -167,7 +166,7 @@ describe('cmyk', function(){
 
 describe('xyz', function(){
 	before(function(){
-		createSpaceCase('xyz');
+		createSpaceCase('XYZ');
 	});
 
 	//TODO: more tests here
@@ -189,7 +188,8 @@ describe('xyz', function(){
 
 describe('xyY', function(){
 	before(function(){
-		createSpaceCase('xyy');
+		createSpaceCase('XYZ');
+		createSpaceCase('xyY');
 	});
 
 	//TODO: more tests here
@@ -206,7 +206,8 @@ describe('xyY', function(){
 
 describe('lab', function(){
 	before(function(){
-		createSpaceCase('lab');
+		createSpaceCase('XYZ');
+		createSpaceCase('LAB');
 	});
 
 	it('lab → xyz', function(){
@@ -226,7 +227,8 @@ describe('lab', function(){
 
 describe('lch', function(){
 	before(function(){
-		createSpaceCase('lch');
+		createSpaceCase('XYZ');
+		createSpaceCase('LCH');
 	});
 
 	it('lch → lab', function(){
@@ -246,7 +248,8 @@ describe('lch', function(){
 
 describe('luv', function(){
 	before(function(){
-		createSpaceCase('luv');
+		createSpaceCase('XYZ');
+		createSpaceCase('LUV');
 	});
 
 	it('rgb → luv', function(){
@@ -287,7 +290,8 @@ describe('luv', function(){
 
 describe('lchuv', function(){
 	before(function(){
-		createSpaceCase('lchuv');
+		createSpaceCase('XYZ');
+		createSpaceCase('LCHuv');
 	});
 
 	it('luv ←→ lchuv', function(){
@@ -305,7 +309,8 @@ describe('lchuv', function(){
 
 describe('husl', function(){
 	before(function(){
-		createSpaceCase('husl');
+		createSpaceCase('XYZ');
+		createSpaceCase('HuSL');
 	});
 
 	it('_husl: lch → luv ≡ lchuv → luv', function(){
@@ -369,7 +374,8 @@ describe('husl', function(){
 
 describe('huslp', function(){
 	before(function(){
-		createSpaceCase('huslp');
+		createSpaceCase('XYZ');
+		createSpaceCase('HuSLP');
 	});
 
 	it('huslp → rgb', function(){
@@ -384,6 +390,7 @@ describe('huslp', function(){
 
 describe.skip('ciecam', function(){
 	before(function(){
+		createSpaceCase('XYZ');
 		createSpaceCase('ciecam');
 	});
 
