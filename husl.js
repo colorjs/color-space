@@ -1,5 +1,5 @@
 var xyz = require('./xyz');
-var lchuv = require('./lch');
+var lchuv = require('./lchuv');
 var _husl = require('husl');
 
 /**
@@ -10,10 +10,25 @@ var _husl = require('husl');
  */
 
 module.exports = {
-	lchuv: _husl._conv.lch.husl,
-	xyz: function(arg){return lchuv.xyz(_husl._conv.husl.lch(arg));}
+	name: 'husl',
+	min: [0,0,0],
+	max: [360,100,100],
+	channel: ['hue', 'saturation', 'lightness'],
+
+	lchuv: _husl._conv.husl.lch,
+
+	xyz: function(arg){
+		return lchuv.xyz(_husl._conv.husl.lch(arg));
+	},
+
+	//a shorter way to convert to huslp
+	huslp: function(arg){
+		return _husl._conv.lch.huslp( _husl._conv.husl.lch(arg));
+	}
 };
 
 //extend lchuv, xyz
 lchuv.husl = _husl._conv.lch.husl;
-xyz.husl = function(arg){return _husl._conv.lch.husl(xyz.lchuv(arg));};
+xyz.husl = function(arg){
+	return _husl._conv.lch.husl(xyz.lchuv(arg));
+};

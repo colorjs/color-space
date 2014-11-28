@@ -1,5 +1,5 @@
 var xyz = require('./xyz');
-var lchuv = require('./lch');
+var lchuv = require('./lchuv');
 var _husl = require('husl');
 
 /**
@@ -9,8 +9,18 @@ var _husl = require('husl');
  * @module color-space/huslp
  */
 module.exports = {
-	lchuv: _husl._conv.lch.huslp,
-	xyz: function(arg){return lchuv.xyz(_husl._conv.huslp.lch(arg));}
+	name: 'huslp',
+	min: [0,0,0],
+	max: [360,100,100],
+	channel: ['hue', 'saturation', 'lightness'],
+
+	lchuv: _husl._conv.huslp.lch,
+	xyz: function(arg){return lchuv.xyz(_husl._conv.huslp.lch(arg));},
+
+	//a shorter way to convert to husl
+	husl: function(arg){
+		return _husl._conv.lch.husl( _husl._conv.huslp.lch(arg));
+	}
 };
 
 //extend lchuv, xyz

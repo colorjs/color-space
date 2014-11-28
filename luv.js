@@ -32,13 +32,16 @@ var luv = module.exports = {
 
     un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
     vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
+    // un = 0.19783000664283;
+    // vn = 0.46831999493879;
 
 
     _u = u / (13 * l) + un || 0;
     _v = v / (13 * l) + vn || 0;
 
-    //wikipedia method
     y = l > 8 ? yn * Math.pow( (l + 16) / 116 , 3) : yn * l * k;
+
+    //wikipedia method
     x = y * 9 * _u / (4 * _v) || 0;
     z = y * (12 - 3 * _u - 20 * _v) / (4 * _v) || 0;
 

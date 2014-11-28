@@ -1,7 +1,10 @@
 var s = require("../index");
 var assert = require("assert");
 var round = require('mumath').round;
-// var husl = require('husl');
+var mult = require('mumath').mult;
+var div = require('mumath').div;
+var max = require('mumath').max;
+var husl = require('husl');
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};
@@ -12,7 +15,9 @@ var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase :
 // http://colormine.org/convert/luv-to-rgb
 
 
+//these two are basic spaces
 createSpaceCase('rgb');
+createSpaceCase('xyz');
 
 
 //TODO: save hue on zero-saturation
@@ -247,7 +252,7 @@ describe('luv', function(){
 
 	it('xyz → luv', function(){
 		assert.deepEqual(round(s.xyz.luv([0, 0, 0])), [0, 0, 0]);
-		assert.deepEqual(round(s.xyz.luv([95, 100, 100])), [100, 3, 9]);
+		assert.deepEqual(round(s.xyz.luv([95, 100, 100]),.1), [100, 3.5, 8.6]);
 		assert.deepEqual(round(s.xyz.luv([50, 50, 50])), [76, 13, 5]);
 		assert.deepEqual(round(s.xyz.luv([100, 0, 0])), [0, 0, 0]);
 		assert.deepEqual(round(s.xyz.luv([0, 100, 0])), [100, -257, 171]);
@@ -259,7 +264,6 @@ describe('luv', function(){
 		assert.deepEqual(round(s.luv.xyz([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqual(round(s.luv.xyz([50, -50, -50])), [13, 18, 45]);
 		assert.deepEqual(round(s.luv.xyz([50, 50, 50])), [21, 18, 2]);
-		assert.deepEqual(round(s.luv.xyz([100, 0, 0])), [95, 100, 109]);
 	});
 });
 
@@ -282,22 +286,71 @@ describe('lchuv', function(){
 });
 
 
-describe.skip('husl', function(){
+describe('husl', function(){
 	before(function(){
 		createSpaceCase('husl');
 	});
 
-	it('husl → rgb', function(){
-
+	it('_husl: lch → luv ≡ lchuv → luv', function(){
+		assert.deepEqual(round(husl._conv.lch.luv([1,20,40]), .0001), round(s.lchuv.luv([1,20,40]), .0001));
+		assert.deepEqual(round(husl._conv.lch.luv([21,50,40]), .0001), round(s.lchuv.luv([21,50,40]), .0001));
+		assert.deepEqual(round(husl._conv.lch.luv([25,30,43]), .0001), round(s.lchuv.luv([25,30,43]), .0001));
 	});
 
-	it('husl → xyz', function(){
+	it('_husl: luv → xyz ≡ luv → xyz ', function(){
+		assert.deepEqual(round(mult(husl._conv.luv.xyz([21,50,40]), 100), .0001), round(s.luv.xyz([21,50,40]), .0001));
+		assert.deepEqual(round(mult(husl._conv.luv.xyz([1,20,40]), 100), .0001), round(s.luv.xyz([1,20,40]), .0001));
+		assert.deepEqual(round(mult(husl._conv.luv.xyz([25,30,43]), 100), .0001), round(s.luv.xyz([25,30,43]), .0001));
+	});
 
+
+	it('_husl: xyz → rgb ≡ xyz → rgb', function(){
+		assert.deepEqual(
+			round(
+				max(mult(husl._conv.xyz.rgb(div([33,40,50], 100)), 255), 0), .0001
+			),
+			round(s.xyz.rgb([33,40,50]), .0001)
+		);
+		assert.deepEqual(
+			round(
+				max(mult(husl._conv.xyz.rgb(div([1,20,40], 100)), 255), 0), .0001
+			),
+			round(s.xyz.rgb([1,20,40]), .0001)
+		);
+		assert.deepEqual(
+			round(
+				max(mult(husl._conv.xyz.rgb(div([25,30,43], 100)), 255), 0), .0001
+			),
+			round(s.xyz.rgb([25,30,43]), .0001)
+		);
+	});
+
+
+	it('_husl: lch → rgb ≡ lchuv → rgb', function(){
+		assert.deepEqual(
+			max(round(mult(husl._conv.lch.rgb([1,20,40]), 255), .001), 0),
+			max(round(s.lchuv.rgb([1,20,40]), .001), 0)
+		);
+		assert.deepEqual(
+			max(round(mult(husl._conv.lch.rgb([25,30,43]), 255), .001), 0),
+			max(round(s.lchuv.rgb([25,30,43]), .001), 0)
+		);
+		assert.deepEqual(
+			max(round(mult(husl._conv.lch.rgb([33,40,50]), 255), .001), 0),
+			max(round(s.lchuv.rgb([33,40,50]), .001), 0)
+		);
+	});
+
+	it('_husl → rgb ≡ husl → rgb', function(){
+		assert.deepEqual(
+			round(mult(husl.toRGB(25, 30, 43), 255)),
+			round(s.husl.rgb([25, 30, 43]))
+		);
 	});
 });
 
 
-describe.skip('huslp', function(){
+describe('huslp', function(){
 	before(function(){
 		createSpaceCase('huslp');
 	});

@@ -15,7 +15,7 @@ var spaces = {
   husl: require('./husl'),
   huslp: require('./huslp')
 };
-console.log(spaces.husl)
+
 
 //make each space able to transform to every other space
 var fromSpace, toSpace;
