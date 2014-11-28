@@ -1,6 +1,6 @@
 # color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
 
-Math and data behind color spaces and color conversions. [Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html).
+Math and data behind color spaces and color conversions. _Color-space_ provides uniform interface to all known color-spaces. [Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html).
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
@@ -45,13 +45,12 @@ spaces[fromSpace][toSpace](array);
 Space data:
 
 ```js
-space.name //space name
-space.min //channel minimums
-space.max //channel maximums
-space.channel //channel names
-space.alias //alias space names, if any
-space.illuminant //space-specific properties
-space.observer
+*.name //space name
+*.min //channel minimums
+*.max //channel maximums
+*.channel //channel names
+*.alias //alias space names, if any
+xyz.whitepoint //list of whitepoint references
 ```
 
 Available spaces:
@@ -66,18 +65,12 @@ Available spaces:
 * lch (CIE LCHab&thinsp;—&thinsp;cylindrical LAB)
 * luv ([CIE Luv](http://en.wikipedia.org/wiki/CIELUV))
 * lchuv ([CIE LCHuv](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation))
-
-
-To see details `console.log(space)`.
-
+* [husl](http://www.boronine.com/husl/), [huslp](http://www.boronine.com/husl/)
 
 
 # Contribute
 
-Please fork, add color spaces/convertions. If you add a new space, make sure you have implemented at least to/from _XYZ_ or to/from _RGB_ conversion functions. Don’t forget to add a test-case.
-
-This is meant to be a basic library that can be used by other libraries to wrap color calculations in some cool way.
-
+Please fork, add color space & basic conversions (to/from XYZ or RGB), tests.
 
 
 <a href="http://unlicense.org/UNLICENSE"><img src="http://upload.wikimedia.org/wikipedia/commons/6/62/PD-icon.svg" width="40"/></a>

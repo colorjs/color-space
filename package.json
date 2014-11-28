@@ -2,7 +2,7 @@
   "name": "color-space",
   "description": "Math & data behind color spaces and color conversions.",
   "version": "0.3.3",
-  "author": "Deema Ywanow <dfcreative@gmail.com>",
+  "author": "Deema Yvanow <dfcreative@gmail.com>",
   "repository": {
     "type": "git",
     "url": "http://github.com/dfcreative/color-space.git"
@@ -40,5 +40,8 @@
     "build": "browserify --standalone color ./index.js > dist/color.js",
     "min": "ccjs dist/color.js --language_in=ECMASCRIPT5 > dist/color.min.js && cat dist/color.min.js | gzip-size | pretty-bytes",
     "build-test": "browserify -r assert -r mumath -r query-relative -r ./index.js:../index > test/test.bundle.js"
+  },
+  "dependencies": {
+    "husl": ">=5.0"
   }
 }

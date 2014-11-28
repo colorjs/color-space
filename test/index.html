@@ -212,7 +212,8 @@
 					targetSpaceInputs[i].title = targetSpace.channel[i] + ': ' + targetValues[i] + ' ∈ [' + targetSpace.min[i] + '..' + targetSpace.max[i] + ']';
 				}
 			} catch (e) {
-				console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpaceName, e);
+				throw e;
+				// console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpaceName, e);
 			}
 		}
 

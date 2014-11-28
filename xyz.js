@@ -9,9 +9,8 @@ var xyz = module.exports = {
 
   //observer/illuminant
   // http://en.wikipedia.org/wiki/Standard_illuminant
-  //http://www.easyrgb.com/index.php?X=MATH&H=15#text15
   //Xn, Yn, Zn
-  observer: {
+  whitepoint: {
     2: {
       //incadescent
       A:[109.85, 100, 35.585],

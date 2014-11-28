@@ -1,6 +1,7 @@
 var s = require("../index");
 var assert = require("assert");
 var round = require('mumath').round;
+// var husl = require('husl');
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};
@@ -286,15 +287,11 @@ describe.skip('husl', function(){
 		createSpaceCase('husl');
 	});
 
-	it('to rgb', function(){
+	it('husl → rgb', function(){
 
 	});
 
-	it('to xyz', function(){
-
-	});
-
-	it('to ', function(){
+	it('husl → xyz', function(){
 
 	});
 });
@@ -305,15 +302,11 @@ describe.skip('huslp', function(){
 		createSpaceCase('huslp');
 	});
 
-	it('to rgb', function(){
+	it('huslp → rgb', function(){
 
 	});
 
-	it('to xyz', function(){
-
-	});
-
-	it('to ', function(){
+	it('huslp → xyz', function(){
 
 	});
 });

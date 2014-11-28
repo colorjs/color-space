@@ -3,6 +3,10 @@ var rgb = require('./rgb');
 
 var luv = module.exports = {
   name: 'luv',
+  //NOTE: luv has no rigidly defined limits
+  //easyrgb fails to get proper coords
+  //boronine states no rigid limits
+  //colorMine refers this ones:
   min: [0,-134,-140],
   max: [100,224,122],
   channel: ['lightness', 'u', 'v'],
@@ -10,6 +14,9 @@ var luv = module.exports = {
 
   xyz: function(arg, i, o){
     var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
+    l = arg[0], u = arg[1], v = arg[2];
+
+    if (l === 0) return [0,0,0];
 
     //get constants
     var e = 0.008856451679035631; //(6/29)^3
@@ -19,15 +26,13 @@ var luv = module.exports = {
     i = i || 'D65';
     o = o || 2;
 
-    xn = xyz.observer[o][i][0];
-    yn = xyz.observer[o][i][1];
-    zn = xyz.observer[o][i][2];
+    xn = xyz.whitepoint[o][i][0];
+    yn = xyz.whitepoint[o][i][1];
+    zn = xyz.whitepoint[o][i][2];
 
     un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
     vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
 
-
-    l = arg[0], u = arg[1], v = arg[2];
 
     _u = u / (13 * l) + un || 0;
     _v = v / (13 * l) + vn || 0;
@@ -37,22 +42,17 @@ var luv = module.exports = {
     x = y * 9 * _u / (4 * _v) || 0;
     z = y * (12 - 3 * _u - 20 * _v) / (4 * _v) || 0;
 
-    //lindbloom method (needs checking)
-    // var a = (52 * l / (u + 13 * l * un) - 1) / 3;
-    // var b =-5 * y;
-    // var c = -1/3;
-    // var d = y * ( 39 * l /(v + 13 * l * vn) - 5);
-
-    // x = (d-b) / (a-c);
-    // y = l > k*e ? Math.pow( (l + 16) / 116 , 3) : l/k;
-    // z = x*a + b;
+    //boronine method
+    //https://github.com/boronine/husl/blob/master/husl.coffee#L201
+    // x = 0 - (9 * y * _u) / ((_u - 4) * _v - _u * _v);
+    // z = (9 * y - (15 * _v * y) - (_v * x)) / (3 * _v);
 
     return [x, y, z];
   }
 };
 
-
-//http://www.brucelindbloom.com/index.html?Equations.html
+// http://www.brucelindbloom.com/index.html?Equations.html
+// https://github.com/boronine/husl/blob/master/husl.coffee
 //i - illuminant
 //o - observer
 xyz.luv = function(arg, i, o) {
@@ -62,13 +62,13 @@ xyz.luv = function(arg, i, o) {
   var e = 0.008856451679035631; //(6/29)^3
   var k = 903.2962962962961; //(29/3)^3
 
-  //get illuminant/observer
+  //get illuminant/observer coords
   i = i || 'D65';
   o = o || 2;
 
-  xn = xyz.observer[o][i][0];
-  yn = xyz.observer[o][i][1];
-  zn = xyz.observer[o][i][2];
+  xn = xyz.whitepoint[o][i][0];
+  yn = xyz.whitepoint[o][i][1];
+  zn = xyz.whitepoint[o][i][2];
 
   un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
   vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));

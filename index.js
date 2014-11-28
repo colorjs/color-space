@@ -1,6 +1,5 @@
-//TODO: save hue on setting sat = 0;
-//TODO: if to start with lchuv, it gets bad rgb/other values
 //TODO: specify exact lchuv/luv limits
+//TODO: check luv/lch by boronine husl lib
 
 var spaces = {
   rgb: require('./rgb'),
@@ -12,8 +11,11 @@ var spaces = {
   lab: require('./lab'),
   lch: require('./lch'),
   lchuv: require('./lchuv'),
-  luv: require('./luv')
+  luv: require('./luv'),
+  husl: require('./husl'),
+  huslp: require('./huslp')
 };
+console.log(spaces.husl)
 
 //make each space able to transform to every other space
 var fromSpace, toSpace;

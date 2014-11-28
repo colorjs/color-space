@@ -62,7 +62,7 @@ rgb.hsv = function(rgb) {
       delta = max - min,
       h, s, v;
 
-  if (max == 0)
+  if (max === 0)
     s = 0;
   else
     s = (delta/max * 1000)/10;
