@@ -5,7 +5,7 @@
 Math and data behind color spaces and color conversions. _Color-space_ provides uniform interface to all known color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [H<sub>u</sub>SL](http://www.boronine.com/husl/), [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/).
 
 
-#### [Color converter demo](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
+#### [Converter demo](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
 
 
 
@@ -13,7 +13,7 @@ Math and data behind color spaces and color conversions. _Color-space_ provides 
 
 `$ npm install color-space`
 
-To include all spaces:
+Include all spaces:
 
 ```js
 var spaces = require('color-space');
@@ -49,11 +49,11 @@ spaces[fromSpace][toSpace](array);
 Space data:
 
 ```js
-*.name //space name
-*.min //channel minimums
-*.max //channel maximums
-*.channel //channel names
-*.alias //alias space names, if any
+space.name //space name
+space.min //channel minimums
+space.max //channel maximums
+space.channel //channel names
+space.alias //alias space names, if any
 xyz.whitepoint //list of whitepoint references
 ```
 
