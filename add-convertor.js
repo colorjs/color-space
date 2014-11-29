@@ -1,5 +1,5 @@
 /**
- * Add a convertor from one to other space
+ * Add a convertor from one to another space via XYZ or RGB space as a medium.
  *
  * @module  color-space/add-convertor
  */
@@ -11,14 +11,15 @@ module.exports = addConvertor;
 
 
 /**
- * Add convertor from space A to space B
+ * Add convertor from space A to space B.
+ * So space A will be able to transform to B.
  */
 function addConvertor(fromSpace, toSpace){
 	if (!fromSpace[toSpace.name]) {
 		fromSpace[toSpace.name] = getConvertor(fromSpace, toSpace);
 	}
 
-	return toSpace;
+	return fromSpace;
 }
 
 
