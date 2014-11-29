@@ -7,7 +7,24 @@
     "type": "git",
     "url": "http://github.com/dfcreative/color-space.git"
   },
-  "main": "./index",
+  "files": [
+    "./index.js",
+    "./rgb.js",
+    "./hsl.js",
+    "./hsv.js",
+    "./hwb.js",
+    "./cmyk.js",
+    "./xyz.js",
+    "./xyy.js",
+    "./lab.js",
+    "./lchab.js",
+    "./luv.js",
+    "./lchuv.js",
+    "./husl.js",
+    "./huslp.js",
+    "./cam.js"
+  ],
+  "main": "./index.js",
   "devDependencies": {
     "mumath": "~0.x",
     "mocha": "*",
