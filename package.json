@@ -26,7 +26,7 @@
     "labh.js",
     "lms.js",
     "ciecam.js",
-    "add-converter.js"
+    "add-convertor.js"
   ],
   "main": "./index.js",
   "devDependencies": {
