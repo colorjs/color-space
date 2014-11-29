@@ -60,7 +60,7 @@ xyz.whitepoint //list of whitepoint references
 
 # Contribute
 
-Please fork, add color space & basic conversions (to/from XYZ or RGB), tests.
+Please fork, add color space & basic conversions (to/from XYZ or RGB), tests. _Color-space_ is supposed to be a basic library to work with color conversions, an extended replacement for [color-convert](https://github.com/harthur/color-convert).
 
 
 <a href="http://unlicense.org/UNLICENSE"><img src="http://upload.wikimedia.org/wikipedia/commons/6/62/PD-icon.svg" width="40"/></a>
