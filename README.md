@@ -1,6 +1,23 @@
-# color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
+# color-space.js [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space)
 
 Math and data behind color spaces and color conversions. _Color-space_ provides uniform interface to all known color-spaces. [Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html).
+
+Available spaces:
+
+* RGB
+* HSL
+* HSV (aka HSB)
+* [HWB](http://en.wikipedia.org/wiki/HWB_color_model) ([CSS4 hwb() notation](http://dev.w3.org/csswg/css-color/#the-hwb-notation))
+* CMYK
+* XYZ ([CIE XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space))
+* xyY (or Yxy)
+* LAB ([CIE L<sub>ab</sub>](http://en.wikipedia.org/wiki/Lab_color_space))
+* LCHab (CIE LCH<sub>ab</sub>&thinsp;—&thinsp;cylindrical LAB)
+* LUV ([CIE L<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV))
+* LCHuv ([CIE LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/))CIELUV#Cylindrical_representation))
+* [HUSL](http://www.boronine.com/husl/) — humanized HSL
+* [HUSLp](http://www.boronine.com/husl/) — humanized HSL with pastel colors
+
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
@@ -52,20 +69,6 @@ Space data:
 *.alias //alias space names, if any
 xyz.whitepoint //list of whitepoint references
 ```
-
-Available spaces:
-
-* rgb
-* hsl
-* hsv (hsb)
-* hwb
-* cmyk
-* xyz ([CIE XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space))
-* lab ([CIE Lab](http://en.wikipedia.org/wiki/Lab_color_space))
-* lch (CIE LCHab&thinsp;—&thinsp;cylindrical LAB)
-* luv ([CIE Luv](http://en.wikipedia.org/wiki/CIELUV))
-* lchuv ([CIE LCHuv](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation))
-* [husl](http://www.boronine.com/husl/), [huslp](http://www.boronine.com/husl/)
 
 
 # Contribute
