@@ -1,3 +1,7 @@
+/**
+ * Additional xyY space.
+ * By default is excluded from package.
+ */
 var xyz = require('./xyz');
 
 var xyy = module.exports = {

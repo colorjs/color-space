@@ -6,6 +6,10 @@ var div = require('mumath').div;
 var max = require('mumath').max;
 var husl = require('husl');
 
+//append extra spaces
+s.add(require('../xyy'));
+s.add(require('../labh'));
+
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};
 
@@ -204,6 +208,41 @@ describe('xyY', function(){
 });
 
 
+describe('hunter-lab', function(){
+	before(function(){
+		createSpaceCase('XYZ');
+		createSpaceCase('LABh');
+	});
+
+	it('rgb → labh', function(){
+		assert.deepEqual(round(s.rgb.labh([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.labh([10, 0, 0]), .1), [2.5, 4.3, 1.6]);
+		assert.deepEqual(round(s.rgb.labh([100, 0, 0]), .1), [16.5, 28.2, 10.6]);
+		assert.deepEqual(round(s.rgb.labh([255, 0, 0]), .1), [46.1, 78.9, 29.8]);
+		assert.deepEqual(round(s.rgb.labh([0, 255, 0]), .1), [84.6, -72.5, 50.8]);
+		assert.deepEqual(round(s.rgb.labh([0, 0, 255]), .1), [26.9, 72.9, -190.9]);
+		assert.deepEqual(round(s.rgb.labh([0, 255, 255]), .1), [88.7, -47, -9.4]);
+		assert.deepEqual(round(s.rgb.labh([255, 255, 255]), .1), [100, -5.3, 5.4]);
+	});
+
+	it('labh → rgb', function(){
+		assert.deepEqual(round(s.labh.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.labh.rgb([1, 10, -10])), [4, 0, 6]);
+		assert.deepEqual(round(s.labh.rgb([10, 100, -100])), [92, 0, 121]);
+	});
+
+	it('xyz → labh', function(){
+		assert.deepEqual(round(s.xyz.labh([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.xyz.labh([95, 100, 108])), [100, -5, 6]);
+		assert.deepEqual(round(s.xyz.labh([95, 100, 0])), [100, -5, 70]);
+	});
+
+	it('labh → xyz', function(){
+		assert.deepEqual(round(s.labh.xyz([0, 0, 0])), [0, 0, 0]);
+	});
+});
+
+
 describe('lab', function(){
 	before(function(){
 		createSpaceCase('XYZ');
@@ -386,6 +425,7 @@ describe('huslp', function(){
 
 	});
 });
+
 
 
 describe.skip('ciecam', function(){
