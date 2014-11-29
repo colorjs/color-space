@@ -10,7 +10,7 @@ var spaces = {
   xyz: require('./xyz'),
   xyy: require('./xyy'),
   lab: require('./lab'),
-  lch: require('./lch'),
+  lchab: require('./lchab'),
   lchuv: require('./lchuv'),
   luv: require('./luv'),
   husl: require('./husl'),

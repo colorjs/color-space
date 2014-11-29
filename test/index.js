@@ -177,8 +177,8 @@ describe('xyz', function(){
 	it('xyz → lab', function(){
 		assert.deepEqual(round(s.xyz.lab([25, 40, 15])), [69, -48, 44]);
 	});
-	it('xyz → lch', function(){
-		assert.deepEqual(round(s.xyz.lch([25, 40, 15])), [69, 65, 137]);
+	it('xyz → lchab', function(){
+		assert.deepEqual(round(s.xyz.lchab([25, 40, 15])), [69, 65, 137]);
 	});
 	it('rgb → xyz', function(){
 		assert.deepEqual(round(s.rgb.xyz([92, 191, 84])), [25, 40, 15]);
@@ -216,8 +216,8 @@ describe('lab', function(){
 	it('lab → rgb', function(){
 		assert.deepEqual(round(s.lab.rgb([75, 20, -30])), [194, 175, 240]);
 	});
-	it('lab → lch', function(){
-		assert.deepEqual(round(s.lab.lch([69, -48, 44])), [69, 65, 137]);
+	it('lab → lchab', function(){
+		assert.deepEqual(round(s.lab.lchab([69, -48, 44])), [69, 65, 137]);
 	});
 	it('rgb → lab', function(){
 		assert.deepEqual(round(s.rgb.lab([92, 191, 84])), [70, -50, 45]);
@@ -225,23 +225,23 @@ describe('lab', function(){
 });
 
 
-describe('lch', function(){
+describe('lchab', function(){
 	before(function(){
 		createSpaceCase('XYZ');
-		createSpaceCase('LCH');
+		createSpaceCase('LCHab');
 	});
 
-	it('lch → lab', function(){
-		assert.deepEqual(round(s.lch.lab([69, 65, 137])), [69, -48, 44]);
+	it('lchab → lab', function(){
+		assert.deepEqual(round(s.lchab.lab([69, 65, 137])), [69, -48, 44]);
 	});
-	it('lch → xyz', function(){
-		assert.deepEqual(round(s.lch.xyz([69, 65, 137])), [25, 39, 15]);
+	it('lchab → xyz', function(){
+		assert.deepEqual(round(s.lchab.xyz([69, 65, 137])), [25, 39, 15]);
 	});
-	it('lch → rgb', function(){
-		assert.deepEqual(round(s.lch.rgb([69, 65, 137])), [98, 188, 83]);
+	it('lchab → rgb', function(){
+		assert.deepEqual(round(s.lchab.rgb([69, 65, 137])), [98, 188, 83]);
 	});
-	it('rgb → lch', function(){
-		assert.deepEqual(round(s.rgb.lch([92, 191, 84])), [70, 67, 138]);
+	it('rgb → lchab', function(){
+		assert.deepEqual(round(s.rgb.lchab([92, 191, 84])), [70, 67, 138]);
 	});
 });
 
