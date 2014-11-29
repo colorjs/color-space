@@ -1,6 +1,7 @@
 /**
  * Additional xyY space.
- * By default is excluded from package.
+ *
+ * @module color-space/xyy
  */
 var xyz = require('./xyz');
 

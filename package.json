@@ -13,6 +13,7 @@
     "./hsl.js",
     "./hsv.js",
     "./hwb.js",
+    "./cmy.js",
     "./cmyk.js",
     "./xyz.js",
     "./xyy.js",
@@ -22,7 +23,10 @@
     "./lchuv.js",
     "./husl.js",
     "./huslp.js",
-    "./cam.js"
+    "./labh.js",
+    "./lms.js",
+    "./ciecam.js",
+    "./add-converter.js"
   ],
   "main": "./index.js",
   "devDependencies": {
@@ -54,9 +58,9 @@
   ],
   "scripts": {
     "test": "mocha",
-    "build": "browserify --standalone color-space ./index.js > color-space.js",
-    "min": "ccjs color-space.js --language_in=ECMASCRIPT5 --compilation_level=ADVANCED > color-space.min.js && cat color-space.min.js | gzip-size | pretty-bytes",
-    "build-test": "browserify -r assert -r mumath -r query-relative > test/test.bundle.js"
+    "build": "browserify --standalone colorSpace ./index.js > color-space.js",
+    "min": "ccjs color-space.js --language_in=ECMASCRIPT5 > color-space.min.js && cat color-space.min.js | gzip-size | pretty-bytes",
+    "build-test": "browserify -r ./index:../index -r ./xyy:../xyy -r ./labh:../labh -r ./cmy:../cmy -r husl -r assert -r mumath -r query-relative > test/test.bundle.js"
   },
   "dependencies": {
     "husl": ">=5.0"

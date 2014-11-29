@@ -1,3 +1,7 @@
+/**
+ * @module color-space/cmyk
+ */
+
 var rgb = require('./rgb');
 
 var cmyk = module.exports = {

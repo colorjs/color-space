@@ -1,4 +1,4 @@
-var s = require("../index");
+var s = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 var assert = require("assert");
 var round = require('mumath').round;
 var mult = require('mumath').mult;
@@ -9,6 +9,7 @@ var husl = require('husl');
 //append extra spaces
 s.add(require('../xyy'));
 s.add(require('../labh'));
+s.add(require('../cmy'));
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};

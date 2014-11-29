@@ -1,13 +1,14 @@
-var xyz = require('./xyz');
-var lchuv = require('./lchuv');
-var _husl = require('husl');
-
 /**
  * A uniform wrapper for huslp.
  * // http://www.boronine.com/husl/
  *
  * @module color-space/huslp
  */
+
+var xyz = require('./xyz');
+var lchuv = require('./lchuv');
+var _husl = require('husl');
+
 module.exports = {
 	name: 'huslp',
 	min: [0,0,0],

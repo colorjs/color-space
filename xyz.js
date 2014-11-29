@@ -1,3 +1,9 @@
+/**
+ * CIE XYZ
+ *
+ * @module  color-space/xyz
+ */
+
 var rgb = require('./rgb');
 
 var xyz = module.exports = {
@@ -7,7 +13,7 @@ var xyz = module.exports = {
 	channel: ['lightness','u','v'],
 	alias: ['ciexyz'],
 
-	//observer/illuminant
+	//whitepoint with observer/illuminant
 	// http://en.wikipedia.org/wiki/Standard_illuminant
 	whitepoint: {
 		2: {
@@ -53,8 +59,6 @@ var xyz = module.exports = {
 		}
 	},
 
-
-	//TODO: fix this maths so to return 255,255,255 in rgb
 	rgb: function(xyz) {
 		var x = xyz[0] / 100,
 				y = xyz[1] / 100,

@@ -1,3 +1,9 @@
+/**
+ * Cylindrical LAB
+ *
+ * @module color-space/lchab
+ */
+
 var xyz = require('./xyz');
 var lab = require('./lab');
 

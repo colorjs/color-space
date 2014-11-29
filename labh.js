@@ -1,7 +1,9 @@
 /**
  * Hunter-lab space.
- * @module  labh
+ *
+ * @module  color-space/labh
  */
+
 var rgb = require('./rgb');
 var xyz = require('./xyz');
 

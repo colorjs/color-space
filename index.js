@@ -1,83 +1,69 @@
 /**
  * @module color-space
  *
+ * @todo  implement all side spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq etc.
  */
-//TODO: implement other spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq, cmy etc.
-//TODO: ciecam
-//TODO: hunterlab
 
-/** Set of exported spaces */
-var spaces = {};
-Object.defineProperty(spaces, 'add', {
-	value: addSpace
-});
+var addConvertor = require('./add-convertor');
 
 
-//add common spaces
-addSpace(require('./rgb'));
-addSpace(require('./hsl'));
-addSpace(require('./hsv'));
-addSpace(require('./hwb'));
-addSpace(require('./cmyk'));
-addSpace(require('./xyz'));
-addSpace(require('./lab'));
-addSpace(require('./lchab'));
-addSpace(require('./luv'));
-addSpace(require('./lchuv'));
-addSpace(require('./husl'));
-addSpace(require('./huslp'));
-
+/** Exported spaces */
+var spaces = {
+	rgb: require('./rgb'),
+	hsl: require('./hsl'),
+	hsv: require('./hsv'),
+	hwb: require('./hwb'),
+	cmyk: require('./cmyk'),
+	xyz: require('./xyz'),
+	lab: require('./lab'),
+	lchab: require('./lchab'),
+	luv: require('./luv'),
+	lchuv: require('./lchuv'),
+	husl: require('./husl'),
+	huslp: require('./huslp')
+};
 
 
 /**
- * Adds a new space to the set.
- * Creates converters to/from every other possible state.
+ * Add a new space to the set
  */
-function addSpace(toSpace){
-	var toSpaceName = toSpace.name;
+Object.defineProperty(spaces, 'add', {
+	value: function (space) {
+		var spaceName = space.name;
 
-	if (spaces[toSpaceName]) return;
+		//ignore existing space
+		if (this[spaceName]) return;
 
-	//add a new space
-	spaces[toSpaceName] = toSpace;
-
-	//make each space be able to transform to every other space
-	var fromSpace;
-	for (var fromSpaceName in spaces) {
-		fromSpace = spaces[fromSpaceName];
-
-		//ignore self
-		if (fromSpace === addSpace) continue;
-
-		if (!fromSpace[toSpaceName]) {
-			fromSpace[toSpaceName] = getConverter(fromSpace, toSpace);
+		//add convertors to every existing space
+		var otherSpace;
+		for (var otherSpaceName in this) {
+			otherSpace = this[otherSpaceName];
+			addConvertor(space, otherSpace);
+			addConvertor(otherSpace, space);
 		}
-		if (!toSpace[fromSpaceName]) {
-			toSpace[fromSpaceName] = getConverter(toSpace, fromSpace);
+
+		//save a new space
+		this[spaceName] = space;
+
+		return space;
+	}
+});
+
+//you can add other spaces manually
+//via `spaces.add(require('color-space/ciecam'))`
+
+
+
+//build absent convertors from each to every space
+var fromSpace, toSpace;
+for (var fromSpaceName in spaces) {
+	fromSpace = spaces[fromSpaceName];
+	for (var toSpaceName in spaces) {
+		if (toSpaceName !== fromSpaceName) {
+			toSpace = spaces[toSpaceName];
+			addConvertor(fromSpace, toSpace);
 		}
 	}
-}
-
-
-
-/** return converter through xyz/rgb space */
-function getConverter(fromSpace, toSpace){
-	var toSpaceName = toSpace.name;
-
-	//create xyz converter, if available
-	if (fromSpace.xyz && spaces.xyz[toSpaceName]) {
-		return function(arg){
-			return spaces.xyz[toSpaceName](fromSpace.xyz(arg));
-		};
-	}
-	//create rgb converter
-	else if (fromSpace.rgb && spaces.rgb[toSpaceName]) {
-		return function(arg){
-			return spaces.rgb[toSpaceName](fromSpace.rgb(arg));
-		};
-	}
-
-	return fromSpace[toSpaceName];
 }
 
 

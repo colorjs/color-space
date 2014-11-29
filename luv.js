@@ -1,3 +1,9 @@
+/**
+ * CIE LUV (C'est la vie)
+ *
+ * @module color-space/luv
+ */
+
 var xyz = require('./xyz');
 var rgb = require('./rgb');
 
@@ -91,9 +97,4 @@ xyz.luv = function(arg, i, o) {
 	v = 13 * l * (_v - vn);
 
 	return [l, u, v];
-};
-
-
-rgb.luv = function(args){
-	return xyz.luv(rgb.xyz(args));
 };

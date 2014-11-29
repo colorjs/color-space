@@ -1,3 +1,7 @@
+/**
+ * @module color-space/hwb
+ */
+
 var rgb = require('./rgb');
 var hsv = require('./hsv');
 var hsl = require('./hsl');

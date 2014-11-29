@@ -1,3 +1,9 @@
+/**
+ * RGB space.
+ *
+ * @module  color-space/rgb
+ */
+
 module.exports = {
 	name: 'rgb',
 	min: [0,0,0],

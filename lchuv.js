@@ -1,3 +1,9 @@
+/**
+ * Cylindrical CIE LUV
+ *
+ * @module color-space/lchuv
+ */
+
 var luv = require('./luv');
 var xyz = require('./xyz');
 

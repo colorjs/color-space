@@ -2,16 +2,37 @@
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
-Math and data behind color spaces and color conversions. _Color-space_ provides a uniform interface to well-known color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [H<sub>u</sub>SL](http://www.boronine.com/husl/), [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/), [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab).
+Math and data behind color spaces and color conversions. _Color-space_ provides a uniform interface to the all well known color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, CMY, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [H<sub>u</sub>SL](http://www.boronine.com/husl/), [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/), [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab), [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
 
-<!--
+
 #### [Converter demo](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
--->
+
 
 
 # Use
 
+## In browser:
+
+Drop the script `color-space.js` and use a global object `colorSpace`:
+
+```html
+<script src="js/color-space.js"></script>
+```
+
+```js
+var rgb = colorSpace.rgb;
+
+//convert rgb to hsl
+rgb.hsl([255,0,0]);
+```
+
+Also you can use [browserify](https://github.com/substack/node-browserify) to get your own build.
+
+
+## In node:
+
 `$ npm install color-space`
+
 
 Include all spaces:
 
@@ -23,7 +44,7 @@ spaces.lab.lch([80,50,60]);
 ```
 
 
-If you aware of size, you can include only needed spaces:
+Include only needed spaces (e.g. to shrink final size):
 
 ```js
 var rgb = require('color-space/rgb');
@@ -32,8 +53,6 @@ var hsl = require('color-space/hsl');
 //convert rgb to hsl
 rgb.hsl([200,230,100]);
 ```
-
-Use [browserify](https://github.com/substack/node-browserify) to use in a browser.
 
 
 # API

@@ -140,10 +140,10 @@
 
 
 <!-- dev -->
-<script src="../node_modules/require-stub/index.js"></script>
+<!-- <script src="../node_modules/require-stub/index.js"></script> -->
 
 <!-- prod -->
-<!-- <script src="test.bundle.js"></script> -->
+<script src="test.bundle.js"></script>
 
 
 
@@ -151,7 +151,7 @@
 <script>
 	var round = require('mumath').round;
 	var q = require('query-relative');
-	var convert = require('../index');
+	var convert = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 
 	//setup converter
 	/** Converter */
@@ -203,6 +203,7 @@
 			targetSpace = convert[targetSpaceName];
 
 			try {
+				// console.log(srcSpace, targetSpaceName, convert)
 				targetValues = convert[srcSpace][targetSpaceName](srcValues);
 
 				targetSpaceInputs = q('[data-space=' + targetSpaceName + ']', true);

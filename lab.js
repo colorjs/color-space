@@ -1,3 +1,9 @@
+/**
+ * CIE LAB space model
+ *
+ * @module color-space/lab
+ */
+
 var xyz = require('./xyz');
 var rgb = require('./rgb');
 
