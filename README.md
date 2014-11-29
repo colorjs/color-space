@@ -3,7 +3,7 @@
 Math and data behind color spaces and color conversions. _Color-space_ provides uniform interface to all known color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [HUSL](http://www.boronine.com/husl/), [HUSL<sub>p</sub>](http://www.boronine.com/husl/).
 
 
-See **[Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)**.
+#### [Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
 
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
