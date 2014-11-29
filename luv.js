@@ -5,9 +5,8 @@
  */
 
 var xyz = require('./xyz');
-var rgb = require('./rgb');
 
-var luv = module.exports = {
+module.exports = {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords

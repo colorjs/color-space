@@ -4,7 +4,7 @@
 
 var rgb = require('./rgb');
 
-var cmyk = module.exports = {
+module.exports = {
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],

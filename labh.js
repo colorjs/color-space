@@ -4,10 +4,9 @@
  * @module  color-space/labh
  */
 
-var rgb = require('./rgb');
 var xyz = require('./xyz');
 
-var labh = module.exports = {
+module.exports = {
 	name: 'labh',
 
 	//mins/maxes are taken from colormine

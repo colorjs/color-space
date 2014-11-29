@@ -2,10 +2,10 @@
 
 [![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
 
-Math and data behind color spaces and color conversions. _Color-space_ provides a uniform interface to all well known color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, CMY, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [H<sub>u</sub>SL](http://www.boronine.com/husl/), [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/), [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab), [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
+Math and data behind color spaces and color conversions. _Color-space_ provides a uniform interface to color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, CMY, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [H<sub>u</sub>SL](http://www.boronine.com/husl/), [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/), [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab), [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
 
 
-#### [Converter demo](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html).
+#### [Converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
 
 
 
@@ -13,7 +13,7 @@ Math and data behind color spaces and color conversions. _Color-space_ provides 
 
 ## In browser:
 
-Drop `color-space.js` script and use global object `colorSpace`:
+Attach `color-space.js` and use global `colorSpace` object:
 
 ```html
 <script src="js/color-space.js"></script>
@@ -76,6 +76,8 @@ space.alias //alias space names, if any
 xyz.whitepoint //list of whitepoint references
 lms.transform //list of transform matrices
 ```
+
+For other details see source code or `console.log(space)`.
 
 
 # Contribute

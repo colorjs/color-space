@@ -5,9 +5,8 @@
  */
 
 var xyz = require('./xyz');
-var rgb = require('./rgb');
 
-var lab = module.exports = {
+module.exports = {
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],

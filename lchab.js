@@ -9,7 +9,7 @@ var lab = require('./lab');
 
 
 //cylindrical lab
-var lch = module.exports = {
+var lchab = module.exports = {
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],
@@ -17,7 +17,7 @@ var lch = module.exports = {
 	alias: ['cielch', 'lch'],
 
 	xyz: function(arg) {
-		return lab.xyz(lch.lab(arg));
+		return lab.xyz(lchab.lab(arg));
 	},
 
 	lab: function(lch) {

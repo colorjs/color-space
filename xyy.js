@@ -5,7 +5,7 @@
  */
 var xyz = require('./xyz');
 
-var xyy = module.exports = {
+module.exports = {
 	name: 'xyy',
 	min: [0,0,0],
 	max: [1,1,100],
@@ -14,25 +14,25 @@ var xyy = module.exports = {
 
 	// https://github.com/boronine/colorspaces.js/blob/master/colorspaces.js#L128
 	xyz: function(arg) {
-		var _X, _Y, _Z, _x, _y;
-		_x = arg[0], _y = arg[1], _Y = arg[2];
-		if (_y === 0) {
+		var X, Y, Z, x, y;
+		x = arg[0], y = arg[1], Y = arg[2];
+		if (y === 0) {
 			return [0, 0, 0];
 		}
-		_X = _x * _Y / _y;
-		_Z = (1 - _x - _y) * _Y / _y;
-		return [_X, _Y, _Z];
+		X = x * Y / y;
+		Z = (1 - x - y) * Y / y;
+		return [X, Y, Z];
 	}
 };
 
 
 //extend xyz
 xyz.xyy = function(arg) {
-	var sum, _X, _Y, _Z;
-	_X = arg[0], _Y = arg[1], _Z = arg[2];
-	sum = _X + _Y + _Z;
+	var sum, X, Y, Z;
+	X = arg[0], Y = arg[1], Z = arg[2];
+	sum = X + Y + Z;
 	if (sum === 0) {
-		return [0, 0, _Y];
+		return [0, 0, Y];
 	}
-	return [_X / sum, _Y / sum, _Y];
+	return [X / sum, Y / sum, Y];
 };

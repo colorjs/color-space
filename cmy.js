@@ -3,7 +3,7 @@
  */
 var rgb = require('./rgb');
 
-var cmy = module.exports = {
+module.exports = {
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],
