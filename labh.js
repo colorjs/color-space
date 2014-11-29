@@ -1,13 +1,21 @@
+/**
+ * Hunter-lab space.
+ * @module  labh
+ */
 var rgb = require('./rgb');
 var xyz = require('./xyz');
 
 var labh = module.exports = {
 	name: 'labh',
+
+	//mins/maxes are taken from colormine
+	//FIXME: check whether mins/maxes correct
 	min: [0,-128,-128],
 	max: [100,128,128],
 	channel: ['lightness', 'a', 'b'],
 	alias: ['hunter-lab', 'hlab'],
 
+	//maths are taken from EasyRGB
 	xyz: function(lab) {
 		var l = lab[0], a = lab[1], b = lab[2];
 
