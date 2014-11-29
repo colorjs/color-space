@@ -221,7 +221,7 @@
 		//Set header color according to the current converting color
 		var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
 
-		var lEl = +q('#lightness');
+		var lEl = q('#lightness');
 		var l = lEl && lEl.value || 0;
 		rgb = round(rgb);
 
