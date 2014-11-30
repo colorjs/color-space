@@ -13,7 +13,7 @@ _Color-space_ has the most complete list of color convertions so far, comparing 
 
 ## In browser:
 
-Include [color-space.js](https://raw.githubusercontent.com/dfcreative/color-space/master/color-space.js) or [color-space.min.js](https://raw.githubusercontent.com/dfcreative/color-space/master/color-space.min.js) on the page:
+Include [color-space.js](https://raw.githubusercontent.com/dfcreative/color-space/master/color-space.js) or [color-space.min.js](https://raw.githubusercontent.com/dfcreative/color-space/master/color-space.min.js) on the page (before you’ll use it):
 
 ```html
 <script src="path-to/color-space.js"></script>
@@ -25,7 +25,7 @@ You can also use a [CDN version](https://cdn.rawgit.com/dfcreative/color-space/m
 <script src="https://cdn.rawgit.com/dfcreative/color-space/master/color-space.min.js"></script>
 ```
 
-Then you’ll have a `window.colorSpace` object, so you can play around:
+Now you have a `window.colorSpace` object, so you can play around with it:
 
 ```html
 <script>
@@ -36,7 +36,7 @@ Then you’ll have a `window.colorSpace` object, so you can play around:
 </script>
 ```
 
-If you aware of final size, you can include only needed target spaces. Use [browserify](https://github.com/substack/node-browserify) to get your own build.
+If you aware of final size, you can get your own build via [browserify](https://github.com/substack/node-browserify), includin only needed target spaces. See how to include spaces separately below.
 
 
 ## In node:
