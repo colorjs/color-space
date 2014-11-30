@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Math & data behind color spaces and color conversions.",
+  "description": "Convert color from/to any color space or get space data. Spaces can be required selectively.",
   "version": "1.0.4",
   "author": "Deema Yvanow <dfcreative@gmail.com>",
   "repository": {
@@ -47,6 +47,7 @@
     "lab",
     "lch",
     "luv",
+    "lch",
     "cie",
     "husl",
     "color-convert",
