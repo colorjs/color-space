@@ -46,7 +46,7 @@ First install color-space as a local module:
 `$ npm install --save color-space`
 
 
-Include all spaces:
+Then include `color-space`:
 
 ```js
 var colorSpace = require('color-space');
