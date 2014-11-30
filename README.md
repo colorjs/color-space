@@ -19,7 +19,7 @@ Include [color-space.js](https://raw.githubusercontent.com/dfcreative/color-spac
 <script src="path-to/color-space.js"></script>
 ```
 
-You can also use a [CDN version](https://cdn.rawgit.com/dfcreative/color-space/master/color-space.min.js):
+Alternately you can include a [CDN version](https://cdn.rawgit.com/dfcreative/color-space/master/color-space.min.js):
 
 ```html
 <script src="https://cdn.rawgit.com/dfcreative/color-space/master/color-space.min.js"></script>
@@ -36,7 +36,7 @@ Now you have a `window.colorSpace` object, so you can play around with it:
 </script>
 ```
 
-If you aware of final size, you can get your own build via [browserify](https://github.com/substack/node-browserify), includin only needed target spaces. See how to include spaces separately below.
+If you aware of final size, you can get your own build via [browserify](https://github.com/substack/node-browserify), including only needed target spaces. See how to include spaces separately below.
 
 
 ## In node:
