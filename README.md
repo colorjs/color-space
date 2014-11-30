@@ -75,9 +75,7 @@ API of color-space is straightforward.
 You can convert one space to another:
 
 ```js
-var fromSpace = 'rgb', toSpace = 'hsl';
-
-colorSpace[fromSpace][toSpace](array);
+<fromSpace>.<toSpace>(array);
 ```
 
 Also you can get space data:
