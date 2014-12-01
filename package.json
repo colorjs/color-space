@@ -3,6 +3,25 @@
   "description": "Convert color from/to any color space or get space data. Spaces can be required selectively.",
   "version": "1.1.0",
   "author": "Deema Yvanow <dfcreative@gmail.com>",
+  "keywords": [
+    "color",
+    "colour",
+    "rgb",
+    "hsl",
+    "hsv",
+    "lab",
+    "lch",
+    "luv",
+    "lch",
+    "cie",
+    "husl",
+    "color-convert",
+    "gamut",
+    "color-conversions",
+    "color-space",
+    "color-translation",
+    "color-data"
+  ],
   "repository": {
     "type": "git",
     "url": "http://github.com/dfcreative/color-space.git"
@@ -30,6 +49,9 @@
     "dist"
   ],
   "main": "./index.js",
+  "dependencies": {
+    "husl": ">=5.0"
+  },
   "devDependencies": {
     "mumath": "~0.x",
     "mocha": "*",
@@ -39,32 +61,10 @@
     "require-stub": "~1.x",
     "query-relative": "~1.x"
   },
-  "keywords": [
-    "color",
-    "colour",
-    "rgb",
-    "hsl",
-    "hsv",
-    "lab",
-    "lch",
-    "luv",
-    "lch",
-    "cie",
-    "husl",
-    "color-convert",
-    "gamut",
-    "color-conversions",
-    "color-space",
-    "color-translation",
-    "color-data"
-  ],
   "scripts": {
     "test": "mocha",
     "build": "browserify --standalone colorSpace ./index.js > dist/color-space.js",
     "min": "ccjs dist/color-space.js --language_in=ECMASCRIPT5 > dist/color-space.min.js && cat dist/color-space.min.js | gzip-size | pretty-bytes",
     "build-test": "browserify -r ./util/add-space:../util/add-space -r ./index:../index -r ./xyy:../xyy -r ./labh:../labh -r ./cmy:../cmy -r husl -r assert -r mumath -r query-relative > test/test.bundle.js"
-  },
-  "dependencies": {
-    "husl": ">=5.0"
   }
 }
