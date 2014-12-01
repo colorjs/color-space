@@ -5,11 +5,12 @@ var mult = require('mumath').mult;
 var div = require('mumath').div;
 var max = require('mumath').max;
 var husl = require('husl');
+var addSpace = require('../util/add-space');
 
 //append extra spaces
-s.add(require('../xyy'));
-s.add(require('../labh'));
-s.add(require('../cmy'));
+addSpace(s, require('../xyy'));
+addSpace(s, require('../labh'));
+addSpace(s, require('../cmy'));
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};

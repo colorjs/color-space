@@ -4,8 +4,8 @@
  * @module  color-space/add-convertor
  */
 
-var xyz = require('./xyz');
-var rgb = require('./rgb');
+var xyz = require('../xyz');
+var rgb = require('../rgb');
 
 module.exports = addConvertor;
 
@@ -39,6 +39,8 @@ function getConvertor(fromSpace, toSpace){
 			return rgb[toSpaceName](fromSpace.rgb(arg));
 		};
 	}
+
+	else throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
 
 	return fromSpace[toSpaceName];
 }

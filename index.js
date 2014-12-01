@@ -1,12 +1,15 @@
 /**
  * @module color-space
  *
+ * @todo  to-source method, preparing the code for webworker
  * @todo  implement all side spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq etc.
  * @todo  here are additional spaces http://www.jentronics.com/color.html ITU, REC709, SMTPE, NTSC, GREY
  *
+ * @todo implement asm-js way to convert spaces (promises to be times faster)
+ *
  */
 
-var addConvertor = require('./add-convertor');
+var addConvertor = require('./util/add-convertor');
 
 
 /** Exported spaces */
@@ -24,35 +27,6 @@ var spaces = {
 	husl: require('./husl'),
 	huslp: require('./huslp')
 };
-
-
-/**
- * Add a new space to the set
- */
-Object.defineProperty(spaces, 'add', {
-	value: function (space) {
-		var spaceName = space.name;
-
-		//ignore existing space
-		if (this[spaceName]) return;
-
-		//add convertors to every existing space
-		var otherSpace;
-		for (var otherSpaceName in this) {
-			otherSpace = this[otherSpaceName];
-			addConvertor(space, otherSpace);
-			addConvertor(otherSpace, space);
-		}
-
-		//save a new space
-		this[spaceName] = space;
-
-		return space;
-	}
-});
-
-//you can add other spaces manually
-//via `spaces.add(require('color-space/ciecam'))`
 
 
 
