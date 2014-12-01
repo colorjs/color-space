@@ -5,7 +5,9 @@
 _Color-space_ provides conversions and data for the following color spaces: RGB, HSl, HSV (HSB), [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation), CMYK, CMY, [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space), XYY (YXY), [LAB](http://en.wikipedia.org/wiki/Lab_color_space), LCH<sub>ab</sub>, [LUV](http://en.wikipedia.org/wiki/CIELUV), [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation), [H<sub>u</sub>SL](http://www.boronine.com/husl/), [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/), [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab), [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
 
 
-_Color-space_ has the most complete list of color convertions so far, comparing to [color-convert](https://github.com/harthur/color-convert), [chromatist](https://github.com/jrus/chromatist), [spectra](https://github.com/avp/spectra), [colorspaces.js](https://github.com/boronine/colorspaces.js) and others. It can be used both in browser and node. Each space can be used selectively.
+* _Color-space_ has the most complete list of color convertions so far, comparing to [color-convert](https://github.com/harthur/color-convert), [chromatist](https://github.com/jrus/chromatist), [spectra](https://github.com/avp/spectra), [colorspaces.js](https://github.com/boronine/colorspaces.js) and others.
+* It can be used both in browser and node.
+* Each space can be used selectively.
 
 
 #### [Color converter & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
