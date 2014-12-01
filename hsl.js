@@ -32,8 +32,12 @@ module.exports = {
 		rgb = [0, 0, 0];
 		for (var i = 0; i < 3; i++) {
 			t3 = h + 1 / 3 * - (i - 1);
-			if (t3 < 0) t3++;
-			else if (t3 > 1) t3--;
+			if (t3 < 0) {
+				t3++;
+			}
+			else if (t3 > 1) {
+				t3--;
+			}
 
 			if (6 * t3 < 1) {
 				val = t1 + (t2 - t1) * 6 * t3;
@@ -81,8 +85,9 @@ rgb.hsl = function(rgb) {
 
 	h = Math.min(h * 60, 360);
 
-	if (h < 0)
+	if (h < 0) {
 		h += 360;
+	}
 
 	l = (min + max) / 2;
 
