@@ -21,8 +21,8 @@ module.exports = {
 		var f = h - Math.floor(h),
 				p = 255 * v * (1 - s),
 				q = 255 * v * (1 - (s * f)),
-				t = 255 * v * (1 - (s * (1 - f))),
-				v = 255 * v;
+				t = 255 * v * (1 - (s * (1 - f)));
+		v *= 255;
 
 		switch(hi) {
 			case 0:
@@ -51,6 +51,7 @@ module.exports = {
 		sl /= (l <= 1) ? l : 2 - l;
 		sl = sl || 0;
 		l /= 2;
+
 		return [h, sl * 100, l * 100];
 	}
 };
@@ -66,24 +67,31 @@ rgb.hsv = function(rgb) {
 			delta = max - min,
 			h, s, v;
 
-	if (max === 0)
+	if (max === 0) {
 		s = 0;
-	else
+	}
+	else {
 		s = (delta/max * 1000)/10;
+	}
 
-	if (max == min)
+	if (max === min) {
 		h = 0;
-	else if (r == max)
+	}
+	else if (r === max) {
 		h = (g - b) / delta;
-	else if (g == max)
+	}
+	else if (g === max) {
 		h = 2 + (b - r) / delta;
-	else if (b == max)
+	}
+	else if (b === max) {
 		h = 4 + (r - g) / delta;
+	}
 
 	h = Math.min(h * 60, 360);
 
-	if (h < 0)
+	if (h < 0) {
 		h += 360;
+	}
 
 	v = ((max / 255) * 1000) / 10;
 
@@ -102,5 +110,6 @@ hsl.hsv = function(hsl) {
 	s *= (l <= 1) ? l : 2 - l;
 	v = (l + s) / 2;
 	sv = (2 * s) / (l + s) || 0;
+
 	return [h, sv * 100, v * 100];
 };

@@ -1,51 +1,5 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.colorSpace=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
- * Add a convertor from one to another space via XYZ or RGB space as a medium.
- *
- * @module  color-space/add-convertor
- */
-
-var xyz = require('./xyz');
-var rgb = require('./rgb');
-
-module.exports = addConvertor;
-
-
-/**
- * Add convertor from space A to space B.
- * So space A will be able to transform to B.
- */
-function addConvertor(fromSpace, toSpace){
-	if (!fromSpace[toSpace.name]) {
-		fromSpace[toSpace.name] = getConvertor(fromSpace, toSpace);
-	}
-
-	return fromSpace;
-}
-
-
-/** return converter through xyz/rgb space */
-function getConvertor(fromSpace, toSpace){
-	var toSpaceName = toSpace.name;
-
-	//create xyz converter, if available
-	if (fromSpace.xyz && xyz[toSpaceName]) {
-		return function(arg){
-			return xyz[toSpaceName](fromSpace.xyz(arg));
-		};
-	}
-	//create rgb converter
-	else if (fromSpace.rgb && rgb[toSpaceName]) {
-		return function(arg){
-			return rgb[toSpaceName](fromSpace.rgb(arg));
-		};
-	}
-
-	return fromSpace[toSpaceName];
-}
-
-},{"./rgb":14,"./xyz":15}],2:[function(require,module,exports){
-/**
  * @module color-space/cmyk
  */
 
@@ -85,7 +39,7 @@ rgb.cmyk = function(rgb) {
 	y = (1 - b - k) / (1 - k) || 0;
 	return [c * 100, m * 100, y * 100, k * 100];
 };
-},{"./rgb":14}],3:[function(require,module,exports){
+},{"./rgb":13}],2:[function(require,module,exports){
 /**
  * @module color-space/hsl
  */
@@ -104,31 +58,37 @@ module.exports = {
 				l = hsl[2] / 100,
 				t1, t2, t3, rgb, val;
 
-		if (s == 0) {
+		if (s === 0) {
 			val = l * 255;
 			return [val, val, val];
 		}
 
-		if (l < 0.5)
+		if (l < 0.5) {
 			t2 = l * (1 + s);
-		else
+		}
+		else {
 			t2 = l + s - l * s;
+		}
 		t1 = 2 * l - t2;
 
 		rgb = [0, 0, 0];
 		for (var i = 0; i < 3; i++) {
 			t3 = h + 1 / 3 * - (i - 1);
-			t3 < 0 && t3++;
-			t3 > 1 && t3--;
+			if (t3 < 0) t3++;
+			else if (t3 > 1) t3--;
 
-			if (6 * t3 < 1)
+			if (6 * t3 < 1) {
 				val = t1 + (t2 - t1) * 6 * t3;
-			else if (2 * t3 < 1)
+			}
+			else if (2 * t3 < 1) {
 				val = t2;
-			else if (3 * t3 < 2)
+			}
+			else if (3 * t3 < 2) {
 				val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-			else
+			}
+			else {
 				val = t1;
+			}
 
 			rgb[i] = val * 255;
 		}
@@ -148,14 +108,18 @@ rgb.hsl = function(rgb) {
 			delta = max - min,
 			h, s, l;
 
-	if (max == min)
+	if (max === min) {
 		h = 0;
-	else if (r == max)
+	}
+	else if (r === max) {
 		h = (g - b) / delta;
-	else if (g == max)
+	}
+	else if (g === max) {
 		h = 2 + (b - r) / delta;
-	else if (b == max)
+	}
+	else if (b === max) {
 		h = 4 + (r - g)/ delta;
+	}
 
 	h = Math.min(h * 60, 360);
 
@@ -164,16 +128,19 @@ rgb.hsl = function(rgb) {
 
 	l = (min + max) / 2;
 
-	if (max == min)
+	if (max === min) {
 		s = 0;
-	else if (l <= 0.5)
+	}
+	else if (l <= 0.5) {
 		s = delta / (max + min);
-	else
+	}
+	else {
 		s = delta / (2 - max - min);
+	}
 
 	return [h, s * 100, l * 100];
 };
-},{"./rgb":14}],4:[function(require,module,exports){
+},{"./rgb":13}],3:[function(require,module,exports){
 /**
  * @module color-space/hsv
  */
@@ -197,8 +164,8 @@ module.exports = {
 		var f = h - Math.floor(h),
 				p = 255 * v * (1 - s),
 				q = 255 * v * (1 - (s * f)),
-				t = 255 * v * (1 - (s * (1 - f))),
-				v = 255 * v;
+				t = 255 * v * (1 - (s * (1 - f)));
+		v *= 255;
 
 		switch(hi) {
 			case 0:
@@ -227,6 +194,7 @@ module.exports = {
 		sl /= (l <= 1) ? l : 2 - l;
 		sl = sl || 0;
 		l /= 2;
+
 		return [h, sl * 100, l * 100];
 	}
 };
@@ -242,24 +210,31 @@ rgb.hsv = function(rgb) {
 			delta = max - min,
 			h, s, v;
 
-	if (max === 0)
+	if (max === 0) {
 		s = 0;
-	else
+	}
+	else {
 		s = (delta/max * 1000)/10;
+	}
 
-	if (max == min)
+	if (max === min) {
 		h = 0;
-	else if (r == max)
+	}
+	else if (r === max) {
 		h = (g - b) / delta;
-	else if (g == max)
+	}
+	else if (g === max) {
 		h = 2 + (b - r) / delta;
-	else if (b == max)
+	}
+	else if (b === max) {
 		h = 4 + (r - g) / delta;
+	}
 
 	h = Math.min(h * 60, 360);
 
-	if (h < 0)
+	if (h < 0) {
 		h += 360;
+	}
 
 	v = ((max / 255) * 1000) / 10;
 
@@ -278,9 +253,10 @@ hsl.hsv = function(hsl) {
 	s *= (l <= 1) ? l : 2 - l;
 	v = (l + s) / 2;
 	sv = (2 * s) / (l + s) || 0;
+
 	return [h, sv * 100, v * 100];
 };
-},{"./hsl":3,"./rgb":14}],5:[function(require,module,exports){
+},{"./hsl":2,"./rgb":13}],4:[function(require,module,exports){
 /**
  * A uniform wrapper for husl.
  * // http://www.boronine.com/husl/
@@ -316,7 +292,7 @@ lchuv.husl = _husl._conv.lch.husl;
 xyz.husl = function(arg){
 	return _husl._conv.lch.husl(xyz.lchuv(arg));
 };
-},{"./lchuv":11,"./xyz":15,"husl":13}],6:[function(require,module,exports){
+},{"./lchuv":10,"./xyz":15,"husl":12}],5:[function(require,module,exports){
 /**
  * A uniform wrapper for huslp.
  * // http://www.boronine.com/husl/
@@ -346,7 +322,7 @@ module.exports = {
 //extend lchuv, xyz
 lchuv.huslp = _husl._conv.lch.huslp;
 xyz.huslp = function(arg){return _husl._conv.lch.huslp(xyz.lchuv(arg));};
-},{"./lchuv":11,"./xyz":15,"husl":13}],7:[function(require,module,exports){
+},{"./lchuv":10,"./xyz":15,"husl":12}],6:[function(require,module,exports){
 /**
  * @module color-space/hwb
  */
@@ -365,10 +341,10 @@ var hwb = module.exports = {
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
 	rgb: function(hwb) {
 		var h = hwb[0] / 360,
-				wh = hwb[1] / 100,
-				bl = hwb[2] / 100,
-				ratio = wh + bl,
-				i, v, f, n;
+			wh = hwb[1] / 100,
+			bl = hwb[2] / 100,
+			ratio = wh + bl,
+			i, v, f, n;
 
 		var r, g, b;
 
@@ -381,9 +357,12 @@ var hwb = module.exports = {
 		i = Math.floor(6 * h);
 		v = 1 - bl;
 		f = 6 * h - i;
-		if ((i & 0x01) != 0) {
+
+		//if it is even
+		if ((i & 0x01) !== 0) {
 			f = 1 - f;
 		}
+
 		n = wh + f * (v - wh);  // linear interpolation
 
 		switch (i) {
@@ -433,7 +412,8 @@ rgb.hwb = function(val) {
 			g = val[1],
 			b = val[2],
 			h = rgb.hsl(val)[0],
-			w = 1/255 * Math.min(r, Math.min(g, b)),
+			w = 1/255 * Math.min(r, Math.min(g, b));
+
 			b = 1 - 1/255 * Math.max(r, Math.max(g, b));
 
 	return [h, w * 100, b * 100];
@@ -452,14 +432,19 @@ hsv.hwb = function(arg){
 hsl.hwb = function(arg){
 	return hsv.hwb(hsl.hsv(arg));
 };
-},{"./hsl":3,"./hsv":4,"./rgb":14}],8:[function(require,module,exports){
+},{"./hsl":2,"./hsv":3,"./rgb":13}],7:[function(require,module,exports){
 /**
  * @module color-space
  *
+ * @todo  to-source method, preparing the code for webworker
  * @todo  implement all side spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq etc.
+ * @todo  here are additional spaces http://www.jentronics.com/color.html ITU, REC709, SMTPE, NTSC, GREY
+ *
+ * @todo implement asm-js way to convert spaces (promises to be times faster)
+ *
  */
 
-var addConvertor = require('./add-convertor');
+var addConvertor = require('./util/add-convertor');
 
 
 /** Exported spaces */
@@ -479,35 +464,6 @@ var spaces = {
 };
 
 
-/**
- * Add a new space to the set
- */
-Object.defineProperty(spaces, 'add', {
-	value: function (space) {
-		var spaceName = space.name;
-
-		//ignore existing space
-		if (this[spaceName]) return;
-
-		//add convertors to every existing space
-		var otherSpace;
-		for (var otherSpaceName in this) {
-			otherSpace = this[otherSpaceName];
-			addConvertor(space, otherSpace);
-			addConvertor(otherSpace, space);
-		}
-
-		//save a new space
-		this[spaceName] = space;
-
-		return space;
-	}
-});
-
-//you can add other spaces manually
-//via `spaces.add(require('color-space/ciecam'))`
-
-
 
 //build absent convertors from each to every space
 var fromSpace, toSpace;
@@ -523,7 +479,7 @@ for (var fromSpaceName in spaces) {
 
 
 module.exports = spaces;
-},{"./add-convertor":1,"./cmyk":2,"./hsl":3,"./hsv":4,"./husl":5,"./huslp":6,"./hwb":7,"./lab":9,"./lchab":10,"./lchuv":11,"./luv":12,"./rgb":14,"./xyz":15}],9:[function(require,module,exports){
+},{"./cmyk":1,"./hsl":2,"./hsv":3,"./husl":4,"./huslp":5,"./hwb":6,"./lab":8,"./lchab":9,"./lchuv":10,"./luv":11,"./rgb":13,"./util/add-convertor":14,"./xyz":15}],8:[function(require,module,exports){
 /**
  * CIE LAB space model
  *
@@ -583,7 +539,7 @@ xyz.lab = function(xyz){
 
 	return [l, a, b];
 };
-},{"./xyz":15}],10:[function(require,module,exports){
+},{"./xyz":15}],9:[function(require,module,exports){
 /**
  * Cylindrical LAB
  *
@@ -639,7 +595,7 @@ lab.lchab = function(lab) {
 xyz.lchab = function(arg){
 	return lab.lchab(xyz.lab(arg));
 };
-},{"./lab":9,"./xyz":15}],11:[function(require,module,exports){
+},{"./lab":8,"./xyz":15}],10:[function(require,module,exports){
 /**
  * Cylindrical CIE LUV
  *
@@ -690,7 +646,7 @@ luv.lchuv = function(luv){
 xyz.lchuv = function(arg){
   return luv.lchuv(xyz.luv(arg));
 };
-},{"./luv":12,"./xyz":15}],12:[function(require,module,exports){
+},{"./luv":11,"./xyz":15}],11:[function(require,module,exports){
 /**
  * CIE LUV (C'est la vie)
  *
@@ -790,7 +746,7 @@ xyz.luv = function(arg, i, o) {
 
 	return [l, u, v];
 };
-},{"./xyz":15}],13:[function(require,module,exports){
+},{"./xyz":15}],12:[function(require,module,exports){
 // Generated by CoffeeScript 1.8.0
 (function() {
   var L_to_Y, Y_to_L, conv, distanceFromPole, dotProduct, epsilon, fromLinear, getBounds, intersectLineLine, kappa, lengthOfRayUntilIntersect, m, m_inv, maxChromaForLH, maxSafeChromaForL, refU, refV, refX, refY, refZ, rgbPrepare, root, round, toLinear;
@@ -1225,7 +1181,7 @@ xyz.luv = function(arg, i, o) {
 
 }).call(this);
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * RGB space.
  *
@@ -1238,7 +1194,55 @@ module.exports = {
 	max: [255,255,255],
 	channel: ['red', 'green', 'blue']
 };
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
+/**
+ * Add a convertor from one to another space via XYZ or RGB space as a medium.
+ *
+ * @module  color-space/add-convertor
+ */
+
+var xyz = require('../xyz');
+var rgb = require('../rgb');
+
+module.exports = addConvertor;
+
+
+/**
+ * Add convertor from space A to space B.
+ * So space A will be able to transform to B.
+ */
+function addConvertor(fromSpace, toSpace){
+	if (!fromSpace[toSpace.name]) {
+		fromSpace[toSpace.name] = getConvertor(fromSpace, toSpace);
+	}
+
+	return fromSpace;
+}
+
+
+/** return converter through xyz/rgb space */
+function getConvertor(fromSpace, toSpace){
+	var toSpaceName = toSpace.name;
+
+	//create xyz converter, if available
+	if (fromSpace.xyz && xyz[toSpaceName]) {
+		return function(arg){
+			return xyz[toSpaceName](fromSpace.xyz(arg));
+		};
+	}
+	//create rgb converter
+	else if (fromSpace.rgb && rgb[toSpaceName]) {
+		return function(arg){
+			return rgb[toSpaceName](fromSpace.rgb(arg));
+		};
+	}
+
+	else throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
+
+	return fromSpace[toSpaceName];
+}
+
+},{"../rgb":13,"../xyz":15}],15:[function(require,module,exports){
 /**
  * CIE XYZ
  *
@@ -1347,5 +1351,5 @@ rgb.xyz = function(rgb) {
 
 	return [x * 100, y *100, z * 100];
 };
-},{"./rgb":14}]},{},[8])(8)
+},{"./rgb":13}]},{},[7])(7)
 });

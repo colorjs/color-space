@@ -16,10 +16,10 @@ var hwb = module.exports = {
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
 	rgb: function(hwb) {
 		var h = hwb[0] / 360,
-				wh = hwb[1] / 100,
-				bl = hwb[2] / 100,
-				ratio = wh + bl,
-				i, v, f, n;
+			wh = hwb[1] / 100,
+			bl = hwb[2] / 100,
+			ratio = wh + bl,
+			i, v, f, n;
 
 		var r, g, b;
 
@@ -32,9 +32,12 @@ var hwb = module.exports = {
 		i = Math.floor(6 * h);
 		v = 1 - bl;
 		f = 6 * h - i;
-		if ((i & 0x01) != 0) {
+
+		//if it is even
+		if ((i & 0x01) !== 0) {
 			f = 1 - f;
 		}
+
 		n = wh + f * (v - wh);  // linear interpolation
 
 		switch (i) {
@@ -84,7 +87,8 @@ rgb.hwb = function(val) {
 			g = val[1],
 			b = val[2],
 			h = rgb.hsl(val)[0],
-			w = 1/255 * Math.min(r, Math.min(g, b)),
+			w = 1/255 * Math.min(r, Math.min(g, b));
+
 			b = 1 - 1/255 * Math.max(r, Math.max(g, b));
 
 	return [h, w * 100, b * 100];
