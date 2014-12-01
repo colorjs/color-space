@@ -2,6 +2,8 @@
  * @module color-space
  *
  * @todo  implement all side spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq etc.
+ * @todo  here are additional spaces http://www.jentronics.com/color.html ITU, REC709, SMTPE, NTSC, GREY
+ *
  */
 
 var addConvertor = require('./add-convertor');
