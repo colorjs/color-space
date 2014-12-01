@@ -17,16 +17,16 @@ _Color-space_ provides conversions and data for the following color spaces: RGB,
 
 ### In browser:
 
-Include [color-space.js](https://raw.githubusercontent.com/dfcreative/color-space/master/color-space.js) or [color-space.min.js](https://raw.githubusercontent.com/dfcreative/color-space/master/color-space.min.js) on the page (before you’ll use it):
+Include [color-space.js](https://raw.githubusercontent.com/dfcreative/color-space/master/dist/color-space.js) or [color-space.min.js](https://raw.githubusercontent.com/dfcreative/color-space/master/dist/color-space.min.js) on the page (before you’ll use it):
 
 ```html
 <script src="path-to/color-space.js"></script>
 ```
 
-Alternately you can include a [CDN version](https://cdn.rawgit.com/dfcreative/color-space/master/color-space.min.js):
+Alternately you can include a [CDN version](https://cdn.rawgit.com/dfcreative/color-space/master/dist/color-space.min.js):
 
 ```html
-<script src="https://cdn.rawgit.com/dfcreative/color-space/master/color-space.min.js"></script>
+<script src="https://cdn.rawgit.com/dfcreative/color-space/master/dist/color-space.min.js"></script>
 ```
 
 Now you have a `window.colorSpace` object, so you can play around with it:
@@ -69,7 +69,7 @@ var hsl = require('color-space/hsl');
 rgb.hsl([200,230,100]);
 ```
 
-Note that in case of requiring specific spaces you might need to add conversions via `color-space/add-convertor`.
+Note that in case of requiring specific spaces you might need to add absent conversions via `color-space/util/add-convertor`.
 
 
 # API
