@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/dfcreative/color-space/master/logo.png" width="100%" height="80"/>
+<img src="https://raw.githubusercontent.com/dfcreative/color-space/master/logo.png" width="100%" height="150"/>
 
 # Color-space [![Build Status](https://travis-ci.org/dfcreative/color-space.svg?branch=master)](https://travis-ci.org/dfcreative/color-space) [![Coverage Status](https://img.shields.io/coveralls/dfcreative/color-space.svg)](https://coveralls.io/r/dfcreative/color-space) <a href="http://unlicense.org/UNLICENSE"><img src="http://upload.wikimedia.org/wikipedia/commons/6/62/PD-icon.svg" width="20"/></a>
 
