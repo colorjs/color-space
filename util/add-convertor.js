@@ -40,7 +40,5 @@ function getConvertor(fromSpace, toSpace){
 		};
 	}
 
-	else throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
-
-	return fromSpace[toSpaceName];
+	throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
 }

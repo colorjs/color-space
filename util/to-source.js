@@ -14,7 +14,7 @@
  * @return {string} source code
  */
 module.exports = function(spaces){
-	var res = '(function(){\nvar spaces = {};\n';
+	var res = '(function(){\nvar space = {};\n';
 
 	var fnSrc, space;
 	for (var spaceName in spaces) {
@@ -39,7 +39,7 @@ module.exports = function(spaces){
 		res += '}\n';
 	}
 
-	res += '\nreturn spaces;})()';
+	res += '\nreturn space;})()';
 
 	return res;
 };
