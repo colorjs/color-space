@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Convert color from/to any color space or get space data. Spaces can be required selectively.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Deema Yvanow <dfcreative@gmail.com>",
   "keywords": [
     "color",
