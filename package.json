@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Convert color from/to any color space or get space data. Spaces can be required selectively.",
+  "description": "Conversion functions and space data. Full list of spaces.",
   "version": "1.1.1",
   "author": "Deema Yvanow <dfcreative@gmail.com>",
   "keywords": [
@@ -27,24 +27,7 @@
     "url": "http://github.com/dfcreative/color-space.git"
   },
   "files": [
-    "index.js",
-    "rgb.js",
-    "hsl.js",
-    "hsv.js",
-    "hwb.js",
-    "cmy.js",
-    "cmyk.js",
-    "xyz.js",
-    "xyy.js",
-    "lab.js",
-    "lchab.js",
-    "luv.js",
-    "lchuv.js",
-    "husl.js",
-    "huslp.js",
-    "labh.js",
-    "lms.js",
-    "ciecam.js",
+    "*.js",
     "util",
     "dist"
   ],
