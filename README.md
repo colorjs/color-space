@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/dfcreative/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-Conversions and data for color spaces:
+Conversions and data for the following color spaces:
 
 * [x] RGB
 * [x] HSl
@@ -20,13 +20,15 @@ Conversions and data for color spaces:
 * [x] [H<sub>u</sub>SL<sub>p</sub>](http://www.boronine.com/husl/)
 * [x] [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab)
 * [ ] [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
-* [ ] [YUV]
-* [ ] [YIQ]
-* [ ] [CIE CAM]
-* [ ] [Other space](#contribute)
+* [ ] [YUV]()
+* [ ] [YIQ]()
+* [ ] [CIE CAM]()
+* [ ] [Other spaces](#contribute)
 
-#### [DEMO](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
+#### [Demo & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
 
+
+## Usage
 
 `$ npm install --save color-space`
 
