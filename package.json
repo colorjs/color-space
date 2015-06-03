@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Conversion functions and space data. Full list of spaces.",
+  "description": "Color space conversions and data",
   "version": "1.1.2",
   "author": "Deema Yvanow <dfcreative@gmail.com>",
   "keywords": [
