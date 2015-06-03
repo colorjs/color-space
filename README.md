@@ -75,7 +75,7 @@ lms.transform //list of transform matrices
 
 Please fork, add color space with basic conversions to/from XYZ or RGB and tests.
 
-_Color-space_ is supposed to be a basic library to work with color conversions, an enhanced replacement for [color-convert](https://github.com/harthur/color-convert). It has maximally minimal API and functions, the goal of project is to provide the most complete set of color spaces with minimal and uniform API.
+_Color-space_ is supposed to be a basic library to work with color conversions, an enhanced replacement for [color-convert](https://github.com/harthur/color-convert). The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
 
 
 ## Similar projects
