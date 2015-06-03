@@ -1,11 +1,7 @@
 /**
+ * Color space data and conversions
+ *
  * @module color-space
- *
- * @todo  to-source method, preparing the code for webworker
- * @todo  implement all side spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq etc.
- * @todo  here are additional spaces http://www.jentronics.com/color.html ITU, REC709, SMTPE, NTSC, GREY
- *
- * @todo implement asm-js way to convert spaces (promises to be times faster)
  *
  */
 
