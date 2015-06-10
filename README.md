@@ -23,6 +23,7 @@ Conversions and data for the following color spaces:
 * [ ] [YUV]()
 * [ ] [YIQ]()
 * [ ] [CIE CAM]()
+* [ ] [cubehelix](http://bl.ocks.org/mbostock/11415064)
 * [ ] [Other spaces](#contribute)
 
 #### [Demo & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
@@ -33,10 +34,10 @@ Conversions and data for the following color spaces:
 `$ npm install --save color-space`
 
 ```js
-var colorSpace = require('color-space');
+var space = require('color-space');
 
 //convert lab to lch
-var result = colorSpace.lab.lch([80,50,60]);
+var result = space.lab.lch([80,50,60]);
 ```
 
 Require separately:
@@ -52,15 +53,9 @@ rgb.hsl([200,230,100]);
 
 ## API
 
-Convert one space to another:
 
 ```js
 <fromSpace>.<toSpace>(array);
-```
-
-Get space data:
-
-```js
 <space>.name //space name
 <space>.min //channel minimums
 <space>.max //channel maximums
@@ -74,8 +69,7 @@ lms.transform //list of transform matrices
 ## Contribute
 
 Please fork, add color space with basic conversions to/from XYZ or RGB and tests.
-
-_Color-space_ is supposed to be a basic library to work with color conversions, an enhanced replacement for [color-convert](https://github.com/harthur/color-convert). The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
+The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
 
 
 ## Similar projects
