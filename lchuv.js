@@ -29,7 +29,7 @@ var lchuv = module.exports = {
 
 	xyz: function(arg) {
 		return luv.xyz(lchuv.luv(arg));
-	},
+	}
 };
 
 luv.lchuv = function(luv){

@@ -24,6 +24,7 @@ Conversions and data for the following color spaces:
 * [ ] [YIQ]()
 * [ ] [CIE CAM]()
 * [ ] [cubehelix](http://bl.ocks.org/mbostock/11415064)
+* [ ] gray
 * [ ] [Other spaces](#contribute)
 
 #### [Demo & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
