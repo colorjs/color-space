@@ -4,8 +4,8 @@
   "description": "Color-space demo",
   "main": "index.js",
   "scripts": {
-    "build": "browserify -r emmy/on -r color-space -r queried -r mumath | ccjs - --language_in=ECMASCRIPT5 > bundle.js",
-    "watch": "watchify -r emmy/on -r color-space -r queried -r mumath -d -o bundle.js"
+    "build": "browserify -r emmy/on -r color-parse -r color-stringify -r color-space -r queried -r mumath | ccjs - --language_in=ECMASCRIPT5 > bundle.js",
+    "watch": "watchify -r emmy/on -r color-parse -r color-stringify -r color-space -r queried -r mumath -d -o bundle.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/dfcreative/color-space",
   "dependencies": {
+    "color-parse": "^1.1.0",
     "color-space": "^1.1.3",
+    "color-stringify": "^1.1.4",
     "color2": "^1.0.6",
     "emmy": "^5.2.8",
     "mumath": "^1.0.2",

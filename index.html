@@ -56,6 +56,7 @@
 	.spaces {
 		position: relative;
 		margin: 3rem 5rem 0;
+		max-width: 800px;
 		display: -webkit-box;
 		display: -webkit-flex;
 		display: -ms-flexbox;
@@ -78,8 +79,12 @@
 		    -ms-flex-flow: row nowrap;
 		        flex-flow: row nowrap;
 	}
+	.spaces-item:last-child{
+		max-width: 50%;
+	}
 
 	.spaces-item-first {
+		max-width: none;
 		-webkit-box-flex: 1;
 		-webkit-flex: 1 0 100%;
 		    -ms-flex: 1 0 100%;
@@ -91,7 +96,7 @@
 	.spaces-item-title,
 	.spaces-item-input {
 		line-height: 2rem;
-		margin: .4rem 0 0 0;
+		margin: .5rem 0 0 0;
 		-webkit-flex: 1 0 auto;
 		    -ms-flex: 1 0 auto;
 		        flex: 1 0 auto;
@@ -99,12 +104,13 @@
 
 	.spaces-item-title {
 		text-transform: uppercase;
-		font-size: 1rem;
-		width: 3rem;
+		font-size: .9rem;
+		width: 3.5rem;
+		margin-right: .5rem;
 	}
 
 	.spaces-item-input {
-		width: 3rem;
+		width: 2.5rem;
 		margin-right: .5rem;
 		min-width: 0;
 		font-size: 1rem;
@@ -118,10 +124,14 @@
 	.spaces-item-input:focus {
 		border-bottom-color: black;
 	}
+	.spaces-item-input-stub {
+		opacity: 0;
+	}
 
 	.spaces-item-first .spaces-item-input {
-		width: 100%;
+		max-width: 26rem;
 		font-size: 2rem;
+		line-height: 4rem;
 		margin: 0;
 	}
 </style>
@@ -131,11 +141,11 @@
 
 <section class="spaces" id="converter">
 	<header class="spaces-item spaces-item-first">
-		<input class="spaces-item-input" value="#000"/>
+		<input class="spaces-item-input" value="#102030"/>
 	</header>
 
 	<div class="spaces-item" hidden>
-		<h3 class="spaces-item-title"></h3><input class="spaces-item-input"/><input class="spaces-item-input"/><input class="spaces-item-input"/>
+		<h3 class="spaces-item-title"></h3><input type="number" class="spaces-item-input spaces-item-input-stub"/><input type="number" class="spaces-item-input spaces-item-input-stub"/><input type="number" class="spaces-item-input spaces-item-input-stub"/><input type="number" class="spaces-item-input spaces-item-input-stub"/>
 	</div>
 </section>
 
@@ -148,10 +158,13 @@
 	var q = require('queried');
 	var spaces = require("color-space");
 	var on = require('emmy/on');
+	var parse = require('color-parse');
+	var stringify = require('color-stringify');
 
-	var doc = document, win = window, body = doc.body, root = doc.documentElement;
+	var doc = document, win = window, body = doc.body, root = doc.documentElement, loc = doc.location;
 
 	var spacesItemElFirst = q('.spaces-item .spaces-item-input');
+	var colorEl = q('.color-preview');
 	var spacesEl = q('.spaces');
 	var spacesItemEl = q('.spaces-item:not(.spaces-item-first)');
 	spacesItemEl.parentNode.removeChild(spacesItemEl);
@@ -168,60 +181,81 @@
 	//recalc all on input
 	on(spacesEl, 'input', function(e){
 		var target = e.target;
-		var channel = target.id;
-		var srcSpace = target.getAttribute('data-space');
-		var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
-		var srcValues = [];
-		for (var i = srcSpaceInputs.length; i--;){
-			srcValues[i] = +srcSpaceInputs[i].value;
+		if (target.classList.contains('.spaces-item-input-stub')) return;
+
+		if (target === spacesItemElFirst) {
+			var parseResult = parse(spacesItemElFirst.value);
+			update(parseResult.space, parseResult.values);
+			return;
 		}
 
-		// recalc(srcSpace, srcValues);
+		var channel = target.id;
+		var srcSpace = target.getAttribute('data-space');
+		var targetInputs = q.all('.spaces-item-input', target.parentNode);
+		var srcValues = spaces[srcSpace].channel.map(function (channel, i) {
+			return targetInputs[i].value;
+		});
+
+		update(srcSpace, srcValues);
+		updateMainInput(srcSpace, srcValues);
+	});
+
+	//on hashchange - update self
+	on(win, 'hashchange', function (e) {
+		var cstr = loc.hash;
+		try {
+			var parseResult = parse(cstr);
+			update(parseResult.space, parseResult.values);
+			spacesItemElFirst.value = stringify(parseResult.values, 'hex');
+		} catch (e) {
+			console.log(e);
+			//ignore bad hash
+			return;
+		}
 	});
 
 	//focus main input onload
 	spacesItemElFirst.focus();
 
 
+	//create cases for spaces
+	Object.keys(spaces).forEach(function (key) {
+		createSpaceCase(spaces[key]);
+	});
+
+
+	//parse initial value in input, recalc all
+	var cstr = loc.hash || spacesItemElFirst.value;
+	var parseResult = parse(cstr);
+	update(parseResult.space, parseResult.values);
+	spacesItemElFirst.value = stringify(parseResult.values, 'hex');
+
+
 	//recalc all spaces from source
-	function recalc(srcSpace, srcValues){
-		var targetValues, targetSpaceInputs, targetSpace;
+	function update(srcSpace, srcValues) {
+		//render color
+		colorEl.style.background = 'rgb(' + round(spaces[srcSpace].rgb(srcValues)) + ')';
 
-		for (var targetSpaceName in convert) {
-			if (targetSpaceName === srcSpace || targetSpaceName === 'options') continue;
-			targetSpace = convert[targetSpaceName];
+		//for each space update values
+		Object.keys(spaces).forEach(function (key) {
+			var space = spaces[key];
+			var values = spaces[srcSpace][key](srcValues);
 
-			try {
-				// console.log(srcSpace, targetSpaceName, convert)
-				targetValues = convert[srcSpace][targetSpaceName](srcValues);
+			//for each channel set value
+			space.channel.forEach(function (channel, i) {
+				q('#' + space.name + '-' + channel).value = Math.round(values[i]);
+			});
+		});
+	}
 
-				targetSpaceInputs = q.all('[data-space=' + targetSpaceName + ']');
+	//update main input value
+	function updateMainInput(srcSpace, srcValues) {
+		spacesItemElFirst.value = stringify(srcValues, srcSpace);
 
-				for (var i = targetSpaceInputs.length; i--;){
-					targetSpaceInputs[i].value = targetValues[i].toFixed(1);
-					targetSpaceInputs[i].title = targetSpace.channel[i] + ': ' + targetValues[i] + ' ∈ [' + targetSpace.min[i] + '..' + targetSpace.max[i] + ']';
-				}
-			} catch (e) {
-				throw e;
-				// console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpaceName, e);
-			}
-		}
-
-		//Set header color according to the current converting color
-		var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
-
-		var lEl = q('#lightness');
-		var l = lEl && lEl.value || 0;
-		rgb = round(rgb);
-
-		// title.style.color = 'rgb(' + rgb + ')';
-		// title.style.borderColor = 'rgba(' + rgb + ', .1)';
-
-		//change color of selection
-		var selStr = selCss.replace(/%b/g, 'rgb(' + rgb + ')');
-		selStr = selStr.replace(/%c/g, l > 82 ? 'black' : 'white');
-
-		selStyle.innerHTML = selStr;
+		//update history
+		var values = round(spaces[srcSpace].rgb(srcValues));
+		var cstr = stringify(values, 'hex');
+		win.history.replaceState(null, cstr, cstr);
 	}
 
 
@@ -232,12 +266,20 @@
 		var itemEl = spacesItemEl.cloneNode(true);
 
 		itemEl.id = space.name;
+		itemEl.setAttribute('data-space', space.name);
 
 		var titleEl = q('.spaces-item-title', itemEl);
 		titleEl.innerHTML = space.name;
 
-		space.channel.forEach(function () {
-
+		//name channels
+		var channelEls = q.all('.spaces-item-input', itemEl);
+		space.channel.forEach(function (channel, i) {
+			channelEls[i].id = space.name + '-' + channel;
+			channelEls[i].classList.remove('spaces-item-input-stub');
+			channelEls[i].min = space.min[i];
+			channelEls[i].max = space.max[i];
+			channelEls[i].setAttribute('data-channel', channel);
+			channelEls[i].setAttribute('data-space', space.name);
 		});
 
 		spacesEl.appendChild(itemEl);
@@ -245,9 +287,4 @@
 		//initial recalc
 		// recalc('rgb', [0,0,0]);
 	}
-
-	//create cases for spaces
-	Object.keys(spaces).forEach(function (key) {
-		createSpaceCase(spaces[key]);
-	});
 </script>
