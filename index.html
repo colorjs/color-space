@@ -55,7 +55,7 @@
 
 	.spaces {
 		position: relative;
-		margin: 3rem auto 0;
+		margin: 3rem auto 3rem;
 		width: 80%;
 		max-width: 800px;
 		display: -webkit-box;
@@ -128,6 +128,7 @@
 	}
 	.spaces-item-input-stub {
 		opacity: 0;
+		visibility: hidden;
 	}
 
 	.spaces-item-first .spaces-item-input {
@@ -186,8 +187,12 @@
 		if (target.classList.contains('.spaces-item-input-stub')) return;
 
 		if (target === spacesItemElFirst) {
-			var parseResult = parse(spacesItemElFirst.value);
-			update(parseResult.space, parseResult.values);
+			try {
+				var parseResult = parse(spacesItemElFirst.value);
+				update(parseResult.space, parseResult.values);
+			} catch (e) {
+
+			}
 			return;
 		}
 
