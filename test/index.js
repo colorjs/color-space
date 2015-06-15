@@ -442,3 +442,23 @@ describe.skip('ciecam', function(){
 
 	});
 });
+
+
+describe.skip('cmy', function(){
+	before(function(){
+		createSpaceCase('XYZ');
+		createSpaceCase('cmy');
+	});
+
+	it('to rgb', function(){
+
+	});
+
+	it('to xyz', function(){
+
+	});
+
+	it('to ', function(){
+
+	});
+});

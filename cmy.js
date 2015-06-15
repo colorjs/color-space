@@ -10,9 +10,9 @@ module.exports = {
 	channel: ['cyan', 'magenta', 'yellow'],
 
 	rgb: function(cmy) {
-		var c = cmyk[0] / 100,
-			m = cmyk[1] / 100,
-			y = cmyk[2] / 100;
+		var c = cmy[0] / 100,
+			m = cmy[1] / 100,
+			y = cmy[2] / 100;
 
 		return [
 			(1 - c) * 255,
