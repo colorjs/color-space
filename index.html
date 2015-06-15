@@ -1,0 +1,253 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="Color space conversions table">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+
+<title>Color space conversions table</title>
+
+
+<style>
+	*{
+		box-sizing: border-box;
+	}
+
+	::selection{
+		background: black;
+		color: white;
+	}
+	::-moz-selection{
+		background: black;
+		color: white;
+	}
+
+	body{
+		margin: 0;
+		font-family: sans-serif;
+	}
+
+	.color-preview{
+		height: 10rem;
+		background: gray;
+	}
+
+	.spaces-item-input-first {
+		border: 0;
+		display: block;
+		line-height: 4rem;
+		font-size: 4rem;
+		border-bottom: 0.3rem solid black;
+		margin: 0;
+		padding: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		border: none;
+		box-shadow: none!important;
+		outline: none!important;
+		margin-bottom: 2rem;
+		border-bottom: .2rem solid rgba(88, 96, 141, .1);
+	}
+	.color-input:focus{
+		border-bottom-color: black;
+	}
+
+	.spaces {
+		position: relative;
+		margin: 3rem 5rem 0;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-flex-flow: row wrap;
+		    -ms-flex-flow: row wrap;
+		        flex-flow: row wrap;
+	}
+
+	.spaces-item {
+		-webkit-box-flex: 1;
+		-webkit-flex: 1 0 15rem;
+		    -ms-flex: 1 0 15rem;
+		        flex: 1 0 15rem;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-flex-flow: row nowrap;
+		    -ms-flex-flow: row nowrap;
+		        flex-flow: row nowrap;
+	}
+
+	.spaces-item-first {
+		-webkit-box-flex: 1;
+		-webkit-flex: 1 0 100%;
+		    -ms-flex: 1 0 100%;
+		        flex: 1 0 100%;
+		padding-right: .5rem;
+		margin-bottom: 1rem;
+	}
+
+	.spaces-item-title,
+	.spaces-item-input {
+		line-height: 2rem;
+		margin: .4rem 0 0 0;
+		-webkit-flex: 1 0 auto;
+		    -ms-flex: 1 0 auto;
+		        flex: 1 0 auto;
+	}
+
+	.spaces-item-title {
+		text-transform: uppercase;
+		font-size: 1rem;
+		width: 3rem;
+	}
+
+	.spaces-item-input {
+		width: 3rem;
+		margin-right: .5rem;
+		min-width: 0;
+		font-size: 1rem;
+		padding: 0 0 0 0px;
+		border: none;
+		box-shadow: none!important;
+		outline: none!important;
+		text-align: left;
+		border-bottom: .2rem solid rgba(88, 96, 141, .1);
+	}
+	.spaces-item-input:focus {
+		border-bottom-color: black;
+	}
+
+	.spaces-item-first .spaces-item-input {
+		width: 100%;
+		font-size: 2rem;
+		margin: 0;
+	}
+</style>
+
+
+<div class="color-preview"></div>
+
+<section class="spaces" id="converter">
+	<header class="spaces-item spaces-item-first">
+		<input class="spaces-item-input" value="#000"/>
+	</header>
+
+	<div class="spaces-item" hidden>
+		<h3 class="spaces-item-title"></h3><input class="spaces-item-input"/><input class="spaces-item-input"/><input class="spaces-item-input"/>
+	</div>
+</section>
+
+
+<script src="bundle.js"></script>
+
+
+<script type="text/javascript">
+	var round = require('mumath').round;
+	var q = require('queried');
+	var spaces = require("color-space");
+	var on = require('emmy/on');
+
+	var doc = document, win = window, body = doc.body, root = doc.documentElement;
+
+	var spacesItemElFirst = q('.spaces-item .spaces-item-input');
+	var spacesEl = q('.spaces');
+	var spacesItemEl = q('.spaces-item:not(.spaces-item-first)');
+	spacesItemEl.parentNode.removeChild(spacesItemEl);
+	spacesItemEl.removeAttribute('hidden');
+
+
+	//select on click
+	on(spacesEl, 'click', function(e){
+		if (e.target instanceof HTMLInputElement) {
+			e.target.select();
+		}
+	});
+
+	//recalc all on input
+	on(spacesEl, 'input', function(e){
+		var target = e.target;
+		var channel = target.id;
+		var srcSpace = target.getAttribute('data-space');
+		var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
+		var srcValues = [];
+		for (var i = srcSpaceInputs.length; i--;){
+			srcValues[i] = +srcSpaceInputs[i].value;
+		}
+
+		// recalc(srcSpace, srcValues);
+	});
+
+	//focus main input onload
+	spacesItemElFirst.focus();
+
+
+	//recalc all spaces from source
+	function recalc(srcSpace, srcValues){
+		var targetValues, targetSpaceInputs, targetSpace;
+
+		for (var targetSpaceName in convert) {
+			if (targetSpaceName === srcSpace || targetSpaceName === 'options') continue;
+			targetSpace = convert[targetSpaceName];
+
+			try {
+				// console.log(srcSpace, targetSpaceName, convert)
+				targetValues = convert[srcSpace][targetSpaceName](srcValues);
+
+				targetSpaceInputs = q.all('[data-space=' + targetSpaceName + ']');
+
+				for (var i = targetSpaceInputs.length; i--;){
+					targetSpaceInputs[i].value = targetValues[i].toFixed(1);
+					targetSpaceInputs[i].title = targetSpace.channel[i] + ': ' + targetValues[i] + ' ∈ [' + targetSpace.min[i] + '..' + targetSpace.max[i] + ']';
+				}
+			} catch (e) {
+				throw e;
+				// console.log('Can’t convert from ' + srcSpace + ' to ' + targetSpaceName, e);
+			}
+		}
+
+		//Set header color according to the current converting color
+		var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
+
+		var lEl = q('#lightness');
+		var l = lEl && lEl.value || 0;
+		rgb = round(rgb);
+
+		// title.style.color = 'rgb(' + rgb + ')';
+		// title.style.borderColor = 'rgba(' + rgb + ', .1)';
+
+		//change color of selection
+		var selStr = selCss.replace(/%b/g, 'rgb(' + rgb + ')');
+		selStr = selStr.replace(/%c/g, l > 82 ? 'black' : 'white');
+
+		selStyle.innerHTML = selStr;
+	}
+
+
+	/**
+	 * Create item for converting
+	 */
+	function createSpaceCase(space){
+		var itemEl = spacesItemEl.cloneNode(true);
+
+		itemEl.id = space.name;
+
+		var titleEl = q('.spaces-item-title', itemEl);
+		titleEl.innerHTML = space.name;
+
+		space.channel.forEach(function () {
+
+		});
+
+		spacesEl.appendChild(itemEl);
+
+		//initial recalc
+		// recalc('rgb', [0,0,0]);
+	}
+
+	//create cases for spaces
+	Object.keys(spaces).forEach(function (key) {
+		createSpaceCase(spaces[key]);
+	});
+</script>
