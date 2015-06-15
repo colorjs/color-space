@@ -5,12 +5,6 @@ var mult = require('mumath').mult;
 var div = require('mumath').div;
 var max = require('mumath').max;
 var husl = require('husl');
-var addSpace = require('../util/add-space');
-
-//append extra spaces
-addSpace(s, require('../xyy'));
-addSpace(s, require('../labh'));
-addSpace(s, require('../cmy'));
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function(){};

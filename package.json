@@ -28,7 +28,6 @@
   },
   "files": [
     "*.js",
-    "util",
     "dist"
   ],
   "main": "./index.js",

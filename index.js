@@ -5,8 +5,6 @@
  *
  */
 
-var addConvertor = require('./util/add-convertor');
-
 
 /** Exported spaces */
 var spaces = {
@@ -15,8 +13,11 @@ var spaces = {
 	hsv: require('./hsv'),
 	hwb: require('./hwb'),
 	cmyk: require('./cmyk'),
+	cmy: require('./cmy'),
 	xyz: require('./xyz'),
+	xyy: require('./xyy'),
 	lab: require('./lab'),
+	labh: require('./labh'),
 	lchab: require('./lchab'),
 	luv: require('./luv'),
 	lchuv: require('./lchuv'),
@@ -31,11 +32,37 @@ var fromSpace, toSpace;
 for (var fromSpaceName in spaces) {
 	fromSpace = spaces[fromSpaceName];
 	for (var toSpaceName in spaces) {
-		if (toSpaceName !== fromSpaceName) {
-			toSpace = spaces[toSpaceName];
-			addConvertor(fromSpace, toSpace);
-		}
+		toSpace = spaces[toSpaceName];
+		if (!fromSpace[toSpaceName]) fromSpace[toSpaceName] = getConvertor(fromSpace, toSpace);
 	}
+}
+
+
+/** return converter through xyz/rgb space */
+function getConvertor(fromSpace, toSpace){
+	var toSpaceName = toSpace.name;
+
+	//create straight converter
+	if (fromSpace === toSpace) {
+		return function (a) {
+			return a;
+		};
+	}
+
+	//create xyz converter, if available
+	else if (fromSpace.xyz && spaces.xyz[toSpaceName]) {
+		return function(arg){
+			return spaces.xyz[toSpaceName](fromSpace.xyz(arg));
+		};
+	}
+	//create rgb converter
+	else if (fromSpace.rgb && spaces.rgb[toSpaceName]) {
+		return function(arg){
+			return spaces.rgb[toSpaceName](fromSpace.rgb(arg));
+		};
+	}
+
+	throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
 }
 
 
