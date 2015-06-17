@@ -16,6 +16,8 @@ var spaces = {
 	cmy: require('./cmy'),
 	xyz: require('./xyz'),
 	xyy: require('./xyy'),
+	yiq: require('./yiq'),
+	yuv: require('./yuv'),
 	lab: require('./lab'),
 	labh: require('./labh'),
 	lchab: require('./lchab'),
@@ -33,17 +35,18 @@ for (var fromSpaceName in spaces) {
 	fromSpace = spaces[fromSpaceName];
 	for (var toSpaceName in spaces) {
 		toSpace = spaces[toSpaceName];
-		if (!fromSpace[toSpaceName]) fromSpace[toSpaceName] = getConvertor(fromSpace, toSpace);
+		if (!fromSpace[toSpaceName]) fromSpace[toSpaceName] = getConvertor(fromSpaceName, toSpaceName);
 	}
 }
 
 
 /** return converter through xyz/rgb space */
-function getConvertor(fromSpace, toSpace){
-	var toSpaceName = toSpace.name;
+function getConvertor(fromSpaceName, toSpaceName){
+	var fromSpace = spaces[fromSpaceName];
+	var toSpace = spaces[toSpaceName];
 
 	//create straight converter
-	if (fromSpace === toSpace) {
+	if (fromSpaceName === toSpaceName) {
 		return function (a) {
 			return a;
 		};
@@ -61,8 +64,6 @@ function getConvertor(fromSpace, toSpace){
 			return spaces.rgb[toSpaceName](fromSpace.rgb(arg));
 		};
 	}
-
-	throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
 }
 
 

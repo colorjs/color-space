@@ -462,3 +462,38 @@ describe.skip('cmy', function(){
 
 	});
 });
+
+
+describe('yiq', function(){
+	before(function(){
+		createSpaceCase('YIQ');
+	});
+
+	it('yiq → rgb', function(){
+		assert.deepEqual(round(s.yiq.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.yiq.rgb([1, 0, 0])), [255, 255, 255]);
+		assert.deepEqual(round(s.yiq.rgb([0.299, 0.596, 0.212])), [255, 0, 0]);
+	});
+	it('rgb → yiq', function(){
+		assert.deepEqual(round(s.rgb.yiq([0, 0, 0]), 0.001), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.yiq([255, 255, 255]), 0.001), [1, 0, 0]);
+		assert.deepEqual(round(s.rgb.yiq([255, 0, 0]), 0.001), [0.299, 0.596, 0.212]);
+	});
+});
+
+describe('yuv', function(){
+	before(function(){
+		createSpaceCase('YUV');
+	});
+
+	it('yuv → rgb', function(){
+		assert.deepEqual(round(s.yuv.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.yuv.rgb([1, 0, 0])), [255, 255, 255]);
+		assert.deepEqual(round(s.yuv.rgb([0.299, -0.147, 0.615])), [255, 0, 0]);
+	});
+	it('rgb → yuv', function(){
+		assert.deepEqual(round(s.rgb.yuv([0, 0, 0]), 0.001), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.yuv([255, 255, 255]), 0.001), [1, 0, 0]);
+		assert.deepEqual(round(s.rgb.yuv([255, 0, 0]), 0.001), [0.299, -0.147, 0.615]);
+	});
+});
