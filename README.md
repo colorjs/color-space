@@ -4,10 +4,11 @@
 
 Conversions and data for the following color spaces:
 
-* [x] RGB
-* [x] HSl
-* [x] HSV (HSB)
+* [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#Experimental_results:_the_CIE_RGB_color_space)
+* [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV)
+* [x] [HSV, HSB](https://en.wikipedia.org/wiki/HSL_and_HSV)
 * [x] [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation)
+* [x] [HSI](https://en.wikipedia.org/wiki/HSL_and_HSV)
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model)
 * [x] CMY
 * [x] [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space)

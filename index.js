@@ -11,6 +11,7 @@ var spaces = {
 	rgb: require('./rgb'),
 	hsl: require('./hsl'),
 	hsv: require('./hsv'),
+	hsi: require('./hsi'),
 	hwb: require('./hwb'),
 	cmyk: require('./cmyk'),
 	cmy: require('./cmy'),

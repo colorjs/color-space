@@ -5,7 +5,7 @@
 var rgb = require('./rgb');
 
 module.exports = {
-	name: 'hsl',
+	name: 'HSL',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],

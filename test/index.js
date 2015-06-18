@@ -19,7 +19,6 @@ var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase :
 createSpaceCase('RGB');
 
 
-//TODO: save hue on zero-saturation
 describe('hsl', function(){
 	before(function(){
 		createSpaceCase('HSL');
@@ -51,13 +50,29 @@ describe('hsv', function(){
 	});
 	it('hsv → hsl', function(){
 		assert.deepEqual(round(s.hsv.hsl([96, 50, 78])), [96, 47, 59]);
-		assert.deepEqual(round(s.hsv.hsl([0,0,0])), [0,0,0]);
+
+		//keep hue
+		assert.deepEqual(round(s.hsv.hsl([120,0,0])), [120,0,0]);
 	});
 	it('hsv → cmyk', function(){
 		assert.deepEqual(round(s.hsv.cmyk([96, 50, 78])), [30, 0, 50, 22]);
 	});
 	it('rgb → hsv', function(){
 		assert.deepEqual(round(s.rgb.hsv([140, 200, 100])), [96, 50, 78]);
+	});
+});
+
+
+describe('hsi', function(){
+	before(function(){
+		createSpaceCase('HSI');
+	});
+
+	it('hsi → rgb', function(){
+		assert.deepEqual(round(s.hsi.rgb([210, 33.333, 150])), [100, 150, 200]);
+	});
+	it('rgb → hsi', function(){
+		assert.deepEqual(round(s.rgb.hsi([100, 150, 200])), [210, 33, 150]);
 	});
 });
 
@@ -120,7 +135,6 @@ describe('hwb', function(){
 		assert.deepEqual(round(s.hwb.hsv([0, 0, 100])), [0, 0, 0]);
 		assert.deepEqual(round(s.hwb.hsv([0, 50, 50])), [0, 0, 50]);
 		assert.deepEqual(round(s.hwb.hsv([0, 50, 100])), [0, 0, 33]);
-
 	});
 
 	it('hwb → hsl', function(){
