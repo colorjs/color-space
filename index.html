@@ -2,13 +2,30 @@
 
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="description" content="Color space conversions table">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Color space conversions: RGB, CMYK, HSV, HSB, HSI, LAB, LCH,  YIQ, YUV etc.">
+<meta name="author" content="Dmitry Ivanov" />
+<meta name="copyright" content="© 2015 Dmitry Ivanov" />
+<meta name="contact" content="df.creative@gmail.com" />
+<meta http-equiv="content-language" content="en" />
 
-<title>Color space conversions table</title>
+<meta property="og:title" content="Color space conversions table"/>
+<meta property="og:type" content="save.saves"/>
+<meta property="og:image" content="https://raw.githubusercontent.com/dfcreative/color-space/gh-pages/logo.png"/>
+<meta property="og:url" content="http://dfcreative.github.io/color-space"/>
+<meta property="og:description" content="Color space conversions: RGB, CMYK, HSV, HSB, HSI, LAB, LCH,  YIQ, YUV etc."/>
+
+
+<title>Color space conversions</title>
+
+<link rel="author" href="https://plus.google.com/+DmitryIvanovDfcreative"/>
 
 
 <style>
+	html {
+		position: relative;
+	}
+
 	*{
 		box-sizing: border-box;
 	}
@@ -55,7 +72,7 @@
 
 	.spaces {
 		position: relative;
-		margin: 3rem auto 3rem;
+		margin: 3rem auto 6rem;
 		width: 80%;
 		max-width: 800px;
 		display: -webkit-box;
@@ -104,7 +121,6 @@
 	}
 
 	.spaces-item-title {
-		text-transform: uppercase;
 		font-size: .9rem;
 		width: 3.5rem;
 		margin-right: .5rem;
@@ -137,7 +153,11 @@
 		line-height: 4rem;
 		margin: 0;
 	}
+
 </style>
+
+
+<a href="https://github.com/dfcreative/color-space"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
 
 
 <div class="color-preview"></div>
@@ -200,7 +220,7 @@
 		var srcSpace = target.getAttribute('data-space');
 		var targetInputs = q.all('.spaces-item-input', target.parentNode);
 		var srcValues = spaces[srcSpace].channel.map(function (channel, i) {
-			return targetInputs[i].value;
+			return parseFloat(targetInputs[i].value);
 		});
 
 		update(srcSpace, srcValues);
@@ -250,7 +270,8 @@
 
 			//for each channel set value
 			space.channel.forEach(function (channel, i) {
-				q('#' + space.name + '-' + channel).value = Math.round(values[i]);
+				var value = (space.max[i] - space.min[i]) > 2 ? Math.round(values[i]) : values[i].toFixed(2);
+				q('#' + space.name + '-' + channel).value = value;
 			});
 		});
 	}
@@ -276,7 +297,8 @@
 		itemEl.setAttribute('data-space', space.name);
 
 		var titleEl = q('.spaces-item-title', itemEl);
-		titleEl.innerHTML = space.name;
+		titleEl.innerHTML = space.alias && space.alias[0] || space.name;
+		titleEl.title = space.alias[0] + ': ' + space.channel.join(', ');
 
 		//name channels
 		var channelEls = q.all('.spaces-item-input', itemEl);
@@ -285,8 +307,10 @@
 			channelEls[i].classList.remove('spaces-item-input-stub');
 			channelEls[i].min = space.min[i];
 			channelEls[i].max = space.max[i];
+			channelEls[i].step = (space.max[i] - space.min[i]) > 2 ? 1 : 0.01;
 			channelEls[i].setAttribute('data-channel', channel);
 			channelEls[i].setAttribute('data-space', space.name);
+			channelEls[i].title = channel + ' ' + space.min[0] + '-' + space.max[0];
 		});
 
 		spacesEl.appendChild(itemEl);
