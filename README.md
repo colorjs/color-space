@@ -2,7 +2,46 @@
 
 <img src="https://raw.githubusercontent.com/dfcreative/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-Conversions and data for the following color spaces:
+Conversions and data for color spaces. [Demo](http://dfcreative.github.io/color-space).
+
+
+## Usage
+
+[![NPM](https://nodei.co/npm/color-space.png?mini=true)](https://nodei.co/npm/color-space/)
+
+```js
+var space = require('color-space');
+
+//convert lab to lch
+var result = space.lab.lch([80,50,60]);
+```
+
+Require separately:
+
+```js
+var rgb = require('color-space/rgb');
+var hsl = require('color-space/hsl');
+
+//convert rgb to hsl
+rgb.hsl([200,230,100]);
+```
+
+
+## API
+
+
+```js
+<fromSpace>.<toSpace>(array);
+<space>.name //space name
+<space>.min //channel minimums
+<space>.max //channel maximums
+<space>.channel //channel names
+<space>.alias //alias space names, if any
+xyz.whitepoint //list of whitepoint references
+lms.transform //list of transform matrices
+```
+
+## Spaces
 
 * [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#Experimental_results:_the_CIE_RGB_color_space)
 * [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV)
@@ -45,46 +84,6 @@ Conversions and data for the following color spaces:
 * [ ] [SMTPE](http://www.jentronics.com/color.html)
 * [ ] [NTSC](http://www.jentronics.com/color.html)
 * [ ] [GREY](http://www.jentronics.com/color.html)
-* [ ] [Other spaces](#contribute)
-
-#### [Demo & tests](https://cdn.rawgit.com/dfcreative/color-space/master/test/index.html)
-
-
-## Usage
-
-`$ npm install --save color-space`
-
-```js
-var space = require('color-space');
-
-//convert lab to lch
-var result = space.lab.lch([80,50,60]);
-```
-
-Require separately:
-
-```js
-var rgb = require('color-space/rgb');
-var hsl = require('color-space/hsl');
-
-//convert rgb to hsl
-rgb.hsl([200,230,100]);
-```
-
-
-## API
-
-
-```js
-<fromSpace>.<toSpace>(array);
-<space>.name //space name
-<space>.min //channel minimums
-<space>.max //channel maximums
-<space>.channel //channel names
-<space>.alias //alias space names, if any
-xyz.whitepoint //list of whitepoint references
-lms.transform //list of transform matrices
-```
 
 
 ## Contribute
@@ -99,6 +98,3 @@ The goal of project is to provide the most complete set of color spaces with max
 * [chromatist](https://github.com/jrus/chromatist)
 * [spectra](https://github.com/avp/spectra)
 * [colorspaces.js](https://github.com/boronine/colorspaces.js)
-
-
-[![NPM](https://nodei.co/npm/color-space.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/color-space/)
