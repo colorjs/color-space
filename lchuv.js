@@ -11,7 +11,7 @@ var xyz = require('./xyz');
 var lchuv = module.exports = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
-	alias: ['cielchuv'],
+	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
 	max: [100,100,360],
 

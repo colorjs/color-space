@@ -10,9 +10,9 @@ Conversions and data for the following color spaces:
 * [x] [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation)
 * [x] [HSI](https://en.wikipedia.org/wiki/HSL_and_HSV)
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model)
-* [x] CMY
+* [x] [CMY](https://en.wikipedia.org/wiki/CMYK_color_model)
 * [x] [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space)
-* [x] XYY (YXY)
+* [x] [XYY (YXY)](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
 * [x] [LAB](http://en.wikipedia.org/wiki/Lab_color_space)
 * [x] [LCH<sub>ab</sub>](https://en.wikipedia.org/wiki/Lab_color_space#Cylindrical_representation:_CIELCh_or_CIEHLC)
 * [x] [LUV](http://en.wikipedia.org/wiki/CIELUV)

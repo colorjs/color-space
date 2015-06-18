@@ -10,8 +10,8 @@ var xyz = module.exports = {
 	name: 'xyz',
 	min: [0,0,0],
 	max: [96,100,109],
-	channel: ['lightness','u','v'],
-	alias: ['ciexyz'],
+	channel: ['X','Y','Z'],
+	alias: ['XYZ', 'ciexyz'],
 
 	//whitepoint with observer/illuminant
 	// http://en.wikipedia.org/wiki/Standard_illuminant
@@ -89,7 +89,13 @@ var xyz = module.exports = {
 };
 
 
-//extend rgb
+/**
+ * RGB to XYZ
+ *
+ * @param {Array} rgb RGB channels
+ *
+ * @return {Array} XYZ channels
+ */
 rgb.xyz = function(rgb) {
 	var r = rgb[0] / 255,
 			g = rgb[1] / 255,

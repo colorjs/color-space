@@ -10,12 +10,12 @@ module.exports = {
 	min: [0,0,0],
 	max: [1,1,100],
 	channel: ['x','y','Y'],
-	alias: ['Yxy', 'xyY', 'yxy'],
+	alias: ['xyY', 'Yxy', 'yxy'],
 
 	// https://github.com/boronine/colorspaces.js/blob/master/colorspaces.js#L128
 	xyz: function(arg) {
 		var X, Y, Z, x, y;
-		x = arg[0], y = arg[1], Y = arg[2];
+		x = arg[0]; y = arg[1]; Y = arg[2];
 		if (y === 0) {
 			return [0, 0, 0];
 		}
@@ -29,7 +29,7 @@ module.exports = {
 //extend xyz
 xyz.xyy = function(arg) {
 	var sum, X, Y, Z;
-	X = arg[0], Y = arg[1], Z = arg[2];
+	X = arg[0]; Y = arg[1]; Z = arg[2];
 	sum = X + Y + Z;
 	if (sum === 0) {
 		return [0, 0, Y];

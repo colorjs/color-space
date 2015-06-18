@@ -14,7 +14,7 @@ var lchab = module.exports = {
 	min: [0,0,0],
 	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
-	alias: ['cielch', 'lch'],
+	alias: ['LCHab', 'cielch', 'LCH', 'HLC'],
 
 	xyz: function(arg) {
 		return lab.xyz(lchab.lab(arg));

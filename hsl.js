@@ -5,10 +5,11 @@
 var rgb = require('./rgb');
 
 module.exports = {
-	name: 'HSL',
+	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
+	alias: ['HSL'],
 
 	rgb: function(hsl) {
 		var h = hsl[0] / 360,

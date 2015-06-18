@@ -14,6 +14,7 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
+	alias: ['HuSLp'],
 
 	lchuv: _husl._conv.huslp.lch,
 	xyz: function(arg){return lchuv.xyz(_husl._conv.huslp.lch(arg));},

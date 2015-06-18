@@ -12,6 +12,7 @@ var hwb = module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'whiteness', 'blackness'],
+	alias: ['HWB'],
 
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
 	rgb: function(hwb) {

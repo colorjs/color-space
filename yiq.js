@@ -7,27 +7,28 @@
 var rgb = require('./rgb');
 
 var yiq = module.exports = {
-	name: 'YIQ',
+	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
 	channel: ['Y','I','Q'],
+	alias: ['YIQ']
+};
 
-	rgb: function(yiq) {
-		var y = yiq[0],
-			i = yiq[1],
-			q = yiq[2],
-			r, g, b;
+yiq.rgb = function(yiq) {
+	var y = yiq[0],
+		i = yiq[1],
+		q = yiq[2],
+		r, g, b;
 
-		r = (y * 1) + (i *  0.956) + (q * 0.621);
-		g = (y * 1) + (i * -0.272) + (q * -0.647);
-		b = (y * 1) + (i * -1.108) + (q * 1.705);
+	r = (y * 1) + (i *  0.956) + (q * 0.621);
+	g = (y * 1) + (i * -0.272) + (q * -0.647);
+	b = (y * 1) + (i * -1.108) + (q * 1.705);
 
-		r = Math.min(Math.max(0, r), 1);
-		g = Math.min(Math.max(0, g), 1);
-		b = Math.min(Math.max(0, b), 1);
+	r = Math.min(Math.max(0, r), 1);
+	g = Math.min(Math.max(0, g), 1);
+	b = Math.min(Math.max(0, b), 1);
 
-		return [r * 255, g * 255, b * 255];
-	}
+	return [r * 255, g * 255, b * 255];
 };
 
 

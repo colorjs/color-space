@@ -9,6 +9,7 @@ module.exports = {
 	min: [0,0,0,0],
 	max: [100,100,100,100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
+	alias: ['CMYK'],
 
 	rgb: function(cmyk) {
 		var c = cmyk[0] / 100,

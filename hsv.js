@@ -6,11 +6,11 @@ var rgb = require('./rgb');
 var hsl = require('./hsl');
 
 module.exports = {
-	name: 'HSV',
+	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
-	alias: ['HSB'],
+	alias: ['HSB', 'HSV'],
 
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,

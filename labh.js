@@ -14,7 +14,7 @@ module.exports = {
 	min: [0,-128,-128],
 	max: [100,128,128],
 	channel: ['lightness', 'a', 'b'],
-	alias: ['hunter-lab', 'hlab'],
+	alias: ['LABh', 'hunter-lab', 'hlab'],
 
 	//maths are taken from EasyRGB
 	xyz: function(lab) {

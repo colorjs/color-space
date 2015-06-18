@@ -7,10 +7,11 @@
 var rgb = require('./rgb');
 
 var yuv = module.exports = {
-	name: 'YUV',
+	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','U','V'],
+	alias: ['YUV'],
 
 	rgb: function(yuv) {
 		var y = yuv[0],

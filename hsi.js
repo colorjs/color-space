@@ -12,10 +12,11 @@ var clamp = require('mumath/between');
 
 
 var hsi = module.exports = {
-	name: 'HSI',
+	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
-	channel: ['hue', 'saturation', 'intensity']
+	channel: ['hue', 'saturation', 'intensity'],
+	alias: ['HSI']
 };
 
 

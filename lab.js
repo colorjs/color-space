@@ -11,7 +11,7 @@ module.exports = {
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
-	alias: ['cielab'],
+	alias: ['LAB', 'cielab'],
 
 	xyz: function(lab) {
 		var l = lab[0],
