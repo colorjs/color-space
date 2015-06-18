@@ -10,18 +10,18 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
-	alias: ['HSB', 'HSV'],
+	alias: ['HSV', 'HSB'],
 
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
-				s = hsv[1] / 100,
-				v = hsv[2] / 100,
-				hi = Math.floor(h) % 6;
+			s = hsv[1] / 100,
+			v = hsv[2] / 100,
+			hi = Math.floor(h) % 6;
 
 		var f = h - Math.floor(h),
-				p = 255 * v * (1 - s),
-				q = 255 * v * (1 - (s * f)),
-				t = 255 * v * (1 - (s * (1 - f)));
+			p = 255 * v * (1 - s),
+			q = 255 * v * (1 - (s * f)),
+			t = 255 * v * (1 - (s * (1 - f)));
 		v *= 255;
 
 		switch(hi) {
@@ -60,18 +60,18 @@ module.exports = {
 //append rgb
 rgb.hsv = function(rgb) {
 	var r = rgb[0],
-			g = rgb[1],
-			b = rgb[2],
-			min = Math.min(r, g, b),
-			max = Math.max(r, g, b),
-			delta = max - min,
-			h, s, v;
+		g = rgb[1],
+		b = rgb[2],
+		min = Math.min(r, g, b),
+		max = Math.max(r, g, b),
+		delta = max - min,
+		h, s, v;
 
 	if (max === 0) {
 		s = 0;
 	}
 	else {
-		s = (delta/max * 1000)/10;
+		s = (delta/max * 100);
 	}
 
 	if (max === min) {
