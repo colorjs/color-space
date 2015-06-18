@@ -36,7 +36,6 @@
     "mumath": "^1.0.2"
   },
   "devDependencies": {
-    "mumath": "~0.x",
     "mocha": "*",
     "browserify": "~6.x",
     "assert": "~1.x",
