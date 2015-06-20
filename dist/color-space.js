@@ -1,5 +1,58 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.colorSpace=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
+ * @module color-space/cmy
+ */
+var rgb = require('./rgb');
+
+var cmy = module.exports = {
+	name: 'cmy',
+	min: [0,0,0],
+	max: [100,100,100],
+	channel: ['cyan', 'magenta', 'yellow'],
+	alias: ['CMY']
+};
+
+
+/**
+ * CMY to RGB
+ *
+ * @param {Array} cmy Channels
+ *
+ * @return {Array} RGB channels
+ */
+cmy.rgb = function(cmy) {
+	var c = cmy[0] / 100,
+		m = cmy[1] / 100,
+		y = cmy[2] / 100;
+
+	return [
+		(1 - c) * 255,
+		(1 - m) * 255,
+		(1 - y) * 255
+	];
+};
+
+
+/**
+ * RGB to CMY
+ *
+ * @param {Array} rgb channels
+ *
+ * @return {Array} CMY channels
+ */
+rgb.cmy = function(rgb) {
+	var r = rgb[0] / 255,
+		g = rgb[1] / 255,
+		b = rgb[2] / 255;
+
+	return [
+		(1-r) * 100 || 0,
+		(1-g) * 100 || 0,
+		(1-b) * 100 || 0
+	];
+};
+},{"./rgb":19}],2:[function(require,module,exports){
+/**
  * @module color-space/cmyk
  */
 
@@ -10,6 +63,7 @@ module.exports = {
 	min: [0,0,0,0],
 	max: [100,100,100,100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
+	alias: ['CMYK'],
 
 	rgb: function(cmyk) {
 		var c = cmyk[0] / 100,
@@ -39,7 +93,95 @@ rgb.cmyk = function(rgb) {
 	y = (1 - b - k) / (1 - k) || 0;
 	return [c * 100, m * 100, y * 100, k * 100];
 };
-},{"./rgb":13}],2:[function(require,module,exports){
+},{"./rgb":19}],3:[function(require,module,exports){
+/**
+ * http://www.cse.usf.edu/~mshreve/rgb-to-hsi
+ * http://web.archive.org/web/20130124054245/http://web2.clarkson.edu/class/image_process/RGB_to_HSI.pdf
+ *
+ * @module color-space/hsl
+ */
+
+var rgb = require('./rgb');
+
+var loop = require('mumath/loop');
+var clamp = require('mumath/between');
+
+
+var hsi = module.exports = {
+	name: 'hsi',
+	min: [0,0,0],
+	max: [360,100,255],
+	channel: ['hue', 'saturation', 'intensity'],
+	alias: ['HSI']
+};
+
+
+/**
+ * HSI to RGB
+ *
+ * @param {Array} hsi Channel values
+ *
+ * @return {Array} RGB channel values
+ */
+hsi.rgb = function (hsi) {
+	var h = loop(hsi[0], 0, 360) * Math.PI / 180;
+	var s = clamp(hsi[1], 0, 100) / 100;
+	var i = clamp(hsi[2], 0, 255) / 255;
+
+	var pi3 = Math.PI / 3;
+
+	var r, g, b;
+	if (h < (2 * pi3) ) {
+		b = i * ( 1 - s );
+		r = i * (1 + ( s * Math.cos(h) / Math.cos(pi3 - h) ));
+		g = i * (1 + ( s * ( 1 - Math.cos(h) / Math.cos(pi3 - h) )));
+	}
+	else if (h < (4 * pi3) ) {
+		h = h - 2 * pi3;
+		r = i * ( 1 - s );
+		g = i * (1 + ( s * Math.cos(h) / Math.cos(pi3 - h) ));
+		b = i * (1 + ( s * ( 1 - Math.cos(h) / Math.cos(pi3 - h) )));
+	}
+	else {
+		h = h - 4 * pi3;
+		g = i * ( 1 - s );
+		b = i * (1 + ( s * Math.cos(h) / Math.cos(pi3 - h) ));
+		r = i * (1 + ( s * ( 1 - Math.cos(h) / Math.cos(pi3 - h) )));
+	}
+
+	return [r * 255, g * 255, b * 255];
+};
+
+
+/**
+ * RGB to HSI
+ *
+ * @param {Array} rgb Channel values
+ *
+ * @return {Array} HSI channel values
+ */
+rgb.hsi = function (rgb) {
+	var sum = rgb[0] + rgb[1] + rgb[2];
+
+	var r = rgb[0] / sum;
+	var g = rgb[1] / sum;
+	var b = rgb[2] / sum;
+
+	var h = Math.acos(
+		( 0.5 * ((r - g) + (r - b)) ) /
+		Math.sqrt( (r - g)*(r - g) + (r - b)*(g - b) )
+	);
+	if (b > g) {
+		h = 2 * Math.PI - h;
+	}
+
+	var s = 1 - 3 * Math.min(r, g, b);
+
+	var i = sum / 3;
+
+	return [h * 180 / Math.PI, s * 100, i];
+};
+},{"./rgb":19,"mumath/between":16,"mumath/loop":17}],4:[function(require,module,exports){
 /**
  * @module color-space/hsl
  */
@@ -51,6 +193,7 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
+	alias: ['HSL'],
 
 	rgb: function(hsl) {
 		var h = hsl[0] / 360,
@@ -74,8 +217,12 @@ module.exports = {
 		rgb = [0, 0, 0];
 		for (var i = 0; i < 3; i++) {
 			t3 = h + 1 / 3 * - (i - 1);
-			if (t3 < 0) t3++;
-			else if (t3 > 1) t3--;
+			if (t3 < 0) {
+				t3++;
+			}
+			else if (t3 > 1) {
+				t3--;
+			}
 
 			if (6 * t3 < 1) {
 				val = t1 + (t2 - t1) * 6 * t3;
@@ -123,8 +270,9 @@ rgb.hsl = function(rgb) {
 
 	h = Math.min(h * 60, 360);
 
-	if (h < 0)
+	if (h < 0) {
 		h += 360;
+	}
 
 	l = (min + max) / 2;
 
@@ -140,7 +288,7 @@ rgb.hsl = function(rgb) {
 
 	return [h, s * 100, l * 100];
 };
-},{"./rgb":13}],3:[function(require,module,exports){
+},{"./rgb":19}],5:[function(require,module,exports){
 /**
  * @module color-space/hsv
  */
@@ -153,18 +301,18 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
-	alias: ['hsb'],
+	alias: ['HSV', 'HSB'],
 
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
-				s = hsv[1] / 100,
-				v = hsv[2] / 100,
-				hi = Math.floor(h) % 6;
+			s = hsv[1] / 100,
+			v = hsv[2] / 100,
+			hi = Math.floor(h) % 6;
 
 		var f = h - Math.floor(h),
-				p = 255 * v * (1 - s),
-				q = 255 * v * (1 - (s * f)),
-				t = 255 * v * (1 - (s * (1 - f)));
+			p = 255 * v * (1 - s),
+			q = 255 * v * (1 - (s * f)),
+			t = 255 * v * (1 - (s * (1 - f)));
 		v *= 255;
 
 		switch(hi) {
@@ -203,18 +351,18 @@ module.exports = {
 //append rgb
 rgb.hsv = function(rgb) {
 	var r = rgb[0],
-			g = rgb[1],
-			b = rgb[2],
-			min = Math.min(r, g, b),
-			max = Math.max(r, g, b),
-			delta = max - min,
-			h, s, v;
+		g = rgb[1],
+		b = rgb[2],
+		min = Math.min(r, g, b),
+		max = Math.max(r, g, b),
+		delta = max - min,
+		h, s, v;
 
 	if (max === 0) {
 		s = 0;
 	}
 	else {
-		s = (delta/max * 1000)/10;
+		s = (delta/max * 100);
 	}
 
 	if (max === min) {
@@ -256,7 +404,7 @@ hsl.hsv = function(hsl) {
 
 	return [h, sv * 100, v * 100];
 };
-},{"./hsl":2,"./rgb":13}],4:[function(require,module,exports){
+},{"./hsl":4,"./rgb":19}],6:[function(require,module,exports){
 /**
  * A uniform wrapper for husl.
  * // http://www.boronine.com/husl/
@@ -274,6 +422,7 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
+	alias: ['HuSL'],
 
 	lchuv: _husl._conv.husl.lch,
 
@@ -292,7 +441,7 @@ lchuv.husl = _husl._conv.lch.husl;
 xyz.husl = function(arg){
 	return _husl._conv.lch.husl(xyz.lchuv(arg));
 };
-},{"./lchuv":10,"./xyz":15,"husl":12}],5:[function(require,module,exports){
+},{"./lchuv":13,"./xyz":21,"husl":15}],7:[function(require,module,exports){
 /**
  * A uniform wrapper for huslp.
  * // http://www.boronine.com/husl/
@@ -309,6 +458,7 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
+	alias: ['HuSLp'],
 
 	lchuv: _husl._conv.huslp.lch,
 	xyz: function(arg){return lchuv.xyz(_husl._conv.huslp.lch(arg));},
@@ -322,7 +472,7 @@ module.exports = {
 //extend lchuv, xyz
 lchuv.huslp = _husl._conv.lch.huslp;
 xyz.huslp = function(arg){return _husl._conv.lch.huslp(xyz.lchuv(arg));};
-},{"./lchuv":10,"./xyz":15,"husl":12}],6:[function(require,module,exports){
+},{"./lchuv":13,"./xyz":21,"husl":15}],8:[function(require,module,exports){
 /**
  * @module color-space/hwb
  */
@@ -337,6 +487,7 @@ var hwb = module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'whiteness', 'blackness'],
+	alias: ['HWB'],
 
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
 	rgb: function(hwb) {
@@ -432,19 +583,13 @@ hsv.hwb = function(arg){
 hsl.hwb = function(arg){
 	return hsv.hwb(hsl.hsv(arg));
 };
-},{"./hsl":2,"./hsv":3,"./rgb":13}],7:[function(require,module,exports){
+},{"./hsl":4,"./hsv":5,"./rgb":19}],9:[function(require,module,exports){
 /**
+ * Color space data and conversions
+ *
  * @module color-space
  *
- * @todo  to-source method, preparing the code for webworker
- * @todo  implement all side spaces from http://en.wikipedia.org/wiki/Category:Color_space yuv, yiq etc.
- * @todo  here are additional spaces http://www.jentronics.com/color.html ITU, REC709, SMTPE, NTSC, GREY
- *
- * @todo implement asm-js way to convert spaces (promises to be times faster)
- *
  */
-
-var addConvertor = require('./util/add-convertor');
 
 
 /** Exported spaces */
@@ -452,10 +597,16 @@ var spaces = {
 	rgb: require('./rgb'),
 	hsl: require('./hsl'),
 	hsv: require('./hsv'),
+	hsi: require('./hsi'),
 	hwb: require('./hwb'),
 	cmyk: require('./cmyk'),
+	cmy: require('./cmy'),
 	xyz: require('./xyz'),
+	xyy: require('./xyy'),
+	yiq: require('./yiq'),
+	yuv: require('./yuv'),
 	lab: require('./lab'),
+	labh: require('./labh'),
 	lchab: require('./lchab'),
 	luv: require('./luv'),
 	lchuv: require('./lchuv'),
@@ -470,16 +621,41 @@ var fromSpace, toSpace;
 for (var fromSpaceName in spaces) {
 	fromSpace = spaces[fromSpaceName];
 	for (var toSpaceName in spaces) {
-		if (toSpaceName !== fromSpaceName) {
-			toSpace = spaces[toSpaceName];
-			addConvertor(fromSpace, toSpace);
-		}
+		toSpace = spaces[toSpaceName];
+		if (!fromSpace[toSpaceName]) fromSpace[toSpaceName] = getConvertor(fromSpaceName, toSpaceName);
+	}
+}
+
+
+/** return converter through xyz/rgb space */
+function getConvertor(fromSpaceName, toSpaceName){
+	var fromSpace = spaces[fromSpaceName];
+	var toSpace = spaces[toSpaceName];
+
+	//create straight converter
+	if (fromSpaceName === toSpaceName) {
+		return function (a) {
+			return a;
+		};
+	}
+
+	//create xyz converter, if available
+	else if (fromSpace.xyz && spaces.xyz[toSpaceName]) {
+		return function(arg){
+			return spaces.xyz[toSpaceName](fromSpace.xyz(arg));
+		};
+	}
+	//create rgb converter
+	else if (fromSpace.rgb && spaces.rgb[toSpaceName]) {
+		return function(arg){
+			return spaces.rgb[toSpaceName](fromSpace.rgb(arg));
+		};
 	}
 }
 
 
 module.exports = spaces;
-},{"./cmyk":1,"./hsl":2,"./hsv":3,"./husl":4,"./huslp":5,"./hwb":6,"./lab":8,"./lchab":9,"./lchuv":10,"./luv":11,"./rgb":13,"./util/add-convertor":14,"./xyz":15}],8:[function(require,module,exports){
+},{"./cmy":1,"./cmyk":2,"./hsi":3,"./hsl":4,"./hsv":5,"./husl":6,"./huslp":7,"./hwb":8,"./lab":10,"./labh":11,"./lchab":12,"./lchuv":13,"./luv":14,"./rgb":19,"./xyy":20,"./xyz":21,"./yiq":22,"./yuv":23}],10:[function(require,module,exports){
 /**
  * CIE LAB space model
  *
@@ -493,7 +669,7 @@ module.exports = {
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
-	alias: ['cielab'],
+	alias: ['LAB', 'cielab'],
 
 	xyz: function(lab) {
 		var l = lab[0],
@@ -539,7 +715,51 @@ xyz.lab = function(xyz){
 
 	return [l, a, b];
 };
-},{"./xyz":15}],9:[function(require,module,exports){
+},{"./xyz":21}],11:[function(require,module,exports){
+/**
+ * Hunter-lab space.
+ *
+ * @module  color-space/labh
+ */
+
+var xyz = require('./xyz');
+
+module.exports = {
+	name: 'labh',
+
+	//mins/maxes are taken from colormine
+	//FIXME: check whether mins/maxes correct
+	min: [0,-128,-128],
+	max: [100,128,128],
+	channel: ['lightness', 'a', 'b'],
+	alias: ['LABh', 'hunter-lab', 'hlab'],
+
+	//maths are taken from EasyRGB
+	xyz: function(lab) {
+		var l = lab[0], a = lab[1], b = lab[2];
+
+		var _y = l / 10;
+		var _x = a / 17.5 * l / 10;
+		var _z = b / 7 * l / 10;
+
+		var y = _y * _y;
+		var x = ( _x + y ) / 1.02;
+		var z = -( _z - y ) / 0.847;
+
+		return [x,y,z];
+	}
+};
+
+//extend xyz
+xyz.labh = function(xyz){
+	var x = xyz[0], y = xyz[1], z = xyz[2];
+	var l = 10 * Math.sqrt( y );
+	var a = y === 0 ? 0 : 17.5 * ((( 1.02 * x ) - y ) / Math.sqrt( y ) );
+	var b = y === 0 ? 0 : 7 * ( ( y - ( 0.847 * z ) ) / Math.sqrt( y ) );
+
+	return [l, a, b];
+};
+},{"./xyz":21}],12:[function(require,module,exports){
 /**
  * Cylindrical LAB
  *
@@ -556,7 +776,7 @@ var lchab = module.exports = {
 	min: [0,0,0],
 	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
-	alias: ['cielch', 'lch'],
+	alias: ['LCHab', 'cielch', 'LCH', 'HLC'],
 
 	xyz: function(arg) {
 		return lab.xyz(lchab.lab(arg));
@@ -595,7 +815,7 @@ lab.lchab = function(lab) {
 xyz.lchab = function(arg){
 	return lab.lchab(xyz.lab(arg));
 };
-},{"./lab":8,"./xyz":15}],10:[function(require,module,exports){
+},{"./lab":10,"./xyz":21}],13:[function(require,module,exports){
 /**
  * Cylindrical CIE LUV
  *
@@ -609,7 +829,7 @@ var xyz = require('./xyz');
 var lchuv = module.exports = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
-	alias: ['cielchuv'],
+	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
 	max: [100,100,360],
 
@@ -627,7 +847,7 @@ var lchuv = module.exports = {
 
 	xyz: function(arg) {
 		return luv.xyz(lchuv.luv(arg));
-	},
+	}
 };
 
 luv.lchuv = function(luv){
@@ -646,7 +866,7 @@ luv.lchuv = function(luv){
 xyz.lchuv = function(arg){
   return luv.lchuv(xyz.luv(arg));
 };
-},{"./luv":11,"./xyz":15}],11:[function(require,module,exports){
+},{"./luv":14,"./xyz":21}],14:[function(require,module,exports){
 /**
  * CIE LUV (C'est la vie)
  *
@@ -664,7 +884,7 @@ module.exports = {
 	min: [0,-134,-140],
 	max: [100,224,122],
 	channel: ['lightness', 'u', 'v'],
-	alias: ['cieluv'],
+	alias: ['LUV', 'cieluv'],
 
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
@@ -746,7 +966,7 @@ xyz.luv = function(arg, i, o) {
 
 	return [l, u, v];
 };
-},{"./xyz":15}],12:[function(require,module,exports){
+},{"./xyz":21}],15:[function(require,module,exports){
 // Generated by CoffeeScript 1.8.0
 (function() {
   var L_to_Y, Y_to_L, conv, distanceFromPole, dotProduct, epsilon, fromLinear, getBounds, intersectLineLine, kappa, lengthOfRayUntilIntersect, m, m_inv, maxChromaForLH, maxSafeChromaForL, refU, refV, refX, refY, refZ, rgbPrepare, root, round, toLinear;
@@ -1181,7 +1401,91 @@ xyz.luv = function(arg, i, o) {
 
 }).call(this);
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
+/**
+ * Clamper.
+ * Detects proper clamp min/max.
+ *
+ * @param {number} a Current value to cut off
+ * @param {number} min One side limit
+ * @param {number} max Other side limit
+ *
+ * @return {number} Clamped value
+ */
+
+module.exports = require('./wrap')(function(a, min, max){
+	return max > min ? Math.max(Math.min(a,max),min) : Math.max(Math.min(a,min),max);
+});
+},{"./wrap":18}],17:[function(require,module,exports){
+/**
+ * @module  mumath/loop
+ *
+ * Looping function for any framesize
+ */
+
+module.exports = require('./wrap')(function (value, left, right) {
+	//detect single-arg case, like mod-loop
+	if (right === undefined) {
+		right = left;
+		left = 0;
+	}
+
+	//swap frame order
+	if (left > right) {
+		var tmp = right;
+		right = left;
+		left = tmp;
+	}
+
+	var frame = right - left;
+
+	value = ((value + left) % frame) - left;
+	if (value < left) value += frame;
+	if (value > right) value -= frame;
+
+	return value;
+});
+},{"./wrap":18}],18:[function(require,module,exports){
+/**
+ * Get fn wrapped with array/object attrs recognition
+ *
+ * @return {Function} Target function
+ */
+module.exports = function(fn){
+	return function(a){
+		var args = arguments;
+		if (a instanceof Array) {
+			var result = new Array(a.length), slice;
+			for (var i = 0; i < a.length; i++){
+				slice = [];
+				for (var j = 0, l = args.length, val; j < l; j++){
+					val = args[j] instanceof Array ? args[j][i] : args[j];
+					val = val;
+					slice.push(val);
+				}
+				result[i] = fn.apply(this, slice);
+			}
+			return result;
+		}
+		else if (typeof a === 'object') {
+			var result = {}, slice;
+			for (var i in a){
+				slice = [];
+				for (var j = 0, l = args.length, val; j < l; j++){
+					val = typeof args[j] === 'object' ? args[j][i] : args[j];
+					val = val;
+					slice.push(val);
+				}
+				result[i] = fn.apply(this, slice);
+			}
+			return result;
+		}
+		else {
+			return fn.apply(this, args);
+		}
+	};
+};
+},{}],19:[function(require,module,exports){
 /**
  * RGB space.
  *
@@ -1192,57 +1496,49 @@ module.exports = {
 	name: 'rgb',
 	min: [0,0,0],
 	max: [255,255,255],
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	alias: ['RGB']
 };
-},{}],14:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
- * Add a convertor from one to another space via XYZ or RGB space as a medium.
+ * Additional xyY space.
  *
- * @module  color-space/add-convertor
+ * @module color-space/xyy
  */
+var xyz = require('./xyz');
 
-var xyz = require('../xyz');
-var rgb = require('../rgb');
+module.exports = {
+	name: 'xyy',
+	min: [0,0,0],
+	max: [1,1,100],
+	channel: ['x','y','Y'],
+	alias: ['xyY', 'Yxy', 'yxy'],
 
-module.exports = addConvertor;
-
-
-/**
- * Add convertor from space A to space B.
- * So space A will be able to transform to B.
- */
-function addConvertor(fromSpace, toSpace){
-	if (!fromSpace[toSpace.name]) {
-		fromSpace[toSpace.name] = getConvertor(fromSpace, toSpace);
+	// https://github.com/boronine/colorspaces.js/blob/master/colorspaces.js#L128
+	xyz: function(arg) {
+		var X, Y, Z, x, y;
+		x = arg[0]; y = arg[1]; Y = arg[2];
+		if (y === 0) {
+			return [0, 0, 0];
+		}
+		X = x * Y / y;
+		Z = (1 - x - y) * Y / y;
+		return [X, Y, Z];
 	}
-
-	return fromSpace;
-}
+};
 
 
-/** return converter through xyz/rgb space */
-function getConvertor(fromSpace, toSpace){
-	var toSpaceName = toSpace.name;
-
-	//create xyz converter, if available
-	if (fromSpace.xyz && xyz[toSpaceName]) {
-		return function(arg){
-			return xyz[toSpaceName](fromSpace.xyz(arg));
-		};
+//extend xyz
+xyz.xyy = function(arg) {
+	var sum, X, Y, Z;
+	X = arg[0]; Y = arg[1]; Z = arg[2];
+	sum = X + Y + Z;
+	if (sum === 0) {
+		return [0, 0, Y];
 	}
-	//create rgb converter
-	else if (fromSpace.rgb && rgb[toSpaceName]) {
-		return function(arg){
-			return rgb[toSpaceName](fromSpace.rgb(arg));
-		};
-	}
-
-	else throw Error('Can’t add convertor from ' + fromSpace.name + ' to ' + toSpaceName);
-
-	return fromSpace[toSpaceName];
-}
-
-},{"../rgb":13,"../xyz":15}],15:[function(require,module,exports){
+	return [X / sum, Y / sum, Y];
+};
+},{"./xyz":21}],21:[function(require,module,exports){
 /**
  * CIE XYZ
  *
@@ -1255,8 +1551,8 @@ var xyz = module.exports = {
 	name: 'xyz',
 	min: [0,0,0],
 	max: [96,100,109],
-	channel: ['lightness','u','v'],
-	alias: ['ciexyz'],
+	channel: ['X','Y','Z'],
+	alias: ['XYZ', 'ciexyz'],
 
 	//whitepoint with observer/illuminant
 	// http://en.wikipedia.org/wiki/Standard_illuminant
@@ -1334,7 +1630,13 @@ var xyz = module.exports = {
 };
 
 
-//extend rgb
+/**
+ * RGB to XYZ
+ *
+ * @param {Array} rgb RGB channels
+ *
+ * @return {Array} XYZ channels
+ */
 rgb.xyz = function(rgb) {
 	var r = rgb[0] / 255,
 			g = rgb[1] / 255,
@@ -1351,5 +1653,102 @@ rgb.xyz = function(rgb) {
 
 	return [x * 100, y *100, z * 100];
 };
-},{"./rgb":13}]},{},[7])(7)
+},{"./rgb":19}],22:[function(require,module,exports){
+/**
+ * YIQ https://en.wikipedia.org/?title=YIQ
+ *
+ * @module  color-space/yiq
+ */
+
+var rgb = require('./rgb');
+
+var yiq = module.exports = {
+	name: 'yiq',
+	min: [0,-0.5957,-0.5226],
+	max: [1, 0.5957, 0.5226],
+	channel: ['Y','I','Q'],
+	alias: ['YIQ']
+};
+
+yiq.rgb = function(yiq) {
+	var y = yiq[0],
+		i = yiq[1],
+		q = yiq[2],
+		r, g, b;
+
+	r = (y * 1) + (i *  0.956) + (q * 0.621);
+	g = (y * 1) + (i * -0.272) + (q * -0.647);
+	b = (y * 1) + (i * -1.108) + (q * 1.705);
+
+	r = Math.min(Math.max(0, r), 1);
+	g = Math.min(Math.max(0, g), 1);
+	b = Math.min(Math.max(0, b), 1);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+
+//extend rgb
+rgb.yiq = function(rgb) {
+	var r = rgb[0] / 255,
+		g = rgb[1] / 255,
+		b = rgb[2] / 255;
+
+
+	var y = (r * 0.299) + (g * 0.587) + (b * 0.114);
+	var i = 0, q = 0;
+	if (r !== g || g !== b) {
+		i = (r * 0.596) + (g * -0.275) + (b * -0.321);
+		q = (r * 0.212) + (g * -0.528) + (b * 0.311);
+	}
+	return [y, i, q];
+};
+},{"./rgb":19}],23:[function(require,module,exports){
+/**
+ * YUV https://en.wikipedia.org/?title=YUV
+ *
+ * @module  color-space/yuv
+ */
+
+var rgb = require('./rgb');
+
+var yuv = module.exports = {
+	name: 'yuv',
+	min: [0,-0.5,-0.5],
+	max: [1, 0.5, 0.5],
+	channel: ['Y','U','V'],
+	alias: ['YUV'],
+
+	rgb: function(yuv) {
+		var y = yuv[0],
+			u = yuv[1],
+			v = yuv[2],
+			r, g, b;
+
+		r = (y * 1) + (u *  0) + (v * 1.13983);
+		g = (y * 1) + (u * -0.39465) + (v * -0.58060);
+		b = (y * 1) + (u * 2.02311) + (v * 0);
+
+		r = Math.min(Math.max(0, r), 1);
+		g = Math.min(Math.max(0, g), 1);
+		b = Math.min(Math.max(0, b), 1);
+
+		return [r * 255, g * 255, b * 255];
+	}
+};
+
+
+//extend rgb
+rgb.yuv = function(rgb) {
+	var r = rgb[0] / 255,
+		g = rgb[1] / 255,
+		b = rgb[2] / 255;
+
+	var y = (r * 0.299) + (g * 0.587) + (b * 0.114);
+	var u = (r * -0.14713) + (g * -0.28886) + (b * 0.436);
+	var v = (r * 0.615) + (g * -0.51499) + (b * -0.10001);
+
+	return [y, u, v];
+};
+},{"./rgb":19}]},{},[9])(9)
 });

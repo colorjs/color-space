@@ -25,7 +25,8 @@ var spaces = {
 	luv: require('./luv'),
 	lchuv: require('./lchuv'),
 	husl: require('./husl'),
-	huslp: require('./huslp')
+	huslp: require('./huslp'),
+	cubehelix: require('./cubehelix')
 };
 
 

@@ -139,14 +139,14 @@
 <script src="mocha.js"></script>
 
 
-<script src="test.bundle.js"></script>
+<script src="bundle.js"></script>
 
 
 
 
 <script>
 	var round = require('mumath').round;
-	var q = require('query-relative');
+	var q = require('queried');
 	var convert = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 
 	//setup converter
@@ -156,9 +156,9 @@
 	var title = q('.page-link');
 
 	var table = q('#convert-table');
-	var thead = q(table, 'thead');
-	var tbody = q(table, 'tbody');
-	var tr = q(table, 'tr', true);
+	var thead = q('thead', table);
+	var tbody = q('tbody', table);
+	var tr = q.all('tr', table);
 
 	var selCss='::selection{background:%b;color:%c} ::-moz-selection{background:%b;color:%c}';
 
@@ -180,7 +180,7 @@
 		var target = e.target;
 		var channel = target.id;
 		var srcSpace = target.getAttribute('data-space');
-		var srcSpaceInputs = q('[data-space=' + srcSpace + ']', true);
+		var srcSpaceInputs = q.all('[data-space=' + srcSpace + ']');
 		var srcValues = [];
 		for (var i = srcSpaceInputs.length; i--;){
 			srcValues[i] = +srcSpaceInputs[i].value;
@@ -202,7 +202,7 @@
 				// console.log(srcSpace, targetSpaceName, convert)
 				targetValues = convert[srcSpace][targetSpaceName](srcValues);
 
-				targetSpaceInputs = q('[data-space=' + targetSpaceName + ']', true);
+				targetSpaceInputs = q.all('[data-space=' + targetSpaceName + ']');
 
 				for (var i = targetSpaceInputs.length; i--;){
 					targetSpaceInputs[i].value = targetValues[i].toFixed(1);

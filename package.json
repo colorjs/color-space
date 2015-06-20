@@ -33,20 +33,18 @@
   "main": "./index.js",
   "dependencies": {
     "husl": ">=5.0",
-    "mumath": "^1.0.2"
+    "mumath": "^1.0.2",
+    "queried": "^1.4.1"
   },
   "devDependencies": {
     "mocha": "*",
-    "browserify": "~6.x",
-    "assert": "~1.x",
-    "closurecompiler": "~1.x",
-    "require-stub": "~1.x",
-    "query-relative": "~1.x"
+    "browserify": "^6.x",
+    "closurecompiler": "^1.x"
   },
   "scripts": {
     "test": "mocha",
     "build": "browserify --standalone colorSpace ./index.js > dist/color-space.js",
     "min": "ccjs dist/color-space.js --language_in=ECMASCRIPT5 > dist/color-space.min.js && cat dist/color-space.min.js | gzip-size | pretty-bytes",
-    "build-test": "browserify -r ./util/add-space:../util/add-space -r ./index:../index -r ./xyy:../xyy -r ./labh:../labh -r ./cmy:../cmy -r husl -r assert -r mumath -r query-relative > test/test.bundle.js"
+    "build-test": "browserify -r ./index:../index -r husl -r assert -r mumath -r queried -d > test/bundle.js"
   }
 }

@@ -1,25 +1,72 @@
 /**
- * Cubehelix https://www.mrao.cubehelix.ac.uk/~dag/CUBEHELIX/
+ * Cubehelix http://astron-soc.in/bulletin/11June/289392011.pdf
  *
  * @module color-space/cubehelix
  */
 var rgb = require('./rgb');
+var clamp = require('mumath/between');
 
 
 var cubehelix = module.exports = {
-  name: 'cubehelix',
-  channel: ['start', 'rotation', 'hue', 'gamma'],
-  min: [0, -10, 0, 0],
-  max: [3, 10, 2, 2],
+	name: 'cubehelix',
+	channel: ['fraction'],
+	min: [0],
+	max: [1]
+};
 
-  rgb: function(ch){
-  	//TODO
-  }
+/** Default options for space */
+var defaults = cubehelix.defaults = {
+	//0..3
+	start: 0,
+	//-10..10
+	rotation: 0.5,
+	//0..1+
+	hue: 1,
+	//0..2
+	gamma: 1
 };
 
 
-//extend rgb
-rgb.cubehelix = function(rgb){
-	var x = rgb[0], y = rgb[1], z = rgb[2];
-	//TODO
+/**
+ * cubehelix to RGB
+ *
+ * @param {Array} cubehelix RGB values
+ *
+ * @return {Array} cubehelix values
+ */
+cubehelix.rgb = function(fraction, options) {
+	options = options || {};
+
+	var start = options.start !== undefined ? options.start : defaults.start;
+	var rotation = options.rotation !== undefined ? options.rotation : defaults.rotation;
+	var gamma = options.gamma !== undefined ? options.gamma : defaults.gamma;
+	var hue = options.hue !== undefined ? options.hue : defaults.hue;
+
+	var angle = 2 * Math.PI * (start/3 + 1.0 + rotation * fraction);
+
+	fraction = Math.pow(fraction, gamma);
+
+	var amp = hue * fraction * (1-fraction)/2.0;
+
+	var r = fraction + amp*(-0.14861*Math.cos(angle)+1.78277*Math.sin(angle));
+	var g = fraction + amp*(-0.29227*Math.cos(angle)-0.90649*Math.sin(angle));
+	var b = fraction + amp*(+1.97294*Math.cos(angle));
+
+	r = clamp(r, 0, 1);
+	g = clamp(g, 0, 1);
+	b = clamp(b, 0, 1);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+
+/**
+ * RGB to cubehelix
+ *
+ * @param {Array} cubehelix cubehelix values
+ *
+ * @return {Array} RGB values
+ */
+rgb.cubehelix = function(rgb) {
+	//TODO - there’re no backwise conversion yet
 };
