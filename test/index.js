@@ -516,6 +516,8 @@ describe('yuv', function () {
 
 describe('cubehelix', function () {
 	it('paint', function () {
+		if (typeof document === 'undefined') return;
+
 		var cnv = document.createElement('canvas');
 		cnv.width = 400;
 		cnv.height = 30;
