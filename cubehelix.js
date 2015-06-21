@@ -28,14 +28,17 @@ var defaults = cubehelix.defaults = {
 
 
 /**
- * cubehelix to RGB
+ * Transform cubehelix level to RGB
  *
- * @param {Array} cubehelix RGB values
+ * @param {Number} fraction 0..1 cubehelix level
+ * @param {Object} options Mapping options, overrides defaults
  *
- * @return {Array} cubehelix values
+ * @return {Array} rgb tuple
  */
 cubehelix.rgb = function(fraction, options) {
 	options = options || {};
+
+	if (fraction.length) fraction = fraction[0];
 
 	var start = options.start !== undefined ? options.start : defaults.start;
 	var rotation = options.rotation !== undefined ? options.rotation : defaults.rotation;
@@ -63,10 +66,10 @@ cubehelix.rgb = function(fraction, options) {
 /**
  * RGB to cubehelix
  *
- * @param {Array} cubehelix cubehelix values
+ * @param {Array} rgb RGB values
  *
- * @return {Array} RGB values
+ * @return {Array} cubehelix fraction(s)
  */
 rgb.cubehelix = function(rgb) {
-	//TODO - there’re no backwise conversion yet
+	//TODO - there is no backwise conversion yet
 };
