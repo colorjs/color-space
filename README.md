@@ -36,8 +36,7 @@ rgb.hsl([200,230,100]);
 <space>.min //channel minimums
 <space>.max //channel maximums
 <space>.channel //channel names
-<space>.alias //alias space names, if any
-xyz.whitepoint //list of whitepoint references
+<space>.alias //alias space names
 ```
 
 ## Spaces
@@ -74,10 +73,10 @@ xyz.whitepoint //list of whitepoint references
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
-* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
+* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space)
 * [x] [cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
 * [ ] [gray](http://dev.w3.org/csswg/css-color/#grays)
-* [ ] [CIECAM](https://en.wikipedia.org/wiki/CIECAM02)
+* [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
 * [ ] [ITU](http://www.jentronics.com/color.html)
 * [ ] [REC709](http://www.jentronics.com/color.html)
 * [ ] [SMTPE](http://www.jentronics.com/color.html)
