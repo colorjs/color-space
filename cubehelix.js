@@ -14,6 +14,7 @@ var cubehelix = module.exports = {
 	max: [1]
 };
 
+
 /** Default options for space */
 var defaults = cubehelix.defaults = {
 	//0..3
