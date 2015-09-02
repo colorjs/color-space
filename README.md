@@ -38,7 +38,6 @@ rgb.hsl([200,230,100]);
 <space>.channel //channel names
 <space>.alias //alias space names, if any
 xyz.whitepoint //list of whitepoint references
-lms.transform //list of transform matrices
 ```
 
 ## Spaces
@@ -75,7 +74,7 @@ lms.transform //list of transform matrices
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
-* [ ] [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
+* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space).
 * [x] [cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
 * [ ] [gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM](https://en.wikipedia.org/wiki/CIECAM02)

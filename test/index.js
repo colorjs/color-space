@@ -274,6 +274,21 @@ describe('lab', function () {
 });
 
 
+describe('lms', function () {
+	before(function () {
+		createSpaceCase('XYZ');
+		createSpaceCase('LMS');
+	});
+
+	it('lms ←→ xyz', function () {
+		assert.deepEqual(s.lms.xyz([0,0,0]), [0,0,0]);
+		assert.deepEqual(s.xyz.lms([0,0,0]), [0,0,0]);
+
+		assert.deepEqual(round(s.lms.xyz(s.xyz.lms([10,20,30]))), [10,20,30]);
+	});
+});
+
+
 describe('lchab', function () {
 	before(function () {
 		createSpaceCase('XYZ');
