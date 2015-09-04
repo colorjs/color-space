@@ -436,7 +436,7 @@ describe('husl', function () {
 });
 
 
-describe('huslp', function () {
+describe.skip('huslp', function () {
 	before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('HuSLP');
@@ -525,6 +525,28 @@ describe('yuv', function () {
 		assert.deepEqual(round(s.rgb.yuv([0, 0, 0]), 0.001), [0, 0, 0]);
 		assert.deepEqual(round(s.rgb.yuv([255, 255, 255]), 0.001), [1, 0, 0]);
 		assert.deepEqual(round(s.rgb.yuv([255, 0, 0]), 0.001), [0.299, -0.147, 0.615]);
+	});
+});
+
+
+describe('ydbdr', function () {
+	before(function () {
+		createSpaceCase('YDbDr');
+	});
+
+	it('ydbdr → rgb', function () {
+		assert.deepEqual(round(s.ydbdr.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.ydbdr.rgb([1, 0, 0])), [255, 255, 255]);
+
+		assert.deepEqual(round(s.ydbdr.rgb(s.rgb.ydbdr([10,20,30]))), [10,20,30]);
+	});
+	it('rgb → ydbdr', function () {
+		assert.deepEqual(round(s.rgb.ydbdr([0, 0, 0]), 0.001), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.ydbdr([255, 255, 255]), 0.001), [1, 0, 0]);
+	});
+	it('yuv ←→ ydbdr', function () {
+		assert.deepEqual(round(s.yuv.ydbdr([1, 0, 0]), 0.001), [1, 0, 0]);
+		assert.deepEqual(round(s.ydbdr.yuv([1, 0, 0]), 0.001), [1, 0, 0]);
 	});
 });
 

@@ -59,7 +59,7 @@ rgb.hsl([200,230,100]);
 * [x] [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab)
 * [x] [YUV](https://en.wikipedia.org/?title=YUV)
 * [x] [YIQ](https://en.wikipedia.org/?title=YIQ)
-* [ ] [YDbDr](https://en.wikipedia.org/wiki/YDbDr)
+* [x] [YDbDr](https://en.wikipedia.org/wiki/YDbDr)
 * [ ] [YPbPr](https://en.wikipedia.org/wiki/YPbPr)
 * [ ] [YCbCr](https://en.wikipedia.org/wiki/YCbCr)
 * [ ] [YCgCo](https://en.wikipedia.org/wiki/YCgCo)
