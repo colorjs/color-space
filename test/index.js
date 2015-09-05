@@ -551,6 +551,28 @@ describe('ydbdr', function () {
 });
 
 
+describe.only('ypbpr', function () {
+	before(function () {
+		createSpaceCase('YPbPr');
+	});
+
+	it('ypbpr → rgb', function () {
+		assert.deepEqual(round(s.ypbpr.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.ypbpr.rgb([1, 0, 0])), [255, 255, 255]);
+
+		assert.deepEqual(round(s.ypbpr.rgb(s.rgb.ypbpr([10,20,30]))), [10,20,30]);
+	});
+	it('rgb → ypbpr', function () {
+		assert.deepEqual(round(s.rgb.ypbpr([0, 0, 0]), 0.001), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.ypbpr([255, 255, 255]), 0.001), [1, 0, 0]);
+	});
+	it('yuv ←→ ypbpr', function () {
+		assert.deepEqual(round(s.yuv.ypbpr([1, 0, 0]), 0.001), [1, 0, 0]);
+		assert.deepEqual(round(s.ypbpr.yuv([1, 0, 0]), 0.001), [1, 0, 0]);
+	});
+});
+
+
 describe('cubehelix', function () {
 	it('paint', function () {
 		if (typeof document === 'undefined') return;

@@ -7,7 +7,7 @@ Conversions and data for color spaces. [Demo](http://dfcreative.github.io/color-
 
 ## Usage
 
-[![npm install color-space](https://nodei.co/npm/color-space.png?mini=true)](https://npmjs.org/package/color-space/)
+[`npm install color-space`](https://npmjs.org/package/color-space/)
 
 ```js
 var space = require('color-space');
@@ -60,7 +60,7 @@ rgb.hsl([200,230,100]);
 * [x] [YUV](https://en.wikipedia.org/?title=YUV)
 * [x] [YIQ](https://en.wikipedia.org/?title=YIQ)
 * [x] [YDbDr](https://en.wikipedia.org/wiki/YDbDr)
-* [ ] [YPbPr](https://en.wikipedia.org/wiki/YPbPr)
+* [x] [YPbPr](https://en.wikipedia.org/wiki/YPbPr)
 * [ ] [YCbCr](https://en.wikipedia.org/wiki/YCbCr)
 * [ ] [YCgCo](https://en.wikipedia.org/wiki/YCgCo)
 * [ ] [XvYCC](https://en.wikipedia.org/wiki/XvYCC)
