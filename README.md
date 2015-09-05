@@ -16,7 +16,7 @@ var space = require('color-space');
 var result = space.lab.lch([80,50,60]);
 ```
 
-Require separately:
+You can require a separate space to reduce size significantly:
 
 ```js
 var rgb = require('color-space/rgb');
