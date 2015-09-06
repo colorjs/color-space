@@ -551,24 +551,53 @@ describe('ydbdr', function () {
 });
 
 
-describe.only('ypbpr', function () {
+describe('ypbpr', function () {
 	before(function () {
 		createSpaceCase('YPbPr');
 	});
 
 	it('ypbpr → rgb', function () {
 		assert.deepEqual(round(s.ypbpr.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.ypbpr.rgb([0.715, -0.385, -0.454])), [0, 255, 0]);
 		assert.deepEqual(round(s.ypbpr.rgb([1, 0, 0])), [255, 255, 255]);
-
-		assert.deepEqual(round(s.ypbpr.rgb(s.rgb.ypbpr([10,20,30]))), [10,20,30]);
+		assert.deepEqual(round(s.ypbpr.rgb(s.rgb.ypbpr([0.10,0.20,0.30])), 0.001), [0.10,0.20,0.30]);
 	});
 	it('rgb → ypbpr', function () {
 		assert.deepEqual(round(s.rgb.ypbpr([0, 0, 0]), 0.001), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.ypbpr([127, 127, 127]), 0.01), [0.5, 0, 0]);
 		assert.deepEqual(round(s.rgb.ypbpr([255, 255, 255]), 0.001), [1, 0, 0]);
+
+		assert.deepEqual(round(s.rgb.ypbpr([0, 255, 0]), 0.001), [0.715, -0.385, -0.454]);
+		assert.deepEqual(round(s.rgb.ypbpr([255, 0, 0]), 0.001), [0.213, -0.115, 0.5]);
 	});
 	it('yuv ←→ ypbpr', function () {
 		assert.deepEqual(round(s.yuv.ypbpr([1, 0, 0]), 0.001), [1, 0, 0]);
 		assert.deepEqual(round(s.ypbpr.yuv([1, 0, 0]), 0.001), [1, 0, 0]);
+	});
+});
+
+
+describe('ycbcr', function () {
+	before(function () {
+		createSpaceCase('YCbCr');
+	});
+
+	it('ycbcr → rgb', function () {
+		assert.deepEqual(round(s.ycbcr.rgb([16, 128, 128])), [0, 0, 0]);
+		assert.deepEqual(round(s.ycbcr.rgb([235, 128, 128])), [255, 255, 255]);
+
+		assert.deepEqual(round(s.ycbcr.rgb(s.rgb.ycbcr([10,20,30]))), [10,20,30]);
+	});
+	it('rgb → ycbcr', function () {
+		assert.deepEqual(round(s.rgb.ycbcr([0, 0, 0]), 0.001), [16, 128, 128]);
+		assert.deepEqual(round(s.rgb.ycbcr([255, 255, 255]), 0.001), [235, 128, 128]);
+	});
+	it('ypbpr ←→ ycbcr', function () {
+		assert.deepEqual(round(s.ypbpr.ycbcr([1, -0.5, -0.5]), 0.001), [235, 16, 16]);
+		assert.deepEqual(round(s.ypbpr.ycbcr([1, 0.5, 0.5]), 0.001), [235, 240, 240]);
+
+		assert.deepEqual(round(s.ycbcr.ypbpr([235, 16, 16]), 0.001), [1, -0.5, -0.5]);
+		assert.deepEqual(round(s.ycbcr.ypbpr([235, 240, 240]), 0.001), [1, 0.5, 0.5]);
 	});
 });
 
