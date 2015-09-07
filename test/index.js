@@ -10,7 +10,7 @@ var husl = require('husl');
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function () {};
 
 
-//Check values here:
+//Check some values here:
 // http://www.easyrgb.com/index.php?X=CALC#Result
 // http://colormine.org/convert/luv-to-rgb
 
@@ -547,6 +547,26 @@ describe('ydbdr', function () {
 	it('yuv ←→ ydbdr', function () {
 		assert.deepEqual(round(s.yuv.ydbdr([1, 0, 0]), 0.001), [1, 0, 0]);
 		assert.deepEqual(round(s.ydbdr.yuv([1, 0, 0]), 0.001), [1, 0, 0]);
+	});
+});
+
+
+describe('ycgco', function () {
+	before(function () {
+		createSpaceCase('YCgCo');
+	});
+
+	it('ycgco → rgb', function () {
+		assert.deepEqual(round(s.ycgco.rgb([0, 0, 0])), [0, 0, 0]);
+		assert.deepEqual(round(s.ycgco.rgb([1, 0, 0])), [255, 255, 255]);
+		assert.deepEqual(round(s.ycgco.rgb([0.25, -0.25, 0.5])), [255, 0, 0]);
+
+		assert.deepEqual(round(s.ycgco.rgb(s.rgb.ycgco([10,20,30]))), [10,20,30]);
+	});
+	it('rgb → ycgco', function () {
+		assert.deepEqual(round(s.rgb.ycgco([0, 0, 0]), 0.001), [0, 0, 0]);
+		assert.deepEqual(round(s.rgb.ycgco([255, 255, 255]), 0.001), [1, 0, 0]);
+		assert.deepEqual(round(s.rgb.ycgco([255, 0, 0]), 0.001), [0.25, -0.25, 0.5]);
 	});
 });
 
