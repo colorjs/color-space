@@ -23,6 +23,7 @@ var spaces = {
 	ycgco: require('./ycgco'),
 	ypbpr: require('./ypbpr'),
 	ycbcr: require('./ycbcr'),
+	yccbccrc: require('./yccbccrc'),
 	lab: require('./lab'),
 	labh: require('./labh'),
 	lms: require('./lms'),
