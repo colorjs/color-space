@@ -644,6 +644,24 @@ describe('ycbcr', function () {
 });
 
 
+describe('jpeg', function () {
+	before(function () {
+		createSpaceCase('YCbCr');
+	});
+
+	it('jpeg → rgb', function () {
+		assert.deepEqual(round(s.jpeg.rgb([0, 128, 128])), [0, 0, 0]);
+		assert.deepEqual(round(s.jpeg.rgb([255, 128, 128])), [255, 255, 255]);
+
+		assert.deepEqual(round(s.jpeg.rgb(s.rgb.jpeg([10,20,30]))), [10,20,30]);
+	});
+	it('rgb → jpeg', function () {
+		assert.deepEqual(round(s.rgb.jpeg([0, 0, 0]), 0.001), [0, 128, 128]);
+		assert.deepEqual(round(s.rgb.jpeg([255, 255, 255]), 0.001), [255, 128, 128]);
+	});
+});
+
+
 describe('cubehelix', function () {
 	it('paint', function () {
 		if (typeof document === 'undefined') return;

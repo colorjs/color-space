@@ -64,7 +64,7 @@ rgb.hsl([200,230,100]);
 * [x] [YP<sub>b</sub>P<sub>r</sub>](https://en.wikipedia.org/wiki/YPbPr)
 * [x] [YC<sub>b</sub>C<sub>r</sub>](https://en.wikipedia.org/wiki/YCbCr)
 * [x] [Y<sub>c</sub>C<sub>bc</sub>C<sub>rc</sub>](https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.2020_conversion)
-* [ ] [JPEG](https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion)
+* [x] [JPEG](https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion)
 * [ ] [XvYCC](https://en.wikipedia.org/wiki/XvYCC)
 * [ ] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
 * [ ] [Munsell](https://en.wikipedia.org/wiki/Munsell_color_system)

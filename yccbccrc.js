@@ -35,6 +35,6 @@ yccbccrc.rgb = function(yccbccrc) {
  *
  * @return {Array} RGB values
  */
-rgb.yccbccrc = function(arr, kr, kb) {
+rgb.yccbccrc = function(arr) {
 	return rgb.ypbpr(arr, 0.0593, 0.2627);
 };

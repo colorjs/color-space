@@ -72,6 +72,6 @@ ycbcr.rgb = function (arr, kb, kr) {
  *
  * @return {Array} RGB values
  */
-rgb.ycbcr = function(arr, kr, kb) {
+rgb.ycbcr = function(arr, kb, kr) {
 	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));
 };

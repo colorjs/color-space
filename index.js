@@ -24,6 +24,7 @@ var spaces = {
 	ypbpr: require('./ypbpr'),
 	ycbcr: require('./ycbcr'),
 	yccbccrc: require('./yccbccrc'),
+	jpeg: require('./jpeg'),
 	lab: require('./lab'),
 	labh: require('./labh'),
 	lms: require('./lms'),
