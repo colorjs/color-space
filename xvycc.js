@@ -11,6 +11,8 @@
  *
  * https://web.archive.org/web/20130524104850/http://www.sony.net/SonyInfo/technology/technology/theme/xvycc_01.html
  *
+ * //TODO: look for a spec (120$) - there are xvYCC ←→ XYZ conversion formulas
+ *
  * @module  color-space/xvycc
  */
 
