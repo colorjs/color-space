@@ -644,6 +644,31 @@ describe('ycbcr', function () {
 });
 
 
+describe('xvycc', function () {
+	before(function () {
+		createSpaceCase('xvYCC');
+	});
+
+	it('xvycc → rgb', function () {
+		assert.deepEqual(round(s.xvycc.rgb([16, 128, 128])), [0, 0, 0]);
+		assert.deepEqual(round(s.xvycc.rgb([235, 128, 128])), [255, 255, 255]);
+
+		assert.deepEqual(round(s.xvycc.rgb(s.rgb.xvycc([10,20,30]))), [10,20,30]);
+	});
+	it('rgb → xvycc', function () {
+		assert.deepEqual(round(s.rgb.xvycc([0, 0, 0]), 0.001), [16, 128, 128]);
+		assert.deepEqual(round(s.rgb.xvycc([255, 255, 255]), 0.001), [235, 128, 128]);
+	});
+	it('ypbpr ←→ xvycc', function () {
+		assert.deepEqual(round(s.ypbpr.xvycc([1, -0.5, -0.5]), 0.001), [235, 16, 16]);
+		assert.deepEqual(round(s.ypbpr.xvycc([1, 0.5, 0.5]), 0.001), [235, 240, 240]);
+
+		assert.deepEqual(round(s.xvycc.ypbpr([235, 16, 16]), 0.001), [1, -0.5, -0.5]);
+		assert.deepEqual(round(s.xvycc.ypbpr([235, 240, 240]), 0.001), [1, 0.5, 0.5]);
+	});
+});
+
+
 describe('jpeg', function () {
 	before(function () {
 		createSpaceCase('YCbCr');
