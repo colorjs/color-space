@@ -687,6 +687,24 @@ describe('jpeg', function () {
 });
 
 
+describe('ucs', function () {
+	before(function () {
+		createSpaceCase('UCS');
+	});
+
+	it('ucs → xyz', function () {
+		// assert.deepEqual(round(s.ucs.xyz([0, 0, 0])), [0, 0, 0]);
+		// assert.deepEqual(round(s.ucs.xyz([1, 0, 0])), [1, 1, 1]);
+
+		assert.deepEqual(round(s.ucs.xyz(s.xyz.ucs([10,20,30]))), [10,20,30]);
+	});
+	it('xyz → ucs', function () {
+		// assert.deepEqual(round(s.xyz.ucs([0, 0, 0]), 0.001), [0, 0, 0]);
+		// assert.deepEqual(round(s.xyz.ucs([1, 1, 1]), 0.001), [1, 0, 0]);
+	});
+});
+
+
 describe('cubehelix', function () {
 	it('paint', function () {
 		if (typeof document === 'undefined') return;

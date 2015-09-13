@@ -66,6 +66,7 @@ rgb.hsl([200,230,100]);
 * [x] [Y<sub>c</sub>C<sub>bc</sub>C<sub>rc</sub>](https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.2020_conversion)
 * [x] [JPEG](https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion)
 * [x] [XvYCC](https://en.wikipedia.org/wiki/XvYCC)
+* [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space)
 * [ ] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
 * [ ] [Munsell](https://en.wikipedia.org/wiki/Munsell_color_system)
 * [ ] [NCS](https://en.wikipedia.org/wiki/Natural_Color_System)
