@@ -11,7 +11,7 @@ var xyz = module.exports = {
 	min: [0,0,0],
 	max: [96,100,109],
 	channel: ['X','Y','Z'],
-	alias: ['XYZ', 'ciexyz'],
+	alias: ['XYZ', 'ciexyz', 'cie1931'],
 
 	//whitepoint with observer/illuminant
 	// http://en.wikipedia.org/wiki/Standard_illuminant
@@ -58,6 +58,7 @@ var xyz = module.exports = {
 			E: [100,100,100]
 		}
 	},
+
 
 	rgb: function(xyz) {
 		var x = xyz[0] / 100,

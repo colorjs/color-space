@@ -25,8 +25,6 @@ module.exports = {
 	}
 };
 
-
-//extend xyz
 xyz.xyy = function(arg) {
 	var sum, X, Y, Z;
 	X = arg[0]; Y = arg[1]; Z = arg[2];

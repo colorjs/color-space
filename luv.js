@@ -15,7 +15,7 @@ module.exports = {
 	min: [0,-134,-140],
 	max: [100,224,122],
 	channel: ['lightness', 'u', 'v'],
-	alias: ['LUV', 'cieluv'],
+	alias: ['LUV', 'cieluv', 'cie1976'],
 
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;

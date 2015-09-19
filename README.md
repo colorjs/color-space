@@ -67,7 +67,7 @@ rgb.hsl([200,230,100]);
 * [x] [JPEG](https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion)
 * [x] [XvYCC](https://en.wikipedia.org/wiki/XvYCC)
 * [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space)
-* [ ] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
+* [x] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
 * [ ] [Munsell](https://en.wikipedia.org/wiki/Munsell_color_system)
 * [ ] [NCS](https://en.wikipedia.org/wiki/Natural_Color_System)
 * [ ] [PMS](https://en.wikipedia.org/wiki/Pantone)

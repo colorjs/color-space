@@ -705,6 +705,24 @@ describe('ucs', function () {
 });
 
 
+describe('uvw', function () {
+	before(function () {
+		createSpaceCase('UVW');
+	});
+
+	it('uvw → xyz', function () {
+		// assert.deepEqual(round(s.uvw.xyz([0, 0, 0])), [0, 0, 0]);
+		// assert.deepEqual(round(s.uvw.xyz([1, 0, 0])), [1, 1, 1]);
+
+		assert.deepEqual(round(s.uvw.xyz(s.xyz.uvw([10,20,30]))), [10,20,30]);
+	});
+	it('xyz → uvw', function () {
+		// assert.deepEqual(round(s.xyz.uvw([0, 0, 0]), 0.001), [0, 0, 0]);
+		// assert.deepEqual(round(s.xyz.uvw([1, 1, 1]), 0.001), [1, 0, 0]);
+	});
+});
+
+
 describe('cubehelix', function () {
 	it('paint', function () {
 		if (typeof document === 'undefined') return;
