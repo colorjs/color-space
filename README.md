@@ -90,9 +90,13 @@ Please fork, add color space with basic conversions to/from XYZ or RGB and tests
 The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
 
 
-## Resources
+## Related projects
 
-* [Colour order systems in art and science](http://www.colorsystem.com/?lang=en)
+* [color2](https://www.npmjs.com/package/color2) — color class based on color-space.
+* [color-ranger](https://www.npmjs.com/package/color-ranger) — visualize color spaces using canvas.
+* [color-tool](https://www.npmjs.com/package/color-tool) — color picker based on color-space.
+* [color-measure](https://www.npmjs.com/package/color-measure) — list of color measurement functions.
+* [color-manipulate](https://www.npmjs.com/package/color-manipulate) — list of color manipulation functions.
 
 
 ## Similar projects
@@ -102,7 +106,3 @@ The goal of project is to provide the most complete set of color spaces with max
 * [spectra](https://github.com/avp/spectra)
 * [colorspaces.js](https://github.com/boronine/colorspaces.js)
 
-
-## Related projects
-
-* [color](https://www.npmjs.com/package/color2) — color class based on color-space.
