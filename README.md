@@ -75,16 +75,13 @@ rgb.hsl([200,230,100]);
 * [ ] [TSL](https://en.wikipedia.org/wiki/TSL_color_space)
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
+* [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS)
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
 * [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space)
 * [x] [cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
 * [ ] [gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
-* [ ] [ITU](http://www.jentronics.com/color.html)
-* [ ] [REC709](http://www.jentronics.com/color.html)
-* [ ] [SMTPE](http://www.jentronics.com/color.html)
-* [ ] [NTSC](http://www.jentronics.com/color.html)
-* [ ] [GREY](http://www.jentronics.com/color.html)
+* [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
 
 
 ## Contribute
@@ -93,9 +90,19 @@ Please fork, add color space with basic conversions to/from XYZ or RGB and tests
 The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
 
 
+## Resources
+
+* [Colour order systems in art and science](http://www.colorsystem.com/?lang=en)
+
+
 ## Similar projects
 
 * [color-convert](https://github.com/harthur/color-convert)
 * [chromatist](https://github.com/jrus/chromatist)
 * [spectra](https://github.com/avp/spectra)
 * [colorspaces.js](https://github.com/boronine/colorspaces.js)
+
+
+## Related projects
+
+* [color](https://www.npmjs.com/package/color2) — color class based on color-space.

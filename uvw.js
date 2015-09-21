@@ -11,8 +11,8 @@ var xyz = require('./xyz');
 
 var uvw = module.exports = {
 	name: 'uvw',
-	min: [-134,-140, 0],
-	max: [224,122, 100],
+	min: [-134, -140, 0],
+	max: [224, 122, 100],
 	channel: ['U','V','W'],
 	alias: ['UVW', 'cieuvw', 'cie1964']
 };
@@ -56,7 +56,7 @@ uvw.xyz = function (arg, i, o) {
  * @return {Array} An UVW array
  */
 xyz.uvw = function (arr, i, o) {
-	var x = arr[0], y = arr[1], z = arr[2], xn, yn, zn;
+	var x = arr[0], y = arr[1], z = arr[2], xn, yn, zn, un, vn;
 
 	//find out normal source u v
 	i = i || 'D65';

@@ -1,7 +1,7 @@
 /**
  * https://en.wikipedia.org/wiki/XvYCC
  *
- * xvYCC is extended YCC
+ * Sony xvYCC is extended YCbCr
  *
  * It uses same transformation as
  * SD: ITU-R BT.601
