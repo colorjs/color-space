@@ -7,51 +7,205 @@
  */
 
 var xyy = require('./xyy');
+var xyz = require('./xyz');
 
 
-var coloroid = module.exports = {
+/**
+ * Main color space object
+ */
+var coloroid = {
 	name: 'coloroid',
-	min: [10, 0, 0],
-	max: [76, 100, 100],
+	alias: ['ATV'],
 
 	//hue, saturation, luminosity
+	//note that hue values are ids, not the numbers - not every value is possible
+	//e.g. 38 will be rounded to 36
 	channel: ['A','T','V'],
-
-	alias: ['ATV']
-};
-
-//D65 whitepoint is used.
-
-xyy.coloroid = function (arg) {
-	var x = arg[0], y = arg[1], Y = arg[2];
-	var a, t, v;
-
-	//same lightness as of hunter-lab
-	v = 10 * Math.sqrt(Y);
-
-	t = 100 * Y * (1 - x * ew) / (100 * (y * el - yl * el) + Yl * (1 - y * ew));
-};
-
-coloroid.xyy = function (arg) {
-	var a = arg[0], t = arg[1], v = arg[2];
-
-};
-
-xyz.coloroid = function () {
-
-};
-
-coloroid.xyz = function () {
-
+	min: [10, 0, 0],
+	max: [76, 100, 100]
 };
 
 
 /**
  * Coloroid table
+ * Regression of values is almost impossible, as hues don’t correlate
+ * Even angle values are picked very inconsistently, based on aesthetical evaluation.
+ *
+ * - tgф, ctgф are removed, ф is searched instead
+ * - eλ = xλ + yλ + zλ
+ * - λ is removed as not used
  */
+var table = [
+//A    angle  eλ        xλ       yλ
+[ 10,   59.0, 1.724349, 0.44987, 0.53641 ],
+[ 11,   55.3, 1.740844, 0.46248, 0.52444 ],
+[ 12,   51.7, 1.754985, 0.47451, 0.51298 ],
+[ 13,   48.2, 1.767087, 0.48601, 0.50325 ],
+[ 14,   44.8, 1.775953, 0.49578, 0.49052 ],
+[ 15,   41.5, 1.785073, 0.50790, 0.43035 ],
+[ 16,   38.2, 1.791104, 0.51874, 0.46934 ],
+[ 20,   34.9, 1.794831, 0.52980, 0.45783 ],
+[ 21,   31.5, 1.798664, 0.54137, 0.44559 ],
+[ 22,   28.0, 1.794819, 0.55367, 0.43253 ],
+[ 23,   24.4, 1.789610, 0.56680, 0.41811 ],
+[ 24,   20.6, 1.809483, 0.58128, 0.40176 ],
+[ 25,   16.6, 1.760983, 0.59766, 0.38300 ],
+[ 26,   12.3, 1.723443, 0.61653, 0.36061 ],
+[ 30,    7.7, 1.652891, 0.63896, 0.33358 ],
+[ 31,    2.8, 1.502607, 0.66619, 0.29930 ],
+[ 32,   -2.5, 1.072500, 0.70061, 0.26753 ],
+[ 33,   -8.4, 1.136637, 0.63925, 0.22631 ],
+[ 34,  -19.8, 1.232286, 0.53962, 0.19721 ],
+[ 35,  -31.6, 1.310120, 0.50340, 0.17495 ],
+[ 40,  -43.2, 1.376610, 0.46041, 0.15603 ],
+[ 41,  -54.6, 1.438692, 0.42386, 0.13846 ],
+[ 42,  -65.8, 1.501582, 0.38991, 0.12083 ],
+[ 43,  -76.8, 1.570447, 0.35586, 0.10328 ],
+[ 44,  -86.8, 1.645583, 0.32195, 0.08496 ],
+[ 45,  -95.8, 1.732083, 0.28657, 0.05155 ],
+[ 46, -108.4, 1.915753, 0.22202, 0.01771 ],
+[ 50, -117.2, 2.146310, 0.15664, 0.05227 ],
+[ 51, -124.7, 1.649939, 0.12736, 0.09020 ],
+[ 52, -131.8, 1.273415, 0.10813, 0.12506 ],
+[ 53, -138.5, 1.080809, 0.09414, 0.15741 ],
+[ 54, -145.1, 0.957076, 0.03249, 0.18958 ],
+[ 55, -152.0, 0.868976, 0.07206, 0.24109 ],
+[ 56, -163.4, 0.771731, 0.05787, 0.30378 ],
+[ 60, -177.2, 0.697108, 0.04353, 0.35696 ],
+[ 61,  171.6, 0.655803, 0.03291, 0.41971 ],
+[ 62,  152.4, 0.623958, 0.02240, 0.49954 ],
+[ 63,  148.4, 0.596037, 0.01196, 0.60321 ],
+[ 64,  136.8, 0.607413, 0.00425, 0.73542 ],
+[ 65,  125.4, 0.659923, 0.01099, 0.83391 ],
+[ 66,  114.2, 0.859517, 0.08050, 0.77474 ],
+[ 70,  103.2, 1.195683, 0.20259, 0.70460 ],
+[ 71,   93.2, 1.407534, 0.28807, 0.65230 ],
+[ 72,   84.2, 1.532829, 0.34422, 0.61930 ],
+[ 73,   77.3, 1.603792, 1.37838, 0.59533 ],
+[ 74,   71.6, 1.649448, 0.40290, 0.57716 ],
+[ 75,   66.9, 1.681080, 0.42141, 0.56222 ],
+[ 76,   62.8, 1.704979, 0.43647, 0.54895 ]
+];
 
-/*
-A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ      zλ
+/** Create angle-sorted table */
+var angleTable = [].concat(table.slice(-13),table.slice(0, -13));
+
+
+/**
+ * Some precalculations
+ * 2° D65 whitepoint is used
+ */
+var i = 'D65';
+var o = 2;
+
+var Xn = xyz.whitepoint[o][i][0];
+var Yn = xyz.whitepoint[o][i][1];
+var Zn = xyz.whitepoint[o][i][2];
+
+var y0 = Xn / (Xn + Yn + Zn);
+var x0 = Yn / (Xn + Yn + Zn);
+var ew = (Xn + Yn + Zn) / 100;
+
+
+
+/**
+ * From xyY to coloroid
+ *
+ * @param {Array} arg xyY tuple
+ *
+ * @return {Array} ATV coloroid channels
+ */
+xyy.coloroid = function (arg) {
+	var x = arg[0], y = arg[1], Y = arg[2];
+
+	//coloroid luminocity is the same as hunter-lab lightness (the easier part)
+	var V = 10 * Math.sqrt(Y);
+
+	//get the hue angle, -π ... +π
+	var angle = Math.atan2(y - y0, x - x0);
+	var row;
+
+	//find the closest row in the table
+	for (var i = 0; i < angleTable.length; i++) {
+		if (angle > angleTable[i][1]) {
+			row = angleTable[i];
+			break;
+		}
+	}
+
+	//get hue id
+	var A = row[0];
+
+	//calc saturation
+	var yl = row[4], el = row[2];
+
+	//possibly needs replacement of ~yl with other yl from the table
+	var Yl = yl * el / 100;
+
+	var T = 100 * Y * (1 - y * ew) / (100 * (y * el - yl * el) + Yl * (1 - y * ew));
+
+	return [A, T, V];
+};
+
+
+
+
+
+/**
+ * Backwise - from coloroid to xyY
+ *
+ * @param {Array} arg Coloroid values
+ *
+ * @return {Array} xyY values
+ */
+coloroid.xyy = function (arg) {
+	var A = arg[0], T = arg[1], V = arg[2];
+
+	//find the closest row in the table
+	var row;
+	for (var i = 0; i < table.length; i++) {
+		if (A <= table[i][0]) {
+			row = table[i];
+			break;
+		}
+	}
+
+	var el = row[2], xl = row[3], yl = row[4];
+
+	var Yl = yl * el / 100;
+
+	var Y = V*V/100;
+	var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
+	var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
+
+	return [x,y,Y];
+};
+
+
+
+/** Proper transformation to a XYZ (via xyY) */
+xyz.coloroid = function (arg) {
+	return xyy.coloroid(xyz.xyy(arg));
+};
+coloroid.xyz = function (arg) {
+	return xyy.xyz(coloroid.xyy(arg));
+};
+
+
+
+module.exports = coloroid;
+
+
+
+/**
+Coloroid table source
+Some negative angle typos are fixed.
+Angle typo on the A=62 is fixed.
+
+Beware, tg/ctg values don’t agree with angle.
+Also don’t trust the calculated eλ = xλ + yλ + zλ.
+
+A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ      eλ
 
 10  570.83   59.0          0.6009 0.775745 0.946572 0.002032 0.44987 0.54895 1.724349
 11  572.64   55.3          0.6924 0.805130 0.933804 0.001910 0.46248 0.53641 1.740845
@@ -73,12 +227,12 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 33 -492.79   -8.4 -0.1477         0.726603 0.304093 0.105941 0.63925 0.26753 1.136638
 34 -495.28  -19.8 -0.3600         0.689620 0.278886 0.263780 0.53962 0.22631 1.232286
 35 -498.45  -31.6 -0.6152         0.659523 0.258373 0.392224 0.50340 0.19721 1.310122
-40 -502.69   43.2 -0.9391         0.633815 0.240851 0.501944 0.46041 0.17495 1.376610
-41 -509.12   54.6         -0.7107 0.609810 0.224490 0.604392 0.42386 0.15603 1.438692
-42 -520.40   65.8         -0.4494 0.585492 0.207915 0.708175 0.38991 0.13846 1.501583
-43 -536.31   76.8         -0.2345 0.558865 0.189767 0.821815 0.35586 0.12083 1.570447
-44 -548.11   86.8         -0.0559 0.529811 0.169965 0.945807 0.32195 0.10328 1.645584
-45 -555.96   95.8         -0.1016 0.496364 0.147168 1.088551 0.28657 0.08496 1.732085
+40 -502.69  -43.2 -0.9391         0.633815 0.240851 0.501944 0.46041 0.17495 1.376610
+41 -509.12  -54.6         -0.7107 0.609810 0.224490 0.604392 0.42386 0.15603 1.438692
+42 -520.40  -65.8         -0.4494 0.585492 0.207915 0.708175 0.38991 0.13846 1.501583
+43 -536.31  -76.8         -0.2345 0.558865 0.189767 0.821815 0.35586 0.12083 1.570447
+44 -548.11  -86.8         -0.0559 0.529811 0.169965 0.945807 0.32195 0.10328 1.645584
+45 -555.96  -95.8         -0.1016 0.496364 0.147168 1.088551 0.28657 0.08496 1.732085
 46 -564.18 -108.4          0.3327 0.425346 0.098764 1.391643 0.22202 0.05155 1.915754
 50  450.00 -117.2          0.5141 0.336200 0.038000 1.772110 0.15664 0.01771 2.146310
 51  468.71 -124.7          0.6924 0.210174 0.086198 1.353567 0.12736 0.05227 1.649940
@@ -101,10 +255,5 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 74  564.18   71.6          0.3327 0.664599 0.981981 0.002868 0.40290 0.59533 1.649449
 75  566.78   66.9          0.4265 0.708358 0.970252 0.002470 0.42141 0.57716 1.681081
 76  568.92   62.8          0.5140 0.744182 0.958592 0.002205 0.43647 0.56222 1.704981
+
 */
-
-
-/** Regression functions for a table - just to save space and make interpolation */
-
-
-module.exports = coloroid;

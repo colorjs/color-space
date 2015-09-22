@@ -1,3 +1,4 @@
+* Add tests from the ciexyz resource
 * Remove obsolete color spaces from export: ucs, uvw
 * add more single-tone visualising spaces alike cubehelix
 	* default spectrogram imprint

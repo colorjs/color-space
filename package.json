@@ -37,14 +37,15 @@
     "queried": "^1.4.1"
   },
   "devDependencies": {
-    "mocha": "*",
     "browserify": "^6.x",
-    "closurecompiler": "^1.x"
+    "closurecompiler": "^1.x",
+    "mocha": "*",
+    "watchify": "^3.4.0"
   },
   "scripts": {
     "test": "mocha",
     "build": "browserify --standalone colorSpace ./index.js > dist/color-space.js",
     "min": "ccjs dist/color-space.js --language_in=ECMASCRIPT5 > dist/color-space.min.js && cat dist/color-space.min.js | gzip-size | pretty-bytes",
-    "build-test": "browserify -r ./index:../index -r husl -r assert -r mumath -r queried -d > test/bundle.js"
+    "watch": "watchify -r ./index:../index -r husl -r assert -r mumath -r queried -d -o test/bundle.js"
   }
 }

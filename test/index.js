@@ -698,7 +698,7 @@ describe('ucs', function () {
 
 		assert.deepEqual(round(s.ucs.xyz(s.xyz.ucs([10,20,30]))), [10,20,30]);
 	});
-	it('xyz → ucs', function () {
+	it.skip('xyz → ucs', function () {
 		// assert.deepEqual(round(s.xyz.ucs([0, 0, 0]), 0.001), [0, 0, 0]);
 		// assert.deepEqual(round(s.xyz.ucs([1, 1, 1]), 0.001), [1, 0, 0]);
 	});
@@ -741,6 +741,39 @@ describe('cubehelix', function () {
 				hue: 1
 			}).map(Math.round) + ')';
 			ctx.fillRect(i * cnv.width, 0, 4, cnv.height);
+		}
+	});
+});
+
+
+describe('coloroid', function () {
+	it('coloroid → xyz', function () {
+		// assert.deepEqual(round(s.coloroid.xyz([0, 0, 0])), [0, 0, 0]);
+		// assert.deepEqual(round(s.coloroid.xyz([1, 0, 0])), [1, 1, 1]);
+
+		assert.deepEqual(round(s.coloroid.xyz(s.xyz.coloroid([10,20,30]))), [10,20,30]);
+	});
+	it.skip('xyz → coloroid', function () {
+		// assert.deepEqual(round(s.xyz.coloroid([0, 0, 0]), 0.001), [0, 0, 0]);
+		// assert.deepEqual(round(s.xyz.coloroid([1, 1, 1]), 0.001), [1, 0, 0]);
+	});
+
+
+	it('paint', function () {
+		if (typeof document === 'undefined') return;
+
+		var cnv = document.createElement('canvas');
+		cnv.width = 400;
+		cnv.height = 30;
+		document.body.appendChild(cnv);
+
+		var ctx = cnv.getContext('2d');
+
+		var i, range = 76 - 10, w = Math.ceil(cnv.width/range);
+		for (var A = 10; A < 76; A++) {
+			i = A / range;
+			ctx.fillStyle = 'rgb(' + s.coloroid.rgb([A, 100, 80]).map(Math.round) + ')';
+			ctx.fillRect(i * cnv.width, 0, w, cnv.height);
 		}
 	});
 });

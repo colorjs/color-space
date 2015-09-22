@@ -74,7 +74,7 @@ rgb.hsl([200,230,100]);
 * [ ] [RAL](https://en.wikipedia.org/wiki/RAL_colour_standard)
 * [ ] [TSL](https://en.wikipedia.org/wiki/TSL_color_space)
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
-* [ ] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
+* [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
 * [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS)
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
 * [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space)
