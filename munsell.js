@@ -8,8 +8,8 @@ var munsell = {
 	min: [],
 	max: [],
 
-	//chroma
-	channel: ['C']
+	//hue, value, chroma
+	channel: ['H', 'V', 'C']
 }
 
 /**

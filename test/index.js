@@ -214,6 +214,7 @@ describe('xyY', function () {
 	});
 	it('xyy → xyz', function () {
 		assert.deepEqual(round(s.xyy.xyz([.40, .15, 25]), .1), [66.7, 25, 75]);
+		assert.deepEqual(round(s.xyy.xyz([0.2, .4, 100]), 1), [50, 100, 100]);
 	});
 });
 
@@ -695,7 +696,6 @@ describe('ucs', function () {
 	it('ucs → xyz', function () {
 		// assert.deepEqual(round(s.ucs.xyz([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqual(round(s.ucs.xyz([1, 0, 0])), [1, 1, 1]);
-
 		assert.deepEqual(round(s.ucs.xyz(s.xyz.ucs([10,20,30]))), [10,20,30]);
 	});
 	it.skip('xyz → ucs', function () {
@@ -748,32 +748,59 @@ describe('cubehelix', function () {
 
 describe('coloroid', function () {
 	it('coloroid → xyz', function () {
-		// assert.deepEqual(round(s.coloroid.xyz([0, 0, 0])), [0, 0, 0]);
-		// assert.deepEqual(round(s.coloroid.xyz([1, 0, 0])), [1, 1, 1]);
-
+		assert.deepEqual(round(s.coloroid.xyz([21, 40, 70]), 1), [54.2, 49.0, 17.6]);
+		assert.deepEqual(round(s.coloroid.xyz([61, 0, 90]), 1), [77.0, 81.0, 88.2]);
+		assert.deepEqual(round(s.coloroid.xyz([35, 10, 90]), 1), [81.1, 81.0, 89.3]);
 		assert.deepEqual(round(s.coloroid.xyz(s.xyz.coloroid([10,20,30]))), [10,20,30]);
 	});
-	it.skip('xyz → coloroid', function () {
-		// assert.deepEqual(round(s.xyz.coloroid([0, 0, 0]), 0.001), [0, 0, 0]);
-		// assert.deepEqual(round(s.xyz.coloroid([1, 1, 1]), 0.001), [1, 0, 0]);
+	it('xyz → coloroid', function () {
+		assert.deepEqual(round(s.xyz.coloroid([54.64, 64.0, 18.26]), 1), [10, 48, 80]);
+		assert.deepEqual(round(s.xyz.coloroid([54.2, 49.0, 17.6]), 1), [21, 39, 70]);
 	});
 
 
-	it('paint', function () {
+	it.skip('paint side colors', function () {
 		if (typeof document === 'undefined') return;
 
 		var cnv = document.createElement('canvas');
 		cnv.width = 400;
 		cnv.height = 30;
 		document.body.appendChild(cnv);
-
 		var ctx = cnv.getContext('2d');
 
-		var i, range = 76 - 10, w = Math.ceil(cnv.width/range);
-		for (var A = 10; A < 76; A++) {
-			i = A / range;
-			ctx.fillStyle = 'rgb(' + s.coloroid.rgb([A, 100, 80]).map(Math.round) + ')';
-			ctx.fillRect(i * cnv.width, 0, w, cnv.height);
+		//paint coloroid side colors
+		var range = s.coloroid.table.length, w = cnv.width/range;
+		var row, vals;
+		for (var i = 0; i < range; i++) {
+			row = s.coloroid.table[i];
+			vals = row.slice(-3).map(function (v) {
+				return v*100
+			});
+
+			ctx.fillStyle = 'rgb(' + s.xyz.rgb(vals).map(Math.round) + ')';
+			ctx.fillRect(i * w, 0, Math.ceil(w), cnv.height);
+		}
+	});
+
+
+	it('paint conversion from hue', function () {
+		if (typeof document === 'undefined') return;
+
+		var cnv = document.createElement('canvas');
+		cnv.width = 400;
+		cnv.height = 30;
+		document.body.appendChild(cnv);
+		var ctx = cnv.getContext('2d');
+
+		//paint coloroid side colors
+		var range = s.coloroid.table.length, w = cnv.width/range;
+		var row, vals;
+		for (var i = 0; i < range; i++) {
+			row = s.coloroid.table[i];
+			vals = [row[0], 10, 10];
+
+			ctx.fillStyle = 'rgb(' + s.xyz.rgb(vals).map(Math.round) + ')';
+			ctx.fillRect(i * w, 0, Math.ceil(w), cnv.height);
 		}
 	});
 });

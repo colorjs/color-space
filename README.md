@@ -78,8 +78,8 @@ rgb.hsl([200,230,100]);
 * [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS)
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
 * [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space)
-* [x] [cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
-* [ ] [gray](http://dev.w3.org/csswg/css-color/#grays)
+* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
+* [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
 * [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
 
