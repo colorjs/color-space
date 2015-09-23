@@ -98,6 +98,7 @@ xλ typo on A=73 is fixed.
 
 Beware, tg/ctg values don’t agree with angle.
 Also don’t trust the calculated eλ = xλ + yλ + zλ.
+Also, unfortunately, some values might be wrong, as coloroid range looks uneven.
 
 A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ      eλ
 
