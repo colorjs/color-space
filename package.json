@@ -20,7 +20,10 @@
     "color-conversions",
     "color-space",
     "color-translation",
-    "color-data"
+    "color-data",
+    "coloroid",
+    "cubehelix",
+    "munsell"
   ],
   "repository": {
     "type": "git",
@@ -33,10 +36,10 @@
   "main": "./index.js",
   "dependencies": {
     "husl": ">=5.0",
-    "mumath": "^1.0.2",
-    "queried": "^1.4.1"
+    "mumath": "^1.0.2"
   },
   "devDependencies": {
+    "queried": "^1.4.1",
     "browserify": "^6.x",
     "closurecompiler": "^1.x",
     "mocha": "*",
