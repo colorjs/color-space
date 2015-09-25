@@ -9,7 +9,7 @@ var xyz = require('./xyz');
 
 
 var cam = module.exports = {
-  name:'cam',
+  name: 'cam',
 
   alias: ['ciecam', 'ciecam02'],
 
