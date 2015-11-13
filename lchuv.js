@@ -13,7 +13,7 @@ var lchuv = module.exports = {
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
-	max: [100,100,360],
+	max: [100,200,360],
 
 	luv: function(luv){
 		var l = luv[0],
