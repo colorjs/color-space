@@ -12,7 +12,7 @@ var lab = require('./lab');
 var lchab = module.exports = {
 	name: 'lchab',
 	min: [0,0,0],
-	max: [100,100,360],
+	max: [100,144,360],
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
