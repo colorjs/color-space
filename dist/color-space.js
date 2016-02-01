@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.colorSpace = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.colorSpace=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * @module color-space/cmy
  */
@@ -51,7 +51,7 @@ rgb.cmy = function(rgb) {
 		(1-b) * 100 || 0
 	];
 };
-},{"./rgb":24}],2:[function(require,module,exports){
+},{"./rgb":25}],2:[function(require,module,exports){
 /**
  * @module color-space/cmyk
  */
@@ -93,7 +93,7 @@ rgb.cmyk = function(rgb) {
 	y = (1 - b - k) / (1 - k) || 0;
 	return [c * 100, m * 100, y * 100, k * 100];
 };
-},{"./rgb":24}],3:[function(require,module,exports){
+},{"./rgb":25}],3:[function(require,module,exports){
 
 /**
  * Architects and visual constructors hungarian color space.
@@ -375,7 +375,7 @@ module.exports = coloroid;
 
 
 
-},{"./xyy":28,"./xyz":29}],4:[function(require,module,exports){
+},{"./xyy":29,"./xyz":30}],4:[function(require,module,exports){
 /**
  * Cubehelix http://astron-soc.in/bulletin/11June/289392011.pdf
  *
@@ -452,7 +452,7 @@ cubehelix.rgb = function(fraction, options) {
 rgb.cubehelix = function(rgb) {
 	//TODO - there is no backwise conversion yet
 };
-},{"./rgb":24,"mumath/between":21}],5:[function(require,module,exports){
+},{"./rgb":25,"mumath/between":21}],5:[function(require,module,exports){
 /**
  * @module color-space/hcg
  */
@@ -577,7 +577,7 @@ hsv.hcg = function(hsv){
 		return [hsv[0], c * 100, 0];
 	}
 }
-},{"./hsl":7,"./hsv":8,"./rgb":24}],6:[function(require,module,exports){
+},{"./hsl":7,"./hsv":8,"./rgb":25}],6:[function(require,module,exports){
 /**
  * http://www.cse.usf.edu/~mshreve/rgb-to-hsi
  * http://web.archive.org/web/20130124054245/http://web2.clarkson.edu/class/image_process/RGB_to_HSI.pdf
@@ -665,7 +665,7 @@ rgb.hsi = function (rgb) {
 
 	return [h * 180 / Math.PI, s * 100, i];
 };
-},{"./rgb":24,"mumath/between":21,"mumath/loop":22}],7:[function(require,module,exports){
+},{"./rgb":25,"mumath/between":21,"mumath/loop":22}],7:[function(require,module,exports){
 /**
  * @module color-space/hsl
  */
@@ -772,7 +772,7 @@ rgb.hsl = function(rgb) {
 
 	return [h, s * 100, l * 100];
 };
-},{"./rgb":24}],8:[function(require,module,exports){
+},{"./rgb":25}],8:[function(require,module,exports){
 /**
  * @module color-space/hsv
  */
@@ -888,7 +888,7 @@ hsl.hsv = function(hsl) {
 
 	return [h, sv * 100, v * 100];
 };
-},{"./hsl":7,"./rgb":24}],9:[function(require,module,exports){
+},{"./hsl":7,"./rgb":25}],9:[function(require,module,exports){
 /**
  * A uniform wrapper for husl.
  * // http://www.boronine.com/husl/
@@ -925,7 +925,7 @@ lchuv.husl = _husl._conv.lch.husl;
 xyz.husl = function(arg){
 	return _husl._conv.lch.husl(xyz.lchuv(arg));
 };
-},{"./lchuv":17,"./xyz":29,"husl":20}],10:[function(require,module,exports){
+},{"./lchuv":17,"./xyz":30,"husl":20}],10:[function(require,module,exports){
 /**
  * A uniform wrapper for huslp.
  * // http://www.boronine.com/husl/
@@ -956,7 +956,7 @@ module.exports = {
 //extend lchuv, xyz
 lchuv.huslp = _husl._conv.lch.huslp;
 xyz.huslp = function(arg){return _husl._conv.lch.huslp(xyz.lchuv(arg));};
-},{"./lchuv":17,"./xyz":29,"husl":20}],11:[function(require,module,exports){
+},{"./lchuv":17,"./xyz":30,"husl":20}],11:[function(require,module,exports){
 /**
  * @module color-space/hwb
  */
@@ -1067,7 +1067,7 @@ hsv.hwb = function(arg){
 hsl.hwb = function(arg){
 	return hsv.hwb(hsl.hsv(arg));
 };
-},{"./hsl":7,"./hsv":8,"./rgb":24}],12:[function(require,module,exports){
+},{"./hsl":7,"./hsv":8,"./rgb":25}],12:[function(require,module,exports){
 /**
  * Color space data and conversions
  *
@@ -1108,7 +1108,8 @@ var spaces = {
 	huslp: require('./huslp'),
 	cubehelix: require('./cubehelix'),
 	coloroid: require('./coloroid'),
-	hcg: require('./hcg')
+	hcg: require('./hcg'),
+	osaucs: require('./osaucs')
 };
 
 
@@ -1152,7 +1153,7 @@ function getConvertor(fromSpaceName, toSpaceName){
 
 
 module.exports = spaces;
-},{"./cmy":1,"./cmyk":2,"./coloroid":3,"./cubehelix":4,"./hcg":5,"./hsi":6,"./hsl":7,"./hsv":8,"./husl":9,"./huslp":10,"./hwb":11,"./jpeg":13,"./lab":14,"./labh":15,"./lchab":16,"./lchuv":17,"./lms":18,"./luv":19,"./rgb":24,"./ucs":25,"./uvw":26,"./xvycc":27,"./xyy":28,"./xyz":29,"./ycbcr":30,"./yccbccrc":31,"./ycgco":32,"./ydbdr":33,"./yiq":34,"./ypbpr":35,"./yuv":36}],13:[function(require,module,exports){
+},{"./cmy":1,"./cmyk":2,"./coloroid":3,"./cubehelix":4,"./hcg":5,"./hsi":6,"./hsl":7,"./hsv":8,"./husl":9,"./huslp":10,"./hwb":11,"./jpeg":13,"./lab":14,"./labh":15,"./lchab":16,"./lchuv":17,"./lms":18,"./luv":19,"./osaucs":24,"./rgb":25,"./ucs":26,"./uvw":27,"./xvycc":28,"./xyy":29,"./xyz":30,"./ycbcr":31,"./yccbccrc":32,"./ycgco":33,"./ydbdr":34,"./yiq":35,"./ypbpr":36,"./yuv":37}],13:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion
  *
@@ -1208,7 +1209,7 @@ rgb.jpeg = function(arr) {
 		128 + 0.5 * r - 0.418688 * g - 0.081312 * b
 	]
 };
-},{"./rgb":24}],14:[function(require,module,exports){
+},{"./rgb":25}],14:[function(require,module,exports){
 /**
  * CIE LAB space model
  *
@@ -1268,7 +1269,7 @@ xyz.lab = function(xyz){
 
 	return [l, a, b];
 };
-},{"./xyz":29}],15:[function(require,module,exports){
+},{"./xyz":30}],15:[function(require,module,exports){
 /**
  * Hunter-lab space.
  *
@@ -1312,7 +1313,7 @@ xyz.labh = function(xyz){
 
 	return [l, a, b];
 };
-},{"./xyz":29}],16:[function(require,module,exports){
+},{"./xyz":30}],16:[function(require,module,exports){
 /**
  * Cylindrical LAB
  *
@@ -1368,7 +1369,7 @@ lab.lchab = function(lab) {
 xyz.lchab = function(arg){
 	return lab.lchab(xyz.lab(arg));
 };
-},{"./lab":14,"./xyz":29}],17:[function(require,module,exports){
+},{"./lab":14,"./xyz":30}],17:[function(require,module,exports){
 /**
  * Cylindrical CIE LUV
  *
@@ -1419,7 +1420,7 @@ luv.lchuv = function(luv){
 xyz.lchuv = function(arg){
   return luv.lchuv(xyz.luv(arg));
 };
-},{"./luv":19,"./xyz":29}],18:[function(require,module,exports){
+},{"./luv":19,"./xyz":30}],18:[function(require,module,exports){
 /**
  * A responsivity of cones color space.
  * Used for CAT - chromatic adaptation transform.
@@ -1507,7 +1508,7 @@ xyz.lms = function(arg, matrix) {
 			x * matrix[6] + y * matrix[7] + z * matrix[8]
 		];
 };
-},{"./xyz":29}],19:[function(require,module,exports){
+},{"./xyz":30}],19:[function(require,module,exports){
 /**
  * CIE LUV (C'est la vie)
  *
@@ -1607,43 +1608,49 @@ xyz.luv = function(arg, i, o) {
 
 	return [l, u, v];
 };
-},{"./xyz":29}],20:[function(require,module,exports){
-// Generated by CoffeeScript 1.9.3
+},{"./xyz":30}],20:[function(require,module,exports){
+// Generated by CoffeeScript 1.8.0
 (function() {
-  var L_to_Y, Y_to_L, conv, distanceFromPole, dotProduct, epsilon, fromLinear, getBounds, intersectLineLine, kappa, lengthOfRayUntilIntersect, m, m_inv, maxChromaForLH, maxSafeChromaForL, refU, refV, root, toLinear;
+  var L_to_Y, Y_to_L, conv, distanceFromPole, dotProduct, epsilon, fromLinear, getBounds, intersectLineLine, kappa, lengthOfRayUntilIntersect, m, m_inv, maxChromaForLH, maxSafeChromaForL, refU, refV, refX, refY, refZ, rgbPrepare, root, round, toLinear;
 
   m = {
-    R: [3.2409699419045214, -1.5373831775700935, -0.49861076029300328],
-    G: [-0.96924363628087983, 1.8759675015077207, 0.041555057407175613],
-    B: [0.055630079696993609, -0.20397695888897657, 1.0569715142428786]
+    R: [3.240969941904521, -1.537383177570093, -0.498610760293],
+    G: [-0.96924363628087, 1.87596750150772, 0.041555057407175],
+    B: [0.055630079696993, -0.20397695888897, 1.056971514242878]
   };
 
   m_inv = {
-    X: [0.41239079926595948, 0.35758433938387796, 0.18048078840183429],
-    Y: [0.21263900587151036, 0.71516867876775593, 0.072192315360733715],
-    Z: [0.019330818715591851, 0.11919477979462599, 0.95053215224966058]
+    X: [0.41239079926595, 0.35758433938387, 0.18048078840183],
+    Y: [0.21263900587151, 0.71516867876775, 0.072192315360733],
+    Z: [0.019330818715591, 0.11919477979462, 0.95053215224966]
   };
 
-  refU = 0.19783000664283681;
+  refX = 0.95045592705167;
 
-  refV = 0.468319994938791;
+  refY = 1.0;
 
-  kappa = 903.2962962962963;
+  refZ = 1.089057750759878;
 
-  epsilon = 0.0088564516790356308;
+  refU = 0.19783000664283;
+
+  refV = 0.46831999493879;
+
+  kappa = 903.2962962;
+
+  epsilon = 0.0088564516;
 
   getBounds = function(L) {
-    var bottom, channel, j, k, len1, len2, m1, m2, m3, ref, ref1, ref2, ret, sub1, sub2, t, top1, top2;
+    var bottom, channel, m1, m2, m3, ret, sub1, sub2, t, top1, top2, _i, _j, _len, _len1, _ref, _ref1, _ref2;
     sub1 = Math.pow(L + 16, 3) / 1560896;
     sub2 = sub1 > epsilon ? sub1 : L / kappa;
     ret = [];
-    ref = ['R', 'G', 'B'];
-    for (j = 0, len1 = ref.length; j < len1; j++) {
-      channel = ref[j];
-      ref1 = m[channel], m1 = ref1[0], m2 = ref1[1], m3 = ref1[2];
-      ref2 = [0, 1];
-      for (k = 0, len2 = ref2.length; k < len2; k++) {
-        t = ref2[k];
+    _ref = ['R', 'G', 'B'];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      channel = _ref[_i];
+      _ref1 = m[channel], m1 = _ref1[0], m2 = _ref1[1], m3 = _ref1[2];
+      _ref2 = [0, 1];
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        t = _ref2[_j];
         top1 = (284517 * m1 - 94839 * m3) * sub2;
         top2 = (838422 * m3 + 769860 * m2 + 731718 * m1) * L * sub2 - 769860 * t * L;
         bottom = (632260 * m3 - 126452 * m2) * sub2 + 126452 * t;
@@ -1672,11 +1679,11 @@ xyz.luv = function(arg, i, o) {
   };
 
   maxSafeChromaForL = function(L) {
-    var b1, j, len1, lengths, m1, ref, ref1, x;
+    var b1, lengths, m1, x, _i, _len, _ref, _ref1;
     lengths = [];
-    ref = getBounds(L);
-    for (j = 0, len1 = ref.length; j < len1; j++) {
-      ref1 = ref[j], m1 = ref1[0], b1 = ref1[1];
+    _ref = getBounds(L);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      _ref1 = _ref[_i], m1 = _ref1[0], b1 = _ref1[1];
       x = intersectLineLine([m1, b1], [-1 / m1, 0]);
       lengths.push(distanceFromPole([x, b1 + x * m1]));
     }
@@ -1684,12 +1691,12 @@ xyz.luv = function(arg, i, o) {
   };
 
   maxChromaForLH = function(L, H) {
-    var hrad, j, l, len1, lengths, line, ref;
+    var hrad, l, lengths, line, _i, _len, _ref;
     hrad = H / 360 * Math.PI * 2;
     lengths = [];
-    ref = getBounds(L);
-    for (j = 0, len1 = ref.length; j < len1; j++) {
-      line = ref[j];
+    _ref = getBounds(L);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      line = _ref[_i];
       l = lengthOfRayUntilIntersect(hrad, line);
       if (l !== null) {
         lengths.push(l);
@@ -1699,12 +1706,18 @@ xyz.luv = function(arg, i, o) {
   };
 
   dotProduct = function(a, b) {
-    var i, j, ref, ret;
+    var i, ret, _i, _ref;
     ret = 0;
-    for (i = j = 0, ref = a.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+    for (i = _i = 0, _ref = a.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
       ret += a[i] * b[i];
     }
     return ret;
+  };
+
+  round = function(num, places) {
+    var n;
+    n = Math.pow(10, places);
+    return Math.round(num * n) / n;
   };
 
   fromLinear = function(c) {
@@ -1723,6 +1736,37 @@ xyz.luv = function(arg, i, o) {
     } else {
       return c / 12.92;
     }
+  };
+
+  rgbPrepare = function(tuple) {
+    var ch, n, _i, _j, _len, _len1, _results;
+    tuple = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = tuple.length; _i < _len; _i++) {
+        n = tuple[_i];
+        _results.push(round(n, 3));
+      }
+      return _results;
+    })();
+    for (_i = 0, _len = tuple.length; _i < _len; _i++) {
+      ch = tuple[_i];
+      if (ch < -0.0001 || ch > 1.0001) {
+        throw new Error("Illegal rgb value: " + ch);
+      }
+      if (ch < 0) {
+        ch = 0;
+      }
+      if (ch > 1) {
+        ch = 1;
+      }
+    }
+    _results = [];
+    for (_j = 0, _len1 = tuple.length; _j < _len1; _j++) {
+      ch = tuple[_j];
+      _results.push(Math.round(ch * 255));
+    }
+    return _results;
   };
 
   conv = {
@@ -1755,29 +1799,29 @@ xyz.luv = function(arg, i, o) {
 
   Y_to_L = function(Y) {
     if (Y <= epsilon) {
-      return Y * kappa;
+      return (Y / refY) * kappa;
     } else {
-      return 116 * Math.pow(Y, 1 / 3) - 16;
+      return 116 * Math.pow(Y / refY, 1 / 3) - 16;
     }
   };
 
   L_to_Y = function(L) {
     if (L <= 8) {
-      return L / kappa;
+      return refY * L / kappa;
     } else {
-      return Math.pow((L + 16) / 116, 3);
+      return refY * Math.pow((L + 16) / 116, 3);
     }
   };
 
   conv.xyz.luv = function(tuple) {
     var L, U, V, X, Y, Z, varU, varV;
     X = tuple[0], Y = tuple[1], Z = tuple[2];
-    if (Y === 0) {
-      return [0, 0, 0];
-    }
-    L = Y_to_L(Y);
     varU = (4 * X) / (X + (15 * Y) + (3 * Z));
     varV = (9 * Y) / (X + (15 * Y) + (3 * Z));
+    L = Y_to_L(Y);
+    if (L === 0) {
+      return [0, 0, 0];
+    }
     U = 13 * L * (varU - refU);
     V = 13 * L * (varV - refV);
     return [L, U, V];
@@ -1792,23 +1836,22 @@ xyz.luv = function(arg, i, o) {
     varU = U / (13 * L) + refU;
     varV = V / (13 * L) + refV;
     Y = L_to_Y(L);
+
     X = 0 - (9 * Y * varU) / ((varU - 4) * varV - varU * varV);
     Z = (9 * Y - (15 * varV * Y) - (varV * X)) / (3 * varV);
+
+    // console.log(tuple, [X*100,Y*100,Z*100])
     return [X, Y, Z];
   };
 
   conv.luv.lch = function(tuple) {
     var C, H, Hrad, L, U, V;
     L = tuple[0], U = tuple[1], V = tuple[2];
-    C = Math.sqrt(Math.pow(U, 2) + Math.pow(V, 2));
-    if (C < 0.00000001) {
-      H = 0;
-    } else {
-      Hrad = Math.atan2(V, U);
-      H = Hrad * 360 / 2 / Math.PI;
-      if (H < 0) {
-        H = 360 + H;
-      }
+    C = Math.pow(Math.pow(U, 2) + Math.pow(V, 2), 1 / 2);
+    Hrad = Math.atan2(V, U);
+    H = Hrad * 360 / 2 / Math.PI;
+    if (H < 0) {
+      H = 360 + H;
     }
     return [L, C, H];
   };
@@ -1825,61 +1868,66 @@ xyz.luv = function(arg, i, o) {
   conv.husl.lch = function(tuple) {
     var C, H, L, S, max;
     H = tuple[0], S = tuple[1], L = tuple[2];
-    if (L > 99.9999999 || L < 0.00000001) {
-      C = 0;
-    } else {
-      max = maxChromaForLH(L, H);
-      C = max / 100 * S;
+    if (L > 99.9999999) {
+      return [100, 0, H];
     }
+    if (L < 0.00000001) {
+      return [0, 0, H];
+    }
+    max = maxChromaForLH(L, H);
+    C = max / 100 * S;
     return [L, C, H];
   };
 
   conv.lch.husl = function(tuple) {
     var C, H, L, S, max;
     L = tuple[0], C = tuple[1], H = tuple[2];
-    if (L > 99.9999999 || L < 0.00000001) {
-      S = 0;
-    } else {
-      max = maxChromaForLH(L, H);
-      S = C / max * 100;
+    if (L > 99.9999999) {
+      return [H, 0, 100];
     }
+    if (L < 0.00000001) {
+      return [H, 0, 0];
+    }
+    max = maxChromaForLH(L, H);
+    S = C / max * 100;
     return [H, S, L];
   };
 
   conv.huslp.lch = function(tuple) {
     var C, H, L, S, max;
     H = tuple[0], S = tuple[1], L = tuple[2];
-    if (L > 99.9999999 || L < 0.00000001) {
-      C = 0;
-    } else {
-      max = maxSafeChromaForL(L);
-      C = max / 100 * S;
+    if (L > 99.9999999) {
+      return [100, 0, H];
     }
+    if (L < 0.00000001) {
+      return [0, 0, H];
+    }
+    max = maxSafeChromaForL(L);
+    C = max / 100 * S;
     return [L, C, H];
   };
 
   conv.lch.huslp = function(tuple) {
     var C, H, L, S, max;
     L = tuple[0], C = tuple[1], H = tuple[2];
-    if (L > 99.9999999 || L < 0.00000001) {
-      S = 0;
-    } else {
-      max = maxSafeChromaForL(L);
-      S = C / max * 100;
+    if (L > 99.9999999) {
+      return [H, 0, 100];
     }
+    if (L < 0.00000001) {
+      return [H, 0, 0];
+    }
+    max = maxSafeChromaForL(L);
+    S = C / max * 100;
     return [H, S, L];
   };
 
   conv.rgb.hex = function(tuple) {
-    var ch, hex, j, len1;
+    var ch, hex, _i, _len;
     hex = "#";
-    for (j = 0, len1 = tuple.length; j < len1; j++) {
-      ch = tuple[j];
-      ch = Math.round(ch * 1e6) / 1e6;
-      if (ch < 0 || ch > 1) {
-        throw new Error("Illegal rgb value: " + ch);
-      }
-      ch = Math.round(ch * 255).toString(16);
+    tuple = rgbPrepare(tuple);
+    for (_i = 0, _len = tuple.length; _i < _len; _i++) {
+      ch = tuple[_i];
+      ch = ch.toString(16);
       if (ch.length === 1) {
         ch = "0" + ch;
       }
@@ -1889,20 +1937,20 @@ xyz.luv = function(arg, i, o) {
   };
 
   conv.hex.rgb = function(hex) {
-    var b, g, j, len1, n, r, ref, results;
+    var b, g, n, r, _i, _len, _ref, _results;
     if (hex.charAt(0) === "#") {
       hex = hex.substring(1, 7);
     }
     r = hex.substring(0, 2);
     g = hex.substring(2, 4);
     b = hex.substring(4, 6);
-    ref = [r, g, b];
-    results = [];
-    for (j = 0, len1 = ref.length; j < len1; j++) {
-      n = ref[j];
-      results.push(parseInt(n, 16) / 255);
+    _ref = [r, g, b];
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      n = _ref[_i];
+      _results.push(parseInt(n, 16) / 255);
     }
-    return results;
+    return _results;
   };
 
   conv.lch.rgb = function(tuple) {
@@ -1966,6 +2014,10 @@ xyz.luv = function(arg, i, o) {
   };
 
   root._conv = conv;
+
+  root._round = round;
+
+  root._rgbPrepare = rgbPrepare;
 
   root._getBounds = getBounds;
 
@@ -2077,6 +2129,83 @@ module.exports = function(fn){
 };
 },{}],24:[function(require,module,exports){
 /**
+ * OSA-UCS
+ *
+ * @module  color-space/osa-ucs
+ */
+
+var xyz = require('./xyz');
+
+
+var osaucs = {
+	name: 'osaucs',
+	alias: ['OSA-UCS'],
+	channel: ['L', 'j', 'g'],
+	min: [-10, -6, -10],
+	max: [8, 12, 6]
+};
+
+
+/**
+ * There’s no analytical solution to this
+ */
+osaucs.xyz = function (arg) {
+	var x, y, z;
+
+	throw 'Unimplemented';
+	//http://www.researchgate.net/publication/259253763_Comparison_of_the_performance_of_inverse_transformation_methods_from_OSA-UCS_to_CIEXYZ
+
+	return [x, y, z];
+};
+
+
+/**
+ * Transform to xyz osaucs
+ *
+ * @param {Array} arg Input xyz array
+ *
+ * @return {Array} Ljg array
+ */
+xyz.osaucs = function (arg) {
+	var X = arg[0], Y = arg[1], Z = arg[2];
+
+	var x = X / (X + Y + Z);
+	var y = Y / (X + Y + Z);
+
+	//FIXME: there might be a typo, wiki states 1.8103 as a constant value
+	var K = 4.4934*x*x + 4.3034*y*y - 4.276*x*y - 1.3744*x - 2.56439*y + 1.8103;
+	var Y0 = K*Y;
+
+	var L_ = 5.9*(Math.pow(Y0, 1/3) - 2/3 + 0.042*Math.pow(Math.max(Y0, 30) - 30, 1/3));
+	var L = (L_ - 14.3993) / Math.sqrt(2);
+
+	var C = L_ / (5.9 * (Math.pow(Y0, 1/3) - 2/3));
+
+	var R = 0.7790*X + 0.4194*Y - 0.1648*Z;
+	var G = -0.4493*X + 1.3265*Y + 0.0927*Z;
+	var B = -0.1149*X + 0.3394*Y + 0.7170*Z;
+
+	R = Math.pow(R, 1/3) || 0;
+	G = Math.pow(G, 1/3) || 0;
+	B = Math.pow(B, 1/3) || 0;
+
+	var a = -13.7*R + 17.7*G - 4*B;
+	var b = 1.7*R + 8*G - 9.7*B;
+
+	var g = C*a;
+	var j = C*b;
+
+	//polar form
+	// var p = Math.sqrt(j*j + g*g);
+	// var phi = Math.atan2(j, g);
+
+	return [L, j, g];
+};
+
+
+module.exports = osaucs;
+},{"./xyz":30}],25:[function(require,module,exports){
+/**
  * RGB space.
  *
  * @module  color-space/rgb
@@ -2089,7 +2218,7 @@ module.exports = {
 	channel: ['red', 'green', 'blue'],
 	alias: ['RGB']
 };
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/wiki/CIE_1960_color_space
  *
@@ -2148,7 +2277,7 @@ xyz.ucs = function(xyz) {
 		0.5 * (-x + 3*y + z)
 	];
 };
-},{"./luv":19,"./xyz":29}],26:[function(require,module,exports){
+},{"./luv":19,"./xyz":30}],27:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/wiki/CIE_1964_color_space
  *
@@ -2262,7 +2391,7 @@ ucs.uvw = function(ucs) {
 	u = 13 * w * (u - un);
 	v = 13 * w * (v - vn);
 };
-},{"./ucs":25,"./xyz":29}],27:[function(require,module,exports){
+},{"./ucs":26,"./xyz":30}],28:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/wiki/XvYCC
  *
@@ -2349,7 +2478,7 @@ xvycc.rgb = function (arr, kb, kr) {
 rgb.xvycc = function(arr, kb, kr) {
 	return ypbpr.xvycc(rgb.ypbpr(arr, kb, kr));
 };
-},{"./rgb":24,"./ypbpr":35}],28:[function(require,module,exports){
+},{"./rgb":25,"./ypbpr":36}],29:[function(require,module,exports){
 /**
  * Additional xyY space, where xy are relative chromacity params
  *
@@ -2387,7 +2516,7 @@ xyz.xyy = function(arg) {
 };
 
 module.exports = xyy;
-},{"./xyz":29}],29:[function(require,module,exports){
+},{"./xyz":30}],30:[function(require,module,exports){
 /**
  * CIE XYZ
  *
@@ -2526,7 +2655,7 @@ rgb.xyz = function(rgb) {
 
 
 module.exports = xyz;
-},{"./rgb":24}],30:[function(require,module,exports){
+},{"./rgb":25}],31:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/?title=YCbCr
  *
@@ -2604,7 +2733,7 @@ ycbcr.rgb = function (arr, kb, kr) {
 rgb.ycbcr = function(arr, kb, kr) {
 	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));
 };
-},{"./rgb":24,"./ypbpr":35}],31:[function(require,module,exports){
+},{"./rgb":25,"./ypbpr":36}],32:[function(require,module,exports){
 /**
  * YcCbcCrc is ITU-R BT.2020
  *
@@ -2645,7 +2774,7 @@ yccbccrc.rgb = function(yccbccrc) {
 rgb.yccbccrc = function(arr) {
 	return rgb.ypbpr(arr, 0.0593, 0.2627);
 };
-},{"./rgb":24,"./ypbpr":35}],32:[function(require,module,exports){
+},{"./rgb":25,"./ypbpr":36}],33:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/?title=YCgCo
  *
@@ -2701,7 +2830,7 @@ rgb.ycgco = function(arr) {
 		0.5*r - 0.5*b
 	];
 };
-},{"./rgb":24}],33:[function(require,module,exports){
+},{"./rgb":25}],34:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/?title=YDbDr
  *
@@ -2772,7 +2901,7 @@ ydbdr.yuv = function (ydbdr) {
 		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169
 	]
 };
-},{"./rgb":24,"./yuv":36}],34:[function(require,module,exports){
+},{"./rgb":25,"./yuv":37}],35:[function(require,module,exports){
 /**
  * YIQ https://en.wikipedia.org/?title=YIQ
  *
@@ -2822,7 +2951,7 @@ rgb.yiq = function(rgb) {
 	}
 	return [y, i, q];
 };
-},{"./rgb":24}],35:[function(require,module,exports){
+},{"./rgb":25}],36:[function(require,module,exports){
 /**
  * https://en.wikipedia.org/?title=YPbPr
  *
@@ -2887,7 +3016,7 @@ rgb.ypbpr = function(rgb, kb, kr) {
 
 	return [y, pb, pr];
 };
-},{"./rgb":24}],36:[function(require,module,exports){
+},{"./rgb":25}],37:[function(require,module,exports){
 /**
  * YUV https://en.wikipedia.org/?title=YUV
  *
@@ -2934,5 +3063,5 @@ rgb.yuv = function(rgb) {
 
 	return [y, u, v];
 };
-},{"./rgb":24}]},{},[12])(12)
+},{"./rgb":25}]},{},[12])(12)
 });
