@@ -4,7 +4,7 @@
  * @module color-space/cubehelix
  */
 var rgb = require('./rgb');
-var clamp = require('mumath/between');
+var clamp = require('mumath/clamp');
 
 
 var cubehelix = module.exports = {

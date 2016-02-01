@@ -7,8 +7,8 @@
 
 var rgb = require('./rgb');
 
-var loop = require('mumath/loop');
-var clamp = require('mumath/between');
+var loop = require('mumath/mod');
+var clamp = require('mumath/clamp');
 
 
 var hsi = module.exports = {
