@@ -1,5 +1,5 @@
 /**
- * @module color-space/hsv
+ * @module color-space/hcg
  */
 
 var rgb = require('./rgb');
@@ -7,7 +7,7 @@ var hsl = require('./hsl');
 var hsv = require('./hsv');
 
 module.exports = {
-	name: 'HCG',
+	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
