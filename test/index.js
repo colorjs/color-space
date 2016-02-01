@@ -77,6 +77,37 @@ describe('hsi', function () {
 });
 
 
+describe('hcg', function () {
+	before(function () {
+		createSpaceCase('HCG');
+	});
+
+	it('hcg → rgb', function () {
+		assert.deepEqual(round(s.hcg.rgb([ 0, 100, 0 ])), [255, 0, 0]);
+		
+		assert.deepEqual(round(s.hcg.rgb([ 0, 50, 0 ])), [128, 0, 0]);
+		assert.deepEqual(round(s.hcg.rgb([ 0, 50, 100 ])), [255, 128, 128]);
+		assert.deepEqual(round(s.hcg.rgb([ 0, 50, 50 ])), [191, 64, 64]);
+		
+		assert.deepEqual(round(s.hcg.rgb([ 0, 0, 100 ])), [255, 255, 255]);
+		assert.deepEqual(round(s.hcg.rgb([ 0, 0, 50 ])), [128, 128, 128]);
+		assert.deepEqual(round(s.hcg.rgb([ 0, 0, 0 ])), [0, 0, 0]);
+	});
+	
+	it('rgb → hcg', function () {
+		assert.deepEqual(round(s.rgb.hcg([255, 0, 0])), [ 360, 100, 0 ]);
+		
+		assert.deepEqual(round(s.rgb.hcg([128, 0, 0])),  [ 360, 50, 0 ]);
+		assert.deepEqual(round(s.rgb.hcg([255, 128, 128])),[ 360, 50, 100 ] );
+		assert.deepEqual(round(s.rgb.hcg([192, 64, 64])), [ 360, 50, 50 ]);
+		
+		assert.deepEqual(round(s.rgb.hcg([255, 255, 255])), [ 0, 0, 100 ]);
+		assert.deepEqual(round(s.rgb.hcg([128, 128, 128])), [ 0, 0, 50 ]);
+		assert.deepEqual(round(s.rgb.hcg([ 0, 0, 0 ])), [0, 0, 0]);
+	});
+});
+
+
 describe('hwb', function () {
 	before(function () {
 		createSpaceCase('HWB');

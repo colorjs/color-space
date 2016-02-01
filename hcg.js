@@ -1,10 +1,11 @@
 /**
  * @module color-space/hcg
  */
-
+ 
 var rgb = require('./rgb');
 var hsl = require('./hsl');
 var hsv = require('./hsv');
+var loop = require('mumath/mod');
 
 module.exports = {
 	name: 'hcg',
@@ -19,8 +20,8 @@ module.exports = {
 		var g = hcg[2] / 100;
 		
 		if(c == 0.0) return [g * 255, g * 255, g * 255];
-		var hi = h.mod(1) * 6;
-		var v = hi.mod(1);
+		var hi = loop(h, 1) * 6;
+		var v = loop(hi, 1);
 		var pure = [0, 0, 0];
 		var w = 1 - v;
 		switch(Math.floor(hi)) {
@@ -84,10 +85,11 @@ rgb.hcg = function(rgb) {
 	} else grayscale = 0;
 	if(chroma > 0){
 		hue = (
-			(max == r ? ((g - b) / chroma).mod(6) : 
-			(max == g ? ((b - r) / chroma) + 2 : 
-						((r - g) / chroma) + 4)
-			) / 6).mod(1);
+			loop(
+					(max == r ? loop((g - b) / chroma, 6) : 
+					(max == g ? 	((b - r) / chroma) + 2 : 
+									((r - g) / chroma) + 4)
+			) / 6), 1);
 	} else hue = 0;
 	return [hue * 360, chroma * 100, grayscale * 100];
 };
