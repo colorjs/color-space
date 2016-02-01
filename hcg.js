@@ -1,7 +1,11 @@
 /**
  * @module color-space/hcg
  */
-
+ 
+Number.prototype.mod = function(n) {
+	return ((this%n)+n)%n;
+};
+ 
 var rgb = require('./rgb');
 var hsl = require('./hsl');
 var hsv = require('./hsv');
