@@ -7,7 +7,7 @@ Conversions and data for color spaces. [Demo](http://dfcreative.github.io/color-
 
 ## Usage
 
-[`npm install color-space`](https://npmjs.org/package/color-space/)
+[![npm install color-space](https://nodei.co/npm/color-space.png?mini=true)](https://npmjs.org/package/color-space/)
 
 ```js
 var space = require('color-space');

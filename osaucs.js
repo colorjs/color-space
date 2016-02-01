@@ -21,6 +21,8 @@ var osaucs = {
  */
 osaucs.xyz = function (arg) {
 	var x, y, z;
+
+	throw 'Unimplemented';
 	//http://www.researchgate.net/publication/259253763_Comparison_of_the_performance_of_inverse_transformation_methods_from_OSA-UCS_to_CIEXYZ
 
 	return [x, y, z];
@@ -44,7 +46,7 @@ xyz.osaucs = function (arg) {
 	var K = 4.4934*x*x + 4.3034*y*y - 4.276*x*y - 1.3744*x - 2.56439*y + 1.8103;
 	var Y0 = K*Y;
 
-	var L_ = 5.9*(Math.pow(Y0, 1/3) - 2/3 + 0.042*Math.pow(Y0 - 30, 1/3));
+	var L_ = 5.9*(Math.pow(Y0, 1/3) - 2/3 + 0.042*Math.pow(Math.max(Y0, 30) - 30, 1/3));
 	var L = (L_ - 14.3993) / Math.sqrt(2);
 
 	var C = L_ / (5.9 * (Math.pow(Y0, 1/3) - 2/3));
