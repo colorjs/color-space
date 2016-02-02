@@ -95,11 +95,11 @@ describe('hcg', function () {
 	});
 	
 	it('rgb → hcg', function () {
-		assert.deepEqual(round(s.rgb.hcg([255, 0, 0])), [ 360, 100, 0 ]);
+		assert.deepEqual(round(s.rgb.hcg([255, 0, 0])), [ 0, 100, 0 ]);
 		
-		assert.deepEqual(round(s.rgb.hcg([128, 0, 0])),  [ 360, 50, 0 ]);
-		assert.deepEqual(round(s.rgb.hcg([255, 128, 128])),[ 360, 50, 100 ] );
-		assert.deepEqual(round(s.rgb.hcg([192, 64, 64])), [ 360, 50, 50 ]);
+		assert.deepEqual(round(s.rgb.hcg([128, 0, 0])),  [ 0, 50, 0 ]);
+		assert.deepEqual(round(s.rgb.hcg([255, 128, 128])),[ 0, 50, 100 ] );
+		assert.deepEqual(round(s.rgb.hcg([192, 64, 64])), [ 0, 50, 50 ]);
 		
 		assert.deepEqual(round(s.rgb.hcg([255, 255, 255])), [ 0, 0, 100 ]);
 		assert.deepEqual(round(s.rgb.hcg([128, 128, 128])), [ 0, 0, 50 ]);
