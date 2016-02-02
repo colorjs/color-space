@@ -99,9 +99,9 @@ rgb.hcg = function(rgb) {
 			hue = mod((g - b) / chroma, 6);
 		} else
 		if (max === g) {
-			hue = (b - r) / chroma;
+			hue = 2 + (b - r) / chroma;
 		} else {
-			hue = (r - g) / chroma;
+			hue = 4 + (r - g) / chroma;
 		}
 		hue /= 6;
 		hue = mod(hue, 1);
