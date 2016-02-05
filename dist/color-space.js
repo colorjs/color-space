@@ -1,4 +1,4 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.colorSpace=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.colorSpace = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * @module color-space/cmy
  */
@@ -382,7 +382,7 @@ module.exports = coloroid;
  * @module color-space/cubehelix
  */
 var rgb = require('./rgb');
-var clamp = require('mumath/between');
+var clamp = require('mumath/clamp');
 
 
 var cubehelix = module.exports = {
@@ -452,14 +452,16 @@ cubehelix.rgb = function(fraction, options) {
 rgb.cubehelix = function(rgb) {
 	//TODO - there is no backwise conversion yet
 };
-},{"./rgb":25,"mumath/between":21}],5:[function(require,module,exports){
+},{"./rgb":25,"mumath/clamp":21}],5:[function(require,module,exports){
 /**
  * @module color-space/hcg
  */
-
+ 
 var rgb = require('./rgb');
 var hsl = require('./hsl');
 var hsv = require('./hsv');
+var hwb = require('./hwb');
+var mod = require('mumath/mod');
 
 module.exports = {
 	name: 'hcg',
@@ -472,25 +474,32 @@ module.exports = {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
-		
-		if(c == 0.0) return [g * 255, g * 255, g * 255];
-		var hi = h.mod(1) * 6;
-		var v = hi.mod(1);
+		if (c === 0.0) {
+			return [g * 255, g * 255, g * 255];
+		}
+		var hi = mod(h, 1) * 6;
+		var v = mod(hi, 1);
 		var pure = [0, 0, 0];
 		var w = 1 - v;
-		switch(Math.floor(hi)) {
-			case 0 : pure[0] = 1; pure[1] = v; pure[2] = 0; break;
-			case 1 : pure[0] = w; pure[1] = 1; pure[2] = 0; break;
-			case 2 : pure[0] = 0; pure[1] = 1; pure[2] = v; break;
-			case 3 : pure[0] = 0; pure[1] = w; pure[2] = 1; break;
-			case 4 : pure[0] = v; pure[1] = 0; pure[2] = 1; break;
-			default: pure[0] = 1; pure[1] = 0; pure[2] = w;
+		switch (Math.floor(hi)) {
+			case 0:
+				pure[0] = 1; pure[1] = v; pure[2] = 0; break;
+			case 1:
+				pure[0] = w; pure[1] = 1; pure[2] = 0; break;
+			case 2:
+				pure[0] = 0; pure[1] = 1; pure[2] = v; break;
+			case 3:
+				pure[0] = 0; pure[1] = w; pure[2] = 1; break;
+			case 4:
+				pure[0] = v; pure[1] = 0; pure[2] = 1; break;
+			default:
+				pure[0] = 1; pure[1] = 0; pure[2] = w;
 		}
 		var mg = (1.0 - c) * g;
 		var rgb = [
-			(c * pure[0] + mg) * 255, 
-			(c * pure[1] + mg) * 255, 
-			(c * pure[2] + mg) * 255 
+			(c * pure[0] + mg) * 255,
+			(c * pure[1] + mg) * 255,
+			(c * pure[2] + mg) * 255
 		];
 		return rgb;
 	},
@@ -500,8 +509,8 @@ module.exports = {
 		var g = hcg[2] / 100;
 		var l = g * (1.0 - c) + 0.5 * c;
 		var s = 0;
-		if(l < 1.0 && l > 0.0){
-			if(l < 0.5){
+		if (l < 1.0 && l > 0.0) {
+			if (l < 0.5) {
 				s = c / (2 * l);
 			} else {
 				s = c / (2 * (1 - l));
@@ -514,12 +523,21 @@ module.exports = {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var v = c + g * (1.0 - c);
-		if(v > 0.0){
+		var res;
+		if (v > 0.0) {
 			var f = c / v;
-			return [hcg[0], f * 100, v * 100];
+			res = [hcg[0], f * 100, v * 100];
 		} else {
-			return [hcg[0], 0, v * 100];
+			res = [hcg[0], 0, v * 100];
 		}
+		return res;
+	},
+	
+	hwb: function(hcg){
+		var c = hcg[1] / 100;
+		var g = hcg[2] / 100;
+		var v = c + g * (1.0 - c);
+		return [hcg[0], (v - c) * 100, (1 - v) * 100];
 	}
 };
 
@@ -529,21 +547,30 @@ rgb.hcg = function(rgb) {
 	var r = rgb[0] / 255;
 	var g = rgb[1] / 255;
 	var b = rgb[2] / 255;
-	
-	var max = Math.max(r, g, b);
-	var min = Math.min(r, g, b);
+	var max = Math.max(Math.max(r, g), b);
+	var min = Math.min(Math.min(r, g), b);
 	var chroma = (max - min);
-	var grayscale, hue;
-	if(chroma < 1){
+	var grayscale;
+	var hue;
+	if (chroma < 1) {
 		grayscale = min / (1 - chroma);
-	} else grayscale = 0;
-	if(chroma > 0){
-		hue = (
-			(max == r ? ((g - b) / chroma).mod(6) : 
-			(max == g ? ((b - r) / chroma) + 2 : 
-						((r - g) / chroma) + 4)
-			) / 6).mod(1);
-	} else hue = 0;
+	} else {
+		grayscale = 0;
+	}
+	if (chroma > 0) {
+		if (max === r) {
+			hue = mod((g - b) / chroma, 6);
+		} else
+		if (max === g) {
+			hue = 2 + (b - r) / chroma;
+		} else {
+			hue = 4 + (r - g) / chroma;
+		}
+		hue /= 6;
+		hue = mod(hue, 1);
+	} else {
+		hue = 0;
+	}
 	return [hue * 360, chroma * 100, grayscale * 100];
 };
 
@@ -552,17 +579,19 @@ hsl.hcg = function(hsl) {
 	var s = hsl[1] / 100;
 	var l = hsl[2] / 100;
 	var c = 0;
-	if(l < 0.5) {
+	if (l < 0.5) {
 		c = 2.0 * s * l;
 	} else {
 		c = 2.0 * s * (1.0 - l);
 	}
-	if(c < 1.0){
+	var res;
+	if (c < 1.0) {
 		var f = (l - 0.5 * c) / (1.0 - c);
-		return [hsl[0], c * 100, f * 100];
+		res = [hsl[0], c * 100, f * 100];
 	} else {
-		return [hsl[0], c * 100, 0];
+		res = [hsl[0], c * 100, 0];
 	}
+	return res;
 };
 
 //extend hsv
@@ -570,14 +599,29 @@ hsv.hcg = function(hsv){
 	var s = hsv[1] / 100;
 	var v = hsv[2] / 100;
 	var c = s * v;
-	if(c < 1.0){
+	var res;
+	if (c < 1.0) {
 		var f = (v - c) / (1 - c);
-		return [hsv[0], c * 100, f * 100];
+		res = [hsv[0], c * 100, f * 100];
 	} else {
-		return [hsv[0], c * 100, 0];
+		res = [hsv[0], c * 100, 0];
 	}
+	return res;
 }
-},{"./hsl":7,"./hsv":8,"./rgb":25}],6:[function(require,module,exports){
+
+//extend hwb
+hwb.hcg = function(hwb){
+	var w = hwb[1] / 100;
+	var b = hwb[2] / 100;
+	var v = 1 - b;
+	var c = v - w;
+	var g = 0;
+	if (c < 1) {
+		g = (v - c) / (1 - c);
+	}
+	return [hwb[0], c * 100, g * 100];
+}
+},{"./hsl":7,"./hsv":8,"./hwb":11,"./rgb":25,"mumath/mod":22}],6:[function(require,module,exports){
 /**
  * http://www.cse.usf.edu/~mshreve/rgb-to-hsi
  * http://web.archive.org/web/20130124054245/http://web2.clarkson.edu/class/image_process/RGB_to_HSI.pdf
@@ -587,8 +631,8 @@ hsv.hcg = function(hsv){
 
 var rgb = require('./rgb');
 
-var loop = require('mumath/loop');
-var clamp = require('mumath/between');
+var loop = require('mumath/mod');
+var clamp = require('mumath/clamp');
 
 
 var hsi = module.exports = {
@@ -665,7 +709,7 @@ rgb.hsi = function (rgb) {
 
 	return [h * 180 / Math.PI, s * 100, i];
 };
-},{"./rgb":25,"mumath/between":21,"mumath/loop":22}],7:[function(require,module,exports){
+},{"./rgb":25,"mumath/clamp":21,"mumath/mod":22}],7:[function(require,module,exports){
 /**
  * @module color-space/hsl
  */
@@ -1609,48 +1653,42 @@ xyz.luv = function(arg, i, o) {
 	return [l, u, v];
 };
 },{"./xyz":30}],20:[function(require,module,exports){
-// Generated by CoffeeScript 1.8.0
+// Generated by CoffeeScript 1.9.3
 (function() {
-  var L_to_Y, Y_to_L, conv, distanceFromPole, dotProduct, epsilon, fromLinear, getBounds, intersectLineLine, kappa, lengthOfRayUntilIntersect, m, m_inv, maxChromaForLH, maxSafeChromaForL, refU, refV, refX, refY, refZ, rgbPrepare, root, round, toLinear;
+  var L_to_Y, Y_to_L, conv, distanceFromPole, dotProduct, epsilon, fromLinear, getBounds, intersectLineLine, kappa, lengthOfRayUntilIntersect, m, m_inv, maxChromaForLH, maxSafeChromaForL, refU, refV, root, toLinear;
 
   m = {
-    R: [3.240969941904521, -1.537383177570093, -0.498610760293],
-    G: [-0.96924363628087, 1.87596750150772, 0.041555057407175],
-    B: [0.055630079696993, -0.20397695888897, 1.056971514242878]
+    R: [3.2409699419045214, -1.5373831775700935, -0.49861076029300328],
+    G: [-0.96924363628087983, 1.8759675015077207, 0.041555057407175613],
+    B: [0.055630079696993609, -0.20397695888897657, 1.0569715142428786]
   };
 
   m_inv = {
-    X: [0.41239079926595, 0.35758433938387, 0.18048078840183],
-    Y: [0.21263900587151, 0.71516867876775, 0.072192315360733],
-    Z: [0.019330818715591, 0.11919477979462, 0.95053215224966]
+    X: [0.41239079926595948, 0.35758433938387796, 0.18048078840183429],
+    Y: [0.21263900587151036, 0.71516867876775593, 0.072192315360733715],
+    Z: [0.019330818715591851, 0.11919477979462599, 0.95053215224966058]
   };
 
-  refX = 0.95045592705167;
+  refU = 0.19783000664283681;
 
-  refY = 1.0;
+  refV = 0.468319994938791;
 
-  refZ = 1.089057750759878;
+  kappa = 903.2962962962963;
 
-  refU = 0.19783000664283;
-
-  refV = 0.46831999493879;
-
-  kappa = 903.2962962;
-
-  epsilon = 0.0088564516;
+  epsilon = 0.0088564516790356308;
 
   getBounds = function(L) {
-    var bottom, channel, m1, m2, m3, ret, sub1, sub2, t, top1, top2, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    var bottom, channel, j, k, len1, len2, m1, m2, m3, ref, ref1, ref2, ret, sub1, sub2, t, top1, top2;
     sub1 = Math.pow(L + 16, 3) / 1560896;
     sub2 = sub1 > epsilon ? sub1 : L / kappa;
     ret = [];
-    _ref = ['R', 'G', 'B'];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      channel = _ref[_i];
-      _ref1 = m[channel], m1 = _ref1[0], m2 = _ref1[1], m3 = _ref1[2];
-      _ref2 = [0, 1];
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        t = _ref2[_j];
+    ref = ['R', 'G', 'B'];
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      channel = ref[j];
+      ref1 = m[channel], m1 = ref1[0], m2 = ref1[1], m3 = ref1[2];
+      ref2 = [0, 1];
+      for (k = 0, len2 = ref2.length; k < len2; k++) {
+        t = ref2[k];
         top1 = (284517 * m1 - 94839 * m3) * sub2;
         top2 = (838422 * m3 + 769860 * m2 + 731718 * m1) * L * sub2 - 769860 * t * L;
         bottom = (632260 * m3 - 126452 * m2) * sub2 + 126452 * t;
@@ -1679,11 +1717,11 @@ xyz.luv = function(arg, i, o) {
   };
 
   maxSafeChromaForL = function(L) {
-    var b1, lengths, m1, x, _i, _len, _ref, _ref1;
+    var b1, j, len1, lengths, m1, ref, ref1, x;
     lengths = [];
-    _ref = getBounds(L);
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      _ref1 = _ref[_i], m1 = _ref1[0], b1 = _ref1[1];
+    ref = getBounds(L);
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      ref1 = ref[j], m1 = ref1[0], b1 = ref1[1];
       x = intersectLineLine([m1, b1], [-1 / m1, 0]);
       lengths.push(distanceFromPole([x, b1 + x * m1]));
     }
@@ -1691,12 +1729,12 @@ xyz.luv = function(arg, i, o) {
   };
 
   maxChromaForLH = function(L, H) {
-    var hrad, l, lengths, line, _i, _len, _ref;
+    var hrad, j, l, len1, lengths, line, ref;
     hrad = H / 360 * Math.PI * 2;
     lengths = [];
-    _ref = getBounds(L);
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      line = _ref[_i];
+    ref = getBounds(L);
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      line = ref[j];
       l = lengthOfRayUntilIntersect(hrad, line);
       if (l !== null) {
         lengths.push(l);
@@ -1706,18 +1744,12 @@ xyz.luv = function(arg, i, o) {
   };
 
   dotProduct = function(a, b) {
-    var i, ret, _i, _ref;
+    var i, j, ref, ret;
     ret = 0;
-    for (i = _i = 0, _ref = a.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+    for (i = j = 0, ref = a.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
       ret += a[i] * b[i];
     }
     return ret;
-  };
-
-  round = function(num, places) {
-    var n;
-    n = Math.pow(10, places);
-    return Math.round(num * n) / n;
   };
 
   fromLinear = function(c) {
@@ -1736,37 +1768,6 @@ xyz.luv = function(arg, i, o) {
     } else {
       return c / 12.92;
     }
-  };
-
-  rgbPrepare = function(tuple) {
-    var ch, n, _i, _j, _len, _len1, _results;
-    tuple = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = tuple.length; _i < _len; _i++) {
-        n = tuple[_i];
-        _results.push(round(n, 3));
-      }
-      return _results;
-    })();
-    for (_i = 0, _len = tuple.length; _i < _len; _i++) {
-      ch = tuple[_i];
-      if (ch < -0.0001 || ch > 1.0001) {
-        throw new Error("Illegal rgb value: " + ch);
-      }
-      if (ch < 0) {
-        ch = 0;
-      }
-      if (ch > 1) {
-        ch = 1;
-      }
-    }
-    _results = [];
-    for (_j = 0, _len1 = tuple.length; _j < _len1; _j++) {
-      ch = tuple[_j];
-      _results.push(Math.round(ch * 255));
-    }
-    return _results;
   };
 
   conv = {
@@ -1799,29 +1800,29 @@ xyz.luv = function(arg, i, o) {
 
   Y_to_L = function(Y) {
     if (Y <= epsilon) {
-      return (Y / refY) * kappa;
+      return Y * kappa;
     } else {
-      return 116 * Math.pow(Y / refY, 1 / 3) - 16;
+      return 116 * Math.pow(Y, 1 / 3) - 16;
     }
   };
 
   L_to_Y = function(L) {
     if (L <= 8) {
-      return refY * L / kappa;
+      return L / kappa;
     } else {
-      return refY * Math.pow((L + 16) / 116, 3);
+      return Math.pow((L + 16) / 116, 3);
     }
   };
 
   conv.xyz.luv = function(tuple) {
     var L, U, V, X, Y, Z, varU, varV;
     X = tuple[0], Y = tuple[1], Z = tuple[2];
-    varU = (4 * X) / (X + (15 * Y) + (3 * Z));
-    varV = (9 * Y) / (X + (15 * Y) + (3 * Z));
-    L = Y_to_L(Y);
-    if (L === 0) {
+    if (Y === 0) {
       return [0, 0, 0];
     }
+    L = Y_to_L(Y);
+    varU = (4 * X) / (X + (15 * Y) + (3 * Z));
+    varV = (9 * Y) / (X + (15 * Y) + (3 * Z));
     U = 13 * L * (varU - refU);
     V = 13 * L * (varV - refV);
     return [L, U, V];
@@ -1836,22 +1837,23 @@ xyz.luv = function(arg, i, o) {
     varU = U / (13 * L) + refU;
     varV = V / (13 * L) + refV;
     Y = L_to_Y(L);
-
     X = 0 - (9 * Y * varU) / ((varU - 4) * varV - varU * varV);
     Z = (9 * Y - (15 * varV * Y) - (varV * X)) / (3 * varV);
-
-    // console.log(tuple, [X*100,Y*100,Z*100])
     return [X, Y, Z];
   };
 
   conv.luv.lch = function(tuple) {
     var C, H, Hrad, L, U, V;
     L = tuple[0], U = tuple[1], V = tuple[2];
-    C = Math.pow(Math.pow(U, 2) + Math.pow(V, 2), 1 / 2);
-    Hrad = Math.atan2(V, U);
-    H = Hrad * 360 / 2 / Math.PI;
-    if (H < 0) {
-      H = 360 + H;
+    C = Math.sqrt(Math.pow(U, 2) + Math.pow(V, 2));
+    if (C < 0.00000001) {
+      H = 0;
+    } else {
+      Hrad = Math.atan2(V, U);
+      H = Hrad * 360 / 2 / Math.PI;
+      if (H < 0) {
+        H = 360 + H;
+      }
     }
     return [L, C, H];
   };
@@ -1868,66 +1870,61 @@ xyz.luv = function(arg, i, o) {
   conv.husl.lch = function(tuple) {
     var C, H, L, S, max;
     H = tuple[0], S = tuple[1], L = tuple[2];
-    if (L > 99.9999999) {
-      return [100, 0, H];
+    if (L > 99.9999999 || L < 0.00000001) {
+      C = 0;
+    } else {
+      max = maxChromaForLH(L, H);
+      C = max / 100 * S;
     }
-    if (L < 0.00000001) {
-      return [0, 0, H];
-    }
-    max = maxChromaForLH(L, H);
-    C = max / 100 * S;
     return [L, C, H];
   };
 
   conv.lch.husl = function(tuple) {
     var C, H, L, S, max;
     L = tuple[0], C = tuple[1], H = tuple[2];
-    if (L > 99.9999999) {
-      return [H, 0, 100];
+    if (L > 99.9999999 || L < 0.00000001) {
+      S = 0;
+    } else {
+      max = maxChromaForLH(L, H);
+      S = C / max * 100;
     }
-    if (L < 0.00000001) {
-      return [H, 0, 0];
-    }
-    max = maxChromaForLH(L, H);
-    S = C / max * 100;
     return [H, S, L];
   };
 
   conv.huslp.lch = function(tuple) {
     var C, H, L, S, max;
     H = tuple[0], S = tuple[1], L = tuple[2];
-    if (L > 99.9999999) {
-      return [100, 0, H];
+    if (L > 99.9999999 || L < 0.00000001) {
+      C = 0;
+    } else {
+      max = maxSafeChromaForL(L);
+      C = max / 100 * S;
     }
-    if (L < 0.00000001) {
-      return [0, 0, H];
-    }
-    max = maxSafeChromaForL(L);
-    C = max / 100 * S;
     return [L, C, H];
   };
 
   conv.lch.huslp = function(tuple) {
     var C, H, L, S, max;
     L = tuple[0], C = tuple[1], H = tuple[2];
-    if (L > 99.9999999) {
-      return [H, 0, 100];
+    if (L > 99.9999999 || L < 0.00000001) {
+      S = 0;
+    } else {
+      max = maxSafeChromaForL(L);
+      S = C / max * 100;
     }
-    if (L < 0.00000001) {
-      return [H, 0, 0];
-    }
-    max = maxSafeChromaForL(L);
-    S = C / max * 100;
     return [H, S, L];
   };
 
   conv.rgb.hex = function(tuple) {
-    var ch, hex, _i, _len;
+    var ch, hex, j, len1;
     hex = "#";
-    tuple = rgbPrepare(tuple);
-    for (_i = 0, _len = tuple.length; _i < _len; _i++) {
-      ch = tuple[_i];
-      ch = ch.toString(16);
+    for (j = 0, len1 = tuple.length; j < len1; j++) {
+      ch = tuple[j];
+      ch = Math.round(ch * 1e6) / 1e6;
+      if (ch < 0 || ch > 1) {
+        throw new Error("Illegal rgb value: " + ch);
+      }
+      ch = Math.round(ch * 255).toString(16);
       if (ch.length === 1) {
         ch = "0" + ch;
       }
@@ -1937,20 +1934,20 @@ xyz.luv = function(arg, i, o) {
   };
 
   conv.hex.rgb = function(hex) {
-    var b, g, n, r, _i, _len, _ref, _results;
+    var b, g, j, len1, n, r, ref, results;
     if (hex.charAt(0) === "#") {
       hex = hex.substring(1, 7);
     }
     r = hex.substring(0, 2);
     g = hex.substring(2, 4);
     b = hex.substring(4, 6);
-    _ref = [r, g, b];
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      n = _ref[_i];
-      _results.push(parseInt(n, 16) / 255);
+    ref = [r, g, b];
+    results = [];
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      n = ref[j];
+      results.push(parseInt(n, 16) / 255);
     }
-    return _results;
+    return results;
   };
 
   conv.lch.rgb = function(tuple) {
@@ -2015,10 +2012,6 @@ xyz.luv = function(arg, i, o) {
 
   root._conv = conv;
 
-  root._round = round;
-
-  root._rgbPrepare = rgbPrepare;
-
   root._getBounds = getBounds;
 
   root._maxChromaForLH = maxChromaForLH;
@@ -2045,7 +2038,7 @@ xyz.luv = function(arg, i, o) {
 
 },{}],21:[function(require,module,exports){
 /**
- * Clamper.
+ * Clamp value.
  * Detects proper clamp min/max.
  *
  * @param {number} a Current value to cut off
@@ -2060,13 +2053,15 @@ module.exports = require('./wrap')(function(a, min, max){
 });
 },{"./wrap":23}],22:[function(require,module,exports){
 /**
+ * Looping function for any framesize.
+ * Like fmod.
+ *
  * @module  mumath/loop
  *
- * Looping function for any framesize
  */
 
 module.exports = require('./wrap')(function (value, left, right) {
-	//detect single-arg case, like mod-loop
+	//detect single-arg case, like mod-loop or fmod
 	if (right === undefined) {
 		right = left;
 		left = 0;
@@ -2094,7 +2089,7 @@ module.exports = require('./wrap')(function (value, left, right) {
  * @return {Function} Target function
  */
 module.exports = function(fn){
-	return function(a){
+	return function (a) {
 		var args = arguments;
 		if (a instanceof Array) {
 			var result = new Array(a.length), slice;
