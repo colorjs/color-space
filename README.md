@@ -88,7 +88,7 @@ rgb.hsl([200,230,100]);
 
 ## Contribute
 
-Please fork, add color space with basic conversions to/from XYZ or RGB and tests.
+Please fork, add color space with basic _conversions_ to/from XYZ or RGB and _tests_.
 The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
 
 
