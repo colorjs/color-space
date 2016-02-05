@@ -84,26 +84,39 @@ describe('hcg', function () {
 
 	it('hcg → rgb', function () {
 		assert.deepEqual(round(s.hcg.rgb([ 0, 100, 0 ])), [255, 0, 0]);
-		
+
 		assert.deepEqual(round(s.hcg.rgb([ 0, 50, 0 ])), [128, 0, 0]);
 		assert.deepEqual(round(s.hcg.rgb([ 0, 50, 100 ])), [255, 128, 128]);
 		assert.deepEqual(round(s.hcg.rgb([ 0, 50, 50 ])), [191, 64, 64]);
-		
+
 		assert.deepEqual(round(s.hcg.rgb([ 0, 0, 100 ])), [255, 255, 255]);
 		assert.deepEqual(round(s.hcg.rgb([ 0, 0, 50 ])), [128, 128, 128]);
 		assert.deepEqual(round(s.hcg.rgb([ 0, 0, 0 ])), [0, 0, 0]);
 	});
-	
+
 	it('rgb → hcg', function () {
 		assert.deepEqual(round(s.rgb.hcg([255, 0, 0])), [ 0, 100, 0 ]);
-		
+
 		assert.deepEqual(round(s.rgb.hcg([128, 0, 0])),  [ 0, 50, 0 ]);
 		assert.deepEqual(round(s.rgb.hcg([255, 128, 128])),[ 0, 50, 100 ] );
 		assert.deepEqual(round(s.rgb.hcg([192, 64, 64])), [ 0, 50, 50 ]);
-		
+
 		assert.deepEqual(round(s.rgb.hcg([255, 255, 255])), [ 0, 0, 100 ]);
 		assert.deepEqual(round(s.rgb.hcg([128, 128, 128])), [ 0, 0, 50 ]);
 		assert.deepEqual(round(s.rgb.hcg([ 0, 0, 0 ])), [0, 0, 0]);
+	});
+
+	it('hcg → hwb', function () {
+		assert.deepEqual(round(s.hcg.hwb([ 0, 100, 0 ])), [0, 0, 0]);
+		assert.deepEqual(round(s.hcg.hwb([ 200, 100, 0 ])), [200, 0, 0]);
+		assert.deepEqual(round(s.hcg.hwb([ 200, 100, 100 ])), [200, 0, 0]);
+		assert.deepEqual(round(s.hcg.hwb([ 200, 0, 50 ])), [200, 50, 50]);
+	});
+
+	it('hwb → hcg', function () {
+		assert.deepEqual(round(s.hwb.hcg([ 0, 0, 0 ])), [0, 100, 0]);
+		assert.deepEqual(round(s.hwb.hcg([ 200, 0, 0 ])), [200, 100, 0]);
+		assert.deepEqual(round(s.hwb.hcg([ 200, 50, 50 ])), [200, 0, 50]);
 	});
 });
 

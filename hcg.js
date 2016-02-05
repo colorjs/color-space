@@ -1,11 +1,13 @@
 /**
  * @module color-space/hcg
  */
- 
+
 var rgb = require('./rgb');
 var hsl = require('./hsl');
 var hsv = require('./hsv');
+var hwb = require('./hwb');
 var mod = require('mumath/mod');
+
 
 module.exports = {
 	name: 'hcg',
@@ -61,8 +63,8 @@ module.exports = {
 			}
 		}
 		return [hcg[0], s * 100, l * 100];
-	}, 
-	
+	},
+
 	hsv: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -75,6 +77,13 @@ module.exports = {
 			res = [hcg[0], 0, v * 100];
 		}
 		return res;
+	},
+
+	hwb: function(hcg){
+		var c = hcg[1] / 100;
+		var g = hcg[2] / 100;
+		var v = c + g * (1.0 - c);
+		return [hcg[0], (v - c) * 100, (1 - v) * 100];
 	}
 };
 
@@ -144,4 +153,18 @@ hsv.hcg = function(hsv){
 		res = [hsv[0], c * 100, 0];
 	}
 	return res;
+}
+
+
+//extend hwb
+hwb.hcg = function(hwb){
+	var w = hwb[1] / 100;
+	var b = hwb[2] / 100;
+	var v = 1 - b;
+	var c = v - w;
+	var g = 0;
+	if (c < 1) {
+		g = (v - c) / (1 - c);
+	}
+	return [hwb[0], c * 100, g * 100];
 }
