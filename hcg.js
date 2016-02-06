@@ -14,7 +14,7 @@ module.exports = {
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
-	alias: ['HCG', 'HST', 'HSG', 'HSW', 'HCV', 'HS2', 'HSV2', 'HST'],
+	alias: ['HCG', 'HST', 'HSG', 'HSW', 'HCV', 'HS2', 'HSV2'],
 
 	rgb: function(hcg) {
 		var h = hcg[0] / 360;
