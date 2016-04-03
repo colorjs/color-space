@@ -92,13 +92,12 @@ Please fork, add color space with basic _conversions_ to/from XYZ or RGB and _te
 The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
 
 
-## Related projects
+## Related
 
-* [color2](https://www.npmjs.com/package/color2) — color class based on color-space.
-* [color-ranger](https://www.npmjs.com/package/color-ranger) — visualize color spaces using canvas.
-* [color-tool](https://www.npmjs.com/package/color-tool) — color picker based on color-space.
+* [colormap](https://github.com/bpostlethwaite/colormap) — collection of colormaps to map colors of images/data. A replacement for visualising spaces like cubehelix.
 * [color-measure](https://www.npmjs.com/package/color-measure) — list of color measurement functions.
 * [color-manipulate](https://www.npmjs.com/package/color-manipulate) — list of color manipulation functions.
+* [color-tool](https://www.npmjs.com/package/color-tool) — color picker based on color-space.
 
 
 ## Similar projects
