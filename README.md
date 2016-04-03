@@ -82,7 +82,7 @@ rgb.hsl([200,230,100]);
 * [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
 * [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
-* [x] [HCG](https://github.com/acterhd/hcg-color)
+* [x] [HCG](https://github.com/acterhd/hcg-legacy)
 * [ ] [HSP](http://alienryderflex.com/hsp.html)
 * [ ] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
 
