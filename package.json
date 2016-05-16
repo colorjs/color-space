@@ -37,11 +37,11 @@
   "license": "MIT",
   "main": "./index.js",
   "dependencies": {
-    "gzip-size": "^3.0.0",
     "husl": ">=5.0",
     "mumath": "^2.0.0"
   },
   "devDependencies": {
+    "gzip-size": "^3.0.0",
     "queried": "^1.4.1",
     "browserify": "^6.x",
     "closurecompiler": "^1.x",
