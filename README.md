@@ -75,11 +75,11 @@ rgb.hsl([200,230,100]);
 * [ ] [TSL](https://en.wikipedia.org/wiki/TSL_color_space)
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [RGK](https://en.wikipedia.org/wiki/RG_color_space)
-* [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
-* [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS)
+* [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000.
+* [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — color space accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
-* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space)
-* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
+* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to _L_ong, _M_edium and _S_hort wavelengths.
+* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — color space for data visualization.
 * [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
 * [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595)
@@ -89,7 +89,7 @@ rgb.hsl([200,230,100]);
 * [ ] [HCL](http://www.chilliant.com/rgb2hsv.html)
 * [ ] [HSP](http://alienryderflex.com/hsp.html)
 * [ ] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
-* [x] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198)
+* [x] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198) — computationally effective color space for face recognition.
 * [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
 * [ ] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
 * [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
