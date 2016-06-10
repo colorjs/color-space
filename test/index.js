@@ -5,6 +5,27 @@ var mult = require('mumath').mult;
 var div = require('mumath').div;
 var max = require('mumath').max;
 var husl = require('husl');
+var almost = require('almost-equal');
+
+
+
+assert.almost = function (x, y) {
+	if (x && x.length != null && y && y.length != null) return x.every(function (xi, i) {
+		try {
+			assert.almost(xi, y[i]);
+		} catch (e) {
+			assert.fail(x, y, `${(x+'').slice(0,50)}...\n≈\n${(y+'').slice(0,50)}...\n\nspecifically x[${i}] == ${xi} ≈ ${y[i]}`, '≈')
+			return false;
+		}
+		return true;
+	});
+
+	var EPSILON = 1e-2;
+	if (!almost(x, y, EPSILON)) assert.fail(x, y,
+		`${x} ≈ ${y}`, '≈');
+	return true;
+};
+
 
 
 var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function () {};
@@ -881,5 +902,28 @@ describe('coloroid', function () {
 			ctx.fillStyle = 'rgb(' + vals.map(Math.round) + ')';
 			ctx.fillRect(i * w, 20, Math.ceil(w), 30);
 		}
+	});
+});
+
+
+describe.only('tsl', function () {
+	before(function () {
+		createSpaceCase('TSL');
+	});
+
+	it('tsl → rgb', function () {
+		// assert.deepEqual(round(s.tsl.rgb([0, 0, 0])), [0, 0, 0]);
+		// assert.deepEqual(round(s.tsl.rgb([1, 0, 0])), [1, 1, 1]);
+		// console.log(s.rgb.tsl([0,0,0]))
+
+		// assert.almost(s.rgb.tsl([0,0,0]), [.375, .632, 0]);
+		// assert.almost(s.rgb.tsl([255,255,255]), [.375, .632, 1]);
+		console.log(s.rgb.tsl([20, 60, 60]));
+		console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
+		// assert.almost(s.tsl.rgb(s.rgb.tsl([10,20,30])), [10,20,30]);
+	});
+	it('rgb → tsl', function () {
+		// assert.deepEqual(round(s.rgb.tsl([0, 0, 0]), 0.001), [0, 0, 0]);
+		// assert.deepEqual(round(s.rgb.tsl([1, 1, 1]), 0.001), [1, 0, 0]);
 	});
 });

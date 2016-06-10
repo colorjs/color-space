@@ -39,6 +39,7 @@ var spaces = {
 	cubehelix: require('./cubehelix'),
 	coloroid: require('./coloroid'),
 	hcg: require('./hcg'),
+	tsl: require('./tsl'),
 	osaucs: require('./osaucs')
 };
 
