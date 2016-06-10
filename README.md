@@ -88,7 +88,7 @@ rgb.hsl([200,230,100]);
 * [x] [HCG](https://github.com/acterhd/hcg-legacy)
 * [ ] [HSP](http://alienryderflex.com/hsp.html)
 * [ ] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
-* [ ] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198)
+* [x] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198)
 * [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
 * [ ] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
 * [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
