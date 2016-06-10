@@ -74,6 +74,7 @@ rgb.hsl([200,230,100]);
 * [ ] [RAL](https://en.wikipedia.org/wiki/RAL_colour_standard)
 * [ ] [TSL](https://en.wikipedia.org/wiki/TSL_color_space)
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
+* [ ] [RGK](https://en.wikipedia.org/wiki/RG_color_space)
 * [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid)
 * [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS)
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
@@ -81,12 +82,17 @@ rgb.hsl([200,230,100]);
 * [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/)
 * [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
-* [ ] [FS-595](https://en.wikipedia.org/wiki/Federal_Standard_595)
+* [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595)
 * [ ] [Toyo](http://mytoyocolor.com/)
 * [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
 * [x] [HCG](https://github.com/acterhd/hcg-legacy)
 * [ ] [HSP](http://alienryderflex.com/hsp.html)
 * [ ] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
+* [ ] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198)
+* [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
+* [ ] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
+* [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
+* [ ] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428)
 
 ## Contribute
 
