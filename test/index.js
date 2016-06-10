@@ -14,7 +14,7 @@ assert.almost = function (x, y) {
 		try {
 			assert.almost(xi, y[i]);
 		} catch (e) {
-			assert.fail(x, y, `${(x+'').slice(0,50)}...\n≈\n${(y+'').slice(0,50)}...\n\nspecifically x[${i}] == ${xi} ≈ ${y[i]}`, '≈')
+			assert.fail(x, y, (x+'').slice(0,50) + '...\n≈\n' + (y+'').slice(0,50) + '...\n\nspecifically x[' + i + '] == ' + xi + ' ≈ ' + y[i], '≈')
 			return false;
 		}
 		return true;
@@ -22,7 +22,7 @@ assert.almost = function (x, y) {
 
 	var EPSILON = 1e-2;
 	if (!almost(x, y, EPSILON)) assert.fail(x, y,
-		`${x} ≈ ${y}`, '≈');
+		x + ' ≈ ' + y, '≈');
 	return true;
 };
 
