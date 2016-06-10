@@ -41,11 +41,11 @@ rgb.hsl([200,230,100]);
 
 ## Spaces
 
-* [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#Experimental_results:_the_CIE_RGB_color_space)
-* [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV)
+* [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_RGB_colour_space) — additive color model based on red, green and blue primary colors
+* [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) — cylindrical-coordinates representation of RGB
 * [x] [HSV, HSB](https://en.wikipedia.org/wiki/HSL_and_HSV)
 * [x] [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation)
-* [x] [HSI](https://en.wikipedia.org/wiki/HSL_and_HSV)
+* [x] [HSI](https://en.wikipedia.org/wiki/HSL_and_HSV) — used for computer vision due to better separation of shapes in an image, comparing to HSL/HSB.
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model)
 * [x] [CMY](https://en.wikipedia.org/wiki/CMYK_color_model)
 * [x] [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space)
@@ -76,10 +76,10 @@ rgb.hsl([200,230,100]);
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [RGK](https://en.wikipedia.org/wiki/RG_color_space)
 * [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000.
-* [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — color space accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
+* [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
 * [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to Long, Medium and Short wavelengths.
-* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — color space for data visualization.
+* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — colormaps for data visualization.
 * [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
 * [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595)
