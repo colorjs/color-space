@@ -19,7 +19,7 @@ var lms = module.exports = {
 	max: [100,100,100],
 	channel: ['long', 'medium', 'short'],
 
-	/*
+
 	//transform matrices
 	matrix: {
 		HPE: [
@@ -46,37 +46,33 @@ var lms = module.exports = {
 			0.7328, 0.4296,-0.1624,
 		   -0.7036, 1.6975, 0.0061,
 			0.0030, 0.0136, 0.9834]
-	},
-	*/
+	}
+};
 
-	xyz: function(arg, matrix){
-		var l = arg[0], m = arg[1], s = arg[2];
 
-		if (!matrix) {
-			matrix = [
-				1.096123820835514, -0.278869000218287, +0.182745179382773,
-				0.454369041975359, + 0.473533154307412, +0.072097803717229,
-				-0.009627608738429, -0.005698031216113, +1.015325639954543
-			];
-		}
+lms.xyz = function(arg, matrix){
+	var l = arg[0], m = arg[1], s = arg[2];
 
-		return [
-			l * matrix[0] + m * matrix[1] + s * matrix[2],
-			l * matrix[3] + m * matrix[4] + s * matrix[5],
-			l * matrix[6] + m * matrix[7] + s * matrix[8]
+	if (!matrix) {
+		matrix = [
+			1.096123820835514, -0.278869000218287, +0.182745179382773,
+			0.454369041975359, + 0.473533154307412, +0.072097803717229,
+			-0.009627608738429, -0.005698031216113, +1.015325639954543
 		];
 	}
+
+	return [
+		l * matrix[0] + m * matrix[1] + s * matrix[2],
+		l * matrix[3] + m * matrix[4] + s * matrix[5],
+		l * matrix[6] + m * matrix[7] + s * matrix[8]
+	];
 };
 
 xyz.lms = function(arg, matrix) {
 		var x = arg[0], y = arg[1], z = arg[2];
 
 		if (!matrix) {
-			matrix = [
-				0.7328, 0.4296,-0.1624,
-				-0.7036, 1.6975, 0.0061,
-				0.0030, 0.0136, 0.9834
-			];
+			matrix = lms.matrix.CAT02
 		}
 
 		return [

@@ -40,6 +40,7 @@ var spaces = {
 	coloroid: require('./coloroid'),
 	hcg: require('./hcg'),
 	tsl: require('./tsl'),
+	yes: require('./yes'),
 	osaucs: require('./osaucs')
 };
 

@@ -906,7 +906,7 @@ describe('coloroid', function () {
 });
 
 
-describe.only('tsl', function () {
+describe.skip('tsl', function () {
 	before(function () {
 		createSpaceCase('TSL');
 	});
@@ -918,12 +918,25 @@ describe.only('tsl', function () {
 
 		// assert.almost(s.rgb.tsl([0,0,0]), [.375, .632, 0]);
 		// assert.almost(s.rgb.tsl([255,255,255]), [.375, .632, 1]);
-		console.log(s.rgb.tsl([20, 60, 60]));
-		console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
+		// console.log(s.rgb.tsl([20, 60, 60]));
+		// console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
 		// assert.almost(s.tsl.rgb(s.rgb.tsl([10,20,30])), [10,20,30]);
 	});
 	it('rgb → tsl', function () {
 		// assert.deepEqual(round(s.rgb.tsl([0, 0, 0]), 0.001), [0, 0, 0]);
 		// assert.deepEqual(round(s.rgb.tsl([1, 1, 1]), 0.001), [1, 0, 0]);
+	});
+});
+
+
+describe('yes', function () {
+	before(function () {
+		createSpaceCase('YES');
+	});
+
+	it('yes ←→ rgb', function () {
+		assert.almost(s.rgb.yes([0,0,0]), [0, 0, 0]);
+		assert.almost(s.rgb.yes([255,255,255]), [1, 0, 0]);
+		assert.almost(s.yes.rgb(s.rgb.yes([10,20,30])), [10,20,30]);
 	});
 });

@@ -13,7 +13,7 @@ var tsl = module.exports = {
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],
-	channel: ['T','S','L']
+	channel: ['tint','saturation','lightness']
 };
 
 
