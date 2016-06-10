@@ -78,7 +78,7 @@ rgb.hsl([200,230,100]);
 * [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000.
 * [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — color space accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
-* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to _L_ong, _M_edium and _S_hort wavelengths.
+* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to Long, Medium and Short wavelengths.
 * [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — color space for data visualization.
 * [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
