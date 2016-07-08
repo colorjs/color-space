@@ -3,104 +3,44 @@
  */
 
 var rgb = require('./rgb');
+var mod = require('mumath/mod');
 
 module.exports = {
 	name: 'hsl',
-	min: [0,0,0],
-	max: [360,100,100],
+	min: [0, 0, 0],
+	max: [360, 100, 100],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
-	rgb: function(hsl) {
-		var h = hsl[0] / 360,
-				s = hsl[1] / 100,
-				l = hsl[2] / 100,
-				t1, t2, t3, rgb, val;
+	rgb: function rgb(hsl) {
+		var h = hsl[0] / 60;
+		var s = hsl[1] / 100;
+		var l = hsl[2] / 100;
+		var c = (1 - Math.abs(2 * l - 1)) * s;
+		var q = c * (1 - Math.abs(h % 2 - 1));
+		var m = l - c / 2;
+		var md = Math.floor(h) % 6;
+		var arr = [c, q, 0, 0, q, c];
+		var r = arr[mod(md, 6)];
+		var g = arr[mod(md - 2, 6)];
+		var b = arr[mod(md - 4, 6)];
 
-		if (s === 0) {
-			val = l * 255;
-			return [val, val, val];
-		}
-
-		if (l < 0.5) {
-			t2 = l * (1 + s);
-		}
-		else {
-			t2 = l + s - l * s;
-		}
-		t1 = 2 * l - t2;
-
-		rgb = [0, 0, 0];
-		for (var i = 0; i < 3; i++) {
-			t3 = h + 1 / 3 * - (i - 1);
-			if (t3 < 0) {
-				t3++;
-			}
-			else if (t3 > 1) {
-				t3--;
-			}
-
-			if (6 * t3 < 1) {
-				val = t1 + (t2 - t1) * 6 * t3;
-			}
-			else if (2 * t3 < 1) {
-				val = t2;
-			}
-			else if (3 * t3 < 2) {
-				val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-			}
-			else {
-				val = t1;
-			}
-
-			rgb[i] = val * 255;
-		}
-
-		return rgb;
+		return [(r + m) * 255, (g + m) * 255, (b + m) * 255];
 	}
 };
 
-
 //extend rgb
-rgb.hsl = function(rgb) {
-	var r = rgb[0]/255,
-			g = rgb[1]/255,
-			b = rgb[2]/255,
-			min = Math.min(r, g, b),
-			max = Math.max(r, g, b),
-			delta = max - min,
-			h, s, l;
-
-	if (max === min) {
-		h = 0;
-	}
-	else if (r === max) {
-		h = (g - b) / delta;
-	}
-	else if (g === max) {
-		h = 2 + (b - r) / delta;
-	}
-	else if (b === max) {
-		h = 4 + (r - g)/ delta;
-	}
-
-	h = Math.min(h * 60, 360);
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	l = (min + max) / 2;
-
-	if (max === min) {
-		s = 0;
-	}
-	else if (l <= 0.5) {
-		s = delta / (max + min);
-	}
-	else {
-		s = delta / (2 - max - min);
-	}
-
-	return [h, s * 100, l * 100];
+rgb.hsl = function (rgb) {
+	var r = rgb[0] / 255;
+	var g = rgb[1] / 255;
+	var b = rgb[2] / 255;
+	var min = Math.min(r, g, b);
+	var max = Math.max(r, g, b);
+	var h = 0;
+	var c = max - min;
+	var l = (min + max) / 2;
+	var s = 0;
+	if (l > 0 && l < 1) s = c / (1 - Math.abs(2 * l - 1));
+	if (c > 0) h = [(g - b) / c + (g < b ? 6 : 0), (b - r) / c + 2, (r - g) / c + 4][[r, g, b].indexOf(max)];
+	return [h * 60, s * 100, l * 100];
 };
