@@ -16,9 +16,6 @@ module.exports = {
     alias: ['HCG', 'HSG'],
 
     rgb: function rgb(hcg) {
-        var mod = function mod(a, n) {
-            return (a % n + n) % n;
-        };
         var h = hcg[0] / 60;
         var c = hcg[1] / 100;
         var gr = hcg[2] / 100;
@@ -37,21 +34,26 @@ module.exports = {
 
     hsl: function hsl(hcg) {
         var c = hcg[1] / 100;
-        var gr = hcg[2] / 100;var l = gr * (1 - c) + 0.5 * c;var s = 0;
+        var gr = hcg[2] / 100;
+        var l = gr * (1 - c) + 0.5 * c;
+        var s = 0;
         if (l > 0 && l < 1) s = c / (1 - Math.abs(2 * l - 1));
         return [hcg[0], s * 100, l * 100];
     },
 
     hsv: function hsv(hcg) {
         var c = hcg[1] / 100;
-        var g = hcg[2] / 100;var v = c + g * (1 - c);var s = 0;
+        var g = hcg[2] / 100;
+        var v = c + g * (1 - c);
+        var s = 0;
         if (v > 0) s = c / v;
         return [hcg[0], s * 100, v * 100];
     },
 
     hwb: function hwb(hcg) {
         var c = hcg[1] / 100;
-        var g = hcg[2] / 100;var v = c + g * (1 - c);
+        var g = hcg[2] / 100;
+        var v = c + g * (1 - c);
         return [hcg[0], (v - c) * 100, (1 - v) * 100];
     }
 };
@@ -75,7 +77,9 @@ rgb.hcg = function (rgb) {
 //extend hsl
 hsl.hcg = function (hsl) {
     var s = hsl[1] / 100;
-    var l = hsl[2] / 100;var c = (1 - Math.abs(2 * l - 1)) * s;var gr = 0;
+    var l = hsl[2] / 100;
+    var c = (1 - Math.abs(2 * l - 1)) * s;
+    var gr = 0;
     if (c < 1) gr = (l - 0.5 * c) / (1 - c);
     return [hsl[0], c * 100, gr * 100];
 };
@@ -83,7 +87,9 @@ hsl.hcg = function (hsl) {
 //extend hsv
 hsv.hcg = function (hsv) {
     var s = hsv[1] / 100;
-    var v = hsv[2] / 100;var c = s * v;var gr = 0;
+    var v = hsv[2] / 100;
+    var c = s * v;
+    var gr = 0;
     if (c < 1) gr = (v - c) / (1 - c);
     return [hsv[0], c * 100, gr * 100];
 };

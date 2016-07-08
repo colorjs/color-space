@@ -5,6 +5,7 @@
 var rgb = require('./rgb');
 var hsv = require('./hsv');
 var hsl = require('./hsl');
+var mod = require('mumath/mod');
 
 var hwb = module.exports = {
     name: 'hwb',
@@ -15,14 +16,13 @@ var hwb = module.exports = {
 
     // http://dev.w3.org/csswg/css-color/#hwb-to-rgb
     rgb: function rgb(hwb) {
-        var mod = function mod(a, n) {
-            return (a % n + n) % n;
-        };
         var h = hwb[0] / 60;
         var w = hwb[1] / 100;
-        var bl = hwb[2] / 100;var ra = w + bl;
+        var bl = hwb[2] / 100;
+        var ra = w + bl;
         if (ra > 1) {
-            w /= ra;bl /= ra;
+            w /= ra;
+            bl /= ra;
         }
         var c = 1 - w - bl;
         var q = c * (1 - Math.abs(h % 2 - 1));
@@ -60,7 +60,9 @@ rgb.hwb = function (rgb) {
     var min = Math.min(r, g, b);
     var max = Math.max(r, g, b);
     var h = 0;
-    var c = max - min;var w = Math.min(r, g, b);var bl = 1 - Math.max(r, g, b);
+    var c = max - min;
+    var w = Math.min(r, g, b);
+    var bl = 1 - Math.max(r, g, b);
     if (c > 0) h = [(g - b) / c + (g < b ? 6 : 0), (b - r) / c + 2, (r - g) / c + 4][[r, g, b].indexOf(max)];
     return [h * 60, w * 100, bl * 100];
 };
