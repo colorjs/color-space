@@ -98,10 +98,9 @@ hsv.hcg = function (hsv) {
 hwb.hcg = function (hwb) {
     var w = hwb[1] / 100;
     var b = hwb[2] / 100;
-
-    var v = 1 - b,
-        c = v - w,
-        g = 0;
-    if (c < 1) g = (v - c) / (1 - c);
+    var r = w + b;
+    if (r >= 1) {w /= r; b /= r;}
+    var c = 1 - b - w, g = 0;
+    if (c < 1) g = w / (1 - c);
     return [hwb[0], c * 100, g * 100];
 };
