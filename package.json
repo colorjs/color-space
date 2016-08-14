@@ -38,7 +38,7 @@
   "main": "./index.js",
   "dependencies": {
     "husl": ">=5.0",
-    "mumath": "^2.0.0"
+    "mumath": "^3.0.0"
   },
   "devDependencies": {
     "almost-equal": "^1.1.0",
