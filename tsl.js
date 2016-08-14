@@ -29,6 +29,8 @@ tsl.rgb = function(tsl) {
 		S = tsl[1],
 		L = tsl[2];
 
+	//wikipedia solution
+	/*
 	// var x = - 1 / Math.tan(Math.PI * 2 * T);
 	var x = -Math.sin(2*Math.PI*T);
 	if ( x != 0 ) x = Math.cos(2*Math.PI*T)/x;
@@ -36,9 +38,21 @@ tsl.rgb = function(tsl) {
 	var g = T > .5 ? -S * Math.sqrt( 5 / (9 * (x*x + 1)) ) :
 			T < .5 ? S * Math.sqrt( 5 / (9 * (x*x + 1)) ) : 0;
 	var r = T === 0 ? 0.7453559 * S : (x * g + 1/3);
-	var k = L / (.185 * r + .473 * g + .114);
 
 	var R = k * r, G = k * g, B = k * (1 - r - g);
+	*/
+
+	var x = Math.tan(2 * Math.PI * (T - 1/4));
+	x *= x;
+
+	r = Math.sqrt(5 * S*S / (9 * (1/x + 1))) + 1/3;
+	g = Math.sqrt(5 * S*S / (9 * (x + 1))) + 1/3;
+
+	var k = L / (.185 * r + .473 * g + .114);
+
+	B = k * (1 - r - g);
+	G = k * g;
+	R = k * r;
 
 	return [
 		R * 255, G * 255, B * 255
@@ -60,8 +74,8 @@ rgb.tsl = function(rgb) {
 
 	var r_ = (r / (r + g + b) || 0) - 1/3,
 		g_ = (g / (r + g + b) || 0) - 1/3;
-	var T = g_ > 0 ? .5 * Math.atan2(r_, g_) / Math.PI + .25 :
-			g_ < 0 ? .5 * Math.atan2(r_, g_) / Math.PI + .75 : 0;
+	var T = g_ > 0 ? .5 * Math.atan(r_/ g_) / Math.PI + .25 :
+			g_ < 0 ? .5 * Math.atan(r_/ g_) / Math.PI + .75 : 0;
 
 	var S = Math.sqrt(9/5 * (r_*r_ + g_*g_));
 

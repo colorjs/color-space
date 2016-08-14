@@ -918,8 +918,8 @@ describe.skip('tsl', function () {
 
 		// assert.almost(s.rgb.tsl([0,0,0]), [.375, .632, 0]);
 		// assert.almost(s.rgb.tsl([255,255,255]), [.375, .632, 1]);
-		// console.log(s.rgb.tsl([20, 60, 60]));
-		// console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
+		console.log(s.rgb.tsl([10, 20, 30]));
+		console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
 		// assert.almost(s.tsl.rgb(s.rgb.tsl([10,20,30])), [10,20,30]);
 	});
 	it('rgb → tsl', function () {
