@@ -79,10 +79,13 @@ xyz.max = xyz.whitepoint[2].D65;
  *
  * @return {Array} RGB values
  */
-xyz.rgb = function (xyz) {
-	var x = xyz[0] / 100,
-		y = xyz[1] / 100,
-		z = xyz[2] / 100,
+xyz.rgb = function (_xyz, white) {
+	//FIXME: make sure we have to divide like this. Probably we have to replace matrix as well then
+	white = white || xyz.whitepoint[2].E;
+
+	var x = _xyz[0] / white[0],
+		y = _xyz[1] / white[1],
+		z = _xyz[2] / white[2],
 		r, g, b;
 
 	// assume sRGB
@@ -116,7 +119,7 @@ xyz.rgb = function (xyz) {
  *
  * @return {Array} XYZ channels
  */
-rgb.xyz = function(rgb) {
+rgb.xyz = function(rgb, white) {
 	var r = rgb[0] / 255,
 			g = rgb[1] / 255,
 			b = rgb[2] / 255;
@@ -130,7 +133,9 @@ rgb.xyz = function(rgb) {
 	var y = (r * 0.21263900587151) + (g * 0.71516867876775) + (b * 0.072192315360733);
 	var z = (r * 0.019330818715591) + (g * 0.11919477979462) + (b * 0.95053215224966);
 
-	return [x * 100, y *100, z * 100];
+	white = white || xyz.whitepoint[2].E;
+
+	return [x * white[0], y * white[1], z * white[2]];
 };
 
 
