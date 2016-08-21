@@ -1,8 +1,8 @@
 var s = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 var assert = require("assert");
 var round = require('mumath').round;
-var mult = require('mumath/wrap')((a,b) => a*b);
-var div = require('mumath/wrap')((a,b) => a/b);
+var mult = require('mumath/wrap')(function (a,b) {return a*b;});
+var div = require('mumath/wrap')(function (a,b) {return a/b;});
 var max = require('mumath/wrap')(Math.max);
 var husl = require('husl');
 var almost = require('almost-equal');
