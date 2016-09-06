@@ -1,35 +1,34 @@
 /**
- * Cylindrical LAB
+ * Cylindrical CIE LAB
  *
  * @module color-space/lchab
  */
 
-var xyz = require('./xyz');
 var lab = require('./lab');
-
+var xyz = require('./xyz');
 
 //cylindrical lab
 var lchab = module.exports = {
 	name: 'lchab',
-	min: [0,0,0],
-	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
-
-	xyz: function(arg) {
-		return lab.xyz(lchab.lab(arg));
-	},
+	min: [0, 0, 0],
+	max: [100, 100, 360],
 
 	lab: function(lch) {
 		var l = lch[0],
-				c = lch[1],
-				h = lch[2],
-				a, b, hr;
+		c = lch[1],
+		h = lch[2],
+		a, b, hr;
 
 		hr = h / 360 * 2 * Math.PI;
 		a = c * Math.cos(hr);
 		b = c * Math.sin(hr);
 		return [l, a, b];
+	},
+
+	xyz: function(arg) {
+		return lab.xyz(lchab.lab(arg));
 	}
 };
 
@@ -37,9 +36,9 @@ var lchab = module.exports = {
 //extend lab
 lab.lchab = function(lab) {
 	var l = lab[0],
-			a = lab[1],
-			b = lab[2],
-			hr, h, c;
+	a = lab[1],
+	b = lab[2],
+	hr, h, c;
 
 	hr = Math.atan2(b, a);
 	h = hr * 360 / 2 / Math.PI;
@@ -47,9 +46,10 @@ lab.lchab = function(lab) {
 		h += 360;
 	}
 	c = Math.sqrt(a * a + b * b);
+
 	return [l, c, h];
 };
 
-xyz.lchab = function(arg){
+xyz.lchab = function(arg) {
 	return lab.lchab(xyz.lab(arg));
 };
