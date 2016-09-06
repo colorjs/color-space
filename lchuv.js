@@ -12,8 +12,8 @@ var lchuv = module.exports = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
-	min: [0,0,0],
-	max: [100,100,360],
+	min: [0, 0, 0],
+	max: [100, 100, 360],
 
 	luv: function(luv){
 		var l = luv[0],
@@ -32,19 +32,23 @@ var lchuv = module.exports = {
 	}
 };
 
-luv.lchuv = function(luv){
-	var l = luv[0], u = luv[1], v = luv[2];
+//extend luv
+luv.lchuv = function(luv) {
+	var l = luv[0],
+	u = luv[1],
+	v = luv[2],
+	hr, h, c;
 
-	var c = Math.sqrt(u*u + v*v);
-	var hr = Math.atan2(v,u);
-	var h = hr * 360 / 2 / Math.PI;
+	hr = Math.atan2(v, u);
+	h = hr * 360 / 2 / Math.PI;
 	if (h < 0) {
 		h += 360;
 	}
+	c = Math.sqrt(u * u + v * v);
 
-	return [l,c,h]
+	return [l, c, h];
 };
 
-xyz.lchuv = function(arg){
-  return luv.lchuv(xyz.luv(arg));
+xyz.lchuv = function(arg) {
+	return luv.lchuv(xyz.luv(arg));
 };
