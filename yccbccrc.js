@@ -3,6 +3,7 @@
  *
  * @module  color-space/yccbccrc
  */
+'use strict'
 
 var rgb = require('./rgb');
 var ypbpr = require('./ypbpr');

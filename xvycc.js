@@ -15,6 +15,7 @@
  *
  * @module  color-space/xvycc
  */
+'use strict'
 
 var rgb = require('./rgb');
 var ypbpr = require('./ypbpr');

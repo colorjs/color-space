@@ -3,6 +3,7 @@
  *
  * @module  color-space/xyz
  */
+'use strict'
 
 var rgb = require('./rgb');
 

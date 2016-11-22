@@ -1,6 +1,7 @@
 /**
  * @module color-space/hsv
  */
+'use strict'
 
 var rgb = require('./rgb');
 var hsl = require('./hsl');

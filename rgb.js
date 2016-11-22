@@ -3,6 +3,7 @@
  *
  * @module  color-space/rgb
  */
+'use strict'
 
 module.exports = {
 	name: 'rgb',

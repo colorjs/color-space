@@ -1,6 +1,7 @@
 /**
  * @module color-space/hwb
  */
+'use strict'
 
 var rgb = require('./rgb');
 var hsv = require('./hsv');

@@ -3,6 +3,8 @@
  *
  * @module color-space/cubehelix
  */
+'use strict'
+
 var rgb = require('./rgb');
 var clamp = require('mumath/clamp');
 

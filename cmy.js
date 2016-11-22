@@ -1,6 +1,8 @@
 /**
  * @module color-space/cmy
  */
+'use strict'
+
 var rgb = require('./rgb');
 
 var cmy = module.exports = {

@@ -1,6 +1,7 @@
 /**
  * @module color-space/munsell
  */
+'use strict'
 
 var munsell = {
 	name: 'munsell',

@@ -4,6 +4,7 @@
  * @module color-space
  *
  */
+'use strict';
 
 
 /** Exported spaces */
@@ -47,11 +48,10 @@ var spaces = {
 
 
 //build absent convertors from each to every space
-var fromSpace, toSpace;
+var fromSpace;
 for (var fromSpaceName in spaces) {
 	fromSpace = spaces[fromSpaceName];
 	for (var toSpaceName in spaces) {
-		toSpace = spaces[toSpaceName];
 		if (!fromSpace[toSpaceName]) fromSpace[toSpaceName] = getConvertor(fromSpaceName, toSpaceName);
 	}
 }
@@ -60,7 +60,6 @@ for (var fromSpaceName in spaces) {
 /** return converter through xyz/rgb space */
 function getConvertor(fromSpaceName, toSpaceName){
 	var fromSpace = spaces[fromSpaceName];
-	var toSpace = spaces[toSpaceName];
 
 	//create straight converter
 	if (fromSpaceName === toSpaceName) {

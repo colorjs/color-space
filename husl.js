@@ -4,6 +4,7 @@
  *
  * @module color-space/husl
  */
+'use strict'
 
 var xyz = require('./xyz');
 var lchuv = require('./lchuv');

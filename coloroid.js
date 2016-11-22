@@ -6,6 +6,7 @@
  *
  * @module  color-space/coloroid
  */
+'use strict'
 
 var xyy = require('./xyy');
 var xyz = require('./xyz');

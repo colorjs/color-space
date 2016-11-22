@@ -5,9 +5,9 @@
  *
  * @module  color-space/ucs
  */
+'use strict'
 
 var xyz = require('./xyz');
-var luv = require('./luv');
 
 var ucs = module.exports = {
 	name: 'ucs',

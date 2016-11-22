@@ -3,6 +3,7 @@
  *
  * @module color-space/lab
  */
+'use strict'
 
 var xyz = require('./xyz');
 

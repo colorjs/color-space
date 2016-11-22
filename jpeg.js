@@ -5,6 +5,7 @@
  *
  * @module  color-space/jpeg
  */
+'use strict'
 
 var rgb = require('./rgb');
 

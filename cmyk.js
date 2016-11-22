@@ -1,6 +1,7 @@
 /**
  * @module color-space/cmyk
  */
+'use strict'
 
 var rgb = require('./rgb');
 

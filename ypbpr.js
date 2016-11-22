@@ -8,6 +8,7 @@
  *
  * @module  color-space/ypbpr
  */
+'use strict'
 
 var rgb = require('./rgb');
 

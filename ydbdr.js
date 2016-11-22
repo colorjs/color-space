@@ -3,6 +3,7 @@
  *
  * @module  color-space/ydbdr
  */
+'use strict'
 
 var rgb = require('./rgb');
 var yuv = require('./yuv');

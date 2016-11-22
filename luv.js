@@ -3,6 +3,7 @@
  *
  * @module color-space/luv
  */
+'use strict'
 
 var xyz = require('./xyz');
 
@@ -24,7 +25,7 @@ module.exports = {
 		if (l === 0) return [0,0,0];
 
 		//get constants
-		var e = 0.008856451679035631; //(6/29)^3
+		//var e = 0.008856451679035631; //(6/29)^3
 		var k = 0.0011070564598794539; //(3/29)^3
 
 		//get illuminant/observer

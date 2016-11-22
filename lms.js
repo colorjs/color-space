@@ -10,6 +10,7 @@
  *
  * @module color-space/lms
  */
+'use strict'
 
 var xyz = require('./xyz');
 

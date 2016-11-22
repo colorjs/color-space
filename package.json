@@ -37,7 +37,7 @@
   "license": "MIT",
   "main": "./index.js",
   "dependencies": {
-    "husl": ">=5.0",
+    "husl": "^5.0.0",
     "mumath": "^3.0.0"
   },
   "devDependencies": {

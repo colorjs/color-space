@@ -3,6 +3,7 @@
  *
  * @module  color-space/ycgco
  */
+'use strict'
 
 var rgb = require('./rgb');
 

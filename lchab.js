@@ -3,6 +3,7 @@
  *
  * @module color-space/lchab
  */
+'use strict'
 
 var xyz = require('./xyz');
 var lab = require('./lab');

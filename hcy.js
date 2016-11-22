@@ -4,6 +4,7 @@
  *
  * @module color-space/hcy
  */
+'use strict'
 
 var rgb = require('./rgb');
 

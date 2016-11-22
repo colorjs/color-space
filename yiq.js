@@ -3,6 +3,7 @@
  *
  * @module  color-space/yiq
  */
+'use strict'
 
 var rgb = require('./rgb');
 

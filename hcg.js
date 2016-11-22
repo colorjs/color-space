@@ -1,6 +1,7 @@
 /**
  * @module color-space/hcg
  */
+'use strict'
 
 var rgb = require('./rgb');
 var hsl = require('./hsl');

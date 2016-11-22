@@ -3,6 +3,7 @@
  *
  * @module  color-space/osa-ucs
  */
+'use strict'
 
 var xyz = require('./xyz');
 

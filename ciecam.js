@@ -5,17 +5,15 @@
  *
  * @module cam
  */
+'use strict'
+
 var xyz = require('./xyz');
 
 
 var cam = module.exports = {
-  name: 'cam',
+	name: 'cam',
 
-  alias: ['ciecam', 'ciecam02'],
-
-  xyz: function(cam){
-  	//TODO
-  }
+	alias: ['ciecam', 'ciecam02'],
 };
 
 
@@ -24,3 +22,7 @@ xyz.cam = function(xyz){
 	var x = xyz[0], y = xyz[1], z = xyz[2];
 	//TODO
 };
+
+cam.xyz = function () {
+
+}

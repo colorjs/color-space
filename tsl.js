@@ -6,6 +6,7 @@
  *
  * @module  color-space/tsl
  */
+'use strict'
 
 var rgb = require('./rgb');
 
@@ -45,14 +46,14 @@ tsl.rgb = function(tsl) {
 	var x = Math.tan(2 * Math.PI * (T - 1/4));
 	x *= x;
 
-	r = Math.sqrt(5 * S*S / (9 * (1/x + 1))) + 1/3;
-	g = Math.sqrt(5 * S*S / (9 * (x + 1))) + 1/3;
+	var r = Math.sqrt(5 * S*S / (9 * (1/x + 1))) + 1/3;
+	var g = Math.sqrt(5 * S*S / (9 * (x + 1))) + 1/3;
 
 	var k = L / (.185 * r + .473 * g + .114);
 
-	B = k * (1 - r - g);
-	G = k * g;
-	R = k * r;
+	var B = k * (1 - r - g);
+	var G = k * g;
+	var R = k * r;
 
 	return [
 		R * 255, G * 255, B * 255

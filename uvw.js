@@ -5,6 +5,7 @@
  *
  * @module  color-space/uvw
  */
+'use strict'
 
 var ucs = require('./ucs');
 var xyz = require('./xyz');
@@ -102,12 +103,12 @@ uvw.ucs = function(uvw) {
  * @return {Array} UCS values
  */
 ucs.uvw = function(ucs) {
-	//find chromacity variables
-	var u = U / (U + V + W);
-	var v = V / (U + V + W);
+	// //find chromacity variables
+	// var u = U / (U + V + W);
+	// var v = V / (U + V + W);
 
-	//find 1964 UVW
-	w = 25 * Math.pow(y, 1/3) - 17;
-	u = 13 * w * (u - un);
-	v = 13 * w * (v - vn);
+	// //find 1964 UVW
+	// w = 25 * Math.pow(y, 1/3) - 17;
+	// u = 13 * w * (u - un);
+	// v = 13 * w * (v - vn);
 };

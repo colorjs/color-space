@@ -3,6 +3,7 @@
  *
  * @module color-space/lchuv
  */
+'use strict'
 
 var luv = require('./luv');
 var xyz = require('./xyz');
