@@ -1,4 +1,4 @@
-# Color-space [![Build Status](https://travis-ci.org/scijs/color-space.svg?branch=master)](https://travis-ci.org/scijs/color-space) [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+# Color-space [![Build Status](https://travis-ci.org/scijs/color-space.svg?branch=master)](https://travis-ci.org/scijs/color-space) [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)[![OpenCollective](https://opencollective.com/color-space/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/color-space/sponsors/badge.svg)](#sponsors)
 
 <img src="https://raw.githubusercontent.com/scijs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
@@ -104,6 +104,78 @@ The goal of project is to provide the most complete set of color spaces with max
 ## Credits
 
 Thanks to all the color scientists, who devoted their lives to color research and delivered their knowledge to us, for now we can trust them and use their formulas and their code.
+
+### Backers
+
+Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/color-space#backer)]
+
+<a href="https://opencollective.com/color-space/backer/0/website" target="_blank"><img src="https://opencollective.com/color-space/backer/0/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/1/website" target="_blank"><img src="https://opencollective.com/color-space/backer/1/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/2/website" target="_blank"><img src="https://opencollective.com/color-space/backer/2/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/3/website" target="_blank"><img src="https://opencollective.com/color-space/backer/3/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/4/website" target="_blank"><img src="https://opencollective.com/color-space/backer/4/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/5/website" target="_blank"><img src="https://opencollective.com/color-space/backer/5/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/6/website" target="_blank"><img src="https://opencollective.com/color-space/backer/6/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/7/website" target="_blank"><img src="https://opencollective.com/color-space/backer/7/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/8/website" target="_blank"><img src="https://opencollective.com/color-space/backer/8/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/9/website" target="_blank"><img src="https://opencollective.com/color-space/backer/9/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/10/website" target="_blank"><img src="https://opencollective.com/color-space/backer/10/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/11/website" target="_blank"><img src="https://opencollective.com/color-space/backer/11/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/12/website" target="_blank"><img src="https://opencollective.com/color-space/backer/12/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/13/website" target="_blank"><img src="https://opencollective.com/color-space/backer/13/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/14/website" target="_blank"><img src="https://opencollective.com/color-space/backer/14/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/15/website" target="_blank"><img src="https://opencollective.com/color-space/backer/15/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/16/website" target="_blank"><img src="https://opencollective.com/color-space/backer/16/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/17/website" target="_blank"><img src="https://opencollective.com/color-space/backer/17/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/18/website" target="_blank"><img src="https://opencollective.com/color-space/backer/18/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/19/website" target="_blank"><img src="https://opencollective.com/color-space/backer/19/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/20/website" target="_blank"><img src="https://opencollective.com/color-space/backer/20/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/21/website" target="_blank"><img src="https://opencollective.com/color-space/backer/21/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/22/website" target="_blank"><img src="https://opencollective.com/color-space/backer/22/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/23/website" target="_blank"><img src="https://opencollective.com/color-space/backer/23/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/24/website" target="_blank"><img src="https://opencollective.com/color-space/backer/24/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/25/website" target="_blank"><img src="https://opencollective.com/color-space/backer/25/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/26/website" target="_blank"><img src="https://opencollective.com/color-space/backer/26/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/27/website" target="_blank"><img src="https://opencollective.com/color-space/backer/27/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/28/website" target="_blank"><img src="https://opencollective.com/color-space/backer/28/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/backer/29/website" target="_blank"><img src="https://opencollective.com/color-space/backer/29/avatar.svg"></a>
+
+### Sponsors
+
+Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/color-space#sponsor)]
+
+<a href="https://opencollective.com/color-space/sponsor/0/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/1/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/2/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/3/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/4/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/5/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/6/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/7/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/8/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/9/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/10/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/10/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/11/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/11/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/12/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/12/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/13/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/13/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/14/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/14/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/15/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/15/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/16/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/16/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/17/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/17/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/18/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/18/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/19/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/19/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/20/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/20/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/21/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/21/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/22/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/22/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/23/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/23/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/24/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/24/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/25/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/25/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/26/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/26/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/27/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/27/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/28/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/28/avatar.svg"></a>
+<a href="https://opencollective.com/color-space/sponsor/29/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/29/avatar.svg"></a>
+
+
 
 
 ## Related
