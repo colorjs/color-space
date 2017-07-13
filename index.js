@@ -42,7 +42,8 @@ var spaces = {
 	hcg: require('./hcg'),
 	tsl: require('./tsl'),
 	yes: require('./yes'),
-	osaucs: require('./osaucs')
+	osaucs: require('./osaucs'),
+	hsp: require('./hsp')
 };
 
 

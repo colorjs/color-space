@@ -24,7 +24,8 @@
     "coloroid",
     "cubehelix",
     "munsell",
-    "hcg"
+    "hcg",
+    "hsp"
   ],
   "repository": {
     "type": "git",

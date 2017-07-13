@@ -87,7 +87,7 @@ rgb.hsl([200,230,100]);
 * [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
 * [x] [HCG](https://github.com/acterhd/hcg-legacy)
 * [ ] [HCL](http://www.chilliant.com/rgb2hsv.html)
-* [ ] [HSP](http://alienryderflex.com/hsp.html)
+* [x] [HSP](http://alienryderflex.com/hsp.html)
 * [ ] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
 * [x] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198) — computationally effective color space for face recognition.
 * [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
