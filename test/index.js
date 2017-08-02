@@ -83,6 +83,24 @@ describe('hsv', function () {
 	});
 });
 
+describe('hsp', function () {
+	before(function () {
+		createSpaceCase('HSP');
+	});
+
+	it('hsp → rgb', function () {
+		assert.deepEqual(round(s.hsp.rgb([0.2, 0.5, 0.3])), [0, 0, 0]);
+	});
+	
+	it('rgb → hsp', function () {
+		assert.deepEqual(round(s.rgb.hsp([98, 115, 255])), [234, 62, 134]);
+	});
+
+	it('rgb → hsp', function () {
+		assert.deepEqual(round(s.rgb.hsp([110, 110, 110])), [0, 0, 110]);
+	});
+});
+
 
 describe('hsi', function () {
 	before(function () {
