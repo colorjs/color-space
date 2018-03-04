@@ -36,7 +36,7 @@ var spaces = {
 	luv: require('./luv'),
 	lchuv: require('./lchuv'),
 	hsluv: require('./hsluv'),
-	hsluvp: require('./hsluvp'),
+	hpluv: require('./hpluv'),
 	cubehelix: require('./cubehelix'),
 	coloroid: require('./coloroid'),
 	hcg: require('./hcg'),
