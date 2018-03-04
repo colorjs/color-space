@@ -1,37 +1,37 @@
 /**
- * A uniform wrapper for husl.
- * // http://www.boronine.com/husl/
+ * A uniform wrapper for hsluv.
+ * // http://www.hsluv.org/
  *
- * @module color-space/husl
+ * @module color-space/hsluv
  */
 'use strict'
 
 var xyz = require('./xyz');
 var lchuv = require('./lchuv');
-var _husl = require('husl');
+var _hsluv = require('hsluv');
 
 
 module.exports = {
-	name: 'husl',
+	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
-	alias: ['HuSL'],
+	alias: ['HSLuv', 'HuSL'],
 
-	lchuv: _husl._conv.husl.lch,
+	lchuv: _hsluv.hsluvToLch,
 
 	xyz: function(arg){
-		return lchuv.xyz(_husl._conv.husl.lch(arg));
+		return lchuv.xyz(_hsluv.hsluvToLch(arg));
 	},
 
-	//a shorter way to convert to huslp
-	huslp: function(arg){
-		return _husl._conv.lch.huslp( _husl._conv.husl.lch(arg));
+	//a shorter way to convert to hpluv
+	hpluv: function(arg){
+		return _hsluv.lchToHpluv( _hsluv.hsluvToLch(arg));
 	}
 };
 
 //extend lchuv, xyz
-lchuv.husl = _husl._conv.lch.husl;
-xyz.husl = function(arg){
-	return _husl._conv.lch.husl(xyz.lchuv(arg));
+lchuv.hsluv = _hsluv.lchToHsluv;
+xyz.hsluv = function(arg){
+	return _hsluv.lchToHsluv(xyz.lchuv(arg));
 };

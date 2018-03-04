@@ -14,6 +14,7 @@
     "luv",
     "lch",
     "cie",
+    "hsluv",
     "husl",
     "color-convert",
     "gamut",
@@ -38,7 +39,7 @@
   "license": "MIT",
   "main": "./index.js",
   "dependencies": {
-    "husl": "^5.0.0",
+    "hsluv": "0.0.2",
     "mumath": "^3.0.0"
   },
   "devDependencies": {
@@ -52,6 +53,6 @@
     "test": "mocha",
     "build": "browserify --standalone colorSpace ./index.js > dist/color-space.js",
     "min": "ccjs dist/color-space.js --language_in=ECMASCRIPT5 > dist/color-space.min.js && cat dist/color-space.min.js | gzip-size | pretty-bytes",
-    "watch": "watchify -r ./index:../index -r husl -r assert -r mumath -r queried -d -o test/bundle.js"
+    "watch": "watchify -r ./index:../index -r hsluv -r assert -r mumath -r queried -d -o test/bundle.js"
   }
 }
