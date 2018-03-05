@@ -4,7 +4,7 @@ var round = require('mumath').round;
 var mult = require('mumath/wrap')(function (a,b) {return a*b;});
 var div = require('mumath/wrap')(function (a,b) {return a/b;});
 var max = require('mumath/wrap')(Math.max);
-var husl = require('husl');
+var hsluv = require('hsluv');
 var almost = require('almost-equal');
 
 
@@ -455,82 +455,82 @@ describe('lchuv', function () {
 });
 
 
-describe('husl', function () {
+describe('hsluv', function () {
 	before(function () {
 		createSpaceCase('XYZ');
-		createSpaceCase('HuSL');
+		createSpaceCase('HSLuv');
 	});
 
-	it('_husl: lch → luv ≡ lchuv → luv', function () {
-		assert.deepEqual(round(husl._conv.lch.luv([1,20,40]), .0001), round(s.lchuv.luv([1,20,40]), .0001));
-		assert.deepEqual(round(husl._conv.lch.luv([21,50,40]), .0001), round(s.lchuv.luv([21,50,40]), .0001));
-		assert.deepEqual(round(husl._conv.lch.luv([25,30,43]), .0001), round(s.lchuv.luv([25,30,43]), .0001));
+	it('_hsluv: lch → luv ≡ lchuv → luv', function () {
+		assert.deepEqual(round(hsluv.lchToLuv([1,20,40]), .0001), round(s.lchuv.luv([1,20,40]), .0001));
+		assert.deepEqual(round(hsluv.lchToLuv([21,50,40]), .0001), round(s.lchuv.luv([21,50,40]), .0001));
+		assert.deepEqual(round(hsluv.lchToLuv([25,30,43]), .0001), round(s.lchuv.luv([25,30,43]), .0001));
 	});
 
-	it('_husl: luv → xyz ≡ luv → xyz ', function () {
-		assert.deepEqual(round(mult(husl._conv.luv.xyz([21,50,40]), 100), .0001), round(s.luv.xyz([21,50,40]), .0001));
-		assert.deepEqual(round(mult(husl._conv.luv.xyz([1,20,40]), 100), .0001), round(s.luv.xyz([1,20,40]), .0001));
-		assert.deepEqual(round(mult(husl._conv.luv.xyz([25,30,43]), 100), .0001), round(s.luv.xyz([25,30,43]), .0001));
+	it('_hsluv: luv → xyz ≡ luv → xyz ', function () {
+		assert.deepEqual(round(mult(hsluv.luvToXyz([21,50,40]), 100), .0001), round(s.luv.xyz([21,50,40]), .0001));
+		assert.deepEqual(round(mult(hsluv.luvToXyz([1,20,40]), 100), .0001), round(s.luv.xyz([1,20,40]), .0001));
+		assert.deepEqual(round(mult(hsluv.luvToXyz([25,30,43]), 100), .0001), round(s.luv.xyz([25,30,43]), .0001));
 	});
 
 
-	it('_husl: xyz → rgb ≡ xyz → rgb', function () {
+	it('_hsluv: xyz → rgb ≡ xyz → rgb', function () {
 		assert.deepEqual(
 			round(
-				max(mult(husl._conv.xyz.rgb(div([33,40,50], 100)), 255), 0), .0001
+				max(mult(hsluv.xyzToRgb(div([33,40,50], 100)), 255), 0), .0001
 			),
 			round(s.xyz.rgb([33,40,50]), .0001)
 		);
 		assert.deepEqual(
 			round(
-				max(mult(husl._conv.xyz.rgb(div([1,20,40], 100)), 255), 0), .0001
+				max(mult(hsluv.xyzToRgb(div([1,20,40], 100)), 255), 0), .0001
 			),
 			round(s.xyz.rgb([1,20,40]), .0001)
 		);
 		assert.deepEqual(
 			round(
-				max(mult(husl._conv.xyz.rgb(div([25,30,43], 100)), 255), 0), .0001
+				max(mult(hsluv.xyzToRgb(div([25,30,43], 100)), 255), 0), .0001
 			),
 			round(s.xyz.rgb([25,30,43]), .0001)
 		);
 	});
 
 
-	it('_husl: lch → rgb ≡ lchuv → rgb', function () {
+	it('_hsluv: lch → rgb ≡ lchuv → rgb', function () {
 		assert.deepEqual(
-			max(round(mult(husl._conv.lch.rgb([1,20,40]), 255), .001), 0),
+			max(round(mult(hsluv.lchToRgb([1,20,40]), 255), .001), 0),
 			max(round(s.lchuv.rgb([1,20,40]), .001), 0)
 		);
 		assert.deepEqual(
-			max(round(mult(husl._conv.lch.rgb([25,30,43]), 255), .001), 0),
+			max(round(mult(hsluv.lchToRgb([25,30,43]), 255), .001), 0),
 			max(round(s.lchuv.rgb([25,30,43]), .001), 0)
 		);
 		assert.deepEqual(
-			max(round(mult(husl._conv.lch.rgb([33,40,50]), 255), .001), 0),
+			max(round(mult(hsluv.lchToRgb([33,40,50]), 255), .001), 0),
 			max(round(s.lchuv.rgb([33,40,50]), .001), 0)
 		);
 	});
 
-	it('_husl → rgb ≡ husl → rgb', function () {
+	it('_hsluv → rgb ≡ hsluv → rgb', function () {
 		assert.deepEqual(
-			round(mult(husl.toRGB(25, 30, 43), 255)),
-			round(s.husl.rgb([25, 30, 43]))
+			round(mult(hsluv.hsluvToRgb([25, 30, 43]), 255)),
+			round(s.hsluv.rgb([25, 30, 43]))
 		);
 	});
 });
 
 
-describe.skip('huslp', function () {
+describe.skip('hpluv', function () {
 	before(function () {
 		createSpaceCase('XYZ');
-		createSpaceCase('HuSLP');
+		createSpaceCase('HPLuv');
 	});
 
-	it('huslp → rgb', function () {
+	it('hpluv → rgb', function () {
 
 	});
 
-	it('huslp → xyz', function () {
+	it('hpluv → xyz', function () {
 
 	});
 });
