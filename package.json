@@ -30,7 +30,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/dfcreative/color-space.git"
+    "url": "http://github.com/colorjs/color-space.git"
   },
   "files": [
     "*.js",
@@ -39,8 +39,8 @@
   "license": "MIT",
   "main": "./index.js",
   "dependencies": {
-    "hsluv": "0.0.2",
-    "mumath": "^3.0.0"
+    "hsluv": "^0.0.3",
+    "mumath": "^3.3.4"
   },
   "devDependencies": {
     "almost-equal": "^1.1.0",
