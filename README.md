@@ -1,4 +1,4 @@
-# Color-space [![Build Status](https://travis-ci.org/colorjs/color-space.svg?branch=master)](https://travis-ci.org/colorjs/color-space) [![stable](https://img.shields.io/badge/stability-stable-green.svg)](http://github.com/badges/stability-badges) [![OpenCollective](https://opencollective.com/color-space/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/color-space/sponsors/badge.svg)](#sponsors)
+# Color-space [![Build Status](https://travis-ci.org/colorjs/color-space.svg?branch=master)](https://travis-ci.org/colorjs/color-space) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![OpenCollective](https://opencollective.com/color-space/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/color-space/sponsors/badge.svg)](#sponsors)
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
