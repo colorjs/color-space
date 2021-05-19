@@ -193,3 +193,6 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 * [spectra](https://github.com/avp/spectra)
 * [colorspaces.js](https://github.com/boronine/colorspaces.js)
 
+## See also
+
+* [color-api](https://github.com/LeaVerou/color-api) - color API proposal by Lea Verou
