@@ -146,26 +146,25 @@
 
 <script>
 	var round = require('mumath').round;
-	var q = require('queried');
 	var convert = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 
 	//setup converter
 	/** Converter */
 	var doc = document, win = window, body = doc.body, root = doc.documentElement;
 
-	var title = q('.page-link');
+	var title = document.querySelector('.page-link');
 
-	var table = q('#convert-table');
-	var thead = q('thead', table);
-	var tbody = q('tbody', table);
-	var tr = q.all('tr', table);
+	var table = document.querySelector('#convert-table');
+	var thead = table.querySelector('thead');
+	var tbody = table.querySelector('tbody');
+	var tr = [...table.querySelectorAll('tr')];
 
 	var selCss='::selection{background:%b;color:%c} ::-moz-selection{background:%b;color:%c}';
 
 	var selStyle=doc.createElement('style');
 	doc.getElementsByTagName('head')[0].appendChild(selStyle);
 
-	// if (location.search) q('#converter').setAttribute('hidden', true);
+	// if (location.search) document.querySelector('#converter').setAttribute('hidden', true);
 
 
 	//select on click
@@ -180,7 +179,7 @@
 		var target = e.target;
 		var channel = target.id;
 		var srcSpace = target.getAttribute('data-space');
-		var srcSpaceInputs = q.all('[data-space=' + srcSpace + ']');
+		var srcSpaceInputs = [...document.querySelectorAll('[data-space=' + srcSpace + ']')];
 		var srcValues = [];
 		for (var i = srcSpaceInputs.length; i--;){
 			srcValues[i] = +srcSpaceInputs[i].value;
@@ -202,7 +201,7 @@
 				// console.log(srcSpace, targetSpaceName, convert)
 				targetValues = convert[srcSpace][targetSpaceName](srcValues);
 
-				targetSpaceInputs = q.all('[data-space=' + targetSpaceName + ']');
+				targetSpaceInputs = [...document.querySelectorAll('[data-space=' + targetSpaceName + ']')];
 
 				for (var i = targetSpaceInputs.length; i--;){
 					targetSpaceInputs[i].value = targetValues[i].toFixed(1);
@@ -217,7 +216,7 @@
 		//Set header color according to the current converting color
 		var rgb = srcSpace === 'rgb' ? srcValues : convert[srcSpace].rgb(srcValues);
 
-		var lEl = q('#lightness');
+		var lEl = document.querySelector('#lightness');
 		var l = lEl && lEl.value || 0;
 		rgb = round(rgb);
 
@@ -239,7 +238,7 @@
 		var lname = name.toLowerCase();
 		var space = convert[lname];
 
-		if (q('#'+lname)) return;
+		if (document.querySelector('#'+lname)) return;
 
 		var th = document.createElement('th');
 		th.innerHTML = name;
