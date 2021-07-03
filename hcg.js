@@ -7,7 +7,6 @@ var rgb = require('./rgb');
 var hsl = require('./hsl');
 var hsv = require('./hsv');
 var hwb = require('./hwb');
-var mod = require('mumath/mod');
 
 
 module.exports = {
@@ -24,8 +23,8 @@ module.exports = {
 		if (c === 0.0) {
 			return [g * 255, g * 255, g * 255];
 		}
-		var hi = mod(h, 1) * 6;
-		var v = mod(hi, 1);
+		var hi = (h % 1) * 6;
+		var v = (hi % 1);
 		var pure = [0, 0, 0];
 		var w = 1 - v;
 		switch (Math.floor(hi)) {
@@ -106,7 +105,7 @@ rgb.hcg = function(rgb) {
 	}
 	if (chroma > 0) {
 		if (max === r) {
-			hue = mod((g - b) / chroma, 6);
+			hue = ((g - b) / chroma % 6);
 		} else
 		if (max === g) {
 			hue = 2 + (b - r) / chroma;
@@ -114,7 +113,7 @@ rgb.hcg = function(rgb) {
 			hue = 4 + (r - g) / chroma;
 		}
 		hue /= 6;
-		hue = mod(hue, 1);
+		hue = (hue % 1);
 	} else {
 		hue = 0;
 	}

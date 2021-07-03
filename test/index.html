@@ -145,7 +145,6 @@
 
 
 <script>
-	var round = require('mumath').round;
 	var convert = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 
 	//setup converter
@@ -218,7 +217,7 @@
 
 		var lEl = document.querySelector('#lightness');
 		var l = lEl && lEl.value || 0;
-		rgb = round(rgb);
+		rgb = rgb.map(channel => Math.round(channel));
 
 		title.style.color = 'rgb(' + rgb + ')';
 		title.style.borderColor = 'rgba(' + rgb + ', .1)';

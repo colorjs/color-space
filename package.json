@@ -1,8 +1,8 @@
 {
   "name": "color-space",
-  "description": "Color space conversions and data",
+  "description": "Collection of color space conversions",
   "version": "1.16.0",
-  "author": "Deema Yvanow <dfcreative@gmail.com>",
+  "author": "Dmitry Ivanov <dfcreative@gmail.com>",
   "keywords": [
     "color",
     "colour",
@@ -39,20 +39,17 @@
   "license": "MIT",
   "main": "./index.js",
   "dependencies": {
-    "hsluv": "^0.0.3",
-    "mumath": "^3.3.4"
+    "hsluv": "^0.0.3"
   },
   "devDependencies": {
     "almost-equal": "^1.1.0",
-    "closurecompiler": "^1.x",
     "gzip-size": "^3.0.0",
-    "mocha": "latest",
-    "queried": "^1.4.1"
+    "mocha": "latest"
   },
   "scripts": {
     "test": "mocha",
     "build": "browserify --standalone colorSpace ./index.js > dist/color-space.js",
     "min": "ccjs dist/color-space.js --language_in=ECMASCRIPT5 > dist/color-space.min.js && cat dist/color-space.min.js | gzip-size | pretty-bytes",
-    "watch": "watchify -r ./index:../index -r hsluv -r assert -r mumath -r queried -d -o test/bundle.js"
+    "watch": "watchify -r ./index:../index -r hsluv -r assert -d -o test/bundle.js"
   }
 }
