@@ -8,7 +8,7 @@
 
 var xyz = require('./xyz');
 var lchuv = require('./lchuv');
-var _hsluv = require('hsluv');
+var _hsluv = require('./hsluv')._hsluv;
 
 module.exports = {
 	name: 'hpluv',
@@ -24,7 +24,6 @@ module.exports = {
 	hsluv: function(arg){
 		return _hsluv.lchToHsluv( _hsluv.hpluvToLch(arg));
 	}
-
 };
 
 //extend lchuv, xyz

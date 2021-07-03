@@ -38,9 +38,7 @@
   ],
   "license": "MIT",
   "main": "./index.js",
-  "dependencies": {
-    "hsluv": "^0.0.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "almost-equal": "^1.1.0",
     "gzip-size": "^3.0.0",

@@ -1,6 +1,5 @@
 var s = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
 var assert = require("assert");
-var hsluv = require('hsluv');
 var almost = require('almost-equal');
 
 
@@ -456,44 +455,42 @@ describe('hsluv', function () {
 	});
 
 	it('_hsluv: lch → luv ≡ lchuv → luv', function () {
-		assert.deepEqualAlmost((hsluv.lchToLuv([1,20,40])), (s.lchuv.luv([1,20,40])));
-		assert.deepEqualAlmost((hsluv.lchToLuv([21,50,40])), (s.lchuv.luv([21,50,40])));
-		assert.deepEqualAlmost((hsluv.lchToLuv([25,30,43])), (s.lchuv.luv([25,30,43])));
+		assert.deepEqualAlmost((s.hsluv._hsluv.lchToLuv([1,20,40])), (s.lchuv.luv([1,20,40])));
+		assert.deepEqualAlmost((s.hsluv._hsluv.lchToLuv([21,50,40])), (s.lchuv.luv([21,50,40])));
+		assert.deepEqualAlmost((s.hsluv._hsluv.lchToLuv([25,30,43])), (s.lchuv.luv([25,30,43])));
 	});
 
 	it('_hsluv: luv → xyz ≡ luv → xyz ', function () {
-		assert.deepEqualAlmost((mult(hsluv.luvToXyz([21,50,40]), 100)), (s.luv.xyz([21,50,40])));
-		assert.deepEqualAlmost((mult(hsluv.luvToXyz([1,20,40]), 100)), (s.luv.xyz([1,20,40])));
-		assert.deepEqualAlmost((mult(hsluv.luvToXyz([25,30,43]), 100)), (s.luv.xyz([25,30,43])));
+		assert.deepEqualAlmost((mult(s.hsluv._hsluv.luvToXyz([21,50,40]), 100)), (s.luv.xyz([21,50,40])));
+		assert.deepEqualAlmost((mult(s.hsluv._hsluv.luvToXyz([1,20,40]), 100)), (s.luv.xyz([1,20,40])));
+		assert.deepEqualAlmost((mult(s.hsluv._hsluv.luvToXyz([25,30,43]), 100)), (s.luv.xyz([25,30,43])));
 	});
 
 
 	it('_hsluv: xyz → rgb ≡ xyz → rgb', function () {
-		assert.deepEqualAlmost(max(mult(hsluv.xyzToRgb(div([33,40,50], 100)), 255), 0), s.xyz.rgb([33,40,50]));
-		assert.deepEqualAlmost(max(mult(hsluv.xyzToRgb(div([1,20,40], 100)), 255), 0), s.xyz.rgb([1,20,40]));
-		assert.deepEqualAlmost(max(mult(hsluv.xyzToRgb(div([25,30,43], 100)), 255), 0), s.xyz.rgb([25,30,43]));
+		assert.deepEqualAlmost(max(mult(s.hsluv._hsluv.xyzToRgb(div([33,40,50], 100)), 255), 0), s.xyz.rgb([33,40,50]));
+		assert.deepEqualAlmost(max(mult(s.hsluv._hsluv.xyzToRgb(div([1,20,40], 100)), 255), 0), s.xyz.rgb([1,20,40]));
+		assert.deepEqualAlmost(max(mult(s.hsluv._hsluv.xyzToRgb(div([25,30,43], 100)), 255), 0), s.xyz.rgb([25,30,43]));
 	});
 
 
 	it('_hsluv: lch → rgb ≡ lchuv → rgb', function () {
 		assert.deepEqualAlmost(
-			max((mult(hsluv.lchToRgb([1,20,40]), 255)), 0),
+			max((mult(s.hsluv._hsluv.lchToRgb([1,20,40]), 255)), 0),
 			max((s.lchuv.rgb([1,20,40])), 0)
 		);
 		assert.deepEqualAlmost(
-			max((mult(hsluv.lchToRgb([25,30,43]), 255)), 0),
+			max((mult(s.hsluv._hsluv.lchToRgb([25,30,43]), 255)), 0),
 			max((s.lchuv.rgb([25,30,43])), 0)
 		);
 		assert.deepEqualAlmost(
-			max((mult(hsluv.lchToRgb([33,40,50]), 255)), 0),
+			max((mult(s.hsluv._hsluv.lchToRgb([33,40,50]), 255)), 0),
 			max((s.lchuv.rgb([33,40,50])), 0)
 		);
 	});
 
 	it('_hsluv → rgb ≡ hsluv → rgb', function () {
-		assert.deepEqualAlmost((mult(hsluv.hsluvToRgb([25, 30, 43]), 255)),
-			(s.hsluv.rgb([25, 30, 43]))
-		);
+		assert.deepEqualAlmost((mult(s.hsluv._hsluv.hsluvToRgb([25, 30, 43]), 255)), (s.hsluv.rgb([25, 30, 43])));
 	});
 });
 
