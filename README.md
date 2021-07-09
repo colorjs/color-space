@@ -2,7 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-Conversions and data for color spaces. [Demo](http://colorjs.github.io/color-space).
+Collection of color spaces conversions & data.
+
+[Demo](http://colorjs.github.io/color-space).
 
 
 ## Usage
@@ -10,17 +12,17 @@ Conversions and data for color spaces. [Demo](http://colorjs.github.io/color-spa
 [![npm install color-space](https://nodei.co/npm/color-space.png?mini=true)](https://npmjs.org/package/color-space/)
 
 ```js
-var space = require('color-space');
+import space from 'color-space';
 
 //convert lab to lch
 var result = space.lab.lch([80,50,60]);
 ```
 
-You can require a separate space to reduce size significantly:
+Spaces can be imported separately:
 
 ```js
-var rgb = require('color-space/rgb');
-var hsl = require('color-space/hsl');
+import rgb from 'color-space/rgb';
+import hsl from 'color-space/hsl';
 
 //convert rgb to hsl
 rgb.hsl([200,230,100]);
@@ -28,7 +30,6 @@ rgb.hsl([200,230,100]);
 
 
 ## API
-
 
 ```js
 <fromSpace>.<toSpace>(array);
@@ -98,12 +99,12 @@ rgb.hsl([200,230,100]);
 ## Contribute
 
 Please fork, add color space with basic _conversions_ to/from XYZ or RGB and _tests_.
-The goal of project is to provide the most complete set of color spaces with maximally minimal uniform API.
+The goal of the project is the most complete set of color spaces with minimal uniform API.
 
 
 ## Credits
 
-Thanks to all the color scientists, who devoted their lives to color research and delivered their knowledge to us, for now we can trust them and use their formulas and their code.
+Thanks to all the color scientists, who devoted their time to color research and delivered their knowledge to us, for now we can use their formulas and their code.
 
 ### Backers
 
@@ -174,7 +175,6 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 <a href="https://opencollective.com/color-space/sponsor/27/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/27/avatar.svg"></a>
 <a href="https://opencollective.com/color-space/sponsor/28/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/28/avatar.svg"></a>
 <a href="https://opencollective.com/color-space/sponsor/29/website" target="_blank"><img src="https://opencollective.com/color-space/sponsor/29/avatar.svg"></a>
-
 
 
 
