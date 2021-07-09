@@ -1,4 +1,4 @@
-import * as s from '../index.js';
+import s from '../index.js';
 import assert from 'assert';
 import almost from 'almost-equal';
 import {suite} from 'uvu'

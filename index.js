@@ -41,11 +41,21 @@ import yes from './yes.js'
 import osaucs from './osaucs.js'
 import hsp from './hsp.js'
 
-const spaces = {
-	rgb, hsl, hsv, hsi, hwb, cmyk, cmy, xyz, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp,
+const spaces = {};
+export default spaces;
+
+export function register (newSpace) {
+	const newSpaceName = newSpace.name
+	for (var existingSpaceName in spaces) {
+		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
+
+		const existingSpace = spaces[existingSpaceName]
+		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
+	}
+	spaces[newSpaceName] = newSpace
 }
 
-function addTranslation(fromSpace, toSpaceName) {
+function createConverter (fromSpace, toSpaceName) {
 	//create xyz converter, if available
 	if (fromSpace.xyz && spaces.xyz[toSpaceName])
 		return (arg) => spaces.xyz[toSpaceName](fromSpace.xyz(arg));
@@ -55,14 +65,40 @@ function addTranslation(fromSpace, toSpaceName) {
 		return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
 }
 
-var fromSpace;
-for (var fromSpaceName in spaces) {
-	fromSpace = spaces[fromSpaceName];
-	for (var toSpaceName in spaces) {
-		if (toSpaceName !== fromSpaceName && !fromSpace[toSpaceName]) fromSpace[toSpaceName] = addTranslation(fromSpace, toSpaceName);
-	}
-}
-
-export {
-	rgb, hsl, hsv, hsi, hwb, cmyk, cmy, xyz, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp,
-}
+// register all spaces by default
+register(rgb)
+register(xyz)
+register(hsl)
+register(hsv)
+register(hsi)
+register(hwb)
+register(cmyk)
+register(cmy)
+register(xyy)
+register(yiq)
+register(yuv)
+register(ydbdr)
+register(ycgco)
+register(ypbpr)
+register(ycbcr)
+register(xvycc)
+register(yccbccrc)
+register(ucs)
+register(uvw)
+register(jpeg)
+register(lab)
+register(labh)
+register(lms)
+register(lchab)
+register(luv)
+register(lchuv)
+register(hsluv)
+register(hpluv)
+register(cubehelix)
+register(coloroid)
+register(hcg)
+register(hcy)
+register(tsl)
+register(yes)
+register(osaucs)
+register(hsp)

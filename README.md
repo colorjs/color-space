@@ -27,7 +27,13 @@ import hsl from 'color-space/hsl';
 //convert rgb to hsl
 rgb.hsl([200,230,100]);
 ```
+<!--
+New space can be registered as:
+```js
+import space, {register} from 'color-space';
 
+register(spaceDefiniton)
+``` -->
 
 ## API
 
