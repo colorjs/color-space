@@ -3,13 +3,13 @@
  */
 'use strict'
 
-var rgb = require('./rgb');
-var hsl = require('./hsl');
-var hsv = require('./hsv');
-var hwb = require('./hwb');
+import rgb from './rgb.js';
+import hsl from './hsl.js';
+import hsv from './hsv.js';
+import hwb from './hwb.js';
 
 
-module.exports = {
+export default {
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],

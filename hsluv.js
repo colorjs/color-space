@@ -4,11 +4,9 @@
  *
  * @module color-space/hsluv
  */
-'use strict'
-
-var xyz = require('./xyz');
-var lchuv = require('./lchuv');
-var rgb = require('./rgb');
+import xyz from './xyz.js';
+import lchuv from './lchuv.js';
+import rgb from './rgb.js';
 
 // unwrapped https://github.com/hsluv/hsluv/blob/master/javascript/dist/hsluv-0.1.0.min.js
 // FIXME: it has redundant functions like rgbToXyz - can be reused from color-space itself
@@ -20,7 +18,7 @@ function J(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<a)return[100,0,c];if(1E-8>a
 function N(a){a=a.toLowerCase();for(var c=[],b=0;3>b;){var d=b++;c.push((16*M.indexOf(a.charAt(2*d+1))+M.indexOf(a.charAt(2*d+2)))/255)}return c}function O(a){return t(E(G(a)))}function P(a){return F(A(u(a)))}function Q(a){return O(H(a))}function R(a){return I(P(a))}function S(a){return O(J(a))}function T(a){return K(P(a))}
 var l=[[3.240969941904521,-1.537383177570093,-.498610760293],[-.96924363628087,1.87596750150772,.041555057407175],[.055630079696993,-.20397695888897,1.056971514242878]],v=[[.41239079926595,.35758433938387,.18048078840183],[.21263900587151,.71516867876775,.072192315360733],[.019330818715591,.11919477979462,.95053215224966]],B=1,C=.19783000664283,D=.46831999493879,k=903.2962962,g=.0088564516,M="0123456789abcdef";
 
-var _hsluv= {
+export const _hsluv = {
 	hsluvToRgb:Q,
 	hsluvToLch:H,
 	rgbToHsluv:R,
@@ -39,7 +37,7 @@ var _hsluv= {
 	xyzToRgb:t,
 };
 
-module.exports = {
+export default {
 	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -55,7 +53,10 @@ module.exports = {
 	//a shorter way to convert to hpluv
 	hpluv: function(arg){
 		return _hsluv.lchToHpluv( _hsluv.hsluvToLch(arg));
-	}
+	},
+
+	// export internal math
+	_hsluv
 };
 
 //extend lchuv, xyz
@@ -63,7 +64,5 @@ lchuv.hsluv = _hsluv.lchToHsluv;
 xyz.hsluv = function(arg){
 	return _hsluv.lchToHsluv(xyz.lchuv(arg));
 };
-
-module.exports._hsluv = _hsluv
 
 rgb.hsluv = _hsluv.rgbToHsluv

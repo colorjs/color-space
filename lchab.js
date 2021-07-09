@@ -3,14 +3,12 @@
  *
  * @module color-space/lchab
  */
-'use strict'
-
-var xyz = require('./xyz');
-var lab = require('./lab');
+import xyz from './xyz.js';
+import lab from './lab.js';
 
 
 //cylindrical lab
-var lchab = module.exports = {
+var lchab = {
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],
@@ -54,3 +52,6 @@ lab.lchab = function(lab) {
 xyz.lchab = function(arg){
 	return lab.lchab(xyz.lab(arg));
 };
+
+
+export default lchab;

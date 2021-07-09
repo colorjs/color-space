@@ -4,17 +4,17 @@
  *
  * @module color-space/hcy
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var hcy = module.exports = {
+var hcy = {
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
 };
+
+export default hcy;
 
 
 /**

@@ -3,9 +3,8 @@
  *
  * @module  color-space/osa-ucs
  */
-'use strict'
 
-var xyz = require('./xyz');
+import xyz from './xyz.js';
 
 
 var osaucs = {
@@ -74,4 +73,4 @@ xyz.osaucs = function (arg) {
 };
 
 
-module.exports = osaucs;
+export default osaucs;

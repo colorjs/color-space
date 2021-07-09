@@ -3,11 +3,9 @@
  *
  * @module  color-space/ycgco
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var ycgco = module.exports = {
+var ycgco = {
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
@@ -54,3 +52,6 @@ rgb.ycgco = function(arr) {
 		0.5*r - 0.5*b
 	];
 };
+
+
+export default ycgco;

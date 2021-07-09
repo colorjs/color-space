@@ -3,11 +3,10 @@
  *
  * @module color-space/lab
  */
-'use strict'
 
-var xyz = require('./xyz');
+import xyz from './xyz.js';
 
-module.exports = {
+export default {
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],

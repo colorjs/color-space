@@ -6,10 +6,8 @@
  *
  * @module  color-space/coloroid
  */
-'use strict'
-
-var xyy = require('./xyy');
-var xyz = require('./xyz');
+import xyy from './xyy.js';
+import xyz from './xyz.js';
 
 
 /**
@@ -274,7 +272,7 @@ coloroid.xyz = function (arg) {
 
 
 
-module.exports = coloroid;
+export default coloroid;
 
 
 

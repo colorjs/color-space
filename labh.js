@@ -3,11 +3,10 @@
  *
  * @module  color-space/labh
  */
-'use strict'
 
-var xyz = require('./xyz');
+import xyz from './xyz.js';
 
-module.exports = {
+export default {
 	name: 'labh',
 
 	//mins/maxes are taken from colormine

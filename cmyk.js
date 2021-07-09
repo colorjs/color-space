@@ -1,11 +1,9 @@
 /**
  * @module color-space/cmyk
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-module.exports = {
+const cmyk = {
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],
@@ -40,3 +38,5 @@ rgb.cmyk = function(rgb) {
 	y = (1 - b - k) / (1 - k) || 0;
 	return [c * 100, m * 100, y * 100, k * 100];
 };
+
+export default cmyk

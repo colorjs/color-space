@@ -1,7 +1,7 @@
-var s = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
-var assert = require("assert");
-var almost = require('almost-equal');
-
+import * as s from '../index.js';
+import assert from 'assert';
+import almost from 'almost-equal';
+import {suite} from 'uvu'
 
 
 assert.almost = function (x, y, precision=1e-1) {
@@ -18,6 +18,21 @@ assert.deepEqualAlmost = function (x, y, precision=1e-1) {
 		return true;
 	});
 }
+function round (a, precision=1) {
+	return a.map(x => {
+		let res = Math.round(x/precision)*precision
+		return res
+	})
+}
+function mult (a,b) {
+	return a.map(Array.isArray(b) ? (x,i) => a[i]*b[i] : x => x*b)
+}
+function div (a,b) {
+	return a.map(Array.isArray(b) ? (x,i) => a[i]/b[i] : x => x/b)
+}
+function max (a,...args) {
+	return a.map(x => Math.max(x,...args))
+}
 
 
 
@@ -33,88 +48,89 @@ var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase :
 createSpaceCase('RGB');
 
 
-describe('hsl', function () {
-	before(function () {
+let hslTest = suite('hsl')
+	hslTest.before(function () {
 		createSpaceCase('HSL');
 	});
 
-	it('hsl → rgb', function () {
+	hslTest('hsl → rgb', function () {
 		assert.deepEqualAlmost((s.hsl.rgb([96, 48, 59])), [140, 201, 100]);
 	});
-	it('hsl → hsv', function () {
+	hslTest('hsl → hsv', function () {
 		// colorpicker says [96,50,79]
 		assert.deepEqualAlmost((s.hsl.hsv([96, 48, 59])), [96, 50, 79]);
 	});
-	it('hsl → cmyk', function () {
+	hslTest('hsl → cmyk', function () {
 		assert.deepEqualAlmost((s.hsl.cmyk([96, 48, 59])), [30, 0, 50, 21]);
 	});
-	it('rgb → hsl', function () {
+	hslTest('rgb → hsl', function () {
 		assert.deepEqualAlmost((s.rgb.hsl([140, 200, 100])), [96, 48, 59]);
 	});
-});
+	hslTest.run()
 
 
-describe('hsv', function () {
-	before(function () {
+let hsvTest = suite('hsv')
+	hsvTest.before(function () {
 		createSpaceCase('HSV');
 	});
 
-	it('hsv → rgb', function () {
+	hsvTest('hsv → rgb', function () {
 		assert.deepEqualAlmost((s.hsv.rgb([96, 50, 78])), [139, 199, 99]);
 	});
-	it('hsv → hsl', function () {
+	hsvTest('hsv → hsl', function () {
 		assert.deepEqualAlmost((s.hsv.hsl([96, 50, 78])), [96, 47, 59]);
 
 		//keep hue
 		assert.deepEqualAlmost((s.hsv.hsl([120,0,0])), [120,0,0]);
 	});
-	it('hsv → cmyk', function () {
+	hsvTest('hsv → cmyk', function () {
 		assert.deepEqualAlmost((s.hsv.cmyk([96, 50, 78])), [30, 0, 50, 22]);
 	});
-	it('rgb → hsv', function () {
+	hsvTest('rgb → hsv', function () {
 		assert.deepEqualAlmost((s.rgb.hsv([140, 200, 100])), [96, 50, 78]);
 	});
-});
+	hsvTest.run()
 
-describe('hsp', function () {
-	before(function () {
+
+let hspTest = suite('hsp')
+	hspTest.before(function () {
 		createSpaceCase('HSP');
 	});
 
-	it('hsp → rgb', function () {
+	hspTest('hsp → rgb', function () {
 		assert.deepEqualAlmost((s.hsp.rgb([0.2, 0.5, 0.3])), [0, 0, 0]);
 	});
 	
-	it('rgb → hsp', function () {
+	hspTest('rgb → hsp', function () {
 		assert.deepEqualAlmost((s.rgb.hsp([98, 115, 255])), [234, 62, 134]);
 	});
 
-	it('rgb → hsp', function () {
+	hspTest('rgb → hsp', function () {
 		assert.deepEqualAlmost((s.rgb.hsp([110, 110, 110])), [0, 0, 110]);
 	});
-});
+	hspTest.run()
 
 
-describe('hsi', function () {
-	before(function () {
+let hsiTest = suite('hsi')
+	hsiTest.before(function () {
 		createSpaceCase('HSI');
 	});
 
-	it('hsi → rgb', function () {
+	hsiTest('hsi → rgb', function () {
 		assert.deepEqualAlmost((s.hsi.rgb([210, 33.333, 150])), [100, 150, 200]);
 	});
-	it('rgb → hsi', function () {
+	hsiTest('rgb → hsi', function () {
 		assert.deepEqualAlmost((s.rgb.hsi([100, 150, 200])), [210, 33, 150]);
 	});
-});
+	hsiTest.run()
 
 
-describe('hcg', function () {
-	before(function () {
+let hcgTest = suite('hcg')
+	hcgTest.before(function () {
 		createSpaceCase('HCG');
 	});
 
-	it('hcg → rgb', function () {
+	hcgTest('hcg → rgb', function () {
 		assert.deepEqualAlmost((s.hcg.rgb([ 0, 100, 0 ])), [255, 0, 0]);
 
 		assert.deepEqualAlmost((s.hcg.rgb([ 0, 50, 0 ])), [128, 0, 0]);
@@ -126,7 +142,7 @@ describe('hcg', function () {
 		assert.deepEqualAlmost((s.hcg.rgb([ 0, 0, 0 ])), [0, 0, 0]);
 	});
 
-	it('rgb → hcg', function () {
+	hcgTest('rgb → hcg', function () {
 		assert.deepEqualAlmost((s.rgb.hcg([255, 0, 0])), [ 0, 100, 0 ]);
 
 		assert.deepEqualAlmost((s.rgb.hcg([128, 0, 0])),  [ 0, 50, 0 ]);
@@ -138,28 +154,28 @@ describe('hcg', function () {
 		assert.deepEqualAlmost((s.rgb.hcg([ 0, 0, 0 ])), [0, 0, 0]);
 	});
 
-	it('hcg → hwb', function () {
+	hcgTest('hcg → hwb', function () {
 		assert.deepEqualAlmost((s.hcg.hwb([ 0, 100, 0 ])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.hcg.hwb([ 200, 100, 0 ])), [200, 0, 0]);
 		assert.deepEqualAlmost((s.hcg.hwb([ 200, 100, 100 ])), [200, 0, 0]);
 		assert.deepEqualAlmost((s.hcg.hwb([ 200, 0, 50 ])), [200, 50, 50]);
 	});
 
-	it('hwb → hcg', function () {
+	hcgTest('hwb → hcg', function () {
 		assert.deepEqualAlmost((s.hwb.hcg([ 0, 0, 0 ])), [0, 100, 0]);
 		assert.deepEqualAlmost((s.hwb.hcg([ 200, 0, 0 ])), [200, 100, 0]);
 		assert.deepEqualAlmost((s.hwb.hcg([ 200, 50, 50 ])), [200, 0, 50]);
 	});
-});
+	hcgTest.run()
 
 
-describe('hwb', function () {
-	before(function () {
+let hwbTest = suite('hwb')
+	hwbTest.before(function () {
 		createSpaceCase('HWB');
 		createSpaceCase('HSL');
 	});
 
-	it('hwb → rgb', function () {
+	hwbTest('hwb → rgb', function () {
 		// hwb
 		// http://dev.w3.org/csswg/css-color/#hwb-examples
 
@@ -186,11 +202,11 @@ describe('hwb', function () {
 		assert.deepEqualAlmost((s.hwb.rgb([240, 40, 20])), [102, 102, 204]);
 	});
 
-	it('rgb → hwb', function () {
+	hwbTest('rgb → hwb', function () {
 		assert.deepEqualAlmost((s.rgb.hwb([140, 200, 100])), [96, 39, 22]);
 	});
 
-	it('hsv → hwb', function () {
+	hwbTest('hsv → hwb', function () {
 		assert.deepEqualAlmost((s.hsv.hwb([10, 100, 0])), [10, 0, 100]);
 		assert.deepEqualAlmost((s.hsv.hwb([20, 0, 0])), [20, 0, 100]);
 		assert.deepEqualAlmost((s.hsv.hwb([30, 0, 100])), [30, 100, 0]);
@@ -198,7 +214,7 @@ describe('hwb', function () {
 		assert.deepEqualAlmost((s.hsv.hwb([96, 50, 78])), [96, 39, 22]);
 	});
 
-	it('hwb → hsv', function () {
+	hwbTest('hwb → hsv', function () {
 		assert.deepEqualAlmost((s.hwb.hsv([0, 50, 100])), [0, 0, 33]);
 		assert.deepEqualAlmost((s.hwb.hsv([0, 100, 50])), [0, 0, 67]);
 		assert.deepEqualAlmost((s.hwb.hsv([96, 39, 22])), [96, 50, 78]);
@@ -213,95 +229,95 @@ describe('hwb', function () {
 		assert.deepEqualAlmost((s.hwb.hsv([0, 50, 100])), [0, 0, 33]);
 	});
 
-	it('hwb → hsl', function () {
+	hwbTest('hwb → hsl', function () {
 		assert.deepEqualAlmost((s.hwb.hsl([20, 50, 50])), [20, 0, 50]);
 		assert.deepEqualAlmost((s.hwb.hsl([20, 100, 100])), [20, 0, 50]);
 		assert.deepEqualAlmost((s.hwb.hsl([20, 100, 100])), [20, 0, 50]);
 	});
 
-	it('hsl → hwb', function () {
+	hwbTest('hsl → hwb', function () {
 		assert.deepEqualAlmost((s.hsl.hwb([20, 100, 0])), [20, 0, 100]);
 		assert.deepEqualAlmost((s.hsl.hwb([20, 100, 50])), [20, 0, 0]);
 		assert.deepEqualAlmost((s.hsl.hwb([20, 0, 50])), [20, 50, 50]);
 		assert.deepEqualAlmost((s.hsl.hwb([20, 50, 100])), [20, 100, 0]);
 		assert.deepEqualAlmost((s.hsl.hwb([96, 48, 59])), [96, 39, 21]);
 	});
-});
+	hwbTest.run()
 
 
-describe('cmyk', function () {
-	before(function () {
+let cmykTest = suite('cmyk')
+	cmykTest.before(function () {
 		createSpaceCase('CMYK');
 	});
 
-	it('rgb → cmyk', function () {
+	cmykTest('rgb → cmyk', function () {
 		assert.deepEqualAlmost((s.rgb.cmyk([140, 200, 100])), [30, 0, 50, 22]);
 		assert.deepEqualAlmost((s.rgb.cmyk([0,0,0,1])), [0,0,0,100]);
 	});
 
-	it('cmyk → rgb', function () {
+	cmykTest('cmyk → rgb', function () {
 		assert.deepEqualAlmost((s.cmyk.rgb([30, 0, 50, 22])), [139, 199, 99]);
 	});
-	it('cmyk → hsl', function () {
+	cmykTest('cmyk → hsl', function () {
 		assert.deepEqualAlmost((s.cmyk.hsl([30, 0, 50, 22])), [96, 47, 59]);
 	});
-	it('cmyk → hsv', function () {
+	cmykTest('cmyk → hsv', function () {
 		assert.deepEqualAlmost((s.cmyk.hsv([30, 0, 50, 22])), [96, 50, 78]);
 	});
-	// it('cmyk → hwb', function () {
+	// cmykTest('cmyk → hwb', function () {
 	// 	assert.deepEqualAlmost((s.cmyk.hwb([30, 0, 50, 22])), [96, 39, 22]);
 	// });
-});
+	cmykTest.run()
 
 
-describe('xyz', function () {
-	before(function () {
+let xyzTest = suite('xyz')
+	xyzTest.before(function () {
 		createSpaceCase('XYZ');
 	});
 
 	//TODO: more tests here
-	it('xyz → rgb', function () {
+	xyzTest('xyz → rgb', function () {
 		assert.deepEqualAlmost((s.xyz.rgb([25, 40, 15])), [97, 190, 85]);
 		assert.deepEqualAlmost((s.xyz.rgb([50, 100, 100])), [0, 255, 241]);
 	});
-	it('xyz → lab', function () {
+	xyzTest('xyz → lab', function () {
 		assert.deepEqualAlmost((s.xyz.lab([25, 40, 15])), [69, -48, 44]);
 	});
-	it('xyz → lchab', function () {
+	xyzTest('xyz → lchab', function () {
 		assert.deepEqualAlmost((s.xyz.lchab([25, 40, 15])), [69, 65, 137]);
 	});
-	it('rgb → xyz', function () {
+	xyzTest('rgb → xyz', function () {
 		assert.deepEqualAlmost((s.rgb.xyz([92, 191, 84])), [25, 40, 15]);
 	});
-});
+	xyzTest.run()
 
 
-describe('xyY', function () {
-	before(function () {
+let xyYTest = suite('xyY')
+	xyYTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('xyY');
 	});
 
 	//TODO: more tests here
-	it('xyz → xyy', function () {
+	xyYTest('xyz → xyy', function () {
 		assert.deepEqualAlmost((s.xyz.xyy([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.xyz.xyy([25, 40, 15])), [.31, .5, 40]);
 		assert.deepEqualAlmost((s.xyz.xyy([50, 100, 100])), [0.2, .4, 100]);
 	});
-	it('xyy → xyz', function () {
+	xyYTest('xyy → xyz', function () {
 		assert.deepEqualAlmost((s.xyy.xyz([.40, .15, 25])), [66.7, 25, 75]);
 		assert.deepEqualAlmost((s.xyy.xyz([0.2, .4, 100])), [50, 100, 100]);
 	});
-});
+	xyYTest.run()
 
 
-describe('hunter-lab', function () {
-	before(function () {
+let labhTest = suite('hunter-lab')
+	labhTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('LABh');
 	});
 
-	it('rgb → labh', function () {
+	labhTest('rgb → labh', function () {
 		assert.deepEqualAlmost((s.rgb.labh([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.labh([10, 0, 0])), [2.5, 4.3, 1.6], .05);
 		assert.deepEqualAlmost((s.rgb.labh([100, 0, 0])), [16.5, 28.2, 10.6]);
@@ -312,88 +328,92 @@ describe('hunter-lab', function () {
 		assert.deepEqualAlmost((s.rgb.labh([255, 255, 255])), [100, -5.3, 5.4]);
 	});
 
-	it('labh → rgb', function () {
+	labhTest('labh → rgb', function () {
 		assert.deepEqualAlmost((s.labh.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.labh.rgb([1, 10, -10])), [3.55, 0, 6.33]);
 		assert.deepEqualAlmost((s.labh.rgb([10, 100, -100])), [92, 0, 121]);
 	});
 
-	it('xyz → labh', function () {
+	labhTest('xyz → labh', function () {
 		assert.deepEqualAlmost((s.xyz.labh([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.xyz.labh([95, 100, 108])), [100, -5.42, 6]);
 		assert.deepEqualAlmost((s.xyz.labh([95, 100, 0])), [100, -5.42, 70]);
 	});
 
-	it('labh → xyz', function () {
+	labhTest('labh → xyz', function () {
 		assert.deepEqualAlmost((s.labh.xyz([0, 0, 0])), [0, 0, 0]);
 	});
-});
+
+	labhTest.run()
 
 
-describe('lab', function () {
-	before(function () {
+let labTest = suite('lab')
+	labTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('LAB');
 	});
 
-	it('lab → xyz', function () {
+	labTest('lab → xyz', function () {
 		assert.deepEqualAlmost((s.lab.xyz([69, -48, 44])), [25, 39, 15]);
 	});
-	it('lab → rgb', function () {
+	labTest('lab → rgb', function () {
 		assert.deepEqualAlmost((s.lab.rgb([75, 20, -30])), [194, 175, 240]);
 	});
-	it('lab → lchab', function () {
+	labTest('lab → lchab', function () {
 		assert.deepEqualAlmost((s.lab.lchab([69, -48, 44])), [69, 65, 137]);
 	});
-	it('rgb → lab', function () {
+	labTest('rgb → lab', function () {
 		assert.deepEqualAlmost((s.rgb.lab([92, 191, 84])), [70, -50, 45]);
 	});
-});
+
+	labTest.run()
 
 
-describe('lms', function () {
-	before(function () {
+let lmsTest = suite('lms')
+	lmsTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('LMS');
 	});
 
-	it('lms ←→ xyz', function () {
+	lmsTest('lms ←→ xyz', function () {
 		assert.deepEqual(s.lms.xyz([0,0,0]), [0,0,0]);
 		assert.deepEqual(s.xyz.lms([0,0,0]), [0,0,0]);
 
 		assert.deepEqualAlmost((s.lms.xyz(s.xyz.lms([10,20,30]))), [10,20,30]);
 	});
-});
+
+	lmsTest.run()
 
 
-describe('lchab', function () {
-	before(function () {
+let lchabTest = suite('lchab')
+	lchabTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('LCHab');
 	});
 
-	it('lchab → lab', function () {
+	lchabTest('lchab → lab', function () {
 		assert.deepEqualAlmost((s.lchab.lab([69, 65, 137])), [69, -48, 44]);
 	});
-	it('lchab → xyz', function () {
+	lchabTest('lchab → xyz', function () {
 		assert.deepEqualAlmost((s.lchab.xyz([69, 65, 137])), [25, 39, 15]);
 	});
-	it('lchab → rgb', function () {
+	lchabTest('lchab → rgb', function () {
 		assert.deepEqualAlmost((s.lchab.rgb([69, 65, 137])), [98, 188, 83]);
 	});
-	it('rgb → lchab', function () {
+	lchabTest('rgb → lchab', function () {
 		assert.deepEqualAlmost((s.rgb.lchab([92, 191, 84])), [70, 67, 138]);
 	});
-});
+
+	lchabTest.run()
 
 
-describe('luv', function () {
-	before(function () {
+let luvTest = suite('luv')
+	luvTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('LUV');
 	});
 
-	it('rgb → luv', function () {
+	luvTest('rgb → luv', function () {
 		assert.deepEqualAlmost((s.rgb.luv([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.luv([10, 0, 0])), [.6, 2, 0.4]);
 		assert.deepEqualAlmost((s.rgb.luv([100, 0, 0])), [19, 62, 13]);
@@ -404,14 +424,14 @@ describe('luv', function () {
 		assert.deepEqualAlmost((s.rgb.luv([255, 255, 255])), [100, 0, 0]);
 	});
 
-	it('luv → rgb', function () {
+	luvTest('luv → rgb', function () {
 		assert.deepEqualAlmost((s.luv.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.luv.rgb([0, -134, -140])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.luv.rgb([90, 128, 100])), [255, 189, 0]);
 		assert.deepEqualAlmost((s.luv.rgb([50, -134, 122])), [0, 159, 0]);
 	});
 
-	it('xyz → luv', function () {
+	luvTest('xyz → luv', function () {
 		assert.deepEqualAlmost((s.xyz.luv([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.xyz.luv([95, 100, 100])), [100, 3.5, 8.6]);
 		assert.deepEqualAlmost((s.xyz.luv([50, 50, 50])), [76, 13, 5]);
@@ -421,21 +441,22 @@ describe('luv', function () {
 		assert.deepEqualAlmost((s.xyz.luv([95, 0, 100])), [0, 0, 0]);
 	});
 
-	it('luv → xyz', function () {
+	luvTest('luv → xyz', function () {
 		assert.deepEqualAlmost((s.luv.xyz([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.luv.xyz([50, -50, -50])), [13, 18, 45]);
 		assert.deepEqualAlmost((s.luv.xyz([50, 50, 50])), [21, 18, 2.2]);
 	});
-});
+
+	luvTest.run()
 
 
-describe('lchuv', function () {
-	before(function () {
+let lchuvTest = suite('lchuv')
+	lchuvTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('LCHuv');
 	});
 
-	it('luv ←→ lchuv', function () {
+	lchuvTest('luv ←→ lchuv', function () {
 		assert.deepEqualAlmost((
 			s.lchuv.luv(s.luv.lchuv([0, 0, 0]))), [0, 0, 0]);
 		assert.deepEqualAlmost((
@@ -445,203 +466,198 @@ describe('lchuv', function () {
 		assert.deepEqualAlmost((
 			s.lchuv.luv(s.luv.lchuv([100, 0, 0]))), [100, 0, 0]);
 	});
-});
+	lchuvTest.run()
 
 
-describe('hsluv', function () {
-	before(function () {
+let hsluvTest = suite('hsluv')
+	const _hsluv = s.hsluv._hsluv
+	hsluvTest.before(function () {
 		createSpaceCase('XYZ');
 		createSpaceCase('HSLuv');
 	});
 
-	it('_hsluv: lch → luv ≡ lchuv → luv', function () {
-		assert.deepEqualAlmost((s.hsluv._hsluv.lchToLuv([1,20,40])), (s.lchuv.luv([1,20,40])));
-		assert.deepEqualAlmost((s.hsluv._hsluv.lchToLuv([21,50,40])), (s.lchuv.luv([21,50,40])));
-		assert.deepEqualAlmost((s.hsluv._hsluv.lchToLuv([25,30,43])), (s.lchuv.luv([25,30,43])));
+	hsluvTest('_hsluv: lch → luv ≡ lchuv → luv', function () {
+		assert.deepEqualAlmost((_hsluv.lchToLuv([1,20,40])), (s.lchuv.luv([1,20,40])));
+		assert.deepEqualAlmost((_hsluv.lchToLuv([21,50,40])), (s.lchuv.luv([21,50,40])));
+		assert.deepEqualAlmost((_hsluv.lchToLuv([25,30,43])), (s.lchuv.luv([25,30,43])));
 	});
 
-	it('_hsluv: luv → xyz ≡ luv → xyz ', function () {
-		assert.deepEqualAlmost((mult(s.hsluv._hsluv.luvToXyz([21,50,40]), 100)), (s.luv.xyz([21,50,40])));
-		assert.deepEqualAlmost((mult(s.hsluv._hsluv.luvToXyz([1,20,40]), 100)), (s.luv.xyz([1,20,40])));
-		assert.deepEqualAlmost((mult(s.hsluv._hsluv.luvToXyz([25,30,43]), 100)), (s.luv.xyz([25,30,43])));
+	hsluvTest('_hsluv: luv → xyz ≡ luv → xyz ', function () {
+		assert.deepEqualAlmost((mult(_hsluv.luvToXyz([21,50,40]), 100)), (s.luv.xyz([21,50,40])));
+		assert.deepEqualAlmost((mult(_hsluv.luvToXyz([1,20,40]), 100)), (s.luv.xyz([1,20,40])));
+		assert.deepEqualAlmost((mult(_hsluv.luvToXyz([25,30,43]), 100)), (s.luv.xyz([25,30,43])));
+	});
+
+	hsluvTest('_hsluv: xyz → rgb ≡ xyz → rgb', function () {
+		assert.deepEqualAlmost(max(mult(_hsluv.xyzToRgb(div([33,40,50], 100)), 255), 0), s.xyz.rgb([33,40,50]));
+		assert.deepEqualAlmost(max(mult(_hsluv.xyzToRgb(div([1,20,40], 100)), 255), 0), s.xyz.rgb([1,20,40]));
+		assert.deepEqualAlmost(max(mult(_hsluv.xyzToRgb(div([25,30,43], 100)), 255), 0), s.xyz.rgb([25,30,43]));
 	});
 
 
-	it('_hsluv: xyz → rgb ≡ xyz → rgb', function () {
-		assert.deepEqualAlmost(max(mult(s.hsluv._hsluv.xyzToRgb(div([33,40,50], 100)), 255), 0), s.xyz.rgb([33,40,50]));
-		assert.deepEqualAlmost(max(mult(s.hsluv._hsluv.xyzToRgb(div([1,20,40], 100)), 255), 0), s.xyz.rgb([1,20,40]));
-		assert.deepEqualAlmost(max(mult(s.hsluv._hsluv.xyzToRgb(div([25,30,43], 100)), 255), 0), s.xyz.rgb([25,30,43]));
-	});
-
-
-	it('_hsluv: lch → rgb ≡ lchuv → rgb', function () {
+	hsluvTest('_hsluv: lch → rgb ≡ lchuv → rgb', function () {
 		assert.deepEqualAlmost(
-			max((mult(s.hsluv._hsluv.lchToRgb([1,20,40]), 255)), 0),
+			max((mult(_hsluv.lchToRgb([1,20,40]), 255)), 0),
 			max((s.lchuv.rgb([1,20,40])), 0)
 		);
 		assert.deepEqualAlmost(
-			max((mult(s.hsluv._hsluv.lchToRgb([25,30,43]), 255)), 0),
+			max((mult(_hsluv.lchToRgb([25,30,43]), 255)), 0),
 			max((s.lchuv.rgb([25,30,43])), 0)
 		);
 		assert.deepEqualAlmost(
-			max((mult(s.hsluv._hsluv.lchToRgb([33,40,50]), 255)), 0),
+			max((mult(_hsluv.lchToRgb([33,40,50]), 255)), 0),
 			max((s.lchuv.rgb([33,40,50])), 0)
 		);
 	});
 
-	it('_hsluv → rgb ≡ hsluv → rgb', function () {
-		assert.deepEqualAlmost((mult(s.hsluv._hsluv.hsluvToRgb([25, 30, 43]), 255)), (s.hsluv.rgb([25, 30, 43])));
-	});
-});
-
-
-describe.skip('hpluv', function () {
-	before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('HPLuv');
+	hsluvTest('_hsluv → rgb ≡ hsluv → rgb', function () {
+		assert.deepEqualAlmost((mult(_hsluv.hsluvToRgb([25, 30, 43]), 255)), (s.hsluv.rgb([25, 30, 43])));
 	});
 
-	it('hpluv → rgb', function () {
-
-	});
-
-	it('hpluv → xyz', function () {
-
-	});
-});
+	hsluvTest.run()
 
 
+// describe.skip('hpluv', function () {
+// 	xTest.before(function () {
+// 		createSpaceCase('XYZ');
+// 		createSpaceCase('HPLuv');
+// 	});
 
-describe.skip('ciecam', function () {
-	before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('ciecam');
-	});
+// 	xTest('hpluv → rgb', function () {
 
-	it('to rgb', function () {
+// 	});
 
-	});
+// 	xTest('hpluv → xyz', function () {
 
-	it('to xyz', function () {
-
-	});
-
-	it('to ', function () {
-
-	});
-});
+// 	});
 
 
-describe.skip('cmy', function () {
-	before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('cmy');
-	});
+// describe.skip('ciecam', function () {
+// 	xTest.before(function () {
+// 		createSpaceCase('XYZ');
+// 		createSpaceCase('ciecam');
+// 	});
 
-	it('to rgb', function () {
+// 	xTest('to rgb', function () {
 
-	});
+// 	});
 
-	it('to xyz', function () {
+// 	xTest('to xyz', function () {
 
-	});
+// 	});
 
-	it('to ', function () {
+// 	xTest('to ', function () {
 
-	});
-});
+// 	});
 
+// describe.skip('cmy', function () {
+// 	xTest.before(function () {
+// 		createSpaceCase('XYZ');
+// 		createSpaceCase('cmy');
+// 	});
 
-describe('yiq', function () {
-	before(function () {
+// 	xTest('to rgb', function () {
+
+// 	});
+
+// 	xTest('to xyz', function () {
+
+// 	});
+
+// 	xTest('to ', function () {
+
+// 	});
+
+let yiqTest = suite('yiq')
+	yiqTest.before(function () {
 		createSpaceCase('YIQ');
 	});
 
-	it('yiq → rgb', function () {
+	yiqTest('yiq → rgb', function () {
 		assert.deepEqualAlmost((s.yiq.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.yiq.rgb([1, 0, 0])), [255, 255, 255]);
 		assert.deepEqualAlmost((s.yiq.rgb([0.299, 0.596, 0.212])), [255, 0, 0.02]);
 	});
-	it('rgb → yiq', function () {
+	yiqTest('rgb → yiq', function () {
 		assert.deepEqualAlmost((s.rgb.yiq([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.yiq([255, 255, 255])), [1, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.yiq([255, 0, 0])), [0.299, 0.596, 0.212]);
 	});
-});
+	yiqTest.run()
 
 
-describe('yuv', function () {
-	before(function () {
+let yuvTest = suite('yuv')
+	yuvTest.before(function () {
 		createSpaceCase('YUV');
 	});
 
-	it('yuv → rgb', function () {
+	yuvTest('yuv → rgb', function () {
 		assert.deepEqualAlmost((s.yuv.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.yuv.rgb([1, 0, 0])), [255, 255, 255]);
 		assert.deepEqualAlmost((s.yuv.rgb([0.299, -0.147, 0.615])), [255, 0, 0.4]);
 	});
-	it('rgb → yuv', function () {
+	yuvTest('rgb → yuv', function () {
 		assert.deepEqualAlmost((s.rgb.yuv([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.yuv([255, 255, 255])), [1, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.yuv([255, 0, 0])), [0.299, -0.147, 0.615]);
 	});
-});
+	yuvTest.run()
 
 
-describe('ydbdr', function () {
-	before(function () {
+let ydbdrTest = suite('ydbdr')
+	ydbdrTest.before(function () {
 		createSpaceCase('YDbDr');
 	});
 
-	it('ydbdr → rgb', function () {
+	ydbdrTest('ydbdr → rgb', function () {
 		assert.deepEqualAlmost((s.ydbdr.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ydbdr.rgb([1, 0, 0])), [255, 255, 255]);
 
 		assert.deepEqualAlmost((s.ydbdr.rgb(s.rgb.ydbdr([10,20,30]))), [10,20,30]);
 	});
-	it('rgb → ydbdr', function () {
+	ydbdrTest('rgb → ydbdr', function () {
 		assert.deepEqualAlmost((s.rgb.ydbdr([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.ydbdr([255, 255, 255])), [1, 0, 0]);
 	});
-	it('yuv ←→ ydbdr', function () {
+	ydbdrTest('yuv ←→ ydbdr', function () {
 		assert.deepEqualAlmost((s.yuv.ydbdr([1, 0, 0])), [1, 0, 0]);
 		assert.deepEqualAlmost((s.ydbdr.yuv([1, 0, 0])), [1, 0, 0]);
 	});
-});
+	ydbdrTest.run()
 
 
-describe('ycgco', function () {
-	before(function () {
+let ycgcoTest = suite('ycgco')
+	ycgcoTest.before(function () {
 		createSpaceCase('YCgCo');
 	});
 
-	it('ycgco → rgb', function () {
+	ycgcoTest('ycgco → rgb', function () {
 		assert.deepEqualAlmost((s.ycgco.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ycgco.rgb([1, 0, 0])), [255, 255, 255]);
 		assert.deepEqualAlmost((s.ycgco.rgb([0.25, -0.25, 0.5])), [255, 0, 0]);
 
 		assert.deepEqualAlmost((s.ycgco.rgb(s.rgb.ycgco([10,20,30]))), [10,20,30]);
 	});
-	it('rgb → ycgco', function () {
+	ycgcoTest('rgb → ycgco', function () {
 		assert.deepEqualAlmost((s.rgb.ycgco([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.ycgco([255, 255, 255])), [1, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.ycgco([255, 0, 0])), [0.25, -0.25, 0.5]);
 	});
-});
+	ycgcoTest.run()
 
 
-describe('ypbpr', function () {
-	before(function () {
+let ypbprTest = suite('ypbpr')
+	ypbprTest.before(function () {
 		createSpaceCase('YPbPr');
 	});
 
-	it('ypbpr → rgb', function () {
+	ypbprTest('ypbpr → rgb', function () {
 		assert.deepEqualAlmost((s.ypbpr.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ypbpr.rgb([0.715, -0.385, -0.454])), [0, 255, 0.1]);
 		assert.deepEqualAlmost((s.ypbpr.rgb([1, 0, 0])), [255, 255, 255]);
 		assert.deepEqualAlmost((s.ypbpr.rgb(s.rgb.ypbpr([0.10,0.20,0.30]))), [0.10,0.20,0.30]);
 	});
-	it('rgb → ypbpr', function () {
+	ypbprTest('rgb → ypbpr', function () {
 		assert.deepEqualAlmost((s.rgb.ypbpr([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.ypbpr([127, 127, 127])), [0.5, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.ypbpr([255, 255, 255])), [1, 0, 0]);
@@ -649,25 +665,25 @@ describe('ypbpr', function () {
 		assert.deepEqualAlmost((s.rgb.ypbpr([0, 255, 0])), [0.715, -0.385, -0.454]);
 		assert.deepEqualAlmost((s.rgb.ypbpr([255, 0, 0])), [0.213, -0.115, 0.5]);
 	});
-	it('yuv ←→ ypbpr', function () {
+	ypbprTest('yuv ←→ ypbpr', function () {
 		assert.deepEqualAlmost((s.yuv.ypbpr([1, 0, 0])), [1, 0, 0]);
 		assert.deepEqualAlmost((s.ypbpr.yuv([1, 0, 0])), [1, 0, 0]);
 	});
-});
+	ypbprTest.run()
 
 
-describe('yccbccrc', function () {
-	before(function () {
+let yccbccrcTest = suite('yccbccrc')
+	yccbccrcTest.before(function () {
 		createSpaceCase('YcCbcCrc');
 	});
 
-	it('yccbccrc → rgb', function () {
+	yccbccrcTest('yccbccrc → rgb', function () {
 		assert.deepEqualAlmost((s.yccbccrc.rgb([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.yccbccrc.rgb([0.715, -0.385, -0.454])), [0, 255, 0]);
 		assert.deepEqualAlmost((s.yccbccrc.rgb([1, 0, 0])), [255, 255, 255]);
 		assert.deepEqualAlmost((s.yccbccrc.rgb(s.rgb.yccbccrc([0.10,0.20,0.30]))), [0.10,0.20,0.30]);
 	});
-	it('rgb → yccbccrc', function () {
+	yccbccrcTest('rgb → yccbccrc', function () {
 		assert.deepEqualAlmost((s.rgb.yccbccrc([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.yccbccrc([127, 127, 127])), [0.5, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.yccbccrc([255, 255, 255])), [1, 0, 0]);
@@ -675,114 +691,114 @@ describe('yccbccrc', function () {
 		// assert.deepEqualAlmost((s.rgb.yccbccrc([0, 255, 0])), [0.715, -0.385, -0.454]);
 		// assert.deepEqualAlmost((s.rgb.yccbccrc([255, 0, 0])), [0.213, -0.115, 0.5]);
 	});
-});
+	yccbccrcTest.run()
 
 
-describe('ycbcr', function () {
-	before(function () {
+let ycbcrTest = suite('ycbcr')
+	ycbcrTest.before(function () {
 		createSpaceCase('YCbCr');
 	});
 
-	it('ycbcr → rgb', function () {
+	ycbcrTest('ycbcr → rgb', function () {
 		assert.deepEqualAlmost((s.ycbcr.rgb([16, 128, 128])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ycbcr.rgb([235, 128, 128])), [255, 255, 255]);
 
 		assert.deepEqualAlmost((s.ycbcr.rgb(s.rgb.ycbcr([10,20,30]))), [10,20,30]);
 	});
-	it('rgb → ycbcr', function () {
+	ycbcrTest('rgb → ycbcr', function () {
 		assert.deepEqualAlmost((s.rgb.ycbcr([0, 0, 0])), [16, 128, 128]);
 		assert.deepEqualAlmost((s.rgb.ycbcr([255, 255, 255])), [235, 128, 128]);
 	});
-	it('ypbpr ←→ ycbcr', function () {
+	ycbcrTest('ypbpr ←→ ycbcr', function () {
 		assert.deepEqualAlmost((s.ypbpr.ycbcr([1, -0.5, -0.5])), [235, 16, 16]);
 		assert.deepEqualAlmost((s.ypbpr.ycbcr([1, 0.5, 0.5])), [235, 240, 240]);
 
 		assert.deepEqualAlmost((s.ycbcr.ypbpr([235, 16, 16])), [1, -0.5, -0.5]);
 		assert.deepEqualAlmost((s.ycbcr.ypbpr([235, 240, 240])), [1, 0.5, 0.5]);
 	});
-});
+	ycbcrTest.run()
 
 
-describe('xvycc', function () {
-	before(function () {
+let xvyccTest = suite('xvycc')
+	xvyccTest.before(function () {
 		createSpaceCase('xvYCC');
 	});
 
-	it('xvycc → rgb', function () {
+	xvyccTest('xvycc → rgb', function () {
 		assert.deepEqualAlmost((s.xvycc.rgb([16, 128, 128])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.xvycc.rgb([235, 128, 128])), [255, 255, 255]);
 
 		assert.deepEqualAlmost((s.xvycc.rgb(s.rgb.xvycc([10,20,30]))), [10,20,30]);
 	});
-	it('rgb → xvycc', function () {
+	xvyccTest('rgb → xvycc', function () {
 		assert.deepEqualAlmost((s.rgb.xvycc([0, 0, 0])), [16, 128, 128]);
 		assert.deepEqualAlmost((s.rgb.xvycc([255, 255, 255])), [235, 128, 128]);
 	});
-	it('ypbpr ←→ xvycc', function () {
+	xvyccTest('ypbpr ←→ xvycc', function () {
 		assert.deepEqualAlmost((s.ypbpr.xvycc([1, -0.5, -0.5])), [235, 16, 16]);
 		assert.deepEqualAlmost((s.ypbpr.xvycc([1, 0.5, 0.5])), [235, 240, 240]);
 
 		assert.deepEqualAlmost((s.xvycc.ypbpr([235, 16, 16])), [1, -0.5, -0.5]);
 		assert.deepEqualAlmost((s.xvycc.ypbpr([235, 240, 240])), [1, 0.5, 0.5]);
 	});
-});
+	xvyccTest.run()
 
 
-describe('jpeg', function () {
-	before(function () {
+let jpegTest = suite('jpeg')
+	jpegTest.before(function () {
 		createSpaceCase('YCbCr');
 	});
 
-	it('jpeg → rgb', function () {
+	jpegTest('jpeg → rgb', function () {
 		assert.deepEqualAlmost((s.jpeg.rgb([0, 128, 128])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.jpeg.rgb([255, 128, 128])), [255, 255, 255]);
 
 		assert.deepEqualAlmost((s.jpeg.rgb(s.rgb.jpeg([10,20,30]))), [10,20,30]);
 	});
-	it('rgb → jpeg', function () {
+	jpegTest('rgb → jpeg', function () {
 		assert.deepEqualAlmost((s.rgb.jpeg([0, 0, 0])), [0, 128, 128]);
 		assert.deepEqualAlmost((s.rgb.jpeg([255, 255, 255])), [255, 128, 128]);
 	});
-});
+	jpegTest.run()
 
 
-describe('ucs', function () {
-	before(function () {
+let ucsTest = suite('ucs')
+	ucsTest.before(function () {
 		createSpaceCase('UCS');
 	});
 
-	it('ucs → xyz', function () {
+	ucsTest('ucs → xyz', function () {
 		// assert.deepEqualAlmost((s.ucs.xyz([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.ucs.xyz([1, 0, 0])), [1, 1, 1]);
 		assert.deepEqualAlmost((s.ucs.xyz(s.xyz.ucs([10,20,30]))), [10,20,30]);
 	});
-	it.skip('xyz → ucs', function () {
+	ucsTest.skip('xyz → ucs', function () {
 		// assert.deepEqualAlmost((s.xyz.ucs([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.xyz.ucs([1, 1, 1])), [1, 0, 0]);
 	});
-});
+	ucsTest.run()
 
 
-describe('uvw', function () {
-	before(function () {
+let uvwTest = suite('uvw')
+	uvwTest.before(function () {
 		createSpaceCase('UVW');
 	});
 
-	it('uvw → xyz', function () {
+	uvwTest('uvw → xyz', function () {
 		// assert.deepEqualAlmost((s.uvw.xyz([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.uvw.xyz([1, 0, 0])), [1, 1, 1]);
 
 		assert.deepEqualAlmost((s.uvw.xyz(s.xyz.uvw([10,20,30]))), [10,20,30]);
 	});
-	it('xyz → uvw', function () {
+	uvwTest('xyz → uvw', function () {
 		// assert.deepEqualAlmost((s.xyz.uvw([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.xyz.uvw([1, 1, 1])), [1, 0, 0]);
 	});
-});
+	uvwTest.run()
 
 
-describe('cubehelix', function () {
-	it('paint', function () {
+let cubehelixTest = suite('cubehelix')
+	cubehelixTest('paint', function () {
 		if (typeof document === 'undefined') return;
 
 		var cnv = document.createElement('canvas');
@@ -801,31 +817,31 @@ describe('cubehelix', function () {
 			ctx.fillRect(i * cnv.width, 0, 4, cnv.height);
 		}
 	});
-});
+	cubehelixTest.run()
 
 
-describe('osaucs', function () {
-	before(function () {
+let osaucsTest = suite('osaucs')
+	osaucsTest.before(function () {
 		createSpaceCase('osaucs');
 	});
 
-	it.skip('osaucs → xyy', function () {
+	osaucsTest.skip('osaucs → xyy', function () {
 		// assert.deepEqualAlmost((s.osaucs.xyy([0,-4,-4])), [33.71, 26.46, 46.66]);
 		// assert.deepEqualAlmost((s.osaucs.xyy([-8,-6,+2])), [1.773902, 1.049996, 7.893570]);
 		// assert.deepEqualAlmost((s.osaucs.xyy(s.xyy.osaucs([10,20,30]))), [10,20,30]);
 	});
-	it('xyy → osaucs', function () {
+	osaucsTest('xyy → osaucs', function () {
 		//TODO: fix test according to the paper
 		// assert.deepEqualAlmost((s.xyz.osaucs([33.71, 26.46, 46.66])), [0,-4,-4]);
 		assert.deepEqualAlmost((s.xyz.osaucs([33.71, 26.46, 46.66])), [0,-4,-5]);
 		// assert.deepEqualAlmost((s.xyz.osaucs([1.773902, 1.049996, 7.893570])), [-8,-6,+2]);
 		assert.deepEqualAlmost((s.xyz.osaucs([1.773902, 1.049996, 7.893570])), [-8,-7,+1.2]);
 	});
-});
+	osaucsTest.run()
 
 
-describe('coloroid', function () {
-	it('coloroid → xyz', function () {
+let coloroidTest = suite('coloroid')
+	coloroidTest('coloroid → xyz', function () {
 		assert.deepEqualAlmost((s.coloroid.xyz([21, 39, 70])), [56, 49.0, 19]);
 		assert.deepEqualAlmost((s.coloroid.xyz([61, 0, 90])), [81, 81, 84]);
 		assert.deepEqualAlmost((s.coloroid.xyz([35, 10, 90])), [85, 81, 86]);
@@ -833,13 +849,12 @@ describe('coloroid', function () {
 		//coloroid looses color info via binding hue
 		// assert.deepEqualAlmost((s.coloroid.xyz(s.xyz.coloroid([10,20,30]))), [10,20,30]);
 	});
-	it('xyz → coloroid', function () {
+	coloroidTest('xyz → coloroid', function () {
 		assert.deepEqualAlmost((s.xyz.coloroid([54.64, 64.0, 18.26])), [10, 48, 80]);
 		assert.deepEqualAlmost((s.xyz.coloroid([54.2, 49.0, 17.6])), [21, 39, 70]);
 	});
 
-
-	it.skip('paint side colors', function () {
+	coloroidTest.skip('paint side colors', function () {
 		if (typeof document === 'undefined') return;
 
 		var cnv = document.createElement('canvas');
@@ -862,8 +877,7 @@ describe('coloroid', function () {
 		}
 	});
 
-
-	it('paint conversion from hue', function () {
+	coloroidTest('paint conversion from hue', function () {
 		if (typeof document === 'undefined') return;
 
 		var cnv = document.createElement('canvas');
@@ -896,15 +910,17 @@ describe('coloroid', function () {
 			ctx.fillRect(i * w, 20, Math.ceil(w), 30);
 		}
 	});
-});
+
+	coloroidTest.run()
 
 
-describe.skip('tsl', function () {
-	before(function () {
+let tslTest = suite('tsl');
+
+	tslTest.before(function () {
 		createSpaceCase('TSL');
 	});
 
-	it('tsl → rgb', function () {
+	tslTest('tsl → rgb', function () {
 		// assert.deepEqualAlmost((s.tsl.rgb([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.tsl.rgb([1, 0, 0])), [1, 1, 1]);
 		// console.log(s.rgb.tsl([0,0,0]))
@@ -915,38 +931,23 @@ describe.skip('tsl', function () {
 		console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
 		// assert.deepEqualAlmost(s.tsl.rgb(s.rgb.tsl([10,20,30])), [10,20,30]);
 	});
-	it('rgb → tsl', function () {
+	tslTest('rgb → tsl', function () {
 		// assert.deepEqualAlmost((s.rgb.tsl([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.rgb.tsl([1, 1, 1])), [1, 0, 0]);
 	});
-});
+
+	tslTest.run()
 
 
-describe('yes', function () {
-	before(function () {
+let yesTest = suite('yes')
+	yesTest.before(function () {
 		createSpaceCase('YES');
 	});
 
-	it('yes ←→ rgb', function () {
+	yesTest('yes ←→ rgb', function () {
 		assert.deepEqualAlmost(s.rgb.yes([0,0,0]), [0, 0, 0]);
 		assert.deepEqualAlmost(s.rgb.yes([255,255,255]), [1, 0, 0]);
 		assert.deepEqualAlmost(s.yes.rgb(s.rgb.yes([10,20,30])), [10,20,30]);
 	});
-});
+	yesTest.run()
 
-
-function round (a, precision=1) {
-	return a.map(x => {
-		let res = Math.round(x/precision)*precision
-		return res
-	})
-}
-function mult (a,b) {
-	return a.map(Array.isArray(b) ? (x,i) => a[i]*b[i] : x => x*b)
-}
-function div (a,b) {
-	return a.map(Array.isArray(b) ? (x,i) => a[i]/b[i] : x => x/b)
-}
-function max (a,...args) {
-	return a.map(x => Math.max(x,...args))
-}

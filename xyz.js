@@ -3,9 +3,7 @@
  *
  * @module  color-space/xyz
  */
-'use strict'
-
-var rgb = require('./rgb');
+import rgb from './rgb.js';
 
 var xyz = {
 	name: 'xyz',
@@ -141,4 +139,4 @@ rgb.xyz = function(rgb, white) {
 
 
 
-module.exports = xyz;
+export default xyz;

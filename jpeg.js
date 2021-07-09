@@ -5,17 +5,17 @@
  *
  * @module  color-space/jpeg
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var jpeg = module.exports = {
+var jpeg = {
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
 	alias: ['JPEG']
 };
+
+export default jpeg;
 
 
 /**

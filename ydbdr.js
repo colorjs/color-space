@@ -3,12 +3,11 @@
  *
  * @module  color-space/ydbdr
  */
-'use strict'
 
-var rgb = require('./rgb');
-var yuv = require('./yuv');
+import rgb from './rgb.js';
+import yuv from './yuv.js';
 
-var ydbdr = module.exports = {
+var ydbdr = {
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
 	max: [1, 1.333, 1.333],
@@ -69,3 +68,6 @@ ydbdr.yuv = function (ydbdr) {
 		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169
 	]
 };
+
+
+export default ydbdr;

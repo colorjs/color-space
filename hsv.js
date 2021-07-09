@@ -1,12 +1,10 @@
 /**
  * @module color-space/hsv
  */
-'use strict'
+import rgb from './rgb.js';
+import hsl from './hsl.js';
 
-var rgb = require('./rgb');
-var hsl = require('./hsl');
-
-module.exports = {
+export default {
 	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],

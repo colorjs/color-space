@@ -3,13 +3,11 @@
  *
  * @module color-space/lchuv
  */
-'use strict'
-
-var luv = require('./luv');
-var xyz = require('./xyz');
+import luv from './luv.js';
+import xyz from './xyz.js';
 
 //cylindrical luv
-var lchuv = module.exports = {
+var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
@@ -32,6 +30,8 @@ var lchuv = module.exports = {
 		return luv.xyz(lchuv.luv(arg));
 	}
 };
+
+export default lchuv;
 
 luv.lchuv = function(luv){
 	var l = luv[0], u = luv[1], v = luv[2];

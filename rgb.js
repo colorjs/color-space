@@ -3,9 +3,8 @@
  *
  * @module  color-space/rgb
  */
-'use strict'
 
-module.exports = {
+export default {
 	name: 'rgb',
 	min: [0,0,0],
 	max: [255,255,255],

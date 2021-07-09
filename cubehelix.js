@@ -3,12 +3,11 @@
  *
  * @module color-space/cubehelix
  */
-'use strict'
 
-var rgb = require('./rgb');
+import rgb from './rgb.js';
 
 
-var cubehelix = module.exports = {
+var cubehelix = {
 	name: 'cubehelix',
 	channel: ['fraction'],
 	min: [0],
@@ -75,3 +74,6 @@ cubehelix.rgb = function(fraction, options) {
 rgb.cubehelix = function(rgb) {
 	//TODO - there is no backwise conversion yet
 };
+
+
+export default cubehelix;

@@ -3,9 +3,7 @@
  *
  * @module color-space/xyy
  */
-'use strict'
-
-var xyz = require('./xyz');
+import xyz from './xyz.js';
 
 var xyy = {
 	name: 'xyy',
@@ -36,4 +34,4 @@ xyz.xyy = function(arg) {
 	return [X / sum, Y / sum, Y];
 };
 
-module.exports = xyy;
+export default xyy;

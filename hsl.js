@@ -3,9 +3,9 @@
  */
 'use strict'
 
-var rgb = require('./rgb');
+import rgb from './rgb.js';
 
-module.exports = {
+export default {
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],

@@ -6,15 +6,17 @@
  */
 'use strict'
 
-var rgb = require('./rgb');
+import rgb from './rgb.js';
 
-var hsi = module.exports = {
+var hsi = {
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'saturation', 'intensity'],
 	alias: ['HSI']
 };
+
+export default hsi
 
 
 /**
