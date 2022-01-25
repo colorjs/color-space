@@ -1,8 +1,6 @@
 /**
  * @module color-space/hcg
  */
-'use strict'
-
 import rgb from './rgb.js';
 import hsl from './hsl.js';
 import hsv from './hsv.js';

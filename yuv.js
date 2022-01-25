@@ -11,7 +11,6 @@ var yuv = {
 	max: [1, 0.5, 0.5],
 	channel: ['Y','U','V'],
 	alias: ['YUV', 'EBU'],
-
 };
 
 yuv.rgb = function(yuv) {

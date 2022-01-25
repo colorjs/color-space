@@ -4,8 +4,6 @@
  *
  * @module color-space/hsl
  */
-'use strict'
-
 import rgb from './rgb.js';
 
 var hsi = {
