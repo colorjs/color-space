@@ -75,28 +75,15 @@
 		position: relative;
 		margin: 3rem auto 6rem;
 		width: 80%;
-		max-width: 800px;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: -ms-flexbox;
-		display: flex;
-		-webkit-flex-flow: row wrap;
-		    -ms-flex-flow: row wrap;
-		        flex-flow: row wrap;
+		display: grid;
+    grid-template-columns: repeat(auto-fill, 20rem);
+    justify-content: space-between;
 	}
 
 	.spaces-item {
-		-webkit-box-flex: 1;
-		-webkit-flex: 1 0 15rem;
-		    -ms-flex: 1 0 15rem;
-		        flex: 1 0 15rem;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: -ms-flexbox;
+    flex: 1 0 15rem;
 		display: flex;
-		-webkit-flex-flow: row nowrap;
-		    -ms-flex-flow: row nowrap;
-		        flex-flow: row nowrap;
+    flex-flow: row nowrap;
 	}
 	.spaces-item:last-child{
 		max-width: 50%;
@@ -104,10 +91,7 @@
 
 	.spaces-item-first {
 		max-width: none;
-		-webkit-box-flex: 1;
-		-webkit-flex: 1 0 100%;
-		    -ms-flex: 1 0 100%;
-		        flex: 1 0 100%;
+		grid-column: 1 / -1;
 		padding-right: .5rem;
 		margin-bottom: 1rem;
 	}
@@ -174,36 +158,33 @@
 </section>
 
 
-<script src="bundle.js"></script>
+<script type="module">
+	import spaces from './color-space.js'
+	import parse from './color-parse.js'
+	import stringify from './color-stringify.js'
 
-
-<script type="text/javascript">
-	var round = require('mumath').round;
-	var q = require('queried');
-	var spaces = require("color-space");
-	var on = require('emmy/on');
-	var parse = require('color-parse');
-	var stringify = require('color-stringify');
+	// FIXME: remove later
+	delete spaces.cubehelix
 
 	var doc = document, win = window, body = doc.body, root = doc.documentElement, loc = doc.location;
 
-	var spacesItemElFirst = q('.spaces-item .spaces-item-input');
-	var colorEl = q('.color-preview');
-	var spacesEl = q('.spaces');
-	var spacesItemEl = q('.spaces-item:not(.spaces-item-first)');
+	var spacesItemElFirst = doc.querySelector('.spaces-item .spaces-item-input');
+	var colorEl = doc.querySelector('.color-preview');
+	var spacesEl = doc.querySelector('.spaces');
+	var spacesItemEl = doc.querySelector('.spaces-item:not(.spaces-item-first)');
 	spacesItemEl.parentNode.removeChild(spacesItemEl);
 	spacesItemEl.removeAttribute('hidden');
 
 
 	//select on click
-	on(spacesEl, 'click', function(e){
+	spacesEl.addEventListener('click', function(e){
 		if (e.target instanceof HTMLInputElement) {
 			e.target.select();
 		}
 	});
 
 	//recalc all on input
-	on(spacesEl, 'input', function(e){
+	spacesEl.addEventListener('input', function(e){
 		var target = e.target;
 		if (target.classList.contains('.spaces-item-input-stub')) return;
 
@@ -219,7 +200,7 @@
 
 		var channel = target.id;
 		var srcSpace = target.getAttribute('data-space');
-		var targetInputs = q.all('.spaces-item-input', target.parentNode);
+		var targetInputs = target.parentNode.querySelectorAll('.spaces-item-input');
 		var srcValues = spaces[srcSpace].channel.map(function (channel, i) {
 			return parseFloat(targetInputs[i].value);
 		});
@@ -229,7 +210,7 @@
 	});
 
 	//on hashchange - update self
-	on(win, 'hashchange', function (e) {
+	win.addEventListener('hashchange', function (e) {
 		var cstr = loc.hash;
 		try {
 			var parseResult = parse(cstr);
@@ -262,17 +243,17 @@
 	//recalc all spaces from source
 	function update(srcSpace, srcValues) {
 		//render color
-		colorEl.style.background = 'rgb(' + round(spaces[srcSpace].rgb(srcValues)) + ')';
+		colorEl.style.background = 'rgb(' + (srcSpace === 'rgb' ? srcValues : spaces[srcSpace].rgb(srcValues)).map(v => Math.round(v)) + ')';
 
 		//for each space update values
 		Object.keys(spaces).forEach(function (key) {
 			var space = spaces[key];
-			var values = spaces[srcSpace][key](srcValues);
-
+			var values = srcSpace === key ? srcValues : spaces[srcSpace][key](srcValues);
+			if (!values) return
 			//for each channel set value
 			space.channel.forEach(function (channel, i) {
 				var value = (space.max[i] - space.min[i]) > 2 ? Math.round(values[i]) : values[i].toFixed(2);
-				q('#' + space.name + '-' + channel).value = value;
+				doc.querySelector('#' + space.name + '-' + channel).value = value;
 			});
 		});
 	}
@@ -282,7 +263,7 @@
 		spacesItemElFirst.value = stringify(srcValues, srcSpace);
 
 		//update history
-		var values = round(spaces[srcSpace].rgb(srcValues));
+		var values = (srcSpace === 'rgb' ? srcValues : spaces[srcSpace].rgb(srcValues)).map(v => Math.round(v));
 		var cstr = stringify(values, 'hex');
 		win.history.replaceState(null, cstr, cstr);
 	}
@@ -297,12 +278,12 @@
 		itemEl.id = space.name;
 		itemEl.setAttribute('data-space', space.name);
 
-		var titleEl = q('.spaces-item-title', itemEl);
+		var titleEl = itemEl.querySelector('.spaces-item-title');
 		titleEl.innerHTML = space.alias && space.alias[0] || space.name;
-		titleEl.title = space.alias[0] + ': ' + space.channel.join(', ');
+		titleEl.title = (space.alias?.[0] || space.name) + ': ' + space.channel.join(', ');
 
 		//name channels
-		var channelEls = q.all('.spaces-item-input', itemEl);
+		var channelEls = itemEl.querySelectorAll('.spaces-item-input');
 		space.channel.forEach(function (channel, i) {
 			channelEls[i].id = space.name + '-' + channel;
 			channelEls[i].classList.remove('spaces-item-input-stub');

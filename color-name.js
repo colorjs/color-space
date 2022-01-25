@@ -1,0 +1,301 @@
+var colorName = {
+  aliceblue: [240, 248, 255],
+  antiquewhite: [250, 235, 215],
+  aqua: [0, 255, 255],
+  aquamarine: [127, 255, 212],
+  azure: [240, 255, 255],
+  beige: [245, 245, 220],
+  bisque: [255, 228, 196],
+  black: [0, 0, 0],
+  blanchedalmond: [255, 235, 205],
+  blue: [0, 0, 255],
+  blueviolet: [138, 43, 226],
+  brown: [165, 42, 42],
+  burlywood: [222, 184, 135],
+  cadetblue: [95, 158, 160],
+  chartreuse: [127, 255, 0],
+  chocolate: [210, 105, 30],
+  coral: [255, 127, 80],
+  cornflowerblue: [100, 149, 237],
+  cornsilk: [255, 248, 220],
+  crimson: [220, 20, 60],
+  cyan: [0, 255, 255],
+  darkblue: [0, 0, 139],
+  darkcyan: [0, 139, 139],
+  darkgoldenrod: [184, 134, 11],
+  darkgray: [169, 169, 169],
+  darkgreen: [0, 100, 0],
+  darkgrey: [169, 169, 169],
+  darkkhaki: [189, 183, 107],
+  darkmagenta: [139, 0, 139],
+  darkolivegreen: [85, 107, 47],
+  darkorange: [255, 140, 0],
+  darkorchid: [153, 50, 204],
+  darkred: [139, 0, 0],
+  darksalmon: [233, 150, 122],
+  darkseagreen: [143, 188, 143],
+  darkslateblue: [72, 61, 139],
+  darkslategray: [47, 79, 79],
+  darkslategrey: [47, 79, 79],
+  darkturquoise: [0, 206, 209],
+  darkviolet: [148, 0, 211],
+  deeppink: [255, 20, 147],
+  deepskyblue: [0, 191, 255],
+  dimgray: [105, 105, 105],
+  dimgrey: [105, 105, 105],
+  dodgerblue: [30, 144, 255],
+  firebrick: [178, 34, 34],
+  floralwhite: [255, 250, 240],
+  forestgreen: [34, 139, 34],
+  fuchsia: [255, 0, 255],
+  gainsboro: [220, 220, 220],
+  ghostwhite: [248, 248, 255],
+  gold: [255, 215, 0],
+  goldenrod: [218, 165, 32],
+  gray: [128, 128, 128],
+  green: [0, 128, 0],
+  greenyellow: [173, 255, 47],
+  grey: [128, 128, 128],
+  honeydew: [240, 255, 240],
+  hotpink: [255, 105, 180],
+  indianred: [205, 92, 92],
+  indigo: [75, 0, 130],
+  ivory: [255, 255, 240],
+  khaki: [240, 230, 140],
+  lavender: [230, 230, 250],
+  lavenderblush: [255, 240, 245],
+  lawngreen: [124, 252, 0],
+  lemonchiffon: [255, 250, 205],
+  lightblue: [173, 216, 230],
+  lightcoral: [240, 128, 128],
+  lightcyan: [224, 255, 255],
+  lightgoldenrodyellow: [250, 250, 210],
+  lightgray: [211, 211, 211],
+  lightgreen: [144, 238, 144],
+  lightgrey: [211, 211, 211],
+  lightpink: [255, 182, 193],
+  lightsalmon: [255, 160, 122],
+  lightseagreen: [32, 178, 170],
+  lightskyblue: [135, 206, 250],
+  lightslategray: [119, 136, 153],
+  lightslategrey: [119, 136, 153],
+  lightsteelblue: [176, 196, 222],
+  lightyellow: [255, 255, 224],
+  lime: [0, 255, 0],
+  limegreen: [50, 205, 50],
+  linen: [250, 240, 230],
+  magenta: [255, 0, 255],
+  maroon: [128, 0, 0],
+  mediumaquamarine: [102, 205, 170],
+  mediumblue: [0, 0, 205],
+  mediumorchid: [186, 85, 211],
+  mediumpurple: [147, 112, 219],
+  mediumseagreen: [60, 179, 113],
+  mediumslateblue: [123, 104, 238],
+  mediumspringgreen: [0, 250, 154],
+  mediumturquoise: [72, 209, 204],
+  mediumvioletred: [199, 21, 133],
+  midnightblue: [25, 25, 112],
+  mintcream: [245, 255, 250],
+  mistyrose: [255, 228, 225],
+  moccasin: [255, 228, 181],
+  navajowhite: [255, 222, 173],
+  navy: [0, 0, 128],
+  oldlace: [253, 245, 230],
+  olive: [128, 128, 0],
+  olivedrab: [107, 142, 35],
+  orange: [255, 165, 0],
+  orangered: [255, 69, 0],
+  orchid: [218, 112, 214],
+  palegoldenrod: [238, 232, 170],
+  palegreen: [152, 251, 152],
+  paleturquoise: [175, 238, 238],
+  palevioletred: [219, 112, 147],
+  papayawhip: [255, 239, 213],
+  peachpuff: [255, 218, 185],
+  peru: [205, 133, 63],
+  pink: [255, 192, 203],
+  plum: [221, 160, 221],
+  powderblue: [176, 224, 230],
+  purple: [128, 0, 128],
+  rebeccapurple: [102, 51, 153],
+  red: [255, 0, 0],
+  rosybrown: [188, 143, 143],
+  royalblue: [65, 105, 225],
+  saddlebrown: [139, 69, 19],
+  salmon: [250, 128, 114],
+  sandybrown: [244, 164, 96],
+  seagreen: [46, 139, 87],
+  seashell: [255, 245, 238],
+  sienna: [160, 82, 45],
+  silver: [192, 192, 192],
+  skyblue: [135, 206, 235],
+  slateblue: [106, 90, 205],
+  slategray: [112, 128, 144],
+  slategrey: [112, 128, 144],
+  snow: [255, 250, 250],
+  springgreen: [0, 255, 127],
+  steelblue: [70, 130, 180],
+  tan: [210, 180, 140],
+  teal: [0, 128, 128],
+  thistle: [216, 191, 216],
+  tomato: [255, 99, 71],
+  turquoise: [64, 224, 208],
+  violet: [238, 130, 238],
+  wheat: [245, 222, 179],
+  white: [255, 255, 255],
+  whitesmoke: [245, 245, 245],
+  yellow: [255, 255, 0],
+  yellowgreen: [154, 205, 50]
+};
+var aliceblue = colorName.aliceblue;
+var antiquewhite = colorName.antiquewhite;
+var aqua = colorName.aqua;
+var aquamarine = colorName.aquamarine;
+var azure = colorName.azure;
+var beige = colorName.beige;
+var bisque = colorName.bisque;
+var black = colorName.black;
+var blanchedalmond = colorName.blanchedalmond;
+var blue = colorName.blue;
+var blueviolet = colorName.blueviolet;
+var brown = colorName.brown;
+var burlywood = colorName.burlywood;
+var cadetblue = colorName.cadetblue;
+var chartreuse = colorName.chartreuse;
+var chocolate = colorName.chocolate;
+var coral = colorName.coral;
+var cornflowerblue = colorName.cornflowerblue;
+var cornsilk = colorName.cornsilk;
+var crimson = colorName.crimson;
+var cyan = colorName.cyan;
+var darkblue = colorName.darkblue;
+var darkcyan = colorName.darkcyan;
+var darkgoldenrod = colorName.darkgoldenrod;
+var darkgray = colorName.darkgray;
+var darkgreen = colorName.darkgreen;
+var darkgrey = colorName.darkgrey;
+var darkkhaki = colorName.darkkhaki;
+var darkmagenta = colorName.darkmagenta;
+var darkolivegreen = colorName.darkolivegreen;
+var darkorange = colorName.darkorange;
+var darkorchid = colorName.darkorchid;
+var darkred = colorName.darkred;
+var darksalmon = colorName.darksalmon;
+var darkseagreen = colorName.darkseagreen;
+var darkslateblue = colorName.darkslateblue;
+var darkslategray = colorName.darkslategray;
+var darkslategrey = colorName.darkslategrey;
+var darkturquoise = colorName.darkturquoise;
+var darkviolet = colorName.darkviolet;
+var deeppink = colorName.deeppink;
+var deepskyblue = colorName.deepskyblue;
+export default colorName;
+var dimgray = colorName.dimgray;
+var dimgrey = colorName.dimgrey;
+var dodgerblue = colorName.dodgerblue;
+var firebrick = colorName.firebrick;
+var floralwhite = colorName.floralwhite;
+var forestgreen = colorName.forestgreen;
+var fuchsia = colorName.fuchsia;
+var gainsboro = colorName.gainsboro;
+var ghostwhite = colorName.ghostwhite;
+var gold = colorName.gold;
+var goldenrod = colorName.goldenrod;
+var gray = colorName.gray;
+var green = colorName.green;
+var greenyellow = colorName.greenyellow;
+var grey = colorName.grey;
+var honeydew = colorName.honeydew;
+var hotpink = colorName.hotpink;
+var indianred = colorName.indianred;
+var indigo = colorName.indigo;
+var ivory = colorName.ivory;
+var khaki = colorName.khaki;
+var lavender = colorName.lavender;
+var lavenderblush = colorName.lavenderblush;
+var lawngreen = colorName.lawngreen;
+var lemonchiffon = colorName.lemonchiffon;
+var lightblue = colorName.lightblue;
+var lightcoral = colorName.lightcoral;
+var lightcyan = colorName.lightcyan;
+var lightgoldenrodyellow = colorName.lightgoldenrodyellow;
+var lightgray = colorName.lightgray;
+var lightgreen = colorName.lightgreen;
+var lightgrey = colorName.lightgrey;
+var lightpink = colorName.lightpink;
+var lightsalmon = colorName.lightsalmon;
+var lightseagreen = colorName.lightseagreen;
+var lightskyblue = colorName.lightskyblue;
+var lightslategray = colorName.lightslategray;
+var lightslategrey = colorName.lightslategrey;
+var lightsteelblue = colorName.lightsteelblue;
+var lightyellow = colorName.lightyellow;
+var lime = colorName.lime;
+var limegreen = colorName.limegreen;
+var linen = colorName.linen;
+var magenta = colorName.magenta;
+var maroon = colorName.maroon;
+var mediumaquamarine = colorName.mediumaquamarine;
+var mediumblue = colorName.mediumblue;
+var mediumorchid = colorName.mediumorchid;
+var mediumpurple = colorName.mediumpurple;
+var mediumseagreen = colorName.mediumseagreen;
+var mediumslateblue = colorName.mediumslateblue;
+var mediumspringgreen = colorName.mediumspringgreen;
+var mediumturquoise = colorName.mediumturquoise;
+var mediumvioletred = colorName.mediumvioletred;
+var midnightblue = colorName.midnightblue;
+var mintcream = colorName.mintcream;
+var mistyrose = colorName.mistyrose;
+var moccasin = colorName.moccasin;
+var navajowhite = colorName.navajowhite;
+var navy = colorName.navy;
+var oldlace = colorName.oldlace;
+var olive = colorName.olive;
+var olivedrab = colorName.olivedrab;
+var orange = colorName.orange;
+var orangered = colorName.orangered;
+var orchid = colorName.orchid;
+var palegoldenrod = colorName.palegoldenrod;
+var palegreen = colorName.palegreen;
+var paleturquoise = colorName.paleturquoise;
+var palevioletred = colorName.palevioletred;
+var papayawhip = colorName.papayawhip;
+var peachpuff = colorName.peachpuff;
+var peru = colorName.peru;
+var pink = colorName.pink;
+var plum = colorName.plum;
+var powderblue = colorName.powderblue;
+var purple = colorName.purple;
+var rebeccapurple = colorName.rebeccapurple;
+var red = colorName.red;
+var rosybrown = colorName.rosybrown;
+var royalblue = colorName.royalblue;
+var saddlebrown = colorName.saddlebrown;
+var salmon = colorName.salmon;
+var sandybrown = colorName.sandybrown;
+var seagreen = colorName.seagreen;
+var seashell = colorName.seashell;
+var sienna = colorName.sienna;
+var silver = colorName.silver;
+var skyblue = colorName.skyblue;
+var slateblue = colorName.slateblue;
+var slategray = colorName.slategray;
+var slategrey = colorName.slategrey;
+var snow = colorName.snow;
+var springgreen = colorName.springgreen;
+var steelblue = colorName.steelblue;
+var tan = colorName.tan;
+var teal = colorName.teal;
+var thistle = colorName.thistle;
+var tomato = colorName.tomato;
+var turquoise = colorName.turquoise;
+var violet = colorName.violet;
+var wheat = colorName.wheat;
+var white = colorName.white;
+var whitesmoke = colorName.whitesmoke;
+var yellow = colorName.yellow;
+var yellowgreen = colorName.yellowgreen;
+
+export {colorName as __moduleExports, aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque, black, blanchedalmond, blue, blueviolet, brown, burlywood, cadetblue, chartreuse, chocolate, coral, cornflowerblue, cornsilk, crimson, cyan, darkblue, darkcyan, darkgoldenrod, darkgray, darkgreen, darkgrey, darkkhaki, darkmagenta, darkolivegreen, darkorange, darkorchid, darkred, darksalmon, darkseagreen, darkslateblue, darkslategray, darkslategrey, darkturquoise, darkviolet, deeppink, deepskyblue, dimgray, dimgrey, dodgerblue, firebrick, floralwhite, forestgreen, fuchsia, gainsboro, ghostwhite, gold, goldenrod, gray, green, greenyellow, grey, honeydew, hotpink, indianred, indigo, ivory, khaki, lavender, lavenderblush, lawngreen, lemonchiffon, lightblue, lightcoral, lightcyan, lightgoldenrodyellow, lightgray, lightgreen, lightgrey, lightpink, lightsalmon, lightseagreen, lightskyblue, lightslategray, lightslategrey, lightsteelblue, lightyellow, lime, limegreen, linen, magenta, maroon, mediumaquamarine, mediumblue, mediumorchid, mediumpurple, mediumseagreen, mediumslateblue, mediumspringgreen, mediumturquoise, mediumvioletred, midnightblue, mintcream, mistyrose, moccasin, navajowhite, navy, oldlace, olive, olivedrab, orange, orangered, orchid, palegoldenrod, palegreen, paleturquoise, palevioletred, papayawhip, peachpuff, peru, pink, plum, powderblue, purple, rebeccapurple, red, rosybrown, royalblue, saddlebrown, salmon, sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue, slategray, slategrey, snow, springgreen, steelblue, tan, teal, thistle, tomato, turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen};
