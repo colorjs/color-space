@@ -1,4 +1,4 @@
-# Color-space [![Build Status](https://travis-ci.org/colorjs/color-space.svg?branch=master)](https://travis-ci.org/colorjs/color-space) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![OpenCollective](https://opencollective.com/color-space/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/color-space/sponsors/badge.svg)](#sponsors)
+# Color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
@@ -8,8 +8,6 @@ Collection of color spaces conversions & data.
 
 
 ## Usage
-
-[![npm install color-space](https://nodei.co/npm/color-space.png?mini=true)](https://npmjs.org/package/color-space/)
 
 ```js
 import space from 'color-space';
