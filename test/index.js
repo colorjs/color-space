@@ -36,23 +36,12 @@ function max (a,...args) {
 
 
 
-var createSpaceCase = typeof createSpaceCase !== 'undefined' ? createSpaceCase : function () {};
-
-
 //Check some values here:
 // http://www.easyrgb.com/index.php?X=CALC#Result
 // http://colormine.org/convert/luv-to-rgb
 
 
-//these two are basic spaces
-createSpaceCase('RGB');
-
-
 let hslTest = suite('hsl')
-	hslTest.before(function () {
-		createSpaceCase('HSL');
-	});
-
 	hslTest('hsl → rgb', function () {
 		assert.deepEqualAlmost((s.hsl.rgb([96, 48, 59])), [140, 201, 100]);
 	});
@@ -70,10 +59,6 @@ let hslTest = suite('hsl')
 
 
 let hsvTest = suite('hsv')
-	hsvTest.before(function () {
-		createSpaceCase('HSV');
-	});
-
 	hsvTest('hsv → rgb', function () {
 		assert.deepEqualAlmost((s.hsv.rgb([96, 50, 78])), [139, 199, 99]);
 	});
@@ -93,10 +78,6 @@ let hsvTest = suite('hsv')
 
 
 let hspTest = suite('hsp')
-	hspTest.before(function () {
-		createSpaceCase('HSP');
-	});
-
 	hspTest('hsp → rgb', function () {
 		assert.deepEqualAlmost((s.hsp.rgb([0.2, 0.5, 0.3])), [0, 0, 0]);
 	});
@@ -112,10 +93,6 @@ let hspTest = suite('hsp')
 
 
 let hsiTest = suite('hsi')
-	hsiTest.before(function () {
-		createSpaceCase('HSI');
-	});
-
 	hsiTest('hsi → rgb', function () {
 		assert.deepEqualAlmost((s.hsi.rgb([210, 33.333, 150])), [100, 150, 200]);
 	});
@@ -126,10 +103,6 @@ let hsiTest = suite('hsi')
 
 
 let hcgTest = suite('hcg')
-	hcgTest.before(function () {
-		createSpaceCase('HCG');
-	});
-
 	hcgTest('hcg → rgb', function () {
 		assert.deepEqualAlmost((s.hcg.rgb([ 0, 100, 0 ])), [255, 0, 0]);
 
@@ -170,11 +143,6 @@ let hcgTest = suite('hcg')
 
 
 let hwbTest = suite('hwb')
-	hwbTest.before(function () {
-		createSpaceCase('HWB');
-		createSpaceCase('HSL');
-	});
-
 	hwbTest('hwb → rgb', function () {
 		// hwb
 		// http://dev.w3.org/csswg/css-color/#hwb-examples
@@ -246,10 +214,6 @@ let hwbTest = suite('hwb')
 
 
 let cmykTest = suite('cmyk')
-	cmykTest.before(function () {
-		createSpaceCase('CMYK');
-	});
-
 	cmykTest('rgb → cmyk', function () {
 		assert.deepEqualAlmost((s.rgb.cmyk([140, 200, 100])), [30, 0, 50, 22]);
 		assert.deepEqualAlmost((s.rgb.cmyk([0,0,0,1])), [0,0,0,100]);
@@ -271,10 +235,6 @@ let cmykTest = suite('cmyk')
 
 
 let xyzTest = suite('xyz')
-	xyzTest.before(function () {
-		createSpaceCase('XYZ');
-	});
-
 	//TODO: more tests here
 	xyzTest('xyz → rgb', function () {
 		assert.deepEqualAlmost((s.xyz.rgb([25, 40, 15])), [97, 190, 85]);
@@ -293,11 +253,6 @@ let xyzTest = suite('xyz')
 
 
 let xyYTest = suite('xyY')
-	xyYTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('xyY');
-	});
-
 	//TODO: more tests here
 	xyYTest('xyz → xyy', function () {
 		assert.deepEqualAlmost((s.xyz.xyy([0, 0, 0])), [0, 0, 0]);
@@ -312,11 +267,6 @@ let xyYTest = suite('xyY')
 
 
 let labhTest = suite('hunter-lab')
-	labhTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('LABh');
-	});
-
 	labhTest('rgb → labh', function () {
 		assert.deepEqualAlmost((s.rgb.labh([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.labh([10, 0, 0])), [2.5, 4.3, 1.6], .05);
@@ -348,11 +298,6 @@ let labhTest = suite('hunter-lab')
 
 
 let labTest = suite('lab')
-	labTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('LAB');
-	});
-
 	labTest('lab → xyz', function () {
 		assert.deepEqualAlmost((s.lab.xyz([69, -48, 44])), [25, 39, 15]);
 	});
@@ -370,11 +315,6 @@ let labTest = suite('lab')
 
 
 let lmsTest = suite('lms')
-	lmsTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('LMS');
-	});
-
 	lmsTest('lms ←→ xyz', function () {
 		assert.deepEqual(s.lms.xyz([0,0,0]), [0,0,0]);
 		assert.deepEqual(s.xyz.lms([0,0,0]), [0,0,0]);
@@ -386,11 +326,6 @@ let lmsTest = suite('lms')
 
 
 let lchabTest = suite('lchab')
-	lchabTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('LCHab');
-	});
-
 	lchabTest('lchab → lab', function () {
 		assert.deepEqualAlmost((s.lchab.lab([69, 65, 137])), [69, -48, 44]);
 	});
@@ -408,11 +343,6 @@ let lchabTest = suite('lchab')
 
 
 let luvTest = suite('luv')
-	luvTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('LUV');
-	});
-
 	luvTest('rgb → luv', function () {
 		assert.deepEqualAlmost((s.rgb.luv([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.rgb.luv([10, 0, 0])), [.6, 2, 0.4]);
@@ -451,11 +381,6 @@ let luvTest = suite('luv')
 
 
 let lchuvTest = suite('lchuv')
-	lchuvTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('LCHuv');
-	});
-
 	lchuvTest('luv ←→ lchuv', function () {
 		assert.deepEqualAlmost((
 			s.lchuv.luv(s.luv.lchuv([0, 0, 0]))), [0, 0, 0]);
@@ -471,11 +396,6 @@ let lchuvTest = suite('lchuv')
 
 let hsluvTest = suite('hsluv')
 	const _hsluv = s.hsluv._hsluv
-	hsluvTest.before(function () {
-		createSpaceCase('XYZ');
-		createSpaceCase('HSLuv');
-	});
-
 	hsluvTest('_hsluv: lch → luv ≡ lchuv → luv', function () {
 		assert.deepEqualAlmost((_hsluv.lchToLuv([1,20,40])), (s.lchuv.luv([1,20,40])));
 		assert.deepEqualAlmost((_hsluv.lchToLuv([21,50,40])), (s.lchuv.luv([21,50,40])));
@@ -518,12 +438,7 @@ let hsluvTest = suite('hsluv')
 
 
 // describe.skip('hpluv', function () {
-// 	xTest.before(function () {
-// 		createSpaceCase('XYZ');
-// 		createSpaceCase('HPLuv');
-// 	});
-
-// 	xTest('hpluv → rgb', function () {
+//// 	xTest('hpluv → rgb', function () {
 
 // 	});
 
@@ -533,12 +448,7 @@ let hsluvTest = suite('hsluv')
 
 
 // describe.skip('ciecam', function () {
-// 	xTest.before(function () {
-// 		createSpaceCase('XYZ');
-// 		createSpaceCase('ciecam');
-// 	});
-
-// 	xTest('to rgb', function () {
+//// 	xTest('to rgb', function () {
 
 // 	});
 
@@ -551,12 +461,7 @@ let hsluvTest = suite('hsluv')
 // 	});
 
 // describe.skip('cmy', function () {
-// 	xTest.before(function () {
-// 		createSpaceCase('XYZ');
-// 		createSpaceCase('cmy');
-// 	});
-
-// 	xTest('to rgb', function () {
+//// 	xTest('to rgb', function () {
 
 // 	});
 
@@ -569,10 +474,6 @@ let hsluvTest = suite('hsluv')
 // 	});
 
 let yiqTest = suite('yiq')
-	yiqTest.before(function () {
-		createSpaceCase('YIQ');
-	});
-
 	yiqTest('yiq → rgb', function () {
 		assert.deepEqualAlmost((s.yiq.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.yiq.rgb([1, 0, 0])), [255, 255, 255]);
@@ -587,10 +488,6 @@ let yiqTest = suite('yiq')
 
 
 let yuvTest = suite('yuv')
-	yuvTest.before(function () {
-		createSpaceCase('YUV');
-	});
-
 	yuvTest('yuv → rgb', function () {
 		assert.deepEqualAlmost((s.yuv.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.yuv.rgb([1, 0, 0])), [255, 255, 255]);
@@ -605,10 +502,6 @@ let yuvTest = suite('yuv')
 
 
 let ydbdrTest = suite('ydbdr')
-	ydbdrTest.before(function () {
-		createSpaceCase('YDbDr');
-	});
-
 	ydbdrTest('ydbdr → rgb', function () {
 		assert.deepEqualAlmost((s.ydbdr.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ydbdr.rgb([1, 0, 0])), [255, 255, 255]);
@@ -627,10 +520,6 @@ let ydbdrTest = suite('ydbdr')
 
 
 let ycgcoTest = suite('ycgco')
-	ycgcoTest.before(function () {
-		createSpaceCase('YCgCo');
-	});
-
 	ycgcoTest('ycgco → rgb', function () {
 		assert.deepEqualAlmost((s.ycgco.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ycgco.rgb([1, 0, 0])), [255, 255, 255]);
@@ -647,10 +536,6 @@ let ycgcoTest = suite('ycgco')
 
 
 let ypbprTest = suite('ypbpr')
-	ypbprTest.before(function () {
-		createSpaceCase('YPbPr');
-	});
-
 	ypbprTest('ypbpr → rgb', function () {
 		assert.deepEqualAlmost((s.ypbpr.rgb([0, 0, 0])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ypbpr.rgb([0.715, -0.385, -0.454])), [0, 255, 0.1]);
@@ -673,10 +558,6 @@ let ypbprTest = suite('ypbpr')
 
 
 let yccbccrcTest = suite('yccbccrc')
-	yccbccrcTest.before(function () {
-		createSpaceCase('YcCbcCrc');
-	});
-
 	yccbccrcTest('yccbccrc → rgb', function () {
 		assert.deepEqualAlmost((s.yccbccrc.rgb([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.yccbccrc.rgb([0.715, -0.385, -0.454])), [0, 255, 0]);
@@ -695,10 +576,6 @@ let yccbccrcTest = suite('yccbccrc')
 
 
 let ycbcrTest = suite('ycbcr')
-	ycbcrTest.before(function () {
-		createSpaceCase('YCbCr');
-	});
-
 	ycbcrTest('ycbcr → rgb', function () {
 		assert.deepEqualAlmost((s.ycbcr.rgb([16, 128, 128])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.ycbcr.rgb([235, 128, 128])), [255, 255, 255]);
@@ -720,10 +597,6 @@ let ycbcrTest = suite('ycbcr')
 
 
 let xvyccTest = suite('xvycc')
-	xvyccTest.before(function () {
-		createSpaceCase('xvYCC');
-	});
-
 	xvyccTest('xvycc → rgb', function () {
 		assert.deepEqualAlmost((s.xvycc.rgb([16, 128, 128])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.xvycc.rgb([235, 128, 128])), [255, 255, 255]);
@@ -745,10 +618,6 @@ let xvyccTest = suite('xvycc')
 
 
 let jpegTest = suite('jpeg')
-	jpegTest.before(function () {
-		createSpaceCase('YCbCr');
-	});
-
 	jpegTest('jpeg → rgb', function () {
 		assert.deepEqualAlmost((s.jpeg.rgb([0, 128, 128])), [0, 0, 0]);
 		assert.deepEqualAlmost((s.jpeg.rgb([255, 128, 128])), [255, 255, 255]);
@@ -763,10 +632,6 @@ let jpegTest = suite('jpeg')
 
 
 let ucsTest = suite('ucs')
-	ucsTest.before(function () {
-		createSpaceCase('UCS');
-	});
-
 	ucsTest('ucs → xyz', function () {
 		// assert.deepEqualAlmost((s.ucs.xyz([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.ucs.xyz([1, 0, 0])), [1, 1, 1]);
@@ -780,10 +645,6 @@ let ucsTest = suite('ucs')
 
 
 let uvwTest = suite('uvw')
-	uvwTest.before(function () {
-		createSpaceCase('UVW');
-	});
-
 	uvwTest('uvw → xyz', function () {
 		// assert.deepEqualAlmost((s.uvw.xyz([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.uvw.xyz([1, 0, 0])), [1, 1, 1]);
@@ -821,10 +682,6 @@ let cubehelixTest = suite('cubehelix')
 
 
 let osaucsTest = suite('osaucs')
-	osaucsTest.before(function () {
-		createSpaceCase('osaucs');
-	});
-
 	osaucsTest.skip('osaucs → xyy', function () {
 		// assert.deepEqualAlmost((s.osaucs.xyy([0,-4,-4])), [33.71, 26.46, 46.66]);
 		// assert.deepEqualAlmost((s.osaucs.xyy([-8,-6,+2])), [1.773902, 1.049996, 7.893570]);
@@ -916,10 +773,6 @@ let coloroidTest = suite('coloroid')
 
 let tslTest = suite('tsl');
 
-	tslTest.before(function () {
-		createSpaceCase('TSL');
-	});
-
 	tslTest('tsl → rgb', function () {
 		// assert.deepEqualAlmost((s.tsl.rgb([0, 0, 0])), [0, 0, 0]);
 		// assert.deepEqualAlmost((s.tsl.rgb([1, 0, 0])), [1, 1, 1]);
@@ -940,10 +793,6 @@ let tslTest = suite('tsl');
 
 
 let yesTest = suite('yes')
-	yesTest.before(function () {
-		createSpaceCase('YES');
-	});
-
 	yesTest('yes ←→ rgb', function () {
 		assert.deepEqualAlmost(s.rgb.yes([0,0,0]), [0, 0, 0]);
 		assert.deepEqualAlmost(s.rgb.yes([255,255,255]), [1, 0, 0]);

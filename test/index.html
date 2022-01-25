@@ -108,14 +108,8 @@
 </style>
 
 
-
-
-<link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
-
-
-
 <section id="converter">
-	<h1 class="page-title" id="page-title"><a class="page-link" href="https://github.com/dfcreative/color-space/" title="dfcreative/color-space">Color-space.js</a></h1>
+	<h1 class="page-title" id="page-title"><a class="page-link" href="https://github.com/colorjs/color-space/" title="colorjs/color-space">Color-space.js</a></h1>
 	<h2 class='section-title'>Converter</h2>
 
 	<table id="convert-table">
@@ -131,21 +125,8 @@
 	</table>
 </section>
 
-<section id="mocha">
-	<h2 class="section-title"><a href="/test/">Tests</a></h2>
-</section>
-
-
-<script src="../node_modules/mocha/mocha.js"></script>
-
-
-<script src="bundle.js"></script>
-
-
-
-
-<script>
-	var convert = typeof colorSpace !== 'undefined' ? colorSpace : require("../index");
+<script type="module">
+	import convert from "../dist/color-space.min.js"
 
 	//setup converter
 	/** Converter */
@@ -264,23 +245,44 @@
 		//initial recalc
 		recalc('rgb', [0,0,0]);
 	}
-</script>
 
 
 
-<script>
-	mocha.setup('bdd');
-</script>
-
-<script src="index.js"></script>
-
-<script>
-	//Run mocha
-	if (window.mochaPhantomJS) {
-		mochaPhantomJS.run();
-	}
-	else {
-		mocha.checkLeaks();
-		mocha.run();
-	}
+	// init
+	['RGB',
+	'HSL',
+	'HSV',
+	'HSP',
+	'HSI',
+	'HCG',
+	'HWB',
+	'HSL',
+	'CMYK',
+	'XYZ',
+	'xyY',
+	'LABh',
+	'LAB',
+	'LMS',
+	'LCHab',
+	'LUV',
+	'LCHuv',
+	'HSLuv',
+	'HPLuv',
+	// 'ciecam',
+	'cmy',
+	'YIQ',
+	'YUV',
+	'YDbDr',
+	'YCgCo',
+	'YPbPr',
+	'YcCbcCrc',
+	'YCbCr',
+	'xvYCC',
+	'YCbCr',
+	'UCS',
+	'UVW',
+	'osaucs',
+	'TSL',
+	'YES']
+	.map(createSpaceCase)
 </script>
