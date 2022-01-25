@@ -184,15 +184,7 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 
 
 
-## Related
-
-* [colormap](https://github.com/bpostlethwaite/colormap) — collection of colormaps to map colors of images/data. A replacement for visualising spaces like cubehelix.
-* [color-spectrum](https://www.npmjs.com/package/color-spectrum) — convert spectrum to a color.
-* [color-interpolate](https://www.npmjs.com/package/color-interpolate) — interpolate between color values.
-* [color-tool](https://www.npmjs.com/package/color-tool) — color picker based on color-space.
-
-
-## Similar projects
+## Alternatives
 
 * [color-convert](https://github.com/harthur/color-convert)
 * [chromatist](https://github.com/jrus/chromatist)
