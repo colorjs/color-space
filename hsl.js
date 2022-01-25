@@ -1,11 +1,9 @@
 /**
  * @module color-space/hsl
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-module.exports = {
+export default {
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],

@@ -15,12 +15,10 @@
  *
  * @module  color-space/xvycc
  */
-'use strict'
+import rgb from './rgb.js';
+import ypbpr from './ypbpr.js';
 
-var rgb = require('./rgb');
-var ypbpr = require('./ypbpr');
-
-var xvycc = module.exports = {
+var xvycc = {
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
@@ -28,6 +26,7 @@ var xvycc = module.exports = {
 	alias: ['xvYCC']
 };
 
+export default xvycc;
 
 /**
  * From analog to digital form.

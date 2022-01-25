@@ -6,12 +6,10 @@
  *
  * @module  color-space/ycbcr
  */
-'use strict'
+import rgb from './rgb.js'
+import ypbpr from './ypbpr.js'
 
-var rgb = require('./rgb');
-var ypbpr = require('./ypbpr');
-
-var ycbcr = module.exports = {
+var ycbcr = {
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
@@ -76,3 +74,6 @@ ycbcr.rgb = function (arr, kb, kr) {
 rgb.ycbcr = function(arr, kb, kr) {
 	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));
 };
+
+
+export default ycbcr;

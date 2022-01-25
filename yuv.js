@@ -3,17 +3,14 @@
  *
  * @module  color-space/yuv
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var yuv = module.exports = {
+var yuv = {
 	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','U','V'],
 	alias: ['YUV', 'EBU'],
-
 };
 
 yuv.rgb = function(yuv) {
@@ -46,3 +43,6 @@ rgb.yuv = function(rgb) {
 
 	return [y, u, v];
 };
+
+
+export default yuv;

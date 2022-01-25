@@ -3,11 +3,9 @@
  *
  * @module color-space/luv
  */
-'use strict'
+ import xyz from './xyz.js';
 
-var xyz = require('./xyz');
-
-module.exports = {
+export default {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords

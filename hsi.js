@@ -4,21 +4,17 @@
  *
  * @module color-space/hsl
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var loop = require('mumath/mod');
-var clamp = require('mumath/clamp');
-
-
-var hsi = module.exports = {
+var hsi = {
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'saturation', 'intensity'],
 	alias: ['HSI']
 };
+
+export default hsi
 
 
 /**
@@ -29,9 +25,9 @@ var hsi = module.exports = {
  * @return {Array} RGB channel values
  */
 hsi.rgb = function (hsi) {
-	var h = loop(hsi[0], 0, 360) * Math.PI / 180;
-	var s = clamp(hsi[1], 0, 100) / 100;
-	var i = clamp(hsi[2], 0, 255) / 255;
+	var h = (hsi[0] < 0 ? (hsi[0] % 360) + 360 : (hsi[0] % 360)) * Math.PI / 180;
+	var s = Math.max(0, Math.min(hsi[1], 100)) / 100;
+	var i = Math.max(0, Math.min(hsi[2], 255)) / 255;
 
 	var pi3 = Math.PI / 3;
 

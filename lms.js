@@ -10,11 +10,9 @@
  *
  * @module color-space/lms
  */
-'use strict'
+import xyz from './xyz.js';
 
-var xyz = require('./xyz');
-
-var lms = module.exports = {
+var lms = {
 	name: 'lms',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -50,6 +48,7 @@ var lms = module.exports = {
 	}
 };
 
+export default lms;
 
 lms.xyz = function(arg, matrix){
 	var l = arg[0], m = arg[1], s = arg[2];

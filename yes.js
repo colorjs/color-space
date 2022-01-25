@@ -4,11 +4,10 @@
  *
  * @module color-space/yes
  */
-'use strict'
 
-var rgb = require('./rgb');
+import rgb from './rgb.js';
 
-var yes = module.exports = {
+var yes = {
 	name: 'yes',
 	min: [0,0,0],
 	max: [1,1,1],
@@ -47,3 +46,6 @@ rgb.yes = function(arg) {
 		r * m[6] + g * m[7] + b * m[8]
 	];
 };
+
+
+export default yes;

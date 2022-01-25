@@ -5,12 +5,10 @@
  *
  * @module cam
  */
-'use strict'
-
-var xyz = require('./xyz');
+import xyz from './xyz.js';
 
 
-var cam = module.exports = {
+var cam = {
 	name: 'cam',
 
 	alias: ['ciecam', 'ciecam02'],
@@ -26,3 +24,6 @@ xyz.cam = function(xyz){
 cam.xyz = function () {
 
 }
+
+
+export default cam;

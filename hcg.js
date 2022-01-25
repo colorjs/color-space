@@ -1,16 +1,13 @@
 /**
  * @module color-space/hcg
  */
-'use strict'
-
-var rgb = require('./rgb');
-var hsl = require('./hsl');
-var hsv = require('./hsv');
-var hwb = require('./hwb');
-var mod = require('mumath/mod');
+import rgb from './rgb.js';
+import hsl from './hsl.js';
+import hsv from './hsv.js';
+import hwb from './hwb.js';
 
 
-module.exports = {
+export default {
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -24,8 +21,8 @@ module.exports = {
 		if (c === 0.0) {
 			return [g * 255, g * 255, g * 255];
 		}
-		var hi = mod(h, 1) * 6;
-		var v = mod(hi, 1);
+		var hi = (h % 1) * 6;
+		var v = (hi % 1);
 		var pure = [0, 0, 0];
 		var w = 1 - v;
 		switch (Math.floor(hi)) {
@@ -106,7 +103,7 @@ rgb.hcg = function(rgb) {
 	}
 	if (chroma > 0) {
 		if (max === r) {
-			hue = mod((g - b) / chroma, 6);
+			hue = ((g - b) / chroma % 6);
 		} else
 		if (max === g) {
 			hue = 2 + (b - r) / chroma;
@@ -114,7 +111,7 @@ rgb.hcg = function(rgb) {
 			hue = 4 + (r - g) / chroma;
 		}
 		hue /= 6;
-		hue = mod(hue, 1);
+		hue = (hue % 1);
 	} else {
 		hue = 0;
 	}

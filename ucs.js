@@ -5,11 +5,9 @@
  *
  * @module  color-space/ucs
  */
-'use strict'
+import xyz from './xyz.js';
 
-var xyz = require('./xyz');
-
-var ucs = module.exports = {
+var ucs = {
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],
@@ -17,6 +15,7 @@ var ucs = module.exports = {
 	alias: ['UCS', 'cie1960']
 };
 
+export default ucs;
 
 /**
  * UCS to XYZ

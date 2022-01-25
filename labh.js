@@ -3,11 +3,10 @@
  *
  * @module  color-space/labh
  */
-'use strict'
 
-var xyz = require('./xyz');
+import xyz from './xyz.js';
 
-module.exports = {
+export default {
 	name: 'labh',
 
 	//mins/maxes are taken from colormine
@@ -36,9 +35,10 @@ module.exports = {
 //extend xyz
 xyz.labh = function(xyz){
 	var x = xyz[0], y = xyz[1], z = xyz[2];
-	var l = 10 * Math.sqrt( y );
-	var a = y === 0 ? 0 : 17.5 * ((( 1.02 * x ) - y ) / Math.sqrt( y ) );
-	var b = y === 0 ? 0 : 7 * ( ( y - ( 0.847 * z ) ) / Math.sqrt( y ) );
+	var _y12 = Math.sqrt(y);
+	var l = 10 * _y12;
+	var a = y === 0 ? 0 : 17.5 * ((( 1.02 * x ) - y ) / _y12 );
+	var b = y === 0 ? 0 : 7 * ( ( y - ( 0.847 * z ) ) / _y12 );
 
 	return [l, a, b];
 };

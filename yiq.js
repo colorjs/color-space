@@ -3,11 +3,9 @@
  *
  * @module  color-space/yiq
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var yiq = module.exports = {
+var yiq = {
 	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
@@ -48,3 +46,6 @@ rgb.yiq = function(rgb) {
 	}
 	return [y, i, q];
 };
+
+
+export default yiq;

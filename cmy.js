@@ -1,11 +1,9 @@
 /**
  * @module color-space/cmy
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var cmy = module.exports = {
+var cmy = {
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -52,3 +50,5 @@ rgb.cmy = function(rgb) {
 		(1-b) * 100 || 0
 	];
 };
+
+export default cmy

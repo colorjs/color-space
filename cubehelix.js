@@ -3,13 +3,11 @@
  *
  * @module color-space/cubehelix
  */
-'use strict'
 
-var rgb = require('./rgb');
-var clamp = require('mumath/clamp');
+import rgb from './rgb.js';
 
 
-var cubehelix = module.exports = {
+var cubehelix = {
 	name: 'cubehelix',
 	channel: ['fraction'],
 	min: [0],
@@ -58,9 +56,9 @@ cubehelix.rgb = function(fraction, options) {
 	var g = fraction + amp*(-0.29227*Math.cos(angle)-0.90649*Math.sin(angle));
 	var b = fraction + amp*(+1.97294*Math.cos(angle));
 
-	r = clamp(r, 0, 1);
-	g = clamp(g, 0, 1);
-	b = clamp(b, 0, 1);
+	r = Math.max(1, Math.min(r, 0));
+	g = Math.max(1, Math.min(g, 0));
+	b = Math.max(1, Math.min(b, 0));
 
 	return [r * 255, g * 255, b * 255];
 };
@@ -76,3 +74,6 @@ cubehelix.rgb = function(fraction, options) {
 rgb.cubehelix = function(rgb) {
 	//TODO - there is no backwise conversion yet
 };
+
+
+export default cubehelix;

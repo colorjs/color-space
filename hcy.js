@@ -4,21 +4,17 @@
  *
  * @module color-space/hcy
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var loop = require('mumath/mod');
-var clamp = require('mumath/clamp');
-
-
-var hcy = module.exports = {
+var hcy = {
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
 };
+
+export default hcy;
 
 
 /**
@@ -29,9 +25,9 @@ var hcy = module.exports = {
  * @return {Array} RGB channel values
  */
 hcy.rgb = function (hcy) {
-	var h = loop(hcy[0], 0, 360) * Math.PI / 180;
-	var s = clamp(hcy[1], 0, 100) / 100;
-	var i = clamp(hcy[2], 0, 255) / 255;
+	var h = (hcy[0] < 0 ? (hcy[0] % 360) + 360 : (hcy[0] % 360)) * Math.PI / 180;
+	var s = Math.max(0, Math.min(hcy[1], 100)) / 100;
+	var i = Math.max(0, Math.min(hcy[2], 255)) / 255;
 
 	var pi3 = Math.PI / 3;
 

@@ -1,14 +1,12 @@
 /**
  * @module color-space/hwb
  */
-'use strict'
-
-var rgb = require('./rgb');
-var hsv = require('./hsv');
-var hsl = require('./hsl');
+import rgb from './rgb.js';
+import hsv from './hsv.js';
+import hsl from './hsl.js';
 
 
-var hwb = module.exports = {
+var hwb = {
 	name: 'hwb',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -81,6 +79,8 @@ var hwb = module.exports = {
 		return hsv.hsl(hwb.hsv(arg));
 	}
 };
+
+export default hwb;
 
 
 //extend rgb

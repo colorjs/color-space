@@ -1,8 +1,6 @@
 /**
  * @module color-space/munsell
  */
-'use strict'
-
 var munsell = {
 	name: 'munsell',
 	alias: [],
@@ -28,4 +26,4 @@ munsell.coloroid = function (cv) {
 };
 
 
-module.exports = munsell;
+export default munsell;

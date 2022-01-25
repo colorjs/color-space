@@ -1,14 +1,13 @@
 /**
  * @module color-space/hsp
  */
-'use strict'
+import rgb from './rgb.js'
 
-var rgb = require('./rgb'),
-  Pr = 0.299,
+const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-module.exports = {
+export default {
   name: 'hsp',
   min: [0, 0, 0],
   max: [360, 100, 255],

@@ -4,13 +4,11 @@
  *
  * @module color-space/hpluv
  */
-'use strict'
+import xyz from './xyz.js';
+import lchuv from './lchuv.js';
+import hsluv, {_hsluv} from './hsluv.js';
 
-var xyz = require('./xyz');
-var lchuv = require('./lchuv');
-var _hsluv = require('hsluv');
-
-module.exports = {
+export default {
 	name: 'hpluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -24,7 +22,6 @@ module.exports = {
 	hsluv: function(arg){
 		return _hsluv.lchToHsluv( _hsluv.hpluvToLch(arg));
 	}
-
 };
 
 //extend lchuv, xyz

@@ -5,12 +5,10 @@
  *
  * @module  color-space/uvw
  */
-'use strict'
+import ucs from './ucs.js';
+import xyz from './xyz.js';
 
-var ucs = require('./ucs');
-var xyz = require('./xyz');
-
-var uvw = module.exports = {
+var uvw = {
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
@@ -18,6 +16,7 @@ var uvw = module.exports = {
 	alias: ['UVW', 'cieuvw', 'cie1964']
 };
 
+export default uvw;
 
 /**
  * UVW to XYZ

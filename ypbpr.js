@@ -8,11 +8,9 @@
  *
  * @module  color-space/ypbpr
  */
-'use strict'
+import rgb from './rgb.js';
 
-var rgb = require('./rgb');
-
-var ypbpr = module.exports = {
+var ypbpr = {
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -63,3 +61,6 @@ rgb.ypbpr = function(rgb, kb, kr) {
 
 	return [y, pb, pr];
 };
+
+
+export default ypbpr;
