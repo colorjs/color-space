@@ -81,7 +81,7 @@ let hspTest = suite('hsp')
 	hspTest('hsp → rgb', function () {
 		assert.deepEqualAlmost((s.hsp.rgb([0.2, 0.5, 0.3])), [0, 0, 0]);
 	});
-	
+
 	hspTest('rgb → hsp', function () {
 		assert.deepEqualAlmost((s.rgb.hsp([98, 115, 255])), [234, 62, 134]);
 	});
@@ -774,15 +774,9 @@ let coloroidTest = suite('coloroid')
 let tslTest = suite('tsl');
 
 	tslTest('tsl → rgb', function () {
-		// assert.deepEqualAlmost((s.tsl.rgb([0, 0, 0])), [0, 0, 0]);
-		// assert.deepEqualAlmost((s.tsl.rgb([1, 0, 0])), [1, 1, 1]);
-		// console.log(s.rgb.tsl([0,0,0]))
-
-		// assert.deepEqualAlmost(s.rgb.tsl([0,0,0]), [.375, .632, 0]);
-		// assert.deepEqualAlmost(s.rgb.tsl([255,255,255]), [.375, .632, 1]);
-		console.log(s.rgb.tsl([10, 20, 30]));
-		console.log(s.tsl.rgb(s.rgb.tsl([10, 20, 30])));
-		// assert.deepEqualAlmost(s.tsl.rgb(s.rgb.tsl([10,20,30])), [10,20,30]);
+		assert.deepEqualAlmost(s.rgb.tsl([0,0,0]), [0.875, 0.63245, 0]);
+		assert.deepEqualAlmost(s.rgb.tsl([255,255,255]), [0, 0, 1]);
+		assert.deepEqualAlmost(s.rgb.tsl([10,20,30]), [0, 0.2236, 0.07117]);
 	});
 	tslTest('rgb → tsl', function () {
 		// assert.deepEqualAlmost((s.rgb.tsl([0, 0, 0])), [0, 0, 0]);
