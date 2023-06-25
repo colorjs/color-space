@@ -68,18 +68,16 @@ tsl.rgb = function(tsl) {
  * @return {Array} RGB values
  */
 rgb.tsl = function(rgb) {
-	var r = rgb[0] / 255,
-		g = rgb[1] / 255,
-		b = rgb[2] / 255;
+	var [r, g, b] = rgb;
 
 	var r_ = (r / (r + g + b) || 0) - 1/3,
 		g_ = (g / (r + g + b) || 0) - 1/3;
-	var T = g_ > 0 ? .5 * Math.atan(r_/ g_) / Math.PI + .25 :
-			g_ < 0 ? .5 * Math.atan(r_/ g_) / Math.PI + .75 : 0;
+	var T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0;
 
 	var S = Math.sqrt(9/5 * (r_*r_ + g_*g_));
 
 	var L = (r * 0.299) + (g * 0.587) + (b * 0.114);
+	L /= 255;
 
 	return [T, S, L];
 };
