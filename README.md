@@ -77,7 +77,7 @@ register(spaceDefiniton)
 * [ ] [NCS](https://en.wikipedia.org/wiki/Natural_Color_System)
 * [ ] [PMS](https://en.wikipedia.org/wiki/Pantone)
 * [ ] [RAL](https://en.wikipedia.org/wiki/RAL_colour_standard)
-* [ ] [TSL](https://en.wikipedia.org/wiki/TSL_color_space)
+* [x] [TSL](https://en.wikipedia.org/wiki/TSL_color_space) – color space designed for face detection purpose.
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [RGK](https://en.wikipedia.org/wiki/RG_color_space)
 * [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000.
