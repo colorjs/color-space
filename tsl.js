@@ -68,7 +68,9 @@ tsl.rgb = function(tsl) {
  * @return {Array} RGB values
  */
 rgb.tsl = function(rgb) {
-	var [r, g, b] = rgb;
+	var r = rgb[0],
+		g = rgb[1],
+		b = rgb[2];
 
 	var r_ = (r / (r + g + b) || 0) - 1/3,
 		g_ = (g / (r + g + b) || 0) - 1/3;
@@ -77,6 +79,7 @@ rgb.tsl = function(rgb) {
 	var S = Math.sqrt(9/5 * (r_*r_ + g_*g_));
 
 	var L = (r * 0.299) + (g * 0.587) + (b * 0.114);
+	L /= 255;
 
 	return [T, S, L];
 };
