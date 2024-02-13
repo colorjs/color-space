@@ -1,5 +1,3 @@
-> **DEPRECATION NOTICE**: the project has played its role for the beginning of color libs, now there's more perfected alternatives like [colorjs.io](https://colorjs.io/docs/procedural), which has more complete/relevant color spaces, more complete color manipulations & more committed/respectable authors. I recommend you to try that instead.
-
 # Color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
@@ -115,6 +113,7 @@ Thanks to all scientists, who devoted their time to color research and conveyed 
 
 ## Alternatives
 
+* [colorjs.io](https://colorjs.io/docs/procedural)
 * [color-convert](https://github.com/harthur/color-convert)
 * [chromatist](https://github.com/jrus/chromatist)
 * [spectra](https://github.com/avp/spectra)
