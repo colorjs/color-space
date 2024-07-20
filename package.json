@@ -4,6 +4,7 @@
   "version": "2.0.1",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
+  "types": "types/color-space.d.ts",
   "keywords": [
     "color",
     "colour",
@@ -35,7 +36,9 @@
   },
   "files": [
     "*.js",
-    "dist"
+    "*.d.ts",
+    "dist",
+    "types"
   ],
   "license": "MIT",
   "main": "./index.js",
