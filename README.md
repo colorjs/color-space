@@ -113,6 +113,7 @@ Thanks to all scientists, who devoted their time to color research and conveyed 
 
 ## Alternatives
 
+* [texel/color](https://github.com/texel-org/color?tab=readme-ov-file)
 * [colorjs.io](https://colorjs.io/docs/procedural)
 * [color-convert](https://github.com/harthur/color-convert)
 * [chromatist](https://github.com/jrus/chromatist)
