@@ -5,14 +5,17 @@
  * @module color-space/yes
  */
 
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var yes = {
+/** @type {import('./_space.js').ColorSpace} */
+var yes = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'yes',
 	min: [0,0,0],
 	max: [1,1,1],
 	channel: ['luminance', 'e-factor', 's-factor']
-};
+});
 
 
 yes.rgb = function(arg){

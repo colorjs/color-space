@@ -5,15 +5,18 @@ import rgb from './rgb.js';
 import hsl from './hsl.js';
 import hsv from './hsv.js';
 import hwb from './hwb.js';
+import { conversionPlaceholders } from './_space.js';
 
-
-export default {
+/** @type {import('./_space.js').ColorSpace} */
+var hcg = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
+	/** @type {import('./_space.js').Transform} */
 	rgb: function(hcg) {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
@@ -48,6 +51,7 @@ export default {
 		return rgb;
 	},
 
+	/** @type {import('./_space.js').Transform} */
 	hsl: function(hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -63,6 +67,7 @@ export default {
 		return [hcg[0], s * 100, l * 100];
 	},
 
+	/** @type {import('./_space.js').Transform} */
 	hsv: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -77,13 +82,16 @@ export default {
 		return res;
 	},
 
+	/** @type {import('./_space.js').Transform} */
 	hwb: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var v = c + g * (1.0 - c);
 		return [hcg[0], (v - c) * 100, (1 - v) * 100];
 	}
-};
+});
+
+export default hcg;
 
 
 //append rgb

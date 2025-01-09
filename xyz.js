@@ -3,14 +3,18 @@
  *
  * @module  color-space/xyz
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var xyz = {
+/** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
+
+/** @type {import('./_space.js').ColorSpace & XYZSpecific} */
+var xyz = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],
 	alias: ['XYZ', 'ciexyz', 'cie1931']
-};
+});
 
 
 /**
@@ -74,9 +78,9 @@ xyz.max = xyz.whitepoint[2].D65;
 /**
  * Transform xyz to rgb
  *
- * @param {Array} xyz Array of xyz values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} _xyz Array of xyz values
+ * @param {Array<number>} white Whitepoint reference
+ * @return {Array<number>} RGB values
  */
 xyz.rgb = function (_xyz, white) {
 	//FIXME: make sure we have to divide like this. Probably we have to replace matrix as well then
@@ -114,9 +118,9 @@ xyz.rgb = function (_xyz, white) {
 /**
  * RGB to XYZ
  *
- * @param {Array} rgb RGB channels
+ * @param {Array<number>} rgb RGB channels
  *
- * @return {Array} XYZ channels
+ * @return {Array<number>} XYZ channels
  */
 rgb.xyz = function(rgb, white) {
 	var r = rgb[0] / 255,

@@ -1,15 +1,19 @@
 /**
  * @module color-space/cmyk
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-const cmyk = {
+/** @type {import('./_space.js').ColorSpace} */
+const cmyk = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
 	alias: ['CMYK'],
 
+	/** @type {import('./_space.js').Transform} */
 	rgb: function(cmyk) {
 		var c = cmyk[0] / 100,
 				m = cmyk[1] / 100,
@@ -22,7 +26,7 @@ const cmyk = {
 		b = 1 - Math.min(1, y * (1 - k) + k);
 		return [r * 255, g * 255, b * 255];
 	}
-};
+});
 
 
 //extend rgb

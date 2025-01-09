@@ -8,23 +8,26 @@
  *
  * @module  color-space/ypbpr
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var ypbpr = {
+/** @type {import('./_space.js').ColorSpace} */
+var ypbpr = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','Pb','Pr'],
 	alias: ['YPbPr', 'Y/PB/PR', 'YPRPB', 'PRPBY', 'PBPRY', 'Y/Pb/Pr', 'YPrPb', 'PrPbY', 'PbPrY', 'Y/R-Y/B-Y', 'Y(R-Y)(B-Y)', 'R-Y', 'B-Y']
-};
+});
 
 
 /**
  * YPbPr to RGB
  *
- * @param {Array} ypbpr RGB values
+ * @param {Array<number>} ypbpr RGB values
  *
- * @return {Array} YPbPr values
+ * @return {Array<number>} YPbPr values
  */
 ypbpr.rgb = function(ypbpr, kb, kr) {
 	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
@@ -44,9 +47,10 @@ ypbpr.rgb = function(ypbpr, kb, kr) {
 /**
  * RGB to YPbPr
  *
- * @param {Array} ypbpr YPbPr values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} rgb YPbPr values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB values
  */
 rgb.ypbpr = function(rgb, kb, kr) {
 	var r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;

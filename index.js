@@ -40,21 +40,43 @@ import tsl from './tsl.js'
 import yes from './yes.js'
 import osaucs from './osaucs.js'
 import hsp from './hsp.js'
+import { conversionPlaceholders, spaceIds } from './_space.js'
 
-const spaces = {};
+/** @type {{[key in import('./_space.js').SpaceId]: import('./_space.js').ColorSpace}} */
+const spaces = /** @type {{[key in import('./_space.js').SpaceId]: import('./_space.js').ColorSpace}} */ ({});
 export default spaces;
 
+/**
+ * @param {import('./_space.js').ColorSpace} newSpace 
+ */
 export function register (newSpace) {
-	const newSpaceName = newSpace.name
-	for (var existingSpaceName in spaces) {
+	const newSpaceName = newSpace.name;		
+	/** @type {import('./_space.js').SpaceId} */
+	var existingSpaceName;
+	for (existingSpaceName in spaces) {
+		if (newSpace[existingSpaceName] === conversionPlaceholders[existingSpaceName]) {
+			delete newSpace[existingSpaceName];
+		}
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
 
 		const existingSpace = spaces[existingSpaceName]
-		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
+		if (existingSpace) {
+			if (existingSpace[newSpaceName] === conversionPlaceholders[newSpaceName]) {
+				delete existingSpace[newSpaceName];
+			}
+			if (!existingSpace[newSpaceName]) {
+				existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
+			}
+		}
 	}
 	spaces[newSpaceName] = newSpace
 }
 
+/**
+ * @param {import('./_space.js').ColorSpace} fromSpace 
+ * @param {import('./_space.js').SpaceId} toSpaceName 
+ * @returns {import('./_space.js').Transform}
+ */
 function createConverter (fromSpace, toSpaceName) {
 	//create xyz converter, if available
 	if (fromSpace.xyz && spaces.xyz[toSpaceName])
@@ -63,6 +85,11 @@ function createConverter (fromSpace, toSpaceName) {
 	//create rgb converter
 	if (fromSpace.rgb && spaces.rgb[toSpaceName])
 		return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
+
+
+	return () => {
+		throw new Error('Conversion not available');
+	}
 }
 
 // register all spaces by default

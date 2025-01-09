@@ -15,16 +15,19 @@
  *
  * @module  color-space/xvycc
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-var xvycc = {
+/** @type {import('./_space.js').ColorSpace} */
+var xvycc = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
 	alias: ['xvYCC']
-};
+});
 
 export default xvycc;
 
@@ -32,7 +35,7 @@ export default xvycc;
  * From analog to digital form.
  * Simple scale to min/max ranges
  *
- * @return {Array} Resulting digitized form
+ * @return {Array<number>} Resulting digitized form
  */
 ypbpr.xvycc = function (ypbpr) {
 	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
@@ -64,9 +67,10 @@ xvycc.ypbpr = function (xvycc) {
  * xvYCC to RGB
  * transform through analog form
  *
- * @param {Array} xvycc RGB values
- *
- * @return {Array} xvYCC values
+ * @param {Array<number>} arr RGB values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} xvYCC values
  */
 xvycc.rgb = function (arr, kb, kr) {
 	return ypbpr.rgb(xvycc.ypbpr(arr), kb, kr);
@@ -77,9 +81,10 @@ xvycc.rgb = function (arr, kb, kr) {
  * RGB to xvYCC
  * transform through analog form
  *
- * @param {Array} xvycc xvYCC values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} arr xvYCC values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB values
  */
 rgb.xvycc = function(arr, kb, kr) {
 	return ypbpr.xvycc(rgb.ypbpr(arr, kb, kr));

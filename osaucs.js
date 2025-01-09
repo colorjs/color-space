@@ -4,16 +4,18 @@
  * @module  color-space/osa-ucs
  */
 
+import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-
-var osaucs = {
+/** @type {import('./_space.js').ColorSpace} */
+var osaucs = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],
 	min: [-10, -6, -10],
 	max: [8, 12, 6]
-};
+});
 
 
 /**
@@ -32,9 +34,9 @@ osaucs.xyz = function (arg) {
 /**
  * Transform to xyz osaucs
  *
- * @param {Array} arg Input xyz array
+ * @param {Array<number>} arg Input xyz array
  *
- * @return {Array} Ljg array
+ * @return {Array<number>} Ljg array
  */
 xyz.osaucs = function (arg) {
 	var X = arg[0], Y = arg[1], Z = arg[2];

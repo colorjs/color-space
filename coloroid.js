@@ -6,14 +6,17 @@
  *
  * @module  color-space/coloroid
  */
+import { conversionPlaceholders } from './_space.js';
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
+/** @typedef {{table?: Array<Array<number>>}} ColoroidSpecific */
 
 /**
  * Main color space object
  */
-var coloroid = {
+/** @type {import('./_space.js').ColorSpace & ColoroidSpecific} */
+var coloroid = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
 	name: 'coloroid',
 	alias: ['ATV'],
 
@@ -23,7 +26,7 @@ var coloroid = {
 	channel: ['A','T','V'],
 	min: [10, 0, 0],
 	max: [76, 100, 100]
-};
+});
 
 
 /**
@@ -156,7 +159,7 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 
 /** Create angle-sorted table */
 var table = coloroid.table;
-var angleTable = [].concat(table.slice(-13),table.slice(0, -13));
+var angleTable = /** @type {Array<Array<number>>} */ ([]).concat(table.slice(-13),table.slice(0, -13));
 
 
 /**
@@ -179,9 +182,9 @@ var ew = (Xn + Yn + Zn) / 100;
 /**
  * From xyY to coloroid
  *
- * @param {Array} arg xyY tuple
+ * @param {Array<number>} arg xyY tuple
  *
- * @return {Array} ATV coloroid channels
+ * @return {Array<number>} ATV coloroid channels
  */
 xyy.coloroid = function (arg) {
 	var x = arg[0], y = arg[1], Y = arg[2];
@@ -226,9 +229,9 @@ xyy.coloroid = function (arg) {
 /**
  * Backwise - from coloroid to xyY
  *
- * @param {Array} arg Coloroid values
+ * @param {Array<number>} arg Coloroid values
  *
- * @return {Array} xyY values
+ * @return {Array<number>} xyY values
  */
 coloroid.xyy = function (arg) {
 	var A = arg[0], T = arg[1], V = arg[2];
@@ -242,6 +245,8 @@ coloroid.xyy = function (arg) {
 		}
 	}
 
+	//FIXME row is possibly undefined
+	//@ts-ignore
 	var yl = row[4], el = row[2], xl = row[3];
 
 	var Y = V*V / 100;

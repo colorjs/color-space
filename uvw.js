@@ -5,16 +5,19 @@
  *
  * @module  color-space/uvw
  */
+import { conversionPlaceholders } from './_space.js';
 import ucs from './ucs.js';
 import xyz from './xyz.js';
 
-var uvw = {
+/** @type {import('./_space.js').ColorSpace} */
+var uvw = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
 	channel: ['U','V','W'],
 	alias: ['UVW', 'cieuvw', 'cie1964']
-};
+});
 
 export default uvw;
 
@@ -53,7 +56,7 @@ uvw.xyz = function (arg, i, o) {
 /**
  * XYZ to UVW
  *
- * @return {Array} An UVW array
+ * @return {Array<number>} An UVW array
  */
 xyz.uvw = function (arr, i, o) {
 	var x = arr[0], y = arr[1], z = arr[2], xn, yn, zn, un, vn;
@@ -85,21 +88,22 @@ xyz.uvw = function (arr, i, o) {
 /**
  * UVW to UCS
  *
- * @param {Array} uvw UCS values
+ * @param {Array<number>} uvw UCS values
  *
- * @return {Array} UVW values
+ * @return {Array<number>} UVW values
  */
 uvw.ucs = function(uvw) {
 	//find chromacity variables
+	throw new Error('Not implemented');
 };
 
 
 /**
  * UCS to UVW
  *
- * @param {Array} uvw UVW values
+ * @param {Array<number>} ucs UVW values
  *
- * @return {Array} UCS values
+ * @return {Array<number>} UCS values
  */
 ucs.uvw = function(ucs) {
 	// //find chromacity variables
@@ -110,4 +114,5 @@ ucs.uvw = function(ucs) {
 	// w = 25 * Math.pow(y, 1/3) - 17;
 	// u = 13 * w * (u - un);
 	// v = 13 * w * (v - vn);
+	throw new Error('Not implemented');
 };

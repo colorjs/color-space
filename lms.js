@@ -10,9 +10,14 @@
  *
  * @module color-space/lms
  */
+import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-var lms = {
+/** @typedef {{matrix: Object<string, Array<number>>}} LMSSpecific */
+
+/** @type {import('./_space.js').ColorSpace & LMSSpecific} */
+var lms = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'lms',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -46,7 +51,7 @@ var lms = {
 		   -0.7036, 1.6975, 0.0061,
 			0.0030, 0.0136, 0.9834]
 	}
-};
+});
 
 export default lms;
 

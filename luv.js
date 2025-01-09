@@ -3,9 +3,12 @@
  *
  * @module color-space/luv
  */
- import xyz from './xyz.js';
+import { conversionPlaceholders } from './_space.js';
+import xyz from './xyz.js';
 
-export default {
+/** @type {import('./_space.js').ColorSpace} */
+var luv = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
@@ -16,6 +19,7 @@ export default {
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
+	/** @type {import('./_space.js').Transform} */
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 		l = arg[0], u = arg[1], v = arg[2];
@@ -56,7 +60,9 @@ export default {
 
 		return [x, y, z];
 	}
-};
+});
+
+export default luv;
 
 // http://www.brucelindbloom.com/index.html?Equations.html
 // https://github.com/boronine/husl/blob/master/husl.coffee

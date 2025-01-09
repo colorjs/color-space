@@ -6,24 +6,27 @@
  *
  * @module  color-space/tsl
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var tsl = {
+/** @type {import('./_space.js').ColorSpace} */
+var tsl = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],
 	channel: ['tint','saturation','lightness'],
 	alias: ['TSL'],
-};
+});
 
 export default tsl;
 
 /**
  * TSL to RGB
  *
- * @param {Array} tsl RGB values
+ * @param {Array<number>} tsl RGB values
  *
- * @return {Array} TSL values
+ * @return {Array<number>} TSL values
  */
 tsl.rgb = function(tsl) {
 	var T = tsl[0],
@@ -64,9 +67,9 @@ tsl.rgb = function(tsl) {
 /**
  * RGB to TSL
  *
- * @param {Array} tsl TSL values
+ * @param {Array<number>} rgb TSL values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.tsl = function(rgb) {
 	var [r, g, b] = rgb;

@@ -6,23 +6,26 @@
  *
  * @module  color-space/ycbcr
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'
 
-var ycbcr = {
+/** @type {import('./_space.js').ColorSpace} */
+var ycbcr = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
 	channel: ['Y','Cb','Cr'],
 	alias: ['YCbCr', 'YCC']
-};
+});
 
 
 /**
  * From analog to digital form.
  * Simple scale to min/max ranges
  *
- * @return {Array} Resulting digitized form
+ * @return {Array<number>} Resulting digitized form
  */
 ypbpr.ycbcr = function (ypbpr) {
 	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
@@ -54,9 +57,10 @@ ycbcr.ypbpr = function (ycbcr) {
  * YCbCr to RGB
  * transform through analog form
  *
- * @param {Array} ycbcr RGB values
- *
- * @return {Array} YCbCr values
+ * @param {Array<number>} arr RGB values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} YCbCr values
  */
 ycbcr.rgb = function (arr, kb, kr) {
 	return ypbpr.rgb(ycbcr.ypbpr(arr), kb, kr);
@@ -67,9 +71,10 @@ ycbcr.rgb = function (arr, kb, kr) {
  * RGB to YCbCr
  * transform through analog form
  *
- * @param {Array} ycbcr YCbCr values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} arr YCbCr values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB values
  */
 rgb.ycbcr = function(arr, kb, kr) {
 	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));

@@ -5,24 +5,27 @@
  *
  * @module  color-space/ucs
  */
+import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-var ucs = {
+/** @type {import('./_space.js').ColorSpace} */
+var ucs = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],
 	channel: ['U','V','W'],
 	alias: ['UCS', 'cie1960']
-};
+});
 
 export default ucs;
 
 /**
  * UCS to XYZ
  *
- * @param {Array} ucs XYZ values
+ * @param {Array<number>} ucs XYZ values
  *
- * @return {Array} UCS values
+ * @return {Array<number>} UCS values
  */
 ucs.xyz = function(ucs) {
 	var u = ucs[0],
@@ -40,9 +43,9 @@ ucs.xyz = function(ucs) {
 /**
  * XYZ to UCS
  *
- * @param {Array} ucs UCS values
+ * @param {Array<number>} xyz UCS values
  *
- * @return {Array} XYZ values
+ * @return {Array<number>} XYZ values
  */
 xyz.ucs = function(xyz) {
 	var x = xyz[0],

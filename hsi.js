@@ -4,15 +4,18 @@
  *
  * @module color-space/hsl
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var hsi = {
+/** @type {import('./_space.js').ColorSpace} */
+var hsi = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'saturation', 'intensity'],
 	alias: ['HSI']
-};
+});
 
 export default hsi
 
@@ -20,9 +23,9 @@ export default hsi
 /**
  * HSI to RGB
  *
- * @param {Array} hsi Channel values
+ * @param {Array<number>} hsi Channel values
  *
- * @return {Array} RGB channel values
+ * @return {Array<number>} RGB channel values
  */
 hsi.rgb = function (hsi) {
 	var h = (hsi[0] < 0 ? (hsi[0] % 360) + 360 : (hsi[0] % 360)) * Math.PI / 180;
@@ -57,9 +60,9 @@ hsi.rgb = function (hsi) {
 /**
  * RGB to HSI
  *
- * @param {Array} rgb Channel values
+ * @param {Array<number>} rgb Channel values
  *
- * @return {Array} HSI channel values
+ * @return {Array<number>} HSI channel values
  */
 rgb.hsi = function (rgb) {
 	var sum = rgb[0] + rgb[1] + rgb[2];

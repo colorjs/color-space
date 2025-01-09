@@ -53,6 +53,9 @@ Scripting_*
 docs
 *.pdf
 *.pak
+*.d.ts
+*.d.ts.map
+dist
 
 
 design

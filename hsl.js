@@ -1,15 +1,19 @@
 /**
  * @module color-space/hsl
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-export default {
+/** @type {import('./_space.js').ColorSpace} */
+var hsl = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
+	/** @type {import('./_space.js').Transform} */
 	rgb: function(hsl) {
 		var h = hsl[0]/360, s = hsl[1]/100, l = hsl[2]/100, t1, t2, t3, rgb, val, i=0;
 
@@ -31,7 +35,9 @@ export default {
 
 		return rgb;
 	}
-};
+});
+
+export default hsl;
 
 
 //extend rgb
@@ -57,6 +63,8 @@ rgb.hsl = function(rgb) {
 		h = 4 + (r - g)/ delta;
 	}
 
+	//FIXME h is possibly undefined
+	//@ts-ignore
 	h = Math.min(h * 60, 360);
 
 	if (h < 0) {

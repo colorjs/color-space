@@ -3,17 +3,21 @@
  *
  * @module color-space/lchuv
  */
+import { conversionPlaceholders } from './_space.js';
 import luv from './luv.js';
 import xyz from './xyz.js';
 
 //cylindrical luv
-var lchuv = {
+/** @type {import('./_space.js').ColorSpace} */
+var lchuv = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
 	max: [100,100,360],
 
+	/** @type {import('./_space.js').Transform} */
 	luv: function(luv){
 		var l = luv[0],
 		c = luv[1],
@@ -26,10 +30,11 @@ var lchuv = {
 		return [l, u, v];
 	},
 
+	/** @type {import('./_space.js').Transform} */
 	xyz: function(arg) {
 		return luv.xyz(lchuv.luv(arg));
 	}
-};
+});
 
 export default lchuv;
 

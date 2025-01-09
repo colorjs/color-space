@@ -1,19 +1,23 @@
 /**
  * @module color-space/hsp
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js'
 
 const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-export default {
+  /** @type {import('./_space.js').ColorSpace} */
+var hsp = Object.assign({}, conversionPlaceholders, {
+  /** @type {import('./_space.js').SpaceId} */
   name: 'hsp',
   min: [0, 0, 0],
   max: [360, 100, 255],
   channel: ['hue', 'saturation', 'perceived_brightness'],
   alias: ['HSP'],
 
+	/** @type {import('./_space.js').Transform} */
   rgb: function (hsp) {
     var h = hsp[0]/360.0,
       s = hsp[1]/100.0,
@@ -97,14 +101,16 @@ export default {
   }
 
   
-};
+});
+
+export default hsp;
 
 
 //append rgb
 rgb.hsp = function (rgb) {
-  var r = parseInt(rgb[0], 10),
-    g = parseInt(rgb[1], 10),
-    b = parseInt(rgb[2], 10),
+  var r = parseInt(/** @type {?} */ (rgb[0]), 10),
+    g = parseInt(/** @type {?} */ (rgb[1]), 10),
+    b = parseInt(/** @type {?} */ (rgb[2]), 10),
     h, s, p;
 
   //  Calculate the Perceived brightness
@@ -148,6 +154,7 @@ rgb.hsp = function (rgb) {
       }
     }
   }
-    
+  //FIXME h and s are possibly undefined
+  //@ts-ignore
   return [Math.round(h*360.0), s*100.0, Math.round(p)];
 };

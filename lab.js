@@ -4,15 +4,19 @@
  * @module color-space/lab
  */
 
+import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-export default {
+/** @type {import('./_space.js').ColorSpace} */
+var lab = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
 	alias: ['LAB', 'cielab'],
 
+	/** @type {import('./_space.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0],
 				a = lab[1],
@@ -27,13 +31,19 @@ export default {
 			y2 = Math.pow(y / 100, 1/3);
 		}
 
+		//FIXME x is undefined!
+		//@ts-ignore
 		x = x / 95.047 <= 0.008856 ? x = (95.047 * ((a / 500) + y2 - (16 / 116))) / 7.787 : 95.047 * Math.pow((a / 500) + y2, 3);
 
+		//FIXME z is undefined!
+		//@ts-ignore
 		z = z / 108.883 <= 0.008859 ? z = (108.883 * (y2 - (b / 200) - (16 / 116))) / 7.787 : 108.883 * Math.pow(y2 - (b / 200), 3);
 
 		return [x, y, z];
 	}
-};
+});
+
+export default lab;
 
 
 //extend xyz

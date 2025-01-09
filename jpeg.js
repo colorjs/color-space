@@ -5,15 +5,18 @@
  *
  * @module  color-space/jpeg
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var jpeg = {
+/** @type {import('./_space.js').ColorSpace} */
+var jpeg = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
 	alias: ['JPEG']
-};
+});
 
 export default jpeg;
 
@@ -22,9 +25,9 @@ export default jpeg;
  * JPEG to RGB
  * transform through analog form
  *
- * @param {Array} jpeg RGB values
+ * @param {Array<number>} arr RGB values
  *
- * @return {Array} JPEG values
+ * @return {Array<number>} JPEG values
  */
 jpeg.rgb = function (arr) {
 	var y = arr[0], cb = arr[1], cr = arr[2];
@@ -41,9 +44,9 @@ jpeg.rgb = function (arr) {
  * RGB to JPEG
  * transform through analog form
  *
- * @param {Array} jpeg JPEG values
+ * @param {Array<number>} arr JPEG values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.jpeg = function(arr) {
 	var r = arr[0], g = arr[1], b = arr[2];

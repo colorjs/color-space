@@ -4,9 +4,12 @@
  * @module  color-space/labh
  */
 
+import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-export default {
+/** @type {import('./_space.js').ColorSpace} */
+var labh = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'labh',
 
 	//mins/maxes are taken from colormine
@@ -17,6 +20,7 @@ export default {
 	alias: ['LABh', 'hunter-lab', 'hlab'],
 
 	//maths are taken from EasyRGB
+	/** @type {import('./_space.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0], a = lab[1], b = lab[2];
 
@@ -30,7 +34,9 @@ export default {
 
 		return [x,y,z];
 	}
-};
+});
+
+export default labh;
 
 //extend xyz
 xyz.labh = function(xyz){

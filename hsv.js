@@ -3,19 +3,23 @@
  */
 import rgb from './rgb.js';
 import hsl from './hsl.js';
+import { conversionPlaceholders } from './_space.js';
 
-export default {
+/** @type {import('./_space.js').ColorSpace} */
+var hsv = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
+	/** @type {import('./_space.js').Transform} */
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
 			v = hsv[2] / 100,
-			hi = Math.floor(h) % 6;
+			hi = /** @type {0 | 1 | 2 | 3 | 4 | 5} */ (Math.floor(h) % 6);
 
 		var f = h - Math.floor(h),
 			p = 255 * v * (1 - s),
@@ -39,6 +43,7 @@ export default {
 		}
 	},
 
+	/** @type {import('./_space.js').Transform} */
 	hsl: function(hsv) {
 		var h = hsv[0],
 			s = hsv[1] / 100,
@@ -53,7 +58,9 @@ export default {
 
 		return [h, sl * 100, l * 100];
 	}
-};
+});
+
+export default hsv;
 
 
 //append rgb
@@ -86,6 +93,8 @@ rgb.hsv = function(rgb) {
 		h = 4 + (r - g) / delta;
 	}
 
+	//FIXME h is possibly undefined
+	//@ts-ignore
 	h = Math.min(h * 60, 360);
 
 	if (h < 0) {

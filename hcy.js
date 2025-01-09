@@ -4,15 +4,18 @@
  *
  * @module color-space/hcy
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var hcy = {
+/** @type {import('./_space.js').ColorSpace} */
+var hcy = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
-};
+});
 
 export default hcy;
 
@@ -20,9 +23,9 @@ export default hcy;
 /**
  * HCY to RGB
  *
- * @param {Array} hcy Channel values
+ * @param {Array<number>} hcy Channel values
  *
- * @return {Array} RGB channel values
+ * @return {Array<number>} RGB channel values
  */
 hcy.rgb = function (hcy) {
 	var h = (hcy[0] < 0 ? (hcy[0] % 360) + 360 : (hcy[0] % 360)) * Math.PI / 180;
@@ -57,9 +60,9 @@ hcy.rgb = function (hcy) {
 /**
  * RGB to HCY
  *
- * @param {Array} rgb Channel values
+ * @param {Array<number>} rgb Channel values
  *
- * @return {Array} HCY channel values
+ * @return {Array<number>} HCY channel values
  */
 rgb.hcy = function (rgb) {
 	var sum = rgb[0] + rgb[1] + rgb[2];

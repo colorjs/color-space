@@ -3,24 +3,27 @@
  *
  * @module  color-space/ycgco
  */
+import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-var ycgco = {
+/** @type {import('./_space.js').ColorSpace} */
+var ycgco = Object.assign({}, conversionPlaceholders, {
+	/** @type {import('./_space.js').SpaceId} */
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','Cg','Co'],
 	alias: ['YCgCo']
-};
+});
 
 
 /**
  * YCgCo to RGB
  * transform through analog form
  *
- * @param {Array} ycgco RGB values
+ * @param {Array<number>} arr RGB values
  *
- * @return {Array} YCgCo values
+ * @return {Array<number>} YCgCo values
  */
 ycgco.rgb = function (arr) {
 	var y = arr[0], cg = arr[1], co = arr[2];
@@ -39,9 +42,9 @@ ycgco.rgb = function (arr) {
  * RGB to YCgCo
  * transform through analog form
  *
- * @param {Array} ycgco YCgCo values
+ * @param {Array<number>} arr YCgCo values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.ycgco = function(arr) {
 	var r = arr[0]/255, g = arr[1]/255, b = arr[2]/255;
