@@ -6,7 +6,6 @@
  *
  * @module  color-space/coloroid
  */
-import { conversionPlaceholders } from './_space.js';
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
@@ -15,8 +14,8 @@ import xyz from './xyz.js';
 /**
  * Main color space object
  */
-/** @type {import('./_space.js').ColorSpace & ColoroidSpecific} */
-var coloroid = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
+/** @type {import('./index.js').ColorSpace & ColoroidSpecific} */
+var coloroid = /** @type {*} */ ({
 	name: 'coloroid',
 	alias: ['ATV'],
 

@@ -6,11 +6,10 @@
 
 /** @typedef {{defaults: {start: number, rotation: number, hue: number, gamma: number}}} CubeHelixSpecific */
 
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace & CubeHelixSpecific} */
-var cubehelix = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
+/** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */
+var cubehelix = /** @type {*} */ ({
 	name: 'cubehelix',
 	channel: ['fraction'],
 	min: [0],

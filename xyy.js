@@ -3,12 +3,10 @@
  *
  * @module color-space/xyy
  */
-import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var xyy = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var xyy = /** @type {*} */ ({
 	name: 'xyy',
 	min: [0,0,0],
 	max: [1,1,100],

@@ -4,19 +4,17 @@
  * @module color-space/lab
  */
 
-import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var lab = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var lab = /** @type {*} */ ({
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
 	alias: ['LAB', 'cielab'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0],
 				a = lab[1],

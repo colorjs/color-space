@@ -1,19 +1,17 @@
 /**
  * @module color-space/hsl
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var hsl = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var hsl = /** @type {*} */ ({
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hsl) {
 		var h = hsl[0]/360, s = hsl[1]/100, l = hsl[2]/100, t1, t2, t3, rgb, val, i=0;
 

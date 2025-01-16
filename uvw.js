@@ -5,13 +5,11 @@
  *
  * @module  color-space/uvw
  */
-import { conversionPlaceholders } from './_space.js';
 import ucs from './ucs.js';
 import xyz from './xyz.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var uvw = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var uvw = /** @type {*} */ ({
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],

@@ -7,7 +7,7 @@
 import xyz from './xyz.js';
 import lchuv from './lchuv.js';
 import rgb from './rgb.js';
-import { conversionPlaceholders } from './_space.js';
+
 
 // unwrapped https://github.com/hsluv/hsluv/blob/master/javascript/dist/hsluv-0.1.0.min.js
 // FIXME: it has redundant functions like rgbToXyz - can be reused from color-space itself
@@ -27,45 +27,44 @@ function N(a){a=a.toLowerCase();for(var c=[],b=0;3>b;){var d=b++;c.push((16*M.in
 var l=[[3.240969941904521,-1.537383177570093,-.498610760293],[-.96924363628087,1.87596750150772,.041555057407175],[.055630079696993,-.20397695888897,1.056971514242878]],v=[[.41239079926595,.35758433938387,.18048078840183],[.21263900587151,.71516867876775,.072192315360733],[.019330818715591,.11919477979462,.95053215224966]],B=1,C=.19783000664283,D=.46831999493879,k=903.2962962,g=.0088564516,M="0123456789abcdef";
 
 export const _hsluv = {
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsluvToRgb: Q,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsluvToLch: H,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToHsluv: R,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToHpluv: T,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToXyz: u,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToLch: P,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hpluvToRgb: S,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hpluvToLch: J,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToHpluv: K,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToHsluv: I,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToLuv: G,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToRgb: O,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	luvToLch: F,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	luvToXyz: E,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyzToLuv: A,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyzToRgb: t,
 };
 
-/** @typedef {{_hsluv: Object<string, import('./_space.js').Transform>}} HSLuvSpecific */
+/** @typedef {{_hsluv: Object<string, import('./index.js').Transform>}} HSLuvSpecific */
 
-/** @type {import('./_space.js').ColorSpace & HSLuvSpecific} */
-var hsluv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace & HSLuvSpecific} */
+var hsluv = /** @type {*} */ ({
 	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -74,13 +73,13 @@ var hsluv = Object.assign({}, conversionPlaceholders, {
 
 	lchuv: _hsluv.hsluvToLch,
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){
 		return lchuv.xyz(_hsluv.hsluvToLch(arg));
 	},
 
 	//a shorter way to convert to hpluv
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hpluv: function(arg){
 		return _hsluv.lchToHpluv( _hsluv.hsluvToLch(arg));
 	},

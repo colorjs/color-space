@@ -5,18 +5,17 @@ import rgb from './rgb.js';
 import hsl from './hsl.js';
 import hsv from './hsv.js';
 import hwb from './hwb.js';
-import { conversionPlaceholders } from './_space.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var hcg = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hcg = /** @type {*} */ ({
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hcg) {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
@@ -51,7 +50,7 @@ var hcg = Object.assign({}, conversionPlaceholders, {
 		return rgb;
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsl: function(hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -67,7 +66,7 @@ var hcg = Object.assign({}, conversionPlaceholders, {
 		return [hcg[0], s * 100, l * 100];
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsv: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -82,7 +81,7 @@ var hcg = Object.assign({}, conversionPlaceholders, {
 		return res;
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hwb: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;

@@ -5,12 +5,10 @@
  *
  * @module  color-space/jpeg
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var jpeg = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var jpeg = /** @type {*} */ ({
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],

@@ -6,12 +6,10 @@
  *
  * @module  color-space/tsl
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var tsl = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var tsl = /** @type {*} */ ({
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],

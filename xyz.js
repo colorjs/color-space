@@ -3,13 +3,12 @@
  *
  * @module  color-space/xyz
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
 /** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
 
-/** @type {import('./_space.js').ColorSpace & XYZSpecific} */
-var xyz = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
+/** @type {import('./index.js').ColorSpace & XYZSpecific} */
+var xyz = /** @type {*} */ ({
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],

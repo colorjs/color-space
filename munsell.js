@@ -1,7 +1,7 @@
 /**
  * @module color-space/munsell
  */
-var munsell = {
+var munsell = /** @type {*} */ ({
 	name: 'munsell',
 	alias: [],
 	min: [],

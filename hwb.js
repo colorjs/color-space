@@ -4,11 +4,10 @@
 import rgb from './rgb.js';
 import hsv from './hsv.js';
 import hsl from './hsl.js';
-import { conversionPlaceholders } from './_space.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var hwb = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hwb = /** @type {*} */ ({
 	name: 'hwb',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -16,7 +15,7 @@ var hwb = Object.assign({}, conversionPlaceholders, {
 	alias: ['HWB'],
 
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hwb) {
 		var h = hwb[0] / 360,
 			wh = hwb[1] / 100,
@@ -59,7 +58,7 @@ var hwb = Object.assign({}, conversionPlaceholders, {
 
 
 	// http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsv: function(arg){
 		var h = arg[0], w = arg[1], b = arg[2], s, v;
 
@@ -79,7 +78,7 @@ var hwb = Object.assign({}, conversionPlaceholders, {
 		return [h, s, v];
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsl: function(arg){
 		return hsv.hsl(hwb.hsv(arg));
 	}

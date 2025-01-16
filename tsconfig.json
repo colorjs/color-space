@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "outDir": "./dist",
   },
   "files": [
     "index.js", 

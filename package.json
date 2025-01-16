@@ -4,7 +4,7 @@
   "version": "2.0.1",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
-  "types": "./index.d.ts",
+  "types": "./dist/index.d.ts",
   "keywords": [
     "color",
     "colour",
@@ -36,14 +36,12 @@
   },
   "files": [
     "*.js",
-    "*.d.ts",
     "dist"
   ],
   "license": "MIT",
   "main": "./index.js",
   "devDependencies": {
     "almost-equal": "^1.1.0",
-    "rimraf": "^6.0.1",
     "rollup": "^2.66.0",
     "terser": "^5.10.0",
     "typescript": "^5.7.2",
@@ -51,9 +49,9 @@
   },
   "scripts": {
     "test": "npm run typecheck && node test",
-    "build": "rollup ./index.js --file dist/color-space.js --format esm && rimraf *.d.ts* && tsc",
+    "build": "rollup ./index.js --file dist/color-space.js --format esm && tsc",
     "minify": "terser ./dist/color-space.js -o ./dist/color-space.min.js --module -c passes=3 -m",
     "prepublishOnly": "npm run build && npm run minify",
-    "typecheck": "rimraf *.d.ts* && tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   }
 }

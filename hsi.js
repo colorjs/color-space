@@ -4,12 +4,10 @@
  *
  * @module color-space/hsl
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var hsi = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var hsi = /** @type {*} */ ({
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],

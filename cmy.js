@@ -1,12 +1,10 @@
 /**
  * @module color-space/cmy
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var cmy = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var cmy = /** @type {*} */ ({
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -52,6 +50,6 @@ rgb.cmy = function(rgb) {
 		(1-g) * 100 || 0,
 		(1-b) * 100 || 0
 	];
-};
+}
 
 export default cmy

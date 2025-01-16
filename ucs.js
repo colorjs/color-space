@@ -5,12 +5,10 @@
  *
  * @module  color-space/ucs
  */
-import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var ucs = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ucs = /** @type {*} */ ({
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],

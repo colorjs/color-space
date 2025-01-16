@@ -6,13 +6,11 @@
  *
  * @module  color-space/ycbcr
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'
 
-/** @type {import('./_space.js').ColorSpace} */
-var ycbcr = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ycbcr = /** @type {*} */ ({
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],

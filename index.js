@@ -40,42 +40,50 @@ import tsl from './tsl.js'
 import yes from './yes.js'
 import osaucs from './osaucs.js'
 import hsp from './hsp.js'
-import { conversionPlaceholders, spaceIds } from './_space.js'
 
-/** @type {{[key in import('./_space.js').SpaceId]: import('./_space.js').ColorSpace}} */
-const spaces = /** @type {{[key in import('./_space.js').SpaceId]: import('./_space.js').ColorSpace}} */ ({});
+/** @typedef {'rgb' | 'xyz' | 'hsl' | 'hsv' | 'hsi' | 'hwb' | 'cmyk' | 'cmy' | 'xyy' | 'yiq' | 'yuv' | 'ydbdr' | 'ycgco' | 'ypbpr' | 'ycbcr' | 'xvycc' | 'yccbccrc' | 'ucs' | 'uvw' | 'jpeg' | 'lab' | 'labh' | 'lms' | 'lchab' | 'luv' | 'lchuv' | 'hsluv' | 'hpluv' | 'cubehelix' | 'coloroid' | 'hcg' | 'hcy' | 'tsl' | 'yes' | 'osaucs' | 'hsp'} SpaceId */
+
+/** @typedef {(color: Array<number>, ...rest: Array<*>) => Array<number>} Transform */
+
+/** @typedef {{[key in SpaceId]: Transform}} ColorSpaceTransforms */
+
+/**
+ * @typedef {Object} ColorSpaceBase
+ * @property {SpaceId} name
+ * @property {Array<number>} min
+ * @property {Array<number>} max
+ * @property {Array<string>} channel
+ * @property {Array<string>} [alias]
+ * @property {Object<number, Object<string, Array<number>>>} [whitepoint]
+ */
+
+/** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
+
+
+/** @type {{[key in SpaceId]: ColorSpace}} */
+const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
 export default spaces;
 
 /**
- * @param {import('./_space.js').ColorSpace} newSpace 
+ * @param {ColorSpace} newSpace 
  */
 export function register (newSpace) {
-	const newSpaceName = newSpace.name;		
-	/** @type {import('./_space.js').SpaceId} */
+	const newSpaceName = newSpace.name;
+	/** @type {SpaceId} */
 	var existingSpaceName;
 	for (existingSpaceName in spaces) {
-		if (newSpace[existingSpaceName] === conversionPlaceholders[existingSpaceName]) {
-			delete newSpace[existingSpaceName];
-		}
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
 
 		const existingSpace = spaces[existingSpaceName]
-		if (existingSpace) {
-			if (existingSpace[newSpaceName] === conversionPlaceholders[newSpaceName]) {
-				delete existingSpace[newSpaceName];
-			}
-			if (!existingSpace[newSpaceName]) {
-				existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
-			}
-		}
+		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
 	}
 	spaces[newSpaceName] = newSpace
 }
 
 /**
- * @param {import('./_space.js').ColorSpace} fromSpace 
- * @param {import('./_space.js').SpaceId} toSpaceName 
- * @returns {import('./_space.js').Transform}
+ * @param {ColorSpace} fromSpace
+ * @param {SpaceId} toSpaceName
+ * @returns {Transform}
  */
 function createConverter (fromSpace, toSpaceName) {
 	//create xyz converter, if available

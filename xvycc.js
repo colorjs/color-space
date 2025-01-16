@@ -15,13 +15,11 @@
  *
  * @module  color-space/xvycc
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var xvycc = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var xvycc = /** @type {*} */ ({
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],

@@ -5,24 +5,23 @@
  */
 import xyz from './xyz.js';
 import lab from './lab.js';
-import { conversionPlaceholders } from './_space.js';
+
 
 //cylindrical lab
-/** @type {import('./_space.js').ColorSpace} */
-var lchab = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var lchab = /** @type {*} */ ({
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return lab.xyz(lchab.lab(arg));
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lab: function(lch) {
 		var l = lch[0],
 				c = lch[1],

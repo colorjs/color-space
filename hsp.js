@@ -1,23 +1,22 @@
 /**
  * @module color-space/hsp
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js'
 
 const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-  /** @type {import('./_space.js').ColorSpace} */
-var hsp = Object.assign({}, conversionPlaceholders, {
-  /** @type {import('./_space.js').SpaceId} */
+  /** @type {import('./index.js').ColorSpace} */
+var hsp = /** @type {*} */ ({
+  /** @type {import('./index.js').SpaceId} */
   name: 'hsp',
   min: [0, 0, 0],
   max: [360, 100, 255],
   channel: ['hue', 'saturation', 'perceived_brightness'],
   alias: ['HSP'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
   rgb: function (hsp) {
     var h = hsp[0]/360.0,
       s = hsp[1]/100.0,

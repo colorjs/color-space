@@ -3,12 +3,10 @@
  *
  * @module  color-space/yuv
  */
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var yuv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var yuv = /** @type {*} */ ({
 	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],

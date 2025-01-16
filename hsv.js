@@ -3,18 +3,17 @@
  */
 import rgb from './rgb.js';
 import hsl from './hsl.js';
-import { conversionPlaceholders } from './_space.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var hsv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hsv = /** @type {*} */ ({
 	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
@@ -43,7 +42,7 @@ var hsv = Object.assign({}, conversionPlaceholders, {
 		}
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsl: function(hsv) {
 		var h = hsv[0],
 			s = hsv[1] / 100,

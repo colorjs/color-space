@@ -3,12 +3,10 @@
  *
  * @module color-space/luv
  */
-import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var luv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var luv = /** @type {*} */ ({
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
@@ -19,7 +17,7 @@ var luv = Object.assign({}, conversionPlaceholders, {
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 		l = arg[0], u = arg[1], v = arg[2];

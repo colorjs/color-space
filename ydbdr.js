@@ -4,13 +4,11 @@
  * @module  color-space/ydbdr
  */
 
-import { conversionPlaceholders } from './_space.js';
 import rgb from './rgb.js';
 import yuv from './yuv.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var ydbdr = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ydbdr = /** @type {*} */ ({
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
 	max: [1, 1.333, 1.333],

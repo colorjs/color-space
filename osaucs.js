@@ -4,12 +4,10 @@
  * @module  color-space/osa-ucs
  */
 
-import { conversionPlaceholders } from './_space.js';
 import xyz from './xyz.js';
 
-/** @type {import('./_space.js').ColorSpace} */
-var osaucs = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var osaucs = /** @type {*} */ ({
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],

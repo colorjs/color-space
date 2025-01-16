@@ -8,7 +8,7 @@
 import xyz from './xyz.js';
 
 
-var cam = {
+var cam = /** @type {*} */ ({
 	name: 'cam',
 
 	alias: ['ciecam', 'ciecam02'],

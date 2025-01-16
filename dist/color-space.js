@@ -1,40 +1,13 @@
-const spaceIds = /** @type {const} */ (['rgb', 'xyz', 'hsl', 'hsv', 'hsi', 'hwb', 'cmyk', 'cmy', 'xyy', 'yiq', 'yuv', 'ydbdr', 'ycgco', 'ypbpr', 'ycbcr', 'xvycc', 'yccbccrc', 'ucs', 'uvw', 'jpeg', 'lab', 'labh', 'lms', 'lchab', 'luv', 'lchuv', 'hsluv', 'hpluv', 'cubehelix', 'coloroid', 'hcg', 'hcy', 'tsl', 'yes', 'osaucs', 'hsp']);
-
-/** @typedef {typeof spaceIds[number]} SpaceId */
-
-/** @typedef {(color: Array<number>, ...rest: Array<*>) => Array<number>} Transform */
-
-/** @typedef {{[key in SpaceId]: Transform}} ColorSpaceTransforms */
-
-/** @type {ColorSpaceTransforms} */
-const conversionPlaceholders = spaceIds.reduce((acc, id) => {
-  acc[id] = () => {
-    throw new Error(`Conversion missing. Please import color-space/${id}.`);
-  };
-  return acc;
-}, /** @type {ColorSpaceTransforms} */ ({}));
-
-/**
- * @typedef {Object} ColorSpaceBase
- * @property {SpaceId} name
- * @property {Array<number>} min
- * @property {Array<number>} max
- * @property {Array<string>} channel
- * @property {Array<string>} [alias]
- * @property {Object<number, Object<string, Array<number>>>} [whitepoint]
- */
-
-/** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
-
 /**
  * RGB space.
  *
  * @module  color-space/rgb
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var rgb = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+
+/** @type {import('./index.js').ColorSpace} */
+var rgb = /** @type {*} */ ({
 	name: 'rgb',
 	min: [0,0,0],
 	max: [255,255,255],
@@ -46,16 +19,15 @@ var rgb = Object.assign({}, conversionPlaceholders, {
  * @module color-space/hsl
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hsl = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var hsl = /** @type {*} */ ({
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hsl) {
 		var h = hsl[0]/360, s = hsl[1]/100, l = hsl[2]/100, t1, t2, t3, rgb, val, i=0;
 
@@ -130,16 +102,16 @@ rgb.hsl = function(rgb) {
  * @module color-space/hsv
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hsv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hsv = /** @type {*} */ ({
 	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
@@ -168,7 +140,7 @@ var hsv = Object.assign({}, conversionPlaceholders, {
 		}
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsl: function(hsv) {
 		var h = hsv[0],
 			s = hsv[1] / 100,
@@ -252,9 +224,8 @@ hsl.hsv = function(hsl) {
  * @module color-space/hsl
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hsi = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var hsi = /** @type {*} */ ({
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
@@ -333,9 +304,9 @@ rgb.hsi = function (rgb) {
  * @module color-space/hwb
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hwb = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hwb = /** @type {*} */ ({
 	name: 'hwb',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -343,7 +314,7 @@ var hwb = Object.assign({}, conversionPlaceholders, {
 	alias: ['HWB'],
 
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hwb) {
 		var h = hwb[0] / 360,
 			wh = hwb[1] / 100,
@@ -386,7 +357,7 @@ var hwb = Object.assign({}, conversionPlaceholders, {
 
 
 	// http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsv: function(arg){
 		var h = arg[0], w = arg[1], b = arg[2], s, v;
 
@@ -406,7 +377,7 @@ var hwb = Object.assign({}, conversionPlaceholders, {
 		return [h, s, v];
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsl: function(arg){
 		return hsv.hsl(hwb.hsv(arg));
 	}
@@ -444,16 +415,15 @@ hsl.hwb = function(arg){
  * @module color-space/cmyk
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-const cmyk = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+const cmyk = /** @type {*} */ ({
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
 	alias: ['CMYK'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(cmyk) {
 		var c = cmyk[0] / 100,
 				m = cmyk[1] / 100,
@@ -487,9 +457,8 @@ rgb.cmyk = function(rgb) {
  * @module color-space/cmy
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var cmy = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var cmy = /** @type {*} */ ({
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -545,8 +514,8 @@ rgb.cmy = function(rgb) {
 
 /** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
 
-/** @type {import('./_space.js').ColorSpace & XYZSpecific} */
-var xyz = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
+/** @type {import('./index.js').ColorSpace & XYZSpecific} */
+var xyz = /** @type {*} */ ({
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],
@@ -684,9 +653,8 @@ rgb.xyz = function(rgb, white) {
  * @module color-space/xyy
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var xyy = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var xyy = /** @type {*} */ ({
 	name: 'xyy',
 	min: [0,0,0],
 	max: [1,1,100],
@@ -721,9 +689,8 @@ xyz.xyy = function(arg) {
  * @module  color-space/yiq
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var yiq = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var yiq = /** @type {*} */ ({
 	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
@@ -771,9 +738,8 @@ rgb.yiq = function(rgb) {
  * @module  color-space/yuv
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var yuv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var yuv = /** @type {*} */ ({
 	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -818,9 +784,8 @@ rgb.yuv = function(rgb) {
  * @module  color-space/ydbdr
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var ydbdr = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ydbdr = /** @type {*} */ ({
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
 	max: [1, 1.333, 1.333],
@@ -888,9 +853,8 @@ ydbdr.yuv = function (ydbdr) {
  * @module  color-space/ycgco
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var ycgco = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ycgco = /** @type {*} */ ({
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
@@ -949,9 +913,8 @@ rgb.ycgco = function(arr) {
  * @module  color-space/ypbpr
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var ypbpr = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ypbpr = /** @type {*} */ ({
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -1013,9 +976,8 @@ rgb.ypbpr = function(rgb, kb, kr) {
  * @module  color-space/ycbcr
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var ycbcr = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ycbcr = /** @type {*} */ ({
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
@@ -1101,9 +1063,8 @@ rgb.ycbcr = function(arr, kb, kr) {
  * @module  color-space/xvycc
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var xvycc = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var xvycc = /** @type {*} */ ({
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
@@ -1176,9 +1137,8 @@ rgb.xvycc = function(arr, kb, kr) {
  * @module  color-space/yccbccrc
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var yccbccrc = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var yccbccrc = /** @type {*} */ ({
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
@@ -1218,9 +1178,8 @@ rgb.yccbccrc = function(arr) {
  * @module  color-space/ucs
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var ucs = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var ucs = /** @type {*} */ ({
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],
@@ -1275,9 +1234,8 @@ xyz.ucs = function(xyz) {
  * @module  color-space/uvw
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var uvw = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var uvw = /** @type {*} */ ({
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
@@ -1389,9 +1347,8 @@ ucs.uvw = function(ucs) {
  * @module  color-space/jpeg
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var jpeg = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var jpeg = /** @type {*} */ ({
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
@@ -1443,16 +1400,15 @@ rgb.jpeg = function(arr) {
  * @module color-space/lab
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var lab = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var lab = /** @type {*} */ ({
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
 	alias: ['LAB', 'cielab'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0],
 				a = lab[1],
@@ -1508,9 +1464,8 @@ xyz.lab = function(xyz){
  * @module  color-space/labh
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var labh = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var labh = /** @type {*} */ ({
 	name: 'labh',
 
 	//mins/maxes are taken from colormine
@@ -1521,7 +1476,7 @@ var labh = Object.assign({}, conversionPlaceholders, {
 	alias: ['LABh', 'hunter-lab', 'hlab'],
 
 	//maths are taken from EasyRGB
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0], a = lab[1], b = lab[2];
 
@@ -1563,9 +1518,8 @@ xyz.labh = function(xyz){
 
 /** @typedef {{matrix: Object<string, Array<number>>}} LMSSpecific */
 
-/** @type {import('./_space.js').ColorSpace & LMSSpecific} */
-var lms = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace & LMSSpecific} */
+var lms = /** @type {*} */ ({
 	name: 'lms',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -1639,22 +1593,22 @@ xyz.lms = function(arg, matrix) {
  * @module color-space/lchab
  */
 
+
 //cylindrical lab
-/** @type {import('./_space.js').ColorSpace} */
-var lchab = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var lchab = /** @type {*} */ ({
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return lab.xyz(lchab.lab(arg));
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lab: function(lch) {
 		var l = lch[0],
 				c = lch[1],
@@ -1695,9 +1649,8 @@ xyz.lchab = function(arg){
  * @module color-space/luv
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var luv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var luv = /** @type {*} */ ({
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
@@ -1708,7 +1661,7 @@ var luv = Object.assign({}, conversionPlaceholders, {
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 		l = arg[0], u = arg[1], v = arg[2];
@@ -1797,16 +1750,15 @@ xyz.luv = function(arg, i, o) {
  */
 
 //cylindrical luv
-/** @type {import('./_space.js').ColorSpace} */
-var lchuv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var lchuv = /** @type {*} */ ({
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
 	max: [100,100,360],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	luv: function(luv){
 		var l = luv[0],
 		c = luv[1],
@@ -1819,7 +1771,7 @@ var lchuv = Object.assign({}, conversionPlaceholders, {
 		return [l, u, v];
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return luv.xyz(lchuv.luv(arg));
 	}
@@ -1849,6 +1801,7 @@ xyz.lchuv = function(arg){
  * @module color-space/hsluv
  */
 
+
 // unwrapped https://github.com/hsluv/hsluv/blob/master/javascript/dist/hsluv-0.1.0.min.js
 // FIXME: it has redundant functions like rgbToXyz - can be reused from color-space itself
 //@ts-ignore
@@ -1865,45 +1818,44 @@ function J(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<a)return [100,0,c];if(1E-8>
 var l=[[3.240969941904521,-1.537383177570093,-.498610760293],[-.96924363628087,1.87596750150772,.041555057407175],[.055630079696993,-.20397695888897,1.056971514242878]],v=[[.41239079926595,.35758433938387,.18048078840183],[.21263900587151,.71516867876775,.072192315360733],[.019330818715591,.11919477979462,.95053215224966]],B=1,C=.19783000664283,D=.46831999493879,k=903.2962962,g=.0088564516;
 
 const _hsluv = {
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsluvToRgb: Q,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsluvToLch: H,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToHsluv: R,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToHpluv: T,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToXyz: u,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgbToLch: P,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hpluvToRgb: S,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hpluvToLch: J,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToHpluv: K,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToHsluv: I,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToLuv: G,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	lchToRgb: O,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	luvToLch: F,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	luvToXyz: E,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyzToLuv: A,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyzToRgb: t,
 };
 
-/** @typedef {{_hsluv: Object<string, import('./_space.js').Transform>}} HSLuvSpecific */
+/** @typedef {{_hsluv: Object<string, import('./index.js').Transform>}} HSLuvSpecific */
 
-/** @type {import('./_space.js').ColorSpace & HSLuvSpecific} */
-var hsluv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace & HSLuvSpecific} */
+var hsluv = /** @type {*} */ ({
 	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -1912,13 +1864,13 @@ var hsluv = Object.assign({}, conversionPlaceholders, {
 
 	lchuv: _hsluv.hsluvToLch,
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){
 		return lchuv.xyz(_hsluv.hsluvToLch(arg));
 	},
 
 	//a shorter way to convert to hpluv
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hpluv: function(arg){
 		return _hsluv.lchToHpluv( _hsluv.hsluvToLch(arg));
 	},
@@ -1942,9 +1894,9 @@ rgb.hsluv = _hsluv.rgbToHsluv;
  * @module color-space/hpluv
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hpluv = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hpluv = /** @type {*} */ ({
 	name: 'hpluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -1952,11 +1904,11 @@ var hpluv = Object.assign({}, conversionPlaceholders, {
 	alias: ['HPLuv', 'HuSLp'],
 
 	lchuv: _hsluv.hpluvToLch,
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){return lchuv.xyz(_hsluv.hpluvToLch(arg));},
 
 	//a shorter way to convert to husl
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsluv: function(arg){
 		return _hsluv.lchToHsluv( _hsluv.hpluvToLch(arg));
 	}
@@ -1972,8 +1924,8 @@ xyz.hpluv = function(arg){return _hsluv.lchToHpluv(xyz.lchuv(arg));};
  * @module color-space/cubehelix
  */
 
-/** @type {import('./_space.js').ColorSpace & CubeHelixSpecific} */
-var cubehelix = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
+/** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */
+var cubehelix = /** @type {*} */ ({
 	name: 'cubehelix',
 	channel: ['fraction'],
 	min: [0],
@@ -2047,8 +1999,8 @@ rgb.cubehelix = function(rgb) {
 /**
  * Main color space object
  */
-/** @type {import('./_space.js').ColorSpace & ColoroidSpecific} */
-var coloroid = Object.assign(/** @type {*} */ ({}), conversionPlaceholders, {
+/** @type {import('./index.js').ColorSpace & ColoroidSpecific} */
+var coloroid = /** @type {*} */ ({
 	name: 'coloroid',
 	alias: ['ATV'],
 
@@ -2311,16 +2263,16 @@ coloroid.xyz = function (arg) {
  * @module color-space/hcg
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hcg = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+
+/** @type {import('./index.js').ColorSpace} */
+var hcg = /** @type {*} */ ({
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	rgb: function(hcg) {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
@@ -2355,7 +2307,7 @@ var hcg = Object.assign({}, conversionPlaceholders, {
 		return rgb;
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsl: function(hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -2371,7 +2323,7 @@ var hcg = Object.assign({}, conversionPlaceholders, {
 		return [hcg[0], s * 100, l * 100];
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hsv: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -2386,7 +2338,7 @@ var hcg = Object.assign({}, conversionPlaceholders, {
 		return res;
 	},
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
 	hwb: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -2484,9 +2436,8 @@ hwb.hcg = function(hwb){
  * @module color-space/hcy
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var hcy = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var hcy = /** @type {*} */ ({
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],
@@ -2570,9 +2521,8 @@ rgb.hcy = function (rgb) {
  * @module  color-space/tsl
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var tsl = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var tsl = /** @type {*} */ ({
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],
@@ -2649,9 +2599,8 @@ rgb.tsl = function(rgb) {
  * @module color-space/yes
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var yes = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var yes = /** @type {*} */ ({
 	name: 'yes',
 	min: [0,0,0],
 	max: [1,1,1],
@@ -2697,9 +2646,8 @@ rgb.yes = function(arg) {
  * @module  color-space/osa-ucs
  */
 
-/** @type {import('./_space.js').ColorSpace} */
-var osaucs = Object.assign({}, conversionPlaceholders, {
-	/** @type {import('./_space.js').SpaceId} */
+/** @type {import('./index.js').ColorSpace} */
+var osaucs = /** @type {*} */ ({
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],
@@ -2768,16 +2716,16 @@ const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-  /** @type {import('./_space.js').ColorSpace} */
-var hsp = Object.assign({}, conversionPlaceholders, {
-  /** @type {import('./_space.js').SpaceId} */
+  /** @type {import('./index.js').ColorSpace} */
+var hsp = /** @type {*} */ ({
+  /** @type {import('./index.js').SpaceId} */
   name: 'hsp',
   min: [0, 0, 0],
   max: [360, 100, 255],
   channel: ['hue', 'saturation', 'perceived_brightness'],
   alias: ['HSP'],
 
-	/** @type {import('./_space.js').Transform} */
+	/** @type {import('./index.js').Transform} */
   rgb: function (hsp) {
     var h = hsp[0]/360.0,
       s = hsp[1]/100.0,
@@ -2924,54 +2872,58 @@ rgb.hsp = function (rgb) {
  *
  */
 
-/** @type {{[key in import('./_space.js').SpaceId]?: import('./_space.js').ColorSpace}} */
-const spaces = /** @type {{[key in import('./_space.js').SpaceId]: import('./_space.js').ColorSpace}} */ ({});
+/** @typedef {'rgb' | 'xyz' | 'hsl' | 'hsv' | 'hsi' | 'hwb' | 'cmyk' | 'cmy' | 'xyy' | 'yiq' | 'yuv' | 'ydbdr' | 'ycgco' | 'ypbpr' | 'ycbcr' | 'xvycc' | 'yccbccrc' | 'ucs' | 'uvw' | 'jpeg' | 'lab' | 'labh' | 'lms' | 'lchab' | 'luv' | 'lchuv' | 'hsluv' | 'hpluv' | 'cubehelix' | 'coloroid' | 'hcg' | 'hcy' | 'tsl' | 'yes' | 'osaucs' | 'hsp'} SpaceId */
+
+/** @typedef {(color: Array<number>, ...rest: Array<*>) => Array<number>} Transform */
+
+/** @typedef {{[key in SpaceId]: Transform}} ColorSpaceTransforms */
 
 /**
- * @param {import('./_space.js').ColorSpace} newSpace 
+ * @typedef {Object} ColorSpaceBase
+ * @property {SpaceId} name
+ * @property {Array<number>} min
+ * @property {Array<number>} max
+ * @property {Array<string>} channel
+ * @property {Array<string>} [alias]
+ * @property {Object<number, Object<string, Array<number>>>} [whitepoint]
+ */
+
+/** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
+
+
+/** @type {{[key in SpaceId]: ColorSpace}} */
+const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
+
+/**
+ * @param {ColorSpace} newSpace 
  */
 function register (newSpace) {
-	const newSpaceName = newSpace.name;		
-	/** @type {import('./_space.js').SpaceId} */
+	const newSpaceName = newSpace.name;
+	/** @type {SpaceId} */
 	var existingSpaceName;
 	for (existingSpaceName in spaces) {
-		if (newSpace[existingSpaceName] === conversionPlaceholders[existingSpaceName]) {
-			delete newSpace[existingSpaceName];
-		}
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
 
 		const existingSpace = spaces[existingSpaceName];
-		if (existingSpace) {
-			if (existingSpace[newSpaceName] === conversionPlaceholders[newSpaceName]) {
-				delete existingSpace[newSpaceName];
-			}
-			if (!existingSpace[newSpaceName]) {
-				existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
-			}
-		}
+		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
 	}
 	spaces[newSpaceName] = newSpace;
 }
 
 /**
- * @param {import('./_space.js').ColorSpace} fromSpace 
- * @param {import('./_space.js').SpaceId} toSpaceName 
- * @returns {import('./_space.js').Transform}
+ * @param {ColorSpace} fromSpace
+ * @param {SpaceId} toSpaceName
+ * @returns {Transform}
  */
 function createConverter (fromSpace, toSpaceName) {
 	//create xyz converter, if available
-	if (fromSpace.xyz && spaces.xyz && spaces.xyz[toSpaceName]) {
-		const toSpace = spaces.xyz[toSpaceName];
-		const fromXyz = fromSpace.xyz;
-		return (arg) => toSpace(fromXyz(arg));
-	}
+	if (fromSpace.xyz && spaces.xyz[toSpaceName])
+		return (arg) => spaces.xyz[toSpaceName](fromSpace.xyz(arg));
 
 	//create rgb converter
-	if (fromSpace.rgb && spaces.rgb && spaces.rgb[toSpaceName]) {
-		const toSpace = spaces.rgb[toSpaceName];
-		const fromRgb = fromSpace.rgb;
-		return (arg) => toSpace(fromRgb(arg));
-	}
+	if (fromSpace.rgb && spaces.rgb[toSpaceName])
+		return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
+
 
 	return () => {
 		throw new Error('Conversion not available');
