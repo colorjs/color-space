@@ -6,8 +6,7 @@
 
 
 
-/** @type {import('./index.js').ColorSpace} */
-var rgb = /** @type {*} */ ({
+var rgb = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'rgb',
 	min: [0,0,0],
 	max: [255,255,255],

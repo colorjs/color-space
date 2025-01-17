@@ -3,8 +3,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var hsl = /** @type {*} */ ({
+var hsl = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],

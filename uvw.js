@@ -8,8 +8,7 @@
 import ucs from './ucs.js';
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var uvw = /** @type {*} */ ({
+var uvw = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
@@ -22,6 +21,7 @@ export default uvw;
 /**
  * UVW to XYZ
  */
+/** @type {import('./index.js').Transform} */
 uvw.xyz = function (arg, i, o) {
 	var _u, _v, w, u, v, x, y, z, xn, yn, zn, un, vn;
 	u = arg[0], v = arg[1], w = arg[2];

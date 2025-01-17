@@ -8,8 +8,7 @@
 
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */
-var cubehelix = /** @type {*} */ ({
+var cubehelix = /** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */ ({
 	name: 'cubehelix',
 	channel: ['fraction'],
 	min: [0],

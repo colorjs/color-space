@@ -5,8 +5,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var yiq = /** @type {*} */ ({
+var yiq = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
@@ -14,6 +13,7 @@ var yiq = /** @type {*} */ ({
 	alias: ['YIQ']
 });
 
+/** @type {import('./index.js').Transform} */
 yiq.rgb = function(yiq) {
 	var y = yiq[0],
 		i = yiq[1],

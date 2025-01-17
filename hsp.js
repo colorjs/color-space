@@ -8,7 +8,7 @@ const  Pr = 0.299,
   Pb = 0.114;
 
   /** @type {import('./index.js').ColorSpace} */
-var hsp = /** @type {*} */ ({
+var hsp = /** @type {import('./index.js').ColorSpace} */ ({
   /** @type {import('./index.js').SpaceId} */
   name: 'hsp',
   min: [0, 0, 0],

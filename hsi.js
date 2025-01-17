@@ -6,8 +6,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var hsi = /** @type {*} */ ({
+var hsi = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],

@@ -7,8 +7,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var jpeg = /** @type {*} */ ({
+var jpeg = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],

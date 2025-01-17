@@ -8,8 +8,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var tsl = /** @type {*} */ ({
+var tsl = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],

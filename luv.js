@@ -5,8 +5,7 @@
  */
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var luv = /** @type {*} */ ({
+var luv = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords

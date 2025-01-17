@@ -7,8 +7,7 @@
  */
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var ucs = /** @type {*} */ ({
+var ucs = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],

@@ -6,8 +6,7 @@
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var yccbccrc = /** @type {*} */ ({
+var yccbccrc = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],

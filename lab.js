@@ -6,8 +6,7 @@
 
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var lab = /** @type {*} */ ({
+var lab = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],

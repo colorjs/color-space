@@ -5,8 +5,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var ycgco = /** @type {*} */ ({
+var ycgco = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],

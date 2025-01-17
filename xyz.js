@@ -7,8 +7,7 @@ import rgb from './rgb.js';
 
 /** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
 
-/** @type {import('./index.js').ColorSpace & XYZSpecific} */
-var xyz = /** @type {*} */ ({
+var xyz = /** @type {import('./index.js').ColorSpace & XYZSpecific} */ ({
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],

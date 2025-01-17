@@ -6,14 +6,14 @@
 
 
 
-/** @type {import('./index.js').ColorSpace} */
-var rgb = /** @type {*} */ ({
+/** @type {import('./index.js').ColorSpace} */ // @ts-ignore
+var rgb = {
 	name: 'rgb',
 	min: [0,0,0],
 	max: [255,255,255],
 	channel: ['red', 'green', 'blue'],
 	alias: ['RGB']
-});
+};
 
 /**
  * @module color-space/hsl

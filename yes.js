@@ -7,15 +7,14 @@
 
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var yes = /** @type {*} */ ({
+var yes = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yes',
 	min: [0,0,0],
 	max: [1,1,1],
 	channel: ['luminance', 'e-factor', 's-factor']
 });
 
-
+/** @type {import('./index.js').Transform} */
 yes.rgb = function(arg){
 	var y = arg[0], e = arg[1], s = arg[2];
 

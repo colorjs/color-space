@@ -6,8 +6,7 @@
 
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var osaucs = /** @type {*} */ ({
+var osaucs = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],
@@ -19,6 +18,7 @@ var osaucs = /** @type {*} */ ({
 /**
  * There’s no analytical solution to this
  */
+/** @type {import('./index.js').Transform} */
 osaucs.xyz = function (arg) {
 	var x, y, z;
 

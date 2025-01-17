@@ -7,8 +7,7 @@ import luv from './luv.js';
 import xyz from './xyz.js';
 
 //cylindrical luv
-/** @type {import('./index.js').ColorSpace} */
-var lchuv = /** @type {*} */ ({
+var lchuv = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],

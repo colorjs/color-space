@@ -63,8 +63,7 @@ export const _hsluv = {
 
 /** @typedef {{_hsluv: Object<string, import('./index.js').Transform>}} HSLuvSpecific */
 
-/** @type {import('./index.js').ColorSpace & HSLuvSpecific} */
-var hsluv = /** @type {*} */ ({
+var hsluv = /** @type {import('./index.js').ColorSpace & HSLuvSpecific} */ ({
 	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -85,6 +84,7 @@ var hsluv = /** @type {*} */ ({
 	},
 
 	// export internal math
+	/** @type {Object<string, import('./index.js').Transform>} */
 	_hsluv
 });
 

@@ -18,8 +18,7 @@
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var xvycc = /** @type {*} */ ({
+var xvycc = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
@@ -50,6 +49,7 @@ ypbpr.xvycc = function (ypbpr) {
  * From digital to analog form.
  * Scale to min/max ranges
  */
+/** @type {import('./index.js').Transform} */
 xvycc.ypbpr = function (xvycc) {
 	var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
 

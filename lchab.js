@@ -8,8 +8,7 @@ import lab from './lab.js';
 
 
 //cylindrical lab
-/** @type {import('./index.js').ColorSpace} */
-var lchab = /** @type {*} */ ({
+var lchab = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],

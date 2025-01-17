@@ -60,7 +60,6 @@ import hsp from './hsp.js'
 /** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
 
 
-/** @type {{[key in SpaceId]: ColorSpace}} */
 const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
 export default spaces;
 

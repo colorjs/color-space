@@ -6,8 +6,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var hcy = /** @type {*} */ ({
+var hcy = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],

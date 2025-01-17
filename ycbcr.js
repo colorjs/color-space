@@ -9,8 +9,7 @@
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'
 
-/** @type {import('./index.js').ColorSpace} */
-var ycbcr = /** @type {*} */ ({
+var ycbcr = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
@@ -40,6 +39,7 @@ ypbpr.ycbcr = function (ypbpr) {
  * From digital to analog form.
  * Scale to min/max ranges
  */
+/** @type {import('./index.js').Transform} */
 ycbcr.ypbpr = function (ycbcr) {
 	var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
 

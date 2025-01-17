@@ -8,7 +8,7 @@
 import xyz from './xyz.js';
 
 
-var cam = /** @type {*} */ ({
+var cam = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'cam',
 
 	alias: ['ciecam', 'ciecam02'],

@@ -7,8 +7,7 @@ import hsv from './hsv.js';
 import hwb from './hwb.js';
 
 
-/** @type {import('./index.js').ColorSpace} */
-var hcg = /** @type {*} */ ({
+var hcg = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],

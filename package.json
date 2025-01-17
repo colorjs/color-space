@@ -42,6 +42,7 @@
   "main": "./index.js",
   "devDependencies": {
     "almost-equal": "^1.1.0",
+    "pg-gateway": "^0.3.0-beta.4",
     "rollup": "^2.66.0",
     "terser": "^5.10.0",
     "typescript": "^5.7.2",

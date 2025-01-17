@@ -7,8 +7,7 @@
 import rgb from './rgb.js';
 import yuv from './yuv.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var ydbdr = /** @type {*} */ ({
+var ydbdr = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
 	max: [1, 1.333, 1.333],
@@ -64,6 +63,7 @@ yuv.ydbdr = function (yuv) {
 /**
  * From YUV
  */
+/** @type {import('./index.js').Transform} */
 ydbdr.yuv = function (ydbdr) {
 	return [
 		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169

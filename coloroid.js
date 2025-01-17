@@ -14,8 +14,7 @@ import xyz from './xyz.js';
 /**
  * Main color space object
  */
-/** @type {import('./index.js').ColorSpace & ColoroidSpecific} */
-var coloroid = /** @type {*} */ ({
+var coloroid = /** @type {import('./index.js').ColorSpace & ColoroidSpecific} */ ({
 	name: 'coloroid',
 	alias: ['ATV'],
 
@@ -270,6 +269,7 @@ coloroid.xyy = function (arg) {
 xyz.coloroid = function (arg) {
 	return xyy.coloroid(xyz.xyy(arg));
 };
+/** @type {import('./index.js').Transform} */
 coloroid.xyz = function (arg) {
 	return xyy.xyz(coloroid.xyy(arg));
 };

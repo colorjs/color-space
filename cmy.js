@@ -3,8 +3,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var cmy = /** @type {*} */ ({
+var cmy = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],

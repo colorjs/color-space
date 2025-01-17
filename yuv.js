@@ -5,8 +5,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var yuv = /** @type {*} */ ({
+var yuv = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -14,6 +13,7 @@ var yuv = /** @type {*} */ ({
 	alias: ['YUV', 'EBU'],
 });
 
+/** @type {import('./index.js').Transform} */
 yuv.rgb = function(yuv) {
 	var y = yuv[0],
 		u = yuv[1],

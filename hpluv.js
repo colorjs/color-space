@@ -9,8 +9,7 @@ import lchuv from './lchuv.js';
 import hsluv, {_hsluv} from './hsluv.js';
 
 
-/** @type {import('./index.js').ColorSpace} */
-var hpluv = /** @type {*} */ ({
+var hpluv = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'hpluv',
 	min: [0,0,0],
 	max: [360,100,100],

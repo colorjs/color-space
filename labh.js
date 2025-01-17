@@ -6,8 +6,7 @@
 
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var labh = /** @type {*} */ ({
+var labh = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'labh',
 
 	//mins/maxes are taken from colormine

@@ -3,8 +3,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-const cmyk = /** @type {*} */ ({
+const cmyk = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],

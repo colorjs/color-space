@@ -6,8 +6,7 @@ import hsv from './hsv.js';
 import hsl from './hsl.js';
 
 
-/** @type {import('./index.js').ColorSpace} */
-var hwb = /** @type {*} */ ({
+var hwb = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'hwb',
 	min: [0,0,0],
 	max: [360,100,100],

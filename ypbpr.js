@@ -10,8 +10,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var ypbpr = /** @type {*} */ ({
+var ypbpr = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -24,7 +23,8 @@ var ypbpr = /** @type {*} */ ({
  * YPbPr to RGB
  *
  * @param {Array<number>} ypbpr RGB values
- *
+ * @param {number} kb
+ * @param {number} kr
  * @return {Array<number>} YPbPr values
  */
 ypbpr.rgb = function(ypbpr, kb, kr) {

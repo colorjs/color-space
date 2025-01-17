@@ -5,8 +5,7 @@
  */
 import xyz from './xyz.js';
 
-/** @type {import('./index.js').ColorSpace} */
-var xyy = /** @type {*} */ ({
+var xyy = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'xyy',
 	min: [0,0,0],
 	max: [1,1,100],
@@ -14,6 +13,7 @@ var xyy = /** @type {*} */ ({
 	alias: ['xyY', 'Yxy', 'yxy']
 });
 
+/** @type {import('./index.js').Transform} */
 xyy.xyz = function(arg) {
 	var X, Y, Z, x, y;
 	x = arg[0]; y = arg[1]; Y = arg[2];
