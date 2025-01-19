@@ -18,7 +18,6 @@ var osaucs = {
 
 /**
  * There’s no analytical solution to this
- * @type {import('./index.js').Transform}
  */
 osaucs.xyz = function (arg) {
 	var x, y, z;

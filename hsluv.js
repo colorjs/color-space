@@ -67,7 +67,6 @@ var hsluv = {
 	},
 
 	// export internal math
-	/** @type {Object<string, import('./index.js').Transform>} */
 	_hsluv
 };
 

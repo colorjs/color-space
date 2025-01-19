@@ -54,7 +54,6 @@ import hsp from './hsp.js'
  * @property {Array<number>} max
  * @property {Array<string>} channel
  * @property {Array<string>} [alias]
- * @property {Object<number, Object<string, Array<number>>>} [whitepoint]
  */
 
 /** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */

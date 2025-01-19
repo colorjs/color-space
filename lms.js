@@ -23,7 +23,6 @@ var lms = {
 
 
 	//transform matrices
-	/** @type {Object<string, Array<number>>} */
 	matrix: {
 		HPE: [
 			0.38971, 0.68898,-0.07868,
@@ -54,7 +53,6 @@ var lms = {
 
 export default /** @type {import('./index.js').ColorSpace & LMSSpecific} */ (lms);
 
-/** @type {import('./index.js').Transform} */
 lms.xyz = function(arg, matrix){
 	var l = arg[0], m = arg[1], s = arg[2];
 

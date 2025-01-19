@@ -194,7 +194,7 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 
 /** Create angle-sorted table */
 var table = coloroid.table;
-var angleTable = /** @type {Array<Array<number>>} */ ([]).concat(table.slice(-13),table.slice(0, -13));
+var angleTable =  table.slice(-13).concat(table.slice(0, -13));
 
 
 /**
@@ -261,7 +261,6 @@ xyy.coloroid = function (arg) {
 xyz.coloroid = function (arg) {
 	return xyy.coloroid(xyz.xyy(arg));
 };
-/** @type {import('./index.js').Transform} */
 coloroid.xyz = function (arg) {
 	return xyy.xyz(coloroid.xyy(arg));
 };

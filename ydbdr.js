@@ -64,7 +64,6 @@ yuv.ydbdr = function (yuv) {
 /**
  * From YUV
  */
-/** @type {import('./index.js').Transform} */
 ydbdr.yuv = function (ydbdr) {
 	return [
 		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169
