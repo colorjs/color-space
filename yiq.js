@@ -5,14 +5,15 @@
  */
 import rgb from './rgb.js';
 
-var yiq = {
+var yiq = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
 	channel: ['Y','I','Q'],
 	alias: ['YIQ']
-};
+});
 
+/** @type {import('./index.js').Transform} */
 yiq.rgb = function(yiq) {
 	var y = yiq[0],
 		i = yiq[1],

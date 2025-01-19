@@ -6,7 +6,8 @@
 
 import xyz from './xyz.js';
 
-export default {
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var labh = {
 	name: 'labh',
 
 	//mins/maxes are taken from colormine
@@ -31,6 +32,8 @@ export default {
 		return [x,y,z];
 	}
 };
+
+export default /** @type {import('./index.js').ColorSpace} */ (labh);
 
 //extend xyz
 xyz.labh = function(xyz){

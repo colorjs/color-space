@@ -6,7 +6,7 @@
 
 import xyz from './xyz.js';
 
-
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var osaucs = {
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
@@ -32,9 +32,9 @@ osaucs.xyz = function (arg) {
 /**
  * Transform to xyz osaucs
  *
- * @param {Array} arg Input xyz array
+ * @param {Array<number>} arg Input xyz array
  *
- * @return {Array} Ljg array
+ * @return {Array<number>} Ljg array
  */
 xyz.osaucs = function (arg) {
 	var X = arg[0], Y = arg[1], Z = arg[2];
@@ -73,4 +73,4 @@ xyz.osaucs = function (arg) {
 };
 
 
-export default osaucs;
+export default /** @type {import('./index.js').ColorSpace} */ (osaucs);

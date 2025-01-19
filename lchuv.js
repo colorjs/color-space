@@ -7,6 +7,7 @@ import luv from './luv.js';
 import xyz from './xyz.js';
 
 //cylindrical luv
+/** @type {Partial<import('./index.js').ColorSpace> & {luv: import('./index.js').Transform}} */
 var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
@@ -31,7 +32,7 @@ var lchuv = {
 	}
 };
 
-export default lchuv;
+export default /** @type {import('./index.js').ColorSpace} */ (lchuv);
 
 luv.lchuv = function(luv){
 	var l = luv[0], u = luv[1], v = luv[2];

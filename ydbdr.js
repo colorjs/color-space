@@ -7,6 +7,7 @@
 import rgb from './rgb.js';
 import yuv from './yuv.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var ydbdr = {
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
@@ -19,9 +20,9 @@ var ydbdr = {
 /**
  * YDbDr to RGB
  *
- * @param {Array} ydbdr RGB values
+ * @param {Array<number>} ydbdr RGB values
  *
- * @return {Array} YDbDr values
+ * @return {Array<number>} YDbDr values
  */
 ydbdr.rgb = function(ydbdr) {
 	var y = ydbdr[0], db = ydbdr[1], dr = ydbdr[2];
@@ -37,9 +38,9 @@ ydbdr.rgb = function(ydbdr) {
 /**
  * RGB to YDbDr
  *
- * @param {Array} ydbdr YDbDr values
+ * @param {Array<number>} rgb YDbDr values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.ydbdr = function(rgb) {
 	var r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;
@@ -70,4 +71,4 @@ ydbdr.yuv = function (ydbdr) {
 };
 
 
-export default ydbdr;
+export default /** @type {import('./index.js').ColorSpace} */ (ydbdr);

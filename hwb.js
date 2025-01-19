@@ -5,7 +5,7 @@ import rgb from './rgb.js';
 import hsv from './hsv.js';
 import hsl from './hsl.js';
 
-
+/** @type {Partial<import('./index.js').ColorSpace> & {hsv: import('./index.js').Transform}} */
 var hwb = {
 	name: 'hwb',
 	min: [0,0,0],
@@ -80,7 +80,7 @@ var hwb = {
 	}
 };
 
-export default hwb;
+export default /** @type {import('./index.js').ColorSpace} */ (hwb);
 
 
 //extend rgb

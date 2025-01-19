@@ -4,6 +4,8 @@
  * @module  color-space/rgb
  */
 
+
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var rgb = {
 	name: 'rgb',
 	min: [0,0,0],
@@ -16,6 +18,7 @@ var rgb = {
  * @module color-space/hsl
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hsl = {
 	name: 'hsl',
 	min: [0,0,0],
@@ -24,48 +27,22 @@ var hsl = {
 	alias: ['HSL'],
 
 	rgb: function(hsl) {
-		var h = hsl[0] / 360,
-				s = hsl[1] / 100,
-				l = hsl[2] / 100,
-				t1, t2, t3, rgb, val;
+		var h = hsl[0]/360, s = hsl[1]/100, l = hsl[2]/100, t1, t2, t3, rgb, val, i=0;
 
-		if (s === 0) {
-			val = l * 255;
-			return [val, val, val];
-		}
+		if (s === 0) return val = l * 255, [val, val, val];
 
-		if (l < 0.5) {
-			t2 = l * (1 + s);
-		}
-		else {
-			t2 = l + s - l * s;
-		}
+		t2 = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		t1 = 2 * l - t2;
 
 		rgb = [0, 0, 0];
-		for (var i = 0; i < 3; i++) {
+		for (;i<3;) {
 			t3 = h + 1 / 3 * - (i - 1);
-			if (t3 < 0) {
-				t3++;
-			}
-			else if (t3 > 1) {
-				t3--;
-			}
-
-			if (6 * t3 < 1) {
-				val = t1 + (t2 - t1) * 6 * t3;
-			}
-			else if (2 * t3 < 1) {
-				val = t2;
-			}
-			else if (3 * t3 < 2) {
-				val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-			}
-			else {
-				val = t1;
-			}
-
-			rgb[i] = val * 255;
+			t3 < 0 ? t3++ : t3 > 1 && t3--;
+			val = 6 * t3 < 1 ? t1 + (t2 - t1) * 6 * t3 :
+			2 * t3 < 1 ? t2 :
+			3 * t3 < 2 ?  t1 + (t2 - t1) * (2 / 3 - t3) * 6 :
+			t1;
+			rgb[i++] = val * 255;
 		}
 
 		return rgb;
@@ -96,6 +73,8 @@ rgb.hsl = function(rgb) {
 		h = 4 + (r - g)/ delta;
 	}
 
+	//FIXME h is possibly undefined
+	//@ts-ignore
 	h = Math.min(h * 60, 360);
 
 	if (h < 0) {
@@ -121,6 +100,7 @@ rgb.hsl = function(rgb) {
  * @module color-space/hsv
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hsv = {
 	name: 'hsv',
 	min: [0,0,0],
@@ -132,7 +112,7 @@ var hsv = {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
 			v = hsv[2] / 100,
-			hi = Math.floor(h) % 6;
+			hi = /** @type {0 | 1 | 2 | 3 | 4 | 5} */ (Math.floor(h) % 6);
 
 		var f = h - Math.floor(h),
 			p = 255 * v * (1 - s),
@@ -203,6 +183,8 @@ rgb.hsv = function(rgb) {
 		h = 4 + (r - g) / delta;
 	}
 
+	//FIXME h is possibly undefined
+	//@ts-ignore
 	h = Math.min(h * 60, 360);
 
 	if (h < 0) {
@@ -237,6 +219,7 @@ hsl.hsv = function(hsl) {
  * @module color-space/hsl
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hsi = {
 	name: 'hsi',
 	min: [0,0,0],
@@ -249,9 +232,9 @@ var hsi = {
 /**
  * HSI to RGB
  *
- * @param {Array} hsi Channel values
+ * @param {Array<number>} hsi Channel values
  *
- * @return {Array} RGB channel values
+ * @return {Array<number>} RGB channel values
  */
 hsi.rgb = function (hsi) {
 	var h = (hsi[0] < 0 ? (hsi[0] % 360) + 360 : (hsi[0] % 360)) * Math.PI / 180;
@@ -286,9 +269,9 @@ hsi.rgb = function (hsi) {
 /**
  * RGB to HSI
  *
- * @param {Array} rgb Channel values
+ * @param {Array<number>} rgb Channel values
  *
- * @return {Array} HSI channel values
+ * @return {Array<number>} HSI channel values
  */
 rgb.hsi = function (rgb) {
 	var sum = rgb[0] + rgb[1] + rgb[2];
@@ -316,7 +299,7 @@ rgb.hsi = function (rgb) {
  * @module color-space/hwb
  */
 
-
+/** @type {Partial<import('./index.js').ColorSpace> & {hsv: import('./index.js').Transform}} */
 var hwb = {
 	name: 'hwb',
 	min: [0,0,0],
@@ -423,6 +406,7 @@ hsl.hwb = function(arg){
  * @module color-space/cmyk
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 const cmyk = {
 	name: 'cmyk',
 	min: [0,0,0,0],
@@ -463,6 +447,7 @@ rgb.cmyk = function(rgb) {
  * @module color-space/cmy
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var cmy = {
 	name: 'cmy',
 	min: [0,0,0],
@@ -475,9 +460,9 @@ var cmy = {
 /**
  * CMY to RGB
  *
- * @param {Array} cmy Channels
+ * @param {Array<number>} cmy Channels
  *
- * @return {Array} RGB channels
+ * @return {Array<number>} RGB channels
  */
 cmy.rgb = function(cmy) {
 	var c = cmy[0] / 100,
@@ -495,9 +480,9 @@ cmy.rgb = function(cmy) {
 /**
  * RGB to CMY
  *
- * @param {Array} rgb channels
+ * @param {Array<number>} rgb channels
  *
- * @return {Array} CMY channels
+ * @return {Array<number>} CMY channels
  */
 rgb.cmy = function(rgb) {
 	var r = rgb[0] / 255,
@@ -517,62 +502,63 @@ rgb.cmy = function(rgb) {
  * @module  color-space/xyz
  */
 
+/** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
+
+/** @type {Partial<import('./index.js').ColorSpace> & XYZSpecific} */
 var xyz = {
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],
-	alias: ['XYZ', 'ciexyz', 'cie1931']
-};
+	alias: ['XYZ', 'ciexyz', 'cie1931'],
+	/**
+	 * Whitepoint reference values with observer/illuminant
+	 *
+	 * http://en.wikipedia.org/wiki/Standard_illuminant
+	 */
+	whitepoint: {
+		//1931 2°
+		2: {
+			//incadescent
+			A:[109.85, 100, 35.585],
+			// B:[],
+			C: [98.074, 100, 118.232],
+			D50: [96.422, 100, 82.521],
+			D55: [95.682, 100, 92.149],
+			//daylight
+			D65: [95.045592705167, 100, 108.9057750759878],
+			D75: [94.972, 100, 122.638],
+			//flourescent
+			// F1: [],
+			F2: [99.187, 100, 67.395],
+			// F3: [],
+			// F4: [],
+			// F5: [],
+			// F6:[],
+			F7: [95.044, 100, 108.755],
+			// F8: [],
+			// F9: [],
+			// F10: [],
+			F11: [100.966, 100, 64.370],
+			// F12: [],
+			E: [100,100,100]
+		},
 
-
-/**
- * Whitepoint reference values with observer/illuminant
- *
- * http://en.wikipedia.org/wiki/Standard_illuminant
- */
-xyz.whitepoint = {
-	//1931 2°
-	2: {
-		//incadescent
-		A:[109.85, 100, 35.585],
-		// B:[],
-		C: [98.074, 100, 118.232],
-		D50: [96.422, 100, 82.521],
-		D55: [95.682, 100, 92.149],
-		//daylight
-		D65: [95.045592705167, 100, 108.9057750759878],
-		D75: [94.972, 100, 122.638],
-		//flourescent
-		// F1: [],
-		F2: [99.187, 100, 67.395],
-		// F3: [],
-		// F4: [],
-		// F5: [],
-		// F6:[],
-		F7: [95.044, 100, 108.755],
-		// F8: [],
-		// F9: [],
-		// F10: [],
-		F11: [100.966, 100, 64.370],
-		// F12: [],
-		E: [100,100,100]
-	},
-
-	//1964  10°
-	10: {
-		//incadescent
-		A:[111.144, 100, 35.200],
-		C: [97.285, 100, 116.145],
-		D50: [96.720, 100, 81.427],
-		D55: [95.799, 100, 90.926],
-		//daylight
-		D65: [94.811, 100, 107.304],
-		D75: [94.416, 100, 120.641],
-		//flourescent
-		F2: [103.280, 100, 69.026],
-		F7: [95.792, 100, 107.687],
-		F11: [103.866, 100, 65.627],
-		E: [100,100,100]
+		//1964  10°
+		10: {
+			//incadescent
+			A:[111.144, 100, 35.200],
+			C: [97.285, 100, 116.145],
+			D50: [96.720, 100, 81.427],
+			D55: [95.799, 100, 90.926],
+			//daylight
+			D65: [94.811, 100, 107.304],
+			D75: [94.416, 100, 120.641],
+			//flourescent
+			F2: [103.280, 100, 69.026],
+			F7: [95.792, 100, 107.687],
+			F11: [103.866, 100, 65.627],
+			E: [100,100,100]
+		}
 	}
 };
 
@@ -586,9 +572,9 @@ xyz.max = xyz.whitepoint[2].D65;
 /**
  * Transform xyz to rgb
  *
- * @param {Array} xyz Array of xyz values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} _xyz Array of xyz values
+ * @param {Array<number>} white Whitepoint reference
+ * @return {Array<number>} RGB values
  */
 xyz.rgb = function (_xyz, white) {
 	//FIXME: make sure we have to divide like this. Probably we have to replace matrix as well then
@@ -626,9 +612,9 @@ xyz.rgb = function (_xyz, white) {
 /**
  * RGB to XYZ
  *
- * @param {Array} rgb RGB channels
+ * @param {Array<number>} rgb RGB channels
  *
- * @return {Array} XYZ channels
+ * @return {Array<number>} XYZ channels
  */
 rgb.xyz = function(rgb, white) {
 	var r = rgb[0] / 255,
@@ -655,6 +641,7 @@ rgb.xyz = function(rgb, white) {
  * @module color-space/xyy
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var xyy = {
 	name: 'xyy',
 	min: [0,0,0],
@@ -690,14 +677,15 @@ xyz.xyy = function(arg) {
  * @module  color-space/yiq
  */
 
-var yiq = {
+var yiq = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
 	channel: ['Y','I','Q'],
 	alias: ['YIQ']
-};
+});
 
+/** @type {import('./index.js').Transform} */
 yiq.rgb = function(yiq) {
 	var y = yiq[0],
 		i = yiq[1],
@@ -738,14 +726,15 @@ rgb.yiq = function(rgb) {
  * @module  color-space/yuv
  */
 
-var yuv = {
+var yuv = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','U','V'],
 	alias: ['YUV', 'EBU'],
-};
+});
 
+/** @type {import('./index.js').Transform} */
 yuv.rgb = function(yuv) {
 	var y = yuv[0],
 		u = yuv[1],
@@ -783,6 +772,7 @@ rgb.yuv = function(rgb) {
  * @module  color-space/ydbdr
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var ydbdr = {
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
@@ -795,9 +785,9 @@ var ydbdr = {
 /**
  * YDbDr to RGB
  *
- * @param {Array} ydbdr RGB values
+ * @param {Array<number>} ydbdr RGB values
  *
- * @return {Array} YDbDr values
+ * @return {Array<number>} YDbDr values
  */
 ydbdr.rgb = function(ydbdr) {
 	var y = ydbdr[0], db = ydbdr[1], dr = ydbdr[2];
@@ -813,9 +803,9 @@ ydbdr.rgb = function(ydbdr) {
 /**
  * RGB to YDbDr
  *
- * @param {Array} ydbdr YDbDr values
+ * @param {Array<number>} rgb YDbDr values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.ydbdr = function(rgb) {
 	var r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;
@@ -839,6 +829,7 @@ yuv.ydbdr = function (yuv) {
 /**
  * From YUV
  */
+/** @type {import('./index.js').Transform} */
 ydbdr.yuv = function (ydbdr) {
 	return [
 		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169
@@ -851,6 +842,7 @@ ydbdr.yuv = function (ydbdr) {
  * @module  color-space/ycgco
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var ycgco = {
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
@@ -864,9 +856,9 @@ var ycgco = {
  * YCgCo to RGB
  * transform through analog form
  *
- * @param {Array} ycgco RGB values
+ * @param {Array<number>} arr RGB values
  *
- * @return {Array} YCgCo values
+ * @return {Array<number>} YCgCo values
  */
 ycgco.rgb = function (arr) {
 	var y = arr[0], cg = arr[1], co = arr[2];
@@ -885,9 +877,9 @@ ycgco.rgb = function (arr) {
  * RGB to YCgCo
  * transform through analog form
  *
- * @param {Array} ycgco YCgCo values
+ * @param {Array<number>} arr YCgCo values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.ycgco = function(arr) {
 	var r = arr[0]/255, g = arr[1]/255, b = arr[2]/255;
@@ -910,21 +902,22 @@ rgb.ycgco = function(arr) {
  * @module  color-space/ypbpr
  */
 
-var ypbpr = {
+var ypbpr = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','Pb','Pr'],
 	alias: ['YPbPr', 'Y/PB/PR', 'YPRPB', 'PRPBY', 'PBPRY', 'Y/Pb/Pr', 'YPrPb', 'PrPbY', 'PbPrY', 'Y/R-Y/B-Y', 'Y(R-Y)(B-Y)', 'R-Y', 'B-Y']
-};
+});
 
 
 /**
  * YPbPr to RGB
  *
- * @param {Array} ypbpr RGB values
- *
- * @return {Array} YPbPr values
+ * @param {Array<number>} ypbpr RGB values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} YPbPr values
  */
 ypbpr.rgb = function(ypbpr, kb, kr) {
 	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
@@ -944,9 +937,10 @@ ypbpr.rgb = function(ypbpr, kb, kr) {
 /**
  * RGB to YPbPr
  *
- * @param {Array} ypbpr YPbPr values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} rgb YPbPr values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB values
  */
 rgb.ypbpr = function(rgb, kb, kr) {
 	var r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;
@@ -971,12 +965,26 @@ rgb.ypbpr = function(rgb, kb, kr) {
  * @module  color-space/ycbcr
  */
 
+/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
 var ycbcr = {
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
 	channel: ['Y','Cb','Cr'],
-	alias: ['YCbCr', 'YCC']
+	alias: ['YCbCr', 'YCC'],
+	/**
+	 * From digital to analog form.
+	 * Scale to min/max ranges
+	 */
+	ypbpr: function (ycbcr) {
+		var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
+
+		return [
+			(y - 16) / 219,
+			(cb - 128) / 224,
+			(cr - 128) / 224
+		];
+	}
 };
 
 
@@ -984,7 +992,7 @@ var ycbcr = {
  * From analog to digital form.
  * Simple scale to min/max ranges
  *
- * @return {Array} Resulting digitized form
+ * @return {Array<number>} Resulting digitized form
  */
 ypbpr.ycbcr = function (ypbpr) {
 	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
@@ -998,27 +1006,13 @@ ypbpr.ycbcr = function (ypbpr) {
 
 
 /**
- * From digital to analog form.
- * Scale to min/max ranges
- */
-ycbcr.ypbpr = function (ycbcr) {
-	var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
-
-	return [
-		(y - 16) / 219,
-		(cb - 128) / 224,
-		(cr - 128) / 224
-	];
-};
-
-
-/**
  * YCbCr to RGB
  * transform through analog form
  *
- * @param {Array} ycbcr RGB values
- *
- * @return {Array} YCbCr values
+ * @param {Array<number>} arr RGB values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} YCbCr values
  */
 ycbcr.rgb = function (arr, kb, kr) {
 	return ypbpr.rgb(ycbcr.ypbpr(arr), kb, kr);
@@ -1029,9 +1023,10 @@ ycbcr.rgb = function (arr, kb, kr) {
  * RGB to YCbCr
  * transform through analog form
  *
- * @param {Array} ycbcr YCbCr values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} arr YCbCr values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB values
  */
 rgb.ycbcr = function(arr, kb, kr) {
 	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));
@@ -1055,19 +1050,33 @@ rgb.ycbcr = function(arr, kb, kr) {
  * @module  color-space/xvycc
  */
 
+/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
 var xvycc = {
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
-	alias: ['xvYCC']
+	alias: ['xvYCC'],
+	/**
+	 * From digital to analog form.
+	 * Scale to min/max ranges
+	 */
+	ypbpr: function (xvycc) {
+		var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
+
+		return [
+			(y - 16) / 219,
+			(cb - 128) / 224,
+			(cr - 128) / 224
+		];
+	}
 };
 
 /**
  * From analog to digital form.
  * Simple scale to min/max ranges
  *
- * @return {Array} Resulting digitized form
+ * @return {Array<number>} Resulting digitized form
  */
 ypbpr.xvycc = function (ypbpr) {
 	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
@@ -1081,27 +1090,13 @@ ypbpr.xvycc = function (ypbpr) {
 
 
 /**
- * From digital to analog form.
- * Scale to min/max ranges
- */
-xvycc.ypbpr = function (xvycc) {
-	var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
-
-	return [
-		(y - 16) / 219,
-		(cb - 128) / 224,
-		(cr - 128) / 224
-	];
-};
-
-
-/**
  * xvYCC to RGB
  * transform through analog form
  *
- * @param {Array} xvycc RGB values
- *
- * @return {Array} xvYCC values
+ * @param {Array<number>} arr RGB values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} xvYCC values
  */
 xvycc.rgb = function (arr, kb, kr) {
 	return ypbpr.rgb(xvycc.ypbpr(arr), kb, kr);
@@ -1112,9 +1107,10 @@ xvycc.rgb = function (arr, kb, kr) {
  * RGB to xvYCC
  * transform through analog form
  *
- * @param {Array} xvycc xvYCC values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} arr xvYCC values
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB values
  */
 rgb.xvycc = function(arr, kb, kr) {
 	return ypbpr.xvycc(rgb.ypbpr(arr, kb, kr));
@@ -1126,6 +1122,7 @@ rgb.xvycc = function(arr, kb, kr) {
  * @module  color-space/yccbccrc
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var yccbccrc = {
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
@@ -1138,9 +1135,9 @@ var yccbccrc = {
 /**
  * YcCbcCrc to RGB
  *
- * @param {Array} yccbccrc RGB values
+ * @param {Array<number>} yccbccrc RGB values
  *
- * @return {Array} YcCbcCrc values
+ * @return {Array<number>} YcCbcCrc values
  */
 yccbccrc.rgb = function(yccbccrc) {
 	return ypbpr.rgb(yccbccrc, 0.0593, 0.2627);
@@ -1150,9 +1147,9 @@ yccbccrc.rgb = function(yccbccrc) {
 /**
  * RGB to YcCbcCrc
  *
- * @param {Array} yccbccrc YcCbcCrc values
+ * @param {Array<number>} arr YcCbcCrc values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.yccbccrc = function(arr) {
 	return rgb.ypbpr(arr, 0.0593, 0.2627);
@@ -1166,6 +1163,7 @@ rgb.yccbccrc = function(arr) {
  * @module  color-space/ucs
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var ucs = {
 	name: 'ucs',
 	min: [0,0,0],
@@ -1177,9 +1175,9 @@ var ucs = {
 /**
  * UCS to XYZ
  *
- * @param {Array} ucs XYZ values
+ * @param {Array<number>} ucs XYZ values
  *
- * @return {Array} UCS values
+ * @return {Array<number>} UCS values
  */
 ucs.xyz = function(ucs) {
 	var u = ucs[0],
@@ -1197,9 +1195,9 @@ ucs.xyz = function(ucs) {
 /**
  * XYZ to UCS
  *
- * @param {Array} ucs UCS values
+ * @param {Array<number>} xyz UCS values
  *
- * @return {Array} XYZ values
+ * @return {Array<number>} XYZ values
  */
 xyz.ucs = function(xyz) {
 	var x = xyz[0],
@@ -1221,6 +1219,7 @@ xyz.ucs = function(xyz) {
  * @module  color-space/uvw
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var uvw = {
 	name: 'uvw',
 	min: [-134, -140, 0],
@@ -1232,6 +1231,7 @@ var uvw = {
 /**
  * UVW to XYZ
  */
+/** @type {import('./index.js').Transform} */
 uvw.xyz = function (arg, i, o) {
 	var _u, _v, w, u, v, x, y, z, xn, yn, zn, un, vn;
 	u = arg[0], v = arg[1], w = arg[2];
@@ -1264,7 +1264,7 @@ uvw.xyz = function (arg, i, o) {
 /**
  * XYZ to UVW
  *
- * @return {Array} An UVW array
+ * @return {Array<number>} An UVW array
  */
 xyz.uvw = function (arr, i, o) {
 	var x = arr[0], y = arr[1], z = arr[2], xn, yn, zn, un, vn;
@@ -1296,21 +1296,22 @@ xyz.uvw = function (arr, i, o) {
 /**
  * UVW to UCS
  *
- * @param {Array} uvw UCS values
+ * @param {Array<number>} uvw UCS values
  *
- * @return {Array} UVW values
+ * @return {Array<number>} UVW values
  */
 uvw.ucs = function(uvw) {
 	//find chromacity variables
+	throw new Error('Not implemented');
 };
 
 
 /**
  * UCS to UVW
  *
- * @param {Array} uvw UVW values
+ * @param {Array<number>} ucs UVW values
  *
- * @return {Array} UCS values
+ * @return {Array<number>} UCS values
  */
 ucs.uvw = function(ucs) {
 	// //find chromacity variables
@@ -1321,6 +1322,7 @@ ucs.uvw = function(ucs) {
 	// w = 25 * Math.pow(y, 1/3) - 17;
 	// u = 13 * w * (u - un);
 	// v = 13 * w * (v - vn);
+	throw new Error('Not implemented');
 };
 
 /**
@@ -1331,6 +1333,7 @@ ucs.uvw = function(ucs) {
  * @module  color-space/jpeg
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var jpeg = {
 	name: 'jpeg',
 	min: [0, 0, 0],
@@ -1344,9 +1347,9 @@ var jpeg = {
  * JPEG to RGB
  * transform through analog form
  *
- * @param {Array} jpeg RGB values
+ * @param {Array<number>} arr RGB values
  *
- * @return {Array} JPEG values
+ * @return {Array<number>} JPEG values
  */
 jpeg.rgb = function (arr) {
 	var y = arr[0], cb = arr[1], cr = arr[2];
@@ -1363,9 +1366,9 @@ jpeg.rgb = function (arr) {
  * RGB to JPEG
  * transform through analog form
  *
- * @param {Array} jpeg JPEG values
+ * @param {Array<number>} arr JPEG values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.jpeg = function(arr) {
 	var r = arr[0], g = arr[1], b = arr[2];
@@ -1383,6 +1386,7 @@ rgb.jpeg = function(arr) {
  * @module color-space/lab
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var lab = {
 	name: 'lab',
 	min: [0,-100,-100],
@@ -1404,8 +1408,12 @@ var lab = {
 			y2 = Math.pow(y / 100, 1/3);
 		}
 
+		//FIXME x is undefined!
+		//@ts-ignore
 		x = x / 95.047 <= 0.008856 ? x = (95.047 * ((a / 500) + y2 - (16 / 116))) / 7.787 : 95.047 * Math.pow((a / 500) + y2, 3);
 
+		//FIXME z is undefined!
+		//@ts-ignore
 		z = z / 108.883 <= 0.008859 ? z = (108.883 * (y2 - (b / 200) - (16 / 116))) / 7.787 : 108.883 * Math.pow(y2 - (b / 200), 3);
 
 		return [x, y, z];
@@ -1441,6 +1449,7 @@ xyz.lab = function(xyz){
  * @module  color-space/labh
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var labh = {
 	name: 'labh',
 
@@ -1491,6 +1500,9 @@ xyz.labh = function(xyz){
  * @module color-space/lms
  */
 
+/** @typedef {{matrix: Object<string, Array<number>>}} LMSSpecific */
+
+/** @type {Partial<import('./index.js').ColorSpace> & LMSSpecific} */
 var lms = {
 	name: 'lms',
 	min: [0,0,0],
@@ -1499,6 +1511,7 @@ var lms = {
 
 
 	//transform matrices
+	/** @type {Object<string, Array<number>>} */
 	matrix: {
 		HPE: [
 			0.38971, 0.68898,-0.07868,
@@ -1527,6 +1540,7 @@ var lms = {
 	}
 };
 
+/** @type {import('./index.js').Transform} */
 lms.xyz = function(arg, matrix){
 	var l = arg[0], m = arg[1], s = arg[2];
 
@@ -1567,6 +1581,7 @@ xyz.lms = function(arg, matrix) {
 
 
 //cylindrical lab
+/** @type {Partial<import('./index.js').ColorSpace> & {lab: import('./index.js').Transform}} */
 var lchab = {
 	name: 'lchab',
 	min: [0,0,0],
@@ -1618,6 +1633,7 @@ xyz.lchab = function(arg){
  * @module color-space/luv
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var luv = {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
@@ -1717,6 +1733,7 @@ xyz.luv = function(arg, i, o) {
  */
 
 //cylindrical luv
+/** @type {Partial<import('./index.js').ColorSpace> & {luv: import('./index.js').Transform}} */
 var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
@@ -1765,34 +1782,44 @@ xyz.lchuv = function(arg){
  * @module color-space/hsluv
  */
 
+
 // unwrapped https://github.com/hsluv/hsluv/blob/master/javascript/dist/hsluv-0.1.0.min.js
 // FIXME: it has redundant functions like rgbToXyz - can be reused from color-space itself
+//@ts-ignore
 function f(a){var c=[],b=Math.pow(a+16,3)/1560896;b=b>g?b:a/k;for(var d=0;3>d;){var e=d++,h=l[e][0],w=l[e][1];e=l[e][2];for(var x=0;2>x;){var y=x++,z=(632260*e-126452*w)*b+126452*y;c.push({b:(284517*h-94839*e)*b/z,a:((838422*e+769860*w+731718*h)*a*b-769860*y*a)/z});}}return c}function m(a){a=f(a);for(var c=Infinity,b=0;b<a.length;){var d=a[b];++b;c=Math.min(c,Math.abs(d.a)/Math.sqrt(Math.pow(d.b,2)+1));}return c}
+//@ts-ignore
 function n(a,c){c=c/360*Math.PI*2;a=f(a);for(var b=Infinity,d=0;d<a.length;){var e=a[d];++d;e=e.a/(Math.sin(c)-e.b*Math.cos(c));0<=e&&(b=Math.min(b,e));}return b}function p(a,c){for(var b=0,d=0,e=a.length;d<e;){var h=d++;b+=a[h]*c[h];}return b}function q(a){return .0031308>=a?12.92*a:1.055*Math.pow(a,.4166666666666667)-.055}function r(a){return .04045<a?Math.pow((a+.055)/1.055,2.4):a/12.92}function t(a){return [q(p(l[0],a)),q(p(l[1],a)),q(p(l[2],a))]}
+//@ts-ignore
 function u(a){a=[r(a[0]),r(a[1]),r(a[2])];return [p(v[0],a),p(v[1],a),p(v[2],a)]}function A(a){var c=a[0],b=a[1];a=c+15*b+3*a[2];0!=a?(c=4*c/a,a=9*b/a):a=c=NaN;b=b<=g?b/B*k:116*Math.pow(b/B,.3333333333333333)-16;return 0==b?[0,0,0]:[b,13*b*(c-C),13*b*(a-D)]}function E(a){var c=a[0];if(0==c)return [0,0,0];var b=a[1]/(13*c)+C;a=a[2]/(13*c)+D;c=8>=c?B*c/k:B*Math.pow((c+16)/116,3);b=0-9*c*b/((b-4)*a-b*a);return [b,c,(9*c-15*a*c-a*b)/(3*a)]}
+//@ts-ignore
 function F(a){var c=a[0],b=a[1],d=a[2];a=Math.sqrt(b*b+d*d);1E-8>a?b=0:(b=180*Math.atan2(d,b)/Math.PI,0>b&&(b=360+b));return [c,a,b]}function G(a){var c=a[1],b=a[2]/360*2*Math.PI;return [a[0],Math.cos(b)*c,Math.sin(b)*c]}function H(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<a)return [100,0,c];if(1E-8>a)return [0,0,c];b=n(a,c)/100*b;return [a,b,c]}function I(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<c)return [a,0,100];if(1E-8>c)return [a,0,0];var d=n(c,a);return [a,b/d*100,c]}
+//@ts-ignore
 function J(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<a)return [100,0,c];if(1E-8>a)return [0,0,c];b=m(a)/100*b;return [a,b,c]}function K(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<c)return [a,0,100];if(1E-8>c)return [a,0,0];var d=m(c);return [a,b/d*100,c]}function O(a){return t(E(G(a)))}function P(a){return F(A(u(a)))}function Q(a){return O(H(a))}function R(a){return I(P(a))}function S(a){return O(J(a))}function T(a){return K(P(a))}
+//@ts-ignore
 var l=[[3.240969941904521,-1.537383177570093,-.498610760293],[-.96924363628087,1.87596750150772,.041555057407175],[.055630079696993,-.20397695888897,1.056971514242878]],v=[[.41239079926595,.35758433938387,.18048078840183],[.21263900587151,.71516867876775,.072192315360733],[.019330818715591,.11919477979462,.95053215224966]],B=1,C=.19783000664283,D=.46831999493879,k=903.2962962,g=.0088564516;
 
 const _hsluv = {
-	hsluvToRgb:Q,
-	hsluvToLch:H,
-	rgbToHsluv:R,
-	rgbToHpluv:T,
-	rgbToXyz:u,
-	rgbToLch:P,
-	hpluvToRgb:S,
-	hpluvToLch:J,
-	lchToHpluv:K,
-	lchToHsluv:I,
-	lchToLuv:G,
-	lchToRgb:O,
-	luvToLch:F,
-	luvToXyz:E,
-	xyzToLuv:A,
-	xyzToRgb:t,
+	hsluvToRgb: Q,
+	hsluvToLch: H,
+	rgbToHsluv: R,
+	rgbToHpluv: T,
+	rgbToXyz: u,
+	rgbToLch: P,
+	hpluvToRgb: S,
+	hpluvToLch: J,
+	lchToHpluv: K,
+	lchToHsluv: I,
+	lchToLuv: G,
+	lchToRgb: O,
+	luvToLch: F,
+	luvToXyz: E,
+	xyzToLuv: A,
+	xyzToRgb: t,
 };
 
+/** @typedef {{_hsluv: Object<string, import('./index.js').Transform>}} HSLuvSpecific */
+
+/** @type {Partial<import('./index.js').ColorSpace> & HSLuvSpecific} */
 var hsluv = {
 	name: 'hsluv',
 	min: [0,0,0],
@@ -1812,6 +1839,7 @@ var hsluv = {
 	},
 
 	// export internal math
+	/** @type {Object<string, import('./index.js').Transform>} */
 	_hsluv
 };
 
@@ -1830,6 +1858,7 @@ rgb.hsluv = _hsluv.rgbToHsluv;
  * @module color-space/hpluv
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hpluv = {
 	name: 'hpluv',
 	min: [0,0,0],
@@ -1856,17 +1885,8 @@ xyz.hpluv = function(arg){return _hsluv.lchToHpluv(xyz.lchuv(arg));};
  * @module color-space/cubehelix
  */
 
-
-var cubehelix = {
-	name: 'cubehelix',
-	channel: ['fraction'],
-	min: [0],
-	max: [1]
-};
-
-
 /** Default options for space */
-var defaults = cubehelix.defaults = {
+var defaults = {
 	//0..3
 	start: 0,
 	//-10..10
@@ -1877,19 +1897,28 @@ var defaults = cubehelix.defaults = {
 	gamma: 1
 };
 
+/** @type {Partial<import('./index.js').ColorSpace> & CubeHelixSpecific} */
+var cubehelix = {
+	name: 'cubehelix',
+	channel: ['fraction'],
+	min: [0],
+	max: [1],
+	defaults: defaults
+};
+
 
 /**
  * Transform cubehelix level to RGB
  *
- * @param {Number} fraction 0..1 cubehelix level
- * @param {Object} options Mapping options, overrides defaults
+ * @param {Number|Array<number>} fraction 0..1 cubehelix level
+ * @param {Object<string, number>} options Mapping options, overrides defaults
  *
- * @return {Array} rgb tuple
+ * @return {Array<number>} rgb tuple
  */
 cubehelix.rgb = function(fraction, options) {
 	options = options || {};
 
-	if (fraction.length) fraction = fraction[0];
+	if (Array.isArray(fraction)) fraction = fraction[0];
 
 	var start = options.start !== undefined ? options.start : defaults.start;
 	var rotation = options.rotation !== undefined ? options.rotation : defaults.rotation;
@@ -1917,17 +1946,21 @@ cubehelix.rgb = function(fraction, options) {
 /**
  * RGB to cubehelix
  *
- * @param {Array} rgb RGB values
+ * @param {Array<number>} rgb RGB values
  *
- * @return {Array} cubehelix fraction(s)
+ * @return {Array<number>} cubehelix fraction(s)
  */
 rgb.cubehelix = function(rgb) {
 	//TODO - there is no backwise conversion yet
+	throw new Error('rgb.cubehelix conversion is not implemented yet');
 };
+
+/** @typedef {{table: Array<Array<number>>}} ColoroidSpecific */
 
 /**
  * Main color space object
- */
+/* @type {Partial<import('./index.js').ColorSpace> & {xyy: import('./index.js').Transform} & ColoroidSpecific}
+*/
 var coloroid = {
 	name: 'coloroid',
 	alias: ['ATV'],
@@ -1937,70 +1970,106 @@ var coloroid = {
 	//e.g. 38 will be rounded to 36
 	channel: ['A','T','V'],
 	min: [10, 0, 0],
-	max: [76, 100, 100]
+	max: [76, 100, 100],
+	/**
+	 * Coloroid table
+	 * Regression of values is almost impossible, as hues don’t correlate
+	 * Even angle values are picked very inconsistently, based on aesthetical evaluation.
+	 *
+	 * - tgф, ctgф are removed, ф is searched instead
+	 * - eλ = xλ + yλ + zλ
+	 * - λ is removed as not used
+	 */
+	table: [
+		//A    angle  eλ        xλ       yλ
+		[ 10,   59.0, 1.724349, 0.44987, 0.53641 ],
+		[ 11,   55.3, 1.740844, 0.46248, 0.52444 ],
+		[ 12,   51.7, 1.754985, 0.47451, 0.51298 ],
+		[ 13,   48.2, 1.767087, 0.48601, 0.50325 ],
+		[ 14,   44.8, 1.775953, 0.49578, 0.49052 ],
+		[ 15,   41.5, 1.785073, 0.50790, 0.43035 ],
+		[ 16,   38.2, 1.791104, 0.51874, 0.46934 ],
+		[ 20,   34.9, 1.794831, 0.52980, 0.45783 ],
+		[ 21,   31.5, 1.798664, 0.54137, 0.44559 ],
+		[ 22,   28.0, 1.794819, 0.55367, 0.43253 ],
+		[ 23,   24.4, 1.789610, 0.56680, 0.41811 ],
+		[ 24,   20.6, 1.809483, 0.58128, 0.40176 ],
+		[ 25,   16.6, 1.760983, 0.59766, 0.38300 ],
+		[ 26,   12.3, 1.723443, 0.61653, 0.36061 ],
+		[ 30,    7.7, 1.652891, 0.63896, 0.33358 ],
+		[ 31,    2.8, 1.502607, 0.66619, 0.29930 ],
+		[ 32,   -2.5, 1.072500, 0.70061, 0.26753 ],
+		[ 33,   -8.4, 1.136637, 0.63925, 0.22631 ],
+		[ 34,  -19.8, 1.232286, 0.53962, 0.19721 ],
+		[ 35,  -31.6, 1.310120, 0.50340, 0.17495 ],
+		[ 40,  -43.2, 1.376610, 0.46041, 0.15603 ],
+		[ 41,  -54.6, 1.438692, 0.42386, 0.13846 ],
+		[ 42,  -65.8, 1.501582, 0.38991, 0.12083 ],
+		[ 43,  -76.8, 1.570447, 0.35586, 0.10328 ],
+		[ 44,  -86.8, 1.645583, 0.32195, 0.08496 ],
+		[ 45,  -95.8, 1.732083, 0.28657, 0.05155 ],
+		[ 46, -108.4, 1.915753, 0.22202, 0.01771 ],
+		[ 50, -117.2, 2.146310, 0.15664, 0.05227 ],
+		[ 51, -124.7, 1.649939, 0.12736, 0.09020 ],
+		[ 52, -131.8, 1.273415, 0.10813, 0.12506 ],
+		[ 53, -138.5, 1.080809, 0.09414, 0.15741 ],
+		[ 54, -145.1, 0.957076, 0.03249, 0.18958 ],
+		[ 55, -152.0, 0.868976, 0.07206, 0.24109 ],
+		[ 56, -163.4, 0.771731, 0.05787, 0.30378 ],
+		[ 60, -177.2, 0.697108, 0.04353, 0.35696 ],
+		[ 61,  171.6, 0.655803, 0.03291, 0.41971 ],
+		[ 62,  152.4, 0.623958, 0.02240, 0.49954 ],
+		[ 63,  148.4, 0.596037, 0.01196, 0.60321 ],
+		[ 64,  136.8, 0.607413, 0.00425, 0.73542 ],
+		[ 65,  125.4, 0.659923, 0.01099, 0.83391 ],
+		[ 66,  114.2, 0.859517, 0.08050, 0.77474 ],
+		[ 70,  103.2, 1.195683, 0.20259, 0.70460 ],
+		[ 71,   93.2, 1.407534, 0.28807, 0.65230 ],
+		[ 72,   84.2, 1.532829, 0.34422, 0.61930 ],
+		[ 73,   77.3, 1.603792, 0.37838, 0.59533 ],
+		[ 74,   71.6, 1.649448, 0.40290, 0.57716 ],
+		[ 75,   66.9, 1.681080, 0.42141, 0.56222 ],
+		[ 76,   62.8, 1.704979, 0.43647, 0.54895 ]
+	],
+	/**
+	 * Backwise - from coloroid to xyY
+	 *
+	 * @param {Array<number>} arg Coloroid values
+	 *
+	 * @return {Array<number>} xyY values
+	 */
+	xyy: function (arg) {
+		var A = arg[0], T = arg[1], V = arg[2];
+
+		//find the closest row in the table
+		var row;
+		for (var i = 0; i < table.length; i++) {
+			if (A <= table[i][0]) {
+				row = table[i];
+				break;
+			}
+		}
+
+		//FIXME row is possibly undefined
+		//@ts-ignore
+		var yl = row[4], el = row[2], xl = row[3];
+
+		var Y = V*V / 100;
+
+		var Yl = yl * el * 100;
+
+		var x = (100*Y*x0*ew + 100*xl*el*T - Yl*T*x0*ew) / (100*T*el - Yl*T*ew + 100*Y*ew);
+		var y = (100*Y + 100*T*yl*el - Yl*T) / (Y*ew*100 + T*100*el - T*Yl*ew);
+
+		// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
+		// var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
+
+		// var x = (ew*x0*(V*V - 100*T*row[6]) + 100*T*el*xl) / (ew*(V*V - 100*T*row[6]) + 100*T*el);
+		// var y = V*V/(ew*(V*V + 100*T*row[6]) + 100*T*el);
+
+		return [x,y,Y];
+	}
 };
-
-
-/**
- * Coloroid table
- * Regression of values is almost impossible, as hues don’t correlate
- * Even angle values are picked very inconsistently, based on aesthetical evaluation.
- *
- * - tgф, ctgф are removed, ф is searched instead
- * - eλ = xλ + yλ + zλ
- * - λ is removed as not used
- */
-coloroid.table = [
-	//A    angle  eλ        xλ       yλ
-	[ 10,   59.0, 1.724349, 0.44987, 0.53641 ],
-	[ 11,   55.3, 1.740844, 0.46248, 0.52444 ],
-	[ 12,   51.7, 1.754985, 0.47451, 0.51298 ],
-	[ 13,   48.2, 1.767087, 0.48601, 0.50325 ],
-	[ 14,   44.8, 1.775953, 0.49578, 0.49052 ],
-	[ 15,   41.5, 1.785073, 0.50790, 0.43035 ],
-	[ 16,   38.2, 1.791104, 0.51874, 0.46934 ],
-	[ 20,   34.9, 1.794831, 0.52980, 0.45783 ],
-	[ 21,   31.5, 1.798664, 0.54137, 0.44559 ],
-	[ 22,   28.0, 1.794819, 0.55367, 0.43253 ],
-	[ 23,   24.4, 1.789610, 0.56680, 0.41811 ],
-	[ 24,   20.6, 1.809483, 0.58128, 0.40176 ],
-	[ 25,   16.6, 1.760983, 0.59766, 0.38300 ],
-	[ 26,   12.3, 1.723443, 0.61653, 0.36061 ],
-	[ 30,    7.7, 1.652891, 0.63896, 0.33358 ],
-	[ 31,    2.8, 1.502607, 0.66619, 0.29930 ],
-	[ 32,   -2.5, 1.072500, 0.70061, 0.26753 ],
-	[ 33,   -8.4, 1.136637, 0.63925, 0.22631 ],
-	[ 34,  -19.8, 1.232286, 0.53962, 0.19721 ],
-	[ 35,  -31.6, 1.310120, 0.50340, 0.17495 ],
-	[ 40,  -43.2, 1.376610, 0.46041, 0.15603 ],
-	[ 41,  -54.6, 1.438692, 0.42386, 0.13846 ],
-	[ 42,  -65.8, 1.501582, 0.38991, 0.12083 ],
-	[ 43,  -76.8, 1.570447, 0.35586, 0.10328 ],
-	[ 44,  -86.8, 1.645583, 0.32195, 0.08496 ],
-	[ 45,  -95.8, 1.732083, 0.28657, 0.05155 ],
-	[ 46, -108.4, 1.915753, 0.22202, 0.01771 ],
-	[ 50, -117.2, 2.146310, 0.15664, 0.05227 ],
-	[ 51, -124.7, 1.649939, 0.12736, 0.09020 ],
-	[ 52, -131.8, 1.273415, 0.10813, 0.12506 ],
-	[ 53, -138.5, 1.080809, 0.09414, 0.15741 ],
-	[ 54, -145.1, 0.957076, 0.03249, 0.18958 ],
-	[ 55, -152.0, 0.868976, 0.07206, 0.24109 ],
-	[ 56, -163.4, 0.771731, 0.05787, 0.30378 ],
-	[ 60, -177.2, 0.697108, 0.04353, 0.35696 ],
-	[ 61,  171.6, 0.655803, 0.03291, 0.41971 ],
-	[ 62,  152.4, 0.623958, 0.02240, 0.49954 ],
-	[ 63,  148.4, 0.596037, 0.01196, 0.60321 ],
-	[ 64,  136.8, 0.607413, 0.00425, 0.73542 ],
-	[ 65,  125.4, 0.659923, 0.01099, 0.83391 ],
-	[ 66,  114.2, 0.859517, 0.08050, 0.77474 ],
-	[ 70,  103.2, 1.195683, 0.20259, 0.70460 ],
-	[ 71,   93.2, 1.407534, 0.28807, 0.65230 ],
-	[ 72,   84.2, 1.532829, 0.34422, 0.61930 ],
-	[ 73,   77.3, 1.603792, 0.37838, 0.59533 ],
-	[ 74,   71.6, 1.649448, 0.40290, 0.57716 ],
-	[ 75,   66.9, 1.681080, 0.42141, 0.56222 ],
-	[ 76,   62.8, 1.704979, 0.43647, 0.54895 ]
-];
 
 
 /**
@@ -2071,7 +2140,7 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 
 /** Create angle-sorted table */
 var table = coloroid.table;
-var angleTable = [].concat(table.slice(-13),table.slice(0, -13));
+var angleTable = /** @type {Array<Array<number>>} */ ([]).concat(table.slice(-13),table.slice(0, -13));
 
 
 /**
@@ -2094,9 +2163,9 @@ var ew = (Xn + Yn + Zn) / 100;
 /**
  * From xyY to coloroid
  *
- * @param {Array} arg xyY tuple
+ * @param {Array<number>} arg xyY tuple
  *
- * @return {Array} ATV coloroid channels
+ * @return {Array<number>} ATV coloroid channels
  */
 xyy.coloroid = function (arg) {
 	var x = arg[0], y = arg[1], Y = arg[2];
@@ -2134,53 +2203,11 @@ xyy.coloroid = function (arg) {
 	return [A, T, V];
 };
 
-
-
-
-
-/**
- * Backwise - from coloroid to xyY
- *
- * @param {Array} arg Coloroid values
- *
- * @return {Array} xyY values
- */
-coloroid.xyy = function (arg) {
-	var A = arg[0], T = arg[1], V = arg[2];
-
-	//find the closest row in the table
-	var row;
-	for (var i = 0; i < table.length; i++) {
-		if (A <= table[i][0]) {
-			row = table[i];
-			break;
-		}
-	}
-
-	var yl = row[4], el = row[2], xl = row[3];
-
-	var Y = V*V / 100;
-
-	var Yl = yl * el * 100;
-
-	var x = (100*Y*x0*ew + 100*xl*el*T - Yl*T*x0*ew) / (100*T*el - Yl*T*ew + 100*Y*ew);
-	var y = (100*Y + 100*T*yl*el - Yl*T) / (Y*ew*100 + T*100*el - T*Yl*ew);
-
-	// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
-	// var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
-
-	// var x = (ew*x0*(V*V - 100*T*row[6]) + 100*T*el*xl) / (ew*(V*V - 100*T*row[6]) + 100*T*el);
-	// var y = V*V/(ew*(V*V + 100*T*row[6]) + 100*T*el);
-
-	return [x,y,Y];
-};
-
-
-
 /** Proper transformation to a XYZ (via xyY) */
 xyz.coloroid = function (arg) {
 	return xyy.coloroid(xyz.xyy(arg));
 };
+/** @type {import('./index.js').Transform} */
 coloroid.xyz = function (arg) {
 	return xyy.xyz(coloroid.xyy(arg));
 };
@@ -2189,7 +2216,7 @@ coloroid.xyz = function (arg) {
  * @module color-space/hcg
  */
 
-
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hcg = {
 	name: 'hcg',
 	min: [0,0,0],
@@ -2357,6 +2384,7 @@ hwb.hcg = function(hwb){
  * @module color-space/hcy
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hcy = {
 	name: 'hcy',
 	min: [0,0,0],
@@ -2369,9 +2397,9 @@ var hcy = {
 /**
  * HCY to RGB
  *
- * @param {Array} hcy Channel values
+ * @param {Array<number>} hcy Channel values
  *
- * @return {Array} RGB channel values
+ * @return {Array<number>} RGB channel values
  */
 hcy.rgb = function (hcy) {
 	var h = (hcy[0] < 0 ? (hcy[0] % 360) + 360 : (hcy[0] % 360)) * Math.PI / 180;
@@ -2406,9 +2434,9 @@ hcy.rgb = function (hcy) {
 /**
  * RGB to HCY
  *
- * @param {Array} rgb Channel values
+ * @param {Array<number>} rgb Channel values
  *
- * @return {Array} HCY channel values
+ * @return {Array<number>} HCY channel values
  */
 rgb.hcy = function (rgb) {
 	var sum = rgb[0] + rgb[1] + rgb[2];
@@ -2441,19 +2469,21 @@ rgb.hcy = function (rgb) {
  * @module  color-space/tsl
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var tsl = {
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],
-	channel: ['tint','saturation','lightness']
+	channel: ['tint','saturation','lightness'],
+	alias: ['TSL'],
 };
 
 /**
  * TSL to RGB
  *
- * @param {Array} tsl RGB values
+ * @param {Array<number>} tsl RGB values
  *
- * @return {Array} TSL values
+ * @return {Array<number>} TSL values
  */
 tsl.rgb = function(tsl) {
 	var T = tsl[0],
@@ -2494,23 +2524,18 @@ tsl.rgb = function(tsl) {
 /**
  * RGB to TSL
  *
- * @param {Array} tsl TSL values
+ * @param {Array<number>} rgb TSL values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.tsl = function(rgb) {
-	var r = rgb[0] / 255,
-		g = rgb[1] / 255,
-		b = rgb[2] / 255;
+	var [r, g, b] = rgb;
 
 	var r_ = (r / (r + g + b) || 0) - 1/3,
-		g_ = (g / (r + g + b) || 0) - 1/3;
-	var T = g_ > 0 ? .5 * Math.atan(r_/ g_) / Math.PI + .25 :
-			g_ < 0 ? .5 * Math.atan(r_/ g_) / Math.PI + .75 : 0;
-
-	var S = Math.sqrt(9/5 * (r_*r_ + g_*g_));
-
-	var L = (r * 0.299) + (g * 0.587) + (b * 0.114);
+			g_ = (g / (r + g + b) || 0) - 1/3,
+			T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0,
+			S = Math.sqrt(9/5 * (r_*r_ + g_*g_)),
+			L = ((r * 0.299) + (g * 0.587) + (b * 0.114)) / 255;
 
 	return [T, S, L];
 };
@@ -2522,6 +2547,7 @@ rgb.tsl = function(rgb) {
  * @module color-space/yes
  */
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var yes = {
 	name: 'yes',
 	min: [0,0,0],
@@ -2529,7 +2555,7 @@ var yes = {
 	channel: ['luminance', 'e-factor', 's-factor']
 };
 
-
+/** @type {import('./index.js').Transform} */
 yes.rgb = function(arg){
 	var y = arg[0], e = arg[1], s = arg[2];
 
@@ -2568,7 +2594,7 @@ rgb.yes = function(arg) {
  * @module  color-space/osa-ucs
  */
 
-
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var osaucs = {
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
@@ -2580,6 +2606,7 @@ var osaucs = {
 
 /**
  * There’s no analytical solution to this
+ * @type {import('./index.js').Transform}
  */
 osaucs.xyz = function (arg) {
 
@@ -2590,9 +2617,9 @@ osaucs.xyz = function (arg) {
 /**
  * Transform to xyz osaucs
  *
- * @param {Array} arg Input xyz array
+ * @param {Array<number>} arg Input xyz array
  *
- * @return {Array} Ljg array
+ * @return {Array<number>} Ljg array
  */
 xyz.osaucs = function (arg) {
 	var X = arg[0], Y = arg[1], Z = arg[2];
@@ -2638,6 +2665,7 @@ const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var hsp = {
   name: 'hsp',
   min: [0, 0, 0],
@@ -2733,9 +2761,9 @@ var hsp = {
 
 //append rgb
 rgb.hsp = function (rgb) {
-  var r = parseInt(rgb[0], 10),
-    g = parseInt(rgb[1], 10),
-    b = parseInt(rgb[2], 10),
+  var r = parseInt(/** @type {?} */ (rgb[0]), 10),
+    g = parseInt(/** @type {?} */ (rgb[1]), 10),
+    b = parseInt(/** @type {?} */ (rgb[2]), 10),
     h, s, p;
 
   //  Calculate the Perceived brightness
@@ -2779,7 +2807,8 @@ rgb.hsp = function (rgb) {
       }
     }
   }
-    
+  //FIXME h and s are possibly undefined
+  //@ts-ignore
   return [Math.round(h*360.0), s*100.0, Math.round(p)];
 };
 
@@ -2790,11 +2819,35 @@ rgb.hsp = function (rgb) {
  *
  */
 
-const spaces = {};
+/** @typedef {'rgb' | 'xyz' | 'hsl' | 'hsv' | 'hsi' | 'hwb' | 'cmyk' | 'cmy' | 'xyy' | 'yiq' | 'yuv' | 'ydbdr' | 'ycgco' | 'ypbpr' | 'ycbcr' | 'xvycc' | 'yccbccrc' | 'ucs' | 'uvw' | 'jpeg' | 'lab' | 'labh' | 'lms' | 'lchab' | 'luv' | 'lchuv' | 'hsluv' | 'hpluv' | 'cubehelix' | 'coloroid' | 'hcg' | 'hcy' | 'tsl' | 'yes' | 'osaucs' | 'hsp'} SpaceId */
 
+/** @typedef {(color: Array<number>, ...rest: Array<*>) => Array<number>} Transform */
+
+/** @typedef {{[key in SpaceId]: Transform}} ColorSpaceTransforms */
+
+/**
+ * @typedef {Object} ColorSpaceBase
+ * @property {SpaceId} name
+ * @property {Array<number>} min
+ * @property {Array<number>} max
+ * @property {Array<string>} channel
+ * @property {Array<string>} [alias]
+ * @property {Object<number, Object<string, Array<number>>>} [whitepoint]
+ */
+
+/** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
+
+
+const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
+
+/**
+ * @param {ColorSpace} newSpace 
+ */
 function register (newSpace) {
 	const newSpaceName = newSpace.name;
-	for (var existingSpaceName in spaces) {
+	/** @type {SpaceId} */
+	var existingSpaceName;
+	for (existingSpaceName in spaces) {
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
 
 		const existingSpace = spaces[existingSpaceName];
@@ -2803,6 +2856,11 @@ function register (newSpace) {
 	spaces[newSpaceName] = newSpace;
 }
 
+/**
+ * @param {ColorSpace} fromSpace
+ * @param {SpaceId} toSpaceName
+ * @returns {Transform}
+ */
 function createConverter (fromSpace, toSpaceName) {
 	//create xyz converter, if available
 	if (fromSpace.xyz && spaces.xyz[toSpaceName])
@@ -2811,6 +2869,11 @@ function createConverter (fromSpace, toSpaceName) {
 	//create rgb converter
 	if (fromSpace.rgb && spaces.rgb[toSpaceName])
 		return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
+
+
+	return () => {
+		throw new Error('Conversion not available');
+	}
 }
 
 // register all spaces by default

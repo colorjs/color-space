@@ -8,7 +8,8 @@ import xyz from './xyz.js';
 import lchuv from './lchuv.js';
 import hsluv, {_hsluv} from './hsluv.js';
 
-export default {
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hpluv = {
 	name: 'hpluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -23,6 +24,8 @@ export default {
 		return _hsluv.lchToHsluv( _hsluv.hpluvToLch(arg));
 	}
 };
+
+export default /** @type {import('./index.js').ColorSpace} */ (hpluv);
 
 //extend lchuv, xyz
 lchuv.hpluv = _hsluv.lchToHpluv;

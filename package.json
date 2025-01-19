@@ -4,6 +4,7 @@
   "version": "2.0.1",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
+  "types": "./dist/index.d.ts",
   "keywords": [
     "color",
     "colour",
@@ -41,13 +42,17 @@
   "main": "./index.js",
   "devDependencies": {
     "almost-equal": "^1.1.0",
+    "pg-gateway": "^0.3.0-beta.4",
     "rollup": "^2.66.0",
     "terser": "^5.10.0",
+    "typescript": "^5.7.2",
     "uvu": "^0.5.3"
   },
   "scripts": {
-    "test": "node test",
-    "build": "rollup ./index.js --file dist/color-space.js --format esm",
-    "minify": "terser ./dist/color-space.js -o ./dist/color-space.min.js --module -c passes=3 -m"
+    "test": "npm run typecheck && node test",
+    "build": "rollup ./index.js --file dist/color-space.js --format esm && tsc",
+    "minify": "terser ./dist/color-space.js -o ./dist/color-space.min.js --module -c passes=3 -m",
+    "prepublishOnly": "npm run build && npm run minify",
+    "typecheck": "tsc --noEmit"
   }
 }

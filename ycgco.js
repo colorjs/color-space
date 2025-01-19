@@ -5,6 +5,7 @@
  */
 import rgb from './rgb.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var ycgco = {
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
@@ -18,9 +19,9 @@ var ycgco = {
  * YCgCo to RGB
  * transform through analog form
  *
- * @param {Array} ycgco RGB values
+ * @param {Array<number>} arr RGB values
  *
- * @return {Array} YCgCo values
+ * @return {Array<number>} YCgCo values
  */
 ycgco.rgb = function (arr) {
 	var y = arr[0], cg = arr[1], co = arr[2];
@@ -39,9 +40,9 @@ ycgco.rgb = function (arr) {
  * RGB to YCgCo
  * transform through analog form
  *
- * @param {Array} ycgco YCgCo values
+ * @param {Array<number>} arr YCgCo values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.ycgco = function(arr) {
 	var r = arr[0]/255, g = arr[1]/255, b = arr[2]/255;
@@ -54,4 +55,4 @@ rgb.ycgco = function(arr) {
 };
 
 
-export default ycgco;
+export default /** @type {import('./index.js').ColorSpace} */ (ycgco);

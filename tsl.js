@@ -8,6 +8,7 @@
  */
 import rgb from './rgb.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var tsl = {
 	name: 'tsl',
 	min: [0,0,0],
@@ -16,14 +17,14 @@ var tsl = {
 	alias: ['TSL'],
 };
 
-export default tsl;
+export default /** @type {import('./index.js').ColorSpace} */ (tsl);
 
 /**
  * TSL to RGB
  *
- * @param {Array} tsl RGB values
+ * @param {Array<number>} tsl RGB values
  *
- * @return {Array} TSL values
+ * @return {Array<number>} TSL values
  */
 tsl.rgb = function(tsl) {
 	var T = tsl[0],
@@ -64,9 +65,9 @@ tsl.rgb = function(tsl) {
 /**
  * RGB to TSL
  *
- * @param {Array} tsl TSL values
+ * @param {Array<number>} rgb TSL values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.tsl = function(rgb) {
 	var [r, g, b] = rgb;

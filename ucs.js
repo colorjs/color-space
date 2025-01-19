@@ -7,6 +7,7 @@
  */
 import xyz from './xyz.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var ucs = {
 	name: 'ucs',
 	min: [0,0,0],
@@ -15,14 +16,14 @@ var ucs = {
 	alias: ['UCS', 'cie1960']
 };
 
-export default ucs;
+export default /** @type {import('./index.js').ColorSpace} */ (ucs);
 
 /**
  * UCS to XYZ
  *
- * @param {Array} ucs XYZ values
+ * @param {Array<number>} ucs XYZ values
  *
- * @return {Array} UCS values
+ * @return {Array<number>} UCS values
  */
 ucs.xyz = function(ucs) {
 	var u = ucs[0],
@@ -40,9 +41,9 @@ ucs.xyz = function(ucs) {
 /**
  * XYZ to UCS
  *
- * @param {Array} ucs UCS values
+ * @param {Array<number>} xyz UCS values
  *
- * @return {Array} XYZ values
+ * @return {Array<number>} XYZ values
  */
 xyz.ucs = function(xyz) {
 	var x = xyz[0],

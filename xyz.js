@@ -5,62 +5,63 @@
  */
 import rgb from './rgb.js';
 
+/** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
+
+/** @type {Partial<import('./index.js').ColorSpace> & XYZSpecific} */
 var xyz = {
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],
-	alias: ['XYZ', 'ciexyz', 'cie1931']
-};
+	alias: ['XYZ', 'ciexyz', 'cie1931'],
+	/**
+	 * Whitepoint reference values with observer/illuminant
+	 *
+	 * http://en.wikipedia.org/wiki/Standard_illuminant
+	 */
+	whitepoint: {
+		//1931 2°
+		2: {
+			//incadescent
+			A:[109.85, 100, 35.585],
+			// B:[],
+			C: [98.074, 100, 118.232],
+			D50: [96.422, 100, 82.521],
+			D55: [95.682, 100, 92.149],
+			//daylight
+			D65: [95.045592705167, 100, 108.9057750759878],
+			D75: [94.972, 100, 122.638],
+			//flourescent
+			// F1: [],
+			F2: [99.187, 100, 67.395],
+			// F3: [],
+			// F4: [],
+			// F5: [],
+			// F6:[],
+			F7: [95.044, 100, 108.755],
+			// F8: [],
+			// F9: [],
+			// F10: [],
+			F11: [100.966, 100, 64.370],
+			// F12: [],
+			E: [100,100,100]
+		},
 
-
-/**
- * Whitepoint reference values with observer/illuminant
- *
- * http://en.wikipedia.org/wiki/Standard_illuminant
- */
-xyz.whitepoint = {
-	//1931 2°
-	2: {
-		//incadescent
-		A:[109.85, 100, 35.585],
-		// B:[],
-		C: [98.074, 100, 118.232],
-		D50: [96.422, 100, 82.521],
-		D55: [95.682, 100, 92.149],
-		//daylight
-		D65: [95.045592705167, 100, 108.9057750759878],
-		D75: [94.972, 100, 122.638],
-		//flourescent
-		// F1: [],
-		F2: [99.187, 100, 67.395],
-		// F3: [],
-		// F4: [],
-		// F5: [],
-		// F6:[],
-		F7: [95.044, 100, 108.755],
-		// F8: [],
-		// F9: [],
-		// F10: [],
-		F11: [100.966, 100, 64.370],
-		// F12: [],
-		E: [100,100,100]
-	},
-
-	//1964  10°
-	10: {
-		//incadescent
-		A:[111.144, 100, 35.200],
-		C: [97.285, 100, 116.145],
-		D50: [96.720, 100, 81.427],
-		D55: [95.799, 100, 90.926],
-		//daylight
-		D65: [94.811, 100, 107.304],
-		D75: [94.416, 100, 120.641],
-		//flourescent
-		F2: [103.280, 100, 69.026],
-		F7: [95.792, 100, 107.687],
-		F11: [103.866, 100, 65.627],
-		E: [100,100,100]
+		//1964  10°
+		10: {
+			//incadescent
+			A:[111.144, 100, 35.200],
+			C: [97.285, 100, 116.145],
+			D50: [96.720, 100, 81.427],
+			D55: [95.799, 100, 90.926],
+			//daylight
+			D65: [94.811, 100, 107.304],
+			D75: [94.416, 100, 120.641],
+			//flourescent
+			F2: [103.280, 100, 69.026],
+			F7: [95.792, 100, 107.687],
+			F11: [103.866, 100, 65.627],
+			E: [100,100,100]
+		}
 	}
 };
 
@@ -74,9 +75,9 @@ xyz.max = xyz.whitepoint[2].D65;
 /**
  * Transform xyz to rgb
  *
- * @param {Array} xyz Array of xyz values
- *
- * @return {Array} RGB values
+ * @param {Array<number>} _xyz Array of xyz values
+ * @param {Array<number>} white Whitepoint reference
+ * @return {Array<number>} RGB values
  */
 xyz.rgb = function (_xyz, white) {
 	//FIXME: make sure we have to divide like this. Probably we have to replace matrix as well then
@@ -114,9 +115,9 @@ xyz.rgb = function (_xyz, white) {
 /**
  * RGB to XYZ
  *
- * @param {Array} rgb RGB channels
+ * @param {Array<number>} rgb RGB channels
  *
- * @return {Array} XYZ channels
+ * @return {Array<number>} XYZ channels
  */
 rgb.xyz = function(rgb, white) {
 	var r = rgb[0] / 255,
@@ -139,4 +140,4 @@ rgb.xyz = function(rgb, white) {
 
 
 
-export default xyz;
+export default /** @type {import('./index.js').ColorSpace & XYZSpecific} */ (xyz);

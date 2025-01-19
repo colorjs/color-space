@@ -6,6 +6,7 @@
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var yccbccrc = {
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
@@ -18,9 +19,9 @@ var yccbccrc = {
 /**
  * YcCbcCrc to RGB
  *
- * @param {Array} yccbccrc RGB values
+ * @param {Array<number>} yccbccrc RGB values
  *
- * @return {Array} YcCbcCrc values
+ * @return {Array<number>} YcCbcCrc values
  */
 yccbccrc.rgb = function(yccbccrc) {
 	return ypbpr.rgb(yccbccrc, 0.0593, 0.2627);
@@ -30,13 +31,13 @@ yccbccrc.rgb = function(yccbccrc) {
 /**
  * RGB to YcCbcCrc
  *
- * @param {Array} yccbccrc YcCbcCrc values
+ * @param {Array<number>} arr YcCbcCrc values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.yccbccrc = function(arr) {
 	return rgb.ypbpr(arr, 0.0593, 0.2627);
 };
 
 
-export default yccbccrc;
+export default /** @type {import('./index.js').ColorSpace} */ (yccbccrc);

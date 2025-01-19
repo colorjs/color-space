@@ -8,6 +8,7 @@ import lab from './lab.js';
 
 
 //cylindrical lab
+/** @type {Partial<import('./index.js').ColorSpace> & {lab: import('./index.js').Transform}} */
 var lchab = {
 	name: 'lchab',
 	min: [0,0,0],
@@ -54,4 +55,4 @@ xyz.lchab = function(arg){
 };
 
 
-export default lchab;
+export default /** @type {import('./index.js').ColorSpace} */ (lchab);

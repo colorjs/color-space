@@ -3,7 +3,8 @@
  */
 import rgb from './rgb.js';
 
-export default {
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsl = {
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -33,6 +34,8 @@ export default {
 	}
 };
 
+export default /** @type {import('./index.js').ColorSpace} */ (hsl);
+
 
 //extend rgb
 rgb.hsl = function(rgb) {
@@ -57,6 +60,8 @@ rgb.hsl = function(rgb) {
 		h = 4 + (r - g)/ delta;
 	}
 
+	//FIXME h is possibly undefined
+	//@ts-ignore
 	h = Math.min(h * 60, 360);
 
 	if (h < 0) {

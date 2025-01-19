@@ -3,6 +3,7 @@
  */
 import rgb from './rgb.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 const cmyk = {
 	name: 'cmyk',
 	min: [0,0,0,0],
@@ -39,4 +40,4 @@ rgb.cmyk = function(rgb) {
 	return [c * 100, m * 100, y * 100, k * 100];
 };
 
-export default cmyk
+export default /** @type {import('./index.js').ColorSpace} */ (cmyk);

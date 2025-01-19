@@ -7,6 +7,7 @@
  */
 import rgb from './rgb.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var jpeg = {
 	name: 'jpeg',
 	min: [0, 0, 0],
@@ -15,16 +16,16 @@ var jpeg = {
 	alias: ['JPEG']
 };
 
-export default jpeg;
+export default /** @type {import('./index.js').ColorSpace} */ (jpeg);
 
 
 /**
  * JPEG to RGB
  * transform through analog form
  *
- * @param {Array} jpeg RGB values
+ * @param {Array<number>} arr RGB values
  *
- * @return {Array} JPEG values
+ * @return {Array<number>} JPEG values
  */
 jpeg.rgb = function (arr) {
 	var y = arr[0], cb = arr[1], cr = arr[2];
@@ -41,9 +42,9 @@ jpeg.rgb = function (arr) {
  * RGB to JPEG
  * transform through analog form
  *
- * @param {Array} jpeg JPEG values
+ * @param {Array<number>} arr JPEG values
  *
- * @return {Array} RGB values
+ * @return {Array<number>} RGB values
  */
 rgb.jpeg = function(arr) {
 	var r = arr[0], g = arr[1], b = arr[2];

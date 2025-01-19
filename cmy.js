@@ -3,6 +3,7 @@
  */
 import rgb from './rgb.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var cmy = {
 	name: 'cmy',
 	min: [0,0,0],
@@ -15,9 +16,9 @@ var cmy = {
 /**
  * CMY to RGB
  *
- * @param {Array} cmy Channels
+ * @param {Array<number>} cmy Channels
  *
- * @return {Array} RGB channels
+ * @return {Array<number>} RGB channels
  */
 cmy.rgb = function(cmy) {
 	var c = cmy[0] / 100,
@@ -35,9 +36,9 @@ cmy.rgb = function(cmy) {
 /**
  * RGB to CMY
  *
- * @param {Array} rgb channels
+ * @param {Array<number>} rgb channels
  *
- * @return {Array} CMY channels
+ * @return {Array<number>} CMY channels
  */
 rgb.cmy = function(rgb) {
 	var r = rgb[0] / 255,
@@ -49,6 +50,6 @@ rgb.cmy = function(rgb) {
 		(1-g) * 100 || 0,
 		(1-b) * 100 || 0
 	];
-};
+}
 
-export default cmy
+export default /** @type {import('./index.js').ColorSpace} */ (cmy);

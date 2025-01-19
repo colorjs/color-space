@@ -53,6 +53,7 @@ Scripting_*
 docs
 *.pdf
 *.pak
+dist
 
 
 design

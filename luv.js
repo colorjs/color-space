@@ -3,9 +3,10 @@
  *
  * @module color-space/luv
  */
- import xyz from './xyz.js';
+import xyz from './xyz.js';
 
-export default {
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var luv = {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
@@ -57,6 +58,8 @@ export default {
 		return [x, y, z];
 	}
 };
+
+export default /** @type {import('./index.js').ColorSpace} */ (luv);
 
 // http://www.brucelindbloom.com/index.html?Equations.html
 // https://github.com/boronine/husl/blob/master/husl.coffee

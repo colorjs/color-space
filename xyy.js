@@ -5,6 +5,7 @@
  */
 import xyz from './xyz.js';
 
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var xyy = {
 	name: 'xyy',
 	min: [0,0,0],
@@ -34,4 +35,4 @@ xyz.xyy = function(arg) {
 	return [X / sum, Y / sum, Y];
 };
 
-export default xyy;
+export default /** @type {import('./index.js').ColorSpace} */ (xyy);
