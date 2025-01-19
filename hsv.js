@@ -4,15 +4,14 @@
 import rgb from './rgb.js';
 import hsl from './hsl.js';
 
-
-var hsv = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsv = {
 	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
@@ -41,7 +40,6 @@ var hsv = /** @type {import('./index.js').ColorSpace} */ ({
 		}
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsl: function(hsv) {
 		var h = hsv[0],
 			s = hsv[1] / 100,
@@ -56,9 +54,9 @@ var hsv = /** @type {import('./index.js').ColorSpace} */ ({
 
 		return [h, sl * 100, l * 100];
 	}
-});
+};
 
-export default hsv;
+export default /** @type {import('./index.js').ColorSpace} */ (hsv);
 
 
 //append rgb

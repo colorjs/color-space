@@ -9,13 +9,27 @@
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'
 
-var ycbcr = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
+var ycbcr = {
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
 	channel: ['Y','Cb','Cr'],
-	alias: ['YCbCr', 'YCC']
-});
+	alias: ['YCbCr', 'YCC'],
+	/**
+	 * From digital to analog form.
+	 * Scale to min/max ranges
+	 */
+	ypbpr: function (ycbcr) {
+		var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
+
+		return [
+			(y - 16) / 219,
+			(cb - 128) / 224,
+			(cr - 128) / 224
+		];
+	}
+};
 
 
 /**
@@ -31,22 +45,6 @@ ypbpr.ycbcr = function (ypbpr) {
 		16 + 219 * y,
 		128 + 224 * pb,
 		128 + 224 * pr
-	];
-}
-
-
-/**
- * From digital to analog form.
- * Scale to min/max ranges
- */
-/** @type {import('./index.js').Transform} */
-ycbcr.ypbpr = function (ycbcr) {
-	var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
-
-	return [
-		(y - 16) / 219,
-		(cb - 128) / 224,
-		(cr - 128) / 224
 	];
 }
 
@@ -79,4 +77,4 @@ rgb.ycbcr = function(arr, kb, kr) {
 };
 
 
-export default ycbcr;
+export default /** @type {import('./index.js').ColorSpace} */ (ycbcr);

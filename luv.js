@@ -5,7 +5,8 @@
  */
 import xyz from './xyz.js';
 
-var luv = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var luv = {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
@@ -16,7 +17,6 @@ var luv = /** @type {import('./index.js').ColorSpace} */ ({
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 		l = arg[0], u = arg[1], v = arg[2];
@@ -57,9 +57,9 @@ var luv = /** @type {import('./index.js').ColorSpace} */ ({
 
 		return [x, y, z];
 	}
-});
+};
 
-export default luv;
+export default /** @type {import('./index.js').ColorSpace} */ (luv);
 
 // http://www.brucelindbloom.com/index.html?Equations.html
 // https://github.com/boronine/husl/blob/master/husl.coffee

@@ -6,13 +6,14 @@
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-var yccbccrc = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var yccbccrc = {
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Yc','Cbc','Crc'],
 	alias: ['YcCbcCrc']
-});
+};
 
 
 /**
@@ -39,4 +40,4 @@ rgb.yccbccrc = function(arr) {
 };
 
 
-export default yccbccrc;
+export default /** @type {import('./index.js').ColorSpace} */ (yccbccrc);

@@ -8,19 +8,18 @@ import lab from './lab.js';
 
 
 //cylindrical lab
-var lchab = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {lab: import('./index.js').Transform}} */
+var lchab = {
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return lab.xyz(lchab.lab(arg));
 	},
 
-	/** @type {import('./index.js').Transform} */
 	lab: function(lch) {
 		var l = lch[0],
 				c = lch[1],
@@ -32,7 +31,7 @@ var lchab = /** @type {import('./index.js').ColorSpace} */ ({
 		b = c * Math.sin(hr);
 		return [l, a, b];
 	}
-});
+};
 
 
 //extend lab
@@ -56,4 +55,4 @@ xyz.lchab = function(arg){
 };
 
 
-export default lchab;
+export default /** @type {import('./index.js').ColorSpace} */ (lchab);

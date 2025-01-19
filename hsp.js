@@ -7,16 +7,14 @@ const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-  /** @type {import('./index.js').ColorSpace} */
-var hsp = /** @type {import('./index.js').ColorSpace} */ ({
-  /** @type {import('./index.js').SpaceId} */
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsp = {
   name: 'hsp',
   min: [0, 0, 0],
   max: [360, 100, 255],
   channel: ['hue', 'saturation', 'perceived_brightness'],
   alias: ['HSP'],
 
-	/** @type {import('./index.js').Transform} */
   rgb: function (hsp) {
     var h = hsp[0]/360.0,
       s = hsp[1]/100.0,
@@ -100,9 +98,9 @@ var hsp = /** @type {import('./index.js').ColorSpace} */ ({
   }
 
   
-});
+};
 
-export default hsp;
+export default /** @type {import('./index.js').ColorSpace} */ (hsp);
 
 
 //append rgb

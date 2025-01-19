@@ -8,15 +8,16 @@
 import ucs from './ucs.js';
 import xyz from './xyz.js';
 
-var uvw = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var uvw = {
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
 	channel: ['U','V','W'],
 	alias: ['UVW', 'cieuvw', 'cie1964']
-});
+};
 
-export default uvw;
+export default /** @type {import('./index.js').ColorSpace} */ (uvw);
 
 /**
  * UVW to XYZ

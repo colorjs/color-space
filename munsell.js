@@ -1,7 +1,7 @@
 /**
  * @module color-space/munsell
  */
-var munsell = /** @type {import('./index.js').ColorSpace} */ ({
+var munsell = {
 	name: 'munsell',
 	alias: [],
 	min: [],

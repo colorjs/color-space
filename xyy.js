@@ -5,15 +5,15 @@
  */
 import xyz from './xyz.js';
 
-var xyy = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var xyy = {
 	name: 'xyy',
 	min: [0,0,0],
 	max: [1,1,100],
 	channel: ['x','y','Y'],
 	alias: ['xyY', 'Yxy', 'yxy']
-});
+};
 
-/** @type {import('./index.js').Transform} */
 xyy.xyz = function(arg) {
 	var X, Y, Z, x, y;
 	x = arg[0]; y = arg[1]; Y = arg[2];
@@ -35,4 +35,4 @@ xyz.xyy = function(arg) {
 	return [X / sum, Y / sum, Y];
 };
 
-export default xyy;
+export default /** @type {import('./index.js').ColorSpace} */ (xyy);

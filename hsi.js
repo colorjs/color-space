@@ -6,15 +6,16 @@
  */
 import rgb from './rgb.js';
 
-var hsi = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsi = {
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'saturation', 'intensity'],
 	alias: ['HSI']
-});
+};
 
-export default hsi
+export default /** @type {import('./index.js').ColorSpace} */ (hsi)
 
 
 /**

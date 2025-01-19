@@ -8,16 +8,8 @@
 
 import rgb from './rgb.js';
 
-var cubehelix = /** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */ ({
-	name: 'cubehelix',
-	channel: ['fraction'],
-	min: [0],
-	max: [1]
-});
-
-
 /** Default options for space */
-var defaults = cubehelix.defaults = {
+var defaults = {
 	//0..3
 	start: 0,
 	//-10..10
@@ -26,6 +18,15 @@ var defaults = cubehelix.defaults = {
 	hue: 1,
 	//0..2
 	gamma: 1
+};
+
+/** @type {Partial<import('./index.js').ColorSpace> & CubeHelixSpecific} */
+var cubehelix = {
+	name: 'cubehelix',
+	channel: ['fraction'],
+	min: [0],
+	max: [1],
+	defaults: defaults
 };
 
 
@@ -78,4 +79,4 @@ rgb.cubehelix = function(rgb) {
 };
 
 
-export default cubehelix;
+export default /** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */ (cubehelix);

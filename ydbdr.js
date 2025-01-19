@@ -7,13 +7,14 @@
 import rgb from './rgb.js';
 import yuv from './yuv.js';
 
-var ydbdr = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var ydbdr = {
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
 	max: [1, 1.333, 1.333],
 	channel: ['Y','Db','Dr'],
 	alias: ['YDbDr']
-});
+};
 
 
 /**
@@ -71,4 +72,4 @@ ydbdr.yuv = function (ydbdr) {
 };
 
 
-export default ydbdr;
+export default /** @type {import('./index.js').ColorSpace} */ (ydbdr);

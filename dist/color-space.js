@@ -5,8 +5,7 @@
  */
 
 
-
-/** @type {import('./index.js').ColorSpace} */ // @ts-ignore
+/** @type {Partial<import('./index.js').ColorSpace>} */
 var rgb = {
 	name: 'rgb',
 	min: [0,0,0],
@@ -19,15 +18,14 @@ var rgb = {
  * @module color-space/hsl
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var hsl = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsl = {
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hsl) {
 		var h = hsl[0]/360, s = hsl[1]/100, l = hsl[2]/100, t1, t2, t3, rgb, val, i=0;
 
@@ -49,7 +47,7 @@ var hsl = /** @type {*} */ ({
 
 		return rgb;
 	}
-});
+};
 
 
 //extend rgb
@@ -102,16 +100,14 @@ rgb.hsl = function(rgb) {
  * @module color-space/hsv
  */
 
-
-/** @type {import('./index.js').ColorSpace} */
-var hsv = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsv = {
 	name: 'hsv',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hsv) {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
@@ -140,7 +136,6 @@ var hsv = /** @type {*} */ ({
 		}
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsl: function(hsv) {
 		var h = hsv[0],
 			s = hsv[1] / 100,
@@ -155,7 +150,7 @@ var hsv = /** @type {*} */ ({
 
 		return [h, sl * 100, l * 100];
 	}
-});
+};
 
 
 //append rgb
@@ -224,14 +219,14 @@ hsl.hsv = function(hsl) {
  * @module color-space/hsl
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var hsi = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsi = {
 	name: 'hsi',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'saturation', 'intensity'],
 	alias: ['HSI']
-});
+};
 
 
 /**
@@ -304,9 +299,8 @@ rgb.hsi = function (rgb) {
  * @module color-space/hwb
  */
 
-
-/** @type {import('./index.js').ColorSpace} */
-var hwb = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {hsv: import('./index.js').Transform}} */
+var hwb = {
 	name: 'hwb',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -314,7 +308,6 @@ var hwb = /** @type {*} */ ({
 	alias: ['HWB'],
 
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hwb) {
 		var h = hwb[0] / 360,
 			wh = hwb[1] / 100,
@@ -357,7 +350,6 @@ var hwb = /** @type {*} */ ({
 
 
 	// http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
-	/** @type {import('./index.js').Transform} */
 	hsv: function(arg){
 		var h = arg[0], w = arg[1], b = arg[2], s, v;
 
@@ -377,11 +369,10 @@ var hwb = /** @type {*} */ ({
 		return [h, s, v];
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsl: function(arg){
 		return hsv.hsl(hwb.hsv(arg));
 	}
-});
+};
 
 
 //extend rgb
@@ -415,15 +406,14 @@ hsl.hwb = function(arg){
  * @module color-space/cmyk
  */
 
-/** @type {import('./index.js').ColorSpace} */
-const cmyk = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+const cmyk = {
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
 	alias: ['CMYK'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(cmyk) {
 		var c = cmyk[0] / 100,
 				m = cmyk[1] / 100,
@@ -436,7 +426,7 @@ const cmyk = /** @type {*} */ ({
 		b = 1 - Math.min(1, y * (1 - k) + k);
 		return [r * 255, g * 255, b * 255];
 	}
-});
+};
 
 
 //extend rgb
@@ -457,14 +447,14 @@ rgb.cmyk = function(rgb) {
  * @module color-space/cmy
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var cmy = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var cmy = {
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],
 	channel: ['cyan', 'magenta', 'yellow'],
 	alias: ['CMY']
-});
+};
 
 
 /**
@@ -514,63 +504,61 @@ rgb.cmy = function(rgb) {
 
 /** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
 
-/** @type {import('./index.js').ColorSpace & XYZSpecific} */
-var xyz = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & XYZSpecific} */
+var xyz = {
 	name: 'xyz',
 	min: [0,0,0],
 	channel: ['X','Y','Z'],
-	alias: ['XYZ', 'ciexyz', 'cie1931']
-});
+	alias: ['XYZ', 'ciexyz', 'cie1931'],
+	/**
+	 * Whitepoint reference values with observer/illuminant
+	 *
+	 * http://en.wikipedia.org/wiki/Standard_illuminant
+	 */
+	whitepoint: {
+		//1931 2°
+		2: {
+			//incadescent
+			A:[109.85, 100, 35.585],
+			// B:[],
+			C: [98.074, 100, 118.232],
+			D50: [96.422, 100, 82.521],
+			D55: [95.682, 100, 92.149],
+			//daylight
+			D65: [95.045592705167, 100, 108.9057750759878],
+			D75: [94.972, 100, 122.638],
+			//flourescent
+			// F1: [],
+			F2: [99.187, 100, 67.395],
+			// F3: [],
+			// F4: [],
+			// F5: [],
+			// F6:[],
+			F7: [95.044, 100, 108.755],
+			// F8: [],
+			// F9: [],
+			// F10: [],
+			F11: [100.966, 100, 64.370],
+			// F12: [],
+			E: [100,100,100]
+		},
 
-
-/**
- * Whitepoint reference values with observer/illuminant
- *
- * http://en.wikipedia.org/wiki/Standard_illuminant
- */
-xyz.whitepoint = {
-	//1931 2°
-	2: {
-		//incadescent
-		A:[109.85, 100, 35.585],
-		// B:[],
-		C: [98.074, 100, 118.232],
-		D50: [96.422, 100, 82.521],
-		D55: [95.682, 100, 92.149],
-		//daylight
-		D65: [95.045592705167, 100, 108.9057750759878],
-		D75: [94.972, 100, 122.638],
-		//flourescent
-		// F1: [],
-		F2: [99.187, 100, 67.395],
-		// F3: [],
-		// F4: [],
-		// F5: [],
-		// F6:[],
-		F7: [95.044, 100, 108.755],
-		// F8: [],
-		// F9: [],
-		// F10: [],
-		F11: [100.966, 100, 64.370],
-		// F12: [],
-		E: [100,100,100]
-	},
-
-	//1964  10°
-	10: {
-		//incadescent
-		A:[111.144, 100, 35.200],
-		C: [97.285, 100, 116.145],
-		D50: [96.720, 100, 81.427],
-		D55: [95.799, 100, 90.926],
-		//daylight
-		D65: [94.811, 100, 107.304],
-		D75: [94.416, 100, 120.641],
-		//flourescent
-		F2: [103.280, 100, 69.026],
-		F7: [95.792, 100, 107.687],
-		F11: [103.866, 100, 65.627],
-		E: [100,100,100]
+		//1964  10°
+		10: {
+			//incadescent
+			A:[111.144, 100, 35.200],
+			C: [97.285, 100, 116.145],
+			D50: [96.720, 100, 81.427],
+			D55: [95.799, 100, 90.926],
+			//daylight
+			D65: [94.811, 100, 107.304],
+			D75: [94.416, 100, 120.641],
+			//flourescent
+			F2: [103.280, 100, 69.026],
+			F7: [95.792, 100, 107.687],
+			F11: [103.866, 100, 65.627],
+			E: [100,100,100]
+		}
 	}
 };
 
@@ -653,14 +641,14 @@ rgb.xyz = function(rgb, white) {
  * @module color-space/xyy
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var xyy = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var xyy = {
 	name: 'xyy',
 	min: [0,0,0],
 	max: [1,1,100],
 	channel: ['x','y','Y'],
 	alias: ['xyY', 'Yxy', 'yxy']
-});
+};
 
 xyy.xyz = function(arg) {
 	var X, Y, Z, x, y;
@@ -689,8 +677,7 @@ xyz.xyy = function(arg) {
  * @module  color-space/yiq
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var yiq = /** @type {*} */ ({
+var yiq = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yiq',
 	min: [0,-0.5957,-0.5226],
 	max: [1, 0.5957, 0.5226],
@@ -698,6 +685,7 @@ var yiq = /** @type {*} */ ({
 	alias: ['YIQ']
 });
 
+/** @type {import('./index.js').Transform} */
 yiq.rgb = function(yiq) {
 	var y = yiq[0],
 		i = yiq[1],
@@ -738,8 +726,7 @@ rgb.yiq = function(rgb) {
  * @module  color-space/yuv
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var yuv = /** @type {*} */ ({
+var yuv = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'yuv',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -747,6 +734,7 @@ var yuv = /** @type {*} */ ({
 	alias: ['YUV', 'EBU'],
 });
 
+/** @type {import('./index.js').Transform} */
 yuv.rgb = function(yuv) {
 	var y = yuv[0],
 		u = yuv[1],
@@ -784,14 +772,14 @@ rgb.yuv = function(rgb) {
  * @module  color-space/ydbdr
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var ydbdr = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var ydbdr = {
 	name: 'ydbdr',
 	min: [0,-1.333,-1.333],
 	max: [1, 1.333, 1.333],
 	channel: ['Y','Db','Dr'],
 	alias: ['YDbDr']
-});
+};
 
 
 /**
@@ -841,6 +829,7 @@ yuv.ydbdr = function (yuv) {
 /**
  * From YUV
  */
+/** @type {import('./index.js').Transform} */
 ydbdr.yuv = function (ydbdr) {
 	return [
 		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169
@@ -853,14 +842,14 @@ ydbdr.yuv = function (ydbdr) {
  * @module  color-space/ycgco
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var ycgco = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var ycgco = {
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','Cg','Co'],
 	alias: ['YCgCo']
-});
+};
 
 
 /**
@@ -913,8 +902,7 @@ rgb.ycgco = function(arr) {
  * @module  color-space/ypbpr
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var ypbpr = /** @type {*} */ ({
+var ypbpr = /** @type {import('./index.js').ColorSpace} */ ({
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],
@@ -927,7 +915,8 @@ var ypbpr = /** @type {*} */ ({
  * YPbPr to RGB
  *
  * @param {Array<number>} ypbpr RGB values
- *
+ * @param {number} kb
+ * @param {number} kr
  * @return {Array<number>} YPbPr values
  */
 ypbpr.rgb = function(ypbpr, kb, kr) {
@@ -976,14 +965,27 @@ rgb.ypbpr = function(rgb, kb, kr) {
  * @module  color-space/ycbcr
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var ycbcr = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
+var ycbcr = {
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
 	channel: ['Y','Cb','Cr'],
-	alias: ['YCbCr', 'YCC']
-});
+	alias: ['YCbCr', 'YCC'],
+	/**
+	 * From digital to analog form.
+	 * Scale to min/max ranges
+	 */
+	ypbpr: function (ycbcr) {
+		var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
+
+		return [
+			(y - 16) / 219,
+			(cb - 128) / 224,
+			(cr - 128) / 224
+		];
+	}
+};
 
 
 /**
@@ -999,21 +1001,6 @@ ypbpr.ycbcr = function (ypbpr) {
 		16 + 219 * y,
 		128 + 224 * pb,
 		128 + 224 * pr
-	];
-};
-
-
-/**
- * From digital to analog form.
- * Scale to min/max ranges
- */
-ycbcr.ypbpr = function (ycbcr) {
-	var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
-
-	return [
-		(y - 16) / 219,
-		(cb - 128) / 224,
-		(cr - 128) / 224
 	];
 };
 
@@ -1063,14 +1050,27 @@ rgb.ycbcr = function(arr, kb, kr) {
  * @module  color-space/xvycc
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var xvycc = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
+var xvycc = {
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
-	alias: ['xvYCC']
-});
+	alias: ['xvYCC'],
+	/**
+	 * From digital to analog form.
+	 * Scale to min/max ranges
+	 */
+	ypbpr: function (xvycc) {
+		var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
+
+		return [
+			(y - 16) / 219,
+			(cb - 128) / 224,
+			(cr - 128) / 224
+		];
+	}
+};
 
 /**
  * From analog to digital form.
@@ -1085,21 +1085,6 @@ ypbpr.xvycc = function (ypbpr) {
 		16 + 219 * y,
 		128 + 224 * pb,
 		128 + 224 * pr
-	];
-};
-
-
-/**
- * From digital to analog form.
- * Scale to min/max ranges
- */
-xvycc.ypbpr = function (xvycc) {
-	var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
-
-	return [
-		(y - 16) / 219,
-		(cb - 128) / 224,
-		(cr - 128) / 224
 	];
 };
 
@@ -1137,14 +1122,14 @@ rgb.xvycc = function(arr, kb, kr) {
  * @module  color-space/yccbccrc
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var yccbccrc = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var yccbccrc = {
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Yc','Cbc','Crc'],
 	alias: ['YcCbcCrc']
-});
+};
 
 
 /**
@@ -1178,14 +1163,14 @@ rgb.yccbccrc = function(arr) {
  * @module  color-space/ucs
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var ucs = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var ucs = {
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],
 	channel: ['U','V','W'],
 	alias: ['UCS', 'cie1960']
-});
+};
 
 /**
  * UCS to XYZ
@@ -1234,18 +1219,19 @@ xyz.ucs = function(xyz) {
  * @module  color-space/uvw
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var uvw = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var uvw = {
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
 	channel: ['U','V','W'],
 	alias: ['UVW', 'cieuvw', 'cie1964']
-});
+};
 
 /**
  * UVW to XYZ
  */
+/** @type {import('./index.js').Transform} */
 uvw.xyz = function (arg, i, o) {
 	var _u, _v, w, u, v, x, y, z, xn, yn, zn, un, vn;
 	u = arg[0], v = arg[1], w = arg[2];
@@ -1347,14 +1333,14 @@ ucs.uvw = function(ucs) {
  * @module  color-space/jpeg
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var jpeg = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var jpeg = {
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
 	alias: ['JPEG']
-});
+};
 
 
 /**
@@ -1400,15 +1386,14 @@ rgb.jpeg = function(arr) {
  * @module color-space/lab
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var lab = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var lab = {
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
 	alias: ['LAB', 'cielab'],
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0],
 				a = lab[1],
@@ -1433,7 +1418,7 @@ var lab = /** @type {*} */ ({
 
 		return [x, y, z];
 	}
-});
+};
 
 
 //extend xyz
@@ -1464,8 +1449,8 @@ xyz.lab = function(xyz){
  * @module  color-space/labh
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var labh = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var labh = {
 	name: 'labh',
 
 	//mins/maxes are taken from colormine
@@ -1476,7 +1461,6 @@ var labh = /** @type {*} */ ({
 	alias: ['LABh', 'hunter-lab', 'hlab'],
 
 	//maths are taken from EasyRGB
-	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0], a = lab[1], b = lab[2];
 
@@ -1490,7 +1474,7 @@ var labh = /** @type {*} */ ({
 
 		return [x,y,z];
 	}
-});
+};
 
 //extend xyz
 xyz.labh = function(xyz){
@@ -1518,8 +1502,8 @@ xyz.labh = function(xyz){
 
 /** @typedef {{matrix: Object<string, Array<number>>}} LMSSpecific */
 
-/** @type {import('./index.js').ColorSpace & LMSSpecific} */
-var lms = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & LMSSpecific} */
+var lms = {
 	name: 'lms',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -1527,6 +1511,7 @@ var lms = /** @type {*} */ ({
 
 
 	//transform matrices
+	/** @type {Object<string, Array<number>>} */
 	matrix: {
 		HPE: [
 			0.38971, 0.68898,-0.07868,
@@ -1553,8 +1538,9 @@ var lms = /** @type {*} */ ({
 		   -0.7036, 1.6975, 0.0061,
 			0.0030, 0.0136, 0.9834]
 	}
-});
+};
 
+/** @type {import('./index.js').Transform} */
 lms.xyz = function(arg, matrix){
 	var l = arg[0], m = arg[1], s = arg[2];
 
@@ -1595,20 +1581,18 @@ xyz.lms = function(arg, matrix) {
 
 
 //cylindrical lab
-/** @type {import('./index.js').ColorSpace} */
-var lchab = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {lab: import('./index.js').Transform}} */
+var lchab = {
 	name: 'lchab',
 	min: [0,0,0],
 	max: [100,100,360],
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return lab.xyz(lchab.lab(arg));
 	},
 
-	/** @type {import('./index.js').Transform} */
 	lab: function(lch) {
 		var l = lch[0],
 				c = lch[1],
@@ -1620,7 +1604,7 @@ var lchab = /** @type {*} */ ({
 		b = c * Math.sin(hr);
 		return [l, a, b];
 	}
-});
+};
 
 
 //extend lab
@@ -1649,8 +1633,8 @@ xyz.lchab = function(arg){
  * @module color-space/luv
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var luv = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var luv = {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
@@ -1661,7 +1645,6 @@ var luv = /** @type {*} */ ({
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg, i, o){
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 		l = arg[0], u = arg[1], v = arg[2];
@@ -1702,7 +1685,7 @@ var luv = /** @type {*} */ ({
 
 		return [x, y, z];
 	}
-});
+};
 
 // http://www.brucelindbloom.com/index.html?Equations.html
 // https://github.com/boronine/husl/blob/master/husl.coffee
@@ -1750,15 +1733,14 @@ xyz.luv = function(arg, i, o) {
  */
 
 //cylindrical luv
-/** @type {import('./index.js').ColorSpace} */
-var lchuv = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {luv: import('./index.js').Transform}} */
+var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
 	max: [100,100,360],
 
-	/** @type {import('./index.js').Transform} */
 	luv: function(luv){
 		var l = luv[0],
 		c = luv[1],
@@ -1771,11 +1753,10 @@ var lchuv = /** @type {*} */ ({
 		return [l, u, v];
 	},
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return luv.xyz(lchuv.luv(arg));
 	}
-});
+};
 
 luv.lchuv = function(luv){
 	var l = luv[0], u = luv[1], v = luv[2];
@@ -1818,44 +1799,28 @@ function J(a){var c=a[0],b=a[1];a=a[2];if(99.9999999<a)return [100,0,c];if(1E-8>
 var l=[[3.240969941904521,-1.537383177570093,-.498610760293],[-.96924363628087,1.87596750150772,.041555057407175],[.055630079696993,-.20397695888897,1.056971514242878]],v=[[.41239079926595,.35758433938387,.18048078840183],[.21263900587151,.71516867876775,.072192315360733],[.019330818715591,.11919477979462,.95053215224966]],B=1,C=.19783000664283,D=.46831999493879,k=903.2962962,g=.0088564516;
 
 const _hsluv = {
-	/** @type {import('./index.js').Transform} */
 	hsluvToRgb: Q,
-	/** @type {import('./index.js').Transform} */
 	hsluvToLch: H,
-	/** @type {import('./index.js').Transform} */
 	rgbToHsluv: R,
-	/** @type {import('./index.js').Transform} */
 	rgbToHpluv: T,
-	/** @type {import('./index.js').Transform} */
 	rgbToXyz: u,
-	/** @type {import('./index.js').Transform} */
 	rgbToLch: P,
-	/** @type {import('./index.js').Transform} */
 	hpluvToRgb: S,
-	/** @type {import('./index.js').Transform} */
 	hpluvToLch: J,
-	/** @type {import('./index.js').Transform} */
 	lchToHpluv: K,
-	/** @type {import('./index.js').Transform} */
 	lchToHsluv: I,
-	/** @type {import('./index.js').Transform} */
 	lchToLuv: G,
-	/** @type {import('./index.js').Transform} */
 	lchToRgb: O,
-	/** @type {import('./index.js').Transform} */
 	luvToLch: F,
-	/** @type {import('./index.js').Transform} */
 	luvToXyz: E,
-	/** @type {import('./index.js').Transform} */
 	xyzToLuv: A,
-	/** @type {import('./index.js').Transform} */
 	xyzToRgb: t,
 };
 
 /** @typedef {{_hsluv: Object<string, import('./index.js').Transform>}} HSLuvSpecific */
 
-/** @type {import('./index.js').ColorSpace & HSLuvSpecific} */
-var hsluv = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & HSLuvSpecific} */
+var hsluv = {
 	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -1864,20 +1829,19 @@ var hsluv = /** @type {*} */ ({
 
 	lchuv: _hsluv.hsluvToLch,
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){
 		return lchuv.xyz(_hsluv.hsluvToLch(arg));
 	},
 
 	//a shorter way to convert to hpluv
-	/** @type {import('./index.js').Transform} */
 	hpluv: function(arg){
 		return _hsluv.lchToHpluv( _hsluv.hsluvToLch(arg));
 	},
 
 	// export internal math
+	/** @type {Object<string, import('./index.js').Transform>} */
 	_hsluv
-});
+};
 
 //extend lchuv, xyz
 lchuv.hsluv = _hsluv.lchToHsluv;
@@ -1894,9 +1858,8 @@ rgb.hsluv = _hsluv.rgbToHsluv;
  * @module color-space/hpluv
  */
 
-
-/** @type {import('./index.js').ColorSpace} */
-var hpluv = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hpluv = {
 	name: 'hpluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -1904,15 +1867,13 @@ var hpluv = /** @type {*} */ ({
 	alias: ['HPLuv', 'HuSLp'],
 
 	lchuv: _hsluv.hpluvToLch,
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){return lchuv.xyz(_hsluv.hpluvToLch(arg));},
 
 	//a shorter way to convert to husl
-	/** @type {import('./index.js').Transform} */
 	hsluv: function(arg){
 		return _hsluv.lchToHsluv( _hsluv.hpluvToLch(arg));
 	}
-});
+};
 
 //extend lchuv, xyz
 lchuv.hpluv = _hsluv.lchToHpluv;
@@ -1924,17 +1885,8 @@ xyz.hpluv = function(arg){return _hsluv.lchToHpluv(xyz.lchuv(arg));};
  * @module color-space/cubehelix
  */
 
-/** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */
-var cubehelix = /** @type {*} */ ({
-	name: 'cubehelix',
-	channel: ['fraction'],
-	min: [0],
-	max: [1]
-});
-
-
 /** Default options for space */
-var defaults = cubehelix.defaults = {
+var defaults = {
 	//0..3
 	start: 0,
 	//-10..10
@@ -1943,6 +1895,15 @@ var defaults = cubehelix.defaults = {
 	hue: 1,
 	//0..2
 	gamma: 1
+};
+
+/** @type {Partial<import('./index.js').ColorSpace> & CubeHelixSpecific} */
+var cubehelix = {
+	name: 'cubehelix',
+	channel: ['fraction'],
+	min: [0],
+	max: [1],
+	defaults: defaults
 };
 
 
@@ -1994,13 +1955,13 @@ rgb.cubehelix = function(rgb) {
 	throw new Error('rgb.cubehelix conversion is not implemented yet');
 };
 
-/** @typedef {{table?: Array<Array<number>>}} ColoroidSpecific */
+/** @typedef {{table: Array<Array<number>>}} ColoroidSpecific */
 
 /**
  * Main color space object
- */
-/** @type {import('./index.js').ColorSpace & ColoroidSpecific} */
-var coloroid = /** @type {*} */ ({
+/* @type {Partial<import('./index.js').ColorSpace> & {xyy: import('./index.js').Transform} & ColoroidSpecific}
+*/
+var coloroid = {
 	name: 'coloroid',
 	alias: ['ATV'],
 
@@ -2009,70 +1970,106 @@ var coloroid = /** @type {*} */ ({
 	//e.g. 38 will be rounded to 36
 	channel: ['A','T','V'],
 	min: [10, 0, 0],
-	max: [76, 100, 100]
-});
+	max: [76, 100, 100],
+	/**
+	 * Coloroid table
+	 * Regression of values is almost impossible, as hues don’t correlate
+	 * Even angle values are picked very inconsistently, based on aesthetical evaluation.
+	 *
+	 * - tgф, ctgф are removed, ф is searched instead
+	 * - eλ = xλ + yλ + zλ
+	 * - λ is removed as not used
+	 */
+	table: [
+		//A    angle  eλ        xλ       yλ
+		[ 10,   59.0, 1.724349, 0.44987, 0.53641 ],
+		[ 11,   55.3, 1.740844, 0.46248, 0.52444 ],
+		[ 12,   51.7, 1.754985, 0.47451, 0.51298 ],
+		[ 13,   48.2, 1.767087, 0.48601, 0.50325 ],
+		[ 14,   44.8, 1.775953, 0.49578, 0.49052 ],
+		[ 15,   41.5, 1.785073, 0.50790, 0.43035 ],
+		[ 16,   38.2, 1.791104, 0.51874, 0.46934 ],
+		[ 20,   34.9, 1.794831, 0.52980, 0.45783 ],
+		[ 21,   31.5, 1.798664, 0.54137, 0.44559 ],
+		[ 22,   28.0, 1.794819, 0.55367, 0.43253 ],
+		[ 23,   24.4, 1.789610, 0.56680, 0.41811 ],
+		[ 24,   20.6, 1.809483, 0.58128, 0.40176 ],
+		[ 25,   16.6, 1.760983, 0.59766, 0.38300 ],
+		[ 26,   12.3, 1.723443, 0.61653, 0.36061 ],
+		[ 30,    7.7, 1.652891, 0.63896, 0.33358 ],
+		[ 31,    2.8, 1.502607, 0.66619, 0.29930 ],
+		[ 32,   -2.5, 1.072500, 0.70061, 0.26753 ],
+		[ 33,   -8.4, 1.136637, 0.63925, 0.22631 ],
+		[ 34,  -19.8, 1.232286, 0.53962, 0.19721 ],
+		[ 35,  -31.6, 1.310120, 0.50340, 0.17495 ],
+		[ 40,  -43.2, 1.376610, 0.46041, 0.15603 ],
+		[ 41,  -54.6, 1.438692, 0.42386, 0.13846 ],
+		[ 42,  -65.8, 1.501582, 0.38991, 0.12083 ],
+		[ 43,  -76.8, 1.570447, 0.35586, 0.10328 ],
+		[ 44,  -86.8, 1.645583, 0.32195, 0.08496 ],
+		[ 45,  -95.8, 1.732083, 0.28657, 0.05155 ],
+		[ 46, -108.4, 1.915753, 0.22202, 0.01771 ],
+		[ 50, -117.2, 2.146310, 0.15664, 0.05227 ],
+		[ 51, -124.7, 1.649939, 0.12736, 0.09020 ],
+		[ 52, -131.8, 1.273415, 0.10813, 0.12506 ],
+		[ 53, -138.5, 1.080809, 0.09414, 0.15741 ],
+		[ 54, -145.1, 0.957076, 0.03249, 0.18958 ],
+		[ 55, -152.0, 0.868976, 0.07206, 0.24109 ],
+		[ 56, -163.4, 0.771731, 0.05787, 0.30378 ],
+		[ 60, -177.2, 0.697108, 0.04353, 0.35696 ],
+		[ 61,  171.6, 0.655803, 0.03291, 0.41971 ],
+		[ 62,  152.4, 0.623958, 0.02240, 0.49954 ],
+		[ 63,  148.4, 0.596037, 0.01196, 0.60321 ],
+		[ 64,  136.8, 0.607413, 0.00425, 0.73542 ],
+		[ 65,  125.4, 0.659923, 0.01099, 0.83391 ],
+		[ 66,  114.2, 0.859517, 0.08050, 0.77474 ],
+		[ 70,  103.2, 1.195683, 0.20259, 0.70460 ],
+		[ 71,   93.2, 1.407534, 0.28807, 0.65230 ],
+		[ 72,   84.2, 1.532829, 0.34422, 0.61930 ],
+		[ 73,   77.3, 1.603792, 0.37838, 0.59533 ],
+		[ 74,   71.6, 1.649448, 0.40290, 0.57716 ],
+		[ 75,   66.9, 1.681080, 0.42141, 0.56222 ],
+		[ 76,   62.8, 1.704979, 0.43647, 0.54895 ]
+	],
+	/**
+	 * Backwise - from coloroid to xyY
+	 *
+	 * @param {Array<number>} arg Coloroid values
+	 *
+	 * @return {Array<number>} xyY values
+	 */
+	xyy: function (arg) {
+		var A = arg[0], T = arg[1], V = arg[2];
 
+		//find the closest row in the table
+		var row;
+		for (var i = 0; i < table.length; i++) {
+			if (A <= table[i][0]) {
+				row = table[i];
+				break;
+			}
+		}
 
-/**
- * Coloroid table
- * Regression of values is almost impossible, as hues don’t correlate
- * Even angle values are picked very inconsistently, based on aesthetical evaluation.
- *
- * - tgф, ctgф are removed, ф is searched instead
- * - eλ = xλ + yλ + zλ
- * - λ is removed as not used
- */
-coloroid.table = [
-	//A    angle  eλ        xλ       yλ
-	[ 10,   59.0, 1.724349, 0.44987, 0.53641 ],
-	[ 11,   55.3, 1.740844, 0.46248, 0.52444 ],
-	[ 12,   51.7, 1.754985, 0.47451, 0.51298 ],
-	[ 13,   48.2, 1.767087, 0.48601, 0.50325 ],
-	[ 14,   44.8, 1.775953, 0.49578, 0.49052 ],
-	[ 15,   41.5, 1.785073, 0.50790, 0.43035 ],
-	[ 16,   38.2, 1.791104, 0.51874, 0.46934 ],
-	[ 20,   34.9, 1.794831, 0.52980, 0.45783 ],
-	[ 21,   31.5, 1.798664, 0.54137, 0.44559 ],
-	[ 22,   28.0, 1.794819, 0.55367, 0.43253 ],
-	[ 23,   24.4, 1.789610, 0.56680, 0.41811 ],
-	[ 24,   20.6, 1.809483, 0.58128, 0.40176 ],
-	[ 25,   16.6, 1.760983, 0.59766, 0.38300 ],
-	[ 26,   12.3, 1.723443, 0.61653, 0.36061 ],
-	[ 30,    7.7, 1.652891, 0.63896, 0.33358 ],
-	[ 31,    2.8, 1.502607, 0.66619, 0.29930 ],
-	[ 32,   -2.5, 1.072500, 0.70061, 0.26753 ],
-	[ 33,   -8.4, 1.136637, 0.63925, 0.22631 ],
-	[ 34,  -19.8, 1.232286, 0.53962, 0.19721 ],
-	[ 35,  -31.6, 1.310120, 0.50340, 0.17495 ],
-	[ 40,  -43.2, 1.376610, 0.46041, 0.15603 ],
-	[ 41,  -54.6, 1.438692, 0.42386, 0.13846 ],
-	[ 42,  -65.8, 1.501582, 0.38991, 0.12083 ],
-	[ 43,  -76.8, 1.570447, 0.35586, 0.10328 ],
-	[ 44,  -86.8, 1.645583, 0.32195, 0.08496 ],
-	[ 45,  -95.8, 1.732083, 0.28657, 0.05155 ],
-	[ 46, -108.4, 1.915753, 0.22202, 0.01771 ],
-	[ 50, -117.2, 2.146310, 0.15664, 0.05227 ],
-	[ 51, -124.7, 1.649939, 0.12736, 0.09020 ],
-	[ 52, -131.8, 1.273415, 0.10813, 0.12506 ],
-	[ 53, -138.5, 1.080809, 0.09414, 0.15741 ],
-	[ 54, -145.1, 0.957076, 0.03249, 0.18958 ],
-	[ 55, -152.0, 0.868976, 0.07206, 0.24109 ],
-	[ 56, -163.4, 0.771731, 0.05787, 0.30378 ],
-	[ 60, -177.2, 0.697108, 0.04353, 0.35696 ],
-	[ 61,  171.6, 0.655803, 0.03291, 0.41971 ],
-	[ 62,  152.4, 0.623958, 0.02240, 0.49954 ],
-	[ 63,  148.4, 0.596037, 0.01196, 0.60321 ],
-	[ 64,  136.8, 0.607413, 0.00425, 0.73542 ],
-	[ 65,  125.4, 0.659923, 0.01099, 0.83391 ],
-	[ 66,  114.2, 0.859517, 0.08050, 0.77474 ],
-	[ 70,  103.2, 1.195683, 0.20259, 0.70460 ],
-	[ 71,   93.2, 1.407534, 0.28807, 0.65230 ],
-	[ 72,   84.2, 1.532829, 0.34422, 0.61930 ],
-	[ 73,   77.3, 1.603792, 0.37838, 0.59533 ],
-	[ 74,   71.6, 1.649448, 0.40290, 0.57716 ],
-	[ 75,   66.9, 1.681080, 0.42141, 0.56222 ],
-	[ 76,   62.8, 1.704979, 0.43647, 0.54895 ]
-];
+		//FIXME row is possibly undefined
+		//@ts-ignore
+		var yl = row[4], el = row[2], xl = row[3];
+
+		var Y = V*V / 100;
+
+		var Yl = yl * el * 100;
+
+		var x = (100*Y*x0*ew + 100*xl*el*T - Yl*T*x0*ew) / (100*T*el - Yl*T*ew + 100*Y*ew);
+		var y = (100*Y + 100*T*yl*el - Yl*T) / (Y*ew*100 + T*100*el - T*Yl*ew);
+
+		// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
+		// var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
+
+		// var x = (ew*x0*(V*V - 100*T*row[6]) + 100*T*el*xl) / (ew*(V*V - 100*T*row[6]) + 100*T*el);
+		// var y = V*V/(ew*(V*V + 100*T*row[6]) + 100*T*el);
+
+		return [x,y,Y];
+	}
+};
 
 
 /**
@@ -2206,55 +2203,11 @@ xyy.coloroid = function (arg) {
 	return [A, T, V];
 };
 
-
-
-
-
-/**
- * Backwise - from coloroid to xyY
- *
- * @param {Array<number>} arg Coloroid values
- *
- * @return {Array<number>} xyY values
- */
-coloroid.xyy = function (arg) {
-	var A = arg[0], T = arg[1], V = arg[2];
-
-	//find the closest row in the table
-	var row;
-	for (var i = 0; i < table.length; i++) {
-		if (A <= table[i][0]) {
-			row = table[i];
-			break;
-		}
-	}
-
-	//FIXME row is possibly undefined
-	//@ts-ignore
-	var yl = row[4], el = row[2], xl = row[3];
-
-	var Y = V*V / 100;
-
-	var Yl = yl * el * 100;
-
-	var x = (100*Y*x0*ew + 100*xl*el*T - Yl*T*x0*ew) / (100*T*el - Yl*T*ew + 100*Y*ew);
-	var y = (100*Y + 100*T*yl*el - Yl*T) / (Y*ew*100 + T*100*el - T*Yl*ew);
-
-	// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
-	// var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
-
-	// var x = (ew*x0*(V*V - 100*T*row[6]) + 100*T*el*xl) / (ew*(V*V - 100*T*row[6]) + 100*T*el);
-	// var y = V*V/(ew*(V*V + 100*T*row[6]) + 100*T*el);
-
-	return [x,y,Y];
-};
-
-
-
 /** Proper transformation to a XYZ (via xyY) */
 xyz.coloroid = function (arg) {
 	return xyy.coloroid(xyz.xyy(arg));
 };
+/** @type {import('./index.js').Transform} */
 coloroid.xyz = function (arg) {
 	return xyy.xyz(coloroid.xyy(arg));
 };
@@ -2263,16 +2216,14 @@ coloroid.xyz = function (arg) {
  * @module color-space/hcg
  */
 
-
-/** @type {import('./index.js').ColorSpace} */
-var hcg = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hcg = {
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hcg) {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
@@ -2307,7 +2258,6 @@ var hcg = /** @type {*} */ ({
 		return rgb;
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsl: function(hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -2323,7 +2273,6 @@ var hcg = /** @type {*} */ ({
 		return [hcg[0], s * 100, l * 100];
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsv: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -2338,14 +2287,13 @@ var hcg = /** @type {*} */ ({
 		return res;
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hwb: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var v = c + g * (1.0 - c);
 		return [hcg[0], (v - c) * 100, (1 - v) * 100];
 	}
-});
+};
 
 
 //append rgb
@@ -2436,14 +2384,14 @@ hwb.hcg = function(hwb){
  * @module color-space/hcy
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var hcy = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hcy = {
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
-});
+};
 
 
 /**
@@ -2521,14 +2469,14 @@ rgb.hcy = function (rgb) {
  * @module  color-space/tsl
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var tsl = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var tsl = {
 	name: 'tsl',
 	min: [0,0,0],
 	max: [1, 1, 1],
 	channel: ['tint','saturation','lightness'],
 	alias: ['TSL'],
-});
+};
 
 /**
  * TSL to RGB
@@ -2599,15 +2547,15 @@ rgb.tsl = function(rgb) {
  * @module color-space/yes
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var yes = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var yes = {
 	name: 'yes',
 	min: [0,0,0],
 	max: [1,1,1],
 	channel: ['luminance', 'e-factor', 's-factor']
-});
+};
 
-
+/** @type {import('./index.js').Transform} */
 yes.rgb = function(arg){
 	var y = arg[0], e = arg[1], s = arg[2];
 
@@ -2646,18 +2594,19 @@ rgb.yes = function(arg) {
  * @module  color-space/osa-ucs
  */
 
-/** @type {import('./index.js').ColorSpace} */
-var osaucs = /** @type {*} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var osaucs = {
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],
 	min: [-10, -6, -10],
 	max: [8, 12, 6]
-});
+};
 
 
 /**
  * There’s no analytical solution to this
+ * @type {import('./index.js').Transform}
  */
 osaucs.xyz = function (arg) {
 
@@ -2716,16 +2665,14 @@ const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-  /** @type {import('./index.js').ColorSpace} */
-var hsp = /** @type {*} */ ({
-  /** @type {import('./index.js').SpaceId} */
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsp = {
   name: 'hsp',
   min: [0, 0, 0],
   max: [360, 100, 255],
   channel: ['hue', 'saturation', 'perceived_brightness'],
   alias: ['HSP'],
 
-	/** @type {import('./index.js').Transform} */
   rgb: function (hsp) {
     var h = hsp[0]/360.0,
       s = hsp[1]/100.0,
@@ -2809,7 +2756,7 @@ var hsp = /** @type {*} */ ({
   }
 
   
-});
+};
 
 
 //append rgb
@@ -2891,7 +2838,6 @@ rgb.hsp = function (rgb) {
 /** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
 
 
-/** @type {{[key in SpaceId]: ColorSpace}} */
 const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
 
 /**

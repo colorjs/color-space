@@ -7,15 +7,16 @@
  */
 import rgb from './rgb.js';
 
-var jpeg = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var jpeg = {
 	name: 'jpeg',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
 	alias: ['JPEG']
-});
+};
 
-export default jpeg;
+export default /** @type {import('./index.js').ColorSpace} */ (jpeg);
 
 
 /**

@@ -5,13 +5,14 @@
  */
 import rgb from './rgb.js';
 
-var ycgco = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var ycgco = {
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y','Cg','Co'],
 	alias: ['YCgCo']
-});
+};
 
 
 /**
@@ -54,4 +55,4 @@ rgb.ycgco = function(arr) {
 };
 
 
-export default ycgco;
+export default /** @type {import('./index.js').ColorSpace} */ (ycgco);

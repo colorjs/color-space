@@ -18,15 +18,29 @@
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-var xvycc = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
+var xvycc = {
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y','Cb','Cr'],
-	alias: ['xvYCC']
-});
+	alias: ['xvYCC'],
+	/**
+	 * From digital to analog form.
+	 * Scale to min/max ranges
+	 */
+	ypbpr: function (xvycc) {
+		var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
 
-export default xvycc;
+		return [
+			(y - 16) / 219,
+			(cb - 128) / 224,
+			(cr - 128) / 224
+		];
+	}
+};
+
+export default /** @type {import('./index.js').ColorSpace} */ (xvycc);
 
 /**
  * From analog to digital form.
@@ -41,22 +55,6 @@ ypbpr.xvycc = function (ypbpr) {
 		16 + 219 * y,
 		128 + 224 * pb,
 		128 + 224 * pr
-	];
-}
-
-
-/**
- * From digital to analog form.
- * Scale to min/max ranges
- */
-/** @type {import('./index.js').Transform} */
-xvycc.ypbpr = function (xvycc) {
-	var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
-
-	return [
-		(y - 16) / 219,
-		(cb - 128) / 224,
-		(cr - 128) / 224
 	];
 }
 

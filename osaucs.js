@@ -6,19 +6,20 @@
 
 import xyz from './xyz.js';
 
-var osaucs = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var osaucs = {
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],
 	min: [-10, -6, -10],
 	max: [8, 12, 6]
-});
+};
 
 
 /**
  * There’s no analytical solution to this
+ * @type {import('./index.js').Transform}
  */
-/** @type {import('./index.js').Transform} */
 osaucs.xyz = function (arg) {
 	var x, y, z;
 
@@ -73,4 +74,4 @@ xyz.osaucs = function (arg) {
 };
 
 
-export default osaucs;
+export default /** @type {import('./index.js').ColorSpace} */ (osaucs);

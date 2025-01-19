@@ -7,14 +7,14 @@ import luv from './luv.js';
 import xyz from './xyz.js';
 
 //cylindrical luv
-var lchuv = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {luv: import('./index.js').Transform}} */
+var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHuv', 'cielchuv'],
 	min: [0,0,0],
 	max: [100,100,360],
 
-	/** @type {import('./index.js').Transform} */
 	luv: function(luv){
 		var l = luv[0],
 		c = luv[1],
@@ -27,13 +27,12 @@ var lchuv = /** @type {import('./index.js').ColorSpace} */ ({
 		return [l, u, v];
 	},
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg) {
 		return luv.xyz(lchuv.luv(arg));
 	}
-});
+};
 
-export default lchuv;
+export default /** @type {import('./index.js').ColorSpace} */ (lchuv);
 
 luv.lchuv = function(luv){
 	var l = luv[0], u = luv[1], v = luv[2];

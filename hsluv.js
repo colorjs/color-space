@@ -27,43 +27,28 @@ function N(a){a=a.toLowerCase();for(var c=[],b=0;3>b;){var d=b++;c.push((16*M.in
 var l=[[3.240969941904521,-1.537383177570093,-.498610760293],[-.96924363628087,1.87596750150772,.041555057407175],[.055630079696993,-.20397695888897,1.056971514242878]],v=[[.41239079926595,.35758433938387,.18048078840183],[.21263900587151,.71516867876775,.072192315360733],[.019330818715591,.11919477979462,.95053215224966]],B=1,C=.19783000664283,D=.46831999493879,k=903.2962962,g=.0088564516,M="0123456789abcdef";
 
 export const _hsluv = {
-	/** @type {import('./index.js').Transform} */
 	hsluvToRgb: Q,
-	/** @type {import('./index.js').Transform} */
 	hsluvToLch: H,
-	/** @type {import('./index.js').Transform} */
 	rgbToHsluv: R,
-	/** @type {import('./index.js').Transform} */
 	rgbToHpluv: T,
-	/** @type {import('./index.js').Transform} */
 	rgbToXyz: u,
-	/** @type {import('./index.js').Transform} */
 	rgbToLch: P,
-	/** @type {import('./index.js').Transform} */
 	hpluvToRgb: S,
-	/** @type {import('./index.js').Transform} */
 	hpluvToLch: J,
-	/** @type {import('./index.js').Transform} */
 	lchToHpluv: K,
-	/** @type {import('./index.js').Transform} */
 	lchToHsluv: I,
-	/** @type {import('./index.js').Transform} */
 	lchToLuv: G,
-	/** @type {import('./index.js').Transform} */
 	lchToRgb: O,
-	/** @type {import('./index.js').Transform} */
 	luvToLch: F,
-	/** @type {import('./index.js').Transform} */
 	luvToXyz: E,
-	/** @type {import('./index.js').Transform} */
 	xyzToLuv: A,
-	/** @type {import('./index.js').Transform} */
 	xyzToRgb: t,
 };
 
 /** @typedef {{_hsluv: Object<string, import('./index.js').Transform>}} HSLuvSpecific */
 
-var hsluv = /** @type {import('./index.js').ColorSpace & HSLuvSpecific} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & HSLuvSpecific} */
+var hsluv = {
 	name: 'hsluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -72,13 +57,11 @@ var hsluv = /** @type {import('./index.js').ColorSpace & HSLuvSpecific} */ ({
 
 	lchuv: _hsluv.hsluvToLch,
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){
 		return lchuv.xyz(_hsluv.hsluvToLch(arg));
 	},
 
 	//a shorter way to convert to hpluv
-	/** @type {import('./index.js').Transform} */
 	hpluv: function(arg){
 		return _hsluv.lchToHpluv( _hsluv.hsluvToLch(arg));
 	},
@@ -86,9 +69,9 @@ var hsluv = /** @type {import('./index.js').ColorSpace & HSLuvSpecific} */ ({
 	// export internal math
 	/** @type {Object<string, import('./index.js').Transform>} */
 	_hsluv
-});
+};
 
-export default hsluv;
+export default /** @type {import('./index.js').ColorSpace & HSLuvSpecific} */ (hsluv);
 
 //extend lchuv, xyz
 lchuv.hsluv = _hsluv.lchToHsluv;

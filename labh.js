@@ -6,7 +6,8 @@
 
 import xyz from './xyz.js';
 
-var labh = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var labh = {
 	name: 'labh',
 
 	//mins/maxes are taken from colormine
@@ -17,7 +18,6 @@ var labh = /** @type {import('./index.js').ColorSpace} */ ({
 	alias: ['LABh', 'hunter-lab', 'hlab'],
 
 	//maths are taken from EasyRGB
-	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0], a = lab[1], b = lab[2];
 
@@ -31,9 +31,9 @@ var labh = /** @type {import('./index.js').ColorSpace} */ ({
 
 		return [x,y,z];
 	}
-});
+};
 
-export default labh;
+export default /** @type {import('./index.js').ColorSpace} */ (labh);
 
 //extend xyz
 xyz.labh = function(xyz){

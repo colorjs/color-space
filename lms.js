@@ -14,7 +14,8 @@ import xyz from './xyz.js';
 
 /** @typedef {{matrix: Object<string, Array<number>>}} LMSSpecific */
 
-var lms = /** @type {import('./index.js').ColorSpace & LMSSpecific} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & LMSSpecific} */
+var lms = {
 	name: 'lms',
 	min: [0,0,0],
 	max: [100,100,100],
@@ -49,9 +50,9 @@ var lms = /** @type {import('./index.js').ColorSpace & LMSSpecific} */ ({
 		   -0.7036, 1.6975, 0.0061,
 			0.0030, 0.0136, 0.9834]
 	}
-});
+};
 
-export default lms;
+export default /** @type {import('./index.js').ColorSpace & LMSSpecific} */ (lms);
 
 /** @type {import('./index.js').Transform} */
 lms.xyz = function(arg, matrix){

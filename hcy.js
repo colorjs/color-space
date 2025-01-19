@@ -6,15 +6,16 @@
  */
 import rgb from './rgb.js';
 
-var hcy = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hcy = {
 	name: 'hcy',
 	min: [0,0,0],
 	max: [360,100,255],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
-});
+};
 
-export default hcy;
+export default /** @type {import('./index.js').ColorSpace} */ (hcy);
 
 
 /**

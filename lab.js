@@ -6,14 +6,14 @@
 
 import xyz from './xyz.js';
 
-var lab = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var lab = {
 	name: 'lab',
 	min: [0,-100,-100],
 	max: [100,100,100],
 	channel: ['lightness', 'a', 'b'],
 	alias: ['LAB', 'cielab'],
 
-	/** @type {import('./index.js').Transform} */
 	xyz: function(lab) {
 		var l = lab[0],
 				a = lab[1],
@@ -38,9 +38,9 @@ var lab = /** @type {import('./index.js').ColorSpace} */ ({
 
 		return [x, y, z];
 	}
-});
+};
 
-export default lab;
+export default /** @type {import('./index.js').ColorSpace} */ (lab);
 
 
 //extend xyz

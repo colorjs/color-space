@@ -3,14 +3,14 @@
  */
 import rgb from './rgb.js';
 
-const cmyk = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+const cmyk = {
 	name: 'cmyk',
 	min: [0,0,0,0],
 	max: [100,100,100,100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
 	alias: ['CMYK'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(cmyk) {
 		var c = cmyk[0] / 100,
 				m = cmyk[1] / 100,
@@ -23,7 +23,7 @@ const cmyk = /** @type {import('./index.js').ColorSpace} */ ({
 		b = 1 - Math.min(1, y * (1 - k) + k);
 		return [r * 255, g * 255, b * 255];
 	}
-});
+};
 
 
 //extend rgb
@@ -40,4 +40,4 @@ rgb.cmyk = function(rgb) {
 	return [c * 100, m * 100, y * 100, k * 100];
 };
 
-export default cmyk
+export default /** @type {import('./index.js').ColorSpace} */ (cmyk);

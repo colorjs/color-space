@@ -7,15 +7,16 @@
  */
 import xyz from './xyz.js';
 
-var ucs = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var ucs = {
 	name: 'ucs',
 	min: [0,0,0],
 	max: [100, 100, 100],
 	channel: ['U','V','W'],
 	alias: ['UCS', 'cie1960']
-});
+};
 
-export default ucs;
+export default /** @type {import('./index.js').ColorSpace} */ (ucs);
 
 /**
  * UCS to XYZ

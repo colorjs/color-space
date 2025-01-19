@@ -5,8 +5,8 @@ import rgb from './rgb.js';
 import hsv from './hsv.js';
 import hsl from './hsl.js';
 
-
-var hwb = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace> & {hsv: import('./index.js').Transform}} */
+var hwb = {
 	name: 'hwb',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -14,7 +14,6 @@ var hwb = /** @type {import('./index.js').ColorSpace} */ ({
 	alias: ['HWB'],
 
 	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hwb) {
 		var h = hwb[0] / 360,
 			wh = hwb[1] / 100,
@@ -57,7 +56,6 @@ var hwb = /** @type {import('./index.js').ColorSpace} */ ({
 
 
 	// http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
-	/** @type {import('./index.js').Transform} */
 	hsv: function(arg){
 		var h = arg[0], w = arg[1], b = arg[2], s, v;
 
@@ -77,13 +75,12 @@ var hwb = /** @type {import('./index.js').ColorSpace} */ ({
 		return [h, s, v];
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsl: function(arg){
 		return hsv.hsl(hwb.hsv(arg));
 	}
-});
+};
 
-export default hwb;
+export default /** @type {import('./index.js').ColorSpace} */ (hwb);
 
 
 //extend rgb

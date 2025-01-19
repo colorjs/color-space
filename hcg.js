@@ -6,15 +6,14 @@ import hsl from './hsl.js';
 import hsv from './hsv.js';
 import hwb from './hwb.js';
 
-
-var hcg = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hcg = {
 	name: 'hcg',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hcg) {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
@@ -49,7 +48,6 @@ var hcg = /** @type {import('./index.js').ColorSpace} */ ({
 		return rgb;
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsl: function(hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -65,7 +63,6 @@ var hcg = /** @type {import('./index.js').ColorSpace} */ ({
 		return [hcg[0], s * 100, l * 100];
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hsv: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -80,16 +77,15 @@ var hcg = /** @type {import('./index.js').ColorSpace} */ ({
 		return res;
 	},
 
-	/** @type {import('./index.js').Transform} */
 	hwb: function(hcg){
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var v = c + g * (1.0 - c);
 		return [hcg[0], (v - c) * 100, (1 - v) * 100];
 	}
-});
+};
 
-export default hcg;
+export default /** @type {import('./index.js').ColorSpace} */ (hcg);
 
 
 //append rgb

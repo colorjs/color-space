@@ -3,14 +3,14 @@
  */
 import rgb from './rgb.js';
 
-var hsl = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hsl = {
 	name: 'hsl',
 	min: [0,0,0],
 	max: [360,100,100],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
-	/** @type {import('./index.js').Transform} */
 	rgb: function(hsl) {
 		var h = hsl[0]/360, s = hsl[1]/100, l = hsl[2]/100, t1, t2, t3, rgb, val, i=0;
 
@@ -32,9 +32,9 @@ var hsl = /** @type {import('./index.js').ColorSpace} */ ({
 
 		return rgb;
 	}
-});
+};
 
-export default hsl;
+export default /** @type {import('./index.js').ColorSpace} */ (hsl);
 
 
 //extend rgb

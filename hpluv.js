@@ -8,8 +8,8 @@ import xyz from './xyz.js';
 import lchuv from './lchuv.js';
 import hsluv, {_hsluv} from './hsluv.js';
 
-
-var hpluv = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var hpluv = {
 	name: 'hpluv',
 	min: [0,0,0],
 	max: [360,100,100],
@@ -17,17 +17,15 @@ var hpluv = /** @type {import('./index.js').ColorSpace} */ ({
 	alias: ['HPLuv', 'HuSLp'],
 
 	lchuv: _hsluv.hpluvToLch,
-	/** @type {import('./index.js').Transform} */
 	xyz: function(arg){return lchuv.xyz(_hsluv.hpluvToLch(arg));},
 
 	//a shorter way to convert to husl
-	/** @type {import('./index.js').Transform} */
 	hsluv: function(arg){
 		return _hsluv.lchToHsluv( _hsluv.hpluvToLch(arg));
 	}
-});
+};
 
-export default hpluv;
+export default /** @type {import('./index.js').ColorSpace} */ (hpluv);
 
 //extend lchuv, xyz
 lchuv.hpluv = _hsluv.lchToHpluv;

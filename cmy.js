@@ -3,13 +3,14 @@
  */
 import rgb from './rgb.js';
 
-var cmy = /** @type {import('./index.js').ColorSpace} */ ({
+/** @type {Partial<import('./index.js').ColorSpace>} */
+var cmy = {
 	name: 'cmy',
 	min: [0,0,0],
 	max: [100,100,100],
 	channel: ['cyan', 'magenta', 'yellow'],
 	alias: ['CMY']
-});
+};
 
 
 /**
@@ -51,4 +52,4 @@ rgb.cmy = function(rgb) {
 	];
 }
 
-export default cmy
+export default /** @type {import('./index.js').ColorSpace} */ (cmy);
