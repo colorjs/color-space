@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Collection of color space conversions",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
   "types": "./dist/index.d.ts",
