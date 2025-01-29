@@ -54,6 +54,7 @@ docs
 *.pdf
 *.pak
 dist
+build
 
 
 design
