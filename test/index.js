@@ -3,7 +3,6 @@ import assert from 'assert';
 import almost from 'almost-equal';
 import {suite} from 'uvu'
 
-
 assert.almost = function (x, y, precision=1e-1) {
 	if (!almost(x, y, precision)) assert.fail(x + ' ≈ ' + y);
 	return true;
@@ -793,4 +792,3 @@ let yesTest = suite('yes')
 		assert.deepEqualAlmost(s.yes.rgb(s.rgb.yes([10,20,30])), [10,20,30]);
 	});
 	yesTest.run()
-
