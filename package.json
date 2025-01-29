@@ -4,7 +4,6 @@
   "version": "2.1.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "keywords": [
     "color",
     "colour",
@@ -12,7 +11,6 @@
     "hsl",
     "hsv",
     "lab",
-    "lch",
     "luv",
     "lch",
     "cie",
@@ -32,7 +30,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/colorjs/color-space.git"
+    "url": "https://github.com/colorjs/color-space.git"
   },
   "files": [
     "*.js",
@@ -42,17 +40,13 @@
   "main": "./index.js",
   "devDependencies": {
     "almost-equal": "^1.1.0",
-    "pg-gateway": "^0.3.0-beta.4",
-    "rollup": "^2.66.0",
-    "terser": "^5.10.0",
-    "typescript": "^5.7.2",
+    "esbuild": "^0.24.2",
     "uvu": "^0.5.3"
   },
   "scripts": {
-    "test": "npm run typecheck && node test",
-    "build": "rollup ./index.js --file dist/color-space.js --format esm && tsc",
-    "minify": "terser ./dist/color-space.js -o ./dist/color-space.min.js --module -c passes=3 -m",
-    "prepublishOnly": "npm run build && npm run minify",
-    "typecheck": "tsc --noEmit"
+    "test": "uvu test",
+    "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js",
+    "min": "esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
+    "prepublishOnly": "npm run build && npm run min"
   }
 }
