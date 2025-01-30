@@ -48,7 +48,7 @@
     "test": "uvu test",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js",
     "min": "esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
-    "types": "npx -y --package=typescript -c 'tsc --emitDeclarationOnly --declaration --allowJs --outFile dist/color-space.d.ts'",
+    "types": "npx -y --package=typescript@latest -c 'tsc' && npx --package dts-bundle@latest -c 'dts-bundle --name color-space --main build/**/*.d.ts --baseDir . --out dist/color-space.d.ts'",
     "prepublishOnly": "npm run build && npm run min && npm run types"
   }
 }
