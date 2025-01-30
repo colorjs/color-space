@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./build",
+    "emitDeclarationOnly": true,
+    "outDir": "./types",
   },
   "include": [
     "index.js", 
