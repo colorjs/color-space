@@ -36,9 +36,228 @@
     "*.js",
     "dist"
   ],
+  "typesVersions": {
+    "*": {
+      "rgb": [
+        "types/rgb.d.ts"
+      ],
+      "rgb.js": [
+        "types/rgb.d.ts"
+      ],
+      "xyz": [
+        "types/xyz.d.ts"
+      ],
+      "xyz.js": [
+        "types/xyz.d.ts"
+      ],
+      "hsl": [
+        "types/hsl.d.ts"
+      ],
+      "hsl.js": [
+        "types/hsl.d.ts"
+      ],
+      "hsv": [
+        "types/hsv.d.ts"
+      ],
+      "hsv.js": [
+        "types/hsv.d.ts"
+      ],
+      "hsi": [
+        "types/hsi.d.ts"
+      ],
+      "hsi.js": [
+        "types/hsi.d.ts"
+      ],
+      "hwb": [
+        "types/hwb.d.ts"
+      ],
+      "hwb.js": [
+        "types/hwb.d.ts"
+      ],
+      "cmyk": [
+        "types/cmyk.d.ts"
+      ],
+      "cmyk.js": [
+        "types/cmyk.d.ts"
+      ],
+      "cmy": [
+        "types/cmy.d.ts"
+      ],
+      "cmy.js": [
+        "types/cmy.d.ts"
+      ],
+      "xyy": [
+        "types/xyy.d.ts"
+      ],
+      "xyy.js": [
+        "types/xyy.d.ts"
+      ],
+      "yiq": [
+        "types/yiq.d.ts"
+      ],
+      "yiq.js": [
+        "types/yiq.d.ts"
+      ],
+      "yuv": [
+        "types/yuv.d.ts"
+      ],
+      "yuv.js": [
+        "types/yuv.d.ts"
+      ],
+      "ydbdr": [
+        "types/ydbdr.d.ts"
+      ],
+      "ydbdr.js": [
+        "types/ydbdr.d.ts"
+      ],
+      "ycgco": [
+        "types/ycgco.d.ts"
+      ],
+      "ycgco.js": [
+        "types/ycgco.d.ts"
+      ],
+      "ypbpr": [
+        "types/ypbpr.d.ts"
+      ],
+      "ypbpr.js": [
+        "types/ypbpr.d.ts"
+      ],
+      "ycbcr": [
+        "types/ycbcr.d.ts"
+      ],
+      "ycbcr.js": [
+        "types/ycbcr.d.ts"
+      ],
+      "xvycc": [
+        "types/xvycc.d.ts"
+      ],
+      "xvycc.js": [
+        "types/xvycc.d.ts"
+      ],
+      "yccbccrc": [
+        "types/yccbccrc.d.ts"
+      ],
+      "yccbccrc.js": [
+        "types/yccbccrc.d.ts"
+      ],
+      "ucs": [
+        "types/ucs.d.ts"
+      ],
+      "ucs.js": [
+        "types/ucs.d.ts"
+      ],
+      "uvw": [
+        "types/uvw.d.ts"
+      ],
+      "uvw.js": [
+        "types/uvw.d.ts"
+      ],
+      "jpeg": [
+        "types/jpeg.d.ts"
+      ],
+      "jpeg.js": [
+        "types/jpeg.d.ts"
+      ],
+      "lab": [
+        "types/lab.d.ts"
+      ],
+      "lab.js": [
+        "types/lab.d.ts"
+      ],
+      "labh": [
+        "types/labh.d.ts"
+      ],
+      "labh.js": [
+        "types/labh.d.ts"
+      ],
+      "lms": [
+        "types/lms.d.ts"
+      ],
+      "lms.js": [
+        "types/lms.d.ts"
+      ],
+      "lchab": [
+        "types/lchab.d.ts"
+      ],
+      "lchab.js": [
+        "types/lchab.d.ts"
+      ],
+      "luv": [
+        "types/luv.d.ts"
+      ],
+      "luv.js": [
+        "types/luv.d.ts"
+      ],
+      "lchuv": [
+        "types/lchuv.d.ts"
+      ],
+      "lchuv.js": [
+        "types/lchuv.d.ts"
+      ],
+      "hsluv": [
+        "types/hsluv.d.ts"
+      ],
+      "hsluv.js": [
+        "types/hsluv.d.ts"
+      ],
+      "hpluv": [
+        "types/hpluv.d.ts"
+      ],
+      "hpluv.js": [
+        "types/hpluv.d.ts"
+      ],
+      "cubehelix": [
+        "types/cubehelix.d.ts"
+      ],
+      "cubehelix.js": [
+        "types/cubehelix.d.ts"
+      ],
+      "coloroid": [
+        "types/coloroid.d.ts"
+      ],
+      "coloroid.js": [
+        "types/coloroid.d.ts"
+      ],
+      "hcg": [
+        "types/hcg.d.ts"
+      ],
+      "hcg.js": [
+        "types/hcg.d.ts"
+      ],
+      "hcy": [
+        "types/hcy.d.ts"
+      ],
+      "hcy.js": [
+        "types/hcy.d.ts"
+      ],
+      "tsl": [
+        "types/tsl.d.ts"
+      ],
+      "tsl.js": [
+        "types/tsl.d.ts"
+      ],
+      "yes": [
+        "types/yes.d.ts"
+      ],
+      "yes.js": [
+        "types/yes.d.ts"
+      ],
+      "osaucs": [
+        "types/osaucs.d.ts"
+      ],
+      "osaucs.js": [
+        "types/osaucs.d.ts"
+      ],
+      "hsp": [
+        "types/hsp.d.ts"
+      ],
+      "hsp.js": [
+        "types/hsp.d.ts"
+      ]
+    }
+  },
   "license": "MIT",
   "main": "./index.js",
-  "types": "./dist/color-space.d.ts",
   "devDependencies": {
     "almost-equal": "^1.1.0",
     "esbuild": "^0.24.2",
@@ -48,7 +267,7 @@
     "test": "uvu test",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js",
     "min": "esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
-    "types": "npx -y --package=typescript@latest -c 'tsc' && npx --package dts-bundle@latest -c 'dts-bundle --name color-space --main build/**/*.d.ts --baseDir . --out dist/color-space.d.ts'",
+    "types": "npx -y --package=typescript@latest -c 'tsc'",
     "prepublishOnly": "npm run build && npm run min && npm run types"
   }
 }
