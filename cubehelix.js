@@ -3,44 +3,36 @@
  *
  * @module color-space/cubehelix
  */
-
-/** @typedef {{defaults: {start: number, rotation: number, hue: number, gamma: number}}} CubeHelixSpecific */
-
 import rgb from './rgb.js';
 
-/** Default options for space */
 var defaults = {
-	//0..3
+	// 0..3
 	start: 0,
-	//-10..10
+	// -10..10
 	rotation: 0.5,
-	//0..1+
+	// 0..1+
 	hue: 1,
-	//0..2
+	// 0..2
 	gamma: 1
 };
 
-/** @type {Partial<import('./index.js').ColorSpace> & CubeHelixSpecific} */
 var cubehelix = {
 	name: 'cubehelix',
 	channel: ['fraction'],
 	min: [0],
 	max: [1],
-	defaults: defaults
+	defaults
 };
 
 
 /**
  * Transform cubehelix level to RGB
  *
- * @param {Number|Array<number>} fraction 0..1 cubehelix level
+ * @param {number|Array<number>} fraction 0..1 cubehelix level
  * @param {Object<string, number>} options Mapping options, overrides defaults
- *
  * @return {Array<number>} rgb tuple
  */
-cubehelix.rgb = function(fraction, options) {
-	options = options || {};
-
+cubehelix.rgb = function(fraction, options={}) {
 	if (Array.isArray(fraction)) fraction = fraction[0];
 
 	var start = options.start !== undefined ? options.start : defaults.start;
@@ -70,7 +62,6 @@ cubehelix.rgb = function(fraction, options) {
  * RGB to cubehelix
  *
  * @param {Array<number>} rgb RGB values
- *
  * @return {Array<number>} cubehelix fraction(s)
  */
 rgb.cubehelix = function(rgb) {
@@ -79,4 +70,4 @@ rgb.cubehelix = function(rgb) {
 };
 
 
-export default /** @type {import('./index.js').ColorSpace & CubeHelixSpecific} */ (cubehelix);
+export default cubehelix;

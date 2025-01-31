@@ -5,24 +5,19 @@
  */
 import rgb from './rgb.js';
 
-/** @typedef {{whitepoint: Object<number, Object<string, Array<number>>>}} XYZSpecific */
-
-/** @type {Partial<import('./index.js').ColorSpace> & XYZSpecific} */
-var xyz = {
+const xyz = {
 	name: 'xyz',
-	min: [0,0,0],
-	channel: ['X','Y','Z'],
+	min: [0, 0, 0],
+	channel: ['X', 'Y', 'Z'],
 	alias: ['XYZ', 'ciexyz', 'cie1931'],
-	/**
-	 * Whitepoint reference values with observer/illuminant
-	 *
-	 * http://en.wikipedia.org/wiki/Standard_illuminant
-	 */
+
+	// Whitepoint reference values with observer/illuminant
+	// http://en.wikipedia.org/wiki/Standard_illuminant
 	whitepoint: {
 		//1931 2°
 		2: {
 			//incadescent
-			A:[109.85, 100, 35.585],
+			A: [109.85, 100, 35.585],
 			// B:[],
 			C: [98.074, 100, 118.232],
 			D50: [96.422, 100, 82.521],
@@ -43,13 +38,13 @@ var xyz = {
 			// F10: [],
 			F11: [100.966, 100, 64.370],
 			// F12: [],
-			E: [100,100,100]
+			E: [100, 100, 100]
 		},
 
 		//1964  10°
 		10: {
 			//incadescent
-			A:[111.144, 100, 35.200],
+			A: [111.144, 100, 35.200],
 			C: [97.285, 100, 116.145],
 			D50: [96.720, 100, 81.427],
 			D55: [95.799, 100, 90.926],
@@ -60,7 +55,7 @@ var xyz = {
 			F2: [103.280, 100, 69.026],
 			F7: [95.792, 100, 107.687],
 			F11: [103.866, 100, 65.627],
-			E: [100,100,100]
+			E: [100, 100, 100]
 		}
 	}
 };
@@ -80,7 +75,7 @@ xyz.max = xyz.whitepoint[2].D65;
  * @return {Array<number>} RGB values
  */
 xyz.rgb = function (_xyz, white) {
-	//FIXME: make sure we have to divide like this. Probably we have to replace matrix as well then
+	// FIXME: make sure we have to divide like this. Probably we have to replace matrix as well then
 	white = white || xyz.whitepoint[2].E;
 
 	var x = _xyz[0] / white[0],
@@ -121,8 +116,8 @@ xyz.rgb = function (_xyz, white) {
  */
 rgb.xyz = function(rgb, white) {
 	var r = rgb[0] / 255,
-			g = rgb[1] / 255,
-			b = rgb[2] / 255;
+		g = rgb[1] / 255,
+		b = rgb[2] / 255;
 
 	// assume sRGB
 	r = r > 0.04045 ? Math.pow(((r + 0.055) / 1.055), 2.4) : (r / 12.92);
@@ -140,4 +135,4 @@ rgb.xyz = function(rgb, white) {
 
 
 
-export default /** @type {import('./index.js').ColorSpace & XYZSpecific} */ (xyz);
+export default xyz;
