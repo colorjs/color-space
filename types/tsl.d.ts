@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface TslSpace extends ColorSpace {
+  name: 'tsl'
   rgb: (tsl: [number, number, number]) => [number, number, number];
 }
 

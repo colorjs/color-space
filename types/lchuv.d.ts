@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface LchuvSpace extends ColorSpace {
+  name: 'lchuv'
   xyz: (lchuv: [number, number, number]) => [number, number, number];
   luv: (lchuv: [number, number, number]) => [number, number, number];
 }

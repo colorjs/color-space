@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface UcsSpace extends ColorSpace {
+  name: 'ucs'
   xyz: (ucs: [number, number, number]) => [number, number, number];
 }
 

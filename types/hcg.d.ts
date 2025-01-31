@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface HcgSpace extends ColorSpace {
+  name: 'hcg'
   rgb: (hcg: [number, number, number]) => [number, number, number];
   hsl: (hcg: [number, number, number]) => [number, number, number];
   hsv: (hcg: [number, number, number]) => [number, number, number];

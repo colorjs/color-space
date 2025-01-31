@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface YuvSpace extends ColorSpace {
+  name: 'yuv'
   rgb: (yuv: [number, number, number]) => [number, number, number];
 }
 

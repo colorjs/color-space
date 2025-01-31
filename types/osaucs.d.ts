@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface OsaucsSpace extends ColorSpace {
+  name: 'osaucs'
   xyz: (osaucs: [number, number, number]) => [number, number, number];
 }
 

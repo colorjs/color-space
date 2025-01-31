@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface HwbSpace extends ColorSpace {
+  name: 'hwb'
   rgb: (hwb: [number, number, number]) => [number, number, number];
   hsl: (hwb: [number, number, number]) => [number, number, number];
   hsv: (hwb: [number, number, number]) => [number, number, number];

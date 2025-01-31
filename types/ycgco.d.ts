@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface YcgcoSpace extends ColorSpace {
+  name: 'ycgco'
   rgb: (ycgco: [number, number, number]) => [number, number, number];
 }
 

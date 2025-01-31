@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface HpluvSpace extends ColorSpace {
+  name: 'hpluv'
   lchuv: (hpl: [number, number, number]) => [number, number, number]
   xyz: (hpl: [number, number, number]) => [number, number, number]
   hsluv: (hpl: [number, number, number]) => [number, number, number]

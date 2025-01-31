@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface YpbprSpace extends ColorSpace {
+  name: 'ypbpr'
   rgb: (ypbpr: [number, number, number]) => [number, number, number];
 }
 

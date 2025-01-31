@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface UvwSpace extends ColorSpace {
+  name: 'uvw'
   xyz: (uvw: [number, number, number]) => [number, number, number];
   ucs: (uvw: [number, number, number]) => [number, number, number];
 }

@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface LmsSpace extends ColorSpace {
+  name: 'lms'
   xyz: (lms: [number, number, number]) => [number, number, number];
 }
 

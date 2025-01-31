@@ -1,7 +1,8 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface CmySpace extends ColorSpace {
-  rgb: (cmy: [number, number, number]) => [number, number, number];
+  name: 'cmy'
+  rgb: (cmy: [number, number, number]) => [number, number, number]
 }
 
 declare module "./rgb" {

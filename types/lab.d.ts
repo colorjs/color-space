@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface LabSpace extends ColorSpace {
+  name: 'lab'
   xyz: (lab: [number, number, number]) => [number, number, number];
 }
 

@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface MunsellSpace extends ColorSpace {
+  name: 'munsell'
   coloroid: (munsell: [number, number, number]) => [number, number, number];
 }
 

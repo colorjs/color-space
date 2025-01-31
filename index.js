@@ -58,8 +58,7 @@ export default spaces;
  */
 export function register (newSpace) {
 	const newSpaceName = newSpace.name;
-	var existingSpaceName;
-	for (existingSpaceName in spaces) {
+	for (const existingSpaceName in spaces) {
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
 
 		const existingSpace = spaces[existingSpaceName]

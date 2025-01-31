@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface HsiSpace extends ColorSpace {
+  name: 'hsi'
   rgb: (hsi: [number, number, number]) => [number, number, number];
 }
 

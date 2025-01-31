@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface LchabSpace extends ColorSpace {
+  name: 'lchab'
   xyz: (lchab: [number, number, number]) => [number, number, number];
   lab: (lchab: [number, number, number]) => [number, number, number];
 }

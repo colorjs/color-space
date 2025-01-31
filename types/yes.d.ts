@@ -1,6 +1,7 @@
-import { ColorSpace } from "./types";
+import { ColorSpace } from "./color-space";
 
 export interface YesSpace extends ColorSpace {
+  name: 'yes'
   rgb: (yes: [number, number, number]) => [number, number, number];
 }
 
