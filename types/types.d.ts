@@ -7,7 +7,3 @@ export interface ColorSpace {
   channel: string[];
   alias?: string[];
 }
-
-export type Transform = (color: number[], ...rest: any[]) => number[];
-
-export type ColorSpaceTransforms = { [key in SpaceId]?: Transform };

@@ -6,7 +6,7 @@ export interface LchuvSpace extends ColorSpace {
 }
 
 declare module "./luv" {
-  interface LabSpace {
+  interface LuvSpace {
     lchuv: (luv: [number, number, number]) => [number, number, number]
   }
 }

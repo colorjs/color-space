@@ -1,6 +1,9 @@
 import { SpaceId, ColorSpace } from './types';
 
-declare const spaces: Record<SpaceId, ColorSpace>;
+export type Transform = (color: number[], ...rest: any[]) => number[];
+export type ColorSpaceTransforms = { [key in SpaceId]?: Transform };
+
+declare const spaces: { [key in SpaceId]: ColorSpace & ColorSpaceTransforms };
 export default spaces;
 
 export * from './types';
