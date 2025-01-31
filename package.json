@@ -38,6 +38,7 @@
   ],
   "license": "MIT",
   "main": "./index.js",
+  "types": "./types/index.d.ts",
   "devDependencies": {
     "almost-equal": "^1.1.0",
     "esbuild": "^0.24.2",
