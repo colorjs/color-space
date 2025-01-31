@@ -4,7 +4,7 @@
 import rgb from './rgb.js';
 import hsl from './hsl.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
+
 var hsv = {
 	name: 'hsv',
 	min: [0,0,0],
@@ -16,7 +16,7 @@ var hsv = {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
 			v = hsv[2] / 100,
-			hi = /** @type {0 | 1 | 2 | 3 | 4 | 5} */ (Math.floor(h) % 6);
+			hi = (Math.floor(h) % 6);
 
 		var f = h - Math.floor(h),
 			p = 255 * v * (1 - s),
@@ -56,7 +56,7 @@ var hsv = {
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (hsv);
+export default  (hsv);
 
 
 //append rgb

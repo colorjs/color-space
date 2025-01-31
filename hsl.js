@@ -3,7 +3,6 @@
  */
 import rgb from './rgb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var hsl = {
 	name: 'hsl',
 	min: [0,0,0],
@@ -34,7 +33,7 @@ var hsl = {
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (hsl);
+export default (hsl);
 
 
 //extend rgb

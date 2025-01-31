@@ -7,7 +7,6 @@ const  Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var hsp = {
   name: 'hsp',
   min: [0, 0, 0],
@@ -96,18 +95,16 @@ var hsp = {
 
 	return [Math.round(r), Math.round(g), Math.round(b)];
   }
-
-  
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (hsp);
+export default hsp;
 
 
 //append rgb
 rgb.hsp = function (rgb) {
-  var r = parseInt(/** @type {?} */ (rgb[0]), 10),
-    g = parseInt(/** @type {?} */ (rgb[1]), 10),
-    b = parseInt(/** @type {?} */ (rgb[2]), 10),
+  var r = parseInt((rgb[0]), 10),
+    g = parseInt((rgb[1]), 10),
+    b = parseInt((rgb[2]), 10),
     h, s, p;
 
   //  Calculate the Perceived brightness
@@ -117,7 +114,7 @@ rgb.hsp = function (rgb) {
   if (r === g && r === b) {
     h = 0.0;
     s = 0.0;
-  } else {    
+  } else {
     //  R is largest
     if (r >= g && r >= b) {
       if (b >= g) {

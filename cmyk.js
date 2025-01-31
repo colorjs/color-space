@@ -3,7 +3,6 @@
  */
 import rgb from './rgb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 const cmyk = {
 	name: 'cmyk',
 	min: [0,0,0,0],
@@ -11,24 +10,23 @@ const cmyk = {
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
 	alias: ['CMYK'],
 
-	rgb: function(cmyk) {
-		var c = cmyk[0] / 100,
+	rgb: (cmyk) => {
+		let c = cmyk[0] / 100,
 				m = cmyk[1] / 100,
 				y = cmyk[2] / 100,
 				k = cmyk[3] / 100,
 				r, g, b;
 
-		r = 1 - Math.min(1, c * (1 - k) + k);
-		g = 1 - Math.min(1, m * (1 - k) + k);
+		r = 1 - Math.min(1, c * (1 - k) + k),
+		g = 1 - Math.min(1, m * (1 - k) + k),
 		b = 1 - Math.min(1, y * (1 - k) + k);
+
 		return [r * 255, g * 255, b * 255];
 	}
 };
 
-
-//extend rgb
-rgb.cmyk = function(rgb) {
-	var r = rgb[0] / 255,
+rgb.cmyk = (rgb) => {
+	let r = rgb[0] / 255,
 			g = rgb[1] / 255,
 			b = rgb[2] / 255,
 			c, m, y, k;
@@ -37,7 +35,8 @@ rgb.cmyk = function(rgb) {
 	c = (1 - r - k) / (1 - k) || 0;
 	m = (1 - g - k) / (1 - k) || 0;
 	y = (1 - b - k) / (1 - k) || 0;
+
 	return [c * 100, m * 100, y * 100, k * 100];
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (cmyk);
+export default cmyk;

@@ -5,7 +5,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
+
 var ycgco = {
 	name: 'ycgco',
 	min: [0, -0.5, -0.5],
@@ -55,4 +55,4 @@ rgb.ycgco = function(arr) {
 };
 
 
-export default /** @type {import('./index.js').ColorSpace} */ (ycgco);
+export default (ycgco);

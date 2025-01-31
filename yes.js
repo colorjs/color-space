@@ -7,7 +7,6 @@
 
 import rgb from './rgb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var yes = {
 	name: 'yes',
 	min: [0,0,0],
@@ -15,7 +14,6 @@ var yes = {
 	channel: ['luminance', 'e-factor', 's-factor']
 };
 
-/** @type {import('./index.js').Transform} */
 yes.rgb = function(arg){
 	var y = arg[0], e = arg[1], s = arg[2];
 
@@ -49,4 +47,4 @@ rgb.yes = function(arg) {
 };
 
 
-export default /** @type {import('./index.js').ColorSpace} */ (yes);
+export default yes;

@@ -6,7 +6,6 @@ var munsell = {
 	alias: [],
 	min: [],
 	max: [],
-
 	//hue, value, chroma
 	channel: ['H', 'V', 'C']
 }
@@ -14,6 +13,7 @@ var munsell = {
 /**
  * http://www.pp.bme.hu/ar/article/view/2395/1500
  */
+// FIXME: obviously unfinished
 munsell.coloroid = function (cv) {
 	var c = arg[0], vm = arg[1];
 
