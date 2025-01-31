@@ -9,31 +9,23 @@
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
-/** @typedef {{table: Array<Array<number>>}} ColoroidSpecific */
-
-/**
- * Main color space object
- * @type {Partial<import('./index.js').ColorSpace> & {xyy: import('./index.js').Transform} & ColoroidSpecific}
-*/
 var coloroid = {
 	name: 'coloroid',
 	alias: ['ATV'],
 
-	//hue, saturation, luminosity
-	//note that hue values are ids, not the numbers - not every value is possible
-	//e.g. 38 will be rounded to 36
+	// hue, saturation, luminosity
+	// note that hue values are ids, not the numbers - not every value is possible
+	// e.g. 38 will be rounded to 36
 	channel: ['A', 'T', 'V'],
 	min: [10, 0, 0],
 	max: [76, 100, 100],
-	/**
-	 * Coloroid table
-	 * Regression of values is almost impossible, as hues don’t correlate
-	 * Even angle values are picked very inconsistently, based on aesthetical evaluation.
-	 *
-	 * - tgф, ctgф are removed, ф is searched instead
-	 * - eλ = xλ + yλ + zλ
-	 * - λ is removed as not used
-	 */
+
+	// Coloroid table
+	// Regression of values is almost impossible, as hues don’t correlate
+	// Even angle values are picked very inconsistently, based on aesthetical evaluation.
+	// - tgф, ctgф are removed, ф is searched instead
+	// - eλ = xλ + yλ + zλ
+	// - λ is removed as not used
 	table: [
 		//A    angle  eλ        xλ       yλ
 		[10, 59.0, 1.724349, 0.44987, 0.53641],
@@ -85,6 +77,7 @@ var coloroid = {
 		[75, 66.9, 1.681080, 0.42141, 0.56222],
 		[76, 62.8, 1.704979, 0.43647, 0.54895]
 	],
+
 	/**
 	 * Backwise - from coloroid to xyY
 	 *
@@ -92,9 +85,7 @@ var coloroid = {
 	 *
 	 * @return {Array<number>} xyY values
 	 */
-	xyy: function (arg) {
-		var A = arg[0], T = arg[1], V = arg[2];
-
+	xyy: function ([A, T, V]) {
 		//find the closest row in the table
 		var row;
 		for (var i = 0; i < table.length; i++) {
@@ -105,7 +96,6 @@ var coloroid = {
 		}
 
 		//FIXME row is possibly undefined
-		//@ts-ignore
 		var yl = row[4], el = row[2], xl = row[3];
 
 		var Y = V * V / 100;
@@ -190,17 +180,13 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 */
 
 
-
-
-/** Create angle-sorted table */
+// Create angle-sorted table
 var table = coloroid.table;
 var angleTable = table.slice(-13).concat(table.slice(0, -13));
 
 
-/**
- * Some precalculations
- * 2° D65 whitepoint is used
- */
+// Some precalculations
+// 2° D65 whitepoint is used
 var i = 'D65';
 var o = 2;
 
@@ -211,8 +197,6 @@ var Zn = xyz.whitepoint[o][i][2];
 var y0 = Xn / (Xn + Yn + Zn);
 var x0 = Yn / (Xn + Yn + Zn);
 var ew = (Xn + Yn + Zn) / 100;
-
-
 
 /**
  * From xyY to coloroid
@@ -257,7 +241,9 @@ xyy.coloroid = function (arg) {
 	return [A, T, V];
 };
 
-/** Proper transformation to a XYZ (via xyY) */
+/**
+ * Proper transformation to a XYZ (via xyY)
+ **/
 xyz.coloroid = function (arg) {
 	return xyy.coloroid(xyz.xyy(arg));
 };
@@ -267,4 +253,4 @@ coloroid.xyz = function (arg) {
 
 
 
-export default /** @type {import('./index.js').ColorSpace & ColoroidSpecific} */ (coloroid);
+export default coloroid;
