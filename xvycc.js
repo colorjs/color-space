@@ -18,7 +18,6 @@
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';
 
-/** @type {Partial<import('./index.js').ColorSpace> & {ypbpr: import('./index.js').Transform}} */
 var xvycc = {
 	name: 'xvycc',
 	min: [0, 0, 0],
@@ -37,10 +36,23 @@ var xvycc = {
 			(cb - 128) / 224,
 			(cr - 128) / 224
 		];
+	},
+
+	/**
+	 * xvYCC to RGB
+	 * transform through analog form
+	 *
+	 * @param {Array<number>} arr RGB values
+	 * @param {number} kb
+	 * @param {number} kr
+	 * @return {Array<number>} xvYCC values
+	 */
+	rgb: function (arr, kb, kr) {
+		return ypbpr.rgb(xvycc.ypbpr(arr), kb, kr);
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (xvycc);
+export default (xvycc);
 
 /**
  * From analog to digital form.
@@ -57,20 +69,6 @@ ypbpr.xvycc = function (ypbpr) {
 		128 + 224 * pr
 	];
 }
-
-
-/**
- * xvYCC to RGB
- * transform through analog form
- *
- * @param {Array<number>} arr RGB values
- * @param {number} kb
- * @param {number} kr
- * @return {Array<number>} xvYCC values
- */
-xvycc.rgb = function (arr, kb, kr) {
-	return ypbpr.rgb(xvycc.ypbpr(arr), kb, kr);
-};
 
 
 /**

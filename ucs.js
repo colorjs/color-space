@@ -7,7 +7,6 @@
  */
 import xyz from './xyz.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var ucs = {
 	name: 'ucs',
 	min: [0,0,0],
@@ -16,7 +15,7 @@ var ucs = {
 	alias: ['UCS', 'cie1960']
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (ucs);
+export default (ucs);
 
 /**
  * UCS to XYZ
