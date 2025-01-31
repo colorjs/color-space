@@ -1,3 +1,10 @@
+import { SpaceId, ColorSpace } from './types';
+
+declare const spaces: Record<SpaceId, ColorSpace>;
+export default spaces;
+
+export * from './types';
+
 // export * from './ciecam';
 export * from './cmy';
 export * from './cmyk';

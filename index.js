@@ -42,31 +42,22 @@ import osaucs from './osaucs.js'
 import hsp from './hsp.js'
 
 
-/** @typedef {(color: Array<number>, ...rest: Array<*>) => Array<number>} Transform */
-
-/** @typedef {{[key in SpaceId]: Transform}} ColorSpaceTransforms */
-
 /**
- * @typedef {Object} ColorSpaceBase
- * @property {SpaceId} name
- * @property {Array<number>} min
- * @property {Array<number>} max
- * @property {Array<string>} channel
- * @property {Array<string>} [alias]
+ * Dict with all color spaces
+ *
+ * @type {{[key in SpaceId]: ColorSpace}}
  */
-
-/** @typedef {ColorSpaceBase & ColorSpaceTransforms} ColorSpace */
-
-
-const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
+const spaces = {};
 export default spaces;
 
+
 /**
+ * Register new color space and conversions with all existing spaces
+ *
  * @param {ColorSpace} newSpace
  */
 export function register (newSpace) {
 	const newSpaceName = newSpace.name;
-	/** @type {SpaceId} */
 	var existingSpaceName;
 	for (existingSpaceName in spaces) {
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
@@ -78,6 +69,8 @@ export function register (newSpace) {
 }
 
 /**
+ * Creates a color space converter function.
+ *
  * @param {ColorSpace} fromSpace
  * @param {SpaceId} toSpaceName
  * @returns {Transform}
