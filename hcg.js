@@ -6,7 +6,6 @@ import hsl from './hsl.js';
 import hsv from './hsv.js';
 import hwb from './hwb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var hcg = {
 	name: 'hcg',
 	min: [0,0,0],
@@ -85,7 +84,7 @@ var hcg = {
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (hcg);
+export default (hcg);
 
 
 //append rgb

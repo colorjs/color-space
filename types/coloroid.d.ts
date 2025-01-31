@@ -1,6 +1,7 @@
 import { ColorSpace } from "./types";
 
 export interface ColoroidSpace extends ColorSpace {
+  table: number[][]
   xyy: (atv: [number, number, number]) => [number, number, number]
   xyz: (atv: [number, number, number]) => [number, number, number]
 }

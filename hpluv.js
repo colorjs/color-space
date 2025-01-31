@@ -6,9 +6,8 @@
  */
 import xyz from './xyz.js';
 import lchuv from './lchuv.js';
-import hsluv, {_hsluv} from './hsluv.js';
+import {_hsluv} from './hsluv.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var hpluv = {
 	name: 'hpluv',
 	min: [0,0,0],
@@ -25,7 +24,7 @@ var hpluv = {
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (hpluv);
+export default hpluv;
 
 //extend lchuv, xyz
 lchuv.hpluv = _hsluv.lchToHpluv;

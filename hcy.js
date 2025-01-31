@@ -6,7 +6,6 @@
  */
 import rgb from './rgb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var hcy = {
 	name: 'hcy',
 	min: [0,0,0],
@@ -15,7 +14,7 @@ var hcy = {
 	alias: ['HCY']
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (hcy);
+export default (hcy);
 
 
 /**
