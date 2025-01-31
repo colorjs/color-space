@@ -1,10 +1,6 @@
-export interface ColoroidSpace {
-  name: 'coloroid',
-	alias: ['ATV'],
-	channel: ['A', 'T', 'V'],
-	min: [10, 0, 0],
-	max: [76, 100, 100],
-  table: number[][],
+import { ColorSpace } from "./types";
+
+export interface ColoroidSpace extends ColorSpace {
   xyy: (atv: [number, number, number]) => [number, number, number]
   xyz: (atv: [number, number, number]) => [number, number, number]
 }

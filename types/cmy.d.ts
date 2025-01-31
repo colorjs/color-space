@@ -1,9 +1,6 @@
-export interface CmySpace {
-  name: 'cmy';
-	min: [0,0,0];
-	max: [100,100,100];
-  channel: ['cyan', 'magenta', 'yellow'];
-  alias: ['CMY'];
+import { ColorSpace } from "./types";
+
+export interface CmySpace extends ColorSpace {
   rgb: (cmy: [number, number, number]) => [number, number, number];
 }
 

@@ -41,7 +41,6 @@ import yes from './yes.js'
 import osaucs from './osaucs.js'
 import hsp from './hsp.js'
 
-/** @typedef {'rgb' | 'xyz' | 'hsl' | 'hsv' | 'hsi' | 'hwb' | 'cmyk' | 'cmy' | 'xyy' | 'yiq' | 'yuv' | 'ydbdr' | 'ycgco' | 'ypbpr' | 'ycbcr' | 'xvycc' | 'yccbccrc' | 'ucs' | 'uvw' | 'jpeg' | 'lab' | 'labh' | 'lms' | 'lchab' | 'luv' | 'lchuv' | 'hsluv' | 'hpluv' | 'cubehelix' | 'coloroid' | 'hcg' | 'hcy' | 'tsl' | 'yes' | 'osaucs' | 'hsp'} SpaceId */
 
 /** @typedef {(color: Array<number>, ...rest: Array<*>) => Array<number>} Transform */
 
@@ -63,7 +62,7 @@ const spaces = /** @type {{[key in SpaceId]: ColorSpace}} */ ({});
 export default spaces;
 
 /**
- * @param {ColorSpace} newSpace 
+ * @param {ColorSpace} newSpace
  */
 export function register (newSpace) {
 	const newSpaceName = newSpace.name;

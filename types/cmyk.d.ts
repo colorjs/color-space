@@ -1,9 +1,6 @@
-export interface CmykSpace {
-  name: 'cmyk',
-	min: [0,0,0,0],
-	max: [100,100,100,100],
-	channel: ['cyan', 'magenta', 'yellow', 'black'],
-	alias: ['CMYK'],
+import { ColorSpace } from "./types";
+
+export interface CmykSpace extends ColorSpace {
   rgb: (cmyk: [number, number, number, number]) => [number, number, number];
 }
 

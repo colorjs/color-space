@@ -1,9 +1,7 @@
-export interface RgbSpace {
-	name: 'rgb',
-	min: [0, 0, 0],
-	max: [255, 255, 255],
-	channel: ['red', 'green', 'blue'],
-	alias: ['RGB']
+import { ColorSpace } from './types'
+
+export interface RgbSpace extends ColorSpace {
+
 }
 
 declare const rgb: RgbSpace;
