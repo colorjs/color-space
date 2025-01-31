@@ -102,9 +102,9 @@ export default hsp;
 
 //append rgb
 rgb.hsp = function (rgb) {
-  var r = parseInt(/** @type {?} */ (rgb[0]), 10),
-    g = parseInt(/** @type {?} */ (rgb[1]), 10),
-    b = parseInt(/** @type {?} */ (rgb[2]), 10),
+  var r = parseInt((rgb[0]), 10),
+    g = parseInt((rgb[1]), 10),
+    b = parseInt((rgb[2]), 10),
     h, s, p;
 
   //  Calculate the Perceived brightness

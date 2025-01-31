@@ -10,7 +10,7 @@
  */
 import rgb from './rgb.js';
 
-var ypbpr = /** @type {import('./index.js').ColorSpace} */ ({
+var ypbpr = ({
 	name: 'ypbpr',
 	min: [0,-0.5,-0.5],
 	max: [1, 0.5, 0.5],

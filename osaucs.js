@@ -6,7 +6,7 @@
 
 import xyz from './xyz.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
+
 var osaucs = {
 	name: 'osaucs',
 	alias: ['OSA-UCS'],
@@ -73,4 +73,4 @@ xyz.osaucs = function (arg) {
 };
 
 
-export default /** @type {import('./index.js').ColorSpace} */ (osaucs);
+export default (osaucs);
