@@ -12,9 +12,6 @@
  */
 import xyz from './xyz.js';
 
-/** @typedef {{matrix: Object<string, Array<number>>}} LMSSpecific */
-
-/** @type {Partial<import('./index.js').ColorSpace> & LMSSpecific} */
 var lms = {
 	name: 'lms',
 	min: [0,0,0],
@@ -51,7 +48,7 @@ var lms = {
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace & LMSSpecific} */ (lms);
+export default lms;
 
 lms.xyz = function(arg, matrix){
 	var l = arg[0], m = arg[1], s = arg[2];

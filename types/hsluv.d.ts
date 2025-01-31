@@ -12,12 +12,12 @@ declare module "./rgb" {
   }
 }
 declare module "./lchuv" {
-  interface HsvSpace {
+  interface LchuvSpace {
     hsluv: (lchuv: [number, number, number]) => [number, number, number]
   }
 }
 declare module "./xyz" {
-  interface HwbSpace {
+  interface XyzSpace {
     hsluv: (xyz: [number, number, number]) => [number, number, number]
   }
 }

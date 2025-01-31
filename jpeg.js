@@ -7,7 +7,7 @@
  */
 import rgb from './rgb.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
+
 var jpeg = {
 	name: 'jpeg',
 	min: [0, 0, 0],
@@ -16,7 +16,7 @@ var jpeg = {
 	alias: ['JPEG']
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (jpeg);
+export default (jpeg);
 
 
 /**

@@ -5,23 +5,22 @@
  */
 import xyz from './xyz.js';
 
-/** @type {Partial<import('./index.js').ColorSpace>} */
 var luv = {
 	name: 'luv',
 	//NOTE: luv has no rigidly defined limits
 	//easyrgb fails to get proper coords
 	//boronine states no rigid limits
 	//colorMine refers this ones:
-	min: [0,-134,-140],
-	max: [100,224,122],
+	min: [0, -134, -140],
+	max: [100, 224, 122],
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
-	xyz: function(arg, i, o){
+	xyz: function (arg, i, o) {
 		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 		l = arg[0], u = arg[1], v = arg[2];
 
-		if (l === 0) return [0,0,0];
+		if (l === 0) return [0, 0, 0];
 
 		//get constants
 		//var e = 0.008856451679035631; //(6/29)^3
@@ -44,7 +43,7 @@ var luv = {
 		_u = u / (13 * l) + un || 0;
 		_v = v / (13 * l) + vn || 0;
 
-		y = l > 8 ? yn * Math.pow( (l + 16) / 116 , 3) : yn * l * k;
+		y = l > 8 ? yn * Math.pow((l + 16) / 116, 3) : yn * l * k;
 
 		//wikipedia method
 		x = y * 9 * _u / (4 * _v) || 0;
@@ -59,13 +58,13 @@ var luv = {
 	}
 };
 
-export default /** @type {import('./index.js').ColorSpace} */ (luv);
+export default (luv);
 
 // http://www.brucelindbloom.com/index.html?Equations.html
 // https://github.com/boronine/husl/blob/master/husl.coffee
 //i - illuminant
 //o - observer
-xyz.luv = function(arg, i, o) {
+xyz.luv = function (arg, i, o) {
 	var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
 
 	//get constants
@@ -90,9 +89,9 @@ xyz.luv = function(arg, i, o) {
 	_u = (4 * x) / (x + (15 * y) + (3 * z)) || 0;
 	_v = (9 * y) / (x + (15 * y) + (3 * z)) || 0;
 
-	var yr = y/yn;
+	var yr = y / yn;
 
-	l = yr <= e ? k * yr : 116 * Math.pow(yr, 1/3) - 16;
+	l = yr <= e ? k * yr : 116 * Math.pow(yr, 1 / 3) - 16;
 
 	u = 13 * l * (_u - un);
 	v = 13 * l * (_v - vn);

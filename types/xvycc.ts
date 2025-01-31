@@ -11,7 +11,7 @@ declare module "./rgb" {
   }
 }
 declare module "./ypbpr" {
-  interface HslSpace {
+  interface YpbprSpace {
     xvycc: (ypbpr: [number, number, number]) => [number, number, number]
   }
 }
