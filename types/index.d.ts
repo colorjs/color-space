@@ -1,4 +1,3 @@
-// Import type definitions for all color space modules
 import cmy from './cmy';
 import cmyk from './cmyk';
 import coloroid from './coloroid';
@@ -37,7 +36,6 @@ import yiq from './yiq';
 import ypbpr from './ypbpr';
 import yuv from './yuv';
 
-// Declare the space object with the defined type
 declare const space: {
   cmy: typeof cmy;
   cmyk: typeof cmyk;
@@ -82,10 +80,10 @@ type SpaceId = keyof typeof space;
 
 export default space;
 
-// NOTE: to exclude self-transform this can be modified to Transforms<Exclude<SpaceId, 'cmy'>>
 export type Transforms<Channels extends readonly number[]=[number, number, number]> = {
   /**
-   * Convert value from current color space to target color space.
+   * Convert value from current color space to target color space (via intermediate xyz or rgb space)
+   *
    * @param channels - Channel values in the current color space.
    * @returns target color space channel values.
    */
@@ -93,7 +91,6 @@ export type Transforms<Channels extends readonly number[]=[number, number, numbe
 };
 
 // augment all color spaces with conversions to every other space, except itself
-// FIXME: something with type inference can be done here, but for now good enough
 declare module './cmy' { interface CmySpace extends Transforms {}}
 declare module './cmyk' { interface CmykSpace extends Transforms<[number, number, number, number]> {}}
 declare module './coloroid' { interface ColoroidSpace extends Transforms {}}

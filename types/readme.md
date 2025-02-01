@@ -1,7 +1,5 @@
 # @types/color-space
 
-This folder is intended to store files for DefinitelyTyped.
-
 * `index.d.ts` exports full space with all conversions.
 * `*.d.ts` exports individual color spaces.
 
@@ -12,4 +10,3 @@ Types are kept as meaningfully minimal as possible.
 * Proper jsdoc declarations introduce hacks to js files and don't attain clear results.
 * JSdoc lacks necessary capabilities like merging interfaces.
 * Generated types overall look wrong.
-
