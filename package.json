@@ -271,7 +271,7 @@
     "tst": "^8.0.1"
   },
   "scripts": {
-    "test": "node test || exit 0",
+    "test": "node test",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js",
     "min": "esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
     "prepublishOnly": "npm run build && npm run min"
