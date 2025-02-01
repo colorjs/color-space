@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-Collection of color spaces conversions & data.
+Collection of (historical) color spaces conversions.
 
 [Demo](http://colorjs.github.io/color-space).
 
@@ -99,25 +99,27 @@ register(spaceDefiniton)
 * [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
 * [x] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428) (fixed)
 
-## Contribute
 
-Please fork, add color space with basic _conversions_ to/from XYZ or RGB and _tests_.
-The goal of the project is the most complete set of color spaces with minimal uniform API.
+## Purpose
 
+The project aims to create collection of color spaces with consistent correct API.
+While [colorjs.io](https://colorjs.io/docs/procedural) has focus on digital color-spaces, this initiative takes broader perspective, including lesser-known historical spaces.
+A side effect of the project is ensuring the validity of conversion formulas, introducing necessary corrections. 
 
 ## Credits
 
-Thanks to all scientists, who devoted their time to color research and conveyed their knowledge, for now we can use their formulas and code.
+Thanks to all who contribute color science, from researchers, scientists and color theorists to specifiers, implementors, developers and of course users.
 
-
+<!--
 ## See also
 
-* [texel/color](https://github.com/texel-org/color?tab=readme-ov-file)
 * [colorjs.io](https://colorjs.io/docs/procedural)
+* [color-api](https://github.com/LeaVerou/color-api) - color API proposal by Lea Verou
+* [texel/color](https://github.com/texel-org/color?tab=readme-ov-file)
 * [color-convert](https://github.com/harthur/color-convert)
 * [chromatist](https://github.com/jrus/chromatist)
 * [spectra](https://github.com/avp/spectra)
 * [colorspaces.js](https://github.com/boronine/colorspaces.js)
-* [color-api](https://github.com/LeaVerou/color-api) - color API proposal by Lea Verou
+-->
 
 <p align="center"><a href="https://github.com/krsnzd/license/">🕉</a></p>
