@@ -23,7 +23,7 @@ import rgb from 'color-space/rgb.js';
 import hsl from 'color-space/hsl.js';
 
 //convert rgb to hsl
-rgb.hsl([200,230,100]);
+rgb.hsl([200, 230, 100]);
 ```
 <!--
 New space can be registered as:
@@ -38,10 +38,9 @@ register(spaceDefiniton)
 ```js
 <fromSpace>.<toSpace>(array);
 <space>.name //space name
+<space>.channel //channel names
 <space>.min //channel minimums
 <space>.max //channel maximums
-<space>.channel //channel names
-<space>.alias //alias space names
 ```
 
 ## Spaces
