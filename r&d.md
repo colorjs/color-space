@@ -16,6 +16,10 @@
   * Color picker with color space switch
   * Visualizer with limits
 
+## [ ] Psychedelic fullscreen color picker
+  * All spaces at once
+  * Rendering limits
+
 ## [ ] Test
 
   * Color palette renderer for the space
