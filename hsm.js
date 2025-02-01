@@ -18,79 +18,52 @@ export default hsm
 /**
  * HSM to RGB
  *
-    Given an HSM color (with h, s, m ∈ [0,1]) returns the corresponding RGB
-    color (with r, g, b ∈ [0,1]). This implementation uses an alternate derivation, since the one in paper is incorrect.
-    The idea is that the original RGB is recovered as:
-    [r, g, b] = m + d,
-    where d = s * D(m) * [cos(omega)*u + sin(omega)*v],
-    with omega = 2π * h.
-    We choose reference vector u as the normalized version of (3, -4, -4) (this is
-    consistent with the forward computation of hue in the paper) and then take v to be
-    an orthonormal vector in the same plane. The plane is defined by the constraint
-    4*(r-m) + 2*(g-m) + (b-m) = 0.
- *
  * @param {Array<number>} hsm Channel values
  *
  * @return {Array<number>} RGB channel values
  */
 hsm.rgb = function ([h, s, m]) {
-    // 1. Compute the normalization denominator D(m) piecewise
+    // This implementation uses an alternate derivation (with help of GPTs), since the one in paper is incorrect.
+    // The idea is that the original RGB is recovered as:
+    // [r, g, b] = m + d,
+    // where d = s * D(m) * [cos(omega)*u + sin(omega)*v],
+    // with omega = 2π * h.
+    // We choose reference vector u as the normalized version of (3, -4, -4) (this is
+    // consistent with the forward computation of hue in the paper) and then take v to be
+    // an orthonormal vector in the same plane. The plane is defined by the constraint
+    // 4*(r-m) + 2*(g-m) + (b-m) = 0.
+
+    // 1. Compute normalization denominator D(m) (FIXED: piecewise terms from forward transform)
     let D;
-    if (m >= 0 && m <= 1/7) {
-        D = Math.sqrt((0 - m)**2 + (0 - m)**2 + (7 - m)**2);
-    } else if (m > 1/7 && m <= 3/7) {
-        const term = (7 * m - 1) / 2;
-        D = Math.sqrt((0 - m)**2 + (term - m)**2 + (1 - m)**2);
-    } else if (m > 3/7 && m <= 0.5) {
-        const term = (7 * m - 3) / 2;
-        D = Math.sqrt((term - m)**2 + (1 - m)**2 + (1 - m)**2);
-    } else if (m > 0.5 && m <= 4/7) {
-        const term = (7 * m) / 4;
-        D = Math.sqrt((term - m)**2 + (0 - m)**2 + (0 - m)**2);
-    } else if (m > 4/7 && m <= 6/7) {
-        const term = (7 * m - 4) / 2;
-        D = Math.sqrt((1 - m)**2 + (term - m)**2 + (0 - m)**2);
-    } else if (m > 6/7 && m <= 1) {
-        const term = 7 * m - 6;
-        D = Math.sqrt((1 - m)**2 + (1 - m)**2 + (term - m)**2);
-    } else {
-        D = 1; // Fallback (invalid m)
-    }
+    if (m >= 0 && m <= 1 / 7) D = Math.sqrt((0 - m) ** 2 + (0 - m) ** 2 + (7 - m) ** 2);
+    else if (m > 1 / 7 && m <= 3 / 7) D = Math.sqrt((0 - m) ** 2 + ((7 * m - 1) / 2 - m) ** 2 + (1 - m) ** 2);
+    else if (m > 3 / 7 && m <= 0.5) D = Math.sqrt(((7 * m - 3) / 2 - m) ** 2 + (1 - m) ** 2 + (1 - m) ** 2);
+    else if (m > 0.5 && m <= 4 / 7) D = Math.sqrt((7 * m / 4 - m) ** 2 + (0 - m) ** 2 + (0 - m) ** 2);
+    else if (m > 4 / 7 && m <= 6 / 7) D = Math.sqrt((1 - m) ** 2 + ((7 * m - 4) / 2 - m) ** 2 + (0 - m) ** 2);
+    else if (m > 6 / 7 && m <= 1) D = Math.sqrt((1 - m) ** 2 + (1 - m) ** 2 + (7 * m - 6 - m) ** 2);
+    else D = 1;
 
-    // 2. Compute the chromatic magnitude R_val = s * D(m)
-    const R_val = s * D;
+    // 2. Compute chromatic magnitude (FIXED: include D(m))
+    const R = s * D;
 
-    // 3. Define orthonormal basis vectors u and v in the deviation plane
-    const u = {
-        x: 3 / Math.sqrt(41),   // Normalized (3, -4, -4)
-        y: -4 / Math.sqrt(41),
-        z: -4 / Math.sqrt(41)
-    };
-    const v = {
-        x: -4 / Math.sqrt(861), // Orthonormal complement (-4, 19, -22)
-        y: 19 / Math.sqrt(861),
-        z: -22 / Math.sqrt(861)
-    };
+    // 3. Precompute coefficients (FIXED: orthonormal basis vectors)
+    const cosTheta = Math.cos(2 * Math.PI * h);
+    const sinTheta = Math.sin(2 * Math.PI * h);
+    const u_r = 3 / Math.sqrt(41), v_r = -4 / Math.sqrt(861); // FIXED: correct u/v components
+    const u_g = -4 / Math.sqrt(41), v_g = 19 / Math.sqrt(861);
+    const u_b = -4 / Math.sqrt(41), v_b = -22 / Math.sqrt(861);
 
-    // 4. Compute angle omega = 2πh
-    const omega = 2 * Math.PI * h;
+    // 4. Compute deviations (FIXED: use u/v basis)
+    const dr = R * (u_r * cosTheta + v_r * sinTheta);
+    const dg = R * (u_g * cosTheta + v_g * sinTheta);
+    const db = R * (u_b * cosTheta + v_b * sinTheta);
 
-    // 5. Calculate chromatic offset components
-    const dx = R_val * (Math.cos(omega) * u.x + Math.sin(omega) * v.x);
-    const dy = R_val * (Math.cos(omega) * u.y + Math.sin(omega) * v.y);
-    const dz = R_val * (Math.cos(omega) * u.z + Math.sin(omega) * v.z);
+    // 5. Reconstruct RGB (FIXED: add m directly, clamp values)
+    const r = Math.max(0, Math.min(1, m + dr)) * 255;
+    const g = Math.max(0, Math.min(1, m + dg)) * 255;
+    const b = Math.max(0, Math.min(1, m + db)) * 255;
 
-    // 6. Reconstruct RGB values by adding m to deviations
-    let r = m + dx;
-    let g = m + dy;
-    let b = m + dz;
-
-    // 7. Clamp to [0, 1] and scale to [0, 255]
-    r = (Math.max(0, Math.min(1, r)) * 255);
-    g = (Math.max(0, Math.min(1, g)) * 255);
-    b = (Math.max(0, Math.min(1, b)) * 255);
-
-    return [r, g, b];
+    return [Math.round(r), Math.round(g), Math.round(b)];
 };
 
 
