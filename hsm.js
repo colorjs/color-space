@@ -63,7 +63,7 @@ hsm.rgb = function ([h, s, m]) {
     const g = Math.max(0, Math.min(1, m + dg)) * 255;
     const b = Math.max(0, Math.min(1, m + db)) * 255;
 
-    return [Math.round(r), Math.round(g), Math.round(b)];
+    return [r, g, b];
 };
 
 
