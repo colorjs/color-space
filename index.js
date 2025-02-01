@@ -40,6 +40,7 @@ import tsl from './tsl.js'
 import yes from './yes.js'
 import osaucs from './osaucs.js'
 import hsp from './hsp.js'
+import hsm from './hsm.js'
 
 
 /**
@@ -90,4 +91,4 @@ function createConverter (fromSpace, toSpaceName) {
 }
 
 // register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp].map(register)
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm].map(register)
