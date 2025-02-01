@@ -267,9 +267,8 @@
     }
   },
   "devDependencies": {
-    "almost-equal": "^1.1.0",
     "esbuild": "^0.24.2",
-    "uvu": "^0.5.3"
+    "tst": "^8.0.1"
   },
   "scripts": {
     "test": "uvu test",
