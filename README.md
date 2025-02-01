@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-Collection of (historical) color spaces conversions.
+Open collection of color spaces.
 
 [Demo](http://colorjs.github.io/color-space).
 
