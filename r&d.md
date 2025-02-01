@@ -18,7 +18,26 @@
 
 ## [ ] Test
 
-  * Colorpam for the space
+  * Color palette renderer for the space
   * Edge values
   * Wrong values
   * Correctness of all test cases (paper)
+  * Edge values: pure red, pure green, pure blue, cyan, yellow, magenta, white, black
+  * Consistency of back-forth
+
+## [ ] Ranges
+
+1. `min: [a, b, c], max: [a, b, c]`
+
+2. `range: [[from, to], [from, to], [from, to]]`
++ more compact
++ has range pairs in place
+
+## [ ] Alias - do we need that?
+
+- It takes up space
+- It includes useless cap case change - capcase is not good
+- Usually alias is a sign of bad design or lack of research / certainty
+  - We can ask AI which kind of alias is more widespread
+- Anyways we don't have channel aliases
+- We can put alias to docs

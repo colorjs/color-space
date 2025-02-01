@@ -7,7 +7,10 @@
 ## [ ] WebGL versions
 
 ## [ ] Tests
-  * [ ] Correctness of all tests by refs
+  * [ ] Edge values per 1/2/3 channels
+  * [ ] Consistency of back-forth transforms
+  * [ ] Correctness of all tests by ref values
+  * [ ] Palette renderer
 
 ## Other
 
