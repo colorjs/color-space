@@ -34,6 +34,7 @@
   },
   "files": [
     "*.js",
+    "types",
     "dist"
   ],
   "license": "MIT",
@@ -274,7 +275,6 @@
     "test": "uvu test",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js",
     "min": "esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
-    "types": "npx -y --package=typescript@latest -c 'tsc types/index.d.ts --declaration --emitDeclarationOnly --outFile dist/color-space.d.ts --module ESNext'",
-    "prepublishOnly": "npm run build && npm run min && npm run types"
+    "prepublishOnly": "npm run build && npm run min"
   }
 }
