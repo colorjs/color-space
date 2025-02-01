@@ -111,7 +111,7 @@ The goal of the project is the most complete set of color spaces with minimal un
 Thanks to all scientists, who devoted their time to color research and conveyed their knowledge, for now we can use their formulas and code.
 
 
-## Alternatives
+## See also
 
 * [texel/color](https://github.com/texel-org/color?tab=readme-ov-file)
 * [colorjs.io](https://colorjs.io/docs/procedural)
@@ -119,7 +119,6 @@ Thanks to all scientists, who devoted their time to color research and conveyed 
 * [chromatist](https://github.com/jrus/chromatist)
 * [spectra](https://github.com/avp/spectra)
 * [colorspaces.js](https://github.com/boronine/colorspaces.js)
-
-## See also
-
 * [color-api](https://github.com/LeaVerou/color-api) - color API proposal by Lea Verou
+
+<p align="center"><a href="https://github.com/krsnzd/license/">🕉</a></p>
