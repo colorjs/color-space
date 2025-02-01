@@ -1,6 +1,6 @@
 ## Core
   * [ ] All color space conversions
-  * [ ] All alternatives conversions
+  * [ ] color-io conversions
 
 ## [ ] WASM versions
 
@@ -15,3 +15,6 @@
 ## Other
 
   * [ ] All todo/fixme
+
+## [ ] Demo
+  * [ ] All spaces
