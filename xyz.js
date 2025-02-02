@@ -1,12 +1,13 @@
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
 
+// We use D65 matrice
+// http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 const xyz = {
 	name: 'xyz',
 	channel: ['X', 'Y', 'Z']
 };
 
-// http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 xyz.lrgb = (x, y, z) => [
   (x * 3.240969941904521) + (y * -1.537383177570093) + (z * -0.498610760293),
   (x * -0.96924363628087) + (y * 1.87596750150772) + (z * 0.041555057407175),

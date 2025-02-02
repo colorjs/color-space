@@ -11,25 +11,62 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 
 
 
-test.only('lrgb', () => {
-	is(space.rgb.lrgb(1, 1, 1), [1.0, 1.0, 1.0], 'white')
-	is(space.rgb.lrgb(0, 0, 0), [0, 0, 0], 'black')
-	is(space.rgb.lrgb(0.5, 0.5, 0.5).map(round(3)), [0.214, 0.214, 0.214], 'gray')
+test('lrgb', () => {
+	is(space.rgb.lrgb(1, 1, 1), [1.0, 1.0, 1.0], 'from white')
+	is(space.rgb.lrgb(0, 0, 0), [0, 0, 0], 'from black')
+	is(space.rgb.lrgb(0.5, 0.5, 0.5).map(round(3)), [0.214, 0.214, 0.214], 'from gray')
+
+	is(space.lrgb.rgb(1, 1, 1).map(round(3)), [1.0, 1.0, 1.0], 'to white')
+	is(space.lrgb.rgb(0, 0, 0).map(round(3)), [0, 0, 0], 'to black')
+	is(space.lrgb.rgb(0.214, 0.214, 0.214).map(round(3)), [0.5, 0.5, 0.5], 'to gray')
 })
 
 
-//TODO: more tests here
-test.todo('xyz', function () {
-	is((space.xyz.rgb(.1, .156, .059)), [.97, 1.90, .85]);
-	is((space.xyz.rgb(50, 100, 100).map(round(0))), [0, 255, 241]);
+test('xyz', () => {
+	is((space.rgb.xyz(1.0, 1.0, 1.0)).map(round(3)), [0.95, 1.000, 1.089], 'from white');
+	is((space.rgb.xyz(0.0, 0.0, 0.0)).map(round(3)), [0.0, 0.0, 0.0], 'from black');
+	is((space.rgb.xyz(0.5, 0.5, 0.5)).map(round(3)), [0.203, 0.214, 0.233], 'from gray');
 
+	is((space.rgb.xyz(1.0, 0.0, 0.0)).map(round(3)), [0.412, 0.213, 0.019], 'from red');
+	is((space.rgb.xyz(0.0, 1.0, 0.0)).map(round(3)), [0.358, 0.715, 0.119], 'from green');
+	is((space.rgb.xyz(0.0, 0.0, 1.0)).map(round(3)), [0.180, 0.072, 0.951], 'from blue');
+
+	is((space.rgb.xyz(0.0, 1.0, 1.0)).map(round(3)), [0.538, 0.787, 1.070], 'from cyan');
+	is((space.rgb.xyz(1.0, 0.0, 1.0)).map(round(3)), [0.593, 0.285, 0.970], 'from magenta');
+	is((space.rgb.xyz(1.0, 1.0, 0.0)).map(round(3)), [0.770, 0.928, 0.139], 'from yellow');
+
+	is((space.rgb.xyz(0.36, 0.75, 0.33).map(round(3))), [0.247, 0.403, 0.149], 'from arbitrary');
+
+
+	is((space.xyz.rgb(0.95, 1.000, 1.089)).map(round(1)), [1.0, 1.0, 1.0], 'to white');
+	is((space.xyz.rgb(0.0, 0.0, 0.0)).map(round(1)), [0.0, 0.0, 0.0], 'to black');
+	is((space.xyz.rgb(0.203, 0.214, 0.233)).map(round(1)), [0.5, 0.5, 0.5], 'to gray');
+
+	is((space.xyz.rgb(0.412, 0.213, 0.019)).map(round(1)), [1.0, 0.0, 0.0], 'to red');
+	is((space.xyz.rgb(0.358, 0.715, 0.119)).map(round(1)), [0.0, 1.0, 0.0], 'to green');
+	is((space.xyz.rgb(0.180, 0.072, 0.951)).map(round(1)), [0.0, 0.0, 1.0], 'to blue');
+
+	is((space.xyz.rgb(0.538, 0.787, 1.070)).map(round(1)), [0.0, 1.0, 1.0], 'to cyan');
+	is((space.xyz.rgb(0.593, 0.285, 0.970)).map(round(1)), [1.0, 0.0, 1.0], 'to magenta');
+	is((space.xyz.rgb(0.770, 0.928, 0.139)).map(round(1)), [1.0, 1.0, 0.0], 'to yellow');
+
+	is((space.xyz.rgb(0.247, 0.403, 0.149).map(round(2))), [0.36, 0.75, 0.33], 'to arbitrary');
+});
+
+
+test('lab: lab -> xyz', function () {
 	// is((space.xyz.lab(25, 40, 15).map(round(0))), [69, -48, 44]);
 
 	// is((space.xyz.lchab(25, 40, 15).map(round(0))), [69, 65, 137]);
 
-	// is((space.rgb.xyz(92, 191, 84).map(round(0))), [25, 40, 15]);
-});
+	is((space.lab.xyz([69, -48, 44])).map(round(0)), [25, 39, 15]);
 
+	is((space.lab.rgb([75, 20, -30]).map(round(0))), [194, 175, 240]);
+
+	is((space.lab.lchab([69, -48, 44]).map(round(0))), [69, 65, 137]);
+
+	is((space.rgb.lab([92, 191, 84]).map(round(0))), [70, -50, 45]);
+});
 
 
 
@@ -269,24 +306,6 @@ test('labh: xyz -> labh', function () {
 
 test('labh: labh -> xyz', function () {
 	is((space.labh.xyz([0, 0, 0])), [0, 0, 0]);
-});
-
-
-
-test('lab: lab -> xyz', function () {
-	is((space.lab.xyz([69, -48, 44])).map(round(0)), [25, 39, 15]);
-});
-
-test('lab: lab -> rgb', function () {
-	is((space.lab.rgb([75, 20, -30]).map(round(0))), [194, 175, 240]);
-});
-
-test('lab: lab -> lchab', function () {
-	is((space.lab.lchab([69, -48, 44]).map(round(0))), [69, 65, 137]);
-});
-
-test('lab: rgb -> lab', function () {
-	is((space.rgb.lab([92, 191, 84]).map(round(0))), [70, -50, 45]);
 });
 
 
