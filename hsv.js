@@ -7,12 +7,12 @@ import hsl from './hsl.js';
 
 var hsv = {
 	name: 'hsv',
-	min: [0,0,0],
-	max: [360,100,100],
+	min: [0, 0, 0],
+	max: [360, 100, 100],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
-	rgb: function(hsv) {
+	rgb: function (hsv) {
 		var h = hsv[0] / 60,
 			s = hsv[1] / 100,
 			v = hsv[2] / 100,
@@ -24,7 +24,7 @@ var hsv = {
 			t = 255 * v * (1 - (s * (1 - f)));
 		v *= 255;
 
-		switch(hi) {
+		switch (hi) {
 			case 0:
 				return [v, t, p];
 			case 1:
@@ -40,7 +40,7 @@ var hsv = {
 		}
 	},
 
-	hsl: function(hsv) {
+	hsl: function (hsv) {
 		var h = hsv[0],
 			s = hsv[1] / 100,
 			v = hsv[2] / 100,
@@ -56,11 +56,11 @@ var hsv = {
 	}
 };
 
-export default  (hsv);
+export default (hsv);
 
 
 //append rgb
-rgb.hsv = function(rgb) {
+rgb.hsv = function (rgb) {
 	var r = rgb[0],
 		g = rgb[1],
 		b = rgb[2],
@@ -73,7 +73,7 @@ rgb.hsv = function(rgb) {
 		s = 0;
 	}
 	else {
-		s = (delta/max * 100);
+		s = (delta / max * 100);
 	}
 
 	if (max === min) {
@@ -105,11 +105,11 @@ rgb.hsv = function(rgb) {
 
 
 //extend hsl
-hsl.hsv = function(hsl) {
+hsl.hsv = function (hsl) {
 	var h = hsl[0],
-			s = hsl[1] / 100,
-			l = hsl[2] / 100,
-			sv, v;
+		s = hsl[1] / 100,
+		l = hsl[2] / 100,
+		sv, v;
 	l *= 2;
 	s *= (l <= 1) ? l : 2 - l;
 	v = (l + s) / 2;

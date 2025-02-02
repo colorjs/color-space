@@ -60,7 +60,7 @@ register(spaceDefiniton)
 * [x] [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation)
 * [x] [HSL<sub>uv</sub>](http://www.hsluv.org/)
 * [x] [HPL<sub>uv</sub>](http://www.hsluv.org/)
-* [x] [LAB<sub>Hunter</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab)
+* [x] [LAB<sub>H</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab)
 * [x] [YUV](https://en.wikipedia.org/?title=YUV)
 * [x] [YIQ](https://en.wikipedia.org/?title=YIQ)
 * [x] [YC<sub>g</sub>C<sub>o</sub>](https://en.wikipedia.org/wiki/YCgCo)
@@ -72,6 +72,7 @@ register(spaceDefiniton)
 * [x] [XvYCC](https://en.wikipedia.org/wiki/XvYCC)
 * [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space)
 * [x] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
+* [x] [OKLAB](https://bottosson.github.io/posts/oklab/)
 * [ ] [Munsell](https://en.wikipedia.org/wiki/Munsell_color_system)
 * [ ] [NCS](https://en.wikipedia.org/wiki/Natural_Color_System)
 * [ ] [PMS](https://en.wikipedia.org/wiki/Pantone)
@@ -102,20 +103,20 @@ register(spaceDefiniton)
 
 ## Purpose
 
-The project aims to create collection of color spaces with consistent minimal API.<br/>
-While [colorjs.io](https://colorjs.io/docs/procedural) has focus on digital color-spaces, this initiative takes broader perspective, including lesser-known historical spaces.<br/>
-A side effect of the project is ensuring the validity of conversion formulas, introducing necessary corrections. 
+The project aims to create collection of color spaces with consistent correct API.
+While [colorjs.io](https://colorjs.io/docs/procedural) has focus on digital color spaces, this initiative takes broader perspective, including lesser-known historical spaces.
+A side effect of the project is ensuring the validity of conversion formulas, introducing necessary corrections.
 
 ## Credits
 
 Thanks to all who contribute color science, from researchers, scientists and color theorists to specifiers, implementors, developers and of course users.
 
+## Similar
+
+[culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/docs/procedural), [color-api](https://github.com/LeaVerou/color-api), [texel/color](https://github.com/texel-org/color?tab=readme-ov-file),
+
 <!--
 ## See also
-
-* [colorjs.io](https://colorjs.io/docs/procedural)
-* [color-api](https://github.com/LeaVerou/color-api) - color API proposal by Lea Verou
-* [texel/color](https://github.com/texel-org/color?tab=readme-ov-file)
 * [color-convert](https://github.com/harthur/color-convert)
 * [chromatist](https://github.com/jrus/chromatist)
 * [spectra](https://github.com/avp/spectra)

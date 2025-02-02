@@ -7,19 +7,19 @@ import rgb from './rgb.js';
 
 var yiq = ({
 	name: 'yiq',
-	min: [0,-0.5957,-0.5226],
+	min: [0, -0.5957, -0.5226],
 	max: [1, 0.5957, 0.5226],
-	channel: ['Y','I','Q'],
+	channel: ['Y', 'I', 'Q'],
 	alias: ['YIQ']
 });
 
-yiq.rgb = function(yiq) {
+yiq.rgb = function (yiq) {
 	var y = yiq[0],
 		i = yiq[1],
 		q = yiq[2],
 		r, g, b;
 
-	r = (y * 1) + (i *  0.956) + (q * 0.621);
+	r = (y * 1) + (i * 0.956) + (q * 0.621);
 	g = (y * 1) + (i * -0.272) + (q * -0.647);
 	b = (y * 1) + (i * -1.108) + (q * 1.705);
 
@@ -32,7 +32,7 @@ yiq.rgb = function(yiq) {
 
 
 //extend rgb
-rgb.yiq = function(rgb) {
+rgb.yiq = function (rgb) {
 	var r = rgb[0] / 255,
 		g = rgb[1] / 255,
 		b = rgb[2] / 255;

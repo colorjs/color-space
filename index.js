@@ -42,6 +42,7 @@ import yes from './yes.js'
 import osaucs from './osaucs.js'
 import hsp from './hsp.js'
 import hsm from './hsm.js'
+import lrgb from './lrgb.js'
 
 
 /**
@@ -58,7 +59,7 @@ export default spaces;
  *
  * @param {ColorSpace} newSpace
  */
-export function register (newSpace) {
+export function register(newSpace) {
 	const newSpaceName = newSpace.name;
 	for (const existingSpaceName in spaces) {
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
@@ -76,7 +77,7 @@ export function register (newSpace) {
  * @param {SpaceId} toSpaceName
  * @returns {Transform}
  */
-function createConverter (fromSpace, toSpaceName) {
+function createConverter(fromSpace, toSpaceName) {
 	//create xyz converter, if available
 	if (fromSpace.xyz && spaces.xyz[toSpaceName])
 		return (arg) => spaces.xyz[toSpaceName](fromSpace.xyz(arg));
@@ -92,4 +93,4 @@ function createConverter (fromSpace, toSpaceName) {
 }
 
 // register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, oklab].map(register)
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab].map(register)

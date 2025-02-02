@@ -8,8 +8,8 @@ import rgb from './rgb.js';
 
 var hcy = {
 	name: 'hcy',
-	min: [0,0,0],
-	max: [360,100,255],
+	min: [0, 0, 0],
+	max: [360, 100, 255],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
 };
@@ -32,22 +32,22 @@ hcy.rgb = function (hcy) {
 	var pi3 = Math.PI / 3;
 
 	var r, g, b;
-	if (h < (2 * pi3) ) {
-		b = i * ( 1 - s );
-		r = i * (1 + ( s * Math.cos(h) / Math.cos(pi3 - h) ));
-		g = i * (1 + ( s * ( 1 - Math.cos(h) / Math.cos(pi3 - h) )));
+	if (h < (2 * pi3)) {
+		b = i * (1 - s);
+		r = i * (1 + (s * Math.cos(h) / Math.cos(pi3 - h)));
+		g = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
 	}
-	else if (h < (4 * pi3) ) {
+	else if (h < (4 * pi3)) {
 		h = h - 2 * pi3;
-		r = i * ( 1 - s );
-		g = i * (1 + ( s * Math.cos(h) / Math.cos(pi3 - h) ));
-		b = i * (1 + ( s * ( 1 - Math.cos(h) / Math.cos(pi3 - h) )));
+		r = i * (1 - s);
+		g = i * (1 + (s * Math.cos(h) / Math.cos(pi3 - h)));
+		b = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
 	}
 	else {
 		h = h - 4 * pi3;
-		g = i * ( 1 - s );
-		b = i * (1 + ( s * Math.cos(h) / Math.cos(pi3 - h) ));
-		r = i * (1 + ( s * ( 1 - Math.cos(h) / Math.cos(pi3 - h) )));
+		g = i * (1 - s);
+		b = i * (1 + (s * Math.cos(h) / Math.cos(pi3 - h)));
+		r = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
 	}
 
 	return [r * 255, g * 255, b * 255];
@@ -69,8 +69,8 @@ rgb.hcy = function (rgb) {
 	var b = rgb[2] / sum;
 
 	var h = Math.acos(
-		( 0.5 * ((r - g) + (r - b)) ) /
-		Math.sqrt( (r - g)*(r - g) + (r - b)*(g - b) )
+		(0.5 * ((r - g) + (r - b))) /
+		Math.sqrt((r - g) * (r - g) + (r - b) * (g - b))
 	);
 	if (b > g) {
 		h = 2 * Math.PI - h;

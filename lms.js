@@ -14,43 +14,43 @@ import xyz from './xyz.js';
 
 var lms = {
 	name: 'lms',
-	min: [0,0,0],
-	max: [100,100,100],
+	min: [0, 0, 0],
+	max: [100, 100, 100],
 	channel: ['long', 'medium', 'short'],
 
 
 	//transform matrices
 	matrix: {
 		HPE: [
-			0.38971, 0.68898,-0.07868,
-		   -0.22981, 1.18340, 0.04641,
+			0.38971, 0.68898, -0.07868,
+			-0.22981, 1.18340, 0.04641,
 			0.00000, 0.00000, 1.00000],
 		VONKRIES: [
 			0.4002, 0.7076, -0.0808,
-		   -0.2263, 1.1653,  0.0457,
-			0.00000,0.00000, 0.9182],
+			-0.2263, 1.1653, 0.0457,
+			0.00000, 0.00000, 0.9182],
 		BFD: [
-			0.8951, 0.2664,-0.1614,
-		   -0.7502, 1.7135,	0.0367,
-			0.0389,-0.0686, 1.0296],
+			0.8951, 0.2664, -0.1614,
+			-0.7502, 1.7135, 0.0367,
+			0.0389, -0.0686, 1.0296],
 		CAT97: [
-			0.8562, 0.3372,-0.1934,
-		   -0.8360, 1.8327, 0.0033,
-			0.0357,-0.00469,1.0112],
+			0.8562, 0.3372, -0.1934,
+			-0.8360, 1.8327, 0.0033,
+			0.0357, -0.00469, 1.0112],
 		CAT00: [
-			0.7982, 0.3389,-0.1371,
-		   -0.5918, 1.5512, 0.0406,
+			0.7982, 0.3389, -0.1371,
+			-0.5918, 1.5512, 0.0406,
 			0.0008, 0.0239, 0.9753],
 		CAT02: [
-			0.7328, 0.4296,-0.1624,
-		   -0.7036, 1.6975, 0.0061,
+			0.7328, 0.4296, -0.1624,
+			-0.7036, 1.6975, 0.0061,
 			0.0030, 0.0136, 0.9834]
 	}
 };
 
 export default lms;
 
-lms.xyz = function(arg, matrix){
+lms.xyz = function (arg, matrix) {
 	var l = arg[0], m = arg[1], s = arg[2];
 
 	if (!matrix) {
@@ -68,16 +68,16 @@ lms.xyz = function(arg, matrix){
 	];
 };
 
-xyz.lms = function(arg, matrix) {
-		var x = arg[0], y = arg[1], z = arg[2];
+xyz.lms = function (arg, matrix) {
+	var x = arg[0], y = arg[1], z = arg[2];
 
-		if (!matrix) {
-			matrix = lms.matrix.CAT02
-		}
+	if (!matrix) {
+		matrix = lms.matrix.CAT02
+	}
 
-		return [
-			x * matrix[0] + y * matrix[1] + z * matrix[2],
-			x * matrix[3] + y * matrix[4] + z * matrix[5],
-			x * matrix[6] + y * matrix[7] + z * matrix[8]
-		];
+	return [
+		x * matrix[0] + y * matrix[1] + z * matrix[2],
+		x * matrix[3] + y * matrix[4] + z * matrix[5],
+		x * matrix[6] + y * matrix[7] + z * matrix[8]
+	];
 };

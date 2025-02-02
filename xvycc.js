@@ -22,7 +22,7 @@ var xvycc = {
 	name: 'xvycc',
 	min: [0, 0, 0],
 	max: [255, 255, 255],
-	channel: ['Y','Cb','Cr'],
+	channel: ['Y', 'Cb', 'Cr'],
 	alias: ['xvYCC'],
 	/**
 	 * From digital to analog form.
@@ -80,6 +80,6 @@ ypbpr.xvycc = function (ypbpr) {
  * @param {number} kr
  * @return {Array<number>} RGB values
  */
-rgb.xvycc = function(arr, kb, kr) {
+rgb.xvycc = function (arr, kb, kr) {
 	return ypbpr.xvycc(rgb.ypbpr(arr, kb, kr));
 };

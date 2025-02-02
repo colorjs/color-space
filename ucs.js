@@ -9,9 +9,9 @@ import xyz from './xyz.js';
 
 var ucs = {
 	name: 'ucs',
-	min: [0,0,0],
+	min: [0, 0, 0],
 	max: [100, 100, 100],
-	channel: ['U','V','W'],
+	channel: ['U', 'V', 'W'],
 	alias: ['UCS', 'cie1960']
 };
 
@@ -24,7 +24,7 @@ export default (ucs);
  *
  * @return {Array<number>} UCS values
  */
-ucs.xyz = function(ucs) {
+ucs.xyz = function (ucs) {
 	var u = ucs[0],
 		v = ucs[1],
 		w = ucs[2];
@@ -44,14 +44,14 @@ ucs.xyz = function(ucs) {
  *
  * @return {Array<number>} XYZ values
  */
-xyz.ucs = function(xyz) {
+xyz.ucs = function (xyz) {
 	var x = xyz[0],
 		y = xyz[1],
 		z = xyz[2];
 
 	return [
-		x * 2/3,
+		x * 2 / 3,
 		y,
-		0.5 * (-x + 3*y + z)
+		0.5 * (-x + 3 * y + z)
 	];
 };

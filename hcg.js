@@ -8,12 +8,12 @@ import hwb from './hwb.js';
 
 var hcg = {
 	name: 'hcg',
-	min: [0,0,0],
-	max: [360,100,100],
+	min: [0, 0, 0],
+	max: [360, 100, 100],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
-	rgb: function(hcg) {
+	rgb: function (hcg) {
 		var h = hcg[0] / 360;
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
@@ -47,7 +47,7 @@ var hcg = {
 		return rgb;
 	},
 
-	hsl: function(hcg) {
+	hsl: function (hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var l = g * (1.0 - c) + 0.5 * c;
@@ -62,7 +62,7 @@ var hcg = {
 		return [hcg[0], s * 100, l * 100];
 	},
 
-	hsv: function(hcg){
+	hsv: function (hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var v = c + g * (1.0 - c);
@@ -76,7 +76,7 @@ var hcg = {
 		return res;
 	},
 
-	hwb: function(hcg){
+	hwb: function (hcg) {
 		var c = hcg[1] / 100;
 		var g = hcg[2] / 100;
 		var v = c + g * (1.0 - c);
@@ -88,7 +88,7 @@ export default (hcg);
 
 
 //append rgb
-rgb.hcg = function(rgb) {
+rgb.hcg = function (rgb) {
 	var r = rgb[0] / 255;
 	var g = rgb[1] / 255;
 	var b = rgb[2] / 255;
@@ -106,11 +106,11 @@ rgb.hcg = function(rgb) {
 		if (max === r) {
 			hue = ((g - b) / chroma % 6);
 		} else
-		if (max === g) {
-			hue = 2 + (b - r) / chroma;
-		} else {
-			hue = 4 + (r - g) / chroma;
-		}
+			if (max === g) {
+				hue = 2 + (b - r) / chroma;
+			} else {
+				hue = 4 + (r - g) / chroma;
+			}
 		hue /= 6;
 		hue = (hue % 1);
 	} else {
@@ -120,7 +120,7 @@ rgb.hcg = function(rgb) {
 };
 
 //extend hsl
-hsl.hcg = function(hsl) {
+hsl.hcg = function (hsl) {
 	var s = hsl[1] / 100;
 	var l = hsl[2] / 100;
 	var c = 0;
@@ -140,7 +140,7 @@ hsl.hcg = function(hsl) {
 };
 
 //extend hsv
-hsv.hcg = function(hsv){
+hsv.hcg = function (hsv) {
 	var s = hsv[1] / 100;
 	var v = hsv[2] / 100;
 	var c = s * v;
@@ -156,7 +156,7 @@ hsv.hcg = function(hsv){
 
 
 //extend hwb
-hwb.hcg = function(hwb){
+hwb.hcg = function (hwb) {
 	var w = hwb[1] / 100;
 	var b = hwb[2] / 100;
 	var v = 1 - b;

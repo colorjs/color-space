@@ -12,7 +12,7 @@ var uvw = {
 	name: 'uvw',
 	min: [-134, -140, 0],
 	max: [224, 122, 100],
-	channel: ['U','V','W'],
+	channel: ['U', 'V', 'W'],
 	alias: ['UVW', 'cieuvw', 'cie1964']
 };
 
@@ -25,7 +25,7 @@ uvw.xyz = function (arg, i, o) {
 	var _u, _v, w, u, v, x, y, z, xn, yn, zn, un, vn;
 	u = arg[0], v = arg[1], w = arg[2];
 
-	if (w === 0) return [0,0,0];
+	if (w === 0) return [0, 0, 0];
 
 	//get illuminant/observer
 	i = i || 'D65';
@@ -73,7 +73,7 @@ xyz.uvw = function (arr, i, o) {
 	var _v = 6 * y / (x + 15 * y + 3 * z) || 0;
 
 	//calc values
-	var w = 25 * Math.pow(y, 1/3) - 17;
+	var w = 25 * Math.pow(y, 1 / 3) - 17;
 	var u = 13 * w * (_u - un);
 	var v = 13 * w * (_v - vn);
 
@@ -89,7 +89,7 @@ xyz.uvw = function (arr, i, o) {
  *
  * @return {Array<number>} UVW values
  */
-uvw.ucs = function(uvw) {
+uvw.ucs = function (uvw) {
 	//find chromacity variables
 	throw new Error('Not implemented');
 };
@@ -102,7 +102,7 @@ uvw.ucs = function(uvw) {
  *
  * @return {Array<number>} UCS values
  */
-ucs.uvw = function(ucs) {
+ucs.uvw = function (ucs) {
 	// //find chromacity variables
 	// var u = U / (U + V + W);
 	// var v = V / (U + V + W);

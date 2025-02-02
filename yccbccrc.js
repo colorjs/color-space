@@ -10,7 +10,7 @@ var yccbccrc = {
 	name: 'yccbccrc',
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
-	channel: ['Yc','Cbc','Crc'],
+	channel: ['Yc', 'Cbc', 'Crc'],
 	alias: ['YcCbcCrc']
 };
 
@@ -22,7 +22,7 @@ var yccbccrc = {
  *
  * @return {Array<number>} YcCbcCrc values
  */
-yccbccrc.rgb = function(yccbccrc) {
+yccbccrc.rgb = function (yccbccrc) {
 	return ypbpr.rgb(yccbccrc, 0.0593, 0.2627);
 };
 
@@ -34,7 +34,7 @@ yccbccrc.rgb = function(yccbccrc) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.yccbccrc = function(arr) {
+rgb.yccbccrc = function (arr) {
 	return rgb.ypbpr(arr, 0.0593, 0.2627);
 };
 

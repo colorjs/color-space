@@ -3,7 +3,7 @@
  */
 import rgb from './rgb.js'
 
-const  Pr = 0.299,
+const Pr = 0.299,
   Pg = 0.587,
   Pb = 0.114;
 
@@ -15,8 +15,8 @@ var hsp = {
   alias: ['HSP'],
 
   rgb: function (hsp) {
-    var h = hsp[0]/360.0,
-      s = hsp[1]/100.0,
+    var h = hsp[0] / 360.0,
+      s = hsp[1] / 100.0,
       p = hsp[2],
       r, g, b, part,
       minOverMax = 1.0 - s;
@@ -93,7 +93,7 @@ var hsp = {
       }
     }
 
-	return [Math.round(r), Math.round(g), Math.round(b)];
+    return [Math.round(r), Math.round(g), Math.round(b)];
   }
 };
 
@@ -150,5 +150,5 @@ rgb.hsp = function (rgb) {
   }
   //FIXME h and s are possibly undefined
   //@ts-ignore
-  return [Math.round(h*360.0), s*100.0, Math.round(p)];
+  return [Math.round(h * 360.0), s * 100.0, Math.round(p)];
 };

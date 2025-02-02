@@ -13,7 +13,7 @@ var ycbcr = {
 	name: 'ycbcr',
 	min: [16, 16, 16],
 	max: [235, 240, 240],
-	channel: ['Y','Cb','Cr'],
+	channel: ['Y', 'Cb', 'Cr'],
 	alias: ['YCbCr', 'YCC'],
 	/**
 	 * From digital to analog form.
@@ -71,7 +71,7 @@ ycbcr.rgb = function (arr, kb, kr) {
  * @param {number} kr
  * @return {Array<number>} RGB values
  */
-rgb.ycbcr = function(arr, kb, kr) {
+rgb.ycbcr = function (arr, kb, kr) {
 	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));
 };
 

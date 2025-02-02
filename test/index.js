@@ -4,6 +4,7 @@
 
 import space from '../index.js';
 import test, { is } from 'tst'
+import color from 'color-name'
 
 // get round fn for a precision
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision
@@ -397,29 +398,29 @@ test('hsluv: _hsluv -> rgb ≡ hsluv -> rgb', function () {
 });
 
 
-// test.skip('hpluv', function () {
-//// 	test('x: hpluv -> rgb', function () {
-// 	});
-// 	test('x: hpluv -> xyz', function () {
-// 	});
+test.todo('hpluv', function () {
+// 	test('x: hpluv -> rgb', function () {
+	});
+	test('x: hpluv -> xyz', function () {
+	});
 
 
-// test.skip('ciecam', function () {
-//// 	test('x: to rgb', function () {
-// 	});
-// 	test('x: to xyz', function () {
-// 	});
-// 	test('x: to ', function () {
-// 	});
+test.todo('ciecam', function () {
+// 	test('x: to rgb', function () {
+	});
+	test('x: to xyz', function () {
+	});
+	test('x: to ', function () {
+	});
 
 
-// test.skip('cmy', function () {
-//// 	test('x: to rgb', function () {
-// 	});
-// 	test('x: to xyz', function () {
-// 	});
-// 	test('x: to ', function () {
-// 	});
+test.todo('cmy', function () {
+// 	test('x: to rgb', function () {
+	});
+	test('x: to xyz', function () {
+	});
+	test('x: to ', function () {
+	});
 
 
 test('yiq: yiq -> rgb', function () {
@@ -730,6 +731,7 @@ test.todo('tsl: rgb -> tsl', function () {
 });
 
 
+
 test('hsm: hsm <-> rgb', function () {
 	is(space.hsm.rgb(space.rgb.hsm([255, 0, 0])).map(round(0)), [255, 0, 0]);
 	is(space.hsm.rgb(space.rgb.hsm([0, 255, 0])).map(round(0)), [0, 255, 0]);
@@ -764,3 +766,51 @@ test.todo('yes: yes <-> rgb', function () {
 	is(space.rgb.yes([255, 255, 255]), [1, 0, 0]);
 	// is(space.yes.rgb(space.rgb.yes([10, 20, 30]).map(round(1))), [10, 20, 30]);
 });
+
+
+test("oklab: oklab -> rgb", () => {
+	is(space.rgb.oklab(color.white).map(round(6)), [1.0, 0.0, 0.0]),
+	is(space.rgb.oklab(color.red).map(round(6)), [0.627955, 0.224863, 0.125846]),
+	is(space.rgb.oklab(color.lime).map(round(6)), [0.86644, -0.233888, 0.179498]),
+	is(space.rgb.oklab(color.blue).map(round(6)), [0.452014, -0.032457, -0.311528]),
+	is(space.rgb.oklab(color.cyan).map(round(6)), [0.905399, -0.149444, -0.039398]),
+	is(space.rgb.oklab(color.magenta).map(round(6)), [0.701674, 0.274566, -0.169156]),
+	is(space.rgb.oklab(color.yellow).map(round(6)), [0.967983, -0.071369, 0.19857]),
+	is(space.rgb.oklab(color.black).map(round(6)), [0.0, 0.0, 0.0])
+})
+
+test("oklab: rgb -> oklab", () => {
+	is(space.oklab.rgb([1.0, 0.0, 0.0]).map(round(0)), color.white),
+	is(space.oklab.rgb([0.627955, 0.224863, 0.125846]).map(round(0)), color.red),
+	is(space.oklab.rgb([0.86644, -0.233888, 0.179498]).map(round(0)), color.lime),
+	is(space.oklab.rgb([0.452014, -0.032457, -0.311528]).map(round(0)), color.blue),
+	is(space.oklab.rgb([0.905399, -0.149444, -0.039398]).map(round(0)), color.cyan),
+	is(space.oklab.rgb([0.701674, 0.274566, -0.169156]).map(round(0)), color.magenta),
+	is(space.oklab.rgb([0.967983, -0.071369, 0.19857]).map(round(0)), color.yellow),
+	is(space.oklab.rgb([0.0, 0.0, 0.0]).map(round(0)), color.black)
+})
+
+test.todo("oklab: oklab -> xyz", () => {
+	is(space.xyz.oklab([0.950,	1.000,	1.089]).map(round(6)), [1.000,	0.000,	0.000])
+	is(space.xyz.oklab([1.000,	0.000,	0.000]).map(round(6)), [0.450,	1.236,	-0.019])
+	is(space.xyz.oklab([0.000,	1.000,	0.000]).map(round(6)), [0.922,	-0.671,	0.263])
+	is(space.xyz.oklab([0.000,	0.000,	1.000]).map(round(6)), [0.153,	-1.415,	-0.449])
+})
+
+test.todo("oklab: xyz -> oklab", () => {
+	is(space.oklab.xyz([1.0, 0.0, 0.0]).map(round(0)), color.white),
+	is(space.oklab.xyz([0.627955, 0.224863, 0.125846]).map(round(0)), color.red),
+	is(space.oklab.xyz([0.86644, -0.233888, 0.179498]).map(round(0)), color.lime),
+	is(space.oklab.xyz([0.452014, -0.032457, -0.311528]).map(round(0)), color.blue),
+	is(space.oklab.xyz([0.905399, -0.149444, -0.039398]).map(round(0)), color.cyan),
+	is(space.oklab.xyz([0.701674, 0.274566, -0.169156]).map(round(0)), color.magenta),
+	is(space.oklab.xyz([0.967983, -0.071369, 0.19857]).map(round(0)), color.yellow),
+	is(space.oklab.xyz([0.0, 0.0, 0.0]).map(round(0)), color.black)
+})
+
+
+
+test.todo('lrgb: rgb -> lrgb', () => {
+	is(space.rgb.lrgb(color.white).map(round(6)), [1.0, 1.0, 1.0])
+	is(space.rgb.lrgb(color.gray).map(round(6)), [0.21404114, 0.21404114, 0.21404114])
+})

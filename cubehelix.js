@@ -32,7 +32,7 @@ var cubehelix = {
  * @param {Object<string, number>} options Mapping options, overrides defaults
  * @return {Array<number>} rgb tuple
  */
-cubehelix.rgb = function(fraction, options={}) {
+cubehelix.rgb = function (fraction, options = {}) {
 	if (Array.isArray(fraction)) fraction = fraction[0];
 
 	var start = options.start !== undefined ? options.start : defaults.start;
@@ -40,15 +40,15 @@ cubehelix.rgb = function(fraction, options={}) {
 	var gamma = options.gamma !== undefined ? options.gamma : defaults.gamma;
 	var hue = options.hue !== undefined ? options.hue : defaults.hue;
 
-	var angle = 2 * Math.PI * (start/3 + 1.0 + rotation * fraction);
+	var angle = 2 * Math.PI * (start / 3 + 1.0 + rotation * fraction);
 
 	fraction = Math.pow(fraction, gamma);
 
-	var amp = hue * fraction * (1-fraction)/2.0;
+	var amp = hue * fraction * (1 - fraction) / 2.0;
 
-	var r = fraction + amp*(-0.14861*Math.cos(angle)+1.78277*Math.sin(angle));
-	var g = fraction + amp*(-0.29227*Math.cos(angle)-0.90649*Math.sin(angle));
-	var b = fraction + amp*(+1.97294*Math.cos(angle));
+	var r = fraction + amp * (-0.14861 * Math.cos(angle) + 1.78277 * Math.sin(angle));
+	var g = fraction + amp * (-0.29227 * Math.cos(angle) - 0.90649 * Math.sin(angle));
+	var b = fraction + amp * (+1.97294 * Math.cos(angle));
 
 	r = Math.max(1, Math.min(r, 0));
 	g = Math.max(1, Math.min(g, 0));
@@ -64,7 +64,7 @@ cubehelix.rgb = function(fraction, options={}) {
  * @param {Array<number>} rgb RGB values
  * @return {Array<number>} cubehelix fraction(s)
  */
-rgb.cubehelix = function(rgb) {
+rgb.cubehelix = function (rgb) {
 	//TODO - there is no backwise conversion yet
 	throw new Error('rgb.cubehelix conversion is not implemented yet');
 };

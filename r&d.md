@@ -6,9 +6,11 @@
   * Conversion formulas
   * Which spaces directly converts to
 
-## [ ] Normalization?
+## [ ] Normalize srgb?
 
-  1. `rgb.hsl(, {normalize:true})`
+  + sRGB and derivatives (h*) are primarily exceptional unnormalized space.
+  + Broadly speaking channel limits have referential (meta) purpose, not calculatory
+  + Very often we normalize internal calcs to/from 0..255, so that adds friction
 
 ## [ ] Demo
 
@@ -29,13 +31,30 @@
   * Edge values: pure red, pure green, pure blue, cyan, yellow, magenta, white, black
   * Consistency of back-forth
 
+## [ ] Proof
+  * Blending
+  * Color gamut
+  * Munsell data
+  * See culori, color tests
+
 ## [ ] Ranges
 
 1. `min: [a, b, c], max: [a, b, c]`
++ no need to break v2
 
 2. `range: [[from, to], [from, to], [from, to]]`
 + more compact
 + has range pairs in place
+~ `cmy.min[0]` vs `cmy.range[0][0]`
+
+3. `channel: [{name:'red', range:[0,255]}, {name:'green', range:[0,255]}, {name:'blue', range:[0,255]}, ]`
+3.1 `channel: {red: [0,255], green: [0,255], blue: [0,255]}`
+  + order is keys order
+  + names is channel names
+  + range naturally
+  ~ mb channels is long name.
+    ~ component, value?
+  - complicated access to min/max of 1st channel, eg. now `cmy.min[0]` then `cmy.channel[??][0]`
 
 ## [ ] Alias - do we need that?
 

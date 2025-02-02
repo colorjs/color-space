@@ -10,9 +10,9 @@ import rgb from './rgb.js';
 
 var tsl = {
 	name: 'tsl',
-	min: [0,0,0],
+	min: [0, 0, 0],
 	max: [1, 1, 1],
-	channel: ['tint','saturation','lightness'],
+	channel: ['tint', 'saturation', 'lightness'],
 	alias: ['TSL'],
 };
 
@@ -25,7 +25,7 @@ export default (tsl);
  *
  * @return {Array<number>} TSL values
  */
-tsl.rgb = function(tsl) {
+tsl.rgb = function (tsl) {
 	var T = tsl[0],
 		S = tsl[1],
 		L = tsl[2];
@@ -43,11 +43,11 @@ tsl.rgb = function(tsl) {
 	var R = k * r, G = k * g, B = k * (1 - r - g);
 	*/
 
-	var x = Math.tan(2 * Math.PI * (T - 1/4));
+	var x = Math.tan(2 * Math.PI * (T - 1 / 4));
 	x *= x;
 
-	var r = Math.sqrt(5 * S*S / (9 * (1/x + 1))) + 1/3;
-	var g = Math.sqrt(5 * S*S / (9 * (x + 1))) + 1/3;
+	var r = Math.sqrt(5 * S * S / (9 * (1 / x + 1))) + 1 / 3;
+	var g = Math.sqrt(5 * S * S / (9 * (x + 1))) + 1 / 3;
 
 	var k = L / (.185 * r + .473 * g + .114);
 
@@ -68,14 +68,14 @@ tsl.rgb = function(tsl) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.tsl = function(rgb) {
+rgb.tsl = function (rgb) {
 	var [r, g, b] = rgb;
 
-	var r_ = (r / (r + g + b) || 0) - 1/3,
-			g_ = (g / (r + g + b) || 0) - 1/3,
-			T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0,
-			S = Math.sqrt(9/5 * (r_*r_ + g_*g_)),
-			L = ((r * 0.299) + (g * 0.587) + (b * 0.114)) / 255;
+	var r_ = (r / (r + g + b) || 0) - 1 / 3,
+		g_ = (g / (r + g + b) || 0) - 1 / 3,
+		T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0,
+		S = Math.sqrt(9 / 5 * (r_ * r_ + g_ * g_)),
+		L = ((r * 0.299) + (g * 0.587) + (b * 0.114)) / 255;
 
 	return [T, S, L];
 };

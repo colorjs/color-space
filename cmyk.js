@@ -5,21 +5,21 @@ import rgb from './rgb.js';
 
 const cmyk = {
 	name: 'cmyk',
-	min: [0,0,0,0],
-	max: [100,100,100,100],
+	min: [0, 0, 0, 0],
+	max: [100, 100, 100, 100],
 	channel: ['cyan', 'magenta', 'yellow', 'black'],
 	alias: ['CMYK'],
 
 	rgb: (cmyk) => {
 		let c = cmyk[0] / 100,
-				m = cmyk[1] / 100,
-				y = cmyk[2] / 100,
-				k = cmyk[3] / 100,
-				r, g, b;
+			m = cmyk[1] / 100,
+			y = cmyk[2] / 100,
+			k = cmyk[3] / 100,
+			r, g, b;
 
 		r = 1 - Math.min(1, c * (1 - k) + k),
-		g = 1 - Math.min(1, m * (1 - k) + k),
-		b = 1 - Math.min(1, y * (1 - k) + k);
+			g = 1 - Math.min(1, m * (1 - k) + k),
+			b = 1 - Math.min(1, y * (1 - k) + k);
 
 		return [r * 255, g * 255, b * 255];
 	}
@@ -27,9 +27,9 @@ const cmyk = {
 
 rgb.cmyk = (rgb) => {
 	let r = rgb[0] / 255,
-			g = rgb[1] / 255,
-			b = rgb[2] / 255,
-			c, m, y, k;
+		g = rgb[1] / 255,
+		b = rgb[2] / 255,
+		c, m, y, k;
 
 	k = Math.min(1 - r, 1 - g, 1 - b);
 	c = (1 - r - k) / (1 - k) || 0;

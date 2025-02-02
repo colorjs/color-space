@@ -17,12 +17,12 @@ var munsell = {
 munsell.coloroid = function (cv) {
 	var c = arg[0], vm = arg[1];
 
-	var a,t,v;
+	var a, t, v;
 
 	//coloroid chroma / munsell chroma
-	t = kav * Math.pow(c, 2/3);
+	t = kav * Math.pow(c, 2 / 3);
 
-	v = 10 * Math.sqrt(1.2219*vm - 0.23111*vm*vm + 0.23951*vm*vm*vm - 0.021009*vm*vm*vm*vm + 0.0008404*vm*vm*vm*vm*vm);
+	v = 10 * Math.sqrt(1.2219 * vm - 0.23111 * vm * vm + 0.23951 * vm * vm * vm - 0.021009 * vm * vm * vm * vm + 0.0008404 * vm * vm * vm * vm * vm);
 };
 
 

@@ -114,7 +114,7 @@ xyz.rgb = function (_xyz, white) {
  *
  * @return {Array<number>} XYZ channels
  */
-rgb.xyz = function(rgb, white) {
+rgb.xyz = function (rgb, white) {
 	var r = rgb[0] / 255,
 		g = rgb[1] / 255,
 		b = rgb[2] / 255;
