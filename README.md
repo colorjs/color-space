@@ -97,7 +97,7 @@ register(spaceDefiniton)
 * [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
 * [ ] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
 * [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
-* [x] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428) (fixed)
+* [x] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428)
 
 
 ## Purpose
