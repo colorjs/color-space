@@ -12,6 +12,15 @@
   + Broadly speaking channel limits have referential (meta) purpose, not calculatory
   + Very often we normalize internal calcs to/from 0..255, so that adds friction
   + color.io is normalized to 0..1
+  + i8 -> f32/f64
+
+## [ ] Replace vector arg with arguments `rgb([r,g,b])` -> `rgb(r,g,b)`
+
+  + cleaner
+  + removes semantic concept of "Vector"
+  + resolves 1-channel spaces conflict `cubehelix(intensity)` vs `cubehelix([intensity])` - cubehelix, gray and others
+  + on compiling to WASM allows avoid using GC for arrays: simply multiple args, multiple returns
+  + no need for options argument
 
 ## [ ] Demo
 
@@ -20,6 +29,7 @@
   * Visualizer with limits
 
 ## [ ] Psychedelic fullscreen color picker
+
   * All spaces at once
   * Rendering limits
 
@@ -31,6 +41,13 @@
   * Correctness of all test cases (paper)
   * Edge values: pure red, pure green, pure blue, cyan, yellow, magenta, white, black
   * Consistency of back-forth
+
+## [ ] Competitors analysis
+  * size
+  * spaces
+  * performance
+  * types
+  * ecosystem
 
 ## [ ] Proof
   * Blending
