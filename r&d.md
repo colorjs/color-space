@@ -38,6 +38,7 @@
     + these ranges can be used as a convention only
     + ranges per-channel can be interdependent, like lightness is not available for some values of saturation or hue (beyond srgb)
     + that would save space
+    + ranges are conventional, transforms themselves don't have ranges
 
 ## [x] Alias - do we need that? -> no
 

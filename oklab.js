@@ -1,21 +1,10 @@
-/**
- * OKLab
- * https://bottosson.github.io/posts/oklab/
- *
- * @module color-space/oklab
- */
-
 import xyz from './xyz.js';
 import rgb from './rgb.js';
 
 const oklab = {
 	name: 'oklab',
-	min: [0, -0.4, -0.4],
-	max: [1, 0.4, 0.4],
 	channel: ['lightness', 'a', 'b']
 };
-
-export default oklab;
 
 oklab.rgb = ([l, a, b]) => {
 	// Step 1: Convert Oklab to linear LMS
@@ -90,3 +79,5 @@ rgb.oklab = ([r, g, b]) => {
 
 // 	return [l, a, b];
 // };
+
+export default oklab;

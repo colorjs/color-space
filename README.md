@@ -69,7 +69,7 @@ rgb.hsl(200, 230, 100);
 * [x] [TSL](https://en.wikipedia.org/wiki/TSL_color_space) – color space designed for face detection purpose.
 * [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
 * [ ] [RGK](https://en.wikipedia.org/wiki/RG_color_space)
-* [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000.
+* [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — perceptually uniform aesthetical color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000. ([ref](http://hej.sze.hu/ARC/ARC-030520-A/arc030520a.pdf))
 * [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
 * [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to Long, Medium and Short wavelengths.
@@ -111,10 +111,10 @@ Thanks to all who contribute to color science – researchers, scientists, color
 
 ## Changes in v3
 
-* Normalized 0..255 range, eg. RGB now is 0..1. Make sure to scale if you need 0..255 values: `lab.rgb(.5,.5,.5)`. <!-- less conversion friction and better precision. -->
+* Ranges 0..255, 0..100 (RGB, CMY) are normalized to 0..1. Make sure to scale: `lab.rgb(.5,.5,.5)`. <!-- less conversion friction and better precision. -->
 * No `min`, `max` properties. <!-- channel limits are conventional, not theoretical, and can be picked in use cases. -->
 * No `alias`. <!-- less ambiguity identifying a space - alias can be learned from docs, no need to clutter code & inflate bundle. -->
-* Flat arguments, eg. `rgb.lab([10, 20, 30])` becomes `rgb.lab(10, 20, 30)`.
+* Flat arguments, eg. `rgb.lab([10, 20, 30])` is now `rgb.lab(10, 20, 30)`.
 
 <!--
 ## See also

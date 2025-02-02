@@ -1,24 +1,15 @@
-
-/**
- * Architects and visual constructors hungarian color space.
- *
- * http://hej.sze.hu/ARC/ARC-030520-A/arc030520a.pdf
- *
- * @module  color-space/coloroid
- */
+import whitepoint from './meta/whitepoint.js';
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
-var coloroid = {
+
+const coloroid = {
 	name: 'coloroid',
-	alias: ['ATV'],
 
 	// hue, saturation, luminosity
-	// note that hue values are ids, not the numbers - not every value is possible
-	// e.g. 38 will be rounded to 36
 	channel: ['A', 'T', 'V'],
-	min: [10, 0, 0],
-	max: [76, 100, 100],
+	// min: [1, 0, 0],
+	// max: [48, 100, 100],
 
 	// Coloroid table
 	// Regression of values is almost impossible, as hues don’t correlate
@@ -181,18 +172,11 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 
 
 // Create angle-sorted table
-var table = coloroid.table;
-var angleTable = table.slice(-13).concat(table.slice(0, -13));
+var TABLE = coloroid.table.slice(-13).concat(coloroid.table.slice(0, -13));
 
 
-// Some precalculations
 // 2° D65 whitepoint is used
-var i = 'D65';
-var o = 2;
-
-var Xn = xyz.whitepoint[o][i][0];
-var Yn = xyz.whitepoint[o][i][1];
-var Zn = xyz.whitepoint[o][i][2];
+var [Xn, Yn, Zn] = whitepoint[2].D65
 
 var y0 = Xn / (Xn + Yn + Zn);
 var x0 = Yn / (Xn + Yn + Zn);
@@ -216,15 +200,15 @@ xyy.coloroid = function (arg) {
 	var row;
 
 	//find the closest row in the table
-	var prev = angleTable.length - 1;
-	for (var i = 0; i < angleTable.length; i++) {
-		if (angle > angleTable[i][1]) {
+	var prev = TABLE.length - 1;
+	for (var i = 0; i < TABLE.length; i++) {
+		if (angle > TABLE[i][1]) {
 			break;
 		}
 		prev = i;
 	}
 	//round instead of ceil
-	row = Math.abs(angleTable[i + 1][1] - angle) > Math.abs(angleTable[prev][1] - angle) ? angleTable[i + 1] : angleTable[prev];
+	row = Math.abs(TABLE[i + 1][1] - angle) > Math.abs(TABLE[prev][1] - angle) ? TABLE[i + 1] : TABLE[prev];
 
 	//get hue id
 	var A = row[0];

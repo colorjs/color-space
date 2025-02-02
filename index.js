@@ -47,49 +47,40 @@ import lrgb from './lrgb.js'
 
 /**
  * Dict with all color spaces
- *
- * @type {{[key in SpaceId]: ColorSpace}}
  */
-const spaces = {};
-export default spaces;
+const space = {};
+export default space;
 
 
 /**
  * Register new color space and conversions with all existing spaces
- *
- * @param {ColorSpace} newSpace
  */
 export function register(newSpace) {
 	const newSpaceName = newSpace.name;
-	for (const existingSpaceName in spaces) {
+	for (const existingSpaceName in space) {
 		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
 
-		const existingSpace = spaces[existingSpaceName]
+		const existingSpace = space[existingSpaceName]
 		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
 	}
-	spaces[newSpaceName] = newSpace
+	space[newSpaceName] = newSpace
 }
 
 /**
- * Creates a color space converter function.
+ * Creates a color space converter function via intermediate xyz or rgb.
  *
- * @param {ColorSpace} fromSpace
+ * @param {space} fromSpace
  * @param {SpaceId} toSpaceName
  * @returns {Transform}
  */
 function createConverter(fromSpace, toSpaceName) {
-	//create xyz converter, if available
-	if (fromSpace.xyz && spaces.xyz[toSpaceName])
-		return (arg) => spaces.xyz[toSpaceName](fromSpace.xyz(arg));
+	// xyz converter
+	if (fromSpace.xyz && space.xyz[toSpaceName])
+		return (arg) => space.xyz[toSpaceName](...fromSpace.xyz(arg));
 
-	//create rgb converter
-	if (fromSpace.rgb && spaces.rgb[toSpaceName])
-		return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
-
-
-	return () => {
-		throw new Error(`Conversion ${fromSpace.name} to ${toSpaceName} is not available`);
-	}
+	// rgb converter
+	if (fromSpace.rgb && space.rgb[toSpaceName])
+		return (arg) => space.rgb[toSpaceName](...fromSpace.rgb(arg));
 }
 
 // register all spaces by default
