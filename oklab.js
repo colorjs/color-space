@@ -57,6 +57,7 @@ rgb.oklab = ([r, g, b]) => {
 	];
 };
 
+// TODO: add xyz transform
 // // D65
 // oklab.xyz = (lab) => m3x3_mul(
 // 	[

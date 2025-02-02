@@ -12,29 +12,9 @@ const lrgb = {
 	channel: ['red', 'green', 'blue']
 };
 
-lrgb.rgb = ([r, g, b]) => [
-	((r = Math.abs(r / 255)) > 0.0031308
-		? (Math.sign(r) || 1) * (1.055 * r ** (1 / 2.4) - 0.055)
-		: r * 12.92),
-	((g = Math.abs(g / 255)) > 0.0031308
-		? (Math.sign(g) || 1) * (1.055 * g ** (1 / 2.4) - 0.055)
-		: g * 12.92),
-	((b = Math.abs(b / 255)) > 0.0031308
-		? (Math.sign(b) || 1) * (1.055 * b ** (1 / 2.4) - 0.055)
-		: b * 12.92)
-];
+lrgb.rgb = rgb => rgb.map(c => (c /= 255) > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92);
+rgb.lrgb = rgb => rgb.map(c => (c / 255) <= 0.04045 ? (c / 255) / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4);
 
-rgb.lrgb = ([r, g, b]) => [
-	((r = Math.abs(r / 255)) <= 0.04045
-		? r / 12.92
-		: (Math.sign(r) || 1) * ((r + 0.055) / 1.055) ** 2.4),
-	((g = Math.abs(g / 255)) <= 0.04045
-		? g / 12.92
-		: (Math.sign(g) || 1) * ((g + 0.055) / 1.055) ** 2.4),
-	((b = Math.abs(b / 255)) <= 0.04045
-		? b / 12.92
-		: (Math.sign(b) || 1) * ((b + 0.055) / 1.055) ** 2.4)
-];
-
+// TODO: add xyz transform, see https://github.com/color-js/color.js/blob/main/src/spaces/srgb-linear.js
 
 export default lrgb;

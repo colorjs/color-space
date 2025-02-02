@@ -810,7 +810,8 @@ test.todo("oklab: xyz -> oklab", () => {
 
 
 
-test.todo('lrgb: rgb -> lrgb', () => {
-	is(space.rgb.lrgb(color.white).map(round(6)), [1.0, 1.0, 1.0])
-	is(space.rgb.lrgb(color.gray).map(round(6)), [0.21404114, 0.21404114, 0.21404114])
+test('lrgb: rgb -> lrgb', () => {
+	is(space.rgb.lrgb(color.white), [1.0, 1.0, 1.0])
+	is(space.rgb.lrgb(color.black), [0, 0, 0])
+	is(space.rgb.lrgb([127.5, 127.5, 127.5]).map(round(3)), [0.214, 0.214, 0.214])
 })
