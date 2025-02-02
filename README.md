@@ -45,8 +45,9 @@ register(spaceDefiniton)
 
 ## Spaces
 
-* [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_RGB_colour_space) — additive color model based on red, green and blue primary colors.
-* [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) — cylindrical-coordinates representation of RGB.
+* [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_RGB_colour_space) — sRGB
+* [x] [LRGB](https://en.wikipedia.org/wiki/SRGB#Transfer_function_("gamma")) – linear light sRGB
+* [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) — cylindrical-coordinates sRGB
 * [x] [HSV, HSB](https://en.wikipedia.org/wiki/HSL_and_HSV)
 * [x] [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation)
 * [x] [HSI](https://en.wikipedia.org/wiki/HSL_and_HSV) — used for computer vision due to better separation of shapes in an image, comparing to HSL/HSB.

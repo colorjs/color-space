@@ -11,6 +11,7 @@
   + sRGB and derivatives (h*) are primarily exceptional unnormalized space.
   + Broadly speaking channel limits have referential (meta) purpose, not calculatory
   + Very often we normalize internal calcs to/from 0..255, so that adds friction
+  + color.io is normalized to 0..1
 
 ## [ ] Demo
 
