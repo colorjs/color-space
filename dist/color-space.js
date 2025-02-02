@@ -775,24 +775,24 @@ var lab = {
   min: [0, -100, -100],
   max: [100, 100, 100],
   channel: ["lightness", "a", "b"],
-  alias: ["LAB", "cielab"],
-  xyz: function(lab2) {
-    var l2 = lab2[0], a = lab2[1], b = lab2[2], x, y, z, y2;
-    if (l2 <= 8) {
-      y = l2 * 100 / 903.3;
-      y2 = 7.787 * (y / 100) + 16 / 116;
-    } else {
-      y = 100 * Math.pow((l2 + 16) / 116, 3);
-      y2 = Math.pow(y / 100, 1 / 3);
-    }
-    x = x / 95.047 <= 8856e-6 ? x = 95.047 * (a / 500 + y2 - 16 / 116) / 7.787 : 95.047 * Math.pow(a / 500 + y2, 3);
-    z = z / 108.883 <= 8859e-6 ? z = 108.883 * (y2 - b / 200 - 16 / 116) / 7.787 : 108.883 * Math.pow(y2 - b / 200, 3);
-    return [x, y, z];
+  alias: ["LAB", "cielab"]
+};
+lab.xyz = ([l2, a, b]) => {
+  var x, y, z, y2;
+  if (l2 <= 8) {
+    y = l2 * 100 / 903.3;
+    y2 = 7.787 * (y / 100) + 16 / 116;
+  } else {
+    y = 100 * Math.pow((l2 + 16) / 116, 3);
+    y2 = Math.pow(y / 100, 1 / 3);
   }
+  x = x / 95.047 <= 8856e-6 ? x = 95.047 * (a / 500 + y2 - 16 / 116) / 7.787 : 95.047 * Math.pow(a / 500 + y2, 3);
+  z = z / 108.883 <= 8859e-6 ? z = 108.883 * (y2 - b / 200 - 16 / 116) / 7.787 : 108.883 * Math.pow(y2 - b / 200, 3);
+  return [x, y, z];
 };
 var lab_default = lab;
-xyz_default.lab = function(xyz2) {
-  var x = xyz2[0], y = xyz2[1], z = xyz2[2], l2, a, b;
+xyz_default.lab = ([x, y, z]) => {
+  var l2, a, b;
   x /= 95.047;
   y /= 100;
   z /= 108.883;
@@ -1264,6 +1264,45 @@ var hpluv_default = hpluv;
 lchuv_default.hpluv = _hsluv.lchToHpluv;
 xyz_default.hpluv = function(arg) {
   return _hsluv.lchToHpluv(xyz_default.lchuv(arg));
+};
+
+// oklab.js
+var oklab = {
+  name: "oklab",
+  min: [0, -0.4, -0.4],
+  max: [1, 0.4, 0.4],
+  channel: ["lightness", "a", "b"]
+};
+var oklab_default = oklab;
+oklab.rgb = ([l2, a, b]) => {
+  const l_ = l2 + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l2 - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l2 - 0.0894841775 * a - 1.291485548 * b;
+  const l3 = l_ ** 3;
+  const m3 = m_ ** 3;
+  const s3 = s_ ** 3;
+  return [
+    (4.0767416621 * l3 - 3.307711591 * m3 + 0.2309699292 * s3) * 255,
+    (-1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3) * 255,
+    (-0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3) * 255
+  ];
+};
+rgb_default.oklab = ([r2, g2, b]) => {
+  r2 /= 255, g2 /= 255, b /= 255;
+  const l2 = 0.4122214708 * r2 + 0.5363325363 * g2 + 0.0514459929 * b;
+  const m2 = 0.2119034982 * r2 + 0.6806995451 * g2 + 0.1073969566 * b;
+  const s = 0.0883024619 * r2 + 0.2817188376 * g2 + 0.6299787005 * b;
+  const l_ = Math.cbrt(l2);
+  const m_ = Math.cbrt(m2);
+  const s_ = Math.cbrt(s);
+  return [
+    0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_,
+    // L
+    1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_,
+    // a
+    0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_
+    // b
+  ];
 };
 
 // cubehelix.js
@@ -1930,6 +1969,17 @@ rgb_default.hsm = function([r2, g2, b]) {
   return [h, s, m2];
 };
 
+// lrgb.js
+var lrgb = {
+  name: "lrgb",
+  min: [0, 0, 0],
+  max: [1, 1, 1],
+  channel: ["red", "green", "blue"]
+};
+lrgb.rgb = (rgb2) => rgb2.map((c) => (c /= 255) > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92);
+rgb_default.lrgb = (rgb2) => rgb2.map((c) => c / 255 <= 0.04045 ? c / 255 / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4);
+var lrgb_default = lrgb;
+
 // index.js
 var spaces = {};
 var index_default = spaces;
@@ -1948,10 +1998,10 @@ function createConverter(fromSpace, toSpaceName) {
   if (fromSpace.rgb && spaces.rgb[toSpaceName])
     return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
   return () => {
-    throw new Error("Conversion not available");
+    throw new Error(`Conversion ${fromSpace.name} to ${toSpaceName} is not available`);
   };
 }
-[rgb_default, xyz_default, hsl_default, hsv_default, hsi_default, hwb_default, cmyk_default, cmy_default, xyy_default, yiq_default, yuv_default, ydbdr_default, ycgco_default, ypbpr_default, ycbcr_default, xvycc_default, yccbccrc_default, ucs_default, uvw_default, jpeg_default, lab_default, labh_default, lms_default, lchab_default, luv_default, lchuv_default, hsluv_default, hpluv_default, cubehelix_default, coloroid_default, hcg_default, hcy_default, tsl_default, yes_default, osaucs_default, hsp_default, hsm_default].map(register);
+[rgb_default, xyz_default, hsl_default, hsv_default, hsi_default, hwb_default, cmyk_default, cmy_default, xyy_default, yiq_default, yuv_default, ydbdr_default, ycgco_default, ypbpr_default, ycbcr_default, xvycc_default, yccbccrc_default, ucs_default, uvw_default, jpeg_default, lab_default, labh_default, lms_default, lchab_default, luv_default, lchuv_default, hsluv_default, hpluv_default, cubehelix_default, coloroid_default, hcg_default, hcy_default, tsl_default, yes_default, osaucs_default, hsp_default, hsm_default, lrgb_default, oklab_default].map(register);
 export {
   index_default as default,
   register
