@@ -110,7 +110,7 @@ A side effect of the project is verifying papers.
 
 ## Credits
 
-Thanks to all who contribute color science, from researchers, scientists and color theorists to specifiers, implementors, developers and of course users.
+Thanks to all who contribute to color science – researchers, scientists, color theorists, specifiers, implementors, developers, and of course users.
 
 ## Similar
 
