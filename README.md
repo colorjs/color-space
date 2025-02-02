@@ -2,18 +2,15 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-Open collection of color spaces.
-
-[Demo](http://colorjs.github.io/color-space).
-
+Open collection of color spaces with minimal API, verified formulas and cases.
 
 ## Usage
 
 ```js
 import space from 'color-space';
 
-//convert lab to lch
-var result = space.lab.lch([80,50,60]);
+// convert lab to lch
+const result = space.lab.lch(80, 50, 60);
 ```
 
 Spaces can be imported separately:
@@ -22,16 +19,9 @@ Spaces can be imported separately:
 import rgb from 'color-space/rgb.js';
 import hsl from 'color-space/hsl.js';
 
-//convert rgb to hsl
-rgb.hsl([200, 230, 100]);
+// convert rgb to hsl
+rgb.hsl(200, 230, 100);
 ```
-<!--
-New space can be registered as:
-```js
-import space, {register} from 'color-space';
-
-register(spaceDefiniton)
-``` -->
 
 ## API
 
@@ -39,8 +29,6 @@ register(spaceDefiniton)
 <fromSpace>.<toSpace>(array);
 <space>.name //space name
 <space>.channel //channel names
-<space>.min //channel minimums
-<space>.max //channel maximums
 ```
 
 ## Spaces
@@ -102,11 +90,15 @@ register(spaceDefiniton)
 * [x] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428)
 
 
-## Purpose
+## Motivation
 
-A complete collection of color spaces with minimal consistent and clean API, verified formulas and cases.
-While alternatives focus on digital color spaces, this project takes broader perspective, including historical / multidisciplinary spaces.
-A side effect is verifying and correcting papers.
+The purpose is to have a _complete_ collection of color spaces with _minimal_, _consistent_ and _clean_ API, _verified_ formulas and _cases_.
+While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well.
+
+Some side effects:
+* Verifying and correcting papers.
+* Visualising and better understanding color spaces.
+* Testing [jz](https://github.com/dy/jz) – js to wasm compiler.
 
 ## Credits
 
@@ -115,6 +107,14 @@ Thanks to all who contribute to color science – researchers, scientists, color
 ## Similar
 
 [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/docs/procedural), [color-api](https://github.com/LeaVerou/color-api), [texel/color](https://github.com/texel-org/color?tab=readme-ov-file),
+
+
+## Changes in v3
+
+* Normalized 0..255 range, eg. RGB now is 0..1. Make sure to scale if you need 0..255 values: `lab.rgb(.5,.5,.5)`. <!-- less conversion friction and better precision. -->
+* No `min`, `max` properties. <!-- channel limits are conventional, not theoretical, and can be picked in use cases. -->
+* No `alias`. <!-- less ambiguity identifying a space - alias can be learned from docs, no need to clutter code & inflate bundle. -->
+* Flat arguments, eg. `rgb.lab([10, 20, 30])` becomes `rgb.lab(10, 20, 30)`.
 
 <!--
 ## See also
