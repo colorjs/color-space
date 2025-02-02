@@ -17,9 +17,11 @@ import labh from './labh';
 import lchab from './lchab';
 import lchuv from './lchuv';
 import lms from './lms';
+import lrgb from './lrgb';
 import luv from './luv';
 import munsell from './munsell';
 import osaucs from './osaucs';
+import oklab from './oklab';
 import rgb from './rgb';
 import tsl from './tsl';
 import ucs from './ucs';
@@ -57,8 +59,10 @@ declare const space: {
   lchuv: typeof lchuv;
   lms: typeof lms;
   luv: typeof luv;
+  lrgb: typeof lrgb;
   munsell: typeof munsell;
   osaucs: typeof osaucs;
+  oklab: typeof oklab;
   rgb: typeof rgb;
   tsl: typeof tsl;
   ucs: typeof ucs;
@@ -111,8 +115,10 @@ declare module './lchab' { interface LchabSpace extends Transforms {}}
 declare module './lchuv' { interface LchuvSpace extends Transforms {}}
 declare module './lms' { interface LmsSpace extends Transforms {}}
 declare module './luv' { interface LuvSpace extends Transforms {}}
+declare module './lrgb' { interface LrgbSpace extends Transforms {}}
 declare module './munsell' { interface MunsellSpace extends Transforms {}}
 declare module './osaucs' { interface OsaucsSpace extends Transforms {}}
+declare module './oklab' { interface OklabSpace extends Transforms {}}
 declare module './rgb' { interface RgbSpace extends Transforms {}}
 declare module './tsl' { interface TslSpace extends Transforms {}}
 declare module './ucs' { interface UcsSpace extends Transforms {}}
