@@ -32,6 +32,7 @@ import luv from './luv.js'
 import lchuv from './lchuv.js'
 import hsluv from './hsluv.js'
 import hpluv from './hpluv.js'
+import oklab from './oklab.js'
 import cubehelix from './cubehelix.js'
 import coloroid from './coloroid.js'
 import hcg from './hcg.js'
@@ -86,9 +87,9 @@ function createConverter (fromSpace, toSpaceName) {
 
 
 	return () => {
-		throw new Error('Conversion not available');
+		throw new Error(`Conversion ${fromSpace.name} to ${toSpaceName} is not available`);
 	}
 }
 
 // register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm].map(register)
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, oklab].map(register)
