@@ -102,8 +102,8 @@ register(spaceDefiniton)
 
 ## Purpose
 
-The project aims to create collection of color spaces with consistent correct API.
-While [colorjs.io](https://colorjs.io/docs/procedural) has focus on digital color-spaces, this initiative takes broader perspective, including lesser-known historical spaces.
+The project aims to create collection of color spaces with consistent minimal API.<br/>
+While [colorjs.io](https://colorjs.io/docs/procedural) has focus on digital color-spaces, this initiative takes broader perspective, including lesser-known historical spaces.<br/>
 A side effect of the project is ensuring the validity of conversion formulas, introducing necessary corrections. 
 
 ## Credits
