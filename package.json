@@ -64,7 +64,7 @@
     "types",
     "dist"
   ],
-  "license": "MIT",
+  "license": "Unlicense",
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "typesVersions": {
