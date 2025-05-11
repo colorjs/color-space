@@ -8,7 +8,8 @@
 ## [ ] WebGL versions
 
 ## [ ] Tests
-  * [ ] Edge values per 1/2/3 channels
+
+  * [x] Edge values per 1/2/3 channels
   * [ ] Consistency of back-forth transforms
   * [ ] Correctness of all tests by ref values
   * [ ] Palette renderer
@@ -24,8 +25,6 @@
   * [ ] Alt analysis
 
 ## [ ] v3
-  * [ ] Normalized i8 ranges
-  * [ ] Flat args API
-  * [ ] No alias, min/max -> range
-  * [ ] All core (alternatives) spaces
-  * [ ] WASMs
+  * [ ] All current spaces, cleaned up and tested
+  * [ ] All colorjs.io spaces
+  * [ ] All other alternatives spaces

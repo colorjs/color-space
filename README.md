@@ -98,7 +98,7 @@ While alternatives focus on digital color spaces, this project takes broader per
 
 Some side effects:
 * Verifying and correcting papers.
-* Visualising and better understanding color spaces.
+* Visualising and educating about color spaces.
 * Testing [jz](https://github.com/dy/jz) – js to wasm compiler.
 
 ## Credits
@@ -113,9 +113,9 @@ Thanks to all who contribute to color science – researchers, scientists, color
 ## Changes in v3
 
 * Ranges 0..255, 0..100 (RGB, CMY) are normalized to 0..1. Make sure to scale: `lab.rgb(.5,.5,.5)`. <!-- less conversion friction and better precision. -->
-* No `min`, `max` properties. <!-- channel limits are conventional, not theoretical, and can be picked in use cases. -->
+* No `min`, `max` properties - ranges are  <!-- channel limits are conventional, not theoretical, and can be picked in use cases. -->
 * No `alias`. <!-- less ambiguity identifying a space - alias can be learned from docs, no need to clutter code & inflate bundle. -->
-* Flat arguments, eg. `rgb.lab([10, 20, 30])` is now `rgb.lab(10, 20, 30)`.
+* Flat arguments, eg. `rgb.lab([10, 20, 30])` -> `rgb.lab(10, 20, 30)`.
 
 <!--
 ## See also

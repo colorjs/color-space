@@ -296,7 +296,8 @@
   "devDependencies": {
     "color-name": "^2.0.0",
     "esbuild": "^0.24.2",
-    "tst": "^8.0.2"
+    "tst": "^8.0.2",
+    "watr": "^3.1.0"
   },
   "scripts": {
     "test": "node test",

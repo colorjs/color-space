@@ -5,21 +5,28 @@ const lab = {
 	channel: ['lightness', 'a', 'b']
 }
 
-lab.xyz = (l, a, b) => {
-	let x, y, z, y2;
+// κ * ε  = 2^3 = 8
+const ε = 216 / 24389; // 6^3/29^3 == (24/116)^3
+const ε3 = 24 / 116;
+const κ = 24389 / 27; // 29^3/3^3
+const white = [0.3127 / 0.3290, 1.00000, (1.0 - 0.3127 - 0.3290) / 0.3290]
 
-	if (l <= 8) {
-		y = (l * 100) / 903.3;
-		y2 = (7.787 * (y / 100)) + (16 / 116);
-	} else {
-		y = 100 * Math.pow((l + 16) / 116, 3);
-		y2 = Math.pow(y / 100, 1 / 3);
-	}
+lab.xyz = (...Lab) => {
+	// compute f, starting with the luminance-related term
+	let f = [];
+	f[1] = (Lab[0] + 16) / 116;
+	f[0] = Lab[1] / 500 + f[1];
+	f[2] = f[1] - Lab[2] / 200;
 
-	x = x / 95.047 <= 0.008856 ? (95.047 * ((a / 500) + y2 - (16 / 116))) / 7.787 : 95.047 * Math.pow((a / 500) + y2, 3);
-	z = z / 108.883 <= 0.008859 ? (108.883 * (y2 - (b / 200) - (16 / 116))) / 7.787 : 108.883 * Math.pow(y2 - (b / 200), 3);
+	// compute xyz
+	let xyz = [
+		f[0] > ε3 ? Math.pow(f[0], 3) : (116 * f[0] - 16) / κ,
+		Lab[0] > 8 ? Math.pow((Lab[0] + 16) / 116, 3) : Lab[0] / κ,
+		f[2] > ε3 ? Math.pow(f[2], 3) : (116 * f[2] - 16) / κ,
+	];
 
-	return [x, y, z];
+	// Compute XYZ by scaling xyz by reference white
+	return xyz.map((value, i) => value * white[i]);
 }
 
 xyz.lab = (x, y, z) => {

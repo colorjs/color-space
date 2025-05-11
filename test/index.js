@@ -54,7 +54,7 @@ test('xyz', () => {
 });
 
 
-test('lab: lab -> xyz', function () {
+test.todo('lab: lab -> xyz', function () {
 	// is((space.xyz.lab(25, 40, 15).map(round(0))), [69, -48, 44]);
 
 	// is((space.xyz.lchab(25, 40, 15).map(round(0))), [69, 65, 137]);

@@ -6,13 +6,31 @@
   + color.io is normalized to 0..1
   + i8 -> f32/f64
 
-## [x] Replace vector arg with arguments `rgb([r,g,b])` -> `rgb(r,g,b)` -> yes
+## [x] Replace vector arg with arguments `rgb([r,g,b])` to `rgb(r,g,b)` -> let's try
 
   + cleaner
   + removes semantic concept of "Vector"
   + resolves 1-channel spaces conflict `cubehelix(intensity)` vs `cubehelix([intensity])` - cubehelix, gray and others
-  + on compiling to WASM allows avoid using GC for arrays: simply multiple args, multiple returns
+  + when compiling to WASM allows avoid using GC for arrays: simply multiple args, multiple returns
+    - tuples are not necessarily more expensive in wasm
+    - WASM is surprizingly slower than JS by at least 10%
   + no need for options argument
+  - breaking change
+  - vector is natural group holder: it combines both color space sample and channel values
+    - vectors are supported by all programming languages
+  - it makes harder to compose transforms like `rgb.lrgb(channels) |> lrgb.xyz(%)`, `lrgb.xyz(...rgb.lrgb(channels))`
+    ~ only `...` is needed, but that's whole iterator instead of simple reading vals
+      + this can be optimized that multiple returns go directly from stack to the following fn - it only needs chaining on JZ side
+    + there's strong argument that tuples need allocation, compared to direct args in register, which makes them slow
+  - in js tuples are significantly faster
+    ~ everything related to spread or destructuring is slow. Taking reference and feeding again is even faster than tuple
+    + sending individual channels directly is even faster `.rgb(a[0],a[1],a[2])`
+
+  deepseek analysis
+  + clarity - lab.rgb(1,2,3) is self-documenting
+  + ergonomics for common use-cases - most users work with individual channels, avoids wrapping into arrays
+  + arrays can be simply spread
+  + Three.js, chroma.js use `new THREE.Color(r, g, b)`
 
 ## [x] Ranges -> try no ranges
 
@@ -48,6 +66,17 @@
   - We can ask AI which kind of alias is more widespread
 - Anyways we don't have channel aliases
 - We can put alias to docs
+
+## [ ] mat3 * vec3 separate operation
+
++ separates concern, DRY
++ lots of code reuse (many places), less space
++ we can store matrices separately, rather than functions
++ can possibly be done as SIMD
++ WebGL-friendly
+- introduces some utility file
+- less readable, less self-documenting
+- slightly slower
 
 ## [ ] Comparison table with color spaces
 
