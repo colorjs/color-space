@@ -12,7 +12,9 @@ const lrgb = {
 	channel: ['red', 'green', 'blue']
 };
 
-lrgb.rgb = rgb => rgb.map(c => (c /= 255) > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92);
+lrgb.rgb = lrgb => lrgb.map(channel => ((channel /= 255) <= 0.0031308
+	? 12.92 * channel
+	: 1.055 * channel ** (1 / 2.4) - 0.055) * 255)
 rgb.lrgb = rgb => rgb.map(c => (c / 255) <= 0.04045 ? (c / 255) / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4);
 
 // TODO: add xyz transform, see https://github.com/color-js/color.js/blob/main/src/spaces/srgb-linear.js
