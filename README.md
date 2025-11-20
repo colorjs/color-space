@@ -116,6 +116,10 @@ Thanks to all who contribute to color science – researchers, scientists, color
 
 [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/docs/procedural), [color-api](https://github.com/LeaVerou/color-api), [texel/color](https://github.com/texel-org/color?tab=readme-ov-file),
 
+## Support
+
+See [supported versions](./docs/support.md), [migration](./docs/migration.md).
+
 <!--
 ## See also
 * [color-convert](https://github.com/harthur/color-convert)
