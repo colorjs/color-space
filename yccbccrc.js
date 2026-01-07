@@ -11,7 +11,6 @@ var yccbccrc = {
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Yc', 'Cbc', 'Crc'],
-	alias: ['YcCbcCrc']
 };
 
 

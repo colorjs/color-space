@@ -13,7 +13,6 @@ var lchab = {
 	min: [0, 0, 0],
 	max: [100, 100, 360],
 	channel: ['lightness', 'chroma', 'hue'],
-	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
 	xyz: function (l, c, h) {
 		return lab.xyz(...lchab.lab(l, c, h));

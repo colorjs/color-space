@@ -3,7 +3,6 @@
  */
 var munsell = {
 	name: 'munsell',
-	alias: [],
 	min: [],
 	max: [],
 	//hue, value, chroma

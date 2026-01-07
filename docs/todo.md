@@ -25,5 +25,4 @@
 
 ## [ ] v3
   * [ ] All current spaces, cleaned up and tested
-  * [ ] All colorjs.io spaces
   * [ ] All other alternatives spaces

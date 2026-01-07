@@ -9,7 +9,6 @@ import xyz from './xyz.js';
 
 var osaucs = {
 	name: 'osaucs',
-	alias: ['OSA-UCS'],
 	channel: ['L', 'j', 'g'],
 	min: [-10, -6, -10],
 	max: [8, 12, 6]

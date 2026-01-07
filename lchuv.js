@@ -10,7 +10,6 @@ import xyz from './xyz.js';
 var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
-	alias: ['LCHuv', 'cielchuv'],
 	min: [0, 0, 0],
 	max: [100, 100, 360],
 

@@ -23,7 +23,6 @@ var xvycc = {
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y', 'Cb', 'Cr'],
-	alias: ['xvYCC'],
 	/**
 	 * From digital to analog form.
 	 * Scale to min/max ranges

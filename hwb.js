@@ -9,7 +9,6 @@ var hwb = {
 	name: 'hwb',
 	max: [360, 1, 1],
 	channel: ['hue', 'whiteness', 'blackness'],
-	alias: ['HWB'],
 	rgb: function (h, wh, bl) {
 		h = h / 360;
 		var ratio = wh + bl,

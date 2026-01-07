@@ -13,7 +13,6 @@ var hpluv = {
 	min: [0, 0, 0],
 	max: [360, 100, 100],
 	channel: ['hue', 'saturation', 'lightness'],
-	alias: ['HPLuv', 'HuSLp'],
 
 	lchuv: (h, s, l) => _hsluv.hpluvToLch([h, s, l]),
 	xyz: function (h, s, l) { return lchuv.xyz(..._hsluv.hpluvToLch([h, s, l])); },

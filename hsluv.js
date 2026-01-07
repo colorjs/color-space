@@ -60,7 +60,6 @@ var hsluv = {
 	min: [0, 0, 0],
 	max: [360, 100, 100],
 	channel: ['hue', 'saturation', 'lightness'],
-	alias: ['HSLuv', 'HuSL'],
 
 	lchuv: (h, s, l) => _hsluv.hsluvToLch([h, s, l]),
 

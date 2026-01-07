@@ -12,7 +12,6 @@ var hsp = {
   min: [0, 0, 0],
   max: [360, 1, 1],
   channel: ['hue', 'saturation', 'perceived_brightness'],
-  alias: ['HSP'],
 
   rgb: function (h, s, p) {
     h = h / 360.0;

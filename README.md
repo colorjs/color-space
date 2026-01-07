@@ -83,6 +83,17 @@ rgb.hsl(200, 230, 100);
 * [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
 * [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
 * [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to Long, Medium and Short wavelengths.
+* [x] [Display P3](https://en.wikipedia.org/wiki/DCI-P3)
+* [x] [Rec. 2020](https://en.wikipedia.org/wiki/Rec._2020)
+* [x] [Adobe 98 RGB](https://en.wikipedia.org/wiki/Adobe_RGB_color_space)
+* [x] [ProPhoto RGB](https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space)
+* [x] [ACEScg](https://en.wikipedia.org/wiki/Academy_Color_Encoding_System)
+* [x] [ACEScc](https://en.wikipedia.org/wiki/Academy_Color_Encoding_System)
+* [x] [Rec. 2100 PQ](https://en.wikipedia.org/wiki/Rec._2100)
+* [x] [Rec. 2100 HLG](https://en.wikipedia.org/wiki/Rec._2100)
+* [x] [ICTCP](https://en.wikipedia.org/wiki/ICtCp)
+* [x] [CAM16](https://en.wikipedia.org/wiki/Color_appearance_model#CIECAM16)
+* [x] [HCT](https://material.io/blog/science-of-color-design)
 * [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — colormaps for data visualization.
 * [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)

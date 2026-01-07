@@ -10,7 +10,6 @@ var xyy = {
 	min: [0, 0, 0],
 	max: [1, 1, 1],
 	channel: ['x', 'y', 'Y'],
-	alias: ['xyY', 'Yxy', 'yxy']
 };
 
 xyy.xyz = function (x, y, Y) {

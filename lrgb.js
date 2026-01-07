@@ -11,17 +11,27 @@ const lrgb = {
 	channel: ['red', 'green', 'blue']
 };
 
-rgb.lrgb = (r, g, b) => [
-	r > 0.04045 ? (((r + 0.055) / 1.055) ** 2.4) : (r / 12.92),
-	g > 0.04045 ? (((g + 0.055) / 1.055) ** 2.4) : (g / 12.92),
-	b > 0.04045 ? (((b + 0.055) / 1.055) ** 2.4) : (b / 12.92),
-]
+rgb.lrgb = (r, g, b) => {
+	const sign_r = r < 0 ? -1 : 1, abs_r = Math.abs(r);
+	const sign_g = g < 0 ? -1 : 1, abs_g = Math.abs(g);
+	const sign_b = b < 0 ? -1 : 1, abs_b = Math.abs(b);
+	return [
+		sign_r * (abs_r > 0.04045 ? Math.pow((abs_r + 0.055) / 1.055, 2.4) : abs_r / 12.92),
+		sign_g * (abs_g > 0.04045 ? Math.pow((abs_g + 0.055) / 1.055, 2.4) : abs_g / 12.92),
+		sign_b * (abs_b > 0.04045 ? Math.pow((abs_b + 0.055) / 1.055, 2.4) : abs_b / 12.92),
+	]
+}
 
-lrgb.rgb = (r, g, b) => [
-  r > 0.0031308 ? 1.055 * r ** (1/2.4) - 0.055 : r * 12.92,
-  g > 0.0031308 ? 1.055 * g ** (1/2.4) - 0.055 : g * 12.92,
-  b > 0.0031308 ? 1.055 * b ** (1/2.4) - 0.055 : b * 12.92,
-];
+lrgb.rgb = (r, g, b) => {
+	const sign_r = r < 0 ? -1 : 1, abs_r = Math.abs(r);
+	const sign_g = g < 0 ? -1 : 1, abs_g = Math.abs(g);
+	const sign_b = b < 0 ? -1 : 1, abs_b = Math.abs(b);
+	return [
+		sign_r * (abs_r > 0.0031308 ? 1.055 * Math.pow(abs_r, 1/2.4) - 0.055 : abs_r * 12.92),
+		sign_g * (abs_g > 0.0031308 ? 1.055 * Math.pow(abs_g, 1/2.4) - 0.055 : abs_g * 12.92),
+		sign_b * (abs_b > 0.0031308 ? 1.055 * Math.pow(abs_b, 1/2.4) - 0.055 : abs_b * 12.92),
+	];
+};
 
 
 export default lrgb;

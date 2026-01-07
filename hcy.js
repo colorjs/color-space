@@ -11,7 +11,6 @@ var hcy = {
 	min: [0, 0, 0],
 	max: [360, 1, 1],
 	channel: ['hue', 'chroma', 'luminance'],
-	alias: ['HCY']
 };
 
 export default (hcy);

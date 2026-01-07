@@ -901,3 +901,27 @@ test("jzczhz: jzczhz <-> jzazbz", () => {
 
     is(space.jzczhz.jzazbz(...polar).map(round(4)), jz);
 });
+
+test('p3', () => {
+	is(space.p3.xyz(1, 1, 1).map(round(2)), [0.95, 1.0, 1.09], 'p3 white to xyz');
+	is(space.xyz.p3(0.9505, 1.0, 1.0890).map(round(2)), [1, 1, 1], 'xyz white to p3');
+});
+
+test('rec2020', () => {
+	is(space.rec2020.xyz(1, 1, 1).map(round(2)), [0.95, 1.0, 1.09], 'rec2020 white to xyz');
+	is(space.xyz.rec2020(0.9505, 1.0, 1.0890).map(round(2)), [1, 1, 1], 'xyz white to rec2020');
+});
+
+test('prophoto', () => {
+	is(space.prophoto.xyz(1, 1, 1).map(round(2)), [0.95, 1.0, 1.09], 'prophoto white to xyz');
+	is(space.xyz.prophoto(0.9505, 1.0, 1.0890).map(round(2)), [1, 1, 1], 'xyz white to prophoto');
+});
+
+test('a98rgb', () => {
+	is(space.a98rgb.xyz(1, 1, 1).map(round(2)), [0.95, 1.0, 1.09], 'a98rgb white to xyz');
+	is(space.xyz.a98rgb(0.9505, 1.0, 1.0890).map(round(2)), [1, 1, 1], 'xyz white to a98rgb');
+});
+
+test('acescg', () => {
+	is(space.acescg.xyz(1, 1, 1).map(round(2)), [0.95, 1.0, 1.09], 'acescg white to xyz');
+});

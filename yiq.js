@@ -10,7 +10,6 @@ var yiq = ({
 	min: [0, -0.5957, -0.5226],
 	max: [1, 0.5957, 0.5226],
 	channel: ['Y', 'I', 'Q'],
-	alias: ['YIQ']
 });
 
 yiq.rgb = function (y, i, q) {

@@ -14,7 +14,6 @@ var luv = {
 	min: [0, -134, -140],
 	max: [100, 224, 122],
 	channel: ['lightness', 'u', 'v'],
-	alias: ['LUV', 'cieluv', 'cie1976'],
 
 	xyz: function (l, u, v, i, o) {
 		var _u, _v, x, y, z, xn, yn, zn, un, vn;

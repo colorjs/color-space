@@ -11,7 +11,6 @@ var hcg = {
 	min: [0, 0, 0],
 	max: [360, 1, 1],
 	channel: ['hue', 'chroma', 'gray'],
-	alias: ['HCG', 'HSG'],
 
 	rgb: function (h, c, g) {
 		h = h / 360;

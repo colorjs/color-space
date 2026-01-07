@@ -13,7 +13,6 @@ var ydbdr = {
 	min: [0, -1.333, -1.333],
 	max: [1, 1.333, 1.333],
 	channel: ['Y', 'Db', 'Dr'],
-	alias: ['YDbDr']
 };
 
 

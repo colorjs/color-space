@@ -1,7 +1,7 @@
-import whitepoint from './meta/whitepoint.js';
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
+const whitepoint = xyz.whitepoint;
 
 const coloroid = {
 	name: 'coloroid',

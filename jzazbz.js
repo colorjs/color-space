@@ -12,9 +12,9 @@ const d0 = 1.6295499532821566e-11;
 const Yw = 203; // absolute luminance of media white in cd/m^2
 
 // PQ constants
-const n = 2610 / 4096 * 0.25; // 2610 / 2^14 * 2^2 ? No. 2610/2^14 = 0.1593. 2610/16384. 
+const n = 2610 / 4096 * 0.25; // 2610 / 2^14 * 2^2 ? No. 2610/2^14 = 0.1593. 2610/16384.
 // reference says: 2610 / 2 ** 14
-const n_val = 2610 / 16384; 
+const n_val = 2610 / 16384;
 const ninv = 16384 / 2610;
 const c1 = 3424 / 4096;
 const c2 = 2413 / 128; // 2413 / 2^7

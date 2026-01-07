@@ -14,7 +14,6 @@ var ycbcr = {
 	min: [16, 16, 16],
 	max: [235, 240, 240],
 	channel: ['Y', 'Cb', 'Cr'],
-	alias: ['YCbCr', 'YCC'],
 	/**
 	 * From digital to analog form.
 	 * Scale to min/max ranges

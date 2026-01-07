@@ -8,7 +8,6 @@ var hsl = {
 	min: [0, 0, 0],
 	max: [360, 1, 1],
 	channel: ['hue', 'saturation', 'lightness'],
-	alias: ['HSL'],
 
 	rgb: function (h, s, l) {
 		var t1, t2, t3, rgb, val, i = 0;

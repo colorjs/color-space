@@ -15,7 +15,6 @@ var ypbpr = ({
 	min: [0, -0.5, -0.5],
 	max: [1, 0.5, 0.5],
 	channel: ['Y', 'Pb', 'Pr'],
-	alias: ['YPbPr', 'Y/PB/PR', 'YPRPB', 'PRPBY', 'PBPRY', 'Y/Pb/Pr', 'YPrPb', 'PrPbY', 'PbPrY', 'Y/R-Y/B-Y', 'Y(R-Y)(B-Y)', 'R-Y', 'B-Y']
 });
 
 

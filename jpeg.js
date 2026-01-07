@@ -13,7 +13,6 @@ var jpeg = {
 	min: [0, 0, 0],
 	max: [255, 255, 255],
 	channel: ['Y', 'Cb', 'Cr'],
-	alias: ['JPEG']
 };
 
 export default (jpeg);

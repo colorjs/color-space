@@ -13,7 +13,6 @@ var tsl = {
 	min: [0, 0, 0],
 	max: [1, 1, 1],
 	channel: ['tint', 'saturation', 'lightness'],
-	alias: ['TSL'],
 };
 
 export default (tsl);

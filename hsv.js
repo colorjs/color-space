@@ -10,7 +10,6 @@ var hsv = {
 	min: [0, 0, 0],
 	max: [360, 1, 1],
 	channel: ['hue', 'saturation', 'value'],
-	alias: ['HSV', 'HSB'],
 
 	rgb: function (h, s, v) {
 		h = h / 60;

@@ -12,7 +12,6 @@ var ucs = {
 	min: [0, 0, 0],
 	max: [100, 100, 100],
 	channel: ['U', 'V', 'W'],
-	alias: ['UCS', 'cie1960']
 };
 
 export default (ucs);

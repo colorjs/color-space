@@ -1,0 +1,56 @@
+import xyz from './xyz.js';
+
+const acescg = {
+	name: 'acescg',
+	channel: ['red', 'green', 'blue']
+};
+
+const M_ACESCG_TO_XYZ_ACES = [
+	0.6624541811085053, 0.13400420645643313, 0.1561876870049078,
+	0.27222871678091454, 0.6740817658111484, 0.05368951740793705,
+	-0.005574649490394108, 0.004060733528982826, 1.0103391003129971
+];
+
+const M_XYZ_ACES_TO_ACESCG = [
+	1.6410233796943257, -0.32480329418479, -0.23642469523761225,
+	-0.6636628587229829, 1.6153315916573379, 0.016756347685530137,
+	0.011721894328375376, -0.008284441996237409, 0.9883948585390215
+];
+
+// ACES to D65 Adaptation
+const M_ADAPT_ACES_TO_D65 = [
+	0.9872662260783373, -0.006109983795706587, 0.015908301183191198,
+	-0.007571724739733996, 1.0018466927495386, 0.00531467636090522,
+	0.0030642722309384765, -0.005187269825290497, 1.0814571442867786
+];
+
+// D65 to ACES Adaptation
+const M_ADAPT_D65_TO_ACES = [
+	1.012991082631989, 0.006069728174445534, -0.014930967980690574,
+	0.007670955598086201, 0.9981681512691919, -0.005018288931202118,
+	-0.0028342548582215646, 0.004584233291118761, 0.9246970826867343
+];
+
+function applyMatrix(m, x, y, z) {
+	return [
+		x * m[0] + y * m[1] + z * m[2],
+		x * m[3] + y * m[4] + z * m[5],
+		x * m[6] + y * m[7] + z * m[8]
+	];
+}
+
+acescg.xyz = (r, g, b) => {
+	// ACEScg -> XYZ (ACES)
+	const [x, y, z] = applyMatrix(M_ACESCG_TO_XYZ_ACES, r, g, b);
+	// XYZ (ACES) -> XYZ (D65)
+	return applyMatrix(M_ADAPT_ACES_TO_D65, x, y, z);
+}
+
+xyz.acescg = (x, y, z) => {
+	// XYZ (D65) -> XYZ (ACES)
+	const [xa, ya, za] = applyMatrix(M_ADAPT_D65_TO_ACES, x, y, z);
+	// XYZ (ACES) -> ACEScg
+	return applyMatrix(M_XYZ_ACES_TO_ACESCG, xa, ya, za);
+}
+
+export default acescg;

@@ -11,7 +11,6 @@ import xyz from './xyz.js';
 var cam = {
 	name: 'cam',
 
-	alias: ['ciecam', 'ciecam02'],
 };
 
 

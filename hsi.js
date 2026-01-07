@@ -13,7 +13,6 @@ var hsi = {
 
 	//hue, saturation, intensity
 	channel: ['hue', 'saturation', 'intensity'],
-	alias: ['HSI']
 };
 
 export default hsi

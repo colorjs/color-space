@@ -50,7 +50,25 @@ import oklrab from './oklrab.js'
 import oklrch from './oklrch.js'
 import jzazbz from './jzazbz.js'
 import jzczhz from './jzczhz.js'
-
+import p3 from './p3.js'
+import p3Linear from './p3-linear.js'
+import rec2020 from './rec2020.js'
+import rec2020Linear from './rec2020-linear.js'
+import rec2020oetf from './rec2020-oetf.js'
+import rec2100pq from './rec2100-pq.js'
+import rec2100hlg from './rec2100-hlg.js'
+import a98rgb from './a98rgb.js'
+import a98Linear from './a98rgb-linear.js'
+import prophoto from './prophoto.js'
+import prophotoLinear from './prophoto-linear.js'
+import acescg from './acescg.js'
+import acescc from './acescc.js'
+import ictcp from './ictcp.js'
+import cam16jmh from './cam16.js'
+import hct from './hct.js'
+import xyzD50 from './xyz-d50.js'
+import xyzAbsD65 from './xyz-abs-d65.js'
+import labD50 from './lab-d50.js'
 
 /**
  * Dict with all color spaces
@@ -91,4 +109,4 @@ function createConverter(fromSpace, toSpaceName) {
 }
 
 // register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz].map(register)
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2020oetf, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD50].map(register)
