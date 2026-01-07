@@ -795,3 +795,109 @@ test("oklab: oklab -> xyz", () => {
 	is(space.oklab.xyz(0.922, -0.671, 0.263).map(round(3)), [0.000, 1.001, 0.001]);
 	is(space.oklab.xyz(0.153, -1.415, -0.449).map(round(3)), [0.001, 0.000, 1.002]);
 })
+
+test("oklch: oklch <-> oklab", () => {
+	is(space.oklch.oklab(1, 0, 0).map(round(3)), [1, 0, 0]);
+	// red approximation
+	// oklab red: 0.627955, 0.224863, 0.125846
+	// C = 0.257683
+	// h = 29.2338
+	is(space.oklab.oklch(0.627955, 0.224863, 0.125846).map(round(2)), [0.63, 0.26, 29.23]);
+})
+
+test("okhsl: okhsl <-> rgb", () => {
+	// White -> L=1
+	var w = space.rgb.okhsl(1, 1, 1);
+	is(round(4)(w[2]), 1.0, 'White L is 1');
+
+	// Black -> L=0
+	var k = space.rgb.okhsl(0, 0, 0);
+	is(round(4)(k[2]), 0.0, 'Black L is 0');
+
+	// Roundtrip red
+	let red = [1, 0, 0];
+	let hsl = space.rgb.okhsl(...red);
+	is(space.okhsl.rgb(...hsl).map(round(3)), red, 'Red roundtrip');
+
+    // Roundtrip arbitrary
+    let arb = [0.2, 0.5, 0.8];
+    let hslArb = space.rgb.okhsl(...arb);
+    is(space.okhsl.rgb(...hslArb).map(round(3)), arb, 'Arbitrary roundtrip');
+})
+
+test("okhsv: okhsv <-> rgb", () => {
+	// White -> V=1
+	var w = space.rgb.okhsv(1, 1, 1);
+	is(round(4)(w[2]), 1.0, 'White V is 1');
+
+	// Black -> V=0
+	var k = space.rgb.okhsv(0, 0, 0);
+	is(round(4)(k[2]), 0.0, 'Black V is 0');
+
+	// Roundtrip blue
+	let blue = [0, 0, 1];
+	let hsv = space.rgb.okhsv(...blue);
+	is(space.okhsv.rgb(...hsv).map(round(3)), blue, 'Blue roundtrip');
+
+    // Roundtrip arbitrary
+    let arb = [0.2, 0.5, 0.8];
+    let hsvArb = space.rgb.okhsv(...arb);
+    is(space.okhsv.rgb(...hsvArb).map(round(3)), arb, 'Arbitrary roundtrip');
+})
+
+test("oklrab: oklrab <-> oklab", () => {
+    // White
+    // oklab L=1 -> oklrab Lr approx 1
+    // toeInv(1) ~= 1
+    is(space.oklab.oklrab(1, 0, 0).map(round(3)), [1, 0, 0]);
+    is(space.oklrab.oklab(1, 0, 0).map(round(3)), [1, 0, 0]);
+
+    // Gray
+    // oklab L=0.5 -> oklrab Lr should be different
+    var gray = space.oklab.oklrab(0.5, 0, 0);
+    // toeInv(0.5) is not 0.5.
+    // It should be roughly 0.5^3 = 0.125 (if it was pure power)
+    // checking rough range
+    if (gray[0] == 0.5) throw new Error("oklrab L should differ from oklab L for gray");
+
+    // Roundtrip
+    is(space.oklrab.oklab(...gray).map(round(4)), [0.5, 0, 0]);
+});
+
+test("oklrch: oklrch <-> oklrab", () => {
+    // Similar to oklch <-> oklab but for Linear Lightness space
+    // White
+    is(space.oklrab.oklrch(1, 0, 0).map(round(3)), [1, 0, 0]);
+
+    // Red-ish color
+    // oklrab [0.5, 0.2, 0.1] -> oklrch [0.5, C, h]
+    // C = sqrt(0.2^2 + 0.1^2) = sqrt(0.05) ~= 0.2236
+    // h = atan2(0.1, 0.2)
+    var c = space.oklrab.oklrch(0.5, 0.2, 0.1);
+    is(round(3)(c[0]), 0.5); // L should match
+    is(round(2)(c[1]), 0.22); // C
+
+    // Roundtrip
+    is(space.oklrch.oklrab(...c).map(round(4)), [0.5, 0.2, 0.1]);
+});
+
+test("jzazbz: jzazbz <-> xyz", () => {
+    // Roundtrip
+    let xyz = [0.95047, 1.00000, 1.08883]; // D65 White
+    let jz = space.xyz.jzazbz(...xyz);
+    // console.log('Jz for White:', jz);
+
+    // Check reversibility
+    is(space.jzazbz.xyz(...jz).map(round(4)), xyz.map(round(4)));
+
+    // Black
+    is(space.xyz.jzazbz(0, 0, 0).map(round(4)), [0, 0, 0]);
+});
+
+test("jzczhz: jzczhz <-> jzazbz", () => {
+    // Roundtrip
+    let jz = [0.15, 0.05, -0.05];
+    let polar = space.jzazbz.jzczhz(...jz);
+
+    is(space.jzczhz.jzazbz(...polar).map(round(4)), jz);
+});

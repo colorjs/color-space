@@ -65,6 +65,13 @@ rgb.hsl(200, 230, 100);
 * [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space)
 * [x] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
 * [x] [OKLAB](https://bottosson.github.io/posts/oklab/)
+* [x] [OKLCH](https://bottosson.github.io/posts/oklab/#the-oklch-color-space)
+* [x] [OKHSL](https://bottosson.github.io/posts/okhsl-and-okhsv/)
+* [x] [OKHSV](https://bottosson.github.io/posts/okhsl-and-okhsv/)
+* [x] [OKLRAB](https://bottosson.github.io/posts/colorpicker/) — linear-lightness Oklab.
+* [x] [OKLRCH](https://bottosson.github.io/posts/colorpicker/) — polar form of Oklrab.
+* [x] [Jzazbz](https://drafts.csswg.org/css-color-hdr/#Jzazbz) — perceptually uniform HDR color space.
+* [x] [JzCzHz](https://drafts.csswg.org/css-color-hdr/#JzCzhz) — polar form of Jzazbz.
 * [ ] [Munsell](https://en.wikipedia.org/wiki/Munsell_color_system)
 * [ ] [NCS](https://en.wikipedia.org/wiki/Natural_Color_System)
 * [ ] [PMS](https://en.wikipedia.org/wiki/Pantone)

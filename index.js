@@ -32,7 +32,6 @@ import luv from './luv.js'
 import lchuv from './lchuv.js'
 import hsluv from './hsluv.js'
 import hpluv from './hpluv.js'
-import oklab from './oklab.js'
 import cubehelix from './cubehelix.js'
 import coloroid from './coloroid.js'
 import hcg from './hcg.js'
@@ -43,6 +42,14 @@ import osaucs from './osaucs.js'
 import hsp from './hsp.js'
 import hsm from './hsm.js'
 import lrgb from './lrgb.js'
+import oklab from './oklab.js'
+import oklch from './oklch.js'
+import okhsl from './okhsl.js'
+import okhsv from './okhsv.js'
+import oklrab from './oklrab.js'
+import oklrch from './oklrch.js'
+import jzazbz from './jzazbz.js'
+import jzczhz from './jzczhz.js'
 
 
 /**
@@ -84,4 +91,4 @@ function createConverter(fromSpace, toSpaceName) {
 }
 
 // register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab].map(register)
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz].map(register)

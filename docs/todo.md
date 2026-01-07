@@ -1,7 +1,6 @@
 ## Core
-
   * [ ] All available color space conversions
-  * [ ] color-io conversions
+  * [x] color-io conversions
 
 ## [ ] WASM versions
 
