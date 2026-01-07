@@ -32,7 +32,7 @@ jpeg.rgb = function (y, cb, cr) {
 	// Original formula: r = y_real + 1.402*(cr_real - 128)
 	// With our encoding: r = y + 1.402*(cr - 0.5019607843...)
 	const center = 128 / 255;  // 0.5019607843137255
-	
+
 	return [
 		y + 1.402 * (cr - center),
 		y - 0.34414 * (cb - center) - 0.71414 * (cr - center),
@@ -63,7 +63,7 @@ rgb.jpeg = function (r, g, b) {
 	// cb = 128/255 - 0.168736*r - 0.331264*g + 0.5*b
 	// cr = 128/255 + 0.5*r - 0.418688*g - 0.081312*b
 	const center = 128 / 255;  // 0.5019607843137255
-	
+
 	return [
 		0.299 * r + 0.587 * g + 0.114 * b,
 		center - 0.168736 * r - 0.331264 * g + 0.5 * b,

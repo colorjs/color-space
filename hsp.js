@@ -143,4 +143,3 @@ rgb.hsp = function (r, g, b) {
   //@ts-ignore
   return [h, s, p];
 };
-

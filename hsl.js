@@ -11,7 +11,7 @@ var hsl = {
 		var t1, t2, t3, rgb, val, i = 0;
 
 		if (s === 0) return val = l, [val, val, val];
-		
+
 		t2 = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		t1 = 2 * l - t2;
 

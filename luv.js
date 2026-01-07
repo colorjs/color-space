@@ -16,10 +16,10 @@ var luv = {
 	xyz: function (l, u, v, i, o) {
 		// L is normalized to [0,1], u and v are signed values (centered at 0)
 		// Our encoding: L_real = l*100, u_real = u*100, v_real = v*100
-		// 
+		//
 		// Original formula uses unbounded u, v values
 		// We divide by 100 to scale them, but they remain signed and unbounded
-		
+
 		var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 		if (l === 0) return [0, 0, 0];

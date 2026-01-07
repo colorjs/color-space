@@ -509,7 +509,7 @@ test('ycbcr: rgb -> ycbcr', function () {
 	// rgb.ycbcr returns normalized values (passthrough from ypbpr)
 	const black = space.rgb.ycbcr(0, 0, 0);
 	is(black.map(round(2)), space.rgb.ypbpr(0, 0, 0).map(round(2)));
-	
+
 	const white = space.rgb.ycbcr(1, 1, 1);
 	is(white.map(round(2)), space.rgb.ypbpr(1, 1, 1).map(round(2)));
 });
@@ -539,7 +539,7 @@ test('xvycc: rgb -> xvycc', function () {
 	// Passthrough from ypbpr
 	const black = space.rgb.xvycc(0, 0, 0);
 	is(black.map(round(2)), space.rgb.ypbpr(0, 0, 0).map(round(2)));
-	
+
 	const white = space.rgb.xvycc(1, 1, 1);
 	is(white.map(round(2)), space.rgb.ypbpr(1, 1, 1).map(round(2)));
 });

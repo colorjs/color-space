@@ -18,7 +18,7 @@ var hpluv = {
 		// Normalize output (lightness 0-100 → 0-1, hue 0-360 → 0-1)
 		return [lch[0] / 100, lch[1], lch[2] / 360];
 	},
-	xyz: function (h, s, l) { 
+	xyz: function (h, s, l) {
 		// Denormalize input for library
 		const lch = _hsluv.hpluvToLch([h * 360, s * 100, l * 100]);
 		// Pass normalized LCH to lchuv.xyz
@@ -43,8 +43,8 @@ lchuv.hpluv = (l, c, h) => {
 	// Normalize output to 0-1 ranges
 	return [hpl[0] / 360, hpl[1] / 100, hpl[2] / 100];
 };
-xyz.hpluv = function (x, y, z) { 
+xyz.hpluv = function (x, y, z) {
 	const lch = xyz.lchuv(x, y, z);
 	// lch is normalized, pass to lchuv.hpluv
-	return lchuv.hpluv(lch[0], lch[1], lch[2]); 
+	return lchuv.hpluv(lch[0], lch[1], lch[2]);
 };
