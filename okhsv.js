@@ -24,13 +24,13 @@ function spow(a, b) {
 }
 
 function constrain(angle) {
-	return ((angle % 360) + 360) % 360;
+	return ((angle % 1) + 1) % 1;
 }
 
 // Okhsv -> Oklab
 okhsv.oklab = function (h, s, v) {
 	// Convert from Okhsv to Oklab.
-	h = constrain(h) / 360.0;
+	h = constrain(h);
 
 	var l = toeInv(v);
 	var a = null;
@@ -125,7 +125,7 @@ oklab.okhsv = function (l, a, b) {
 	if (Math.abs(s) < ε || v === 0.0) {
 		h = 0;
 	} else {
-		h = constrain(h * 360);
+		h = constrain(h);
 	}
 
 	return [h, s, v];

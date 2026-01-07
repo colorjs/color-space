@@ -10,8 +10,6 @@ import rgb from './rgb.js';
 
 var tsl = {
 	name: 'tsl',
-	min: [0, 0, 0],
-	max: [1, 1, 1],
 	channel: ['tint', 'saturation', 'lightness'],
 };
 

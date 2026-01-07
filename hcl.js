@@ -21,6 +21,7 @@ const Epsilon = 1e-10;
 
 const hcl = {
 	name: 'hcl',
+	channel: ['hue', 'chroma', 'luminance'],
 };
 
 /**

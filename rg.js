@@ -11,6 +11,7 @@ import rgb from './rgb.js';
 
 const rg = {
 	name: 'rg',
+	channel: ['r', 'g'],
 };
 
 /**

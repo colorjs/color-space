@@ -7,8 +7,6 @@ import rgb from './rgb.js';
 
 var yuv = ({
 	name: 'yuv',
-	min: [0, -0.5, -0.5],
-	max: [1, 0.5, 0.5],
 	channel: ['Y', 'U', 'V'],
 });
 

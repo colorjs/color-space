@@ -19,8 +19,6 @@ var defaults = {
 var cubehelix = {
 	name: 'cubehelix',
 	channel: ['fraction'],
-	min: [0],
-	max: [1],
 	defaults
 };
 

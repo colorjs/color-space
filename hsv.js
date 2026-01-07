@@ -7,12 +7,10 @@ import hsl from './hsl.js';
 
 var hsv = {
 	name: 'hsv',
-	min: [0, 0, 0],
-	max: [360, 1, 1],
 	channel: ['hue', 'saturation', 'value'],
 
 	rgb: function (h, s, v) {
-		h = h / 60;
+		h = h * 6;
 		var hi = (Math.floor(h) % 6);
 
 		var f = h - Math.floor(h),
@@ -81,10 +79,10 @@ rgb.hsv = function (r, g, b) {
 
 	//FIXME h is possibly undefined
 	//@ts-ignore
-	h = Math.min(h * 60, 360);
+	h = Math.min(h / 6, 1);
 
 	if (h < 0) {
-		h += 360;
+		h += 1;
 	}
 
 	v = max;

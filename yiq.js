@@ -7,8 +7,6 @@ import rgb from './rgb.js';
 
 var yiq = ({
 	name: 'yiq',
-	min: [0, -0.5957, -0.5226],
-	max: [1, 0.5957, 0.5226],
 	channel: ['Y', 'I', 'Q'],
 });
 

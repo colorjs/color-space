@@ -7,10 +7,8 @@ import hsl from './hsl.js';
 
 var hwb = {
 	name: 'hwb',
-	max: [360, 1, 1],
 	channel: ['hue', 'whiteness', 'blackness'],
 	rgb: function (h, wh, bl) {
-		h = h / 360;
 		var ratio = wh + bl,
 			i, v, f, n;
 

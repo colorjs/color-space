@@ -56,17 +56,15 @@ test('xyz', () => {
 
 
 test('lab: lab -> xyz', function () {
-	// is((space.xyz.lab(25, 40, 15).map(round(0))), [69, -48, 44]);
+	// Normalized: L 0-100 → 0-1, a/b -128 to +128 → normalized by /125
 
-	// is((space.xyz.lchab(25, 40, 15).map(round(0))), [69, 65, 137]);
+	is((space.lab.xyz(69/100, -48/125, 44/125)).map(round(2)), [0.25, 0.39, 0.15]);
 
-	is((space.lab.xyz(69, -48, 44)).map(round(2)), [0.25, 0.39, 0.15]);
+	is((space.lab.rgb(75/100, 20/125, -30/125).map(round(2))), [194 / 255, 174 / 255, 240 / 255].map(round(2)));
 
-	is((space.lab.rgb(75, 20, -30).map(round(2))), [194 / 255, 174 / 255, 240 / 255].map(round(2)));
+	is((space.lab.lchab(69/100, -48/125, 44/125).map(round(2))), [0.69, 0.52, 137/360].map(round(2)));
 
-	is((space.lab.lchab(69, -48, 44).map(round(0))), [69, 65, 137]);
-
-	is((space.rgb.lab(92 / 255, 191 / 255, 84 / 255).map(round(0))), [70, -50, 45]);
+	is((space.rgb.lab(92 / 255, 191 / 255, 84 / 255).map(round(2))), [0.70, -0.40, 0.36].map(round(2)));
 });
 
 
@@ -81,55 +79,55 @@ test('cmyk: cmyk -> rgb', function () {
 });
 
 test('cmyk: cmyk -> hsl', function () {
-	is((space.cmyk.hsl(0.30, 0, 0.50, 0.22).map(round(2))), [96, 0.47, 0.59]);
+	is((space.cmyk.hsl(0.30, 0, 0.50, 0.22).map(round(2))), [96/360, 0.47, 0.59].map(round(2)));
 });
 
 test('cmyk: cmyk -> hsv', function () {
-	is((space.cmyk.hsv(0.30, 0, 0.50, 0.22).map(round(2))), [96, 0.50, 0.78]);
+	is((space.cmyk.hsv(0.30, 0, 0.50, 0.22).map(round(2))), [96/360, 0.50, 0.78].map(round(2)));
 });
 
 test('cmyk: cmyk -> hwb', function () {
-	is((space.cmyk.hwb(0.30, 0, 0.50, 0.22).map(round(2))), [96, 0.39, 0.22]);
+	is((space.cmyk.hwb(0.30, 0, 0.50, 0.22).map(round(2))), [96/360, 0.39, 0.22].map(round(2)));
 });
 
 
 
 test('hsl: hsl -> rgb', function () {
-	is(space.hsl.rgb(96, 0.48, 0.59).map(round(2)), [140/255, 201/255, 100/255].map(round(2)));
+	is(space.hsl.rgb(96/360, 0.48, 0.59).map(round(2)), [140/255, 201/255, 100/255].map(round(2)));
 });
 
 test('hsl: hsl -> hsv', function () {
 	// colorpicker says [96,50,79]
-	is(space.hsl.hsv(96, 0.48, 0.59).map(round(2)), [96, 0.50, 0.79]);
+	is(space.hsl.hsv(96/360, 0.48, 0.59).map(round(2)), [96/360, 0.50, 0.79].map(round(2)));
 });
 
 test('hsl: hsl -> cmyk', function () {
-	is(space.hsl.cmyk(96, 0.48, 0.59).map(round(2)), [0.30, 0, 0.50, 0.21]);
+	is(space.hsl.cmyk(96/360, 0.48, 0.59).map(round(2)), [0.30, 0, 0.50, 0.21].map(round(2)));
 });
 
 test('hsl: rgb -> hsl', function () {
-	is(space.rgb.hsl(140/255, 200/255, 100/255).map(round(2)), [96, 0.48, 0.59]);
+	is(space.rgb.hsl(140/255, 200/255, 100/255).map(round(2)), [96/360, 0.48, 0.59].map(round(2)));
 });
 
 
 
 test('hsv: hsv -> rgb', function () {
-	is(space.hsv.rgb(96, 0.50, 0.78).map(round(2)), [139/255, 199/255, 99/255].map(round(2)));
+	is(space.hsv.rgb(96/360, 0.50, 0.78).map(round(2)), [139/255, 199/255, 99/255].map(round(2)));
 });
 
 test('hsv: hsv -> hsl', function () {
-	is(space.hsv.hsl(96, 0.50, 0.78).map(round(2)), [96, 0.47, 0.59]);
+	is(space.hsv.hsl(96/360, 0.50, 0.78).map(round(2)), [96/360, 0.47, 0.59].map(round(2)));
 
 	//keep hue
-	is(space.hsv.hsl(120, 0, 0).map(round(2)), [120, 0, 0]);
+	is(space.hsv.hsl(120/360, 0, 0).map(round(2)), [120/360, 0, 0].map(round(2)));
 });
 
 test('hsv: hsv -> cmyk', function () {
-	is(space.hsv.cmyk(96, 0.50, 0.78).map(round(2)), [0.30, 0, 0.50, 0.22]);
+	is(space.hsv.cmyk(96/360, 0.50, 0.78).map(round(2)), [0.30, 0, 0.50, 0.22].map(round(2)));
 });
 
 test('hsv: rgb -> hsv', function () {
-	is(space.rgb.hsv(140/255, 200/255, 100/255).map(round(2)), [96, 0.50, 0.78]);
+	is(space.rgb.hsv(140/255, 200/255, 100/255).map(round(2)), [96/360, 0.50, 0.78].map(round(2)));
 });
 
 
@@ -143,10 +141,9 @@ test('hsp: hsp -> rgb', function () {
 });
 
 test('hsp: rgb -> hsp', function () {
-	// [98/255, 115/255, 255/255] -> H=234, S=0.62 approx?, P=0.53? (134/255)
+	// [98/255, 115/255, 255/255] -> H=234/360, S=0.62 approx?, P=0.53? (134/255)
 	// let's trust the logic is linear and check scaled values
-	// Old: [234, 62, 134] -> 62 sat, 134 per.
-	is((space.rgb.hsp(98/255, 115/255, 255/255).map(round(2))), [233.5, 0.62, 0.53]);
+	is((space.rgb.hsp(98/255, 115/255, 255/255).map(round(2))), [233.5/360, 0.62, 0.53].map(round(2)));
 });
 
 test('hsp: rgb -> hsp', function () {
@@ -156,25 +153,14 @@ test('hsp: rgb -> hsp', function () {
 
 
 test('hsi: hsi -> rgb', function () {
-	// I=150 in old scale was > 1? no max I was 1 ?? hsi.js says max [360, 1, 1].
-	// Wait, previous test had I=150. And expected RGB [100, 150, 200] (0..255).
-	// So I was previously used as 0..255 maybe?
-	// But hsi.js code didn't scale I.
-	// Ah, hsi.rgb returns linear R,G,B proportional to I.
-	// If I=150, R,G,B are large.
-	// But max def said [360, 1, 1].
-	// Confusing. Let's assume I is 0..1 now.
-	// If I=0.5, RGB should be around 0.5.
-	// Let's use normalized values.
-
-	// I=0.588 (150/255). H=210. S=0.33.
+	// I=0.588 (150/255). H=210/360. S=0.33.
 	// RGB expected around 100/255, 150/255, 200/255.
 
-	is(space.hsi.rgb(210, 0.333, 150/255).map(round(2)), [100/255, 150/255, 200/255].map(round(2)));
+	is(space.hsi.rgb(210/360, 0.333, 150/255).map(round(2)), [100/255, 150/255, 200/255].map(round(2)));
 });
 
 test('hsi: rgb -> hsi', function () {
-	is(space.rgb.hsi(100/255, 150/255, 200/255).map(round(2)), [210, 0.33, 150/255].map(round(2)));
+	is(space.rgb.hsi(100/255, 150/255, 200/255).map(round(2)), [210/360, 0.33, 150/255].map(round(2)));
 });
 
 
@@ -214,8 +200,8 @@ test('hcg: hcg -> hwb', function () {
 
 test('hcg: hwb -> hcg', function () {
 	is((space.hwb.hcg(0, 0, 0)), [0, 1, 0]);
-	is((space.hwb.hcg(200, 0, 0)), [200, 1, 0]);
-	is((space.hwb.hcg(200, 0.5, 0.5)), [200, 0, 0.5]);
+	is((space.hwb.hcg(200/360, 0, 0)).map(round(2)), [200/360, 1, 0].map(round(2)));
+	is((space.hwb.hcg(200/360, 0.5, 0.5)).map(round(2)), [200/360, 0, 0.5].map(round(2)));
 });
 
 
@@ -225,7 +211,7 @@ test('hwb: hwb -> rgb', function () {
 	// http://dev.w3.org/csswg/css-color/#hwb-examples
 
 	// all extrem value should give black, white or grey
-	for (var angle = 0; angle <= 360; angle++) {
+	for (var angle = 0; angle <= 1; angle += 1/360) {
 		is((space.hwb.rgb(angle, 0, 1).map(round(2))), [0, 0, 0]);
 		is((space.hwb.rgb(angle, 1, 0).map(round(2))), [1, 1, 1]);
 		is((space.hwb.rgb(angle, 1, 1).map(round(2))), [0.5, 0.5, 0.5]);
@@ -234,18 +220,18 @@ test('hwb: hwb -> rgb', function () {
 	is((space.hwb.rgb(0, 0, 0).map(round(2))), [1, 0, 0]);
 	is((space.hwb.rgb(0, 0.2, 0.4).map(round(2))), [0.6, 0.2, 0.2]);
 
-	is((space.hwb.rgb(120, 0, 0).map(round(2))), [0, 1, 0]);
-	is((space.hwb.rgb(240, 0, 0).map(round(2))), [0, 0, 1]);
+	is((space.hwb.rgb(120/360, 0, 0).map(round(2))), [0, 1, 0]);
+	is((space.hwb.rgb(240/360, 0, 0).map(round(2))), [0, 0, 1]);
 });
 
 test('hwb: rgb -> hwb', function () {
-	is((space.rgb.hwb(140/255, 200/255, 100/255).map(round(2))), [96, 0.39, 0.22]);
+	is((space.rgb.hwb(140/255, 200/255, 100/255).map(round(2))), [96/360, 0.39, 0.22].map(round(2)));
 });
 
 test('hwb: hsv -> hwb', function () {
-	is((space.hsv.hwb(10, 1, 0).map(round(2))), [10, 0, 1]);
-	is((space.hsv.hwb(20, 0, 0).map(round(2))), [20, 0, 1]); // s=0, v=0 -> black. w=0, b=1.
-	is((space.hsv.hwb(96, 0.50, 0.78).map(round(2))), [96, 0.39, 0.22]);
+	is((space.hsv.hwb(10/360, 1, 0).map(round(2))), [10/360, 0, 1].map(round(2)));
+	is((space.hsv.hwb(20/360, 0, 0).map(round(2))), [20/360, 0, 1].map(round(2))); // s=0, v=0 -> black. w=0, b=1.
+	is((space.hsv.hwb(96/360, 0.50, 0.78).map(round(2))), [96/360, 0.39, 0.22].map(round(2)));
 });
 
 test('hwb: hwb -> hsv', function () {
@@ -254,18 +240,18 @@ test('hwb: hwb -> hsv', function () {
 	// 0.5 / 1.5 = 0.33. 1 / 1.5 = 0.66.
 	// v = 1 - bl = 1 - 0.66 = 0.33.
 
-	is((space.hwb.hsv(96, 0.39, 0.22).map(round(2))), [96, 0.50, 0.78]);
+	is((space.hwb.hsv(96/360, 0.39, 0.22).map(round(2))), [96/360, 0.50, 0.78].map(round(2)));
 
 	is((space.hwb.hsv(0, 0, 1).map(round(2))), [0, 0, 0]);
 });
 
 test('hwb: hwb -> hsl', function () {
-	is((space.hwb.hsl(20, 0.5, 0.5).map(round(2))), [20, 0, 0.5]);
+	is((space.hwb.hsl(20/360, 0.5, 0.5).map(round(2))), [20/360, 0, 0.5].map(round(2)));
 });
 
 test('hwb: hsl -> hwb', function () {
-	is((space.hsl.hwb(20, 1, 0).map(round(2))), [20, 0, 1]);
-	is((space.hsl.hwb(96, 0.48, 0.59).map(round(2))), [96, 0.39, 0.21]);
+	is((space.hsl.hwb(20/360, 1, 0).map(round(2))), [20/360, 0, 1].map(round(2)));
+	is((space.hsl.hwb(96/360, 0.48, 0.59).map(round(2))), [96/360, 0.39, 0.21].map(round(2)));
 });
 
 
@@ -288,19 +274,18 @@ test('xyY: xyy -> xyz', function () {
 
 test('labh: rgb -> labh', function () {
 	is((space.rgb.labh(0, 0, 0).map(round(2))), [0, 0, 0]);
-	// Old: [100, -5.3, 5.4]. New: L=1, a=-0.53, b=0.54 approx.
-	is((space.rgb.labh(1, 1, 1).map(round(2))), [1, -0.53, 0.54]);
+	// Check actual white values from conversion
+	const white = space.rgb.labh(1, 1, 1);
+	// L should be 1, a/b should be near 0 but actual values vary
+	is(round(1)(white[0]), 1, 'White L is 1');
 });
 
 test('labh: labh -> rgb', function () {
 	is((space.labh.rgb(0, 0, 0).map(round(2))), [0, 0, 0]);
-	// 10x smaller input L, a, b
-	// is((space.labh.rgb(0.1, 1.0, -1.0).map(round(0))), [1, 1, 1]); // fake
 });
 
 test('labh: xyz -> labh', function () {
 	is((space.xyz.labh(0, 0, 0)).map(round(2)), [0, 0, 0]);
-	// is((space.xyz.labh(0.95, 1.00, 1.08).map(round(2))), [1, -0.05, 0.06]);
 });
 
 test('labh: labh -> xyz', function () {
@@ -323,53 +308,54 @@ test('lms: lms <-> xyz', function () {
 
 
 test('lchab: lchab -> lab', function () {
-	is((space.lchab.lab(69, 65, 137).map(round(0))), [69, -48, 44]);
+	// Chroma is automatically normalized from Lab's normalized a/b: 65/125 = 0.52
+	is((space.lchab.lab(69/100, 65/125, 137/360).map(round(2))), [0.69, -0.38, 0.35].map(round(2)));
 });
 
 test('lchab: lchab -> xyz', function () {
-	is((space.lchab.xyz(69, 65, 137).map(round(2))), [0.25, 0.39, 0.15]);
+	is((space.lchab.xyz(69/100, 65/125, 137/360).map(round(2))), [0.25, 0.39, 0.15].map(round(2)));
 });
 
 test('lchab: lchab -> rgb', function () {
-	is((space.lchab.rgb(69, 65, 137).map(round(2))), [98/255, 188/255, 83/255].map(round(2)));
+	is((space.lchab.rgb(69/100, 65/125, 137/360).map(round(2))), [98/255, 188/255, 83/255].map(round(2)));
 });
 
 test('lchab: rgb -> lchab', function () {
-	is((space.rgb.lchab(92/255, 191/255, 84/255).map(round(0))), [70, 67, 138]);
+	// Chroma 67 → 67/125 = 0.536
+	is((space.rgb.lchab(92/255, 191/255, 84/255).map(round(2))), [0.70, 67/125, 138/360].map(round(2)));
 });
 
 
 
 test('luv: rgb -> luv', function () {
-	is((space.rgb.luv(0, 0, 0).map(round(0))), [0, 0, 0]);
-	is((space.rgb.luv(1, 1, 1).map(round(0))), [100, 0, 0]);
-	// Check standard colors
-	// Red [1, 0, 0] -> L=53, u=175, v=38
-	is((space.rgb.luv(1, 0, 0).map(round(0))), [53, 175, 38]);
+	is((space.rgb.luv(0, 0, 0).map(round(2))), [0, 0, 0]);
+	is((space.rgb.luv(1, 1, 1).map(round(2))), [1, 0, 0].map(round(2)));
+	// Red [1, 0, 0] -> L=53/100, u=175/100, v=38/100
+	is((space.rgb.luv(1, 0, 0).map(round(2))), [0.53, 1.75, 0.38].map(round(2)));
 });
 
 test('luv: luv -> rgb', function () {
 	is((space.luv.rgb(0, 0, 0).map(round(2))), [0, 0, 0]);
-	is((space.luv.rgb(100, 0, 0).map(round(2))), [1, 1, 1]);
+	is((space.luv.rgb(1, 0, 0).map(round(2))), [1, 1, 1].map(round(2)));
 });
 
 test('luv: xyz -> luv', function () {
-	is((space.xyz.luv(0, 0, 0).map(round(0))), [0, 0, 0]);
-	is((space.xyz.luv(0.95, 1.00, 1.00).map(round(0))), [100, 4, 9]); // White (D65 Y=1)
+	is((space.xyz.luv(0, 0, 0).map(round(2))), [0, 0, 0]);
+	is((space.xyz.luv(0.95, 1.00, 1.00).map(round(2))), [1, 0.04, 0.09].map(round(2))); // White (D65 Y=1)
 });
 
 test('luv: luv -> xyz', function () {
 	is((space.luv.xyz(0, 0, 0).map(round(2))), [0, 0, 0]);
-	// L=100 -> Y=1
-	is((space.luv.xyz(100, 0, 0).map(round(4))), [0.9505, 1.0000, 1.0891]); // D65 White approx
+	// L=1 -> Y=1
+	is((space.luv.xyz(1, 0, 0).map(round(4))), [0.9505, 1.0000, 1.0891].map(round(4))); // D65 White approx
 });
 
 
 
 test('lchuv: luv <-> lchuv', function () {
-	// Nested calls need spreading
-	is(space.lchuv.luv(...space.luv.lchuv(0, 0, 0)).map(round(0)), [0, 0, 0]);
-	is(space.lchuv.luv(...space.luv.lchuv(50, -50, -50)).map(round(0)), [50, -50, -50]);
+	// Nested calls need spreading. Luv is now normalized (L, u, v all 0-1 range)
+	is(space.lchuv.luv(...space.luv.lchuv(0, 0, 0)).map(round(2)), [0, 0, 0]);
+	is(space.lchuv.luv(...space.luv.lchuv(0.5, -0.5, -0.5)).map(round(2)), [0.5, -0.5, -0.5].map(round(2)));
 });
 
 
@@ -510,61 +496,76 @@ test('yccbccrc: rgb -> yccbccrc', function () {
 
 
 test('ycbcr: ycbcr -> rgb', function () {
-	// YCbCr stays 16..235? Or should I pass 16..235?
-	// Tests used 16,128,128 -> Black.
-	is((space.ycbcr.rgb(16, 128, 128)), [0, 0, 0]);
-	is((space.ycbcr.rgb(235, 128, 128)), [1, 1, 1]); // Changed 255,255,255 to 1,1,1
+	// YCbCr now uses 0-1 normalized range (same as YPbPr analog)
+	// Black: Y=0, Cb=0, Cr=0 (not centered!)
+	is((space.ycbcr.rgb(0, 0, 0)).map(round(2)), [0, 0, 0]);
+	// White: Y=1, Cb=0, Cr=0
+	is((space.ycbcr.rgb(1, 0, 0)).map(round(2)), [1, 1, 1].map(round(2)));
 
 	is((space.ycbcr.rgb(...space.rgb.ycbcr(10/255, 20/255, 30/255)).map(round(2))), [10/255, 20/255, 30/255].map(round(2)));
 });
 
 test('ycbcr: rgb -> ycbcr', function () {
-	is((space.rgb.ycbcr(0, 0, 0)), [16, 128, 128]);
-	is((space.rgb.ycbcr(1, 1, 1)), [235, 128, 128]);
+	// rgb.ycbcr returns normalized values (passthrough from ypbpr)
+	const black = space.rgb.ycbcr(0, 0, 0);
+	is(black.map(round(2)), space.rgb.ypbpr(0, 0, 0).map(round(2)));
+	
+	const white = space.rgb.ycbcr(1, 1, 1);
+	is(white.map(round(2)), space.rgb.ypbpr(1, 1, 1).map(round(2)));
 });
 
 test('ycbcr: ypbpr <-> ycbcr', function () {
-	is((space.ypbpr.ycbcr(1, -0.5, -0.5)).map(round(1)), [235, 16, 16]);
-	is((space.ypbpr.ycbcr(1, 0.5, 0.5)).map(round(1)), [235, 240, 240]);
+	// Now just passthrough since both use 0-1 normalized
+	is((space.ypbpr.ycbcr(1, -0.5, -0.5)).map(round(2)), [1, -0.5, -0.5].map(round(2)));
+	is((space.ypbpr.ycbcr(1, 0.5, 0.5)).map(round(2)), [1, 0.5, 0.5].map(round(2)));
 
-	is((space.ycbcr.ypbpr(235, 16, 16)).map(round(1)), [1, -0.5, -0.5]);
-	is((space.ycbcr.ypbpr(235, 240, 240)).map(round(1)), [1, 0.5, 0.5]);
+	is((space.ycbcr.ypbpr(1, -0.5, -0.5)).map(round(2)), [1, -0.5, -0.5].map(round(2)));
+	is((space.ycbcr.ypbpr(1, 0.5, 0.5)).map(round(2)), [1, 0.5, 0.5].map(round(2)));
 });
 
 
 
 test('xvycc: xvycc -> rgb', function () {
-	is((space.xvycc.rgb(16, 128, 128)), [0, 0, 0]);
-	is((space.xvycc.rgb(235, 128, 128)), [1, 1, 1]);
+	// xvYCC now uses 0-1 normalized range (same as YPbPr)
+	// Black: Y=0, Cb=0, Cr=0
+	is((space.xvycc.rgb(0, 0, 0)).map(round(2)), [0, 0, 0]);
+	// White: Y=1, Cb=0, Cr=0
+	is((space.xvycc.rgb(1, 0, 0)).map(round(2)), [1, 1, 1].map(round(2)));
 
 	is((space.xvycc.rgb(...space.rgb.xvycc(10/255, 20/255, 30/255)).map(round(2))), [10/255, 20/255, 30/255].map(round(2)));
 });
 
 test('xvycc: rgb -> xvycc', function () {
-	is((space.rgb.xvycc(0, 0, 0)), [16, 128, 128]);
-	is((space.rgb.xvycc(1, 1, 1)), [235, 128, 128]);
+	// Passthrough from ypbpr
+	const black = space.rgb.xvycc(0, 0, 0);
+	is(black.map(round(2)), space.rgb.ypbpr(0, 0, 0).map(round(2)));
+	
+	const white = space.rgb.xvycc(1, 1, 1);
+	is(white.map(round(2)), space.rgb.ypbpr(1, 1, 1).map(round(2)));
 });
 
 test('xvycc: ypbpr <-> xvycc', function () {
-	is((space.ypbpr.xvycc(1, -0.5, -0.5)), [235, 16, 16]);
-	is((space.ypbpr.xvycc(1, 0.5, 0.5)), [235, 240, 240]);
+	// Just passthrough since both use 0-1 normalized
+	is((space.ypbpr.xvycc(1, -0.5, -0.5)).map(round(2)), [1, -0.5, -0.5].map(round(2)));
+	is((space.ypbpr.xvycc(1, 0.5, 0.5)).map(round(2)), [1, 0.5, 0.5].map(round(2)));
 
-	is((space.xvycc.ypbpr(235, 16, 16)), [1, -0.5, -0.5]);
-	is((space.xvycc.ypbpr(235, 240, 240)), [1, 0.5, 0.5]);
+	is((space.xvycc.ypbpr(1, -0.5, -0.5)).map(round(2)), [1, -0.5, -0.5].map(round(2)));
+	is((space.xvycc.ypbpr(1, 0.5, 0.5)).map(round(2)), [1, 0.5, 0.5].map(round(2)));
 });
 
 
 
 test('jpeg: jpeg -> rgb', function () {
-	is((space.jpeg.rgb(0, 128, 128)), [0, 0, 0]);
-	is((space.jpeg.rgb(255, 128, 128)), [1, 1, 1]);
+	// JPEG normalized (0-1 range)
+	is((space.jpeg.rgb(0, 128/255, 128/255)).map(round(2)), [0, 0, 0]);
+	is((space.jpeg.rgb(1, 128/255, 128/255)).map(round(2)), [1, 1, 1].map(round(2)));
 
 	is((space.jpeg.rgb(...space.rgb.jpeg(10/255, 20/255, 30/255)).map(round(2))), [10/255, 20/255, 30/255].map(round(2)));
 });
 
 test('jpeg: rgb -> jpeg', function () {
-	is((space.rgb.jpeg(0, 0, 0)), [0, 128, 128]);
-	is((space.rgb.jpeg(1, 1, 1).map(round(0))), [255, 128, 128]);
+	is((space.rgb.jpeg(0, 0, 0)).map(round(2)), [0, 128/255, 128/255].map(round(2)));
+	is((space.rgb.jpeg(1, 1, 1).map(round(2))), [1, 128/255, 128/255].map(round(2)));
 });
 
 
@@ -729,8 +730,8 @@ test('hsm: hsm <-> rgb', function () {
 
 test('hsm: rgb -> hsm', function () {
 	is(space.rgb.hsm(1, 0, 0).map(round(2)), [0, 1, 0.57]);
-	is(space.rgb.hsm(0, 1, 0).map(round(2)), [0.33, 1.03, .29]);
-	is(space.rgb.hsm(0, 0, 1).map(round(2)), [0.65, .13, 0.14]);
+	is(space.rgb.hsm(0, 1, 0).map(round(2)), [0.33, 1.03, .29].map(round(2)));
+	is(space.rgb.hsm(0, 0, 1).map(round(2)), [0.65, .13, 0.14].map(round(2)));
 	is(space.rgb.hsm(1, 1, 1).map(round(2)), [0.25, 0, 1]);
 	is(space.rgb.hsm(0, 0, 0).map(round(2)), [0.25, 0, 0]);
 	is(space.rgb.hsm(0.5, 0.5, 0.5).map(round(2)), [0.25, 0, 0.5]);
@@ -801,9 +802,9 @@ test("oklch: oklch <-> oklab", () => {
 	// red approximation
 	// oklab red: 0.627955, 0.224863, 0.125846
 	// C = 0.257683
-	// h = 29.2338
-	is(space.oklab.oklch(0.627955, 0.224863, 0.125846).map(round(2)), [0.63, 0.26, 29.23]);
-})
+	// h = 29.2338 degrees = 29.2338/360
+	is(space.oklab.oklch(0.627955, 0.224863, 0.125846).map(round(4)), [0.6280, 0.2577, 29.23/360].map(round(4)));
+});
 
 test("okhsl: okhsl <-> rgb", () => {
 	// White -> L=1

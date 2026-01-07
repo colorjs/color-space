@@ -7,8 +7,6 @@ import rgb from './rgb.js';
 
 var hsm = {
     name: 'hsm',
-    min: [0, 0, 0],
-    max: [1, 1, 1],
     channel: ['hue', 'saturation', 'mixture']
 };
 

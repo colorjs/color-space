@@ -20,19 +20,14 @@ import ypbpr from './ypbpr.js';
 
 var xvycc = {
 	name: 'xvycc',
-	min: [0, 0, 0],
-	max: [255, 255, 255],
 	channel: ['Y', 'Cb', 'Cr'],
 	/**
-	 * From digital to analog form.
-	 * Scale to min/max ranges
+	 * xvYCC to YPbPr (digital to analog)
+	 * Input is normalized 0-1, output is analog YPbPr 0-1
 	 */
 	ypbpr: function (y, cb, cr) {
-		return [
-			(y - 16) / 219,
-			(cb - 128) / 224,
-			(cr - 128) / 224
-		];
+		// Both in 0-1 range, return as-is
+		return [y, cb, cr];
 	},
 
         /**
@@ -52,18 +47,15 @@ var xvycc = {
 export default (xvycc);
 
 /**
- * From analog to digital form.
- * Simple scale to min/max ranges
+ * YPbPr to xvYCC (analog to digital)
+ * Input is analog YPbPr 0-1, output is normalized 0-1
  *
- * @return {Array<number>} Resulting digitized form
+ * @return {Array<number>} Resulting digitized form normalized to 0-1
  */
 ypbpr.xvycc = function (y, pb, pr) {
-        return [
-                16 + 219 * y,
-                128 + 224 * pb,
-                128 + 224 * pr
-        ];
-}
+	// Both in 0-1 range, return as-is
+        return [y, pb, pr];
+};
 
 
 /**

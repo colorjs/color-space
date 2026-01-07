@@ -10,8 +10,6 @@ import lab from './lab.js';
 //cylindrical lab
 var lchab = {
 	name: 'lchab',
-	min: [0, 0, 0],
-	max: [100, 100, 360],
 	channel: ['lightness', 'chroma', 'hue'],
 
 	xyz: function (l, c, h) {
@@ -21,7 +19,7 @@ var lchab = {
 	lab: function (l, c, h) {
 		var a, b, hr;
 
-		hr = h / 360 * 2 * Math.PI;
+		hr = h * 2 * Math.PI;
 		a = c * Math.cos(hr);
 		b = c * Math.sin(hr);
 		return [l, a, b];
@@ -34,9 +32,9 @@ lab.lchab = function (l, a, b) {
 	var hr, h, c;
 
 	hr = Math.atan2(b, a);
-	h = hr * 360 / 2 / Math.PI;
+	h = hr / (2 * Math.PI);
 	if (h < 0) {
-		h += 360;
+		h += 1;
 	}
 	c = Math.sqrt(a * a + b * b);
 	return [l, c, h];

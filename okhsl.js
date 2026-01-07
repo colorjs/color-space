@@ -318,7 +318,7 @@ function computeMaxSaturation(a, b, lmsToRgb, okCoeff) {
 }
 
 function constrain(angle) {
-	return ((angle % 360) + 360) % 360;
+	return ((angle % 1) + 1) % 1;
 }
 
 // Okhsl -> Oklab
@@ -327,7 +327,7 @@ okhsl.oklab = function (h, s, l) {
 	var L = toeInv(l);
 	var a = null;
 	var b = null;
-	h = constrain(h) / 360.0;
+	h = constrain(h);
 
 	if (L !== 0.0 && L !== 1.0 && s !== 0) {
 		var a_ = Math.cos(tau * h);
@@ -405,7 +405,7 @@ oklab.okhsl = function (l, a, b) {
 			s = 0.0;
 		}
 	} else {
-		h = constrain(h * 360);
+		h = constrain(h);
 	}
 
 	return [h, s, l_];

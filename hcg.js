@@ -8,12 +8,9 @@ import hwb from './hwb.js';
 
 var hcg = {
 	name: 'hcg',
-	min: [0, 0, 0],
-	max: [360, 1, 1],
 	channel: ['hue', 'chroma', 'gray'],
 
 	rgb: function (h, c, g) {
-		h = h / 360;
 		if (c === 0.0) {
 			return [g, g, g];
 		}
@@ -52,13 +49,11 @@ var hcg = {
 			if (l < 0.5) {
 				s = c / (2 * l);
 			} else {
-				s = c / (2 * (1 - l));
-			}
+			s = c / (2 * (1 - l));
 		}
-		return [h * 360, s, l];
-	},
-
-	hsv: function (h, c, g) {
+	}
+	return [h, s, l];
+},	hsv: function (h, c, g) {
 		var v = c + g * (1.0 - c);
 		var res;
 		if (v > 0.0) {
@@ -105,7 +100,7 @@ rgb.hcg = function (r, g, b) {
 	} else {
 		hue = 0;
 	}
-	return [hue * 360, chroma, grayscale];
+	return [hue, chroma, grayscale];
 };
 
 //extend hsl

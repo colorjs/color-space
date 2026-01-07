@@ -5,13 +5,10 @@ import rgb from './rgb.js';
 
 var hsl = {
 	name: 'hsl',
-	min: [0, 0, 0],
-	max: [360, 1, 1],
 	channel: ['hue', 'saturation', 'lightness'],
 
 	rgb: function (h, s, l) {
 		var t1, t2, t3, rgb, val, i = 0;
-		h = h / 360;
 
 		if (s === 0) return val = l, [val, val, val];
 		
@@ -58,10 +55,10 @@ rgb.hsl = function (r, g, b) {
 
 	//FIXME h is possibly undefined
 	//@ts-ignore
-	h = Math.min(h * 60, 360);
+	h = Math.min(h / 6, 1);
 
 	if (h < 0) {
-		h += 360;
+		h += 1;
 	}
 
 	l = (min + max) / 2;

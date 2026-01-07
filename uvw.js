@@ -10,8 +10,6 @@ import xyz from './xyz.js';
 
 var uvw = {
 	name: 'uvw',
-	min: [-134, -140, 0],
-	max: [224, 122, 100],
 	channel: ['U', 'V', 'W'],
 };
 

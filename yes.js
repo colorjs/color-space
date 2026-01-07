@@ -9,8 +9,6 @@ import rgb from './rgb.js';
 
 var yes = {
 	name: 'yes',
-	min: [0, 0, 0],
-	max: [1, 1, 1],
 	channel: ['luminance', 'e-factor', 's-factor']
 };
 

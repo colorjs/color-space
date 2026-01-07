@@ -12,8 +12,6 @@ import rgb from './rgb.js';
 
 var ypbpr = ({
 	name: 'ypbpr',
-	min: [0, -0.5, -0.5],
-	max: [1, 0.5, 0.5],
 	channel: ['Y', 'Pb', 'Pr'],
 });
 

@@ -6,7 +6,7 @@ const jzczhz = {
 };
 
 jzczhz.jzazbz = function(Jz, Cz, hz) {
-	let h = hz * Math.PI / 180;
+	let h = hz * 2 * Math.PI;
 	return [
 		Jz,
 		Cz * Math.cos(h),
@@ -15,9 +15,9 @@ jzczhz.jzazbz = function(Jz, Cz, hz) {
 };
 
 jzazbz.jzczhz = function(Jz, az, bz) {
-	let h = Math.atan2(bz, az) * 180 / Math.PI;
+	let h = Math.atan2(bz, az) / (2 * Math.PI);
 	if (h < 0) {
-		h += 360;
+		h += 1;
 	}
 	return [
 		Jz,

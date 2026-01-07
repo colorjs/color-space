@@ -7,8 +7,6 @@ import xyz from './xyz.js';
 
 var xyy = {
 	name: 'xyy',
-	min: [0, 0, 0],
-	max: [1, 1, 1],
 	channel: ['x', 'y', 'Y'],
 };
 

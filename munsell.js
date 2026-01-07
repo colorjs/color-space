@@ -3,8 +3,6 @@
  */
 var munsell = {
 	name: 'munsell',
-	min: [],
-	max: [],
 	//hue, value, chroma
 	channel: ['H', 'V', 'C']
 }

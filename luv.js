@@ -11,11 +11,15 @@ var luv = {
 	//easyrgb fails to get proper coords
 	//boronine states no rigid limits
 	//colorMine refers this ones:
-	min: [0, -134, -140],
-	max: [100, 224, 122],
 	channel: ['lightness', 'u', 'v'],
 
 	xyz: function (l, u, v, i, o) {
+		// L is normalized to [0,1], u and v are signed values (centered at 0)
+		// Our encoding: L_real = l*100, u_real = u*100, v_real = v*100
+		// 
+		// Original formula uses unbounded u, v values
+		// We divide by 100 to scale them, but they remain signed and unbounded
+		
 		var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 		if (l === 0) return [0, 0, 0];
@@ -37,13 +41,18 @@ var luv = {
 		// un = 0.19783000664283;
 		// vn = 0.46831999493879;
 
-
+		// Compute u', v' from our scaled values
+		// Original: _u = u_real / (13 * L_real) + un
+		// Substituting: _u = (u*100) / (13 * l*100) + un = u / (13*l) + un
 		_u = u / (13 * l) + un || 0;
 		_v = v / (13 * l) + vn || 0;
 
-		y = l > 8 ? yn * Math.pow((l + 16) / 116, 3) : yn * l * k;
+		// Compute Y from L
+		// Original: y = L_real > 8 ? yn * ((L_real + 16)/116)^3 : yn * L_real * k
+		// Threshold: l*100 > 8  =>  l > 0.08
+		y = l > 0.08 ? yn * Math.pow((l * 100 + 16) / 116, 3) : yn * (l * 100) * k;
 
-		//wikipedia method
+		//wikipedia method for X and Z from Y, u', v'
 		x = y * 9 * _u / (4 * _v) || 0;
 		z = y * (12 - 3 * _u - 20 * _v) / (4 * _v) || 0;
 
@@ -91,5 +100,6 @@ xyz.luv = function (x, y, z, i, o) {
 	u = 13 * l * (_u - un);
 	v = 13 * l * (_v - vn);
 
-	return [l, u, v];
+	// Normalize output to 0-1 range
+	return [l / 100, u / 100, v / 100];
 };

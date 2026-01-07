@@ -8,8 +8,6 @@ import rgb from './rgb.js';
 
 var hsi = {
 	name: 'hsi',
-	min: [0, 0, 0],
-	max: [360, 1, 1],
 
 	//hue, saturation, intensity
 	channel: ['hue', 'saturation', 'intensity'],
@@ -26,7 +24,7 @@ export default hsi
  * @return {Array<number>} RGB channel values
  */
 hsi.rgb = function (h, s, i) {
-	h = (h < 0 ? (h % 360) + 360 : (h % 360)) * Math.PI / 180;
+	h = (h < 0 ? (h % 1) + 1 : (h % 1)) * 2 * Math.PI;
 
 	var pi3 = Math.PI / 3;
 
@@ -79,5 +77,5 @@ rgb.hsi = function (r, g, b) {
 
 	var i = sum / 3;
 
-	return [h * 180 / Math.PI, s, i];
+	return [h / (2 * Math.PI), s, i];
 };

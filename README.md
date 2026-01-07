@@ -27,7 +27,7 @@ rgb.hsl(200, 230, 100);
 ## API
 
 ```js
-<fromSpace>.<toSpace>(array);
+<fromSpace>.<toSpace>(...channels);
 <space>.name //space name
 <space>.channel //channel names
 ```

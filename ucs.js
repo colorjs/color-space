@@ -9,8 +9,6 @@ import xyz from './xyz.js';
 
 var ucs = {
 	name: 'ucs',
-	min: [0, 0, 0],
-	max: [100, 100, 100],
 	channel: ['U', 'V', 'W'],
 };
 

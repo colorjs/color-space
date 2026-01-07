@@ -8,8 +8,6 @@ import rgb from './rgb.js';
 
 var hcy = {
 	name: 'hcy',
-	min: [0, 0, 0],
-	max: [360, 1, 1],
 	channel: ['hue', 'chroma', 'luminance'],
 };
 
@@ -24,7 +22,7 @@ export default (hcy);
  * @return {Array<number>} RGB channel values
  */
 hcy.rgb = function (h, s, i) {
-	h = (h < 0 ? (h % 360) + 360 : (h % 360)) * Math.PI / 180;
+	h = (h < 0 ? (h % 1) + 1 : (h % 1)) * 2 * Math.PI;
 
 	var pi3 = Math.PI / 3;
 
@@ -77,5 +75,5 @@ rgb.hcy = function (r, g, b) {
 
 	var i = sum / 3;
 
-	return [h * 180 / Math.PI, s, i];
+	return [h / (2 * Math.PI), s, i];
 };

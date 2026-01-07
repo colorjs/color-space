@@ -8,6 +8,7 @@ import rgb from './rgb.js';
 
 const gray = {
 	name: 'gray',
+	channel: ['gray'],
 };
 
 /**

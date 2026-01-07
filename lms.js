@@ -14,8 +14,6 @@ import xyz from './xyz.js';
 
 var lms = {
 	name: 'lms',
-	min: [0, 0, 0],
-	max: [100, 100, 100],
 	channel: ['long', 'medium', 'short'],
 
 

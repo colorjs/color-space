@@ -9,12 +9,9 @@ const Pr = 0.299,
 
 var hsp = {
   name: 'hsp',
-  min: [0, 0, 0],
-  max: [360, 1, 1],
   channel: ['hue', 'saturation', 'perceived_brightness'],
 
   rgb: function (h, s, p) {
-    h = h / 360.0;
     var r, g, b, part,
       minOverMax = 1.0 - s;
 
@@ -144,6 +141,6 @@ rgb.hsp = function (r, g, b) {
   }
   //FIXME h and s are possibly undefined
   //@ts-ignore
-  return [h * 360.0, s, p];
+  return [h, s, p];
 };
 
