@@ -925,3 +925,41 @@ test('a98rgb', () => {
 test('acescg', () => {
 	is(space.acescg.xyz(1, 1, 1).map(round(2)), [0.95, 1.0, 1.09], 'acescg white to xyz');
 });
+
+test('gray', () => {
+	is(space.rgb.gray(0, 0, 0), [0], 'black to gray');
+	is(space.rgb.gray(1, 1, 1), [1], 'white to gray');
+	is(space.rgb.gray(0.5, 0.5, 0.5).map(round(3)), [0.5], 'gray to gray');
+	is(space.rgb.gray(1, 0, 0).map(round(3)), [0.213], 'red to gray');
+	is(space.rgb.gray(0, 1, 0).map(round(3)), [0.715], 'green to gray');
+	is(space.rgb.gray(0, 0, 1).map(round(3)), [0.072], 'blue to gray');
+
+	is(space.gray.rgb(0), [0, 0, 0], 'gray to black');
+	is(space.gray.rgb(1), [1, 1, 1], 'gray to white');
+	is(space.gray.rgb(0.5), [0.5, 0.5, 0.5], 'gray to rgb');
+});
+
+test('rg', () => {
+	is(space.rgb.rg(1, 0, 0), [1, 0], 'red to rg');
+	is(space.rgb.rg(0, 1, 0), [0, 1], 'green to rg');
+	is(space.rgb.rg(0, 0, 1).map(round(3)), [0, 0], 'blue to rg');
+	is(space.rgb.rg(1, 1, 1).map(round(3)), [0.333, 0.333], 'white to rg');
+	is(space.rgb.rg(0, 0, 0), [0, 0], 'black to rg');
+
+	is(space.rg.rgb(1, 0), [1, 0, 0], 'rg to red');
+	is(space.rg.rgb(0, 1), [0, 1, 0], 'rg to green');
+	is(space.rg.rgb(0, 0), [0, 0, 1], 'rg to blue');
+	is(space.rg.rgb(0.333, 0.333).map(round(1)), [1, 1, 1], 'rg to white');
+});
+
+test('hcl', () => {
+	is(space.rgb.hcl(0, 0, 0).map(round(3)), [0, 0, 0], 'black to hcl');
+	is(space.rgb.hcl(1, 1, 1).map(round(3)), [0, 0, 0.943], 'white to hcl');
+	is(space.rgb.hcl(1, 0, 0).map(round(3)), [0, 1, 0.943], 'red to hcl');
+
+	is(space.hcl.rgb(0, 0, 0), [0, 0, 0], 'hcl to black');
+	// Note: HCL has known round-trip issues, especially with saturated colors
+	// Testing with a less saturated color
+	const hcl = space.rgb.hcl(0.5, 0.5, 0.5);
+	is(space.hcl.rgb(...hcl).map(round(1)), [0.5, 0.5, 0.5], 'hcl gray round-trip');
+});

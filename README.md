@@ -95,18 +95,18 @@ rgb.hsl(200, 230, 100);
 * [x] [CAM16](https://en.wikipedia.org/wiki/Color_appearance_model#CIECAM16)
 * [x] [HCT](https://material.io/blog/science-of-color-design)
 * [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — colormaps for data visualization.
-* [ ] [Gray](http://dev.w3.org/csswg/css-color/#grays)
+* [x] [Gray](http://dev.w3.org/csswg/css-color/#grays)
 * [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
 * [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595)
 * [ ] [Toyo](http://mytoyocolor.com/)
 * [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
 * [x] [HCG](https://github.com/acterhd/hcg-legacy)
-* [ ] [HCL](http://www.chilliant.com/rgb2hsv.html)
+* [x] [HCL](http://www.chilliant.com/rgb2hsv.html)
 * [x] [HSP](http://alienryderflex.com/hsp.html)
-* [ ] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
+* [x] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
 * [x] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198) — computationally effective color space for face recognition.
 * [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
-* [ ] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
+* [x] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
 * [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
 * [x] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428)
 
