@@ -1976,7 +1976,7 @@ var lrgb = {
   max: [1, 1, 1],
   channel: ["red", "green", "blue"]
 };
-lrgb.rgb = (rgb2) => rgb2.map((c) => (c /= 255) > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92);
+lrgb.rgb = (lrgb2) => lrgb2.map((channel) => ((channel /= 255) <= 31308e-7 ? 12.92 * channel : 1.055 * channel ** (1 / 2.4) - 0.055) * 255);
 rgb_default.lrgb = (rgb2) => rgb2.map((c) => c / 255 <= 0.04045 ? c / 255 / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4);
 var lrgb_default = lrgb;
 
