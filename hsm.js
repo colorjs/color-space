@@ -22,7 +22,7 @@ export default hsm
  *
  * @return {Array<number>} RGB channel values
  */
-hsm.rgb = function ([h, s, m]) {
+hsm.rgb = function (h, s, m) {
     // This implementation uses an alternate derivation (with help of GPTs), since the one in paper is incorrect.
     // The idea is that the original RGB is recovered as:
     // [r, g, b] = m + d,
@@ -58,12 +58,13 @@ hsm.rgb = function ([h, s, m]) {
     const dg = R * (u_g * cosTheta + v_g * sinTheta);
     const db = R * (u_b * cosTheta + v_b * sinTheta);
 
-    // 5. Reconstruct RGB (FIXED: add m directly, clamp values)
-    const r = Math.max(0, Math.min(1, m + dr)) * 255;
-    const g = Math.max(0, Math.min(1, m + dg)) * 255;
-    const b = Math.max(0, Math.min(1, m + db)) * 255;
 
-    return [r, g, b];
+	// 5. Reconstruct RGB (FIXED: add m directly, clamp values)
+	const r = Math.max(0, Math.min(1, m + dr));
+	const g = Math.max(0, Math.min(1, m + dg));
+	const b = Math.max(0, Math.min(1, m + db));
+
+	return [r, g, b];
 };
 
 
@@ -74,11 +75,8 @@ hsm.rgb = function ([h, s, m]) {
  *
  * @return {Array<number>} HSM channel values
  */
-rgb.hsm = function ([r, g, b]) {
-    r /= 255, g /= 255, b /= 255;
-
-    let m = (4 * r + 2 * g + b) / 7;
-
+rgb.hsm = function (r, g, b) {
+	let m = (4 * r + 2 * g + b) / 7;
     // distance in the deviation space
     let dr = r - m, dg = g - m, db = b - m;
     let d = Math.sqrt(dr * dr + dg * dg + db * db);

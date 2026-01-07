@@ -27,13 +27,11 @@ export default (jpeg);
  *
  * @return {Array<number>} JPEG values
  */
-jpeg.rgb = function (arr) {
-	var y = arr[0], cb = arr[1], cr = arr[2];
-
+jpeg.rgb = function (y, cb, cr) {
 	return [
-		y + 1.402 * (cr - 128),
-		y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128),
-		y + 1.772 * (cb - 128)
+		(y + 1.402 * (cr - 128)) / 255,
+		(y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128)) / 255,
+		(y + 1.772 * (cb - 128)) / 255
 	]
 };
 
@@ -46,8 +44,10 @@ jpeg.rgb = function (arr) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.jpeg = function (arr) {
-	var r = arr[0], g = arr[1], b = arr[2];
+rgb.jpeg = function (r, g, b) {
+	r *= 255;
+	g *= 255;
+	b *= 255;
 
 	return [
 		0.299 * r + 0.587 * g + 0.114 * b,

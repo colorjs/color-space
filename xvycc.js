@@ -28,9 +28,7 @@ var xvycc = {
 	 * From digital to analog form.
 	 * Scale to min/max ranges
 	 */
-	ypbpr: function (xvycc) {
-		var y = xvycc[0], cb = xvycc[1], cr = xvycc[2];
-
+	ypbpr: function (y, cb, cr) {
 		return [
 			(y - 16) / 219,
 			(cb - 128) / 224,
@@ -38,18 +36,18 @@ var xvycc = {
 		];
 	},
 
-	/**
-	 * xvYCC to RGB
-	 * transform through analog form
-	 *
-	 * @param {Array<number>} arr RGB values
-	 * @param {number} kb
-	 * @param {number} kr
-	 * @return {Array<number>} xvYCC values
-	 */
-	rgb: function (arr, kb, kr) {
-		return ypbpr.rgb(xvycc.ypbpr(arr), kb, kr);
-	}
+        /**
+         * xvYCC to RGB
+         * transform through analog form
+         *
+         * @param {Array<number>} arr RGB values
+         * @param {number} kb
+         * @param {number} kr
+         * @return {Array<number>} xvYCC values
+         */
+        rgb: function (y, cb, cr, kb, kr) {
+                return ypbpr.rgb(...xvycc.ypbpr(y, cb, cr), kb, kr);
+        }
 };
 
 export default (xvycc);
@@ -60,14 +58,12 @@ export default (xvycc);
  *
  * @return {Array<number>} Resulting digitized form
  */
-ypbpr.xvycc = function (ypbpr) {
-	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
-
-	return [
-		16 + 219 * y,
-		128 + 224 * pb,
-		128 + 224 * pr
-	];
+ypbpr.xvycc = function (y, pb, pr) {
+        return [
+                16 + 219 * y,
+                128 + 224 * pb,
+                128 + 224 * pr
+        ];
 }
 
 
@@ -80,6 +76,6 @@ ypbpr.xvycc = function (ypbpr) {
  * @param {number} kr
  * @return {Array<number>} RGB values
  */
-rgb.xvycc = function (arr, kb, kr) {
-	return ypbpr.xvycc(rgb.ypbpr(arr, kb, kr));
+rgb.xvycc = function (r, g, b, kb, kr) {
+        return ypbpr.xvycc(...rgb.ypbpr(r, g, b, kb, kr));
 };

@@ -9,16 +9,14 @@ import hwb from './hwb.js';
 var hcg = {
 	name: 'hcg',
 	min: [0, 0, 0],
-	max: [360, 100, 100],
+	max: [360, 1, 1],
 	channel: ['hue', 'chroma', 'gray'],
 	alias: ['HCG', 'HSG'],
 
-	rgb: function (hcg) {
-		var h = hcg[0] / 360;
-		var c = hcg[1] / 100;
-		var g = hcg[2] / 100;
+	rgb: function (h, c, g) {
+		h = h / 360;
 		if (c === 0.0) {
-			return [g * 255, g * 255, g * 255];
+			return [g, g, g];
 		}
 		var hi = (h % 1) * 6;
 		var v = (hi % 1);
@@ -40,16 +38,15 @@ var hcg = {
 		}
 		var mg = (1.0 - c) * g;
 		var rgb = [
-			(c * pure[0] + mg) * 255,
-			(c * pure[1] + mg) * 255,
-			(c * pure[2] + mg) * 255
+			(c * pure[0] + mg),
+			(c * pure[1] + mg),
+			(c * pure[2] + mg)
 		];
 		return rgb;
 	},
 
-	hsl: function (hcg) {
-		var c = hcg[1] / 100;
-		var g = hcg[2] / 100;
+	hsl: function (h, c, g) {
+		h = h / 360;
 		var l = g * (1.0 - c) + 0.5 * c;
 		var s = 0;
 		if (l < 1.0 && l > 0.0) {
@@ -59,28 +56,24 @@ var hcg = {
 				s = c / (2 * (1 - l));
 			}
 		}
-		return [hcg[0], s * 100, l * 100];
+		return [h * 360, s, l];
 	},
 
-	hsv: function (hcg) {
-		var c = hcg[1] / 100;
-		var g = hcg[2] / 100;
+	hsv: function (h, c, g) {
 		var v = c + g * (1.0 - c);
 		var res;
 		if (v > 0.0) {
 			var f = c / v;
-			res = [hcg[0], f * 100, v * 100];
+			res = [h, f, v];
 		} else {
-			res = [hcg[0], 0, v * 100];
+			res = [h, 0, v];
 		}
 		return res;
 	},
 
-	hwb: function (hcg) {
-		var c = hcg[1] / 100;
-		var g = hcg[2] / 100;
+	hwb: function (h, c, g) {
 		var v = c + g * (1.0 - c);
-		return [hcg[0], (v - c) * 100, (1 - v) * 100];
+		return [h, (v - c), (1 - v)];
 	}
 };
 
@@ -88,10 +81,7 @@ export default (hcg);
 
 
 //append rgb
-rgb.hcg = function (rgb) {
-	var r = rgb[0] / 255;
-	var g = rgb[1] / 255;
-	var b = rgb[2] / 255;
+rgb.hcg = function (r, g, b) {
 	var max = Math.max(Math.max(r, g), b);
 	var min = Math.min(Math.min(r, g), b);
 	var chroma = (max - min);
@@ -116,13 +106,11 @@ rgb.hcg = function (rgb) {
 	} else {
 		hue = 0;
 	}
-	return [hue * 360, chroma * 100, grayscale * 100];
+	return [hue * 360, chroma, grayscale];
 };
 
 //extend hsl
-hsl.hcg = function (hsl) {
-	var s = hsl[1] / 100;
-	var l = hsl[2] / 100;
+hsl.hcg = function (h, s, l) {
 	var c = 0;
 	if (l < 0.5) {
 		c = 2.0 * s * l;
@@ -132,38 +120,34 @@ hsl.hcg = function (hsl) {
 	var res;
 	if (c < 1.0) {
 		var f = (l - 0.5 * c) / (1.0 - c);
-		res = [hsl[0], c * 100, f * 100];
+		res = [h, c, f];
 	} else {
-		res = [hsl[0], c * 100, 0];
+		res = [h, c, 0];
 	}
 	return res;
 };
 
 //extend hsv
-hsv.hcg = function (hsv) {
-	var s = hsv[1] / 100;
-	var v = hsv[2] / 100;
+hsv.hcg = function (h, s, v) {
 	var c = s * v;
 	var res;
 	if (c < 1.0) {
 		var f = (v - c) / (1 - c);
-		res = [hsv[0], c * 100, f * 100];
+		res = [h, c, f];
 	} else {
-		res = [hsv[0], c * 100, 0];
+		res = [h, c, 0];
 	}
 	return res;
 }
 
 
 //extend hwb
-hwb.hcg = function (hwb) {
-	var w = hwb[1] / 100;
-	var b = hwb[2] / 100;
+hwb.hcg = function (h, w, b) {
 	var v = 1 - b;
 	var c = v - w;
 	var g = 0;
 	if (c < 1) {
 		g = (v - c) / (1 - c);
 	}
-	return [hwb[0], c * 100, g * 100];
+	return [h, c, g];
 }

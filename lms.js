@@ -50,9 +50,7 @@ var lms = {
 
 export default lms;
 
-lms.xyz = function (arg, matrix) {
-	var l = arg[0], m = arg[1], s = arg[2];
-
+lms.xyz = function (l, m, s, matrix) {
 	if (!matrix) {
 		matrix = [
 			1.096123820835514, -0.278869000218287, +0.182745179382773,
@@ -68,9 +66,7 @@ lms.xyz = function (arg, matrix) {
 	];
 };
 
-xyz.lms = function (arg, matrix) {
-	var x = arg[0], y = arg[1], z = arg[2];
-
+xyz.lms = function (x, y, z, matrix) {
 	if (!matrix) {
 		matrix = lms.matrix.CAT02
 	}

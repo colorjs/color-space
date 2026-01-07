@@ -72,12 +72,15 @@ const coloroid = {
 	/**
 	 * Backwise - from coloroid to xyY
 	 *
-	 * @param {Array<number>} arg Coloroid values
+	 * @param {number} A
+	 * @param {number} T
+	 * @param {number} V
 	 *
 	 * @return {Array<number>} xyY values
 	 */
-	xyy: function ([A, T, V]) {
+	xyy: function (A, T, V) {
 		//find the closest row in the table
+		var table = this.table;
 		var row;
 		for (var i = 0; i < table.length; i++) {
 			if (A <= table[i][0]) {
@@ -89,12 +92,12 @@ const coloroid = {
 		//FIXME row is possibly undefined
 		var yl = row[4], el = row[2], xl = row[3];
 
-		var Y = V * V / 100;
+		var Y = V * V / 100 / 100;
 
 		var Yl = yl * el * 100;
 
-		var x = (100 * Y * x0 * ew + 100 * xl * el * T - Yl * T * x0 * ew) / (100 * T * el - Yl * T * ew + 100 * Y * ew);
-		var y = (100 * Y + 100 * T * yl * el - Yl * T) / (Y * ew * 100 + T * 100 * el - T * Yl * ew);
+		var x = (100 * Y * x0 * ew * 100 + 100 * xl * el * T - Yl * T * x0 * ew) / (100 * T * el - Yl * T * ew + 100 * Y * ew * 100);
+		var y = (100 * Y * 100 + 100 * T * yl * el - Yl * T) / (Y * 100 * ew * 100 + T * 100 * el - T * Yl * ew);
 
 		// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
 		// var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
@@ -176,7 +179,7 @@ var TABLE = coloroid.table.slice(-13).concat(coloroid.table.slice(0, -13));
 
 
 // 2° D65 whitepoint is used
-var [Xn, Yn, Zn] = whitepoint[2].D65
+var [Xn, Yn, Zn] = whitepoint[2].D65.map(v => v * 100);
 
 var y0 = Xn / (Xn + Yn + Zn);
 var x0 = Yn / (Xn + Yn + Zn);
@@ -189,14 +192,13 @@ var ew = (Xn + Yn + Zn) / 100;
  *
  * @return {Array<number>} ATV coloroid channels
  */
-xyy.coloroid = function (arg) {
-	var x = arg[0], y = arg[1], Y = arg[2];
-
+xyy.coloroid = function (x, y, Y) {
 	//coloroid luminocity is the same as hunter-lab lightness (the easier part)
-	var V = 10 * Math.sqrt(Y);
+	var V = 10 * Math.sqrt(Y * 100);
 
 	//get the hue angle, -π ... +π
 	var angle = Math.atan2(y - y0, x - x0) * 180 / Math.PI;
+
 	var row;
 
 	//find the closest row in the table
@@ -220,6 +222,8 @@ xyy.coloroid = function (arg) {
 	var Yl = yl * el * 100;
 
 	var T = 100 * Y * (x0 * ew - x * ew) / (100 * (x * el - xl * el) + Yl * (x0 * ew - x * ew));
+	T *= 100;
+
 	// var T = 100 * Y*(1 - y*ew) / (100*(y*el - yl*el) + Yl*(1 - y*ew));
 
 	return [A, T, V];
@@ -228,11 +232,11 @@ xyy.coloroid = function (arg) {
 /**
  * Proper transformation to a XYZ (via xyY)
  **/
-xyz.coloroid = function (arg) {
-	return xyy.coloroid(xyz.xyy(arg));
+xyz.coloroid = function (x, y, z) {
+	return xyy.coloroid(...xyz.xyy(x, y, z));
 };
-coloroid.xyz = function (arg) {
-	return xyy.xyz(coloroid.xyy(arg));
+coloroid.xyz = function (a, t, v) {
+	return xyy.xyz(...coloroid.xyy(a, t, v));
 };
 
 

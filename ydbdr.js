@@ -24,14 +24,12 @@ var ydbdr = {
  *
  * @return {Array<number>} YDbDr values
  */
-ydbdr.rgb = function (ydbdr) {
-	var y = ydbdr[0], db = ydbdr[1], dr = ydbdr[2];
-
+ydbdr.rgb = function (y, db, dr) {
 	var r = y + 0.000092303716148 * db - 0.525912630661865 * dr;
 	var g = y - 0.129132898890509 * db + 0.267899328207599 * dr;
 	var b = y + 0.664679059978955 * db - 0.000079202543533 * dr;
 
-	return [r * 255, g * 255, b * 255];
+	return [r, g, b];
 };
 
 
@@ -42,8 +40,7 @@ ydbdr.rgb = function (ydbdr) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.ydbdr = function (rgb) {
-	var r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+rgb.ydbdr = function (r, g, b) {
 	return [
 		0.299 * r + 0.587 * g + 0.114 * b,
 		-0.450 * r - 0.883 * g + 1.333 * b,
@@ -55,18 +52,18 @@ rgb.ydbdr = function (rgb) {
 /**
  * To YUV
  */
-yuv.ydbdr = function (yuv) {
+yuv.ydbdr = function (y, u, v) {
 	return [
-		yuv[0], 3.059 * yuv[1], -2.169 * yuv[2]
+		y, 3.059 * u, -2.169 * v
 	]
 };
 
 /**
  * From YUV
  */
-ydbdr.yuv = function (ydbdr) {
+ydbdr.yuv = function (y, db, dr) {
 	return [
-		ydbdr[0], ydbdr[1] / 3.059, -ydbdr[2] / 2.169
+		y, db / 3.059, -dr / 2.169
 	]
 };
 

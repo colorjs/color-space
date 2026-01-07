@@ -19,9 +19,7 @@ var ycbcr = {
 	 * From digital to analog form.
 	 * Scale to min/max ranges
 	 */
-	ypbpr: function (ycbcr) {
-		var y = ycbcr[0], cb = ycbcr[1], cr = ycbcr[2];
-
+	ypbpr: function (y, cb, cr) {
 		return [
 			(y - 16) / 219,
 			(cb - 128) / 224,
@@ -37,9 +35,7 @@ var ycbcr = {
  *
  * @return {Array<number>} Resulting digitized form
  */
-ypbpr.ycbcr = function (ypbpr) {
-	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
-
+ypbpr.ycbcr = function (y, pb, pr) {
 	return [
 		16 + 219 * y,
 		128 + 224 * pb,
@@ -57,8 +53,8 @@ ypbpr.ycbcr = function (ypbpr) {
  * @param {number} kr
  * @return {Array<number>} YCbCr values
  */
-ycbcr.rgb = function (arr, kb, kr) {
-	return ypbpr.rgb(ycbcr.ypbpr(arr), kb, kr);
+ycbcr.rgb = function (y, cb, cr, kb, kr) {
+	return ypbpr.rgb(...ycbcr.ypbpr(y, cb, cr), kb, kr);
 };
 
 
@@ -71,9 +67,8 @@ ycbcr.rgb = function (arr, kb, kr) {
  * @param {number} kr
  * @return {Array<number>} RGB values
  */
-rgb.ycbcr = function (arr, kb, kr) {
-	return ypbpr.ycbcr(rgb.ypbpr(arr, kb, kr));
+rgb.ycbcr = function (r, g, b, kb, kr) {
+	return ypbpr.ycbcr(...rgb.ypbpr(r, g, b, kb, kr));
 };
-
 
 export default (ycbcr);

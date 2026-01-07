@@ -13,11 +13,8 @@ var yuv = ({
 	alias: ['YUV', 'EBU'],
 });
 
-yuv.rgb = function (yuv) {
-	var y = yuv[0],
-		u = yuv[1],
-		v = yuv[2],
-		r, g, b;
+yuv.rgb = function (y, u, v) {
+	var r, g, b;
 
 	r = (y * 1) + (u * 0) + (v * 1.13983);
 	g = (y * 1) + (u * -0.39465) + (v * -0.58060);
@@ -27,16 +24,12 @@ yuv.rgb = function (yuv) {
 	g = Math.min(Math.max(0, g), 1);
 	b = Math.min(Math.max(0, b), 1);
 
-	return [r * 255, g * 255, b * 255];
+	return [r, g, b];
 }
 
 
 //extend rgb
-rgb.yuv = function (rgb) {
-	var r = rgb[0] / 255,
-		g = rgb[1] / 255,
-		b = rgb[2] / 255;
-
+rgb.yuv = function (r, g, b) {
 	var y = (r * 0.299) + (g * 0.587) + (b * 0.114);
 	var u = (r * -0.14713) + (g * -0.28886) + (b * 0.436);
 	var v = (r * 0.615) + (g * -0.51499) + (b * -0.10001);

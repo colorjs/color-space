@@ -24,11 +24,7 @@ export default (ucs);
  *
  * @return {Array<number>} UCS values
  */
-ucs.xyz = function (ucs) {
-	var u = ucs[0],
-		v = ucs[1],
-		w = ucs[2];
-
+ucs.xyz = function (u, v, w) {
 	return [
 		1.5 * u,
 		v,
@@ -44,11 +40,7 @@ ucs.xyz = function (ucs) {
  *
  * @return {Array<number>} XYZ values
  */
-xyz.ucs = function (xyz) {
-	var x = xyz[0],
-		y = xyz[1],
-		z = xyz[2];
-
+xyz.ucs = function (x, y, z) {
 	return [
 		x * 2 / 3,
 		y,

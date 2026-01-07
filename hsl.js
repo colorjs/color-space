@@ -6,15 +6,16 @@ import rgb from './rgb.js';
 var hsl = {
 	name: 'hsl',
 	min: [0, 0, 0],
-	max: [360, 100, 100],
+	max: [360, 1, 1],
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSL'],
 
-	rgb: function (hsl) {
-		var h = hsl[0] / 360, s = hsl[1] / 100, l = hsl[2] / 100, t1, t2, t3, rgb, val, i = 0;
+	rgb: function (h, s, l) {
+		var t1, t2, t3, rgb, val, i = 0;
+		h = h / 360;
 
-		if (s === 0) return val = l * 255, [val, val, val];
-
+		if (s === 0) return val = l, [val, val, val];
+		
 		t2 = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		t1 = 2 * l - t2;
 
@@ -26,7 +27,7 @@ var hsl = {
 				2 * t3 < 1 ? t2 :
 					3 * t3 < 2 ? t1 + (t2 - t1) * (2 / 3 - t3) * 6 :
 						t1;
-			rgb[i++] = val * 255;
+			rgb[i++] = val;
 		}
 
 		return rgb;
@@ -37,11 +38,8 @@ export default (hsl);
 
 
 //extend rgb
-rgb.hsl = function (rgb) {
-	var r = rgb[0] / 255,
-		g = rgb[1] / 255,
-		b = rgb[2] / 255,
-		min = Math.min(r, g, b),
+rgb.hsl = function (r, g, b) {
+	var min = Math.min(r, g, b),
 		max = Math.max(r, g, b),
 		delta = max - min,
 		h, s, l;
@@ -79,5 +77,5 @@ rgb.hsl = function (rgb) {
 		s = delta / (2 - max - min);
 	}
 
-	return [h, s * 100, l * 100];
+	return [h, s, l];
 };

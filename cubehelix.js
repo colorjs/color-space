@@ -33,8 +33,6 @@ var cubehelix = {
  * @return {Array<number>} rgb tuple
  */
 cubehelix.rgb = function (fraction, options = {}) {
-	if (Array.isArray(fraction)) fraction = fraction[0];
-
 	var start = options.start !== undefined ? options.start : defaults.start;
 	var rotation = options.rotation !== undefined ? options.rotation : defaults.rotation;
 	var gamma = options.gamma !== undefined ? options.gamma : defaults.gamma;
@@ -50,14 +48,12 @@ cubehelix.rgb = function (fraction, options = {}) {
 	var g = fraction + amp * (-0.29227 * Math.cos(angle) - 0.90649 * Math.sin(angle));
 	var b = fraction + amp * (+1.97294 * Math.cos(angle));
 
-	r = Math.max(1, Math.min(r, 0));
-	g = Math.max(1, Math.min(g, 0));
-	b = Math.max(1, Math.min(b, 0));
+        r = Math.max(0, Math.min(r, 1));
+        g = Math.max(0, Math.min(g, 1));
+        b = Math.max(0, Math.min(b, 1));
 
-	return [r * 255, g * 255, b * 255];
+        return [r, g, b];
 };
-
-
 /**
  * RGB to cubehelix
  *

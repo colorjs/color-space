@@ -15,17 +15,17 @@ var hpluv = {
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HPLuv', 'HuSLp'],
 
-	lchuv: _hsluv.hpluvToLch,
-	xyz: function (arg) { return lchuv.xyz(_hsluv.hpluvToLch(arg)); },
+	lchuv: (h, s, l) => _hsluv.hpluvToLch([h, s, l]),
+	xyz: function (h, s, l) { return lchuv.xyz(..._hsluv.hpluvToLch([h, s, l])); },
 
 	//a shorter way to convert to husl
-	hsluv: function (arg) {
-		return _hsluv.lchToHsluv(_hsluv.hpluvToLch(arg));
+	hsluv: function (h, s, l) {
+		return _hsluv.lchToHsluv(_hsluv.hpluvToLch([h, s, l]));
 	}
 };
 
 export default hpluv;
 
 //extend lchuv, xyz
-lchuv.hpluv = _hsluv.lchToHpluv;
-xyz.hpluv = function (arg) { return _hsluv.lchToHpluv(xyz.lchuv(arg)); };
+lchuv.hpluv = (l, c, h) => _hsluv.lchToHpluv([l, c, h]);
+xyz.hpluv = function (x, y, z) { return _hsluv.lchToHpluv(xyz.lchuv(x, y, z)); };

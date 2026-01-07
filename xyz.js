@@ -1,11 +1,20 @@
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
+import whitepoint from './meta/whitepoint.js';
+
+// scale whitepoint to 0..1
+for (let obs in whitepoint) {
+	for (let ill in whitepoint[obs]) {
+		whitepoint[obs][ill] = whitepoint[obs][ill].map(v => v / 100);
+	}
+}
 
 // We use D65 matrice
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 const xyz = {
 	name: 'xyz',
-	channel: ['X', 'Y', 'Z']
+	channel: ['X', 'Y', 'Z'],
+	whitepoint: whitepoint
 };
 
 xyz.lrgb = (x, y, z) => [

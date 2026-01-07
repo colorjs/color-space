@@ -6,7 +6,7 @@
 const rgb = {
 	name: 'rgb',
 	min: [0, 0, 0],
-	max: [255, 255, 255],
+	max: [1, 1, 1],
 	channel: ['red', 'green', 'blue'],
 	alias: ['RGB']
 };

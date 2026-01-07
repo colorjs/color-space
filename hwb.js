@@ -7,17 +7,12 @@ import hsl from './hsl.js';
 
 var hwb = {
 	name: 'hwb',
-	min: [0, 0, 0],
-	max: [360, 100, 100],
+	max: [360, 1, 1],
 	channel: ['hue', 'whiteness', 'blackness'],
 	alias: ['HWB'],
-
-	// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-	rgb: function (hwb) {
-		var h = hwb[0] / 360,
-			wh = hwb[1] / 100,
-			bl = hwb[2] / 100,
-			ratio = wh + bl,
+	rgb: function (h, wh, bl) {
+		h = h / 360;
+		var ratio = wh + bl,
 			i, v, f, n;
 
 		var r, g, b;
@@ -50,32 +45,32 @@ var hwb = {
 			case 5: r = v; g = wh; b = n; break;
 		}
 
-		return [r * 255, g * 255, b * 255];
+		return [r, g, b];
 	},
 
 
 	// http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
-	hsv: function (arg) {
-		var h = arg[0], w = arg[1], b = arg[2], s, v;
+	hsv: function (h, w, b) {
+		var s, v;
 
 		//if w+b > 100% - take proportion (how many times )
-		if (w + b >= 100) {
+		if (w + b >= 1) {
 			s = 0;
-			v = 100 * w / (w + b);
+			v = w / (w + b);
 		}
 
 		//by default - take wiki formula
 		else {
-			s = 100 - (w / (1 - b / 100));
-			v = 100 - b;
+			s = 1 - (w / (1 - b));
+			v = 1 - b;
 		}
 
 
 		return [h, s, v];
 	},
 
-	hsl: function (arg) {
-		return hsv.hsl(hwb.hsv(arg));
+	hsl: function (h, w, b) {
+		return hsv.hsl(...hwb.hsv(h, w, b));
 	}
 };
 
@@ -83,27 +78,23 @@ export default (hwb);
 
 
 // extend rgb
-rgb.hwb = function (val) {
-	var r = val[0],
-		g = val[1],
-		b = val[2],
-		h = rgb.hsl(val)[0],
-		w = 1 / 255 * Math.min(r, Math.min(g, b));
+rgb.hwb = function (r, g, b) {
+	var h = rgb.hsl(r, g, b)[0],
+		w = Math.min(r, Math.min(g, b));
 
-	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
+	b = 1 - Math.max(r, Math.max(g, b));
 
-	return [h, w * 100, b * 100];
+	return [h, w, b];
 };
 
 
 // keep proper hue on 0 values (conversion to rgb loses hue on zero-lightness)
-hsv.hwb = function (arg) {
-	var h = arg[0], s = arg[1], v = arg[2];
-	return [h, v === 0 ? 0 : (v * (1 - s / 100)), 100 - v];
+hsv.hwb = function (h, s, v) {
+	return [h, v === 0 ? 0 : (v * (1 - s)), 1 - v];
 };
 
 
 //extend hsl with proper conversions
-hsl.hwb = function (arg) {
-	return hsv.hwb(hsl.hsv(arg));
+hsl.hwb = function (h, s, l) {
+	return hsv.hwb(...hsl.hsv(h, s, l));
 };

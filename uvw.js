@@ -21,9 +21,8 @@ export default (uvw);
 /**
  * UVW to XYZ
  */
-uvw.xyz = function (arg, i, o) {
-	var _u, _v, w, u, v, x, y, z, xn, yn, zn, un, vn;
-	u = arg[0], v = arg[1], w = arg[2];
+uvw.xyz = function (u, v, w, i, o) {
+	var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 	if (w === 0) return [0, 0, 0];
 
@@ -55,8 +54,8 @@ uvw.xyz = function (arg, i, o) {
  *
  * @return {Array<number>} An UVW array
  */
-xyz.uvw = function (arr, i, o) {
-	var x = arr[0], y = arr[1], z = arr[2], xn, yn, zn, un, vn;
+xyz.uvw = function (x, y, z, i, o) {
+	var xn, yn, zn, un, vn;
 
 	//find out normal source u v
 	i = i || 'D65';

@@ -62,15 +62,15 @@ var hsluv = {
 	channel: ['hue', 'saturation', 'lightness'],
 	alias: ['HSLuv', 'HuSL'],
 
-	lchuv: _hsluv.hsluvToLch,
+	lchuv: (h, s, l) => _hsluv.hsluvToLch([h, s, l]),
 
-	xyz: function (arg) {
-		return lchuv.xyz(_hsluv.hsluvToLch(arg));
+	xyz: function (h, s, l) {
+		return lchuv.xyz(..._hsluv.hsluvToLch([h, s, l]));
 	},
 
 	//a shorter way to convert to hpluv
-	hpluv: function (arg) {
-		return _hsluv.lchToHpluv(_hsluv.hsluvToLch(arg));
+	hpluv: function (h, s, l) {
+		return _hsluv.lchToHpluv(_hsluv.hsluvToLch([h, s, l]));
 	},
 
 	// export internal math
@@ -80,9 +80,9 @@ var hsluv = {
 export default hsluv;
 
 //extend lchuv, xyz
-lchuv.hsluv = _hsluv.lchToHsluv;
-xyz.hsluv = function (arg) {
-	return _hsluv.lchToHsluv(xyz.lchuv(arg));
+lchuv.hsluv = (l, c, h) => _hsluv.lchToHsluv([l, c, h]);
+xyz.hsluv = function (x, y, z) {
+	return _hsluv.lchToHsluv(xyz.lchuv(x, y, z));
 };
 
-rgb.hsluv = _hsluv.rgbToHsluv
+rgb.hsluv = (r, g, b) => _hsluv.rgbToHsluv([r, g, b]);

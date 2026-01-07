@@ -23,15 +23,13 @@ var ycgco = {
  *
  * @return {Array<number>} YCgCo values
  */
-ycgco.rgb = function (arr) {
-	var y = arr[0], cg = arr[1], co = arr[2];
-
+ycgco.rgb = function (y, cg, co) {
 	var tmp = y - cg;
 
 	return [
-		(tmp + co) * 255,
-		(y + cg) * 255,
-		(tmp - co) * 255
+		(tmp + co),
+		(y + cg),
+		(tmp - co)
 	];
 };
 
@@ -44,9 +42,7 @@ ycgco.rgb = function (arr) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.ycgco = function (arr) {
-	var r = arr[0] / 255, g = arr[1] / 255, b = arr[2] / 255;
-
+rgb.ycgco = function (r, g, b) {
 	return [
 		0.25 * r + 0.5 * g + 0.25 * b,
 		-0.25 * r + 0.5 * g - 0.25 * b,

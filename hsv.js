@@ -8,21 +8,18 @@ import hsl from './hsl.js';
 var hsv = {
 	name: 'hsv',
 	min: [0, 0, 0],
-	max: [360, 100, 100],
+	max: [360, 1, 1],
 	channel: ['hue', 'saturation', 'value'],
 	alias: ['HSV', 'HSB'],
 
-	rgb: function (hsv) {
-		var h = hsv[0] / 60,
-			s = hsv[1] / 100,
-			v = hsv[2] / 100,
-			hi = (Math.floor(h) % 6);
+	rgb: function (h, s, v) {
+		h = h / 60;
+		var hi = (Math.floor(h) % 6);
 
 		var f = h - Math.floor(h),
-			p = 255 * v * (1 - s),
-			q = 255 * v * (1 - (s * f)),
-			t = 255 * v * (1 - (s * (1 - f)));
-		v *= 255;
+			p = v * (1 - s),
+			q = v * (1 - (s * f)),
+			t = v * (1 - (s * (1 - f)));
 
 		switch (hi) {
 			case 0:
@@ -40,11 +37,8 @@ var hsv = {
 		}
 	},
 
-	hsl: function (hsv) {
-		var h = hsv[0],
-			s = hsv[1] / 100,
-			v = hsv[2] / 100,
-			sl, l;
+	hsl: function (h, s, v) {
+		var sl, l;
 
 		l = (2 - s) * v;
 		sl = s * v;
@@ -52,7 +46,7 @@ var hsv = {
 		sl = sl || 0;
 		l /= 2;
 
-		return [h, sl * 100, l * 100];
+		return [h, sl, l];
 	}
 };
 
@@ -60,11 +54,8 @@ export default (hsv);
 
 
 //append rgb
-rgb.hsv = function (rgb) {
-	var r = rgb[0],
-		g = rgb[1],
-		b = rgb[2],
-		min = Math.min(r, g, b),
+rgb.hsv = function (r, g, b) {
+	var min = Math.min(r, g, b),
 		max = Math.max(r, g, b),
 		delta = max - min,
 		h, s, v;
@@ -73,7 +64,7 @@ rgb.hsv = function (rgb) {
 		s = 0;
 	}
 	else {
-		s = (delta / max * 100);
+		s = (delta / max);
 	}
 
 	if (max === min) {
@@ -97,7 +88,7 @@ rgb.hsv = function (rgb) {
 		h += 360;
 	}
 
-	v = ((max / 255) * 1000) / 10;
+	v = max;
 
 	return [h, s, v];
 };
@@ -105,15 +96,10 @@ rgb.hsv = function (rgb) {
 
 
 //extend hsl
-hsl.hsv = function (hsl) {
-	var h = hsl[0],
-		s = hsl[1] / 100,
-		l = hsl[2] / 100,
-		sv, v;
-	l *= 2;
-	s *= (l <= 1) ? l : 2 - l;
-	v = (l + s) / 2;
-	sv = (2 * s) / (l + s) || 0;
-
-	return [h, sv * 100, v * 100];
+hsl.hsv = function (h, s, l) {
+	var l = l * 2;
+	var s = s * (l <= 1 ? l : 2 - l);
+	var v = (l + s) / 2;
+	var sv = (2 * s) / (l + s);
+	return [h, sv, v];
 };

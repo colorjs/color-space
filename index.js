@@ -76,11 +76,11 @@ export function register(newSpace) {
 function createConverter(fromSpace, toSpaceName) {
 	// xyz converter
 	if (fromSpace.xyz && space.xyz[toSpaceName])
-		return (arg) => space.xyz[toSpaceName](...fromSpace.xyz(arg));
+		return (...args) => space.xyz[toSpaceName](...fromSpace.xyz(...args));
 
 	// rgb converter
 	if (fromSpace.rgb && space.rgb[toSpaceName])
-		return (arg) => space.rgb[toSpaceName](...fromSpace.rgb(arg));
+		return (...args) => space.rgb[toSpaceName](...fromSpace.rgb(...args));
 }
 
 // register all spaces by default

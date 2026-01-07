@@ -22,8 +22,8 @@ var yccbccrc = {
  *
  * @return {Array<number>} YcCbcCrc values
  */
-yccbccrc.rgb = function (yccbccrc) {
-	return ypbpr.rgb(yccbccrc, 0.0593, 0.2627);
+yccbccrc.rgb = function (y, cb, cr) {
+	return ypbpr.rgb(y, cb, cr, 0.0593, 0.2627);
 };
 
 
@@ -34,8 +34,8 @@ yccbccrc.rgb = function (yccbccrc) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.yccbccrc = function (arr) {
-	return rgb.ypbpr(arr, 0.0593, 0.2627);
+rgb.yccbccrc = function (r, g, b) {
+	return rgb.ypbpr(r, g, b, 0.0593, 0.2627);
 };
 
 

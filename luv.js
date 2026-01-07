@@ -16,9 +16,8 @@ var luv = {
 	channel: ['lightness', 'u', 'v'],
 	alias: ['LUV', 'cieluv', 'cie1976'],
 
-	xyz: function (arg, i, o) {
-		var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
-		l = arg[0], u = arg[1], v = arg[2];
+	xyz: function (l, u, v, i, o) {
+		var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 		if (l === 0) return [0, 0, 0];
 
@@ -64,8 +63,8 @@ export default (luv);
 // https://github.com/boronine/husl/blob/master/husl.coffee
 //i - illuminant
 //o - observer
-xyz.luv = function (arg, i, o) {
-	var _u, _v, l, u, v, x, y, z, xn, yn, zn, un, vn;
+xyz.luv = function (x, y, z, i, o) {
+	var _u, _v, l, u, v, xn, yn, zn, un, vn;
 
 	//get constants
 	var e = 0.008856451679035631; //(6/29)^3
@@ -81,9 +80,6 @@ xyz.luv = function (arg, i, o) {
 
 	un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
 	vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
-
-
-	x = arg[0], y = arg[1], z = arg[2];
 
 
 	_u = (4 * x) / (x + (15 * y) + (3 * z)) || 0;

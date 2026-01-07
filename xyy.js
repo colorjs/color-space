@@ -8,14 +8,13 @@ import xyz from './xyz.js';
 var xyy = {
 	name: 'xyy',
 	min: [0, 0, 0],
-	max: [1, 1, 100],
+	max: [1, 1, 1],
 	channel: ['x', 'y', 'Y'],
 	alias: ['xyY', 'Yxy', 'yxy']
 };
 
-xyy.xyz = function (arg) {
-	var X, Y, Z, x, y;
-	x = arg[0]; y = arg[1]; Y = arg[2];
+xyy.xyz = function (x, y, Y) {
+	var X, Z;
 	if (y === 0) {
 		return [0, 0, 0];
 	}
@@ -24,9 +23,8 @@ xyy.xyz = function (arg) {
 	return [X, Y, Z];
 };
 
-xyz.xyy = function (arg) {
-	var sum, X, Y, Z;
-	X = arg[0]; Y = arg[1]; Z = arg[2];
+xyz.xyy = function (X, Y, Z) {
+	var sum;
 	sum = X + Y + Z;
 	if (sum === 0) {
 		return [0, 0, Y];

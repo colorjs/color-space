@@ -9,7 +9,7 @@ import rgb from './rgb.js';
 var hcy = {
 	name: 'hcy',
 	min: [0, 0, 0],
-	max: [360, 100, 255],
+	max: [360, 1, 1],
 	channel: ['hue', 'chroma', 'luminance'],
 	alias: ['HCY']
 };
@@ -24,10 +24,8 @@ export default (hcy);
  *
  * @return {Array<number>} RGB channel values
  */
-hcy.rgb = function (hcy) {
-	var h = (hcy[0] < 0 ? (hcy[0] % 360) + 360 : (hcy[0] % 360)) * Math.PI / 180;
-	var s = Math.max(0, Math.min(hcy[1], 100)) / 100;
-	var i = Math.max(0, Math.min(hcy[2], 255)) / 255;
+hcy.rgb = function (h, s, i) {
+	h = (h < 0 ? (h % 360) + 360 : (h % 360)) * Math.PI / 180;
 
 	var pi3 = Math.PI / 3;
 
@@ -50,7 +48,7 @@ hcy.rgb = function (hcy) {
 		r = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
 	}
 
-	return [r * 255, g * 255, b * 255];
+	return [r, g, b];
 };
 
 
@@ -61,12 +59,12 @@ hcy.rgb = function (hcy) {
  *
  * @return {Array<number>} HCY channel values
  */
-rgb.hcy = function (rgb) {
-	var sum = rgb[0] + rgb[1] + rgb[2];
+rgb.hcy = function (r, g, b) {
+	var sum = r + g + b;
 
-	var r = rgb[0] / sum;
-	var g = rgb[1] / sum;
-	var b = rgb[2] / sum;
+	var r = r / sum;
+	var g = g / sum;
+	var b = b / sum;
 
 	var h = Math.acos(
 		(0.5 * ((r - g) + (r - b))) /
@@ -80,5 +78,5 @@ rgb.hcy = function (rgb) {
 
 	var i = sum / 3;
 
-	return [h * 180 / Math.PI, s * 100, i];
+	return [h * 180 / Math.PI, s, i];
 };

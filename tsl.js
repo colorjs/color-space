@@ -25,11 +25,7 @@ export default (tsl);
  *
  * @return {Array<number>} TSL values
  */
-tsl.rgb = function (tsl) {
-	var T = tsl[0],
-		S = tsl[1],
-		L = tsl[2];
-
+tsl.rgb = function (T, S, L) {
 	//wikipedia solution
 	/*
 	// var x = - 1 / Math.tan(Math.PI * 2 * T);
@@ -56,7 +52,7 @@ tsl.rgb = function (tsl) {
 	var R = k * r;
 
 	return [
-		R * 255, G * 255, B * 255
+		R, G, B
 	];
 };
 
@@ -68,14 +64,13 @@ tsl.rgb = function (tsl) {
  *
  * @return {Array<number>} RGB values
  */
-rgb.tsl = function (rgb) {
-	var [r, g, b] = rgb;
-
-	var r_ = (r / (r + g + b) || 0) - 1 / 3,
-		g_ = (g / (r + g + b) || 0) - 1 / 3,
+rgb.tsl = function (r, g, b) {
+	var sum = (r + g + b);
+	var r_ = (r / sum || 0) - 1 / 3,
+		g_ = (g / sum || 0) - 1 / 3,
 		T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0,
 		S = Math.sqrt(9 / 5 * (r_ * r_ + g_ * g_)),
-		L = ((r * 0.299) + (g * 0.587) + (b * 0.114)) / 255;
+		L = ((r * 0.299) + (g * 0.587) + (b * 0.114));
 
 	return [T, S, L];
 };

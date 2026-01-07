@@ -9,7 +9,9 @@ import rgb from './rgb.js';
 var hsi = {
 	name: 'hsi',
 	min: [0, 0, 0],
-	max: [360, 100, 255],
+	max: [360, 1, 1],
+
+	//hue, saturation, intensity
 	channel: ['hue', 'saturation', 'intensity'],
 	alias: ['HSI']
 };
@@ -24,10 +26,8 @@ export default hsi
  *
  * @return {Array<number>} RGB channel values
  */
-hsi.rgb = function (hsi) {
-	var h = (hsi[0] < 0 ? (hsi[0] % 360) + 360 : (hsi[0] % 360)) * Math.PI / 180;
-	var s = Math.max(0, Math.min(hsi[1], 100)) / 100;
-	var i = Math.max(0, Math.min(hsi[2], 255)) / 255;
+hsi.rgb = function (h, s, i) {
+	h = (h < 0 ? (h % 360) + 360 : (h % 360)) * Math.PI / 180;
 
 	var pi3 = Math.PI / 3;
 
@@ -50,7 +50,7 @@ hsi.rgb = function (hsi) {
 		r = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
 	}
 
-	return [r * 255, g * 255, b * 255];
+	return [r, g, b];
 };
 
 
@@ -61,12 +61,12 @@ hsi.rgb = function (hsi) {
  *
  * @return {Array<number>} HSI channel values
  */
-rgb.hsi = function (rgb) {
-	var sum = rgb[0] + rgb[1] + rgb[2];
+rgb.hsi = function (r, g, b) {
+	var sum = r + g + b;
 
-	var r = rgb[0] / sum;
-	var g = rgb[1] / sum;
-	var b = rgb[2] / sum;
+	var r = r / sum;
+	var g = g / sum;
+	var b = b / sum;
 
 	var h = Math.acos(
 		(0.5 * ((r - g) + (r - b))) /
@@ -80,5 +80,5 @@ rgb.hsi = function (rgb) {
 
 	var i = sum / 3;
 
-	return [h * 180 / Math.PI, s * 100, i];
+	return [h * 180 / Math.PI, s, i];
 };

@@ -6,6 +6,11 @@
   + color.io is normalized to 0..1
   + i8 -> f32/f64
 
+### [x] Normalize values to 0..1? -> Yes
+  + mathematical consistency: uniform interface, chaining, math-friendly
+  + forward compat with wasm, webgl, webgpu
+  + HDR with values > 1.0
+
 ## [x] Replace vector arg with arguments `rgb([r,g,b])` to `rgb(r,g,b)` -> let's try
 
   + cleaner

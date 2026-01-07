@@ -27,9 +27,7 @@ var ypbpr = ({
  * @param {number} kr
  * @return {Array<number>} YPbPr values
  */
-ypbpr.rgb = function (ypbpr, kb, kr) {
-	var y = ypbpr[0], pb = ypbpr[1], pr = ypbpr[2];
-
+ypbpr.rgb = function (y, pb, pr, kb, kr) {
 	//default conversion is ITU-R BT.709
 	kb = kb || 0.0722;
 	kr = kr || 0.2126;
@@ -38,7 +36,7 @@ ypbpr.rgb = function (ypbpr, kb, kr) {
 	var b = y + 2 * pb * (1 - kb);
 	var g = (y - kr * r - kb * b) / (1 - kr - kb);
 
-	return [r * 255, g * 255, b * 255];
+	return [r, g, b];
 };
 
 
@@ -50,9 +48,7 @@ ypbpr.rgb = function (ypbpr, kb, kr) {
  * @param {number} kr
  * @return {Array<number>} RGB values
  */
-rgb.ypbpr = function (rgb, kb, kr) {
-	var r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
-
+rgb.ypbpr = function (r, g, b, kb, kr) {
 	//ITU-R BT.709
 	kb = kb || 0.0722;
 	kr = kr || 0.2126;

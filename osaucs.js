@@ -19,7 +19,7 @@ var osaucs = {
 /**
  * There’s no analytical solution to this
  */
-osaucs.xyz = function (arg) {
+osaucs.xyz = function (L, j, g) {
 	var x, y, z;
 
 	throw 'Unimplemented';
@@ -36,9 +36,7 @@ osaucs.xyz = function (arg) {
  *
  * @return {Array<number>} Ljg array
  */
-xyz.osaucs = function (arg) {
-	var X = arg[0], Y = arg[1], Z = arg[2];
-
+xyz.osaucs = function (X, Y, Z) {
 	var x = X / (X + Y + Z);
 	var y = Y / (X + Y + Z);
 

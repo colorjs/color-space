@@ -14,9 +14,7 @@ var yes = {
 	channel: ['luminance', 'e-factor', 's-factor']
 };
 
-yes.rgb = function (arg) {
-	var y = arg[0], e = arg[1], s = arg[2];
-
+yes.rgb = function (y, e, s) {
 	var m = [
 		1, 1.431, .126,
 		1, -.569, .126,
@@ -27,12 +25,10 @@ yes.rgb = function (arg) {
 		g = y * m[3] + e * m[4] + s * m[5],
 		b = y * m[6] + e * m[7] + s * m[8];
 
-	return [r * 255, g * 255, b * 255];
+	return [r, g, b];
 };
 
-rgb.yes = function (arg) {
-	var r = arg[0] / 255, g = arg[1] / 255, b = arg[2] / 255;
-
+rgb.yes = function (r, g, b) {
 	var m = [
 		.253, .684, .063,
 		.500, -.50, .0,

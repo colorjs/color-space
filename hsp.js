@@ -10,15 +10,13 @@ const Pr = 0.299,
 var hsp = {
   name: 'hsp',
   min: [0, 0, 0],
-  max: [360, 100, 255],
+  max: [360, 1, 1],
   channel: ['hue', 'saturation', 'perceived_brightness'],
   alias: ['HSP'],
 
-  rgb: function (hsp) {
-    var h = hsp[0] / 360.0,
-      s = hsp[1] / 100.0,
-      p = hsp[2],
-      r, g, b, part,
+  rgb: function (h, s, p) {
+    h = h / 360.0;
+    var r, g, b, part,
       minOverMax = 1.0 - s;
 
     if (minOverMax > 0.0) {
@@ -93,7 +91,7 @@ var hsp = {
       }
     }
 
-    return [Math.round(r), Math.round(g), Math.round(b)];
+    return [r, g, b];
   }
 };
 
@@ -101,11 +99,8 @@ export default hsp;
 
 
 //append rgb
-rgb.hsp = function (rgb) {
-  var r = parseInt((rgb[0]), 10),
-    g = parseInt((rgb[1]), 10),
-    b = parseInt((rgb[2]), 10),
-    h, s, p;
+rgb.hsp = function (r, g, b) {
+  var h, s, p;
 
   //  Calculate the Perceived brightness
   p = Math.sqrt(r * r * Pr + g * g * Pg + b * b * Pb);
@@ -150,5 +145,6 @@ rgb.hsp = function (rgb) {
   }
   //FIXME h and s are possibly undefined
   //@ts-ignore
-  return [Math.round(h * 360.0), s * 100.0, Math.round(p)];
+  return [h * 360.0, s, p];
 };
+

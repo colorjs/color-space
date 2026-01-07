@@ -15,15 +15,12 @@ var lchab = {
 	channel: ['lightness', 'chroma', 'hue'],
 	alias: ['LCHab', 'cielch', 'LCH', 'HLC', 'LSH'],
 
-	xyz: function (arg) {
-		return lab.xyz(lchab.lab(arg));
+	xyz: function (l, c, h) {
+		return lab.xyz(...lchab.lab(l, c, h));
 	},
 
-	lab: function (lch) {
-		var l = lch[0],
-			c = lch[1],
-			h = lch[2],
-			a, b, hr;
+	lab: function (l, c, h) {
+		var a, b, hr;
 
 		hr = h / 360 * 2 * Math.PI;
 		a = c * Math.cos(hr);
@@ -34,11 +31,8 @@ var lchab = {
 
 
 //extend lab
-lab.lchab = function (lab) {
-	var l = lab[0],
-		a = lab[1],
-		b = lab[2],
-		hr, h, c;
+lab.lchab = function (l, a, b) {
+	var hr, h, c;
 
 	hr = Math.atan2(b, a);
 	h = hr * 360 / 2 / Math.PI;
@@ -49,8 +43,8 @@ lab.lchab = function (lab) {
 	return [l, c, h];
 };
 
-xyz.lchab = function (arg) {
-	return lab.lchab(xyz.lab(arg));
+xyz.lchab = function (x, y, z) {
+	return lab.lchab(...xyz.lab(x, y, z));
 };
 
 
