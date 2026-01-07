@@ -15,11 +15,13 @@ var cam = {
 
 
 //extend xyz
+//TODO: implement conversion
 xyz.cam = function(xyz){
 	var x = xyz[0], y = xyz[1], z = xyz[2];
 	//TODO
 };
 
+//TODO: implement conversion
 cam.xyz = function () {
 
 }

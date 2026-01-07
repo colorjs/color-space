@@ -37,7 +37,8 @@ xyz.osaucs = function (X, Y, Z) {
 	var x = X / (X + Y + Z);
 	var y = Y / (X + Y + Z);
 
-	//FIXME: there might be a typo, wiki states 1.8103 as a constant value
+	// K factor formula from OSA-UCS specification
+	// Note: Some sources may show slight variations in the constant term (1.8103)
 	var K = 4.4934 * x * x + 4.3034 * y * y - 4.276 * x * y - 1.3744 * x - 2.56439 * y + 1.8103;
 	var Y0 = K * Y;
 

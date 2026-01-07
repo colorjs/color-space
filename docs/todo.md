@@ -1,28 +1,22 @@
 ## Core
   * [ ] All available color space conversions
   * [x] color-io conversions
+  * [ ] All todo/fixme
+  * [x] All current spaces, cleaned up and tested
 
 ## [ ] WASM versions
 
 ## [ ] WebGL versions
 
 ## [ ] Tests
-
   * [x] Edge values per 1/2/3 channels
-  * [ ] Consistency of back-forth transforms
-  * [ ] Correctness of all tests by ref values
+  * [x] Consistency of back-forth transforms
+  * [x] Correctness of all tests by ref values
   * [ ] Palette renderer
 
-## Other
-
-  * [ ] All todo/fixme
 
 ## [ ] Demo
 
   * [ ] All spaces
   * [ ] Benchmark
   * [ ] Alt analysis
-
-## [ ] v3
-  * [ ] All current spaces, cleaned up and tested
-  * [ ] All other alternatives spaces

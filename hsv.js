@@ -55,7 +55,7 @@ rgb.hsv = function (r, g, b) {
 	var min = Math.min(r, g, b),
 		max = Math.max(r, g, b),
 		delta = max - min,
-		h, s, v;
+		h = 0, s, v;
 
 	if (max === 0) {
 		s = 0;
@@ -77,8 +77,6 @@ rgb.hsv = function (r, g, b) {
 		h = 4 + (r - g) / delta;
 	}
 
-	//FIXME h is possibly undefined
-	//@ts-ignore
 	h = Math.min(h / 6, 1);
 
 	if (h < 0) {

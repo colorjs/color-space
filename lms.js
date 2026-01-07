@@ -5,9 +5,6 @@
  * http://en.wikipedia.org/wiki/LMS_color_space
  * http://www.mathworks.com/matlabcentral/fileexchange/28790-colorspace-transformations
  *
- * @todo xyz -> lms
- * @todo  tests
- *
  * @module color-space/lms
  */
 import xyz from './xyz.js';

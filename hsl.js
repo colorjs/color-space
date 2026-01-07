@@ -38,7 +38,7 @@ rgb.hsl = function (r, g, b) {
 	var min = Math.min(r, g, b),
 		max = Math.max(r, g, b),
 		delta = max - min,
-		h, s, l;
+		h = 0, s, l;
 
 	if (max === min) {
 		h = 0;
@@ -53,8 +53,6 @@ rgb.hsl = function (r, g, b) {
 		h = 4 + (r - g) / delta;
 	}
 
-	//FIXME h is possibly undefined
-	//@ts-ignore
 	h = Math.min(h / 6, 1);
 
 	if (h < 0) {

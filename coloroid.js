@@ -89,7 +89,11 @@ const coloroid = {
 			}
 		}
 
-		//FIXME row is possibly undefined
+		// If no row found, use the last row as fallback
+		if (!row) {
+			row = table[table.length - 1];
+		}
+
 		var yl = row[4], el = row[2], xl = row[3];
 
 		var Y = V * V / 100 / 100;

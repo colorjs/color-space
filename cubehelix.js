@@ -59,7 +59,7 @@ cubehelix.rgb = function (fraction, options = {}) {
  * @return {Array<number>} cubehelix fraction(s)
  */
 rgb.cubehelix = function (rgb) {
-	//TODO - there is no backwise conversion yet
+	//TODO: implement backward conversion (requires numerical methods as cubehelix is parametric)
 	throw new Error('rgb.cubehelix conversion is not implemented yet');
 };
 

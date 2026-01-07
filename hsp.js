@@ -96,7 +96,7 @@ export default hsp;
 
 //append rgb
 rgb.hsp = function (r, g, b) {
-  var h, s, p;
+  var h = 0, s = 0, p;
 
   //  Calculate the Perceived brightness
   p = Math.sqrt(r * r * Pr + g * g * Pg + b * b * Pb);
@@ -139,7 +139,5 @@ rgb.hsp = function (r, g, b) {
       }
     }
   }
-  //FIXME h and s are possibly undefined
-  //@ts-ignore
   return [h, s, p];
 };

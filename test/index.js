@@ -256,9 +256,6 @@ test('hwb: hsl -> hwb', function () {
 
 
 
-
-//TODO: more tests here
-
 test('xyY: xyz -> xyy', function () {
 	is((space.xyz.xyy(0, 0, 0)), [0, 0, 0]);
 	is((space.xyz.xyy(0.25, 0.40, 0.15).map(round(4))), [0.3125, 0.5, 0.40]);
@@ -618,6 +615,9 @@ test('cubehelix: paint', function () {
 
 
 
+// Note: osaucs -> xyy (reverse transformation) is not implemented
+// There's no analytical solution - would require numerical methods
+// See: http://www.researchgate.net/publication/259253763_Comparison_of_the_performance_of_inverse_transformation_methods_from_OSA-UCS_to_CIEXYZ
 test.todo('osaucs -> xyy', function () {
 	// is((space.osaucspace.xyy([0,-4,-4])), [33.71, 26.46, 46.66]);
 	// is((space.osaucspace.xyy([-8,-6,+2])), [1.773902, 1.049996, 7.893570]);
