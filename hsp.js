@@ -10,8 +10,15 @@ const Pr = 0.299,
 var hsp = {
   name: 'hsp',
   channel: ['hue', 'saturation', 'perceived_brightness'],
+  range: [[0, 360], [0, 100], [0, 100]],
 
   rgb: function (h, s, p) {
+    // Input: H: 0-360, S/P: 0-100
+    // Normalize to 0-1
+    h = h / 360;
+    s = s / 100;
+    p = p / 100;
+
     var r, g, b, part,
       minOverMax = 1.0 - s;
 
@@ -87,7 +94,8 @@ var hsp = {
       }
     }
 
-    return [r, g, b];
+    // Scale to 0-255
+    return [r * 255, g * 255, b * 255];
   }
 };
 
@@ -96,6 +104,11 @@ export default hsp;
 
 //append rgb
 rgb.hsp = function (r, g, b) {
+  // Normalize from 0-255 to 0-1
+  r = r / 255;
+  g = g / 255;
+  b = b / 255;
+
   var h = 0, s = 0, p;
 
   //  Calculate the Perceived brightness
@@ -139,5 +152,6 @@ rgb.hsp = function (r, g, b) {
       }
     }
   }
-  return [h, s, p];
+  // Output: H: 0-360, S/P: 0-100
+  return [h * 360, s * 100, p * 100];
 };

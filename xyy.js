@@ -8,9 +8,12 @@ import xyz from './xyz.js';
 var xyy = {
 	name: 'xyy',
 	channel: ['x', 'y', 'Y'],
+	range: [[0, 1], [0, 1], [0, 100]]
 };
 
 xyy.xyz = function (x, y, Y) {
+	// Input: x,y: 0-1, Y: 0-100
+	// Output: XYZ: 0-100
 	var X, Z;
 	if (y === 0) {
 		return [0, 0, 0];
@@ -21,6 +24,8 @@ xyy.xyz = function (x, y, Y) {
 };
 
 xyz.xyy = function (X, Y, Z) {
+	// Input: XYZ: 0-100
+	// Output: x,y: 0-1, Y: 0-100
 	var sum;
 	sum = X + Y + Z;
 	if (sum === 0) {

@@ -2,7 +2,8 @@ import xyz from './xyz.js';
 
 const jzazbz = {
 	name: 'jzazbz',
-	channel: ['Jz', 'az', 'bz']
+	channel: ['Jz', 'az', 'bz'],
+	range: [[0, 100], [-50, 50], [-50, 50]]
 };
 
 const b_param = 1.15;
@@ -68,6 +69,11 @@ const IabtoCone_M = [
 
 // XYZ -> Jzazbz
 xyz.jzazbz = function(x, y, z) {
+    // XYZ in 0-100 range, normalize to 0-1 for computation
+    x = x / 100;
+    y = y / 100;
+    z = z / 100;
+
     // 1. Scale to absolute luminance
     let Xa = x * Yw;
     let Ya = y * Yw;
@@ -96,11 +102,17 @@ xyz.jzazbz = function(x, y, z) {
     // 6. Iz -> Jz
     let Jz = ((1 + d) * Iz) / (1 + d * Iz) - d0;
 
-    return [Jz, az, bz];
+    // Scale to conventional ranges
+    return [Jz * 100, az * 100, bz * 100];
 };
 
 // Jzazbz -> XYZ
 jzazbz.xyz = function(Jz, az, bz) {
+    // Normalize from conventional ranges
+    Jz = Jz / 100;
+    az = az / 100;
+    bz = bz / 100;
+
     // 1. Jz -> Iz
     let Iz = (Jz + d0) / (1 + d - d * (Jz + d0));
 
@@ -122,8 +134,8 @@ jzazbz.xyz = function(Jz, az, bz) {
     let Xa = (Xm + (b_param - 1) * Za) / b_param;
     let Ya = (Ym + (g_param - 1) * Xa) / g_param;
 
-    // 6. Abs XYZ -> Rel XYZ
-    return [Xa / Yw, Ya / Yw, Za / Yw];
+    // 6. Abs XYZ -> Rel XYZ (scale to 0-100)
+    return [Xa / Yw * 100, Ya / Yw * 100, Za / Yw * 100];
 };
 
 export default jzazbz;

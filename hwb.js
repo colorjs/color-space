@@ -8,7 +8,13 @@ import hsl from './hsl.js';
 var hwb = {
 	name: 'hwb',
 	channel: ['hue', 'whiteness', 'blackness'],
+	range: [[0, 360], [0, 100], [0, 100]],
 	rgb: function (h, wh, bl) {
+		// Convert from H: 0-360, W/B: 0-100 to normalized
+		h = h / 360;
+		wh = wh / 100;
+		bl = bl / 100;
+
 		var ratio = wh + bl,
 			i, v, f, n;
 
@@ -42,12 +48,17 @@ var hwb = {
 			case 5: r = v; g = wh; b = n; break;
 		}
 
-		return [r, g, b];
+		// Scale to 0-255
+		return [r * 255, g * 255, b * 255];
 	},
 
 
 	// http://alvyray.com/Papers/CG/HWB_JGTv208.pdf
 	hsv: function (h, w, b) {
+		// Convert from H: 0-360, W/B: 0-100
+		w = w / 100;
+		b = b / 100;
+
 		var s, v;
 
 		//if w+b > 100% - take proportion (how many times )
@@ -62,8 +73,8 @@ var hwb = {
 			v = 1 - b;
 		}
 
-
-		return [h, s, v];
+		// Output: H: 0-360, S/V: 0-100
+		return [h, s * 100, v * 100];
 	},
 
 	hsl: function (h, w, b) {
@@ -76,18 +87,27 @@ export default (hwb);
 
 // extend rgb
 rgb.hwb = function (r, g, b) {
-	var h = rgb.hsl(r, g, b)[0],
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
+	var h = rgb.hsl(r * 255, g * 255, b * 255)[0],
 		w = Math.min(r, Math.min(g, b));
 
 	b = 1 - Math.max(r, Math.max(g, b));
 
-	return [h, w, b];
+	// Output: H: 0-360, W/B: 0-100
+	return [h, w * 100, b * 100];
 };
 
 
 // keep proper hue on 0 values (conversion to rgb loses hue on zero-lightness)
 hsv.hwb = function (h, s, v) {
-	return [h, v === 0 ? 0 : (v * (1 - s)), 1 - v];
+	// Input/Output: H: 0-360, S/V/W/B: 0-100
+	s = s / 100;
+	v = v / 100;
+	return [h, (v === 0 ? 0 : (v * (1 - s))) * 100, (1 - v) * 100];
 };
 
 

@@ -61,34 +61,47 @@ export const whitepoint = {
   }
 };
 
-// scale whitepoint to 0..1
-for (let obs in whitepoint) {
-	for (let ill in whitepoint[obs]) {
-		whitepoint[obs][ill] = whitepoint[obs][ill].map(v => v / 100);
-	}
-}
+// Keep whitepoint values as-is (already in 0-100 range)
+// No need to scale them anymore
 
 // We use D65 matrice
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 const xyz = {
 	name: 'xyz',
 	channel: ['X', 'Y', 'Z'],
+	range: [[0, 100], [0, 100], [0, 100]],
 	whitepoint: whitepoint
 };
 
-xyz.lrgb = (x, y, z) => [
-  (x * 3.240969941904521) + (y * -1.537383177570093) + (z * -0.498610760293),
-  (x * -0.96924363628087) + (y * 1.87596750150772) + (z * 0.041555057407175),
-	(x * 0.055630079696993) + (y * -0.20397695888897) + (z * 1.056971514242878)
-]
+// XYZ (0-100) to linear RGB (0-1)
+xyz.lrgb = (x, y, z) => {
+	// Normalize XYZ from 0-100 to 0-1 for matrix multiplication
+	x = x / 100;
+	y = y / 100;
+	z = z / 100;
 
-lrgb.xyz = (r, g, b) => [
-	(r * 0.41239079926595) + (g * 0.35758433938387) + (b * 0.18048078840183),
-	(r * 0.21263900587151) + (g * 0.71516867876775) + (b * 0.072192315360733),
-	(r * 0.019330818715591) + (g * 0.11919477979462) + (b * 0.95053215224966)
-]
+	return [
+		(x * 3.240969941904521) + (y * -1.537383177570093) + (z * -0.498610760293),
+		(x * -0.96924363628087) + (y * 1.87596750150772) + (z * 0.041555057407175),
+		(x * 0.055630079696993) + (y * -0.20397695888897) + (z * 1.056971514242878)
+	]
+}
 
+// Linear RGB (0-1) to XYZ (0-100)
+lrgb.xyz = (r, g, b) => {
+	const xyz = [
+		(r * 0.41239079926595) + (g * 0.35758433938387) + (b * 0.18048078840183),
+		(r * 0.21263900587151) + (g * 0.71516867876775) + (b * 0.072192315360733),
+		(r * 0.019330818715591) + (g * 0.11919477979462) + (b * 0.95053215224966)
+	];
+
+	// Scale from 0-1 to 0-100
+	return xyz.map(v => v * 100);
+}
+
+// RGB (0-255) to XYZ (0-100)
 rgb.xyz = (r, g, b) => lrgb.xyz(...rgb.lrgb(r, g, b))
-xyz.rgb = (r, g, b) => lrgb.rgb(...xyz.lrgb(r, g, b))
+// XYZ (0-100) to RGB (0-255)
+xyz.rgb = (x, y, z) => lrgb.rgb(...xyz.lrgb(x, y, z))
 
 export default xyz;

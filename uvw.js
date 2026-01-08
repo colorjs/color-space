@@ -11,6 +11,7 @@ import xyz from './xyz.js';
 var uvw = {
 	name: 'uvw',
 	channel: ['U', 'V', 'W'],
+	range: [[-100, 100], [-100, 100], [0, 100]]
 };
 
 export default (uvw);
@@ -19,6 +20,8 @@ export default (uvw);
  * UVW to XYZ
  */
 uvw.xyz = function (u, v, w, i, o) {
+	// Input: U/V: -100 to 100, W: 0-100
+	// Output: XYZ: 0-100
 	var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 	if (w === 0) return [0, 0, 0];
@@ -34,6 +37,7 @@ uvw.xyz = function (u, v, w, i, o) {
 	un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
 	vn = (6 * yn) / (xn + (15 * yn) + (3 * zn));
 
+	// Normalize W from 0-100 to match formula which expects this scale
 	y = Math.pow((w + 17) / 25, 3);
 
 	_u = u / (13 * w) + un || 0;
@@ -42,16 +46,23 @@ uvw.xyz = function (u, v, w, i, o) {
 	x = (6 / 4) * y * _u / _v;
 	z = y * (2 / _v - 0.5 * _u / _v - 5);
 
-	return [x, y, z];
+	// y, x, z are already in 0-1 scale, scale to 0-100
+	return [x * 100, y * 100, z * 100];
 };
 
 
 /**
  * XYZ to UVW
  *
- * @return {Array<number>} An UVW array
+ * @return {Array<number>} An UVW array: U/V: -100 to 100, W: 0-100
  */
 xyz.uvw = function (x, y, z, i, o) {
+	// Input: XYZ: 0-100
+	// Normalize to 0-1 for calculations
+	x = x / 100;
+	y = y / 100;
+	z = z / 100;
+
 	var xn, yn, zn, un, vn;
 
 	//find out normal source u v

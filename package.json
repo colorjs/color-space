@@ -295,12 +295,20 @@
   },
   "devDependencies": {
     "color-name": "^2.0.0",
+    "culori": "^4.0.1",
+    "colorjs.io": "^0.5.2",
+    "@texel/color": "^1.0.1",
+    "chroma-js": "^3.1.2",
+    "tinycolor2": "^1.6.0",
+    "color": "^4.2.3",
+    "color-convert": "^2.0.1",
     "esbuild": "^0.24.2",
     "tst": "^8.0.2",
     "watr": "^3.1.0"
   },
   "scripts": {
     "test": "node test",
+    "benchmark": "node benchmark/compare.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js",
     "min": "esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
     "prepublishOnly": "npm run build && npm run min"

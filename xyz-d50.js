@@ -2,7 +2,8 @@ import xyz from './xyz.js';
 
 const xyzD50 = {
 	name: 'xyz-d50',
-	channel: ['x', 'y', 'z']
+	channel: ['x', 'y', 'z'],
+	range: [[0, 100], [0, 100], [0, 100]]
 };
 
 const M_D50_D65 = [

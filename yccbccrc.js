@@ -9,15 +9,16 @@ import ypbpr from './ypbpr.js';
 var yccbccrc = {
 	name: 'yccbccrc',
 	channel: ['Yc', 'Cbc', 'Crc'],
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
 };
 
 
 /**
  * YcCbcCrc to RGB
  *
- * @param {Array<number>} yccbccrc RGB values
+ * @param {Array<number>} yccbccrc Y: 0-1, Cbc/Crc: -0.5 to 0.5
  *
- * @return {Array<number>} YcCbcCrc values
+ * @return {Array<number>} RGB 0-255
  */
 yccbccrc.rgb = function (y, cb, cr) {
 	return ypbpr.rgb(y, cb, cr, 0.0593, 0.2627);
@@ -27,9 +28,9 @@ yccbccrc.rgb = function (y, cb, cr) {
 /**
  * RGB to YcCbcCrc
  *
- * @param {Array<number>} arr YcCbcCrc values
+ * @param {Array<number>} arr RGB 0-255
  *
- * @return {Array<number>} RGB values
+ * @return {Array<number>} Y: 0-1, Cbc/Crc: -0.5 to 0.5
  */
 rgb.yccbccrc = function (r, g, b) {
 	return rgb.ypbpr(r, g, b, 0.0593, 0.2627);

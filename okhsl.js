@@ -6,7 +6,8 @@ import rgb from './rgb.js';
 
 var okhsl = {
 	name: 'okhsl',
-	channel: ['h', 's', 'l']
+	channel: ['h', 's', 'l'],
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 export var tau = 2 * Math.PI;
@@ -323,6 +324,11 @@ function constrain(angle) {
 
 // Okhsl -> Oklab
 okhsl.oklab = function (h, s, l) {
+	// Normalize from conventional ranges
+	h = h / 360;
+	s = s / 100;
+	l = l / 100;
+
 	// Convert Okhsl to Oklab.
 	var L = toeInv(l);
 	var a = null;
@@ -357,17 +363,24 @@ okhsl.oklab = function (h, s, l) {
 		b = c * b_;
 	}
 
-	return [L, a || 0, b || 0];
+	// Return in Oklab conventional range: L 0-100, a/b ±40
+	return [L * 100, (a || 0) * 100, (b || 0) * 100];
 };
 
 // Oklab -> Okhsl
 oklab.okhsl = function (l, a, b) {
+	// Input: Oklab L 0-100, a/b ±40
+	// Normalize to 0-1 scale
+	l = l / 100;
+	a = a / 100;
+	b = b / 100;
+
 	// Oklab to Okhsl.
 	var εL = 1e-7;
 	var εS = 1e-4;
-	var L = l; // l is passed as first arg
+	var L = l; // L is normalized 0-1
 	var s = 0.0;
-	var l_ = toe(L); // l_ is output l
+	var l_ = toe(L); // l_ is output l (0-1)
 
 	var c = Math.sqrt(a ** 2 + b ** 2);
 	var h = 0.5 + Math.atan2(-b, -a) / tau;
@@ -408,7 +421,8 @@ oklab.okhsl = function (l, a, b) {
 		h = constrain(h);
 	}
 
-	return [h, s, l_];
+	// Scale to conventional ranges
+	return [h * 360, s * 100, l_ * 100];
 };
 
 okhsl.rgb = (...args) => oklab.rgb(...okhsl.oklab(...args));

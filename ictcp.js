@@ -2,7 +2,8 @@ import xyz from './xyz.js';
 
 const ictcp = {
 	name: 'ictcp',
-	channel: ['I', 'Ct', 'Cp']
+	channel: ['I', 'Ct', 'Cp'],
+	range: [[0, 100], [-50, 50], [-50, 50]]
 };
 
 const Yw = 203; // nits
@@ -69,6 +70,11 @@ function ICtCptoLMS(i, ct, cp) {
 }
 
 xyz.ictcp = (x, y, z) => {
+	// XYZ in 0-100 range, normalize to 0-1 for computation
+	x = x / 100;
+	y = y / 100;
+	z = z / 100;
+
 	// XYZ Relative -> XYZ Abs
 	const xa = x * Yw;
 	const ya = y * Yw;
@@ -76,16 +82,23 @@ xyz.ictcp = (x, y, z) => {
 	// XYZ Abs -> LMS Abs
 	const [l, m, s] = applyMatrix(M_XYZ_LMS, xa, ya, za);
 	// LMS Abs -> ICtCp
-	return LMStoICtCp(l, m, s);
+	const [i, ct, cp] = LMStoICtCp(l, m, s);
+	// Scale to conventional ranges
+	return [i * 100, ct * 100, cp * 100];
 }
 
 ictcp.xyz = (i, ct, cp) => {
+	// Normalize from conventional ranges
+	i = i / 100;
+	ct = ct / 100;
+	cp = cp / 100;
+
 	// ICtCp -> LMS Abs
 	const [l, m, s] = ICtCptoLMS(i, ct, cp);
 	// LMS Abs -> XYZ Abs
 	const [xa, ya, za] = applyMatrix(M_LMS_XYZ, l, m, s);
-	// XYZ Abs -> XYZ Relative
-	return [xa / Yw, ya / Yw, za / Yw];
+	// XYZ Abs -> XYZ Relative (scale to 0-100)
+	return [xa / Yw * 100, ya / Yw * 100, za / Yw * 100];
 }
 
 export default ictcp;

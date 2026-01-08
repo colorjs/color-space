@@ -7,7 +7,8 @@ import rgb from './rgb.js';
 
 var hsm = {
     name: 'hsm',
-    channel: ['hue', 'saturation', 'mixture']
+    channel: ['hue', 'saturation', 'mixture'],
+    range: [[0, 360], [0, 100], [0, 100]]
 };
 
 export default hsm
@@ -16,11 +17,16 @@ export default hsm
 /**
  * HSM to RGB
  *
- * @param {Array<number>} hsm Channel values
+ * @param {Array<number>} hsm H: 0-360, S/M: 0-100
  *
- * @return {Array<number>} RGB channel values
+ * @return {Array<number>} RGB 0-255
  */
 hsm.rgb = function (h, s, m) {
+    // Normalize inputs
+    h = h / 360;
+    s = s / 100;
+    m = m / 100;
+
     // This implementation uses an alternate derivation (with help of GPTs), since the one in paper is incorrect.
     // The idea is that the original RGB is recovered as:
     // [r, g, b] = m + d,
@@ -62,18 +68,24 @@ hsm.rgb = function (h, s, m) {
 	const g = Math.max(0, Math.min(1, m + dg));
 	const b = Math.max(0, Math.min(1, m + db));
 
-	return [r, g, b];
+	// Scale to 0-255
+	return [r * 255, g * 255, b * 255];
 };
 
 
 /**
  * RGB to HSM
  *
- * @param {Array<number>} rgb Channel values
+ * @param {Array<number>} rgb RGB 0-255
  *
- * @return {Array<number>} HSM channel values
+ * @return {Array<number>} H: 0-360, S/M: 0-100
  */
 rgb.hsm = function (r, g, b) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	let m = (4 * r + 2 * g + b) / 7;
     // distance in the deviation space
     let dr = r - m, dg = g - m, db = b - m;
@@ -97,5 +109,6 @@ rgb.hsm = function (r, g, b) {
 
     // s = Math.max(0, Math.min(1, s))
 
-    return [h, s, m]
+    // Output: H: 0-360, S/M: 0-100
+    return [h * 360, s * 100, m * 100]
 };

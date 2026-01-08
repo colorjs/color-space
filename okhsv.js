@@ -16,7 +16,8 @@ import {
 
 var okhsv = {
 	name: 'okhsv',
-	channel: ['h', 's', 'v']
+	channel: ['h', 's', 'v'],
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 function spow(a, b) {
@@ -29,6 +30,11 @@ function constrain(angle) {
 
 // Okhsv -> Oklab
 okhsv.oklab = function (h, s, v) {
+	// Normalize from conventional ranges
+	h = h / 360;
+	s = s / 100;
+	v = v / 100;
+
 	// Convert from Okhsv to Oklab.
 	h = constrain(h);
 
@@ -74,11 +80,18 @@ okhsv.oklab = function (h, s, v) {
 		b = c * b_;
 	}
 
-	return [l, a || 0, b || 0];
+	// Return in Oklab conventional range: L 0-100, a/b ±40
+	return [l * 100, (a || 0) * 100, (b || 0) * 100];
 };
 
 // Oklab -> Okhsv
 oklab.okhsv = function (l, a, b) {
+	// Input: Oklab L 0-100, a/b ±40
+	// Normalize to 0-1 scale
+	l = l / 100;
+	a = a / 100;
+	b = b / 100;
+
 	// Oklab to Okhsv.
 
 	// Epsilon for saturation just needs to be sufficiently close when denoting achromatic
@@ -128,7 +141,8 @@ oklab.okhsv = function (l, a, b) {
 		h = constrain(h);
 	}
 
-	return [h, s, v];
+	// Scale to conventional ranges
+	return [h * 360, s * 100, v * 100];
 };
 
 okhsv.rgb = (...args) => oklab.rgb(...okhsv.oklab(...args));

@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const rec2100hlg = {
 	name: 'rec2100hlg',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const a = 0.17883277;

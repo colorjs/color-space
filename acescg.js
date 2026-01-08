@@ -2,7 +2,8 @@ import xyz from './xyz.js';
 
 const acescg = {
 	name: 'acescg',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 65504], [0, 65504], [0, 65504]]
 };
 
 const M_ACESCG_TO_XYZ_ACES = [
@@ -42,11 +43,16 @@ function applyMatrix(m, x, y, z) {
 acescg.xyz = (r, g, b) => {
 	// ACEScg -> XYZ (ACES)
 	const [x, y, z] = applyMatrix(M_ACESCG_TO_XYZ_ACES, r, g, b);
-	// XYZ (ACES) -> XYZ (D65)
-	return applyMatrix(M_ADAPT_ACES_TO_D65, x, y, z);
+	// XYZ (ACES) -> XYZ (D65, 0-100)
+	const [x65, y65, z65] = applyMatrix(M_ADAPT_ACES_TO_D65, x, y, z);
+	return [x65 * 100, y65 * 100, z65 * 100];
 }
 
 xyz.acescg = (x, y, z) => {
+	// XYZ (D65, 0-100) -> XYZ (D65, 0-1)
+	x = x / 100;
+	y = y / 100;
+	z = z / 100;
 	// XYZ (D65) -> XYZ (ACES)
 	const [xa, ya, za] = applyMatrix(M_ADAPT_D65_TO_ACES, x, y, z);
 	// XYZ (ACES) -> ACEScg

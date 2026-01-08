@@ -12,6 +12,7 @@ import rgb from './rgb.js';
 const rg = {
 	name: 'rg',
 	channel: ['r', 'g'],
+	range: [[0, 1], [0, 1]]
 };
 
 /**
@@ -24,7 +25,8 @@ rg.rgb = (r, g) => {
 	// Normalize so max component is 1
 	const max = Math.max(r, g, b);
 	if (max === 0) return [0, 0, 0];
-	return [r / max, g / max, b / max];
+	// Scale to RGB 0-255
+	return [(r / max) * 255, (g / max) * 255, (b / max) * 255];
 };
 
 /**
@@ -32,6 +34,11 @@ rg.rgb = (r, g) => {
  * Normalize RGB so that r + g + b = 1
  */
 rgb.rg = (r, g, b) => {
+	// Normalize from 0-255 to 0-1 first
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	const sum = r + g + b;
 	if (sum === 0) return [0, 0];
 	return [r / sum, g / sum];

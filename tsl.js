@@ -11,6 +11,7 @@ import rgb from './rgb.js';
 var tsl = {
 	name: 'tsl',
 	channel: ['tint', 'saturation', 'lightness'],
+	range: [[0, 360], [0, 1], [0, 255]]
 };
 
 export default (tsl);
@@ -18,23 +19,14 @@ export default (tsl);
 /**
  * TSL to RGB
  *
- * @param {Array<number>} tsl RGB values
+ * @param {Array<number>} tsl T: 0-360, S: 0-1, L: 0-255
  *
- * @return {Array<number>} TSL values
+ * @return {Array<number>} RGB 0-255
  */
 tsl.rgb = function (T, S, L) {
-	//wikipedia solution
-	/*
-	// var x = - 1 / Math.tan(Math.PI * 2 * T);
-	var x = -Math.sin(2*Math.PI*T);
-	if ( x != 0 ) x = Math.cos(2*Math.PI*T)/x;
-
-	var g = T > .5 ? -S * Math.sqrt( 5 / (9 * (x*x + 1)) ) :
-			T < .5 ? S * Math.sqrt( 5 / (9 * (x*x + 1)) ) : 0;
-	var r = T === 0 ? 0.7453559 * S : (x * g + 1/3);
-
-	var R = k * r, G = k * g, B = k * (1 - r - g);
-	*/
+	// Normalize T from 0-360 to 0-1
+	T = T / 360;
+	// L is already in 0-255
 
 	var x = Math.tan(2 * Math.PI * (T - 1 / 4));
 	x *= x;
@@ -48,20 +40,20 @@ tsl.rgb = function (T, S, L) {
 	var G = k * g;
 	var R = k * r;
 
-	return [
-		R, G, B
-	];
+	// Already in 0-255 scale
+	return [R, G, B];
 };
 
 
 /**
  * RGB to TSL
  *
- * @param {Array<number>} rgb TSL values
+ * @param {Array<number>} rgb RGB 0-255
  *
- * @return {Array<number>} RGB values
+ * @return {Array<number>} T: 0-360, S: 0-1, L: 0-255
  */
 rgb.tsl = function (r, g, b) {
+	// RGB is already in 0-255, compute directly
 	var sum = (r + g + b);
 	var r_ = (r / sum || 0) - 1 / 3,
 		g_ = (g / sum || 0) - 1 / 3,
@@ -69,5 +61,6 @@ rgb.tsl = function (r, g, b) {
 		S = Math.sqrt(9 / 5 * (r_ * r_ + g_ * g_)),
 		L = ((r * 0.299) + (g * 0.587) + (b * 0.114));
 
-	return [T, S, L];
+	// Output: T in 0-360, S in 0-1, L in 0-255
+	return [T * 360, S, L];
 };

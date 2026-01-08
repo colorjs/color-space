@@ -16,19 +16,22 @@ const eps = 216 / 24389;
 const kappa = 24389 / 27;
 
 function toLstar(y) {
-	// Y (0-1) to L* (0-100)
+	// Y (0-100) to L* (0-100)
+	y = y / 100; // normalize to 0-1
 	const fy = y > eps ? Math.cbrt(y) : (kappa * y + 16) / 116;
 	return 116.0 * fy - 16.0;
 }
 
 function fromLstar(l) {
-	// L* (0-100) to Y (0-1)
-	return l > 8 ? Math.pow((l + 16) / 116, 3) : l / kappa;
+	// L* (0-100) to Y (0-100)
+	const y01 = l > 8 ? Math.pow((l + 16) / 116, 3) : l / kappa;
+	return y01 * 100;
 }
 
 const hct = {
 	name: 'hct',
-	channel: ['h', 'c', 't']
+	channel: ['h', 'c', 't'],
+	range: [[0, 360], [0, 150], [0, 100]]
 };
 
 xyz.hct = (x, y, z) => {

@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const a98rgb = {
 	name: 'a98rgb',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 255], [0, 255], [0, 255]]
 };
 
 const gamma = 563 / 256;

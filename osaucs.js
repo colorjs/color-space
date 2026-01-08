@@ -10,11 +10,12 @@ import xyz from './xyz.js';
 var osaucs = {
 	name: 'osaucs',
 	channel: ['L', 'j', 'g'],
+	range: [[-10, 10], [-10, 10], [-10, 10]]
 };
 
 
 /**
- * There’s no analytical solution to this
+ * There's no analytical solution to this
  */
 osaucs.xyz = function (L, j, g) {
 	var x, y, z;
@@ -29,11 +30,12 @@ osaucs.xyz = function (L, j, g) {
 /**
  * Transform to xyz osaucs
  *
- * @param {Array<number>} arg Input xyz array
+ * @param {Array<number>} arg Input XYZ 0-100
  *
- * @return {Array<number>} Ljg array
+ * @return {Array<number>} Ljg array L, j, g: -10 to 10
  */
 xyz.osaucs = function (X, Y, Z) {
+	// XYZ already in 0-100, use directly
 	var x = X / (X + Y + Z);
 	var y = Y / (X + Y + Z);
 

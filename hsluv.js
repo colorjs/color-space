@@ -58,27 +58,33 @@ export const _hsluv = {
 var hsluv = {
 	name: 'hsluv',
 	channel: ['hue', 'saturation', 'lightness'],
+	range: [[0, 360], [0, 100], [0, 100]],
 
 	lchuv: (h, s, l) => {
-		// Denormalize to 0-360 hue and 0-100 lightness for library
-		const lch = _hsluv.hsluvToLch([h * 360, s * 100, l * 100]);
-		// Normalize hue back to 0-1
-		return [lch[0] / 100, lch[1], lch[2] / 360];
+		// Input: H: 0-360, S/L: 0-100
+		const lch = _hsluv.hsluvToLch([h, s, l]);
+		// Output: L: 0-100, C: 0-150, H: 0-360
+		return [lch[0], lch[1], lch[2]];
+	},
+
+	rgb: function (h, s, l) {
+		// Convert through xyz
+		const xyz_vals = hsluv.xyz(h, s, l);
+		return xyz.rgb(xyz_vals[0], xyz_vals[1], xyz_vals[2]);
 	},
 
 	xyz: function (h, s, l) {
-		// Denormalize to 0-360 hue and 0-100 lightness for library
-		const lch = _hsluv.hsluvToLch([h * 360, s * 100, l * 100]);
-		// Pass normalized LCH values (lightness 0-1, hue 0-1) to lchuv.xyz
-		return lchuv.xyz(lch[0] / 100, lch[1], lch[2] / 360);
+		// Convert through lchuv
+		const lch = hsluv.lchuv(h, s, l);
+		return lchuv.xyz(lch[0], lch[1], lch[2]);
 	},
 
 	//a shorter way to convert to hpluv
 	hpluv: function (h, s, l) {
-		// Denormalize input, get result from library, normalize output
-		const lch = _hsluv.hsluvToLch([h * 360, s * 100, l * 100]);
+		// Input/Output: H: 0-360, S/L/P: 0-100
+		const lch = _hsluv.hsluvToLch([h, s, l]);
 		const hpl = _hsluv.lchToHpluv(lch);
-		return [hpl[0] / 360, hpl[1] / 100, hpl[2] / 100];
+		return [hpl[0], hpl[1], hpl[2]];
 	},
 
 	// export internal math
@@ -89,19 +95,20 @@ export default hsluv;
 
 //extend lchuv, xyz
 lchuv.hsluv = (l, c, h) => {
-	// Denormalize to 0-100 lightness and 0-360 hue for library
-	const hsl = _hsluv.lchToHsluv([l * 100, c, h * 360]);
-	// Normalize output to 0-1 ranges
-	return [hsl[0] / 360, hsl[1] / 100, hsl[2] / 100];
+	// Input: L: 0-100, C: 0-150, H: 0-360
+	const hsl = _hsluv.lchToHsluv([l, c, h]);
+	// Output: H: 0-360, S/L: 0-100
+	return [hsl[0], hsl[1], hsl[2]];
 };
 xyz.hsluv = function (x, y, z) {
+	// XYZ: 0-100 -> LCHuv -> HSLuv
 	const lch = xyz.lchuv(x, y, z);
-	// lch is normalized (l 0-1, h 0-1), need to denormalize for library
 	return lchuv.hsluv(lch[0], lch[1], lch[2]);
 };
 
 rgb.hsluv = (r, g, b) => {
-	const hsl = _hsluv.rgbToHsluv([r, g, b]);
-	// Normalize output from library (0-360, 0-100, 0-100) to 0-1
-	return [hsl[0] / 360, hsl[1] / 100, hsl[2] / 100];
+	// Normalize RGB from 0-255 to 0-1 for library
+	const hsl = _hsluv.rgbToHsluv([r / 255, g / 255, b / 255]);
+	// Output: H: 0-360, S/L: 0-100
+	return [hsl[0], hsl[1], hsl[2]];
 };

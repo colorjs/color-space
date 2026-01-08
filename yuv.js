@@ -8,9 +8,11 @@ import rgb from './rgb.js';
 var yuv = ({
 	name: 'yuv',
 	channel: ['Y', 'U', 'V'],
+	range: [[0, 1], [-0.436, 0.436], [-0.615, 0.615]]
 });
 
 yuv.rgb = function (y, u, v) {
+	// Input: Y: 0-1, U: -0.436 to 0.436, V: -0.615 to 0.615
 	var r, g, b;
 
 	r = (y * 1) + (u * 0) + (v * 1.13983);
@@ -21,12 +23,18 @@ yuv.rgb = function (y, u, v) {
 	g = Math.min(Math.max(0, g), 1);
 	b = Math.min(Math.max(0, b), 1);
 
-	return [r, g, b];
+	// Scale to 0-255
+	return [r * 255, g * 255, b * 255];
 }
 
 
 //extend rgb
 rgb.yuv = function (r, g, b) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	var y = (r * 0.299) + (g * 0.587) + (b * 0.114);
 	var u = (r * -0.14713) + (g * -0.28886) + (b * 0.436);
 	var v = (r * 0.615) + (g * -0.51499) + (b * -0.10001);

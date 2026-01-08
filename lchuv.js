@@ -10,11 +10,14 @@ import xyz from './xyz.js';
 var lchuv = {
 	name: 'lchuv',
 	channel: ['lightness', 'chroma', 'hue'],
+	range: [[0, 100], [0, 150], [0, 360]],
 
 	luv: function (l, c, h) {
+		// Input: L: 0-100, C: 0-150, H: 0-360
+		// Output: L: 0-100, u: -100 to 100, v: -100 to 100
 		var u, v, hr;
 
-		hr = h * 2 * Math.PI;
+		hr = h / 360 * 2 * Math.PI;
 		u = c * Math.cos(hr);
 		v = c * Math.sin(hr);
 		return [l, u, v];
@@ -28,11 +31,13 @@ var lchuv = {
 export default (lchuv);
 
 luv.lchuv = function (l, u, v) {
+	// Input: L: 0-100, u: -100 to 100, v: -100 to 100
+	// Output: L: 0-100, C: 0-150, H: 0-360
 	var c = Math.sqrt(u * u + v * v);
 	var hr = Math.atan2(v, u);
-	var h = hr / (2 * Math.PI);
+	var h = hr / (2 * Math.PI) * 360;
 	if (h < 0) {
-		h += 1;
+		h += 360;
 	}
 
 	return [l, c, h]

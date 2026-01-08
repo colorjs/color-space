@@ -5,26 +5,33 @@ import oklrab from './oklrab.js';
 
 var oklrch = {
 	name: 'oklrch',
-	channel: ['l', 'c', 'h']
+	channel: ['l', 'c', 'h'],
+	range: [[0, 100], [0, 40], [0, 360]]
 };
 
 oklrch.oklrab = function (l, c, h) {
-	var hRad = h * 2 * Math.PI;
-	return [
-		l,
-		c * Math.cos(hRad),
-		c * Math.sin(hRad)
-	];
+	// Input: L 0-100, C 0-40, H 0-360
+	// Calculate a and b from polar coordinates
+	var hRad = (h / 360) * 2 * Math.PI;
+	var a = c * Math.cos(hRad);
+	var b = c * Math.sin(hRad);
+
+	// Return in oklrab conventional range (L 0-100, a/b ±40)
+	return [l, a, b];
 };
 
 oklrab.oklrch = function (l, a, b) {
+	// Input: L 0-100, a/b ±40
 	var c = Math.sqrt(a * a + b * b);
-	var h = Math.atan2(b, a) / (2 * Math.PI);
+	var h = Math.atan2(b, a);
 
+	// Convert from radians to degrees
+	h = h * 180 / Math.PI;
 	if (h < 0) {
-		h += 1;
+		h += 360;
 	}
 
+	// Return: L 0-100, C 0-40, H 0-360
 	return [l, c, h];
 };
 

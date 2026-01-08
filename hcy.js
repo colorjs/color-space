@@ -9,6 +9,7 @@ import rgb from './rgb.js';
 var hcy = {
 	name: 'hcy',
 	channel: ['hue', 'chroma', 'luminance'],
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 export default (hcy);
@@ -22,7 +23,12 @@ export default (hcy);
  * @return {Array<number>} RGB channel values
  */
 hcy.rgb = function (h, s, i) {
-	h = (h < 0 ? (h % 1) + 1 : (h % 1)) * 2 * Math.PI;
+	// Normalize inputs: H: 0-360 -> radians, S/Y: 0-100 -> 0-1
+	h = (h / 360) * 2 * Math.PI;
+	s = s / 100;
+	i = i / 100;
+
+	h = (h < 0 ? (h % (2 * Math.PI)) + (2 * Math.PI) : (h % (2 * Math.PI)));
 
 	var pi3 = Math.PI / 3;
 
@@ -45,7 +51,8 @@ hcy.rgb = function (h, s, i) {
 		r = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
 	}
 
-	return [r, g, b];
+	// Scale to 0-255
+	return [r * 255, g * 255, b * 255];
 };
 
 
@@ -57,23 +64,29 @@ hcy.rgb = function (h, s, i) {
  * @return {Array<number>} HCY channel values
  */
 rgb.hcy = function (r, g, b) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	var sum = r + g + b;
 
-	var r = r / sum;
-	var g = g / sum;
-	var b = b / sum;
+	var rNorm = r / sum;
+	var gNorm = g / sum;
+	var bNorm = b / sum;
 
 	var h = Math.acos(
-		(0.5 * ((r - g) + (r - b))) /
-		Math.sqrt((r - g) * (r - g) + (r - b) * (g - b))
+		(0.5 * ((rNorm - gNorm) + (rNorm - bNorm))) /
+		Math.sqrt((rNorm - gNorm) * (rNorm - gNorm) + (rNorm - bNorm) * (gNorm - bNorm))
 	);
-	if (b > g) {
+	if (bNorm > gNorm) {
 		h = 2 * Math.PI - h;
 	}
 
-	var s = 1 - 3 * Math.min(r, g, b);
+	var s = 1 - 3 * Math.min(rNorm, gNorm, bNorm);
 
 	var i = sum / 3;
 
-	return [h / (2 * Math.PI), s, i];
+	// Output: H: 0-360, C/Y: 0-100
+	return [h / (2 * Math.PI) * 360, s * 100, i * 100];
 };

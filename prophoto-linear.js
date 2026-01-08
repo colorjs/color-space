@@ -2,7 +2,8 @@ import xyz from './xyz.js';
 
 const prophotoLinear = {
 	name: 'prophoto-linear',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // ProPhoto (Linear) -> XYZ (D50)
@@ -42,13 +43,17 @@ function applyMatrix(m, x, y, z) {
 }
 
 prophotoLinear.xyz = (r, g, b) => {
+	// ProPhoto Linear: 0-1, XYZ: 0-100
 	// 1. ProPhoto -> XYZ D50
 	const [x50, y50, z50] = applyMatrix(M_PP_XYZ50, r, g, b);
 	// 2. XYZ D50 -> XYZ D65
-	return applyMatrix(M_D50_D65, x50, y50, z50);
+	const [x, y, z] = applyMatrix(M_D50_D65, x50, y50, z50);
+	return [x * 100, y * 100, z * 100];
 }
 
 xyz.prophotoLinear = (x, y, z) => {
+	// XYZ: 0-100, ProPhoto Linear: 0-1
+	x /= 100; y /= 100; z /= 100;
 	// 1. XYZ D65 -> XYZ D50
 	const [x50, y50, z50] = applyMatrix(M_D65_D50, x, y, z);
 	// 2. XYZ D50 -> ProPhoto

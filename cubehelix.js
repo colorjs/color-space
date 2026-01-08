@@ -19,6 +19,7 @@ var defaults = {
 var cubehelix = {
 	name: 'cubehelix',
 	channel: ['fraction'],
+	range: [[0, 1]],
 	defaults
 };
 
@@ -28,7 +29,7 @@ var cubehelix = {
  *
  * @param {number|Array<number>} fraction 0..1 cubehelix level
  * @param {Object<string, number>} options Mapping options, overrides defaults
- * @return {Array<number>} rgb tuple
+ * @return {Array<number>} rgb tuple 0-255
  */
 cubehelix.rgb = function (fraction, options = {}) {
 	var start = options.start !== undefined ? options.start : defaults.start;
@@ -46,11 +47,12 @@ cubehelix.rgb = function (fraction, options = {}) {
 	var g = fraction + amp * (-0.29227 * Math.cos(angle) - 0.90649 * Math.sin(angle));
 	var b = fraction + amp * (+1.97294 * Math.cos(angle));
 
-        r = Math.max(0, Math.min(r, 1));
-        g = Math.max(0, Math.min(g, 1));
-        b = Math.max(0, Math.min(b, 1));
+	r = Math.max(0, Math.min(r, 1));
+	g = Math.max(0, Math.min(g, 1));
+	b = Math.max(0, Math.min(b, 1));
 
-        return [r, g, b];
+	// Scale to 0-255
+	return [r * 255, g * 255, b * 255];
 };
 /**
  * RGB to cubehelix

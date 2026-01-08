@@ -12,6 +12,7 @@ import xyz from './xyz.js';
 var lms = {
 	name: 'lms',
 	channel: ['long', 'medium', 'short'],
+	range: [[0, 100], [0, 100], [0, 100]],
 
 
 	//transform matrices

@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const rec2020 = {
 	name: 'rec2020',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 255], [0, 255], [0, 255]]
 };
 
 rec2020.xyz = (r, g, b) => {

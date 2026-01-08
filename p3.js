@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const p3 = {
 	name: 'p3',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 255], [0, 255], [0, 255]]
 };
 
 p3.xyz = (r, g, b) => {

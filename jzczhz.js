@@ -2,10 +2,16 @@ import jzazbz from './jzazbz.js';
 
 const jzczhz = {
 	name: 'jzczhz',
-	channel: ['Jz', 'Cz', 'hz']
+	channel: ['Jz', 'Cz', 'hz'],
+	range: [[0, 100], [0, 50], [0, 360]]
 };
 
 jzczhz.jzazbz = function(Jz, Cz, hz) {
+	// Normalize from conventional ranges
+	Jz = Jz / 100;
+	Cz = Cz / 100;
+	hz = hz / 360;
+
 	let h = hz * 2 * Math.PI;
 	return [
 		Jz,
@@ -19,10 +25,11 @@ jzazbz.jzczhz = function(Jz, az, bz) {
 	if (h < 0) {
 		h += 1;
 	}
+	// Scale to conventional ranges
 	return [
-		Jz,
-		Math.sqrt(az * az + bz * bz),
-		h
+		Jz * 100,
+		Math.sqrt(az * az + bz * bz) * 100,
+		h * 360
 	];
 };
 

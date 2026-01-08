@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const rec2020oetf = {
 	name: 'rec2020-oetf',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const alpha = 1.099;
@@ -15,7 +16,7 @@ function toLinear(val) {
 	const sign = val < 0 ? -1 : 1;
 	const abs = Math.abs(val);
 	// Inverting the OETF
-	if (abs < beta * 4.5) { // Threshold in OETF? 
+	if (abs < beta * 4.5) { // Threshold in OETF?
 		// Linear threshold is beta (0.018). OETF threshold is 4.5 * 0.018 = 0.081
 		return sign * (abs / 4.5);
 	}

@@ -2,7 +2,8 @@ import xyz from './xyz.js';
 
 const labD50 = {
 	name: 'lab-d50',
-	channel: ['l', 'a', 'b']
+	channel: ['l', 'a', 'b'],
+	range: [[0, 100], [-125, 125], [-125, 125]]
 };
 
 const whiteD50 = [0.96422, 1.00000, 0.82521];
@@ -49,7 +50,7 @@ labD50.xyz = (l, a, b) => {
 
 xyz.labD50 = (x, y, z) => {
 	const [x50, y50, z50] = applyMatrix(M_D65_D50, x, y, z);
-	
+
 	const xr = x50 / whiteD50[0];
 	const yr = y50 / whiteD50[1];
 	const zr = z50 / whiteD50[2];

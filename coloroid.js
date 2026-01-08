@@ -8,11 +8,12 @@ const coloroid = {
 
 	// hue, saturation, luminosity
 	channel: ['A', 'T', 'V'],
+	range: [[0, 72], [0, 100], [0, 100]],
 	// min: [1, 0, 0],
 	// max: [48, 100, 100],
 
 	// Coloroid table
-	// Regression of values is almost impossible, as hues don’t correlate
+	// Regression of values is almost impossible, as hues don't correlate
 	// Even angle values are picked very inconsistently, based on aesthetical evaluation.
 	// - tgф, ctgф are removed, ф is searched instead
 	// - eλ = xλ + yλ + zλ
@@ -94,13 +95,13 @@ const coloroid = {
 			row = table[table.length - 1];
 		}
 
-		var yl = row[4], el = row[2], xl = row[3];
+	var yl = row[4], el = row[2], xl = row[3];
 
-		var Y = V * V / 100 / 100;
+	// V is in 0-100 range, need to convert to Y (0-100 range)
+	// V = 10*sqrt(Y), so Y = (V/10)^2
+	var Y = (V / 10) * (V / 10);
 
-		var Yl = yl * el * 100;
-
-		var x = (100 * Y * x0 * ew * 100 + 100 * xl * el * T - Yl * T * x0 * ew) / (100 * T * el - Yl * T * ew + 100 * Y * ew * 100);
+	var Yl = yl * el * 100;		var x = (100 * Y * x0 * ew * 100 + 100 * xl * el * T - Yl * T * x0 * ew) / (100 * T * el - Yl * T * ew + 100 * Y * ew * 100);
 		var y = (100 * Y * 100 + 100 * T * yl * el - Yl * T) / (Y * 100 * ew * 100 + T * 100 * el - T * Yl * ew);
 
 		// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
@@ -182,11 +183,11 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 var TABLE = coloroid.table.slice(-13).concat(coloroid.table.slice(0, -13));
 
 
-// 2° D65 whitepoint is used
-var [Xn, Yn, Zn] = whitepoint[2].D65.map(v => v * 100);
+// 2° D65 whitepoint is used (already in 0-100 scale)
+var [Xn, Yn, Zn] = whitepoint[2].D65;
 
-var y0 = Xn / (Xn + Yn + Zn);
-var x0 = Yn / (Xn + Yn + Zn);
+var x0 = Xn / (Xn + Yn + Zn);
+var y0 = Yn / (Xn + Yn + Zn);
 var ew = (Xn + Yn + Zn) / 100;
 
 /**
@@ -197,8 +198,10 @@ var ew = (Xn + Yn + Zn) / 100;
  * @return {Array<number>} ATV coloroid channels
  */
 xyy.coloroid = function (x, y, Y) {
-	//coloroid luminocity is the same as hunter-lab lightness (the easier part)
-	var V = 10 * Math.sqrt(Y * 100);
+	// Input: x/y chromaticity, Y luminance (0-100)
+	// coloroid luminosity is the same as hunter-lab lightness
+	// V = 10*sqrt(Y) where Y is in 0-100 range
+	var V = 10 * Math.sqrt(Y);
 
 	//get the hue angle, -π ... +π
 	var angle = Math.atan2(y - y0, x - x0) * 180 / Math.PI;
@@ -226,7 +229,6 @@ xyy.coloroid = function (x, y, Y) {
 	var Yl = yl * el * 100;
 
 	var T = 100 * Y * (x0 * ew - x * ew) / (100 * (x * el - xl * el) + Yl * (x0 * ew - x * ew));
-	T *= 100;
 
 	// var T = 100 * Y*(1 - y*ew) / (100*(y*el - yl*el) + Yl*(1 - y*ew));
 

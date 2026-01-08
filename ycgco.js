@@ -9,6 +9,7 @@ import rgb from './rgb.js';
 var ycgco = {
 	name: 'ycgco',
 	channel: ['Y', 'Cg', 'Co'],
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
 };
 
 
@@ -16,17 +17,17 @@ var ycgco = {
  * YCgCo to RGB
  * transform through analog form
  *
- * @param {Array<number>} arr RGB values
+ * @param {Array<number>} arr Y: 0-1, Cg/Co: -0.5 to 0.5
  *
- * @return {Array<number>} YCgCo values
+ * @return {Array<number>} RGB 0-255
  */
 ycgco.rgb = function (y, cg, co) {
 	var tmp = y - cg;
 
 	return [
-		(tmp + co),
-		(y + cg),
-		(tmp - co)
+		(tmp + co) * 255,
+		(y + cg) * 255,
+		(tmp - co) * 255
 	];
 };
 
@@ -35,11 +36,16 @@ ycgco.rgb = function (y, cg, co) {
  * RGB to YCgCo
  * transform through analog form
  *
- * @param {Array<number>} arr YCgCo values
+ * @param {Array<number>} arr RGB 0-255
  *
- * @return {Array<number>} RGB values
+ * @return {Array<number>} Y: 0-1, Cg/Co: -0.5 to 0.5
  */
 rgb.ycgco = function (r, g, b) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	return [
 		0.25 * r + 0.5 * g + 0.25 * b,
 		-0.25 * r + 0.5 * g - 0.25 * b,

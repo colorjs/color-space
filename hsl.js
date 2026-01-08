@@ -6,11 +6,17 @@ import rgb from './rgb.js';
 var hsl = {
 	name: 'hsl',
 	channel: ['hue', 'saturation', 'lightness'],
+	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, s, l) {
+		// Convert from H: 0-360, S/L: 0-100 to normalized 0-1
+		h = h / 360;
+		s = s / 100;
+		l = l / 100;
+
 		var t1, t2, t3, rgb, val, i = 0;
 
-		if (s === 0) return val = l, [val, val, val];
+		if (s === 0) return val = l * 255, [val, val, val];
 
 		t2 = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		t1 = 2 * l - t2;
@@ -23,7 +29,7 @@ var hsl = {
 				2 * t3 < 1 ? t2 :
 					3 * t3 < 2 ? t1 + (t2 - t1) * (2 / 3 - t3) * 6 :
 						t1;
-			rgb[i++] = val;
+			rgb[i++] = val * 255; // Scale to 0-255
 		}
 
 		return rgb;
@@ -35,6 +41,11 @@ export default (hsl);
 
 //extend rgb
 rgb.hsl = function (r, g, b) {
+	// Normalize RGB from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	var min = Math.min(r, g, b),
 		max = Math.max(r, g, b),
 		delta = max - min,
@@ -71,5 +82,6 @@ rgb.hsl = function (r, g, b) {
 		s = delta / (2 - max - min);
 	}
 
-	return [h, s, l];
+	// Convert to H: 0-360, S/L: 0-100
+	return [h * 360, s * 100, l * 100];
 };

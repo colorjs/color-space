@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const acescc = {
 	name: 'acescc',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[-0.358, 1.468], [-0.358, 1.468], [-0.358, 1.468]]
 };
 
 const eps = Math.pow(2, -16);

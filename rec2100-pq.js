@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const rec2100pq = {
 	name: 'rec2100pq',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const Yw = 203; // absolute luminance of media white, cd/m²

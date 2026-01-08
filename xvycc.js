@@ -1,72 +1,202 @@
 /**
  * https://en.wikipedia.org/wiki/XvYCC
  *
- * Sony xvYCC is extended YCbCr
+ * Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr
  *
- * It uses same transformation as
+ * **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr
+ * because all values are normalized to 0-1 range. The conceptual difference is:
+ *
+ * - YCbCr (traditional): Limited to "legal" range (16-235 for Y in 8-bit)
+ * - YPbPr: Analog version, typically full range [0,1]
+ * - xvYCC: Explicitly extended range, allows values beyond normal gamut
+ *
+ * Since this library normalizes all spaces to [0,1] and doesn't enforce
+ * range limits, xvYCC is functionally identical to YPbPr here. The separate
+ * implementation exists for semantic clarity and compatibility.
+ *
+ * It uses the same transformation matrices as:
  * SD: ITU-R BT.601
  * HD: ITU-R BT.709
  *
- * But have extended mins/maxes, which (may) result in negative rgb values
+ * Formulas (identical to YPbPr):
  *
- * https://web.archive.org/web/20130524104850/http://www.sony.net/SonyInfo/technology/technology/theme/xvycc_01.html
+ * Forward (RGB → xvYCC):
+ *   Y  = Kr*R + (1-Kr-Kb)*G + Kb*B
+ *   Cb = 0.5*(B-Y)/(1-Kb)
+ *   Cr = 0.5*(R-Y)/(1-Kr)
  *
- * TODO: look for a spec (120$) - there are xvYCC ←→ XYZ conversion formulas
+ * Inverse (xvYCC → RGB):
+ *   R = Y + 2*Cr*(1-Kr)
+ *   B = Y + 2*Cb*(1-Kb)
+ *   G = (Y - Kr*R - Kb*B)/(1-Kr-Kb)
+ *
+ * Where for BT.709: Kr=0.2126, Kb=0.0722
+ *       for BT.601: Kr=0.299,  Kb=0.114
+ *
+ * References:
+ * - https://en.wikipedia.org/wiki/XvYCC
+ * - https://en.wikipedia.org/wiki/YCbCr
+ * - IEC 61966-2-4:2006 (xvYCC specification)
  *
  * @module  color-space/xvycc
  */
 import rgb from './rgb.js';
+import xyz from './xyz.js';
 import ypbpr from './ypbpr.js';
 
 var xvycc = {
 	name: 'xvycc',
 	channel: ['Y', 'Cb', 'Cr'],
+	range: [[16, 235], [16, 240], [16, 240]],  // Standard digital range (can be extended to 1-254)
+
 	/**
-	 * xvYCC to YPbPr (digital to analog)
-	 * Input is normalized 0-1, output is analog YPbPr 0-1
+	 * xvYCC to RGB
+	 * Uses ITU-R BT.709 or BT.601 transformation
+	 * Extended range allows RGB values outside [0,255]
+	 *
+	 * Formula: R = Y + 2*Cr*(1-Kr)
+	 *          B = Y + 2*Cb*(1-Kb)
+	 *          G = (Y - Kr*R - Kb*B)/(1-Kr-Kb)
+	 *
+	 * Reference test values (BT.709):
+	 *   Black [0,0,0] → [Y=16, Cb=128, Cr=128]
+	 *   White [255,255,255] → [Y=235, Cb=128, Cr=128]
+	 *
+	 * @param {number} y Y component (luminance) [16-235] (can extend to 1-254)
+	 * @param {number} cb Cb component (blue-difference) [16-240] (can extend)
+	 * @param {number} cr Cr component (red-difference) [16-240] (can extend)
+	 * @param {number} kb Blue weight (default: 0.0722 for BT.709)
+	 * @param {number} kr Red weight (default: 0.2126 for BT.709)
+	 * @return {Array<number>} RGB values 0-255 (may extend beyond)
 	 */
-	ypbpr: function (y, cb, cr) {
-		// Both in 0-1 range, return as-is
-		return [y, cb, cr];
+	rgb: function (y, cb, cr, kb, kr) {
+		// Default to ITU-R BT.709
+		kb = kb || 0.0722;
+		kr = kr || 0.2126;
+
+		// Normalize from digital range to 0-1
+		var y_norm = (y - 16) / (235 - 16);
+		var cb_norm = (cb - 128) / (240 - 16);
+		var cr_norm = (cr - 128) / (240 - 16);
+
+		// Convert from normalized YCbCr to normalized RGB using inverse matrix
+		var r_norm = y_norm + 2 * cr_norm * (1 - kr);
+		var b_norm = y_norm + 2 * cb_norm * (1 - kb);
+		var g_norm = (y_norm - kr * r_norm - kb * b_norm) / (1 - kr - kb);
+
+		// Scale to 0-255
+		return [r_norm * 255, g_norm * 255, b_norm * 255];
 	},
 
-        /**
-         * xvYCC to RGB
-         * transform through analog form
-         *
-         * @param {Array<number>} arr RGB values
-         * @param {number} kb
-         * @param {number} kr
-         * @return {Array<number>} xvYCC values
-         */
-        rgb: function (y, cb, cr, kb, kr) {
-                return ypbpr.rgb(...xvycc.ypbpr(y, cb, cr), kb, kr);
-        }
+	/**
+	 * xvYCC to XYZ
+	 * Converts through RGB using the standard transformation
+	 *
+	 * @param {number} y Y component (luminance) [16-235]
+	 * @param {number} cb Cb component (blue-difference) [16-240]
+	 * @param {number} cr Cr component (red-difference) [16-240]
+	 * @param {number} kb Blue weight (default: 0.0722 for BT.709)
+	 * @param {number} kr Red weight (default: 0.2126 for BT.709)
+	 * @return {Array<number>} XYZ values 0-100
+	 */
+	xyz: function (y, cb, cr, kb, kr) {
+		return rgb.xyz(...xvycc.rgb(y, cb, cr, kb, kr));
+	},
+
+	/**
+	 * xvYCC to YPbPr
+	 * Converts between digital (16-235/240) and analog (0-1/-0.5-0.5) ranges
+	 *
+	 * @param {number} y Y component [16-235]
+	 * @param {number} cb Cb component [16-240]
+	 * @param {number} cr Cr component [16-240]
+	 * @return {Array<number>} YPbPr values [Y: 0-1, Pb: -0.5-0.5, Pr: -0.5-0.5]
+	 */
+	ypbpr: function (y, cb, cr) {
+		// Convert from digital to analog range
+		var y_analog = (y - 16) / (235 - 16);
+		var pb = (cb - 128) / (240 - 16);
+		var pr = (cr - 128) / (240 - 16);
+		return [y_analog, pb, pr];
+	}
 };
 
 export default (xvycc);
 
+
 /**
- * YPbPr to xvYCC (analog to digital)
- * Input is analog YPbPr 0-1, output is normalized 0-1
+ * RGB to xvYCC
+ * Uses ITU-R BT.709 or BT.601 transformation
+ * Extended range allows input RGB values outside [0,255]
  *
- * @return {Array<number>} Resulting digitized form normalized to 0-1
+ * Formula: Y  = Kr*R + (1-Kr-Kb)*G + Kb*B
+ *          Cb = 0.5*(B-Y)/(1-Kb)
+ *          Cr = 0.5*(R-Y)/(1-Kr)
+ *
+ * Reference test values (BT.709):
+ *   Black [0,0,0] → [Y=16, Cb=128, Cr=128]
+ *   White [255,255,255] → [Y=235, Cb=128, Cr=128]
+ *
+ * @param {number} r Red component 0-255 (may extend beyond)
+ * @param {number} g Green component 0-255 (may extend beyond)
+ * @param {number} b Blue component 0-255 (may extend beyond)
+ * @param {number} kb Blue weight (default: 0.0722 for BT.709)
+ * @param {number} kr Red weight (default: 0.2126 for BT.709)
+ * @return {Array<number>} xvYCC values [Y: 16-235, Cb: 16-240, Cr: 16-240]
  */
-ypbpr.xvycc = function (y, pb, pr) {
-	// Both in 0-1 range, return as-is
-        return [y, pb, pr];
+rgb.xvycc = function (r, g, b, kb, kr) {
+	// Default to ITU-R BT.709
+	kb = kb || 0.0722;
+	kr = kr || 0.2126;
+
+	// Normalize RGB from 0-255 to 0-1
+	var r_norm = r / 255;
+	var g_norm = g / 255;
+	var b_norm = b / 255;
+
+	// Convert RGB to normalized YCbCr using forward matrix
+	var y_norm = kr * r_norm + (1 - kr - kb) * g_norm + kb * b_norm;
+	var cb_norm = 0.5 * (b_norm - y_norm) / (1 - kb);
+	var cr_norm = 0.5 * (r_norm - y_norm) / (1 - kr);
+
+	// Scale to digital range
+	var y = y_norm * (235 - 16) + 16;
+	var cb = cb_norm * (240 - 16) + 128;
+	var cr = cr_norm * (240 - 16) + 128;
+
+	return [y, cb, cr];
 };
 
 
 /**
- * RGB to xvYCC
- * transform through analog form
+ * XYZ to xvYCC
+ * Converts through RGB using the standard transformation
  *
- * @param {Array<number>} arr xvYCC values
- * @param {number} kb
- * @param {number} kr
- * @return {Array<number>} RGB values
+ * @param {number} x X component 0-100
+ * @param {number} y Y component 0-100 (not the same as xvYCC Y)
+ * @param {number} z Z component 0-100
+ * @param {number} kb Blue weight (default: 0.0722 for BT.709)
+ * @param {number} kr Red weight (default: 0.2126 for BT.709)
+ * @return {Array<number>} xvYCC values [Y: 16-235, Cb: 16-240, Cr: 16-240]
  */
-rgb.xvycc = function (r, g, b, kb, kr) {
-        return ypbpr.xvycc(...rgb.ypbpr(r, g, b, kb, kr));
+xyz.xvycc = function (x, y, z, kb, kr) {
+	return rgb.xvycc(...xyz.rgb(x, y, z), kb, kr);
+};
+
+
+/**
+ * YPbPr to xvYCC
+ * Converts between analog (0-1/-0.5-0.5) and digital (16-235/240) ranges
+ *
+ * @param {number} y Y component [0-1]
+ * @param {number} pb Pb component [-0.5-0.5]
+ * @param {number} pr Pr component [-0.5-0.5]
+ * @return {Array<number>} xvYCC values [Y: 16-235, Cb: 16-240, Cr: 16-240]
+ */
+ypbpr.xvycc = function (y, pb, pr) {
+	// Convert from analog to digital range
+	var y_digital = y * (235 - 16) + 16;
+	var cb = pb * (240 - 16) + 128;
+	var cr = pr * (240 - 16) + 128;
+	return [y_digital, cb, cr];
 };

@@ -22,12 +22,18 @@ const Epsilon = 1e-10;
 const hcl = {
 	name: 'hcl',
 	channel: ['hue', 'chroma', 'luminance'],
+	range: [[0, 360], [0, 150], [0, 100]]
 };
 
 /**
  * HCL to RGB
  */
 hcl.rgb = (h, c, l) => {
+	// Normalize from conventional ranges
+	h = h / 360;
+	c = c / 100;
+	l = l / 100;
+
 	if (l === 0) return [0, 0, 0];
 
 	const L = l * HCLmaxL;
@@ -73,9 +79,9 @@ hcl.rgb = (h, c, l) => {
 	}
 
 	return [
-		rgb[0] * V + U,
-		rgb[1] * V + U,
-		rgb[2] * V + U
+		(rgb[0] * V + U) * 255,
+		(rgb[1] * V + U) * 255,
+		(rgb[2] * V + U) * 255
 	];
 };
 
@@ -83,6 +89,11 @@ hcl.rgb = (h, c, l) => {
  * RGB to HCL
  */
 rgb.hcl = (r, g, b) => {
+	// Normalize RGB from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	let H = 0;
 	const U = Math.min(r, g, b);
 	const V = Math.max(r, g, b);
@@ -102,7 +113,8 @@ rgb.hcl = (r, g, b) => {
 	const C_adjusted = C * Q;
 	const L = ((V - U) * Q + U) / (HCLmaxL * 2);
 
-	return [H, C_adjusted, L];
+	// Scale to conventional ranges
+	return [H * 360, C_adjusted * 100, L * 100];
 };
 
 export default hcl;

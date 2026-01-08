@@ -3,7 +3,8 @@ import xyz from './xyz.js';
 
 const prophoto = {
 	name: 'prophoto',
-	channel: ['red', 'green', 'blue']
+	channel: ['red', 'green', 'blue'],
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const Et = 1 / 512;

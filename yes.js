@@ -9,10 +9,12 @@ import rgb from './rgb.js';
 
 var yes = {
 	name: 'yes',
-	channel: ['luminance', 'e-factor', 's-factor']
+	channel: ['luminance', 'e-factor', 's-factor'],
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
 };
 
 yes.rgb = function (y, e, s) {
+	// Input: Y: 0-1, E/S: -0.5 to 0.5
 	var m = [
 		1, 1.431, .126,
 		1, -.569, .126,
@@ -23,10 +25,16 @@ yes.rgb = function (y, e, s) {
 		g = y * m[3] + e * m[4] + s * m[5],
 		b = y * m[6] + e * m[7] + s * m[8];
 
-	return [r, g, b];
+	// Scale to 0-255
+	return [r * 255, g * 255, b * 255];
 };
 
 rgb.yes = function (r, g, b) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	var m = [
 		.253, .684, .063,
 		.500, -.50, .0,

@@ -12,27 +12,39 @@ import ypbpr from './ypbpr.js'
 var ycbcr = {
 	name: 'ycbcr',
 	channel: ['Y', 'Cb', 'Cr'],
+	range: [[16, 235], [16, 240], [16, 240]],
 	/**
 	 * YCbCr to YPbPr (digital to analog)
-	 * Input is normalized 0-1, output is analog YPbPr 0-1
+	 * Input: Y: 16-235, Cb/Cr: 16-240
+	 * Output: Y/Pb/Pr: 0-1
 	 */
 	ypbpr: function (y, cb, cr) {
-		// Input is already in 0-1 normalized range representing digital values
-		// Just return as-is since both are now in 0-1 range
-		return [y, cb, cr];
+		// Convert digital to analog ranges
+		// Y: 16-235 -> 0-1
+		// Cb/Cr: 16-240 -> -0.5 to 0.5
+		return [
+			(y - 16) / (235 - 16),
+			(cb - 128) / (240 - 16),
+			(cr - 128) / (240 - 16)
+		];
 	}
 };
 
 
 /**
  * YPbPr to YCbCr (analog to digital)
- * Input is analog YPbPr 0-1, output is normalized 0-1
+ * Input: Y/Pb/Pr: 0-1, -0.5 to 0.5
+ * Output: Y: 16-235, Cb/Cr: 16-240
  *
- * @return {Array<number>} Resulting digitized form normalized to 0-1
+ * @return {Array<number>} Resulting digitized form
  */
 ypbpr.ycbcr = function (y, pb, pr) {
-	// Both are in 0-1 range, just return as-is
-	return [y, pb, pr];
+	// Convert analog to digital ranges
+	return [
+		y * (235 - 16) + 16,
+		pb * (240 - 16) + 128,
+		pr * (240 - 16) + 128
+	];
 }
 
 

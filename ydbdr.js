@@ -11,33 +11,39 @@ import yuv from './yuv.js';
 var ydbdr = {
 	name: 'ydbdr',
 	channel: ['Y', 'Db', 'Dr'],
+	range: [[0, 1], [-1.333, 1.333], [-1.333, 1.333]]
 };
 
 
 /**
  * YDbDr to RGB
  *
- * @param {Array<number>} ydbdr RGB values
+ * @param {Array<number>} ydbdr Y: 0-1, Db/Dr: -1.333 to 1.333
  *
- * @return {Array<number>} YDbDr values
+ * @return {Array<number>} RGB 0-255
  */
 ydbdr.rgb = function (y, db, dr) {
 	var r = y + 0.000092303716148 * db - 0.525912630661865 * dr;
 	var g = y - 0.129132898890509 * db + 0.267899328207599 * dr;
 	var b = y + 0.664679059978955 * db - 0.000079202543533 * dr;
 
-	return [r, g, b];
+	return [r * 255, g * 255, b * 255];
 };
 
 
 /**
  * RGB to YDbDr
  *
- * @param {Array<number>} rgb YDbDr values
+ * @param {Array<number>} rgb RGB 0-255
  *
- * @return {Array<number>} RGB values
+ * @return {Array<number>} Y: 0-1, Db/Dr: -1.333 to 1.333
  */
 rgb.ydbdr = function (r, g, b) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
 	return [
 		0.299 * r + 0.587 * g + 0.114 * b,
 		-0.450 * r - 0.883 * g + 1.333 * b,

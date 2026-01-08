@@ -172,11 +172,12 @@ export function fromCam16(cam16, env) {
 	return multiply_v3_m3x3(
 		rgb_c.map((c, i) => c * env.dRgbInv[i]),
 		cat16Inv
-	).map(c => c / 100);
+	);
 }
 
 export function toCam16(xyzd65, env) {
-	const xyz100 = xyzd65.map(c => c * 100);
+	// XYZ in 0-100 range
+	const xyz100 = xyzd65;
 	const rgbA = adapt(
 		multiply_v3_m3x3(xyz100, cat16).map((c, i) => c * env.dRgb[i]),
 		env.fl
@@ -202,7 +203,8 @@ export function toCam16(xyzd65, env) {
 /* CAM16 Space */
 const cam16 = {
 	name: 'cam16',
-	channel: ['J', 'M', 'h']
+	channel: ['J', 'M', 'h'],
+	range: [[0, 100], [0, 100], [0, 360]]
 };
 
 xyz.cam16 = (x, y, z) => {

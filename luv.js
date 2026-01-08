@@ -12,14 +12,10 @@ var luv = {
 	//boronine states no rigid limits
 	//colorMine refers this ones:
 	channel: ['lightness', 'u', 'v'],
+	range: [[0, 100], [-100, 100], [-100, 100]],
 
 	xyz: function (l, u, v, i, o) {
-		// L is normalized to [0,1], u and v are signed values (centered at 0)
-		// Our encoding: L_real = l*100, u_real = u*100, v_real = v*100
-		//
-		// Original formula uses unbounded u, v values
-		// We divide by 100 to scale them, but they remain signed and unbounded
-
+		// Input: L: 0-100, u: -100 to 100, v: -100 to 100
 		var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 		if (l === 0) return [0, 0, 0];
@@ -38,19 +34,16 @@ var luv = {
 
 		un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
 		vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
-		// un = 0.19783000664283;
-		// vn = 0.46831999493879;
 
-		// Compute u', v' from our scaled values
-		// Original: _u = u_real / (13 * L_real) + un
-		// Substituting: _u = (u*100) / (13 * l*100) + un = u / (13*l) + un
+		// Compute u', v' from conventional values
+		// Original: _u = u / (13 * L) + un
 		_u = u / (13 * l) + un || 0;
 		_v = v / (13 * l) + vn || 0;
 
 		// Compute Y from L
-		// Original: y = L_real > 8 ? yn * ((L_real + 16)/116)^3 : yn * L_real * k
-		// Threshold: l*100 > 8  =>  l > 0.08
-		y = l > 0.08 ? yn * Math.pow((l * 100 + 16) / 116, 3) : yn * (l * 100) * k;
+		// Original: y = L > 8 ? yn * ((L + 16)/116)^3 : yn * L * k
+		// Note: XYZ whitepoint is now in 0-100 range, so we need to scale
+		y = l > 8 ? yn * Math.pow((l + 16) / 116, 3) : yn * l * k;
 
 		//wikipedia method for X and Z from Y, u', v'
 		x = y * 9 * _u / (4 * _v) || 0;
@@ -61,6 +54,7 @@ var luv = {
 		// x = 0 - (9 * y * _u) / ((_u - 4) * _v - _u * _v);
 		// z = (9 * y - (15 * _v * y) - (_v * x)) / (3 * _v);
 
+		// Output: XYZ in 0-100 range
 		return [x, y, z];
 	}
 };
@@ -72,6 +66,7 @@ export default (luv);
 //i - illuminant
 //o - observer
 xyz.luv = function (x, y, z, i, o) {
+	// Input: XYZ in 0-100 range
 	var _u, _v, l, u, v, xn, yn, zn, un, vn;
 
 	//get constants
@@ -100,6 +95,6 @@ xyz.luv = function (x, y, z, i, o) {
 	u = 13 * l * (_u - un);
 	v = 13 * l * (_v - vn);
 
-	// Normalize output to 0-1 range
-	return [l / 100, u / 100, v / 100];
+	// Output: L: 0-100, u: -100 to 100, v: -100 to 100
+	return [l, u, v];
 };
