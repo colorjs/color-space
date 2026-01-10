@@ -1,3 +1,55 @@
+## v3 Release Blockers
+
+### Critical
+  * [ ] Bump version to 3.0.0 (currently 2.3.1)
+  * [ ] Fix p3/rec2020/a98rgb/prophoto ranges — declared 0-255 but actually 0-1
+  * [ ] Create docs/library-comparison.md (referenced in README)
+  * [ ] Create docs/formula-verification.md (referenced in README)
+  * [ ] Write v2→v3 migration guide (currently commented out)
+  * [ ] Delete types/munsell.d.ts (no implementation exists)
+  * [ ] Fix type extensions: lrgb.ts, xvycc.ts, yccbccrc.ts → .d.ts
+
+### Defects
+  * [ ] osaucs.xyz() throws 'Unimplemented'
+  * [ ] rgb.cubehelix() throws 'not implemented'
+  * [ ] uvw.js: _u/_v division unprotected for _v=0
+  * [ ] osaucs.js: X+Y+Z division without zero check
+  * [ ] rg.js: chromacity sum=0 for black unhandled
+  * [ ] Add NaN guards to critical conversion paths
+
+### Missing Type Definitions (32 files)
+  * [ ] oklch, okhsl, okhsv, oklrab, oklrch
+  * [ ] jzazbz, jzczhz, rec2100-pq, rec2100-hlg, ictcp
+  * [ ] p3, p3-linear, prophoto, prophoto-linear
+  * [ ] a98rgb, a98rgb-linear, acescg, acescc
+  * [ ] rec2020, rec2020-linear, rec2020-oetf
+  * [ ] cam16, hct, hcl, gray, rg
+  * [ ] din99o-lab, din99o-lch, xyb
+  * [ ] lab-d50, xyz-d50, xyz-abs-d65
+
+### Documentation
+  * [ ] Clarify test count: README says 1,371 but runner shows ~1087
+  * [ ] Pick consistent space count (72 vs 71+)
+  * [ ] Add CHANGELOG.md
+  * [ ] Add JSDoc to hct.js, cam16.js
+  * [ ] Add @example tags to spaces
+
+### Cleanup
+  * [ ] Remove duplicate constrain() in hct.js (use cam16's)
+  * [ ] Replace minified hsluv.js with maintainable version
+  * [ ] Remove min/max from types/color-space.d.ts (not in v3)
+  * [ ] Unify variable style: var → const
+  * [ ] Fix benchmark/compare.js line 87 (uses 0-1 range, should be 0-255)
+
+### Missing Tests
+  * [ ] Edge cases: NaN, Infinity, negative values
+  * [ ] Implement osaucs → xyy (marked test.todo)
+  * [ ] Roundtrip precision tests (A→B→A error accumulation)
+  * [ ] Out-of-gamut tests (RGB > 255, negative)
+  * [ ] cam16/hct viewing condition variations
+
+---
+
 ## Core
   * [ ] All available color space conversions
   * [x] color-io conversions
@@ -14,9 +66,13 @@
   * [x] Correctness of all tests by ref values
   * [ ] Palette renderer
 
-
-## [ ] Demo
-
+## [ ] Website
+  * [ ] Write via playwright
   * [ ] All spaces
   * [ ] Benchmark
   * [ ] Alt analysis
+
+## Future
+  * [ ] CSS Color Level 5 relative color syntax hooks
+  * [ ] Gamut metadata (display-referred vs scene-referred)
+  * [ ] Consistent file naming (kebab-case vs flat)

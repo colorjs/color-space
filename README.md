@@ -30,7 +30,40 @@ rgb.hsl(200, 230, 100);
 <fromSpace>.<toSpace>(...channels);
 <space>.name //space name
 <space>.channel //channel names
+<space>.range //natural channel ranges
 ```
+
+## Design: Conventional Ranges
+
+Unlike most JavaScript color libraries (culori, colorjs.io) which normalize all values to 0-1, color-space uses **conventional ranges** that match [CSS Color Module Level 4/5](https://drafts.csswg.org/css-color/) specifications:
+
+```js
+import lab from 'color-space/lab.js';
+import oklch from 'color-space/oklch.js';
+import hsl from 'color-space/hsl.js';
+
+// Conventional ranges - matches CSS and color science literature:
+lab.rgb(50, -25, 40);      // L: 0-100, a/b: -125 to 125
+oklch.rgb(65, 25, 180);    // L: 0-100, C: 0-40, H: 0-360°
+hsl.rgb(180, 75, 50);      // H: 0-360°, S/L: 0-100%
+```
+
+**Benefits:**
+- ✅ Matches CSS color specifications exactly
+- ✅ Self-documenting: `oklch.rgb(50, 20, 180)` is clear as L:50%, C:20, H:180°
+- ✅ Direct use in design tools, documentation, CSS output
+- ✅ Matches scientific literature and color standards
+- ✅ HDR support: values beyond conventional ranges work naturally
+
+**Comparison with normalized (0-1) libraries:**
+| Aspect | This library (conventional) | Others (normalized) |
+|--------|----------------------------|---------------------|
+| CSS compatibility | Direct match | Requires conversion |
+| Readability | `lab.rgb(50, 0, 0)` | `lab.rgb(0.5, 0, 0)` |
+| GPU/WebGL use | Needs conversion | Direct use |
+| User intuition | Natural | Mental math needed |
+
+See [docs/library-comparison.md](docs/library-comparison.md) for detailed analysis vs culori, colorjs.io, and texel/color.
 
 ## Spaces
 
@@ -119,28 +152,40 @@ Some side effects:
 * Visualising and educating about color spaces.
 * Providing test cases for JS to WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
 
+## Comparison
+
+color-space offers a unique approach among JavaScript color libraries:
+
+| Feature | color-space | culori | colorjs.io | texel/color |
+|---------|-------------|--------|------------|-------------|
+| **Color spaces** | **72** | 25 | 40 | 16 |
+| **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
+| **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
+| **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
+| **Bundle size** | Tree-shakeable, minimal | Medium | Large | Minimal |
+| **Test coverage** | 1,371 tests (99.9%) | ~2,000 tests | ~1,500 tests | ~50 tests |
+
+**Key differences:**
+- **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
+- **Most comprehensive**: 71+ color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
+- **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
+
 ## Credits
 
 Thanks to everyone who contribute to color science – researchers, scientists, color theorists, specifiers, implementors, developers, and users.
 
-## Similar
-
-[culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/docs/procedural), [color-api](https://github.com/LeaVerou/color-api), [texel/color](https://github.com/texel-org/color?tab=readme-ov-file),
-
+Special thanks to libraries that informed this implementation: [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/) (CSS Color spec editors), [color-api](https://github.com/LeaVerou/color-api) (W3C WICG), [texel/color](https://github.com/texel-org/color).
 
 ## Changes in v3
 
-* Ranges 0..255, 0..100 (RGB, CMY) are normalized to 0..1. Make sure to scale: `lab.rgb(.5,.5,.5)`. <!-- less conversion friction and better precision. -->
+* **Conventional ranges**: Changed from normalized 0-1 to conventional ranges (RGB: 0-255, HSL H:0-360° S/L:0-100%, Lab L:0-100 a/b:±125, etc.)
+* **Matches CSS specs**: All ranges now match CSS Color Module Level 4/5 exactly
+* **Breaking change**: Update calls like `lab.rgb(0.5, 0, 0)` → `lab.rgb(50, 0, 0)`
 * No `min`, `max` properties. <!-- Channel limits are conventional, not theoretical, and can be picked in use cases. -->
+* Added `range` property documenting natural/conventional channel ranges (e.g., Lab L: 0-100, HSL H: 0-360). Values remain normalized to 0-1 in the API.
 * No `alias`. <!-- Synonymic names can be learned from docs, no need to clutter code & inflate bundle. -->
 * Flat arguments, eg. `rgb.lab([10, 20, 30])` -> `rgb.lab(10, 20, 30)`
 
-<!--
-## See also
-* [color-convert](https://github.com/harthur/color-convert)
-* [chromatist](https://github.com/jrus/chromatist)
-* [spectra](https://github.com/avp/spectra)
-* [colorspaces.js](https://github.com/boronine/colorspaces.js)
--->
 
 <p align="center"><a href="https://github.com/krsnzd/license/">🕉</a></p>

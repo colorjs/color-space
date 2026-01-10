@@ -126,7 +126,7 @@
 </section>
 
 <script type="module">
-	import convert from "../dist/color-space.min.js"
+	import convert from "../dist/color-space.js"
 
 	//setup converter
 	/** Converter */
@@ -185,7 +185,7 @@
 
 				for (var i = targetSpaceInputs.length; i--;){
 					targetSpaceInputs[i].value = targetValues[i].toFixed(1);
-					targetSpaceInputs[i].title = targetSpace.channel[i] + ': ' + targetValues[i] + ' ∈ [' + targetSpace.min[i] + '..' + targetSpace.max[i] + ']';
+					targetSpaceInputs[i].title = targetSpace.channel[i] + ': ' + targetValues[i] + ' ∈ [' + targetSpace.range[i][0] + '..' + targetSpace.range[i][1] + ']';
 				}
 			} catch (e) {
 				throw e;
@@ -234,9 +234,9 @@
 			td.lastChild.id = cname;
 			td.lastChild.title = cname;
 			td.lastChild.setAttribute('data-space', lname);
-			td.lastChild.min = space.min[i];
-			td.lastChild.max = space.max[i];
-			td.lastChild.step = space.max[i] === 1 ? .01 : 1;
+			td.lastChild.range = space.range[i];
+			td.lastChild.max = space.range[i][1];
+			td.lastChild.step = space.range[i][1] === 1 ? .01 : 1;
 			tr[i].appendChild(td);
 			td = td.cloneNode(true);
 		}

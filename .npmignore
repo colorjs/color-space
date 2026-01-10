@@ -1,0 +1,14 @@
+# Development only
+test/
+benchmark/
+docs/
+.github/
+
+# Build/temp files
+*.log
+*.tmp
+*.bak
+
+# OS/IDE
+.DS_Store
+.vscode/
