@@ -67,79 +67,99 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 
 ## Spaces
 
-* [x] [RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_RGB_colour_space) — sRGB
-* [x] [LRGB](https://en.wikipedia.org/wiki/SRGB#Transfer_function_("gamma")) – linear light sRGB
-* [x] [HSL](https://en.wikipedia.org/wiki/HSL_and_HSV) — cylindrical-coordinates sRGB
-* [x] [HSV, HSB](https://en.wikipedia.org/wiki/HSL_and_HSV)
-* [x] [HWB](http://dev.w3.org/csswg/css-color/#the-hwb-notation)
-* [x] [HSI](https://en.wikipedia.org/wiki/HSL_and_HSV) — used for computer vision due to better separation of shapes in an image, comparing to HSL/HSB.
-* [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model)
-* [x] [CMY](https://en.wikipedia.org/wiki/CMYK_color_model)
-* [x] [XYZ](http://en.wikipedia.org/wiki/CIE_1931_color_space)
-* [x] [XYY (YXY)](https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space)
-* [x] [LAB](http://en.wikipedia.org/wiki/Lab_color_space)
-* [x] [LCH<sub>ab</sub>](https://en.wikipedia.org/wiki/Lab_color_space#Cylindrical_representation:_CIELCh_or_CIEHLC)
-* [x] [LUV](http://en.wikipedia.org/wiki/CIELUV)
-* [x] [LCH<sub>uv</sub>](http://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation)
-* [x] [HSL<sub>uv</sub>](http://www.hsluv.org/)
-* [x] [HPL<sub>uv</sub>](http://www.hsluv.org/)
-* [x] [LAB<sub>H</sub>](http://en.wikipedia.org/wiki/Lab_color_space#Hunter_Lab)
-* [x] [YUV](https://en.wikipedia.org/?title=YUV)
-* [x] [YIQ](https://en.wikipedia.org/?title=YIQ)
-* [x] [YC<sub>g</sub>C<sub>o</sub>](https://en.wikipedia.org/wiki/YCgCo)
-* [x] [YD<sub>b</sub>D<sub>r</sub>](https://en.wikipedia.org/wiki/YDbDr)
-* [x] [YP<sub>b</sub>P<sub>r</sub>](https://en.wikipedia.org/wiki/YPbPr)
-* [x] [YC<sub>b</sub>C<sub>r</sub>](https://en.wikipedia.org/wiki/YCbCr)
-* [x] [Y<sub>c</sub>C<sub>bc</sub>C<sub>rc</sub>](https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.2020_conversion)
-* [x] [JPEG](https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion)
-* [x] [XvYCC](https://en.wikipedia.org/wiki/XvYCC)
-* [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space)
-* [x] [UVW](https://en.wikipedia.org/wiki/CIE_1964_color_space)
-* [x] [OKLAB](https://bottosson.github.io/posts/oklab/)
-* [x] [OKLCH](https://bottosson.github.io/posts/oklab/#the-oklch-color-space)
-* [x] [OKHSL](https://bottosson.github.io/posts/okhsl-and-okhsv/)
-* [x] [OKHSV](https://bottosson.github.io/posts/okhsl-and-okhsv/)
-* [x] [OKLRAB](https://bottosson.github.io/posts/colorpicker/) — linear-lightness Oklab.
-* [x] [OKLRCH](https://bottosson.github.io/posts/colorpicker/) — polar form of Oklrab.
-* [x] [Jzazbz](https://drafts.csswg.org/css-color-hdr/#Jzazbz) — perceptually uniform HDR color space.
-* [x] [JzCzHz](https://drafts.csswg.org/css-color-hdr/#JzCzhz) — polar form of Jzazbz.
-* [ ] [Munsell](https://en.wikipedia.org/wiki/Munsell_color_system)
-* [ ] [NCS](https://en.wikipedia.org/wiki/Natural_Color_System)
-* [ ] [PMS](https://en.wikipedia.org/wiki/Pantone)
-* [ ] [RAL](https://en.wikipedia.org/wiki/RAL_colour_standard)
-* [x] [TSL](https://en.wikipedia.org/wiki/TSL_color_space) – color space designed for face detection purpose.
-* [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space)
-* [ ] [RGK](https://en.wikipedia.org/wiki/RG_color_space)
-* [x] [Coloroid](https://en.wikipedia.org/wiki/Coloroid) — perceptually uniform aesthetical color space for architects and visual constructors, Hungarian Standard MSZ 7300 since 2000. ([ref](http://hej.sze.hu/ARC/ARC-030520-A/arc030520a.pdf))
-* [ ] [OSA-UCS](https://en.wikipedia.org/wiki/OSA-UCS) — accurately reprsenting uniform color differences, developed by the Optical Society of America’s Committee on Uniform Color Scales.
-* [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))
-* [x] [LMS](http://en.wikipedia.org/wiki/LMS_color_space) — represents sensitivity of the human eye to Long, Medium and Short wavelengths.
-* [x] [Display P3](https://en.wikipedia.org/wiki/DCI-P3)
-* [x] [Rec. 2020](https://en.wikipedia.org/wiki/Rec._2020)
-* [x] [Adobe 98 RGB](https://en.wikipedia.org/wiki/Adobe_RGB_color_space)
-* [x] [ProPhoto RGB](https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space)
-* [x] [ACEScg](https://en.wikipedia.org/wiki/Academy_Color_Encoding_System)
-* [x] [ACEScc](https://en.wikipedia.org/wiki/Academy_Color_Encoding_System)
-* [x] [Rec. 2100 PQ](https://en.wikipedia.org/wiki/Rec._2100)
-* [x] [Rec. 2100 HLG](https://en.wikipedia.org/wiki/Rec._2100)
-* [x] [ICTCP](https://en.wikipedia.org/wiki/ICtCp)
-* [x] [CAM16](https://en.wikipedia.org/wiki/Color_appearance_model#CIECAM16)
-* [x] [HCT](https://material.io/blog/science-of-color-design)
-* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — colormaps for data visualization.
-* [x] [Gray](http://dev.w3.org/csswg/css-color/#grays)
-* [ ] [CIECAM02](https://en.wikipedia.org/wiki/CIECAM02)
-* [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595)
-* [ ] [Toyo](http://mytoyocolor.com/)
-* [ ] [PhotoYCC](http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm)
-* [x] [HCG](https://github.com/acterhd/hcg-legacy)
-* [x] [HCL](http://www.chilliant.com/rgb2hsv.html)
-* [x] [HSP](http://alienryderflex.com/hsp.html)
-* [x] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html)
-* [x] [YES](http://www.atlantis-press.com/php/download_paper.php?id=198) — computationally effective color space for face recognition.
-* [ ] [British Standard Colour](http://www.britishstandardcolour.com/)
-* [x] [RG chromacity](https://en.wikipedia.org/wiki/Rg_chromaticity)
-* [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity)
-* [x] [HSM](http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428)
+### Display & Web
+* [x] [RGB](https://www.w3.org/TR/css-color-4/#numeric-srgb) — sRGB, the web standard. ([IEC 61966-2-1](https://webstore.iec.ch/publication/6169))
+* [x] [LRGB](https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear) — linear-light sRGB for physically correct blending, gradients, resizing.
+* [x] [Display P3](https://www.w3.org/TR/css-color-4/#predefined-display-p3) — wide gamut for Apple/modern displays, 25% larger than sRGB.
+* [x] [Rec. 2020](https://www.itu.int/rec/R-REC-BT.2020) — UHDTV/4K standard, covers 75% of visible spectrum. (ITU-R BT.2020)
+* [x] [Adobe 98 RGB](https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf) — photography standard, wider gamut for print reproduction.
+* [x] [ProPhoto RGB](https://www.color.org/ROMMRGB.pdf) — widest practical gamut for photography workflows. (ROMM RGB, ICC)
+
+### User-Friendly Cylindrical
+* [x] [HSL](https://www.w3.org/TR/css-color-4/#the-hsl-notation) — hue/saturation/lightness for CSS and color pickers.
+* [x] [HSV, HSB](https://en.wikipedia.org/wiki/HSL_and_HSV) — hue/saturation/value, preferred in graphics software (Photoshop, etc).
+* [x] [HWB](https://www.w3.org/TR/css-color-4/#the-hwb-notation) — hue/whiteness/blackness, intuitive for paint mixing mental model.
+* [x] [HSI](https://ieeexplore.ieee.org/document/6185466) — hue/saturation/intensity, decouples chrominance for computer vision.
+* [x] [HCG](https://github.com/acterhd/hcg-legacy) — hue/chroma/gray, alternative cylindrical model.
+* [x] [HCL](http://www.chilliant.com/rgb2hsv.html) — hue/chroma/luminance, attempt at perceptual cylindrical.
+* [x] [HSP](http://alienryderflex.com/hsp.html) — perceived brightness weighting (0.299R + 0.587G + 0.114B).
+* [x] [HCY](http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html) — luma-based cylindrical for shader programming.
+* [x] [HSM](https://doi.org/10.22456/2175-2745.17323) — hue/saturation/mixture for image segmentation.
+
+### Perceptual Uniform (Modern)
+* [x] [OKLAB](https://bottosson.github.io/posts/oklab/) — best current perceptual uniformity, simple and fast. Recommended for gradients, gamut mapping.
+* [x] [OKLCH](https://www.w3.org/TR/css-color-4/#ok-lab) — polar OKLAB with intuitive hue angle. CSS Color 4 standard.
+* [x] [OKHSL](https://bottosson.github.io/posts/okhsv/) — perceptually uniform HSL alternative, bounded to sRGB gamut.
+* [x] [OKHSV](https://bottosson.github.io/posts/okhsv/) — perceptually uniform HSV alternative, bounded to sRGB gamut.
+* [x] [OKLRAB](https://bottosson.github.io/posts/colorpicker/) — linear-lightness OKLAB for advanced color pickers.
+* [x] [OKLRCH](https://bottosson.github.io/posts/colorpicker/) — polar OKLRAB.
+* [x] [HCT](https://material.io/blog/science-of-color-design) — Google Material's hue/chroma/tone, combines CAM16 hue with L* lightness.
+
+### Perceptual Uniform (CIE Classic)
+* [x] [LAB](https://www.w3.org/TR/css-color-4/#cie-lab) — CIE 1976 L\*a\*b\*, the historical standard for perceptual uniformity. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
+* [x] [LCH<sub>ab</sub>](https://www.w3.org/TR/css-color-4/#cie-lab) — polar LAB, intuitive hue/chroma. CSS Color 4 standard.
+* [x] [LUV](https://en.wikipedia.org/wiki/CIELUV) — CIE 1976 L\*u\*v\*, uniform for additive color mixing (displays, lighting).
+* [x] [LCH<sub>uv</sub>](http://www.brucelindbloom.com/index.html?Eqn_Luv_to_LCH.html) — polar LUV.
+* [x] [HSL<sub>uv</sub>](http://www.hsluv.org/) — human-friendly LCH<sub>uv</sub> stretched to sRGB gamut boundary.
+* [x] [HPL<sub>uv</sub>](http://www.hsluv.org/) — pastel-only HSLuv variant, always in gamut.
+* [x] [LAB<sub>H</sub>](http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_HunterLab.html) — Hunter Lab (1948), predecessor to CIE LAB.
+* [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space) — CIE 1960 uniform chromaticity scale, precursor to LUV.
+* [x] [UVW](http://www.brucelindbloom.com/index.html?Eqn_UVW_to_XYZ.html) — CIE 1964, attempted uniform color space.
+
+### HDR & Wide Gamut
+* [x] [Jzazbz](https://observablehq.com/@jrus/jzazbz) — perceptually uniform for HDR, handles 10,000+ nits. ([Safdar et al. 2017](https://doi.org/10.1364/OE.25.015131))
+* [x] [JzCzHz](https://www.w3.org/TR/css-color-hdr/#JzCzHz) — polar Jzazbz for HDR hue/chroma work. CSS Color HDR draft.
+* [x] [Rec. 2100 PQ](https://www.itu.int/rec/R-REC-BT.2100) — HDR with perceptual quantizer (Dolby), 10,000 nits. (ITU-R BT.2100)
+* [x] [Rec. 2100 HLG](https://www.itu.int/rec/R-REC-BT.2100) — HDR with hybrid log-gamma (BBC/NHK), backwards compatible.
+* [x] [ICTCP](https://www.itu.int/rec/R-REC-BT.2100) — perceptual HDR space, constant hue/luminance lines. (ITU-R BT.2100)
+
+### Colorimetry Foundation
+* [x] [XYZ](https://www.w3.org/TR/css-color-4/#cie-xyz) — CIE 1931, the foundation of all colorimetry. Device-independent reference. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
+* [x] [XYY (xyY)](http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html) — chromaticity diagram coordinates, separates luminance from chromaticity.
+* [x] [LMS](https://www.sciencedirect.com/science/article/pii/S0042698999000887) — cone response space (long/medium/short wavelength), basis for chromatic adaptation.
+* [x] [Gray](https://www.w3.org/TR/css-color-4/#grays) — single-channel luminance.
+
+### Video & Broadcast
+* [x] [YUV](https://www.itu.int/rec/R-REC-BT.601) — luma + chrominance, analog PAL/SECAM encoding. (ITU-R BT.601)
+* [x] [YIQ](https://en.wikipedia.org/wiki/YIQ) — analog NTSC encoding, I/Q chosen for bandwidth efficiency.
+* [x] [YC<sub>b</sub>C<sub>r</sub>](https://www.itu.int/rec/R-REC-BT.601) — digital video standard (BT.601/709), JPEG/MPEG/H.264. (ITU-R BT.601)
+* [x] [Y<sub>c</sub>C<sub>bc</sub>C<sub>rc</sub>](https://www.itu.int/rec/R-REC-BT.2020) — constant-luminance YCbCr for BT.2020/HDR. (ITU-R BT.2020)
+* [x] [YP<sub>b</sub>P<sub>r</sub>](https://en.wikipedia.org/wiki/YPbPr) — analog component video (DVD players, projectors).
+* [x] [YD<sub>b</sub>D<sub>r</sub>](https://en.wikipedia.org/wiki/YDbDr) — SECAM analog encoding (France, Russia, Africa).
+* [x] [YC<sub>g</sub>C<sub>o</sub>](https://www.microsoft.com/en-us/research/publication/the-h-264-advanced-video-coding-standard/) — lossless/low-cost video compression, integer-only transforms.
+* [x] [JPEG](https://www.w3.org/Graphics/JPEG/jfif3.pdf) — full-range YCbCr for JPEG/JFIF compression.
+* [x] [XvYCC](https://www.itu.int/rec/R-REC-BT.1361) — extended-gamut video, allows out-of-range RGB values. (IEC 61966-2-4)
+
+### Film & Professional
+* [x] [ACEScg](https://docs.acescentral.com/specifications/acescg/) — Academy Color Encoding, linear working space for CGI compositing.
+* [x] [ACEScc](https://docs.acescentral.com/specifications/acescc/) — Academy Color Encoding, logarithmic for grading with more shadow detail.
+
+### Color Appearance
+* [x] [CAM16](https://doi.org/10.1002/col.22131) — CIE color appearance model, handles viewing conditions (lighting, surround). ([Li et al. 2017](https://doi.org/10.1002/col.22131))
+* [ ] [CIECAM02](https://doi.org/10.1002/col.10125) — predecessor to CAM16, widely used in ICC profiles.
+
+### Print & Physical
+* [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive printing (cyan/magenta/yellow/black). Device-dependent.
+* [x] [CMY](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive primaries without black separation.
+* [ ] [Munsell](https://munsell.com/about-munsell-color/) — artist color system, perceptually uniform hue/value/chroma notation.
+* [ ] [NCS](https://ncscolour.com/) — Natural Color System, based on opponent-color theory (Sweden).
+* [ ] [PMS](https://www.pantone.com/) — Pantone Matching System, spot color standard for print.
+* [ ] [RAL](https://www.ral-farben.de/) — European industrial color standard (paint, coatings).
+* [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system)) — German spot color system for print.
+* [ ] [British Standard Colour](http://www.britishstandardcolour.com/) — UK industrial color standard.
+* [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595) — US government color specification.
+* [ ] [Toyo](http://mytoyocolor.com/) — Japanese spot color system.
+
+### Specialty & Research
+* [x] [Coloroid](http://hej.sze.hu/ARC/ARC-030520-A/arc030520a.pdf) — Hungarian aesthetic color system for architecture (MSZ 7300). Perceptually uniform hue/saturation/luminosity.
+* [ ] [OSA-UCS](https://www.osapublishing.org/josa/abstract.cfm?uri=josa-64-12-1691) — Optical Society uniform color scales, 12 equidistant neighbors per color.
+* [x] [TSL](https://ieeexplore.ieee.org/document/400568) — tint/saturation/lightness, designed for face detection skin-color clustering. ([Terrillon & Akamatsu 1999](https://doi.org/10.1109/ICIP.1999.817178))
+* [x] [YES](https://doi.org/10.2991/isaebd.2012.23) — luminance/chrominance for fast face recognition.
+* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — monotonic lightness colormaps for scientific visualization. ([Green 2011](https://doi.org/10.1071/AS11033))
+* [x] [RG chromaticity](http://www.brucelindbloom.com/) — normalized r=R/(R+G+B), illumination-invariant for vision.
+* [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity) — dominant wavelength/purity representation.
+* [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space) / [RGK](https://en.wikipedia.org/wiki/RG_color_space) — red-green dichromat simulation.
+* [ ] [PhotoYCC](https://en.wikipedia.org/wiki/PhotoYCC) — Kodak Photo CD encoding, extended gamut.
 
 
 ## Motivation

@@ -6,7 +6,6 @@
   * [ ] Create docs/library-comparison.md (referenced in README)
   * [ ] Create docs/formula-verification.md (referenced in README)
   * [ ] Write v2→v3 migration guide (currently commented out)
-  * [ ] Delete types/munsell.d.ts (no implementation exists)
   * [ ] Fix type extensions: lrgb.ts, xvycc.ts, yccbccrc.ts → .d.ts
 
 ### Defects
@@ -16,6 +15,7 @@
   * [ ] osaucs.js: X+Y+Z division without zero check
   * [ ] rg.js: chromacity sum=0 for black unhandled
   * [ ] Add NaN guards to critical conversion paths
+  * [ ] Delete types/munsell.d.ts (no implementation exists)
 
 ### Missing Type Definitions (32 files)
   * [ ] oklch, okhsl, okhsv, oklrab, oklrch
@@ -48,6 +48,7 @@
   * [ ] Out-of-gamut tests (RGB > 255, negative)
   * [ ] cam16/hct viewing condition variations
 
+
 ---
 
 ## Core
@@ -73,6 +74,62 @@
   * [ ] Alt analysis
 
 ## Future
+  * [ ] AI-training
+  * [ ] All possible visualisations
+  * [ ] Education about color spaces
   * [ ] CSS Color Level 5 relative color syntax hooks
   * [ ] Gamut metadata (display-referred vs scene-referred)
   * [ ] Consistent file naming (kebab-case vs flat)
+
+
+## [ ] mat3 * vec3 separate operation
+
++ separates concern, DRY
++ lots of code reuse (many places), less space
++ we can store matrices separately, rather than functions
++ can possibly be done as SIMD
++ WebGL-friendly
+- introduces some utility file
+- less readable, less self-documenting
+- slightly slower
+
+## [ ] Comparison table with color spaces
+
+  * Purpose
+  * Comparison with other alternatives
+  * Channels with limits
+  * Conversion formulas
+  * Which spaces directly converts to
+
+## [ ] Demo
+
+  * All color spaces
+  * Color picker with color space switch
+  * Visualizer with limits
+
+## [ ] Psychedelic fullscreen color picker
+
+  * All spaces at once
+  * Rendering limits
+
+## [ ] Test
+
+  * Color palette renderer for the space
+  * Edge values
+  * Wrong values
+  * Correctness of all test cases (paper)
+  * Edge values: pure red, pure green, pure blue, cyan, yellow, magenta, white, black
+  * Consistency of back-forth
+
+## [ ] Competitors analysis
+  * size
+  * spaces
+  * performance
+  * types
+  * ecosystem
+
+## [ ] Proof
+  * Blending
+  * Color gamut
+  * Munsell data
+  * See culori, color tests
