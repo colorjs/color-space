@@ -1,4 +1,4 @@
-## v3 Release Blockers
+## v3
 
 ### Critical
   * [ ] Bump version to 3.0.0 (currently 2.3.1)
