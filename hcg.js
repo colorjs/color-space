@@ -113,6 +113,9 @@ rgb.hcg = function (rgb) {
 			}
 		hue /= 6;
 		hue = (hue % 1);
+		if (hue < 0) {
+			hue += 1;
+		}
 	} else {
 		hue = 0;
 	}

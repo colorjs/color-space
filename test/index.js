@@ -96,6 +96,10 @@ test('hcg: rgb -> hcg', function () {
 	is((space.rgb.hcg([255, 255, 255]).map(round(0))), [0, 0, 100]);
 	is((space.rgb.hcg([128, 128, 128]).map(round(0))), [0, 0, 50]);
 	is((space.rgb.hcg([0, 0, 0]).map(round(0))), [0, 0, 0]);
+
+	// hue must stay within [0, 360) when red is the max channel and blue > green
+	is((space.rgb.hcg([255, 0, 55]).map(round(0))), [347, 100, 0]);
+	is((space.hcg.rgb(space.rgb.hcg([255, 0, 55])).map(round(0))), [255, 0, 55]);
 });
 
 test('hcg: hcg -> hwb', function () {
