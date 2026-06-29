@@ -24,24 +24,18 @@ export default (tsl);
  * @return {Array<number>} RGB 0-255
  */
 tsl.rgb = function (T, S, L) {
-	// Normalize T from 0-360 to 0-1
-	T = T / 360;
-	// L is already in 0-255
+	// Invert T = 0.5 - atan2(g',r')/2π  ->  θ = atan2(g',r') (sign preserved via cos/sin).
+	const theta = Math.PI * (1 - T / 180);
+	const m = S * Math.sqrt(5) / 3; // sqrt(r'^2 + g'^2), since S = sqrt(9/5)·m
 
-	var x = Math.tan(2 * Math.PI * (T - 1 / 4));
-	x *= x;
+	// chromaticities n = (r',g') + 1/3, summing to 1
+	const nr = m * Math.cos(theta) + 1 / 3;
+	const ng = m * Math.sin(theta) + 1 / 3;
 
-	var r = Math.sqrt(5 * S * S / (9 * (1 / x + 1))) + 1 / 3;
-	var g = Math.sqrt(5 * S * S / (9 * (x + 1))) + 1 / 3;
+	// invert L = k·(0.299·nr + 0.587·ng + 0.114·nb), nb = 1 - nr - ng
+	const k = L / (.185 * nr + .473 * ng + .114);
 
-	var k = L / (.185 * r + .473 * g + .114);
-
-	var B = k * (1 - r - g);
-	var G = k * g;
-	var R = k * r;
-
-	// Already in 0-255 scale
-	return [R, G, B];
+	return [k * nr, k * ng, k * (1 - nr - ng)];
 };
 
 
@@ -55,6 +49,7 @@ tsl.rgb = function (T, S, L) {
 rgb.tsl = function (r, g, b) {
 	// RGB is already in 0-255, compute directly
 	var sum = (r + g + b);
+	if (sum === 0) return [0, 0, 0]; // black: chromaticity undefined -> S=0, L=0
 	var r_ = (r / sum || 0) - 1 / 3,
 		g_ = (g / sum || 0) - 1 / 3,
 		T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0,

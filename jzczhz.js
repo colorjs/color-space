@@ -14,31 +14,17 @@ const jzczhz = {
 	name: 'jzczhz'
 };
 
+// jzazbz already uses conventional ranges (Jz 0-100, az/bz ±50), so this is a
+// pure rectangular<->polar transform with no rescaling.
 jzczhz.jzazbz = function(Jz, Cz, hz) {
-	// Normalize from conventional ranges
-	Jz = Jz / 100;
-	Cz = Cz / 100;
-	hz = hz / 360;
-
-	let h = hz * 2 * Math.PI;
-	return [
-		Jz,
-		Cz * Math.cos(h),
-		Cz * Math.sin(h)
-	];
+	const h = hz / 360 * 2 * Math.PI;
+	return [Jz, Cz * Math.cos(h), Cz * Math.sin(h)];
 };
 
 jzazbz.jzczhz = function(Jz, az, bz) {
-	let h = Math.atan2(bz, az) / (2 * Math.PI);
-	if (h < 0) {
-		h += 1;
-	}
-	// Scale to conventional ranges
-	return [
-		Jz * 100,
-		Math.sqrt(az * az + bz * bz) * 100,
-		h * 360
-	];
+	let h = Math.atan2(bz, az) * 180 / Math.PI;
+	if (h < 0) h += 360;
+	return [Jz, Math.sqrt(az * az + bz * bz), h];
 };
 
 export default jzczhz;

@@ -18,6 +18,7 @@ const HCLy0 = 100;
 const HCLmaxL = 0.530454533953517; // exp(HCLgamma / HCLy0) - 0.5
 const PI = Math.PI;
 const Epsilon = 1e-10;
+const frac = (x) => x - Math.floor(x); // mathematical fractional part (always >= 0), not JS %
 
 const hcl = {
 	name: 'hcl',
@@ -40,7 +41,7 @@ hcl.rgb = (h, c, l) => {
 	const Q = Math.exp((1 - c / (2 * L)) * (HCLgamma / HCLy0));
 	const U = (2 * L - c) / (2 * Q - 1);
 	const V = c / Q;
-	const A = (h + Math.min((2 * h) % 1 / 4, (-2 * h) % 1 / 8)) * PI * 2;
+	const A = (h + Math.min(frac(2 * h) / 4, frac(-2 * h) / 8)) * PI * 2;
 
 	let rgb = [0, 0, 0];
 	let T;
@@ -107,7 +108,6 @@ rgb.hcl = (r, g, b) => {
 	}
 
 	Q = Math.exp(Q);
-	const frac = (x) => x - Math.floor(x);
 	H = frac(H / 2 - Math.min(frac(H), frac(-H)) / 6);
 
 	const C_adjusted = C * Q;

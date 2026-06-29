@@ -20,7 +20,7 @@ yuv.rgb = function (y, u, v) {
 
 	r = (y * 1) + (u * 0) + (v * 1.13983);
 	g = (y * 1) + (u * -0.39465) + (v * -0.58060);
-	b = (y * 1) + (u * 2.02311) + (v * 0);
+	b = (y * 1) + (u * 2.03211) + (v * 0); // (1-Kb)/Umax = 0.886/0.436
 
 	r = Math.min(Math.max(0, r), 1);
 	g = Math.min(Math.max(0, g), 1);

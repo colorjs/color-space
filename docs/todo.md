@@ -27,13 +27,13 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] **oklab** — `rgb.oklab` skipped sRGB→linear before the M1 matrix; `oklab.rgb` skipped gamma re-encode. Self-cancelled in roundtrip so hidden. Poisoned oklch/okhsl/okhsv too. FIXED by reusing `lrgb` transfer; now matches colorjs to 2e-6. (oklch/okhsl/okhsv auto-fixed.)
   * [ ] **rec2020** — uses pure power-law `x^2.4`, not the ITU-R BT.2020 OETF (linear segment, α=1.0993). Error 0.107 vs colorjs. (`rec2020-oetf` is the correct transfer — reconcile the two.)
   * [x] **lab-d50** (broken) — FIXED: ÷100 input / ×100 output; key `xyz['lab-d50']`. Now matches colorjs D50 `lab` to 0.017 (residual = Bradford precision, tracked). Reachable + tested.
-  * [ ] **tsl** (broken) — inverse drops the sign of g′ (no sign recovery); pure red → [124,83,-83]. Black not guarded.
-  * [ ] **hcl** (broken) — inverse uses JS `%` (negative) instead of `frac()`; 352/359 hues fail, green → [255,255,0].
+  * [x] **tsl** (broken) — FIXED: inverse recovers θ=atan2(g′,r′) via cos/sin (sign preserved); black guarded. Exact roundtrip all colors (red was [124,83,-83]). Tested.
+  * [x] **hcl** (broken) — FIXED: inverse uses `frac()` not JS `%` (Chilliant formula). Full 360-hue sweep roundtrips, 0 failures (green was [255,255,0]). Tested.
   * [ ] **coloroid** — hue table off by 2 positions (`TABLE[i+1]` vs `TABLE[i]`), T formula missing ×100, crash near −177°.
   * [ ] **hcy** — verbatim copy of hsi; Y = mean, not luma. Reimplement (Rec.601/709 luma) + achromatic guard.
-  * [ ] **jzczhz** — ×100 applied twice (jzazbz already scales); Jz/Cz 100× too large.
-  * [ ] **yuv** — inverse blue coeff `2.02311` is a digit transposition of `2.03211`.
-  * [ ] **labh** — Illuminant-C constants (1.02, 0.847) with D65 input; white → a=−5.34. Adapt or use D65 constants.
+  * [x] **jzczhz** — FIXED: removed the double ×100 (jzazbz already conventional); pure polar transform. Roundtrip 3e-15, hue matches colorjs. Tested.
+  * [x] **yuv** — FIXED: inverse blue coeff `2.02311` → `2.03211` = (1−Kb)/Umax. Matrix-consistent roundtrip. Tested.
+  * [x] **labh** — FIXED: D65 white-point ratios (kx=100/95.047, kz=100/108.883); white → [100,0,0] (was a=−5.34). Exact roundtrip. Tested.
 
 **Edge / NaN guards — confirmed:**
   * [ ] hsi, hcy — achromatic (r=g=b) → acos(0/0)=NaN hue

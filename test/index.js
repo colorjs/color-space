@@ -309,17 +309,17 @@ test('xyY: xyy -> xyz', function () {
 
 
 test('labh: rgb -> labh', function () {
-	// RGB 0-255, Lab-Hunter: L 0-100, a/b ±125
+	// RGB 0-255, Lab-Hunter: L 0-100, a/b ±100
 	is((space.rgb.labh(0, 0, 0).map(round(1))), [0, 0, 0]);
-	// Check actual white values from conversion
-	const white = space.rgb.labh(255, 255, 255);
-	// L should be 100, a/b should be near 0 but actual values vary
-	is(round(0)(white[0]), 100, 'White L is 100');
+	// D65 white must be neutral: L=100, a=b=0 (guards the Illuminant-C constant bug)
+	is(space.rgb.labh(255, 255, 255).map(round(1)), [100, 0, 0]);
 });
 
 test('labh: labh -> rgb', function () {
-	// Lab-Hunter: L 0-100, a/b ±125, RGB 0-255
+	// Lab-Hunter: L 0-100, a/b ±100, RGB 0-255
 	is((space.labh.rgb(0, 0, 0).map(round(0))), [0, 0, 0]);
+	for (const c of [[128, 128, 128], [255, 0, 0], [200, 100, 50]])
+		is(space.labh.rgb(...space.rgb.labh(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 test('labh: xyz -> labh', function () {
@@ -478,6 +478,9 @@ test('yuv: yuv -> rgb', function () {
 	// YUV: Y 0-1, U/V ±0.5, RGB 0-255
 	is((space.yuv.rgb(0, 0, 0)), [0, 0, 0]);
 	is((space.yuv.rgb(1, 0, 0).map(round(0))), [255, 255, 255]);
+	// roundtrip exercises the U->B coefficient (was 2.02311, now 2.03211)
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
+		is(space.yuv.rgb(...space.rgb.yuv(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 test('yuv: rgb -> yuv', function () {
@@ -802,18 +805,17 @@ test('coloroid: paint conversion from hue', function () {
 
 test('tsl: tsl -> rgb', function () {
 	// TSL: T 0-360, S 0-1, L 0-255, RGB 0-255
-	// TSL(0, 0, 0) -> black [0,0,0]
-	is(space.tsl.rgb(0, 0, 0).map(round(0)), [0, 0, 0]);
-	// Round-trip test (TSL has known precision issues with low saturation colors)
-	is(space.tsl.rgb(...space.rgb.tsl(10, 20, 30)).map(round(0)), [25, 17, 8]);
+	is(space.tsl.rgb(0, 0, 0).map(round(0)), [0, 0, 0]); // black
+	// inverse now preserves sign -> exact roundtrip (was [124,83,-83] for red)
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [10, 20, 30], [200, 100, 50]])
+		is(space.tsl.rgb(...space.rgb.tsl(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 test('tsl: rgb -> tsl', () => {
 	// RGB 0-255, TSL: T 0-360, S 0-1, L 0-255
-	// rgb(255,255,255) white should have S=0, L=255
-	is(space.rgb.tsl(255, 255, 255).map(round(2)), [0, 0, 255]);
-	// Test Red
-	// is(space.rgb.tsl(255, 0, 0).map(round(2)), [0.57, 1.0, 0.3]); // Approx
+	is(space.rgb.tsl(255, 255, 255).map(round(2)), [0, 0, 255]); // white: S=0, L=255
+	is(space.rgb.tsl(0, 0, 0), [0, 0, 0]); // black guarded
+	is(space.rgb.tsl(255, 0, 0).map(round(2)), [206.57, 1, 76.24]); // red
 });
 
 test('hsm: hsm <-> rgb', function () {
@@ -1001,12 +1003,10 @@ test("jzazbz: jzazbz <-> xyz", () => {
 });
 
 test("jzczhz: jzczhz <-> jzazbz", () => {
-	// JzCzHz: Jz 0-100, Cz 0-50, Hz 0-360; Jzazbz: Jz 0-100, az/bz ±50
-	// Roundtrip
-	let jz = [15, 5, -5];
-	let polar = space.jzazbz.jzczhz(...jz);
-
-	is(space.jzczhz.jzazbz(...polar).map(round(2)), jz);
+	// JzCzHz: Jz 0-100, Cz 0-50, Hz 0-360; Jzazbz: Jz 0-100, az/bz ±50 (no rescaling).
+	// Explicit polar values guard the double-×100 bug (Jz/Cz were 100× too large).
+	is(space.jzazbz.jzczhz(15, 5, -5).map(round(2)), [15, 7.07, 315]);
+	is(space.jzczhz.jzazbz(15, 7.07, 315).map(round(2)), [15, 5, -5]);
 });
 
 test('p3', () => {
@@ -1078,4 +1078,7 @@ test('hcl', () => {
 	// Testing with a gray color
 	const hcl = space.rgb.hcl(128, 128, 128);
 	is(space.hcl.rgb(...hcl).map(round(0)), [121, 121, 121], 'hcl gray round-trip');
+	// saturated colors now roundtrip after the frac() fix (green was [255,255,0])
+	for (const c of [[0, 255, 0], [0, 0, 255], [255, 128, 0]])
+		is(space.hcl.rgb(...space.rgb.hcl(...c)).map(round(0)), c, `hcl roundtrip ${c}`);
 });
