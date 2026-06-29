@@ -1082,3 +1082,16 @@ test('hcl', () => {
 	for (const c of [[0, 255, 0], [0, 0, 255], [255, 128, 0]])
 		is(space.hcl.rgb(...space.rgb.hcl(...c)).map(round(0)), c, `hcl roundtrip ${c}`);
 });
+
+test('hcy', () => {
+	// HCY: H 0-360, C 0-100, Y 0-100 (Chilliant luma-based). Y channel IS Rec.601 luma
+	// (red 29.9, green 58.7, blue 11.4) — guards against the old hsi-copy (Y=33.3 for all).
+	is(round(1)(space.rgb.hcy(255, 0, 0)[2]), 29.9, 'red luma');
+	is(round(1)(space.rgb.hcy(0, 255, 0)[2]), 58.7, 'green luma');
+	is(round(1)(space.rgb.hcy(0, 0, 255)[2]), 11.4, 'blue luma');
+	// achromatic must not produce NaN
+	is(space.rgb.hcy(0, 0, 0).map(round(1)), [0, 0, 0], 'black');
+	is(space.rgb.hcy(255, 255, 255).map(round(1)), [0, 0, 100], 'white');
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [200, 100, 50]])
+		is(space.hcy.rgb(...space.rgb.hcy(...c)).map(round(0)), c, `roundtrip ${c}`);
+});

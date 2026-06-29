@@ -1,94 +1,69 @@
 /**
- * HCy color space (Hue, Chroma, Luminance)
+ * HCY color space (Hue, Chroma, Luma)
  *
- * Optimized for shader implementations
- * Provides perceptually intuitive color adjustments
+ * Luma-based cylindrical model for shader programming (Kuzma Shapran / Chilliant).
+ * Unlike HSI/HSL, the Y channel is the color's actual Rec.601 luma, and chroma is
+ * normalized against the luma the hue can carry — so equal Y means equal brightness.
+ * http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html
  *
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
- * @channel {Y} 0 100 Luminance percentage
+ * @channel {Y} 0 100 Luma percentage
  */
 import rgb from './rgb.js';
 
-var hcy = {
+const hcy = {
 	name: 'hcy'
 };
 
+const wr = 0.299, wg = 0.587, wb = 0.114; // Rec.601 luma weights
+const luma = (r, g, b) => wr * r + wg * g + wb * b;
 
-/**
- * HCY to RGB
- *
- * @param {Array<number>} hcy Channel values
- *
- * @return {Array<number>} RGB channel values
- */
-hcy.rgb = function (h, s, i) {
-	// Normalize inputs: H: 0-360 -> radians, S/Y: 0-100 -> 0-1
-	h = (h / 360) * 2 * Math.PI;
-	s = s / 100;
-	i = i / 100;
+// pure hue (H in 0-1) -> rgb in 0-1, the hexagonal hue ramp
+const hueRgb = (H) => [
+	Math.min(1, Math.max(0, Math.abs(H * 6 - 3) - 1)),
+	Math.min(1, Math.max(0, 2 - Math.abs(H * 6 - 2))),
+	Math.min(1, Math.max(0, 2 - Math.abs(H * 6 - 4))),
+];
 
-	h = (h < 0 ? (h % (2 * Math.PI)) + (2 * Math.PI) : (h % (2 * Math.PI)));
+hcy.rgb = (H, C, Y) => {
+	H = H / 360; C = C / 100; Y = Y / 100;
 
-	var pi3 = Math.PI / 3;
+	const [hr, hg, hb] = hueRgb(H);
+	const Z = luma(hr, hg, hb); // luma of the pure hue
+	// renormalize chroma so it can't push any channel out of [0,1] for this Y
+	if (Y < Z) { if (Z !== 0) C *= Y / Z; }
+	else if (Z < 1) C *= (1 - Y) / (1 - Z);
 
-	var r, g, b;
-	if (h < (2 * pi3)) {
-		b = i * (1 - s);
-		r = i * (1 + (s * Math.cos(h) / Math.cos(pi3 - h)));
-		g = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
-	}
-	else if (h < (4 * pi3)) {
-		h = h - 2 * pi3;
-		r = i * (1 - s);
-		g = i * (1 + (s * Math.cos(h) / Math.cos(pi3 - h)));
-		b = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
-	}
-	else {
-		h = h - 4 * pi3;
-		g = i * (1 - s);
-		b = i * (1 + (s * Math.cos(h) / Math.cos(pi3 - h)));
-		r = i * (1 + (s * (1 - Math.cos(h) / Math.cos(pi3 - h))));
-	}
-
-	// Scale to 0-255
-	return [r * 255, g * 255, b * 255];
+	return [
+		((hr - Z) * C + Y) * 255,
+		((hg - Z) * C + Y) * 255,
+		((hb - Z) * C + Y) * 255,
+	];
 };
 
+rgb.hcy = (r, g, b) => {
+	r = r / 255; g = g / 255; b = b / 255;
 
-/**
- * RGB to HCY
- *
- * @param {Array<number>} rgb Channel values
- *
- * @return {Array<number>} HCY channel values
- */
-rgb.hcy = function (r, g, b) {
-	// Normalize from 0-255 to 0-1
-	r = r / 255;
-	g = g / 255;
-	b = b / 255;
-
-	var sum = r + g + b;
-
-	var rNorm = r / sum;
-	var gNorm = g / sum;
-	var bNorm = b / sum;
-
-	var h = Math.acos(
-		(0.5 * ((rNorm - gNorm) + (rNorm - bNorm))) /
-		Math.sqrt((rNorm - gNorm) * (rNorm - gNorm) + (rNorm - bNorm) * (gNorm - bNorm))
-	);
-	if (bNorm > gNorm) {
-		h = 2 * Math.PI - h;
+	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	let C = max - min;
+	let H = 0;
+	if (C !== 0) {
+		if (max === r) H = ((g - b) / C % 6 + 6) % 6;
+		else if (max === g) H = (b - r) / C + 2;
+		else H = (r - g) / C + 4;
+		H /= 6;
 	}
 
-	var s = 1 - 3 * Math.min(rNorm, gNorm, bNorm);
+	const Y = luma(r, g, b);
+	const Z = luma(...hueRgb(H));
+	// invert the chroma renormalization
+	if (C !== 0) {
+		if (Y < Z) C *= Z / Y;
+		else C *= (1 - Z) / (1 - Y);
+	}
 
-	var i = sum / 3;
-
-	// Output: H: 0-360, C/Y: 0-100
-	return [h / (2 * Math.PI) * 360, s * 100, i * 100];
+	return [H * 360, C * 100, Y * 100];
 };
 
 export default hcy;
