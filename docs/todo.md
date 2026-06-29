@@ -35,11 +35,13 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] **yuv** — FIXED: inverse blue coeff `2.02311` → `2.03211` = (1−Kb)/Umax. Matrix-consistent roundtrip. Tested.
   * [x] **labh** — FIXED: D65 white-point ratios (kx=100/95.047, kz=100/108.883); white → [100,0,0] (was a=−5.34). Exact roundtrip. Tested.
 
-**Edge / NaN guards — confirmed:**
-  * [ ] hsi, hcy — achromatic (r=g=b) → acos(0/0)=NaN hue
+**Edge / NaN guards:**
+  * [x] hsi — achromatic guard (gray was NaN hue); hcy — fixed in reimplementation
+  * [x] osaucs — `xyz(0,0,0)` D65-chromaticity guard (was NaN,NaN,NaN → [-12.96,0,0])
+  * [x] lchuv — black hue 0 (was 180 from atan2(-0,-0)); hsp — red hue 0 (was 360, `>=`→`>`)
+  * [x] all five pinned by a dedicated `edge: achromatic / black` test
   * [ ] cam16 — `cam16.xyz(0,0,0)` → [NaN,NaN,NaN] (÷ Jroot=0)
-  * [ ] osaucs — `xyz(0,0,0)` → NaN (X+Y+Z=0 unguarded)
-  * [ ] uvw — `xyz(0,0,0)` → [43.72,68.99,−17] (guarded _u/_v=0 but U/V still use them); lchuv black → H=180; hsp red → hue 360 not 0
+  * [ ] uvw — `xyz(0,0,0)` → [43.72,68.99,−17] (guarded _u/_v=0 but U/V still use them)
 
 **Precision (canonical constants) — minor:**
   * [ ] rec2020-oetf α 1.099→1.099296826809443; prophoto/prophoto-linear/acescg Bradford matrices to full precision; lab ε→216/24389; rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward

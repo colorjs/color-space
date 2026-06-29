@@ -126,7 +126,7 @@ rgb.hsp = function (r, g, b) {
   } else {
     //  R is largest
     if (r >= g && r >= b) {
-      if (b >= g) {
+      if (b > g) { // strict: b==g is the red axis -> hue 0 (else branch), not 360
         h = 6.0 / 6.0 - 1.0 / 6.0 * (b - g) / (r - g);
         s = 1.0 - g / r;
       } else {

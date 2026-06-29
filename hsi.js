@@ -73,6 +73,9 @@ rgb.hsi = function (r, g, b) {
 
 	var sum = r + g + b;
 
+	// achromatic (incl. black): hue undefined, saturation 0 -> avoid acos(0/0) NaN
+	if (r === g && g === b) return [0, 0, sum / 3 * 100];
+
 	var rNorm = r / sum;
 	var gNorm = g / sum;
 	var bNorm = b / sum;

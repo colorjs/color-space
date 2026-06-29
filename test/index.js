@@ -23,6 +23,14 @@ test('integrity — every space loads, registers, and is named consistently', ()
 	is(unreachable, ['din99o-lab', 'din99o-lch', 'jzczhz', 'oklrab', 'oklrch', 'rec2020-oetf'], 'known-unreachable set unchanged')
 })
 
+test('edge: achromatic / black inputs are NaN-safe', () => {
+	is(space.rgb.hsi(128, 128, 128).map(round(1)), [0, 0, 50.2], 'hsi gray (was NaN hue)')
+	is(space.rgb.hsi(0, 0, 0), [0, 0, 0], 'hsi black (was NaN)')
+	is(space.rgb.hsp(255, 0, 0).map(round(0)), [0, 100, 55], 'hsp red hue 0 (was 360)')
+	is(space.xyz.osaucs(0, 0, 0).map(round(2)), [-12.96, 0, 0], 'osaucs black (was NaN,NaN,NaN)')
+	is(space.rgb.lchuv(0, 0, 0).map(round(1)), [0, 0, 0], 'lchuv black hue 0 (was 180)')
+})
+
 
 test('lrgb', () => {
 	// RGB now uses 0-255, lrgb uses 0-1

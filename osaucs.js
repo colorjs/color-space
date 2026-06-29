@@ -38,8 +38,10 @@ osaucs.xyz = function (L, j, g) {
  */
 xyz.osaucs = function (X, Y, Z) {
 	// XYZ already in 0-100, use directly
-	var x = X / (X + Y + Z);
-	var y = Y / (X + Y + Z);
+	var sum = X + Y + Z;
+	// black has no chromaticity -> use D65 neutral so K stays finite (yields j=g=0)
+	var x = sum === 0 ? 0.31272 : X / sum;
+	var y = sum === 0 ? 0.32903 : Y / sum;
 
 	// K factor formula from OSA-UCS specification
 	// Note: Some sources may show slight variations in the constant term (1.8103)
