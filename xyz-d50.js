@@ -31,7 +31,7 @@ xyzD50.xyz = (x, y, z) => {
 	return applyMatrix(M_D50_D65, x, y, z);
 }
 
-xyz.xyzD50 = (x, y, z) => {
+xyz['xyz-d50'] = (x, y, z) => {
 	// XYZ D65 -> XYZ D50
 	return applyMatrix(M_D65_D50, x, y, z);
 }

@@ -1,13 +1,17 @@
-// Oklab Polar
-// https://bottosson.github.io/posts/oklab/
-
+/**
+ * OkLCh color space
+ *
+ * Cylindrical version of Oklab with cylindrical hue
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {C} 0 40 Chroma
+ * @channel {H} 0 360 Hue angle in degrees
+ */
 import oklab from './oklab.js';
 import rgb from './rgb.js';
 
 var oklch = {
-	name: 'oklch',
-	channel: ['l', 'c', 'h'],
-	range: [[0, 100], [0, 40], [0, 360]]
+	name: 'oklch'
 };
 
 oklch.oklab = function (l, c, h) {

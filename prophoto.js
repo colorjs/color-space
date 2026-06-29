@@ -1,10 +1,20 @@
+/**
+ * ProPhoto RGB color space
+ *
+ * Largest gamut RGB color space designed for professional photography
+ * References D50 white point
+ *
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
+ * @illuminant D50
+ * @observer 2
+ */
 import prophotoLinear from './prophoto-linear.js';
 import xyz from './xyz.js';
 
 const prophoto = {
-	name: 'prophoto',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'prophoto'
 };
 
 const Et = 1 / 512;
@@ -33,7 +43,7 @@ prophoto.xyz = (r, g, b) => {
 }
 
 xyz.prophoto = (x, y, z) => {
-	const [lr, lg, lb] = xyz.prophotoLinear(x, y, z);
+	const [lr, lg, lb] = xyz['prophoto-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }
 

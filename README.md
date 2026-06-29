@@ -178,7 +178,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **72** | 25 | 40 | 16 |
+| **Color spaces** | **71** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
@@ -187,7 +187,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
-- **Most comprehensive**: 71+ color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Most comprehensive**: 71 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
 - **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
 - **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
 
@@ -203,9 +203,9 @@ Special thanks to libraries that informed this implementation: [culori](https://
 * **Matches CSS specs**: All ranges now match CSS Color Module Level 4/5 exactly
 * **Breaking change**: Update calls like `lab.rgb(0.5, 0, 0)` → `lab.rgb(50, 0, 0)`
 * No `min`, `max` properties. <!-- Channel limits are conventional, not theoretical, and can be picked in use cases. -->
-* Added `range` property documenting natural/conventional channel ranges (e.g., Lab L: 0-100, HSL H: 0-360). Values remain normalized to 0-1 in the API.
+* Added `range` property documenting natural/conventional channel ranges (e.g., Lab L: 0-100, HSL H: 0-360) — these are the ranges the API itself uses.
 * No `alias`. <!-- Synonymic names can be learned from docs, no need to clutter code & inflate bundle. -->
 * Flat arguments, eg. `rgb.lab([10, 20, 30])` -> `rgb.lab(10, 20, 30)`
 
 
-<p align="center"><a href="https://github.com/krsnzd/license/">🕉</a></p>
+<p align="center"><a href="https://github.com/krsnzd/license/">ॐ</a></p>

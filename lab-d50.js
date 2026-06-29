@@ -45,10 +45,13 @@ labD50.xyz = (l, a, b) => {
 	const y50 = yr * whiteD50[1];
 	const z50 = zr * whiteD50[2];
 
-	return applyMatrix(M_D50_D65, x50, y50, z50);
+	// scale 0-1 -> XYZ 0-100 convention
+	return applyMatrix(M_D50_D65, x50, y50, z50).map(v => v * 100);
 }
 
-xyz.labD50 = (x, y, z) => {
+xyz['lab-d50'] = (x, y, z) => {
+	// XYZ 0-100 convention -> 0-1 for the matrix/white-point math
+	x = x / 100; y = y / 100; z = z / 100;
 	const [x50, y50, z50] = applyMatrix(M_D65_D50, x, y, z);
 
 	const xr = x50 / whiteD50[0];

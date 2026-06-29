@@ -10,6 +10,19 @@ import color from 'color-name'
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision
 
 
+// Structural integrity: catches the class of v3 breakage where a space file fails to
+// load, drops its `export default`, or registers under the wrong key (the bugs that
+// left 35 files unparseable and hcy without an export).
+test('integrity — every space loads, registers, and is named consistently', () => {
+	const names = Object.keys(space)
+	is(names.length, 71, '71 spaces registered')
+	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
+	// reachability canary: rgb -> X must be wired for every space (caught the camelCase-key bug).
+	// these 6 remain unreachable (tracked in docs/todo.md Phase 1 wiring defect); shrink as fixed.
+	const unreachable = names.filter(n => n !== 'rgb' && typeof space.rgb[n] !== 'function').sort()
+	is(unreachable, ['din99o-lab', 'din99o-lch', 'jzczhz', 'oklrab', 'oklrch', 'rec2020-oetf'], 'known-unreachable set unchanged')
+})
+
 
 test('lrgb', () => {
 	// RGB now uses 0-255, lrgb uses 0-1
@@ -842,22 +855,33 @@ test('yes: yes <-> rgb', function () {
 	// ...existing code...
 });
 
-test("oklab: oklab -> rgb", () => {
-	// Oklab: L 0-100, a/b ±40, RGB 0-255
-	is(space.oklab.rgb(100, 0, 0).map(round(0)), [255, 255, 255]); // White
-	is(space.oklab.rgb(62.8, 22.5, 12.6).map(round(0)), [255, 0, 0]); // Red
-	is(space.oklab.rgb(86.6, -23.4, 18.0).map(round(0)), [0, 255, 0]); // Green
-	is(space.oklab.rgb(45.2, -3.2, -31.2).map(round(0)), [0, 0, 255]); // Blue
-	is(space.oklab.rgb(0, 0, 0).map(round(0)), [0, 0, 0]); // Black
+// reference values: colorjs.io srgb->oklab, L/a/b scaled ×100. gray128 L=59.99 (not 79.47)
+// is the regression guard for the sRGB-linearization bug.
+test("oklab: rgb -> oklab", () => {
+	is(space.rgb.oklab(255, 255, 255).map(round(2)), [100, 0, 0]); // white
+	is(space.rgb.oklab(0, 0, 0).map(round(2)), [0, 0, 0]); // black
+	is(space.rgb.oklab(128, 128, 128).map(round(2)), [59.99, 0, 0]); // gray
+	is(space.rgb.oklab(255, 0, 0).map(round(2)), [62.8, 22.49, 12.58]); // red
+	is(space.rgb.oklab(0, 255, 0).map(round(2)), [86.64, -23.39, 17.95]); // green
+	is(space.rgb.oklab(0, 0, 255).map(round(2)), [45.2, -3.25, -31.15]); // blue
+	is(space.rgb.oklab(100, 150, 200).map(round(2)), [65.8, -3.25, -8.64]); // arbitrary
 })
 
-test("oklab: rgb -> oklab", () => {
-	// RGB 0-255, Oklab: L 0-100, a/b ±40
-	is(space.rgb.oklab(255, 255, 255).map(round(0)), [100, 0, 0]); // White
-	is(space.rgb.oklab(255, 0, 0).map(round(1)), [62.8, 22.5, 12.6]); // Red
-	is(space.rgb.oklab(0, 255, 0).map(round(1)), [86.6, -23.4, 17.9]); // Green
-	is(space.rgb.oklab(0, 0, 255).map(round(1)), [45.2, -3.2, -31.2]); // Blue
-	is(space.rgb.oklab(0, 0, 0).map(round(0)), [0, 0, 0]); // Black
+test("oklab: oklab -> rgb roundtrip", () => {
+	is(space.oklab.rgb(100, 0, 0).map(round(0)), [255, 255, 255]); // white
+	is(space.oklab.rgb(0, 0, 0).map(round(0)), [0, 0, 0]); // black
+	for (const c of [[128, 128, 128], [255, 0, 0], [0, 255, 0], [0, 0, 255], [100, 150, 200], [33, 180, 90]])
+		is(space.oklab.rgb(...space.rgb.oklab(...c)).map(round(2)), c, `roundtrip ${c}`);
+})
+
+// lab-d50 == CSS/colorjs `lab` (D50). Guards the 100×-scale bug (white was L=522) and reachability.
+test("lab-d50: rgb <-> lab-d50 (vs colorjs lab/D50)", () => {
+	is(space.rgb['lab-d50'](255, 255, 255).map(round(1)), [100, 0, 0]); // white
+	is(space.rgb['lab-d50'](0, 0, 0).map(round(1)), [0, 0, 0]); // black
+	is(space.rgb['lab-d50'](128, 128, 128).map(round(1)), [53.6, 0, 0]); // gray
+	is(space.rgb['lab-d50'](255, 0, 0).map(round(1)), [54.3, 80.8, 69.9]); // red
+	for (const c of [[128, 128, 128], [255, 0, 0], [100, 150, 200]])
+		is(space['lab-d50'].rgb(...space.rgb['lab-d50'](...c)).map(round(0)), c, `roundtrip ${c}`);
 })
 
 test("oklab: xyz -> oklab", () => {

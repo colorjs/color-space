@@ -1,18 +1,17 @@
 /**
- * A responsivity of cones color space.
- * Used for CAT - chromatic adaptation transform.
+ * LMS color space
  *
- * http://en.wikipedia.org/wiki/LMS_color_space
- * http://www.mathworks.com/matlabcentral/fileexchange/28790-colorspace-transformations
+ * Responsivity of cones in human eye
+ * Used for chromatic adaptation transformations
  *
- * @module color-space/lms
+ * @channel {L} 0 100 Long wavelength (red) response
+ * @channel {M} 0 100 Medium wavelength (green) response
+ * @channel {S} 0 100 Short wavelength (blue) response
  */
 import xyz from './xyz.js';
 
 var lms = {
 	name: 'lms',
-	channel: ['long', 'medium', 'short'],
-	range: [[0, 100], [0, 100], [0, 100]],
 
 
 	//transform matrices

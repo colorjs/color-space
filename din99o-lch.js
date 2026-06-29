@@ -1,17 +1,15 @@
-/*
-	DIN99o LCh color space
-
-	Cylindrical (polar) representation of DIN99o Lab.
-
-	Channels:
-	- L: Lightness (0-100)
-	- C: Chroma (0-51.484)
-	- h: Hue angle in degrees (0-360)
-
-	Implementation based on culori:
-	https://github.com/Evercoder/culori/tree/main/src/dlch
-*/
-
+/**
+ * DIN99o LCh color space
+ *
+ * Cylindrical representation of DIN99o Lab
+ * Intuitive hue with chroma and lightness
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {C} 0 51.484 Chroma
+ * @channel {H} 0 360 Hue angle in degrees
+ * @illuminant D65
+ * @observer 2
+ */
 import din99oLab from './din99o-lab.js';
 import lab from './lab.js';
 import rgb from './rgb.js';

@@ -1,9 +1,17 @@
+/**
+ * JzCzHz color space
+ *
+ * Cylindrical variant of JzAzBz for HDR
+ * Uses chroma and hue instead of rectangular coordinates
+ *
+ * @channel {Jz} 0 100 Lightness
+ * @channel {Cz} 0 50 Chroma
+ * @channel {Hz} 0 360 Hue angle in degrees
+ */
 import jzazbz from './jzazbz.js';
 
 const jzczhz = {
-	name: 'jzczhz',
-	channel: ['Jz', 'Cz', 'hz'],
-	range: [[0, 100], [0, 50], [0, 360]]
+	name: 'jzczhz'
 };
 
 jzczhz.jzazbz = function(Jz, Cz, hz) {

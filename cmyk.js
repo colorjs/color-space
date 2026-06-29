@@ -1,9 +1,17 @@
+/**
+ * CMYK color space
+ *
+ * Subtractive color model used in printing
+ *
+ * @channel {C} 0 100 Cyan percentage
+ * @channel {M} 0 100 Magenta percentage
+ * @channel {Y} 0 100 Yellow percentage
+ * @channel {K} 0 100 Black (Key) percentage
+ */
 import rgb from './rgb.js';
 
 const cmyk = {
-	name: 'cmyk',
-	channel: ['cyan', 'magenta', 'yellow', 'black'],
-	range: [[0, 100], [0, 100], [0, 100], [0, 100]]
+	name: 'cmyk'
 };
 
 cmyk.rgb = (c, m, y, k) => {

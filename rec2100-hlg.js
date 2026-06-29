@@ -1,10 +1,20 @@
+/**
+ * Rec. 2100 with HLG (Hybrid Log-Gamma) transfer function
+ *
+ * ITU-R BT.2100 HDR with HLG OETF for broadcast
+ * Backward compatible with SDR displays
+ *
+ * @channel {R} 0 1 Red (HLG encoded)
+ * @channel {G} 0 1 Green (HLG encoded)
+ * @channel {B} 0 1 Blue (HLG encoded)
+ * @illuminant D65
+ * @observer 2
+ */
 import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
 
 const rec2100hlg = {
-	name: 'rec2100hlg',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'rec2100hlg'
 };
 
 const a = 0.17883277;
@@ -34,7 +44,7 @@ rec2100hlg.xyz = (r, g, b) => {
 }
 
 xyz.rec2100hlg = (x, y, z) => {
-	const [lr, lg, lb] = xyz.rec2020Linear(x, y, z);
+	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }
 

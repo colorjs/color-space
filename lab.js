@@ -1,9 +1,18 @@
+/**
+ * CIE Lab color space (1976)
+ *
+ * Perceptual color space with approximately uniform lightness
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {a} -125 125 Green-Red axis
+ * @channel {b} -125 125 Blue-Yellow axis
+ * @illuminant D65
+ * @observer 2
+ */
 import xyz from './xyz.js';
 
 const lab = {
 	name: 'lab',
-	channel: ['lightness', 'a', 'b'],
-	range: [[0, 100], [-125, 125], [-125, 125]]
 }
 
 // κ * ε  = 2^3 = 8

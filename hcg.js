@@ -1,5 +1,12 @@
 /**
- * @module color-space/hcg
+ * HCG color space (Hue, Chroma, Gray)
+ *
+ * Alternative cylindrical RGB representation
+ * Uses gray component instead of value or lightness
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {C} 0 100 Chroma percentage
+ * @channel {G} 0 100 Gray component percentage
  */
 import rgb from './rgb.js';
 import hsl from './hsl.js';
@@ -8,8 +15,6 @@ import hwb from './hwb.js';
 
 var hcg = {
 	name: 'hcg',
-	channel: ['hue', 'chroma', 'gray'],
-	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, c, g) {
 		// Input: H: 0-360, C/G: 0-100

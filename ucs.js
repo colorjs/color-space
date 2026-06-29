@@ -1,16 +1,19 @@
 /**
- * https://en.wikipedia.org/wiki/CIE_1960_color_space
+ * CIE 1960 UCS (Uniform Color Space)
  *
- * Obsolete color space
+ * Obsolete color space predecessor to CIELUV
+ * Historical reference for color science
  *
- * @module  color-space/ucs
+ * @channel {U} 0 100 U coordinate
+ * @channel {V} 0 100 V coordinate
+ * @channel {W} 0 100 W (related to brightness)
+ * @illuminant D65
+ * @observer 2
  */
 import xyz from './xyz.js';
 
 var ucs = {
-	name: 'ucs',
-	channel: ['U', 'V', 'W'],
-	range: [[0, 100], [0, 100], [0, 100]]
+	name: 'ucs'
 };
 
 export default (ucs);

@@ -1,9 +1,18 @@
+/**
+ * Adobe RGB Linear color space
+ *
+ * Linear variant of Adobe RGB without gamma correction
+ *
+ * @channel {R} 0 1 Red (linear)
+ * @channel {G} 0 1 Green (linear)
+ * @channel {B} 0 1 Blue (linear)
+ * @illuminant D65
+ * @observer 2
+ */
 import xyz from './xyz.js';
 
 const a98Linear = {
-	name: 'a98rgb-linear',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'a98rgb-linear'
 };
 
 a98Linear.xyz = (r, g, b) => {
@@ -14,7 +23,7 @@ a98Linear.xyz = (r, g, b) => {
 	return [x * 100, y * 100, z * 100];
 }
 
-xyz.a98Linear = (x, y, z) => {
+xyz['a98rgb-linear'] = (x, y, z) => {
 	// XYZ: 0-100, A98 RGB Linear: 0-1
 	x /= 100; y /= 100; z /= 100;
 	const r = x * 2.0415879038107465 + y * -0.5650069742788596 + z * -0.34473135077832956;

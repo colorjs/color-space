@@ -1,19 +1,16 @@
-/*
-	DIN99o Lab color space
-
-	References:
-	* Georg A. Klein, "Industrial Color Physics", Springer (2010)
-	* DIN 6176 standard
-	* https://de.wikipedia.org/wiki/DIN99-Farbraum
-
-	DIN99o is a perceptually uniform color space derived from CIELAB D65.
-	It "squishes" CIELAB to enable simple Euclidean distance calculations
-	for color difference (ΔE).
-
-	Implementation based on culori:
-	https://github.com/Evercoder/culori/tree/main/src/dlab
-*/
-
+/**
+ * DIN99o Lab color space
+ *
+ * Perceptually uniform variant of CIE Lab
+ * Optimized for Euclidean color difference calculations
+ * DIN 6176 standard
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {a} -40 40 Green-Red axis
+ * @channel {b} -40 40 Blue-Yellow axis
+ * @illuminant D65
+ * @observer 2
+ */
 import lab from './lab.js';
 import rgb from './rgb.js';
 

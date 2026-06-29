@@ -1,9 +1,17 @@
+/**
+ * JzAzBz color space
+ *
+ * High dynamic range color space based on PQ (Perceptual Quantizer)
+ * Used for HDR content and next-generation color imaging
+ *
+ * @channel {Jz} 0 100 Lightness
+ * @channel {az} -50 50 Green-Red axis
+ * @channel {bz} -50 50 Blue-Yellow axis
+ */
 import xyz from './xyz.js';
 
 const jzazbz = {
-	name: 'jzazbz',
-	channel: ['Jz', 'az', 'bz'],
-	range: [[0, 100], [-50, 50], [-50, 50]]
+	name: 'jzazbz'
 };
 
 const b_param = 1.15;

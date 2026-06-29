@@ -1,7 +1,14 @@
 /**
- * Cylindrical LAB
+ * LCh(ab) color space
  *
- * @module color-space/lchab
+ * Cylindrical LAB with lightness, chroma, and hue
+ * More intuitive than rectangular Lab coordinates
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {C} 0 150 Chroma
+ * @channel {H} 0 360 Hue angle in degrees
+ * @illuminant D65
+ * @observer 2
  */
 import xyz from './xyz.js';
 import lab from './lab.js';
@@ -10,8 +17,6 @@ import lab from './lab.js';
 //cylindrical lab
 var lchab = {
 	name: 'lchab',
-	channel: ['lightness', 'chroma', 'hue'],
-	range: [[0, 100], [0, 150], [0, 360]],
 
 	xyz: function (l, c, h) {
 		return lab.xyz(...lchab.lab(l, c, h));

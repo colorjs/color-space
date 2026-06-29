@@ -1,7 +1,11 @@
 /**
- * Cubehelix http://astron-soc.in/bulletin/11June/289392011.pdf
+ * Cubehelix color space
  *
- * @module color-space/cubehelix
+ * Perceptually uniform single-hue color scheme
+ * Designed for scientific visualization
+ * Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images
+ *
+ * @channel {fraction} 0 1 Interpolation fraction along helix (0-1)
  */
 import rgb from './rgb.js';
 

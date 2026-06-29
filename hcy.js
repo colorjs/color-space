@@ -1,18 +1,18 @@
 /**
- * HSV optimized for shaders
- * http://chilliant.blogspot.ca/2012/08/rgbhcy-in-hlsl.html
+ * HCy color space (Hue, Chroma, Luminance)
  *
- * @module color-space/hcy
+ * Optimized for shader implementations
+ * Provides perceptually intuitive color adjustments
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {C} 0 100 Chroma percentage
+ * @channel {Y} 0 100 Luminance percentage
  */
 import rgb from './rgb.js';
 
 var hcy = {
-	name: 'hcy',
-	channel: ['hue', 'chroma', 'luminance'],
-	range: [[0, 360], [0, 100], [0, 100]]
+	name: 'hcy'
 };
-
-export default (hcy);
 
 
 /**
@@ -90,3 +90,5 @@ rgb.hcy = function (r, g, b) {
 	// Output: H: 0-360, C/Y: 0-100
 	return [h / (2 * Math.PI) * 360, s * 100, i * 100];
 };
+
+export default hcy;

@@ -1,5 +1,11 @@
 /**
- * @module color-space/hwb
+ * HWB color space (Hue, Whiteness, Blackness)
+ *
+ * Cylindrical representation using whiteness and blackness
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {W} 0 100 Whiteness percentage
+ * @channel {B} 0 100 Blackness percentage
  */
 import rgb from './rgb.js';
 import hsv from './hsv.js';
@@ -7,8 +13,6 @@ import hsl from './hsl.js';
 
 var hwb = {
 	name: 'hwb',
-	channel: ['hue', 'whiteness', 'blackness'],
-	range: [[0, 360], [0, 100], [0, 100]],
 	rgb: function (h, wh, bl) {
 		// Convert from H: 0-360, W/B: 0-100 to normalized
 		h = h / 360;

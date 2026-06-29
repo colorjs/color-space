@@ -1,16 +1,18 @@
 /**
- * OSA-UCS
+ * OSA-UCS color space
  *
- * @module  color-space/osa-ucs
+ * Uniform Color Scale by Optical Society of America
+ * Perceptually uniform color space for industrial applications
+ *
+ * @channel {L} -10 10 Lightness
+ * @channel {j} -10 10 Yellow-Blue axis
+ * @channel {g} -10 10 Red-Green axis
  */
-
 import xyz from './xyz.js';
 
 
 var osaucs = {
-	name: 'osaucs',
-	channel: ['L', 'j', 'g'],
-	range: [[-10, 10], [-10, 10], [-10, 10]]
+	name: 'osaucs'
 };
 
 

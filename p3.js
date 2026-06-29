@@ -1,10 +1,20 @@
+/**
+ * Display P3 color space (Apple Display P3)
+ *
+ * DCI-P3 color space with gamma correction
+ * Wider gamut than sRGB, used in modern displays
+ *
+ * @channel {R} 0 255 Red
+ * @channel {G} 0 255 Green
+ * @channel {B} 0 255 Blue
+ * @illuminant D65
+ * @observer 2
+ */
 import p3Linear from './p3-linear.js';
 import xyz from './xyz.js';
 
 const p3 = {
-	name: 'p3',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 255], [0, 255], [0, 255]]
+	name: 'p3'
 };
 
 p3.xyz = (r, g, b) => {
@@ -19,7 +29,7 @@ p3.xyz = (r, g, b) => {
 }
 
 xyz.p3 = (x, y, z) => {
-	const [lr, lg, lb] = xyz.p3Linear(x, y, z);
+	const [lr, lg, lb] = xyz['p3-linear'](x, y, z);
 	const sign_lr = lr < 0 ? -1 : 1, abs_lr = Math.abs(lr);
 	const sign_lg = lg < 0 ? -1 : 1, abs_lg = Math.abs(lg);
 	const sign_lb = lb < 0 ? -1 : 1, abs_lb = Math.abs(lb);

@@ -1,17 +1,19 @@
 /**
- * https://en.wikipedia.org/?title=YDbDr
+ * YDbDr color space
  *
- * @module  color-space/ydbdr
+ * SECAM television chrominance encoding
+ * Perceptually more uniform than YUV
+ *
+ * @channel {Y} 0 1 Luma (brightness)
+ * @channel {Db} -1.333 1.333 Blue difference
+ * @channel {Dr} -1.333 1.333 Red difference
  */
-
 import rgb from './rgb.js';
 import yuv from './yuv.js';
 
 
 var ydbdr = {
-	name: 'ydbdr',
-	channel: ['Y', 'Db', 'Dr'],
-	range: [[0, 1], [-1.333, 1.333], [-1.333, 1.333]]
+	name: 'ydbdr'
 };
 
 

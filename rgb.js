@@ -1,12 +1,16 @@
 /**
- * RGB space.
+ * RGB color space (sRGB)
  *
- * @module  color-space/rgb
+ * Standard red-green-blue color space for displays
+ * Uses D65 illuminant, gamma-corrected
+ *
+ * @channel {R} 0 255 Red
+ * @channel {G} 0 255 Green
+ * @channel {B} 0 255 Blue
+ * @illuminant D65
  */
 const rgb = {
 	name: 'rgb',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 255], [0, 255], [0, 255]]
 };
 
 export default rgb;

@@ -1,18 +1,17 @@
 /**
- * RG Chromaticity
- * https://en.wikipedia.org/wiki/Rg_chromaticity
+ * RG Chromaticity color space
  *
- * Normalized RG color space - a 2D chromaticity space
- * where r + g + b = 1, so blue can be derived
+ * Normalized 2D chromaticity space (r + g + b = 1)
+ * Used for color matching and chromaticity analysis
+ * Blue component can be derived as 1 - r - g
  *
- * @module color-space/rg
+ * @channel {r} 0 1 Red chromaticity coordinate
+ * @channel {g} 0 1 Green chromaticity coordinate
  */
 import rgb from './rgb.js';
 
 const rg = {
-	name: 'rg',
-	channel: ['r', 'g'],
-	range: [[0, 1], [0, 1]]
+	name: 'rg'
 };
 
 /**

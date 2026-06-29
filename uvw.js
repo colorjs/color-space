@@ -1,17 +1,20 @@
 /**
- * https://en.wikipedia.org/wiki/CIE_1964_color_space
+ * CIE 1964 UVW color space
  *
- * Very similar to LUV, but w and v are calculated a bit differently.
+ * Color space similar to LUV with different calculation method
+ * Based on 10° standard observer
  *
- * @module  color-space/uvw
+ * @channel {U} -100 100 U chrominance
+ * @channel {V} -100 100 V chrominance
+ * @channel {W} 0 100 W (brightness)
+ * @illuminant D65
+ * @observer 10
  */
 import ucs from './ucs.js';
 import xyz from './xyz.js';
 
 var uvw = {
-	name: 'uvw',
-	channel: ['U', 'V', 'W'],
-	range: [[-100, 100], [-100, 100], [0, 100]]
+	name: 'uvw'
 };
 
 export default (uvw);

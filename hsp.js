@@ -1,5 +1,12 @@
 /**
- * @module color-space/hsp
+ * HSP color space (Hue, Saturation, Perceived brightness)
+ *
+ * Uses perceived brightness weighted by human eye sensitivity
+ * Useful for perceptually uniform color operations
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {P} 0 100 Perceived brightness percentage
  */
 import rgb from './rgb.js'
 
@@ -9,8 +16,6 @@ const Pr = 0.299,
 
 var hsp = {
   name: 'hsp',
-  channel: ['hue', 'saturation', 'perceived_brightness'],
-  range: [[0, 360], [0, 100], [0, 100]],
 
   rgb: function (h, s, p) {
     // Input: H: 0-360, S/P: 0-100

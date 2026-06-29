@@ -1,7 +1,13 @@
 /**
- * Cylindrical CIE LUV
+ * LCh(uv) color space
  *
- * @module color-space/lchuv
+ * Cylindrical CIE LUV with lightness, chroma, and hue
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {C} 0 150 Chroma
+ * @channel {H} 0 360 Hue angle in degrees
+ * @illuminant D65
+ * @observer 2
  */
 import luv from './luv.js';
 import xyz from './xyz.js';
@@ -9,8 +15,6 @@ import xyz from './xyz.js';
 // cylindrical luv
 var lchuv = {
 	name: 'lchuv',
-	channel: ['lightness', 'chroma', 'hue'],
-	range: [[0, 100], [0, 150], [0, 360]],
 
 	luv: function (l, c, h) {
 		// Input: L: 0-100, C: 0-150, H: 0-360

@@ -1,3 +1,13 @@
+/**
+ * OkLrab color space
+ *
+ * Modified version of Oklab using toe mapping
+ * Optimized for color picker gamut mapping
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {a} -40 40 Green-Red axis
+ * @channel {b} -40 40 Blue-Yellow axis
+ */
 // Oklrab
 // https://bottosson.github.io/posts/colorpicker/
 
@@ -5,9 +15,7 @@ import oklab from './oklab.js';
 import { toe, toeInv } from './okhsl.js';
 
 var oklrab = {
-	name: 'oklrab',
-	channel: ['l', 'a', 'b'],
-	range: [[0, 100], [-40, 40], [-40, 40]]
+	name: 'oklrab'
 };
 
 oklrab.oklab = function (l, a, b) {

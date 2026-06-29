@@ -1,3 +1,13 @@
+/**
+ * CAM16 color space (Color Appearance Model)
+ *
+ * Complex color appearance model used in Material Design
+ * Includes hue, saturation, brightness, and colorfulness
+ *
+ * @channel {J} 0 100 Lightness (Brightness)
+ * @channel {C} 0 150 Colorfulness/chroma
+ * @channel {H} 0 360 Hue angle in degrees
+ */
 import xyz from './xyz.js';
 
 /* Utilities */

@@ -1,20 +1,18 @@
 /**
- * https://en.wikipedia.org/?title=YPbPr
+ * YPbPr color space
  *
- * YPbPr is analog form of YCbCr
- * hence limits are [0..1]
+ * Analog form of YCbCr used in component video
+ * ITU-R BT.709 standard for HD video
  *
- * Default conversion is ITU-R BT.709
- *
- * @module  color-space/ypbpr
+ * @channel {Y} 0 1 Luma (brightness)
+ * @channel {Pb} -0.5 0.5 Blue chroma
+ * @channel {Pr} -0.5 0.5 Red chroma
  */
 import rgb from './rgb.js';
 
-var ypbpr = ({
-	name: 'ypbpr',
-	channel: ['Y', 'Pb', 'Pr'],
-	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
-});
+var ypbpr = {
+	name: 'ypbpr'
+};
 
 
 /**

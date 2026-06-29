@@ -1,18 +1,19 @@
 /**
- * CIE LUV (C'est la vie)
+ * CIE LUV color space (C'est la vie)
  *
- * @module color-space/luv
+ * Cylindrical variant: LChuv
+ * Perceptually more uniform than XYZ
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {U} -100 100 U chrominance
+ * @channel {V} -100 100 V chrominance
+ * @illuminant D65
+ * @observer 2
  */
 import xyz from './xyz.js';
 
 var luv = {
 	name: 'luv',
-	//NOTE: luv has no rigidly defined limits
-	//easyrgb fails to get proper coords
-	//boronine states no rigid limits
-	//colorMine refers this ones:
-	channel: ['lightness', 'u', 'v'],
-	range: [[0, 100], [-100, 100], [-100, 100]],
 
 	xyz: function (l, u, v, i, o) {
 		// Input: L: 0-100, u: -100 to 100, v: -100 to 100

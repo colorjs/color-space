@@ -1,15 +1,18 @@
 /**
- * YUV https://en.wikipedia.org/?title=YUV
+ * YUV color space
  *
- * @module  color-space/yuv
+ * Television analog encoding separating luma from chroma
+ * Used in PAL/SECAM broadcast standards
+ *
+ * @channel {Y} 0 1 Luma (brightness)
+ * @channel {U} -0.436 0.436 Chrominance blue component
+ * @channel {V} -0.615 0.615 Chrominance red component
  */
 import rgb from './rgb.js';
 
-var yuv = ({
-	name: 'yuv',
-	channel: ['Y', 'U', 'V'],
-	range: [[0, 1], [-0.436, 0.436], [-0.615, 0.615]]
-});
+var yuv = {
+	name: 'yuv'
+};
 
 yuv.rgb = function (y, u, v) {
 	// Input: Y: 0-1, U: -0.436 to 0.436, V: -0.615 to 0.615

@@ -1,9 +1,19 @@
+/**
+ * ProPhoto RGB Linear color space
+ *
+ * Linear variant of ProPhoto without gamma correction
+ * References D50 illuminant
+ *
+ * @channel {R} 0 1 Red (linear)
+ * @channel {G} 0 1 Green (linear)
+ * @channel {B} 0 1 Blue (linear)
+ * @illuminant D50
+ * @observer 2
+ */
 import xyz from './xyz.js';
 
 const prophotoLinear = {
-	name: 'prophoto-linear',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'prophoto-linear'
 };
 
 // ProPhoto (Linear) -> XYZ (D50)
@@ -51,7 +61,7 @@ prophotoLinear.xyz = (r, g, b) => {
 	return [x * 100, y * 100, z * 100];
 }
 
-xyz.prophotoLinear = (x, y, z) => {
+xyz['prophoto-linear'] = (x, y, z) => {
 	// XYZ: 0-100, ProPhoto Linear: 0-1
 	x /= 100; y /= 100; z /= 100;
 	// 1. XYZ D65 -> XYZ D50

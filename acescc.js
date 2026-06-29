@@ -1,10 +1,18 @@
+/**
+ * ACEScc color space (Academy Color Encoding System)
+ *
+ * Logarithmic encoding for color grading in cinema
+ * Reference for film post-production
+ *
+ * @channel {R} -0.358 1.468 Red (log encoded)
+ * @channel {G} -0.358 1.468 Green (log encoded)
+ * @channel {B} -0.358 1.468 Blue (log encoded)
+ */
 import acescg from './acescg.js';
 import xyz from './xyz.js';
 
 const acescc = {
-	name: 'acescc',
-	channel: ['red', 'green', 'blue'],
-	range: [[-0.358, 1.468], [-0.358, 1.468], [-0.358, 1.468]]
+	name: 'acescc'
 };
 
 const eps = Math.pow(2, -16);

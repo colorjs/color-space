@@ -1,9 +1,17 @@
+/**
+ * ACEScc color space
+ *
+ * Academy Color Encoding System for cinema production
+ * Professional color science standard
+ *
+ * @channel {R} 0 65504 Red (half float)
+ * @channel {G} 0 65504 Green (half float)
+ * @channel {B} 0 65504 Blue (half float)
+ */
 import xyz from './xyz.js';
 
 const acescg = {
-	name: 'acescg',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 65504], [0, 65504], [0, 65504]]
+	name: 'acescg'
 };
 
 const M_ACESCG_TO_XYZ_ACES = [

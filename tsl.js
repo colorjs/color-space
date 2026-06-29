@@ -1,17 +1,17 @@
 /**
- * https://en.wikipedia.org/wiki/TSL_color_space
- * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.6037&rep=rep1&type=pdf
+ * TSL color space (Tint, Saturation, Lightness)
  *
- * Tint, Saturation, Lightness
+ * Simple cylindrical representation of RGB
+ * Derived from RGB for image analysis
  *
- * @module  color-space/tsl
+ * @channel {T} 0 360 Tint (hue) angle in degrees
+ * @channel {S} 0 1 Saturation
+ * @channel {L} 0 255 Lightness (brightness level)
  */
 import rgb from './rgb.js';
 
 var tsl = {
-	name: 'tsl',
-	channel: ['tint', 'saturation', 'lightness'],
-	range: [[0, 360], [0, 1], [0, 255]]
+	name: 'tsl'
 };
 
 export default (tsl);

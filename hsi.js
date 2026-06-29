@@ -1,17 +1,17 @@
 /**
- * http://www.cse.usf.edu/~mshreve/rgb-to-hsi
- * http://web.archive.org/web/20130124054245/http://web2.clarkson.edu/class/image_process/RGB_to_HSI.pdf
+ * HSI color space (Hue, Saturation, Intensity)
  *
- * @module color-space/hsl
+ * Cylindrical representation with intensity (average of RGB)
+ * Derived from RGB for image processing
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {I} 0 100 Intensity percentage
  */
 import rgb from './rgb.js';
 
 var hsi = {
-	name: 'hsi',
-
-	//hue, saturation, intensity
-	channel: ['hue', 'saturation', 'intensity'],
-	range: [[0, 360], [0, 100], [0, 100]]
+	name: 'hsi'
 };
 
 export default hsi

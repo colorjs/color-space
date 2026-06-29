@@ -1,16 +1,16 @@
 /**
- * Linear RGB space.
- * Linear RGB uses 0-1 range (standard)
- * sRGB uses 0-255 range
+ * Linear RGB color space
  *
- * @module color-space/lrgb
+ * RGB without gamma correction, useful for color math
+ *
+ * @channel {R} 0 1 Red (linear)
+ * @channel {G} 0 1 Green (linear)
+ * @channel {B} 0 1 Blue (linear)
  */
 import rgb from './rgb.js';
 
 const lrgb = {
-	name: 'lrgb',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'lrgb'
 };
 
 rgb.lrgb = (r, g, b) => {

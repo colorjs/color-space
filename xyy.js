@@ -1,14 +1,17 @@
 /**
- * Additional xyY space, where xy are relative chromacity params
+ * xyY color space
  *
- * @module color-space/xyy
+ * Chromaticity coordinates (x, y) with luminance (Y)
+ * Useful for color matching and display calibration
+ *
+ * @channel {x} 0 1 Red chromaticity
+ * @channel {y} 0 1 Green chromaticity
+ * @channel {Y} 0 100 Luminance (CIE Y)
  */
 import xyz from './xyz.js';
 
 var xyy = {
-	name: 'xyy',
-	channel: ['x', 'y', 'Y'],
-	range: [[0, 1], [0, 1], [0, 100]]
+	name: 'xyy'
 };
 
 xyy.xyz = function (x, y, Y) {

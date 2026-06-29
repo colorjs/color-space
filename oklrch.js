@@ -1,12 +1,20 @@
+/**
+ * OkLrch color space
+ *
+ * Cylindrical variant of OkLrab
+ * Uses chroma and hue for intuitive color selection
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {C} 0 40 Chroma
+ * @channel {H} 0 360 Hue angle in degrees
+ */
 // Oklrch
 // https://bottosson.github.io/posts/colorpicker/
 
 import oklrab from './oklrab.js';
 
 var oklrch = {
-	name: 'oklrch',
-	channel: ['l', 'c', 'h'],
-	range: [[0, 100], [0, 40], [0, 360]]
+	name: 'oklrch'
 };
 
 oklrch.oklrab = function (l, c, h) {

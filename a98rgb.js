@@ -1,10 +1,19 @@
+/**
+ * Adobe RGB color space (Adobe RGB 1998)
+ *
+ * Wider gamut than sRGB, standard for photography
+ *
+ * @channel {R} 0 255 Red
+ * @channel {G} 0 255 Green
+ * @channel {B} 0 255 Blue
+ * @illuminant D65
+ * @observer 2
+ */
 import a98Linear from './a98rgb-linear.js';
 import xyz from './xyz.js';
 
 const a98rgb = {
-	name: 'a98rgb',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 255], [0, 255], [0, 255]]
+	name: 'a98rgb'
 };
 
 const gamma = 563 / 256;
@@ -19,7 +28,7 @@ a98rgb.xyz = (r, g, b) => {
 }
 
 xyz.a98rgb = (x, y, z) => {
-	const [lr, lg, lb] = xyz.a98Linear(x, y, z);
+	const [lr, lg, lb] = xyz['a98rgb-linear'](x, y, z);
 	return [
 		Math.sign(lr) * Math.pow(Math.abs(lr), invGamma),
 		Math.sign(lg) * Math.pow(Math.abs(lg), invGamma),

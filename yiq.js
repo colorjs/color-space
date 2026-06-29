@@ -1,15 +1,18 @@
 /**
- * YIQ https://en.wikipedia.org/?title=YIQ
+ * YIQ color space
  *
- * @module  color-space/yiq
+ * Analog television luma-chroma encoding
+ * Used in NTSC television standards
+ *
+ * @channel {Y} 0 1 Luma (brightness)
+ * @channel {I} -0.5957 0.5957 Chrominance (in-phase)
+ * @channel {Q} -0.5226 0.5226 Chrominance (quadrature)
  */
 import rgb from './rgb.js';
 
-var yiq = ({
-	name: 'yiq',
-	channel: ['Y', 'I', 'Q'],
-	range: [[0, 1], [-0.5957, 0.5957], [-0.5226, 0.5226]]
-});
+var yiq = {
+	name: 'yiq'
+};
 
 yiq.rgb = function (y, i, q) {
 	// Input: Y: 0-1, I: -0.5957 to 0.5957, Q: -0.5226 to 0.5226

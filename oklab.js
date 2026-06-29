@@ -1,65 +1,65 @@
+/**
+ * Oklab color space
+ * 
+ * Modern perceptual color space based on cone response
+ * More uniform than Lab, better for interpolation
+ * 
+ * @channel {L} 0 100 Lightness
+ * @channel {a} -40 40 Green-Red axis
+ * @channel {b} -40 40 Blue-Yellow axis
+ */
 import xyz from './xyz.js';
 import rgb from './rgb.js';
+import lrgb from './lrgb.js';
 
 const oklab = {
-	name: 'oklab',
-	channel: ['lightness', 'a', 'b'],
-	range: [[0, 100], [-40, 40], [-40, 40]]
+	name: 'oklab'
 };
 
 oklab.rgb = (l, a, b) => {
-	// Input: L: 0-100, a: -40 to 40, b: -40 to 40
-	// Normalize to 0-1 and -0.4 to 0.4
+	// Input: L: 0-100, a: -40 to 40, b: -40 to 40 -> normalize
 	l = l / 100;
 	a = a / 100;
 	b = b / 100;
 
-	// Step 1: Convert Oklab to linear LMS
+	// 1. Oklab -> LMS'
 	const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
 	const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
 	const s_ = l - 0.0894841775 * a - 1.291485548 * b;
 
-	// Step 2: Cube the values (reverse of cube root)
+	// 2. cube -> linear LMS
 	const l3 = l_ ** 3;
 	const m3 = m_ ** 3;
 	const s3 = s_ ** 3;
 
-	// Step 3: Convert LMS to RGB (0-1)
-	const rgb = [
-		(4.0767416621 * l3 - 3.307711591 * m3 + 0.2309699292 * s3),
-		(-1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3),
-		(-0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3)
-	];
-
-	// Scale to 0-255 and clamp to valid range
-	return rgb.map(v => Math.max(0, Math.min(255, v * 255)));
+	// 3. LMS -> linear sRGB, then gamma-encode + scale to 0-255 via lrgb
+	return lrgb.rgb(
+		4.0767416621 * l3 - 3.307711591 * m3 + 0.2309699292 * s3,
+		-1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3,
+		-0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3
+	);
 };
 
 rgb.oklab = (r, g, b) => {
-	// Normalize from 0-255 to 0-1
-	r = r / 255;
-	g = g / 255;
-	b = b / 255;
+	// sRGB (0-255, gamma-encoded) -> linear sRGB (0-1)
+	const [lr, lg, lb] = rgb.lrgb(r, g, b);
 
-	// Original RGB to LMS matrix coefficients
-	const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
-	const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
-	const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+	// linear sRGB -> LMS (Ottosson M1)
+	const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+	const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+	const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
 
-	// Cube root the LMS values
+	// LMS -> LMS' (cube root)
 	const l_ = Math.cbrt(l);
 	const m_ = Math.cbrt(m);
 	const s_ = Math.cbrt(s);
 
-	// Convert LMS to Oklab using direct coefficients
-	const oklab = [
-		0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_,  // L
-		1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_,  // a
-		0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_   // b
+	// LMS' -> Oklab, scaled to L: 0-100, a/b: ±40
+	return [
+		(0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_) * 100,
+		(1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_) * 100,
+		(0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_) * 100,
 	];
-
-	// Scale to L: 0-100, a/b: -40 to 40
-	return [oklab[0] * 100, oklab[1] * 100, oklab[2] * 100];
 };
 
 // D65

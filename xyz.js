@@ -66,10 +66,19 @@ export const whitepoint = {
 
 // We use D65 matrice
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+/**
+ * CIE XYZ color space
+ *
+ * Device-independent color space based on human vision response
+ *
+ * @channel {X} 0 100 Tristimulus value X
+ * @channel {Y} 0 100 Tristimulus value Y (luminance)
+ * @channel {Z} 0 100 Tristimulus value Z
+ * @illuminant D65
+ * @observer 2
+ */
 const xyz = {
 	name: 'xyz',
-	channel: ['X', 'Y', 'Z'],
-	range: [[0, 100], [0, 100], [0, 100]],
 	whitepoint: whitepoint
 };
 

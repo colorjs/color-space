@@ -1,12 +1,16 @@
 /**
- * @module color-space/hsl
+ * HSL color space (Hue, Saturation, Lightness)
+ *
+ * Cylindrical representation of RGB with perceptual intent
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {L} 0 100 Lightness percentage
  */
 import rgb from './rgb.js';
 
 var hsl = {
 	name: 'hsl',
-	channel: ['hue', 'saturation', 'lightness'],
-	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, s, l) {
 		// Convert from H: 0-360, S/L: 0-100 to normalized 0-1

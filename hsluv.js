@@ -1,8 +1,14 @@
 /**
- * A uniform wrapper for hsluv.
- * http://www.hsluv.org/
+ * HSLuv color space
  *
- * @module color-space/hsluv
+ * Human-friendly cylindrical representation of LChuv
+ * Perceptually uniform hue with intuitive saturation and lightness
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {L} 0 100 Lightness percentage
+ * @illuminant D65
+ * @observer 2
  */
 import xyz from './xyz.js';
 import lchuv from './lchuv.js';

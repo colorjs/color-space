@@ -1,3 +1,13 @@
+/**
+ * Coloroid color space
+ *
+ * Artistic color system with unique geometry
+ * Uses hue angles (A), temperature (T), and perceived luminosity (V)
+ *
+ * @channel {A} 0 72 Hue angle
+ * @channel {T} 0 100 Temperature/saturation
+ * @channel {V} 0 100 Luminosity
+ */
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
@@ -5,10 +15,6 @@ const whitepoint = xyz.whitepoint;
 
 const coloroid = {
 	name: 'coloroid',
-
-	// hue, saturation, luminosity
-	channel: ['A', 'T', 'V'],
-	range: [[0, 72], [0, 100], [0, 100]],
 	// min: [1, 0, 0],
 	// max: [48, 100, 100],
 

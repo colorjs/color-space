@@ -1,9 +1,19 @@
+/**
+ * Display P3 Linear color space
+ *
+ * Linear variant of DCI-P3 (Apple Display P3)
+ * Without gamma correction, used for image processing
+ *
+ * @channel {R} 0 1 Red (linear)
+ * @channel {G} 0 1 Green (linear)
+ * @channel {B} 0 1 Blue (linear)
+ * @illuminant D65
+ * @observer 2
+ */
 import xyz from './xyz.js';
 
 const p3Linear = {
-	name: 'p3-linear',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'p3-linear'
 };
 
 p3Linear.xyz = (r, g, b) => {
@@ -15,7 +25,7 @@ p3Linear.xyz = (r, g, b) => {
 	return [x * 100, y * 100, z * 100];
 }
 
-xyz.p3Linear = (x, y, z) => {
+xyz['p3-linear'] = (x, y, z) => {
 	// Matrix: XYZ (D65) -> P3 Linear
 	// XYZ: 0-100, P3 Linear: 0-1
 	x /= 100; y /= 100; z /= 100;

@@ -1,10 +1,20 @@
+/**
+ * Rec. 2020 color space
+ *
+ * ITU-R Rec. 2020 standard for UHDTV/4K broadcasting
+ * Wider color gamut than Rec. 709
+ *
+ * @channel {R} 0 255 Red
+ * @channel {G} 0 255 Green
+ * @channel {B} 0 255 Blue
+ * @illuminant D65
+ * @observer 2
+ */
 import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
 
 const rec2020 = {
-	name: 'rec2020',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 255], [0, 255], [0, 255]]
+	name: 'rec2020'
 };
 
 rec2020.xyz = (r, g, b) => {
@@ -16,7 +26,7 @@ rec2020.xyz = (r, g, b) => {
 }
 
 xyz.rec2020 = (x, y, z) => {
-	const [lr, lg, lb] = xyz.rec2020Linear(x, y, z);
+	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [
 		Math.sign(lr) * Math.pow(Math.abs(lr), 1/2.4),
 		Math.sign(lg) * Math.pow(Math.abs(lg), 1/2.4),

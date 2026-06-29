@@ -1,18 +1,18 @@
 /**
- * https://en.wikipedia.org/?title=YCbCr
+ * YCbCr color space
  *
- * YCbCr is a digital form of YPbPr conversion
- * Thence limits are [16...235], according to the ITU-R BT.709 or ITU-R BT.601
+ * Digital video color format used in broadcasting
+ * ITU-R BT.709 or ITU-R BT.601 standard
  *
- * @module  color-space/ycbcr
+ * @channel {Y} 16 235 Luma (brightness)
+ * @channel {Cb} 16 240 Blue chroma
+ * @channel {Cr} 16 240 Red chroma
  */
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'
 
 var ycbcr = {
 	name: 'ycbcr',
-	channel: ['Y', 'Cb', 'Cr'],
-	range: [[16, 235], [16, 240], [16, 240]],
 	/**
 	 * YCbCr to YPbPr (digital to analog)
 	 * Input: Y: 16-235, Cb/Cr: 16-240

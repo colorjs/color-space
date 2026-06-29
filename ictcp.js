@@ -1,9 +1,17 @@
+/**
+ * ICtCp color space
+ *
+ * HDR perceptual color space for ITU-R BT.2100
+ * Based on PQ transfer function for HDR video
+ *
+ * @channel {I} 0 100 Intensity (lightness)
+ * @channel {Ct} -50 50 Tritan chroma (blue-yellow)
+ * @channel {Cp} -50 50 Protanopia chroma (red-green)
+ */
 import xyz from './xyz.js';
 
 const ictcp = {
-	name: 'ictcp',
-	channel: ['I', 'Ct', 'Cp'],
-	range: [[0, 100], [-50, 50], [-50, 50]]
+	name: 'ictcp'
 };
 
 const Yw = 203; // nits

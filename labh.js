@@ -1,9 +1,17 @@
+/**
+ * Lab Hunter color space
+ *
+ * Alternative Lab definition by Richard Hunter
+ * Optimized for reflectance, less uniform than CIE Lab
+ *
+ * @channel {L} 0 100 Lightness
+ * @channel {a} -100 100 Green-Red axis
+ * @channel {b} -100 100 Blue-Yellow axis
+ */
 import xyz from './xyz.js';
 
 const labh = {
-	name: 'labh',
-	channel: ['lightness', 'a', 'b'],
-	range: [[0, 100], [-100, 100], [-100, 100]]
+	name: 'labh'
 };
 
 labh.xyz = (l, a, b) => {

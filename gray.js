@@ -1,16 +1,16 @@
 /**
- * Grayscale
- * https://www.w3.org/TR/css-color-4/#grays
+ * Grayscale color space
  *
- * @module color-space/gray
+ * Achromatic colors without hue or saturation
+ * Used for monochrome displays and images
+ *
+ * @channel {gray} 0 1 Gray value
  */
 import rgb from './rgb.js';
 
 const gray = {
-	name: 'gray',
-	channel: ['gray'],
-	range: [[0, 1]]
-};
+	name: 'gray'
+}
 
 /**
  * Gray to RGB - all channels get the same value

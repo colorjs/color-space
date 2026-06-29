@@ -1,11 +1,14 @@
 /**
- * HPLuv color space - High-Precision Human-friendly HSL
+ * HPLuv color space (High-Precision LUV)
  *
- * HPLuv is a variant of HSLuv that produces pastel colors within the sRGB gamut
- * with consistent perceptual lightness.
+ * Variant of HSLuv for pastel colors with consistent perceptual lightness
+ * Optimized for sRGB gamut
  *
- * @module color-space/hpluv
- * @see http://www.hsluv.org/
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {L} 0 100 Lightness percentage
+ * @illuminant D65
+ * @observer 2
  */
 import xyz from './xyz.js';
 import lchuv from './lchuv.js';

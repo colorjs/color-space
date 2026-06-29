@@ -13,7 +13,7 @@ xyzAbsD65.xyz = (x, y, z) => {
 	return [x / Yw * 100, y / Yw * 100, z / Yw * 100];
 }
 
-xyz.xyzAbsD65 = (x, y, z) => {
+xyz['xyz-abs-d65'] = (x, y, z) => {
 	// Relative (0-100) -> Abs (nits)
 	return [x / 100 * Yw, y / 100 * Yw, z / 100 * Yw];
 }

@@ -1,5 +1,11 @@
 /**
- * @module color-space/hsv
+ * HSV color space (Hue, Saturation, Value)
+ *
+ * Cylindrical representation of RGB maximizing perceived saturation
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {V} 0 100 Value (brightness) percentage
  */
 import rgb from './rgb.js';
 import hsl from './hsl.js';
@@ -7,8 +13,6 @@ import hsl from './hsl.js';
 
 var hsv = {
 	name: 'hsv',
-	channel: ['hue', 'saturation', 'value'],
-	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, s, v) {
 		// Convert from H: 0-360, S/V: 0-100 to normalized

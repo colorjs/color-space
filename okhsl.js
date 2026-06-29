@@ -1,3 +1,13 @@
+/**
+ * OkHSL color space
+ *
+ * Cylindrical color picker from Oklab
+ * Designed for intuitive color selection
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {S} 0 100 Saturation percentage
+ * @channel {L} 0 100 Lightness percentage
+ */
 // Okhsl
 // https://bottosson.github.io/posts/colorpicker/
 
@@ -5,9 +15,7 @@ import oklab from './oklab.js';
 import rgb from './rgb.js';
 
 var okhsl = {
-	name: 'okhsl',
-	channel: ['h', 's', 'l'],
-	range: [[0, 360], [0, 100], [0, 100]]
+	name: 'okhsl'
 };
 
 export var tau = 2 * Math.PI;

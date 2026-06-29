@@ -1,3 +1,13 @@
+/**
+ * HCT color space (Hue, Chroma, Tone)
+ *
+ * Material Design's color system based on CAM16
+ * Uses tone (perceptual lightness) instead of lightness
+ *
+ * @channel {H} 0 360 Hue angle in degrees
+ * @channel {C} 0 150 Chroma
+ * @channel {T} 0 100 Tone (perceptual lightness)
+ */
 import xyz from './xyz.js';
 import { toCam16, fromCam16, viewingConditions } from './cam16.js';
 

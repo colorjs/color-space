@@ -1,10 +1,20 @@
+/**
+ * Rec. 2020 OETF color space
+ *
+ * Rec. 2020 with OETF (Opto-Electronic Transfer Function)
+ * Standard for HD television (Rec. 709 variant)
+ *
+ * @channel {R} 0 1 Red (gamma corrected)
+ * @channel {G} 0 1 Green (gamma corrected)
+ * @channel {B} 0 1 Blue (gamma corrected)
+ * @illuminant D65
+ * @observer 2
+ */
 import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
 
 const rec2020oetf = {
-	name: 'rec2020-oetf',
-	channel: ['red', 'green', 'blue'],
-	range: [[0, 1], [0, 1], [0, 1]]
+	name: 'rec2020-oetf'
 };
 
 const alpha = 1.099;
@@ -38,7 +48,7 @@ rec2020oetf.xyz = (r, g, b) => {
 }
 
 xyz.rec2020oetf = (x, y, z) => {
-	const [lr, lg, lb] = xyz.rec2020Linear(x, y, z);
+	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }
 
