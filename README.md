@@ -115,6 +115,8 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Apple RGB](http://www.brucelindbloom.com/WorkingSpaceInfo.html) 🕰️ — classic Mac/Photoshop working space (Trinitron, γ1.8).
 * [x] [SMPTE-240M](https://ieeexplore.ieee.org/document/7291461) 🕰️ — interim HDTV (SMPTE-C primaries + the 240M OETF).
 
+> **Skipped RGB working spaces** 🕰️ — *Best, Beta, Bruce, Don RGB 4, Ekta Space PS5, ColorMatch, Wide-Gamut RGB* (niche ~2000-era photo-retouching profiles, no current use) and *NTSC-J* (a D93 white-point tweak of NTSC). All are just primaries + white + a gamma, so any can be added in one line via `register()` with the standard matrix method — not worth their own modules.
+
 ### User-Friendly Cylindrical
 * [x] [HSL](https://www.w3.org/TR/css-color-4/#the-hsl-notation) — hue/saturation/lightness for CSS and color pickers.
 * [x] [HSV, HSB](https://en.wikipedia.org/wiki/HSL_and_HSV) — hue/saturation/value, preferred in graphics software (Photoshop, etc).
@@ -219,6 +221,9 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Hellwig 2022](https://doi.org/10.1002/col.22792) — CIE-recommended CAM16 successor (CIECAM16 basis): linearised brightness + Helmholtz-Kohlrausch. ([Hellwig & Fairchild 2022](https://doi.org/10.1002/col.22792))
 * [x] [ZCAM](https://doi.org/10.1364/OE.413659) — HDR-native colour appearance model built on the absolute Izazbz space. ([Safdar et al. 2021](https://doi.org/10.1364/OE.413659))
 * [x] [RLAB](https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z) 🕰️ — Fairchild (1996) cross-media appearance model; von Kries adaptation + a CIELAB-like stage.
+* ~~LLAB~~ · ~~[Nayatani 95](https://doi.org/10.1002/col.5080200305)~~ · ~~[Hunt](https://doi.org/10.1002/col.5080100109)~~ · ~~[ATD95](https://doi.org/10.1117/12.206546)~~ 🕰️ — declined: forward-only, viewing-condition-bound models superseded by the CAM16 / CIECAM02 / Hellwig2022 / ZCAM above.
+
+> **Why these are out:** non-invertible and impractical as a kernel transform — Hunt needs **13 parameters** and models rod vision; Nayatani 95 takes adapting **illuminance in lux**; ATD95 outputs A/T/D and *per its own authors* "cannot be considered a colour appearance model." RLAB above is the one early CAM that's cleanly invertible, so it ships; the rest are documented here rather than faked.
 
 ### Print & Physical
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive printing (cyan/magenta/yellow/black). Device-dependent.
@@ -247,6 +252,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [PhotoYCC](https://en.wikipedia.org/wiki/PhotoYCC) — Kodak Photo CD encoding, extended gamut (BT.709 primaries, BT.601 luma, odd-function OETF).
 * [x] [Ohta I₁I₂I₃](https://doi.org/10.1016/0146-664X(80)90047-7) — decorrelated RGB opponent space for image segmentation (Ohta 1980).
 * [x] [ANLAB](https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x) 🕰️ — Adams-Nickerson chromatic-valence space (1942/1950), the direct precursor of CIELAB.
+* ~~[Ostwald](https://en.wikipedia.org/wiki/Ostwald_color_system)~~ · ~~[DIN 6164](https://en.wikipedia.org/wiki/DIN_6164)~~ 🕰️ — declined: atlas-defined colour-order systems (Ostwald: Foss-Nickerson 1944 full-colour/white/black tables; DIN 6164: tabulated sample swatches), no open closed-form — same category as NCS/Pantone, not continuous spaces. Munsell above is the exception: its 1943 renotation *is* openly published.
 
 
 ## Motivation
