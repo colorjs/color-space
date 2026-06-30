@@ -90,7 +90,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ## Phase 2 — WASM batch kernel → 3.1 (the headline feature)
 
-  * [ ] `mat3 × vec3` primitive refactor — DRY across all linear spaces, SIMD-friendly, WebGL-friendly, jz-compilable (one refactor serves correctness + reuse + WASM)
+  * [~] `mat3 × vec3` primitive — `mat3` extracted to [util.js](../util.js) (generic math, out of xyz.js; `bradford` stays in xyz as colorimetry). Used by xyz-d50/lab/prophoto-linear. **Remaining:** consolidate the other inline matrix multiplies (cam16's `multiply_v3_m3x3`, oklab/oklab-via-lms, the RGB working spaces) onto `util.mat3`, then it's the SIMD/WebGL/jz-compilable seam.
   * [ ] `color-space/wasm` (or `/batch`): `convertBatch(src, dst, n)` over typed arrays — whole loop inside one jz-compiled WASM call, zero per-pixel boundary crossings
   * [ ] Start with the matrix-clean paths where WASM actually wins: xyz↔lrgb, Oklab matrix steps, linear working spaces (p3/rec2020/a98/prophoto linear ↔ xyz)
   * [ ] Honest benchmark + claim: **2–5× faster than a JS loop for buffer pipelines on matrix spaces; single-color scalar API stays JS** (per-call WASM is *slower* — never headline "faster than JS" unqualified)

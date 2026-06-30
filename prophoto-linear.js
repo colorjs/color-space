@@ -10,7 +10,8 @@
  * @illuminant D50
  * @observer 2
  */
-import xyz, { bradford, mat3 } from './xyz.js';
+import xyz, { bradford } from './xyz.js';
+import { mat3 } from './util.js';
 
 const prophotoLinear = {
 	name: 'prophoto-linear'

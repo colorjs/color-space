@@ -82,13 +82,6 @@ export const bradford = {
 	]
 };
 
-/** 3×3 matrix × 3-vector. */
-export const mat3 = (m, x, y, z) => [
-	x * m[0] + y * m[1] + z * m[2],
-	x * m[3] + y * m[4] + z * m[5],
-	x * m[6] + y * m[7] + z * m[8]
-];
-
 // We use D65 matrice
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 /**

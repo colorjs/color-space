@@ -1,4 +1,5 @@
-import xyz, { bradford, mat3 } from './xyz.js';
+import xyz, { bradford } from './xyz.js';
+import { mat3 } from './util.js';
 
 const xyzD50 = {
 	name: 'xyz-d50',
