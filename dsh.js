@@ -82,6 +82,20 @@ const locusAt = (wl) => {
 };
 
 /**
+ * Dominant (or, for non-spectral purples, negative complementary) wavelength of an
+ * xy chromaticity, via the same white→locus ray. Shared with the `wavelength` space.
+ */
+export const dominantWavelength = (x, y) => {
+	const dx = x - Wx, dy = y - Wy;
+	if (Math.hypot(dx, dy) < 1e-10) return 0;
+	const fwd = cast(dx, dy);
+	if (!fwd) return NaN;
+	if (fwd.i === N - 1) { const bwd = cast(-dx, -dy); const A = segA(bwd.i), B = segB(bwd.i); return -(A[0] + bwd.u * (B[0] - A[0])); }
+	const A = segA(fwd.i), B = segB(fwd.i);
+	return A[0] + fwd.u * (B[0] - A[0]);
+};
+
+/**
  * xyY -> DSH: dominant wavelength, excitation purity, luminance
  */
 xyy.dsh = (x, y, Y) => {

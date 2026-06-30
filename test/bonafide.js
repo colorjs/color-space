@@ -26,8 +26,8 @@ const REF = [
   {"s":"lms","f":"xyz","t":"lms","in":[41.23908,21.263901,1.933082],"out":[39.041037,7.091446,2.313899],"src":"CIE 159:2004 (CIECAM02) CAT02 forward matrix M_CAT02 = [[0.7328, 0.429"},
   {"s":"okhsl","f":"rgb","t":"okhsl","in":[127,50,200],"out":[302.4413377082429,84.58003023916605,42.741790435452856],"src":"Derived by running Björn Ottosson\\'s reference JavaScript implementatio"},
   {"s":"okhsv","f":"rgb","t":"okhsv","in":[255,0,0],"out":[29.2339,100,100],"src":"Björn Ottosson\\'s okhsv reference implementation (linear_srgb_to_okhsv)"},
-  {"s":"oklrab","f":"rgb","t":"oklrab","in":[255,0,0],"out":[56.8085,22.4863,12.5846],"src":"colorjs.io v0.5: Color(\\'srgb\\',[1,0,0]).to(\\'oklab\\') -> L=0.62796, a=0.2"},
-  {"s":"oklrch","f":"rgb","t":"oklrch","in":[255,0,0],"out":[56.808465250408624,25.76833077361567,29.233885192342633],"src":"Manually derived from Björn Ottosson\\'s Oklab/colorpicker formulas (htt"},
+  {"s":"oklrab","f":"rgb","t":"oklrab","in":[255,0,0],"out":[0.568085,0.224863,0.125846],"src":"colorjs.io v0.5: Color(\\'srgb\\',[1,0,0]).to(\\'oklab\\') -> L=0.62796, a=0.2 (native L 0-1; oklrab toe)"},
+  {"s":"oklrch","f":"rgb","t":"oklrch","in":[255,0,0],"out":[0.5680847,0.2576833,29.233885192342633],"src":"Manually derived from Björn Ottosson\\'s Oklab/colorpicker formulas (htt"},
   {"s":"osaucs","f":"xyz","t":"osaucs","in":[20.654008,12.197225,5.136952],"out":[-3.0049979,2.997137,-9.6678423],"src":"colour-science v0.4.7, XYZ_to_OSA_UCS(np.array([0.20654008, 0.12197225"},
   {"s":"rg","f":"rgb","t":"rg","in":[255,0,0],"out":[1,0],"src":"Direct arithmetic from definition: r = R/(R+G+B) = 255/255 = 1, g = 0/"},
   {"s":"rgb","f":"rgb","t":"xyz","in":[255,0,0],"out":[41.239079926595934,21.263900587151028,1.9330818715591822],"src":"colorjs.io v0.5: new Color(\\'srgb\\',[1,0,0]).to(\\'xyz-d65\\').coords scaled"},
@@ -81,9 +81,17 @@ const REF = [
   {"s":"izazbz","f":"xyz","t":"izazbz","in":[20.654008,12.197225,5.136952],"out":[0.012078,0.009243,0.00526],"src":"colour-science XYZ_to_Izazbz (Safdar 2017, matches jzazbz az/bz)"},
   {"s":"zcam","f":"xyz","t":"zcam","in":[185,206,163],"out":[92.250467,10.525255,196.325832],"src":"colour-science XYZ_to_ZCAM (XYZ_w=[256,264,202], La=264, Yb=100, Average): J,M,h"},
   {"s":"macboyn","f":"xyz","t":"macboyn","in":[95.0456,100,108.9058],"out":[0.654813,0.017513,99.996],"src":"MacLeod-Boynton ls, Smith-Pokorny fundamentals normalised L+M=Y (hand-derived)"},
+  {"s":"kelvin","f":"xyz","t":"kelvin","in":[95.0456,100,108.9058],"out":[6508.984],"src":"McCamy 1992 CCT of D65 white -> ~6509 K (Planckian via Krystek 1985)"},
+  {"s":"wavelength","f":"wavelength","t":"xyz","in":[550],"out":[43.345,99.495,0.875],"src":"CIE 1931 2deg colour-matching functions at 550 nm (x,y,z-bar) x100"},
+  {"s":"icacb","f":"xyz","t":"icacb","in":[20.654008,12.197225,5.136952],"out":[0.068753,0.057534,0.020815],"src":"colour-science XYZ_to_ICaCb (Frohlich 2017)"},
+  {"s":"hdr-ipt","f":"xyz","t":"hdr-ipt","in":[20.654008,12.197225,5.136952],"out":[48.393763,42.449902,22.01954],"src":"colour-science XYZ_to_hdr_IPT (Fairchild 2011, Y_s=0.2, Y_abs=100): I,P,T"},
+  {"s":"hdr-cie-lab","f":"xyz","t":"hdr-cie-lab","in":[20.654008,12.197225,5.136952],"out":[51.870021,60.47634,32.145526],"src":"colour-science XYZ_to_hdr_CIELab (Fairchild 2011, Y_s=0.2, Y_abs=100)"},
+  {"s":"srlab2","f":"xyz","t":"srlab2","in":[95.0456,100,108.9058],"out":[100,0,0],"src":"SRLAB2 (Behrens, magnetkern.de): D65 white -> L=100, a=b=0"},
+  {"s":"dkl","f":"xyz","t":"dkl","in":[95.0456,100,108.9058],"out":[0,0,0],"src":"DKL (Derrington et al. 1984): adapting white (D65) -> origin"},
+  {"s":"rlab","f":"xyz","t":"rlab","in":[19.01,20,21.78],"out":[49.834707,15.571102,-52.614296],"src":"colour-science XYZ_to_RLAB (Illuminant A, Y_n=31.83, sigma=1/2.3, D=1): J,a,b"},
 ]
 
-test('bona-fide reference values (78 audited spaces)', () => {
+test('bona-fide reference values (86 audited spaces)', () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {

@@ -1234,6 +1234,47 @@ export default {
     "dynamic": "sdr",
     "description": "DIN99o LCh color space Cylindrical (polar) form of DIN99o Lab. Defined relative to din99o-lab; everything else is reached by chaining through it."
   },
+  "dkl": {
+    "channels": [
+      {
+        "symbol": "Ach",
+        "min": -100,
+        "max": 100,
+        "name": "Achromatic (luminance)"
+      },
+      {
+        "symbol": "RG",
+        "min": -100,
+        "max": 100,
+        "name": "Red-Green (L−M)"
+      },
+      {
+        "symbol": "YV",
+        "min": -100,
+        "max": 100,
+        "name": "Tritan (S−(L+M))"
+      }
+    ],
+    "range": [
+      [
+        -100,
+        100
+      ],
+      [
+        -100,
+        100
+      ],
+      [
+        -100,
+        100
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "DKL color space (Derrington-Krauskopf-Lennie) The cardinal-axis space of human colour vision (Derrington, Krauskopf & Lennie 1984; Brainard 1996) — the three directions the LGN/early visual system encodes, relative to an adapting white (here D65): an achromatic luminance axis (L+M), an isoluminant red-green axis (L−M), and a tritan blue-yellow axis (S−(L+M)). Built on Smith-Pokorny cones; D65 → origin [0,0,0]. (Un-normalised cardinal form; sources differ on axis scaling — normalise to your stimulus set if needed.)"
+  },
   "dlog": {
     "channels": [
       {
@@ -1572,6 +1613,88 @@ export default {
     "referred": "display",
     "dynamic": "sdr",
     "description": "HCY color space (Hue, Chroma, Luma) Luma-based cylindrical model for shader programming (Kuzma Shapran / Chilliant). Unlike HSI/HSL, the Y channel is the color's actual Rec.601 luma, and chroma is normalized against the luma the hue can carry — so equal Y means equal brightness. http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html"
+  },
+  "hdr-cie-lab": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "a",
+        "min": -100,
+        "max": 100,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "b",
+        "min": -100,
+        "max": 100,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -100,
+        100
+      ],
+      [
+        -100,
+        100
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
+    "description": "hdr-CIELAB color space Fairchild & Wyble (2010/2011) HDR extension of CIELAB: the L* cube root is replaced by a Michaelis-Menten lightness adapting to scene luminance, applied to X/Xn, Y/Yn, Z/Zn. Baked to the standard surround Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4738510. D65."
+  },
+  "hdr-ipt": {
+    "channels": [
+      {
+        "symbol": "I",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "P",
+        "min": -100,
+        "max": 100,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "T",
+        "min": -100,
+        "max": 100,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -100,
+        100
+      ],
+      [
+        -100,
+        100
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
+    "description": "hdr-IPT color space Fairchild & Wyble (2010/2011) HDR extension of IPT: the same IPT cone matrices, but the fixed 0.43 power is replaced by a Michaelis-Menten lightness whose exponent adapts to scene luminance. Baked to the standard surround Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4820209."
   },
   "hellwig2022": {
     "channels": [
@@ -1930,6 +2053,47 @@ export default {
     "dynamic": "sdr",
     "description": "HWB color space (Hue, Whiteness, Blackness) Cylindrical representation using whiteness and blackness"
   },
+  "icacb": {
+    "channels": [
+      {
+        "symbol": "I",
+        "min": 0,
+        "max": 1,
+        "name": "Intensity"
+      },
+      {
+        "symbol": "Ca",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "Cb",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        -0.5,
+        0.5
+      ],
+      [
+        -0.5,
+        0.5
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
+    "description": "ICaCb color space Fröhlich (2017) HDR opponent space: an ICtCp-style encoding tuned for JND uniformity and hue linearity, using a different XYZ→LMS matrix and a PQ (ST 2084) non-linearity before the opponent mix. I = intensity, Ca/Cb = chroma."
+  },
   "ictcp": {
     "channels": [
       {
@@ -2167,6 +2331,27 @@ export default {
     "referred": "display",
     "dynamic": "hdr",
     "description": "JzCzHz color space Cylindrical variant of JzAzBz for HDR Uses chroma and hue instead of rectangular coordinates"
+  },
+  "kelvin": {
+    "channels": [
+      {
+        "symbol": "T",
+        "min": 1000,
+        "max": 25000,
+        "name": "Correlated color temperature (kelvin)"
+      }
+    ],
+    "range": [
+      [
+        1000,
+        25000
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "Kelvin (correlated color temperature) color space Maps a colour temperature in kelvin to/from a point on the Planckian (black-body) locus — \"2700 K warm candle … 6500 K cool daylight\", the white-balance axis. CCT→xy uses Krystek's (1985) rational approximation of the locus; xy→CCT uses McCamy's (1992) cubic. A 1-channel space (like `gray`); the inverse returns the nearest CCT, so it round-trips on the locus but is lossy for off-locus colours."
   },
   "lab-d65": {
     "channels": [
@@ -2979,34 +3164,34 @@ export default {
       {
         "symbol": "L",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Lightness"
       },
       {
         "symbol": "a",
-        "min": -40,
-        "max": 40,
+        "min": -0.4,
+        "max": 0.4,
         "name": "Green-Red axis"
       },
       {
         "symbol": "b",
-        "min": -40,
-        "max": 40,
+        "min": -0.4,
+        "max": 0.4,
         "name": "Blue-Yellow axis"
       }
     ],
     "range": [
       [
         0,
-        100
+        1
       ],
       [
-        -40,
-        40
+        -0.4,
+        0.4
       ],
       [
-        -40,
-        40
+        -0.4,
+        0.4
       ]
     ],
     "referred": "display",
@@ -3018,13 +3203,13 @@ export default {
       {
         "symbol": "L",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Lightness"
       },
       {
         "symbol": "C",
         "min": 0,
-        "max": 40,
+        "max": 0.4,
         "name": "Chroma"
       },
       {
@@ -3037,11 +3222,11 @@ export default {
     "range": [
       [
         0,
-        100
+        1
       ],
       [
         0,
-        40
+        0.4
       ],
       [
         0,
@@ -3057,34 +3242,34 @@ export default {
       {
         "symbol": "L",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Lightness"
       },
       {
         "symbol": "a",
-        "min": -40,
-        "max": 40,
+        "min": -0.4,
+        "max": 0.4,
         "name": "Green-Red axis"
       },
       {
         "symbol": "b",
-        "min": -40,
-        "max": 40,
+        "min": -0.4,
+        "max": 0.4,
         "name": "Blue-Yellow axis"
       }
     ],
     "range": [
       [
         0,
-        100
+        1
       ],
       [
-        -40,
-        40
+        -0.4,
+        0.4
       ],
       [
-        -40,
-        40
+        -0.4,
+        0.4
       ]
     ],
     "referred": "display",
@@ -3096,13 +3281,13 @@ export default {
       {
         "symbol": "L",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Lightness"
       },
       {
         "symbol": "C",
         "min": 0,
-        "max": 40,
+        "max": 0.4,
         "name": "Chroma"
       },
       {
@@ -3115,11 +3300,11 @@ export default {
     "range": [
       [
         0,
-        100
+        1
       ],
       [
         0,
-        40
+        0.4
       ],
       [
         0,
@@ -3853,6 +4038,47 @@ export default {
     "dynamic": "sdr",
     "description": "RIMM RGB color space Reference Input Medium Metric RGB (ANSI/I3A IT10.7466-2002 / ISO 22028-3) — the scene-referred counterpart of ROMM/ProPhoto, sharing its wide D50 primaries but carrying a BT.709-shaped OETF with extended exposure headroom (E_clip = 2.0, i.e. one stop above diffuse white, which encodes to 0.713). Matrix = ProPhoto primaries Bradford-adapted D50→D65."
   },
+  "rlab": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "a",
+        "min": -125,
+        "max": 125,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "b",
+        "min": -125,
+        "max": 125,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -125,
+        125
+      ],
+      [
+        -125,
+        125
+      ]
+    ],
+    "illuminant": "A",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "RLAB color space (Fairchild 1996) An early colour appearance model for cross-media reproduction: von Kries adaptation through the Hunt-Pointer-Estévez cones, then a CIELAB-like opponent stage. Output (LR, aR, bR). Baked to the canonical reference conditions — adapting white = CIE Illuminant A [109.85,100,35.58], Y_n = 31.83 cd/m², σ = 1/2.3 (average), D = 1 (hard-copy) — so it reproduces the published worked example."
+  },
   "scrgb": {
     "channels": [
       {
@@ -4057,6 +4283,47 @@ export default {
     "referred": "display",
     "dynamic": "sdr",
     "description": "SMPTE-C color space The 525-line NTSC broadcast standard (SMPTE 170M / SMPTE-C primaries, D65) with the ITU-R BT.601 transfer function (identical curve to BT.709/rec709). Per-channel inverse-OETF to linear, then the SMPTE-C→XYZ(D65) matrix."
+  },
+  "srlab2": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "a",
+        "min": -125,
+        "max": 125,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "b",
+        "min": -125,
+        "max": 125,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -125,
+        125
+      ],
+      [
+        -125,
+        125
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "SRLAB2 color space Jan Behrens' SRLAB2 — \"the best of CIELAB and CIECAM02\": CIECAM02's CAT02-style chromatic adaptation feeding a CIELAB-like cube-root opponent stage, giving better perceptual uniformity than CIELAB while staying simple and invertible. D65; white → L=100, a=b=0."
   },
   "sucs": {
     "channels": [
@@ -4304,6 +4571,27 @@ export default {
     "referred": "scene",
     "dynamic": "hdr",
     "description": "Panasonic V-Log / V-Gamut color space Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65). Panasonic V-Log/V-Gamut Reference Manual (2014)."
+  },
+  "wavelength": {
+    "channels": [
+      {
+        "symbol": "wl",
+        "min": 380,
+        "max": 700,
+        "name": "Wavelength (nm; negative = complementary for purples)"
+      }
+    ],
+    "range": [
+      [
+        380,
+        700
+      ]
+    ],
+    "illuminant": "E",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "Wavelength color space The colour of monochromatic (single-wavelength) light — the \"rainbow\" / spectral locus. Forward maps a wavelength in nm to CIE XYZ via the CIE 1931 2° colour-matching functions (embedded at 5 nm, scaled so the 555 nm peak luminance is Y=100). The inverse returns the dominant wavelength of any colour (shared with `dsh`), so it round-trips for spectral inputs and is lossy otherwise (purples → negative)."
   },
   "xvycc": {
     "channels": [

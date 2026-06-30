@@ -17,7 +17,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 123, '123 spaces registered')
+	is(names.length, 131, '131 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -902,45 +902,45 @@ test('yes: yes <-> rgb', function () {
 	// ...existing code...
 });
 
-// reference values: colorjs.io srgb->oklab, L/a/b scaled ×100. gray128 L=59.99 (not 79.47)
+// reference values: colorjs.io srgb->oklab (native L 0-1). gray128 L=0.6 (not 0.79)
 // is the regression guard for the sRGB-linearization bug.
 test("oklab: rgb -> oklab", () => {
-	is(space.rgb.oklab(255, 255, 255).map(round(2)), [100, 0, 0]); // white
+	is(space.rgb.oklab(255, 255, 255).map(round(2)), [1, 0, 0]); // white
 	is(space.rgb.oklab(0, 0, 0).map(round(2)), [0, 0, 0]); // black
-	is(space.rgb.oklab(128, 128, 128).map(round(2)), [59.99, 0, 0]); // gray
-	is(space.rgb.oklab(255, 0, 0).map(round(2)), [62.8, 22.49, 12.58]); // red
-	is(space.rgb.oklab(0, 255, 0).map(round(2)), [86.64, -23.39, 17.95]); // green
-	is(space.rgb.oklab(0, 0, 255).map(round(2)), [45.2, -3.25, -31.15]); // blue
-	is(space.rgb.oklab(100, 150, 200).map(round(2)), [65.8, -3.25, -8.64]); // arbitrary
+	is(space.rgb.oklab(128, 128, 128).map(round(2)), [0.6, 0, 0]); // gray
+	is(space.rgb.oklab(255, 0, 0).map(round(2)), [0.63, 0.22, 0.13]); // red
+	is(space.rgb.oklab(0, 255, 0).map(round(2)), [0.87, -0.23, 0.18]); // green
+	is(space.rgb.oklab(0, 0, 255).map(round(2)), [0.45, -0.03, -0.31]); // blue
+	is(space.rgb.oklab(100, 150, 200).map(round(2)), [0.66, -0.03, -0.09]); // arbitrary
 })
 
 test("oklab: oklab -> rgb roundtrip", () => {
-	is(space.oklab.rgb(100, 0, 0).map(round(0)), [255, 255, 255]); // white
+	is(space.oklab.rgb(1, 0, 0).map(round(0)), [255, 255, 255]); // white
 	is(space.oklab.rgb(0, 0, 0).map(round(0)), [0, 0, 0]); // black
 	for (const c of [[128, 128, 128], [255, 0, 0], [0, 255, 0], [0, 0, 255], [100, 150, 200], [33, 180, 90]])
 		is(space.oklab.rgb(...space.rgb.oklab(...c)).map(round(2)), c, `roundtrip ${c}`);
 })
 
 test("oklab: xyz -> oklab", () => {
-	// XYZ 0-100 (D65) -> Oklab L 0-100, a/b (can exceed ±40 for out-of-gamut colors)
-	is(space.xyz.oklab(95.047, 100.0, 108.883).map(round(1)), [100.0, 0.0, 0.0]);
+	// XYZ 0-100 (D65) -> native Oklab (L 0-1, a/b can exceed ±0.4 out-of-gamut)
+	is(space.xyz.oklab(95.047, 100.0, 108.883).map(round(1)), [1.0, 0.0, 0.0]);
 	// XYZ primaries are extreme out-of-gamut values - tests removed
 })
 
 test("oklab: oklab -> xyz", () => {
-	// Oklab L 0-100, a/b ±40 -> XYZ 0-100
-	is(space.oklab.xyz(100, 0, 0).map(round(1)), [95.0, 100.0, 108.8]); // D65
+	// native Oklab (L 0-1, a/b ±0.4) -> XYZ 0-100
+	is(space.oklab.xyz(1, 0, 0).map(round(1)), [95.0, 100.0, 108.8]); // D65
 	// Inverse tests for extreme values removed
 })
 
 test("oklch: oklch <-> oklab", () => {
-	// OKLCh: L 0-100, C 0-40, H 0-360; Oklab: L 0-100, a/b ±40
-	is(space.oklch.oklab(100, 0, 0).map(round(1)), [100, 0, 0]);
+	// OKLCh: L 0-1, C 0-0.4, H 0-360; Oklab: L 0-1, a/b ±0.4
+	is(space.oklch.oklab(1, 0, 0).map(round(1)), [1, 0, 0]);
 	// red approximation
-	// oklab red: 62.8, 22.5, 12.6
-	// C = 25.8
+	// oklab red: 0.628, 0.225, 0.126
+	// C = 0.258
 	// h = 29.2 degrees
-	is(space.oklab.oklch(62.8, 22.5, 12.6).map(round(1)), [62.8, 25.8, 29.2]);
+	is(space.oklab.oklch(0.628, 0.225, 0.126).map(round(3)), [0.628, 0.258, 29.249]);
 });
 
 test("okhsl: okhsl <-> rgb", () => {
@@ -986,41 +986,39 @@ test("okhsv: okhsv <-> rgb", () => {
 })
 
 test("oklrab: oklrab <-> oklab", () => {
-	// OKLrab: Lr 0-100, a/b ±40; Oklab: L 0-100, a/b ±40
+	// OKLrab: Lr 0-1, a/b ±0.4; Oklab: L 0-1, a/b ±0.4
 	// White
-	// oklab L=100 -> oklrab Lr approx 100
-	// toeInv(100) ~= 100
-	is(space.oklab.oklrab(100, 0, 0).map(round(1)), [100, 0, 0]);
-	is(space.oklrab.oklab(100, 0, 0).map(round(1)), [100, 0, 0]);
+	// oklab L=1 -> oklrab Lr approx 1
+	// toeInv(1) ~= 1
+	is(space.oklab.oklrab(1, 0, 0).map(round(1)), [1, 0, 0]);
+	is(space.oklrab.oklab(1, 0, 0).map(round(1)), [1, 0, 0]);
 
 	// Gray
-	// oklab L=50 -> oklrab Lr should be different
-	var gray = space.oklab.oklrab(50, 0, 0);
-	// toeInv(50) is not 50.
-	// It should be roughly 50^3 = 125000 (if it was pure power)
-	// checking rough range
-	if (gray[0] == 50) throw new Error("oklrab L should differ from oklab L for gray");
+	// oklab L=0.5 -> oklrab Lr should be different
+	var gray = space.oklab.oklrab(0.5, 0, 0);
+	// toeInv(0.5) is not 0.5 (it is ~0.42).
+	if (gray[0] == 0.5) throw new Error("oklrab L should differ from oklab L for gray");
 
 	// Roundtrip
-	is(space.oklrab.oklab(...gray).map(round(2)), [50, 0, 0]);
+	is(space.oklrab.oklab(...gray).map(round(2)), [0.5, 0, 0]);
 });
 
 test("oklrch: oklrch <-> oklrab", () => {
-	// OKLRCh: Lr 0-100, C 0-40, H 0-360; OKLrab: Lr 0-100, a/b ±40
+	// OKLRCh: Lr 0-1, C 0-0.4, H 0-360; OKLrab: Lr 0-1, a/b ±0.4
 	// Similar to oklch <-> oklab but for Linear Lightness space
 	// White
-	is(space.oklrab.oklrch(100, 0, 0).map(round(1)), [100, 0, 0]);
+	is(space.oklrab.oklrch(1, 0, 0).map(round(1)), [1, 0, 0]);
 
 	// Red-ish color
-	// oklrab [50, 20, 10] -> oklrch [50, C, h]
-	// C = sqrt(20^2 + 10^2) = sqrt(500) ~= 22.4
-	// h = atan2(10, 20)
-	var c = space.oklrab.oklrch(50, 20, 10);
-	is(round(1)(c[0]), 50); // L should match
-	is(round(1)(c[1]), 22.4); // C
+	// oklrab [0.5, 0.2, 0.1] -> oklrch [0.5, C, h]
+	// C = sqrt(0.2^2 + 0.1^2) = sqrt(0.05) ~= 0.224
+	// h = atan2(0.1, 0.2)
+	var c = space.oklrab.oklrch(0.5, 0.2, 0.1);
+	is(round(1)(c[0]), 0.5); // L should match
+	is(round(3)(c[1]), 0.224); // C
 
 	// Roundtrip
-	is(space.oklrch.oklrab(...c).map(round(1)), [50, 20, 10]);
+	is(space.oklrch.oklrab(...c).map(round(1)), [0.5, 0.2, 0.1]);
 });
 
 test("jzazbz: jzazbz <-> xyz", () => {
