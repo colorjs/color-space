@@ -41,8 +41,49 @@ function instance() {
 // of the data in linear memory — all we need to build a zero-copy view over it.
 const ptr = (box) => Number(box & 0xffffffffn)
 
-/** Space pairs the kernel converts (each direction is a dedicated WASM export). */
-export const paths = [['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'xyz'], ['xyz', 'rgb']]
+// Primitive-edge graph (mirrors the scalar library's natural neighbours). Each edge
+// maps a space->space step to a WASM export; multi-hop conversions compose by walking
+// this graph (BFS) and calling each edge in turn on the buffer. polar_fwd/polar_inv
+// are the one generic cartesian<->cylindrical pair shared by every LCh-family space.
+const GRAPH = {
+	rgb: { lrgb: 'rgb_lrgb' },
+	lrgb: { rgb: 'lrgb_rgb', xyz: 'lrgb_xyz', oklab: 'lrgb_oklab' },
+	xyz: { lrgb: 'xyz_lrgb', lab: 'xyz_lab', 'lab-d65': 'xyz_labd65', luv: 'xyz_luv' },
+	oklab: { lrgb: 'oklab_lrgb', oklrab: 'oklab_oklrab', oklch: 'polar_fwd' },
+	oklrab: { oklab: 'oklrab_oklab', oklrch: 'polar_fwd' },
+	oklch: { oklab: 'polar_inv' },
+	oklrch: { oklrab: 'polar_inv' },
+	lab: { xyz: 'lab_xyz', lchab: 'polar_fwd' },
+	lchab: { lab: 'polar_inv' },
+	'lab-d65': { xyz: 'labd65_xyz', 'lch-d65': 'polar_fwd' },
+	'lch-d65': { 'lab-d65': 'polar_inv' },
+	luv: { xyz: 'luv_xyz', lchuv: 'polar_fwd' },
+	lchuv: { luv: 'polar_inv', hsluv: 'lchuv_hsluv', hpluv: 'lchuv_hpluv' },
+	hsluv: { lchuv: 'hsluv_lchuv' },
+	hpluv: { lchuv: 'hpluv_lchuv' },
+}
+
+/** Spaces the WASM kernel can convert between (any pair, composed via the graph). */
+export const spaces = Object.keys(GRAPH)
+
+// BFS shortest path from->to, returned as the sequence of edge-function names.
+const edgeSeq = (from, to) => {
+	if (from === to) return []
+	const queue = [[from, []]], seen = new Set([from])
+	while (queue.length) {
+		const [node, fns] = queue.shift()
+		const nbrs = GRAPH[node]
+		if (!nbrs) continue
+		for (const next in nbrs) {
+			if (seen.has(next)) continue
+			const seq = [...fns, nbrs[next]]
+			if (next === to) return seq
+			seen.add(next)
+			queue.push([next, seq])
+		}
+	}
+	return null
+}
 
 /**
  * Allocate (or grow + reuse) the WASM-backed working buffer: a zero-copy
@@ -65,14 +106,16 @@ export function alloc(n) {
 
 /**
  * Convert the working buffer ({@link alloc}'d) from one space to another, in place.
+ * Composes the shortest edge path through the graph (each hop is a buffer pass).
  * @param {string} from source space name (e.g. 'rgb')
- * @param {string} to target space name (e.g. 'oklab')
+ * @param {string} to target space name (e.g. 'oklch')
  * @param {number} n pixel count
  */
 export function convert(from, to, n) {
-	const fn = instance()[from + '_' + to]
-	if (!fn) throw new Error(`color-space/wasm: no batch path '${from}'→'${to}'. Available: ${paths.map((p) => p.join('→')).join(', ')}`)
-	fn(n)
+	const seq = edgeSeq(from, to)
+	if (seq === null) throw new Error(`color-space/wasm: no batch path '${from}'→'${to}'. Spaces: ${spaces.join(', ')}`)
+	const ex = instance()
+	for (const fn of seq) ex[fn](n)
 }
 
 /**

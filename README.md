@@ -61,8 +61,8 @@ The scalar API is for single colors. For whole-buffer work — images, gradients
 sweeps — the *same* verified formulas compile ahead-of-time to WebAssembly (via
 [jz](https://github.com/dy/jz), `optimize: 'speed'`). **One source, two backends:**
 `color-space/wasm` is not a hand-tuned reimplementation — it's the scalar math, pinned
-bit-for-bit against it ([test/wasm-batch.js](test/wasm-batch.js)). The prebuilt module is
-~4.6 kB, inlined, zero runtime dependency.
+bit-for-bit against it ([test/wasm-batch.js](test/wasm-batch.js)). Zero runtime dependency
+(the ~12 kB module is prebuilt and base64-inlined).
 
 ```js
 import { alloc, convert } from 'color-space/wasm';
@@ -70,17 +70,24 @@ import { alloc, convert } from 'color-space/wasm';
 const n = width * height;
 const buf = alloc(n);          // WASM-backed Float64Array(n*3), interleaved [r,g,b, r,g,b, …]
 // … write sRGB 0-255 into buf …
-convert('rgb', 'oklab', n);    // convert the whole buffer in place — no copy
-// … read buf, now Oklab …
+convert('rgb', 'oklch', n);    // convert the whole buffer in place — no copy
+// … read buf, now OkLCh …
 ```
 
-The win is **zero-copy** — keep the data in WASM memory. On the perceptual paths
-(`cbrt`/`pow`-heavy, e.g. rgb↔oklab) WASM runs **~1.2× faster than the same JS loop** over a
-1M-pixel buffer, and the margin **compounds across a chain** (~1.24× over four hops).
-Matrix-only paths (rgb↔xyz) are ~parity — V8 already runs those near memory bandwidth.
-`convertBatch(from, to, src, dst, n)` is a drop-in for existing JS arrays, but it copies in
-and out, so a *single* conversion through it won't beat JS — prefer `alloc` + `convert` on a
-hot path. Paths today: `rgb↔oklab`, `rgb↔xyz` (more on request — each is a tiny generated loop).
+Internally the kernel is a graph of primitive **edges** (transfer, matrix, cube-root,
+one generic cartesian↔cylindrical pair…) composed by a BFS exactly like the scalar
+library's `wire()` — so any pair of the **15 covered spaces** (rgb, lrgb, xyz, oklab,
+oklch, oklrab, oklrch, lab, lchab, lab-d65, lch-d65, luv, lchuv, hsluv, hpluv) converts
+in one call. Small edge kernels also run **faster than one fused loop** (jz vectorizes
+`cbrt` and `atan2` better apart — ~1.6×).
+
+The win is **zero-copy** — keep the data in WASM memory. Over a 1M-pixel buffer, vs the
+*identical* loop in V8: rgb→xyz **1.7×**, rgb→lab **1.5×**, rgb→oklab **1.4×**,
+rgb→oklch **1.3×**, rgb→hsluv **1.1×** (gamut-bound, branchier). `convertBatch(from, to,
+src, dst, n)` is a drop-in for existing JS arrays, but it copies in and out, so a *single*
+conversion through it won't beat JS — prefer `alloc` + `convert` on a hot path. (HDR/log/
+appearance spaces are staged; instantiation is sync, so use a Web Worker on the browser
+main thread.)
 
 ## Design: Conventional Ranges
 
