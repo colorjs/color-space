@@ -2399,47 +2399,6 @@ export default {
     "dynamic": "sdr",
     "description": "Rec. 2020 Linear color space Linear variant of ITU-R Rec. 2020 (UHDTV/4K standard) Without gamma correction for image processing"
   },
-  "rec2020-oetf": {
-    "channels": [
-      {
-        "symbol": "R",
-        "min": 0,
-        "max": 1,
-        "name": "Red (gamma corrected)"
-      },
-      {
-        "symbol": "G",
-        "min": 0,
-        "max": 1,
-        "name": "Green (gamma corrected)"
-      },
-      {
-        "symbol": "B",
-        "min": 0,
-        "max": 1,
-        "name": "Blue (gamma corrected)"
-      }
-    ],
-    "range": [
-      [
-        0,
-        1
-      ],
-      [
-        0,
-        1
-      ],
-      [
-        0,
-        1
-      ]
-    ],
-    "illuminant": "D65",
-    "observer": "2",
-    "referred": "display",
-    "dynamic": "sdr",
-    "description": "Rec. 2020 OETF color space Rec. 2020 with OETF (Opto-Electronic Transfer Function) Standard for HD television (Rec. 709 variant)"
-  },
   "rec2020": {
     "channels": [
       {

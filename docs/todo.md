@@ -26,7 +26,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 **Wrong output — confirmed (fix + bona fide reference test each):**
   * [x] **oklab** — `rgb.oklab` skipped sRGB→linear before the M1 matrix; `oklab.rgb` skipped gamma re-encode. Self-cancelled in roundtrip so hidden. Poisoned oklch/okhsl/okhsv too. FIXED by reusing `lrgb` transfer; now matches colorjs to 2e-6. (oklch/okhsl/okhsv auto-fixed.)
-  * [x] **rec2020** — FIXED: full-precision BT.2020 OETF (piecewise, α/β from Table 4); 0-1 range. Matches colorjs to 2e-14. `rec2020-oetf` is now redundant (also fixed + reachable) — **recommend removing it** (would make count 70).
+  * [x] **rec2020** — FIXED: full-precision BT.2020 OETF (piecewise, α/β from Table 4); 0-1 range. Matches colorjs to 2e-14. `rec2020-oetf` was a byte-identical duplicate of rec2020 (both = BT.2020 OETF) — **removed** (count 90→89).
   * [x] **lab-d50** (broken) — FIXED: ÷100 input / ×100 output; key `xyz['lab-d50']`. Now matches colorjs D50 `lab` to 0.017 (residual = Bradford precision, tracked). Reachable + tested.
   * [x] **tsl** (broken) — FIXED: inverse recovers θ=atan2(g′,r′) via cos/sin (sign preserved); black guarded. Exact roundtrip all colors (red was [124,83,-83]). Tested.
   * [x] **hcl** (broken) — FIXED: inverse uses `frac()` not JS `%` (Chilliant formula). Full 360-hue sweep roundtrips, 0 failures (green was [255,255,0]). Tested.

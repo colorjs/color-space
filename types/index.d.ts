@@ -62,7 +62,6 @@ import prophoto from './prophoto';
 import prophoto_linear from './prophoto-linear';
 import rec2020 from './rec2020';
 import rec2020_linear from './rec2020-linear';
-import rec2020_oetf from './rec2020-oetf';
 import rec2100_hlg from './rec2100-hlg';
 import rec2100_linear from './rec2100-linear';
 import rec2100_pq from './rec2100-pq';
@@ -92,7 +91,7 @@ import ypbpr from './ypbpr';
 import yuv from './yuv';
 
 export { ColorSpace, Convert };
-export { a98rgb, a98rgb_linear, aces2065_1, acescc, acescct, acescg, cam02_ucs, cam16, cam16_ucs, ciecam02, clog2, cmy, cmyk, coloroid, cubehelix, dci_p3, din99d, din99o_lab, din99o_lch, gray, hcg, hcl, hct, hcy, hpluv, hsi, hsl, hsluv, hsm, hsp, hsv, hwb, ictcp, ipt, jpeg, jzazbz, jzczhz, lab, lab_d65, labh, lch_d65, lchab, lchuv, lms, log3g10, logc4, lrgb, luv, okhsl, okhsv, okhwb, oklab, oklch, oklrab, oklrch, osaucs, p3, p3_linear, prophoto, prophoto_linear, rec2020, rec2020_linear, rec2020_oetf, rec2100_hlg, rec2100_linear, rec2100_pq, rec709, rg, rgb, scrgb, slog3, smpte_c, tsl, ucs, uvw, vlog, xvycc, xyb, xyy, xyz, xyz_abs_d65, xyz_d50, ycbcr, yccbccrc, ycgco, ydbdr, yes, yiq, ypbpr, yuv };
+export { a98rgb, a98rgb_linear, aces2065_1, acescc, acescct, acescg, cam02_ucs, cam16, cam16_ucs, ciecam02, clog2, cmy, cmyk, coloroid, cubehelix, dci_p3, din99d, din99o_lab, din99o_lch, gray, hcg, hcl, hct, hcy, hpluv, hsi, hsl, hsluv, hsm, hsp, hsv, hwb, ictcp, ipt, jpeg, jzazbz, jzczhz, lab, lab_d65, labh, lch_d65, lchab, lchuv, lms, log3g10, logc4, lrgb, luv, okhsl, okhsv, okhwb, oklab, oklch, oklrab, oklrch, osaucs, p3, p3_linear, prophoto, prophoto_linear, rec2020, rec2020_linear, rec2100_hlg, rec2100_linear, rec2100_pq, rec709, rg, rgb, scrgb, slog3, smpte_c, tsl, ucs, uvw, vlog, xvycc, xyb, xyy, xyz, xyz_abs_d65, xyz_d50, ycbcr, yccbccrc, ycgco, ydbdr, yes, yiq, ypbpr, yuv };
 
 /** All registered color spaces, keyed by name. */
 declare const space: { [name: string]: ColorSpace };

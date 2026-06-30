@@ -29,7 +29,6 @@ const REF = [
   {"s":"oklrab","f":"rgb","t":"oklrab","in":[255,0,0],"out":[56.8085,22.4863,12.5846],"src":"colorjs.io v0.5: Color(\\'srgb\\',[1,0,0]).to(\\'oklab\\') -> L=0.62796, a=0.2"},
   {"s":"oklrch","f":"rgb","t":"oklrch","in":[255,0,0],"out":[56.808465250408624,25.76833077361567,29.233885192342633],"src":"Manually derived from Björn Ottosson\\'s Oklab/colorpicker formulas (htt"},
   {"s":"osaucs","f":"xyz","t":"osaucs","in":[20.654008,12.197225,5.136952],"out":[-3.0049979,2.997137,-9.6678423],"src":"colour-science v0.4.7, XYZ_to_OSA_UCS(np.array([0.20654008, 0.12197225"},
-  {"s":"rec2020-oetf","f":"rec2020-oetf","t":"xyz","in":[0.5,0.5,0.5],"out":[24.685187836333807,25.971943710117745,28.284946599803014],"src":"colorjs.io v0.5 — new Color(\\'rec2020\\', [0.5, 0.5, 0.5]).to(\\'xyz-d65\\')."},
   {"s":"rg","f":"rgb","t":"rg","in":[255,0,0],"out":[1,0],"src":"Direct arithmetic from definition: r = R/(R+G+B) = 255/255 = 1, g = 0/"},
   {"s":"rgb","f":"rgb","t":"xyz","in":[255,0,0],"out":[41.239079926595934,21.263900587151028,1.9330818715591822],"src":"colorjs.io v0.5: new Color(\\'srgb\\',[1,0,0]).to(\\'xyz-d65\\').coords scaled"},
   {"s":"tsl","f":"rgb","t":"tsl","in":[255,0,0],"out":[206.56505117707798,1,76.245],"src":"Computed from the canonical formula in Terrillon J.C. & Akamatsu S. (2"},
