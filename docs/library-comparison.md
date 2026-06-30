@@ -8,8 +8,8 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
-| **Version compared** | 3.x | 4.x | 0.5.x | 2.x | 0.x |
-| **Color spaces** | **71** | ~35 | ~40 | ~15 | ~16 |
+| **Version compared** | 3.x | 4.x | 0.6.x | 2.x | 0.x |
+| **Color spaces** | **131** | ~35 | ~40 | ~15 | ~16 |
 | **API value ranges** | Conventional (CSS-matching) | Normalized 0–1 | Normalized 0–1 | Mixed / CSS strings | Normalized 0–1 |
 | **CSS string parsing** | No | Yes | Yes | Yes | No |
 | **Color mixing / interpolation** | No | Yes | Yes | Yes | No |
@@ -20,10 +20,10 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | **Tree-shakeable ESM** | Yes | Yes | Yes | No | Yes |
 | **Zero dependencies** | Yes | Yes | Yes | No | Yes |
 | **Differential-tested vs colorjs.io** | 29 spaces, both directions | — | — | — | — |
-| **Bundle (full, min+gz)** | ~20 kB | ~28 kB | ~90 kB | ~18 kB | ~12 kB |
+| **Bundle (full, min+gz)** | ~44 kB¹ | ~22 kB | ~25 kB | ~16 kB | ~12 kB |
 | **Batch / typed-array API** | Planned (WASM) | No | No | No | Yes (WebGL/GPU) |
 
-Bundle sizes are approximate; tree-shaking dramatically reduces color-space and culori.
+Full-library min+gz, bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~44 kB is **all 131 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle.
 
 ---
 
@@ -62,11 +62,11 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 **Video and broadcast** — YUV, YIQ, YCbCr (BT.601), YcCbcCrc (BT.2020 constant-luminance), YPbPr, YDbDr, YCgCo, JPEG full-range YCbCr, xvYCC. None of culori, colorjs.io, chroma-js, or @texel/color include these.
 
-**Film / professional** — ACEScc and ACEScg. culori and colorjs.io include ACEScc/cg; @texel/color and chroma-js do not.
+**Film / professional** — ACEScg/cc/cct, ACES2065-1, plus the camera log encodings: ARRI LogC3/LogC4, Sony S-Log2/S-Log3, Panasonic V-Log, RED Log3G10, Canon Log/Log2/Log3, Fujifilm F-Log/F-Log2, Nikon N-Log, Apple Log, Blackmagic Film Gen5, DJI D-Log, Cineon. culori and colorjs.io include ACEScc/cg, but **none** of the compared libraries include the camera log curves — this is color-space's clearest moat.
 
 **HDR** — Jzazbz, JzCzHz, ICtCp, Rec. 2100 PQ, Rec. 2100 HLG. colorjs.io covers most of these; culori covers Jzazbz/JzCzHz and ICtCp; @texel/color and chroma-js largely do not.
 
-**Color appearance** — CAM16 and HCT (Google Material). colorjs.io has CAM16-JMh; HCT is rarely found in JS libraries.
+**Color appearance** — CAM16, CIECAM02, CAM16-UCS, CAM02-UCS, CAM02/16-LCD & SCD, Hellwig 2022, ZCAM, and HCT (Google Material). colorjs.io has CAM16-JMh; the rest are rarely found in JS libraries.
 
 **Historical CIE** — CIE 1960 UCS, CIE 1964 UVW, Hunter Lab. colorjs.io includes some; culori, chroma-js, and @texel/color do not.
 

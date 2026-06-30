@@ -72,6 +72,8 @@ hsl.rgb(180, 75, 50);       // H: 0-360°, S/L: 0-100%     → CSS hsl(180 75% 5
 
 (Lab is 0–100 and OKLCh is 0–1 because *CSS itself* uses those scales — color-space matches each space's real convention rather than forcing everything to one range.)
 
+Each space's exact range is on its object as `<space>.range` (and in [`meta.js`](meta.js)) — so you never have to memorize them.
+
 **Benefits:**
 - ✅ Matches CSS color specifications exactly
 - ✅ Self-documenting: `oklch.rgb(0.5, 0.2, 180)` maps 1:1 to CSS `oklch(0.5 0.2 180)`
