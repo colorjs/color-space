@@ -97,7 +97,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ## Phase 2 — WASM batch kernel → 3.1 (the headline feature)
 
-  * [~] `mat3 × vec3` primitive — `mat3` in [util.js](../util.js). Used by xyz-d50/lab/prophoto-linear/**acescg/ictcp**. Remaining: cam16/okhsl (array-of-arrays shape), the RGB working spaces.
+  * [x] `mat3 × vec3` primitive — `mat3`/`inv3` in [util.js](../util.js). Now the shared seam for **all** matrix spaces: lrgb (in xyz.js) + the RGB working spaces (p3-linear, rec2020-linear, a98rgb-linear, prophoto-linear), xyz-d50, lab, acescg, ictcp, cam16, the camera logs (logc4/slog3/vlog/log3g10/clog2), dci-p3, smpte-c, ipt, aces2065-1. Each derives its inverse via `inv3(forward)` (single source of truth, bit-exact round-trips). **okhsl/okhsv left 2D on purpose** — their matrices are used row-structurally by the Ottosson analytic gamut-intersection (not v×M), so flattening would obscure the algorithm; they're also not a batch hot-path.
 
 ### WASM premise — MEASURED (jz 0.8.0, Node/V8, 1M px, buffer-in-WASM, optimize:3)
   * matrix-only (lrgb→xyz): WASM **1.14–1.22×** (f32 ~1.18×) — a real but modest win (memory-bound).

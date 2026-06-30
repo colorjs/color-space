@@ -1,5 +1,6 @@
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
+import { mat3, inv3 } from './util.js';
 
 // Whitepoint reference values with observer/illuminant
 // https://en.wikipedia.org/wiki/Standard_illuminant
@@ -102,30 +103,21 @@ const xyz = {
 	whitepoint: whitepoint
 };
 
-// XYZ (0-100) to linear RGB (0-1)
-xyz.lrgb = (x, y, z) => {
-	// Normalize XYZ from 0-100 to 0-1 for matrix multiplication
-	x = x / 100;
-	y = y / 100;
-	z = z / 100;
+// sRGB linear RGB -> XYZ (D65, Y 0..1); IEC 61966-2-1 matrix, inverse derived
+const M_LRGB = [
+	0.41239079926595, 0.35758433938387, 0.18048078840183,
+	0.21263900587151, 0.71516867876775, 0.072192315360733,
+	0.019330818715591, 0.11919477979462, 0.95053215224966
+];
+const M_LRGB_INV = inv3(M_LRGB);
 
-	return [
-		(x * 3.240969941904521) + (y * -1.537383177570093) + (z * -0.498610760293),
-		(x * -0.96924363628087) + (y * 1.87596750150772) + (z * 0.041555057407175),
-		(x * 0.055630079696993) + (y * -0.20397695888897) + (z * 1.056971514242878)
-	]
-}
+// XYZ (0-100) to linear RGB (0-1)
+xyz.lrgb = (x, y, z) => mat3(M_LRGB_INV, x / 100, y / 100, z / 100);
 
 // Linear RGB (0-1) to XYZ (0-100)
 lrgb.xyz = (r, g, b) => {
-	const xyz = [
-		(r * 0.41239079926595) + (g * 0.35758433938387) + (b * 0.18048078840183),
-		(r * 0.21263900587151) + (g * 0.71516867876775) + (b * 0.072192315360733),
-		(r * 0.019330818715591) + (g * 0.11919477979462) + (b * 0.95053215224966)
-	];
-
-	// Scale from 0-1 to 0-100
-	return xyz.map(v => v * 100);
+	const [x, y, z] = mat3(M_LRGB, r, g, b);
+	return [x * 100, y * 100, z * 100];
 }
 
 // RGB (0-255) to XYZ (0-100)
