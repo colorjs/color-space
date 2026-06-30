@@ -14,16 +14,14 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from './util.js';
+import { mat3, inv3, spow } from './util.js';
 
 const dciP3 = {
 	name: 'dci-p3',
 	range: [[0, 1], [0, 1], [0, 1]]
 };
 
-// signed power (pure gamma 2.6, no linear segment) — SMPTE RP 431-2
-const spow = (v, e) => v < 0 ? -Math.pow(-v, e) : Math.pow(v, e);
-
+// DCI-P3 uses pure gamma 2.6 (no linear segment) — SMPTE RP 431-2
 // DCI-P3 linear (DCI white, Bradford-adapted to D65) -> XYZ (D65, Y 0..1)
 const M = [
 	0.459251654991986669, 0.295791787505722437, 0.195412484553962068,
