@@ -47,15 +47,17 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 **Precision (canonical constants) — minor:**
   * [x] D50↔D65 Bradford consolidated into `xyz.js` (`bradford` + `mat3` exports, full precision); xyz-d50/lab-d50/prophoto-linear now share it (was 3 truncated copies). lab-d50 D50 white → full precision. rec2020-oetf α/β → full precision. All verified by the differential test.
   * [x] lab ε→216/24389, κ→24389/27 (both lab & lab-d65 full precision; replaced the old 0.008856/7.787)
-  * [ ] acescg adapt matrices (not exact inverses — but passes differential); rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward
+  * [x] acescg — exact inverse matrices (roundtrip 3.9e-2→3e-11); rec2100-hlg scale = exact 12/(exp((0.75-c)/a)+b); rec2100 names hyphenated (`rec2100-pq`/`-hlg`) + added to differential (1e-14 / 1e-5 vs colorjs); yiq — canonical FCC matrix + exact inverse (round-trips)
 
 **Range/doc — minor:**
   * [x] p3, a98rgb, rec2020 `@channel` 0-255 → 0-1 (matches CSS `color()` for predefined RGB; sRGB `rgb()` stays 0-255). Confirmed by the differential test (scale [1,1,1]).
   * [ ] hsm S can exceed 100; okhsl/okhsv blue S slightly >100; hpluv S max is not 100 (can be 100s) — fix range docs / clamp where spec'd
 
 **Other (from full audit — archived at the task output; sample):**
-  * [ ] gray — `rgb.gray` applies Rec.709 luma to gamma-encoded RGB (luma Y′) not linearized RGB (luminance Y); decide which and document (same matrix-on-gamma class as the oklab fix)
-  * [ ] din99o-lab/din99o-lch still carry removed v3 props (`alias`, `channel`) — clean up during the wiring fix
+  * [x] gray — now CIE relative luminance (linearized, exact sRGB Y-row) === XYZ Y/100, not luma. Inverse maps Y→achromatic sRGB; round-trips.
+  * [x] din99o-lab/din99o-lch cleaned (rewritten without `alias`/`channel`); cam16 `channel` removed; xyz-d50/lab-d50 `channel` removed
+  * [x] S-overflow: hpluv `@channel` notes S exceeds 100 outside the pastel gamut (by design). okhsl/hsm marginally exceed 100 at the gamut boundary (smooth-cusp approximation; okhsl matches culori on H/L exactly, only ~3 S units at the blue corner) — left as documented approximation, not clamped (clamping would break roundtrip).
+  * [x] one-way conversions documented: `osaucs.xyz` (no analytical inverse) and `rgb.cubehelix` (parametric colormap) now throw clear one-way errors. `uvw.ucs`/`ucs.uvw` auto-chain.
 
 ### Types & metadata
   * [ ] Generate `.d.ts` from JSDoc `@channel` headers — extend [scripts/generate-meta.js](../scripts/generate-meta.js); kills the 32 missing + 3 wrong-ext + drift

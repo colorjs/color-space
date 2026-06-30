@@ -59,14 +59,11 @@ cubehelix.rgb = function (fraction, options = {}) {
 	return [r * 255, g * 255, b * 255];
 };
 /**
- * RGB to cubehelix
- *
- * @param {Array<number>} rgb RGB values
- * @return {Array<number>} cubehelix fraction(s)
+ * RGB to cubehelix is one-way: cubehelix is a one-parameter colormap, so an
+ * arbitrary RGB is not generally on the helix and cannot be inverted to it.
  */
-rgb.cubehelix = function (rgb) {
-	//TODO: implement backward conversion (requires numerical methods as cubehelix is parametric)
-	throw new Error('rgb.cubehelix conversion is not implemented yet');
+rgb.cubehelix = function (r, g, b) {
+	throw new Error('rgb.cubehelix: cubehelix is a forward-only colormap (one-way conversion)');
 };
 
 

@@ -17,13 +17,14 @@ var osaucs = {
 
 
 /**
- * There's no analytical solution to this
+ * OSA-UCS -> XYZ is one-way: OSA-UCS has no analytical inverse; published inverse
+ * methods are iterative/numerical.
+ * https://www.researchgate.net/publication/259253763_Comparison_of_the_performance_of_inverse_transformation_methods_from_OSA-UCS_to_CIEXYZ
  */
 osaucs.xyz = function (L, j, g) {
 	var x, y, z;
 
-	throw 'Unimplemented';
-	//http://www.researchgate.net/publication/259253763_Comparison_of_the_performance_of_inverse_transformation_methods_from_OSA-UCS_to_CIEXYZ
+	throw new Error('osaucs.xyz: OSA-UCS has no analytical inverse (one-way conversion only)');
 
 	return [x, y, z];
 };
