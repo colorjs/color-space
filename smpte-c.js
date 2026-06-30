@@ -15,24 +15,14 @@
  */
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
+import { bt709Encode as encode, bt709Decode as decode } from './transfers.js';
 
 const smpteC = {
 	name: 'smpte-c',
 	range: [[0, 1], [0, 1], [0, 1]]
 };
 
-// BT.601 OETF (same as BT.709): signal -> linear
-const decode = (v) => {
-	const s = v < 0 ? -1 : 1, a = Math.abs(v);
-	return s * (a < 0.081 ? a / 4.5 : Math.pow((a + 0.099) / 1.099, 1 / 0.45));
-};
-// linear -> signal
-const encode = (v) => {
-	const s = v < 0 ? -1 : 1, a = Math.abs(v);
-	return s * (a < 0.018 ? 4.5 * a : 1.099 * Math.pow(a, 0.45) - 0.099);
-};
-
-// SMPTE-C linear RGB -> XYZ (D65, Y 0..1)
+// BT.601 OETF (identical curve to BT.709); SMPTE-C linear RGB -> XYZ (D65, Y 0..1)
 const M = [
 	0.39352090365939, 0.365258076717604, 0.191676946674678,
 	0.212376360705067, 0.701059856925723, 0.086563782369210,

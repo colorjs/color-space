@@ -15,25 +15,10 @@
  */
 import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
+import { bt2020Encode as encode, bt2020Decode as decode } from './transfers.js';
 
 const rec2020 = {
 	name: 'rec2020'
-};
-
-// ITU-R BT.2020 Table 4 (full precision)
-const α = 1.09929682680944;
-const β = 0.018053968510807;
-
-// gamma-encoded signal -> linear light
-const decode = (v) => {
-	const s = Math.sign(v), a = Math.abs(v);
-	return s * (a < β * 4.5 ? a / 4.5 : Math.pow((a + α - 1) / α, 1 / 0.45));
-};
-
-// linear light -> gamma-encoded signal
-const encode = (v) => {
-	const s = Math.sign(v), a = Math.abs(v);
-	return s * (a < β ? 4.5 * a : α * Math.pow(a, 0.45) - (α - 1));
 };
 
 rec2020.xyz = (r, g, b) => rec2020Linear.xyz(decode(r), decode(g), decode(b));

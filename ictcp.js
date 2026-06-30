@@ -12,20 +12,13 @@
  */
 import xyz from './xyz.js';
 import { mat3 } from './util.js';
+import { pqST2084Encode, pqST2084Decode } from './transfers.js';
 
 const ictcp = {
 	name: 'ictcp'
 };
 
 const Yw = 203; // nits
-
-const c1 = 3424 / 4096;
-const c2 = 2413 / 128;
-const c3 = 2392 / 128;
-const m1 = 2610 / 16384;
-const m2 = 2523 / 32;
-const im1 = 16384 / 2610;
-const im2 = 32 / 2523;
 
 const M_XYZ_LMS = [
 	0.3592832590121217, 0.6976051147779502, -0.0358915932320290,
@@ -51,25 +44,15 @@ const M_IPT_LMS = [
 	1.0, 0.5600313357106791, -0.3206271749873188
 ];
 
+// LMS (absolute nits) -> ICtCp: PQ-encode each cone, then the LMS->IPT matrix
 function LMStoICtCp(l, m, s) {
-	const lms = [l, m, s];
-	const PQLMS = lms.map(val => {
-		// val is absolute nits
-		const v = Math.max(val / 10000, 0); // normalize 10000 nits -> 1
-		const num = c1 + c2 * Math.pow(v, m1);
-		const denom = 1 + c3 * Math.pow(v, m1);
-		return Math.pow(num / denom, m2);
-	});
-	return mat3(M_LMS_IPT, PQLMS[0], PQLMS[1], PQLMS[2]);
+	const [pl, pm, ps] = [l, m, s].map(pqST2084Encode);
+	return mat3(M_LMS_IPT, pl, pm, ps);
 }
 
+// ICtCp -> LMS (absolute nits): IPT->LMS matrix, then PQ-decode each cone
 function ICtCptoLMS(i, ct, cp) {
-	const PQLMS = mat3(M_IPT_LMS, i, ct, cp);
-	return PQLMS.map(val => {
-		const num = Math.max(Math.pow(val, im2) - c1, 0);
-		const denom = c2 - c3 * Math.pow(val, im2);
-		return 10000 * Math.pow(num / denom, im1);
-	});
+	return mat3(M_IPT_LMS, i, ct, cp).map(pqST2084Decode);
 }
 
 xyz.ictcp = (x, y, z) => {

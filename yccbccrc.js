@@ -15,6 +15,7 @@
  * @dynamic sdr
  */
 import rec2020Linear from './rec2020-linear.js';
+import { bt2020Encode as oetf, bt2020Decode as eotf } from './transfers.js';
 
 const yccbccrc = {
 	name: 'yccbccrc',
@@ -24,10 +25,6 @@ const yccbccrc = {
 // BT.2020-2 Table 4 (constant-luminance derivation)
 const Kr = 0.2627, Kg = 0.6780, Kb = 0.0593;
 const NBC = 1.9404, PBC = 1.5816, NRC = 1.7184, PRC = 0.9936;
-// BT.2020 OETF (full-precision α/β)
-const A = 1.09929682680944, B = 0.018053968510807;
-const oetf = (v) => { const s = v < 0 ? -1 : 1, x = Math.abs(v); return s * (x < B ? 4.5 * x : A * Math.pow(x, 0.45) - (A - 1)); };
-const eotf = (v) => { const s = v < 0 ? -1 : 1, x = Math.abs(v); return s * (x < 4.5 * B ? x / 4.5 : Math.pow((x + (A - 1)) / A, 1 / 0.45)); };
 
 // linear Rec.2020 RGB -> YcCbcCrc
 rec2020Linear.yccbccrc = (R, G, B) => {

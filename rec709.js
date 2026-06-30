@@ -14,24 +14,15 @@
  * @dynamic sdr
  */
 import lrgb from './lrgb.js';
+import { bt709Encode, bt709Decode } from './transfers.js';
 
 const rec709 = {
 	name: 'rec709',
 	range: [[0, 1], [0, 1], [0, 1]]
 };
 
-// BT.709 OETF: linear -> signal
-const encode = (v) => {
-	const s = v < 0 ? -1 : 1, a = Math.abs(v);
-	return s * (a < 0.018 ? 4.5 * a : 1.099 * Math.pow(a, 0.45) - 0.099);
-};
-// inverse OETF: signal -> linear
-const decode = (v) => {
-	const s = v < 0 ? -1 : 1, a = Math.abs(v);
-	return s * (a < 0.081 ? a / 4.5 : Math.pow((a + 0.099) / 1.099, 1 / 0.45));
-};
-
-rec709.lrgb = (r, g, b) => [decode(r), decode(g), decode(b)];
-lrgb.rec709 = (r, g, b) => [encode(r), encode(g), encode(b)];
+// BT.709 shares sRGB primaries/white, so linear light = linear sRGB; only the OETF differs
+rec709.lrgb = (r, g, b) => [bt709Decode(r), bt709Decode(g), bt709Decode(b)];
+lrgb.rec709 = (r, g, b) => [bt709Encode(r), bt709Encode(g), bt709Encode(b)];
 
 export default rec709;
