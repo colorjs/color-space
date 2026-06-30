@@ -202,7 +202,7 @@ color-space offers a unique approach among JavaScript color libraries:
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
 | **Bundle size** | Tree-shakeable, minimal | Medium | Large | Minimal |
-| **Test coverage** | 1,371 tests (99.9%) | ~2,000 tests | ~1,500 tests | ~50 tests |
+| **Test coverage** | differential vs colorjs.io + cited refs (90 spaces) | ~2,000 tests | ~1,500 tests | ~50 tests |
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
