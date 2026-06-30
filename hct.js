@@ -10,13 +10,7 @@
  * @channel {T} 0 100 Tone (perceptual lightness)
  */
 import xyz from './xyz.js';
-import { toCam16, fromCam16, environment } from './cam16.js';
-
-const constrainLocal = (h) => {
-	let r = h % 360;
-	if (r < 0) r += 360;
-	return r;
-};
+import { toCam16, fromCam16, environment, constrain } from './cam16.js';
 
 const eps = 216 / 24389;
 const kappa = 24389 / 27;
@@ -54,7 +48,7 @@ xyz.hct = (x, y, z) => {
 	const t = toLstar(y);
 	if (t === 0) return [0, 0, 0];
 	const cam = toCam16([x, y, z], hctViewingConditions);
-	return [constrainLocal(cam.h), cam.C, t];
+	return [constrain(cam.h), cam.C, t];
 }
 
 hct.xyz = (h, c, t) => {

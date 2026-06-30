@@ -10,13 +10,14 @@
  * @channel {h} 0 360 Hue angle in degrees
  */
 import xyz from './xyz.js';
+import { mat3 } from './util.js';
 
 /* Utilities */
 const spow = (a, b) => Math.sign(a) * Math.pow(Math.abs(a), b);
 const copySign = (a, b) => Math.sign(b) * Math.abs(a);
 const zdiv = (a, b) => b === 0 ? 0 : a / b;
 const interpolate = (start, end, p) => start + (end - start) * p;
-const constrain = (h) => {
+export const constrain = (h) => {
 	let r = h % 360;
 	if (r < 0) r += 360;
 	return r;
@@ -30,37 +31,28 @@ function bisectLeft(arr, x) {
 	}
 	return lo;
 }
-function multiply_v3_m3x3(v, m) {
-	return [
-		v[0] * m[0][0] + v[1] * m[0][1] + v[2] * m[0][2],
-		v[0] * m[1][0] + v[1] * m[1][1] + v[2] * m[1][2],
-		v[0] * m[2][0] + v[1] * m[2][1] + v[2] * m[2][2]
-	];
-}
-// Note: m is in format [[row0], [row1], [row2]]
-// But define m1 etc as array of arrays.
-
 const white = [0.95047, 1.0, 1.08883];
 const adaptedCoef = 0.42;
 const adaptedCoefInv = 1 / adaptedCoef;
 const tau = 2 * Math.PI;
 
+// row-major flat 3×3 matrices (multiplied via util.mat3 — the shared seam)
 const cat16 = [
-	[0.401288, 0.650173, -0.051461],
-	[-0.250268, 1.204414, 0.045854],
-	[-0.002079, 0.048952, 0.953127]
+	0.401288, 0.650173, -0.051461,
+	-0.250268, 1.204414, 0.045854,
+	-0.002079, 0.048952, 0.953127
 ];
 
 const cat16Inv = [
-	[1.8620678550872327, -1.0112546305316843, 0.14918677544445175],
-	[0.38752654323613717, 0.6214474419314753, -0.008973985167612518],
-	[-0.015841498849333856, -0.03412293802851557, 1.0499644368778496]
+	1.8620678550872327, -1.0112546305316843, 0.14918677544445175,
+	0.38752654323613717, 0.6214474419314753, -0.008973985167612518,
+	-0.015841498849333856, -0.03412293802851557, 1.0499644368778496
 ];
 
 const m1 = [
-	[460.0, 451.0, 288.0],
-	[460.0, -891.0, -261.0],
-	[460.0, -220.0, -6300.0]
+	460.0, 451.0, 288.0,
+	460.0, -891.0, -261.0,
+	460.0, -220.0, -6300.0
 ];
 
 const surroundMap = {
@@ -125,7 +117,7 @@ export function environment(refWhite, adaptingLuminance, backgroundLuminance, su
 	env.la = adaptingLuminance;
 	env.yb = backgroundLuminance;
 	const yw = xyzW[1];
-	const rgbW = multiply_v3_m3x3(xyzW, cat16);
+	const rgbW = mat3(cat16, ...xyzW);
 	const values = surroundMap[surround];
 	const f = values[0];
 	env.c = values[1];
@@ -178,21 +170,18 @@ export function fromCam16(cam16, env) {
 	const b = r * sinh;
 
 	const rgb_c = unadapt(
-		multiply_v3_m3x3([p2, a, b], m1).map(c => c / 1403),
+		mat3(m1, p2, a, b).map(c => c / 1403),
 		env.fl
 	);
 
-	return multiply_v3_m3x3(
-		rgb_c.map((c, i) => c * env.dRgbInv[i]),
-		cat16Inv
-	);
+	return mat3(cat16Inv, ...rgb_c.map((c, i) => c * env.dRgbInv[i]));
 }
 
 export function toCam16(xyzd65, env) {
 	// XYZ in 0-100 range
 	const xyz100 = xyzd65;
 	const rgbA = adapt(
-		multiply_v3_m3x3(xyz100, cat16).map((c, i) => c * env.dRgb[i]),
+		mat3(cat16, ...xyz100).map((c, i) => c * env.dRgb[i]),
 		env.fl
 	);
 	const a = rgbA[0] + (-12 * rgbA[1] + rgbA[2]) / 11;
