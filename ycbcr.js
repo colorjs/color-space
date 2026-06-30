@@ -1,8 +1,9 @@
 /**
  * YCbCr color space
  *
- * Digital video color format used in broadcasting
- * ITU-R BT.709 or ITU-R BT.601 standard
+ * Digital video color format used in broadcasting. Limited (studio) range,
+ * ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) — the HD default. For SD use
+ * BT.601; full-range 601 is the `jpeg` space.
  *
  * @channel {Y} 16 235 Luma (brightness)
  * @channel {Cb} 16 240 Blue chroma

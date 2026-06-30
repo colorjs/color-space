@@ -6,6 +6,7 @@ import space from '../index.js';
 import test, { is } from 'tst'
 import color from 'color-name'
 import './reference.js' // authoritative differential tests vs colorjs.io
+import './bonafide.js' // cited reference values for the non-differential spaces
 
 // get round fn for a precision
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision
