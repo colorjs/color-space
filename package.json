@@ -48,7 +48,8 @@
   "scripts": {
     "test": "node test",
     "benchmark": "node benchmark/compare.js",
+    "types": "node scripts/generate-types.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run types && npm run build"
   }
 }
