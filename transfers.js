@@ -8,6 +8,27 @@
 const sgn = (v) => (v < 0 ? -1 : 1);
 
 /**
+ * Pure power-law gamma (sign-extended), for the legacy working spaces that encode
+ * with a simple exponent (Apple RGB γ1.8, NTSC/PAL γ2.2, …). `encode` is display→linear's
+ * inverse: linear → signal = v^(1/γ); `decode`: signal → linear = v^γ.
+ */
+export const gammaEncode = (v, g) => sgn(v) * Math.pow(Math.abs(v), 1 / g);
+export const gammaDecode = (v, g) => sgn(v) * Math.pow(Math.abs(v), g);
+
+/**
+ * SMPTE ST 240M OETF (interim HDTV, 1988). Linear ⇄ signal.
+ * @see {@link https://ieeexplore.ieee.org/document/7291461}
+ */
+export const smpte240mEncode = (v) => {
+	const a = Math.abs(v);
+	return sgn(v) * (a < 0.0228 ? 4 * a : 1.1115 * Math.pow(a, 0.45) - 0.1115);
+};
+export const smpte240mDecode = (v) => {
+	const a = Math.abs(v);
+	return sgn(v) * (a < 0.0913 ? a / 4 : Math.pow((a + 0.1115) / 1.1115, 1 / 0.45));
+};
+
+/**
  * sRGB / IEC 61966-2-1 (also used by Display-P3). Linear ⇄ encoded.
  * @see {@link https://www.w3.org/TR/css-color-4/#valdef-color-srgb}
  */

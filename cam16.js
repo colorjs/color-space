@@ -37,20 +37,21 @@ const adaptedCoef = 0.42;
 const adaptedCoefInv = 1 / adaptedCoef;
 const tau = 2 * Math.PI;
 
-// row-major flat 3×3 matrices (multiplied via util.mat3 — the shared seam)
-const cat16 = [
+// row-major flat 3×3 matrices (multiplied via util.mat3 — the shared seam).
+// Exported so Hellwig2022 (a CAM16 refinement) can reuse the CAT16 adaptation.
+export const cat16 = [
 	0.401288, 0.650173, -0.051461,
 	-0.250268, 1.204414, 0.045854,
 	-0.002079, 0.048952, 0.953127
 ];
 
-const cat16Inv = [
+export const cat16Inv = [
 	1.8620678550872327, -1.0112546305316843, 0.14918677544445175,
 	0.38752654323613717, 0.6214474419314753, -0.008973985167612518,
 	-0.015841498849333856, -0.03412293802851557, 1.0499644368778496
 ];
 
-const m1 = [
+export const m1 = [
 	460.0, 451.0, 288.0,
 	460.0, -891.0, -261.0,
 	460.0, -220.0, -6300.0
@@ -68,14 +69,14 @@ const hueQuadMap = {
 	H: [0.0, 100.0, 200.0, 300.0, 400.0],
 };
 
-function adapt(coords, fl) {
+export function adapt(coords, fl) {
 	return coords.map(c => {
 		const x = spow(fl * Math.abs(c) * 0.01, adaptedCoef);
 		return (400 * copySign(x, c)) / (x + 27.13);
 	});
 }
 
-function unadapt(adapted, fl) {
+export function unadapt(adapted, fl) {
 	const constant = (100 / fl) * Math.pow(27.13, adaptedCoefInv);
 	return adapted.map(c => {
 		const cabs = Math.abs(c);

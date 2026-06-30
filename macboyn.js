@@ -1,0 +1,41 @@
+/**
+ * MacLeod-Boynton ls chromaticity color space
+ *
+ * The cone-excitation chromaticity diagram of vision science (MacLeod & Boynton 1979):
+ * a constant-luminance plane where l = L/(L+M) and s = S/(L+M) on the Smith-Pokorny
+ * (1975) cone fundamentals, scaled so L+M = Y (luminance). The foundation of the DKL
+ * cardinal-axis space and of chromatic-discrimination work. Stored with the MB
+ * luminance (L+M ≈ Y) as a third channel for invertibility.
+ *
+ * @see {@link https://doi.org/10.1364/JOSA.69.001183} MacLeod & Boynton 1979
+ * @channel {l} 0 1 L/(L+M) red-green chromaticity
+ * @channel {s} 0 1 S/(L+M) tritan chromaticity
+ * @channel {Y} 0 100 Luminance (L+M)
+ * @illuminant D65
+ * @observer 2
+ * @referred display
+ * @dynamic sdr
+ */
+import xyz from './xyz.js';
+import { mat3, inv3 } from './util.js';
+
+const macboyn = { name: 'macboyn', range: [[0, 1], [0, 1], [0, 100]] };
+
+// Smith-Pokorny cone fundamentals (XYZ -> LMS), scaled so L+M = Y
+const M = [
+	0.15514, 0.54312, -0.03286,
+	-0.15514, 0.45684, 0.03286,
+	0, 0, 0.01608
+];
+const MI = inv3(M);
+
+xyz.macboyn = (X, Y, Z) => {
+	const [L, m, S] = mat3(M, X, Y, Z);
+	const lum = L + m;
+	if (lum === 0) return [0, 0, 0];
+	return [L / lum, S / lum, lum];
+};
+
+macboyn.xyz = (l, s, lum) => mat3(MI, l * lum, (1 - l) * lum, s * lum);
+
+export default macboyn;

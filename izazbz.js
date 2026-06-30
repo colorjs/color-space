@@ -1,0 +1,48 @@
+/**
+ * Izazbz color space
+ *
+ * The perceptual opponent stage Safdar et al. (2017) built Jzazbz on — PQ-encoded
+ * LMS through the Iz/az/bz mix, *before* Jzazbz's hyperbolic lightness compression
+ * (az/bz are identical to `jzazbz`; only the achromatic Iz differs, being the raw
+ * pre-compression response). The structural ancestor of ZCAM. Input is XYZ in domain
+ * 1 (library 0-100 ÷ 100).
+ *
+ * @see {@link https://doi.org/10.1364/OE.25.015131} Safdar et al. 2017
+ * @channel {Iz} 0 1 Achromatic (PQ)
+ * @channel {az} -0.1 0.1 Red-Green
+ * @channel {bz} -0.1 0.1 Yellow-Blue
+ * @illuminant D65
+ * @observer 2
+ * @referred display
+ * @dynamic hdr
+ */
+import xyz from './xyz.js';
+import { mat3, inv3 } from './util.js';
+
+const izazbz = { name: 'izazbz', range: [[0, 1], [-0.1, 0.1], [-0.1, 0.1]] };
+
+// Jzazbz/Safdar perceptual quantizer (modified ST 2084, m2 = 1.7·2523/32)
+const m1 = 2610 / 16384, m2 = 1.7 * 2523 / 32, c1 = 3424 / 4096, c2 = 2413 / 128, c3 = 2392 / 128;
+const pqE = L => { const v = Math.pow(Math.max(L, 0) / 10000, m1); return Math.pow((c1 + c2 * v) / (1 + c3 * v), m2); };
+const pqD = V => { const vp = Math.pow(Math.max(V, 0), 1 / m2); return Math.pow(Math.max(vp - c1, 0) / (c2 - c3 * vp), 1 / m1) * 10000; };
+
+const M_XL = [0.41478972, 0.579999, 0.0146480, -0.2015100, 1.120649, 0.0531008, -0.0166008, 0.264800, 0.6684799];
+const M_XLi = inv3(M_XL);
+const M_LI = [0.5, 0.5, 0, 3.524, -4.066708, 0.542708, 0.199076, 1.096799, -1.295875]; // Safdar 2017
+const M_LIi = inv3(M_LI);
+const b = 1.15, g = 0.66;
+
+xyz.izazbz = (X, Y, Z) => {
+	X /= 100; Y /= 100; Z /= 100;
+	const lmsp = mat3(M_XL, b * X - (b - 1) * Z, g * Y - (g - 1) * X, Z).map(pqE);
+	return mat3(M_LI, ...lmsp);
+};
+
+izazbz.xyz = (Iz, az, bz) => {
+	const lms = mat3(M_LIi, Iz, az, bz).map(pqD);
+	const [Xp, Yp, Z] = mat3(M_XLi, ...lms);
+	const X = (Xp + (b - 1) * Z) / b;
+	return [X * 100, (Yp + (g - 1) * X) / g * 100, Z * 100];
+};
+
+export default izazbz;
