@@ -46,7 +46,7 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test",
+    "test": "node test && node test/cie.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "meta": "node scripts/generate-meta.js > meta.js",
