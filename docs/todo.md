@@ -9,6 +9,7 @@
   * Conventional CSS-matching ranges (RGB 0-255, HSL 0-360/0-100, Lab 0-100/±125…).
   * No `min`/`max`, no `alias`, no `channel` array on the object — `range` + JSDoc `@channel` carry that, single source of truth.
   * Stay a conversion kernel. No parsing, interpolation, gamut-mapping, ΔE, contrast — composable layers culori/colorjs/texel own. We expose the *metadata* (range, gamut class) that lets them build those on top.
+  * **Lab illuminant → D50 default (decided, pending implementation).** CIELAB is white-relative; D50 is the conventional default for Lab as an interchange space (ICC PCS, CSS Color 4, graphic arts). Plan: `lab`/`lchab` → D50 (reuse validated lab-d50 math, full-precision ε/κ); add `lab-d65`/`lchab-d65` for display-native; din99o pins to D65; white point swappable (factory for arbitrary illuminants later). Bonus: makes `lab`/`lchab` differential-testable vs colorjs. Hub-level breaking change — do as a careful dedicated pass with full test recompute.
 
 ---
 
@@ -48,7 +49,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] acescg adapt matrices (not exact inverses); lab ε→216/24389; rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward
 
 **Range/doc — minor:**
-  * [ ] p3, a98rgb, rec2020 `@channel` say 0-255 but code uses 0-1 → fix docs to 0-1 (matches CSS `color()` for predefined RGB; sRGB `rgb()` stays 0-255)
+  * [x] p3, a98rgb, rec2020 `@channel` 0-255 → 0-1 (matches CSS `color()` for predefined RGB; sRGB `rgb()` stays 0-255). Confirmed by the differential test (scale [1,1,1]).
   * [ ] hsm S can exceed 100; okhsl/okhsv blue S slightly >100; hpluv S max is not 100 (can be 100s) — fix range docs / clamp where spec'd
 
 **Other (from full audit — archived at the task output; sample):**

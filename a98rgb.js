@@ -3,9 +3,9 @@
  *
  * Wider gamut than sRGB, standard for photography
  *
- * @channel {R} 0 255 Red
- * @channel {G} 0 255 Green
- * @channel {B} 0 255 Blue
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  */
