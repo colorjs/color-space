@@ -1045,18 +1045,22 @@ test('acescg', () => {
 	is(space.acescg.xyz(1, 1, 1).map(round(1)), [95.0, 100.0, 108.9], 'acescg white to xyz');
 });
 
+// gray = CIE relative luminance Y (linearized Rec.709), so it equals XYZ Y / 100.
 test('gray', () => {
-	// Gray: 0-1, RGB 0-255
-	is(space.rgb.gray(0, 0, 0), [0], 'black to gray');
-	is(space.rgb.gray(255, 255, 255).map(round(3)), [1], 'white to gray');
-	is(space.rgb.gray(128, 128, 128).map(round(2)), [0.50], 'gray to gray');
-	is(space.rgb.gray(255, 0, 0).map(round(3)), [0.213], 'red to gray');
-	is(space.rgb.gray(0, 255, 0).map(round(3)), [0.715], 'green to gray');
-	is(space.rgb.gray(0, 0, 255).map(round(3)), [0.072], 'blue to gray');
-
-	is(space.gray.rgb(0), [0, 0, 0], 'gray to black');
-	is(space.gray.rgb(1).map(round(0)), [255, 255, 255], 'gray to white');
-	is(space.gray.rgb(0.5).map(round(0)), [128, 128, 128], 'gray to rgb');
+	is(space.rgb.gray(0, 0, 0), [0], 'black');
+	is(space.rgb.gray(255, 255, 255).map(round(3)), [1], 'white');
+	is(space.rgb.gray(128, 128, 128).map(round(3)), [0.216], 'mid-gray luminance (not 0.5 luma)');
+	is(space.rgb.gray(255, 0, 0).map(round(3)), [0.213], 'red');
+	is(space.rgb.gray(0, 255, 0).map(round(3)), [0.715], 'green');
+	is(space.rgb.gray(0, 0, 255).map(round(3)), [0.072], 'blue');
+	// defining property: gray == XYZ Y / 100
+	for (const c of [[128, 128, 128], [200, 100, 50], [0, 255, 0]])
+		is(round(4)(space.rgb.gray(...c)[0]), round(4)(space.rgb.xyz(...c)[1] / 100), `= XYZ Y for ${c}`);
+	// inverse: luminance Y -> achromatic sRGB with that luminance; round-trips
+	is(space.gray.rgb(0), [0, 0, 0], 'black');
+	is(space.gray.rgb(1).map(round(0)), [255, 255, 255], 'white');
+	for (const v of [32, 128, 200])
+		is(round(0)(space.gray.rgb(space.rgb.gray(v, v, v)[0])[0]), v, `roundtrip ${v}`);
 });
 
 test('rg', () => {

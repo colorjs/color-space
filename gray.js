@@ -1,28 +1,28 @@
 /**
- * Grayscale color space
+ * Gray (relative luminance)
  *
- * Achromatic colors without hue or saturation
- * Used for monochrome displays and images
+ * Single-channel achromatic value = CIE relative luminance Y (the Y of XYZ):
+ * the sRGB luminance coefficients applied to LINEAR sRGB (not gamma-encoded —
+ * that would be luma Y′). Identical to the Y row of the sRGB→XYZ matrix, so
+ * gray(rgb) === XYZ(rgb).Y / 100.
  *
- * @channel {gray} 0 1 Gray value
+ * @channel {Y} 0 1 Relative luminance
  */
 import rgb from './rgb.js';
+import lrgb from './lrgb.js';
 
 const gray = {
-	name: 'gray'
-}
+	name: 'gray',
+	range: [[0, 1]]
+};
 
-/**
- * Gray to RGB - all channels get the same value
- * Gray: 0-1, RGB: 0-255
- */
-gray.rgb = (g) => [g * 255, g * 255, g * 255];
+// relative luminance Y from linear sRGB (exact sRGB/D65 Y coefficients)
+rgb.gray = (r, g, b) => {
+	const [lr, lg, lb] = rgb.lrgb(r, g, b);
+	return [0.21263900587151 * lr + 0.71516867876775 * lg + 0.072192315360733 * lb];
+};
 
-/**
- * RGB to Gray using luminance formula (Rec. 709)
- * https://en.wikipedia.org/wiki/Grayscale#Colorimetric_(perceptual_luminance-preserving)_conversion_to_grayscale
- * RGB: 0-255, Gray: 0-1
- */
-rgb.gray = (r, g, b) => [(0.2126 * r + 0.7152 * g + 0.0722 * b) / 255];
+// the achromatic sRGB color whose luminance is Y
+gray.rgb = (y) => lrgb.rgb(y, y, y);
 
 export default gray;
