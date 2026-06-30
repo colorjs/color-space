@@ -261,6 +261,10 @@ test('hcg: rgb -> hcg', function () {
 	is((space.rgb.hcg(255, 255, 255).map(round(0))), [0, 0, 100], 'white to hcg');
 	is((space.rgb.hcg(128, 128, 128).map(round(0))), [0, 0, 50], 'gray to hcg');
 	is((space.rgb.hcg(0, 0, 0).map(round(0))), [0, 0, 0], 'black to hcg');
+
+	// hue must stay within [0,360) when red is max and blue > green (negative-hue wrap) — #68, spokodev
+	is((space.rgb.hcg(255, 0, 55).map(round(0))), [347, 100, 0], 'red-max, blue>green: hue wraps into range');
+	is((space.hcg.rgb(...space.rgb.hcg(255, 0, 55)).map(round(0))), [255, 0, 55], 'negative-hue case round-trips');
 });
 
 test('hcg: hcg -> hwb', function () {
