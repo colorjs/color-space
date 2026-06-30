@@ -536,7 +536,7 @@ export default {
         100
       ]
     ],
-    "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades found by chromaticity angle from white; T is the position along the white→limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup uses each row's angle computed from its own (xλ,yλ) — the stored angle column is inconsistent with it (a known table defect). EXPERIMENTAL: the ATV↔xyY transform now round-trips exactly and T has the correct excitation-purity semantics, but (a) A is quantized to 48 discrete grades, so rgb→coloroid→rgb loses the between-grade hue (no interpolation yet); (b) the bundled xλ,yλ table (Illuminant-C spectral data) and the white point (D65 here, per MSZ 7300) carry the documented C-vs-D65 split; (c) no reference implementation exists to cross-validate A/T. Treat A/T as provisional. Sources: Neumann & Neumann (2004) \"Gamut Clipping and Mapping Based on the Coloroid System\"; Neumann, Nemcsics & Neumann (2005)."
+    "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades found by chromaticity angle from white; T is the position along the white→limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup uses each row's angle computed from its own (xλ,yλ); the stored angle column is decorative (it disagrees with the chromaticities). The limit-color table now holds the authoritative Nemcsics (1980) chromaticities (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column shifted by one row. ATV↔xyY round-trips exactly and reproduces the published A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann & Neumann (2004) \"Gamut Clipping and Mapping Based on the Coloroid System\"."
   },
   "cubehelix": {
     "channels": [
@@ -1063,7 +1063,7 @@ export default {
         100
       ]
     ],
-    "description": "http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428"
+    "description": "HSM color space (Hue, Saturation, Mixture) Bianconi et al. (2009), \"A New Color Space for Skin Color Detection\", Revista de Informática Teórica e Aplicada 16(2). Mixture M is the luminance- weighted mean (4R+2G+B)/7; saturation is the chromatic distance normalised by D(M), the maximum reachable chromatic distance at that mixture."
   },
   "hsp": {
     "channels": [
@@ -3111,7 +3111,9 @@ export default {
         0.5
       ]
     ],
-    "description": "YcCbcCrc is ITU-R BT.2020"
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "YcCbcCrc color space — ITU-R BT.2020 / BT.2100 constant-luminance (CL) system. Unlike the non-constant-luminance Y'CbCr, the luma Yc is formed in LINEAR light (Yc = Kr·R + Kg·G + Kb·B) then OETF-encoded, and the chroma differences use the BT.2020 piecewise normalisation. Operates on linear Rec.2020 RGB."
   },
   "ycgco": {
     "channels": [

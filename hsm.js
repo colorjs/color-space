@@ -1,118 +1,73 @@
 /**
- * http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428
+ * HSM color space (Hue, Saturation, Mixture)
  *
- * @module color-space/hsm
+ * Bianconi et al. (2009), "A New Color Space for Skin Color Detection",
+ * Revista de Informática Teórica e Aplicada 16(2). Mixture M is the luminance-
+ * weighted mean (4R+2G+B)/7; saturation is the chromatic distance normalised by
+ * D(M), the maximum reachable chromatic distance at that mixture.
  *
+ * @see {@link http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428}
  * @channel {H} 0 360 Hue
  * @channel {S} 0 100 Saturation
  * @channel {M} 0 100 Mixture
  */
 import rgb from './rgb.js';
 
-var hsm = {
-    name: 'hsm',
-    channel: ['hue', 'saturation', 'mixture'],
-    range: [[0, 360], [0, 100], [0, 100]]
+const hsm = {
+	name: 'hsm',
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
-export default hsm
+export default hsm;
 
+// Orthonormal basis of the chrominance plane 4(r-m)+2(g-m)+(b-m)=0:
+// u = (3,-4,-4)/√41 (hue reference), v = n×u = (-4,19,-22)/√861, n=(4,2,1)/√21.
+const SQRT41 = Math.sqrt(41), SQRT861 = Math.sqrt(861);
+const U = [3 / SQRT41, -4 / SQRT41, -4 / SQRT41];
+const V = [-4 / SQRT861, 19 / SQRT861, -22 / SQRT861];
 
-/**
- * HSM to RGB
- *
- * @param {Array<number>} hsm H: 0-360, S/M: 0-100
- *
- * @return {Array<number>} RGB 0-255
- */
-hsm.rgb = function (h, s, m) {
-    // Normalize inputs
-    h = h / 360;
-    s = s / 100;
-    m = m / 100;
+// D(m): max distance from [m,m,m] to the isomixture plane 4r+2g+b=7m within the
+// unit cube — the max over the 12 axis-aligned cube edges of their plane crossing.
+// This is what bounds S to [0,100] (the old 6-segment form used wrong vertices).
+function D(m) {
+	if (m <= 0 || m >= 1) return 0;
+	let max = 0, d, t;
+	// R-axis edges (4r = 7m - 2g - b)
+	if (m <= 4 / 7) { t = 7 * m / 4; d = Math.hypot(t - m, m, m); if (d > max) max = d; }
+	if (m >= 1 / 7 && m <= 5 / 7) { t = (7 * m - 1) / 4; d = Math.hypot(t - m, m, 1 - m); if (d > max) max = d; }
+	if (m >= 2 / 7 && m <= 6 / 7) { t = (7 * m - 2) / 4; d = Math.hypot(t - m, 1 - m, m); if (d > max) max = d; }
+	if (m >= 3 / 7) { t = (7 * m - 3) / 4; d = Math.hypot(t - m, 1 - m, 1 - m); if (d > max) max = d; }
+	// G-axis edges (2g = 7m - 4r - b)
+	if (m <= 2 / 7) { t = 7 * m / 2; d = Math.hypot(m, t - m, m); if (d > max) max = d; }
+	if (m >= 1 / 7 && m <= 3 / 7) { t = (7 * m - 1) / 2; d = Math.hypot(m, t - m, 1 - m); if (d > max) max = d; }
+	if (m >= 4 / 7 && m <= 6 / 7) { t = (7 * m - 4) / 2; d = Math.hypot(1 - m, t - m, m); if (d > max) max = d; }
+	if (m >= 5 / 7) { t = (7 * m - 5) / 2; d = Math.hypot(1 - m, t - m, 1 - m); if (d > max) max = d; }
+	// B-axis edges (b = 7m - 4r - 2g)
+	if (m <= 1 / 7) { t = 7 * m; d = Math.hypot(m, m, t - m); if (d > max) max = d; }
+	if (m >= 2 / 7 && m <= 3 / 7) { t = 7 * m - 2; d = Math.hypot(m, 1 - m, t - m); if (d > max) max = d; }
+	if (m >= 4 / 7 && m <= 5 / 7) { t = 7 * m - 4; d = Math.hypot(1 - m, m, t - m); if (d > max) max = d; }
+	if (m >= 6 / 7) { t = 7 * m - 6; d = Math.hypot(1 - m, 1 - m, t - m); if (d > max) max = d; }
+	return max;
+}
 
-    // This implementation uses an alternate derivation (with help of GPTs), since the one in paper is incorrect.
-    // The idea is that the original RGB is recovered as:
-    // [r, g, b] = m + d,
-    // where d = s * D(m) * [cos(omega)*u + sin(omega)*v],
-    // with omega = 2π * h.
-    // We choose reference vector u as the normalized version of (3, -4, -4) (this is
-    // consistent with the forward computation of hue in the paper) and then take v to be
-    // an orthonormal vector in the same plane. The plane is defined by the constraint
-    // 4*(r-m) + 2*(g-m) + (b-m) = 0.
-
-    // 1. Compute normalization denominator D(m) (FIXED: piecewise terms from forward transform)
-    let D;
-    if (m >= 0 && m <= 1 / 7) D = Math.sqrt((0 - m) ** 2 + (0 - m) ** 2 + (7 - m) ** 2);
-    else if (m > 1 / 7 && m <= 3 / 7) D = Math.sqrt((0 - m) ** 2 + ((7 * m - 1) / 2 - m) ** 2 + (1 - m) ** 2);
-    else if (m > 3 / 7 && m <= 0.5) D = Math.sqrt(((7 * m - 3) / 2 - m) ** 2 + (1 - m) ** 2 + (1 - m) ** 2);
-    else if (m > 0.5 && m <= 4 / 7) D = Math.sqrt((7 * m / 4 - m) ** 2 + (0 - m) ** 2 + (0 - m) ** 2);
-    else if (m > 4 / 7 && m <= 6 / 7) D = Math.sqrt((1 - m) ** 2 + ((7 * m - 4) / 2 - m) ** 2 + (0 - m) ** 2);
-    else if (m > 6 / 7 && m <= 1) D = Math.sqrt((1 - m) ** 2 + (1 - m) ** 2 + (7 * m - 6 - m) ** 2);
-    else D = 1;
-
-    // 2. Compute chromatic magnitude (FIXED: include D(m))
-    const R = s * D;
-
-    // 3. Precompute coefficients (FIXED: orthonormal basis vectors)
-    const cosTheta = Math.cos(2 * Math.PI * h);
-    const sinTheta = Math.sin(2 * Math.PI * h);
-    const u_r = 3 / Math.sqrt(41), v_r = -4 / Math.sqrt(861); // FIXED: correct u/v components
-    const u_g = -4 / Math.sqrt(41), v_g = 19 / Math.sqrt(861);
-    const u_b = -4 / Math.sqrt(41), v_b = -22 / Math.sqrt(861);
-
-    // 4. Compute deviations (FIXED: use u/v basis)
-    const dr = R * (u_r * cosTheta + v_r * sinTheta);
-    const dg = R * (u_g * cosTheta + v_g * sinTheta);
-    const db = R * (u_b * cosTheta + v_b * sinTheta);
-
-
-	// 5. Reconstruct RGB (FIXED: add m directly, clamp values)
-	const r = Math.max(0, Math.min(1, m + dr));
-	const g = Math.max(0, Math.min(1, m + dg));
-	const b = Math.max(0, Math.min(1, m + db));
-
-	// Scale to 0-255
-	return [r * 255, g * 255, b * 255];
-};
-
-
-/**
- * RGB to HSM
- *
- * @param {Array<number>} rgb RGB 0-255
- *
- * @return {Array<number>} H: 0-360, S/M: 0-100
- */
 rgb.hsm = function (r, g, b) {
-	// Normalize from 0-255 to 0-1
-	r = r / 255;
-	g = g / 255;
-	b = b / 255;
+	r /= 255; g /= 255; b /= 255;
+	const m = (4 * r + 2 * g + b) / 7;
+	const dr = r - m, dg = g - m, db = b - m;
+	const d = Math.sqrt(dr * dr + dg * dg + db * db);
+	const theta = d < 1e-12 ? 0 : Math.acos(Math.max(-1, Math.min(1, (3 * dr - 4 * dg - 4 * db) / (SQRT41 * d))));
+	const h = b <= g ? theta / (2 * Math.PI) : 1 - theta / (2 * Math.PI);
+	const Dm = D(m);
+	const s = Dm < 1e-12 ? 0 : d / Dm;
+	return [h * 360, s * 100, m * 100];
+};
 
-	let m = (4 * r + 2 * g + b) / 7;
-    // distance in the deviation space
-    let dr = r - m, dg = g - m, db = b - m;
-    let d = Math.sqrt(dr * dr + dg * dg + db * db);
-
-    // calc hue based on the angle in the deviation plane.
-    let theta = Math.acos(((3 * dr - 4 * dg - 4 * db) / Math.sqrt(41 * (dr * dr + dg * dg + db * db))) || 0);
-    let h = (b <= g) ? theta / (2 * Math.PI) : 1 - theta / (2 * Math.PI);
-
-
-    // Calculate saturation (s) based on the value of m
-    let s;
-
-    if (0 <= m && m <= 1 / 7) s = d / Math.sqrt((0 - m) ** 2 + (0 - m) ** 2 + (7 - m) ** 2);
-    else if (1 / 7 < m && m <= 3 / 7) s = d / Math.sqrt((0 - m) ** 2 + ((7 * m - 1) / 2 - m) ** 2 + (1 - m) ** 2);
-    else if (3 / 7 < m && m <= 1 / 2) s = d / Math.sqrt(((7 * m - 3) / 2 - m) ** 2 + (1 - m) ** 2 + (1 - m) ** 2);
-    else if (1 / 2 < m && m <= 4 / 7) s = d / Math.sqrt(((7 * m) / 4 - m) ** 2 + (0 - m) ** 2 + (0 - m) ** 2);
-    else if (4 / 7 < m && m <= 6 / 7) s = d / Math.sqrt((1 - m) ** 2 + ((7 * m - 4) / 2 - m) ** 2 + (0 - m) ** 2);
-    else if (6 / 7 < m && m < 1) s = d / Math.sqrt((1 - m) ** 2 + (1 - m) ** 2 + ((7 * m - 6) - m) ** 2);
-    else s = 0;
-
-    // s = Math.max(0, Math.min(1, s))
-
-    // Output: H: 0-360, S/M: 0-100
-    return [h * 360, s * 100, m * 100]
+hsm.rgb = function (h, s, m) {
+	h /= 360; s /= 100; m /= 100;
+	const R = s * D(m);
+	const cosT = Math.cos(2 * Math.PI * h), sinT = Math.sin(2 * Math.PI * h);
+	const r = Math.max(0, Math.min(1, m + R * (U[0] * cosT + V[0] * sinT)));
+	const g = Math.max(0, Math.min(1, m + R * (U[1] * cosT + V[1] * sinT)));
+	const b = Math.max(0, Math.min(1, m + R * (U[2] * cosT + V[2] * sinT)));
+	return [r * 255, g * 255, b * 255];
 };

@@ -4,17 +4,13 @@
  * Material Design's color system based on CAM16
  * Uses tone (perceptual lightness) instead of lightness
  *
+ * @see {@link https://material.io/blog/science-of-color-design}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 145 Chroma
  * @channel {T} 0 100 Tone (perceptual lightness)
  */
 import xyz from './xyz.js';
-import { toCam16, fromCam16, viewingConditions } from './cam16.js';
-
-// I'll assume I can duplicate constrain or update cam16.js.
-// I'll update cam16.js to export constrain first if needed.
-// Actually allow me to update cam16.js to export constrain?
-// Whatever, I'll just duplicate it locally. It's simple.
+import { toCam16, fromCam16, environment } from './cam16.js';
 
 const constrainLocal = (h) => {
 	let r = h % 360;
@@ -38,16 +34,26 @@ function fromLstar(l) {
 	return y01 * 100;
 }
 
+// HCT viewing conditions (Material Design / colorjs.io) — distinct from cam16's:
+// precise D65, La = 200/π·Y(L*=50), Yb = Y(L*=50), average surround, no discounting.
+// https://github.com/material-foundation/material-color-utilities/blob/main/typescript/hct/viewing_conditions.ts
+const Y50 = fromLstar(50); // ≈ 18.4187 (0-100)
+const hctViewingConditions = environment(
+	[0.9504559270516716, 1.0, 1.0890577507598784],
+	(200 / Math.PI) * Y50 / 100, // La ≈ 11.7257 cd/m²
+	Y50,                          // Yb ≈ 18.4187
+	'average', false
+);
+
 const hct = {
 	name: 'hct',
-	channel: ['h', 'c', 't'],
 	range: [[0, 360], [0, 145], [0, 100]]
 };
 
 xyz.hct = (x, y, z) => {
 	const t = toLstar(y);
 	if (t === 0) return [0, 0, 0];
-	const cam = toCam16([x, y, z], viewingConditions);
+	const cam = toCam16([x, y, z], hctViewingConditions);
 	return [constrainLocal(cam.h), cam.C, t];
 }
 
@@ -70,7 +76,7 @@ hct.xyz = (h, c, t) => {
 	const max_attempts = 15;
 
 	while (attempt <= max_attempts) {
-		xyzRes = fromCam16({ J: j, C: c, h: h }, viewingConditions);
+		xyzRes = fromCam16({ J: j, C: c, h: h }, hctViewingConditions);
 		const delta = Math.abs(xyzRes[1] - y);
 		if (delta < last) {
 			if (delta <= threshold) {
@@ -85,7 +91,7 @@ hct.xyz = (h, c, t) => {
 		attempt++;
 	}
 
-	return fromCam16({ J: best, C: c, h: h }, viewingConditions);
+	return fromCam16({ J: best, C: c, h: h }, hctViewingConditions);
 }
 
 export default hct;

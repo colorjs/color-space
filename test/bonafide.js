@@ -4,10 +4,11 @@ import space from '../index.js'
 import test, { is } from 'tst'
 
 const REF = [
+  {"s":"hct","f":"xyz","t":"hct","in":[41.24,21.26,1.93],"out":[27.4072,113.3965,53.2329],"src":"colorjs.io HCT (Material viewing conditions): XYZ red primary"},
   {"s":"cam16","f":"xyz","t":"cam16","in":[41.23908,21.263901,1.933082],"out":[46.025701,81.254248,27.393257],"src":"colorjs.io v0.5 toCam16 (same viewing conditions: La=64/pi*0.2, Yb=20,"},
   {"s":"cmy","f":"rgb","t":"cmy","in":[255,0,0],"out":[0,100,100],"src":"Gonzalez & Woods, \\'Digital Image Processing\\' 4th ed., Eq. 6-79: [C,M,Y"},
   {"s":"cmyk","f":"cmyk","t":"rgb","in":[0,81,81,30],"out":[178.5,33.915,33.915],"src":"CSS Color 4 §10.3 device-cmyk naive conversion formula: R=255*(1-min(1"},
-  {"s":"coloroid","f":"xyy","t":"coloroid","in":[0.23562299725614028,0.5919199895378011,36],"out":[70,70,60],"src":"Derived from first principles using the Coloroid formula (Neumann & Ne"},
+  {"s":"coloroid","f":"xyy","t":"coloroid","in":[0.235644,0.641004,36],"out":[70,70,60],"src":"Nemcsics 1980, Color Res. Appl. 5(2): A=70 limit color xλ=0.20262,yλ=0.77472; inverse at T=70"},
   {"s":"cubehelix","f":"cubehelix","t":"rgb","in":[0.5],"out":[184.32579375,98.60563125,127.5],"src":"Green, D.A. (2011) \\'A colour scheme for the display of astronomical in"},
   {"s":"din99o-lab","f":"lab-d65","t":"din99o-lab","in":[53.23711559542936,80.09011352310385,67.20326351172214],"out":[57.289,39.498,30.518],"src":"Hand-derived from the DIN 6176:2001 forward formula (kE=1, kCH=1, thet"},
   {"s":"din99o-lch","f":"rgb","t":"din99o-lch","in":[0,0,255],"out":[36.02575,51.50863,308.33688],"src":"colour-science 0.4.7 Lab_to_DIN99(np.array([32.29701, 79.18894, -107.8"},
@@ -39,7 +40,7 @@ const REF = [
   {"s":"xyy","f":"xyz","t":"xyy","in":[41.239079926596,21.263900587151,1.9330818715591],"out":[0.64,0.33,21.263900587151],"src":"colorjs.io v0.5.2: new Color(\\'srgb\\',[1,0,0]).to(\\'xyz-d65\\').coords * 10"},
   {"s":"xyz-abs-d65","f":"rgb","t":"xyz-abs-d65","in":[255,0,0],"out":[83.715332,43.165718,3.924156],"src":"colorjs.io v0.5 (new Color(\\'srgb\\',[1,0,0]).to(\\'xyz-abs-d65\\').coords), "},
   {"s":"ycbcr","f":"rgb","t":"ycbcr","in":[255,0,0],"out":[62.56,102.34,240],"src":"ITU-R BT.709 limited-range: Y=16+219·0.2126, Cr=240"},
-  {"s":"yccbccrc","f":"rgb","t":"yccbccrc","in":[255,0,0],"out":[0.2627,-0.13963006271925163,0.5],"src":"ITU-R BT.2020-2 (Oct 2018), Table 3 non-constant-luminance coefficient"},
+  {"s":"yccbccrc","f":"rec2020-linear","t":"yccbccrc","in":[1,0,0],"out":[0.503085,-0.259269,0.500116],"src":"ITU-R BT.2020-2 Table 4 constant-luminance: Rec.2020 red primary -> Yc=oetf(0.2627), piecewise chroma"},
   {"s":"ycgco","f":"rgb","t":"ycgco","in":[255,0,0],"out":[0.25,-0.25,0.5],"src":"Derived from the YCgCo analog forward transform Y = 1/4·R + 1/2·G + 1/"},
   {"s":"ydbdr","f":"rgb","t":"ydbdr","in":[0,0,255],"out":[0.114,1.333,0.217],"src":"Wikipedia \\'YDbDr\\' article, matrix table; derivation: Y=0.114×1=0.114, "},
   {"s":"yes","f":"rgb","t":"yes","in":[255,0,0],"out":[0.253,0.5,0.25],"src":"Agaian, Panetta, Nercessian (2007) \\'A New Measure of Image Enhancement"},

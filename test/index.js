@@ -591,16 +591,16 @@ test('ypbpr: yuv <-> ypbpr', function () {
 
 test('yccbccrc: yccbccrc -> rgb', function () {
 	// YCcCbcCrc: Y 0-1, Cbc/Crc ±0.5, RGB 0-255
-	is((space.yccbccrc.rgb(0, 0, 0)), [0, 0, 0]);
-	// is((space.yccbccrc.rgb([0.715, -0.385, -0.454])), [0, 255, 0]);
-	is((space.yccbccrc.rgb(1, 0, 0)), [255, 255, 255]);
+	is((space.yccbccrc.rgb(0, 0, 0)).map(round(0)), [0, 0, 0]);
+	is((space.yccbccrc.rgb(1, 0, 0)).map(round(0)), [255, 255, 255]); // Yc=1 -> Rec.2020 white
 	is((space.yccbccrc.rgb(...space.rgb.yccbccrc(26, 51, 77))).map(round(0)), [26, 51, 77]);
 });
 
-test('yccbccrc: rgb -> yccbccrc', function () {
-	// RGB 0-255, YCcCbcCrc: Y 0-1, Cbc/Crc ±0.5
+test('yccbccrc: rgb -> yccbccrc (constant-luminance)', function () {
+	// RGB 0-255, YcCbcCrc: Yc 0-1, Cbc/Crc ±0.5. CL luma = oetf(linear gray),
+	// so gray 128 -> oetf(0.2159) ≈ 0.45 (not the 0.50 of the non-CL nonlinear gray).
 	is((space.rgb.yccbccrc(0, 0, 0).map(round(1))), [0, 0, 0]);
-	is((space.rgb.yccbccrc(128, 128, 128).map(round(2))), [0.50, 0, 0]);
+	is((space.rgb.yccbccrc(128, 128, 128).map(round(2))), [0.45, 0, 0]);
 	is((space.rgb.yccbccrc(255, 255, 255).map(round(1))), [1, 0, 0]);
 });
 
@@ -863,23 +863,24 @@ test('hsm: hsm <-> rgb', function () {
 });
 
 test('hsm: rgb -> hsm', function () {
-	// RGB 0-255, HSM: H 0-360, S 0-100, M 0-100
+	// RGB 0-255, HSM: H 0-360, S 0-100, M 0-100. S is now bounded to 100 (corrected D(m));
+	// achromatic colors have S=0 with hue 0.
 	is(space.rgb.hsm(255, 0, 0).map(round(2)), [0, 100, 57.14]);
-	is(space.rgb.hsm(0, 255, 0).map(round(1)), [119.3, 102.8, 28.6]);
-	is(space.rgb.hsm(0, 0, 255).map(round(2)), [234.36, 12.84, 14.29].map(round(2)));
-	is(space.rgb.hsm(255, 255, 255).map(round(2)), [90, 0, 100]);
-	is(space.rgb.hsm(0, 0, 0).map(round(2)), [90, 0, 0]);
-	is(space.rgb.hsm(128, 128, 128).map(round(2)), [90, 0, 50.2]);
+	is(space.rgb.hsm(0, 255, 0).map(round(2)), [119.3, 100, 28.57]);
+	is(space.rgb.hsm(0, 0, 255).map(round(2)), [234.36, 100, 14.29]);
+	is(space.rgb.hsm(255, 255, 255).map(round(2)), [0, 0, 100]);
+	is(space.rgb.hsm(0, 0, 0).map(round(2)), [0, 0, 0]);
+	is(space.rgb.hsm(128, 128, 128).map(round(2)), [0, 0, 50.2]);
 });
 
 test('hsm: hsm -> rgb', function () {
-	// HSM: H 0-360, S 0-100, M 0-100, RGB 0-255
+	// HSM: H 0-360, S 0-100, M 0-100, RGB 0-255 (inputs are the corrected forward values)
 	is(space.hsm.rgb(0, 100, 57.14).map(round(0)), [255, 0, 0]);
-	is(space.hsm.rgb(120, 103, 29).map(round(0)), [0, 255, 3]);
-	is(space.hsm.rgb(234, 13, 14).map(round(0)), [0, 0, 255]);
-	is(space.hsm.rgb(90, 0, 100).map(round(0)), [255, 255, 255]);
+	is(space.hsm.rgb(119.3, 100, 28.57).map(round(0)), [0, 255, 0]);
+	is(space.hsm.rgb(234.36, 100, 14.29).map(round(0)), [0, 0, 255]);
+	is(space.hsm.rgb(0, 0, 100).map(round(0)), [255, 255, 255]);
 	is(space.hsm.rgb(0, 0, 0).map(round(0)), [0, 0, 0]);
-	is(space.hsm.rgb(0, 0, 50).map(round(0)), [128, 128, 128]);
+	is(space.hsm.rgb(0, 0, 50.2).map(round(0)), [128, 128, 128]);
 });
 
 
@@ -1301,4 +1302,33 @@ test('cam02-ucs: UCS of CIECAM02 (Luo et al. 2006)', () => {
 	is(space['cam02-ucs'].ciecam02(...space.ciecam02['cam02-ucs'](41.731, 0.109, 219.048)).map(round(3)), [41.731, 0.109, 219.048]);
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
 		is(space['cam02-ucs'].rgb(...space.rgb['cam02-ucs'](...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+
+// --- deep fixes (research pass): each was broken, now matches an authoritative reference ---
+
+test('hct: Material viewing conditions (vs colorjs.io)', () => {
+	// XYZ red primary -> HCT; C was 112.39 with cam16's conditions, colorjs gives 113.397
+	is(space.xyz.hct(41.24, 21.26, 1.93).map(round(3)), [27.407, 113.397, 53.233]);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.hct.rgb(...space.rgb.hct(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('hsm: D(m) bounds S to 100 (Bianconi 2009)', () => {
+	is(space.rgb.hsm(255, 0, 0).map(round(4)), [0, 100, 57.1429]);
+	// the bug: S exceeded 100 (was 106.3% for [30,255,255]); now bounded
+	let smax = 0; for (let r = 0; r <= 255; r += 17) for (let g = 0; g <= 255; g += 17) for (let b = 0; b <= 255; b += 17) smax = Math.max(smax, space.rgb.hsm(r, g, b)[1]);
+	is(smax <= 100.0001, true, `S max ${smax.toFixed(3)} <= 100`);
+});
+
+test('coloroid: corrected Nemcsics table (ATV exact)', () => {
+	// Nemcsics 1980: A=70,T=70,V=60 -> xyY [0.235644, 0.641004, 36]
+	is(space.coloroid.xyy(70, 70, 60).map(round(5)), [0.23564, 0.64100, 36]);
+	is(space.xyy.coloroid(...space.coloroid.xyy(40, 50, 60)).map(round(2)), [40, 50, 60], 'ATV roundtrip');
+});
+
+test('yccbccrc: constant-luminance (BT.2020 Table 4)', () => {
+	// Rec.2020 red primary -> CL: Yc=oetf(0.2627), piecewise chroma
+	is(space['rec2020-linear'].yccbccrc(1, 0, 0).map(round(6)), [0.503085, -0.259269, 0.500116]);
+	is(space['rec2020-linear'].yccbccrc(1, 1, 1).map(round(6)), [1, 0, 0], 'white -> Yc=1, Cbc=Crc=0');
 });
