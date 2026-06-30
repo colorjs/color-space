@@ -52,7 +52,9 @@ rgb.tsl = function (r, g, b) {
 	if (sum === 0) return [0, 0, 0]; // black: chromaticity undefined -> S=0, L=0
 	var r_ = (r / sum || 0) - 1 / 3,
 		g_ = (g / sum || 0) - 1 / 3,
-		T = g_ != 0 ? 0.5 - Math.atan2(g_, r_) / 2 / Math.PI : 0,
+		// atan2 (not the canonical g'=0 -> T=0 convention, which is non-invertible for
+		// r'>0); only true gray (r'=g'=0) is hue-undefined -> T=0.
+		T = (r_ === 0 && g_ === 0) ? 0 : 0.5 - Math.atan2(g_, r_) / 2 / Math.PI,
 		S = Math.sqrt(9 / 5 * (r_ * r_ + g_ * g_)),
 		L = ((r * 0.299) + (g * 0.587) + (b * 0.114));
 

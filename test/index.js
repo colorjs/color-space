@@ -27,7 +27,7 @@ test('edge: achromatic / black inputs are NaN-safe', () => {
 	is(space.rgb.hsi(128, 128, 128).map(round(1)), [0, 0, 50.2], 'hsi gray (was NaN hue)')
 	is(space.rgb.hsi(0, 0, 0), [0, 0, 0], 'hsi black (was NaN)')
 	is(space.rgb.hsp(255, 0, 0).map(round(0)), [0, 100, 55], 'hsp red hue 0 (was 360)')
-	is(space.xyz.osaucs(0, 0, 0).map(round(2)), [-12.96, 0, 0], 'osaucs black (was NaN,NaN,NaN)')
+	is(space.xyz.osaucs(0, 0, 0).map(round(2)), [-13.51, 0, 0], 'osaucs black (was NaN,NaN,NaN)')
 	is(space.rgb.lchuv(0, 0, 0).map(round(1)), [0, 0, 0], 'lchuv black hue 0 (was 180)')
 })
 
@@ -734,10 +734,10 @@ test.todo('osaucs -> xyy', function () {
 	// is((space.osaucspace.xyy(space.xyy.osaucs([10,20,30]))), [10,20,30]);
 });
 
-test('osaucs: xyy -> osaucs', function () {
-	// XYZ 0-100, OSA-UCS: L/j/g
+test('osaucs: xyz -> osaucs (forward)', function () {
+	// XYZ 0-100, OSA-UCS: L/j/g — values after the 0.7990 matrix + signed-cbrt toe fix
 	is((space.xyz.osaucs(33.71, 26.46, 46.66).map(round(0))), [0, -4, -5]);
-	is((space.xyz.osaucs(1.773902, 1.049996, 7.893570).map(round(1))), [-8.2, -7.3, +1.2]);
+	is((space.xyz.osaucs(1.773902, 1.049996, 7.893570).map(round(1))), [-8.7, -5.3, 0.7]);
 });
 
 
@@ -1242,4 +1242,33 @@ test('din99d: DIN99d (Cui 2002, with X-correction)', () => {
 	is([round(6)(n[1]), round(6)(n[2])], [0, 0], 'neutral -> a=b=0');
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [200, 100, 50]])
 		is(space.din99d.rgb(...space.rgb.din99d(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+
+// --- defect fixes (audit pass): regression + bona-fide cited references ---
+
+test('hcg: hue wraps (no negative) + color-convert refs', () => {
+	// regression: max=R, g<b gave negative hue -> broke roundtrip
+	is(round(2)(space.rgb.hcg(255, 0, 128)[0]), 329.88, 'hue not negative');
+	is(space.hcg.rgb(...space.rgb.hcg(255, 0, 128)).map(round(0)), [255, 0, 128], 'roundtrip');
+	// color-convert v2.0.1 (canonical JS HCG)
+	is(space.rgb.hcg(255, 0, 0).map(round(2)), [0, 100, 0]);
+	is(space.rgb.hcg(51, 153, 255).map(round(2)), [210, 80, 100]);
+});
+
+test('osaucs: vs colour-science XYZ_to_OSA_UCS', () => {
+	// colour-science v0.4.7: XYZ_to_OSA_UCS([0.20654008,0.12197225,0.05136952]*100)
+	const r = space.xyz.osaucs(20.654008, 12.197225, 5.136952);
+	is(round(3)(r[1]), 2.997, 'j');
+	is(round(3)(r[2]), -9.668, 'g');
+	is(round(2)(r[0]), -3.00, 'L'); // within K/offset constant precision
+});
+
+test('tsl: invertible at g\'=0 + Terrillon refs', () => {
+	// Terrillon & Akamatsu (2000)
+	is(space.rgb.tsl(255, 0, 0).map(round(4)), [206.5651, 1, 76.245]);
+	is(space.rgb.tsl(0, 0, 255).map(round(4)), [315, 0.6325, 29.07]);
+	// regression: g'=0, r'>0 must stay invertible (was T=0 -> r/b swap)
+	is(space.tsl.rgb(...space.rgb.tsl(170, 100, 30)).map(round(0)), [170, 100, 30], 'g\'=0 roundtrip');
+	is(round(0)(space.rgb.tsl(128, 128, 128)[0]), 0, 'gray T=0');
 });

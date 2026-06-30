@@ -49,18 +49,20 @@ xyz.osaucs = function (X, Y, Z) {
 	var K = 4.4934 * x * x + 4.3034 * y * y - 4.276 * x * y - 1.3744 * x - 2.56439 * y + 1.8103;
 	var Y0 = K * Y;
 
-	var L_ = 5.9 * (Math.pow(Y0, 1 / 3) - 2 / 3 + 0.042 * Math.pow(Math.max(Y0, 30) - 30, 1 / 3));
+	// signed cube root throughout (MacAdam 1974 / colour-science use spow)
+	var L_ = 5.9 * (Math.cbrt(Y0) - 2 / 3 + 0.042 * Math.cbrt(Y0 - 30));
 	var L = (L_ - 14.3993) / Math.sqrt(2);
 
-	var C = L_ / (5.9 * (Math.pow(Y0, 1 / 3) - 2 / 3));
+	var C = L_ / (5.9 * (Math.cbrt(Y0) - 2 / 3));
 
-	var R = 0.7790 * X + 0.4194 * Y - 0.1648 * Z;
+	// XYZ -> RGB (MacAdam 1974, Table 1); R-row was 0.7790 (digit transposition)
+	var R = 0.7990 * X + 0.4194 * Y - 0.1648 * Z;
 	var G = -0.4493 * X + 1.3265 * Y + 0.0927 * Z;
 	var B = -0.1149 * X + 0.3394 * Y + 0.7170 * Z;
 
-	R = Math.pow(R, 1 / 3) || 0;
-	G = Math.pow(G, 1 / 3) || 0;
-	B = Math.pow(B, 1 / 3) || 0;
+	R = Math.cbrt(R);
+	G = Math.cbrt(G);
+	B = Math.cbrt(B);
 
 	var a = -13.7 * R + 17.7 * G - 4 * B;
 	var b = 1.7 * R + 8 * G - 9.7 * B;

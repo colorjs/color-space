@@ -129,6 +129,7 @@ rgb.hcg = function (r, g, b) {
 			}
 		hue /= 6;
 		hue = (hue % 1);
+		if (hue < 0) hue += 1; // JS % keeps sign; wrap negative hues into [0,1)
 	} else {
 		hue = 0;
 	}
