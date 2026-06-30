@@ -13,22 +13,11 @@
  */
 import xyz from './xyz.js';
 import { toCam16, fromCam16, environment, constrain } from './cam16.js';
+import { labF, labFInv } from './cie.js';
 
-const eps = 216 / 24389;
-const kappa = 24389 / 27;
-
-function toLstar(y) {
-	// Y (0-100) to L* (0-100)
-	y = y / 100; // normalize to 0-1
-	const fy = y > eps ? Math.cbrt(y) : (kappa * y + 16) / 116;
-	return 116.0 * fy - 16.0;
-}
-
-function fromLstar(l) {
-	// L* (0-100) to Y (0-100)
-	const y01 = l > 8 ? Math.pow((l + 16) / 116, 3) : l / kappa;
-	return y01 * 100;
-}
+// Y (0-100) <-> L* (0-100), the CIELAB lightness companding on the Y channel
+const toLstar = (y) => 116 * labF(y / 100) - 16;
+const fromLstar = (l) => labFInv((l + 16) / 116) * 100;
 
 // HCT viewing conditions (Material Design / colorjs.io) — distinct from cam16's:
 // precise D65, La = 200/π·Y(L*=50), Yb = Y(L*=50), average surround, no discounting.

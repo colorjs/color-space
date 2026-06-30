@@ -18,10 +18,7 @@
  */
 import lchuv from './lchuv.js';
 import { M_LRGB_INV } from './xyz.js';
-
-// exact CIE constants (shared with the library's lab/luv)
-const KAPPA = 24389 / 27;    // 903.2962963…
-const EPSILON = 216 / 24389; // 0.0088564517…
+import { ε as EPSILON, κ as KAPPA } from './cie.js';
 
 // The six sRGB-gamut boundary lines at lightness L, each as [slope, intercept] in
 // the chroma plane. Derived (hsluv reference) by setting each linear-sRGB channel

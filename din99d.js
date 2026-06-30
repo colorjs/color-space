@@ -17,6 +17,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
+import { labF, labFInv } from './cie.js';
 
 const din99d = {
 	name: 'din99d',
@@ -28,18 +29,14 @@ const c1 = 325.22, c2 = 0.0036, c5 = 22.5, c6 = 0.06, scale = 1.14;
 const θ = 50 * Math.PI / 180;
 const cosθ = Math.cos(θ), sinθ = Math.sin(θ);
 
-// CIELab constants + the X-corrected D65 white
-const ε = 216 / 24389, ε3 = 24 / 116, κ = 24389 / 27;
+// the X-corrected D65 white
 const Xw = 95.04559270516716, Yw = 100, Zw = 108.90577507598784;
 const Xcw = 1.12 * Xw - 0.12 * Zw; // ≈ 93.382
 
 // XYZ (D65, 0-100) -> DIN99d
 xyz.din99d = (X, Y, Z) => {
 	const Xc = 1.12 * X - 0.12 * Z;
-	const xr = Xc / Xcw, yr = Y / Yw, zr = Z / Zw;
-	const fx = xr > ε ? Math.cbrt(xr) : (κ * xr + 16) / 116;
-	const fy = yr > ε ? Math.cbrt(yr) : (κ * yr + 16) / 116;
-	const fz = zr > ε ? Math.cbrt(zr) : (κ * zr + 16) / 116;
+	const fx = labF(Xc / Xcw), fy = labF(Y / Yw), fz = labF(Z / Zw);
 	const L = 116 * fy - 16, a = 500 * (fx - fy), b = 200 * (fy - fz);
 	const e = a * cosθ + b * sinθ;
 	const f = scale * (b * cosθ - a * sinθ);
@@ -57,7 +54,7 @@ din99d.xyz = (L99, a99, b99) => {
 	const C99 = Math.hypot(a99, b99);
 	const fy = (L + 16) / 116;
 	if (C99 === 0) {
-		const yr = L > 8 ? fy ** 3 : L / κ; // neutral: xr = yr -> X = Xw·yr
+		const yr = labFInv(fy); // neutral: xr = yr -> X = Xw·yr
 		return [yr * Xw, yr * Yw, yr * Zw];
 	}
 	const h = Math.atan2(b99, a99) - θ;
@@ -66,9 +63,7 @@ din99d.xyz = (L99, a99, b99) => {
 	const a = e * cosθ - (fv / scale) * sinθ;
 	const b = e * sinθ + (fv / scale) * cosθ;
 	const fx = a / 500 + fy, fz = fy - b / 200;
-	const xr = fx > ε3 ? fx ** 3 : (116 * fx - 16) / κ;
-	const yr = L > 8 ? fy ** 3 : L / κ;
-	const zr = fz > ε3 ? fz ** 3 : (116 * fz - 16) / κ;
+	const xr = labFInv(fx), yr = labFInv(fy), zr = labFInv(fz);
 	const Xc = xr * Xcw, Y = yr * Yw, Z = zr * Zw;
 	return [(Xc + 0.12 * Z) / 1.12, Y, Z];
 };

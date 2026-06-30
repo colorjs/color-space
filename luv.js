@@ -13,6 +13,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
+import { labF, labFInv } from './cie.js';
 
 var luv = {
 	name: 'luv',
@@ -22,10 +23,6 @@ var luv = {
 		var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 		if (l === 0) return [0, 0, 0];
-
-		//get constants
-		//var e = 0.008856451679035631; //(6/29)^3
-		var k = 0.0011070564598794539; //(3/29)^3
 
 		//get illuminant/observer
 		i = i || 'D65';
@@ -43,10 +40,8 @@ var luv = {
 		_u = u / (13 * l) + un || 0;
 		_v = v / (13 * l) + vn || 0;
 
-		// Compute Y from L
-		// Original: y = L > 8 ? yn * ((L + 16)/116)^3 : yn * L * k
-		// Note: XYZ whitepoint is now in 0-100 range, so we need to scale
-		y = l > 8 ? yn * Math.pow((l + 16) / 116, 3) : yn * l * k;
+		// Y from L* (CIELAB companding), scaled by the white's Y
+		y = yn * labFInv((l + 16) / 116);
 
 		//wikipedia method for X and Z from Y, u', v'
 		x = y * 9 * _u / (4 * _v) || 0;
@@ -72,10 +67,6 @@ xyz.luv = function (x, y, z, i, o) {
 	// Input: XYZ in 0-100 range
 	var _u, _v, l, u, v, xn, yn, zn, un, vn;
 
-	//get constants
-	var e = 0.008856451679035631; //(6/29)^3
-	var k = 903.2962962962961; //(29/3)^3
-
 	//get illuminant/observer coords
 	i = i || 'D65';
 	o = o || 2;
@@ -91,9 +82,8 @@ xyz.luv = function (x, y, z, i, o) {
 	_u = (4 * x) / (x + (15 * y) + (3 * z)) || 0;
 	_v = (9 * y) / (x + (15 * y) + (3 * z)) || 0;
 
-	var yr = y / yn;
-
-	l = yr <= e ? k * yr : 116 * Math.pow(yr, 1 / 3) - 16;
+	// L* via CIELAB companding (fixes the prior 2-ULP κ literal + Math.pow vs Math.cbrt)
+	l = 116 * labF(y / yn) - 16;
 
 	u = 13 * l * (_u - un);
 	v = 13 * l * (_v - vn);

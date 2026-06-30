@@ -15,34 +15,26 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
+import { labF, labFInv } from './cie.js';
 
 const labD65 = {
 	name: 'lab-d65',
 	range: [[0, 100], [-125, 125], [-125, 125]]
 };
 
-const ε = 216 / 24389;   // (6/29)^3
-const ε3 = 24 / 116;     // 6/29
-const κ = 24389 / 27;    // (29/3)^3
 const white = [0.9504559270516716, 1, 1.0890577507598784]; // CSS Color 4 D65 (0-1)
 
 labD65.xyz = (l, a, b) => {
 	const fy = (l + 16) / 116;
 	const fx = a / 500 + fy;
 	const fz = fy - b / 200;
-	const xr = fx > ε3 ? fx ** 3 : (116 * fx - 16) / κ;
-	const yr = l > 8 ? fy ** 3 : l / κ;
-	const zr = fz > ε3 ? fz ** 3 : (116 * fz - 16) / κ;
-	return [xr * white[0] * 100, yr * white[1] * 100, zr * white[2] * 100];
+	return [labFInv(fx) * white[0] * 100, labFInv(fy) * white[1] * 100, labFInv(fz) * white[2] * 100];
 };
 
 xyz[labD65.name] = (x, y, z) => {
-	const xr = x / 100 / white[0];
-	const yr = y / 100 / white[1];
-	const zr = z / 100 / white[2];
-	const fx = xr > ε ? Math.cbrt(xr) : (κ * xr + 16) / 116;
-	const fy = yr > ε ? Math.cbrt(yr) : (κ * yr + 16) / 116;
-	const fz = zr > ε ? Math.cbrt(zr) : (κ * zr + 16) / 116;
+	const fx = labF(x / 100 / white[0]);
+	const fy = labF(y / 100 / white[1]);
+	const fz = labF(z / 100 / white[2]);
 	return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 };
 
