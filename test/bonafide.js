@@ -91,7 +91,7 @@ const REF = [
   {"s":"rlab","f":"xyz","t":"rlab","in":[19.01,20,21.78],"out":[49.834707,15.571102,-52.614296],"src":"colour-science XYZ_to_RLAB (Illuminant A, Y_n=31.83, sigma=1/2.3, D=1): J,a,b"},
 ]
 
-test('bona-fide reference values (86 audited spaces)', () => {
+test('bona-fide reference values (85 audited spaces)', () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {
