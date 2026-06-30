@@ -44,7 +44,7 @@ rec2100hlg.xyz = (r, g, b) => {
 	return rec2020Linear.xyz(toLinear(r), toLinear(g), toLinear(b));
 }
 
-xyz['rec2100-hlg'] = (x, y, z) => {
+xyz[rec2100hlg.name] = (x, y, z) => {
 	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }

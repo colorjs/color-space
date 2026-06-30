@@ -25,7 +25,7 @@ p3Linear.xyz = (r, g, b) => {
 	return [x * 100, y * 100, z * 100];
 }
 
-xyz['p3-linear'] = (x, y, z) => {
+xyz[p3Linear.name] = (x, y, z) => {
 	// Matrix: XYZ (D65) -> P3 Linear
 	// XYZ: 0-100, P3 Linear: 0-1
 	x /= 100; y /= 100; z /= 100;

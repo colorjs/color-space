@@ -34,7 +34,7 @@ labD65.xyz = (l, a, b) => {
 	return [xr * white[0] * 100, yr * white[1] * 100, zr * white[2] * 100];
 };
 
-xyz['lab-d65'] = (x, y, z) => {
+xyz[labD65.name] = (x, y, z) => {
 	const xr = x / 100 / white[0];
 	const yr = y / 100 / white[1];
 	const zr = z / 100 / white[2];

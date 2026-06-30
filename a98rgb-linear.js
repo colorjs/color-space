@@ -23,7 +23,7 @@ a98Linear.xyz = (r, g, b) => {
 	return [x * 100, y * 100, z * 100];
 }
 
-xyz['a98rgb-linear'] = (x, y, z) => {
+xyz[a98Linear.name] = (x, y, z) => {
 	// XYZ: 0-100, A98 RGB Linear: 0-1
 	x /= 100; y /= 100; z /= 100;
 	const r = x * 2.0415879038107465 + y * -0.5650069742788596 + z * -0.34473135077832956;

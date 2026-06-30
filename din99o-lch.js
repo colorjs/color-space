@@ -18,13 +18,13 @@ const din99oLch = {
 };
 
 // DIN99o LCh -> DIN99o Lab (polar -> cartesian)
-din99oLch['din99o-lab'] = (l, c, h) => {
+din99oLch[din99oLab.name] = (l, c, h) => {
 	const hRad = (h / 180) * Math.PI;
 	return [l, c * Math.cos(hRad), c * Math.sin(hRad)];
 };
 
 // DIN99o Lab -> DIN99o LCh (cartesian -> polar)
-din99oLab['din99o-lch'] = (l, a, b) => {
+din99oLab[din99oLch.name] = (l, a, b) => {
 	const c = Math.sqrt(a * a + b * b);
 	const h = Math.atan2(b, a) * (180 / Math.PI);
 	return [l, c, h >= 0 ? h : h + 360];

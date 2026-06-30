@@ -24,7 +24,7 @@ const cosθ = Math.cos(θ), sinθ = Math.sin(θ);
 const factor = 100 / Math.log(139 / 100); // ≈ 303.67
 
 // DIN99o Lab -> CIELab (D65)
-din99oLab['lab-d65'] = (l, a, b) => {
+din99oLab[labD65.name] = (l, a, b) => {
 	const L = (Math.exp((l * kE) / factor) - 1) / 0.0039;
 	const c = Math.sqrt(a * a + b * b);
 	if (c === 0) return [L, 0, 0];
@@ -36,7 +36,7 @@ din99oLab['lab-d65'] = (l, a, b) => {
 };
 
 // CIELab (D65) -> DIN99o Lab
-labD65['din99o-lab'] = (l, a, b) => {
+labD65[din99oLab.name] = (l, a, b) => {
 	const e = a * cosθ + b * sinθ;
 	const f = 0.83 * (b * cosθ - a * sinθ);
 	const G = Math.sqrt(e * e + f * f);

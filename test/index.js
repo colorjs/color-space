@@ -16,7 +16,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 71, '71 spaces registered')
+	is(names.length, 77, '77 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -1107,4 +1107,50 @@ test('hcy', () => {
 	is(space.rgb.hcy(255, 255, 255).map(round(1)), [0, 0, 100], 'white');
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [200, 100, 50]])
 		is(space.hcy.rgb(...space.rgb.hcy(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+
+// --- spaces added in v3 (validated by composition with colorjs-validated neighbours) ---
+
+test('lch-d65: polar of lab-d65', () => {
+	// lch-d65 is the exact polar of lab-d65 (which is differential-validated vs colorjs)
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]]) {
+		const [L, a, b] = space.rgb['lab-d65'](...c);
+		const [Lc, C, H] = space.rgb['lch-d65'](...c);
+		is(round(3)(Lc), round(3)(L), `L matches for ${c}`);
+		is(round(2)(C), round(2)(Math.sqrt(a * a + b * b)), `C = √(a²+b²) for ${c}`);
+	}
+	for (const c of [[255, 0, 0], [0, 128, 255], [128, 128, 128], [200, 100, 50]])
+		is(space['lch-d65'].rgb(...space.rgb['lch-d65'](...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('cam16-ucs: compression of cam16', () => {
+	// black -> 0; roundtrip through cam16
+	is(space.rgb['cam16-ucs'](0, 0, 0).map(round(2)), [0, 0, 0], 'black');
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
+		is(space['cam16-ucs'].rgb(...space.rgb['cam16-ucs'](...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('okhwb: hwb analog of okhsv', () => {
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [200, 100, 50]])
+		is(space.okhwb.rgb(...space.rgb.okhwb(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('aces2065-1: AP0, via acescg', () => {
+	// AP0 <-> AP1 are exact inverses
+	is(space.acescg['aces2065-1'](...space['aces2065-1'].acescg(0.3, 0.5, 0.7)).map(round(6)), [0.3, 0.5, 0.7]);
+	for (const c of [[255, 0, 0], [0, 255, 0], [200, 100, 50]])
+		is(space['aces2065-1'].rgb(...space.rgb['aces2065-1'](...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('acescct: ACES grading log, via acescg', () => {
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
+		is(space.acescct.rgb(...space.rgb.acescct(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('rec709: BT.709 transfer on sRGB primaries', () => {
+	// OETF boundary: linear 0.018 -> 4.5*0.018 = 0.081
+	is(round(3)(space.lrgb.rec709(0.018, 0.018, 0.018)[0]), 0.081, 'OETF knee');
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.rec709.rgb(...space.rgb.rec709(...c)).map(round(0)), c, `roundtrip ${c}`);
 });

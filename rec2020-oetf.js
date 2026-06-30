@@ -47,7 +47,7 @@ rec2020oetf.xyz = (r, g, b) => {
 	return rec2020Linear.xyz(toLinear(r), toLinear(g), toLinear(b));
 }
 
-xyz['rec2020-oetf'] = (x, y, z) => {
+xyz[rec2020oetf.name] = (x, y, z) => {
 	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }

@@ -80,6 +80,43 @@ export default {
     "observer": "2",
     "description": "Adobe RGB color space (Adobe RGB 1998) Wider gamut than sRGB, standard for photography"
   },
+  "aces2065-1": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 65504,
+        "name": "Red (half float)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 65504,
+        "name": "Green (half float)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 65504,
+        "name": "Blue (half float)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        65504
+      ],
+      [
+        0,
+        65504
+      ],
+      [
+        0,
+        65504
+      ]
+    ],
+    "description": "ACES2065-1 color space (AP0 primaries) The ACES archival / interchange encoding: linear, AP0 primaries (which enclose the entire visible gamut), ACES white (~D60). Connects to acescg (AP1) via the published AP0↔AP1 matrix; everything else chains through there."
+  },
   "acescc": {
     "channels": [
       {
@@ -117,6 +154,43 @@ export default {
     ],
     "description": "ACEScc color space (Academy Color Encoding System) Logarithmic encoding for color grading in cinema Reference for film post-production"
   },
+  "acescct": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": -0.358,
+        "max": 1.468,
+        "name": "Red (log encoded)"
+      },
+      {
+        "symbol": "G",
+        "min": -0.358,
+        "max": 1.468,
+        "name": "Green (log encoded)"
+      },
+      {
+        "symbol": "B",
+        "min": -0.358,
+        "max": 1.468,
+        "name": "Blue (log encoded)"
+      }
+    ],
+    "range": [
+      [
+        -0.358,
+        1.468
+      ],
+      [
+        -0.358,
+        1.468
+      ],
+      [
+        -0.358,
+        1.468
+      ]
+    ],
+    "description": "ACEScct color space ACES log encoding for colour grading (AP1 primaries, same as ACEScg) with a pure-log curve plus a linear toe near black for lift/gamma/gain controls. ACES spec S-2016-001. Connects to acescg (its linear form)."
+  },
   "acescg": {
     "channels": [
       {
@@ -153,6 +227,43 @@ export default {
       ]
     ],
     "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded."
+  },
+  "cam16-ucs": {
+    "channels": [
+      {
+        "symbol": "J",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness (J')"
+      },
+      {
+        "symbol": "a",
+        "min": -50,
+        "max": 50,
+        "name": "Red-Green (a')"
+      },
+      {
+        "symbol": "b",
+        "min": -50,
+        "max": 50,
+        "name": "Yellow-Blue (b')"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -50,
+        50
+      ],
+      [
+        -50,
+        50
+      ]
+    ],
+    "description": "CAM16-UCS color space Uniform-color-space form of CAM16 (Li et al. 2017): compresses lightness J and colourfulness M, then lays out (J', a', b') as a near-Euclidean space suitable for colour-difference (ΔE) and gamut mapping. Built on cam16 (J, M, h)."
   },
   "cam16": {
     "channels": [
@@ -310,7 +421,7 @@ export default {
         100
       ]
     ],
-    "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). EXPERIMENTAL / partially verified: V is exact and hue lookup no longer crashes, but the bundled hue table is internally inconsistent (each row's stored angle disagrees with its own xλ,yλ by up to ~14°) and the T saturation formula does not round-trip. A correct A/T needs the authoritative MSZ 7300 / Nemcsics data. There is no reference implementation (colorjs/culori lack Coloroid) to validate against, so A/T should be treated as provisional."
+    "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades found by chromaticity angle from white; T is the position along the white→limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup uses each row's angle computed from its own (xλ,yλ) — the stored angle column is inconsistent with it (a known table defect). EXPERIMENTAL: the ATV↔xyY transform now round-trips exactly and T has the correct excitation-purity semantics, but (a) A is quantized to 48 discrete grades, so rgb→coloroid→rgb loses the between-grade hue (no interpolation yet); (b) the bundled xλ,yλ table (Illuminant-C spectral data) and the white point (D65 here, per MSZ 7300) carry the documented C-vs-D65 split; (c) no reference implementation exists to cross-validate A/T. Treat A/T as provisional. Sources: Neumann & Neumann (2004) \"Gamut Clipping and Mapping Based on the Coloroid System\"; Neumann, Nemcsics & Neumann (2005)."
   },
   "cubehelix": {
     "channels": [
@@ -1033,6 +1144,45 @@ export default {
     ],
     "description": "Lab Hunter color space Alternative Lab definition by Richard Hunter Optimized for reflectance, less uniform than CIE Lab"
   },
+  "lch-d65": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "C",
+        "min": 0,
+        "max": 150,
+        "name": "Chroma"
+      },
+      {
+        "symbol": "H",
+        "min": 0,
+        "max": 360,
+        "name": "Hue angle in degrees"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        150
+      ],
+      [
+        0,
+        360
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "LCh (D65) color space Cylindrical (polar) form of lab-d65 — intuitive hue/chroma with the D65 white point. For the CSS/ICC D50 LCh, use `lchab`."
+  },
   "lchab": {
     "channels": [
       {
@@ -1297,6 +1447,43 @@ export default {
       ]
     ],
     "description": "OkHSV color space Cylindrical variant of OkHSL using value instead of lightness Alternative color picker from Oklab"
+  },
+  "okhwb": {
+    "channels": [
+      {
+        "symbol": "H",
+        "min": 0,
+        "max": 360,
+        "name": "Hue angle in degrees"
+      },
+      {
+        "symbol": "W",
+        "min": 0,
+        "max": 100,
+        "name": "Whiteness percentage"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 100,
+        "name": "Blackness percentage"
+      }
+    ],
+    "range": [
+      [
+        0,
+        360
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        100
+      ]
+    ],
+    "description": "Okhwb color space Hue / whiteness / blackness built on Okhsv (Ottosson) — the HWB analog of the perceptual Okhsl/Okhsv pickers, bounded to the sRGB gamut."
   },
   "oklab": {
     "channels": [
@@ -1833,6 +2020,45 @@ export default {
     "illuminant": "D65",
     "observer": "2",
     "description": "Rec. 2100 with PQ (Perceptual Quantizer) transfer function ITU-R BT.2100 HDR (4K/8K) with PQ OETF Used for HDR broadcast and streaming"
+  },
+  "rec709": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "Rec. 709 color space ITU-R BT.709 HDTV: the same primaries and D65 white as sRGB, but with the BT.709 camera transfer function (OETF) instead of the sRGB curve. The linear light is identical to linear sRGB, so this connects through `lrgb`."
   },
   "rg": {
     "channels": [

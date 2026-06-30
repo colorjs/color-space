@@ -72,6 +72,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [LRGB](https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear) — linear-light sRGB for physically correct blending, gradients, resizing.
 * [x] [Display P3](https://www.w3.org/TR/css-color-4/#predefined-display-p3) — wide gamut for Apple/modern displays, 25% larger than sRGB.
 * [x] [Rec. 2020](https://www.itu.int/rec/R-REC-BT.2020) — UHDTV/4K standard, covers 75% of visible spectrum. (ITU-R BT.2020)
+* [x] [Rec. 709](https://www.itu.int/rec/R-REC-BT.709) — HDTV standard: sRGB primaries with the BT.709 camera transfer (OETF). (ITU-R BT.709)
 * [x] [Adobe 98 RGB](https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf) — photography standard, wider gamut for print reproduction.
 * [x] [ProPhoto RGB](https://www.color.org/ROMMRGB.pdf) — widest practical gamut for photography workflows. (ROMM RGB, ICC)
 
@@ -91,6 +92,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [OKLCH](https://www.w3.org/TR/css-color-4/#ok-lab) — polar OKLAB with intuitive hue angle. CSS Color 4 standard.
 * [x] [OKHSL](https://bottosson.github.io/posts/okhsv/) — perceptually uniform HSL alternative, bounded to sRGB gamut.
 * [x] [OKHSV](https://bottosson.github.io/posts/okhsv/) — perceptually uniform HSV alternative, bounded to sRGB gamut.
+* [x] [Okhwb](https://bottosson.github.io/posts/okhsv/) — hue/whiteness/blackness analog of Okhsv, bounded to sRGB gamut.
 * [x] [OKLRAB](https://bottosson.github.io/posts/colorpicker/) — linear-lightness OKLAB for advanced color pickers.
 * [x] [OKLRCH](https://bottosson.github.io/posts/colorpicker/) — polar OKLRAB.
 * [x] [HCT](https://material.io/blog/science-of-color-design) — Google Material's hue/chroma/tone, combines CAM16 hue with L* lightness.
@@ -98,6 +100,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 ### Perceptual Uniform (CIE Classic)
 * [x] [LAB](https://www.w3.org/TR/css-color-4/#cie-lab) — CIE 1976 L\*a\*b\*, the standard for perceptual uniformity. **D50** reference white (ICC/CSS Color 4 convention); use `lab-d65` for display-native. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
 * [x] [LCH<sub>ab</sub>](https://www.w3.org/TR/css-color-4/#cie-lab) — polar LAB, intuitive hue/chroma. CSS Color 4 standard.
+* [x] [LCH<sub>D65</sub>](https://cie.co.at/publications/colorimetry-4th-edition) — polar `lab-d65` with the display-native D65 white. (CIE 15:2004)
 * [x] [LUV](https://en.wikipedia.org/wiki/CIELUV) — CIE 1976 L\*u\*v\*, uniform for additive color mixing (displays, lighting).
 * [x] [LCH<sub>uv</sub>](http://www.brucelindbloom.com/index.html?Eqn_Luv_to_LCH.html) — polar LUV.
 * [x] [HSL<sub>uv</sub>](http://www.hsluv.org/) — human-friendly LCH<sub>uv</sub> stretched to sRGB gamut boundary.
@@ -133,9 +136,12 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 ### Film & Professional
 * [x] [ACEScg](https://docs.acescentral.com/specifications/acescg/) — Academy Color Encoding, linear working space for CGI compositing.
 * [x] [ACEScc](https://docs.acescentral.com/specifications/acescc/) — Academy Color Encoding, logarithmic for grading with more shadow detail.
+* [x] [ACEScct](https://docs.acescentral.com/specifications/acescct/) — ACES log grading with a linear toe near black, for lift/gamma/gain controls.
+* [x] [ACES2065-1](https://docs.acescentral.com/specifications/aces2065-1/) — AP0 archival/interchange master format, enclosing the entire visible gamut.
 
 ### Color Appearance
 * [x] [CAM16](https://doi.org/10.1002/col.22131) — CIE color appearance model, handles viewing conditions (lighting, surround). ([Li et al. 2017](https://doi.org/10.1002/col.22131))
+* [x] [CAM16-UCS](https://doi.org/10.1002/col.22131) — uniform CAM16 (J′a′b′) for ΔE and gamut mapping. ([Li et al. 2017](https://doi.org/10.1002/col.22131))
 * [ ] [CIECAM02](https://doi.org/10.1002/col.10125) — predecessor to CAM16, widely used in ICC profiles.
 
 ### Print & Physical
@@ -178,7 +184,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **71** | 25 | 40 | 16 |
+| **Color spaces** | **77** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
@@ -187,7 +193,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
-- **Most comprehensive**: 71 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Most comprehensive**: 77 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
 - **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
 - **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
 

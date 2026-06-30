@@ -2,9 +2,12 @@
 import { ColorSpace, Convert } from './color-space';
 import a98rgb from './a98rgb';
 import a98rgb_linear from './a98rgb-linear';
+import aces2065_1 from './aces2065-1';
 import acescc from './acescc';
+import acescct from './acescct';
 import acescg from './acescg';
 import cam16 from './cam16';
+import cam16_ucs from './cam16-ucs';
 import cmy from './cmy';
 import cmyk from './cmyk';
 import coloroid from './coloroid';
@@ -31,6 +34,7 @@ import jzczhz from './jzczhz';
 import lab from './lab';
 import lab_d65 from './lab-d65';
 import labh from './labh';
+import lch_d65 from './lch-d65';
 import lchab from './lchab';
 import lchuv from './lchuv';
 import lms from './lms';
@@ -38,6 +42,7 @@ import lrgb from './lrgb';
 import luv from './luv';
 import okhsl from './okhsl';
 import okhsv from './okhsv';
+import okhwb from './okhwb';
 import oklab from './oklab';
 import oklch from './oklch';
 import oklrab from './oklrab';
@@ -52,6 +57,7 @@ import rec2020_linear from './rec2020-linear';
 import rec2020_oetf from './rec2020-oetf';
 import rec2100_hlg from './rec2100-hlg';
 import rec2100_pq from './rec2100-pq';
+import rec709 from './rec709';
 import rg from './rg';
 import rgb from './rgb';
 import tsl from './tsl';
@@ -73,7 +79,7 @@ import ypbpr from './ypbpr';
 import yuv from './yuv';
 
 export { ColorSpace, Convert };
-export { a98rgb, a98rgb_linear, acescc, acescg, cam16, cmy, cmyk, coloroid, cubehelix, din99o_lab, din99o_lch, gray, hcg, hcl, hct, hcy, hpluv, hsi, hsl, hsluv, hsm, hsp, hsv, hwb, ictcp, jpeg, jzazbz, jzczhz, lab, lab_d65, labh, lchab, lchuv, lms, lrgb, luv, okhsl, okhsv, oklab, oklch, oklrab, oklrch, osaucs, p3, p3_linear, prophoto, prophoto_linear, rec2020, rec2020_linear, rec2020_oetf, rec2100_hlg, rec2100_pq, rg, rgb, tsl, ucs, uvw, xvycc, xyb, xyy, xyz, xyz_abs_d65, xyz_d50, ycbcr, yccbccrc, ycgco, ydbdr, yes, yiq, ypbpr, yuv };
+export { a98rgb, a98rgb_linear, aces2065_1, acescc, acescct, acescg, cam16, cam16_ucs, cmy, cmyk, coloroid, cubehelix, din99o_lab, din99o_lch, gray, hcg, hcl, hct, hcy, hpluv, hsi, hsl, hsluv, hsm, hsp, hsv, hwb, ictcp, jpeg, jzazbz, jzczhz, lab, lab_d65, labh, lch_d65, lchab, lchuv, lms, lrgb, luv, okhsl, okhsv, okhwb, oklab, oklch, oklrab, oklrch, osaucs, p3, p3_linear, prophoto, prophoto_linear, rec2020, rec2020_linear, rec2020_oetf, rec2100_hlg, rec2100_pq, rec709, rg, rgb, tsl, ucs, uvw, xvycc, xyb, xyy, xyz, xyz_abs_d65, xyz_d50, ycbcr, yccbccrc, ycgco, ydbdr, yes, yiq, ypbpr, yuv };
 
 /** All registered color spaces, keyed by name. */
 declare const space: { [name: string]: ColorSpace };

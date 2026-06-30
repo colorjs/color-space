@@ -37,7 +37,7 @@ prophotoLinear.xyz = (r, g, b) => {
 	return mat3(bradford.D50_D65, x50, y50, z50).map(v => v * 100);
 }
 
-xyz['prophoto-linear'] = (x, y, z) => {
+xyz[prophotoLinear.name] = (x, y, z) => {
 	// XYZ D65 (0-100) -> XYZ D50 -> ProPhoto Linear (0-1)
 	const [x50, y50, z50] = mat3(bradford.D65_D50, x / 100, y / 100, z / 100);
 	return mat3(M_XYZ50_PP, x50, y50, z50);

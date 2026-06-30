@@ -24,7 +24,7 @@ rec2020Linear.xyz = (r, g, b) => {
 	return [x * 100, y * 100, z * 100];
 }
 
-xyz['rec2020-linear'] = (x, y, z) => {
+xyz[rec2020Linear.name] = (x, y, z) => {
 	// XYZ: 0-100, Rec2020 Linear: 0-1
 	x /= 100; y /= 100; z /= 100;
 	const r = x * 1.716651187971268 + y * -0.355670783776392 + z * -0.253366281373660;
