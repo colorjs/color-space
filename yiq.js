@@ -18,10 +18,10 @@ yiq.rgb = function (y, i, q) {
 	// Input: Y: 0-1, I: -0.5957 to 0.5957, Q: -0.5226 to 0.5226
 	var r, g, b;
 
-	// exact inverse of the FCC forward matrix below
-	r = y + (i * 0.956296) + (q * 0.621024);
-	g = y + (i * -0.272122) + (q * -0.647381);
-	b = y + (i * -1.106989) + (q * 1.704615);
+	// exact inverse (inv3) of the FCC forward matrix below — exact round-trip
+	r = y + (i * 0.9562957197589483) + (q * 0.6210244164652611);
+	g = y + (i * -0.27212209931851045) + (q * -0.647380596825695);
+	b = y + (i * -1.1069890167364902) + (q * 1.7046149983646481);
 
 	r = Math.min(Math.max(0, r), 1);
 	g = Math.min(Math.max(0, g), 1);
