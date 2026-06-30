@@ -32,7 +32,7 @@ culori · colorjs.io · chroma-js · @texel/color · color-convert · **hand-rol
 | **Munsell, RAL Design, Coloroid, OSA-UCS, TSL, YES** | bidirectional Munsell via 1943 renotation; cited | absent everywhere else in JS |
 | **CSS-native value ranges** | `lab(50,…)`, `oklch(65,…)`, `rgb(255,…)` match CSS Color 4 | every other lib normalizes 0–1 |
 | **Differential verification** | `test/reference.js`: ~30 spaces both directions vs colorjs.io at 1/255; corrects published-paper errors | others self-test only |
-| **WASM batch kernel — *same source*** | `color-space/wasm`: the scalar formulas AOT-compiled to WASM (jz, `optimize:'speed'`), composed via an edge graph like `wire()`, pinned bit-for-bit to the JS API (`test/wasm-batch.js`); zero-copy whole-buffer convert **1.1–1.7×** faster than the identical JS loop across 15 spaces | no other JS color lib ships a WASM batch path at all — and none could match "same formulas, verified identical to the scalar path" |
+| **WASM batch kernel — *same source*** | `color-space/wasm`: the scalar formulas AOT-compiled to WASM (jz, `optimize:'speed'`), composed via an edge graph like `wire()`, pinned to the JS API (`test/wasm-batch.js`) across **27 spaces**; zero-copy whole-buffer convert **1.1–1.7×** faster on cube-root/matrix paths (PQ/log paths parity-or-slower today — jz codegen targets) | no other JS color lib ships a WASM batch path at all — and none could match "same formulas, verified identical to the scalar path" |
 | **Public domain (Unlicense)** | package license | others are MIT/etc. (still permissive, but not PD) |
 
 ### 3. Value themes (attribute → outcome, with proof)

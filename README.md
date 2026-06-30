@@ -76,18 +76,21 @@ convert('rgb', 'oklch', n);    // convert the whole buffer in place — no copy
 
 Internally the kernel is a graph of primitive **edges** (transfer, matrix, cube-root,
 one generic cartesian↔cylindrical pair…) composed by a BFS exactly like the scalar
-library's `wire()` — so any pair of the **15 covered spaces** (rgb, lrgb, xyz, oklab,
-oklch, oklrab, oklrch, lab, lchab, lab-d65, lch-d65, luv, lchuv, hsluv, hpluv) converts
-in one call. Small edge kernels also run **faster than one fused loop** (jz vectorizes
-`cbrt` and `atan2` better apart — ~1.6×).
+library's `wire()` — so any pair of **27 covered spaces** converts in one call: the
+perceptual core (oklab/oklch/oklrab/oklrch, lab/lchab, lab-d65/lch-d65, luv/lchuv,
+hsluv/hpluv, din99o), the HDR pair (jzazbz/jzczhz, ictcp), the camera logs
+(logc4/slog3/vlog/log3g10/clog2), plus ipt and din99d. Small edge kernels also run
+**faster than one fused loop** (jz vectorizes `cbrt`/`atan2` better apart — ~1.6×).
 
 The win is **zero-copy** — keep the data in WASM memory. Over a 1M-pixel buffer, vs the
-*identical* loop in V8: rgb→xyz **1.7×**, rgb→lab **1.5×**, rgb→oklab **1.4×**,
-rgb→oklch **1.3×**, rgb→hsluv **1.1×** (gamut-bound, branchier). `convertBatch(from, to,
-src, dst, n)` is a drop-in for existing JS arrays, but it copies in and out, so a *single*
-conversion through it won't beat JS — prefer `alloc` + `convert` on a hot path. (HDR/log/
-appearance spaces are staged; instantiation is sync, so use a Web Worker on the browser
-main thread.)
+*identical* loop in V8, the **cube-root/matrix paths win**: rgb→xyz **1.7×**, rgb→lab
+**1.5×**, rgb→oklab **1.4×**, rgb→oklch **1.3×**, rgb→hsluv **1.1×**. The **PQ/log paths
+are currently parity-or-slower** (rgb→ictcp 0.85×, rgb→jzazbz 0.64×) — their `spow`/`pow`/
+`log` is where jz's codegen still trails V8; they're shipped for coverage (and pipelines
+that stay in WASM) and tracked as jz optimization targets, so the gap closes as jz
+improves — *without touching this code*. `convertBatch(from, to, src, dst, n)` is a drop-in
+for existing JS arrays, but it copies in and out, so prefer `alloc` + `convert` on a hot
+path. Instantiation is sync (~23 kB module) — use a Web Worker on the browser main thread.
 
 ## Design: Conventional Ranges
 
