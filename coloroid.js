@@ -3,12 +3,20 @@
  *
  * Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y).
  *
- * EXPERIMENTAL / partially verified: V is exact and hue lookup no longer crashes,
- * but the bundled hue table is internally inconsistent (each row's stored angle
- * disagrees with its own xλ,yλ by up to ~14°) and the T saturation formula does
- * not round-trip. A correct A/T needs the authoritative MSZ 7300 / Nemcsics data.
- * There is no reference implementation (colorjs/culori lack Coloroid) to validate
- * against, so A/T should be treated as provisional.
+ * Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48
+ * grades found by chromaticity angle from white; T is the position along the
+ * white→limit-color line (T=0 at white, T=100 at the spectral/purple limit).
+ * The hue lookup uses each row's angle computed from its own (xλ,yλ) — the
+ * stored angle column is inconsistent with it (a known table defect).
+ *
+ * EXPERIMENTAL: the ATV↔xyY transform now round-trips exactly and T has the
+ * correct excitation-purity semantics, but (a) A is quantized to 48 discrete
+ * grades, so rgb→coloroid→rgb loses the between-grade hue (no interpolation yet);
+ * (b) the bundled xλ,yλ table (Illuminant-C spectral data) and the white point
+ * (D65 here, per MSZ 7300) carry the documented C-vs-D65 split; (c) no reference
+ * implementation exists to cross-validate A/T. Treat A/T as provisional.
+ * Sources: Neumann & Neumann (2004) "Gamut Clipping and Mapping Based on the
+ * Coloroid System"; Neumann, Nemcsics & Neumann (2005).
  *
  * @channel {A} 10 76 Hue grade
  * @channel {T} 0 100 Saturation
@@ -92,37 +100,13 @@ const coloroid = {
 	 * @return {Array<number>} xyY values
 	 */
 	xyy: function (A, T, V) {
-		//find the closest row in the table
-		var table = this.table;
-		var row;
-		for (var i = 0; i < table.length; i++) {
-			if (A <= table[i][0]) {
-				row = table[i];
-				break;
-			}
-		}
-
-		// If no row found, use the last row as fallback
-		if (!row) {
-			row = table[table.length - 1];
-		}
-
-	var yl = row[4], el = row[2], xl = row[3];
-
-	// V is in 0-100 range, need to convert to Y (0-100 range)
-	// V = 10*sqrt(Y), so Y = (V/10)^2
-	var Y = (V / 10) * (V / 10);
-
-	var Yl = yl * el * 100;		var x = (100 * Y * x0 * ew * 100 + 100 * xl * el * T - Yl * T * x0 * ew) / (100 * T * el - Yl * T * ew + 100 * Y * ew * 100);
-		var y = (100 * Y * 100 + 100 * T * yl * el - Yl * T) / (Y * 100 * ew * 100 + T * 100 * el - T * Yl * ew);
-
-		// var x = (100*Y*ew*x0 + 100*T*el*xl - T*Yl*ew*x0) / (100*T*el - T*Yl*ew + 100*Y*ew);
-		// var y = 100*Y / (100*T*el + 100*T*ew*Yl + 100*ew*Y);
-
-		// var x = (ew*x0*(V*V - 100*T*row[6]) + 100*T*el*xl) / (ew*(V*V - 100*T*row[6]) + 100*T*el);
-		// var y = V*V/(ew*(V*V + 100*T*row[6]) + 100*T*el);
-
-		return [x, y, Y];
+		// row for hue grade A (nearest grade)
+		var row = this.table.reduce((best, r) => Math.abs(r[0] - A) < Math.abs(best[0] - A) ? r : best);
+		var xl = row[3], yl = row[4];
+		var Y = (V / 10) * (V / 10);
+		// T/100 is the position along the white -> limit-color line in the xy plane
+		var t = T / 100;
+		return [x0 + t * (xl - x0), y0 + t * (yl - y0), Y];
 	}
 };
 
@@ -198,9 +182,8 @@ var TABLE = coloroid.table.slice(-13).concat(coloroid.table.slice(0, -13));
 // 2° D65 whitepoint is used (already in 0-100 scale)
 var [Xn, Yn, Zn] = whitepoint[2].D65;
 
-var x0 = Xn / (Xn + Yn + Zn);
+var x0 = Xn / (Xn + Yn + Zn); // D65 white chromaticity
 var y0 = Yn / (Xn + Yn + Zn);
-var ew = (Xn + Yn + Zn) / 100;
 
 /**
  * From xyY to coloroid
@@ -215,29 +198,25 @@ xyy.coloroid = function (x, y, Y) {
 	// V = 10*sqrt(Y) where Y is in 0-100 range
 	var V = 10 * Math.sqrt(Y);
 
-	//get the hue angle, -π ... +π
-	var angle = Math.atan2(y - y0, x - x0) * 180 / Math.PI;
+	// hue angle of the color relative to white
+	var angle = Math.atan2(y - y0, x - x0);
 
-	// nearest hue row by angular distance (handles the ±180° wrap near A=60/61,
-	// and never indexes past the table end — the old TABLE[i+1] crashed there)
-	var angDist = (a, b) => { var d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
-	var row = TABLE[0];
-	for (var i = 1; i < TABLE.length; i++) {
-		if (angDist(TABLE[i][1], angle) < angDist(row[1], angle)) row = TABLE[i];
+	// nearest hue row by angular distance, using each row's angle COMPUTED from its
+	// own limit chromaticity (xλ,yλ) — the stored angle column is inconsistent with
+	// it by up to ~14°, so deriving the angle keeps forward & inverse consistent.
+	var angDist = (a, b) => { var d = Math.abs(a - b) % (2 * Math.PI); return d > Math.PI ? 2 * Math.PI - d : d; };
+	var row = TABLE[0], best = Infinity;
+	for (var i = 0; i < TABLE.length; i++) {
+		var d = angDist(Math.atan2(TABLE[i][4] - y0, TABLE[i][3] - x0), angle);
+		if (d < best) { best = d; row = TABLE[i]; }
 	}
 
-	//get hue id
-	var A = row[0];
+	var A = row[0], xl = row[3], yl = row[4];
 
-	//calc saturation
-	var yl = row[4], el = row[2], xl = row[3];
-
-	//yl should be scaled to 0..100;
-	var Yl = yl * el * 100;
-
-	var T = 100 * Y * (x0 * ew - x * ew) / (100 * (x * el - xl * el) + Yl * (x0 * ew - x * ew));
-
-	// var T = 100 * Y*(1 - y*ew) / (100*(y*el - yl*el) + Yl*(1 - y*ew));
+	// T = position along the white -> limit-color line (0 at white, 100 at the limit),
+	// as the projection of (x,y) onto that line (excitation-purity parameter).
+	var dx = xl - x0, dy = yl - y0;
+	var T = 100 * ((x - x0) * dx + (y - y0) * dy) / (dx * dx + dy * dy);
 
 	return [A, T, V];
 };

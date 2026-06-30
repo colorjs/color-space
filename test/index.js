@@ -742,16 +742,18 @@ test('osaucs: xyy -> osaucs', function () {
 
 
 
-// Coloroid (Nemcsics ATV). Only formula-verifiable invariants are asserted:
-// V = 10·√Y is exact, A is one of the 48 table grades, and no input crashes/NaNs.
-// The published hue table is internally inconsistent (each row's stored angle vs
-// its own xλ,yλ disagree by up to 14°) and the T saturation formula does not
-// round-trip — a correct A/T needs the authoritative MSZ 7300 / Nemcsics data,
-// so specific A/T values are NOT asserted here (would be unvalidated).
-test('coloroid: verifiable invariants', () => {
+// Coloroid (Nemcsics ATV): V = 10·√Y; T = position on the white→limit line
+// (0 at white, 100 at the limit). ATV↔xyY round-trips exactly; A is quantized to
+// 48 grades so rgb→coloroid→rgb is lossy (documented). EXPERIMENTAL — see file header.
+test('coloroid', () => {
 	is(round(2)(space.xyz.coloroid(54.64, 64.0, 18.26)[2]), 80, 'V = 10·√64 = 80');
-	is(round(2)(space.xyz.coloroid(54.2, 49.0, 17.6)[2]), 70, 'V = 10·√49 = 70');
 	is(round(2)(space.xyz.coloroid(95.0456, 100, 108.9058)[1]) + 0, 0, 'white point -> T=0');
+	// a hue's limit chromaticity -> T=100 for that grade
+	const lim = space.coloroid.table[20];
+	is(space.xyy.coloroid(lim[3], lim[4], 25).map(round(1)), [lim[0], 100, 50], 'limit color -> T=100');
+	// ATV -> xyY -> ATV round-trips exactly (for a grade)
+	is(space.xyy.coloroid(...space.coloroid.xyy(30, 60, 50)).map(round(2)), [30, 60, 50], 'ATV roundtrip');
+	// no NaN/crash on any rgb (incl. previously-crashing blues)
 	const grades = new Set(space.coloroid.table.map(r => r[0]));
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [18, 7, 95], [128, 128, 128]]) {
 		const atv = space.rgb.coloroid(...c);
