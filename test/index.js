@@ -17,7 +17,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 88, '88 spaces registered')
+	is(names.length, 90, '90 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -1272,4 +1272,19 @@ test('tsl: invertible at g\'=0 + Terrillon refs', () => {
 	// regression: g'=0, r'>0 must stay invertible (was T=0 -> r/b swap)
 	is(space.tsl.rgb(...space.rgb.tsl(170, 100, 30)).map(round(0)), [170, 100, 30], 'g\'=0 roundtrip');
 	is(round(0)(space.rgb.tsl(128, 128, 128)[0]), 0, 'gray T=0');
+});
+
+
+test('ciecam02: CIECAM02 vs Moroney et al. 2002 worked example', () => {
+	// XYZ [19.01,20,21.78], D65, La=318.31, Yb=20, average -> J=41.7311, M=0.1088, h=219.0484
+	is(space.xyz.ciecam02(19.01, 20.00, 21.78).map(round(3)), [41.731, 0.109, 219.048]);
+	is(space.ciecam02.xyz(...space.xyz.ciecam02(19.01, 20, 21.78)).map(round(2)), [19.01, 20, 21.78], 'inverse');
+	for (const c of [[255, 0, 0], [0, 128, 255], [128, 128, 128], [200, 100, 50]])
+		is(space.ciecam02.rgb(...space.rgb.ciecam02(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('cam02-ucs: UCS of CIECAM02 (Luo et al. 2006)', () => {
+	is(space['cam02-ucs'].ciecam02(...space.ciecam02['cam02-ucs'](41.731, 0.109, 219.048)).map(round(3)), [41.731, 0.109, 219.048]);
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
+		is(space['cam02-ucs'].rgb(...space.rgb['cam02-ucs'](...c)).map(round(0)), c, `roundtrip ${c}`);
 });

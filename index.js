@@ -92,6 +92,8 @@ import ipt from './ipt.js'
 import scrgb from './scrgb.js'
 import rec2100Linear from './rec2100-linear.js'
 import din99d from './din99d.js'
+import ciecam02 from './ciecam02.js'
+import cam02ucs from './cam02-ucs.js'
 
 /**
  * Dict with all color spaces
@@ -155,5 +157,5 @@ export function register(newSpace) {
 }
 
 // register all spaces, then wire the graph once
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2020oetf, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d].forEach(s => { space[s.name] = s; });
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2020oetf, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs].forEach(s => { space[s.name] = s; });
 wire();

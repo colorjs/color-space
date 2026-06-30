@@ -228,6 +228,43 @@ export default {
     ],
     "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded."
   },
+  "cam02-ucs": {
+    "channels": [
+      {
+        "symbol": "J",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness (J')"
+      },
+      {
+        "symbol": "a",
+        "min": -50,
+        "max": 50,
+        "name": "Red-Green (a')"
+      },
+      {
+        "symbol": "b",
+        "min": -50,
+        "max": 50,
+        "name": "Yellow-Blue (b')"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -50,
+        50
+      ],
+      [
+        -50,
+        50
+      ]
+    ],
+    "description": "CAM02-UCS color space Uniform-color-space form of CIECAM02 (Luo, Cui & Li 2006): compresses lightness J and colourfulness M, then lays out (J', a', b') for colour-difference (ΔE) and gamut mapping. Built on ciecam02 (J, M, h). Same compression family as cam16-ucs."
+  },
   "cam16-ucs": {
     "channels": [
       {
@@ -301,6 +338,45 @@ export default {
       ]
     ],
     "description": "CAM16 color space (Color Appearance Model) Complex color appearance model used in Material Design Includes hue, saturation, brightness, and colorfulness"
+  },
+  "ciecam02": {
+    "channels": [
+      {
+        "symbol": "J",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "M",
+        "min": 0,
+        "max": 100,
+        "name": "Colorfulness"
+      },
+      {
+        "symbol": "h",
+        "min": 0,
+        "max": 360,
+        "name": "Hue angle in degrees"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        360
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "CIECAM02 color appearance model The CIE 2002 appearance model (predecessor of CAM16, still used in ICC v4 workflows). Reports [J, M, h] under the standard Moroney et al. (2002) viewing conditions: D65 adapting white, La = 318.31 cd/m², Yb = 20, average surround."
   },
   "clog2": {
     "channels": [
@@ -2998,7 +3074,7 @@ export default {
         240
       ]
     ],
-    "description": "YCbCr color space Digital video color format used in broadcasting ITU-R BT.709 or ITU-R BT.601 standard"
+    "description": "YCbCr color space Digital video color format used in broadcasting. Limited (studio) range, ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) — the HD default. For SD use BT.601; full-range 601 is the `jpeg` space."
   },
   "yccbccrc": {
     "channels": [
