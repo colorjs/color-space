@@ -95,6 +95,12 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Rec. 709](https://www.itu.int/rec/R-REC-BT.709) — HDTV standard: sRGB primaries with the BT.709 camera transfer (OETF). (ITU-R BT.709)
 * [x] [Adobe 98 RGB](https://en.wikipedia.org/wiki/Adobe_RGB_color_space) — photography standard, wider gamut for print reproduction.
 * [x] [ProPhoto RGB](https://www.color.org/ROMMRGB.pdf) — widest practical gamut for photography workflows. (ROMM RGB, ICC)
+* [x] [RIMM RGB](https://www.iso.org/standard/58005.html) — scene-referred ProPhoto counterpart (ISO 22028-3), BT.709-shaped OETF, extended exposure headroom.
+* [x] [CIE RGB](https://en.wikipedia.org/wiki/CIE_1931_color_space) — the original 1931 Wright-Guild RGB (700/546.1/435.8 nm, white E) that defined XYZ.
+* [x] [NTSC RGB (1953)](https://www.itu.int/rec/R-REC-BT.470) — the founding FCC broadcast primaries (Illuminant C); a ubiquitous gamut benchmark.
+* [x] [PAL / SECAM RGB](https://www.itu.int/rec/R-REC-BT.470) — European 625-line primaries (EBU 3213), distinct from Rec.709.
+* [x] [Apple RGB](http://www.brucelindbloom.com/WorkingSpaceInfo.html) — classic Mac/Photoshop working space (Trinitron, γ1.8).
+* [x] [SMPTE-240M](https://ieeexplore.ieee.org/document/7291461) — interim HDTV (SMPTE-C primaries + the 240M OETF).
 
 ### User-Friendly Cylindrical
 * [x] [HSL](https://www.w3.org/TR/css-color-4/#the-hsl-notation) — hue/saturation/lightness for CSS and color pickers.
@@ -116,6 +122,8 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [OKLRAB](https://bottosson.github.io/posts/colorpicker/) — linear-lightness OKLAB for advanced color pickers.
 * [x] [OKLRCH](https://bottosson.github.io/posts/colorpicker/) — polar OKLRAB.
 * [x] [HCT](https://material.io/blog/science-of-color-design) — Google Material's hue/chroma/tone, combines CAM16 hue with L* lightness.
+* [x] [sUCS](https://doi.org/10.1364/OE.510196) — uniform space of sCAM (Li & Luo 2024); CAM16-UCS-class uniformity from a simple LMS-power pipeline.
+* [x] [proLab](https://arxiv.org/abs/2012.07653) — projective (line-preserving) perceptual space; a 4×4-homography alternative to CIELAB. ([Konovalenko et al. 2021](https://arxiv.org/abs/2012.07653))
 
 ### Perceptual Uniform (CIE Classic)
 * [x] [LAB](https://www.w3.org/TR/css-color-4/#cie-lab) — CIE 1976 L\*a\*b\*, the standard for perceptual uniformity. **D50** reference white (ICC/CSS Color 4 convention); use `lab-d65` for display-native. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
@@ -143,7 +151,10 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 ### Colorimetry Foundation
 * [x] [XYZ](https://www.w3.org/TR/css-color-4/#cie-xyz) — CIE 1931, the foundation of all colorimetry. Device-independent reference. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
 * [x] [XYY (xyY)](http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html) — chromaticity diagram coordinates, separates luminance from chromaticity.
-* [x] [LMS](https://www.sciencedirect.com/science/article/pii/S0042698999000887) — cone response space (long/medium/short wavelength), basis for chromatic adaptation.
+* [x] [LMS](https://www.sciencedirect.com/science/article/pii/S0042698999000887) — cone response space (long/medium/short wavelength), basis for chromatic adaptation. (matrices: HPE, Bradford, CAT02/16, von Kries, Stockman-Sharpe 2000)
+* [x] [CIE 1976 UCS (u′v′)](https://en.wikipedia.org/wiki/CIELUV#The_CIE_1976_UCS_diagram) — the modern uniform chromaticity diagram (LED binning, Δu′v′, CCT).
+* [x] [MacLeod-Boynton](https://doi.org/10.1364/JOSA.69.001183) — cone-excitation ls chromaticity (Smith-Pokorny), foundation of DKL/vision science.
+* [x] [Izazbz](https://doi.org/10.1364/OE.25.015131) — the absolute opponent stage Jzazbz/ZCAM build on (Safdar 2017).
 * [x] [Gray](https://www.w3.org/TR/css-color-4/#grays) — single-channel luminance.
 
 ### Video & Broadcast
@@ -168,35 +179,53 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Panasonic V-Log](https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf) — Panasonic VARICAM log + V-Gamut.
 * [x] [RED Log3G10](https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf) — RED camera log + REDWideGamutRGB. (RED whitepaper 915-0187)
 * [x] [Canon Log 2](https://en.wikipedia.org/wiki/Log_profile) — Canon Log 2 (v1.2) + Cinema Gamut. (Canon Input Transform)
+* [x] [Cineon](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Cineon.html) — Kodak printing-density film-scan log (SMPTE 268M/DPX) over linear RGB.
+* [x] [ARRI LogC3](https://www.arri.com/resource/blob/31918/66f56e6abb6e5b6553929edf9aa7483e/2017-03-alexa-logc-curve-in-vfx-data.pdf) — LogC3 (EI 800) + ALEXA Wide Gamut 3.
+* [x] [Sony S-Log2](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html) — S-Log2 + S-Gamut.
+* [x] [Canon Log](https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf) / [Canon Log 3](https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf) — Canon Log 1 & 3 (v1.2) + Cinema Gamut.
+* [x] [Fujifilm F-Log](https://dl.fujifilm-x.com/support/lut/F-Log_DataSheet_E_Ver.1.1.pdf) / [F-Log2](https://dl.fujifilm-x.com/support/lut/F-Log2_DataSheet_E_Ver.1.0.pdf) — F-Log & F-Log2 over F-Gamut (= BT.2020).
+* [x] [Nikon N-Log](https://download.nikonimglib.com/archive3/hDCmK00m9JDI03RPruD74xpoU905/N-Log_Specification_(En)01.pdf) — cube-root toe + ln highlight over N-Gamut (= BT.2020).
+* [x] [Apple Log](https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py) — iPhone 15 Pro+ log (quadratic toe + log2) over BT.2020.
+* [x] [Blackmagic Film Gen5](https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/blackmagic_design.py) — BMD Gen5 curve + BMD Wide Gamut.
+* [x] [DJI D-Log](https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf) — D-Log + D-Gamut (cinema cameras).
 
 ### Color Appearance
 * [x] [CAM16](https://doi.org/10.1002/col.22131) — CIE color appearance model, handles viewing conditions (lighting, surround). ([Li et al. 2017](https://doi.org/10.1002/col.22131))
 * [x] [CAM16-UCS](https://doi.org/10.1002/col.22131) — uniform CAM16 (J′a′b′) for ΔE and gamut mapping. ([Li et al. 2017](https://doi.org/10.1002/col.22131))
 * [x] [CIECAM02](https://doi.org/10.1002/col.10125) — predecessor to CAM16, still used in ICC v4 profiles. ([Moroney et al. 2002](https://doi.org/10.2352/CIC.2002.10.1.art00006))
 * [x] [CAM02-UCS](https://doi.org/10.1002/col.20227) — uniform CIECAM02 (J′a′b′) for ΔE. ([Luo, Cui & Li 2006](https://doi.org/10.1002/col.20227))
+* [x] [CAM02-LCD / SCD](https://doi.org/10.1002/col.20227) — CIECAM02 uniform spaces tuned for large / small colour differences. ([Luo, Cui & Li 2006](https://doi.org/10.1002/col.20227))
+* [x] [CAM16-LCD / SCD](https://doi.org/10.1002/col.22131) — CAM16 large / small colour-difference variants. ([Li et al. 2017](https://doi.org/10.1002/col.22131))
+* [x] [Hellwig 2022](https://doi.org/10.1002/col.22792) — CIE-recommended CAM16 successor (CIECAM16 basis): linearised brightness + Helmholtz-Kohlrausch. ([Hellwig & Fairchild 2022](https://doi.org/10.1002/col.22792))
+* [x] [ZCAM](https://doi.org/10.1364/OE.413659) — HDR-native colour appearance model built on the absolute Izazbz space. ([Safdar et al. 2021](https://doi.org/10.1364/OE.413659))
 
 ### Print & Physical
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive printing (cyan/magenta/yellow/black). Device-dependent.
 * [x] [CMY](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive primaries without black separation.
-* [ ] [Munsell](https://munsell.com/about-munsell-color/) — artist color system, perceptually uniform hue/value/chroma notation.
-* [ ] [NCS](https://ncscolour.com/) — Natural Color System, based on opponent-color theory (Sweden).
-* [ ] [PMS](https://www.pantone.com/) — Pantone Matching System, spot color standard for print.
-* [ ] [RAL](https://www.ral-farben.de/) — European industrial color standard (paint, coatings).
-* [ ] [HKS](https://en.wikipedia.org/wiki/HKS_(colour_system)) — German spot color system for print.
-* [ ] [British Standard Colour](http://www.britishstandardcolour.com/) — UK industrial color standard.
-* [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595) — US government color specification.
-* [ ] [Toyo](http://mytoyocolor.com/) — Japanese spot color system.
+* [x] [Munsell](https://munsell.com/about-munsell-color/) — artist hue/value/chroma; bidirectional via the 1943 renotation (Illuminant C). ([RIT MCSL](https://www.rit.edu/science/munsell-color-science-lab-educational-resources))
+* [x] [RAL Design](https://en.wikipedia.org/wiki/RAL_colour_standard) — systematic CIELAB hue/lightness/chroma; the HLC code *is* L\*C\*h by construction (D50/2°). Distinct from sample-defined RAL Classic.
+* [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595) — US government spec; **public-domain** (FED-STD-595C), the one viable catalog candidate if a named-lookup layer is added.
+* ~~[NCS](https://ncscolour.com/)~~ — declined: proprietary atlas, no open analytic NCS→CIE map (Derefeldt & Sahlin 1986).
+* ~~[PMS / Pantone](https://www.pantone.com/)~~ — declined: trademarked + licensed (Adobe dropped it in 2022); values not openly redistributable.
+* ~~[RAL Classic](https://www.ral-farben.de/)~~ — declined: sample-defined, no open authoritative Lab (RAL gGmbH licenses its data).
+* ~~[HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))~~ — declined: proprietary spot inks (PDFlib even ships a build without it).
+* ~~[British Standard Colour](http://www.britishstandardcolour.com/)~~ — declined: BSI-copyrighted; only disclaimed approximate hex circulates.
+* ~~[Toyo](http://mytoyocolor.com/)~~ — declined: ICC-profile licence forbids redistribution.
+
+> **Why these are out:** proprietary named-swatch catalogs (trademark + EU database rights, sample-defined with no open CIE data) — not continuous color spaces, and a formula can't cure the IP or the missing data. Distinct from RAL **Design** above, whose codes *are* CIELAB by construction and carry no proprietary data.
 
 ### Specialty & Research
 * [x] [Coloroid](http://hej.sze.hu/ARC/ARC-030520-A/arc030520a.pdf) — Hungarian aesthetic color system for architecture (MSZ 7300). Perceptually uniform hue/saturation/luminosity.
-* [ ] [OSA-UCS](https://www.osapublishing.org/josa/abstract.cfm?uri=josa-64-12-1691) — Optical Society uniform color scales, 12 equidistant neighbors per color.
+* [x] [OSA-UCS](https://www.osapublishing.org/josa/abstract.cfm?uri=josa-64-12-1691) — Optical Society uniform color scales; now bidirectional (1D-Newton inverse, [Schlömer 2019](https://arxiv.org/abs/1911.08323)).
 * [x] [TSL](https://ieeexplore.ieee.org/document/400568) — tint/saturation/lightness, designed for face detection skin-color clustering. ([Terrillon & Akamatsu 1999](https://doi.org/10.1109/ICIP.1999.817178))
 * [x] [YES](https://doi.org/10.2991/isaebd.2012.23) — luminance/chrominance for fast face recognition.
 * [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — monotonic lightness colormaps for scientific visualization. ([Green 2011](https://doi.org/10.1071/AS11033))
 * [x] [RG chromaticity](http://www.brucelindbloom.com/) — normalized r=R/(R+G+B), illumination-invariant for vision.
-* [ ] [CIE DSH](https://en.wikipedia.org/wiki/Rg_chromaticity) — dominant wavelength/purity representation.
-* [ ] [RG](https://en.wikipedia.org/wiki/RG_color_space) / [RGK](https://en.wikipedia.org/wiki/RG_color_space) — red-green dichromat simulation.
-* [ ] [PhotoYCC](https://en.wikipedia.org/wiki/PhotoYCC) — Kodak Photo CD encoding, extended gamut.
+* [x] [CIE DSH](https://en.wikipedia.org/wiki/Dominant_wavelength) — Helmholtz coordinates: dominant wavelength + excitation purity from CIE 1931 xy (D65); purples carry a negative complementary wavelength.
+* [ ] ~~[RG / RGK](https://en.wikipedia.org/wiki/RG_color_space) — red-green dichromat simulation~~ — declined: the linked page is a formula-less historical 2-primary print model, and "dichromat simulation" is a one-way filter (Viénot/Brettel), not a color space.
+* [x] [PhotoYCC](https://en.wikipedia.org/wiki/PhotoYCC) — Kodak Photo CD encoding, extended gamut (BT.709 primaries, BT.601 luma, odd-function OETF).
+* [x] [Ohta I₁I₂I₃](https://doi.org/10.1016/0146-664X(80)90047-7) — decorrelated RGB opponent space for image segmentation (Ohta 1980).
+* [x] [ANLAB](https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x) — Adams-Nickerson chromatic-valence space (1942/1950), the direct precursor of CIELAB.
 
 
 ## Motivation
@@ -215,16 +244,16 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **89** | 25 | 40 | 16 |
+| **Color spaces** | **123** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
 | **Bundle size** | Tree-shakeable, minimal | Medium | Large | Minimal |
-| **Test coverage** | differential vs colorjs.io + cited refs (90 spaces) | ~2,000 tests | ~1,500 tests | ~50 tests |
+| **Test coverage** | differential vs colorjs.io + cited refs (123 spaces) | ~2,000 tests | ~1,500 tests | ~50 tests |
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
-- **Most comprehensive**: 89 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Most comprehensive**: 123 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
 - **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
 - **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
 

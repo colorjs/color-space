@@ -93,6 +93,40 @@ import rec2100Linear from './rec2100-linear.js'
 import din99d from './din99d.js'
 import ciecam02 from './ciecam02.js'
 import cam02ucs from './cam02-ucs.js'
+import photoycc from './photoycc.js'
+import dsh from './dsh.js'
+import raldesign from './ral-design.js'
+import munsell from './munsell.js'
+import uv from './uv.js'
+import ohta from './ohta.js'
+import anlab from './anlab.js'
+import cieRgb from './cie-rgb.js'
+import ntsc from './ntsc.js'
+import appleRgb from './apple-rgb.js'
+import pal from './pal.js'
+import smpte240m from './smpte-240m.js'
+import rimm from './rimm.js'
+import cineon from './cineon.js'
+import logc3 from './logc3.js'
+import slog2 from './slog2.js'
+import clog from './clog.js'
+import clog3 from './clog3.js'
+import bmdfilm from './bmdfilm.js'
+import flog from './flog.js'
+import flog2 from './flog2.js'
+import nlog from './nlog.js'
+import applelog from './applelog.js'
+import cam02lcd from './cam02-lcd.js'
+import cam02scd from './cam02-scd.js'
+import cam16lcd from './cam16-lcd.js'
+import cam16scd from './cam16-scd.js'
+import prolab from './prolab.js'
+import dlog from './dlog.js'
+import sucs from './sucs.js'
+import hellwig2022 from './hellwig2022.js'
+import izazbz from './izazbz.js'
+import zcam from './zcam.js'
+import macboyn from './macboyn.js'
 
 /**
  * Dict with all color spaces
@@ -156,5 +190,5 @@ export function register(newSpace) {
 }
 
 // register all spaces, then wire the graph once
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs].forEach(s => { space[s.name] = s; });
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn].forEach(s => { space[s.name] = s; });
 wire();

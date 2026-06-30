@@ -17,7 +17,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 89, '89 spaces registered')
+	is(names.length, 123, '123 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -36,7 +36,7 @@ test('edge: every space is NaN/Infinity-safe (black/white/gray/primaries)', () =
 	const finite = (a) => Array.isArray(a) && a.every(Number.isFinite)
 	const inputs = [[0, 0, 0], [255, 255, 255], [128, 128, 128], [255, 0, 0], [0, 255, 0], [0, 0, 255]]
 	const skipFwd = new Set(['cubehelix']) // rgb->cubehelix is one-way-blocked (parametric colormap)
-	const skipInv = new Set(['osaucs', 'cubehelix']) // space->rgb throws by design
+	const skipInv = new Set(['cubehelix']) // cubehelix is colormap-only; osaucs now has a working Newton inverse
 	for (const name of Object.keys(space)) {
 		if (name === 'rgb' || typeof space.rgb[name] !== 'function' || skipFwd.has(name)) continue
 		for (const c of inputs) {
@@ -46,6 +46,18 @@ test('edge: every space is NaN/Infinity-safe (black/white/gray/primaries)', () =
 	}
 })
 
+
+// Pins the INVERSE paths of the spaces added this pass — the bonafide tests only assert
+// forward values and the NaN canary only checks finiteness, so without this the dsh
+// purple/complementary inverse, munsell iterative inverse, and photoycc decode are unguarded.
+test('new spaces: inverse-path round-trips', () => {
+	is(space.xyy.dsh(...space.dsh.xyy(580, 0.6, 40)).map(round(2)), [580, 0.6, 40], 'dsh spectral roundtrip')
+	is(space.xyy.dsh(...space.dsh.xyy(-509, 0.4, 30)).map(round(2)), [-509, 0.4, 30], 'dsh purple/complementary (negative wavelength) roundtrip')
+	is(space.photoycc.lrgb(...space.lrgb.photoycc(0.4, 0.2, 0.7)).map(round(6)), [0.4, 0.2, 0.7], 'photoycc decode is exact inverse of encode')
+	is(space.xyy.munsell(...space.munsell.xyy(5, 5, 10)).map(round(2)), [5, 5, 10], 'munsell grid-point roundtrip')
+	is(space.xyy.munsell(...space.munsell.xyy(15, 6, 7)).map(round(1)), [15, 6, 7], 'munsell off-grid iterative inverse roundtrip')
+	is(space.lab['ral-design'](...space['ral-design'].lab(210, 50, 15)).map(round(2)), [210, 50, 15], 'ral-design CIELAB polar roundtrip')
+})
 
 test('lrgb', () => {
 	// RGB now uses 0-255, lrgb uses 0-1
