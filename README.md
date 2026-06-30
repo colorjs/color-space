@@ -10,8 +10,8 @@ Open collection of color spaces.
 ```js
 import space from 'color-space';
 
-// convert lab to lch
-const result = space.lab.lch(80, 50, 60);
+// convert lab to lch (the CIE Lab polar form is `lchab`)
+const result = space.lab.lchab(80, 50, 60);
 ```
 
 Spaces can be imported separately:
