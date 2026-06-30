@@ -467,18 +467,15 @@ test('hsluv: consistency checks', function () {
 });
 
 
-test('yiq: yiq -> rgb', function () {
-	// YIQ: Y 0-1, I ±0.6, Q ±0.52, RGB 0-255
-	is((space.yiq.rgb(0, 0, 0)), [0, 0, 0]);
-	is((space.yiq.rgb(1, 0, 0).map(round(0))), [255, 255, 255]);
-	is((space.yiq.rgb(0.299, 0.596, 0.212).map(round(0))), [255, 0, 0]);
-});
-
-test('yiq: rgb -> yiq', function () {
-	// RGB 0-255, YIQ: Y 0-1, I ±0.6, Q ±0.52
-	is((space.rgb.yiq(0, 0, 0).map(round(3))), [0, 0, 0]);
-	is((space.rgb.yiq(255, 255, 255).map(round(3))), [1, 0, 0]);
-	is((space.rgb.yiq(255, 0, 0).map(round(3))), [0.299, 0.596, 0.212]);
+// FCC (1953 NTSC) YIQ; forward/inverse are exact-inverse matrices (so it round-trips).
+test('yiq: rgb <-> yiq', function () {
+	is(space.rgb.yiq(0, 0, 0).map(round(3)), [0, 0, 0], 'black');
+	is(space.rgb.yiq(255, 255, 255).map(round(3)), [1, 0, 0], 'white');
+	is(space.rgb.yiq(255, 0, 0).map(round(3)), [0.299, 0.596, 0.211], 'red (FCC)');
+	is(space.yiq.rgb(0, 0, 0), [0, 0, 0]);
+	is(space.yiq.rgb(1, 0, 0).map(round(0)), [255, 255, 255], 'white');
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
+		is(space.yiq.rgb(...space.rgb.yiq(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 

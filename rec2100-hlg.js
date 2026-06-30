@@ -14,13 +14,14 @@ import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
 
 const rec2100hlg = {
-	name: 'rec2100hlg'
+	name: 'rec2100-hlg'
 };
 
 const a = 0.17883277;
 const b = 0.28466892;
 const c = 0.55991073;
-const scale = 3.7743;
+// normalize so HLG diffuse white (signal 0.75) maps to scene-linear 1.0
+const scale = 12 / (Math.exp((0.75 - c) / a) + b); // = 3.774118…
 
 function toLinear(val) {
 	// HLG -> Linear
@@ -43,7 +44,7 @@ rec2100hlg.xyz = (r, g, b) => {
 	return rec2020Linear.xyz(toLinear(r), toLinear(g), toLinear(b));
 }
 
-xyz.rec2100hlg = (x, y, z) => {
+xyz['rec2100-hlg'] = (x, y, z) => {
 	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }

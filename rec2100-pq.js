@@ -14,7 +14,7 @@ import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
 
 const rec2100pq = {
-	name: 'rec2100pq'
+	name: 'rec2100-pq'
 };
 
 const Yw = 203; // absolute luminance of media white, cd/m²
@@ -44,7 +44,7 @@ rec2100pq.xyz = (r, g, b) => {
 	return rec2020Linear.xyz(toLinear(r), toLinear(g), toLinear(b));
 }
 
-xyz.rec2100pq = (x, y, z) => {
+xyz['rec2100-pq'] = (x, y, z) => {
 	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }

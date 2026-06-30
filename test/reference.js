@@ -49,6 +49,8 @@ const MAP = {
 	acescg:            ['acescg',           [1, 1, 1]],
 	acescc:            ['acescc',           [1, 1, 1]],
 	cam16:             ['cam16-jmh',        [1, 1, 1]],         // J, M, h
+	'rec2100-pq':      ['rec2100pq',        [1, 1, 1]],         // colorjs id is unhyphenated
+	'rec2100-hlg':     ['rec2100hlg',       [1, 1, 1]],
 }
 
 const SKIP = new Set([])
