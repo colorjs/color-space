@@ -41,8 +41,8 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] osaucs — `xyz(0,0,0)` D65-chromaticity guard (was NaN,NaN,NaN → [-12.96,0,0])
   * [x] lchuv — black hue 0 (was 180 from atan2(-0,-0)); hsp — red hue 0 (was 360, `>=`→`>`)
   * [x] all five pinned by a dedicated `edge: achromatic / black` test
-  * [ ] cam16 — `cam16.xyz(0,0,0)` → [NaN,NaN,NaN] (÷ Jroot=0)
-  * [ ] uvw — `xyz(0,0,0)` → [43.72,68.99,−17] (guarded _u/_v=0 but U/V still use them)
+  * [x] cam16 — black → [0,0,0] via `zdiv` at Jroot=0 (formula limit, no chroma at zero lightness). Now in differential suite vs colorjs `cam16-jmh` (matches). Removed leftover `channel` prop.
+  * [x] uvw — rewrote canonical CIE 1964: **W\* = 25·Y^(1/3) − 17 (Y in 0-100)** (was 0-1 → white W=8, now 99.04); black/W*=0 use white-point chromaticity → U\*=V\*=0 (no NaN). Threw-away `uvw.ucs`/`ucs.uvw` (the auto-chain routes them via xyz). Roundtrip exact.
 
 **Precision (canonical constants) — minor:**
   * [x] D50↔D65 Bradford consolidated into `xyz.js` (`bradford` + `mat3` exports, full precision); xyz-d50/lab-d50/prophoto-linear now share it (was 3 truncated copies). lab-d50 D50 white → full precision. rec2020-oetf α/β → full precision. All verified by the differential test.

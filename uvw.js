@@ -1,125 +1,53 @@
 /**
- * CIE 1964 UVW color space
+ * CIE 1964 U*V*W* color space
  *
- * Color space similar to LUV with different calculation method
- * Based on 10° standard observer
+ * Obsolete perceptual space, predecessor to CIELUV. Built on the CIE 1960 UCS
+ * chromaticity (u′, v′):
+ *   W* = 25·Y^(1/3) − 17        (Y in 0-100)
+ *   U* = 13·W*·(u′ − u′n)
+ *   V* = 13·W*·(v′ − v′n)
+ * where (u′n, v′n) is the reference-white chromaticity. At an undefined
+ * chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0.
  *
- * @channel {U} -100 100 U chrominance
- * @channel {V} -100 100 V chrominance
- * @channel {W} 0 100 W (brightness)
+ * @channel {U} -100 100 U* chrominance
+ * @channel {V} -100 100 V* chrominance
+ * @channel {W} -17 100 W* lightness
  * @illuminant D65
- * @observer 10
+ * @observer 2
  */
-import ucs from './ucs.js';
 import xyz from './xyz.js';
 
-var uvw = {
+const uvw = {
 	name: 'uvw'
 };
 
-export default (uvw);
-
-/**
- * UVW to XYZ
- */
-uvw.xyz = function (u, v, w, i, o) {
-	// Input: U/V: -100 to 100, W: 0-100
-	// Output: XYZ: 0-100
-	var _u, _v, x, y, z, xn, yn, zn, un, vn;
-
-	if (w === 0) return [0, 0, 0];
-
-	//get illuminant/observer
-	i = i || 'D65';
-	o = o || 2;
-
-	xn = xyz.whitepoint[o][i][0];
-	yn = xyz.whitepoint[o][i][1];
-	zn = xyz.whitepoint[o][i][2];
-
-	un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
-	vn = (6 * yn) / (xn + (15 * yn) + (3 * zn));
-
-	// Normalize W from 0-100 to match formula which expects this scale
-	y = Math.pow((w + 17) / 25, 3);
-
-	_u = u / (13 * w) + un || 0;
-	_v = v / (13 * w) + vn || 0;
-
-	x = (6 / 4) * y * _u / _v;
-	z = y * (2 / _v - 0.5 * _u / _v - 5);
-
-	// y, x, z are already in 0-1 scale, scale to 0-100
-	return [x * 100, y * 100, z * 100];
+// CIE 1960 UCS chromaticity from XYZ
+const uv = (X, Y, Z) => {
+	const d = X + 15 * Y + 3 * Z;
+	return [4 * X / d, 6 * Y / d];
 };
 
-
-/**
- * XYZ to UVW
- *
- * @return {Array<number>} An UVW array: U/V: -100 to 100, W: 0-100
- */
-xyz.uvw = function (x, y, z, i, o) {
-	// Input: XYZ: 0-100
-	// Normalize to 0-1 for calculations
-	x = x / 100;
-	y = y / 100;
-	z = z / 100;
-
-	var xn, yn, zn, un, vn;
-
-	//find out normal source u v
-	i = i || 'D65';
-	o = o || 2;
-
-	xn = xyz.whitepoint[o][i][0];
-	yn = xyz.whitepoint[o][i][1];
-	zn = xyz.whitepoint[o][i][2];
-
-	un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
-	vn = (6 * yn) / (xn + (15 * yn) + (3 * zn));
-
-	var _u = 4 * x / (x + 15 * y + 3 * z) || 0;
-	var _v = 6 * y / (x + 15 * y + 3 * z) || 0;
-
-	//calc values
-	var w = 25 * Math.pow(y, 1 / 3) - 17;
-	var u = 13 * w * (_u - un);
-	var v = 13 * w * (_v - vn);
-
-	return [u, v, w];
+xyz.uvw = (x, y, z, i = 'D65', o = 2) => {
+	const [xn, yn, zn] = xyz.whitepoint[o][i];
+	const [un, vn] = uv(xn, yn, zn);
+	const d = x + 15 * y + 3 * z;
+	// black/undefined chromaticity -> use white's, so U* = V* = 0
+	const _u = d === 0 ? un : 4 * x / d;
+	const _v = d === 0 ? vn : 6 * y / d;
+	const w = 25 * Math.cbrt(y) - 17; // Y in 0-100
+	return [13 * w * (_u - un), 13 * w * (_v - vn), w];
 };
 
-
-
-/**
- * UVW to UCS
- *
- * @param {Array<number>} uvw UCS values
- *
- * @return {Array<number>} UVW values
- */
-uvw.ucs = function (uvw) {
-	//find chromacity variables
-	throw new Error('Not implemented');
+uvw.xyz = (u, v, w, i = 'D65', o = 2) => {
+	const [xn, yn, zn] = xyz.whitepoint[o][i];
+	const [un, vn] = uv(xn, yn, zn);
+	const y = ((w + 17) / 25) ** 3; // Y in 0-100
+	// W*=0 carries no chromaticity (U*=V*=0 there) -> achromatic at this Y
+	const _u = w === 0 ? un : u / (13 * w) + un;
+	const _v = w === 0 ? vn : v / (13 * w) + vn;
+	const x = 1.5 * y * _u / _v;
+	const z = y * (2 / _v - 0.5 * _u / _v - 5);
+	return [x, y, z];
 };
 
-
-/**
- * UCS to UVW
- *
- * @param {Array<number>} ucs UVW values
- *
- * @return {Array<number>} UCS values
- */
-ucs.uvw = function (ucs) {
-	// //find chromacity variables
-	// var u = U / (U + V + W);
-	// var v = V / (U + V + W);
-
-	// //find 1964 UVW
-	// w = 25 * Math.pow(y, 1/3) - 17;
-	// u = 13 * w * (u - un);
-	// v = 13 * w * (v - vn);
-	throw new Error('Not implemented');
-};
+export default uvw;

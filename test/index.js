@@ -681,18 +681,27 @@ test('ucs: xyz -> ucs', function () {
 });
 
 
-test('uvw: uvw -> xyz', function () {
-	// UVW: U*/V*/W* (CIE 1964), XYZ 0-100
-	// is((space.uvw.xyz(0, 0, 0)), [0, 0, 0]);
-	// is((space.uvw.xyz(1, 0, 0)), [100, 100, 100]);
-
-	is((space.uvw.xyz(...space.xyz.uvw(10, 20, 30))).map(round(0)), [10, 20, 30]);
+// CIE 1964 U*V*W*: W* = 25·Y^(1/3) − 17 (Y in 0-100), U*/V* = 13·W*·(u′−u′n,v′−v′n).
+test('uvw: xyz -> uvw', function () {
+	// white (Y=100): achromatic U*=V*=0, W* = 25·100^(1/3) − 17 = 99.04
+	is(space.xyz.uvw(95.0456, 100, 108.9058).map(round(2)), [0, 0, 99.04], 'white');
+	// black (Y=0): U*=V*=0, W* = −17 (formula limit, no NaN)
+	is(space.xyz.uvw(0, 0, 0).map(round(2)), [0, 0, -17], 'black');
+	is(space.xyz.uvw(100, 100, 100).map(round(2)), [16.35, 4.6, 99.04]);
 });
 
-test('uvw: xyz -> uvw', function () {
-	// XYZ 0-100, UVW: U*/V*/W* (CIE 1964)
-	// For XYZ white (100,100,100): W = 25*cbrt(1) - 17 = 8
-	is(space.xyz.uvw(100, 100, 100).map(round(1)), [1.3, 0.4, 8.0]);
+test('uvw: uvw -> xyz', function () {
+	for (const c of [[10, 20, 30], [50, 40, 30], [20, 20, 20]])
+		is(space.uvw.xyz(...space.xyz.uvw(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+// CAM16-JMh. Validated against colorjs `cam16-jmh` in the differential suite (test/reference.js).
+test('cam16', () => {
+	is(space.cam16.xyz(0, 0, 0).map(round(3)), [0, 0, 0], 'black -> [0,0,0] (was NaN: J=0 division)');
+	is(space.rgb.cam16(0, 0, 0).map(round(3)), [0, 0, 0], 'rgb black');
+	is(space.rgb.cam16(200, 100, 50).map(round(1)), [44.6, 37.4, 42.8], 'vs colorjs cam16-jmh');
+	for (const c of [[200, 100, 50], [128, 128, 128], [255, 0, 0]])
+		is(space.cam16.rgb(...space.rgb.cam16(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 

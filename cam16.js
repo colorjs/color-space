@@ -161,9 +161,11 @@ export function fromCam16(cam16, env) {
 	if (cam16.J !== undefined) Jroot = spow(cam16.J, 1/2) * 0.1;
 	// ... other cases omitted for simplicity as we use J,M,h
 
+	// zdiv -> 0 when Jroot=0 (J=0): no chroma is possible at zero lightness, so the
+	// achromatic limit (black) falls out of the formula instead of NaN.
 	let alpha = 0;
-	if (cam16.C !== undefined) alpha = cam16.C / Jroot;
-	else if (cam16.M !== undefined) alpha = cam16.M / env.flRoot / Jroot;
+	if (cam16.C !== undefined) alpha = zdiv(cam16.C, Jroot);
+	else if (cam16.M !== undefined) alpha = zdiv(cam16.M / env.flRoot, Jroot);
 
 	const t = spow(alpha * Math.pow(1.64 - Math.pow(0.29, env.n), -0.73), 10 / 9);
 	const et = 0.25 * (Math.cos(hRad + 2) + 3.8);
@@ -213,7 +215,6 @@ export function toCam16(xyzd65, env) {
 /* CAM16 Space */
 const cam16 = {
 	name: 'cam16',
-	channel: ['J', 'M', 'h'],
 	range: [[0, 100], [0, 100], [0, 360]]
 };
 

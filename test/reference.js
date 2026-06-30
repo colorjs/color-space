@@ -48,6 +48,7 @@ const MAP = {
 	ictcp:             ['ictcp',            [1 / 100, 1 / 100, 1 / 100]],
 	acescg:            ['acescg',           [1, 1, 1]],
 	acescc:            ['acescc',           [1, 1, 1]],
+	cam16:             ['cam16-jmh',        [1, 1, 1]],         // J, M, h
 }
 
 const SKIP = new Set([])
