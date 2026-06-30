@@ -92,12 +92,16 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ## Phase 2 — WASM batch kernel → 3.1 (the headline feature)
 
-  * [~] `mat3 × vec3` primitive — `mat3` extracted to [util.js](../util.js) (generic math, out of xyz.js; `bradford` stays in xyz as colorimetry). Used by xyz-d50/lab/prophoto-linear. **Remaining:** consolidate the other inline matrix multiplies (cam16's `multiply_v3_m3x3`, oklab/oklab-via-lms, the RGB working spaces) onto `util.mat3`, then it's the SIMD/WebGL/jz-compilable seam.
-  * [ ] `color-space/wasm` (or `/batch`): `convertBatch(src, dst, n)` over typed arrays — whole loop inside one jz-compiled WASM call, zero per-pixel boundary crossings
-  * [ ] Start with the matrix-clean paths where WASM actually wins: xyz↔lrgb, Oklab matrix steps, linear working spaces (p3/rec2020/a98/prophoto linear ↔ xyz)
-  * [ ] Honest benchmark + claim: **2–5× faster than a JS loop for buffer pipelines on matrix spaces; single-color scalar API stays JS** (per-call WASM is *slower* — never headline "faster than JS" unqualified)
-  * [ ] Keep scalar JS API and WASM batch API numerically equivalent (shared test vectors)
-  * [ ] Flagship jz corpus: the breadth is jz's best torture-test; jz makes this the only broad-breadth WASM color kernel
+  * [~] `mat3 × vec3` primitive — `mat3` in [util.js](../util.js). Used by xyz-d50/lab/prophoto-linear/**acescg/ictcp**. Remaining: cam16/okhsl (array-of-arrays shape), the RGB working spaces.
+
+### WASM premise — MEASURED (jz 0.8.0, Node/V8, 1M px, buffer-in-WASM, optimize:3)
+  * matrix-only (lrgb→xyz): WASM **1.14–1.22×** (f32 ~1.18×) — a real but modest win (memory-bound).
+  * **rgb→oklab chain (pow + cbrt): WASM 0.70× — SLOWER.** Root cause: **jz's `Math.cbrt` is 3.6× slower than V8's** (jz 36ms vs V8 10ms for 3M cbrt); jz's `pow` ~25% slower.
+  * **The flip is achievable (jz's transcendentals, not WASM):** swapping a hand-rolled Newton cbrt into the jz source takes the full sRGB→oklab chain 0.70× → **0.98×** (parity, 3e-5 accuracy), and the *linear* lrgb→oklab path to a **1.17× win** vs V8's fast `Math.cbrt`. Fix jz's cbrt+pow (or SIMD-vectorize them) → the natural code wins.
+  * Per "optimize the tool, not the input": **improve jz's cbrt/pow first**, then the kernel using plain `Math.cbrt`/`**` wins. Added a target bench `bench/colorconv/colorconv.js` to the jz repo (sRGB→oklab) — register in jz's `bench.mjs` CASE_NAMES.
+  * [ ] `color-space/wasm`: `convertBatch(src, dst, n)` — build **after** jz transcendentals improve (else perceptual conversions lose). Matrix-only paths (xyz↔lrgb, linear working spaces) already win modestly today.
+  * [ ] Honest claim once shipped: faster for buffer pipelines on the paths jz wins; scalar API stays JS (per-call WASM is slower).
+  * Alternative worth weighing: **WebGL/WebGPU shaders** — GPUs do pow/cbrt in hardware and parallelize massively, a far bigger batch-image win than WASM; the `util.mat3` seam enables it.
 
 ## Phase 3 — Prove with nectar
 
@@ -108,9 +112,23 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ---
 
+## Future — uncovered spaces (deep-researched; all analytical, zero IP risk)
+Top 8 to add next (each ~10–30 lines, connects via an existing hub):
+  * [ ] **lch-d65** — polar of lab-d65 (L, √(a²+b²), atan2) → fills CSS cylindrical gap
+  * [ ] **ACES2065-1 / AP0** — single matrix, reuses acescg D60/D65 adapt
+  * [ ] **ACEScct** — piecewise transfer + acescg matrices (completes ACES grading trio)
+  * [ ] **Rec.709 display** — gamma-2.4 on lrgb (the glaring broadcast gap)
+  * [ ] **cam16-ucs** — 3-line compression of cam16 J/M/h (enables ΔE/gamut-map consumers)
+  * [ ] **okhwb** — Ottosson HWB analog from okhsl
+  * [ ] **ARRI LogC4 / AWG4** — published 2023 spec, EI-independent (highest cinema demand)
+  * [ ] **Sony S-Log3 / S-Gamut3** — published white paper (completes camera-log triad)
+
+  Tier 2: IPT, DCI-P3 theater, V-Log, Canon Log2, scRGB, rec2100-linear, RED Log3G10, SMPTE-C, CIECAM02, cam02-ucs, DIN99d.
+  Data-table (need bundled data): Munsell (RIT renotation), NCS, Federal Std 595, BS 4800/5252, AS 2700, RAL (freieFarbe CC data).
+  **Skip — proprietary/licensed:** Pantone/PMS, RAL official Lab, HKS, Toyo, DIC, ANPA (IP-enforced; no open authoritative data).
+
 ## Future / out of scope for v3
-  * [ ] WebGL versions (the mat3 primitive enables this)
+  * [ ] WebGL/WebGPU shader exports (the mat3 seam enables it; bigger batch-image win than WASM — GPUs do pow/cbrt in hardware)
   * [ ] CSS Color 5 relative-color syntax hooks (we're the engine, not the polyfill)
-  * [ ] Additional spaces: CIECAM02, Munsell, NCS, OSA-UCS inverse, PhotoYCC
   * [ ] Incorporate spaces from https://github.com/meodai/skill.color-expert
   * [ ] AI-training data / education / visualizations

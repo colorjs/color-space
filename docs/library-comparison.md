@@ -123,4 +123,15 @@ These belong to the application layer. culori, colorjs.io, and chroma-js impleme
 
 ---
 
+## Libraries
+
+- **culori** — <https://culorijs.org> · [github.com/Evercoder/culori](https://github.com/Evercoder/culori)
+- **colorjs.io** — <https://colorjs.io> · [github.com/color-js/color.js](https://github.com/color-js/color.js)
+- **chroma-js** — <https://gka.github.io/chroma.js/> · [github.com/gka/chroma.js](https://github.com/gka/chroma.js)
+- **@texel/color** — [github.com/texel-org/color](https://github.com/texel-org/color)
+- **d3-color** — [github.com/d3/d3-color](https://github.com/d3/d3-color)
+- **CSS Color 4** — <https://www.w3.org/TR/css-color-4/> · **CSS Color 5** — <https://www.w3.org/TR/css-color-5/>
+
+---
+
 *Data current as of June 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*
