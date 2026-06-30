@@ -65,7 +65,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ### Defects
   * [x] **Wiring: all spaces reachable.** Rewrote `index.js` as a conversion graph: each space declares only its natural-neighbour conversions; `wire()` builds the BFS shortest-path composition for every other pair. din99o-lab/lch rewritten clean (neighbour = lab / din99o-lab; dropped camelCase keys, dead lines, leftover `min`/`max`/`channel`/`alias`); rec2020-oetf & all camelCase hub keys fixed. Integrity test now asserts **0 unreachable** (both directions). No regression (full suite green).
-  * [ ] `osaucs.xyz()`, `rgb.cubehelix()`, `uvw.ucs()`, `ucs.uvw()` — implement, or honestly mark one-way + document
+  * [~] One-way conversions: `uvw.ucs`/`ucs.uvw` now auto-chain (fixed). Still throw: `osaucs.xyz` (OSA-UCS has no analytical inverse — implement numerically or mark one-way) and `rgb.cubehelix` (reverse needs numerical root-finding). Decide: implement numerically vs document as one-way.
   * [ ] NaN/zero guards: `osaucs` X+Y+Z=0 (black), `uvw` `_v`=0 denominator
   * [ ] Issue #45 — decide & document alpha policy
   * [ ] Issue #47 — document RGB reference white / illuminant (sRGB D65)
