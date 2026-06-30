@@ -1,6 +1,6 @@
 ## v3 — the color conversion kernel
 
-**Positioning.** Not a color toolkit — the color *kernel* toolkits build on. The most complete (**88 spaces**, incl. camera-log/cinema/video/film/scientific/historical no one else ships), exactly-CSS-ranged, verified conversion substrate. JS for single colors, WASM for whole buffers.
+**Positioning.** Not a color toolkit — the color *kernel* toolkits build on. The most complete (**90 spaces**, incl. camera-log/cinema/video/film/scientific/historical no one else ships), exactly-CSS-ranged, verified conversion substrate. JS for single colors, WASM for whole buffers.
 
 **Goal.** Seal the kernel — complete, correct, typed, tested, metadata'd (nothing left to take away) — then ship the one edge nobody else has at this breadth: WASM batch conversion.
 
@@ -60,12 +60,17 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] one-way conversions documented: `osaucs.xyz` (no analytical inverse) and `rgb.cubehelix` (parametric colormap) now throw clear one-way errors. `uvw.ucs`/`ucs.uvw` auto-chain.
 
 ### Types & metadata
-  * [x] Generated `.d.ts` for all **88** spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. `npm run types`.
+  * [x] Generated `.d.ts` for all **90** spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. `npm run types`.
   * [x] meta.js generated from `@channel` (channels + range + illuminant). `npm run meta`.
-  * [~] **In progress (current pass):** 10 spaces lack `@channel` headers (hcl, hsm, jpeg, xvycc, xyb, xyz-abs-d65, yccbccrc, ycgco, yes; xyz-d50 done) → add cited ranges for full meta coverage
+  * [x] **All 90 spaces have @channel headers** (added the 10 that lacked them) + fixed the audit-flagged wrong ranges → full meta coverage.
   * [ ] Add gamut/encoding metadata per space (display-referred vs scene-referred; bounded vs HDR) — not started
 
 ### Defects
+  * [x] **Audit pass (43-space Opus audit + self-verification).** Fixed: **hcg** negative-hue wrap (blocker — broke roundtrip); **osaucs** signed-cbrt toe + R-row 0.7790→0.7990 matrix (now matches colour-science); **tsl** g'=0 invertibility; **yiq/yuv** exact matrices (bit-exact roundtrips); **cam16** @channel mislabel ({C}→{M}); all wrong @channel ranges (ucs/uvw/labh/lms/hcl/hct/xyz-abs-d65) + the 10 missing @channel headers → full meta coverage.
+  * [ ] **Deferred (need spec + verified reference, don't rush):**
+      - **yccbccrc** — implemented as non-constant-luminance YPbPr (BT.2020 coeffs) but the name denotes BT.2100/2020 *constant-luminance* (linear-light Yc + piecewise Cbc/Crc). Needs the CL spec + a CL reference value.
+      - **hsm** — D(m) normalization lets S exceed 100 (vertex/normalization off for low mixture). Needs the Bianconi et al. exact D(m) + a low-mixture reference.
+      - **hct** — borrows cam16's viewing conditions; C is ~1 off vs colorjs (HCT needs Material's own La/Yb). Needs the Material/colorjs viewing-condition constants.
   * [x] **Wiring: all spaces reachable.** Rewrote `index.js` as a conversion graph: each space declares only its natural-neighbour conversions; `wire()` builds the BFS shortest-path composition for every other pair. din99o-lab/lch rewritten clean (neighbour = lab / din99o-lab; dropped camelCase keys, dead lines, leftover `min`/`max`/`channel`/`alias`); rec2020-oetf & all camelCase hub keys fixed. Integrity test now asserts **0 unreachable** (both directions). No regression (full suite green).
   * [~] One-way conversions: `uvw.ucs`/`ucs.uvw` now auto-chain (fixed). Still throw: `osaucs.xyz` (OSA-UCS has no analytical inverse — implement numerically or mark one-way) and `rgb.cubehelix` (reverse needs numerical root-finding). Decide: implement numerically vs document as one-way.
   * [ ] NaN/zero guards: `osaucs` X+Y+Z=0 (black), `uvw` `_v`=0 denominator
@@ -79,7 +84,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 ### Tests — bona fide coverage
   * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). **25 spaces**. Tol 1.0/255. Runs in `npm test`.
   * [x] **Cited reference points for the 17 v3 spaces** (lch-d65, cam16-ucs, okhwb, aces2065-1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci-p3, smpte-c, ipt, scrgb, rec2100-linear, din99d) — each vs spec / colour-science, plus the white→neutral transpose check.
-  * [~] **In progress (current pass):** bona-fide cited reference value for the remaining 43 spaces (the audit workflow sources each vs colorjs/colour-science/paper, empirically re-checks the impl, flags defects).
+  * [x] **Bona-fide cited reference values for 42 of the 43 audited spaces** ([test/bonafide.js](../test/bonafide.js), data-driven, scale-aware tol). Each asserts an authoritative input→output (colorjs/colour-science/paper/spec), not a roundtrip.
   * [ ] Edge cases: NaN, Infinity, negative, out-of-gamut
   * [ ] Report true count; keep README honest to it
 
@@ -111,7 +116,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ---
 
-## Uncovered spaces — 17 added (71 → 88), all validated vs cited references
+## Uncovered spaces — 19 added (71 → 90), all validated vs cited references
 Two deep-research + adversarial-verify passes (Opus). Each connects via an existing hub; matrix spaces derive their inverse from one forward matrix via `util.inv3` (bit-exact roundtrips).
   * [x] **lch-d65** — polar of lab-d65 (→ lab-d65 matches colorjs exactly)
   * [x] **ACES2065-1 / AP0** — AP0↔AP1 matrix, via acescg
@@ -124,7 +129,7 @@ Two deep-research + adversarial-verify passes (Opus). Each connects via an exist
   * [x] **ipt** — Ebner & Fairchild 1998 (ICtCp's ancestor) · **scrgb** — extended-range linear sRGB · **rec2100-linear** — BT.2100 = BT.2020 linear
   * [x] **din99d** — Cui et al. 2002 *with* the canonical X-correction (Xc=1.12X−0.12Z); hub xyz; L99 cross-checks colour-science, a/b per the paper form (colour-science omits the correction)
 
-  * [~] **CIECAM02 / CAM02-UCS** — in progress (researched + implementing); predecessor to CAM16, still used in ICC profiles. CAM02-UCS mirrors cam16-ucs.
+  * [x] **CIECAM02 / CAM02-UCS** — CIECAM02 reproduces the Moroney et al. 2002 worked example exactly; CAM02-UCS mirrors cam16-ucs. (predecessor to CAM16, ICC v4 workflows)
   Data-table (need bundled data): Munsell (RIT renotation), NCS, Federal Std 595, BS 4800/5252, AS 2700, RAL (freieFarbe CC data).
   **Skip — proprietary/licensed:** Pantone/PMS, RAL official Lab, HKS, Toyo, DIC, ANPA (IP-enforced; no open authoritative data).
 
