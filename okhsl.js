@@ -7,6 +7,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage
+ * @referred display
+ * @dynamic sdr
  */
 // Okhsl
 // https://bottosson.github.io/posts/colorpicker/

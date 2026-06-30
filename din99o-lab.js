@@ -10,6 +10,8 @@
  * @channel {b} -40 40 Blue-Yellow axis
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import labD65 from './lab-d65.js'; // DIN 6176 is defined relative to D65 CIELab
 

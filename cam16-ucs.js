@@ -9,6 +9,8 @@
  * @channel {J} 0 100 Lightness (J')
  * @channel {a} -50 50 Red-Green (a')
  * @channel {b} -50 50 Yellow-Blue (b')
+ * @referred display
+ * @dynamic sdr
  */
 import cam16 from './cam16.js';
 

@@ -8,6 +8,8 @@
  * @channel {Jz} 0 100 Lightness
  * @channel {Cz} 0 50 Chroma
  * @channel {Hz} 0 360 Hue angle in degrees
+ * @referred display
+ * @dynamic hdr
  */
 import jzazbz from './jzazbz.js';
 

@@ -8,6 +8,8 @@
  * @channel {L} 0 100 Long wavelength (red) response
  * @channel {M} 0 105 Medium wavelength (green) response
  * @channel {S} 0 110 Short wavelength (blue) response
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 

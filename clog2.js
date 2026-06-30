@@ -12,6 +12,8 @@
  * @channel {B} 0 1 Blue (Canon Log 2 encoded)
  * @illuminant D65
  * @observer 2
+ * @referred scene
+ * @dynamic hdr
  */
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';

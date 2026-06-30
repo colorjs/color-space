@@ -8,6 +8,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 145 Chroma
  * @channel {T} 0 100 Tone (perceptual lightness)
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import { toCam16, fromCam16, environment, constrain } from './cam16.js';

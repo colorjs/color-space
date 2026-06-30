@@ -10,6 +10,8 @@
  * @channel {B} -0.5 7.4998779296875 Blue (linear)
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic hdr
  */
 import lrgb from './lrgb.js';
 

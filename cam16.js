@@ -8,6 +8,8 @@
  * @channel {J} 0 100 Lightness (Brightness)
  * @channel {M} 0 105 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import { mat3 } from './util.js';

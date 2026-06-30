@@ -68,6 +68,8 @@ export const whitepoint = {
  * Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision).
  * Shared so the D50-referred spaces (xyz-d50, lab-d50, prophoto) don't each carry
  * their own truncated copy.
+ * @referred display
+ * @dynamic sdr
  */
 export const bradford = {
 	D50_D65: [

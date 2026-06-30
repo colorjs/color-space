@@ -7,6 +7,8 @@
  * @channel {x} 0 1 Red chromaticity
  * @channel {y} 0 1 Green chromaticity
  * @channel {Y} 0 100 Luminance (CIE Y)
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 

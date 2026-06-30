@@ -7,6 +7,8 @@
  * gray(rgb) === XYZ(rgb).Y / 100.
  *
  * @channel {Y} 0 1 Relative luminance
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';

@@ -7,6 +7,8 @@
  *
  * @see {@link https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/}
  * @channel {fraction} 0 1 Interpolation fraction along helix (0-1)
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

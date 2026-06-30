@@ -10,6 +10,8 @@
  * @channel {B} 0 1 Blue (linear)
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 

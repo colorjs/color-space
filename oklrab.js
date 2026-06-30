@@ -7,6 +7,8 @@
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 40 Green-Red axis
  * @channel {b} -40 40 Blue-Yellow axis
+ * @referred display
+ * @dynamic sdr
  */
 // Oklrab
 // https://bottosson.github.io/posts/colorpicker/

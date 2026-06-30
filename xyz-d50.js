@@ -7,6 +7,8 @@
  * @channel {Z} 0 82.51 Z (D50)
  * @illuminant D50
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz, { bradford } from './xyz.js';
 import { mat3 } from './util.js';

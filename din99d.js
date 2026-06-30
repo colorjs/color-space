@@ -13,6 +13,8 @@
  * @channel {b} -50 50 Blue-Yellow axis
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 

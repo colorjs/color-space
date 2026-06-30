@@ -8,6 +8,8 @@
  * @channel {Jz} 0 100 Lightness
  * @channel {az} -50 50 Green-Red axis
  * @channel {bz} -50 50 Blue-Yellow axis
+ * @referred display
+ * @dynamic hdr
  */
 import xyz from './xyz.js';
 

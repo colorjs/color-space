@@ -9,6 +9,8 @@
  * @channel {G} 0 255 Green
  * @channel {B} 0 255 Blue
  * @illuminant D65
+ * @referred display
+ * @dynamic sdr
  */
 const rgb = {
 	name: 'rgb',

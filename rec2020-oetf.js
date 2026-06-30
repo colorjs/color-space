@@ -9,6 +9,8 @@
  * @channel {B} 0 1 Blue (gamma corrected)
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';

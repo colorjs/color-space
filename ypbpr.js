@@ -7,6 +7,8 @@
  * @channel {Y} 0 1 Luma (brightness)
  * @channel {Pb} -0.5 0.5 Blue chroma
  * @channel {Pr} -0.5 0.5 Red chroma
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

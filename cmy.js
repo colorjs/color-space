@@ -8,6 +8,8 @@
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

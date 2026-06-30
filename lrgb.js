@@ -7,6 +7,8 @@
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

@@ -8,6 +8,8 @@
  * @channel {T} 0 360 Tint (hue) angle in degrees
  * @channel {S} 0 1 Saturation
  * @channel {L} 0 255 Lightness (brightness level)
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

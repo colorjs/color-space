@@ -9,6 +9,8 @@
  * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import a98Linear from './a98rgb-linear.js';
 import xyz from './xyz.js';

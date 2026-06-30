@@ -10,6 +10,8 @@
  * @channel {B} 0 1 Blue
  * @illuminant D50
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import prophotoLinear from './prophoto-linear.js';
 import xyz from './xyz.js';

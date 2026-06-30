@@ -8,6 +8,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {P} 0 100 Perceived brightness percentage
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js'
 

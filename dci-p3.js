@@ -10,6 +10,8 @@
  * @channel {B} 0 1 Blue
  * @illuminant DCI (adapted to D65)
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';

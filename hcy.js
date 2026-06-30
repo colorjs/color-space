@@ -9,6 +9,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {Y} 0 100 Luma percentage
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

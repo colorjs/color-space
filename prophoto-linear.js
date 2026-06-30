@@ -10,6 +10,8 @@
  * @channel {B} 0 1 Blue (linear)
  * @illuminant D50
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz, { bradford } from './xyz.js';
 import { mat3 } from './util.js';

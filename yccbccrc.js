@@ -11,6 +11,8 @@
  * @channel {Crc} -0.5 0.5 Red-difference chroma
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import rec2020Linear from './rec2020-linear.js';
 

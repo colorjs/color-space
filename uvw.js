@@ -14,6 +14,8 @@
  * @channel {W} -17 100 W* lightness
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 

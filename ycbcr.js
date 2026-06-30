@@ -8,6 +8,8 @@
  * @channel {Y} 16 235 Luma (brightness)
  * @channel {Cb} 16 240 Blue chroma
  * @channel {Cr} 16 240 Red chroma
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'

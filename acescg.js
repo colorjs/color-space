@@ -8,6 +8,8 @@
  * @channel {R} 0 65504 Red (half float)
  * @channel {G} 0 65504 Green (half float)
  * @channel {B} 0 65504 Blue (half float)
+ * @referred scene
+ * @dynamic hdr
  */
 import xyz from './xyz.js';
 import { mat3 } from './util.js';

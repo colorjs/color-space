@@ -8,6 +8,8 @@
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 40 Green-Red axis
  * @channel {b} -40 40 Blue-Yellow axis
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import rgb from './rgb.js';

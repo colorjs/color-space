@@ -7,6 +7,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {V} 0 100 Value (brightness) percentage
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 import hsl from './hsl.js';

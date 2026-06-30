@@ -10,6 +10,8 @@
  * @channel {L} 0 100 Lightness percentage
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import lchuv from './lchuv.js';

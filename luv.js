@@ -9,6 +9,8 @@
  * @channel {V} -100 100 V chrominance
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 

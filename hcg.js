@@ -8,6 +8,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {G} 0 100 Gray component percentage
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 import hsl from './hsl.js';

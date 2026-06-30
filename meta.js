@@ -39,6 +39,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Adobe RGB Linear color space Linear variant of Adobe RGB without gamma correction"
   },
   "a98rgb": {
@@ -78,6 +80,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Adobe RGB color space (Adobe RGB 1998) Wider gamut than sRGB, standard for photography"
   },
   "aces2065-1": {
@@ -115,6 +119,8 @@ export default {
         65504
       ]
     ],
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "ACES2065-1 color space (AP0 primaries) The ACES archival / interchange encoding: linear, AP0 primaries (which enclose the entire visible gamut), ACES white (~D60). Connects to acescg (AP1) via the published AP0↔AP1 matrix; everything else chains through there."
   },
   "acescc": {
@@ -152,6 +158,8 @@ export default {
         1.468
       ]
     ],
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "ACEScc color space (Academy Color Encoding System) Logarithmic encoding for color grading in cinema Reference for film post-production"
   },
   "acescct": {
@@ -189,6 +197,8 @@ export default {
         1.468
       ]
     ],
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "ACEScct color space ACES log encoding for colour grading (AP1 primaries, same as ACEScg) with a pure-log curve plus a linear toe near black for lift/gamma/gain controls. ACES spec S-2016-001. Connects to acescg (its linear form)."
   },
   "acescg": {
@@ -226,6 +236,8 @@ export default {
         65504
       ]
     ],
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded."
   },
   "cam02-ucs": {
@@ -263,6 +275,8 @@ export default {
         50
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CAM02-UCS color space Uniform-color-space form of CIECAM02 (Luo, Cui & Li 2006): compresses lightness J and colourfulness M, then lays out (J', a', b') for colour-difference (ΔE) and gamut mapping. Built on ciecam02 (J, M, h). Same compression family as cam16-ucs."
   },
   "cam16-ucs": {
@@ -300,6 +314,8 @@ export default {
         50
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CAM16-UCS color space Uniform-color-space form of CAM16 (Li et al. 2017): compresses lightness J and colourfulness M, then lays out (J', a', b') as a near-Euclidean space suitable for colour-difference (ΔE) and gamut mapping. Built on cam16 (J, M, h)."
   },
   "cam16": {
@@ -337,6 +353,8 @@ export default {
         360
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CAM16 color space (Color Appearance Model) Complex color appearance model used in Material Design Includes hue, saturation, brightness, and colorfulness"
   },
   "ciecam02": {
@@ -376,6 +394,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIECAM02 color appearance model The CIE 2002 appearance model (predecessor of CAM16, still used in ICC v4 workflows). Reports [J, M, h] under the standard Moroney et al. (2002) viewing conditions: D65 adapting white, La = 318.31 cd/m², Yb = 20, average surround."
   },
   "clog2": {
@@ -415,6 +435,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "Canon Log 2 / Cinema Gamut color space Canon Log 2 (v1.2, legal/NCV range) transfer over the Canon Cinema Gamut primaries, reflectance-referred (×0.9, matching the ACES IDT and colour-science out_reflection: 18% gray→Y18, 90% card→Y90, perfect white→Y100). Per-channel Canon Log 2 curve to scene-linear, then Cinema Gamut→XYZ(D65). Canon IT 202007."
   },
   "cmy": {
@@ -452,6 +474,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CMY color space Subtractive color model without black (K) component Used in simpler printing systems"
   },
   "cmyk": {
@@ -499,6 +523,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CMYK color space Subtractive color model used in printing"
   },
   "coloroid": {
@@ -536,6 +562,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades found by chromaticity angle from white; T is the position along the white→limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup uses each row's angle computed from its own (xλ,yλ); the stored angle column is decorative (it disagrees with the chromaticities). The limit-color table now holds the authoritative Nemcsics (1980) chromaticities (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column shifted by one row. ATV↔xyY round-trips exactly and reproduces the published A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann & Neumann (2004) \"Gamut Clipping and Mapping Based on the Coloroid System\"."
   },
   "cubehelix": {
@@ -553,6 +581,8 @@ export default {
         1
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Cubehelix color space Perceptually uniform single-hue color scheme Designed for scientific visualization Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images"
   },
   "dci-p3": {
@@ -592,6 +622,8 @@ export default {
     ],
     "illuminant": "DCI",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "DCI-P3 (theatrical) color space Digital-cinema P3: the P3 primaries with the DCI white point (x 0.314, y 0.351) and a pure gamma-2.6 curve (SMPTE RP 431-2). Distinct from display-p3 (repo `p3`, which is D65 + sRGB curve). The DCI→D65 Bradford adaptation is baked into the matrix."
   },
   "din99d": {
@@ -631,6 +663,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "DIN99d color space Improved DIN99 uniform space (Cui, Luo, Rigg, Roesler & Witt 2002). Unlike din99o, canonical DIN99d applies the redness pre-correction Xc = 1.12·X − 0.12·Z to the D65 tristimulus *before* CIELab (with the corrected white Xcw), then a 50° hue rotation and log compression. It connects via xyz because the correction precedes the Lab step. (colour-science's DIN99d omits the X-correction; the paper form here is the canonical one.)"
   },
   "din99o-lab": {
@@ -670,6 +704,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "DIN99o Lab color space Perceptually uniform variant of CIE Lab, optimized for Euclidean color difference. DIN 6176. Defined relative to CIELab (D65); rgb/xyz are reached by chaining through lab."
   },
   "din99o-lch": {
@@ -709,6 +745,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "DIN99o LCh color space Cylindrical (polar) form of DIN99o Lab. Defined relative to din99o-lab; everything else is reached by chaining through it."
   },
   "gray": {
@@ -726,6 +764,8 @@ export default {
         1
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Gray (relative luminance) Single-channel achromatic value = CIE relative luminance Y (the Y of XYZ): the sRGB luminance coefficients applied to LINEAR sRGB (not gamma-encoded — that would be luma Y′). Identical to the Y row of the sRGB→XYZ matrix, so gray(rgb) === XYZ(rgb).Y / 100."
   },
   "hcg": {
@@ -763,6 +803,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HCG color space (Hue, Chroma, Gray) Alternative cylindrical RGB representation Uses gray component instead of value or lightness"
   },
   "hcl": {
@@ -800,6 +842,8 @@ export default {
         95
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HCL Color Space http://www.chilliant.com/rgb2hsv.html https://en.wikipedia.org/wiki/HCL_color_space Note: This is the cylindrical representation from the Chilliant implementation, not to be confused with CIE LCh (which is also sometimes called HCL). This implementation has known limitations - RGB to HCL to RGB round-tripping may not be perfect due to the perceptual approximations involved."
   },
   "hct": {
@@ -837,6 +881,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HCT color space (Hue, Chroma, Tone) Material Design's color system based on CAM16 Uses tone (perceptual lightness) instead of lightness"
   },
   "hcy": {
@@ -874,6 +920,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HCY color space (Hue, Chroma, Luma) Luma-based cylindrical model for shader programming (Kuzma Shapran / Chilliant). Unlike HSI/HSL, the Y channel is the color's actual Rec.601 luma, and chroma is normalized against the luma the hue can carry — so equal Y means equal brightness. http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html"
   },
   "hpluv": {
@@ -913,6 +961,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HPLuv color space (High-Precision LUV) Variant of HSLuv for pastel colors with consistent perceptual lightness Optimized for sRGB gamut"
   },
   "hsi": {
@@ -950,6 +1000,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HSI color space (Hue, Saturation, Intensity) Cylindrical representation with intensity (average of RGB) Derived from RGB for image processing"
   },
   "hsl": {
@@ -987,6 +1039,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HSL color space (Hue, Saturation, Lightness) Cylindrical representation of RGB with perceptual intent"
   },
   "hsluv": {
@@ -1026,6 +1080,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HSLuv color space Human-friendly cylindrical representation of LChuv Perceptually uniform hue with intuitive saturation and lightness"
   },
   "hsm": {
@@ -1063,6 +1119,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HSM color space (Hue, Saturation, Mixture) Bianconi et al. (2009), \"A New Color Space for Skin Color Detection\", Revista de Informática Teórica e Aplicada 16(2). Mixture M is the luminance- weighted mean (4R+2G+B)/7; saturation is the chromatic distance normalised by D(M), the maximum reachable chromatic distance at that mixture."
   },
   "hsp": {
@@ -1100,6 +1158,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HSP color space (Hue, Saturation, Perceived brightness) Uses perceived brightness weighted by human eye sensitivity Useful for perceptually uniform color operations"
   },
   "hsv": {
@@ -1137,6 +1197,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HSV color space (Hue, Saturation, Value) Cylindrical representation of RGB maximizing perceived saturation"
   },
   "hwb": {
@@ -1174,6 +1236,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "HWB color space (Hue, Whiteness, Blackness) Cylindrical representation using whiteness and blackness"
   },
   "ictcp": {
@@ -1211,6 +1275,8 @@ export default {
         50
       ]
     ],
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "ICtCp color space HDR perceptual color space for ITU-R BT.2100 Based on PQ transfer function for HDR video"
   },
   "ipt": {
@@ -1250,6 +1316,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "IPT color space Ebner & Fairchild (1998) opponent space with near-constant hue lines — the structural ancestor of ICtCp. XYZ(D65)→LMS (M1), signed power 0.43, then LMS′→IPT (M2). I = lightness, P = red-green, T = yellow-blue."
   },
   "jpeg": {
@@ -1287,6 +1355,8 @@ export default {
         255
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion JPEG conversion without head/footroom"
   },
   "jzazbz": {
@@ -1324,6 +1394,8 @@ export default {
         50
       ]
     ],
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "JzAzBz color space High dynamic range color space based on PQ (Perceptual Quantizer) Used for HDR content and next-generation color imaging"
   },
   "jzczhz": {
@@ -1361,6 +1433,8 @@ export default {
         360
       ]
     ],
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "JzCzHz color space Cylindrical variant of JzAzBz for HDR Uses chroma and hue instead of rectangular coordinates"
   },
   "lab-d65": {
@@ -1400,6 +1474,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIE Lab color space (1976), D65 reference white Display-native CIELAB: the reference white is D65, matching sRGB / Rec.709 / Display P3, so converting display RGB needs no chromatic adaptation. The default `lab` uses D50 (the ICC / CSS Color 4 convention); use this when you want Lab anchored to the display white instead."
   },
   "lab": {
@@ -1439,6 +1515,8 @@ export default {
     ],
     "illuminant": "D50",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIE Lab color space (1976) Perceptual color space with approximately uniform lightness. Reference white is D50 — the ICC color-management (PCS) and CSS Color 4 convention for Lab, and the conventional default for Lab as a device-independent interchange space. For a display-native D65 Lab, use `lab-d65`."
   },
   "labh": {
@@ -1476,6 +1554,8 @@ export default {
         60
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Lab Hunter color space Alternative Lab definition by Richard Hunter Optimized for reflectance, less uniform than CIE Lab"
   },
   "lch-d65": {
@@ -1515,6 +1595,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "LCh (D65) color space Cylindrical (polar) form of lab-d65 — intuitive hue/chroma with the D65 white point. For the CSS/ICC D50 LCh, use `lchab`."
   },
   "lchab": {
@@ -1554,6 +1636,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "LCh(ab) color space Cylindrical LAB with lightness, chroma, and hue More intuitive than rectangular Lab coordinates"
   },
   "lchuv": {
@@ -1593,6 +1677,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "LCh(uv) color space Cylindrical CIE LUV with lightness, chroma, and hue"
   },
   "lms": {
@@ -1630,6 +1716,8 @@ export default {
         110
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "LMS color space Responsivity of cones in human eye Used for chromatic adaptation transformations"
   },
   "log3g10": {
@@ -1669,6 +1757,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "RED Log3G10 / REDWideGamutRGB color space RED's Log3G10 (v3) transfer over the REDWideGamutRGB primaries. Per-channel Log3G10 curve to scene-linear, then RWG→XYZ(D65). RED whitepaper 915-0187 Rev-C."
   },
   "logc4": {
@@ -1708,6 +1798,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "ARRI LogC4 color space ARRI's 2023 log encoding (EI-independent) over the ARRI Wide Gamut 4 (AWG4) primaries. Per-channel LogC4 curve to scene-linear, then the AWG4→XYZ(D65) matrix. ARRI LogC4 Specification (2025-01-23)."
   },
   "lrgb": {
@@ -1745,6 +1837,8 @@ export default {
         1
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Linear RGB color space RGB without gamma correction, useful for color math"
   },
   "luv": {
@@ -1784,6 +1878,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIE LUV color space (C'est la vie) Cylindrical variant: LChuv Perceptually more uniform than XYZ"
   },
   "okhsl": {
@@ -1821,6 +1917,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "OkHSL color space Cylindrical color picker from Oklab Designed for intuitive color selection"
   },
   "okhsv": {
@@ -1858,6 +1956,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "OkHSV color space Cylindrical variant of OkHSL using value instead of lightness Alternative color picker from Oklab"
   },
   "okhwb": {
@@ -1895,6 +1995,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Okhwb color space Hue / whiteness / blackness built on Okhsv (Ottosson) — the HWB analog of the perceptual Okhsl/Okhsv pickers, bounded to the sRGB gamut."
   },
   "oklab": {
@@ -1932,6 +2034,8 @@ export default {
         40
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Oklab color space Modern perceptual color space based on cone response More uniform than Lab, better for interpolation"
   },
   "oklch": {
@@ -1969,6 +2073,8 @@ export default {
         360
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "OkLCh color space Cylindrical version of Oklab with cylindrical hue"
   },
   "oklrab": {
@@ -2006,6 +2112,8 @@ export default {
         40
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "OkLrab color space Modified version of Oklab using toe mapping Optimized for color picker gamut mapping"
   },
   "oklrch": {
@@ -2043,6 +2151,8 @@ export default {
         360
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "OkLrch color space Cylindrical variant of OkLrab Uses chroma and hue for intuitive color selection"
   },
   "osaucs": {
@@ -2080,6 +2190,8 @@ export default {
         10
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "OSA-UCS color space Uniform Color Scale by Optical Society of America Perceptually uniform color space for industrial applications"
   },
   "p3-linear": {
@@ -2119,6 +2231,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Display P3 Linear color space Linear variant of DCI-P3 (Apple Display P3) Without gamma correction, used for image processing"
   },
   "p3": {
@@ -2158,6 +2272,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Display P3 color space (Apple Display P3) DCI-P3 color space with gamma correction Wider gamut than sRGB, used in modern displays"
   },
   "prophoto-linear": {
@@ -2197,6 +2313,8 @@ export default {
     ],
     "illuminant": "D50",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "ProPhoto RGB Linear color space Linear variant of ProPhoto without gamma correction References D50 illuminant"
   },
   "prophoto": {
@@ -2236,6 +2354,8 @@ export default {
     ],
     "illuminant": "D50",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "ProPhoto RGB color space Largest gamut RGB color space designed for professional photography References D50 white point"
   },
   "rec2020-linear": {
@@ -2275,6 +2395,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Rec. 2020 Linear color space Linear variant of ITU-R Rec. 2020 (UHDTV/4K standard) Without gamma correction for image processing"
   },
   "rec2020-oetf": {
@@ -2314,6 +2436,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Rec. 2020 OETF color space Rec. 2020 with OETF (Opto-Electronic Transfer Function) Standard for HD television (Rec. 709 variant)"
   },
   "rec2020": {
@@ -2353,6 +2477,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Rec. 2020 color space ITU-R BT.2020 standard for UHDTV/4K. Wide-gamut RGB with the BT.2020 transfer function (same piecewise form as BT.709). Uses the CSS `color(rec2020 …)` convention: channels 0-1, not 0-255."
   },
   "rec2100-hlg": {
@@ -2392,6 +2518,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "Rec. 2100 with HLG (Hybrid Log-Gamma) transfer function ITU-R BT.2100 HDR with HLG OETF for broadcast Backward compatible with SDR displays"
   },
   "rec2100-linear": {
@@ -2431,6 +2559,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "Rec. 2100 Linear color space Linear-light ITU-R BT.2100 (HDR). BT.2100 shares BT.2020's primaries, white point, and matrix exactly, so in value this is identical to rec2020-linear; the distinction is semantic (1.0 = 203 cd/m² HDR reference white, with values above 1.0 valid for specular highlights)."
   },
   "rec2100-pq": {
@@ -2470,6 +2600,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "Rec. 2100 with PQ (Perceptual Quantizer) transfer function ITU-R BT.2100 HDR (4K/8K) with PQ OETF Used for HDR broadcast and streaming"
   },
   "rec709": {
@@ -2509,6 +2641,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Rec. 709 color space ITU-R BT.709 HDTV: the same primaries and D65 white as sRGB, but with the BT.709 camera transfer function (OETF) instead of the sRGB curve. The linear light is identical to linear sRGB, so this connects through `lrgb`."
   },
   "rg": {
@@ -2536,6 +2670,8 @@ export default {
         1
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "RG Chromaticity color space Normalized 2D chromaticity space (r + g + b = 1) Used for color matching and chromaticity analysis Blue component can be derived as 1 - r - g"
   },
   "rgb": {
@@ -2574,6 +2710,8 @@ export default {
       ]
     ],
     "illuminant": "D65",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "RGB color space (sRGB) Standard red-green-blue color space for displays Uses D65 illuminant, gamma-corrected"
   },
   "scrgb": {
@@ -2613,6 +2751,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "scRGB color space Linear-light sRGB (same primaries and D65 white as sRGB/lrgb) with the extended IEC 61966-2-2 range [-0.5, 61439/8192] for wide-gamut and HDR signals. In float the values are identical to linear sRGB — only the declared range differs."
   },
   "slog3": {
@@ -2652,6 +2792,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "Sony S-Log3 / S-Gamut3 color space Sony's S-Log3 transfer over the S-Gamut3 primaries. Per-channel S-Log3 curve to scene-linear, then the S-Gamut3→XYZ(D65) matrix. Sony \"Technical Summary for S-Gamut3/S-Log3\". (S-Gamut3.Cine uses different primaries — not this space.)"
   },
   "smpte-c": {
@@ -2691,6 +2833,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "SMPTE-C color space The 525-line NTSC broadcast standard (SMPTE 170M / SMPTE-C primaries, D65) with the ITU-R BT.601 transfer function (identical curve to BT.709/rec709). Per-channel inverse-OETF to linear, then the SMPTE-C→XYZ(D65) matrix."
   },
   "tsl": {
@@ -2728,6 +2872,8 @@ export default {
         255
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "TSL color space (Tint, Saturation, Lightness) Simple cylindrical representation of RGB Derived from RGB for image analysis"
   },
   "ucs": {
@@ -2767,6 +2913,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIE 1960 UCS (Uniform Color Space) Obsolete color space predecessor to CIELUV Historical reference for color science"
   },
   "uvw": {
@@ -2806,6 +2954,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIE 1964 U*V*W* color space Obsolete perceptual space, predecessor to CIELUV. Built on the CIE 1960 UCS chromaticity (u′, v′): W* = 25·Y^(1/3) − 17        (Y in 0-100) U* = 13·W*·(u′ − u′n) V* = 13·W*·(v′ − v′n) where (u′n, v′n) is the reference-white chromaticity. At an undefined chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0."
   },
   "vlog": {
@@ -2845,6 +2995,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
     "description": "Panasonic V-Log / V-Gamut color space Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65). Panasonic V-Log/V-Gamut Reference Manual (2014)."
   },
   "xvycc": {
@@ -2882,6 +3034,8 @@ export default {
         255
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "https://en.wikipedia.org/wiki/XvYCC Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr because all values are normalized to 0-1 range. The conceptual difference is: - YCbCr (traditional): Limited to \"legal\" range (16-235 for Y in 8-bit) - YPbPr: Analog version, typically full range [0,1] - xvYCC: Explicitly extended range, allows values beyond normal gamut Since this library normalizes all spaces to [0,1] and doesn't enforce range limits, xvYCC is functionally identical to YPbPr here. The separate implementation exists for semantic clarity and compatibility. It uses the same transformation matrices as: SD: ITU-R BT.601 HD: ITU-R BT.709 Formulas (identical to YPbPr): Forward (RGB → xvYCC): Y  = Kr*R + (1-Kr-Kb)*G + Kb*B Cb = 0.5*(B-Y)/(1-Kb) Cr = 0.5*(R-Y)/(1-Kr) Inverse (xvYCC → RGB): R = Y + 2*Cr*(1-Kr) B = Y + 2*Cb*(1-Kb) G = (Y - Kr*R - Kb*B)/(1-Kr-Kb) Where for BT.709: Kr=0.2126, Kb=0.0722 for BT.601: Kr=0.299,  Kb=0.114 References: - https://en.wikipedia.org/wiki/XvYCC - https://en.wikipedia.org/wiki/YCbCr - IEC 61966-2-4:2006 (xvYCC specification)"
   },
   "xyb": {
@@ -2919,6 +3073,8 @@ export default {
         0.388
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "XYB color space — JPEG XL Image Coding System. An LMS-based model inspired by the human visual system for perceptually uniform quantization (gamma 3). Implementation based on culori. (JPEG XL Whitepaper: https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf)"
   },
   "xyy": {
@@ -2956,6 +3112,8 @@ export default {
         100
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "xyY color space Chromaticity coordinates (x, y) with luminance (Y) Useful for color matching and display calibration"
   },
   "xyz-abs-d65": {
@@ -2995,6 +3153,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "hdr",
     "description": "Absolute XYZ (D65) — CIE XYZ in absolute luminance (cd/m²), where the relative XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100)."
   },
   "xyz-d50": {
@@ -3034,9 +3194,13 @@ export default {
     ],
     "illuminant": "D50",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "CIE XYZ with the D50 white point (ICC profile connection space). Bradford-adapted from the D65 `xyz` hub."
   },
   "xyz": {
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision). Shared so the D50-referred spaces (xyz-d50, lab-d50, prophoto) don't each carry their own truncated copy."
   },
   "ycbcr": {
@@ -3074,6 +3238,8 @@ export default {
         240
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YCbCr color space Digital video color format used in broadcasting. Limited (studio) range, ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) — the HD default. For SD use BT.601; full-range 601 is the `jpeg` space."
   },
   "yccbccrc": {
@@ -3113,6 +3279,8 @@ export default {
     ],
     "illuminant": "D65",
     "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YcCbcCrc color space — ITU-R BT.2020 / BT.2100 constant-luminance (CL) system. Unlike the non-constant-luminance Y'CbCr, the luma Yc is formed in LINEAR light (Yc = Kr·R + Kg·G + Kb·B) then OETF-encoded, and the chroma differences use the BT.2020 piecewise normalisation. Operates on linear Rec.2020 RGB."
   },
   "ycgco": {
@@ -3150,6 +3318,8 @@ export default {
         0.5
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "https://en.wikipedia.org/?title=YCgCo"
   },
   "ydbdr": {
@@ -3187,6 +3357,8 @@ export default {
         1.333
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YDbDr color space SECAM television chrominance encoding Perceptually more uniform than YUV"
   },
   "yes": {
@@ -3224,6 +3396,8 @@ export default {
         0.5
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YES color space http://www.atlantis-press.com/php/download_paper.php?id=198"
   },
   "yiq": {
@@ -3261,6 +3435,8 @@ export default {
         0.5226
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YIQ color space Analog television luma-chroma encoding Used in NTSC television standards"
   },
   "ypbpr": {
@@ -3298,6 +3474,8 @@ export default {
         0.5
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YPbPr color space Analog form of YCbCr used in component video ITU-R BT.709 standard for HD video"
   },
   "yuv": {
@@ -3335,6 +3513,8 @@ export default {
         0.615
       ]
     ],
+    "referred": "display",
+    "dynamic": "sdr",
     "description": "YUV color space Television analog encoding separating luma from chroma Used in PAL/SECAM broadcast standards"
   }
 }

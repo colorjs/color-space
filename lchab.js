@@ -10,6 +10,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import lab from './lab.js';

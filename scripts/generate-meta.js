@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generate meta.js from JSDoc comments in color space files
- * Parses @channel, @range, @illuminant, @observer tags
+ * Parses @channel, @illuminant, @observer, @referred, @dynamic tags
  */
 
 import fs from 'fs'
@@ -44,6 +44,12 @@ function parseJSDoc(content) {
   // Parse observer
   const observerMatch = jsdoc.match(/@observer\s+(\S+)/)
   if (observerMatch) meta.observer = observerMatch[1]
+
+  // Parse gamut/encoding class: @referred display|scene, @dynamic sdr|hdr
+  const referredMatch = jsdoc.match(/@referred\s+(\S+)/)
+  if (referredMatch) meta.referred = referredMatch[1]
+  const dynamicMatch = jsdoc.match(/@dynamic\s+(\S+)/)
+  if (dynamicMatch) meta.dynamic = dynamicMatch[1]
 
   // Parse description
   const descMatch = jsdoc.match(/\*\s+([^@]+?)(?=\n\s+\*\s+@|\*\/)/s)

@@ -6,6 +6,8 @@
  * @channel {Y} 0 1 Luma
  * @channel {Cg} -0.5 0.5 Green-magenta chroma
  * @channel {Co} -0.5 0.5 Orange-blue chroma
+ * @referred display
+ * @dynamic sdr
  */
 import rgb from './rgb.js';
 

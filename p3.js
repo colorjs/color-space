@@ -10,6 +10,8 @@
  * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import p3Linear from './p3-linear.js';
 import xyz from './xyz.js';

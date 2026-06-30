@@ -10,6 +10,8 @@
  * @channel {T} -1 1 Yellow-Blue
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';

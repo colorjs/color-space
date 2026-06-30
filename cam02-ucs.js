@@ -9,6 +9,8 @@
  * @channel {J} 0 100 Lightness (J')
  * @channel {a} -50 50 Red-Green (a')
  * @channel {b} -50 50 Yellow-Blue (b')
+ * @referred display
+ * @dynamic sdr
  */
 import ciecam02 from './ciecam02.js';
 

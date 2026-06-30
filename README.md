@@ -29,8 +29,21 @@ rgb.hsl(200, 230, 100);
 ```js
 <fromSpace>.<toSpace>(...channels);
 <space>.name //space name
-<space>.channel //channel names
 <space>.range //natural channel ranges
+```
+
+### Metadata
+
+`meta.js` carries per-space metadata generated from the JSDoc (`npm run meta`):
+
+```js
+import meta from 'color-space/meta.js';
+
+meta.oklab;
+// { description, channels: [{symbol, min, max, name}], range,
+//   illuminant: 'D65', observer: '2',
+//   referred: 'display' | 'scene',   // display- vs scene-referred (ACES/camera logs)
+//   dynamic:  'sdr' | 'hdr' }        // bounded display vs extended/HDR
 ```
 
 ## Design: Conventional Ranges

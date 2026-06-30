@@ -11,6 +11,8 @@
  * @channel {B} 0 1 Blue (linear)
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic hdr
  */
 import rec2020Linear from './rec2020-linear.js';
 

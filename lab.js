@@ -11,6 +11,8 @@
  * @channel {b} -125 125 Blue-Yellow axis
  * @illuminant D50
  * @observer 2
+ * @referred display
+ * @dynamic sdr
  */
 import xyz, { bradford } from './xyz.js';
 import { mat3 } from './util.js';

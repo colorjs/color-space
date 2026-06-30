@@ -21,6 +21,8 @@
  * @channel {A} 10 76 Hue grade
  * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity
+ * @referred display
+ * @dynamic sdr
  */
 import xyy from './xyy.js';
 import xyz from './xyz.js';

@@ -7,6 +7,8 @@
  * @channel {Za} 0 10888.3 Absolute Z (cd/m²)
  * @illuminant D65
  * @observer 2
+ * @referred display
+ * @dynamic hdr
  */
 import xyz from './xyz.js';
 

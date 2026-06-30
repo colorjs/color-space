@@ -7,6 +7,8 @@
  * @channel {I} 0 100 Intensity (lightness)
  * @channel {Ct} -50 50 Tritan chroma (blue-yellow)
  * @channel {Cp} -50 50 Protanopia chroma (red-green)
+ * @referred display
+ * @dynamic hdr
  */
 import xyz from './xyz.js';
 import { mat3 } from './util.js';

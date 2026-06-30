@@ -7,6 +7,8 @@
  * @channel {Y} 0 1 Luminance
  * @channel {E} -0.5 0.5 E-factor (red-green)
  * @channel {S} -0.5 0.5 S-factor
+ * @referred display
+ * @dynamic sdr
  */
 
 import rgb from './rgb.js';

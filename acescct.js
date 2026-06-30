@@ -8,6 +8,8 @@
  * @channel {R} -0.358 1.468 Red (log encoded)
  * @channel {G} -0.358 1.468 Green (log encoded)
  * @channel {B} -0.358 1.468 Blue (log encoded)
+ * @referred scene
+ * @dynamic hdr
  */
 import acescg from './acescg.js';
 
