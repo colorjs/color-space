@@ -1,11 +1,17 @@
 /**
- * Coloroid color space
+ * Coloroid color space (Nemcsics, MSZ 7300)
  *
- * Artistic color system with unique geometry
- * Uses hue angles (A), temperature (T), and perceived luminosity (V)
+ * Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y).
  *
- * @channel {A} 0 72 Hue angle
- * @channel {T} 0 100 Temperature/saturation
+ * EXPERIMENTAL / partially verified: V is exact and hue lookup no longer crashes,
+ * but the bundled hue table is internally inconsistent (each row's stored angle
+ * disagrees with its own xλ,yλ by up to ~14°) and the T saturation formula does
+ * not round-trip. A correct A/T needs the authoritative MSZ 7300 / Nemcsics data.
+ * There is no reference implementation (colorjs/culori lack Coloroid) to validate
+ * against, so A/T should be treated as provisional.
+ *
+ * @channel {A} 10 76 Hue grade
+ * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity
  */
 import xyy from './xyy.js';
@@ -212,18 +218,13 @@ xyy.coloroid = function (x, y, Y) {
 	//get the hue angle, -π ... +π
 	var angle = Math.atan2(y - y0, x - x0) * 180 / Math.PI;
 
-	var row;
-
-	//find the closest row in the table
-	var prev = TABLE.length - 1;
-	for (var i = 0; i < TABLE.length; i++) {
-		if (angle > TABLE[i][1]) {
-			break;
-		}
-		prev = i;
+	// nearest hue row by angular distance (handles the ±180° wrap near A=60/61,
+	// and never indexes past the table end — the old TABLE[i+1] crashed there)
+	var angDist = (a, b) => { var d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+	var row = TABLE[0];
+	for (var i = 1; i < TABLE.length; i++) {
+		if (angDist(TABLE[i][1], angle) < angDist(row[1], angle)) row = TABLE[i];
 	}
-	//round instead of ceil
-	row = Math.abs(TABLE[i + 1][1] - angle) > Math.abs(TABLE[prev][1] - angle) ? TABLE[i + 1] : TABLE[prev];
 
 	//get hue id
 	var A = row[0];
