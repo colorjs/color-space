@@ -40,18 +40,21 @@
   "types": "./types/index.d.ts",
   "files": [
     "*.js",
+    "wasm",
     "types",
     "dist",
     "meta"
   ],
   "exports": {
     ".": "./index.js",
+    "./wasm": "./wasm.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },
   "devDependencies": {
     "color-name": "^2.0.0",
     "esbuild": "^0.24.2",
+    "jz": "^0.8.1",
     "tst": "^9.0.0"
   },
   "optionalDependencies": {
@@ -62,11 +65,12 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js",
+    "test": "node test && node test/cie.js && node test/wasm-batch.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "meta": "node scripts/generate-meta.js > meta.js",
+    "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
-    "prepublishOnly": "npm run types && npm run meta && npm run build"
+    "prepublishOnly": "npm run types && npm run meta && npm run build:wasm && npm run build"
   }
 }

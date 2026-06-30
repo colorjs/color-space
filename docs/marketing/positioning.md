@@ -32,6 +32,7 @@ culori · colorjs.io · chroma-js · @texel/color · color-convert · **hand-rol
 | **Munsell, RAL Design, Coloroid, OSA-UCS, TSL, YES** | bidirectional Munsell via 1943 renotation; cited | absent everywhere else in JS |
 | **CSS-native value ranges** | `lab(50,…)`, `oklch(65,…)`, `rgb(255,…)` match CSS Color 4 | every other lib normalizes 0–1 |
 | **Differential verification** | `test/reference.js`: ~30 spaces both directions vs colorjs.io at 1/255; corrects published-paper errors | others self-test only |
+| **WASM batch kernel — *same source*** | `color-space/wasm`: the scalar formulas AOT-compiled to WASM (jz, `optimize:'speed'`), pinned bit-for-bit to the JS API (`test/wasm-batch.js`); zero-copy buffer convert ~1.2× faster than JS on perceptual paths, compounding over a chain | no other JS color lib ships a WASM batch path at all — and none could match "same formulas, verified identical to the scalar path" |
 | **Public domain (Unlicense)** | package license | others are MIT/etc. (still permissive, but not PD) |
 
 ### 3. Value themes (attribute → outcome, with proof)
@@ -39,6 +40,7 @@ culori · colorjs.io · chroma-js · @texel/color · color-convert · **hand-rol
 2. **Trust the numbers.** *Ship color math you didn't have to re-derive or second-guess.* (Proof: differential vs colorjs.io at 1/255; paper corrections.)
 3. **Drop-in CSS-native values.** *Read and write the same numbers you put in CSS — no 0–1 mental math, no translation layer.* (Proof: CSS Color 4 ranges.)
 4. **Stays small and unencumbered.** *Take one space, ship ~2 kB; no license to read.* (Proof: tree-shakeable ESM, zero deps; ~2 kB per space, ~44 kB for all 131; public domain.)
+5. **Scale from one color to a whole image.** *The scalar API for single colors; an opt-in WASM batch kernel for buffers — the same verified formulas, no per-pixel JS overhead.* (Proof: `color-space/wasm`, jz-compiled, ~1.2× faster zero-copy on perceptual paths, pinned to the scalar API.)
 
 ### 4. Who cares a lot (best-fit, wedge-first)
 Film/video color-pipeline devs in JS (near-zero competition) → color scientists/educators (credibility + citations) → CSS/design-system devs adopting OKLCH/P3 (volume) → creative-coding/viz (adjacent). Full traits in [audience.md](audience.md).
@@ -75,6 +77,7 @@ No CSS string parsing · no interpolation/mixing · no gamut mapping · no ΔE �
 - **"CSS-native"** — side-by-side `lab(50,0,0)` vs others' `lab(0.5,0,0)`.
 - **"Tiny / zero-dep"** — **quote the tree-shaken per-space import (~2 kB)**, not the full bundle (all 131 ≈ 44 kB min+gz locally — *larger* than culori/colorjs.io because it has 3–5× the spaces; never call the full library "tiny"). Comparing our per-space import to culori's/colorjs.io's *full* bundle is apples-to-oranges — compare like for like. Measure real per-space numbers once v3 ships to npm. No dependencies. (See [market-data.md](market-data.md).)
 - **"Public domain"** — Unlicense.
+- **"WASM batch / same source"** — `color-space/wasm` is jz-compiled from the scalar formulas; `test/wasm-batch.js` pins every path to the scalar API bit-for-bit (≤1e-6). Speed claim must stay precise: ~1.2× vs the *identical* JS loop, **zero-copy**, 1M px, **perceptual paths** (rgb↔oklab); ~parity on matrix-only; the drop-in copy API trades the win for convenience. Never a blanket "WASM is faster" — it's specifically whole-buffer perceptual work kept in WASM memory. The durable claim is *same formulas, two backends, verified identical*, not the multiplier.
 
 ---
 

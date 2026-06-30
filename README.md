@@ -55,6 +55,33 @@ meta.oklab;
 //   dynamic:  'sdr' | 'hdr' }        // bounded display vs extended/HDR
 ```
 
+## Batch conversion (WASM)
+
+The scalar API is for single colors. For whole-buffer work — images, gradients, gamut
+sweeps — the *same* verified formulas compile ahead-of-time to WebAssembly (via
+[jz](https://github.com/dy/jz), `optimize: 'speed'`). **One source, two backends:**
+`color-space/wasm` is not a hand-tuned reimplementation — it's the scalar math, pinned
+bit-for-bit against it ([test/wasm-batch.js](test/wasm-batch.js)). The prebuilt module is
+~4.6 kB, inlined, zero runtime dependency.
+
+```js
+import { alloc, convert } from 'color-space/wasm';
+
+const n = width * height;
+const buf = alloc(n);          // WASM-backed Float64Array(n*3), interleaved [r,g,b, r,g,b, …]
+// … write sRGB 0-255 into buf …
+convert('rgb', 'oklab', n);    // convert the whole buffer in place — no copy
+// … read buf, now Oklab …
+```
+
+The win is **zero-copy** — keep the data in WASM memory. On the perceptual paths
+(`cbrt`/`pow`-heavy, e.g. rgb↔oklab) WASM runs **~1.2× faster than the same JS loop** over a
+1M-pixel buffer, and the margin **compounds across a chain** (~1.24× over four hops).
+Matrix-only paths (rgb↔xyz) are ~parity — V8 already runs those near memory bandwidth.
+`convertBatch(from, to, src, dst, n)` is a drop-in for existing JS arrays, but it copies in
+and out, so a *single* conversion through it won't beat JS — prefer `alloc` + `convert` on a
+hot path. Paths today: `rgb↔oklab`, `rgb↔xyz` (more on request — each is a tiny generated loop).
+
 ## Design: Conventional Ranges
 
 Unlike most JavaScript color libraries (culori, colorjs.io) which normalize all values to 0-1, color-space uses **conventional ranges** that match [CSS Color Module Level 4/5](https://drafts.csswg.org/css-color/) specifications:

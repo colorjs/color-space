@@ -99,13 +99,13 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
   * [x] `mat3 × vec3` primitive — `mat3`/`inv3` in [util.js](../util.js). Now the shared seam for **all** matrix spaces: lrgb (in xyz.js) + the RGB working spaces (p3-linear, rec2020-linear, a98rgb-linear, prophoto-linear), xyz-d50, lab, acescg, ictcp, cam16, the camera logs (logc4/slog3/vlog/log3g10/clog2), dci-p3, smpte-c, ipt, aces2065-1. Each derives its inverse via `inv3(forward)` (single source of truth, bit-exact round-trips). **okhsl/okhsv left 2D on purpose** — their matrices are used row-structurally by the Ottosson analytic gamut-intersection (not v×M), so flattening would obscure the algorithm; they're also not a batch hot-path.
 
-### WASM premise — MEASURED (jz 0.8.0, Node/V8, 1M px, buffer-in-WASM, optimize:3)
-  * matrix-only (lrgb→xyz): WASM **1.14–1.22×** (f32 ~1.18×) — a real but modest win (memory-bound).
-  * **rgb→oklab chain (pow + cbrt): WASM 0.70× — SLOWER.** Root cause: **jz's `Math.cbrt` is 3.6× slower than V8's** (jz 36ms vs V8 10ms for 3M cbrt); jz's `pow` ~25% slower.
-  * **The flip is achievable (jz's transcendentals, not WASM):** swapping a hand-rolled Newton cbrt into the jz source takes the full sRGB→oklab chain 0.70× → **0.98×** (parity, 3e-5 accuracy), and the *linear* lrgb→oklab path to a **1.17× win** vs V8's fast `Math.cbrt`. Fix jz's cbrt+pow (or SIMD-vectorize them) → the natural code wins.
-  * Per "optimize the tool, not the input": **improve jz's cbrt/pow first**, then the kernel using plain `Math.cbrt`/`**` wins. Added a target bench `bench/colorconv/colorconv.js` to the jz repo (sRGB→oklab) — register in jz's `bench.mjs` CASE_NAMES.
-  * [ ] `color-space/wasm`: `convertBatch(src, dst, n)` — build **after** jz transcendentals improve (else perceptual conversions lose). Matrix-only paths (xyz↔lrgb, linear working spaces) already win modestly today.
-  * [ ] Honest claim once shipped: faster for buffer pipelines on the paths jz wins; scalar API stays JS (per-call WASM is slower).
+### WASM premise — RE-MEASURED (jz 0.8.1, Node/V8, 1M px, zero-copy buffer-in-WASM, optimize:'speed')
+  * **The flip happened.** jz 0.8.1's transcendental optimizations fixed the cbrt/pow bottleneck that blocked this on 0.8.0: **rgb→oklab (cbrt + pow) is now WASM 1.21× — a WIN** (was 0.70× SLOWER). A 4-conversion zero-copy chain compounds to **1.24×** vs the identical JS loop. (History: 0.8.0 lost because jz's `Math.cbrt` was 3.6× slower than V8's; 0.8.1 closed it — `bench/colorconv` in the jz repo confirms 1.24×.)
+  * matrix-only (rgb→xyz): **~parity (1.02×)** at f64 — memory-bound, V8 already near bandwidth. The win is the transcendental-heavy perceptual paths, not matrix-only (the 0.8.0 1.1–1.2× matrix figure doesn't hold here).
+  * **Zero-copy is the win.** The drop-in copy-in/out path is 0.52× — the two boundary copies cost more than a single conversion saves; convenience, not speed, for one pass (amortizes across a chain). The API makes `alloc`+`convert` (in-place, no copy) the primary path.
+  * [x] **`color-space/wasm` BUILT.** [wasm/batch.js](../wasm/batch.js) (jz source; formulas mirror the scalar library) → prebuilt ~4.6 kB wasm, base64-inlined ([scripts/build-wasm.js](../scripts/build-wasm.js)) → [wasm.js](../wasm.js) exposes `alloc`/`convert` (zero-copy) + `convertBatch` (drop-in) + `paths`. Self-contained host bridge — jz is build-time only, **no runtime dependency**. Paths today: rgb↔oklab, rgb↔xyz. **Pinned bit-for-bit to the scalar API** ([test/wasm-batch.js](../test/wasm-batch.js), ≤1e-6) and wired into `npm test`.
+  * [x] **Honest claim shipped** (README "Batch conversion (WASM)" + positioning unique-attribute/value-theme/proof): *same formulas, two backends, verified identical*; ~1.2× zero-copy on perceptual buffers, compounding over chains; ~parity matrix-only; scalar API stays JS.
+  * [ ] Generalize beyond the 4 hot paths (rgb↔lab, rgb↔oklch, …) — each is a tiny generated loop; consider codegen from the scalar graph so coverage tracks the library.
   * Alternative worth weighing: **WebGL/WebGPU shaders** — GPUs do pow/cbrt in hardware and parallelize massively, a far bigger batch-image win than WASM; the `util.mat3` seam enables it.
 
 ## Phase 3 — Prove with nectar
@@ -136,6 +136,6 @@ Two deep-research + adversarial-verify passes (Opus). Each connects via an exist
 
 ## Future / out of scope for v3
   * [ ] WebGL/WebGPU shader exports (the mat3 seam enables it; bigger batch-image win than WASM — GPUs do pow/cbrt in hardware)
-  * [ ] CSS Color 5 relative-color syntax hooks (we're the engine, not the polyfill) — note: CC5 adds no new *spaces*, only operations (color-mix, relative color, contrast-color, device-cmyk = our cmyk)
+  * [x] CSS Color 5 relative-color syntax hooks (we're the engine, not the polyfill) — note: CC5 adds no new *spaces*, only operations (color-mix, relative color, contrast-color, device-cmyk = our cmyk)
   * [x] Incorporate spaces from https://github.com/meodai/skill.color-expert — RYB added (Itten cube, rybitten); everything else already covered or declined-with-reason (Ostwald/DIN6164/NCS/RAL). OLO is a percept, not a space.
   * [ ] AI-training data / education / visualizations
