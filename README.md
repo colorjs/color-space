@@ -4,7 +4,7 @@
 
 **Every color space. One tiny API. Verified.**
 
-**131 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
+**132 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
 
 A pure conversion *kernel*: no parsing, interpolation, ΔE or gamut-mapping — that's the application layer (pair with [culori](https://github.com/Evercoder/culori) / [chroma](https://gka.github.io/chroma.js/)). Import one space and ship ~2 kB.
 
@@ -230,6 +230,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 ### Print & Physical
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive printing (cyan/magenta/yellow/black). Device-dependent.
 * [x] [CMY](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive primaries without black separation.
+* [x] [RYB](https://en.wikipedia.org/wiki/RYB_color_model) 🕰️ — the painters' red-yellow-blue wheel where blue + yellow makes green; Itten's chromatic cube via smoothstep-eased trilinear blend. ([meodai/rybitten](https://github.com/meodai/rybitten))
 * [x] [Munsell](https://munsell.com/about-munsell-color/) — artist hue/value/chroma; bidirectional via the 1943 renotation (Illuminant C). ([RIT MCSL](https://www.rit.edu/science/munsell-color-science-lab-educational-resources))
 * [x] [RAL Design](https://en.wikipedia.org/wiki/RAL_colour_standard) — systematic CIELAB hue/lightness/chroma; the HLC code *is* L\*C\*h by construction (D50/2°). Distinct from sample-defined RAL Classic.
 * [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595) — US government spec; **public-domain** (FED-STD-595C), the one viable catalog candidate if a named-lookup layer is added.
@@ -273,7 +274,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **131** | 25 | 40 | 16 |
+| **Color spaces** | **132** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |

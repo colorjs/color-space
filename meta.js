@@ -4079,6 +4079,45 @@ export default {
     "dynamic": "sdr",
     "description": "RLAB color space (Fairchild 1996) An early colour appearance model for cross-media reproduction: von Kries adaptation through the Hunt-Pointer-Estévez cones, then a CIELAB-like opponent stage. Output (LR, aR, bR). Baked to the canonical reference conditions — adapting white = CIE Illuminant A [109.85,100,35.58], Y_n = 31.83 cd/m², σ = 1/2.3 (average), D = 1 (hard-copy) — so it reproduces the published worked example."
   },
+  "ryb": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 255,
+        "name": "Red pigment"
+      },
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 255,
+        "name": "Yellow pigment"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 255,
+        "name": "Blue pigment"
+      }
+    ],
+    "range": [
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ]
+    ],
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "RYB color space (red-yellow-blue artists' model) The traditional painter's wheel — where blue + yellow makes green, not the additive RGB grey. Implemented as Johannes Itten's chromatic cube (meodai/rybitten's `RYB_ITTEN`): the 8 RYB corners carry hand-picked RGB anchors and any colour is a smoothstep-eased trilinear blend between them. (0,0,0) = no pigment ≈ white, (255,255,255) = all three ≈ black. RGB→RYB is the numerical (Newton) inverse and best-fits colours outside the artists' gamut."
+  },
   "scrgb": {
     "channels": [
       {

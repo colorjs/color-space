@@ -89,9 +89,10 @@ const REF = [
   {"s":"srlab2","f":"xyz","t":"srlab2","in":[95.0456,100,108.9058],"out":[100,0,0],"src":"SRLAB2 (Behrens, magnetkern.de): D65 white -> L=100, a=b=0"},
   {"s":"dkl","f":"xyz","t":"dkl","in":[95.0456,100,108.9058],"out":[0,0,0],"src":"DKL (Derrington et al. 1984): adapting white (D65) -> origin"},
   {"s":"rlab","f":"xyz","t":"rlab","in":[19.01,20,21.78],"out":[49.834707,15.571102,-52.614296],"src":"colour-science XYZ_to_RLAB (Illuminant A, Y_n=31.83, sigma=1/2.3, D=1): J,a,b"},
+  {"s":"ryb","f":"ryb","t":"rgb","in":[0,255,255],"out":[0,142,91],"src":"meodai/rybitten RYB_ITTEN cube: yellow+blue corner = green [0,142,91] (the RYB wheel's defining mix, vs additive grey)"},
 ]
 
-test('bona-fide reference values (85 audited spaces)', () => {
+test('bona-fide reference values (86 audited spaces)', () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {

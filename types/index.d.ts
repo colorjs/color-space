@@ -103,6 +103,7 @@ import rg from './rg';
 import rgb from './rgb';
 import rimm from './rimm';
 import rlab from './rlab';
+import ryb from './ryb';
 import scrgb from './scrgb';
 import slog2 from './slog2';
 import slog3 from './slog3';
@@ -133,7 +134,7 @@ import yuv from './yuv';
 import zcam from './zcam';
 
 export { ColorSpace, Convert };
-export { a98rgb, a98rgb_linear, aces2065_1, acescc, acescct, acescg, anlab, apple_rgb, applelog, bmdfilm, cam02_lcd, cam02_scd, cam02_ucs, cam16, cam16_lcd, cam16_scd, cam16_ucs, cie_rgb, ciecam02, cineon, clog, clog2, clog3, cmy, cmyk, coloroid, cubehelix, dci_p3, din99d, din99o_lab, din99o_lch, dkl, dlog, dsh, flog, flog2, gray, hcg, hcl, hct, hcy, hdr_cie_lab, hdr_ipt, hellwig2022, hpluv, hsi, hsl, hsluv, hsm, hsp, hsv, hwb, icacb, ictcp, ipt, izazbz, jpeg, jzazbz, jzczhz, kelvin, lab, lab_d65, labh, lch_d65, lchab, lchuv, lms, log3g10, logc3, logc4, lrgb, luv, macboyn, munsell, nlog, ntsc, ohta, okhsl, okhsv, okhwb, oklab, oklch, oklrab, oklrch, osaucs, p3, p3_linear, pal, photoycc, prolab, prophoto, prophoto_linear, ral_design, rec2020, rec2020_linear, rec2100_hlg, rec2100_linear, rec2100_pq, rec709, rg, rgb, rimm, rlab, scrgb, slog2, slog3, smpte_240m, smpte_c, srlab2, sucs, tsl, ucs, uv, uvw, vlog, wavelength, xvycc, xyb, xyy, xyz, xyz_abs_d65, xyz_d50, ycbcr, yccbccrc, ycgco, ydbdr, yes, yiq, ypbpr, yuv, zcam };
+export { a98rgb, a98rgb_linear, aces2065_1, acescc, acescct, acescg, anlab, apple_rgb, applelog, bmdfilm, cam02_lcd, cam02_scd, cam02_ucs, cam16, cam16_lcd, cam16_scd, cam16_ucs, cie_rgb, ciecam02, cineon, clog, clog2, clog3, cmy, cmyk, coloroid, cubehelix, dci_p3, din99d, din99o_lab, din99o_lch, dkl, dlog, dsh, flog, flog2, gray, hcg, hcl, hct, hcy, hdr_cie_lab, hdr_ipt, hellwig2022, hpluv, hsi, hsl, hsluv, hsm, hsp, hsv, hwb, icacb, ictcp, ipt, izazbz, jpeg, jzazbz, jzczhz, kelvin, lab, lab_d65, labh, lch_d65, lchab, lchuv, lms, log3g10, logc3, logc4, lrgb, luv, macboyn, munsell, nlog, ntsc, ohta, okhsl, okhsv, okhwb, oklab, oklch, oklrab, oklrch, osaucs, p3, p3_linear, pal, photoycc, prolab, prophoto, prophoto_linear, ral_design, rec2020, rec2020_linear, rec2100_hlg, rec2100_linear, rec2100_pq, rec709, rg, rgb, rimm, rlab, ryb, scrgb, slog2, slog3, smpte_240m, smpte_c, srlab2, sucs, tsl, ucs, uv, uvw, vlog, wavelength, xvycc, xyb, xyy, xyz, xyz_abs_d65, xyz_d50, ycbcr, yccbccrc, ycgco, ydbdr, yes, yiq, ypbpr, yuv, zcam };
 
 /** All registered color spaces, keyed by name. */
 declare const space: { [name: string]: ColorSpace };
