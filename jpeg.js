@@ -4,6 +4,10 @@
  * JPEG conversion without head/footroom
  *
  * @module  color-space/jpeg
+ *
+ * @channel {Y} 0 255 Luma
+ * @channel {Cb} 0 255 Blue-difference chroma
+ * @channel {Cr} 0 255 Red-difference chroma
  */
 import rgb from './rgb.js';
 

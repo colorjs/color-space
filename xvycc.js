@@ -39,6 +39,10 @@
  * - IEC 61966-2-4:2006 (xvYCC specification)
  *
  * @module  color-space/xvycc
+ *
+ * @channel {Y} 0 255 Luma (extended)
+ * @channel {Cb} 0 255 Blue-difference chroma
+ * @channel {Cr} 0 255 Red-difference chroma
  */
 import rgb from './rgb.js';
 import xyz from './xyz.js';
@@ -47,7 +51,7 @@ import ypbpr from './ypbpr.js';
 var xvycc = {
 	name: 'xvycc',
 	channel: ['Y', 'Cb', 'Cr'],
-	range: [[16, 235], [16, 240], [16, 240]],  // Standard digital range (can be extended to 1-254)
+	range: [[0, 255], [0, 255], [0, 255]], // full 8-bit code range (xvYCC extends beyond studio 16-235)
 
 	/**
 	 * xvYCC to RGB

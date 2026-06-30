@@ -3,6 +3,10 @@
  * http://www.atlantis-press.com/php/download_paper.php?id=198
  *
  * @module color-space/yes
+ *
+ * @channel {Y} 0 1 Luminance
+ * @channel {E} -0.5 0.5 E-factor (red-green)
+ * @channel {S} -0.5 0.5 S-factor
  */
 
 import rgb from './rgb.js';

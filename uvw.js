@@ -9,8 +9,8 @@
  * where (u′n, v′n) is the reference-white chromaticity. At an undefined
  * chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0.
  *
- * @channel {U} -100 100 U* chrominance
- * @channel {V} -100 100 V* chrominance
+ * @channel {U} -85 175 U* chrominance
+ * @channel {V} -90 75 V* chrominance
  * @channel {W} -17 100 W* lightness
  * @illuminant D65
  * @observer 2

@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Xyz_d50Space extends ColorSpace {
 	name: 'xyz-d50';
-	range: [[0, 100], [0, 100], [0, 100]];
+	range: [[0, 96.42], [0, 100], [0, 82.51]];
 }
 
 declare const xyz_d50: Xyz_d50Space;

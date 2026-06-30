@@ -5,8 +5,8 @@
  * Optimized for reflectance, less uniform than CIE Lab
  *
  * @channel {L} 0 100 Lightness
- * @channel {a} -100 100 Green-Red axis
- * @channel {b} -100 100 Blue-Yellow axis
+ * @channel {a} -75 115 Green-Red axis
+ * @channel {b} -210 60 Blue-Yellow axis
  */
 import xyz from './xyz.js';
 

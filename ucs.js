@@ -4,9 +4,9 @@
  * Obsolete color space predecessor to CIELUV
  * Historical reference for color science
  *
- * @channel {U} 0 100 U coordinate
+ * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate
- * @channel {W} 0 100 W (related to brightness)
+ * @channel {W} 0 160 W (related to brightness)
  * @illuminant D65
  * @observer 2
  */

@@ -5,8 +5,8 @@
  * Includes hue, saturation, brightness, and colorfulness
  *
  * @channel {J} 0 100 Lightness (Brightness)
- * @channel {C} 0 150 Colorfulness/chroma
- * @channel {H} 0 360 Hue angle in degrees
+ * @channel {M} 0 105 Colorfulness
+ * @channel {h} 0 360 Hue angle in degrees
  */
 import xyz from './xyz.js';
 
@@ -215,7 +215,7 @@ export function toCam16(xyzd65, env) {
 /* CAM16 Space */
 const cam16 = {
 	name: 'cam16',
-	range: [[0, 100], [0, 100], [0, 360]]
+	range: [[0, 100], [0, 105], [0, 360]]
 };
 
 xyz.cam16 = (x, y, z) => {

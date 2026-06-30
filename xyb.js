@@ -1,15 +1,14 @@
-/*
-	XYB color space - JPEG XL Image Coding System
-
-	References:
-	* JPEG XL Whitepaper: https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf
-	* "LMS-based colour model inspired by the human visual system, facilitating
-	   perceptually uniform quantization. It uses a gamma of 3 for computationally
-	   efficient decoding."
-
-	Implementation based on culori:
-	https://github.com/Evercoder/culori/tree/main/src/xyb
-*/
+/**
+ * XYB color space — JPEG XL Image Coding System.
+ *
+ * An LMS-based model inspired by the human visual system for perceptually uniform
+ * quantization (gamma 3). Implementation based on culori. (JPEG XL Whitepaper:
+ * https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf)
+ *
+ * @channel {X} -0.0154 0.0281 Red-green (L−M)
+ * @channel {Y} 0 0.8453 Luminance (L+M)
+ * @channel {B} -0.2778 0.388 Blue (S)
+ */
 
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';

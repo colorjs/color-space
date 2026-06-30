@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Xyz_abs_d65Space extends ColorSpace {
 	name: 'xyz-abs-d65';
-	range: [[0, 10000], [0, 10000], [0, 10000]];
+	range: [[0, 9504.6], [0, 10000], [0, 10888.3]];
 }
 
 declare const xyz_abs_d65: Xyz_abs_d65Space;

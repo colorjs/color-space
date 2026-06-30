@@ -2,6 +2,10 @@
  * https://en.wikipedia.org/?title=YCgCo
  *
  * @module  color-space/ycgco
+ *
+ * @channel {Y} 0 1 Luma
+ * @channel {Cg} -0.5 0.5 Green-magenta chroma
+ * @channel {Co} -0.5 0.5 Orange-blue chroma
  */
 import rgb from './rgb.js';
 

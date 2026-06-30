@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Cam16Space extends ColorSpace {
 	name: 'cam16';
-	range: [[0, 100], [0, 100], [0, 360]];
+	range: [[0, 100], [0, 105], [0, 360]];
 }
 
 declare const cam16: Cam16Space;

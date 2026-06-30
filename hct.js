@@ -5,7 +5,7 @@
  * Uses tone (perceptual lightness) instead of lightness
  *
  * @channel {H} 0 360 Hue angle in degrees
- * @channel {C} 0 150 Chroma
+ * @channel {C} 0 145 Chroma
  * @channel {T} 0 100 Tone (perceptual lightness)
  */
 import xyz from './xyz.js';
@@ -41,7 +41,7 @@ function fromLstar(l) {
 const hct = {
 	name: 'hct',
 	channel: ['h', 'c', 't'],
-	range: [[0, 360], [0, 150], [0, 100]]
+	range: [[0, 360], [0, 145], [0, 100]]
 };
 
 xyz.hct = (x, y, z) => {

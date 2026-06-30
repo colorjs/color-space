@@ -10,6 +10,10 @@
  * may not be perfect due to the perceptual approximations involved.
  *
  * @module color-space/hcl
+ *
+ * @channel {H} 0 360 Hue
+ * @channel {C} 0 100 Chroma
+ * @channel {L} 0 95 Luminance
  */
 import rgb from './rgb.js';
 
@@ -23,7 +27,7 @@ const frac = (x) => x - Math.floor(x); // mathematical fractional part (always >
 const hcl = {
 	name: 'hcl',
 	channel: ['hue', 'chroma', 'luminance'],
-	range: [[0, 360], [0, 150], [0, 100]]
+	range: [[0, 360], [0, 100], [0, 95]]
 };
 
 /**

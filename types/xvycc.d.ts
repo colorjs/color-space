@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface XvyccSpace extends ColorSpace {
 	name: 'xvycc';
-	range: [[16, 235], [16, 240], [16, 240]];
+	range: [[0, 255], [0, 255], [0, 255]];
 }
 
 declare const xvycc: XvyccSpace;

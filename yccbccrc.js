@@ -2,6 +2,10 @@
  * YcCbcCrc is ITU-R BT.2020
  *
  * @module  color-space/yccbccrc
+ *
+ * @channel {Yc} 0 1 Constant-luminance luma
+ * @channel {Cbc} -0.5 0.5 Blue-difference chroma
+ * @channel {Crc} -0.5 0.5 Red-difference chroma
  */
 import rgb from './rgb.js';
 import ypbpr from './ypbpr.js';

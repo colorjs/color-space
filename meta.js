@@ -274,13 +274,13 @@ export default {
         "name": "Lightness (Brightness)"
       },
       {
-        "symbol": "C",
+        "symbol": "M",
         "min": 0,
-        "max": 150,
-        "name": "Colorfulness/chroma"
+        "max": 105,
+        "name": "Colorfulness"
       },
       {
-        "symbol": "H",
+        "symbol": "h",
         "min": 0,
         "max": 360,
         "name": "Hue angle in degrees"
@@ -293,7 +293,7 @@ export default {
       ],
       [
         0,
-        150
+        105
       ],
       [
         0,
@@ -690,6 +690,40 @@ export default {
     "description": "HCG color space (Hue, Chroma, Gray) Alternative cylindrical RGB representation Uses gray component instead of value or lightness"
   },
   "hcl": {
+    "channels": [
+      {
+        "symbol": "H",
+        "min": 0,
+        "max": 360,
+        "name": "Hue"
+      },
+      {
+        "symbol": "C",
+        "min": 0,
+        "max": 100,
+        "name": "Chroma"
+      },
+      {
+        "symbol": "L",
+        "min": 0,
+        "max": 95,
+        "name": "Luminance"
+      }
+    ],
+    "range": [
+      [
+        0,
+        360
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        95
+      ]
+    ],
     "description": "HCL Color Space http://www.chilliant.com/rgb2hsv.html https://en.wikipedia.org/wiki/HCL_color_space Note: This is the cylindrical representation from the Chilliant implementation, not to be confused with CIE LCh (which is also sometimes called HCL). This implementation has known limitations - RGB to HCL to RGB round-tripping may not be perfect due to the perceptual approximations involved."
   },
   "hct": {
@@ -703,7 +737,7 @@ export default {
       {
         "symbol": "C",
         "min": 0,
-        "max": 150,
+        "max": 145,
         "name": "Chroma"
       },
       {
@@ -720,7 +754,7 @@ export default {
       ],
       [
         0,
-        150
+        145
       ],
       [
         0,
@@ -919,6 +953,40 @@ export default {
     "description": "HSLuv color space Human-friendly cylindrical representation of LChuv Perceptually uniform hue with intuitive saturation and lightness"
   },
   "hsm": {
+    "channels": [
+      {
+        "symbol": "H",
+        "min": 0,
+        "max": 360,
+        "name": "Hue"
+      },
+      {
+        "symbol": "S",
+        "min": 0,
+        "max": 100,
+        "name": "Saturation"
+      },
+      {
+        "symbol": "M",
+        "min": 0,
+        "max": 100,
+        "name": "Mixture"
+      }
+    ],
+    "range": [
+      [
+        0,
+        360
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        100
+      ]
+    ],
     "description": "http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428"
   },
   "hsp": {
@@ -1109,6 +1177,40 @@ export default {
     "description": "IPT color space Ebner & Fairchild (1998) opponent space with near-constant hue lines — the structural ancestor of ICtCp. XYZ(D65)→LMS (M1), signed power 0.43, then LMS′→IPT (M2). I = lightness, P = red-green, T = yellow-blue."
   },
   "jpeg": {
+    "channels": [
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 255,
+        "name": "Luma"
+      },
+      {
+        "symbol": "Cb",
+        "min": 0,
+        "max": 255,
+        "name": "Blue-difference chroma"
+      },
+      {
+        "symbol": "Cr",
+        "min": 0,
+        "max": 255,
+        "name": "Red-difference chroma"
+      }
+    ],
+    "range": [
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ]
+    ],
     "description": "https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion JPEG conversion without head/footroom"
   },
   "jzazbz": {
@@ -1273,14 +1375,14 @@ export default {
       },
       {
         "symbol": "a",
-        "min": -100,
-        "max": 100,
+        "min": -75,
+        "max": 115,
         "name": "Green-Red axis"
       },
       {
         "symbol": "b",
-        "min": -100,
-        "max": 100,
+        "min": -210,
+        "max": 60,
         "name": "Blue-Yellow axis"
       }
     ],
@@ -1290,12 +1392,12 @@ export default {
         100
       ],
       [
-        -100,
-        100
+        -75,
+        115
       ],
       [
-        -100,
-        100
+        -210,
+        60
       ]
     ],
     "description": "Lab Hunter color space Alternative Lab definition by Richard Hunter Optimized for reflectance, less uniform than CIE Lab"
@@ -1428,13 +1530,13 @@ export default {
       {
         "symbol": "M",
         "min": 0,
-        "max": 100,
+        "max": 105,
         "name": "Medium wavelength (green) response"
       },
       {
         "symbol": "S",
         "min": 0,
-        "max": 100,
+        "max": 110,
         "name": "Short wavelength (blue) response"
       }
     ],
@@ -1445,11 +1547,11 @@ export default {
       ],
       [
         0,
-        100
+        105
       ],
       [
         0,
-        100
+        110
       ]
     ],
     "description": "LMS color space Responsivity of cones in human eye Used for chromatic adaptation transformations"
@@ -2557,7 +2659,7 @@ export default {
       {
         "symbol": "U",
         "min": 0,
-        "max": 100,
+        "max": 64,
         "name": "U coordinate"
       },
       {
@@ -2569,14 +2671,14 @@ export default {
       {
         "symbol": "W",
         "min": 0,
-        "max": 100,
+        "max": 160,
         "name": "W (related to brightness)"
       }
     ],
     "range": [
       [
         0,
-        100
+        64
       ],
       [
         0,
@@ -2584,7 +2686,7 @@ export default {
       ],
       [
         0,
-        100
+        160
       ]
     ],
     "illuminant": "D65",
@@ -2595,14 +2697,14 @@ export default {
     "channels": [
       {
         "symbol": "U",
-        "min": -100,
-        "max": 100,
+        "min": -85,
+        "max": 175,
         "name": "U* chrominance"
       },
       {
         "symbol": "V",
-        "min": -100,
-        "max": 100,
+        "min": -90,
+        "max": 75,
         "name": "V* chrominance"
       },
       {
@@ -2614,12 +2716,12 @@ export default {
     ],
     "range": [
       [
-        -100,
-        100
+        -85,
+        175
       ],
       [
-        -100,
-        100
+        -90,
+        75
       ],
       [
         -17,
@@ -2670,7 +2772,78 @@ export default {
     "description": "Panasonic V-Log / V-Gamut color space Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65). Panasonic V-Log/V-Gamut Reference Manual (2014)."
   },
   "xvycc": {
+    "channels": [
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 255,
+        "name": "Luma (extended)"
+      },
+      {
+        "symbol": "Cb",
+        "min": 0,
+        "max": 255,
+        "name": "Blue-difference chroma"
+      },
+      {
+        "symbol": "Cr",
+        "min": 0,
+        "max": 255,
+        "name": "Red-difference chroma"
+      }
+    ],
+    "range": [
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ]
+    ],
     "description": "https://en.wikipedia.org/wiki/XvYCC Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr because all values are normalized to 0-1 range. The conceptual difference is: - YCbCr (traditional): Limited to \"legal\" range (16-235 for Y in 8-bit) - YPbPr: Analog version, typically full range [0,1] - xvYCC: Explicitly extended range, allows values beyond normal gamut Since this library normalizes all spaces to [0,1] and doesn't enforce range limits, xvYCC is functionally identical to YPbPr here. The separate implementation exists for semantic clarity and compatibility. It uses the same transformation matrices as: SD: ITU-R BT.601 HD: ITU-R BT.709 Formulas (identical to YPbPr): Forward (RGB → xvYCC): Y  = Kr*R + (1-Kr-Kb)*G + Kb*B Cb = 0.5*(B-Y)/(1-Kb) Cr = 0.5*(R-Y)/(1-Kr) Inverse (xvYCC → RGB): R = Y + 2*Cr*(1-Kr) B = Y + 2*Cb*(1-Kb) G = (Y - Kr*R - Kb*B)/(1-Kr-Kb) Where for BT.709: Kr=0.2126, Kb=0.0722 for BT.601: Kr=0.299,  Kb=0.114 References: - https://en.wikipedia.org/wiki/XvYCC - https://en.wikipedia.org/wiki/YCbCr - IEC 61966-2-4:2006 (xvYCC specification)"
+  },
+  "xyb": {
+    "channels": [
+      {
+        "symbol": "X",
+        "min": -0.0154,
+        "max": 0.0281,
+        "name": "Red-green (L−M)"
+      },
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 0.8453,
+        "name": "Luminance (L+M)"
+      },
+      {
+        "symbol": "B",
+        "min": -0.2778,
+        "max": 0.388,
+        "name": "Blue (S)"
+      }
+    ],
+    "range": [
+      [
+        -0.0154,
+        0.0281
+      ],
+      [
+        0,
+        0.8453
+      ],
+      [
+        -0.2778,
+        0.388
+      ]
+    ],
+    "description": "XYB color space — JPEG XL Image Coding System. An LMS-based model inspired by the human visual system for perceptually uniform quantization (gamma 3). Implementation based on culori. (JPEG XL Whitepaper: https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf)"
   },
   "xyy": {
     "channels": [
@@ -2708,6 +2881,84 @@ export default {
       ]
     ],
     "description": "xyY color space Chromaticity coordinates (x, y) with luminance (Y) Useful for color matching and display calibration"
+  },
+  "xyz-abs-d65": {
+    "channels": [
+      {
+        "symbol": "Xa",
+        "min": 0,
+        "max": 9504.6,
+        "name": "Absolute X (cd/m²)"
+      },
+      {
+        "symbol": "Ya",
+        "min": 0,
+        "max": 10000,
+        "name": "Absolute Y (cd/m²)"
+      },
+      {
+        "symbol": "Za",
+        "min": 0,
+        "max": 10888.3,
+        "name": "Absolute Z (cd/m²)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        9504.6
+      ],
+      [
+        0,
+        10000
+      ],
+      [
+        0,
+        10888.3
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "Absolute XYZ (D65) — CIE XYZ in absolute luminance (cd/m²), where the relative XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100)."
+  },
+  "xyz-d50": {
+    "channels": [
+      {
+        "symbol": "X",
+        "min": 0,
+        "max": 96.42,
+        "name": "X (D50)"
+      },
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 100,
+        "name": "Y (D50)"
+      },
+      {
+        "symbol": "Z",
+        "min": 0,
+        "max": 82.51,
+        "name": "Z (D50)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        96.42
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        82.51
+      ]
+    ],
+    "illuminant": "D50",
+    "observer": "2",
+    "description": "CIE XYZ with the D50 white point (ICC profile connection space). Bradford-adapted from the D65 `xyz` hub."
   },
   "xyz": {
     "description": "Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision). Shared so the D50-referred spaces (xyz-d50, lab-d50, prophoto) don't each carry their own truncated copy."
@@ -2750,9 +3001,77 @@ export default {
     "description": "YCbCr color space Digital video color format used in broadcasting ITU-R BT.709 or ITU-R BT.601 standard"
   },
   "yccbccrc": {
+    "channels": [
+      {
+        "symbol": "Yc",
+        "min": 0,
+        "max": 1,
+        "name": "Constant-luminance luma"
+      },
+      {
+        "symbol": "Cbc",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "Blue-difference chroma"
+      },
+      {
+        "symbol": "Crc",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "Red-difference chroma"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        -0.5,
+        0.5
+      ],
+      [
+        -0.5,
+        0.5
+      ]
+    ],
     "description": "YcCbcCrc is ITU-R BT.2020"
   },
   "ycgco": {
+    "channels": [
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 1,
+        "name": "Luma"
+      },
+      {
+        "symbol": "Cg",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "Green-magenta chroma"
+      },
+      {
+        "symbol": "Co",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "Orange-blue chroma"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        -0.5,
+        0.5
+      ],
+      [
+        -0.5,
+        0.5
+      ]
+    ],
     "description": "https://en.wikipedia.org/?title=YCgCo"
   },
   "ydbdr": {
@@ -2793,6 +3112,40 @@ export default {
     "description": "YDbDr color space SECAM television chrominance encoding Perceptually more uniform than YUV"
   },
   "yes": {
+    "channels": [
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 1,
+        "name": "Luminance"
+      },
+      {
+        "symbol": "E",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "E-factor (red-green)"
+      },
+      {
+        "symbol": "S",
+        "min": -0.5,
+        "max": 0.5,
+        "name": "S-factor"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        -0.5,
+        0.5
+      ],
+      [
+        -0.5,
+        0.5
+      ]
+    ],
     "description": "YES color space http://www.atlantis-press.com/php/download_paper.php?id=198"
   },
   "yiq": {

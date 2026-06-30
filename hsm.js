@@ -2,6 +2,10 @@
  * http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428
  *
  * @module color-space/hsm
+ *
+ * @channel {H} 0 360 Hue
+ * @channel {S} 0 100 Saturation
+ * @channel {M} 0 100 Mixture
  */
 import rgb from './rgb.js';
 

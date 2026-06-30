@@ -1,9 +1,18 @@
+/**
+ * Absolute XYZ (D65) — CIE XYZ in absolute luminance (cd/m²), where the relative
+ * XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100).
+ *
+ * @channel {Xa} 0 9504.6 Absolute X (cd/m²)
+ * @channel {Ya} 0 10000 Absolute Y (cd/m²)
+ * @channel {Za} 0 10888.3 Absolute Z (cd/m²)
+ * @illuminant D65
+ * @observer 2
+ */
 import xyz from './xyz.js';
 
 const xyzAbsD65 = {
 	name: 'xyz-abs-d65',
-	channel: ['x', 'y', 'z'],
-	range: [[0, 10000], [0, 10000], [0, 10000]]
+	range: [[0, 9504.6], [0, 10000], [0, 10888.3]]
 };
 
 const Yw = 203; // nits
