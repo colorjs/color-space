@@ -4,6 +4,7 @@
  * Linear variant of ProPhoto without gamma correction
  * References D50 illuminant
  *
+ * @see {@link https://www.color.org/ROMMRGB.pdf}
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)

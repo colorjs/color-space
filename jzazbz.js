@@ -4,6 +4,7 @@
  * High dynamic range color space based on PQ (Perceptual Quantizer)
  * Used for HDR content and next-generation color imaging
  *
+ * @see {@link https://doi.org/10.1364/OE.25.015131}
  * @channel {Jz} 0 100 Lightness
  * @channel {az} -50 50 Green-Red axis
  * @channel {bz} -50 50 Blue-Yellow axis

@@ -6,6 +6,7 @@
  * out_reflection: 18% gray→Y18, 90% card→Y90, perfect white→Y100). Per-channel
  * Canon Log 2 curve to scene-linear, then Cinema Gamut→XYZ(D65). Canon IT 202007.
  *
+ * @see {@link https://en.wikipedia.org/wiki/Log_profile}
  * @channel {R} 0 1 Red (Canon Log 2 encoded)
  * @channel {G} 0 1 Green (Canon Log 2 encoded)
  * @channel {B} 0 1 Blue (Canon Log 2 encoded)

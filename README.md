@@ -75,7 +75,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [DCI-P3](https://en.wikipedia.org/wiki/DCI-P3) — theatrical digital cinema: P3 primaries, DCI white, gamma 2.6. (SMPTE RP 431-2)
 * [x] [Rec. 2020](https://www.itu.int/rec/R-REC-BT.2020) — UHDTV/4K standard, covers 75% of visible spectrum. (ITU-R BT.2020)
 * [x] [Rec. 709](https://www.itu.int/rec/R-REC-BT.709) — HDTV standard: sRGB primaries with the BT.709 camera transfer (OETF). (ITU-R BT.709)
-* [x] [Adobe 98 RGB](https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf) — photography standard, wider gamut for print reproduction.
+* [x] [Adobe 98 RGB](https://en.wikipedia.org/wiki/Adobe_RGB_color_space) — photography standard, wider gamut for print reproduction.
 * [x] [ProPhoto RGB](https://www.color.org/ROMMRGB.pdf) — widest practical gamut for photography workflows. (ROMM RGB, ICC)
 
 ### User-Friendly Cylindrical

@@ -4,6 +4,7 @@
  * Cylindrical (polar) form of DIN99o Lab. Defined relative to din99o-lab;
  * everything else is reached by chaining through it.
  *
+ * @see {@link https://en.wikipedia.org/wiki/DIN99}
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 51.484 Chroma
  * @channel {H} 0 360 Hue angle in degrees

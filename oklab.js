@@ -4,6 +4,7 @@
  * Modern perceptual color space based on cone response
  * More uniform than Lab, better for interpolation
  * 
+ * @see {@link https://bottosson.github.io/posts/oklab/}
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 40 Green-Red axis
  * @channel {b} -40 40 Blue-Yellow axis

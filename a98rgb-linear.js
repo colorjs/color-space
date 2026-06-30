@@ -3,6 +3,7 @@
  *
  * Linear variant of Adobe RGB without gamma correction
  *
+ * @see {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)

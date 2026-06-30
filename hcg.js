@@ -4,6 +4,7 @@
  * Alternative cylindrical RGB representation
  * Uses gray component instead of value or lightness
  *
+ * @see {@link https://github.com/Qix-/color-convert}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {G} 0 100 Gray component percentage

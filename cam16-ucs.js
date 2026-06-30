@@ -5,6 +5,7 @@
  * colourfulness M, then lays out (J', a', b') as a near-Euclidean space suitable
  * for colour-difference (ΔE) and gamut mapping. Built on cam16 (J, M, h).
  *
+ * @see {@link https://doi.org/10.1002/col.22131}
  * @channel {J} 0 100 Lightness (J')
  * @channel {a} -50 50 Red-Green (a')
  * @channel {b} -50 50 Yellow-Blue (b')

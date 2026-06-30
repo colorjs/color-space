@@ -3,6 +3,7 @@
  *
  * Subtractive color model used in printing
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#device-cmyk}
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage

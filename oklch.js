@@ -3,6 +3,7 @@
  *
  * Cylindrical version of Oklab with cylindrical hue
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#ok-lab}
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 40 Chroma
  * @channel {H} 0 360 Hue angle in degrees

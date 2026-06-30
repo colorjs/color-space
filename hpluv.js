@@ -4,6 +4,7 @@
  * Variant of HSLuv for pastel colors with consistent perceptual lightness
  * Optimized for sRGB gamut
  *
+ * @see {@link https://www.hsluv.org/}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage (pastel gamut; exceeds 100 outside it)
  * @channel {L} 0 100 Lightness percentage

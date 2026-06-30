@@ -5,6 +5,7 @@
  * Designed for scientific visualization
  * Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images
  *
+ * @see {@link https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/}
  * @channel {fraction} 0 1 Interpolation fraction along helix (0-1)
  */
 import rgb from './rgb.js';

@@ -4,6 +4,7 @@
  * Television analog encoding separating luma from chroma
  * Used in PAL/SECAM broadcast standards
  *
+ * @see {@link https://en.wikipedia.org/wiki/YUV}
  * @channel {Y} 0 1 Luma (brightness)
  * @channel {U} -0.436 0.436 Chrominance blue component
  * @channel {V} -0.615 0.615 Chrominance red component

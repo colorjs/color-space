@@ -5,6 +5,7 @@
  * to scene-linear, then the S-Gamut3→XYZ(D65) matrix. Sony "Technical Summary
  * for S-Gamut3/S-Log3". (S-Gamut3.Cine uses different primaries — not this space.)
  *
+ * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog3.html}
  * @channel {R} 0 1 Red (S-Log3 encoded)
  * @channel {G} 0 1 Green (S-Log3 encoded)
  * @channel {B} 0 1 Blue (S-Log3 encoded)

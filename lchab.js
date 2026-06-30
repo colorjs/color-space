@@ -4,6 +4,7 @@
  * Cylindrical LAB with lightness, chroma, and hue
  * More intuitive than rectangular Lab coordinates
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#cie-lab}
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 150 Chroma
  * @channel {H} 0 360 Hue angle in degrees

@@ -4,6 +4,7 @@
  * Linear variant of DCI-P3 (Apple Display P3)
  * Without gamma correction, used for image processing
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#predefined-display-p3}
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)

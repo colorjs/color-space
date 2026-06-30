@@ -4,6 +4,7 @@
  * Simple cylindrical representation of RGB
  * Derived from RGB for image analysis
  *
+ * @see {@link https://doi.org/10.1109/AFGR.2000.840612}
  * @channel {T} 0 360 Tint (hue) angle in degrees
  * @channel {S} 0 1 Saturation
  * @channel {L} 0 255 Lightness (brightness level)

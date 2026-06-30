@@ -4,6 +4,7 @@
  * Analog television luma-chroma encoding
  * Used in NTSC television standards
  *
+ * @see {@link https://en.wikipedia.org/wiki/YIQ}
  * @channel {Y} 0 1 Luma (brightness)
  * @channel {I} -0.5957 0.5957 Chrominance (in-phase)
  * @channel {Q} -0.5226 0.5226 Chrominance (quadrature)

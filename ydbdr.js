@@ -4,6 +4,7 @@
  * SECAM television chrominance encoding
  * Perceptually more uniform than YUV
  *
+ * @see {@link https://en.wikipedia.org/wiki/YDbDr}
  * @channel {Y} 0 1 Luma (brightness)
  * @channel {Db} -1.333 1.333 Blue difference
  * @channel {Dr} -1.333 1.333 Red difference

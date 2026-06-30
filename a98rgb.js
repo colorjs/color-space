@@ -3,6 +3,7 @@
  *
  * Wider gamut than sRGB, standard for photography
  *
+ * @see {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

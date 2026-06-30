@@ -4,6 +4,7 @@
  * Subtractive color model without black (K) component
  * Used in simpler printing systems
  *
+ * @see {@link https://en.wikipedia.org/wiki/CMY_color_model}
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage

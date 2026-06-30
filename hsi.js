@@ -4,6 +4,7 @@
  * Cylindrical representation with intensity (average of RGB)
  * Derived from RGB for image processing
  *
+ * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {I} 0 100 Intensity percentage

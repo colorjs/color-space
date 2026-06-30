@@ -4,6 +4,7 @@
  * Academy Color Encoding System linear working space (AP1 primaries) for CGI /
  * compositing. Scene-referred, unbounded.
  *
+ * @see {@link https://docs.acescentral.com/specifications/acescg/}
  * @channel {R} 0 65504 Red (half float)
  * @channel {G} 0 65504 Green (half float)
  * @channel {B} 0 65504 Blue (half float)

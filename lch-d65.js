@@ -4,6 +4,7 @@
  * Cylindrical (polar) form of lab-d65 — intuitive hue/chroma with the D65 white
  * point. For the CSS/ICC D50 LCh, use `lchab`.
  *
+ * @see {@link https://cie.co.at/publications/colorimetry-4th-edition}
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 150 Chroma
  * @channel {H} 0 360 Hue angle in degrees

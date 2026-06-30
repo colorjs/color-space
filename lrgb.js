@@ -3,6 +3,7 @@
  *
  * RGB without gamma correction, useful for color math
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear}
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)

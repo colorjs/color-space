@@ -3,6 +3,7 @@
  *
  * Cylindrical representation using whiteness and blackness
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#the-hwb-notation}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {W} 0 100 Whiteness percentage
  * @channel {B} 0 100 Blackness percentage

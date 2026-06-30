@@ -5,6 +5,7 @@
  * Used for color matching and chromaticity analysis
  * Blue component can be derived as 1 - r - g
  *
+ * @see {@link https://en.wikipedia.org/wiki/Chromaticity}
  * @channel {r} 0 1 Red chromaticity coordinate
  * @channel {g} 0 1 Green chromaticity coordinate
  */

@@ -5,6 +5,7 @@
  * J and colourfulness M, then lays out (J', a', b') for colour-difference (ΔE) and
  * gamut mapping. Built on ciecam02 (J, M, h). Same compression family as cam16-ucs.
  *
+ * @see {@link https://doi.org/10.1002/col.20227}
  * @channel {J} 0 100 Lightness (J')
  * @channel {a} -50 50 Red-Green (a')
  * @channel {b} -50 50 Yellow-Blue (b')

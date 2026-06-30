@@ -4,6 +4,7 @@
  * DCI-P3 color space with gamma correction
  * Wider gamut than sRGB, used in modern displays
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#predefined-display-p3}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -4,6 +4,7 @@
  * Cylindrical variant of JzAzBz for HDR
  * Uses chroma and hue instead of rectangular coordinates
  *
+ * @see {@link https://www.w3.org/TR/css-color-hdr/#JzCzHz}
  * @channel {Jz} 0 100 Lightness
  * @channel {Cz} 0 50 Chroma
  * @channel {Hz} 0 360 Hue angle in degrees

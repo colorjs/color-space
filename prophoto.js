@@ -4,6 +4,7 @@
  * Largest gamut RGB color space designed for professional photography
  * References D50 white point
  *
+ * @see {@link https://www.color.org/ROMMRGB.pdf}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

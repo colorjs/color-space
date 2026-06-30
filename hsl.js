@@ -3,6 +3,7 @@
  *
  * Cylindrical representation of RGB with perceptual intent
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#the-hsl-notation}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage
