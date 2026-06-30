@@ -302,6 +302,45 @@ export default {
     ],
     "description": "CAM16 color space (Color Appearance Model) Complex color appearance model used in Material Design Includes hue, saturation, brightness, and colorfulness"
   },
+  "clog2": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Canon Log 2 encoded)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Canon Log 2 encoded)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Canon Log 2 encoded)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "Canon Log 2 / Cinema Gamut color space Canon Log 2 (v1.2, legal/NCV range) transfer over the Canon Cinema Gamut primaries, reflectance-referred (×0.9, matching the ACES IDT and colour-science out_reflection: 18% gray→Y18, 90% card→Y90, perfect white→Y100). Per-channel Canon Log 2 curve to scene-linear, then Cinema Gamut→XYZ(D65). Canon IT 202007."
+  },
   "cmy": {
     "channels": [
       {
@@ -439,6 +478,84 @@ export default {
       ]
     ],
     "description": "Cubehelix color space Perceptually uniform single-hue color scheme Designed for scientific visualization Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images"
+  },
+  "dci-p3": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "DCI",
+    "observer": "2",
+    "description": "DCI-P3 (theatrical) color space Digital-cinema P3: the P3 primaries with the DCI white point (x 0.314, y 0.351) and a pure gamma-2.6 curve (SMPTE RP 431-2). Distinct from display-p3 (repo `p3`, which is D65 + sRGB curve). The DCI→D65 Bradford adaptation is baked into the matrix."
+  },
+  "din99d": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "a",
+        "min": -50,
+        "max": 50,
+        "name": "Green-Red axis"
+      },
+      {
+        "symbol": "b",
+        "min": -50,
+        "max": 50,
+        "name": "Blue-Yellow axis"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        -50,
+        50
+      ],
+      [
+        -50,
+        50
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "DIN99d color space Improved DIN99 uniform space (Cui, Luo, Rigg, Roesler & Witt 2002). Unlike din99o, canonical DIN99d applies the redness pre-correction Xc = 1.12·X − 0.12·Z to the D65 tristimulus *before* CIELab (with the corrected white Xcw), then a 50° hue rotation and log compression. It connects via xyz because the correction precedes the Lab step. (colour-science's DIN99d omits the X-correction; the paper form here is the canonical one.)"
   },
   "din99o-lab": {
     "channels": [
@@ -952,6 +1069,45 @@ export default {
     ],
     "description": "ICtCp color space HDR perceptual color space for ITU-R BT.2100 Based on PQ transfer function for HDR video"
   },
+  "ipt": {
+    "channels": [
+      {
+        "symbol": "I",
+        "min": 0,
+        "max": 1,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "P",
+        "min": -1,
+        "max": 1,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "T",
+        "min": -1,
+        "max": 1,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        -1,
+        1
+      ],
+      [
+        -1,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "IPT color space Ebner & Fairchild (1998) opponent space with near-constant hue lines — the structural ancestor of ICtCp. XYZ(D65)→LMS (M1), signed power 0.43, then LMS′→IPT (M2). I = lightness, P = red-green, T = yellow-blue."
+  },
   "jpeg": {
     "description": "https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion JPEG conversion without head/footroom"
   },
@@ -1297,6 +1453,84 @@ export default {
       ]
     ],
     "description": "LMS color space Responsivity of cones in human eye Used for chromatic adaptation transformations"
+  },
+  "log3g10": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Log3G10 encoded)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Log3G10 encoded)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Log3G10 encoded)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "RED Log3G10 / REDWideGamutRGB color space RED's Log3G10 (v3) transfer over the REDWideGamutRGB primaries. Per-channel Log3G10 curve to scene-linear, then RWG→XYZ(D65). RED whitepaper 915-0187 Rev-C."
+  },
+  "logc4": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (LogC4 encoded)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (LogC4 encoded)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (LogC4 encoded)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "ARRI LogC4 color space ARRI's 2023 log encoding (EI-independent) over the ARRI Wide Gamut 4 (AWG4) primaries. Per-channel LogC4 curve to scene-linear, then the AWG4→XYZ(D65) matrix. ARRI LogC4 Specification (2025-01-23)."
   },
   "lrgb": {
     "channels": [
@@ -1982,6 +2216,45 @@ export default {
     "observer": "2",
     "description": "Rec. 2100 with HLG (Hybrid Log-Gamma) transfer function ITU-R BT.2100 HDR with HLG OETF for broadcast Backward compatible with SDR displays"
   },
+  "rec2100-linear": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (linear)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (linear)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (linear)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "Rec. 2100 Linear color space Linear-light ITU-R BT.2100 (HDR). BT.2100 shares BT.2020's primaries, white point, and matrix exactly, so in value this is identical to rec2020-linear; the distinction is semantic (1.0 = 203 cd/m² HDR reference white, with values above 1.0 valid for specular highlights)."
+  },
   "rec2100-pq": {
     "channels": [
       {
@@ -2125,6 +2398,123 @@ export default {
     "illuminant": "D65",
     "description": "RGB color space (sRGB) Standard red-green-blue color space for displays Uses D65 illuminant, gamma-corrected"
   },
+  "scrgb": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": -0.5,
+        "max": 7.4998779296875,
+        "name": "Red (linear)"
+      },
+      {
+        "symbol": "G",
+        "min": -0.5,
+        "max": 7.4998779296875,
+        "name": "Green (linear)"
+      },
+      {
+        "symbol": "B",
+        "min": -0.5,
+        "max": 7.4998779296875,
+        "name": "Blue (linear)"
+      }
+    ],
+    "range": [
+      [
+        -0.5,
+        7.4998779296875
+      ],
+      [
+        -0.5,
+        7.4998779296875
+      ],
+      [
+        -0.5,
+        7.4998779296875
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "scRGB color space Linear-light sRGB (same primaries and D65 white as sRGB/lrgb) with the extended IEC 61966-2-2 range [-0.5, 61439/8192] for wide-gamut and HDR signals. In float the values are identical to linear sRGB — only the declared range differs."
+  },
+  "slog3": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (S-Log3 encoded)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (S-Log3 encoded)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (S-Log3 encoded)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "Sony S-Log3 / S-Gamut3 color space Sony's S-Log3 transfer over the S-Gamut3 primaries. Per-channel S-Log3 curve to scene-linear, then the S-Gamut3→XYZ(D65) matrix. Sony \"Technical Summary for S-Gamut3/S-Log3\". (S-Gamut3.Cine uses different primaries — not this space.)"
+  },
+  "smpte-c": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "SMPTE-C color space The 525-line NTSC broadcast standard (SMPTE 170M / SMPTE-C primaries, D65) with the ITU-R BT.601 transfer function (identical curve to BT.709/rec709). Per-channel inverse-OETF to linear, then the SMPTE-C→XYZ(D65) matrix."
+  },
   "tsl": {
     "channels": [
       {
@@ -2239,6 +2629,45 @@ export default {
     "illuminant": "D65",
     "observer": "2",
     "description": "CIE 1964 U*V*W* color space Obsolete perceptual space, predecessor to CIELUV. Built on the CIE 1960 UCS chromaticity (u′, v′): W* = 25·Y^(1/3) − 17        (Y in 0-100) U* = 13·W*·(u′ − u′n) V* = 13·W*·(v′ − v′n) where (u′n, v′n) is the reference-white chromaticity. At an undefined chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0."
+  },
+  "vlog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (V-Log encoded)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (V-Log encoded)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (V-Log encoded)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "description": "Panasonic V-Log / V-Gamut color space Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65). Panasonic V-Log/V-Gamut Reference Manual (2014)."
   },
   "xvycc": {
     "description": "https://en.wikipedia.org/wiki/XvYCC Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr because all values are normalized to 0-1 range. The conceptual difference is: - YCbCr (traditional): Limited to \"legal\" range (16-235 for Y in 8-bit) - YPbPr: Analog version, typically full range [0,1] - xvYCC: Explicitly extended range, allows values beyond normal gamut Since this library normalizes all spaces to [0,1] and doesn't enforce range limits, xvYCC is functionally identical to YPbPr here. The separate implementation exists for semantic clarity and compatibility. It uses the same transformation matrices as: SD: ITU-R BT.601 HD: ITU-R BT.709 Formulas (identical to YPbPr): Forward (RGB → xvYCC): Y  = Kr*R + (1-Kr-Kb)*G + Kb*B Cb = 0.5*(B-Y)/(1-Kb) Cr = 0.5*(R-Y)/(1-Kr) Inverse (xvYCC → RGB): R = Y + 2*Cr*(1-Kr) B = Y + 2*Cb*(1-Kb) G = (Y - Kr*R - Kb*B)/(1-Kr-Kb) Where for BT.709: Kr=0.2126, Kb=0.0722 for BT.601: Kr=0.299,  Kb=0.114 References: - https://en.wikipedia.org/wiki/XvYCC - https://en.wikipedia.org/wiki/YCbCr - IEC 61966-2-4:2006 (xvYCC specification)"

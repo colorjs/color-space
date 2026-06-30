@@ -16,7 +16,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 77, '77 spaces registered')
+	is(names.length, 88, '88 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -1153,4 +1153,93 @@ test('rec709: BT.709 transfer on sRGB primaries', () => {
 	is(round(3)(space.lrgb.rec709(0.018, 0.018, 0.018)[0]), 0.081, 'OETF knee');
 	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
 		is(space.rec709.rgb(...space.rgb.rec709(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+
+// --- camera-log, cinema & video spaces added in v3 (validated vs cited spec reference points) ---
+
+test('logc4: ARRI LogC4 / AWG4', () => {
+	// black point 95/1023 -> XYZ 0; 18% gray code -> Y=18 (ARRI LogC4 Spec, App. B)
+	is(space.logc4.xyz(0.09286412512218964, 0.09286412512218964, 0.09286412512218964).map(round(4)), [0, 0, 0]);
+	is(round(2)(space.logc4.xyz(0.2783958365482653, 0.2783958365482653, 0.2783958365482653)[1]), 18);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.logc4.rgb(...space.rgb.logc4(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('slog3: Sony S-Log3 / S-Gamut3', () => {
+	// 18% gray = 420/1023 -> Y=18; black foot 95/1023 -> 0 (Sony white paper)
+	is(round(2)(space.slog3.xyz(0.41055718475073316, 0.41055718475073316, 0.41055718475073316)[1]), 18);
+	is(space.slog3.xyz(0.09286412512218964, 0.09286412512218964, 0.09286412512218964).map(round(4)), [0, 0, 0]);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.slog3.rgb(...space.rgb.slog3(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('vlog: Panasonic V-Log / V-Gamut', () => {
+	// 0% -> code 0.125 -> XYZ 0; 18% -> Y=18 (Panasonic V-Log manual)
+	is(space.vlog.xyz(0.125, 0.125, 0.125).map(round(4)), [0, 0, 0]);
+	is(round(2)(space.vlog.xyz(0.42331144876013616, 0.42331144876013616, 0.42331144876013616)[1]), 18);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.vlog.rgb(...space.rgb.vlog(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('log3g10: RED Log3G10 / REDWideGamutRGB', () => {
+	// 18% gray ~ code 1/3 -> Y=18 (RED whitepaper 915-0187 Rev-C)
+	is(round(1)(space.log3g10.xyz(0.3333329120259919, 0.3333329120259919, 0.3333329120259919)[1]), 18);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.log3g10.rgb(...space.rgb.log3g10(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('clog2: Canon Log 2 / Cinema Gamut', () => {
+	// black 0.092864125 -> 0; 18% -> Y=18; 90% reflectance -> Y=90 (Canon IDT / colour-science)
+	is(space.clog2.xyz(0.092864125, 0.092864125, 0.092864125).map(round(4)), [0, 0, 0]);
+	is(round(2)(space.clog2.xyz(0.398254692561492, 0.398254692561492, 0.398254692561492)[1]), 18);
+	is(round(2)(space.clog2.xyz(0.562304264803537, 0.562304264803537, 0.562304264803537)[1]), 90);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.clog2.rgb(...space.rgb.clog2(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('dci-p3: theatrical P3 (DCI white, gamma 2.6)', () => {
+	// encoded white -> D65 white; 0.5 gray (SMPTE RP 431-2 + Bradford, colour-science)
+	is(space['dci-p3'].xyz(1, 1, 1).map(round(2)), [95.05, 100, 108.91]);
+	is(space['dci-p3'].xyz(0.5, 0.5, 0.5).map(round(3)), [15.677, 16.494, 17.963]);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space['dci-p3'].rgb(...space.rgb['dci-p3'](...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('smpte-c: SMPTE 170M NTSC', () => {
+	// encoded white -> D65 white; red primary (SMPTE RP 145 / colour-science)
+	is(space['smpte-c'].xyz(1, 1, 1).map(round(2)), [95.05, 100, 108.91]);
+	is(space['smpte-c'].xyz(1, 0, 0).map(round(3)), [39.352, 21.238, 1.874]);
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space['smpte-c'].rgb(...space.rgb['smpte-c'](...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('ipt: Ebner & Fairchild 1998', () => {
+	// colour-science XYZ_to_IPT doctest (XYZ scaled x100 for this lib)
+	is(space.xyz.ipt(20.654008, 12.197225, 5.136952).map(round(5)), [0.38426, 0.38487, 0.18887]);
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
+		is(space.ipt.rgb(...space.rgb.ipt(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('scrgb: linear sRGB, extended range', () => {
+	// identity to lrgb in value; wide range is the only difference (IEC 61966-2-2)
+	is(space.scrgb.lrgb(2, -0.5, 1).map(round(6)), [2, -0.5, 1]);
+	is(space.rgb.scrgb(...space.scrgb.rgb(0.8, 0.2, 0.5)).map(round(6)), [0.8, 0.2, 0.5]);
+});
+
+test('rec2100-linear: BT.2100 linear (= BT.2020)', () => {
+	// identical to rec2020-linear; matrix to XYZ matches (CSS Color HDR §8.3)
+	is(space['rec2100-linear']['rec2020-linear'](0.3, 0.6, 0.1).map(round(6)), [0.3, 0.6, 0.1]);
+	is(space['rec2100-linear'].xyz(1, 0, 0).map(round(4)), [63.6958, 26.2700, 0]);
+});
+
+
+test('din99d: DIN99d (Cui 2002, with X-correction)', () => {
+	// canonical X-corrected reference; L99 cross-checks colour-science (X-correction-independent)
+	is(space.xyz.din99d(20.654008, 12.197225, 5.136952).map(round(4)), [45.3120, 35.0742, 12.7071]);
+	// neutral (gray) must stay achromatic
+	const n = space.xyz.din99d(95.04559270516716 * 0.5, 50, 108.90577507598784 * 0.5);
+	is([round(6)(n[1]), round(6)(n[2])], [0, 0], 'neutral -> a=b=0');
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [200, 100, 50]])
+		is(space.din99d.rgb(...space.rgb.din99d(...c)).map(round(0)), c, `roundtrip ${c}`);
 });

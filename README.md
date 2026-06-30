@@ -70,7 +70,9 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 ### Display & Web
 * [x] [RGB](https://www.w3.org/TR/css-color-4/#numeric-srgb) — sRGB, the web standard. ([IEC 61966-2-1](https://webstore.iec.ch/publication/6169))
 * [x] [LRGB](https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear) — linear-light sRGB for physically correct blending, gradients, resizing.
+* [x] [scRGB](https://en.wikipedia.org/wiki/ScRGB) — linear sRGB with the extended IEC 61966-2-2 range (−0.5…7.5) for wide-gamut/HDR. (IEC 61966-2-2)
 * [x] [Display P3](https://www.w3.org/TR/css-color-4/#predefined-display-p3) — wide gamut for Apple/modern displays, 25% larger than sRGB.
+* [x] [DCI-P3](https://en.wikipedia.org/wiki/DCI-P3) — theatrical digital cinema: P3 primaries, DCI white, gamma 2.6. (SMPTE RP 431-2)
 * [x] [Rec. 2020](https://www.itu.int/rec/R-REC-BT.2020) — UHDTV/4K standard, covers 75% of visible spectrum. (ITU-R BT.2020)
 * [x] [Rec. 709](https://www.itu.int/rec/R-REC-BT.709) — HDTV standard: sRGB primaries with the BT.709 camera transfer (OETF). (ITU-R BT.709)
 * [x] [Adobe 98 RGB](https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf) — photography standard, wider gamut for print reproduction.
@@ -108,6 +110,8 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [LAB<sub>H</sub>](http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_HunterLab.html) — Hunter Lab (1948), predecessor to CIE LAB.
 * [x] [UCS](https://en.wikipedia.org/wiki/CIE_1960_color_space) — CIE 1960 uniform chromaticity scale, precursor to LUV.
 * [x] [UVW](http://www.brucelindbloom.com/index.html?Eqn_UVW_to_XYZ.html) — CIE 1964, attempted uniform color space.
+* [x] [DIN99o](https://en.wikipedia.org/wiki/DIN99) — DIN 6176 Euclidean color-difference space (Lab and LCh forms).
+* [x] [DIN99d](https://doi.org/10.1002/col.10066) — improved DIN99 with the redness X-correction. (Cui et al. 2002)
 
 ### HDR & Wide Gamut
 * [x] [Jzazbz](https://observablehq.com/@jrus/jzazbz) — perceptually uniform for HDR, handles 10,000+ nits. ([Safdar et al. 2017](https://doi.org/10.1364/OE.25.015131))
@@ -115,6 +119,8 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Rec. 2100 PQ](https://www.itu.int/rec/R-REC-BT.2100) — HDR with perceptual quantizer (Dolby), 10,000 nits. (ITU-R BT.2100)
 * [x] [Rec. 2100 HLG](https://www.itu.int/rec/R-REC-BT.2100) — HDR with hybrid log-gamma (BBC/NHK), backwards compatible.
 * [x] [ICTCP](https://www.itu.int/rec/R-REC-BT.2100) — perceptual HDR space, constant hue/luminance lines. (ITU-R BT.2100)
+* [x] [IPT](https://doi.org/10.1002/(SICI)1520-6378(199812)23:6%3C385::AID-COL6%3E3.0.CO;2-J) — Ebner & Fairchild (1998) opponent space, the structural ancestor of ICtCp.
+* [x] [Rec. 2100 Linear](https://www.itu.int/rec/R-REC-BT.2100) — linear-light BT.2100 HDR (BT.2020 primaries; 1.0 = 203 cd/m²). (ITU-R BT.2100)
 
 ### Colorimetry Foundation
 * [x] [XYZ](https://www.w3.org/TR/css-color-4/#cie-xyz) — CIE 1931, the foundation of all colorimetry. Device-independent reference. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
@@ -132,12 +138,18 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [YC<sub>g</sub>C<sub>o</sub>](https://www.microsoft.com/en-us/research/publication/the-h-264-advanced-video-coding-standard/) — lossless/low-cost video compression, integer-only transforms.
 * [x] [JPEG](https://www.w3.org/Graphics/JPEG/jfif3.pdf) — full-range YCbCr for JPEG/JFIF compression.
 * [x] [XvYCC](https://www.itu.int/rec/R-REC-BT.1361) — extended-gamut video, allows out-of-range RGB values. (IEC 61966-2-4)
+* [x] [SMPTE-C](https://en.wikipedia.org/wiki/NTSC#SMPTE_C) — 525-line NTSC broadcast (SMPTE 170M primaries, D65, BT.601 transfer).
 
 ### Film & Professional
 * [x] [ACEScg](https://docs.acescentral.com/specifications/acescg/) — Academy Color Encoding, linear working space for CGI compositing.
 * [x] [ACEScc](https://docs.acescentral.com/specifications/acescc/) — Academy Color Encoding, logarithmic for grading with more shadow detail.
 * [x] [ACEScct](https://docs.acescentral.com/specifications/acescct/) — ACES log grading with a linear toe near black, for lift/gamma/gain controls.
 * [x] [ACES2065-1](https://docs.acescentral.com/specifications/aces2065-1/) — AP0 archival/interchange master format, enclosing the entire visible gamut.
+* [x] [ARRI LogC4](https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf) — ARRI's 2023 camera log + Wide Gamut 4. (ARRI LogC4 spec)
+* [x] [Sony S-Log3](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog3.html) — Sony camera log + S-Gamut3. (Sony technical summary)
+* [x] [Panasonic V-Log](https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf) — Panasonic VARICAM log + V-Gamut.
+* [x] [RED Log3G10](https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf) — RED camera log + REDWideGamutRGB. (RED whitepaper 915-0187)
+* [x] [Canon Log 2](https://en.wikipedia.org/wiki/Log_profile) — Canon Log 2 (v1.2) + Cinema Gamut. (Canon Input Transform)
 
 ### Color Appearance
 * [x] [CAM16](https://doi.org/10.1002/col.22131) — CIE color appearance model, handles viewing conditions (lighting, surround). ([Li et al. 2017](https://doi.org/10.1002/col.22131))
@@ -184,7 +196,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **77** | 25 | 40 | 16 |
+| **Color spaces** | **88** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
@@ -193,7 +205,7 @@ color-space offers a unique approach among JavaScript color libraries:
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
-- **Most comprehensive**: 77 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Most comprehensive**: 88 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
 - **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
 - **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
 

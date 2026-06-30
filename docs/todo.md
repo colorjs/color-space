@@ -112,18 +112,20 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 ---
 
-## Future — uncovered spaces (deep-researched; all analytical, zero IP risk)
-Top 8 to add next (each ~10–30 lines, connects via an existing hub):
-  * [ ] **lch-d65** — polar of lab-d65 (L, √(a²+b²), atan2) → fills CSS cylindrical gap
-  * [ ] **ACES2065-1 / AP0** — single matrix, reuses acescg D60/D65 adapt
-  * [ ] **ACEScct** — piecewise transfer + acescg matrices (completes ACES grading trio)
-  * [ ] **Rec.709 display** — gamma-2.4 on lrgb (the glaring broadcast gap)
-  * [ ] **cam16-ucs** — 3-line compression of cam16 J/M/h (enables ΔE/gamut-map consumers)
-  * [ ] **okhwb** — Ottosson HWB analog from okhsl
-  * [ ] **ARRI LogC4 / AWG4** — published 2023 spec, EI-independent (highest cinema demand)
-  * [ ] **Sony S-Log3 / S-Gamut3** — published white paper (completes camera-log triad)
+## Uncovered spaces — 17 added (71 → 88), all validated vs cited references
+Two deep-research + adversarial-verify passes (Opus). Each connects via an existing hub; matrix spaces derive their inverse from one forward matrix via `util.inv3` (bit-exact roundtrips).
+  * [x] **lch-d65** — polar of lab-d65 (→ lab-d65 matches colorjs exactly)
+  * [x] **ACES2065-1 / AP0** — AP0↔AP1 matrix, via acescg
+  * [x] **ACEScct** — ACES grading log, via acescg
+  * [x] **rec709** — BT.709 transfer on sRGB primaries
+  * [x] **cam16-ucs** — Li et al. 2017 compression of cam16
+  * [x] **okhwb** — Ottosson HWB analog, via okhsv
+  * [x] **ARRI LogC4 / AWG4** · **Sony S-Log3 / S-Gamut3** · **Panasonic V-Log / V-Gamut** · **RED Log3G10 / RWG** · **Canon Log 2 / Cinema Gamut** — camera logs (verified vs spec/colour-science reference points; vlog/log3g10 matrices recomputed full-precision NPM from primaries)
+  * [x] **dci-p3** — theatrical P3 (DCI white, γ2.6, Bradford→D65) · **smpte-c** — SMPTE 170M NTSC
+  * [x] **ipt** — Ebner & Fairchild 1998 (ICtCp's ancestor) · **scrgb** — extended-range linear sRGB · **rec2100-linear** — BT.2100 = BT.2020 linear
+  * [x] **din99d** — Cui et al. 2002 *with* the canonical X-correction (Xc=1.12X−0.12Z); hub xyz; L99 cross-checks colour-science, a/b per the paper form (colour-science omits the correction)
 
-  Tier 2: IPT, DCI-P3 theater, V-Log, Canon Log2, scRGB, rec2100-linear, RED Log3G10, SMPTE-C, CIECAM02, cam02-ucs, DIN99d.
+  Deferred: **CIECAM02 / CAM02-UCS** — CAM16 (already shipped) is the CIE's own successor; a correct CIECAM02 is a large, error-prone appearance model with marginal added value. Do as a dedicated careful task if requested.
   Data-table (need bundled data): Munsell (RIT renotation), NCS, Federal Std 595, BS 4800/5252, AS 2700, RAL (freieFarbe CC data).
   **Skip — proprietary/licensed:** Pantone/PMS, RAL official Lab, HKS, Toyo, DIC, ANPA (IP-enforced; no open authoritative data).
 
