@@ -963,7 +963,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HPLuv color space (High-Precision LUV) Variant of HSLuv for pastel colors with consistent perceptual lightness Optimized for sRGB gamut"
+    "description": "HPLuv color space Pastel variant of HSLuv: the chroma is bounded by the LARGEST circle that fits inside the sRGB gamut at each lightness (so every hue stays in gamut), at the cost of S exceeding 100 for vivid colours. L and H pass through to LCHuv; only S↔C differs. Reuses the library's `lchuv` chain and HSLuv's gamut-bound math."
   },
   "hsi": {
     "channels": [
@@ -1082,7 +1082,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSLuv color space Human-friendly cylindrical representation of LChuv Perceptually uniform hue with intuitive saturation and lightness"
+    "description": "HSLuv color space Human-friendly cylindrical form of CIELUV (LCHuv) — the chroma is rescaled so S=100 is the sRGB gamut boundary at each (L, H). L and H pass straight through to LCHuv; only S↔C differs. Reuses the library's `lchuv` (→ luv → xyz → rgb) and XYZ→linear-sRGB matrix; only the gamut-boundary math lives here."
   },
   "hsm": {
     "channels": [
@@ -2275,6 +2275,45 @@ export default {
     "referred": "display",
     "dynamic": "sdr",
     "description": "Display P3 color space (Apple Display P3) DCI-P3 color space with gamma correction Wider gamut than sRGB, used in modern displays"
+  },
+  "photoycc": {
+    "channels": [
+      {
+        "symbol": "Yc",
+        "min": 0,
+        "max": 255,
+        "name": "Luma"
+      },
+      {
+        "symbol": "C1",
+        "min": 0,
+        "max": 255,
+        "name": "Blue chroma (B-Y)"
+      },
+      {
+        "symbol": "C2",
+        "min": 0,
+        "max": 255,
+        "name": "Red chroma (R-Y)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ]
+    ],
+    "referred": "scene",
+    "dynamic": "sdr",
+    "description": "PhotoYCC color space (Kodak Photo CD) Extended-gamut luma/chroma encoding for Kodak Photo CD (1992). BT.709 primaries + D65 white, but BT.601 luma coefficients (0.299/0.587/0.114), with an odd-function Rec.709 OETF that encodes scene-referred film colours beyond the [0,1] display range. The 8-bit storage form (Y_c,C1,C2 each 0-255) places neutral at C1=156, C2=137 — asymmetric because the encodable film gamut is asymmetric in B-Y / R-Y. Scene reference white (linear 1,1,1) -> luma 182 (Poynton's widely-cited \"189\" is a typo, corrected to 182 in his own 1996 errata: 255/1.402 = 181.88)."
   },
   "prophoto-linear": {
     "channels": [

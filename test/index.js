@@ -430,8 +430,6 @@ test('lchuv: luv <-> lchuv', function () {
 
 
 
-const _hsluv = space.hsluv._hsluv
-
 test('hsluv: hsluv -> rgb', function () {
 	// HSLuv: H 0-360, S/L 0-100, RGB 0-255
 	// Test basic colors

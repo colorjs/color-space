@@ -14,7 +14,7 @@ export const whitepoint = {
     D50: [96.422, 100, 82.521],
     D55: [95.682, 100, 92.149],
     // Daylight
-    D65: [95.0456, 100, 108.9058],
+    D65: [95.04559270516717, 100, 108.90577507598783], // full precision (matches sRGB matrix + colorjs)
     D75: [94.972, 100, 122.638],
     // Fluorescent
     F1: [92.834, 100, 103.665],
@@ -109,7 +109,7 @@ const M_LRGB = [
 	0.21263900587151, 0.71516867876775, 0.072192315360733,
 	0.019330818715591, 0.11919477979462, 0.95053215224966
 ];
-const M_LRGB_INV = inv3(M_LRGB);
+export const M_LRGB_INV = inv3(M_LRGB); // XYZ(0..1) -> linear sRGB (reused by hsluv gamut bounds)
 
 // XYZ (0-100) to linear RGB (0-1)
 xyz.lrgb = (x, y, z) => mat3(M_LRGB_INV, x / 100, y / 100, z / 100);

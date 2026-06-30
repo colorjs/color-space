@@ -40,8 +40,9 @@ luv.lchuv = function (l, u, v) {
 	// Input: L: 0-100, u: -100 to 100, v: -100 to 100
 	// Output: L: 0-100, C: 0-150, H: 0-360
 	var c = Math.sqrt(u * u + v * v);
-	// achromatic (c=0, incl. ±0 u/v): hue undefined -> 0, avoid atan2(-0,-0)=-π => 180
-	var h = c === 0 ? 0 : Math.atan2(v, u) / (2 * Math.PI) * 360;
+	// achromatic (c≈0, within float noise): hue undefined -> 0 (avoid a residual hue
+	// from ~1e-12 u/v, and atan2(-0,-0)=-π => 180)
+	var h = c < 1e-8 ? 0 : Math.atan2(v, u) / (2 * Math.PI) * 360;
 	if (h < 0) {
 		h += 360;
 	}

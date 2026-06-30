@@ -1,6 +1,6 @@
 ## v3 — the color conversion kernel
 
-**Positioning.** Not a color toolkit — the color *kernel* toolkits build on. The most complete (**90 spaces**, incl. camera-log/cinema/video/film/scientific/historical no one else ships), exactly-CSS-ranged, verified conversion substrate. JS for single colors, WASM for whole buffers.
+**Positioning.** Not a color toolkit — the color *kernel* toolkits build on. The most complete (**89 spaces**, incl. camera-log/cinema/video/film/scientific/historical no one else ships), exactly-CSS-ranged, verified conversion substrate. JS for single colors, WASM for whole buffers.
 
 **Goal.** Seal the kernel — complete, correct, typed, tested, metadata'd (nothing left to take away) — then ship the one edge nobody else has at this breadth: WASM batch conversion.
 
@@ -60,10 +60,10 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] one-way conversions documented: `osaucs.xyz` (no analytical inverse) and `rgb.cubehelix` (parametric colormap) now throw clear one-way errors. `uvw.ucs`/`ucs.uvw` auto-chain.
 
 ### Types & metadata
-  * [x] Generated `.d.ts` for all **90** spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. `npm run types`.
+  * [x] Generated `.d.ts` for all **89** spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. `npm run types`.
   * [x] meta.js generated from `@channel` (channels + range + illuminant). `npm run meta`.
   * [x] **All 90 spaces have @channel headers** (added the 10 that lacked them) + fixed the audit-flagged wrong ranges → full meta coverage.
-  * [x] Gamut/encoding metadata per space — per-file @referred (display|scene) + @dynamic (sdr|hdr) JSDoc tags on all 90; generate-meta parses them into meta.js. 9 scene-referred (ACES + camera logs), 17 hdr. Documented in README.
+  * [x] Gamut/encoding metadata per space — per-file @referred (display|scene) + @dynamic (sdr|hdr) JSDoc tags on all 89; generate-meta parses them into meta.js. 9 scene-referred (ACES + camera logs), 17 hdr. Documented in README.
 
 ### Defects
   * [x] **Audit pass (43-space Opus audit + self-verification).** Fixed: **hcg** negative-hue wrap (blocker — broke roundtrip); **osaucs** signed-cbrt toe + R-row 0.7790→0.7990 matrix (now matches colour-science); **tsl** g'=0 invertibility; **yiq/yuv** exact matrices (bit-exact roundtrips); **cam16** @channel mislabel ({C}→{M}); all wrong @channel ranges (ucs/uvw/labh/lms/hcl/hct/xyz-abs-d65) + the 10 missing @channel headers → full meta coverage.
@@ -79,7 +79,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] Issue #48 — documented (README): rgb clamps to the sRGB gamut; use lrgb/xyz/wide-gamut for unbounded round-trips.
   * [x] Issue #54 — README example fixed to `lab.lchab`
   * [x] HSP/HSI (#38,#39) — NaN-safe on extreme inputs, S bounded to 100 in gamut (verified)
-  * [x] hct.js: constrain now imported from cam16 (dedup) + stray comments removed. cam16 matrices consolidated onto util.mat3 (the Phase-2 SIMD/WebGL seam); okhsl left 2D (its matrices are used row-structurally by the Ottosson gamut algorithm — flattening would obscure it). Minified hsluv.js → readable: deferred (large, low-risk).
+  * [x] hct.js: constrain now imported from cam16 (dedup) + stray comments removed. cam16 matrices consolidated onto util.mat3 (the Phase-2 SIMD/WebGL seam); okhsl left 2D (its matrices are used row-structurally by the Ottosson gamut algorithm — flattening would obscure it). hsluv.js + hpluv.js rewritten fresh from the upstream algorithm, reusing the library lchuv chain + XYZ→linear-sRGB matrix (only the gamut-bounds math is local); white-point precision + lchuv achromatic threshold fixed at the root.
 
 ### Tests — bona fide coverage
   * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). **25 spaces**. Tol 1.0/255. Runs in `npm test`.

@@ -1,9 +1,13 @@
 /**
  * HSLuv color space
  *
- * Human-friendly cylindrical representation of LChuv
- * Perceptually uniform hue with intuitive saturation and lightness
+ * Human-friendly cylindrical form of CIELUV (LCHuv) — the chroma is rescaled so
+ * S=100 is the sRGB gamut boundary at each (L, H). L and H pass straight through
+ * to LCHuv; only S↔C differs. Reuses the library's `lchuv` (→ luv → xyz → rgb)
+ * and XYZ→linear-sRGB matrix; only the gamut-boundary math lives here.
  *
+ * @see {@link https://www.hsluv.org/}
+ * @see {@link https://github.com/hsluv/hsluv}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage
@@ -12,111 +16,67 @@
  * @referred display
  * @dynamic sdr
  */
-import xyz from './xyz.js';
 import lchuv from './lchuv.js';
-import rgb from './rgb.js';
+import { M_LRGB_INV } from './xyz.js';
 
+// exact CIE constants (shared with the library's lab/luv)
+const KAPPA = 24389 / 27;    // 903.2962963…
+const EPSILON = 216 / 24389; // 0.0088564517…
 
-// unwrapped https://github.com/hsluv/hsluv/blob/master/javascript/dist/hsluv-0.1.0.min.js
-// TODO: it has redundant functions like rgbToXyz - can be reused from color-space itself
-// TODO: update to the latest
-function f(a) { var c = [], b = Math.pow(a + 16, 3) / 1560896; b = b > g ? b : a / k; for (var d = 0; 3 > d;) { var e = d++, h = l[e][0], w = l[e][1]; e = l[e][2]; for (var x = 0; 2 > x;) { var y = x++, z = (632260 * e - 126452 * w) * b + 126452 * y; c.push({ b: (284517 * h - 94839 * e) * b / z, a: ((838422 * e + 769860 * w + 731718 * h) * a * b - 769860 * y * a) / z }) } } return c }
-function m(a) { a = f(a); for (var c = Infinity, b = 0; b < a.length;) { var d = a[b]; ++b; c = Math.min(c, Math.abs(d.a) / Math.sqrt(Math.pow(d.b, 2) + 1)) } return c }
-function n(a, c) { c = c / 360 * Math.PI * 2; a = f(a); for (var b = Infinity, d = 0; d < a.length;) { var e = a[d]; ++d; e = e.a / (Math.sin(c) - e.b * Math.cos(c)); 0 <= e && (b = Math.min(b, e)) } return b }
-function p(a, c) { for (var b = 0, d = 0, e = a.length; d < e;) { var h = d++; b += a[h] * c[h] } return b }
-function q(a) { return .0031308 >= a ? 12.92 * a : 1.055 * Math.pow(a, .4166666666666667) - .055 }
-function r(a) { return .04045 < a ? Math.pow((a + .055) / 1.055, 2.4) : a / 12.92 }
-function t(a) { return [q(p(l[0], a)), q(p(l[1], a)), q(p(l[2], a))] }
-function u(a) { a = [r(a[0]), r(a[1]), r(a[2])]; return [p(v[0], a), p(v[1], a), p(v[2], a)] }
-function A(a) { var c = a[0], b = a[1]; a = c + 15 * b + 3 * a[2]; 0 != a ? (c = 4 * c / a, a = 9 * b / a) : a = c = NaN; b = b <= g ? b / B * k : 116 * Math.pow(b / B, .3333333333333333) - 16; return 0 == b ? [0, 0, 0] : [b, 13 * b * (c - C), 13 * b * (a - D)] }
-function E(a) { var c = a[0]; if (0 == c) return [0, 0, 0]; var b = a[1] / (13 * c) + C; a = a[2] / (13 * c) + D; c = 8 >= c ? B * c / k : B * Math.pow((c + 16) / 116, 3); b = 0 - 9 * c * b / ((b - 4) * a - b * a); return [b, c, (9 * c - 15 * a * c - a * b) / (3 * a)] }
-function F(a) { var c = a[0], b = a[1], d = a[2]; a = Math.sqrt(b * b + d * d); 1E-8 > a ? b = 0 : (b = 180 * Math.atan2(d, b) / Math.PI, 0 > b && (b = 360 + b)); return [c, a, b] }
-function G(a) { var c = a[1], b = a[2] / 360 * 2 * Math.PI; return [a[0], Math.cos(b) * c, Math.sin(b) * c] }
-function H(a) { var c = a[0], b = a[1]; a = a[2]; if (99.9999999 < a) return [100, 0, c]; if (1E-8 > a) return [0, 0, c]; b = n(a, c) / 100 * b; return [a, b, c] }
-function I(a) { var c = a[0], b = a[1]; a = a[2]; if (99.9999999 < c) return [a, 0, 100]; if (1E-8 > c) return [a, 0, 0]; var d = n(c, a); return [a, b / d * 100, c] }
-function J(a) { var c = a[0], b = a[1]; a = a[2]; if (99.9999999 < a) return [100, 0, c]; if (1E-8 > a) return [0, 0, c]; b = m(a) / 100 * b; return [a, b, c] }
-function K(a) { var c = a[0], b = a[1]; a = a[2]; if (99.9999999 < c) return [a, 0, 100]; if (1E-8 > c) return [a, 0, 0]; var d = m(c); return [a, b / d * 100, c] }
-function O(a) { return t(E(G(a))) }
-function P(a) { return F(A(u(a))) }
-function Q(a) { return O(H(a)) }
-function R(a) { return I(P(a)) }
-function S(a) { return O(J(a)) }
-function T(a) { return K(P(a)) }
-var l = [[3.240969941904521, -1.537383177570093, -.498610760293], [-.96924363628087, 1.87596750150772, .041555057407175], [.055630079696993, -.20397695888897, 1.056971514242878]], v = [[.41239079926595, .35758433938387, .18048078840183], [.21263900587151, .71516867876775, .072192315360733], [.019330818715591, .11919477979462, .95053215224966]], B = 1, C = .19783000664283, D = .46831999493879, k = 903.2962962, g = .0088564516, M = "0123456789abcdef";
+// The six sRGB-gamut boundary lines at lightness L, each as [slope, intercept] in
+// the chroma plane. Derived (hsluv reference) by setting each linear-sRGB channel
+// to 0 or 1; the matrix is the library's XYZ→linear-sRGB (single source of truth).
+function getBounds(L) {
+	const bounds = [];
+	const sub1 = Math.pow(L + 16, 3) / 1560896;
+	const sub2 = sub1 > EPSILON ? sub1 : L / KAPPA;
+	for (let c = 0; c < 3; c++) {
+		const m1 = M_LRGB_INV[c * 3], m2 = M_LRGB_INV[c * 3 + 1], m3 = M_LRGB_INV[c * 3 + 2];
+		for (let t = 0; t < 2; t++) {
+			const top1 = (284517 * m1 - 94839 * m3) * sub2;
+			const top2 = (838422 * m3 + 769860 * m2 + 731718 * m1) * L * sub2 - 769860 * t * L;
+			const bottom = (632260 * m3 - 126452 * m2) * sub2 + 126452 * t;
+			bounds.push([top1 / bottom, top2 / bottom]);
+		}
+	}
+	return bounds;
+}
 
-export const _hsluv = {
-	hsluvToRgb: Q,
-	hsluvToLch: H,
-	rgbToHsluv: R,
-	rgbToHpluv: T,
-	rgbToXyz: u,
-	rgbToLch: P,
-	hpluvToRgb: S,
-	hpluvToLch: J,
-	lchToHpluv: K,
-	lchToHsluv: I,
-	lchToLuv: G,
-	lchToRgb: O,
-	luvToLch: F,
-	luvToXyz: E,
-	xyzToLuv: A,
-	xyzToRgb: t,
+// max chroma at (L, H) before crossing the gamut — nearest ray-from-origin hit (HSLuv)
+export function maxChromaForLH(L, H) {
+	const hrad = H / 360 * 2 * Math.PI;
+	let min = Infinity;
+	for (const [slope, intercept] of getBounds(L)) {
+		const len = intercept / (Math.sin(hrad) - slope * Math.cos(hrad));
+		if (len >= 0) min = Math.min(min, len);
+	}
+	return min;
+}
+
+// max chroma at L over ALL hues — nearest boundary line to origin (HPLuv pastel bound)
+export function maxSafeChromaForL(L) {
+	let min = Infinity;
+	for (const [slope, intercept] of getBounds(L)) {
+		min = Math.min(min, Math.abs(intercept) / Math.sqrt(slope * slope + 1));
+	}
+	return min;
+}
+
+const hsluv = {
+	name: 'hsluv',
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
-var hsluv = {
-	name: 'hsluv',
-	channel: ['hue', 'saturation', 'lightness'],
-	range: [[0, 360], [0, 100], [0, 100]],
-
-	lchuv: (h, s, l) => {
-		// Input: H: 0-360, S/L: 0-100
-		const lch = _hsluv.hsluvToLch([h, s, l]);
-		// Output: L: 0-100, C: 0-150, H: 0-360
-		return [lch[0], lch[1], lch[2]];
-	},
-
-	rgb: function (h, s, l) {
-		// Convert through xyz
-		const xyz_vals = hsluv.xyz(h, s, l);
-		return xyz.rgb(xyz_vals[0], xyz_vals[1], xyz_vals[2]);
-	},
-
-	xyz: function (h, s, l) {
-		// Convert through lchuv
-		const lch = hsluv.lchuv(h, s, l);
-		return lchuv.xyz(lch[0], lch[1], lch[2]);
-	},
-
-	//a shorter way to convert to hpluv
-	hpluv: function (h, s, l) {
-		// Input/Output: H: 0-360, S/L/P: 0-100
-		const lch = _hsluv.hsluvToLch([h, s, l]);
-		const hpl = _hsluv.lchToHpluv(lch);
-		return [hpl[0], hpl[1], hpl[2]];
-	},
-
-	// export internal math
-	_hsluv
+// HSLuv (H,S,L) <-> LCHuv (L,C,H): S = 100·C / maxChroma(L,H)
+hsluv.lchuv = (h, s, l) => {
+	if (l > 99.9999999) return [100, 0, h];
+	if (l < 1e-8) return [0, 0, h];
+	return [l, maxChromaForLH(l, h) / 100 * s, h];
+};
+lchuv.hsluv = (l, c, h) => {
+	if (l > 99.9999999) return [h, 0, 100];
+	if (l < 1e-8) return [h, 0, 0];
+	return [h, c / maxChromaForLH(l, h) * 100, l];
 };
 
 export default hsluv;
-
-//extend lchuv, xyz
-lchuv.hsluv = (l, c, h) => {
-	// Input: L: 0-100, C: 0-150, H: 0-360
-	const hsl = _hsluv.lchToHsluv([l, c, h]);
-	// Output: H: 0-360, S/L: 0-100
-	return [hsl[0], hsl[1], hsl[2]];
-};
-xyz.hsluv = function (x, y, z) {
-	// XYZ: 0-100 -> LCHuv -> HSLuv
-	const lch = xyz.lchuv(x, y, z);
-	return lchuv.hsluv(lch[0], lch[1], lch[2]);
-};
-
-rgb.hsluv = (r, g, b) => {
-	// Normalize RGB from 0-255 to 0-1 for library
-	const hsl = _hsluv.rgbToHsluv([r / 255, g / 255, b / 255]);
-	// Output: H: 0-360, S/L: 0-100
-	return [hsl[0], hsl[1], hsl[2]];
-};
