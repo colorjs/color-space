@@ -12,6 +12,7 @@
  * @dynamic hdr
  */
 import xyz from './xyz.js';
+import { spow } from './util.js';
 
 const jzazbz = {
 	name: 'jzazbz'
@@ -23,9 +24,7 @@ const d = -0.56;
 const d0 = 1.6295499532821566e-11;
 const Yw = 203; // absolute luminance of media white in cd/m^2
 
-// PQ constants
-const n = 2610 / 4096 * 0.25; // 2610 / 2^14 * 2^2 ? No. 2610/2^14 = 0.1593. 2610/16384.
-// reference says: 2610 / 2 ** 14
+// JzAzBz's modified ST 2084 PQ constants (Safdar 2017: exponent p = 1.7·m2, not m2)
 const n_val = 2610 / 16384;
 const ninv = 16384 / 2610;
 const c1 = 3424 / 4096;
@@ -33,13 +32,6 @@ const c2 = 2413 / 128; // 2413 / 2^7
 const c3 = 2392 / 128; // 2392 / 2^7
 const p = 1.7 * 2523 / 32; // (1.7 * 2523) / 2^5
 const pinv = 32 / (1.7 * 2523);
-
-/**
- * Safe power
- */
-function spow(a, b) {
-	return Math.sign(a) * Math.abs(a) ** b;
-}
 
 /**
  * Matrix multiplication

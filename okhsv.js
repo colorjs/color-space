@@ -15,6 +15,7 @@
 
 import oklab from './oklab.js';
 import rgb from './rgb.js';
+import { spow } from './util.js';
 import {
 	tau,
 	toe,
@@ -31,10 +32,6 @@ var okhsv = {
 	channel: ['h', 's', 'v'],
 	range: [[0, 360], [0, 100], [0, 100]]
 };
-
-function spow(a, b) {
-	return Math.abs(a) ** b * Math.sign(a);
-}
 
 function constrain(angle) {
 	return ((angle % 1) + 1) % 1;

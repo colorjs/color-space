@@ -14,13 +14,13 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
+import { spow } from './util.js';
 
 const mv = (m, v) => [
 	m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
 	m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
 	m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]
 ];
-const spow = (a, b) => Math.sign(a) * Math.pow(Math.abs(a), b);
 const compress = (v) => { const f = spow(FL * Math.abs(v) / 100, 0.42); return 400 * Math.sign(v) * f / (f + 27.13) + 0.1; };
 const decompress = (v) => { const w = v - 0.1; return Math.sign(w) * (100 / FL) * Math.pow(27.13 * Math.abs(w) / (400 - Math.abs(w)), 1 / 0.42); };
 

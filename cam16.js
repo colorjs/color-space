@@ -12,10 +12,9 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3 } from './util.js';
+import { mat3, spow } from './util.js';
 
 /* Utilities */
-const spow = (a, b) => Math.sign(a) * Math.pow(Math.abs(a), b);
 const copySign = (a, b) => Math.sign(b) * Math.abs(a);
 const zdiv = (a, b) => b === 0 ? 0 : a / b;
 const interpolate = (start, end, p) => start + (end - start) * p;

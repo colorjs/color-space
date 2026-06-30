@@ -30,3 +30,33 @@ export const inv3 = (m) => {
 		C / det, (b * g - a * h) / det, (a * e - b * d) / det
 	];
 };
+
+/**
+ * Signed power: keeps the sign, raises the magnitude. The standard way every
+ * appearance model / gamma curve extends a fractional exponent to negative
+ * (out-of-gamut) inputs without producing NaN.
+ * @returns {number} sign(a)·|a|^b
+ */
+export const spow = (a, b) => Math.sign(a) * Math.abs(a) ** b;
+
+/**
+ * Cartesian opponent pair (a,b) -> cylindrical (chroma, hue°). The lightness L
+ * passes straight through. Below `t` the colour is achromatic and the hue is
+ * undefined → 0 (avoids a ghost hue from float-noise residuals, and atan2(-0,-0)).
+ * @returns {[number,number,number]} [l, c, h] with h in [0,360)
+ */
+export const cartToPolar = (l, a, b, t = 1e-8) => {
+	const c = Math.sqrt(a * a + b * b);
+	const h = c < t ? 0 : Math.atan2(b, a) * 180 / Math.PI;
+	return [l, c, h < 0 ? h + 360 : h];
+};
+
+/**
+ * Cylindrical (chroma, hue°) -> Cartesian opponent pair (a,b); inverse of
+ * {@link cartToPolar}. Lightness L passes through.
+ * @returns {[number,number,number]} [l, a, b]
+ */
+export const polarToCart = (l, c, h) => {
+	const hr = h * Math.PI / 180;
+	return [l, c * Math.cos(hr), c * Math.sin(hr)];
+};

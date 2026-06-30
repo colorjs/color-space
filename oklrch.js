@@ -14,35 +14,16 @@
 // https://bottosson.github.io/posts/colorpicker/
 
 import oklrab from './oklrab.js';
+import { cartToPolar, polarToCart } from './util.js';
 
 var oklrch = {
 	name: 'oklrch'
 };
 
-oklrch.oklrab = function (l, c, h) {
-	// Input: L 0-100, C 0-40, H 0-360
-	// Calculate a and b from polar coordinates
-	var hRad = (h / 360) * 2 * Math.PI;
-	var a = c * Math.cos(hRad);
-	var b = c * Math.sin(hRad);
+// L,C,H -> L,a,b (C 0-40, H 0-360)
+oklrch.oklrab = (l, c, h) => polarToCart(l, c, h);
 
-	// Return in oklrab conventional range (L 0-100, a/b ±40)
-	return [l, a, b];
-};
-
-oklrab.oklrch = function (l, a, b) {
-	// Input: L 0-100, a/b ±40
-	var c = Math.sqrt(a * a + b * b);
-	var h = Math.atan2(b, a);
-
-	// Convert from radians to degrees
-	h = h * 180 / Math.PI;
-	if (h < 0) {
-		h += 360;
-	}
-
-	// Return: L 0-100, C 0-40, H 0-360
-	return [l, c, h];
-};
+// L,a,b -> L,C,H (achromatic hue -> 0)
+oklrab.oklrch = (l, a, b) => cartToPolar(l, a, b);
 
 export default oklrch;

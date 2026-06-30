@@ -12,6 +12,7 @@
  * @dynamic hdr
  */
 import jzazbz from './jzazbz.js';
+import { cartToPolar, polarToCart } from './util.js';
 
 const jzczhz = {
 	name: 'jzczhz'
@@ -19,15 +20,8 @@ const jzczhz = {
 
 // jzazbz already uses conventional ranges (Jz 0-100, az/bz ±50), so this is a
 // pure rectangular<->polar transform with no rescaling.
-jzczhz.jzazbz = function(Jz, Cz, hz) {
-	const h = hz / 360 * 2 * Math.PI;
-	return [Jz, Cz * Math.cos(h), Cz * Math.sin(h)];
-};
+jzczhz.jzazbz = (Jz, Cz, hz) => polarToCart(Jz, Cz, hz);
 
-jzazbz.jzczhz = function(Jz, az, bz) {
-	let h = Math.atan2(bz, az) * 180 / Math.PI;
-	if (h < 0) h += 360;
-	return [Jz, Math.sqrt(az * az + bz * bz), h];
-};
+jzazbz.jzczhz = (Jz, az, bz) => cartToPolar(Jz, az, bz);
 
 export default jzczhz;

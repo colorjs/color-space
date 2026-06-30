@@ -14,6 +14,7 @@
  * @dynamic sdr
  */
 import labD65 from './lab-d65.js';
+import { cartToPolar, polarToCart } from './util.js';
 
 const lchD65 = {
 	name: 'lch-d65',
@@ -21,17 +22,9 @@ const lchD65 = {
 };
 
 // LCh -> Lab (D65)
-lchD65[labD65.name] = (l, c, h) => {
-	const hr = h / 360 * 2 * Math.PI;
-	return [l, c * Math.cos(hr), c * Math.sin(hr)];
-};
+lchD65[labD65.name] = (l, c, h) => polarToCart(l, c, h);
 
-// Lab (D65) -> LCh
-labD65[lchD65.name] = (l, a, b) => {
-	const c = Math.sqrt(a * a + b * b);
-	// achromatic: hue undefined -> 0
-	const h = c === 0 ? 0 : Math.atan2(b, a) * 180 / Math.PI;
-	return [l, c, h >= 0 ? h : h + 360];
-};
+// Lab (D65) -> LCh (achromatic hue -> 0)
+labD65[lchD65.name] = (l, a, b) => cartToPolar(l, a, b);
 
 export default lchD65;

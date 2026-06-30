@@ -13,21 +13,14 @@
  */
 import luv from './luv.js';
 import xyz from './xyz.js';
+import { cartToPolar, polarToCart } from './util.js';
 
 // cylindrical luv
 var lchuv = {
 	name: 'lchuv',
 
-	luv: function (l, c, h) {
-		// Input: L: 0-100, C: 0-150, H: 0-360
-		// Output: L: 0-100, u: -100 to 100, v: -100 to 100
-		var u, v, hr;
-
-		hr = h / 360 * 2 * Math.PI;
-		u = c * Math.cos(hr);
-		v = c * Math.sin(hr);
-		return [l, u, v];
-	},
+	// L,C,H -> L,u,v (u,v: -100 to 100)
+	luv: (l, c, h) => polarToCart(l, c, h),
 
 	xyz: function (l, c, h) {
 		return luv.xyz(...lchuv.luv(l, c, h));
@@ -36,19 +29,8 @@ var lchuv = {
 
 export default (lchuv);
 
-luv.lchuv = function (l, u, v) {
-	// Input: L: 0-100, u: -100 to 100, v: -100 to 100
-	// Output: L: 0-100, C: 0-150, H: 0-360
-	var c = Math.sqrt(u * u + v * v);
-	// achromatic (c≈0, within float noise): hue undefined -> 0 (avoid a residual hue
-	// from ~1e-12 u/v, and atan2(-0,-0)=-π => 180)
-	var h = c < 1e-8 ? 0 : Math.atan2(v, u) / (2 * Math.PI) * 360;
-	if (h < 0) {
-		h += 360;
-	}
-
-	return [l, c, h]
-};
+// L,u,v -> L,C,H (achromatic hue -> 0 via cartToPolar's threshold)
+luv.lchuv = (l, u, v) => cartToPolar(l, u, v);
 
 xyz.lchuv = function (x, y, z) {
 	return luv.lchuv(...xyz.luv(x, y, z));

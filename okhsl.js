@@ -15,6 +15,7 @@
 
 import oklab from './oklab.js';
 import rgb from './rgb.js';
+import { spow } from './util.js';
 
 var okhsl = {
 	name: 'okhsl'
@@ -162,10 +163,6 @@ export function findCusp(a, b, lmsToRgb, okCoeff) {
 	var cCusp = lCusp * sCusp;
 
 	return [lCusp, cCusp];
-}
-
-function spow(a, b) {
-	return Math.abs(a) ** b * Math.sign(a);
 }
 
 function findGamutIntersection(a, b, l1, c1, l0, lmsToRgb, okCoeff, cusp) {
