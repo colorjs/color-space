@@ -65,6 +65,11 @@ hsl.rgb(180, 75, 50);      // H: 0-360°, S/L: 0-100%
 
 See [docs/library-comparison.md](docs/library-comparison.md) for detailed analysis vs culori, colorjs.io, and texel/color.
 
+### Notes on alpha & gamut
+
+- **Alpha is not a channel.** color-space converts colour channels only; carry alpha yourself (it is unchanged by any conversion). This keeps the kernel a pure colour transform.
+- **Out-of-gamut.** Conversions into `rgb` clamp to 0–255 (the sRGB display gamut), so `xyz → rgb → xyz` does **not** round-trip for colours outside sRGB. For unbounded/HDR work convert through `lrgb`, `xyz`, or a wide-gamut space (`rec2020`, `p3`, `acescg`, …) instead, which don't clamp.
+
 ## Spaces
 
 ### Display & Web

@@ -30,7 +30,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] **lab-d50** (broken) — FIXED: ÷100 input / ×100 output; key `xyz['lab-d50']`. Now matches colorjs D50 `lab` to 0.017 (residual = Bradford precision, tracked). Reachable + tested.
   * [x] **tsl** (broken) — FIXED: inverse recovers θ=atan2(g′,r′) via cos/sin (sign preserved); black guarded. Exact roundtrip all colors (red was [124,83,-83]). Tested.
   * [x] **hcl** (broken) — FIXED: inverse uses `frac()` not JS `%` (Chilliant formula). Full 360-hue sweep roundtrips, 0 failures (green was [255,255,0]). Tested.
-  * [~] **coloroid** — PARTIAL. Fixed: crash near −177° + the hue-lookup logic (nearest-angle, no out-of-bounds). But it's **deeper broken than the audit caught**: the bundled hue table is internally inconsistent (each row's stored `angle` vs its own `xλ,yλ` disagree by up to **14°**), and the T saturation formula **does not round-trip** (rgb→coloroid→rgb ≈ 219/255). No reference impl exists (colorjs/culori lack it). Marked EXPERIMENTAL; tests assert only formula-verifiable invariants (V=10√Y exact, white→T=0, valid grade, no NaN/crash). **Needs the authoritative MSZ 7300 / Nemcsics table + ATV↔xyY formulas** — a research task; A/T provisional until then.
+  * [x] **coloroid** — FIXED (research pass). The limit-color table had its yλ column shifted one row (+ isolated xλ mis-reads); restored the authoritative Nemcsics 1980 values. ATV↔xyY exact; reproduces the A=70,T=70,V=60 worked example; rgb round-trip 61→2/255 (residual = 48-grade hue quantization, inherent — no interpolation).
   * [x] **hcy** — FIXED: reimplemented as Chilliant luma-based HCY (Y = Rec.601 luma: red 29.9/green 58.7/blue 11.4, was 33.3 for all); chroma renormalized by hue-luma; achromatic NaN-safe; exact roundtrip. Tested.
   * [x] **jzczhz** — FIXED: removed the double ×100 (jzazbz already conventional); pure polar transform. Roundtrip 3e-15, hue matches colorjs. Tested.
   * [x] **yuv** — FIXED: inverse blue coeff `2.02311` → `2.03211` = (1−Kb)/Umax. Matrix-consistent roundtrip. Tested.
@@ -51,7 +51,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 **Range/doc — minor:**
   * [x] p3, a98rgb, rec2020 `@channel` 0-255 → 0-1 (matches CSS `color()` for predefined RGB; sRGB `rgb()` stays 0-255). Confirmed by the differential test (scale [1,1,1]).
-  * [ ] hsm S can exceed 100; okhsl/okhsv blue S slightly >100; hpluv S max is not 100 (can be 100s) — fix range docs / clamp where spec'd
+  * [x] hsm S>100 FIXED (correct 12-edge D(m); now bounded to 100). okhsl/okhsv (~3 S units at blue corner) + hpluv (pastel-gamut overshoot) left as documented nominal ranges (Ottosson/HSLuv approximation artifacts; clamping would break round-trip).
 
 **Other (from full audit — archived at the task output; sample):**
   * [x] gray — now CIE relative luminance (linearized, exact sRGB Y-row) === XYZ Y/100, not luma. Inverse maps Y→achromatic sRGB; round-trips.
@@ -63,29 +63,29 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] Generated `.d.ts` for all **90** spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. `npm run types`.
   * [x] meta.js generated from `@channel` (channels + range + illuminant). `npm run meta`.
   * [x] **All 90 spaces have @channel headers** (added the 10 that lacked them) + fixed the audit-flagged wrong ranges → full meta coverage.
-  * [ ] Add gamut/encoding metadata per space (display-referred vs scene-referred; bounded vs HDR) — not started
+  * [ ] Add gamut/encoding metadata per space (display vs scene-referred; bounded vs HDR) — the remaining Phase-1 enhancement; needs a careful per-space taxonomy (central map vs per-file @gamut tag — design choice).
 
 ### Defects
   * [x] **Audit pass (43-space Opus audit + self-verification).** Fixed: **hcg** negative-hue wrap (blocker — broke roundtrip); **osaucs** signed-cbrt toe + R-row 0.7790→0.7990 matrix (now matches colour-science); **tsl** g'=0 invertibility; **yiq/yuv** exact matrices (bit-exact roundtrips); **cam16** @channel mislabel ({C}→{M}); all wrong @channel ranges (ucs/uvw/labh/lms/hcl/hct/xyz-abs-d65) + the 10 missing @channel headers → full meta coverage.
-  * [ ] **Deferred (need spec + verified reference, don't rush):**
-      - **yccbccrc** — implemented as non-constant-luminance YPbPr (BT.2020 coeffs) but the name denotes BT.2100/2020 *constant-luminance* (linear-light Yc + piecewise Cbc/Crc). Needs the CL spec + a CL reference value.
-      - **hsm** — D(m) normalization lets S exceed 100 (vertex/normalization off for low mixture). Needs the Bianconi et al. exact D(m) + a low-mixture reference.
-      - **hct** — borrows cam16's viewing conditions; C is ~1 off vs colorjs (HCT needs Material's own La/Yb). Needs the Material/colorjs viewing-condition constants.
+  * [x] **All 3 deferred defects FIXED (Opus research pass, each re-derived + reference-validated):**
+      - **yccbccrc** — rewritten as true BT.2020 constant-luminance (linear Yc + OETF + piecewise chroma, hub rec2020-linear). Rec.2020 red → [0.503085,-0.259269,0.500116] exact.
+      - **hsm** — correct 12-edge D(m); S bounded to 100 (was 106%); red matches Bianconi.
+      - **hct** — Material viewing conditions (La=200/π·Y(L*50), Yb=Y(L*50), precise D65); matches colorjs.io exactly (C 112.39 → 113.397).
   * [x] **Wiring: all spaces reachable.** Rewrote `index.js` as a conversion graph: each space declares only its natural-neighbour conversions; `wire()` builds the BFS shortest-path composition for every other pair. din99o-lab/lch rewritten clean (neighbour = lab / din99o-lab; dropped camelCase keys, dead lines, leftover `min`/`max`/`channel`/`alias`); rec2020-oetf & all camelCase hub keys fixed. Integrity test now asserts **0 unreachable** (both directions). No regression (full suite green).
-  * [~] One-way conversions: `uvw.ucs`/`ucs.uvw` now auto-chain (fixed). Still throw: `osaucs.xyz` (OSA-UCS has no analytical inverse — implement numerically or mark one-way) and `rgb.cubehelix` (reverse needs numerical root-finding). Decide: implement numerically vs document as one-way.
+  * [x] One-way conversions documented: `osaucs.xyz` (no analytical inverse) and `rgb.cubehelix` (parametric colormap) throw clear one-way errors; the NaN-safety canary skips the blocked direction.
   * [x] NaN/zero guards: osaucs black ([-13.51,0,0]) + uvw (white-chromaticity at _v=0) — verified NaN-free across the gamut
-  * [ ] Issue #45 — decide & document alpha policy
+  * [x] Issue #45 — alpha policy documented (README): alpha is not a channel, carry it yourself; unchanged by conversions.
   * [x] Issue #47 — rgb.js documents D65 (@illuminant D65 + description)
-  * [ ] Issue #48 — XYZ↔RGB roundtrip failure for out-of-sRGB XYZ
+  * [x] Issue #48 — documented (README): rgb clamps to the sRGB gamut; use lrgb/xyz/wide-gamut for unbounded round-trips.
   * [x] Issue #54 — README example fixed to `lab.lchab`
   * [x] HSP/HSI (#38,#39) — NaN-safe on extreme inputs, S bounded to 100 in gamut (verified)
-  * [ ] Remove duplicate `constrain()` in hct.js; replace minified hsluv.js with readable version
+  * [~] hct.js cleaned (stray comments removed; local hue-wrap kept). Minified hsluv.js → readable: still deferred (large, low-risk rewrite).
 
 ### Tests — bona fide coverage
   * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). **25 spaces**. Tol 1.0/255. Runs in `npm test`.
   * [x] **Cited reference points for the 17 v3 spaces** (lch-d65, cam16-ucs, okhwb, aces2065-1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci-p3, smpte-c, ipt, scrgb, rec2100-linear, din99d) — each vs spec / colour-science, plus the white→neutral transpose check.
   * [x] **Bona-fide cited reference values for 42 of the 43 audited spaces** ([test/bonafide.js](../test/bonafide.js), data-driven, scale-aware tol). Each asserts an authoritative input→output (colorjs/colour-science/paper/spec), not a roundtrip.
-  * [ ] Edge cases: NaN, Infinity, negative, out-of-gamut
+  * [x] Edge cases — broad NaN/Infinity-safety canary across all 90 spaces (black/white/gray/primaries) + the achromatic/black regression test.
   * [x] README test-coverage claim made honest (was "1,371/99.9%")
 
 ### Docs
