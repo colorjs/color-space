@@ -1,6 +1,6 @@
 ## v3 — the color conversion kernel
 
-**Positioning.** Not a color toolkit — the color *kernel* toolkits build on. The most complete (71 spaces, incl. video/film/scientific/historical no one else ships), exactly-CSS-ranged, verified conversion substrate. JS for single colors, WASM for whole buffers.
+**Positioning.** Not a color toolkit — the color *kernel* toolkits build on. The most complete (**88 spaces**, incl. camera-log/cinema/video/film/scientific/historical no one else ships), exactly-CSS-ranged, verified conversion substrate. JS for single colors, WASM for whole buffers.
 
 **Goal.** Seal the kernel — complete, correct, typed, tested, metadata'd (nothing left to take away) — then ship the one edge nobody else has at this breadth: WASM batch conversion.
 
@@ -13,11 +13,11 @@
 
 ---
 
-## Phase 0 — Make it load (the gate)
+## Phase 0 — Make it load (the gate) — DONE
 
-  * [ ] Close 35 unclosed object literals (missing `};` after `name:`) — library is currently unparseable, **0 tests run**
-  * [ ] Green the test suite; capture the real passing assertion count
-  * [ ] README truth pass: **71** spaces (not 72), the real test number (not "1,371 / 99.9%"), delete *"Values remain normalized to 0-1 in the API"* (contradicts the whole v3 premise)
+  * [x] Close 35 unclosed object literals (missing `};` after `name:`) — library parses, suite runs
+  * [x] Green the test suite; **156 tests, 155 pass, 1 skip, 0 fail**
+  * [x] README truth pass: real space count (88), real test number, removed the 0-1 normalization claim
 
 ## Phase 1 — Seal the kernel → 3.0
 
@@ -60,9 +60,9 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] one-way conversions documented: `osaucs.xyz` (no analytical inverse) and `rgb.cubehelix` (parametric colormap) now throw clear one-way errors. `uvw.ucs`/`ucs.uvw` auto-chain.
 
 ### Types & metadata
-  * [x] Generated `.d.ts` for all 71 spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. Removed orphan munsell.d.ts + 3 wrong-ext .ts. `npm run types`.
-  * [x] meta.js generated from `@channel` (channels + range + illuminant) for 68 spaces. `npm run meta`.
-  * [ ] **Remaining:** 10 spaces lack `@channel` headers (hcl, hsm, jpeg, xvycc, xyb, xyz-abs-d65, xyz-d50, yccbccrc, ycgco, yes) → add for full meta/range coverage
+  * [x] Generated `.d.ts` for all **88** spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. `npm run types`.
+  * [x] meta.js generated from `@channel` (channels + range + illuminant). `npm run meta`.
+  * [~] **In progress (current pass):** 10 spaces lack `@channel` headers (hcl, hsm, jpeg, xvycc, xyb, xyz-abs-d65, yccbccrc, ycgco, yes; xyz-d50 done) → add cited ranges for full meta coverage
   * [ ] Add gamut/encoding metadata per space (display-referred vs scene-referred; bounded vs HDR) — not started
 
 ### Defects
@@ -77,11 +77,10 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] Remove duplicate `constrain()` in hct.js; replace minified hsluv.js with readable version
 
 ### Tests — bona fide coverage
-  * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). **24 spaces**: srgb-linear, p3(+linear), rec2020(+linear), a98rgb(+linear), prophoto(+linear), xyz-d65/d50, lab-d50, luv, lchuv, oklab, oklch, hsl, hsv, hwb, jzazbz, jzczhz, ictcp, acescg, acescc. Tol 1.0/255 (sub-perceptual; real bugs were 20-1330). Runs in `npm test`. (lchab/lab cs-D65 vs colorjs-D50 excluded; okhsl/okhsv not in colorjs — validated vs culori.)
-  * [ ] Per-space reference-value cases (primaries, white, black, gray)
-  * [ ] Roundtrip precision (A→B→A error accumulation)
+  * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). **25 spaces**. Tol 1.0/255. Runs in `npm test`.
+  * [x] **Cited reference points for the 17 v3 spaces** (lch-d65, cam16-ucs, okhwb, aces2065-1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci-p3, smpte-c, ipt, scrgb, rec2100-linear, din99d) — each vs spec / colour-science, plus the white→neutral transpose check.
+  * [~] **In progress (current pass):** bona-fide cited reference value for the remaining 43 spaces (the audit workflow sources each vs colorjs/colour-science/paper, empirically re-checks the impl, flags defects).
   * [ ] Edge cases: NaN, Infinity, negative, out-of-gamut
-  * [ ] cam16/hct viewing-condition variations
   * [ ] Report true count; keep README honest to it
 
 ### Docs
@@ -125,7 +124,7 @@ Two deep-research + adversarial-verify passes (Opus). Each connects via an exist
   * [x] **ipt** — Ebner & Fairchild 1998 (ICtCp's ancestor) · **scrgb** — extended-range linear sRGB · **rec2100-linear** — BT.2100 = BT.2020 linear
   * [x] **din99d** — Cui et al. 2002 *with* the canonical X-correction (Xc=1.12X−0.12Z); hub xyz; L99 cross-checks colour-science, a/b per the paper form (colour-science omits the correction)
 
-  Deferred: **CIECAM02 / CAM02-UCS** — CAM16 (already shipped) is the CIE's own successor; a correct CIECAM02 is a large, error-prone appearance model with marginal added value. Do as a dedicated careful task if requested.
+  * [~] **CIECAM02 / CAM02-UCS** — in progress (researched + implementing); predecessor to CAM16, still used in ICC profiles. CAM02-UCS mirrors cam16-ucs.
   Data-table (need bundled data): Munsell (RIT renotation), NCS, Federal Std 595, BS 4800/5252, AS 2700, RAL (freieFarbe CC data).
   **Skip — proprietary/licensed:** Pantone/PMS, RAL official Lab, HKS, Toyo, DIC, ANPA (IP-enforced; no open authoritative data).
 
