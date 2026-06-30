@@ -30,7 +30,12 @@ function parseJSDoc(content) {
       name: match[4].trim()
     })
   }
-  if (channels.length) meta.channels = channels
+  if (channels.length) {
+    meta.channels = channels
+    // range is the per-channel [min, max] (numeric channels only)
+    if (channels.every(c => typeof c.min === 'number' && typeof c.max === 'number'))
+      meta.range = channels.map(c => [c.min, c.max])
+  }
 
   // Parse illuminant
   const illuminantMatch = jsdoc.match(/@illuminant\s+(\S+)/)
@@ -63,7 +68,7 @@ function getSpaceName(filename) {
 function generateMeta() {
   const files = fs.readdirSync(rootDir)
     .filter(f => f.endsWith('.js') && !f.startsWith('.'))
-    .filter(f => !['index.js', 'package.json'].includes(f))
+    .filter(f => !['index.js', 'package.json', 'util.js'].includes(f))
 
   const meta = {}
 
