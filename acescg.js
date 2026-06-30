@@ -9,6 +9,7 @@
  * @channel {B} 0 65504 Blue (half float)
  */
 import xyz from './xyz.js';
+import { mat3 } from './util.js';
 
 const acescg = {
 	name: 'acescg'
@@ -41,19 +42,11 @@ const M_ADAPT_D65_TO_ACES = [
 	-0.0028334818392132, 0.0047705284353699, 0.9246965793797629
 ];
 
-function applyMatrix(m, x, y, z) {
-	return [
-		x * m[0] + y * m[1] + z * m[2],
-		x * m[3] + y * m[4] + z * m[5],
-		x * m[6] + y * m[7] + z * m[8]
-	];
-}
-
 acescg.xyz = (r, g, b) => {
 	// ACEScg -> XYZ (ACES)
-	const [x, y, z] = applyMatrix(M_ACESCG_TO_XYZ_ACES, r, g, b);
+	const [x, y, z] = mat3(M_ACESCG_TO_XYZ_ACES, r, g, b);
 	// XYZ (ACES) -> XYZ (D65, 0-100)
-	const [x65, y65, z65] = applyMatrix(M_ADAPT_ACES_TO_D65, x, y, z);
+	const [x65, y65, z65] = mat3(M_ADAPT_ACES_TO_D65, x, y, z);
 	return [x65 * 100, y65 * 100, z65 * 100];
 }
 
@@ -63,9 +56,9 @@ xyz.acescg = (x, y, z) => {
 	y = y / 100;
 	z = z / 100;
 	// XYZ (D65) -> XYZ (ACES)
-	const [xa, ya, za] = applyMatrix(M_ADAPT_D65_TO_ACES, x, y, z);
+	const [xa, ya, za] = mat3(M_ADAPT_D65_TO_ACES, x, y, z);
 	// XYZ (ACES) -> ACEScg
-	return applyMatrix(M_XYZ_ACES_TO_ACESCG, xa, ya, za);
+	return mat3(M_XYZ_ACES_TO_ACESCG, xa, ya, za);
 }
 
 export default acescg;

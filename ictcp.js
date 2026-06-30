@@ -9,6 +9,7 @@
  * @channel {Cp} -50 50 Protanopia chroma (red-green)
  */
 import xyz from './xyz.js';
+import { mat3 } from './util.js';
 
 const ictcp = {
 	name: 'ictcp'
@@ -48,14 +49,6 @@ const M_IPT_LMS = [
 	1.0, 0.5600313357106791, -0.3206271749873188
 ];
 
-function applyMatrix(m, x, y, z) {
-	return [
-		x * m[0] + y * m[1] + z * m[2],
-		x * m[3] + y * m[4] + z * m[5],
-		x * m[6] + y * m[7] + z * m[8]
-	];
-}
-
 function LMStoICtCp(l, m, s) {
 	const lms = [l, m, s];
 	const PQLMS = lms.map(val => {
@@ -65,11 +58,11 @@ function LMStoICtCp(l, m, s) {
 		const denom = 1 + c3 * Math.pow(v, m1);
 		return Math.pow(num / denom, m2);
 	});
-	return applyMatrix(M_LMS_IPT, PQLMS[0], PQLMS[1], PQLMS[2]);
+	return mat3(M_LMS_IPT, PQLMS[0], PQLMS[1], PQLMS[2]);
 }
 
 function ICtCptoLMS(i, ct, cp) {
-	const PQLMS = applyMatrix(M_IPT_LMS, i, ct, cp);
+	const PQLMS = mat3(M_IPT_LMS, i, ct, cp);
 	return PQLMS.map(val => {
 		const num = Math.max(Math.pow(val, im2) - c1, 0);
 		const denom = c2 - c3 * Math.pow(val, im2);
@@ -88,7 +81,7 @@ xyz.ictcp = (x, y, z) => {
 	const ya = y * Yw;
 	const za = z * Yw;
 	// XYZ Abs -> LMS Abs
-	const [l, m, s] = applyMatrix(M_XYZ_LMS, xa, ya, za);
+	const [l, m, s] = mat3(M_XYZ_LMS, xa, ya, za);
 	// LMS Abs -> ICtCp
 	const [i, ct, cp] = LMStoICtCp(l, m, s);
 	// Scale to conventional ranges
@@ -104,7 +97,7 @@ ictcp.xyz = (i, ct, cp) => {
 	// ICtCp -> LMS Abs
 	const [l, m, s] = ICtCptoLMS(i, ct, cp);
 	// LMS Abs -> XYZ Abs
-	const [xa, ya, za] = applyMatrix(M_LMS_XYZ, l, m, s);
+	const [xa, ya, za] = mat3(M_LMS_XYZ, l, m, s);
 	// XYZ Abs -> XYZ Relative (scale to 0-100)
 	return [xa / Yw * 100, ya / Yw * 100, za / Yw * 100];
 }
