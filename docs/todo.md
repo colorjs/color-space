@@ -60,10 +60,10 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] one-way conversions documented: `osaucs.xyz` (no analytical inverse) and `rgb.cubehelix` (parametric colormap) now throw clear one-way errors. `uvw.ucs`/`ucs.uvw` auto-chain.
 
 ### Types & metadata
-  * [ ] Generate `.d.ts` from JSDoc `@channel` headers — extend [scripts/generate-meta.js](../scripts/generate-meta.js); kills the 32 missing + 3 wrong-ext + drift
-  * [ ] Finish `range` on all 71 (only ~20 have it)
-  * [ ] Add gamut/encoding metadata per space (display-referred vs scene-referred; bounded vs HDR)
-  * [ ] Delete orphan `types/munsell.d.ts`; remove `min`/`max` from `types/color-space.d.ts`
+  * [x] Generated `.d.ts` for all 71 spaces via [scripts/generate-types.js](../scripts/generate-types.js) — v3 shape (name/range, flat-arg `Convert`), tsc-strict clean, barrel + util.d.ts. Removed orphan munsell.d.ts + 3 wrong-ext .ts. `npm run types`.
+  * [x] meta.js generated from `@channel` (channels + range + illuminant) for 68 spaces. `npm run meta`.
+  * [ ] **Remaining:** 10 spaces lack `@channel` headers (hcl, hsm, jpeg, xvycc, xyb, xyz-abs-d65, xyz-d50, yccbccrc, ycgco, yes) → add for full meta/range coverage
+  * [ ] Add gamut/encoding metadata per space (display-referred vs scene-referred; bounded vs HDR) — not started
 
 ### Defects
   * [x] **Wiring: all spaces reachable.** Rewrote `index.js` as a conversion graph: each space declares only its natural-neighbour conversions; `wire()` builds the BFS shortest-path composition for every other pair. din99o-lab/lch rewritten clean (neighbour = lab / din99o-lab; dropped camelCase keys, dead lines, leftover `min`/`max`/`channel`/`alias`); rec2020-oetf & all camelCase hub keys fixed. Integrity test now asserts **0 unreachable** (both directions). No regression (full suite green).
@@ -85,10 +85,10 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] Report true count; keep README honest to it
 
 ### Docs
-  * [ ] docs/library-comparison.md (referenced, missing)
-  * [ ] docs/formula-verification.md (referenced, missing)
-  * [ ] CHANGELOG.md
-  * [ ] v2→v3 migration guide (currently commented out)
+  * [x] docs/formula-verification.md — differential methodology + 29 colorjs-validated spaces + non-colorjs validation + honest limitations
+  * [x] docs/library-comparison.md — vs culori/colorjs.io/chroma-js/@texel (honest, with "choose X if")
+  * [x] CHANGELOG.md — 3.0.0 breaking changes + correctness fixes
+  * [x] docs/migration.md — v2→v3 guide
 
 ## Phase 2 — WASM batch kernel → 3.1 (the headline feature)
 
