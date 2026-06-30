@@ -32,6 +32,20 @@ test('edge: achromatic / black inputs are NaN-safe', () => {
 	is(space.rgb.lchuv(0, 0, 0).map(round(1)), [0, 0, 0], 'lchuv black hue 0 (was 180)')
 })
 
+test('edge: every space is NaN/Infinity-safe (black/white/gray/primaries)', () => {
+	const finite = (a) => Array.isArray(a) && a.every(Number.isFinite)
+	const inputs = [[0, 0, 0], [255, 255, 255], [128, 128, 128], [255, 0, 0], [0, 255, 0], [0, 0, 255]]
+	const skipFwd = new Set(['cubehelix']) // rgb->cubehelix is one-way-blocked (parametric colormap)
+	const skipInv = new Set(['osaucs', 'cubehelix']) // space->rgb throws by design
+	for (const name of Object.keys(space)) {
+		if (name === 'rgb' || typeof space.rgb[name] !== 'function' || skipFwd.has(name)) continue
+		for (const c of inputs) {
+			is(finite(space.rgb[name](...c)), true, `rgb -> ${name} ${c} finite`)
+			if (!skipInv.has(name)) is(finite(space[name].rgb(...space.rgb[name](...c))), true, `${name} -> rgb ${c} finite`)
+		}
+	}
+})
+
 
 test('lrgb', () => {
 	// RGB now uses 0-255, lrgb uses 0-1
