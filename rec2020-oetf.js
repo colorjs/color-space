@@ -17,8 +17,8 @@ const rec2020oetf = {
 	name: 'rec2020-oetf'
 };
 
-const alpha = 1.099;
-const beta = 0.018;
+const alpha = 1.09929682680944; // ITU-R BT.2020 Table 4 (full precision)
+const beta = 0.018053968510807;
 const alphaMinus1 = alpha - 1;
 
 function toLinear(val) {
@@ -47,7 +47,7 @@ rec2020oetf.xyz = (r, g, b) => {
 	return rec2020Linear.xyz(toLinear(r), toLinear(g), toLinear(b));
 }
 
-xyz.rec2020oetf = (x, y, z) => {
+xyz['rec2020-oetf'] = (x, y, z) => {
 	const [lr, lg, lb] = xyz['rec2020-linear'](x, y, z);
 	return [fromLinear(lr), fromLinear(lg), fromLinear(lb)];
 }

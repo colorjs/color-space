@@ -25,7 +25,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 **Wrong output — confirmed (fix + bona fide reference test each):**
   * [x] **oklab** — `rgb.oklab` skipped sRGB→linear before the M1 matrix; `oklab.rgb` skipped gamma re-encode. Self-cancelled in roundtrip so hidden. Poisoned oklch/okhsl/okhsv too. FIXED by reusing `lrgb` transfer; now matches colorjs to 2e-6. (oklch/okhsl/okhsv auto-fixed.)
-  * [ ] **rec2020** — uses pure power-law `x^2.4`, not the ITU-R BT.2020 OETF (linear segment, α=1.0993). Error 0.107 vs colorjs. (`rec2020-oetf` is the correct transfer — reconcile the two.)
+  * [x] **rec2020** — FIXED: full-precision BT.2020 OETF (piecewise, α/β from Table 4); 0-1 range. Matches colorjs to 2e-14. `rec2020-oetf` is now redundant (also fixed + reachable) — **recommend removing it** (would make count 70).
   * [x] **lab-d50** (broken) — FIXED: ÷100 input / ×100 output; key `xyz['lab-d50']`. Now matches colorjs D50 `lab` to 0.017 (residual = Bradford precision, tracked). Reachable + tested.
   * [x] **tsl** (broken) — FIXED: inverse recovers θ=atan2(g′,r′) via cos/sin (sign preserved); black guarded. Exact roundtrip all colors (red was [124,83,-83]). Tested.
   * [x] **hcl** (broken) — FIXED: inverse uses `frac()` not JS `%` (Chilliant formula). Full 360-hue sweep roundtrips, 0 failures (green was [255,255,0]). Tested.
@@ -44,7 +44,8 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] uvw — `xyz(0,0,0)` → [43.72,68.99,−17] (guarded _u/_v=0 but U/V still use them)
 
 **Precision (canonical constants) — minor:**
-  * [ ] rec2020-oetf α 1.099→1.099296826809443; prophoto/prophoto-linear/acescg Bradford matrices to full precision; lab ε→216/24389; rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward
+  * [x] D50↔D65 Bradford consolidated into `xyz.js` (`bradford` + `mat3` exports, full precision); xyz-d50/lab-d50/prophoto-linear now share it (was 3 truncated copies). lab-d50 D50 white → full precision. rec2020-oetf α/β → full precision. All verified by the differential test.
+  * [ ] acescg adapt matrices (not exact inverses); lab ε→216/24389; rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward
 
 **Range/doc — minor:**
   * [ ] p3, a98rgb, rec2020 `@channel` say 0-255 but code uses 0-1 → fix docs to 0-1 (matches CSS `color()` for predefined RGB; sRGB `rgb()` stays 0-255)
@@ -61,7 +62,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] Delete orphan `types/munsell.d.ts`; remove `min`/`max` from `types/color-space.d.ts`
 
 ### Defects
-  * [~] **Wiring: spaces unreachable from rgb.** (a) camelCase/hyphen key mismatch — FIXED for 7 (p3-linear, rec2020-linear, a98rgb-linear, prophoto-linear, xyz-d50, xyz-abs-d65, lab-d50): keys now bracketed-hyphenated, readers updated, reachability pinned by integrity test. **Remaining (6):** din99o-lab, din99o-lch (camelCase `rgb.din99oLab` + entangled internal `lab.din99oLab` refs), rec2020-oetf (no hub-reverse conversion), and (b) oklrab, oklrch, jzczhz — connected only to a non-hub (oklab/jzazbz); `createConverter` routes solely through xyz/rgb. Fix: give these a hub path, or let `createConverter` chain through one intermediate non-hub space. Update the integrity-test canary as each is fixed.
+  * [x] **Wiring: all spaces reachable.** Rewrote `index.js` as a conversion graph: each space declares only its natural-neighbour conversions; `wire()` builds the BFS shortest-path composition for every other pair. din99o-lab/lch rewritten clean (neighbour = lab / din99o-lab; dropped camelCase keys, dead lines, leftover `min`/`max`/`channel`/`alias`); rec2020-oetf & all camelCase hub keys fixed. Integrity test now asserts **0 unreachable** (both directions). No regression (full suite green).
   * [ ] `osaucs.xyz()`, `rgb.cubehelix()`, `uvw.ucs()`, `ucs.uvw()` — implement, or honestly mark one-way + document
   * [ ] NaN/zero guards: `osaucs` X+Y+Z=0 (black), `uvw` `_v`=0 denominator
   * [ ] Issue #45 — decide & document alpha policy
@@ -72,6 +73,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] Remove duplicate `constrain()` in hct.js; replace minified hsluv.js with readable version
 
 ### Tests — bona fide coverage
+  * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates every overlapping space against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). 18 spaces, runs as part of `npm test`. Extend coverage as more spaces gain references.
   * [ ] Per-space reference-value cases (primaries, white, black, gray)
   * [ ] Roundtrip precision (A→B→A error accumulation)
   * [ ] Edge cases: NaN, Infinity, negative, out-of-gamut

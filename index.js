@@ -84,35 +84,59 @@ export default space;
 
 
 /**
- * Register new color space and conversions with all existing spaces
+ * Wire conversions between every pair of spaces.
+ *
+ * Each space file declares conversions only to its natural neighbours (e.g.
+ * `oklab.rgb`, `din99o-lab.lab`). This builds the conversion graph from those
+ * direct edges and fills every remaining pair with the shortest-path
+ * composition — so any space reaches any other with the fewest hops.
  */
-export function register(newSpace) {
-	const newSpaceName = newSpace.name;
-	for (const existingSpaceName in space) {
-		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
+function wire() {
+	const names = Object.keys(space);
 
-		const existingSpace = space[existingSpaceName]
-		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
+	// direct adjacency: conversions defined in the source files (not our compositions)
+	const direct = {};
+	for (const a of names) {
+		direct[a] = {};
+		for (const b of names)
+			if (a !== b && typeof space[a][b] === 'function' && !space[a][b].chained)
+				direct[a][b] = space[a][b];
 	}
-	space[newSpaceName] = newSpace
+
+	// shortest path of direct conversions from `from` to `to` (BFS)
+	const path = (from, to) => {
+		const queue = [[from]], seen = new Set([from]);
+		while (queue.length) {
+			const p = queue.shift(), last = p[p.length - 1];
+			for (const next in direct[last]) {
+				if (next === to) return [...p, next];
+				if (!seen.has(next)) { seen.add(next); queue.push([...p, next]); }
+			}
+		}
+		return null;
+	};
+
+	for (const from of names) for (const to of names) {
+		if (from === to || direct[from][to]) continue;
+		const p = path(from, to);
+		if (!p) continue;
+		const steps = p.slice(1).map((n, i) => direct[p[i]][n]);
+		const convert = (...args) => steps.reduce((vals, fn) => fn(...vals), args);
+		convert.chained = true; // exclude from `direct` so re-wiring rebuilds from source edges
+		space[from][to] = convert;
+	}
 }
 
 /**
- * Creates a color space converter function via intermediate xyz or rgb.
- *
- * @param {space} fromSpace
- * @param {SpaceId} toSpaceName
- * @returns {Transform}
+ * Register a color space and (re)wire conversions to/from every other space.
+ * @param {space} newSpace
  */
-function createConverter(fromSpace, toSpaceName) {
-	// xyz converter
-	if (fromSpace.xyz && space.xyz[toSpaceName])
-		return (...args) => space.xyz[toSpaceName](...fromSpace.xyz(...args));
-
-	// rgb converter
-	if (fromSpace.rgb && space.rgb[toSpaceName])
-		return (...args) => space.rgb[toSpaceName](...fromSpace.rgb(...args));
+export function register(newSpace) {
+	space[newSpace.name] = newSpace;
+	wire();
+	return space;
 }
 
-// register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2020oetf, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD50, gray, rg, hcl, din99oLab, din99oLch, xyb].map(register)
+// register all spaces, then wire the graph once
+[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2020oetf, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD50, gray, rg, hcl, din99oLab, din99oLch, xyb].forEach(s => { space[s.name] = s; });
+wire();

@@ -5,6 +5,7 @@
 import space from '../index.js';
 import test, { is } from 'tst'
 import color from 'color-name'
+import './reference.js' // authoritative differential tests vs colorjs.io
 
 // get round fn for a precision
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision
@@ -17,10 +18,9 @@ test('integrity — every space loads, registers, and is named consistently', ()
 	const names = Object.keys(space)
 	is(names.length, 71, '71 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
-	// reachability canary: rgb -> X must be wired for every space (caught the camelCase-key bug).
-	// these 6 remain unreachable (tracked in docs/todo.md Phase 1 wiring defect); shrink as fixed.
-	const unreachable = names.filter(n => n !== 'rgb' && typeof space.rgb[n] !== 'function').sort()
-	is(unreachable, ['din99o-lab', 'din99o-lch', 'jzczhz', 'oklrab', 'oklrch', 'rec2020-oetf'], 'known-unreachable set unchanged')
+	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
+	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
+	is(unreachable, [], 'every space is reachable to and from rgb')
 })
 
 test('edge: achromatic / black inputs are NaN-safe', () => {
