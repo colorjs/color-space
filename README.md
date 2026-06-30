@@ -96,7 +96,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [HCT](https://material.io/blog/science-of-color-design) — Google Material's hue/chroma/tone, combines CAM16 hue with L* lightness.
 
 ### Perceptual Uniform (CIE Classic)
-* [x] [LAB](https://www.w3.org/TR/css-color-4/#cie-lab) — CIE 1976 L\*a\*b\*, the historical standard for perceptual uniformity. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
+* [x] [LAB](https://www.w3.org/TR/css-color-4/#cie-lab) — CIE 1976 L\*a\*b\*, the standard for perceptual uniformity. **D50** reference white (ICC/CSS Color 4 convention); use `lab-d65` for display-native. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
 * [x] [LCH<sub>ab</sub>](https://www.w3.org/TR/css-color-4/#cie-lab) — polar LAB, intuitive hue/chroma. CSS Color 4 standard.
 * [x] [LUV](https://en.wikipedia.org/wiki/CIELUV) — CIE 1976 L\*u\*v\*, uniform for additive color mixing (displays, lighting).
 * [x] [LCH<sub>uv</sub>](http://www.brucelindbloom.com/index.html?Eqn_Luv_to_LCH.html) — polar LUV.

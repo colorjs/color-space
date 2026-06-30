@@ -33,8 +33,9 @@ const MAP = {
 	'prophoto-linear': ['prophoto-linear', [1, 1, 1]],
 	xyz:               ['xyz-d65',         [1 / 100, 1 / 100, 1 / 100]],
 	'xyz-d50':         ['xyz-d50',         [1 / 100, 1 / 100, 1 / 100]],
-	'lab-d50':         ['lab',             [1, 1, 1]],         // colorjs `lab` is D50
-	lchab:             ['lch',             [1, 1, 1]],         // note: cs lchab is D65, lch is D50 — see SKIP
+	lab:               ['lab',             [1, 1, 1]],         // cs lab is now D50 (ICC/CSS)
+	'lab-d65':         ['lab-d65',         [1, 1, 1]],
+	lchab:             ['lch',             [1, 1, 1]],         // cs lchab is D50 polar -> colorjs lch
 	luv:               ['luv',             [1, 1, 1]],         // CIE Luv — both D65
 	lchuv:             ['lchuv',           [1, 1, 1]],
 	oklab:             ['oklab',           [1 / 100, 1 / 100, 1 / 100]],
@@ -49,8 +50,7 @@ const MAP = {
 	acescc:            ['acescc',           [1, 1, 1]],
 }
 
-// cs lab/lchab use D65 (not CSS D50), so they legitimately differ from colorjs lab/lch
-const SKIP = new Set(['lchab'])
+const SKIP = new Set([])
 
 // Tolerance in sRGB code values (0-255). 1.0 is sub-perceptual (< 0.4%) yet catches
 // real bugs with huge margin (every bug found was 20-1330). The headroom over the

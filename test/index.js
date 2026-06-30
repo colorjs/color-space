@@ -78,16 +78,27 @@ test('xyz', () => {
 
 
 
-test('lab: lab -> xyz', function () {
-	// Lab now uses L: 0-100, a/b: -125 to 125
+// lab is D50 (ICC PCS / CSS Color 4). Reference values from colorjs.io `lab`.
+test('lab: rgb <-> lab (D50, vs colorjs)', function () {
+	is(space.rgb.lab(255, 255, 255).map(round(1)), [100, 0, 0], 'white');
+	is(space.rgb.lab(0, 0, 0).map(round(1)), [0, 0, 0], 'black');
+	is(space.rgb.lab(128, 128, 128).map(round(1)), [53.6, 0, 0], 'gray');
+	is(space.rgb.lab(255, 0, 0).map(round(1)), [54.3, 80.8, 69.9], 'red');
+	is(space.rgb.lab(0, 255, 0).map(round(1)), [87.8, -79.3, 81], 'green');
+	is(space.rgb.lab(0, 0, 255).map(round(1)), [29.6, 68.3, -112], 'blue');
+	is(space.rgb.lab(100, 150, 200).map(round(1)), [60.1, -6.7, -31.5], 'arbitrary');
+	for (const c of [[128, 128, 128], [255, 0, 0], [0, 255, 0], [100, 150, 200]])
+		is(space.lab.rgb(...space.rgb.lab(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
 
-	is((space.lab.xyz(69, -48, 44)).map(round(1)), [24.5, 39.3, 14.7], 'should be the same');
-
-	is((space.lab.rgb(75, 20, -30).map(round(0))), [194, 175, 240], 'lab to rgb');
-
-	is((space.lab.lchab(69, -48, 44).map(round(1))), [69.0, 65.1, 137.5], 'lab to lchab');
-
-	is((space.rgb.lab(92, 191, 84).map(round(1))), [69.6, -50.1, 44.6], 'rgb to lab');
+// lab-d65: display-native CIELAB (no adaptation from sRGB). Refs from colorjs.io `lab-d65`.
+test('lab-d65: rgb <-> lab-d65 (vs colorjs)', function () {
+	is(space.rgb['lab-d65'](255, 255, 255).map(round(1)), [100, 0, 0], 'white');
+	is(space.rgb['lab-d65'](128, 128, 128).map(round(1)), [53.6, 0, 0], 'gray');
+	is(space.rgb['lab-d65'](255, 0, 0).map(round(1)), [53.2, 80.1, 67.2], 'red');
+	is(space.rgb['lab-d65'](0, 0, 255).map(round(1)), [32.3, 79.2, -107.9], 'blue');
+	for (const c of [[128, 128, 128], [255, 0, 0], [100, 150, 200]])
+		is(space['lab-d65'].rgb(...space.rgb['lab-d65'](...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 
@@ -354,24 +365,14 @@ test('lms: lms <-> xyz', function () {
 
 
 
-test('lchab: lchab -> lab', function () {
-	// LCHab: L 0-100, C 0-150, H 0-360; Lab: L 0-100, a/b ±125
-	is((space.lchab.lab(69, 65, 137).map(round(1))), [69.0, -47.5, 44.3]);
-});
-
-test('lchab: lchab -> xyz', function () {
-	// LCHab: L 0-100, C 0-150, H 0-360; XYZ 0-100
-	is((space.lchab.xyz(69, 65, 137).map(round(1))), [24.6, 39.3, 14.5]);
-});
-
-test('lchab: lchab -> rgb', function () {
-	// LCHab: L 0-100, C 0-150, H 0-360; RGB 0-255
-	is((space.lchab.rgb(69, 65, 137).map(round(0))), [98, 188, 83]);
-});
-
-test('lchab: rgb -> lchab', function () {
-	// RGB 0-255, LCHab: L 0-100, C 0-150, H 0-360
-	is((space.rgb.lchab(92, 191, 84).map(round(1))), [69.6, 67.1, 138.3]);
+// lchab = polar of lab (D50). Reference values from colorjs.io `lch`.
+test('lchab: rgb <-> lchab (D50, vs colorjs)', function () {
+	is(space.lchab.lab(69, 65, 137).map(round(1)), [69, -47.5, 44.3], 'polar->cartesian (illuminant-independent)');
+	is(space.rgb.lchab(255, 0, 0).map(round(1)), [54.3, 106.8, 40.9], 'red');
+	is(space.rgb.lchab(0, 0, 255).map(round(1)), [29.6, 131.2, 301.4], 'blue');
+	is(space.rgb.lchab(100, 150, 200).map(round(1)), [60.1, 32.2, 258], 'arbitrary');
+	for (const c of [[255, 0, 0], [0, 255, 0], [100, 150, 200]])
+		is(space.lchab.rgb(...space.rgb.lchab(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 
@@ -882,16 +883,6 @@ test("oklab: oklab -> rgb roundtrip", () => {
 	is(space.oklab.rgb(0, 0, 0).map(round(0)), [0, 0, 0]); // black
 	for (const c of [[128, 128, 128], [255, 0, 0], [0, 255, 0], [0, 0, 255], [100, 150, 200], [33, 180, 90]])
 		is(space.oklab.rgb(...space.rgb.oklab(...c)).map(round(2)), c, `roundtrip ${c}`);
-})
-
-// lab-d50 == CSS/colorjs `lab` (D50). Guards the 100×-scale bug (white was L=522) and reachability.
-test("lab-d50: rgb <-> lab-d50 (vs colorjs lab/D50)", () => {
-	is(space.rgb['lab-d50'](255, 255, 255).map(round(1)), [100, 0, 0]); // white
-	is(space.rgb['lab-d50'](0, 0, 0).map(round(1)), [0, 0, 0]); // black
-	is(space.rgb['lab-d50'](128, 128, 128).map(round(1)), [53.6, 0, 0]); // gray
-	is(space.rgb['lab-d50'](255, 0, 0).map(round(1)), [54.3, 80.8, 69.9]); // red
-	for (const c of [[128, 128, 128], [255, 0, 0], [100, 150, 200]])
-		is(space['lab-d50'].rgb(...space.rgb['lab-d50'](...c)).map(round(0)), c, `roundtrip ${c}`);
 })
 
 test("oklab: xyz -> oklab", () => {

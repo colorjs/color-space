@@ -9,7 +9,7 @@
   * Conventional CSS-matching ranges (RGB 0-255, HSL 0-360/0-100, Lab 0-100/±125…).
   * No `min`/`max`, no `alias`, no `channel` array on the object — `range` + JSDoc `@channel` carry that, single source of truth.
   * Stay a conversion kernel. No parsing, interpolation, gamut-mapping, ΔE, contrast — composable layers culori/colorjs/texel own. We expose the *metadata* (range, gamut class) that lets them build those on top.
-  * **Lab illuminant → D50 default (decided, pending implementation).** CIELAB is white-relative; D50 is the conventional default for Lab as an interchange space (ICC PCS, CSS Color 4, graphic arts). Plan: `lab`/`lchab` → D50 (reuse validated lab-d50 math, full-precision ε/κ); add `lab-d65`/`lchab-d65` for display-native; din99o pins to D65; white point swappable (factory for arbitrary illuminants later). Bonus: makes `lab`/`lchab` differential-testable vs colorjs. Hub-level breaking change — do as a careful dedicated pass with full test recompute.
+  * **Lab illuminant → D50 (DONE).** `lab`/`lchab` are now **D50** (ICC PCS / CSS Color 4 convention), full-precision ε/κ + Bradford. Added `lab-d65` for display-native; removed redundant `lab-d50` (lab is now it); din99o pinned to `lab-d65` (DIN 6176). All three validated in the differential suite (lab↔colorjs `lab`, lab-d65↔`lab-d65`, lchab↔`lch`). Count still 71. Future: `lchab-d65` + a factory for arbitrary illuminants (A/C/F-series already in `xyz.whitepoint`).
 
 ---
 
@@ -46,7 +46,8 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
 
 **Precision (canonical constants) — minor:**
   * [x] D50↔D65 Bradford consolidated into `xyz.js` (`bradford` + `mat3` exports, full precision); xyz-d50/lab-d50/prophoto-linear now share it (was 3 truncated copies). lab-d50 D50 white → full precision. rec2020-oetf α/β → full precision. All verified by the differential test.
-  * [ ] acescg adapt matrices (not exact inverses); lab ε→216/24389; rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward
+  * [x] lab ε→216/24389, κ→24389/27 (both lab & lab-d65 full precision; replaced the old 0.008856/7.787)
+  * [ ] acescg adapt matrices (not exact inverses — but passes differential); rec2100-hlg scale→3.77412; yiq inverse matrix consistent with forward
 
 **Range/doc — minor:**
   * [x] p3, a98rgb, rec2020 `@channel` 0-255 → 0-1 (matches CSS `color()` for predefined RGB; sRGB `rgb()` stays 0-255). Confirmed by the differential test (scale [1,1,1]).

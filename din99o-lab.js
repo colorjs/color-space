@@ -11,7 +11,7 @@
  * @illuminant D65
  * @observer 2
  */
-import lab from './lab.js';
+import labD65 from './lab-d65.js'; // DIN 6176 is defined relative to D65 CIELab
 
 const din99oLab = {
 	name: 'din99o-lab',
@@ -24,7 +24,7 @@ const cosθ = Math.cos(θ), sinθ = Math.sin(θ);
 const factor = 100 / Math.log(139 / 100); // ≈ 303.67
 
 // DIN99o Lab -> CIELab (D65)
-din99oLab.lab = (l, a, b) => {
+din99oLab['lab-d65'] = (l, a, b) => {
 	const L = (Math.exp((l * kE) / factor) - 1) / 0.0039;
 	const c = Math.sqrt(a * a + b * b);
 	if (c === 0) return [L, 0, 0];
@@ -36,7 +36,7 @@ din99oLab.lab = (l, a, b) => {
 };
 
 // CIELab (D65) -> DIN99o Lab
-lab['din99o-lab'] = (l, a, b) => {
+labD65['din99o-lab'] = (l, a, b) => {
 	const e = a * cosθ + b * sinθ;
 	const f = 0.83 * (b * cosθ - a * sinθ);
 	const G = Math.sqrt(e * e + f * f);
