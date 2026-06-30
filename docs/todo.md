@@ -73,12 +73,12 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
       - **hct** — borrows cam16's viewing conditions; C is ~1 off vs colorjs (HCT needs Material's own La/Yb). Needs the Material/colorjs viewing-condition constants.
   * [x] **Wiring: all spaces reachable.** Rewrote `index.js` as a conversion graph: each space declares only its natural-neighbour conversions; `wire()` builds the BFS shortest-path composition for every other pair. din99o-lab/lch rewritten clean (neighbour = lab / din99o-lab; dropped camelCase keys, dead lines, leftover `min`/`max`/`channel`/`alias`); rec2020-oetf & all camelCase hub keys fixed. Integrity test now asserts **0 unreachable** (both directions). No regression (full suite green).
   * [~] One-way conversions: `uvw.ucs`/`ucs.uvw` now auto-chain (fixed). Still throw: `osaucs.xyz` (OSA-UCS has no analytical inverse — implement numerically or mark one-way) and `rgb.cubehelix` (reverse needs numerical root-finding). Decide: implement numerically vs document as one-way.
-  * [ ] NaN/zero guards: `osaucs` X+Y+Z=0 (black), `uvw` `_v`=0 denominator
+  * [x] NaN/zero guards: osaucs black ([-13.51,0,0]) + uvw (white-chromaticity at _v=0) — verified NaN-free across the gamut
   * [ ] Issue #45 — decide & document alpha policy
-  * [ ] Issue #47 — document RGB reference white / illuminant (sRGB D65)
+  * [x] Issue #47 — rgb.js documents D65 (@illuminant D65 + description)
   * [ ] Issue #48 — XYZ↔RGB roundtrip failure for out-of-sRGB XYZ
-  * [ ] Issue #54 — README `lab.lch` → actual `lab.lchab` (or alias the path)
-  * [ ] HSP/HSI out-of-bounds on extreme inputs (#38, #39)
+  * [x] Issue #54 — README example fixed to `lab.lchab`
+  * [x] HSP/HSI (#38,#39) — NaN-safe on extreme inputs, S bounded to 100 in gamut (verified)
   * [ ] Remove duplicate `constrain()` in hct.js; replace minified hsluv.js with readable version
 
 ### Tests — bona fide coverage
@@ -86,9 +86,10 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] **Cited reference points for the 17 v3 spaces** (lch-d65, cam16-ucs, okhwb, aces2065-1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci-p3, smpte-c, ipt, scrgb, rec2100-linear, din99d) — each vs spec / colour-science, plus the white→neutral transpose check.
   * [x] **Bona-fide cited reference values for 42 of the 43 audited spaces** ([test/bonafide.js](../test/bonafide.js), data-driven, scale-aware tol). Each asserts an authoritative input→output (colorjs/colour-science/paper/spec), not a roundtrip.
   * [ ] Edge cases: NaN, Infinity, negative, out-of-gamut
-  * [ ] Report true count; keep README honest to it
+  * [x] README test-coverage claim made honest (was "1,371/99.9%")
 
 ### Docs
+  * [x] **Reference links in code** — every space file cites its formula source via JSDoc `@see` (CSS Color 4 / Wikipedia / doi / vendor spec / colour-science); test values cite sources (bonafide.js + inline). All URLs verified to resolve.
   * [x] docs/formula-verification.md — differential methodology + 29 colorjs-validated spaces + non-colorjs validation + honest limitations
   * [x] docs/library-comparison.md — vs culori/colorjs.io/chroma-js/@texel (honest, with "choose X if")
   * [x] CHANGELOG.md — 3.0.0 breaking changes + correctness fixes
