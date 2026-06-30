@@ -89,17 +89,13 @@ okhsv.oklab = function (h, s, v) {
 		b = c * b_;
 	}
 
-	// Return in Oklab conventional range: L 0-100, a/b ±40
-	return [l * 100, (a || 0) * 100, (b || 0) * 100];
+	// Return native Oklab (L 0-1, a/b ±0.4)
+	return [l, a || 0, b || 0];
 };
 
 // Oklab -> Okhsv
 oklab.okhsv = function (l, a, b) {
-	// Input: Oklab L 0-100, a/b ±40
-	// Normalize to 0-1 scale
-	l = l / 100;
-	a = a / 100;
-	b = b / 100;
+	// Input: native Oklab (L 0-1, a/b ±0.4)
 
 	// Oklab to Okhsv.
 

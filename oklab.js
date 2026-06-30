@@ -1,13 +1,13 @@
 /**
  * Oklab color space
- * 
+ *
  * Modern perceptual color space based on cone response
  * More uniform than Lab, better for interpolation
- * 
+ *
  * @see {@link https://bottosson.github.io/posts/oklab/}
- * @channel {L} 0 100 Lightness
- * @channel {a} -40 40 Green-Red axis
- * @channel {b} -40 40 Blue-Yellow axis
+ * @channel {L} 0 1 Lightness
+ * @channel {a} -0.4 0.4 Green-Red axis
+ * @channel {b} -0.4 0.4 Blue-Yellow axis
  * @referred display
  * @dynamic sdr
  */
@@ -20,11 +20,7 @@ const oklab = {
 };
 
 oklab.rgb = (l, a, b) => {
-	// Input: L: 0-100, a: -40 to 40, b: -40 to 40 -> normalize
-	l = l / 100;
-	a = a / 100;
-	b = b / 100;
-
+	// Input: native Oklab (L 0-1, a/b ±0.4)
 	// 1. Oklab -> LMS'
 	const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
 	const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
@@ -57,22 +53,17 @@ rgb.oklab = (r, g, b) => {
 	const m_ = Math.cbrt(m);
 	const s_ = Math.cbrt(s);
 
-	// LMS' -> Oklab, scaled to L: 0-100, a/b: ±40
+	// LMS' -> Oklab (native: L 0-1, a/b ±0.4)
 	return [
-		(0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_) * 100,
-		(1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_) * 100,
-		(0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_) * 100,
+		0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_,
+		1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_,
+		0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_,
 	];
 };
 
 // D65
 oklab.xyz = (l, a, b) => {
-	// Input: L: 0-100, a: -40 to 40, b: -40 to 40
-	// Normalize
-	l = l / 100;
-	a = a / 100;
-	b = b / 100;
-
+	// Input: native Oklab (L 0-1, a/b ±0.4); output XYZ 0-100
 	// 1. Convert Oklab to linear LMS
 	const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
 	const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
@@ -83,7 +74,7 @@ oklab.xyz = (l, a, b) => {
 	const m3 = m_ * m_ * m_;
 	const s3 = s_ * s_ * s_;
 
-	// 3. Convert LMS to XYZ (0-1)
+	// 3. Convert LMS to XYZ (0-1), then scale to 0-100
 	// Inverse M1
 	const xyz = [
 		1.2270138511 * l3 - 0.5577999807 * m3 + 0.2812561490 * s3,
@@ -91,13 +82,11 @@ oklab.xyz = (l, a, b) => {
 		-0.0763812845 * l3 - 0.4214819784 * m3 + 1.5861632204 * s3
 	];
 
-	// Scale to 0-100
 	return xyz.map(v => v * 100);
 }
 
 xyz.oklab = (x, y, z) => {
-	// Input: XYZ in 0-100 range
-	// Normalize to 0-1
+	// Input: XYZ 0-100; output native Oklab (L 0-1, a/b ±0.4)
 	x = x / 100;
 	y = y / 100;
 	z = z / 100;
@@ -112,8 +101,7 @@ xyz.oklab = (x, y, z) => {
 	const a = 1.9779984951 * L - 2.4285922050 * M + 0.4505937099 * S;
 	const b = 0.0259040371 * L + 0.7827717662 * M - 0.8086757660 * S;
 
-	// Scale to L: 0-100, a/b: -40 to 40
-	return [l * 100, a * 100, b * 100];
+	return [l, a, b];
 };
 
 export default oklab;

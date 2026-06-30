@@ -5,9 +5,9 @@
  * Used for HDR content and next-generation color imaging
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131}
- * @channel {Jz} 0 100 Lightness
- * @channel {az} -50 50 Green-Red axis
- * @channel {bz} -50 50 Blue-Yellow axis
+ * @channel {Jz} 0 1 Lightness
+ * @channel {az} -0.5 0.5 Green-Red axis
+ * @channel {bz} -0.5 0.5 Blue-Yellow axis
  * @referred display
  * @dynamic hdr
  */
@@ -105,17 +105,13 @@ xyz.jzazbz = function(x, y, z) {
     // 6. Iz -> Jz
     let Jz = ((1 + d) * Iz) / (1 + d * Iz) - d0;
 
-    // Scale to conventional ranges
-    return [Jz * 100, az * 100, bz * 100];
+    // Native Jzazbz (Jz 0-1, az/bz ±0.5 — matches colorjs.io / Safdar 2017)
+    return [Jz, az, bz];
 };
 
 // Jzazbz -> XYZ
 jzazbz.xyz = function(Jz, az, bz) {
-    // Normalize from conventional ranges
-    Jz = Jz / 100;
-    az = az / 100;
-    bz = bz / 100;
-
+    // Input: native Jzazbz (Jz 0-1, az/bz ±0.5)
     // 1. Jz -> Iz
     let Iz = (Jz + d0) / (1 + d - d * (Jz + d0));
 

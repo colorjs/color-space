@@ -38,14 +38,14 @@ const MAP = {
 	lchab:             ['lch',             [1, 1, 1]],         // cs lchab is D50 polar -> colorjs lch
 	luv:               ['luv',             [1, 1, 1]],         // CIE Luv — both D65
 	lchuv:             ['lchuv',           [1, 1, 1]],
-	oklab:             ['oklab',           [1 / 100, 1 / 100, 1 / 100]],
-	oklch:             ['oklch',           [1 / 100, 1 / 100, 1]],
+	oklab:             ['oklab',           [1, 1, 1]],
+	oklch:             ['oklch',           [1, 1, 1]],
 	hsl:               ['hsl',             [1, 1, 1]],
 	hsv:               ['hsv',             [1, 1, 1]],
 	hwb:               ['hwb',             [1, 1, 1]],
-	jzazbz:            ['jzazbz',           [1 / 100, 1 / 100, 1 / 100]],
-	jzczhz:            ['jzczhz',           [1 / 100, 1 / 100, 1]],
-	ictcp:             ['ictcp',            [1 / 100, 1 / 100, 1 / 100]],
+	jzazbz:            ['jzazbz',           [1, 1, 1]],
+	jzczhz:            ['jzczhz',           [1, 1, 1]],
+	ictcp:             ['ictcp',            [1, 1, 1]],
 	acescg:            ['acescg',           [1, 1, 1]],
 	acescc:            ['acescc',           [1, 1, 1]],
 	cam16:             ['cam16-jmh',        [1, 1, 1]],         // J, M, h

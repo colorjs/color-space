@@ -2099,34 +2099,34 @@ export default {
       {
         "symbol": "I",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Intensity (lightness)"
       },
       {
         "symbol": "Ct",
-        "min": -50,
-        "max": 50,
+        "min": -0.5,
+        "max": 0.5,
         "name": "Tritan chroma (blue-yellow)"
       },
       {
         "symbol": "Cp",
-        "min": -50,
-        "max": 50,
+        "min": -0.5,
+        "max": 0.5,
         "name": "Protanopia chroma (red-green)"
       }
     ],
     "range": [
       [
         0,
-        100
+        1
       ],
       [
-        -50,
-        50
+        -0.5,
+        0.5
       ],
       [
-        -50,
-        50
+        -0.5,
+        0.5
       ]
     ],
     "referred": "display",
@@ -2259,34 +2259,34 @@ export default {
       {
         "symbol": "Jz",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Lightness"
       },
       {
         "symbol": "az",
-        "min": -50,
-        "max": 50,
+        "min": -0.5,
+        "max": 0.5,
         "name": "Green-Red axis"
       },
       {
         "symbol": "bz",
-        "min": -50,
-        "max": 50,
+        "min": -0.5,
+        "max": 0.5,
         "name": "Blue-Yellow axis"
       }
     ],
     "range": [
       [
         0,
-        100
+        1
       ],
       [
-        -50,
-        50
+        -0.5,
+        0.5
       ],
       [
-        -50,
-        50
+        -0.5,
+        0.5
       ]
     ],
     "referred": "display",
@@ -2298,13 +2298,13 @@ export default {
       {
         "symbol": "Jz",
         "min": 0,
-        "max": 100,
+        "max": 1,
         "name": "Lightness"
       },
       {
         "symbol": "Cz",
         "min": 0,
-        "max": 50,
+        "max": 0.5,
         "name": "Chroma"
       },
       {
@@ -2317,11 +2317,11 @@ export default {
     "range": [
       [
         0,
-        100
+        1
       ],
       [
         0,
-        50
+        0.5
       ],
       [
         0,

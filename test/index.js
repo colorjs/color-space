@@ -1022,7 +1022,7 @@ test("oklrch: oklrch <-> oklrab", () => {
 });
 
 test("jzazbz: jzazbz <-> xyz", () => {
-	// Jzazbz: Jz 0-100, az/bz ±50, XYZ 0-100
+	// Jzazbz: Jz 0-1, az/bz ±0.5, XYZ 0-100
 	// Roundtrip
 	let xyz = [95.047, 100.0, 108.883]; // D65 White
 	let jz = space.xyz.jzazbz(...xyz);
@@ -1036,10 +1036,10 @@ test("jzazbz: jzazbz <-> xyz", () => {
 });
 
 test("jzczhz: jzczhz <-> jzazbz", () => {
-	// JzCzHz: Jz 0-100, Cz 0-50, Hz 0-360; Jzazbz: Jz 0-100, az/bz ±50 (no rescaling).
-	// Explicit polar values guard the double-×100 bug (Jz/Cz were 100× too large).
-	is(space.jzazbz.jzczhz(15, 5, -5).map(round(2)), [15, 7.07, 315]);
-	is(space.jzczhz.jzazbz(15, 7.07, 315).map(round(2)), [15, 5, -5]);
+	// JzCzHz: Jz 0-1, Cz 0-0.5, Hz 0-360; Jzazbz: Jz 0-1, az/bz ±0.5 (no rescaling).
+	// Explicit polar values guard against any stray rescaling in the polar transform.
+	is(space.jzazbz.jzczhz(0.15, 0.05, -0.05).map(round(4)), [0.15, 0.0707, 315]);
+	is(space.jzczhz.jzazbz(0.15, 0.0707, 315).map(round(2)), [0.15, 0.05, -0.05]);
 });
 
 test('p3', () => {

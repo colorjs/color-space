@@ -4,9 +4,9 @@
  * HDR perceptual color space for ITU-R BT.2100
  * Based on PQ transfer function for HDR video
  *
- * @channel {I} 0 100 Intensity (lightness)
- * @channel {Ct} -50 50 Tritan chroma (blue-yellow)
- * @channel {Cp} -50 50 Protanopia chroma (red-green)
+ * @channel {I} 0 1 Intensity (lightness)
+ * @channel {Ct} -0.5 0.5 Tritan chroma (blue-yellow)
+ * @channel {Cp} -0.5 0.5 Protanopia chroma (red-green)
  * @referred display
  * @dynamic hdr
  */
@@ -67,18 +67,13 @@ xyz.ictcp = (x, y, z) => {
 	const za = z * Yw;
 	// XYZ Abs -> LMS Abs
 	const [l, m, s] = mat3(M_XYZ_LMS, xa, ya, za);
-	// LMS Abs -> ICtCp
+	// LMS Abs -> ICtCp (native: I 0-1, Ct/Cp ±0.5 — matches colorjs.io / BT.2100)
 	const [i, ct, cp] = LMStoICtCp(l, m, s);
-	// Scale to conventional ranges
-	return [i * 100, ct * 100, cp * 100];
+	return [i, ct, cp];
 }
 
 ictcp.xyz = (i, ct, cp) => {
-	// Normalize from conventional ranges
-	i = i / 100;
-	ct = ct / 100;
-	cp = cp / 100;
-
+	// Input: native ICtCp (I 0-1, Ct/Cp ±0.5)
 	// ICtCp -> LMS Abs
 	const [l, m, s] = ICtCptoLMS(i, ct, cp);
 	// LMS Abs -> XYZ Abs

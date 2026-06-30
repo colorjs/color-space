@@ -4,8 +4,8 @@
  * Cylindrical variant of OkLrab
  * Uses chroma and hue for intuitive color selection
  *
- * @channel {L} 0 100 Lightness
- * @channel {C} 0 40 Chroma
+ * @channel {L} 0 1 Lightness
+ * @channel {C} 0 0.4 Chroma
  * @channel {H} 0 360 Hue angle in degrees
  * @referred display
  * @dynamic sdr
@@ -20,7 +20,7 @@ var oklrch = {
 	name: 'oklrch'
 };
 
-// L,C,H -> L,a,b (C 0-40, H 0-360)
+// L,C,H -> L,a,b (C 0-0.4, H 0-360)
 oklrch.oklrab = (l, c, h) => polarToCart(l, c, h);
 
 // L,a,b -> L,C,H (achromatic hue -> 0)

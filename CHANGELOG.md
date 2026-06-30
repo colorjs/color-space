@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-- **CSS-matching channel ranges**: all spaces now use conventional CSS/spec ranges instead of normalized 0–1. RGB channels are 0–255; HSL hue 0–360, saturation/lightness 0–100; Lab L 0–100, a/b ±125. Predefined-RGB spaces (P3, Rec.2020, A98-RGB, ProPhoto) stay 0–1 per the CSS `color()` function.
+- **CSS-matching channel ranges**: all spaces now use conventional CSS/spec ranges instead of normalized 0–1. RGB channels are 0–255; HSL hue 0–360, saturation/lightness 0–100; Lab L 0–100, a/b ±125. Predefined-RGB spaces (P3, Rec.2020, A98-RGB, ProPhoto) stay 0–1 per the CSS `color()` function. OKLab/OKLCh/OKLrab/OKLrch use their native 0–1 / ±0.4 ranges — the CSS Color 4 & Ottosson convention (`oklch.rgb(0.65, 0.25, 180)` ≡ CSS `oklch(0.65 0.25 180)`). JzAzBz/JzCzHz and ICtCp likewise use their native ranges (Jz/I 0–1, az/bz/Ct/Cp ±0.5), matching colorjs.io / Safdar 2017 / BT.2100.
 - **Flat channel arguments**: conversions take individual arguments — `rgb.lab(10, 20, 30)` — not an array `rgb.lab([10, 20, 30])`.
 - **Space object shape change**: `.min`, `.max`, `.channel`, and `.alias` properties removed from space objects; replaced by `.range`.
 - **Lab/LCHab are now D50** (ICC/CSS convention). `lab-d65` added for display-native D65 Lab; redundant `lab-d50` removed.
