@@ -73,7 +73,7 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [ ] Remove duplicate `constrain()` in hct.js; replace minified hsluv.js with readable version
 
 ### Tests — bona fide coverage
-  * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates every overlapping space against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). 18 spaces, runs as part of `npm test`. Extend coverage as more spaces gain references.
+  * [x] **Authoritative differential suite** ([test/reference.js](../test/reference.js)) — cross-validates against colorjs.io (CSS Color 4 spec editors) in BOTH directions through sRGB (catches self-cancelling fwd/inverse bugs). **24 spaces**: srgb-linear, p3(+linear), rec2020(+linear), a98rgb(+linear), prophoto(+linear), xyz-d65/d50, lab-d50, luv, lchuv, oklab, oklch, hsl, hsv, hwb, jzazbz, jzczhz, ictcp, acescg, acescc. Tol 1.0/255 (sub-perceptual; real bugs were 20-1330). Runs in `npm test`. (lchab/lab cs-D65 vs colorjs-D50 excluded; okhsl/okhsv not in colorjs — validated vs culori.)
   * [ ] Per-space reference-value cases (primaries, white, black, gray)
   * [ ] Roundtrip precision (A→B→A error accumulation)
   * [ ] Edge cases: NaN, Infinity, negative, out-of-gamut

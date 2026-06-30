@@ -34,19 +34,29 @@ const MAP = {
 	xyz:               ['xyz-d65',         [1 / 100, 1 / 100, 1 / 100]],
 	'xyz-d50':         ['xyz-d50',         [1 / 100, 1 / 100, 1 / 100]],
 	'lab-d50':         ['lab',             [1, 1, 1]],         // colorjs `lab` is D50
-	lchab:             ['lch',             [1, 1, 1]],         // note: cs lchab is D65, lch is D50 — large; see allowlist
+	lchab:             ['lch',             [1, 1, 1]],         // note: cs lchab is D65, lch is D50 — see SKIP
+	luv:               ['luv',             [1, 1, 1]],         // CIE Luv — both D65
+	lchuv:             ['lchuv',           [1, 1, 1]],
 	oklab:             ['oklab',           [1 / 100, 1 / 100, 1 / 100]],
 	oklch:             ['oklch',           [1 / 100, 1 / 100, 1]],
 	hsl:               ['hsl',             [1, 1, 1]],
+	hsv:               ['hsv',             [1, 1, 1]],
 	hwb:               ['hwb',             [1, 1, 1]],
 	jzazbz:            ['jzazbz',           [1 / 100, 1 / 100, 1 / 100]],
+	jzczhz:            ['jzczhz',           [1 / 100, 1 / 100, 1]],
 	ictcp:             ['ictcp',            [1 / 100, 1 / 100, 1 / 100]],
+	acescg:            ['acescg',           [1, 1, 1]],
+	acescc:            ['acescc',           [1, 1, 1]],
 }
 
 // cs lab/lchab use D65 (not CSS D50), so they legitimately differ from colorjs lab/lch
 const SKIP = new Set(['lchab'])
 
-const TOL = 0.5 // sRGB code values (0-255); real bugs were 20-50+, precision residuals < 0.1
+// Tolerance in sRGB code values (0-255). 1.0 is sub-perceptual (< 0.4%) yet catches
+// real bugs with huge margin (every bug found was 20-1330). The headroom over the
+// ~0.1 precision floor absorbs cross-library float noise at achromatic points (e.g.
+// colorjs reports Cz≈2e-4 for white, which a faithful inverse turns into ~0.5).
+const TOL = 1.0
 
 for (const [name, [id, scale]] of Object.entries(MAP)) {
 	if (SKIP.has(name)) continue
