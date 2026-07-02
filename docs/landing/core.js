@@ -68,17 +68,18 @@ export function ramp(name, vals, ci, min, max, n = 12) {
 	return out
 }
 // ── generic 2-D plane (sweep channels cx,cy) → ImageData painted into ctx ──
-// gamut=true outlines the sRGB region (tested via the UNCLAMPED linear-rgb path):
-// everything renders at full strength — clamped colors plateau outside — and a 1px
-// contour in `line` (0 black / 255 white, by theme) marks the true gamut boundary;
-// clip=true voids everything outside sRGB instead (the "srgb layer" — no contour,
-// the void already delineates it)
+// gamut=true draws nested boundary lines for sRGB / P3 / Rec2020 (solid → fainter),
+// all in the single `line` color ([r,g,b], matched to the picker outline). Gamut is
+// tested via one xyz conversion per pixel + three cheap matrix transforms. Coordinates
+// beyond any physical color (|linear| > 4 or non-finite: Luv v′<0, CAM16 divergence)
+// render as void — the formula's continuation there is clamp noise, not color.
 // quant: a number N snaps the two swept COORDINATES to N cell centres (the exact
 // lattice the sliders use), 'web' maps output to web-safe 51s, a function maps triples
-export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = false, quant = null, clip = false, line = 0) {
+export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = false, quant = null, line = [0, 0, 0]) {
 	const img = ctx.createImageData(s, s), d = img.data
-	const lrgb = gamut && name !== 'rgb' && space[name].lrgb
-	const mask = lrgb ? new Uint8Array(s * s) : null
+	const toXyz = gamut && name !== 'rgb' && space[name].xyz
+	const GAM = toXyz && [space.xyz.lrgb, space.xyz['p3-linear'], space.xyz['rec2020-linear']]
+	const masks = GAM && GAM.map(() => new Uint8Array(s * s))
 	const qf = typeof quant === 'function' ? quant : null   // function quant maps a whole [r,g,b] triple
 	const qc = typeof quant === 'number' ? f => (Math.min(quant - 1, Math.floor(f * quant)) + 0.5) / quant : null
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
@@ -88,27 +89,25 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		if (qc) { fx = qc(fx); fy = qc(fy) }
 		v[cx] = rx[0] + (rx[1] - rx[0]) * fx
 		v[cy] = ry[0] + (ry[1] - ry[0]) * fy
-		let rgb = rgbOf(name, v); const i = (y * s + x) * 4
+		let rgb = rgbOf(name, v); const i = (y * s + x) * 4, m = y * s + x
 		let a = 255
-		if (mask) { try { const lin = lrgb(...v)
-			const inG = lin.every(u => u >= -0.005 && u <= 1.005)
-			mask[y * s + x] = inG ? 1 : 0
-			// non-physical coordinates (beyond any spectral color, e.g. v′<0 in Luv at extreme
-			// chroma, CAM16 inverse divergence) render as void — the formula's analytic
-			// continuation there is meaningless clamp-flip noise, not color
-			if (!inG && (clip || !lin.every(u => Math.abs(u) < 4))) a = 0
+		if (GAM) { try { const X = toXyz(...v)
+			for (let g = 0; g < 3; g++) { const lin = GAM[g](...X)
+				masks[g][m] = lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0
+				if (g === 0 && !masks[0][m] && !lin.every(u => Math.abs(u) < 4)) a = 0 }
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a
 	}
-	// contour: in-gamut pixels bordering out-of-gamut ones (skipped when clipping — the void shows it)
-	if (mask && !clip) for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
-		const m = y * s + x; if (!mask[m]) continue
-		if ((x > 0 && !mask[m - 1]) || (x < s - 1 && !mask[m + 1]) || (y > 0 && !mask[m - s]) || (y < s - 1 && !mask[m + s])) {
-			const k = m * 4
-			d[k] = d[k + 1] = d[k + 2] = line
-		}
-	}
+	// nested gamut lines: srgb solid, p3 / rec2020 progressively fainter — one color
+	if (masks) masks.forEach((mask, g) => { const w = [1, 0.55, 0.32][g]
+		for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
+			const m = y * s + x; if (!mask[m]) continue
+			if ((x > 0 && !mask[m - 1]) || (x < s - 1 && !mask[m + 1]) || (y > 0 && !mask[m - s]) || (y < s - 1 && !mask[m + s])) {
+				const k = m * 4
+				d[k] += (line[0] - d[k]) * w; d[k + 1] += (line[1] - d[k + 1]) * w; d[k + 2] += (line[2] - d[k + 2]) * w; d[k + 3] = 255
+			}
+		} })
 	ctx.putImageData(img, 0, 0)
 }
 

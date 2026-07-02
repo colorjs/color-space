@@ -90,7 +90,7 @@ a{ color:var(--ink) }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:34px; cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
 .ch .sy{ position:absolute; left:.5rem; top:50%; transform:translateY(-50%); font-size:.66rem; font-weight:800; pointer-events:none }
-.ch .tk{ position:absolute; top:50%; width:7px; height:7px; margin:-3.5px 0 0 -3.5px; transform:rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
+.ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:.7rem; font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0; -moz-appearance:textfield }
 .nvw input::-webkit-inner-spin-button,.nvw input::-webkit-outer-spin-button{ -webkit-appearance:none }
@@ -128,18 +128,17 @@ a{ color:var(--ink) }
 .bar2 .nvw{ position:absolute; right:.6rem; top:.35rem; bottom:auto; align-items:center }
 .bar2 .nvw input{ height:auto; width:4.4rem; font-size:.84rem; font-weight:700 }
 .bar2 .nvw .u{ font-size:.7rem }
-.bar2 .dk{ position:absolute; top:50%; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; transform:rotate(45deg); border:1.4px solid; pointer-events:none }
+.bar2 .dk{ position:absolute; top:50%; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }
 .planes{ display:flex; gap:0; flex-wrap:wrap; margin-top:.9rem }
 .pl{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
-.pl .cx{ position:absolute; width:10px; height:10px; margin:-5px 0 0 -5px; transform:rotate(45deg); border:1.4px solid; pointer-events:none }
+.pl .cx{ position:absolute; width:4%; aspect-ratio:1; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* rhombus ~ one 20-step cell */
 .pl .laby{ position:absolute; top:.5rem; left:.5rem; writing-mode:vertical-rl; transform:rotate(180deg); font-size:.64rem; font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; pointer-events:none }
 h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:1.6rem 0 .5rem; display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
 .pinv{ font-size:.72rem; font-weight:700; color:var(--soft); letter-spacing:.02em; font-variant-numeric:tabular-nums }
 .pinwrap{ margin-left:auto; display:flex; align-items:center; gap:.5rem }
-.refgrid{ display:grid; grid-template-columns:1fr 1fr; gap:0 3rem; align-items:start }
-.refgrid h4.sec2{ margin-top:1.6rem }
+.proflinks{ margin-top:.7rem }
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; letter-spacing:.06em; padding:.45rem .85rem; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:40 }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
@@ -154,9 +153,6 @@ h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color
 .curgam .on{ color:var(--paper) } .curgam .off{ color:color-mix(in oklab, var(--paper) 42%, var(--ink)) }
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.72rem; color:var(--ink); cursor:pointer }
-.gchk{ margin-left:auto; display:flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; letter-spacing:0; text-transform:none; color:var(--ink); cursor:pointer }
-.gchk input{ appearance:none; width:.82rem; height:.82rem; margin:0; border:1.5px solid var(--ink); background:none; cursor:pointer; display:grid; place-content:center }
-.gchk input:checked::before{ content:''; width:.42rem; height:.42rem; background:var(--ink) }
 .qsel{ position:relative; display:flex; align-items:center }
 .qsel select{ appearance:none; -webkit-appearance:none; font:inherit; font-size:.72rem; font-weight:700; letter-spacing:0; text-transform:none; color:var(--ink); background:none; border:0; padding:0 .95rem 0 0; cursor:pointer }
 .qsel svg{ position:absolute; right:0; pointer-events:none; color:var(--ink) }
@@ -819,7 +815,7 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 </div>
 
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, spaceCount, pathToRgb, mixInSpace, rotateHue } from './core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, pathToRgb, mixInSpace, rotateHue } from './core.js'
 import NAMES from './names.js'
 import { SPACES, sections, cname, unit, catHTML } from './render.js'
 
@@ -940,7 +936,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // forward-only: param drives, master follows as rgb
 					try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{} }
-				else master.vals[i]=gLimit(s,cls,master.vals,i,c.min+(c.max-c.min)*f)
+				else master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.onpointermove=move
 			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null
@@ -950,7 +946,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 			const c=classify(s).ch[i]
 			if(!adopt()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)
 				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
-			master.vals[i]=gLimit(s,classify(s),master.vals,i,clamp(v,c.min,c.max)); scheduleFast() })
+			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ if(open()) paintPlanes(false) }) }) })
 
 // search — `/` focuses it from anywhere
@@ -1017,20 +1013,10 @@ const QTIP={ 'null':'continuous values — no clustering',
 let dragBar=null   // the slider being dragged — its own background stays frozen
 let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.includes(v)) Q=v }catch{}
 const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
-// srgb layer: checked = only the sRGB-displayable region renders and picking stays inside;
-// unchecked = the whole declared range shows, with the sRGB boundary drawn
-let G=localStorage.csGamut==='full'?'full':'srgb'
-const GTIP='limit to sRGB — planes and sliders show only displayable colors and picking stays inside; unchecked renders the whole declared range with the sRGB boundary drawn'
 const inGam=(s,vv)=>{ if(s==='rgb'||!space[s].lrgb) return true
 	try{ return space[s].lrgb(...vv).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
-// nearest in-gamut value along channel i when the srgb layer is on (respects split spans)
-function gLimit(s,cls,vals,i,target){ if(G!=='srgb'||s==='rgb'||!space[s].lrgb) return target
-	const vv=vals.slice(); vv[i]=target
-	if(inGam(s,vv)) return target
-	const c=cls.ch[i], N=64; let best=null,bd=1e9
-	for(let k=0;k<=N;k++){ const v2=c.min+(c.max-c.min)*k/N; vv[i]=v2
-		if(inGam(s,vv)){ const d2=Math.abs(v2-target); if(d2<bd){ bd=d2; best=v2 } } }
-	return best??target }
+// one marker/line ink for everything, picked to stand out against the current color
+const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
 // perceptual quantizer: even OKLab grid, mapped back through the current space
 const pcCache=new Map()
 function perceptQ(t){ const key=(t[0]<<16)|(t[1]<<8)|t[2]
@@ -1081,8 +1067,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	 <div class="tags">${[[m.referred,TAGTIP[m.referred]],[m.dynamic&&m.dynamic.toUpperCase(),TAGTIP[m.dynamic&&m.dynamic.toUpperCase()]],[geo(s),TAGTIP[geo(s)]],[m.illuminant&&('illum '+m.illuminant),'reference white point the space is defined against'],[m.observer&&(m.observer+'° obs'),'CIE standard observer — the field of view the color matching was measured at'],[VERIFIED.has(s)&&'✓ vs colorjs.io','differentially tested against colorjs.io (the CSS Color spec editors) at 1/255 tolerance']].filter(t=>t[0]).map(([t,tip])=>`<span class="tag" title="${tip||''}">${t}</span>`).join('')}
 	 ${useOf(s).split('·').map(u=>`<span class="tag use" title="typical application of this space">${u.trim()}</span>`).join('')}</div>
 	 <div class="dgrid"><div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div>
-	 <table class="prof" title="channels — full name and conventional range">${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table></div>
-	 <h4 class="sec2">channels <label class="gchk" title="${GTIP}"><input type="checkbox" id="gz"${G==='srgb'?' checked':''}>srgb</label><span class="qsel" style="margin-left:1.2rem"><select id="qz" title="${QTIP[String(Q)]}" aria-label="value clustering mode">${QMODES.map(mo=>`<option value="${String(mo)}"${mo===Q?' selected':''}>${QLABEL[String(mo)]}</option>`).join('')}</select><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></h4>
+	 <div><table class="prof" title="channels — full name and conventional range">${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table>
+	 ${m.refs?`<div class="refs proflinks">${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`).join('')}</div>`:''}</div></div>
+	 <h4 class="sec2">channels <span class="qsel" style="margin-left:auto"><select id="qz" title="${QTIP[String(Q)]}" aria-label="value clustering mode">${QMODES.map(mo=>`<option value="${String(mo)}"${mo===Q?' selected':''}>${QLABEL[String(mo)]}</option>`).join('')}</select><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>`<div class="bar2" data-i="${i}">
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
@@ -1092,8 +1079,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	 ${interpHTML}
 	 <h4 class="sec2">code</h4>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
-	 <div class="refgrid"><div>${m.refs?`<h4 class="sec2">references</h4><div class="refs">${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`).join('')}</div>`:''}</div>
-	 <div><h4 class="sec2">source</h4><div class="refs"><span><a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a>${VERIFIED.has(s)?`, <a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="differential reference values vs colorjs.io">reference.js</a>`:''}</span></div></div></div>`
+	 <h4 class="sec2">source</h4><div class="refs"><span><a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a>${VERIFIED.has(s)?`, <a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="differential reference values vs colorjs.io">reference.js</a>`:''}</span></div>`
 	modal.scrollTop=0
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
@@ -1102,8 +1088,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		Q=v==='null'?null:v==='20'?20:v; saveQ(); qz.title=QTIP[String(Q)]
 		clusterize()   // entering a mode snaps the current color onto its cluster right away
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
-	const gz=detail.querySelector('#gz'); gz.onchange=()=>{ G=gz.checked?'srgb':'full'; localStorage.csGamut=G
-		renderFast(); paintPlanes(false) }
 	const pinb=detail.querySelector('#pinb')
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	const csnip=detail.querySelector('#csnip')
@@ -1118,7 +1102,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			if(!adoptS()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // forward-only
 				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
-			master.vals[i]=gLimit(s,cls,master.vals,i,clamp(v,c.min,c.max)); scheduleFast() })
+			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
 		const spin=d=>{
 			if(inp.value===''){ const vv=probeVals(s); if(vv) inp.value=vv[i].toFixed(decOf(c)) }
@@ -1138,13 +1122,12 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 		if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // forward-only: param drives, master follows as rgb
 			try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}
 			scheduleFast(); return }
-		if(typeof Q==='number'){ f=(Math.floor(f*Q)+0.5)/Q
-			master.vals[i]=gLimit(s,cls,master.vals,i,c.min+(c.max-c.min)*f) }
+		if(typeof Q==='number'){ f=(Math.floor(f*Q)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
 		else if(qTriple(Q)&&el._cells){ const k=Math.floor(f*el._cells.length)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
 			master= mv?{ s, vals:mv }:{ s:'rgb', vals:nr }
 			el._cellF=(k+0.5)/el._cells.length }
-		else master.vals[i]=gLimit(s,cls,master.vals,i,c.min+(c.max-c.min)*f)
+		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
 	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ if(!adopt()&&valsFor(s))return; moved=true; dragBar=el; el.setPointerCapture(e.pointerId) }
 		if(!moved) return
@@ -1161,15 +1144,8 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 		// numeric clustering snaps the PICKED COORDINATES to the sliders' own cell lattice —
 		// held channels never move, so the bitmap stays put and the sliders land on centres
 		if(typeof Q==='number'){ fx=(Math.min(Q-1,Math.floor(fx*Q))+0.5)/Q; fy=(Math.min(Q-1,Math.floor(fy*Q))+0.5)/Q }
-		let va=cls.ch[a].min+(cls.ch[a].max-cls.ch[a].min)*fx, vb=cls.ch[b].max-(cls.ch[b].max-cls.ch[b].min)*fy
-		// srgb layer on: the visible region is the pickable region — slide along its wall
-		if(G==='srgb'&&!qTriple(Q)){ const cand=master.vals.slice(); cand[a]=va; cand[b]=vb
-			if(!inGam(selected,cand)){ cand[b]=master.vals[b]
-				if(inGam(selected,cand)) vb=master.vals[b]
-				else{ cand[a]=master.vals[a]; cand[b]=vb
-					if(inGam(selected,cand)) va=master.vals[a]
-					else return } } }
-		master.vals[a]=va; master.vals[b]=vb
+		master.vals[a]=cls.ch[a].min+(cls.ch[a].max-cls.ch[a].min)*fx
+		master.vals[b]=cls.ch[b].max-(cls.ch[b].max-cls.ch[b].min)*fy
 		const f=qTriple(Q)
 		if(f&&typeof Q!=='number'){ // color-cluster modes pick the displayed cell exactly
 			const nr=f(rgbOf(selected,master.vals)).map(x=>clamp(Math.round(x),0,255))
@@ -1196,7 +1172,7 @@ function paintPlanes(fast){ if(!open()) return
 	detail.querySelectorAll('.pl').forEach(pl=>{ if(pl===plFreeze) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas')
 		if(cv.width!==res){ cv.width=res; cv.height=res }
-		plane(cv.getContext('2d'),res,s,vals,a,b,[cls.ch[a].min,cls.ch[a].max],[cls.ch[b].min,cls.ch[b].max],true,true,q,G==='srgb',document.documentElement.dataset.theme==='dark'?255:0) })
+		plane(cv.getContext('2d'),res,s,vals,a,b,[cls.ch[a].min,cls.ch[a].max],[cls.ch[b].min,cls.ch[b].max],true,true,q,inkRGB(RGB())) })
 	const dt=performance.now()-t0
 	planeMs[s]=Math.max(dt,0.5)*(216/res)**2
 	planeNext=performance.now()+Math.max(70, dt*2.5)
@@ -1219,7 +1195,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			if(document.activeElement!==inp) inp.value=vals?vals[i].toFixed(decOf(c)):''
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
 			if(vals) tk.style.left=(clamp((vals[i]-c.min)/(c.max-c.min),0,1)*100)+'%'
-			tk.style.background=hx; tk.style.borderColor='var(--ink)'
+			tk.style.background=hx; tk.style.borderColor=ink(rgb)
 			if(vals){ const lo=rgbF(s,cls.ch.map((cc,j)=>j===i?cc.min:vals[j])), hi=rgbF(s,cls.ch.map((cc,j)=>j===i?cc.max:vals[j]))
 				ch.querySelector('.sy').style.color=ink(lo); ch.querySelector('.nvw').style.color=ink(hi) } }) })
 	if(!open()) return
@@ -1235,36 +1211,39 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 				const cells=ramp(s,shown,i,c.min,c.max,19).map(h=>f(hex2rgb(h)).map(x=>clamp(Math.round(x),0,255)))
 				bar._cells=cells; bg=stepped(cells.map(hex)) }
 			else{ bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`; bar._cells=null }
-			// sRGB layer on the sweep: srgb mode voids the out-of-gamut spans (panel overlay);
-			// full mode underlines the in-gamut span with a 3px theme-ink baseline
-			let layer='', layerFull=false
+			// sRGB limit on the sweep: a 3px baseline under the in-gamut span, in the marker ink
+			let layer=''
 			const lr=s!=='rgb'&&space[s].lrgb
 			if(lr){ const N=48, st=[]
 				for(let k2=0;k2<=N;k2++){ const vv=cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*k2/N:shown[j])
 					let on=false; try{ on=lr(...vv).every(u=>u>=-0.005&&u<=1.005) }catch{}
 					st.push(on) }
 				if(st.some(x=>x)&&st.some(x=>!x)){ const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
-					if(G==='srgb'){ layer=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'transparent':'var(--panel)')).join(',')})`; layerFull=true }
-					else layer=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'var(--ink)':'transparent')).join(',')})` } }
+					layer=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?ink(rgb):'transparent')).join(',')})` } }
 			bar.style.backgroundImage=layer?layer+', '+bg:bg
-			bar.style.backgroundSize=layer?(layerFull?'100% 100%':'100% 3px')+', 100% 100%':'100% 100%'
+			bar.style.backgroundSize=layer?'100% 3px, 100% 100%':'100% 100%'
 			bar.style.backgroundPosition=layer?'left bottom, 0 0':'0 0' }
 		const loV=cls.ch.map((cc,j)=>j===i?cc.min:shown[j]), hiV=cls.ch.map((cc,j)=>j===i?cc.max:shown[j])
-		// srgb layer voids the ends — labels sitting on the panel take theme ink
-		bar.querySelector('.cnm').style.color=(G==='srgb'&&!inGam(s,loV))?'var(--ink)':ink(rgbF(s,loV))
-		const nw=bar.querySelector('.nvw'); nw.style.color=(G==='srgb'&&!inGam(s,hiV))?'var(--ink)':ink(rgbF(s,hiV))
+		bar.querySelector('.cnm').style.color=ink(rgbF(s,loV))
+		const nw=bar.querySelector('.nvw'); nw.style.color=ink(rgbF(s,hiV))
 		const vin=nw.querySelector('.nv'); if(document.activeElement!==vin) vin.value=shown[i].toFixed(decOf(c))
 		const dk=bar.querySelector('.dk')
-		dk.style.left=((bar===dragBar&&bar._cellF!=null)?bar._cellF*100:clamp((shown[i]-c.min)/(c.max-c.min),0,1)*100)+'%'
-		dk.style.background=hx; dk.style.borderColor='var(--ink)' })
+		// color-cluster modes: the marker sits on the CENTRE of the cell showing the current color
+		let df=null
+		if(bar===dragBar&&bar._cellF!=null) df=bar._cellF
+		else if(qTriple(Q)&&bar._cells){ const ri0=Math.round(rgb[0]), ri1=Math.round(rgb[1]), ri2=Math.round(rgb[2])
+			const k=bar._cells.findIndex(cell=>cell[0]===ri0&&cell[1]===ri1&&cell[2]===ri2)
+			if(k>=0) df=(k+0.5)/bar._cells.length }
+		dk.style.left=(df!=null?df*100:clamp((shown[i]-c.min)/(c.max-c.min),0,1)*100)+'%'
+		dk.style.background=hx; dk.style.borderColor=ink(rgb) })
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b
-		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor='var(--ink)'
+		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
 		cx.style.left=(clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)*100)+'%'
 		cx.style.top=((1-clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1))*100)+'%'
-		// corner labels ink by what's beneath them — void corners (clipped/non-physical) sit on the panel
+		// corner labels ink by what's beneath them — non-physical corners sit on the void panel
 		const labInk=(el,vv)=>{ try{ const lr=s!=='rgb'&&space[s].lrgb
 			if(lr){ const lin=lr(...vv)
-				if(!lin.every(u=>u>=-0.005&&u<=1.005)&&(G==='srgb'||!lin.every(u=>Math.abs(u)<4))){ el.style.color='var(--ink)'; return } } }catch{ el.style.color='var(--ink)'; return }
+				if(!lin.every(u=>Math.abs(u)<4)){ el.style.color='var(--ink)'; return } } }catch{ el.style.color='var(--ink)'; return }
 			el.style.color=ink(rgbF(s,vv)) }
 		labInk(pl.querySelector('.laby'), cls.ch.map((cc,j)=>j===a?cc.min:j===b?cc.max:shown[j]))
 		labInk(pl.querySelector('.labx'), cls.ch.map((cc,j)=>j===a?cc.max:j===b?cc.min:shown[j])) })
