@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 const cmy = {
-	name: 'cmy'
+	name: 'cmy',
+	range: [[0, 100], [0, 100], [0, 100]]
 };
 
 cmy.rgb = (c, m, y) => {

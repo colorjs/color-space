@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface LabhSpace extends ColorSpace {
 	name: 'labh';
+	range: [[0, 100], [-75, 115], [-210, 60]];
 }
 
 declare const labh: LabhSpace;

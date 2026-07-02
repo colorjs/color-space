@@ -32,7 +32,8 @@
  */
 import lab from './lab.js';
 
-const raldesign = { name: 'ral-design' };
+const raldesign = { name: 'ral-design',
+	range: [[0, 360], [0, 100], [0, 100]] };
 
 const D2R = Math.PI / 180, R2D = 180 / Math.PI;
 

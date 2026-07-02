@@ -14,6 +14,7 @@ import rgb from './rgb.js';
 
 var hsl = {
 	name: 'hsl',
+	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, s, l) {
 		// Convert from H: 0-360, S/L: 0-100 to normalized 0-1

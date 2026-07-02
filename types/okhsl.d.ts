@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface OkhslSpace extends ColorSpace {
 	name: 'okhsl';
+	range: [[0, 360], [0, 100], [0, 100]];
 }
 
 declare const okhsl: OkhslSpace;

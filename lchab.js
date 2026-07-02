@@ -21,6 +21,7 @@ import { cartToPolar, polarToCart } from './util.js';
 //cylindrical lab
 var lchab = {
 	name: 'lchab',
+	range: [[0, 100], [0, 150], [0, 360]],
 
 	xyz: function (l, c, h) {
 		return lab.xyz(...lchab.lab(l, c, h));

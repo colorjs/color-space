@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface YcbcrSpace extends ColorSpace {
 	name: 'ycbcr';
+	range: [[16, 235], [16, 240], [16, 240]];
 }
 
 declare const ycbcr: YcbcrSpace;

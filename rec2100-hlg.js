@@ -4,6 +4,7 @@
  * ITU-R BT.2100 HDR with HLG OETF for broadcast
  * Backward compatible with SDR displays
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @channel {R} 0 1 Red (HLG encoded)
  * @channel {G} 0 1 Green (HLG encoded)
  * @channel {B} 0 1 Blue (HLG encoded)
@@ -16,7 +17,8 @@ import rec2020Linear from './rec2020-linear.js';
 import xyz from './xyz.js';
 
 const rec2100hlg = {
-	name: 'rec2100-hlg'
+	name: 'rec2100-hlg',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const a = 0.17883277;

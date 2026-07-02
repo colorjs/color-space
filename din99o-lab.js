@@ -5,6 +5,7 @@
  * difference. DIN 6176. Defined relative to CIELab (D65); rgb/xyz are reached
  * by chaining through lab.
  *
+ * @see {@link https://de.wikipedia.org/wiki/DIN99-Farbraum}
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 40 Green-Red axis
  * @channel {b} -40 40 Blue-Yellow axis

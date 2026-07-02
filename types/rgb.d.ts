@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface RgbSpace extends ColorSpace {
 	name: 'rgb';
+	range: [[0, 255], [0, 255], [0, 255]];
 }
 
 declare const rgb: RgbSpace;

@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface UvwSpace extends ColorSpace {
 	name: 'uvw';
+	range: [[-85, 175], [-90, 75], [-17, 100]];
 }
 
 declare const uvw: UvwSpace;

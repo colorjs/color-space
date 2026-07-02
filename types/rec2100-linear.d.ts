@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Rec2100_linearSpace extends ColorSpace {
 	name: 'rec2100-linear';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const rec2100_linear: Rec2100_linearSpace;

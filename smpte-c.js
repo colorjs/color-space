@@ -5,6 +5,7 @@
  * the ITU-R BT.601 transfer function (identical curve to BT.709/rec709). Per-channel
  * inverse-OETF to linear, then the SMPTE-C→XYZ(D65) matrix.
  *
+ * @see {@link https://en.wikipedia.org/wiki/SMPTE_C}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

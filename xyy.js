@@ -4,6 +4,7 @@
  * Chromaticity coordinates (x, y) with luminance (Y)
  * Useful for color matching and display calibration
  *
+ * @see {@link http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html}
  * @channel {x} 0 1 Red chromaticity
  * @channel {y} 0 1 Green chromaticity
  * @channel {Y} 0 100 Luminance (CIE Y)
@@ -13,7 +14,8 @@
 import xyz from './xyz.js';
 
 var xyy = {
-	name: 'xyy'
+	name: 'xyy',
+	range: [[0, 1], [0, 1], [0, 100]]
 };
 
 xyy.xyz = function (x, y, Y) {

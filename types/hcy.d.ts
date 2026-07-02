@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface HcySpace extends ColorSpace {
 	name: 'hcy';
+	range: [[0, 360], [0, 100], [0, 100]];
 }
 
 declare const hcy: HcySpace;

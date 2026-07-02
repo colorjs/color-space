@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface TslSpace extends ColorSpace {
 	name: 'tsl';
+	range: [[0, 360], [0, 1], [0, 255]];
 }
 
 declare const tsl: TslSpace;

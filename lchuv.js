@@ -3,6 +3,7 @@
  *
  * Cylindrical CIE LUV with lightness, chroma, and hue
  *
+ * @see {@link https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCh)}
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 150 Chroma
  * @channel {H} 0 360 Hue angle in degrees
@@ -18,6 +19,7 @@ import { cartToPolar, polarToCart } from './util.js';
 // cylindrical luv
 var lchuv = {
 	name: 'lchuv',
+	range: [[0, 100], [0, 150], [0, 360]],
 
 	// L,C,H -> L,u,v (u,v: -100 to 100)
 	luv: (l, c, h) => polarToCart(l, c, h),

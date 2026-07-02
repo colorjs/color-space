@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Rec2100_pqSpace extends ColorSpace {
 	name: 'rec2100-pq';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const rec2100_pq: Rec2100_pqSpace;

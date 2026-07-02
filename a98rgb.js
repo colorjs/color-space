@@ -17,7 +17,8 @@ import xyz from './xyz.js';
 import { spow } from './util.js';
 
 const a98rgb = {
-	name: 'a98rgb'
+	name: 'a98rgb',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const gamma = 563 / 256;

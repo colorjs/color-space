@@ -4,6 +4,7 @@
  * Hue / whiteness / blackness built on Okhsv (Ottosson) — the HWB analog of the
  * perceptual Okhsl/Okhsv pickers, bounded to the sRGB gamut.
  *
+ * @see {@link https://bottosson.github.io/posts/okhsv/}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {W} 0 100 Whiteness percentage
  * @channel {B} 0 100 Blackness percentage

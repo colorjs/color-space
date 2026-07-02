@@ -16,7 +16,8 @@ import yuv from './yuv.js';
 
 
 var ydbdr = {
-	name: 'ydbdr'
+	name: 'ydbdr',
+	range: [[0, 1], [-1.333, 1.333], [-1.333, 1.333]]
 };
 
 

@@ -4,6 +4,7 @@
  * HDR perceptual color space for ITU-R BT.2100
  * Based on PQ transfer function for HDR video
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @channel {I} 0 1 Intensity (lightness)
  * @channel {Ct} -0.5 0.5 Tritan chroma (blue-yellow)
  * @channel {Cp} -0.5 0.5 Protanopia chroma (red-green)
@@ -15,7 +16,8 @@ import { mat3 } from './util.js';
 import { pqST2084Encode, pqST2084Decode } from './transfers.js';
 
 const ictcp = {
-	name: 'ictcp'
+	name: 'ictcp',
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
 };
 
 const Yw = 203; // nits

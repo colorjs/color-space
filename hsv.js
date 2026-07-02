@@ -16,6 +16,7 @@ import hsl from './hsl.js';
 
 var hsv = {
 	name: 'hsv',
+	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, s, v) {
 		// Convert from H: 0-360, S/V: 0-100 to normalized

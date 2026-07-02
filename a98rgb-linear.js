@@ -16,7 +16,8 @@ import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
 const a98Linear = {
-	name: 'a98rgb-linear'
+	name: 'a98rgb-linear',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // A98 RGB linear -> XYZ (D65, Y 0..1); inverse derived for an exact round-trip

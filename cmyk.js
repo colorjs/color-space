@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 const cmyk = {
-	name: 'cmyk'
+	name: 'cmyk',
+	range: [[0, 100], [0, 100], [0, 100], [0, 100]]
 };
 
 cmyk.rgb = (c, m, y, k) => {

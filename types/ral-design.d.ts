@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Ral_designSpace extends ColorSpace {
 	name: 'ral-design';
+	range: [[0, 360], [0, 100], [0, 100]];
 }
 
 declare const ral_design: Ral_designSpace;

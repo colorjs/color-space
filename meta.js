@@ -37,6 +37,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Adobe_RGB_color_space"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -77,6 +80,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Adobe_RGB_color_space"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -119,6 +125,9 @@ export default {
         65504
       ]
     ],
+    "refs": [
+      "https://docs.acescentral.com/specifications/aces2065-1/"
+    ],
     "referred": "scene",
     "dynamic": "hdr",
     "description": "ACES2065-1 color space (AP0 primaries) The ACES archival / interchange encoding: linear, AP0 primaries (which enclose the entire visible gamut), ACES white (~D60). Connects to acescg (AP1) via the published AP0↔AP1 matrix; everything else chains through there."
@@ -157,6 +166,9 @@ export default {
         -0.358,
         1.468
       ]
+    ],
+    "refs": [
+      "https://docs.acescentral.com/specifications/acescc/"
     ],
     "referred": "scene",
     "dynamic": "hdr",
@@ -197,6 +209,9 @@ export default {
         1.468
       ]
     ],
+    "refs": [
+      "https://docs.acescentral.com/specifications/acescct/"
+    ],
     "referred": "scene",
     "dynamic": "hdr",
     "description": "ACEScct color space ACES log encoding for colour grading (AP1 primaries, same as ACEScg) with a pure-log curve plus a linear toe near black for lift/gamma/gain controls. ACES spec S-2016-001. Connects to acescg (its linear form)."
@@ -236,9 +251,56 @@ export default {
         65504
       ]
     ],
+    "refs": [
+      "https://docs.acescentral.com/specifications/acescg/"
+    ],
     "referred": "scene",
     "dynamic": "hdr",
     "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded."
+  },
+  "acesproxy": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0.0626,
+        "max": 0.9189,
+        "name": "Red (ACESproxy)"
+      },
+      {
+        "symbol": "G",
+        "min": 0.0626,
+        "max": 0.9189,
+        "name": "Green (ACESproxy)"
+      },
+      {
+        "symbol": "B",
+        "min": 0.0626,
+        "max": 0.9189,
+        "name": "Blue (ACESproxy)"
+      }
+    ],
+    "range": [
+      [
+        0.0626,
+        0.9189
+      ],
+      [
+        0.0626,
+        0.9189
+      ],
+      [
+        0.0626,
+        0.9189
+      ]
+    ],
+    "refs": [
+      "https://docs.acescentral.com/specifications/acesproxy/"
+    ],
+    "illuminant": "D60",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "ACESproxy color space The Academy's on-set transport encoding (S-2013-001): AP1 linear light mapped to 10-bit legal-range code values — CV = round((log2(lin) + 2.5)·50 + 425) clamped to [64, 940] — expressed here as CV/1023 floats. Rounding to integral code values is part of the standard (it rides SDI cables), so round-trips quantise to ~1/100 stop. Not for storage or compositing — use ACEScc/ACEScct. 18% grey → 426/1023 ≈ 0.4164."
   },
   "anlab": {
     "channels": [
@@ -274,6 +336,10 @@ export default {
         -100,
         100
       ]
+    ],
+    "refs": [
+      "https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x",
+      "https://opg.optica.org/josa/abstract.cfm?uri=josa-32-3-168"
     ],
     "illuminant": "C",
     "observer": "2",
@@ -316,6 +382,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "http://www.brucelindbloom.com/WorkingSpaceInfo.html"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -356,6 +425,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -398,6 +470,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/blackmagic_design.py"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -439,6 +514,9 @@ export default {
         50
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1002/col.20227"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "CAM02-LCD color space Uniform-color-space form of CIECAM02 optimised for LARGE colour differences (Luo, Cui & Li 2006). Same J'/M' compression family as `cam02-ucs`, with the LCD-tuned constant c2 = 0.0053. Built on `ciecam02` (J, M, h)."
@@ -477,6 +555,9 @@ export default {
         -50,
         50
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.20227"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -517,6 +598,9 @@ export default {
         50
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1002/col.20227"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "CAM02-UCS color space Uniform-color-space form of CIECAM02 (Luo, Cui & Li 2006): compresses lightness J and colourfulness M, then lays out (J', a', b') for colour-difference (ΔE) and gamut mapping. Built on ciecam02 (J, M, h). Same compression family as cam16-ucs."
@@ -555,6 +639,9 @@ export default {
         -50,
         50
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.22131"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -595,6 +682,9 @@ export default {
         50
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1002/col.22131"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "CAM16-SCD color space Uniform-color-space form of CAM16 optimised for SMALL colour differences (Li et al. 2017, using the Luo 2006 coefficients). Same J'/M' compression family as `cam16-ucs`, with the SCD-tuned constant c2 = 0.0363. Built on `cam16` (J, M, h)."
@@ -633,6 +723,9 @@ export default {
         -50,
         50
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.22131"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -673,6 +766,9 @@ export default {
         360
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1002/col.22131"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "CAM16 color space (Color Appearance Model) Complex color appearance model used in Material Design Includes hue, saturation, brightness, and colorfulness"
@@ -712,6 +808,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIE_1931_color_space"
+    ],
     "illuminant": "E",
     "observer": "2",
     "referred": "display",
@@ -719,6 +818,9 @@ export default {
     "description": "CIE RGB (1931) color space The original Wright-Guild experimental RGB whose colour-matching functions defined CIE XYZ — monochromatic primaries at 700 / 546.1 / 435.8 nm, equal-energy white E, linear (no gamma). The ancestor of all RGB spaces. Matrix derived from the primaries (Lindbloom method) and Bradford-adapted from E to the library's D65 XYZ."
   },
   "cie": {
+    "refs": [
+      "http://www.brucelindbloom.com/index.html?LContinuity.html"
+    ],
     "description": "CIE 1976 perceptual companding — the cube-root toe shared by every space built on L* (CIELAB, CIELUV, DIN99d, HCT, HSLuv). Single source of truth for the two constants and the f/f⁻¹ pair, so no space carries its own (differently-rounded) copy."
   },
   "ciecam02": {
@@ -755,6 +857,9 @@ export default {
         0,
         360
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.10125"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -797,6 +902,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Cineon.html"
+    ],
     "referred": "scene",
     "dynamic": "sdr",
     "description": "Cineon color space Kodak Cineon printing-density log (the classic film-scan/DPX encoding, SMPTE 268M), applied per channel over linear-light RGB. Reference black 95 / white 685 over a 10-bit range; 18% grey encodes to 0.4573. No gamut of its own — a transfer over `lrgb` (linear sRGB)."
@@ -835,6 +943,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -877,6 +988,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Log_profile"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -918,6 +1032,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -958,6 +1075,9 @@ export default {
         0,
         100
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CMY_color_model"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -1008,6 +1128,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#device-cmyk"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "CMYK color space Subtractive color model used in printing"
@@ -1047,6 +1170,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://onlinelibrary.wiley.com/doi/10.1002/col.5080050210"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades found by chromaticity angle from white; T is the position along the white→limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup uses each row's angle computed from its own (xλ,yλ); the stored angle column is decorative (it disagrees with the chromaticities). The limit-color table now holds the authoritative Nemcsics (1980) chromaticities (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column shifted by one row. ATV↔xyY round-trips exactly and reproduces the published A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann & Neumann (2004) \"Gamut Clipping and Mapping Based on the Coloroid System\"."
@@ -1066,9 +1192,100 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "Cubehelix color space Perceptually uniform single-hue color scheme Designed for scientific visualization Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images"
+  },
+  "davinci": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (DaVinci Intermediate)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (DaVinci Intermediate)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (DaVinci Intermediate)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://documents.blackmagicdesign.com/InformationNotes/DaVinci_Resolve_17_Wide_Gamut_Intermediate.pdf"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "DaVinci Wide Gamut / DaVinci Intermediate color space Blackmagic's DaVinci Resolve default color-managed working space: the DaVinci Intermediate log curve over DaVinci Wide Gamut primaries (D65). Matrices are the exact values from the Blackmagic whitepaper. 18% grey → 0.3360."
+  },
+  "dcdm": {
+    "channels": [
+      {
+        "symbol": "X",
+        "min": 0,
+        "max": 1,
+        "name": "X′ (gamma-2.6 X)"
+      },
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 1,
+        "name": "Y′ (gamma-2.6 Y)"
+      },
+      {
+        "symbol": "Z",
+        "min": 0,
+        "max": 1,
+        "name": "Z′ (gamma-2.6 Z)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://ieeexplore.ieee.org/document/7290729"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "DCDM X′Y′Z′ color space The Digital Cinema Distribution Master encoding inside every DCP: gamma-2.6-encoded CIE XYZ, X′ = (X/52.37)^(1/2.6) (SMPTE ST 428-1), with the SMPTE ST 431-1 reference projector white — relative Y=100 ≡ 48 cd/m² — baked in, so D65 white → ≈[0.948, 0.967, 0.976]. Negative XYZ clamps to 0."
   },
   "dci-p3": {
     "channels": [
@@ -1104,6 +1321,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/DCI-P3"
     ],
     "illuminant": "DCI",
     "observer": "2",
@@ -1146,6 +1366,9 @@ export default {
         50
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1002/col.10118"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -1186,6 +1409,9 @@ export default {
         -40,
         40
       ]
+    ],
+    "refs": [
+      "https://de.wikipedia.org/wiki/DIN99-Farbraum"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -1228,6 +1454,9 @@ export default {
         360
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/DIN99"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -1268,6 +1497,9 @@ export default {
         -100,
         100
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1113/jphysiol.1984.sp015499"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -1310,6 +1542,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -1351,11 +1586,101 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Dominant_wavelength",
+      "https://cie.co.at/publications/colorimetry-4th-edition"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "CIE DSH — dominant wavelength / saturation (excitation purity) / hue Helmholtz coordinates of CIE 1931 xy chromaticity: a polar representation where the dominant wavelength is the hue analog (so DSH's \"H\" IS the dominant wavelength `d` — they are the same coordinate) and excitation purity is the saturation analog. The third stored channel is luminance Y, making the transform an invertible wrapped xyY. Negative `d` is a complementary wavelength: non-spectral purples have no dominant wavelength, so the line from white is reversed onto the opposite locus arc. Forward intersects the ray (D65 white -> colour) with the CIE 1931 2° spectral locus (embedded at 5 nm; finer sampling shifts the wavelength by <0.1 nm). Inverse is exact: colour = white + purity·(locus(d) - white)."
+  },
+  "erimm": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (ERIMM)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (ERIMM)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (ERIMM)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://www.iso.org/standard/58005.html"
+    ],
+    "illuminant": "D50",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "ERIMM RGB color space Extended Reference Input Medium Metric RGB (ISO 22028-3): the log-encoded, extended-dynamic-range member of the ROMM/RIMM family — scene exposures from 0.001 to 316.2 (relative to diffuse white 1.0) over the ROMM (ProPhoto) primaries, D50. A transfer over `prophoto-linear`, whose values it extends far past 1. Linear toe below e·0.001. 18% grey → 0.4101."
+  },
+  "filmicpro": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Filmic Pro 6)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Filmic Pro 6)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Filmic Pro 6)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmicPro6.html"
+    ],
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "Filmic Pro 6 Log color space The Filmic Pro v6 iOS log curve — y = 0.371(√t + 0.28257·ln t + 1.69542), a mixed square-root/log law with y(1) = 1 by construction. No closed-form inverse: decoding runs a Newton solve (colour-science interpolates a LUT). Linear input clamps at the value encoding to 0, keeping black finite. No published gamut — a transfer over `lrgb`. 18% grey → 0.6066."
   },
   "flog": {
     "channels": [
@@ -1391,6 +1716,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://dl.fujifilm-x.com/support/lut/F-Log_DataSheet_E_Ver.1.1.pdf"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -1433,6 +1761,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://dl.fujifilm-x.com/support/lut/F-Log2_DataSheet_E_Ver.1.0.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -1453,6 +1784,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#grays"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -1493,6 +1827,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://github.com/Qix-/color-convert"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HCG color space (Hue, Chroma, Gray) Alternative cylindrical RGB representation Uses gray component instead of value or lightness"
@@ -1531,6 +1868,9 @@ export default {
         0,
         95
       ]
+    ],
+    "refs": [
+      "http://www.chilliant.com/rgb2hsv.html"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -1571,6 +1911,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://material.io/blog/science-of-color-design"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HCT color space (Hue, Chroma, Tone) Material Design's color system based on CAM16 Uses tone (perceptual lightness) instead of lightness"
@@ -1610,6 +1953,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HCY color space (Hue, Chroma, Luma) Luma-based cylindrical model for shader programming (Kuzma Shapran / Chilliant). Unlike HSI/HSL, the Y channel is the color's actual Rec.601 luma, and chroma is normalized against the luma the hue can carry — so equal Y means equal brightness. http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html"
@@ -1648,6 +1994,9 @@ export default {
         -100,
         100
       ]
+    ],
+    "refs": [
+      "https://library.imaging.org/cic/articles/18/1/art00057"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -1690,6 +2039,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://library.imaging.org/cic/articles/18/1/art00057"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -1730,6 +2082,9 @@ export default {
         0,
         360
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.22792"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -1772,6 +2127,10 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://www.hsluv.org/",
+      "https://github.com/hsluv/hsluv"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -1813,6 +2172,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/HSL_and_HSV"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HSI color space (Hue, Saturation, Intensity) Cylindrical representation with intensity (average of RGB) Derived from RGB for image processing"
@@ -1852,6 +2214,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#the-hsl-notation"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HSL color space (Hue, Saturation, Lightness) Cylindrical representation of RGB with perceptual intent"
@@ -1890,6 +2255,10 @@ export default {
         0,
         100
       ]
+    ],
+    "refs": [
+      "https://www.hsluv.org/",
+      "https://github.com/hsluv/hsluv"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -1932,6 +2301,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HSM color space (Hue, Saturation, Mixture) Bianconi et al. (2009), \"A New Color Space for Skin Color Detection\", Revista de Informática Teórica e Aplicada 16(2). Mixture M is the luminance- weighted mean (4R+2G+B)/7; saturation is the chromatic distance normalised by D(M), the maximum reachable chromatic distance at that mixture."
@@ -1970,6 +2342,9 @@ export default {
         0,
         100
       ]
+    ],
+    "refs": [
+      "https://alienryderflex.com/hsp.html"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -2010,6 +2385,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/HSL_and_HSV"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HSV color space (Hue, Saturation, Value) Cylindrical representation of RGB maximizing perceived saturation"
@@ -2049,6 +2427,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#the-hwb-notation"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "HWB color space (Hue, Whiteness, Blackness) Cylindrical representation using whiteness and blackness"
@@ -2087,6 +2468,9 @@ export default {
         -0.5,
         0.5
       ]
+    ],
+    "refs": [
+      "https://github.com/colour-science/colour/blob/develop/colour/models/icacb.py"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -2129,9 +2513,56 @@ export default {
         0.5
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2100"
+    ],
     "referred": "display",
     "dynamic": "hdr",
     "description": "ICtCp color space HDR perceptual color space for ITU-R BT.2100 Based on PQ transfer function for HDR video"
+  },
+  "igpgtg": {
+    "channels": [
+      {
+        "symbol": "Ig",
+        "min": 0,
+        "max": 1,
+        "name": "Intensity"
+      },
+      {
+        "symbol": "Pg",
+        "min": -1,
+        "max": 1,
+        "name": "Protan (red-green)"
+      },
+      {
+        "symbol": "Tg",
+        "min": -1,
+        "max": 1,
+        "name": "Tritan (yellow-blue)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        -1,
+        1
+      ],
+      [
+        -1,
+        1
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.2352/issn.2169-2629.2020.28.13"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "IgPgTg color space (Hensley & Fairchild 2020) An IPT-structured uniform space fitted with an independent gamut-relative LMS normalisation: XYZ → bespoke LMS, per-cone scaling [18.36, 21.46, 19435] and a 0.427 power, then an opponent matrix to Ig (intensity) / Pg (protan) / Tg (tritan). Competitive hue uniformity with CAM16-UCS at a fraction of the math."
   },
   "ipt": {
     "channels": [
@@ -2167,6 +2598,9 @@ export default {
         -1,
         1
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.2352/CIC.1998.6.1.art00003"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -2209,6 +2643,9 @@ export default {
         0.1
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1364/OE.25.015131"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -2250,6 +2687,9 @@ export default {
         255
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/T-REC-T.871"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion JPEG conversion without head/footroom"
@@ -2288,6 +2728,9 @@ export default {
         -0.5,
         0.5
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1364/OE.25.015131"
     ],
     "referred": "display",
     "dynamic": "hdr",
@@ -2328,6 +2771,9 @@ export default {
         360
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-hdr/#JzCzHz"
+    ],
     "referred": "display",
     "dynamic": "hdr",
     "description": "JzCzHz color space Cylindrical variant of JzAzBz for HDR Uses chroma and hue instead of rectangular coordinates"
@@ -2346,6 +2792,10 @@ export default {
         1000,
         25000
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Planckian_locus",
+      "https://doi.org/10.1002/col.5080170211"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -2388,6 +2838,9 @@ export default {
         125
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIELAB_color_space"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -2428,6 +2881,9 @@ export default {
         -125,
         125
       ]
+    ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#lab-colors"
     ],
     "illuminant": "D50",
     "observer": "2",
@@ -2470,9 +2926,56 @@ export default {
         60
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Hunter_Lab"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "Lab Hunter color space Alternative Lab definition by Richard Hunter Optimized for reflectance, less uniform than CIE Lab"
+  },
+  "lalphabeta": {
+    "channels": [
+      {
+        "symbol": "l",
+        "min": -10.4,
+        "max": 0,
+        "name": "log-luminance"
+      },
+      {
+        "symbol": "alpha",
+        "min": -3,
+        "max": 3,
+        "name": "Yellow-Blue"
+      },
+      {
+        "symbol": "beta",
+        "min": -3,
+        "max": 3,
+        "name": "Red-Green"
+      }
+    ],
+    "range": [
+      [
+        -10.4,
+        0
+      ],
+      [
+        -3,
+        3
+      ],
+      [
+        -3,
+        3
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.1109/38.946629"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "lαβ color space (Ruderman 1998) The decorrelated log-cone space behind classic colour transfer (Reinhard et al. 2001): device RGB → LMS cones (paper eq. 4), log10, then the orthogonal l (achromatic) / α (yellow-blue) / β (red-green) rotation (eq. 6). Statistics of natural scenes are nearly independent across these axes, so moving means/variances per axis transfers one image's colour mood onto another. Inverses use the exact matrix inversions (the paper prints rounded ones); LMS is floored at 1e-6 so black stays finite."
   },
   "lch-d65": {
     "channels": [
@@ -2508,6 +3011,9 @@ export default {
         0,
         360
       ]
+    ],
+    "refs": [
+      "https://cie.co.at/publications/colorimetry-4th-edition"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -2550,6 +3056,9 @@ export default {
         360
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#cie-lab"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -2591,11 +3100,58 @@ export default {
         360
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCh)"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "LCh(uv) color space Cylindrical CIE LUV with lightness, chroma, and hue"
+  },
+  "llog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (L-Log)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (L-Log)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (L-Log)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://leica-camera.com/sites/default/files/2021-11/L-Log_Reference_Manual_EN.pdf"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "Leica L-Log color space Leica's L-Log (SL2-S onward): linear toe below 0.006 then c·log10(d·x+e)+f, recorded in a BT.2020 container per the L-Log reference manual — so a transfer over `rec2020-linear`, like `nlog`. 18% grey → 0.4353."
   },
   "lms": {
     "channels": [
@@ -2631,6 +3187,9 @@ export default {
         0,
         110
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/LMS_color_space"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -2671,11 +3230,58 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
     "description": "RED Log3G10 / REDWideGamutRGB color space RED's Log3G10 (v3) transfer over the REDWideGamutRGB primaries. Per-channel Log3G10 curve to scene-linear, then RWG→XYZ(D65). RED whitepaper 915-0187 Rev-C."
+  },
+  "log3g12": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Log3G12)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Log3G12)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Log3G12)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log3G12.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "RED Log3G12 / REDWideGamutRGB color space RED's Log3G12 — Log3G10's predecessor with 12 stops above 18% grey (grey → exactly 1/3) — over the same REDWideGamutRGB primaries as `log3g10`. Sign-symmetric, so negative scene values encode continuously."
   },
   "logc3": {
     "channels": [
@@ -2711,6 +3317,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.arri.com/resource/blob/31918/66f56e6abb6e5b6553929edf9aa7483e/2017-03-alexa-logc-curve-in-vfx-data.pdf"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -2753,6 +3362,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -2794,6 +3406,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "Linear RGB color space RGB without gamma correction, useful for color math"
@@ -2832,6 +3447,9 @@ export default {
         -100,
         100
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIELUV"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -2874,11 +3492,58 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1364/JOSA.69.001183"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "MacLeod-Boynton ls chromaticity color space The cone-excitation chromaticity diagram of vision science (MacLeod & Boynton 1979): a constant-luminance plane where l = L/(L+M) and s = S/(L+M) on the Smith-Pokorny (1975) cone fundamentals, scaled so L+M = Y (luminance). The foundation of the DKL cardinal-axis space and of chromatic-discrimination work. Stored with the MB luminance (L+M ≈ Y) as a third channel for invertibility."
+  },
+  "milog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Mi-Log)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Mi-Log)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Mi-Log)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_MiLog.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "Xiaomi Mi-Log color space Xiaomi's Mi-Log profile (14/15 Ultra) — the Apple Log curve shape (quadratic toe, log2 body) with Xiaomi's constants — recorded in a BT.2020 container, so a transfer over `rec2020-linear` like `applelog`. 18% grey → 0.4535."
   },
   "munsell": {
     "channels": [
@@ -2914,6 +3579,10 @@ export default {
         0,
         38
       ]
+    ],
+    "refs": [
+      "https://www.rit.edu/science/munsell-color-science-lab-educational-resources",
+      "https://onlinelibrary.wiley.com/doi/10.1002/col.20715"
     ],
     "illuminant": "C",
     "observer": "2",
@@ -2956,6 +3625,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://download.nikonimglib.com/archive3/hDCmK00m9JDI03RPruD74xpoU905/N-Log_Specification_(En)01.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -2996,6 +3668,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.470"
     ],
     "illuminant": "C",
     "observer": "2",
@@ -3038,6 +3713,9 @@ export default {
         128
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1016/0146-664X(80)90047-7"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "Ohta I1I2I3 color space Yu-Ichi Ohta's decorrelated opponent space (1980 Kyoto thesis; Ohta, Kanade & Sakai 1980), an approximate Karhunen-Loève transform of natural-image RGB used widely in computer-vision segmentation (vegetation, fruit, flame, skin). An exact, invertible linear transform of RGB: I1 = intensity, I2/I3 = opponent chroma."
@@ -3076,6 +3754,9 @@ export default {
         0,
         100
       ]
+    ],
+    "refs": [
+      "https://bottosson.github.io/posts/okhsv/"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -3116,6 +3797,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://bottosson.github.io/posts/okhsv/"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "OkHSV color space Cylindrical variant of OkHSL using value instead of lightness Alternative color picker from Oklab"
@@ -3154,6 +3838,9 @@ export default {
         0,
         100
       ]
+    ],
+    "refs": [
+      "https://bottosson.github.io/posts/okhsv/"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -3194,6 +3881,9 @@ export default {
         0.4
       ]
     ],
+    "refs": [
+      "https://bottosson.github.io/posts/oklab/"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "Oklab color space Modern perceptual color space based on cone response More uniform than Lab, better for interpolation"
@@ -3232,6 +3922,9 @@ export default {
         0,
         360
       ]
+    ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#ok-lab"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -3272,6 +3965,9 @@ export default {
         0.4
       ]
     ],
+    "refs": [
+      "https://bottosson.github.io/posts/colorpicker/"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "OkLrab color space Modified version of Oklab using toe mapping Optimized for color picker gamut mapping"
@@ -3311,9 +4007,56 @@ export default {
         360
       ]
     ],
+    "refs": [
+      "https://bottosson.github.io/posts/colorpicker/"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "OkLrch color space Cylindrical variant of OkLrab Uses chroma and hue for intuitive color selection"
+  },
+  "olog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (O-Log)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (O-Log)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (O-Log)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_OPPOOLog.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "OPPO O-Log color space OPPO's O-Log profile (Find X8 Ultra era) — a pure natural-log curve P = 0.139·ln(R + 0.019) + 0.614 — recorded in a BT.2020 container, so a transfer over `rec2020-linear`. 18% grey → 0.3896."
   },
   "osaucs": {
     "channels": [
@@ -3349,6 +4092,9 @@ export default {
         -10,
         10
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1364/JOSA.64.001691"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -3388,6 +4134,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#predefined-display-p3"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -3430,6 +4179,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#predefined-display-p3"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -3471,11 +4223,56 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.470"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "PAL / SECAM RGB color space The European 625-line analogue-TV primaries (EBU Tech 3213 / BT.470 B,G), D65, γ≈2.2. Formally distinct from Rec.709 — the green primary sits at (0.29, 0.60) vs sRGB's (0.30, 0.60) — so it is the correct gamut for archival PAL/SECAM content. Matrix derived from the primaries."
+  },
+  "panalog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Panalog)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Panalog)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Panalog)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Panalog.html"
+    ],
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "Panalog color space Panavision's Genesis-era Cineon-style log (black 64 / white 681 over 10 bits, gain 444), per channel over linear-light RGB. No published native gamut — a transfer over `lrgb` (linear sRGB), like `cineon`. 18% grey → 0.3746."
   },
   "photoycc": {
     "channels": [
@@ -3511,6 +4308,10 @@ export default {
         0,
         255
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Photo_CD",
+      "https://www.ilkeratalay.com/colorspacesfaq.php"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -3553,6 +4354,9 @@ export default {
         125
       ]
     ],
+    "refs": [
+      "https://arxiv.org/abs/2012.07653"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -3593,6 +4397,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.color.org/ROMMRGB.pdf"
     ],
     "illuminant": "D50",
     "observer": "2",
@@ -3635,11 +4442,58 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.color.org/ROMMRGB.pdf"
+    ],
     "illuminant": "D50",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "ProPhoto RGB color space Largest gamut RGB color space designed for professional photography References D50 white point"
+  },
+  "protune": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (Protune)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (Protune)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (Protune)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Protune.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "GoPro Protune color space GoPro's Protune flat profile — y = ln(x·112 + 1)/ln(113) — over the Protune Native primaries (D65). 18% grey → 0.6456."
   },
   "ral-design": {
     "channels": [
@@ -3675,6 +4529,10 @@ export default {
         0,
         100
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/RAL_colour_standard",
+      "https://www.freiefarbe.de/en/colour-atlas/"
     ],
     "illuminant": "D50",
     "observer": "2",
@@ -3717,6 +4575,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2020"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -3757,6 +4618,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2020"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -3799,6 +4663,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2100"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -3839,6 +4706,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2100"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -3881,6 +4751,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2100"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -3922,11 +4795,102 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.709"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Rec. 709 color space ITU-R BT.709 HDTV: the same primaries and D65 white as sRGB, but with the BT.709 camera transfer function (OETF) instead of the sRGB curve. The linear light is identical to linear sRGB, so this connects through `lrgb`."
+  },
+  "redlog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (REDLog)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (REDLog)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (REDLog)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLog.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "REDLog / REDcolor color space RED's original 10-bit log curve (RED One era, superseded by REDLogFilm and then Log3G10) over the REDcolor primaries (D65). Black offset 10^(−1023/511). 18% grey → 0.6376."
+  },
+  "redlogfilm": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (REDLogFilm)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (REDLogFilm)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (REDLogFilm)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLogFilm.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "REDLogFilm / REDcolor color space RED's Cineon-compatible log (exactly the Cineon curve, black 95 / white 685 over 10 bits) paired with the REDcolor primaries (D65) — colour-science's canonical pairing for the REDcolor generations. 18% grey → 0.4573, as Cineon."
   },
   "rg": {
     "channels": [
@@ -3952,6 +4916,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/Chromaticity"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -3992,6 +4959,9 @@ export default {
         255
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#numeric-srgb"
+    ],
     "illuminant": "D65",
     "referred": "display",
     "dynamic": "sdr",
@@ -4031,6 +5001,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://www.iso.org/standard/58005.html"
     ],
     "illuminant": "D50",
     "observer": "2",
@@ -4073,6 +5046,9 @@ export default {
         125
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z"
+    ],
     "illuminant": "A",
     "observer": "2",
     "referred": "display",
@@ -4114,6 +5090,9 @@ export default {
         255
       ]
     ],
+    "refs": [
+      "https://github.com/meodai/rybitten"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "RYB color space (red-yellow-blue artists' model) The traditional painter's wheel — where blue + yellow makes green, not the additive RGB grey. Implemented as Johannes Itten's chromatic cube (meodai/rybitten's `RYB_ITTEN`): the 8 RYB corners carry hand-picked RGB anchors and any colour is a smoothstep-eased trilinear blend between them. (0,0,0) = no pigment ≈ white, (255,255,255) = all three ≈ black. RGB→RYB is the numerical (Newton) inverse and best-fits colours outside the artists' gamut."
@@ -4153,11 +5132,58 @@ export default {
         7.4998779296875
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/ScRGB"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
     "description": "scRGB color space Linear-light sRGB (same primaries and D65 white as sRGB/lrgb) with the extended IEC 61966-2-2 range [-0.5, 61439/8192] for wide-gamut and HDR signals. In float the values are identical to linear sRGB — only the declared range differs."
+  },
+  "slog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (S-Log)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (S-Log)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (S-Log)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "Sony S-Log (1) / S-Gamut color space Sony's original S-Log curve (F35/F3 era, superseded by S-Log2/3) over S-Gamut — the same primaries as S-Gamut3, hence the same matrix as `slog2`/`slog3`. Uses the in-reflection (÷0.9) + 10-bit legal-range code-value convention. 18% grey → 0.3850."
   },
   "slog2": {
     "channels": [
@@ -4193,6 +5219,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -4235,6 +5264,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog3.html"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
@@ -4275,6 +5307,9 @@ export default {
         0,
         1
       ]
+    ],
+    "refs": [
+      "https://ieeexplore.ieee.org/document/7291461"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -4317,6 +5352,9 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/SMPTE_C"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -4357,6 +5395,9 @@ export default {
         -125,
         125
       ]
+    ],
+    "refs": [
+      "https://www.magnetkern.de/srlab2.html"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -4399,11 +5440,58 @@ export default {
         50
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1364/OE.510196"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "sUCS color space The uniform colour space of sCAM, the \"simple\" colour-appearance model (Li & Luo 2024) — claims CAM16-UCS-class uniformity from a far simpler pipeline: XYZ→LMS (HPE-like), a signed power 0.43, then a fixed opponent mix to I (lightness) and a, b. D65, I≈100 at white. A lighter-weight alternative to cam16-ucs / oklab."
+  },
+  "tlog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (T-Log)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (T-Log)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (T-Log)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmLightTLog.html"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "FilmLight T-Log / E-Gamut color space FilmLight Baselight's working space: the T-Log quasi-log curve (pure log with a linear extension below zero) over E-Gamut primaries (D65). Constants derive from w=128 (linear value mapping to 1.0), g=16 (gradient at 0), o=0.075 (offset at 0). 18% grey → 0.3966."
   },
   "transfers": {
     "description": "Standard opto-electronic transfer functions (gamma / OETF-EOTF curves), shared by the RGB working spaces that encode with the same curve. Each is sign-extended (odd-symmetric) so out-of-gamut negatives survive a round-trip. The matrices and primaries stay in the per-space files; only the 1-D transfer lives here."
@@ -4443,6 +5531,9 @@ export default {
         255
       ]
     ],
+    "refs": [
+      "https://doi.org/10.1109/AFGR.2000.840612"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "TSL color space (Tint, Saturation, Lightness) Simple cylindrical representation of RGB Derived from RGB for image analysis"
@@ -4481,6 +5572,9 @@ export default {
         0,
         160
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIE_1960_color_space"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -4523,6 +5617,10 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIELUV#The_CIE_1976_UCS_diagram",
+      "https://cie.co.at/publications/colorimetry-4th-edition"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
@@ -4564,11 +5662,56 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIE_1964_color_space"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
     "description": "CIE 1964 U*V*W* color space Obsolete perceptual space, predecessor to CIELUV. Built on the CIE 1960 UCS chromaticity (u′, v′): W* = 25·Y^(1/3) − 17        (Y in 0-100) U* = 13·W*·(u′ − u′n) V* = 13·W*·(v′ − v′n) where (u′n, v′n) is the reference-white chromaticity. At an undefined chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0."
+  },
+  "viperlog": {
+    "channels": [
+      {
+        "symbol": "R",
+        "min": 0,
+        "max": 1,
+        "name": "Red (ViperLog)"
+      },
+      {
+        "symbol": "G",
+        "min": 0,
+        "max": 1,
+        "name": "Green (ViperLog)"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 1,
+        "name": "Blue (ViperLog)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_ViperLog.html"
+    ],
+    "referred": "scene",
+    "dynamic": "hdr",
+    "description": "ViperLog color space The Thomson Viper FilmStream log — a pure log10 with no black offset (the flaw its successors fixed): y = (1023 + 500·log10(x))/1023, per channel over linear-light RGB (`lrgb`). Linear input clamps at 10^(−1023/500) ≈ 0.0090 — the value that encodes to code 0 — so black round-trips to that floor. 18% grey → 0.6360."
   },
   "vlog": {
     "channels": [
@@ -4605,11 +5748,17 @@ export default {
         1
       ]
     ],
+    "refs": [
+      "https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf"
+    ],
     "illuminant": "D65",
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
     "description": "Panasonic V-Log / V-Gamut color space Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65). Panasonic V-Log/V-Gamut Reference Manual (2014)."
+  },
+  "wasm": {
+    "description": "fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the ~4.6 kB module is prebuilt and inlined (see scripts/build-wasm.js). Layout: interleaved 3-channel `Float64Array`, n pixels = 3n values [c0,c1,c2, c0,c1,c2, …]. Ranges match the scalar API (rgb 0-255, oklab native, xyz 0-100). Formulas mirror the scalar library and are pinned by test/wasm-batch.js. THE WIN IS ZERO-COPY. Keep the data in WASM memory: import { alloc, convert } from 'color-space/wasm' const buf = alloc(nPixels)      // WASM-backed Float64Array(n*3) — write rgb here // … fill buf … convert('rgb', 'oklab', nPixels)  // in place, no copy // … read buf (now oklab) … `convertBatch(from,to,src,dst,n)` is the drop-in convenience for existing JS buffers, but it copies in and out — fine for a chain of conversions, but a single convert + two copies may not beat JS. Prefer alloc()+convert() on the hot path."
   },
   "wavelength": {
     "channels": [
@@ -4625,6 +5774,9 @@ export default {
         380,
         700
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/CIE_1931_color_space"
     ],
     "illuminant": "E",
     "observer": "2",
@@ -4667,6 +5819,9 @@ export default {
         255
       ]
     ],
+    "refs": [
+      "https://webstore.iec.ch/publication/6168"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "https://en.wikipedia.org/wiki/XvYCC Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr because all values are normalized to 0-1 range. The conceptual difference is: - YCbCr (traditional): Limited to \"legal\" range (16-235 for Y in 8-bit) - YPbPr: Analog version, typically full range [0,1] - xvYCC: Explicitly extended range, allows values beyond normal gamut Since this library normalizes all spaces to [0,1] and doesn't enforce range limits, xvYCC is functionally identical to YPbPr here. The separate implementation exists for semantic clarity and compatibility. It uses the same transformation matrices as: SD: ITU-R BT.601 HD: ITU-R BT.709 Formulas (identical to YPbPr): Forward (RGB → xvYCC): Y  = Kr*R + (1-Kr-Kb)*G + Kb*B Cb = 0.5*(B-Y)/(1-Kb) Cr = 0.5*(R-Y)/(1-Kr) Inverse (xvYCC → RGB): R = Y + 2*Cr*(1-Kr) B = Y + 2*Cb*(1-Kb) G = (Y - Kr*R - Kb*B)/(1-Kr-Kb) Where for BT.709: Kr=0.2126, Kb=0.0722 for BT.601: Kr=0.299,  Kb=0.114 References: - https://en.wikipedia.org/wiki/XvYCC - https://en.wikipedia.org/wiki/YCbCr - IEC 61966-2-4:2006 (xvYCC specification)"
@@ -4705,6 +5860,9 @@ export default {
         -0.2778,
         0.388
       ]
+    ],
+    "refs": [
+      "https://arxiv.org/abs/1908.03565"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -4745,6 +5903,9 @@ export default {
         100
       ]
     ],
+    "refs": [
+      "http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "xyY color space Chromaticity coordinates (x, y) with luminance (Y) Useful for color matching and display calibration"
@@ -4783,6 +5944,9 @@ export default {
         0,
         10888.3
       ]
+    ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2100"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -4825,6 +5989,9 @@ export default {
         82.51
       ]
     ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#predefined-xyz"
+    ],
     "illuminant": "D50",
     "observer": "2",
     "referred": "display",
@@ -4832,9 +5999,48 @@ export default {
     "description": "CIE XYZ with the D50 white point (ICC profile connection space). Bradford-adapted from the D65 `xyz` hub."
   },
   "xyz": {
+    "channels": [
+      {
+        "symbol": "X",
+        "min": 0,
+        "max": 95.05,
+        "name": "X (D65)"
+      },
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 100,
+        "name": "Y (D65)"
+      },
+      {
+        "symbol": "Z",
+        "min": 0,
+        "max": 108.91,
+        "name": "Z (D65)"
+      }
+    ],
+    "range": [
+      [
+        0,
+        95.05
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        108.91
+      ]
+    ],
+    "refs": [
+      "https://www.w3.org/TR/css-color-4/#cie-xyz"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision). Shared so the D50-referred spaces (xyz-d50, lab-d50, prophoto) don't each carry their own truncated copy."
+    "description": "CIE XYZ color space (D65) CIE 1931 tristimulus values — the foundation of colorimetry and the device-independent hub other spaces chain through. 0–100 scale (Y = 100 at white)."
   },
   "ycbcr": {
     "channels": [
@@ -4870,6 +6076,9 @@ export default {
         16,
         240
       ]
+    ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.709"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -4909,6 +6118,9 @@ export default {
         -0.5,
         0.5
       ]
+    ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.2020/en"
     ],
     "illuminant": "D65",
     "observer": "2",
@@ -4951,6 +6163,9 @@ export default {
         0.5
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/T-REC-H.273"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "https://en.wikipedia.org/?title=YCgCo"
@@ -4989,6 +6204,9 @@ export default {
         -1.333,
         1.333
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/YDbDr"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -5029,6 +6247,9 @@ export default {
         0.5
       ]
     ],
+    "refs": [
+      "https://doi.org/10.2991/isaebd.2012.23"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "YES color space http://www.atlantis-press.com/php/download_paper.php?id=198"
@@ -5067,6 +6288,9 @@ export default {
         -0.5226,
         0.5226
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/YIQ"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -5107,9 +6331,56 @@ export default {
         0.5
       ]
     ],
+    "refs": [
+      "https://www.itu.int/rec/R-REC-BT.709"
+    ],
     "referred": "display",
     "dynamic": "sdr",
     "description": "YPbPr color space Analog form of YCbCr used in component video ITU-R BT.709 standard for HD video"
+  },
+  "yrg": {
+    "channels": [
+      {
+        "symbol": "Y",
+        "min": 0,
+        "max": 1,
+        "name": "Luminance"
+      },
+      {
+        "symbol": "r",
+        "min": 0,
+        "max": 1,
+        "name": "Red chromaticity"
+      },
+      {
+        "symbol": "g",
+        "min": 0,
+        "max": 1,
+        "name": "Green chromaticity"
+      }
+    ],
+    "range": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.2352/issn.2169-2629.2019.27.38"
+    ],
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "Yrg color space (Kirk 2019) Richard Kirk's (FilmLight) luminance/chromaticity space on CIE 2006 LMS cones with evenly-spaced Munsell hues — the chromaticity basis of darktable's colour-balance UCS. Y is cone-weighted luminance; r,g are affine cone chromaticities. The inverse here solves the affine map exactly (Kirk's published inverse uses rounded coefficients); black maps to the r,g origin offsets."
   },
   "yuv": {
     "channels": [
@@ -5145,6 +6416,9 @@ export default {
         -0.615,
         0.615
       ]
+    ],
+    "refs": [
+      "https://en.wikipedia.org/wiki/YUV"
     ],
     "referred": "display",
     "dynamic": "sdr",
@@ -5184,6 +6458,9 @@ export default {
         0,
         360
       ]
+    ],
+    "refs": [
+      "https://doi.org/10.1364/OE.413659"
     ],
     "illuminant": "D65",
     "observer": "2",

@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface YpbprSpace extends ColorSpace {
 	name: 'ypbpr';
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]];
 }
 
 declare const ypbpr: YpbprSpace;

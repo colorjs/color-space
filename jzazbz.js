@@ -15,7 +15,8 @@ import xyz from './xyz.js';
 import { spow } from './util.js';
 
 const jzazbz = {
-	name: 'jzazbz'
+	name: 'jzazbz',
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
 };
 
 const b_param = 1.15;

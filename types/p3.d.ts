@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface P3Space extends ColorSpace {
 	name: 'p3';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const p3: P3Space;

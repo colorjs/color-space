@@ -6,6 +6,7 @@
  * that would be luma Y′). Identical to the Y row of the sRGB→XYZ matrix, so
  * gray(rgb) === XYZ(rgb).Y / 100.
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#grays}
  * @channel {Y} 0 1 Relative luminance
  * @referred display
  * @dynamic sdr

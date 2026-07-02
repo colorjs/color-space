@@ -5,6 +5,7 @@
  * ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) — the HD default. For SD use
  * BT.601; full-range 601 is the `jpeg` space.
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @channel {Y} 16 235 Luma (brightness)
  * @channel {Cb} 16 240 Blue chroma
  * @channel {Cr} 16 240 Red chroma
@@ -16,6 +17,7 @@ import ypbpr from './ypbpr.js'
 
 var ycbcr = {
 	name: 'ycbcr',
+	range: [[16, 235], [16, 240], [16, 240]],
 	/**
 	 * YCbCr to YPbPr (digital to analog)
 	 * Input: Y: 16-235, Cb/Cr: 16-240

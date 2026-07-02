@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface A98rgb_linearSpace extends ColorSpace {
 	name: 'a98rgb-linear';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const a98rgb_linear: A98rgb_linearSpace;

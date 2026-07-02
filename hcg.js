@@ -18,6 +18,7 @@ import hwb from './hwb.js';
 
 var hcg = {
 	name: 'hcg',
+	range: [[0, 360], [0, 100], [0, 100]],
 
 	rgb: function (h, c, g) {
 		// Input: H: 0-360, C/G: 0-100

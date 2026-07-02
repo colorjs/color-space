@@ -4,6 +4,7 @@
  * ITU-R BT.2100 HDR (4K/8K) with PQ OETF
  * Used for HDR broadcast and streaming
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @channel {R} 0 1 Red (PQ encoded)
  * @channel {G} 0 1 Green (PQ encoded)
  * @channel {B} 0 1 Blue (PQ encoded)
@@ -17,7 +18,8 @@ import xyz from './xyz.js';
 import { pqST2084Encode, pqST2084Decode } from './transfers.js';
 
 const rec2100pq = {
-	name: 'rec2100-pq'
+	name: 'rec2100-pq',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const Yw = 203; // absolute luminance of media white, cd/m²

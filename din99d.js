@@ -8,6 +8,7 @@
  * precedes the Lab step. (colour-science's DIN99d omits the X-correction; the paper
  * form here is the canonical one.)
  *
+ * @see {@link https://doi.org/10.1002/col.10118}
  * @channel {L} 0 100 Lightness
  * @channel {a} -50 50 Green-Red axis
  * @channel {b} -50 50 Blue-Yellow axis

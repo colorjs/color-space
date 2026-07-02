@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface OhtaSpace extends ColorSpace {
 	name: 'ohta';
+	range: [[0, 255], [-128, 128], [-128, 128]];
 }
 
 declare const ohta: OhtaSpace;

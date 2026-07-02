@@ -14,6 +14,7 @@
  */
 const rgb = {
 	name: 'rgb',
+	range: [[0, 255], [0, 255], [0, 255]],
 };
 
 export default rgb;

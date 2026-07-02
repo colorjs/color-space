@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface LchuvSpace extends ColorSpace {
 	name: 'lchuv';
+	range: [[0, 100], [0, 150], [0, 360]];
 }
 
 declare const lchuv: LchuvSpace;

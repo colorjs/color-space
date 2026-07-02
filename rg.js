@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 const rg = {
-	name: 'rg'
+	name: 'rg',
+	range: [[0, 1], [0, 1]]
 };
 
 /**

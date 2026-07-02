@@ -4,6 +4,7 @@
  * Obsolete color space predecessor to CIELUV
  * Historical reference for color science
  *
+ * @see {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
  * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate
  * @channel {W} 0 160 W (related to brightness)
@@ -15,7 +16,8 @@
 import xyz from './xyz.js';
 
 var ucs = {
-	name: 'ucs'
+	name: 'ucs',
+	range: [[0, 64], [0, 100], [0, 160]]
 };
 
 export default (ucs);

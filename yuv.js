@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 var yuv = {
-	name: 'yuv'
+	name: 'yuv',
+	range: [[0, 1], [-0.436, 0.436], [-0.615, 0.615]]
 };
 
 yuv.rgb = function (y, u, v) {

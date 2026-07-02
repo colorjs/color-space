@@ -29,7 +29,8 @@
  */
 import xyy from './xyy.js';
 
-const munsell = { name: 'munsell' };
+const munsell = { name: 'munsell',
+	range: [[0, 100], [0, 10], [0, 38]] };
 
 // Packed renotation: x,y ×10000 as base64 uint16, grouped by [hue 2.5..100 step 2.5]
 // [value 1..9], chroma 2,4,...; COUNTS = chroma-step count per (hue,value) cell.

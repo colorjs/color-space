@@ -9,6 +9,7 @@
  * where (u′n, v′n) is the reference-white chromaticity. At an undefined
  * chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0.
  *
+ * @see {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
  * @channel {U} -85 175 U* chrominance
  * @channel {V} -90 75 V* chrominance
  * @channel {W} -17 100 W* lightness
@@ -20,7 +21,8 @@
 import xyz from './xyz.js';
 
 const uvw = {
-	name: 'uvw'
+	name: 'uvw',
+	range: [[-85, 175], [-90, 75], [-17, 100]]
 };
 
 // CIE 1960 UCS chromaticity from XYZ

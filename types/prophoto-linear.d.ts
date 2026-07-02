@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Prophoto_linearSpace extends ColorSpace {
 	name: 'prophoto-linear';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const prophoto_linear: Prophoto_linearSpace;

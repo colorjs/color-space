@@ -15,7 +15,8 @@ import xyz from './xyz.js';
 import { mat3 } from './util.js';
 
 const acescg = {
-	name: 'acescg'
+	name: 'acescg',
+	range: [[0, 65504], [0, 65504], [0, 65504]]
 };
 
 const M_ACESCG_TO_XYZ_ACES = [

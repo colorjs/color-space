@@ -5,6 +5,7 @@
  * workflows). Reports [J, M, h] under the standard Moroney et al. (2002) viewing
  * conditions: D65 adapting white, La = 318.31 cd/m², Yb = 20, average surround.
  *
+ * @see {@link https://doi.org/10.1002/col.10125}
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

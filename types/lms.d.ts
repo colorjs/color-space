@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface LmsSpace extends ColorSpace {
 	name: 'lms';
+	range: [[0, 100], [0, 105], [0, 110]];
 }
 
 declare const lms: LmsSpace;

@@ -15,7 +15,8 @@ import jzazbz from './jzazbz.js';
 import { cartToPolar, polarToCart } from './util.js';
 
 const jzczhz = {
-	name: 'jzczhz'
+	name: 'jzczhz',
+	range: [[0, 1], [0, 0.5], [0, 360]]
 };
 
 // jzazbz uses native ranges (Jz 0-1, az/bz ±0.5), so this is a pure

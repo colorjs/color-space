@@ -4,6 +4,7 @@
  * Cylindrical variant of OkHSL using value instead of lightness
  * Alternative color picker from Oklab
  *
+ * @see {@link https://bottosson.github.io/posts/okhsv/}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {V} 0 100 Value (brightness) percentage

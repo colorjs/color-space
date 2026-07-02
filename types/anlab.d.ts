@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface AnlabSpace extends ColorSpace {
 	name: 'anlab';
+	range: [[0, 100], [-100, 100], [-100, 100]];
 }
 
 declare const anlab: AnlabSpace;

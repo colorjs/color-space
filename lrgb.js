@@ -14,7 +14,8 @@ import rgb from './rgb.js';
 import { srgbToLinear, linearToSrgb } from './transfers.js';
 
 const lrgb = {
-	name: 'lrgb'
+	name: 'lrgb',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // sRGB 0-255 -> linear 0-1

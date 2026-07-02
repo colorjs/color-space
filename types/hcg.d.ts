@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface HcgSpace extends ColorSpace {
 	name: 'hcg';
+	range: [[0, 360], [0, 100], [0, 100]];
 }
 
 declare const hcg: HcgSpace;

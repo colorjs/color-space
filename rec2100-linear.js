@@ -6,6 +6,7 @@
  * the distinction is semantic (1.0 = 203 cd/m² HDR reference white, with values
  * above 1.0 valid for specular highlights).
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)
@@ -17,7 +18,8 @@
 import rec2020Linear from './rec2020-linear.js';
 
 const rec2100Linear = {
-	name: 'rec2100-linear'
+	name: 'rec2100-linear',
+	range: [[0, 1], [0, 1], [0, 1]]
 	// no fixed range: linear HDR is unbounded above (1.0 = 203 cd/m² reference white,
 	// specular highlights exceed it) — matching its twin rec2020-linear
 };

@@ -4,6 +4,7 @@
  * Analog form of YCbCr used in component video
  * ITU-R BT.709 standard for HD video
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @channel {Y} 0 1 Luma (brightness)
  * @channel {Pb} -0.5 0.5 Blue chroma
  * @channel {Pr} -0.5 0.5 Red chroma
@@ -13,7 +14,8 @@
 import rgb from './rgb.js';
 
 var ypbpr = {
-	name: 'ypbpr'
+	name: 'ypbpr',
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
 };
 
 

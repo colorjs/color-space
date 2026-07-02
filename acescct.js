@@ -5,6 +5,7 @@
  * pure-log curve plus a linear toe near black for lift/gamma/gain controls.
  * ACES spec S-2016-001. Connects to acescg (its linear form).
  *
+ * @see {@link https://docs.acescentral.com/specifications/acescct/}
  * @channel {R} -0.358 1.468 Red (log encoded)
  * @channel {G} -0.358 1.468 Green (log encoded)
  * @channel {B} -0.358 1.468 Blue (log encoded)
@@ -14,7 +15,8 @@
 import acescg from './acescg.js';
 
 const acescct = {
-	name: 'acescct'
+	name: 'acescct',
+	range: [[-0.358, 1.468], [-0.358, 1.468], [-0.358, 1.468]]
 };
 
 const log2 = (x) => Math.log(x) / Math.LN2;

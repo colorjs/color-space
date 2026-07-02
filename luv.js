@@ -4,6 +4,7 @@
  * Cylindrical variant: LChuv
  * Perceptually more uniform than XYZ
  *
+ * @see {@link https://en.wikipedia.org/wiki/CIELUV}
  * @channel {L} 0 100 Lightness
  * @channel {U} -100 100 U chrominance
  * @channel {V} -100 100 V chrominance
@@ -17,6 +18,7 @@ import { labF, labFInv } from './cie.js';
 
 var luv = {
 	name: 'luv',
+	range: [[0, 100], [-100, 100], [-100, 100]],
 
 	xyz: function (l, u, v, i, o) {
 		// Input: L: 0-100, u: -100 to 100, v: -100 to 100

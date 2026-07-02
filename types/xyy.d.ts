@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface XyySpace extends ColorSpace {
 	name: 'xyy';
+	range: [[0, 1], [0, 1], [0, 100]];
 }
 
 declare const xyy: XyySpace;

@@ -11,6 +11,7 @@
  *
  * @module color-space/hcl
  *
+ * @see {@link http://www.chilliant.com/rgb2hsv.html}
  * @channel {H} 0 360 Hue
  * @channel {C} 0 100 Chroma
  * @channel {L} 0 95 Luminance

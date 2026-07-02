@@ -5,6 +5,7 @@
  *
  * @module  color-space/jpeg
  *
+ * @see {@link https://www.itu.int/rec/T-REC-T.871}
  * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma

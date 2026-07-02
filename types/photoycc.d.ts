@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface PhotoyccSpace extends ColorSpace {
 	name: 'photoycc';
+	range: [[0, 255], [0, 255], [0, 255]];
 }
 
 declare const photoycc: PhotoyccSpace;

@@ -19,7 +19,8 @@
  */
 import xyz from './xyz.js';
 
-const uv = { name: 'uv' };
+const uv = { name: 'uv',
+	range: [[0, 0.7], [0, 0.6], [0, 100]] };
 
 // XYZ (0-100) -> u'v'Y
 xyz.uv = (X, Y, Z) => {

@@ -19,6 +19,7 @@ const Pr = 0.299,
 
 var hsp = {
   name: 'hsp',
+	range: [[0, 360], [0, 100], [0, 100]],
 
   rgb: function (h, s, p) {
     // Input: H: 0-360, S/P: 0-100

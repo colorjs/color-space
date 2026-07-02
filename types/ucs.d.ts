@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface UcsSpace extends ColorSpace {
 	name: 'ucs';
+	range: [[0, 64], [0, 100], [0, 160]];
 }
 
 declare const ucs: UcsSpace;

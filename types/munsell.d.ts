@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface MunsellSpace extends ColorSpace {
 	name: 'munsell';
+	range: [[0, 100], [0, 10], [0, 38]];
 }
 
 declare const munsell: MunsellSpace;

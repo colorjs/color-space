@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface DshSpace extends ColorSpace {
 	name: 'dsh';
+	range: [[-700, 700], [0, 1], [0, 100]];
 }
 
 declare const dsh: DshSpace;

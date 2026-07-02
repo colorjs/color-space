@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface CmykSpace extends ColorSpace {
 	name: 'cmyk';
+	range: [[0, 100], [0, 100], [0, 100], [0, 100]];
 }
 
 declare const cmyk: CmykSpace;

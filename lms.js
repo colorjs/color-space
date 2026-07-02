@@ -15,6 +15,7 @@ import xyz from './xyz.js';
 
 var lms = {
 	name: 'lms',
+	range: [[0, 100], [0, 105], [0, 110]],
 
 
 	//transform matrices

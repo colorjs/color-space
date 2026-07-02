@@ -15,7 +15,8 @@ import acescg from './acescg.js';
 import xyz from './xyz.js';
 
 const acescc = {
-	name: 'acescc'
+	name: 'acescc',
+	range: [[-0.358, 1.468], [-0.358, 1.468], [-0.358, 1.468]]
 };
 
 const eps = Math.pow(2, -16);

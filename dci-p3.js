@@ -5,6 +5,7 @@
  * and a pure gamma-2.6 curve (SMPTE RP 431-2). Distinct from display-p3 (repo `p3`,
  * which is D65 + sRGB curve). The DCI→D65 Bradford adaptation is baked into the matrix.
  *
+ * @see {@link https://en.wikipedia.org/wiki/DCI-P3}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

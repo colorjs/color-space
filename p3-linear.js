@@ -17,7 +17,8 @@ import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
 const p3Linear = {
-	name: 'p3-linear'
+	name: 'p3-linear',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // P3 linear -> XYZ (D65, Y 0..1); inverse derived for an exact round-trip

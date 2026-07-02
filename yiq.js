@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 var yiq = {
-	name: 'yiq'
+	name: 'yiq',
+	range: [[0, 1], [-0.5957, 0.5957], [-0.5226, 0.5226]]
 };
 
 yiq.rgb = function (y, i, q) {

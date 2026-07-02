@@ -6,6 +6,7 @@
  * normalized against the luma the hue can carry — so equal Y means equal brightness.
  * http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html
  *
+ * @see {@link http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {Y} 0 100 Luma percentage
@@ -15,7 +16,8 @@
 import rgb from './rgb.js';
 
 const hcy = {
-	name: 'hcy'
+	name: 'hcy',
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 const wr = 0.299, wg = 0.587, wb = 0.114; // Rec.601 luma weights

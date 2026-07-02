@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface OklrabSpace extends ColorSpace {
 	name: 'oklrab';
+	range: [[0, 1], [-0.4, 0.4], [-0.4, 0.4]];
 }
 
 declare const oklrab: OklrabSpace;

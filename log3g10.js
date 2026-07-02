@@ -4,6 +4,7 @@
  * RED's Log3G10 (v3) transfer over the REDWideGamutRGB primaries. Per-channel
  * Log3G10 curve to scene-linear, then RWG→XYZ(D65). RED whitepaper 915-0187 Rev-C.
  *
+ * @see {@link https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf}
  * @channel {R} 0 1 Red (Log3G10 encoded)
  * @channel {G} 0 1 Green (Log3G10 encoded)
  * @channel {B} 0 1 Blue (Log3G10 encoded)

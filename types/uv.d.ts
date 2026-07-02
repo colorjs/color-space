@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface UvSpace extends ColorSpace {
 	name: 'uv';
+	range: [[0, 0.7], [0, 0.6], [0, 100]];
 }
 
 declare const uv: UvSpace;

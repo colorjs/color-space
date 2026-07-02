@@ -5,6 +5,7 @@
  * BT.709 camera transfer function (OETF) instead of the sRGB curve. The linear
  * light is identical to linear sRGB, so this connects through `lrgb`.
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

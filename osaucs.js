@@ -4,6 +4,7 @@
  * Uniform Color Scale by Optical Society of America (MacAdam 1974)
  * Perceptually uniform color space for industrial applications
  *
+ * @see {@link https://doi.org/10.1364/JOSA.64.001691}
  * @channel {L} -10 10 Lightness
  * @channel {j} -10 10 Yellow-Blue axis
  * @channel {g} -10 10 Red-Green axis
@@ -14,7 +15,8 @@ import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
 var osaucs = {
-	name: 'osaucs'
+	name: 'osaucs',
+	range: [[-10, 10], [-10, 10], [-10, 10]]
 };
 
 // XYZ -> RGB (MacAdam 1974, Table 1); single source of truth, inverse derived

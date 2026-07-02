@@ -15,7 +15,8 @@ import rgb from './rgb.js';
 import { cartToPolar, polarToCart } from './util.js';
 
 var oklch = {
-	name: 'oklch'
+	name: 'oklch',
+	range: [[0, 1], [0, 0.4], [0, 360]]
 };
 
 // L,C,H -> L,a,b (C 0-0.4, H 0-360)

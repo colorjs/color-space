@@ -16,7 +16,8 @@ import rgb from './rgb.js';
 import lrgb from './lrgb.js';
 
 const oklab = {
-	name: 'oklab'
+	name: 'oklab',
+	range: [[0, 1], [-0.4, 0.4], [-0.4, 0.4]]
 };
 
 oklab.rgb = (l, a, b) => {

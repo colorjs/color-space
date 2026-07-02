@@ -16,6 +16,7 @@ import hsl from './hsl.js';
 
 var hwb = {
 	name: 'hwb',
+	range: [[0, 360], [0, 100], [0, 100]],
 	rgb: function (h, wh, bl) {
 		// Convert from H: 0-360, W/B: 0-100 to normalized
 		h = h / 360;

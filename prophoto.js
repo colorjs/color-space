@@ -17,7 +17,8 @@ import prophotoLinear from './prophoto-linear.js';
 import xyz from './xyz.js';
 
 const prophoto = {
-	name: 'prophoto'
+	name: 'prophoto',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const Et = 1 / 512;

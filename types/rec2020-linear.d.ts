@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Rec2020_linearSpace extends ColorSpace {
 	name: 'rec2020-linear';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const rec2020_linear: Rec2020_linearSpace;

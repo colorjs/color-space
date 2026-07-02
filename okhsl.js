@@ -4,6 +4,7 @@
  * Cylindrical color picker from Oklab
  * Designed for intuitive color selection
  *
+ * @see {@link https://bottosson.github.io/posts/okhsv/}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage
@@ -18,7 +19,8 @@ import rgb from './rgb.js';
 import { spow } from './util.js';
 
 var okhsl = {
-	name: 'okhsl'
+	name: 'okhsl',
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 export var tau = 2 * Math.PI;

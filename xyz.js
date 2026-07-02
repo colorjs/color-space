@@ -1,3 +1,18 @@
+/**
+ * CIE XYZ color space (D65)
+ *
+ * CIE 1931 tristimulus values — the foundation of colorimetry and the
+ * device-independent hub other spaces chain through. 0–100 scale (Y = 100 at white).
+ *
+ * @see {@link https://www.w3.org/TR/css-color-4/#cie-xyz}
+ * @channel {X} 0 95.05 X (D65)
+ * @channel {Y} 0 100 Y (D65)
+ * @channel {Z} 0 108.91 Z (D65)
+ * @illuminant D65
+ * @observer 2
+ * @referred display
+ * @dynamic sdr
+ */
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
 import { mat3, inv3 } from './util.js';
@@ -69,8 +84,6 @@ export const whitepoint = {
  * Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision).
  * Shared so the D50-referred spaces (xyz-d50, lab-d50, prophoto) don't each carry
  * their own truncated copy.
- * @referred display
- * @dynamic sdr
  */
 export const bradford = {
 	D50_D65: [
@@ -87,19 +100,9 @@ export const bradford = {
 
 // We use D65 matrice
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-/**
- * CIE XYZ color space
- *
- * Device-independent color space based on human vision response
- *
- * @channel {X} 0 100 Tristimulus value X
- * @channel {Y} 0 100 Tristimulus value Y (luminance)
- * @channel {Z} 0 100 Tristimulus value Z
- * @illuminant D65
- * @observer 2
- */
 const xyz = {
 	name: 'xyz',
+	range: [[0, 95.05], [0, 100], [0, 108.91]],
 	whitepoint: whitepoint
 };
 

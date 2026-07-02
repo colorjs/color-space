@@ -15,7 +15,8 @@
  */
 import rgb from './rgb.js';
 
-const ohta = { name: 'ohta' };
+const ohta = { name: 'ohta',
+	range: [[0, 255], [-128, 128], [-128, 128]] };
 
 rgb.ohta = (r, g, b) => [(r + g + b) / 3, (r - b) / 2, (2 * g - r - b) / 4];
 

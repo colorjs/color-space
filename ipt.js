@@ -5,6 +5,7 @@
  * structural ancestor of ICtCp. XYZ(D65)→LMS (M1), signed power 0.43, then
  * LMS′→IPT (M2). I = lightness, P = red-green, T = yellow-blue.
  *
+ * @see {@link https://doi.org/10.2352/CIC.1998.6.1.art00003}
  * @channel {I} 0 1 Lightness
  * @channel {P} -1 1 Red-Green
  * @channel {T} -1 1 Yellow-Blue

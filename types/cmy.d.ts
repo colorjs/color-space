@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface CmySpace extends ColorSpace {
 	name: 'cmy';
+	range: [[0, 100], [0, 100], [0, 100]];
 }
 
 declare const cmy: CmySpace;

@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Rec2100_hlgSpace extends ColorSpace {
 	name: 'rec2100-hlg';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const rec2100_hlg: Rec2100_hlgSpace;

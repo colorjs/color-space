@@ -18,7 +18,8 @@ import xyz from './xyz.js';
 import { srgbToLinear, linearToSrgb } from './transfers.js';
 
 const p3 = {
-	name: 'p3'
+	name: 'p3',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // Display-P3 shares the sRGB transfer; only the primaries (p3-linear) differ.

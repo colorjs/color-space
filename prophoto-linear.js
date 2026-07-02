@@ -17,7 +17,8 @@ import xyz, { bradford } from './xyz.js';
 import { mat3 } from './util.js';
 
 const prophotoLinear = {
-	name: 'prophoto-linear'
+	name: 'prophoto-linear',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // ProPhoto (Linear) -> XYZ (D50)

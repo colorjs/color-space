@@ -11,12 +11,13 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.join(__dirname, '..')
 
-// Parse JSDoc from file
+// Parse JSDoc from file — the space doc is the block carrying @channel tags
+// (falling back to the first block), so helper docs above it can't shadow it.
 function parseJSDoc(content) {
-  const jsdocMatch = content.match(/\/\*\*[\s\S]*?\*\//)
-  if (!jsdocMatch) return null
+  const blocks = content.match(/\/\*\*[\s\S]*?\*\//g)
+  if (!blocks) return null
 
-  const jsdoc = jsdocMatch[0]
+  const jsdoc = blocks.find(b => b.includes('@channel')) || blocks[0]
   const meta = {}
 
   // Parse @channel lines: @channel {symbol} {min} {max} {name}
@@ -36,6 +37,10 @@ function parseJSDoc(content) {
     if (channels.every(c => typeof c.min === 'number' && typeof c.max === 'number'))
       meta.range = channels.map(c => [c.min, c.max])
   }
+
+  // Parse @see reference links: @see {@link URL} or @see URL
+  const refs = [...jsdoc.matchAll(/@see\s+(?:\{@link\s+)?(https?:\/\/[^\s}]+)\}?/g)].map(m => m[1])
+  if (refs.length) meta.refs = refs
 
   // Parse illuminant
   const illuminantMatch = jsdoc.match(/@illuminant\s+(\S+)/)

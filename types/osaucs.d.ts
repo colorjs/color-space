@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface OsaucsSpace extends ColorSpace {
 	name: 'osaucs';
+	range: [[-10, 10], [-10, 10], [-10, 10]];
 }
 
 declare const osaucs: OsaucsSpace;

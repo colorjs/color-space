@@ -5,6 +5,7 @@
  * IEC 61966-2-2 range [-0.5, 61439/8192] for wide-gamut and HDR signals. In float
  * the values are identical to linear sRGB — only the declared range differs.
  *
+ * @see {@link https://en.wikipedia.org/wiki/ScRGB}
  * @channel {R} -0.5 7.4998779296875 Red (linear)
  * @channel {G} -0.5 7.4998779296875 Green (linear)
  * @channel {B} -0.5 7.4998779296875 Blue (linear)

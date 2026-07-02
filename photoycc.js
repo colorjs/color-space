@@ -21,7 +21,8 @@
  */
 import lrgb from './lrgb.js';
 
-const photoycc = { name: 'photoycc' };
+const photoycc = { name: 'photoycc',
+	range: [[0, 255], [0, 255], [0, 255]] };
 
 // Rec.709 OETF, odd-extended to negative scene light (the wider-than-display film gamut)
 const oetf = (v) =>

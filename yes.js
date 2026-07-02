@@ -4,6 +4,7 @@
  *
  * @module color-space/yes
  *
+ * @see {@link https://doi.org/10.2991/isaebd.2012.23}
  * @channel {Y} 0 1 Luminance
  * @channel {E} -0.5 0.5 E-factor (red-green)
  * @channel {S} -0.5 0.5 S-factor

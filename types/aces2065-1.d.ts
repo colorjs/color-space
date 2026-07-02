@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Aces2065_1Space extends ColorSpace {
 	name: 'aces2065-1';
+	range: [[0, 65504], [0, 65504], [0, 65504]];
 }
 
 declare const aces2065_1: Aces2065_1Space;

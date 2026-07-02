@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface AcesccSpace extends ColorSpace {
 	name: 'acescc';
+	range: [[-0.358, 1.468], [-0.358, 1.468], [-0.358, 1.468]];
 }
 
 declare const acescc: AcesccSpace;

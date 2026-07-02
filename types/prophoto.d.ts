@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface ProphotoSpace extends ColorSpace {
 	name: 'prophoto';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const prophoto: ProphotoSpace;

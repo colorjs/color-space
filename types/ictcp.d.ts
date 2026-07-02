@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface IctcpSpace extends ColorSpace {
 	name: 'ictcp';
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]];
 }
 
 declare const ictcp: IctcpSpace;

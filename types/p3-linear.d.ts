@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface P3_linearSpace extends ColorSpace {
 	name: 'p3-linear';
+	range: [[0, 1], [0, 1], [0, 1]];
 }
 
 declare const p3_linear: P3_linearSpace;

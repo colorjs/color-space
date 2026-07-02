@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface HwbSpace extends ColorSpace {
 	name: 'hwb';
+	range: [[0, 360], [0, 100], [0, 100]];
 }
 
 declare const hwb: HwbSpace;

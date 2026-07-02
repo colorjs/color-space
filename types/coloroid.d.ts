@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface ColoroidSpace extends ColorSpace {
 	name: 'coloroid';
+	range: [[10, 76], [0, 100], [0, 100]];
 }
 
 declare const coloroid: ColoroidSpace;

@@ -6,6 +6,7 @@
  * and the conventional default for Lab as a device-independent interchange
  * space. For a display-native D65 Lab, use `lab-d65`.
  *
+ * @see {@link https://www.w3.org/TR/css-color-4/#lab-colors}
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Green-Red axis
  * @channel {b} -125 125 Blue-Yellow axis

@@ -6,6 +6,7 @@
  * default `lab` uses D50 (the ICC / CSS Color 4 convention); use this when you
  * want Lab anchored to the display white instead.
  *
+ * @see {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Green-Red axis
  * @channel {b} -125 125 Blue-Yellow axis

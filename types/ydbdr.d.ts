@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface YdbdrSpace extends ColorSpace {
 	name: 'ydbdr';
+	range: [[0, 1], [-1.333, 1.333], [-1.333, 1.333]];
 }
 
 declare const ydbdr: YdbdrSpace;

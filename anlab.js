@@ -19,7 +19,8 @@
  */
 import xyz from './xyz.js';
 
-const anlab = { name: 'anlab' };
+const anlab = { name: 'anlab',
+	range: [[0, 100], [-100, 100], [-100, 100]] };
 
 const Cn = [98.074, 100, 118.232]; // Illuminant C 2° white (0-100)
 

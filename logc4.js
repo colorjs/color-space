@@ -5,6 +5,7 @@
  * primaries. Per-channel LogC4 curve to scene-linear, then the AWG4→XYZ(D65)
  * matrix. ARRI LogC4 Specification (2025-01-23).
  *
+ * @see {@link https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf}
  * @channel {R} 0 1 Red (LogC4 encoded)
  * @channel {G} 0 1 Green (LogC4 encoded)
  * @channel {B} 0 1 Blue (LogC4 encoded)

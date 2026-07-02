@@ -24,7 +24,8 @@
  */
 import xyy from './xyy.js';
 
-const dsh = { name: 'dsh' };
+const dsh = { name: 'dsh',
+	range: [[-700, 700], [0, 1], [0, 100]] };
 
 // D65 2° white chromaticity (matches the library's XYZ D65 convention)
 const Wx = 0.31270, Wy = 0.32900;

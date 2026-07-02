@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 var hsi = {
-	name: 'hsi'
+	name: 'hsi',
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 export default hsi

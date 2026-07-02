@@ -4,6 +4,7 @@
  * Linear variant of ITU-R Rec. 2020 (UHDTV/4K standard)
  * Without gamma correction for image processing
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.2020}
  * @channel {R} 0 1 Red (linear)
  * @channel {G} 0 1 Green (linear)
  * @channel {B} 0 1 Blue (linear)
@@ -16,7 +17,8 @@ import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
 const rec2020Linear = {
-	name: 'rec2020-linear'
+	name: 'rec2020-linear',
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 // Rec.2020 linear -> XYZ (D65, Y 0..1); inverse derived for an exact round-trip

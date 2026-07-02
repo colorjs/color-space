@@ -4,6 +4,7 @@
  * Alternative Lab definition by Richard Hunter
  * Optimized for reflectance, less uniform than CIE Lab
  *
+ * @see {@link https://en.wikipedia.org/wiki/Hunter_Lab}
  * @channel {L} 0 100 Lightness
  * @channel {a} -75 115 Green-Red axis
  * @channel {b} -210 60 Blue-Yellow axis
@@ -13,7 +14,8 @@
 import xyz from './xyz.js';
 
 const labh = {
-	name: 'labh'
+	name: 'labh',
+	range: [[0, 100], [-75, 115], [-210, 60]]
 };
 
 // Hunter Lab is white-point relative; this library's XYZ is D65, so a/b are

@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface YuvSpace extends ColorSpace {
 	name: 'yuv';
+	range: [[0, 1], [-0.436, 0.436], [-0.615, 0.615]];
 }
 
 declare const yuv: YuvSpace;

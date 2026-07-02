@@ -3,6 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface YiqSpace extends ColorSpace {
 	name: 'yiq';
+	range: [[0, 1], [-0.5957, 0.5957], [-0.5226, 0.5226]];
 }
 
 declare const yiq: YiqSpace;

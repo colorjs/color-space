@@ -14,7 +14,8 @@
 import rgb from './rgb.js';
 
 var tsl = {
-	name: 'tsl'
+	name: 'tsl',
+	range: [[0, 360], [0, 1], [0, 255]]
 };
 
 export default (tsl);
