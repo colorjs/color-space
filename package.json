@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Every color space in one tiny API — 123 of them, CSS-style ranges, formulas verified vs colorjs.io, zero-dep & tree-shakeable",
+  "description": "Every color space in one tiny API — 151 of them, CSS-style ranges, formulas verified vs colorjs.io, zero-dep & tree-shakeable",
   "version": "3.0.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
@@ -69,6 +69,7 @@
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "meta": "node scripts/generate-meta.js > meta.js",
+    "landing": "node scripts/generate-landing.js",
     "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
     "prepublishOnly": "npm run types && npm run meta && npm run build:wasm && npm run build"
