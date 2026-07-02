@@ -132,7 +132,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 ### Notes on alpha & gamut
 
 - **Alpha is not a channel.** color-space converts colour channels only; carry alpha yourself (it is unchanged by any conversion). This keeps the kernel a pure colour transform.
-- **Out-of-gamut.** Conversions into `rgb` clamp to 0–255 (the sRGB display gamut), so `xyz → rgb → xyz` does **not** round-trip for colours outside sRGB. For unbounded/HDR work convert through `lrgb`, `xyz`, or a wide-gamut space (`rec2020`, `p3`, `acescg`, …) instead, which don't clamp.
+- **Out-of-gamut.** Conversions do **not** clamp — a colour outside sRGB yields `rgb` values beyond 0-255 (exactly like colorjs.io), so round-trips stay lossless and HDR pipelines work. Clamp or gamut-map at the application layer when you need displayable values.
 
 ## Guarantees
 

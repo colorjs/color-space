@@ -3,9 +3,9 @@
  * XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100).
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
- * @channel {Xa} 0 9504.6 Absolute X (cd/m²)
- * @channel {Ya} 0 10000 Absolute Y (cd/m²)
- * @channel {Za} 0 10888.3 Absolute Z (cd/m²)
+ * @channel {Xa} 0 192.9 Absolute X, cd/m² (diffuse white 203; HDR extends to 10000)
+ * @channel {Ya} 0 203 Absolute Y, cd/m² (diffuse white; HDR extends to 10000)
+ * @channel {Za} 0 221.1 Absolute Z, cd/m² (diffuse white 203; HDR extends to 10000)
  * @illuminant D65
  * @observer 2
  * @referred display
@@ -15,7 +15,7 @@ import xyz from './xyz.js';
 
 const xyzAbsD65 = {
 	name: 'xyz-abs-d65',
-	range: [[0, 9504.6], [0, 10000], [0, 10888.3]]
+	range: [[0, 192.9], [0, 203], [0, 221.1]]
 };
 
 const Yw = 203; // nits

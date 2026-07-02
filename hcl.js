@@ -6,15 +6,12 @@
  * Note: This is the cylindrical representation from the Chilliant implementation,
  * not to be confused with CIE LCh (which is also sometimes called HCL).
  *
- * This implementation has known limitations - RGB to HCL to RGB round-tripping
- * may not be perfect due to the perceptual approximations involved.
- *
  * @module color-space/hcl
  *
  * @see {@link http://www.chilliant.com/rgb2hsv.html}
  * @channel {H} 0 360 Hue
  * @channel {C} 0 100 Chroma
- * @channel {L} 0 95 Luminance
+ * @channel {L} 0 100 Luminance
  * @referred display
  * @dynamic sdr
  */
@@ -29,8 +26,7 @@ const frac = (x) => x - Math.floor(x); // mathematical fractional part (always >
 
 const hcl = {
 	name: 'hcl',
-	channel: ['hue', 'chroma', 'luminance'],
-	range: [[0, 360], [0, 100], [0, 95]]
+	range: [[0, 360], [0, 100], [0, 100]]
 };
 
 /**
@@ -118,7 +114,8 @@ rgb.hcl = (r, g, b) => {
 	H = frac(H / 2 - Math.min(frac(H), frac(-H)) / 6);
 
 	const C_adjusted = C * Q;
-	const L = ((V - U) * Q + U) / (HCLmaxL * 2);
+	// Chilliant: L = mix(-U, V, Q) = (V + U)·Q - U (white -> exactly 1; was (V-U)·Q + U, a mis-port)
+	const L = ((V + U) * Q - U) / (HCLmaxL * 2);
 
 	// Scale to conventional ranges
 	return [H * 360, C_adjusted * 100, L * 100];

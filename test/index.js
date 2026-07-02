@@ -799,12 +799,12 @@ test('coloroid', () => {
 	is(space.xyy.coloroid(lim[3], lim[4], 25).map(round(1)), [lim[0], 100, 50], 'limit color -> T=100');
 	// ATV -> xyY -> ATV round-trips exactly (for a grade)
 	is(space.xyy.coloroid(...space.coloroid.xyy(30, 60, 50)).map(round(2)), [30, 60, 50], 'ATV roundtrip');
-	// no NaN/crash on any rgb (incl. previously-crashing blues)
-	const grades = new Set(space.coloroid.table.map(r => r[0]));
+	// no NaN/crash on any rgb (incl. previously-crashing blues); hue is continuous
+	// (fractional A between grade rows, wrap segment 76→10 owns (76,77)) — and exact
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [18, 7, 95], [128, 128, 128]]) {
 		const atv = space.rgb.coloroid(...c);
-		is(grades.has(atv[0]) && atv.every(Number.isFinite), true, `valid finite ATV for ${c}`);
-		is(space.coloroid.xyz(...atv).every(Number.isFinite), true, `finite inverse for ${c}`);
+		is(atv[0] >= 10 && atv[0] < 77 && atv.every(Number.isFinite), true, `valid finite ATV for ${c}`);
+		is(space.coloroid.rgb(...atv).map(round(4)), c, `rgb roundtrip exact for ${c}`);
 	}
 });
 
@@ -1128,14 +1128,12 @@ test('rg', () => {
 test('hcl', () => {
 	// HCL: H 0-360, C 0-150, L 0-100, RGB 0-255
 	is(space.rgb.hcl(0, 0, 0).map(round(1)), [0, 0, 0], 'black to hcl');
-	is(space.rgb.hcl(255, 255, 255).map(round(1)), [0, 0, 94.3], 'white to hcl');
+	is(space.rgb.hcl(255, 255, 255).map(round(1)), [0, 0, 100], 'white to hcl (L = mix(-U,V,Q): white -> exactly 100)');
 	is(space.rgb.hcl(255, 0, 0).map(round(1)), [0, 100.0, 94.3], 'red to hcl');
 
 	is(space.hcl.rgb(0, 0, 0), [0, 0, 0], 'hcl to black');
-	// Note: HCL has known round-trip issues, especially with saturated colors
-	// Testing with a gray color
 	const hcl = space.rgb.hcl(128, 128, 128);
-	is(space.hcl.rgb(...hcl).map(round(0)), [121, 121, 121], 'hcl gray round-trip');
+	is(space.hcl.rgb(...hcl).map(round(0)), [128, 128, 128], 'hcl gray round-trip (exact after the L mis-port fix; was pinned lossy at 121)');
 	// saturated colors now roundtrip after the frac() fix (green was [255,255,0])
 	for (const c of [[0, 255, 0], [0, 0, 255], [255, 128, 0]])
 		is(space.hcl.rgb(...space.rgb.hcl(...c)).map(round(0)), c, `hcl roundtrip ${c}`);

@@ -5,9 +5,9 @@
  * compositing. Scene-referred, unbounded.
  *
  * @see {@link https://docs.acescentral.com/specifications/acescg/}
- * @channel {R} 0 65504 Red (half float)
- * @channel {G} 0 65504 Green (half float)
- * @channel {B} 0 65504 Blue (half float)
+ * @channel {R} 0 1 Red (linear; extends to 65504 half-float)
+ * @channel {G} 0 1 Green (linear; extends to 65504 half-float)
+ * @channel {B} 0 1 Blue (linear; extends to 65504 half-float)
  * @referred scene
  * @dynamic hdr
  */
@@ -16,7 +16,7 @@ import { mat3 } from './util.js';
 
 const acescg = {
 	name: 'acescg',
-	range: [[0, 65504], [0, 65504], [0, 65504]]
+	range: [[0, 1], [0, 1], [0, 1]]
 };
 
 const M_ACESCG_TO_XYZ_ACES = [

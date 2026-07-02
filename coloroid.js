@@ -107,9 +107,15 @@ const coloroid = {
 	 * @return {Array<number>} xyY values
 	 */
 	xyy: function (A, T, V) {
-		// row for hue grade A (nearest grade)
-		var row = this.table.reduce((best, r) => Math.abs(r[0] - A) < Math.abs(best[0] - A) ? r : best);
-		var xl = row[3], yl = row[4];
+		// fractional A interpolates along the limit-color polygon between grade rows
+		// (A = Aᵢ + s·gap — the parameterisation the forward produces); integer grades
+		// hit the table rows exactly. The wrap segment 76→10 owns A ∈ (76, 77).
+		var tb = this.table, n = tb.length, i = n - 1;
+		for (var k = 0; k < n - 1; k++) if (A >= tb[k][0] && A < tb[k + 1][0]) { i = k; break; }
+		var next = tb[(i + 1) % n];
+		var gap = i === n - 1 ? 1 : next[0] - tb[i][0];
+		var s = Math.min(1, Math.max(0, (A - tb[i][0]) / gap));
+		var xl = tb[i][3] + s * (next[3] - tb[i][3]), yl = tb[i][4] + s * (next[4] - tb[i][4]);
 		var Y = (V / 10) * (V / 10);
 		// T/100 is the position along the white -> limit-color line in the xy plane
 		var t = T / 100;
@@ -205,20 +211,29 @@ xyy.coloroid = function (x, y, Y) {
 	// V = 10*sqrt(Y) where Y is in 0-100 range
 	var V = 10 * Math.sqrt(Y);
 
-	// hue angle of the color relative to white
-	var angle = Math.atan2(y - y0, x - x0);
-
-	// nearest hue row by angular distance, using each row's angle COMPUTED from its
-	// own limit chromaticity (xλ,yλ) — the stored angle column is inconsistent with
-	// it by up to ~14°, so deriving the angle keeps forward & inverse consistent.
-	var angDist = (a, b) => { var d = Math.abs(a - b) % (2 * Math.PI); return d > Math.PI ? 2 * Math.PI - d : d; };
-	var row = TABLE[0], best = Infinity;
+	// Hue: intersect the white→(x,y) ray with the closed polygon of the 48 limit
+	// colors (angles derived from each row's own (xλ,yλ) — the stored angle column is
+	// inconsistent by up to ~14°). The segment hit gives a continuous fractional
+	// A = Aᵢ + s·gap (integer exactly at the grade rows — no hue quantisation), and
+	// the interpolated limit point (xl,yl) the T scale runs to. Wrap 76→10 is A∈(76,77).
+	var ux = x - x0, uy = y - y0;
+	if (ux === 0 && uy === 0) { ux = 1; uy = 0; } // achromatic: T=0, any hue direction
+	var A = TABLE[0][0], xl = TABLE[0][3], yl = TABLE[0][4];
 	for (var i = 0; i < TABLE.length; i++) {
-		var d = angDist(Math.atan2(TABLE[i][4] - y0, TABLE[i][3] - x0), angle);
-		if (d < best) { best = d; row = TABLE[i]; }
+		var P = TABLE[i], N = TABLE[(i + 1) % TABLE.length];
+		var vx = P[3] - x0, vy = P[4] - y0, dx2 = N[3] - P[3], dy2 = N[4] - P[4];
+		var det = ux * -dy2 - uy * -dx2; // solve u·t − d·s = v
+		if (det === 0) continue;
+		var t = (vx * -dy2 - vy * -dx2) / det;
+		var s = (ux * vy - uy * vx) / det;
+		if (t > 0 && s >= 0 && s < 1) {
+			var gap = N[0] > P[0] ? N[0] - P[0] : 1; // code gap; the 76→10 wrap owns A∈(76,77)
+			A = P[0] + s * gap;
+			xl = P[3] + s * dx2;
+			yl = P[4] + s * dy2;
+			break;
+		}
 	}
-
-	var A = row[0], xl = row[3], yl = row[4];
 
 	// T = position along the white -> limit-color line (0 at white, 100 at the limit),
 	// as the projection of (x,y) onto that line (excitation-purity parameter).

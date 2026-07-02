@@ -14,7 +14,7 @@ const REF = [
   {"s":"din99o-lch","f":"rgb","t":"din99o-lch","in":[0,0,255],"out":[36.02575,51.50863,308.33688],"src":"colour-science 0.4.7 Lab_to_DIN99(np.array([32.29701, 79.18894, -107.8"},
   {"s":"gray","f":"rgb","t":"gray","in":[255,0,0],"out":[0.21263900587151],"src":"IEC 61966-2-1:1999 (sRGB standard), Annex A: Y-row of the sRGB->XYZ D6"},
   {"s":"hcg","f":"rgb","t":"hcg","in":[255,0,0],"out":[0,100,0],"src":"color-convert v2.0.1 (npm) — the canonical JS HCG implementation; conv"},
-  {"s":"hcl","f":"rgb","t":"hcl","in":[200,100,50],"out":[17.710034118052,59.266364437914,74.345869934708],"src":"Hand-traced through Chilliant\\'s RGB-to-HCL algorithm (http://www.chill"},
+  {"s":"hcl","f":"rgb","t":"hcl","in":[200,100,50],"out":[17.710034118052,59.266364437914,74.624143879],"src":"Hand-traced through Chilliant's RGB-to-HCL (chilliant.com/rgb2hsv.html): L = mix(-U,V,Q)/(2·maxL) — the earlier pin carried a (V-U)Q+U mis-port; white now -> L=100 exactly"},
   {"s":"hcy","f":"rgb","t":"hcy","in":[255,0,0],"out":[0,100,29.9],"src":"Chilliant, \\'RGB to HCY colour\\' (2012), http://chilliant.blogspot.com/2"},
   {"s":"hpluv","f":"hpluv","t":"rgb","in":[0,100,50],"out":[163.14205083632,101.48236975862,114.00047700395],"src":"colorjs.io v0.5.2: new Color(\\'hpluv\\', [0, 100, 50]).to(\\'srgb\\').coords "},
   {"s":"hsi","f":"rgb","t":"hsi","in":[255,0,0],"out":[0,100,33.33333333333333],"src":"Gonzalez & Woods, \\'Digital Image Processing\\' 4th ed., §6.3.3, HSI mode"},

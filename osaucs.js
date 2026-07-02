@@ -75,24 +75,26 @@ xyz.osaucs = function (X, Y, Z) {
  * @see {@link https://colour.readthedocs.io/en/develop/_modules/colour/models/osa_ucs.html}
  */
 osaucs.xyz = function (L, j, g) {
-	// recover L' and the lightness root t = ∛Y0 from L' = 5.9(t - 2/3 + 0.042·∛(t³-30))
+	// recover L' and the lightness root t = ∛Y0 from L' = 5.9(t - 2/3 + 0.042·∛(t³-30)).
+	// φ(t) = t + 0.042·∛(t³-30) is strictly increasing but has a VERTICAL tangent at
+	// t³ = 30 (Y0 = 30, i.e. L ≈ 0), where Newton stalls — so bisect instead.
 	var L_ = L * Math.SQRT2 + 14.3993;
-	var u = L_ / 5.9 + 2 / 3; // u = t + 0.042·∛(t³-30)
-	var t = u; // seed: ignore the small toe term
-	for (var i = 0; i < 64; i++) {
-		var t3 = t * t * t - 30;
-		var f = t + 0.042 * Math.cbrt(t3) - u;
-		// d/dt[0.042·∛(t³-30)] = 0.042·t² / ∛((t³-30)²)
-		var d = 1 + 0.042 * t * t / Math.cbrt(t3 * t3);
-		var dt = f / d;
-		t -= dt;
-		if (Math.abs(dt) < 1e-12) break;
+	var u = L_ / 5.9 + 2 / 3; // u = φ(t)
+	var tLo = 0, tHi = Math.max(u + 1, 2), t;
+	for (var i = 0; i < 80; i++) {
+		t = (tLo + tHi) / 2;
+		if (t + 0.042 * Math.cbrt(t * t * t - 30) < u) tLo = t; else tHi = t;
 	}
+	t = (tLo + tHi) / 2;
 	var Y0 = t * t * t;
 	var C = L_ / (5.9 * (t - 2 / 3));
 	var a = g / C, b = j / C; // g = C·a, j = C·b
 
-	// Y0 as a function of the free variable w = ∛R
+	// Y0 as a function of the free variable w = ∛R. The cube roots are AFFINE in w
+	// ([r3,g3,b3] = A_AUG_INV·[a,b,w]), so Y0(w) is a low-degree curve with possibly
+	// several roots — a free Newton can land on a non-physical one (Y in the thousands
+	// where black was asked). Instead: seed w at the lightness root t (≈ ∛Y0, exact
+	// for neutrals) and take the sign-change bracket NEAREST the seed, then bisect.
 	var probe = function (w) {
 		var [r3, g3, b3] = mat3(A_AUG_INV, a, b, w);
 		var [X, Y, Z] = mat3(M_OSA_INV, r3 * r3 * r3, g3 * g3 * g3, b3 * b3 * b3);
@@ -100,17 +102,38 @@ osaucs.xyz = function (L, j, g) {
 		var Y0w = s === 0 ? 0 : Kfactor(X / s, Y / s) * Y;
 		return [Y0w, X, Y, Z];
 	};
+	var f = function (w) { return probe(w)[0] - Y0; };
 
-	// Newton on w until K(x,y)·Y == Y0
-	var w = 2, out = probe(w);
-	for (var k = 0; k < 64; k++) {
-		var err = out[0] - Y0;
-		if (Math.abs(err) < 1e-10) break;
-		var deriv = (probe(w + 1e-7)[0] - out[0]) / 1e-7;
-		if (deriv === 0) break;
-		w -= err / deriv;
-		out = probe(w);
+	// scan a window around the seed; collect every sign-change interval
+	var seed = t, N = 96, span = 12, lo = seed - span, step = 2 * span / N;
+	var brackets = [], best = lo, bestF = Infinity, prevW = lo, prevF = f(lo);
+	if (Math.abs(prevF) < bestF) { bestF = Math.abs(prevF); best = lo; }
+	for (var k = 1; k <= N; k++) {
+		var wk = lo + k * step, fk = f(wk);
+		if (Math.abs(fk) < bestF) { bestF = Math.abs(fk); best = wk; }
+		if (prevF <= 0 !== fk <= 0) brackets.push([prevW, wk]);
+		prevW = wk; prevF = fk;
 	}
+
+	// bisect each bracket; a sign change can also be a POLE of f (X+Y+Z crossing 0
+	// blows up K), so only accept genuine roots (|f| ~ 0). Prefer physical solutions
+	// (XYZ non-negative), then the one nearest the seed.
+	var w = best, bestScore = Infinity;
+	for (var bi = 0; bi < brackets.length; bi++) {
+		var bLo = brackets[bi][0], bHi = brackets[bi][1], fLo = f(bLo), wm = 0, fm = 0;
+		for (var i2 = 0; i2 < 64; i2++) {
+			wm = (bLo + bHi) / 2;
+			fm = f(wm);
+			if (fm === 0) break;
+			if (fLo <= 0 === fm <= 0) { bLo = wm; fLo = fm; } else bHi = wm;
+		}
+		if (Math.abs(fm) > 1e-6 * Math.max(1, Math.abs(Y0))) continue; // pole, not a root
+		var [, X, Yc, Zc] = probe(wm);
+		var score = Math.abs(wm - seed) + (X < -1e-6 || Yc < -1e-6 || Zc < -1e-6 ? 1e3 : 0);
+		if (score < bestScore) { bestScore = score; w = wm; }
+	}
+
+	var out = probe(w);
 	return [out[1], out[2], out[3]];
 };
 

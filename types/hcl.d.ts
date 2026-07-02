@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface HclSpace extends ColorSpace {
 	name: 'hcl';
-	range: [[0, 360], [0, 100], [0, 95]];
+	range: [[0, 360], [0, 100], [0, 100]];
 }
 
 declare const hcl: HclSpace;

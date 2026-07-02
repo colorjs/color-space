@@ -47,23 +47,37 @@ ryb.rgb = (r, y, b) => fwd([r / 255, y / 255, b / 255]).map(v => v * 255);
 
 rgb.ryb = (R, G, B) => {
 	const t = [R / 255, G / 255, B / 255];
-	let p = [0.5, 0.5, 0.5];
-	for (let i = 0; i < 40; i++) {
-		const f = fwd(p), e = [f[0] - t[0], f[1] - t[1], f[2] - t[2]];
-		if (Math.hypot(...e) < 1e-7) break;
-		const h = 1e-4, J = new Array(9);          // numeric Jacobian, df_r / dp_c
+	// fwd factors as trilerp∘smoothstep, so invert in q = smooth(p) space: Newton on
+	// the PLAIN trilinear (whose Jacobian never degenerates at corners — smoothstep's
+	// zero end-slopes made corner targets like saturated red come back white), then
+	// invert smoothstep per channel in closed form: n = ½ − sin(asin(1−2q)/3).
+	let q = [0.5, 0.5, 0.5], best = q, bestE = Infinity;
+	for (let i = 0; i < 60; i++) {
+		const f = blend(...q), e = [f[0] - t[0], f[1] - t[1], f[2] - t[2]];
+		const err = Math.hypot(...e);
+		if (err < bestE) { bestE = err; best = q; }
+		if (err < 1e-12) break;
+		const h = 1e-6, J = new Array(9);          // numeric Jacobian, df_r / dq_c
 		for (let c = 0; c < 3; c++) {
-			const pp = p.slice(), step = pp[c] + h <= 1 ? h : -h;
-			pp[c] += step;
-			const fp = fwd(pp);
+			const qq = q.slice(), step = qq[c] + h <= 1 ? h : -h;
+			qq[c] += step;
+			const fp = blend(...qq);
 			for (let r = 0; r < 3; r++) J[r * 3 + c] = (fp[r] - f[r]) / step;
 		}
-		const Ji = inv3(J);
-		const dp = mat3(Ji, -e[0], -e[1], -e[2]);
-		if (!dp.every(Number.isFinite)) break;     // singular near a cube corner -> keep best fit
-		p = p.map((v, k) => Math.min(1, Math.max(0, v + dp[k])));
+		const dq = mat3(inv3(J), -e[0], -e[1], -e[2]);
+		if (!dq.every(Number.isFinite)) break;
+		// backtracking: halve the step until the residual shrinks
+		let lam = 1, qNew = null;
+		for (let s = 0; s < 10; s++) {
+			const cand = q.map((v, k) => Math.min(1, Math.max(0, v + lam * dq[k])));
+			const fc = blend(...cand);
+			if (Math.hypot(fc[0] - t[0], fc[1] - t[1], fc[2] - t[2]) < err) { qNew = cand; break; }
+			lam /= 2;
+		}
+		if (!qNew) break; // stationary: out-of-cube target, keep best fit
+		q = qNew;
 	}
-	return p.map(v => v * 255);
+	return best.map(v => (0.5 - Math.sin(Math.asin(1 - 2 * v) / 3)) * 255);
 };
 
 export default ryb;

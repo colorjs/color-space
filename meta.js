@@ -95,34 +95,34 @@ export default {
       {
         "symbol": "R",
         "min": 0,
-        "max": 65504,
-        "name": "Red (half float)"
+        "max": 1,
+        "name": "Red (linear; extends to 65504 half-float)"
       },
       {
         "symbol": "G",
         "min": 0,
-        "max": 65504,
-        "name": "Green (half float)"
+        "max": 1,
+        "name": "Green (linear; extends to 65504 half-float)"
       },
       {
         "symbol": "B",
         "min": 0,
-        "max": 65504,
-        "name": "Blue (half float)"
+        "max": 1,
+        "name": "Blue (linear; extends to 65504 half-float)"
       }
     ],
     "range": [
       [
         0,
-        65504
+        1
       ],
       [
         0,
-        65504
+        1
       ],
       [
         0,
-        65504
+        1
       ]
     ],
     "refs": [
@@ -221,34 +221,34 @@ export default {
       {
         "symbol": "R",
         "min": 0,
-        "max": 65504,
-        "name": "Red (half float)"
+        "max": 1,
+        "name": "Red (linear; extends to 65504 half-float)"
       },
       {
         "symbol": "G",
         "min": 0,
-        "max": 65504,
-        "name": "Green (half float)"
+        "max": 1,
+        "name": "Green (linear; extends to 65504 half-float)"
       },
       {
         "symbol": "B",
         "min": 0,
-        "max": 65504,
-        "name": "Blue (half float)"
+        "max": 1,
+        "name": "Blue (linear; extends to 65504 half-float)"
       }
     ],
     "range": [
       [
         0,
-        65504
+        1
       ],
       [
         0,
-        65504
+        1
       ],
       [
         0,
-        65504
+        1
       ]
     ],
     "refs": [
@@ -1851,7 +1851,7 @@ export default {
       {
         "symbol": "L",
         "min": 0,
-        "max": 95,
+        "max": 100,
         "name": "Luminance"
       }
     ],
@@ -1866,7 +1866,7 @@ export default {
       ],
       [
         0,
-        95
+        100
       ]
     ],
     "refs": [
@@ -1874,7 +1874,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HCL Color Space http://www.chilliant.com/rgb2hsv.html https://en.wikipedia.org/wiki/HCL_color_space Note: This is the cylindrical representation from the Chilliant implementation, not to be confused with CIE LCh (which is also sometimes called HCL). This implementation has known limitations - RGB to HCL to RGB round-tripping may not be perfect due to the perceptual approximations involved."
+    "description": "HCL Color Space http://www.chilliant.com/rgb2hsv.html https://en.wikipedia.org/wiki/HCL_color_space Note: This is the cylindrical representation from the Chilliant implementation, not to be confused with CIE LCh (which is also sometimes called HCL)."
   },
   "hct": {
     "channels": [
@@ -5915,34 +5915,34 @@ export default {
       {
         "symbol": "Xa",
         "min": 0,
-        "max": 9504.6,
-        "name": "Absolute X (cd/m²)"
+        "max": 192.9,
+        "name": "Absolute X, cd/m² (diffuse white 203; HDR extends to 10000)"
       },
       {
         "symbol": "Ya",
         "min": 0,
-        "max": 10000,
-        "name": "Absolute Y (cd/m²)"
+        "max": 203,
+        "name": "Absolute Y, cd/m² (diffuse white; HDR extends to 10000)"
       },
       {
         "symbol": "Za",
         "min": 0,
-        "max": 10888.3,
-        "name": "Absolute Z (cd/m²)"
+        "max": 221.1,
+        "name": "Absolute Z, cd/m² (diffuse white 203; HDR extends to 10000)"
       }
     ],
     "range": [
       [
         0,
-        9504.6
+        192.9
       ],
       [
         0,
-        10000
+        203
       ],
       [
         0,
-        10888.3
+        221.1
       ]
     ],
     "refs": [
