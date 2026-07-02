@@ -3,6 +3,7 @@
 // http://colormine.org/convert/luv-to-rgb
 
 import space from '../index.js';
+import meta from '../meta.js';
 import test, { is } from 'tst'
 import color from 'color-name'
 import './reference.js' // authoritative differential tests vs colorjs.io
@@ -17,11 +18,19 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 132, '132 spaces registered')
+	is(names.length, 151, '151 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
 	is(unreachable, [], 'every space is reachable to and from rgb')
+})
+
+test('integrity — meta.js carries channels, range and @see refs per space', () => {
+	const missing = Object.keys(space).filter(n => !meta[n] || !meta[n].channels || !meta[n].range)
+	is(missing, [], 'every space has meta channels + range')
+	// @see links are extracted into refs (regression: the generator used to drop them)
+	is(meta.oklch.refs, ['https://www.w3.org/TR/css-color-4/#ok-lab'], 'oklch @see extracted')
+	is(meta.munsell.refs.length, 2, 'multiple @see per space extracted')
 })
 
 test('edge: achromatic / black inputs are NaN-safe', () => {

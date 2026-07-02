@@ -90,9 +90,28 @@ const REF = [
   {"s":"dkl","f":"xyz","t":"dkl","in":[95.0456,100,108.9058],"out":[0,0,0],"src":"DKL (Derrington et al. 1984): adapting white (D65) -> origin"},
   {"s":"rlab","f":"xyz","t":"rlab","in":[19.01,20,21.78],"out":[49.834707,15.571102,-52.614296],"src":"colour-science XYZ_to_RLAB (Illuminant A, Y_n=31.83, sigma=1/2.3, D=1): J,a,b"},
   {"s":"ryb","f":"ryb","t":"rgb","in":[0,255,255],"out":[0,142,91],"src":"meodai/rybitten RYB_ITTEN cube: yellow+blue corner = green [0,142,91] (the RYB wheel's defining mix, vs additive grey)"},
+  {"s":"davinci","f":"davinci","t":"xyz","in":[0.336043272384855,0.336043272384855,0.336043272384855],"out":[17.108207,18,19.603039],"src":"colour-science oetf_inverse_DaVinciIntermediate(0.336043272384855)=0.18 (Blackmagic DWG/DI whitepaper); grey -> Y=18, DWG rows sum to D65 white"},
+  {"s":"tlog","f":"tlog","t":"xyz","in":[0.396567801298332,0.396567801298332,0.396567801298332],"out":[17.108207,18,19.60304],"src":"colour-science log_decoding_FilmLightTLog(0.396567801298332)=0.18; E-Gamut grey -> Y=18"},
+  {"s":"dcdm","f":"xyz","t":"dcdm","in":[0.375,0.375,0.375],"out":[0.112819,0.112819,0.112819],"src":"colour-science eotf_inverse_DCDM(0.18)=0.1128186 (ST 428-1); 0.375 rel. XYZ = 0.18 cd/m2 at the ST 431-1 48 cd/m2 white mapping"},
+  {"s":"lalphabeta","f":"rgb","t":"lalphabeta","in":[255,0,0],"out":[-1.583752,0.861734,0.203106],"src":"Hand-derived from Reinhard et al. 2001 eq. 4+6 (Ruderman lab): log10 LMS of pure red through the exact printed matrices"},
+  {"s":"yrg","f":"xyz","t":"yrg","in":[20.654008,12.197225,5.136952],"out":[0.131378,0.490376,0.377774],"src":"colour-science XYZ_to_Yrg doctest (Kirk 2019): [0.20654008,...] -> [0.1313780,0.4903764,0.3777738]"},
+  {"s":"igpgtg","f":"xyz","t":"igpgtg","in":[20.654008,12.197225,5.136952],"out":[0.424213,0.186325,0.106892],"src":"colour-science XYZ_to_IgPgTg doctest (Hensley & Fairchild 2020): -> [0.4242125,0.1863249,0.1068922]"},
+  {"s":"slog","f":"slog","t":"xyz","in":[0.38497081592867,0.38497081592867,0.38497081592867],"out":[17.108207,18,19.60304],"src":"colour-science log_decoding_SLog(0.384970815928670)=0.18 (Sony S-Log1, legal-range CV); S-Gamut grey -> Y=18"},
+  {"s":"acesproxy","f":"acesproxy","t":"acescg","in":[0.416422287390029,0.416422287390029,0.416422287390029],"out":[0.179244,0.179244,0.179244],"src":"colour-science log_decoding_ACESproxy (S-2013-001): CV 426 -> 2^((426-425)/50-2.5)=0.1792 (quantised transport, by design)"},
+  {"s":"redlog","f":"redlog","t":"xyz","in":[0.637621845988175,0.637621845988175,0.637621845988175],"out":[17.108207,18,19.60304],"src":"colour-science log_decoding_REDLog(0.637621845988175)=0.18; REDcolor grey -> Y=18"},
+  {"s":"redlogfilm","f":"redlogfilm","t":"xyz","in":[0.457319613085418,0.457319613085418,0.457319613085418],"out":[17.108207,18,19.60304],"src":"colour-science log_decoding_REDLogFilm(0.457319613085418)=0.18 (Cineon curve); REDcolor grey -> Y=18"},
+  {"s":"log3g12","f":"log3g12","t":"xyz","in":[0.333332662015923,0.333332662015923,0.333332662015923],"out":[17.108207,18,19.60304],"src":"colour-science log_decoding_Log3G12(0.333332662015923)=0.18; RWG grey -> Y=18"},
+  {"s":"panalog","f":"panalog","t":"lrgb","in":[0.374576791382298,0.374576791382298,0.374576791382298],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_Panalog(0.374576791382298)=0.18"},
+  {"s":"viperlog","f":"viperlog","t":"lrgb","in":[0.636008067010413,0.636008067010413,0.636008067010413],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_ViperLog(0.636008067010413)=0.18"},
+  {"s":"llog","f":"llog","t":"rec2020-linear","in":[0.435313904043927,0.435313904043927,0.435313904043927],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_LLog(0.435313904043927)=0.18 (Leica L-Log reference manual constants)"},
+  {"s":"protune","f":"protune","t":"xyz","in":[0.645623486803636,0.645623486803636,0.645623486803636],"out":[17.108207,18,19.60304],"src":"colour-science log_decoding_Protune(0.645623486803636)=0.18; Protune Native grey -> Y=18"},
+  {"s":"milog","f":"milog","t":"rec2020-linear","in":[0.453459654902102,0.453459654902102,0.453459654902102],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_MiLog(0.453459654902102)=0.18 (Xiaomi Mi-Log whitepaper constants)"},
+  {"s":"olog","f":"olog","t":"rec2020-linear","in":[0.389591352166978,0.389591352166978,0.389591352166978],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_OPPOOLog(0.389591352166978)=0.18 (OPPO O-Log whitepaper constants)"},
+  {"s":"filmicpro","f":"filmicpro","t":"lrgb","in":[0.606634519924703,0.606634519924703,0.606634519924703],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_FilmicPro6(0.606634519924703)=0.18 (Newton inverse of the v6 curve)"},
+  {"s":"erimm","f":"erimm","t":"prophoto-linear","in":[0.410052389492129,0.410052389492129,0.410052389492129],"out":[0.18,0.18,0.18],"src":"colour-science log_decoding_ERIMMRGB(0.410052389492129)=0.18 (ISO 22028-3 / Spaulding 2000)"},
 ]
 
-test('bona-fide reference values (86 audited spaces)', () => {
+test('bona-fide reference values (105 audited spaces)', () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {

@@ -1,0 +1,38 @@
+/**
+ * Sony S-Log (1) / S-Gamut color space
+ *
+ * Sony's original S-Log curve (F35/F3 era, superseded by S-Log2/3) over S-Gamut —
+ * the same primaries as S-Gamut3, hence the same matrix as `slog2`/`slog3`. Uses the
+ * in-reflection (÷0.9) + 10-bit legal-range code-value convention. 18% grey → 0.3850.
+ *
+ * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html}
+ * @channel {R} 0 1 Red (S-Log)
+ * @channel {G} 0 1 Green (S-Log)
+ * @channel {B} 0 1 Blue (S-Log)
+ * @illuminant D65
+ * @observer 2
+ * @referred scene
+ * @dynamic hdr
+ */
+import xyz from './xyz.js';
+import { mat3, inv3 } from './util.js';
+
+const slog = { name: 'slog', range: [[0, 1], [0, 1], [0, 1]] };
+
+const raw = t => t >= 0 ? 0.432699 * Math.log10(t + 0.037584) + 0.646596 : t * 5 + 0.030001222851889303;
+const rawInv = y => y >= 0.030001222851889303 ? Math.pow(10, (y - 0.646596) / 0.432699) - 0.037584 : (y - 0.030001222851889303) / 5;
+const enc = x => (raw(x / 0.9) * 876 + 64) / 1023;
+const dec = cv => rawInv((cv * 1023 - 64) / 876) * 0.9;
+
+// S-Gamut linear RGB -> XYZ (D65, Y 0..1) — same primaries as S-Gamut3 (see slog3.js)
+const M = [
+	0.7064827132, 0.1288010498, 0.1151721641,
+	0.2709796708, 0.7866064112, -0.0575860820,
+	-0.0096778454, 0.0046000375, 1.0941355587
+];
+const MI = inv3(M);
+
+slog.xyz = (r, g, b) => mat3(M, dec(r), dec(g), dec(b)).map(v => v * 100);
+xyz.slog = (x, y, z) => mat3(MI, x / 100, y / 100, z / 100).map(enc);
+
+export default slog;

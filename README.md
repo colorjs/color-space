@@ -4,7 +4,7 @@
 
 **Every color space. One tiny API. Verified.**
 
-**132 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
+**151 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
 
 A pure conversion *kernel*: no parsing, interpolation, ΔE or gamut-mapping — that's the application layer (pair with [culori](https://github.com/Evercoder/culori) / [chroma](https://gka.github.io/chroma.js/)). Import one space and ship ~2 kB.
 
@@ -50,6 +50,7 @@ import meta from 'color-space/meta.js';
 
 meta.oklab;
 // { description, channels: [{symbol, min, max, name}], range,
+//   refs: ['https://…'],              // @see reference links (paper / spec)
 //   illuminant: 'D65', observer: '2',
 //   referred: 'display' | 'scene',   // display- vs scene-referred (ACES/camera logs)
 //   dynamic:  'sdr' | 'hdr' }        // bounded display vs extended/HDR
@@ -133,6 +134,16 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 - **Alpha is not a channel.** color-space converts colour channels only; carry alpha yourself (it is unchanged by any conversion). This keeps the kernel a pure colour transform.
 - **Out-of-gamut.** Conversions into `rgb` clamp to 0–255 (the sRGB display gamut), so `xyz → rgb → xyz` does **not** round-trip for colours outside sRGB. For unbounded/HDR work convert through `lrgb`, `xyz`, or a wide-gamut space (`rec2020`, `p3`, `acescg`, …) instead, which don't clamp.
 
+## Guarantees
+
+Five properties hold for **every one of the 151 spaces** — enforced by the test suite, not aspiration:
+
+1. **Canonical formula.** Each conversion implements its primary source — the ITU/SMPTE/ISO/CIE spec, the original paper, or the vendor whitepaper — linked from the module header (`meta.<space>.refs`). No folklore constants.
+2. **Cited reference value.** Every space is pinned numerically: 104 spaces carry a cited input→output from an authoritative source ([test/bonafide.js](test/bonafide.js)), the rest are differentially tested against colorjs.io ([test/reference.js](test/reference.js)) — and all 151 pass a round-trip + NaN-safety sweep (black/white/grey/primaries).
+3. **Conventional ranges.** Channels use each space's own CSS / colour-science units (`rgb` 0-255, `lab` L 0-100, `oklch` L 0-1, hue in degrees) — declared on `<space>.range` and in `meta.js`, never silently normalised.
+4. **Bidirectional.** Every space converts to and from every other (the graph auto-composes the shortest path); the few standards that are one-way by nature (quantised transports, parametric colormaps) say so loudly.
+5. **Documented omissions.** Whatever is *not* here is listed with the reason — proprietary catalogs (Pantone, NCS…), non-invertible appearance models, parameter variants — so absence is a decision you can audit, never an oversight.
+
 ## Spaces
 
 > 🕰️ marks spaces of primarily **historical / educational** interest (superseded in practice, but kept for completeness and study).
@@ -179,6 +190,9 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [sUCS](https://doi.org/10.1364/OE.510196) — uniform space of sCAM (Li & Luo 2024); CAM16-UCS-class uniformity from a simple LMS-power pipeline.
 * [x] [proLab](https://arxiv.org/abs/2012.07653) — projective (line-preserving) perceptual space; a 4×4-homography alternative to CIELAB. ([Konovalenko et al. 2021](https://arxiv.org/abs/2012.07653))
 * [x] [SRLAB2](https://www.magnetkern.de/srlab2.html) — "best of CIELAB and CIECAM02": CAT02 adaptation + a CIELAB-like opponent stage (Behrens).
+* [x] [IgPgTg](https://doi.org/10.2352/issn.2169-2629.2020.28.13) — IPT-structured uniform space with gamut-relative cone scaling; CAM16-UCS-class hue uniformity from three matrices and a power. (Hensley & Fairchild 2020)
+
+> **Documented variants:** [IPT-Ragoo 2021](https://doi.org/10.2352/issn.2169-2629.2021.29.13) (re-optimised IPT fit — same structure as our `ipt`), [Hunter Rd,a,b](https://doi.org/10.1364/JOSA.32.000509) (the pre-1958 form of `labh`), original [DIN99 / 99b / 99c](https://de.wikipedia.org/wiki/DIN99-Farbraum) (superseded by the shipped DIN99o/DIN99d), [IHLS](https://doi.org/10.1109/ICIP.2003.1246629) (Hanbury's improved HLS — `hsl` with a luma axis), [Prismatic](https://doi.org/10.1016/j.cag.2015.04.007) (max-normalised barycentric rgb — a display trick, not colorimetry).
 
 ### Perceptual Uniform (CIE Classic)
 * [x] [LAB](https://www.w3.org/TR/css-color-4/#cie-lab) — CIE 1976 L\*a\*b\*, the standard for perceptual uniformity. **D50** reference white (ICC/CSS Color 4 convention); use `lab-d65` for display-native. ([CIE 15:2004](https://cie.co.at/publications/colorimetry-4th-edition))
@@ -216,6 +230,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Izazbz](https://doi.org/10.1364/OE.25.015131) — the absolute opponent stage Jzazbz/ZCAM build on (Safdar 2017).
 * [x] [Kelvin (CCT)](https://en.wikipedia.org/wiki/Planckian_locus) — colour temperature on the Planckian locus (2700 K warm … 6500 K cool); Krystek + McCamy.
 * [x] [Wavelength](https://en.wikipedia.org/wiki/Spectral_color) — the colour of monochromatic light (the spectral locus / rainbow) via the CIE 1931 CMFs.
+* [x] [Yrg (Kirk 2019)](https://doi.org/10.2352/issn.2169-2629.2019.27.38) — FilmLight's luminance/cone-chromaticity space on CIE 2006 LMS; the basis of darktable's colour-balance UCS. Exact algebraic inverse.
 * [x] [Gray](https://www.w3.org/TR/css-color-4/#grays) — single-channel luminance.
 
 ### Video & Broadcast
@@ -249,6 +264,23 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [x] [Apple Log](https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py) — iPhone 15 Pro+ log (quadratic toe + log2) over BT.2020.
 * [x] [Blackmagic Film Gen5](https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/blackmagic_design.py) — BMD Gen5 curve + BMD Wide Gamut.
 * [x] [DJI D-Log](https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf) — D-Log + D-Gamut (cinema cameras).
+* [x] [DaVinci Intermediate](https://documents.blackmagicdesign.com/InformationNotes/DaVinci_Resolve_17_Wide_Gamut_Intermediate.pdf) — DaVinci Resolve's default working space: DI log + DaVinci Wide Gamut (whitepaper matrices).
+* [x] [FilmLight T-Log / E-Gamut](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmLightTLog.html) — Baselight's working space (w=128, g=16, o=0.075).
+* [x] [DCDM X′Y′Z′](https://ieeexplore.ieee.org/document/7290729) — the encoding inside every cinema DCP: gamma-2.6 XYZ (SMPTE ST 428-1, ST 431-1 48 cd/m² white).
+* [x] [ACESproxy](https://docs.acescentral.com/specifications/acesproxy/) — the Academy's on-set SDI transport (S-2013-001); quantised to integral code values by design.
+* [x] [ERIMM RGB](https://www.iso.org/standard/58005.html) — extended-range log ROMM/RIMM sibling (ISO 22028-3), scene exposures 0.001-316.2.
+* [x] [Leica L-Log](https://leica-camera.com/sites/default/files/2021-11/L-Log_Reference_Manual_EN.pdf) — Leica's log (SL2-S+) in a BT.2020 container.
+* [x] [GoPro Protune](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Protune.html) — Protune flat profile + Protune Native primaries.
+* [x] [Xiaomi Mi-Log](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_MiLog.html) — Mi-Log (14/15 Ultra), Apple-Log-shaped curve, BT.2020 container.
+* [x] [OPPO O-Log](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_OPPOOLog.html) — O-Log natural-log profile, BT.2020 container.
+* [x] [Sony S-Log (1)](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html) 🕰️ — the original F35/F3-era S-Log + S-Gamut.
+* [x] [REDLog](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLog.html) / [REDLogFilm](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLogFilm.html) 🕰️ — RED One-era 10-bit log and the Cineon-compatible variant, over REDcolor.
+* [x] [RED Log3G12](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log3G12.html) 🕰️ — Log3G10's predecessor (grey → exactly ⅓) over REDWideGamutRGB.
+* [x] [Panalog](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Panalog.html) 🕰️ — Panavision Genesis Cineon-style log (black 64 / white 681).
+* [x] [ViperLog](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_ViperLog.html) 🕰️ — Thomson Viper FilmStream pure log10 (no black offset — the flaw its successors fixed).
+* [x] [Filmic Pro 6](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmicPro6.html) 🕰️ — the iOS app's v6 √+ln hybrid curve (Newton-inverted; y(1)=1 by construction).
+
+> **Documented variants (parameter tweaks of the above, not separate modules):** [Log2 / PLog](https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log2.html) (generic Nuke utility curves), [S-Gamut3.Cine](https://pro.sony/ue_US/technology/s-log) (alternate Sony primaries), REDcolor2-4 / DRAGONcolor (RED primaries generations), [sYCC](https://www.color.org/sycc.pdf) (BT.601 YCbCr over sRGB ≈ our `jpeg`), [YDzDx](https://ieeexplore.ieee.org/document/7290558) (SMPTE ST 2085 XYZ-based mastering signal), [ITP](https://www.itu.int/rec/R-REC-BT.2124) (BT.2124 ΔE scaling of `ictcp`: T = Ct/2), [DICOM GSDF](https://dicom.nema.org/medical/dicom/current/output/chtml/part14/chapter_4.html) (medical grayscale EOTF, not a colour space).
 
 ### Color Appearance
 * [x] [CAM16](https://doi.org/10.1002/col.22131) — CIE color appearance model, handles viewing conditions (lighting, surround). ([Li et al. 2017](https://doi.org/10.1002/col.22131))
@@ -291,6 +323,7 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 * [ ] ~~[RG / RGK](https://en.wikipedia.org/wiki/RG_color_space) — red-green dichromat simulation~~ — declined: the linked page is a formula-less historical 2-primary print model, and "dichromat simulation" is a one-way filter (Viénot/Brettel), not a color space.
 * [x] [PhotoYCC](https://en.wikipedia.org/wiki/PhotoYCC) — Kodak Photo CD encoding, extended gamut (BT.709 primaries, BT.601 luma, odd-function OETF).
 * [x] [Ohta I₁I₂I₃](https://doi.org/10.1016/0146-664X(80)90047-7) — decorrelated RGB opponent space for image segmentation (Ohta 1980).
+* [x] [lαβ (Ruderman)](https://doi.org/10.1109/38.946629) — the decorrelated log-cone space behind classic colour transfer between images (Reinhard et al. 2001; Ruderman 1998).
 * [x] [ANLAB](https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x) 🕰️ — Adams-Nickerson chromatic-valence space (1942/1950), the direct precursor of CIELAB.
 * ~~[Ostwald](https://en.wikipedia.org/wiki/Ostwald_color_system)~~ · ~~[DIN 6164](https://en.wikipedia.org/wiki/DIN_6164)~~ 🕰️ — declined: atlas-defined colour-order systems (Ostwald: Foss-Nickerson 1944 full-colour/white/black tables; DIN 6164: tabulated sample swatches), no open closed-form — same category as NCS/Pantone, not continuous spaces. Munsell above is the exception: its 1943 renotation *is* openly published.
 
@@ -311,16 +344,16 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **132** | 25 | 40 | 16 |
+| **Color spaces** | **151** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
 | **Bundle size** | Tree-shakeable (~2 kB/space) | Medium | Large | Minimal |
-| **Test coverage** | differential vs colorjs.io + cited refs (131 spaces) | ~2,000 tests | ~1,500 tests | ~50 tests |
+| **Test coverage** | differential vs colorjs.io + 105 cited reference pins + all-151 integrity sweep | ~2,000 tests | ~1,500 tests | ~50 tests |
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
-- **Most comprehensive**: 131 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Most comprehensive**: 151 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
 - **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
 - **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
 
