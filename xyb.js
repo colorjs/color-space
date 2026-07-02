@@ -1,9 +1,12 @@
 /**
- * XYB color space — JPEG XL Image Coding System.
- *
- * An LMS-based model inspired by the human visual system for perceptually uniform
- * quantization (gamma 3). Implementation based on culori. (JPEG XL Whitepaper:
- * https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf)
+ * XYB is the internal color space of JPEG XL, the royalty-free image format designed
+ * as a modern successor to JPEG for both lossy and lossless compression. Rather than
+ * building on broadcast-derived YCbCr like its predecessor, XYB is modeled on the
+ * eye's LMS cone responses, split into a red-green channel (X), a luminance channel
+ * (Y), and a blue-yellow channel (B), then compressed with a perceptually motivated
+ * power law so encoding error can be concentrated where vision is least sensitive to
+ * it. It is not meant for authoring or display — images are still edited and viewed
+ * in ordinary RGB — but is what the JPEG XL codec actually compresses under the hood.
  *
  * @see {@link https://arxiv.org/abs/1908.03565}
  * @channel {X} -0.0154 0.0281 Red-green
@@ -12,6 +15,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Transfer function uses a perceptual gamma of 3 (cube-root forward, cube inverse),
+// biased by a small additive constant so it stays well-defined near zero. Ported from
+// culori's implementation.
 
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';

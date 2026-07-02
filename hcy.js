@@ -1,10 +1,10 @@
 /**
- * HCY color space (Hue, Chroma, Luma)
- *
- * Luma-based cylindrical model for shader programming (Kuzma Shapran / Chilliant).
- * Unlike HSI/HSL, the Y channel is the color's actual Rec.601 luma, and chroma is
- * normalized against the luma the hue can carry — so equal Y means equal brightness.
- * http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html
+ * HCY — Hue, Chroma, Luma, a cylindrical color model devised by Kuzma Shapran and
+ * popularized by Chilliant for real-time shader use. Unlike HSI or HSL, its Y channel
+ * is the color's actual Rec. 601 luma rather than an average or extremum of the RGB
+ * channels, and chroma is normalized against the maximum luma the current hue can
+ * carry. The result is that two colors with equal Y always read as equally bright, a
+ * property neither HSL nor HSV guarantees.
  *
  * @see {@link http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html}
  * @channel {H} 0 360 Hue angle in degrees

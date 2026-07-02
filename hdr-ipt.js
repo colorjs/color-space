@@ -1,10 +1,10 @@
 /**
- * hdr-IPT color space
- *
- * Fairchild & Wyble (2010/2011) HDR extension of IPT: the same IPT cone matrices, but
- * the fixed 0.43 power is replaced by a Michaelis-Menten lightness whose exponent
- * adapts to scene luminance. Baked to the standard surround Y_s=0.2 / Y_abs=100 cd/m²
- * (Fairchild 2011), giving ε=0.4820209.
+ * hdr-IPT — Fairchild & Wyble's 2010/2011 extension of IPT to high-dynamic-range
+ * imagery. IPT's fixed power-law lightness response only holds over a narrow luminance
+ * range, so hdr-IPT replaces it with a Michaelis-Menten response whose exponent adapts
+ * to the scene's own luminance, echoing how the eye itself adapts. It keeps IPT's I/P/T
+ * lightness, red-green and yellow-blue structure while extending its hue-linear behavior
+ * across HDR's much larger dynamic range.
  *
  * @see {@link https://library.imaging.org/cic/articles/18/1/art00057} Fairchild & Wyble 2010
  * @channel {I} 0 100 Lightness
@@ -15,6 +15,10 @@
  * @referred display
  * @dynamic hdr
  */
+// Implementation notes:
+// Same IPT cone matrices; the fixed 0.43 power is replaced by a Michaelis-Menten
+// lightness whose exponent adapts to scene luminance. Baked to the standard surround
+// Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4820209.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

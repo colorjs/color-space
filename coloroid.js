@@ -1,21 +1,10 @@
 /**
- * Coloroid color space (Nemcsics, MSZ 7300)
+ * Coloroid — the Hungarian architectural color-order system, developed by Antal
+ * Nemcsics at the Budapest University of Technology and standardized as MSZ 7300.
+ * Grown from large-scale aesthetic experiments, it arranges hue (A), saturation (T)
+ * and luminosity (V) in steps that feel evenly spaced when composing whole
+ * environments — its home turf is architecture and urban color planning.
  *
- * Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y).
- *
- * Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48
- * grades found by chromaticity angle from white; T is the position along the
- * white→limit-color line (T=0 at white, T=100 at the spectral/purple limit).
- * The hue lookup uses each row's angle computed from its own (xλ,yλ); the stored
- * angle column is decorative (it disagrees with the chromaticities).
- *
- * The limit-color table now holds the authoritative Nemcsics (1980) chromaticities
- * (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column
- * shifted by one row. ATV↔xyY round-trips exactly and reproduces the published
- * A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete
- * grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no
- * interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120;
- * Neumann & Neumann (2004) "Gamut Clipping and Mapping Based on the Coloroid System".
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.5080050210}
  *
  * @channel {A} 10 76 Hue grade
@@ -24,6 +13,20 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades
+// found by chromaticity angle from white; T is the position along the white→
+// limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup
+// uses each row's angle computed from its own (xλ,yλ); the stored angle column is
+// decorative (it disagrees with the chromaticities).
+//
+// The limit-color table holds the authoritative Nemcsics (1980) chromaticities
+// (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column
+// shifted by one row. ATV↔xyY round-trips exactly and reproduces the published
+// A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete
+// grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no
+// interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann &
+// Neumann (2004) "Gamut Clipping and Mapping Based on the Coloroid System".
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 

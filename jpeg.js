@@ -1,7 +1,11 @@
 /**
- * https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion
- *
- * JPEG conversion without head/footroom
+ * The full-range YCbCr color space defined for JPEG still-image compression (ITU-T
+ * T.871 / JFIF), also called PC-range or full-swing YCbCr. Unlike broadcast YCbCr —
+ * which reserves the extremes of its 8-bit range as headroom and footroom for analog
+ * signal overshoot — JPEG YCbCr uses the full 0-255 range on all three channels,
+ * matching how still images are stored and displayed on computers. Y carries luma
+ * while Cb and Cr are blue-difference and red-difference chroma, using the same
+ * BT.601-derived coefficients as standard-definition video.
  *
  * @module  color-space/jpeg
  *

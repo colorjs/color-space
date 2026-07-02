@@ -1,8 +1,13 @@
 /**
- * Lab Hunter color space
- *
- * Alternative Lab definition by Richard Hunter
- * Optimized for reflectance, less uniform than CIE Lab
+ * Hunter Lab is Richard Hunter's 1948 opponent-color space, developed years before
+ * CIELAB as one of the first practical attempts at a perceptually meaningful,
+ * roughly uniform coordinate system for measuring surface color. Like Lab it
+ * separates lightness from a red-green and a yellow-blue axis, but reaches them
+ * through a simpler transform tied to Hunter's own reflectance instruments rather
+ * than CIELAB's cube root. It's less perceptually uniform than CIELAB, but its
+ * head start left it entrenched in industrial color-quality work — paints,
+ * plastics, textiles and food — where legacy specifications still report in
+ * Hunter Lab units.
  *
  * @see {@link https://en.wikipedia.org/wiki/Hunter_Lab}
  * @channel {L} 0 100 Lightness

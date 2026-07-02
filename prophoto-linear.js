@@ -1,8 +1,9 @@
 /**
- * ProPhoto RGB Linear color space
- *
- * Linear variant of ProPhoto without gamma correction
- * References D50 illuminant
+ * Linear-light ProPhoto RGB — the gamma-free counterpart to Kodak's ProPhoto (ROMM)
+ * RGB, sharing its very wide primaries and D50 white point but with channel values
+ * directly proportional to light intensity. It serves as the intermediate space for
+ * color math on ProPhoto-referenced images, such as raw photo processing, before
+ * results are re-encoded with ProPhoto's transfer curve.
  *
  * @see {@link https://www.color.org/ROMMRGB.pdf}
  * @channel {R} 0 1 Red

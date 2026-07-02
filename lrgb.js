@@ -1,7 +1,10 @@
 /**
- * Linear RGB color space
- *
- * RGB without gamma correction, useful for color math
+ * Linear-light sRGB — the same D65 white point and primaries as sRGB, but with the
+ * gamma-like transfer curve removed so that channel values sit directly proportional
+ * to light intensity. It is not a space displays use directly; instead it is the
+ * physically meaningful intermediate for color math such as mixing, blending and
+ * colorimetric conversions, where operating on gamma-encoded values would give wrong
+ * results.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear}
  * @channel {R} 0 1 Red

@@ -1,9 +1,12 @@
 /**
- * DIN99o Lab color space
- *
- * Perceptually uniform variant of CIE Lab, optimized for Euclidean color
- * difference. DIN 6176. Defined relative to CIELab (D65); rgb/xyz are reached
- * by chaining through lab.
+ * DIN99o Lab is a further nonlinear remapping of CIELAB, part of the German
+ * DIN 6176 color-difference standard, built so that a simple Euclidean distance
+ * between two points approximates perceived color difference far more closely
+ * than raw CIELAB does. It compresses Lab's lightness and chroma logarithmically
+ * and applies a hue rotation, correcting CIELAB's well-known tendency to
+ * overstate differences among highly saturated colors. The DIN99 family is used
+ * mainly in industrial color-tolerance work — coatings, plastics and automotive
+ * finishes — as a lighter alternative to the more elaborate CIE ΔE2000 formula.
  *
  * @see {@link https://de.wikipedia.org/wiki/DIN99-Farbraum}
  * @channel {L} 0 100 Lightness

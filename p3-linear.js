@@ -1,8 +1,9 @@
 /**
- * Display P3 Linear color space
- *
- * Linear variant of DCI-P3 (Apple Display P3)
- * Without gamma correction, used for image processing
+ * Linear-light Display P3 — the gamma-free counterpart to Apple's Display P3,
+ * sharing its wide DCI-P3-derived primaries and D65 white point but with channel
+ * values directly proportional to light intensity. It serves as the intermediate
+ * space for accurate color math and image processing, before results are re-encoded
+ * with the Display P3 transfer curve for output.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-display-p3}
  * @channel {R} 0 1 Red

@@ -1,10 +1,9 @@
 /**
- * DJI D-Log / D-Gamut color space
- *
- * DJI's D-Log curve (linear toe + log10 highlight) over the D-Gamut primaries
- * (X7/Ronin 4D cinema cameras). Per-channel D-Log to scene-linear, then D-Gamut→XYZ
- * (D65). 18% grey → 0.3988. (D-Log M, the consumer-drone variant, is an unpublished
- * black box and is deliberately NOT included.)
+ * D-Log — DJI's log curve for its cinema-oriented cameras, including the Zenmuse X7
+ * and Ronin 4D, designed to preserve dynamic range for grading rather than direct
+ * viewing. It pairs a linear toe near black with a log10 highlight curve, mapped to
+ * the D-Gamut primaries built for those cameras' sensors. It's distinct from D-Log M,
+ * the separate curve DJI uses on its consumer drones.
  *
  * @see {@link https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf}
  * @channel {R} 0 1 Red
@@ -15,6 +14,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 18% grey → 0.3988. D-Log M, the consumer-drone variant, is an unpublished black
+// box and is deliberately not implemented here.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

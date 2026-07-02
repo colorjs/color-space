@@ -1,8 +1,11 @@
 /**
- * TSL color space (Tint, Saturation, Lightness)
- *
- * Simple cylindrical representation of RGB
- * Derived from RGB for image analysis
+ * TSL (Tint, Saturation, Lightness) is a cylindrical re-encoding of RGB introduced by
+ * Terrillon and Akamatsu in 2000 for detecting human skin tones in images. By
+ * separating chromaticity (tint and saturation) from lightness, it groups
+ * skin-colored pixels into a tighter, more separable cluster than RGB does, making
+ * thresholding for face and gesture detection more reliable. It remains a reference
+ * color space in computer-vision work on skin segmentation, alongside spaces like
+ * YCbCr and HSV.
  *
  * @see {@link https://doi.org/10.1109/AFGR.2000.840612}
  * @channel {T} 0 360 Tint angle

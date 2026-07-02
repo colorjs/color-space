@@ -1,10 +1,10 @@
 /**
- * SRLAB2 color space
- *
- * Jan Behrens' SRLAB2 — "the best of CIELAB and CIECAM02": CIECAM02's CAT02-style
- * chromatic adaptation feeding a CIELAB-like cube-root opponent stage, giving better
- * perceptual uniformity than CIELAB while staying simple and invertible. D65;
- * white → L=100, a=b=0.
+ * SRLAB2 is Jan Behrens' attempt to combine the best of CIELAB and CIECAM02. It
+ * runs color through CIECAM02's CAT02 chromatic adaptation and then finishes with a
+ * CIELAB-style cube-root opponent stage, rather than CIELAB's simpler and less
+ * accurate adaptation step. The result is noticeably more perceptually uniform than
+ * plain CIELAB, especially for saturated colors, while staying as easy to compute
+ * and invert as Lab itself, without CIECAM02's full viewing-condition machinery.
  *
  * @see {@link https://www.magnetkern.de/srlab2.html}
  * @channel {L} 0 100 Lightness

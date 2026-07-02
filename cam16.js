@@ -1,8 +1,13 @@
 /**
- * CAM16 color space (Color Appearance Model)
- *
- * Complex color appearance model used in Material Design
- * Includes hue, saturation, brightness, and colorfulness
+ * CAM16 is the color appearance model introduced by Li et al. in 2017 as a
+ * simplified, more robust successor to CIECAM02. It predicts how a color actually
+ * looks to a human observer under specific viewing conditions — accounting for the
+ * surrounding light, background, and the eye's state of adaptation — rather than
+ * merely describing the raw stimulus, yielding correlates of lightness,
+ * colorfulness, and hue (plus chroma, saturation, and brightness in the full model).
+ * Google adopted it, via its HCT derivative, as the foundation of Material Design's
+ * dynamic color system, and it now serves broadly in color science as the default
+ * replacement for CIECAM02.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @channel {J} 0 100 Lightness

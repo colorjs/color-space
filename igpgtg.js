@@ -1,10 +1,11 @@
 /**
- * IgPgTg color space (Hensley & Fairchild 2020)
- *
- * An IPT-structured uniform space fitted with an independent gamut-relative LMS
- * normalisation: XYZ → bespoke LMS, per-cone scaling [18.36, 21.46, 19435] and a
- * 0.427 power, then an opponent matrix to Ig (intensity) / Pg (protan) / Tg (tritan).
- * Competitive hue uniformity with CAM16-UCS at a fraction of the math.
+ * IgPgTg is a color space proposed by Hensley and Fairchild in 2020 as a
+ * lighter-weight alternative to CAM16-UCS for hue-uniform color-difference work.
+ * Structurally it follows IPT, deriving a lightness signal from LMS cone responses
+ * and pairing it with two opponent channels — named Ig, Pg and Tg for intensity,
+ * protan and tritan, after the color-vision deficiencies their axes roughly align
+ * with. The authors report hue uniformity competitive with CAM16-UCS at a fraction
+ * of the computational cost.
  *
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2020.28.13}
  * @channel {Ig} 0 1 Intensity
@@ -15,6 +16,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// XYZ -> bespoke LMS, per-cone scaling [18.36, 21.46, 19435], signed power 0.427,
+// then a fixed opponent matrix to Ig/Pg/Tg.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

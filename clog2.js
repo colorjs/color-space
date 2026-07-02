@@ -1,10 +1,9 @@
 /**
- * Canon Log 2 / Cinema Gamut color space
- *
- * Canon Log 2 (v1.2, legal/NCV range) transfer over the Canon Cinema Gamut
- * primaries, reflectance-referred (×0.9, matching the ACES IDT and colour-science
- * out_reflection: 18% gray→Y18, 90% card→Y90, perfect white→Y100). Per-channel
- * Canon Log 2 curve to scene-linear, then Cinema Gamut→XYZ(D65). Canon IT 202007.
+ * Canon Log 2 — Canon's wider-latitude cinema log curve, introduced with the EOS
+ * C300 Mark II to capture more of the sensor's dynamic range than the original
+ * Canon Log. Its flatter, lower-contrast curve trades a coarser midtone step for
+ * extra stops of highlight and shadow information, intended for heavier grading
+ * later. It shares the Cinema Gamut primaries with Canon Log and Canon Log 3.
  *
  * @see {@link https://en.wikipedia.org/wiki/Log_profile}
  * @channel {R} 0 1 Red
@@ -15,6 +14,10 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// v1.2 constants, legal/NCV range. Reflectance-referred (×0.9, matching the ACES IDT
+// and colour-science out_reflection): 18% gray→Y18, 90% card→Y90, perfect white→Y100.
+// Canon IT 202007.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

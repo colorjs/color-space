@@ -1,10 +1,10 @@
 /**
- * NTSC RGB (1953) color space
- *
- * The original FCC-mandated US colour-television primaries (1953) — the founding
- * broadcast gamut, still quoted as a coverage benchmark ("% NTSC"). Illuminant C
- * white, γ≈2.2 (BT.470 System M). Wide green/red phosphors never achieved in practice
- * (superseded by SMPTE-C / Rec.709). Matrix from the primaries, Bradford C→D65.
+ * NTSC RGB — the color primaries defined by the FCC in 1953 for the first US color
+ * television broadcasts, later formalized in ITU-R BT.470 System M. Referenced to
+ * Illuminant C with a gamma of about 2.2, it remains the historical benchmark
+ * against which gamut coverage is still quoted today ("% NTSC"), even though its
+ * wide red and green primaries were never fully realized by real phosphors and were
+ * later superseded by SMPTE-C and Rec. 709.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470}
  * @channel {R} 0 1 Red

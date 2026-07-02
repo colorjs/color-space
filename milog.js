@@ -1,9 +1,9 @@
 /**
- * Xiaomi Mi-Log color space
- *
- * Xiaomi's Mi-Log profile (14/15 Ultra) — the Apple Log curve shape (quadratic toe,
- * log2 body) with Xiaomi's constants — recorded in a BT.2020 container, so a transfer
- * over `rec2020-linear` like `applelog`. 18% grey → 0.4535.
+ * Mi-Log — Xiaomi's log profile for the 14 Ultra and 15 Ultra smartphones, giving
+ * their cameras a flatter image with more grading latitude than the phones'
+ * standard color modes. Its curve follows the same quadratic-toe-plus-log2 shape as
+ * Apple Log, tuned with Xiaomi's own constants, and is recorded in a BT.2020 color
+ * container like other smartphone log formats.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_MiLog.html}
  * @channel {R} 0 1 Red
@@ -14,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 18% grey → 0.4535.
 import rec2020Linear from './rec2020-linear.js';
 
 const milog = { name: 'milog', range: [[0, 1], [0, 1], [0, 1]] };

@@ -1,21 +1,14 @@
 /**
- * Munsell renotation color space
- *
- * Artist colour system: Hue (0-100 ASTM circle), Value (0-10 lightness), Chroma
- * (0,2,4,... saturation). Notation like "5R 5/10" = hue 5R, value 5, chroma 10.
- * Bidirectional via the Newhall-Nickerson-Judd 1943 renotation (RIT MCSL "real"
- * dataset, 2734 colours within the MacAdam limits), embedded packed below.
- * Forward is exact at grid points + trilinear (H,V,C); inverse is iterative
- * (coarse grid search + 2D Newton), round-tripping xy to ~1e-10.
- *
- * Hue numbering (ASTM 0-100): 10RP=0/100, 2.5R=2.5, 5R=5, 10R=10, 5YR=15, ...,
- * advancing R->YR->Y->GY->G->BG->B->PB->P->RP. Achromatic (Munsell "N") is chroma 0.
- *
- * CAUTION — illuminant: the renotation is defined for CIE Illuminant C / 2° observer,
- * so munsell<->xyy is Illuminant-C-referenced (matching colour-science). Chaining on
- * to rgb/xyz (which are D65 here) carries a C->D65 white-point mismatch unless you
- * chromatically adapt; convert through xyy and adapt yourself for display-accurate sRGB.
- * Value's Y uses the 1943 (MgO) value function, so V=10 ideal white is Y=102.57.
+ * The Munsell color system was devised by the American painter and art teacher
+ * Albert Munsell around 1905 as a way to organize colors by how they actually look,
+ * rather than by how pigments mix or lights combine. It arranges every color along
+ * three perceptually spaced axes — hue, value (lightness) and chroma (saturation) —
+ * notated like "5R 5/10" for hue 5R, value 5, chroma 10, so that equal numerical
+ * steps in any one axis look equally spaced to the eye. The system was later refined
+ * through extensive visual experiments into the 1943 Munsell Renotation, the dataset
+ * still used today as its authoritative reference. It remains a standard for
+ * perceptually meaningful color specification in fields such as soil science,
+ * geology, and paint and pigment matching.
  *
  * @see {@link https://www.rit.edu/science/munsell-color-science-lab-educational-resources}
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.20715} Centore 2012 (inversion)
@@ -27,6 +20,19 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Hue runs 0-100 on the ASTM circle (10RP=0/100, 2.5R=2.5, 5R=5, 10R=10, 5YR=15, ...,
+// advancing R->YR->Y->GY->G->BG->B->PB->P->RP); achromatic ("N") is chroma 0. Built on
+// the Newhall-Nickerson-Judd 1943 renotation (RIT MCSL "real" dataset, 2734 colors
+// within the MacAdam limits), embedded packed below; forward is exact at grid points
+// plus trilinear interpolation (H,V,C), inverse is iterative (coarse grid search + 2D
+// Newton), round-tripping xy to ~1e-10.
+//
+// CAUTION — illuminant: the renotation is defined for CIE Illuminant C / 2° observer,
+// so munsell<->xyy is Illuminant-C-referenced (matching colour-science). Chaining on to
+// rgb/xyz (which are D65 here) carries a C->D65 white-point mismatch unless you
+// chromatically adapt; convert through xyy and adapt yourself for display-accurate
+// sRGB. Value's Y uses the 1943 (MgO) value function, so V=10 ideal white is Y=102.57.
 import xyy from './xyy.js';
 
 const munsell = { name: 'munsell',

@@ -1,9 +1,10 @@
 /**
- * Panasonic V-Log / V-Gamut color space
- *
- * Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L
- * variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65).
- * Panasonic V-Log/V-Gamut Reference Manual (2014).
+ * V-Log — Panasonic's logarithmic curve introduced in 2014 with the VARICAM 35
+ * cinema camera, built to hold the sensor's full dynamic range for grading rather
+ * than direct viewing. It pairs with the wide V-Gamut primaries, engineered to
+ * encompass color spaces like Rec.2020 with room to spare. This is the full
+ * cinema-camera curve; Panasonic's mirrorless GH-series bodies instead use a
+ * lighter variant called V-Log L, matched to a narrower 12-stop range.
  *
  * @see {@link https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +15,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Panasonic V-Log/V-Gamut Reference Manual (2014).
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

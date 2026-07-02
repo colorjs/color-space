@@ -1,9 +1,12 @@
 /**
- * YCbCr color space
- *
- * Digital video color format used in broadcasting. Limited (studio) range,
- * ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) — the HD default. For SD use
- * BT.601; full-range 601 is the `jpeg` space.
+ * YCbCr is the digital luma/chroma color format behind almost all broadcast and
+ * compressed video, standardized by the ITU-R as BT.601 for standard-definition and
+ * BT.709 for high-definition. It carries forward the idea behind its analog ancestors
+ * YUV and YPbPr — a luma channel Y that alone reproduces a usable grayscale image,
+ * paired with blue-difference and red-difference chroma channels Cb and Cr — but in a
+ * digital, studio ("limited") range that reserves headroom and footroom at the
+ * extremes for signal-processing overshoot. It is the color format carried inside
+ * everything from DVDs and broadcast television to H.264 and HEVC video compression.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @channel {Y} 16 235 Luma
@@ -12,6 +15,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Defaults to ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) for HD; pass BT.601
+// coefficients (Kr=0.299, Kb=0.114) for SD. Full-range BT.601 (no head/footroom) is
+// implemented separately as the `jpeg` space.
 import rgb from './rgb.js'
 import ypbpr from './ypbpr.js'
 

@@ -1,11 +1,9 @@
 /**
- * ACESproxy color space
- *
- * The Academy's on-set transport encoding (S-2013-001): AP1 linear light mapped to
- * 10-bit legal-range code values — CV = round((log2(lin) + 2.5)·50 + 425) clamped to
- * [64, 940] — expressed here as CV/1023 floats. Rounding to integral code values is
- * part of the standard (it rides SDI cables), so round-trips quantise to ~1/100 stop.
- * Not for storage or compositing — use ACEScc/ACEScct. 18% grey → 426/1023 ≈ 0.4164.
+ * ACESproxy — the Academy's on-set monitoring and preview encoding, built to carry
+ * AP1 linear-light images as 10-bit legal-range code values over standard SDI video
+ * cables during production. It's a coarse, quantized encoding meant for on-set color
+ * decisions, dailies, and viewfinder-style preview — not for storage, compositing, or
+ * final grading, where ACEScc or ACEScct take over once footage reaches post.
  *
  * @see {@link https://docs.acescentral.com/specifications/acesproxy/}
  * @channel {R} 0.0626 0.9189 Red
@@ -16,6 +14,11 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// ACES spec S-2013-001. CV = round((log2(lin) + 2.5)·50 + 425) clamped to [64, 940],
+// expressed here as CV/1023 floats. Rounding to integral code values is part of the
+// standard (it rides SDI cables), so round-trips quantise to ~1/100 stop.
+// 18% grey → 426/1023 ≈ 0.4164.
 import acescg from './acescg.js';
 
 const acesproxy = { name: 'acesproxy', range: [[0.0626, 0.9189], [0.0626, 0.9189], [0.0626, 0.9189]] };

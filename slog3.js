@@ -1,9 +1,11 @@
 /**
- * Sony S-Log3 / S-Gamut3 color space
- *
- * Sony's S-Log3 transfer over the S-Gamut3 primaries. Per-channel S-Log3 curve
- * to scene-linear, then the S-Gamut3→XYZ(D65) matrix. Sony "Technical Summary
- * for S-Gamut3/S-Log3". (S-Gamut3.Cine uses different primaries — not this space.)
+ * S-Log3 — Sony's current-generation log curve, designed to mimic the tonal
+ * placement of film-scanning logs like Cineon for more intuitive grading than the
+ * earlier S-Log curves offered. It pairs with the S-Gamut3 primaries and is the
+ * recommended acquisition setting across Sony's modern CineAlta, Venice, and Alpha
+ * cinema-line cameras. S-Gamut3 has a companion variant, S-Gamut3.Cine, with
+ * narrower primaries closer to DCI-P3 for productions that skip a full grade — a
+ * separate color space from this one.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog3.html}
  * @channel {R} 0 1 Red
@@ -14,6 +16,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Sony "Technical Summary for S-Gamut3/S-Log3".
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

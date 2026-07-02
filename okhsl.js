@@ -1,8 +1,10 @@
 /**
- * OkHSL color space
- *
- * Cylindrical color picker from Oklab
- * Designed for intuitive color selection
+ * OkHSL is Björn Ottosson's 2021 hue-saturation-lightness remapping of Oklab, built
+ * for use in ordinary color-picker interfaces. Saturation is rescaled per hue and
+ * lightness so that 100% always lands exactly on the sRGB gamut boundary, giving
+ * sliders that stay in gamut and feel evenly spaced across their whole range — a
+ * guarantee plain HSL, built on gamma-encoded RGB, never offered. It pairs with
+ * OkHSV and OkHWB as a family of perceptually even color pickers derived from Oklab.
  *
  * @see {@link https://bottosson.github.io/posts/okhsv/}
  * @channel {H} 0 360 Hue angle in degrees

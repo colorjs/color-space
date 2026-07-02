@@ -1,7 +1,9 @@
 /**
- * HWB color space (Hue, Whiteness, Blackness)
- *
- * Cylindrical representation using whiteness and blackness
+ * HWB — Hue, Whiteness, Blackness, devised by Alvy Ray Smith in 1996 as an even more
+ * intuitive alternative to HSV for humans mixing colors by hand. Instead of
+ * saturation and value, it describes a color as a pure hue diluted with some amount
+ * of white and some amount of black, mirroring how painters think about tinting and
+ * shading a pigment. It is standardized in CSS Color 4 as the `hwb()` notation.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#the-hwb-notation}
  * @channel {H} 0 360 Hue angle in degrees

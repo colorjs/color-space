@@ -1,10 +1,10 @@
 /**
- * hdr-CIELAB color space
- *
- * Fairchild & Wyble (2010/2011) HDR extension of CIELAB: the L* cube root is replaced
- * by a Michaelis-Menten lightness adapting to scene luminance, applied to X/Xn, Y/Yn,
- * Z/Zn. Baked to the standard surround Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011),
- * giving ε=0.4738510. D65.
+ * hdr-CIELAB — Fairchild & Wyble's 2010/2011 extension of CIELAB to high-dynamic-range
+ * imagery. CIELAB's cube-root lightness response was fit to ordinary display luminance
+ * and breaks down across HDR's wider range, so hdr-CIELAB substitutes a Michaelis-Menten
+ * response whose exponent adapts to scene luminance, in the spirit of human visual
+ * adaptation. It keeps CIELAB's familiar L*, a* and b* lightness and red-green/yellow-blue
+ * structure while extending it to HDR content.
  *
  * @see {@link https://library.imaging.org/cic/articles/18/1/art00057} Fairchild & Wyble 2010
  * @channel {L} 0 100 Lightness
@@ -15,6 +15,10 @@
  * @referred display
  * @dynamic hdr
  */
+// Implementation notes:
+// The L* cube root is replaced by a Michaelis-Menten lightness adapting to scene
+// luminance, applied to X/Xn, Y/Yn, Z/Zn. Baked to the standard surround
+// Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4738510.
 import xyz from './xyz.js';
 
 const hdrLab = { name: 'hdr-cie-lab', range: [[0, 100], [-100, 100], [-100, 100]] };

@@ -1,8 +1,9 @@
 /**
- * Rec. 2020 Linear color space
- *
- * Linear variant of ITU-R Rec. 2020 (UHDTV/4K standard)
- * Without gamma correction for image processing
+ * Linear-light Rec. 2020 — the gamma-free counterpart to the ITU-R BT.2020 UHDTV
+ * standard, sharing its extremely wide primaries and D65 white point but with
+ * channel values directly proportional to light intensity. It is the working space
+ * for accurate color math, compositing and grading of UHD/HDR content, before
+ * results are re-encoded with the Rec. 2020 transfer function for delivery.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020}
  * @channel {R} 0 1 Red

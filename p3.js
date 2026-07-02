@@ -1,8 +1,8 @@
 /**
- * Display P3 color space (Apple Display P3)
- *
- * DCI-P3 color space with gamma correction
- * Wider gamut than sRGB, used in modern displays
+ * Display P3 — Apple's wide-gamut display space, introduced with the 2015 iMac and
+ * standardized into CSS Color 4 as `display-p3`. It keeps sRGB's transfer curve and
+ * D65 white but adopts the wider DCI-P3 film primaries, covering about 25% more
+ * colors — the default canvas of modern iPhones, iPads and Macs.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-display-p3}
  * @channel {R} 0 1 Red

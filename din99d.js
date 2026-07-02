@@ -1,12 +1,13 @@
 /**
- * DIN99d color space
- *
- * Improved DIN99 uniform space (Cui, Luo, Rigg, Roesler & Witt 2002). Unlike
- * din99o, canonical DIN99d applies the redness pre-correction Xc = 1.12·X − 0.12·Z
- * to the D65 tristimulus *before* CIELab (with the corrected white Xcw), then a 50°
- * hue rotation and log compression. It connects via xyz because the correction
- * precedes the Lab step. (colour-science's DIN99d omits the X-correction; the paper
- * form here is the canonical one.)
+ * DIN99d is a 2002 refinement of the DIN99 uniform color space by Cui, Luo, Rigg,
+ * Roesler and Witt, aimed at fixing the original formula's uneven treatment of
+ * blue hues. It adds a correction applied to the tristimulus values before the
+ * CIELAB step, along with the family's usual hue rotation and logarithmic
+ * compression, so Euclidean distance between two DIN99d points tracks perceived
+ * difference more evenly across the hue circle than DIN99 or CIELAB manage alone.
+ * Like the rest of the DIN99 family, it's used mainly for industrial
+ * color-tolerance work where a simple Euclidean metric is preferred over
+ * CIE ΔE2000.
  *
  * @see {@link https://doi.org/10.1002/col.10118}
  * @channel {L} 0 100 Lightness
@@ -17,6 +18,11 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Applies a redness pre-correction Xc = 1.12·X − 0.12·Z to the D65 tristimulus
+// before CIELab (using the corrected white Xcw), then the DIN99 family's usual
+// 50° hue rotation and log compression. The colour-science Python library's
+// DIN99d omits this X-correction; the form here follows the original 2002 paper.
 import xyz from './xyz.js';
 import { labF, labFInv } from './cie.js';
 

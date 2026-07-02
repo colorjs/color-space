@@ -1,42 +1,12 @@
 /**
- * https://en.wikipedia.org/wiki/XvYCC
- *
- * Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr
- *
- * **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr
- * because all values are normalized to 0-1 range. The conceptual difference is:
- *
- * - YCbCr (traditional): Limited to "legal" range (16-235 for Y in 8-bit)
- * - YPbPr: Analog version, typically full range [0,1]
- * - xvYCC: Explicitly extended range, allows values beyond normal gamut
- *
- * Since this library normalizes all spaces to [0,1] and doesn't enforce
- * range limits, xvYCC is functionally identical to YPbPr here. The separate
- * implementation exists for semantic clarity and compatibility.
- *
- * It uses the same transformation matrices as:
- * SD: ITU-R BT.601
- * HD: ITU-R BT.709
- *
- * Formulas (identical to YPbPr):
- *
- * Forward (RGB → xvYCC):
- *   Y  = Kr*R + (1-Kr-Kb)*G + Kb*B
- *   Cb = 0.5*(B-Y)/(1-Kb)
- *   Cr = 0.5*(R-Y)/(1-Kr)
- *
- * Inverse (xvYCC → RGB):
- *   R = Y + 2*Cr*(1-Kr)
- *   B = Y + 2*Cb*(1-Kb)
- *   G = (Y - Kr*R - Kb*B)/(1-Kr-Kb)
- *
- * Where for BT.709: Kr=0.2126, Kb=0.0722
- *       for BT.601: Kr=0.299,  Kb=0.114
- *
- * References:
- * - https://en.wikipedia.org/wiki/XvYCC
- * - https://en.wikipedia.org/wiki/YCbCr
- * - IEC 61966-2-4:2006 (xvYCC specification)
+ * xvYCC (extended-gamut YCC), standardized by Sony as IEC 61966-2-4 and marketed as
+ * x.v.Color, extends traditional YCbCr to encode colors lying outside the conventional
+ * BT.601/BT.709 gamut triangle. Where legal-range YCbCr clips any signal exceeding the
+ * primaries it was built around, xvYCC keeps the same luma/chroma structure but
+ * permits values beyond that limited range, letting cameras and displays capture and
+ * reproduce more saturated colors than standard- or high-definition video normally
+ * allows. It has shipped in consumer camcorders, televisions, and Blu-ray players
+ * seeking a wider color gamut without abandoning the familiar YCbCr pipeline.
  *
  * @module  color-space/xvycc
  *
@@ -47,6 +17,11 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// This library normalizes all spaces to a common range and does not enforce gamut
+// limits, so xvYCC computes identically to YPbPr/YCbCr here — the separate module
+// exists for semantic clarity and drop-in compatibility. Uses the same BT.601 (SD) /
+// BT.709 (HD) transformation matrices as ypbpr.js and ycbcr.js.
 import rgb from './rgb.js';
 import xyz from './xyz.js';
 import ypbpr from './ypbpr.js';

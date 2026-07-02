@@ -1,9 +1,9 @@
 /**
- * Rec. 2020 color space
- *
- * ITU-R BT.2020 standard for UHDTV/4K. Wide-gamut RGB with the BT.2020 transfer
- * function (same piecewise form as BT.709). Uses the CSS `color(rec2020 …)`
- * convention: channels 0-1, not 0-255.
+ * Rec. 2020 — the ITU-R BT.2020 standard defining the color gamut and transfer
+ * characteristics for ultra-high-definition television. It uses a transfer function
+ * with the same piecewise shape as Rec. 709, but spans a dramatically wider set of
+ * primaries that approach the outer limits of human color perception — the target
+ * gamut for 4K and 8K UHD broadcast, streaming and HDR displays.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020}
  * @channel {R} 0 1 Red

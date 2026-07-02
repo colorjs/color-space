@@ -1,11 +1,11 @@
 /**
- * ERIMM RGB color space
- *
- * Extended Reference Input Medium Metric RGB (ISO 22028-3): the log-encoded,
- * extended-dynamic-range member of the ROMM/RIMM family — scene exposures from 0.001
- * to 316.2 (relative to diffuse white 1.0) over the ROMM (ProPhoto) primaries, D50.
- * A transfer over `prophoto-linear`, whose values it extends far past 1. Linear toe
- * below e·0.001. 18% grey → 0.4101.
+ * ERIMM RGB — Kodak's Extended Reference Input Medium Metric RGB, a log-encoded,
+ * scene-referred format standardized in ISO 22028-3 as the extended-range member of
+ * the ROMM/RIMM family. It shares the wide ROMM (ProPhoto) primaries and D50 white
+ * point with ProPhoto RGB, but its logarithmic curve lets it hold a much larger
+ * range of scene exposures — well beyond diffuse white — than a linear or
+ * gamma-encoded format could, making it suited to archiving raw, high-dynamic-range
+ * scene data.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3 / Spaulding et al. 2000
  * @channel {R} 0 1 Red
@@ -16,6 +16,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Scene exposures from 0.001 to 316.2 relative to diffuse white 1.0. Linear toe
+// below e·0.001. 18% grey → 0.4101.
 import prophotoLinear from './prophoto-linear.js';
 
 const erimm = { name: 'erimm', range: [[0, 1], [0, 1], [0, 1]] };

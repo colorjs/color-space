@@ -1,9 +1,10 @@
 /**
- * DCI-P3 (theatrical) color space
- *
- * Digital-cinema P3: the P3 primaries with the DCI white point (x 0.314, y 0.351)
- * and a pure gamma-2.6 curve (SMPTE RP 431-2). Distinct from display-p3 (repo `p3`,
- * which is D65 + sRGB curve). The DCI→D65 Bradford adaptation is baked into the matrix.
+ * DCI-P3 — the digital cinema standard defined in SMPTE RP 431-2 for theatrical
+ * projection and mastering. It shares its wide red-green-blue primaries with Apple's
+ * Display P3, but pairs them with the DCI theatrical white point and a pure
+ * gamma-2.6 transfer curve rather than the D65 white and sRGB-like curve used in
+ * consumer display variants. It remains the reference space for digital film
+ * production and distribution.
  *
  * @see {@link https://en.wikipedia.org/wiki/DCI-P3}
  * @channel {R} 0 1 Red
@@ -14,6 +15,8 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// DCI white point: x 0.314, y 0.351.
 import xyz from './xyz.js';
 import { mat3, inv3, spow } from './util.js';
 

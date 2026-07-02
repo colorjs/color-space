@@ -1,9 +1,10 @@
 /**
- * Sony S-Log (1) / S-Gamut color space
- *
- * Sony's original S-Log curve (F35/F3 era, superseded by S-Log2/3) over S-Gamut —
- * the same primaries as S-Gamut3, hence the same matrix as `slog2`/`slog3`. Uses the
- * in-reflection (÷0.9) + 10-bit legal-range code-value convention. 18% grey → 0.3850.
+ * S-Log — Sony's first logarithmic gamma curve, introduced on the F35 and F3
+ * cameras to capture more dynamic range than conventional video gammas allowed.
+ * Paired with the S-Gamut primaries, it was designed for scene-referred acquisition
+ * ahead of color grading, but its tonal placement was quickly refined by S-Log2 and
+ * then S-Log3. It survives mainly for compatibility with archival footage shot in
+ * that era.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html}
  * @channel {R} 0 1 Red
@@ -14,6 +15,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Same primaries/matrix as S-Gamut3 (see slog3.js). In-reflection (÷0.9) + 10-bit
+// legal-range code-value convention. 18% grey → 0.3850.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

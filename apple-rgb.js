@@ -1,10 +1,9 @@
 /**
- * Apple RGB color space
- *
- * The classic Mac OS working space (~1998-2009) modelling the original Apple
- * Trinitron CRT, still selectable in Photoshop's colour settings and embedded in
- * millions of legacy files. D65 white, γ1.8 (Apple's historic default — the only
- * use of that exponent here). Matrix derived from the primaries.
+ * Apple RGB — the working space used by classic Mac OS, modeling the color response
+ * of Apple's original Trinitron CRT displays. Referenced to the D65 white point with
+ * a gamma of about 1.8, Apple's historic system default, it remained a common
+ * Photoshop working space for years and is still encountered in millions of legacy
+ * image files.
  *
  * @see {@link http://www.brucelindbloom.com/WorkingSpaceInfo.html}
  * @channel {R} 0 1 Red

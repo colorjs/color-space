@@ -1,11 +1,10 @@
 /**
- * Filmic Pro 6 Log color space
- *
- * The Filmic Pro v6 iOS log curve — y = 0.371(√t + 0.28257·ln t + 1.69542), a mixed
- * square-root/log law with y(1) = 1 by construction. No closed-form inverse: decoding
- * runs a Newton solve (colour-science interpolates a LUT). Linear input clamps at the
- * value encoding to 0, keeping black finite. No published gamut — a transfer over
- * `lrgb`. 18% grey → 0.6066.
+ * Filmic Pro 6 Log — the log curve from Filmic Pro, a third-party iOS cinema camera
+ * app that gave iPhone footage a flat, grading-ready image years before Apple Log
+ * existed natively. Its curve blends a square-root term and a natural-log term into
+ * one mixed law, built so a full-scale input maps back to a full-scale output. Like
+ * the smartphone-maker log formats that followed it, it has no published native
+ * color gamut and is treated as a curve over linear RGB.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmicPro6.html}
  * @channel {R} 0 1 Red
@@ -14,6 +13,10 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// y = 0.371(√t + 0.28257·ln t + 1.69542), y(1) = 1 by construction. No closed-form
+// inverse: decoding runs a Newton solve (colour-science interpolates a LUT). Linear
+// input clamps at the value encoding to 0, keeping black finite. 18% grey → 0.6066.
 import lrgb from './lrgb.js';
 
 const filmicpro = { name: 'filmicpro', range: [[0, 1], [0, 1], [0, 1]] };

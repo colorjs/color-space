@@ -1,13 +1,13 @@
 /**
- * PhotoYCC color space (Kodak Photo CD)
- *
- * Extended-gamut luma/chroma encoding for Kodak Photo CD (1992). BT.709 primaries
- * + D65 white, but BT.601 luma coefficients (0.299/0.587/0.114), with an odd-function
- * Rec.709 OETF that encodes scene-referred film colours beyond the [0,1] display
- * range. The 8-bit storage form (Y_c,C1,C2 each 0-255) places neutral at C1=156,
- * C2=137 — asymmetric because the encodable film gamut is asymmetric in B-Y / R-Y.
- * Scene reference white (linear 1,1,1) -> luma 182 (Poynton's widely-cited "189" is
- * a typo, corrected to 182 in his own 1996 errata: 255/1.402 = 181.88).
+ * PhotoYCC is the color encoding Kodak developed in 1992 for its Photo CD system,
+ * built to carry scanned photographic film into a digital, display-oriented format.
+ * Film captures a wider gamut and dynamic range than contemporary CRT monitors could
+ * show, so PhotoYCC extends the ordinary Rec. 709 encoding curve into an
+ * odd-symmetric function able to represent scene-referred colors and highlights
+ * beyond the normal [0,1] display range, storing the result as 8-bit luma (Yc) and
+ * two chroma channels (C1, C2). This let photofinishing labs scan a roll of film once
+ * and derive prints, monitor previews, and digital copies from a single
+ * scene-referred master.
  *
  * @see {@link https://en.wikipedia.org/wiki/Photo_CD}
  * @see {@link https://www.ilkeratalay.com/colorspacesfaq.php} Bourgin Color Spaces FAQ §8.10
@@ -19,6 +19,12 @@
  * @referred scene
  * @dynamic sdr
  */
+// Implementation notes:
+// Uses BT.709 primaries and D65 white but BT.601 luma coefficients (0.299/0.587/
+// 0.114). The 8-bit storage form places neutral at C1=156, C2=137 — asymmetric
+// because the encodable film gamut is asymmetric in B-Y/R-Y. Scene reference white
+// (linear 1,1,1) maps to luma 182 (Poynton's widely-cited "189" is a typo, corrected
+// to 182 in his own 1996 errata: 255/1.402 = 181.88).
 import lrgb from './lrgb.js';
 
 const photoycc = { name: 'photoycc',

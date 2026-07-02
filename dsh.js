@@ -1,16 +1,11 @@
 /**
- * CIE DSH — dominant wavelength / saturation (excitation purity) / hue
- *
- * Helmholtz coordinates of CIE 1931 xy chromaticity: a polar representation where
- * the dominant wavelength is the hue analog (so DSH's "H" IS the dominant wavelength
- * `d` — they are the same coordinate) and excitation purity is the saturation analog.
- * The third stored channel is luminance Y, making the transform an invertible wrapped
- * xyY. Negative `d` is a complementary wavelength: non-spectral purples have no
- * dominant wavelength, so the line from white is reversed onto the opposite locus arc.
- *
- * Forward intersects the ray (D65 white -> colour) with the CIE 1931 2° spectral
- * locus (embedded at 5 nm; finer sampling shifts the wavelength by <0.1 nm). Inverse
- * is exact: colour = white + purity·(locus(d) - white).
+ * CIE DSH — dominant wavelength, saturation (excitation purity) and hue, the classical
+ * Helmholtz coordinates for CIE 1931 chromaticity. Rather than the Cartesian x, y pair,
+ * a color is located by the spectral wavelength it most resembles and how far it sits
+ * from white toward that pure spectral color — a natural way to talk about hue and
+ * saturation that predates CIELAB-style opponent spaces. Non-spectral purples, which
+ * have no single dominant wavelength, are reported as a negative complementary
+ * wavelength instead.
  *
  * @see {@link https://en.wikipedia.org/wiki/Dominant_wavelength}
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
@@ -22,6 +17,13 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// DSH's "H" is the dominant wavelength `d` — they are the same coordinate. The third
+// stored channel is luminance Y, making the transform an invertible wrapped xyY.
+//
+// Forward intersects the ray (D65 white -> colour) with the CIE 1931 2° spectral locus
+// (embedded at 5 nm; finer sampling shifts the wavelength by <0.1 nm). Inverse is exact:
+// colour = white + purity·(locus(d) - white).
 import xyy from './xyy.js';
 
 const dsh = { name: 'dsh',

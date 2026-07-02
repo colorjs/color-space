@@ -1,9 +1,10 @@
 /**
- * CAM02-LCD color space
- *
- * Uniform-color-space form of CIECAM02 optimised for LARGE colour differences
- * (Luo, Cui & Li 2006). Same J'/M' compression family as `cam02-ucs`, with the
- * LCD-tuned constant c2 = 0.0053. Built on `ciecam02` (J, M, h).
+ * CAM02-LCD is a variant of the CAM02-UCS uniform color space that Luo, Cui & Li
+ * tuned in 2006 specifically for LARGE color differences, rather than the small,
+ * fine-grained differences most difference formulas target. Like CAM02-UCS, it
+ * reprojects CIECAM02's lightness and colorfulness into a near-Euclidean, Cartesian
+ * layout, but with scaling calibrated against large-difference visual data. CAM16-LCD
+ * later carried the same large-difference calibration over to CAM16.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
  * @channel {J} 0 100 Lightness

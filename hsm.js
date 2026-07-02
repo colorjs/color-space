@@ -1,10 +1,10 @@
 /**
- * HSM color space (Hue, Saturation, Mixture)
- *
- * Bianconi et al. (2009), "A New Color Space for Skin Color Detection",
- * Revista de Informática Teórica e Aplicada 16(2). Mixture M is the luminance-
- * weighted mean (4R+2G+B)/7; saturation is the chromatic distance normalised by
- * D(M), the maximum reachable chromatic distance at that mixture.
+ * HSM — Hue, Saturation, Mixture, developed by Bianconi et al. (2009) for robust
+ * skin-color detection in image processing. Mixture is a luminance-weighted average
+ * of the red, green and blue channels standing in for brightness, while saturation
+ * measures how far a color sits from that gray mixture relative to the farthest a
+ * color at the same mixture level can reach, keeping saturation properly bounded
+ * across the whole range of mixture values.
  *
  * @see {@link http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428}
  * @channel {H} 0 360 Hue
@@ -13,6 +13,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Bianconi et al. (2009), "A New Color Space for Skin Color Detection", Revista de
+// Informatica Teorica e Aplicada 16(2). Mixture M = (4R+2G+B)/7.
 import rgb from './rgb.js';
 
 const hsm = {

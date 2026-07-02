@@ -1,9 +1,9 @@
 /**
- * OPPO O-Log color space
- *
- * OPPO's O-Log profile (Find X8 Ultra era) — a pure natural-log curve
- * P = 0.139·ln(R + 0.019) + 0.614 — recorded in a BT.2020 container, so a transfer
- * over `rec2020-linear`. 18% grey → 0.3896.
+ * O-Log — OPPO's log profile for its Find X8 Ultra-era smartphones, giving the
+ * camera a flat, grading-ready image in the same spirit as Apple Log and Xiaomi's
+ * Mi-Log. Unlike those two-piece curves, O-Log applies a single, pure natural-log
+ * function across the whole tonal range, with no separate toe segment near black.
+ * It's recorded in a BT.2020 color container.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_OPPOOLog.html}
  * @channel {R} 0 1 Red
@@ -14,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// P = 0.139·ln(R + 0.019) + 0.614. 18% grey → 0.3896.
 import rec2020Linear from './rec2020-linear.js';
 
 const olog = { name: 'olog', range: [[0, 1], [0, 1], [0, 1]] };

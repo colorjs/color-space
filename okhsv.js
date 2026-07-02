@@ -1,8 +1,10 @@
 /**
- * OkHSV color space
- *
- * Cylindrical variant of OkHSL using value instead of lightness
- * Alternative color picker from Oklab
+ * OkHSV is Björn Ottosson's 2021 hue-saturation-value counterpart to OkHSL, built on
+ * Oklab using the value-based model of traditional HSV rather than lightness.
+ * Saturation and value are shaped so the space forms a cone that fits exactly inside
+ * the sRGB gamut, keeping HSV's familiar layout — pure hues at full saturation and
+ * value — while giving perceptually even lightness and chroma underneath. It suits
+ * color pickers and palette tools built around an HSV-style saturation/value grid.
  *
  * @see {@link https://bottosson.github.io/posts/okhsv/}
  * @channel {H} 0 360 Hue angle in degrees

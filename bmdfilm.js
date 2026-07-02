@@ -1,10 +1,10 @@
 /**
- * Blackmagic Film Gen5 / BMD Wide Gamut color space
- *
- * Blackmagic Design's Generation 5 film curve (a piecewise linear-toe + natural-log
- * curve) over the BMD Wide Gamut Gen5 primaries. Per-channel to scene-linear, then
- * BMD Wide Gamut→XYZ(D65). 18% grey → 0.3836. (Spec reverse-engineered from the BRAW
- * SDK; constants verified against colour-science / OCIO.)
+ * Blackmagic Film — Blackmagic Design's log curve for its Generation 5 color
+ * science, which debuted on the URSA Mini Pro 12K and rolled out across the Pocket
+ * Cinema Camera line. It combines a linear toe near black with a natural-log
+ * highlight region to hold detail across the sensor's full dynamic range for
+ * grading in DaVinci Resolve. It pairs with the BMD Wide Gamut Gen5 primaries and
+ * ships inside Blackmagic RAW (BRAW) footage.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/blackmagic_design.py}
  * @channel {R} 0 1 Red
@@ -15,6 +15,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 18% grey → 0.3836. Spec reverse-engineered from the BRAW SDK; constants verified
+// against colour-science / OCIO.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

@@ -1,11 +1,13 @@
 /**
- * RLAB color space (Fairchild 1996)
- *
- * An early colour appearance model for cross-media reproduction: von Kries adaptation
- * through the Hunt-Pointer-Estévez cones, then a CIELAB-like opponent stage. Output
- * (LR, aR, bR). Baked to the canonical reference conditions — adapting white = CIE
- * Illuminant A [109.85,100,35.58], Y_n = 31.83 cd/m², σ = 1/2.3 (average), D = 1
- * (hard-copy) — so it reproduces the published worked example.
+ * RLAB is the color appearance model Mark Fairchild published in 1996, developed for
+ * predicting how colors reproduce across different media and viewing conditions — for
+ * example, matching a printed image's appearance to how it looked on a display. It
+ * adapts the cone responses, via a von Kries-style transform through
+ * Hunt-Pointer-Estévez cone fundamentals, to the reference viewing condition, then
+ * maps the result into a CIELAB-like lightness and opponent-color space, giving it
+ * CIELAB's familiar structure while accounting for surround and adaptation effects
+ * that plain CIELAB ignores. It was among the earliest appearance models built
+ * specifically for cross-media color reproduction workflows.
  *
  * @see {@link https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z} Fairchild 1996
  * @channel {L} 0 100 Lightness
@@ -16,6 +18,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Baked to the canonical reference conditions used in Fairchild's published worked
+// example: adapting white = CIE Illuminant A [109.85, 100, 35.58], Y_n = 31.83 cd/m²,
+// σ = 1/2.3 (average surround), D = 1 (hard-copy/reflective viewing).
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

@@ -1,11 +1,11 @@
 /**
- * Hellwig & Fairchild 2022 color appearance model
- *
- * The CIE-recommended successor to CAM16 (basis of CIECAM16 / CIE 248:2022). Reuses
- * CAM16's CAT16 adaptation, opponent dimensions and lightness correlate, but replaces
- * the achromatic response (2R+G+0.05B−0.305, no n_bb) and linearises brightness
- * (Q = (2/c)(J/100)A_w). Output is (J, M, h) under CAM16's "average" viewing
- * conditions (D65 white, L_A = 64/π·0.2, Y_b = 20).
+ * The Hellwig-Fairchild model, published in 2022, is the CIE-recommended refinement
+ * of CAM16 and the mathematical basis of CIECAM16 (CIE 248:2022). It keeps CAM16's
+ * chromatic-adaptation transform, opponent-color dimensions, and lightness correlate
+ * largely intact, but revises the achromatic response and brightness equations for
+ * more consistent behavior across the model's full range. Like CAM16 it reports
+ * lightness, colorfulness, and hue as its core correlates, making it a close drop-in
+ * successor wherever a CIE-endorsed appearance model is called for.
  *
  * @see {@link https://doi.org/10.1002/col.22792} Hellwig & Fairchild 2022
  * @channel {J} 0 100 Lightness
@@ -16,6 +16,11 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Achromatic response: 2R+G+0.05B−0.305 (no n_bb scaling, the CAM16→Hellwig change).
+// Brightness linearised as Q = (2/c)(J/100)·A_w. Uses the canonical Hellwig2022/
+// CIECAM reference viewing conditions — D65 white, L_A = 318.31 cd/m², Y_b = 20,
+// average surround — not CAM16's Material Design conditions.
 import xyz from './xyz.js';
 import { mat3, spow } from './util.js';
 import { environment, adapt, unadapt, cat16, cat16Inv, m1, constrain } from './cam16.js';

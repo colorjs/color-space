@@ -1,10 +1,12 @@
 /**
- * CIE Lab color space (1976)
- *
- * Perceptual color space with approximately uniform lightness. Reference white
- * is D50 — the ICC color-management (PCS) and CSS Color 4 convention for Lab,
- * and the conventional default for Lab as a device-independent interchange
- * space. For a display-native D65 Lab, use `lab-d65`.
+ * CIELAB is the CIE's 1976 perceptual color space, the first widely adopted
+ * attempt to make Euclidean distance between coordinates track perceived color
+ * difference. It splits color into lightness and two opponent axes — red versus
+ * green and yellow versus blue — echoing how the visual system encodes color
+ * beyond the retina. Color-managed workflows conventionally anchor Lab to the D50
+ * illuminant, which is why it serves as the ICC profile connection space and the
+ * reference form of CSS Color 4's lab() function, rather than tying it to any
+ * particular display's white point.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#lab-colors}
  * @channel {L} 0 100 Lightness

@@ -1,9 +1,9 @@
 /**
- * RG Chromaticity color space
- *
- * Normalized 2D chromaticity space (r + g + b = 1)
- * Used for color matching and chromaticity analysis
- * Blue component can be derived as 1 - r - g
+ * rg chromaticity — the RGB analog of CIE xy: red, green and blue are normalized by
+ * their sum, discarding overall intensity and leaving only the relative color
+ * proportions. Because it factors out brightness, it's a long-standing technique in
+ * color matching and computer vision for describing a surface's color in a way that's
+ * more robust to lighting changes than raw RGB.
  *
  * @see {@link https://en.wikipedia.org/wiki/Chromaticity}
  * @channel {r} 0 1 Red chromaticity coordinate
@@ -11,6 +11,8 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Normalized so r + g + b = 1; the blue component can be derived as 1 - r - g.
 import rgb from './rgb.js';
 
 const rg = {

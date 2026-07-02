@@ -1,9 +1,9 @@
 /**
- * REDLogFilm / REDcolor color space
- *
- * RED's Cineon-compatible log (exactly the Cineon curve, black 95 / white 685 over
- * 10 bits) paired with the REDcolor primaries (D65) — colour-science's canonical
- * pairing for the REDcolor generations. 18% grey → 0.4573, as Cineon.
+ * REDLogFilm — RED Digital Cinema's second log curve, built to match Kodak's
+ * Cineon printing-density curve exactly so RED footage could drop into existing
+ * film-style, Cineon-based color pipelines. It shares the REDcolor primaries with
+ * the original REDLog, sitting between it and the Log3G10/REDWideGamutRGB pairing
+ * used on today's RED cameras.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLogFilm.html}
  * @channel {R} 0 1 Red
@@ -14,6 +14,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Exactly the Cineon curve: black 95 / white 685 over 10 bits. 18% grey → 0.4573,
+// as Cineon.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

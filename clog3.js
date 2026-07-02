@@ -1,10 +1,10 @@
 /**
- * Canon Log 3 / Cinema Gamut color space
- *
- * Canon Log 3 (v1.2 constants) over Cinema Gamut (same matrix as `clog2`). A
- * three-piece curve — shadow log, linear midtone, highlight log — with the ÷0.9
- * reflection convention; 18% grey → 0.3434. Per-channel to scene-linear, then
- * Cinema Gamut→XYZ(D65).
+ * Canon Log 3 — Canon's balanced cinema log curve, introduced alongside Canon Log 2
+ * on the EOS C300 Mark II. Rather than one log function, it blends a log shadow
+ * region, a linear midtone, and a log highlight region into a three-piece curve,
+ * aiming for close to Canon Log 2's dynamic range with gentler, easier-to-grade
+ * contrast. It shares the Cinema Gamut primaries with Canon Log and Canon Log 2, and
+ * has become Canon's most widely used cinema log curve.
  *
  * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf}
  * @channel {R} 0 1 Red
@@ -15,6 +15,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// v1.2 constants. ÷0.9 reflection convention. 18% grey → 0.3434.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

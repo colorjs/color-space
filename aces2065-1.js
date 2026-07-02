@@ -1,10 +1,11 @@
 /**
- * ACES2065-1 color space (AP0 primaries)
- *
- * The ACES archival / interchange encoding: linear, AP0 primaries (which enclose
- * the entire visible gamut), ACES white (~D60). Nominal 0-1, values extend to the
- * 65504 half-float ceiling. Connects to acescg (AP1) via the published AP0↔AP1
- * matrix; everything else chains through there.
+ * ACES2065-1 — the Academy Color Encoding System's archival and interchange master
+ * format, built on the AP0 primaries, wide enough to enclose the entire visible
+ * gamut, with ACES's characteristic white point near D60. Like ACEScg it stores
+ * scene-referred light linearly, with values reaching far past nominal white to hold
+ * highlight detail for later grading or rendering. AMPAS designed it as the
+ * long-term, camera-agnostic exchange format for finished ACES masters, distinct from
+ * ACEScg's smaller AP1 primaries used for day-to-day rendering.
  *
  * @see {@link https://docs.acescentral.com/specifications/aces2065-1/}
  * @channel {R} 0 1 Red

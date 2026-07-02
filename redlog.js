@@ -1,9 +1,9 @@
 /**
- * REDLog / REDcolor color space
- *
- * RED's original 10-bit log curve (RED One era, superseded by REDLogFilm and then
- * Log3G10) over the REDcolor primaries (D65). Black offset 10^(−1023/511).
- * 18% grey → 0.6376.
+ * REDLog — RED Digital Cinema's original log curve, dating to the RED ONE, the
+ * company's first digital cinema camera, released in 2007. It pairs with the
+ * REDcolor primaries, RED's earliest color gamut, and was RED's default acquisition
+ * log before being superseded first by REDLogFilm and later by the
+ * Log3G10/REDWideGamutRGB pairing used on modern RED cameras.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLog.html}
  * @channel {R} 0 1 Red
@@ -14,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 10-bit log curve. Black offset 10^(−1023/511). 18% grey → 0.6376.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

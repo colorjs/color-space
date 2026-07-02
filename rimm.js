@@ -1,11 +1,10 @@
 /**
- * RIMM RGB color space
- *
- * Reference Input Medium Metric RGB (ANSI/I3A IT10.7466-2002 / ISO 22028-3) — the
- * scene-referred counterpart of ROMM/ProPhoto, sharing its wide D50 primaries but
- * carrying a BT.709-shaped OETF with extended exposure headroom (E_clip = 2.0, i.e.
- * one stop above diffuse white, which encodes to 0.713). Matrix = ProPhoto primaries
- * Bradford-adapted D50→D65.
+ * RIMM RGB — Reference Input Medium Metric RGB, standardized in ISO 22028-3 as the
+ * scene-referred counterpart to Kodak's ProPhoto (ROMM) RGB. It shares ProPhoto's
+ * very wide D50 primaries but applies a camera-style transfer function with extended
+ * highlight headroom above diffuse white, letting it carry scene exposure values
+ * that would otherwise clip. It is meant to carry unrendered scene data through an
+ * imaging pipeline prior to output-referred rendering.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3
  * @channel {R} 0 1 Red
@@ -16,6 +15,9 @@
  * @referred scene
  * @dynamic sdr
  */
+// Implementation notes:
+// Matrix = ProPhoto (ROMM) primaries, Bradford-adapted D50->D65. OETF clips at
+// E_clip = 2.0 (one stop above diffuse white), which encodes to ~0.713.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

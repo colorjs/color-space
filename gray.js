@@ -1,16 +1,18 @@
 /**
- * Gray (relative luminance)
- *
- * Single-channel achromatic value = CIE relative luminance Y (the Y of XYZ):
- * the sRGB luminance coefficients applied to LINEAR sRGB (not gamma-encoded —
- * that would be luma Y′). Identical to the Y row of the sRGB→XYZ matrix, so
- * gray(rgb) === XYZ(rgb).Y / 100.
+ * Gray — a single-channel relative luminance value, the Y of CIE XYZ, computed from
+ * linear-light RGB rather than gamma-encoded values. That distinction matters: true
+ * luminance (Y) measures physical light output, while the "luma" (Y′) computed from
+ * gamma-encoded RGB — common in video engineering — only approximates it. Relative
+ * luminance is the quantity behind contrast-ratio calculations such as the WCAG
+ * accessibility guidelines.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#grays}
  * @channel {Y} 0 1 Relative luminance
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Identical to the Y row of the sRGB→XYZ matrix, so gray(rgb) === XYZ(rgb).Y / 100.
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
 

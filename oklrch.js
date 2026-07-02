@@ -1,8 +1,10 @@
 /**
- * OkLrch color space
- *
- * Cylindrical variant of OkLrab
- * Uses chroma and hue for intuitive color selection
+ * OkLrch is the cylindrical form of OkLrab, Björn Ottosson's toe-mapped variant of
+ * Oklab, converting its lightness and rectangular a/b axes into lightness, chroma
+ * and hue. It carries over OkLrab's corrected dark-tone behavior while presenting
+ * color the way people usually reason about it — a hue at some strength and
+ * brightness — making it a natural fit for palette generation and gamut-mapping
+ * tools that need both accurate darks and an intuitive chroma/hue handle.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/}
  * @channel {L} 0 1 Lightness

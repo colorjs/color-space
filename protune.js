@@ -1,8 +1,9 @@
 /**
- * GoPro Protune color space
- *
- * GoPro's Protune flat profile — y = ln(x·112 + 1)/ln(113) — over the Protune Native
- * primaries (D65). 18% grey → 0.6456.
+ * Protune — GoPro's flat color profile for its Hero action camera line, designed to
+ * minimize in-camera sharpening, saturation, and contrast so footage keeps more
+ * headroom for color correction afterward. It applies a single natural-log curve
+ * across the tonal range — simpler than the multi-segment curves cinema cameras
+ * use — over the Protune Native primaries.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Protune.html}
  * @channel {R} 0 1 Red
@@ -13,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// y = ln(x·112 + 1)/ln(113). 18% grey → 0.6456.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

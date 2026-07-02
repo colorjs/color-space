@@ -1,8 +1,11 @@
 /**
- * CIE 1960 UCS (Uniform Color Space)
- *
- * Obsolete color space predecessor to CIELUV
- * Historical reference for color science
+ * CIE 1960 UCS is a uniform chromaticity space devised by MacAdam, an early
+ * attempt to make equal distances on a chromaticity diagram correspond to equal
+ * perceived color differences. It was extended into CIE 1964 U*V*W* by adding a
+ * lightness dimension, then superseded outright by CIELUV in 1976. Its underlying
+ * (u, v) chromaticity coordinates are still the basis for
+ * correlated-color-temperature calculations today, which makes it more a piece of
+ * color-science history than a working color space.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
  * @channel {U} 0 64 U coordinate

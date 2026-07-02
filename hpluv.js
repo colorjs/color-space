@@ -1,10 +1,12 @@
 /**
- * HPLuv color space
- *
- * Pastel variant of HSLuv: the chroma is bounded by the LARGEST circle that fits
- * inside the sRGB gamut at each lightness (so every hue stays in gamut), at the
- * cost of S exceeding 100 for vivid colours. L and H pass through to LCHuv; only
- * S↔C differs. Reuses the library's `lchuv` chain and HSLuv's gamut-bound math.
+ * HPLuv is the pastel counterpart to HSLuv, from the same project by Alexei
+ * Boronine. Instead of fitting saturation to the sRGB gamut boundary at each
+ * individual hue, it uses the single largest circle that fits inside the gamut at
+ * a given lightness, so every hue stays reachable across the full saturation
+ * range — at the cost of never reaching fully vivid colors, since S=100 only means
+ * as saturated as the least colorful hue at that lightness allows. Lightness and
+ * hue pass through unchanged from LCHuv, just as in HSLuv; only the chroma mapping
+ * differs.
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}

@@ -1,8 +1,9 @@
 /**
- * HSI color space (Hue, Saturation, Intensity)
- *
- * Cylindrical representation with intensity (average of RGB)
- * Derived from RGB for image processing
+ * HSI — Hue, Saturation, Intensity, a cylindrical color model popular in image
+ * processing and computer vision. Intensity is simply the average of the red, green
+ * and blue channels, which decouples brightness from color information more cleanly
+ * than HSV or HSL for tasks like segmentation and feature extraction, at the cost of
+ * a more involved saturation calculation than its cousins.
  *
  * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @channel {H} 0 360 Hue angle in degrees

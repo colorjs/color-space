@@ -1,8 +1,10 @@
 /**
- * CIE XYZ color space (D65)
- *
- * CIE 1931 tristimulus values — the foundation of colorimetry and the
- * device-independent hub other spaces chain through. 0–100 scale (Y = 100 at white).
+ * CIE XYZ — the foundation of modern colorimetry, defined by the CIE in 1931 from the
+ * color-matching functions of the standard observer. X, Y and Z are not themselves
+ * perceptual attributes; they're engineered so Y alone carries luminance while X and Z
+ * carry chromaticity, letting any visible color be written as a weighted sum of three
+ * fixed imaginary primaries. It serves as the device-independent reference that RGB,
+ * Lab and other working spaces are ultimately defined against.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-xyz}
  * @channel {X} 0 95.05 X
@@ -13,6 +15,8 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Values are on a 0-100 scale (Y = 100 at white).
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
 import { mat3, inv3 } from './util.js';

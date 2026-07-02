@@ -1,11 +1,10 @@
 /**
- * MacLeod-Boynton ls chromaticity color space
- *
- * The cone-excitation chromaticity diagram of vision science (MacLeod & Boynton 1979):
- * a constant-luminance plane where l = L/(L+M) and s = S/(L+M) on the Smith-Pokorny
- * (1975) cone fundamentals, scaled so L+M = Y (luminance). The foundation of the DKL
- * cardinal-axis space and of chromatic-discrimination work. Stored with the MB
- * luminance (L+M ≈ Y) as a third channel for invertibility.
+ * MacLeod-Boynton (MB) chromaticity — the cone-excitation diagram MacLeod & Boynton
+ * introduced in 1979, plotting color as relative long- and short-wavelength cone
+ * excitation on a constant-luminance plane. Isolating chromaticity at the level of the
+ * cones themselves, rather than at the tristimulus values a display uses, made it the
+ * foundation of the DKL cardinal-axis space and a staple of chromatic-discrimination
+ * research in vision science.
  *
  * @see {@link https://doi.org/10.1364/JOSA.69.001183} MacLeod & Boynton 1979
  * @channel {l} 0 1 Red-green chromaticity
@@ -16,6 +15,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// l = L/(L+M) and s = S/(L+M) on the Smith-Pokorny (1975) cone fundamentals, scaled so
+// L+M = Y (luminance). Stored with the MB luminance (L+M ≈ Y) as a third channel for
+// invertibility.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

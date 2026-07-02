@@ -1,7 +1,8 @@
 /**
- * OkLCh color space
- *
- * Cylindrical version of Oklab with cylindrical hue
+ * OKLCH is the cylindrical form of Björn Ottosson's 2020 OKLab, with perceptual
+ * lightness, chroma and hue. Designed so equal numeric steps look equal to the eye,
+ * it fixes CIELAB's blue-shift and is now the workhorse of modern CSS: `oklch()` is
+ * the recommended way to define design-token palettes on the web.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#ok-lab}
  * @channel {L} 0 1 Lightness

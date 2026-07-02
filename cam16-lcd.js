@@ -1,9 +1,11 @@
 /**
- * CAM16-LCD color space
- *
- * Uniform-color-space form of CAM16 optimised for LARGE colour differences (Li et al.
- * 2017, using the Luo 2006 coefficients). Same J'/M' compression family as `cam16-ucs`,
- * with the LCD-tuned constant c2 = 0.0053. Built on `cam16` (J, M, h).
+ * CAM16-LCD is a variant of the CAM16-UCS uniform color space that Li et al. tuned in
+ * 2017 specifically for LARGE color differences, carrying over compression
+ * coefficients from Luo, Cui & Li's 2006 work on perceptually uniform CIECAM spaces.
+ * Like CAM16-UCS it reprojects CAM16's lightness and colorfulness into a
+ * near-Euclidean, Cartesian layout, but its scaling is calibrated against
+ * large-difference visual data rather than the small, fine-grained differences most
+ * color-difference formulas target — making it the CAM16 counterpart to CAM02-LCD.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @channel {J} 0 100 Lightness

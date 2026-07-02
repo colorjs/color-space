@@ -1,15 +1,13 @@
 /**
- * ZCAM color space (Safdar, Hardeberg & Luo 2021)
- *
- * The HDR-native colour appearance model — the CAM16 analogue built on the absolute
- * Izazbz substrate, predicting lightness J, colourfulness M and hue h (plus brightness,
- * vividness, blackness, whiteness in the full model). Operates on ABSOLUTE XYZ.
- *
- * CAUTION — like cam16/hellwig2022 the viewing conditions are baked, here to the
- * canonical ZCAM reference example: white XYZ_w = [256,264,202], L_A = 264 cd/m²,
- * Y_b = 100, average surround. Input XYZ is absolute (not the library's relative
- * 0-100); under these conditions XYZ_w=[256,264,202] → J≈100. Chaining from rgb maps a
- * relative colour into this absolute frame, so the result is "ZCAM of a dim sample".
+ * ZCAM is the color appearance model Safdar, Hardeberg and Luo introduced in 2021,
+ * designed from the outset for high-dynamic-range and wide-gamut imagery rather than
+ * adapted to it after the fact. It plays the same role as CAM16 — predicting
+ * lightness, colorfulness and hue as a color will actually appear under given viewing
+ * conditions — but builds on the absolute Izazbz color space instead of CIE XYZ, so it
+ * can work natively with the absolute luminance levels HDR content requires instead of
+ * the relative 0-100 scale older appearance models assume. The full model also
+ * reports brightness, vividness, blackness and whiteness, suiting it to HDR display
+ * calibration and gamut mapping where standard appearance models run out of range.
  *
  * @see {@link https://doi.org/10.1364/OE.413659} Safdar et al. 2021
  * @channel {J} 0 100 Lightness
@@ -20,6 +18,12 @@
  * @referred display
  * @dynamic hdr
  */
+// Implementation notes:
+// Like cam16/hellwig2022, viewing conditions are baked — here to the canonical ZCAM
+// reference example: white XYZ_w = [256,264,202], L_A = 264 cd/m², Y_b = 100, average
+// surround. Input XYZ is absolute (not the library's relative 0-100); under these
+// conditions XYZ_w=[256,264,202] → J≈100. Chaining from rgb maps a relative color into
+// this absolute frame, so the result is "ZCAM of a dim sample".
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

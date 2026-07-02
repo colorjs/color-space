@@ -1,6 +1,9 @@
 /**
- * CIE XYZ with the D50 white point (ICC profile connection space). Bradford-adapted
- * from the D65 `xyz` hub.
+ * CIE XYZ referred to the D50 illuminant instead of D65. D50 is the profile connection
+ * space ICC color-management profiles convert through, a convention inherited from
+ * graphic arts and print viewing standards, so this variant is the one to reach for when
+ * reading or writing ICC-based workflows. It relates to D65 XYZ by Bradford chromatic
+ * adaptation.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-xyz}
  * @channel {X} 0 96.42 X

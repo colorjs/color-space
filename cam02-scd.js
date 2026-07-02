@@ -1,9 +1,10 @@
 /**
- * CAM02-SCD color space
- *
- * Uniform-color-space form of CIECAM02 optimised for SMALL colour differences
- * (Luo, Cui & Li 2006). Same J'/M' compression family as `cam02-ucs`, with the
- * SCD-tuned constant c2 = 0.0363. Built on `ciecam02` (J, M, h).
+ * CAM02-SCD is a variant of the CAM02-UCS uniform color space that Luo, Cui & Li
+ * tuned in 2006 specifically for SMALL color differences, such as those relevant to
+ * tolerance and quality-control judgments. Like CAM02-UCS, it reprojects CIECAM02's
+ * lightness and colorfulness into a near-Euclidean, Cartesian layout, but with
+ * scaling calibrated against small, near-threshold visual differences. CAM16-SCD
+ * later carried the same small-difference calibration over to CAM16.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
  * @channel {J} 0 100 Lightness

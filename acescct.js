@@ -1,9 +1,10 @@
 /**
- * ACEScct color space
- *
- * ACES log encoding for colour grading (AP1 primaries, same as ACEScg) with a
- * pure-log curve plus a linear toe near black for lift/gamma/gain controls.
- * ACES spec S-2016-001. Connects to acescg (its linear form).
+ * ACEScct — the Academy Color Encoding System's other grading space, sharing
+ * ACEScg's AP1 primaries and ACEScc's log2 curve but adding a linear toe near black.
+ * That toe keeps traditional lift/gamma/gain color-corrector controls behaving the
+ * way colorists expect instead of exaggerating noise in the shadows, which is why
+ * ACEScct is generally preferred over ACEScc on control surfaces built for legacy
+ * grading tools.
  *
  * @see {@link https://docs.acescentral.com/specifications/acescct/}
  * @channel {R} -0.358 1.468 Red
@@ -12,6 +13,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// ACES spec S-2016-001.
 import acescg from './acescg.js';
 
 const acescct = {

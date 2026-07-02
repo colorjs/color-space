@@ -1,9 +1,11 @@
 /**
- * CAM02-UCS color space
- *
- * Uniform-color-space form of CIECAM02 (Luo, Cui & Li 2006): compresses lightness
- * J and colourfulness M, then lays out (J', a', b') for colour-difference (ΔE) and
- * gamut mapping. Built on ciecam02 (J, M, h). Same compression family as cam16-ucs.
+ * CAM02-UCS is the uniform color space Luo, Cui & Li built on top of CIECAM02 in
+ * 2006, transforming its lightness and colorfulness correlates through a compressive
+ * scale so that equal numerical distances correspond much more closely to equal
+ * perceived color differences. Reprojected into Cartesian coordinates, it behaves
+ * like a CIELAB-style space but is far more perceptually uniform, making it well
+ * suited to computing color differences (ΔE) and to gamut mapping. CAM16-UCS later
+ * carried the same compression scheme over to CAM16.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
  * @channel {J} 0 100 Lightness

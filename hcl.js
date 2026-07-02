@@ -1,10 +1,10 @@
 /**
- * HCL Color Space
- * http://www.chilliant.com/rgb2hsv.html
- * https://en.wikipedia.org/wiki/HCL_color_space
- *
- * Note: This is the cylindrical representation from the Chilliant implementation,
- * not to be confused with CIE LCh (which is also sometimes called HCL).
+ * HCL — a cylindrical Hue, Chroma, Luminance color space from the Chilliant rgb2hsv
+ * reference implementation. Hue and chroma behave much like other cylindrical RGB
+ * models, but luminance is computed with a gamma-weighted formula designed to track
+ * perceived brightness more closely than plain lightness or value. It is unrelated
+ * to CIE LCh, which is also sometimes called "HCL" but uses entirely different math
+ * — the two should not be confused.
  *
  * @module color-space/hcl
  *

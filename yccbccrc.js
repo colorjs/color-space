@@ -1,9 +1,12 @@
 /**
- * YcCbcCrc color space — ITU-R BT.2020 / BT.2100 constant-luminance (CL) system.
- *
- * Unlike the non-constant-luminance Y'CbCr, the luma Yc is formed in LINEAR light
- * (Yc = Kr·R + Kg·G + Kb·B) then OETF-encoded, and the chroma differences use the
- * BT.2020 piecewise normalisation. Operates on linear Rec.2020 RGB.
+ * YcCbcCrc is the constant-luminance encoding defined alongside ITU-R BT.2020 and
+ * BT.2100 for ultra-high-definition and HDR/wide-gamut video. Ordinary Y'CbCr derives
+ * luma from RGB values that have already been gamma-encoded, which lets highly
+ * saturated colors leak into the luma channel and distort perceived brightness — a
+ * problem that grows more visible with the wider gamuts and higher dynamic range
+ * BT.2020 and BT.2100 target. YcCbcCrc avoids this by deriving luma from linear light
+ * before applying the transfer curve, keeping brightness and chroma cleanly separated
+ * even for the most saturated colors UHDTV and HDR can reproduce.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020/en}
  * @channel {Yc} 0 1 Constant-luminance luma
@@ -14,6 +17,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Linear Rec.2020 RGB -> YcCbcCrc: Yc = Kr*R + Kg*G + Kb*B (BT.2020-2 Table 4
+// coefficients) computed in linear light, then OETF-encoded; the Cbc/Crc chroma
+// differences use BT.2020's piecewise normalisation rather than a simple halving.
 import rec2020Linear from './rec2020-linear.js';
 import { bt2020Encode as oetf, bt2020Decode as eotf } from './transfers.js';
 

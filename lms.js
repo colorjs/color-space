@@ -1,8 +1,10 @@
 /**
- * LMS color space
- *
- * Responsivity of cones in human eye
- * Used for chromatic adaptation transformations
+ * LMS — the cone-response space of human vision, where L, M and S are the long-, medium-
+ * and short-wavelength-sensitive cones of the retina. Describing color the way the eye's
+ * own photoreceptors respond makes LMS the natural space for chromatic adaptation:
+ * predicting how a color must shift to look unchanged under a different light source.
+ * Several competing cone-fundamental and adaptation matrices are in use — von Kries,
+ * Bradford, CAT02, CAT16 among them — each modeling that adaptation differently.
  *
  * @see {@link https://en.wikipedia.org/wiki/LMS_color_space}
  * @channel {L} 0 100 Long

@@ -1,9 +1,9 @@
 /**
- * scRGB color space
- *
- * Linear-light sRGB (same primaries and D65 white as sRGB/lrgb) with the extended
- * IEC 61966-2-2 range [-0.5, 61439/8192] for wide-gamut and HDR signals. In float
- * the values are identical to linear sRGB — only the declared range differs.
+ * scRGB — a linear-light extension of sRGB standardized as IEC 61966-2-2, created to
+ * carry wide-gamut and HDR signals through an otherwise ordinary sRGB pipeline. It
+ * keeps sRGB's D65 white point and primaries but removes the gamma curve and widens
+ * the encoding range well beyond the usual 0-1 span, allowing values for colors
+ * brighter or more saturated than standard sRGB can display.
  *
  * @see {@link https://en.wikipedia.org/wiki/ScRGB}
  * @channel {R} -0.5 7.4998779296875 Red

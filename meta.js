@@ -44,7 +44,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Adobe RGB Linear color space Linear variant of Adobe RGB without gamma correction"
+    "description": "Linear-light Adobe RGB — the gamma-free counterpart to Adobe RGB 1998, sharing its wider-than-sRGB primaries and D65 white point but with channel values directly proportional to light intensity. It serves as the intermediate space for accurate color math, before results are re-encoded with Adobe RGB's transfer curve."
   },
   "a98rgb": {
     "channels": [
@@ -88,7 +88,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Adobe RGB color space (Adobe RGB 1998) Wider gamut than sRGB, standard for photography"
+    "description": "Adobe RGB — introduced by Adobe in 1998 as a wider-gamut alternative to sRGB, designed to reproduce more of the cyans and greens achievable in CMYK printing. It keeps sRGB's D65 white point but uses different primaries and a slightly different gamma, making it a longstanding standard working space in photography and print production, where sRGB's narrower gamut would clip too much color."
   },
   "aces2065-1": {
     "channels": [
@@ -130,41 +130,41 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACES2065-1 color space (AP0 primaries) The ACES archival / interchange encoding: linear, AP0 primaries (which enclose the entire visible gamut), ACES white (~D60). Nominal 0-1, values extend to the 65504 half-float ceiling. Connects to acescg (AP1) via the published AP0↔AP1 matrix; everything else chains through there."
+    "description": "ACES2065-1 — the Academy Color Encoding System's archival and interchange master format, built on the AP0 primaries, wide enough to enclose the entire visible gamut, with ACES's characteristic white point near D60. Like ACEScg it stores scene-referred light linearly, with values reaching far past nominal white to hold highlight detail for later grading or rendering. AMPAS designed it as the long-term, camera-agnostic exchange format for finished ACES masters, distinct from ACEScg's smaller AP1 primaries used for day-to-day rendering."
   },
   "acescc": {
     "channels": [
       {
         "symbol": "R",
-        "min": -0.358,
-        "max": 1.468,
+        "min": -0.35828683,
+        "max": 1.4679963120447153,
         "name": "Red"
       },
       {
         "symbol": "G",
-        "min": -0.358,
-        "max": 1.468,
+        "min": -0.35828683,
+        "max": 1.4679963120447153,
         "name": "Green"
       },
       {
         "symbol": "B",
-        "min": -0.358,
-        "max": 1.468,
+        "min": -0.35828683,
+        "max": 1.4679963120447153,
         "name": "Blue"
       }
     ],
     "range": [
       [
-        -0.358,
-        1.468
+        -0.35828683,
+        1.4679963120447153
       ],
       [
-        -0.358,
-        1.468
+        -0.35828683,
+        1.4679963120447153
       ],
       [
-        -0.358,
-        1.468
+        -0.35828683,
+        1.4679963120447153
       ]
     ],
     "refs": [
@@ -172,7 +172,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACEScc color space (Academy Color Encoding System) Logarithmic encoding for color grading in cinema Reference for film post-production"
+    "description": "ACEScc — the Academy Color Encoding System's logarithmic grading space, sharing the AP1 primaries with ACEScg but applying a pure log2 curve so exposure stops map to code values the way film-trained colorists expect. Unlike its sibling ACEScct, it has no linear toe near black, favoring mathematical purity over legacy grading-control behavior. It's used as the working space for color grading within ACES-managed post-production pipelines, ahead of final render back to ACEScg or ACES2065-1."
   },
   "acescct": {
     "channels": [
@@ -214,7 +214,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACEScct color space ACES log encoding for colour grading (AP1 primaries, same as ACEScg) with a pure-log curve plus a linear toe near black for lift/gamma/gain controls. ACES spec S-2016-001. Connects to acescg (its linear form)."
+    "description": "ACEScct — the Academy Color Encoding System's other grading space, sharing ACEScg's AP1 primaries and ACEScc's log2 curve but adding a linear toe near black. That toe keeps traditional lift/gamma/gain color-corrector controls behaving the way colorists expect instead of exaggerating noise in the shadows, which is why ACEScct is generally preferred over ACEScc on control surfaces built for legacy grading tools."
   },
   "acescg": {
     "channels": [
@@ -256,7 +256,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded — nominal 0-1, values extend to the 65504 half-float ceiling."
+    "description": "ACEScg — the Academy Color Encoding System's linear working space, defined by AMPAS in 2014 for CGI rendering and visual-effects compositing. Built on the wide AP1 primaries, it stores scene-referred light linearly rather than through a log curve, with headroom above white for highlights and light sources that would otherwise clip. It's the standard render and composite space in VFX and animation pipelines built around ACES."
   },
   "acesproxy": {
     "channels": [
@@ -300,7 +300,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACESproxy color space The Academy's on-set transport encoding (S-2013-001): AP1 linear light mapped to 10-bit legal-range code values — CV = round((log2(lin) + 2.5)·50 + 425) clamped to [64, 940] — expressed here as CV/1023 floats. Rounding to integral code values is part of the standard (it rides SDI cables), so round-trips quantise to ~1/100 stop. Not for storage or compositing — use ACEScc/ACEScct. 18% grey → 426/1023 ≈ 0.4164."
+    "description": "ACESproxy — the Academy's on-set monitoring and preview encoding, built to carry AP1 linear-light images as 10-bit legal-range code values over standard SDI video cables during production. It's a coarse, quantized encoding meant for on-set color decisions, dailies, and viewfinder-style preview — not for storage, compositing, or final grading, where ACEScc or ACEScct take over once footage reaches post."
   },
   "anlab": {
     "channels": [
@@ -345,7 +345,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "ANLAB (Adams-Nickerson) color space The chromatic-valence opponent space (Adams 1942; Nickerson 1950) — the direct historical precursor of CIELAB. Applies the Munsell value function to the adapted tristimulus ratios, then opponent differences. This is the ANLAB-40 form under CIE Illuminant C / 2°; CIELAB later replaced the (iterative) Munsell value with a cube root and renormalised lightness to 100 — here white is L ≈ 9.2·V(100) ≈ 91."
+    "description": "ANLAB is the chromatic-valence opponent space developed by Adams in 1942 and extended by Nickerson in 1950 — the direct ancestor of CIELAB. It builds lightness and two opponent color channels by running each adapted tristimulus ratio through the Munsell Renotation System's empirical value function and then taking differences between the results, the same opponent-color logic CIELAB later kept while replacing that iterative Munsell function with a closed-form cube root in 1976. ANLAB saw substantial industrial use for color-difference measurement in the decades before CIELAB standardized the field."
   },
   "apple-rgb": {
     "channels": [
@@ -389,7 +389,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Apple RGB color space The classic Mac OS working space (~1998-2009) modelling the original Apple Trinitron CRT, still selectable in Photoshop's colour settings and embedded in millions of legacy files. D65 white, γ1.8 (Apple's historic default — the only use of that exponent here). Matrix derived from the primaries."
+    "description": "Apple RGB — the working space used by classic Mac OS, modeling the color response of Apple's original Trinitron CRT displays. Referenced to the D65 white point with a gamma of about 1.8, Apple's historic system default, it remained a common Photoshop working space for years and is still encountered in millions of legacy image files."
   },
   "applelog": {
     "channels": [
@@ -433,7 +433,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Apple Log color space Apple's Log profile (iPhone 15 Pro+, 2023): a quadratic toe for near/sub-black, then a log2 segment. Apple Log (gen 1) uses ITU-R BT.2020 primaries, so a transfer over `rec2020-linear`. 18% grey → 0.4883. (Spec via the public ACES CTL / colour-science; Apple's own white paper is developer-gated.)"
+    "description": "Apple Log — Apple's log profile, introduced with the iPhone 15 Pro in 2023 for ProRes Log recording aimed at professional and cinematic video workflows, with tight integration into Final Cut Pro's color tools. Its curve opens with a quadratic toe near black before switching to a log2 highlight region, extending recordable dynamic range well beyond the phone's standard video profiles. It's defined over BT.2020 primaries, matching the wide-gamut sensors across the iPhone Pro line."
   },
   "bmdfilm": {
     "channels": [
@@ -477,7 +477,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Blackmagic Film Gen5 / BMD Wide Gamut color space Blackmagic Design's Generation 5 film curve (a piecewise linear-toe + natural-log curve) over the BMD Wide Gamut Gen5 primaries. Per-channel to scene-linear, then BMD Wide Gamut→XYZ(D65). 18% grey → 0.3836. (Spec reverse-engineered from the BRAW SDK; constants verified against colour-science / OCIO.)"
+    "description": "Blackmagic Film — Blackmagic Design's log curve for its Generation 5 color science, which debuted on the URSA Mini Pro 12K and rolled out across the Pocket Cinema Camera line. It combines a linear toe near black with a natural-log highlight region to hold detail across the sensor's full dynamic range for grading in DaVinci Resolve. It pairs with the BMD Wide Gamut Gen5 primaries and ships inside Blackmagic RAW (BRAW) footage."
   },
   "cam02-lcd": {
     "channels": [
@@ -519,7 +519,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM02-LCD color space Uniform-color-space form of CIECAM02 optimised for LARGE colour differences (Luo, Cui & Li 2006). Same J'/M' compression family as `cam02-ucs`, with the LCD-tuned constant c2 = 0.0053. Built on `ciecam02` (J, M, h)."
+    "description": "CAM02-LCD is a variant of the CAM02-UCS uniform color space that Luo, Cui & Li tuned in 2006 specifically for LARGE color differences, rather than the small, fine-grained differences most difference formulas target. Like CAM02-UCS, it reprojects CIECAM02's lightness and colorfulness into a near-Euclidean, Cartesian layout, but with scaling calibrated against large-difference visual data. CAM16-LCD later carried the same large-difference calibration over to CAM16."
   },
   "cam02-scd": {
     "channels": [
@@ -561,7 +561,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM02-SCD color space Uniform-color-space form of CIECAM02 optimised for SMALL colour differences (Luo, Cui & Li 2006). Same J'/M' compression family as `cam02-ucs`, with the SCD-tuned constant c2 = 0.0363. Built on `ciecam02` (J, M, h)."
+    "description": "CAM02-SCD is a variant of the CAM02-UCS uniform color space that Luo, Cui & Li tuned in 2006 specifically for SMALL color differences, such as those relevant to tolerance and quality-control judgments. Like CAM02-UCS, it reprojects CIECAM02's lightness and colorfulness into a near-Euclidean, Cartesian layout, but with scaling calibrated against small, near-threshold visual differences. CAM16-SCD later carried the same small-difference calibration over to CAM16."
   },
   "cam02-ucs": {
     "channels": [
@@ -603,7 +603,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM02-UCS color space Uniform-color-space form of CIECAM02 (Luo, Cui & Li 2006): compresses lightness J and colourfulness M, then lays out (J', a', b') for colour-difference (ΔE) and gamut mapping. Built on ciecam02 (J, M, h). Same compression family as cam16-ucs."
+    "description": "CAM02-UCS is the uniform color space Luo, Cui & Li built on top of CIECAM02 in 2006, transforming its lightness and colorfulness correlates through a compressive scale so that equal numerical distances correspond much more closely to equal perceived color differences. Reprojected into Cartesian coordinates, it behaves like a CIELAB-style space but is far more perceptually uniform, making it well suited to computing color differences (ΔE) and to gamut mapping. CAM16-UCS later carried the same compression scheme over to CAM16."
   },
   "cam16-lcd": {
     "channels": [
@@ -645,7 +645,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM16-LCD color space Uniform-color-space form of CAM16 optimised for LARGE colour differences (Li et al. 2017, using the Luo 2006 coefficients). Same J'/M' compression family as `cam16-ucs`, with the LCD-tuned constant c2 = 0.0053. Built on `cam16` (J, M, h)."
+    "description": "CAM16-LCD is a variant of the CAM16-UCS uniform color space that Li et al. tuned in 2017 specifically for LARGE color differences, carrying over compression coefficients from Luo, Cui & Li's 2006 work on perceptually uniform CIECAM spaces. Like CAM16-UCS it reprojects CAM16's lightness and colorfulness into a near-Euclidean, Cartesian layout, but its scaling is calibrated against large-difference visual data rather than the small, fine-grained differences most color-difference formulas target — making it the CAM16 counterpart to CAM02-LCD."
   },
   "cam16-scd": {
     "channels": [
@@ -687,7 +687,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM16-SCD color space Uniform-color-space form of CAM16 optimised for SMALL colour differences (Li et al. 2017, using the Luo 2006 coefficients). Same J'/M' compression family as `cam16-ucs`, with the SCD-tuned constant c2 = 0.0363. Built on `cam16` (J, M, h)."
+    "description": "CAM16-SCD is a variant of the CAM16-UCS uniform color space that Li et al. tuned in 2017 specifically for SMALL color differences, carrying over compression coefficients from Luo, Cui & Li's 2006 work on perceptually uniform CIECAM spaces. Like CAM16-UCS it reprojects CAM16's lightness and colorfulness into a near-Euclidean, Cartesian layout, but its scaling is calibrated against small, near-threshold visual differences rather than the coarser comparisons CAM16-LCD targets — making it the CAM16 counterpart to CAM02-SCD."
   },
   "cam16-ucs": {
     "channels": [
@@ -729,7 +729,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM16-UCS color space Uniform-color-space form of CAM16 (Li et al. 2017): compresses lightness J and colourfulness M, then lays out (J', a', b') as a near-Euclidean space suitable for colour-difference (ΔE) and gamut mapping. Built on cam16 (J, M, h)."
+    "description": "CAM16-UCS is the uniform color space Li et al. built on top of CAM16 in their 2017 paper, transforming CAM16's lightness and colorfulness correlates through a compressive scale so that equal numerical distances correspond much more closely to equal perceived color differences. Reprojected into Cartesian coordinates, it behaves like a CIELAB-style space but is far more perceptually uniform, making it well suited to computing color differences (ΔE) and to gamut mapping, where straight-line distance needs to track actual visual difference."
   },
   "cam16": {
     "channels": [
@@ -771,7 +771,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CAM16 color space (Color Appearance Model) Complex color appearance model used in Material Design Includes hue, saturation, brightness, and colorfulness"
+    "description": "CAM16 is the color appearance model introduced by Li et al. in 2017 as a simplified, more robust successor to CIECAM02. It predicts how a color actually looks to a human observer under specific viewing conditions — accounting for the surrounding light, background, and the eye's state of adaptation — rather than merely describing the raw stimulus, yielding correlates of lightness, colorfulness, and hue (plus chroma, saturation, and brightness in the full model). Google adopted it, via its HCT derivative, as the foundation of Material Design's dynamic color system, and it now serves broadly in color science as the default replacement for CIECAM02."
   },
   "cie-rgb": {
     "channels": [
@@ -815,7 +815,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE RGB (1931) color space The original Wright-Guild experimental RGB whose colour-matching functions defined CIE XYZ — monochromatic primaries at 700 / 546.1 / 435.8 nm, equal-energy white E, linear (no gamma). The ancestor of all RGB spaces. Matrix derived from the primaries (Lindbloom method) and Bradford-adapted from E to the library's D65 XYZ."
+    "description": "CIE RGB — the experimental color space built directly from the 1931 Wright-Guild color-matching experiments, whose data became the foundation for the CIE XYZ standard itself. Its three primaries are monochromatic single-wavelength lights rather than the broadband primaries of any real display, referenced to an equal-energy white point. It survives today mainly as a historical and pedagogical space — the common ancestor from which nearly every later RGB space descends."
   },
   "cie": {
     "refs": [
@@ -865,7 +865,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIECAM02 color appearance model The CIE 2002 appearance model (predecessor of CAM16, still used in ICC v4 workflows). Reports [J, M, h] under the standard Moroney et al. (2002) viewing conditions: D65 adapting white, La = 318.31 cd/m², Yb = 20, average surround."
+    "description": "CIECAM02 is the color appearance model published by the CIE in 2002, developed to predict how a color will actually look to a human observer under real viewing conditions rather than simply specifying the color stimulus. It passes the physiological cone response through a chromatic-adaptation stage and an opponent-color stage to produce correlates of lightness, colorfulness and hue, along with chroma, saturation and brightness in the full model. Though CAM16 has since superseded it as a simpler, more robust successor, CIECAM02 remains embedded in ICC v4 color-management workflows and is still widely used for gamut mapping and cross-media color reproduction."
   },
   "cineon": {
     "channels": [
@@ -907,7 +907,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "sdr",
-    "description": "Cineon color space Kodak Cineon printing-density log (the classic film-scan/DPX encoding, SMPTE 268M), applied per channel over linear-light RGB. Reference black 95 / white 685 over a 10-bit range; 18% grey encodes to 0.4573. No gamut of its own — a transfer over `lrgb` (linear sRGB)."
+    "description": "Cineon — Kodak's printing-density log encoding from the early 1990s, created for the Cineon film-scanning and digital-intermediate system that first let film labs work with scanned negatives digitally instead of on an optical printer. Its 10-bit log curve maps negative density directly to code values, with reference black and white points chosen to mirror film stock's response. It has no gamut of its own — scanned imagery inherited whatever primaries the film stock and scanner implied — and it survives today mainly through the DPX file format it gave rise to."
   },
   "clog": {
     "channels": [
@@ -951,7 +951,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Canon Log / Cinema Gamut color space Canon Log (the original, v1.2 constants) over Canon's Cinema Gamut (same matrix as `clog2`). Symmetric log about black with the ÷0.9 reflection convention; 18% grey → 0.3434. Per-channel Canon Log to scene-linear, then Cinema Gamut→XYZ(D65)."
+    "description": "Canon Log — Canon's first cinema log gamma, introduced with the EOS C300 in 2011 to extend the dynamic range Cinema EOS cameras could capture ahead of grading. Its curve is symmetric around black, encoding a bit of below-black signal rather than clipping at zero. In this library it pairs with Canon's wide Cinema Gamut primaries, the same matrix shared with the later Canon Log 2 and Canon Log 3 curves."
   },
   "clog2": {
     "channels": [
@@ -995,7 +995,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Canon Log 2 / Cinema Gamut color space Canon Log 2 (v1.2, legal/NCV range) transfer over the Canon Cinema Gamut primaries, reflectance-referred (×0.9, matching the ACES IDT and colour-science out_reflection: 18% gray→Y18, 90% card→Y90, perfect white→Y100). Per-channel Canon Log 2 curve to scene-linear, then Cinema Gamut→XYZ(D65). Canon IT 202007."
+    "description": "Canon Log 2 — Canon's wider-latitude cinema log curve, introduced with the EOS C300 Mark II to capture more of the sensor's dynamic range than the original Canon Log. Its flatter, lower-contrast curve trades a coarser midtone step for extra stops of highlight and shadow information, intended for heavier grading later. It shares the Cinema Gamut primaries with Canon Log and Canon Log 3."
   },
   "clog3": {
     "channels": [
@@ -1039,7 +1039,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Canon Log 3 / Cinema Gamut color space Canon Log 3 (v1.2 constants) over Cinema Gamut (same matrix as `clog2`). A three-piece curve — shadow log, linear midtone, highlight log — with the ÷0.9 reflection convention; 18% grey → 0.3434. Per-channel to scene-linear, then Cinema Gamut→XYZ(D65)."
+    "description": "Canon Log 3 — Canon's balanced cinema log curve, introduced alongside Canon Log 2 on the EOS C300 Mark II. Rather than one log function, it blends a log shadow region, a linear midtone, and a log highlight region into a three-piece curve, aiming for close to Canon Log 2's dynamic range with gentler, easier-to-grade contrast. It shares the Cinema Gamut primaries with Canon Log and Canon Log 2, and has become Canon's most widely used cinema log curve."
   },
   "cmy": {
     "channels": [
@@ -1081,7 +1081,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CMY color space Subtractive color model without black (K) component Used in simpler printing systems"
+    "description": "CMY is the subtractive color model built from cyan, magenta and yellow alone, without CMYK's separate black channel. Each channel represents how much ink is applied to absorb its complementary portion of white light, so mixing all three at full strength approximates black — though in practice impure inks produce a muddy dark brown rather than a true black, which is exactly why CMYK adds a dedicated key channel. CMY remains useful as the direct three-ink subtractive counterpart to RGB, and underlies the arithmetic CMYK is built on."
   },
   "cmyk": {
     "channels": [
@@ -1133,7 +1133,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CMYK color space Subtractive color model used in printing"
+    "description": "CMYK is the subtractive color model used throughout offset and digital printing, built from cyan, magenta and yellow inks plus a separate black channel (K, for \"key\"). Mixing cyan, magenta and yellow absorbs light rather than emitting it, the opposite of how RGB displays add colored light, so in principle their combination alone produces black — but real inks are impure, so a dedicated black channel keeps dark tones neutral, saves ink, and gives text and fine detail a cleaner edge. It remains the standard color model for prepress and printed output across the industry."
   },
   "coloroid": {
     "channels": [
@@ -1175,7 +1175,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Coloroid color space (Nemcsics, MSZ 7300) Aesthetic color system: hue (A), saturation (T), luminosity (V = 10·√Y). Geometry (per Neumann & Nemcsics 2004/2005): V = 10·√Y; hue A is one of 48 grades found by chromaticity angle from white; T is the position along the white→limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup uses each row's angle computed from its own (xλ,yλ); the stored angle column is decorative (it disagrees with the chromaticities). The limit-color table now holds the authoritative Nemcsics (1980) chromaticities (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column shifted by one row. ATV↔xyY round-trips exactly and reproduces the published A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann & Neumann (2004) \"Gamut Clipping and Mapping Based on the Coloroid System\"."
+    "description": "Coloroid — the Hungarian architectural color-order system, developed by Antal Nemcsics at the Budapest University of Technology and standardized as MSZ 7300. Grown from large-scale aesthetic experiments, it arranges hue (A), saturation (T) and luminosity (V) in steps that feel evenly spaced when composing whole environments — its home turf is architecture and urban color planning."
   },
   "cubehelix": {
     "channels": [
@@ -1197,7 +1197,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Cubehelix color space Perceptually uniform single-hue color scheme Designed for scientific visualization Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images"
+    "description": "Cubehelix is a color scheme designed by the astronomer Dave Green in 2011 for displaying astronomical intensity images, where a single continuous scalar value needs a color mapping that stays visually ordered from black to white even when printed in grayscale or viewed by someone with color-vision deficiency. Rather than picking colors freehand, it walks a spiral path — a \"cube helix\" — through RGB space as it rises from black to white, letting perceived brightness increase smoothly and monotonically while hue rotates around it. It is now widely used well beyond its original astronomical purpose, as a colorblind-safe, print-safe alternative to rainbow colormaps in scientific visualization generally."
   },
   "davinci": {
     "channels": [
@@ -1241,7 +1241,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "DaVinci Wide Gamut / DaVinci Intermediate color space Blackmagic's DaVinci Resolve default color-managed working space: the DaVinci Intermediate log curve over DaVinci Wide Gamut primaries (D65). Matrices are the exact values from the Blackmagic whitepaper. 18% grey → 0.3360."
+    "description": "DaVinci Wide Gamut — Blackmagic's own wide color space and log curve, introduced in 2020 with DaVinci Resolve 17 as the default working space for Resolve's color-managed pipeline. Rather than targeting one camera, it's built as a camera-agnostic intermediate that footage from any brand can be converted into and graded consistently, similar in purpose to ACES but native to Resolve. Its DaVinci Intermediate log curve preserves highlight and shadow detail from any source camera ahead of the creative grade."
   },
   "dcdm": {
     "channels": [
@@ -1285,7 +1285,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "DCDM X′Y′Z′ color space The Digital Cinema Distribution Master encoding inside every DCP: gamma-2.6-encoded CIE XYZ, X′ = (X/52.37)^(1/2.6) (SMPTE ST 428-1), with the SMPTE ST 431-1 reference projector white — relative Y=100 ≡ 48 cd/m² — baked in, so D65 white → ≈[0.948, 0.967, 0.976]. Negative XYZ clamps to 0."
+    "description": "DCDM — the Digital Cinema Distribution Master encoding embedded in every DCP (Digital Cinema Package) shipped to theatres, standardized by SMPTE under the DCI digital cinema specification. It encodes CIE XYZ directly through a 2.6 power-law gamma rather than an RGB transfer curve, tying relative white to the DCI reference projector's calibrated brightness. It's a display-referred, deliverable-only format — content is mastered into DCDM as the last step before packaging for theatrical release."
   },
   "dci-p3": {
     "channels": [
@@ -1329,7 +1329,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "DCI-P3 (theatrical) color space Digital-cinema P3: the P3 primaries with the DCI white point (x 0.314, y 0.351) and a pure gamma-2.6 curve (SMPTE RP 431-2). Distinct from display-p3 (repo `p3`, which is D65 + sRGB curve). The DCI→D65 Bradford adaptation is baked into the matrix."
+    "description": "DCI-P3 — the digital cinema standard defined in SMPTE RP 431-2 for theatrical projection and mastering. It shares its wide red-green-blue primaries with Apple's Display P3, but pairs them with the DCI theatrical white point and a pure gamma-2.6 transfer curve rather than the D65 white and sRGB-like curve used in consumer display variants. It remains the reference space for digital film production and distribution."
   },
   "din99d": {
     "channels": [
@@ -1373,7 +1373,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "DIN99d color space Improved DIN99 uniform space (Cui, Luo, Rigg, Roesler & Witt 2002). Unlike din99o, canonical DIN99d applies the redness pre-correction Xc = 1.12·X − 0.12·Z to the D65 tristimulus *before* CIELab (with the corrected white Xcw), then a 50° hue rotation and log compression. It connects via xyz because the correction precedes the Lab step. (colour-science's DIN99d omits the X-correction; the paper form here is the canonical one.)"
+    "description": "DIN99d is a 2002 refinement of the DIN99 uniform color space by Cui, Luo, Rigg, Roesler and Witt, aimed at fixing the original formula's uneven treatment of blue hues. It adds a correction applied to the tristimulus values before the CIELAB step, along with the family's usual hue rotation and logarithmic compression, so Euclidean distance between two DIN99d points tracks perceived difference more evenly across the hue circle than DIN99 or CIELAB manage alone. Like the rest of the DIN99 family, it's used mainly for industrial color-tolerance work where a simple Euclidean metric is preferred over CIE ΔE2000."
   },
   "din99o-lab": {
     "channels": [
@@ -1417,7 +1417,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "DIN99o Lab color space Perceptually uniform variant of CIE Lab, optimized for Euclidean color difference. DIN 6176. Defined relative to CIELab (D65); rgb/xyz are reached by chaining through lab."
+    "description": "DIN99o Lab is a further nonlinear remapping of CIELAB, part of the German DIN 6176 color-difference standard, built so that a simple Euclidean distance between two points approximates perceived color difference far more closely than raw CIELAB does. It compresses Lab's lightness and chroma logarithmically and applies a hue rotation, correcting CIELAB's well-known tendency to overstate differences among highly saturated colors. The DIN99 family is used mainly in industrial color-tolerance work — coatings, plastics and automotive finishes — as a lighter alternative to the more elaborate CIE ΔE2000 formula."
   },
   "din99o-lch": {
     "channels": [
@@ -1461,41 +1461,41 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "DIN99o LCh color space Cylindrical (polar) form of DIN99o Lab. Defined relative to din99o-lab; everything else is reached by chaining through it."
+    "description": "DIN99o LCh is the cylindrical form of DIN99o Lab, the DIN 6176 color-difference space, converting its rectangular axes into chroma and hue for the same reason LCh does for ordinary CIELAB — a more direct handle for adjusting saturation and hue. It keeps DIN99o's central advantage: because the space is built so Euclidean distance already approximates perceived difference, a simple chroma or lightness difference here is a meaningful color-tolerance metric without further correction formulas."
   },
   "dkl": {
     "channels": [
       {
         "symbol": "Ach",
         "min": -100,
-        "max": 100,
+        "max": 0,
         "name": "Achromatic"
       },
       {
         "symbol": "RG",
-        "min": -100,
-        "max": 100,
+        "min": -31,
+        "max": 0,
         "name": "Red-Green"
       },
       {
         "symbol": "YV",
-        "min": -100,
-        "max": 100,
+        "min": 0,
+        "max": 99,
         "name": "Tritan"
       }
     ],
     "range": [
       [
         -100,
-        100
+        0
       ],
       [
-        -100,
-        100
+        -31,
+        0
       ],
       [
-        -100,
-        100
+        0,
+        99
       ]
     ],
     "refs": [
@@ -1505,7 +1505,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "DKL color space (Derrington-Krauskopf-Lennie) The cardinal-axis space of human colour vision (Derrington, Krauskopf & Lennie 1984; Brainard 1996) — the three directions the LGN/early visual system encodes, relative to an adapting white (here D65): an achromatic luminance axis (L+M), an isoluminant red-green axis (L−M), and a tritan blue-yellow axis (S−(L+M)). Built on Smith-Pokorny cones; D65 → origin [0,0,0]. (Un-normalised cardinal form; sources differ on axis scaling — normalise to your stimulus set if needed.)"
+    "description": "DKL — the cardinal-axis space of human color vision, proposed by Derrington, Krauskopf & Lennie in 1984 from recordings of neurons in the macaque lateral geniculate nucleus. Rather than an arbitrary opponent model, its three axes are the actual directions early visual neurons respond along: an achromatic luminance axis, an isoluminant red-green axis, and a tritan blue-yellow axis, all measured relative to an adapting white. It remains a standard framework in vision science for designing stimuli that isolate one cardinal mechanism at a time."
   },
   "dlog": {
     "channels": [
@@ -1549,7 +1549,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "DJI D-Log / D-Gamut color space DJI's D-Log curve (linear toe + log10 highlight) over the D-Gamut primaries (X7/Ronin 4D cinema cameras). Per-channel D-Log to scene-linear, then D-Gamut→XYZ (D65). 18% grey → 0.3988. (D-Log M, the consumer-drone variant, is an unpublished black box and is deliberately NOT included.)"
+    "description": "D-Log — DJI's log curve for its cinema-oriented cameras, including the Zenmuse X7 and Ronin 4D, designed to preserve dynamic range for grading rather than direct viewing. It pairs a linear toe near black with a log10 highlight curve, mapped to the D-Gamut primaries built for those cameras' sensors. It's distinct from D-Log M, the separate curve DJI uses on its consumer drones."
   },
   "dsh": {
     "channels": [
@@ -1594,7 +1594,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE DSH — dominant wavelength / saturation (excitation purity) / hue Helmholtz coordinates of CIE 1931 xy chromaticity: a polar representation where the dominant wavelength is the hue analog (so DSH's \"H\" IS the dominant wavelength `d` — they are the same coordinate) and excitation purity is the saturation analog. The third stored channel is luminance Y, making the transform an invertible wrapped xyY. Negative `d` is a complementary wavelength: non-spectral purples have no dominant wavelength, so the line from white is reversed onto the opposite locus arc. Forward intersects the ray (D65 white -> colour) with the CIE 1931 2° spectral locus (embedded at 5 nm; finer sampling shifts the wavelength by <0.1 nm). Inverse is exact: colour = white + purity·(locus(d) - white)."
+    "description": "CIE DSH — dominant wavelength, saturation (excitation purity) and hue, the classical Helmholtz coordinates for CIE 1931 chromaticity. Rather than the Cartesian x, y pair, a color is located by the spectral wavelength it most resembles and how far it sits from white toward that pure spectral color — a natural way to talk about hue and saturation that predates CIELAB-style opponent spaces. Non-spectral purples, which have no single dominant wavelength, are reported as a negative complementary wavelength instead."
   },
   "erimm": {
     "channels": [
@@ -1638,7 +1638,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ERIMM RGB color space Extended Reference Input Medium Metric RGB (ISO 22028-3): the log-encoded, extended-dynamic-range member of the ROMM/RIMM family — scene exposures from 0.001 to 316.2 (relative to diffuse white 1.0) over the ROMM (ProPhoto) primaries, D50. A transfer over `prophoto-linear`, whose values it extends far past 1. Linear toe below e·0.001. 18% grey → 0.4101."
+    "description": "ERIMM RGB — Kodak's Extended Reference Input Medium Metric RGB, a log-encoded, scene-referred format standardized in ISO 22028-3 as the extended-range member of the ROMM/RIMM family. It shares the wide ROMM (ProPhoto) primaries and D50 white point with ProPhoto RGB, but its logarithmic curve lets it hold a much larger range of scene exposures — well beyond diffuse white — than a linear or gamma-encoded format could, making it suited to archiving raw, high-dynamic-range scene data."
   },
   "filmicpro": {
     "channels": [
@@ -1680,7 +1680,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Filmic Pro 6 Log color space The Filmic Pro v6 iOS log curve — y = 0.371(√t + 0.28257·ln t + 1.69542), a mixed square-root/log law with y(1) = 1 by construction. No closed-form inverse: decoding runs a Newton solve (colour-science interpolates a LUT). Linear input clamps at the value encoding to 0, keeping black finite. No published gamut — a transfer over `lrgb`. 18% grey → 0.6066."
+    "description": "Filmic Pro 6 Log — the log curve from Filmic Pro, a third-party iOS cinema camera app that gave iPhone footage a flat, grading-ready image years before Apple Log existed natively. Its curve blends a square-root term and a natural-log term into one mixed law, built so a full-scale input maps back to a full-scale output. Like the smartphone-maker log formats that followed it, it has no published native color gamut and is treated as a curve over linear RGB."
   },
   "flog": {
     "channels": [
@@ -1724,7 +1724,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Fujifilm F-Log / F-Gamut color space Fujifilm's F-Log curve (linear toe + log highlight) over F-Gamut, whose primaries are exactly ITU-R BT.2020 — so this is a transfer over the existing `rec2020-linear`. 18% grey → 0.4593."
+    "description": "F-Log — Fujifilm's log curve, introduced with the X-H1 in 2018 and later brought to the X-T2 and other X-series and GFX cameras by firmware update. It combines a linear toe in the shadows with a logarithmic highlight rolloff to extend recordable dynamic range ahead of grading. It's defined over F-Gamut, Fujifilm's color space whose primaries match ITU-R BT.2020, and remains the standard flat profile on Fujifilm bodies that lack the newer, wider-range F-Log2."
   },
   "flog2": {
     "channels": [
@@ -1768,7 +1768,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Fujifilm F-Log2 / F-Gamut color space F-Log2 (~14 stops, a shallower log than F-Log) over F-Gamut = ITU-R BT.2020 primaries, so a transfer over `rec2020-linear`. 18% grey → 0.3910."
+    "description": "F-Log2 — Fujifilm's second-generation log curve, introduced on the X-H2S to capture roughly 14 stops of dynamic range, more than the original F-Log. Its curve is shallower than F-Log's, spreading those extra stops across the code-value range at the cost of needing more careful grading. It shares the F-Gamut primaries, matching ITU-R BT.2020, with F-Log."
   },
   "gray": {
     "channels": [
@@ -1790,7 +1790,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Gray (relative luminance) Single-channel achromatic value = CIE relative luminance Y (the Y of XYZ): the sRGB luminance coefficients applied to LINEAR sRGB (not gamma-encoded — that would be luma Y′). Identical to the Y row of the sRGB→XYZ matrix, so gray(rgb) === XYZ(rgb).Y / 100."
+    "description": "Gray — a single-channel relative luminance value, the Y of CIE XYZ, computed from linear-light RGB rather than gamma-encoded values. That distinction matters: true luminance (Y) measures physical light output, while the \"luma\" (Y′) computed from gamma-encoded RGB — common in video engineering — only approximates it. Relative luminance is the quantity behind contrast-ratio calculations such as the WCAG accessibility guidelines."
   },
   "hcg": {
     "channels": [
@@ -1832,7 +1832,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HCG color space (Hue, Chroma, Gray) Alternative cylindrical RGB representation Uses gray component instead of value or lightness"
+    "description": "HCG — Hue, Chroma, Gray, a cylindrical RGB model that separates a color into its pure hue, the chroma (colorfulness) mixed into it, and the amount of gray added to dilute it. Unlike HSL or HSV, chroma here is an absolute measure of colorfulness rather than one relative to lightness or value, making it a natural fit for additive hue-and-gray color mixing."
   },
   "hcl": {
     "channels": [
@@ -1874,7 +1874,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HCL Color Space http://www.chilliant.com/rgb2hsv.html https://en.wikipedia.org/wiki/HCL_color_space Note: This is the cylindrical representation from the Chilliant implementation, not to be confused with CIE LCh (which is also sometimes called HCL)."
+    "description": "HCL — a cylindrical Hue, Chroma, Luminance color space from the Chilliant rgb2hsv reference implementation. Hue and chroma behave much like other cylindrical RGB models, but luminance is computed with a gamma-weighted formula designed to track perceived brightness more closely than plain lightness or value. It is unrelated to CIE LCh, which is also sometimes called \"HCL\" but uses entirely different math — the two should not be confused."
   },
   "hct": {
     "channels": [
@@ -1916,7 +1916,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HCT color space (Hue, Chroma, Tone) Material Design's color system based on CAM16 Uses tone (perceptual lightness) instead of lightness"
+    "description": "HCT — hue, chroma, tone — is Google's color space for Material Design 3, introduced in 2021 to power Android's Material You dynamic theming. It pairs the hue and chroma of CAM16, a full color-appearance model that accounts for viewing conditions, with tone: CIELAB's L* lightness, chosen because contrast and accessibility formulas already depend on it. That combination lets a design system derive a complete tonal palette from a single seed color while keeping predictable contrast between any two tones."
   },
   "hcy": {
     "channels": [
@@ -1958,7 +1958,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HCY color space (Hue, Chroma, Luma) Luma-based cylindrical model for shader programming (Kuzma Shapran / Chilliant). Unlike HSI/HSL, the Y channel is the color's actual Rec.601 luma, and chroma is normalized against the luma the hue can carry — so equal Y means equal brightness. http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html"
+    "description": "HCY — Hue, Chroma, Luma, a cylindrical color model devised by Kuzma Shapran and popularized by Chilliant for real-time shader use. Unlike HSI or HSL, its Y channel is the color's actual Rec. 601 luma rather than an average or extremum of the RGB channels, and chroma is normalized against the maximum luma the current hue can carry. The result is that two colors with equal Y always read as equally bright, a property neither HSL nor HSV guarantees."
   },
   "hdr-cie-lab": {
     "channels": [
@@ -2002,7 +2002,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "hdr-CIELAB color space Fairchild & Wyble (2010/2011) HDR extension of CIELAB: the L* cube root is replaced by a Michaelis-Menten lightness adapting to scene luminance, applied to X/Xn, Y/Yn, Z/Zn. Baked to the standard surround Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4738510. D65."
+    "description": "hdr-CIELAB — Fairchild & Wyble's 2010/2011 extension of CIELAB to high-dynamic-range imagery. CIELAB's cube-root lightness response was fit to ordinary display luminance and breaks down across HDR's wider range, so hdr-CIELAB substitutes a Michaelis-Menten response whose exponent adapts to scene luminance, in the spirit of human visual adaptation. It keeps CIELAB's familiar L*, a* and b* lightness and red-green/yellow-blue structure while extending it to HDR content."
   },
   "hdr-ipt": {
     "channels": [
@@ -2046,7 +2046,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "hdr-IPT color space Fairchild & Wyble (2010/2011) HDR extension of IPT: the same IPT cone matrices, but the fixed 0.43 power is replaced by a Michaelis-Menten lightness whose exponent adapts to scene luminance. Baked to the standard surround Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4820209."
+    "description": "hdr-IPT — Fairchild & Wyble's 2010/2011 extension of IPT to high-dynamic-range imagery. IPT's fixed power-law lightness response only holds over a narrow luminance range, so hdr-IPT replaces it with a Michaelis-Menten response whose exponent adapts to the scene's own luminance, echoing how the eye itself adapts. It keeps IPT's I/P/T lightness, red-green and yellow-blue structure while extending its hue-linear behavior across HDR's much larger dynamic range."
   },
   "hellwig2022": {
     "channels": [
@@ -2090,7 +2090,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Hellwig & Fairchild 2022 color appearance model The CIE-recommended successor to CAM16 (basis of CIECAM16 / CIE 248:2022). Reuses CAM16's CAT16 adaptation, opponent dimensions and lightness correlate, but replaces the achromatic response (2R+G+0.05B−0.305, no n_bb) and linearises brightness (Q = (2/c)(J/100)A_w). Output is (J, M, h) under CAM16's \"average\" viewing conditions (D65 white, L_A = 64/π·0.2, Y_b = 20)."
+    "description": "The Hellwig-Fairchild model, published in 2022, is the CIE-recommended refinement of CAM16 and the mathematical basis of CIECAM16 (CIE 248:2022). It keeps CAM16's chromatic-adaptation transform, opponent-color dimensions, and lightness correlate largely intact, but revises the achromatic response and brightness equations for more consistent behavior across the model's full range. Like CAM16 it reports lightness, colorfulness, and hue as its core correlates, making it a close drop-in successor wherever a CIE-endorsed appearance model is called for."
   },
   "hpluv": {
     "channels": [
@@ -2135,7 +2135,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HPLuv color space Pastel variant of HSLuv: the chroma is bounded by the LARGEST circle that fits inside the sRGB gamut at each lightness (so every hue stays in gamut), at the cost of S exceeding 100 for vivid colours. L and H pass through to LCHuv; only S↔C differs. Reuses the library's `lchuv` chain and HSLuv's gamut-bound math."
+    "description": "HPLuv is the pastel counterpart to HSLuv, from the same project by Alexei Boronine. Instead of fitting saturation to the sRGB gamut boundary at each individual hue, it uses the single largest circle that fits inside the gamut at a given lightness, so every hue stays reachable across the full saturation range — at the cost of never reaching fully vivid colors, since S=100 only means as saturated as the least colorful hue at that lightness allows. Lightness and hue pass through unchanged from LCHuv, just as in HSLuv; only the chroma mapping differs."
   },
   "hsi": {
     "channels": [
@@ -2177,7 +2177,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSI color space (Hue, Saturation, Intensity) Cylindrical representation with intensity (average of RGB) Derived from RGB for image processing"
+    "description": "HSI — Hue, Saturation, Intensity, a cylindrical color model popular in image processing and computer vision. Intensity is simply the average of the red, green and blue channels, which decouples brightness from color information more cleanly than HSV or HSL for tasks like segmentation and feature extraction, at the cost of a more involved saturation calculation than its cousins."
   },
   "hsl": {
     "channels": [
@@ -2219,7 +2219,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSL color space (Hue, Saturation, Lightness) Cylindrical representation of RGB with perceptual intent"
+    "description": "HSL — Hue, Saturation, Lightness, a cylindrical remapping of RGB devised by Alvy Ray Smith in 1978. Hue is the angle around a color wheel, saturation measures colorfulness relative to gray at that lightness, and lightness runs from black through the pure hue up to white. It offers a far more intuitive way to pick and adjust colors than raw RGB, and underlies the `hsl()` notation in CSS and countless color-picker interfaces."
   },
   "hsluv": {
     "channels": [
@@ -2264,7 +2264,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSLuv color space Human-friendly cylindrical form of CIELUV (LCHuv) — the chroma is rescaled so S=100 is the sRGB gamut boundary at each (L, H). L and H pass straight through to LCHuv; only S↔C differs. Reuses the library's `lchuv` (→ luv → xyz → rgb) and XYZ→linear-sRGB matrix; only the gamut-boundary math lives here."
+    "description": "HSLuv is Alexei Boronine's human-friendly cylindrical form of CIELUV, built to fix a longstanding frustration with HSL: at full saturation, different hues reach wildly different actual vividness, so pure yellow at S=100 looks nothing like pure blue at S=100. HSLuv rescales chroma per hue and lightness so that S=100 always lands exactly on the sRGB gamut boundary, giving a saturation slider that behaves consistently across every hue. Lightness and hue pass through unchanged from LCHuv, and the result is popular in design tools and palette generators that want HSL's familiar interface without its uneven color behavior."
   },
   "hsm": {
     "channels": [
@@ -2306,7 +2306,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSM color space (Hue, Saturation, Mixture) Bianconi et al. (2009), \"A New Color Space for Skin Color Detection\", Revista de Informática Teórica e Aplicada 16(2). Mixture M is the luminance- weighted mean (4R+2G+B)/7; saturation is the chromatic distance normalised by D(M), the maximum reachable chromatic distance at that mixture."
+    "description": "HSM — Hue, Saturation, Mixture, developed by Bianconi et al. (2009) for robust skin-color detection in image processing. Mixture is a luminance-weighted average of the red, green and blue channels standing in for brightness, while saturation measures how far a color sits from that gray mixture relative to the farthest a color at the same mixture level can reach, keeping saturation properly bounded across the whole range of mixture values."
   },
   "hsp": {
     "channels": [
@@ -2348,7 +2348,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSP color space (Hue, Saturation, Perceived brightness) Uses perceived brightness weighted by human eye sensitivity Useful for perceptually uniform color operations"
+    "description": "HSP — Hue, Saturation, Perceived brightness, a cylindrical color model designed to fix a known flaw in HSL and HSV, where lightness and value don't match how bright colors actually look to the human eye. Perceived brightness is instead computed from a weighted mix of the red, green and blue channels that reflects the eye's differing sensitivity to each, so two colors with the same P value look equally bright regardless of hue."
   },
   "hsv": {
     "channels": [
@@ -2390,7 +2390,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HSV color space (Hue, Saturation, Value) Cylindrical representation of RGB maximizing perceived saturation"
+    "description": "HSV — Hue, Saturation, Value (also called HSB, for Brightness), another cylindrical remapping of RGB from Alvy Ray Smith's 1978 paper. It shares HSL's hue angle but replaces lightness with value, the brightness of the most intense color channel, so pure hues stay fully saturated across the whole brightness range instead of washing out toward white. It is the model behind most color-picker \"wheel plus square\" interfaces."
   },
   "hwb": {
     "channels": [
@@ -2432,7 +2432,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "HWB color space (Hue, Whiteness, Blackness) Cylindrical representation using whiteness and blackness"
+    "description": "HWB — Hue, Whiteness, Blackness, devised by Alvy Ray Smith in 1996 as an even more intuitive alternative to HSV for humans mixing colors by hand. Instead of saturation and value, it describes a color as a pure hue diluted with some amount of white and some amount of black, mirroring how painters think about tinting and shading a pigment. It is standardized in CSS Color 4 as the `hwb()` notation."
   },
   "icacb": {
     "channels": [
@@ -2476,7 +2476,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "ICaCb color space Fröhlich (2017) HDR opponent space: an ICtCp-style encoding tuned for JND uniformity and hue linearity, using a different XYZ→LMS matrix and a PQ (ST 2084) non-linearity before the opponent mix. I = intensity, Ca/Cb = chroma."
+    "description": "ICaCb — an HDR opponent space designed by Fröhlich in 2017, built in the same mold as ICtCp but re-optimized for just-noticeable-difference uniformity and straighter hue lines. XYZ passes through a dedicated cone matrix and the PQ (ST 2084) non-linearity before the opponent mix, giving I as intensity and Ca/Cb as red-green and yellow-blue chroma."
   },
   "ictcp": {
     "channels": [
@@ -2518,7 +2518,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "hdr",
-    "description": "ICtCp color space HDR perceptual color space for ITU-R BT.2100 Based on PQ transfer function for HDR video"
+    "description": "ICtCp — Dolby's HDR opponent space, standardized in ITU-R BT.2100 for HDR television. Intensity rides the PQ curve while Ct and Cp carry blue-yellow and red-green chroma, keeping hue stable under big luminance changes — the space HDR colorists grade in and the basis of the ΔE-ITP difference metric."
   },
   "igpgtg": {
     "channels": [
@@ -2562,7 +2562,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "IgPgTg color space (Hensley & Fairchild 2020) An IPT-structured uniform space fitted with an independent gamut-relative LMS normalisation: XYZ → bespoke LMS, per-cone scaling [18.36, 21.46, 19435] and a 0.427 power, then an opponent matrix to Ig (intensity) / Pg (protan) / Tg (tritan). Competitive hue uniformity with CAM16-UCS at a fraction of the math."
+    "description": "IgPgTg is a color space proposed by Hensley and Fairchild in 2020 as a lighter-weight alternative to CAM16-UCS for hue-uniform color-difference work. Structurally it follows IPT, deriving a lightness signal from LMS cone responses and pairing it with two opponent channels — named Ig, Pg and Tg for intensity, protan and tritan, after the color-vision deficiencies their axes roughly align with. The authors report hue uniformity competitive with CAM16-UCS at a fraction of the computational cost."
   },
   "ipt": {
     "channels": [
@@ -2606,7 +2606,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "IPT color space Ebner & Fairchild (1998) opponent space with near-constant hue lines — the structural ancestor of ICtCp. XYZ(D65)→LMS (M1), signed power 0.43, then LMS′→IPT (M2). I = lightness, P = red-green, T = yellow-blue."
+    "description": "IPT — an opponent color space built by Ebner & Fairchild in 1998 specifically so lines of constant hue stay straight under changes in saturation and lightness, a property CIELAB lacks. I, P and T stand for lightness, red-green and yellow-blue, derived from a cone-response power law followed by an opponent recombination. Its hue-linear design made it the structural ancestor of Dolby's ICtCp, and it remains a common choice for gamut mapping and image-difference work."
   },
   "izazbz": {
     "channels": [
@@ -2618,14 +2618,14 @@ export default {
       },
       {
         "symbol": "az",
-        "min": -0.1,
-        "max": 0.1,
+        "min": -0.5,
+        "max": 0.5,
         "name": "Red-Green"
       },
       {
         "symbol": "bz",
-        "min": -0.1,
-        "max": 0.1,
+        "min": -0.5,
+        "max": 0.5,
         "name": "Yellow-Blue"
       }
     ],
@@ -2635,12 +2635,12 @@ export default {
         1
       ],
       [
-        -0.1,
-        0.1
+        -0.5,
+        0.5
       ],
       [
-        -0.1,
-        0.1
+        -0.5,
+        0.5
       ]
     ],
     "refs": [
@@ -2650,7 +2650,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "Izazbz color space The perceptual opponent stage Safdar et al. (2017) built Jzazbz on — PQ-encoded LMS through the Iz/az/bz mix, *before* Jzazbz's hyperbolic lightness compression (az/bz are identical to `jzazbz`; only the achromatic Iz differs, being the raw pre-compression response). The structural ancestor of ZCAM. Input is XYZ in domain 1 (library 0-100 ÷ 100)."
+    "description": "IzAzBz — the opponent-color stage inside Safdar et al.'s 2017 derivation of Jzazbz, taken before the final hyperbolic lightness compression that turns Iz into Jz. Iz is the raw, uncompressed achromatic response from the PQ-encoded LMS signal, while az and bz carry the same red-green and yellow-blue chroma as Jzazbz. It went on to become the structural foundation of the ZCAM color appearance model."
   },
   "jpeg": {
     "channels": [
@@ -2692,7 +2692,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion JPEG conversion without head/footroom"
+    "description": "The full-range YCbCr color space defined for JPEG still-image compression (ITU-T T.871 / JFIF), also called PC-range or full-swing YCbCr. Unlike broadcast YCbCr — which reserves the extremes of its 8-bit range as headroom and footroom for analog signal overshoot — JPEG YCbCr uses the full 0-255 range on all three channels, matching how still images are stored and displayed on computers. Y carries luma while Cb and Cr are blue-difference and red-difference chroma, using the same BT.601-derived coefficients as standard-definition video."
   },
   "jzazbz": {
     "channels": [
@@ -2734,7 +2734,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "hdr",
-    "description": "JzAzBz color space High dynamic range color space based on PQ (Perceptual Quantizer) Used for HDR content and next-generation color imaging"
+    "description": "JzAzBz — a perceptually uniform color space for high-dynamic-range imagery, published by Safdar et al. in 2017. It was designed so small lightness and color differences stay perceptually uniform across HDR's much wider luminance and gamut range, where CIELAB's uniformity breaks down. Jz is a PQ-encoded lightness, while az and bz are opponent red-green and yellow-blue axes; together they underlie HDR color-difference metrics and feed the cylindrical JzCzHz."
   },
   "jzczhz": {
     "channels": [
@@ -2747,7 +2747,7 @@ export default {
       {
         "symbol": "Cz",
         "min": 0,
-        "max": 0.5,
+        "max": 1,
         "name": "Chroma"
       },
       {
@@ -2764,7 +2764,7 @@ export default {
       ],
       [
         0,
-        0.5
+        1
       ],
       [
         0,
@@ -2776,7 +2776,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "hdr",
-    "description": "JzCzHz color space Cylindrical variant of JzAzBz for HDR Uses chroma and hue instead of rectangular coordinates"
+    "description": "JzCzHz — the cylindrical form of JzAzBz, trading the az/bz opponent axes for polar chroma (Cz) and hue (Hz). It shares JzAzBz's 2017 Safdar et al. foundation for HDR perceptual uniformity, but makes hue and saturation directly readable, which suits gamut mapping and color grading. It's one of the HDR color spaces proposed in the CSS Color HDR module."
   },
   "kelvin": {
     "channels": [
@@ -2801,7 +2801,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Kelvin (correlated color temperature) color space Maps a colour temperature in kelvin to/from a point on the Planckian (black-body) locus — \"2700 K warm candle … 6500 K cool daylight\", the white-balance axis. CCT→xy uses Krystek's (1985) rational approximation of the locus; xy→CCT uses McCamy's (1992) cubic. A 1-channel space (like `gray`); the inverse returns the nearest CCT, so it round-trips on the locus but is lossy for off-locus colours."
+    "description": "Kelvin — correlated color temperature (CCT), the familiar scale for describing a light source's warmth or coolness by comparing it to an ideal black-body radiator: roughly 2700 K for a warm incandescent candle-like glow, up to 6500 K and beyond for cool daylight. It's the white-balance axis used throughout photography, lighting design and display calibration, mapping a single temperature value to a point on the Planckian locus."
   },
   "lab-d65": {
     "channels": [
@@ -2845,7 +2845,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE Lab color space (1976), D65 reference white Display-native CIELAB: the reference white is D65, matching sRGB / Rec.709 / Display P3, so converting display RGB needs no chromatic adaptation. The default `lab` uses D50 (the ICC / CSS Color 4 convention); use this when you want Lab anchored to the display white instead."
+    "description": "Lab-D65 is CIELAB — the CIE's 1976 perceptual space — reanchored to the D65 white point instead of the standard's usual D50, so it lines up directly with sRGB, Rec. 709 and Display P3. Keeping Lab and the display on the same white point avoids an extra chromatic-adaptation step when converting to and from RGB, which matters for work that stays entirely within a D65 display's color world rather than crossing into device-independent interchange. Its structure is otherwise identical to standard CIELAB: perceptually even lightness paired with red-green and yellow-blue opponent axes."
   },
   "lab": {
     "channels": [
@@ -2889,7 +2889,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE Lab color space (1976) Perceptual color space with approximately uniform lightness. Reference white is D50 — the ICC color-management (PCS) and CSS Color 4 convention for Lab, and the conventional default for Lab as a device-independent interchange space. For a display-native D65 Lab, use `lab-d65`."
+    "description": "CIELAB is the CIE's 1976 perceptual color space, the first widely adopted attempt to make Euclidean distance between coordinates track perceived color difference. It splits color into lightness and two opponent axes — red versus green and yellow versus blue — echoing how the visual system encodes color beyond the retina. Color-managed workflows conventionally anchor Lab to the D50 illuminant, which is why it serves as the ICC profile connection space and the reference form of CSS Color 4's lab() function, rather than tying it to any particular display's white point."
   },
   "labh": {
     "channels": [
@@ -2931,41 +2931,41 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Lab Hunter color space Alternative Lab definition by Richard Hunter Optimized for reflectance, less uniform than CIE Lab"
+    "description": "Hunter Lab is Richard Hunter's 1948 opponent-color space, developed years before CIELAB as one of the first practical attempts at a perceptually meaningful, roughly uniform coordinate system for measuring surface color. Like Lab it separates lightness from a red-green and a yellow-blue axis, but reaches them through a simpler transform tied to Hunter's own reflectance instruments rather than CIELAB's cube root. It's less perceptually uniform than CIELAB, but its head start left it entrenched in industrial color-quality work — paints, plastics, textiles and food — where legacy specifications still report in Hunter Lab units."
   },
   "lalphabeta": {
     "channels": [
       {
         "symbol": "l",
-        "min": -10.4,
+        "min": -6,
         "max": 0,
         "name": "log-luminance"
       },
       {
         "symbol": "alpha",
-        "min": -3,
-        "max": 3,
+        "min": -1,
+        "max": 0.9,
         "name": "Yellow-Blue"
       },
       {
         "symbol": "beta",
-        "min": -3,
-        "max": 3,
+        "min": -0.21,
+        "max": 0.21,
         "name": "Red-Green"
       }
     ],
     "range": [
       [
-        -10.4,
+        -6,
         0
       ],
       [
-        -3,
-        3
+        -1,
+        0.9
       ],
       [
-        -3,
-        3
+        -0.21,
+        0.21
       ]
     ],
     "refs": [
@@ -2975,7 +2975,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "lαβ color space (Ruderman 1998) The decorrelated log-cone space behind classic colour transfer (Reinhard et al. 2001): device RGB → LMS cones (paper eq. 4), log10, then the orthogonal l (achromatic) / α (yellow-blue) / β (red-green) rotation (eq. 6). Statistics of natural scenes are nearly independent across these axes, so moving means/variances per axis transfers one image's colour mood onto another. Inverses use the exact matrix inversions (the paper prints rounded ones); LMS is floored at 1e-6 so black stays finite."
+    "description": "The lαβ color space was introduced by Ruderman, Cronin and Chiao in 1998 to decorrelate natural-scene color statistics, and became widely known as the working space behind Reinhard et al.'s 2001 color-transfer technique. It converts RGB into LMS cone responses, takes their logarithm to compress the eye's wide dynamic range the way the visual system itself does, and then rotates the result into three near-uncorrelated axes: l for achromatic lightness, α for the yellow-blue axis, and β for the red-green axis. Because natural images tend to vary almost independently along these three axes, shifting one image's per-channel mean and spread to match another's — entirely in lαβ — transfers the color mood of one photograph onto another with minimal cross-channel artifacts."
   },
   "lch-d65": {
     "channels": [
@@ -3019,7 +3019,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "LCh (D65) color space Cylindrical (polar) form of lab-d65 — intuitive hue/chroma with the D65 white point. For the CSS/ICC D50 LCh, use `lchab`."
+    "description": "LCh-D65 is the cylindrical form of Lab-D65 — CIELAB reanchored to the D65 white point — converting its rectangular axes into chroma and hue while keeping that display-matching white point. It gives the same intuitive saturation-and-hue handles as standard LCh, but without the chromatic-adaptation step a D50-anchored Lab would need when working directly with display colors."
   },
   "lchab": {
     "channels": [
@@ -3063,7 +3063,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "LCh(ab) color space Cylindrical LAB with lightness, chroma, and hue More intuitive than rectangular Lab coordinates"
+    "description": "LCh(ab) is the cylindrical form of CIELAB, the CIE's 1976 perceptual space, converting its rectangular a/b axes into chroma and hue so color can be adjusted the way people actually think about it — how saturated, and what hue — rather than as red-green and yellow-blue offsets. Lightness carries over unchanged from Lab, so the two share the same perceptual uniformity; only the color-axis representation differs. It underlies CSS Color 4's lch() function and is a common choice for building perceptually even saturation or hue controls."
   },
   "lchuv": {
     "channels": [
@@ -3076,7 +3076,7 @@ export default {
       {
         "symbol": "C",
         "min": 0,
-        "max": 150,
+        "max": 220,
         "name": "Chroma"
       },
       {
@@ -3093,7 +3093,7 @@ export default {
       ],
       [
         0,
-        150
+        220
       ],
       [
         0,
@@ -3107,7 +3107,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "LCh(uv) color space Cylindrical CIE LUV with lightness, chroma, and hue"
+    "description": "LCh(uv) is the cylindrical form of CIELUV, the CIE's 1976 companion to CIELAB, converting its rectangular u/v axes into chroma and hue much as LCh(ab) does for Lab. It inherits LUV's defining additivity — mixtures of lights move predictably through the space — while giving a more intuitive saturation-and-hue handle for adjusting or comparing colors. It's also the basis for HSLuv and HPLuv, which rescale its chroma to fit the sRGB gamut."
   },
   "llog": {
     "channels": [
@@ -3151,7 +3151,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Leica L-Log color space Leica's L-Log (SL2-S onward): linear toe below 0.006 then c·log10(d·x+e)+f, recorded in a BT.2020 container per the L-Log reference manual — so a transfer over `rec2020-linear`, like `nlog`. 18% grey → 0.4353."
+    "description": "L-Log — Leica's log curve, introduced with the SL2-S and later brought to the SL and SL2 by firmware update, for grading on Leica's video-capable mirrorless cameras. Its curve opens with a short linear toe in deep shadow before switching to a logarithmic response, preserving highlight and shadow detail the way other manufacturers' log curves do. It's recorded in a BT.2020 color container, the same gamut Nikon's N-Log uses."
   },
   "lms": {
     "channels": [
@@ -3193,7 +3193,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "LMS color space Responsivity of cones in human eye Used for chromatic adaptation transformations"
+    "description": "LMS — the cone-response space of human vision, where L, M and S are the long-, medium- and short-wavelength-sensitive cones of the retina. Describing color the way the eye's own photoreceptors respond makes LMS the natural space for chromatic adaptation: predicting how a color must shift to look unchanged under a different light source. Several competing cone-fundamental and adaptation matrices are in use — von Kries, Bradford, CAT02, CAT16 among them — each modeling that adaptation differently."
   },
   "log3g10": {
     "channels": [
@@ -3237,7 +3237,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "RED Log3G10 / REDWideGamutRGB color space RED's Log3G10 (v3) transfer over the REDWideGamutRGB primaries. Per-channel Log3G10 curve to scene-linear, then RWG→XYZ(D65). RED whitepaper 915-0187 Rev-C."
+    "description": "Log3G10 — RED Digital Cinema's current log curve, introduced in 2017 alongside the REDWideGamutRGB primaries as part of RED's IPP2 image-processing pipeline. It maps the camera's very wide sensor dynamic range logarithmically so highlights and shadows both retain grading latitude, and it's the default acquisition space across RED's modern Komodo, V-Raptor, and Monstro/Helium-sensor cameras."
   },
   "log3g12": {
     "channels": [
@@ -3281,7 +3281,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "RED Log3G12 / REDWideGamutRGB color space RED's Log3G12 — Log3G10's predecessor with 12 stops above 18% grey (grey → exactly 1/3) — over the same REDWideGamutRGB primaries as `log3g10`. Sign-symmetric, so negative scene values encode continuously."
+    "description": "Log3G12 — an earlier RED Digital Cinema log curve, predating Log3G10 but sharing the same REDWideGamutRGB primaries. It allocates 12 stops of range above middle grey rather than Log3G10's 10, and its curve is sign-symmetric, encoding negative scene-linear values continuously instead of clipping them. RED has since moved to Log3G10 as its recommended acquisition curve."
   },
   "logc3": {
     "channels": [
@@ -3325,7 +3325,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ARRI LogC3 / ALEXA Wide Gamut 3 color space ARRI's LogC3 curve (EI 800, SUP 3.x, Linear Scene Exposure Factor) over the ALEXA Wide Gamut 3 primaries — the dominant cinema camera space before LogC4. Per-channel LogC3 to scene-linear, then AWG3→XYZ(D65). 18% grey → 0.3910."
+    "description": "LogC3 — ARRI's third-generation logarithmic encoding, used across the ALEXA camera line for years before LogC4 arrived with the ALEXA 35. Referenced to EI 800, it compresses the sensor's scene-linear exposure into a curve that preserves shadow detail and highlight headroom for grading, paired with the ALEXA Wide Gamut 3 primaries. It was the dominant scene-referred camera space in digital cinema production for over a decade and remains widely supported in post pipelines today."
   },
   "logc4": {
     "channels": [
@@ -3369,7 +3369,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ARRI LogC4 color space ARRI's 2023 log encoding (EI-independent) over the ARRI Wide Gamut 4 (AWG4) primaries. Per-channel LogC4 curve to scene-linear, then the AWG4→XYZ(D65) matrix. ARRI LogC4 Specification (2025-01-23)."
+    "description": "LogC4 — ARRI's fourth-generation logarithmic encoding, introduced with the ALEXA 35 in 2022. It compresses the sensor's 17 stops into a curve that keeps grading response uniform from deep shadow to specular highlight, paired with the ARRI Wide Gamut 4 primaries — the current standard for ARRI cinema workflows."
   },
   "lrgb": {
     "channels": [
@@ -3411,7 +3411,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Linear RGB color space RGB without gamma correction, useful for color math"
+    "description": "Linear-light sRGB — the same D65 white point and primaries as sRGB, but with the gamma-like transfer curve removed so that channel values sit directly proportional to light intensity. It is not a space displays use directly; instead it is the physically meaningful intermediate for color math such as mixing, blending and colorimetric conversions, where operating on gamma-encoded values would give wrong results."
   },
   "luv": {
     "channels": [
@@ -3423,14 +3423,14 @@ export default {
       },
       {
         "symbol": "U",
-        "min": -100,
-        "max": 100,
+        "min": -215,
+        "max": 215,
         "name": "U chrominance"
       },
       {
         "symbol": "V",
-        "min": -100,
-        "max": 100,
+        "min": -215,
+        "max": 215,
         "name": "V chrominance"
       }
     ],
@@ -3440,12 +3440,12 @@ export default {
         100
       ],
       [
-        -100,
-        100
+        -215,
+        215
       ],
       [
-        -100,
-        100
+        -215,
+        215
       ]
     ],
     "refs": [
@@ -3455,7 +3455,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE LUV color space (C'est la vie) Cylindrical variant: LChuv Perceptually more uniform than XYZ"
+    "description": "CIE L*u*v* (CIELUV) is the CIE's 1976 companion to CIELAB, an alternative attempt at perceptual uniformity built from a projected version of the CIE chromaticity diagram rather than Lab's opponent differencing. Its defining property is additivity: the position of a mixture of two lights falls on the straight line between the two lights' own coordinates, something Lab cannot do. That has made LUV the traditional choice for additive-color contexts like displays and stage lighting, while Lab remains dominant for reflective and print color."
   },
   "macboyn": {
     "channels": [
@@ -3499,7 +3499,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "MacLeod-Boynton ls chromaticity color space The cone-excitation chromaticity diagram of vision science (MacLeod & Boynton 1979): a constant-luminance plane where l = L/(L+M) and s = S/(L+M) on the Smith-Pokorny (1975) cone fundamentals, scaled so L+M = Y (luminance). The foundation of the DKL cardinal-axis space and of chromatic-discrimination work. Stored with the MB luminance (L+M ≈ Y) as a third channel for invertibility."
+    "description": "MacLeod-Boynton (MB) chromaticity — the cone-excitation diagram MacLeod & Boynton introduced in 1979, plotting color as relative long- and short-wavelength cone excitation on a constant-luminance plane. Isolating chromaticity at the level of the cones themselves, rather than at the tristimulus values a display uses, made it the foundation of the DKL cardinal-axis space and a staple of chromatic-discrimination research in vision science."
   },
   "milog": {
     "channels": [
@@ -3543,7 +3543,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Xiaomi Mi-Log color space Xiaomi's Mi-Log profile (14/15 Ultra) — the Apple Log curve shape (quadratic toe, log2 body) with Xiaomi's constants — recorded in a BT.2020 container, so a transfer over `rec2020-linear` like `applelog`. 18% grey → 0.4535."
+    "description": "Mi-Log — Xiaomi's log profile for the 14 Ultra and 15 Ultra smartphones, giving their cameras a flatter image with more grading latitude than the phones' standard color modes. Its curve follows the same quadratic-toe-plus-log2 shape as Apple Log, tuned with Xiaomi's own constants, and is recorded in a BT.2020 color container like other smartphone log formats."
   },
   "munsell": {
     "channels": [
@@ -3588,7 +3588,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Munsell renotation color space Artist colour system: Hue (0-100 ASTM circle), Value (0-10 lightness), Chroma (0,2,4,... saturation). Notation like \"5R 5/10\" = hue 5R, value 5, chroma 10. Bidirectional via the Newhall-Nickerson-Judd 1943 renotation (RIT MCSL \"real\" dataset, 2734 colours within the MacAdam limits), embedded packed below. Forward is exact at grid points + trilinear (H,V,C); inverse is iterative (coarse grid search + 2D Newton), round-tripping xy to ~1e-10. Hue numbering (ASTM 0-100): 10RP=0/100, 2.5R=2.5, 5R=5, 10R=10, 5YR=15, ..., advancing R->YR->Y->GY->G->BG->B->PB->P->RP. Achromatic (Munsell \"N\") is chroma 0. CAUTION — illuminant: the renotation is defined for CIE Illuminant C / 2° observer, so munsell<->xyy is Illuminant-C-referenced (matching colour-science). Chaining on to rgb/xyz (which are D65 here) carries a C->D65 white-point mismatch unless you chromatically adapt; convert through xyy and adapt yourself for display-accurate sRGB. Value's Y uses the 1943 (MgO) value function, so V=10 ideal white is Y=102.57."
+    "description": "The Munsell color system was devised by the American painter and art teacher Albert Munsell around 1905 as a way to organize colors by how they actually look, rather than by how pigments mix or lights combine. It arranges every color along three perceptually spaced axes — hue, value (lightness) and chroma (saturation) — notated like \"5R 5/10\" for hue 5R, value 5, chroma 10, so that equal numerical steps in any one axis look equally spaced to the eye. The system was later refined through extensive visual experiments into the 1943 Munsell Renotation, the dataset still used today as its authoritative reference. It remains a standard for perceptually meaningful color specification in fields such as soil science, geology, and paint and pigment matching."
   },
   "nlog": {
     "channels": [
@@ -3632,7 +3632,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Nikon N-Log / N-Gamut color space Nikon's N-Log — a cube-root toe (shadows) and natural-log highlight (note: ln, not log10) — over N-Gamut, whose primaries are exactly ITU-R BT.2020, so a transfer over `rec2020-linear`. Constants are exact rationals (650/1023, …). 18% grey → 0.3637."
+    "description": "N-Log — Nikon's log curve, introduced with the Z6 and Z7 mirrorless cameras in 2018 to preserve highlight and shadow detail for later grading, and carried forward across the rest of the Z-series. Its curve pairs a cube-root shadow toe with a natural-log highlight region, rather than the log10 curves common elsewhere. It's defined over N-Gamut, whose primaries match ITU-R BT.2020."
   },
   "ntsc": {
     "channels": [
@@ -3676,7 +3676,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "NTSC RGB (1953) color space The original FCC-mandated US colour-television primaries (1953) — the founding broadcast gamut, still quoted as a coverage benchmark (\"% NTSC\"). Illuminant C white, γ≈2.2 (BT.470 System M). Wide green/red phosphors never achieved in practice (superseded by SMPTE-C / Rec.709). Matrix from the primaries, Bradford C→D65."
+    "description": "NTSC RGB — the color primaries defined by the FCC in 1953 for the first US color television broadcasts, later formalized in ITU-R BT.470 System M. Referenced to Illuminant C with a gamma of about 2.2, it remains the historical benchmark against which gamut coverage is still quoted today (\"% NTSC\"), even though its wide red and green primaries were never fully realized by real phosphors and were later superseded by SMPTE-C and Rec. 709."
   },
   "ohta": {
     "channels": [
@@ -3718,7 +3718,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Ohta I1I2I3 color space Yu-Ichi Ohta's decorrelated opponent space (1980 Kyoto thesis; Ohta, Kanade & Sakai 1980), an approximate Karhunen-Loève transform of natural-image RGB used widely in computer-vision segmentation (vegetation, fruit, flame, skin). An exact, invertible linear transform of RGB: I1 = intensity, I2/I3 = opponent chroma."
+    "description": "The Ohta color space, introduced by Yu-Ichi Ohta, Takeo Kanade and Toshiyuki Sakai in 1980, decorrelates RGB into three opponent channels — an intensity channel and two chroma channels — chosen empirically to approximate the Karhunen-Loève transform (the statistically optimal decorrelation) of typical natural images, rather than being derived from any display or broadcast standard. Because it is a simple, exact and invertible linear transform of RGB, it is cheap to compute in both directions while still concentrating most of an image's variance into a single channel. It has been used widely in computer-vision segmentation tasks — isolating vegetation, fruit, flames, and skin regions — where that decorrelation makes thresholding more reliable than working directly in RGB."
   },
   "okhsl": {
     "channels": [
@@ -3760,7 +3760,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "OkHSL color space Cylindrical color picker from Oklab Designed for intuitive color selection"
+    "description": "OkHSL is Björn Ottosson's 2021 hue-saturation-lightness remapping of Oklab, built for use in ordinary color-picker interfaces. Saturation is rescaled per hue and lightness so that 100% always lands exactly on the sRGB gamut boundary, giving sliders that stay in gamut and feel evenly spaced across their whole range — a guarantee plain HSL, built on gamma-encoded RGB, never offered. It pairs with OkHSV and OkHWB as a family of perceptually even color pickers derived from Oklab."
   },
   "okhsv": {
     "channels": [
@@ -3802,7 +3802,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "OkHSV color space Cylindrical variant of OkHSL using value instead of lightness Alternative color picker from Oklab"
+    "description": "OkHSV is Björn Ottosson's 2021 hue-saturation-value counterpart to OkHSL, built on Oklab using the value-based model of traditional HSV rather than lightness. Saturation and value are shaped so the space forms a cone that fits exactly inside the sRGB gamut, keeping HSV's familiar layout — pure hues at full saturation and value — while giving perceptually even lightness and chroma underneath. It suits color pickers and palette tools built around an HSV-style saturation/value grid."
   },
   "okhwb": {
     "channels": [
@@ -3844,7 +3844,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Okhwb color space Hue / whiteness / blackness built on Okhsv (Ottosson) — the HWB analog of the perceptual Okhsl/Okhsv pickers, bounded to the sRGB gamut."
+    "description": "OkHWB is the whiteness-blackness counterpart to OkHSV, extending Björn Ottosson's 2021 family of Oklab-based color pickers. Like the classic HWB model, it describes any color as a pure hue mixed with some amount of white and some amount of black — a way of thinking about color closer to how painters mix tints and shades than hue/saturation/lightness sliders allow. Built directly on OkHSV, it inherits that space's perceptual evenness while staying bounded to the sRGB gamut."
   },
   "oklab": {
     "channels": [
@@ -3886,7 +3886,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Oklab color space Modern perceptual color space based on cone response More uniform than Lab, better for interpolation"
+    "description": "Oklab is Björn Ottosson's 2020 perceptual color space, created as a practical replacement for CIELAB in graphics and design work. It models color starting from how the eye's cone cells respond to light, then reshapes that signal so equal numeric steps correspond to equal perceived change in lightness, hue and chroma. That uniformity avoids the hue drift and desaturation that CIELAB and HSL produce when interpolating between colors, which is why Oklab now underlies CSS Color 4's oklab() and oklch() functions and much of the tooling built for gradients and palette generation."
   },
   "oklch": {
     "channels": [
@@ -3928,7 +3928,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "OkLCh color space Cylindrical version of Oklab with cylindrical hue"
+    "description": "OKLCH is the cylindrical form of Björn Ottosson's 2020 OKLab, with perceptual lightness, chroma and hue. Designed so equal numeric steps look equal to the eye, it fixes CIELAB's blue-shift and is now the workhorse of modern CSS: `oklch()` is the recommended way to define design-token palettes on the web."
   },
   "oklrab": {
     "channels": [
@@ -3970,7 +3970,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "OkLrab color space Modified version of Oklab using toe mapping Optimized for color picker gamut mapping"
+    "description": "OkLrab is Björn Ottosson's 2021 adjustment to Oklab's lightness channel, applying a toe curve that compresses near-black values closer to how the eye actually perceives them. Plain Oklab's lightness diverges from CIELAB at the dark end, making blacks read as lighter than they should; the toe mapping corrects this while leaving the a and b axes untouched. It's used mainly for gamut mapping and lightness comparisons where accurate dark-tone behavior matters more than strict fidelity to the original Oklab formulation."
   },
   "oklrch": {
     "channels": [
@@ -4012,7 +4012,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "OkLrch color space Cylindrical variant of OkLrab Uses chroma and hue for intuitive color selection"
+    "description": "OkLrch is the cylindrical form of OkLrab, Björn Ottosson's toe-mapped variant of Oklab, converting its lightness and rectangular a/b axes into lightness, chroma and hue. It carries over OkLrab's corrected dark-tone behavior while presenting color the way people usually reason about it — a hue at some strength and brightness — making it a natural fit for palette generation and gamut-mapping tools that need both accurate darks and an intuitive chroma/hue handle."
   },
   "olog": {
     "channels": [
@@ -4056,7 +4056,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "OPPO O-Log color space OPPO's O-Log profile (Find X8 Ultra era) — a pure natural-log curve P = 0.139·ln(R + 0.019) + 0.614 — recorded in a BT.2020 container, so a transfer over `rec2020-linear`. 18% grey → 0.3896."
+    "description": "O-Log — OPPO's log profile for its Find X8 Ultra-era smartphones, giving the camera a flat, grading-ready image in the same spirit as Apple Log and Xiaomi's Mi-Log. Unlike those two-piece curves, O-Log applies a single, pure natural-log function across the whole tonal range, with no separate toe segment near black. It's recorded in a BT.2020 color container."
   },
   "osaucs": {
     "channels": [
@@ -4098,7 +4098,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "OSA-UCS color space Uniform Color Scale by Optical Society of America (MacAdam 1974) Perceptually uniform color space for industrial applications"
+    "description": "OSA-UCS (Uniform Color Scale) is a color space developed by an Optical Society of America committee and published in 1974, closely associated with David MacAdam's work on the project. It set out to solve a problem CIELAB and CIELUV don't fully address: making equal numerical distances correspond to equal perceived differences not just for small steps, but across large jumps anywhere in the space. Rather than a simple rectangular grid, its coordinates sit on a cubic close-packed lattice, matching how the committee's extensive visual-scaling experiments found colors to actually cluster perceptually. It has found its main use in industrial and scientific color-difference work that values this large-scale uniformity over the convenience of more common spaces."
   },
   "p3-linear": {
     "channels": [
@@ -4142,7 +4142,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Display P3 Linear color space Linear variant of DCI-P3 (Apple Display P3) Without gamma correction, used for image processing"
+    "description": "Linear-light Display P3 — the gamma-free counterpart to Apple's Display P3, sharing its wide DCI-P3-derived primaries and D65 white point but with channel values directly proportional to light intensity. It serves as the intermediate space for accurate color math and image processing, before results are re-encoded with the Display P3 transfer curve for output."
   },
   "p3": {
     "channels": [
@@ -4186,7 +4186,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Display P3 color space (Apple Display P3) DCI-P3 color space with gamma correction Wider gamut than sRGB, used in modern displays"
+    "description": "Display P3 — Apple's wide-gamut display space, introduced with the 2015 iMac and standardized into CSS Color 4 as `display-p3`. It keeps sRGB's transfer curve and D65 white but adopts the wider DCI-P3 film primaries, covering about 25% more colors — the default canvas of modern iPhones, iPads and Macs."
   },
   "pal": {
     "channels": [
@@ -4230,7 +4230,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "PAL / SECAM RGB color space The European 625-line analogue-TV primaries (EBU Tech 3213 / BT.470 B,G), D65, γ≈2.2. Formally distinct from Rec.709 — the green primary sits at (0.29, 0.60) vs sRGB's (0.30, 0.60) — so it is the correct gamut for archival PAL/SECAM content. Matrix derived from the primaries."
+    "description": "PAL/SECAM RGB — the primaries used by 625-line analogue television across Europe and much of the world, defined in EBU Tech 3213 and ITU-R BT.470 (System B/G). It shares sRGB's D65 white point and a similar gamma of about 2.2, but its green primary is subtly different, making it formally distinct from Rec. 709 — the correct gamut to use when working with archival PAL or SECAM broadcast material."
   },
   "panalog": {
     "channels": [
@@ -4272,7 +4272,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Panalog color space Panavision's Genesis-era Cineon-style log (black 64 / white 681 over 10 bits, gain 444), per channel over linear-light RGB. No published native gamut — a transfer over `lrgb` (linear sRGB), like `cineon`. 18% grey → 0.3746."
+    "description": "Panalog — the log curve for the Panavision Genesis, a digital cinema camera developed jointly with Sony and released in 2005. Modeled on Kodak's Cineon printing-density curve with its own black and white reference points, it let Genesis footage slot into film-style, Cineon-based post pipelines, much like RED's REDLogFilm did later for RED footage. Panavision never published a native color gamut for the format, so it's handled here as a curve over linear RGB rather than a distinct primaries set."
   },
   "photoycc": {
     "channels": [
@@ -4317,7 +4317,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "sdr",
-    "description": "PhotoYCC color space (Kodak Photo CD) Extended-gamut luma/chroma encoding for Kodak Photo CD (1992). BT.709 primaries + D65 white, but BT.601 luma coefficients (0.299/0.587/0.114), with an odd-function Rec.709 OETF that encodes scene-referred film colours beyond the [0,1] display range. The 8-bit storage form (Y_c,C1,C2 each 0-255) places neutral at C1=156, C2=137 — asymmetric because the encodable film gamut is asymmetric in B-Y / R-Y. Scene reference white (linear 1,1,1) -> luma 182 (Poynton's widely-cited \"189\" is a typo, corrected to 182 in his own 1996 errata: 255/1.402 = 181.88)."
+    "description": "PhotoYCC is the color encoding Kodak developed in 1992 for its Photo CD system, built to carry scanned photographic film into a digital, display-oriented format. Film captures a wider gamut and dynamic range than contemporary CRT monitors could show, so PhotoYCC extends the ordinary Rec. 709 encoding curve into an odd-symmetric function able to represent scene-referred colors and highlights beyond the normal [0,1] display range, storing the result as 8-bit luma (Yc) and two chroma channels (C1, C2). This let photofinishing labs scan a roll of film once and derive prints, monitor previews, and digital copies from a single scene-referred master."
   },
   "prolab": {
     "channels": [
@@ -4361,7 +4361,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "proLab color space Konovalenko et al. (2021) projective perceptual space: unlike CIELAB's per-channel cube root, proLab maps XYZ through a single 4×4 homogeneous (projective) matrix, so straight lines (additive colour mixtures) stay straight while the metric tracks human discrimination thresholds. D65; L≈100 at white."
+    "description": "proLab is a projective perceptual color space proposed by Konovalenko and colleagues in 2021. Where CIELAB reshapes XYZ with an independent cube root on each channel, proLab applies a single projective transformation, so that straight-line mixtures of light — additive color mixing — stay straight lines in proLab coordinates while distances still track human discrimination thresholds the way CIELAB's do. That combination suits image-processing and color-difference work that depends on linear blending staying linear after the color transform."
   },
   "prophoto-linear": {
     "channels": [
@@ -4405,7 +4405,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "ProPhoto RGB Linear color space Linear variant of ProPhoto without gamma correction References D50 illuminant"
+    "description": "Linear-light ProPhoto RGB — the gamma-free counterpart to Kodak's ProPhoto (ROMM) RGB, sharing its very wide primaries and D50 white point but with channel values directly proportional to light intensity. It serves as the intermediate space for color math on ProPhoto-referenced images, such as raw photo processing, before results are re-encoded with ProPhoto's transfer curve."
   },
   "prophoto": {
     "channels": [
@@ -4449,7 +4449,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "ProPhoto RGB color space Largest gamut RGB color space designed for professional photography References D50 white point"
+    "description": "ProPhoto RGB — also known as ROMM RGB, developed by Kodak as a working space for high-end digital photography. Its primaries extend beyond the range of human vision, giving it one of the largest gamuts of any standard RGB space, though this means colors must be stored at higher bit depths to avoid visible banding. It is a common working space in raw photo processing, referenced to the D50 white point."
   },
   "protune": {
     "channels": [
@@ -4493,7 +4493,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "GoPro Protune color space GoPro's Protune flat profile — y = ln(x·112 + 1)/ln(113) — over the Protune Native primaries (D65). 18% grey → 0.6456."
+    "description": "Protune — GoPro's flat color profile for its Hero action camera line, designed to minimize in-camera sharpening, saturation, and contrast so footage keeps more headroom for color correction afterward. It applies a single natural-log curve across the tonal range — simpler than the multi-segment curves cinema cameras use — over the Protune Native primaries."
   },
   "ral-design": {
     "channels": [
@@ -4538,7 +4538,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "RAL Design System+ color space RAL Design (≈1825 colours) is — unlike sample-defined RAL Classic — defined *by construction* in CIELAB cylindrical coordinates. A code \"RAL HHH L CC\" maps to CIE L*C*h directly: hue angle H (0-360°), lightness L = L*, chroma C = C*ab, so L* = L, a* = C·cos H, b* = C·sin H. This is the published *definition*, not a fitted approximation or a copied swatch table, which is what makes it a legitimate algorithmic conversion here. CAUTIONS: - \"RAL\" is a trademark of RAL gGmbH. This implements only the public coordinate definition (H/L/C ↔ CIELAB); it does NOT embed RAL's proprietary colour data, and RAL Classic (sample-defined, no open Lab) is deliberately NOT included. - White point: neighbour `lab` (D50/2°), matching the freieFarbe HLC Colour Atlas — the open, CC-licensed reference for these hue/lightness/chroma colours, defined under D50/2°. The H,L,C→L*a*b* identity is itself white-point-independent; only a later Lab→RGB step depends on the illuminant. (RAL's own measurement white is not openly documented; D50/2° is chosen to agree with the citable reference dataset.) - Real RAL Design codes are quantised (hue in 10° steps, etc.); this transform is continuous and does not snap to the nearest catalogued chip."
+    "description": "RAL Design System+ is a color specification system of roughly 1,825 colors, maintained by RAL gGmbH and widely used across Europe to specify paints, coatings and architectural finishes. Unlike the older RAL Classic system, whose colors are defined only by physical sample swatches, RAL Design colors are defined algorithmically as cylindrical coordinates in CIELAB space — a hue angle, a lightness, and a chroma — making every RAL Design code a directly computable point in a standard, device-independent color space rather than a color that has to be matched by eye against a physical chip."
   },
   "rec2020-linear": {
     "channels": [
@@ -4582,7 +4582,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Rec. 2020 Linear color space Linear variant of ITU-R Rec. 2020 (UHDTV/4K standard) Without gamma correction for image processing"
+    "description": "Linear-light Rec. 2020 — the gamma-free counterpart to the ITU-R BT.2020 UHDTV standard, sharing its extremely wide primaries and D65 white point but with channel values directly proportional to light intensity. It is the working space for accurate color math, compositing and grading of UHD/HDR content, before results are re-encoded with the Rec. 2020 transfer function for delivery."
   },
   "rec2020": {
     "channels": [
@@ -4626,7 +4626,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Rec. 2020 color space ITU-R BT.2020 standard for UHDTV/4K. Wide-gamut RGB with the BT.2020 transfer function (same piecewise form as BT.709). Uses the CSS `color(rec2020 …)` convention: channels 0-1, not 0-255."
+    "description": "Rec. 2020 — the ITU-R BT.2020 standard defining the color gamut and transfer characteristics for ultra-high-definition television. It uses a transfer function with the same piecewise shape as Rec. 709, but spans a dramatically wider set of primaries that approach the outer limits of human color perception — the target gamut for 4K and 8K UHD broadcast, streaming and HDR displays."
   },
   "rec2100-hlg": {
     "channels": [
@@ -4670,7 +4670,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "Rec. 2100 with HLG (Hybrid Log-Gamma) transfer function ITU-R BT.2100 HDR with HLG OETF for broadcast Backward compatible with SDR displays"
+    "description": "Rec. 2100 HLG — ITU-R BT.2100's other HDR transfer function, Hybrid Log-Gamma, developed jointly by the BBC and NHK for broadcast. Where PQ encodes absolute luminance, HLG stays scene-referred and backward compatible: it behaves like ordinary gamma near black and switches to a logarithmic curve for highlights, so an unmodified SDR display can still render a reasonable picture without any metadata. It's the format of choice for live HDR broadcast."
   },
   "rec2100-linear": {
     "channels": [
@@ -4714,7 +4714,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "Rec. 2100 Linear color space Linear-light ITU-R BT.2100 (HDR). BT.2100 shares BT.2020's primaries, white point, and matrix exactly, so in value this is identical to rec2020-linear; the distinction is semantic (1.0 = 203 cd/m² HDR reference white, with values above 1.0 valid for specular highlights)."
+    "description": "Rec. 2100 Linear — the scene-linear RGB that sits beneath both of ITU-R BT.2100's HDR transfer functions, PQ and HLG, before either curve is applied. It carries the same wide Rec. 2020 primaries and white point into HDR, giving colorimetric operations like gamut mapping a straightforward linear-light space to work in, with headroom above reference white for specular highlights."
   },
   "rec2100-pq": {
     "channels": [
@@ -4758,7 +4758,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "Rec. 2100 with PQ (Perceptual Quantizer) transfer function ITU-R BT.2100 HDR (4K/8K) with PQ OETF Used for HDR broadcast and streaming"
+    "description": "Rec. 2100 PQ — the HDR RGB encoding from ITU-R BT.2100, pairing Rec. 2020's wide-gamut primaries with the PQ (Perceptual Quantizer) transfer function, SMPTE ST 2084, originally developed by Dolby. Unlike SDR gamma, PQ encodes absolute scene luminance directly, so a given code value always means the same brightness regardless of a display's peak brightness. It's the transfer function behind HDR10 and most HDR video streaming and mastering pipelines."
   },
   "rec709": {
     "channels": [
@@ -4802,7 +4802,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Rec. 709 color space ITU-R BT.709 HDTV: the same primaries and D65 white as sRGB, but with the BT.709 camera transfer function (OETF) instead of the sRGB curve. The linear light is identical to linear sRGB, so this connects through `lrgb`."
+    "description": "Rec. 709 — the ITU-R BT.709 standard defining the color primaries and transfer function for HDTV. It shares sRGB's red-green-blue primaries and D65 white point, differing only in a camera-oriented transfer curve (OETF) designed for broadcast cameras rather than computer displays. It remains the reference gamut for HD video production and broadcast."
   },
   "redlog": {
     "channels": [
@@ -4846,7 +4846,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "REDLog / REDcolor color space RED's original 10-bit log curve (RED One era, superseded by REDLogFilm and then Log3G10) over the REDcolor primaries (D65). Black offset 10^(−1023/511). 18% grey → 0.6376."
+    "description": "REDLog — RED Digital Cinema's original log curve, dating to the RED ONE, the company's first digital cinema camera, released in 2007. It pairs with the REDcolor primaries, RED's earliest color gamut, and was RED's default acquisition log before being superseded first by REDLogFilm and later by the Log3G10/REDWideGamutRGB pairing used on modern RED cameras."
   },
   "redlogfilm": {
     "channels": [
@@ -4890,7 +4890,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "REDLogFilm / REDcolor color space RED's Cineon-compatible log (exactly the Cineon curve, black 95 / white 685 over 10 bits) paired with the REDcolor primaries (D65) — colour-science's canonical pairing for the REDcolor generations. 18% grey → 0.4573, as Cineon."
+    "description": "REDLogFilm — RED Digital Cinema's second log curve, built to match Kodak's Cineon printing-density curve exactly so RED footage could drop into existing film-style, Cineon-based color pipelines. It shares the REDcolor primaries with the original REDLog, sitting between it and the Log3G10/REDWideGamutRGB pairing used on today's RED cameras."
   },
   "rg": {
     "channels": [
@@ -4922,7 +4922,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "RG Chromaticity color space Normalized 2D chromaticity space (r + g + b = 1) Used for color matching and chromaticity analysis Blue component can be derived as 1 - r - g"
+    "description": "rg chromaticity — the RGB analog of CIE xy: red, green and blue are normalized by their sum, discarding overall intensity and leaving only the relative color proportions. Because it factors out brightness, it's a long-standing technique in color matching and computer vision for describing a surface's color in a way that's more robust to lighting changes than raw RGB."
   },
   "rgb": {
     "channels": [
@@ -4965,7 +4965,7 @@ export default {
     "illuminant": "D65",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "RGB color space (sRGB) Standard red-green-blue color space for displays Uses D65 illuminant, gamma-corrected"
+    "description": "sRGB — the standard RGB color space created by HP and Microsoft in 1996 and later standardized as IEC 61966-2-1. It defines a D65 white point and a piecewise gamma-like transfer curve tuned to typical display response. It became the default color space of the web and of untagged digital images, and remains the assumed gamut for ordinary displays, browsers and image formats today."
   },
   "rimm": {
     "channels": [
@@ -5009,7 +5009,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "sdr",
-    "description": "RIMM RGB color space Reference Input Medium Metric RGB (ANSI/I3A IT10.7466-2002 / ISO 22028-3) — the scene-referred counterpart of ROMM/ProPhoto, sharing its wide D50 primaries but carrying a BT.709-shaped OETF with extended exposure headroom (E_clip = 2.0, i.e. one stop above diffuse white, which encodes to 0.713). Matrix = ProPhoto primaries Bradford-adapted D50→D65."
+    "description": "RIMM RGB — Reference Input Medium Metric RGB, standardized in ISO 22028-3 as the scene-referred counterpart to Kodak's ProPhoto (ROMM) RGB. It shares ProPhoto's very wide D50 primaries but applies a camera-style transfer function with extended highlight headroom above diffuse white, letting it carry scene exposure values that would otherwise clip. It is meant to carry unrendered scene data through an imaging pipeline prior to output-referred rendering."
   },
   "rlab": {
     "channels": [
@@ -5053,7 +5053,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "RLAB color space (Fairchild 1996) An early colour appearance model for cross-media reproduction: von Kries adaptation through the Hunt-Pointer-Estévez cones, then a CIELAB-like opponent stage. Output (LR, aR, bR). Baked to the canonical reference conditions — adapting white = CIE Illuminant A [109.85,100,35.58], Y_n = 31.83 cd/m², σ = 1/2.3 (average), D = 1 (hard-copy) — so it reproduces the published worked example."
+    "description": "RLAB is the color appearance model Mark Fairchild published in 1996, developed for predicting how colors reproduce across different media and viewing conditions — for example, matching a printed image's appearance to how it looked on a display. It adapts the cone responses, via a von Kries-style transform through Hunt-Pointer-Estévez cone fundamentals, to the reference viewing condition, then maps the result into a CIELAB-like lightness and opponent-color space, giving it CIELAB's familiar structure while accounting for surround and adaptation effects that plain CIELAB ignores. It was among the earliest appearance models built specifically for cross-media color reproduction workflows."
   },
   "ryb": {
     "channels": [
@@ -5095,7 +5095,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "RYB color space (red-yellow-blue artists' model) The traditional painter's wheel — where blue + yellow makes green, not the additive RGB grey. Implemented as Johannes Itten's chromatic cube (meodai/rybitten's `RYB_ITTEN`): the 8 RYB corners carry hand-picked RGB anchors and any colour is a smoothstep-eased trilinear blend between them. (0,0,0) = no pigment ≈ white, (255,255,255) = all three ≈ black. RGB→RYB is the numerical (Newton) inverse and best-fits colours outside the artists' gamut."
+    "description": "RYB is the traditional artists' color wheel built on red, yellow and blue as primaries, the model taught in painting and design education long before RGB or CMYK existed. It captures how pigments actually mix on a palette rather than how light combines — blue and yellow mixed as paint make green, not the grey that additive red and green light would produce — matching painters' lived experience of color instead of colorimetric physics. The version implemented here follows Johannes Itten's chromatic color wheel from his Bauhaus color theory, still a standard reference for teaching color harmony in art and design."
   },
   "scrgb": {
     "channels": [
@@ -5139,7 +5139,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "scRGB color space Linear-light sRGB (same primaries and D65 white as sRGB/lrgb) with the extended IEC 61966-2-2 range [-0.5, 61439/8192] for wide-gamut and HDR signals. In float the values are identical to linear sRGB — only the declared range differs."
+    "description": "scRGB — a linear-light extension of sRGB standardized as IEC 61966-2-2, created to carry wide-gamut and HDR signals through an otherwise ordinary sRGB pipeline. It keeps sRGB's D65 white point and primaries but removes the gamma curve and widens the encoding range well beyond the usual 0-1 span, allowing values for colors brighter or more saturated than standard sRGB can display."
   },
   "slog": {
     "channels": [
@@ -5183,7 +5183,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Sony S-Log (1) / S-Gamut color space Sony's original S-Log curve (F35/F3 era, superseded by S-Log2/3) over S-Gamut — the same primaries as S-Gamut3, hence the same matrix as `slog2`/`slog3`. Uses the in-reflection (÷0.9) + 10-bit legal-range code-value convention. 18% grey → 0.3850."
+    "description": "S-Log — Sony's first logarithmic gamma curve, introduced on the F35 and F3 cameras to capture more dynamic range than conventional video gammas allowed. Paired with the S-Gamut primaries, it was designed for scene-referred acquisition ahead of color grading, but its tonal placement was quickly refined by S-Log2 and then S-Log3. It survives mainly for compatibility with archival footage shot in that era."
   },
   "slog2": {
     "channels": [
@@ -5227,7 +5227,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Sony S-Log2 / S-Gamut color space Sony's S-Log2 curve over the S-Gamut primaries (identical primaries to S-Gamut3, so the same matrix as `slog3`). S-Log2 wraps the base S-Log with a 155/219 scene scaling and the in-reflection (÷0.9) + legal-range code-value convention. 18% grey → 0.3395."
+    "description": "S-Log2 — Sony's second-generation log curve, refining the original S-Log with a scaling adjustment that captures more of the camera's dynamic range and improves shadow reproduction. It shares the S-Gamut primaries with S-Log and S-Log3, sitting between them chronologically and in capability, before Sony moved to S-Log3 as its recommended acquisition curve. It still appears in workflows built around older Sony camera firmware."
   },
   "slog3": {
     "channels": [
@@ -5271,7 +5271,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Sony S-Log3 / S-Gamut3 color space Sony's S-Log3 transfer over the S-Gamut3 primaries. Per-channel S-Log3 curve to scene-linear, then the S-Gamut3→XYZ(D65) matrix. Sony \"Technical Summary for S-Gamut3/S-Log3\". (S-Gamut3.Cine uses different primaries — not this space.)"
+    "description": "S-Log3 — Sony's current-generation log curve, designed to mimic the tonal placement of film-scanning logs like Cineon for more intuitive grading than the earlier S-Log curves offered. It pairs with the S-Gamut3 primaries and is the recommended acquisition setting across Sony's modern CineAlta, Venice, and Alpha cinema-line cameras. S-Gamut3 has a companion variant, S-Gamut3.Cine, with narrower primaries closer to DCI-P3 for productions that skip a full grade — a separate color space from this one."
   },
   "smpte-240m": {
     "channels": [
@@ -5315,7 +5315,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "SMPTE-240M color space The interim HDTV standard (SMPTE 240M, 1988-1998) that preceded Rec.709. Shares the SMPTE-C / SMPTE 170M primaries (same matrix as `smpte-c`) but defines its own formal OETF (a 0.45-power curve with a linear toe), distinct from BT.601/709. D65."
+    "description": "SMPTE 240M — the interim HDTV standard published by SMPTE in 1988, used during the early analog high-definition era before Rec. 709 was finalized. It shares its wide broadcast primaries with SMPTE-C, referenced to D65 white, but defines its own transfer function — a gamma-like curve with a linear segment near black — distinct from the curves used in BT.601 and BT.709."
   },
   "smpte-c": {
     "channels": [
@@ -5359,7 +5359,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "SMPTE-C color space The 525-line NTSC broadcast standard (SMPTE 170M / SMPTE-C primaries, D65) with the ITU-R BT.601 transfer function (identical curve to BT.709/rec709). Per-channel inverse-OETF to linear, then the SMPTE-C→XYZ(D65) matrix."
+    "description": "SMPTE-C is the RGB primary set standardized by the Society of Motion Picture and Television Engineers (SMPTE 170M) for 525-line NTSC broadcast in North America and Japan. It replaced the original 1953 FCC/NTSC primaries with phosphors that were actually achievable by contemporary picture tubes, paired with a D65 white point. As an RGB working space it shares its transfer curve with Rec. 709/BT.601 video, and remains the reference gamut for describing legacy analog NTSC color."
   },
   "srlab2": {
     "channels": [
@@ -5403,7 +5403,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "SRLAB2 color space Jan Behrens' SRLAB2 — \"the best of CIELAB and CIECAM02\": CIECAM02's CAT02-style chromatic adaptation feeding a CIELAB-like cube-root opponent stage, giving better perceptual uniformity than CIELAB while staying simple and invertible. D65; white → L=100, a=b=0."
+    "description": "SRLAB2 is Jan Behrens' attempt to combine the best of CIELAB and CIECAM02. It runs color through CIECAM02's CAT02 chromatic adaptation and then finishes with a CIELAB-style cube-root opponent stage, rather than CIELAB's simpler and less accurate adaptation step. The result is noticeably more perceptually uniform than plain CIELAB, especially for saturated colors, while staying as easy to compute and invert as Lab itself, without CIECAM02's full viewing-condition machinery."
   },
   "sucs": {
     "channels": [
@@ -5447,7 +5447,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "sUCS color space The uniform colour space of sCAM, the \"simple\" colour-appearance model (Li & Luo 2024) — claims CAM16-UCS-class uniformity from a far simpler pipeline: XYZ→LMS (HPE-like), a signed power 0.43, then a fixed opponent mix to I (lightness) and a, b. D65, I≈100 at white. A lighter-weight alternative to cam16-ucs / oklab."
+    "description": "sUCS is the uniform color space built from sCAM, a \"simple\" color-appearance model published by Li and Luo in 2024. It aims to match the perceptual uniformity of CAM16-UCS — equal numeric distances corresponding to equal perceived differences — through a far lighter calculation pipeline than a full appearance model like CAM16 requires. It's meant as a fast, lower-complexity substitute for CAM16-UCS or Oklab in tasks such as color-difference measurement that don't need viewing-condition parameters."
   },
   "tlog": {
     "channels": [
@@ -5491,7 +5491,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "FilmLight T-Log / E-Gamut color space FilmLight Baselight's working space: the T-Log quasi-log curve (pure log with a linear extension below zero) over E-Gamut primaries (D65). Constants derive from w=128 (linear value mapping to 1.0), g=16 (gradient at 0), o=0.075 (offset at 0). 18% grey → 0.3966."
+    "description": "T-Log — FilmLight's log curve for its Baselight color-grading systems, paired with the wide E-Gamut primaries as a camera-agnostic working space that footage from almost any camera can be converted into for grading. Its curve is a near-pure log function with a linear extension below zero, avoiding the harsh clipping a pure log would give to noise and sub-black signal. Baselight facilities use T-Log/E-Gamut much the way ACES or DaVinci Wide Gamut are used elsewhere — as a common space for mixing footage from multiple camera sources."
   },
   "transfers": {
     "description": "Standard opto-electronic transfer functions (gamma / OETF-EOTF curves), shared by the RGB working spaces that encode with the same curve. Each is sign-extended (odd-symmetric) so out-of-gamut negatives survive a round-trip. The matrices and primaries stay in the per-space files; only the 1-D transfer lives here."
@@ -5536,7 +5536,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "TSL color space (Tint, Saturation, Lightness) Simple cylindrical representation of RGB Derived from RGB for image analysis"
+    "description": "TSL (Tint, Saturation, Lightness) is a cylindrical re-encoding of RGB introduced by Terrillon and Akamatsu in 2000 for detecting human skin tones in images. By separating chromaticity (tint and saturation) from lightness, it groups skin-colored pixels into a tighter, more separable cluster than RGB does, making thresholding for face and gesture detection more reliable. It remains a reference color space in computer-vision work on skin segmentation, alongside spaces like YCbCr and HSV."
   },
   "ucs": {
     "channels": [
@@ -5580,7 +5580,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE 1960 UCS (Uniform Color Space) Obsolete color space predecessor to CIELUV Historical reference for color science"
+    "description": "CIE 1960 UCS is a uniform chromaticity space devised by MacAdam, an early attempt to make equal distances on a chromaticity diagram correspond to equal perceived color differences. It was extended into CIE 1964 U*V*W* by adding a lightness dimension, then superseded outright by CIELUV in 1976. Its underlying (u, v) chromaticity coordinates are still the basis for correlated-color-temperature calculations today, which makes it more a piece of color-science history than a working color space."
   },
   "uv": {
     "channels": [
@@ -5625,7 +5625,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE 1976 UCS (u'v') color space The modern uniform-chromaticity diagram (CIE 15:2004 §8.1 / ISO 11664-5): the dominant chromaticity space for LED binning (ANSI C78.377), display white-point tolerancing (Δu'v'), CCT / Planckian-locus work and colorimeter reporting. The v' axis is 1.5× the CIE 1960 v (the library's `ucs`). Stored with luminance Y as an invertible u'v'Y triplet (analogous to xyY)."
+    "description": "CIE 1976 UCS (u', v') — the modern, more perceptually uniform successor to the 1960 chromaticity diagram, standardized in CIE 15:2004. Equal distances on the u'v' plane correspond more closely to equal perceived color differences than the older CIE xy diagram does, which is why it's the chromaticity space of choice for LED binning, display white-point tolerancing (Δu'v'), correlated color temperature work along the Planckian locus, and colorimeter reporting."
   },
   "uvw": {
     "channels": [
@@ -5669,7 +5669,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE 1964 U*V*W* color space Obsolete perceptual space, predecessor to CIELUV. Built on the CIE 1960 UCS chromaticity (u′, v′): W* = 25·Y^(1/3) − 17        (Y in 0-100) U* = 13·W*·(u′ − u′n) V* = 13·W*·(v′ − v′n) where (u′n, v′n) is the reference-white chromaticity. At an undefined chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0."
+    "description": "CIE 1964 U*V*W* is Wyszecki's extension of the CIE 1960 UCS chromaticity diagram into a full three-dimensional color space, adding a cube-root lightness dimension on top of the earlier system's uniform chromaticity coordinates. It was one of several perceptual color spaces proposed during the 1960s, all trying to make Euclidean distance track perceived color difference better than raw XYZ did. CIELUV superseded it outright in 1976, so today it's mainly of historical interest, marking the transition between the 1960 chromaticity diagram and the modern CIE 1976 spaces."
   },
   "viperlog": {
     "channels": [
@@ -5711,7 +5711,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ViperLog color space The Thomson Viper FilmStream log — a pure log10 with no black offset (the flaw its successors fixed): y = (1023 + 500·log10(x))/1023, per channel over linear-light RGB (`lrgb`). Linear input clamps at 10^(−1023/500) ≈ 0.0090 — the value that encodes to code 0 — so black round-trips to that floor. 18% grey → 0.6360."
+    "description": "ViperLog — the log curve for the Thomson Viper FilmStream, one of the earliest digital cinema cameras, announced in 2002, well before the tapeless RED and ARRI ALEXA workflows that came to dominate the format. Its curve is a pure log10 function with no black offset, a simplicity that later curves from other manufacturers deliberately corrected to avoid crushing near-black detail. It's applied over linear-light RGB without a published native gamut of its own."
   },
   "vlog": {
     "channels": [
@@ -5755,7 +5755,7 @@ export default {
     "observer": "2",
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "Panasonic V-Log / V-Gamut color space Panasonic's V-Log transfer over the V-Gamut primaries (VARICAM; not the V-Log L variant). Per-channel V-Log curve to scene-linear, then V-Gamut→XYZ(D65). Panasonic V-Log/V-Gamut Reference Manual (2014)."
+    "description": "V-Log — Panasonic's logarithmic curve introduced in 2014 with the VARICAM 35 cinema camera, built to hold the sensor's full dynamic range for grading rather than direct viewing. It pairs with the wide V-Gamut primaries, engineered to encompass color spaces like Rec.2020 with room to spare. This is the full cinema-camera curve; Panasonic's mirrorless GH-series bodies instead use a lighter variant called V-Log L, matched to a narrower 12-stop range."
   },
   "wasm": {
     "description": "fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the ~4.6 kB module is prebuilt and inlined (see scripts/build-wasm.js). Layout: interleaved 3-channel `Float64Array`, n pixels = 3n values [c0,c1,c2, c0,c1,c2, …]. Ranges match the scalar API (rgb 0-255, oklab native, xyz 0-100). Formulas mirror the scalar library and are pinned by test/wasm-batch.js. THE WIN IS ZERO-COPY. Keep the data in WASM memory: import { alloc, convert } from 'color-space/wasm' const buf = alloc(nPixels)      // WASM-backed Float64Array(n*3) — write rgb here // … fill buf … convert('rgb', 'oklab', nPixels)  // in place, no copy // … read buf (now oklab) … `convertBatch(from,to,src,dst,n)` is the drop-in convenience for existing JS buffers, but it copies in and out — fine for a chain of conversions, but a single convert + two copies may not beat JS. Prefer alloc()+convert() on the hot path."
@@ -5782,7 +5782,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Wavelength color space The colour of monochromatic (single-wavelength) light — the \"rainbow\" / spectral locus. Forward maps a wavelength in nm to CIE XYZ via the CIE 1931 2° colour-matching functions (embedded at 5 nm, scaled so the 555 nm peak luminance is Y=100). The inverse returns the dominant wavelength of any colour (shared with `dsh`), so it round-trips for spectral inputs and is lossy otherwise (purples → negative)."
+    "description": "Wavelength — the color of monochromatic light, a single point on the visible spectrum's \"rainbow\" of pure spectral hues, from deep violet near 380 nm to deep red near 700 nm. Converting a wavelength to CIE XYZ uses the color-matching functions of the CIE 1931 standard observer, the same experimentally-derived functions underlying all of modern colorimetry. Going the other direction recovers the dominant wavelength of any color, the same quantity that gives CIE DSH its hue."
   },
   "xvycc": {
     "channels": [
@@ -5824,7 +5824,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "https://en.wikipedia.org/wiki/XvYCC Sony xvYCC (extended-gamut YCC) is an extended-gamut version of YCbCr **Important**: In this library, xvYCC uses identical formulas to YPbPr/YCbCr because all values are normalized to 0-1 range. The conceptual difference is: - YCbCr (traditional): Limited to \"legal\" range (16-235 for Y in 8-bit) - YPbPr: Analog version, typically full range [0,1] - xvYCC: Explicitly extended range, allows values beyond normal gamut Since this library normalizes all spaces to [0,1] and doesn't enforce range limits, xvYCC is functionally identical to YPbPr here. The separate implementation exists for semantic clarity and compatibility. It uses the same transformation matrices as: SD: ITU-R BT.601 HD: ITU-R BT.709 Formulas (identical to YPbPr): Forward (RGB → xvYCC): Y  = Kr*R + (1-Kr-Kb)*G + Kb*B Cb = 0.5*(B-Y)/(1-Kb) Cr = 0.5*(R-Y)/(1-Kr) Inverse (xvYCC → RGB): R = Y + 2*Cr*(1-Kr) B = Y + 2*Cb*(1-Kb) G = (Y - Kr*R - Kb*B)/(1-Kr-Kb) Where for BT.709: Kr=0.2126, Kb=0.0722 for BT.601: Kr=0.299,  Kb=0.114 References: - https://en.wikipedia.org/wiki/XvYCC - https://en.wikipedia.org/wiki/YCbCr - IEC 61966-2-4:2006 (xvYCC specification)"
+    "description": "xvYCC (extended-gamut YCC), standardized by Sony as IEC 61966-2-4 and marketed as x.v.Color, extends traditional YCbCr to encode colors lying outside the conventional BT.601/BT.709 gamut triangle. Where legal-range YCbCr clips any signal exceeding the primaries it was built around, xvYCC keeps the same luma/chroma structure but permits values beyond that limited range, letting cameras and displays capture and reproduce more saturated colors than standard- or high-definition video normally allows. It has shipped in consumer camcorders, televisions, and Blu-ray players seeking a wider color gamut without abandoning the familiar YCbCr pipeline."
   },
   "xyb": {
     "channels": [
@@ -5866,7 +5866,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "XYB color space — JPEG XL Image Coding System. An LMS-based model inspired by the human visual system for perceptually uniform quantization (gamma 3). Implementation based on culori. (JPEG XL Whitepaper: https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf)"
+    "description": "XYB is the internal color space of JPEG XL, the royalty-free image format designed as a modern successor to JPEG for both lossy and lossless compression. Rather than building on broadcast-derived YCbCr like its predecessor, XYB is modeled on the eye's LMS cone responses, split into a red-green channel (X), a luminance channel (Y), and a blue-yellow channel (B), then compressed with a perceptually motivated power law so encoding error can be concentrated where vision is least sensitive to it. It is not meant for authoring or display — images are still edited and viewed in ordinary RGB — but is what the JPEG XL codec actually compresses under the hood."
   },
   "xyy": {
     "channels": [
@@ -5908,7 +5908,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "xyY color space Chromaticity coordinates (x, y) with luminance (Y) Useful for color matching and display calibration"
+    "description": "xyY — a reformulation of CIE XYZ that separates a color's chromaticity (x, y) from its luminance (Y), so hue and saturation can be studied independently of brightness. Plotting x against y produces the familiar horseshoe-shaped chromaticity diagram used to visualize gamuts, specify white points, and compare how much of the visible spectrum a display or printer can reproduce."
   },
   "xyz-abs-d65": {
     "channels": [
@@ -5952,7 +5952,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "Absolute XYZ (D65) — CIE XYZ in absolute luminance (cd/m²), where the relative XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100)."
+    "description": "Absolute XYZ (D65) — CIE XYZ expressed in real physical units, candela per square meter, instead of the usual 0-100 relative scale. Relative XYZ only says how a color compares to a normalized white; absolute XYZ ties every value to an actual measurable brightness, which HDR workflows need since the same relative color can sit at very different real-world luminances. The two scales meet at ITU-R BT.2100's HDR reference white."
   },
   "xyz-d50": {
     "channels": [
@@ -5996,7 +5996,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE XYZ with the D50 white point (ICC profile connection space). Bradford-adapted from the D65 `xyz` hub."
+    "description": "CIE XYZ referred to the D50 illuminant instead of D65. D50 is the profile connection space ICC color-management profiles convert through, a convention inherited from graphic arts and print viewing standards, so this variant is the one to reach for when reading or writing ICC-based workflows. It relates to D65 XYZ by Bradford chromatic adaptation."
   },
   "xyz": {
     "channels": [
@@ -6040,7 +6040,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "CIE XYZ color space (D65) CIE 1931 tristimulus values — the foundation of colorimetry and the device-independent hub other spaces chain through. 0–100 scale (Y = 100 at white)."
+    "description": "CIE XYZ — the foundation of modern colorimetry, defined by the CIE in 1931 from the color-matching functions of the standard observer. X, Y and Z are not themselves perceptual attributes; they're engineered so Y alone carries luminance while X and Z carry chromaticity, letting any visible color be written as a weighted sum of three fixed imaginary primaries. It serves as the device-independent reference that RGB, Lab and other working spaces are ultimately defined against."
   },
   "ycbcr": {
     "channels": [
@@ -6082,7 +6082,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YCbCr color space Digital video color format used in broadcasting. Limited (studio) range, ITU-R BT.709 coefficients (Kr=0.2126, Kb=0.0722) — the HD default. For SD use BT.601; full-range 601 is the `jpeg` space."
+    "description": "YCbCr is the digital luma/chroma color format behind almost all broadcast and compressed video, standardized by the ITU-R as BT.601 for standard-definition and BT.709 for high-definition. It carries forward the idea behind its analog ancestors YUV and YPbPr — a luma channel Y that alone reproduces a usable grayscale image, paired with blue-difference and red-difference chroma channels Cb and Cr — but in a digital, studio (\"limited\") range that reserves headroom and footroom at the extremes for signal-processing overshoot. It is the color format carried inside everything from DVDs and broadcast television to H.264 and HEVC video compression."
   },
   "yccbccrc": {
     "channels": [
@@ -6126,7 +6126,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YcCbcCrc color space — ITU-R BT.2020 / BT.2100 constant-luminance (CL) system. Unlike the non-constant-luminance Y'CbCr, the luma Yc is formed in LINEAR light (Yc = Kr·R + Kg·G + Kb·B) then OETF-encoded, and the chroma differences use the BT.2020 piecewise normalisation. Operates on linear Rec.2020 RGB."
+    "description": "YcCbcCrc is the constant-luminance encoding defined alongside ITU-R BT.2020 and BT.2100 for ultra-high-definition and HDR/wide-gamut video. Ordinary Y'CbCr derives luma from RGB values that have already been gamma-encoded, which lets highly saturated colors leak into the luma channel and distort perceived brightness — a problem that grows more visible with the wider gamuts and higher dynamic range BT.2020 and BT.2100 target. YcCbcCrc avoids this by deriving luma from linear light before applying the transfer curve, keeping brightness and chroma cleanly separated even for the most saturated colors UHDTV and HDR can reproduce."
   },
   "ycgco": {
     "channels": [
@@ -6168,7 +6168,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "https://en.wikipedia.org/?title=YCgCo"
+    "description": "YCgCo, introduced by Malvar and Sullivan in 2003, is a luma/chroma color transform designed to be cheap to compute and simple to invert. Y carries luma, while Cg and Co are green-difference and orange-difference chroma, each built from the RGB components with lighter arithmetic than the coefficients YCbCr uses. It was adopted into video coding standards including H.264/AVC and HEVC, valued there for combining low computational cost with an exact, easily reversible RGB transform."
   },
   "ydbdr": {
     "channels": [
@@ -6210,7 +6210,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YDbDr color space SECAM television chrominance encoding Perceptually more uniform than YUV"
+    "description": "YDbDr is the luma/chrominance encoding used by SECAM (\"Séquentiel Couleur à Mémoire\"), the analog color television standard developed in France and adopted across parts of Eastern Europe, the former Soviet Union, and Africa. Like YUV (its PAL counterpart) and YIQ (NTSC), it keeps a luma channel Y for backward compatibility with monochrome broadcasts, pairing it with two scaled color-difference channels, Db and Dr, derived from blue-minus-luma and red-minus-luma respectively."
   },
   "yes": {
     "channels": [
@@ -6252,7 +6252,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YES color space http://www.atlantis-press.com/php/download_paper.php?id=198"
+    "description": "YES is a luminance/chrominance color encoding in the same family as YIQ and YUV: Y carries luminance, while E (green-red) and S (blue-yellow) carry chrominance as simple linear combinations of the red, green and blue primaries. Its coordinates are cheap to compute directly from RGB, which is the model's main appeal, but unlike CIELAB or CIELUV they are not perceptually uniform — equal steps in E or S do not correspond to equal-looking color differences. It appears in the color-imaging literature as one of several such encodings used for image analysis and compression."
   },
   "yiq": {
     "channels": [
@@ -6294,7 +6294,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YIQ color space Analog television luma-chroma encoding Used in NTSC television standards"
+    "description": "YIQ is the luma/chroma encoding adopted for NTSC color television in the United States in 1953, engineered to add color broadcasts without breaking the millions of monochrome sets already in homes. The luma channel Y alone reproduces the original black-and-white picture, while I (in-phase) and Q (quadrature) carry the chrominance, named for how they modulate the phase of the color subcarrier. I and Q are rotated relative to the simpler blue-difference/red-difference axes of YUV specifically to exploit the eye's greater sensitivity along the orange-cyan direction than the green-purple direction, letting Q carry less bandwidth."
   },
   "ypbpr": {
     "channels": [
@@ -6336,41 +6336,41 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YPbPr color space Analog form of YCbCr used in component video ITU-R BT.709 standard for HD video"
+    "description": "YPbPr is the analog component-video counterpart to digital YCbCr, carrying the same luma-plus-color-difference structure over three separate analog cables instead of a digital bitstream. Y is the luma signal, alone sufficient for a grayscale picture, while Pb and Pr carry blue-difference and red-difference chroma scaled to a standard analog range. Defined alongside ITU-R BT.709 for high-definition and BT.601 for standard-definition, it was the standard connector-and-signal format for higher-quality analog video on DVD players, game consoles, and HDTVs before digital HDMI became universal."
   },
   "yrg": {
     "channels": [
       {
         "symbol": "Y",
         "min": 0,
-        "max": 1,
+        "max": 1.06,
         "name": "Luminance"
       },
       {
         "symbol": "r",
-        "min": 0,
-        "max": 1,
+        "min": 0.02,
+        "max": 0.64,
         "name": "Red chromaticity"
       },
       {
         "symbol": "g",
-        "min": 0,
-        "max": 1,
+        "min": 0.21,
+        "max": 0.78,
         "name": "Green chromaticity"
       }
     ],
     "range": [
       [
         0,
-        1
+        1.06
       ],
       [
-        0,
-        1
+        0.02,
+        0.64
       ],
       [
-        0,
-        1
+        0.21,
+        0.78
       ]
     ],
     "refs": [
@@ -6380,7 +6380,7 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "sdr",
-    "description": "Yrg color space (Kirk 2019) Richard Kirk's (FilmLight) luminance/chromaticity space on CIE 2006 LMS cones with evenly-spaced Munsell hues — the chromaticity basis of darktable's colour-balance UCS. Y is cone-weighted luminance; r,g are affine cone chromaticities. The inverse here solves the affine map exactly (Kirk's published inverse uses rounded coefficients); black maps to the r,g origin offsets."
+    "description": "Yrg — Richard Kirk's 2019 luminance/chromaticity space, built at FilmLight on CIE 2006 cone fundamentals and tuned so that hues land at even spacing around the wheel, matching the classical Munsell color order. Y carries cone-weighted luminance while r and g are chromaticity coordinates derived affinely from the cone responses, separating \"how bright\" from \"what hue and how saturated\" in a way suited to color grading. It's the chromaticity basis of darktable's color-balance module."
   },
   "yuv": {
     "channels": [
@@ -6422,7 +6422,7 @@ export default {
     ],
     "referred": "display",
     "dynamic": "sdr",
-    "description": "YUV color space Television analog encoding separating luma from chroma Used in PAL/SECAM broadcast standards"
+    "description": "YUV is the analog color-encoding scheme developed for PAL television broadcasting, and lives on loosely today as a general term for luma/chroma video encoding. It let color signals ride alongside existing black-and-white broadcasts without breaking compatibility with monochrome receivers — the luma channel Y alone carries the brightness signal, while U and V add scaled blue-difference and red-difference chrominance on top. Splitting luma from chroma this way let broadcasters spend less bandwidth on color than on brightness, exploiting the eye's lower sensitivity to chrominance detail."
   },
   "zcam": {
     "channels": [
@@ -6466,6 +6466,6 @@ export default {
     "observer": "2",
     "referred": "display",
     "dynamic": "hdr",
-    "description": "ZCAM color space (Safdar, Hardeberg & Luo 2021) The HDR-native colour appearance model — the CAM16 analogue built on the absolute Izazbz substrate, predicting lightness J, colourfulness M and hue h (plus brightness, vividness, blackness, whiteness in the full model). Operates on ABSOLUTE XYZ. CAUTION — like cam16/hellwig2022 the viewing conditions are baked, here to the canonical ZCAM reference example: white XYZ_w = [256,264,202], L_A = 264 cd/m², Y_b = 100, average surround. Input XYZ is absolute (not the library's relative 0-100); under these conditions XYZ_w=[256,264,202] → J≈100. Chaining from rgb maps a relative colour into this absolute frame, so the result is \"ZCAM of a dim sample\"."
+    "description": "ZCAM is the color appearance model Safdar, Hardeberg and Luo introduced in 2021, designed from the outset for high-dynamic-range and wide-gamut imagery rather than adapted to it after the fact. It plays the same role as CAM16 — predicting lightness, colorfulness and hue as a color will actually appear under given viewing conditions — but builds on the absolute Izazbz color space instead of CIE XYZ, so it can work natively with the absolute luminance levels HDR content requires instead of the relative 0-100 scale older appearance models assume. The full model also reports brightness, vividness, blackness and whiteness, suiting it to HDR display calibration and gamut mapping where standard appearance models run out of range."
   }
 }

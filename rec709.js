@@ -1,9 +1,9 @@
 /**
- * Rec. 709 color space
- *
- * ITU-R BT.709 HDTV: the same primaries and D65 white as sRGB, but with the
- * BT.709 camera transfer function (OETF) instead of the sRGB curve. The linear
- * light is identical to linear sRGB, so this connects through `lrgb`.
+ * Rec. 709 — the ITU-R BT.709 standard defining the color primaries and transfer
+ * function for HDTV. It shares sRGB's red-green-blue primaries and D65 white point,
+ * differing only in a camera-oriented transfer curve (OETF) designed for broadcast
+ * cameras rather than computer displays. It remains the reference gamut for HD video
+ * production and broadcast.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @channel {R} 0 1 Red

@@ -1,9 +1,9 @@
 /**
- * RED Log3G12 / REDWideGamutRGB color space
- *
- * RED's Log3G12 — Log3G10's predecessor with 12 stops above 18% grey (grey → exactly
- * 1/3) — over the same REDWideGamutRGB primaries as `log3g10`. Sign-symmetric, so
- * negative scene values encode continuously.
+ * Log3G12 — an earlier RED Digital Cinema log curve, predating Log3G10 but sharing
+ * the same REDWideGamutRGB primaries. It allocates 12 stops of range above middle
+ * grey rather than Log3G10's 10, and its curve is sign-symmetric, encoding negative
+ * scene-linear values continuously instead of clipping them. RED has since moved to
+ * Log3G10 as its recommended acquisition curve.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log3G12.html}
  * @channel {R} 0 1 Red
@@ -14,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Grey (18%) encodes to exactly 1/3.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

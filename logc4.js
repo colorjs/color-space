@@ -1,9 +1,8 @@
 /**
- * ARRI LogC4 color space
- *
- * ARRI's 2023 log encoding (EI-independent) over the ARRI Wide Gamut 4 (AWG4)
- * primaries. Per-channel LogC4 curve to scene-linear, then the AWG4→XYZ(D65)
- * matrix. ARRI LogC4 Specification (2025-01-23).
+ * LogC4 — ARRI's fourth-generation logarithmic encoding, introduced with the
+ * ALEXA 35 in 2022. It compresses the sensor's 17 stops into a curve that keeps
+ * grading response uniform from deep shadow to specular highlight, paired with the
+ * ARRI Wide Gamut 4 primaries — the current standard for ARRI cinema workflows.
  *
  * @see {@link https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +13,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// EI-independent encoding. ARRI LogC4 Specification (2025-01-23).
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

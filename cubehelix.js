@@ -1,9 +1,13 @@
 /**
- * Cubehelix color space
- *
- * Perceptually uniform single-hue color scheme
- * Designed for scientific visualization
- * Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images
+ * Cubehelix is a color scheme designed by the astronomer Dave Green in 2011 for
+ * displaying astronomical intensity images, where a single continuous scalar value
+ * needs a color mapping that stays visually ordered from black to white even when
+ * printed in grayscale or viewed by someone with color-vision deficiency. Rather than
+ * picking colors freehand, it walks a spiral path — a "cube helix" — through RGB
+ * space as it rises from black to white, letting perceived brightness increase
+ * smoothly and monotonically while hue rotates around it. It is now widely used well
+ * beyond its original astronomical purpose, as a colorblind-safe, print-safe
+ * alternative to rainbow colormaps in scientific visualization generally.
  *
  * @see {@link https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/}
  * @channel {fraction} 0 1 Interpolation fraction along helix

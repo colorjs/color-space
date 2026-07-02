@@ -1,8 +1,10 @@
 /**
- * HSP color space (Hue, Saturation, Perceived brightness)
- *
- * Uses perceived brightness weighted by human eye sensitivity
- * Useful for perceptually uniform color operations
+ * HSP — Hue, Saturation, Perceived brightness, a cylindrical color model designed to
+ * fix a known flaw in HSL and HSV, where lightness and value don't match how bright
+ * colors actually look to the human eye. Perceived brightness is instead computed
+ * from a weighted mix of the red, green and blue channels that reflects the eye's
+ * differing sensitivity to each, so two colors with the same P value look equally
+ * bright regardless of hue.
  *
  * @see {@link https://alienryderflex.com/hsp.html}
  * @channel {H} 0 360 Hue angle in degrees

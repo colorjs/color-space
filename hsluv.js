@@ -1,10 +1,13 @@
 /**
- * HSLuv color space
- *
- * Human-friendly cylindrical form of CIELUV (LCHuv) — the chroma is rescaled so
- * S=100 is the sRGB gamut boundary at each (L, H). L and H pass straight through
- * to LCHuv; only S↔C differs. Reuses the library's `lchuv` (→ luv → xyz → rgb)
- * and XYZ→linear-sRGB matrix; only the gamut-boundary math lives here.
+ * HSLuv is Alexei Boronine's human-friendly cylindrical form of CIELUV, built to
+ * fix a longstanding frustration with HSL: at full saturation, different hues
+ * reach wildly different actual vividness, so pure yellow at S=100 looks nothing
+ * like pure blue at S=100. HSLuv rescales chroma per hue and lightness so that
+ * S=100 always lands exactly on the sRGB gamut boundary, giving a saturation
+ * slider that behaves consistently across every hue. Lightness and hue pass
+ * through unchanged from LCHuv, and the result is popular in design tools and
+ * palette generators that want HSL's familiar interface without its uneven color
+ * behavior.
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}

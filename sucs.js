@@ -1,10 +1,11 @@
 /**
- * sUCS color space
- *
- * The uniform colour space of sCAM, the "simple" colour-appearance model (Li & Luo
- * 2024) — claims CAM16-UCS-class uniformity from a far simpler pipeline: XYZ→LMS
- * (HPE-like), a signed power 0.43, then a fixed opponent mix to I (lightness) and
- * a, b. D65, I≈100 at white. A lighter-weight alternative to cam16-ucs / oklab.
+ * sUCS is the uniform color space built from sCAM, a "simple" color-appearance
+ * model published by Li and Luo in 2024. It aims to match the perceptual uniformity
+ * of CAM16-UCS — equal numeric distances corresponding to equal perceived
+ * differences — through a far lighter calculation pipeline than a full appearance
+ * model like CAM16 requires. It's meant as a fast, lower-complexity substitute for
+ * CAM16-UCS or Oklab in tasks such as color-difference measurement that don't need
+ * viewing-condition parameters.
  *
  * @see {@link https://doi.org/10.1364/OE.510196} Li & Luo 2024, Opt. Express 32, 3100
  * @channel {I} 0 100 Lightness
@@ -15,6 +16,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// XYZ -> LMS (Hunt-Pointer-Estevez-like matrix) -> signed power 0.43 -> fixed
+// opponent matrix to I (lightness), a, b.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

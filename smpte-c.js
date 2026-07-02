@@ -1,9 +1,10 @@
 /**
- * SMPTE-C color space
- *
- * The 525-line NTSC broadcast standard (SMPTE 170M / SMPTE-C primaries, D65) with
- * the ITU-R BT.601 transfer function (identical curve to BT.709/rec709). Per-channel
- * inverse-OETF to linear, then the SMPTE-C→XYZ(D65) matrix.
+ * SMPTE-C is the RGB primary set standardized by the Society of Motion Picture and
+ * Television Engineers (SMPTE 170M) for 525-line NTSC broadcast in North America and
+ * Japan. It replaced the original 1953 FCC/NTSC primaries with phosphors that were
+ * actually achievable by contemporary picture tubes, paired with a D65 white point.
+ * As an RGB working space it shares its transfer curve with Rec. 709/BT.601 video,
+ * and remains the reference gamut for describing legacy analog NTSC color.
  *
  * @see {@link https://en.wikipedia.org/wiki/SMPTE_C}
  * @channel {R} 0 1 Red

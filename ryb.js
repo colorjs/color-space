@@ -1,12 +1,12 @@
 /**
- * RYB color space (red-yellow-blue artists' model)
- *
- * The traditional painter's wheel — where blue + yellow makes green, not the additive
- * RGB grey. Implemented as Johannes Itten's chromatic cube (meodai/rybitten's
- * `RYB_ITTEN`): the 8 RYB corners carry hand-picked RGB anchors and any colour is a
- * smoothstep-eased trilinear blend between them. (0,0,0) = no pigment ≈ white,
- * (255,255,255) = all three ≈ black. RGB→RYB is the numerical (Newton) inverse and
- * best-fits colours outside the artists' gamut.
+ * RYB is the traditional artists' color wheel built on red, yellow and blue as
+ * primaries, the model taught in painting and design education long before RGB or
+ * CMYK existed. It captures how pigments actually mix on a palette rather than how
+ * light combines — blue and yellow mixed as paint make green, not the grey that
+ * additive red and green light would produce — matching painters' lived experience of
+ * color instead of colorimetric physics. The version implemented here follows Johannes
+ * Itten's chromatic color wheel from his Bauhaus color theory, still a standard
+ * reference for teaching color harmony in art and design.
  *
  * @see {@link https://github.com/meodai/rybitten}
  * @channel {R} 0 255 Red pigment
@@ -15,6 +15,12 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Implemented as Johannes Itten's chromatic cube (meodai/rybitten's `RYB_ITTEN`): the
+// 8 RYB corners carry hand-picked RGB anchors and any color is a smoothstep-eased
+// trilinear blend between them. (0,0,0) = no pigment ≈ white, (255,255,255) = all
+// three ≈ black. RGB→RYB is the numerical (Newton) inverse and best-fits colors
+// outside the artists' gamut.
 import rgb from './rgb.js';
 import { mat3, inv3 } from './util.js';
 

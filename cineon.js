@@ -1,10 +1,11 @@
 /**
- * Cineon color space
- *
- * Kodak Cineon printing-density log (the classic film-scan/DPX encoding, SMPTE 268M),
- * applied per channel over linear-light RGB. Reference black 95 / white 685 over a
- * 10-bit range; 18% grey encodes to 0.4573. No gamut of its own — a transfer over
- * `lrgb` (linear sRGB).
+ * Cineon — Kodak's printing-density log encoding from the early 1990s, created for
+ * the Cineon film-scanning and digital-intermediate system that first let film labs
+ * work with scanned negatives digitally instead of on an optical printer. Its
+ * 10-bit log curve maps negative density directly to code values, with reference
+ * black and white points chosen to mirror film stock's response. It has no gamut of
+ * its own — scanned imagery inherited whatever primaries the film stock and scanner
+ * implied — and it survives today mainly through the DPX file format it gave rise to.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Cineon.html}
  * @channel {R} 0 1 Red
@@ -13,6 +14,8 @@
  * @referred scene
  * @dynamic sdr
  */
+// Implementation notes:
+// SMPTE 268M. Reference black 95 / white 685 over a 10-bit range. 18% grey → 0.4573.
 import lrgb from './lrgb.js';
 
 const cineon = { name: 'cineon', range: [[0, 1], [0, 1], [0, 1]] };

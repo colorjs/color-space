@@ -1,9 +1,10 @@
 /**
- * Canon Log / Cinema Gamut color space
- *
- * Canon Log (the original, v1.2 constants) over Canon's Cinema Gamut (same matrix as
- * `clog2`). Symmetric log about black with the ÷0.9 reflection convention; 18% grey
- * → 0.3434. Per-channel Canon Log to scene-linear, then Cinema Gamut→XYZ(D65).
+ * Canon Log — Canon's first cinema log gamma, introduced with the EOS C300 in 2011
+ * to extend the dynamic range Cinema EOS cameras could capture ahead of grading. Its
+ * curve is symmetric around black, encoding a bit of below-black signal rather than
+ * clipping at zero. In this library it pairs with Canon's wide Cinema Gamut
+ * primaries, the same matrix shared with the later Canon Log 2 and Canon Log 3
+ * curves.
  *
  * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +15,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// v1.2 constants. ÷0.9 reflection convention. 18% grey → 0.3434.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

@@ -1,8 +1,9 @@
 /**
- * xyY color space
- *
- * Chromaticity coordinates (x, y) with luminance (Y)
- * Useful for color matching and display calibration
+ * xyY — a reformulation of CIE XYZ that separates a color's chromaticity (x, y) from its
+ * luminance (Y), so hue and saturation can be studied independently of brightness.
+ * Plotting x against y produces the familiar horseshoe-shaped chromaticity diagram used
+ * to visualize gamuts, specify white points, and compare how much of the visible
+ * spectrum a display or printer can reproduce.
  *
  * @see {@link http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html}
  * @channel {x} 0 1 Red chromaticity

@@ -1,11 +1,10 @@
 /**
- * Kelvin (correlated color temperature) color space
- *
- * Maps a colour temperature in kelvin to/from a point on the Planckian (black-body)
- * locus — "2700 K warm candle … 6500 K cool daylight", the white-balance axis. CCT→xy
- * uses Krystek's (1985) rational approximation of the locus; xy→CCT uses McCamy's
- * (1992) cubic. A 1-channel space (like `gray`); the inverse returns the nearest CCT,
- * so it round-trips on the locus but is lossy for off-locus colours.
+ * Kelvin — correlated color temperature (CCT), the familiar scale for describing a
+ * light source's warmth or coolness by comparing it to an ideal black-body radiator:
+ * roughly 2700 K for a warm incandescent candle-like glow, up to 6500 K and beyond for
+ * cool daylight. It's the white-balance axis used throughout photography, lighting
+ * design and display calibration, mapping a single temperature value to a point on the
+ * Planckian locus.
  *
  * @see {@link https://en.wikipedia.org/wiki/Planckian_locus}
  * @see {@link https://doi.org/10.1002/col.5080170211} McCamy 1992 (xy→CCT)
@@ -15,6 +14,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// CCT→xy uses Krystek's (1985) rational approximation of the locus; xy→CCT uses
+// McCamy's (1992) cubic. A 1-channel space (like `gray`); the inverse returns the
+// nearest CCT, so it round-trips on the locus but is lossy for off-locus colours.
 import xyz from './xyz.js';
 
 const kelvin = { name: 'kelvin', range: [[1000, 25000]] };

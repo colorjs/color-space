@@ -1,9 +1,10 @@
 /**
- * IPT color space
- *
- * Ebner & Fairchild (1998) opponent space with near-constant hue lines — the
- * structural ancestor of ICtCp. XYZ(D65)→LMS (M1), signed power 0.43, then
- * LMS′→IPT (M2). I = lightness, P = red-green, T = yellow-blue.
+ * IPT — an opponent color space built by Ebner & Fairchild in 1998 specifically so lines
+ * of constant hue stay straight under changes in saturation and lightness, a property
+ * CIELAB lacks. I, P and T stand for lightness, red-green and yellow-blue, derived from
+ * a cone-response power law followed by an opponent recombination. Its hue-linear design
+ * made it the structural ancestor of Dolby's ICtCp, and it remains a common choice for
+ * gamut mapping and image-difference work.
  *
  * @see {@link https://doi.org/10.2352/CIC.1998.6.1.art00003}
  * @channel {I} 0 1 Lightness
@@ -14,6 +15,8 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// XYZ(D65) -> LMS via M1, signed power 0.43, then LMS' -> IPT via M2.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

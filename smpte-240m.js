@@ -1,9 +1,9 @@
 /**
- * SMPTE-240M color space
- *
- * The interim HDTV standard (SMPTE 240M, 1988-1998) that preceded Rec.709. Shares
- * the SMPTE-C / SMPTE 170M primaries (same matrix as `smpte-c`) but defines its own
- * formal OETF (a 0.45-power curve with a linear toe), distinct from BT.601/709. D65.
+ * SMPTE 240M — the interim HDTV standard published by SMPTE in 1988, used during the
+ * early analog high-definition era before Rec. 709 was finalized. It shares its wide
+ * broadcast primaries with SMPTE-C, referenced to D65 white, but defines its own
+ * transfer function — a gamma-like curve with a linear segment near black — distinct
+ * from the curves used in BT.601 and BT.709.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7291461}
  * @channel {R} 0 1 Red
@@ -14,6 +14,8 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// OETF is a 0.45-power curve with a linear toe near black.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 import { smpte240mEncode as enc, smpte240mDecode as dec } from './transfers.js';

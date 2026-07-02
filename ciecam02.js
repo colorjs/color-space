@@ -1,9 +1,13 @@
 /**
- * CIECAM02 color appearance model
- *
- * The CIE 2002 appearance model (predecessor of CAM16, still used in ICC v4
- * workflows). Reports [J, M, h] under the standard Moroney et al. (2002) viewing
- * conditions: D65 adapting white, La = 318.31 cd/m², Yb = 20, average surround.
+ * CIECAM02 is the color appearance model published by the CIE in 2002, developed to
+ * predict how a color will actually look to a human observer under real viewing
+ * conditions rather than simply specifying the color stimulus. It passes the
+ * physiological cone response through a chromatic-adaptation stage and an
+ * opponent-color stage to produce correlates of lightness, colorfulness and hue,
+ * along with chroma, saturation and brightness in the full model. Though CAM16 has
+ * since superseded it as a simpler, more robust successor, CIECAM02 remains embedded
+ * in ICC v4 color-management workflows and is still widely used for gamut mapping and
+ * cross-media color reproduction.
  *
  * @see {@link https://doi.org/10.1002/col.10125}
  * @channel {J} 0 100 Lightness
@@ -14,6 +18,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Baked to the standard Moroney et al. (2002) viewing conditions: D65 adapting white
+// (XYZ [95.05, 100, 108.88]), La = 318.31 cd/m², Yb = 20, average surround — matching
+// the CIECAM02 reference implementation.
 import xyz from './xyz.js';
 import { spow } from './util.js';
 

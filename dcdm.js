@@ -1,10 +1,11 @@
 /**
- * DCDM X′Y′Z′ color space
- *
- * The Digital Cinema Distribution Master encoding inside every DCP: gamma-2.6-encoded
- * CIE XYZ, X′ = (X/52.37)^(1/2.6) (SMPTE ST 428-1), with the SMPTE ST 431-1 reference
- * projector white — relative Y=100 ≡ 48 cd/m² — baked in, so D65 white → ≈[0.948,
- * 0.967, 0.976]. Negative XYZ clamps to 0.
+ * DCDM — the Digital Cinema Distribution Master encoding embedded in every DCP
+ * (Digital Cinema Package) shipped to theatres, standardized by SMPTE under the DCI
+ * digital cinema specification. It encodes CIE XYZ directly through a 2.6 power-law
+ * gamma rather than an RGB transfer curve, tying relative white to the DCI reference
+ * projector's calibrated brightness. It's a display-referred, deliverable-only
+ * format — content is mastered into DCDM as the last step before packaging for
+ * theatrical release.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7290729} SMPTE ST 428-1
  * @channel {X} 0 1 X′
@@ -15,6 +16,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// X′ = (X/52.37)^(1/2.6) (SMPTE ST 428-1). SMPTE ST 431-1 reference projector white:
+// relative Y=100 ≡ 48 cd/m², so D65 white → ≈[0.948, 0.967, 0.976]. Negative XYZ
+// clamps to 0.
 import xyz from './xyz.js';
 
 const dcdm = { name: 'dcdm', range: [[0, 1], [0, 1], [0, 1]] };

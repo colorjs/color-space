@@ -1,10 +1,14 @@
 /**
- * Ohta I1I2I3 color space
- *
- * Yu-Ichi Ohta's decorrelated opponent space (1980 Kyoto thesis; Ohta, Kanade &
- * Sakai 1980), an approximate Karhunen-Loève transform of natural-image RGB used
- * widely in computer-vision segmentation (vegetation, fruit, flame, skin). An exact,
- * invertible linear transform of RGB: I1 = intensity, I2/I3 = opponent chroma.
+ * The Ohta color space, introduced by Yu-Ichi Ohta, Takeo Kanade and Toshiyuki Sakai
+ * in 1980, decorrelates RGB into three opponent channels — an intensity channel and
+ * two chroma channels — chosen empirically to approximate the Karhunen-Loève
+ * transform (the statistically optimal decorrelation) of typical natural images,
+ * rather than being derived from any display or broadcast standard. Because it is a
+ * simple, exact and invertible linear transform of RGB, it is cheap to compute in
+ * both directions while still concentrating most of an image's variance into a
+ * single channel. It has been used widely in computer-vision segmentation tasks —
+ * isolating vegetation, fruit, flames, and skin regions — where that decorrelation
+ * makes thresholding more reliable than working directly in RGB.
  *
  * @see {@link https://doi.org/10.1016/0146-664X(80)90047-7} Ohta, Kanade & Sakai 1980
  * @channel {I1} 0 255 Intensity/3

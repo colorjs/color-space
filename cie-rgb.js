@@ -1,10 +1,11 @@
 /**
- * CIE RGB (1931) color space
- *
- * The original Wright-Guild experimental RGB whose colour-matching functions defined
- * CIE XYZ — monochromatic primaries at 700 / 546.1 / 435.8 nm, equal-energy white E,
- * linear (no gamma). The ancestor of all RGB spaces. Matrix derived from the primaries
- * (Lindbloom method) and Bradford-adapted from E to the library's D65 XYZ.
+ * CIE RGB — the experimental color space built directly from the 1931 Wright-Guild
+ * color-matching experiments, whose data became the foundation for the CIE XYZ
+ * standard itself. Its three primaries are monochromatic single-wavelength lights
+ * rather than the broadband primaries of any real display, referenced to an
+ * equal-energy white point. It survives today mainly as a historical and
+ * pedagogical space — the common ancestor from which nearly every later RGB space
+ * descends.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
  * @channel {R} 0 1 Red
@@ -15,6 +16,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Primaries are monochromatic lines at 700 / 546.1 / 435.8 nm. Matrix derived via
+// the Lindbloom method, Bradford-adapted from illuminant E to D65.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

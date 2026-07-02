@@ -1,8 +1,10 @@
 /**
- * JzAzBz color space
- *
- * High dynamic range color space based on PQ (Perceptual Quantizer)
- * Used for HDR content and next-generation color imaging
+ * JzAzBz — a perceptually uniform color space for high-dynamic-range imagery, published
+ * by Safdar et al. in 2017. It was designed so small lightness and color differences
+ * stay perceptually uniform across HDR's much wider luminance and gamut range, where
+ * CIELAB's uniformity breaks down. Jz is a PQ-encoded lightness, while az and bz are
+ * opponent red-green and yellow-blue axes; together they underlie HDR color-difference
+ * metrics and feed the cylindrical JzCzHz.
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131}
  * @channel {Jz} 0 1 Lightness

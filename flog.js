@@ -1,9 +1,10 @@
 /**
- * Fujifilm F-Log / F-Gamut color space
- *
- * Fujifilm's F-Log curve (linear toe + log highlight) over F-Gamut, whose primaries
- * are exactly ITU-R BT.2020 — so this is a transfer over the existing `rec2020-linear`.
- * 18% grey → 0.4593.
+ * F-Log — Fujifilm's log curve, introduced with the X-H1 in 2018 and later brought
+ * to the X-T2 and other X-series and GFX cameras by firmware update. It combines a
+ * linear toe in the shadows with a logarithmic highlight rolloff to extend
+ * recordable dynamic range ahead of grading. It's defined over F-Gamut, Fujifilm's
+ * color space whose primaries match ITU-R BT.2020, and remains the standard flat
+ * profile on Fujifilm bodies that lack the newer, wider-range F-Log2.
  *
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log_DataSheet_E_Ver.1.1.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +15,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 18% grey → 0.4593.
 import rec2020Linear from './rec2020-linear.js';
 
 const flog = { name: 'flog', range: [[0, 1], [0, 1], [0, 1]] };

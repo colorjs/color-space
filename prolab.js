@@ -1,10 +1,11 @@
 /**
- * proLab color space
- *
- * Konovalenko et al. (2021) projective perceptual space: unlike CIELAB's per-channel
- * cube root, proLab maps XYZ through a single 4×4 homogeneous (projective) matrix, so
- * straight lines (additive colour mixtures) stay straight while the metric tracks human
- * discrimination thresholds. D65; L≈100 at white.
+ * proLab is a projective perceptual color space proposed by Konovalenko and
+ * colleagues in 2021. Where CIELAB reshapes XYZ with an independent cube root on
+ * each channel, proLab applies a single projective transformation, so that
+ * straight-line mixtures of light — additive color mixing — stay straight lines in
+ * proLab coordinates while distances still track human discrimination thresholds
+ * the way CIELAB's do. That combination suits image-processing and color-difference
+ * work that depends on linear blending staying linear after the color transform.
  *
  * @see {@link https://arxiv.org/abs/2012.07653}
  * @channel {L} 0 100 Lightness
@@ -15,6 +16,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// The XYZ -> proLab step is a single 4x4 homogeneous (projective) matrix
+// transform, not CIELAB's per-channel cube root.
 import xyz from './xyz.js';
 
 const prolab = { name: 'prolab', range: [[0, 100], [-125, 125], [-125, 125]] };

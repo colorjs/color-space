@@ -1,9 +1,11 @@
 /**
- * CAM16-UCS color space
- *
- * Uniform-color-space form of CAM16 (Li et al. 2017): compresses lightness J and
- * colourfulness M, then lays out (J', a', b') as a near-Euclidean space suitable
- * for colour-difference (ΔE) and gamut mapping. Built on cam16 (J, M, h).
+ * CAM16-UCS is the uniform color space Li et al. built on top of CAM16 in their 2017
+ * paper, transforming CAM16's lightness and colorfulness correlates through a
+ * compressive scale so that equal numerical distances correspond much more closely
+ * to equal perceived color differences. Reprojected into Cartesian coordinates, it
+ * behaves like a CIELAB-style space but is far more perceptually uniform, making it
+ * well suited to computing color differences (ΔE) and to gamut mapping, where
+ * straight-line distance needs to track actual visual difference.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @channel {J} 0 100 Lightness

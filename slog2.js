@@ -1,10 +1,10 @@
 /**
- * Sony S-Log2 / S-Gamut color space
- *
- * Sony's S-Log2 curve over the S-Gamut primaries (identical primaries to S-Gamut3,
- * so the same matrix as `slog3`). S-Log2 wraps the base S-Log with a 155/219 scene
- * scaling and the in-reflection (÷0.9) + legal-range code-value convention. 18% grey
- * → 0.3395.
+ * S-Log2 — Sony's second-generation log curve, refining the original S-Log with a
+ * scaling adjustment that captures more of the camera's dynamic range and improves
+ * shadow reproduction. It shares the S-Gamut primaries with S-Log and S-Log3,
+ * sitting between them chronologically and in capability, before Sony moved to
+ * S-Log3 as its recommended acquisition curve. It still appears in workflows built
+ * around older Sony camera firmware.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html}
  * @channel {R} 0 1 Red
@@ -15,6 +15,10 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Same primaries/matrix as S-Gamut3 (see slog3.js). Wraps base S-Log with a 155/219
+// scene scaling and the in-reflection (÷0.9) + legal-range code-value convention.
+// 18% grey → 0.3395.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

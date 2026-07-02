@@ -1,7 +1,12 @@
 /**
- * CMYK color space
- *
- * Subtractive color model used in printing
+ * CMYK is the subtractive color model used throughout offset and digital printing,
+ * built from cyan, magenta and yellow inks plus a separate black channel (K, for
+ * "key"). Mixing cyan, magenta and yellow absorbs light rather than emitting it, the
+ * opposite of how RGB displays add colored light, so in principle their combination
+ * alone produces black — but real inks are impure, so a dedicated black channel keeps
+ * dark tones neutral, saves ink, and gives text and fine detail a cleaner edge. It
+ * remains the standard color model for prepress and printed output across the
+ * industry.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#device-cmyk}
  * @channel {C} 0 100 Cyan percentage

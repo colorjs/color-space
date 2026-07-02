@@ -1,6 +1,12 @@
 /**
- * YES color space
- * http://www.atlantis-press.com/php/download_paper.php?id=198
+ * YES is a luminance/chrominance color encoding in the same family as YIQ and YUV: Y
+ * carries luminance, while E (green-red) and S (blue-yellow) carry chrominance as
+ * simple linear combinations of the red, green and blue primaries. Its coordinates
+ * are cheap to compute directly from RGB, which is the model's main appeal, but
+ * unlike CIELAB or CIELUV they are not perceptually uniform — equal steps in E or S
+ * do not correspond to equal-looking color differences. It appears in the
+ * color-imaging literature as one of several such encodings used for image analysis
+ * and compression.
  *
  * @module color-space/yes
  *

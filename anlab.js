@@ -1,11 +1,12 @@
 /**
- * ANLAB (Adams-Nickerson) color space
- *
- * The chromatic-valence opponent space (Adams 1942; Nickerson 1950) — the direct
- * historical precursor of CIELAB. Applies the Munsell value function to the adapted
- * tristimulus ratios, then opponent differences. This is the ANLAB-40 form under
- * CIE Illuminant C / 2°; CIELAB later replaced the (iterative) Munsell value with a
- * cube root and renormalised lightness to 100 — here white is L ≈ 9.2·V(100) ≈ 91.
+ * ANLAB is the chromatic-valence opponent space developed by Adams in 1942 and
+ * extended by Nickerson in 1950 — the direct ancestor of CIELAB. It builds
+ * lightness and two opponent color channels by running each adapted tristimulus
+ * ratio through the Munsell Renotation System's empirical value function and then
+ * taking differences between the results, the same opponent-color logic CIELAB
+ * later kept while replacing that iterative Munsell function with a closed-form
+ * cube root in 1976. ANLAB saw substantial industrial use for color-difference
+ * measurement in the decades before CIELAB standardized the field.
  *
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x} McLaren 1970 (ANLAB formula)
  * @see {@link https://opg.optica.org/josa/abstract.cfm?uri=josa-32-3-168} Adams 1942
@@ -17,6 +18,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// This is the ANLAB-40 form (illuminant C, 2° observer). Because L is 9.2·V(Y)
+// rather than a renormalized 0-100 scale, white resolves to L ≈ 9.2·V(100) ≈ 91,
+// not 100.
 import xyz from './xyz.js';
 
 const anlab = { name: 'anlab',

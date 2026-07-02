@@ -1,8 +1,8 @@
 /**
- * ICtCp color space
- *
- * HDR perceptual color space for ITU-R BT.2100
- * Based on PQ transfer function for HDR video
+ * ICtCp — Dolby's HDR opponent space, standardized in ITU-R BT.2100 for HDR
+ * television. Intensity rides the PQ curve while Ct and Cp carry blue-yellow and
+ * red-green chroma, keeping hue stable under big luminance changes — the space HDR
+ * colorists grade in and the basis of the ΔE-ITP difference metric.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @channel {I} 0 1 Intensity

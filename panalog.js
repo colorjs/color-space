@@ -1,9 +1,11 @@
 /**
- * Panalog color space
- *
- * Panavision's Genesis-era Cineon-style log (black 64 / white 681 over 10 bits,
- * gain 444), per channel over linear-light RGB. No published native gamut — a
- * transfer over `lrgb` (linear sRGB), like `cineon`. 18% grey → 0.3746.
+ * Panalog — the log curve for the Panavision Genesis, a digital cinema camera
+ * developed jointly with Sony and released in 2005. Modeled on Kodak's Cineon
+ * printing-density curve with its own black and white reference points, it let
+ * Genesis footage slot into film-style, Cineon-based post pipelines, much like
+ * RED's REDLogFilm did later for RED footage. Panavision never published a native
+ * color gamut for the format, so it's handled here as a curve over linear RGB
+ * rather than a distinct primaries set.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Panalog.html}
  * @channel {R} 0 1 Red
@@ -12,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Black 64 / white 681 over 10 bits, gain 444. 18% grey → 0.3746.
 import lrgb from './lrgb.js';
 
 const panalog = { name: 'panalog', range: [[0, 1], [0, 1], [0, 1]] };

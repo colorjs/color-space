@@ -1,9 +1,9 @@
 /**
- * Nikon N-Log / N-Gamut color space
- *
- * Nikon's N-Log — a cube-root toe (shadows) and natural-log highlight (note: ln, not
- * log10) — over N-Gamut, whose primaries are exactly ITU-R BT.2020, so a transfer over
- * `rec2020-linear`. Constants are exact rationals (650/1023, …). 18% grey → 0.3637.
+ * N-Log — Nikon's log curve, introduced with the Z6 and Z7 mirrorless cameras in
+ * 2018 to preserve highlight and shadow detail for later grading, and carried
+ * forward across the rest of the Z-series. Its curve pairs a cube-root shadow toe
+ * with a natural-log highlight region, rather than the log10 curves common
+ * elsewhere. It's defined over N-Gamut, whose primaries match ITU-R BT.2020.
  *
  * @see {@link https://download.nikonimglib.com/archive3/hDCmK00m9JDI03RPruD74xpoU905/N-Log_Specification_(En)01.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Constants are exact rationals (650/1023, …). 18% grey → 0.3637.
 import rec2020Linear from './rec2020-linear.js';
 
 const nlog = { name: 'nlog', range: [[0, 1], [0, 1], [0, 1]] };

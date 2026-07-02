@@ -1,10 +1,11 @@
 /**
- * Apple Log color space
- *
- * Apple's Log profile (iPhone 15 Pro+, 2023): a quadratic toe for near/sub-black,
- * then a log2 segment. Apple Log (gen 1) uses ITU-R BT.2020 primaries, so a transfer
- * over `rec2020-linear`. 18% grey → 0.4883. (Spec via the public ACES CTL /
- * colour-science; Apple's own white paper is developer-gated.)
+ * Apple Log — Apple's log profile, introduced with the iPhone 15 Pro in 2023 for
+ * ProRes Log recording aimed at professional and cinematic video workflows, with
+ * tight integration into Final Cut Pro's color tools. Its curve opens with a
+ * quadratic toe near black before switching to a log2 highlight region, extending
+ * recordable dynamic range well beyond the phone's standard video profiles. It's
+ * defined over BT.2020 primaries, matching the wide-gamut sensors across the
+ * iPhone Pro line.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py}
  * @channel {R} 0 1 Red
@@ -15,6 +16,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 18% grey → 0.4883. Spec via the public ACES CTL / colour-science; Apple's own
+// white paper is developer-gated.
 import rec2020Linear from './rec2020-linear.js';
 
 const applelog = { name: 'applelog', range: [[0, 1], [0, 1], [0, 1]] };

@@ -1,8 +1,9 @@
 /**
- * Fujifilm F-Log2 / F-Gamut color space
- *
- * F-Log2 (~14 stops, a shallower log than F-Log) over F-Gamut = ITU-R BT.2020
- * primaries, so a transfer over `rec2020-linear`. 18% grey → 0.3910.
+ * F-Log2 — Fujifilm's second-generation log curve, introduced on the X-H2S to
+ * capture roughly 14 stops of dynamic range, more than the original F-Log. Its
+ * curve is shallower than F-Log's, spreading those extra stops across the
+ * code-value range at the cost of needing more careful grading. It shares the
+ * F-Gamut primaries, matching ITU-R BT.2020, with F-Log.
  *
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log2_DataSheet_E_Ver.1.0.pdf}
  * @channel {R} 0 1 Red
@@ -13,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// 18% grey → 0.3910.
 import rec2020Linear from './rec2020-linear.js';
 
 const flog2 = { name: 'flog2', range: [[0, 1], [0, 1], [0, 1]] };

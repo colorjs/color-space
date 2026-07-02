@@ -1,8 +1,11 @@
 /**
- * HCT color space (Hue, Chroma, Tone)
- *
- * Material Design's color system based on CAM16
- * Uses tone (perceptual lightness) instead of lightness
+ * HCT — hue, chroma, tone — is Google's color space for Material Design 3,
+ * introduced in 2021 to power Android's Material You dynamic theming. It pairs the
+ * hue and chroma of CAM16, a full color-appearance model that accounts for viewing
+ * conditions, with tone: CIELAB's L* lightness, chosen because contrast and
+ * accessibility formulas already depend on it. That combination lets a design
+ * system derive a complete tonal palette from a single seed color while keeping
+ * predictable contrast between any two tones.
  *
  * @see {@link https://material.io/blog/science-of-color-design}
  * @channel {H} 0 360 Hue angle in degrees

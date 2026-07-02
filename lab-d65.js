@@ -1,10 +1,12 @@
 /**
- * CIE Lab color space (1976), D65 reference white
- *
- * Display-native CIELAB: the reference white is D65, matching sRGB / Rec.709 /
- * Display P3, so converting display RGB needs no chromatic adaptation. The
- * default `lab` uses D50 (the ICC / CSS Color 4 convention); use this when you
- * want Lab anchored to the display white instead.
+ * Lab-D65 is CIELAB — the CIE's 1976 perceptual space — reanchored to the D65
+ * white point instead of the standard's usual D50, so it lines up directly with
+ * sRGB, Rec. 709 and Display P3. Keeping Lab and the display on the same white
+ * point avoids an extra chromatic-adaptation step when converting to and from RGB,
+ * which matters for work that stays entirely within a D65 display's color world
+ * rather than crossing into device-independent interchange. Its structure is
+ * otherwise identical to standard CIELAB: perceptually even lightness paired with
+ * red-green and yellow-blue opponent axes.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
  * @channel {L} 0 100 Lightness

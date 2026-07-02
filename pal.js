@@ -1,10 +1,9 @@
 /**
- * PAL / SECAM RGB color space
- *
- * The European 625-line analogue-TV primaries (EBU Tech 3213 / BT.470 B,G), D65,
- * γ≈2.2. Formally distinct from Rec.709 — the green primary sits at (0.29, 0.60)
- * vs sRGB's (0.30, 0.60) — so it is the correct gamut for archival PAL/SECAM
- * content. Matrix derived from the primaries.
+ * PAL/SECAM RGB — the primaries used by 625-line analogue television across Europe
+ * and much of the world, defined in EBU Tech 3213 and ITU-R BT.470 (System B/G).
+ * It shares sRGB's D65 white point and a similar gamma of about 2.2, but its green
+ * primary is subtly different, making it formally distinct from Rec. 709 — the
+ * correct gamut to use when working with archival PAL or SECAM broadcast material.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470}
  * @channel {R} 0 1 Red
@@ -15,6 +14,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Green primary at (0.29, 0.60) vs sRGB's (0.30, 0.60) - the source of the gamut
+// difference from Rec. 709. Matrix derived from the primaries.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 import { gammaEncode, gammaDecode } from './transfers.js';

@@ -1,8 +1,11 @@
 /**
- * DIN99o LCh color space
- *
- * Cylindrical (polar) form of DIN99o Lab. Defined relative to din99o-lab;
- * everything else is reached by chaining through it.
+ * DIN99o LCh is the cylindrical form of DIN99o Lab, the DIN 6176 color-difference
+ * space, converting its rectangular axes into chroma and hue for the same reason
+ * LCh does for ordinary CIELAB — a more direct handle for adjusting saturation and
+ * hue. It keeps DIN99o's central advantage: because the space is built so
+ * Euclidean distance already approximates perceived difference, a simple chroma
+ * or lightness difference here is a meaningful color-tolerance metric without
+ * further correction formulas.
  *
  * @see {@link https://en.wikipedia.org/wiki/DIN99}
  * @channel {L} 0 100 Lightness

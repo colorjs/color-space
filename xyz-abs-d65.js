@@ -1,6 +1,10 @@
 /**
- * Absolute XYZ (D65) — CIE XYZ in absolute luminance (cd/m²), where the relative
- * XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100).
+ * Absolute XYZ (D65) — CIE XYZ expressed in real physical units, candela per square
+ * meter, instead of the usual 0-100 relative scale. Relative XYZ only says how a color
+ * compares to a normalized white; absolute XYZ ties every value to an actual measurable
+ * brightness, which HDR workflows need since the same relative color can sit at very
+ * different real-world luminances. The two scales meet at ITU-R BT.2100's HDR reference
+ * white.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @channel {Xa} 0 192.9 Absolute X
@@ -11,6 +15,9 @@
  * @referred display
  * @dynamic hdr
  */
+// Implementation notes:
+// The relative XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R
+// BT.2100).
 import xyz from './xyz.js';
 
 const xyzAbsD65 = {

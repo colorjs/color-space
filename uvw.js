@@ -1,13 +1,12 @@
 /**
- * CIE 1964 U*V*W* color space
- *
- * Obsolete perceptual space, predecessor to CIELUV. Built on the CIE 1960 UCS
- * chromaticity (u′, v′):
- *   W* = 25·Y^(1/3) − 17        (Y in 0-100)
- *   U* = 13·W*·(u′ − u′n)
- *   V* = 13·W*·(v′ − v′n)
- * where (u′n, v′n) is the reference-white chromaticity. At an undefined
- * chromaticity (black, or W*=0) the color is achromatic, so U* = V* = 0.
+ * CIE 1964 U*V*W* is Wyszecki's extension of the CIE 1960 UCS chromaticity diagram
+ * into a full three-dimensional color space, adding a cube-root lightness
+ * dimension on top of the earlier system's uniform chromaticity coordinates. It
+ * was one of several perceptual color spaces proposed during the 1960s, all
+ * trying to make Euclidean distance track perceived color difference better than
+ * raw XYZ did. CIELUV superseded it outright in 1976, so today it's mainly of
+ * historical interest, marking the transition between the 1960 chromaticity
+ * diagram and the modern CIE 1976 spaces.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
  * @channel {U} -85 175 U* chrominance
@@ -18,6 +17,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// W* = 25·Y^(1/3) − 17 (Y in 0-100); U* = 13·W*·(u′ − u′n); V* = 13·W*·(v′ − v′n),
+// where (u′n, v′n) is the reference-white chromaticity. At W*=0 (black, or an
+// undefined chromaticity) the color is achromatic, so U* = V* = 0.
 import xyz from './xyz.js';
 
 const uvw = {

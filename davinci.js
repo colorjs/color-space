@@ -1,9 +1,11 @@
 /**
- * DaVinci Wide Gamut / DaVinci Intermediate color space
- *
- * Blackmagic's DaVinci Resolve default color-managed working space: the DaVinci
- * Intermediate log curve over DaVinci Wide Gamut primaries (D65). Matrices are the
- * exact values from the Blackmagic whitepaper. 18% grey → 0.3360.
+ * DaVinci Wide Gamut — Blackmagic's own wide color space and log curve, introduced
+ * in 2020 with DaVinci Resolve 17 as the default working space for Resolve's
+ * color-managed pipeline. Rather than targeting one camera, it's built as a
+ * camera-agnostic intermediate that footage from any brand can be converted into and
+ * graded consistently, similar in purpose to ACES but native to Resolve. Its DaVinci
+ * Intermediate log curve preserves highlight and shadow detail from any source
+ * camera ahead of the creative grade.
  *
  * @see {@link https://documents.blackmagicdesign.com/InformationNotes/DaVinci_Resolve_17_Wide_Gamut_Intermediate.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +16,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Matrices are the exact values from the Blackmagic whitepaper. 18% grey → 0.3360.
 import xyz from './xyz.js';
 import { mat3 } from './util.js';
 

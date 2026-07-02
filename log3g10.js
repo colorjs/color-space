@@ -1,8 +1,9 @@
 /**
- * RED Log3G10 / REDWideGamutRGB color space
- *
- * RED's Log3G10 (v3) transfer over the REDWideGamutRGB primaries. Per-channel
- * Log3G10 curve to scene-linear, then RWG→XYZ(D65). RED whitepaper 915-0187 Rev-C.
+ * Log3G10 — RED Digital Cinema's current log curve, introduced in 2017 alongside
+ * the REDWideGamutRGB primaries as part of RED's IPP2 image-processing pipeline. It
+ * maps the camera's very wide sensor dynamic range logarithmically so highlights and
+ * shadows both retain grading latitude, and it's the default acquisition space
+ * across RED's modern Komodo, V-Raptor, and Monstro/Helium-sensor cameras.
  *
  * @see {@link https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf}
  * @channel {R} 0 1 Red
@@ -13,6 +14,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// RED whitepaper 915-0187 Rev-C.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

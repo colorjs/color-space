@@ -1,8 +1,11 @@
 /**
- * LCh(ab) color space
- *
- * Cylindrical LAB with lightness, chroma, and hue
- * More intuitive than rectangular Lab coordinates
+ * LCh(ab) is the cylindrical form of CIELAB, the CIE's 1976 perceptual space,
+ * converting its rectangular a/b axes into chroma and hue so color can be adjusted
+ * the way people actually think about it — how saturated, and what hue — rather
+ * than as red-green and yellow-blue offsets. Lightness carries over unchanged from
+ * Lab, so the two share the same perceptual uniformity; only the color-axis
+ * representation differs. It underlies CSS Color 4's lch() function and is a
+ * common choice for building perceptually even saturation or hue controls.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-lab}
  * @channel {L} 0 100 Lightness

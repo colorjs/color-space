@@ -1,11 +1,10 @@
 /**
- * Wavelength color space
- *
- * The colour of monochromatic (single-wavelength) light — the "rainbow" / spectral
- * locus. Forward maps a wavelength in nm to CIE XYZ via the CIE 1931 2° colour-matching
- * functions (embedded at 5 nm, scaled so the 555 nm peak luminance is Y=100). The
- * inverse returns the dominant wavelength of any colour (shared with `dsh`), so it
- * round-trips for spectral inputs and is lossy otherwise (purples → negative).
+ * Wavelength — the color of monochromatic light, a single point on the visible
+ * spectrum's "rainbow" of pure spectral hues, from deep violet near 380 nm to deep red
+ * near 700 nm. Converting a wavelength to CIE XYZ uses the color-matching functions of
+ * the CIE 1931 standard observer, the same experimentally-derived functions underlying
+ * all of modern colorimetry. Going the other direction recovers the dominant wavelength
+ * of any color, the same quantity that gives CIE DSH its hue.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
  * @channel {wl} 380 700 Wavelength
@@ -14,6 +13,11 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Forward maps a wavelength in nm to CIE XYZ via the CIE 1931 2° colour-matching
+// functions (embedded at 5 nm, scaled so the 555 nm peak luminance is Y=100). The
+// inverse returns the dominant wavelength of any colour (shared with dsh.js), so it
+// round-trips for spectral inputs and is lossy otherwise (purples → negative).
 import xyz from './xyz.js';
 import { dominantWavelength } from './dsh.js';
 

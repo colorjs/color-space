@@ -1,24 +1,12 @@
 /**
- * RAL Design System+ color space
- *
- * RAL Design (≈1825 colours) is — unlike sample-defined RAL Classic — defined *by
- * construction* in CIELAB cylindrical coordinates. A code "RAL HHH L CC" maps to
- * CIE L*C*h directly: hue angle H (0-360°), lightness L = L*, chroma C = C*ab, so
- * L* = L, a* = C·cos H, b* = C·sin H. This is the published *definition*, not a
- * fitted approximation or a copied swatch table, which is what makes it a legitimate
- * algorithmic conversion here.
- *
- * CAUTIONS:
- * - "RAL" is a trademark of RAL gGmbH. This implements only the public coordinate
- *   definition (H/L/C ↔ CIELAB); it does NOT embed RAL's proprietary colour data, and
- *   RAL Classic (sample-defined, no open Lab) is deliberately NOT included.
- * - White point: neighbour `lab` (D50/2°), matching the freieFarbe HLC Colour Atlas —
- *   the open, CC-licensed reference for these hue/lightness/chroma colours, defined
- *   under D50/2°. The H,L,C→L*a*b* identity is itself white-point-independent; only a
- *   later Lab→RGB step depends on the illuminant. (RAL's own measurement white is not
- *   openly documented; D50/2° is chosen to agree with the citable reference dataset.)
- * - Real RAL Design codes are quantised (hue in 10° steps, etc.); this transform is
- *   continuous and does not snap to the nearest catalogued chip.
+ * RAL Design System+ is a color specification system of roughly 1,825 colors,
+ * maintained by RAL gGmbH and widely used across Europe to specify paints, coatings
+ * and architectural finishes. Unlike the older RAL Classic system, whose colors are
+ * defined only by physical sample swatches, RAL Design colors are defined
+ * algorithmically as cylindrical coordinates in CIELAB space — a hue angle, a
+ * lightness, and a chroma — making every RAL Design code a directly computable point
+ * in a standard, device-independent color space rather than a color that has to be
+ * matched by eye against a physical chip.
  *
  * @see {@link https://en.wikipedia.org/wiki/RAL_colour_standard}
  * @see {@link https://www.freiefarbe.de/en/colour-atlas/} freieFarbe HLC Colour Atlas (D50/2°, CC)
@@ -30,6 +18,15 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// "RAL" is a trademark of RAL gGmbH. This implements only the public coordinate
+// definition (H/L/C ↔ CIELAB); it does not embed RAL's proprietary color data, and
+// RAL Classic (sample-defined, no open Lab) is deliberately not included. White
+// point: matches the neighboring `lab` module (D50/2°), aligning with the freieFarbe
+// HLC Colour Atlas, the open CC-licensed reference for these hue/lightness/chroma
+// colors (RAL's own measurement white is not openly documented). Real RAL Design
+// codes are quantised (hue in 10° steps, etc.); this transform is continuous and does
+// not snap to the nearest catalogued chip.
 import lab from './lab.js';
 
 const raldesign = { name: 'ral-design',

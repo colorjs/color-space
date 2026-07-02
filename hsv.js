@@ -1,7 +1,10 @@
 /**
- * HSV color space (Hue, Saturation, Value)
- *
- * Cylindrical representation of RGB maximizing perceived saturation
+ * HSV — Hue, Saturation, Value (also called HSB, for Brightness), another
+ * cylindrical remapping of RGB from Alvy Ray Smith's 1978 paper. It shares HSL's hue
+ * angle but replaces lightness with value, the brightness of the most intense color
+ * channel, so pure hues stay fully saturated across the whole brightness range
+ * instead of washing out toward white. It is the model behind most color-picker
+ * "wheel plus square" interfaces.
  *
  * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @channel {H} 0 360 Hue angle in degrees

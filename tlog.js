@@ -1,10 +1,11 @@
 /**
- * FilmLight T-Log / E-Gamut color space
- *
- * FilmLight Baselight's working space: the T-Log quasi-log curve (pure log with a
- * linear extension below zero) over E-Gamut primaries (D65). Constants derive from
- * w=128 (linear value mapping to 1.0), g=16 (gradient at 0), o=0.075 (offset at 0).
- * 18% grey → 0.3966.
+ * T-Log — FilmLight's log curve for its Baselight color-grading systems, paired
+ * with the wide E-Gamut primaries as a camera-agnostic working space that footage
+ * from almost any camera can be converted into for grading. Its curve is a
+ * near-pure log function with a linear extension below zero, avoiding the harsh
+ * clipping a pure log would give to noise and sub-black signal. Baselight
+ * facilities use T-Log/E-Gamut much the way ACES or DaVinci Wide Gamut are used
+ * elsewhere — as a common space for mixing footage from multiple camera sources.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmLightTLog.html}
  * @channel {R} 0 1 Red
@@ -15,6 +16,9 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Constants derive from w=128 (linear value mapping to 1.0), g=16 (gradient at 0),
+// o=0.075 (offset at 0). 18% grey → 0.3966.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 

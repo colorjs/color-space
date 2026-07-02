@@ -1,8 +1,10 @@
 /**
- * Okhwb color space
- *
- * Hue / whiteness / blackness built on Okhsv (Ottosson) — the HWB analog of the
- * perceptual Okhsl/Okhsv pickers, bounded to the sRGB gamut.
+ * OkHWB is the whiteness-blackness counterpart to OkHSV, extending Björn Ottosson's
+ * 2021 family of Oklab-based color pickers. Like the classic HWB model, it describes
+ * any color as a pure hue mixed with some amount of white and some amount of black —
+ * a way of thinking about color closer to how painters mix tints and shades than
+ * hue/saturation/lightness sliders allow. Built directly on OkHSV, it inherits that
+ * space's perceptual evenness while staying bounded to the sRGB gamut.
  *
  * @see {@link https://bottosson.github.io/posts/okhsv/}
  * @channel {H} 0 360 Hue angle in degrees

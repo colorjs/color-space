@@ -1,9 +1,10 @@
 /**
- * Leica L-Log color space
- *
- * Leica's L-Log (SL2-S onward): linear toe below 0.006 then c·log10(d·x+e)+f,
- * recorded in a BT.2020 container per the L-Log reference manual — so a transfer
- * over `rec2020-linear`, like `nlog`. 18% grey → 0.4353.
+ * L-Log — Leica's log curve, introduced with the SL2-S and later brought to the SL
+ * and SL2 by firmware update, for grading on Leica's video-capable mirrorless
+ * cameras. Its curve opens with a short linear toe in deep shadow before switching
+ * to a logarithmic response, preserving highlight and shadow detail the way other
+ * manufacturers' log curves do. It's recorded in a BT.2020 color container, the
+ * same gamut Nikon's N-Log uses.
  *
  * @see {@link https://leica-camera.com/sites/default/files/2021-11/L-Log_Reference_Manual_EN.pdf}
  * @channel {R} 0 1 Red
@@ -14,6 +15,8 @@
  * @referred scene
  * @dynamic hdr
  */
+// Implementation notes:
+// Linear toe below 0.006, then c·log10(d·x+e)+f. 18% grey → 0.4353.
 import rec2020Linear from './rec2020-linear.js';
 
 const llog = { name: 'llog', range: [[0, 1], [0, 1], [0, 1]] };

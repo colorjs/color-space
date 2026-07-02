@@ -1,11 +1,10 @@
 /**
- * CIE 1976 UCS (u'v') color space
- *
- * The modern uniform-chromaticity diagram (CIE 15:2004 §8.1 / ISO 11664-5): the
- * dominant chromaticity space for LED binning (ANSI C78.377), display white-point
- * tolerancing (Δu'v'), CCT / Planckian-locus work and colorimeter reporting. The
- * v' axis is 1.5× the CIE 1960 v (the library's `ucs`). Stored with luminance Y as
- * an invertible u'v'Y triplet (analogous to xyY).
+ * CIE 1976 UCS (u', v') — the modern, more perceptually uniform successor to the 1960
+ * chromaticity diagram, standardized in CIE 15:2004. Equal distances on the u'v' plane
+ * correspond more closely to equal perceived color differences than the older CIE xy
+ * diagram does, which is why it's the chromaticity space of choice for LED binning,
+ * display white-point tolerancing (Δu'v'), correlated color temperature work along the
+ * Planckian locus, and colorimeter reporting.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELUV#The_CIE_1976_UCS_diagram}
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
@@ -17,6 +16,9 @@
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// The v' axis is 1.5x the CIE 1960 v (the library's `ucs`). Stored with luminance Y as
+// an invertible u'v'Y triplet (analogous to xyY).
 import xyz from './xyz.js';
 
 const uv = { name: 'uv',

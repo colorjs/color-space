@@ -1,8 +1,9 @@
 /**
- * LCh (D65) color space
- *
- * Cylindrical (polar) form of lab-d65 — intuitive hue/chroma with the D65 white
- * point. For the CSS/ICC D50 LCh, use `lchab`.
+ * LCh-D65 is the cylindrical form of Lab-D65 — CIELAB reanchored to the D65 white
+ * point — converting its rectangular axes into chroma and hue while keeping that
+ * display-matching white point. It gives the same intuitive saturation-and-hue
+ * handles as standard LCh, but without the chromatic-adaptation step a D50-anchored
+ * Lab would need when working directly with display colors.
  *
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition}
  * @channel {L} 0 100 Lightness
