@@ -18,7 +18,7 @@ import labD65 from './lab-d65.js'; // DIN 6176 is defined relative to D65 CIELab
 
 const din99oLab = {
 	name: 'din99o-lab',
-	range: [[0, 100], [-40.09, 45.501], [-40.469, 44.344]]
+	range: [[0, 100], [-40, 40], [-40, 40]]
 };
 
 const kE = 1, kCH = 1;

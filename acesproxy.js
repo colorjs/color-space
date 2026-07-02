@@ -18,7 +18,7 @@
  */
 import acescg from './acescg.js';
 
-const acesproxy = { name: 'acesproxy', range: [[64 / 1023, 940 / 1023], [64 / 1023, 940 / 1023], [64 / 1023, 940 / 1023]] };
+const acesproxy = { name: 'acesproxy', range: [[0.0626, 0.9189], [0.0626, 0.9189], [0.0626, 0.9189]] };
 
 const enc = x => (x <= Math.pow(2, -9.72) ? 64 : Math.max(64, Math.min(940, Math.round((Math.log2(x) + 2.5) * 50 + 425)))) / 1023;
 const dec = v => Math.pow(2, (v * 1023 - 425) / 50 - 2.5);

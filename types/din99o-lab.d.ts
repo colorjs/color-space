@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Din99o_labSpace extends ColorSpace {
 	name: 'din99o-lab';
-	range: [[0, 100], [-40.09, 45.501], [-40.469, 44.344]];
+	range: [[0, 100], [-40, 40], [-40, 40]];
 }
 
 declare const din99o_lab: Din99o_labSpace;

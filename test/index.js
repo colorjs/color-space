@@ -33,6 +33,14 @@ test('integrity — meta.js carries channels, range and @see refs per space', ()
 	is(meta.munsell.refs.length, 2, 'multiple @see per space extracted')
 })
 
+// `range` lives twice by design: the object literal serves tree-shaken single-file
+// imports (no meta.js dependency) and generate-types; meta.range is generated from
+// @channel JSDoc. @channel is the source of truth — this pins the literal to it.
+test('integrity — space.range literal matches @channel-derived meta.range', () => {
+	const drift = Object.keys(space).filter(n => JSON.stringify(space[n].range) !== JSON.stringify(meta[n].range))
+	is(drift, [], 'no drift between range literal and @channel')
+})
+
 test('edge: achromatic / black inputs are NaN-safe', () => {
 	is(space.rgb.hsi(128, 128, 128).map(round(1)), [0, 0, 50.2], 'hsi gray (was NaN hue)')
 	is(space.rgb.hsi(0, 0, 0), [0, 0, 0], 'hsi black (was NaN)')
