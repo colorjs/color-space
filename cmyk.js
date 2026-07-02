@@ -7,7 +7,7 @@
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage
- * @channel {K} 0 100 Black (Key) percentage
+ * @channel {K} 0 100 Black percentage
  * @referred display
  * @dynamic sdr
  */

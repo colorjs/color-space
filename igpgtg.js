@@ -8,8 +8,8 @@
  *
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2020.28.13}
  * @channel {Ig} 0 1 Intensity
- * @channel {Pg} -1 1 Protan (red-green)
- * @channel {Tg} -1 1 Tritan (yellow-blue)
+ * @channel {Pg} -1 1 Protan
+ * @channel {Tg} -1 1 Tritan
  * @illuminant D65
  * @observer 2
  * @referred display

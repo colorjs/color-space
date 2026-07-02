@@ -6,9 +6,9 @@
  * pairing for the REDcolor generations. 18% grey → 0.4573, as Cineon.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLogFilm.html}
- * @channel {R} 0 1 Red (REDLogFilm)
- * @channel {G} 0 1 Green (REDLogFilm)
- * @channel {B} 0 1 Blue (REDLogFilm)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

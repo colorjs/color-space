@@ -6,9 +6,9 @@
  * over `rec2020-linear` like `applelog`. 18% grey → 0.4535.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_MiLog.html}
- * @channel {R} 0 1 Red (Mi-Log)
- * @channel {G} 0 1 Green (Mi-Log)
- * @channel {B} 0 1 Blue (Mi-Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

@@ -8,9 +8,9 @@
  * Not for storage or compositing — use ACEScc/ACEScct. 18% grey → 426/1023 ≈ 0.4164.
  *
  * @see {@link https://docs.acescentral.com/specifications/acesproxy/}
- * @channel {R} 0.0626 0.9189 Red (ACESproxy)
- * @channel {G} 0.0626 0.9189 Green (ACESproxy)
- * @channel {B} 0.0626 0.9189 Blue (ACESproxy)
+ * @channel {R} 0.0626 0.9189 Red
+ * @channel {G} 0.0626 0.9189 Green
+ * @channel {B} 0.0626 0.9189 Blue
  * @illuminant D60
  * @observer 2
  * @referred scene

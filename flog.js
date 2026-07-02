@@ -6,9 +6,9 @@
  * 18% grey → 0.4593.
  *
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log_DataSheet_E_Ver.1.1.pdf}
- * @channel {R} 0 1 Red (F-Log)
- * @channel {G} 0 1 Green (F-Log)
- * @channel {B} 0 1 Blue (F-Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

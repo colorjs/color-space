@@ -6,7 +6,7 @@
  * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
- * @channel {V} 0 100 Value (brightness) percentage
+ * @channel {V} 0 100 Value percentage
  * @referred display
  * @dynamic sdr
  */

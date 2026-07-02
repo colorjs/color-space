@@ -8,9 +8,9 @@
  * luminance (L+M ≈ Y) as a third channel for invertibility.
  *
  * @see {@link https://doi.org/10.1364/JOSA.69.001183} MacLeod & Boynton 1979
- * @channel {l} 0 1 L/(L+M) red-green chromaticity
- * @channel {s} 0 1 S/(L+M) tritan chromaticity
- * @channel {Y} 0 100 Luminance (L+M)
+ * @channel {l} 0 1 Red-green chromaticity
+ * @channel {s} 0 1 Tritan chromaticity
+ * @channel {Y} 0 100 Luminance
  * @illuminant D65
  * @observer 2
  * @referred display

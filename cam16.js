@@ -5,7 +5,7 @@
  * Includes hue, saturation, brightness, and colorfulness
  *
  * @see {@link https://doi.org/10.1002/col.22131}
- * @channel {J} 0 100 Lightness (Brightness)
+ * @channel {J} 0 100 Lightness
  * @channel {M} 0 105 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees
  * @referred display

@@ -6,9 +6,9 @@
  * in-reflection (÷0.9) + 10-bit legal-range code-value convention. 18% grey → 0.3850.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html}
- * @channel {R} 0 1 Red (S-Log)
- * @channel {G} 0 1 Green (S-Log)
- * @channel {B} 0 1 Blue (S-Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

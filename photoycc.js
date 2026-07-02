@@ -12,8 +12,8 @@
  * @see {@link https://en.wikipedia.org/wiki/Photo_CD}
  * @see {@link https://www.ilkeratalay.com/colorspacesfaq.php} Bourgin Color Spaces FAQ §8.10
  * @channel {Yc} 0 255 Luma
- * @channel {C1} 0 255 Blue chroma (B-Y)
- * @channel {C2} 0 255 Red chroma (R-Y)
+ * @channel {C1} 0 255 Blue chroma
+ * @channel {C2} 0 255 Red chroma
  * @illuminant D65
  * @observer 2
  * @referred scene

@@ -8,9 +8,9 @@
  * `lrgb`. 18% grey → 0.6066.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmicPro6.html}
- * @channel {R} 0 1 Red (Filmic Pro 6)
- * @channel {G} 0 1 Green (Filmic Pro 6)
- * @channel {B} 0 1 Blue (Filmic Pro 6)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @referred scene
  * @dynamic hdr
  */

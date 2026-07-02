@@ -7,9 +7,9 @@
  * encodes to code 0 — so black round-trips to that floor. 18% grey → 0.6360.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_ViperLog.html}
- * @channel {R} 0 1 Red (ViperLog)
- * @channel {G} 0 1 Green (ViperLog)
- * @channel {B} 0 1 Blue (ViperLog)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @referred scene
  * @dynamic hdr
  */

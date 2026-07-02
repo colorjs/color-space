@@ -7,9 +7,9 @@
  * 0.967, 0.976]. Negative XYZ clamps to 0.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7290729} SMPTE ST 428-1
- * @channel {X} 0 1 X′ (gamma-2.6 X)
- * @channel {Y} 0 1 Y′ (gamma-2.6 Y)
- * @channel {Z} 0 1 Z′ (gamma-2.6 Z)
+ * @channel {X} 0 1 X′
+ * @channel {Y} 0 1 Y′
+ * @channel {Z} 0 1 Z′
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -6,9 +6,9 @@
  * exact values from the Blackmagic whitepaper. 18% grey → 0.3360.
  *
  * @see {@link https://documents.blackmagicdesign.com/InformationNotes/DaVinci_Resolve_17_Wide_Gamut_Intermediate.pdf}
- * @channel {R} 0 1 Red (DaVinci Intermediate)
- * @channel {G} 0 1 Green (DaVinci Intermediate)
- * @channel {B} 0 1 Blue (DaVinci Intermediate)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

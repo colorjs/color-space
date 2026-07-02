@@ -6,9 +6,9 @@
  * the values are identical to linear sRGB — only the declared range differs.
  *
  * @see {@link https://en.wikipedia.org/wiki/ScRGB}
- * @channel {R} -0.5 7.4998779296875 Red (linear)
- * @channel {G} -0.5 7.4998779296875 Green (linear)
- * @channel {B} -0.5 7.4998779296875 Blue (linear)
+ * @channel {R} -0.5 7.4998779296875 Red
+ * @channel {G} -0.5 7.4998779296875 Green
+ * @channel {B} -0.5 7.4998779296875 Blue
  * @illuminant D65
  * @observer 2
  * @referred display

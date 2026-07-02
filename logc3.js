@@ -6,9 +6,9 @@
  * LogC3 to scene-linear, then AWG3→XYZ(D65). 18% grey → 0.3910.
  *
  * @see {@link https://www.arri.com/resource/blob/31918/66f56e6abb6e5b6553929edf9aa7483e/2017-03-alexa-logc-curve-in-vfx-data.pdf}
- * @channel {R} 0 1 Red (LogC3)
- * @channel {G} 0 1 Green (LogC3)
- * @channel {B} 0 1 Blue (LogC3)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

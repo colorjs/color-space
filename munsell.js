@@ -19,9 +19,9 @@
  *
  * @see {@link https://www.rit.edu/science/munsell-color-science-lab-educational-resources}
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.20715} Centore 2012 (inversion)
- * @channel {H} 0 100 Hue (ASTM circle; 5R=5, 5Y=25, 5G=45, 5B=65, 5P=85)
- * @channel {V} 0 10 Value (lightness)
- * @channel {C} 0 38 Chroma (0=neutral; even-integer renotation grid)
+ * @channel {H} 0 100 Hue
+ * @channel {V} 0 10 Value
+ * @channel {C} 0 38 Chroma
  * @illuminant C
  * @observer 2
  * @referred display

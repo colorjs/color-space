@@ -2,13 +2,14 @@
  * ACES2065-1 color space (AP0 primaries)
  *
  * The ACES archival / interchange encoding: linear, AP0 primaries (which enclose
- * the entire visible gamut), ACES white (~D60). Connects to acescg (AP1) via the
- * published AP0↔AP1 matrix; everything else chains through there.
+ * the entire visible gamut), ACES white (~D60). Nominal 0-1, values extend to the
+ * 65504 half-float ceiling. Connects to acescg (AP1) via the published AP0↔AP1
+ * matrix; everything else chains through there.
  *
  * @see {@link https://docs.acescentral.com/specifications/aces2065-1/}
- * @channel {R} 0 1 Red (linear; extends to 65504 half-float)
- * @channel {G} 0 1 Green (linear; extends to 65504 half-float)
- * @channel {B} 0 1 Blue (linear; extends to 65504 half-float)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @referred scene
  * @dynamic hdr
  */

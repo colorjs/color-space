@@ -6,7 +6,7 @@
  * Reference: Green, D. A. (2011) A colour scheme for the display of astronomical intensity images
  *
  * @see {@link https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/}
- * @channel {fraction} 0 1 Interpolation fraction along helix (0-1)
+ * @channel {fraction} 0 1 Interpolation fraction along helix
  * @referred display
  * @dynamic sdr
  */

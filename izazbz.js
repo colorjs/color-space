@@ -8,7 +8,7 @@
  * 1 (library 0-100 ÷ 100).
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131} Safdar et al. 2017
- * @channel {Iz} 0 1 Achromatic (PQ)
+ * @channel {Iz} 0 1 Achromatic
  * @channel {az} -0.1 0.1 Red-Green
  * @channel {bz} -0.1 0.1 Yellow-Blue
  * @illuminant D65

@@ -2,12 +2,13 @@
  * ACEScg color space
  *
  * Academy Color Encoding System linear working space (AP1 primaries) for CGI /
- * compositing. Scene-referred, unbounded.
+ * compositing. Scene-referred, unbounded — nominal 0-1, values extend to the 65504
+ * half-float ceiling.
  *
  * @see {@link https://docs.acescentral.com/specifications/acescg/}
- * @channel {R} 0 1 Red (linear; extends to 65504 half-float)
- * @channel {G} 0 1 Green (linear; extends to 65504 half-float)
- * @channel {B} 0 1 Blue (linear; extends to 65504 half-float)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @referred scene
  * @dynamic hdr
  */

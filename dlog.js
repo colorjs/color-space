@@ -7,9 +7,9 @@
  * black box and is deliberately NOT included.)
  *
  * @see {@link https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf}
- * @channel {R} 0 1 Red (D-Log)
- * @channel {G} 0 1 Green (D-Log)
- * @channel {B} 0 1 Blue (D-Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

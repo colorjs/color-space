@@ -3,9 +3,9 @@
  * from the D65 `xyz` hub.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-xyz}
- * @channel {X} 0 96.42 X (D50)
- * @channel {Y} 0 100 Y (D50)
- * @channel {Z} 0 82.51 Z (D50)
+ * @channel {X} 0 96.42 X
+ * @channel {Y} 0 100 Y
+ * @channel {Z} 0 82.51 Z
  * @illuminant D50
  * @observer 2
  * @referred display

@@ -5,9 +5,9 @@
  * device-independent hub other spaces chain through. 0–100 scale (Y = 100 at white).
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-xyz}
- * @channel {X} 0 95.05 X (D65)
- * @channel {Y} 0 100 Y (D65)
- * @channel {Z} 0 108.91 Z (D65)
+ * @channel {X} 0 95.05 X
+ * @channel {Y} 0 100 Y
+ * @channel {Z} 0 108.91 Z
  * @illuminant D65
  * @observer 2
  * @referred display

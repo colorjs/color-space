@@ -6,9 +6,9 @@
  * over `rec2020-linear`, like `nlog`. 18% grey → 0.4353.
  *
  * @see {@link https://leica-camera.com/sites/default/files/2021-11/L-Log_Reference_Manual_EN.pdf}
- * @channel {R} 0 1 Red (L-Log)
- * @channel {G} 0 1 Green (L-Log)
- * @channel {B} 0 1 Blue (L-Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

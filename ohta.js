@@ -7,9 +7,9 @@
  * invertible linear transform of RGB: I1 = intensity, I2/I3 = opponent chroma.
  *
  * @see {@link https://doi.org/10.1016/0146-664X(80)90047-7} Ohta, Kanade & Sakai 1980
- * @channel {I1} 0 255 Intensity (R+G+B)/3
- * @channel {I2} -128 128 Opponent (R-B)/2
- * @channel {I3} -128 128 Opponent (2G-R-B)/4
+ * @channel {I1} 0 255 Intensity/3
+ * @channel {I2} -128 128 Opponent/2
+ * @channel {I3} -128 128 Opponent/4
  * @referred display
  * @dynamic sdr
  */

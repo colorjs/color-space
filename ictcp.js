@@ -5,9 +5,9 @@
  * Based on PQ transfer function for HDR video
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
- * @channel {I} 0 1 Intensity (lightness)
- * @channel {Ct} -0.5 0.5 Tritan chroma (blue-yellow)
- * @channel {Cp} -0.5 0.5 Protanopia chroma (red-green)
+ * @channel {I} 0 1 Intensity
+ * @channel {Ct} -0.5 0.5 Tritan chroma
+ * @channel {Cp} -0.5 0.5 Protanopia chroma
  * @referred display
  * @dynamic hdr
  */

@@ -6,9 +6,9 @@
  * transfer over `lrgb` (linear sRGB), like `cineon`. 18% grey → 0.3746.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Panalog.html}
- * @channel {R} 0 1 Red (Panalog)
- * @channel {G} 0 1 Green (Panalog)
- * @channel {B} 0 1 Blue (Panalog)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @referred scene
  * @dynamic hdr
  */

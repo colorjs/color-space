@@ -6,9 +6,9 @@
  * https://ds.jpeg.org/whitepapers/jpeg-xl-whitepaper.pdf)
  *
  * @see {@link https://arxiv.org/abs/1908.03565}
- * @channel {X} -0.0154 0.0281 Red-green (L−M)
- * @channel {Y} 0 0.8453 Luminance (L+M)
- * @channel {B} -0.2778 0.388 Blue (S)
+ * @channel {X} -0.0154 0.0281 Red-green
+ * @channel {Y} 0 0.8453 Luminance
+ * @channel {B} -0.2778 0.388 Blue
  * @referred display
  * @dynamic sdr
  */

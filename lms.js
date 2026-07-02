@@ -5,9 +5,9 @@
  * Used for chromatic adaptation transformations
  *
  * @see {@link https://en.wikipedia.org/wiki/LMS_color_space}
- * @channel {L} 0 100 Long wavelength (red) response
- * @channel {M} 0 105 Medium wavelength (green) response
- * @channel {S} 0 110 Short wavelength (blue) response
+ * @channel {L} 0 100 Long
+ * @channel {M} 0 105 Medium
+ * @channel {S} 0 110 Short
  * @referred display
  * @dynamic sdr
  */

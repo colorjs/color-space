@@ -11,7 +11,7 @@
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
  * @channel {u} 0 0.7 u' chromaticity
  * @channel {v} 0 0.6 v' chromaticity
- * @channel {Y} 0 100 Luminance (CIE Y)
+ * @channel {Y} 0 100 Luminance
  * @illuminant D65
  * @observer 2
  * @referred display

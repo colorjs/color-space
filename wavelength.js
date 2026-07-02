@@ -8,7 +8,7 @@
  * round-trips for spectral inputs and is lossy otherwise (purples → negative).
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
- * @channel {wl} 380 700 Wavelength (nm; negative = complementary for purples)
+ * @channel {wl} 380 700 Wavelength
  * @illuminant E
  * @observer 2
  * @referred display

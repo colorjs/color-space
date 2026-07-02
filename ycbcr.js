@@ -6,7 +6,7 @@
  * BT.601; full-range 601 is the `jpeg` space.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
- * @channel {Y} 16 235 Luma (brightness)
+ * @channel {Y} 16 235 Luma
  * @channel {Cb} 16 240 Blue chroma
  * @channel {Cr} 16 240 Red chroma
  * @referred display

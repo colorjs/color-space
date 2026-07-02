@@ -41,7 +41,7 @@
  * @module  color-space/xvycc
  *
  * @see {@link https://webstore.iec.ch/publication/6168}
- * @channel {Y} 0 255 Luma (extended)
+ * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma
  * @referred display

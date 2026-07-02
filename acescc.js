@@ -5,9 +5,9 @@
  * Reference for film post-production
  *
  * @see {@link https://docs.acescentral.com/specifications/acescc/}
- * @channel {R} -0.358 1.468 Red (log encoded)
- * @channel {G} -0.358 1.468 Green (log encoded)
- * @channel {B} -0.358 1.468 Blue (log encoded)
+ * @channel {R} -0.358 1.468 Red
+ * @channel {G} -0.358 1.468 Green
+ * @channel {B} -0.358 1.468 Blue
  * @referred scene
  * @dynamic hdr
  */

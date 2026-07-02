@@ -10,7 +10,7 @@
  * @see {@link https://doi.org/10.1002/col.22792} Hellwig & Fairchild 2022
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 60 Colourfulness
- * @channel {h} 0 360 Hue angle (degrees)
+ * @channel {h} 0 360 Hue angle
  * @illuminant D65
  * @observer 2
  * @referred display

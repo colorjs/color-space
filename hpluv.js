@@ -9,7 +9,7 @@
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
  * @channel {H} 0 360 Hue angle in degrees
- * @channel {S} 0 100 Saturation percentage (pastel gamut; exceeds 100 outside it)
+ * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage
  * @illuminant D65
  * @observer 2

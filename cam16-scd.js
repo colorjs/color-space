@@ -6,9 +6,9 @@
  * with the SCD-tuned constant c2 = 0.0363. Built on `cam16` (J, M, h).
  *
  * @see {@link https://doi.org/10.1002/col.22131}
- * @channel {J} 0 100 Lightness (J')
- * @channel {a} -50 50 Red-Green (a')
- * @channel {b} -50 50 Yellow-Blue (b')
+ * @channel {J} 0 100 Lightness
+ * @channel {a} -50 50 Red-Green
+ * @channel {b} -50 50 Yellow-Blue
  * @referred display
  * @dynamic sdr
  */

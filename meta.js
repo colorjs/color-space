@@ -8,19 +8,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -96,19 +96,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear; extends to 65504 half-float)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear; extends to 65504 half-float)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear; extends to 65504 half-float)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -130,7 +130,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACES2065-1 color space (AP0 primaries) The ACES archival / interchange encoding: linear, AP0 primaries (which enclose the entire visible gamut), ACES white (~D60). Connects to acescg (AP1) via the published AP0↔AP1 matrix; everything else chains through there."
+    "description": "ACES2065-1 color space (AP0 primaries) The ACES archival / interchange encoding: linear, AP0 primaries (which enclose the entire visible gamut), ACES white (~D60). Nominal 0-1, values extend to the 65504 half-float ceiling. Connects to acescg (AP1) via the published AP0↔AP1 matrix; everything else chains through there."
   },
   "acescc": {
     "channels": [
@@ -138,19 +138,19 @@ export default {
         "symbol": "R",
         "min": -0.358,
         "max": 1.468,
-        "name": "Red (log encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": -0.358,
         "max": 1.468,
-        "name": "Green (log encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": -0.358,
         "max": 1.468,
-        "name": "Blue (log encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -180,19 +180,19 @@ export default {
         "symbol": "R",
         "min": -0.358,
         "max": 1.468,
-        "name": "Red (log encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": -0.358,
         "max": 1.468,
-        "name": "Green (log encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": -0.358,
         "max": 1.468,
-        "name": "Blue (log encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -222,19 +222,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear; extends to 65504 half-float)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear; extends to 65504 half-float)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear; extends to 65504 half-float)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -256,7 +256,7 @@ export default {
     ],
     "referred": "scene",
     "dynamic": "hdr",
-    "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded."
+    "description": "ACEScg color space Academy Color Encoding System linear working space (AP1 primaries) for CGI / compositing. Scene-referred, unbounded — nominal 0-1, values extend to the 65504 half-float ceiling."
   },
   "acesproxy": {
     "channels": [
@@ -264,19 +264,19 @@ export default {
         "symbol": "R",
         "min": 0.0626,
         "max": 0.9189,
-        "name": "Red (ACESproxy)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0.0626,
         "max": 0.9189,
-        "name": "Green (ACESproxy)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0.0626,
         "max": 0.9189,
-        "name": "Blue (ACESproxy)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -308,19 +308,19 @@ export default {
         "symbol": "L",
         "min": 0,
         "max": 100,
-        "name": "Lightness (9.2·V)"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -100,
         "max": 100,
-        "name": "Red-Green (40·ΔV)"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -100,
         "max": 100,
-        "name": "Yellow-Blue (16·ΔV)"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -397,19 +397,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Apple Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Apple Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Apple Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -441,19 +441,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (BMD Film Gen5)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (BMD Film Gen5)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (BMD Film Gen5)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -485,19 +485,19 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (J')"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -50,
         "max": 50,
-        "name": "Red-Green (a')"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -50,
         "max": 50,
-        "name": "Yellow-Blue (b')"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -527,19 +527,19 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (J')"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -50,
         "max": 50,
-        "name": "Red-Green (a')"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -50,
         "max": 50,
-        "name": "Yellow-Blue (b')"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -569,19 +569,19 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (J')"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -50,
         "max": 50,
-        "name": "Red-Green (a')"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -50,
         "max": 50,
-        "name": "Yellow-Blue (b')"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -611,19 +611,19 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (J')"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -50,
         "max": 50,
-        "name": "Red-Green (a')"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -50,
         "max": 50,
-        "name": "Yellow-Blue (b')"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -653,19 +653,19 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (J')"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -50,
         "max": 50,
-        "name": "Red-Green (a')"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -50,
         "max": 50,
-        "name": "Yellow-Blue (b')"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -695,19 +695,19 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (J')"
+        "name": "Lightness"
       },
       {
         "symbol": "a",
         "min": -50,
         "max": 50,
-        "name": "Red-Green (a')"
+        "name": "Red-Green"
       },
       {
         "symbol": "b",
         "min": -50,
         "max": 50,
-        "name": "Yellow-Blue (b')"
+        "name": "Yellow-Blue"
       }
     ],
     "range": [
@@ -737,7 +737,7 @@ export default {
         "symbol": "J",
         "min": 0,
         "max": 100,
-        "name": "Lightness (Brightness)"
+        "name": "Lightness"
       },
       {
         "symbol": "M",
@@ -779,19 +779,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (700 nm)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (546.1 nm)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (435.8 nm)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -873,19 +873,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Cineon-coded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Cineon-coded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Cineon-coded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -915,19 +915,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Canon Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Canon Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Canon Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -959,19 +959,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Canon Log 2 encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Canon Log 2 encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Canon Log 2 encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1003,19 +1003,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Canon Log 3)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Canon Log 3)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Canon Log 3)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1107,7 +1107,7 @@ export default {
         "symbol": "K",
         "min": 0,
         "max": 100,
-        "name": "Black (Key) percentage"
+        "name": "Black percentage"
       }
     ],
     "range": [
@@ -1183,7 +1183,7 @@ export default {
         "symbol": "fraction",
         "min": 0,
         "max": 1,
-        "name": "Interpolation fraction along helix (0-1)"
+        "name": "Interpolation fraction along helix"
       }
     ],
     "range": [
@@ -1205,19 +1205,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (DaVinci Intermediate)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (DaVinci Intermediate)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (DaVinci Intermediate)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1249,19 +1249,19 @@ export default {
         "symbol": "X",
         "min": 0,
         "max": 1,
-        "name": "X′ (gamma-2.6 X)"
+        "name": "X′"
       },
       {
         "symbol": "Y",
         "min": 0,
         "max": 1,
-        "name": "Y′ (gamma-2.6 Y)"
+        "name": "Y′"
       },
       {
         "symbol": "Z",
         "min": 0,
         "max": 1,
-        "name": "Z′ (gamma-2.6 Z)"
+        "name": "Z′"
       }
     ],
     "range": [
@@ -1469,19 +1469,19 @@ export default {
         "symbol": "Ach",
         "min": -100,
         "max": 100,
-        "name": "Achromatic (luminance)"
+        "name": "Achromatic"
       },
       {
         "symbol": "RG",
         "min": -100,
         "max": 100,
-        "name": "Red-Green (L−M)"
+        "name": "Red-Green"
       },
       {
         "symbol": "YV",
         "min": -100,
         "max": 100,
-        "name": "Tritan (S−(L+M))"
+        "name": "Tritan"
       }
     ],
     "range": [
@@ -1513,19 +1513,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (D-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (D-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (D-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1557,7 +1557,7 @@ export default {
         "symbol": "d",
         "min": -700,
         "max": 700,
-        "name": "Dominant wavelength (nm; negative = complementary/purple)"
+        "name": "Dominant wavelength"
       },
       {
         "symbol": "s",
@@ -1569,7 +1569,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 100,
-        "name": "Luminance (CIE Y)"
+        "name": "Luminance"
       }
     ],
     "range": [
@@ -1602,19 +1602,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (ERIMM)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (ERIMM)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (ERIMM)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1646,19 +1646,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Filmic Pro 6)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Filmic Pro 6)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Filmic Pro 6)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1688,19 +1688,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (F-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (F-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (F-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1732,19 +1732,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (F-Log2)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (F-Log2)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (F-Log2)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -1894,7 +1894,7 @@ export default {
         "symbol": "T",
         "min": 0,
         "max": 100,
-        "name": "Tone (perceptual lightness)"
+        "name": "Tone"
       }
     ],
     "range": [
@@ -2066,7 +2066,7 @@ export default {
         "symbol": "h",
         "min": 0,
         "max": 360,
-        "name": "Hue angle (degrees)"
+        "name": "Hue angle"
       }
     ],
     "range": [
@@ -2104,7 +2104,7 @@ export default {
         "symbol": "S",
         "min": 0,
         "max": 100,
-        "name": "Saturation percentage (pastel gamut; exceeds 100 outside it)"
+        "name": "Saturation percentage"
       },
       {
         "symbol": "L",
@@ -2368,7 +2368,7 @@ export default {
         "symbol": "V",
         "min": 0,
         "max": 100,
-        "name": "Value (brightness) percentage"
+        "name": "Value percentage"
       }
     ],
     "range": [
@@ -2484,19 +2484,19 @@ export default {
         "symbol": "I",
         "min": 0,
         "max": 1,
-        "name": "Intensity (lightness)"
+        "name": "Intensity"
       },
       {
         "symbol": "Ct",
         "min": -0.5,
         "max": 0.5,
-        "name": "Tritan chroma (blue-yellow)"
+        "name": "Tritan chroma"
       },
       {
         "symbol": "Cp",
         "min": -0.5,
         "max": 0.5,
-        "name": "Protanopia chroma (red-green)"
+        "name": "Protanopia chroma"
       }
     ],
     "range": [
@@ -2532,13 +2532,13 @@ export default {
         "symbol": "Pg",
         "min": -1,
         "max": 1,
-        "name": "Protan (red-green)"
+        "name": "Protan"
       },
       {
         "symbol": "Tg",
         "min": -1,
         "max": 1,
-        "name": "Tritan (yellow-blue)"
+        "name": "Tritan"
       }
     ],
     "range": [
@@ -2614,7 +2614,7 @@ export default {
         "symbol": "Iz",
         "min": 0,
         "max": 1,
-        "name": "Achromatic (PQ)"
+        "name": "Achromatic"
       },
       {
         "symbol": "az",
@@ -2784,7 +2784,7 @@ export default {
         "symbol": "T",
         "min": 1000,
         "max": 25000,
-        "name": "Correlated color temperature (kelvin)"
+        "name": "Temperature"
       }
     ],
     "range": [
@@ -3115,19 +3115,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (L-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (L-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (L-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3159,19 +3159,19 @@ export default {
         "symbol": "L",
         "min": 0,
         "max": 100,
-        "name": "Long wavelength (red) response"
+        "name": "Long"
       },
       {
         "symbol": "M",
         "min": 0,
         "max": 105,
-        "name": "Medium wavelength (green) response"
+        "name": "Medium"
       },
       {
         "symbol": "S",
         "min": 0,
         "max": 110,
-        "name": "Short wavelength (blue) response"
+        "name": "Short"
       }
     ],
     "range": [
@@ -3201,19 +3201,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Log3G10 encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Log3G10 encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Log3G10 encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3245,19 +3245,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Log3G12)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Log3G12)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Log3G12)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3289,19 +3289,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (LogC3)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (LogC3)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (LogC3)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3333,19 +3333,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (LogC4 encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (LogC4 encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (LogC4 encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3377,19 +3377,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3463,19 +3463,19 @@ export default {
         "symbol": "l",
         "min": 0,
         "max": 1,
-        "name": "L/(L+M) red-green chromaticity"
+        "name": "Red-green chromaticity"
       },
       {
         "symbol": "s",
         "min": 0,
         "max": 1,
-        "name": "S/(L+M) tritan chromaticity"
+        "name": "Tritan chromaticity"
       },
       {
         "symbol": "Y",
         "min": 0,
         "max": 100,
-        "name": "Luminance (L+M)"
+        "name": "Luminance"
       }
     ],
     "range": [
@@ -3507,19 +3507,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Mi-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Mi-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Mi-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3551,19 +3551,19 @@ export default {
         "symbol": "H",
         "min": 0,
         "max": 100,
-        "name": "Hue (ASTM circle; 5R=5, 5Y=25, 5G=45, 5B=65, 5P=85)"
+        "name": "Hue"
       },
       {
         "symbol": "V",
         "min": 0,
         "max": 10,
-        "name": "Value (lightness)"
+        "name": "Value"
       },
       {
         "symbol": "C",
         "min": 0,
         "max": 38,
-        "name": "Chroma (0=neutral; even-integer renotation grid)"
+        "name": "Chroma"
       }
     ],
     "range": [
@@ -3596,19 +3596,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (N-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (N-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (N-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -3684,19 +3684,19 @@ export default {
         "symbol": "I1",
         "min": 0,
         "max": 255,
-        "name": "Intensity (R+G+B)/3"
+        "name": "Intensity/3"
       },
       {
         "symbol": "I2",
         "min": -128,
         "max": 128,
-        "name": "Opponent (R-B)/2"
+        "name": "Opponent/2"
       },
       {
         "symbol": "I3",
         "min": -128,
         "max": 128,
-        "name": "Opponent (2G-R-B)/4"
+        "name": "Opponent/4"
       }
     ],
     "range": [
@@ -3780,7 +3780,7 @@ export default {
         "symbol": "V",
         "min": 0,
         "max": 100,
-        "name": "Value (brightness) percentage"
+        "name": "Value percentage"
       }
     ],
     "range": [
@@ -4020,19 +4020,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (O-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (O-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (O-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4106,19 +4106,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4238,19 +4238,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Panalog)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Panalog)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Panalog)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4286,13 +4286,13 @@ export default {
         "symbol": "C1",
         "min": 0,
         "max": 255,
-        "name": "Blue chroma (B-Y)"
+        "name": "Blue chroma"
       },
       {
         "symbol": "C2",
         "min": 0,
         "max": 255,
-        "name": "Red chroma (R-Y)"
+        "name": "Red chroma"
       }
     ],
     "range": [
@@ -4369,19 +4369,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4457,19 +4457,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (Protune)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (Protune)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (Protune)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4501,19 +4501,19 @@ export default {
         "symbol": "H",
         "min": 0,
         "max": 360,
-        "name": "Hue (CIELAB hue angle, degrees)"
+        "name": "Hue"
       },
       {
         "symbol": "L",
         "min": 0,
         "max": 100,
-        "name": "Lightness (CIELAB L*)"
+        "name": "Lightness"
       },
       {
         "symbol": "C",
         "min": 0,
         "max": 100,
-        "name": "Chroma (CIELAB C*ab)"
+        "name": "Chroma"
       }
     ],
     "range": [
@@ -4546,19 +4546,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4634,19 +4634,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (HLG encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (HLG encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (HLG encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4678,19 +4678,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4722,19 +4722,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (PQ encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (PQ encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (PQ encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4810,19 +4810,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (REDLog)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (REDLog)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (REDLog)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -4854,19 +4854,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (REDLogFilm)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (REDLogFilm)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (REDLogFilm)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5103,19 +5103,19 @@ export default {
         "symbol": "R",
         "min": -0.5,
         "max": 7.4998779296875,
-        "name": "Red (linear)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": -0.5,
         "max": 7.4998779296875,
-        "name": "Green (linear)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": -0.5,
         "max": 7.4998779296875,
-        "name": "Blue (linear)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5147,19 +5147,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (S-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (S-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (S-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5191,19 +5191,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (S-Log2)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (S-Log2)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (S-Log2)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5235,19 +5235,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (S-Log3 encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (S-Log3 encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (S-Log3 encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5455,19 +5455,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (T-Log)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (T-Log)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (T-Log)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5502,7 +5502,7 @@ export default {
         "symbol": "T",
         "min": 0,
         "max": 360,
-        "name": "Tint (hue) angle in degrees"
+        "name": "Tint angle"
       },
       {
         "symbol": "S",
@@ -5514,7 +5514,7 @@ export default {
         "symbol": "L",
         "min": 0,
         "max": 255,
-        "name": "Lightness (brightness level)"
+        "name": "Lightness"
       }
     ],
     "range": [
@@ -5556,7 +5556,7 @@ export default {
         "symbol": "W",
         "min": 0,
         "max": 160,
-        "name": "W (related to brightness)"
+        "name": "W"
       }
     ],
     "range": [
@@ -5600,7 +5600,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 100,
-        "name": "Luminance (CIE Y)"
+        "name": "Luminance"
       }
     ],
     "range": [
@@ -5677,19 +5677,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (ViperLog)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (ViperLog)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (ViperLog)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5719,19 +5719,19 @@ export default {
         "symbol": "R",
         "min": 0,
         "max": 1,
-        "name": "Red (V-Log encoded)"
+        "name": "Red"
       },
       {
         "symbol": "G",
         "min": 0,
         "max": 1,
-        "name": "Green (V-Log encoded)"
+        "name": "Green"
       },
       {
         "symbol": "B",
         "min": 0,
         "max": 1,
-        "name": "Blue (V-Log encoded)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5766,7 +5766,7 @@ export default {
         "symbol": "wl",
         "min": 380,
         "max": 700,
-        "name": "Wavelength (nm; negative = complementary for purples)"
+        "name": "Wavelength"
       }
     ],
     "range": [
@@ -5790,7 +5790,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 255,
-        "name": "Luma (extended)"
+        "name": "Luma"
       },
       {
         "symbol": "Cb",
@@ -5832,19 +5832,19 @@ export default {
         "symbol": "X",
         "min": -0.0154,
         "max": 0.0281,
-        "name": "Red-green (L−M)"
+        "name": "Red-green"
       },
       {
         "symbol": "Y",
         "min": 0,
         "max": 0.8453,
-        "name": "Luminance (L+M)"
+        "name": "Luminance"
       },
       {
         "symbol": "B",
         "min": -0.2778,
         "max": 0.388,
-        "name": "Blue (S)"
+        "name": "Blue"
       }
     ],
     "range": [
@@ -5886,7 +5886,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 100,
-        "name": "Luminance (CIE Y)"
+        "name": "Luminance"
       }
     ],
     "range": [
@@ -5916,19 +5916,19 @@ export default {
         "symbol": "Xa",
         "min": 0,
         "max": 192.9,
-        "name": "Absolute X, cd/m² (diffuse white 203; HDR extends to 10000)"
+        "name": "Absolute X"
       },
       {
         "symbol": "Ya",
         "min": 0,
         "max": 203,
-        "name": "Absolute Y, cd/m² (diffuse white; HDR extends to 10000)"
+        "name": "Absolute Y"
       },
       {
         "symbol": "Za",
         "min": 0,
         "max": 221.1,
-        "name": "Absolute Z, cd/m² (diffuse white 203; HDR extends to 10000)"
+        "name": "Absolute Z"
       }
     ],
     "range": [
@@ -5960,19 +5960,19 @@ export default {
         "symbol": "X",
         "min": 0,
         "max": 96.42,
-        "name": "X (D50)"
+        "name": "X"
       },
       {
         "symbol": "Y",
         "min": 0,
         "max": 100,
-        "name": "Y (D50)"
+        "name": "Y"
       },
       {
         "symbol": "Z",
         "min": 0,
         "max": 82.51,
-        "name": "Z (D50)"
+        "name": "Z"
       }
     ],
     "range": [
@@ -6004,19 +6004,19 @@ export default {
         "symbol": "X",
         "min": 0,
         "max": 95.05,
-        "name": "X (D65)"
+        "name": "X"
       },
       {
         "symbol": "Y",
         "min": 0,
         "max": 100,
-        "name": "Y (D65)"
+        "name": "Y"
       },
       {
         "symbol": "Z",
         "min": 0,
         "max": 108.91,
-        "name": "Z (D65)"
+        "name": "Z"
       }
     ],
     "range": [
@@ -6048,7 +6048,7 @@ export default {
         "symbol": "Y",
         "min": 16,
         "max": 235,
-        "name": "Luma (brightness)"
+        "name": "Luma"
       },
       {
         "symbol": "Cb",
@@ -6176,7 +6176,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 1,
-        "name": "Luma (brightness)"
+        "name": "Luma"
       },
       {
         "symbol": "Db",
@@ -6224,7 +6224,7 @@ export default {
         "symbol": "E",
         "min": -0.5,
         "max": 0.5,
-        "name": "E-factor (red-green)"
+        "name": "E-factor"
       },
       {
         "symbol": "S",
@@ -6260,19 +6260,19 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 1,
-        "name": "Luma (brightness)"
+        "name": "Luma"
       },
       {
         "symbol": "I",
         "min": -0.5957,
         "max": 0.5957,
-        "name": "Chrominance (in-phase)"
+        "name": "In-phase"
       },
       {
         "symbol": "Q",
         "min": -0.5226,
         "max": 0.5226,
-        "name": "Chrominance (quadrature)"
+        "name": "Quadrature"
       }
     ],
     "range": [
@@ -6302,7 +6302,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 1,
-        "name": "Luma (brightness)"
+        "name": "Luma"
       },
       {
         "symbol": "Pb",
@@ -6388,7 +6388,7 @@ export default {
         "symbol": "Y",
         "min": 0,
         "max": 1,
-        "name": "Luma (brightness)"
+        "name": "Luma"
       },
       {
         "symbol": "U",
@@ -6442,7 +6442,7 @@ export default {
         "symbol": "h",
         "min": 0,
         "max": 360,
-        "name": "Hue angle (degrees)"
+        "name": "Hue angle"
       }
     ],
     "range": [

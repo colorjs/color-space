@@ -7,9 +7,9 @@
  * → 0.3395.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html}
- * @channel {R} 0 1 Red (S-Log2)
- * @channel {G} 0 1 Green (S-Log2)
- * @channel {B} 0 1 Blue (S-Log2)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

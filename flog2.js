@@ -5,9 +5,9 @@
  * primaries, so a transfer over `rec2020-linear`. 18% grey → 0.3910.
  *
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log2_DataSheet_E_Ver.1.0.pdf}
- * @channel {R} 0 1 Red (F-Log2)
- * @channel {G} 0 1 Green (F-Log2)
- * @channel {B} 0 1 Blue (F-Log2)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

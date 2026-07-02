@@ -5,7 +5,7 @@
  * ITU-R BT.709 standard for HD video
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
- * @channel {Y} 0 1 Luma (brightness)
+ * @channel {Y} 0 1 Luma
  * @channel {Pb} -0.5 0.5 Blue chroma
  * @channel {Pr} -0.5 0.5 Red chroma
  * @referred display

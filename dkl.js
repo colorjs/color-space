@@ -9,9 +9,9 @@
  * scaling — normalise to your stimulus set if needed.)
  *
  * @see {@link https://doi.org/10.1113/jphysiol.1984.sp015499} Derrington et al. 1984
- * @channel {Ach} -100 100 Achromatic (luminance)
- * @channel {RG} -100 100 Red-Green (L−M)
- * @channel {YV} -100 100 Tritan (S−(L+M))
+ * @channel {Ach} -100 100 Achromatic
+ * @channel {RG} -100 100 Red-Green
+ * @channel {YV} -100 100 Tritan
  * @illuminant D65
  * @observer 2
  * @referred display

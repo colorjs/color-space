@@ -7,7 +7,7 @@
  * @see {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
  * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate
- * @channel {W} 0 160 W (related to brightness)
+ * @channel {W} 0 160 W
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -7,9 +7,9 @@
  * (Lindbloom method) and Bradford-adapted from E to the library's D65 XYZ.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
- * @channel {R} 0 1 Red (700 nm)
- * @channel {G} 0 1 Green (546.1 nm)
- * @channel {B} 0 1 Blue (435.8 nm)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant E
  * @observer 2
  * @referred display

@@ -6,9 +6,9 @@
  * negative scene values encode continuously.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log3G12.html}
- * @channel {R} 0 1 Red (Log3G12)
- * @channel {G} 0 1 Green (Log3G12)
- * @channel {B} 0 1 Blue (Log3G12)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

@@ -7,7 +7,7 @@
  * @see {@link http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html}
  * @channel {x} 0 1 Red chromaticity
  * @channel {y} 0 1 Green chromaticity
- * @channel {Y} 0 100 Luminance (CIE Y)
+ * @channel {Y} 0 100 Luminance
  * @referred display
  * @dynamic sdr
  */

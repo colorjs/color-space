@@ -6,9 +6,9 @@
  * `rec2020-linear`. Constants are exact rationals (650/1023, …). 18% grey → 0.3637.
  *
  * @see {@link https://download.nikonimglib.com/archive3/hDCmK00m9JDI03RPruD74xpoU905/N-Log_Specification_(En)01.pdf}
- * @channel {R} 0 1 Red (N-Log)
- * @channel {G} 0 1 Green (N-Log)
- * @channel {B} 0 1 Blue (N-Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

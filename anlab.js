@@ -9,9 +9,9 @@
  *
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x} McLaren 1970 (ANLAB formula)
  * @see {@link https://opg.optica.org/josa/abstract.cfm?uri=josa-32-3-168} Adams 1942
- * @channel {L} 0 100 Lightness (9.2·V)
- * @channel {a} -100 100 Red-Green (40·ΔV)
- * @channel {b} -100 100 Yellow-Blue (16·ΔV)
+ * @channel {L} 0 100 Lightness
+ * @channel {a} -100 100 Red-Green
+ * @channel {b} -100 100 Yellow-Blue
  * @illuminant C
  * @observer 2
  * @referred display

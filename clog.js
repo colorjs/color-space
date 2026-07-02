@@ -6,9 +6,9 @@
  * → 0.3434. Per-channel Canon Log to scene-linear, then Cinema Gamut→XYZ(D65).
  *
  * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf}
- * @channel {R} 0 1 Red (Canon Log)
- * @channel {G} 0 1 Green (Canon Log)
- * @channel {B} 0 1 Blue (Canon Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

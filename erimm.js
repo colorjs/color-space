@@ -8,9 +8,9 @@
  * below e·0.001. 18% grey → 0.4101.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3 / Spaulding et al. 2000
- * @channel {R} 0 1 Red (ERIMM)
- * @channel {G} 0 1 Green (ERIMM)
- * @channel {B} 0 1 Blue (ERIMM)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D50
  * @observer 2
  * @referred scene

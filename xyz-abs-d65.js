@@ -3,9 +3,9 @@
  * XYZ hub's Y=100 corresponds to 203 cd/m² (HDR reference white, ITU-R BT.2100).
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
- * @channel {Xa} 0 192.9 Absolute X, cd/m² (diffuse white 203; HDR extends to 10000)
- * @channel {Ya} 0 203 Absolute Y, cd/m² (diffuse white; HDR extends to 10000)
- * @channel {Za} 0 221.1 Absolute Z, cd/m² (diffuse white 203; HDR extends to 10000)
+ * @channel {Xa} 0 192.9 Absolute X
+ * @channel {Ya} 0 203 Absolute Y
+ * @channel {Za} 0 221.1 Absolute Z
  * @illuminant D65
  * @observer 2
  * @referred display

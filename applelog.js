@@ -7,9 +7,9 @@
  * colour-science; Apple's own white paper is developer-gated.)
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py}
- * @channel {R} 0 1 Red (Apple Log)
- * @channel {G} 0 1 Green (Apple Log)
- * @channel {B} 0 1 Blue (Apple Log)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene

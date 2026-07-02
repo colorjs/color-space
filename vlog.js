@@ -6,9 +6,9 @@
  * Panasonic V-Log/V-Gamut Reference Manual (2014).
  *
  * @see {@link https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf}
- * @channel {R} 0 1 Red (V-Log encoded)
- * @channel {G} 0 1 Green (V-Log encoded)
- * @channel {B} 0 1 Blue (V-Log encoded)
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
  * @illuminant D65
  * @observer 2
  * @referred scene
