@@ -1,11 +1,14 @@
 /**
- * LCh(uv) color space
- *
- * Cylindrical CIE LUV with lightness, chroma, and hue
+ * LCh(uv) is the cylindrical form of CIELUV, the CIE's 1976 companion to CIELAB,
+ * converting its rectangular u/v axes into chroma and hue much as LCh(ab) does for
+ * Lab. It inherits LUV's defining additivity — mixtures of lights move predictably
+ * through the space — while giving a more intuitive saturation-and-hue handle for
+ * adjusting or comparing colors. It's also the basis for HSLuv and HPLuv, which
+ * rescale its chroma to fit the sRGB gamut.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCh)}
  * @channel {L} 0 100 Lightness
- * @channel {C} 0 150 Chroma
+ * @channel {C} 0 220 Chroma
  * @channel {H} 0 360 Hue angle in degrees
  * @illuminant D65
  * @observer 2
@@ -19,9 +22,10 @@ import { cartToPolar, polarToCart } from './util.js';
 // cylindrical luv
 var lchuv = {
 	name: 'lchuv',
-	range: [[0, 100], [0, 150], [0, 360]],
+	// C 0-220 — colorjs.io/coloraide reference range (sRGB reaches C ≈ 179)
+	range: [[0, 100], [0, 220], [0, 360]],
 
-	// L,C,H -> L,u,v (u,v: -100 to 100)
+	// L,C,H -> L,u,v (u,v: ±215)
 	luv: (l, c, h) => polarToCart(l, c, h),
 
 	xyz: function (l, c, h) {

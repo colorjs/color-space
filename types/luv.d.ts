@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface LuvSpace extends ColorSpace {
 	name: 'luv';
-	range: [[0, 100], [-100, 100], [-100, 100]];
+	range: [[0, 100], [-215, 215], [-215, 215]];
 }
 
 declare const luv: LuvSpace;

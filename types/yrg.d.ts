@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface YrgSpace extends ColorSpace {
 	name: 'yrg';
-	range: [[0, 1], [0, 1], [0, 1]];
+	range: [[0, 1.06], [0.02, 0.64], [0.21, 0.78]];
 }
 
 declare const yrg: YrgSpace;

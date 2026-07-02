@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface IzazbzSpace extends ColorSpace {
 	name: 'izazbz';
-	range: [[0, 1], [-0.1, 0.1], [-0.1, 0.1]];
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]];
 }
 
 declare const izazbz: IzazbzSpace;

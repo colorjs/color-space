@@ -1,25 +1,32 @@
 /**
- * Yrg color space (Kirk 2019)
- *
- * Richard Kirk's (FilmLight) luminance/chromaticity space on CIE 2006 LMS cones with
- * evenly-spaced Munsell hues — the chromaticity basis of darktable's colour-balance
- * UCS. Y is cone-weighted luminance; r,g are affine cone chromaticities. The inverse
- * here solves the affine map exactly (Kirk's published inverse uses rounded
- * coefficients); black maps to the r,g origin offsets.
+ * Yrg — Richard Kirk's 2019 luminance/chromaticity space, built at FilmLight on CIE 2006
+ * cone fundamentals and tuned so that hues land at even spacing around the wheel,
+ * matching the classical Munsell color order. Y carries cone-weighted luminance while r
+ * and g are chromaticity coordinates derived affinely from the cone responses,
+ * separating "how bright" from "what hue and how saturated" in a way suited to color
+ * grading. It's the chromaticity basis of darktable's color-balance module.
  *
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2019.27.38} Kirk 2019
- * @channel {Y} 0 1 Luminance
- * @channel {r} 0 1 Red chromaticity
- * @channel {g} 0 1 Green chromaticity
+ * @channel {Y} 0 1.06 Luminance
+ * @channel {r} 0.02 0.64 Red chromaticity
+ * @channel {g} 0.21 0.78 Green chromaticity
  * @illuminant D65
  * @observer 2
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// The inverse here solves the affine map exactly (Kirk's published inverse uses rounded
+// coefficients); black maps to the r,g origin offsets.
+//
+// Nominal ranges are the sRGB gamut extent (empirical: Y ≤ 1.058 at white — Kirk's
+// cone-fundamental luminance is not normalised to CIE Y; chromaticities span
+// r ∈ [0.028, 0.638], g ∈ [0.214, 0.775] between the primaries). Pure black has no
+// chromaticity and carries the affine origin (r, g) = (0.0206, −0.0515), just outside.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
-const yrg = { name: 'yrg', range: [[0, 1], [0, 1], [0, 1]] };
+const yrg = { name: 'yrg', range: [[0, 1.06], [0.02, 0.64], [0.21, 0.78]] };
 
 // XYZ -> LMS, CIE 2006 (Kirk 2019)
 const M = [0.257085, 0.859943, -0.031061, -0.394427, 1.175800, 0.106423, 0.064856, -0.076250, 0.559067];

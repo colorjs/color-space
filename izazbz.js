@@ -1,25 +1,29 @@
 /**
- * Izazbz color space
- *
- * The perceptual opponent stage Safdar et al. (2017) built Jzazbz on — PQ-encoded
- * LMS through the Iz/az/bz mix, *before* Jzazbz's hyperbolic lightness compression
- * (az/bz are identical to `jzazbz`; only the achromatic Iz differs, being the raw
- * pre-compression response). The structural ancestor of ZCAM. Input is XYZ in domain
- * 1 (library 0-100 ÷ 100).
+ * IzAzBz — the opponent-color stage inside Safdar et al.'s 2017 derivation of Jzazbz,
+ * taken before the final hyperbolic lightness compression that turns Iz into Jz. Iz is
+ * the raw, uncompressed achromatic response from the PQ-encoded LMS signal, while az and
+ * bz carry the same red-green and yellow-blue chroma as Jzazbz. It went on to become the
+ * structural foundation of the ZCAM color appearance model.
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131} Safdar et al. 2017
  * @channel {Iz} 0 1 Achromatic
- * @channel {az} -0.1 0.1 Red-Green
- * @channel {bz} -0.1 0.1 Yellow-Blue
+ * @channel {az} -0.5 0.5 Red-Green
+ * @channel {bz} -0.5 0.5 Yellow-Blue
  * @illuminant D65
  * @observer 2
  * @referred display
  * @dynamic hdr
  */
+// Implementation notes:
+// Media white is 203 cd/m² (Yw), the same absolute scaling as jzazbz and colorjs.io, so
+// az/bz here equal jzazbz's az/bz exactly. colour-science's XYZ_to_Izazbz instead feeds
+// relative XYZ straight into the PQ (1 cd/m² white), so its values differ by that
+// scaling. Ranges follow jzazbz: the [0,1] Iz spans up to the 10 000 cd/m² PQ peak (SDR
+// white lands at Iz ≈ 0.394).
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
-const izazbz = { name: 'izazbz', range: [[0, 1], [-0.1, 0.1], [-0.1, 0.1]] };
+const izazbz = { name: 'izazbz', range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]] };
 
 // Jzazbz/Safdar perceptual quantizer (modified ST 2084, m2 = 1.7·2523/32)
 const m1 = 2610 / 16384, m2 = 1.7 * 2523 / 32, c1 = 3424 / 4096, c2 = 2413 / 128, c3 = 2392 / 128;
@@ -31,9 +35,10 @@ const M_XLi = inv3(M_XL);
 const M_LI = [0.5, 0.5, 0, 3.524, -4.066708, 0.542708, 0.199076, 1.096799, -1.295875]; // Safdar 2017
 const M_LIi = inv3(M_LI);
 const b = 1.15, g = 0.66;
+const Yw = 203; // absolute luminance of media white, cd/m² — same as jzazbz.js
 
 xyz.izazbz = (X, Y, Z) => {
-	X /= 100; Y /= 100; Z /= 100;
+	X = X / 100 * Yw; Y = Y / 100 * Yw; Z = Z / 100 * Yw;
 	const lmsp = mat3(M_XL, b * X - (b - 1) * Z, g * Y - (g - 1) * X, Z).map(pqE);
 	return mat3(M_LI, ...lmsp);
 };
@@ -42,7 +47,7 @@ izazbz.xyz = (Iz, az, bz) => {
 	const lms = mat3(M_LIi, Iz, az, bz).map(pqD);
 	const [Xp, Yp, Z] = mat3(M_XLi, ...lms);
 	const X = (Xp + (b - 1) * Z) / b;
-	return [X * 100, (Yp + (g - 1) * X) / g * 100, Z * 100];
+	return [X / Yw * 100, (Yp + (g - 1) * X) / g / Yw * 100, Z / Yw * 100];
 };
 
 export default izazbz;

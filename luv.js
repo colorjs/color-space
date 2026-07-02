@@ -1,13 +1,17 @@
 /**
- * CIE LUV color space (C'est la vie)
- *
- * Cylindrical variant: LChuv
- * Perceptually more uniform than XYZ
+ * CIE L*u*v* (CIELUV) is the CIE's 1976 companion to CIELAB, an alternative
+ * attempt at perceptual uniformity built from a projected version of the CIE
+ * chromaticity diagram rather than Lab's opponent differencing. Its defining
+ * property is additivity: the position of a mixture of two lights falls on the
+ * straight line between the two lights' own coordinates, something Lab cannot do.
+ * That has made LUV the traditional choice for additive-color contexts like
+ * displays and stage lighting, while Lab remains dominant for reflective and print
+ * color.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELUV}
  * @channel {L} 0 100 Lightness
- * @channel {U} -100 100 U chrominance
- * @channel {V} -100 100 V chrominance
+ * @channel {U} -215 215 U chrominance
+ * @channel {V} -215 215 V chrominance
  * @illuminant D65
  * @observer 2
  * @referred display
@@ -18,10 +22,11 @@ import { labF, labFInv } from './cie.js';
 
 var luv = {
 	name: 'luv',
-	range: [[0, 100], [-100, 100], [-100, 100]],
+	// u/v ±215 — colorjs.io/coloraide reference range (sRGB reaches u ≈ 175, v ≈ −134..107)
+	range: [[0, 100], [-215, 215], [-215, 215]],
 
 	xyz: function (l, u, v, i, o) {
-		// Input: L: 0-100, u: -100 to 100, v: -100 to 100
+		// Input: L: 0-100, u/v: ±215
 		var _u, _v, x, y, z, xn, yn, zn, un, vn;
 
 		if (l === 0) return [0, 0, 0];
@@ -90,6 +95,6 @@ xyz.luv = function (x, y, z, i, o) {
 	u = 13 * l * (_u - un);
 	v = 13 * l * (_v - vn);
 
-	// Output: L: 0-100, u: -100 to 100, v: -100 to 100
+	// Output: L: 0-100, u/v: ±215 reference range
 	return [l, u, v];
 };

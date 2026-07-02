@@ -79,3 +79,20 @@ for (const [name, [id, scale]] of Object.entries(MAP)) {
 		is(maxA < TOL && maxB < TOL, true, `${name}: fwd err ${maxA.toFixed(3)}, inv err ${maxB.toFixed(3)} (tol ${TOL})`)
 	})
 }
+
+// Declared ranges are pinned to colorjs.io's reference ranges — the convention this
+// library promises. Regression: luv/lchuv shipped ±100 / 0-150 vs the authority's
+// ±215 / 0-220 and nothing caught the drift.
+const RANGE_SKIP = {
+	acescg: 'scene-referred: we declare the 0-1 SDR working slice (0.18 = 18% grey, 1 = diffuse white); ACES half-float headroom reaches 65504 (colorjs refRange)',
+}
+test('ref: declared ranges match colorjs.io refRange', () => {
+	for (const [name, [id, scale]] of Object.entries(MAP)) {
+		if (name in RANGE_SKIP) continue
+		Object.values(Color.Space.get(id).coords).forEach((c, i) => {
+			const ref = c.refRange || c.range
+			if (!ref) return // colorjs declares no range for this coord
+			is(space[name].range[i].map(v => v * scale[i]), ref, `${name}[${i}] == colorjs ${id} refRange`)
+		})
+	}
+})

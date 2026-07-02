@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface LalphabetaSpace extends ColorSpace {
 	name: 'lalphabeta';
-	range: [[-10.4, 0], [-3, 3], [-3, 3]];
+	range: [[-6, 0], [-1, 0.9], [-0.21, 0.21]];
 }
 
 declare const lalphabeta: LalphabetaSpace;

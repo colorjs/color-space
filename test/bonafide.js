@@ -78,7 +78,7 @@ const REF = [
   {"s":"dlog","f":"xyz","t":"dlog","in":[17.108208,18,19.603044],"out":[0.39877,0.398766,0.398787],"src":"DJI D-Log (colour-science log_encoding_DJIDLog / X7 whitepaper): 18% grey -> 0.3988"},
   {"s":"sucs","f":"xyz","t":"sucs","in":[20.654008,12.197225,5.136952],"out":[42.629237,36.976468,14.123014],"src":"colour-science XYZ_to_sUCS (Li & Luo 2024)"},
   {"s":"hellwig2022","f":"xyz","t":"hellwig2022","in":[19.01,20,21.78],"out":[41.731208,0.033989,217.06796],"src":"colour-science XYZ_to_Hellwig2022 (Average, La=318.31, Yb=20): J,M,h"},
-  {"s":"izazbz","f":"xyz","t":"izazbz","in":[20.654008,12.197225,5.136952],"out":[0.012078,0.009243,0.00526],"src":"colour-science XYZ_to_Izazbz (Safdar 2017, matches jzazbz az/bz)"},
+  {"s":"izazbz","f":"xyz","t":"izazbz","in":[20.654008,12.197225,5.136952],"out":[0.206744,0.086134,0.058737],"src":"Safdar 2017 at media white Yw=203 cd/m2 (jzazbz.js/colorjs.io scaling): az/bz == jzazbz az/bz exactly, Jz == ((1+d)Iz)/(1+d*Iz)-d0; colour-science XYZ_to_Izazbz uses 1 cd/m2 relative input and differs by that scaling"},
   {"s":"zcam","f":"xyz","t":"zcam","in":[185,206,163],"out":[92.250467,10.525255,196.325832],"src":"colour-science XYZ_to_ZCAM (XYZ_w=[256,264,202], La=264, Yb=100, Average): J,M,h"},
   {"s":"macboyn","f":"xyz","t":"macboyn","in":[95.0456,100,108.9058],"out":[0.654813,0.017513,99.996],"src":"MacLeod-Boynton ls, Smith-Pokorny fundamentals normalised L+M=Y (hand-derived)"},
   {"s":"kelvin","f":"xyz","t":"kelvin","in":[95.0456,100,108.9058],"out":[6508.984],"src":"McCamy 1992 CCT of D65 white -> ~6509 K (Planckian via Krystek 1985)"},

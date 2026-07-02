@@ -1,22 +1,27 @@
 /**
- * ACEScc color space (Academy Color Encoding System)
- *
- * Logarithmic encoding for color grading in cinema
- * Reference for film post-production
+ * ACEScc — the Academy Color Encoding System's logarithmic grading space, sharing the
+ * AP1 primaries with ACEScg but applying a pure log2 curve so exposure stops map to
+ * code values the way film-trained colorists expect. Unlike its sibling ACEScct, it
+ * has no linear toe near black, favoring mathematical purity over legacy
+ * grading-control behavior. It's used as the working space for color grading within
+ * ACES-managed post-production pipelines, ahead of final render back to ACEScg or
+ * ACES2065-1.
  *
  * @see {@link https://docs.acescentral.com/specifications/acescc/}
- * @channel {R} -0.358 1.468 Red
- * @channel {G} -0.358 1.468 Green
- * @channel {B} -0.358 1.468 Blue
+ * @channel {R} -0.35828683 1.4679963120447153 Red
+ * @channel {G} -0.35828683 1.4679963120447153 Green
+ * @channel {B} -0.35828683 1.4679963120447153 Blue
  * @referred scene
  * @dynamic hdr
  */
 import acescg from './acescg.js';
 import xyz from './xyz.js';
 
+// Exact ACEScc log bounds (S-2014-003): (log2(2^-16)+9.72)/17.52 .. (log2(65504)+9.72)/17.52
+const LO = -0.35828683, HI = 1.4679963120447153;
 const acescc = {
 	name: 'acescc',
-	range: [[-0.358, 1.468], [-0.358, 1.468], [-0.358, 1.468]]
+	range: [[LO, HI], [LO, HI], [LO, HI]]
 };
 
 const eps = Math.pow(2, -16);

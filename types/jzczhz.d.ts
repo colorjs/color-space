@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface JzczhzSpace extends ColorSpace {
 	name: 'jzczhz';
-	range: [[0, 1], [0, 0.5], [0, 360]];
+	range: [[0, 1], [0, 1], [0, 360]];
 }
 
 declare const jzczhz: JzczhzSpace;

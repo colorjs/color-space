@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface DklSpace extends ColorSpace {
 	name: 'dkl';
-	range: [[-100, 100], [-100, 100], [-100, 100]];
+	range: [[-100, 0], [-31, 0], [0, 99]];
 }
 
 declare const dkl: DklSpace;

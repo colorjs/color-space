@@ -25,6 +25,18 @@ test('integrity — every space loads, registers, and is named consistently', ()
 	is(unreachable, [], 'every space is reachable to and from rgb')
 })
 
+test('family — izazbz shares jzazbz opponent axes and PQ scaling (Safdar 2017)', () => {
+	// Regression: izazbz once fed relative XYZ into the PQ (colour-science's 1 cd/m² white)
+	// while jzazbz scales by Yw=203 — the same paper's az/bz disagreed for every color.
+	const r6 = round(6), d = -0.56, d0 = 1.6295499532821566e-11
+	for (const rgb of [[246, 125, 79], [0, 0, 255], [12, 200, 100]]) {
+		const [Iz, az, bz] = space.rgb.izazbz(...rgb), [Jz, az2, bz2] = space.rgb.jzazbz(...rgb)
+		is(r6(az), r6(az2), `az == jzazbz az (${rgb})`)
+		is(r6(bz), r6(bz2), `bz == jzazbz bz (${rgb})`)
+		is(r6(((1 + d) * Iz) / (1 + d * Iz) - d0), r6(Jz), `Jz = compress(Iz) (${rgb})`)
+	}
+})
+
 test('integrity — meta.js carries channels, range and @see refs per space', () => {
 	const missing = Object.keys(space).filter(n => !meta[n] || !meta[n].channels || !meta[n].range)
 	is(missing, [], 'every space has meta channels + range')

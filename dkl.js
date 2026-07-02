@@ -1,26 +1,34 @@
 /**
- * DKL color space (Derrington-Krauskopf-Lennie)
- *
- * The cardinal-axis space of human colour vision (Derrington, Krauskopf & Lennie 1984;
- * Brainard 1996) — the three directions the LGN/early visual system encodes, relative
- * to an adapting white (here D65): an achromatic luminance axis (L+M), an isoluminant
- * red-green axis (L−M), and a tritan blue-yellow axis (S−(L+M)). Built on Smith-Pokorny
- * cones; D65 → origin [0,0,0]. (Un-normalised cardinal form; sources differ on axis
- * scaling — normalise to your stimulus set if needed.)
+ * DKL — the cardinal-axis space of human color vision, proposed by Derrington, Krauskopf
+ * & Lennie in 1984 from recordings of neurons in the macaque lateral geniculate nucleus.
+ * Rather than an arbitrary opponent model, its three axes are the actual directions
+ * early visual neurons respond along: an achromatic luminance axis, an isoluminant
+ * red-green axis, and a tritan blue-yellow axis, all measured relative to an adapting
+ * white. It remains a standard framework in vision science for designing stimuli that
+ * isolate one cardinal mechanism at a time.
  *
  * @see {@link https://doi.org/10.1113/jphysiol.1984.sp015499} Derrington et al. 1984
- * @channel {Ach} -100 100 Achromatic
- * @channel {RG} -100 100 Red-Green
- * @channel {YV} -100 100 Tritan
+ * @channel {Ach} -100 0 Achromatic
+ * @channel {RG} -31 0 Red-Green
+ * @channel {YV} 0 99 Tritan
  * @illuminant D65
  * @observer 2
  * @referred display
  * @dynamic sdr
  */
+// Implementation notes:
+// Un-normalised cardinal form; sources differ on axis scaling — normalise to your
+// stimulus set if needed. Built on Smith-Pokorny cones; D65 → origin [0,0,0]. Axes:
+// achromatic luminance (L+M), isoluminant red-green (L−M), tritan blue-yellow (S−(L+M)).
+//
+// Nominal ranges are the sRGB-reachable extent relative to the D65 background (empirical
+// over the RGB cube): every SDR color is darker than the adapting white, so
+// Ach = Y − 100 ∈ [−100, 0]; the raw (luminance-confounded) difference axes span
+// RG ∈ [−31, 0.03] and YV ∈ [0, 98.2].
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
-const dkl = { name: 'dkl', range: [[-100, 100], [-100, 100], [-100, 100]] };
+const dkl = { name: 'dkl', range: [[-100, 0], [-31, 0], [0, 99]] };
 
 // Smith-Pokorny cone fundamentals (XYZ -> LMS, L+M = Y)
 const M = [0.15514, 0.54312, -0.03286, -0.15514, 0.45684, 0.03286, 0, 0, 0.01608];
