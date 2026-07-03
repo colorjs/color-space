@@ -20,7 +20,7 @@
 [data-theme=dark]{ --paper:oklch(0.185 0.008 70); --panel:oklch(0.243 0.01 70); --ink:oklch(0.93 0.005 85); --soft:oklch(0.62 0.012 78);
 	--hair:oklch(0.93 0.005 85/.15); --ghost:oklch(0.41 0.012 70); --body:oklch(0.79 0.01 80); --lift:oklch(0.24 0.01 70); color-scheme:dark }
 *{ box-sizing:border-box; margin:0 }
-::selection{ background:var(--c); color:var(--selink,#fff) }
+::selection{ background:var(--ink); color:var(--paper) }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
 .page{ --railw:10.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem) }   /* --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
@@ -106,7 +106,7 @@ a{ color:var(--ink) }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem; cursor:pointer }
 /* hover lifts the card on a white sheet; the ↗ badge at the top right says "opens" */
 .ent:hover,.ent:focus-within{ background:var(--lift) }
-.ent::after{ content:''; position:absolute; top:1rem; right:var(--eg); width:15px; height:15px; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M9 7h8v8'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M9 7h8v8'/%3E%3C/svg%3E") center/contain no-repeat }
+.ent::after{ content:''; position:absolute; top:.95rem; right:var(--eg); width:19px; height:19px; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
 .ent:hover::after{ opacity:1 }
 .ent .eh{ padding:0 0 .45rem; display:flex; flex-direction:column; align-items:flex-start; gap:.16rem }
 .ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
@@ -120,8 +120,8 @@ a{ color:var(--ink) }
 .hxw:focus-within .hxv{ display:none }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:40px; cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:1rem; font-weight:600; pointer-events:none; opacity:0; transition:opacity .12s }
-.ch .sy.flip{ left:auto; right:.55rem }   /* the letter steps aside when the marker arrives */
+.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:1rem; font-weight:600; pointer-events:none; opacity:0; transition:opacity .12s, left .18s ease, transform .18s ease }
+.ch .sy.flip{ left:calc(100% - .55rem); transform:translateY(-50%) translateX(-100%) }   /* the letter glides aside when the marker arrives */
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
 /* pure gradients at rest — letters surface on hover */
 .ent:hover .ch .sy,.ent:focus-within .ch .sy{ opacity:1 }
@@ -268,7 +268,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
    npm box + values live in an overlay pinned WITH them — the gradient swaps beneath */
 .fstack{ --fh:clamp(15rem,36vh,20rem) }
 .fstack .fg{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh) }
-.fov{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh); margin-top:calc(-1*var(--fh)); z-index:2; display:flex; flex-direction:column; pointer-events:none }
+.fov{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh); margin-bottom:calc(-1*var(--fh)); z-index:2; display:flex; flex-direction:column; pointer-events:none }
 .fov .fnpmw{ flex:1; display:flex; align-items:center; justify-content:center }
 .fov .fnpm,.fov a{ pointer-events:auto }
 .fstack .fg::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
@@ -875,7 +875,7 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 </section></div>
 
 <footer class="ftr">
-	<div class="fstack" id="fstack"><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fov">
+	<div class="fstack" id="fstack"><div class="fov">
 		<div class="fnpmw"><button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button></div>
 		<div class="fbar">
 			<div class="fcta">Wrong, slow or missing?<br><a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
@@ -886,7 +886,7 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 			</nav>
 			<span class="fmark" title="offered">Unlicense · ॐ</span>
 		</div>
-	</div></div>
+	</div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div></div>
 </footer>
 </div>
 
@@ -1616,7 +1616,6 @@ function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s
 	const cls=classify(s), vals=probeVals(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]; ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
 function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.style.setProperty('--c',hx)
-	document.documentElement.style.setProperty('--selink',lum(rgb)<0.6?'#fff':'#1b1408')
 	document.getElementById('curhex').textContent=hx
 	const csw=document.getElementById('cursw'); if(document.activeElement!==csw) csw.value=hx
 	const nm=nearest(rgb); if(nm) document.getElementById('curnm').textContent='≈ '+nm.n
