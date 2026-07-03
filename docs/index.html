@@ -281,6 +281,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
    npm box + values live in an overlay pinned WITH them — the gradient swaps beneath */
 .fstack{ --fh:clamp(15rem,36vh,20rem) }
 .fstack .fg{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh) }
+/* each finer band stays hidden while it slides, then CUTS in the instant it reaches
+   the stage — the quantization snaps a step per scroll notch, no smooth wipe */
+.fstack .fg:not(:first-child){ opacity:0 }
+.fstack .fg.on{ opacity:1 }
 .fov{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh); margin-bottom:calc(-1*var(--fh)); z-index:2; display:flex; flex-direction:column; pointer-events:none }
 .fov .fnpmw{ flex:1; display:flex; align-items:center; justify-content:center }
 .fov .fnpm,.fov a{ pointer-events:auto }
@@ -1826,6 +1830,11 @@ function paintFtr(){ if(fkey) return; fkey='painted'   // static wall — the re
 	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
 	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16]))) }
 paintFtr()
+// stepped reveal: a band flips ON only once it has slid up to the pinned stage, so the
+// quantization cuts one level per scroll notch instead of wiping in continuously
+function stepFtr(){ for(let i=1;i<fgs.length;i++){ const el=fgs[i]
+	el.classList.toggle('on', el.getBoundingClientRect().top <= innerHeight-el.offsetHeight+2) } }
+addEventListener('scroll',()=>requestAnimationFrame(stepFtr),{passive:true}); stepFtr()
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
 const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) return
