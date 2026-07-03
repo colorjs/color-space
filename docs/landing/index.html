@@ -887,7 +887,7 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 			</nav>
 			<span class="fmark" title="offered">Unlicense · ॐ</span>
 		</div>
-	</div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div></div>
+	</div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div></div>
 </footer>
 </div>
 
@@ -1633,11 +1633,10 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			const sy=ch.querySelector('.sy')
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1)
 				tk.style.left=(f*100)+'%'
-				const flip=f*ch.offsetWidth<52   // the letter steps aside when the marker arrives
+				const flip=f*ch.offsetWidth<26   // yield only when the marker actually overlaps the letter
 				sy.classList.toggle('flip',flip)
 				sy.style.color=ink(rgbF(s,cls.ch.map((cc,j)=>j===i?(flip?cc.max:cc.min):vals[j]))) }
 			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
-	paintFtr()   // the footer wall follows the color too
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const hf=detail.querySelector('#hfmt'); if(hf) hf.textContent=vals?(fmt(s,vals)||`${s}(${vals.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')})`):'—'
@@ -1757,21 +1756,20 @@ document.getElementById('chips').innerHTML=FEATS.map(([c,t])=>`<span class="chip
 
 // ── footer bands: EXACTLY the coloroid entry's A slider — hue sweeps at the current
 // color's T and V, so picking a color repaints the wall. Sticky stack quantizes it ──
-const FGN=[0,80,40,20,10]   // twofold halving reads cleanly band to band
+const FGN=[0,160,80,40,20,10]   // twofold halving reads cleanly band to band
 const fgs=[...document.querySelectorAll('#fstack .fg')]
 const fov=document.querySelector('.fov')
 let fkey=''
-function paintFtr(){ const v=probeVals('coloroid')   // T maxed: washed colors made the wall mute
-	const key=v[2].toFixed(1); if(key===fkey) return; fkey=key
-	const col=f=>hex(rgbF('coloroid',[10+66*f, 100, v[2]]))
+function paintFtr(){ if(fkey) return; fkey='painted'   // static wall — the reference palette
+	const col=f=>hex(rgbF('coloroid',[10+66*f, 55, 92-80*f]))   // hue A across, V descending
 	fgs.forEach((el,i)=>{ const n2=FGN[i]
 		if(!n2){ const st=[]; for(let k=0;k<=48;k++) st.push(col(k/48))
 			el.style.background=`linear-gradient(90deg, ${st.join(',')})` }
 		else{ const st=[]; for(let k=0;k<n2;k++) st.push(col((k+0.5)/n2))
 			el.style.background=stepped(st) } })
 	// overlay ink per side, from the band's own ends (same inversion as the sliders)
-	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,100,v[2]])))
-	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,100,v[2]]))) }
+	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
+	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16]))) }
 paintFtr()
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
