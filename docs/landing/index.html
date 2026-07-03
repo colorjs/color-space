@@ -16,9 +16,9 @@
 <style>
 :root{ --paper:oklch(0.978 0.003 92); --panel:oklch(0.952 0.005 92); --ink:oklch(0.17 0.01 60); --soft:oklch(0.52 0.01 62);
 	--hair:oklch(0.17 0.01 60/.12); --ghost:oklch(0.76 0.008 62); --body:oklch(0.34 0.012 62);
-	--dark:#1b1408; --c:#ef7a4a; --f:"Inter",system-ui,sans-serif; color-scheme:light }
+	--dark:#1b1408; --c:#ef7a4a; --lift:#fff; --f:"Inter",system-ui,sans-serif; color-scheme:light }
 [data-theme=dark]{ --paper:oklch(0.185 0.008 70); --panel:oklch(0.243 0.01 70); --ink:oklch(0.93 0.005 85); --soft:oklch(0.62 0.012 78);
-	--hair:oklch(0.93 0.005 85/.15); --ghost:oklch(0.41 0.012 70); --body:oklch(0.79 0.01 80); color-scheme:dark }
+	--hair:oklch(0.93 0.005 85/.15); --ghost:oklch(0.41 0.012 70); --body:oklch(0.79 0.01 80); --lift:oklch(0.24 0.01 70); color-scheme:dark }
 *{ box-sizing:border-box; margin:0 }
 ::selection{ background:var(--c); color:var(--selink,#fff) }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
@@ -71,7 +71,7 @@ a{ color:var(--ink) }
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 .25rem; width:100% }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ink); text-align:left; border:0; background:var(--paper); padding:0 .35rem 0 0; cursor:pointer }
-.ti .tn:hover{ text-decoration:underline; text-underline-offset:3px }
+.ti .tn:hover{ background:var(--lift) }
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }
 /* a section: one row of three lead spaces filling the area after the rail (max 64rem);
@@ -103,17 +103,20 @@ a{ color:var(--ink) }
 	.sec:first-of-type{ padding-top:0 } }
 @media(max-width:960px){ .grid{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
 @media(max-width:640px){ .grid{ grid-template-columns:1fr } }
-.ent{ display:block; padding:.85rem var(--eg) 1rem; cursor:pointer }
+.ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem; cursor:pointer }
+/* hover lifts the card on a white sheet; the ↗ badge at the top right says "opens" */
+.ent:hover,.ent:focus-within{ background:var(--lift) }
+.ent::after{ content:''; position:absolute; top:1rem; right:var(--eg); width:15px; height:15px; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M9 7h8v8'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M9 7h8v8'/%3E%3C/svg%3E") center/contain no-repeat }
+.ent:hover::after{ opacity:1 }
 .ent .eh{ padding:0 0 .45rem; display:flex; flex-direction:column; align-items:flex-start; gap:.16rem }
 .ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
-.ent:hover .eh .nm{ text-decoration:underline; text-underline-offset:3px }
 /* the value line: an overlay repaints just the NUMBERS ink — the adjustable parts —
    while the name/punctuation stay soft; focusing hides it and inks the whole input */
 .hxw{ position:relative; display:flex; align-items:center; gap:.45rem; max-width:100% }
 .ent .eh .hx{ width:12ch; max-width:100%; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); font-variant-numeric:tabular-nums; border:0; outline:none; background:transparent; padding:0; text-align:left }
 .hxv{ position:absolute; left:0; top:0; pointer-events:none; font-style:normal; font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums; white-space:pre; color:transparent }
 .hxv b{ color:transparent; font-weight:600 }
-.hxw:hover .hxv b{ text-decoration:underline; text-decoration-color:var(--soft); text-underline-offset:3px }   /* hovering the value underlines its numbers — the adjustable parts */
+.hxw:hover .hxv b{ color:var(--ink) }   /* hovering the value inks its numbers — the adjustable parts */
 .hxw:focus-within .hxv{ display:none }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:40px; cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
@@ -260,24 +263,26 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 /* ── footer: the coloroid sweep (hue A across, luminosity V descending) ends the page;
    keep scrolling and quantized bands ride up sticky-stack fashion, each covering the
    last — 100 → 50 → 20 → 10 steps, pure CSS scroll mechanics ── */
-.ftr{ margin-top:2rem }
-.fnpmw{ display:flex; justify-content:center; padding:2.6rem 0 1.4rem; border-top:1px solid var(--hair) }
-/* the npm box + values pin at the top while near-full-viewport bands stack beneath —
-   scrolling past the end raises each quantized band over the previous one */
-.fhead{ position:sticky; top:0; z-index:6; background:var(--paper) }   /* covers the sticky search bar at page end */
-.fstack .fg{ position:sticky; top:var(--fheadh,15rem); height:calc(100vh - var(--fheadh,15rem)) }
+.ftr{ margin-top:3rem }
+/* bands pin at the viewport bottom and stack over each other on extra scroll; the
+   npm box + values live in an overlay pinned WITH them — the gradient swaps beneath */
+.fstack{ --fh:clamp(15rem,36vh,20rem) }
+.fstack .fg{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh) }
+.fov{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh); margin-top:calc(-1*var(--fh)); z-index:2; display:flex; flex-direction:column; pointer-events:none }
+.fov .fnpmw{ flex:1; display:flex; align-items:center; justify-content:center }
+.fov .fnpm,.fov a{ pointer-events:auto }
 .fstack .fg::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
 .fnpm{ position:relative; z-index:1; font:inherit; font-size:1.05rem; font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:.9rem 1.6rem; cursor:copy; display:flex; align-items:center; gap:.75rem }
 .fnpm i{ font-style:normal; color:#9a9a9a; font-size:.85em }
 .fnpm:hover i{ color:var(--c) }
-.fbar{ max-width:64rem; margin:0 auto; padding:.6rem clamp(1rem,3vw,2.2rem) 2.4rem; display:flex; gap:2.5rem; align-items:flex-start }
-.fcta{ font-size:1rem; line-height:1.55; color:var(--body) }
-.fcta a{ font-weight:600; text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }
-.fcta a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+.fbar{ width:100%; max-width:64rem; margin:0 auto; padding:0 clamp(1rem,3vw,2.2rem) 1.3rem; display:flex; gap:2.5rem; align-items:flex-end }
+.fcta{ font-size:1rem; line-height:1.55; color:var(--fi0,#1b1408) }
+.fcta a{ color:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px }
 .fnav{ display:grid; grid-template-columns:repeat(2,auto); gap:.35rem 2.6rem; margin-left:auto; font-size:1rem }
-.fnav a{ color:var(--soft); text-decoration:none; width:max-content }
-.fnav a:hover{ color:var(--ink) }
-.fmark{ align-self:flex-end; color:var(--soft); font-size:.9rem; white-space:nowrap }
+.fnav a{ color:var(--fi1,#fff); text-decoration:none; width:max-content }
+.fnav a:hover{ text-decoration:underline; text-underline-offset:3px }
+.fmark{ align-self:flex-end; color:var(--fi1,#fff); font-size:.9rem; white-space:nowrap }
+@media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
 @media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
 </style></head>
@@ -870,17 +875,18 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 </section></div>
 
 <footer class="ftr">
-	<div class="fhead"><div class="fnpmw"><button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button></div>
-	<div class="fbar">
-		<div class="fcta">Wrong, slow or missing?<br><a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
-		<nav class="fnav" aria-label="footer">
-			<a href="#cat">Spaces</a><a href="https://github.com/colorjs/color-space">GitHub</a>
-			<a href="#api">API</a><a href="https://npmjs.org/color-space">npm</a>
-			<a href="#recipes">Recipes</a><a href="../llms.txt">llms.txt</a>
-		</nav>
-		<span class="fmark" title="offered">Unlicense · ॐ</span>
+	<div class="fstack" id="fstack"><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fov">
+		<div class="fnpmw"><button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button></div>
+		<div class="fbar">
+			<div class="fcta">Wrong, slow or missing?<br><a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
+			<nav class="fnav" aria-label="footer">
+				<a href="#cat">Spaces</a><a href="https://github.com/colorjs/color-space">GitHub</a>
+				<a href="#api">API</a><a href="https://npmjs.org/color-space">npm</a>
+				<a href="#recipes">Recipes</a><a href="../llms.txt">llms.txt</a>
+			</nav>
+			<span class="fmark" title="offered">Unlicense · ॐ</span>
+		</div>
 	</div></div>
-	<div class="fstack" id="fstack"><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div></div>
 </footer>
 </div>
 
@@ -1631,6 +1637,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 				sy.classList.toggle('flip',flip)
 				sy.style.color=ink(rgbF(s,cls.ch.map((cc,j)=>j===i?(flip?cc.max:cc.min):vals[j]))) }
 			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
+	paintFtr()   // the footer wall follows the color too
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const hf=detail.querySelector('#hfmt'); if(hf) hf.textContent=vals?(fmt(s,vals)||`${s}(${vals.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')})`):'—'
@@ -1712,7 +1719,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
 			`\n// one space, tree-shaken (~2 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) }
-	if(!dragBar&&!plFreeze) draw3d(); paintFtr(); syncHash()
+	if(!dragBar&&!plFreeze) draw3d(); syncHash()
 }
 // the url carries the whole state: #space@v1,v2,v3 (throttled — replaceState is cheap but not free)
 let hashT=0
@@ -1748,24 +1755,23 @@ const FEATS=[
 ]
 document.getElementById('chips').innerHTML=FEATS.map(([c,t])=>`<span class="chipx" title="${t}">${c}</span>`).join('')
 
-// ── footer bands: coloroid — hue A sweeps across while luminosity V descends
-// (aesthetic spacing shows real perceptual drama); saturation adapts to the current
-// color. The sticky stack does the quantize show with zero scroll code ──
+// ── footer bands: EXACTLY the coloroid entry's A slider — hue sweeps at the current
+// color's T and V, so picking a color repaints the wall. Sticky stack quantizes it ──
 const FGN=[0,100,50,20,10]
 const fgs=[...document.querySelectorAll('#fstack .fg')]
+const fov=document.querySelector('.fov')
 let fkey=''
-function paintFtr(){ let cv; try{ cv=toSpace('coloroid',RGB()) }catch{ cv=null }
-	const T=clamp(cv?cv[1]:55,18,85)
-	const key=T.toFixed(1); if(key===fkey) return; fkey=key
-	const col=f=>hex(rgbF('coloroid',[10+66*f, T, 92-80*f]))
+function paintFtr(){ const v=probeVals('coloroid')
+	const key=v[1].toFixed(1)+','+v[2].toFixed(1); if(key===fkey) return; fkey=key
+	const col=f=>hex(rgbF('coloroid',[10+66*f, v[1], v[2]]))
 	fgs.forEach((el,i)=>{ const n2=FGN[i]
 		if(!n2){ const st=[]; for(let k=0;k<=48;k++) st.push(col(k/48))
 			el.style.background=`linear-gradient(90deg, ${st.join(',')})` }
 		else{ const st=[]; for(let k=0;k<n2;k++) st.push(col((k+0.5)/n2))
-			el.style.background=stepped(st) } }) }
-const fhead=document.querySelector('.fhead')
-const fmeasure=()=>document.querySelector('.page').style.setProperty('--fheadh',fhead.offsetHeight+'px')
-fmeasure(); addEventListener('resize',fmeasure); document.fonts?.ready.then(fmeasure)
+			el.style.background=stepped(st) } })
+	// overlay ink per side, from the band's own ends (same inversion as the sliders)
+	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,v[1],v[2]])))
+	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,v[1],v[2]]))) }
 paintFtr()
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
