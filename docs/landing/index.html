@@ -127,21 +127,26 @@ a{ color:var(--ink) }
 .dstat .fmt{ font-size:.84rem; color:var(--soft); font-variant-numeric:tabular-nums; cursor:copy }
 .dstat .fmt:hover{ color:var(--ink) }
 .dstat .near{ font-size:.72rem; font-weight:700; color:var(--soft); cursor:pointer } .dstat .near b{ color:var(--ink) }
-.tags{ display:flex; gap:.4rem .9rem; flex-wrap:wrap; margin:.5rem 0 1.1rem }
-.tag{ font-size:.64rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase }
-.tag.use{ color:var(--soft) }
+/* case-file header — dossier rows of LABEL · value */
+.doss{ display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,max-content)); gap:.4rem 3.5rem; margin:.7rem 0 1.2rem }
+.doss>div{ display:flex; gap:1rem; align-items:baseline }
+.doss i{ font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); min-width:4.8rem; flex:none }
+.doss b{ font-size:.72rem; font-weight:700; letter-spacing:.02em }
 .pick{ overflow:hidden }
-.bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background-repeat:no-repeat }
+.bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background:
+	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
+.bar2 .bg{ position:absolute; inset:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }
 .bar2 .cnm{ position:absolute; left:.7rem; top:.5rem; font-size:.82rem; font-weight:800; pointer-events:none }
 .bar2 .nvw{ position:absolute; right:.6rem; top:.35rem; bottom:auto; align-items:center }
 .bar2 .nvw input{ height:auto; width:4.4rem; font-size:.84rem; font-weight:700 }
 .bar2 .nvw .u{ font-size:.7rem }
 .bar2 .dk{ position:absolute; top:50%; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }
 .planes{ display:flex; gap:0; flex-wrap:wrap; margin-top:.9rem }
-.pl{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--panel) }
+.pl{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:
+	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
 .pl .cx{ position:absolute; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* same rhombus as the sliders */
-.pl3d{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; background:var(--panel); cursor:grab; touch-action:none }
+.pl3d{ position:relative; width:min(24rem,100%); aspect-ratio:1; margin-top:.9rem; background:var(--panel); cursor:grab; touch-action:none }
 .pl3d:active{ cursor:grabbing }
 .pl3d canvas{ display:block; width:100%; height:100% }
 .pl3d .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; color:var(--soft); pointer-events:none }
@@ -1054,7 +1059,7 @@ function gamuts(){ try{ const X=master.s==='xyz'?master.vals:space[master.s].xyz
 let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto complement
 // ONE global clustering mode for sliders AND planes — remembered across sessions
 const QMODES=[null,10,20,'web','names','percept']
-const QSEG=[[10,'10'],[20,'20'],['web','safe'],['names','name'],['percept','ΔE']]
+const QSEG=[[10,'10'],[20,'20'],['web','safe'],['names','name'],['percept','uniform']]
 const QTIP={ '10':'clusters every slider into 10 even steps',
 	'20':'clusters every slider into 20 even steps (tailwind-style scale)',
 	'web':'snaps colors to the 216-color web-safe palette (6 levels per channel)',
@@ -1063,11 +1068,11 @@ const QTIP={ '10':'clusters every slider into 10 even steps',
 let dragBar=null   // the slider being dragged — its own background stays frozen
 let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.includes(v)) Q=v }catch{}
 const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
-// the gamut lens: which display gamut the plots and sliders are cut by
+// the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-let GM=GAMS.includes(localStorage.csGm)?localStorage.csGm:'srgb'
+let GM=GAMS.includes(localStorage.csGm)?localStorage.csGm:localStorage.csGm==='off'?'off':'srgb'
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
-const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
+const inGam=(s,vv,g=GM)=>{ if(s==='rgb'||g==='off') return true
 	try{ return gamLin[g](s==='xyz'?vv:space[s].xyz(...vv)).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
@@ -1110,8 +1115,8 @@ const hilite=code=>code.split('\n').map(line=>{
 		.replace(/\x01([^\x02]*)\x02/g,'<span class="tok-s">$1</span>')
 	return src+(com?`<span class="tok-c">${esc(com)}</span>`:'')
 }).join('\n')
-// ── the sRGB solid in this space: cube-surface point cloud, drag to rotate ──
-let rot3={a:-0.65,b:0.5}, pts3=null, pts3S=null
+// ── the sRGB solid in this space: cube-surface point cloud, drag to rotate, wheel to zoom ──
+let rot3={a:-0.65,b:0.5}, zoom3=1, pts3=null, pts3S=null
 function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ pts3=null; return }
 	const s=selected, cls=classify(s), P=[], G2=15
 	for(let f=0;f<6;f++) for(let i2=0;i2<=G2;i2++) for(let j2=0;j2<=G2;j2++){
@@ -1127,6 +1132,8 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ pts3=null; r
 		rot3.a+=(e.clientX-px0)*0.011; rot3.b=clamp(rot3.b+(e.clientY-py0)*0.011,-1.45,1.45)
 		px0=e.clientX; py0=e.clientY; draw3d() }
 	el.onpointerup=()=>drag=false
+	el.onwheel=e=>{ e.preventDefault(); zoom3=clamp(zoom3*Math.exp(-e.deltaY*0.0022),0.5,3); draw3d() }
+	el.ondblclick=()=>{ zoom3=1; rot3={a:-0.65,b:0.5}; draw3d() }
 	draw3d() }
 function draw3d(){ if(!pts3||!open()) return
 	const el=detail.querySelector('#pl3d'); if(!el) return
@@ -1134,9 +1141,10 @@ function draw3d(){ if(!pts3||!open()) return
 	ctx.clearRect(0,0,S2,S2)
 	const ca=Math.cos(rot3.a),sa=Math.sin(rot3.a),cb=Math.cos(rot3.b),sb=Math.sin(rot3.b)
 	// first channel (tone) is the vertical axis, like every picker here
+	const sc=S2*0.68*zoom3
 	const prj=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0
 		const X1=x*ca+z*sa, Z1=-x*sa+z*ca
-		return { x:S2/2+X1*S2*0.68, y:S2/2-(y*cb-Z1*sb)*S2*0.68, z:y*sb+Z1*cb } }
+		return { x:S2/2+X1*sc, y:S2/2-(y*cb-Z1*sb)*sc, z:y*sb+Z1*cb } }
 	const arr=pts3.map(p=>{ const q2=prj(p.n); q2.hex=p.hex; return q2 }).sort((u1,u2)=>u1.z-u2.z)
 	for(const p of arr){ ctx.fillStyle=p.hex; ctx.fillRect(p.x-2,p.y-2,4,4) }
 	const mv=valsFor(pts3S)
@@ -1148,28 +1156,33 @@ function draw3d(){ if(!pts3||!open()) return
 		ctx.fillRect(-5.5,-5.5,11,11); ctx.strokeRect(-5.5,-5.5,11,11); ctx.restore() } }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsFor(s)
 	const path=pathToRgb(s)
-	const interpHTML=fwd?'':`<div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint">${cls.angle?`<span class="hp" id="hp" title="hue arc direction">${huePath} ⇄</span>`:''}<span class="iend tnum" id="iend"></span><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
+	const interpHTML=fwd?'':`<h4 class="sec2">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">${huePath} ⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
+	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1><span class="hfmt tnum" id="hfmt"></span></div>
-	 <div class="tags">${[[m.referred,TAGTIP[m.referred]],[m.dynamic&&m.dynamic.toUpperCase(),TAGTIP[m.dynamic&&m.dynamic.toUpperCase()]],[geo(s),TAGTIP[geo(s)]],[VERIFIED.has(s)&&'✓ vs colorjs.io','differentially tested against colorjs.io (the CSS Color spec editors) at 1/255 tolerance']].filter(t=>t[0]).map(([t,tip])=>`<span class="tag" title="${tip||''}">${t}</span>`).join('')}
-	 ${useOf(s).split('·').map(u=>`<span class="tag use" title="typical application of this space">${u.trim()}</span>`).join('')}</div>
+	 <div class="doss">
+		<div><i>type</i><b>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</b></div>
+		<div><i>used for</i><b>${useOf(s)}</b></div>
+		${VERIFIED.has(s)?`<div><i>verified</i><b title="every conversion pinned by independent reference values at 1/255 tolerance — see reference.js under code">±1/255</b></div>`:''}
+	 </div>
 	 <div class="dgrid"><div><div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div>
 	 ${m.refs?`<div class="refs drefs">${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`).join('')}</div>`:''}</div>
 	 <div><table class="prof card">
 		${path&&path.length>1?`<tr><td>base</td><td class="cv" colspan="2">${path[1]}</td></tr>`:''}
 		${m.illuminant?`<tr><td>white</td><td class="cv" colspan="2">${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</td></tr>`:''}
-		${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table>
-	 <div class="src">source: <a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a>${VERIFIED.has(s)?`, <a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="differential reference values vs colorjs.io">reference.js</a>`:''}</div></div></div>
+		${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table></div></div>
 	 <h4 class="sec2">channels <span class="seg" id="qseg" style="margin-left:auto">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span></h4>
-	 <div class="pick" id="pick">${cls.ch.map((c,i)=>`<div class="bar2" data-i="${i}">
+	 <div class="pick" id="pick">${cls.ch.map((c,i)=>`<div class="bar2" data-i="${i}"><div class="bg"></div>
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
 		<div class="dk"></div>
 	 </div>`).join('')}</div>
-	 ${cls.ch.length>1?`<h4 class="sec2">plots <i title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset">zoomable</i> <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and sliders by the ${g} display gamut">${g}</button>`).join('')}</span></h4>
-	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}${cls.ch.length===3&&!fwd?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate"><canvas width="232" height="232"></canvas><span class="labx">solid</span></div>`:''}</div>`:''}
+	 ${cls.ch.length>1?`<h4 class="sec2">plots <i title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset">zoomable</i> <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and sliders by the ${g} display gamut — click again to turn the lens off">${g}</button>`).join('')}</span></h4>
+	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}</div>
+	 ${cls.ch.length===3&&!fwd?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas width="232" height="232"></canvas><span class="labx">solid</span></div>`:''}`:''}
 	 ${interpHTML}
 	 <h4 class="sec2">code</h4>
-	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>`
+	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
+	 <div class="src">source: <a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a>${VERIFIED.has(s)?`, <a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="the independent reference values every conversion is pinned to">reference.js</a>`:''}</div>`
 	modal.scrollTop=0
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
@@ -1181,12 +1194,13 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		detail.querySelectorAll('#qseg button').forEach(x=>x.classList.toggle('on',x===b&&Q!==null))
 		clusterize()   // entering a mode snaps the current color onto its cluster right away
 		renderFast(); paintPlanes(false); paintCatalogGrad() })
-	detail.querySelectorAll('#gseg button').forEach(b=>b.onclick=()=>{ GM=b.dataset.g; localStorage.csGm=GM
-		detail.querySelectorAll('#gseg button').forEach(x=>x.classList.toggle('on',x===b))
+	detail.querySelectorAll('#gseg button').forEach(b=>b.onclick=()=>{ GM=GM===b.dataset.g?'off':b.dataset.g; localStorage.csGm=GM
+		detail.querySelectorAll('#gseg button').forEach(x=>x.classList.toggle('on',x.dataset.g===GM))
 		renderFast(); paintPlanes(false) })
 	const irow=detail.querySelector('#irow'), pinb=detail.querySelector('#pinb')
 	if(irow) irow.onclick=e=>{ const r=irow.getBoundingClientRect()
 		if((e.clientX-r.left)/r.width>0.8&&!e.target.closest('.hp')) pinb.click() }
+	const iendEl=detail.querySelector('#iend'); if(iendEl) iendEl.onclick=()=>pinb.click()
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
@@ -1325,22 +1339,18 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 				const cells=ramp(s,shown,i,c.min,c.max,19).map(h=>f(hex2rgb(h)).map(x=>clamp(Math.round(x),0,255)))
 				bar._cells=cells; bg=stepped(cells.map(hex)) }
 			else{ bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`; bar._cells=null }
-			// the gamut lens on the sweep: outside spans dim to half, thin vertical ticks mark
-			// the limits — skipped in cluster modes (their cells are real display colors)
-			const layers=[]
-			if(s!=='rgb'&&space[s].xyz&&!qTriple(Q)){ const N=48, st=[]
+			// the gamut lens on the sweep: outside spans ghost to 50% over the checkerboard,
+			// exactly like the plots — skipped in cluster modes (their cells are real colors)
+			const bgel=bar.querySelector('.bg')
+			bgel.style.backgroundImage=bg
+			let mask=''
+			if(GM!=='off'&&s!=='rgb'&&space[s].xyz&&!qTriple(Q)){ const N=48, st=[]
 				for(let k2=0;k2<=N;k2++){ const vv=cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*k2/N:shown[j])
 					st.push(inGam(s,vv)) }
 				if(st.some(x=>x)&&st.some(x=>!x)){
 					const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
-					layers.push(`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'transparent':'color-mix(in srgb, var(--paper) 55%, transparent)')).join(',')})`)
-					const ticks=[]; let prev=0
-					for(let k2=0;k2<N;k2++) if(st[k2]!==st[k2+1]){ const p=((k2+1)/(N+1)*100)
-						ticks.push(`transparent ${(p-0.35).toFixed(2)}%`,`${ink(rgb)} ${(p-0.35).toFixed(2)}% ${(p+0.35).toFixed(2)}%`,`transparent ${(p+0.35).toFixed(2)}%`) }
-					if(ticks.length) layers.push(`linear-gradient(90deg, ${ticks.join(',')})`) } }
-			bar.style.backgroundImage=layers.length?layers.reverse().join(', ')+', '+bg:bg
-			bar.style.backgroundSize=Array(layers.length+1).fill('100% 100%').join(', ')
-			bar.style.backgroundPosition=Array(layers.length+1).fill('0 0').join(', ') }
+					mask=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'#000':'rgba(0,0,0,.5)')).join(',')})` } }
+			bgel.style.webkitMaskImage=bgel.style.maskImage=mask||'none' }
 		const loV=cls.ch.map((cc,j)=>j===i?cc.min:shown[j]), hiV=cls.ch.map((cc,j)=>j===i?cc.max:shown[j])
 		bar.querySelector('.cnm').style.color=ink(rgbF(s,loV))
 		const nw=bar.querySelector('.nvw'); nw.style.color=ink(rgbF(s,hiV))
@@ -1386,9 +1396,8 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			for(let k=0;k<=14;k++) stops.push(hex(mixAt(k/14)))
 			css=`linear-gradient(90deg, ${stops.join(',')})` }
 		r.style.background=css
-		const ie=r.querySelector('#iend')
-		if(ie){ ie.textContent=fmt(s,B)||B.map((x2,j)=>fmtn(x2,cls.ch[j])).join(' '); ie.style.color=ink(rgbB) }
-		const hp2=r.querySelector('#hp'); if(hp2) hp2.style.color=ink(rgb) } }
+		const ie=detail.querySelector('#iend')
+		if(ie) ie.textContent=fmt(s,B)||B.map((x2,j)=>fmtn(x2,cls.ch[j])).join(' ') } }
 	// live code snippet
 	const snip=detail.querySelector('#snip')
 	if(snip){ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')

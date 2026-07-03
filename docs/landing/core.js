@@ -83,7 +83,7 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	const qc = typeof quant === 'number' ? f => (Math.min(quant - 1, Math.floor(f * quant)) + 0.5) / quant : null
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
 	const toXyz = gamut && name !== 'rgb' && space[name].xyz
-	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gamut]]
+	const gLin = toXyz && gamut !== 'off' && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gamut]]
 	const cluster = !!qf || quant === 'web'
 	for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
 		const v = vals.slice()
@@ -95,7 +95,7 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		let a = 255
 		if (gLin) { try { const lin = gLin(...toXyz(...v))
 			if (!lin.every(u => u > -4)) a = 0
-			else if (!cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 26
+			else if (!cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a
