@@ -79,6 +79,9 @@ hct.xyz = (h, c, t) => {
 		attempt++;
 	}
 
+	// no J reaches the requested tone at this chroma/hue — the coordinate names no color
+	// (Material's own solver would collapse chroma instead; we answer the exact question)
+	if (last > 1e-3) return [NaN, NaN, NaN];
 	return fromCam16({ J: best, C: c, h: h }, hctViewingConditions);
 }
 

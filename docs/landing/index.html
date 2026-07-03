@@ -40,6 +40,14 @@ a{ color:var(--ink) }
 .thm{ border:0; background:none; padding:.15rem; color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
 /* ── toolbar ── */
+/* the hero hook: convert any color into any space, right here */
+.hero{ display:flex; align-items:center; gap:.9rem; padding:.85rem 0; border-bottom:1px solid var(--hair); flex-wrap:wrap }
+.hero input{ flex:1 1 16rem; max-width:26rem; font:inherit; font-size:.84rem; font-weight:600; color:var(--ink); background:var(--panel); border:0; outline:none; padding:.5rem .8rem }
+.hero input:focus{ background:var(--paper); box-shadow:inset 0 -2px 0 var(--ink) }
+.hero .arr{ color:var(--soft); font-weight:700 }
+.hero select{ font:inherit; font-size:.8rem; font-weight:700; color:var(--ink); background:none; border:0; cursor:pointer; appearance:auto }
+.hero output{ font-size:.9rem; font-weight:700; cursor:copy; min-height:1.2em }
+.hero output:hover{ color:var(--c) }
 .bar{ position:sticky; top:0; z-index:5; background:var(--paper); padding:1.2rem clamp(1rem,3vw,2.2rem) .1rem }
 .bi{ display:flex; align-items:center; gap:1rem }
 .q{ flex:1; max-width:34rem; display:flex; align-items:center; gap:.6rem; background:var(--panel); padding:0 .85rem; border-bottom:2px solid transparent }
@@ -102,7 +110,7 @@ a{ color:var(--ink) }
 /* ── modal dossier — scrolls like a page ── */
 .modal{ position:fixed; inset:0; z-index:20; overflow-y:auto; overscroll-behavior:contain }
 .modal[hidden]{ display:none }
-.mback{ position:fixed; inset:0; background:oklch(0.17 0.01 60/.42); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px) }
+.mback{ position:fixed; inset:0; background:oklch(0.17 0.01 60/.42); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); will-change:transform }
 [data-theme=dark] .mback{ background:oklch(0.06 0.005 70/.6) }
 .mbox{ position:relative; width:min(56rem,94vw); margin:5vh auto; background:var(--paper); display:flex }
 .mx{ position:absolute; top:.4rem; right:.5rem; z-index:2; font:inherit; font-size:1rem; font-weight:700; border:0; background:transparent; color:var(--ink); cursor:pointer; padding:.4rem .6rem }
@@ -132,13 +140,24 @@ a{ color:var(--ink) }
 .planes{ display:flex; gap:0; flex-wrap:wrap; margin-top:.9rem }
 .pl{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
-.pl .cx{ position:absolute; width:4%; aspect-ratio:1; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* rhombus ~ one 20-step cell */
+.pl .cx{ position:absolute; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* same rhombus as the sliders */
+.pl3d{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; background:var(--panel); cursor:grab; touch-action:none }
+.pl3d:active{ cursor:grabbing }
+.pl3d canvas{ display:block; width:100%; height:100% }
+.pl3d .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; color:var(--soft); pointer-events:none }
 .pl .laby{ position:absolute; top:.5rem; left:.5rem; writing-mode:vertical-rl; transform:rotate(180deg); font-size:.64rem; font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; pointer-events:none }
 h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:1.6rem 0 .5rem; display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
-.pinv{ font-size:.72rem; font-weight:700; color:var(--soft); letter-spacing:.02em; font-variant-numeric:tabular-nums }
-.pinwrap{ margin-left:auto; display:flex; align-items:center; gap:.5rem }
-.proflinks{ margin-top:.7rem }
+.drefs{ margin-top:.8rem }
+.card td.cv{ text-transform:none; letter-spacing:0 }
+.src{ margin-top:.7rem; font-size:.74rem; color:var(--soft) }
+.src a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
+.src a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+/* segmented buttons — same word-style as the corner gamut flags, clickable */
+.seg{ display:flex; gap:.75rem }
+.seg button{ font:inherit; font-size:.64rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; border:0; background:none; padding:0; color:var(--ghost); cursor:pointer }
+.seg button.on{ color:var(--ink) }
+.seg button:hover{ color:var(--soft) }
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; letter-spacing:.06em; padding:.45rem .85rem; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:40 }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
@@ -153,11 +172,9 @@ h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color
 .curgam .on{ color:var(--paper) } .curgam .off{ color:color-mix(in oklab, var(--paper) 42%, var(--ink)) }
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.72rem; color:var(--ink); cursor:pointer }
-.qsel{ position:relative; display:flex; align-items:center }
-.qsel select{ appearance:none; -webkit-appearance:none; font:inherit; font-size:.72rem; font-weight:700; letter-spacing:0; text-transform:none; color:var(--ink); background:none; border:0; padding:0 .95rem 0 0; cursor:pointer }
-.qsel svg{ position:absolute; right:0; pointer-events:none; color:var(--ink) }
-.irow{ position:relative; height:68px }
-.irow .ilab{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:.64rem; font-weight:800; letter-spacing:.03em; pointer-events:none; text-transform:uppercase }
+.irow{ position:relative; height:68px; margin-top:.9rem }
+.irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:.66rem; font-weight:700; cursor:pointer; z-index:2 }
+.irow .iend{ position:absolute; right:.7rem; top:50%; transform:translateY(-50%); font-size:.8rem; font-weight:700; font-variant-numeric:tabular-nums; cursor:pointer; z-index:2 }
 .srcline{ margin-top:.7rem; font-size:.74rem; color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .srcline a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -166,9 +183,7 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.
 .cpy{ font:inherit; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border:0; background:var(--panel); color:var(--ink); padding:.2rem .5rem; cursor:copy }
 .cpy:hover{ background:var(--ink); color:var(--paper) }
 .snip{ margin-top:.2rem }
-.pinb{ width:1.5rem; height:1.15rem; border:0; padding:0; background:none; cursor:pointer; align-self:center }
-.pinb::-webkit-color-swatch-wrapper{ padding:0 } .pinb::-webkit-color-swatch{ border:none }
-.irow[data-alt]{ cursor:pointer }
+.pinb{ position:absolute; right:.5rem; top:50%; width:1px; height:1px; opacity:0; border:0; padding:0 }   /* native picker anchor */
 .hfmt{ font-size:clamp(.95rem,2.4vw,1.3rem); font-weight:700; font-variant-numeric:tabular-nums; color:var(--soft); cursor:copy }
 .hfmt:hover{ color:var(--ink) }
 .snipwrap{ position:relative }
@@ -225,6 +240,13 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 </header></div>
+
+<div class="fw"><div class="hero">
+	<input id="cin" placeholder="any color — tomato · #ff6347 · rgb(255 99 71) · oklch(0.7 0.19 40)" spellcheck="false" autocomplete="off" aria-label="color to convert">
+	<span class="arr">→</span>
+	<select id="cto" aria-label="target space"></select>
+	<output id="cout" class="tnum" title="click to copy · double-click to open the dossier"></output>
+</div></div>
 
 <div class="bar"><div class="bi">
 	<label class="q"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -822,8 +844,6 @@ import { SPACES, sections, cname, unit, catHTML } from './render.js'
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
 let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter'
-let cmpAlt='oklab'   // the single rotating comparison — click its label to cycle standard interpolation spaces
-const CYC=['oklab','lab','oklch','lchab','lrgb','rgb']
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='copied!')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
@@ -984,6 +1004,36 @@ function closeModal(){ modal.hidden=true; document.body.style.overflow=''; docum
 document.getElementById('mback').onclick=closeModal
 document.getElementById('mx').onclick=closeModal
 const ORDER=sections.flatMap(c=>c.spaces)
+// ── hero converter: any color string in → any space out ──
+function parseColor(str){ str=str.trim().toLowerCase()
+	if(!str) return null
+	if(str[0]==='#'){ const h=str.length===4?'#'+[...str.slice(1)].map(c=>c+c).join(''):str
+		if(/^#[0-9a-f]{6}$/.test(h)) return { s:'rgb', vals:hex2rgb(h) } }
+	if(NAMES[str]) return { s:'rgb', vals:NAMES[str].slice() }
+	const m2=str.match(/^([a-z][a-z0-9-]*)\s*\(([^)]*)\)$/)
+	if(m2){ let sp=m2[1]; const body=m2[2].split('/')[0]
+		if(sp==='color'){ const parts=body.trim().split(/[\s,]+/)
+			sp={'display-p3':'p3','a98-rgb':'a98rgb','prophoto-rgb':'prophoto','xyz-d65':'xyz','srgb-linear':'lrgb','srgb':'rgb'}[parts[0]]||parts[0]
+			const nums=parts.slice(1,4).map(parseFloat)
+			if(sp==='rgb') nums.forEach((x,i)=>nums[i]=x*255)
+			return SPACES.includes(sp)&&nums.length===3&&nums.every(isFinite)?{ s:sp, vals:nums }:null }
+		if(sp==='lch') sp='lchab'
+		const nums=body.trim().split(/[\s,]+/).slice(0,4).map(parseFloat).filter(isFinite)
+		const n=classify(SPACES.includes(sp)?sp:'rgb').ch.length
+		if(SPACES.includes(sp)&&nums.length>=n) return { s:sp, vals:nums.slice(0,n) } }
+	return null }
+const cin=document.getElementById('cin'), cto=document.getElementById('cto'), cout=document.getElementById('cout')
+cto.innerHTML=ORDER.map(s=>`<option value="${s}"${s==='oklch'?' selected':''}>${s}</option>`).join('')
+function convertHero(){ const p=parseColor(cin.value)
+	if(!p){ cout.textContent=cin.value.trim()?'?':''; return }
+	master={ s:p.s, vals:p.vals }
+	const t=cto.value, tv=valsFor(t)
+	cout.textContent=tv?(fmt(t,tv)||`${t}(${tv.map((x,j)=>fmtn(x,classify(t).ch[j])).join(' ')})`):'—'
+	renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+cin.addEventListener('input',convertHero)
+cto.addEventListener('change',convertHero)
+cout.onclick=()=>{ if(cout.textContent&&cout.textContent!=='?') copy(cout.textContent) }
+cout.ondblclick=()=>openModal(cto.value)
 const nav=d=>{ const k=ORDER.indexOf(selected); openModal(ORDER[(k+d+ORDER.length)%ORDER.length]) }
 document.getElementById('mprev').onclick=()=>nav(-1)
 document.getElementById('mnext').onclick=()=>nav(1)
@@ -1003,18 +1053,22 @@ function gamuts(){ try{ const X=master.s==='xyz'?master.vals:space[master.s].xyz
 	return { srgb:inG(space.xyz.lrgb(...X)), p3:inG(space.xyz['p3-linear'](...X)), rec2020:inG(space.xyz['rec2020-linear'](...X)) } }catch{ return null } }
 let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto complement
 // ONE global clustering mode for sliders AND planes — remembered across sessions
-const QMODES=[null,20,'web','names','percept']
-const QLABEL={ 'null':'smooth', '20':'20 steps', 'web':'websafe', 'names':'names', 'percept':'perceptual' }
-const QTIP={ 'null':'continuous values — no clustering',
+const QMODES=[null,10,20,'web','names','percept']
+const QSEG=[[10,'10'],[20,'20'],['web','safe'],['names','name'],['percept','ΔE']]
+const QTIP={ '10':'clusters every slider into 10 even steps',
 	'20':'clusters every slider into 20 even steps (tailwind-style scale)',
 	'web':'snaps colors to the 216-color web-safe palette (6 levels per channel)',
 	'names':'snaps colors to the nearest of the 148 CSS named colors',
-	'percept':'quantizes OKLab into even cells — perceptually equal spots; their warped shapes here reveal this space\'s distortion' }
+	'percept':'even OKLab cells — steps of equal perceived difference (ΔE); their warped shapes here reveal this space\'s distortion' }
 let dragBar=null   // the slider being dragged — its own background stays frozen
 let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.includes(v)) Q=v }catch{}
 const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
-const inGam=(s,vv)=>{ if(s==='rgb'||!space[s].lrgb) return true
-	try{ return space[s].lrgb(...vv).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
+// the gamut lens: which display gamut the plots and sliders are cut by
+const GAMS=['srgb','p3','rec2020']
+let GM=GAMS.includes(localStorage.csGm)?localStorage.csGm:'srgb'
+const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
+const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
+	try{ return gamLin[g](s==='xyz'?vv:space[s].xyz(...vv)).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
 // perceptual quantizer: even OKLab grid, mapped back through the current space
@@ -1056,45 +1110,86 @@ const hilite=code=>code.split('\n').map(line=>{
 		.replace(/\x01([^\x02]*)\x02/g,'<span class="tok-s">$1</span>')
 	return src+(com?`<span class="tok-c">${esc(com)}</span>`:'')
 }).join('\n')
+// ── the sRGB solid in this space: cube-surface point cloud, drag to rotate ──
+let rot3={a:-0.65,b:0.5}, pts3=null, pts3S=null
+function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ pts3=null; return }
+	const s=selected, cls=classify(s), P=[], G2=15
+	for(let f=0;f<6;f++) for(let i2=0;i2<=G2;i2++) for(let j2=0;j2<=G2;j2++){
+		const u=i2/G2*255, w=j2/G2*255
+		const rgb=[[0,u,w],[255,u,w],[u,0,w],[u,255,w],[u,w,0],[u,w,255]][f]
+		let v; try{ v=toSpace(s,rgb) }catch{ continue }
+		const n=v.map((x2,k2)=>{ const c=cls.ch[k2]; return clamp((x2-c.min)/(c.max-c.min),-0.2,1.2)-0.5 })
+		if(n.every(isFinite)) P.push({ n, hex:hex(rgb.map(x2=>clamp(Math.round(x2),0,255))) }) }
+	pts3=P; pts3S=s
+	let px0=0,py0=0,drag=false
+	el.onpointerdown=e=>{ drag=true; px0=e.clientX; py0=e.clientY; el.setPointerCapture(e.pointerId) }
+	el.onpointermove=e=>{ if(!drag) return
+		rot3.a+=(e.clientX-px0)*0.011; rot3.b=clamp(rot3.b+(e.clientY-py0)*0.011,-1.45,1.45)
+		px0=e.clientX; py0=e.clientY; draw3d() }
+	el.onpointerup=()=>drag=false
+	draw3d() }
+function draw3d(){ if(!pts3||!open()) return
+	const el=detail.querySelector('#pl3d'); if(!el) return
+	const cv=el.querySelector('canvas'), ctx=cv.getContext('2d'), S2=cv.width
+	ctx.clearRect(0,0,S2,S2)
+	const ca=Math.cos(rot3.a),sa=Math.sin(rot3.a),cb=Math.cos(rot3.b),sb=Math.sin(rot3.b)
+	// first channel (tone) is the vertical axis, like every picker here
+	const prj=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0
+		const X1=x*ca+z*sa, Z1=-x*sa+z*ca
+		return { x:S2/2+X1*S2*0.68, y:S2/2-(y*cb-Z1*sb)*S2*0.68, z:y*sb+Z1*cb } }
+	const arr=pts3.map(p=>{ const q2=prj(p.n); q2.hex=p.hex; return q2 }).sort((u1,u2)=>u1.z-u2.z)
+	for(const p of arr){ ctx.fillStyle=p.hex; ctx.fillRect(p.x-2,p.y-2,4,4) }
+	const mv=valsFor(pts3S)
+	if(mv){ const cls=classify(pts3S)
+		const n=mv.map((x2,k2)=>{ const c=cls.ch[k2]; return clamp((x2-c.min)/(c.max-c.min),-0.2,1.2)-0.5 })
+		const p=prj(n), cur=RGB()
+		ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.PI/4)
+		ctx.fillStyle=hex(cur); ctx.strokeStyle=ink(cur)==='#fff'?'#fff':'#1b1408'; ctx.lineWidth=1.6
+		ctx.fillRect(-5.5,-5.5,11,11); ctx.strokeRect(-5.5,-5.5,11,11); ctx.restore() } }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsFor(s)
 	const path=pathToRgb(s)
-	while(cmpAlt===s) cmpAlt=CYC[(CYC.indexOf(cmpAlt)+1)%CYC.length]
-	const cmps=[s,cmpAlt]
-	const interpHTML=fwd?'':`<h4 class="sec2">interpolate
-		<span class="pinwrap">${cls.angle?`<span class="hp" id="hp" title="hue arc direction">${huePath} ⇄</span>`:''}<span class="pinv" id="pinv"></span> <input type="color" class="pinb" id="pinb" title="blend end — pick any color"></span></h4>
-	 <div id="irows">${cmps.map(x=>`<div class="irow" data-cmp="${x}"${x===cmpAlt?' data-alt="1" title="click to compare against another space"':''}><span class="ilab">${x==='rgb'?'srgb':x}</span></div>`).join('')}</div>`
+	const interpHTML=fwd?'':`<div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint">${cls.angle?`<span class="hp" id="hp" title="hue arc direction">${huePath} ⇄</span>`:''}<span class="iend tnum" id="iend"></span><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1><span class="hfmt tnum" id="hfmt"></span></div>
-	 <div class="tags">${[[m.referred,TAGTIP[m.referred]],[m.dynamic&&m.dynamic.toUpperCase(),TAGTIP[m.dynamic&&m.dynamic.toUpperCase()]],[geo(s),TAGTIP[geo(s)]],[m.illuminant&&('illum '+m.illuminant),'reference white point the space is defined against'],[m.observer&&(m.observer+'° obs'),'CIE standard observer — the field of view the color matching was measured at'],[VERIFIED.has(s)&&'✓ vs colorjs.io','differentially tested against colorjs.io (the CSS Color spec editors) at 1/255 tolerance']].filter(t=>t[0]).map(([t,tip])=>`<span class="tag" title="${tip||''}">${t}</span>`).join('')}
+	 <div class="tags">${[[m.referred,TAGTIP[m.referred]],[m.dynamic&&m.dynamic.toUpperCase(),TAGTIP[m.dynamic&&m.dynamic.toUpperCase()]],[geo(s),TAGTIP[geo(s)]],[VERIFIED.has(s)&&'✓ vs colorjs.io','differentially tested against colorjs.io (the CSS Color spec editors) at 1/255 tolerance']].filter(t=>t[0]).map(([t,tip])=>`<span class="tag" title="${tip||''}">${t}</span>`).join('')}
 	 ${useOf(s).split('·').map(u=>`<span class="tag use" title="typical application of this space">${u.trim()}</span>`).join('')}</div>
-	 <div class="dgrid"><div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div>
-	 <div><table class="prof" title="channels — full name and conventional range">${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table>
-	 ${m.refs?`<div class="refs proflinks">${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`).join('')}</div>`:''}</div></div>
-	 <h4 class="sec2">channels <span class="qsel" style="margin-left:auto"><select id="qz" title="${QTIP[String(Q)]}" aria-label="value clustering mode">${QMODES.map(mo=>`<option value="${String(mo)}"${mo===Q?' selected':''}>${QLABEL[String(mo)]}</option>`).join('')}</select><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></h4>
+	 <div class="dgrid"><div><div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div>
+	 ${m.refs?`<div class="refs drefs">${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`).join('')}</div>`:''}</div>
+	 <div><table class="prof card">
+		${path&&path.length>1?`<tr><td>base</td><td class="cv" colspan="2">${path[1]}</td></tr>`:''}
+		${m.illuminant?`<tr><td>white</td><td class="cv" colspan="2">${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</td></tr>`:''}
+		${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table>
+	 <div class="src">source: <a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a>${VERIFIED.has(s)?`, <a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="differential reference values vs colorjs.io">reference.js</a>`:''}</div></div></div>
+	 <h4 class="sec2">channels <span class="seg" id="qseg" style="margin-left:auto">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span></h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>`<div class="bar2" data-i="${i}">
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
 		<div class="dk"></div>
 	 </div>`).join('')}</div>
-	 ${cls.ch.length>1?`<div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}</div>`:''}
+	 ${cls.ch.length>1?`<h4 class="sec2">plots <i title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset">zoomable</i> <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and sliders by the ${g} display gamut">${g}</button>`).join('')}</span></h4>
+	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}${cls.ch.length===3&&!fwd?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate"><canvas width="232" height="232"></canvas><span class="labx">solid</span></div>`:''}</div>`:''}
 	 ${interpHTML}
 	 <h4 class="sec2">code</h4>
-	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
-	 <h4 class="sec2">source</h4><div class="refs"><span><a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a>${VERIFIED.has(s)?`, <a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="differential reference values vs colorjs.io">reference.js</a>`:''}</span></div>`
+	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>`
 	modal.scrollTop=0
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
+	wire3d()
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; hp.textContent=huePath+' ⇄'; renderFast() }
-	const qz=detail.querySelector('#qz'); qz.onchange=e=>{ const v=e.target.value
-		Q=v==='null'?null:v==='20'?20:v; saveQ(); qz.title=QTIP[String(Q)]
+	detail.querySelectorAll('#qseg button').forEach(b=>b.onclick=()=>{ const v=b.dataset.q
+		const nq=v==='10'?10:v==='20'?20:v
+		Q=Q===nq?null:nq; saveQ()
+		detail.querySelectorAll('#qseg button').forEach(x=>x.classList.toggle('on',x===b&&Q!==null))
 		clusterize()   // entering a mode snaps the current color onto its cluster right away
-		renderFast(); paintPlanes(false); paintCatalogGrad() }
-	const pinb=detail.querySelector('#pinb')
+		renderFast(); paintPlanes(false); paintCatalogGrad() })
+	detail.querySelectorAll('#gseg button').forEach(b=>b.onclick=()=>{ GM=b.dataset.g; localStorage.csGm=GM
+		detail.querySelectorAll('#gseg button').forEach(x=>x.classList.toggle('on',x===b))
+		renderFast(); paintPlanes(false) })
+	const irow=detail.querySelector('#irow'), pinb=detail.querySelector('#pinb')
+	if(irow) irow.onclick=e=>{ const r=irow.getBoundingClientRect()
+		if((e.clientX-r.left)/r.width>0.8&&!e.target.closest('.hp')) pinb.click() }
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
-	const altRow=detail.querySelector('.irow[data-alt]')
-	if(altRow) altRow.onclick=()=>{ do{ cmpAlt=CYC[(CYC.indexOf(cmpAlt)+1)%CYC.length] }while(cmpAlt===s)
-		altRow.dataset.cmp=cmpAlt; altRow.querySelector('.ilab').textContent=cmpAlt==='rgb'?'srgb':cmpAlt; renderFast() }
 	const hf0=detail.querySelector('#hfmt'); hf0.onclick=()=>copy(hf0.textContent)
 	// precise adjustment: spinner inputs on the big sliders
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
@@ -1139,13 +1234,15 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
 function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
 		if(master.s!==selected){ let mv; try{ mv=toSpace(selected,RGB()) }catch{ return } master={ s:selected, vals:mv } }
-		const r=pl.getBoundingClientRect()
-		let fx=clamp((e.clientX-r.left)/r.width,0,1), fy=clamp((e.clientY-r.top)/r.height,0,1)
+		const r=pl.getBoundingClientRect(), vw=pl._vw
+		// pointer → windowed fraction → global range fraction (pan-zoom aware)
+		let fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
+		let fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
 		// numeric clustering snaps the PICKED COORDINATES to the sliders' own cell lattice —
 		// held channels never move, so the bitmap stays put and the sliders land on centres
 		if(typeof Q==='number'){ fx=(Math.min(Q-1,Math.floor(fx*Q))+0.5)/Q; fy=(Math.min(Q-1,Math.floor(fy*Q))+0.5)/Q }
 		master.vals[a]=cls.ch[a].min+(cls.ch[a].max-cls.ch[a].min)*fx
-		master.vals[b]=cls.ch[b].max-(cls.ch[b].max-cls.ch[b].min)*fy
+		master.vals[b]=cls.ch[b].min+(cls.ch[b].max-cls.ch[b].min)*fy
 		const f=qTriple(Q)
 		if(f&&typeof Q!=='number'){ // color-cluster modes pick the displayed cell exactly
 			const nr=f(rgbOf(selected,master.vals)).map(x=>clamp(Math.round(x),0,255))
@@ -1153,30 +1250,47 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 			master= mv?{ s:selected, vals:mv }:{ s:'rgb', vals:nr } }
 		plFreeze=pl   // the active plane's bitmap depends only on held channels — never repaint it mid-drag
 		scheduleFast() }
+	pl._vw={x0:0,x1:1,y0:0,y1:1}
 	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); set(e); pl.onpointermove=set })
-	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; plFreeze=null; paintPlanes(false); paintCatalogGrad() }) }
+	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; plFreeze=null; paintPlanes(false); paintCatalogGrad() })
+	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
+	pl.addEventListener('wheel',e=>{ const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
+		if(!e.ctrlKey&&!zoomed) return
+		e.preventDefault()
+		if(e.ctrlKey){ const r=pl.getBoundingClientRect()
+			const px=clamp((e.clientX-r.left)/r.width,0,1), py=clamp(1-(e.clientY-r.top)/r.height,0,1)
+			const z=Math.exp(e.deltaY*0.0024)
+			const zm=(a0,a1,p)=>{ const c=a0+(a1-a0)*p; let w=clamp((a1-a0)*z,0.02,1)
+				let n0=c-w*p; if(n0<0)n0=0; if(n0+w>1)n0=1-w; return [n0,n0+w] }
+			;[vw.x0,vw.x1]=zm(vw.x0,vw.x1,px); [vw.y0,vw.y1]=zm(vw.y0,vw.y1,py) }
+		else{ const wx=vw.x1-vw.x0, wy=vw.y1-vw.y0
+			let nx=clamp(vw.x0+e.deltaX/600*wx,0,1-wx), ny=clamp(vw.y0-e.deltaY/600*wy,0,1-wy)
+			vw.x0=nx; vw.x1=nx+wx; vw.y0=ny; vw.y1=ny+wy }
+		planeNext=0; scheduleFast() },{passive:false})
+	pl.addEventListener('dblclick',()=>{ pl._vw={x0:0,x1:1,y0:0,y1:1}; planeNext=0; scheduleFast() }) }
 
 // ── painting ──
-// planes adapt to each space's measured conversion cost (normalized to 216²·all-planes ms):
-// resolution fits a time budget — ~35ms live while dragging, ~250ms settled — and the repaint
-// cadence stretches with the measured cost, so iterative inverses (OSA-UCS ≈ 800ms at full res)
-// drag coarse-but-fluid and settle medium. (Real fix later: shader/WASM plane kernels.)
+// planes render at quality resolution always; heavy spaces (OSA-UCS, CAM16 family)
+// simply repaint LESS OFTEN — the cadence stretches with the measured cost instead of
+// degrading what you see. (Real fix later: shader/WASM plane kernels.)
 const planeMs={}
 let planeNext=0
 function paintPlanes(fast){ if(!open()) return
 	const s=selected, cls=classify(s), vals=probeVals(s)
 	const cost=planeMs[s]
-	const res=cost==null?72:Math.round(clamp(216*Math.sqrt((fast?35:250)/cost),48,216)/2)*2
+	const res=cost==null?96:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
 	const q=Q==='names'?t=>nearest(t).rgb:Q==='percept'?perceptQ:Q
 	const t0=performance.now()
 	detail.querySelectorAll('.pl').forEach(pl=>{ if(pl===plFreeze) return
-		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas')
+		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		if(cv.width!==res){ cv.width=res; cv.height=res }
-		plane(cv.getContext('2d'),res,s,vals,a,b,[cls.ch[a].min,cls.ch[a].max],[cls.ch[b].min,cls.ch[b].max],true,true,q,inkRGB(RGB())) })
+		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
+		plane(cv.getContext('2d'),res,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),true,GM,q) })
 	const dt=performance.now()-t0
 	planeMs[s]=Math.max(dt,0.5)*(216/res)**2
-	planeNext=performance.now()+Math.max(70, dt*2.5)
+	planeNext=performance.now()+Math.max(120, dt*1.8)
 	if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30)   // probe measured — settle at the fitted res
+	draw3d()
 }
 function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
 	const cls=classify(s), vals=probeVals(s)
@@ -1211,18 +1325,22 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 				const cells=ramp(s,shown,i,c.min,c.max,19).map(h=>f(hex2rgb(h)).map(x=>clamp(Math.round(x),0,255)))
 				bar._cells=cells; bg=stepped(cells.map(hex)) }
 			else{ bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`; bar._cells=null }
-			// sRGB limit on the sweep: a 3px baseline under the in-gamut span, in the marker ink
-			let layer=''
-			const lr=s!=='rgb'&&space[s].lrgb
-			if(lr){ const N=48, st=[]
+			// the gamut lens on the sweep: outside spans dim to half, thin vertical ticks mark
+			// the limits — skipped in cluster modes (their cells are real display colors)
+			const layers=[]
+			if(s!=='rgb'&&space[s].xyz&&!qTriple(Q)){ const N=48, st=[]
 				for(let k2=0;k2<=N;k2++){ const vv=cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*k2/N:shown[j])
-					let on=false; try{ on=lr(...vv).every(u=>u>=-0.005&&u<=1.005) }catch{}
-					st.push(on) }
-				if(st.some(x=>x)&&st.some(x=>!x)){ const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
-					layer=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?ink(rgb):'transparent')).join(',')})` } }
-			bar.style.backgroundImage=layer?layer+', '+bg:bg
-			bar.style.backgroundSize=layer?'100% 3px, 100% 100%':'100% 100%'
-			bar.style.backgroundPosition=layer?'left bottom, 0 0':'0 0' }
+					st.push(inGam(s,vv)) }
+				if(st.some(x=>x)&&st.some(x=>!x)){
+					const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
+					layers.push(`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'transparent':'color-mix(in srgb, var(--paper) 55%, transparent)')).join(',')})`)
+					const ticks=[]; let prev=0
+					for(let k2=0;k2<N;k2++) if(st[k2]!==st[k2+1]){ const p=((k2+1)/(N+1)*100)
+						ticks.push(`transparent ${(p-0.35).toFixed(2)}%`,`${ink(rgb)} ${(p-0.35).toFixed(2)}% ${(p+0.35).toFixed(2)}%`,`transparent ${(p+0.35).toFixed(2)}%`) }
+					if(ticks.length) layers.push(`linear-gradient(90deg, ${ticks.join(',')})`) } }
+			bar.style.backgroundImage=layers.length?layers.reverse().join(', ')+', '+bg:bg
+			bar.style.backgroundSize=Array(layers.length+1).fill('100% 100%').join(', ')
+			bar.style.backgroundPosition=Array(layers.length+1).fill('0 0').join(', ') }
 		const loV=cls.ch.map((cc,j)=>j===i?cc.min:shown[j]), hiV=cls.ch.map((cc,j)=>j===i?cc.max:shown[j])
 		bar.querySelector('.cnm').style.color=ink(rgbF(s,loV))
 		const nw=bar.querySelector('.nvw'); nw.style.color=ink(rgbF(s,hiV))
@@ -1236,39 +1354,41 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			if(k>=0) df=(k+0.5)/bar._cells.length }
 		dk.style.left=(df!=null?df*100:clamp((shown[i]-c.min)/(c.max-c.min),0,1)*100)+'%'
 		dk.style.background=hx; dk.style.borderColor=ink(rgb) })
-	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b
+	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
-		cx.style.left=(clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)*100)+'%'
-		cx.style.top=((1-clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1))*100)+'%'
+		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
+		const gy=clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1)
+		const px=(gx-vw.x0)/(vw.x1-vw.x0), py=(gy-vw.y0)/(vw.y1-vw.y0)
+		cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
+		cx.style.left=(clamp(px,0,1)*100)+'%'; cx.style.top=((1-clamp(py,0,1))*100)+'%'
 		// corner labels ink by what's beneath them — non-physical corners sit on the void panel
 		const labInk=(el,vv)=>{ try{ const lr=s!=='rgb'&&space[s].lrgb
 			if(lr){ const lin=lr(...vv)
-				if(!lin.every(u=>Math.abs(u)<4)){ el.style.color='var(--ink)'; return } } }catch{ el.style.color='var(--ink)'; return }
+				if(!lin.every(u=>u>-4)){ el.style.color='var(--ink)'; return } } }catch{ el.style.color='var(--ink)'; return }
 			el.style.color=ink(rgbF(s,vv)) }
 		labInk(pl.querySelector('.laby'), cls.ch.map((cc,j)=>j===a?cc.min:j===b?cc.max:shown[j]))
 		labInk(pl.querySelector('.labx'), cls.ch.map((cc,j)=>j===a?cc.max:j===b?cc.min:shown[j])) })
-	// interpolation: current → pinned end (or auto complement), the same blend computed in each listed space
+	// blend: current → pinned end (or auto complement), computed in THIS space, clustered like the sliders
 	if(vals){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
 	if(!B){ B=rotateHue(cls,vals,180); if(!B){ try{ B=toSpace(s,rgb.map(x=>255-x)) }catch{ B=null } } }
-	if(B){ const rgbB=endB||rgbF(s,B)
+	const r=detail.querySelector('#irow')
+	if(B&&r){ const rgbB=endB||rgbF(s,B)
 		const pin=detail.querySelector('#pinb'); if(pin&&document.activeElement!==pin) pin.value=hex(rgbB)
-		const pv=detail.querySelector('#pinv'); if(pv) pv.textContent=hex(rgbB)
-		detail.querySelectorAll('#irows .irow').forEach(r=>{ const x=r.dataset.cmp
-			let A2,B2; try{ A2= x===s?vals:toSpace(x,rgb); B2= x===s?B:toSpace(x,rgbB) }catch{ A2=null }
-			// the blend follows the global clustering mode, exactly like the sliders
-			const mixAt=t=>A2?rgbF(x,mixInSpace(x,A2,B2,t,huePath)):rgb.map((q2,j)=>q2+(rgbB[j]-q2)*t)
-			const qf=qTriple(Q); let css
-			if(typeof Q==='number'){ const stops=[]
-				for(let k=0;k<Q;k++) stops.push(hex(mixAt((k+0.5)/Q).map(x2=>clamp(Math.round(x2),0,255))))
-				css=stepped(stops) }
-			else if(qf){ const stops=[]
-				for(let k=0;k<20;k++) stops.push(hex(qf(mixAt((k+0.5)/20).map(x2=>clamp(Math.round(x2),0,255))).map(x2=>clamp(Math.round(x2),0,255))))
-				css=stepped(stops) }
-			else{ const stops=[]
-				for(let k=0;k<=14;k++) stops.push(hex(mixAt(k/14)))
-				css=`linear-gradient(90deg, ${stops.join(',')})` }
-			r.style.background=css; r.dataset.css=css
-			r.querySelector('.ilab').style.color=ink(rgb) }) } }
+		const mixAt=t=>rgbF(s,mixInSpace(s,vals,B,t,huePath))
+		const qf=qTriple(Q); let css
+		if(typeof Q==='number'){ const stops=[]
+			for(let k=0;k<Q;k++) stops.push(hex(mixAt((k+0.5)/Q).map(x2=>clamp(Math.round(x2),0,255))))
+			css=stepped(stops) }
+		else if(qf){ const stops=[]
+			for(let k=0;k<20;k++) stops.push(hex(qf(mixAt((k+0.5)/20).map(x2=>clamp(Math.round(x2),0,255))).map(x2=>clamp(Math.round(x2),0,255))))
+			css=stepped(stops) }
+		else{ const stops=[]
+			for(let k=0;k<=14;k++) stops.push(hex(mixAt(k/14)))
+			css=`linear-gradient(90deg, ${stops.join(',')})` }
+		r.style.background=css
+		const ie=r.querySelector('#iend')
+		if(ie){ ie.textContent=fmt(s,B)||B.map((x2,j)=>fmtn(x2,cls.ch[j])).join(' '); ie.style.color=ink(rgbB) }
+		const hp2=r.querySelector('#hp'); if(hp2) hp2.style.color=ink(rgb) } }
 	// live code snippet
 	const snip=detail.querySelector('#snip')
 	if(snip){ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
@@ -1278,7 +1398,15 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
 			`\n// one space, tree-shaken (~2 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) }
+	draw3d(); syncHash()
 }
+// the url carries the whole state: #space@v1,v2,v3 (throttled — replaceState is cheap but not free)
+let hashT=0
+function syncHash(){ if(!open()) return
+	const now=performance.now(); if(now-hashT<250) return; hashT=now
+	const vals=valsFor(selected)
+	const h=vals?`#${selected}@${vals.map((x,j)=>fmtn(x,classify(selected).ch[j])).join(',')}`:`#${selected}`
+	history.replaceState(null,'',h) }
 let raf
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ renderFast(); paintCatalogGrad()
 	if(performance.now()>planeNext) paintPlanes(true) }) }
@@ -1298,7 +1426,13 @@ document.getElementById('curnm').onclick=()=>{ const c=nearest(RGB()); if(c){ ma
 document.getElementById('chips').innerHTML=[spaceCount+' spaces','verified vs colorjs.io','0 dependencies','~2 kB per space','WASM batch path','Unlicense'].map(c=>`<span class="chipx">${c}</span>`).join('')
 
 renderFast(); paintCatalogGrad()
-const openHash=()=>{ const s=decodeURIComponent(location.hash.slice(1)); if(SPACES.includes(s)&&(modal.hidden||s!==selected)) openModal(s) }
+const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) return
+	const [slug,valstr]=h.split('@')
+	if(!SPACES.includes(slug)) return
+	if(valstr){ const vv=valstr.split(',').map(Number)
+		if(vv.length===classify(slug).ch.length&&vv.every(isFinite)) master={ s:slug, vals:vv } }
+	if(modal.hidden||slug!==selected) openModal(slug)
+	else{ renderFast(); paintPlanes(false) } }
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 </script></body></html>

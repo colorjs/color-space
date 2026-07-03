@@ -68,46 +68,38 @@ export function ramp(name, vals, ci, min, max, n = 12) {
 	return out
 }
 // ── generic 2-D plane (sweep channels cx,cy) → ImageData painted into ctx ──
-// gamut=true draws nested boundary lines for sRGB / P3 / Rec2020 (solid → fainter),
-// all in the single `line` color ([r,g,b], matched to the picker outline). Gamut is
-// tested via one xyz conversion per pixel + three cheap matrix transforms. Coordinates
-// beyond any physical color (|linear| > 4 or non-finite: Luv v′<0, CAM16 divergence)
-// render as void — the formula's continuation there is clamp noise, not color.
+// gamut names a display gamut ('srgb' | 'p3' | 'rec2020'): pixels inside render full,
+// outside GHOST at ~10% — the space stays visible, the lens shows what the chosen
+// display can show. Cluster quantizers (websafe/names/ΔE) produce real display colors
+// by construction, so no ghosting applies there. Negative-light / non-finite
+// coordinates (linear < −4: Luv v′<0, CAM16 divergence) void — the formula's
+// continuation there is clamp noise, not color. Scene-referred headroom (camera logs
+// decode to linear 8…460) is real light and renders clipped.
 // quant: a number N snaps the two swept COORDINATES to N cell centres (the exact
 // lattice the sliders use), 'web' maps output to web-safe 51s, a function maps triples
-export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = false, quant = null, line = [0, 0, 0]) {
+export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = null, quant = null) {
 	const img = ctx.createImageData(s, s), d = img.data
-	const toXyz = gamut && name !== 'rgb' && space[name].xyz
-	const GAM = toXyz && [space.xyz.lrgb, space.xyz['p3-linear'], space.xyz['rec2020-linear']]
-	const masks = GAM && GAM.map(() => new Uint8Array(s * s))
 	const qf = typeof quant === 'function' ? quant : null   // function quant maps a whole [r,g,b] triple
 	const qc = typeof quant === 'number' ? f => (Math.min(quant - 1, Math.floor(f * quant)) + 0.5) / quant : null
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
+	const toXyz = gamut && name !== 'rgb' && space[name].xyz
+	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gamut]]
+	const cluster = !!qf || quant === 'web'
 	for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
 		const v = vals.slice()
 		let fx = x / (s - 1), fy = (flipY ? (s - 1 - y) : y) / (s - 1)
 		if (qc) { fx = qc(fx); fy = qc(fy) }
 		v[cx] = rx[0] + (rx[1] - rx[0]) * fx
 		v[cy] = ry[0] + (ry[1] - ry[0]) * fy
-		let rgb = rgbOf(name, v); const i = (y * s + x) * 4, m = y * s + x
+		let rgb = rgbOf(name, v); const i = (y * s + x) * 4
 		let a = 255
-		if (GAM) { try { const X = toXyz(...v)
-			for (let g = 0; g < 3; g++) { const lin = GAM[g](...X)
-				masks[g][m] = lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0
-				if (g === 0 && !masks[0][m] && !lin.every(u => Math.abs(u) < 4)) a = 0 }
+		if (gLin) { try { const lin = gLin(...toXyz(...v))
+			if (!lin.every(u => u > -4)) a = 0
+			else if (!cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 26
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a
 	}
-	// nested gamut lines: srgb solid, p3 / rec2020 progressively fainter — one color
-	if (masks) masks.forEach((mask, g) => { const w = [1, 0.55, 0.32][g]
-		for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
-			const m = y * s + x; if (!mask[m]) continue
-			if ((x > 0 && !mask[m - 1]) || (x < s - 1 && !mask[m + 1]) || (y > 0 && !mask[m - s]) || (y < s - 1 && !mask[m + s])) {
-				const k = m * 4
-				d[k] += (line[0] - d[k]) * w; d[k + 1] += (line[1] - d[k + 1]) * w; d[k + 2] += (line[2] - d[k + 2]) * w; d[k + 3] = 255
-			}
-		} })
 	ctx.putImageData(img, 0, 0)
 }
 
