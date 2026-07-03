@@ -15,6 +15,6 @@ export const catHTML = () =>
 	${c.spaces.map(s => { const cls = classify(s)
 		return `<article class="ent" data-s="${s}">
 		 <div class="eh"><span class="nm">${s}</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="${s} value"></div>
-		 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span><span class="nvw"><b class="nv tnum"></b><i class="u">${unit(c2)}</i></span></div>`).join('')}</div>
+		 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
 		</article>` }).join('')}
 </div></section>`).join('') + `</div>`
