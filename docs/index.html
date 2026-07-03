@@ -28,10 +28,13 @@ a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
 .skip:focus{ transform:none }
 /* ── masthead ── */
-.mast{ position:relative; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; padding:.9rem 0 1.1rem }
-/* a full hue sweep rules off the masthead — the atlas divider, color·space still left */
-.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:linear-gradient(90deg,
-	oklch(.62 .2 25),oklch(.7 .19 60),oklch(.85 .17 95),oklch(.86 .2 130),oklch(.8 .14 175),oklch(.65 .16 235),oklch(.5 .22 285),oklch(.55 .25 330),oklch(.62 .2 25)) }
+.mast{ --hue:linear-gradient(90deg,
+	oklch(.62 .2 25),oklch(.7 .19 60),oklch(.85 .17 95),oklch(.86 .2 130),oklch(.8 .14 175),oklch(.65 .16 235),oklch(.5 .22 285),oklch(.55 .25 330),oklch(.62 .2 25));
+	position:relative; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; padding:.9rem 0 1.1rem }
+/* the divider IS the library's essence: a continuous spectrum on the left that
+   posterizes into discrete bands toward the right (SVG feComponentTransfer). */
+.mast::before,.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:6px; background:var(--hue) }
+.mast::after{ filter:url(#quantize); -webkit-mask:linear-gradient(90deg,transparent 40%,#000 62%); mask:linear-gradient(90deg,transparent 40%,#000 62%) }
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
 .mast .slogan{ font-weight:600; font-size:1rem }
 .mast .proof{ font-size:.72rem; color:var(--soft); font-weight:600 }
@@ -281,9 +284,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
    npm box + values live in an overlay pinned WITH them — the gradient swaps beneath */
 .fstack{ --fh:clamp(15rem,36vh,20rem) }
 .fstack .fg{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh) }
-/* each finer band stays hidden while it slides, then CUTS in the instant it reaches
-   the stage — the quantization snaps a step per scroll notch, no smooth wipe */
-.fstack .fg:not(:first-child){ opacity:0 }
+/* the smooth band is the ever-present base (.on from load); each finer band stays
+   hidden while it slides, then CUTS in the instant it reaches the stage — the
+   quantization snaps a step per scroll notch over the smooth wall, no wipe */
+.fstack .fg{ opacity:0 }
 .fstack .fg.on{ opacity:1 }
 .fov{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh); margin-bottom:calc(-1*var(--fh)); z-index:2; display:flex; flex-direction:column; pointer-events:none }
 .fov .fnpmw{ flex:1; display:flex; align-items:center; justify-content:center }
@@ -330,6 +334,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><filter id="quantize" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncG type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncB type="discrete" tableValues="0 .25 .5 .75 1"/></feComponentTransfer></filter></svg>
 <div class="page">
 <div class="fw"><header class="mast">
 	<h1 class="wm">color·space</h1>
@@ -1832,8 +1837,8 @@ function paintFtr(){ if(fkey) return; fkey='painted'   // static wall — the re
 paintFtr()
 // stepped reveal: a band flips ON only once it has slid up to the pinned stage, so the
 // quantization cuts one level per scroll notch instead of wiping in continuously
-function stepFtr(){ for(let i=1;i<fgs.length;i++){ const el=fgs[i]
-	el.classList.toggle('on', el.getBoundingClientRect().top <= innerHeight-el.offsetHeight+2) } }
+function stepFtr(){ fgs.forEach((el,i)=>   // band 0 (smooth) is the base, always on
+	el.classList.toggle('on', i===0 || el.getBoundingClientRect().top <= innerHeight-el.offsetHeight+2)) }
 addEventListener('scroll',()=>requestAnimationFrame(stepFtr),{passive:true}); stepFtr()
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
