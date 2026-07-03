@@ -87,7 +87,10 @@ a{ color:var(--ink) }
 .sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem }
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railcol,var(--railw)) + var(--railgap))); right:calc(-1*var(--railr,0px)); height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:.4rem } .sec:first-of-type::before{ display:none }
-.grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease }
+/* folded, a sliver of the next row bleeds through and fades — a peek that says
+   "more below", pointing the same way the chevron unfolds (--peek set per section) */
+.grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease;
+	-webkit-mask:linear-gradient(180deg,#000 calc(100% - var(--peek,0px)),transparent); mask:linear-gradient(180deg,#000 calc(100% - var(--peek,0px)),transparent) }
 .mo{ position:absolute; left:100%; top:0; bottom:0; width:var(--railr,9rem); border:0; background:none; color:var(--ghost); cursor:pointer; padding:2.1rem 0 0; display:flex; align-items:flex-start; justify-content:flex-end; gap:.5rem; white-space:nowrap }
 .mo b{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1 }
 .mo svg{ flex:none; margin-top:-0.22rem; transition:transform .15s }
@@ -993,7 +996,9 @@ function foldSecs(){ const rows=innerWidth>960?1:innerWidth>640?2:3   // ≈3 le
 		const ents=[...grid.querySelectorAll('.ent')].filter(e2=>e2.style.display!=='none')
 		const tops=[...new Set(ents.map(e2=>e2.offsetTop))].sort((a2,b2)=>a2-b2)
 		const short=!!curQ||tops.length<=rows, open=sec.classList.contains('open')
-		grid.style.maxHeight=(open||short?grid.scrollHeight:tops[rows]-grid.offsetTop)+'px'
+		const peek=(open||short)?0:34   // px of the next row left visible under the fade
+		grid.style.setProperty('--peek',peek+'px')
+		grid.style.maxHeight=(open||short?grid.scrollHeight:tops[rows]-grid.offsetTop+peek)+'px'
 		if(mo){ mo.style.visibility=short?'hidden':''; mo.setAttribute('aria-expanded',open) }
 		sh?.setAttribute('aria-expanded',open||short) }) }
 const toggleSec=sec=>{ sec.classList.toggle('open'); foldSecs(); setTimeout(layoutToc,320) }
