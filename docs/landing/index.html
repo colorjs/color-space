@@ -51,7 +51,7 @@ a{ color:var(--ink) }
 .hero select{ font:inherit; font-size:1rem; font-weight:700; color:var(--ink); background:none; border:0; cursor:pointer; appearance:auto }
 .hero output{ font-size:1rem; font-weight:700; cursor:copy; min-height:1.2em }
 .hero output:hover{ color:var(--c) }
-.bar{ position:sticky; top:0; z-index:5; background:var(--paper); padding:1.2rem clamp(1rem,3vw,2.2rem) .1rem }
+.bar{ position:sticky; top:0; z-index:5; background:var(--paper); padding:1.2rem clamp(1rem,3vw,2.2rem) .1rem; margin-bottom:1.6rem }
 .bi{ display:flex; align-items:center; gap:1rem; max-width:64rem; margin:0 auto }
 .q{ flex:1; max-width:34rem; display:flex; align-items:center; gap:.6rem; background:var(--panel); padding:0 .85rem; border-bottom:2px solid transparent }
 .q:focus-within{ background:var(--paper); border-bottom-color:var(--ink) }
@@ -106,7 +106,7 @@ a{ color:var(--ink) }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem; cursor:pointer }
 /* hover lifts the card on a white sheet; the ↗ badge at the top right says "opens" */
 .ent:hover,.ent:focus-within{ background:var(--lift) }
-.ent::after{ content:''; position:absolute; top:.95rem; right:var(--eg); width:19px; height:19px; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
+.ent::after{ content:''; position:absolute; top:.8rem; right:.45rem; width:24px; height:24px; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
 .ent:hover::after{ opacity:1 }
 .ent .eh{ padding:0 0 .45rem; display:flex; flex-direction:column; align-items:flex-start; gap:.16rem }
 .ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
@@ -114,6 +114,7 @@ a{ color:var(--ink) }
    while the name/punctuation stay soft; focusing hides it and inks the whole input */
 .hxw{ position:relative; display:flex; align-items:center; gap:.45rem; max-width:100% }
 .ent .eh .hx{ width:12ch; max-width:100%; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); font-variant-numeric:tabular-nums; border:0; outline:none; background:transparent; padding:0; text-align:left }
+.ent .eh .hx:focus{ color:var(--ink) }   /* editing — the whole value reads editable */
 .hxv{ position:absolute; left:0; top:0; pointer-events:none; font-style:normal; font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums; white-space:pre; color:transparent }
 .hxv b{ color:transparent; font-weight:600 }
 .hxw:hover .hxv b{ color:var(--ink) }   /* hovering the value inks its numbers — the adjustable parts */
@@ -1756,21 +1757,21 @@ document.getElementById('chips').innerHTML=FEATS.map(([c,t])=>`<span class="chip
 
 // ── footer bands: EXACTLY the coloroid entry's A slider — hue sweeps at the current
 // color's T and V, so picking a color repaints the wall. Sticky stack quantizes it ──
-const FGN=[0,100,50,20,10]
+const FGN=[0,80,40,20,10]   // twofold halving reads cleanly band to band
 const fgs=[...document.querySelectorAll('#fstack .fg')]
 const fov=document.querySelector('.fov')
 let fkey=''
-function paintFtr(){ const v=probeVals('coloroid')
-	const key=v[1].toFixed(1)+','+v[2].toFixed(1); if(key===fkey) return; fkey=key
-	const col=f=>hex(rgbF('coloroid',[10+66*f, v[1], v[2]]))
+function paintFtr(){ const v=probeVals('coloroid')   // T maxed: washed colors made the wall mute
+	const key=v[2].toFixed(1); if(key===fkey) return; fkey=key
+	const col=f=>hex(rgbF('coloroid',[10+66*f, 100, v[2]]))
 	fgs.forEach((el,i)=>{ const n2=FGN[i]
 		if(!n2){ const st=[]; for(let k=0;k<=48;k++) st.push(col(k/48))
 			el.style.background=`linear-gradient(90deg, ${st.join(',')})` }
 		else{ const st=[]; for(let k=0;k<n2;k++) st.push(col((k+0.5)/n2))
 			el.style.background=stepped(st) } })
 	// overlay ink per side, from the band's own ends (same inversion as the sliders)
-	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,v[1],v[2]])))
-	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,v[1],v[2]]))) }
+	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,100,v[2]])))
+	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,100,v[2]]))) }
 paintFtr()
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
