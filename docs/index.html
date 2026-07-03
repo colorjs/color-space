@@ -313,7 +313,9 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .intro.skip{ display:none }   /* returning visitors land straight on the tool */
 .iwheel{ position:absolute; inset:0; background:conic-gradient(from .5turn at 50% 60%, #ff5a5a,#ffb14e,#ffe24a,#7ed957,#4ad0c0,#4aa3ff,#7a6cff,#d46cff,#ff5a5a); transform-origin:50% 60%; transition:transform .6s cubic-bezier(.6,0,.25,1), opacity .6s ease }
 .iwheel::after{ content:''; position:absolute; inset:0; background:radial-gradient(closest-side at 50% 60%, var(--paper) 4%, color-mix(in oklab,var(--paper) 40%,transparent) 46%, transparent 74%) }
-.iwheel::before{ content:''; position:absolute; inset:0; opacity:.4; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
+/* grain rides ABOVE the wheel so the scroll posterize crushes color into clean blocks
+   without dithering the noise into harsh speckle */
+.igrain{ position:absolute; inset:0; pointer-events:none; opacity:.4; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
 .introc{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:1.6rem; padding:2rem 1rem; text-align:center }
 .introh{ font-size:clamp(2rem,5.5vw,3.6rem); font-weight:800; letter-spacing:-.03em; line-height:1.02; color:var(--ink) }
 .introh em{ font-style:normal; box-shadow:inset 0 -.14em 0 var(--ink) }
@@ -334,7 +336,14 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
-<svg width="0" height="0" aria-hidden="true" style="position:absolute"><filter id="quantize" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncG type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncB type="discrete" tableValues="0 .25 .5 .75 1"/></feComponentTransfer></filter></svg>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+	<filter id="quantize" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncG type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncB type="discrete" tableValues="0 .25 .5 .75 1"/></feComponentTransfer></filter>
+	<filter id="q8" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .143 .286 .429 .571 .714 .857 1"/><feFuncG type="discrete" tableValues="0 .143 .286 .429 .571 .714 .857 1"/><feFuncB type="discrete" tableValues="0 .143 .286 .429 .571 .714 .857 1"/></feComponentTransfer></filter>
+	<filter id="q6" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .2 .4 .6 .8 1"/><feFuncG type="discrete" tableValues="0 .2 .4 .6 .8 1"/><feFuncB type="discrete" tableValues="0 .2 .4 .6 .8 1"/></feComponentTransfer></filter>
+	<filter id="q4" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .333 .667 1"/><feFuncG type="discrete" tableValues="0 .333 .667 1"/><feFuncB type="discrete" tableValues="0 .333 .667 1"/></feComponentTransfer></filter>
+	<filter id="q3" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .5 1"/><feFuncG type="discrete" tableValues="0 .5 1"/><feFuncB type="discrete" tableValues="0 .5 1"/></feComponentTransfer></filter>
+	<filter id="q2" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/><feFuncB type="discrete" tableValues="0 1"/></feComponentTransfer></filter>
+</svg>
 <div class="page">
 <div class="fw"><header class="mast">
 	<h1 class="wm">color·space</h1>
@@ -349,6 +358,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 
 <section class="intro" id="intro" aria-label="pick a color to begin">
 	<div class="iwheel" id="iwheel"></div>
+	<div class="igrain"></div>
 	<div class="introc">
 		<h2 class="introh">Pick any color.<br>See it in <em>every</em> space.</h2>
 		<div class="ipick">
@@ -1859,10 +1869,20 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	if(location.hash.length>1){ intro.classList.add('skip'); return }
 	const ipin=document.getElementById('ipin'), idot=document.getElementById('idot')
 	const idrop=document.getElementById('idrop'), iskip=document.getElementById('iskip')
+	const iwheel=document.getElementById('iwheel')
 	// fill the viewport under the masthead — a full stage, catalog waiting below the fold
 	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
+	// scrolling down the stage posterizes the wheel a step at a time — smooth spectrum
+	// crushing toward pure primaries, the quantization the whole page is about
+	const QF=['','url(#q8)','url(#q6)','url(#q4)','url(#q3)','url(#q2)']
+	let qi=-1
+	const heroQuant=()=>{ if(intro.style.display==='none') return
+		const p=clamp(scrollY/((intro.offsetHeight||innerHeight)*0.9),0,1)
+		const i=Math.min(QF.length-1,Math.floor(p*QF.length))
+		if(i!==qi){ qi=i; iwheel.style.filter=QF[i] } }
+	addEventListener('scroll',()=>requestAnimationFrame(heroQuant),{passive:true}); heroQuant()
 	const preview=p=>{ if(!p) return false; master={ s:p.s, vals:p.vals }
 		idot.value=hex(RGB()); renderFast(); paintCatalogGrad(); return true }
 	// the reveal: wheel collapses into the dot, the intro folds up, entries wave in
