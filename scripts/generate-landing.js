@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Prerender the landing catalog into docs/landing/index.html (crawlable static markup —
+// Prerender the landing catalog into docs/index.html (crawlable static markup —
 // the page re-renders the identical template on load) and generate docs/llms.txt.
 // Run after adding spaces or editing the catalog template: npm run landing
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -12,7 +12,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
 // ── index.html: static catalog + live counts + version ──
-const page = join(root, 'docs/landing/index.html')
+const page = join(root, 'docs/index.html')
 let html = readFileSync(page, 'utf8')
 const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not found: ${re}`); html = html.replace(re, repl) }
 inject(/<main class="cat" id="cat">[\s\S]*?<\/main>/, `<main class="cat" id="cat">${catHTML()}</main>`)
@@ -47,4 +47,4 @@ ${sections.map(c => `## ${c.name}\n${c.spaces.map(line).join('\n')}`).join('\n\n
 `
 writeFileSync(join(root, 'docs/llms.txt'), llms)
 
-console.log(`prerendered ${SPACES.length} spaces (${sections.length} sections) into docs/landing/index.html · v${version} · docs/llms.txt written`)
+console.log(`prerendered ${SPACES.length} spaces (${sections.length} sections) into docs/index.html · v${version} · docs/llms.txt written`)
