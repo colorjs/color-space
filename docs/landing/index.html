@@ -21,7 +21,7 @@
 	--hair:oklch(0.93 0.005 85/.15); --ghost:oklch(0.41 0.012 70); --body:oklch(0.79 0.01 80); --lift:oklch(0.24 0.01 70); color-scheme:dark }
 *{ box-sizing:border-box; margin:0 }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
-.page{ --railw:10.5rem; --railgap:2.2rem }
+.page{ --railw:10.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem) }   /* --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
@@ -66,40 +66,40 @@ a{ color:var(--ink) }
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative }
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
-.ti{ display:block; position:sticky; z-index:2; background:var(--paper); font:inherit; font-size:1.1rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ghost); text-align:left; border:0; margin:0; padding:0 0 .25rem; width:100%; cursor:pointer }
-.ti .c{ font-size:.62rem; font-weight:700; font-variant-numeric:tabular-nums; margin-left:.4rem; vertical-align:.35em; letter-spacing:0 }
-.ti:hover{ color:var(--ink) }
-.ti.act{ color:var(--ink) }
+.ti{ display:block; position:sticky; z-index:2; background:var(--paper); margin:0; padding:0 0 .25rem; width:100% }
+.ti .tn{ display:block; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ghost); text-align:left; border:0; background:none; padding:0; cursor:pointer }
+.ti .tn:hover,.ti.act .tn{ color:var(--ink) }
+/* "12 spaces" under the title is the section's opener — no chevron needed */
+.ti .tc{ display:block; font:inherit; font-size:.78rem; font-weight:600; color:var(--soft); text-align:left; border:0; background:none; padding:.2rem 0 0; cursor:pointer }
+.ti .tc:hover{ color:var(--ink) }
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }
-/* a section: one row of three lead spaces + a chevron gutter at the right — the big
-   centered chevron unfolds the whole section (fold clips the grid to the next row) */
-.sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem; display:grid; grid-template-columns:minmax(0,1fr) 3.2rem }
+/* a section: one row of three lead spaces, then an empty gutter mirroring the title
+   rail — symmetric; the rail's "12 spaces" opens the whole section (fold clips the
+   grid to the next row's edge). Sheets tile gaplessly: the grid is gapless and each
+   entry carries half the gutter as its own padding (negative margin keeps content
+   aligned with the section edges) */
+.sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem; display:grid; grid-template-columns:minmax(0,1fr) var(--railw); column-gap:var(--railgap) }
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railw) + var(--railgap))); right:0; height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:.4rem } .sec:first-of-type::before{ display:none }
-.grid{ grid-area:1/1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); column-gap:clamp(1.2rem,2.5vw,2rem); overflow:hidden; transition:max-height .3s ease }
-.mo{ grid-area:1/2; align-self:stretch; justify-self:stretch; display:flex; align-items:center; justify-content:center; border:0; background:none; color:var(--ghost); cursor:pointer; padding:0 }
-.mo:hover{ color:var(--ink) }
-.mo svg{ transition:transform .15s }
-.sec.open .mo svg{ transform:rotate(180deg) }
+.grid{ grid-area:1/1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease }
 .shw{ display:none }   /* mobile FAQ section headers — the rail carries the names on desktop */
 @media(max-width:1080px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.sec::before{ left:0 }   /* dividers stay inside the container */
 	.shw{ display:block; margin:0 }
-	.sh{ display:flex; align-items:baseline; gap:.55rem; width:100%; font:inherit; font-size:1.1rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); background:none; border:0; padding:1rem 0; cursor:pointer; text-align:left }
+	.sh{ display:flex; align-items:baseline; gap:.55rem; width:100%; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); background:none; border:0; padding:1rem 0; cursor:pointer; text-align:left }
 	.sh .c{ font-size:.62rem; font-weight:700; color:var(--soft) }
 	.sh svg{ margin-left:auto; align-self:center; transition:transform .15s }
 	.sec.open .sh svg{ transform:rotate(180deg) }
-	.mo{ display:none }   /* the FAQ header carries the chevron on mobile */
 	.sec{ display:block; padding:0 }
 	.grid{ grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)) }
 	.sec>.grid{ padding-bottom:1.6rem }
 	.sec:first-of-type{ padding-top:0 } }
-.ent{ display:block; padding:.72rem 0 .9rem; cursor:pointer }
+.ent{ display:block; padding:.85rem var(--eg) 1rem; cursor:pointer }
 /* hover lifts the card on a white sheet; the appearing channel chrome says "interactive" */
-.ent:hover,.ent:focus-within{ background:var(--lift); box-shadow:0 0 0 .5rem var(--lift) }
+.ent:hover,.ent:focus-within{ background:var(--lift) }
 .ent .eh{ padding:0 0 .45rem; display:flex; flex-direction:column; align-items:flex-start; gap:.16rem }
-.ent .eh .nm{ font-weight:800; font-size:1.1rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
+.ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
 .ent .eh .hx{ width:12ch; max-width:100%; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); font-variant-numeric:tabular-nums; border:0; outline:none; background:transparent; padding:0; text-align:left }
 .ent .eh .hx:hover,.ent .eh .hx:focus{ color:var(--ink) }
 .chs{ display:flex; flex-direction:column }
@@ -282,7 +282,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<span class="n"><span id="nq"></span> shown</span>
 </div></div>
 
-<main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><button class="ti" data-i="0">Display & web<span class="c tnum">19</span></button><i class="tsp"></i><button class="ti" data-i="1">Cylindrical<span class="c tnum">9</span></button><i class="tsp"></i><button class="ti" data-i="2">Perceptual — modern<span class="c tnum">12</span></button><i class="tsp"></i><button class="ti" data-i="3">Perceptual — CIE classic<span class="c tnum">15</span></button><i class="tsp"></i><button class="ti" data-i="4">HDR & wide gamut<span class="c tnum">11</span></button><i class="tsp"></i><button class="ti" data-i="5">Colorimetry & vision<span class="c tnum">14</span></button><i class="tsp"></i><button class="ti" data-i="6">Video & broadcast<span class="c tnum">11</span></button><i class="tsp"></i><button class="ti" data-i="7">Film & camera<span class="c tnum">36</span></button><i class="tsp"></i><button class="ti" data-i="8">Appearance models<span class="c tnum">11</span></button><i class="tsp"></i><button class="ti" data-i="9">Print & physical<span class="c tnum">6</span></button><i class="tsp"></i><button class="ti" data-i="10">Specialty & research<span class="c tnum">7</span></button></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Display & web<span class="c tnum">19</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Display & web spaces" aria-label="show all Display & web spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+<main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web</button><button class="tc tnum" aria-expanded="false" title="show all Display & web spaces">19 spaces</button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical</button><button class="tc tnum" aria-expanded="false" title="show all Cylindrical spaces">9 spaces</button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern</button><button class="tc tnum" aria-expanded="false" title="show all Perceptual — modern spaces">12 spaces</button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic</button><button class="tc tnum" aria-expanded="false" title="show all Perceptual — CIE classic spaces">15 spaces</button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut</button><button class="tc tnum" aria-expanded="false" title="show all HDR & wide gamut spaces">11 spaces</button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision</button><button class="tc tnum" aria-expanded="false" title="show all Colorimetry & vision spaces">14 spaces</button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast</button><button class="tc tnum" aria-expanded="false" title="show all Video & broadcast spaces">11 spaces</button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera</button><button class="tc tnum" aria-expanded="false" title="show all Film & camera spaces">36 spaces</button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models</button><button class="tc tnum" aria-expanded="false" title="show all Appearance models spaces">11 spaces</button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical</button><button class="tc tnum" aria-expanded="false" title="show all Print & physical spaces">6 spaces</button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research</button><button class="tc tnum" aria-expanded="false" title="show all Specialty & research spaces">7 spaces</button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Display & web<span class="c tnum">19</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="rgb">
 		 <div class="eh"><span class="nm">rgb</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="rgb value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -341,7 +341,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">smpte-240m</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="smpte-240m value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Cylindrical<span class="c tnum">9</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Cylindrical spaces" aria-label="show all Cylindrical spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Cylindrical<span class="c tnum">9</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="hsl">
 		 <div class="eh"><span class="nm">hsl</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="hsl value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span><span class="nvw"><b class="nv tnum"></b><i class="u">°</i></span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="2" title="Lightness"><div class="tk"></div><span class="sy">L</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div></div>
@@ -370,7 +370,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">hsm</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="hsm value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span><span class="nvw"><b class="nv tnum"></b><i class="u">°</i></span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="2" title="Mixture"><div class="tk"></div><span class="sy">M</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Perceptual — modern<span class="c tnum">12</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Perceptual — modern spaces" aria-label="show all Perceptual — modern spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Perceptual — modern<span class="c tnum">12</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="oklch">
 		 <div class="eh"><span class="nm">oklch</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="oklch value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Chroma"><div class="tk"></div><span class="sy">C</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Hue"><div class="tk"></div><span class="sy">H</span><span class="nvw"><b class="nv tnum"></b><i class="u">°</i></span></div></div>
@@ -408,7 +408,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">igpgtg</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="igpgtg value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Intensity"><div class="tk"></div><span class="sy">Ig</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Protan"><div class="tk"></div><span class="sy">Pg</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Tritan"><div class="tk"></div><span class="sy">Tg</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Perceptual — CIE classic<span class="c tnum">15</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Perceptual — CIE classic spaces" aria-label="show all Perceptual — CIE classic spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Perceptual — CIE classic<span class="c tnum">15</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="lab">
 		 <div class="eh"><span class="nm">lab</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="lab value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="1" title="Green-Red axis"><div class="tk"></div><span class="sy">a</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Blue-Yellow axis"><div class="tk"></div><span class="sy">b</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -455,7 +455,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">anlab</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="anlab value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">HDR & wide gamut<span class="c tnum">11</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all HDR & wide gamut spaces" aria-label="show all HDR & wide gamut spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">HDR & wide gamut<span class="c tnum">11</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="ictcp">
 		 <div class="eh"><span class="nm">ictcp</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="ictcp value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Intensity"><div class="tk"></div><span class="sy">I</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Tritan chroma"><div class="tk"></div><span class="sy">Ct</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Protanopia chroma"><div class="tk"></div><span class="sy">Cp</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -490,7 +490,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">icacb</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="icacb value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Intensity"><div class="tk"></div><span class="sy">I</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">Ca</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">Cb</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Colorimetry & vision<span class="c tnum">14</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Colorimetry & vision spaces" aria-label="show all Colorimetry & vision spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Colorimetry & vision<span class="c tnum">14</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="xyz">
 		 <div class="eh"><span class="nm">xyz</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="xyz value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="X"><div class="tk"></div><span class="sy">X</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Y"><div class="tk"></div><span class="sy">Y</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="2" title="Z"><div class="tk"></div><span class="sy">Z</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -534,7 +534,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">yrg</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="yrg value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Luminance"><div class="tk"></div><span class="sy">Y</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Red chromaticity"><div class="tk"></div><span class="sy">r</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Green chromaticity"><div class="tk"></div><span class="sy">g</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Video & broadcast<span class="c tnum">11</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Video & broadcast spaces" aria-label="show all Video & broadcast spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Video & broadcast<span class="c tnum">11</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="ycbcr">
 		 <div class="eh"><span class="nm">ycbcr</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="ycbcr value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Luma"><div class="tk"></div><span class="sy">Y</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Blue chroma"><div class="tk"></div><span class="sy">Cb</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Red chroma"><div class="tk"></div><span class="sy">Cr</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -569,7 +569,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">photoycc</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="photoycc value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Luma"><div class="tk"></div><span class="sy">Yc</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Blue chroma"><div class="tk"></div><span class="sy">C1</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Red chroma"><div class="tk"></div><span class="sy">C2</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Film & camera<span class="c tnum">36</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Film & camera spaces" aria-label="show all Film & camera spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Film & camera<span class="c tnum">36</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="acescg">
 		 <div class="eh"><span class="nm">acescg</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="acescg value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -679,7 +679,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">filmicpro</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="filmicpro value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Appearance models<span class="c tnum">11</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Appearance models spaces" aria-label="show all Appearance models spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Appearance models<span class="c tnum">11</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="cam16">
 		 <div class="eh"><span class="nm">cam16</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="cam16 value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">J</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="1" title="Colorfulness"><div class="tk"></div><span class="sy">M</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Hue"><div class="tk"></div><span class="sy">h</span><span class="nvw"><b class="nv tnum"></b><i class="u">°</i></span></div></div>
@@ -714,7 +714,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">rlab</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="rlab value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Print & physical<span class="c tnum">6</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Print & physical spaces" aria-label="show all Print & physical spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Print & physical<span class="c tnum">6</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="cmyk">
 		 <div class="eh"><span class="nm">cmyk</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="cmyk value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Cyan"><div class="tk"></div><span class="sy">C</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="1" title="Magenta"><div class="tk"></div><span class="sy">M</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="2" title="Yellow"><div class="tk"></div><span class="sy">Y</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="3" title="Black"><div class="tk"></div><span class="sy">K</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div></div>
@@ -734,7 +734,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		 <div class="eh"><span class="nm">coloroid</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="coloroid value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Hue grade"><div class="tk"></div><span class="sy">A</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">T</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div><div class="ch" data-i="2" title="Luminosity"><div class="tk"></div><span class="sy">V</span><span class="nvw"><b class="nv tnum"></b><i class="u">%</i></span></div></div>
 		</article>
-</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Specialty & research<span class="c tnum">7</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Specialty & research spaces" aria-label="show all Specialty & research spaces"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
+</div></section><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Specialty & research<span class="c tnum">7</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
 	<article class="ent" data-s="cubehelix">
 		 <div class="eh"><span class="nm">cubehelix</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="cubehelix value"></div>
 		 <div class="chs"><div class="ch" data-i="0" title="Interpolation fraction along helix"><div class="tk"></div><span class="sy">fraction</span><span class="nvw"><b class="nv tnum"></b><i class="u"></i></span></div></div>
@@ -939,21 +939,21 @@ const secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('
 // folding clips the grid to the next row's edge so open/close animates like the FAQ
 let curQ=''
 function foldSecs(){ const rows=innerWidth>1080?1:innerWidth>700?2:3   // ≈3 lead spaces per section
-	secEls.forEach(sec=>{ if(sec.style.display==='none') return
-		const grid=sec.querySelector('.grid'), mo=sec.querySelector('.mo'), sh=sec.querySelector('.sh')
+	secEls.forEach((sec,i)=>{ if(sec.style.display==='none') return
+		const grid=sec.querySelector('.grid'), sh=sec.querySelector('.sh'), tc=tocIt[i]?.querySelector('.tc')
 		const ents=[...grid.querySelectorAll('.ent')].filter(e2=>e2.style.display!=='none')
 		const tops=[...new Set(ents.map(e2=>e2.offsetTop))].sort((a2,b2)=>a2-b2)
 		const short=!!curQ||tops.length<=rows, open=sec.classList.contains('open')
-		if(mo) mo.style.display=short?'none':''
 		grid.style.maxHeight=(open||short?grid.scrollHeight:tops[rows]-grid.offsetTop)+'px'
-		mo?.setAttribute('aria-expanded',open); sh?.setAttribute('aria-expanded',open||short) }) }
+		if(tc){ tc.style.visibility=short?'hidden':''
+			tc.textContent=open?'fold':`${grid.querySelectorAll('.ent').length} spaces`
+			tc.setAttribute('aria-expanded',open) }
+		sh?.setAttribute('aria-expanded',open||short) }) }
 const toggleSec=sec=>{ sec.classList.toggle('open'); foldSecs(); setTimeout(layoutToc,320) }
-secEls.forEach(sec=>{ const sh=sec.querySelector('.sh'), mo=sec.querySelector('.mo')
-	if(sh) sh.onclick=()=>toggleSec(sec)
-	if(mo) mo.onclick=()=>toggleSec(sec) })
-tocIt.forEach(t=>t.onclick=()=>{ const sec=secEls[+t.dataset.i]
-	if(!sec.classList.contains('open')) toggleSec(sec)
-	sec.scrollIntoView({behavior:'smooth',block:'start'}) })
+secEls.forEach(sec=>{ const sh=sec.querySelector('.sh'); if(sh) sh.onclick=()=>toggleSec(sec) })
+tocIt.forEach(t=>{ const i=+t.dataset.i
+	t.querySelector('.tn').onclick=()=>secEls[i].scrollIntoView({behavior:'smooth',block:'start'})
+	t.querySelector('.tc').onclick=()=>toggleSec(secEls[i]) })
 let actI=-1
 const trackAct=()=>{ let k=0
 	secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
