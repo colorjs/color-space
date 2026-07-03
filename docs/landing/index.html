@@ -45,8 +45,14 @@ a{ color:var(--ink) }
 .hb{ position:relative }
 .hb::after{ content:''; position:absolute; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); bottom:0; height:1px; background:var(--hair) }
 .hero{ display:flex; align-items:center; gap:.9rem; padding:.85rem 0; max-width:64rem; margin:0 auto; flex-wrap:wrap }
-.hero input{ flex:1 1 16rem; max-width:26rem; font:inherit; font-size:1rem; font-weight:600; color:var(--ink); background:var(--panel); border:0; outline:none; padding:.5rem .8rem }
+.cinw{ position:relative; flex:1 1 16rem; max-width:26rem; display:flex }
+.hero input#cin{ flex:1; max-width:none; padding-right:2.5rem }
+.hero input{ font:inherit; font-size:1rem; font-weight:600; color:var(--ink); background:var(--panel); border:0; outline:none; padding:.5rem .8rem }
 .hero input:focus{ background:var(--paper); box-shadow:inset 0 -2px 0 var(--ink) }
+/* eyedropper: pick a color off the user's own screen (Chromium EyeDropper) */
+.edrop{ position:absolute; right:.25rem; top:50%; transform:translateY(-50%); border:0; background:none; color:var(--soft); cursor:pointer; padding:.4rem; display:flex }
+.edrop:hover{ color:var(--ink) }
+.edrop[hidden]{ display:none }
 .hero .arr{ color:var(--soft); font-weight:700 }
 .hero select{ font:inherit; font-size:1rem; font-weight:700; color:var(--ink); background:none; border:0; cursor:pointer; appearance:auto }
 .hero output{ font-size:1rem; font-weight:700; cursor:copy; min-height:1.2em }
@@ -302,7 +308,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 </header></div>
 
 <div class="fw hb"><div class="hero">
-	<input id="cin" placeholder="any color — tomato · #ff6347 · rgb(255 99 71) · oklch(0.7 0.19 40)" spellcheck="false" autocomplete="off" aria-label="color to convert">
+	<span class="cinw"><input id="cin" placeholder="any color — tomato · #ff6347 · rgb(255 99 71) · oklch(0.7 0.19 40)" spellcheck="false" autocomplete="off" aria-label="color to convert"><button class="edrop" id="edrop" title="pick a color from your screen" aria-label="pick a color from your screen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button></span>
 	<span class="arr">→</span>
 	<select id="cto" aria-label="target space"></select>
 	<output id="cout" class="tnum" title="click to copy · double-click to open the dossier"></output>
@@ -1155,6 +1161,9 @@ function convertHero(){ const p=parseColor(cin.value)
 	renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
 cin.addEventListener('input',convertHero)
 cto.addEventListener('change',convertHero)
+const edrop=document.getElementById('edrop')
+if(window.EyeDropper){ edrop.onclick=async()=>{ try{ const {sRGBHex}=await new EyeDropper().open(); cin.value=sRGBHex; convertHero() }catch{} } }
+else edrop.hidden=true
 cout.onclick=()=>{ if(cout.textContent&&cout.textContent!=='?') copy(cout.textContent) }
 cout.ondblclick=()=>openModal(cto.value)
 const nav=d=>{ const k=ORDER.indexOf(selected); openModal(ORDER[(k+d+ORDER.length)%ORDER.length]) }
