@@ -20,6 +20,7 @@
 [data-theme=dark]{ --paper:oklch(0.185 0.008 70); --panel:oklch(0.243 0.01 70); --ink:oklch(0.93 0.005 85); --soft:oklch(0.62 0.012 78);
 	--hair:oklch(0.93 0.005 85/.15); --ghost:oklch(0.41 0.012 70); --body:oklch(0.79 0.01 80); color-scheme:dark }
 *{ box-sizing:border-box; margin:0 }
+::selection{ background:var(--c); color:var(--selink,#fff) }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
 .page{ --railw:10.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem) }   /* --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
@@ -61,7 +62,7 @@ a{ color:var(--ink) }
    reading blocks (.g: api, recipes, about) stay in a centered measure for readability */
 .g,.fw,.cat{ padding-left:clamp(1rem,3vw,2.2rem); padding-right:clamp(1rem,3vw,2.2rem) }
 .g{ max-width:66rem; margin:0 auto }
-.cat{ display:grid; grid-template-columns:minmax(var(--railw),1fr) minmax(0,64rem); column-gap:var(--railgap) }
+.cat{ display:grid; grid-template-columns:minmax(var(--railw),1fr) minmax(0,64rem) minmax(0,1fr); column-gap:var(--railgap) }
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative }
@@ -70,8 +71,7 @@ a{ color:var(--ink) }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ghost); text-align:left; border:0; background:var(--paper); padding:0 .35rem 0 0; cursor:pointer }
 .ti .tn:hover,.ti.act .tn{ color:var(--ink) }
 /* "12 spaces" under the title is the section's opener — no chevron needed */
-.ti .tc{ display:none; width:fit-content; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); text-align:left; border:0; background:var(--paper); padding:0 .35rem 0 0; margin-top:.16rem; cursor:pointer }
-.ti.act .tc{ display:block }   /* the opener shows only while its section is in the viewport */
+.ti .tc{ display:block; width:fit-content; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); text-align:left; border:0; background:var(--paper); padding:0 .35rem 0 0; margin-top:.16rem; cursor:pointer }
 .ti .tc:hover{ color:var(--ink) }
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }
@@ -80,12 +80,12 @@ a{ color:var(--ink) }
    row's edge). Sheets tile gaplessly: the grid is gapless and each entry carries
    half the gutter as its own padding (negative margin keeps content aligned) */
 .sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem }
-.sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railcol,var(--railw)) + var(--railgap))); right:0; height:1px; background:var(--hair) }
+.sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railcol,var(--railw)) + var(--railgap))); right:calc(-1*var(--railr,0px)); height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:.4rem } .sec:first-of-type::before{ display:none }
 .grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease }
 .shw{ display:none }   /* mobile FAQ section headers — the rail carries the names on desktop */
 @media(max-width:1024px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
-	.sec::before{ left:0 }   /* dividers stay inside the container */
+	.sec::before{ left:0; right:0 }   /* dividers stay inside the container */
 	.shw{ display:block; margin:0 }
 	.sh{ display:flex; align-items:baseline; gap:.55rem; width:100%; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); background:none; border:0; padding:1rem 0; cursor:pointer; text-align:left }
 	.sh .c{ font-size:.62rem; font-weight:700; color:var(--soft) }
@@ -97,20 +97,18 @@ a{ color:var(--ink) }
 @media(max-width:960px){ .grid{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
 @media(max-width:640px){ .grid{ grid-template-columns:1fr } }
 .ent{ display:block; padding:.85rem var(--eg) 1rem; cursor:pointer }
-/* no hover sheet: channel letters appear and the value line turns ink instead */
-.ent:hover .eh .hx,.ent:focus-within .eh .hx{ color:var(--ink) }
 .ent .eh{ padding:0 0 .45rem; display:flex; flex-direction:column; align-items:flex-start; gap:.16rem }
 .ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
 .ent .eh .hx{ width:12ch; max-width:100%; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); font-variant-numeric:tabular-nums; border:0; outline:none; background:transparent; padding:0; text-align:left }
 .ent .eh .hx:hover,.ent .eh .hx:focus{ color:var(--ink) }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:40px; cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:1rem; font-weight:800; pointer-events:none; opacity:0; transition:opacity .12s }
+.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:1rem; font-weight:400; pointer-events:none; opacity:0; transition:opacity .12s }
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
-/* pure gradients at rest — letters surface on hover, and hide again mid-drag;
-   per-slider values live in the color string above, not on the bars */
+/* pure gradients at rest — letters surface on hover; the channel being dragged
+   dims to half so it never hides the gradient underfoot; siblings stay legible */
 .ent:hover .ch .sy,.ent:focus-within .ch .sy{ opacity:1 }
-.ent.dragging .ch .sy{ opacity:0 }
+.ent:hover .ch.dragging .sy,.ch.dragging .sy{ opacity:.5 }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:.7rem; font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0; -moz-appearance:textfield }
 .nvw input::-webkit-inner-spin-button,.nvw input::-webkit-outer-spin-button{ -webkit-appearance:none }
@@ -156,7 +154,7 @@ a{ color:var(--ink) }
 .bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .bar2 .bg{ position:absolute; inset:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }
-.bar2 .cnm{ position:absolute; left:.7rem; top:.5rem; font-size:1rem; font-weight:800; pointer-events:none; opacity:.5; transition:opacity .12s }
+.bar2 .cnm{ position:absolute; left:.7rem; top:.5rem; font-size:1rem; font-weight:400; pointer-events:none; opacity:.5; transition:opacity .12s }
 .bar2:hover .cnm{ opacity:1 }
 .bar2 .nvw{ position:absolute; right:.6rem; top:.35rem; bottom:auto; align-items:center }
 .bar2 .nvw input{ height:auto; width:4.6rem; font-size:1rem; font-weight:700 }
@@ -952,14 +950,15 @@ tocIt.forEach(t=>{ const i=+t.dataset.i
 let actI=-1
 const trackAct=()=>{ let k=0
 	secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
-	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') })
-		layoutToc() } }   // the act marker grows its "N spaces" line — rail offsets shift
+	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') }) } }
 addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // first run below, after layoutToc exists
 // stacked-sticky rail: flow position = own section's top; sticky top+bottom insets make
 // passed titles pile at the top and upcoming ones wait at the bottom — all always on screen
 const tocEl=document.getElementById('toc'), barEl=document.querySelector('.bar')
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
-	document.querySelector('.page').style.setProperty('--railcol',tocEl.offsetWidth+'px')
+	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
+	const secsR=document.getElementById('secs').getBoundingClientRect().right
+	pg.style.setProperty('--railr',Math.max(0,cat.getBoundingClientRect().right-parseFloat(getComputedStyle(cat).paddingRight)-secsR)+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
@@ -1005,7 +1004,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.querySelectorAll('.ch').forEach(ch=>{ const i=+ch.dataset.i
 		ch.addEventListener('pointerdown',e=>{
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ if(!adopt()&&valsFor(s))return; moved=true; ent.classList.add('dragging'); ch.setPointerCapture(e.pointerId) }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ if(!adopt()&&valsFor(s))return; moved=true; ch.classList.add('dragging'); ch.setPointerCapture(e.pointerId) }
 				if(!moved) return
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // forward-only: param drives, master follows as rgb
@@ -1013,7 +1012,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 				else master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ent.classList.remove('dragging')
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.classList.remove('dragging')
 				if(moved){ squelch=true; setTimeout(()=>squelch=false,0); if(open()) paintPlanes(false) } } }) }) })
 
 // search — `/` focuses it from anywhere
@@ -1082,7 +1081,7 @@ function parseSpaceInput(s,str){ const parsed=parseColor(str); if(parsed) return
 // input-number style: the number nearest the caret is selected WHOLE; ↑/↓ step it by
 // its smallest displayed order and keep it selected, so presses repeat cleanly
 function numAt(input){ const text=input.value, pos=input.selectionStart??text.length
-	const ms=[...text.matchAll(/-?\d+(?:\.\d+)?/g)].map(m=>({ raw:m[0], start:m.index, end:m.index+m[0].length }))
+	const ms=[...text.matchAll(/(?<![\w-])-?\d+(?:\.\d+)?/g)].map(m=>({ raw:m[0], start:m.index, end:m.index+m[0].length }))   // digits inside names (rec2020, display-p3) are not values
 	if(!ms.length) return null
 	const d=m2=>Math.min(Math.abs(m2.start-pos),Math.abs(m2.end-pos))
 	return ms.find(m2=>pos>=m2.start&&pos<=m2.end)||ms.sort((a,b)=>d(a)-d(b))[0] }
@@ -1113,7 +1112,7 @@ addEventListener('keydown',e=>{ if(!open()) return
 	if(e.key==='ArrowLeft') nav(-1)
 	if(e.key==='ArrowRight') nav(1) })
 
-const fmtn=(v,c)=>(+v.toFixed(decOf(c))).toString()
+const fmtn=(v,c)=>unit(c)==='%'?v.toFixed(1):(+v.toFixed(decOf(c))).toString()
 const stepped=stops=>{ const n=stops.length; return `linear-gradient(90deg, ${stops.map((c,k)=>`${c} ${(k/n*100).toFixed(2)}% ${((k+1)/n*100).toFixed(2)}%`).join(',')})` }
 const camel=s=>s.replace(/-(\w)/g,(_,c)=>c.toUpperCase())
 const prop=s=>/^[a-z_$][\w$]*$/i.test(s)?`.${s}`:`['${s}']`
@@ -1565,6 +1564,7 @@ function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s
 	const cls=classify(s), vals=probeVals(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]; ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
 function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.style.setProperty('--c',hx)
+	document.documentElement.style.setProperty('--selink',lum(rgb)<0.6?'#fff':'#1b1408')
 	document.getElementById('curhex').textContent=hx
 	const csw=document.getElementById('cursw'); if(document.activeElement!==csw) csw.value=hx
 	const nm=nearest(rgb); if(nm) document.getElementById('curnm').textContent='≈ '+nm.n
