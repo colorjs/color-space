@@ -311,8 +311,8 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .intro{ position:relative; overflow:hidden; min-height:min(76vh,620px); display:flex; align-items:center; justify-content:center; opacity:0; transition:height .7s cubic-bezier(.65,0,.2,1), opacity .5s ease }
 .intro.in{ opacity:1 }
 .intro.skip{ display:none }   /* returning visitors land straight on the tool */
-.iwheel{ position:absolute; inset:0; background:conic-gradient(from .5turn at 50% 60%, #ff5a5a,#ffb14e,#ffe24a,#7ed957,#4ad0c0,#4aa3ff,#7a6cff,#d46cff,#ff5a5a); transform-origin:50% 60%; transition:transform .6s cubic-bezier(.6,0,.25,1), opacity .6s ease }
-.iwheel::after{ content:''; position:absolute; inset:0; background:radial-gradient(closest-side at 50% 60%, var(--paper) 4%, color-mix(in oklab,var(--paper) 40%,transparent) 46%, transparent 74%) }
+.iwheel{ position:absolute; inset:0; background:var(--panel); transform-origin:50% 55%; transition:transform .6s cubic-bezier(.6,0,.25,1), opacity .6s ease }   /* JS paints the coloroid sweep */
+.iwheel::after{ content:''; position:absolute; inset:0; background:radial-gradient(60% 58% at 50% 52%, var(--paper) 8%, color-mix(in oklab,var(--paper) 55%,transparent) 44%, transparent 76%) }   /* lift the centre so the headline + field stay legible */
 /* grain rides ABOVE the wheel so the scroll posterize crushes color into clean blocks
    without dithering the noise into harsh speckle */
 .igrain{ position:absolute; inset:0; pointer-events:none; opacity:.4; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
@@ -338,11 +338,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <a class="skip" href="#cat">skip to catalog</a>
 <svg width="0" height="0" aria-hidden="true" style="position:absolute">
 	<filter id="quantize" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncG type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncB type="discrete" tableValues="0 .25 .5 .75 1"/></feComponentTransfer></filter>
-	<filter id="q8" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .143 .286 .429 .571 .714 .857 1"/><feFuncG type="discrete" tableValues="0 .143 .286 .429 .571 .714 .857 1"/><feFuncB type="discrete" tableValues="0 .143 .286 .429 .571 .714 .857 1"/></feComponentTransfer></filter>
-	<filter id="q6" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .2 .4 .6 .8 1"/><feFuncG type="discrete" tableValues="0 .2 .4 .6 .8 1"/><feFuncB type="discrete" tableValues="0 .2 .4 .6 .8 1"/></feComponentTransfer></filter>
-	<filter id="q4" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .333 .667 1"/><feFuncG type="discrete" tableValues="0 .333 .667 1"/><feFuncB type="discrete" tableValues="0 .333 .667 1"/></feComponentTransfer></filter>
-	<filter id="q3" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .5 1"/><feFuncG type="discrete" tableValues="0 .5 1"/><feFuncB type="discrete" tableValues="0 .5 1"/></feComponentTransfer></filter>
-	<filter id="q2" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/><feFuncB type="discrete" tableValues="0 1"/></feComponentTransfer></filter>
 </svg>
 <div class="page">
 <div class="fw"><header class="mast">
@@ -1828,19 +1823,19 @@ const FEATS=[
 ]
 document.getElementById('chips').innerHTML=FEATS.map(([c,t])=>`<span class="chipx" title="${t}">${c}</span>`).join('')
 
-// ── footer bands: EXACTLY the coloroid entry's A slider — hue sweeps at the current
-// color's T and V, so picking a color repaints the wall. Sticky stack quantizes it ──
-const FGN=[0,160,80,40,20,10]   // twofold halving reads cleanly band to band
+// ── the coloroid sweep (hue A across, luminosity descending) — the footer wall AND the
+// hero stage share it; scrolling quantizes it through QSTEPS. Not halving: a Fibonacci
+// descent (ratios → the golden mean) steps down more gently. Tweak QSTEPS to taste. ──
+const QSTEPS=[0,55,34,21,13,8]   // 0 = smooth base, then progressively fewer bands
+const coloroidCol=f=>hex(rgbF('coloroid',[10+66*f, 55, 92-80*f]))
+const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=48;k++) st.push(coloroidCol(k/48))
+		return `linear-gradient(90deg, ${st.join(',')})` }
+	const st=[]; for(let k=0;k<n;k++) st.push(coloroidCol((k+0.5)/n)); return stepped(st) }
 const fgs=[...document.querySelectorAll('#fstack .fg')]
 const fov=document.querySelector('.fov')
 let fkey=''
-function paintFtr(){ if(fkey) return; fkey='painted'   // static wall — the reference palette
-	const col=f=>hex(rgbF('coloroid',[10+66*f, 55, 92-80*f]))   // hue A across, V descending
-	fgs.forEach((el,i)=>{ const n2=FGN[i]
-		if(!n2){ const st=[]; for(let k=0;k<=48;k++) st.push(col(k/48))
-			el.style.background=`linear-gradient(90deg, ${st.join(',')})` }
-		else{ const st=[]; for(let k=0;k<n2;k++) st.push(col((k+0.5)/n2))
-			el.style.background=stepped(st) } })
+function paintFtr(){ if(fkey) return; fkey='painted'
+	fgs.forEach((el,i)=>{ el.style.background=coloroidGrad(QSTEPS[i]) })
 	// overlay ink per side, from the band's own ends (same inversion as the sliders)
 	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
 	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16]))) }
@@ -1874,14 +1869,13 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// scrolling down the stage posterizes the wheel a step at a time — smooth spectrum
-	// crushing toward pure primaries, the quantization the whole page is about
-	const QF=['','url(#q8)','url(#q6)','url(#q4)','url(#q3)','url(#q2)']
+	// the stage wears the footer's own coloroid sweep; scrolling down quantizes it a
+	// step at a time through the shared QSTEPS — smooth spectrum resolving into bands
 	let qi=-1
 	const heroQuant=()=>{ if(intro.style.display==='none') return
 		const p=clamp(scrollY/((intro.offsetHeight||innerHeight)*0.9),0,1)
-		const i=Math.min(QF.length-1,Math.floor(p*QF.length))
-		if(i!==qi){ qi=i; iwheel.style.filter=QF[i] } }
+		const i=Math.min(QSTEPS.length-1,Math.floor(p*QSTEPS.length))
+		if(i!==qi){ qi=i; iwheel.style.background=coloroidGrad(QSTEPS[i]) } }
 	addEventListener('scroll',()=>requestAnimationFrame(heroQuant),{passive:true}); heroQuant()
 	const preview=p=>{ if(!p) return false; master={ s:p.s, vals:p.vals }
 		idot.value=hex(RGB()); renderFast(); paintCatalogGrad(); return true }
