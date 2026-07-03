@@ -70,21 +70,21 @@ a{ color:var(--ink) }
 .ti .tn{ display:block; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ghost); text-align:left; border:0; background:none; padding:0; cursor:pointer }
 .ti .tn:hover,.ti.act .tn{ color:var(--ink) }
 /* "12 spaces" under the title is the section's opener — no chevron needed */
-.ti .tc{ display:block; font:inherit; font-size:.78rem; font-weight:600; color:var(--soft); text-align:left; border:0; background:none; padding:.2rem 0 0; cursor:pointer }
+.ti .tc{ display:none; font:inherit; font-size:1rem; font-weight:600; color:var(--soft); text-align:left; border:0; background:none; padding:0; margin-top:.16rem; cursor:pointer }
+.ti.act .tc{ display:block }   /* the opener shows only while its section is in the viewport */
 .ti .tc:hover{ color:var(--ink) }
 .ti.off{ display:none }
-.secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }
-/* a section: one row of three lead spaces, then an empty gutter mirroring the title
-   rail — symmetric; the rail's "12 spaces" opens the whole section (fold clips the
-   grid to the next row's edge). Sheets tile gaplessly: the grid is gapless and each
-   entry carries half the gutter as its own padding (negative margin keeps content
-   aligned with the section edges) */
-.sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem; display:grid; grid-template-columns:minmax(0,1fr) var(--railw); column-gap:var(--railgap) }
+.secs{ grid-column:2; min-width:0; max-width:64rem; padding-bottom:clamp(2rem,5vw,3.5rem) }
+/* a section: one row of three lead spaces filling the area after the rail (max 64rem);
+   the rail's "12 spaces" opens the whole section (fold clips the grid to the next
+   row's edge). Sheets tile gaplessly: the grid is gapless and each entry carries
+   half the gutter as its own padding (negative margin keeps content aligned) */
+.sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem }
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railw) + var(--railgap))); right:0; height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:.4rem } .sec:first-of-type::before{ display:none }
-.grid{ grid-area:1/1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease }
+.grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease }
 .shw{ display:none }   /* mobile FAQ section headers — the rail carries the names on desktop */
-@media(max-width:1080px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
+@media(max-width:1024px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.sec::before{ left:0 }   /* dividers stay inside the container */
 	.shw{ display:block; margin:0 }
 	.sh{ display:flex; align-items:baseline; gap:.55rem; width:100%; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); background:none; border:0; padding:1rem 0; cursor:pointer; text-align:left }
@@ -92,9 +92,10 @@ a{ color:var(--ink) }
 	.sh svg{ margin-left:auto; align-self:center; transition:transform .15s }
 	.sec.open .sh svg{ transform:rotate(180deg) }
 	.sec{ display:block; padding:0 }
-	.grid{ grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)) }
 	.sec>.grid{ padding-bottom:1.6rem }
 	.sec:first-of-type{ padding-top:0 } }
+@media(max-width:960px){ .grid{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
+@media(max-width:640px){ .grid{ grid-template-columns:1fr } }
 .ent{ display:block; padding:.85rem var(--eg) 1rem; cursor:pointer }
 /* hover lifts the card on a white sheet; the appearing channel chrome says "interactive" */
 .ent:hover,.ent:focus-within{ background:var(--lift) }
@@ -104,7 +105,7 @@ a{ color:var(--ink) }
 .ent .eh .hx:hover,.ent .eh .hx:focus{ color:var(--ink) }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:40px; cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .sy{ position:absolute; left:.5rem; top:50%; transform:translateY(-50%); font-size:.66rem; font-weight:800; pointer-events:none; opacity:0; transition:opacity .12s }
+.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:1rem; font-weight:800; pointer-events:none; opacity:0; transition:opacity .12s }
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
 /* pure gradients at rest — letters and values surface on hover; values are plain
    unselectable text so they never interfere with picking */
@@ -112,12 +113,12 @@ a{ color:var(--ink) }
 .ent .ch .nvw{ display:none }
 .ent:hover .ch .nvw,.ent:focus-within .ch .nvw{ display:flex }
 .ent .nvw{ pointer-events:none; user-select:none; align-items:center; right:.55rem }
-.ent .nv{ font-size:.85rem; font-weight:600; font-variant-numeric:tabular-nums }
+.ent .nv{ font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:.7rem; font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0; -moz-appearance:textfield }
 .nvw input::-webkit-inner-spin-button,.nvw input::-webkit-outer-spin-button{ -webkit-appearance:none }
 .nvw input:focus{ background:var(--paper); color:var(--ink) }
-.nvw .u{ align-self:center; font-size:.62rem; font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:.06rem }
+.nvw .u{ align-self:center; font-size:.72rem; font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:.06rem }
 .stk{ display:flex; flex-direction:column }
 .stk button{ flex:1; font:inherit; font-size:.72rem; line-height:1; font-weight:500; border:0; background:transparent; color:inherit; cursor:pointer; padding:0 .26rem; display:flex; align-items:flex-end; justify-content:center }
 .stk .up{ margin-bottom:-2px } .stk .dn{ transform:rotate(180deg); margin-top:-2px }
@@ -153,12 +154,12 @@ a{ color:var(--ink) }
 .plab{ margin-bottom:.45rem }
 .props.pfoot{ margin:1.4rem 0 .4rem; border-top:1px solid var(--hair); padding-top:1.2rem }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:1.3rem 0 1.2rem }
-@media(max-width:700px){ .props{ gap:1.1rem 1.3rem } }   /* narrow screens keep both columns, tighter gutter */
+@media(max-width:640px){ .props{ gap:1.1rem 1.3rem } }   /* narrow screens keep both columns, tighter gutter */
 .pick{ overflow:hidden }
 .bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .bar2 .bg{ position:absolute; inset:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }
-.bar2 .cnm{ position:absolute; left:.7rem; top:.5rem; font-size:.82rem; font-weight:800; pointer-events:none; opacity:.5; transition:opacity .12s }
+.bar2 .cnm{ position:absolute; left:.7rem; top:.5rem; font-size:1rem; font-weight:800; pointer-events:none; opacity:.5; transition:opacity .12s }
 .bar2:hover .cnm{ opacity:1 }
 .bar2 .nvw{ position:absolute; right:.6rem; top:.35rem; bottom:auto; align-items:center }
 .bar2 .nvw input{ height:auto; width:4.6rem; font-size:1rem; font-weight:700 }
@@ -229,7 +230,7 @@ h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:1rem; color:var(
 .dgrid .props{ margin:.1rem 0 1.2rem }
 .desc{ font-size:1rem; line-height:1.6; color:var(--body); max-width:68ch }
 .dgrid.one{ grid-template-columns:1fr }
-@media(max-width:700px){ .dgrid{ grid-template-columns:1fr } .pl3d{ justify-self:start } }
+@media(max-width:640px){ .dgrid{ grid-template-columns:1fr } .pl3d{ justify-self:start } }
 .refs{ display:flex; flex-direction:column; gap:.25rem; font-size:.8rem }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -250,10 +251,7 @@ pre{ font-family:ui-monospace,Menlo,monospace; font-size:.85rem; line-height:1.7
 pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:normal; color:var(--soft) }
 .foot{ padding:1rem 0; border-top:1px solid var(--hair); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-size:.74rem; color:var(--soft) }
 .foot a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--soft); font-weight:600 }
-@media(max-width:1080px){
-	.ent{ grid-template-columns:1fr }
-	.ent .eh{ padding:0 0 .45rem } }
-@media(max-width:700px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
+@media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
@@ -938,7 +936,7 @@ const secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('
 // sections preview their lead spaces — one row (two on mobile), the chevron unfolds the rest;
 // folding clips the grid to the next row's edge so open/close animates like the FAQ
 let curQ=''
-function foldSecs(){ const rows=innerWidth>1080?1:innerWidth>700?2:3   // ≈3 lead spaces per section
+function foldSecs(){ const rows=innerWidth>960?1:innerWidth>640?2:3   // ≈3 lead spaces per section
 	secEls.forEach((sec,i)=>{ if(sec.style.display==='none') return
 		const grid=sec.querySelector('.grid'), sh=sec.querySelector('.sh'), tc=tocIt[i]?.querySelector('.tc')
 		const ents=[...grid.querySelectorAll('.ent')].filter(e2=>e2.style.display!=='none')
@@ -957,8 +955,9 @@ tocIt.forEach(t=>{ const i=+t.dataset.i
 let actI=-1
 const trackAct=()=>{ let k=0
 	secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
-	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') }) } }
-addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true}); trackAct()
+	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') })
+		layoutToc() } }   // the act marker grows its "N spaces" line — rail offsets shift
+addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // first run below, after layoutToc exists
 // stacked-sticky rail: flow position = own section's top; sticky top+bottom insets make
 // passed titles pile at the top and upcoming ones wait at the bottom — all always on screen
 const tocEl=document.getElementById('toc'), barEl=document.querySelector('.bar')
@@ -977,7 +976,7 @@ const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	let dn=12
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
 }
-foldSecs(); layoutToc()
+foldSecs(); trackAct(); layoutToc()
 addEventListener('resize',()=>{ foldSecs(); layoutToc() })
 document.fonts?.ready.then(()=>{ foldSecs(); layoutToc() })
 
