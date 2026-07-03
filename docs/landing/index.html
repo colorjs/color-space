@@ -295,6 +295,31 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
 @media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
+/* ── first-run intro: a hue wheel stage; pick a color and it collapses into the dot,
+   revealing the catalog — every space now wearing that color, in a downward wave ── */
+.intro{ position:relative; overflow:hidden; min-height:min(76vh,620px); display:flex; align-items:center; justify-content:center; opacity:0; transition:height .7s cubic-bezier(.65,0,.2,1), opacity .5s ease }
+.intro.in{ opacity:1 }
+.intro.skip{ display:none }   /* returning visitors land straight on the tool */
+.iwheel{ position:absolute; inset:0; background:conic-gradient(from .5turn at 50% 60%, #ff5a5a,#ffb14e,#ffe24a,#7ed957,#4ad0c0,#4aa3ff,#7a6cff,#d46cff,#ff5a5a); transform-origin:50% 60%; transition:transform .6s cubic-bezier(.6,0,.25,1), opacity .6s ease }
+.iwheel::after{ content:''; position:absolute; inset:0; background:radial-gradient(closest-side at 50% 60%, var(--paper) 4%, color-mix(in oklab,var(--paper) 40%,transparent) 46%, transparent 74%) }
+.iwheel::before{ content:''; position:absolute; inset:0; opacity:.4; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
+.introc{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:1.6rem; padding:2rem 1rem; text-align:center }
+.introh{ font-size:clamp(2rem,5.5vw,3.6rem); font-weight:800; letter-spacing:-.03em; line-height:1.02; color:var(--ink) }
+.introh em{ font-style:normal; box-shadow:inset 0 -.14em 0 var(--ink) }
+.intro.go .introh,.intro.go .iskip{ opacity:0; transition:opacity .3s ease }
+.ipick{ position:relative; display:flex; align-items:center; gap:.9rem; width:min(38rem,92vw); background:var(--paper); box-shadow:0 12px 44px rgba(20,10,0,.16); padding:.55rem .7rem }
+[data-theme=dark] .ipick{ box-shadow:0 12px 44px rgba(0,0,0,.5) }
+.idot{ flex:none; width:2.4rem; height:2.4rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px rgba(0,0,0,.14); transition:transform .4s cubic-bezier(.3,1.7,.5,1) }
+.idot::-webkit-color-swatch-wrapper{ padding:0 } .idot::-webkit-color-swatch{ border:none; border-radius:50% } .idot::-moz-color-swatch{ border:none; border-radius:50% }
+.intro.go .idot{ transform:scale(1.4) }
+.ipin{ flex:1; min-width:0; font:inherit; font-size:1.15rem; font-weight:600; color:var(--ink); background:none; border:0; outline:none; padding:.4rem 0 }
+.idrop{ flex:none; border:0; background:none; color:var(--soft); cursor:pointer; padding:.5rem; display:flex }
+.idrop:hover{ color:var(--ink) } .idrop[hidden]{ display:none }
+.iskip{ font:inherit; font-size:.95rem; font-weight:700; color:var(--ink); background:none; border:0; cursor:pointer; opacity:.72 }
+.iskip:hover{ opacity:1 }
+.ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
+@keyframes entwave{ from{ opacity:0; transform:translateY(15px) } to{ opacity:1; transform:none } }
+@media(prefers-reduced-motion:reduce){ .iwheel,.idot,.ent.wv{ transition:none; animation:none } }
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
@@ -309,6 +334,19 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 </header></div>
+
+<section class="intro" id="intro" aria-label="pick a color to begin">
+	<div class="iwheel" id="iwheel"></div>
+	<div class="introc">
+		<h2 class="introh">Pick any color.<br>See it in <em>every</em> space.</h2>
+		<div class="ipick">
+			<input type="color" class="idot" id="idot" value="#f67d4f" aria-label="pick a color">
+			<input class="ipin" id="ipin" placeholder="Pick any color…  #ff6347 · tomato · oklch(0.7 0.19 40)" spellcheck="false" autocomplete="off" aria-label="pick any color">
+			<button class="idrop" id="idrop" title="pick a color from your screen" aria-label="pick a color from your screen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button>
+		</div>
+		<button class="iskip" id="iskip">Browse all 151 spaces ↓</button>
+	</div>
+</section>
 
 <div class="fw hb"><div class="hero">
 	<span class="cinw"><input id="cin" placeholder="any color — tomato · #ff6347 · rgb(255 99 71) · oklch(0.7 0.19 40)" spellcheck="false" autocomplete="off" aria-label="color to convert"><button class="edrop" id="edrop" title="pick a color from your screen" aria-label="pick a color from your screen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button></span>
@@ -1796,4 +1834,37 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 	else{ renderFast(); paintPlanes(false) } }
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
+
+// ── first-run intro: pick a color, the wheel spins into the dot, the catalog reveals
+//    every space wearing it in a downward wave. Seen once → returning lands on the tool ──
+;(()=>{ const intro=document.getElementById('intro')
+	const seen=localStorage.csSeen||location.hash.length>1
+	if(seen){ intro.classList.add('skip'); return }
+	const ipin=document.getElementById('ipin'), idot=document.getElementById('idot')
+	const idrop=document.getElementById('idrop'), iskip=document.getElementById('iskip')
+	// fill the viewport under the masthead — a full stage, catalog waiting below the fold
+	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
+	fit(); addEventListener('resize',fit)
+	requestAnimationFrame(()=>intro.classList.add('in'))
+	const preview=p=>{ if(!p) return false; master={ s:p.s, vals:p.vals }
+		idot.value=hex(RGB()); renderFast(); paintCatalogGrad(); return true }
+	// the reveal: wheel collapses into the dot, the intro folds up, entries wave in
+	let revealed=false
+	const wave=()=>{ const top=cat.getBoundingClientRect().top+scrollY
+		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
+			if(y>innerHeight*1.5) return
+			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
+	const reveal=()=>{ if(revealed) return; revealed=true; try{ localStorage.csSeen='1' }catch{}
+		intro.style.height=intro.offsetHeight+'px'; intro.style.minHeight='0px'
+		intro.classList.add('go')                       // beat 1: the wheel spins into the dot
+		setTimeout(()=>requestAnimationFrame(()=>{ intro.style.height='0px'; intro.style.opacity='0' }),300)  // beat 2: fold away
+		setTimeout(()=>{ intro.style.display='none'; layoutToc(); foldSecs(); wave() },980) }
+	ipin.addEventListener('input',()=>preview(parseColor(ipin.value)))
+	ipin.addEventListener('keydown',e=>{ if(e.key==='Enter'&&parseColor(ipin.value)) reveal() })
+	idot.addEventListener('input',()=>preview({ s:'rgb', vals:hex2rgb(idot.value) }))
+	idot.addEventListener('change',reveal)
+	if(window.EyeDropper) idrop.onclick=async()=>{ try{ const {sRGBHex}=await new EyeDropper().open()
+		preview({ s:'rgb', vals:hex2rgb(sRGBHex) }); reveal() }catch{} }
+	else idrop.hidden=true
+	iskip.onclick=reveal })()
 </script></body></html>
