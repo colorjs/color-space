@@ -148,6 +148,9 @@ a{ color:var(--ink) }
 .bar2 .nvw .u{ font-size:.7rem }
 .bar2 .dk{ position:absolute; top:50%; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }
 .planes{ display:flex; gap:.45rem; flex-wrap:wrap }
+.pcell{ flex:1 1 12rem; max-width:18.6rem; display:flex; flex-direction:column; gap:.45rem }
+.pcell .pl{ flex:none; max-width:none }
+.chlist{ display:grid; grid-template-columns:max-content max-content; gap:.15rem 1.4rem; font-size:.8rem; line-height:1.55; color:var(--body) }
 .pl{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
@@ -1141,6 +1144,25 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ pts3=null; r
 		let v; try{ v=toSpace(s,rgb) }catch{ continue }
 		const n=map3(v)
 		if(n.every(isFinite)) P.push({ n, hex:hex(rgb.map(x2=>clamp(Math.round(x2),0,255))) }) }
+	// the rgb-cube surface only covers the solid's curved walls; where the solid coincides
+	// with its own range faces (HSL's caps, HWB's prism…), sample those faces too — keep
+	// points that are in-sRGB AND canonical (inset + roundtrip), which also rejects
+	// degenerate parameter regions like HWB's W+B>100
+	const G3=40
+	for(let k=0;k<3;k++) for(const side of [0,1]){ const o2=[0,1,2].filter(q2=>q2!==k)
+		const ck=cls.ch[k], c0=cls.ch[o2[0]], c1=cls.ch[o2[1]]
+		for(let i2=0;i2<=G3;i2++) for(let j2=0;j2<=G3;j2++){
+			const v=[]
+			v[k]=side?ck.max-(ck.max-ck.min)*0.012:ck.min+(ck.max-ck.min)*0.012
+			v[o2[0]]=c0.min+(c0.max-c0.min)*i2/G3
+			v[o2[1]]=c1.min+(c1.max-c1.min)*j2/G3
+			if(!inGam(s,v,'srgb')) continue
+			let r2,b2; try{ r2=rgbOf(s,v); b2=toSpace(s,r2) }catch{ continue }
+			const ok2=cls.ch.every((c2,q2)=>{ let d2=Math.abs(b2[q2]-v[q2]); if(c2.max===360) d2=Math.min(d2,360-d2)
+				return d2<=(c2.max-c2.min)*0.03 })
+			if(!ok2) continue
+			const n=map3(v)
+			if(n.every(isFinite)) P.push({ n, hex:hex(r2) }) } }
 	pts3=P; pts3S=s
 	pts3Ch=ai!=null?[cls.ch[ti].sym,cls.ch[mi].sym,null]:[cls.ch[ti].sym,cls.ch[others[0]].sym,cls.ch[others[1]].sym]
 	let px0=0,py0=0,drag=false
@@ -1162,14 +1184,20 @@ function draw3d(){ if(!pts3||!open()) return
 	const prj=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0
 		const X1=x*ca+z*sa, Z1=-x*sa+z*ca
 		return { x:S2/2+X1*sc, y:S2/2-(y*cb-Z1*sb)*sc, z:y*sb+Z1*cb } }
-	// full axis lines through the solid, faint — labeled at the positive tips
-	if(pts3Ch){ ctx.lineWidth=1; ctx.font='700 10px Inter,sans-serif'
-		pts3Ch.forEach((sym,k)=>{ const a0=[0,0,0], a1=[0,0,0]; a0[k]=-0.66; a1[k]=0.66
-			const p0=prj(a0), p1=prj(a1)
-			ctx.strokeStyle='oklch(0.5 0.01 70/.3)'
-			ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke()
-			if(sym){ ctx.fillStyle='oklch(0.5 0.01 70/.85)'
-				ctx.fillText(sym, p1.x+(p1.x-p0.x)*0.045-3, p1.y+(p1.y-p0.y)*0.045+3) } }) }
+	// bounding-cube wireframe, faint — orients without crossing the solid's middle;
+	// channel symbols sit at the ends of the three edges leaving the near-bottom corner
+	if(pts3Ch){ const h2=0.56
+		ctx.lineWidth=1; ctx.strokeStyle='oklch(0.5 0.01 70/.28)'; ctx.font='700 10px Inter,sans-serif'
+		for(let k=0;k<3;k++){ const o2=[0,1,2].filter(q2=>q2!==k)
+			for(const s0 of [-h2,h2]) for(const s1 of [-h2,h2]){ const a0=[0,0,0], a1=[0,0,0]
+				a0[k]=-h2; a1[k]=h2; a0[o2[0]]=a1[o2[0]]=s0; a0[o2[1]]=a1[o2[1]]=s1
+				const p0=prj(a0), p1=prj(a1)
+				ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke() } }
+		ctx.fillStyle='oklch(0.5 0.01 70/.85)'
+		pts3Ch.forEach((sym,k)=>{ if(!sym) return
+			const e=[-h2,-h2,-h2]; e[k]=h2
+			const p0=prj([-h2,-h2,-h2]), p1=prj(e)
+			ctx.fillText(sym, p1.x+(p1.x-p0.x)*0.06-3, p1.y+(p1.y-p0.y)*0.06+3) }) }
 	const arr=pts3.map(p=>{ const q2=prj(p.n); q2.hex=p.hex; return q2 }).sort((u1,u2)=>u1.z-u2.z)
 	// the marker takes its true place in depth — surface points in front occlude it
 	const mv=valsFor(pts3S); let mp=null, mcur=null
@@ -1187,12 +1215,19 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const interpHTML=fwd?'':`<h4 class="sec2">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">${huePath} ⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
 	const has3d=cls.ch.length===3&&!fwd
+	const barHTML=i=>{ const c=cls.ch[i]
+		return `<div class="bar2" data-i="${i}"><div class="bg"></div>
+		<span class="cnm" title="${cname(c)}">${c.sym}</span>
+		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
+		<div class="dk"></div></div>` }
+	const segsHTML=`<span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and channels by the ${g} display gamut — click again to turn the lens off">${g}</button>`).join('')}</span><span class="seg" id="qseg" style="margin-left:1.6rem">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span>`
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1><span class="hfmt tnum" id="hfmt"></span></div>
+	 <hr class="dhr">
 	 <div class="props">
 		<div class="pcol">
 			<div><i>type</i><p>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</p></div>
 			<div><i>used for</i><p>${useOf(s)}</p></div>
-			<div><i>channels</i><p>${cls.ch.map(c=>`${c.sym} — ${cname(c)} <span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('<br>')}</p></div>
+			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span title="${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 		</div>
 		<div class="pcol">
 			${path&&path.length>1?`<div><i>base</i><p><a href="#${path[1]}">${path[1].toUpperCase()}</a></p></div>`:''}
@@ -1201,19 +1236,17 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			${m.refs?`<div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 		</div>
 	 </div>
-	 <hr class="dhr">
 	 <div class="dgrid${has3d?'':' one'}"><div>
 	 <i class="plab">description</i>
 	 <div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
 	 ${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas width="288" height="288"></canvas></div>`:''}</div>
-	 ${cls.ch.length>1?`<h4 class="sec2">plots <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and channels by the ${g} display gamut — click again to turn the lens off">${g}</button>`).join('')}</span><span class="seg" id="qseg" style="margin-left:1.6rem">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span></h4>
-	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}</div>`:''}
-	 <h4 class="sec2">channels${cls.ch.length>1?'':` <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''}>${g}</button>`).join('')}</span><span class="seg" id="qseg" style="margin-left:1.6rem">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span>`}</h4>
-	 <div class="pick" id="pick">${cls.ch.map((c,i)=>`<div class="bar2" data-i="${i}"><div class="bg"></div>
-		<span class="cnm" title="${cname(c)}">${c.sym}</span>
-		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
-		<div class="dk"></div>
-	 </div>`).join('')}</div>
+	 ${cls.ch.length>1?`<h4 class="sec2">plots ${segsHTML}</h4>
+	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>{
+		const held=cls.ch.length===3?[0,1,2].find(k=>k!==a&&k!==b):null
+		return `<div class="pcell"><div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>${held!=null?barHTML(held):''}</div>` }).join('')}</div>
+	 ${cls.ch.length!==3?`<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`:''}`
+	 :`<h4 class="sec2">channels ${segsHTML}</h4>
+	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`}
 	 ${interpHTML}
 	 <h4 class="sec2">code</h4>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
@@ -1370,7 +1403,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 	const shown=vals||probeVals(s)   // forward-only spaces paint from their locally explored params
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
-	detail.querySelectorAll('.bar2').forEach((bar,i)=>{ const c=cls.ch[i]
+	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
 		if(bar!==dragBar){ let bg
 			if(typeof Q==='number'){ bg=stepped(ramp(s,shown,i,c.min,c.max,Q-1)); bar._cells=null }
 			else if(qTriple(Q)){ const f=qTriple(Q)
