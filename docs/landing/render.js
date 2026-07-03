@@ -11,10 +11,10 @@ export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filt
 	{ name: 'more', spaces: SPACES.filter(s => !mapped.has(s)) }].filter(c => c.spaces.length)
 
 export const catHTML = () =>
-	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}</button><button class="tc tnum" aria-expanded="false" title="show all ${c.name} spaces">${c.spaces.length} spaces</button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">${c.name}<span class="c tnum">${c.spaces.length}</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><div class="grid">
+	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="c tnum">(${c.spaces.length})</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">${c.name}<span class="c tnum">(${c.spaces.length})</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all ${c.name} spaces" aria-label="show all ${c.name} spaces"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
 	${c.spaces.map(s => { const cls = classify(s)
 		return `<article class="ent" data-s="${s}">
-		 <div class="eh"><span class="nm">${s}</span><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="${s} value"></div>
+		 <div class="eh"><span class="nm">${s}</span><span class="hxw"><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="${s} value"><i class="hxv tnum" aria-hidden="true"></i></span></div>
 		 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
 		</article>` }).join('')}
 </div></section>`).join('') + `</div>`
