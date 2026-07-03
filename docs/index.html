@@ -1824,13 +1824,15 @@ const FEATS=[
 document.getElementById('chips').innerHTML=FEATS.map(([c,t])=>`<span class="chipx" title="${t}">${c}</span>`).join('')
 
 // ── the coloroid sweep (hue A across, luminosity descending) — the footer wall AND the
-// hero stage share it; scrolling quantizes it through QSTEPS. Not halving: a Fibonacci
-// descent (ratios → the golden mean) steps down more gently. Tweak QSTEPS to taste. ──
-const QSTEPS=[0,55,34,21,13,8]   // 0 = smooth base, then progressively fewer bands
+// hero stage share it. The footer stack cuts through QSTEPS; the hero sweeps the band
+// count continuously (see heroQuant). Tweak QSTEPS for the footer's discrete tiers. ──
+const QSTEPS=[0,55,34,21,13,8]   // footer stack tiers — 0 = smooth base, then fewer bands
 const coloroidCol=f=>hex(rgbF('coloroid',[10+66*f, 55, 92-80*f]))
-const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=48;k++) st.push(coloroidCol(k/48))
+// precompute the sweep once so rebuilding an N-band gradient is just N lookups + a join
+const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math.round(clamp(f,0,1)*768)]
+const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
 		return `linear-gradient(90deg, ${st.join(',')})` }
-	const st=[]; for(let k=0;k<n;k++) st.push(coloroidCol((k+0.5)/n)); return stepped(st) }
+	const st=[]; for(let k=0;k<n;k++) st.push(clut((k+0.5)/n)); return stepped(st) }
 const fgs=[...document.querySelectorAll('#fstack .fg')]
 const fov=document.querySelector('.fov')
 let fkey=''
@@ -1869,13 +1871,17 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// the stage wears the footer's own coloroid sweep; scrolling down quantizes it a
-	// step at a time through the shared QSTEPS — smooth spectrum resolving into bands
-	let qi=-1
+	// the stage wears the footer's coloroid sweep; scrolling sweeps the band count
+	// CONTINUOUSLY from ~1000 (reads as smooth) down to ~10 — exponential, so the count
+	// glides evenly across the orders. Above 300 bands it's visually smooth, so cache that.
+	const HQMAX=1000, HQMIN=10, HSMOOTH=coloroidGrad(0)
+	let lastN=-1
 	const heroQuant=()=>{ if(intro.style.display==='none') return
-		const p=clamp(scrollY/((intro.offsetHeight||innerHeight)*0.9),0,1)
-		const i=Math.min(QSTEPS.length-1,Math.floor(p*QSTEPS.length))
-		if(i!==qi){ qi=i; iwheel.style.background=coloroidGrad(QSTEPS[i]) } }
+		const p=clamp(scrollY/((intro.offsetHeight||innerHeight)*0.92),0,1)
+		const N=Math.round(HQMAX*Math.pow(HQMIN/HQMAX,p))
+		const eff=N>300?0:N
+		if(eff===lastN) return; lastN=eff
+		iwheel.style.background=eff?coloroidGrad(eff):HSMOOTH }
 	addEventListener('scroll',()=>requestAnimationFrame(heroQuant),{passive:true}); heroQuant()
 	const preview=p=>{ if(!p) return false; master={ s:p.s, vals:p.vals }
 		idot.value=hex(RGB()); renderFast(); paintCatalogGrad(); return true }
