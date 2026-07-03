@@ -127,11 +127,12 @@ a{ color:var(--ink) }
 .dstat .fmt{ font-size:.84rem; color:var(--soft); font-variant-numeric:tabular-nums; cursor:copy }
 .dstat .fmt:hover{ color:var(--ink) }
 .dstat .near{ font-size:.72rem; font-weight:700; color:var(--soft); cursor:pointer } .dstat .near b{ color:var(--ink) }
-/* case-file header — dossier rows of LABEL · value */
-.doss{ display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,max-content)); gap:.4rem 3.5rem; margin:.7rem 0 1.2rem }
-.doss>div{ display:flex; gap:1rem; align-items:baseline }
-.doss i{ font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); min-width:4.8rem; flex:none }
-.doss b{ font-size:.72rem; font-weight:700; letter-spacing:.02em }
+/* case-file property grid — micro-label above, value under, flowing columns */
+.props{ display:grid; grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr)); gap:1rem 2rem; margin:.9rem 0 1.4rem }
+.props i{ display:block; font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:.24rem }
+.props b{ font-size:.74rem; font-weight:700; letter-spacing:.01em }
+.props a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }
+.props a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
 .pick{ overflow:hidden }
 .bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
@@ -146,15 +147,12 @@ a{ color:var(--ink) }
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
 .pl .cx{ position:absolute; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* same rhombus as the sliders */
-.pl3d{ position:relative; width:min(24rem,100%); aspect-ratio:1; margin-top:.9rem; background:var(--panel); cursor:grab; touch-action:none }
+.pl3d{ position:relative; width:100%; max-width:22rem; aspect-ratio:1; cursor:grab; touch-action:none; justify-self:end }
 .pl3d:active{ cursor:grabbing }
 .pl3d canvas{ display:block; width:100%; height:100% }
-.pl3d .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; color:var(--soft); pointer-events:none }
 .pl .laby{ position:absolute; top:.5rem; left:.5rem; writing-mode:vertical-rl; transform:rotate(180deg); font-size:.64rem; font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; pointer-events:none }
 h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:1.6rem 0 .5rem; display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
-.drefs{ margin-top:.8rem }
-.card td.cv{ text-transform:none; letter-spacing:0 }
 .src{ margin-top:.7rem; font-size:.74rem; color:var(--soft) }
 .src a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .src a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -200,11 +198,8 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.
 .tok-n{ font-weight:600 }
 .dgrid{ display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:1rem clamp(1.4rem,3vw,2.8rem); align-items:start; margin-bottom:1.4rem }
 .desc{ font-size:.85rem; line-height:1.6; color:var(--body); max-width:68ch }
-.prof{ border-collapse:collapse; font-size:.78rem; width:100% }
-.prof td{ padding:.3rem .9rem .3rem 0; border-bottom:1px solid var(--hair); vertical-align:baseline }
-.prof td:first-child{ font-weight:800; width:2.2rem }
-.prof td:last-child{ color:var(--soft); white-space:nowrap; text-align:right; padding-right:0 }
-@media(max-width:700px){ .dgrid{ grid-template-columns:1fr } }
+.dgrid.one{ grid-template-columns:1fr }
+@media(max-width:700px){ .dgrid{ grid-template-columns:1fr } .pl3d{ justify-self:start } }
 .refs{ display:flex; flex-direction:column; gap:.25rem; font-size:.8rem }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -1059,7 +1054,7 @@ function gamuts(){ try{ const X=master.s==='xyz'?master.vals:space[master.s].xyz
 let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto complement
 // ONE global clustering mode for sliders AND planes — remembered across sessions
 const QMODES=[null,10,20,'web','names','percept']
-const QSEG=[[10,'10'],[20,'20'],['web','safe'],['names','name'],['percept','uniform']]
+const QSEG=[[10,'10'],[20,'20'],['web','safe'],['names','name'],['percept','even']]
 const QTIP={ '10':'clusters every slider into 10 even steps',
 	'20':'clusters every slider into 20 even steps (tailwind-style scale)',
 	'web':'snaps colors to the 216-color web-safe palette (6 levels per channel)',
@@ -1118,7 +1113,7 @@ const hilite=code=>code.split('\n').map(line=>{
 // ── the sRGB solid in this space: cube-surface point cloud, drag to rotate, wheel to zoom ──
 let rot3={a:-0.65,b:0.5}, zoom3=1, pts3=null, pts3S=null
 function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ pts3=null; return }
-	const s=selected, cls=classify(s), P=[], G2=15
+	const s=selected, cls=classify(s), P=[], G2=27
 	for(let f=0;f<6;f++) for(let i2=0;i2<=G2;i2++) for(let j2=0;j2<=G2;j2++){
 		const u=i2/G2*255, w=j2/G2*255
 		const rgb=[[0,u,w],[255,u,w],[u,0,w],[u,255,w],[u,w,0],[u,w,255]][f]
@@ -1146,39 +1141,44 @@ function draw3d(){ if(!pts3||!open()) return
 		const X1=x*ca+z*sa, Z1=-x*sa+z*ca
 		return { x:S2/2+X1*sc, y:S2/2-(y*cb-Z1*sb)*sc, z:y*sb+Z1*cb } }
 	const arr=pts3.map(p=>{ const q2=prj(p.n); q2.hex=p.hex; return q2 }).sort((u1,u2)=>u1.z-u2.z)
-	for(const p of arr){ ctx.fillStyle=p.hex; ctx.fillRect(p.x-2,p.y-2,4,4) }
-	const mv=valsFor(pts3S)
+	// the marker takes its true place in depth — surface points in front occlude it
+	const mv=valsFor(pts3S); let mp=null, mcur=null
 	if(mv){ const cls=classify(pts3S)
 		const n=mv.map((x2,k2)=>{ const c=cls.ch[k2]; return clamp((x2-c.min)/(c.max-c.min),-0.2,1.2)-0.5 })
-		const p=prj(n), cur=RGB()
-		ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.PI/4)
-		ctx.fillStyle=hex(cur); ctx.strokeStyle=ink(cur)==='#fff'?'#fff':'#1b1408'; ctx.lineWidth=1.6
-		ctx.fillRect(-5.5,-5.5,11,11); ctx.strokeRect(-5.5,-5.5,11,11); ctx.restore() } }
+		mp=prj(n); mcur=RGB() }
+	const mark=()=>{ if(!mp) return
+		ctx.save(); ctx.translate(mp.x,mp.y); ctx.rotate(Math.PI/4)
+		ctx.fillStyle=hex(mcur); ctx.strokeStyle=ink(mcur)==='#fff'?'#fff':'#1b1408'; ctx.lineWidth=1.4
+		ctx.fillRect(-4.6,-4.6,9.2,9.2); ctx.strokeRect(-4.6,-4.6,9.2,9.2); ctx.restore() }
+	let marked=false
+	for(const p of arr){ if(mp&&!marked&&p.z>=mp.z){ mark(); marked=true }
+		ctx.fillStyle=p.hex; ctx.fillRect(p.x-1.25,p.y-1.25,2.5,2.5) }
+	if(!marked) mark() }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsFor(s)
 	const path=pathToRgb(s)
 	const interpHTML=fwd?'':`<h4 class="sec2">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">${huePath} ⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
+	const has3d=cls.ch.length===3&&!fwd
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1><span class="hfmt tnum" id="hfmt"></span></div>
-	 <div class="doss">
+	 <div class="props">
 		<div><i>type</i><b>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</b></div>
 		<div><i>used for</i><b>${useOf(s)}</b></div>
+		${path&&path.length>1?`<div><i>base</i><b>${path[1]}</b></div>`:''}
+		${m.illuminant?`<div><i>white point</i><b>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</b></div>`:''}
 		${VERIFIED.has(s)?`<div><i>verified</i><b title="every conversion pinned by independent reference values at 1/255 tolerance — see reference.js under code">±1/255</b></div>`:''}
+		${m.refs?`<div><i>reference</i><b>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</b></div>`:''}
+		${cls.ch.map(c=>`<div><i>${c.sym} — ${cname(c)}</i><b class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</b></div>`).join('')}
 	 </div>
-	 <div class="dgrid"><div><div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div>
-	 ${m.refs?`<div class="refs drefs">${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`).join('')}</div>`:''}</div>
-	 <div><table class="prof card">
-		${path&&path.length>1?`<tr><td>base</td><td class="cv" colspan="2">${path[1]}</td></tr>`:''}
-		${m.illuminant?`<tr><td>white</td><td class="cv" colspan="2">${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</td></tr>`:''}
-		${cls.ch.map(c=>`<tr><td>${c.sym}</td><td>${cname(c)}</td><td class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</td></tr>`).join('')}</table></div></div>
-	 <h4 class="sec2">channels <span class="seg" id="qseg" style="margin-left:auto">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span></h4>
+	 <div class="dgrid${has3d?'':' one'}"><div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div>
+	 ${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas width="288" height="288"></canvas></div>`:''}</div>
+	 <h4 class="sec2">channels <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the channels and plots by the ${g} display gamut — click again to turn the lens off">${g}</button>`).join('')}</span><span class="seg" id="qseg" style="margin-left:1.6rem">${QSEG.map(([mo,lb])=>`<button data-q="${String(mo)}"${mo===Q?' class="on"':''} title="${QTIP[String(mo)]}">${lb}</button>`).join('')}</span></h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>`<div class="bar2" data-i="${i}"><div class="bg"></div>
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
 		<div class="dk"></div>
 	 </div>`).join('')}</div>
-	 ${cls.ch.length>1?`<h4 class="sec2">plots <i title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset">zoomable</i> <span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and sliders by the ${g} display gamut — click again to turn the lens off">${g}</button>`).join('')}</span></h4>
-	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}</div>
-	 ${cls.ch.length===3&&!fwd?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas width="232" height="232"></canvas><span class="labx">solid</span></div>`:''}`:''}
+	 ${cls.ch.length>1?`<h4 class="sec2">plots</h4>
+	 <div class="planes" id="planes">${pairs(cls.ch.length).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby">${cname(cls.ch[b])}</span><span class="labx">${cname(cls.ch[a])}</span></div>`).join('')}</div>`:''}
 	 ${interpHTML}
 	 <h4 class="sec2">code</h4>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
