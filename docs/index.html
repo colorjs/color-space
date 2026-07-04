@@ -27,17 +27,14 @@ body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(-
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
 .skip:focus{ transform:none }
-/* ── masthead ── */
+/* ── masthead: one sticky identity bar — logo, slogan, live current colour, search ── */
+.mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
 .mast{ --hue:linear-gradient(90deg,
 	oklch(.62 .2 25),oklch(.7 .19 60),oklch(.85 .17 95),oklch(.86 .2 130),oklch(.8 .14 175),oklch(.65 .16 235),oklch(.5 .22 285),oklch(.55 .25 330),oklch(.62 .2 25));
-	position:relative; display:flex; align-items:baseline; gap:1.2rem; flex-wrap:wrap; padding:.9rem 0 1.1rem }
-/* the divider IS the library's essence: a continuous spectrum on the left that
-   posterizes into discrete bands toward the right (SVG feComponentTransfer). */
-.mast::before,.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:6px; background:var(--hue) }
-.mast::after{ filter:url(#quantize); -webkit-mask:linear-gradient(90deg,transparent 40%,#000 62%); mask:linear-gradient(90deg,transparent 40%,#000 62%) }
+	position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem }
+.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--hue) }   /* plain colour bar */
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
-.mast .slogan{ font-weight:600; font-size:1rem }
-.mast .proof{ font-size:.72rem; color:var(--soft); font-weight:600 }
+.mast .slogan{ font-weight:600; font-size:1rem; color:var(--soft) }
 .mast .sp{ flex:1 }
 .mast .npm{ font:inherit; font-size:.78rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--paper); background:var(--ink); border:0; padding:.35rem .65rem; cursor:copy }
 .mast .ver{ font-size:.74rem; font-weight:700; color:var(--soft); text-decoration:none }
@@ -46,31 +43,23 @@ a{ color:var(--ink) }
 .mast .gh:hover{ color:var(--c) }
 .thm{ border:0; background:none; padding:.15rem; color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
-/* ── toolbar ── */
-/* the hero hook: convert any color into any space, right here */
-.hb{ position:relative }
-.hb::after{ content:''; position:absolute; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); bottom:0; height:1px; background:var(--hair) }
-.hero{ display:flex; align-items:center; gap:.9rem; padding:.85rem 0; max-width:64rem; margin:0 auto; flex-wrap:wrap }
-.cinw{ position:relative; flex:1 1 16rem; max-width:26rem; display:flex }
-.hero input#cin{ flex:1; max-width:none; padding-right:2.5rem }
-.hero input{ font:inherit; font-size:1rem; font-weight:600; color:var(--ink); background:var(--panel); border:0; outline:none; padding:.5rem .8rem }
-.hero input:focus{ background:var(--paper); box-shadow:inset 0 -2px 0 var(--ink) }
-/* eyedropper: pick a color off the user's own screen (Chromium EyeDropper) */
-.edrop{ position:absolute; right:.25rem; top:50%; transform:translateY(-50%); border:0; background:none; color:var(--soft); cursor:pointer; padding:.4rem; display:flex }
-.edrop:hover{ color:var(--ink) }
-.edrop[hidden]{ display:none }
-.hero .arr{ color:var(--soft); font-weight:700 }
-.hero select{ font:inherit; font-size:1rem; font-weight:700; color:var(--ink); background:none; border:0; cursor:pointer; appearance:auto }
-.hero output{ font-size:1rem; font-weight:700; cursor:copy; min-height:1.2em }
-.hero output:hover{ color:var(--c) }
-.bar{ position:sticky; top:0; z-index:5; background:var(--paper); padding:1.2rem clamp(1rem,3vw,2.2rem) .1rem; margin-bottom:1.6rem }
-.bi{ display:flex; align-items:center; gap:1rem; max-width:64rem; margin:0 auto }
-.q{ flex:1; max-width:34rem; display:flex; align-items:center; gap:.6rem; background:var(--panel); padding:0 .85rem; border-bottom:2px solid transparent }
-.q:focus-within{ background:var(--paper); border-bottom-color:var(--ink) }
-.q svg{ flex:none; color:var(--soft) }
-.q input{ flex:1; font:inherit; font-size:1rem; font-weight:600; color:var(--ink); background:transparent; border:0; padding:.55rem 0; outline:none }
-.q input::placeholder{ color:var(--soft) }
-.bar .n{ margin-left:auto; font-size:.72rem; color:var(--soft); font-weight:700; font-variant-numeric:tabular-nums }
+/* live current colour, sitting right after the slogan */
+.cur{ display:flex; align-items:center; gap:.5rem }
+.cur .cursw{ width:1.35rem; height:1.35rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px var(--hair) }
+.cur .cursw::-webkit-color-swatch-wrapper{ padding:0 } .cur .cursw::-webkit-color-swatch{ border:none; border-radius:50% } .cur .cursw::-moz-color-swatch{ border:none; border-radius:50% }
+.cur .curhex{ font-size:.84rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); cursor:copy }
+.cur .curnm{ font-size:.78rem; font-weight:600; color:var(--soft); cursor:pointer } .cur .curnm:hover{ color:var(--c) }
+.cur .curgam{ display:flex; gap:.5rem; font-size:.58rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase }
+.cur .curgam .on{ color:var(--ink) } .cur .curgam .off{ color:var(--ghost) }
+/* search collapses to an icon and grows on hover/focus/while it holds a query */
+.qx{ display:flex; align-items:center; gap:.45rem; align-self:center; cursor:text }
+.qx svg{ flex:none; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
+.qx input{ width:0; opacity:0; font:inherit; font-size:.9rem; font-weight:600; color:var(--ink); background:none; border:0; outline:none; padding:.25rem 0; transition:width .25s ease, opacity .2s ease }
+.qx:hover input,.qx:focus-within input,.qx input:not(:placeholder-shown){ width:13rem; opacity:1 }
+.qx .qn{ font-size:.72rem; font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
+.qx input:placeholder-shown ~ .qn{ display:none }
+@media(max-width:820px){ .mast .slogan{ display:none } }
+@media(max-width:560px){ .cur .curnm,.cur .curgam{ display:none } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
    reading blocks (.g: api, recipes, about) stay in a centered measure for readability */
@@ -92,7 +81,7 @@ a{ color:var(--ink) }
    half the gutter as its own padding (negative margin keeps content aligned) */
 .sec{ position:relative; padding:1.4rem 0; scroll-margin-top:3.4rem }
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railcol,var(--railw)) + var(--railgap))); right:calc(-1*var(--railr,0px)); height:1px; background:var(--hair) }
-.sec:first-of-type{ padding-top:.4rem } .sec:first-of-type::before{ display:none }
+.sec:first-of-type{ padding-top:1.3rem } .sec:first-of-type::before{ display:none }
 /* folded, a sliver of the next row bleeds through and fades — a peek that says
    "more below", pointing the same way the chevron unfolds (--peek set per section) */
 .grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)); overflow:hidden; transition:max-height .3s ease;
@@ -219,15 +208,6 @@ h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; letter-spacing:.06em; padding:.45rem .85rem; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:40 }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
-.cur{ position:fixed; right:1rem; bottom:1rem; z-index:30; display:flex; flex-direction:column; gap:.3rem; background:var(--ink); color:var(--paper); padding:.55rem .7rem; min-width:8.6rem }
-.cur .r1{ display:flex; align-items:center; justify-content:space-between; gap:.8rem }
-.cur .curhex{ font-size:.9rem; font-weight:700; letter-spacing:.03em; cursor:copy }
-.cur input.cursw{ width:1.5rem; height:1.5rem; border:0; padding:0; background:none; cursor:pointer }
-.cur input.cursw::-webkit-color-swatch-wrapper{ padding:0 } .cur input.cursw::-webkit-color-swatch{ border:none }
-.cur .curnm{ font-size:.7rem; font-weight:600; color:color-mix(in oklab, var(--paper) 78%, var(--ink)); cursor:pointer }
-.cur .curnm:hover{ color:var(--c) }
-.curgam{ display:flex; gap:.6rem; font-size:.6rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase }
-.curgam .on{ color:var(--paper) } .curgam .off{ color:color-mix(in oklab, var(--paper) 42%, var(--ink)) }
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.72rem; color:var(--ink); cursor:pointer }
 .irow{ position:relative; height:68px }
@@ -303,6 +283,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .fnav a{ color:var(--fi1,#fff); text-decoration:none; width:max-content }
 .fnav a:hover{ text-decoration:underline; text-underline-offset:3px }
 .fmark{ align-self:flex-end; color:var(--fi1,#fff); font-size:.9rem; white-space:nowrap }
+.fproof{ max-width:64rem; margin:.2rem auto 0; padding:0 clamp(1rem,3vw,2.2rem) 1.1rem; font-size:.8rem; font-weight:600; color:var(--fi1,#fff); opacity:.85; font-variant-numeric:tabular-nums }
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
 @media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
@@ -323,15 +304,18 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
-<svg width="0" height="0" aria-hidden="true" style="position:absolute">
-	<filter id="quantize" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncG type="discrete" tableValues="0 .25 .5 .75 1"/><feFuncB type="discrete" tableValues="0 .25 .5 .75 1"/></feComponentTransfer></filter>
-</svg>
 <div class="page">
-<div class="fw"><header class="mast">
+<div class="fw mhead"><header class="mast">
 	<h1 class="wm">color·space</h1>
 	<span class="slogan">Every color space. One tiny API. Verified.</span>
-	<span class="proof"><span id="n">151</span> spaces · differentially tested vs colorjs.io · zero-dep · public domain</span>
+	<div class="cur" id="curw">
+		<input type="color" class="cursw" id="cursw" title="current color — click to pick" aria-label="current color">
+		<span class="curhex tnum" id="curhex" title="click to copy"></span>
+		<span class="curnm" id="curnm" title="nearest named color — click to use it"></span>
+		<span class="curgam" id="curgam"></span>
+	</div>
 	<span class="sp"></span>
+	<label class="qx" title="search spaces (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
 	<button class="npm" id="npm" title="copy">npm i color-space</button>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
@@ -343,19 +327,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<div class="introq">What's your favorite color?</div>
 	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
 </section>
-
-<div class="fw hb"><div class="hero">
-	<span class="cinw"><input id="cin" placeholder="any color — tomato · #ff6347 · rgb(255 99 71) · oklch(0.7 0.19 40)" spellcheck="false" autocomplete="off" aria-label="color to convert"><button class="edrop" id="edrop" title="pick a color from your screen" aria-label="pick a color from your screen"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button></span>
-	<span class="arr">→</span>
-	<select id="cto" aria-label="target space"></select>
-	<output id="cout" class="tnum" title="click to copy · double-click to open the dossier"></output>
-</div></div>
-
-<div class="bar"><div class="bi">
-	<label class="q"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-	<input id="q" type="search" placeholder="search spaces — oklch, camera log, ΔE, skin…" autocomplete="off" aria-label="search spaces (press / to focus)"></label>
-	<span class="n"><span id="nq"></span> shown</span>
-</div></div>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web</button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical</button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern</button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic</button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut</button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision</button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast</button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera</button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models</button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical</button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research</button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Display & web<span class="c tnum">(19)</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Display & web spaces" aria-label="show all Display & web spaces"><b class="tnum">19 spaces</b><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
 	<article class="ent" data-s="rgb">
@@ -930,15 +901,9 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 			</nav>
 			<span class="fmark" title="offered">Unlicense · ॐ</span>
 		</div>
+		<p class="fproof"><span id="n">151</span> spaces · differentially tested vs colorjs.io · zero dependencies · public domain</p>
 	</div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div></div>
 </footer>
-</div>
-
-<div class="cur" id="curw">
-	<div class="r1"><span class="curhex tnum" id="curhex" title="click to copy"></span>
-	<input type="color" class="cursw" id="cursw" title="current color — click to pick"></div>
-	<span class="curnm" id="curnm" title="nearest named color — click to use it"></span>
-	<span class="curgam" id="curgam"></span>
 </div>
 
 <div id="toast">copied!</div>
@@ -1047,7 +1012,7 @@ const trackAct=()=>{ let k=0
 addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // first run below, after layoutToc exists
 // stacked-sticky rail: flow position = own section's top; sticky top+bottom insets make
 // passed titles pile at the top and upcoming ones wait at the bottom — all always on screen
-const tocEl=document.getElementById('toc'), barEl=document.querySelector('.bar')
+const tocEl=document.getElementById('toc'), barEl=document.querySelector('.mhead')   // rail titles stack below the sticky masthead
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
 	const secsR=document.getElementById('secs').getBoundingClientRect().right
@@ -1190,21 +1155,6 @@ function stepInputNumber(input,dir){ const m=numAt(input); if(!m) return false
 	input.value=input.value.slice(0,m.start)+next+input.value.slice(m.end)
 	input.setSelectionRange(m.start,m.start+next.length)
 	return true }
-const cin=document.getElementById('cin'), cto=document.getElementById('cto'), cout=document.getElementById('cout')
-cto.innerHTML=ORDER.map(s=>`<option value="${s}"${s==='oklch'?' selected':''}>${s}</option>`).join('')
-function convertHero(){ const p=parseColor(cin.value)
-	if(!p){ cout.textContent=cin.value.trim()?'?':''; return }
-	master={ s:p.s, vals:p.vals }
-	const t=cto.value, tv=valsFor(t)
-	cout.textContent=tv?(fmt(t,tv)||`${t}(${tv.map((x,j)=>fmtn(x,classify(t).ch[j])).join(' ')})`):'—'
-	renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-cin.addEventListener('input',convertHero)
-cto.addEventListener('change',convertHero)
-const edrop=document.getElementById('edrop')
-if(window.EyeDropper){ edrop.onclick=async()=>{ try{ const {sRGBHex}=await new EyeDropper().open(); cin.value=sRGBHex; convertHero() }catch{} } }
-else edrop.hidden=true
-cout.onclick=()=>{ if(cout.textContent&&cout.textContent!=='?') copy(cout.textContent) }
-cout.ondblclick=()=>openModal(cto.value)
 const nav=d=>{ const k=ORDER.indexOf(selected); openModal(ORDER[(k+d+ORDER.length)%ORDER.length]) }
 document.getElementById('mprev').onclick=()=>nav(-1)
 document.getElementById('mnext').onclick=()=>nav(1)
