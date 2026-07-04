@@ -306,16 +306,17 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
 @media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
-/* ── first-run intro: a plain hue slider you pick your favourite colour from. The
-   pointer IS a huge picker; its vertical position quantizes the slider — smooth at
-   the top, ten steps at the bottom. Click to pick and reveal the catalog. ── */
+/* ── first-run intro: the footer's own coloroid sweep as a slider you pick your
+   favourite colour from. The cursor is a picker icon; its vertical position quantizes
+   the slider — smooth up top, ten steps at the floor. Click to pick + reveal. ── */
 .intro{ position:relative; overflow:hidden; min-height:min(76vh,620px); display:flex; align-items:center; justify-content:center; cursor:none; opacity:0; transition:height .7s cubic-bezier(.65,0,.2,1), opacity .5s ease }
 .intro.in{ opacity:1 }
 .intro.skip{ display:none }   /* returning visitors land straight on the tool */
-.iwheel{ position:absolute; inset:0; background:var(--panel) }   /* JS paints the hue slider */
-.introq{ position:relative; z-index:1; padding:0 1rem; text-align:center; font-size:clamp(1.9rem,5vw,3.4rem); font-weight:800; letter-spacing:-.02em; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.28), 0 3px 30px rgba(0,0,0,.32); pointer-events:none }
-/* the huge picker that replaces the cursor — a rhombus wearing the colour under it */
-.ipicker{ position:absolute; z-index:2; top:0; left:0; width:92px; height:92px; transform:translate(-50%,-50%) rotate(45deg); border:2.5px solid; box-shadow:0 6px 22px rgba(0,0,0,.28); pointer-events:none; opacity:0; will-change:left,top }
+.iwheel{ position:absolute; inset:0; background:var(--panel) }   /* JS paints the coloroid sweep (same as the footer) */
+.introq{ position:relative; z-index:1; padding:0 1rem; text-align:center; font-size:clamp(1.9rem,5vw,3.4rem); font-weight:800; letter-spacing:-.02em; color:#fff; pointer-events:none }
+/* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
+.ipicker{ position:absolute; z-index:2; top:0; left:0; width:52px; height:52px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); will-change:left,top }
+.ipicker svg{ width:100%; height:100%; display:block }
 .ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
 @keyframes entwave{ from{ opacity:0; transform:translateY(15px) } to{ opacity:1; transform:none } }
 @media(prefers-reduced-motion:reduce){ .ent.wv{ animation:none } }
@@ -340,7 +341,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <section class="intro" id="intro" aria-label="pick your favourite colour">
 	<div class="iwheel" id="iwheel"></div>
 	<div class="introq">What's your favorite color?</div>
-	<div class="ipicker" id="ipicker" aria-hidden="true"></div>
+	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
 </section>
 
 <div class="fw hb"><div class="hero">
@@ -1847,19 +1848,15 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// a plain hue sweep, precomputed so re-quantizing on every pointer move stays cheap
-	const hueRGB=f=>rgbF('hsl',[clamp(f,0,1)*360, 82, 58])
-	const HLUT=Array.from({length:721},(_,k)=>hueRGB(k/720)), hl=f=>HLUT[Math.round(clamp(f,0,1)*720)]
-	const hueGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=72;k++) st.push(hex(hl(k/72)))
-			return `linear-gradient(90deg, ${st.join(',')})` }
-		const st=[]; for(let k=0;k<n;k++) st.push(hex(hl((k+0.5)/n))); return stepped(st) }
+	// the footer's coloroid sweep (coloroidGrad/clut are shared, precomputed)
 	// vertical position → band count: smooth up top, exponential down to ten at the floor
 	const bandsAt=yf=>{ if(yf<0.04) return 0; const n=Math.round(1000*Math.pow(0.01,yf)); return n>300?0:n }
-	const colAt=(xf,n)=>hl(n?(Math.floor(clamp(xf,0,0.999)*n)+0.5)/n:xf)   // colour under the picker
+	const colAt=(xf,n)=>{ const cf=n?(Math.floor(clamp(xf,0,0.999)*n)+0.5)/n:clamp(xf,0,1)
+		return rgbF('coloroid',[10+66*cf, 55, 92-80*cf]) }   // colour under the tip, quantized
 	let curN=-1, mx=0.5, my=0
 	const paint=()=>{ const n=bandsAt(my)
-		if(n!==curN){ curN=n; iwheel.style.background=hueGrad(n) }
-		const rgb=colAt(mx,n); picker.style.background=hex(rgb); picker.style.borderColor=ink(rgb) }
+		if(n!==curN){ curN=n; iwheel.style.background=coloroidGrad(n) }
+		picker.style.color=ink(colAt(mx,n)) }   // the icon inks against the colour it's over
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
 		mx=(e.clientX-r.left)/r.width; my=clamp((e.clientY-r.top)/r.height,0,1)
 		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
@@ -1880,5 +1877,5 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	intro.addEventListener('pointerdown',e=>{ const r=intro.getBoundingClientRect()
 		const xf=(e.clientX-r.left)/r.width, yf=clamp((e.clientY-r.top)/r.height,0,1)
 		reveal(colAt(xf,bandsAt(yf)).map(v=>clamp(Math.round(v),0,255))) })
-	iwheel.style.background=hueGrad(0) })()
+	iwheel.style.background=coloroidGrad(0) })()
 </script></body></html>
