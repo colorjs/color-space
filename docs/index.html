@@ -27,24 +27,24 @@ body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(-
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
 .skip:focus{ transform:none }
-/* ── masthead: one sticky identity bar — logo, slogan, live current colour, search ── */
+/* ── masthead: one sticky identity bar — wordmark, live colour, search. The first
+   screen shows it bare; scrolling the hero wheel past it hands the gradient off to
+   the colour line (.mhead.on), and the current colour appears with it. ── */
 .mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
-.mast{ --hue:linear-gradient(90deg,
-	oklch(.62 .2 25),oklch(.7 .19 60),oklch(.85 .17 95),oklch(.86 .2 130),oklch(.8 .14 175),oklch(.65 .16 235),oklch(.5 .22 285),oklch(.55 .25 330),oklch(.62 .2 25));
-	position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem }
-.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--hue) }   /* plain colour bar */
+.mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem }
+.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--mline,var(--panel)); opacity:0; transition:opacity .35s ease }
+.mhead.on .mast::after{ opacity:1 }
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
-.mast .slogan{ font-weight:600; font-size:1rem; color:var(--soft) }
 .mast .sp{ flex:1 }
-.mast .npm{ font:inherit; font-size:.78rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--paper); background:var(--ink); border:0; padding:.35rem .65rem; cursor:copy }
 .mast .ver{ font-size:.74rem; font-weight:700; color:var(--soft); text-decoration:none }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh{ display:flex; align-self:center; color:var(--ink) }
 .mast .gh:hover{ color:var(--c) }
 .thm{ border:0; background:none; padding:.15rem; color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
-/* live current colour, sitting right after the slogan */
-.cur{ display:flex; align-items:center; gap:.5rem }
+/* live current colour — revealed only once a colour exists (picked / scrolled past) */
+.cur{ display:flex; align-items:center; gap:.5rem; opacity:0; pointer-events:none; transition:opacity .35s ease }
+.mhead.on .cur{ opacity:1; pointer-events:auto }
 .cur .cursw{ width:1.35rem; height:1.35rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px var(--hair) }
 .cur .cursw::-webkit-color-swatch-wrapper{ padding:0 } .cur .cursw::-webkit-color-swatch{ border:none; border-radius:50% } .cur .cursw::-moz-color-swatch{ border:none; border-radius:50% }
 .cur .curhex{ font-size:.84rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); cursor:copy }
@@ -58,7 +58,6 @@ a{ color:var(--ink) }
 .qx:hover input,.qx:focus-within input,.qx input:not(:placeholder-shown){ width:13rem; opacity:1 }
 .qx .qn{ font-size:.72rem; font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
 .qx input:placeholder-shown ~ .qn{ display:none }
-@media(max-width:820px){ .mast .slogan{ display:none } }
 @media(max-width:560px){ .cur .curnm,.cur .curgam{ display:none } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
@@ -307,7 +306,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <div class="page">
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color·space</h1>
-	<span class="slogan">Every color space. One tiny API. Verified.</span>
 	<div class="cur" id="curw">
 		<input type="color" class="cursw" id="cursw" title="current color — click to pick" aria-label="current color">
 		<span class="curhex tnum" id="curhex" title="click to copy"></span>
@@ -317,7 +315,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<span class="sp"></span>
 	<label class="qx" title="search spaces (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
-	<button class="npm" id="npm" title="copy">npm i color-space</button>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 </header></div>
@@ -1730,7 +1727,6 @@ const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()
 	renderFast(); if(!open()||!dragging) paintCatalogGrad()
 	if(!dragging&&performance.now()>planeNext) paintPlanes(true) }) }
 
-document.getElementById('npm').onclick=e=>{ navigator.clipboard?.writeText('npm i color-space'); e.target.textContent='copied ✓'; setTimeout(()=>e.target.textContent='npm i color-space',900) }
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
 const SUN='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>'
@@ -1762,6 +1758,12 @@ const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math
 const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
 		return `linear-gradient(90deg, ${st.join(',')})` }
 	const st=[]; for(let k=0;k<n;k++) st.push(clut((k+0.5)/n)); return stepped(st) }
+// the same sweep bent into a wheel — seam at the bottom, where the page continues
+const conicGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=72;k++) st.push(`${clut(k/72)} ${(k/72*100).toFixed(2)}%`)
+		return `conic-gradient(from 180deg, ${st.join(',')})` }
+	const st=[]; for(let k=0;k<n;k++) st.push(`${clut((k+0.5)/n)} ${(k/n*100).toFixed(2)}% ${((k+1)/n*100).toFixed(2)}%`)
+	return `conic-gradient(from 180deg, ${st.join(',')})` }
+document.querySelector('.mast').style.setProperty('--mline',coloroidGrad(0))   // the line the wheel hands off to
 const fgs=[...document.querySelectorAll('#fstack .fg')]
 const fov=document.querySelector('.fov')
 let fkey=''
@@ -1788,44 +1790,50 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── first-run intro: a plain hue slider. The pointer is a huge picker; its vertical
-//    position quantizes the slider (smooth at the top → 10 steps at the bottom). Click
-//    picks the colour under it and folds the stage away, catalog waving in below. ──
-;(()=>{ const intro=document.getElementById('intro')
+// ── first-run intro: the coloroid sweep bent into a wheel. Scrolling quantizes it
+//    (smooth → 10 pie slices) and, once the wheel passes the header, hands it off to
+//    the masthead line — the first screen is just the bare header over the wheel.
+//    The cursor is a picker icon; a click picks the slice under it and reveals. ──
+;(()=>{ const intro=document.getElementById('intro'), mhead=document.querySelector('.mhead')
 	// like Google's box: the stage greets every fresh visit — only deep links skip it
-	if(location.hash.length>1){ intro.classList.add('skip'); return }
+	if(location.hash.length>1){ intro.classList.add('skip'); mhead.classList.add('on'); return }
 	const iwheel=document.getElementById('iwheel'), picker=document.getElementById('ipicker')
 	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// the footer's coloroid sweep (coloroidGrad/clut are shared, precomputed)
-	// vertical position → band count: smooth up top, exponential down to ten at the floor
-	const bandsAt=yf=>{ if(yf<0.04) return 0; const n=Math.round(1000*Math.pow(0.01,yf)); return n>300?0:n }
-	const colAt=(xf,n)=>{ const cf=n?(Math.floor(clamp(xf,0,0.999)*n)+0.5)/n:clamp(xf,0,1)
-		return rgbF('coloroid',[10+66*cf, 55, 92-80*cf]) }   // colour under the tip, quantized
-	let curN=-1, mx=0.5, my=0
-	const paint=()=>{ const n=bandsAt(my)
-		if(n!==curN){ curN=n; iwheel.style.background=coloroidGrad(n) }
-		picker.style.color=ink(colAt(mx,n)) }   // the icon inks against the colour it's over
+	// fraction around the wheel (conic from 180deg, clockwise), from a point in the stage
+	const angF=(x,y,r)=>{ const a=Math.atan2(x-r.width/2, r.height/2-y)*180/Math.PI   // 0 = up, cw
+		return (((a-180)%360)+360)%360/360 }
+	const colAt=(f,n)=>{ const cf=n?(Math.floor(clamp(f,0,0.999)*n)+0.5)/n:clamp(f,0,1)
+		return rgbF('coloroid',[10+66*cf, 55, 92-80*cf]) }   // colour of the slice under the tip
+	// scroll drives the band count — smooth up top, gliding down to ten pie slices —
+	// and flips the masthead line on once the wheel has passed under the header
+	let curN=-1, revealed=false
+	const heroScroll=()=>{ const gone=intro.style.display==='none'
+		mhead.classList.toggle('on', revealed||gone||intro.getBoundingClientRect().bottom<=mhead.offsetHeight+2)
+		if(gone) return
+		const p=clamp(scrollY/((intro.offsetHeight||innerHeight)*0.92),0,1)
+		const N=Math.round(1000*Math.pow(0.01,p)), eff=N>300?0:N
+		if(eff!==curN){ curN=eff; iwheel.style.background=conicGrad(eff) } }
+	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
+	let mx=0.5
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
-		mx=(e.clientX-r.left)/r.width; my=clamp((e.clientY-r.top)/r.height,0,1)
+		mx=angF(e.clientX-r.left,e.clientY-r.top,r)
 		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
-		requestAnimationFrame(paint) })
+		picker.style.color=ink(colAt(mx,curN>0?curN:0)) })   // the icon inks against the slice it's over
 	intro.addEventListener('pointerleave',()=>picker.style.opacity='0')
 	// pick → flood the stage with the chosen colour, fold away, wave the catalog in
-	let revealed=false
 	const wave=()=>{ const top=cat.getBoundingClientRect().top+scrollY
 		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
 			if(y>innerHeight*1.5) return
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
 	const reveal=rgb=>{ if(revealed) return; revealed=true
 		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad()
-		iwheel.style.background=hex(rgb); picker.style.opacity='0'
+		iwheel.style.background=hex(rgb); picker.style.opacity='0'; mhead.classList.add('on')
 		intro.style.height=intro.offsetHeight+'px'; intro.style.minHeight='0px'
 		setTimeout(()=>requestAnimationFrame(()=>{ intro.style.height='0px'; intro.style.opacity='0' }),220)
 		setTimeout(()=>{ intro.style.display='none'; layoutToc(); foldSecs(); wave() },900) }
 	intro.addEventListener('pointerdown',e=>{ const r=intro.getBoundingClientRect()
-		const xf=(e.clientX-r.left)/r.width, yf=clamp((e.clientY-r.top)/r.height,0,1)
-		reveal(colAt(xf,bandsAt(yf)).map(v=>clamp(Math.round(v),0,255))) })
-	iwheel.style.background=coloroidGrad(0) })()
+		reveal(colAt(angF(e.clientX-r.left,e.clientY-r.top,r),curN>0?curN:0).map(v=>clamp(Math.round(v),0,255))) })
+	iwheel.style.background=conicGrad(0); heroScroll() })()
 </script></body></html>
