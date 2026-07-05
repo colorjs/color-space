@@ -1,5 +1,7 @@
 // Catalog markup — one template shared by the page (hydration) and
 // scripts/generate-landing.js (static prerender, so crawlers see the full catalog).
+// Each category: three lead cards with sliders, then the rest as compact sheet rows —
+// every space shows its channel values as editable numbers beside the title.
 import { space, meta, classify } from './core.js'
 import CATS from './categories.js'
 
@@ -10,11 +12,17 @@ const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
 	{ name: 'more', spaces: SPACES.filter(s => !mapped.has(s)) }].filter(c => c.spaces.length)
 
+export const LEADS = 3   // sliders for the first row of each category; the rest are sheet rows
+
+const ent = (s, lite) => { const cls = classify(s)
+	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}">
+	 <div class="eh"><span class="nm">${s}</span><span class="cvs">${cls.ch.map((c2, i) => `<input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}">`).join('')}</span></div>
+	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
+	</article>` }
+
 export const catHTML = () =>
-	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}</button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">${c.name}<span class="c tnum">(${c.spaces.length})</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all ${c.name} spaces" aria-label="show all ${c.name} spaces"><b class="tnum">${c.spaces.length} spaces</b><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
-	${c.spaces.map(s => { const cls = classify(s)
-		return `<article class="ent" data-s="${s}">
-		 <div class="eh"><span class="nm">${s}</span><span class="hxw"><input class="hx tnum" spellcheck="false" autocomplete="off" aria-label="${s} value"><i class="hxv tnum" aria-hidden="true"></i></span></div>
-		 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
-		</article>` }).join('')}
-</div></section>`).join('') + `</div>`
+	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}</button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">(${c.spaces.length})</span></h2><div class="grid">
+	${c.spaces.slice(0, LEADS).map(s => ent(s, false)).join('')}
+</div>${c.spaces.length > LEADS ? `<div class="sheet">
+	${c.spaces.slice(LEADS).map(s => ent(s, true)).join('')}
+</div>` : ''}</section>`).join('') + `</div>`
