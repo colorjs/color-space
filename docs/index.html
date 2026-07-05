@@ -53,6 +53,15 @@ a{ color:var(--ink) }
 .cur .curnm{ font-size:.78rem; font-weight:600; color:var(--soft); cursor:pointer } .cur .curnm:hover{ color:var(--c) }
 .cur .curgam{ display:flex; gap:.5rem; font-size:.58rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase }
 .cur .curgam .on{ color:var(--ink) } .cur .curgam .off{ color:var(--ghost) }
+/* settings — a gear that drops a small panel */
+.cfg{ position:relative; align-self:center }
+.cfg summary{ list-style:none; display:flex; cursor:pointer; color:var(--soft); padding:.15rem }
+.cfg summary::-webkit-details-marker{ display:none }
+.cfg summary:hover,.cfg[open] summary{ color:var(--ink) }
+.cfgp{ position:absolute; right:0; top:calc(100% + .7rem); z-index:30; background:var(--paper); border:1px solid var(--hair); box-shadow:0 10px 34px rgba(20,10,0,.14); padding:.9rem 1.1rem; white-space:nowrap }
+[data-theme=dark] .cfgp{ box-shadow:0 10px 34px rgba(0,0,0,.5) }
+.cfgp label{ display:flex; align-items:center; gap:.55rem; font-size:.9rem; font-weight:600; cursor:pointer; color:var(--ink) }
+.cfgp input{ accent-color:var(--ink) }
 /* search collapses to an icon and grows on hover/focus/while it holds a query */
 .qx{ display:flex; align-items:center; gap:.45rem; align-self:center; cursor:text }
 .qx svg{ flex:none; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
@@ -308,6 +317,9 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</div>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces (press / to focus)"><span class="qn tnum" id="nq"></span></label>
+	<details class="cfg" id="cfg"><summary title="settings" aria-label="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></summary>
+		<div class="cfgp"><label><input type="checkbox" id="setall"> sliders for every space</label></div>
+	</details>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
@@ -1074,6 +1086,11 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 // sheet rows show sliders only when the settings toggle says so
 let ALLS=false; try{ ALLS=localStorage.csAll==='1' }catch{}
 document.body.classList.toggle('alls',ALLS)
+const setall=document.getElementById('setall'), cfg=document.getElementById('cfg')
+setall.checked=ALLS
+setall.onchange=()=>{ ALLS=setall.checked; try{ localStorage.csAll=ALLS?'1':'0' }catch{}
+	document.body.classList.toggle('alls',ALLS); paintCatalogGrad(); renderFast(); layoutToc() }
+addEventListener('pointerdown',e=>{ if(cfg.open&&!cfg.contains(e.target)) cfg.open=false })
 
 // search — `/` focuses it from anywhere
 addEventListener('keydown',e=>{ if(e.key==='/'&&!open()&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){ e.preventDefault(); document.getElementById('q').focus() } })
