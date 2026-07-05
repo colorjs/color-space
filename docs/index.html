@@ -27,11 +27,13 @@ body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(-
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
 .skip:focus{ transform:none }
-/* ── masthead: one sticky identity bar — wordmark, live colour, search. The first
-   screen shows it bare; scrolling the hero wheel past it hands the gradient off to
-   the colour line (.mhead.on), and the current colour appears with it. ── */
-.mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
-.mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem }
+/* ── masthead: one sticky identity bar — wordmark, live colour, search. Over the
+   hero wheel it floats transparent in white; scrolled past the wheel (.mhead.on) it
+   turns paper + ink and takes the colour line, the current colour appearing with it. ── */
+.mhead{ position:sticky; top:0; z-index:15; background:transparent; transition:background .35s ease }
+.mhead:not(.on){ --ink:#fff; --soft:rgba(255,255,255,.82); --ghost:rgba(255,255,255,.55); --hair:rgba(255,255,255,.3) }
+.mhead.on{ background:var(--paper) }
+.mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem; color:var(--ink) }
 .mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--mline,var(--panel)); opacity:0; transition:opacity .35s ease }
 .mhead.on .mast::after{ opacity:1 }
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
@@ -286,13 +288,16 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
 @media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
-/* ── first-run intro: the footer's own coloroid sweep as a slider you pick your
-   favourite colour from. The cursor is a picker icon; its vertical position quantizes
-   the slider — smooth up top, ten steps at the floor. Click to pick + reveal. ── */
-.intro{ position:relative; overflow:hidden; min-height:min(76vh,620px); display:flex; align-items:center; justify-content:center; cursor:none; opacity:0; transition:height .7s cubic-bezier(.65,0,.2,1), opacity .5s ease }
+/* ── the hero: the OKLCH hue slider bent into a seamless wheel, under a transparent
+   header. It pins full-screen for an extra viewport of scroll — quantizing from
+   smooth to ten slices while it lingers — then releases and hands the masthead its
+   colour line. A click picks the slice under the eyedropper; the wheel stays,
+   scroll back up any time to pick again. ── */
+.introw{ height:200dvh; margin-top:calc(-1*var(--mh,52px)) }   /* extra viewport = the linger */
+.introw.skip{ display:none }   /* deep links land straight on the tool */
+.intro{ position:sticky; top:0; height:100dvh; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
-.intro.skip{ display:none }   /* returning visitors land straight on the tool */
-.iwheel{ position:absolute; inset:0; background:var(--panel) }   /* JS paints the coloroid sweep (same as the footer) */
+.iwheel{ position:absolute; inset:0; background:var(--panel) }   /* JS paints the hue wheel */
 .introq{ position:relative; z-index:1; padding:0 1rem; text-align:center; font-size:clamp(1.9rem,5vw,3.4rem); font-weight:800; letter-spacing:-.02em; color:#fff; pointer-events:none }
 /* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
 .ipicker{ position:absolute; z-index:2; top:0; left:0; width:52px; height:52px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); will-change:left,top }
@@ -319,11 +324,11 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 </header></div>
 
-<section class="intro" id="intro" aria-label="pick your favourite colour">
+<div class="introw" id="introw"><section class="intro" id="intro" aria-label="pick your favourite colour">
 	<div class="iwheel" id="iwheel"></div>
 	<div class="introq">What's your favorite color?</div>
 	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
-</section>
+</section></div>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web</button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical</button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern</button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic</button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut</button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision</button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast</button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera</button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models</button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical</button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research</button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw"><button class="sh" aria-expanded="false">Display & web<span class="c tnum">(19)</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></h2><button class="mo" aria-expanded="false" title="all Display & web spaces" aria-label="show all Display & web spaces"><b class="tnum">19 spaces</b><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="grid">
 	<article class="ent" data-s="rgb">
@@ -1018,7 +1023,7 @@ const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
-	let cur=0, up=barEl.offsetHeight+6
+	let cur=0, up=barEl.offsetHeight+22   // pinned titles breathe below the masthead
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
 		const sec=secEls[i]   // align the title's text with the first visible space name
 		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
@@ -1758,12 +1763,14 @@ const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math
 const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
 		return `linear-gradient(90deg, ${st.join(',')})` }
 	const st=[]; for(let k=0;k<n;k++) st.push(clut((k+0.5)/n)); return stepped(st) }
-// the same sweep bent into a wheel — seam at the bottom, where the page continues
-const conicGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=72;k++) st.push(`${clut(k/72)} ${(k/72*100).toFixed(2)}%`)
-		return `conic-gradient(from 180deg, ${st.join(',')})` }
-	const st=[]; for(let k=0;k<n;k++) st.push(`${clut((k+0.5)/n)} ${(k/n*100).toFixed(2)}% ${((k+1)/n*100).toFixed(2)}%`)
-	return `conic-gradient(from 180deg, ${st.join(',')})` }
-document.querySelector('.mast').style.setProperty('--mline',coloroidGrad(0))   // the line the wheel hands off to
+// the hero wheel: the OKLCH hue slider bent into a circle — hue wraps, so it's
+// seamless. The masthead line takes the same sweep laid flat.
+const WLUT=Array.from({length:721},(_,k)=>hex(rgbF('oklch',[0.72,0.15,k/720*360]))), wlut=f=>WLUT[Math.round(clamp(f,0,1)*720)]
+const wheelGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=72;k++) st.push(`${wlut(k/72)} ${(k/72*100).toFixed(2)}%`)
+		return `conic-gradient(${st.join(',')})` }
+	const st=[]; for(let k=0;k<n;k++) st.push(`${wlut((k+0.5)/n)} ${(k/n*100).toFixed(2)}% ${((k+1)/n*100).toFixed(2)}%`)
+	return `conic-gradient(${st.join(',')})` }
+document.querySelector('.mast').style.setProperty('--mline',`linear-gradient(90deg, ${Array.from({length:73},(_,k)=>wlut(k/72)).join(',')})`)   // the line the wheel hands off to
 const fgs=[...document.querySelectorAll('#fstack .fg')]
 const fov=document.querySelector('.fov')
 let fkey=''
@@ -1790,50 +1797,47 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── first-run intro: the coloroid sweep bent into a wheel. Scrolling quantizes it
-//    (smooth → 10 pie slices) and, once the wheel passes the header, hands it off to
-//    the masthead line — the first screen is just the bare header over the wheel.
-//    The cursor is a picker icon; a click picks the slice under it and reveals. ──
-;(()=>{ const intro=document.getElementById('intro'), mhead=document.querySelector('.mhead')
-	// like Google's box: the stage greets every fresh visit — only deep links skip it
-	if(location.hash.length>1){ intro.classList.add('skip'); mhead.classList.add('on'); return }
+// ── the hero: the OKLCH hue wheel pinned full-screen under the transparent header.
+//    Scroll quantizes it (smooth → 10 slices) through an extra viewport of travel,
+//    then the wheel releases and the masthead flips dark and takes the colour line.
+//    A click picks the slice under the eyedropper and glides down to the catalog —
+//    the wheel stays; scroll back any time to pick again. ──
+;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), mhead=document.querySelector('.mhead')
+	// deep links land straight on the tool
+	if(location.hash.length>1){ introw.classList.add('skip'); mhead.classList.add('on'); return }
 	const iwheel=document.getElementById('iwheel'), picker=document.getElementById('ipicker')
-	const fit=()=>intro.style.minHeight=`calc(100dvh - ${document.querySelector('.mast').offsetHeight}px)`
+	const fit=()=>document.querySelector('.page').style.setProperty('--mh',mhead.offsetHeight+'px')
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// fraction around the wheel (conic from 180deg, clockwise), from a point in the stage
-	const angF=(x,y,r)=>{ const a=Math.atan2(x-r.width/2, r.height/2-y)*180/Math.PI   // 0 = up, cw
-		return (((a-180)%360)+360)%360/360 }
+	// fraction around the wheel (conic, 0 at 12 o'clock, clockwise) from a stage point
+	const angF=(x,y,r)=>{ const a=Math.atan2(x-r.width/2, r.height/2-y)*180/Math.PI
+		return ((a%360)+360)%360/360 }
 	const colAt=(f,n)=>{ const cf=n?(Math.floor(clamp(f,0,0.999)*n)+0.5)/n:clamp(f,0,1)
-		return rgbF('coloroid',[10+66*cf, 55, 92-80*cf]) }   // colour of the slice under the tip
-	// scroll drives the band count — smooth up top, gliding down to ten pie slices —
-	// and flips the masthead line on once the wheel has passed under the header
-	let curN=-1, revealed=false
-	const heroScroll=()=>{ const gone=intro.style.display==='none'
-		mhead.classList.toggle('on', revealed||gone||intro.getBoundingClientRect().bottom<=mhead.offsetHeight+2)
-		if(gone) return
-		const p=clamp(scrollY/((intro.offsetHeight||innerHeight)*0.92),0,1)
+		return rgbF('oklch',[0.72,0.15,cf*360]) }   // colour of the slice under the tip
+	// scroll drives the band count over the pinned travel; past the wheel, the header
+	// flips dark and takes the line — symmetric, scroll back and it lifts again
+	let curN=-1
+	const heroScroll=()=>{
+		mhead.classList.toggle('on', introw.getBoundingClientRect().bottom<=mhead.offsetHeight+2)
+		const travel=Math.max(1,introw.offsetHeight-intro.offsetHeight)
+		const p=clamp(scrollY/travel,0,1)
 		const N=Math.round(1000*Math.pow(0.01,p)), eff=N>300?0:N
-		if(eff!==curN){ curN=eff; iwheel.style.background=conicGrad(eff) } }
+		if(eff!==curN){ curN=eff; iwheel.style.background=wheelGrad(eff) } }
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
-	let mx=0.5
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
-		mx=angF(e.clientX-r.left,e.clientY-r.top,r)
 		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
-		picker.style.color=ink(colAt(mx,curN>0?curN:0)) })   // the icon inks against the slice it's over
+		picker.style.color=ink(colAt(angF(e.clientX-r.left,e.clientY-r.top,r),curN)) })   // ink against the slice it's over
 	intro.addEventListener('pointerleave',()=>picker.style.opacity='0')
-	// pick → flood the stage with the chosen colour, fold away, wave the catalog in
-	const wave=()=>{ const top=cat.getBoundingClientRect().top+scrollY
+	// pick → wear the colour and glide down to the catalog; the wheel stays above
+	let waved=false
+	const wave=()=>{ if(waved) return; waved=true
+		const top=cat.getBoundingClientRect().top+scrollY
 		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
 			if(y>innerHeight*1.5) return
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
-	const reveal=rgb=>{ if(revealed) return; revealed=true
-		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad()
-		iwheel.style.background=hex(rgb); picker.style.opacity='0'; mhead.classList.add('on')
-		intro.style.height=intro.offsetHeight+'px'; intro.style.minHeight='0px'
-		setTimeout(()=>requestAnimationFrame(()=>{ intro.style.height='0px'; intro.style.opacity='0' }),220)
-		setTimeout(()=>{ intro.style.display='none'; layoutToc(); foldSecs(); wave() },900) }
 	intro.addEventListener('pointerdown',e=>{ const r=intro.getBoundingClientRect()
-		reveal(colAt(angF(e.clientX-r.left,e.clientY-r.top,r),curN>0?curN:0).map(v=>clamp(Math.round(v),0,255))) })
-	iwheel.style.background=conicGrad(0); heroScroll() })()
+		const rgb=colAt(angF(e.clientX-r.left,e.clientY-r.top,r),curN).map(v=>clamp(Math.round(v),0,255))
+		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad(); wave()
+		scrollTo({ top:cat.getBoundingClientRect().top+scrollY-mhead.offsetHeight-6, behavior:'smooth' }) })
+	iwheel.style.background=wheelGrad(0); heroScroll() })()
 </script></body></html>
