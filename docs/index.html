@@ -298,9 +298,9 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .intro{ position:sticky; top:0; height:100dvh; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
 .iwheel{ position:absolute; inset:0; background:var(--panel) }   /* JS paints the hue wheel */
-.introq{ position:relative; z-index:1; padding:0 1rem; text-align:center; font-size:clamp(1.9rem,5vw,3.4rem); font-weight:800; letter-spacing:-.02em; color:#fff; pointer-events:none }
+.introq{ position:relative; z-index:1; padding:0 1rem; text-align:center; font-size:clamp(1.9rem,5vw,3.4rem); font-weight:800; letter-spacing:-.02em; color:#1b1408; pointer-events:none }
 /* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
-.ipicker{ position:absolute; z-index:2; top:0; left:0; width:52px; height:52px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); will-change:left,top }
+.ipicker{ position:absolute; z-index:2; top:0; left:0; width:52px; height:52px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; will-change:left,top }
 .ipicker svg{ width:100%; height:100%; display:block }
 .ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
 @keyframes entwave{ from{ opacity:0; transform:translateY(15px) } to{ opacity:1; transform:none } }
@@ -326,7 +326,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 
 <div class="introw" id="introw"><section class="intro" id="intro" aria-label="pick your favourite colour">
 	<div class="iwheel" id="iwheel"></div>
-	<div class="introq">What's your favorite color?</div>
+	<div class="introq">Pick a color</div>
 	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
 </section></div>
 
@@ -1809,24 +1809,36 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	const fit=()=>document.querySelector('.page').style.setProperty('--mh',mhead.offsetHeight+'px')
 	fit(); addEventListener('resize',fit)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// fraction around the wheel (conic, 0 at 12 o'clock, clockwise) from a stage point
+	// the wheel is 2-D: hue by angle, lightness by radius — white centre to black edge.
+	// The overlay's alpha ramps are linear in sRGB, so the pick maths below mirror the
+	// pixels exactly; quantization cuts BOTH axes into the same N (slices × rings).
+	const aAt=r=> r<0.42?1-r/0.42 : r>0.58?-Math.min(1,(r-0.58)/0.42) : 0   // + = toward white, − = toward black
+	const lgrad=m=>{ const css=r=>{ const a=aAt(r); return a>0?`rgba(255,255,255,${a.toFixed(3)})`:a<0?`rgba(0,0,0,${(-a).toFixed(3)})`:'rgba(0,0,0,0)' }
+		if(!m) return `radial-gradient(circle farthest-side, #fff, rgba(255,255,255,0) 42%, rgba(0,0,0,0) 58%, #000 100%)`
+		const st=[]; for(let k=0;k<m;k++) st.push(`${css((k+0.5)/m)} ${(k/m*100).toFixed(2)}% ${((k+1)/m*100).toFixed(2)}%`)
+		return `radial-gradient(circle farthest-side, ${st.join(',')})` }
+	// angle + radius fractions of a stage point (conic 0 at 12 o'clock cw; farthest-side radius)
 	const angF=(x,y,r)=>{ const a=Math.atan2(x-r.width/2, r.height/2-y)*180/Math.PI
 		return ((a%360)+360)%360/360 }
-	const colAt=(f,n)=>{ const cf=n?(Math.floor(clamp(f,0,0.999)*n)+0.5)/n:clamp(f,0,1)
-		return rgbF('oklch',[0.72,0.15,cf*360]) }   // colour of the slice under the tip
-	// scroll drives the band count over the pinned travel; past the wheel, the header
-	// flips dark and takes the line — symmetric, scroll back and it lifts again
-	let curN=-1
+	const radF=(x,y,r)=>Math.hypot(x-r.width/2,y-r.height/2)/(Math.max(r.width,r.height)/2)
+	const colAt=(f,rr,n)=>{ const q=v=>n?(Math.floor(clamp(v,0,0.999)*n)+0.5)/n:clamp(v,0,1)
+		const base=rgbF('oklch',[0.72,0.15,q(f)*360]), a=aAt(q(rr))
+		return a>0?base.map(c=>c+(255-c)*a):base.map(c=>c*(1+a)) }   // the exact pixel under the tip
+	const paintWheel=n=>iwheel.style.background=`${lgrad(n)}, ${wheelGrad(n)}`
+	// scroll quantizes from the FIRST notch and keeps going until the wheel has fully
+	// left the screen; past it, the header flips dark and takes the line — symmetric
+	let curN=0
 	const heroScroll=()=>{
 		mhead.classList.toggle('on', introw.getBoundingClientRect().bottom<=mhead.offsetHeight+2)
-		const travel=Math.max(1,introw.offsetHeight-intro.offsetHeight)
+		const travel=Math.max(1,introw.offsetHeight-mhead.offsetHeight)
 		const p=clamp(scrollY/travel,0,1)
-		const N=Math.round(1000*Math.pow(0.01,p)), eff=N>300?0:N
-		if(eff!==curN){ curN=eff; iwheel.style.background=wheelGrad(eff) } }
+		const N=p<=0?0:Math.round(180*Math.pow(10/180,p))
+		if(N!==curN){ curN=N; paintWheel(N) } }
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
-		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
-		picker.style.color=ink(colAt(angF(e.clientX-r.left,e.clientY-r.top,r),curN)) })   // ink against the slice it's over
+		const x=e.clientX-r.left, y=e.clientY-r.top
+		picker.style.left=x+'px'; picker.style.top=y+'px'; picker.style.opacity='1'
+		picker.style.color=ink(colAt(angF(x,y,r),radF(x,y,r),curN)) })   // ink against the cell it's over
 	intro.addEventListener('pointerleave',()=>picker.style.opacity='0')
 	// pick → wear the colour and glide down to the catalog; the wheel stays above
 	let waved=false
@@ -1836,8 +1848,9 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 			if(y>innerHeight*1.5) return
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
 	intro.addEventListener('pointerdown',e=>{ const r=intro.getBoundingClientRect()
-		const rgb=colAt(angF(e.clientX-r.left,e.clientY-r.top,r),curN).map(v=>clamp(Math.round(v),0,255))
+		const x=e.clientX-r.left, y=e.clientY-r.top
+		const rgb=colAt(angF(x,y,r),radF(x,y,r),curN).map(v=>clamp(Math.round(v),0,255))
 		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad(); wave()
 		scrollTo({ top:cat.getBoundingClientRect().top+scrollY-mhead.offsetHeight-6, behavior:'smooth' }) })
-	iwheel.style.background=wheelGrad(0); heroScroll() })()
+	paintWheel(0); heroScroll() })()
 </script></body></html>
