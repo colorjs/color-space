@@ -142,7 +142,7 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .modal[hidden]{ display:none }
 .mback{ position:fixed; inset:0; background:oklch(0.17 0.01 60/.42); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); will-change:transform }
 [data-theme=dark] .mback{ background:oklch(0.06 0.005 70/.6) }
-.mbox{ position:relative; width:min(56rem,94vw); margin:5vh auto; background:var(--paper); display:flex }
+.mbox{ position:relative; width:min(56rem,94vw); margin:5vh auto; background:var(--paper); display:flex; overflow:hidden }   /* the 3d canvases bleed past their box for rotation headroom — the panel is the clip */
 /* ✕ glyph edges sit exactly at the detail padding — the 34px hit-box hangs outward */
 .mx{ position:absolute; top:calc(var(--dpad) - 7px); right:calc(var(--dpad) - 7px); z-index:2; width:34px; height:34px; display:grid; place-items:center; font:inherit; font-size:1.75rem; line-height:1; font-weight:500; border:0; background:transparent; color:var(--ink); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--c) }
@@ -174,6 +174,7 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .bar2 .bg{ position:absolute; inset:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }
+.bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
 .bar2 .cnm{ position:absolute; left:.7rem; top:.5rem; font-size:1rem; font-weight:600; pointer-events:none; opacity:.5; transition:opacity .12s }
 .bar2:hover .cnm{ opacity:1 }
 .bar2 .nvw{ position:absolute; right:.6rem; top:.35rem; bottom:auto; align-items:center }
@@ -191,8 +192,9 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .pl3d:active{ cursor:grabbing }
 /* canvases bleed 36% past the box: rotations and zoom draw outside instead of trimming */
 .pl3d canvas{ position:absolute; left:-18%; top:-18%; display:block; width:136%; height:136%; pointer-events:none }
-.pl3d .mesh3{ z-index:0 }
-.pl3d .hud3{ z-index:1 }
+.pl3d .grid3{ z-index:0 }
+.pl3d .mesh3{ z-index:1 }
+.pl3d .hud3{ z-index:2 }
 .pl .laby{ position:absolute; top:.5rem; left:.55rem; font-size:.64rem; font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; pointer-events:none }
 h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:1.6rem 0 .5rem; display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
@@ -236,6 +238,15 @@ h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:1rem; color:var(
 .dgrid .props{ margin:.1rem 0 1.2rem }
 .desc{ font-size:1rem; line-height:1.6; color:var(--body); max-width:68ch }
 .dgrid.one{ grid-template-columns:1fr }
+.dviz{ display:flex; flex-direction:column; gap:1.1rem; min-width:0 }
+.gam2d{ position:relative; width:100%; max-width:22rem; aspect-ratio:0.909; align-self:center }
+.gam2d canvas{ display:block; width:100%; height:100% }
+.gam2d .cx{ position:absolute; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }
+.gam2d .glab{ position:absolute; left:.2rem; bottom:.1rem; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); pointer-events:none }
+.imgrow{ display:flex; gap:.45rem; flex-wrap:wrap; cursor:pointer }
+.imgrow .imgp{ position:relative; flex:1 1 10.5rem; min-width:8rem; max-width:18.6rem }
+.imgrow canvas{ display:block; width:100%; height:auto }
+.imgrow .implb{ position:absolute; left:.45rem; top:.35rem; font-size:.62rem; font-weight:700; color:#fff; text-shadow:0 0 3px rgba(0,0,0,.55); pointer-events:none }
 @media(max-width:640px){ .dgrid{ grid-template-columns:1fr } .pl3d{ justify-self:start } }
 .refs{ display:flex; flex-direction:column; gap:.25rem; font-size:.8rem }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
@@ -941,12 +952,14 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 
 <script type="module">
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, pathToRgb, mixInSpace, rotateHue } from './landing/core.js'
+import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, paintGamutGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './landing/gl.js'
+import { spaces as wasmSpaces } from '../wasm.js'
 import NAMES from './landing/names.js'
 import { SPACES, sections, cname, unit, catHTML } from './landing/render.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
-let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter'
+let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter', codeTab='js'
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='copied!')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
@@ -971,6 +984,8 @@ function fmt(s,v){ if(!v) return 'forward-only'; const n=x=>Math.round(x),f=(x,d
 	case 'cmyk':return `device-cmyk(${v.map(x=>n(x)+'%').join(' ')})`
 	default:return fnfmt(s,v) } }
 const pairs=n=>{ const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
+// the dossier's plane channel pairs; the hue angle, when present, sweeps the horizontal axis
+const pairsFor=s2=>{ const c2=classify(s2); return pairs(c2.ch.length).map(([a,b])=>c2.angle&&c2.angle.i===b?[b,a]:[a,b]) }
 
 const NAMED=Object.entries(NAMES).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
 const nmCache=new Map()   // exact-color memo — each unique pixel names once, then it's a hash hit
@@ -1052,6 +1067,7 @@ cat.querySelectorAll('.ent').forEach(e=>io.observe(e))
 let squelch=false
 cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.addEventListener('click',e=>{ if(squelch||e.target.closest('.cvs')) return; openModal(s) })
+	ent.addEventListener('pointerenter',()=>warmGL(s,pairsFor(s)))   // compile while the pointer hovers — the dossier opens GPU-sharp
 	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
@@ -1120,7 +1136,10 @@ function openModal(s){
 	const k=ORDER.indexOf(s), n=ORDER.length
 	document.getElementById('mprevn').textContent=ORDER[(k-1+n)%n]
 	document.getElementById('mnextn').textContent=ORDER[(k+1)%n]
-	placeNav() }
+	placeNav()
+	// warm the neighbours' programs once this space has had first claim on the GPU —
+	// prev/next then opens straight into full-quality paint
+	setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]) warmGL(s2,pairsFor(s2)) },400) }
 function closeModal(){ modal.hidden=true; document.body.style.overflow=''; document.body.style.paddingRight=''; history.replaceState(null,'',location.pathname+location.search) }
 document.getElementById('mback').onclick=closeModal
 document.getElementById('mx').onclick=closeModal
@@ -1239,35 +1258,87 @@ const hilite=code=>code.split('\n').map(line=>{
 	return src+(com?`<span class="tok-c">${esc(com)}</span>`:'')
 }).join('\n')
 // ── the sRGB solid in this space: regular surface mesh, drag to rotate, wheel to zoom ──
-let rot3={a:-0.6,b:0.42}, zoom3=1, mesh3=null, pts3=null, tris3=null, axes3=null, pts3S=null, pts3Map=null
-function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=tris3=axes3=null; return }
+let rot3={a:-0.6,b:0.42}, zoom3=1, mesh3=null, pts3=null, tris3=null, pts3S=null, pts3Map=null
+// the solid idles in a slow turn so its shape reads without touching it;
+// dragging takes over (and pauses the turn), wheel-zoom and dblclick don't
+let drag3=false, spinRaf=0, wire3dTok=0
+const SPIN3=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.0030
+function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
+	if(!SPIN3) return
+	const step=()=>{ if(!open()||!mesh3){ spinRaf=0; return }
+		if(!drag3){ rot3.a+=SPIN3; draw3d() }
+		spinRaf=requestAnimationFrame(step) }
+	spinRaf=requestAnimationFrame(step) }
+function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=tris3=null; return }
 	const s=selected, cls=classify(s), P=[], T=[]
-	const ai=cls.angle?cls.angle.i:null
+	// any hue-like channel is an angle wrapping over its own span — munsell's H is
+	// 0-100 grades, coloroid's A is 10-76, not just the 0-360 spaces
+	const ai0=cls.angle?cls.angle.i:cls.ch.findIndex(c2=>/hue/i.test(c2.name))
+	const ai=ai0>=0?ai0:null
 	let ti,mi=null
 	if(ai!=null){ const rest=[0,1,2].filter(k=>k!==ai)
 		ti=cls.tone&&cls.tone.i!==ai?cls.tone.i:rest[1]
 		mi=rest.find(k=>k!==ti) }
 	else ti=cls.tone?cls.tone.i:0
-	const norm=(v,k)=>{ const c=cls.ch[k]; return clamp((v[k]-c.min)/(c.max-c.min),-0.2,1.2) }
+	// fit the box to the SOLID itself (robust 2–98% extent + 8% pad, angles excepted):
+	// coordinates beyond the pad are poles or disjoint branches (OSA-UCS extremes,
+	// UVW's pole, DSH's purple line) and are DISCARDED, never flattened into slabs —
+	// and spaces whose solid is smaller than the declared range now fill their box
+	const fmin=cls.ch.map(c=>c.min), fmax=cls.ch.map(c=>c.max)
+	const dmin=fmin.slice(), dmax=fmax.slice()   // unpadded data extents — where caps sit
+	let capMask=0
+	{	const samp=[[],[],[]], CS=[]
+		for(let f=0;f<6;f++) for(let i2=0;i2<=12;i2++) for(let j2=0;j2<=12;j2++){
+			const u=i2/12*255, w=j2/12*255
+			let v; try{ v=toSpace(s,[[0,u,w],[255,u,w],[u,0,w],[u,255,w],[u,w,0],[u,w,255]][f]) }catch{ continue }
+			if(v.every(isFinite)) CS.push(v)
+			for(let k=0;k<3;k++) if(isFinite(v[k])) samp[k].push(v[k]) }
+		cls.ch.forEach((c,k)=>{ if(k===ai||samp[k].length<24) return
+			const a2=samp[k].sort((x,y)=>x-y), n2=a2.length
+			const q02=a2[Math.floor(n2*0.02)], q98=a2[Math.min(n2-1,Math.ceil(n2*0.98))], iqr=q98-q02||1e-3
+			// full extent unless a tail is a true outlier (a pole, not shape) — cutting
+			// inside the solid would just close it with a dark cap
+			let lo=Math.max(a2[0], q02-1.5*iqr), hi=Math.min(a2[n2-1], q98+1.5*iqr)
+			// a channel nearly constant over the surface (okhsv's S≡100) must keep its
+			// declared range — fitting a degenerate span just amplifies float noise
+			if(hi-lo<(c.max-c.min)*0.05) return
+			dmin[k]=lo; dmax[k]=hi
+			const pad=(hi-lo)*0.08||1e-3; lo-=pad; hi+=pad
+			fmin[k]=lo; fmax[k]=hi })
+		// caps only where the solid genuinely flattens against the box — a cap on a
+		// face the solid merely touches sticks out as a nub (the Y-family boxes), and
+		// polar solids need none at all: their walls and domes are the cube-surface
+		// image, while degenerate coords (hsl near white) make cap roundtrips lie
+		for(let k=0;k<3;k++){ if(ai!=null) break; if(k===ai) continue
+			let nLo=0, nHi=0
+			for(const v of CS){ const r=(v[k]-fmin[k])/(fmax[k]-fmin[k])
+				if(r<0.06) nLo++; else if(r>0.94) nHi++ }
+			if(nLo>=30) capMask|=1<<(k*2)
+			if(nHi>=30) capMask|=1<<(k*2+1) } }
+	const norm=(v,k)=>clamp((v[k]-fmin[k])/(fmax[k]-fmin[k]),-0.2,1.2)
+	const offFit=v=>cls.ch.some((c,k)=>{ if(k===ai) return false
+		const r=(v[k]-fmin[k])/(fmax[k]-fmin[k]); return !(r>=-0.201&&r<=1.201) })
 	const others=[0,1,2].filter(k=>k!==ti)
 	// hwb family: distance from gray is 1−W−B (not W) — maps the true HSV-style cone,
 	// and the non-canonical W+B>100 region collapses onto the axis (zero area)
 	const wI=cls.ch.findIndex(c=>/White/i.test(c.name)), bI=cls.ch.findIndex(c=>/Black/i.test(c.name))
 	const wb=ai!=null&&wI>=0&&bI>=0
+	const hueRad=v=>(v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*2*Math.PI
 	const map3=v=>{
-		if(wb){ const r=Math.max(0,1-norm(v,wI)-norm(v,bI))*0.55, h=v[ai]*Math.PI/180
+		if(wb){ const r=Math.max(0,1-norm(v,wI)-norm(v,bI))*0.55, h=hueRad(v)
 			return [0.5-norm(v,bI), r*Math.cos(h), r*Math.sin(h)] }
 		const y=norm(v,ti)-0.5
-		if(ai!=null){ const r=norm(v,mi)*0.55, h=v[ai]*Math.PI/180
+		if(ai!=null){ const r=norm(v,mi)*0.55, h=hueRad(v)
 			return [y, r*Math.cos(h), r*Math.sin(h)] }
 		return [y, norm(v,others[0])-0.5, norm(v,others[1])-0.5] }
 	pts3Map=map3
 	const addVert=rgb=>{ let v
 		try{ v=toSpace(s,rgb) }catch{ return null }
+		if(offFit(v)) return null
 		const n=map3(v)
 		if(!n.every(isFinite)) return null
 		const r=rgb.map(x2=>clamp(Math.round(x2),0,255))
-		P.push({ n, rgb:r, h:ai!=null?((v[ai]%360)+360)%360:0 }); return P.length-1 }
+		P.push({ n, rgb:r, h:ai!=null?(((v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 }); return P.length-1 }
 	// near the gray corners hue is unstable: such a cell fans across far-apart hue angles,
 	// chording the solid with off-surface fuzz — drop it; range faces below close the caps
 	const addTri=(a,b,c)=>{ if(a==null||b==null||c==null) return
@@ -1287,7 +1358,14 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		for(let i2=0;i2<G;i2++) for(let j2=0;j2<G;j2++){
 			const a=grid[i2][j2], b=grid[i2+1][j2], c=grid[i2][j2+1], d=grid[i2+1][j2+1]
 			addQuad(a,b,c,d) } }
-	const G2=48
+	// GPU path (the library's gl chunks convert rgb→space in the vertex shader):
+	// the CPU pass only fits the view and places axes, so a COARSE grid suffices —
+	// dense geometry, caps and dots live on the GPU and need no rebuild on repaint
+	const gpu3=has3dGL(s)
+	// the GPU solid lives on ONE persistent canvas (contexts are scarce; buffers stay warm)
+	if(gpu3){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()) mc.replaceWith(mesh3Canvas()) }
+	const build=()=>{
+	const G2=gpu3?12:48
 	for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
 		return addVert([[0,U,W],[255,U,W],[U,0,W],[U,255,W],[U,W,0],[U,W,255]][f]) })
 	// the cube surface misses boundary pieces that are the SPACE's own box faces (HSL's
@@ -1303,16 +1381,17 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		if(!rgb.every(isFinite)) return null
 		if(!inGam(s,v,'srgb')||!rt(v,rgb)) return null
 		const n=map3(v); if(!n.every(isFinite)) return null
-		P.push({ n, rgb:rgb.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?((v[ai]%360)+360)%360:0 })
+		P.push({ n, rgb:rgb.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 })
 		return P.length-1 }
 	const eps2=0.012
-	if(s!=='rgb') for(let fi=0;fi<3;fi++) for(let side=0;side<2;side++){
+	if(!gpu3&&s!=='rgb') for(let fi=0;fi<3;fi++) for(let side=0;side<2;side++){
+		if(!(capMask>>(fi*2+side)&1)) continue
 		const [ua,ub]=[0,1,2].filter(k=>k!==fi)
 		face(36,(uu,ww)=>{ const fr=[0,0,0]; fr[fi]=side?1-eps2:eps2; fr[ua]=uu; fr[ub]=ww
-			return addVertV(cls.ch.map((c,k)=>c.min+(c.max-c.min)*fr[k])) }) }
+			return addVertV(cls.ch.map((c,k)=>dmin[k]+(dmax[k]-dmin[k])*fr[k])) }) }
 	// sampled surface: points spread per-triangle by AREA IN THIS SPACE, so density stays
 	// even however the map stretches the cube — flat mesh fill gave no sense of volume
-	const N3=48000
+	const N3=0   // dot cloud retired — the surface triangles carry the solid
 	const areas=T.map(t=>{ const [p,q,r2]=t.map(i2=>P[i2].n)
 		const ux=q[0]-p[0],uy=q[1]-p[1],uz=q[2]-p[2], vx=r2[0]-p[0],vy=r2[1]-p[1],vz=r2[2]-p[2]
 		return Math.hypot(uy*vz-uz*vy, uz*vx-ux*vz, ux*vy-uy*vx)/2 })
@@ -1330,33 +1409,51 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	for(const tri of T) for(const i2 of tri){ const p=P[i2]
 		tpos.push(p.n[0],p.n[1],p.n[2]); tcol.push(p.rgb[0]/255,p.rgb[1]/255,p.rgb[2]/255) }
 	mesh3={ verts:P, tris:T, pos:new Float32Array(ppos), col:new Float32Array(pcol),
-		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5 }
+		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
+		gpu:gpu3, map:gpu3?{ min:fmin, max:fmax, cmin:dmin, cmax:dmax, caps:capMask,
+			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1 }:null }
 	pts3=P; tris3=T; pts3S=s
-	const base=cls.ch.map(c=>c.min), fallback=[-0.56,-0.56,-0.56]
-	axes3=cls.ch.map((c,i)=>{ const v=base.slice(); v[i]=c.max
-		let n0=map3(base), n1=map3(v)
-		const short=!n0.every(isFinite)||!n1.every(isFinite)||Math.hypot(n1[0]-n0[0],n1[1]-n0[1],n1[2]-n0[2])<0.06
-		if(short){ n0=fallback.slice(); n1=fallback.slice(); n1[i]=0.56 }
-		return { sym:c.sym, title:cname(c), n0, n1 } })
+	// ── reference frame: soft grid at nice channel stops on the far planes — the
+	// fitted box for cartesian spaces, the disc + wall for cylindrical ones ──
+	const ticks=(lo,hi,n=4)=>{ const span=hi-lo||1, mag=10**Math.floor(Math.log10(span/n))
+		const step=[1,2,5,10].map(m2=>m2*mag).find(t2=>span/t2<=n*1.5)||mag*10
+		const out=[]; for(let v=Math.ceil(lo/step-1e-9)*step; v<=hi+span*1e-9; v+=step)
+			out.push({ v:Math.abs(v)<step/1e6?0:v, f:(v-lo)/span })
+		return out }
+	mesh3.gd=ai!=null
+		? { kind:'cyl', R:0.55, deg:cls.ch[ai].max===360,
+			ysym:cls.ch[wb?bI:ti].sym, hsym:cls.ch[ai].sym,
+			ty:ticks(fmin[wb?bI:ti],fmax[wb?bI:ti]).map(t=>({ ...t, y:wb?0.5-t.f:t.f-0.5 })),
+			// the hue span wraps its own full circle, so a tick at f=1 duplicates f=0
+			th:(fmax[ai]-fmin[ai]===360?Array.from({length:12},(_,q)=>({ v:fmin[ai]+q*30, f:q/12 }))
+				:ticks(fmin[ai],fmax[ai],8).filter(t=>t.f<0.999)).map(t=>({ ...t, a:t.f*2*Math.PI })),
+			tr:wb?[0.25,0.5,0.75].map(f=>({ r:f*0.55 })):ticks(fmin[mi],fmax[mi]).map(t=>({ ...t, r:t.f*0.55 })) }
+		: { kind:'box', dims:[ti,others[0],others[1]].map(k=>({ sym:cls.ch[k].sym,
+			t:ticks(fmin[k],fmax[k]).map(t=>({ ...t, x:t.f-0.5 })) })) }
 	// two fits, both computed once: r bounds any rotation (marker depth), f0 fits the
-	// spawn rotation so the shape opens filling its box — no per-frame vertex scans
+	// spawn rotation so solid AND frame open filling the box — no per-frame vertex scans
 	const ca0=Math.cos(rot3.a),sa0=Math.sin(rot3.a),cb0=Math.cos(rot3.b),sb0=Math.sin(rot3.b)
 	const ext=n=>{ const X1=n[1]*ca0+n[2]*sa0, Z1=-n[1]*sa0+n[2]*ca0
 		return Math.max(Math.abs(X1),Math.abs(n[0]*cb0-Z1*sb0)) }
 	for(const p of P){ const r2=Math.hypot(p.n[0],p.n[1],p.n[2]); if(r2>mesh3.r) mesh3.r=r2
-		const f=ext(p.n); if(f>mesh3.f0) mesh3.f0=f }   // the SOLID sizes the view
-	// axes are direction hints, not rulers — cap them to the solid's footprint
-	for(const ax of axes3){ const e=ext(ax.n1); if(e>mesh3.f0){ const k=mesh3.f0/e
-		ax.n1=ax.n1.map((v,i)=>ax.n0[i]+(v-ax.n0[i])*k) } }
-	let px0=0,py0=0,drag=false
-	el.onpointerdown=e=>{ drag=true; px0=e.clientX; py0=e.clientY; el.setPointerCapture(e.pointerId) }
-	el.onpointermove=e=>{ if(!drag) return
+		const f=ext(p.n); if(f>mesh3.f0) mesh3.f0=f }
+	const rim=[]
+	if(ai!=null) for(let q=0;q<12;q++){ const a2=q/12*2*Math.PI
+		rim.push([-0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)],[0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)]) }
+	else for(let q=0;q<8;q++) rim.push([q&1?0.5:-0.5,q&2?0.5:-0.5,q&4?0.5:-0.5])
+	for(const n of rim){ const f=ext(n)*1.14; if(f>mesh3.f0) mesh3.f0=f }   // the frame + its labels stay in view
+	let px0=0,py0=0
+	el.onpointerdown=e=>{ drag3=true; px0=e.clientX; py0=e.clientY; el.setPointerCapture(e.pointerId) }
+	el.onpointermove=e=>{ if(!drag3) return
 		rot3.a+=(e.clientX-px0)*0.011; rot3.b=clamp(rot3.b+(e.clientY-py0)*0.011,-1.45,1.45)
 		px0=e.clientX; py0=e.clientY; draw3d() }
-	el.onpointerup=()=>drag=false
+	el.onpointerup=()=>drag3=false
 	el.onwheel=e=>{ e.preventDefault(); zoom3=clamp(zoom3*Math.exp(-e.deltaY*0.0022),0.5,4); draw3d() }
 	el.ondblclick=()=>{ zoom3=1; rot3={a:-0.65,b:0.5}; draw3d() }
-	draw3d() }
+	draw3d(); spin3() }
+	if(gpu3) build()
+	else{ mesh3=null; const tok=++wire3dTok   // heavy JS mesh (munsell's iterative caps): build off the open path
+		setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() },30) } }
 function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
 	const gl=cv.getContext('webgl',{alpha:true,antialias:true})||cv.getContext('experimental-webgl',{alpha:true,antialias:true})
 	if(!gl) return cv._gl3d=null
@@ -1391,7 +1488,7 @@ function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
 	return cv._gl3d={ gl, pr, pos:gl.getAttribLocation(pr,'a_pos'), rgb:gl.getAttribLocation(pr,'a_rgb'),
 		rot:gl.getUniformLocation(pr,'u_rot'), scale:gl.getUniformLocation(pr,'u_scale'), ps:gl.getUniformLocation(pr,'u_ps'), zoff:gl.getUniformLocation(pr,'u_zoff'), dim:gl.getUniformLocation(pr,'u_dim'),
 		pb:gl.createBuffer(), cb:gl.createBuffer(), tb:gl.createBuffer(), tcb:gl.createBuffer(), mesh:null, count:0, tcount:0 } }
-function drawPtsGL(cv,m,scale3){ const st=gl3d(cv); if(!st||!m.pos.length) return false
+function drawPtsGL(cv,m,scale3){ const st=gl3d(cv); if(!st||!m.tpos.length) return false
 	const { gl, pr }=st
 	if(st.mesh!==m){ gl.bindBuffer(gl.ARRAY_BUFFER,st.pb); gl.bufferData(gl.ARRAY_BUFFER,m.pos,gl.STATIC_DRAW)
 		gl.bindBuffer(gl.ARRAY_BUFFER,st.cb); gl.bufferData(gl.ARRAY_BUFFER,m.col,gl.STATIC_DRAW)
@@ -1405,21 +1502,17 @@ function drawPtsGL(cv,m,scale3){ const st=gl3d(cv); if(!st||!m.pos.length) retur
 		gl.bindBuffer(gl.ARRAY_BUFFER,pb); gl.enableVertexAttribArray(st.pos); gl.vertexAttribPointer(st.pos,3,gl.FLOAT,false,0,0)
 		gl.bindBuffer(gl.ARRAY_BUFFER,cb); gl.enableVertexAttribArray(st.rgb); gl.vertexAttribPointer(st.rgb,3,gl.FLOAT,false,0,0)
 		gl.drawArrays(mode,0,count) }
-	// dimmed underlay plugs the gaps between dots (gaps read as shadow, glancing surfaces
-	// darken — a free volume cue); the dots on top carry the exact colors
-	gl.uniform1f(st.zoff,0); gl.uniform1f(st.ps,1); gl.uniform1f(st.dim,0.88)
+	// smooth-shaded surface, matching the GPU-chunk solids (the dot cloud was a
+	// texture workaround for the old coarse mesh)
+	gl.uniform1f(st.zoff,0); gl.uniform1f(st.ps,1); gl.uniform1f(st.dim,1)
 	draw(st.tb,st.tcb,gl.TRIANGLES,st.tcount)
-	// dot size tracks canvas and zoom: coverage stays constant, texture stays visible
-	gl.uniform1f(st.zoff,0.004); gl.uniform1f(st.dim,1)
-	gl.uniform1f(st.ps,Math.max(1.6, 1.1*cv.width*scale3/Math.sqrt(st.count)))
-	draw(st.pb,st.cb,gl.POINTS,st.count)
 	return true }
 function draw3d(){ if(!mesh3||!open()) return
 	const el=detail.querySelector('#pl3d'); if(!el) return
-	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3')
+	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3'), gcv=el.querySelector('.grid3')
 	const cw=(el.clientWidth||352)*1.36
 	const bs=Math.min(Math.round(cw*(devicePixelRatio||1)),1200)
-	if(bs&&cv.width!==bs){ cv.width=cv.height=meshCv.width=meshCv.height=bs }
+	if(bs&&cv.width!==bs){ cv.width=cv.height=meshCv.width=meshCv.height=gcv.width=gcv.height=bs }
 	const ctx=cv.getContext('2d'), S2=cv.width, dp=S2/cw
 	const ca=Math.cos(rot3.a),sa=Math.sin(rot3.a),cb=Math.cos(rot3.b),sb=Math.sin(rot3.b)
 	const rot=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0
@@ -1427,22 +1520,113 @@ function draw3d(){ if(!mesh3||!open()) return
 		return { x:X1, y:y*cb-Z1*sb, z:y*sb+Z1*cb } }
 	const mv=valsFor(pts3S); let markerN=null, mcur=null
 	if(mv&&pts3Map){ markerN=pts3Map(mv); mcur=RGB() }
-	// fit to the spawn rotation: the shape opens at 95% of its box; other rotations
+	// fit to the spawn rotation: solid and frame open filling the box; other rotations
 	// and the wheel draw into the canvas bleed instead of trimming
 	const scale3=0.7/mesh3.f0*zoom3, sc=S2*scale3/2
-	const drewGL=meshCv&&drawPtsGL(meshCv,mesh3,scale3)
+	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	if(!drewGL){ const arr=(tris3||[]).map(t=>{ const ps=t.map(i2=>prj(mesh3.verts[i2].n))
 			const r=[0,1,2].map(k=>Math.round(t.reduce((sum,i2)=>sum+mesh3.verts[i2].rgb[k],0)/3))
 			return { ps, z:(ps[0].z+ps[1].z+ps[2].z)/3, hex:hex(r) } }).sort((u1,u2)=>u1.z-u2.z)
 		for(const t of arr){ ctx.fillStyle=t.hex; ctx.beginPath(); ctx.moveTo(t.ps[0].x,t.ps[0].y); ctx.lineTo(t.ps[1].x,t.ps[1].y); ctx.lineTo(t.ps[2].x,t.ps[2].y); ctx.closePath(); ctx.fill() } }
-	if(axes3){ ctx.lineWidth=dp; ctx.strokeStyle='oklch(0.5 0.01 70/.46)'; ctx.fillStyle='oklch(0.5 0.01 70/.92)'; ctx.font=`700 ${Math.round(10*dp)}px Inter,sans-serif`
-		for(const ax of axes3){ const p0=prj(ax.n0), p1=prj(ax.n1)
-			ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke()
-			ctx.fillText(ax.sym, p1.x+(p1.x-p0.x)*0.07-3*dp, p1.y+(p1.y-p0.y)*0.07+3*dp) } }
+	// ── reference frame, under the solid: grid the FAR planes (rot().z grows toward
+	// the camera, so a face whose outward normal has z<0 faces away) ──
+	const gd=mesh3.gd, gx=gcv.getContext('2d')
+	gx.clearRect(0,0,S2,S2)
+	const GRID='oklch(0.5 0.01 70/.15)', EDGE='oklch(0.5 0.01 70/.34)', TXT='oklch(0.5 0.01 70/.85)'
+	const fmtT=v=>String(Math.abs(v)>=1000?Math.round(v):+v.toPrecision(3))
+	const seg=(a,b)=>{ const p=prj(a), q=prj(b); gx.moveTo(p.x,p.y); gx.lineTo(q.x,q.y) }
+	gx.lineWidth=dp; gx.textAlign='center'; gx.textBaseline='middle'
+	const F9=`600 ${Math.round(9.5*dp)}px Inter,sans-serif`, F10=`700 ${Math.round(10.5*dp)}px Inter,sans-serif`
+	gx.font=F9
+	let farC=null, yF=-0.5
+	if(gd&&gd.kind==='box'){
+		farC=[0,1,2].map(d=>{ const dir=[0,0,0]; dir[d]=1; return rot(dir).z<0?0.5:-0.5 })
+		const pt=(d,cd,e,ve,f2,vf)=>{ const n=[0,0,0]; n[d]=cd; n[e]=ve; n[f2]=vf; return n }
+		gx.strokeStyle=GRID; gx.beginPath()
+		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
+			for(const t of gd.dims[e].t) seg(pt(d,farC[d],e,t.x,f2,-0.5),pt(d,farC[d],e,t.x,f2,0.5))
+			for(const t of gd.dims[f2].t) seg(pt(d,farC[d],f2,t.x,e,-0.5),pt(d,farC[d],f2,t.x,e,0.5)) }
+		gx.stroke()
+		gx.strokeStyle=EDGE; gx.beginPath()
+		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
+			for(const s3 of [-0.5,0.5]){ seg(pt(d,farC[d],e,s3,f2,-0.5),pt(d,farC[d],e,s3,f2,0.5))
+				seg(pt(d,farC[d],f2,s3,e,-0.5),pt(d,farC[d],f2,s3,e,0.5)) } }
+		gx.stroke()
+		// values along a silhouette edge per dim (between a far and a near face — never
+		// behind the solid), pushed outward from the box center; sym past the max end
+		gx.fillStyle=TXT
+		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
+			let best=null
+			for(const se of [-0.5,0.5]) for(const sf of [-0.5,0.5]){
+				if((se===farC[e])===(sf===farC[f2])) continue
+				const m2=prj(pt(d,0,e,se,f2,sf)), score=m2.y+Math.abs(m2.x-S2/2)*0.6
+				if(!best||score>best.score) best={se,sf,score} }
+			const m2=prj(pt(d,0,e,best.se,f2,best.sf))
+			const ox=m2.x-S2/2, oy=m2.y-S2/2, ol=Math.hypot(ox,oy)||1, off=12*dp
+			// a foreshortened edge (view down this axis) can't seat every label — thin them
+			const e0=prj(pt(d,-0.5,e,best.se,f2,best.sf)), e1=prj(pt(d,0.5,e,best.se,f2,best.sf))
+			const lt=Math.max(1,Math.ceil(gd.dims[d].t.length*16*dp/Math.max(Math.hypot(e1.x-e0.x,e1.y-e0.y),1)))
+			gd.dims[d].t.forEach((t,q)=>{ if(q%lt) return
+				const p=prj(pt(d,t.x,e,best.se,f2,best.sf))
+				gx.fillText(fmtT(t.v),p.x+ox/ol*off,p.y+oy/ol*off) })
+			const ps=prj(pt(d,0.5,e,best.se,f2,best.sf))
+			gx.font=F10; gx.fillText(gd.dims[d].sym,ps.x+ox/ol*off*2.1,ps.y+oy/ol*off*2.1); gx.font=F9 } }
+	else if(gd){ // cylinder: far disc (spokes + rings) and the far half of the wall
+		const R=gd.R
+		yF=rot([1,0,0]).z<0?0.5:-0.5
+		const farA=a2=>rot([0,Math.cos(a2),Math.sin(a2)]).z<0
+		const circ=(y,r,half)=>{ let on=false
+			for(let q=0;q<=96;q++){ const a2=q/96*2*Math.PI
+				if(half&&!farA(a2)){ on=false; continue }
+				const p=prj([y,r*Math.cos(a2),r*Math.sin(a2)])
+				if(on) gx.lineTo(p.x,p.y); else{ gx.moveTo(p.x,p.y); on=true } } }
+		gx.strokeStyle=GRID; gx.beginPath()
+		for(const t of gd.tr) if(t.r>0.01&&t.r<R-0.01) circ(yF,t.r)
+		for(const t of gd.th){ const c2=Math.cos(t.a), s3=Math.sin(t.a)
+			seg([yF,0,0],[yF,R*c2,R*s3])
+			if(farA(t.a)) seg([-0.5,R*c2,R*s3],[0.5,R*c2,R*s3]) }
+		for(const t of gd.ty) if(Math.abs(t.y)<0.49) circ(t.y,R,true)
+		gx.stroke()
+		gx.strokeStyle=EDGE; gx.beginPath(); circ(yF,R); circ(-yF,R,true); gx.stroke()
+		// hue stops around the rim; tone stops climb the left silhouette (the cylinder is
+		// axis-vertical, so one angle silhouettes every height — no perspective here)
+		gx.fillStyle=TXT
+		let aL=0, xm=1e9, aF=0, zf=-1e9
+		for(let q=0;q<64;q++){ const a2=q/64*2*Math.PI, c2=Math.cos(a2), s3=Math.sin(a2)
+			const p=prj([0,R*c2,R*s3]); if(p.x<xm){ xm=p.x; aL=a2 }
+			const z2=rot([0,c2,s3]).z; if(z2>zf){ zf=z2; aF=a2 } }
+		const cL=Math.cos(aL), sL=Math.sin(aL)
+		gx.textAlign='right'
+		// the column forecloses in top-down views — thin its labels to what fits
+		const c0h=prj([-0.5,R*cL,R*sL]), c1h=prj([0.5,R*cL,R*sL])
+		const lty=Math.max(1,Math.ceil(gd.ty.length*13*dp/Math.max(Math.abs(c1h.y-c0h.y),1)))
+		const typ=[]
+		gd.ty.forEach((t,q)=>{ if(q%lty) return
+			const p=prj([t.y,R*cL,R*sL]); typ.push(p); gx.fillText(fmtT(t.v),p.x-7*dp,p.y) })
+		gx.textAlign='center'
+		const le=Math.ceil(gd.th.length/6)
+		gd.th.forEach((t,q)=>{ if(q%le) return
+			const p=prj([yF,R*1.16*Math.cos(t.a),R*1.16*Math.sin(t.a)])
+			if(typ.some(tp=>Math.abs(p.x-tp.x)<26*dp&&Math.abs(p.y-tp.y)<11*dp)) return   // would land on the tone column
+			gx.fillText(fmtT(t.v)+(gd.deg?'°':''),p.x,p.y) })
+		gx.font=F10; gx.textAlign='right'
+		const pT=prj([0.5,R*cL,R*sL]); gx.fillText(gd.ysym,pT.x-7*dp,pT.y-15*dp)
+		gx.textAlign='center'
+		const pH=prj([yF,R*1.34*Math.cos(aF),R*1.34*Math.sin(aF)]); gx.fillText(gd.hsym,pH.x,pH.y) }
 	let mp=null
 	if(markerN&&markerN.every(isFinite)) mp=prj(markerN)
+	// the current color, oriented: dashed perpendiculars dropped onto the gridded planes
+	if(mp&&gd){ ctx.save(); ctx.lineWidth=dp; ctx.setLineDash([3*dp,3.5*dp])
+		ctx.strokeStyle='oklch(0.5 0.01 70/.6)'; ctx.fillStyle='oklch(0.5 0.01 70/.6)'
+		const drop=n2=>{ const p=prj(n2)
+			ctx.beginPath(); ctx.moveTo(mp.x,mp.y); ctx.lineTo(p.x,p.y); ctx.stroke()
+			ctx.beginPath(); ctx.arc(p.x,p.y,2*dp,0,7); ctx.fill(); return p }
+		if(gd.kind==='box') for(let d=0;d<3;d++){ const n2=markerN.slice(); n2[d]=farC[d]; drop(n2) }
+		else{ const p=drop([yF,markerN[1],markerN[2]]), c0=prj([yF,0,0])
+			ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(c0.x,c0.y); ctx.stroke() }
+		ctx.restore() }
 	if(mp){ const depth=clamp((mp.z+mesh3.r)/(2*mesh3.r),0,1)
 		ctx.save(); ctx.translate(mp.x,mp.y); ctx.rotate(Math.PI/4); ctx.globalAlpha=0.42+depth*0.5
 		ctx.fillStyle=hex(mcur); ctx.strokeStyle=ink(mcur)==='#fff'?'#fff':'#1b1408'; ctx.lineWidth=.85*dp
@@ -1452,14 +1636,13 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const path=pathToRgb(s)
 	const interpHTML=fwd?'':`<h4 class="sec2">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
-	const has3d=cls.ch.length===3&&!fwd
+	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
 	const barHTML=i=>{ const c=cls.ch[i]
-		return `<div class="bar2" data-i="${i}"><div class="bg"></div>
+		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
 		<div class="dk"></div></div>` }
-	// channel pairs; the hue angle, when present, always sweeps the horizontal axis
-	const plotPairs=pairs(cls.ch.length).map(([a,b])=>cls.angle&&cls.angle.i===b?[b,a]:[a,b])
+	const plotPairs=pairsFor(s)
 	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span><span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and channels by the ${GAMLABEL[g]} display gamut">${GAMLABEL[g]}</button>`).join('')}</span>`
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1><span class="hfmt tnum" id="hfmt"></span></div>
 	 <hr class="dhr">
@@ -1475,19 +1658,22 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
 			${VERIFIED.has(s)?`<div><i>verified</i><p title="every conversion pinned by independent reference values at 1/255 tolerance — see test under code">±1/255</p></div>`:''}
 			${m.refs?`<div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+			${m.wiki?`<div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div>`:''}
 		</div>
 	 </div>
 	 <i class="plab">description</i>
 	 <div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
-	 ${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}</div>
+	 ${has3d||hasPlaneGL(s)?`<div class="dviz">${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''}</div>
 	 ${cls.ch.length>1?`<h4 class="sec2">plots ${segsHTML}</h4>
 	 <div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span></div>`).join('')}</div>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`
 	 :`<h4 class="sec2">channels ${segsHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`}
+	 ${hasPlaneGL(s)?`<h4 class="sec2">image · one channel at a time</h4>
+	 <div class="imgrow" id="imgrow" title="click: next test image · drop your own image"></div>`:''}
 	 ${interpHTML}
-	 <h4 class="sec2">code</h4>
+	 <h4 class="sec2">code <span class="seg" id="cseg"><button data-t="js" class="on">js</button>${wasmSpaces.includes(s)?`<button data-t="wasm">wasm</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">shader</button>`:''}</span></h4>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
 	 <div class="props pfoot">
 		<div class="pcol"><div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a></p></div></div>
@@ -1497,6 +1683,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	wire3d()
+	paintGamut(); paintImages()
+	const irow2=detail.querySelector('#imgrow')
+	if(irow2){ irow2.onclick=()=>{ if(!IMGS) return; imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
+		irow2.ondragover=e=>e.preventDefault()
+		irow2.ondrop=e=>{ e.preventDefault(); const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f||!/^image\//.test(f.type)) return
+			createImageBitmap(f).then(bm=>{ if(!IMGS) IMGS=[]
+				if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }
+				IMG=bm; imgIdx=IMGS._user; paintImages() }) } }
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
 	detail.querySelectorAll('#qseg button').forEach(b=>b.onclick=()=>{ Q=qFromKey(b.dataset.q); saveQ()
 		detail.querySelectorAll('#qseg button').forEach(x=>x.classList.toggle('on',qFromKey(x.dataset.q)===Q))
@@ -1512,6 +1706,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
+	codeTab='js'
+	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
+		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
 	const hf0=detail.querySelector('#hfmt'); hf0.onclick=()=>copy(hf0.textContent)
 	// precise adjustment: spinner inputs on the big sliders
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
@@ -1591,29 +1788,89 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 		planeNext=0; scheduleFast() },{passive:false})
 	pl.addEventListener('dblclick',()=>{ pl._vw={x0:0,x1:1,y0:0,y1:1}; planeNext=0; scheduleFast() }) }
 
+// ── the xy gamut panel and the channel-decomposed test image (both GPU) ──
+function paintGamut(){ const el=detail.querySelector('#gam2d'); if(!el) return
+	if(gamutStatus(selected)!=='ready') return   // the ready callback repaints
+	paintGamutGL(el.querySelector('canvas'),selected); gamMarker() }
+function gamMarker(){ const el=detail.querySelector('#gam2d'); if(!el) return
+	const cx=el.querySelector('.cx'), rgb=RGB()
+	try{ const [X,Y,Z]=space.rgb.xyz(...rgb), s2=(X+Y+Z)||1
+		const [fx,fy]=gamutPos(X/s2,Y/s2)
+		cx.style.left=(clamp(fx,0,1)*100)+'%'; cx.style.top=(clamp(fy,0,1)*100)+'%'
+		cx.style.background=hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
+// canonical test images: the public-domain Grand-Teton barn, plus a synthetic chart we own
+let IMG=null, imgIdx=0, IMGS=null
+function chartImg(){ const c=document.createElement('canvas'); c.width=640; c.height=480; const x=c.getContext('2d')
+	for(let i=0;i<640;i++){ x.fillStyle=`hsl(${(i/640*360).toFixed(1)} 100% 50%)`; x.fillRect(i,0,1,150) }
+	for(let i=0;i<640;i++){ const g=Math.round(i/639*255); x.fillStyle=`rgb(${g} ${g} ${g})`; x.fillRect(i,150,1,76) }
+	const P=[[173,36,48],[231,138,42],[238,219,54],[62,146,72],[52,113,190],[105,63,145],[224,120,150],[240,231,214],[126,88,58],[42,42,44],[128,128,130],[222,222,224]]
+	P.forEach((q,k)=>{ x.fillStyle=`rgb(${q[0]} ${q[1]} ${q[2]})`; x.fillRect((k%6)*106+2,230+Math.floor(k/6)*126,102,122) })
+	return c }
+function loadImgs(cb){ if(IMGS){ cb(); return }
+	const barn=new Image(); barn.src='img/barn.jpg'
+	barn.onload=()=>{ IMGS=[barn,chartImg()]; IMG=IMGS[0]; cb() }
+	barn.onerror=()=>{ IMGS=[chartImg()]; IMG=IMGS[0]; cb() } }
+function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) return
+	const s=selected
+	if(imageChanStatus(s)!=='ready') return   // the ready callback repaints
+	loadImgs(()=>{ if(selected!==s||!open()) return
+		const cls=classify(s), n=cls.ch.length
+		if(row._n!==n+1){ row.innerHTML=''
+			for(let i=-1;i<n;i++){ const d=document.createElement('div'); d.className='imgp'
+				const cv=document.createElement('canvas'), lb=document.createElement('span'); lb.className='implb'
+				lb.textContent=i<0?'image':cname(cls.ch[i]).toLowerCase()
+				d.append(cv,lb); row.append(d) }
+			row._n=n+1 }
+		const W=Math.min(640,Math.round(300*(devicePixelRatio||1))), H=Math.round(W*IMG.height/IMG.width)
+		let base; try{ base=toSpace(s,[128,128,128]) }catch{ base=cls.ch.map(c=>(c.min+c.max)/2) }
+		;[...row.children].forEach((d,ix)=>{ const keep=ix-1, cv=d.querySelector('canvas')
+			if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H }
+			const neu=base.slice()
+			// the hue panel needs visible chroma to show at all — hold it at 55%
+			if(cls.angle&&keep===cls.angle.i&&cls.mags[0]){ const m2=cls.mags[0]; neu[m2.i]=m2.min+(m2.max-m2.min)*0.55 }
+			paintImageChanGL(cv,s,IMG,keep,neu) }) }) }
+
 // ── painting ──
-// planes render at quality resolution always; heavy spaces (OSA-UCS, CAM16 family)
-// simply repaint LESS OFTEN — the cadence stretches with the measured cost instead of
-// degrading what you see. (Real fix later: shader/WASM plane kernels.)
+// planes render on the GPU (the library's own gl chunks compiled per space): full
+// resolution for every space — OSA-UCS's Newton inverse, CAM16, HCT included —
+// with the gamut lens cut per-pixel, and a repaint is one uniform update, so
+// adjacent planes track a drag live. The JS field stays as the fallback (no
+// WebGL2, munsell, and the color-cluster quantizers, which are CPU maps); there
+// heavy spaces repaint less often — the cadence stretches with the measured cost.
 const planeMs={}
-let planeNext=0
+let planeNext=0, planesLive=false
 function paintPlanes(fast){ if(!open()) return
 	const s=selected, cls=classify(s), vals=probeVals(s)
+	const glq=typeof Q==='number'?Q:Q==='web'?'web':Q?null:0   // cluster modes stay on the JS path
+	const pls=[...detail.querySelectorAll('.pl')]
+	// GPU programs link asynchronously: while they compile, a coarse 48px JS preview
+	// paints instantly (a CAM16 field at 96px costs over a second of main thread) and
+	// the setGLReady callback upgrades to full-res GPU — the dossier never blocks
+	const stats=glq!==null&&hasPlaneGL(s)?pls.map(pl=>planeGLStatus(s,+pl.dataset.a,+pl.dataset.b)):null
+	const canGL=!!stats&&stats.every(x=>x==='ready')
+	const pendGL=!!stats&&!canGL&&stats.some(x=>x==='pending')
 	const cost=planeMs[s]
-	const res=cost==null?96:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
+	const dragging=!!(dragBar||plFreeze)
+	const res=canGL?Math.min(432,Math.round(216*(devicePixelRatio||1)))
+		:pendGL?48:dragging?96:cost==null?48:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
 	const q=Q==='names'?t=>nearest(t).rgb:Q==='percept'?perceptQ:Q
 	const t0=performance.now()
-	detail.querySelectorAll('.pl').forEach(pl=>{ if(pl===plFreeze) return
+	pls.forEach(pl=>{ if(pl===plFreeze) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		if(cv.width!==res){ cv.width=res; cv.height=res }
 		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
+		if(canGL&&paintPlaneGL(cv,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),GM==='off'?null:GM,glq)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),true,GM,q) })
-	const dt=performance.now()-t0
-	planeMs[s]=Math.max(dt,0.5)*(216/res)**2
-	planeNext=performance.now()+Math.max(120, dt*1.8)
-	if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30)   // probe measured — settle at the fitted res
+	planesLive=canGL
+	if(planesLive) planeNext=0
+	else if(pendGL) planeNext=performance.now()+200   // preview painted; the ready callback upgrades
+	else{ const dt=performance.now()-t0
+		planeMs[s]=Math.max(dt,0.5)*(216/res)**2
+		planeNext=performance.now()+Math.max(120, dt*1.8)
+		if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30) }   // probe measured — settle at the fitted res
 	if(!dragBar&&!plFreeze) draw3d()
 }
+setGLReady(()=>{ if(open()){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } })   // a program landed — upgrade the paint
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
 function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||liteOff(ent))return
 	const cls=classify(s), vals=probeVals(s)
@@ -1645,6 +1902,15 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
 		if(bar!==dragBar){ let bg
+			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
+			// smooth mode paints the sweep on the GPU — per-pixel colors AND per-pixel
+			// gamut ghosting (the stepped 48-cell CSS mask made the limits jump)
+			const smooth=typeof Q!=='number'&&!qTriple(Q)
+			if(smooth&&planeGLStatus(s,i,-1)==='ready'&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM==='off'?null:GM)){
+				bgc.style.display='block'; bar._cells=null
+				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
+			else{
+			bgc.style.display='none'
 			if(typeof Q==='number'){ bg=stepped(ramp(s,shown,i,c.min,c.max,Q-1)); bar._cells=null }
 			else if(qTriple(Q)){ const f=qTriple(Q)
 				const cells=ramp(s,shown,i,c.min,c.max,19).map(h=>f(hex2rgb(h)).map(x=>clamp(Math.round(x),0,255)))
@@ -1652,16 +1918,15 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			else{ bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`; bar._cells=null }
 			// the gamut lens on the sweep: outside spans ghost to 50% over the checkerboard,
 			// exactly like the plots — skipped in cluster modes (their cells are real colors)
-			const bgel=bar.querySelector('.bg')
 			bgel.style.backgroundImage=bg
 			let mask=''
 			if(GM!=='off'&&s!=='rgb'&&space[s].xyz&&!qTriple(Q)){ const N=48, st=[]
 				for(let k2=0;k2<=N;k2++){ const vv=cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*k2/N:shown[j])
 					st.push(inGam(s,vv)) }
-				if(st.some(x=>x)&&st.some(x=>!x)){
+				if(st.some(x=>!x)){   // any outside ghosts — including the WHOLE bar when the held color is out of gamut
 					const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
 					mask=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'#000':'rgba(0,0,0,.5)')).join(',')})` } }
-			bgel.style.webkitMaskImage=bgel.style.maskImage=mask||'none' }
+			bgel.style.webkitMaskImage=bgel.style.maskImage=mask||'none' } }
 		const loV=cls.ch.map((cc,j)=>j===i?cc.min:shown[j]), hiV=cls.ch.map((cc,j)=>j===i?cc.max:shown[j])
 		bar.querySelector('.cnm').style.color=ink(rgbF(s,loV))
 		const nw=bar.querySelector('.nvw'); nw.style.color=ink(rgbF(s,hiV))
@@ -1709,16 +1974,29 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 		r.style.background=css
 		const ie=detail.querySelector('#iend')
 		if(ie) ie.textContent='to '+chanVals(s,B) } }
-	// live code snippet
+	// live code snippet — js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	if(snip){ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
+	if(snip){ if(codeTab==='wasm'){
+			snip.innerHTML=hilite(`import { alloc, convert } from 'color-space/wasm'\n\n`+
+				`const buf = alloc(n)           // Float64Array(n·3) living in WASM memory\n`+
+				`// … write rgb 0-255 pixels into buf …\n`+
+				`convert('rgb', '${s}', n)      // the whole buffer, in place, zero-copy\n`+
+				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
+		else if(codeTab==='gl'){ const gd={2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3'
+			snip.innerHTML=hilite(`import { glsl } from 'color-space/gl'\n`+
+				`import { wgsl } from 'color-space/gl/wgsl'\n\n`+
+				`glsl('rgb', '${s}')   // GLSL: ${gd} rgb_${s.replace(/-/g,'')}(vec3 c) { … }\n`+
+				`wgsl('${s}', 'rgb')   // WGSL: fn ${s.replace(/-/g,'')}_rgb(c: ${gd}f) -> vec3f { … }\n`+
+				`\n// self-contained snippet — paste into any shader; the exact math of this page`) }
+		else{ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 		const ri=vals?rgb.map(Math.round):rgbOf(s,shown)   // forward-only: the example shows ITS own output
 		let inv=''; try{ const back=toSpace(s,ri); inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n` }catch{ inv=`// rgb → ${s} is one-way\n` }
 		snip.innerHTML=hilite(`import space from 'color-space'\n\n`+
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
-			`\n// one space, tree-shaken (~2 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) }
-	if(!dragBar&&!plFreeze) draw3d(); syncHash()
+			`\n// one space, tree-shaken (~2 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) } }
+	// the GPU solid redraws per frame, so the marker tracks a drag live
+	if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d(); gamMarker(); syncHash()
 }
 // the url carries the whole state: #space@v1,v2,v3 (throttled — replaceState is cheap but not free)
 let hashT=0
@@ -1730,7 +2008,10 @@ function syncHash(){ if(!open()) return
 let raf
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
 	renderFast(); if(!open()||!dragging) paintCatalogGrad()
-	if(!dragging&&performance.now()>planeNext) paintPlanes(true) }) }
+	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
+	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
+	// drag res, so even munsell's neighbours follow the pointer
+	if(performance.now()>planeNext) paintPlanes(true) }) }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
