@@ -162,6 +162,7 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 /* case-file property grid — two FIXED columns, micro-label above, value under */
 .props{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.1rem 2.6rem; margin:.9rem 0 1.5rem }
 .props .pcol{ display:flex; flex-direction:column; gap:1.1rem; min-width:0 }
+.props .pspan{ grid-column:1/-1 }
 .props i,.plab{ display:block; font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:.28rem }
 .props p{ margin:0; font-size:1rem; line-height:1.55; color:var(--body) }
 .props a{ color:var(--body); text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }
@@ -1557,17 +1558,24 @@ function draw3d(){ if(!mesh3||!open()) return
 		// values along a silhouette edge per dim (between a far and a near face — never
 		// behind the solid), pushed outward from the box center; sym past the max end
 		gx.fillStyle=TXT
+		const hys=mesh3.hys||(mesh3.hys={ edge:[], step:[] })
 		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
-			let best=null
+			// sticky edge: hold the current one until a rival is clearly better (or the
+			// wall flip retires it) — score ties otherwise flip labels every few frames
+			let best=null, prev=null, keep=hys.edge[d]
 			for(const se of [-0.5,0.5]) for(const sf of [-0.5,0.5]){
 				if((se===farC[e])===(sf===farC[f2])) continue
 				const m2=prj(pt(d,0,e,se,f2,sf)), score=m2.y+Math.abs(m2.x-S2/2)*0.6
-				if(!best||score>best.score) best={se,sf,score} }
+				if(!best||score>best.score) best={se,sf,score}
+				if(keep&&keep.se===se&&keep.sf===sf) prev={se,sf,score} }
+			if(prev&&prev.score>best.score-0.12*S2) best=prev
+			hys.edge[d]={se:best.se,sf:best.sf}
 			const m2=prj(pt(d,0,e,best.se,f2,best.sf))
 			const ox=m2.x-S2/2, oy=m2.y-S2/2, ol=Math.hypot(ox,oy)||1, off=12*dp
 			// a foreshortened edge (view down this axis) can't seat every label — thin them
 			const e0=prj(pt(d,-0.5,e,best.se,f2,best.sf)), e1=prj(pt(d,0.5,e,best.se,f2,best.sf))
-			const lt=Math.max(1,Math.ceil(gd.dims[d].t.length*16*dp/Math.max(Math.hypot(e1.x-e0.x,e1.y-e0.y),1)))
+			const req=Math.max(1,Math.ceil(gd.dims[d].t.length*16*dp/Math.max(Math.hypot(e1.x-e0.x,e1.y-e0.y),1)))
+			const lt=hys.step[d]=req>(hys.step[d]||1)||req<=(hys.step[d]||1)*0.55?req:hys.step[d]
 			gd.dims[d].t.forEach((t,q)=>{ if(q%lt) return
 				const p=prj(pt(d,t.x,e,best.se,f2,best.sf))
 				gx.fillText(fmtT(t.v),p.x+ox/ol*off,p.y+oy/ol*off) })
@@ -1593,15 +1601,16 @@ function draw3d(){ if(!mesh3||!open()) return
 		// hue stops around the rim; tone stops climb the left silhouette (the cylinder is
 		// axis-vertical, so one angle silhouettes every height — no perspective here)
 		gx.fillStyle=TXT
-		let aL=0, xm=1e9, aF=0, zf=-1e9
-		for(let q=0;q<64;q++){ const a2=q/64*2*Math.PI, c2=Math.cos(a2), s3=Math.sin(a2)
-			const p=prj([0,R*c2,R*s3]); if(p.x<xm){ xm=p.x; aL=a2 }
-			const z2=rot([0,c2,s3]).z; if(z2>zf){ zf=z2; aF=a2 } }
+		const hys=mesh3.hys||(mesh3.hys={ edge:[], step:[] })
+		// screen-left silhouette and camera-facing rim angles, in closed form —
+		// prj x of a rim direction is R·cos(θ−a), its depth R·sin(θ−a)·cos b
+		const aL=rot3.a+Math.PI, aF=rot3.a+Math.PI/2
 		const cL=Math.cos(aL), sL=Math.sin(aL)
 		gx.textAlign='right'
 		// the column forecloses in top-down views — thin its labels to what fits
 		const c0h=prj([-0.5,R*cL,R*sL]), c1h=prj([0.5,R*cL,R*sL])
-		const lty=Math.max(1,Math.ceil(gd.ty.length*13*dp/Math.max(Math.abs(c1h.y-c0h.y),1)))
+		const req=Math.max(1,Math.ceil(gd.ty.length*13*dp/Math.max(Math.abs(c1h.y-c0h.y),1)))
+		const lty=hys.step[3]=req>(hys.step[3]||1)||req<=(hys.step[3]||1)*0.55?req:hys.step[3]
 		const typ=[]
 		gd.ty.forEach((t,q)=>{ if(q%lty) return
 			const p=prj([t.y,R*cL,R*sL]); typ.push(p); gx.fillText(fmtT(t.v),p.x-7*dp,p.y) })
@@ -1609,8 +1618,12 @@ function draw3d(){ if(!mesh3||!open()) return
 		const le=Math.ceil(gd.th.length/6)
 		gd.th.forEach((t,q)=>{ if(q%le) return
 			const p=prj([yF,R*1.16*Math.cos(t.a),R*1.16*Math.sin(t.a)])
-			if(typ.some(tp=>Math.abs(p.x-tp.x)<26*dp&&Math.abs(p.y-tp.y)<11*dp)) return   // would land on the tone column
-			gx.fillText(fmtT(t.v)+(gd.deg?'°':''),p.x,p.y) })
+			// fade out approaching the tone column — a hard skip pops as the floor turns
+			let near=0
+			for(const tp of typ) near=Math.max(near,1-Math.max(Math.abs(p.x-tp.x)/(30*dp),Math.abs(p.y-tp.y)/(13*dp)))
+			const al=clamp(1-near*1.5,0,1)
+			if(al<=0.03) return
+			gx.globalAlpha=al; gx.fillText(fmtT(t.v)+(gd.deg?'°':''),p.x,p.y); gx.globalAlpha=1 })
 		gx.font=F10; gx.textAlign='right'
 		const pT=prj([0.5,R*cL,R*sL]); gx.fillText(gd.ysym,pT.x-7*dp,pT.y-15*dp)
 		gx.textAlign='center'
@@ -1651,7 +1664,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		<div class="pcol">
 			<div><i>type</i><p>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</p></div>
 			<div><i>used for</i><p>${useOf(s)}</p></div>
-			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span title="${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 		</div>
 		<div class="pcol">
 			${path&&path.length>1?`<div><i>base</i><p><a href="#${path[1]}">${path[1].toUpperCase()}</a></p></div>`:''}
@@ -1660,10 +1672,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			${m.refs?`<div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			${m.wiki?`<div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div>`:''}
 		</div>
+		<div class="pspan"><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span title="${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 	 </div>
 	 <i class="plab">description</i>
 	 <div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
-	 ${has3d||hasPlaneGL(s)?`<div class="dviz">${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''}</div>
+	 ${has3d||hasPlaneGL(s)?`<div class="dviz">${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''}</div>
 	 ${cls.ch.length>1?`<h4 class="sec2">plots ${segsHTML}</h4>
 	 <div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span></div>`).join('')}</div>
