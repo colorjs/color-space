@@ -163,6 +163,7 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .props{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.1rem 2.6rem; margin:.9rem 0 1.5rem }
 .props .pcol{ display:flex; flex-direction:column; gap:1.1rem; min-width:0 }
 .props .pspan{ grid-column:1/-1 }
+.fam .kids{ display:block; margin-top:.15rem }
 .props i,.plab{ display:block; font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:.28rem }
 .props p{ margin:0; font-size:1rem; line-height:1.55; color:var(--body) }
 .props a{ color:var(--body); text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }
@@ -216,6 +217,10 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.
 h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:1rem; color:var(--ink) }
 .irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:.66rem; font-weight:700; cursor:pointer; z-index:2 }
 .irow .iend{ position:absolute; right:.7rem; top:50%; transform:translateY(-50%); font-size:.8rem; font-weight:700; font-variant-numeric:tabular-nums; cursor:pointer; z-index:2 }
+.iduel{ display:flex; flex-direction:column; gap:5px; margin-top:5px }
+.ird{ position:relative; height:22px }
+.ird i{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#fff; text-shadow:0 0 3px rgba(0,0,0,.55); pointer-events:none }
+h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cpyi is absolute by default — in the header it flows inline */
 .srcline{ margin-top:.7rem; font-size:.74rem; color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .srcline a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -953,6 +958,8 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 
 <script type="module">
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, pathToRgb, mixInSpace, rotateHue } from './landing/core.js'
+import LORE from './landing/lore.js'
+import REACH from './landing/reach.js'
 import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, paintGamutGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './landing/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import NAMES from './landing/names.js'
@@ -1647,8 +1654,11 @@ function draw3d(){ if(!mesh3||!open()) return
 		ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() } }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsFor(s)
 	const path=pathToRgb(s)
-	const interpHTML=fwd?'':`<h4 class="sec2">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
-	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>`
+	const L=LORE[s]||{}, RCH=REACH[s]
+	const kids=ORDER.filter(x=>x!==s&&(pathToRgb(x)||[])[1]===s)
+	const interpHTML=fwd?'':`<h4 class="sec2">interpolate <button class="cpyi icpy" id="icpy" title="copy this blend as CSS — ${s} interpolation baked into plain stops"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
+	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
+	 <div class="iduel" id="iduel" title="the same two endpoints — quantized here, then through the reference spaces"><div class="ird" data-r="steps"><i>12 steps</i></div>${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
 	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
 	const barHTML=i=>{ const c=cls.ch[i]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
@@ -1663,11 +1673,15 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	 <div class="props">
 		<div class="pcol">
 			<div><i>type</i><p>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</p></div>
+			${L.for?`<div><i>why</i><p>${L.for}</p></div>`:''}
 			<div><i>used for</i><p>${useOf(s)}</p></div>
+			${L.sin?`<div><i>known sin</i><p>${L.sin}</p></div>`:''}
+			${L.nm?`<div><i>the name</i><p>${L.nm}</p></div>`:''}
 		</div>
 		<div class="pcol">
-			${path&&path.length>1?`<div><i>base</i><p><a href="#${path[1]}">${path[1].toUpperCase()}</a></p></div>`:''}
+			${path&&(path.length>1||kids.length)?`<div><i>family</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}${kids.length?`<span class="kids" title="spaces defined on top of this one">↳ ${kids.map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</span>`:''}</p></div>`:''}
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
+			${RCH?`<div><i>reach</i><p title="share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick">${Math.round(RCH[0]*100)}% of visible${s!=='rgb'?` · ${RCH[1].toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}× sRGB`:''}</p></div>`:''}
 			${VERIFIED.has(s)?`<div><i>verified</i><p title="every conversion pinned by independent reference values at 1/255 tolerance — see test under code">±1/255</p></div>`:''}
 			${m.refs?`<div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			${m.wiki?`<div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div>`:''}
@@ -1716,6 +1730,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	if(irow) irow.onclick=e=>{ const r=irow.getBoundingClientRect()
 		if((e.clientX-r.left)/r.width>0.8&&!e.target.closest('.hp')) pinb.click() }
 	const iendEl=detail.querySelector('#iend'); if(iendEl) iendEl.onclick=()=>pinb.click()
+	const icpy=detail.querySelector('#icpy')
+	if(icpy) icpy.onclick=()=>{ const r2=detail.querySelector('#irow'); if(r2&&r2._css) copy(r2._css) }
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
@@ -1984,9 +2000,19 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 		else{ const stops=[]
 			for(let k=0;k<=14;k++) stops.push(hex(mixAt(k/14)))
 			css=`linear-gradient(90deg, ${stops.join(',')})` }
-		r.style.background=css
+		r.style.background=css; r._css=css
 		const ie=detail.querySelector('#iend')
-		if(ie) ie.textContent='to '+chanVals(s,B) } }
+		if(ie) ie.textContent='to '+chanVals(s,B)
+		// the duel: this space cut into 12 equal steps (uniformity you can check by
+		// eye), then the SAME endpoints through the reference spaces
+		const duel=detail.querySelector('#iduel')
+		if(duel) for(const row of duel.querySelectorAll('.ird')){ const kind=row.dataset.r
+			if(kind==='steps'){ const st=[]
+				for(let k=0;k<12;k++) st.push(hex(mixAt((k+0.5)/12).map(x2=>clamp(Math.round(x2),0,255))))
+				row.style.background=stepped(st) }
+			else try{ const a3=toSpace(kind,rgb), b3=toSpace(kind,rgbB), st=[]
+				for(let k=0;k<=14;k++) st.push(hex(rgbF(kind,mixInSpace(kind,a3,b3,k/14))))
+				row.style.background=`linear-gradient(90deg, ${st.join(',')})` }catch{} } } }
 	// live code snippet — js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
 	if(snip){ if(codeTab==='wasm'){
