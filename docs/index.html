@@ -27,9 +27,10 @@ body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(-
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
 .skip:focus{ transform:none }
-/* ── masthead: one sticky identity bar — wordmark, live colour, search. Over the
-   hero wheel it floats transparent in white; scrolled past the wheel (.mhead.on) it
-   turns paper + ink and takes the colour line, the current colour appearing with it. ── */
+/* ── masthead: one sticky identity bar — wordmark, live colour, search — always on
+   paper. Its bottom border (the hue line) and the live colour appear only once the
+   pick plane has collapsed into it: the border tracks the collapse (--brd), .mhead.on
+   flips at full collapse. ── */
 .mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
 .mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem; color:var(--ink) }
 /* the header's bottom border — the hue line the pick plane collapses down into; it
@@ -86,11 +87,14 @@ a{ color:var(--ink) }
 .ti .tn:hover{ background:var(--lift) }
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; max-width:64rem; margin:0 auto; padding-bottom:clamp(2rem,5vw,3.5rem) }
+@media(min-width:1400px){ .secs{ max-width:80rem } }   /* wider container on big screens for the 4th column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
    name + channel values, always visible, no folding. Sheets of both kinds tile
    gaplessly: gapless grids, each entry carrying half the gutter as its own padding */
 .sec{ position:relative; padding:1.4rem 0 1.8rem; scroll-margin-top:3.4rem }
-.sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railcol,var(--railw)) + var(--railgap))); right:calc(-1*var(--railr,0px)); height:1px; background:var(--hair) }
+/* the divider runs full width — from the category name in the rail out to the screen's
+   right edge (offsets measured in layoutToc, since the spaces block is centred) */
+.sec::before{ content:''; position:absolute; top:0; left:calc(-1*var(--secl,0px)); right:calc(-1*var(--secr,0px)); height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:1.3rem } .sec:first-of-type::before{ display:none }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
 .sheet{ margin-top:.7rem }
@@ -101,6 +105,7 @@ a{ color:var(--ink) }
 	.shw .c{ font-size:.62rem; font-weight:700; color:var(--soft); margin-left:.4rem; vertical-align:.35em }
 	.sec{ padding:1rem 0 1.4rem }
 	.sec:first-of-type{ padding-top:.6rem } }
+@media(min-width:1400px){ .grid,.sheet{ grid-template-columns:repeat(4,minmax(0,1fr)) } }
 @media(max-width:960px){ .grid,.sheet{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
 @media(max-width:640px){ .grid,.sheet{ grid-template-columns:1fr } }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem; cursor:pointer }
@@ -114,6 +119,8 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
    wrap so it can't orphan to its own line. Sheet rows (whole row clickable) omit it. */
 .ent:not(.lite) .nm::after{ content:''; display:inline-block; width:.92em; height:.92em; margin-left:.14em; vertical-align:-.06em; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
 .ent:hover .nm::after,.ent:focus-within .nm::after{ opacity:1 }
+/* 🕰 marks a space shipped as working history (see the "Skipped" dossier) */
+.histo{ font-style:normal; font-size:.62em; margin-left:.32em; vertical-align:.16em; opacity:.7; cursor:help; filter:saturate(.55) }
 .ent .eh{ display:flex; align-items:baseline; justify-content:space-between; gap:.4rem 1rem; padding:0 0 .45rem }
 .ent.lite .eh{ padding:0; row-gap:.15rem }
 .ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase; min-width:0 }
@@ -266,16 +273,17 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .about h2{ font-size:1.3rem; font-weight:800; letter-spacing:-.01em; margin-bottom:.6rem }
 .about p{ font-size:1rem; line-height:1.65; color:var(--body); max-width:66ch }
 .about p+p{ margin-top:.6rem }
-pre{ font-family:ui-monospace,Menlo,monospace; font-size:.85rem; line-height:1.7; background:var(--panel); padding:1rem 1.2rem; overflow-x:auto }
+pre{ font-family:ui-monospace,Menlo,monospace; font-size:.85rem; line-height:1.7; background:var(--panel); padding:1rem 1.2rem; overflow-x:auto; scrollbar-width:thin; scrollbar-color:transparent transparent }
+pre::-webkit-scrollbar{ height:8px }
+pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparent }
 .about p code{ font-family:ui-monospace,Menlo,monospace; font-size:.92em; background:var(--panel); padding:.1em .35em }
 .about.api,.about.recipes{ border-top:1px solid var(--hair) }
 .about h2+p{ margin-bottom:.8rem }
 /* API — centred: title, one line of prose, then a tabbed code panel */
-.about.api{ text-align:center }
-.about.api p{ max-width:64ch; margin:0 auto }
-.tabs{ max-width:46rem; margin:1.2rem auto 0; text-align:left }
+.about.api p{ max-width:64ch }
+.tabs{ max-width:46rem; margin:1.2rem 0 0 }
 .tabs pre{ margin:0 }
-.tabrow{ display:flex; gap:.25rem; justify-content:center; margin-bottom:.6rem }
+.tabrow{ display:flex; gap:.25rem; justify-content:flex-start; margin-bottom:.6rem }
 .tabrow button{ font:inherit; font-size:.82rem; font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-bottom:2px solid transparent; padding:.15rem .7rem; cursor:pointer }
 .tabrow button:hover{ color:var(--ink) }
 .tabrow button.on{ color:var(--ink); border-bottom-color:var(--c) }
@@ -314,7 +322,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .fmark{ color:var(--fi1,#fff); font-size:.9rem; white-space:nowrap; margin-top:.15rem }
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
-@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .about.api{ text-align:left } .about.api p,.tabrow{ margin-left:0 } .tabrow{ justify-content:flex-start } .mbox{ width:100vw; margin:0; min-height:100dvh } }
+@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } }
 /* ── the hero: a compact OKLCH picker plane — hue across, lightness down (white top,
    black bottom) — that sits directly under the wordmark as the masthead's extended
    body. Scroll and it slides up under the sticky bar, folding into the thin hue line
@@ -374,12 +382,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="rec2020">
 	 <div class="eh"><span class="nm">rec2020</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rec2020 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rec2020 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rec2020 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="lrgb">
+	</article><article class="ent" data-s="lrgb">
 	 <div class="eh"><span class="nm">lrgb</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="lrgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="lrgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="lrgb Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article><article class="ent lite" data-s="rec709">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="rec709">
 	 <div class="eh"><span class="nm">rec709</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rec709 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rec709 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rec709 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="prophoto">
@@ -410,10 +418,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">rimm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rimm Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rimm Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rimm Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="cie-rgb">
-	 <div class="eh"><span class="nm">cie-rgb</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="cie-rgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="cie-rgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="cie-rgb Blue"></span></div>
+	 <div class="eh"><span class="nm">cie-rgb<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="cie-rgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="cie-rgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="cie-rgb Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="ntsc">
-	 <div class="eh"><span class="nm">ntsc</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="ntsc Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="ntsc Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="ntsc Blue"></span></div>
+	 <div class="eh"><span class="nm">ntsc<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="ntsc Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="ntsc Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="ntsc Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="pal">
 	 <div class="eh"><span class="nm">pal</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="pal Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="pal Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="pal Blue"></span></div>
@@ -435,12 +443,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="hwb">
 	 <div class="eh"><span class="nm">hwb</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="hwb Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Whiteness" aria-label="hwb Whiteness"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blackness" aria-label="hwb Blackness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Whiteness"><div class="tk"></div><span class="sy">W</span></div><div class="ch" data-i="2" title="Blackness"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="hsi">
+	</article><article class="ent" data-s="hsi">
 	 <div class="eh"><span class="nm">hsi</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="hsi Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Saturation" aria-label="hsi Saturation"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Intensity" aria-label="hsi Intensity"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span></div><div class="ch" data-i="2" title="Intensity"><div class="tk"></div><span class="sy">I</span></div></div>
-	</article><article class="ent lite" data-s="hcg">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="hcg">
 	 <div class="eh"><span class="nm">hcg</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="hcg Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Chroma" aria-label="hcg Chroma"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Gray component" aria-label="hcg Gray component"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Chroma"><div class="tk"></div><span class="sy">C</span></div><div class="ch" data-i="2" title="Gray component"><div class="tk"></div><span class="sy">G</span></div></div>
 	</article><article class="ent lite" data-s="hcl">
@@ -466,12 +474,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="hct">
 	 <div class="eh"><span class="nm">hct</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="hct Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Chroma" aria-label="hct Chroma"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Tone" aria-label="hct Tone"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Chroma"><div class="tk"></div><span class="sy">C</span></div><div class="ch" data-i="2" title="Tone"><div class="tk"></div><span class="sy">T</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="okhsl">
+	</article><article class="ent" data-s="okhsl">
 	 <div class="eh"><span class="nm">okhsl</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="okhsl Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Saturation" aria-label="okhsl Saturation"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Lightness" aria-label="okhsl Lightness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span></div><div class="ch" data-i="2" title="Lightness"><div class="tk"></div><span class="sy">L</span></div></div>
-	</article><article class="ent lite" data-s="okhsv">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="okhsv">
 	 <div class="eh"><span class="nm">okhsv</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="okhsv Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Saturation" aria-label="okhsv Saturation"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Value" aria-label="okhsv Value"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span></div><div class="ch" data-i="2" title="Value"><div class="tk"></div><span class="sy">V</span></div></div>
 	</article><article class="ent lite" data-s="okhwb">
@@ -506,12 +514,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="luv">
 	 <div class="eh"><span class="nm">luv</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="luv Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="U chrominance" aria-label="luv U chrominance"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="V chrominance" aria-label="luv V chrominance"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="U chrominance"><div class="tk"></div><span class="sy">U</span></div><div class="ch" data-i="2" title="V chrominance"><div class="tk"></div><span class="sy">V</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="hsluv">
+	</article><article class="ent" data-s="hsluv">
 	 <div class="eh"><span class="nm">hsluv</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="hsluv Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Saturation" aria-label="hsluv Saturation"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Lightness" aria-label="hsluv Lightness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span></div><div class="ch" data-i="2" title="Lightness"><div class="tk"></div><span class="sy">L</span></div></div>
-	</article><article class="ent lite" data-s="lchuv">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="lchuv">
 	 <div class="eh"><span class="nm">lchuv</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="lchuv Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Chroma" aria-label="lchuv Chroma"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Hue" aria-label="lchuv Hue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="Chroma"><div class="tk"></div><span class="sy">C</span></div><div class="ch" data-i="2" title="Hue"><div class="tk"></div><span class="sy">H</span></div></div>
 	</article><article class="ent lite" data-s="lab-d65">
@@ -542,7 +550,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">uvw</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="U* chrominance" aria-label="uvw U* chrominance"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="V* chrominance" aria-label="uvw V* chrominance"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="W* lightness" aria-label="uvw W* lightness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="U* chrominance"><div class="tk"></div><span class="sy">U</span></div><div class="ch" data-i="1" title="V* chrominance"><div class="tk"></div><span class="sy">V</span></div><div class="ch" data-i="2" title="W* lightness"><div class="tk"></div><span class="sy">W</span></div></div>
 	</article><article class="ent lite" data-s="anlab">
-	 <div class="eh"><span class="nm">anlab</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="anlab Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="anlab Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="anlab Yellow-Blue"></span></div>
+	 <div class="eh"><span class="nm">anlab<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="anlab Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="anlab Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="anlab Yellow-Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span></div></div>
 	</article>
 </div></section><section class="sec" data-sec><h2 class="shw">HDR & wide gamut<span class="c tnum">(11)</span></h2><div class="grid">
@@ -555,12 +563,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="rec2100-pq">
 	 <div class="eh"><span class="nm">rec2100-pq</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rec2100-pq Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rec2100-pq Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rec2100-pq Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="rec2100-hlg">
+	</article><article class="ent" data-s="rec2100-hlg">
 	 <div class="eh"><span class="nm">rec2100-hlg</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rec2100-hlg Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rec2100-hlg Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rec2100-hlg Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article><article class="ent lite" data-s="jzczhz">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="jzczhz">
 	 <div class="eh"><span class="nm">jzczhz</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="jzczhz Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Chroma" aria-label="jzczhz Chroma"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Hue" aria-label="jzczhz Hue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">Jz</span></div><div class="ch" data-i="1" title="Chroma"><div class="tk"></div><span class="sy">Cz</span></div><div class="ch" data-i="2" title="Hue"><div class="tk"></div><span class="sy">Hz</span></div></div>
 	</article><article class="ent lite" data-s="ipt">
@@ -592,12 +600,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="lms">
 	 <div class="eh"><span class="nm">lms</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Long" aria-label="lms Long"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Medium" aria-label="lms Medium"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Short" aria-label="lms Short"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Long"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="Medium"><div class="tk"></div><span class="sy">M</span></div><div class="ch" data-i="2" title="Short"><div class="tk"></div><span class="sy">S</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="xyz-d50">
+	</article><article class="ent" data-s="xyz-d50">
 	 <div class="eh"><span class="nm">xyz-d50</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="X" aria-label="xyz-d50 X"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Y" aria-label="xyz-d50 Y"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Z" aria-label="xyz-d50 Z"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="X"><div class="tk"></div><span class="sy">X</span></div><div class="ch" data-i="1" title="Y"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Z"><div class="tk"></div><span class="sy">Z</span></div></div>
-	</article><article class="ent lite" data-s="uv">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="uv">
 	 <div class="eh"><span class="nm">uv</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="u' chromaticity" aria-label="uv u' chromaticity"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="v' chromaticity" aria-label="uv v' chromaticity"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Luminance" aria-label="uv Luminance"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="u' chromaticity"><div class="tk"></div><span class="sy">u</span></div><div class="ch" data-i="1" title="v' chromaticity"><div class="tk"></div><span class="sy">v</span></div><div class="ch" data-i="2" title="Luminance"><div class="tk"></div><span class="sy">Y</span></div></div>
 	</article><article class="ent lite" data-s="kelvin">
@@ -638,12 +646,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="yiq">
 	 <div class="eh"><span class="nm">yiq</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Luma" aria-label="yiq Luma"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="In-phase" aria-label="yiq In-phase"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Quadrature" aria-label="yiq Quadrature"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Luma"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="1" title="In-phase"><div class="tk"></div><span class="sy">I</span></div><div class="ch" data-i="2" title="Quadrature"><div class="tk"></div><span class="sy">Q</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="ypbpr">
+	</article><article class="ent" data-s="ypbpr">
 	 <div class="eh"><span class="nm">ypbpr</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Luma" aria-label="ypbpr Luma"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Blue chroma" aria-label="ypbpr Blue chroma"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Red chroma" aria-label="ypbpr Red chroma"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Luma"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="1" title="Blue chroma"><div class="tk"></div><span class="sy">Pb</span></div><div class="ch" data-i="2" title="Red chroma"><div class="tk"></div><span class="sy">Pr</span></div></div>
-	</article><article class="ent lite" data-s="ycgco">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="ycgco">
 	 <div class="eh"><span class="nm">ycgco</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Luma" aria-label="ycgco Luma"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green-magenta chroma" aria-label="ycgco Green-magenta chroma"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Orange-blue chroma" aria-label="ycgco Orange-blue chroma"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Luma"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="1" title="Green-magenta chroma"><div class="tk"></div><span class="sy">Cg</span></div><div class="ch" data-i="2" title="Orange-blue chroma"><div class="tk"></div><span class="sy">Co</span></div></div>
 	</article><article class="ent lite" data-s="jpeg">
@@ -675,12 +683,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="logc3">
 	 <div class="eh"><span class="nm">logc3</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="logc3 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="logc3 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="logc3 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="slog3">
+	</article><article class="ent" data-s="slog3">
 	 <div class="eh"><span class="nm">slog3</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog3 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog3 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog3 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article><article class="ent lite" data-s="aces2065-1">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="aces2065-1">
 	 <div class="eh"><span class="nm">aces2065-1</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="aces2065-1 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="aces2065-1 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="aces2065-1 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="acescct">
@@ -738,7 +746,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">dcdm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="X′" aria-label="dcdm X′"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Y′" aria-label="dcdm Y′"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Z′" aria-label="dcdm Z′"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="X′"><div class="tk"></div><span class="sy">X</span></div><div class="ch" data-i="1" title="Y′"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Z′"><div class="tk"></div><span class="sy">Z</span></div></div>
 	</article><article class="ent lite" data-s="slog">
-	 <div class="eh"><span class="nm">slog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog Blue"></span></div>
+	 <div class="eh"><span class="nm">slog<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="acesproxy">
 	 <div class="eh"><span class="nm">acesproxy</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="acesproxy Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="acesproxy Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="acesproxy Blue"></span></div>
@@ -759,7 +767,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">olog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="olog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="olog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="olog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="redlog">
-	 <div class="eh"><span class="nm">redlog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlog Blue"></span></div>
+	 <div class="eh"><span class="nm">redlog<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="redlogfilm">
 	 <div class="eh"><span class="nm">redlogfilm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlogfilm Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlogfilm Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlogfilm Blue"></span></div>
@@ -768,10 +776,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">log3g12</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="log3g12 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="log3g12 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="log3g12 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="panalog">
-	 <div class="eh"><span class="nm">panalog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="panalog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="panalog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="panalog Blue"></span></div>
+	 <div class="eh"><span class="nm">panalog<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="panalog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="panalog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="panalog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="viperlog">
-	 <div class="eh"><span class="nm">viperlog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="viperlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="viperlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="viperlog Blue"></span></div>
+	 <div class="eh"><span class="nm">viperlog<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="viperlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="viperlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="viperlog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="filmicpro">
 	 <div class="eh"><span class="nm">filmicpro</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="filmicpro Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="filmicpro Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="filmicpro Blue"></span></div>
@@ -787,12 +795,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="cam16-ucs">
 	 <div class="eh"><span class="nm">cam16-ucs</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="cam16-ucs Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="cam16-ucs Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="cam16-ucs Yellow-Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">J</span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="zcam">
+	</article><article class="ent" data-s="zcam">
 	 <div class="eh"><span class="nm">zcam</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="zcam Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Colourfulness" aria-label="zcam Colourfulness"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Hue angle" aria-label="zcam Hue angle"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">J</span></div><div class="ch" data-i="1" title="Colourfulness"><div class="tk"></div><span class="sy">M</span></div><div class="ch" data-i="2" title="Hue angle"><div class="tk"></div><span class="sy">h</span></div></div>
-	</article><article class="ent lite" data-s="cam02-ucs">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="cam02-ucs">
 	 <div class="eh"><span class="nm">cam02-ucs</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="cam02-ucs Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="cam02-ucs Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="cam02-ucs Yellow-Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">J</span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span></div></div>
 	</article><article class="ent lite" data-s="cam16-lcd">
@@ -822,14 +830,14 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">munsell</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="munsell Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Value" aria-label="munsell Value"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Chroma" aria-label="munsell Chroma"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Value"><div class="tk"></div><span class="sy">V</span></div><div class="ch" data-i="2" title="Chroma"><div class="tk"></div><span class="sy">C</span></div></div>
 	</article><article class="ent" data-s="ryb">
-	 <div class="eh"><span class="nm">ryb</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red pigment" aria-label="ryb Red pigment"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow pigment" aria-label="ryb Yellow pigment"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue pigment" aria-label="ryb Blue pigment"></span></div>
+	 <div class="eh"><span class="nm">ryb<i class="histo" title="historical — shipped as working history">🕰</i></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red pigment" aria-label="ryb Red pigment"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow pigment" aria-label="ryb Yellow pigment"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue pigment" aria-label="ryb Blue pigment"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red pigment"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Yellow pigment"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Blue pigment"><div class="tk"></div><span class="sy">B</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="cmy">
+	</article><article class="ent" data-s="cmy">
 	 <div class="eh"><span class="nm">cmy</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Cyan" aria-label="cmy Cyan"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Magenta" aria-label="cmy Magenta"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow" aria-label="cmy Yellow"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Cyan"><div class="tk"></div><span class="sy">C</span></div><div class="ch" data-i="1" title="Magenta"><div class="tk"></div><span class="sy">M</span></div><div class="ch" data-i="2" title="Yellow"><div class="tk"></div><span class="sy">Y</span></div></div>
-	</article><article class="ent lite" data-s="ral-design">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="ral-design">
 	 <div class="eh"><span class="nm">ral-design</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="ral-design Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Lightness" aria-label="ral-design Lightness"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Chroma" aria-label="ral-design Chroma"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="2" title="Chroma"><div class="tk"></div><span class="sy">C</span></div></div>
 	</article><article class="ent lite" data-s="coloroid">
@@ -846,12 +854,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article><article class="ent" data-s="osaucs">
 	 <div class="eh"><span class="nm">osaucs</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="osaucs Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow-Blue axis" aria-label="osaucs Yellow-Blue axis"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Red-Green axis" aria-label="osaucs Red-Green axis"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="Yellow-Blue axis"><div class="tk"></div><span class="sy">j</span></div><div class="ch" data-i="2" title="Red-Green axis"><div class="tk"></div><span class="sy">g</span></div></div>
-	</article>
-</div><div class="sheet">
-	<article class="ent lite" data-s="tsl">
+	</article><article class="ent" data-s="tsl">
 	 <div class="eh"><span class="nm">tsl</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Tint angle" aria-label="tsl Tint angle"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Saturation" aria-label="tsl Saturation"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Lightness" aria-label="tsl Lightness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Tint angle"><div class="tk"></div><span class="sy">T</span></div><div class="ch" data-i="1" title="Saturation"><div class="tk"></div><span class="sy">S</span></div><div class="ch" data-i="2" title="Lightness"><div class="tk"></div><span class="sy">L</span></div></div>
-	</article><article class="ent lite" data-s="yes">
+	</article>
+</div><div class="sheet">
+	<article class="ent lite" data-s="yes">
 	 <div class="eh"><span class="nm">yes</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Luminance" aria-label="yes Luminance"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="E-factor" aria-label="yes E-factor"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="S-factor" aria-label="yes S-factor"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Luminance"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="1" title="E-factor"><div class="tk"></div><span class="sy">E</span></div><div class="ch" data-i="2" title="S-factor"><div class="tk"></div><span class="sy">S</span></div></div>
 	</article><article class="ent lite" data-s="ohta">
@@ -902,30 +910,30 @@ space.rgb.oklch(buf)     <i>// in place, zero-copy — 27 spaces</i></pre>
 <div class="g"><section class="about recipes" id="recipes">
 	<h2>Recipes</h2>
 	<div class="recgrid">
-		<pre><i>// CSS out — values are already CSS-native</i>
-<b>const</b> [l, c, h] = space.rgb.oklch(r, g, b)
+		<pre><i>// to a CSS string — oklch / lab / hsl need no massaging</i>
+<b>const</b> [l, c, h] = space.rgb.oklch(255, 128, 0)   <i>// [0.73, 0.19, 53]</i>
 el.style.color = `oklch(${l} ${c} ${h})`</pre>
-		<pre><i>// gamut check — unclamped linear-RGB stays in [0, 1]</i>
+		<pre><i>// an even gradient: step through OKLab, not sRGB</i>
+<b>const</b> A = space.rgb.oklab(224, 32, 32)
+<b>const</b> B = space.rgb.oklab(32, 96, 224)
+<b>const</b> stops = Array.from({length: 7}, (_, i) =&gt;
+  space.oklab.rgb(...A.map((v, k) =&gt; v + (B[k] - v) * i / 6)))</pre>
+		<pre><i>// does an OKLCH colour fit sRGB? linear-RGB must stay in [0, 1]</i>
 <b>const</b> lin = space.oklch.lrgb(0.65, 0.25, 180)
-<b>const</b> inSRGB = lin.every(v =&gt; v &gt;= 0 &amp;&amp; v &lt;= 1)</pre>
-		<pre><i>// perceptual mix — interpolate in OKLab, not sRGB</i>
-<b>const</b> mix = (a, b, t) =&gt; {
-  <b>const</b> A = space.rgb.oklab(...a), B = space.rgb.oklab(...b)
-  <b>return</b> space.oklab.rgb(...A.map((v, i) =&gt; v + (B[i] - v) * t))
-}</pre>
-		<pre><i>// camera log → display: S-Log3 on a Rec.709 monitor</i>
-space.slog3.rec709(0.41, 0.41, 0.41)</pre>
+<b>const</b> inSRGB = lin.every(v =&gt; v &gt;= 0 &amp;&amp; v &lt;= 1)   <i>// false — too saturated</i></pre>
+		<pre><i>// on-set to delivery: S-Log3 footage → a Rec.2020 master</i>
+space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre>
 	</div>
 </section></div>
 
 <div class="g"><section class="about declined" id="declined">
-	<h2>Not here, on purpose</h2>
-	<p class="lede">Some famous systems can't be shipped honestly, so they're documented instead of faked.</p>
+	<h2>Skipped</h2>
+	<p class="lede">A few famous systems would each need data or math no open formula supplies — so here is what's left out, and why.</p>
 	<div class="dcols">
-		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are sample-defined and trademarked, with no openly redistributable CIE data; a formula can't cure that (all marks belong to their owners — visit the official sites for authoritative values).</p>
-		<p><b>Atlas-only orders</b> — <a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a>, <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a> — have no open closed-form.</p>
-		<p><b>Non-invertible appearance models</b> — Hunt, Nayatani 95, LLAB, ATD95 — don't work as kernel transforms (RLAB, the one invertible early CAM, ships).</p>
-		<p><b>Spaces marked 🕰️</b> in the catalog <i>are</i> shipped, as working history — CIE RGB 1931, NTSC 1953, S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB…</p>
+		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are defined by physical printed swatches and trademarked; their CIE measurements aren't openly redistributable, so there's nothing lawful to convert against (the official sites hold the authoritative values).</p>
+		<p><b>Atlas systems</b> — <a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a>, <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a> — are defined only by a printed sample book (a colour <i>atlas</i>); no formula to convert to or from them was ever published.</p>
+		<p><b>Non-invertible appearance models</b> — Hunt, Nayatani 95, LLAB, ATD95 — publish a forward transform but no closed-form inverse, so they can't round-trip the way every space here does (RLAB, the one early model that inverts cleanly, ships).</p>
+		<p><b>Historical spaces</b> — CIE RGB (1931), NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked 🕰 in the catalog as working history.</p>
 	</div>
 </section></div>
 
@@ -1046,8 +1054,12 @@ addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   
 const tocEl=document.getElementById('toc'), barEl=document.querySelector('.mhead')   // rail titles stack below the sticky masthead
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
-	const secsR=document.getElementById('secs').getBoundingClientRect().right
-	pg.style.setProperty('--railr',Math.max(0,cat.getBoundingClientRect().right-parseFloat(getComputedStyle(cat).paddingRight)-secsR)+'px')
+	// full-width section dividers: measure the spaces block's gap to the rail's left
+	// (where the category name sits) and to the screen's right edge — the block is centred
+	const secR=document.getElementById('secs').getBoundingClientRect()
+	const railL=tocEl.getBoundingClientRect().left
+	pg.style.setProperty('--secl',Math.max(0,secR.left-railL)+'px')
+	pg.style.setProperty('--secr',Math.max(0,document.documentElement.clientWidth-secR.right)+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
