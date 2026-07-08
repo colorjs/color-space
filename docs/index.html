@@ -2124,8 +2124,9 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	const colAt=(fx,fy)=>{ const H=rgbF('oklch',[0.72,0.15,clamp(fx,0,1)*360]), s=clamp(fy,0,1)
 		return H.map((h,i)=>GRAY[i]*(1-s)+h*s) }   // sat 0 (gray) at top → sat 1 (full hue) at bottom
 	const at=e=>{ const r=intro.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height] }
-	// scroll reveals the bar's line + current colour once the plane starts folding away
-	const heroScroll=()=>mhead.classList.toggle('on', deep||scrollY>4)
+	// the hue line + current colour appear only once the pick plane has tucked behind
+	// the header — i.e. the pick-area is past, not merely on any first scroll
+	const heroScroll=()=>mhead.classList.toggle('on', deep||intro.getBoundingClientRect().bottom<=mhead.offsetHeight)
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
 		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
