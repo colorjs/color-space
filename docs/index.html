@@ -30,9 +30,7 @@ a{ color:var(--ink) }
 /* ── masthead: one sticky identity bar — wordmark, live colour, search. Over the
    hero wheel it floats transparent in white; scrolled past the wheel (.mhead.on) it
    turns paper + ink and takes the colour line, the current colour appearing with it. ── */
-.mhead{ position:sticky; top:0; z-index:15; background:transparent; transition:background .35s ease }
-.mhead:not(.on){ --ink:#fff; --soft:rgba(255,255,255,.82); --ghost:rgba(255,255,255,.55); --hair:rgba(255,255,255,.3) }
-.mhead.on{ background:var(--paper) }
+.mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
 .mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem; color:var(--ink) }
 .mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--mline,var(--panel)); opacity:0; transition:opacity .35s ease }
 .mhead.on .mast::after{ opacity:1 }
@@ -275,20 +273,14 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 /* ── footer: the coloroid sweep (hue A across, luminosity V descending) ends the page;
    keep scrolling and quantized bands ride up sticky-stack fashion, each covering the
    last — 100 → 50 → 20 → 10 steps, pure CSS scroll mechanics ── */
-.ftr{ margin-top:3rem }
-/* bands pin at the viewport bottom and stack over each other on extra scroll; the
-   npm box + values live in an overlay pinned WITH them — the gradient swaps beneath */
-.fstack{ --fh:clamp(15rem,36vh,20rem) }
-.fstack .fg{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh) }
-/* the smooth band is the ever-present base (.on from load); each finer band stays
-   hidden while it slides, then CUTS in the instant it reaches the stage — the
-   quantization snaps a step per scroll notch over the smooth wall, no wipe */
-.fstack .fg{ opacity:0 }
-.fstack .fg.on{ opacity:1 }
-.fov{ position:sticky; top:calc(100vh - var(--fh)); height:var(--fh); margin-bottom:calc(-1*var(--fh)); z-index:2; display:flex; flex-direction:column; pointer-events:none }
+/* one block, sits as the final element — its own height, no extra scroll. Scrolling
+   it into view quantizes the sweep beneath the content (smooth → 8 bands), the whole
+   step-down happening across the footer's own reveal — see stepFtr */
+.ftr{ margin-top:3rem; --fh:clamp(15rem,36vh,20rem); position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column }
+.fgrad{ position:absolute; inset:0; z-index:0 }
+.fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
+.fov{ position:relative; z-index:2; flex:1; display:flex; flex-direction:column }
 .fov .fnpmw{ flex:1; display:flex; align-items:center; justify-content:center }
-.fov .fnpm,.fov a{ pointer-events:auto }
-.fstack .fg::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
 .fnpm{ position:relative; z-index:1; font:inherit; font-size:1.05rem; font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:.9rem 1.6rem; cursor:copy; display:flex; align-items:center; gap:.75rem }
 .fnpm i{ font-style:normal; color:#9a9a9a; font-size:.85em }
 .fnpm:hover i{ color:var(--c) }
@@ -303,19 +295,21 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
 @media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
-/* ── the hero: the OKLCH hue slider bent into a seamless wheel, under a transparent
-   header. It pins full-screen for an extra viewport of scroll — quantizing from
-   smooth to ten slices while it lingers — then releases and hands the masthead its
-   colour line. A click picks the slice under the eyedropper; the wheel stays,
-   scroll back up any time to pick again. ── */
-.introw{ height:200dvh; margin-top:calc(-1*var(--mh,52px)) }   /* extra viewport = the linger */
-.introw.skip{ display:none }   /* deep links land straight on the tool */
-.intro{ position:sticky; top:0; height:100dvh; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:none; opacity:0; transition:opacity .5s ease }
+/* ── the hero: a compact OKLCH picker plane — hue across, lightness down (white top,
+   black bottom) — that sits directly under the wordmark as the masthead's extended
+   body. Scroll and it slides up under the sticky bar, folding into the thin hue line
+   the bar carries. A click picks the pixel under the eyedropper and glides to the
+   catalog; the plane stays, scroll back up to pick again. ── */
+.intro{ position:relative; height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
-.iwheel{ position:absolute; inset:0; background:var(--panel) }   /* JS paints the hue wheel */
-.introq{ position:relative; z-index:1; padding:0 1rem; text-align:center; font-size:clamp(1.9rem,5vw,3.4rem); font-weight:800; letter-spacing:-.02em; color:#1b1408; pointer-events:none }
+/* the pick surface: vertical lightness overlay (matches aAt exactly) over the flat hue
+   sweep — the same --mline the folded bar shows, so plane and line are one gradient */
+.iwheel{ position:absolute; inset:0; background:
+	linear-gradient(180deg, #fff, rgba(255,255,255,0) 42%, rgba(0,0,0,0) 58%, #000),
+	var(--mline, var(--panel)); background-size:100% 100%, 100% 100% }
+.introq{ position:absolute; z-index:1; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; font-size:clamp(.95rem,2.2vw,1.3rem); font-weight:800; letter-spacing:-.01em; color:#1b1408; pointer-events:none; white-space:nowrap; text-shadow:0 1px 9px rgba(255,255,255,.7) }
 /* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
-.ipicker{ position:absolute; z-index:2; top:0; left:0; width:52px; height:52px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; will-change:left,top }
+.ipicker{ position:absolute; z-index:2; top:0; left:0; width:40px; height:40px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; will-change:left,top }
 .ipicker svg{ width:100%; height:100%; display:block }
 .ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
 @keyframes entwave{ from{ opacity:0; transform:translateY(15px) } to{ opacity:1; transform:none } }
@@ -342,7 +336,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 </header></div>
 
-<div class="introw" id="introw"><section class="intro" id="intro" aria-label="pick your favourite colour">
+<div class="fw introw" id="introw"><section class="intro" id="intro" aria-label="pick a colour">
 	<div class="iwheel" id="iwheel"></div>
 	<div class="introq">Pick a color</div>
 	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
@@ -931,8 +925,9 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 	</div>
 </section></div>
 
-<footer class="ftr">
-	<div class="fstack" id="fstack"><div class="fov">
+<footer class="ftr" id="ftr">
+	<div class="fgrad" id="fgrad"></div>
+	<div class="fov">
 		<div class="fnpmw"><button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button></div>
 		<div class="fbar">
 			<div class="fcta">Wrong, slow or missing?<br><a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
@@ -2083,27 +2078,21 @@ const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math
 const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
 		return `linear-gradient(90deg, ${st.join(',')})` }
 	const st=[]; for(let k=0;k<n;k++) st.push(clut((k+0.5)/n)); return stepped(st) }
-// the hero wheel: the OKLCH hue slider bent into a circle — hue wraps, so it's
-// seamless. The masthead line takes the same sweep laid flat.
+// the OKLCH hue sweep at fixed L·C — the picker plane's hue layer AND the masthead line
 const WLUT=Array.from({length:721},(_,k)=>hex(rgbF('oklch',[0.72,0.15,k/720*360]))), wlut=f=>WLUT[Math.round(clamp(f,0,1)*720)]
-const wheelGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=72;k++) st.push(`${wlut(k/72)} ${(k/72*100).toFixed(2)}%`)
-		return `conic-gradient(${st.join(',')})` }
-	const st=[]; for(let k=0;k<n;k++) st.push(`${wlut((k+0.5)/n)} ${(k/n*100).toFixed(2)}% ${((k+1)/n*100).toFixed(2)}%`)
-	return `conic-gradient(${st.join(',')})` }
-document.querySelector('.mast').style.setProperty('--mline',`linear-gradient(90deg, ${Array.from({length:73},(_,k)=>wlut(k/72)).join(',')})`)   // the line the wheel hands off to
-const fgs=[...document.querySelectorAll('#fstack .fg')]
-const fov=document.querySelector('.fov')
-let fkey=''
-function paintFtr(){ if(fkey) return; fkey='painted'
-	fgs.forEach((el,i)=>{ el.style.background=coloroidGrad(QSTEPS[i]) })
-	// overlay ink per side, from the band's own ends (same inversion as the sliders)
-	fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
-	fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16]))) }
-paintFtr()
-// stepped reveal: a band flips ON only once it has slid up to the pinned stage, so the
-// quantization cuts one level per scroll notch instead of wiping in continuously
-function stepFtr(){ fgs.forEach((el,i)=>   // band 0 (smooth) is the base, always on
-	el.classList.toggle('on', i===0 || el.getBoundingClientRect().top <= innerHeight-el.offsetHeight+2)) }
+document.querySelector('.page').style.setProperty('--mline',`linear-gradient(90deg, ${Array.from({length:73},(_,k)=>wlut(k/72)).join(',')})`)   // set on a shared ancestor so plane + bar both inherit
+const ftrEl=document.getElementById('ftr'), fgrad=document.getElementById('fgrad'), fov=document.querySelector('.fov')
+// overlay ink per side, from the wall's own ends (same inversion as the sliders)
+fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
+fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16])))
+// the footer is just its own height — no sticky stack, no empty scroll. As it rises
+// into view its background steps down QSTEPS (smooth → 8 bands), one tier per fraction
+// of the reveal, so scrolling quantizes the wall in place
+let flvl=-1
+function stepFtr(){ const r=ftrEl.getBoundingClientRect()
+	const p=clamp((innerHeight-r.top)/Math.min(r.height,innerHeight),0,1)
+	const lvl=Math.min(QSTEPS.length-1,Math.floor(p*QSTEPS.length))
+	if(lvl!==flvl){ flvl=lvl; fgrad.style.background=coloroidGrad(QSTEPS[lvl]) } }
 addEventListener('scroll',()=>requestAnimationFrame(stepFtr),{passive:true}); stepFtr()
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
@@ -2117,60 +2106,39 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── the hero: the OKLCH hue wheel pinned full-screen under the transparent header.
-//    Scroll quantizes it (smooth → 10 slices) through an extra viewport of travel,
-//    then the wheel releases and the masthead flips dark and takes the colour line.
-//    A click picks the slice under the eyedropper and glides down to the catalog —
-//    the wheel stays; scroll back any time to pick again. ──
-;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), mhead=document.querySelector('.mhead')
-	// deep links land straight on the tool
-	if(location.hash.length>1){ introw.classList.add('skip'); mhead.classList.add('on'); return }
-	const iwheel=document.getElementById('iwheel'), picker=document.getElementById('ipicker')
-	const fit=()=>document.querySelector('.page').style.setProperty('--mh',mhead.offsetHeight+'px')
-	fit(); addEventListener('resize',fit)
+// ── the hero: a compact OKLCH picker plane under the wordmark — hue across, lightness
+//    down. It is the masthead's extended body; scroll and it slides up under the sticky
+//    bar, folding into the thin hue line the bar keeps. A click picks the pixel under
+//    the eyedropper and glides to the catalog — the plane stays, scroll up to re-pick. ──
+;(()=>{ const intro=document.getElementById('intro'), mhead=document.querySelector('.mhead')
+	const picker=document.getElementById('ipicker')
+	const deep=location.hash.length>1
+	if(deep) mhead.classList.add('on')   // deep links open a modal; the bar already wears its line
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// the wheel is 2-D: hue by angle, lightness by radius — white centre to black edge.
-	// The overlay's alpha ramps are linear in sRGB, so the pick maths below mirror the
-	// pixels exactly; quantization cuts BOTH axes into the same N (slices × rings).
-	const aAt=r=> r<0.42?1-r/0.42 : r>0.58?-Math.min(1,(r-0.58)/0.42) : 0   // + = toward white, − = toward black
-	const lgrad=m=>{ const css=r=>{ const a=aAt(r); return a>0?`rgba(255,255,255,${a.toFixed(3)})`:a<0?`rgba(0,0,0,${(-a).toFixed(3)})`:'rgba(0,0,0,0)' }
-		if(!m) return `radial-gradient(circle farthest-side, #fff, rgba(255,255,255,0) 42%, rgba(0,0,0,0) 58%, #000 100%)`
-		const st=[]; for(let k=0;k<m;k++) st.push(`${css((k+0.5)/m)} ${(k/m*100).toFixed(2)}% ${((k+1)/m*100).toFixed(2)}%`)
-		return `radial-gradient(circle farthest-side, ${st.join(',')})` }
-	// angle + radius fractions of a stage point (conic 0 at 12 o'clock cw; farthest-side radius)
-	const angF=(x,y,r)=>{ const a=Math.atan2(x-r.width/2, r.height/2-y)*180/Math.PI
-		return ((a%360)+360)%360/360 }
-	const radF=(x,y,r)=>Math.hypot(x-r.width/2,y-r.height/2)/(Math.max(r.width,r.height)/2)
-	const colAt=(f,rr,n)=>{ const q=v=>n?(Math.floor(clamp(v,0,0.999)*n)+0.5)/n:clamp(v,0,1)
-		const base=rgbF('oklch',[0.72,0.15,q(f)*360]), a=aAt(q(rr))
+	// hue across (x), lightness down (y): white top → black bottom. The overlay's alpha
+	// is linear in sRGB, so the pick maths mirror the pixels exactly (same aAt the CSS
+	// gradient uses), and the hue layer is the same --mline the folded bar shows.
+	const aAt=v=> v<0.42?1-v/0.42 : v>0.58?-Math.min(1,(v-0.58)/0.42) : 0   // + toward white, − toward black
+	const colAt=(fx,fy)=>{ const base=rgbF('oklch',[0.72,0.15,clamp(fx,0,1)*360]), a=aAt(clamp(fy,0,1))
 		return a>0?base.map(c=>c+(255-c)*a):base.map(c=>c*(1+a)) }   // the exact pixel under the tip
-	const paintWheel=n=>iwheel.style.background=`${lgrad(n)}, ${wheelGrad(n)}`
-	// scroll quantizes from the FIRST notch and keeps going until the wheel has fully
-	// left the screen; past it, the header flips dark and takes the line — symmetric
-	let curN=0
-	const heroScroll=()=>{
-		mhead.classList.toggle('on', introw.getBoundingClientRect().bottom<=mhead.offsetHeight+2)
-		const travel=Math.max(1,introw.offsetHeight-mhead.offsetHeight)
-		const p=clamp(scrollY/travel,0,1)
-		const N=p<=0?0:Math.round(180*Math.pow(10/180,p))
-		if(N!==curN){ curN=N; paintWheel(N) } }
+	const at=e=>{ const r=intro.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height] }
+	// scroll reveals the bar's line + current colour once the plane starts folding away
+	const heroScroll=()=>mhead.classList.toggle('on', deep||scrollY>4)
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
-		const x=e.clientX-r.left, y=e.clientY-r.top
-		picker.style.left=x+'px'; picker.style.top=y+'px'; picker.style.opacity='1'
-		picker.style.color=ink(colAt(angF(x,y,r),radF(x,y,r),curN)) })   // ink against the cell it's over
+		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
+		const [fx,fy]=at(e); picker.style.color=ink(colAt(fx,fy)) })   // ink against the pixel it's over
 	intro.addEventListener('pointerleave',()=>picker.style.opacity='0')
-	// pick → wear the colour and glide down to the catalog; the wheel stays above
+	// pick → wear the colour and glide down to the catalog; the plane stays above
 	let waved=false
 	const wave=()=>{ if(waved) return; waved=true
 		const top=cat.getBoundingClientRect().top+scrollY
 		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
 			if(y>innerHeight*1.5) return
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
-	intro.addEventListener('pointerdown',e=>{ const r=intro.getBoundingClientRect()
-		const x=e.clientX-r.left, y=e.clientY-r.top
-		const rgb=colAt(angF(x,y,r),radF(x,y,r),curN).map(v=>clamp(Math.round(v),0,255))
-		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad(); wave()
+	intro.addEventListener('pointerdown',e=>{ const [fx,fy]=at(e)
+		const rgb=colAt(fx,fy).map(v=>clamp(Math.round(v),0,255))
+		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad(); wave(); mhead.classList.add('on')
 		scrollTo({ top:cat.getBoundingClientRect().top+scrollY-mhead.offsetHeight-6, behavior:'smooth' }) })
-	paintWheel(0); heroScroll() })()
+	heroScroll() })()
 </script></body></html>
