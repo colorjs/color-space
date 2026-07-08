@@ -302,12 +302,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
    catalog; the plane stays, scroll back up to pick again. ── */
 .intro{ position:relative; height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
-/* the pick surface: vertical lightness overlay (matches aAt exactly) over the flat hue
-   sweep — the same --mline the folded bar shows, so plane and line are one gradient */
+/* the pick surface: hue across, saturation down — neutral (--igray, the L·72 gray)
+   at the top fading to the full-chroma hue sweep (--mline) at the bottom. The fade is
+   linear in sRGB, so the pick maths mirror the pixels exactly */
 .iwheel{ position:absolute; inset:0; background:
-	linear-gradient(180deg, #fff, rgba(255,255,255,0) 42%, rgba(0,0,0,0) 58%, #000),
+	linear-gradient(180deg, rgb(var(--igray)) 0%, rgba(var(--igray),0) 100%),
 	var(--mline, var(--panel)); background-size:100% 100%, 100% 100% }
-.introq{ position:absolute; z-index:1; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; font-size:clamp(.95rem,2.2vw,1.3rem); font-weight:800; letter-spacing:-.01em; color:#1b1408; pointer-events:none; white-space:nowrap; text-shadow:0 1px 9px rgba(255,255,255,.7) }
 /* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
 .ipicker{ position:absolute; z-index:2; top:0; left:0; width:40px; height:40px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; will-change:left,top }
 .ipicker svg{ width:100%; height:100%; display:block }
@@ -338,7 +338,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 
 <div class="fw introw" id="introw"><section class="intro" id="intro" aria-label="pick a colour">
 	<div class="iwheel" id="iwheel"></div>
-	<div class="introq">Pick a color</div>
 	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
 </section></div>
 
@@ -2080,7 +2079,11 @@ const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut
 	const st=[]; for(let k=0;k<n;k++) st.push(clut((k+0.5)/n)); return stepped(st) }
 // the OKLCH hue sweep at fixed L·C — the picker plane's hue layer AND the masthead line
 const WLUT=Array.from({length:721},(_,k)=>hex(rgbF('oklch',[0.72,0.15,k/720*360]))), wlut=f=>WLUT[Math.round(clamp(f,0,1)*720)]
-document.querySelector('.page').style.setProperty('--mline',`linear-gradient(90deg, ${Array.from({length:73},(_,k)=>wlut(k/72)).join(',')})`)   // set on a shared ancestor so plane + bar both inherit
+// the L·72 neutral the plane fades up to (saturation 0) — shared by the CSS overlay and the pick
+const GRAY=rgbF('oklch',[0.72,0,0]).map(v=>clamp(Math.round(v),0,255))
+;(()=>{ const pg=document.querySelector('.page').style
+	pg.setProperty('--mline',`linear-gradient(90deg, ${Array.from({length:73},(_,k)=>wlut(k/72)).join(',')})`)   // set on a shared ancestor so plane + bar both inherit
+	pg.setProperty('--igray',GRAY.join(',')) })()
 const ftrEl=document.getElementById('ftr'), fgrad=document.getElementById('fgrad'), fov=document.querySelector('.fov')
 // overlay ink per side, from the wall's own ends (same inversion as the sliders)
 fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
@@ -2115,12 +2118,11 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	const deep=location.hash.length>1
 	if(deep) mhead.classList.add('on')   // deep links open a modal; the bar already wears its line
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// hue across (x), lightness down (y): white top → black bottom. The overlay's alpha
-	// is linear in sRGB, so the pick maths mirror the pixels exactly (same aAt the CSS
-	// gradient uses), and the hue layer is the same --mline the folded bar shows.
-	const aAt=v=> v<0.42?1-v/0.42 : v>0.58?-Math.min(1,(v-0.58)/0.42) : 0   // + toward white, − toward black
-	const colAt=(fx,fy)=>{ const base=rgbF('oklch',[0.72,0.15,clamp(fx,0,1)*360]), a=aAt(clamp(fy,0,1))
-		return a>0?base.map(c=>c+(255-c)*a):base.map(c=>c*(1+a)) }   // the exact pixel under the tip
+	// hue across (x), saturation down (y): the L·72 neutral at the top mixes into the
+	// full-chroma hue at the bottom, a straight sRGB fade — so the pick maths are just
+	// that lerp, mirroring the pixels the CSS gradient paints.
+	const colAt=(fx,fy)=>{ const H=rgbF('oklch',[0.72,0.15,clamp(fx,0,1)*360]), s=clamp(fy,0,1)
+		return H.map((h,i)=>GRAY[i]*(1-s)+h*s) }   // sat 0 (gray) at top → sat 1 (full hue) at bottom
 	const at=e=>{ const r=intro.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height] }
 	// scroll reveals the bar's line + current colour once the plane starts folding away
 	const heroScroll=()=>mhead.classList.toggle('on', deep||scrollY>4)
