@@ -51,8 +51,9 @@
     "./wasm": "./wasm.js",
     "./gl": "./gl/index.js",
     "./gl/wgsl": "./gl/wgsl.js",
+    "./gl/*.glsl.js": "./gl/*.glsl.js",
     "./gl/*.js": "./gl/*.js",
-    "./gl/*": "./gl/*.js",
+    "./gl/*": "./gl/*.glsl.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },
