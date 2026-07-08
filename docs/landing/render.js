@@ -12,19 +12,18 @@ const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
 	{ name: 'more', spaces: SPACES.filter(s => !mapped.has(s)) }].filter(c => c.spaces.length)
 
-export const LEADS = 4   // slider cards per category (fills the wide grid's top row); the rest are sheet rows
+export const LEADS = 3   // slider cards per category (the row's featured spaces); the rest are sheet rows
 
-// shipped as working history — flagged 🕰 in the catalog, listed in the "Skipped" dossier
-const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
-const ent = (s, lite) => { const cls = classify(s)
-	const histo = HISTORICAL.has(s) ? `<i class="histo" title="historical — shipped as working history">🕰</i>` : ''
-	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}">
-	 <div class="eh"><span class="nm">${s}${histo}</span><span class="cvs">${cls.ch.map((c2, i) => `<input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}">`).join('')}</span></div>
+// shipped as working history — faded in the catalog, tagged "historical" in the modal, listed in "Skipped"
+export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
+const ent = (s, lite) => { const cls = classify(s), hist = HISTORICAL.has(s)
+	return `<article class="ent${lite ? ' lite' : ''}${hist ? ' histo' : ''}" data-s="${s}"${hist ? ' title="historical — shipped as working history"' : ''}>
+	 <div class="eh"><span class="nm">${s}</span><span class="cvs">${cls.ch.map((c2, i) => `<input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}">`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
 	</article>` }
 
 export const catHTML = () =>
-	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}</button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">(${c.spaces.length})</span></h2><div class="grid">
+	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="tc tnum">(${c.spaces.length})</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">(${c.spaces.length})</span></h2><div class="grid">
 	${c.spaces.slice(0, LEADS).map(s => ent(s, false)).join('')}
 </div>${c.spaces.length > LEADS ? `<div class="sheet">
 	${c.spaces.slice(LEADS).map(s => ent(s, true)).join('')}
