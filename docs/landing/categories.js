@@ -9,7 +9,7 @@ export default [
 	{ name: 'Colorimetry & vision', spaces: ['xyz', 'xyy', 'lms', 'xyz-d50', 'uv', 'kelvin', 'wavelength', 'xyz-abs-d65', 'macboyn', 'dkl', 'gray', 'dsh', 'rg', 'yrg'] },
 	{ name: 'Video & broadcast', spaces: ['ycbcr', 'yuv', 'yiq', 'ypbpr', 'ycgco', 'jpeg', 'ydbdr', 'yccbccrc', 'xvycc', 'smpte-c', 'photoycc'] },
 	{ name: 'Film & camera', spaces: ['acescg', 'acescc', 'logc3', 'slog3', 'aces2065-1', 'acescct', 'logc4', 'cineon', 'davinci', 'slog2', 'vlog', 'log3g10', 'clog', 'clog2', 'clog3', 'flog', 'flog2', 'nlog', 'applelog', 'bmdfilm', 'dlog', 'tlog', 'dcdm', 'slog', 'acesproxy', 'erimm', 'llog', 'protune', 'milog', 'olog', 'redlog', 'redlogfilm', 'log3g12', 'panalog', 'viperlog', 'filmicpro'] },
-	{ name: 'Appearance models', spaces: ['cam16', 'ciecam02', 'cam16-ucs', 'zcam', 'cam02-ucs', 'cam16-lcd', 'cam16-scd', 'cam02-lcd', 'cam02-scd', 'hellwig2022', 'rlab'] },
-	{ name: 'Print & physical', spaces: ['cmyk', 'munsell', 'ryb', 'cmy', 'ral-design', 'coloroid'] },
+	{ name: 'Appearance models', spaces: ['cam16', 'ciecam02', 'cam16-ucs', 'zcam', 'cam02-ucs', 'cam16-lcd', 'cam16-scd', 'cam02-lcd', 'cam02-scd', 'hellwig2022', 'rlab', 'llab', 'nayatani95', 'hunt'] },
+	{ name: 'Print & physical', spaces: ['cmyk', 'munsell', 'ryb', 'cmy', 'ral-design', 'coloroid', 'ostwald'] },
 	{ name: 'Specialty & research', spaces: ['cubehelix', 'xyb', 'osaucs', 'tsl', 'yes', 'ohta', 'lalphabeta'] },
 ]

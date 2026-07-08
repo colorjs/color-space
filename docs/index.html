@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>color-space — every color space, one tiny API, verified</title>
-<meta name="description" content="151 color spaces live in the browser — CSS-native values, formulas differentially tested against colorjs.io. Zero dependencies, public domain.">
+<meta name="description" content="155 color spaces live in the browser — CSS-native values, formulas differentially tested against colorjs.io. Zero dependencies, public domain.">
 <meta property="og:title" content="color-space — every color space, one tiny API, verified">
-<meta property="og:description" content="151 color spaces live in the browser — one color re-derived across all of them. CSS-native values, verified against colorjs.io, zero dependencies, public domain.">
+<meta property="og:description" content="155 color spaces live in the browser — one color re-derived across all of them. CSS-native values, verified against colorjs.io, zero dependencies, public domain.">
 <meta property="og:image" content="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -200,7 +200,13 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .dswatch{ width:4.2rem; height:4.2rem; border:1px solid var(--hair); background:var(--curcol,var(--c)); cursor:copy; padding:0 }
 .dlead p{ margin:0; color:var(--body); font-size:1.05rem; line-height:1.45; text-wrap:pretty }
 .dpills{ grid-column:1/-1; display:flex; gap:.35rem; flex-wrap:wrap }
-.dpills span{ font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:.18rem .42rem }
+.dpills span{ font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:.18rem .42rem; cursor:help }
+/* the transfer curve — code value over scene-linear light, painted per space */
+.tcv{ display:block; width:100%; max-width:15rem; height:auto; background:var(--panel) }
+/* hub spaces unfold their long children list on demand */
+.kmore{ font:inherit; font-size:.85em; border:0; background:none; color:var(--soft); cursor:pointer; padding:0; text-decoration:underline; text-underline-offset:2px }
+.kmore:hover{ color:var(--ink) }
+h4.sec2 #gseg{ margin-left:auto }   /* the gamut lens sits at the right of the channels header */
 .dhero .dviz2{ margin:0; gap:.8rem; align-items:center }
 .dhero .dviz2 .pl3d{ max-width:19rem }
 .dhero .gam2d{ max-width:15rem }
@@ -385,15 +391,13 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .fnpm:hover i{ color:var(--c); opacity:1 }
 @media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:1rem 1.4rem } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } .fbrand{ width:100% } }
 @media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mback{ display:none } .mnav{ top:auto; bottom:.8rem; transform:none; padding:.65rem; color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
-/* ── the hero: a compact gamut atlas — hue across, lightness down. The live canvas
-   breathes between maximum-chroma sRGB/P3/Rec.2020 envelopes. Drag picks in place;
-   scroll still folds the surface into the thin masthead colour line. ── */
+/* ── the hero: a compact OKLCH slice — hue across, chroma down at the current
+   lightness. A contour moves inside that one space; drag picks in place and pauses it. ── */
 .introw{ height:var(--ih,120px) }   /* the scroll track: the plane collapses over exactly this much scroll */
 .intro{ position:sticky; top:var(--hh,52px); height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
-/* the pick surface is a live canvas: hue runs left→right, lightness top→bottom,
-   while chroma breathes between sRGB/P3/Rec.2020 boundaries. Anchored to the BOTTOM
-   so scroll clips it down into the masthead's current-colour line. */
+/* the pick surface is a live canvas: hue runs left→right, chroma top→bottom at the
+   current OKLCH lightness. Anchored to the BOTTOM so scroll clips it into the masthead line. */
 .iwheel{ position:absolute; left:0; right:0; bottom:0; width:100%; height:var(--ih,120px); display:block; background:var(--panel) }
 /* same rhombus marker as the catalog sliders, enlarged for the hero */
 .ipicker{ position:absolute; z-index:2; top:0; left:0; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); color:#fff; background:var(--c); border:1.4px solid currentColor; pointer-events:none; opacity:1; will-change:left,top }
@@ -486,10 +490,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">rimm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rimm Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rimm Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rimm Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="cie-rgb" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">cie-rgb</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="cie-rgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="cie-rgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="cie-rgb Blue"></span></div>
+	 <div class="eh"><span class="nm">cie-rgb<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="cie-rgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="cie-rgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="cie-rgb Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="ntsc" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">ntsc</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="ntsc Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="ntsc Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="ntsc Blue"></span></div>
+	 <div class="eh"><span class="nm">ntsc<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="ntsc Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="ntsc Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="ntsc Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="pal">
 	 <div class="eh"><span class="nm">pal</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="pal Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="pal Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="pal Blue"></span></div>
@@ -618,7 +622,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">uvw</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="U* chrominance" aria-label="uvw U* chrominance"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="V* chrominance" aria-label="uvw V* chrominance"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="W* lightness" aria-label="uvw W* lightness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="U* chrominance"><div class="tk"></div><span class="sy">U</span></div><div class="ch" data-i="1" title="V* chrominance"><div class="tk"></div><span class="sy">V</span></div><div class="ch" data-i="2" title="W* lightness"><div class="tk"></div><span class="sy">W</span></div></div>
 	</article><article class="ent lite histo" data-s="anlab" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">anlab</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="anlab Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="anlab Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="anlab Yellow-Blue"></span></div>
+	 <div class="eh"><span class="nm">anlab<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="anlab Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="anlab Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="anlab Yellow-Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span></div></div>
 	</article>
 </div></section><section class="sec" data-sec><h2 class="shw">HDR & wide gamut<span class="c tnum">(11)</span></h2><div class="grid">
@@ -814,7 +818,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">dcdm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="X′" aria-label="dcdm X′"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Y′" aria-label="dcdm Y′"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Z′" aria-label="dcdm Z′"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="X′"><div class="tk"></div><span class="sy">X</span></div><div class="ch" data-i="1" title="Y′"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Z′"><div class="tk"></div><span class="sy">Z</span></div></div>
 	</article><article class="ent lite histo" data-s="slog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">slog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog Blue"></span></div>
+	 <div class="eh"><span class="nm">slog<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="acesproxy">
 	 <div class="eh"><span class="nm">acesproxy</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="acesproxy Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="acesproxy Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="acesproxy Blue"></span></div>
@@ -835,7 +839,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">olog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="olog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="olog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="olog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="redlog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">redlog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlog Blue"></span></div>
+	 <div class="eh"><span class="nm">redlog<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="redlogfilm">
 	 <div class="eh"><span class="nm">redlogfilm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlogfilm Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlogfilm Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlogfilm Blue"></span></div>
@@ -844,10 +848,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">log3g12</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="log3g12 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="log3g12 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="log3g12 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="panalog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">panalog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="panalog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="panalog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="panalog Blue"></span></div>
+	 <div class="eh"><span class="nm">panalog<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="panalog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="panalog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="panalog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="viperlog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">viperlog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="viperlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="viperlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="viperlog Blue"></span></div>
+	 <div class="eh"><span class="nm">viperlog<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="viperlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="viperlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="viperlog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="filmicpro">
 	 <div class="eh"><span class="nm">filmicpro</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="filmicpro Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="filmicpro Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="filmicpro Blue"></span></div>
@@ -898,7 +902,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">munsell</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="munsell Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Value" aria-label="munsell Value"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Chroma" aria-label="munsell Chroma"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Value"><div class="tk"></div><span class="sy">V</span></div><div class="ch" data-i="2" title="Chroma"><div class="tk"></div><span class="sy">C</span></div></div>
 	</article><article class="ent histo" data-s="ryb" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">ryb</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red pigment" aria-label="ryb Red pigment"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow pigment" aria-label="ryb Yellow pigment"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue pigment" aria-label="ryb Blue pigment"></span></div>
+	 <div class="eh"><span class="nm">ryb<span class="histico" title="historical — shipped as working history" aria-label="historical"></span></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red pigment" aria-label="ryb Red pigment"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow pigment" aria-label="ryb Yellow pigment"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue pigment" aria-label="ryb Blue pigment"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red pigment"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Yellow pigment"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Blue pigment"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article>
 </div><div class="sheet">
@@ -947,7 +951,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		<pre data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
-space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 151 × 150 pairs</i>
+space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 155 × 154 pairs</i>
 
 space.oklch.name    <i>// 'oklch'</i>
 space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
@@ -996,12 +1000,12 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 
 <div class="g"><section class="about declined" id="declined">
 	<h2>Skipped</h2>
-	<p class="lede">A few famous systems would each need data or math no open formula supplies — so here is what's left out, and why.</p>
+	<p class="lede">A space is skipped only when nothing open can define it — no redistributable data, no published formula, or no working inverse. Everything else ships, however old.</p>
 	<div class="dcols">
 		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are defined by physical printed swatches and trademarked; their CIE measurements aren't openly redistributable, so there's nothing lawful to convert against (the official sites hold the authoritative values).</p>
-		<p><b>Atlas systems</b> — <a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a>, <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a> — are defined only by a printed sample book (a colour <i>atlas</i>); no formula to convert to or from them was ever published.</p>
-		<p><b>Non-invertible appearance models</b> — Hunt, Nayatani 95, LLAB, ATD95 — publish a forward transform but no closed-form inverse, so they can't round-trip the way every space here does (RLAB, the one early model that inverts cleanly, ships).</p>
-		<p><b>Historical spaces</b> — CIE RGB (1931), NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked with an archive icon in the catalog as working history.</p>
+		<p><b>Atlas systems</b> — <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a>'s constant-hue loci were only ever published as paywalled DIN data sheets, so nothing open defines it. (<a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a> <i>ships</i>: its ideal system — full colours as optimal semichromes — is pure mathematics over the CIE observer, no atlas needed.)</p>
+		<p><b>ATD95</b> — the one appearance model still out: per its own authors it "cannot be considered a colour appearance model"; it predicts discrimination stages, not colour coordinates. (Hunt, Nayatani 95 and LLAB <i>ship</i>, inverted exactly or by the successive approximation their literature prescribes.)</p>
+		<p><b>Historical spaces</b> — CIE RGB (1931), Ostwald, Hunt, Nayatani 95, LLAB, NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked with an archive icon in the catalog as working history.</p>
 	</div>
 </section></div>
 
@@ -1023,7 +1027,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 			</nav>
 			<div class="legal">
 				<button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button>
-				<span class="proof"><span id="n">151</span> spaces · differentially tested · zero dependencies</span>
+				<span class="proof"><span id="n">155</span> spaces · differentially tested · zero dependencies</span>
 				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">Unlicense</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
 			</div>
 		</div>
@@ -1125,7 +1129,10 @@ const encodingOf=s=>{
 	if(/ycbcr|yuv|yiq|ypbpr|jpeg|ycc|ycgco|xvycc|photoycc/.test(s)) return 'luma / chroma encoding'
 	if(/lab|luv|ok|cam|hct|din|ipt|ucs|osa|munsell|coloroid|ral/.test(s)) return 'perceptual / appearance coordinates'
 	return '' }
-const avoidOf=(s,L)=>L.sin||(/hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm/.test(s)?'when equal numeric steps must look visually even — use OKLab/OKLCH or a uniform space instead':'when you need parsing, ΔE, contrast, palette generation or gamut mapping — color-space is the conversion kernel underneath those tools')
+// only honest, space-specific cautions: the curated sin, or the device-cylindrical
+// class trap. No generic fallback — boilerplate posing as guidance misleads (it told
+// people to avoid OKLCH for palettes). No caution recorded → no row.
+const avoidOf=(s,L)=>L.sin||(/^(hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm)$/.test(s)?'when equal numeric steps must look visually even — use OKLab/OKLCH or a uniform space instead':'')
 // tooltips for the dossier tags and gamut flags
 const TAGTIP={ display:'display-referred — values describe light emitted by a display',
 	scene:'scene-referred — values describe light in the scene, as a camera sees it',
@@ -1133,7 +1140,9 @@ const TAGTIP={ display:'display-referred — values describe light emitted by a 
 	HDR:'high dynamic range — extended or unbounded luminance',
 	polar:'polar geometry — a hue angle plus radial chroma/saturation',
 	opponent:'opponent geometry — two signed color axes around a neutral center',
-	component:'component geometry — independent channels, no hue axis' }
+	component:'component geometry — independent channels, no hue axis',
+	'one-way':'converts from RGB only — no closed-form inverse exists; the channel sliders drive its own parameters directly',
+	bidirectional:'round-trips — to RGB and back, and through every other space' }
 const GAMTIP={ srgb:'does the current color fit inside sRGB — the standard web gamut',
 	p3:'does it fit inside Display-P3 — wide-gamut Apple & modern displays',
 	rec2020:'does it fit inside Rec.2020 — the UHD wide gamut' }
@@ -1918,8 +1927,15 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const L=LORE[s]||{}, RCH=REACH[s]
 	const kids=ORDER.filter(x=>x!==s&&(pathToRgb(x)||[])[1]===s)
 	const rel=relatedOf(s), enc=encodingOf(s), avoid=avoidOf(s,L)
+	// the transfer curve — for RGB-model spaces the defining feature: scene-linear gray
+	// in, channel code value out, sampled through the library itself
+	let tcurve=null
+	if(cls.archetype==='additive'&&s!=='lrgb'){ try{
+		const pts=Array.from({length:73},(_,i)=>space.lrgb[s](i/72,i/72,i/72)[0])
+		if(pts.every(isFinite)){ const lo=Math.min(...pts), hi=Math.max(...pts)
+			if(hi-lo>1e-6) tcurve={pts,lo,hi} } }catch{} }
 	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
-	const visualHTML=has3d||hasPlaneGL(s)?`<div class="dviz2">${has3d?`<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the switch above; drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''
+	const visualHTML=has3d||hasPlaneGL(s)?`<div class="dviz2">${has3d?`<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''
 	const scaleHTML=!fwd&&cls.tone?`<h4 class="sec2" id="scale">scale <span class="seg" id="scaleseg"><button data-n="5">5</button><button data-n="9" class="on">9</button><button data-n="11">11</button></span><button class="cpy" id="scopy" title="copy CSS variables">copy vars</button></h4><div class="scalegrid" id="scalegrid"></div><pre class="scaleout" id="scaleout"></pre>`:''
 	const interpHTML=fwd?'':`<h4 class="sec2" id="compare">interpolate <button class="cpyi icpy" id="icpy" title="copy this blend as CSS — ${s} interpolation baked into plain stops"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — edit a channel, paste a hex into any field, or click the swatch to pick">→ <button class="isw" id="isw" title="pick the endpoint color"></button>${cls.ch.map((c,i)=>`<span class="iec"><i>${c.sym}</i><input class="iev" data-i="${i}"></span>`).join('')}</span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
@@ -1932,50 +1948,44 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const plotPairs=pairsFor(s)
 	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span>`
 	const gamHTML=`<span class="seg" id="gseg">${[...GAMS,'vis'].map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="${g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`}">${GAMLABEL[g]}</button>`).join('')}</span>`
-	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${HISTORICAL.has(s)?`<span class="dhist" title="shipped as working history">historical</span>`:''}${gamHTML}</div>
-	 <nav class="dnav" aria-label="dossier sections"><button type="button" data-jump="overview">overview</button><button type="button" data-jump="explore">explore</button>${hasPlaneGL(s)?`<button type="button" data-jump="image">image</button>`:''}${interpHTML?`<button type="button" data-jump="compare">compare</button>`:''}${scaleHTML?`<button type="button" data-jump="scale">scale</button>`:''}<button type="button" data-jump="code">code</button><button type="button" data-jump="sources">sources</button><button class="copylink" id="dshare" type="button">copy link</button></nav>
+	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${HISTORICAL.has(s)?`<span class="dhist" title="shipped as working history">historical</span>`:''}</div>
+	 <nav class="dnav" aria-label="dossier sections"><button type="button" data-jump="overview">overview</button><button type="button" data-jump="explore">channels</button>${hasPlaneGL(s)?`<button type="button" data-jump="image">image</button>`:''}${interpHTML?`<button type="button" data-jump="compare">interpolate</button>`:''}${scaleHTML?`<button type="button" data-jump="scale">scale</button>`:''}<button type="button" data-jump="code">code</button><button type="button" data-jump="sources">sources</button><button class="copylink" id="dshare" type="button">copy link</button></nav>
 	 <hr class="dhr">
 	 <section class="dhero" id="overview">
-		<div class="dlead"><button class="dswatch" id="dswatch" title="copy current color" aria-label="copy current color"></button><p>${L.for||useOf(s)}</p><div class="dpills">${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s),enc,fwd?'one-way':'bidirectional'].filter(Boolean).map(x=>`<span>${x}</span>`).join('')}</div></div>
+		<div class="dlead"><button class="dswatch" id="dswatch" title="copy current color" aria-label="copy current color"></button><p>${L.for||useOf(s)}</p><div class="dpills">${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s),enc,fwd?'one-way':'bidirectional'].filter(Boolean).map(x=>`<span title="${TAGTIP[x]||''}">${x}</span>`).join('')}</div></div>
 		${visualHTML}
 	 </section>
 	 <div class="props props3">
 		<div class="pcol">
 			<div class="hfmts" id="hfmts"></div>
-			<div><i>type</i><p>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</p></div>
-			${enc?`<div><i>encoding</i><p>${enc}</p></div>`:''}
-			<div><i>conversion</i><p>${fwd?'one-way from RGB · explores its own parameter':'bidirectional · RGB round-trip available'}</p></div>
-			${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
+			${tcurve?`<div><i>transfer</i><canvas class="tcv" id="tcv" width="280" height="160" title="the per-channel transfer curve — scene-linear light across (0–1), ${s} code value up; dashed diagonal = linear"></canvas></div>`:''}
 		</div>
 		<div class="pcol">
-			${path&&(path.length>1||kids.length)?`<div><i>family</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}${kids.length?`<span class="kids" title="spaces defined on top of this one">↳ ${kids.map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</span>`:''}</p></div>`:''}
+			${path&&(path.length>1||kids.length)?`<div><i>family</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}${kids.length?`<span class="kids" title="spaces defined on top of this one">↳ ${kids.slice(0,8).map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}${kids.length>8?`<span class="kext" hidden> · ${kids.slice(8).map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</span> <button class="kmore" type="button">+${kids.length-8} more</button>`:''}</span>`:''}</p></div>`:''}
 			${rel.length?`<div><i>nearby</i><p>${rel.map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</p></div>`:''}
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
-			${RCH?`<div><i>reach</i><p title="share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick">${Math.round(RCH[0]*100)}% of visible${s!=='rgb'?` · ${RCH[1].toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}× sRGB`:''}</p></div>`:''}
-			${L.nm?`<div><i>the name</i><p>${L.nm}</p></div>`:''}
 		</div>
 		<div class="pcol">
+			${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
+			${RCH?`<div><i>reach</i><p title="share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick">${Math.round(RCH[0]*100)}% of visible${s!=='rgb'?` · ${RCH[1].toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}× sRGB`:''}</p></div>`:''}
+			${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
 			${VERIFIED.has(s)?`<div><i>verified</i><p title="every conversion pinned by independent reference values at 1/255 tolerance — see test under sources">±1/255</p></div>`:''}
-			${m.refs?`<div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
-			${m.wiki?`<div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div>`:''}
-			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span title="${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 		</div>
 	 </div>
 	 <div class="dgrid2">
 		<div><i class="plab">description</i>
 		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
 		<div class="pcol">
-			<div><i>use when</i><p>${L.for||useOf(s)}</p></div>
 			<div><i>used for</i><p>${m.use||useOf(s)}</p></div>
-			<div><i>avoid when</i><p>${avoid}</p></div>
+			${avoid?`<div><i>avoid when</i><p>${avoid}</p></div>`:''}
 		</div>
 	 </div>
-	 ${cls.ch.length>1?`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
+	 ${cls.ch.length>1?`<h4 class="sec2" id="explore">channels ${segsHTML}${gamHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 	 <h4 class="sec2">plots</h4>
 	 <div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cls.ch[b].sym}">${cname(cls.ch[b])}</span><span class="labx" title="${cls.ch[a].sym}">${cname(cls.ch[a])}</span></div>`).join('')}</div>`
-	 :`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
+	 :`<h4 class="sec2" id="explore">channels ${segsHTML}${gamHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`}
 	 ${hasPlaneGL(s)?`<h4 class="sec2" id="image">image <i>click to rotate presets · drop your own image</i></h4>
 	 <div class="imgrow" id="imgrow" title="click: next test image · drop your own image"></div>`:''}
@@ -1994,6 +2004,20 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	wire3d()
 	paintGamut(); paintImages()
+	// hub spaces: the family list shows 8 children, the rest unfold on demand
+	const kmore=detail.querySelector('.kmore')
+	if(kmore) kmore.onclick=()=>{ detail.querySelector('.kext').hidden=false; kmore.remove() }
+	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
+	const tcv=detail.querySelector('#tcv')
+	if(tcv&&tcurve){ const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, P=6
+		const ink2=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#1b1408'
+		c2.clearRect(0,0,W,H); c2.lineWidth=1; c2.strokeStyle='oklch(0.5 0.01 70/.3)'
+		c2.strokeRect(P+.5,P+.5,W-2*P-1,H-2*P-1)
+		c2.setLineDash([4,4]); c2.beginPath(); c2.moveTo(P,H-P); c2.lineTo(W-P,P); c2.stroke(); c2.setLineDash([])
+		c2.strokeStyle=ink2; c2.lineWidth=2; c2.beginPath()
+		tcurve.pts.forEach((v,i)=>{ const x=P+i/72*(W-2*P), y=H-P-(v-tcurve.lo)/(tcurve.hi-tcurve.lo)*(H-2*P)
+			i?c2.lineTo(x,y):c2.moveTo(x,y) })
+		c2.stroke() }
 	const irow2=detail.querySelector('#imgrow')
 	if(irow2){ irow2.onclick=()=>{ if(!IMGS) return; imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
 		irow2.ondragover=e=>e.preventDefault()
@@ -2264,7 +2288,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 		if(vals&&CSSABLE.has(s)) rows.push(['native css',fmt(s,vals)])
 		else if(vals){ try{ rows.push(['css fallback',fmt('xyz',space[s].xyz(...vals))]) }catch{} }
 		const g0=gamuts()
-		rows.push(['srgb'+(g0&&!g0.srgb?' ≈':''),hx])
+		rows.push([g0&&!g0.srgb?'hex ≈ (out of srgb)':'hex',hx])
 		hf.innerHTML=rows.map(([l2,v2])=>`<div class="hrow" title="copy"><i>${l2}</i><p class="hval tnum">${v2}</p></div>`).join('') }
 	const shown=vals||probeVals(s)   // forward-only spaces paint from their locally explored params
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
@@ -2493,49 +2517,48 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── hero atlas: hue across, lightness down. The canvas breathes between the maximum
-//    chroma envelopes of sRGB → P3 → Rec.2020, so the header is not a decorative
-//    gradient but a live gamut slice. Dragging changes the color in place; no scroll jump. ──
+// ── hero atlas: one OKLCH slice — hue across, chroma down at the current lightness.
+//    The moving line is a constant-chroma contour inside that same space; dragging
+//    pauses it and changes the color in place, with no scroll jump. ──
 ;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), iwheel=document.getElementById('iwheel'), mhead=document.querySelector('.mhead')
 	const picker=document.getElementById('ipicker'), page=document.querySelector('.page'), ctx=iwheel.getContext('2d',{ alpha:false })
 	const setHH=()=>page.style.setProperty('--hh',mhead.offsetHeight+'px')   // pin the plane right under the header
 	setHH(); addEventListener('resize',setHH)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	const HG=['srgb','p3','rec2020'], HSEQ=[0,1,2,1]
-	let atlas=null, frame=null, phase={ a:2, b:2, t:0 }
-	const smooth=t=>t*t*(3-2*t)
+	let atlas=null, frame=null, heroL=0.72, animHold=false
+	const smooth=t=>t*t*(3-2*t), chromaCurve=f=>Math.pow(clamp(f,0,1),.86), invChroma=f=>Math.pow(clamp(f,0,1),1/.86)
 	const gvals=(g,L,C,H)=>{ try{ const v=g==='srgb'?space.oklch.rgb(L,C,H).map(x=>x/255):space.oklch[g](L,C,H); return v }catch{ return [9,9,9] } }
 	const fits=(g,L,C,H)=>gvals(g,L,C,H).every(v=>isFinite(v)&&v>=-0.0005&&v<=1.0005)
-	const cmax=(g,L,H)=>{ if(L<=0.002||L>=0.998) return 0
+	const cmax=(g,L,H)=>{ if(L<=0.04||L>=0.96) return 0
 		let lo=0, hi=.43
 		if(fits(g,L,hi,H)) return hi
 		for(let k=0;k<11;k++){ const mid=(lo+hi)/2; fits(g,L,mid,H)?lo=mid:hi=mid }
 		return lo }
 	const rgbOklch=(L,C,H)=>space.oklch.rgb(L,C,H).map(v=>clamp(Math.round(v),0,255))
-	const buildAtlas=()=>{ const r=intro.getBoundingClientRect(), W=Math.max(320,Math.min(600,Math.round(r.width/2))), H=104
-		if(atlas&&atlas.W===W&&atlas.H===H) return
-		iwheel.width=W; iwheel.height=H; atlas={ W,H, data:HG.map(()=>new Uint8ClampedArray(W*H*4)) }; frame=ctx.createImageData(W,H)
-		HG.forEach((g,gi)=>{ const out=atlas.data[gi]
-			for(let y=0;y<H;y++){ const L=1-y/(H-1)
-				for(let x=0;x<W;x++){ const hue=x/(W-1)*360, C=cmax(g,L,hue), rgb=rgbOklch(L,C,hue), p=(y*W+x)*4
-					out[p]=rgb[0]; out[p+1]=rgb[1]; out[p+2]=rgb[2]; out[p+3]=255 } } }) }
-	const drawHero=ts=>{ buildAtlas()
-		const u=(ts/3600)%HSEQ.length, k=Math.floor(u), t=smooth(u-k); phase={ a:HSEQ[k], b:HSEQ[(k+1)%HSEQ.length], t }
-		const A=atlas.data[phase.a], B=atlas.data[phase.b], O=frame.data, t2=phase.t, it=1-t2
-		for(let p=0;p<O.length;p+=4){ O[p]=A[p]*it+B[p]*t2; O[p+1]=A[p+1]*it+B[p+1]*t2; O[p+2]=A[p+2]*it+B[p+2]*t2; O[p+3]=255 }
-		ctx.putImageData(frame,0,0)
-		// a slow gamut sweep makes the changing maximum-chroma envelope legible even on sRGB displays
-		const W=atlas.W,H=atlas.H,x=(ts/32)%(W+140)-70, grd=ctx.createLinearGradient(x-70,0,x+70,0)
-		grd.addColorStop(0,'rgba(255,255,255,0)'); grd.addColorStop(.5,'rgba(255,255,255,.18)'); grd.addColorStop(1,'rgba(255,255,255,0)')
-		ctx.save(); ctx.globalCompositeOperation='screen'; ctx.fillStyle=grd; ctx.fillRect(x-70,0,140,H); ctx.restore()
+	const currentL=()=>{ try{ return clamp(toSpace('oklch',RGB())[0],.18,.86) }catch{ return heroL } }
+	const buildAtlas=()=>{ heroL=currentL(); const L=+heroL.toFixed(3)
+		const r=intro.getBoundingClientRect(), W=Math.max(320,Math.min(600,Math.round(r.width/2))), H=104
+		if(atlas&&atlas.W===W&&atlas.H===H&&atlas.L===L) return
+		iwheel.width=W; iwheel.height=H; const data=new Uint8ClampedArray(W*H*4); atlas={ W,H,L,data }; frame=ctx.createImageData(W,H)
+		for(let y=0;y<H;y++){ const cf=chromaCurve(y/(H-1))
+			for(let x=0;x<W;x++){ const hue=x/(W-1)*360, C=cmax('srgb',L,hue)*cf, rgb=rgbOklch(L,C,hue), p=(y*W+x)*4
+				data[p]=rgb[0]; data[p+1]=rgb[1]; data[p+2]=rgb[2]; data[p+3]=255 } } }
+	const contour=(C,alpha)=>{ const { W,H,L }=atlas; let on=false
+		ctx.beginPath()
+		for(let x=0;x<W;x++){ const hue=x/(W-1)*360, m=cmax('srgb',L,hue); if(!(m>0)||C>m){ on=false; continue }
+			const y=invChroma(C/m)*(H-1); if(on) ctx.lineTo(x,y); else{ ctx.moveTo(x,y); on=true } }
+		ctx.strokeStyle=`rgba(255,255,255,${alpha})`; ctx.lineWidth=1.35; ctx.stroke()
+		ctx.strokeStyle=`rgba(27,20,8,${alpha*.38})`; ctx.lineWidth=.65; ctx.stroke() }
+	const drawHero=ts=>{ buildAtlas(); frame.data.set(atlas.data); ctx.putImageData(frame,0,0)
+		if(!animHold){ const p=(ts/2600)%1; contour(.018+.24*smooth(p),.36); contour(.018+.24*smooth((p+.46)%1),.18) }
 		syncHeroPicker(); requestAnimationFrame(drawHero) }
-	const maxC=(L,H)=>cmax(HG[phase.a],L,H)*(1-phase.t)+cmax(HG[phase.b],L,H)*phase.t
-	const colAt=(fx,fy)=>{ const H=((clamp(fx,0,1)*360)%360+360)%360, L=clamp(1-fy,0,1), C=maxC(L,H); return rgbOklch(L,C,H) }
+	const maxC=(L,H)=>cmax('srgb',L,H)
+	const colAt=(fx,fy)=>{ const H=((clamp(fx,0,1)*360)%360+360)%360, L=atlas?.L??currentL(), C=maxC(L,H)*chromaCurve(fy); return rgbOklch(L,C,H) }
 	const at=e=>{ const r=iwheel.getBoundingClientRect(); return [clamp((e.clientX-r.left)/r.width,0,1),clamp((e.clientY-r.top)/r.height,0,1)] }
 	const place=(fx,fy,rgb=RGB())=>{ const ir=intro.getBoundingClientRect(), wr=iwheel.getBoundingClientRect()
 		picker.style.left=(fx*wr.width+wr.left-ir.left)+'px'; picker.style.top=(fy*wr.height+wr.top-ir.top)+'px'; picker.style.color=ink(rgb); picker.style.opacity='1' }
-	syncHeroPicker=()=>{ try{ const ok=toSpace('oklch',RGB()), H=((ok[2]||0)%360+360)%360
-		place(H/360,1-clamp(ok[0],0,1),RGB()) }catch{} }
+	syncHeroPicker=()=>{ try{ const ok=toSpace('oklch',RGB()), H=((ok[2]||0)%360+360)%360, m=maxC(ok[0],H)
+		place(H/360,m?invChroma(ok[1]/m):0,RGB()) }catch{} }
 	// scroll collapses the plane into the border line; the header value remains editable throughout.
 	const LINE=5
 	const heroScroll=()=>{ const track=introw.offsetHeight-LINE, h=Math.max(LINE, introw.offsetHeight-scrollY)
@@ -2551,10 +2574,10 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
 	const apply=e=>{ const [fx,fy]=at(e), rgb=colAt(fx,fy)
 		master={ s:'rgb', vals:rgb }; place(fx,fy,rgb); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-	intro.addEventListener('pointerdown',e=>{ dragId=e.pointerId; intro.setPointerCapture(dragId); wave(); apply(e) })
+	intro.addEventListener('pointerdown',e=>{ dragId=e.pointerId; animHold=true; intro.setPointerCapture(dragId); wave(); apply(e) })
 	intro.addEventListener('pointermove',e=>{ if(e.pointerId===dragId) apply(e) })
-	intro.addEventListener('pointerup',e=>{ if(e.pointerId===dragId){ dragId=null; try{ intro.releasePointerCapture(e.pointerId) }catch{} } })
-	intro.addEventListener('pointercancel',()=>{ dragId=null })
+	intro.addEventListener('pointerup',e=>{ if(e.pointerId===dragId){ dragId=null; animHold=false; try{ intro.releasePointerCapture(e.pointerId) }catch{} } })
+	intro.addEventListener('pointercancel',()=>{ dragId=null; animHold=false })
 	addEventListener('resize',()=>{ atlas=null; setHH(); heroScroll() })
 	requestAnimationFrame(drawHero); heroScroll(); syncHeroPicker() })()
 </script></body></html>

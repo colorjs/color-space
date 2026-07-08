@@ -132,9 +132,13 @@ const REF = [
   {"s":"din99d","f":"xyz","t":"din99d","in":[27.4227451,24.99215686,77.58078431],"out":[60.76669521656288,-3.604025006515101,-32.746891770498905],"src":"Hand-derived: Cui et al. 2002 DIN99d; X'=1.12X-0.12Z pre-scale + colour-science f(t)/DIN99_METHODS['DIN99d']","url":"https://doi.org/10.1002/col.10066"},
   {"s":"ipt","f":"xyz","t":"ipt","in":[27.4227451,24.99215686,77.58078431],"out":[0.6117248188390141,-0.08959489952174082,-0.377557702510693],"src":"colour-science 0.4.7 XYZ_to_IPT([.274227451,.249922,.775808]) — Fairchild&Ebner 1998 M1/M2 matrices, D65","url":"https://colour.readthedocs.io/en/v0.4.7/generated/colour.XYZ_to_IPT.html"},
   {"s":"okhwb","f":"okhsv","t":"okhwb","in":[266.5201064941602,87.05707581797898,78.53306682926586],"out":[266.5201064941602,10.164475297527773,21.466933170734126],"src":"culori v4 okhsv of rgb(30,60,200)/255, hand-mapped via Ottosson's w=(1-s)v, b=1-v (colorpicker post, #okhwb)","url":"https://bottosson.github.io/posts/colorpicker/#okhwb"},
+  {"s":"llab","f":"xyz","t":"llab","in":[19.01,20,21.78],"out":[37.368687,0,-0.019019],"src":"colour-science XYZ_to_LLAB doctest (Luo, Lo & Kuo 1996; D65, L=318.31, Yb=20, ref average <4deg): J=37.3668650, h=270 -> A=0, B=-M=-0.0190185","url":"https://doi.org/10.1002/(SICI)1520-6378(199612)21:6<412::AID-COL4>3.0.CO;2-Z"},
+  {"s":"nayatani95","f":"xyz","t":"nayatani95","in":[19.01,20,21.78],"out":[49.9998829,0.013355,257.5232268],"src":"colour-science XYZ_to_Nayatani95 doctest (D65 x100, Yo=20, Eo=5000 lx, Eor=1000 lx): L*P, C, theta","url":"https://doi.org/10.1002/col.5080200305"},
+  {"s":"hunt","f":"xyz","t":"hunt","in":[19.01,20,21.78],"out":[30.0462678,0.1210508,269.2737594],"src":"colour-science XYZ_to_Hunt doctest (D65 white+background x100, LA=318.31, Normal Scenes, CCT_w=6504, discounted, S=Y): J, C94, h","url":"https://doi.org/10.1002/col.5080190504"},
+  {"s":"ostwald","f":"ostwald","t":"xyz","in":[0,100,0],"out":[97.9989,100,118.2674],"src":"Ideal Ostwald (Foss 1944 semichrome construction over CIE 1931 CMF x illuminant C): W=100 -> illuminant C white, xy (0.3099,0.3162) vs CIE 15 (0.31006,0.31616) within the 5nm/380-700 table truncation","url":"https://doi.org/10.1364/JOSA.34.000361"},
 ]
 
-test('bona-fide reference values (124 cited points, 123 spaces)', () => {
+test('bona-fide reference values (128 cited points, 127 spaces)', () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {

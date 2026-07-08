@@ -2569,6 +2569,53 @@ export default {
     "dynamic": "sdr",
     "description": "HSV — Hue, Saturation, Value (also called HSB, for Brightness), another cylindrical remapping of RGB from Alvy Ray Smith's 1978 paper. It shares HSL's hue angle but replaces lightness with value, the brightness of the most intense color channel, so pure hues stay fully saturated across the whole brightness range instead of washing out toward white. It is the model behind most color-picker \"wheel plus square\" interfaces."
   },
+  "hunt": {
+    "channels": [
+      {
+        "symbol": "J",
+        "min": 0,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "C",
+        "min": 0,
+        "max": 120,
+        "name": "Chroma"
+      },
+      {
+        "symbol": "h",
+        "min": 0,
+        "max": 360,
+        "name": "Hue"
+      }
+    ],
+    "range": [
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        120
+      ],
+      [
+        0,
+        360
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.5080190504"
+    ],
+    "year": 1994,
+    "by": "Robert W. G. Hunt",
+    "use": "Historical flagship appearance model (Kodak); the direct ancestor of CIECAM97s/CIECAM02; kept for study.",
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "Hunt — Robert Hunt's colour appearance model (1982-1995), the most ambitious of the classical CAMs: developed over decades at Kodak, it models cone AND rod responses, luminance-level adaptation, surround induction, and predicts the full set of appearance correlates for related and unrelated colours from dim starlight to bright daylight. Its complexity is legendary — and directly ancestral: CIECAM97s and CIECAM02 are, in Fairchild's phrase, Hunt models simplified for practice."
+  },
   "hwb": {
     "channels": [
       {
@@ -3345,6 +3392,53 @@ export default {
     "dynamic": "sdr",
     "description": "LCh(uv) is the cylindrical form of CIELUV, the CIE's 1976 companion to CIELAB, converting its rectangular u/v axes into chroma and hue much as LCh(ab) does for Lab. It inherits LUV's defining additivity — mixtures of lights move predictably through the space — while giving a more intuitive saturation-and-hue handle for adjusting or comparing colors. It's also the basis for HSLuv and HPLuv, which rescale its chroma to fit the sRGB gamut."
   },
+  "llab": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": -10,
+        "max": 100,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "A",
+        "min": -80,
+        "max": 100,
+        "name": "Red-Green"
+      },
+      {
+        "symbol": "B",
+        "min": -90,
+        "max": 90,
+        "name": "Yellow-Blue"
+      }
+    ],
+    "range": [
+      [
+        -10,
+        100
+      ],
+      [
+        -80,
+        100
+      ],
+      [
+        -90,
+        90
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/(SICI)1520-6378(199612)21:6<412::AID-COL4>3.0.CO;2-Z"
+    ],
+    "year": 1996,
+    "by": "Luo, Lo & Kuo",
+    "use": "Historical CIELAB successor candidate for cross-media reproduction; superseded by CIECAM97s/CIECAM02.",
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "LLAB — Luo, Lo & Kuo's 1996 colour appearance model, developed as a candidate successor to CIELAB for cross-media image reproduction. It keeps CIELAB's opponent skeleton but swaps in a BFD chromatic-adaptation transform, a surround-dependent lightness exponent, and a logarithmic chroma compression that better tracks perceived colourfulness. CIECAM97s absorbed its ideas the following year, ending its short life as a standalone model."
+  },
   "llog": {
     "channels": [
       {
@@ -3862,6 +3956,53 @@ export default {
     "referred": "display",
     "dynamic": "sdr",
     "description": "The Munsell color system was devised by the American painter and art teacher Albert Munsell around 1905 as a way to organize colors by how they actually look, rather than by how pigments mix or lights combine. It arranges every color along three perceptually spaced axes — hue, value (lightness) and chroma (saturation) — notated like \"5R 5/10\" for hue 5R, value 5, chroma 10, so that equal numerical steps in any one axis look equally spaced to the eye. The system was later refined through extensive visual experiments into the 1943 Munsell Renotation, the dataset still used today as its authoritative reference. It remains a standard for perceptually meaningful color specification in fields such as soil science, geology, and paint and pigment matching."
+  },
+  "nayatani95": {
+    "channels": [
+      {
+        "symbol": "L",
+        "min": -20,
+        "max": 115,
+        "name": "Lightness"
+      },
+      {
+        "symbol": "C",
+        "min": 0,
+        "max": 190,
+        "name": "Chroma"
+      },
+      {
+        "symbol": "h",
+        "min": 0,
+        "max": 360,
+        "name": "Hue"
+      }
+    ],
+    "range": [
+      [
+        -20,
+        115
+      ],
+      [
+        0,
+        190
+      ],
+      [
+        0,
+        360
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.1002/col.5080200305"
+    ],
+    "year": 1995,
+    "by": "Yoshinobu Nayatani",
+    "use": "Historical appearance model of illuminant-level (Hunt/Stevens) effects; folded into the CIECAM97s lineage.",
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "Nayatani95 — Yoshinobu Nayatani's 1995 colour appearance model, the culmination of a line of research focused on illuminant-level effects: how the Hunt effect (colourfulness grows with luminance) and the Stevens effect (lightness contrast grows with luminance) reshape colour as adapting illuminance changes. Built on a von Kries cone stage with logarithmic opponent responses, it predicts brightness, lightness, chroma, colourfulness and saturation for related colours. Alongside Hunt's model it fed the CIE effort that became CIECAM97s."
   },
   "nlog": {
     "channels": [
@@ -4413,6 +4554,54 @@ export default {
     "referred": "display",
     "dynamic": "sdr",
     "description": "OSA-UCS (Uniform Color Scale) is a color space developed by an Optical Society of America committee and published in 1974, closely associated with David MacAdam's work on the project. It set out to solve a problem CIELAB and CIELUV don't fully address: making equal numerical distances correspond to equal perceived differences not just for small steps, but across large jumps anywhere in the space. Rather than a simple rectangular grid, its coordinates sit on a cubic close-packed lattice, matching how the committee's extensive visual-scaling experiments found colors to actually cluster perceptually. It has found its main use in industrial and scientific color-difference work that values this large-scale uniformity over the convenience of more common spaces."
+  },
+  "ostwald": {
+    "channels": [
+      {
+        "symbol": "h",
+        "min": 0,
+        "max": 360,
+        "name": "Hue"
+      },
+      {
+        "symbol": "W",
+        "min": 0,
+        "max": 100,
+        "name": "White content"
+      },
+      {
+        "symbol": "B",
+        "min": 0,
+        "max": 100,
+        "name": "Black content"
+      }
+    ],
+    "range": [
+      [
+        0,
+        360
+      ],
+      [
+        0,
+        100
+      ],
+      [
+        0,
+        100
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.1364/JOSA.34.000361"
+    ],
+    "wiki": "https://en.wikipedia.org/wiki/Ostwald_color_system",
+    "year": 1917,
+    "by": "Wilhelm Ostwald",
+    "use": "Historical colour-order system (double cone of white/black/full-colour content); the ideal semichrome construction, kept for study.",
+    "illuminant": "C",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "Ostwald — Wilhelm Ostwald's colour system (Die Farbenlehre, 1917-1923), the Nobel laureate chemist's ordering of colour as mixtures of exactly three sensations: white, black, and a \"full colour\" (Vollfarbe). His full colours are ideal semichromes — optimal colours reflecting 100% over the half-spectrum bounded by a complementary wavelength pair and 0% elsewhere — the most saturated object colours physically possible for their hue. Every colour is then w·White + b·Black + f·FullColour with w+b+f=1, arranged as the famous double cone. The physical atlas died with its licensing, but the ideal system is pure mathematics over the CIE observer, and that is what ships here."
   },
   "p3-linear": {
     "channels": [
