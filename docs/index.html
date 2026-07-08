@@ -32,7 +32,9 @@ a{ color:var(--ink) }
    turns paper + ink and takes the colour line, the current colour appearing with it. ── */
 .mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
 .mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem; color:var(--ink) }
-.mast::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:5px; background:var(--mline,var(--panel)); opacity:0; transition:opacity .35s ease }
+/* the header's bottom border — the hue line the pick plane collapses down into; it
+   sits just under the header (top:100%) so the shrinking plane lands exactly on it */
+.mast::after{ content:''; position:absolute; left:0; right:0; top:100%; height:5px; background:var(--mline,var(--panel)); opacity:0; transition:opacity .15s ease }
 .mhead.on .mast::after{ opacity:1 }
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
 .mast .sp{ flex:1 }
@@ -300,12 +302,15 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
    body. Scroll and it slides up under the sticky bar, folding into the thin hue line
    the bar carries. A click picks the pixel under the eyedropper and glides to the
    catalog; the plane stays, scroll back up to pick again. ── */
-.intro{ position:relative; height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
+.introw{ height:var(--ih,120px) }   /* the scroll track: the plane collapses over exactly this much scroll */
+.intro{ position:sticky; top:var(--hh,52px); height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
 /* the pick surface: hue across, saturation down — neutral (--igray, the L·72 gray)
    at the top fading to the full-chroma hue sweep (--mline) at the bottom. The fade is
-   linear in sRGB, so the pick maths mirror the pixels exactly */
-.iwheel{ position:absolute; inset:0; background:
+   linear in sRGB, so the pick maths mirror the pixels exactly. Anchored to the BOTTOM
+   at full height, so as .intro's height scrubs down the top clips away and the vivid
+   line is what's left — the plane collapsing into the header's border. */
+.iwheel{ position:absolute; left:0; right:0; bottom:0; height:var(--ih,120px); background:
 	linear-gradient(180deg, rgb(var(--igray)) 0%, rgba(var(--igray),0) 100%),
 	var(--mline, var(--panel)); background-size:100% 100%, 100% 100% }
 /* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
@@ -2109,24 +2114,26 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── the hero: a compact OKLCH picker plane under the wordmark — hue across, lightness
-//    down. It is the masthead's extended body; scroll and it slides up under the sticky
-//    bar, folding into the thin hue line the bar keeps. A click picks the pixel under
-//    the eyedropper and glides to the catalog — the plane stays, scroll up to re-pick. ──
-;(()=>{ const intro=document.getElementById('intro'), mhead=document.querySelector('.mhead')
-	const picker=document.getElementById('ipicker')
-	const deep=location.hash.length>1
-	if(deep) mhead.classList.add('on')   // deep links open a modal; the bar already wears its line
+// ── the hero: a compact OKLCH picker plane under the wordmark — hue across, saturation
+//    down. Sticky beneath the header; on scroll its height scrubs from full to the 5px
+//    line, so the pick-area COLLAPSES into the header's border (the vivid --mline). A
+//    click picks the pixel under the eyedropper and glides to the catalog. ──
+;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), iwheel=document.getElementById('iwheel'), mhead=document.querySelector('.mhead')
+	const picker=document.getElementById('ipicker'), page=document.querySelector('.page')
+	const setHH=()=>page.style.setProperty('--hh',mhead.offsetHeight+'px')   // pin the plane right under the header
+	setHH(); addEventListener('resize',setHH)
 	requestAnimationFrame(()=>intro.classList.add('in'))
 	// hue across (x), saturation down (y): the L·72 neutral at the top mixes into the
 	// full-chroma hue at the bottom, a straight sRGB fade — so the pick maths are just
 	// that lerp, mirroring the pixels the CSS gradient paints.
 	const colAt=(fx,fy)=>{ const H=rgbF('oklch',[0.72,0.15,clamp(fx,0,1)*360]), s=clamp(fy,0,1)
 		return H.map((h,i)=>GRAY[i]*(1-s)+h*s) }   // sat 0 (gray) at top → sat 1 (full hue) at bottom
-	const at=e=>{ const r=intro.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height] }
-	// the hue line + current colour appear only once the pick plane has tucked behind
-	// the header — i.e. the pick-area is past, not merely on any first scroll
-	const heroScroll=()=>mhead.classList.toggle('on', deep||intro.getBoundingClientRect().bottom<=mhead.offsetHeight)
+	const at=e=>{ const r=iwheel.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height] }   // iwheel keeps full height (bottom-anchored) even as .intro clips
+	// scroll collapses the plane into the border line: its height scrubs from full to the
+	// 5px line, and the header's --mline border lights (.on) the instant it lands
+	const LINE=5
+	const heroScroll=()=>{ const h=Math.max(LINE, introw.offsetHeight-scrollY)
+		intro.style.height=h+'px'; mhead.classList.toggle('on', h<=LINE+0.5) }
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
 		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
