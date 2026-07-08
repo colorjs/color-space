@@ -136,9 +136,10 @@ const REF = [
   {"s":"nayatani95","f":"xyz","t":"nayatani95","in":[19.01,20,21.78],"out":[49.9998829,0.013355,257.5232268],"src":"colour-science XYZ_to_Nayatani95 doctest (D65 x100, Yo=20, Eo=5000 lx, Eor=1000 lx): L*P, C, theta","url":"https://doi.org/10.1002/col.5080200305"},
   {"s":"hunt","f":"xyz","t":"hunt","in":[19.01,20,21.78],"out":[30.0462678,0.1210508,269.2737594],"src":"colour-science XYZ_to_Hunt doctest (D65 white+background x100, LA=318.31, Normal Scenes, CCT_w=6504, discounted, S=Y): J, C94, h","url":"https://doi.org/10.1002/col.5080190504"},
   {"s":"ostwald","f":"ostwald","t":"xyz","in":[0,100,0],"out":[97.9989,100,118.2674],"src":"Ideal Ostwald (Foss 1944 semichrome construction over CIE 1931 CMF x illuminant C): W=100 -> illuminant C white, xy (0.3099,0.3162) vs CIE 15 (0.31006,0.31616) within the 5nm/380-700 table truncation","url":"https://doi.org/10.1364/JOSA.34.000361"},
+  {"s":"atd95","f":"xyz","t":"atd95","in":[19.01,20,21.78],"out":[0.0192182,0.0205377,0.0107584],"src":"colour-science XYZ_to_ATD95 doctest (D65 x100, Y_0=318.31, k_1=0, k_2=50, sigma=300): stage-2 A_2, T_2, D_2","url":"https://doi.org/10.1117/12.206546"},
 ]
 
-test('bona-fide reference values (128 cited points, 127 spaces)', () => {
+test('bona-fide reference values (129 cited points, 128 spaces)', () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {

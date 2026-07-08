@@ -470,6 +470,53 @@ export default {
     "dynamic": "hdr",
     "description": "Apple Log — Apple's log profile, introduced with the iPhone 15 Pro in 2023 for ProRes Log recording aimed at professional and cinematic video workflows, with tight integration into Final Cut Pro's color tools. Its curve opens with a quadratic toe near black before switching to a log2 highlight region, extending recordable dynamic range well beyond the phone's standard video profiles. It's defined over BT.2020 primaries, matching the wide-gamut sensors across the iPhone Pro line."
   },
+  "atd95": {
+    "channels": [
+      {
+        "symbol": "A",
+        "min": 0,
+        "max": 0.05,
+        "name": "Achromatic"
+      },
+      {
+        "symbol": "T",
+        "min": -0.01,
+        "max": 0.08,
+        "name": "Tritan"
+      },
+      {
+        "symbol": "D",
+        "min": -0.03,
+        "max": 0.06,
+        "name": "Deutan"
+      }
+    ],
+    "range": [
+      [
+        0,
+        0.05
+      ],
+      [
+        -0.01,
+        0.08
+      ],
+      [
+        -0.03,
+        0.06
+      ]
+    ],
+    "refs": [
+      "https://doi.org/10.1117/12.206546"
+    ],
+    "year": 1995,
+    "by": "Sherman Lee Guth",
+    "use": "Historical vision-science opponent model (discrimination, not appearance); kept for study.",
+    "illuminant": "D65",
+    "observer": "2",
+    "referred": "display",
+    "dynamic": "sdr",
+    "description": "ATD95 — Sherman Lee Guth's final ATD model (1995), a vision-science account of the opponent pathways: retinal illuminance drives gain-controlled cone responses into two sequential opponent stages — A (achromatic), T (tritan, red-green) and D (deutan, yellow-blue) — modelling discrimination and adaptation data rather than appearance scales. Guth himself stressed it \"cannot be considered a colour appearance model\"; it ships here as the coordinate system of its second (large-field) stage, the one his hue and saturation predictions read from."
+  },
   "bmdfilm": {
     "channels": [
       {

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>color-space — every color space, one tiny API, verified</title>
-<meta name="description" content="155 color spaces live in the browser — CSS-native values, formulas differentially tested against colorjs.io. Zero dependencies, public domain.">
+<meta name="description" content="156 color spaces live in the browser — CSS-native values, formulas differentially tested against colorjs.io. Zero dependencies, public domain.">
 <meta property="og:title" content="color-space — every color space, one tiny API, verified">
-<meta property="og:description" content="155 color spaces live in the browser — one color re-derived across all of them. CSS-native values, verified against colorjs.io, zero dependencies, public domain.">
+<meta property="og:description" content="156 color spaces live in the browser — one color re-derived across all of them. CSS-native values, verified against colorjs.io, zero dependencies, public domain.">
 <meta property="og:image" content="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -951,7 +951,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		<pre data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
-space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 155 × 154 pairs</i>
+space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 156 × 155 pairs</i>
 
 space.oklch.name    <i>// 'oklch'</i>
 space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
@@ -1004,8 +1004,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 	<div class="dcols">
 		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are defined by physical printed swatches and trademarked; their CIE measurements aren't openly redistributable, so there's nothing lawful to convert against (the official sites hold the authoritative values).</p>
 		<p><b>Atlas systems</b> — <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a>'s constant-hue loci were only ever published as paywalled DIN data sheets, so nothing open defines it. (<a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a> <i>ships</i>: its ideal system — full colours as optimal semichromes — is pure mathematics over the CIE observer, no atlas needed.)</p>
-		<p><b>ATD95</b> — the one appearance model still out: per its own authors it "cannot be considered a colour appearance model"; it predicts discrimination stages, not colour coordinates. (Hunt, Nayatani 95 and LLAB <i>ship</i>, inverted exactly or by the successive approximation their literature prescribes.)</p>
-		<p><b>Historical spaces</b> — CIE RGB (1931), Ostwald, Hunt, Nayatani 95, LLAB, NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked with an archive icon in the catalog as working history.</p>
+		<p><b>Historical spaces</b> — CIE RGB (1931), Ostwald, Hunt, Nayatani 95, LLAB, ATD95, NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked with an archive icon in the catalog as working history.</p>
 	</div>
 </section></div>
 
@@ -1027,7 +1026,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 			</nav>
 			<div class="legal">
 				<button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button>
-				<span class="proof"><span id="n">155</span> spaces · differentially tested · zero dependencies</span>
+				<span class="proof"><span id="n">156</span> spaces · differentially tested · zero dependencies</span>
 				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">Unlicense</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
 			</div>
 		</div>

@@ -4,7 +4,7 @@
 
 **Every color space. One tiny API. Verified.**
 
-**155 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
+**156 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
 
 A pure conversion *kernel*: no parsing, interpolation, ΔE or gamut-mapping — that's the application layer (pair with [culori](https://github.com/Evercoder/culori) / [chroma](https://gka.github.io/chroma.js/)). Import one space and ship ~2 kB.
 
@@ -136,10 +136,9 @@ GLSL ES 3.00 (WebGL2; most chunks are WebGL1-clean too), **(2)** translates
 mechanically to WGSL, and **(3)** evaluates as JS — so every edge is
 differentially pinned to the scalar library in float64 ([test/gl.js](test/gl.js)),
 and every composed pair compile-checks on a real GPU driver and parses as WGSL
-([test/gl-gpu.html](test/gl-gpu.html)). **150 of 155 spaces** — everything except
+([test/gl-gpu.html](test/gl-gpu.html)). **155 of 156 spaces** — everything except
 `munsell` (a measured 5000-entry renotation table: convert in JS, upload as a
-texture LUT) and the four v3 legacy reconstructions (`llab`, `nayatani95`, `hunt`,
-`ostwald` — convert in JS for now). GPU floats are f32 — expect ~1e-6 relative precision (fine for
+texture LUT). GPU floats are f32 — expect ~1e-6 relative precision (fine for
 display work; use JS/WASM for colorimetric math).
 
 ## Design: Conventional Ranges
@@ -185,10 +184,10 @@ See [docs/library-comparison.md](docs/library-comparison.md) for detailed analys
 
 ## Guarantees
 
-Five properties hold for **every one of the 155 spaces** — enforced by the test suite, not aspiration:
+Five properties hold for **every one of the 156 spaces** — enforced by the test suite, not aspiration:
 
 1. **Canonical formula.** Each conversion implements its primary source — the ITU/SMPTE/ISO/CIE spec, the original paper, or the vendor whitepaper — linked from the module header (`meta.<space>.refs`). No folklore constants.
-2. **Cited reference value.** Every space is pinned numerically: 127 spaces carry a cited input→output from an authoritative source ([test/bonafide.js](test/bonafide.js)), the rest are differentially tested against colorjs.io ([test/reference.js](test/reference.js)) — and all 155 pass a round-trip + NaN-safety sweep (black/white/grey/primaries).
+2. **Cited reference value.** Every space is pinned numerically: 128 spaces carry a cited input→output from an authoritative source ([test/bonafide.js](test/bonafide.js)), the rest are differentially tested against colorjs.io ([test/reference.js](test/reference.js)) — and all 156 pass a round-trip + NaN-safety sweep (black/white/grey/primaries).
 3. **Conventional ranges.** Channels use each space's own CSS / colour-science units (`rgb` 0-255, `lab` L 0-100, `oklch` L 0-1, hue in degrees) — declared on `<space>.range` and in `meta.js`, never silently normalised.
 4. **Bidirectional.** Every space converts to and from every other (the graph auto-composes the shortest path); the few standards that are one-way by nature (quantised transports, parametric colormaps) say so loudly.
 5. **Documented omissions.** Whatever is *not* here is listed with the reason — proprietary catalogs (Pantone, NCS…), non-invertible appearance models, parameter variants — so absence is a decision you can audit, never an oversight.
@@ -344,9 +343,9 @@ Five properties hold for **every one of the 155 spaces** — enforced by the tes
 * [x] [LLAB](https://doi.org/10.1002/(SICI)1520-6378(199612)21:6<412::AID-COL4>3.0.CO;2-Z) 🕰️ — Luo, Lo & Kuo (1996) CIELAB successor candidate; BFD adaptation + log chroma compression. Analytically inverted.
 * [x] [Nayatani 95](https://doi.org/10.1002/col.5080200305) 🕰️ — the illuminant-level (Hunt/Stevens effects) appearance model; log-opponent cone stage. Exact 4-regime inverse.
 * [x] [Hunt](https://doi.org/10.1002/col.5080190504) 🕰️ — Hunt's flagship Kodak model with cone **and rod** signals — the direct ancestor of CIECAM97s/CIECAM02. Inverted by damped Newton (Fairchild's "successive approximation").
-* ~~[ATD95](https://doi.org/10.1117/12.206546)~~ 🕰️ — declined: *per its own authors* it "cannot be considered a colour appearance model" — it models discrimination stages, not colour coordinates.
+* [x] [ATD95](https://doi.org/10.1117/12.206546) 🕰️ — Guth (1995): the vision-science opponent model (achromatic / tritan / deutan stages) — shipped as its stage-2 coordinates, with its authors' caveat that it models discrimination, not appearance. Analytically inverted.
 
-> With the three above shipped (baked to their published worked-example conditions, doctest-pinned, bidirectional), **every generation of colour appearance modelling is in the library**: Hunt & Nayatani (the 1990s ancestors) → RLAB/LLAB (the CIELAB-successor era) → CIECAM02/CAM16 families → Hellwig 2022 & ZCAM (current).
+> With the four above shipped (baked to their published worked-example conditions, doctest-pinned, bidirectional), **every generation of colour appearance modelling is in the library**: Hunt, Nayatani & Guth (the 1990s ancestors) → RLAB/LLAB (the CIELAB-successor era) → CIECAM02/CAM16 families → Hellwig 2022 & ZCAM (current).
 
 ### Print & Physical
 * [x] [CMYK](https://en.wikipedia.org/wiki/CMYK_color_model) — subtractive printing (cyan/magenta/yellow/black). Device-dependent.
@@ -397,16 +396,16 @@ color-space offers a unique approach among JavaScript color libraries:
 
 | Feature | color-space | culori | colorjs.io | texel/color |
 |---------|-------------|--------|------------|-------------|
-| **Color spaces** | **155** | 25 | 40 | 16 |
+| **Color spaces** | **156** | 25 | 40 | 16 |
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
 | **Bundle size** | Tree-shakeable (~2 kB/space) | Medium | Large | Minimal |
-| **Test coverage** | differential vs colorjs.io + 128 cited reference pins + all-155 integrity sweep | ~2,000 tests | ~1,500 tests | ~50 tests |
+| **Test coverage** | differential vs colorjs.io + 129 cited reference pins + all-156 integrity sweep | ~2,000 tests | ~1,500 tests | ~50 tests |
 
 **Key differences:**
 - **Conventional ranges**: color-space uses `rgb(255, 128, 0)` and `lab(50, 25, -30)` like in CSS specs, while others use normalized `rgb(1, 0.5, 0)` and `lab(0.5, 0.2, -0.24)`
-- **Most comprehensive**: 155 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
+- **Most comprehensive**: 156 color spaces including specialty domains (video encoding, architecture, face recognition, perceptual uniformity)
 - **Verified accuracy**: See [docs/formula-verification.md](docs/formula-verification.md) - all formulas verified against CSS Color spec editors (colorjs.io) and original papers
 - **Performance**: See [benchmark/README.md](benchmark/README.md) - run `npm run benchmark` to compare vs culori, colorjs.io, and texel/color
 
