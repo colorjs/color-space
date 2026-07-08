@@ -24,12 +24,13 @@
 // The v' axis is 1.5x the CIE 1960 v (the library's `ucs`). Stored with luminance Y as
 // an invertible u'v'Y triplet (analogous to xyY).
 import xyz from './xyz.js';
+import whitepoint from './whitepoints.js';
 
 const uv = { name: 'uv',
 	range: [[0, 0.7], [0, 0.6], [0, 100]] };
 
 // the D65 white's u'v' — where achromatic (d = 0) inputs sit; any u'v' inverts to XYZ 0 at Y = 0
-const [Xw, Yw, Zw] = xyz.whitepoint[2].D65;
+const [Xw, Yw, Zw] = whitepoint[2].D65;
 const dw = Xw + 15 * Yw + 3 * Zw, un = 4 * Xw / dw, vn = 9 * Yw / dw;
 
 // XYZ (0-100) -> u'v'Y

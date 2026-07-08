@@ -26,6 +26,7 @@
 // where (u′n, v′n) is the reference-white chromaticity. At W*=0 (black, or an
 // undefined chromaticity) the color is achromatic, so U* = V* = 0.
 import xyz from './xyz.js';
+import whitepoint from './whitepoints.js';
 
 const uvw = {
 	name: 'uvw',
@@ -39,7 +40,7 @@ const uv = (X, Y, Z) => {
 };
 
 xyz.uvw = (x, y, z, i = 'D65', o = 2) => {
-	const [xn, yn, zn] = xyz.whitepoint[o][i];
+	const [xn, yn, zn] = whitepoint[o][i];
 	const [un, vn] = uv(xn, yn, zn);
 	const d = x + 15 * y + 3 * z;
 	// black/undefined chromaticity -> use white's, so U* = V* = 0
@@ -50,7 +51,7 @@ xyz.uvw = (x, y, z, i = 'D65', o = 2) => {
 };
 
 uvw.xyz = (u, v, w, i = 'D65', o = 2) => {
-	const [xn, yn, zn] = xyz.whitepoint[o][i];
+	const [xn, yn, zn] = whitepoint[o][i];
 	const [un, vn] = uv(xn, yn, zn);
 	const y = ((w + 17) / 25) ** 3; // Y in 0-100
 	// W*=0 carries no chromaticity (U*=V*=0 there) -> achromatic at this Y

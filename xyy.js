@@ -17,6 +17,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
+import whitepoint from './whitepoints.js';
 
 var xyy = {
 	name: 'xyy',
@@ -36,7 +37,7 @@ xyy.xyz = function (x, y, Y) {
 };
 
 // the D65 white's chromaticity — where achromatic (sum = 0) inputs sit
-const [Xw, Yw, Zw] = xyz.whitepoint[2].D65;
+const [Xw, Yw, Zw] = whitepoint[2].D65;
 const wx = Xw / (Xw + Yw + Zw), wy = Yw / (Xw + Yw + Zw);
 
 xyz.xyy = function (X, Y, Z) {

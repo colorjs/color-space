@@ -6,7 +6,7 @@
 
 **156 color spaces** — more than any other JavaScript library — with values in the ranges CSS and color science actually use, formulas differentially tested against [colorjs.io](https://colorjs.io), zero dependencies, public domain.
 
-A pure conversion *kernel*: no parsing, interpolation, ΔE or gamut-mapping — that's the application layer (pair with [culori](https://github.com/Evercoder/culori) / [chroma](https://gka.github.io/chroma.js/)). Import one space and ship ~2 kB.
+A pure conversion *kernel*: no parsing, interpolation, ΔE or gamut-mapping — that's the application layer (pair with [culori](https://github.com/Evercoder/culori) / [chroma](https://gka.github.io/chroma.js/)). Import one space and ship 0.4-1.5 kB.
 
 ```sh
 npm install color-space
@@ -55,6 +55,14 @@ meta.oklab;
 //   illuminant: 'D65', observer: '2',
 //   referred: 'display' | 'scene',   // display- vs scene-referred (ACES/camera logs)
 //   dynamic:  'sdr' | 'hdr' }        // bounded display vs extended/HDR
+```
+
+The CIE standard-illuminant table (A, B, C, D50-D75, F1-F12, E × 2°/10° observers) lives in
+its own module, so spaces that never touch it don't carry it:
+
+```js
+import whitepoint from 'color-space/whitepoints.js';
+whitepoint[2].D50; // → [96.422, 100, 82.521]
 ```
 
 ## Batch conversion (WASM)
@@ -400,7 +408,7 @@ color-space offers a unique approach among JavaScript color libraries:
 | **API ranges** | Conventional (CSS-matching) | Normalized (0-1) | Normalized (0-1) | Normalized (0-1) |
 | **Target use** | General purpose, education | CSS/web, design | W3C standard ref | Creative coding, WebGL |
 | **Specialty spaces** | ✅ (coloroid, munsell, video) | ❌ | Some | ❌ |
-| **Bundle size** | Tree-shakeable (~2 kB/space) | Medium | Large | Minimal |
+| **Bundle size** | Tree-shakeable (0.4-1.5 kB/space) | Medium | Large | Minimal |
 | **Test coverage** | differential vs colorjs.io + 129 cited reference pins + all-156 integrity sweep | ~2,000 tests | ~1,500 tests | ~50 tests |
 
 **Key differences:**

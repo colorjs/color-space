@@ -11,6 +11,7 @@
 import test, { is } from 'tst'
 import { ε, κ, labF } from '../cie.js'
 import space from '../index.js'
+import whitepoint from '../whitepoints.js'
 
 // a tristimulus ratio above the toe where Math.cbrt and Math.pow(·,1/3) disagree
 // in the last bit — the discriminator between the correct and the old code path
@@ -35,7 +36,7 @@ test('cie: labF uses Math.cbrt, not Math.pow(·,1/3) (companding regression)', (
 test('cie: luv L* routes through the shared companding', () => {
 	// drive Y so Y/Yn lands on the cbrt≠pow split point; the old luv.js
 	// (Math.pow + 2-ULP κ) would return a different last bit for L* here.
-	const Yn = space.xyz.whitepoint[2].D65[1]
+	const Yn = whitepoint[2].D65[1]
 	const [L] = space.xyz.luv(40, tSplit * Yn, 20)
 	is(L, 116 * Math.cbrt(tSplit) - 16, 'luv L* equals the exact-cbrt CIELAB lightness')
 })

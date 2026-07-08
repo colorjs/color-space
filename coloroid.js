@@ -34,7 +34,7 @@
 import xyy from './xyy.js';
 import xyz from './xyz.js';
 
-const whitepoint = xyz.whitepoint;
+import whitepoint from './whitepoints.js';
 
 const coloroid = {
 	name: 'coloroid',

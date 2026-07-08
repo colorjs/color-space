@@ -23,7 +23,7 @@
 ::selection{ background:var(--ink); color:var(--paper) }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
 :focus-visible{ outline:2px solid var(--c); outline-offset:3px }
-.page{ --railw:10.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem) }   /* --eg: half the visual gutter between entries */
+.page{ --railw:14.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); --ih:148px }   /* --ih: the hero patchwork's height */   /* --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:.72rem; font-weight:700; text-decoration:none; padding:.4rem .7rem; transform:translateY(-3.6rem); transition:transform .15s }
@@ -39,7 +39,7 @@ a{ color:var(--ink) }
 .mast::after{ content:''; position:absolute; left:0; right:0; top:100%; height:5px; background:var(--c,var(--mline)); opacity:var(--brd,0) }
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
 .mast .sp{ flex:1 }
-@media(min-width:1025px){ .mast{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr) auto auto auto auto auto; column-gap:var(--railgap); row-gap:.45rem; flex-wrap:nowrap } .mast .wm{ grid-column:1 } .mast .cur{ grid-column:2; justify-self:start } .mast .sp{ display:none } }
+@media(min-width:1025px){ .mast{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr) auto auto auto auto auto; column-gap:var(--railgap); row-gap:.45rem; flex-wrap:nowrap } .mast .wm{ grid-column:1 } .mast .cur{ grid-column:2; justify-self:start; margin-left:max(0px, calc(var(--curx,0px) - var(--railw) - var(--railgap))) } .mast .sp{ display:none } }   /* --curx (measured: the spaces box's left) minus the grid's own rail offset — the masthead's col 2 is narrower than the catalog's, so alignment must be measured, not structural */
 .mast .ver{ font-size:.74rem; font-weight:700; color:var(--soft); text-decoration:none }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh{ display:flex; align-self:center; color:var(--ink) }
@@ -47,7 +47,7 @@ a{ color:var(--ink) }
 .thm{ border:0; background:none; padding:.15rem; color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
 /* live current colour — always editable; the gamut tags are separate chips, not part of the value */
-.cur{ display:flex; align-items:center; gap:.2rem; min-width:0; opacity:1; pointer-events:auto; transition:opacity .35s ease }
+.cur{ display:flex; align-items:center; gap:.2rem; min-width:0; opacity:1; pointer-events:auto; transition:opacity .35s ease }   /* sits in the masthead grid's content column — same left edge as the spaces */
 .mhead.on .cur{ opacity:1; pointer-events:auto }
 .cur .cursw{ flex:none; width:1.9rem; height:1.9rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px var(--hair) }
 .cur .cursw::-webkit-color-swatch-wrapper{ padding:0 } .cur .cursw::-webkit-color-swatch{ border:none; border-radius:50% } .cur .cursw::-moz-color-swatch{ border:none; border-radius:50% }
@@ -58,15 +58,9 @@ a{ color:var(--ink) }
 .cur .curgam{ display:flex; gap:.28rem; margin-left:.18rem; font-size:.56rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap }
 .cur .curgam span{ border:0; border-radius:999px; padding:.16rem .42rem; line-height:1.1; background:var(--panel) }
 .cur .curgam .on{ color:var(--ink) } .cur .curgam .off{ color:var(--soft); opacity:.42 }
-/* settings — a gear that drops a small panel */
-.cfg{ position:relative; align-self:center }
-.cfg summary{ list-style:none; display:flex; cursor:pointer; color:var(--soft); padding:.15rem }
-.cfg summary::-webkit-details-marker{ display:none }
-.cfg summary:hover,.cfg[open] summary{ color:var(--ink) }
-.cfgp{ position:absolute; right:0; top:calc(100% + .7rem); z-index:30; background:var(--paper); border:1px solid var(--hair); box-shadow:0 10px 34px rgba(20,10,0,.14); padding:.9rem 1.1rem; white-space:nowrap }
-[data-theme=dark] .cfgp{ box-shadow:0 10px 34px rgba(0,0,0,.5) }
-.cfgp label{ display:flex; align-items:center; gap:.55rem; font-size:.9rem; font-weight:600; cursor:pointer; color:var(--ink) }
-.cfgp input{ accent-color:var(--ink) }
+/* the all-sliders toggle — the mixer icon laid horizontal, lit while active */
+.allsb{ color:var(--soft) }
+.allsb[aria-pressed="true"]{ color:var(--ink) }
 /* search filters spaces and metadata only; the live color parser is the header value input */
 .qx{ display:flex; align-items:center; gap:.45rem; align-self:center; cursor:text }
 .qx svg{ flex:none; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
@@ -118,7 +112,7 @@ a{ color:var(--ink) }
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*var(--secl,0px)); right:calc(-1*var(--secr,0px)); height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:1.3rem } .sec:first-of-type::before{ display:none }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
-.sheet{ margin-top:0 }
+.sheet{ margin-top:.8rem }   /* the first sheet row breathes below the lead sliders */
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
 @media(max-width:1024px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.sec::before{ left:0; right:0 }   /* dividers stay inside the container */
@@ -139,8 +133,8 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .ent{ transition:color .14s ease, opacity .14s ease, filter .14s ease }
 .ent:hover,.ent:focus-within{ background:transparent }
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
-.nm::after{ content:''; display:inline-block; width:1.24em; height:1.24em; margin-left:.1em; vertical-align:-.2em; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
-.ent:hover .nm::after,.ent:focus-within .nm::after{ opacity:1 }
+.nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; color:var(--soft); opacity:0; transition:opacity .12s }
+.ent:hover .nm::after{ opacity:1 }
 /* historical spaces sit faded until you engage them — working history, not front-line */
 .ent.histo{ opacity:.58 } .ent.histo:hover,.ent.histo:focus-within{ opacity:1 }
 .histico{ display:inline-block; width:.88em; height:.88em; vertical-align:-.06em; margin-left:.28em; background:currentColor; opacity:.72; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M6 7l1.2-3h9.6L18 7M6 7v12h12V7M9 11h6'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M6 7l1.2-3h9.6L18 7M6 7v12h12V7M9 11h6'/%3E%3C/svg%3E") center/contain no-repeat }
@@ -151,8 +145,9 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .ent.lite .eh .nm{ font-size:.92rem; overflow-wrap:anywhere }
 /* channel values beside the title — plain text inputs, right-aligned tabular numbers */
 .cvs{ display:flex; gap:.95rem; margin-left:auto; flex-shrink:0 }
-.cv{ width:3.1rem; font:inherit; font-size:.9rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; border-bottom:2px solid var(--hair); outline:none; padding:0 0 .1rem; text-align:right }
-.cv:focus{ border-color:var(--ink); color:var(--ink) }
+.cv{ width:3.1rem; font:inherit; font-size:.9rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; border-bottom:2px solid transparent; outline:none; padding:0 0 .1rem; text-align:right }
+.ent:hover .cv,.ent:focus-within .cv{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its inputs, half-strength */
+.cv:focus{ border-bottom-color:var(--ink); color:var(--ink) }
 .ent.lite .cvs{ gap:.75rem }
 .ent.lite .cv{ width:2.95rem; font-size:.86rem }
 .chs{ display:flex; flex-direction:column }
@@ -195,21 +190,25 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .dnav a,.dnav button{ font:inherit; font-size:.72rem; font-weight:800; letter-spacing:.02em; color:var(--soft); background:none; border:0; padding:0; text-decoration:none; cursor:pointer }
 .dnav a:hover,.dnav button:hover{ color:var(--ink) }
 .dnav .copylink{ margin-left:auto; color:var(--ink); box-shadow:inset 0 -1px 0 var(--hair) }
-.dhero{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(18rem,1.25fr); gap:clamp(1rem,3vw,2.2rem); align-items:center; margin:.3rem 0 1.35rem }
+.dhero{ display:grid; grid-template-columns:minmax(0,1fr) minmax(15rem,19rem); gap:clamp(1rem,3vw,2.4rem); align-items:start; margin:.3rem 0 1.35rem }
+.dmain{ min-width:0 }
+.dmain .props.props3{ margin-top:1.3rem }
+.dgrid2.dstack{ grid-template-columns:1fr }   /* description owns the full width up to the graphics; used-for follows */
+mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; padding:0 .06em }
 .dlead{ display:grid; grid-template-columns:4.2rem minmax(0,1fr); gap:.75rem 1rem; align-items:start; min-width:0 }
 .dswatch{ width:4.2rem; height:4.2rem; border:1px solid var(--hair); background:var(--curcol,var(--c)); cursor:copy; padding:0 }
 .dlead p{ margin:0; color:var(--body); font-size:1.05rem; line-height:1.45; text-wrap:pretty }
 .dpills{ grid-column:1/-1; display:flex; gap:.35rem; flex-wrap:wrap }
 .dpills span{ font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:.18rem .42rem; cursor:help }
 /* the transfer curve — code value over scene-linear light, painted per space */
-.tcv{ display:block; width:100%; max-width:15rem; height:auto; background:var(--panel) }
+.tcv{ display:block; width:100%; height:auto }   /* transparent — it wears the 3D solid's reference-grid style */
 /* hub spaces unfold their long children list on demand */
 .kmore{ font:inherit; font-size:.85em; border:0; background:none; color:var(--soft); cursor:pointer; padding:0; text-decoration:underline; text-underline-offset:2px }
 .kmore:hover{ color:var(--ink) }
-h4.sec2 #gseg{ margin-left:auto }   /* the gamut lens sits at the right of the channels header */
-.dhero .dviz2{ margin:0; gap:.8rem; align-items:center }
-.dhero .dviz2 .pl3d{ max-width:19rem }
-.dhero .gam2d{ max-width:15rem }
+.dhero .dviz2{ margin:0; display:flex; flex-direction:column; gap:.7rem; align-items:center }
+.dhero .dviz2 .pl3d{ width:100%; max-width:17rem }
+.dhero .gam2d{ max-width:11.5rem }   /* the xy plate stays smaller than the solid */
+.tcvw{ position:relative; width:100%; max-width:14rem }
 .dstat{ display:flex; flex-direction:column; align-items:flex-end; gap:.4rem }
 .dstat .r{ display:flex; align-items:baseline; gap:.8rem; flex-wrap:wrap }
 .dstat .fmt{ font-size:.84rem; color:var(--soft); font-variant-numeric:tabular-nums; cursor:copy }
@@ -275,7 +274,9 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.
 h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:.92rem; font-weight:400; color:var(--ink); display:inline-flex; align-items:baseline; gap:.55rem }
 .iend .isw{ width:.85rem; height:.85rem; align-self:center; border:1px solid var(--hair); padding:0; cursor:pointer }
 .iend .iec i{ font-style:normal; font-size:.6rem; font-weight:700; color:var(--ghost); margin-right:.15rem; text-transform:uppercase }
-.iend .iev{ font:inherit; font-variant-numeric:tabular-nums; width:3.1rem; border:0; border-bottom:2px solid var(--hair); background:transparent; color:var(--ink); padding:0 }
+.iend .iev{ font:inherit; font-variant-numeric:tabular-nums; width:3.1rem; border:0; border-bottom:2px solid transparent; background:transparent; color:var(--ink); padding:0 }
+.iend:hover .iev{ border-bottom-color:var(--hair) }
+.iend .iev:focus{ border-bottom-color:var(--ink); outline:none }
 .iend .iev:focus{ outline:none; border-bottom-color:var(--c) }
 .irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:.66rem; font-weight:700; cursor:pointer; z-index:2 }
 .iduel{ display:flex; flex-direction:column; gap:5px; margin-top:5px }
@@ -298,11 +299,6 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .pinb{ position:absolute; right:.5rem; top:50%; width:1px; height:1px; opacity:0; border:0; padding:0 }   /* native picker anchor */
 /* notations live as the first feature rows under the title — same anatomy as the
    sibling props rows, plus copy affordance and a lead emphasis on the space's own form */
-.hfmts{ display:contents }
-.hfmts .hrow{ cursor:copy }
-.hfmts .hrow:first-child .hval{ font-weight:700 }
-.hfmts .hval{ font-variant-numeric:tabular-nums }
-.hfmts .hrow:hover .hval{ color:var(--c) }
 .snipwrap{ position:relative }
 .cpyi{ position:absolute; top:.5rem; right:.55rem; border:0; background:transparent; color:var(--soft); cursor:copy; padding:.25rem }
 .cpyi:hover{ color:var(--ink) } .cpyi svg{ display:block }
@@ -311,7 +307,7 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .tok-c{ color:var(--soft) }
 .tok-n{ font-weight:600 }
 /* dossier rows: 3-col one-liners · description ⅔ + context ⅓ · the two visuals */
-.props.props3{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.1rem clamp(1.2rem,2.6vw,2.2rem); margin:.1rem 0 1.2rem }
+.props.props3{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.1rem clamp(1.2rem,2.6vw,2.2rem); margin:.1rem 0 1.2rem }
 .dgrid2{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:1rem clamp(1.4rem,3vw,2.4rem); align-items:start; margin-bottom:1.6rem }
 .dgrid2 .pcol{ display:flex; flex-direction:column; gap:1.1rem; min-width:0 }
 .dgrid2 i{ display:block; font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:.28rem }
@@ -320,12 +316,12 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .dviz2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(1rem,3vw,2.2rem); align-items:center; margin-bottom:1.6rem }
 .dviz2 .pl3d{ max-width:30rem; justify-self:center }
 .gam2d{ position:relative; width:100%; max-width:24rem; aspect-ratio:0.909; align-self:center; justify-self:center }
-@media(max-width:760px){ .props.props3{ grid-template-columns:repeat(2,minmax(0,1fr)) } .dgrid2,.dviz2{ grid-template-columns:1fr } }
+@media(max-width:760px){ .dgrid2,.dviz2{ grid-template-columns:1fr } }
 @media(max-width:640px){ .props.props3{ grid-template-columns:1fr } }
 .gam2d canvas{ display:block; width:100%; height:100% }
 .gam2d .cx{ position:absolute; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }
 .gam2d .cx.ghost{ border-style:dashed; pointer-events:auto }   /* an impossible (beyond-MacAdam) color: hollow marker */
-.gam2d .glab{ position:absolute; left:.2rem; bottom:.1rem; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); pointer-events:none }
+.gam2d .glab,.tcvw .glab{ position:absolute; left:.2rem; bottom:.1rem; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); pointer-events:none }
 .imgrow{ display:flex; gap:.45rem; flex-wrap:wrap; cursor:pointer }
 .imgrow .imgp{ position:relative; flex:1 1 10.5rem; min-width:8rem; max-width:18.6rem }
 .imgrow canvas{ display:block; width:100%; height:auto }
@@ -374,8 +370,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.46; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
 .fov{ position:relative; z-index:2; flex:1; display:flex; align-items:flex-end }
 .fwrap{ width:100%; max-width:64rem; margin:0 auto; padding:clamp(2rem,5vw,3.5rem) clamp(1rem,3vw,2.2rem) 1.55rem; display:flex; align-items:flex-start; gap:clamp(1.9rem,4vw,3.8rem) }
-.fbrand{ display:inline-flex; align-items:center; gap:.65rem; color:var(--fi0,#1b1408); text-decoration:none; font-weight:800; letter-spacing:-.01em; white-space:nowrap }
-.flogo{ width:2.15rem; height:2.15rem; display:grid; place-items:center; color:#fff; background:#0c0c0c; font-size:1.05rem; line-height:1 }
 .fcol{ display:flex; flex-direction:column; gap:.18rem }
 .fcol a{ color:var(--fi0,#1b1408); text-decoration:none; width:max-content; font-size:.92rem; line-height:1.35; padding:.12rem 0; opacity:.78; transition:opacity .15s,color .15s }
 .fcol a:hover{ opacity:1; text-decoration:underline; text-underline-offset:3px }
@@ -386,19 +380,25 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .legal .proof::before,.legal .lic::before{ content:'·'; margin-right:.55rem; opacity:.56 }
 .legal .lic{ white-space:nowrap }
 .legal .om{ font-size:1rem }
-.fnpm{ font:inherit; font-family:ui-monospace,Menlo,monospace; font-size:.86rem; font-weight:600; color:inherit; background:transparent; border:0; padding:0; cursor:copy; display:inline-flex; align-items:baseline; gap:.42rem }
-.fnpm i{ font-style:normal; opacity:.58; font-size:.9em }
-.fnpm:hover i{ color:var(--c); opacity:1 }
-@media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:1rem 1.4rem } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } .fbrand{ width:100% } }
+/* the npm command, a black plate where the logo used to sit */
+.fnpm{ font:inherit; font-family:ui-monospace,Menlo,monospace; font-size:.92rem; font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:.65rem 1rem; cursor:copy; display:inline-flex; align-items:baseline; gap:.5rem; align-self:flex-start }
+.fnpm i{ font-style:normal; color:#9a9a9a; font-size:.9em }
+.fnpm:hover i{ color:var(--c) }
+@media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:1rem 1.4rem } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } }
 @media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mback{ display:none } .mnav{ top:auto; bottom:.8rem; transform:none; padding:.65rem; color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
-/* ── the hero: a compact OKLCH slice — hue across, chroma down at the current
-   lightness. A contour moves inside that one space; drag picks in place and pauses it. ── */
-.introw{ height:var(--ih,120px) }   /* the scroll track: the plane collapses over exactly this much scroll */
-.intro{ position:sticky; top:var(--hh,52px); height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
+/* ── the hero: a compact OKLCH slice — hue across, chroma down — whose lightness
+   breathes around the current color's L (GPU-painted); drag picks in place and freezes it. ── */
+/* hue ticks ride the plane's bottom edge and fade away as it collapses */
+.hticks{ position:absolute; left:0; right:0; bottom:3px; height:13px; pointer-events:none; opacity:calc(1 - var(--brd,0)); font-size:.58rem; font-weight:700; letter-spacing:.04em; font-variant-numeric:tabular-nums }
+.hticks i{ position:absolute; bottom:0; transform:translateX(-50%); font-style:normal }   /* each label inked per-pixel against the plane below it — no shadows, ever */
+/* the picker's space, top-right — click cycles the hue-based spaces */
+.hspace{ position:absolute; top:6px; right:8px; z-index:2; font:inherit; font-size:.62rem; font-weight:800; letter-spacing:.08em; border:0; background:none; padding:.15rem .2rem; cursor:pointer; opacity:calc(1 - var(--brd,0)) }
+.introw{ height:var(--ih,172px) }   /* the scroll track: the plane collapses over exactly this much scroll */
+.intro{ position:sticky; top:var(--hh,52px); height:var(--ih,172px); overflow:hidden; cursor:crosshair; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
 /* the pick surface is a live canvas: hue runs left→right, chroma top→bottom at the
    current OKLCH lightness. Anchored to the BOTTOM so scroll clips it into the masthead line. */
-.iwheel{ position:absolute; left:0; right:0; bottom:0; width:100%; height:var(--ih,120px); display:block; background:var(--panel) }
+.iwheel{ position:absolute; left:0; right:0; bottom:0; width:100%; height:var(--ih,148px); display:block; background:var(--panel) }
 /* same rhombus marker as the catalog sliders, enlarged for the hero */
 .ipicker{ position:absolute; z-index:2; top:0; left:0; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); color:#fff; background:var(--c); border:1.4px solid currentColor; pointer-events:none; opacity:1; will-change:left,top }
 .ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
@@ -418,16 +418,16 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</div>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces, channels, uses (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces, channels, uses (press / to focus)"><span class="qn tnum" id="nq"></span></label>
-	<details class="cfg" id="cfg"><summary title="settings" aria-label="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></summary>
-		<div class="cfgp"><label><input type="checkbox" id="setall"> sliders for every space</label></div>
-	</details>
+	<button class="thm allsb" id="allsb" aria-pressed="false" title="sliders for every space"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="transform:rotate(90deg)"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
+	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
-	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 </header></div>
 
 <div class="fw introw" id="introw"><section class="intro" id="intro" aria-label="pick a colour">
 	<canvas class="iwheel" id="iwheel" width="960" height="140"></canvas>
+	<button class="hspace" id="hspace" title="the picker's space — click to switch">OKLCH</button>
+	<div class="hticks" aria-hidden="true"><i style="left:12.5%">45°</i><i style="left:25%">90°</i><i style="left:37.5%">135°</i><i style="left:50%">180°</i><i style="left:62.5%">225°</i><i style="left:75%">270°</i><i style="left:87.5%">315°</i></div>
 	<div class="ipicker" id="ipicker" aria-hidden="true"></div>
 </section></div>
 
@@ -956,7 +956,7 @@ space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 156 × 155 pairs</i>
 space.oklch.name    <i>// 'oklch'</i>
 space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
 
-<i>// one space only — tree-shaken, ~2 kB</i>
+<i>// one space only — tree-shaken, 0.4-1.5 kB</i>
 <b>import</b> oklch <b>from</b> 'color-space/oklch.js'
 oklch.rgb(0.65, 0.25, 180)</pre>
 		<pre data-p="meta" hidden><i>// per-space metadata, generated from the sources</i>
@@ -1012,7 +1012,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 	<div class="fgrad" id="fgrad"></div>
 	<div class="fov">
 		<div class="fwrap">
-			<a class="fbrand" href="#cat" aria-label="color-space home"><span class="flogo">∴</span><span>color-space</span></a>
+			<button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm i color-space</button>
 			<nav class="fcol" aria-label="site">
 				<a href="#cat">spaces</a>
 				<a href="#api">api</a>
@@ -1025,7 +1025,6 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 				<a href="./llms.txt">llms.txt</a>
 			</nav>
 			<div class="legal">
-				<button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button>
 				<span class="proof"><span id="n">156</span> spaces · differentially tested · zero dependencies</span>
 				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">Unlicense</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
 			</div>
@@ -1046,7 +1045,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, pathToRgb, mixInSpace, rotateHue } from './landing/core.js'
 import LORE from './landing/lore.js'
 import REACH from './landing/reach.js'
-import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './landing/gl.js'
+import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './landing/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import NAMES from './landing/names.js'
 import { SPACES, sections, cname, unit, catHTML, HISTORICAL } from './landing/render.js'
@@ -1168,6 +1167,8 @@ const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const railL=tocEl.getBoundingClientRect().left
 	pg.style.setProperty('--secl',Math.max(0,secR.left-railL)+'px')
 	pg.style.setProperty('--secr',Math.max(0,document.documentElement.clientWidth-secR.right)+'px')
+	// the masthead colour readout aligns to the spaces box's left edge
+	pg.style.setProperty('--curx',Math.max(0,secR.left-document.querySelector('.mast').getBoundingClientRect().left)+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
@@ -1217,7 +1218,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.querySelectorAll('.ch').forEach(ch=>{ const i=+ch.dataset.i
 		ch.addEventListener('pointerdown',e=>{
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ if(!adopt()&&valsFor(s))return; moved=true; ch.setPointerCapture(e.pointerId) }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ if(!adopt()&&valsFor(s))return; moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId) }
 				if(!moved) return
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // forward-only: param drives, master follows as rgb
@@ -1225,27 +1226,33 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 				else master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.style.cursor=''
 				if(moved){ squelch=true; setTimeout(()=>squelch=false,0); if(open()) paintPlanes(false) } } }) }) })
 
 // sheet rows show sliders only when the settings toggle says so
 let ALLS=false; try{ ALLS=localStorage.csAll==='1' }catch{}
-document.body.classList.toggle('alls',ALLS)
-const setall=document.getElementById('setall'), cfg=document.getElementById('cfg')
-setall.checked=ALLS
-setall.onchange=()=>{ ALLS=setall.checked; try{ localStorage.csAll=ALLS?'1':'0' }catch{}
-	document.body.classList.toggle('alls',ALLS); paintCatalogGrad(); renderFast(); layoutToc() }
-addEventListener('pointerdown',e=>{ if(cfg.open&&!cfg.contains(e.target)) cfg.open=false })
+const allsb=document.getElementById('allsb')
+const setAlls=v=>{ ALLS=v; try{ localStorage.csAll=ALLS?'1':'0' }catch{}
+	document.body.classList.toggle('alls',ALLS); allsb.setAttribute('aria-pressed',ALLS)
+	paintCatalogGrad(); renderFast(); layoutToc() }
+document.body.classList.toggle('alls',ALLS); allsb.setAttribute('aria-pressed',ALLS)
+allsb.onclick=()=>setAlls(!ALLS)
 
 // search — `/` focuses it from anywhere
 addEventListener('keydown',e=>{ if(e.key==='/'&&!open()&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){ e.preventDefault(); document.getElementById('q').focus() } })
 const nq=document.getElementById('nq'); nq.textContent=SPACES.length
 const qInput=document.getElementById('q')
+// the found match lights up inside the space name (fielded searches highlight in the modal too)
+const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if(!nm) return
+	const keep=nm.querySelector('.histico')?.outerHTML||''
+	const i=q?s.indexOf(q):-1
+	nm.innerHTML=(i<0?s:s.slice(0,i)+'<mark>'+s.slice(i,i+q.length)+'</mark>'+s.slice(i+q.length))+keep }
 qInput.addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase(); let shown=0
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s, cls=classify(s)
 		const hay=[s,meta[s].name,meta[s].description,meta[s].use,useOf(s),encodingOf(s),geo(s),...(meta[s].channels||[]).flatMap(c=>[c.name,c.symbol,c.sym])].filter(Boolean).join(' ').toLowerCase()
 		const hit=!q||hay.includes(q)
-		ent.style.display=hit?'':'none'; if(hit)shown++ })
+		ent.style.display=hit?'':'none'; if(hit)shown++
+		markName(ent,hit&&q?q:null) })
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
 		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
 	layoutToc(); trackAct(); nq.textContent=shown })
@@ -1929,12 +1936,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	// the transfer curve — for RGB-model spaces the defining feature: scene-linear gray
 	// in, channel code value out, sampled through the library itself
 	let tcurve=null
-	if(cls.archetype==='additive'&&s!=='lrgb'){ try{
-		const pts=Array.from({length:73},(_,i)=>space.lrgb[s](i/72,i/72,i/72)[0])
+	if(cls.archetype==='additive'){ try{
+		const pts=Array.from({length:73},(_,i)=>s==='lrgb'?i/72:space.lrgb[s](i/72,i/72,i/72)[0])   // lrgb: the identity — a straight diagonal IS its transfer
 		if(pts.every(isFinite)){ const lo=Math.min(...pts), hi=Math.max(...pts)
 			if(hi-lo>1e-6) tcurve={pts,lo,hi} } }catch{} }
 	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
-	const visualHTML=has3d||hasPlaneGL(s)?`<div class="dviz2">${has3d?`<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''
+	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}${tcurve?`<div class="tcvw" title="the space's transfer curve — scene-linear light across (0–1), ${s} code value up; the dashed diagonal is linear. Only RGB-model spaces have one — opponent and polar spaces encode all channels jointly."><canvas class="tcv" id="tcv" width="280" height="160"></canvas><span class="glab">transfer · linear light → code</span></div>`:''}</div>`:''
 	const scaleHTML=!fwd&&cls.tone?`<h4 class="sec2" id="scale">scale <span class="seg" id="scaleseg"><button data-n="5">5</button><button data-n="9" class="on">9</button><button data-n="11">11</button></span><button class="cpy" id="scopy" title="copy CSS variables">copy vars</button></h4><div class="scalegrid" id="scalegrid"></div><pre class="scaleout" id="scaleout"></pre>`:''
 	const interpHTML=fwd?'':`<h4 class="sec2" id="compare">interpolate <button class="cpyi icpy" id="icpy" title="copy this blend as CSS — ${s} interpolation baked into plain stops"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — edit a channel, paste a hex into any field, or click the swatch to pick">→ <button class="isw" id="isw" title="pick the endpoint color"></button>${cls.ch.map((c,i)=>`<span class="iec"><i>${c.sym}</i><input class="iev" data-i="${i}"></span>`).join('')}</span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
@@ -1947,18 +1954,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const plotPairs=pairsFor(s)
 	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span>`
 	const gamHTML=`<span class="seg" id="gseg">${[...GAMS,'vis'].map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="${g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`}">${GAMLABEL[g]}</button>`).join('')}</span>`
-	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${HISTORICAL.has(s)?`<span class="dhist" title="shipped as working history">historical</span>`:''}</div>
-	 <nav class="dnav" aria-label="dossier sections"><button type="button" data-jump="overview">overview</button><button type="button" data-jump="explore">channels</button>${hasPlaneGL(s)?`<button type="button" data-jump="image">image</button>`:''}${interpHTML?`<button type="button" data-jump="compare">interpolate</button>`:''}${scaleHTML?`<button type="button" data-jump="scale">scale</button>`:''}<button type="button" data-jump="code">code</button><button type="button" data-jump="sources">sources</button><button class="copylink" id="dshare" type="button">copy link</button></nav>
+	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${HISTORICAL.has(s)?`<span class="dhist" title="shipped as working history">historical</span>`:''}${gamHTML}</div>
+	 <nav class="dnav" aria-label="dossier sections"><button type="button" data-jump="overview">overview</button><button type="button" data-jump="explore">channels</button>${hasPlaneGL(s)?`<button type="button" data-jump="image">image</button>`:''}${interpHTML?`<button type="button" data-jump="compare">interpolate</button>`:''}${scaleHTML?`<button type="button" data-jump="scale">scale</button>`:''}<button type="button" data-jump="code">code</button><button type="button" data-jump="sources">sources</button></nav>
 	 <hr class="dhr">
 	 <section class="dhero" id="overview">
-		<div class="dlead"><button class="dswatch" id="dswatch" title="copy current color" aria-label="copy current color"></button><p>${L.for||useOf(s)}</p><div class="dpills">${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s),enc,fwd?'one-way':'bidirectional'].filter(Boolean).map(x=>`<span title="${TAGTIP[x]||''}">${x}</span>`).join('')}</div></div>
-		${visualHTML}
-	 </section>
-	 <div class="props props3">
-		<div class="pcol">
-			<div class="hfmts" id="hfmts"></div>
-			${tcurve?`<div><i>transfer</i><canvas class="tcv" id="tcv" width="280" height="160" title="the per-channel transfer curve — scene-linear light across (0–1), ${s} code value up; dashed diagonal = linear"></canvas></div>`:''}
-		</div>
+		<div class="dmain"><div class="dlead"><button class="dswatch" id="dswatch" title="copy current color" aria-label="copy current color"></button><p>${L.for||useOf(s)}</p><div class="dpills">${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s),enc,fwd?'one-way':'bidirectional'].filter(Boolean).map(x=>`<span title="${TAGTIP[x]||''}">${x}</span>`).join('')}</div></div>
+		<div class="props props3">
 		<div class="pcol">
 			${path&&(path.length>1||kids.length)?`<div><i>family</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}${kids.length?`<span class="kids" title="spaces defined on top of this one">↳ ${kids.slice(0,8).map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}${kids.length>8?`<span class="kext" hidden> · ${kids.slice(8).map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</span> <button class="kmore" type="button">+${kids.length-8} more</button>`:''}</span>`:''}</p></div>`:''}
 			${rel.length?`<div><i>nearby</i><p>${rel.map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</p></div>`:''}
@@ -1971,20 +1972,22 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			${VERIFIED.has(s)?`<div><i>verified</i><p title="every conversion pinned by independent reference values at 1/255 tolerance — see test under sources">±1/255</p></div>`:''}
 		</div>
 	 </div>
-	 <div class="dgrid2">
+	 <div class="dgrid2 dstack">
 		<div><i class="plab">description</i>
 		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
 		<div class="pcol">
 			<div><i>used for</i><p>${m.use||useOf(s)}</p></div>
 			${avoid?`<div><i>avoid when</i><p>${avoid}</p></div>`:''}
 		</div>
-	 </div>
-	 ${cls.ch.length>1?`<h4 class="sec2" id="explore">channels ${segsHTML}${gamHTML}</h4>
+	 </div></div>
+		${visualHTML}
+	 </section>
+	 ${cls.ch.length>1?`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 	 <h4 class="sec2">plots</h4>
 	 <div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cls.ch[b].sym}">${cname(cls.ch[b])}</span><span class="labx" title="${cls.ch[a].sym}">${cname(cls.ch[a])}</span></div>`).join('')}</div>`
-	 :`<h4 class="sec2" id="explore">channels ${segsHTML}${gamHTML}</h4>
+	 :`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`}
 	 ${hasPlaneGL(s)?`<h4 class="sec2" id="image">image <i>click to rotate presets · drop your own image</i></h4>
 	 <div class="imgrow" id="imgrow" title="click: next test image · drop your own image"></div>`:''}
@@ -1999,6 +2002,15 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		${m.wiki?`<div class="pcol"><div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div></div>`:''}
 	 </div>`
 	modal.scrollTop=0
+	// a live search query lights up inside the dossier too — description, features, uses
+	;(()=>{ const q=(document.getElementById('q')?.value||'').trim(); if(!q) return
+		const qlc=q.toLowerCase(), rx=new RegExp(q.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&'),'gi')
+		detail.querySelectorAll('.desc, .dgrid2 p, .props.props3 p, .dlead p').forEach(el=>{
+			const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT), hits=[]
+			while(w.nextNode()) if(w.currentNode.data.toLowerCase().includes(qlc)) hits.push(w.currentNode)
+			hits.forEach(n=>{ const sp=document.createElement('span')
+				sp.innerHTML=n.data.replace(/[&<]/g,c=>c==='&'?'&amp;':'&lt;').replace(rx,m2=>'<mark>'+m2+'</mark>')
+				n.replaceWith(...sp.childNodes) }) }) })()
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	wire3d()
@@ -2008,15 +2020,30 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	if(kmore) kmore.onclick=()=>{ detail.querySelector('.kext').hidden=false; kmore.remove() }
 	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
 	const tcv=detail.querySelector('#tcv')
-	if(tcv&&tcurve){ const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, P=6
+	if(tcv&&tcurve){ const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, P=14
 		const ink2=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#1b1408'
-		c2.clearRect(0,0,W,H); c2.lineWidth=1; c2.strokeStyle='oklch(0.5 0.01 70/.3)'
-		c2.strokeRect(P+.5,P+.5,W-2*P-1,H-2*P-1)
-		c2.setLineDash([4,4]); c2.beginPath(); c2.moveTo(P,H-P); c2.lineTo(W-P,P); c2.stroke(); c2.setLineDash([])
+		const X=f=>P+f*(W-2*P), Y=v=>H-P-(v-tcurve.lo)/(tcurve.hi-tcurve.lo)*(H-2*P)
+		c2.clearRect(0,0,W,H); c2.lineWidth=1
+		// the same soft reference grid the 3D solid wears: quarter rules, firmer frame
+		c2.strokeStyle='oklch(0.5 0.01 70/.15)'
+		for(const f of [.25,.5,.75]){ c2.beginPath(); c2.moveTo(X(f),P); c2.lineTo(X(f),H-P); c2.stroke()
+			c2.beginPath(); c2.moveTo(P,P+f*(H-2*P)); c2.lineTo(W-P,P+f*(H-2*P)); c2.stroke() }
+		c2.strokeStyle='oklch(0.5 0.01 70/.34)'; c2.strokeRect(P+.5,P+.5,W-2*P-1,H-2*P-1)
+		c2.setLineDash([4,4]); c2.strokeStyle='oklch(0.5 0.01 70/.3)'
+		c2.beginPath(); c2.moveTo(P,H-P); c2.lineTo(W-P,P); c2.stroke(); c2.setLineDash([])
+		// the curve
 		c2.strokeStyle=ink2; c2.lineWidth=2; c2.beginPath()
-		tcurve.pts.forEach((v,i)=>{ const x=P+i/72*(W-2*P), y=H-P-(v-tcurve.lo)/(tcurve.hi-tcurve.lo)*(H-2*P)
-			i?c2.lineTo(x,y):c2.moveTo(x,y) })
-		c2.stroke() }
+		tcurve.pts.forEach((v,i)=>{ const x=X(i/72), y=Y(v); i?c2.lineTo(x,y):c2.moveTo(x,y) })
+		c2.stroke()
+		// 18% gray — the exposure anchor every log curve is designed around
+		const g18=tcurve.pts[Math.round(0.18*72)]
+		c2.fillStyle=ink2; c2.beginPath(); c2.arc(X(0.18),Y(g18),2.6,0,7); c2.fill()
+		c2.font='600 9px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.9)'
+		c2.textAlign='left'; c2.fillText('18% gray → '+(+g18.toPrecision(3)),X(0.18)+6,Y(g18)-5)
+		// endpoint code values — the caption names the axes
+		c2.textAlign='left'
+		c2.fillText(String(+tcurve.hi.toPrecision(3)),P+3,P+10)
+		c2.fillText(String(+tcurve.lo.toPrecision(3)),P+3,H-P-4) }
 	const irow2=detail.querySelector('#imgrow')
 	if(irow2){ irow2.onclick=()=>{ if(!IMGS) return; imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
 		irow2.ondragover=e=>e.preventDefault()
@@ -2033,7 +2060,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		detail.querySelectorAll('#gseg button').forEach(x=>x.classList.toggle('on',x.dataset.g===GM))
 		wire3d(); renderFast(); paintPlanes(false) })
 	detail.querySelectorAll('.dnav [data-jump]').forEach(b=>b.onclick=()=>detail.querySelector('#'+b.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'}))
-	const dshare=detail.querySelector('#dshare'); if(dshare) dshare.onclick=()=>{ syncHash(); copy(location.href) }
 	const dswatch=detail.querySelector('#dswatch'); if(dswatch) dswatch.onclick=()=>copy(hex(RGB()))
 	detail.querySelectorAll('#scaleseg button').forEach(b=>b.onclick=()=>{ scaleN=+b.dataset.n; detail.querySelectorAll('#scaleseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
 	const scopy=detail.querySelector('#scopy'); if(scopy) scopy.onclick=()=>{ const g=detail.querySelector('#scalegrid'); if(g&&g._css) copy(g._css) }
@@ -2055,7 +2081,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
-	detail.querySelector('#hfmts').addEventListener('click',e=>{ const r=e.target.closest('.hrow'); if(r) copy(r.querySelector('.hval').textContent) })
 	// precise adjustment: spinner inputs on the big sliders
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
 		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
@@ -2089,10 +2114,10 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 			el._cellF=(k+0.5)/el._cells.length }
 		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ if(!adopt()&&valsFor(s))return; moved=true; dragBar=el; el.setPointerCapture(e.pointerId) }
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ if(!adopt()&&valsFor(s))return; moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId) }
 		if(!moved) return
 		apply(ev) }
-	const up=ev=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el._cellF=null
+	const up=ev=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null
 		if(!moved){ if(!adopt()&&valsFor(s))return; apply(ev); el._cellF=null }
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
@@ -2116,8 +2141,8 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 		plFreeze=pl   // the active plane's bitmap depends only on held channels — never repaint it mid-drag
 		scheduleFast() }
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
-	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); set(e); pl.onpointermove=set })
-	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; plFreeze=null; paintPlanes(false); paintCatalogGrad() })
+	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; set(e); pl.onpointermove=set })
+	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; pl.style.cursor=''; plFreeze=null; paintPlanes(false); paintCatalogGrad() })
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
 		if(!e.ctrlKey&&!zoomed) return
@@ -2279,16 +2304,6 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const dswatch=detail.querySelector('#dswatch'); if(dswatch) dswatch.style.background=hx
-	const hf=detail.querySelector('#hfmts')
-	if(hf){ const rows=[]
-		// only REAL notations: the native CSS serialization when the spec defines one,
-		// else the exact color(xyz-d65 …) — real CSS for ANY color — plus the sRGB hex.
-		// An invented `name(…)` form would read as a standard that doesn't exist.
-		if(vals&&CSSABLE.has(s)) rows.push(['native css',fmt(s,vals)])
-		else if(vals){ try{ rows.push(['css fallback',fmt('xyz',space[s].xyz(...vals))]) }catch{} }
-		const g0=gamuts()
-		rows.push([g0&&!g0.srgb?'hex ≈ (out of srgb)':'hex',hx])
-		hf.innerHTML=rows.map(([l2,v2])=>`<div class="hrow" title="copy"><i>${l2}</i><p class="hval tnum">${v2}</p></div>`).join('') }
 	const shown=vals||probeVals(s)   // forward-only spaces paint from their locally explored params
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
@@ -2420,7 +2435,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 		snip.innerHTML=hilite(`import space from 'color-space'\n\n`+
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
-			`\n// one space, tree-shaken (~2 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) } }
+			`\n// one space, tree-shaken (0.4-1.5 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) } }
 	// the GPU solid redraws per frame, so the marker tracks a drag live
 	if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d(); gamMarker(); syncHash()
 }
@@ -2503,7 +2518,7 @@ addEventListener('wheel',e=>{
 			if(facc>=110){ facc=0; setFq(flvl+1) } } }
 	else if(e.deltaY<0&&flvl){ facc=0; setFq(0) }   // any scroll-up snaps back to smooth (and scrolls the page)
 },{passive:false})
-document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
+document.getElementById('fnpm').onclick=()=>copy('npm i color-space')
 const copyInstall=document.getElementById('copyinstall'); if(copyInstall) copyInstall.onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
 const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) return
@@ -2516,48 +2531,90 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── hero atlas: one OKLCH slice — hue across, chroma down at the current lightness.
-//    The moving line is a constant-chroma contour inside that same space; dragging
-//    pauses it and changes the color in place, with no scroll jump. ──
+// ── the hero: one OKLCH slice — hue across, chroma down to the Rec.2020 edge,
+//    with soft contour lines where sRGB and P3 end. Lightness is the band below
+//    (drag to set L); the plane repaints on the GPU only when L or size change.
+//    Idle, the plane drifts a slow 2% zoom — an experiment; it pauses under the
+//    pointer so pick targets hold still. ──
 ;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), iwheel=document.getElementById('iwheel'), mhead=document.querySelector('.mhead')
 	const picker=document.getElementById('ipicker'), page=document.querySelector('.page'), ctx=iwheel.getContext('2d',{ alpha:false })
 	const setHH=()=>page.style.setProperty('--hh',mhead.offsetHeight+'px')   // pin the plane right under the header
 	setHH(); addEventListener('resize',setHH)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	let atlas=null, frame=null, heroL=0.72, animHold=false
-	const smooth=t=>t*t*(3-2*t), chromaCurve=f=>Math.pow(clamp(f,0,1),.86), invChroma=f=>Math.pow(clamp(f,0,1),1/.86)
-	const gvals=(g,L,C,H)=>{ try{ const v=g==='srgb'?space.oklch.rgb(L,C,H).map(x=>x/255):space.oklch[g](L,C,H); return v }catch{ return [9,9,9] } }
-	const fits=(g,L,C,H)=>gvals(g,L,C,H).every(v=>isFinite(v)&&v>=-0.0005&&v<=1.0005)
-	const cmax=(g,L,H)=>{ if(L<=0.04||L>=0.96) return 0
-		let lo=0, hi=.43
-		if(fits(g,L,hi,H)) return hi
-		for(let k=0;k<11;k++){ const mid=(lo+hi)/2; fits(g,L,mid,H)?lo=mid:hi=mid }
+	let atlas=null
+	// the picker's spaces — three bands of pure hues (continuous · 20 steps · 10 steps);
+	// click the label to switch. h/c/l = channel indices; unbounded specs (sat:null)
+	// ride the sRGB cusp — the most saturated displayable tone per hue — searched over
+	// lo..hi; bounded cylinders sit at full saturation and a fixed tone
+	const HEROES=[
+		{ s:'oklch', h:2, c:1, l:0, lo:.3, hi:.95, ctop:0.4, sat:null },
+		{ s:'lchab', h:2, c:1, l:0, lo:30, hi:95, ctop:150, sat:null },
+		{ s:'hsl', h:0, c:1, l:2, tone:50, sat:100 },
+		{ s:'hsv', h:0, c:1, l:2, tone:100, sat:100 },
+		{ s:'hsluv', h:0, c:1, l:2, tone:55, sat:100 } ]
+	const BANDS=[0,20,10]   // hue stepping per band — matches the shader
+	let HSPEC=HEROES[0]
+	try{ HSPEC=HEROES.find(x=>x.s===localStorage.csHero)||HEROES[0] }catch{}
+	const assemble=(hue,C,Lv)=>{ const v=[0,0,0]; v[HSPEC.h]=hue; v[HSPEC.c]=C; v[HSPEC.l]=Lv; return v }
+	const fitS=v=>{ try{ return space[HSPEC.s].rgb(...v).every(x=>isFinite(x)&&x>=-0.128&&x<=255.128) }catch{ return false } }
+	const edgeC=(Lv,H)=>{ let lo=0, hi=HSPEC.ctop
+		if(fitS(assemble(H,hi,Lv))) return hi
+		for(let k=0;k<12;k++){ const mid=(lo+hi)/2; fitS(assemble(H,mid,Lv))?lo=mid:hi=mid }
 		return lo }
-	const rgbOklch=(L,C,H)=>space.oklch.rgb(L,C,H).map(v=>clamp(Math.round(v),0,255))
-	const currentL=()=>{ try{ return clamp(toSpace('oklch',RGB())[0],.18,.86) }catch{ return heroL } }
-	const buildAtlas=()=>{ heroL=currentL(); const L=+heroL.toFixed(3)
-		const r=intro.getBoundingClientRect(), W=Math.max(320,Math.min(600,Math.round(r.width/2))), H=104
-		if(atlas&&atlas.W===W&&atlas.H===H&&atlas.L===L) return
-		iwheel.width=W; iwheel.height=H; const data=new Uint8ClampedArray(W*H*4); atlas={ W,H,L,data }; frame=ctx.createImageData(W,H)
-		for(let y=0;y<H;y++){ const cf=chromaCurve(y/(H-1))
-			for(let x=0;x<W;x++){ const hue=x/(W-1)*360, C=cmax('srgb',L,hue)*cf, rgb=rgbOklch(L,C,hue), p=(y*W+x)*4
-				data[p]=rgb[0]; data[p+1]=rgb[1]; data[p+2]=rgb[2]; data[p+3]=255 } } }
-	const contour=(C,alpha)=>{ const { W,H,L }=atlas; let on=false
-		ctx.beginPath()
-		for(let x=0;x<W;x++){ const hue=x/(W-1)*360, m=cmax('srgb',L,hue); if(!(m>0)||C>m){ on=false; continue }
-			const y=invChroma(C/m)*(H-1); if(on) ctx.lineTo(x,y); else{ ctx.moveTo(x,y); on=true } }
-		ctx.strokeStyle=`rgba(255,255,255,${alpha})`; ctx.lineWidth=1.35; ctx.stroke()
-		ctx.strokeStyle=`rgba(27,20,8,${alpha*.38})`; ctx.lineWidth=.65; ctx.stroke() }
-	const drawHero=ts=>{ buildAtlas(); frame.data.set(atlas.data); ctx.putImageData(frame,0,0)
-		if(!animHold){ const p=(ts/2600)%1; contour(.018+.24*smooth(p),.36); contour(.018+.24*smooth((p+.46)%1),.18) }
+	// the cusp LUT: per hue, the tone with the widest displayable chroma (64 samples)
+	const cuspLUT=()=>{ if(HSPEC._cusp) return HSPEC._cusp
+		const lut=new Float32Array(64)
+		for(let i=0;i<64;i++){ const hue=i/63*360; let bestL=HSPEC.lo, bestC=-1
+			for(let k=0;k<=24;k++){ const Lv=HSPEC.lo+(HSPEC.hi-HSPEC.lo)*k/24, c2=edgeC(Lv,hue)
+				if(c2>bestC){ bestC=c2; bestL=Lv } }
+			lut[i]=bestL }
+		return HSPEC._cusp=lut }
+	const cuspAt=hq=>{ const lut=cuspLUT(), fi=clamp(hq,0,1)*63, i0=Math.floor(fi)
+		return lut[i0]+(lut[Math.min(i0+1,63)]-lut[i0])*(fi-i0) }
+	const heroRGB=v=>{ try{ return rgbF(HSPEC.s,v).map(x=>clamp(Math.round(x),0,255)) }catch{ return [128,128,128] } }
+	// read the hero coordinates from MASTER when it already speaks this space —
+	// round-tripping through clamped RGB drags out-of-gamut colors back into gamut
+	const heroVals=()=>{ try{ return master.s===HSPEC.s?master.vals.slice():toSpace(HSPEC.s,RGB()) }catch{ return null } }
+	const sizeHero=()=>{ const r=intro.getBoundingClientRect(), W=Math.max(320,Math.min(900,Math.round(r.width/1.6))), H=132
+		if(iwheel.width!==W||iwheel.height!==H){ iwheel.width=W; iwheel.height=H; atlas=null } }
+	// CPU fallback (no WebGL2 / while the program links): cmax once per COLUMN — the
+	// old per-pixel bisection is what made slider drags glitch — cached per (L, size)
+	const buildAtlas=()=>{ const W=iwheel.width, H=iwheel.height
+		if(atlas&&atlas.W===W&&atlas.H===H&&atlas.s===HSPEC.s) return
+		const data=new Uint8ClampedArray(W*H*4)
+		for(let band=0;band<3;band++){ const y0=Math.round(band/3*H), y1=Math.round((band+1)/3*H), fy=(band+.5)/3
+			for(let x=0;x<W;x++){ const rgb=cellRGB(x/(W-1),fy)
+				for(let y=y0;y<y1;y++){ const q2=(y*W+x)*4
+					data[q2]=rgb[0]; data[q2+1]=rgb[1]; data[q2+2]=rgb[2]; data[q2+3]=255 } } }
+		atlas={ W,H,s:HSPEC.s }
+		ctx.putImageData(new ImageData(data,W,H),0,0) }
+	let gpuOn=false, lastKey=''
+	const tickEls=[...document.querySelectorAll('.hticks i')]
+	const hspace=document.getElementById('hspace')
+	const inkTicks=()=>{ tickEls.forEach(el=>{ const fx=parseFloat(el.style.left)/100
+			el.style.color=ink(cellRGB(fx,0.92)) })   // each label against the cell under it
+		hspace.style.color=ink(cellRGB(0.97,0.08)) }
+	const drawHero=()=>{ sizeHero()
+		const key=HSPEC.s+'|'+iwheel.width
+		if(key!==lastKey||!gpuOn){
+			if(paintHeroGL(iwheel,HSPEC,HSPEC.sat==null?cuspLUT():null)){ gpuOn=true; lastKey=key; inkTicks() }
+			else if(key!==lastKey){ gpuOn=false; buildAtlas(); lastKey=key; inkTicks() } }
 		syncHeroPicker(); requestAnimationFrame(drawHero) }
-	const maxC=(L,H)=>cmax('srgb',L,H)
-	const colAt=(fx,fy)=>{ const H=((clamp(fx,0,1)*360)%360+360)%360, L=atlas?.L??currentL(), C=maxC(L,H)*chromaCurve(fy); return rgbOklch(L,C,H) }
+	// one shared band math for the shader, the CPU fallback and the picks
+	const cellVals=(fx,fy)=>{ const band=Math.min(2,Math.floor(clamp(fy,0,.999)*3)), q=BANDS[band]
+		const hq=q?(Math.floor(clamp(fx,0,.999)*q)+.5)/q:clamp(fx,0,1)
+		const hue=+(hq*360).toFixed(1)
+		const Lv=HSPEC.sat==null?+cuspAt(hq).toFixed(4):HSPEC.tone
+		const C=HSPEC.sat==null?+(edgeC(Lv,hue)*0.985).toFixed(4):HSPEC.sat
+		return assemble(hue,C,Lv) }
+	const cellRGB=(fx,fy)=>heroRGB(cellVals(fx,fy))
+	const colAt=cellVals   // a pick IS its band's cell — pure hues at the chosen stepping
 	const at=e=>{ const r=iwheel.getBoundingClientRect(); return [clamp((e.clientX-r.left)/r.width,0,1),clamp((e.clientY-r.top)/r.height,0,1)] }
 	const place=(fx,fy,rgb=RGB())=>{ const ir=intro.getBoundingClientRect(), wr=iwheel.getBoundingClientRect()
 		picker.style.left=(fx*wr.width+wr.left-ir.left)+'px'; picker.style.top=(fy*wr.height+wr.top-ir.top)+'px'; picker.style.color=ink(rgb); picker.style.opacity='1' }
-	syncHeroPicker=()=>{ try{ const ok=toSpace('oklch',RGB()), H=((ok[2]||0)%360+360)%360, m=maxC(ok[0],H)
-		place(H/360,m?invChroma(ok[1]/m):0,RGB()) }catch{} }
+	syncHeroPicker=()=>{ try{ const v=heroVals(); if(!v) return
+		const H=((v[HSPEC.h]||0)%360+360)%360
+		place(H/360,1/6,RGB()) }catch{} }   // the marker rides hue, on the continuous band
 	// scroll collapses the plane into the border line; the header value remains editable throughout.
 	const LINE=5
 	const heroScroll=()=>{ const track=introw.offsetHeight-LINE, h=Math.max(LINE, introw.offsetHeight-scrollY)
@@ -2571,12 +2628,22 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
 			if(y>innerHeight*1.5) return
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
-	const apply=e=>{ const [fx,fy]=at(e), rgb=colAt(fx,fy)
-		master={ s:'rgb', vals:rgb }; place(fx,fy,rgb); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-	intro.addEventListener('pointerdown',e=>{ dragId=e.pointerId; animHold=true; intro.setPointerCapture(dragId); wave(); apply(e) })
+	// mid-drag: marker at full pointer rate, page repaints rAF-throttled — the direct
+	// renderFast-per-move was the drag sluggishness
+	const apply=e=>{ const [fx,fy]=at(e), v=colAt(fx,fy)
+		master={ s:HSPEC.s, vals:v }; place(fx,fy,heroRGB(v)); scheduleFast() }
+	const settle=()=>{ renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+	intro.addEventListener('pointerdown',e=>{ dragId=e.pointerId; intro.style.cursor='none'; intro.setPointerCapture(dragId); wave(); apply(e) })
 	intro.addEventListener('pointermove',e=>{ if(e.pointerId===dragId) apply(e) })
-	intro.addEventListener('pointerup',e=>{ if(e.pointerId===dragId){ dragId=null; animHold=false; try{ intro.releasePointerCapture(e.pointerId) }catch{} } })
-	intro.addEventListener('pointercancel',()=>{ dragId=null; animHold=false })
+	intro.addEventListener('pointerup',e=>{ if(e.pointerId===dragId){ dragId=null; intro.style.cursor=''; settle(); try{ intro.releasePointerCapture(e.pointerId) }catch{} } })
+	intro.addEventListener('pointercancel',()=>{ dragId=null; intro.style.cursor='' })
+	hspace.textContent=HSPEC.s.toUpperCase()
+	hspace.addEventListener('pointerdown',e=>e.stopPropagation())
+	hspace.addEventListener('click',e=>{ e.stopPropagation()
+		HSPEC=HEROES[(HEROES.indexOf(HSPEC)+1)%HEROES.length]
+		try{ localStorage.csHero=HSPEC.s }catch{}
+		hspace.textContent=HSPEC.s.toUpperCase()
+		atlas=null; lastKey=''; syncHeroPicker() })
 	addEventListener('resize',()=>{ atlas=null; setHH(); heroScroll() })
 	requestAnimationFrame(drawHero); heroScroll(); syncHeroPicker() })()
 </script></body></html>

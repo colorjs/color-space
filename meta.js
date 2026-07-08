@@ -930,12 +930,6 @@ export default {
     "dynamic": "sdr",
     "description": "CIE RGB — the experimental color space built directly from the 1931 Wright-Guild color-matching experiments, whose data became the foundation for the CIE XYZ standard itself. Its three primaries are monochromatic single-wavelength lights rather than the broadband primaries of any real display, referenced to an equal-energy white point. It survives today mainly as a historical and pedagogical space — the common ancestor from which nearly every later RGB space descends."
   },
-  "cie": {
-    "refs": [
-      "http://www.brucelindbloom.com/index.html?LContinuity.html"
-    ],
-    "description": "CIE 1976 perceptual companding — the cube-root toe shared by every space built on L* (CIELAB, CIELUV, DIN99d, HCT, HSLuv). Single source of truth for the two constants and the f/f⁻¹ pair, so no space carries its own (differently-rounded) copy."
-  },
   "ciecam02": {
     "channels": [
       {
@@ -6153,9 +6147,6 @@ export default {
     "dynamic": "hdr",
     "description": "T-Log — FilmLight's log curve for its Baselight color-grading systems, paired with the wide E-Gamut primaries as a camera-agnostic working space that footage from almost any camera can be converted into for grading. Its curve is a near-pure log function with a linear extension below zero, avoiding the harsh clipping a pure log would give to noise and sub-black signal. Baselight facilities use T-Log/E-Gamut much the way ACES or DaVinci Wide Gamut are used elsewhere — as a common space for mixing footage from multiple camera sources."
   },
-  "transfers": {
-    "description": "Standard opto-electronic transfer functions (gamma / OETF-EOTF curves), shared by the RGB working spaces that encode with the same curve. Each is sign-extended (odd-symmetric) so out-of-gamut negatives survive a round-trip. The matrices and primaries stay in the per-space files; only the 1-D transfer lives here."
-  },
   "tsl": {
     "channels": [
       {
@@ -6438,9 +6429,6 @@ export default {
     "referred": "scene",
     "dynamic": "hdr",
     "description": "V-Log — Panasonic's logarithmic curve introduced in 2014 with the VARICAM 35 cinema camera, built to hold the sensor's full dynamic range for grading rather than direct viewing. It pairs with the wide V-Gamut primaries, engineered to encompass color spaces like Rec.2020 with room to spare. This is the full cinema-camera curve; Panasonic's mirrorless GH-series bodies instead use a lighter variant called V-Log L, matched to a narrower 12-stop range."
-  },
-  "wasm": {
-    "description": "fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the ~4.6 kB module is prebuilt and inlined (see scripts/build-wasm.js). The API is the scalar library's, batch-shaped — same `space.from.to` addressing: import space, { alloc } from 'color-space/wasm' space.oklch.rgb(0.72, 0.16, 41)   // → [246, 125, 79] — scalar, same as JS const buf = alloc(nPixels)        // WASM-backed Float64Array(n*3) — write rgb here space.rgb.oklch(buf)              // whole buffer, in place, zero-copy space.rgb.oklch(pixels)           // plain array in → converted Float64Array out Layout: interleaved 3-channel `Float64Array`, n pixels = 3n values [c0,c1,c2, c0,c1,c2, …]. Ranges match the scalar API (rgb 0-255, oklab native, xyz 0-100). Formulas mirror the scalar library and are pinned by test/wasm-batch.js. THE WIN IS ZERO-COPY: an alloc()'d buffer converts in place — nothing crosses the JS/WASM boundary. Any other array-like is copied through (returned as a new Float64Array, input untouched) — fine for a chain, but prefer alloc() on a hot path."
   },
   "wavelength": {
     "channels": [

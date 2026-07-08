@@ -29,6 +29,7 @@
 // no chromaticity — it sits at the D65 white's (l, s), mirroring the achromatic-hue
 // convention, and inverts to XYZ [0,0,0] exactly (every chromaticity does at Y = 0).
 import xyz from './xyz.js';
+import whitepoint from './whitepoints.js';
 import { mat3, inv3 } from './util.js';
 
 const macboyn = { name: 'macboyn', range: [[0.4, 1], [0, 1], [0, 100]] };
@@ -42,7 +43,7 @@ const M = [
 const MI = inv3(M);
 
 // the adapting white's chromaticity — where achromatic (Y = 0) inputs sit
-const [Lw, Mw, Sw] = mat3(M, ...xyz.whitepoint[2].D65);
+const [Lw, Mw, Sw] = mat3(M, ...whitepoint[2].D65);
 const lw = Lw / (Lw + Mw), sw = Sw / (Lw + Mw);
 
 xyz.macboyn = (X, Y, Z) => {

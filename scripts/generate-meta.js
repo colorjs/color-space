@@ -91,7 +91,7 @@ function getSpaceName(filename) {
 function generateMeta() {
   const files = fs.readdirSync(rootDir)
     .filter(f => f.endsWith('.js') && !f.startsWith('.'))
-    .filter(f => !['index.js', 'package.json', 'util.js'].includes(f))
+    .filter(f => !['index.js', 'package.json', 'util.js', 'transfers.js', 'whitepoints.js', 'cie.js', 'wasm.js', 'meta.js'].includes(f))
 
   const meta = {}
 

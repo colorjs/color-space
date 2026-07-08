@@ -22,6 +22,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
+import whitepoint from './whitepoints.js';
 import { labF, labFInv } from './cie.js';
 
 var luv = {
@@ -39,9 +40,9 @@ var luv = {
 		i = i || 'D65';
 		o = o || 2;
 
-		xn = xyz.whitepoint[o][i][0];
-		yn = xyz.whitepoint[o][i][1];
-		zn = xyz.whitepoint[o][i][2];
+		xn = whitepoint[o][i][0];
+		yn = whitepoint[o][i][1];
+		zn = whitepoint[o][i][2];
 
 		un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
 		vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));
@@ -82,9 +83,9 @@ xyz.luv = function (x, y, z, i, o) {
 	i = i || 'D65';
 	o = o || 2;
 
-	xn = xyz.whitepoint[o][i][0];
-	yn = xyz.whitepoint[o][i][1];
-	zn = xyz.whitepoint[o][i][2];
+	xn = whitepoint[o][i][0];
+	yn = whitepoint[o][i][1];
+	zn = whitepoint[o][i][2];
 
 	un = (4 * xn) / (xn + (15 * yn) + (3 * zn));
 	vn = (9 * yn) / (xn + (15 * yn) + (3 * zn));

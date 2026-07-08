@@ -9,7 +9,7 @@
   * Conventional CSS-matching ranges (RGB 0-255, HSL 0-360/0-100, Lab 0-100/±125…).
   * No `min`/`max`, no `alias`, no `channel` array on the object — `range` + JSDoc `@channel` carry that, single source of truth.
   * Stay a conversion kernel. No parsing, interpolation, gamut-mapping, ΔE, contrast — composable layers culori/colorjs/texel own. We expose the *metadata* (range, gamut class) that lets them build those on top.
-  * **Lab illuminant → D50 (DONE).** `lab`/`lchab` are now **D50** (ICC PCS / CSS Color 4 convention), full-precision ε/κ + Bradford. Added `lab-d65` for display-native; removed redundant `lab-d50` (lab is now it); din99o pinned to `lab-d65` (DIN 6176). All three validated in the differential suite (lab↔colorjs `lab`, lab-d65↔`lab-d65`, lchab↔`lch`). Count still 71. Future: `lchab-d65` + a factory for arbitrary illuminants (A/C/F-series already in `xyz.whitepoint`).
+  * **Lab illuminant → D50 (DONE).** `lab`/`lchab` are now **D50** (ICC PCS / CSS Color 4 convention), full-precision ε/κ + Bradford. Added `lab-d65` for display-native; removed redundant `lab-d50` (lab is now it); din99o pinned to `lab-d65` (DIN 6176). All three validated in the differential suite (lab↔colorjs `lab`, lab-d65↔`lab-d65`, lchab↔`lch`). Count still 71. Future: `lchab-d65` + a factory for arbitrary illuminants (A/C/F-series already in `whitepoints.js`).
 
 ---
 
