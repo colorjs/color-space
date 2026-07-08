@@ -34,8 +34,7 @@ a{ color:var(--ink) }
 .mast{ position:relative; display:flex; align-items:center; gap:.7rem 1.1rem; flex-wrap:wrap; padding:.7rem 0 .85rem; color:var(--ink) }
 /* the header's bottom border — the hue line the pick plane collapses down into; it
    sits just under the header (top:100%) so the shrinking plane lands exactly on it */
-.mast::after{ content:''; position:absolute; left:0; right:0; top:100%; height:5px; background:var(--mline,var(--panel)); opacity:0; transition:opacity .15s ease }
-.mhead.on .mast::after{ opacity:1 }
+.mast::after{ content:''; position:absolute; left:0; right:0; top:100%; height:5px; background:var(--mline,var(--panel)); opacity:var(--brd,0) }   /* opacity tracks the plane's collapse (--brd), set per-scroll — no fade, so no flicker */
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
 .mast .sp{ flex:1 }
 .mast .ver{ font-size:.74rem; font-weight:700; color:var(--soft); text-decoration:none }
@@ -75,7 +74,9 @@ a{ color:var(--ink) }
    reading blocks (.g: api, recipes, about) stay in a centered measure for readability */
 .g,.fw,.cat{ padding-left:clamp(1rem,3vw,2.2rem); padding-right:clamp(1rem,3vw,2.2rem) }
 .g{ max-width:64rem; margin:0 auto }
-.cat{ display:grid; grid-template-columns:minmax(var(--railw),1fr) minmax(0,64rem) minmax(0,1fr); column-gap:var(--railgap) }
+/* rail takes its fixed width on the left; the spaces centre in the space that remains,
+   not on the screen — so they don't read as shoved right of the categories */
+.cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative }
@@ -84,7 +85,7 @@ a{ color:var(--ink) }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ink); text-align:left; border:0; background:var(--paper); padding:0 .35rem 0 0; cursor:pointer }
 .ti .tn:hover{ background:var(--lift) }
 .ti.off{ display:none }
-.secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }
+.secs{ grid-column:2; min-width:0; max-width:64rem; margin:0 auto; padding-bottom:clamp(2rem,5vw,3.5rem) }
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
    name + channel values, always visible, no folding. Sheets of both kinds tile
    gaplessly: gapless grids, each entry carrying half the gutter as its own padding */
@@ -107,21 +108,23 @@ a{ color:var(--ink) }
 .ent.lite .chs{ display:none }   /* sheet rows: numbers only — settings can bring sliders back */
 body.alls .ent.lite .chs{ display:flex }
 body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
-/* hover lifts the card on a white sheet; the ↗ badge at the top right says "opens" */
+/* hover lifts the card on a white sheet; the ↗ badge beside the name says "opens" */
 .ent:hover,.ent:focus-within{ background:var(--lift) }
-.ent::after{ content:''; position:absolute; top:.8rem; right:.45rem; width:24px; height:24px; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
-.ent:hover::after{ opacity:1 }
-.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; gap:.4rem 1rem; flex-wrap:wrap; padding:0 0 .45rem }
+/* the ↗ opens-modal mark rides the title baseline, sized to the caps; lead names never
+   wrap so it can't orphan to its own line. Sheet rows (whole row clickable) omit it. */
+.ent:not(.lite) .nm::after{ content:''; display:inline-block; width:.92em; height:.92em; margin-left:.14em; vertical-align:-.06em; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
+.ent:hover .nm::after,.ent:focus-within .nm::after{ opacity:1 }
+.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; gap:.4rem 1rem; padding:0 0 .45rem }
 .ent.lite .eh{ padding:0; row-gap:.15rem }
-.ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase }
-.ent.lite .eh .nm{ font-size:1rem }
-/* channel values sit beside the title — plain numbers, each an input (underline says so);
-   long names push the values onto their own right-aligned line instead of colliding */
-.cvs{ display:flex; gap:1rem; margin-left:auto }
-.cv{ width:3.4rem; font:inherit; font-size:.92rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; border-bottom:1px solid var(--hair); outline:none; padding:0 0 .1rem; text-align:right }
+.ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase; min-width:0 }
+.ent:not(.lite) .eh .nm{ white-space:nowrap }
+.ent.lite .eh .nm{ font-size:.92rem; overflow-wrap:anywhere }
+/* channel values beside the title — plain text inputs, right-aligned tabular numbers */
+.cvs{ display:flex; gap:.95rem; margin-left:auto; flex-shrink:0 }
+.cv{ width:3.1rem; font:inherit; font-size:.9rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; border-bottom:2px solid var(--hair); outline:none; padding:0 0 .1rem; text-align:right }
 .cv:focus{ border-color:var(--ink); color:var(--ink) }
-.ent.lite .cvs{ gap:.7rem }
-.ent.lite .cv{ width:3rem; font-size:.88rem }
+.ent.lite .cvs{ gap:.75rem }
+.ent.lite .cv{ width:2.95rem; font-size:.86rem }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:40px; cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
 .ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:1rem; font-weight:600; pointer-events:none; opacity:0; transition:opacity .12s, left .18s ease, transform .18s ease }
@@ -259,18 +262,32 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
 .dfoot{ margin:1.6rem 0 .4rem; font-size:.74rem; color:var(--soft) } .dfoot a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--soft) }
 /* ── about ── */
-.about{ padding:clamp(1.6rem,4vw,3rem) 0; display:grid; grid-template-columns:1.2fr 1fr; gap:clamp(1.4rem,4vw,3.5rem); border-top:1px solid var(--ink) }
-.about>*{ min-width:0 }   /* pre snippets scroll inside their column, never widen the page */
+.about{ padding:clamp(1.6rem,4vw,3rem) 0; border-top:1px solid var(--ink) }
 .about h2{ font-size:1.3rem; font-weight:800; letter-spacing:-.01em; margin-bottom:.6rem }
-.about p{ font-size:1rem; line-height:1.65; color:var(--body); max-width:58ch }
+.about p{ font-size:1rem; line-height:1.65; color:var(--body); max-width:66ch }
 .about p+p{ margin-top:.6rem }
-.chipsrow{ display:flex; gap:.45rem; flex-wrap:wrap; margin-top:1rem }
-.chipx{ font-size:.68rem; font-weight:700; letter-spacing:.04em; padding:.3rem .6rem; background:var(--panel); cursor:help }
 pre{ font-family:ui-monospace,Menlo,monospace; font-size:.85rem; line-height:1.7; background:var(--panel); padding:1rem 1.2rem; overflow-x:auto }
-.about pre+pre{ margin-top:1rem }
 .about p code{ font-family:ui-monospace,Menlo,monospace; font-size:.92em; background:var(--panel); padding:.1em .35em }
-.about.api{ border-top:1px solid var(--hair) } .about.recipes{ border-top:1px solid var(--hair) }
+.about.api,.about.recipes{ border-top:1px solid var(--hair) }
 .about h2+p{ margin-bottom:.8rem }
+/* API — centred: title, one line of prose, then a tabbed code panel */
+.about.api{ text-align:center }
+.about.api p{ max-width:64ch; margin:0 auto }
+.tabs{ max-width:46rem; margin:1.2rem auto 0; text-align:left }
+.tabs pre{ margin:0 }
+.tabrow{ display:flex; gap:.25rem; justify-content:center; margin-bottom:.6rem }
+.tabrow button{ font:inherit; font-size:.82rem; font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-bottom:2px solid transparent; padding:.15rem .7rem; cursor:pointer }
+.tabrow button:hover{ color:var(--ink) }
+.tabrow button.on{ color:var(--ink); border-bottom-color:var(--c) }
+/* Recipes — four snippets in a real 2×2 */
+.recgrid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem }
+.recgrid pre{ margin:0; min-width:0 }
+/* Not here — full width, flowing into two readable columns */
+.about.declined p.lede{ max-width:72ch; margin-bottom:1rem }
+.dcols{ columns:2; column-gap:2.8rem }
+.dcols p{ break-inside:avoid; margin:0 0 .7rem; max-width:none }
+.about.declined a{ color:var(--body); text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }
+.about.declined a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
 pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:normal; color:var(--soft) }
 /* ── footer: the coloroid sweep (hue A across, luminosity V descending) ends the page;
    keep scrolling and quantized bands ride up sticky-stack fashion, each covering the
@@ -286,17 +303,18 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .fnpm{ position:relative; z-index:1; font:inherit; font-size:1.05rem; font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:.9rem 1.6rem; cursor:copy; display:flex; align-items:center; gap:.75rem }
 .fnpm i{ font-style:normal; color:#9a9a9a; font-size:.85em }
 .fnpm:hover i{ color:var(--c) }
-.fbar{ width:100%; max-width:64rem; margin:0 auto; padding:0 clamp(1rem,3vw,2.2rem) 1.3rem; display:flex; gap:2.5rem; align-items:flex-end }
-.fcta{ font-size:1rem; line-height:1.55; color:var(--fi0,#1b1408) }
-.fcta a{ color:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px }
-.fnav{ display:grid; grid-template-columns:repeat(2,auto); gap:.35rem 2.6rem; margin-left:auto; font-size:1rem }
-.fnav a{ color:var(--fi1,#fff); text-decoration:none; width:max-content }
+.fbar{ width:100%; max-width:64rem; margin:0 auto; padding:0 clamp(1rem,3vw,2.2rem) 1.3rem; display:flex; justify-content:space-between; gap:2.5rem; align-items:flex-end }
+.fnav{ display:grid; grid-template-columns:repeat(2,auto); gap:.35rem 2.6rem; font-size:1rem }   /* the menu lives at the left */
+.fnav a{ color:var(--fi0,#1b1408); text-decoration:none; width:max-content }
 .fnav a:hover{ text-decoration:underline; text-underline-offset:3px }
-.fmark{ align-self:flex-end; color:var(--fi1,#fff); font-size:.9rem; white-space:nowrap }
-.fproof{ max-width:64rem; margin:.2rem auto 0; padding:0 clamp(1rem,3vw,2.2rem) 1.1rem; font-size:.8rem; font-weight:600; color:var(--fi1,#fff); opacity:.85; font-variant-numeric:tabular-nums }
+.fend{ display:flex; flex-direction:column; align-items:flex-end; text-align:right; gap:.3rem }
+.fproof{ font-size:1rem; line-height:1.5; color:var(--fi1,#fff); font-variant-numeric:tabular-nums }   /* the proof line, above the CTA, in its style */
+.fcta{ font-size:1rem; line-height:1.5; color:var(--fi1,#1b1408) }
+.fcta a{ color:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px }
+.fmark{ color:var(--fi1,#fff); font-size:.9rem; white-space:nowrap; margin-top:.15rem }
 @media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
 @media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
-@media(max-width:640px){ .about{ grid-template-columns:1fr } .mbox{ width:100vw; margin:0; min-height:100dvh } }
+@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .about.api{ text-align:left } .about.api p,.tabrow{ margin-left:0 } .tabrow{ justify-content:flex-start } .mbox{ width:100vw; margin:0; min-height:100dvh } }
 /* ── the hero: a compact OKLCH picker plane — hue across, lightness down (white top,
    black bottom) — that sits directly under the wordmark as the masthead's extended
    body. Scroll and it slides up under the sticky bar, folding into the thin hue line
@@ -324,7 +342,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <a class="skip" href="#cat">skip to catalog</a>
 <div class="page">
 <div class="fw mhead"><header class="mast">
-	<h1 class="wm">color·space</h1>
+	<h1 class="wm">color-space</h1>
 	<div class="cur" id="curw">
 		<input type="color" class="cursw" id="cursw" title="current color — click to pick" aria-label="current color">
 		<span class="curhex tnum" id="curhex" title="click to copy"></span>
@@ -846,10 +864,11 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 </div></section></div></main>
 
 <div class="g"><section class="about api" id="api">
-	<div>
-		<h2>API</h2>
-		<p>One object, every pair wired: <code>space[from][to](…values)</code> takes plain numbers in the space's conventional ranges and returns a plain array. No classes, no parsing, no state.</p>
-		<pre><b>import</b> space <b>from</b> 'color-space'
+	<h2>API</h2>
+	<p>One object, every pair wired: <code>space[from][to](…values)</code> — plain numbers in each space's conventional ranges, a plain array back. No classes, no parsing, no state.</p>
+	<div class="tabs" id="apitabs">
+		<div class="tabrow" role="tablist"><button class="on" data-p="core">core</button><button data-p="meta">meta</button><button data-p="wasm">wasm</button><button data-p="gl">gl</button></div>
+		<pre data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
 space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 151 × 150 pairs</i>
@@ -860,72 +879,53 @@ space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
 <i>// one space only — tree-shaken, ~2 kB</i>
 <b>import</b> oklch <b>from</b> 'color-space/oklch.js'
 oklch.rgb(0.65, 0.25, 180)</pre>
-	</div>
-	<div>
-		<pre><i>// per-space metadata, generated from the sources</i>
+		<pre data-p="meta" hidden><i>// per-space metadata, generated from the sources</i>
 <b>import</b> meta <b>from</b> 'color-space/meta.js'
 
 meta.oklch.channels    <i>// [{symbol:'L', min:0, max:1, name:'Lightness'}, …]</i>
 meta.oklch.refs        <i>// defining spec / paper links</i>
-meta.oklch.illuminant  <i>// 'D65' · .observer .referred .dynamic</i>
+meta.oklch.illuminant  <i>// 'D65' · .observer .referred .dynamic</i></pre>
+		<pre data-p="wasm" hidden><i>// whole buffers in WASM — same API, pinned bit-for-bit</i>
+<b>import</b> space, { alloc } <b>from</b> 'color-space/wasm'
 
-<i>// whole buffers in WASM — same formulas, pinned bit-for-bit</i>
-<b>import</b> { alloc, convert } <b>from</b> 'color-space/wasm'
+<b>const</b> buf = alloc(n)     <i>// Float64Array(n*3) in WASM memory</i>
+space.rgb.oklch(buf)     <i>// in place, zero-copy — 27 spaces</i></pre>
+		<pre data-p="gl" hidden><i>// every pair as a GLSL shader chunk</i>
+<b>import</b> { glsl } <b>from</b> 'color-space/gl'
 
-<b>const</b> buf = alloc(n)         <i>// Float64Array(n*3) in WASM memory</i>
-convert('rgb', 'oklch', n)   <i>// in place, zero-copy — 27 spaces</i></pre>
+<b>const</b> src = glsl('rgb', 'oklch')
+<i>// → self-contained: vec3 rgb_oklch(vec3 c)</i>
+<i>//   paste into any fragment shader, no uniforms</i></pre>
 	</div>
 </section></div>
 
 <div class="g"><section class="about recipes" id="recipes">
-	<div>
-		<h2>Recipes</h2>
+	<h2>Recipes</h2>
+	<div class="recgrid">
 		<pre><i>// CSS out — values are already CSS-native</i>
 <b>const</b> [l, c, h] = space.rgb.oklch(r, g, b)
 el.style.color = `oklch(${l} ${c} ${h})`</pre>
 		<pre><i>// gamut check — unclamped linear-RGB stays in [0, 1]</i>
 <b>const</b> lin = space.oklch.lrgb(0.65, 0.25, 180)
 <b>const</b> inSRGB = lin.every(v =&gt; v &gt;= 0 &amp;&amp; v &lt;= 1)</pre>
-	</div>
-	<div>
-		<pre><i>// perceptual mix — interpolate in OKLab, not in sRGB</i>
+		<pre><i>// perceptual mix — interpolate in OKLab, not sRGB</i>
 <b>const</b> mix = (a, b, t) =&gt; {
   <b>const</b> A = space.rgb.oklab(...a), B = space.rgb.oklab(...b)
   <b>return</b> space.oklab.rgb(...A.map((v, i) =&gt; v + (B[i] - v) * t))
 }</pre>
-		<pre><i>// camera log → display: S-Log3 footage on a Rec.709 monitor</i>
+		<pre><i>// camera log → display: S-Log3 on a Rec.709 monitor</i>
 space.slog3.rec709(0.41, 0.41, 0.41)</pre>
 	</div>
 </section></div>
 
-<div class="g"><section class="about">
-	<div>
-		<h2>A conversion kernel, not a toolkit</h2>
-		<p>color-space converts colors between <span id="n2">151</span> spaces — from CSS staples (OKLCH, Lab, P3) through broadcast and camera logs (YCbCr, S-Log3, LogC4, ACES) to appearance models and physical systems (CAM16, Munsell, Coloroid). Values use each space's own conventional ranges, so <b>what you read here is what you write in CSS or in the paper</b>.</p>
-		<p>Five guarantees hold for <b>every space</b>, enforced by the test suite: the <b>canonical formula</b> from its defining spec or paper (linked in <code>meta.refs</code>); a <b>numeric pin</b> — a cited reference value, or a differential test against <a href="https://colorjs.io">colorjs.io</a> (the CSS Color spec editors' implementation); <b>conventional ranges</b> on <code>space.range</code>; <b>bidirectional</b> conversion to every other space; and <b>documented omissions</b> — whatever is absent is listed with its reason, never silently missing. No parsing, interpolation, ΔE or gamut-mapping — that's the application layer (pair with culori or chroma-js). That restraint is why one imported space ships ~2 kB.</p>
-		<div class="chipsrow" id="chips"></div>
-	</div>
-	<div>
-		<pre><i>// npm i color-space</i>
-<b>import</b> space <b>from</b> 'color-space'
-
-space.rgb.hsl(255, 128, 0)          <i>// → [30, 100, 50] — CSS hsl(30 100% 50%)</i>
-space.oklch.rgb(0.65, 0.25, 180)    <i>// ≡ CSS oklch(0.65 0.25 180)</i>
-space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
-
-<i>// or one space, tree-shaken (~2 kB)</i>
-<b>import</b> oklch <b>from</b> 'color-space/oklch.js'</pre>
-	</div>
-</section></div>
-
-<div class="g"><section class="about declined">
-	<div>
-		<h2>Not here, on purpose</h2>
-		<p>Some famous systems can't be shipped honestly, so they're documented instead of faked.
-		<b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are sample-defined and trademarked, with no openly redistributable CIE data; a formula can't cure that (all marks belong to their owners — visit the official sites for authoritative values).
-		<b>Atlas-only orders</b> — <a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a>, <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a> — have no open closed-form.
-		<b>Non-invertible appearance models</b> — Hunt, Nayatani 95, LLAB, ATD95 — don't work as kernel transforms (RLAB, the one invertible early CAM, ships).
-		Spaces marked 🕰️ in the catalog <i>are</i> shipped, as working history — CIE RGB 1931, NTSC 1953, S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB…</p>
+<div class="g"><section class="about declined" id="declined">
+	<h2>Not here, on purpose</h2>
+	<p class="lede">Some famous systems can't be shipped honestly, so they're documented instead of faked.</p>
+	<div class="dcols">
+		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are sample-defined and trademarked, with no openly redistributable CIE data; a formula can't cure that (all marks belong to their owners — visit the official sites for authoritative values).</p>
+		<p><b>Atlas-only orders</b> — <a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a>, <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a> — have no open closed-form.</p>
+		<p><b>Non-invertible appearance models</b> — Hunt, Nayatani 95, LLAB, ATD95 — don't work as kernel transforms (RLAB, the one invertible early CAM, ships).</p>
+		<p><b>Spaces marked 🕰️</b> in the catalog <i>are</i> shipped, as working history — CIE RGB 1931, NTSC 1953, S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB…</p>
 	</div>
 </section></div>
 
@@ -934,16 +934,18 @@ space.slog3.rec2020(0.5, 0.5, 0.5)  <i>// camera log → broadcast</i>
 	<div class="fov">
 		<div class="fnpmw"><button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button></div>
 		<div class="fbar">
-			<div class="fcta">Wrong, slow or missing?<br><a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
 			<nav class="fnav" aria-label="footer">
 				<a href="#cat">Spaces</a><a href="https://github.com/colorjs/color-space">GitHub</a>
 				<a href="#api">API</a><a href="https://npmjs.org/color-space">npm</a>
 				<a href="#recipes">Recipes</a><a href="./llms.txt">llms.txt</a>
 			</nav>
-			<span class="fmark" title="offered">Unlicense · ॐ</span>
+			<div class="fend">
+				<p class="fproof"><span id="n">151</span> spaces · differentially tested · zero dependencies · MIT</p>
+				<div class="fcta">Wrong, slow or missing? <a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
+				<span class="fmark" title="offered">MIT · ॐ</span>
+			</div>
 		</div>
-		<p class="fproof"><span id="n">151</span> spaces · differentially tested vs colorjs.io · zero dependencies · public domain</p>
-	</div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div><div class="fg"></div></div>
+	</div>
 </footer>
 </div>
 
@@ -964,7 +966,7 @@ import { spaces as wasmSpaces } from '../wasm.js'
 import NAMES from './landing/names.js'
 import { SPACES, sections, cname, unit, catHTML } from './landing/render.js'
 
-for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
+document.getElementById('n').textContent=spaceCount
 
 let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter', codeTab='js'
 const toastEl=document.getElementById('toast'); let toastT
@@ -2062,15 +2064,13 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 document.getElementById('curhex').onclick=()=>copy(document.getElementById('curhex').textContent)
 document.getElementById('cursw').oninput=e=>{ master={ s:'rgb', vals:hex2rgb(e.target.value) }; renderFast(); paintCatalogGrad(); paintPlanes(false) }
 document.getElementById('curnm').onclick=()=>{ const c=nearest(RGB()); if(c){ master={ s:'rgb', vals:c.rgb.slice() }; renderFast(); paintCatalogGrad(); paintPlanes(false) } }
-const FEATS=[
-	[spaceCount+' spaces','Every supported color space is browsable here and available from the package.'],
-	['verified vs colorjs.io','Core conversions are pinned against independent colorjs.io reference values.'],
-	['0 dependencies','Runtime modules ship without dependency weight.'],
-	['~2 kB per space','Import one color-space module and bundlers can tree-shake the rest.'],
-	['WASM batch path','High-volume RGB transforms can run through the WASM batch converter.'],
-	['Unlicense','Public-domain-style license: copy, modify, ship, and fork freely.']
-]
-document.getElementById('chips').innerHTML=FEATS.map(([c,t])=>`<span class="chipx" title="${t}">${c}</span>`).join('')
+// API code panel — tabs swap which snippet shows
+;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
+	const panes=[...tabs.querySelectorAll('pre[data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]
+	tabs.querySelector('.tabrow').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return
+		const p=b.dataset.p
+		btns.forEach(x=>x.classList.toggle('on',x===b))
+		panes.forEach(x=>x.hidden=x.dataset.p!==p) }) })()
 
 // ── the coloroid sweep (hue A across, luminosity descending) — the footer wall AND the
 // hero stage share it. The footer stack cuts through QSTEPS; the hero sweeps the band
@@ -2093,15 +2093,21 @@ const ftrEl=document.getElementById('ftr'), fgrad=document.getElementById('fgrad
 // overlay ink per side, from the wall's own ends (same inversion as the sliders)
 fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
 fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16])))
-// the footer is just its own height — no sticky stack, no empty scroll. As it rises
-// into view its background steps down QSTEPS (smooth → 8 bands), one tier per fraction
-// of the reveal, so scrolling quantizes the wall in place
-let flvl=-1
-function stepFtr(){ const r=ftrEl.getBoundingClientRect()
-	const p=clamp((innerHeight-r.top)/Math.min(r.height,innerHeight),0,1)
-	const lvl=Math.min(QSTEPS.length-1,Math.floor(p*QSTEPS.length))
-	if(lvl!==flvl){ flvl=lvl; fgrad.style.background=coloroidGrad(QSTEPS[lvl]) } }
-addEventListener('scroll',()=>requestAnimationFrame(stepFtr),{passive:true}); stepFtr()
+// the wall is the smooth sweep the whole way down — no quantization on the approach and
+// no extra scroll added. Only once you hit the very end (footer fully in view) does more
+// downward scroll quantize it a tier at a time, the page held fixed at the bottom;
+// scrolling back up releases it to smooth again. No gap, footer stays put.
+let flvl=0, facc=0
+const paintFq=()=>{ fgrad.style.background=coloroidGrad(QSTEPS[flvl]) }
+const setFq=v=>{ v=clamp(v,0,QSTEPS.length-1); if(v!==flvl){ flvl=v; paintFq() } }
+paintFq()
+addEventListener('wheel',e=>{
+	const atEnd=Math.ceil(scrollY+innerHeight)>=document.documentElement.scrollHeight-1
+	if(!atEnd){ if(flvl){ facc=0; setFq(0) } return }
+	if(e.deltaY>0){ if(flvl<QSTEPS.length-1){ e.preventDefault(); facc+=e.deltaY
+			if(facc>=110){ facc=0; setFq(flvl+1) } } }
+	else if(e.deltaY<0&&flvl){ facc=0; setFq(0) }   // any scroll-up snaps back to smooth (and scrolls the page)
+},{passive:false})
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
 const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) return
@@ -2132,8 +2138,13 @@ addEventListener('hashchange',openHash)   // same-document deep links switch spa
 	// scroll collapses the plane into the border line: its height scrubs from full to the
 	// 5px line, and the header's --mline border lights (.on) the instant it lands
 	const LINE=5
-	const heroScroll=()=>{ const h=Math.max(LINE, introw.offsetHeight-scrollY)
-		intro.style.height=h+'px'; mhead.classList.toggle('on', h<=LINE+0.5) }
+	const heroScroll=()=>{ const track=introw.offsetHeight-LINE, h=Math.max(LINE, introw.offsetHeight-scrollY)
+		intro.style.height=h+'px'
+		// the border opacity IS the collapse fraction — continuous with scroll, so it
+		// fades in as the plane shrinks and fades right back out on scroll up
+		const p=clamp(scrollY/Math.max(1,track),0,1)
+		page.style.setProperty('--brd',p.toFixed(3))
+		mhead.classList.toggle('on', p>=1) }
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
 	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
 		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'

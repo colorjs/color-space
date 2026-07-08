@@ -35,7 +35,7 @@
     "cinema"
   ],
   "repository": "colorjs/color-space",
-  "license": "Unlicense",
+  "license": "MIT",
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "files": [

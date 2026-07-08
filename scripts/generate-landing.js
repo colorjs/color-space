@@ -18,7 +18,6 @@ const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not f
 inject(/<main class="cat" id="cat">[\s\S]*?<\/main>/, `<main class="cat" id="cat">${catHTML()}</main>`)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
-inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
 writeFileSync(page, html)
 
 // ── llms.txt: machine-readable index of every space ──
@@ -32,7 +31,7 @@ const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
 > (what CSS and the defining papers use). Formulas differentially tested against
-> colorjs.io. Zero dependencies, public domain (Unlicense).
+> colorjs.io. Zero dependencies, MIT licensed.
 
 Install: npm i color-space
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)
