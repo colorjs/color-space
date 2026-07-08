@@ -9,6 +9,7 @@
  *
  * @see {@link https://en.wikipedia.org/wiki/Dominant_wavelength}
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
+ * @wiki {@link https://en.wikipedia.org/wiki/Dominant_wavelength}
  * @channel {d} -700 700 Dominant wavelength
  * @channel {s} 0 1 Excitation purity
  * @channel {Y} 0 100 Luminance

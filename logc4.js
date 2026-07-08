@@ -5,6 +5,10 @@
  * ARRI Wide Gamut 4 primaries — the current standard for ARRI cinema workflows.
  *
  * @see {@link https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2022
+ * @by ARRI
+ * @use Cinema camera log capture; current ARRI ALEXA 35 native encoding.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

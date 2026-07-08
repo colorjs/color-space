@@ -7,6 +7,10 @@
  * and remains the reference gamut for describing legacy analog NTSC color.
  *
  * @see {@link https://en.wikipedia.org/wiki/SMPTE_C}
+ * @wiki {@link https://en.wikipedia.org/wiki/NTSC#SMPTE_C}
+ * @year 1987
+ * @by SMPTE
+ * @use NTSC broadcast phosphor primaries for North America/Japan (RP 145); historical, legacy analog reference.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

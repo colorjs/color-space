@@ -18,7 +18,7 @@ export const LEADS = 3   // slider cards per category (the row's featured spaces
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
 const ent = (s, lite) => { const cls = classify(s), hist = HISTORICAL.has(s)
 	return `<article class="ent${lite ? ' lite' : ''}${hist ? ' histo' : ''}" data-s="${s}"${hist ? ' title="historical — shipped as working history"' : ''}>
-	 <div class="eh"><span class="nm">${s}</span><span class="cvs">${cls.ch.map((c2, i) => `<input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}">`).join('')}</span></div>
+	 <div class="eh"><span class="nm">${s}${hist ? '<span class="histico" title="historical — shipped as working history" aria-label="historical"></span>' : ''}</span><span class="cvs">${cls.ch.map((c2, i) => `<input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}">`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
 	</article>` }
 

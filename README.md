@@ -51,6 +51,7 @@ import meta from 'color-space/meta.js';
 meta.oklab;
 // { description, channels: [{symbol, min, max, name}], range,
 //   refs: ['https://…'],              // @see reference links (paper / spec)
+//   wiki: 'https://en.wikipedia.org/…',  // canonical Wikipedia article, when one exists
 //   illuminant: 'D65', observer: '2',
 //   referred: 'display' | 'scene',   // display- vs scene-referred (ACES/camera logs)
 //   dynamic:  'sdr' | 'hdr' }        // bounded display vs extended/HDR
@@ -66,13 +67,17 @@ bit-for-bit against it ([test/wasm-batch.js](test/wasm-batch.js)). Zero runtime 
 (the ~12 kB module is prebuilt and base64-inlined).
 
 ```js
-import { alloc, convert } from 'color-space/wasm';
+import space, { alloc } from 'color-space/wasm';
+
+space.oklch.rgb(0.72, 0.16, 41);  // → [246, 125, 79] — the JS API's exact shape
 
 const n = width * height;
 const buf = alloc(n);          // WASM-backed Float64Array(n*3), interleaved [r,g,b, r,g,b, …]
 // … write sRGB 0-255 into buf …
-convert('rgb', 'oklch', n);    // convert the whole buffer in place — no copy
+space.rgb.oklch(buf);          // convert the whole buffer in place — no copy
 // … read buf, now OkLCh …
+
+space.rgb.oklch(pixels);       // any other array-like: converted copy out, input untouched
 ```
 
 Internally the kernel is a graph of primitive **edges** (transfer, matrix, cube-root,
@@ -89,9 +94,51 @@ The win is **zero-copy** — keep the data in WASM memory. Over a 1M-pixel buffe
 are currently parity-or-slower** (rgb→ictcp 0.85×, rgb→jzazbz 0.64×) — their `spow`/`pow`/
 `log` is where jz's codegen still trails V8; they're shipped for coverage (and pipelines
 that stay in WASM) and tracked as jz optimization targets, so the gap closes as jz
-improves — *without touching this code*. `convertBatch(from, to, src, dst, n)` is a drop-in
-for existing JS arrays, but it copies in and out, so prefer `alloc` + `convert` on a hot
-path. Instantiation is sync (~23 kB module) — use a Web Worker on the browser main thread.
+improves — *without touching this code*. A non-`alloc`'d array converts through a copy
+in and out, so prefer `alloc` on a hot path. The named primitives `convert(from, to, n)`
+and `convertBatch(from, to, src, dst, n)` remain for explicit control. Instantiation is
+sync (~23 kB module) — use a Web Worker on the browser main thread.
+
+## Shaders (WebGL / WebGPU)
+
+The third backend: every space ships as a **GLSL chunk**, composed on demand into a
+self-contained snippet — and translated mechanically to **WGSL** for WebGPU. Same
+hub-spoke edge graph as the scalar library and the WASM kernel, same ranges.
+
+```js
+import { glsl } from 'color-space/gl';
+import { wgsl } from 'color-space/gl/wgsl';
+
+glsl('rgb', 'oklch');
+// → GLSL defining `vec3 rgb_oklch(vec3 c)` + only the chunks that path needs
+
+const frag = `#version 300 es
+precision highp float;
+${glsl('oklch', 'rgb')}
+in vec3 color; out vec4 O;
+void main() { O = vec4(oklch_rgb(color) / 255.0, 1.0); }`;
+
+wgsl('rgb', 'oklch');   // the same conversion as WGSL: `fn rgb_oklch(c: vec3f) -> vec3f`
+
+// several conversions in one shader (paint in one space, gamut-test in another):
+glsl([['oklch', 'rgb'], ['oklch', 'xyz'], ['xyz', 'p3-linear']]);  // shared chunks emit once
+```
+
+**Shipping is plain strings** — no build step, no glslify, no `#include`. Each space
+is a chunk `{ name, edges, code }` declaring primitive edges to its natural
+neighbours; `glsl(from, to)` BFS-composes the shortest path and emits only the code
+it needs (shared helpers inject once). A chunk also imports alone —
+`import oklab from 'color-space/gl/oklab.js'` — for manual embedding.
+
+Chunks are written once, in a restricted GLSL dialect that **(1)** compiles as
+GLSL ES 3.00 (WebGL2; most chunks are WebGL1-clean too), **(2)** translates
+mechanically to WGSL, and **(3)** evaluates as JS — so every edge is
+differentially pinned to the scalar library in float64 ([test/gl.js](test/gl.js)),
+and every composed pair compile-checks on a real GPU driver and parses as WGSL
+([test/gl-gpu.html](test/gl-gpu.html)). **150 of 151 spaces** — everything except
+`munsell` (a measured 5000-entry renotation table: convert in JS, upload as a
+texture LUT). GPU floats are f32 — expect ~1e-6 relative precision (fine for
+display work; use JS/WASM for colorimetric math).
 
 ## Design: Conventional Ranges
 

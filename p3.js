@@ -5,6 +5,10 @@
  * colors — the default canvas of modern iPhones, iPads and Macs.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-display-p3}
+ * @wiki {@link https://en.wikipedia.org/wiki/DCI-P3#P3-D65_(Display_P3)}
+ * @year 2015
+ * @by Apple
+ * @use Wide-gamut display space for Apple devices; current default on iPhone/iPad/Mac, standardized in CSS Color 4.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

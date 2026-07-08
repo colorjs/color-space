@@ -6,6 +6,10 @@
  * from the curves used in BT.601 and BT.709.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7291461}
+ * @wiki {@link https://en.wikipedia.org/wiki/List_of_color_spaces_and_their_uses#Others_with_RGB_primaries}
+ * @year 1988
+ * @by SMPTE
+ * @use Interim analog HDTV standard preceding Rec. 709; historical, superseded.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

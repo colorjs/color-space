@@ -8,6 +8,9 @@
  * rather than a distinct primaries set.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Panalog.html}
+ * @year 2005
+ * @by Panavision / Sony
+ * @use Log curve for the Panavision Genesis digital cinema camera; legacy/historical.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

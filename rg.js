@@ -6,6 +6,7 @@
  * more robust to lighting changes than raw RGB.
  *
  * @see {@link https://en.wikipedia.org/wiki/Chromaticity}
+ * @wiki {@link https://en.wikipedia.org/wiki/Rg_chromaticity}
  * @channel {r} 0 1 Red chromaticity coordinate
  * @channel {g} 0 1 Green chromaticity coordinate
  * @referred display
@@ -45,7 +46,8 @@ rgb.rg = (r, g, b) => {
 	b = b / 255;
 
 	const sum = r + g + b;
-	if (sum === 0) return [0, 0];
+	// black carries no chromaticity — it sits at the neutral point (r = g = b), not the blue corner
+	if (sum === 0) return [1 / 3, 1 / 3];
 	return [r / sum, g / sum];
 };
 

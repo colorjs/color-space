@@ -11,6 +11,10 @@
  * large-scale uniformity over the convenience of more common spaces.
  *
  * @see {@link https://doi.org/10.1364/JOSA.64.001691}
+ * @wiki {@link https://en.wikipedia.org/wiki/OSA-UCS}
+ * @year 1974
+ * @by OSA committee (David MacAdam)
+ * @use Large-step perceptual uniformity for industrial/scientific color-difference work; legacy, niche next to CIELAB/CIELUV.
  * @channel {L} -10 10 Lightness
  * @channel {j} -10 10 Yellow-Blue axis
  * @channel {g} -10 10 Red-Green axis

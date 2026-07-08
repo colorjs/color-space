@@ -6,6 +6,9 @@
  * Log3G10 as its recommended acquisition curve.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log3G12.html}
+ * @year 2016
+ * @by RED Digital Cinema (Graeme Nattress)
+ * @use Earlier RED cinema log curve superseded by Log3G10; legacy, still decodable but no longer recommended.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

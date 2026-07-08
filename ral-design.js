@@ -9,7 +9,11 @@
  * matched by eye against a physical chip.
  *
  * @see {@link https://en.wikipedia.org/wiki/RAL_colour_standard}
- * @see {@link https://www.freiefarbe.de/en/colour-atlas/} freieFarbe HLC Colour Atlas (D50/2°, CC)
+ * @see {@link https://www.freiefarbe.de/en/thema-farbe/hlc-colour-atlas/} freieFarbe HLC Colour Atlas (D50/2°, CC)
+ * @wiki {@link https://en.wikipedia.org/wiki/RAL_colour_standard#RAL_Design}
+ * @year 1993
+ * @by RAL gGmbH
+ * @use European paint/coatings/architectural color-specification system in CIELAB cylindrical coordinates; current standard.
  * @channel {H} 0 360 Hue
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 100 Chroma

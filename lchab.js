@@ -8,6 +8,10 @@
  * common choice for building perceptually even saturation or hue controls.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-lab}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIELAB_color_space#Cylindrical_model}
+ * @year 1976
+ * @by CIE
+ * @use Cylindrical CIELAB for intuitive saturation/hue adjustment; current, underlies CSS Color 4's lch().
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 150 Chroma
  * @channel {H} 0 360 Hue angle in degrees

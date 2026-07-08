@@ -8,6 +8,9 @@
  * color-difference formulas target — making it the CAM16 counterpart to CAM02-LCD.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
+ * @year 2017
+ * @by Li et al.
+ * @use Uniform space for large color-difference/gamut-mapping comparisons; current default for that role.
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

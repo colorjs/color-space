@@ -9,6 +9,10 @@
  * palette generation.
  *
  * @see {@link https://bottosson.github.io/posts/oklab/}
+ * @wiki {@link https://en.wikipedia.org/wiki/Oklab_color_space}
+ * @year 2020
+ * @by Björn Ottosson
+ * @use Perceptual color space for gradients and design tooling; current, underlies CSS Color 4's oklab()/oklch().
  * @channel {L} 0 1 Lightness
  * @channel {a} -0.4 0.4 Green-Red axis
  * @channel {b} -0.4 0.4 Blue-Yellow axis

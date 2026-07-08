@@ -9,6 +9,10 @@
  * particular display's white point.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#lab-colors}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
+ * @year 1976
+ * @by CIE
+ * @use Device-independent perceptual color specification; current ICC profile connection space and CSS Color 4's lab().
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Green-Red axis
  * @channel {b} -125 125 Blue-Yellow axis

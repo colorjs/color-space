@@ -10,6 +10,10 @@
  * cross-media color reproduction.
  *
  * @see {@link https://doi.org/10.1002/col.10125}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIECAM02}
+ * @year 2002
+ * @by CIE
+ * @use Color-appearance modeling for gamut mapping and cross-media reproduction; still embedded in ICC v4 workflows, though superseded by CAM16.
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

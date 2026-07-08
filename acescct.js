@@ -6,7 +6,11 @@
  * ACEScct is generally preferred over ACEScc on control surfaces built for legacy
  * grading tools.
  *
- * @see {@link https://docs.acescentral.com/specifications/acescct/}
+ * @see {@link https://docs.acescentral.com/encodings/acescct/}
+ * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScc_&_ACEScct}
+ * @year 2016
+ * @by Academy (AMPAS)
+ * @use Log2-with-toe color-grading working space in ACES post-production; current default ACES grading space.
  * @channel {R} -0.358 1.468 Red
  * @channel {G} -0.358 1.468 Green
  * @channel {B} -0.358 1.468 Blue

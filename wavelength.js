@@ -7,6 +7,10 @@
  * of any color, the same quantity that gives CIE DSH its hue.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/Spectral_color}
+ * @year 1931
+ * @by CIE
+ * @use Monochromatic-light-to-XYZ mapping via the CIE 1931 standard observer; current colorimetry reference.
  * @channel {wl} 380 700 Wavelength
  * @illuminant E
  * @observer 2

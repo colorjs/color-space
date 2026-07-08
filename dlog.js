@@ -6,6 +6,10 @@
  * the separate curve DJI uses on its consumer drones.
  *
  * @see {@link https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2017
+ * @by DJI
+ * @use Log curve for DJI cinema-oriented drone/gimbal cameras; current on Zenmuse/Ronin cinema product lines.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

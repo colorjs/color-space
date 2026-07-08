@@ -6,6 +6,9 @@
  * use — over the Protune Native primaries.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Protune.html}
+ * @year 2012
+ * @by GoPro
+ * @use Flat log color profile for GoPro Hero action cameras; current, still used on modern Hero output.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

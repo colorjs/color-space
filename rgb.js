@@ -6,6 +6,10 @@
  * gamut for ordinary displays, browsers and image formats today.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#numeric-srgb}
+ * @wiki {@link https://en.wikipedia.org/wiki/SRGB}
+ * @year 1996
+ * @by HP & Microsoft
+ * @use Default RGB space of the web and untagged images (sRGB); current, dominant consumer-display standard.
  * @channel {R} 0 255 Red
  * @channel {G} 0 255 Green
  * @channel {B} 0 255 Blue

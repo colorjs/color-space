@@ -7,6 +7,7 @@
  * Bradford, CAT02, CAT16 among them — each modeling that adaptation differently.
  *
  * @see {@link https://en.wikipedia.org/wiki/LMS_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/LMS_color_space}
  * @channel {L} 0 100 Long
  * @channel {M} 0 105 Medium
  * @channel {S} 0 110 Short

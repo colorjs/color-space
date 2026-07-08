@@ -8,6 +8,7 @@
  * and underlies the arithmetic CMYK is built on.
  *
  * @see {@link https://en.wikipedia.org/wiki/CMY_color_model}
+ * @wiki {@link https://en.wikipedia.org/wiki/CMYK_color_model#Comparison_to_CMY}
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage

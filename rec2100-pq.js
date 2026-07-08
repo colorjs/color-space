@@ -7,6 +7,10 @@
  * streaming and mastering pipelines.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
+ * @wiki {@link https://en.wikipedia.org/wiki/Rec._2100}
+ * @year 2016
+ * @by Dolby / ITU-R
+ * @use Absolute-luminance HDR encoding behind HDR10 and most HDR streaming/mastering; current, dominant.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

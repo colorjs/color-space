@@ -10,6 +10,10 @@
  * @module  color-space/jpeg
  *
  * @see {@link https://www.itu.int/rec/T-REC-T.871}
+ * @wiki {@link https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion}
+ * @year 1992
+ * @by Eric Hamilton / C-Cube Microsystems (JFIF)
+ * @use Full-range YCbCr for JPEG/JFIF still-image storage; current, ubiquitous (later formalized as ITU-T T.871).
  * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma

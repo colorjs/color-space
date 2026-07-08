@@ -9,6 +9,10 @@
  * diagram and the modern CIE 1976 spaces.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
+ * @year 1964
+ * @by Günther Wyszecki / CIE
+ * @use 3-D extension of CIE 1960 UCS; superseded by CIELUV in 1976, now historical only.
  * @channel {U} -85 175 U* chrominance
  * @channel {V} -90 75 V* chrominance
  * @channel {W} -17 100 W* lightness

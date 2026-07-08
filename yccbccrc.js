@@ -9,6 +9,9 @@
  * even for the most saturated colors UHDTV and HDR can reproduce.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020/en}
+ * @year 2012
+ * @by ITU-R
+ * @use Constant-luminance luma/chroma encoding for UHDTV/HDR wide-gamut video (BT.2020/2100); current, less common than non-constant-luminance Y'CbCr.
  * @channel {Yc} 0 1 Constant-luminance luma
  * @channel {Cbc} -0.5 0.5 Blue-difference chroma
  * @channel {Crc} -0.5 0.5 Red-difference chroma

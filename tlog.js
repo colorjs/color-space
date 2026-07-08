@@ -7,7 +7,7 @@
  * facilities use T-Log/E-Gamut much the way ACES or DaVinci Wide Gamut are used
  * elsewhere — as a common space for mixing footage from multiple camera sources.
  *
- * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmLightTLog.html}
+ * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/filmlight_t_log.py}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

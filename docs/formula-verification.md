@@ -62,61 +62,41 @@ The suite runs as part of `npm test` via `test/reference.js`.
 
 ---
 
-## 2. Spaces without a colorjs counterpart
+## 2. Bona-fide cited values ([test/bonafide.js](../test/bonafide.js))
 
-Spaces not in colorjs are validated by exact roundtrip plus primary-source reference values.
+Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field): **124 cited points across 123 spaces**. Together with the differential suite this covers **all 151 spaces — zero gaps**.
 
-### okhsl / okhsv
+Oracles, in order of preference:
 
-Validated against **culori** (which implements the same Björnsson specification). H and L match exactly; S may marginally exceed 100 at the blue gamut corner due to the smooth-cusp approximation shared by both libraries (see Known Limitations).
+- **colour-science 0.4.7** (Python) — cinema/camera logs, CAM02/CAM16 families and their UCS/LCD/SCD variants, ZCAM, Hellwig2022, OSA-UCS (forward and Newton inverse), IPT, IgPgTg, Yrg, hdr-CIELab/hdr-IPT, DIN99…
+- **colorjs.io v0.5.2** — HCT, CAM16-JMh, HSLuv/HPLuv, sRGB↔XYZ anchors
+- **culori v4** — XYB, Okhsl/Okhsv, LCh(D65)
+- **Printed spec constants, hand-computed** — ITU-R BT.470/601/709/2020/2100, ITU-T T.871/H.273, SMPTE RP 431-2 / ST 2084 / 240M, IEC 61966, CIE 1960/1964/1976, ACES S-2013-001/S-2016-001, Xerox YES, Kodak PhotoYCC, Hunter Lab, vendor log-curve whitepapers (ARRI, Sony, Canon, Fujifilm, Nikon, Leica, DJI, Blackmagic, RED, Panasonic, Apple, GoPro, Xiaomi, OPPO)…
 
-**Primary source:** Björnsson, B. (2021). *A perceptual color space for image processing.* https://bottosson.github.io/posts/colorpicker/
+Appearance models (CIECAM02/CAM16 + variants, ZCAM, Hellwig2022, HCT) are validated under the library's exact declared viewing conditions; the conditions are named in each entry's `src` so the number is reproducible.
 
-### Video / luma-based spaces
+One entry is pinned by provenance rather than an external oracle: **coloroid** (Nemcsics 1980, *Color Res. Appl.* 5(2):113–120, [doi:10.1002/col.5080050214](https://doi.org/10.1002/col.5080050214)) — the paper is paywalled and no other library implements the space; its value is held by formula self-consistency (V = 10√Y exact, forward/inverse agreement to 5 decimals). See Known Limitations.
 
-`ycbcr`, `ypbpr`, `yuv`, `yiq`, `ydbdr` — validated by exact roundtrip across all primaries, secondaries, white, black, and gray, plus component values for primary colors checked against the relevant ITU-R standard.
+### Reference-link audit
 
-**Primary sources:**
-- ITU-R BT.601 (YCbCr / YPbPr SD)
-- ITU-R BT.709 (HDTV luma coefficients)
-- ITU-R BT.2020 (UHD luma coefficients)
-- ITU-R BT.2100 (PQ / HLG transfer functions)
-- FCC NTSC (YIQ / YDbDr)
-
-### din99o-lab / din99o-lch
-
-Validated by exact roundtrip; pinned to `lab-d65` as the input space per DIN 6176.
-
-**Primary source:** DIN 6176 (din99o colour metric).
-
-### hcy
-
-Implemented as Chilliant's luma-based HCY (Rec.601 coefficients: R 0.299, G 0.587, B 0.114). Validated by exact roundtrip.
-
-**Primary source:** Chilliant. *Colour spaces for game programmers.* https://www.chilliant.com/rgb2hsv.html
-
-### hsi, hcg, hpluv, hsluv
-
-Exact roundtrip over full hue sweep. hsluv/hpluv additionally use the reference values from the official hsluv snapshot (https://www.hsluv.org/math/).
-
-### gray
-
-CIE relative luminance (linearised sRGB Y row). Exact roundtrip; white maps to 100, black to 0.
-
-### osaucs
-
-Forward path validated by exact roundtrip where the inverse is defined. The `osaucs → xyz` direction is one-way (no closed-form inverse exists); calling it throws a clear error.
-
-### coloroid
-
-See Known Limitations.
+All 133 unique `@see` links across the 151 space files were liveness-checked and content-verified (2026-07). 15 dead or mis-attributed citations were fixed: the four `docs.acescentral.com/specifications/…` → `…/encodings/…` moves, Ottosson's restructured colorpicker anchors (okhsl/okhsv/okhwb), the DIN99d and Coloroid DOIs (both resolved to unrelated papers), the Xerox YES attribution (previously credited to an unrelated 2007 paper; the matrix is Xerox XNSS 289005, 1989), two colour-science readthedocs pages that no longer exist (→ pinned source files), the freieFarbe HLC atlas path, the Leica L-Log manual path, and the German-Wikipedia DIN99 link.
 
 ---
 
-## 3. Known limitations
+## 3. Shader backends (gl/)
+
+The GLSL/WGSL chunks ship the same formulas for the GPU; three layers pin them:
+
+1. **Float64 differential** — chunks are written in a restricted GLSL dialect that transforms mechanically to JS, so every declared edge and every composed rgb↔space path is evaluated in float64 and compared to the scalar library at 1e-6 normalized tolerance ([test/gl.js](../test/gl.js)).
+2. **Real-GPU compile** — all 543 edge and rgb↔space sources compile as WebGL2 fragment shaders on an actual driver (ANGLE/Metal) via [test/gl-gpu.html](../test/gl-gpu.html).
+3. **WGSL grammar** — the same 543 sources, mechanically translated, parse clean under the full WGSL grammar (wgsl_reflect); the same page validates them on a live WebGPU device when available.
+
+---
+
+## 4. Known limitations
 
 **coloroid is EXPERIMENTAL.** The bundled hue table (Nemcsics) is internally inconsistent: each row's stored angle disagrees with its own chromaticity coordinates (xλ, yλ) by up to 14°. The T saturation formula does not round-trip: `rgb → coloroid → rgb` recovers T only approximately (~219/255 on a test sample). No external implementation exists to cross-validate against (colorjs and culori both lack coloroid). Tests assert only formula-verifiable invariants: V = 10√Y exactly, white → T = 0, valid hue grade, no NaN or crash. The A (hue angle) and T (saturation) values should be treated as provisional until the authoritative MSZ 7300 / Nemcsics table and ATV ↔ xyY formulas are sourced.
 
-**osaucs.xyz and rgb.cubehelix are one-way.** OSA-UCS has no known closed-form inverse. Cubehelix is a parametric colormap whose inverse requires numerical root-finding; neither is currently implemented. Both throw descriptive errors if called in the unsupported direction.
+**rgb.cubehelix is one-way.** Cubehelix is a parametric colormap (fraction → rgb); the reverse direction is not a color conversion and is deliberately blocked. (OSA-UCS, previously listed here, now has a working Newton inverse — pinned against colour-science `OSA_UCS_to_XYZ` in test/bonafide.js.)
 
 **okhsl S may marginally exceed 100 at the blue gamut boundary.** This is a known property of the smooth-cusp approximation in the Björnsson specification, shared by culori. It is not clamped, because clamping would break the roundtrip. The overshoot is small (~3 S units at the extreme corner) and documented in the `@channel` JSDoc.

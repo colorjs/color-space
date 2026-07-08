@@ -6,6 +6,9 @@
  * It's recorded in a BT.2020 color container.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_OPPOOLog.html}
+ * @year 2025
+ * @by OPPO
+ * @use Log video profile for OPPO Find X8 Ultra-era smartphones; current flagship-camera grading feature.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

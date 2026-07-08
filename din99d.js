@@ -9,7 +9,10 @@
  * color-tolerance work where a simple Euclidean metric is preferred over
  * CIE ΔE2000.
  *
- * @see {@link https://doi.org/10.1002/col.10118}
+ * @see {@link https://doi.org/10.1002/col.10066}
+ * @year 2002
+ * @by Cui, Luo, Rigg, Roesler & Witt
+ * @use Industrial color-tolerance measurement (coatings/plastics/automotive); current niche alternative to CIEDE2000.
  * @channel {L} 0 100 Lightness
  * @channel {a} -50 50 Green-Red axis
  * @channel {b} -50 50 Blue-Yellow axis

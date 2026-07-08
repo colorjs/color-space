@@ -6,6 +6,10 @@
  * production and broadcast.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
+ * @wiki {@link https://en.wikipedia.org/wiki/Rec._709}
+ * @year 1990
+ * @by ITU-R (CCIR)
+ * @use Reference gamut/transfer curve for HD video production and broadcast; current HDTV standard.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

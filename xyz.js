@@ -7,6 +7,10 @@
  * Lab and other working spaces are ultimately defined against.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-xyz}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_XYZ_color_space}
+ * @year 1931
+ * @by CIE
+ * @use Foundational device-independent color space underlying all colorimetry; current universal reference.
  * @channel {X} 0 95.05 X
  * @channel {Y} 0 100 Y
  * @channel {Z} 0 108.91 Z

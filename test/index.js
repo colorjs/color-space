@@ -43,6 +43,11 @@ test('integrity — meta.js carries channels, range and @see refs per space', ()
 	// @see links are extracted into refs (regression: the generator used to drop them)
 	is(meta.oklch.refs, ['https://www.w3.org/TR/css-color-4/#ok-lab'], 'oklch @see extracted')
 	is(meta.munsell.refs.length, 2, 'multiple @see per space extracted')
+	// @wiki → meta.wiki (90 spaces audited 2026-07; every value must be a Wikipedia article)
+	is(meta.ycbcr.wiki, 'https://en.wikipedia.org/wiki/YCbCr', 'ycbcr @wiki extracted')
+	const wikis = Object.values(meta).filter(m => m.wiki)
+	is(wikis.length >= 90, true, `wiki links present (${wikis.length})`)
+	is(wikis.every(m => /^https:\/\/en\.wikipedia\.org\/wiki\//.test(m.wiki)), true, 'every wiki link is a Wikipedia article')
 })
 
 // `range` lives twice by design: the object literal serves tree-shaken single-file
@@ -53,9 +58,36 @@ test('integrity — space.range literal matches @channel-derived meta.range', ()
 	is(drift, [], 'no drift between range literal and @channel')
 })
 
+// Regression: rgb.xyb and coloroid.xyy used `this.…` — direct method calls worked,
+// but wire()'s compositions invoke each hop as a bare function, so every composed
+// path routed THROUGH such an edge threw (e.g. lab→xyb, coloroid→munsell). Sweeping
+// every pair with an in-domain sample catches any `this`-bound (or otherwise
+// call-context-dependent) conversion.
+test('integrity — every composed pair is callable as bare functions', () => {
+	const names = Object.keys(space)
+	const broken = []
+	for (const a of names) {
+		let input
+		try { input = space.rgb[a](128, 128, 128) }
+		catch { input = meta[a].range.map(([lo, hi]) => (lo + hi) / 2) }
+		for (const b of names) {
+			if (a === b || typeof space[a][b] !== 'function') continue
+			try { space[a][b](...input) }
+			catch (e) { if (!/one-way/.test(e.message)) broken.push(`${a}→${b}: ${e.message}`) }
+		}
+	}
+	is(broken.slice(0, 10), [], `every reachable pair converts (${broken.length} broken)`)
+})
+
 test('edge: achromatic / black inputs are NaN-safe', () => {
 	is(space.rgb.hsi(128, 128, 128).map(round(1)), [0, 0, 50.2], 'hsi gray (was NaN hue)')
 	is(space.rgb.hsi(0, 0, 0), [0, 0, 0], 'hsi black (was NaN)')
+	// chromaticity spaces: black carries no chromaticity — it sits at the neutral/white
+	// point (any chromaticity inverts to black at zero luminance), never at a corner
+	is(space.rgb.macboyn(0, 0, 0).map(round(4)), [0.6548, 0.0175, 0], 'macboyn black at the white chromaticity (was l=0)')
+	is(space.rgb.xyy(0, 0, 0).map(round(4)), [0.3127, 0.329, 0], 'xyy black at the white chromaticity (was x=y=0)')
+	is(space.rgb.uv(0, 0, 0).map(round(4)), [0.1978, 0.4683, 0], 'uv black at the white u\'v\' (was 0,0)')
+	is(space.rgb.rg(0, 0, 0).map(round(4)), [0.3333, 0.3333], 'rg black at the neutral point (was the blue corner)')
 	is(space.rgb.hsp(255, 0, 0).map(round(0)), [0, 100, 55], 'hsp red hue 0 (was 360)')
 	is(space.xyz.osaucs(0, 0, 0).map(round(2)), [-13.51, 0, 0], 'osaucs black (was NaN,NaN,NaN)')
 	is(space.rgb.lchuv(0, 0, 0).map(round(1)), [0, 0, 0], 'lchuv black hue 0 (was 180)')
@@ -374,7 +406,7 @@ test('hwb: hsl -> hwb', function () {
 
 test('xyY: xyz -> xyy', function () {
 	// XYZ 0-100, xyY x/y 0-1, Y 0-100
-	is((space.xyz.xyy(0, 0, 0)), [0, 0, 0]);
+	is((space.xyz.xyy(0, 0, 0)).map(v => Math.round(v * 1e4) / 1e4), [0.3127, 0.329, 0]);   // achromatic: the white's (x, y)
 	is((space.xyz.xyy(25, 40, 15).map(round(4))), [0.3125, 0.5, 40]);
 	is((space.xyz.xyy(50, 100, 100).map(round(2))), [0.2, 0.4, 100]);
 });
@@ -1128,7 +1160,7 @@ test('rg', () => {
 	is(space.rgb.rg(0, 255, 0), [0, 1], 'green to rg');
 	is(space.rgb.rg(0, 0, 255).map(round(3)), [0, 0], 'blue to rg');
 	is(space.rgb.rg(255, 255, 255).map(round(2)), [0.33, 0.33], 'white to rg');
-	is(space.rgb.rg(0, 0, 0), [0, 0], 'black to rg');
+	is(space.rgb.rg(0, 0, 0), [1 / 3, 1 / 3], 'black to rg — the neutral point');
 
 	is(space.rg.rgb(1, 0), [255, 0, 0], 'rg to red');
 	is(space.rg.rgb(0, 1), [0, 255, 0], 'rg to green');

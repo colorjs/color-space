@@ -25,20 +25,21 @@ const rng = c => c.max === 360 ? `${c.symbol} 0–360°` : `${c.symbol} ${c.min}
 const line = s => { const m = meta[s] || {}
 	const ch = (m.channels || []).map(rng).join(', ')
 	const desc = (m.description || '').replace(/\s+/g, ' ').trim()
+	const org = m.year || m.by ? ` | origin: ${[m.year, m.by].filter(Boolean).join(' ')}` : ''
 	const ref = m.refs?.[0] ? ` | ref: ${m.refs[0]}` : ''
-	return `- ${s} — ${desc} | channels: ${ch}${ref}` }
+	return `- ${s} — ${desc}${org} | channels: ${ch}${ref}` }
 const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
 > (what CSS and the defining papers use). Formulas differentially tested against
-> colorjs.io. Zero dependencies, MIT licensed.
+> colorjs.io. Zero dependencies, public domain (Unlicense).
 
 Install: npm i color-space
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)
 Per space: space[name].range (channel ranges), space[name].name
-Metadata: import meta from 'color-space/meta.js' (channels, refs, illuminant, referred, dynamic)
+Metadata: import meta from 'color-space/meta.js' (channels, refs, illuminant, referred, dynamic, year, by, use)
 Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space)
-WASM batch: import { alloc, convert } from 'color-space/wasm' (buffers in place, 27 spaces)
+WASM batch: import space, { alloc } from 'color-space/wasm' — same space[from][to] API over buffers: space.rgb.oklch(alloc(n)) in place, zero-copy, 27 spaces
 Site: https://colorjs.github.io/color-space/
 Repo: https://github.com/colorjs/color-space
 

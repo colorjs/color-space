@@ -6,6 +6,9 @@
  * structural foundation of the ZCAM color appearance model.
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131} Safdar et al. 2017
+ * @year 2017
+ * @by Safdar et al.
+ * @use Intermediate opponent stage of the Jzazbz HDR derivation; research/internal use, foundation of the ZCAM appearance model.
  * @channel {Iz} 0 1 Achromatic
  * @channel {az} -0.5 0.5 Red-Green
  * @channel {bz} -0.5 0.5 Yellow-Blue

@@ -8,6 +8,10 @@
  * color-science history than a working color space.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
+ * @year 1960
+ * @by David MacAdam / CIE
+ * @use Historical uniform chromaticity diagram, basis for correlated-color-temperature calculations; superseded by CIE 1976 u'v'.
  * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate
  * @channel {W} 0 160 W

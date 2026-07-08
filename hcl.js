@@ -9,6 +9,9 @@
  * @module color-space/hcl
  *
  * @see {@link http://www.chilliant.com/rgb2hsv.html}
+ * @year 2012
+ * @by Ian Taylor (Chilliant)
+ * @use Gamma-weighted-luminance color picking for HLSL/shader code; niche, distinct from and often confused with CIE LCh.
  * @channel {H} 0 360 Hue
  * @channel {C} 0 100 Chroma
  * @channel {L} 0 100 Luminance

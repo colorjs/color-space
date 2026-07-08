@@ -7,6 +7,9 @@
  * property neither HSL nor HSV guarantees.
  *
  * @see {@link http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html}
+ * @year 2012
+ * @by Kuzma Shapran (popularized by Chilliant)
+ * @use Luma-consistent hue model for real-time shader color grading; niche, used in HLSL/GLSL graphics code.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {Y} 0 100 Luma percentage

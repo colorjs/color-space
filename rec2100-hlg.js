@@ -7,6 +7,10 @@
  * format of choice for live HDR broadcast.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
+ * @wiki {@link https://en.wikipedia.org/wiki/Hybrid_log-gamma}
+ * @year 2016
+ * @by BBC & NHK / ITU-R
+ * @use Backward-compatible scene-referred HDR transfer function for live broadcast; current standard.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -7,6 +7,10 @@
  * "wheel plus square" interfaces.
  *
  * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
+ * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
+ * @year 1978
+ * @by Alvy Ray Smith
+ * @use Hue/saturation/value color picking with pure hues at full brightness; current, the standard 'wheel plus square' picker model.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {V} 0 100 Value percentage

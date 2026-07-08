@@ -10,6 +10,10 @@
  * replacement for CIECAM02.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
+ * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#CAM16}
+ * @year 2017
+ * @by Li et al.
+ * @use Color-appearance modeling of perceived lightness/colorfulness/hue; current default replacement for CIECAM02, basis of Material Design's HCT.
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 105 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

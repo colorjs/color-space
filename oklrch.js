@@ -7,6 +7,9 @@
  * tools that need both accurate darks and an intuitive chroma/hue handle.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/}
+ * @year 2021
+ * @by Björn Ottosson
+ * @use Cylindrical OkLrab for palette generation and gamut mapping needing accurate darks; current, niche/technical use.
  * @channel {L} 0 1 Lightness
  * @channel {C} 0 0.4 Chroma
  * @channel {H} 0 360 Hue angle in degrees

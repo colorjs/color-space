@@ -7,6 +7,9 @@
  * across HDR's much larger dynamic range.
  *
  * @see {@link https://library.imaging.org/cic/articles/18/1/art00057} Fairchild & Wyble 2010
+ * @year 2010
+ * @by Mark Fairchild & Garrett Wyble
+ * @use HDR-adapted IPT for hue-linear appearance modeling across wide luminance range; academic, not industrially deployed.
  * @channel {I} 0 100 Lightness
  * @channel {P} -100 100 Red-Green
  * @channel {T} -100 100 Yellow-Blue

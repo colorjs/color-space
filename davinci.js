@@ -8,6 +8,9 @@
  * camera ahead of the creative grade.
  *
  * @see {@link https://documents.blackmagicdesign.com/InformationNotes/DaVinci_Resolve_17_Wide_Gamut_Intermediate.pdf}
+ * @year 2020
+ * @by Blackmagic Design
+ * @use Camera-agnostic grading intermediate and log curve; current default working space in DaVinci Resolve's color-managed pipeline.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

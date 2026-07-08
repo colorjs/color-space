@@ -7,6 +7,10 @@
  * later superseded by SMPTE-C and Rec. 709.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470}
+ * @wiki {@link https://en.wikipedia.org/wiki/NTSC#Colorimetry}
+ * @year 1953
+ * @by FCC
+ * @use Original US color-television primaries; historical, retained only as the '% NTSC' gamut-coverage benchmark.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

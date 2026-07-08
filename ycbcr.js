@@ -9,6 +9,10 @@
  * everything from DVDs and broadcast television to H.264 and HEVC video compression.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
+ * @wiki {@link https://en.wikipedia.org/wiki/YCbCr}
+ * @year 1982
+ * @by ITU-R (CCIR)
+ * @use Digital luma/chroma format behind broadcast and compressed video (BT.601/709); current, ubiquitous in DVD/H.264/HEVC.
  * @channel {Y} 16 235 Luma
  * @channel {Cb} 16 240 Blue chroma
  * @channel {Cr} 16 240 Red chroma

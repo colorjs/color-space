@@ -6,7 +6,10 @@
  * value — while giving perceptually even lightness and chroma underneath. It suits
  * color pickers and palette tools built around an HSV-style saturation/value grid.
  *
- * @see {@link https://bottosson.github.io/posts/okhsv/}
+ * @see {@link https://bottosson.github.io/posts/colorpicker/#okhsv}
+ * @year 2021
+ * @by Björn Ottosson
+ * @use Perceptually even HSV-style color picker bounded to the sRGB gamut; current, used in modern design tools.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {V} 0 100 Value percentage

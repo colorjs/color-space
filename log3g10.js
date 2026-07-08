@@ -6,6 +6,10 @@
  * across RED's modern Komodo, V-Raptor, and Monstro/Helium-sensor cameras.
  *
  * @see {@link https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2017
+ * @by RED Digital Cinema
+ * @use Cinema camera log capture; current default acquisition curve on RED Komodo, V-Raptor and Monstro/Helium cameras.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

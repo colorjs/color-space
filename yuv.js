@@ -9,6 +9,10 @@
  * chrominance detail.
  *
  * @see {@link https://en.wikipedia.org/wiki/YUV}
+ * @wiki {@link https://en.wikipedia.org/wiki/YUV}
+ * @year 1967
+ * @by Walter Bruch / Telefunken
+ * @use Legacy analog PAL television luma/chroma encoding; historical, though 'YUV' now used loosely for digital video too.
  * @channel {Y} 0 1 Luma
  * @channel {U} -0.436 0.436 Chrominance blue component
  * @channel {V} -0.615 0.615 Chrominance red component

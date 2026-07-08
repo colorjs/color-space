@@ -6,6 +6,10 @@
  * shading a pigment. It is standardized in CSS Color 4 as the `hwb()` notation.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#the-hwb-notation}
+ * @wiki {@link https://en.wikipedia.org/wiki/HWB_color_model}
+ * @year 1996
+ * @by Alvy Ray Smith
+ * @use Intuitive tint/shade color picking; current, standardized as CSS Color 4's hwb().
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {W} 0 100 Whiteness percentage
  * @channel {B} 0 100 Blackness percentage

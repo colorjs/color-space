@@ -10,6 +10,10 @@
  * Hunter Lab units.
  *
  * @see {@link https://en.wikipedia.org/wiki/Hunter_Lab}
+ * @wiki {@link https://en.wikipedia.org/wiki/Hunter_Lab}
+ * @year 1948
+ * @by Richard S. Hunter
+ * @use Industrial surface-color quality control (paints, plastics, textiles, food); legacy but still specified in some industry standards.
  * @channel {L} 0 100 Lightness
  * @channel {a} -75 115 Green-Red axis
  * @channel {b} -210 60 Blue-Yellow axis

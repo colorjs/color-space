@@ -7,6 +7,10 @@
  * profile on Fujifilm bodies that lack the newer, wider-range F-Log2.
  *
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log_DataSheet_E_Ver.1.1.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2018
+ * @by Fujifilm
+ * @use Standard flat log profile for Fujifilm X-series/GFX video; current on bodies lacking F-Log2.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

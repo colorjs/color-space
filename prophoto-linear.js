@@ -6,6 +6,10 @@
  * results are re-encoded with ProPhoto's transfer curve.
  *
  * @see {@link https://www.color.org/ROMMRGB.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space}
+ * @year 1999
+ * @by Kodak
+ * @use Linear intermediate for Kodak ProPhoto (ROMM) RGB; current, used in raw-photo color-math pipelines.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

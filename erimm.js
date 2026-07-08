@@ -8,6 +8,9 @@
  * scene data.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3 / Spaulding et al. 2000
+ * @year 2000
+ * @by Kodak (Spaulding, Woolfe & Giorgianni)
+ * @use Archival log scene-referred encoding for raw HDR scene data; niche/historical, part of the Kodak ROMM/RIMM family.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

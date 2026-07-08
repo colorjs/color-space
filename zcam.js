@@ -10,6 +10,9 @@
  * calibration and gamut mapping where standard appearance models run out of range.
  *
  * @see {@link https://doi.org/10.1364/OE.413659} Safdar et al. 2021
+ * @year 2021
+ * @by Safdar, Hardeberg & Luo
+ * @use HDR/wide-gamut color appearance model for HDR display calibration and gamut mapping; current, active in research/tools.
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colourfulness
  * @channel {h} 0 360 Hue angle

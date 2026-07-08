@@ -6,6 +6,7 @@
  * used on today's RED cameras.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLogFilm.html}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

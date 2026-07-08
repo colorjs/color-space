@@ -6,6 +6,9 @@
  * container like other smartphone log formats.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_MiLog.html}
+ * @year 2024
+ * @by Xiaomi
+ * @use Log video profile for Xiaomi 14 Ultra/15 Ultra smartphone cameras; current flagship-camera grading feature.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

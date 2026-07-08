@@ -35,12 +35,13 @@
     "cinema"
   ],
   "repository": "colorjs/color-space",
-  "license": "MIT",
+  "license": "Unlicense",
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "files": [
     "*.js",
     "wasm",
+    "gl",
     "types",
     "dist",
     "meta"
@@ -48,6 +49,10 @@
   "exports": {
     ".": "./index.js",
     "./wasm": "./wasm.js",
+    "./gl": "./gl/index.js",
+    "./gl/wgsl": "./gl/wgsl.js",
+    "./gl/*.js": "./gl/*.js",
+    "./gl/*": "./gl/*.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },
@@ -65,13 +70,13 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/wasm-batch.js",
+    "test": "node test && node test/cie.js && node test/wasm-batch.js && node test/gl.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "meta": "node scripts/generate-meta.js > meta.js",
     "landing": "node scripts/generate-landing.js",
     "build:wasm": "node scripts/build-wasm.js",
-    "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js",
+    "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
     "prepublishOnly": "npm run types && npm run meta && npm run build:wasm && npm run build"
   }
 }

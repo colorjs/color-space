@@ -5,8 +5,12 @@
  * and luminosity (V) in steps that feel evenly spaced when composing whole
  * environments — its home turf is architecture and urban color planning.
  *
- * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.5080050210}
+ * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.5080050214}
+ * @wiki {@link https://en.wikipedia.org/wiki/Coloroid_color_system}
  *
+ * @year 1980
+ * @by Antal Nemcsics
+ * @use Architectural and urban color-planning system; still used in Hungarian design practice, standardized as MSZ 7300.
  * @channel {A} 10 76 Hue grade
  * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity
@@ -113,7 +117,7 @@ const coloroid = {
 		// fractional A interpolates along the limit-color polygon between grade rows
 		// (A = Aᵢ + s·gap — the parameterisation the forward produces); integer grades
 		// hit the table rows exactly. The wrap segment 76→10 owns A ∈ (76, 77).
-		var tb = this.table, n = tb.length, i = n - 1;
+		var tb = coloroid.table, n = tb.length, i = n - 1;
 		for (var k = 0; k < n - 1; k++) if (A >= tb[k][0] && A < tb[k + 1][0]) { i = k; break; }
 		var next = tb[(i + 1) % n];
 		var gap = i === n - 1 ? 1 : next[0] - tb[i][0];

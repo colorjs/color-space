@@ -7,6 +7,10 @@
  * accessibility guidelines.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#grays}
+ * @wiki {@link https://en.wikipedia.org/wiki/Grayscale}
+ * @year 1931
+ * @by CIE
+ * @use Relative-luminance channel derived from linear RGB; current basis for WCAG contrast-ratio calculations.
  * @channel {Y} 0 1 Relative luminance
  * @referred display
  * @dynamic sdr

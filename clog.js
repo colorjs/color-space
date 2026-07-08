@@ -7,6 +7,10 @@
  * curves.
  *
  * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2011
+ * @by Canon
+ * @use Cinema EOS camera log capture; largely superseded by Canon Log 2/3 but still supported for compatibility.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

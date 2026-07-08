@@ -8,6 +8,9 @@
  * work that depends on linear blending staying linear after the color transform.
  *
  * @see {@link https://arxiv.org/abs/2012.07653}
+ * @year 2021
+ * @by Konovalenko et al.
+ * @use Projective, linear-mixture-preserving perceptual space for image processing; emerging, niche.
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Red-Green
  * @channel {b} -125 125 Yellow-Blue

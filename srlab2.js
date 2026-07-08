@@ -7,6 +7,9 @@
  * and invert as Lab itself, without CIECAM02's full viewing-condition machinery.
  *
  * @see {@link https://www.magnetkern.de/srlab2.html}
+ * @year 2009
+ * @by Jan Behrens
+ * @use CIELAB/CIECAM02 hybrid for more perceptually-uniform color-difference work; niche open alternative to Lab.
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Red-Green
  * @channel {b} -125 125 Yellow-Blue

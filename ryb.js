@@ -9,6 +9,10 @@
  * reference for teaching color harmony in art and design.
  *
  * @see {@link https://github.com/meodai/rybitten}
+ * @wiki {@link https://en.wikipedia.org/wiki/RYB_color_model}
+ * @year 1961
+ * @by Johannes Itten
+ * @use Traditional painters' RYB color wheel per Itten's Bauhaus color theory; current standard in art/design education.
  * @channel {R} 0 255 Red pigment
  * @channel {Y} 0 255 Yellow pigment
  * @channel {B} 0 255 Blue pigment

@@ -42,6 +42,18 @@ function parseJSDoc(content) {
   const refs = [...jsdoc.matchAll(/@see\s+(?:\{@link\s+)?(https?:\/\/[^\s}]+)\}?/g)].map(m => m[1])
   if (refs.length) meta.refs = refs
 
+  // Parse @wiki — the canonical Wikipedia article, when one exists
+  const wikiMatch = jsdoc.match(/@wiki\s+(?:\{@link\s+)?(https?:\/\/[^\s}]+)\}?/)
+  if (wikiMatch) meta.wiki = wikiMatch[1]
+
+  // Parse provenance: @year (introduced), @by (who), @use (domain + current status)
+  const yearMatch = jsdoc.match(/@year\s+(\d{4})/)
+  if (yearMatch) meta.year = +yearMatch[1]
+  const byMatch = jsdoc.match(/@by\s+(.+)/)
+  if (byMatch) meta.by = byMatch[1].trim()
+  const useMatch = jsdoc.match(/@use\s+(.+)/)
+  if (useMatch) meta.use = useMatch[1].trim()
+
   // Parse illuminant
   const illuminantMatch = jsdoc.match(/@illuminant\s+(\S+)/)
   if (illuminantMatch) meta.illuminant = illuminantMatch[1]

@@ -7,6 +7,10 @@
  * production and distribution.
  *
  * @see {@link https://en.wikipedia.org/wiki/DCI-P3}
+ * @wiki {@link https://en.wikipedia.org/wiki/DCI-P3#DCI-P3_(P3-DCI)}
+ * @year 2005
+ * @by DCI (Digital Cinema Initiatives)
+ * @use Reference color space for digital cinema projection and mastering; current theatrical standard, also basis of consumer Display P3.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

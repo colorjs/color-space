@@ -10,7 +10,7 @@
 
 People reach for color-space at the exact moment they need to **convert one color space into another and discover their current tool doesn't have that space** — or they don't trust the formula they found. The relief they feel is *"this one actually has it, and it's verified."*
 
-The desire is not "I want a color library." It is **"convert THIS into THAT, correctly, without re-deriving the math myself."** color-space wins by having the space they need (131 of them) and proving the numbers.
+The desire is not "I want a color library." It is **"convert THIS into THAT, correctly, without re-deriving the math myself."** color-space wins by having the space they need (151 of them) and proving the numbers.
 
 ---
 
@@ -112,8 +112,8 @@ Per Dunford, these are real substitutes from the buyer's decision, not vendors w
 1. *"Doesn't culori/colorjs.io already do this?"* — For the common spaces, yes. color-space is for **when they don't have your space**, when you want **CSS-native ranges**, or when you need the conversion **verified**. It's a conversion kernel, not a competing toolkit — it can sit *under* them.
 2. *"No parsing / interpolation / ΔE / gamut-mapping?"* — Correct, by design. That's the application layer; keeping the kernel pure is why it stays tiny and tree-shakeable. Pair it with culori/chroma for those.
 3. *"Is the math right?"* — Differentially tested against colorjs.io (the CSS spec editors' impl) both directions at 1/255; the rest cited to original papers; documented cases where it corrects the literature.
-4. *"131 spaces — is that just padding?"* — Each is a real, separately-importable transform with cited provenance and a round-trip test. Breadth is the point: the long tail (camera logs, appearance models, Munsell) is exactly what nothing else has.
-5. *"Will it bloat my bundle?"* — Import one space, ship ~2 kB. The ~44 kB figure is *all 131 together* — which nobody imports.
+4. *"151 spaces — is that just padding?"* — Each is a real, separately-importable transform with cited provenance and a round-trip test. Breadth is the point: the long tail (camera logs, appearance models, Munsell) is exactly what nothing else has.
+5. *"Will it bloat my bundle?"* — Import one space, ship ~2 kB. The ~44 kB figure is *all 151 together* — which nobody imports.
 6. *"v3 breaking changes?"* — Ranges moved from 0–1 to CSS-native; there's a migration guide. One-time, mechanical.
 
 ---
@@ -122,11 +122,11 @@ Per Dunford, these are real substitutes from the buyer's decision, not vendors w
 
 **Awareness (Schwartz):** mostly **Solution-Aware → Product-Aware.** They know color libraries exist; many know color-space from v1/v2 (it's a long-established package). So copy should *crystallize* "this is the complete, verified one" and *overcome the specific objection* ("isn't culori enough?") — not educate from zero.
 
-**Sophistication (Schwartz): high — Level 3–4.** "Convert colors" is a worn-out claim; three good libraries already make it. A plain claim ("collection of color spaces") lands as undifferentiated. We must lead with **mechanism**: the *number* (131, verified), the *spaces nobody else has*, the *CSS-native ranges*, the *differential verification*. These are the Level-3/4 moves.
+**Sophistication (Schwartz): high — Level 3–4.** "Convert colors" is a worn-out claim; three good libraries already make it. A plain claim ("collection of color spaces") lands as undifferentiated. We must lead with **mechanism**: the *number* (151, verified), the *spaces nobody else has*, the *CSS-native ranges*, the *differential verification*. These are the Level-3/4 moves.
 
 **Implications, carried into every surface:**
 - Lead with the ownable, ultra-specific number and the proof — never a generic "color library" claim.
-- Specificity over superlatives: "131 spaces, verified at 1/255 against colorjs.io" beats "comprehensive and accurate."
+- Specificity over superlatives: "151 spaces, verified at 1/255 against colorjs.io" beats "comprehensive and accurate."
 - Proof before promises (skeptical dev market): surface the verification early.
 - One reader, one idea per surface: *have every space; trust every number.*
 

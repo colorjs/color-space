@@ -8,6 +8,9 @@
  * isolate one cardinal mechanism at a time.
  *
  * @see {@link https://doi.org/10.1113/jphysiol.1984.sp015499} Derrington et al. 1984
+ * @year 1984
+ * @by Derrington, Krauskopf & Lennie
+ * @use Vision-science stimulus design isolating cardinal color mechanisms; current standard framework in that research field.
  * @channel {Ach} -100 0 Achromatic
  * @channel {RG} -31 0 Red-Green
  * @channel {YV} 0 99 Tritan

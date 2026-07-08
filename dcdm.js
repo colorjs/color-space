@@ -8,6 +8,9 @@
  * theatrical release.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7290729} SMPTE ST 428-1
+ * @year 2006
+ * @by SMPTE/DCI
+ * @use DCP deliverable encoding for theatrical projection; current mandatory format for theatrical DCP mastering (SMPTE ST 428-1).
  * @channel {X} 0 1 X′
  * @channel {Y} 0 1 Y′
  * @channel {Z} 0 1 Z′

@@ -6,6 +6,10 @@
  * reference white for specular highlights.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
+ * @wiki {@link https://en.wikipedia.org/wiki/Rec._2100}
+ * @year 2016
+ * @by ITU-R
+ * @use Scene-linear substrate beneath Rec. 2100's PQ and HLG; current HDR grading/gamut-mapping space.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

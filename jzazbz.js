@@ -7,6 +7,9 @@
  * metrics and feed the cylindrical JzCzHz.
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131}
+ * @year 2017
+ * @by Safdar et al.
+ * @use Perceptually uniform HDR color-difference space; current, used in HDR imaging research and color-management tooling.
  * @channel {Jz} 0 1 Lightness
  * @channel {az} -0.5 0.5 Green-Red axis
  * @channel {bz} -0.5 0.5 Blue-Yellow axis

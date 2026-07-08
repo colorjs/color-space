@@ -11,6 +11,10 @@
  *
  * @see {@link https://en.wikipedia.org/wiki/Photo_CD}
  * @see {@link https://www.ilkeratalay.com/colorspacesfaq.php} Bourgin Color Spaces FAQ §8.10
+ * @wiki {@link https://en.wikipedia.org/wiki/Photo_CD#Encoding}
+ * @year 1992
+ * @by Kodak
+ * @use Kodak Photo CD scene-referred scan encoding; historical, obsolete since Photo CD's discontinuation.
  * @channel {Yc} 0 255 Luma
  * @channel {C1} 0 255 Blue chroma
  * @channel {C2} 0 255 Red chroma

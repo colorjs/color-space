@@ -8,6 +8,10 @@
  * separate color space from this one.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog3.html}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2014
+ * @by Sony
+ * @use Log curve for Sony CineAlta/Venice/Alpha cameras with S-Gamut3; current recommended acquisition setting.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

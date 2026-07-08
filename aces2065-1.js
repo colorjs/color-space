@@ -7,7 +7,11 @@
  * long-term, camera-agnostic exchange format for finished ACES masters, distinct from
  * ACEScg's smaller AP1 primaries used for day-to-day rendering.
  *
- * @see {@link https://docs.acescentral.com/specifications/aces2065-1/}
+ * @see {@link https://docs.acescentral.com/encodings/aces2065-1/}
+ * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACES2065-1}
+ * @year 2012
+ * @by Academy (AMPAS)
+ * @use Archival/interchange master encoding for finished ACES film and TV masters; current long-term storage format (SMPTE ST 2065-1).
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

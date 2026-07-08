@@ -5,6 +5,10 @@
  * color math, before results are re-encoded with Adobe RGB's transfer curve.
  *
  * @see {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
+ * @year 1998
+ * @by Adobe Systems
+ * @use Intermediate linear-light space for Adobe RGB color math; current, used before re-encoding to Adobe RGB's gamma curve.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

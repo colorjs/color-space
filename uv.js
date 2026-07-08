@@ -8,6 +8,10 @@
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELUV#The_CIE_1976_UCS_diagram}
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
+ * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
+ * @year 1976
+ * @by CIE
+ * @use Modern uniform chromaticity diagram for LED binning, white-point tolerancing, and CCT; current standard.
  * @channel {u} 0 0.7 u' chromaticity
  * @channel {v} 0 0.6 v' chromaticity
  * @channel {Y} 0 100 Luminance
@@ -24,10 +28,14 @@ import xyz from './xyz.js';
 const uv = { name: 'uv',
 	range: [[0, 0.7], [0, 0.6], [0, 100]] };
 
+// the D65 white's u'v' — where achromatic (d = 0) inputs sit; any u'v' inverts to XYZ 0 at Y = 0
+const [Xw, Yw, Zw] = xyz.whitepoint[2].D65;
+const dw = Xw + 15 * Yw + 3 * Zw, un = 4 * Xw / dw, vn = 9 * Yw / dw;
+
 // XYZ (0-100) -> u'v'Y
 xyz.uv = (X, Y, Z) => {
 	const d = X + 15 * Y + 3 * Z;
-	if (d === 0) return [0, 0, 0];
+	if (d === 0) return [un, vn, 0];
 	return [4 * X / d, 9 * Y / d, Y];
 };
 

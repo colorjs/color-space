@@ -6,7 +6,11 @@
  * clip. It's the standard render and composite space in VFX and animation pipelines
  * built around ACES.
  *
- * @see {@link https://docs.acescentral.com/specifications/acescg/}
+ * @see {@link https://docs.acescentral.com/encodings/acescg/}
+ * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScg}
+ * @year 2014
+ * @by Academy (AMPAS)
+ * @use Linear render/composite working space for CGI and VFX; current standard in ACES-based VFX/animation pipelines.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

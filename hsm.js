@@ -7,6 +7,9 @@
  * across the whole range of mixture values.
  *
  * @see {@link http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428}
+ * @year 2009
+ * @by Bianconi et al.
+ * @use Skin-color detection in image processing; academic, niche.
  * @channel {H} 0 360 Hue
  * @channel {S} 0 100 Saturation
  * @channel {M} 0 100 Mixture

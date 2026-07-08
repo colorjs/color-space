@@ -7,7 +7,11 @@
  * ACES-managed post-production pipelines, ahead of final render back to ACEScg or
  * ACES2065-1.
  *
- * @see {@link https://docs.acescentral.com/specifications/acescc/}
+ * @see {@link https://docs.acescentral.com/encodings/acescc/}
+ * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScc_&_ACEScct}
+ * @year 2014
+ * @by Academy (AMPAS)
+ * @use Log2 color-grading working space in ACES post-production; current, though largely superseded by ACEScct on legacy grading control surfaces.
  * @channel {R} -0.35828683 1.4679963120447153 Red
  * @channel {G} -0.35828683 1.4679963120447153 Green
  * @channel {B} -0.35828683 1.4679963120447153 Blue

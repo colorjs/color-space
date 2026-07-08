@@ -6,6 +6,7 @@
  * image files.
  *
  * @see {@link http://www.brucelindbloom.com/WorkingSpaceInfo.html}
+ * @wiki {@link https://en.wikipedia.org/wiki/RGB_color_spaces#Apple_RGB}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

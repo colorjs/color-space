@@ -7,6 +7,9 @@
  * grading. It's the chromaticity basis of darktable's color-balance module.
  *
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2019.27.38} Kirk 2019
+ * @year 2019
+ * @by Richard Kirk
+ * @use Luminance/chromaticity space for color grading, basis of darktable's color-balance module; current, niche.
  * @channel {Y} 0 1.06 Luminance
  * @channel {r} 0.02 0.64 Red chromaticity
  * @channel {g} 0.21 0.78 Green chromaticity

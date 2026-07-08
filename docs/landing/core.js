@@ -33,6 +33,10 @@ export function classify(name) {
 // convert a space's raw channel values → clamped sRGB
 // non-finite components (coordinates outside the space's domain, e.g. ICtCp I=0 with chroma) clamp to 0
 const px = x => isFinite(x) ? clamp(Math.round(x), 0, 255) : 0
+
+// how much linear light a coordinate may claim before it's formula noise:
+// scene-referred / HDR spaces really reach hundreds of diffuse whites, SDR display spaces don't
+export const physBound = name => (meta[name]?.referred === 'scene' || meta[name]?.dynamic === 'hdr') ? 500 : 4
 export const rgbOf = (name, v) => name === 'rgb' ? v.map(px) : space[name].rgb(...v).map(px)
 export const toSpace = (name, rgb) => name === 'rgb' ? rgb.slice() : space.rgb[name](...rgb)
 
@@ -71,10 +75,11 @@ export function ramp(name, vals, ci, min, max, n = 12) {
 // gamut names a display gamut ('srgb' | 'p3' | 'rec2020'): pixels inside render full,
 // outside GHOST at ~10% — the space stays visible, the lens shows what the chosen
 // display can show. Cluster quantizers (websafe/names/ΔE) produce real display colors
-// by construction, so no ghosting applies there. Negative-light / non-finite
-// coordinates (linear < −4: Luv v′<0, CAM16 divergence) void — the formula's
-// continuation there is clamp noise, not color. Scene-referred headroom (camera logs
-// decode to linear 8…460) is real light and renders clipped.
+// by construction, so no ghosting applies there. Non-physical / non-finite
+// coordinates (linear < −4 or > 500: Luv's v′→0 pole, CAM16 divergence) void — the
+// formula's continuation there is clamp noise, not color. Scene-referred headroom
+// (camera logs decode to linear 8…460) is real light and renders clipped, inside
+// the +500 bound.
 // quant: a number N snaps the two swept COORDINATES to N cell centres (the exact
 // lattice the sliders use), 'web' maps output to web-safe 51s, a function maps triples
 export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = null, quant = null) {
@@ -82,9 +87,14 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	const qf = typeof quant === 'function' ? quant : null   // function quant maps a whole [r,g,b] triple
 	const qc = typeof quant === 'number' ? f => (Math.min(quant - 1, Math.floor(f * quant)) + 0.5) / quant : null
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
-	const toXyz = gamut && name !== 'rgb' && space[name].xyz
-	const gLin = toXyz && gamut !== 'off' && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gamut]]
+	const toXyz = name !== 'rgb' && space[name].xyz
+	const lens = gamut && gamut !== 'off'
+	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[lens ? gamut : 'srgb']]
 	const cluster = !!qf || quant === 'web'
+	// physical ceiling: scene-referred / HDR spaces really carry big light (camera logs
+	// decode to linear 8…460); an SDR display space past ~4× diffuse white is formula
+	// noise (Luv's v'→0 pole, CAM16 divergence), not color
+	const PB = physBound(name)
 	for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
 		const v = vals.slice()
 		let fx = x / (s - 1), fy = (flipY ? (s - 1 - y) : y) / (s - 1)
@@ -94,8 +104,8 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		let rgb = rgbOf(name, v); const i = (y * s + x) * 4
 		let a = 255
 		if (gLin) { try { const lin = gLin(...toXyz(...v))
-			if (!lin.every(u => u > -4)) a = 0
-			else if (!cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
+			if (!lin.every(u => u > -4 && u < PB)) a = 0
+			else if (lens && !cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a

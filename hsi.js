@@ -6,6 +6,7 @@
  * a more involved saturation calculation than its cousins.
  *
  * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
+ * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {I} 0 100 Intensity percentage

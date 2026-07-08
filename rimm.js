@@ -7,6 +7,9 @@
  * imaging pipeline prior to output-referred rendering.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3
+ * @year 2000
+ * @by Kodak
+ * @use Scene-referred counterpart to ProPhoto RGB for unrendered imaging pipelines (ISO 22028-3); current but niche.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

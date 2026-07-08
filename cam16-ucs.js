@@ -8,6 +8,10 @@
  * straight-line distance needs to track actual visual difference.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
+ * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#CAM16}
+ * @year 2017
+ * @by Li et al.
+ * @use General-purpose uniform space for delta-E computation and gamut mapping; current default successor to CAM02-UCS.
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

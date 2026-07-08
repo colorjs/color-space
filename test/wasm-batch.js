@@ -5,7 +5,7 @@
 // reproduces the scalar API to within last-bit cbrt/pow (+ gamut-bound) divergence —
 // so the two backends can never silently drift.
 import test, { is } from 'tst'
-import { convertBatch, spaces } from '../wasm.js'
+import wasm, { alloc, convertBatch, spaces } from '../wasm.js'
 import space from '../index.js'
 
 const rnd = (s) => () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296 }
@@ -26,3 +26,27 @@ for (const to of spaces) {
 		is(maxAbs < 1e-3, true, `max |wasm-scalar| = ${maxAbs.toExponential(2)} (< 1e-3)`)
 	})
 }
+
+// The default export mirrors the scalar library's space.from.to shape over the kernel:
+// scalar args → tuple; alloc()'d buffer → in place; other array-likes → converted copy.
+test('wasm: default export — scalar, zero-copy and copy-through forms agree', () => {
+	const exp = space.rgb.oklch(246, 125, 79)
+	const got = wasm.rgb.oklch(246, 125, 79)
+	for (let k = 0; k < 3; k++) is(Math.abs(got[k] - exp[k]) < 1e-3, true, `scalar ch${k}: ${got[k]} ≈ ${exp[k]}`)
+
+	const buf = alloc(2)
+	buf.set([246, 125, 79, 0, 128, 255])
+	is(wasm.rgb.oklch(buf), buf, 'wasm-backed buffer converts in place')
+	for (let k = 0; k < 3; k++) is(Math.abs(buf[k] - exp[k]) < 1e-3, true, `in-place ch${k}`)
+
+	const plain = [246, 125, 79]
+	const out = wasm.rgb.oklch(plain)
+	is(plain[0], 246, 'plain input untouched')
+	for (let k = 0; k < 3; k++) is(Math.abs(out[k] - exp[k]) < 1e-3, true, `copy-through ch${k}`)
+
+	// scalar call while a live working buffer is held must not clobber it
+	const held = alloc(2)
+	held.set([1, 2, 3, 4, 5, 6])
+	wasm.rgb.oklch(10, 20, 30)
+	is(held[0] === 1 && held[1] === 2 && held[2] === 3, true, 'held buffer survives a scalar call')
+})

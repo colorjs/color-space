@@ -7,6 +7,9 @@
  * white.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
+ * @year 2016
+ * @by ITU-R
+ * @use Absolute-luminance XYZ anchored to BT.2100's 203 cd/m² HDR reference white; current HDR analysis tooling.
  * @channel {Xa} 0 192.9 Absolute X
  * @channel {Ya} 0 203 Absolute Y
  * @channel {Za} 0 221.1 Absolute Z

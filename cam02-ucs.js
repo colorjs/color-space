@@ -8,6 +8,10 @@
  * carried the same compression scheme over to CAM16.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIECAM02#Color_spaces}
+ * @year 2006
+ * @by Luo, Cui & Li
+ * @use General-purpose uniform space for delta-E computation and gamut mapping; superseded by CAM16-UCS but still used in ICC v4 contexts.
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

@@ -22,9 +22,9 @@ These are passive — they work on every link, forever. Most are currently empty
 
 | Surface | Current | Fix |
 |---|---|---|
-| **GitHub repo "About"** | minimal | One-liner: *"Every color space, one API — 131 of them, CSS-native ranges, verified."* + link to landing page |
+| **GitHub repo "About"** | minimal | One-liner: *"Every color space, one API — 151 of them, CSS-native ranges, verified."* + link to landing page |
 | **GitHub topics** | sparse | `color`, `color-space`, `color-conversion`, `oklch`, `css-color`, `color-science`, `cam16`, `aces`, `hdr`, `wide-gamut`, `munsell`, `javascript` — topics drive GitHub's own discovery |
-| **Repo social preview image** | likely default | Set a social-preview PNG (logo on a spectral swatch field + "131 color spaces, verified") — controls how every GitHub link unfurls |
+| **Repo social preview image** | likely default | Set a social-preview PNG (logo on a spectral swatch field + "151 color spaces, verified") — controls how every GitHub link unfurls |
 | **Landing page OG/Twitter meta** | absent | `og:image`, `og:title`, `og:description`, `twitter:card` (see [surfaces.md](surfaces.md)) — right now shared links unfurl blank |
 | **npm description + keywords** | flat | see [surfaces.md](surfaces.md) §2 |
 | **README hero** | undifferentiated | see [surfaces.md](surfaces.md) §1 |
@@ -35,10 +35,10 @@ Do these before any launch — a launch drives traffic into surfaces; empty surf
 
 ## The launch (v3 is the moment)
 
-v3 is a real "why now": the CSS-native ranges rework + the jump to 131 spaces. That's genuine news (Caples: news headline). Sequence:
+v3 is a real "why now": the CSS-native ranges rework + the jump to 151 spaces. That's genuine news (Caples: news headline). Sequence:
 
 1. **Prep:** surfaces fixed (above), CHANGELOG sharp (terse one-liners — see the global release-notes rule), landing page live, examples runtime-verified.
-2. **Show HN** — title: *"Show HN: color-space v3 — 131 color spaces in one tree-shakeable JS library, verified against colorjs.io."* Body: the origin (wanted CAM16 + camera logs + oklch in one place with CSS ranges), the verification story (corrects paper errors), what it deliberately *isn't* (kernel not toolkit), link to the live converter. HN rewards substance + the "what it's not" honesty.
+2. **Show HN** — title: *"Show HN: color-space v3 — 151 color spaces in one tree-shakeable JS library, verified against colorjs.io."* Body: the origin (wanted CAM16 + camera logs + oklch in one place with CSS ranges), the verification story (corrects paper errors), what it deliberately *isn't* (kernel not toolkit), link to the live converter. HN rewards substance + the "what it's not" honesty.
 3. **Reddit:** r/javascript, r/webdev (lead with OKLCH/CSS-native angle); r/colorists, r/cinematography (lead with camera-log/ACES angle — different headline per subreddit, same product).
 4. **lobste.rs** (`web`, `javascript`), **the CSS/color community** (colorjs.io/culori discussions, CSS-Tricks/front-end newsletters).
 5. **The live converter is the share object** — it's the demo that makes the post. Lead links with it, not the repo.
@@ -61,7 +61,7 @@ The relationship is collaborative, not competitive: color-space can sit *under* 
 
 ## Make it spread (STEPPS levers, strongest first)
 
-- **Social currency (strong):** the remarkable facts people share to look in-the-know — *"131 color spaces"*, *"it corrects errors in published color-science papers"*, *"convert S-Log3 to Rec.2020 in the browser"*, *"it has Munsell, bidirectionally."*
+- **Social currency (strong):** the remarkable facts people share to look in-the-know — *"151 color spaces"*, *"it corrects errors in published color-science papers"*, *"convert S-Log3 to Rec.2020 in the browser"*, *"it has Munsell, bidirectionally."*
 - **Practical value (strong):** the live converter and the cited reference list are genuinely useful — people share tools that save colleagues time.
 - **Stories:** the origin story (built a complete, verified collection; found the papers disagreed) — brand is load-bearing, survives retelling.
 - **Public:** the converter is shareable/embeddable; "Made with color-space" in dependent tools.
@@ -76,7 +76,7 @@ Weakest lever to shore up: **public visibility** — there's no social preview, 
 Low-volume, high-value, evergreen — fits a library project (not a daily-posting brand):
 - **"One space explained" series:** short posts/threads, each taking one exotic space (CAM16, Munsell, S-Log3, OSA-UCS, Coloroid) — what it is, why it exists, a live-converter link. Each is permanent SEO + a Dream-100 conversation starter + practical value. Give away the *understanding*; the library is the implementation.
 - **The verification write-up:** the differential-testing methodology and the paper corrections — pure credibility content for the science crowd; the kind of thing that gets cited.
-- **Comparison content** already exists ([library-comparison.md](../library-comparison.md)) — keep it honest and current (it's at 71/93; update to 131). Honest comparisons rank and get linked.
+- **Comparison content** already exists ([library-comparison.md](../library-comparison.md)) — keep it honest and current (it's at 71/93; update to 151). Honest comparisons rank and get linked.
 
 CTA on every piece: soft — "it's all in `npm i color-space`, live converter here." No hard pitch; the audience is trained to reward value.
 
@@ -84,4 +84,4 @@ CTA on every piece: soft — "it's all in `npm i color-space`, live converter he
 
 ## Honesty guardrail (non-negotiable)
 
-The verification claim is the entire moat. State it *precisely* — which spaces, which reference (colorjs.io / CSS spec editors), which tolerance (1/255), which directions — never rounded up to "100% verified." Same for "131": it's a runtime-verified count of real, separately-importable transforms, each cited. Substance first; *truthful, attractive, then famous* — in that causal order. One faked proof point would cost more than the whole launch earns.
+The verification claim is the entire moat. State it *precisely* — which spaces, which reference (colorjs.io / CSS spec editors), which tolerance (1/255), which directions — never rounded up to "100% verified." Same for "151": it's a runtime-verified count of real, separately-importable transforms, each cited. Substance first; *truthful, attractive, then famous* — in that causal order. One faked proof point would cost more than the whole launch earns.

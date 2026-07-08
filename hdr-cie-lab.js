@@ -7,6 +7,9 @@
  * structure while extending it to HDR content.
  *
  * @see {@link https://library.imaging.org/cic/articles/18/1/art00057} Fairchild & Wyble 2010
+ * @year 2010
+ * @by Mark Fairchild & Garrett Wyble
+ * @use HDR-adapted CIELAB for wide-luminance-range image-difference work; academic, superseded in practice by ICtCp/Jzazbz.
  * @channel {L} 0 100 Lightness
  * @channel {a} -100 100 Red-Green
  * @channel {b} -100 100 Yellow-Blue

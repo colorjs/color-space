@@ -6,6 +6,10 @@
  * later. It shares the Cinema Gamut primaries with Canon Log and Canon Log 3.
  *
  * @see {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2015
+ * @by Canon
+ * @use Cinema EOS camera log capture for maximum dynamic range; current alongside Canon Log 3.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

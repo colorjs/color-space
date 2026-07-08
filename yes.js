@@ -1,16 +1,19 @@
 /**
  * YES is a luminance/chrominance color encoding in the same family as YIQ and YUV: Y
  * carries luminance, while E (green-red) and S (blue-yellow) carry chrominance as
- * simple linear combinations of the red, green and blue primaries. Its coordinates
- * are cheap to compute directly from RGB, which is the model's main appeal, but
- * unlike CIELAB or CIELUV they are not perceptually uniform — equal steps in E or S
- * do not correspond to equal-looking color differences. It appears in the
- * color-imaging literature as one of several such encodings used for image analysis
- * and compression.
+ * simple linear combinations of the red, green and blue primaries. Defined in Xerox's
+ * Color Encoding Standard (XNSS 289005, 1989), its coordinates are cheap to compute
+ * directly from RGB, which is the model's main appeal, but unlike CIELAB or CIELUV
+ * they are not perceptually uniform — equal steps in E or S do not correspond to
+ * equal-looking color differences. It appears in the color-imaging literature as one
+ * of several such encodings used for image analysis and compression.
  *
  * @module color-space/yes
  *
- * @see {@link https://doi.org/10.2991/isaebd.2012.23}
+ * @see {@link https://hbfs.wordpress.com/2018/05/01/xerox-yes-colorspaces-iv/}
+ * @year 1989
+ * @by Xerox
+ * @use Xerox Color Encoding Standard luminance/chrominance encoding; historical, niche in imaging literature.
  * @channel {Y} 0 1 Luminance
  * @channel {E} -0.5 0.5 E-factor
  * @channel {S} -0.5 0.5 S-factor

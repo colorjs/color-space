@@ -8,6 +8,9 @@
  * viewing-condition parameters.
  *
  * @see {@link https://doi.org/10.1364/OE.510196} Li & Luo 2024, Opt. Express 32, 3100
+ * @year 2024
+ * @by Li & Luo
+ * @use Lightweight uniform color space alternative to CAM16-UCS/Oklab for color-difference tasks; new/emerging.
  * @channel {I} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

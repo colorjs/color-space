@@ -7,6 +7,9 @@
  * later carried the same large-difference calibration over to CAM16.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
+ * @year 2006
+ * @by Luo, Cui & Li
+ * @use Uniform space for large color-difference/gamut-mapping work; largely superseded by CAM16-LCD.
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

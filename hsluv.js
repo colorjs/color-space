@@ -11,6 +11,10 @@
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
+ * @wiki {@link https://en.wikipedia.org/wiki/HSLuv}
+ * @year 2012
+ * @by Alexei Boronine
+ * @use Perceptually even saturation across hues for design/palette tools; current, actively maintained (renamed from HUSL in 2018).
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage

@@ -6,6 +6,10 @@
  * results are re-encoded with the Rec. 2020 transfer function for delivery.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020}
+ * @wiki {@link https://en.wikipedia.org/wiki/Rec._2020}
+ * @year 2012
+ * @by ITU-R
+ * @use Linear intermediate for Rec. 2020 UHDTV primaries; current UHD/HDR grading working space.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

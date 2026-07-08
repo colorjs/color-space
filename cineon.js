@@ -8,6 +8,10 @@
  * implied — and it survives today mainly through the DPX file format it gave rise to.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Cineon.html}
+ * @wiki {@link https://en.wikipedia.org/wiki/Cineon#Cineon_file_format}
+ * @year 1992
+ * @by Kodak
+ * @use Film-scanning/digital-intermediate log encoding; historical, survives mainly through the DPX file format it originated.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

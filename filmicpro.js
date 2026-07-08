@@ -6,7 +6,10 @@
  * the smartphone-maker log formats that followed it, it has no published native
  * color gamut and is treated as a curve over linear RGB.
  *
- * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_FilmicPro6.html}
+ * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/filmic_pro.py}
+ * @year 2017
+ * @by FiLMiC Inc.
+ * @use Third-party iOS cinema-camera log capture; still available in FiLMiC Pro, overshadowed since native Apple Log arrived in 2023.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

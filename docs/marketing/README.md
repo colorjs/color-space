@@ -4,12 +4,12 @@ The internal source of truth for how color-space is described, positioned, and s
 
 ## The strategy in one paragraph
 
-color-space is **the complete, verified color-space conversion kernel: 131 spaces under one tiny API, in CSS-native ranges, formulas differentially tested against the CSS spec reference.** It is not a color *toolkit* (no parsing/interpolation/ΔE — by design) and shouldn't fight culori/chroma on features. It wins a narrower, winnable frame: *the library with the space you actually need, and numbers you can trust* — wedging deep where there's near-zero competition (camera logs, appearance models, Munsell, broadcast) and broad where the trend is live (OKLCH/P3, CSS-native values).
+color-space is **the complete, verified color-space conversion kernel: 151 spaces under one tiny API, in CSS-native ranges, formulas differentially tested against the CSS spec reference.** It is not a color *toolkit* (no parsing/interpolation/ΔE — by design) and shouldn't fight culori/chroma on features. It wins a narrower, winnable frame: *the library with the space you actually need, and numbers you can trust* — wedging deep where there's near-zero competition (camera logs, appearance models, Munsell, broadcast) and broad where the trend is live (OKLCH/P3, CSS-native values).
 
 ## The one big idea
 
 > **Every color space. One API. Verified.**
-> 131 · CSS-native ranges · differentially tested vs colorjs.io at 1/255
+> 151 · CSS-native ranges · differentially tested vs colorjs.io at 1/255
 
 ## The documents (read in order)
 
@@ -21,9 +21,9 @@ color-space is **the complete, verified color-space conversion kernel: 131 space
 
 ## The highest-leverage actions (do these first)
 
-1. **Fix the count: 93 → 131** in README and `docs/library-comparison.md` (71). We are underselling the moat by 30–50 spaces. *(Correctness + marketing.)*
-2. **Rewrite the README hero** — lead with `131` + verified + install + a moat-revealing example (see [surfaces.md](surfaces.md)).
-3. **Sharpen the npm description** from "Open collection of color spaces" to the 131/verified/CSS-native line.
+1. **Fix the count: 93 → 151** in README and `docs/library-comparison.md` (71). We are underselling the moat by 30–50 spaces. *(Correctness + marketing.)*
+2. **Rewrite the README hero** — lead with `151` + verified + install + a moat-revealing example (see [surfaces.md](surfaces.md)).
+3. **Sharpen the npm description** from "Open collection of color spaces" to the 151/verified/CSS-native line.
 4. **Add OG/social-preview meta** to the landing page + GitHub social image — every shared link currently unfurls blank.
 5. **Elevate the landing-page converter** (search, swatch, copy-as-CSS) — it's the best demo we have.
 

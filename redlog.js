@@ -6,6 +6,9 @@
  * Log3G10/REDWideGamutRGB pairing used on modern RED cameras.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLog.html}
+ * @year 2007
+ * @by RED Digital Cinema
+ * @use Original log curve of the RED ONE digital cinema camera; legacy, superseded by REDLogFilm/Log3G10.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

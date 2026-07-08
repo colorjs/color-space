@@ -11,6 +11,9 @@
  * another with minimal cross-channel artifacts.
  *
  * @see {@link https://doi.org/10.1109/38.946629} Reinhard et al. 2001; Ruderman et al. 1998
+ * @year 1998
+ * @by Ruderman, Cronin & Chiao
+ * @use Natural-image color-statistics decorrelation for color transfer between photographs; still used in image-processing research (popularized by Reinhard et al. 2001).
  * @channel {l} -6 0 log-luminance
  * @channel {alpha} -1 0.9 Yellow-Blue
  * @channel {beta} -0.21 0.21 Red-Green

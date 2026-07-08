@@ -12,6 +12,10 @@
  *
  * @see {@link https://www.rit.edu/science/munsell-color-science-lab-educational-resources}
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.20715} Centore 2012 (inversion)
+ * @wiki {@link https://en.wikipedia.org/wiki/Munsell_color_system}
+ * @year 1905
+ * @by Albert H. Munsell (renotation OSA)
+ * @use Perceptual color-order system for soil, geology, and pigment/paint specification; still an active industry standard.
  * @channel {H} 0 100 Hue
  * @channel {V} 0 10 Value
  * @channel {C} 0 38 Chroma

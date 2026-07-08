@@ -10,6 +10,9 @@
  * alternative to rainbow colormaps in scientific visualization generally.
  *
  * @see {@link https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/}
+ * @year 2011
+ * @by Dave Green
+ * @use Scalar colormap for scientific visualization; current standard colorblind-safe alternative to rainbow colormaps.
  * @channel {fraction} 0 1 Interpolation fraction along helix
  * @referred display
  * @dynamic sdr

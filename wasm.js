@@ -7,21 +7,21 @@
  * fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the
  * ~4.6 kB module is prebuilt and inlined (see scripts/build-wasm.js).
  *
+ * The API is the scalar library's, batch-shaped — same `space.from.to` addressing:
+ *
+ *     import space, { alloc } from 'color-space/wasm'
+ *     space.oklch.rgb(0.72, 0.16, 41)   // → [246, 125, 79] — scalar, same as JS
+ *     const buf = alloc(nPixels)        // WASM-backed Float64Array(n*3) — write rgb here
+ *     space.rgb.oklch(buf)              // whole buffer, in place, zero-copy
+ *     space.rgb.oklch(pixels)           // plain array in → converted Float64Array out
+ *
  * Layout: interleaved 3-channel `Float64Array`, n pixels = 3n values
  * [c0,c1,c2, c0,c1,c2, …]. Ranges match the scalar API (rgb 0-255, oklab native,
  * xyz 0-100). Formulas mirror the scalar library and are pinned by test/wasm-batch.js.
  *
- * THE WIN IS ZERO-COPY. Keep the data in WASM memory:
- *
- *     import { alloc, convert } from 'color-space/wasm'
- *     const buf = alloc(nPixels)      // WASM-backed Float64Array(n*3) — write rgb here
- *     // … fill buf …
- *     convert('rgb', 'oklab', nPixels)  // in place, no copy
- *     // … read buf (now oklab) …
- *
- * `convertBatch(from,to,src,dst,n)` is the drop-in convenience for existing JS
- * buffers, but it copies in and out — fine for a chain of conversions, but a single
- * convert + two copies may not beat JS. Prefer alloc()+convert() on the hot path.
+ * THE WIN IS ZERO-COPY: an alloc()'d buffer converts in place — nothing crosses the
+ * JS/WASM boundary. Any other array-like is copied through (returned as a new
+ * Float64Array, input untouched) — fine for a chain, but prefer alloc() on a hot path.
  */
 import b64 from './wasm/binary.js'
 
@@ -152,3 +152,30 @@ export function convertBatch(from, to, src, dst = src, n = (src.length / 3) | 0)
 	dst.set(buf)
 	return dst
 }
+
+// The scalar library's shape over the batch kernel: space.from.to(…). Three scalar
+// args → a plain [c0,c1,c2] (bit-identical to the loop math JS runs per pixel); an
+// alloc()'d buffer → converted in place, zero-copy; any other array-like → a new
+// converted Float64Array, input untouched.
+const api = {}
+for (const from of spaces) {
+	const o = api[from] = { name: from }
+	for (const to of spaces) {
+		if (to === from) continue
+		o[to] = (a, b, c) => {
+			if (typeof a === 'number') {
+				const buf = alloc(1)   // may alias a live working buffer — restore its head
+				const s0 = buf[0], s1 = buf[1], s2 = buf[2]
+				buf[0] = a; buf[1] = b; buf[2] = c
+				convert(from, to, 1)
+				const out = [buf[0], buf[1], buf[2]]
+				buf[0] = s0; buf[1] = s1; buf[2] = s2
+				return out
+			}
+			const n = (a.length / 3) | 0
+			if (a.buffer === instance().memory.buffer) { convert(from, to, n); return a }
+			return convertBatch(from, to, a, new Float64Array(n * 3), n)
+		}
+	}
+}
+export default api

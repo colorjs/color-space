@@ -9,6 +9,10 @@
  * in ordinary RGB — but is what the JPEG XL codec actually compresses under the hood.
  *
  * @see {@link https://arxiv.org/abs/1908.03565}
+ * @wiki {@link https://en.wikipedia.org/wiki/LMS_color_space#Image_processing}
+ * @year 2019
+ * @by Jyrki Alakuijala et al. (Google)
+ * @use Internal perceptual color space of the JPEG XL codec; current, used under the hood, not for authoring.
  * @channel {X} -0.0154 0.0281 Red-green
  * @channel {Y} 0 0.8453 Luminance
  * @channel {B} -0.2778 0.388 Blue
@@ -37,7 +41,7 @@ const xyb = {
 	range: [[-0.0154, 0.0281], [0, 0.8453], [-0.2778, 0.388]],
 
 	xyz: function(x, y, b) {
-		return rgb.xyz(...this.rgb(x, y, b));
+		return rgb.xyz(...xyb.rgb(x, y, b));
 	},
 
 	rgb: function(x, y, b) {
@@ -76,7 +80,7 @@ const xyb = {
 // Add RGB input support
 rgb.xyb = function(r, g, b) {
 	// sRGB to linear RGB
-	const [lrgbR, lrgbG, lrgbB] = this.lrgb(r, g, b);
+	const [lrgbR, lrgbG, lrgbB] = rgb.lrgb(r, g, b);
 
 	// Forward transfer function (cube root, gamma = 1/3)
 	const transfer = v => Math.cbrt(v) - bias_cbrt;

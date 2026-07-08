@@ -7,6 +7,9 @@
  * applied over linear-light RGB without a published native gamut of its own.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_ViperLog.html}
+ * @year 2002
+ * @by Thomson Grass Valley
+ * @use Log curve for the Thomson Viper FilmStream, one of the earliest digital cinema cameras; legacy/historical.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

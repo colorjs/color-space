@@ -10,6 +10,10 @@
  * specifically for cross-media color reproduction workflows.
  *
  * @see {@link https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z} Fairchild 1996
+ * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#RLAB}
+ * @year 1996
+ * @by Mark Fairchild
+ * @use Cross-media color appearance model for print/display reproduction matching; historical/academic, superseded by CIECAM02/CAM16.
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Red-Green
  * @channel {b} -125 125 Yellow-Blue

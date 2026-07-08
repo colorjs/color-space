@@ -7,6 +7,9 @@
  * results.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear}
+ * @year 1996
+ * @by HP & Microsoft (sRGB)
+ * @use Physically linear intermediate for color mixing, blending, and colorimetric conversion; current, foundational in color-managed rendering.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

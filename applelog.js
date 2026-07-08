@@ -8,6 +8,9 @@
  * iPhone Pro line.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py}
+ * @year 2023
+ * @by Apple
+ * @use Cinema-oriented log capture on iPhone Pro for ProRes Log workflows; current native encoding since the iPhone 15 Pro.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

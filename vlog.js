@@ -7,6 +7,10 @@
  * lighter variant called V-Log L, matched to a narrower 12-stop range.
  *
  * @see {@link https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2014
+ * @by Panasonic
+ * @use Log curve for Panasonic VARICAM/cinema cameras with V-Gamut; current on Panasonic's cinema line.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

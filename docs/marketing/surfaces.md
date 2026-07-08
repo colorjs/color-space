@@ -18,7 +18,7 @@
 ### Fix (load-bearing gaps, ordered by impact)
 
 1. **The hero doesn't sell, and the count is stale (correctness + marketing).**
-   "Open collection of color spaces" is a Level-1 plain claim in a Level-3 market (see [audience.md](audience.md)) — no number, no proof, undifferentiated. Worse: the README says **93** spaces and [library-comparison.md](../library-comparison.md) says **71**, but the library registers **131** at runtime. *We are underselling the moat by 30–50 spaces.* Fix the number everywhere and put it in the first line. (Ogilvy: 5× more people read the headline than the body — a flat first line wastes 80% of the attention.)
+   "Open collection of color spaces" is a Level-1 plain claim in a Level-3 market (see [audience.md](audience.md)) — no number, no proof, undifferentiated. Worse: the README says **93** spaces and [library-comparison.md](../library-comparison.md) says **71**, but the library registers **151** at runtime. *We are underselling the moat by 30–50 spaces.* Fix the number everywhere and put it in the first line. (Ogilvy: 5× more people read the headline than the body — a flat first line wastes 80% of the attention.)
 
 2. **No install line up top.** `npm install color-space` is missing from the first screen. Pure friction (REDUCE: remove it).
 
@@ -41,7 +41,7 @@
 
 **Every color space. One tiny API. Verified.**
 
-**131 color spaces** — 3–5× any other JS library — with values that match CSS,
+**151 color spaces** — 3–5× any other JS library — with values that match CSS,
 formulas differentially tested against colorjs.io, zero dependencies, public domain.
 
 ```sh
@@ -59,7 +59,7 @@ space.slog3.rec2020(r, g, b)  // Sony camera log → broadcast — a conversion 
 > application layer (pair with culori/chroma). This keeps it tiny and tree-shakeable.
 ```
 
-*(All example outputs above are runtime-verified. Everything below the hero — Usage, API, the cited space list, design rationale, comparison — stays as is, with the count corrected to 131.)*
+*(All example outputs above are runtime-verified. Everything below the hero — Usage, API, the cited space list, design rationale, comparison — stays as is, with the count corrected to 151.)*
 
 ---
 
@@ -68,11 +68,11 @@ space.slog3.rec2020(r, g, b)  // Sony camera log → broadcast — a conversion 
 The npm description is a headline: it appears in search results and at the top of the package page. Current — "Open collection of color spaces" — is three flat words with no number, no differentiator. npm truncates around ~120 chars; front-load the payload.
 
 **Recommended:**
-> `Every color space, one API — 131 of them, in CSS-native ranges, formulas verified against the CSS spec. Zero deps, public domain.`
+> `Every color space, one API — 151 of them, in CSS-native ranges, formulas verified against the CSS spec. Zero deps, public domain.`
 
 **Alternates (test):**
-- `The most complete color-space conversion library — 131 spaces, CSS-native ranges, differentially verified, zero dependencies.`
-- `131 color-space conversions in one tiny, verified, tree-shakeable package — values that match CSS.`
+- `The most complete color-space conversion library — 151 spaces, CSS-native ranges, differentially verified, zero dependencies.`
+- `151 color-space conversions in one tiny, verified, tree-shakeable package — values that match CSS.`
 
 **Keywords** (current list misses the high-intent long-tail that wins npm search). Add:
 ```json
@@ -92,15 +92,15 @@ Keep the existing generic ones (color, rgb, hsl, lab, xyz, cmyk…). The long-ta
 
 ### Wireframe (top → bottom)
 
-1. **Hero** — `Every color space. One tiny API. Verified.` + subhead (131 · CSS-native · differential-tested) + `npm install color-space` (one-click copy) + buttons: **Browse all 131** · **GitHub** (star).
-2. **The converter, elevated** — type any color, watch it propagate **live across all 131 spaces**. Improvements that turn a test page into the magic:
-   - **Search/filter** the space list (131 is a lot — let people jump to "oklch", "slog3", "munsell").
+1. **Hero** — `Every color space. One tiny API. Verified.` + subhead (151 · CSS-native · differential-tested) + `npm install color-space` (one-click copy) + buttons: **Browse all 151** · **GitHub** (star).
+2. **The converter, elevated** — type any color, watch it propagate **live across all 151 spaces**. Improvements that turn a test page into the magic:
+   - **Search/filter** the space list (151 is a lot — let people jump to "oklch", "slog3", "munsell").
    - A **live swatch** that updates as you type (it already tints the title — make it a real, prominent swatch).
    - **"Copy as CSS"** per space where a CSS form exists (`oklch(…)`, `lab(…)`, `color(display-p3 …)`).
    - Channel **ranges shown inline** (already in the `title` attr — surface it visibly).
    - A few **preset colors** (brand orange, a skin tone, a spectral cyan) so a first visitor sees motion immediately.
-3. **Trust band** — four concrete proofs, side by side: *131 spaces* · *verified vs colorjs.io at 1/255* · *zero dependencies* · *public domain*. (Concentrated, not dripped — REDUCE: corroborating evidence in one window.)
-4. **Comparison strip** — `131` vs culori/colorjs.io/chroma-js/texel, from [library-comparison.md](../library-comparison.md). The number does the arguing.
+3. **Trust band** — four concrete proofs, side by side: *151 spaces* · *verified vs colorjs.io at 1/255* · *zero dependencies* · *public domain*. (Concentrated, not dripped — REDUCE: corroborating evidence in one window.)
+4. **Comparison strip** — `151` vs culori/colorjs.io/chroma-js/texel, from [library-comparison.md](../library-comparison.md). The number does the arguing.
 5. **"Has the space you need"** — the categorized list with **swatches**, grouped (Display/Web · Perceptual · HDR · Film & camera logs · Video/broadcast · Appearance · Print/physical · Research). This doubles as the SEO/reference surface that earns backlinks.
 6. **Who it's for** — the segment one-liners from [audience.md](audience.md) (film, science, CSS/design systems, viz, creative coding).
 7. **Quickstart** — install + the two-line example + "pair with culori/chroma for the toolkit layer."

@@ -6,6 +6,9 @@
  * adaptation.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-xyz}
+ * @year 1994
+ * @by ICC
+ * @use CIE XYZ under D50, the ICC profile-connection space for print/graphic-arts color management; current standard.
  * @channel {X} 0 96.42 X
  * @channel {Y} 0 100 Y
  * @channel {Z} 0 82.51 Z

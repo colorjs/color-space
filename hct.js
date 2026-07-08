@@ -8,6 +8,10 @@
  * predictable contrast between any two tones.
  *
  * @see {@link https://material.io/blog/science-of-color-design}
+ * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#CAM16}
+ * @year 2021
+ * @by Google (Material Design)
+ * @use Android Material You dynamic theming and tonal-palette generation; current Material Design 3 standard.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 145 Chroma
  * @channel {T} 0 100 Tone

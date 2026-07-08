@@ -8,6 +8,9 @@
  * successor wherever a CIE-endorsed appearance model is called for.
  *
  * @see {@link https://doi.org/10.1002/col.22792} Hellwig & Fairchild 2022
+ * @year 2022
+ * @by Luke Hellwig & Mark Fairchild
+ * @use CIE-recommended color-appearance model succeeding CAM16; current mathematical basis of CIECAM16 (CIE 248:2022).
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 60 Colourfulness
  * @channel {h} 0 360 Hue angle

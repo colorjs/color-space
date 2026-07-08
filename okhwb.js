@@ -6,7 +6,10 @@
  * hue/saturation/lightness sliders allow. Built directly on OkHSV, it inherits that
  * space's perceptual evenness while staying bounded to the sRGB gamut.
  *
- * @see {@link https://bottosson.github.io/posts/okhsv/}
+ * @see {@link https://bottosson.github.io/posts/colorpicker/#okhwb}
+ * @year 2021
+ * @by Björn Ottosson
+ * @use Perceptually even whiteness/blackness color picker built on OkHSV; current but niche next to OkHSL/OkHSV.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {W} 0 100 Whiteness percentage
  * @channel {B} 0 100 Blackness percentage

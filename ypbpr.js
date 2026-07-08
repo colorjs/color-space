@@ -9,6 +9,10 @@
  * HDMI became universal.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
+ * @wiki {@link https://en.wikipedia.org/wiki/YPbPr}
+ * @year 1982
+ * @by ITU-R
+ * @use Analog component-video color-difference signal for DVD players/consoles/HDTVs pre-HDMI; legacy, displaced by digital.
  * @channel {Y} 0 1 Luma
  * @channel {Pb} -0.5 0.5 Blue chroma
  * @channel {Pr} -0.5 0.5 Red chroma

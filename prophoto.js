@@ -6,6 +6,10 @@
  * common working space in raw photo processing, referenced to the D50 white point.
  *
  * @see {@link https://www.color.org/ROMMRGB.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space}
+ * @year 1999
+ * @by Kodak
+ * @use Ultra-wide-gamut RGB for high-end digital photography/raw processing; current common working space.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

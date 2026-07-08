@@ -5,6 +5,10 @@
  * colorists grade in and the basis of the ΔE-ITP difference metric.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
+ * @wiki {@link https://en.wikipedia.org/wiki/ICtCp}
+ * @year 2016
+ * @by Dolby (BT.2100)
+ * @use HDR television color grading and the dE-ITP difference metric; current ITU-R BT.2100 standard for HDR broadcast/streaming.
  * @channel {I} 0 1 Intensity
  * @channel {Ct} -0.5 0.5 Tritan chroma
  * @channel {Cp} -0.5 0.5 Protanopia chroma

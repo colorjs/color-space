@@ -6,6 +6,10 @@
  * Lab would need when working directly with display colors.
  *
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIELAB_color_space#Cylindrical_model}
+ * @year 1976
+ * @by CIE
+ * @use Cylindrical D65-anchored CIELAB for saturation/hue handles without chromatic adaptation; current, display-color tooling.
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 150 Chroma
  * @channel {H} 0 360 Hue angle in degrees

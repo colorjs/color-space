@@ -8,6 +8,9 @@
  * fidelity to the original Oklab formulation.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/}
+ * @year 2021
+ * @by Björn Ottosson
+ * @use Toe-corrected Oklab lightness for accurate dark-tone gamut mapping; current, niche/technical tooling use.
  * @channel {L} 0 1 Lightness
  * @channel {a} -0.4 0.4 Green-Red axis
  * @channel {b} -0.4 0.4 Blue-Yellow axis

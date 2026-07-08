@@ -6,6 +6,10 @@
  * elsewhere. It's defined over N-Gamut, whose primaries match ITU-R BT.2020.
  *
  * @see {@link https://download.nikonimglib.com/archive3/hDCmK00m9JDI03RPruD74xpoU905/N-Log_Specification_(En)01.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2018
+ * @by Nikon
+ * @use Log video capture for Nikon Z-series mirrorless cameras; current, defined over N-Gamut (BT.2020 primaries).
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

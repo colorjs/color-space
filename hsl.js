@@ -7,6 +7,10 @@
  * color-picker interfaces.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#the-hsl-notation}
+ * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
+ * @year 1978
+ * @by Alvy Ray Smith
+ * @use Intuitive hue/saturation/lightness color picking; current, standardized as CSS's hsl().
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage

@@ -7,6 +7,10 @@
  * gamut mapping and image-difference work.
  *
  * @see {@link https://doi.org/10.2352/CIC.1998.6.1.art00003}
+ * @wiki {@link https://en.wikipedia.org/wiki/IPT_color_space}
+ * @year 1998
+ * @by Fritz Ebner & Mark Fairchild
+ * @use Hue-linear opponent space for gamut mapping and image-difference metrics; still used, structural ancestor of ICtCp.
  * @channel {I} 0 1 Lightness
  * @channel {P} -1 1 Red-Green
  * @channel {T} -1 1 Yellow-Blue

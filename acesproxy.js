@@ -5,7 +5,11 @@
  * decisions, dailies, and viewfinder-style preview — not for storage, compositing, or
  * final grading, where ACEScc or ACEScct take over once footage reaches post.
  *
- * @see {@link https://docs.acescentral.com/specifications/acesproxy/}
+ * @see {@link https://docs.acescentral.com/encodings/acesproxy/}
+ * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System}
+ * @year 2013
+ * @by Academy (AMPAS)
+ * @use On-set monitoring and dailies preview encoding over SDI video; current but narrow-purpose, not used for storage or final grading.
  * @channel {R} 0.0626 0.9189 Red
  * @channel {G} 0.0626 0.9189 Green
  * @channel {B} 0.0626 0.9189 Blue

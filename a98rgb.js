@@ -6,6 +6,10 @@
  * and print production, where sRGB's narrower gamut would clip too much color.
  *
  * @see {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
+ * @year 1998
+ * @by Adobe Systems
+ * @use Wide-gamut photography and print working space; still common where sRGB's gamut clips CMYK-reproducible colors.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

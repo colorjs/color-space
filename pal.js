@@ -6,6 +6,9 @@
  * correct gamut to use when working with archival PAL or SECAM broadcast material.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470}
+ * @year 1967
+ * @by Walter Bruch / Telefunken
+ * @use Legacy analog PAL/SECAM broadcast TV primaries (Europe, EBU Tech 3213/BT.470); historical.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -6,7 +6,10 @@
  * guarantee plain HSL, built on gamma-encoded RGB, never offered. It pairs with
  * OkHSV and OkHWB as a family of perceptually even color pickers derived from Oklab.
  *
- * @see {@link https://bottosson.github.io/posts/okhsv/}
+ * @see {@link https://bottosson.github.io/posts/colorpicker/#okhsl}
+ * @year 2021
+ * @by Björn Ottosson
+ * @use Perceptually even HSL-style color picker bounded to the sRGB gamut; current, used in modern design tools.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage

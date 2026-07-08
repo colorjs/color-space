@@ -6,7 +6,10 @@
  * manufacturers' log curves do. It's recorded in a BT.2020 color container, the
  * same gamut Nikon's N-Log uses.
  *
- * @see {@link https://leica-camera.com/sites/default/files/2021-11/L-Log_Reference_Manual_EN.pdf}
+ * @see {@link https://leica-camera.com/sites/default/files/pm-118912-L-Log_Reference_Manual_V1.6.pdf}
+ * @year 2020
+ * @by Leica
+ * @use Log video capture for Leica SL-series mirrorless cameras; current native encoding on SL2-S, SL2 and SL.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

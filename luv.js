@@ -9,6 +9,10 @@
  * color.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELUV}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
+ * @year 1976
+ * @by CIE
+ * @use Additive-mixture-accurate perceptual space for displays and stage lighting; still used, less common than CIELAB.
  * @channel {L} 0 100 Lightness
  * @channel {U} -215 215 U chrominance
  * @channel {V} -215 215 V chrominance

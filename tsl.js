@@ -8,6 +8,9 @@
  * YCbCr and HSV.
  *
  * @see {@link https://doi.org/10.1109/AFGR.2000.840612}
+ * @year 2000
+ * @by Terrillon & Akamatsu
+ * @use Skin-tone segmentation color space for face/gesture detection in computer vision; niche, still referenced.
  * @channel {T} 0 360 Tint angle
  * @channel {S} 0 1 Saturation
  * @channel {L} 0 255 Lightness

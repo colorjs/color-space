@@ -8,6 +8,9 @@
  * of the computational cost.
  *
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2020.28.13}
+ * @year 2020
+ * @by Hensley & Fairchild
+ * @use Lightweight hue-uniform alternative to CAM16-UCS for color-difference work; academic, not widely deployed.
  * @channel {Ig} 0 1 Intensity
  * @channel {Pg} -1 1 Protan
  * @channel {Tg} -1 1 Tritan

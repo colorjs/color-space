@@ -7,6 +7,10 @@
  * that era.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2008
+ * @by Sony
+ * @use Sony's first cinema log curve (F35/F3 cameras); legacy, kept for archival-footage compatibility.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

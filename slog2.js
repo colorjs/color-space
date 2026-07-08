@@ -7,6 +7,10 @@
  * around older Sony camera firmware.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2012
+ * @by Sony
+ * @use Sony's second-generation cinema log curve (F5/F55 era); legacy, superseded by S-Log3.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

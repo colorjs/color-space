@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface MacboynSpace extends ColorSpace {
 	name: 'macboyn';
-	range: [[0, 1], [0, 1], [0, 100]];
+	range: [[0.4, 1], [0, 1], [0, 100]];
 }
 
 declare const macboyn: MacboynSpace;

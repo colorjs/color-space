@@ -67,7 +67,7 @@ Source: bundlephobia, 2026-06-30 (colord measured from tarball — bundlephobia 
 
 **Size caveats (important for honest copy):**
 - **npm still serves color-space v2.3.2** (10.3 kB, ~50 spaces). v3 (this branch) adds a per-file `exports` map → **per-space imports become far smaller**.
-- The **local v3 dist of *all 131 spaces* is ~44 kB min+gz** (44,572 bytes; ~2.6× v2 because v3 has ~2.6× the spaces — so the *full* bundle is actually larger than culori/colorjs.io, but nobody imports all 131). **Quote the tree-shaken per-space size (~2 kB), not the full bundle.** Measure and publish real per-space numbers once v3 ships to npm.
+- The **local v3 dist of *all 151 spaces* is ~44 kB min+gz** (44,572 bytes; ~2.6× v2 because v3 has ~2.6× the spaces — so the *full* bundle is actually larger than culori/colorjs.io, but nobody imports all 151). **Quote the tree-shaken per-space size (~2 kB), not the full bundle.** Measure and publish real per-space numbers once v3 ships to npm.
 - culori and colorjs.io are also tree-shakeable — don't compare our per-space import against their *full* bundle; that's apples-to-oranges. Compare like for like.
 
 ---
@@ -100,4 +100,4 @@ Source: bundlephobia, 2026-06-30 (colord measured from tarball — bundlephobia 
 - colord's self-claimed "1.7 kB" — measured ~2.1 kB ESM gz; older version or different method.
 - colorjs.io homepage "229M downloads" — API cumulative ~242M; homepage figure stale.
 - color-space v3 per-space bundle size — **not yet measurable on npm** (v3 unpublished). Measure post-release.
-- competitor *space counts* are best estimates from source (culori ~25–35, colorjs.io ~40, chroma ~15, @texel/color ~16); they shift as libs add spaces. The "3–5×" claim (131 vs 25–40) holds across that range, but recount before quoting an exact multiple.
+- competitor *space counts* are best estimates from source (culori ~25–35, colorjs.io ~40, chroma ~15, @texel/color ~16); they shift as libs add spaces. The "3–5×" claim (151 vs 25–40) holds across that range, but recount before quoting an exact multiple.

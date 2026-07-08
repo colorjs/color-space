@@ -7,6 +7,7 @@
  * has become Canon's most widely used cinema log curve.
  *
  * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -8,6 +8,10 @@
  * pipelines today.
  *
  * @see {@link https://www.arri.com/resource/blob/31918/66f56e6abb6e5b6553929edf9aa7483e/2017-03-alexa-logc-curve-in-vfx-data.pdf}
+ * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
+ * @year 2010
+ * @by ARRI
+ * @use Cinema camera log capture for the original ARRI ALEXA line; legacy, superseded by LogC4 but still widely supported in post.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

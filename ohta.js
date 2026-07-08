@@ -11,6 +11,9 @@
  * makes thresholding more reliable than working directly in RGB.
  *
  * @see {@link https://doi.org/10.1016/0146-664X(80)90047-7} Ohta, Kanade & Sakai 1980
+ * @year 1980
+ * @by Ohta, Kanade & Sakai
+ * @use Decorrelated RGB for computer-vision segmentation (vegetation, skin, flame); niche, still referenced in CV literature.
  * @channel {I1} 0 255 Intensity/3
  * @channel {I2} -128 128 Opponent/2
  * @channel {I3} -128 128 Opponent/4

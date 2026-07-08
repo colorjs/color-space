@@ -7,6 +7,9 @@
  * bright regardless of hue.
  *
  * @see {@link https://alienryderflex.com/hsp.html}
+ * @year 2006
+ * @by Darel Rex Finley
+ * @use Perceived-brightness color picker alternative to HSL/HSV; niche hobbyist and creative-coding use.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {P} 0 100 Perceived brightness percentage

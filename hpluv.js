@@ -10,6 +10,9 @@
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
+ * @year 2012
+ * @by Alexei Boronine
+ * @use Guaranteed-in-gamut pastel companion to HSLuv for palette tools; current, maintained alongside HSLuv.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage

@@ -11,6 +11,10 @@
  * @module  color-space/xvycc
  *
  * @see {@link https://webstore.iec.ch/publication/6168}
+ * @wiki {@link https://en.wikipedia.org/wiki/XvYCC}
+ * @year 2006
+ * @by Sony / IEC
+ * @use Extended-gamut YCbCr for consumer TVs/camcorders/Blu-ray beyond BT.709 (x.v.Color); niche, mostly superseded by HDR formats.
  * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma

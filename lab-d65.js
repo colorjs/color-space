@@ -9,6 +9,10 @@
  * red-green and yellow-blue opponent axes.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
+ * @wiki {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
+ * @year 1976
+ * @by CIE
+ * @use D65-anchored CIELAB avoiding chromatic adaptation for sRGB/Rec.709/P3 work; current, common in display-color tooling.
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Green-Red axis
  * @channel {b} -125 125 Blue-Yellow axis

@@ -9,6 +9,7 @@
  * industry.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#device-cmyk}
+ * @wiki {@link https://en.wikipedia.org/wiki/CMYK_color_model}
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage

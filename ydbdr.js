@@ -8,6 +8,10 @@
  * red-minus-luma respectively.
  *
  * @see {@link https://en.wikipedia.org/wiki/YDbDr}
+ * @wiki {@link https://en.wikipedia.org/wiki/YDbDr}
+ * @year 1967
+ * @by Henri de France
+ * @use Legacy analog SECAM television luma/chroma encoding (France, E. Europe, ex-USSR); historical.
  * @channel {Y} 0 1 Luma
  * @channel {Db} -1.333 1.333 Blue difference
  * @channel {Dr} -1.333 1.333 Red difference

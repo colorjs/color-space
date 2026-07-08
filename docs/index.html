@@ -22,6 +22,7 @@
 *{ box-sizing:border-box; margin:0 }
 ::selection{ background:var(--ink); color:var(--paper) }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
+:focus-visible{ outline:2px solid var(--c); outline-offset:3px }
 .page{ --railw:10.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem) }   /* --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
 a{ color:var(--ink) }
@@ -38,21 +39,25 @@ a{ color:var(--ink) }
 .mast::after{ content:''; position:absolute; left:0; right:0; top:100%; height:5px; background:var(--c,var(--mline)); opacity:var(--brd,0) }
 .mast .wm{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em }
 .mast .sp{ flex:1 }
+@media(min-width:1025px){ .mast{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr) auto auto auto auto auto; column-gap:var(--railgap); row-gap:.45rem; flex-wrap:nowrap } .mast .wm{ grid-column:1 } .mast .cur{ grid-column:2; justify-self:start } .mast .sp{ display:none } }
 .mast .ver{ font-size:.74rem; font-weight:700; color:var(--soft); text-decoration:none }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh{ display:flex; align-self:center; color:var(--ink) }
 .mast .gh:hover{ color:var(--c) }
 .thm{ border:0; background:none; padding:.15rem; color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
-/* live current colour — revealed only once a colour exists (picked / scrolled past) */
-.cur{ display:flex; align-items:center; gap:.6rem; opacity:0; pointer-events:none; transition:opacity .35s ease }
+/* live current colour — always editable; the gamut tags are separate chips, not part of the value */
+.cur{ display:flex; align-items:center; gap:.2rem; min-width:0; opacity:1; pointer-events:auto; transition:opacity .35s ease }
 .mhead.on .cur{ opacity:1; pointer-events:auto }
-.cur .cursw{ width:1.9rem; height:1.9rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px var(--hair) }
+.cur .cursw{ flex:none; width:1.9rem; height:1.9rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px var(--hair) }
 .cur .cursw::-webkit-color-swatch-wrapper{ padding:0 } .cur .cursw::-webkit-color-swatch{ border:none; border-radius:50% } .cur .cursw::-moz-color-swatch{ border:none; border-radius:50% }
-.cur .curhex{ font-size:1.05rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); cursor:copy }
-.cur .curnm{ font-size:.82rem; font-weight:600; color:var(--soft); cursor:pointer } .cur .curnm:hover{ color:var(--c) }
-.cur .curgam{ display:flex; gap:.5rem; font-size:.58rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase }
-.cur .curgam .on{ color:var(--ink) } .cur .curgam .off{ color:var(--ghost) }
+.cur .curhex{ min-width:8.8rem; max-width:min(28vw,23rem); font:inherit; font-size:1.02rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); background:transparent; border:0; border-bottom:2px solid transparent; outline:none; padding:.12rem 0 .16rem; text-overflow:ellipsis }
+.cur .curhex:focus{ border-bottom-color:var(--hair) }
+.cur .curhex.bad{ border-bottom-color:var(--c); color:var(--c) }
+.cur .curnm{ margin-left:.35rem; font-size:.82rem; font-weight:600; color:var(--soft); cursor:pointer; white-space:nowrap } .cur .curnm:hover{ color:var(--c) }
+.cur .curgam{ display:flex; gap:.28rem; margin-left:.18rem; font-size:.56rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap }
+.cur .curgam span{ border:0; border-radius:999px; padding:.16rem .42rem; line-height:1.1; background:var(--panel) }
+.cur .curgam .on{ color:var(--ink) } .cur .curgam .off{ color:var(--soft); opacity:.42 }
 /* settings — a gear that drops a small panel */
 .cfg{ position:relative; align-self:center }
 .cfg summary{ list-style:none; display:flex; cursor:pointer; color:var(--soft); padding:.15rem }
@@ -62,14 +67,26 @@ a{ color:var(--ink) }
 [data-theme=dark] .cfgp{ box-shadow:0 10px 34px rgba(0,0,0,.5) }
 .cfgp label{ display:flex; align-items:center; gap:.55rem; font-size:.9rem; font-weight:600; cursor:pointer; color:var(--ink) }
 .cfgp input{ accent-color:var(--ink) }
-/* search collapses to an icon and grows on hover/focus/while it holds a query */
+/* search filters spaces and metadata only; the live color parser is the header value input */
 .qx{ display:flex; align-items:center; gap:.45rem; align-self:center; cursor:text }
 .qx svg{ flex:none; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
-.qx input{ width:0; opacity:0; font:inherit; font-size:.9rem; font-weight:600; color:var(--ink); background:none; border:0; outline:none; padding:.25rem 0; transition:width .25s ease, opacity .2s ease }
-.qx:hover input,.qx:focus-within input,.qx input:not(:placeholder-shown){ width:13rem; opacity:1 }
+.qx input{ width:9.5rem; opacity:1; font:inherit; font-size:.9rem; font-weight:600; color:var(--ink); background:none; border:0; outline:none; padding:.25rem 0; transition:width .25s ease, opacity .2s ease }
+.qx:hover input,.qx:focus-within input,.qx input:not(:placeholder-shown){ width:14rem; opacity:1 }
 .qx .qn{ font-size:.72rem; font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
 .qx input:placeholder-shown ~ .qn{ display:none }
-@media(max-width:560px){ .cur .curnm,.cur .curgam{ display:none } }
+/* first-time orientation: the instrument should explain itself before the grid starts */
+.introcopy{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:1rem 1.6rem; align-items:end; padding:clamp(1rem,2.2vw,1.6rem) clamp(1rem,3vw,2.2rem) .9rem; border-bottom:1px solid var(--hair) }
+.introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
+.introcopy p{ margin:.35rem 0 0; color:var(--body); line-height:1.5; max-width:68ch }
+.quick{ display:flex; align-items:center; justify-content:flex-end; gap:.55rem; flex-wrap:wrap }
+.quick a,.quick button{ font:inherit; font-size:.82rem; font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:.56rem .8rem; cursor:pointer }
+.quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
+.recents{ grid-column:1/-1; display:flex; align-items:center; gap:.45rem; min-height:1.65rem; flex-wrap:wrap }
+.recents b{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-right:.15rem }
+.recents button{ width:1.35rem; height:1.35rem; border:1px solid var(--hair); background:var(--sw); cursor:pointer; padding:0 }
+.recents button:hover{ transform:translateY(-1px) }
+@media(max-width:720px){ .introcopy{ grid-template-columns:1fr; align-items:start } .quick{ justify-content:flex-start } }
+@media(max-width:560px){ .cur .curnm,.cur .curgam{ display:none } .cur .curhex{ min-width:6.6rem; max-width:38vw; font-size:.92rem } .qx input{ width:0; opacity:0 } .qx:hover input,.qx:focus-within input,.qx input:not(:placeholder-shown){ width:10.5rem; opacity:1 } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
    reading blocks (.g: api, recipes, about) stay in a centered measure for readability */
@@ -87,7 +104,8 @@ a{ color:var(--ink) }
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 .25rem; width:100% }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ink); text-align:left; border:0; background:var(--paper); padding:0 .35rem 0 0; cursor:pointer }
 .ti .tn:hover{ background:var(--lift) }
-.ti .tc{ font-weight:600; font-size:.8em; color:var(--soft); margin-left:.35em }   /* count of spaces in the category */
+.ti.act .tn{ color:var(--c) }
+.ti .tc{ font-weight:600; font-size:.8em; color:currentColor; opacity:.42; margin-left:.35em }   /* count of spaces in the category */
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; width:64rem; max-width:100%; margin:0 auto; padding-bottom:clamp(2rem,5vw,3.5rem) }
 @media(min-width:1400px){ .secs,.g>section{ width:80rem } }   /* wider box on big screens; explicit width so the box fills it and the reading blocks line up exactly */
@@ -100,12 +118,12 @@ a{ color:var(--ink) }
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*var(--secl,0px)); right:calc(-1*var(--secr,0px)); height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:1.3rem } .sec:first-of-type::before{ display:none }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
-.sheet{ margin-top:.7rem }
+.sheet{ margin-top:0 }
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
 @media(max-width:1024px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.sec::before{ left:0; right:0 }   /* dividers stay inside the container */
 	.shw{ display:block; margin:0 0 .3rem; font-size:1.2rem; font-weight:800; letter-spacing:-.01em }
-	.shw .c{ font-size:.62rem; font-weight:700; color:var(--soft); margin-left:.4rem; vertical-align:.35em }
+	.shw .c{ font-size:.62rem; font-weight:700; color:currentColor; opacity:.42; margin-left:.4rem; vertical-align:.35em }
 	.sec{ padding:1rem 0 1.4rem }
 	.sec:first-of-type{ padding-top:.6rem } }
 @media(max-width:960px){ .grid,.sheet{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
@@ -115,13 +133,17 @@ a{ color:var(--ink) }
 .ent.lite .chs{ display:none }   /* sheet rows: numbers only — settings can bring sliders back */
 body.alls .ent.lite .chs{ display:flex }
 body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
-/* hover lifts the card on a white sheet; the ↗ badge beside the name says "opens" */
-.ent:hover,.ent:focus-within{ background:var(--lift) }
-/* the ↗ opens-modal mark rides the title baseline, on every entry, sized above the caps */
-.nm::after{ content:''; display:inline-block; width:1.15em; height:1.15em; margin-left:.16em; vertical-align:-.14em; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
+.grid>.ent{ padding-bottom:.35rem }
+.sheet>.ent.lite{ padding-top:.22rem }
+/* hover keeps the atlas flat; no white card and no global dimming */
+.ent{ transition:color .14s ease, opacity .14s ease, filter .14s ease }
+.ent:hover,.ent:focus-within{ background:transparent }
+/* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
+.nm::after{ content:''; display:inline-block; width:1.24em; height:1.24em; margin-left:.1em; vertical-align:-.2em; opacity:0; transition:opacity .12s; background:var(--soft); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 13L17 7M10.5 7H17v6.5'/%3E%3C/svg%3E") center/contain no-repeat }
 .ent:hover .nm::after,.ent:focus-within .nm::after{ opacity:1 }
 /* historical spaces sit faded until you engage them — working history, not front-line */
-.ent.histo{ opacity:.5 } .ent.histo:hover,.ent.histo:focus-within{ opacity:1 }
+.ent.histo{ opacity:.58 } .ent.histo:hover,.ent.histo:focus-within{ opacity:1 }
+.histico{ display:inline-block; width:.88em; height:.88em; vertical-align:-.06em; margin-left:.28em; background:currentColor; opacity:.72; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M6 7l1.2-3h9.6L18 7M6 7v12h12V7M9 11h6'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M6 7l1.2-3h9.6L18 7M6 7v12h12V7M9 11h6'/%3E%3C/svg%3E") center/contain no-repeat }
 .ent .eh{ display:flex; align-items:baseline; justify-content:space-between; gap:.4rem 1rem; padding:0 0 .45rem }
 .ent.lite .eh{ padding:0; row-gap:.15rem }
 .ent .eh .nm{ font-weight:800; font-size:1.2rem; letter-spacing:-.01em; line-height:1.1; text-transform:uppercase; min-width:0 }
@@ -157,14 +179,31 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 /* ✕ glyph edges sit exactly at the detail padding — the 34px hit-box hangs outward */
 .mx{ position:absolute; top:calc(var(--dpad) - 7px); right:calc(var(--dpad) - 7px); z-index:2; width:34px; height:34px; display:grid; place-items:center; font:inherit; font-size:1.75rem; line-height:1; font-weight:500; border:0; background:transparent; color:var(--ink); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--c) }
-.mnav{ position:fixed; top:50%; transform:translateY(-50%); z-index:22; border:0; background:transparent; color:oklch(0.97 0.003 92); cursor:pointer; padding:.6rem; display:flex; flex-direction:column; align-items:center; gap:.2rem }
+.mnav{ position:fixed; top:50%; transform:translateY(-50%); z-index:22; border:0; background:transparent; color:oklch(0.97 0.003 92); cursor:pointer; padding:min(16vh,9rem) .7rem; display:flex; flex-direction:column; align-items:center; gap:.3rem }
 .mnav svg{ display:block }
-.mnav .mn{ font-size:.64rem; font-weight:700; max-width:5.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase }
+.mnav .mn{ font-size:.68rem; font-weight:700; max-width:6.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; opacity:0; transition:opacity .15s ease }
+.mnav:hover .mn,.mnav:focus-visible .mn{ opacity:1 }
 .mnav:hover{ color:var(--c) }
 .mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
 .detail{ width:100%; padding:var(--dpad) }
-.dh{ display:flex; flex-direction:column; align-items:flex-start; gap:.28rem; padding-right:3rem }
+.dh{ display:flex; align-items:baseline; flex-wrap:wrap; gap:.28rem 1.2rem; padding-right:3rem }
+.dh .seg{ margin-left:auto }
 .dh h1{ margin:0; font-size:clamp(1.7rem,4vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1 }
+.dh .dhist{ align-self:center; display:inline-flex; align-items:center; gap:.28rem; font-size:.66rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.15rem .45rem; border-radius:2px }
+.dh .dhist::before{ content:''; width:.9em; height:.9em; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M6 7l1.2-3h9.6L18 7M6 7v12h12V7M9 11h6'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M6 7l1.2-3h9.6L18 7M6 7v12h12V7M9 11h6'/%3E%3C/svg%3E") center/contain no-repeat }
+.dnav{ display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin:.75rem 3rem .9rem 0 }
+.dnav a,.dnav button{ font:inherit; font-size:.72rem; font-weight:800; letter-spacing:.02em; color:var(--soft); background:none; border:0; padding:0; text-decoration:none; cursor:pointer }
+.dnav a:hover,.dnav button:hover{ color:var(--ink) }
+.dnav .copylink{ margin-left:auto; color:var(--ink); box-shadow:inset 0 -1px 0 var(--hair) }
+.dhero{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(18rem,1.25fr); gap:clamp(1rem,3vw,2.2rem); align-items:center; margin:.3rem 0 1.35rem }
+.dlead{ display:grid; grid-template-columns:4.2rem minmax(0,1fr); gap:.75rem 1rem; align-items:start; min-width:0 }
+.dswatch{ width:4.2rem; height:4.2rem; border:1px solid var(--hair); background:var(--curcol,var(--c)); cursor:copy; padding:0 }
+.dlead p{ margin:0; color:var(--body); font-size:1.05rem; line-height:1.45; text-wrap:pretty }
+.dpills{ grid-column:1/-1; display:flex; gap:.35rem; flex-wrap:wrap }
+.dpills span{ font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:.18rem .42rem }
+.dhero .dviz2{ margin:0; gap:.8rem; align-items:center }
+.dhero .dviz2 .pl3d{ max-width:19rem }
+.dhero .gam2d{ max-width:15rem }
 .dstat{ display:flex; flex-direction:column; align-items:flex-end; gap:.4rem }
 .dstat .r{ display:flex; align-items:baseline; gap:.8rem; flex-wrap:wrap }
 .dstat .fmt{ font-size:.84rem; color:var(--soft); font-variant-numeric:tabular-nums; cursor:copy }
@@ -181,8 +220,9 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 .props a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
 .plab{ margin-bottom:.45rem }
 .props.pfoot{ margin:1.4rem 0 .4rem; border-top:1px solid var(--hair); padding-top:1.2rem }
-.dhr{ border:0; border-top:1px solid var(--hair); margin:1.3rem 0 1.2rem }
-@media(max-width:640px){ .props{ gap:1.1rem 1.3rem } }   /* narrow screens keep both columns, tighter gutter */
+.dhr{ border:0; border-top:1px solid var(--hair); margin:.5rem 0 1.2rem }
+@media(max-width:760px){ .dhero{ grid-template-columns:1fr } .dlead{ grid-template-columns:3.2rem minmax(0,1fr) } .dswatch{ width:3.2rem; height:3.2rem } }
+@media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr; gap:1.1rem 1.3rem } .dnav{ margin-right:0 } .dnav .copylink{ margin-left:0 } }
 .pick{ overflow:hidden }
 .bar2{ position:relative; min-height:78px; cursor:ew-resize; touch-action:none; overflow:hidden; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
@@ -201,14 +241,15 @@ body.alls .ent.lite{ padding:.85rem var(--eg) 1rem }
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
 .pl .cx{ position:absolute; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* same rhombus as the sliders */
-.pl3d{ position:relative; width:100%; aspect-ratio:1; cursor:grab; touch-action:none; align-self:center; overflow:visible }
+.pl3d{ position:relative; width:100%; aspect-ratio:1; cursor:grab; touch-action:none; align-self:center; overflow:hidden }
 .pl3d:active{ cursor:grabbing }
-/* canvases bleed 36% past the box: rotations and zoom draw outside instead of trimming */
+/* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
 .pl3d canvas{ position:absolute; left:-18%; top:-18%; display:block; width:136%; height:136%; pointer-events:none }
 .pl3d .grid3{ z-index:0 }
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
-.pl .laby{ position:absolute; top:.5rem; left:.55rem; font-size:.64rem; font-weight:700; pointer-events:none }
+/* full channel names, set along the direction of increase: x rightward, y upward */
+.pl .laby{ position:absolute; top:50%; left:.45rem; writing-mode:vertical-rl; transform:translateY(-50%) rotate(180deg); font-size:.64rem; font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:.64rem; font-weight:700; pointer-events:none }
 h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:1.6rem 0 .5rem; display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
 .src{ margin-top:.7rem; font-size:.74rem; color:var(--soft) }
@@ -225,13 +266,21 @@ h4.sec2{ font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:.72rem; color:var(--ink); cursor:pointer }
 .irow{ position:relative; height:68px }
-h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:1rem; color:var(--ink) }
+h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:.92rem; font-weight:400; color:var(--ink); display:inline-flex; align-items:baseline; gap:.55rem }
+.iend .isw{ width:.85rem; height:.85rem; align-self:center; border:1px solid var(--hair); padding:0; cursor:pointer }
+.iend .iec i{ font-style:normal; font-size:.6rem; font-weight:700; color:var(--ghost); margin-right:.15rem; text-transform:uppercase }
+.iend .iev{ font:inherit; font-variant-numeric:tabular-nums; width:3.1rem; border:0; border-bottom:2px solid var(--hair); background:transparent; color:var(--ink); padding:0 }
+.iend .iev:focus{ outline:none; border-bottom-color:var(--c) }
 .irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:.66rem; font-weight:700; cursor:pointer; z-index:2 }
-.irow .iend{ position:absolute; right:.7rem; top:50%; transform:translateY(-50%); font-size:.8rem; font-weight:700; font-variant-numeric:tabular-nums; cursor:pointer; z-index:2 }
 .iduel{ display:flex; flex-direction:column; gap:5px; margin-top:5px }
 .ird{ position:relative; height:22px }
-.ird i{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#fff; text-shadow:0 0 3px rgba(0,0,0,.55); pointer-events:none }
+.ird i{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#fff; background:rgba(20,15,8,.38); padding:.06rem .3rem; pointer-events:none }
 h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cpyi is absolute by default — in the header it flows inline */
+.scalegrid{ --n:9; display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); height:3.6rem; border:1px solid var(--hair); border-width:1px 0; margin-bottom:.45rem }
+.scalegrid button{ position:relative; border:0; min-width:0; padding:0; background:var(--sw); cursor:copy }
+.scalegrid button::after{ content:attr(data-i); position:absolute; left:.35rem; bottom:.25rem; color:var(--inkon,#fff); font-size:.58rem; font-weight:800; opacity:.65 }
+.scalegrid button:hover{ transform:translateY(-1px) }
+.scaleout{ margin:.25rem 0 1rem; font-size:.72rem; max-height:8rem }
 .srcline{ margin-top:.7rem; font-size:.74rem; color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .srcline a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -241,8 +290,13 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .cpy:hover{ background:var(--ink); color:var(--paper) }
 .snip{ margin-top:.2rem }
 .pinb{ position:absolute; right:.5rem; top:50%; width:1px; height:1px; opacity:0; border:0; padding:0 }   /* native picker anchor */
-.hfmt{ display:block; font-size:clamp(1.08rem,2.6vw,1.5rem); font-weight:700; line-height:1.15; font-variant-numeric:tabular-nums; color:var(--soft); cursor:copy }
-.hfmt:hover{ color:var(--ink) }
+/* notations live as the first feature rows under the title — same anatomy as the
+   sibling props rows, plus copy affordance and a lead emphasis on the space's own form */
+.hfmts{ display:contents }
+.hfmts .hrow{ cursor:copy }
+.hfmts .hrow:first-child .hval{ font-weight:700 }
+.hfmts .hval{ font-variant-numeric:tabular-nums }
+.hfmts .hrow:hover .hval{ color:var(--c) }
 .snipwrap{ position:relative }
 .cpyi{ position:absolute; top:.5rem; right:.55rem; border:0; background:transparent; color:var(--soft); cursor:copy; padding:.25rem }
 .cpyi:hover{ color:var(--ink) } .cpyi svg{ display:block }
@@ -250,21 +304,26 @@ h4.sec2 .icpy{ position:static; padding:0 .15rem; vertical-align:-2px }   /* .cp
 .tok-s{ color:color-mix(in oklab, var(--c) 62%, var(--ink)) }
 .tok-c{ color:var(--soft) }
 .tok-n{ font-weight:600 }
-.dgrid{ display:grid; grid-template-columns:minmax(0,1.7fr) minmax(15rem,1fr); gap:1rem clamp(1.4rem,3vw,2.4rem); align-items:start; margin-bottom:1.4rem }
-.dinfo{ min-width:0 }
-.dgrid .props{ margin:.1rem 0 1.2rem }
+/* dossier rows: 3-col one-liners · description ⅔ + context ⅓ · the two visuals */
+.props.props3{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.1rem clamp(1.2rem,2.6vw,2.2rem); margin:.1rem 0 1.2rem }
+.dgrid2{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:1rem clamp(1.4rem,3vw,2.4rem); align-items:start; margin-bottom:1.6rem }
+.dgrid2 .pcol{ display:flex; flex-direction:column; gap:1.1rem; min-width:0 }
+.dgrid2 i{ display:block; font-style:normal; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:.28rem }
+.dgrid2 p{ margin:0; font-size:1rem; line-height:1.55; color:var(--body) }
 .desc{ font-size:1rem; line-height:1.6; color:var(--body); max-width:68ch }
-.dgrid.one{ grid-template-columns:1fr }
-.dviz{ display:flex; flex-direction:column; gap:1.1rem; min-width:0 }
-.gam2d{ position:relative; width:100%; max-width:22rem; aspect-ratio:0.909; align-self:center }
+.dviz2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(1rem,3vw,2.2rem); align-items:center; margin-bottom:1.6rem }
+.dviz2 .pl3d{ max-width:30rem; justify-self:center }
+.gam2d{ position:relative; width:100%; max-width:24rem; aspect-ratio:0.909; align-self:center; justify-self:center }
+@media(max-width:760px){ .props.props3{ grid-template-columns:repeat(2,minmax(0,1fr)) } .dgrid2,.dviz2{ grid-template-columns:1fr } }
+@media(max-width:640px){ .props.props3{ grid-template-columns:1fr } }
 .gam2d canvas{ display:block; width:100%; height:100% }
 .gam2d .cx{ position:absolute; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }
+.gam2d .cx.ghost{ border-style:dashed; pointer-events:auto }   /* an impossible (beyond-MacAdam) color: hollow marker */
 .gam2d .glab{ position:absolute; left:.2rem; bottom:.1rem; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); pointer-events:none }
 .imgrow{ display:flex; gap:.45rem; flex-wrap:wrap; cursor:pointer }
 .imgrow .imgp{ position:relative; flex:1 1 10.5rem; min-width:8rem; max-width:18.6rem }
 .imgrow canvas{ display:block; width:100%; height:auto }
-.imgrow .implb{ position:absolute; left:.45rem; top:.35rem; font-size:.62rem; font-weight:700; color:#fff; text-shadow:0 0 3px rgba(0,0,0,.55); pointer-events:none }
-@media(max-width:640px){ .dgrid{ grid-template-columns:1fr } .pl3d{ justify-self:start } }
+.imgrow .implb{ position:absolute; left:.45rem; top:.35rem; font-size:.62rem; font-weight:700; color:#fff; background:rgba(20,15,8,.38); padding:.06rem .3rem; pointer-events:none }
 .refs{ display:flex; flex-direction:column; gap:.25rem; font-size:.8rem }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
@@ -304,45 +363,40 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 /* one block, sits as the final element — its own height, no extra scroll. Scrolling
    it into view quantizes the sweep beneath the content (smooth → 8 bands), the whole
    step-down happening across the footer's own reveal — see stepFtr */
-.ftr{ margin-top:3rem; --fh:clamp(15rem,36vh,20rem); position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column }
+.ftr{ margin-top:3rem; --fh:clamp(13rem,30vh,18rem); position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column }
 .fgrad{ position:absolute; inset:0; z-index:0 }
-.fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
-.fov{ position:relative; z-index:2; flex:1; display:flex; flex-direction:column }
-.fov .fnpmw{ flex:1; display:flex; align-items:center; justify-content:center }
-.fnpm{ position:relative; z-index:1; font:inherit; font-size:1.05rem; font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:.9rem 1.6rem; cursor:copy; display:flex; align-items:center; gap:.75rem }
-.fnpm i{ font-style:normal; color:#9a9a9a; font-size:.85em }
-.fnpm:hover i{ color:var(--c) }
-.fbar{ width:100%; max-width:64rem; margin:0 auto; padding:0 clamp(1rem,3vw,2.2rem) 1.3rem; display:flex; justify-content:space-between; gap:2.5rem; align-items:flex-end }
-.fnav{ display:grid; grid-template-columns:repeat(2,auto); gap:.35rem 2.6rem; font-size:1rem }   /* the menu lives at the left */
-.fnav a{ color:var(--fi0,#1b1408); text-decoration:none; width:max-content }
-.fnav a:hover{ text-decoration:underline; text-underline-offset:3px }
-.fend{ display:flex; flex-direction:column; align-items:flex-end; text-align:right; gap:.3rem }
-.fproof{ font-size:1rem; line-height:1.5; color:var(--fi1,#fff); font-variant-numeric:tabular-nums }   /* the proof line, above the CTA, in its style */
-.fcta{ font-size:1rem; line-height:1.5; color:var(--fi1,#1b1408) }
-.fcta a{ color:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px }
-.fmark{ color:var(--fi1,#fff); font-size:.9rem; white-space:nowrap; margin-top:.15rem }
-@media(max-width:640px){ .fov .fbar{ font-size:.9rem; gap:1.2rem } }
-@media(max-width:640px){ .fbar{ flex-wrap:wrap } .fnav{ margin-left:0 } }
-@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } }
-/* ── the hero: a compact OKLCH picker plane — hue across, lightness down (white top,
-   black bottom) — that sits directly under the wordmark as the masthead's extended
-   body. Scroll and it slides up under the sticky bar, folding into the thin hue line
-   the bar carries. A click picks the pixel under the eyedropper and glides to the
-   catalog; the plane stays, scroll back up to pick again. ── */
+.fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.46; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
+.fov{ position:relative; z-index:2; flex:1; display:flex; align-items:flex-end }
+.fwrap{ width:100%; max-width:64rem; margin:0 auto; padding:clamp(2rem,5vw,3.5rem) clamp(1rem,3vw,2.2rem) 1.55rem; display:flex; align-items:flex-start; gap:clamp(1.9rem,4vw,3.8rem) }
+.fbrand{ display:inline-flex; align-items:center; gap:.65rem; color:var(--fi0,#1b1408); text-decoration:none; font-weight:800; letter-spacing:-.01em; white-space:nowrap }
+.flogo{ width:2.15rem; height:2.15rem; display:grid; place-items:center; color:#fff; background:#0c0c0c; font-size:1.05rem; line-height:1 }
+.fcol{ display:flex; flex-direction:column; gap:.18rem }
+.fcol a{ color:var(--fi0,#1b1408); text-decoration:none; width:max-content; font-size:.92rem; line-height:1.35; padding:.12rem 0; opacity:.78; transition:opacity .15s,color .15s }
+.fcol a:hover{ opacity:1; text-decoration:underline; text-underline-offset:3px }
+.legal{ margin-left:auto; align-self:flex-end; display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:.35rem .55rem; max-width:30rem; color:var(--fi1,#fff); font-size:.82rem; line-height:1.45; text-align:right; font-variant-numeric:tabular-nums }
+.legal a{ color:inherit; text-decoration:none }
+.legal a:hover{ text-decoration:underline; text-underline-offset:3px }
+.legal .credit{ opacity:.78 }
+.legal .proof::before,.legal .lic::before{ content:'·'; margin-right:.55rem; opacity:.56 }
+.legal .lic{ white-space:nowrap }
+.legal .om{ font-size:1rem }
+.fnpm{ font:inherit; font-family:ui-monospace,Menlo,monospace; font-size:.86rem; font-weight:600; color:inherit; background:transparent; border:0; padding:0; cursor:copy; display:inline-flex; align-items:baseline; gap:.42rem }
+.fnpm i{ font-style:normal; opacity:.58; font-size:.9em }
+.fnpm:hover i{ color:var(--c); opacity:1 }
+@media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:1rem 1.4rem } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } .fbrand{ width:100% } }
+@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mback{ display:none } .mnav{ top:auto; bottom:.8rem; transform:none; padding:.65rem; color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
+/* ── the hero: a compact gamut atlas — hue across, lightness down. The live canvas
+   breathes between maximum-chroma sRGB/P3/Rec.2020 envelopes. Drag picks in place;
+   scroll still folds the surface into the thin masthead colour line. ── */
 .introw{ height:var(--ih,120px) }   /* the scroll track: the plane collapses over exactly this much scroll */
 .intro{ position:sticky; top:var(--hh,52px); height:var(--ih,120px); overflow:hidden; cursor:none; opacity:0; transition:opacity .5s ease }
 .intro.in{ opacity:1 }
-/* the pick surface: hue across, saturation down — neutral (--igray, the L·72 gray)
-   at the top fading to the full-chroma hue sweep (--mline) at the bottom. The fade is
-   linear in sRGB, so the pick maths mirror the pixels exactly. Anchored to the BOTTOM
-   at full height, so as .intro's height scrubs down the top clips away and the vivid
-   line is what's left — the plane collapsing into the header's border. */
-.iwheel{ position:absolute; left:0; right:0; bottom:0; height:var(--ih,120px); background:
-	linear-gradient(180deg, rgb(var(--igray)) 0%, rgba(var(--igray),0) 100%),
-	var(--mline, var(--panel)); background-size:100% 100%, 100% 100% }
-/* the cursor becomes a picker icon; its ink adapts to the colour under the tip */
-.ipicker{ position:absolute; z-index:2; top:0; left:0; width:40px; height:40px; transform:translate(-8%,-92%); color:#fff; pointer-events:none; opacity:0; will-change:left,top }
-.ipicker svg{ width:100%; height:100%; display:block }
+/* the pick surface is a live canvas: hue runs left→right, lightness top→bottom,
+   while chroma breathes between sRGB/P3/Rec.2020 boundaries. Anchored to the BOTTOM
+   so scroll clips it down into the masthead's current-colour line. */
+.iwheel{ position:absolute; left:0; right:0; bottom:0; width:100%; height:var(--ih,120px); display:block; background:var(--panel) }
+/* same rhombus marker as the catalog sliders, enlarged for the hero */
+.ipicker{ position:absolute; z-index:2; top:0; left:0; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); color:#fff; background:var(--c); border:1.4px solid currentColor; pointer-events:none; opacity:1; will-change:left,top }
 .ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
 @keyframes entwave{ from{ opacity:0; transform:translateY(15px) } to{ opacity:1; transform:none } }
 @media(prefers-reduced-motion:reduce){ .ent.wv{ animation:none } }
@@ -354,12 +408,12 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	<h1 class="wm">color-space</h1>
 	<div class="cur" id="curw">
 		<input type="color" class="cursw" id="cursw" title="current color — click to pick" aria-label="current color">
-		<span class="curhex tnum" id="curhex" title="click to copy"></span>
+		<input class="curhex tnum" id="curhex" spellcheck="false" autocomplete="off" title="type any CSS color; Enter applies" aria-label="current color value">
 		<span class="curnm" id="curnm" title="nearest named color — click to use it"></span>
 		<span class="curgam" id="curgam"></span>
 	</div>
 	<span class="sp"></span>
-	<label class="qx" title="search spaces (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces (press / to focus)"><span class="qn tnum" id="nq"></span></label>
+	<label class="qx" title="search spaces, channels, uses (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces, channels, uses (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<details class="cfg" id="cfg"><summary title="settings" aria-label="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></summary>
 		<div class="cfgp"><label><input type="checkbox" id="setall"> sliders for every space</label></div>
 	</details>
@@ -369,9 +423,22 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 </header></div>
 
 <div class="fw introw" id="introw"><section class="intro" id="intro" aria-label="pick a colour">
-	<div class="iwheel" id="iwheel"></div>
-	<div class="ipicker" id="ipicker" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></div>
+	<canvas class="iwheel" id="iwheel" width="960" height="140"></canvas>
+	<div class="ipicker" id="ipicker" aria-hidden="true"></div>
 </section></div>
+
+<section class="introcopy" aria-labelledby="introcopy-title">
+	<div>
+		<h2 id="introcopy-title">One color. Every conversion path.</h2>
+		<p>Type any CSS color in the header or drag a channel — the catalog, dossiers, plots, snippets, and gamut checks all update from the same verified conversion kernel.</p>
+	</div>
+	<div class="quick" aria-label="quick actions">
+		<button id="copyinstall" title="copy install command">npm install color-space</button>
+		<a href="#api">API</a>
+		<a href="https://github.com/colorjs/color-space">GitHub</a>
+	</div>
+	<div class="recents" id="recents" aria-label="recent colors"></div>
+</section>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web<span class="tc tnum">(19)</span></button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical<span class="tc tnum">(9)</span></button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern<span class="tc tnum">(12)</span></button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic<span class="tc tnum">(15)</span></button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision<span class="tc tnum">(14)</span></button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera<span class="tc tnum">(36)</span></button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical<span class="tc tnum">(6)</span></button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research<span class="tc tnum">(7)</span></button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw">Display & web<span class="c tnum">(19)</span></h2><div class="grid">
 	<article class="ent" data-s="rgb">
@@ -419,10 +486,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">rimm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="rimm Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="rimm Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="rimm Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="cie-rgb" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">cie-rgb</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="cie-rgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="cie-rgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="cie-rgb Blue"></span></div>
+	 <div class="eh"><span class="nm">cie-rgb</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="cie-rgb Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="cie-rgb Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="cie-rgb Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="ntsc" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">ntsc</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="ntsc Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="ntsc Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="ntsc Blue"></span></div>
+	 <div class="eh"><span class="nm">ntsc</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="ntsc Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="ntsc Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="ntsc Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="pal">
 	 <div class="eh"><span class="nm">pal</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="pal Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="pal Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="pal Blue"></span></div>
@@ -551,7 +618,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">uvw</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="U* chrominance" aria-label="uvw U* chrominance"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="V* chrominance" aria-label="uvw V* chrominance"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="W* lightness" aria-label="uvw W* lightness"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="U* chrominance"><div class="tk"></div><span class="sy">U</span></div><div class="ch" data-i="1" title="V* chrominance"><div class="tk"></div><span class="sy">V</span></div><div class="ch" data-i="2" title="W* lightness"><div class="tk"></div><span class="sy">W</span></div></div>
 	</article><article class="ent lite histo" data-s="anlab" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">anlab</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="anlab Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="anlab Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="anlab Yellow-Blue"></span></div>
+	 <div class="eh"><span class="nm">anlab</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Lightness" aria-label="anlab Lightness"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Red-Green" aria-label="anlab Red-Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Yellow-Blue" aria-label="anlab Yellow-Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Lightness"><div class="tk"></div><span class="sy">L</span></div><div class="ch" data-i="1" title="Red-Green"><div class="tk"></div><span class="sy">a</span></div><div class="ch" data-i="2" title="Yellow-Blue"><div class="tk"></div><span class="sy">b</span></div></div>
 	</article>
 </div></section><section class="sec" data-sec><h2 class="shw">HDR & wide gamut<span class="c tnum">(11)</span></h2><div class="grid">
@@ -747,7 +814,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">dcdm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="X′" aria-label="dcdm X′"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Y′" aria-label="dcdm Y′"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Z′" aria-label="dcdm Z′"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="X′"><div class="tk"></div><span class="sy">X</span></div><div class="ch" data-i="1" title="Y′"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Z′"><div class="tk"></div><span class="sy">Z</span></div></div>
 	</article><article class="ent lite histo" data-s="slog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">slog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog Blue"></span></div>
+	 <div class="eh"><span class="nm">slog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="slog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="slog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="slog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="acesproxy">
 	 <div class="eh"><span class="nm">acesproxy</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="acesproxy Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="acesproxy Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="acesproxy Blue"></span></div>
@@ -768,7 +835,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">olog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="olog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="olog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="olog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="redlog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">redlog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlog Blue"></span></div>
+	 <div class="eh"><span class="nm">redlog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="redlogfilm">
 	 <div class="eh"><span class="nm">redlogfilm</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="redlogfilm Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="redlogfilm Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="redlogfilm Blue"></span></div>
@@ -777,10 +844,10 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">log3g12</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="log3g12 Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="log3g12 Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="log3g12 Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="panalog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">panalog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="panalog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="panalog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="panalog Blue"></span></div>
+	 <div class="eh"><span class="nm">panalog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="panalog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="panalog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="panalog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite histo" data-s="viperlog" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">viperlog</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="viperlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="viperlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="viperlog Blue"></span></div>
+	 <div class="eh"><span class="nm">viperlog</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="viperlog Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="viperlog Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="viperlog Blue"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Green"><div class="tk"></div><span class="sy">G</span></div><div class="ch" data-i="2" title="Blue"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article><article class="ent lite" data-s="filmicpro">
 	 <div class="eh"><span class="nm">filmicpro</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red" aria-label="filmicpro Red"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Green" aria-label="filmicpro Green"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue" aria-label="filmicpro Blue"></span></div>
@@ -831,7 +898,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	 <div class="eh"><span class="nm">munsell</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Hue" aria-label="munsell Hue"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Value" aria-label="munsell Value"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Chroma" aria-label="munsell Chroma"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Hue"><div class="tk"></div><span class="sy">H</span></div><div class="ch" data-i="1" title="Value"><div class="tk"></div><span class="sy">V</span></div><div class="ch" data-i="2" title="Chroma"><div class="tk"></div><span class="sy">C</span></div></div>
 	</article><article class="ent histo" data-s="ryb" title="historical — shipped as working history">
-	 <div class="eh"><span class="nm">ryb</span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red pigment" aria-label="ryb Red pigment"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow pigment" aria-label="ryb Yellow pigment"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue pigment" aria-label="ryb Blue pigment"></span></div>
+	 <div class="eh"><span class="nm">ryb</span><span class="histico" title="historical — shipped as working history" aria-label="historical"></span><span class="cvs"><input class="cv tnum" data-i="0" spellcheck="false" autocomplete="off" title="Red pigment" aria-label="ryb Red pigment"><input class="cv tnum" data-i="1" spellcheck="false" autocomplete="off" title="Yellow pigment" aria-label="ryb Yellow pigment"><input class="cv tnum" data-i="2" spellcheck="false" autocomplete="off" title="Blue pigment" aria-label="ryb Blue pigment"></span></div>
 	 <div class="chs"><div class="ch" data-i="0" title="Red pigment"><div class="tk"></div><span class="sy">R</span></div><div class="ch" data-i="1" title="Yellow pigment"><div class="tk"></div><span class="sy">Y</span></div><div class="ch" data-i="2" title="Blue pigment"><div class="tk"></div><span class="sy">B</span></div></div>
 	</article>
 </div><div class="sheet">
@@ -934,24 +1001,30 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are defined by physical printed swatches and trademarked; their CIE measurements aren't openly redistributable, so there's nothing lawful to convert against (the official sites hold the authoritative values).</p>
 		<p><b>Atlas systems</b> — <a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a>, <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a> — are defined only by a printed sample book (a colour <i>atlas</i>); no formula to convert to or from them was ever published.</p>
 		<p><b>Non-invertible appearance models</b> — Hunt, Nayatani 95, LLAB, ATD95 — publish a forward transform but no closed-form inverse, so they can't round-trip the way every space here does (RLAB, the one early model that inverts cleanly, ships).</p>
-		<p><b>Historical spaces</b> — CIE RGB (1931), NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked 🕰 in the catalog as working history.</p>
+		<p><b>Historical spaces</b> — CIE RGB (1931), NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped, marked with an archive icon in the catalog as working history.</p>
 	</div>
 </section></div>
 
 <footer class="ftr" id="ftr">
 	<div class="fgrad" id="fgrad"></div>
 	<div class="fov">
-		<div class="fnpmw"><button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button></div>
-		<div class="fbar">
-			<nav class="fnav" aria-label="footer">
-				<a href="#cat">Spaces</a><a href="https://github.com/colorjs/color-space">GitHub</a>
-				<a href="#api">API</a><a href="https://npmjs.org/color-space">npm</a>
-				<a href="#recipes">Recipes</a><a href="./llms.txt">llms.txt</a>
+		<div class="fwrap">
+			<a class="fbrand" href="#cat" aria-label="color-space home"><span class="flogo">∴</span><span>color-space</span></a>
+			<nav class="fcol" aria-label="site">
+				<a href="#cat">spaces</a>
+				<a href="#api">api</a>
+				<a href="#recipes">recipes</a>
 			</nav>
-			<div class="fend">
-				<p class="fproof"><span id="n">151</span> spaces · differentially tested · zero dependencies · MIT</p>
-				<div class="fcta">Wrong, slow or missing? <a href="https://github.com/colorjs/color-space/issues/new">Open an issue →</a></div>
-				<span class="fmark" title="offered">MIT · ॐ</span>
+			<nav class="fcol" aria-label="project">
+				<a href="https://github.com/colorjs/color-space">github</a>
+				<a href="https://npmjs.org/color-space">npm</a>
+				<a href="https://github.com/colorjs/color-space/issues/new">issues</a>
+				<a href="./llms.txt">llms.txt</a>
+			</nav>
+			<div class="legal">
+				<button class="fnpm" id="fnpm" title="copy"><i>❯</i>npm install color-space</button>
+				<span class="proof"><span id="n">151</span> spaces · differentially tested · zero dependencies</span>
+				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">Unlicense</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
 			</div>
 		</div>
 	</div>
@@ -961,8 +1034,8 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 <div id="toast">copied!</div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
 	<div class="mback" id="mback"></div>
-	<button class="mnav prev" id="mprev" title="previous space"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button>
-	<button class="mnav next" id="mnext" title="next space"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button>
+	<button class="mnav prev" id="mprev" title="previous space" aria-label="previous color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button>
+	<button class="mnav next" id="mnext" title="next space" aria-label="next color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button>
 	<div class="mbox"><button class="mx" id="mx" title="close">✕</button><div class="detail" id="detail"></div></div>
 </div>
 
@@ -970,17 +1043,26 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, pathToRgb, mixInSpace, rotateHue } from './landing/core.js'
 import LORE from './landing/lore.js'
 import REACH from './landing/reach.js'
-import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, paintGamutGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './landing/gl.js'
+import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './landing/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import NAMES from './landing/names.js'
-import { SPACES, sections, cname, unit, catHTML } from './landing/render.js'
+import { SPACES, sections, cname, unit, catHTML, HISTORICAL } from './landing/render.js'
 
 document.getElementById('n').textContent=spaceCount
 
-let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter', codeTab='js'
+let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter', codeTab='js', scaleN=9
+let syncHeroPicker=()=>{}
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='copied!')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
+const recentEl=document.getElementById('recents'), RECENT_KEY='csRecentColors'; let recentT
+const recentList=()=>{ try{ return JSON.parse(localStorage.getItem(RECENT_KEY)||'[]') }catch{ return [] } }
+function paintRecent(){ if(!recentEl) return; const xs=recentList().slice(0,10)
+	recentEl.innerHTML=xs.length?`<b>recent</b>${xs.map(h=>`<button type="button" style="--sw:${h}" title="use ${h}" aria-label="use recent color ${h}" data-h="${h}"></button>`).join('')}`:''
+	recentEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{ master={ s:'rgb', vals:hex2rgb(b.dataset.h) }; renderFast(); paintCatalogGrad(); paintPlanes(false) }) }
+function saveRecentHex(h){ const xs=recentList().filter(x=>x!==h); xs.unshift(h); try{ localStorage.setItem(RECENT_KEY,JSON.stringify(xs.slice(0,10))) }catch{}; paintRecent() }
+const queueRecent=rgb=>{ clearTimeout(recentT); const h=hex(rgb); recentT=setTimeout(()=>saveRecentHex(h),650) }
+paintRecent()
 const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(x,0,255):0)
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
@@ -991,6 +1073,9 @@ const lum=c=>0.2126*c[0]/255+0.7152*c[1]/255+0.0722*c[2]/255, ink=c=>lum(c)<0.6?
 const decOf=c=>c.max<=1?3:(c.max===360||c.max===255?0:1)
 function chanVals(s,v){ const cls=classify(s); return v.map((x,i)=>`${cls.ch[i].sym}${fmtn(x,cls.ch[i])}${unit(cls.ch[i])}`).join(' ') }
 function fnfmt(s,v){ const cls=classify(s); return `${s}(${v.map((x,i)=>fmtn(x,cls.ch[i])+unit(cls.ch[i])).join(' ')})` }
+// spaces CSS Color 4 can actually write — everything else has NO conventional
+// textual notation, and inventing one would read as a standard that doesn't exist
+const CSSABLE=new Set(['rgb','hsl','hwb','lab','lchab','oklab','oklch','p3','a98rgb','prophoto','rec2020','xyz','xyz-d50','lrgb'])
 function fmt(s,v){ if(!v) return 'forward-only'; const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
 	case 'rgb':return `rgb(${n(v[0])} ${n(v[1])} ${n(v[2])})`; case 'hsl':return `hsl(${n(v[0])} ${f(v[1],1)}% ${f(v[2],1)}%)`
 	case 'hwb':return `hwb(${n(v[0])} ${f(v[1],1)}% ${f(v[2],1)}%)`; case 'lab':return `lab(${f(v[0],1)}% ${f(v[1],1)} ${f(v[2],1)})`
@@ -998,6 +1083,7 @@ function fmt(s,v){ if(!v) return 'forward-only'; const n=x=>Math.round(x),f=(x,d
 	case 'oklch':return `oklch(${f(v[0],3)} ${f(v[1],3)} ${n(v[2])})`; case 'p3':return `color(display-p3 ${v.map(x=>f(x,3)).join(' ')})`
 	case 'a98rgb':return `color(a98-rgb ${v.map(x=>f(x,3)).join(' ')})`; case 'prophoto':return `color(prophoto-rgb ${v.map(x=>f(x,3)).join(' ')})`
 	case 'rec2020':return `color(rec2020 ${v.map(x=>f(x,3)).join(' ')})`; case 'xyz':return `color(xyz-d65 ${v.map(x=>f(x/100,3)).join(' ')})`
+	case 'xyz-d50':return `color(xyz-d50 ${v.map(x=>f(x/100,3)).join(' ')})`; case 'lrgb':return `color(srgb-linear ${v.map(x=>f(x,3)).join(' ')})`
 	// everything else: CSS-style function notation — the convention colors are read in
 	case 'cmyk':return `device-cmyk(${v.map(x=>n(x)+'%').join(' ')})`
 	default:return fnfmt(s,v) } }
@@ -1027,6 +1113,19 @@ const USES={ rgb:'CSS · canvas · the web default', hsl:'CSS · quick pickers',
  hcg:'pickers', hcl:'legacy pickers', hcy:'shader luma pickers', hsp:'perceived brightness', xyb:'JPEG XL', osaucs:'uniform-scales research', ucs:'CIE history', uvw:'CIE history', labh:'reflectance QC', 'din99o-lab':'ΔE99o difference', 'din99o-lch':'ΔE99o palettes', din99d:'ΔE99d difference', prolab:'projective perceptual math', sucs:'lightweight uniform math', anlab:'historical ΔE', srlab2:'Lab-successor math', 'cie-rgb':'colorimetry history', ntsc:'gamut benchmark', 'apple-rgb':'legacy Mac', pal:'legacy PAL', 'smpte-240m':'early HDTV' }
 const useOf=s=>USES[s]||(s.endsWith('-linear')?'linear-light math':({polar:'pickers · palettes',opponent:'perceptual math',additive:'device RGB',strips:'component work'})[classify(s).archetype])
 const geo=s=>({polar:'polar',opponent:'opponent',additive:'component',strips:'component'})[classify(s).archetype]
+const relatedOf=s=>{ const sec=sections.find(c=>c.spaces.includes(s)); if(!sec) return []
+	const i=sec.spaces.indexOf(s), ordered=[...sec.spaces.slice(Math.max(0,i-3),i),...sec.spaces.slice(i+1,i+5)]
+	return ordered.filter(Boolean).slice(0,7) }
+const encodingOf=s=>{
+	if(/linear|^lrgb$|scrgb|acescg|aces2065|rec2100-linear/.test(s)) return 'linear light'
+	if(/pq|jz|izaz|zcam|ictcp|icacb/.test(s)) return 'PQ / absolute HDR'
+	if(/hlg/.test(s)) return 'HLG broadcast HDR'
+	if(/log|cineon|acescc|acescct|bmdfilm|davinci|filmicpro|protune|viper|panalog|flog|clog|nlog|dlog|tlog|vlog|applelog|milog|olog/.test(s)) return 'log / scene encoding'
+	if(/rgb|p3|rec709|rec2020|prophoto|rimm|ntsc|pal|smpte|dci/.test(s)) return 'RGB transfer curve'
+	if(/ycbcr|yuv|yiq|ypbpr|jpeg|ycc|ycgco|xvycc|photoycc/.test(s)) return 'luma / chroma encoding'
+	if(/lab|luv|ok|cam|hct|din|ipt|ucs|osa|munsell|coloroid|ral/.test(s)) return 'perceptual / appearance coordinates'
+	return '' }
+const avoidOf=(s,L)=>L.sin||(/hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm/.test(s)?'when equal numeric steps must look visually even — use OKLab/OKLCH or a uniform space instead':'when you need parsing, ΔE, contrast, palette generation or gamut mapping — color-space is the conversion kernel underneath those tools')
 // tooltips for the dossier tags and gamut flags
 const TAGTIP={ display:'display-referred — values describe light emitted by a display',
 	scene:'scene-referred — values describe light in the scene, as a camera sees it',
@@ -1089,7 +1188,7 @@ cat.querySelectorAll('.ent').forEach(e=>io.observe(e))
 let squelch=false
 cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.addEventListener('click',e=>{ if(squelch||e.target.closest('.cvs')) return; openModal(s) })
-	ent.addEventListener('pointerenter',()=>warmGL(s,pairsFor(s)))   // compile while the pointer hovers — the dossier opens GPU-sharp
+	ent.addEventListener('pointerenter',()=>{ warmGL(s,pairsFor(s)); warmMesh3(s,GM==='off'?'srgb':GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
 	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
@@ -1133,9 +1232,11 @@ addEventListener('pointerdown',e=>{ if(cfg.open&&!cfg.contains(e.target)) cfg.op
 // search — `/` focuses it from anywhere
 addEventListener('keydown',e=>{ if(e.key==='/'&&!open()&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){ e.preventDefault(); document.getElementById('q').focus() } })
 const nq=document.getElementById('nq'); nq.textContent=SPACES.length
-document.getElementById('q').addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase(); let shown=0
-	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
-		const hit=!q||s.includes(q)||(meta[s].description||'').toLowerCase().includes(q)||useOf(s).toLowerCase().includes(q)
+const qInput=document.getElementById('q')
+qInput.addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase(); let shown=0
+	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s, cls=classify(s)
+		const hay=[s,meta[s].name,meta[s].description,meta[s].use,useOf(s),encodingOf(s),geo(s),...(meta[s].channels||[]).flatMap(c=>[c.name,c.symbol,c.sym])].filter(Boolean).join(' ').toLowerCase()
+		const hit=!q||hay.includes(q)
 		ent.style.display=hit?'':'none'; if(hit)shown++ })
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
 		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
@@ -1161,12 +1262,12 @@ function openModal(s){
 	placeNav()
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint
-	setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]) warmGL(s2,pairsFor(s2)) },400) }
+	setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]){ warmGL(s2,pairsFor(s2)); warmMesh3(s2,GM==='off'?'srgb':GM) } },400) }
 function closeModal(){ modal.hidden=true; document.body.style.overflow=''; document.body.style.paddingRight=''; history.replaceState(null,'',location.pathname+location.search) }
 document.getElementById('mback').onclick=closeModal
 document.getElementById('mx').onclick=closeModal
 const ORDER=sections.flatMap(c=>c.spaces)
-// ── hero converter: any color string in → any space out ──
+// ── header color parser: any CSS-ish color string in → the live master color ──
 function parseColor(str){ str=str.trim().toLowerCase()
 	if(!str) return null
 	if(str[0]==='#'){ const h=str.length===4?'#'+[...str.slice(1)].map(c=>c+c).join(''):str
@@ -1174,15 +1275,22 @@ function parseColor(str){ str=str.trim().toLowerCase()
 	if(NAMES[str]) return { s:'rgb', vals:NAMES[str].slice() }
 	const m2=str.match(/^([a-z][a-z0-9-]*)\s*\(([^)]*)\)$/)
 	if(m2){ let sp=m2[1]; const body=m2[2].split('/')[0]
-		if(sp==='color'){ const parts=body.trim().split(/[\s,]+/)
-			sp={'display-p3':'p3','a98-rgb':'a98rgb','prophoto-rgb':'prophoto','xyz-d65':'xyz','srgb-linear':'lrgb','srgb':'rgb'}[parts[0]]||parts[0]
+		if(sp==='rgba') sp='rgb'; if(sp==='hsla') sp='hsl'
+		if(sp==='color'){ const parts=body.trim().split(/[\s,]+/).filter(Boolean)
+			sp={'display-p3':'p3','a98-rgb':'a98rgb','prophoto-rgb':'prophoto','xyz-d65':'xyz','xyz':'xyz','srgb-linear':'lrgb','srgb':'rgb'}[parts[0]]||parts[0]
 			const nums=parts.slice(1,4).map(parseFloat)
-			if(sp==='rgb') nums.forEach((x,i)=>nums[i]=x*255)
+			if(sp==='rgb') nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x*2.55; else if(x<=1) nums[i]=x*255 })
+			else if(['p3','rec2020','a98rgb','prophoto','lrgb'].includes(sp)) nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x/100 })
+			else if(sp==='xyz'||sp==='xyz-d50') nums.forEach((x,i)=>{ if(!parts[i+1]?.includes('%')&&Math.abs(x)<=1.5) nums[i]=x*100 })
 			return SPACES.includes(sp)&&nums.length===3&&nums.every(isFinite)?{ s:sp, vals:nums }:null }
 		if(sp==='lch') sp='lchab'
-		const nums=body.trim().split(/[\s,]+/).slice(0,4).map(parseFloat).filter(isFinite)
+		const parts=body.trim().split(/[\s,]+/).filter(Boolean)
+		const nums=parts.slice(0,4).map(parseFloat).filter(isFinite)
 		const n=classify(SPACES.includes(sp)?sp:'rgb').ch.length
-		if(SPACES.includes(sp)&&nums.length>=n) return { s:sp, vals:nums.slice(0,n) } }
+		if(SPACES.includes(sp)&&nums.length>=n){ const vals=nums.slice(0,n)
+			if((sp==='oklch'||sp==='oklab')&&parts[0]?.includes('%')) vals[0]/=100
+			if(sp==='rgb') vals.forEach((x,i)=>{ if(parts[i]?.includes('%')) vals[i]=x*2.55 })
+			return { s:sp, vals } } }
 	return null }
 const RXNUM=/(?<![\w-])-?\d+(?:\.\d+)?/g   // digits inside names (rec2020, display-p3) are not values
 // input-number style: the number nearest the caret is selected WHOLE; ↑/↓ step it by
@@ -1233,10 +1341,10 @@ let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.incl
 const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020' }
-let GM=GAMS.includes(localStorage.csGm)?localStorage.csGm:'off'
+const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human' }
+let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'off'
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
-const inGam=(s,vv,g=GM)=>{ if(s==='rgb'||g==='off') return true
+const inGam=(s,vv,g=GM)=>{ if(s==='rgb'||g==='off'||g==='vis') return true
 	try{ return gamLin[g](s==='xyz'?vv:space[s].xyz(...vv)).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
@@ -1284,6 +1392,20 @@ let rot3={a:-0.6,b:0.42}, zoom3=1, mesh3=null, pts3=null, tris3=null, pts3S=null
 // the solid idles in a slow turn so its shape reads without touching it;
 // dragging takes over (and pauses the turn), wheel-zoom and dblclick don't
 let drag3=false, spinRaf=0, wire3dTok=0
+const frameCache=new Map()   // per-space frame extents — mode-independent, computed once
+// a NON-ADDITIVE space whose whole declared box decodes inside sRGB (hsl-family,
+// gamut-normalized pickers like hsluv/okhsl) cannot SAY anything beyond it — beyond
+// the box lies solver noise and duplicate encodings, not shape. Additive spaces are
+// exempt: out-of-range rgb-like values are meaningful wide-gamut coordinates.
+const inBaseCache=new Map()
+function boxInBase(s){ if(inBaseCache.has(s)) return inBaseCache.get(s)
+	const cls=classify(s)
+	let ib=cls.archetype!=='additive'
+	if(ib) try{ for(let a=0;a<5&&ib;a++)for(let b2=0;b2<5&&ib;b2++)for(let c2=0;c2<5&&ib;c2++){
+			const v=cls.ch.map((c3,k)=>c3.min+(c3.max-c3.min)*[a,b2,c2][k]/4)
+			const r=space[s].rgb(...v)
+			if(!r.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) ib=false } }catch{ ib=false }
+	inBaseCache.set(s,ib); return ib }
 const SPIN3=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.0030
 function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
 	if(!SPIN3) return
@@ -1293,6 +1415,35 @@ function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
 	spinRaf=requestAnimationFrame(step) }
 function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=tris3=null; return }
 	const s=selected, cls=classify(s), P=[], T=[]
+	// the solid's source volume follows the gamut switch: a display cube (sRGB by
+	// default, P3/Rec.2020 widen it) or the visible gamut itself — the Rösch–MacAdam
+	// optimal-color surface, arriving as raw XYZ
+	let g3=GM==='off'?'srgb':GM
+	// a box-in-base space caps its view at sRGB — a wider volume decodes through
+	// out-of-base light into non-canonical junk sheets, never new shape
+	const inBase=boxInBase(s)
+	if(inBase) g3='srgb'
+	const conv=g3==='srgb'?(v=>toSpace(s,v)):g3==='vis'?(v=>s==='xyz'?v.slice():space.xyz[s](...v)):(v=>space[g3][s](...v.map(x2=>x2/255)))
+	// out-of-sRGB display colors desaturate toward their own luma until representable
+	// (closest ACTUAL color, hue and lightness held) — mirrors the GPU vertex rule
+	const gmap=r=>{ const lum=clamp(0.2126*r[0]+0.7152*r[1]+0.0722*r[2],0,255)
+		let t=1
+		for(let k=0;k<3;k++){ const dv=r[k]-lum
+			if(r[k]>255) t=Math.min(t,(255-lum)/dv)
+			else if(r[k]<0) t=Math.min(t,-lum/dv) }
+		// soft knee (mirrors the GPU): slightly-out barely desaturates, far-out grades
+		const ts=Math.pow(clamp(t,0,1),0.4)
+		return r.map(x2=>clamp(lum+(x2-lum)*ts,0,255)) }
+	const dispOf=g3==='srgb'?(v=>v):g3==='vis'?(v=>gmap(space.xyz.rgb(...v))):(v=>gmap(space[g3].rgb(...v.map(x2=>x2/255))))
+	// smooth achromatic taper (mirrors the GPU): 1 = full chroma, 0 = on the gray
+	// axis — a hard cliff saws the surface where real chroma meets a collapsed row.
+	// Box-in-base spaces collapse all-or-nothing instead: partially tapered junk
+	// (HPLuv's exploding near-white P) would land back inside the guarded box.
+	const gfCube=v=>{ const mx=Math.max(...v), dlt=mx-Math.min(...v)
+		return Math.min(clamp(dlt/2.5,0,1),clamp((mx-2)/6,0,1)) }
+	const gfVis=v=>clamp((v[1]-1)/9,0,1)
+	const gfRaw=g3==='vis'?gfVis:gfCube
+	const grayF=inBase?(v=>gfRaw(v)<1?0:1):gfRaw
 	// any hue-like channel is an angle wrapping over its own span — munsell's H is
 	// 0-100 grades, coloroid's A is 10-76, not just the 0-360 spaces
 	const ai0=cls.angle?cls.angle.i:cls.ch.findIndex(c2=>/hue/i.test(c2.name))
@@ -1302,49 +1453,105 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		ti=cls.tone&&cls.tone.i!==ai?cls.tone.i:rest[1]
 		mi=rest.find(k=>k!==ti) }
 	else ti=cls.tone?cls.tone.i:0
-	// fit the box to the SOLID itself (robust 2–98% extent + 8% pad, angles excepted):
-	// coordinates beyond the pad are poles or disjoint branches (OSA-UCS extremes,
-	// UVW's pole, DSH's purple line) and are DISCARDED, never flattened into slabs —
-	// and spaces whose solid is smaller than the declared range now fill their box
+	// the sanity window for the cone-wall bisection: an additive space's coords can
+	// never go below the zero-light code (below-min = sign-mirrored garbage); other
+	// spaces may genuinely overflow by up to a whole span before it's junk
+	const win=[cls.ch.map((c,k)=>c.min-(c.max-c.min)*(k!==ai&&cls.archetype==='additive'?0.02:1)),
+		cls.ch.map(c=>c.max+(c.max-c.min))]
+	// ── two extents, one law: the FRAME is a stable reference box per space —
+	// identical across the gamut switch (grid planes, axes and scale never move) —
+	// while the SOLID is the full, never-cropped shape of the selected volume ──
 	const fmin=cls.ch.map(c=>c.min), fmax=cls.ch.map(c=>c.max)
-	const dmin=fmin.slice(), dmax=fmax.slice()   // unpadded data extents — where caps sit
-	let capMask=0
-	{	const samp=[[],[],[]], CS=[]
-		for(let f=0;f<6;f++) for(let i2=0;i2<=12;i2++) for(let j2=0;j2<=12;j2++){
-			const u=i2/12*255, w=j2/12*255
-			let v; try{ v=toSpace(s,[[0,u,w],[255,u,w],[u,0,w],[u,255,w],[u,w,0],[u,w,255]][f]) }catch{ continue }
-			if(v.every(isFinite)) CS.push(v)
-			for(let k=0;k<3;k++) if(isFinite(v[k])) samp[k].push(v[k]) }
-		cls.ch.forEach((c,k)=>{ if(k===ai||samp[k].length<24) return
-			const a2=samp[k].sort((x,y)=>x-y), n2=a2.length
-			const q02=a2[Math.floor(n2*0.02)], q98=a2[Math.min(n2-1,Math.ceil(n2*0.98))], iqr=q98-q02||1e-3
-			// full extent unless a tail is a true outlier (a pole, not shape) — cutting
-			// inside the solid would just close it with a dark cap
-			let lo=Math.max(a2[0], q02-1.5*iqr), hi=Math.min(a2[n2-1], q98+1.5*iqr)
-			// a channel nearly constant over the surface (okhsv's S≡100) must keep its
-			// declared range — fitting a degenerate span just amplifies float noise
-			if(hi-lo<(c.max-c.min)*0.05) return
-			dmin[k]=lo; dmax[k]=hi
-			const pad=(hi-lo)*0.08||1e-3; lo-=pad; hi+=pad
-			fmin[k]=lo; fmax[k]=hi })
-		// caps only where the solid genuinely flattens against the box — a cap on a
-		// face the solid merely touches sticks out as a nub (the Y-family boxes), and
-		// polar solids need none at all: their walls and domes are the cube-surface
-		// image, while degenerate coords (hsl near white) make cap roundtrips lie
-		for(let k=0;k<3;k++){ if(ai!=null) break; if(k===ai) continue
-			let nLo=0, nHi=0
-			for(const v of CS){ const r=(v[k]-fmin[k])/(fmax[k]-fmin[k])
-				if(r<0.06) nLo++; else if(r>0.94) nHi++ }
-			if(nLo>=30) capMask|=1<<(k*2)
-			if(nHi>=30) capMask|=1<<(k*2+1) } }
-	const norm=(v,k)=>clamp((v[k]-fmin[k])/(fmax[k]-fmin[k]),-0.2,1.2)
-	const offFit=v=>cls.ch.some((c,k)=>{ if(k===ai) return false
-		const r=(v[k]-fmin[k])/(fmax[k]-fmin[k]); return !(r>=-0.201&&r<=1.201) })
-	const others=[0,1,2].filter(k=>k!==ti)
+	const dmin=fmin.slice(), dmax=fmax.slice()   // unpadded solid extents — where caps sit
+	let capMask=0, cutMask=0, out3=false
 	// hwb family: distance from gray is 1−W−B (not W) — maps the true HSV-style cone,
 	// and the non-canonical W+B>100 region collapses onto the axis (zero area)
 	const wI=cls.ch.findIndex(c=>/White/i.test(c.name)), bI=cls.ch.findIndex(c=>/Black/i.test(c.name))
 	const wb=ai!=null&&wI>=0&&bI>=0
+	{	const cubeProbes=()=>{ const out=[]
+			for(let f=0;f<6;f++) for(let i2=0;i2<=12;i2++) for(let j2=0;j2<=12;j2++){
+				const u=i2/12*255, w=j2/12*255
+				out.push([[0,u,w],[255,u,w],[u,0,w],[u,255,w],[u,w,0],[u,w,255]][f]) }
+			return out }
+		const visProbes=()=>{ const out=[], vp=visSurf(12).pos
+			for(let q=0;q<vp.length;q+=3) out.push([vp[q],vp[q+1],vp[q+2]])
+			return out }
+		// mirror the mesh's achromatic taper — else near-black chroma noise
+		// (OSA-UCS's exploding ratios) inflates the extents
+		const scan=(probes,cv2,gfn)=>{ const smp=[[],[],[]], pts=[]
+			for(const pr of probes){ let v; try{ v=cv2(pr) }catch{ continue }
+				const gf2=gfn(pr)
+				if(gf2<1){ if(ai!=null&&!wb&&mi!=null) v[mi]*=gf2
+					for(const b2 of cls.bips) v[b2.i]*=gf2 }
+				if(v.every(isFinite)) pts.push(v)
+				for(let k=0;k<3;k++) if(isFinite(v[k])) smp[k].push(v[k]) }
+			return { smp, pts } }
+		const solidScan=scan(g3==='vis'?visProbes():cubeProbes(), conv, grayF)
+		// the frame spans the VISIBLE volume (∩ declared box) — the largest thing any
+		// mode shows; base-capped spaces frame their sRGB volume, all they can express.
+		// Mode-independent, so cache it per space.
+		let fr=frameCache.get(s)
+		if(!fr){ const fs2=inBase?(g3==='srgb'?solidScan:scan(cubeProbes(),v2=>toSpace(s,v2),gfCube))
+				:(g3==='vis'?solidScan:scan(visProbes(),s==='xyz'?(v2=>v2.slice()):(v2=>space.xyz[s](...v2)),gfVis))
+			fr={ lo:[], hi:[] }
+			cls.ch.forEach((c,k)=>{ fr.lo[k]=null; fr.hi[k]=null
+				const fa=fs2.smp[k].sort((x,y)=>x-y)
+				if(k===ai||fa.length<24) return
+				const lo=Math.max(fa[0],c.min), hi=Math.min(fa[fa.length-1],c.max)
+				// a degenerate span (okhsv's S≡100) keeps the declared range — fitting
+				// it would just amplify float noise
+				if(hi-lo<(c.max-c.min)*0.05) return
+				fr.lo[k]=lo; fr.hi[k]=hi })
+			frameCache.set(s,fr) }
+		// no pad: the grid planes ARE the range limits — a tick at 0 or 1 sits exactly
+		// on the wall, so the frame measures instead of merely surrounding
+		cls.ch.forEach((c,k)=>{ if(fr.lo[k]==null) return
+			fmin[k]=fr.lo[k]; fmax[k]=fr.hi[k] })
+		// the solid: FULL data extent — the shape is never cropped. Only a space whose
+		// box is its entire sayable world (box ⊆ sRGB) clips at the declared bound:
+		// past it lies solver noise and duplicate encodings (okhwb's cusp teeth,
+		// HPLuv's beyond-safe shell), not shape — and the cut wall gets a cap.
+		cls.ch.forEach((c,k)=>{ const da=solidScan.smp[k].sort((x,y)=>x-y)
+			if(k===ai||da.length<24) return
+			let lo=da[0], hi=da[da.length-1]
+			if(inBase){ const l2=Math.max(lo,c.min), h2=Math.min(hi,c.max)
+				if(l2>lo+1e-9) cutMask|=1<<(k*2)
+				if(h2<hi-1e-9) cutMask|=1<<(k*2+1)
+				lo=l2; hi=h2 }
+			// "pierces" means genuinely, not by float fuzz — a solid grazing its own
+			// box face (lab's L=0) must not grow a spurious cap or dissolve pass
+			else if(lo<c.min-(c.max-c.min)*0.004||hi>c.max+(c.max-c.min)*0.004) out3=true
+			if(hi-lo<(c.max-c.min)*0.05) return
+			dmin[k]=lo; dmax[k]=hi })
+		// caps only where the solid genuinely flattens against the box — a cap on a
+		// face the solid merely touches sticks out as a nub (the Y-family boxes);
+		// polar solids need none at all (their walls and domes are the cube-surface
+		// image, while degenerate coords near white make cap roundtrips lie), and an
+		// additive cube IS its box: a cap would z-fight the surface lattice with its
+		// own Gouraud shading (scRGB's diagonal seam)
+		for(let k=0;k<3;k++){ if(ai!=null||cls.archetype==='additive') break
+			let nLo=0, nHi=0
+			for(const v of solidScan.pts){ const r=(v[k]-fmin[k])/(fmax[k]-fmin[k])
+				if(r<0.06) nLo++; else if(r>0.94) nHi++ }
+			if(nLo>=30) capMask|=1<<(k*2)
+			if(nHi>=30) capMask|=1<<(k*2+1) }
+		// a CUT face is a slice through the solid — close it with a cap: the cap pass
+		// paints only pixels that are in-gamut and roundtrip canonically, which is
+		// exactly the cross-section (HPLuv's P=100 wall). The human view cuts at the
+		// DECLARED box instead: caps close every pierced face with the visible
+		// cross-section, so the in-range body reads whole under the dissolving shell.
+		capMask|=cutMask
+		if(g3==='vis'){ capMask=0
+			cls.ch.forEach((c,k)=>{ if(k===ai) return
+				const eps3=(c.max-c.min)*0.004
+				if(dmin[k]<c.min-eps3) capMask|=1<<(k*2)
+				if(dmax[k]>c.max+eps3) capMask|=1<<(k*2+1) }) } }
+	const norm=(v,k)=>clamp((v[k]-fmin[k])/(fmax[k]-fmin[k]),-0.2,1.2)
+	// box-in-base spaces reject past-the-box verts (solver noise, mirrors the GPU
+	// clip); everything else keeps its full shape — nothing real is ever cropped
+	const offFit=inBase?(v=>cls.ch.some((c,k)=>{ if(k===ai) return false
+		const r=(v[k]-dmin[k])/(dmax[k]-dmin[k]); return !(r>=-0.012&&r<=1.012) })):(v=>false)
+	const others=[0,1,2].filter(k=>k!==ti)
 	const hueRad=v=>(v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*2*Math.PI
 	const map3=v=>{
 		if(wb){ const r=Math.max(0,1-norm(v,wI)-norm(v,bI))*0.55, h=hueRad(v)
@@ -1354,13 +1561,33 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			return [y, r*Math.cos(h), r*Math.sin(h)] }
 		return [y, norm(v,others[0])-0.5, norm(v,others[1])-0.5] }
 	pts3Map=map3
-	const addVert=rgb=>{ let v
-		try{ v=toSpace(s,rgb) }catch{ return null }
+	const addVert=src=>{ let v
+		try{ v=conv(src) }catch{ return null }
+		// past the encodable cone the coords go non-finite or fold into finite garbage
+		// (a sign-mirrored transfer) — "bad" = outside the sanity window. Bisect toward
+		// the neutral spine until the vertex lands ON the window wall — mirrors the
+		// GPU rule, closing the surface at the intersection
+		const inWin=v2=>v2.every((x2,k)=>isFinite(x2)&&x2>win[0][k]&&x2<win[1][k])
+		if(!inWin(v)){
+			const nw=g3==='vis'?[src[1]*0.9504559,src[1],src[1]*1.0890578]
+				:Array(3).fill((src[0]+src[1]+src[2])/3)
+			let lo=0, hi=1
+			for(let i2=0;i2<18;i2++){ const md=(lo+hi)/2
+				let vt; try{ vt=conv(nw.map((x2,k)=>x2+(src[k]-x2)*md)) }catch{ vt=null }
+				if(vt&&inWin(vt)) lo=md; else hi=md }
+			try{ v=conv(nw.map((x2,k)=>x2+(src[k]-x2)*lo)) }catch{ return null }
+			if(!inWin(v)) return null }
+		// a sub-integer channel delta — or a color too dark to carry chroma at all — is
+		// indistinguishable from gray: taper its chroma coordinates toward the
+		// achromatic axis (mirrors the GPU vertex rule)
+		{	const gf=grayF(src)
+			if(gf<1){ if(ai!=null&&!wb&&mi!=null) v[mi]*=gf
+				for(const b2 of cls.bips) v[b2.i]*=gf } }
 		if(offFit(v)) return null
 		const n=map3(v)
 		if(!n.every(isFinite)) return null
-		const r=rgb.map(x2=>clamp(Math.round(x2),0,255))
-		P.push({ n, rgb:r, h:ai!=null?(((v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 }); return P.length-1 }
+		let r; try{ r=dispOf(src) }catch{ return null }
+		P.push({ n, rgb:r.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 }); return P.length-1 }
 	// near the gray corners hue is unstable: such a cell fans across far-apart hue angles,
 	// chording the solid with off-surface fuzz — drop it; range faces below close the caps
 	const addTri=(a,b,c)=>{ if(a==null||b==null||c==null) return
@@ -1377,6 +1604,15 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	const face=(G,at)=>{ const grid=[]
 		for(let i2=0;i2<=G;i2++){ grid[i2]=[]
 			for(let j2=0;j2<=G;j2++) grid[i2][j2]=at(i2/G,j2/G) }
+		// iterative inverses (munsell's renotation lookup) jitter vertex positions a few
+		// percent, shredding the silhouette — two Laplacian passes per face grid comb
+		// the surface; edges stay put, so faces still meet without cracks
+		if(!gpu3) for(let p2=0;p2<2;p2++){
+			const nn=grid.map(r2=>r2.map(ix=>ix==null?null:P[ix].n.slice()))
+			for(let i2=1;i2<G;i2++) for(let j2=1;j2<G;j2++){ const ix=grid[i2][j2]; if(ix==null) continue
+				const nb=[nn[i2-1][j2],nn[i2+1][j2],nn[i2][j2-1],nn[i2][j2+1]]
+				if(nb.some(x=>!x)) continue
+				for(let k=0;k<3;k++) P[ix].n[k]=nn[i2][j2][k]*0.4+(nb[0][k]+nb[1][k]+nb[2][k]+nb[3][k])*0.15 } }
 		for(let i2=0;i2<G;i2++) for(let j2=0;j2<G;j2++){
 			const a=grid[i2][j2], b=grid[i2+1][j2], c=grid[i2][j2+1], d=grid[i2+1][j2+1]
 			addQuad(a,b,c,d) } }
@@ -1387,8 +1623,11 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the GPU solid lives on ONE persistent canvas (contexts are scarce; buffers stay warm)
 	if(gpu3){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()) mc.replaceWith(mesh3Canvas()) }
 	const build=()=>{
-	const G2=gpu3?12:48
-	for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
+	const G2=gpu3?12:64
+	if(g3==='vis'){ const vsf=visSurf(gpu3?12:48), gv=vsf.G
+		face(gv,(u,w)=>{ const q=(Math.round(u*gv)*(gv+1)+Math.round(w*gv))*3
+			return addVert([vsf.pos[q],vsf.pos[q+1],vsf.pos[q+2]]) }) }
+	else for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
 		return addVert([[0,U,W],[255,U,W],[U,0,W],[U,255,W],[U,W,0],[U,W,255]][f]) })
 	// the cube surface misses boundary pieces that are the SPACE's own box faces (HSL's
 	// flat white L≈100 disc, HWB's pure-hue cone wall): mesh the range-box faces too,
@@ -1401,12 +1640,12 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	const addVertV=v=>{ let rgb
 		try{ rgb=space[s].rgb(...v) }catch{ return null }
 		if(!rgb.every(isFinite)) return null
-		if(!inGam(s,v,'srgb')||!rt(v,rgb)) return null
+		if(!inGam(s,v,g3)||!rt(v,rgb)) return null
 		const n=map3(v); if(!n.every(isFinite)) return null
 		P.push({ n, rgb:rgb.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 })
 		return P.length-1 }
 	const eps2=0.012
-	if(!gpu3&&s!=='rgb') for(let fi=0;fi<3;fi++) for(let side=0;side<2;side++){
+	if(!gpu3&&s!=='rgb'&&g3!=='vis') for(let fi=0;fi<3;fi++) for(let side=0;side<2;side++){
 		if(!(capMask>>(fi*2+side)&1)) continue
 		const [ua,ub]=[0,1,2].filter(k=>k!==fi)
 		face(36,(uu,ww)=>{ const fr=[0,0,0]; fr[fi]=side?1-eps2:eps2; fr[ua]=uu; fr[ub]=ww
@@ -1432,8 +1671,13 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		tpos.push(p.n[0],p.n[1],p.n[2]); tcol.push(p.rgb[0]/255,p.rgb[1]/255,p.rgb[2]/255) }
 	mesh3={ verts:P, tris:T, pos:new Float32Array(ppos), col:new Float32Array(pcol),
 		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
-		gpu:gpu3, map:gpu3?{ min:fmin, max:fmax, cmin:dmin, cmax:dmax, caps:capMask,
-			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1 }:null }
+		gpu:gpu3, map:gpu3?{ gam:g3, win, min:fmin, max:fmax, caps:capMask,
+			// cap planes sit at the solid's own extent — except the human view, whose
+			// cut walls are the declared box faces
+			cmin:g3==='vis'?dmin.map((x2,k)=>Math.max(x2,cls.ch[k].min)):dmin,
+			cmax:g3==='vis'?dmax.map((x2,k)=>Math.min(x2,cls.ch[k].max)):dmax,
+			dcl:[cls.ch.map(c=>c.min),cls.ch.map(c=>c.max)], out:out3, clip:inBase,
+			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1, bip:cls.bips.slice(0,2).map(b2=>b2.i) }:null }
 	pts3=P; tris3=T; pts3S=s
 	// ── reference frame: soft grid at nice channel stops on the far planes — the
 	// fitted box for cartesian spaces, the disc + wall for cylindrical ones ──
@@ -1453,12 +1697,12 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		: { kind:'box', dims:[ti,others[0],others[1]].map(k=>({ sym:cls.ch[k].sym,
 			t:ticks(fmin[k],fmax[k]).map(t=>({ ...t, x:t.f-0.5 })) })) }
 	// two fits, both computed once: r bounds any rotation (marker depth), f0 fits the
-	// spawn rotation so solid AND frame open filling the box — no per-frame vertex scans
+	// spawn rotation to the FRAME alone — the scale is the frame's, mode-independent;
+	// a solid that pierces the box simply overflows into the canvas headroom
 	const ca0=Math.cos(rot3.a),sa0=Math.sin(rot3.a),cb0=Math.cos(rot3.b),sb0=Math.sin(rot3.b)
 	const ext=n=>{ const X1=n[1]*ca0+n[2]*sa0, Z1=-n[1]*sa0+n[2]*ca0
 		return Math.max(Math.abs(X1),Math.abs(n[0]*cb0-Z1*sb0)) }
-	for(const p of P){ const r2=Math.hypot(p.n[0],p.n[1],p.n[2]); if(r2>mesh3.r) mesh3.r=r2
-		const f=ext(p.n); if(f>mesh3.f0) mesh3.f0=f }
+	for(const p of P){ const r2=Math.hypot(p.n[0],p.n[1],p.n[2]); if(r2>mesh3.r) mesh3.r=r2 }
 	const rim=[]
 	if(ai!=null) for(let q=0;q<12;q++){ const a2=q/12*2*Math.PI
 		rim.push([-0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)],[0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)]) }
@@ -1548,7 +1792,9 @@ function draw3d(){ if(!mesh3||!open()) return
 	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
-	if(!drewGL){ const arr=(tris3||[]).map(t=>{ const ps=t.map(i2=>prj(mesh3.verts[i2].n))
+	// a GPU space whose program is still linking shows the frame alone for a beat —
+	// never a low-res preview that then "sharpens" (the ready callback repaints)
+	if(!drewGL&&!mesh3.gpu){ const arr=(tris3||[]).map(t=>{ const ps=t.map(i2=>prj(mesh3.verts[i2].n))
 			const r=[0,1,2].map(k=>Math.round(t.reduce((sum,i2)=>sum+mesh3.verts[i2].rgb[k],0)/3))
 			return { ps, z:(ps[0].z+ps[1].z+ps[2].z)/3, hex:hex(r) } }).sort((u1,u2)=>u1.z-u2.z)
 		for(const t of arr){ ctx.fillStyle=t.hex; ctx.beginPath(); ctx.moveTo(t.ps[0].x,t.ps[0].y); ctx.lineTo(t.ps[1].x,t.ps[1].y); ctx.lineTo(t.ps[2].x,t.ps[2].y); ctx.closePath(); ctx.fill() } }
@@ -1581,15 +1827,16 @@ function draw3d(){ if(!mesh3||!open()) return
 		gx.fillStyle=TXT
 		const hys=mesh3.hys||(mesh3.hys={ edge:[], step:[] })
 		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
-			// sticky edge: hold the current one until a rival is clearly better (or the
-			// wall flip retires it) — score ties otherwise flip labels every few frames
-			let best=null, prev=null, keep=hys.edge[d]
-			for(const se of [-0.5,0.5]) for(const sf of [-0.5,0.5]){
-				if((se===farC[e])===(sf===farC[f2])) continue
+			// the far walls fix which two edges are silhouettes; hold the chosen one until a
+			// wall flip retires it (a flip of either adjacent wall swaps the eligible pair),
+			// so labels only ever move together with the gridded planes themselves
+			const elig=(se,sf)=>(se===farC[e])!==(sf===farC[f2])
+			const keep=hys.edge[d]
+			let best=keep&&elig(keep.se,keep.sf)?keep:null
+			if(!best) for(const se of [-0.5,0.5]) for(const sf of [-0.5,0.5]){
+				if(!elig(se,sf)) continue
 				const m2=prj(pt(d,0,e,se,f2,sf)), score=m2.y+Math.abs(m2.x-S2/2)*0.6
-				if(!best||score>best.score) best={se,sf,score}
-				if(keep&&keep.se===se&&keep.sf===sf) prev={se,sf,score} }
-			if(prev&&prev.score>best.score-0.12*S2) best=prev
+				if(!best||score>best.score) best={se,sf,score} }
 			hys.edge[d]={se:best.se,sf:best.sf}
 			const m2=prj(pt(d,0,e,best.se,f2,best.sf))
 			const ox=m2.x-S2/2, oy=m2.y-S2/2, ol=Math.hypot(ox,oy)||1, off=12*dp
@@ -1670,55 +1917,77 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const path=pathToRgb(s)
 	const L=LORE[s]||{}, RCH=REACH[s]
 	const kids=ORDER.filter(x=>x!==s&&(pathToRgb(x)||[])[1]===s)
-	const interpHTML=fwd?'':`<h4 class="sec2">interpolate <button class="cpyi icpy" id="icpy" title="copy this blend as CSS — ${s} interpolation baked into plain stops"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — click to change it"></span></h4>
-	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
-	 <div class="iduel" id="iduel" title="the same two endpoints — quantized here, then through the reference spaces"><div class="ird" data-r="steps"><i>12 steps</i></div>${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
+	const rel=relatedOf(s), enc=encodingOf(s), avoid=avoidOf(s,L)
 	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
+	const visualHTML=has3d||hasPlaneGL(s)?`<div class="dviz2">${has3d?`<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the switch above; drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''
+	const scaleHTML=!fwd&&cls.tone?`<h4 class="sec2" id="scale">scale <span class="seg" id="scaleseg"><button data-n="5">5</button><button data-n="9" class="on">9</button><button data-n="11">11</button></span><button class="cpy" id="scopy" title="copy CSS variables">copy vars</button></h4><div class="scalegrid" id="scalegrid"></div><pre class="scaleout" id="scaleout"></pre>`:''
+	const interpHTML=fwd?'':`<h4 class="sec2" id="compare">interpolate <button class="cpyi icpy" id="icpy" title="copy this blend as CSS — ${s} interpolation baked into plain stops"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend tnum" id="iend" style="margin-left:auto" title="the blend endpoint, in this space — edit a channel, paste a hex into any field, or click the swatch to pick">→ <button class="isw" id="isw" title="pick the endpoint color"></button>${cls.ch.map((c,i)=>`<span class="iec"><i>${c.sym}</i><input class="iev" data-i="${i}"></span>`).join('')}</span></h4>
+	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
+	 <div class="iduel" id="iduel" title="the same two endpoints — quantized here, then through the reference spaces"><div class="ird" data-r="steps"><i>10 steps</i></div>${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
 	const barHTML=i=>{ const c=cls.ch[i]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
-		<span class="cnm" title="${cname(c)}">${c.sym}</span>
+		<span class="cnm" title="${c.sym}">${cname(c)}</span>
 		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
 		<div class="dk"></div></div>` }
 	const plotPairs=pairsFor(s)
-	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span><span class="seg" id="gseg" style="margin-left:auto">${GAMS.map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="cut the plots and channels by the ${GAMLABEL[g]} display gamut">${GAMLABEL[g]}</button>`).join('')}</span>`
-	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1><span class="hfmt tnum" id="hfmt"></span></div>
+	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span>`
+	const gamHTML=`<span class="seg" id="gseg">${[...GAMS,'vis'].map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="${g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`}">${GAMLABEL[g]}</button>`).join('')}</span>`
+	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${HISTORICAL.has(s)?`<span class="dhist" title="shipped as working history">historical</span>`:''}${gamHTML}</div>
+	 <nav class="dnav" aria-label="dossier sections"><button type="button" data-jump="overview">overview</button><button type="button" data-jump="explore">explore</button>${hasPlaneGL(s)?`<button type="button" data-jump="image">image</button>`:''}${interpHTML?`<button type="button" data-jump="compare">compare</button>`:''}${scaleHTML?`<button type="button" data-jump="scale">scale</button>`:''}<button type="button" data-jump="code">code</button><button type="button" data-jump="sources">sources</button><button class="copylink" id="dshare" type="button">copy link</button></nav>
 	 <hr class="dhr">
-	 <div class="dgrid${has3d?'':' one'}"><div class="dinfo">
-	 <div class="props">
+	 <section class="dhero" id="overview">
+		<div class="dlead"><button class="dswatch" id="dswatch" title="copy current color" aria-label="copy current color"></button><p>${L.for||useOf(s)}</p><div class="dpills">${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s),enc,fwd?'one-way':'bidirectional'].filter(Boolean).map(x=>`<span>${x}</span>`).join('')}</div></div>
+		${visualHTML}
+	 </section>
+	 <div class="props props3">
 		<div class="pcol">
+			<div class="hfmts" id="hfmts"></div>
 			<div><i>type</i><p>${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s)].filter(Boolean).map(t=>`<span title="${TAGTIP[t]||''}">${t}</span>`).join(' · ')}</p></div>
-			${L.for?`<div><i>why</i><p>${L.for}</p></div>`:''}
-			<div><i>used for</i><p>${useOf(s)}</p></div>
-			${L.sin?`<div><i>known sin</i><p>${L.sin}</p></div>`:''}
-			${L.nm?`<div><i>the name</i><p>${L.nm}</p></div>`:''}
+			${enc?`<div><i>encoding</i><p>${enc}</p></div>`:''}
+			<div><i>conversion</i><p>${fwd?'one-way from RGB · explores its own parameter':'bidirectional · RGB round-trip available'}</p></div>
+			${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 		</div>
 		<div class="pcol">
 			${path&&(path.length>1||kids.length)?`<div><i>family</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}${kids.length?`<span class="kids" title="spaces defined on top of this one">↳ ${kids.map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</span>`:''}</p></div>`:''}
+			${rel.length?`<div><i>nearby</i><p>${rel.map(x=>`<a href="#${x}">${x}</a>`).join(' · ')}</p></div>`:''}
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
 			${RCH?`<div><i>reach</i><p title="share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick">${Math.round(RCH[0]*100)}% of visible${s!=='rgb'?` · ${RCH[1].toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}× sRGB`:''}</p></div>`:''}
-			${VERIFIED.has(s)?`<div><i>verified</i><p title="every conversion pinned by independent reference values at 1/255 tolerance — see test under code">±1/255</p></div>`:''}
+			${L.nm?`<div><i>the name</i><p>${L.nm}</p></div>`:''}
+		</div>
+		<div class="pcol">
+			${VERIFIED.has(s)?`<div><i>verified</i><p title="every conversion pinned by independent reference values at 1/255 tolerance — see test under sources">±1/255</p></div>`:''}
 			${m.refs?`<div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			${m.wiki?`<div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div>`:''}
+			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span title="${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 		</div>
-		<div class="pspan"><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span title="${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 	 </div>
-	 <i class="plab">description</i>
-	 <div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
-	 ${has3d||hasPlaneGL(s)?`<div class="dviz">${has3d?`<div class="pl3d" id="pl3d" title="the sRGB solid in this space — drag to rotate, wheel to zoom"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span><span class="glab">CIE xy gamut</span></div>`:''}</div>`:''}</div>
-	 ${cls.ch.length>1?`<h4 class="sec2">plots ${segsHTML}</h4>
+	 <div class="dgrid2">
+		<div><i class="plab">description</i>
+		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
+		<div class="pcol">
+			<div><i>use when</i><p>${L.for||useOf(s)}</p></div>
+			<div><i>used for</i><p>${m.use||useOf(s)}</p></div>
+			<div><i>avoid when</i><p>${avoid}</p></div>
+		</div>
+	 </div>
+	 ${cls.ch.length>1?`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
+	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
+	 <h4 class="sec2">plots</h4>
 	 <div class="planes" id="planes">${plotPairs.map(([a,b])=>
-		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span></div>`).join('')}</div>
-	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`
-	 :`<h4 class="sec2">channels ${segsHTML}</h4>
+		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cls.ch[b].sym}">${cname(cls.ch[b])}</span><span class="labx" title="${cls.ch[a].sym}">${cname(cls.ch[a])}</span></div>`).join('')}</div>`
+	 :`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>`}
-	 ${hasPlaneGL(s)?`<h4 class="sec2">image · one channel at a time</h4>
+	 ${hasPlaneGL(s)?`<h4 class="sec2" id="image">image <i>click to rotate presets · drop your own image</i></h4>
 	 <div class="imgrow" id="imgrow" title="click: next test image · drop your own image"></div>`:''}
 	 ${interpHTML}
-	 <h4 class="sec2">code <span class="seg" id="cseg"><button data-t="js" class="on">js</button>${wasmSpaces.includes(s)?`<button data-t="wasm">wasm</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">shader</button>`:''}</span></h4>
+	 ${scaleHTML}
+	 <h4 class="sec2" id="code">code <span class="seg" id="cseg"><button data-t="js" class="on">js</button><button data-t="css">css</button>${wasmSpaces.includes(s)?`<button data-t="wasm">wasm</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">shader</button>`:''}</span></h4>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
-	 <div class="props pfoot">
+	 <div class="props pfoot" id="sources">
 		<div class="pcol"><div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/${s}.js" target="_blank">${s}.js</a></p></div></div>
 		${VERIFIED.has(s)?`<div class="pcol"><div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="the independent reference values every conversion is pinned to">reference values ±1/255</a></p></div></div>`:''}
+		${m.refs?`<div class="pcol"><div><i>reference</i><p>${m.refs.map(u=>`<a href="${u}" target="_blank">${u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div></div>`:''}
+		${m.wiki?`<div class="pcol"><div><i>wikipedia</i><p><a href="${m.wiki}" target="_blank">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'').split('#')[0].replace(/_/g,' ')}</a></p></div></div>`:''}
 	 </div>`
 	modal.scrollTop=0
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
@@ -1739,11 +2008,22 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		renderFast(); paintPlanes(false); paintCatalogGrad() })
 	detail.querySelectorAll('#gseg button').forEach(b=>b.onclick=()=>{ GM=GM===b.dataset.g?'off':b.dataset.g; localStorage.csGm=GM
 		detail.querySelectorAll('#gseg button').forEach(x=>x.classList.toggle('on',x.dataset.g===GM))
-		renderFast(); paintPlanes(false) })
+		wire3d(); renderFast(); paintPlanes(false) })
+	detail.querySelectorAll('.dnav [data-jump]').forEach(b=>b.onclick=()=>detail.querySelector('#'+b.dataset.jump)?.scrollIntoView({behavior:'smooth',block:'start'}))
+	const dshare=detail.querySelector('#dshare'); if(dshare) dshare.onclick=()=>{ syncHash(); copy(location.href) }
+	const dswatch=detail.querySelector('#dswatch'); if(dswatch) dswatch.onclick=()=>copy(hex(RGB()))
+	detail.querySelectorAll('#scaleseg button').forEach(b=>b.onclick=()=>{ scaleN=+b.dataset.n; detail.querySelectorAll('#scaleseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
+	const scopy=detail.querySelector('#scopy'); if(scopy) scopy.onclick=()=>{ const g=detail.querySelector('#scalegrid'); if(g&&g._css) copy(g._css) }
 	const irow=detail.querySelector('#irow'), pinb=detail.querySelector('#pinb')
 	if(irow) irow.onclick=e=>{ const r=irow.getBoundingClientRect()
 		if((e.clientX-r.left)/r.width>0.8&&!e.target.closest('.hp')) pinb.click() }
-	const iendEl=detail.querySelector('#iend'); if(iendEl) iendEl.onclick=()=>pinb.click()
+	const iendEl=detail.querySelector('#iend')
+	if(iendEl){ const sw2=iendEl.querySelector('#isw'); if(sw2) sw2.onclick=()=>pinb.click()
+		// channel edits set the endpoint in THIS space; a pasted hex in any field wins
+		iendEl.querySelectorAll('.iev').forEach(inp=>{ inp.onchange=()=>{ const t=inp.value.trim()
+			if(t.startsWith('#')){ const r2=hex2rgb(t); if(r2){ endB=r2; renderFast() } return }
+			const vv=[...iendEl.querySelectorAll('.iev')].map(x=>parseFloat(x.value))
+			if(vv.every(isFinite)){ try{ endB=rgbF(s,vv).map(x=>clamp(Math.round(x),0,255)); renderFast() }catch{} } } }) }
 	const icpy=detail.querySelector('#icpy')
 	if(icpy) icpy.onclick=()=>{ const r2=detail.querySelector('#irow'); if(r2&&r2._css) copy(r2._css) }
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
@@ -1752,7 +2032,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
-	const hf0=detail.querySelector('#hfmt'); hf0.onclick=()=>copy(hf0.textContent)
+	detail.querySelector('#hfmts').addEventListener('click',e=>{ const r=e.target.closest('.hrow'); if(r) copy(r.querySelector('.hval').textContent) })
 	// precise adjustment: spinner inputs on the big sliders
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
 		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
@@ -1835,12 +2115,44 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 function paintGamut(){ const el=detail.querySelector('#gam2d'); if(!el) return
 	if(gamutStatus(selected)!=='ready') return   // the ready callback repaints
 	paintGamutGL(el.querySelector('canvas'),selected); gamMarker() }
+// luminance ceiling of the visible gamut per chromaticity (MacAdam limit), bucketed
+// from the optimal-color surface — a color can sit inside the horseshoe in xy yet be
+// impossibly bright for that chromaticity, and the marker must say so
+let YMAXB=null
+function beyondVisible(xyz){
+	if(!YMAXB){ YMAXB=new Float32Array(32*32)
+		const { pos }=visSurf(96)
+		for(let q=0;q<pos.length;q+=3){ const s2=pos[q]+pos[q+1]+pos[q+2]; if(s2<=0) continue
+			const gx=clamp(Math.floor(pos[q]/s2*32),0,31), gy=clamp(Math.floor(pos[q+1]/s2*32),0,31)
+			const c2=gy*32+gx; if(pos[q+1]>YMAXB[c2]) YMAXB[c2]=pos[q+1] } }
+	const s2=xyz[0]+xyz[1]+xyz[2]
+	if(!(s2>0)||xyz[1]<0) return true
+	const gx=clamp(Math.floor(xyz[0]/s2*32),0,31), gy=clamp(Math.floor(xyz[1]/s2*32),0,31)
+	let m=0   // the bucket or its neighbours (coarse grid → holes near the locus edge)
+	for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+		const qx=gx+dx, qy=gy+dy
+		if(qx>=0&&qx<32&&qy>=0&&qy<32) m=Math.max(m,YMAXB[qy*32+qx]) }
+	return m<=0||xyz[1]>m*1.03+0.5 }
 function gamMarker(){ const el=detail.querySelector('#gam2d'); if(!el) return
 	const cx=el.querySelector('.cx'), rgb=RGB()
-	try{ const [X,Y,Z]=space.rgb.xyz(...rgb), s2=(X+Y+Z)||1
-		const [fx,fy]=gamutPos(X/s2,Y/s2)
+	// chromaticity from the RAW master values — the display rgb is clamped to sRGB, so a
+	// marker derived from it could never enter the beyond-rgb coverage the plate paints
+	let xyz=null
+	try{ xyz=master.s==='xyz'?master.vals:space[master.s].xyz(...master.vals) }catch{}
+	if(!xyz||!xyz.every(isFinite)||Math.abs(xyz[0]+xyz[1]+xyz[2])<1e-9){
+		try{ xyz=space.rgb.xyz(...rgb) }catch{ return } }
+	try{ const s2=(xyz[0]+xyz[1]+xyz[2])||1
+		const [fx,fy]=gamutPos(xyz[0]/s2,xyz[1]/s2)
 		cx.style.left=(clamp(fx,0,1)*100)+'%'; cx.style.top=(clamp(fy,0,1)*100)+'%'
-		cx.style.background=hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
+		// two ways a coordinate can name no color: brighter than the MacAdam limit at
+		// its chromaticity, or (in a box-in-base space like HSI) decoding through
+		// out-of-range rgb — both get the hollow marker
+		let bey=beyondVisible(xyz)?'not a visible color — brighter than the MacAdam limit at this chromaticity':''
+		if(!bey&&boxInBase(master.s)){ try{ const rr=master.s==='rgb'?master.vals:space[master.s].rgb(...master.vals)
+			if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey='no such color — these coordinates decode outside sRGB, which this space is defined on' }catch{} }
+		cx.classList.toggle('ghost',!!bey)
+		cx.title=bey
+		cx.style.background=bey?'transparent':hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
 // canonical test images: the public-domain Grand-Teton barn, plus a synthetic chart we own
 let IMG=null, imgIdx=0, IMGS=null
 function chartImg(){ const c=document.createElement('canvas'); c.width=640; c.height=480; const x=c.getContext('2d')
@@ -1850,9 +2162,10 @@ function chartImg(){ const c=document.createElement('canvas'); c.width=640; c.he
 	P.forEach((q,k)=>{ x.fillStyle=`rgb(${q[0]} ${q[1]} ${q[2]})`; x.fillRect((k%6)*106+2,230+Math.floor(k/6)*126,102,122) })
 	return c }
 function loadImgs(cb){ if(IMGS){ cb(); return }
-	const barn=new Image(); barn.src='img/barn.jpg'
-	barn.onload=()=>{ IMGS=[barn,chartImg()]; IMG=IMGS[0]; cb() }
-	barn.onerror=()=>{ IMGS=[chartImg()]; IMG=IMGS[0]; cb() } }
+	const names=['img/barn.jpg','img/pearl.jpg','img/wave.jpg','img/starry.jpg','img/sunrise.jpg']
+	Promise.all(names.map(u=>new Promise(res=>{ const im=new Image(); im.src=u
+		im.onload=()=>res(im); im.onerror=()=>res(null) })))
+	.then(list=>{ IMGS=[...list.filter(Boolean),chartImg()]; IMG=IMGS[0]; cb() }) }
 function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) return
 	const s=selected
 	if(imageChanStatus(s)!=='ready') return   // the ready callback repaints
@@ -1886,27 +2199,29 @@ function paintPlanes(fast){ if(!open()) return
 	const s=selected, cls=classify(s), vals=probeVals(s)
 	const glq=typeof Q==='number'?Q:Q==='web'?'web':Q?null:0   // cluster modes stay on the JS path
 	const pls=[...detail.querySelectorAll('.pl')]
-	// GPU programs link asynchronously: while they compile, a coarse 48px JS preview
-	// paints instantly (a CAM16 field at 96px costs over a second of main thread) and
-	// the setGLReady callback upgrades to full-res GPU — the dossier never blocks
+	// GPU programs link asynchronously: while they compile the planes stay blank —
+	// never a low-res preview that then "sharpens" — and the setGLReady callback
+	// paints full-res the moment linking lands (hover/neighbour warming makes that
+	// moment usually be before the modal even opens)
 	const stats=glq!==null&&hasPlaneGL(s)?pls.map(pl=>planeGLStatus(s,+pl.dataset.a,+pl.dataset.b)):null
 	const canGL=!!stats&&stats.every(x=>x==='ready')
 	const pendGL=!!stats&&!canGL&&stats.some(x=>x==='pending')
+	if(pendGL){ planesLive=false; planeNext=performance.now()+200
+		if(!dragBar&&!plFreeze) draw3d(); return }
 	const cost=planeMs[s]
 	const dragging=!!(dragBar||plFreeze)
 	const res=canGL?Math.min(432,Math.round(216*(devicePixelRatio||1)))
-		:pendGL?48:dragging?96:cost==null?48:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
+		:dragging?96:cost==null?48:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
 	const q=Q==='names'?t=>nearest(t).rgb:Q==='percept'?perceptQ:Q
 	const t0=performance.now()
 	pls.forEach(pl=>{ if(pl===plFreeze) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		if(cv.width!==res){ cv.width=res; cv.height=res }
 		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
-		if(canGL&&paintPlaneGL(cv,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),GM==='off'?null:GM,glq)) return
+		if(canGL&&paintPlaneGL(cv,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),GM==='off'||GM==='vis'?null:GM,glq)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),true,GM,q) })
 	planesLive=canGL
 	if(planesLive) planeNext=0
-	else if(pendGL) planeNext=performance.now()+200   // preview painted; the ready callback upgrades
 	else{ const dt=performance.now()-t0
 		planeMs[s]=Math.max(dt,0.5)*(216/res)**2
 		planeNext=performance.now()+Math.max(120, dt*1.8)
@@ -1918,9 +2233,10 @@ const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry n
 function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||liteOff(ent))return
 	const cls=classify(s), vals=probeVals(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]; ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
-function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.style.setProperty('--c',hx)
-	document.getElementById('curhex').textContent=hx
+function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.style.setProperty('--c',hx); document.documentElement.style.setProperty('--curcol',hx); queueRecent(rgb)
+	const curval=document.getElementById('curhex'); if(document.activeElement!==curval){ curval.value=hx; curval.classList.remove('bad') }
 	const csw=document.getElementById('cursw'); if(document.activeElement!==csw) csw.value=hx
+	syncHeroPicker()
 	const nm=nearest(rgb); if(nm) document.getElementById('curnm').textContent='≈ '+nm.n
 	const g0=gamuts(); if(g0) document.getElementById('curgam').innerHTML=['srgb','p3','rec2020'].map(k=>`<span class="${g0[k]?'on':'off'}" title="${GAMTIP[k]}">${k}</span>`).join('')
 	// catalog values + ticks (visible entries) — outlines are theme ink, like the sRGB lines
@@ -1939,7 +2255,17 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
-	const hf=detail.querySelector('#hfmt'); if(hf) hf.textContent=vals?(fmt(s,vals)||`${s}(${vals.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')})`):'—'
+	const dswatch=detail.querySelector('#dswatch'); if(dswatch) dswatch.style.background=hx
+	const hf=detail.querySelector('#hfmts')
+	if(hf){ const rows=[]
+		// only REAL notations: the native CSS serialization when the spec defines one,
+		// else the exact color(xyz-d65 …) — real CSS for ANY color — plus the sRGB hex.
+		// An invented `name(…)` form would read as a standard that doesn't exist.
+		if(vals&&CSSABLE.has(s)) rows.push(['native css',fmt(s,vals)])
+		else if(vals){ try{ rows.push(['css fallback',fmt('xyz',space[s].xyz(...vals))]) }catch{} }
+		const g0=gamuts()
+		rows.push(['srgb'+(g0&&!g0.srgb?' ≈':''),hx])
+		hf.innerHTML=rows.map(([l2,v2])=>`<div class="hrow" title="copy"><i>${l2}</i><p class="hval tnum">${v2}</p></div>`).join('') }
 	const shown=vals||probeVals(s)   // forward-only spaces paint from their locally explored params
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
@@ -1949,7 +2275,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			// smooth mode paints the sweep on the GPU — per-pixel colors AND per-pixel
 			// gamut ghosting (the stepped 48-cell CSS mask made the limits jump)
 			const smooth=typeof Q!=='number'&&!qTriple(Q)
-			if(smooth&&planeGLStatus(s,i,-1)==='ready'&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM==='off'?null:GM)){
+			if(smooth&&planeGLStatus(s,i,-1)==='ready'&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM==='off'||GM==='vis'?null:GM)){
 				bgc.style.display='block'; bar._cells=null
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
@@ -2016,24 +2342,48 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 			css=`linear-gradient(90deg, ${stops.join(',')})` }
 		r.style.background=css; r._css=css
 		const ie=detail.querySelector('#iend')
-		if(ie) ie.textContent='to '+chanVals(s,B)
-		// the duel: this space cut into 12 equal steps (uniformity you can check by
+		if(ie){ const sw=ie.querySelector('#isw'); if(sw) sw.style.background=hex(rgbB)
+			ie.querySelectorAll('.iev').forEach((inp,i2)=>{ if(document.activeElement!==inp) inp.value=fmtn(B[i2],cls.ch[i2]) }) }
+		// the duel: this space cut into 10 equal steps (uniformity you can check by
 		// eye), then the SAME endpoints through the reference spaces
 		const duel=detail.querySelector('#iduel')
 		if(duel) for(const row of duel.querySelectorAll('.ird')){ const kind=row.dataset.r
 			if(kind==='steps'){ const st=[]
-				for(let k=0;k<12;k++) st.push(hex(mixAt((k+0.5)/12).map(x2=>clamp(Math.round(x2),0,255))))
+				for(let k=0;k<10;k++) st.push(hex(mixAt((k+0.5)/10).map(x2=>clamp(Math.round(x2),0,255))))
 				row.style.background=stepped(st) }
 			else try{ const a3=toSpace(kind,rgb), b3=toSpace(kind,rgbB), st=[]
 				for(let k=0;k<=14;k++) st.push(hex(rgbF(kind,mixInSpace(kind,a3,b3,k/14))))
 				row.style.background=`linear-gradient(90deg, ${st.join(',')})` }catch{} } } }
+	const scalegrid=detail.querySelector('#scalegrid')
+	if(scalegrid&&vals&&cls.tone){ const n=scaleN, c=cls.tone, stops=[]
+		for(let k=0;k<n;k++){ const vv=vals.slice(); vv[c.i]=c.min+(c.max-c.min)*(n===1?0:k/(n-1)); const rr=rgbF(s,vv).map(x=>clamp(Math.round(x),0,255)); stops.push({ h:hex(rr), ink:ink(rr), v:vv }) }
+		scalegrid.style.setProperty('--n',n); scalegrid.innerHTML=stops.map((st,k)=>`<button type="button" style="--sw:${st.h};--inkon:${st.ink}" data-i="${k+1}" title="copy ${st.h}" aria-label="copy ${st.h}"></button>`).join('')
+		scalegrid.querySelectorAll('button').forEach((b,k)=>b.onclick=()=>copy(stops[k].h))
+		const css=`:root {\n${stops.map((st,k)=>`  --${s}-${String(k+1).padStart(2,'0')}: ${st.h};`).join('\n')}\n}`
+		scalegrid._css=css; const out=detail.querySelector('#scaleout'); if(out) out.textContent=css }
 	// live code snippet — js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	if(snip){ if(codeTab==='wasm'){
-			snip.innerHTML=hilite(`import { alloc, convert } from 'color-space/wasm'\n\n`+
-				`const buf = alloc(n)           // Float64Array(n·3) living in WASM memory\n`+
+	if(snip){ if(codeTab==='css'){
+			// the honest CSS story: native serialization when the spec has one, else the
+			// same color in the forms CSS can write
+			const g0=gamuts()
+			let okv=null, xyzv=null
+			try{ okv=s==='oklch'?shown:space[s].oklch(...shown) }catch{}
+			try{ xyzv=s==='xyz'?shown:space[s].xyz(...shown) }catch{}
+			snip.innerHTML=hilite(
+				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${fmt(s,shown)};\n`
+					:`/* CSS cannot name ${s} directly — the same color, in forms it can: */\n`)+
+				(xyzv&&s!=='xyz'?`color: ${fmt('xyz',xyzv)};   /* exact */\n`:'')+
+				(okv&&s!=='oklch'?`color: ${fmt('oklch',okv)};   /* perceptual form, wide-gamut safe */\n`:'')+
+				`color: ${hx};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`+
+				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('${s}.icc'); }\ncolor: color(--${s} ${shown.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`)) }
+		else if(codeTab==='wasm'){
+			const tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
+			snip.innerHTML=hilite(`import space, { alloc } from 'color-space/wasm'\n\n`+
+				`space${prop(s)}.rgb(${tup})  // scalar — the JS API's exact shape\n\n`+
+				`const buf = alloc(n)   // Float64Array(n·3) living in WASM memory\n`+
 				`// … write rgb 0-255 pixels into buf …\n`+
-				`convert('rgb', '${s}', n)      // the whole buffer, in place, zero-copy\n`+
+				`space.rgb${prop(s)}(buf)   // the whole buffer, in place, zero-copy\n`+
 				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
 		else if(codeTab==='gl'){ const gd={2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3'
 			snip.innerHTML=hilite(`import { glsl } from 'color-space/gl'\n`+
@@ -2074,7 +2424,16 @@ const drawThm=()=>thm.innerHTML=document.documentElement.dataset.theme==='dark'?
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
 	document.documentElement.dataset.theme=t; localStorage.csTheme=t; drawThm() }
-document.getElementById('curhex').onclick=()=>copy(document.getElementById('curhex').textContent)
+const curInput=document.getElementById('curhex')
+function applyCurInput(revert=false){ const parsed=parseColor(curInput.value)
+	if(parsed){ master=parsed; curInput.classList.remove('bad'); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false); return true }
+	curInput.classList.toggle('bad',!!curInput.value.trim())
+	if(revert) renderFast()
+	return false }
+curInput.addEventListener('input',()=>applyCurInput(false))
+curInput.addEventListener('change',()=>applyCurInput(true))
+curInput.addEventListener('blur',()=>applyCurInput(true))
+curInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyCurInput(true); curInput.blur() } else if(e.key==='Escape'){ e.preventDefault(); renderFast(); curInput.blur() } })
 document.getElementById('cursw').oninput=e=>{ master={ s:'rgb', vals:hex2rgb(e.target.value) }; renderFast(); paintCatalogGrad(); paintPlanes(false) }
 document.getElementById('curnm').onclick=()=>{ const c=nearest(RGB()); if(c){ master={ s:'rgb', vals:c.rgb.slice() }; renderFast(); paintCatalogGrad(); paintPlanes(false) } }
 // API code panel — tabs swap which snippet shows
@@ -2122,6 +2481,7 @@ addEventListener('wheel',e=>{
 	else if(e.deltaY<0&&flvl){ facc=0; setFq(0) }   // any scroll-up snaps back to smooth (and scrolls the page)
 },{passive:false})
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
+const copyInstall=document.getElementById('copyinstall'); if(copyInstall) copyInstall.onclick=()=>copy('npm install color-space')
 renderFast(); paintCatalogGrad()
 const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) return
 	const [slug,valstr]=h.split('@')
@@ -2133,46 +2493,68 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── the hero: a compact OKLCH picker plane under the wordmark — hue across, saturation
-//    down. Sticky beneath the header; on scroll its height scrubs from full to the 5px
-//    line, so the pick-area COLLAPSES into the header's border (the vivid --mline). A
-//    click picks the pixel under the eyedropper and glides to the catalog. ──
+// ── hero atlas: hue across, lightness down. The canvas breathes between the maximum
+//    chroma envelopes of sRGB → P3 → Rec.2020, so the header is not a decorative
+//    gradient but a live gamut slice. Dragging changes the color in place; no scroll jump. ──
 ;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), iwheel=document.getElementById('iwheel'), mhead=document.querySelector('.mhead')
-	const picker=document.getElementById('ipicker'), page=document.querySelector('.page')
+	const picker=document.getElementById('ipicker'), page=document.querySelector('.page'), ctx=iwheel.getContext('2d',{ alpha:false })
 	const setHH=()=>page.style.setProperty('--hh',mhead.offsetHeight+'px')   // pin the plane right under the header
 	setHH(); addEventListener('resize',setHH)
 	requestAnimationFrame(()=>intro.classList.add('in'))
-	// hue across (x), saturation down (y): the L·72 neutral at the top mixes into the
-	// full-chroma hue at the bottom, a straight sRGB fade — so the pick maths are just
-	// that lerp, mirroring the pixels the CSS gradient paints.
-	const colAt=(fx,fy)=>{ const H=rgbF('oklch',[0.72,0.15,clamp(fx,0,1)*360]), s=clamp(fy,0,1)
-		return H.map((h,i)=>GRAY[i]*(1-s)+h*s) }   // sat 0 (gray) at top → sat 1 (full hue) at bottom
-	const at=e=>{ const r=iwheel.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height] }   // iwheel keeps full height (bottom-anchored) even as .intro clips
-	// scroll collapses the plane into the border line: its height scrubs from full to the
-	// 5px line, and the header's --mline border lights (.on) the instant it lands
+	const HG=['srgb','p3','rec2020'], HSEQ=[0,1,2,1]
+	let atlas=null, frame=null, phase={ a:2, b:2, t:0 }
+	const smooth=t=>t*t*(3-2*t)
+	const gvals=(g,L,C,H)=>{ try{ const v=g==='srgb'?space.oklch.rgb(L,C,H).map(x=>x/255):space.oklch[g](L,C,H); return v }catch{ return [9,9,9] } }
+	const fits=(g,L,C,H)=>gvals(g,L,C,H).every(v=>isFinite(v)&&v>=-0.0005&&v<=1.0005)
+	const cmax=(g,L,H)=>{ if(L<=0.002||L>=0.998) return 0
+		let lo=0, hi=.43
+		if(fits(g,L,hi,H)) return hi
+		for(let k=0;k<11;k++){ const mid=(lo+hi)/2; fits(g,L,mid,H)?lo=mid:hi=mid }
+		return lo }
+	const rgbOklch=(L,C,H)=>space.oklch.rgb(L,C,H).map(v=>clamp(Math.round(v),0,255))
+	const buildAtlas=()=>{ const r=intro.getBoundingClientRect(), W=Math.max(320,Math.min(600,Math.round(r.width/2))), H=104
+		if(atlas&&atlas.W===W&&atlas.H===H) return
+		iwheel.width=W; iwheel.height=H; atlas={ W,H, data:HG.map(()=>new Uint8ClampedArray(W*H*4)) }; frame=ctx.createImageData(W,H)
+		HG.forEach((g,gi)=>{ const out=atlas.data[gi]
+			for(let y=0;y<H;y++){ const L=1-y/(H-1)
+				for(let x=0;x<W;x++){ const hue=x/(W-1)*360, C=cmax(g,L,hue), rgb=rgbOklch(L,C,hue), p=(y*W+x)*4
+					out[p]=rgb[0]; out[p+1]=rgb[1]; out[p+2]=rgb[2]; out[p+3]=255 } } }) }
+	const drawHero=ts=>{ buildAtlas()
+		const u=(ts/3600)%HSEQ.length, k=Math.floor(u), t=smooth(u-k); phase={ a:HSEQ[k], b:HSEQ[(k+1)%HSEQ.length], t }
+		const A=atlas.data[phase.a], B=atlas.data[phase.b], O=frame.data, t2=phase.t, it=1-t2
+		for(let p=0;p<O.length;p+=4){ O[p]=A[p]*it+B[p]*t2; O[p+1]=A[p+1]*it+B[p+1]*t2; O[p+2]=A[p+2]*it+B[p+2]*t2; O[p+3]=255 }
+		ctx.putImageData(frame,0,0)
+		// a slow gamut sweep makes the changing maximum-chroma envelope legible even on sRGB displays
+		const W=atlas.W,H=atlas.H,x=(ts/32)%(W+140)-70, grd=ctx.createLinearGradient(x-70,0,x+70,0)
+		grd.addColorStop(0,'rgba(255,255,255,0)'); grd.addColorStop(.5,'rgba(255,255,255,.18)'); grd.addColorStop(1,'rgba(255,255,255,0)')
+		ctx.save(); ctx.globalCompositeOperation='screen'; ctx.fillStyle=grd; ctx.fillRect(x-70,0,140,H); ctx.restore()
+		syncHeroPicker(); requestAnimationFrame(drawHero) }
+	const maxC=(L,H)=>cmax(HG[phase.a],L,H)*(1-phase.t)+cmax(HG[phase.b],L,H)*phase.t
+	const colAt=(fx,fy)=>{ const H=((clamp(fx,0,1)*360)%360+360)%360, L=clamp(1-fy,0,1), C=maxC(L,H); return rgbOklch(L,C,H) }
+	const at=e=>{ const r=iwheel.getBoundingClientRect(); return [clamp((e.clientX-r.left)/r.width,0,1),clamp((e.clientY-r.top)/r.height,0,1)] }
+	const place=(fx,fy,rgb=RGB())=>{ const ir=intro.getBoundingClientRect(), wr=iwheel.getBoundingClientRect()
+		picker.style.left=(fx*wr.width+wr.left-ir.left)+'px'; picker.style.top=(fy*wr.height+wr.top-ir.top)+'px'; picker.style.color=ink(rgb); picker.style.opacity='1' }
+	syncHeroPicker=()=>{ try{ const ok=toSpace('oklch',RGB()), H=((ok[2]||0)%360+360)%360
+		place(H/360,1-clamp(ok[0],0,1),RGB()) }catch{} }
+	// scroll collapses the plane into the border line; the header value remains editable throughout.
 	const LINE=5
 	const heroScroll=()=>{ const track=introw.offsetHeight-LINE, h=Math.max(LINE, introw.offsetHeight-scrollY)
 		intro.style.height=h+'px'
-		// the border opacity IS the collapse fraction — continuous with scroll, so it
-		// fades in as the plane shrinks and fades right back out on scroll up
 		const p=clamp(scrollY/Math.max(1,track),0,1)
-		page.style.setProperty('--brd',p.toFixed(3))
-		mhead.classList.toggle('on', p>=1) }
+		page.style.setProperty('--brd',p.toFixed(3)); mhead.classList.toggle('on', p>=1); syncHeroPicker() }
 	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
-	intro.addEventListener('pointermove',e=>{ const r=intro.getBoundingClientRect()
-		picker.style.left=(e.clientX-r.left)+'px'; picker.style.top=(e.clientY-r.top)+'px'; picker.style.opacity='1'
-		const [fx,fy]=at(e); picker.style.color=ink(colAt(fx,fy)) })   // ink against the pixel it's over
-	intro.addEventListener('pointerleave',()=>picker.style.opacity='0')
-	// pick → wear the colour and glide down to the catalog; the plane stays above
-	let waved=false
+	let waved=false, dragId=null
 	const wave=()=>{ if(waved) return; waved=true
 		const top=cat.getBoundingClientRect().top+scrollY
 		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
 			if(y>innerHeight*1.5) return
 			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
-	intro.addEventListener('pointerdown',e=>{ const [fx,fy]=at(e)
-		const rgb=colAt(fx,fy).map(v=>clamp(Math.round(v),0,255))
-		master={ s:'rgb', vals:rgb }; renderFast(); paintCatalogGrad(); wave(); mhead.classList.add('on')
-		scrollTo({ top:cat.getBoundingClientRect().top+scrollY-mhead.offsetHeight-6, behavior:'smooth' }) })
-	heroScroll() })()
+	const apply=e=>{ const [fx,fy]=at(e), rgb=colAt(fx,fy)
+		master={ s:'rgb', vals:rgb }; place(fx,fy,rgb); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+	intro.addEventListener('pointerdown',e=>{ dragId=e.pointerId; intro.setPointerCapture(dragId); wave(); apply(e) })
+	intro.addEventListener('pointermove',e=>{ if(e.pointerId===dragId) apply(e) })
+	intro.addEventListener('pointerup',e=>{ if(e.pointerId===dragId){ dragId=null; try{ intro.releasePointerCapture(e.pointerId) }catch{} } })
+	intro.addEventListener('pointercancel',()=>{ dragId=null })
+	addEventListener('resize',()=>{ atlas=null; setHH(); heroScroll() })
+	requestAnimationFrame(drawHero); heroScroll(); syncHeroPicker() })()
 </script></body></html>
