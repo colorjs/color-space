@@ -15,6 +15,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding linear
+ * @gamut srgb
  * @referred display
  * @dynamic sdr
  */

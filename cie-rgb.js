@@ -17,6 +17,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding gamma
+ * @gamut cie-rgb
  * @illuminant E
  * @observer 2
  * @referred display

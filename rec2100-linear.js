@@ -15,6 +15,7 @@
  * @channel {B} 0 1 Blue
  * @method matrix
  * @encoding linear
+ * @gamut rec2020
  * @illuminant D65
  * @observer 2
  * @referred display

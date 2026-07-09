@@ -16,6 +16,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding gamma
+ * @gamut dci-p3
  * @illuminant DCI (adapted to D65)
  * @observer 2
  * @referred display

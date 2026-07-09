@@ -48,6 +48,22 @@ export default {
     "observer": "2",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "adobe-rgb",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.21,
+        0.71
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Linear-light Adobe RGB — the gamma-free counterpart to Adobe RGB 1998, sharing its wider-than-sRGB primaries and D65 white point but with channel values directly proportional to light intensity. It serves as the intermediate space for accurate color math, before results are re-encoded with Adobe RGB's transfer curve."
@@ -98,6 +114,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "adobe-rgb",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.21,
+        0.71
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Adobe RGB — introduced by Adobe in 1998 as a wider-gamut alternative to sRGB, designed to reproduce more of the cyans and greens achievable in CMYK printing. It keeps sRGB's D65 white point but uses different primaries and a slightly different gamma, making it a longstanding standard working space in photography and print production, where sRGB's narrower gamut would clip too much color."
@@ -146,6 +178,22 @@ export default {
     "use": "Archival/interchange master encoding for finished ACES film and TV masters; current long-term storage format (SMPTE ST 2065-1).",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "ap0",
+    "primaries": {
+      "r": [
+        0.7347,
+        0.2653
+      ],
+      "g": [
+        0,
+        1
+      ],
+      "b": [
+        0.0001,
+        -0.077
+      ]
+    },
+    "white": "ACES",
     "referred": "scene",
     "dynamic": "hdr",
     "description": "ACES2065-1 — the Academy Color Encoding System's archival and interchange master format, built on the AP0 primaries, wide enough to enclose the entire visible gamut, with ACES's characteristic white point near D60. Like ACEScg it stores scene-referred light linearly, with values reaching far past nominal white to hold highlight detail for later grading or rendering. AMPAS designed it as the long-term, camera-agnostic exchange format for finished ACES masters, distinct from ACEScg's smaller AP1 primaries used for day-to-day rendering."
@@ -290,6 +338,22 @@ export default {
     "use": "Linear render/composite working space for CGI and VFX; current standard in ACES-based VFX/animation pipelines.",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "ap1",
+    "primaries": {
+      "r": [
+        0.713,
+        0.293
+      ],
+      "g": [
+        0.165,
+        0.83
+      ],
+      "b": [
+        0.128,
+        0.044
+      ]
+    },
+    "white": "ACES",
     "referred": "scene",
     "dynamic": "hdr",
     "description": "ACEScg — the Academy Color Encoding System's linear working space, defined by AMPAS in 2014 for CGI rendering and visual-effects compositing. Built on the wide AP1 primaries, it stores scene-referred light linearly rather than through a log curve, with headroom above white for highlights and light sources that would otherwise clip. It's the standard render and composite space in VFX and animation pipelines built around ACES."
@@ -437,6 +501,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "apple-rgb",
+    "primaries": {
+      "r": [
+        0.625,
+        0.34
+      ],
+      "g": [
+        0.28,
+        0.595
+      ],
+      "b": [
+        0.155,
+        0.07
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Apple RGB — the working space used by classic Mac OS, modeling the color response of Apple's original Trinitron CRT displays. Referenced to the D65 white point with a gamma of about 1.8, Apple's historic system default, it remained a common Photoshop working space for years and is still encountered in millions of legacy image files."
@@ -966,6 +1046,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "cie-rgb",
+    "primaries": {
+      "r": [
+        0.7347,
+        0.2653
+      ],
+      "g": [
+        0.2738,
+        0.7174
+      ],
+      "b": [
+        0.1666,
+        0.0089
+      ]
+    },
+    "white": "E",
     "referred": "display",
     "dynamic": "sdr",
     "description": "CIE RGB — the experimental color space built directly from the 1931 Wright-Guild color-matching experiments, whose data became the foundation for the CIE XYZ standard itself. Its three primaries are monochromatic single-wavelength lights rather than the broadband primaries of any real display, referenced to an equal-energy white point. It survives today mainly as a historical and pedagogical space — the common ancestor from which nearly every later RGB space descends."
@@ -1534,6 +1630,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "dci-p3",
+    "primaries": {
+      "r": [
+        0.68,
+        0.32
+      ],
+      "g": [
+        0.265,
+        0.69
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "DCI",
     "referred": "display",
     "dynamic": "sdr",
     "description": "DCI-P3 — the digital cinema standard defined in SMPTE RP 431-2 for theatrical projection and mastering. It shares its wide red-green-blue primaries with Apple's Display P3, but pairs them with the DCI theatrical white point and a pure gamma-2.6 transfer curve rather than the D65 white and sRGB-like curve used in consumer display variants. It remains the reference space for digital film production and distribution."
@@ -3968,6 +4080,22 @@ export default {
     "use": "Physically linear intermediate for color mixing, blending, and colorimetric conversion; current, foundational in color-managed rendering.",
     "method": "transfer",
     "encoding": "linear",
+    "gamut": "srgb",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.3,
+        0.6
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Linear-light sRGB — the same D65 white point and primaries as sRGB, but with the gamma-like transfer curve removed so that channel values sit directly proportional to light intensity. It is not a space displays use directly; instead it is the physically meaningful intermediate for color math such as mixing, blending and colorimetric conversions, where operating on gamma-encoded values would give wrong results."
@@ -4317,6 +4445,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "ntsc",
+    "primaries": {
+      "r": [
+        0.67,
+        0.33
+      ],
+      "g": [
+        0.21,
+        0.71
+      ],
+      "b": [
+        0.14,
+        0.08
+      ]
+    },
+    "white": "C",
     "referred": "display",
     "dynamic": "sdr",
     "description": "NTSC RGB — the color primaries defined by the FCC in 1953 for the first US color television broadcasts, later formalized in ITU-R BT.470 System M. Referenced to Illuminant C with a gamma of about 2.2, it remains the historical benchmark against which gamut coverage is still quoted today (\"% NTSC\"), even though its wide red and green primaries were never fully realized by real phosphors and were later superseded by SMPTE-C and Rec. 709."
@@ -4892,6 +5036,22 @@ export default {
     "observer": "2",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "display-p3",
+    "primaries": {
+      "r": [
+        0.68,
+        0.32
+      ],
+      "g": [
+        0.265,
+        0.69
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Linear-light Display P3 — the gamma-free counterpart to Apple's Display P3, sharing its wide DCI-P3-derived primaries and D65 white point but with channel values directly proportional to light intensity. It serves as the intermediate space for accurate color math and image processing, before results are re-encoded with the Display P3 transfer curve for output."
@@ -4942,6 +5102,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "display-p3",
+    "primaries": {
+      "r": [
+        0.68,
+        0.32
+      ],
+      "g": [
+        0.265,
+        0.69
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Display P3 — Apple's wide-gamut display space, introduced with the 2015 iMac and standardized into CSS Color 4 as `display-p3`. It keeps sRGB's transfer curve and D65 white but adopts the wider DCI-P3 film primaries, covering about 25% more colors — the default canvas of modern iPhones, iPads and Macs."
@@ -4991,6 +5167,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "pal",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.29,
+        0.6
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "PAL/SECAM RGB — the primaries used by 625-line analogue television across Europe and much of the world, defined in EBU Tech 3213 and ITU-R BT.470 (System B/G). It shares sRGB's D65 white point and a similar gamma of about 2.2, but its green primary is subtly different, making it formally distinct from Rec. 709 — the correct gamut to use when working with archival PAL or SECAM broadcast material."
@@ -5188,6 +5380,22 @@ export default {
     "observer": "2",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "prophoto",
+    "primaries": {
+      "r": [
+        0.734699,
+        0.265301
+      ],
+      "g": [
+        0.159597,
+        0.840403
+      ],
+      "b": [
+        0.036598,
+        0.000105
+      ]
+    },
+    "white": "D50",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Linear-light ProPhoto RGB — the gamma-free counterpart to Kodak's ProPhoto (ROMM) RGB, sharing its very wide primaries and D50 white point but with channel values directly proportional to light intensity. It serves as the intermediate space for color math on ProPhoto-referenced images, such as raw photo processing, before results are re-encoded with ProPhoto's transfer curve."
@@ -5238,6 +5446,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "prophoto",
+    "primaries": {
+      "r": [
+        0.734699,
+        0.265301
+      ],
+      "g": [
+        0.159597,
+        0.840403
+      ],
+      "b": [
+        0.036598,
+        0.000105
+      ]
+    },
+    "white": "D50",
     "referred": "display",
     "dynamic": "sdr",
     "description": "ProPhoto RGB — also known as ROMM RGB, developed by Kodak as a working space for high-end digital photography. Its primaries extend beyond the range of human vision, giving it one of the largest gamuts of any standard RGB space, though this means colors must be stored at higher bit depths to avoid visible banding. It is a common working space in raw photo processing, referenced to the D50 white point."
@@ -5388,6 +5612,22 @@ export default {
     "observer": "2",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "rec2020",
+    "primaries": {
+      "r": [
+        0.708,
+        0.292
+      ],
+      "g": [
+        0.17,
+        0.797
+      ],
+      "b": [
+        0.131,
+        0.046
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Linear-light Rec. 2020 — the gamma-free counterpart to the ITU-R BT.2020 UHDTV standard, sharing its extremely wide primaries and D65 white point but with channel values directly proportional to light intensity. It is the working space for accurate color math, compositing and grading of UHD/HDR content, before results are re-encoded with the Rec. 2020 transfer function for delivery."
@@ -5438,6 +5678,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "rec2020",
+    "primaries": {
+      "r": [
+        0.708,
+        0.292
+      ],
+      "g": [
+        0.17,
+        0.797
+      ],
+      "b": [
+        0.131,
+        0.046
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Rec. 2020 — the ITU-R BT.2020 standard defining the color gamut and transfer characteristics for ultra-high-definition television. It uses a transfer function with the same piecewise shape as Rec. 709, but spans a dramatically wider set of primaries that approach the outer limits of human color perception — the target gamut for 4K and 8K UHD broadcast, streaming and HDR displays."
@@ -5488,6 +5744,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "hlg",
+    "gamut": "rec2020",
+    "primaries": {
+      "r": [
+        0.708,
+        0.292
+      ],
+      "g": [
+        0.17,
+        0.797
+      ],
+      "b": [
+        0.131,
+        0.046
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "hdr",
     "description": "Rec. 2100 HLG — ITU-R BT.2100's other HDR transfer function, Hybrid Log-Gamma, developed jointly by the BBC and NHK for broadcast. Where PQ encodes absolute luminance, HLG stays scene-referred and backward compatible: it behaves like ordinary gamma near black and switches to a logarithmic curve for highlights, so an unmodified SDR display can still render a reasonable picture without any metadata. It's the format of choice for live HDR broadcast."
@@ -5538,6 +5810,22 @@ export default {
     "observer": "2",
     "method": "matrix",
     "encoding": "linear",
+    "gamut": "rec2020",
+    "primaries": {
+      "r": [
+        0.708,
+        0.292
+      ],
+      "g": [
+        0.17,
+        0.797
+      ],
+      "b": [
+        0.131,
+        0.046
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "hdr",
     "description": "Rec. 2100 Linear — the scene-linear RGB that sits beneath both of ITU-R BT.2100's HDR transfer functions, PQ and HLG, before either curve is applied. It carries the same wide Rec. 2020 primaries and white point into HDR, giving colorimetric operations like gamut mapping a straightforward linear-light space to work in, with headroom above reference white for specular highlights."
@@ -5588,6 +5876,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "pq",
+    "gamut": "rec2020",
+    "primaries": {
+      "r": [
+        0.708,
+        0.292
+      ],
+      "g": [
+        0.17,
+        0.797
+      ],
+      "b": [
+        0.131,
+        0.046
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "hdr",
     "description": "Rec. 2100 PQ — the HDR RGB encoding from ITU-R BT.2100, pairing Rec. 2020's wide-gamut primaries with the PQ (Perceptual Quantizer) transfer function, SMPTE ST 2084, originally developed by Dolby. Unlike SDR gamma, PQ encodes absolute scene luminance directly, so a given code value always means the same brightness regardless of a display's peak brightness. It's the transfer function behind HDR10 and most HDR video streaming and mastering pipelines."
@@ -5638,6 +5942,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "srgb",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.3,
+        0.6
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "Rec. 709 — the ITU-R BT.709 standard defining the color primaries and transfer function for HDTV. It shares sRGB's red-green-blue primaries and D65 white point, differing only in a camera-oriented transfer curve (OETF) designed for broadcast cameras rather than computer displays. It remains the reference gamut for HD video production and broadcast."
@@ -5818,6 +6138,22 @@ export default {
     "illuminant": "D65",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "srgb",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.3,
+        0.6
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "sRGB — the standard RGB color space created by HP and Microsoft in 1996 and later standardized as IEC 61966-2-1. It defines a D65 white point and a piecewise gamma-like transfer curve tuned to typical display response. It became the default color space of the web and of untagged digital images, and remains the assumed gamut for ordinary displays, browsers and image formats today."
@@ -5867,6 +6203,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "prophoto",
+    "primaries": {
+      "r": [
+        0.734699,
+        0.265301
+      ],
+      "g": [
+        0.159597,
+        0.840403
+      ],
+      "b": [
+        0.036598,
+        0.000105
+      ]
+    },
+    "white": "D50",
     "referred": "scene",
     "dynamic": "sdr",
     "description": "RIMM RGB — Reference Input Medium Metric RGB, standardized in ISO 22028-3 as the scene-referred counterpart to Kodak's ProPhoto (ROMM) RGB. It shares ProPhoto's very wide D50 primaries but applies a camera-style transfer function with extended highlight headroom above diffuse white, letting it carry scene exposure values that would otherwise clip. It is meant to carry unrendered scene data through an imaging pipeline prior to output-referred rendering."
@@ -6015,6 +6367,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "linear",
+    "gamut": "srgb",
+    "primaries": {
+      "r": [
+        0.64,
+        0.33
+      ],
+      "g": [
+        0.3,
+        0.6
+      ],
+      "b": [
+        0.15,
+        0.06
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "hdr",
     "description": "scRGB — a linear-light extension of sRGB standardized as IEC 61966-2-2, created to carry wide-gamut and HDR signals through an otherwise ordinary sRGB pipeline. It keeps sRGB's D65 white point and primaries but removes the gamma curve and widens the encoding range well beyond the usual 0-1 span, allowing values for colors brighter or more saturated than standard sRGB can display."
@@ -6215,6 +6583,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "smpte-c",
+    "primaries": {
+      "r": [
+        0.63,
+        0.34
+      ],
+      "g": [
+        0.31,
+        0.595
+      ],
+      "b": [
+        0.155,
+        0.07
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "SMPTE 240M — the interim HDTV standard published by SMPTE in 1988, used during the early analog high-definition era before Rec. 709 was finalized. It shares its wide broadcast primaries with SMPTE-C, referenced to D65 white, but defines its own transfer function — a gamma-like curve with a linear segment near black — distinct from the curves used in BT.601 and BT.709."
@@ -6265,6 +6649,22 @@ export default {
     "observer": "2",
     "method": "transfer",
     "encoding": "gamma",
+    "gamut": "smpte-c",
+    "primaries": {
+      "r": [
+        0.63,
+        0.34
+      ],
+      "g": [
+        0.31,
+        0.595
+      ],
+      "b": [
+        0.155,
+        0.07
+      ]
+    },
+    "white": "D65",
     "referred": "display",
     "dynamic": "sdr",
     "description": "SMPTE-C is the RGB primary set standardized by the Society of Motion Picture and Television Engineers (SMPTE 170M) for 525-line NTSC broadcast in North America and Japan. It replaced the original 1953 FCC/NTSC primaries with phosphors that were actually achievable by contemporary picture tubes, paired with a D65 white point. As an RGB working space it shares its transfer curve with Rec. 709/BT.601 video, and remains the reference gamut for describing legacy analog NTSC color."

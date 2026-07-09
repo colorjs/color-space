@@ -15,6 +15,7 @@
  * @channel {B} 0 255 Blue
  * @method transfer
  * @encoding gamma
+ * @gamut srgb
  * @illuminant D65
  * @referred display
  * @dynamic sdr

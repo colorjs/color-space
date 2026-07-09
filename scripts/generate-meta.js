@@ -7,6 +7,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import GAMUTS from '../gamuts.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.join(__dirname, '..')
@@ -68,6 +69,14 @@ function parseJSDoc(content) {
   const encodingMatch = jsdoc.match(/@encoding\s+(\S+)/)
   if (encodingMatch) meta.encoding = encodingMatch[1]
 
+  // Parse @gamut — the RGB gamut name; resolve its primaries + white from gamuts.js
+  const gamutMatch = jsdoc.match(/@gamut\s+(\S+)/)
+  if (gamutMatch) {
+    meta.gamut = gamutMatch[1]
+    const g = GAMUTS[gamutMatch[1]]
+    if (g) { meta.primaries = g.primaries; if (g.white) meta.white = g.white }
+  }
+
   // Parse gamut/encoding class: @referred display|scene, @dynamic sdr|hdr
   const referredMatch = jsdoc.match(/@referred\s+(\S+)/)
   if (referredMatch) meta.referred = referredMatch[1]
@@ -97,7 +106,7 @@ function getSpaceName(filename) {
 function generateMeta() {
   const files = fs.readdirSync(rootDir)
     .filter(f => f.endsWith('.js') && !f.startsWith('.'))
-    .filter(f => !['index.js', 'package.json', 'util.js', 'transfers.js', 'whitepoints.js', 'cie.js', 'wasm.js', 'meta.js'].includes(f))
+    .filter(f => !['index.js', 'package.json', 'util.js', 'transfers.js', 'whitepoints.js', 'cie.js', 'wasm.js', 'meta.js', 'gamuts.js'].includes(f))
 
   const meta = {}
 

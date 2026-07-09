@@ -14,6 +14,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding gamma
+ * @gamut pal
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -15,6 +15,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding gamma
+ * @gamut prophoto
  * @illuminant D50
  * @observer 2
  * @referred scene

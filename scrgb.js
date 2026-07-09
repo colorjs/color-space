@@ -15,6 +15,7 @@
  * @channel {B} -0.5 7.4998779296875 Blue
  * @method transfer
  * @encoding linear
+ * @gamut srgb
  * @illuminant D65
  * @observer 2
  * @referred display

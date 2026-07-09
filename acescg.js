@@ -16,6 +16,7 @@
  * @channel {B} 0 1 Blue
  * @method matrix
  * @encoding linear
+ * @gamut ap1
  * @referred scene
  * @dynamic hdr
  */

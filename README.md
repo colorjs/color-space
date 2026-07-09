@@ -36,8 +36,15 @@ meta.oklab; // { description, channels, range, refs, wiki, year, by, use,
              //           luma-chroma | chromaticity | appearance | system | spectral
              // encoding: value domain — linear | gamma | log | pq | hlg | perceptual | chromaticity
 
+meta.p3;  // RGB working spaces also carry: gamut, primaries {r,g,b}, white
+          // → { gamut: 'display-p3', white: 'D65',
+          //     primaries: { r: [0.68, 0.32], g: [0.265, 0.69], b: [0.15, 0.06] }, … }
+
 import whitepoint from 'color-space/whitepoints.js';
 whitepoint[2].D50; // → [96.422, 100, 82.521]
+
+import gamut from 'color-space/gamuts.js';
+gamut.srgb; // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, white: 'D65' }
 ```
 
 ## WASM

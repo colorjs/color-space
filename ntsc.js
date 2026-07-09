@@ -16,6 +16,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding gamma
+ * @gamut ntsc
  * @illuminant C
  * @observer 2
  * @referred display

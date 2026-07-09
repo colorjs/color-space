@@ -58,6 +58,19 @@ test('integrity — space.range literal matches @channel-derived meta.range', ()
 	is(drift, [], 'no drift between range literal and @channel')
 })
 
+// @gamut resolves to primaries + white in meta; for D65 gamuts the declared primary
+// chromaticities must match each space's live R/G/B → XYZ (guards a transcription slip).
+test('integrity — @gamut primaries match live conversions (D65)', () => {
+	const chroma = (n, rgb) => { const X = space[n].xyz(...rgb); const s = X[0] + X[1] + X[2]; return [X[0] / s, X[1] / s] }
+	for (const n of Object.keys(meta).filter(n => meta[n].gamut)) {
+		is(!!meta[n].primaries, true, `${n} @gamut resolves primaries`)
+		if (meta[n].white !== 'D65' || typeof space[n].xyz !== 'function') continue
+		const p = meta[n].primaries, live = { r: chroma(n, [1, 0, 0]), g: chroma(n, [0, 1, 0]), b: chroma(n, [0, 0, 1]) }
+		for (const ch of ['r', 'g', 'b']) for (let k = 0; k < 2; k++)
+			is(Math.abs(p[ch][k] - live[ch][k]) < 5e-4, true, `${n} ${ch}.${'xy'[k]} ${p[ch][k]} vs live ${live[ch][k].toFixed(4)}`)
+	}
+})
+
 // Regression: rgb.xyb and coloroid.xyy used `this.…` — direct method calls worked,
 // but wire()'s compositions invoke each hop as a bare function, so every composed
 // path routed THROUGH such an edge threw (e.g. lab→xyb, coloroid→munsell). Sweeping

@@ -14,6 +14,7 @@
  * @channel {B} 0 1 Blue
  * @method matrix
  * @encoding linear
+ * @gamut adobe-rgb
  * @illuminant D65
  * @observer 2
  * @referred display

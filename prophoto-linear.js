@@ -15,6 +15,7 @@
  * @channel {B} 0 1 Blue
  * @method matrix
  * @encoding linear
+ * @gamut prophoto
  * @illuminant D50
  * @observer 2
  * @referred display
