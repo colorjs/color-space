@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- GLSL shader chunks for 150 spaces: `glsl(from, to)` composes a self-contained snippet on the same edge graph as the scalar library (`color-space/gl`).
-- Lean shader tier: every chunk imports its own dependency chain, so `glsl('rgb', oklch)` via `color-space/gl/compose.js` (+ `gl/translate.js` for WGSL) bundles ~4 kB instead of the ~200 kB full catalog — byte-identical output.
+- GLSL shader chunks for 150 spaces: `glsl(from, to)` composes a self-contained snippet on the same edge graph as the scalar library (`color-space/gl/all`).
+- Lean shader composer as the `color-space/gl` entry: every chunk imports its own dependency chain, so `glsl(oklch)` bundles ~4 kB instead of the ~200 kB catalog (`color-space/gl/all` keeps by-name routing) — byte-identical output.
 - Multi-conversion shaders: `glsl([[a,b], [c,d], …])` emits every entry with shared chunks deduped — paint in one space, gamut-test in another, one source.
 - WGSL for WebGPU, mechanically translated from the same chunks (`color-space/gl/wgsl`).
 - GL differential suite: every edge evaluated as JS in float64 against the scalar library (`test/gl.js`), plus a real-GPU compile check page (`test/gl-gpu.html`).

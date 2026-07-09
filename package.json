@@ -49,9 +49,9 @@
   "exports": {
     ".": "./index.js",
     "./wasm": "./wasm.js",
-    "./gl": "./gl/index.js",
+    "./gl": "./gl/compose.js",
+    "./gl/all": "./gl/index.js",
     "./gl/wgsl": "./gl/wgsl.js",
-    "./gl/compose": "./gl/compose.js",
     "./gl/translate": "./gl/translate.js",
     "./gl/*.glsl.js": "./gl/*.glsl.js",
     "./gl/*.js": "./gl/*.js",

@@ -2457,11 +2457,11 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 				`space.rgb${prop(s)}(buf)   // the whole buffer, in place, zero-copy\n`+
 				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
 		else if(codeTab==='gl'){ const gd={2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3'
-			snip.innerHTML=hilite(`import glsl, { wgsl } from 'color-space/gl/compose'\n`+
+			snip.innerHTML=hilite(`import glsl, { wgsl } from 'color-space/gl'\n`+
 				`import ${camel(s)} from 'color-space/gl/${s}'\n\n`+
 				`glsl(${camel(s)})          // GLSL: ${gd} rgb_${s.replace(/-/g,'')}(vec3 c) { … }\n`+
 				`wgsl(${camel(s)}, 'rgb')   // WGSL: fn ${s.replace(/-/g,'')}_rgb(c: ${gd}f) -> vec3f { … }\n`+
-				`\n// self-contained snippet — paste into any shader; the exact math of this page.\n// every space by name instead: import { glsl } from 'color-space/gl'`) }
+				`\n// self-contained snippet — paste into any shader; the exact math of this page.\n// every space by name instead: import { glsl } from 'color-space/gl/all'`) }
 		else{ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 		const ri=vals?rgb.map(Math.round):rgbOf(s,shown)   // forward-only: the example shows ITS own output
 		let inv=''; try{ const back=toSpace(s,ri); inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n` }catch{ inv=`// rgb → ${s} is one-way\n` }

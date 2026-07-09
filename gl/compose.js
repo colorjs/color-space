@@ -1,16 +1,16 @@
 /**
- * color-space/gl/compose — the composer core, registry-free.
+ * color-space/gl — compose color-space shader code from imported chunks.
  *
- * `color-space/gl` is the convenience: import it and every space is routable —
- * at the cost of bundling the whole chunk catalog. This module is the lean tier:
- * each chunk imports its own dependency chain (`deps`), so importing the spaces
- * you actually convert brings exactly their chains and nothing else.
+ * Each chunk imports its own dependency chain (`deps`), so importing the spaces
+ * you actually convert brings exactly their chains and nothing else (~4 kB).
+ * When the space is only known at runtime, `color-space/gl/all` routes any
+ * space by name instead — at the cost of bundling the whole chunk catalog.
  *
- *     import glsl, { wgsl } from 'color-space/gl/compose'
+ *     import glsl, { wgsl } from 'color-space/gl'
  *     import oklch from 'color-space/gl/oklch'
  *
- *     glsl(oklch)          // GLSL rgb → oklch — byte-identical to color-space/gl's,
- *     glsl(oklch, 'rgb')   //   the inverse      at ~4 kB instead of the full catalog
+ *     glsl(oklch)          // GLSL rgb → oklch — byte-identical to gl/all's,
+ *     glsl(oklch, 'rgb')   //   the inverse      tree-shaken to oklch's chain
  *     wgsl(oklch)          // the same, as WGSL
  *
  * Pass chunk OBJECTS for the spaces you imported; a plain name resolves only if
@@ -114,7 +114,7 @@ export function compose(list = []) {
 			const seq = route(a, b)
 			if (!seq) {
 				const why = [a, b].map(n => chunks[n]?.excluded && `${n}: ${chunks[n].excluded}`).filter(Boolean).join('; ')
-				const hint = [a, b].some(n => !chunks[n] && n !== 'rgb') ? ` — pass the chunk object (import it from color-space/gl/<space>.glsl.js) or use color-space/gl` : ''
+				const hint = [a, b].some(n => !chunks[n] && n !== 'rgb') ? ` — pass the chunk object (import it from color-space/gl/<space>) or route by name via color-space/gl/all` : ''
 				throw new Error(`color-space/gl: no path '${a}'→'${b}'${why ? ` (${why})` : ''}${hint}`)
 			}
 			for (const s of seq) use(s.chunk)

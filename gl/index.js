@@ -1,8 +1,9 @@
 /**
- * color-space/gl — every color space as a GLSL (and, via ./wgsl.js, WGSL) shader
- * chunk, composed on demand.
+ * color-space/gl/all — every color space as a GLSL (and, via ./wgsl.js, WGSL)
+ * shader chunk, routable by name. This is the full-catalog registry: for
+ * build-time-known spaces prefer `color-space/gl` (the lean composer).
  *
- *     import { glsl } from 'color-space/gl'
+ *     import { glsl } from 'color-space/gl/all'
  *     const src = glsl('rgb', 'oklch')
  *     // → self-contained GLSL defining `vec3 rgb_oklch(vec3 c)` (plus the chunks
  *     //   it composes through), ready to paste/interpolate into any shader.
@@ -52,7 +53,7 @@
  * - Iterative / table-interpolated chunks may declare `tol` — the normalized
  *   error bound test/gl.js holds them to (default 1e-6; justify anything above).
  *
- * @module color-space/gl
+ * @module color-space/gl/all
  */
 import { compose } from './compose.js'
 import xyz from './xyz.glsl.js'
@@ -211,7 +212,7 @@ import hunt from './hunt.glsl.js'
 import ostwald from './ostwald.glsl.js'
 import atd95 from './atd95.glsl.js'
 
-/** The full registry: every chunk, ready-composed (lean tier: ./compose.js). */
+/** The full registry: every chunk, ready-composed (lean tier: color-space/gl). */
 const reg = compose([xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3_linear, rec2020, rec2020_linear, rec2100_pq, rec2100_hlg, a98rgb, a98rgb_linear, prophoto, prophoto_linear, acescg, acescc, ictcp, cam16, hct, xyz_d50, xyz_abs_d65, lab_d65, gray, rg, hcl, din99o_lab, din99o_lch, xyb, lch_d65, cam16_ucs, okhwb, aces2065_1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci_p3, smpte_c, ipt, scrgb, rec2100_linear, din99d, ciecam02, cam02_ucs, photoycc, dsh, ral_design, munsell, uv, ohta, anlab, cie_rgb, ntsc, apple_rgb, pal, smpte_240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02_lcd, cam02_scd, cam16_lcd, cam16_scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, wavelength, icacb, hdr_ipt, hdr_cie_lab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95])
 
 /** All chunks by space name (rgb is the root — it has no chunk of its own). */

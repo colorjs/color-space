@@ -58,7 +58,7 @@ space.rgb.oklch(buf);                // converts in place, no copy — returns b
 Every space but `munsell` ships as a GLSL shader chunk with a mechanical WGSL translation — composed on demand, plain strings, no build step. Import the spaces you convert (each chunk carries its own dependency chain), ~4 kB in a bundle:
 
 ```js
-import glsl, { wgsl } from 'color-space/gl/compose';
+import glsl, { wgsl } from 'color-space/gl';
 import oklch from 'color-space/gl/oklch';
 
 glsl(oklch);          // self-contained `vec3 rgb_oklch(vec3 c)` — rgb is the default `from`
@@ -70,7 +70,7 @@ where size is free — the registry tier routes any space by name, at the cost o
 bundling the whole catalog (~200 kB min):
 
 ```js
-import { glsl } from 'color-space/gl';
+import { glsl } from 'color-space/gl/all';
 import { wgsl } from 'color-space/gl/wgsl';
 
 glsl('rgb', 'oklch');   // any of the 155 names, byte-identical output
