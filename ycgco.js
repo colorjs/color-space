@@ -16,6 +16,8 @@
  * @channel {Y} 0 1 Luma
  * @channel {Cg} -0.5 0.5 Green-magenta chroma
  * @channel {Co} -0.5 0.5 Orange-blue chroma
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

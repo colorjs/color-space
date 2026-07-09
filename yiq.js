@@ -16,6 +16,8 @@
  * @channel {Y} 0 1 Luma
  * @channel {I} -0.5957 0.5957 In-phase
  * @channel {Q} -0.5226 0.5226 Quadrature
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

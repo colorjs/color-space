@@ -16,6 +16,8 @@
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colourfulness
  * @channel {h} 0 360 Hue angle
+ * @method appearance
+ * @encoding pq
  * @illuminant D65
  * @observer 2
  * @referred display

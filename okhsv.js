@@ -13,6 +13,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {V} 0 100 Value percentage
+ * @method cylindrical
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

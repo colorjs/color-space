@@ -16,6 +16,8 @@
  * @channel {X} -0.0154 0.0281 Red-green
  * @channel {Y} 0 0.8453 Luminance
  * @channel {B} -0.2778 0.388 Blue
+ * @method opponent
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

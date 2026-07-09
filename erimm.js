@@ -14,6 +14,8 @@
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue
+ * @method transfer
+ * @encoding log
  * @illuminant D50
  * @observer 2
  * @referred scene

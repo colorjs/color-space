@@ -13,6 +13,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {P} 0 100 Perceived brightness percentage
+ * @method cylindrical
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

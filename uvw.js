@@ -16,6 +16,8 @@
  * @channel {U} -85 175 U* chrominance
  * @channel {V} -90 75 V* chrominance
  * @channel {W} -17 100 W* lightness
+ * @method opponent
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

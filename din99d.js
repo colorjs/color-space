@@ -16,6 +16,8 @@
  * @channel {L} 0 100 Lightness
  * @channel {a} -50 50 Green-Red axis
  * @channel {b} -50 50 Blue-Yellow axis
+ * @method opponent
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

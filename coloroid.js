@@ -14,6 +14,8 @@
  * @channel {A} 10 76 Hue grade
  * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity
+ * @method system
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

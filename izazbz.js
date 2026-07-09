@@ -12,6 +12,8 @@
  * @channel {Iz} 0 1 Achromatic
  * @channel {az} -0.5 0.5 Red-Green
  * @channel {bz} -0.5 0.5 Yellow-Blue
+ * @method opponent
+ * @encoding pq
  * @illuminant D65
  * @observer 2
  * @referred display

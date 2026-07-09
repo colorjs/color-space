@@ -13,6 +13,8 @@
  * @channel {R} 0 255 Red
  * @channel {G} 0 255 Green
  * @channel {B} 0 255 Blue
+ * @method transfer
+ * @encoding gamma
  * @illuminant D65
  * @referred display
  * @dynamic sdr

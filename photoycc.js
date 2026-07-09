@@ -18,6 +18,8 @@
  * @channel {Yc} 0 255 Luma
  * @channel {C1} 0 255 Blue chroma
  * @channel {C2} 0 255 Red chroma
+ * @method luma-chroma
+ * @encoding gamma
  * @illuminant D65
  * @observer 2
  * @referred scene

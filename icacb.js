@@ -12,6 +12,8 @@
  * @channel {I} 0 1 Intensity
  * @channel {Ca} -0.5 0.5 Red-Green
  * @channel {Cb} -0.5 0.5 Yellow-Blue
+ * @method opponent
+ * @encoding pq
  * @illuminant D65
  * @observer 2
  * @referred display

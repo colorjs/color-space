@@ -30,7 +30,11 @@ Per-space metadata and the CIE illuminant table ship as separate modules:
 
 ```js
 import meta from 'color-space/meta.js';
-meta.oklab; // { description, channels, range, refs, wiki, illuminant, observer, referred, dynamic }
+meta.oklab; // { description, channels, range, refs, wiki, year, by, use,
+             //   method, encoding, illuminant, observer, referred, dynamic }
+             // method:   how it's computed — transfer | matrix | opponent | cylindrical |
+             //           luma-chroma | chromaticity | appearance | system | spectral
+             // encoding: value domain — linear | gamma | log | pq | hlg | perceptual | chromaticity
 
 import whitepoint from 'color-space/whitepoints.js';
 whitepoint[2].D50; // → [96.422, 100, 82.521]

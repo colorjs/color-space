@@ -15,6 +15,8 @@
  * @channel {Yc} 0 1 Constant-luminance luma
  * @channel {Cbc} -0.5 0.5 Blue-difference chroma
  * @channel {Crc} -0.5 0.5 Red-difference chroma
+ * @method luma-chroma
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

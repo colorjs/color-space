@@ -14,6 +14,8 @@
  * @channel {Ach} -100 0 Achromatic
  * @channel {RG} -31 0 Red-Green
  * @channel {YV} 0 99 Tritan
+ * @method opponent
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

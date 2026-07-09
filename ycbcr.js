@@ -16,6 +16,8 @@
  * @channel {Y} 16 235 Luma
  * @channel {Cb} 16 240 Blue chroma
  * @channel {Cr} 16 240 Red chroma
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

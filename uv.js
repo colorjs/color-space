@@ -15,6 +15,8 @@
  * @channel {u} 0 0.7 u' chromaticity
  * @channel {v} 0 0.6 v' chromaticity
  * @channel {Y} 0 100 Luminance
+ * @method chromaticity
+ * @encoding chromaticity
  * @illuminant D65
  * @observer 2
  * @referred display

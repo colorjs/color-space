@@ -10,6 +10,8 @@
  * @see {@link https://doi.org/10.1002/col.5080170211} McCamy 1992 (xy→CCT)
  * @wiki {@link https://en.wikipedia.org/wiki/Planckian_locus}
  * @channel {T} 1000 25000 Temperature
+ * @method spectral
+ * @encoding chromaticity
  * @illuminant D65
  * @observer 2
  * @referred display

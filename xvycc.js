@@ -18,6 +18,8 @@
  * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

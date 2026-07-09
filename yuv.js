@@ -16,6 +16,8 @@
  * @channel {Y} 0 1 Luma
  * @channel {U} -0.436 0.436 Chrominance blue component
  * @channel {V} -0.615 0.615 Chrominance red component
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

@@ -19,6 +19,8 @@
  * @channel {H} 0 100 Hue
  * @channel {V} 0 10 Value
  * @channel {C} 0 38 Chroma
+ * @method system
+ * @encoding perceptual
  * @illuminant C
  * @observer 2
  * @referred display

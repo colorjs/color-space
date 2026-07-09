@@ -14,6 +14,8 @@
  * @channel {l} 0.4 1 Red-green chromaticity
  * @channel {s} 0 1 Tritan chromaticity
  * @channel {Y} 0 100 Luminance
+ * @method chromaticity
+ * @encoding chromaticity
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -15,6 +15,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 145 Chroma
  * @channel {T} 0 100 Tone
+ * @method appearance
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

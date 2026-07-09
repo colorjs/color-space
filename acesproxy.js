@@ -13,6 +13,8 @@
  * @channel {R} 0.0626 0.9189 Red
  * @channel {G} 0.0626 0.9189 Green
  * @channel {B} 0.0626 0.9189 Blue
+ * @method transfer
+ * @encoding log
  * @illuminant D60
  * @observer 2
  * @referred scene

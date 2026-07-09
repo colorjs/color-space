@@ -9,6 +9,8 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Rg_chromaticity}
  * @channel {r} 0 1 Red chromaticity coordinate
  * @channel {g} 0 1 Green chromaticity coordinate
+ * @method chromaticity
+ * @encoding chromaticity
  * @referred display
  * @dynamic sdr
  */

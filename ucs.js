@@ -15,6 +15,8 @@
  * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate
  * @channel {W} 0 160 W
+ * @method matrix
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

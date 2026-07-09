@@ -15,6 +15,8 @@
  * @channel {R} -0.35828683 1.4679963120447153 Red
  * @channel {G} -0.35828683 1.4679963120447153 Green
  * @channel {B} -0.35828683 1.4679963120447153 Blue
+ * @method transfer
+ * @encoding log
  * @referred scene
  * @dynamic hdr
  */

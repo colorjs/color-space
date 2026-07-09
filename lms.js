@@ -11,6 +11,8 @@
  * @channel {L} 0 100 Long
  * @channel {M} 0 105 Medium
  * @channel {S} 0 110 Short
+ * @method matrix
+ * @encoding linear
  * @referred display
  * @dynamic sdr
  */

@@ -12,6 +12,8 @@
  * @by CIE
  * @use Monochromatic-light-to-XYZ mapping via the CIE 1931 standard observer; current colorimetry reference.
  * @channel {wl} 380 700 Wavelength
+ * @method spectral
+ * @encoding chromaticity
  * @illuminant E
  * @observer 2
  * @referred display

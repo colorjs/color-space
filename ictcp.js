@@ -12,6 +12,8 @@
  * @channel {I} 0 1 Intensity
  * @channel {Ct} -0.5 0.5 Tritan chroma
  * @channel {Cp} -0.5 0.5 Protanopia chroma
+ * @method opponent
+ * @encoding pq
  * @referred display
  * @dynamic hdr
  */

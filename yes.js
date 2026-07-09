@@ -17,6 +17,8 @@
  * @channel {Y} 0 1 Luminance
  * @channel {E} -0.5 0.5 E-factor
  * @channel {S} -0.5 0.5 S-factor
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

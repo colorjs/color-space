@@ -17,6 +17,8 @@
  * @channel {h} 0 360 Hue
  * @channel {W} 0 100 White content
  * @channel {B} 0 100 Black content
+ * @method system
+ * @encoding perceptual
  * @illuminant C
  * @observer 2
  * @referred display

@@ -14,6 +14,8 @@
  * @channel {T} 0 360 Tint angle
  * @channel {S} 0 1 Saturation
  * @channel {L} 0 255 Lightness
+ * @method cylindrical
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

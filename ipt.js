@@ -14,6 +14,8 @@
  * @channel {I} 0 1 Lightness
  * @channel {P} -1 1 Red-Green
  * @channel {T} -1 1 Yellow-Blue
+ * @method opponent
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

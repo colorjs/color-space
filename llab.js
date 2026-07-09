@@ -13,6 +13,8 @@
  * @channel {L} -10 100 Lightness
  * @channel {A} -80 100 Red-Green
  * @channel {B} -90 90 Yellow-Blue
+ * @method appearance
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -14,6 +14,8 @@
  * @channel {X} 0 95.05 X
  * @channel {Y} 0 100 Y
  * @channel {Z} 0 108.91 Z
+ * @method matrix
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

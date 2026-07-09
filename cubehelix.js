@@ -14,6 +14,8 @@
  * @by Dave Green
  * @use Scalar colormap for scientific visualization; current standard colorblind-safe alternative to rainbow colormaps.
  * @channel {fraction} 0 1 Interpolation fraction along helix
+ * @method cylindrical
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

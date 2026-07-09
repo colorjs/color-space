@@ -17,6 +17,8 @@
  * @channel {I1} 0 255 Intensity/3
  * @channel {I2} -128 128 Opponent/2
  * @channel {I3} -128 128 Opponent/4
+ * @method opponent
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

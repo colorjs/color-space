@@ -13,6 +13,8 @@
  * @channel {d} -700 700 Dominant wavelength
  * @channel {s} 0 1 Excitation purity
  * @channel {Y} 0 100 Luminance
+ * @method chromaticity
+ * @encoding chromaticity
  * @illuminant D65
  * @observer 2
  * @referred display

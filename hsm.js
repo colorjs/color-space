@@ -13,6 +13,8 @@
  * @channel {H} 0 360 Hue
  * @channel {S} 0 100 Saturation
  * @channel {M} 0 100 Mixture
+ * @method cylindrical
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

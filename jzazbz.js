@@ -13,6 +13,8 @@
  * @channel {Jz} 0 1 Lightness
  * @channel {az} -0.5 0.5 Green-Red axis
  * @channel {bz} -0.5 0.5 Blue-Yellow axis
+ * @method opponent
+ * @encoding perceptual
  * @referred display
  * @dynamic hdr
  */

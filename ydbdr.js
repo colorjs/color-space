@@ -15,6 +15,8 @@
  * @channel {Y} 0 1 Luma
  * @channel {Db} -1.333 1.333 Blue difference
  * @channel {Dr} -1.333 1.333 Red difference
+ * @method luma-chroma
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

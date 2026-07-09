@@ -14,6 +14,8 @@
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage
  * @channel {K} 0 100 Black percentage
+ * @method matrix
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

@@ -13,6 +13,8 @@
  * @channel {L} 0 1 Lightness
  * @channel {C} 0 0.4 Chroma
  * @channel {H} 0 360 Hue angle in degrees
+ * @method cylindrical
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

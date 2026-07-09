@@ -14,6 +14,8 @@
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 190 Chroma
  * @channel {h} 0 360 Hue
+ * @method appearance
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -17,6 +17,8 @@
  * @channel {l} -6 0 log-luminance
  * @channel {alpha} -1 0.9 Yellow-Blue
  * @channel {beta} -0.21 0.21 Red-Green
+ * @method opponent
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

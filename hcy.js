@@ -13,6 +13,8 @@
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {Y} 0 100 Luma percentage
+ * @method cylindrical
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

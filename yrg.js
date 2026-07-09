@@ -13,6 +13,8 @@
  * @channel {Y} 0 1.06 Luminance
  * @channel {r} 0.02 0.64 Red chromaticity
  * @channel {g} 0.21 0.78 Green chromaticity
+ * @method chromaticity
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -10,6 +10,8 @@
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue
+ * @method transfer
+ * @encoding gamma
  * @illuminant D65
  * @observer 2
  * @referred display

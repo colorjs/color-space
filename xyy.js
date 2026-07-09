@@ -13,6 +13,8 @@
  * @channel {x} 0 1 Red chromaticity
  * @channel {y} 0 1 Green chromaticity
  * @channel {Y} 0 100 Luminance
+ * @method chromaticity
+ * @encoding chromaticity
  * @referred display
  * @dynamic sdr
  */

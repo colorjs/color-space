@@ -14,6 +14,8 @@
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue
+ * @method appearance
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

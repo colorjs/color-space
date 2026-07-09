@@ -14,6 +14,8 @@
  * @channel {Ig} 0 1 Intensity
  * @channel {Pg} -1 1 Protan
  * @channel {Tg} -1 1 Tritan
+ * @method opponent
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

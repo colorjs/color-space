@@ -16,6 +16,8 @@
  * @channel {R} 0 255 Red pigment
  * @channel {Y} 0 255 Yellow pigment
  * @channel {B} 0 255 Blue pigment
+ * @method system
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

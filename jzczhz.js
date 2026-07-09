@@ -12,6 +12,8 @@
  * @channel {Jz} 0 1 Lightness
  * @channel {Cz} 0 1 Chroma
  * @channel {Hz} 0 360 Hue angle in degrees
+ * @method cylindrical
+ * @encoding perceptual
  * @referred display
  * @dynamic hdr
  */

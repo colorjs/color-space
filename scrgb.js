@@ -13,6 +13,8 @@
  * @channel {R} -0.5 7.4998779296875 Red
  * @channel {G} -0.5 7.4998779296875 Green
  * @channel {B} -0.5 7.4998779296875 Blue
+ * @method transfer
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

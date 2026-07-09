@@ -15,6 +15,8 @@
  * @channel {H} 0 360 Hue
  * @channel {C} 0 100 Chroma
  * @channel {L} 0 100 Luminance
+ * @method cylindrical
+ * @encoding gamma
  * @referred display
  * @dynamic sdr
  */

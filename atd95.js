@@ -14,6 +14,8 @@
  * @channel {A} 0 0.05 Achromatic
  * @channel {T} -0.01 0.08 Tritan
  * @channel {D} -0.03 0.06 Deutan
+ * @method appearance
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

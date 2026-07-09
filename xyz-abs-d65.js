@@ -13,6 +13,8 @@
  * @channel {Xa} 0 192.9 Absolute X
  * @channel {Ya} 0 203 Absolute Y
  * @channel {Za} 0 221.1 Absolute Z
+ * @method matrix
+ * @encoding linear
  * @illuminant D65
  * @observer 2
  * @referred display

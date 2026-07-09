@@ -13,6 +13,8 @@
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 150 Chroma
  * @channel {H} 0 360 Hue angle in degrees
+ * @method cylindrical
+ * @encoding perceptual
  * @illuminant D65
  * @observer 2
  * @referred display

@@ -18,6 +18,8 @@
  * @channel {L} -10 10 Lightness
  * @channel {j} -10 10 Yellow-Blue axis
  * @channel {g} -10 10 Red-Green axis
+ * @method opponent
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */

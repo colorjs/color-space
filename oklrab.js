@@ -14,6 +14,8 @@
  * @channel {L} 0 1 Lightness
  * @channel {a} -0.4 0.4 Green-Red axis
  * @channel {b} -0.4 0.4 Blue-Yellow axis
+ * @method opponent
+ * @encoding perceptual
  * @referred display
  * @dynamic sdr
  */
