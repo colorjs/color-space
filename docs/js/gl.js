@@ -809,6 +809,69 @@ export function paintGamutGL(cv2d, s) {
 /** xy position of a chromaticity inside the panel (for the marker), 0..1 each. */
 export const gamutPos = (x, y) => [(x + 0.05) / 0.8, 1 - (y + 0.03) / 0.88]
 
+// ── the hero slice: OKLCH hue across × chroma down at lightness L, chroma
+// normalized per hue to the sRGB gamut edge (bisected in-shader) — cheap enough
+// to repaint every frame, so the lightness itself can animate ──
+// ── the hero: three horizontal bands of pure hues per space — continuous on top,
+// then 20 steps, then 10 — pick the stepping you like. Each hue sits at its most
+// saturated displayable tone (the sRGB cusp, via a per-space LUT); bounded cylinders
+// sit at full saturation. Static per space — nothing repaints on color change. ──
+const heroProgs = new Map()
+function heroProg(spec) {
+	if (heroProgs.has(spec.s)) return heroProgs.get(spec.s)
+	const S = san(spec.s)
+	let lib
+	try { lib = glsl([[spec.s, 'rgb']]) } catch { heroProgs.set(spec.s, null); return null }
+	const asm = () => { const a = ['0.0', '0.0', '0.0']; a[spec.h] = 'hue'; a[spec.c] = 'C'; a[spec.l] = 'Lv'; return `vec3(${a.join(', ')})` }
+	const fs = `#version 300 es
+precision highp float;
+precision highp int;
+${lib}
+uniform vec2 uRes;
+${spec.sat == null ? 'uniform float uCusp[64];' : ''}
+out vec4 O;
+${spec.sat == null ? `bool in_(float C, float hue, float Lv) { vec3 v = ${S}_rgb(${asm()}); return all(greaterThanEqual(v, vec3(-0.13))) && all(lessThanEqual(v, vec3(255.13))); }
+float edge_(float hue, float Lv) { float lo = 0.0, hi = ${spec.ctop.toFixed(4)};
+	if (in_(hi, hue, Lv)) return hi;
+	for (int k = 0; k < 12; k++) { float mid = (lo + hi) * 0.5;
+		if (in_(mid, hue, Lv)) lo = mid; else hi = mid; }
+	return lo; }
+` : ''}void main() {
+	vec2 f = gl_FragCoord.xy / uRes;
+	float band = min(2.0, floor((1.0 - f.y) * 3.0));   // 0 = continuous, 1 = 20 steps, 2 = 10 steps
+	float hq = band < 0.5 ? f.x : band < 1.5 ? (floor(f.x * 20.0) + 0.5) / 20.0 : (floor(f.x * 10.0) + 0.5) / 10.0;
+	float hue = ${(spec.hmin ?? 0).toFixed(2)} + hq * ${((spec.hmax ?? 360) - (spec.hmin ?? 0)).toFixed(2)};
+${spec.sat == null ? `	float fi = clamp(hq, 0.0, 1.0) * 63.0;
+	int i0 = int(floor(fi));
+	float Lv = mix(uCusp[i0], uCusp[min(i0 + 1, 63)], fract(fi));   // the cusp: most saturated tone per hue
+	float C = edge_(hue, Lv) * 0.985;` : `	float Lv = ${spec.tone.toFixed(1)};
+	float C = ${spec.sat.toFixed(1)};`}
+	vec3 rgb = clamp(${S}_rgb(${asm()}) / 255.0, 0.0, 1.0);
+	O = vec4(rgb, 1.0);
+}`
+	const st = build(G, FSQ_VS, fs, (o) => {
+		o.u = { uRes: G.getUniformLocation(o.pr, 'uRes'), uCusp: spec.sat == null ? G.getUniformLocation(o.pr, 'uCusp') : null }
+	})
+	heroProgs.set(spec.s, st)
+	return st
+}
+/** Paint the hue bands for a space spec; cusp = Float32Array(64) of per-hue tones (unbounded specs). */
+export function paintHeroGL(cv2d, spec, cusp) {
+	if (!G) return false
+	const st = heroProg(spec)
+	if (!st || st.bad || st.pending) return false
+	const w = cv2d.width, h = cv2d.height
+	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	G.viewport(0, 0, w, h)
+	G.disable(G.DEPTH_TEST)
+	G.useProgram(st.pr)
+	G.uniform2f(st.u.uRes, w, h)
+	if (st.u.uCusp && cusp) G.uniform1fv(st.u.uCusp, cusp)
+	G.drawArrays(G.TRIANGLES, 0, 3)
+	cv2d.getContext('2d').drawImage(CV, 0, 0)
+	return true
+}
+
 // ── channel decomposition of an image: sample → convert → hold every channel
 // at its neutral except one → convert back. The exact chunk math per pixel. ──
 const imgProgs = new Map()

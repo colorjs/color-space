@@ -34,10 +34,15 @@ var hwb = {
 
 		var r, g, b;
 
-		// wh + bl cant be > 1
-		if (ratio > 1) {
-			wh /= ratio;
-			bl /= ratio;
+		// white + black >= 1 is achromatic: an EXACT gray = white / (white + black),
+		// per CSS Color 4. Computing it through the sector machinery below instead
+		// (v = 1 - bl vs wh) leaves ~1e-14 residue between the channels, which any
+		// downstream hue read (rgb -> hsv / hsl) amplifies into a random hue — so the
+		// neighbouring hue sliders jump as whiteness is dragged past this point.
+		// @see https://www.w3.org/TR/css-color-4/#hwb-to-rgb
+		if (ratio >= 1) {
+			var gray = wh / ratio * 255;
+			return [gray, gray, gray];
 		}
 
 		i = Math.floor(6 * h);

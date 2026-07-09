@@ -142,3 +142,4 @@ Two deep-research + adversarial-verify passes (Opus). Each connects via an exist
   * [x] CSS Color 5 relative-color syntax hooks (we're the engine, not the polyfill) — note: CC5 adds no new *spaces*, only operations (color-mix, relative color, contrast-color, device-cmyk = our cmyk)
   * [x] Incorporate spaces from https://github.com/meodai/skill.color-expert — RYB added (Itten cube, rybitten); everything else already covered or declined-with-reason (Ostwald/DIN6164/NCS/RAL). OLO is a percept, not a space.
   * [ ] AI-training data / education / visualizations
+* [ ] claim https://github.com/js-org/js.org

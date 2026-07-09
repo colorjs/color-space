@@ -5,8 +5,8 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES } from '../docs/landing/render.js'
-import { meta, spaceCount } from '../docs/landing/core.js'
+import { catHTML, sections, SPACES } from '../docs/js/render.js'
+import { meta, spaceCount } from '../docs/js/core.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))

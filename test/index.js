@@ -91,6 +91,15 @@ test('edge: achromatic / black inputs are NaN-safe', () => {
 	is(space.rgb.hsp(255, 0, 0).map(round(0)), [0, 100, 55], 'hsp red hue 0 (was 360)')
 	is(space.xyz.osaucs(0, 0, 0).map(round(2)), [-13.51, 0, 0], 'osaucs black (was NaN,NaN,NaN)')
 	is(space.rgb.lchuv(0, 0, 0).map(round(1)), [0, 0, 0], 'lchuv black hue 0 (was 180)')
+	// hwb's over-mixed region (white + black >= 100) is achromatic — it must be an EXACT
+	// gray. Computing it through the sector machinery instead left ~1e-14 residue between
+	// channels, which rgb->hsv/hsl hue extraction amplified into a random hue, so the
+	// neighbouring hue sliders jumped as whiteness was dragged. @see w3.org/TR/css-color-4/#hwb-to-rgb
+	for (const [h, w, b] of [[200, 62, 40], [30, 90, 30], [300, 50, 50]]) {
+		const [r, g, bl] = space.hwb.rgb(h, w, b)
+		is(r === g && g === bl, true, `hwb(${h} ${w} ${b}) over-mix is an exact gray (was ~1e-14 residue)`)
+	}
+	is(space.rgb.hsv(...space.hwb.rgb(200, 62, 40))[0], 0, 'hwb over-mixed gray reads hue 0 (was 180)')
 })
 
 test('edge: every space is NaN/Infinity-safe (black/white/gray/primaries)', () => {
