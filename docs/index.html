@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>color-space — every color space, one tiny API, verified</title>
-<meta name="description" content="156 color spaces live in the browser — CSS-native values, formulas differentially tested against colorjs.io. Zero dependencies, public domain.">
+<meta name="description" content="156 color spaces live in the browser — CSS-native values, formulas differentially tested against colorjs.io. Zero dependencies, MIT.">
 <meta property="og:title" content="color-space — every color space, one tiny API, verified">
-<meta property="og:description" content="156 color spaces live in the browser — one color re-derived across all of them. CSS-native values, verified against colorjs.io, zero dependencies, public domain.">
+<meta property="og:description" content="156 color spaces live in the browser — one color re-derived across all of them. CSS-native values, verified against colorjs.io, zero dependencies, MIT.">
 <meta property="og:image" content="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -82,8 +82,8 @@ a{ color:var(--ink) }
 .introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
 .introcopy p{ margin:var(--s2) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
 .introcopy em{ white-space:nowrap }
-.trust{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s2); list-style:none; margin:var(--s3) 0 0; padding:0; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft) }
-.trust li{ display:inline-flex; align-items:center; gap:.4em; background:var(--panel); border-radius:999px; padding:var(--s1) var(--s2); line-height:1.1; white-space:nowrap }
+.trust{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s3); list-style:none; margin:var(--s3) 0 0; padding:0; font-size:var(--t2); font-weight:600; letter-spacing:.02em; color:var(--soft) }
+.trust li{ display:inline-flex; align-items:center; gap:.4em; background:var(--panel); border-radius:999px; padding:var(--s2) var(--s3); line-height:1.1; white-space:nowrap }
 .trust svg{ flex:none; width:14px; height:14px; opacity:.72 }
 .introcopy .fnpm{ margin-top:var(--s3) }
 .quick{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2); flex-wrap:wrap }
@@ -440,7 +440,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div>
 		<h2 id="introcopy-title">Any color space.</h2>
-		<p><span id="n2">156</span> color spaces: web, print, film, broadcast, science and history.
+		<p><span id="n2">156</span> color spaces from web, print, film, broadcast, science and history domains.
 		Convert <em>rgb to oklch</em>, <em>hsl to rgb</em>, <em>rgb to cmyk</em>, <em>p3 to rgb</em>, <em>slog3 to rec709</em>, <em>xyz to lab</em>, <em>kelvin to rgb</em>.
 		Canonical formulas, real ranges, gamut shapes, metadata and references.</p>
 		<ul class="trust" aria-label="trust factors">
@@ -448,7 +448,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 			<li title="nothing in node_modules but this"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"/><path d="M3.3 7l8.7 5 8.7-5M12 22V12"/></svg>0 deps</li>
 			<li title="ES modules — import one space ≈ 2 kB"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L7 10h3l-4 6h12l-4-6h3z"/><path d="M12 16v5"/></svg>Tree-shakeable</li>
 			<li title="the same conversions in three runtimes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>JS · GLSL · WASM</li>
-			<li title="Unlicense — free forever, no strings"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>Public domain</li>
+			<li title="MIT — one permission line, free forever"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>MIT</li>
 		</ul>
 		<button class="fnpm" id="copyinstall" title="copy install command"><i>❯</i><span class="cmd">npm i color-space</span></button>
 	</div>
@@ -1052,7 +1052,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 			</nav>
 			<div class="legal">
 				<span class="proof"><span id="n">156</span> spaces · differentially tested · zero dependencies</span>
-				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">Unlicense</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
+				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">MIT</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
 			</div>
 		</div>
 	</div>

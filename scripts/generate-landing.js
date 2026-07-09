@@ -32,7 +32,7 @@ const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
 > (what CSS and the defining papers use). Formulas differentially tested against
-> colorjs.io. Zero dependencies, public domain (Unlicense).
+> colorjs.io. Zero dependencies, MIT.
 
 Install: npm i color-space
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)

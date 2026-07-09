@@ -35,7 +35,7 @@
     "cinema"
   ],
   "repository": "colorjs/color-space",
-  "license": "Unlicense",
+  "license": "MIT",
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "files": [
@@ -51,6 +51,8 @@
     "./wasm": "./wasm.js",
     "./gl": "./gl/index.js",
     "./gl/wgsl": "./gl/wgsl.js",
+    "./gl/compose": "./gl/compose.js",
+    "./gl/translate": "./gl/translate.js",
     "./gl/*.glsl.js": "./gl/*.glsl.js",
     "./gl/*.js": "./gl/*.js",
     "./gl/*": "./gl/*.glsl.js",
