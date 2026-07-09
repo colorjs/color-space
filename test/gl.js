@@ -181,8 +181,12 @@ test('gl: compose (lean) emits byte-identical sources to the registry', async ()
 	const p3 = (await import('../gl/p3.glsl.js')).default
 	is(lean('rgb', oklch), glsl('rgb', 'oklch'), 'rgb→oklch')
 	is(lean(oklch, 'rgb'), glsl('oklch', 'rgb'), 'oklch→rgb')
+	is(lean(oklch), glsl('rgb', 'oklch'), 'single-chunk sugar defaults from=rgb')
 	is(compose([oklch, p3]).glsl([['oklch', 'rgb'], ['oklch', 'p3']]),
 		glsl([['oklch', 'rgb'], ['oklch', 'p3']]), 'multi-pair')
+	const { wgsl: leanWgsl } = await import('../gl/compose.js')
+	const { wgsl: fatWgsl } = await import('../gl/wgsl.js')
+	is(leanWgsl(oklch), fatWgsl('rgb', 'oklch'), 'lean wgsl parity')
 })
 
 test('gl: every chunk carries its edge/requires chain in deps', () => {

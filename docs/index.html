@@ -27,46 +27,31 @@ body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(-
    Spacing rides the 8px grid; type is a 5-step scale. On :root so the modal (outside .page) resolves them too */
 :root{ --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s6:1.5rem; --s8:2rem; --s12:3rem;
 	--t0:.625rem; --t1:.75rem; --t2:.875rem; --t3:1rem; --t4:1.25rem;
-	--ctl:40px;      /* one slider row: catalog sliders, hero bands */
+	--ctl:40px;      /* one slider row: catalog sliders */
 	--swp:64px;      /* one sweep row: channel bars, interpolate sweeps */
-	--pick:13.5rem;  /* one 2D picker plate: plot planes, CIE xy, transfer */
-	--ih:calc(var(--ctl)*3) }   /* hero: three slider-height bands */
-.page{ --railw:14.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem) }   /* --eg: half the visual gutter between entries */
+	--pick:13.5rem } /* one 2D picker plate: plot planes, CIE xy, transfer */
+.page{ --railw:14.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); --maxw:108rem; max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
 a{ color:var(--ink) }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:60; background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; text-decoration:none; padding:var(--s2) var(--s3); transform:translateY(-3.6rem); transition:transform .15s }
 .skip:focus{ transform:none }
-/* ── masthead: one sticky identity bar — wordmark, live colour, search — always on
-   paper. Its bottom border (the hue line) and the live colour appear only once the
-   pick plane has collapsed into it: the border tracks the collapse (--brd), .mhead.on
-   flips at full collapse. ── */
-.mhead{ position:sticky; top:0; z-index:15; background:var(--paper) }
+/* ── masthead: a plain identity bar — wordmark, search, toggles — that scrolls away
+   with the page (no sticky float). The pick affordance is the hue line beneath it. ── */
+.mhead{ background:var(--paper) }
 .mast{ position:relative; display:flex; align-items:center; gap:var(--s3) var(--s4); flex-wrap:wrap; padding:var(--s3) 0 var(--s4); color:var(--ink) }
-/* the header's bottom border — a solid band of the current colour once one is picked
-   (the pick plane collapses down onto it); opacity tracks the collapse (--brd) */
-.mast::after{ content:''; position:absolute; left:0; right:0; top:100%; height:5px; background:var(--c,var(--mline)); opacity:var(--brd,0) }
 .mast .wm{ font-weight:800; font-size:var(--t3); letter-spacing:-.01em }
 .mast .sp{ flex:1 }
-@media(min-width:1025px){ .mast{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr) auto auto auto auto auto; column-gap:var(--railgap); row-gap:var(--s2); flex-wrap:nowrap } .mast .wm{ grid-column:1 } .mast .cur{ grid-column:2; justify-self:start; margin-left:max(0px, calc(var(--curx,0px) - var(--railw) - var(--railgap))) } .mast .sp{ display:none } }   /* --curx (measured: the spaces box's left) minus the grid's own rail offset — the masthead's col 2 is narrower than the catalog's, so alignment must be measured, not structural */
+/* the hue line: a thin spectrum you click to pick a hue — not a slider, just the
+   header's coloured border. The catalog itself shows the current colour. */
+.hueline{ height:5px; cursor:pointer; touch-action:none;
+	background:linear-gradient(90deg in oklch longer hue, oklch(.7 .18 0), oklch(.7 .18 360)) }
 .mast .ver{ font-size:var(--t1); font-weight:700; color:var(--soft); text-decoration:none }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh{ display:flex; align-self:center; color:var(--ink) }
 .mast .gh:hover{ color:var(--c) }
 .mast #thm,.mast .gh{ margin-left:calc(var(--s2)*-1) }   /* pair the toggles (sliders · theme) and the repo pair (version · github) */
-@media(min-width:1025px){ .mast #thm,.mast .gh{ margin-left:calc(.55rem - var(--railgap)) } }
 .thm{ border:0; background:none; padding:var(--s1); color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
-/* live current colour — always editable; the gamut tags are separate chips, not part of the value */
-.cur{ display:flex; align-items:center; gap:var(--s1); min-width:0; opacity:1; pointer-events:auto; transition:opacity .35s ease }   /* sits in the masthead grid's content column — same left edge as the spaces */
-.mhead.on .cur{ opacity:1; pointer-events:auto }
-.cur .cursw{ flex:none; width:1.9rem; height:1.9rem; border:0; border-radius:50%; padding:0; background:none; cursor:pointer; box-shadow:inset 0 0 0 1px var(--hair) }
-.cur .cursw::-webkit-color-swatch-wrapper{ padding:0 } .cur .cursw::-webkit-color-swatch{ border:none; border-radius:50% } .cur .cursw::-moz-color-swatch{ border:none; border-radius:50% }
-.cur .curhex{ min-width:8.8rem; max-width:min(28vw,23rem); font:inherit; font-size:var(--t3); font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); background:transparent; border:0; border-bottom:2px solid transparent; outline:none; padding:var(--s1) 0 var(--s1); text-overflow:ellipsis }
-.cur .curhex:focus{ border-bottom-color:var(--hair) }
-.cur .curhex.bad{ border-bottom-color:var(--c); color:var(--c) }
-.cur .curnm{ margin-left:var(--s2); font-size:var(--t2); font-weight:600; color:var(--soft); cursor:pointer; white-space:nowrap } .cur .curnm:hover{ color:var(--c) }
-.cur .curgam{ display:flex; gap:var(--s1); margin-left:var(--s1); white-space:nowrap }
-.cur .curgam .on{ color:var(--ink) } .cur .curgam .off{ color:var(--soft); opacity:.42 }
 /* the all-sliders toggle — the mixer icon laid horizontal, lit while active */
 .allsb{ color:var(--soft) }
 .allsb[aria-pressed="true"]{ color:var(--ink) }
@@ -78,30 +63,26 @@ a{ color:var(--ink) }
 .qx .qn{ font-size:var(--t1); font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
 .qx input:placeholder-shown ~ .qn{ display:none }
 /* first-time orientation: the instrument should explain itself before the grid starts */
-.introcopy{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--s4) var(--s6); align-items:end; padding:clamp(1rem,2.2vw,1.6rem) clamp(1rem,3vw,2.2rem) .9rem; border-bottom:1px solid var(--hair) }
+.introcopy{ padding:clamp(1rem,2.2vw,1.6rem) clamp(1rem,3vw,2.2rem) .9rem; }
 .introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
-.introcopy p{ margin:var(--s2) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
+.introcopy p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
 .introcopy em{ white-space:nowrap }
-.trust{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s3); list-style:none; margin:var(--s3) 0 0; padding:0; font-size:var(--t2); font-weight:600; letter-spacing:.02em; color:var(--soft) }
+.trust{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s2); list-style:none; margin:var(--s4) 0 0; padding:0; font-size:var(--t2); font-weight:600; letter-spacing:.02em; color:var(--soft) }
 .trust li{ display:inline-flex; align-items:center; gap:.4em; background:var(--panel); border-radius:999px; padding:var(--s2) var(--s3); line-height:1.1; white-space:nowrap }
 .trust svg{ flex:none; width:14px; height:14px; opacity:.72 }
 .introcopy .fnpm{ margin-top:var(--s3) }
 .quick{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2); flex-wrap:wrap }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
-.recents{ grid-column:2; grid-row:1; align-self:end; justify-content:flex-end; display:flex; align-items:center; gap:var(--s2); min-height:1.65rem; flex-wrap:wrap }
-.recents b{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-right:var(--s1) }
-.recents button{ width:1.35rem; height:1.35rem; border:1px solid var(--hair); background:var(--sw); cursor:pointer; padding:0 }
-.recents button:hover{ transform:translateY(-1px) }
-@media(max-width:720px){ .introcopy{ grid-template-columns:1fr; align-items:start } .recents{ grid-column:1; grid-row:auto; justify-content:flex-start } }
-@media(max-width:560px){ .cur .curnm,.cur .curgam{ display:none } .cur .curhex{ min-width:6.6rem; max-width:38vw; font-size:var(--t2) } .qx input{ width:0; opacity:0 } .qx:focus-within input,.qx input:not(:placeholder-shown){ width:10.5rem; opacity:1 } }
+@media(max-width:560px){ .qx input{ width:0; opacity:0 } .qx:focus-within input,.qx input:not(:placeholder-shown){ width:10.5rem; opacity:1 } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
    reading blocks (.g: api, recipes, about) stay in a centered measure for readability */
 .g,.fw,.cat{ padding-left:clamp(1rem,3vw,2.2rem); padding-right:clamp(1rem,3vw,2.2rem) }
-/* reading blocks share the spaces' grid: rail-width gutter, content centred in the rest */
+/* reading blocks share the spaces' grid: rail gutter + content filling the rest of the
+   (now capped) measure, so the rail sits right beside the content — text kept narrow */
 .g{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
-.g>section{ grid-column:2; justify-self:stretch; width:64rem; max-width:100%; margin:0 auto; min-width:0 }
+.g>section{ grid-column:2; justify-self:start; max-width:64rem; min-width:0 }
 /* rail takes its fixed width on the left; the spaces centre in the space that remains,
    not on the screen — so they don't read as shoved right of the categories */
 .cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
@@ -110,20 +91,18 @@ a{ color:var(--ink) }
 .toc{ grid-column:1; position:relative }
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100% }
-.ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--ink); text-align:left; border:0; background:var(--paper); padding:0 var(--s2) 0 0; cursor:pointer }
-.ti .tn:hover{ background:var(--lift) }
-.ti.act .tn{ color:var(--c) }
+.ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; border:0; background:var(--paper); padding:0 var(--s2) 0 0; cursor:pointer; transition:color .15s ease }   /* inactive categories greyed */
+.ti .tn:hover{ color:var(--body) }
+.ti.act .tn{ color:var(--ink) }   /* the active category is black */
 .ti .tc{ font-weight:600; font-size:.8em; color:currentColor; opacity:.42; margin-left:.35em }   /* count of spaces in the category */
 .ti.off{ display:none }
-.secs{ grid-column:2; min-width:0; width:64rem; max-width:100%; margin:0 auto; padding-bottom:clamp(2rem,5vw,3.5rem) }
-@media(min-width:1400px){ .secs,.g>section{ width:80rem } }   /* wider box on big screens; explicit width so the box fills it and the reading blocks line up exactly */
+.secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }   /* fills the capped content column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
    name + channel values, always visible, no folding. Sheets of both kinds tile
    gaplessly: gapless grids, each entry carrying half the gutter as its own padding */
 .sec{ position:relative; padding:var(--s6) 0 var(--s8); scroll-margin-top:3.4rem }
-/* the divider runs full width — from the category name in the rail out to the screen's
-   right edge (offsets measured in layoutToc, since the spaces block is centred) */
-.sec::before{ content:''; position:absolute; top:0; left:calc(-1*var(--secl,0px)); right:calc(-1*var(--secr,0px)); height:1px; background:var(--hair) }
+/* the divider runs from the category name in the rail across to the content's right edge */
+.sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railw) + var(--railgap))); right:0; height:1px; background:var(--hair) }
 .sec:first-of-type{ padding-top:var(--s6) } .sec:first-of-type::before{ display:none }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
 .sheet{ margin-top:var(--s3) }   /* the first sheet row breathes below the lead sliders */
@@ -392,50 +371,19 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 @media(prefers-reduced-motion:reduce){ .fnpm.typing .cmd{ animation:none } }
 @media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:var(--s4) var(--s6) } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } }
 @media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mback{ display:none } .mnav{ top:auto; bottom:.8rem; transform:none; padding:var(--s3); color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
-/* ── the hero: a compact OKLCH slice — hue across, chroma down — whose lightness
-   breathes around the current color's L (GPU-painted); drag picks in place and freezes it. ── */
-/* hue ticks ride the plane's bottom edge and fade away as it collapses */
-.hticks{ position:absolute; left:0; right:0; bottom:calc(var(--ih,120px)/3*2 + 3px); height:13px; pointer-events:none; opacity:calc(1 - var(--brd,0)); font-size:var(--t0); font-weight:700; letter-spacing:.04em; font-variant-numeric:tabular-nums }
-.hticks i{ position:absolute; bottom:0; transform:translateX(-50%); font-style:normal }   /* each label inked per-pixel against the plane below it — no shadows, ever */
-/* the picker's space, top-right — click cycles the hue-based spaces */
-.hspace{ position:absolute; top:var(--s1); right:var(--s2); z-index:2; font-family:inherit; border:0; cursor:pointer; opacity:calc(1 - var(--brd,0)) }
-.introw{ height:var(--ih,120px) }   /* the scroll track: the plane collapses over exactly this much scroll */
-.intro{ position:sticky; top:var(--hh,52px); height:var(--ih,120px); overflow:hidden; cursor:crosshair; opacity:0; transition:opacity .5s ease }
-.intro.in{ opacity:1 }
-/* the pick surface is a live canvas: hue runs left→right, chroma top→bottom at the
-   current OKLCH lightness. Anchored to the BOTTOM so scroll clips it into the masthead line. */
-.iwheel{ position:absolute; left:0; right:0; bottom:0; width:100%; height:var(--ih,120px); display:block; background:var(--panel) }
-/* same rhombus marker as the catalog sliders, enlarged for the hero */
-.ipicker{ position:absolute; z-index:2; top:0; left:0; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); color:#fff; background:var(--c); border:1.4px solid currentColor; pointer-events:none; opacity:1; will-change:left,top }
-.ent.wv{ animation:entwave .55s var(--wd,0ms) both ease }
-@keyframes entwave{ from{ opacity:0; transform:translateY(15px) } to{ opacity:1; transform:none } }
-@media(prefers-reduced-motion:reduce){ .ent.wv{ animation:none } }
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
 <div class="page">
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
-	<div class="cur" id="curw">
-		<input type="color" class="cursw" id="cursw" title="current color — click to pick" aria-label="current color">
-		<input class="curhex tnum" id="curhex" spellcheck="false" autocomplete="off" title="type any CSS color; Enter applies" aria-label="current color value">
-		<span class="curnm" id="curnm" title="nearest named color — click to use it"></span>
-		<span class="curgam" id="curgam"></span>
-	</div>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces, channels, uses (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces, channels, uses (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<button class="thm allsb" id="allsb" aria-pressed="false" title="sliders for every space"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="transform:rotate(90deg)"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
-</header></div>
-
-<div class="fw introw" id="introw"><section class="intro" id="intro" aria-label="pick a colour">
-	<canvas class="iwheel" id="iwheel" width="960" height="140"></canvas>
-	<button class="tag hspace" id="hspace" title="the picker's space — click to switch">OKLCH</button>
-	<div class="hticks" aria-hidden="true"><i style="left:12.5%">45°</i><i style="left:25%">90°</i><i style="left:37.5%">135°</i><i style="left:50%">180°</i><i style="left:62.5%">225°</i><i style="left:75%">270°</i><i style="left:87.5%">315°</i></div>
-	<div class="ipicker" id="ipicker" aria-hidden="true"></div>
-</section></div>
+</header><div class="hueline" id="hueline" title="pick a hue"></div></div>
 
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div>
@@ -452,7 +400,6 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 		</ul>
 		<button class="fnpm" id="copyinstall" title="copy install command"><i>❯</i><span class="cmd">npm i color-space</span></button>
 	</div>
-	<div class="recents" id="recents" aria-label="recent colors"></div>
 </section>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web<span class="tc tnum">(19)</span></button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical<span class="tc tnum">(9)</span></button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern<span class="tc tnum">(12)</span></button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic<span class="tc tnum">(15)</span></button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision<span class="tc tnum">(14)</span></button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera<span class="tc tnum">(36)</span></button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models<span class="tc tnum">(15)</span></button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical<span class="tc tnum">(7)</span></button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research<span class="tc tnum">(7)</span></button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw">Display & web<span class="c tnum">(19)</span></h2><div class="grid">
@@ -1079,18 +1026,21 @@ import { SPACES, sections, cname, unit, catHTML, HISTORICAL } from './js/render.
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
 let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter', codeTab='js'
-let syncHeroPicker=()=>{}
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='copied!')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
-const recentEl=document.getElementById('recents'), RECENT_KEY='csRecentColors'; let recentT
-const recentList=()=>{ try{ return JSON.parse(localStorage.getItem(RECENT_KEY)||'[]') }catch{ return [] } }
-function paintRecent(){ if(!recentEl) return; const xs=recentList().slice(0,10)
-	recentEl.innerHTML=xs.length?`<b>recent</b>${xs.map(h=>`<button type="button" style="--sw:${h}" title="use ${h}" aria-label="use recent color ${h}" data-h="${h}"></button>`).join('')}`:''
-	recentEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{ master={ s:'rgb', vals:hex2rgb(b.dataset.h) }; renderFast(); paintCatalogGrad(); paintPlanes(false) }) }
-function saveRecentHex(h){ const xs=recentList().filter(x=>x!==h); xs.unshift(h); try{ localStorage.setItem(RECENT_KEY,JSON.stringify(xs.slice(0,10))) }catch{}; paintRecent() }
-const queueRecent=rgb=>{ clearTimeout(recentT); const h=hex(rgb); recentT=setTimeout(()=>saveRecentHex(h),650) }
-paintRecent()
+// the hue line under the header — the picker, distilled to a hint. Drag/click picks a
+// vivid tone of the hue under the cursor; a marker rides the current colour's hue.
+// It does NOT tint the interface (--c stays the fixed brand accent) — the catalog is
+// where the current colour lives.
+const hueEl=document.getElementById('hueline')
+if(hueEl){ let hdrag=null
+	const pick=e=>{ const r=hueEl.getBoundingClientRect(), f=clamp((e.clientX-r.left)/r.width,0,1)
+		master={ s:'oklch', vals:[0.7, 0.18, +(f*360).toFixed(1)] }; scheduleFast() }
+	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hueEl.setPointerCapture(hdrag); pick(e) })
+	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId===hdrag) pick(e) })
+	const end=e=>{ if(e.pointerId===hdrag){ hdrag=null; renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false); try{ hueEl.releasePointerCapture(e.pointerId) }catch{} } }
+	hueEl.addEventListener('pointerup',end); hueEl.addEventListener('pointercancel',end) }
 const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(x,0,255):0)
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
@@ -1212,14 +1162,6 @@ addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   
 const tocEl=document.getElementById('toc'), barEl=document.querySelector('.mhead')   // rail titles stack below the sticky masthead
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
-	// full-width section dividers: measure the spaces block's gap to the rail's left
-	// (where the category name sits) and to the screen's right edge — the block is centred
-	const secR=document.getElementById('secs').getBoundingClientRect()
-	const railL=tocEl.getBoundingClientRect().left
-	pg.style.setProperty('--secl',Math.max(0,secR.left-railL)+'px')
-	pg.style.setProperty('--secr',Math.max(0,document.documentElement.clientWidth-secR.right)+'px')
-	// the masthead colour readout aligns to the spaces box's left edge
-	pg.style.setProperty('--curx',Math.max(0,secR.left-document.querySelector('.mast').getBoundingClientRect().left)+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
@@ -2382,12 +2324,7 @@ const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry n
 function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||liteOff(ent))return
 	const cls=classify(s), vals=probeVals(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]; ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
-function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.style.setProperty('--c',hx); document.documentElement.style.setProperty('--curcol',hx); queueRecent(rgb)
-	const curval=document.getElementById('curhex'); if(document.activeElement!==curval){ curval.value=hx; curval.classList.remove('bad') }
-	const csw=document.getElementById('cursw'); if(document.activeElement!==csw) csw.value=hx
-	syncHeroPicker()
-	const nm=nearest(rgb); if(nm) document.getElementById('curnm').textContent='≈ '+nm.n
-	const g0=gamuts(); if(g0) document.getElementById('curgam').innerHTML=['srgb','p3','rec2020'].map(k=>`<span class="tag ${g0[k]?'on':'off'}" title="${GAMTIP[k]}">${k}</span>`).join('')
+function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	// catalog values + ticks (visible entries) — outlines are theme ink, like the sRGB lines
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
 		const vals=valsFor(s), cls=classify(s)
@@ -2520,11 +2457,11 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb); document.documentElement.st
 				`space.rgb${prop(s)}(buf)   // the whole buffer, in place, zero-copy\n`+
 				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
 		else if(codeTab==='gl'){ const gd={2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3'
-			snip.innerHTML=hilite(`import { glsl } from 'color-space/gl'\n`+
-				`import { wgsl } from 'color-space/gl/wgsl'\n\n`+
-				`glsl('rgb', '${s}')   // GLSL: ${gd} rgb_${s.replace(/-/g,'')}(vec3 c) { … }\n`+
-				`wgsl('${s}', 'rgb')   // WGSL: fn ${s.replace(/-/g,'')}_rgb(c: ${gd}f) -> vec3f { … }\n`+
-				`\n// self-contained snippet — paste into any shader; the exact math of this page`) }
+			snip.innerHTML=hilite(`import glsl, { wgsl } from 'color-space/gl/compose'\n`+
+				`import ${camel(s)} from 'color-space/gl/${s}'\n\n`+
+				`glsl(${camel(s)})          // GLSL: ${gd} rgb_${s.replace(/-/g,'')}(vec3 c) { … }\n`+
+				`wgsl(${camel(s)}, 'rgb')   // WGSL: fn ${s.replace(/-/g,'')}_rgb(c: ${gd}f) -> vec3f { … }\n`+
+				`\n// self-contained snippet — paste into any shader; the exact math of this page.\n// every space by name instead: import { glsl } from 'color-space/gl'`) }
 		else{ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 		const ri=vals?rgb.map(Math.round):rgbOf(s,shown)   // forward-only: the example shows ITS own output
 		let inv=''; try{ const back=toSpace(s,ri); inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n` }catch{ inv=`// rgb → ${s} is one-way\n` }
@@ -2558,18 +2495,6 @@ const drawThm=()=>thm.innerHTML=document.documentElement.dataset.theme==='dark'?
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
 	document.documentElement.dataset.theme=t; localStorage.csTheme=t; drawThm() }
-const curInput=document.getElementById('curhex')
-function applyCurInput(revert=false){ const parsed=parseColor(curInput.value)
-	if(parsed){ master=parsed; curInput.classList.remove('bad'); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false); return true }
-	curInput.classList.toggle('bad',!!curInput.value.trim())
-	if(revert) renderFast()
-	return false }
-curInput.addEventListener('input',()=>applyCurInput(false))
-curInput.addEventListener('change',()=>applyCurInput(true))
-curInput.addEventListener('blur',()=>applyCurInput(true))
-curInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyCurInput(true); curInput.blur() } else if(e.key==='Escape'){ e.preventDefault(); renderFast(); curInput.blur() } })
-document.getElementById('cursw').oninput=e=>{ master={ s:'rgb', vals:hex2rgb(e.target.value) }; renderFast(); paintCatalogGrad(); paintPlanes(false) }
-document.getElementById('curnm').onclick=()=>{ const c=nearest(RGB()); if(c){ master={ s:'rgb', vals:c.rgb.slice() }; renderFast(); paintCatalogGrad(); paintPlanes(false) } }
 // API code panel — tabs swap which snippet shows
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const panes=[...tabs.querySelectorAll('pre[data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]
@@ -2630,121 +2555,5 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
 
-// ── the hero: one OKLCH slice — hue across, chroma down to the Rec.2020 edge,
-//    with soft contour lines where sRGB and P3 end. Lightness is the band below
-//    (drag to set L); the plane repaints on the GPU only when L or size change.
-//    Idle, the plane drifts a slow 2% zoom — an experiment; it pauses under the
-//    pointer so pick targets hold still. ──
-;(()=>{ const introw=document.getElementById('introw'), intro=document.getElementById('intro'), iwheel=document.getElementById('iwheel'), mhead=document.querySelector('.mhead')
-	const picker=document.getElementById('ipicker'), page=document.querySelector('.page'), ctx=iwheel.getContext('2d',{ alpha:false })
-	const setHH=()=>page.style.setProperty('--hh',mhead.offsetHeight+'px')   // pin the plane right under the header
-	setHH(); addEventListener('resize',setHH)
-	requestAnimationFrame(()=>intro.classList.add('in'))
-	let atlas=null
-	// the picker's spaces — three bands of pure hues (continuous · 20 steps · 10 steps);
-	// click the label to switch. h/c/l = channel indices; unbounded specs (sat:null)
-	// ride the sRGB cusp — the most saturated displayable tone per hue — searched over
-	// lo..hi; bounded cylinders sit at full saturation and a fixed tone
-	const HEROES=[
-		{ s:'oklch', h:2, c:1, l:0, lo:.3, hi:.95, ctop:0.4, sat:null },
-		{ s:'lchab', h:2, c:1, l:0, lo:30, hi:95, ctop:150, sat:null },
-		{ s:'hsl', h:0, c:1, l:2, tone:50, sat:100 },
-		{ s:'coloroid', h:0, c:1, l:2, hmin:10, hmax:76, lo:30, hi:88, ctop:100, sat:null },   // the footer's own sweep, made pickable (hsv = hsl's wheel, dropped)
-		{ s:'hsluv', h:0, c:1, l:2, tone:55, sat:100 } ]
-	const hueMin=()=>HSPEC.hmin??0, hueSpan=()=>(HSPEC.hmax??360)-(HSPEC.hmin??0)
-	const BANDS=[0,20,10]   // hue stepping per band — matches the shader
-	let HSPEC=HEROES[0]
-	try{ HSPEC=HEROES.find(x=>x.s===localStorage.csHero)||HEROES[0] }catch{}
-	const assemble=(hue,C,Lv)=>{ const v=[0,0,0]; v[HSPEC.h]=hue; v[HSPEC.c]=C; v[HSPEC.l]=Lv; return v }
-	const fitS=v=>{ try{ return space[HSPEC.s].rgb(...v).every(x=>isFinite(x)&&x>=-0.128&&x<=255.128) }catch{ return false } }
-	const edgeC=(Lv,H)=>{ let lo=0, hi=HSPEC.ctop
-		if(fitS(assemble(H,hi,Lv))) return hi
-		for(let k=0;k<12;k++){ const mid=(lo+hi)/2; fitS(assemble(H,mid,Lv))?lo=mid:hi=mid }
-		return lo }
-	// the cusp LUT: per hue, the tone with the widest displayable chroma (64 samples)
-	const cuspLUT=()=>{ if(HSPEC._cusp) return HSPEC._cusp
-		const lut=new Float32Array(64)
-		for(let i=0;i<64;i++){ const hue=i/63*360; let bestL=HSPEC.lo, bestC=-1
-			for(let k=0;k<=24;k++){ const Lv=HSPEC.lo+(HSPEC.hi-HSPEC.lo)*k/24, c2=edgeC(Lv,hue)
-				if(c2>bestC){ bestC=c2; bestL=Lv } }
-			lut[i]=bestL }
-		return HSPEC._cusp=lut }
-	const cuspAt=hq=>{ const lut=cuspLUT(), fi=clamp(hq,0,1)*63, i0=Math.floor(fi)
-		return lut[i0]+(lut[Math.min(i0+1,63)]-lut[i0])*(fi-i0) }
-	const heroRGB=v=>{ try{ return rgbF(HSPEC.s,v).map(x=>clamp(Math.round(x),0,255)) }catch{ return [128,128,128] } }
-	// read the hero coordinates from MASTER when it already speaks this space —
-	// round-tripping through clamped RGB drags out-of-gamut colors back into gamut
-	const heroVals=()=>{ try{ return master.s===HSPEC.s?master.vals.slice():toSpace(HSPEC.s,RGB()) }catch{ return null } }
-	const sizeHero=()=>{ const r=intro.getBoundingClientRect(), W=Math.max(320,Math.min(900,Math.round(r.width/1.6))), H=120
-		if(iwheel.width!==W||iwheel.height!==H){ iwheel.width=W; iwheel.height=H; atlas=null } }
-	// CPU fallback (no WebGL2 / while the program links): cmax once per COLUMN — the
-	// old per-pixel bisection is what made slider drags glitch — cached per (L, size)
-	const buildAtlas=()=>{ const W=iwheel.width, H=iwheel.height
-		if(atlas&&atlas.W===W&&atlas.H===H&&atlas.s===HSPEC.s) return
-		const data=new Uint8ClampedArray(W*H*4)
-		for(let band=0;band<3;band++){ const y0=Math.round(band/3*H), y1=Math.round((band+1)/3*H), fy=(band+.5)/3
-			for(let x=0;x<W;x++){ const rgb=cellRGB(x/(W-1),fy)
-				for(let y=y0;y<y1;y++){ const q2=(y*W+x)*4
-					data[q2]=rgb[0]; data[q2+1]=rgb[1]; data[q2+2]=rgb[2]; data[q2+3]=255 } } }
-		atlas={ W,H,s:HSPEC.s }
-		ctx.putImageData(new ImageData(data,W,H),0,0) }
-	let gpuOn=false, lastKey=''
-	const tickEls=[...document.querySelectorAll('.hticks i')]
-	const hspace=document.getElementById('hspace')
-	const inkTicks=()=>{ tickEls.forEach(el=>{ const fx=parseFloat(el.style.left)/100
-			el.style.color=ink(cellRGB(fx,0.92)) }) }   // each label against the cell under it (the space tag wears the shared .tag chip)
-	const drawHero=()=>{ sizeHero()
-		const key=HSPEC.s+'|'+iwheel.width
-		if(key!==lastKey||!gpuOn){
-			if(paintHeroGL(iwheel,HSPEC,HSPEC.sat==null?cuspLUT():null)){ gpuOn=true; lastKey=key; inkTicks() }
-			else if(key!==lastKey){ gpuOn=false; buildAtlas(); lastKey=key; inkTicks() } }
-		syncHeroPicker(); requestAnimationFrame(drawHero) }
-	// one shared band math for the shader, the CPU fallback and the picks
-	const cellVals=(fx,fy)=>{ const band=Math.min(2,Math.floor(clamp(fy,0,.999)*3)), q=BANDS[band]
-		const hq=q?(Math.floor(clamp(fx,0,.999)*q)+.5)/q:clamp(fx,0,1)
-		const hue=+(hueMin()+hq*hueSpan()).toFixed(1)
-		const Lv=HSPEC.sat==null?+cuspAt(hq).toFixed(4):HSPEC.tone
-		const C=HSPEC.sat==null?+(edgeC(Lv,hue)*0.985).toFixed(4):HSPEC.sat
-		return assemble(hue,C,Lv) }
-	const cellRGB=(fx,fy)=>heroRGB(cellVals(fx,fy))
-	const colAt=cellVals   // a pick IS its band's cell — pure hues at the chosen stepping
-	const at=e=>{ const r=iwheel.getBoundingClientRect(); return [clamp((e.clientX-r.left)/r.width,0,1),clamp((e.clientY-r.top)/r.height,0,1)] }
-	const place=(fx,fy,rgb=RGB())=>{ const ir=intro.getBoundingClientRect(), wr=iwheel.getBoundingClientRect()
-		picker.style.left=(fx*wr.width+wr.left-ir.left)+'px'; picker.style.top=(fy*wr.height+wr.top-ir.top)+'px'; picker.style.color=ink(rgb); picker.style.opacity='1' }
-	syncHeroPicker=()=>{ try{ const v=heroVals(); if(!v) return
-		const H=hueSpan()===360?((v[HSPEC.h]||0)%360+360)%360:clamp(v[HSPEC.h]||0,hueMin(),HSPEC.hmax)
-		place((H-hueMin())/hueSpan(),1/6,RGB()) }catch{} }   // the marker rides hue, on the continuous band
-	// scroll collapses the plane into the border line; the header value remains editable throughout.
-	const LINE=5
-	const heroScroll=()=>{ const track=introw.offsetHeight-LINE, h=Math.max(LINE, introw.offsetHeight-scrollY)
-		intro.style.height=h+'px'
-		const p=clamp(scrollY/Math.max(1,track),0,1)
-		page.style.setProperty('--brd',p.toFixed(3)); mhead.classList.toggle('on', p>=1); syncHeroPicker() }
-	addEventListener('scroll',()=>requestAnimationFrame(heroScroll),{passive:true})
-	let waved=false, dragId=null
-	const wave=()=>{ if(waved) return; waved=true
-		const top=cat.getBoundingClientRect().top+scrollY
-		cat.querySelectorAll('.ent').forEach(ent=>{ const y=ent.getBoundingClientRect().top+scrollY-top
-			if(y>innerHeight*1.5) return
-			ent.style.setProperty('--wd',Math.min(y*0.45,650)+'ms'); ent.classList.add('wv') }) }
-	// mid-drag: marker at full pointer rate, page repaints rAF-throttled — the direct
-	// renderFast-per-move was the drag sluggishness
-	const apply=e=>{ const [fx,fy]=at(e), v=colAt(fx,fy)
-		master={ s:HSPEC.s, vals:v }; place(fx,fy,heroRGB(v)); scheduleFast() }
-	const settle=()=>{ renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-	intro.addEventListener('pointerdown',e=>{ dragId=e.pointerId; intro.style.cursor='none'; intro.setPointerCapture(dragId); wave(); apply(e) })
-	intro.addEventListener('pointermove',e=>{ if(e.pointerId===dragId) apply(e) })
-	intro.addEventListener('pointerup',e=>{ if(e.pointerId===dragId){ dragId=null; intro.style.cursor=''; settle(); try{ intro.releasePointerCapture(e.pointerId) }catch{} } })
-	intro.addEventListener('pointercancel',()=>{ dragId=null; intro.style.cursor='' })
-	const hticksEl=document.querySelector('.hticks')
-	const syncTicks=()=>hticksEl.hidden=hueSpan()!==360   // degree marks lie in coloroid's A scale
-	syncTicks(); hspace.textContent=HSPEC.s.toUpperCase()
-	hspace.addEventListener('pointerdown',e=>e.stopPropagation())
-	hspace.addEventListener('click',e=>{ e.stopPropagation()
-		HSPEC=HEROES[(HEROES.indexOf(HSPEC)+1)%HEROES.length]
-		try{ localStorage.csHero=HSPEC.s }catch{}
-		hspace.textContent=HSPEC.s.toUpperCase()
-		atlas=null; lastKey=''; syncTicks(); syncHeroPicker() })
-	addEventListener('resize',()=>{ atlas=null; setHH(); heroScroll() })
-	requestAnimationFrame(drawHero); heroScroll(); syncHeroPicker() })()
+
 </script></body></html>

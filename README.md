@@ -2,11 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-**Every color space. One tiny API. Verified.**
+**Any color space.** Web, print, film, broadcast, science, history. Conventional ranges, verified values, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
 
-**156 color spaces** — web, print, film, broadcast, science, history — in the ranges CSS and the defining papers actually use, differentially tested against [colorjs.io](https://colorjs.io). Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
-
-A pure conversion kernel — no parsing, interpolation, ΔE or gamut mapping (pair with [culori](https://github.com/Evercoder/culori) / [chroma](https://gka.github.io/chroma.js/)). Alpha passes through unchanged; out-of-gamut values are never clamped, so round-trips stay lossless.
+Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Alpha passes through unchanged; out-of-gamut values are never clamped, so round-trips stay lossless.
 
 **[Interactive catalog & docs →](https://colorjs.github.io/color-space/)**
 
@@ -28,8 +26,6 @@ import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // args match CSS oklch(0.65 0.25 180)
 ```
 
-Every space converts to and from every other — the graph composes the shortest path. Channels use each space's own convention (`rgb` 0–255, `lab` L 0–100, `oklch` L 0–1, hue in degrees), declared on `<space>.range`. *(v3 switched from normalized 0–1 arguments — see [CHANGELOG](CHANGELOG.md).)*
-
 Per-space metadata and the CIE illuminant table ship as separate modules:
 
 ```js
@@ -40,21 +36,26 @@ import whitepoint from 'color-space/whitepoints.js';
 whitepoint[2].D50; // → [96.422, 100, 82.521]
 ```
 
-## WASM batch
+## WASM
 
-The same formulas, prebuilt to WebAssembly (via [jz](https://github.com/dy/jz)) for whole-buffer work — 27 spaces, zero-copy, pinned bit-for-bit against the scalar API:
+Prebuilt (via [jz](https://github.com/dy/jz)) whole-buffer WASM batch convertor:
 
 ```js
 import space, { alloc } from 'color-space/wasm';
 
+// convert a whole buffer — pass any array-like, get a converted Float64Array back:
+space.rgb.oklch(pixels);             // interleaved [r,g,b, r,g,b, …], input untouched
+
+// avoid copy in/out on hot path
 const buf = alloc(width * height);   // WASM-backed Float64Array, interleaved r,g,b
-space.rgb.oklch(buf);                // converts in place — no copy
-space.rgb.oklch(pixels);             // any array-like: converted copy out
+space.rgb.oklch(buf);                // converts in place, no copy — returns buf
 ```
 
-## Shaders
+**Covered spaces**: `rgb` · `lrgb` · `xyz`, the OKLab family (`oklab` `oklrab` `oklch` `oklrch`), CIE Lab/Luv (`lab` `lchab` `lab-d65` `lch-d65` `luv` `lchuv` `hsluv` `hpluv` `din99o-lab` `din99o-lch` `din99d`), HDR (`jzazbz` `jzczhz` `ictcp` `ipt`), and camera logs (`logc4` `slog3` `vlog` `log3g10` `clog2`). Not included: device cylinders (HSL/HSV…) and lookup/appearance spaces – gain nothing from batching or don't reduce to a tight numeric loop, use the scalar API for those.
 
-Every space but `munsell` ships as a GLSL chunk with a mechanical WGSL translation — composed on demand, plain strings, no build step:
+## GL/WGSL
+
+Every space but `munsell` ships as a GLSL shader chunk with a mechanical WGSL translation — composed on demand, plain strings, no build step:
 
 ```js
 import { glsl } from 'color-space/gl';
@@ -69,12 +70,11 @@ Those route any space *by name* — and therefore bundle the whole chunk catalog
 carries its own dependency chain) — byte-identical output, ~4 kB:
 
 ```js
-import { glsl } from 'color-space/gl/compose.js';
-import { translate } from 'color-space/gl/translate.js';
-import oklch from 'color-space/gl/oklch.glsl.js';
+import glsl, { wgsl } from 'color-space/gl/compose';
+import oklch from 'color-space/gl/oklch';
 
-glsl('rgb', oklch);             // the same source, tree-shaken to oklch's chain
-translate(glsl('rgb', oklch));  // …and as WGSL
+glsl(oklch);          // rgb → oklch (rgb is the default `from`)
+wgsl(oklch, 'rgb');   // the inverse, as WGSL
 ```
 
 ## Guarantees
@@ -88,8 +88,6 @@ For every one of the 156 spaces — enforced by the test suite:
 5. **Documented omissions** — whatever is missing is declined with a reason, never forgotten.
 
 ## Spaces
-
-🕰️ — historical / educational: superseded in practice, kept faithful.
 
 <details><summary><b>Display & Web</b></summary>
 

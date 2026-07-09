@@ -6,17 +6,19 @@
  * each chunk imports its own dependency chain (`deps`), so importing the spaces
  * you actually convert brings exactly their chains and nothing else.
  *
- *     import { glsl } from 'color-space/gl/compose.js'
- *     import oklch from 'color-space/gl/oklch.glsl.js'
+ *     import glsl, { wgsl } from 'color-space/gl/compose'
+ *     import oklch from 'color-space/gl/oklch'
  *
- *     glsl('rgb', oklch)   // byte-identical to color-space/gl's glsl('rgb', 'oklch')
- *     glsl(oklch, 'rgb')   // ~3 kB in the bundle instead of the full catalog
+ *     glsl(oklch)          // GLSL rgb → oklch — byte-identical to color-space/gl's,
+ *     glsl(oklch, 'rgb')   //   the inverse      at ~4 kB instead of the full catalog
+ *     wgsl(oklch)          // the same, as WGSL
  *
  * Pass chunk OBJECTS for the spaces you imported; a plain name resolves only if
- * a passed chunk's chain contains it (`'rgb'`, the root, always does). WGSL:
- * feed the result to `translate` from 'color-space/gl/translate.js'.
+ * a passed chunk's chain contains it (`'rgb'`, the root, always does — and is the
+ * default `from` when you pass a single chunk).
  */
 import util from './util.js'
+import { translate } from './translate.js'
 
 const san = (s) => s.replace(/-/g, '')
 const TYPE = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
@@ -88,6 +90,11 @@ export function compose(list = []) {
 	 * @returns {string} self-contained GLSL source
 	 */
 	function glsl(from, to) {
+		// single-chunk sugar: glsl(oklch) = the conversion from rgb, the hub
+		if (to === undefined && !Array.isArray(from)) {
+			if (typeof from !== 'object') throw new Error(`color-space/gl: glsl('${from}') needs a target — glsl(from, to), or pass a chunk object for rgb → chunk`)
+			to = from; from = 'rgb'
+		}
 		const pairs = (Array.isArray(from) ? from : [[from, to]]).map((p) => p.map((x) => {
 			if (typeof x === 'string') return x
 			add(x); return x.name
@@ -125,7 +132,10 @@ export function compose(list = []) {
 	return { chunks, graph, glsl }
 }
 
-/** One-shot lean form: `glsl('rgb', oklchChunk)` — registry built from the args. */
+/** One-shot lean form: `glsl(oklchChunk)` / `glsl(a, b)` — registry from the args. */
 export const glsl = (from, to) => compose().glsl(from, to)
+
+/** The same, as WGSL: `wgsl(oklchChunk)` / `wgsl(a, b)`. */
+export const wgsl = (from, to) => translate(glsl(from, to))
 
 export default glsl
