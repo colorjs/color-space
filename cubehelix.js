@@ -37,43 +37,51 @@ var cubehelix = {
 	defaults
 };
 
+// the helix at `fraction`, clamped RGB 0-1 (the raw curve cubehelix.rgb scales to 0-255)
+function helix(fraction, o) {
+	var start = o.start, rotation = o.rotation, gamma = o.gamma, hue = o.hue;
+	var angle = 2 * Math.PI * (start / 3 + 1.0 + rotation * fraction);
+	var f = Math.pow(fraction, gamma);
+	var amp = hue * f * (1 - f) / 2.0;
+	var r = f + amp * (-0.14861 * Math.cos(angle) + 1.78277 * Math.sin(angle));
+	var g = f + amp * (-0.29227 * Math.cos(angle) - 0.90649 * Math.sin(angle));
+	var b = f + amp * (+1.97294 * Math.cos(angle));
+	return [Math.max(0, Math.min(r, 1)), Math.max(0, Math.min(g, 1)), Math.max(0, Math.min(b, 1))];
+}
 
 /**
  * Transform cubehelix level to RGB
  *
- * @param {number|Array<number>} fraction 0..1 cubehelix level
+ * @param {number} fraction 0..1 cubehelix level
  * @param {Object<string, number>} options Mapping options, overrides defaults
  * @return {Array<number>} rgb tuple 0-255
  */
 cubehelix.rgb = function (fraction, options = {}) {
-	var start = options.start !== undefined ? options.start : defaults.start;
-	var rotation = options.rotation !== undefined ? options.rotation : defaults.rotation;
-	var gamma = options.gamma !== undefined ? options.gamma : defaults.gamma;
-	var hue = options.hue !== undefined ? options.hue : defaults.hue;
-
-	var angle = 2 * Math.PI * (start / 3 + 1.0 + rotation * fraction);
-
-	fraction = Math.pow(fraction, gamma);
-
-	var amp = hue * fraction * (1 - fraction) / 2.0;
-
-	var r = fraction + amp * (-0.14861 * Math.cos(angle) + 1.78277 * Math.sin(angle));
-	var g = fraction + amp * (-0.29227 * Math.cos(angle) - 0.90649 * Math.sin(angle));
-	var b = fraction + amp * (+1.97294 * Math.cos(angle));
-
-	r = Math.max(0, Math.min(r, 1));
-	g = Math.max(0, Math.min(g, 1));
-	b = Math.max(0, Math.min(b, 1));
-
-	// Scale to 0-255
-	return [r * 255, g * 255, b * 255];
+	return helix(fraction, { ...defaults, ...options }).map(v => v * 255);
 };
+
 /**
- * RGB to cubehelix is one-way: cubehelix is a one-parameter colormap, so an
- * arbitrary RGB is not generally on the helix and cannot be inverted to it.
+ * RGB to cubehelix — the nearest point on the (default-parameter) helix: the fraction
+ * whose colour is closest to the input. Colours actually on the helix recover their
+ * fraction exactly (so cubehelix → rgb → cubehelix round-trips); off-helix colours
+ * project onto it, the way conversions into `rgb` clamp to the sRGB gamut. Custom
+ * `options` used on the forward can't be recovered from a single colour, so the inverse
+ * always assumes the defaults.
  */
 rgb.cubehelix = function (r, g, b) {
-	throw new Error('rgb.cubehelix: cubehelix is a forward-only colormap (one-way conversion)');
+	var t = [r / 255, g / 255, b / 255];
+	var d2 = f => { var c = helix(f, defaults); return (c[0] - t[0]) ** 2 + (c[1] - t[1]) ** 2 + (c[2] - t[2]) ** 2; };
+	// coarse scan for the basin, then golden-section refine (the +fraction term makes
+	// brightness monotonic in the fraction, so the nearest point is a single minimum)
+	var N = 256, best = 0, bd = Infinity;
+	for (var i = 0; i <= N; i++) { var f = i / N, d = d2(f); if (d < bd) { bd = d; best = f; } }
+	var a = Math.max(0, best - 1 / N), c = Math.min(1, best + 1 / N);
+	var gr = (Math.sqrt(5) - 1) / 2, x1 = c - gr * (c - a), x2 = a + gr * (c - a), f1 = d2(x1), f2 = d2(x2);
+	for (var k = 0; k < 60; k++) {
+		if (f1 < f2) { c = x2; x2 = x1; f2 = f1; x1 = c - gr * (c - a); f1 = d2(x1); }
+		else { a = x1; x1 = x2; f1 = f2; x2 = a + gr * (c - a); f2 = d2(x2); }
+	}
+	return [(a + c) / 2];
 };
 
 
