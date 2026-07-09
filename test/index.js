@@ -129,6 +129,26 @@ test('new spaces: inverse-path round-trips', () => {
 	is(space.lab['ral-design'](...space['ral-design'].lab(210, 50, 15)).map(round(2)), [210, 50, 15], 'ral-design CIELAB polar roundtrip')
 })
 
+// Appearance models & other numerically-inverted spaces: the NaN canary only checks
+// finiteness, so a wrong-but-finite inverse (Hunt's XYZ Newton returned near-grey for a
+// saturated purple, error ~19) passed silently. Round-trip saturated + neutral XYZ and
+// assert the numeric inverse actually recovers the input.
+test('appearance/numeric inverses: XYZ round-trips (regression: Hunt purple → grey)', () => {
+	const samples = [[11.229, 5.125, 30.536] /* the purple that broke Hunt */, [41.24, 21.26, 1.93], [20, 12, 60], [50, 50, 50]]
+	for (const s of ['hunt', 'nayatani95', 'llab', 'atd95', 'rlab', 'osaucs']) {
+		for (const X of samples) {
+			const back = space[s].xyz(...space.xyz[s](...X))
+			const err = Math.max(...back.map((v, i) => Math.abs(v - X[i])))
+			is(err < 1e-6, true, `${s} XYZ roundtrip ${X}: err ${err.toExponential(1)}`)
+		}
+	}
+	// ryb (rgb-neighbour, Newton inverse) — regression: saturated red once came back white
+	for (const c of [[255, 0, 51], [64, 200, 30], [128, 128, 128]]) {
+		const back = space.ryb.rgb(...space.rgb.ryb(...space.ryb.rgb(...c)))
+		is(Math.max(...back.map((v, i) => Math.abs(v - space.ryb.rgb(...c)[i]))) < 1e-3, true, `ryb in-cube roundtrip ${c}`)
+	}
+})
+
 test('lrgb', () => {
 	// RGB now uses 0-255, lrgb uses 0-1
 	is(space.rgb.lrgb(255, 255, 255), [1.0, 1.0, 1.0], 'from white')
