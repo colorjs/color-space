@@ -1056,7 +1056,8 @@ if(hueEl){ let hdrag=null
 const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(x,0,255):0)
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
-// forward-only spaces (rgb → space throws, e.g. cubehelix): locally explored params; master follows as rgb
+// safety net for a space whose rgb → space throws: locally explored params, master follows as rgb
+// (none today — every space is bidirectional; cubehelix inverts by nearest-fraction projection)
 const localVals={}
 const probeVals=s=>valsFor(s)||(localVals[s]??=classify(s).ch.map(c=>(c.min+c.max)/2))
 const lum=c=>0.2126*c[0]/255+0.7152*c[1]/255+0.0722*c[2]/255, ink=c=>lum(c)<0.6?'#fff':'var(--dark)'
@@ -1127,7 +1128,7 @@ const TAGTIP={ display:'display-referred — values describe light emitted by a 
 	polar:'polar geometry — a hue angle plus radial chroma/saturation',
 	opponent:'opponent geometry — two signed color axes around a neutral center',
 	component:'component geometry — independent channels, no hue axis',
-	'one-way':'converts from RGB only — no closed-form inverse exists; the channel sliders drive its own parameters directly',
+	'one-way':'converts to RGB only — no inverse from RGB exists; the channel sliders drive its own parameters directly',
 	bidirectional:'round-trips — to RGB and back, and through every other space',
 	historical:'shipped as working history — superseded in practice, kept faithful',
 	'linear light':'code proportional to physical light — no transfer curve',
@@ -1207,7 +1208,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			const c=classify(s).ch[i]
-			if(!adopt()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // forward-only: param drives, master follows as rgb
+			if(!adopt()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // no rgb→space inverse (safety net): param drives, master follows as rgb
 				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
 			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() }
 		inp.addEventListener('pointerdown',e=>e.stopPropagation())
@@ -1226,7 +1227,7 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ if(!adopt()&&valsFor(s))return; moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId) }
 				if(!moved) return
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
-				if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // forward-only: param drives, master follows as rgb
+				if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // no rgb→space inverse (safety net): param drives, master follows as rgb
 					try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{} }
 				else master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
@@ -2075,7 +2076,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		const span=c.max-c.min, STEP=span<=1?0.001:span<=40?0.01:span<=110?0.1:1, sdec=(String(STEP).split('.')[1]||'').length
 		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
-			if(!adoptS()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // forward-only
+			if(!adoptS()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // no rgb→space inverse (safety net)
 				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
 			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
@@ -2096,7 +2097,7 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
 		let f=clamp((ev.clientX-r.left)/r.width,0,.999)
-		if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // forward-only: param drives, master follows as rgb
+		if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // no rgb→space inverse (safety net): param drives, master follows as rgb
 			try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}
 			scheduleFast(); return }
 		if(typeof Q==='number'){ f=(Math.floor(f*Q)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
