@@ -1,7 +1,9 @@
 // GLSL chunk: F-Log2 0-1 <-> linear-light Rec. 2020 (F-Gamut primaries match BT.2020).
 // Same shape as F-Log with a shallower curve; mirrors flog2.js enc/dec exactly.
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'flog2',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_flog2', 'flog2_rec2020linear'] },
 	code: /* glsl */ `
 float flog2_enc_(float x) {

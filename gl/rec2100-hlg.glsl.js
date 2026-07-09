@@ -1,8 +1,10 @@
 // GLSL chunk: Rec. 2020 Linear 0-1 <-> Rec. 2100 HLG signal 0-1 — Hybrid Log-Gamma
 // (BBC/NHK), scaled so signal 0.75 (diffuse white) maps to scene-linear 1.0.
 // Mirrors rec2100-hlg.js (toLinear/fromLinear); scale = 12/(exp((0.75-c)/a)+b).
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'rec2100-hlg',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_rec2100hlg', 'rec2100hlg_rec2020linear'] },
 	code: /* glsl */ `
 float rec2100hlg_to_linear_(float val) {

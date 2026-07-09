@@ -1,8 +1,10 @@
 // GLSL chunk: SMPTE 240M 0-1 <-> CIE XYZ D65 0-100. Same SMPTE 170M primaries as
 // smpte-c, own OETF (0.45-power with a linear toe near black).
 // Mirrors smpte-240m.js M / inv3(M) and transfers.js smpte240mEncode/Decode.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'smpte-240m',
+	deps: [xyz],
 	edges: { xyz: ['xyz_smpte240m', 'smpte240m_xyz'] },
 	code: /* glsl */ `
 float smpte240m_dec_(float u) {

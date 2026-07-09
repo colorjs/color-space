@@ -2,8 +2,10 @@
 // Mirrors acesproxy.js exactly (ACES spec S-2013-001): CV = round((log2(lin)+2.5)*50+425)
 // clamped to [64, 940], carried here as CV/1023 floats. round() = floor(x + 0.5), matching
 // JS Math.round (ties toward +Infinity); values are always positive so this is exact.
+import acescg from './acescg.glsl.js'
 export default {
 	name: 'acesproxy',
+	deps: [acescg],
 	edges: { acescg: ['acescg_acesproxy', 'acesproxy_acescg'] },
 	code: /* glsl */ `
 float acesproxy_enc_(float lin_) {

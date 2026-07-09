@@ -3,8 +3,11 @@
 // matrices and modified-PQ as jzazbz (izazbz.js uses identical constants), so this chunk
 // reuses jzazbz's XYZ<->Iab helpers rather than duplicating them (requires: ['jzazbz'],
 // per the chunk contract's allowance for chunks that share another chunk's math exactly).
+import xyz from './xyz.glsl.js'
+import jzazbz from './jzazbz.glsl.js'
 export default {
 	name: 'izazbz',
+	deps: [xyz, jzazbz],
 	edges: { xyz: ['xyz_izazbz', 'izazbz_xyz'] },
 	requires: ['jzazbz'],
 	code: /* glsl */ `

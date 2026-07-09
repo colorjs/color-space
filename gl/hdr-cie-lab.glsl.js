@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> hdr-CIELAB (Fairchild & Wyble). Mirrors
 // hdr-cie-lab.js exactly — Michaelis-Menten lightness replacing Lab's cube root,
 // exponent e derived the same way (spow_ guards the dynamic exponent, never raw pow).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'hdr-cie-lab',
+	deps: [xyz],
 	edges: { xyz: ['xyz_hdrcielab', 'hdrcielab_xyz'] },
 	code: /* glsl */ `
 float hdrcielab_e_() { return 0.58 / (1.25 - 0.25 * (0.2 / 0.184)) / (log(318.0) / log(100.0)); }

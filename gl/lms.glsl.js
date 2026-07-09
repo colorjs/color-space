@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> LMS cone response. Mirrors lms.js defaults:
 // xyz.lms with no matrix arg uses CAT02; lms.xyz with no matrix arg uses its own
 // hardcoded literal (the exact CAT02 inverse, independently transcribed there).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'lms',
+	deps: [xyz],
 	edges: { xyz: ['xyz_lms', 'lms_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_lms(vec3 c) {

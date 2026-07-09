@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D50 0-100 <-> CIE XYZ D65 0-100 (Bradford chromatic
 // adaptation, full-precision CSS Color 4 matrices). Mirrors xyz.js `bradford`.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'xyz-d50',
+	deps: [xyz],
 	edges: { xyz: ['xyz_xyzd50', 'xyzd50_xyz'] },
 	code: /* glsl */ `
 vec3 xyzd50_xyz(vec3 c) {

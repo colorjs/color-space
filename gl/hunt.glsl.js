@@ -6,8 +6,10 @@
 // — spow_ replaces JS pow on possibly-negative probe luminances (JS yields NaN and
 // rejects the candidate; spow_ yields a worse finite error, same rejection), and a
 // tiny-determinant break replaces the non-finite-step break.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'hunt',
+	deps: [xyz],
 	edges: { xyz: ['xyz_hunt', 'hunt_xyz'] },
 	code: /* glsl */ `
 float hunt_fn_(float x) {

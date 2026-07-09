@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> Hunter Lab. Mirrors labh.js exactly (kx/kz literals
 // are the JS source's own rounded Xn/Zn ratios, not this library's full-precision D65).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'labh',
+	deps: [xyz],
 	edges: { xyz: ['xyz_labh', 'labh_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_labh(vec3 c) {

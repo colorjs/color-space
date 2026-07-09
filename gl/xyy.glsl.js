@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> xyY (x,y 0-1 chromaticity, Y 0-100 luminance).
 // Mirrors xyy.js: xyz.xyy guards sum===0 -> [0,0,Y]; xyy.xyz guards y===0 -> [0,0,0].
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'xyy',
+	deps: [xyz],
 	edges: { xyz: ['xyz_xyy', 'xyy_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_xyy(vec3 c) {

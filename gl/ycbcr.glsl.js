@@ -2,8 +2,10 @@
 // (Y 16-235, Cb/Cr 16-240), ITU-R BT.709/BT.601. Mirrors ycbcr.js ycbcr.ypbpr /
 // ypbpr.ycbcr — the primitive edge is the digital<->analog rescaling; ycbcr.js
 // itself composes rgb<->ycbcr through ypbpr, so this chunk mirrors that choice.
+import ypbpr from './ypbpr.glsl.js'
 export default {
 	name: 'ycbcr',
+	deps: [ypbpr],
 	edges: { ypbpr: ['ypbpr_ycbcr', 'ycbcr_ypbpr'] },
 	code: /* glsl */ `
 vec3 ypbpr_ycbcr(vec3 c) {

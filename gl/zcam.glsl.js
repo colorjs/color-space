@@ -9,8 +9,10 @@
 // Input/output XYZ is absolute (0-100-ish per channel is not assumed); chaining from
 // rgb (which is relative 0-100) lands inside this absolute frame, i.e. "ZCAM of a dim
 // sample" per zcam.js's own note.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'zcam',
+	deps: [xyz],
 	edges: { xyz: ['xyz_zcam', 'zcam_xyz'] },
 	code: /* glsl */ `
 const float ZCAM_D_ = 0.9900184890466177;

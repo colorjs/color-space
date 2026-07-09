@@ -1,8 +1,10 @@
 // GLSL chunk: Blackmagic Film (Gen5) <-> CIE XYZ D65 0-100. Linear toe + natural-log
 // highlight segment; matrix is BMD Wide Gamut Gen5 linear -> XYZ. Mirrors bmdfilm.js
 // enc/dec (vendor constants A-E, LC) and M/inv3(M).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'bmdfilm',
+	deps: [xyz],
 	edges: { xyz: ['xyz_bmdfilm', 'bmdfilm_xyz'] },
 	code: /* glsl */ `
 float bmdfilm_enc_(float l) {

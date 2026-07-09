@@ -1,7 +1,9 @@
 // GLSL chunk: Adobe RGB (1998) 0-1 <-> linear-light Adobe RGB (a98rgb-linear).
 // Pure power-law gamma (563/256 and its inverse), sign-extended; mirrors a98rgb.js.
+import a98rgb_linear from './a98rgb-linear.glsl.js'
 export default {
 	name: 'a98rgb',
+	deps: [a98rgb_linear],
 	edges: { 'a98rgb-linear': ['a98rgblinear_a98rgb', 'a98rgb_a98rgblinear'] },
 	code: /* glsl */ `
 vec3 a98rgblinear_a98rgb(vec3 c) {

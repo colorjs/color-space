@@ -1,7 +1,9 @@
 // GLSL chunk: ACES2065-1 (AP0, archival/interchange) <-> ACEScg (AP1). Mirrors aces2065-1.js
 // M_AP0_AP1 / M_AP1_AP0 — same ACES white on both sides, no chromatic adaptation.
+import acescg from './acescg.glsl.js'
 export default {
 	name: 'aces2065-1',
+	deps: [acescg],
 	edges: { acescg: ['acescg_aces20651', 'aces20651_acescg'] },
 	code: /* glsl */ `
 vec3 aces20651_acescg(vec3 c) {

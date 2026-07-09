@@ -10,8 +10,10 @@
 // fractional pow() (not the sign-preserving spow), so — like the scalar library
 // itself — this chunk is only defined where the achromatic signal stays non-negative
 // (true for the whole sRGB gamut).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'ciecam02',
+	deps: [xyz],
 	edges: { xyz: ['xyz_ciecam02', 'ciecam02_xyz'] },
 	code: /* glsl */ `
 const float CIECAM02_FL_ = 1.16754446414718;

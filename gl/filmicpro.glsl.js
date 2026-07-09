@@ -6,8 +6,10 @@
 // bisection, only per-call iteration. Running the full 40 steps unconditionally
 // (vs. JS's early exit at |curve(t)-y| < 1e-12) still lands at 1e-13, well under
 // the default tolerance, so no tol override is declared.
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'filmicpro',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_filmicpro', 'filmicpro_lrgb'] },
 	code: /* glsl */ `
 float filmicpro_curve_(float t) {

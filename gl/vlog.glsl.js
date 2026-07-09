@@ -1,7 +1,9 @@
 // GLSL chunk: V-Log (Panasonic) <-> CIE XYZ D65 0-100. V-Gamut primaries.
 // Mirrors vlog.js decode/encode + M/MI; same decomposition/constants as wasm/batch.js xyz_vlog.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'vlog',
+	deps: [xyz],
 	edges: { xyz: ['xyz_vlog', 'vlog_xyz'] },
 	code: /* glsl */ `
 float vlog_log10_(float x) { return log(x) / log(10.0); }

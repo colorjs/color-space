@@ -1,7 +1,9 @@
 // GLSL chunk: CAM16 (J, M, h) <-> CAM16-LCD (J', a', b'). Mirrors cam16-lcd.js's
 // log compression exactly (c1 = 0.007, c2 = 0.0053 — large-difference tuning).
+import cam16 from './cam16.glsl.js'
 export default {
 	name: 'cam16-lcd',
+	deps: [cam16],
 	edges: { cam16: ['cam16_cam16lcd', 'cam16lcd_cam16'] },
 	code: /* glsl */ `
 vec3 cam16_cam16lcd(vec3 c) {

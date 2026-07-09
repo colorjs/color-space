@@ -1,7 +1,9 @@
 // GLSL chunk: linear sRGB 0-1 <-> CIE XYZ D65 0-100.
 // Matrices mirror xyz.js M_LRGB and its derived inverse (same literals as wasm/batch.js).
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'xyz',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_xyz', 'xyz_lrgb'] },
 	code: /* glsl */ `
 vec3 lrgb_xyz(vec3 c) {

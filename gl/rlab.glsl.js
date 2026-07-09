@@ -2,8 +2,10 @@
 // Baked to the paper's reference viewing condition (Illuminant A, Yn=31.83,
 // sigma=1/2.3 average surround, D=1 hard-copy) exactly as rlab.js; M/MI are that
 // module's precomputed von-Kries adaptation matrix (HPE cones) and its inverse.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'rlab',
+	deps: [xyz],
 	edges: { xyz: ['xyz_rlab', 'rlab_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_rlab(vec3 c) {

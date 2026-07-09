@@ -1,8 +1,10 @@
 // GLSL chunk: CIE RGB (white E, Bradford-adapted to D65) 0-1 <-> CIE XYZ D65
 // 0-100. No transfer curve — the primaries are already linear-light.
 // Mirrors cie-rgb.js M / inv3(M).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'cie-rgb',
+	deps: [xyz],
 	edges: { xyz: ['xyz_ciergb', 'ciergb_xyz'] },
 	code: /* glsl */ `
 vec3 ciergb_xyz(vec3 c) {

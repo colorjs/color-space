@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> ICtCp (native: I 0-1, Ct/Cp ±0.5) — Dolby's HDR
 // opponent space from ITU-R BT.2100: XYZ -> LMS -> standard ST 2084 PQ -> IPT-style
 // matrix. Mirrors ictcp.js (Yw=203, M_XYZ_LMS/M_LMS_XYZ/M_LMS_IPT/M_IPT_LMS).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'ictcp',
+	deps: [xyz],
 	edges: { xyz: ['xyz_ictcp', 'ictcp_xyz'] },
 	code: /* glsl */ `
 float ictcp_pq_enc_(float absNits) {

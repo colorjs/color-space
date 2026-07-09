@@ -1,8 +1,10 @@
 // GLSL chunk: REDLogFilm <-> CIE XYZ D65 0-100. Same REDcolor matrix as redlog.js;
 // mirrors redlogfilm.js decode/encode (Cineon-matched curve, black 95/white 685 over
 // 10 bits) and M/inv3(M).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'redlogfilm',
+	deps: [xyz],
 	edges: { xyz: ['xyz_redlogfilm', 'redlogfilm_xyz'] },
 	code: /* glsl */ `
 float redlogfilm_dec_(float y) {

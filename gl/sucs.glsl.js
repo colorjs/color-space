@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> sUCS Iab (Li & Luo 2024). XYZ -> LMS (Hunt-
 // Pointer-Estevez-like matrix) -> signed power 0.43 -> fixed opponent matrix -> Iab.
 // Matrices mirror sucs.js M_XYZ_LMS / M_LMSP_IAB and their derived inverses.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'sucs',
+	deps: [xyz],
 	edges: { xyz: ['xyz_sucs', 'sucs_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_sucs(vec3 c) {

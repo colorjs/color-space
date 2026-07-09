@@ -1,8 +1,10 @@
 // GLSL chunk: linear sRGB 0-1 <-> gray (relative luminance Y, 0-1). Same sRGB/D65
 // Y-row coefficients as xyz.js's lrgb_xyz, applied directly (not through xyz/100).
 // Mirrors gray.js.
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'gray',
+	deps: [lrgb],
 	dim: 1,
 	edges: { lrgb: ['lrgb_gray', 'gray_lrgb'] },
 	code: /* glsl */ `

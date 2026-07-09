@@ -11,7 +11,9 @@
  * primitive edges to its natural neighbours; `glsl(from, to)` BFS-composes the
  * shortest path and emits only the code that path needs. A single chunk is also
  * importable directly (`import oklab from 'color-space/gl/oklab.glsl.js'`) as
- * `{ name, edges, code }` for manual embedding.
+ * `{ name, deps, edges, code }` for manual embedding — or composed without this
+ * registry at a fraction of the bundle via ./compose.js (each chunk's `deps`
+ * carries its own chain).
  *
  * Chunks target GLSL ES 3.00 (WebGL2) and also run under GLSL ES 1.00 (WebGL1)
  * unless they use const arrays. No `#version`, no `precision`, no uniforms —
@@ -42,6 +44,9 @@
  * - Constant tables: `const float NAME_[N] = float[N](v0, v1, …);` as one
  *   statement (marks the chunk GLSL ES 3.00-only).
  * - A chunk calling another chunk's functions declares `requires: ['thatChunk']`.
+ * - `deps` imports every chunk named in `edges`/`requires` (rgb, the fileless
+ *   root, excepted) — what lets ./compose.js build lean, registry-free bundles;
+ *   test/gl.js enforces the invariant.
  * - Loops only as `for (int i = 0; i < N; i++)` with fixed bounds; cast the
  *   index into float math with `float(i)` (and back with `int(x)`).
  * - Iterative / table-interpolated chunks may declare `tol` — the normalized
@@ -49,7 +54,7 @@
  *
  * @module color-space/gl
  */
-import util from './util.js'
+import { compose } from './compose.js'
 import xyz from './xyz.glsl.js'
 import hsl from './hsl.glsl.js'
 import hsv from './hsv.glsl.js'
@@ -206,59 +211,17 @@ import hunt from './hunt.glsl.js'
 import ostwald from './ostwald.glsl.js'
 import atd95 from './atd95.glsl.js'
 
+/** The full registry: every chunk, ready-composed (lean tier: ./compose.js). */
+const reg = compose([xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3_linear, rec2020, rec2020_linear, rec2100_pq, rec2100_hlg, a98rgb, a98rgb_linear, prophoto, prophoto_linear, acescg, acescc, ictcp, cam16, hct, xyz_d50, xyz_abs_d65, lab_d65, gray, rg, hcl, din99o_lab, din99o_lch, xyb, lch_d65, cam16_ucs, okhwb, aces2065_1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci_p3, smpte_c, ipt, scrgb, rec2100_linear, din99d, ciecam02, cam02_ucs, photoycc, dsh, ral_design, munsell, uv, ohta, anlab, cie_rgb, ntsc, apple_rgb, pal, smpte_240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02_lcd, cam02_scd, cam16_lcd, cam16_scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, wavelength, icacb, hdr_ipt, hdr_cie_lab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95])
+
 /** All chunks by space name (rgb is the root — it has no chunk of its own). */
-export const chunks = {}
-for (const c of [xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3_linear, rec2020, rec2020_linear, rec2100_pq, rec2100_hlg, a98rgb, a98rgb_linear, prophoto, prophoto_linear, acescg, acescc, ictcp, cam16, hct, xyz_d50, xyz_abs_d65, lab_d65, gray, rg, hcl, din99o_lab, din99o_lch, xyb, lch_d65, cam16_ucs, okhwb, aces2065_1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci_p3, smpte_c, ipt, scrgb, rec2100_linear, din99d, ciecam02, cam02_ucs, photoycc, dsh, ral_design, munsell, uv, ohta, anlab, cie_rgb, ntsc, apple_rgb, pal, smpte_240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02_lcd, cam02_scd, cam16_lcd, cam16_scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, wavelength, icacb, hdr_ipt, hdr_cie_lab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95]) chunks[c.name] = c
+export const chunks = reg.chunks
 
 /** Directed edge graph: graph[a][b] = { fn, chunk } (primitive step a → b). */
-export const graph = {}
-for (const name in chunks) {
-	const c = chunks[name]
-	for (const nbr in (c.edges || {})) {
-		const [into, outof] = c.edges[nbr]
-		if (into) (graph[nbr] ??= {})[name] = { fn: into, chunk: c }
-		if (outof) (graph[name] ??= {})[nbr] = { fn: outof, chunk: c }
-	}
-}
+export const graph = reg.graph
 
 /** Space names reachable by the composer (edges declared), rgb included. */
 export const spaces = Object.keys(graph)
-
-const san = (s) => s.replace(/-/g, '')
-const TYPE = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
-const dim = (name) => chunks[name]?.dim || 3
-
-// BFS shortest primitive-edge path from → to
-const route = (from, to) => {
-	const queue = [[from, []]], seen = new Set([from])
-	while (queue.length) {
-		const [node, seq] = queue.shift()
-		for (const next in graph[node] || {}) {
-			if (seen.has(next)) continue
-			const step = [...seq, graph[node][next]]
-			if (next === to) return step
-			seen.add(next)
-			queue.push([next, step])
-		}
-	}
-	return null
-}
-
-// prepend the util helpers the code references (transitively, in util order)
-const prelude = (code) => {
-	const need = new Set()
-	let scan = code
-	for (let pass = 0; pass < util.length; pass++) {
-		let grew = false
-		for (const u of util) {
-			if (!need.has(u) && new RegExp(`\\b${u.name}\\s*\\(`).test(scan)) {
-				need.add(u); scan += u.code; grew = true
-			}
-		}
-		if (!grew) break
-	}
-	return need.size ? util.filter(u => need.has(u)).map(u => u.code.trim()).join('\n') + '\n\n' : ''
-}
 
 /**
  * Compose the GLSL source converting `from` → `to`: every chunk the shortest
@@ -273,35 +236,6 @@ const prelude = (code) => {
  * @param {string} [to] target space name
  * @returns {string} self-contained GLSL source
  */
-export function glsl(from, to) {
-	const pairs = Array.isArray(from) ? from : [[from, to]]
-	// chunk code, dependency-first, deduped across all pairs
-	const used = [], wrappers = [], seen = new Set()
-	const add = (c) => {
-		if (!c || used.includes(c)) return
-		for (const r of c.requires || []) add(chunks[r])
-		used.push(c)
-	}
-	for (const [a, b] of pairs) {
-		const entry = `${san(a)}_${san(b)}`
-		if (seen.has(entry)) continue
-		seen.add(entry)
-		if (a === b) { wrappers.push({ entry, code: `${TYPE[dim(a)]} ${entry}(${TYPE[dim(a)]} c) { return c; }` }); continue }
-		const seq = route(a, b)
-		if (!seq) {
-			const why = [a, b].map(n => chunks[n]?.excluded && `${n}: ${chunks[n].excluded}`).filter(Boolean).join('; ')
-			throw new Error(`color-space/gl: no path '${a}'→'${b}'${why ? ` (${why})` : ''}`)
-		}
-		for (const s of seq) add(s.chunk)
-		wrappers.push({ entry, to: b, from: a, call: seq.reduce((acc, s) => `${s.fn}(${acc})`, 'c') })
-	}
-	let code = used.map(c => c.code.trim()).filter(Boolean).join('\n\n')
-	for (const w of wrappers) {
-		if (w.code) { code += `${code ? '\n\n' : ''}${w.code}`; continue }
-		if (!new RegExp(`\\b${TYPE[dim(w.to)]}\\s+${w.entry}\\s*\\(`).test(code))
-			code += `${code ? '\n\n' : ''}${TYPE[dim(w.to)]} ${w.entry}(${TYPE[dim(w.from)]} c) { return ${w.call}; }`
-	}
-	return prelude(code) + code
-}
+export const glsl = reg.glsl
 
 export default glsl

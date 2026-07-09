@@ -2,8 +2,10 @@
 // Baked to atd95.js's conditions (D65 white, Y_0=318.31 cd/m², k_1=0, k_2=50,
 // σ=300): the adaptation gains G and the inverse cone matrix are precomputed
 // constants. Analytic both ways, as atd95.js.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'atd95',
+	deps: [xyz],
 	edges: { xyz: ['xyz_atd95', 'atd95_xyz'] },
 	code: /* glsl */ `
 float atd95_ret_(float v) { return 18.0 * pow(318.31 * max(v, 0.0) / 100.0, 0.8); }

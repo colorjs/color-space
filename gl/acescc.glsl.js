@@ -1,7 +1,9 @@
 // GLSL chunk: ACEScc (log2 grading curve, no toe) <-> ACEScg (linear AP1). Mirrors acescc.js
 // toLinear/fromLinear exactly (S-2014-003 bounds: eps = 2^-16, low = (9.72-15)/17.52).
+import acescg from './acescg.glsl.js'
 export default {
 	name: 'acescc',
+	deps: [acescg],
 	edges: { acescg: ['acescg_acescc', 'acescc_acescg'] },
 	code: /* glsl */ `
 float acescc_log_(float lin_) {

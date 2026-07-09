@@ -1,7 +1,9 @@
 // GLSL chunk: ACEScg (AP1, linear scene-referred, ACES D60 white) <-> CIE XYZ D65 0-100.
 // Mirrors acescg.js: AP1 -> XYZ(ACES) -> chromatic-adapt -> XYZ(D65)*100, and its exact inverse.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'acescg',
+	deps: [xyz],
 	edges: { xyz: ['xyz_acescg', 'acescg_xyz'] },
 	code: /* glsl */ `
 vec3 acescg_xyz(vec3 c) {

@@ -4,8 +4,10 @@
 // (0.59 / (1.25 - 0.25·(0.2/0.184)) / (log(318)/log(100)) ≈ 0.4820209198458999),
 // Vmax = 247. Private helpers hdript_e_/hdript_light_/hdript_lightinv_ (chunk
 // name with the hyphen stripped, per the edge-fn convention).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'hdr-ipt',
+	deps: [xyz],
 	edges: { xyz: ['xyz_hdript', 'hdript_xyz'] },
 	code: /* glsl */ `
 float hdript_e_() {

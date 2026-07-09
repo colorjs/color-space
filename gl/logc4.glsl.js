@@ -1,7 +1,9 @@
 // GLSL chunk: LogC4 (ARRI, ALEXA 35) <-> CIE XYZ D65 0-100. ARRI Wide Gamut 4 primaries.
 // Mirrors logc4.js decode/encode + M/MI; same decomposition/constants as wasm/batch.js xyz_logc4.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'logc4',
+	deps: [xyz],
 	edges: { xyz: ['xyz_logc4', 'logc4_xyz'] },
 	code: /* glsl */ `
 float logc4_dec_(float v) {

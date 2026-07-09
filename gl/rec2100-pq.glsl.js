@@ -1,8 +1,10 @@
 // GLSL chunk: Rec. 2020 Linear 0-1 <-> Rec. 2100 PQ signal 0-1 — SMPTE ST 2084 (PQ),
 // normalizing absolute nits by media white Yw=203 cd/m². Mirrors rec2100-pq.js
 // (toLinear/fromLinear) and transfers.js pqST2084Encode/Decode.
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'rec2100-pq',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_rec2100pq', 'rec2100pq_rec2020linear'] },
 	code: /* glsl */ `
 float rec2100pq_enc_(float absNits) {

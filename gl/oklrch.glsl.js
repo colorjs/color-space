@@ -1,6 +1,8 @@
 // GLSL chunk: OKLrab <-> OKLrch — the generic cylindrical pair from gl/util.js.
+import oklrab from './oklrab.glsl.js'
 export default {
 	name: 'oklrch',
+	deps: [oklrab],
 	edges: { oklrab: ['polar_fwd', 'polar_inv'] },
 	// a graph-routing node: no GLSL of its own — its edges bind to the generic
 	// cartesian<->cylindrical pair (polar_fwd/polar_inv) that gl/util.js supplies and

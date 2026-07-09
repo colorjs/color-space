@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> proLab (L 0-100, a/b ±125), Konovalenko et al. 2021.
 // Single projective (4x4 homogeneous) transform in place of Lab's cube root; Q/QI
 // are the paper's published matrices verbatim (prolab.js), not re-derived.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'prolab',
+	deps: [xyz],
 	edges: { xyz: ['xyz_prolab', 'prolab_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_prolab(vec3 c) {

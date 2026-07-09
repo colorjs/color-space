@@ -1,7 +1,9 @@
 // GLSL chunk: SMPTE-C 0-1 <-> CIE XYZ D65 0-100 (SMPTE 170M primaries, BT.601/709
 // OETF). Mirrors smpte-c.js M / inv3(M) and transfers.js bt709Encode/Decode.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'smpte-c',
+	deps: [xyz],
 	edges: { xyz: ['xyz_smptec', 'smptec_xyz'] },
 	code: /* glsl */ `
 float smptec_dec_(float u) {

@@ -1,8 +1,10 @@
 // GLSL chunk: Rec. 709 0-1 <-> linear-light sRGB (lrgb), BT.709 OETF/EOTF.
 // Shares sRGB's primaries/white (linear = lrgb directly); only the camera-oriented
 // OETF differs. Mirrors transfers.js bt709Encode/bt709Decode used by rec709.js.
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'rec709',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_rec709', 'rec709_lrgb'] },
 	code: /* glsl */ `
 float rec709_enc_(float u) {

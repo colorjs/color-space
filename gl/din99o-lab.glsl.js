@@ -1,7 +1,9 @@
 // GLSL chunk: Lab-D65 <-> DIN99o Lab (DIN 6176). Mirrors din99o-lab.js and
 // wasm/batch.js labd65_din99olab/din99olab_labd65 exactly (kE=kCH=1 folded away).
+import lab_d65 from './lab-d65.glsl.js'
 export default {
 	name: 'din99o-lab',
+	deps: [lab_d65],
 	edges: { 'lab-d65': ['labd65_din99olab', 'din99olab_labd65'] },
 	code: /* glsl */ `
 float din99olab_theta_() { return (26.0 / 180.0) * 3.141592653589793; }

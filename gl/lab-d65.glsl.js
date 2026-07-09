@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> CIELAB reanchored to D65 (no Bradford step).
 // Mirrors lab-d65.js exactly.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'lab-d65',
+	deps: [xyz],
 	edges: { xyz: ['xyz_labd65', 'labd65_xyz'] },
 	code: /* glsl */ `
 float labd65_labf_(float t) {

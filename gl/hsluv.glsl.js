@@ -2,8 +2,10 @@
 // exactly on the sRGB gamut boundary at each (L,H). Mirrors hsluv.js getBounds()/
 // maxChromaForLH(); the sRGB->XYZ inverse matrix and the unrolled 6-line bound scan
 // are the same literals as wasm/batch.js's lchuv_hsluv/hsluv_lchuv.
+import lchuv from './lchuv.glsl.js'
 export default {
 	name: 'hsluv',
+	deps: [lchuv],
 	edges: { lchuv: ['lchuv_hsluv', 'hsluv_lchuv'] },
 	code: /* glsl */ `
 float hsluv_row_(float m1, float m2, float m3, float sub2, float l, float sh, float ch) {

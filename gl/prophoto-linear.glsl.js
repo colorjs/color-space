@@ -1,8 +1,10 @@
 // GLSL chunk: linear-light ProPhoto RGB 0-1 (D50) <-> CIE XYZ D65 0-100.
 // Mirrors prophoto-linear.js: ProPhoto-linear <-> XYZ D50 via M_PP_XYZ50/M_XYZ50_PP,
 // then Bradford-adapted to/from D65 (xyz.js bradford.D50_D65/D65_D50) same as the JS lib.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'prophoto-linear',
+	deps: [xyz],
 	edges: { xyz: ['xyz_prophotolinear', 'prophotolinear_xyz'] },
 	code: /* glsl */ `
 vec3 prophotolinear_xyz(vec3 c) {

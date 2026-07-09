@@ -1,7 +1,9 @@
 // GLSL chunk: L-Log 0-1 <-> linear-light Rec. 2020 (BT.2020 container, like N-Log).
 // Linear toe + log10 highlight; mirrors llog.js enc/dec exactly.
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'llog',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_llog', 'llog_rec2020linear'] },
 	code: /* glsl */ `
 float llog_enc_(float x) {

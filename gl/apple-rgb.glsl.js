@@ -1,7 +1,9 @@
 // GLSL chunk: Apple RGB 0-1 <-> CIE XYZ D65 0-100. Pure gamma 1.8, no linear toe.
 // Mirrors apple-rgb.js M / inv3(M) and transfers.js gammaEncode/Decode(v, 1.8).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'apple-rgb',
+	deps: [xyz],
 	edges: { xyz: ['xyz_applergb', 'applergb_xyz'] },
 	code: /* glsl */ `
 float applergb_dec_(float u) { return sign(u) * pow(abs(u), 1.8); }

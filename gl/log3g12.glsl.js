@@ -1,7 +1,9 @@
 // GLSL chunk: Log3G12 <-> CIE XYZ D65 0-100. Same REDWideGamutRGB matrix as
 // log3g10.js; sign-symmetric log curve. Mirrors log3g12.js enc/dec and M/inv3(M).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'log3g12',
+	deps: [xyz],
 	edges: { xyz: ['xyz_log3g12', 'log3g12_xyz'] },
 	code: /* glsl */ `
 float log3g12_dec_(float y) {

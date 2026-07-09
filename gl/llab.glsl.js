@@ -2,8 +2,10 @@
 // Baked to llab.js's reference conditions (D65 white [95.05,100,108.88], L=318.31,
 // Yb=20, average <4° surround) where the BFD adaptation is identity; constants
 // z = 1+√0.2 and S_C(318.31) precomputed. Analytic both ways, as llab.js.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'llab',
+	deps: [xyz],
 	edges: { xyz: ['xyz_llab', 'llab_xyz'] },
 	code: /* glsl */ `
 float llab_f_(float x) {

@@ -2,8 +2,10 @@
 // extension below zero; matrix is E-Gamut linear -> XYZ. Mirrors tlog.js — the
 // derived constants (b, gs, C, a, y0, s, A, B, G) recomputed from the same
 // w=128, g=16, o=0.075 spec constants, same order of operations as the JS source.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'tlog',
+	deps: [xyz],
 	edges: { xyz: ['xyz_tlog', 'tlog_xyz'] },
 	code: /* glsl */ `
 float tlog_dec_(float t) {

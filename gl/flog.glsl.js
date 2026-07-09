@@ -1,7 +1,9 @@
 // GLSL chunk: F-Log 0-1 <-> linear-light Rec. 2020 (F-Gamut primaries match BT.2020).
 // Linear toe + log10 highlight; mirrors flog.js enc/dec exactly.
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'flog',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_flog', 'flog_rec2020linear'] },
 	code: /* glsl */ `
 float flog_enc_(float x) {

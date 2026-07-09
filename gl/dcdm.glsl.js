@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> DCDM 0-1 — SMPTE ST 428-1's 2.6 power-law gamma,
 // scaled so relative Y=100 lands at the DCI reference projector's 48 cd/m² white.
 // Mirrors dcdm.js (k = 48/52.37/100; negative XYZ clamps to 0).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'dcdm',
+	deps: [xyz],
 	edges: { xyz: ['xyz_dcdm', 'dcdm_xyz'] },
 	code: /* glsl */ `
 float dcdm_enc_(float v) {

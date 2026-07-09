@@ -2,8 +2,10 @@
 // L/a/b built on the Newhall 1943 Munsell value function V(Y); Y<-V is inverted by
 // fixed-iteration Newton (anlab.js runs <=40 with a 1e-9 early-out — the fixed loop
 // here always runs 40, converging to float64 precision well before that).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'anlab',
+	deps: [xyz],
 	edges: { xyz: ['xyz_anlab', 'anlab_xyz'] },
 	code: /* glsl */ `
 float anlab_valuetoy_(float v) {

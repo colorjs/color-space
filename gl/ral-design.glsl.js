@@ -2,8 +2,10 @@
 // definition). Mirrors ral-design.js's own H/L/C <-> a/b conversion directly
 // (not the generic polar_fwd/polar_inv helper: RAL Design orders its channels
 // H,L,C rather than L,C,h).
+import lab from './lab.glsl.js'
 export default {
 	name: 'ral-design',
+	deps: [lab],
 	edges: { lab: ['lab_raldesign', 'raldesign_lab'] },
 	code: /* glsl */ `
 vec3 lab_raldesign(vec3 c) {

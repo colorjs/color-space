@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> DIN99d (Cui, Luo, Rigg, Roesler & Witt 2002).
 // Mirrors din99d.js and wasm/batch.js xyz_din99d/din99d_xyz exactly (X-corrected
 // white per the original paper; log1p/expm1 reimplemented — no GLSL builtin).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'din99d',
+	deps: [xyz],
 	edges: { xyz: ['xyz_din99d', 'din99d_xyz'] },
 	code: /* glsl */ `
 float din99d_labf_(float t) {

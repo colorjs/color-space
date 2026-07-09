@@ -1,7 +1,9 @@
 // GLSL chunk: LogC3 (ARRI, EI 800) <-> CIE XYZ D65 0-100. ALEXA Wide Gamut 3 primaries.
 // Mirrors logc3.js enc/dec + M/MI exactly.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'logc3',
+	deps: [xyz],
 	edges: { xyz: ['xyz_logc3', 'logc3_xyz'] },
 	code: /* glsl */ `
 float logc3_log10_(float x) { return log(x) / log(10.0); }

@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> CIELUV. Mirrors luv.js (xyz.luv / luv.xyz) and
 // wasm/batch.js xyz_luv/luv_xyz exactly (D65 2° whitepoint hardcoded, as the JS default).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'luv',
+	deps: [xyz],
 	edges: { xyz: ['xyz_luv', 'luv_xyz'] },
 	code: /* glsl */ `
 float luv_labf_(float t) {

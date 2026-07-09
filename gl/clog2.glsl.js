@@ -1,7 +1,9 @@
 // GLSL chunk: Canon Log 2 <-> CIE XYZ D65 0-100. Cinema Gamut primaries (shared w/ CLog/CLog3).
 // Mirrors clog2.js decode/encode; same decomposition/constants as wasm/batch.js xyz_clog2.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'clog2',
+	deps: [xyz],
 	edges: { xyz: ['xyz_clog2', 'clog2_xyz'] },
 	code: /* glsl */ `
 float clog2_log10_(float x) { return log(x) / log(10.0); }

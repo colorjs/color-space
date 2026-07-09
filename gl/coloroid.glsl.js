@@ -4,8 +4,10 @@
 // for the forward polygon walk — same data, see coloroid.js's `table` vs `TABLE`); T
 // is the projection onto the white->limit-color line. Mirrors coloroid.js
 // xyy.coloroid / coloroid.xyy exactly (same D65 2° white 0.3127,0.3290 as `dsh`).
+import xyy from './xyy.glsl.js'
 export default {
 	name: 'coloroid',
+	deps: [xyy],
 	edges: { xyy: ['xyy_coloroid', 'coloroid_xyy'] },
 	code: /* glsl */ `
 const float COLOROID_A_[48] = float[48](10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 70.0, 71.0, 72.0, 73.0, 74.0, 75.0, 76.0);

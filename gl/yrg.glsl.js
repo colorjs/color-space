@@ -3,8 +3,10 @@
 // a===0 (JS falsy check), affine map to r,g; the exact-inverse affine solve
 // (JS comment: Kirk's published inverse uses rounded coefficients, this solves
 // exactly) guarded at d===0 the same way.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'yrg',
+	deps: [xyz],
 	edges: { xyz: ['xyz_yrg', 'yrg_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_yrg(vec3 c) {

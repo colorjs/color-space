@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> IPT (Ebner & Fairchild 1998). Mirrors ipt.js:
 // XYZ -> M1 -> signed power 0.43 -> M2. spow_ matches ipt.js's local spow
 // exactly (sign-extended power, safe for the out-of-gamut/negative branch).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'ipt',
+	deps: [xyz],
 	edges: { xyz: ['xyz_ipt', 'ipt_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_ipt(vec3 c) {

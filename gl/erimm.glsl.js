@@ -3,8 +3,10 @@
 // linear toe below e·Emin (Emin = 0.001, Eclip = 316.2).
 // Mirrors erimm.js enc/dec exactly (constants pre-evaluated from the same
 // Math.log/Math.E terms).
+import prophoto_linear from './prophoto-linear.glsl.js'
 export default {
 	name: 'erimm',
+	deps: [prophoto_linear],
 	edges: { 'prophoto-linear': ['prophotolinear_erimm', 'erimm_prophotolinear'] },
 	code: /* glsl */ `
 float erimm_enc_(float x) {

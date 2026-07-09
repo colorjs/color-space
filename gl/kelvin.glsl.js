@@ -2,8 +2,10 @@
 // Forward: Krystek (1985) rational approximation of the Planckian locus (CCT -> uv ->
 // xy). Inverse: McCamy (1992) cubic (xy -> nearest CCT); lossy off the locus, exact on
 // it. Mirrors kelvin.js kelvin.xyz / xyz.kelvin.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'kelvin',
+	deps: [xyz],
 	dim: 1,
 	edges: { xyz: ['xyz_kelvin', 'kelvin_xyz'] },
 	code: /* glsl */ `

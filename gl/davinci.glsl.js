@@ -1,8 +1,10 @@
 // GLSL chunk: DaVinci Wide Gamut / DaVinci Intermediate <-> CIE XYZ D65 0-100.
 // Linear segment below LIN_CUT, log2 segment above. Mirrors davinci.js enc/dec
 // (whitepaper constants A, B, C, M, LIN_CUT, LOG_CUT) and its exact MX/MXI matrices.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'davinci',
+	deps: [xyz],
 	edges: { xyz: ['xyz_davinci', 'davinci_xyz'] },
 	code: /* glsl */ `
 float davinci_enc_(float x) {

@@ -7,8 +7,10 @@
 // compression, the M1 (post-adaptation) matrix, and the same zdiv guards (JS returns
 // 0 instead of dividing by an exact-zero denominator) at the two spots the scalar
 // library uses them (chroma-signal t, and alpha/r in the inverse).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'cam16',
+	deps: [xyz],
 	edges: { xyz: ['xyz_cam16', 'cam16_xyz'] },
 	code: /* glsl */ `
 const float CAM16_FL_ = 0.2731305366732074;

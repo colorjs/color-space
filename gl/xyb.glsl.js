@@ -2,8 +2,10 @@
 // cube-root gamma-3 curve) -> X/Y/B opponent recombination. Mirrors xyb.js (ported
 // from culori); cube computed by multiplication (not pow) so a negative LMS' never
 // hits GLSL's undefined negative-base pow.
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'xyb',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_xyb', 'xyb_lrgb'] },
 	code: /* glsl */ `
 vec3 lrgb_xyb(vec3 c) {

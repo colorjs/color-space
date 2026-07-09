@@ -3,8 +3,10 @@
 // interpolated; 555 nm peak -> Y=100. One-way (forward only): the inverse (dominant
 // wavelength of an arbitrary XYZ) is shared with — and left to — the `dsh` chunk,
 // which owns the CIE 1931 spectral-locus table.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'wavelength',
+	deps: [xyz],
 	dim: 1,
 	edges: { xyz: [null, 'wavelength_xyz'] },
 	code: /* glsl */ `

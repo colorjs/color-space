@@ -2,8 +2,10 @@
 // CAT02-style M1/M2 matrices and their inverses (baked, same as srlab2.js's
 // inv3(M1)/inv3(M2)); f/f^-1 use the shared CIE 1976 toe (cie.js eps/kappa-free
 // form: srlab2.js's own 24389/2700 slope).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'srlab2',
+	deps: [xyz],
 	edges: { xyz: ['xyz_srlab2', 'srlab2_xyz'] },
 	code: /* glsl */ `
 float srlab2_f_(float x) {

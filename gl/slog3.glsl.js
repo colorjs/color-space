@@ -1,7 +1,9 @@
 // GLSL chunk: S-Log3 (Sony) <-> CIE XYZ D65 0-100. S-Gamut3 primaries.
 // Mirrors slog3.js decode/encode + M/MI; same decomposition/constants as wasm/batch.js xyz_slog3.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'slog3',
+	deps: [xyz],
 	edges: { xyz: ['xyz_slog3', 'slog3_xyz'] },
 	code: /* glsl */ `
 float slog3_log10_(float x) { return log(x) / log(10.0); }

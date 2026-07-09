@@ -1,7 +1,9 @@
 // GLSL chunk: Display P3 0-1 <-> linear-light Display P3 (p3-linear), sRGB transfer curve.
 // Same sRGB OETF/EOTF as lrgb.js (IEC 61966-2-1); P3 differs only in primaries (p3-linear).
+import p3_linear from './p3-linear.glsl.js'
 export default {
 	name: 'p3',
+	deps: [p3_linear],
 	edges: { 'p3-linear': ['p3linear_p3', 'p3_p3linear'] },
 	code: /* glsl */ `
 float p3_dec_(float u) {

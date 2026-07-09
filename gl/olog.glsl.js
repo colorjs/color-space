@@ -1,7 +1,9 @@
 // GLSL chunk: O-Log 0-1 <-> linear-light Rec. 2020 (BT.2020 container).
 // Single natural-log curve, no toe segment; mirrors olog.js enc/dec exactly.
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'olog',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_olog', 'olog_rec2020linear'] },
 	code: /* glsl */ `
 vec3 rec2020linear_olog(vec3 c) {

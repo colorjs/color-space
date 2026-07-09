@@ -1,7 +1,9 @@
 // GLSL chunk: S-Log (Sony) <-> CIE XYZ D65 0-100. S-Gamut primaries (same as S-Gamut3).
 // Mirrors slog.js raw/rawInv/enc/dec + M/MI exactly.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'slog',
+	deps: [xyz],
 	edges: { xyz: ['xyz_slog', 'slog_xyz'] },
 	code: /* glsl */ `
 float slog_log10_(float x) { return log(x) / log(10.0); }

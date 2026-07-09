@@ -1,8 +1,10 @@
 // GLSL chunk: D-Log 0-1 <-> CIE XYZ D65 0-100, via D-Gamut linear RGB.
 // Linear toe + log10 highlight, then D-Gamut -> XYZ matrix; mirrors dlog.js enc/dec
 // and M (colour-science MATRIX_DJI_D_GAMUT_TO_XYZ); MI is M's exact inverse (inv3).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'dlog',
+	deps: [xyz],
 	edges: { xyz: ['xyz_dlog', 'dlog_xyz'] },
 	code: /* glsl */ `
 float dlog_enc_(float x) {

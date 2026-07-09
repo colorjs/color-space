@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> CIE 1960 UCS (U,V,W 0-100). Mirrors ucs.js —
 // a fixed invertible 3x3 (no zero-denominator branch needed).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'ucs',
+	deps: [xyz],
 	edges: { xyz: ['xyz_ucs', 'ucs_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_ucs(vec3 c) {

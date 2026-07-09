@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> u'v'Y (CIE 1976 UCS chromaticity + luminance).
 // Mirrors uv.js: xyz.uv guards d===0 -> [0,0,0]; uv.xyz guards v===0 -> [0,0,0].
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'uv',
+	deps: [xyz],
 	edges: { xyz: ['xyz_uv', 'uv_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_uv(vec3 c) {

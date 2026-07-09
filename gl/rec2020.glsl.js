@@ -1,8 +1,10 @@
 // GLSL chunk: Rec. 2020 0-1 <-> linear-light Rec. 2020 (rec2020-linear), BT.2020 OETF/EOTF.
 // Same piecewise curve shape as Rec. 709 but with BT.2020's full-precision constants
 // (Table 4); mirrors transfers.js bt2020Encode/bt2020Decode used by rec2020.js.
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'rec2020',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_rec2020', 'rec2020_rec2020linear'] },
 	code: /* glsl */ `
 float rec2020_enc_(float u) {

@@ -1,7 +1,9 @@
 // GLSL chunk: OkHSV <-> OkHWB (W = (1-S)*V, B = 1-V; achromatic when W+B >= 1).
 // Mirrors okhwb.js exactly.
+import okhsv from './okhsv.glsl.js'
 export default {
 	name: 'okhwb',
+	deps: [okhsv],
 	edges: { okhsv: ['okhsv_okhwb', 'okhwb_okhsv'] },
 	code: /* glsl */ `
 vec3 okhsv_okhwb(vec3 c) {

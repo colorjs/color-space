@@ -1,8 +1,10 @@
 // GLSL chunk: ViperLog <-> linear-light RGB 0-1. No native gamut of its own — edges
 // to lrgb. Mirrors viperlog.js decode/encode (pure log10, no black offset; linear
 // input floors at 10^(-1023/500), the value that encodes to code 0).
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'viperlog',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_viperlog', 'viperlog_lrgb'] },
 	code: /* glsl */ `
 float viperlog_dec_(float y) {

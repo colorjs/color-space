@@ -2,8 +2,10 @@
 // rescales chroma by the single largest circle that fits inside the sRGB gamut at
 // L (hue-independent). Mirrors hsluv.js getBounds()/maxSafeChromaForL(); same
 // literals as wasm/batch.js's lchuv_hpluv/hpluv_lchuv.
+import lchuv from './lchuv.glsl.js'
 export default {
 	name: 'hpluv',
+	deps: [lchuv],
 	edges: { lchuv: ['lchuv_hpluv', 'hpluv_lchuv'] },
 	code: /* glsl */ `
 float hpluv_row_(float m1, float m2, float m3, float sub2, float l) {

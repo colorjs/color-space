@@ -173,3 +173,24 @@ test('gl: composed rgb → space → rgb across the graph', () => {
 	}
 	is(misses.slice(0, 20), [], `composed paths match scalar lib (${misses.length} misses)`)
 })
+
+// ── the lean tier: registry-free composition from imported chunks ──
+test('gl: compose (lean) emits byte-identical sources to the registry', async () => {
+	const { glsl: lean, compose } = await import('../gl/compose.js')
+	const oklch = (await import('../gl/oklch.glsl.js')).default
+	const p3 = (await import('../gl/p3.glsl.js')).default
+	is(lean('rgb', oklch), glsl('rgb', 'oklch'), 'rgb→oklch')
+	is(lean(oklch, 'rgb'), glsl('oklch', 'rgb'), 'oklch→rgb')
+	is(compose([oklch, p3]).glsl([['oklch', 'rgb'], ['oklch', 'p3']]),
+		glsl([['oklch', 'rgb'], ['oklch', 'p3']]), 'multi-pair')
+})
+
+test('gl: every chunk carries its edge/requires chain in deps', () => {
+	for (const [n, c] of Object.entries(chunks)) {
+		const have = new Set((c.deps || []).map((d) => d.name))
+		for (const nb of [...Object.keys(c.edges || {}), ...(c.requires || [])]) {
+			if (nb === 'rgb' || !chunks[nb]) continue
+			is(have.has(nb), true, `${n} deps carry ${nb}`)
+		}
+	}
+})

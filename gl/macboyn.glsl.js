@@ -3,8 +3,10 @@
 // subtraction here); achromatic (lum==0) inputs sit at the D65 white's (l, s).
 // Inverse is inv3(M), same literals as gl/dkl.js's dkl_xyz (independently embedded
 // per chunk-isolation).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'macboyn',
+	deps: [xyz],
 	edges: { xyz: ['xyz_macboyn', 'macboyn_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_macboyn(vec3 c) {

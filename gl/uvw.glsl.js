@@ -4,8 +4,10 @@
 // no illuminant param. d===0 / w===0 branches guard the achromatic axis exactly
 // as the JS does (U*=V*=0 there); y=((w+17)/25)^3 is cubed by multiplication
 // (never pow) so it stays defined for the whole W* range including negative w.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'uvw',
+	deps: [xyz],
 	edges: { xyz: ['xyz_uvw', 'uvw_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_uvw(vec3 c) {

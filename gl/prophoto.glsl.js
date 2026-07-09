@@ -1,8 +1,10 @@
 // GLSL chunk: ProPhoto RGB (ROMM) 0-1 <-> linear-light ProPhoto (prophoto-linear).
 // ROMM curve with a linear toe below Et/Et2, sign-extended; mirrors prophoto.js
 // toLinear/fromLinear (Et = 1/512, Et2 = 16/512).
+import prophoto_linear from './prophoto-linear.glsl.js'
 export default {
 	name: 'prophoto',
+	deps: [prophoto_linear],
 	edges: { 'prophoto-linear': ['prophotolinear_prophoto', 'prophoto_prophotolinear'] },
 	code: /* glsl */ `
 float prophoto_dec_(float u) {

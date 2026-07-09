@@ -1,7 +1,9 @@
 // GLSL chunk: CIECAM02 (J, M, h) <-> CAM02-LCD (J', a', b'). Mirrors cam02-lcd.js's
 // log compression exactly (c1 = 0.007, c2 = 0.0053 — large-difference tuning).
+import ciecam02 from './ciecam02.glsl.js'
 export default {
 	name: 'cam02-lcd',
+	deps: [ciecam02],
 	edges: { ciecam02: ['ciecam02_cam02lcd', 'cam02lcd_ciecam02'] },
 	code: /* glsl */ `
 vec3 ciecam02_cam02lcd(vec3 c) {

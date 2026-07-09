@@ -3,8 +3,10 @@
 // photoycc.lrgb — the odd-extended Rec.709 OETF (same sign*pow(abs) form as
 // bt709Encode/Decode in transfers.js) feeding BT.601 luma weights and the
 // asymmetric C1/C2 storage offsets (156/137).
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'photoycc',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_photoycc', 'photoycc_lrgb'] },
 	code: /* glsl */ `
 float photoycc_oetf_(float v) {

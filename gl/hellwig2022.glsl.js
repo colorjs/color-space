@@ -8,8 +8,10 @@
 // directly on the exponent c·z (no Jroot-square roundtrip), and M is 43·Nc·ecc(h)·|a,b|
 // with no FL^0.25 chroma scaling. No zdiv guards — hellwig2022.js divides by
 // 43·ecc(h) unguarded, so this chunk does too (matches for all h; ecc(h) has no real root).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'hellwig2022',
+	deps: [xyz],
 	edges: { xyz: ['xyz_hellwig2022', 'hellwig2022_xyz'] },
 	code: /* glsl */ `
 const float HELLWIG2022_FL_ = 1.1675444641471802;

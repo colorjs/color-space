@@ -1,8 +1,10 @@
 // GLSL chunk: NTSC 1953 (illuminant C, Bradford-adapted to D65) 0-1 <-> CIE XYZ
 // D65 0-100. Pure gamma 2.2, no linear toe.
 // Mirrors ntsc.js M / inv3(M) and transfers.js gammaEncode/Decode(v, 2.2).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'ntsc',
+	deps: [xyz],
 	edges: { xyz: ['xyz_ntsc', 'ntsc_xyz'] },
 	code: /* glsl */ `
 float ntsc_dec_(float u) { return sign(u) * pow(abs(u), 2.2); }

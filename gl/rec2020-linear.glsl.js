@@ -1,7 +1,9 @@
 // GLSL chunk: linear-light Rec. 2020 0-1 <-> CIE XYZ D65 0-100.
 // Matrix mirrors rec2020-linear.js M (BT.2020 primaries, D65 white); inverse derived via inv3.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'rec2020-linear',
+	deps: [xyz],
 	edges: { xyz: ['xyz_rec2020linear', 'rec2020linear_xyz'] },
 	code: /* glsl */ `
 vec3 rec2020linear_xyz(vec3 c) {

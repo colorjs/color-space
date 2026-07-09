@@ -1,7 +1,9 @@
 // GLSL chunk: linear-light Display P3 0-1 <-> CIE XYZ D65 0-100.
 // Matrix mirrors p3-linear.js M (DCI-P3 primaries, D65 white); inverse derived via inv3.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'p3-linear',
+	deps: [xyz],
 	edges: { xyz: ['xyz_p3linear', 'p3linear_xyz'] },
 	code: /* glsl */ `
 vec3 p3linear_xyz(vec3 c) {

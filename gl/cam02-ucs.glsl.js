@@ -1,7 +1,9 @@
 // GLSL chunk: CIECAM02 (J, M, h) <-> CAM02-UCS (J', a', b'). Mirrors cam02-ucs.js's
 // log compression exactly (c1 = 0.007, c2 = 0.0228) — same scheme CAM16-UCS later reused.
+import ciecam02 from './ciecam02.glsl.js'
 export default {
 	name: 'cam02-ucs',
+	deps: [ciecam02],
 	edges: { ciecam02: ['ciecam02_cam02ucs', 'cam02ucs_ciecam02'] },
 	code: /* glsl */ `
 vec3 ciecam02_cam02ucs(vec3 c) {

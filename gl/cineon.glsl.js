@@ -1,7 +1,9 @@
 // GLSL chunk: Cineon <-> linear-light RGB 0-1 (SMPTE 268M). No native gamut of its
 // own — edges to lrgb. Mirrors cineon.js decode/encode (black 95/white 685 over 10 bits).
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'cineon',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_cineon', 'cineon_lrgb'] },
 	code: /* glsl */ `
 float cineon_dec_(float y) {

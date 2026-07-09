@@ -1,7 +1,9 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> CIELAB (D50-referred, Bradford-adapted). Mirrors
 // lab.js (xyz.lab / lab.xyz) and wasm/batch.js xyz_lab/lab_xyz exactly.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'lab',
+	deps: [xyz],
 	edges: { xyz: ['xyz_lab', 'lab_xyz'] },
 	code: /* glsl */ `
 float lab_labf_(float t) {

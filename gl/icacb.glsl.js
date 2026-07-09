@@ -3,8 +3,10 @@
 // ST 2084 (PQ) encode per channel -> M2, and its exact inverse.
 // Private helpers icacb_pq_encode_/icacb_pq_decode_ duplicate transfers.js'
 // pqST2084Encode/Decode (chunks can't import — self-contained per chunk).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'icacb',
+	deps: [xyz],
 	edges: { xyz: ['xyz_icacb', 'icacb_xyz'] },
 	code: /* glsl */ `
 float icacb_pq_encode_(float v) {

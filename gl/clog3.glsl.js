@@ -1,7 +1,9 @@
 // GLSL chunk: Canon Log 3 <-> CIE XYZ D65 0-100. Cinema Gamut primaries (shared w/ CLog/CLog2).
 // Mirrors clog3.js 3-piece enc/dec (÷0.9 reflection convention) + M/MI exactly.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'clog3',
+	deps: [xyz],
 	edges: { xyz: ['xyz_clog3', 'clog3_xyz'] },
 	code: /* glsl */ `
 float clog3_log10_(float x) { return log(x) / log(10.0); }

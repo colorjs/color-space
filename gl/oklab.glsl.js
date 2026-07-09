@@ -1,7 +1,9 @@
 // GLSL chunk: linear sRGB 0-1 <-> Oklab (native: L 0-1, a/b ±0.4), Ottosson 2020.
 // Same constants as oklab.js / wasm/batch.js.
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'oklab',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_oklab', 'oklab_lrgb'] },
 	code: /* glsl */ `
 vec3 lrgb_oklab(vec3 c) {

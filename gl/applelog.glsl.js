@@ -1,8 +1,10 @@
 // GLSL chunk: Apple Log 0-1 <-> linear-light Rec. 2020 (BT.2020 container).
 // Quadratic toe (the sqrt segment on decode) + log2 highlight; mirrors applelog.js
 // enc/dec exactly. Pt = c*(Rt-R0)^2 pre-evaluated (float64).
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'applelog',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_applelog', 'applelog_rec2020linear'] },
 	code: /* glsl */ `
 float applelog_enc_(float r) {

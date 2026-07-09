@@ -1,7 +1,9 @@
 // GLSL chunk: linear-light Adobe RGB 0-1 <-> CIE XYZ D65 0-100.
 // Matrix mirrors a98rgb-linear.js M (Adobe RGB 1998 primaries, D65 white); inverse via inv3.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'a98rgb-linear',
+	deps: [xyz],
 	edges: { xyz: ['xyz_a98rgblinear', 'a98rgblinear_xyz'] },
 	code: /* glsl */ `
 vec3 a98rgblinear_xyz(vec3 c) {

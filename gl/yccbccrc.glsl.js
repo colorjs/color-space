@@ -2,8 +2,10 @@
 // BT.2020 constant-luminance. Mirrors yccbccrc.js: BT.2020-2 Table 4 luma weights
 // (Kr/Kg/Kb), the BT.2020 OETF/EOTF (transfers.js bt2020Encode/bt2020Decode)
 // applied post-luma-mix, and the piecewise Cbc/Crc normalisation (NBC/PBC/NRC/PRC).
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'yccbccrc',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_yccbccrc', 'yccbccrc_rec2020linear'] },
 	code: /* glsl */ `
 float yccbccrc_oetf_(float v) {

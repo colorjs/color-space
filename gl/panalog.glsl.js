@@ -1,8 +1,10 @@
 // GLSL chunk: Panalog <-> linear-light RGB 0-1. No native gamut of its own — edges
 // to lrgb. Mirrors panalog.js decode/encode (Cineon-style curve, black 64/white 681
 // over 10 bits, gain 444).
+import lrgb from './lrgb.glsl.js'
 export default {
 	name: 'panalog',
+	deps: [lrgb],
 	edges: { lrgb: ['lrgb_panalog', 'panalog_lrgb'] },
 	code: /* glsl */ `
 float panalog_dec_(float y) {

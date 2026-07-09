@@ -1,8 +1,10 @@
 // GLSL chunk: Mi-Log 0-1 <-> linear-light Rec. 2020 (BT.2020 container).
 // Same quadratic-toe + log2-highlight shape as Apple Log with Xiaomi's constants;
 // mirrors milog.js enc/dec exactly. Pt = c*(Rt-R0)^2 pre-evaluated (float64).
+import rec2020_linear from './rec2020-linear.glsl.js'
 export default {
 	name: 'milog',
+	deps: [rec2020_linear],
 	edges: { 'rec2020-linear': ['rec2020linear_milog', 'milog_rec2020linear'] },
 	code: /* glsl */ `
 float milog_enc_(float r) {

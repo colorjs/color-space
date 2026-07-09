@@ -1,8 +1,10 @@
 // GLSL chunk: Log3G10 (RED whitepaper 915-0187 Rev-C) <-> CIE XYZ D65 0-100.
 // Matrix is REDWideGamutRGB linear -> XYZ; mirrors log3g10.js decode/encode and M/inv3(M)
 // (same literals as wasm/batch.js log3g10_xyz / xyz_log3g10).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'log3g10',
+	deps: [xyz],
 	edges: { xyz: ['xyz_log3g10', 'log3g10_xyz'] },
 	code: /* glsl */ `
 float log3g10_dec_(float v) {

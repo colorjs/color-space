@@ -2,8 +2,10 @@
 // Bradford-adapted D50->D65; camera-style OETF clipped one stop above diffuse
 // white (E_clip = 2.0). Not sign-extended — clamps like rimm.js, no odd symmetry.
 // Mirrors rimm.js M / inv3(M) and its enc/dec.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'rimm',
+	deps: [xyz],
 	edges: { xyz: ['xyz_rimm', 'rimm_xyz'] },
 	code: /* glsl */ `
 float rimm_dec_(float ep) {

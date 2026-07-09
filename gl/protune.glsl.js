@@ -1,8 +1,10 @@
 // GLSL chunk: Protune 0-1 <-> CIE XYZ D65 0-100, via Protune Native linear RGB.
 // Single natural-log curve, then Protune Native -> XYZ matrix; mirrors protune.js
 // enc/dec and M; MI is M's exact inverse (inv3).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'protune',
+	deps: [xyz],
 	edges: { xyz: ['xyz_protune', 'protune_xyz'] },
 	code: /* glsl */ `
 float protune_enc_(float x) {

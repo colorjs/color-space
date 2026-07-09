@@ -1,7 +1,9 @@
 // GLSL chunk: CAM16 (J, M, h) <-> CAM16-UCS (J', a', b'). Mirrors cam16-ucs.js's
 // log compression exactly (c1 = 0.007, c2 = 0.0228).
+import cam16 from './cam16.glsl.js'
 export default {
 	name: 'cam16-ucs',
+	deps: [cam16],
 	edges: { cam16: ['cam16_cam16ucs', 'cam16ucs_cam16'] },
 	code: /* glsl */ `
 vec3 cam16_cam16ucs(vec3 c) {

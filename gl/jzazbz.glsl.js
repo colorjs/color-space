@@ -4,8 +4,10 @@
 // b=1.15, g=0.66, d=-0.56, d0). The XYZ<->Iab helpers are shared with izazbz.js's
 // GLSL twin (gl/izazbz.js, requires: ['jzazbz']) since izazbz is the same pipeline
 // stopped one step earlier (Iz, not Jz).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'jzazbz',
+	deps: [xyz],
 	edges: { xyz: ['xyz_jzazbz', 'jzazbz_xyz'] },
 	code: /* glsl */ `
 float jzazbz_pq_enc_(float val) {

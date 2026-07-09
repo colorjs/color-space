@@ -1,7 +1,9 @@
 // GLSL chunk: ACEScct (log2 grading curve with a linear toe near black) <-> ACEScg (linear AP1).
 // Mirrors acescct.js encode/decode exactly (ACES spec S-2016-001).
+import acescg from './acescg.glsl.js'
 export default {
 	name: 'acescct',
+	deps: [acescg],
 	edges: { acescg: ['acescg_acescct', 'acescct_acescg'] },
 	code: /* glsl */ `
 float acescct_encode_(float lin_) {

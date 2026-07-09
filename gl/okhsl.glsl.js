@@ -3,8 +3,10 @@
 // lands on the sRGB gamut boundary. Mirrors okhsl.js exactly: computeMaxSaturation
 // / findCusp / findGamutIntersection / getCs (cusp-finding machinery) plus the Lr
 // toe, using okhsl.js's own LabtoLMS_M / toSRGBLinear / RGBCoeff constants.
+import oklab from './oklab.glsl.js'
 export default {
 	name: 'okhsl',
+	deps: [oklab],
 	edges: { oklab: ['oklab_okhsl', 'okhsl_oklab'] },
 	code: /* glsl */ `
 const float OKHSL_TAU_ = 6.283185307179586;

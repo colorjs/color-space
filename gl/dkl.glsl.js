@@ -3,8 +3,10 @@
 // 100, 108.9058) — dkl.js's own rounded literal, not xyz.js's full-precision
 // whitepoint). Inverse matrix is inv3(M) (computed once, embedded as literals,
 // same source of truth as dkl.js's runtime inv3(M)).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'dkl',
+	deps: [xyz],
 	edges: { xyz: ['xyz_dkl', 'dkl_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_dkl(vec3 c) {

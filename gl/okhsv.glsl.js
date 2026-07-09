@@ -2,8 +2,10 @@
 // fit exactly inside the sRGB gamut. Mirrors okhsv.js exactly: findCusp/toSt/
 // oklabToLinearRGB reused from okhsl's family, duplicated here with the chunk's
 // own prefix (same constants as okhsl.js's toSRGBLinear/LabtoLMS_M/RGBCoeff).
+import oklab from './oklab.glsl.js'
 export default {
 	name: 'okhsv',
+	deps: [oklab],
 	edges: { oklab: ['oklab_okhsv', 'okhsv_oklab'] },
 	code: /* glsl */ `
 const float OKHSV_TAU_ = 6.283185307179586;

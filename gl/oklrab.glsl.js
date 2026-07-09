@@ -1,8 +1,10 @@
 // GLSL chunk: Oklab <-> OKLrab — Ottosson's Lr toe applied to L only (a/b pass
 // through untouched). Mirrors oklrab.js toe/toeInv (same constants as
 // wasm/batch.js oklab_oklrab/oklrab_oklab).
+import oklab from './oklab.glsl.js'
 export default {
 	name: 'oklrab',
+	deps: [oklab],
 	edges: { oklab: ['oklab_oklrab', 'oklrab_oklab'] },
 	code: /* glsl */ `
 const float OKLRAB_K1_ = 0.206;

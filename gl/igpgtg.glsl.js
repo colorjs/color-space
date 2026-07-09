@@ -1,8 +1,10 @@
 // GLSL chunk: CIE XYZ D65 0-100 <-> IgPgTg (Hensley & Fairchild 2020). Mirrors
 // igpgtg.js: XYZ -> M1 -> per-channel scale [18.36, 21.46, 19435] -> signed
 // power 0.427 -> M2. spow_ matches igpgtg.js's local spow exactly.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'igpgtg',
+	deps: [xyz],
 	edges: { xyz: ['xyz_igpgtg', 'igpgtg_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_igpgtg(vec3 c) {

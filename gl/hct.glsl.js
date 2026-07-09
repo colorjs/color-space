@@ -8,8 +8,10 @@
 // same quadratic seeds, same "best-so-far" fallback, same 2e-12 stopping threshold and
 // 16-iteration cap (attempt 0..15). The solve converges to hct.js's own 2e-12
 // threshold for every sample tested, so no tolerance relaxation is needed here.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'hct',
+	deps: [xyz],
 	edges: { xyz: ['xyz_hct', 'hct_xyz'] },
 	code: /* glsl */ `
 const float HCT_FL_ = 0.3884814537800353;

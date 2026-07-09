@@ -3,8 +3,10 @@
 // rescaling as ycbcr (this library computes xvYCC identically to YCbCr; the
 // separate module exists for gamut semantics, not different arithmetic), and
 // xvycc.js itself composes rgb<->xvycc through ypbpr, so this chunk mirrors that.
+import ypbpr from './ypbpr.glsl.js'
 export default {
 	name: 'xvycc',
+	deps: [ypbpr],
 	edges: { ypbpr: ['ypbpr_xvycc', 'xvycc_ypbpr'] },
 	code: /* glsl */ `
 vec3 ypbpr_xvycc(vec3 c) {

@@ -3,8 +3,10 @@
 // and the four (e_R, e_G)-regime inverse matrices are precomputed constants. The
 // inverse solves the 3×3 log system per regime and keeps the self-consistent one —
 // exact, no iteration, as nayatani95.js.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'nayatani95',
+	deps: [xyz],
 	edges: { xyz: ['xyz_nayatani95', 'nayatani95_xyz'] },
 	code: /* glsl */ `
 float nayatani95_es_(float t) {

@@ -5,8 +5,10 @@
 // sign-change brackets, bisect each, reject poles (X+Y+Z crossing 0 blows up K),
 // prefer physical roots (XYZ ≥ 0) nearest the seed. Y0(w) has several roots, so a
 // free Newton can land on a non-physical one — and is fragile in f32 anyway.
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'osaucs',
+	deps: [xyz],
 	edges: { xyz: ['xyz_osaucs', 'osaucs_xyz'] },
 	code: /* glsl */ `
 float osaucs_k_(float x, float y) {

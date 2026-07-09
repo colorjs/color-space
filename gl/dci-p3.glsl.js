@@ -1,8 +1,10 @@
 // GLSL chunk: linear-light DCI-P3 (Bradford-adapted to D65) 0-1 <-> CIE XYZ D65
 // 0-100. Pure gamma 2.6, no linear toe — SMPTE RP 431-2.
 // Mirrors dci-p3.js M / inv3(M) and spow(v, 2.6).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'dci-p3',
+	deps: [xyz],
 	edges: { xyz: ['xyz_dcip3', 'dcip3_xyz'] },
 	code: /* glsl */ `
 vec3 dcip3_xyz(vec3 c) {

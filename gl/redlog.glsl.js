@@ -1,7 +1,9 @@
 // GLSL chunk: REDLog <-> CIE XYZ D65 0-100. Matrix is REDcolor linear -> XYZ;
 // mirrors redlog.js decode/encode (10-bit, black offset 10^(-1023/511)) and M/inv3(M).
+import xyz from './xyz.glsl.js'
 export default {
 	name: 'redlog',
+	deps: [xyz],
 	edges: { xyz: ['xyz_redlog', 'redlog_xyz'] },
 	code: /* glsl */ `
 float redlog_dec_(float y) {
