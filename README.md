@@ -55,26 +55,25 @@ space.rgb.oklch(buf);                // converts in place, no copy — returns b
 
 ## GL/WGSL
 
-Every space but `munsell` ships as a GLSL shader chunk with a mechanical WGSL translation — composed on demand, plain strings, no build step:
-
-```js
-import { glsl } from 'color-space/gl';
-import { wgsl } from 'color-space/gl/wgsl';
-
-glsl('rgb', 'oklch');   // self-contained `vec3 rgb_oklch(vec3 c)` — only the chunks the path needs
-wgsl('rgb', 'oklch');   // the same conversion as WGSL `fn rgb_oklch(c: vec3f) -> vec3f`
-```
-
-Those route any space *by name* — and therefore bundle the whole chunk catalog
-(~200 kB min). The **lean tier** imports just the spaces you convert (each chunk
-carries its own dependency chain) — byte-identical output, ~4 kB:
+Every space but `munsell` ships as a GLSL shader chunk with a mechanical WGSL translation — composed on demand, plain strings, no build step. Import the spaces you convert (each chunk carries its own dependency chain), ~4 kB in a bundle:
 
 ```js
 import glsl, { wgsl } from 'color-space/gl/compose';
 import oklch from 'color-space/gl/oklch';
 
-glsl(oklch);          // rgb → oklch (rgb is the default `from`)
-wgsl(oklch, 'rgb');   // the inverse, as WGSL
+glsl(oklch);          // self-contained `vec3 rgb_oklch(vec3 c)` — rgb is the default `from`
+wgsl(oklch, 'rgb');   // the inverse, as WGSL `fn oklch_rgb(c: vec3f) -> vec3f`
+```
+
+When the space is only known at *runtime* — a picker, a catalog UI, a build script
+where size is free — the registry tier routes any space by name, at the cost of
+bundling the whole catalog (~200 kB min):
+
+```js
+import { glsl } from 'color-space/gl';
+import { wgsl } from 'color-space/gl/wgsl';
+
+glsl('rgb', 'oklch');   // any of the 155 names, byte-identical output
 ```
 
 ## Guarantees
