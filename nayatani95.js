@@ -11,7 +11,7 @@
  * @year 1995
  * @by Yoshinobu Nayatani
  * @use Historical appearance model of illuminant-level (Hunt/Stevens) effects; folded into the CIECAM97s lineage.
- * @channel {L} -20 115 Lightness
+ * @channel {L} 0 100 Lightness
  * @channel {C} 0 190 Chroma
  * @channel {h} 0 360 Hue
  * @illuminant D65
@@ -26,11 +26,14 @@
 // protanopic responses Q,t,p are LINEAR in the three log cone signals except for two
 // threshold switches (e_R, e_G ∈ {1, 1.758}), so the inverse solves the 3×3 log system
 // in each of the 4 regimes and keeps the self-consistent one — exact, no iteration.
-// Output is (L*_P, C, θ): achromatic lightness Q+50, chroma (L/50)^0.7·S, hue angle.
+// Output is (L*_N, C, θ): the NORMALISED achromatic lightness 100·B_r/B_rw (white → 100,
+// black → 0 — a usable lightness axis), the chroma (L*_P/50)^0.7·S, and the hue angle.
+// Nayatani's other lightness correlate L*_P = Q + 50 puts black at −19 and only serves as
+// the chroma anchor here, so it stays internal.
 import xyz from './xyz.js';
 import { mat3, inv3 } from './util.js';
 
-const nayatani95 = { name: 'nayatani95', range: [[-20, 115], [0, 190], [0, 360]] };
+const nayatani95 = { name: 'nayatani95', range: [[0, 100], [0, 190], [0, 360]] };
 
 // von Kries cone matrix (CIE 1994 / Nayatani)
 const M = [0.40024, 0.70760, -0.08081, -0.22630, 1.16532, 0.04570, 0, 0, 0.91822];
@@ -48,6 +51,12 @@ const Lo = Yo * Eo / (100 * Math.PI); // adapting luminance scale
 const bRo = beta1(Lo * xi), bGo = beta1(Lo * eta), bBo = beta2(Lo * zeta);
 const bLor = beta1(Yo * Eor / (100 * Math.PI));
 const dR = 20 * xi + n, dG = 20 * eta + n, dB = 20 * zeta + n; // log denominators
+
+// normalised achromatic lightness L*_N = 100·B_r/B_rw (white → 100, black → 0), which
+// this space reports as its lightness channel. L*_P (= Q + 50, black at −19) is Nayatani's
+// other lightness correlate and is still used internally to scale chroma.
+const brTerm = (50 / bLor) * ((2 / 3) * bRo + (1 / 3) * bGo); // constant part of B_r
+const Brw = ((2 / 3) * bRo * 1.758 * Math.log10((100 * xi + n) / dR) + (1 / 3) * bGo * 1.758 * Math.log10((100 * eta + n) / dG)) * 41.69 / bLor + brTerm;
 
 // chromatic strength E_s(θ), θ in radians (Nayatani 1995 harmonics)
 const Es = t => 0.9394 - 0.2478 * Math.sin(t) - 0.0743 * Math.sin(2 * t) + 0.0666 * Math.sin(3 * t) - 0.0186 * Math.sin(4 * t)
@@ -67,16 +76,18 @@ xyz.nayatani95 = (X, Y, Z) => {
 	const Q = ((2 / 3) * bRo * eR * lr + (1 / 3) * bGo * eG * lg) * 41.69 / bLor;
 	const t = bRo * lr - (12 / 11) * bGo * lg + (1 / 11) * bBo * lb;
 	const p = (1 / 9) * bRo * lr + (1 / 9) * bGo * lg - (2 / 9) * bBo * lb;
-	const L = Q + 50;
+	const Lp = Q + 50; // L*_P — anchors the chroma scale
 	const th = Math.atan2(p, t);
 	const S = 488.93 / bLor * Es(th) * Math.hypot(t, p);
 	const h = (th * 180 / Math.PI + 360) % 360;
-	return [L, Math.pow(Math.max(L, 0) / 50, 0.7) * S, h];
+	return [100 * (brTerm + Q) / Brw, Math.pow(Math.max(Lp, 0) / 50, 0.7) * S, h];
 };
 
 nayatani95.xyz = (L, C, h) => {
-	const Q = (L - 50) * bLor / 41.69, th = h * Math.PI / 180;
-	const S = L > 0 ? C / Math.pow(L / 50, 0.7) : 0;
+	// L is L*_N; recover L*_P (Q + 50) which drives the chroma inverse and the regime solve
+	const Qs = L * Brw / 100 - brTerm, Lp = Qs + 50;
+	const Q = Qs * bLor / 41.69, th = h * Math.PI / 180;
+	const S = Lp > 0 ? C / Math.pow(Lp / 50, 0.7) : 0;
 	const mag = S * bLor / (488.93 * Es(th));
 	const t = mag * Math.cos(th), p = mag * Math.sin(th);
 	// try each threshold regime; keep the self-consistent solve

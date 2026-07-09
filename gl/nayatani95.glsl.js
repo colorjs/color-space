@@ -1,10 +1,12 @@
-// GLSL chunk: CIE XYZ 0-100 <-> Nayatani95 (L*P, C, h). Baked to nayatani95.js's
-// conditions (D65 white, Yo=20, Eo=5000 lx, Eor=1000 lx, n=1): ξηζ, the β factors
-// and the four (e_R, e_G)-regime inverse matrices are precomputed constants. The
-// inverse solves the 3×3 log system per regime and keeps the self-consistent one —
-// exact, no iteration, as nayatani95.js.
+// GLSL chunk: CIE XYZ 0-100 <-> Nayatani95 (L*_N, C, h). Baked to nayatani95.js's
+// conditions (D65 white, Yo=20, Eo=5000 lx, Eor=1000 lx, n=1): ξηζ, the β factors,
+// the L*_N normalisers (brTerm, B_rw) and the four (e_R, e_G)-regime inverse matrices
+// are precomputed constants. Lightness is the normalised L*_N = 100·B_r/B_rw (white →
+// 100, black → 0); L*_P = Q + 50 stays internal as the chroma anchor. The inverse
+// solves the 3×3 log system per regime and keeps the self-consistent one — exact.
 import xyz from './xyz.glsl.js'
-export default {
+import { chunk } from './compose.js'
+export default chunk({
 	name: 'nayatani95',
 	deps: [xyz],
 	edges: { xyz: ['xyz_nayatani95', 'nayatani95_xyz'] },
@@ -25,12 +27,12 @@ vec3 xyz_nayatani95(vec3 c) {
 	float Q = ((2.0 / 3.0) * 4.610622226467659 * eR * lr + (1.0 / 3.0) * 4.610589263466818 * eG * lg) * 41.69 / 3.6810214956040888;
 	float t = 4.610622226467659 * lr - (12.0 / 11.0) * 4.610589263466818 * lg + (1.0 / 11.0) * 4.652069860953014 * lb;
 	float p = (1.0 / 9.0) * 4.610622226467659 * lr + (1.0 / 9.0) * 4.610589263466818 * lg - (2.0 / 9.0) * 4.652069860953014 * lb;
-	float L = Q + 50.0;
+	float Lp = Q + 50.0; // L*_P — chroma anchor
 	float th = atan2_(p, t);
 	float S = 488.93 / 3.6810214956040888 * nayatani95_es_(th) * sqrt(t * t + p * p);
 	float h = th * 57.29577951308232;
 	if (h < 0.0) { h = h + 360.0; }
-	return vec3(L, spow_(max(L, 0.0) / 50.0, 0.7) * S, h);
+	return vec3(100.0 * (62.626790475235588 + Q) / 125.24353922788751, spow_(max(Lp, 0.0) / 50.0, 0.7) * S, h);
 }
 vec3 nayatani95_solve_(float a0, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, float Q, float t, float p) {
 	float lr = a0 * Q + a1 * t + a2 * p;
@@ -52,10 +54,11 @@ float nayatani95_err_(vec3 rgb, float eR, float eG) {
 	return e;
 }
 vec3 nayatani95_xyz(vec3 c) {
-	float Q = (c.x - 50.0) * 3.6810214956040888 / 41.69;
+	float Lp = c.x * 125.24353922788751 / 100.0 - 62.626790475235588 + 50.0; // L*_N -> L*_P
+	float Q = (Lp - 50.0) * 3.6810214956040888 / 41.69;
 	float th = c.z * 0.017453292519943295;
 	float S = 0.0;
-	if (c.x > 0.0) { S = c.y / spow_(c.x / 50.0, 0.7); }
+	if (Lp > 0.0) { S = c.y / spow_(Lp / 50.0, 0.7); }
 	float mag = S * 3.6810214956040888 / (488.93 * nayatani95_es_(th));
 	float t = mag * cos(th);
 	float p = mag * sin(th);
@@ -75,4 +78,4 @@ vec3 nayatani95_xyz(vec3 c) {
 		0.3611914362417676 * best.x + 0.6388124632850422 * best.y - 0.000006370596838650885 * best.z,
 		1.0890636230968613 * best.z);
 }`,
-}
+})

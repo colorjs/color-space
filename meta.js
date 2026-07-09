@@ -4002,8 +4002,8 @@ export default {
     "channels": [
       {
         "symbol": "L",
-        "min": -20,
-        "max": 115,
+        "min": 0,
+        "max": 100,
         "name": "Lightness"
       },
       {
@@ -4021,8 +4021,8 @@ export default {
     ],
     "range": [
       [
-        -20,
-        115
+        0,
+        100
       ],
       [
         0,

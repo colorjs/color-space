@@ -3,7 +3,7 @@ import { ColorSpace } from './color-space';
 
 export interface Nayatani95Space extends ColorSpace {
 	name: 'nayatani95';
-	range: [[-20, 115], [0, 190], [0, 360]];
+	range: [[0, 100], [0, 190], [0, 360]];
 }
 
 declare const nayatani95: Nayatani95Space;
