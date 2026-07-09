@@ -5,8 +5,7 @@
 // 100, black → 0); L*_P = Q + 50 stays internal as the chroma anchor. The inverse
 // solves the 3×3 log system per regime and keeps the self-consistent one — exact.
 import xyz from './xyz.glsl.js'
-import { chunk } from './compose.js'
-export default chunk({
+export default {
 	name: 'nayatani95',
 	deps: [xyz],
 	edges: { xyz: ['xyz_nayatani95', 'nayatani95_xyz'] },
@@ -78,4 +77,4 @@ vec3 nayatani95_xyz(vec3 c) {
 		0.3611914362417676 * best.x + 0.6388124632850422 * best.y - 0.000006370596838650885 * best.z,
 		1.0890636230968613 * best.z);
 }`,
-})
+}

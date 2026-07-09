@@ -29,7 +29,7 @@ body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(-
 	--t0:.625rem; --t1:.75rem; --t2:.875rem; --t3:1rem; --t4:1.25rem;
 	--ctl:40px;      /* one slider row: catalog sliders */
 	--swp:64px;      /* one sweep row: channel bars, interpolate sweeps */
-	--pick:13.5rem } /* one 2D picker plate: plot planes, CIE xy, transfer */
+	--pick:11rem }   /* one 2D picker plate: CIE xy, transfer */
 .page{ --railw:14.5rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); --maxw:108rem; max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; --eg: half the visual gutter between entries */
 .tnum{ font-variant-numeric:tabular-nums }
 a{ color:var(--ink) }
@@ -151,9 +151,8 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 /* pure gradients at rest — letters surface on hover */
 .ent:hover .ch .sy,.ent:focus-within .ch .sy{ opacity:1 }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
-.nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0; -moz-appearance:textfield }
-.nvw input::-webkit-inner-spin-button,.nvw input::-webkit-outer-spin-button{ -webkit-appearance:none }
-.nvw input:focus{ background:var(--paper); color:var(--ink) }
+.nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
+.nvw input::selection{ background:transparent }   /* focus shows a caret only — never a highlight or a background shift */
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
 .stk{ display:flex; flex-direction:column }
 .stk button{ flex:1; font:inherit; font-size:var(--t1); line-height:1; font-weight:500; border:0; background:transparent; color:inherit; cursor:pointer; padding:0 var(--s1); display:flex; align-items:flex-end; justify-content:center }
@@ -161,7 +160,9 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 /* ── modal dossier — scrolls like a page ── */
 .modal{ position:fixed; inset:0; z-index:20; overflow-y:auto; overscroll-behavior:contain }
 .modal[hidden]{ display:none }
-.mback{ position:fixed; inset:0; background:oklch(0.17 0.01 60/.42); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); will-change:transform }
+/* the backdrop lives OUTSIDE the modal scroller — a fixed backdrop-filter element inside
+   an overflow scroller gets its blur re-rasterised as scrolls settle (the flicker) */
+.mback{ position:fixed; inset:0; z-index:19; background:oklch(0.17 0.01 60/.42); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px) }
 [data-theme=dark] .mback{ background:oklch(0.06 0.005 70/.6) }
 .mbox{ position:relative; width:min(56rem,94vw); margin:5vh auto; background:var(--paper); display:flex; overflow:hidden }   /* the 3d canvases bleed past their box for rotation headroom — the panel is the clip */
 /* ✕ glyph edges sit exactly at the detail padding — the 34px hit-box hangs outward */
@@ -189,7 +190,12 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* the transfer curve — code value over scene-linear light, painted per space */
 .tcv{ display:block; width:100%; height:auto }   /* transparent — it wears the 3D solid's reference-grid style */
 /* hub spaces unfold their long children list on demand */
-.dhero .dviz2{ margin:0; display:flex; flex-direction:column; gap:var(--s6); align-items:center }   /* same vertical rhythm as the property rows */
+.dhero .dviz2{ margin:0; display:flex; flex-direction:column; gap:var(--s6); align-items:stretch }   /* same vertical rhythm as the property rows */
+/* each plot rides under a feature-style label at its top-left; the plot itself and its
+   caption are centred in the column even though the label is not */
+.vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center }
+.vgrp>.vlab{ align-self:stretch }
+.dviz2 .vlab{ font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .dhero .dviz2 .pl3d{ width:100%; max-width:17rem }
 .dhero .gam2d{ max-width:var(--pick) }
 .tcvw{ position:relative; width:100%; max-width:var(--pick) }
@@ -211,25 +217,30 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
 @media(max-width:760px){ .dhero{ grid-template-columns:1fr } }
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
-.pick{ overflow:hidden }
+.pick{ display:flex; flex-direction:column; gap:var(--s1) }   /* .25rem between sliders; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--swp); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
 .bar2 .cnm{ position:absolute; left:.6rem; top:.4rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* same as the plot axis labels — small, top-left */
-.bar2 .nvw{ position:absolute; right:.6rem; top:50%; bottom:auto; transform:translateY(-50%); z-index:1; align-items:center; transition:transform .1s ease }   /* vertically centred; nudged aside when the marker nears */
+.bar2 .nvw{ position:absolute; right:.6rem; top:50%; bottom:auto; transform:translateY(-50%); z-index:1; align-items:center; transition:transform .18s ease }   /* vertically centred */
 .bar2 .nvw input{ height:auto; width:4.6rem; font-size:var(--t3); font-weight:700 }
 .bar2 .nvw .u{ font-size:var(--t1) }
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2); flex-wrap:wrap }
+.pick+.planes{ margin-top:var(--s1) }   /* plots sit .25rem below the sliders (no heading) */
 .planes+.pick{ margin-top:var(--s2) }
-.chlist{ display:grid; grid-template-columns:minmax(0,1fr) max-content; gap:var(--s1) var(--s4); align-items:baseline; font-size:var(--t3); line-height:1.55; color:var(--body) }
+/* name hugs its content; the range is a min…max sub-grid — mins right-aligned, maxes
+   left-aligned — so the numbers line up in columns instead of reading ragged */
+.chlist{ display:grid; grid-template-columns:fit-content(10rem) max-content min-content max-content; gap:var(--s1) 0; align-items:baseline; font-size:var(--t3); line-height:1.55; color:var(--body) }
 .chlist .cn{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0 }   /* long names clip to tridots; full name in the title */
-.chlist .tnum{ justify-self:end; text-align:right; white-space:nowrap }
+.chlist .rmn{ justify-self:end; margin-left:var(--s3) }
+.chlist .rsep{ margin:0 .35em; color:var(--soft) }
+.chlist .tnum{ white-space:nowrap }
 .pl{ position:relative; flex:1 1 12rem; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
-.pl .cx{ position:absolute; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* same rhombus as the sliders */
+.pl .cx{ position:absolute; z-index:2; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* same rhombus as the sliders — rides above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:1; cursor:grab; touch-action:none; align-self:center; overflow:hidden }
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -254,13 +265,13 @@ h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; co
 /* current-colour floater — always on top, even over the modal */
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); cursor:pointer }
-.irow{ position:relative; height:var(--swp) }
+.irow{ position:relative; height:3rem }
 h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:var(--t2); font-weight:400; color:var(--ink); display:inline-flex; align-items:baseline; gap:var(--s2) }
 .iend .isw{ width:1rem; height:1rem; align-self:center; border:1px solid var(--hair); padding:0; cursor:pointer }
 .irow::after{ content:''; position:absolute; right:0; top:0; bottom:0; width:20%; cursor:pointer }   /* the endpoint zone — click opens the picker */
 .irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:var(--t0); font-weight:700; cursor:pointer; z-index:2 }
 .iduel{ display:flex; flex-direction:column; gap:var(--s2); margin-top:var(--s2) }   /* same breathing room as plots and images */
-.ird{ position:relative; height:22px }
+.ird{ position:relative; height:1.5rem }
 .ird i{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* inked dark/white per the row's left color */
 .srcline{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
@@ -295,7 +306,7 @@ h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:var(--t2); font-
 .gam2d canvas{ display:block; width:100%; height:100% }
 .gam2d .cx{ position:absolute; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }
 .gam2d .cx.ghost{ border-style:dashed; pointer-events:auto }   /* an impossible (beyond-MacAdam) color: hollow marker */
-.dviz2 .grch{ margin-top:calc(var(--s2)*-1); font-size:var(--t1); color:var(--soft); cursor:help }   /* plot explainers — the one line under each chart */
+.dviz2 .grch{ font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — the one centred line under each chart */
 /* glossary terms: a soft question mark that explains the jargon in place */
 .term{ cursor:help }
 .term::after{ content:'?'; font-size:.7em; vertical-align:super; color:var(--soft); margin-left:.09em; font-weight:700 }
@@ -945,9 +956,10 @@ meta.oklch.illuminant  <i>// 'D65' · .observer .referred .dynamic</i></pre>
 space.rgb.oklch(buf)     <i>// in place, zero-copy — 27 spaces</i></pre>
 		<pre data-p="gl" hidden><i>// every pair as a GLSL shader chunk</i>
 <b>import</b> { glsl } <b>from</b> 'color-space/gl'
+<b>import</b> oklch <b>from</b> 'color-space/gl/oklch'
 
-<b>const</b> src = glsl('rgb', 'oklch')
-<i>// → self-contained: vec3 rgb_oklch(vec3 c)</i>
+<b>const</b> src = glsl(oklch, 'rgb')
+<i>// → self-contained: vec3 oklch_rgb(vec3 c)</i>
 <i>//   paste into any fragment shader, no uniforms</i></pre>
 	</div>
 </section></div>
@@ -1007,8 +1019,8 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 </div>
 
 <div id="toast">copied!</div>
+<div class="mback" id="mback" hidden></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
-	<div class="mback" id="mback"></div>
 	<button class="mnav prev" id="mprev" title="previous space" aria-label="previous color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button>
 	<button class="mnav next" id="mnext" title="next space" aria-label="next color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button>
 	<div class="mbox"><button class="mx" id="mx" title="close">✕</button><div class="detail" id="detail"></div></div>
@@ -1261,7 +1273,7 @@ addEventListener('resize',placeNav)
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden) document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px'
-	selected=s; modal.hidden=false; modal.setAttribute('aria-label',s+' color space'); document.body.style.overflow='hidden'
+	selected=s; modal.hidden=false; document.getElementById('mback').hidden=false; modal.setAttribute('aria-label',s+' color space'); document.body.style.overflow='hidden'
 	history.replaceState(null,'','#'+s); buildDetail(); renderFast(); paintPlanes(false)
 	const k=ORDER.indexOf(s), n=ORDER.length
 	document.getElementById('mprevn').textContent=ORDER[(k-1+n)%n]
@@ -1270,8 +1282,8 @@ function openModal(s){
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint
 	setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]){ warmGL(s2,pairsFor(s2)); warmMesh3(s2,GM==='off'?'srgb':GM) } },400) }
-function closeModal(){ modal.hidden=true; document.body.style.overflow=''; document.body.style.paddingRight=''; history.replaceState(null,'',location.pathname+location.search) }
-document.getElementById('mback').onclick=closeModal
+function closeModal(){ modal.hidden=true; document.getElementById('mback').hidden=true; document.body.style.overflow=''; document.body.style.paddingRight=''; history.replaceState(null,'',location.pathname+location.search) }
+modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
 document.getElementById('mx').onclick=closeModal
 const ORDER=sections.flatMap(c=>c.spaces)
 // ── header color parser: any CSS-ish color string in → the live master color ──
@@ -1948,14 +1960,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			const up=pts.every((v,i)=>!i||v>=pts[i-1]-1e-4), dn=pts.every((v,i)=>!i||v<=pts[i-1]+1e-4)
 			if(hi-lo>1e-6&&(up||dn)) tcurve={pts,lo,hi,ylab:percept?cls.tone.sym:'code'} } }catch{} }
 	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
-	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div>`:''}${hasPlaneGL(s)?`<div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}`:''}${tcurve?`<div class="tcvw" title="the space's transfer curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':'RGB-model spaces map every channel through this same curve.'}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span>`:''}</div>`:''
+	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="vgrp"><span class="vlab">gamut solid</span><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''}${hasPlaneGL(s)?`<div class="vgrp"><span class="vlab">gamut</span><div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><span class="vlab">transfer</span><div class="tcvw" title="the space's transfer curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':'RGB-model spaces map every channel through this same curve.'}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
 	const interpHTML=fwd?'':`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend" id="iend" style="margin-left:auto" title="the blend endpoint — click to pick"><button class="isw" id="isw" aria-label="pick the endpoint color"></button></span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
 	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
 	const barHTML=i=>{ const c=cls.ch[i]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
 		<span class="cnm" title="${c.sym}">${cname(c)}</span>
-		<span class="nvw"><input class="nv" type="number" step="${(c.max-c.min)<=1?0.001:(c.max-c.min)<=40?0.01:(c.max-c.min)<=110?0.1:1}" min="${c.min}" max="${c.max}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
+		<span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>
 		<div class="dk"></div></div>` }
 	const plotPairs=pairsFor(s)
 	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span>`
@@ -1966,7 +1978,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	 <section class="dhero" id="overview">
 		<div class="dmain"><div class="props props3">
 		<div class="pcol"><!-- the space itself: its shape, its reference frame, its lineage, its measure -->
-			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}</span><span class="tnum">${fmtn(c.min,c)} … ${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
+			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}</span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
 			${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
 			${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
@@ -1989,7 +2001,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	 </section>
 	 ${cls.ch.length>1?`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
 	 <div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
-	 <h4 class="sec2">plots</h4>
 	 <div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cls.ch[b].sym}">${cname(cls.ch[b])}</span><span class="labx" title="${cls.ch[a].sym}">${cname(cls.ch[a])}</span></div>`).join('')}</div>`
 	 :`<h4 class="sec2" id="explore">channels ${segsHTML}</h4>
@@ -2061,15 +2072,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
 	// precise adjustment: spinner inputs on the big sliders
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
+		const span=c.max-c.min, STEP=span<=1?0.001:span<=40?0.01:span<=110?0.1:1, sdec=(String(STEP).split('.')[1]||'').length
 		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			if(!adoptS()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // forward-only
 				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
 			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
-		const spin=d=>{
-			if(inp.value===''){ const vv=probeVals(s); if(vv) inp.value=vv[i].toFixed(decOf(c)) }
-			try{ d>0?inp.stepUp():inp.stepDown() }catch{}
+		// focus places a caret, never a selection (browsers select-all a text input on tab-focus)
+		inp.addEventListener('focus',()=>requestAnimationFrame(()=>{ try{ const n=inp.value.length
+			if(inp.selectionStart===0&&inp.selectionEnd===n&&n) inp.setSelectionRange(n,n) }catch{} }))
+		const spin=d=>{ const cur=parseFloat(inp.value), base=isFinite(cur)?cur:(probeVals(s)?.[i]??c.min)
+			inp.value=clamp(base+d*STEP,c.min,c.max).toFixed(Math.max(decOf(c),sdec))
 			inp.dispatchEvent(new Event('input',{bubbles:true})) }
 		const [up,dn]=bar.querySelectorAll('.stk button')
 		up.onclick=e=>{ e.stopPropagation(); spin(1) }; dn.onclick=e=>{ e.stopPropagation(); spin(-1) } })
@@ -2146,19 +2160,19 @@ function paintGamut(){ const el=detail.querySelector('#gam2d'); if(!el) return
 // the coordinate grid the Wikipedia chromaticity diagram wears — drawn BEHIND the
 // horseshoe (destination-over), 0.1 rules with numbers each 0.2 along the axes
 function gamGrid(cv){ const c2=cv.getContext('2d'), w=cv.width, h=cv.height
-	const px=x=>(x+0.05)/0.8*w, py=y=>(1-(y+0.03)/0.88)*h   // gamutPos's mapping
+	const px=x=>(x+0.085)/0.835*w, py=y=>(1-(y+0.055)/0.905)*h   // gamutPos's mapping
 	c2.save(); c2.globalCompositeOperation='destination-over'
 	c2.lineWidth=1; c2.strokeStyle='oklch(0.5 0.01 70/.18)'
 	for(let x=0;x<=0.7001;x+=0.1){ c2.beginPath(); c2.moveTo(px(x),py(0)); c2.lineTo(px(x),0); c2.stroke() }
 	for(let y=0;y<=0.8401;y+=0.1){ c2.beginPath(); c2.moveTo(px(0),py(y)); c2.lineTo(w,py(y)); c2.stroke() }
 	c2.strokeStyle='oklch(0.5 0.01 70/.34)'; c2.strokeRect(px(0)+.5,.5,w-px(0)-1,py(0)-1)   // the frame every plate wears
-	c2.font='600 11px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.8)'
+	c2.font='600 16px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.8)'
 	c2.textAlign='center'
-	for(let x=0.2;x<=0.601;x+=0.2) c2.fillText(x.toFixed(1),px(x),py(0)+11)
+	for(let x=0.2;x<=0.601;x+=0.2) c2.fillText(x.toFixed(1),px(x),py(0)+16)
 	c2.textAlign='right'
-	for(let y=0.2;y<=0.801;y+=0.2) c2.fillText(y.toFixed(1),px(0)-3,py(y)+4)
-	c2.font='italic 600 11px Inter,sans-serif'
-	c2.fillText('y',px(0)-3,10); c2.textAlign='left'; c2.fillText('x',w-8,py(0)+11)
+	for(let y=0.2;y<=0.801;y+=0.2) c2.fillText(y.toFixed(1),px(0)-4,py(y)+5)
+	c2.font='italic 600 16px Inter,sans-serif'
+	c2.fillText('y',px(0)-4,14); c2.textAlign='left'; c2.fillText('x',w-11,py(0)+16)
 	c2.restore() }
 // luminance ceiling of the visible gamut per chromaticity (MacAdam limit), bucketed
 // from the optimal-color surface — a color can sit inside the horseshoe in xy yet be
@@ -2184,7 +2198,7 @@ function beyondVisible(xyz){
 function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	// plot geometry shared with the CIE plate: 320-wide canvas, 20px left strip for the
 	// y labels, frame flush to the right edge — the two grids sit pixel-aligned
-	const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, L=20, B=12, T=1
+	const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, L=33, B=21, T=1   // pads match the CIE plate's strips
 	const ink2=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#1b1408'
 	const X=f=>L+f*(W-L-1), Y=v=>(H-B)-(v-TC.lo)/(TC.hi-TC.lo)*(H-B-T)
 	const at=f=>{ const t=clamp(f,0,1)*72, i=Math.floor(t); return TC.pts[i]+(TC.pts[Math.min(i+1,72)]-TC.pts[i])*(t-i) }
@@ -2203,18 +2217,22 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	// 18% gray — the spec anchor, a quiet hollow notch
 	c2.beginPath(); c2.arc(X(0.18),Y(at(0.18)),2.6,0,7); c2.strokeStyle=ink2; c2.lineWidth=1.1; c2.stroke()
 	// endpoint code values
-	c2.font='600 11px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.9)'
+	c2.font='600 15px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.9)'
 	c2.textAlign='left'
-	c2.fillText(String(+TC.hi.toPrecision(3)),L+4,T+13)
-	c2.fillText(String(+TC.lo.toPrecision(3)),L+4,H-B-5)
+	c2.fillText(String(+TC.hi.toPrecision(3)),L+4,T+16)
+	c2.fillText(String(+TC.lo.toPrecision(3)),L+4,H-B-6)
 	// axis labels at the axis ends, like the 3D plot's; code runs up its axis
 	c2.fillStyle='oklch(0.5 0.01 70/.75)'
-	c2.textAlign='right'; c2.fillText('light',W-2,H-2)
-	c2.save(); c2.translate(11,T+2); c2.rotate(-Math.PI/2); c2.fillText(TC.ylab||'code',0,0); c2.restore()
+	c2.textAlign='right'; c2.fillText('light',W-3,H-3)
+	c2.save(); c2.translate(14,T+3); c2.rotate(-Math.PI/2); c2.fillText(TC.ylab||'code',0,0); c2.restore()
 	// the current color: its relative luminance, met by the curve (kept inside the frame)
 	const rgb=RGB(), lin=space.rgb.lrgb(...rgb)
 	const lum=0.2126*lin[0]+0.7152*lin[1]+0.0722*lin[2], code=at(lum)
-	c2.save(); c2.translate(clamp(X(lum),L+5,W-6),clamp(Y(code),T+6,H-B-5)); c2.rotate(Math.PI/4)
+	const mx=clamp(X(lum),L+5,W-6), my=clamp(Y(code),T+6,H-B-5)
+		c2.save(); c2.setLineDash([3,3]); c2.lineWidth=1; c2.strokeStyle='oklch(0.5 0.01 70/.55)'
+		c2.beginPath(); c2.moveTo(mx,my); c2.lineTo(mx,H-B); c2.stroke()
+		c2.beginPath(); c2.moveTo(mx,my); c2.lineTo(L,my); c2.stroke(); c2.restore()
+		c2.save(); c2.translate(mx,my); c2.rotate(Math.PI/4)
 	c2.fillStyle=hex(rgb); c2.strokeStyle=ink(rgb)==='#fff'?'#fff':'#1b1408'; c2.lineWidth=1
 	c2.fillRect(-4,-4,8,8); c2.strokeRect(-4,-4,8,8); c2.restore()
 	const cap=detail.querySelector('#tcap')
@@ -2385,10 +2403,13 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		dk.style.left=(mf*100)+'%'
 		dk.style.background=hx; dk.style.borderColor=ink(rgb)
-		// the number yields left ONLY when the picker's tip actually reaches it, by exactly the
-		// overlap — so they never sit on top of each other, and it never drifts for no reason
-		const bw=bar.clientWidth, ov=Math.max(0, mf*bw + 11 - (bw - 9.6 - nw.offsetWidth))
-		nw.style.transform=`translateY(-50%) translateX(${ov?(-ov).toFixed(1):0}px)` })
+		// one toggle (not bound to the exact picker position): the number sits at the right,
+		// and steps aside to the left once the picker enters its zone — like the catalog symbol flip
+		// once the picker could overlap the number, the number yields to the picker's LEFT
+		// and follows it; otherwise it rests at the right edge
+		const bw=bar.clientWidth, px2=mf*bw, natR=bw-9.6
+		const clash=px2+9 > natR-nw.offsetWidth-4
+		nw.style.transform=`translateY(-50%) translateX(${clash?Math.min(0,px2-14-natR).toFixed(1):0}px)` })
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
@@ -2456,12 +2477,12 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 				`// … write rgb 0-255 pixels into buf …\n`+
 				`space.rgb${prop(s)}(buf)   // the whole buffer, in place, zero-copy\n`+
 				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
-		else if(codeTab==='gl'){ const gd={2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3'
-			snip.innerHTML=hilite(`import glsl, { wgsl } from 'color-space/gl'\n`+
+		else if(codeTab==='gl'){ const gd={1:'float',2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3', sn=s.replace(/-/g,'')
+			snip.innerHTML=hilite(`import { glsl, wgsl } from 'color-space/gl'\n`+
 				`import ${camel(s)} from 'color-space/gl/${s}'\n\n`+
-				`glsl(${camel(s)})          // GLSL: ${gd} rgb_${s.replace(/-/g,'')}(vec3 c) { … }\n`+
-				`wgsl(${camel(s)}, 'rgb')   // WGSL: fn ${s.replace(/-/g,'')}_rgb(c: ${gd}f) -> vec3f { … }\n`+
-				`\n// self-contained snippet — paste into any shader; the exact math of this page.\n// every space by name instead: import { glsl } from 'color-space/gl/all'`) }
+				`glsl(${camel(s)}, 'rgb')   // GLSL: vec3 ${sn}_rgb(${gd} c) { … }\n`+
+				`wgsl(${camel(s)}, 'rgb')   // WGSL: fn ${sn}_rgb(c: ${gd}f) -> vec3f { … }\n`+
+				`\n// chunks are pure data — name the conversion via glsl(), like space${prop(s)}.rgb.\n// glsl(${camel(s)}) bundles both ways; any space by name via color-space/gl/all`) }
 		else{ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 		const ri=vals?rgb.map(Math.round):rgbOf(s,shown)   // forward-only: the example shows ITS own output
 		let inv=''; try{ const back=toSpace(s,ri); inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n` }catch{ inv=`// rgb → ${s} is one-way\n` }

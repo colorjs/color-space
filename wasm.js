@@ -5,7 +5,7 @@
  * other half of the kernel: convert a whole image-sized buffer in one call, with
  * the per-pixel formulas running as a tight WASM loop (jz @ optimize:'speed' —
  * fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the
- * ~4.6 kB module is prebuilt and inlined (see scripts/build-wasm.js).
+ * ~30 kB module (≈23 kB wasm) is prebuilt and inlined (see scripts/build-wasm.js).
  *
  * The API is the scalar library's, batch-shaped — same `space.from.to` addressing:
  *
@@ -14,6 +14,14 @@
  *     const buf = alloc(nPixels)        // WASM-backed Float64Array(n*3) — write rgb here
  *     space.rgb.oklch(buf)              // whole buffer, in place, zero-copy
  *     space.rgb.oklch(pixels)           // plain array in → converted Float64Array out
+ *
+ * HUB-ONLY, and that is the honest shape. The scalar and GL tiers offer per-space
+ * imports (`color-space/oklch`, `color-space/gl/oklch`) because their payload is
+ * source — a bundler tree-shakes it. A WASM binary is atomic: one module holds
+ * every covered space, so there is nothing to shake and no `color-space/wasm/oklch`.
+ * You still address per-space — `space.oklch.rgb` — just through the hub. (True
+ * per-space compilation was measured and declined: each module re-embeds ~7-9 kB of
+ * shared transcendentals, a net loss for 27 spaces.)
  *
  * Layout: interleaved 3-channel `Float64Array`, n pixels = 3n values
  * [c0,c1,c2, c0,c1,c2, …]. Ranges match the scalar API (rgb 0-255, oklab native,

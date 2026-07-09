@@ -733,7 +733,7 @@ vec3 tosrgb(vec3 lin) {
 }
 void main() {
 	vec2 f = gl_FragCoord.xy / uRes;
-	vec2 xy = vec2(-0.05 + f.x * 0.8, -0.03 + f.y * 0.88);
+	vec2 xy = vec2(-0.085 + f.x * 0.835, -0.055 + f.y * 0.905);
 	bool vis = inside(xy);
 	if (!vis && xy.y < 0.02) { O = vec4(0.0); return; }   // xyY degenerates at the x axis
 	// the horseshoe color: xyY at fixed Y, normalized to full saturation
@@ -807,7 +807,7 @@ export function paintGamutGL(cv2d, s) {
 	return true
 }
 /** xy position of a chromaticity inside the panel (for the marker), 0..1 each. */
-export const gamutPos = (x, y) => [(x + 0.05) / 0.8, 1 - (y + 0.03) / 0.88]
+export const gamutPos = (x, y) => [(x + 0.085) / 0.835, 1 - (y + 0.055) / 0.905]
 
 // ── the hero slice: OKLCH hue across × chroma down at lightness L, chroma
 // normalized per hue to the sRGB gamut edge (bisected in-shader) — cheap enough

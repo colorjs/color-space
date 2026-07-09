@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- GLSL shader chunks for 150 spaces: `glsl(from, to)` composes a self-contained snippet on the same edge graph as the scalar library (`color-space/gl/all`).
-- Lean shader composer as the `color-space/gl` entry: every chunk imports its own dependency chain, so `glsl(oklch)` bundles ~4 kB instead of the ~200 kB catalog (`color-space/gl/all` keeps by-name routing) — byte-identical output.
+- GLSL/WGSL shader chunks for 155 spaces. A chunk is pure data (`{ name, deps, edges, code }`, like three.js `ShaderChunk`); `color-space/gl` is the engine that composes it — the engine imports the data, never the reverse. Import the spaces you convert and name the conversion: `glsl(oklch, 'rgb')` → `vec3 oklch_rgb(vec3 c)`, the scalar library's shape one level down (cf. `oklch.rgb(l, c, h)`). `glsl(oklch)` bundles both directions; `glsl(oklch, p3)` routes a pair through their shared ancestor.
+- Lean by default: a per-space import brings only its own dependency chain (~5 kB minified), not the ~200 kB catalog — and stays pure data (`oklch.code` is its raw GLSL for hand-embedding), so importing a chunk never drags the composer along. Byte-identical to the full catalog.
+- Full-catalog tier `color-space/gl/all` routes any space by name — `glsl('rgb', 'oklch')` — for runtime `from`/`to` strings.
 - Multi-conversion shaders: `glsl([[a,b], [c,d], …])` emits every entry with shared chunks deduped — paint in one space, gamut-test in another, one source.
-- WGSL for WebGPU, mechanically translated from the same chunks (`color-space/gl/wgsl`).
+- WGSL for WebGPU, mechanically translated from the same chunks (`wgsl(oklch)` lean, `color-space/gl/wgsl` by name).
 - GL differential suite: every edge evaluated as JS in float64 against the scalar library (`test/gl.js`), plus a real-GPU compile check page (`test/gl-gpu.html`).
 - Complete reference coverage — all 151 spaces pinned to either the colorjs.io differential suite or a cited authoritative value (124 points), each entry carrying its source URL (`test/bonafide.js`).
 - Integrity sweep: every composed pair callable as bare functions (catches `this`-bound conversion hops).

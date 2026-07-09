@@ -1,21 +1,25 @@
 /**
- * color-space/gl — compose color-space shader code from imported chunks.
+ * color-space/gl — compose color-space shader source from imported chunks.
  *
- * Each chunk imports its own dependency chain (`deps`), so importing the spaces
- * you actually convert brings exactly their chains and nothing else (~4 kB).
- * When the space is only known at runtime, `color-space/gl/all` routes any
- * space by name instead — at the cost of bundling the whole chunk catalog.
+ * A chunk is pure data (`{ name, deps, edges, code }`, like three.js ShaderChunk).
+ * This module is the engine that composes chunks into shader source — the engine
+ * imports the data, never the reverse. Import the spaces you convert and name the
+ * conversion; it reads like the scalar library, one level down (a source string,
+ * where scalar returns a value):
  *
- *     import glsl, { wgsl } from 'color-space/gl'
+ *     import { glsl, wgsl } from 'color-space/gl'
  *     import oklch from 'color-space/gl/oklch'
+ *     import p3    from 'color-space/gl/p3'
  *
- *     glsl(oklch)          // GLSL rgb → oklch — byte-identical to gl/all's,
- *     glsl(oklch, 'rgb')   //   the inverse      tree-shaken to oklch's chain
+ *     glsl(oklch, 'rgb')   // GLSL `vec3 oklch_rgb(vec3 c)` — cf. scalar oklch.rgb(l,c,h)
+ *     glsl(oklch)          // the bundle: rgb ↔ oklch, both ways, ready to interpolate
+ *     glsl(oklch, p3)      // a pair with neither end rgb — routed via their shared lrgb
  *     wgsl(oklch)          // the same, as WGSL
  *
- * Pass chunk OBJECTS for the spaces you imported; a plain name resolves only if
- * a passed chunk's chain contains it (`'rgb'`, the root, always does — and is the
- * default `from` when you pass a single chunk).
+ * A lone import reaches its own chain + rgb — exactly what `color-space/oklch`
+ * gives you in JS. Importing the spaces you convert brings only their chains
+ * (~5 kB, not the ~200 kB catalog). When the space is a runtime string,
+ * `color-space/gl/all` routes any space by name. Byte-identical output.
  */
 import util from './util.js'
 import { translate } from './translate.js'
@@ -25,7 +29,7 @@ const TYPE = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 
 /**
  * Build a registry from chunk objects (each pulled in with its `deps` chain):
- * returns `{ chunks, graph, glsl }` — the same shapes `color-space/gl` exports,
+ * returns `{ chunks, graph, glsl }` — the same shapes `color-space/gl/all` exports,
  * scoped to the given chunks.
  * @param {Array<object>} [list] chunk objects to register
  */
@@ -48,7 +52,7 @@ export function compose(list = []) {
 
 	const dim = (name) => chunks[name]?.dim || 3
 
-	// BFS shortest primitive-edge path from → to
+	// BFS shortest primitive-edge path from → to (sequence of edge steps, or null)
 	const route = (from, to) => {
 		const queue = [[from, []]], seen = new Set([from])
 		while (queue.length) {
@@ -84,16 +88,23 @@ export function compose(list = []) {
 	 * Compose the GLSL source converting `from` → `to`: every chunk the shortest
 	 * path needs plus an entry function `${from}_${to}` (hyphens stripped).
 	 * Each end is a space name or a chunk object (registered on the fly).
+	 * A single chunk object → the both-ways bundle (`glsl(oklch)`).
 	 * Multi-pair: `glsl([[a, b], [c, d]])` — one source, chunks deduped.
-	 * @param {string|object|Array} from source space (or pair list)
+	 * @param {string|object|Array} from source space (chunk, name, or pair list)
 	 * @param {string|object} [to] target space
 	 * @returns {string} self-contained GLSL source
 	 */
 	function glsl(from, to) {
-		// single-chunk sugar: glsl(oklch) = the conversion from rgb, the hub
+		// single chunk object → the bundle: both directions that reach rgb
 		if (to === undefined && !Array.isArray(from)) {
-			if (typeof from !== 'object') throw new Error(`color-space/gl: glsl('${from}') needs a target — glsl(from, to), or pass a chunk object for rgb → chunk`)
-			to = from; from = 'rgb'
+			if (typeof from !== 'object')
+				throw new Error(`color-space/gl: glsl('${from}') needs a target — glsl(from, to). Import the chunk (color-space/gl/${from}) to bundle it, or route by name via color-space/gl/all`)
+			add(from)
+			if (from.excluded) throw new Error(`color-space/gl: ${from.name} — ${from.excluded}`)
+			const n = from.name, both = []
+			if (route(n, 'rgb')) both.push([n, 'rgb'])
+			if (route('rgb', n)) both.push(['rgb', n])
+			return glsl(both.length ? both : [[n, n]])
 		}
 		const pairs = (Array.isArray(from) ? from : [[from, to]]).map((p) => p.map((x) => {
 			if (typeof x === 'string') return x
@@ -132,10 +143,10 @@ export function compose(list = []) {
 	return { chunks, graph, glsl }
 }
 
-/** One-shot lean form: `glsl(oklchChunk)` / `glsl(a, b)` — registry from the args. */
+/** One-shot lean form: `glsl(oklch)` (bundle) / `glsl(a, b)` — registry from the args. */
 export const glsl = (from, to) => compose().glsl(from, to)
 
-/** The same, as WGSL: `wgsl(oklchChunk)` / `wgsl(a, b)`. */
+/** The same, as WGSL: `wgsl(oklch)` / `wgsl(a, b)`. */
 export const wgsl = (from, to) => translate(glsl(from, to))
 
 export default glsl

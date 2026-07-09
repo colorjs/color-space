@@ -7,7 +7,7 @@
 import test, { is } from 'tst'
 import space from '../index.js'
 import meta from '../meta.js'
-import { chunks, graph, glsl } from '../gl/index.js'
+import glslDefault, { chunks, graph, glsl } from '../gl/index.js'
 
 // ---- GLSL chunk dialect → JS ----
 export function glslToJs(src) {
@@ -175,18 +175,62 @@ test('gl: composed rgb → space → rgb across the graph', () => {
 })
 
 // ── the lean tier: registry-free composition from imported chunks ──
+const bundle = (name) => glsl([[name, 'rgb'], ['rgb', name]])
+
 test('gl: compose (lean) emits byte-identical sources to the registry', async () => {
 	const { glsl: lean, compose } = await import('../gl/compose.js')
 	const oklch = (await import('../gl/oklch.glsl.js')).default
 	const p3 = (await import('../gl/p3.glsl.js')).default
 	is(lean('rgb', oklch), glsl('rgb', 'oklch'), 'rgb→oklch')
 	is(lean(oklch, 'rgb'), glsl('oklch', 'rgb'), 'oklch→rgb')
-	is(lean(oklch), glsl('rgb', 'oklch'), 'single-chunk sugar defaults from=rgb')
+	is(lean(oklch), bundle('oklch'), 'single-chunk arg = the both-ways bundle')
+	is(lean(oklch, p3), glsl('oklch', 'p3'), 'cross-space from two imported chunks')
 	is(compose([oklch, p3]).glsl([['oklch', 'rgb'], ['oklch', 'p3']]),
 		glsl([['oklch', 'rgb'], ['oklch', 'p3']]), 'multi-pair')
 	const { wgsl: leanWgsl } = await import('../gl/compose.js')
 	const { wgsl: fatWgsl } = await import('../gl/wgsl.js')
-	is(leanWgsl(oklch), fatWgsl('rgb', 'oklch'), 'lean wgsl parity')
+	is(leanWgsl(oklch, 'rgb'), fatWgsl('oklch', 'rgb'), 'lean wgsl parity')
+})
+
+// ── chunks are pure data; the engine composes them (data never imports the engine) ──
+test('gl: chunk files are pure data — none import the composer', async () => {
+	const fs = await import('node:fs')
+	const { fileURLToPath } = await import('node:url')
+	const dir = fileURLToPath(new URL('../gl/', import.meta.url))
+	const offenders = fs.readdirSync(dir).filter(f => f.endsWith('.glsl.js'))
+		.filter(f => fs.readFileSync(dir + f, 'utf8').includes("from './compose.js'"))
+	is(offenders, [], 'no chunk imports ./compose.js — data must not depend on the engine')
+})
+
+test('gl: an imported chunk is pure data — you name the conversion via glsl()', async () => {
+	const oklch = (await import('../gl/oklch.glsl.js')).default
+	is(Object.keys(oklch), ['name', 'deps', 'edges', 'code'], 'only data fields, no accessors')
+	is(oklch.rgb, undefined, 'no self-composing property — that would couple data to the engine')
+	// name the conversion through the composer (mirrors scalar oklch.rgb, one level down)
+	is(/\bvec3\s+oklch_rgb\s*\(/.test(glsl(oklch, 'rgb')), true, 'glsl(oklch, "rgb") = oklch→rgb, never inverted')
+	is(glsl(oklch), bundle('oklch'), 'glsl(oklch) = the both-ways bundle')
+})
+
+test('gl: one-way and excluded chunks compose honestly', async () => {
+	const cubehelix = (await import('../gl/cubehelix.glsl.js')).default
+	is(glsl(cubehelix, 'rgb'), glsl('cubehelix', 'rgb'), 'cubehelix→rgb, the valid decode direction')
+	is(glsl(cubehelix), glsl([['cubehelix', 'rgb']]), 'bundle emits only the one-way direction')
+	const munsell = (await import('../gl/munsell.glsl.js')).default
+	let threw = ''
+	try { glsl(munsell) } catch (e) { threw = e.message }
+	is(/renotation lookup table/.test(threw), true, 'glsl(munsell) throws its excluded reason')
+})
+
+// ── the full-catalog tier: one function, any space by name ──
+test('gl: default export is the by-name composer', () => {
+	is(glslDefault, glsl, 'default export === named glsl')
+	is(glsl('oklch', 'p3'), glsl('oklch', 'p3'), 'any pair routes by name')
+	let threw = ''
+	try { glsl('rgb', 'munsell') } catch (e) { threw = e.message }
+	is(/renotation lookup table/.test(threw), true, 'excluded space names its reason')
+	threw = ''
+	try { glsl('rgb', 'nope') } catch (e) { threw = e.message }
+	is(/no path/.test(threw), true, 'unknown space throws no-path, not a silent empty source')
 })
 
 test('gl: every chunk carries its edge/requires chain in deps', () => {

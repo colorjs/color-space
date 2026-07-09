@@ -9,8 +9,7 @@
 // (essentially black) f32 and f64 take different LM paths in a razor-thin basin, hence
 // the loose `tol`.
 import xyz from './xyz.glsl.js'
-import { chunk } from './compose.js'
-export default chunk({
+export default {
 	name: 'hunt',
 	deps: [xyz],
 	tol: 2e-2,
@@ -130,4 +129,4 @@ vec3 hunt_xyz(vec3 c) {
 		0.37095008824868858 * cr + 0.62905425739261323 * cg - 0.0000080551421843591486 * cb,
 		cb);
 }`,
-})
+}
