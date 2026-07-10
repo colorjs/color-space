@@ -62,6 +62,16 @@ a{ color:var(--ink) }
 .qx:focus-within input,.qx input:not(:placeholder-shown){ width:14rem; opacity:1 }
 .qx .qn{ font-size:var(--t1); font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
 .qx input:placeholder-shown ~ .qn{ display:none }
+/* the tag picker beside search — chips AND-filter the catalog */
+.tagf{ position:relative; align-self:center }
+.tfb{ color:var(--soft) } .tfb.on,.tfb:hover{ color:var(--ink) }
+.tfp{ position:absolute; right:0; top:calc(100% + var(--s2)); z-index:30; display:flex; flex-direction:column; gap:var(--s2); width:26rem; padding:var(--s3); background:var(--paper); border:1px solid var(--hair) }
+.tfp[hidden]{ display:none }   /* author display beats the UA [hidden] rule — restate it */
+.tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
+.tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
+.tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
+.tfp .tag{ border:0; cursor:pointer }
+.tfp .tag.on{ background:var(--ink); color:var(--paper) }
 /* first-time orientation: the instrument should explain itself before the grid starts */
 .introcopy{ padding:clamp(1rem,2.2vw,1.6rem) clamp(1rem,3vw,2.2rem) .9rem; }
 .introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
@@ -70,7 +80,6 @@ a{ color:var(--ink) }
 .trust{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s2); list-style:none; margin:var(--s4) 0 0; padding:0; font-size:var(--t2); font-weight:600; letter-spacing:.02em; color:var(--soft) }
 .trust li{ display:inline-flex; align-items:center; gap:.4em; background:var(--panel); border-radius:999px; padding:var(--s2) var(--s3); line-height:1.1; white-space:nowrap }
 .trust svg{ flex:none; width:14px; height:14px; opacity:.72 }
-.introcopy .fnpm{ margin-top:var(--s3) }
 .quick{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2); flex-wrap:wrap }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
@@ -86,6 +95,7 @@ a{ color:var(--ink) }
 /* rail takes its fixed width on the left; the spaces centre in the space that remains,
    not on the screen — so they don't read as shoved right of the categories */
 .cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
+.cat::before{ content:''; grid-column:1/-1; height:1px; background:var(--hair) }   /* the divider above the spaces, after the hero — same span as every section divider */
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative }
@@ -152,18 +162,20 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 .ent:hover .ch .sy,.ent:focus-within .ch .sy{ opacity:1 }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
-.nvw input::selection{ background:transparent }   /* focus shows a caret only — never a highlight or a background shift */
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
+.nvw .u:empty{ display:none }   /* unitless channels fold the unit slot — number sits right by the spinner */
 .stk{ display:flex; flex-direction:column }
 .stk button{ flex:1; font:inherit; font-size:var(--t1); line-height:1; font-weight:500; border:0; background:transparent; color:inherit; cursor:pointer; padding:0 var(--s1); display:flex; align-items:flex-end; justify-content:center }
 .stk .up{ margin-bottom:-2px } .stk .dn{ transform:rotate(180deg); margin-top:-2px }
 /* ── modal dossier — scrolls like a page ── */
+/* no backdrop-filter anywhere: the PAGE blurs itself while the modal is open, and the
+   tint sits on a body layer that never scrolls — so the scroller's rubber-band bounce
+   can't drag the dim along and reveal uncovered content at the edges */
 .modal{ position:fixed; inset:0; z-index:20; overflow-y:auto; overscroll-behavior:contain }
+body.mopen::before{ content:''; position:fixed; inset:0; z-index:19; background:oklch(0.17 0.01 60/.42) }
+[data-theme=dark] body.mopen::before{ background:oklch(0.06 0.005 70/.6) }
+@media(min-width:641px){ body.mopen .page,body.mopen .ftr{ filter:blur(10px) } }
 .modal[hidden]{ display:none }
-/* the backdrop lives OUTSIDE the modal scroller — a fixed backdrop-filter element inside
-   an overflow scroller gets its blur re-rasterised as scrolls settle (the flicker) */
-.mback{ position:fixed; inset:0; z-index:19; background:oklch(0.17 0.01 60/.42); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px) }
-[data-theme=dark] .mback{ background:oklch(0.06 0.005 70/.6) }
 .mbox{ position:relative; width:min(56rem,94vw); margin:5vh auto; background:var(--paper); display:flex; overflow:hidden }   /* the 3d canvases bleed past their box for rotation headroom — the panel is the clip */
 /* ✕ glyph edges sit exactly at the detail padding — the 34px hit-box hangs outward */
 .mx{ position:absolute; top:calc(var(--dpad) - 7px); right:calc(var(--dpad) - 7px); z-index:2; width:34px; height:34px; display:grid; place-items:center; font:inherit; font-size:1.75rem; line-height:1; font-weight:500; border:0; background:transparent; color:var(--ink); cursor:pointer; padding:0 }
@@ -190,12 +202,11 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* the transfer curve — code value over scene-linear light, painted per space */
 .tcv{ display:block; width:100%; height:auto }   /* transparent — it wears the 3D solid's reference-grid style */
 /* hub spaces unfold their long children list on demand */
-.dhero .dviz2{ margin:0; display:flex; flex-direction:column; gap:var(--s6); align-items:stretch }   /* same vertical rhythm as the property rows */
-/* each plot rides under a feature-style label at its top-left; the plot itself and its
-   caption are centred in the column even though the label is not */
-.vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center }
-.vgrp>.vlab{ align-self:stretch }
-.dviz2 .vlab{ font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
+.dhero .dviz2{ margin:0; display:flex; flex-direction:column; gap:var(--s6); align-items:center }   /* same vertical rhythm as the property rows */
+/* each plot group is centred and exactly as wide as its plot (names live in the tooltips) */
+.vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center; width:100% }
+.vgrp:has(.pl3d){ max-width:17rem }
+.vgrp:has(.gam2d),.vgrp:has(.tcvw){ max-width:var(--pick) }
 .dhero .dviz2 .pl3d{ width:100%; max-width:17rem }
 .dhero .gam2d{ max-width:var(--pick) }
 .tcvw{ position:relative; width:100%; max-width:var(--pick) }
@@ -217,18 +228,18 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
 @media(max-width:760px){ .dhero{ grid-template-columns:1fr } }
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
-.pick{ display:flex; flex-direction:column; gap:var(--s1) }   /* .25rem between sliders; no overflow clip so the picker shows whole at the edges */
+.pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--swp); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
 .bar2 .cnm{ position:absolute; left:.6rem; top:.4rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* same as the plot axis labels — small, top-left */
 .bar2 .nvw{ position:absolute; right:.6rem; top:50%; bottom:auto; transform:translateY(-50%); z-index:1; align-items:center; transition:transform .18s ease }   /* vertically centred */
-.bar2 .nvw input{ height:auto; width:4.6rem; font-size:var(--t3); font-weight:700 }
+.bar2 .nvw input{ height:auto; width:3.4rem; font-size:var(--t3); font-weight:700 }   /* just the digits — a narrow box keeps the yield travel short */
 .bar2 .nvw .u{ font-size:var(--t1) }
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2); flex-wrap:wrap }
-.pick+.planes{ margin-top:var(--s1) }   /* plots sit .25rem below the sliders (no heading) */
+.pick+.planes{ margin-top:var(--s2) }   /* plots sit one plane-gap below the sliders (no heading) */
 .planes+.pick{ margin-top:var(--s2) }
 /* name hugs its content; the range is a min…max sub-grid — mins right-aligned, maxes
    left-aligned — so the numbers line up in columns instead of reading ragged */
@@ -244,7 +255,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d{ position:relative; width:100%; aspect-ratio:1; cursor:grab; touch-action:none; align-self:center; overflow:hidden }
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
-.pl3d canvas{ position:absolute; left:-18%; top:-18%; display:block; width:136%; height:136%; pointer-events:none }
+.pl3d canvas{ position:absolute; left:-18%; top:-25%; display:block; width:136%; height:136%; pointer-events:none }   /* more top bleed lifts the solid, freeing the bottom axis labels */
 .pl3d .grid3{ z-index:0 }
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
@@ -322,7 +333,12 @@ h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:var(--t2); font-
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
 .dfoot{ margin:var(--s6) 0 var(--s2); font-size:var(--t1); color:var(--soft) } .dfoot a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--soft) }
 /* ── about ── */
-.about{ padding:clamp(1.6rem,4vw,3rem) 0; border-top:1px solid var(--ink) }
+.about{ padding:clamp(1.6rem,4vw,3rem) 0; border-top:1px solid var(--hair) }   /* every divider wears the one hairline token */
+/* the catalog → API seam: a divider spanning exactly the grid (rail → content edge) —
+   the same width as the catalog's section dividers — laid as a grid item so it stays
+   inside the container padding */
+main+.g::before{ content:''; grid-column:1/-1; height:1px; background:var(--hair) }
+main+.g .about{ border-top:0 }
 .about h2{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em; margin-bottom:var(--s2) }
 .about p{ font-size:var(--t3); line-height:1.65; color:var(--body); max-width:66ch }
 .about p+p{ margin-top:var(--s2) }
@@ -330,7 +346,6 @@ pre{ font-family:ui-monospace,Menlo,monospace; font-size:var(--t2); line-height:
 pre::-webkit-scrollbar{ height:8px }
 pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparent }
 .about p code{ font-family:ui-monospace,Menlo,monospace; font-size:.92em; background:var(--panel); padding:.1em .35em }
-.about.api,.about.recipes{ border-top:1px solid var(--hair) }
 .about h2+p{ margin-bottom:var(--s3) }
 /* API — centred: title, one line of prose, then a tabbed code panel */
 .about.api p{ max-width:64ch }
@@ -381,7 +396,7 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 @keyframes fcaret{ 0%,100%{ border-right-color:#9a9a9a } 50%{ border-right-color:transparent } }
 @media(prefers-reduced-motion:reduce){ .fnpm.typing .cmd{ animation:none } }
 @media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:var(--s4) var(--s6) } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } }
-@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mback{ display:none } .mnav{ top:auto; bottom:.8rem; transform:none; padding:var(--s3); color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
+@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mnav{ top:auto; bottom:.8rem; transform:none; padding:var(--s3); color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
@@ -389,7 +404,8 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="sp"></span>
-	<label class="qx" title="search spaces, channels, uses (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces, channels, uses (press / to focus)"><span class="qn tnum" id="nq"></span></label>
+	<label class="qx" title="search spaces, channels, uses (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
+	<div class="tagf"><button class="thm tfb" id="tfb" title="filter by tags" aria-label="filter spaces by tags"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm allsb" id="allsb" aria-pressed="false" title="sliders for every space"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="transform:rotate(90deg)"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
@@ -399,17 +415,15 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div>
 		<h2 id="introcopy-title">Any color space.</h2>
-		<p><span id="n2">156</span> color spaces from web, print, film, broadcast, science and history domains.
-		Convert <em>rgb to oklch</em>, <em>hsl to rgb</em>, <em>rgb to cmyk</em>, <em>p3 to rgb</em>, <em>slog3 to rec709</em>, <em>xyz to lab</em>, <em>kelvin to rgb</em>.
-		Canonical formulas, real ranges, gamut shapes, metadata and references.</p>
+		<p>Web, print, film, broadcast, art, science, history. Canonical formulas, real ranges, gamut shapes, metadata, unified API.
+		Convert any of <span id="n2">156</span> to any other: <em>rgb to oklch</em>, <em>rgb to cmyk</em>, <em>slog3 to rec709</em>, <em>kelvin to rgb</em>.
 		<ul class="trust" aria-label="trust factors">
-			<li title="differentially tested against colorjs.io and the source papers"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Verified values</li>
+			<li title="differentially tested against colorjs.io and the source papers"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Verified</li>
 			<li title="nothing in node_modules but this"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"/><path d="M3.3 7l8.7 5 8.7-5M12 22V12"/></svg>0 deps</li>
 			<li title="ES modules — import one space ≈ 2 kB"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L7 10h3l-4 6h12l-4-6h3z"/><path d="M12 16v5"/></svg>Tree-shakeable</li>
 			<li title="the same conversions in three runtimes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>JS · GLSL · WASM</li>
 			<li title="MIT — one permission line, free forever"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>MIT</li>
 		</ul>
-		<button class="fnpm" id="copyinstall" title="copy install command"><i>❯</i><span class="cmd">npm i color-space</span></button>
 	</div>
 </section>
 
@@ -992,6 +1006,7 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 		<p><b>Historical spaces</b> — CIE RGB (1931), Ostwald, Hunt, Nayatani 95, LLAB, ATD95, NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped as working history, tagged “historical” in their dossier.</p>
 	</div>
 </section></div>
+</div>
 
 <footer class="ftr" id="ftr">
 	<div class="fgrad" id="fgrad"></div>
@@ -1016,10 +1031,8 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 		</div>
 	</div>
 </footer>
-</div>
 
 <div id="toast">copied!</div>
-<div class="mback" id="mback" hidden></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
 	<button class="mnav prev" id="mprev" title="previous space" aria-label="previous color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button>
 	<button class="mnav next" id="mnext" title="next space" aria-label="next color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button>
@@ -1056,10 +1069,6 @@ if(hueEl){ let hdrag=null
 const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(x,0,255):0)
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
-// safety net for a space whose rgb → space throws: locally explored params, master follows as rgb
-// (none today — every space is bidirectional; cubehelix inverts by nearest-fraction projection)
-const localVals={}
-const probeVals=s=>valsFor(s)||(localVals[s]??=classify(s).ch.map(c=>(c.min+c.max)/2))
 const lum=c=>0.2126*c[0]/255+0.7152*c[1]/255+0.0722*c[2]/255, ink=c=>lum(c)<0.6?'#fff':'var(--dark)'
 const decOf=c=>c.max<=1?3:(c.max===360||c.max===255?0:1)
 function chanVals(s,v){ const cls=classify(s); return v.map((x,i)=>`${cls.ch[i].sym}${fmtn(x,cls.ch[i])}${unit(cls.ch[i])}`).join(' ') }
@@ -1067,7 +1076,7 @@ function fnfmt(s,v){ const cls=classify(s); return `${s}(${v.map((x,i)=>fmtn(x,c
 // spaces CSS Color 4 can actually write — everything else has NO conventional
 // textual notation, and inventing one would read as a standard that doesn't exist
 const CSSABLE=new Set(['rgb','hsl','hwb','lab','lchab','oklab','oklch','p3','a98rgb','prophoto','rec2020','xyz','xyz-d50','lrgb'])
-function fmt(s,v){ if(!v) return 'forward-only'; const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
+function fmt(s,v){ const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
 	case 'rgb':return `rgb(${n(v[0])} ${n(v[1])} ${n(v[2])})`; case 'hsl':return `hsl(${n(v[0])} ${f(v[1],1)}% ${f(v[2],1)}%)`
 	case 'hwb':return `hwb(${n(v[0])} ${f(v[1],1)}% ${f(v[2],1)}%)`; case 'lab':return `lab(${f(v[0],1)}% ${f(v[1],1)} ${f(v[2],1)})`
 	case 'lchab':return `lch(${f(v[0],1)}% ${f(v[1],1)} ${f(v[2],1)})`; case 'oklab':return `oklab(${f(v[0],3)} ${f(v[1],3)} ${f(v[2],3)})`
@@ -1128,9 +1137,11 @@ const TAGTIP={ display:'display-referred — values describe light emitted by a 
 	polar:'polar geometry — a hue angle plus radial chroma/saturation',
 	opponent:'opponent geometry — two signed color axes around a neutral center',
 	component:'component geometry — independent channels, no hue axis',
-	'one-way':'converts to RGB only — no inverse from RGB exists; the channel sliders drive its own parameters directly',
-	bidirectional:'round-trips — to RGB and back, and through every other space',
 	historical:'shipped as working history — superseded in practice, kept faithful',
+	'1':'one channel — a scalar scale (gray, kelvin, wavelength, cubehelix)',
+	'2':'two channels — chromaticity pairs',
+	'3':'three channels — the tristimulus norm',
+	'4':'four channels — cmyk',
 	'linear light':'code proportional to physical light — no transfer curve',
 	'PQ / absolute HDR':'PQ (SMPTE ST 2084) — absolute-luminance HDR encoding, up to 10,000 nits',
 	'HLG broadcast HDR':'hybrid log-gamma (BBC/NHK) — backward-compatible broadcast HDR',
@@ -1172,14 +1183,14 @@ const trackAct=()=>{ let k=0
 addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // first run below, after layoutToc exists
 // stacked-sticky rail: flow position = own section's top; sticky top+bottom insets make
 // passed titles pile at the top and upcoming ones wait at the bottom — all always on screen
-const tocEl=document.getElementById('toc'), barEl=document.querySelector('.mhead')   // rail titles stack below the sticky masthead
+const tocEl=document.getElementById('toc')
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
-	let cur=0, up=barEl.offsetHeight+22   // pinned titles breathe below the masthead
+	let cur=0, up=28   // pinned titles breathe below the viewport top (the header scrolls away)
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
 		const sec=secEls[i]   // align the title's text with the first visible space name
 		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
@@ -1208,12 +1219,9 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			const c=classify(s).ch[i]
-			if(!adopt()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // no rgb→space inverse (safety net): param drives, master follows as rgb
-				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
-			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() }
+			adopt(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() }
 		inp.addEventListener('pointerdown',e=>e.stopPropagation())
-		inp.addEventListener('click',e=>{ e.stopPropagation()
-			if(inp.selectionStart===inp.selectionEnd) selectNum(inp) })   // caret grabs the number whole
+		inp.addEventListener('click',e=>e.stopPropagation())   // caret lands where clicked — no auto-select
 		inp.addEventListener('input',applyCv)
 		inp.addEventListener('blur',()=>renderFast())
 		inp.addEventListener('change',()=>{ if(open()) paintPlanes(false) })
@@ -1224,12 +1232,10 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 	ent.querySelectorAll('.ch').forEach(ch=>{ const i=+ch.dataset.i
 		ch.addEventListener('pointerdown',e=>{
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ if(!adopt()&&valsFor(s))return; moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId) }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId) }
 				if(!moved) return
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
-				if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // no rgb→space inverse (safety net): param drives, master follows as rgb
-					try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{} }
-				else master.vals[i]=c.min+(c.max-c.min)*f
+				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.onpointermove=move
 			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.style.cursor=''
@@ -1252,15 +1258,35 @@ const qInput=document.getElementById('q')
 const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if(!nm) return
 	const i=q?s.indexOf(q):-1
 	nm.innerHTML=i<0?s:s.slice(0,i)+'<mark>'+s.slice(i,i+q.length)+'</mark>'+s.slice(i+q.length) }
-qInput.addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase(); let shown=0
-	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s, cls=classify(s)
-		const hay=[s,meta[s].name,meta[s].description,meta[s].use,useOf(s),encodingOf(s),geo(s),...(meta[s].channels||[]).flatMap(c=>[c.name,c.symbol,c.sym])].filter(Boolean).join(' ').toLowerCase()
-		const hit=!q||hay.includes(q)
+// each space's tag set — the same vocabulary the dossier features carry
+// the tags come in FACETS — mutually-exclusive aspects of one space. Picking within a
+// facet ORs (display OR scene), picking across facets ANDs (scene AND log encoding).
+const FACETS=['channels','signal','range','geometry','encoding','status']
+const slotsOf=s=>{ const m=meta[s]
+	return [[String(classify(s).ch.length)],[m.referred],[m.dynamic&&m.dynamic.toUpperCase()],[geo(s)],[encodingOf(s)],
+		[HISTORICAL.has(s)&&'historical']].map(a=>new Set(a.filter(Boolean))) }
+const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
+const act=FACETS.map(()=>new Set())
+// one filter pipeline: name match (highlighted in place) AND the picked facets
+function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size); let shown=0
+	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s, sl=SLOTS.get(s)
+		const hit=(!q||s.includes(q))&&(!any||act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t))))
 		ent.style.display=hit?'':'none'; if(hit)shown++
 		markName(ent,hit&&q?q:null) })
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
 		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
-	layoutToc(); trackAct(); nq.textContent=shown })
+	layoutToc(); trackAct(); nq.textContent=(q||any)?shown:'' }
+qInput.addEventListener('input',applyFilter)
+// facet picker beside search
+;(()=>{ const tfb=document.getElementById('tfb'), tfp=document.getElementById('tfp'); if(!tfb) return
+	const vals=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
+	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
+	tfp.querySelectorAll('button').forEach(b=>b.onclick=()=>{ const fi=+b.dataset.f, t=b.dataset.t
+		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
+		b.classList.toggle('on',act[fi].has(t)); tfb.classList.toggle('on',act.some(a=>a.size))
+		applyFilter() })
+	tfb.onclick=()=>{ tfp.hidden=!tfp.hidden }
+	addEventListener('pointerdown',e=>{ if(!tfp.hidden&&!e.target.closest('.tagf')) tfp.hidden=true }) })()
 
 // ── modal dossier ──
 const modal=document.getElementById('modal'), detail=document.getElementById('detail')
@@ -1274,7 +1300,7 @@ addEventListener('resize',placeNav)
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden) document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px'
-	selected=s; modal.hidden=false; document.getElementById('mback').hidden=false; modal.setAttribute('aria-label',s+' color space'); document.body.style.overflow='hidden'
+	selected=s; modal.hidden=false; document.body.classList.add('mopen'); modal.setAttribute('aria-label',s+' color space'); document.body.style.overflow='hidden'
 	history.replaceState(null,'','#'+s); buildDetail(); renderFast(); paintPlanes(false)
 	const k=ORDER.indexOf(s), n=ORDER.length
 	document.getElementById('mprevn').textContent=ORDER[(k-1+n)%n]
@@ -1283,7 +1309,7 @@ function openModal(s){
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint
 	setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]){ warmGL(s2,pairsFor(s2)); warmMesh3(s2,GM==='off'?'srgb':GM) } },400) }
-function closeModal(){ modal.hidden=true; document.getElementById('mback').hidden=true; document.body.style.overflow=''; document.body.style.paddingRight=''; history.replaceState(null,'',location.pathname+location.search) }
+function closeModal(){ modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''; history.replaceState(null,'',location.pathname+location.search) }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
 document.getElementById('mx').onclick=closeModal
 const ORDER=sections.flatMap(c=>c.spaces)
@@ -1320,7 +1346,6 @@ function numAt(input){ const text=input.value, pos=input.selectionStart??text.le
 	if(!ms.length) return null
 	const d=m2=>Math.min(Math.abs(m2.start-pos),Math.abs(m2.end-pos))
 	return ms.find(m2=>pos>=m2.start&&pos<=m2.end)||ms.sort((a,b)=>d(a)-d(b))[0] }
-function selectNum(input){ const m=numAt(input); if(m) input.setSelectionRange(m.start,m.end) }
 function stepInputNumber(input,dir){ const m=numAt(input); if(!m) return false
 	const dec=(m.raw.split('.')[1]||'').length
 	const next=(parseFloat(m.raw)+dir*10**-dec).toFixed(dec)
@@ -1332,8 +1357,10 @@ document.getElementById('mprev').onclick=()=>nav(-1)
 document.getElementById('mnext').onclick=()=>nav(1)
 addEventListener('keydown',e=>{ if(!open()) return
 	if(e.key==='Escape') closeModal()
-	if(e.key==='ArrowLeft') nav(-1)
-	if(e.key==='ArrowRight') nav(1) })
+	// cmd/ctrl + arrows switch the space — plain arrows stay free for carets and spinners
+	if(!(e.metaKey||e.ctrlKey)) return
+	if(e.key==='ArrowLeft'){ e.preventDefault(); nav(-1) }
+	if(e.key==='ArrowRight'){ e.preventDefault(); nav(1) } })
 
 const fmtn=(v,c)=>unit(c)==='%'?v.toFixed(1):(+v.toFixed(decOf(c))).toString()
 const stepped=stops=>{ const n=stops.length; return `linear-gradient(90deg, ${stops.map((c,k)=>`${c} ${(k/n*100).toFixed(2)}% ${((k+1)/n*100).toFixed(2)}%`).join(',')})` }
@@ -1916,14 +1943,18 @@ function draw3d(){ if(!mesh3||!open()) return
 		gx.textAlign='center'
 		const pH=prj([yF,R*1.34*Math.cos(aF),R*1.34*Math.sin(aF)]); gx.fillText(gd.hsym,pH.x,pH.y) }
 	// the frame stays legible through the solid — the far planes re-emerge over the
-	// blob, faint, as if it were slightly transparent (grid masked by the mesh's alpha)
+	// blob, faint, as if it were slightly transparent (grid masked by the mesh's alpha).
+	// THRU_LIGHT recolours those lines to white — dark ink drowns on the colourful body;
+	// flip it to false to revert to the plain (dark) grid showing through
+	const THRU_LIGHT=true
 	if(drewGL&&gd){ const gt=thru3||(thru3=document.createElement('canvas'))
 		if(gt.width!==S2) gt.width=gt.height=S2
 		const g2=gt.getContext('2d')
 		g2.clearRect(0,0,S2,S2); g2.drawImage(gcv,0,0)
 		g2.globalCompositeOperation='destination-in'; g2.drawImage(meshCv,0,0)
+		if(THRU_LIGHT){ g2.globalCompositeOperation='source-in'; g2.fillStyle='#fff'; g2.fillRect(0,0,S2,S2) }
 		g2.globalCompositeOperation='source-over'
-		ctx.globalAlpha=0.22; ctx.drawImage(gt,0,0); ctx.globalAlpha=1 }
+		ctx.globalAlpha=THRU_LIGHT?0.4:0.22; ctx.drawImage(gt,0,0); ctx.globalAlpha=1 }
 	let mp=null
 	if(markerN&&markerN.every(isFinite)) mp=prj(markerN)
 	// the current color, oriented: dashed perpendiculars dropped onto the gridded planes
@@ -1941,7 +1972,7 @@ function draw3d(){ if(!mesh3||!open()) return
 		ctx.fillStyle=hex(mcur); ctx.strokeStyle=ink(mcur)==='#fff'?'#fff':'#1b1408'; ctx.lineWidth=.85*dp
 		const h=5.8*dp
 		ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() } }
-function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsFor(s)
+function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const path=pathToRgb(s)
 	const L=LORE[s]||{}, RCH=REACH[s]
 	const RCHTIP='share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick'
@@ -1960,9 +1991,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			// a real transfer is monotonic (either direction); reject flat or wiggly channels
 			const up=pts.every((v,i)=>!i||v>=pts[i-1]-1e-4), dn=pts.every((v,i)=>!i||v<=pts[i-1]+1e-4)
 			if(hi-lo>1e-6&&(up||dn)) tcurve={pts,lo,hi,ylab:percept?cls.tone.sym:'code'} } }catch{} }
-	const has3d=cls.ch.length===3&&!fwd&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
-	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="vgrp"><span class="vlab">gamut solid</span><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''}${hasPlaneGL(s)?`<div class="vgrp"><span class="vlab">gamut</span><div class="gam2d" id="gam2d" title="this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><span class="vlab">transfer</span><div class="tcvw" title="the space's transfer curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':'RGB-model spaces map every channel through this same curve.'}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
-	const interpHTML=fwd?'':`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend" id="iend" style="margin-left:auto" title="the blend endpoint — click to pick"><button class="isw" id="isw" aria-label="pick the endpoint color"></button></span></h4>
+	const has3d=cls.ch.length===3&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
+	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''}${hasPlaneGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':'RGB-model spaces map every channel through this same curve.'}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
+	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend" id="iend" style="margin-left:auto" title="the blend endpoint — click to pick"><button class="isw" id="isw" aria-label="pick the endpoint color"></button></span></h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
 	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
 	const barHTML=i=>{ const c=cls.ch[i]
@@ -1974,18 +2005,20 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span>`
 	const gamHTML=`<span class="seg" id="gseg">${[...GAMS,'vis'].map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="${g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`}">${GAMLABEL[g]}</button>`).join('')}</span>`
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${gamHTML}</div>
-	 <div class="dpills">${[m.referred,m.dynamic&&m.dynamic.toUpperCase(),geo(s),enc,fwd?'one-way':'bidirectional',HISTORICAL.has(s)&&'historical'].filter(Boolean).map(x=>`<span class="tag" title="${TAGTIP[x]||''}">${x}</span>`).join('')}</div>
+	 ${HISTORICAL.has(s)?`<div class="dpills"><span class="tag" title="${TAGTIP.historical}">historical</span></div>`:''}
 	 <hr class="dhr">
 	 <section class="dhero" id="overview">
 		<div class="dmain"><div class="props props3">
 		<div class="pcol"><!-- the space itself: its shape, its reference frame, its lineage, its measure -->
 			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}</span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
+			${geo(s)||enc?`<div><i>model</i><p title="${[TAGTIP[geo(s)],TAGTIP[enc]].filter(Boolean).join('; ')}">${[geo(s),enc].filter(Boolean).join(' · ')}</p></div>`:''}
 			${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
 			${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 		</div>
 		<div class="pcol"><!-- the story and the record: when, who, the name, the sources, the trust -->
 			${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
+			${m.referred||m.dynamic?`<div><i>signal</i><p title="${[TAGTIP[m.referred],m.dynamic&&TAGTIP[m.dynamic.toUpperCase()]].filter(Boolean).join('; ')}">${[m.referred&&m.referred+'-referred',m.dynamic&&m.dynamic.toUpperCase()].filter(Boolean).join(' · ')}</p></div>`:''}
 			${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
 			${m.refs||m.wiki?`<div><i>reference</i><p>${[...(m.refs||[]),...(m.wiki?[m.wiki]:[])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 		</div>
@@ -2027,15 +2060,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 			const sp=document.createElement('span'); sp.className='term'; sp.title=tip; sp.textContent=tn.nodeValue
 			tn.replaceWith(sp)
 			break } }
-	// a live search query lights up inside the dossier too — description, features, uses
-	;(()=>{ const q=(document.getElementById('q')?.value||'').trim(); if(!q) return
-		const qlc=q.toLowerCase(), rx=new RegExp(q.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&'),'gi')
-		detail.querySelectorAll('.desc, .dgrid2 p, .props.props3 p').forEach(el=>{
-			const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT), hits=[]
-			while(w.nextNode()) if(w.currentNode.data.toLowerCase().includes(qlc)) hits.push(w.currentNode)
-			hits.forEach(n=>{ const sp=document.createElement('span')
-				sp.innerHTML=n.data.replace(/[&<]/g,c=>c==='&'?'&amp;':'&lt;').replace(rx,m2=>'<mark>'+m2+'</mark>')
-				n.replaceWith(...sp.childNodes) }) }) })()
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	wire3d()
@@ -2076,16 +2100,15 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s], fwd=!valsF
 		const span=c.max-c.min, STEP=span<=1?0.001:span<=40?0.01:span<=110?0.1:1, sdec=(String(STEP).split('.')[1]||'').length
 		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
-			if(!adoptS()){ const lv=probeVals(s); lv[i]=clamp(v,c.min,c.max)   // no rgb→space inverse (safety net)
-				try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}; scheduleFast(); return }
-			master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
+			adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
 		// focus places a caret, never a selection (browsers select-all a text input on tab-focus)
 		inp.addEventListener('focus',()=>requestAnimationFrame(()=>{ try{ const n=inp.value.length
 			if(inp.selectionStart===0&&inp.selectionEnd===n&&n) inp.setSelectionRange(n,n) }catch{} }))
-		const spin=d=>{ const cur=parseFloat(inp.value), base=isFinite(cur)?cur:(probeVals(s)?.[i]??c.min)
+		const spin=d=>{ const cur=parseFloat(inp.value), base=isFinite(cur)?cur:(valsFor(s)?.[i]??c.min)
 			inp.value=clamp(base+d*STEP,c.min,c.max).toFixed(Math.max(decOf(c),sdec))
 			inp.dispatchEvent(new Event('input',{bubbles:true})) }
+		inp.addEventListener('keydown',e=>{ if(e.key==='ArrowUp'||e.key==='ArrowDown'){ e.preventDefault(); spin(e.key==='ArrowUp'?1:-1) } })
 		const [up,dn]=bar.querySelectorAll('.stk button')
 		up.onclick=e=>{ e.stopPropagation(); spin(1) }; dn.onclick=e=>{ e.stopPropagation(); spin(-1) } })
 }
@@ -2097,9 +2120,6 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
 		let f=clamp((ev.clientX-r.left)/r.width,0,.999)
-		if(!valsFor(s)){ const lv=probeVals(s); lv[i]=c.min+(c.max-c.min)*f   // no rgb→space inverse (safety net): param drives, master follows as rgb
-			try{ master={ s:'rgb', vals:rgbOf(s,lv) } }catch{}
-			scheduleFast(); return }
 		if(typeof Q==='number'){ f=(Math.floor(f*Q)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
 		else if(qTriple(Q)&&el._cells){ const k=Math.floor(f*el._cells.length)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
@@ -2107,11 +2127,11 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 			el._cellF=(k+0.5)/el._cells.length }
 		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ if(!adopt()&&valsFor(s))return; moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId) }
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ adopt(); moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId) }
 		if(!moved) return
 		apply(ev) }
 	const up=ev=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null
-		if(!moved){ if(!adopt()&&valsFor(s))return; apply(ev); el._cellF=null }
+		if(!moved){ adopt(); apply(ev); el._cellF=null }
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
@@ -2161,11 +2181,11 @@ function paintGamut(){ const el=detail.querySelector('#gam2d'); if(!el) return
 // the coordinate grid the Wikipedia chromaticity diagram wears — drawn BEHIND the
 // horseshoe (destination-over), 0.1 rules with numbers each 0.2 along the axes
 function gamGrid(cv){ const c2=cv.getContext('2d'), w=cv.width, h=cv.height
-	const px=x=>(x+0.085)/0.835*w, py=y=>(1-(y+0.055)/0.905)*h   // gamutPos's mapping
+	const px=x=>(x+0.107)/0.857*w, py=y=>(1-(y+0.055)/0.955)*h   // gamutPos's mapping — the plot ends exactly at y=0.9
 	c2.save(); c2.globalCompositeOperation='destination-over'
 	c2.lineWidth=1; c2.strokeStyle='oklch(0.5 0.01 70/.18)'
 	for(let x=0;x<=0.7001;x+=0.1){ c2.beginPath(); c2.moveTo(px(x),py(0)); c2.lineTo(px(x),0); c2.stroke() }
-	for(let y=0;y<=0.8401;y+=0.1){ c2.beginPath(); c2.moveTo(px(0),py(y)); c2.lineTo(w,py(y)); c2.stroke() }
+	for(let y=0;y<=0.9001;y+=0.1){ c2.beginPath(); c2.moveTo(px(0),py(y)); c2.lineTo(w,py(y)); c2.stroke() }
 	c2.strokeStyle='oklch(0.5 0.01 70/.34)'; c2.strokeRect(px(0)+.5,.5,w-px(0)-1,py(0)-1)   // the frame every plate wears
 	c2.font='600 16px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.8)'
 	c2.textAlign='center'
@@ -2173,7 +2193,8 @@ function gamGrid(cv){ const c2=cv.getContext('2d'), w=cv.width, h=cv.height
 	c2.textAlign='right'
 	for(let y=0.2;y<=0.801;y+=0.2) c2.fillText(y.toFixed(1),px(0)-4,py(y)+5)
 	c2.font='italic 600 16px Inter,sans-serif'
-	c2.fillText('y',px(0)-4,14); c2.textAlign='left'; c2.fillText('x',w-11,py(0)+16)
+	c2.textAlign='right'; c2.fillText('y',px(0)-5,16)   // at the top of its axis, hugging it — same form as x
+	c2.textAlign='left'; c2.fillText('x',w-11,py(0)+16)
 	c2.restore() }
 // luminance ceiling of the visible gamut per chromaticity (MacAdam limit), bucketed
 // from the optimal-color surface — a color can sit inside the horseshoe in xy yet be
@@ -2199,7 +2220,7 @@ function beyondVisible(xyz){
 function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	// plot geometry shared with the CIE plate: 320-wide canvas, 20px left strip for the
 	// y labels, frame flush to the right edge — the two grids sit pixel-aligned
-	const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, L=33, B=21, T=1   // pads match the CIE plate's strips
+	const c2=tcv.getContext('2d'), W=tcv.width, H=tcv.height, L=40, B=21, T=1   // pads match the CIE plate's strips
 	const ink2=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#1b1408'
 	const X=f=>L+f*(W-L-1), Y=v=>(H-B)-(v-TC.lo)/(TC.hi-TC.lo)*(H-B-T)
 	const at=f=>{ const t=clamp(f,0,1)*72, i=Math.floor(t); return TC.pts[i]+(TC.pts[Math.min(i+1,72)]-TC.pts[i])*(t-i) }
@@ -2225,7 +2246,8 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	// axis labels at the axis ends, like the 3D plot's; code runs up its axis
 	c2.fillStyle='oklch(0.5 0.01 70/.75)'
 	c2.textAlign='right'; c2.fillText('light',W-3,H-3)
-	c2.save(); c2.translate(14,T+3); c2.rotate(-Math.PI/2); c2.fillText(TC.ylab||'code',0,0); c2.restore()
+	const yl=TC.ylab||'code'
+		c2.save(); c2.translate(L-9,T+6+c2.measureText(yl).width/2); c2.rotate(-Math.PI/2); c2.textAlign='center'; c2.fillText(yl,0,0); c2.restore(); c2.textAlign='right'
 	// the current color: its relative luminance, met by the curve (kept inside the frame)
 	const rgb=RGB(), lin=space.rgb.lrgb(...rgb)
 	const lum=0.2126*lin[0]+0.7152*lin[1]+0.0722*lin[2], code=at(lum)
@@ -2306,7 +2328,7 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 const planeMs={}
 let planeNext=0, planesLive=false
 function paintPlanes(fast){ if(!open()) return
-	const s=selected, cls=classify(s), vals=probeVals(s)
+	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=typeof Q==='number'?Q:Q==='web'?'web':Q?null:0   // cluster modes stay on the JS path
 	const pls=[...detail.querySelectorAll('.pl')]
 	// GPU programs link asynchronously: while they compile the planes stay blank —
@@ -2341,7 +2363,7 @@ function paintPlanes(fast){ if(!open()) return
 setGLReady(()=>{ if(open()){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } })   // a program landed — upgrade the paint
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
 function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||liteOff(ent))return
-	const cls=classify(s), vals=probeVals(s)
+	const cls=classify(s), vals=valsFor(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]; ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
 function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	// catalog values + ticks (visible entries) — outlines are theme ink, like the sRGB lines
@@ -2360,7 +2382,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
-	const shown=vals||probeVals(s)   // forward-only spaces paint from their locally explored params
+	const shown=vals
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
@@ -2404,13 +2426,13 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		dk.style.left=(mf*100)+'%'
 		dk.style.background=hx; dk.style.borderColor=ink(rgb)
-		// one toggle (not bound to the exact picker position): the number sits at the right,
-		// and steps aside to the left once the picker enters its zone — like the catalog symbol flip
-		// once the picker could overlap the number, the number yields to the picker's LEFT
-		// and follows it; otherwise it rests at the right edge
+		// once the picker could overlap the number, the number yields to the picker's LEFT and
+		// follows it 1:1 — the .18s ease runs only on the yield/return, never while tracking
 		const bw=bar.clientWidth, px2=mf*bw, natR=bw-9.6
-		const clash=px2+9 > natR-nw.offsetWidth-4
-		nw.style.transform=`translateY(-50%) translateX(${clash?Math.min(0,px2-14-natR).toFixed(1):0}px)` })
+		const clash=px2+21 > natR-nw.offsetWidth   // 12px standoff beyond the 9px picker tip
+		nw.style.transition=clash&&nw._clash?'none':''
+		nw._clash=clash
+		nw.style.transform=`translateY(-50%) translateX(${clash?Math.min(0,px2-21-natR).toFixed(1):0}px)` })
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
@@ -2472,21 +2494,32 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('${s}.icc'); }\ncolor: color(--${s} ${shown.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`)) }
 		else if(codeTab==='wasm'){
 			const tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
+			const cp=s==='rgb'?'.oklch':'.rgb', bk=s==='rgb'?'.rgb.oklch':`.rgb${prop(s)}`   // rgb pairs with oklch — never itself
 			snip.innerHTML=hilite(`import space, { alloc } from 'color-space/wasm'\n\n`+
-				`space${prop(s)}.rgb(${tup})  // scalar — the JS API's exact shape\n\n`+
+				`space${prop(s)}${cp}(${tup})  // scalar — the JS API's exact shape\n\n`+
 				`const buf = alloc(n)   // Float64Array(n·3) living in WASM memory\n`+
 				`// … write rgb 0-255 pixels into buf …\n`+
-				`space.rgb${prop(s)}(buf)   // the whole buffer, in place, zero-copy\n`+
+				`space${bk}(buf)   // the whole buffer, in place, zero-copy\n`+
 				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
 		else if(codeTab==='gl'){ const gd={1:'float',2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3', sn=s.replace(/-/g,'')
+			const cp=s==='rgb'?'oklch':'rgb'   // rgb pairs with oklch — never itself
 			snip.innerHTML=hilite(`import { glsl, wgsl } from 'color-space/gl'\n`+
 				`import ${camel(s)} from 'color-space/gl/${s}'\n\n`+
-				`glsl(${camel(s)}, 'rgb')   // GLSL: vec3 ${sn}_rgb(${gd} c) { … }\n`+
-				`wgsl(${camel(s)}, 'rgb')   // WGSL: fn ${sn}_rgb(c: ${gd}f) -> vec3f { … }\n`+
-				`\n// chunks are pure data — name the conversion via glsl(), like space${prop(s)}.rgb.\n// glsl(${camel(s)}) bundles both ways; any space by name via color-space/gl/all`) }
+				`glsl(${camel(s)}, '${cp}')   // GLSL: vec3 ${sn}_${cp}(${gd} c) { … }\n`+
+				`wgsl(${camel(s)}, '${cp}')   // WGSL: fn ${sn}_${cp}(c: ${gd}f) -> vec3f { … }\n`+
+				`\n// chunks are pure data — name the conversion via glsl(), like space${prop(s)}${prop(cp)}.\n// glsl(${camel(s)}) bundles both ways; any space by name via color-space/gl/all`) }
+		else if(s==='rgb'){ // rgb→rgb would be a no-op — pair the base space with oklch instead
+			const ri=shown.map(Math.round), oc=classify('oklch').ch
+			let ok=null; try{ ok=toSpace('oklch',ri) }catch{}
+			const okt=ok?ok.map((x,j)=>fmtn(x,oc[j])).join(', '):''
+			let back=ri; try{ back=space.oklch.rgb(...ok).map(Math.round) }catch{}
+			snip.innerHTML=hilite(`import space from 'color-space'\n\n`+
+				`space.rgb.oklch(${ri.join(', ')})  // → [${okt}]\n`+
+				`space.oklch.rgb(${okt})  // → [${back.join(', ')}]\n`+
+				`\n// one space, tree-shaken (0.4-1.5 kB):\nimport rgb from 'color-space/rgb.js'`) }
 		else{ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
-		const ri=vals?rgb.map(Math.round):rgbOf(s,shown)   // forward-only: the example shows ITS own output
-		let inv=''; try{ const back=toSpace(s,ri); inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n` }catch{ inv=`// rgb → ${s} is one-way\n` }
+		const ri=rgb.map(Math.round)
+		const back=toSpace(s,ri), inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n`
 		snip.innerHTML=hilite(`import space from 'color-space'\n\n`+
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
@@ -2562,7 +2595,6 @@ addEventListener('wheel',e=>{
 	else if(e.deltaY<0&&flvl){ facc=0; setFq(0) }   // any scroll-up snaps back to smooth (and scrolls the page)
 },{passive:false})
 document.getElementById('fnpm').onclick=()=>copy('npm i color-space')
-const copyInstall=document.getElementById('copyinstall'); if(copyInstall) copyInstall.onclick=()=>copy('npm i color-space')
 // terminal buttons type themselves in when they scroll into view
 const typeObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('typing'); typeObs.unobserve(e.target) } }),{threshold:.6})
 document.querySelectorAll('.fnpm').forEach(b=>typeObs.observe(b))
