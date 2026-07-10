@@ -48,6 +48,14 @@
   ],
   "exports": {
     ".": "./index.js",
+    "./lite": {
+      "types": "./types/lite.d.ts",
+      "default": "./lite.js"
+    },
+    "./lut": {
+      "types": "./types/lut.d.ts",
+      "default": "./lut.js"
+    },
     "./wasm": "./wasm.js",
     "./gl": "./gl/compose.js",
     "./gl/all": "./gl/index.js",
@@ -73,13 +81,13 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/wasm-batch.js && node test/gl.js",
+    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/gl.js && node test/lut.js && node test/lut-ffmpeg.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "meta": "node scripts/generate-meta.js > meta.js",
     "landing": "node scripts/generate-landing.js",
     "build:wasm": "node scripts/build-wasm.js",
-    "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
+    "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
     "prepublishOnly": "npm run types && npm run meta && npm run build:wasm && npm run build"
   }
 }

@@ -37,9 +37,25 @@ test('family — izazbz shares jzazbz opponent axes and PQ scaling (Safdar 2017)
 	}
 })
 
+// The exports map is the public contract; nothing else exercises it (tests import
+// relative paths), so a renamed tier (mini→lite) or stale types path ships silently.
+// Node package self-reference lets the suite import its own specifiers.
+test('integrity — package exports: every target file exists, every specifier imports', async () => {
+	const { existsSync, readFileSync } = await import('node:fs')
+	const exports = JSON.parse(readFileSync(new URL('../package.json', import.meta.url))).exports
+	for (const [key, val] of Object.entries(exports)) {
+		for (const p of typeof val === 'string' ? [val] : Object.values(val))
+			if (!p.includes('*')) is(existsSync(new URL('../' + p, import.meta.url)), true, `${key} → ${p} exists`)
+		if (!key.includes('*')) is(!!(await import('color-space' + key.slice(1))), true, `${key} imports`)
+	}
+})
+
 test('integrity — meta.js carries channels, range and @see refs per space', () => {
 	const missing = Object.keys(space).filter(n => !meta[n] || !meta[n].channels || !meta[n].range)
 	is(missing, [], 'every space has meta channels + range')
+	// and nothing more: non-space root modules (hub, lite, lut, wasm…) must not leak in
+	const bogus = Object.keys(meta).filter(n => !space[n])
+	is(bogus, [], 'every meta key is a registered space')
 	// @see links are extracted into refs (regression: the generator used to drop them)
 	is(meta.oklch.refs, ['https://www.w3.org/TR/css-color-4/#ok-lab'], 'oklch @see extracted')
 	is(meta.munsell.refs.length, 2, 'multiple @see per space extracted')

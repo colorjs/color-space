@@ -8,6 +8,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import GAMUTS from '../gamuts.js'
+import space from '../index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.join(__dirname, '..')
@@ -104,9 +105,10 @@ function getSpaceName(filename) {
 
 // Generate meta.js
 function generateMeta() {
+  // space files only — membership in the live registry, not a hand-kept deny-list
+  // (hub/lite/lut/wasm/util… carry JSDoc too; the registry is the single source of truth)
   const files = fs.readdirSync(rootDir)
-    .filter(f => f.endsWith('.js') && !f.startsWith('.'))
-    .filter(f => !['index.js', 'package.json', 'util.js', 'transfers.js', 'whitepoints.js', 'cie.js', 'wasm.js', 'meta.js', 'gamuts.js'].includes(f))
+    .filter(f => f.endsWith('.js') && space[f.replace(/\.js$/, '')])
 
   const meta = {}
 
