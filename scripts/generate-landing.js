@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES } from '../docs/js/render.js'
-import { meta, spaceCount } from '../docs/js/core.js'
+import { meta, spaceCount, LUTOK } from '../docs/js/core.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
@@ -36,10 +36,13 @@ const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 Install: npm i color-space
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)
+Batch: space[from][to](pixels) -> Float64Array  interleaved array-like, stride = channel count; a batch of one = the v2 array call
 Per space: space[name].range (channel ranges), space[name].name
 Metadata: import meta from 'color-space/meta.js' (channels, refs, illuminant, referred, dynamic, year, by, use)
-Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space)
-WASM batch: import space, { alloc } from 'color-space/wasm' — same space[from][to] API over buffers: space.rgb.oklch(alloc(n)) in place, zero-copy, 27 spaces
+Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space; scalar form — batch is wired by the hubs)
+Compact hub: import space from 'color-space/lite' — the 27 wasm-covered spaces in plain JS (~9 kB gzip), same two-form API
+WASM: import space, { alloc } from 'color-space/wasm' — same API, 27 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
+LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces
 Site: https://colorjs.github.io/color-space/
 Repo: https://github.com/colorjs/color-space
 

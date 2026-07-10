@@ -5,6 +5,22 @@ import meta from '../../meta.js'
 export { space, meta }
 
 export const spaceCount = Object.keys(space).filter(k => space[k] && space[k].name).length
+// spaces that can end a .cube LUT: 3 bounded channels, no cyclic hue axis (0–360°
+// angles AND renamed wheels — munsell H 0–100, coloroid A grades), and a finite 3³
+// probe lattice to AND from rgb — the same bar lut.js sets, so the tag never
+// overpromises. One predicate feeds the catalog filter, the dossier, and llms.txt.
+export const LUTOK = new Set(Object.keys(space).filter(s => {
+	const m = meta[s]
+	if (!m || (m.channels || []).length !== 3 || m.channels.some(c => c.max === 360 || /hue/i.test(c.name))) return false
+	const r = space[s].range; if (!r || !r.every(([a, b]) => isFinite(a) && isFinite(b) && b > a)) return false
+	if (s === 'rgb') return true
+	const fin = (from, to) => { const dom = from.range
+		for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) for (let k = 0; k < 3; k++) {
+			let v; try { v = from[to.name](...[i, j, k].map((t, c) => dom[c][0] + t / 2 * (dom[c][1] - dom[c][0]))) } catch { return false }
+			if (!v.every(isFinite)) return false }
+		return true }
+	try { return fin(space[s], space.rgb) && fin(space.rgb, space[s]) } catch { return false }
+}))
 export const clamp = (v, a, b) => v < a ? a : v > b ? b : v
 export const hex = rgb => '#' + rgb.map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase()
 const D = Math.PI / 180
