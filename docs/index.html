@@ -1968,21 +1968,34 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const RCHTIP='share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick'
 	const reachTxt=RCH?`${Math.round(RCH[0]*100)}% of visible`:''
 	const enc=encodingOf(s), avoid=avoidOf(s,L)
-	// the transfer curve — how a neutral linear ramp maps to this space's tone:
-	// RGB-model gamma/log/PQ curves, or the perceptual lightness (L*, Jz, I…) of the
-	// Lab/LCh family. Device-cylindrical tone (HSL's L, HSV's V) is just the underlying
-	// gamma RGB restated, so it's left out. Sampled through the library itself.
+	// the transfer curve — how a neutral linear ramp maps to this space's tone.
+	// Measured, not assumed: every non-hue channel is sampled along the grey axis; the
+	// tone carrier is the one that responds monotonically over >5% of its own range —
+	// L* for Lab/LCh, V for Munsell, luma for YCbCr, K (falling) for CMYK, W for
+	// Ostwald/HWB, the shared gamma/log curve for RGB models. Hue drift on neutrals is
+	// noise, skipped. No responder → no panel (rg, kelvin, wavelength: the chromaticity
+	// or CCT of grey is a constant). Sampled through the library itself.
 	let tcurve=null
-	const percept=(cls.archetype==='opponent'||cls.archetype==='polar')&&cls.tone&&cls.tone.i===0
-	if(cls.archetype==='additive'||percept){ try{
-		const ti=percept?cls.tone.i:0
-		const pts=Array.from({length:73},(_,i)=>s==='lrgb'?i/72:space.lrgb[s](i/72,i/72,i/72)[ti])   // lrgb: the identity — a straight diagonal IS its transfer
-		if(pts.every(isFinite)){ const lo=Math.min(...pts), hi=Math.max(...pts)
-			// a real transfer is monotonic (either direction); reject flat or wiggly channels
+	try{
+		const rows=Array.from({length:73},(_,i)=>s==='lrgb'?[i/72,i/72,i/72]:space.lrgb[s](i/72,i/72,i/72))   // lrgb: the identity — a straight diagonal IS its transfer
+		const cand=cls.ch.filter(c=>c.type!=='angle').map(c=>{
+			const pts=rows.map(r=>r[c.i]); if(!pts.every(isFinite)) return null
+			const lo=Math.min(...pts), hi=Math.max(...pts)
+			// a real transfer is monotonic (either direction); flat or wiggly channels aren't tone
 			const up=pts.every((v,i)=>!i||v>=pts[i-1]-1e-4), dn=pts.every((v,i)=>!i||v<=pts[i-1]+1e-4)
-			if(hi-lo>1e-6&&(up||dn)) tcurve={pts,lo,hi,ylab:percept?cls.tone.sym:'code'} } }catch{} }
+			return (up||dn)&&hi-lo>0.05*Math.abs(c.max-c.min)?{c,pts,lo,hi,up}:null }).filter(Boolean)
+		// the classified tone channel wins; else the rising responder (W over B; K stands alone)
+		const pick=cand.find(t=>t.c===cls.tone)||cand.find(t=>t.up)||cand[0]
+		if(pick) tcurve={pts:pick.pts,lo:pick.lo,hi:pick.hi,
+			ylab:cls.ch.length>1&&cand.length===cls.ch.length?'code':pick.c.sym}
+	}catch{}
+	// 'perceptual lightness' is a claim, so verify it: a perceptual-family encoding AND a
+	// measured midtone lift (18% grey plotting well above the diagonal). Ostwald's W is
+	// perceptual by family yet linear on greys — it stays plain 'code value'.
+	const percept=!!tcurve&&tcurve.ylab!=='code'&&!/^(gamma|linear|chromaticity)$/.test(m.encoding||'')
+		&&(tcurve.pts[13]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3
 	const has3d=cls.ch.length===3&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
-	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''}${hasPlaneGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':'RGB-model spaces map every channel through this same curve.'}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
+	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''}${hasPlaneGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
 	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}</h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
 	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
@@ -2226,11 +2239,12 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	c2.stroke()
 	// 18% gray — the spec anchor, a quiet hollow notch
 	c2.beginPath(); c2.arc(X(0.18),Y(at(0.18)),2.6,0,7); c2.strokeStyle=ink2; c2.lineWidth=1.1; c2.stroke()
-	// endpoint code values
+	// endpoint code values — snap float dust (cmyk's K lo = 1e-14) to a clean zero
+	const lbl=v=>String(Math.abs(v)<(TC.hi-TC.lo)*1e-6?0:+v.toPrecision(3))
 	c2.font='600 15px Inter,sans-serif'; c2.fillStyle='oklch(0.5 0.01 70/.9)'
 	c2.textAlign='left'
-	c2.fillText(String(+TC.hi.toPrecision(3)),L+4,T+16)
-	c2.fillText(String(+TC.lo.toPrecision(3)),L+4,H-B-6)
+	c2.fillText(lbl(TC.hi),L+4,T+16)
+	c2.fillText(lbl(TC.lo),L+4,H-B-6)
 	// axis labels at the axis ends, like the 3D plot's; code runs up its axis
 	c2.fillStyle='oklch(0.5 0.01 70/.75)'
 	c2.textAlign='right'; c2.fillText('light',W-3,H-3)
