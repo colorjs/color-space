@@ -5,7 +5,7 @@
  * other half of the kernel: convert a whole image-sized buffer in one call, with
  * the per-pixel formulas running as a tight WASM loop (jz @ optimize:'speed' —
  * fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the
- * ~30 kB module (≈23 kB wasm) is prebuilt and inlined (see scripts/build-wasm.js).
+ * ~45 kB module (≈33 kB wasm) is prebuilt and inlined (see scripts/build-wasm.js).
  *
  * The API is the scalar library's, batch-shaped — same `space.from.to` addressing:
  *
@@ -14,6 +14,12 @@
  *     const buf = alloc(nPixels)        // WASM-backed Float64Array(n*3) — write rgb here
  *     space.rgb.oklch(buf)              // whole buffer, in place, zero-copy
  *     space.rgb.oklch(pixels)           // plain array in → converted Float64Array out
+ *
+ * Every edge ships in two forms: a scalar kernel — a true WASM multi-value
+ * function, `rgb_lrgb(r, g, b) → (r′, g′, b′)`, the same signature as the scalar
+ * library — and an `_n`-suffixed batch loop over the working buffer that reuses
+ * that kernel per pixel. Scalar calls thread the edge path through multi-value
+ * returns; they never touch the working buffer.
  *
  * HUB-ONLY, and that is the honest shape. The scalar and GL tiers offer per-space
  * imports (`color-space/oklch`, `color-space/gl/oklch`) because their payload is
@@ -33,14 +39,20 @@
  */
 import b64 from './wasm/binary.js'
 
-let ex, scratch, scratchN = 0
+let ex, i64p, scratch, scratchN = 0
 
 function instance() {
 	if (!ex) {
 		const bytes = typeof Buffer !== 'undefined'
 			? Buffer.from(b64, 'base64')
 			: Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
-		ex = new WebAssembly.Instance(new WebAssembly.Module(bytes), {}).exports
+		const mod = new WebAssembly.Module(bytes)
+		ex = new WebAssembly.Instance(mod, {}).exports
+		// jz:i64exp custom section (JSON) names which param positions of each export
+		// ride the i64 carrier (f64 bits in a BigInt) instead of plain f64
+		i64p = new Map()
+		const sec = WebAssembly.Module.customSections(mod, 'jz:i64exp')
+		if (sec.length) for (const e of JSON.parse(new TextDecoder().decode(new Uint8Array(sec[0])))) i64p.set(e.name, new Set(e.p || []))
 	}
 	return ex
 }
@@ -49,10 +61,24 @@ function instance() {
 // of the data in linear memory — all we need to build a zero-copy view over it.
 const ptr = (box) => Number(box & 0xffffffffn)
 
+// jz multi-value lanes (and i64exp-marked params) ride i64 carrying raw f64 bits —
+// reinterpret across the boundary in both directions
+const dv = new DataView(new ArrayBuffer(8))
+const f64 = (v) => typeof v === 'bigint' ? (dv.setBigUint64(0, v), dv.getFloat64(0)) : v
+const bits = (x) => (dv.setFloat64(0, x), dv.getBigUint64(0))
+
+// call one scalar edge kernel: box the i64-carrier params, unbox the result lanes
+const edge = (name, a, b, c) => {
+	const p = i64p.get(name)
+	const v = ex[name](p && p.has(0) ? bits(a) : a, p && p.has(1) ? bits(b) : b, p && p.has(2) ? bits(c) : c)
+	return [f64(v[0]), f64(v[1]), f64(v[2])]
+}
+
 // Primitive-edge graph (mirrors the scalar library's natural neighbours). Each edge
-// maps a space->space step to a WASM export; multi-hop conversions compose by walking
-// this graph (BFS) and calling each edge in turn on the buffer. polar_fwd/polar_inv
-// are the one generic cartesian<->cylindrical pair shared by every LCh-family space.
+// maps a space->space step to a WASM export pair: the scalar kernel (this name) and
+// its `_n` batch loop; multi-hop conversions compose by walking this graph (BFS) and
+// calling each edge in turn. polar_fwd/polar_inv are the one generic
+// cartesian<->cylindrical pair shared by every LCh-family space.
 const GRAPH = {
 	rgb: { lrgb: 'rgb_lrgb' },
 	lrgb: { rgb: 'lrgb_rgb', xyz: 'lrgb_xyz', oklab: 'lrgb_oklab' },
@@ -128,6 +154,13 @@ export function alloc(n) {
 	return scratch.subarray(0, n * 3)
 }
 
+// edge path or throw — shared by the buffer and scalar forms
+const seqOrThrow = (from, to) => {
+	const seq = edgeSeq(from, to)
+	if (seq === null) throw new Error(`color-space/wasm: no path '${from}'→'${to}'. Spaces: ${spaces.join(', ')}`)
+	return seq
+}
+
 /**
  * Convert the working buffer ({@link alloc}'d) from one space to another, in place.
  * Composes the shortest edge path through the graph (each hop is a buffer pass).
@@ -136,10 +169,8 @@ export function alloc(n) {
  * @param {number} n pixel count
  */
 export function convert(from, to, n) {
-	const seq = edgeSeq(from, to)
-	if (seq === null) throw new Error(`color-space/wasm: no batch path '${from}'→'${to}'. Spaces: ${spaces.join(', ')}`)
 	const ex = instance()
-	for (const fn of seq) ex[fn](n)
+	for (const fn of seqOrThrow(from, to)) ex[fn + '_n'](n)
 }
 
 /**
@@ -161,24 +192,20 @@ export function convertBatch(from, to, src, dst = src, n = (src.length / 3) | 0)
 	return dst
 }
 
-// The scalar library's shape over the batch kernel: space.from.to(…). Three scalar
-// args → a plain [c0,c1,c2] (bit-identical to the loop math JS runs per pixel); an
-// alloc()'d buffer → converted in place, zero-copy; any other array-like → a new
-// converted Float64Array, input untouched.
+// The scalar library's shape over the kernel: space.from.to(…). Three scalar args →
+// a plain [c0,c1,c2], threaded through the edge kernels' multi-value returns (the
+// working buffer is never touched); an alloc()'d buffer → converted in place,
+// zero-copy; any other array-like → a new converted Float64Array, input untouched.
 const api = {}
 for (const from of spaces) {
 	const o = api[from] = { name: from }
 	for (const to of spaces) {
 		if (to === from) continue
 		o[to] = (a, b, c) => {
-			if (typeof a === 'number') {
-				const buf = alloc(1)   // may alias a live working buffer — restore its head
-				const s0 = buf[0], s1 = buf[1], s2 = buf[2]
-				buf[0] = a; buf[1] = b; buf[2] = c
-				convert(from, to, 1)
-				const out = [buf[0], buf[1], buf[2]]
-				buf[0] = s0; buf[1] = s1; buf[2] = s2
-				return out
+			if (typeof a !== 'object' || a === null) {
+				instance()
+				for (const fn of seqOrThrow(from, to)) [a, b, c] = edge(fn, a, b, c)
+				return [a, b, c]
 			}
 			const n = (a.length / 3) | 0
 			if (a.buffer === instance().memory.buffer) { convert(from, to, n); return a }

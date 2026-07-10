@@ -50,3 +50,31 @@ test('wasm: default export — scalar, zero-copy and copy-through forms agree', 
 	wasm.rgb.oklch(10, 20, 30)
 	is(held[0] === 1 && held[1] === 2 && held[2] === 3, true, 'held buffer survives a scalar call')
 })
+
+// Scalar kernels are true WASM multi-value exports — `rgb_lrgb(r, g, b) → (r′, g′, b′)`
+// — threaded per edge by wasm.js, while batch loops destructure the *same* kernels
+// per pixel. So on every pair the two forms must agree bit-for-bit: this pins the
+// multi-value glue (i64exp param boxing, lane unboxing) exhaustively. Accuracy vs
+// the scalar JS library is pinned by the rgb→X differential sweep above (the
+// backends may route pairs differently — JS has a direct xyz↔oklab edge, wasm goes
+// via lrgb — so cross-backend equality only holds from shared anchors).
+test('wasm: scalar form ≡ batch form, bit-for-bit, on every pair', () => {
+	const anchors = [[246, 125, 79], [0, 128, 255], [12, 200, 100]]
+	let pairs = 0
+	for (const from of spaces) {
+		const samples = anchors.map((rgb) => from === 'rgb' ? rgb : space.rgb[from](...rgb))
+		const src = new Float64Array(samples.flat())
+		for (const to of spaces) {
+			if (to === from) continue
+			const batch = convertBatch(from, to, src, new Float64Array(src.length))
+			for (let i = 0; i < samples.length; i++) {
+				const got = wasm[from][to](...samples[i])
+				for (let k = 0; k < 3; k++)
+					if (!Object.is(got[k], batch[3 * i + k]) && !(Number.isNaN(got[k]) && Number.isNaN(batch[3 * i + k])))
+						is(got[k], batch[3 * i + k], `${from}→${to} px${i} ch${k}`)
+			}
+			pairs++
+		}
+	}
+	is(pairs, spaces.length * (spaces.length - 1), `all ${pairs} pairs swept`)
+})
