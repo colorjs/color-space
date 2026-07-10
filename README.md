@@ -42,15 +42,31 @@ import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // args match CSS oklch(0.65 0.25 180)
 ```
 
+One module per concern — the whole surface:
+
+| import | what |
+|---|---|
+| `color-space` | all 156 spaces, graph-wired |
+| `color-space/<name>.js` | one space, tree-shaken (0.4–1.5 kB; the definitions live in [`spaces/`](spaces)) |
+| `color-space/lite` | the 27-space numeric working set, 9 kB |
+| `color-space/wasm` | the same set, prebuilt WASM — zero-copy buffers |
+| `color-space/gl` | GLSL/WGSL shader chunks + composer |
+| `color-space/lut` | `.cube` LUT exporter (Resolve, ffmpeg, …) |
+| `color-space/icc` | ICC display-profile exporter |
+| `color-space/data.json` | the registry as data — metadata, graph edges, gamuts, whitepoints, CMFs, conformance |
+| `color-space/gamuts.js` · `/whitepoints.js` | primary chromaticities · CIE illuminant tables |
+| `color-space/hub.js` | the wiring machinery (`createHub`) behind the three hubs |
+| `npx color-space-mcp` | MCP server — the same conversions as agent tools |
+
 **Upgrading from v2?** [Migration guide](docs/migration.md) — a v2 array-taking call is a batch of one in v3.
 
-Metadata ships separately:
+Metadata ships as one data artifact (see [Data](#data)):
 
 ```js
-import meta from 'color-space/meta.js';
-meta.oklab;   // { description, channels, range, refs, wiki, year, by, use,
-              //   method, encoding, illuminant, observer, referred, dynamic }
-meta.p3;      // RGB working spaces add: gamut, primaries {r,g,b}, white
+import data from 'color-space/data.json' with { type: 'json' };
+data.spaces.oklab;   // { description, channels, range, refs, wiki, year, by, use,
+                     //   method, encoding, illuminant, observer, referred, dynamic, neighbors }
+data.spaces.p3;      // RGB working spaces add: gamut, primaries {r,g,b}, white
 
 import whitepoint from 'color-space/whitepoints.js';
 whitepoint[2].D50;   // → [96.422, 100, 82.521]
@@ -111,11 +127,40 @@ ffmpeg -i in.mov -vf lut3d=slog3-to-rec709.cube out.mov
 
 The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are written unclamped. Corners that go non-finite or numerically degenerate throw rather than bake a broken file; the catalog also curates hue-axed spaces out of its picker — hue doesn't survive lattice interpolation — leaving 113 of 156. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
 
+`{ shaper: true }` prepends the conversion's own tone curve as a 1D shaper (Resolve-flavor combined cube — Resolve and OCIO read it; Adobe-strict readers like ffmpeg's `lut3d` don't): a shaped 33³ beats a plain 65³ for camera-log → display at ⅙ the file size, measured; super-range clips at the shaper, as a display conversion LUT wants.
+
+## ICC
+
+The color-management analog of the LUT: any matrix×transfer RGB working space as an ICC v2 display profile — Photoshop, macOS/Windows CM, browsers, printers:
+
+```js
+import { profile } from 'color-space/icc';
+
+profile(space.p3);         // → Uint8Array — a Display P3 .icc
+profile(space.prophoto);   // ROMM RGB; linear spaces emit the identity curve
+```
+
+Everything derives mechanically from the space's own conversions — colorants from the full-intensity primaries (Bradford-adapted to the D50 PCS), the TRC sampled from the neutral diagonal — and a space that isn't empirically matrix×transfer (cylinders, luma/chroma, opponent) throws instead of emitting a lying profile. Colorants are pinned to Lindbloom's published D50 matrices, the TRC to the IEC 61966-2-1 formula, and every profile is accepted end-to-end by macOS ColorSync in the suite.
+
+## Data
+
+`color-space/data.json` is the whole registry as one language-neutral artifact — build a port or a site from it instead of re-transcribing papers: per-space metadata with conventional ranges, the conversion-graph edges, gamut primaries, CIE whitepoints, the CIE 1931 2° color-matching functions, and the 129 cited input→output conformance triples the test suite pins the formulas to.
+
+## MCP
+
+Color math is what language models hallucinate — plausible matrices, wrong in the third decimal. The zero-dependency MCP server lets agents call the verified conversions instead:
+
+```json
+{ "mcpServers": { "color-space": { "command": "npx", "args": ["color-space-mcp"] } } }
+```
+
+Tools: `convert` (any pair) · `space` (the dossier: refs, ranges, provenance) · `spaces` · `cube` (a LUT file).
+
 ## Guarantees
 
 For every one of the 156 spaces — enforced by the test suite:
 
-1. **Canonical formula** — implements its primary source (ITU/SMPTE/ISO/CIE spec, original paper, vendor whitepaper), linked in `meta.<space>.refs`.
+1. **Canonical formula** — implements its primary source (ITU/SMPTE/ISO/CIE spec, original paper, vendor whitepaper), linked in `data.spaces.<space>.refs`.
 2. **Pinned values** — cited reference cases ([test/bonafide.js](test/bonafide.js)) or differential tests against colorjs.io ([test/reference.js](test/reference.js)), plus a round-trip and NaN-safety sweep.
 3. **Conventional ranges** — never silently normalized.
 4. **Bidirectional** — the few one-way standards say so loudly.

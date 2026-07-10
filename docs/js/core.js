@@ -1,8 +1,16 @@
 // Shared COLOR MATH only — every study brings its own design + interaction.
 // Metadata drives everything: type each channel, then sample gamut-correct fields.
 import space from '../../dist/color-space.js'
-import meta from '../../meta.js'
-export { space, meta }
+
+// one data artifact for the site and everything else — fetched in the browser,
+// imported as a JSON module in node (generate-landing); top-level await makes
+// every importer wait transparently
+const dataURL = new URL('../../data.json', import.meta.url)
+export const data = dataURL.protocol === 'file:'
+	? (await import(dataURL, { with: { type: 'json' } })).default
+	: await (await fetch(dataURL)).json()
+export const meta = data.spaces
+export { space }
 
 export const spaceCount = Object.keys(space).filter(k => space[k] && space[k].name).length
 // spaces that can end a .cube LUT: 3 bounded channels, no cyclic hue axis (0–360°
@@ -129,11 +137,13 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	ctx.putImageData(img, 0, 0)
 }
 
-// ── conversion graph: direct (hand-written) edges only — chained fns are flagged by register() ──
+// ── conversion graph: direct (hand-written) edges only — the hub flags compositions
+// with .chained on the raw scalar (reachable via .scalar on the batch face) ──
 export function pathToRgb(name) {
 	if (name === 'rgb') return ['rgb']
 	const names = new Set(Object.keys(space))
-	const edgesOf = s => Object.keys(space[s] || {}).filter(k => names.has(k) && typeof space[s][k] === 'function' && !space[s][k].chained)
+	const edgesOf = s => Object.keys(space[s] || {}).filter(k => { const f = space[s][k]
+		return names.has(k) && typeof f === 'function' && !(f.scalar || f).chained })
 	const prev = { [name]: null }, q = [name]
 	while (q.length) {
 		const s = q.shift()

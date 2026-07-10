@@ -82,21 +82,27 @@ export function channelwise(from, to) {
  *   is 17/33/65 (Resolve's own export set); the spec allows up to 256 but OpenColorIO
  *   caps at 129 — stay ≤129 for pipeline portability
  * @param {1|3} [opts.dims] force 1D/3D — default: 1 when the pair is channelwise, else 3
- * @returns {{from, to, dims: 1|3, size: number, domain: number[][], range: number[][], data: Float64Array}}
+ * @param {boolean|number} [opts.shaper] prepend a 1D shaper (Resolve-flavor combined cube):
+ *   each channel's shaper is the conversion's own normalized tone diagonal, so the 3D
+ *   lattice spends its nodes where the curvature lives — a shaped 33³ reaches plain-65³
+ *   accuracy. A number sets the shaper size (default 1024). Channels whose diagonal
+ *   isn't monotone fall back to identity. Read by Resolve and OCIO ('resolve_cube');
+ *   NOT by ffmpeg's lut3d (Adobe-strict, one size keyword per file)
+ * @returns {{from, to, dims: 1|3, size: number, domain: number[][], range: number[][], data: Float64Array, shaper?: Float64Array, shaperSize?: number}}
  *   `data` holds 0–1-normalized output triples; 3D is red-fastest (index = r + g·N + b·N²)
  */
-export function table(from, to, { size, dims } = {}) {
+export function table(from, to, { size, dims, shaper } = {}) {
 	const f = conv(from, to)
 	const domain = domainOf(from), range = domainOf(to)
 	dims ??= channelwise(from, to) ? 1 : 3
 	size ??= dims === 1 ? 4096 : 33
 	if (!(size >= 2 && size <= (dims === 1 ? 65536 : 256)))
 		throw new Error(`color-space/lut: LUT_${dims}D_SIZE ${size} out of spec (2–${dims === 1 ? 65536 : 256})`)
-	const at = (c, i) => domain[c][0] + (i / (size - 1)) * (domain[c][1] - domain[c][0])
+	const at = (c, t) => domain[c][0] + t * (domain[c][1] - domain[c][0]) // t: 0..1 fraction
 	const norm = (v, c) => (v - range[c][0]) / (range[c][1] - range[c][0])
 	const n = dims === 3 ? size ** 3 : size
 	const data = new Float64Array(n * 3)
-	const put = (j, out, inp) => {
+	const put = (arr, j, out, inp) => {
 		for (let c = 0; c < 3; c++) {
 			const v = norm(out[c], c)
 			// refuse degenerate corners outright — appearance-model and data-table spaces
@@ -104,20 +110,75 @@ export function table(from, to, { size, dims } = {}) {
 			// the magnitude bound catches blow-ups that stay technically finite
 			if (!isFinite(v) || Math.abs(v) > 1e6)
 				throw new Error(`color-space/lut: ${from.name}(${inp.join(', ')}) → ${to.name} is ${isFinite(v) ? 'numerically degenerate' : 'not finite'} — the pair is undefined over ${from.name}'s full conventional range, so it has no LUT`)
-			data[j * 3 + c] = v
+			arr[j * 3 + c] = v
 		}
 	}
-	if (dims === 1)
+	if (dims === 1) {
 		for (let i = 0; i < size; i++) {
-			const inp = [at(0, i), at(1, i), at(2, i)]
-			put(i, f(...inp), inp)
+			const t = i / (size - 1)
+			const inp = [at(0, t), at(1, t), at(2, t)]
+			put(data, i, f(...inp), inp)
 		}
-	else
-		for (let b = 0, j = 0; b < size; b++) for (let g = 0; g < size; g++) for (let r = 0; r < size; r++, j++) {
-			const inp = [at(0, r), at(1, g), at(2, b)]
-			put(j, f(...inp), inp)
+		return { from, to, dims, size, domain, range, data }
+	}
+	// shaper: each channel's tone diagonal t(v) = norm(f(v,v,v))[c], clamped to the
+	// target's 0–1 range — monotone channels concentrate the lattice on the DISPLAYABLE
+	// tone span (a scene-referred source spends >95% of its domain on super-range
+	// highlights; the shaper collapses those onto the boundary node, i.e. the shaped
+	// cube clips at the shaper — the trade a display conversion LUT wants). Flat or
+	// non-monotone channels keep the identity. The lattice is sampled at the shaper's
+	// inverse, so host-side shaper→trilinear reproduces f exactly at the nodes.
+	let sh = null, S = 0
+	if (shaper && dims === 3) {
+		S = typeof shaper === 'number' ? shaper : 1024
+		if (!(S >= 2 && S <= 65536)) throw new Error(`color-space/lut: shaper size ${S} out of spec (2–65536)`)
+		const diag = (t) => f(at(0, t), at(1, t), at(2, t))
+		sh = new Float64Array(S * 3)
+		const mono = [true, true, true]
+		let prev = null
+		for (let j = 0; j < S; j++) {
+			const d = diag(j / (S - 1))
+			for (let c = 0; c < 3; c++) {
+				if (prev && d[c] < prev[c] - 1e-9) mono[c] = false
+				sh[j * 3 + c] = Math.min(1, Math.max(0, norm(d[c], c)))
+			}
+			prev = d
 		}
-	return { from, to, dims, size, domain, range, data }
+		// a useful shaper spans most of 0..1 within the domain; degenerate ones → identity
+		for (let c = 0; c < 3; c++) {
+			if (!mono[c] || sh[(S - 1) * 3 + c] - sh[c] < 0.5)
+				for (let j = 0; j < S; j++) sh[j * 3 + c] = j / (S - 1)
+		}
+	}
+	// inverse shaper per grid coordinate — binary search on the sampled shaper,
+	// windowed to the strictly-rising interior: a clamp plateau at 0 inverts to its
+	// right edge (the black point) and a plateau at 1 to its left edge (the white
+	// crossing), so no lattice node lands in clipped sub-black/super-range territory
+	let win = null
+	if (sh) {
+		win = [0, 1, 2].map((c) => {
+			let j0 = 0, j1 = S - 1
+			while (j0 < j1 && sh[(j0 + 1) * 3 + c] <= 0) j0++
+			while (j1 > j0 && sh[(j1 - 1) * 3 + c] >= 1) j1--
+			return [j0, j1]
+		})
+	}
+	const inv = (c, u) => {
+		if (!sh) return u
+		let [lo, hi] = win[c]
+		if (u <= sh[lo * 3 + c]) return lo / (S - 1)
+		if (u >= sh[hi * 3 + c]) return hi / (S - 1)
+		while (hi - lo > 1) { const mid = (lo + hi) >> 1; (sh[mid * 3 + c] <= u ? lo = mid : hi = mid) }
+		const a = sh[lo * 3 + c], b2 = sh[hi * 3 + c]
+		return (lo + (b2 > a ? (u - a) / (b2 - a) : 0)) / (S - 1)
+	}
+	const N1 = size - 1
+	for (let b = 0, j = 0; b < size; b++) for (let g = 0; g < size; g++) for (let r = 0; r < size; r++, j++) {
+		const inp = [at(0, inv(0, r / N1)), at(1, inv(1, g / N1)), at(2, inv(2, b / N1))]
+		put(data, j, f(...inp), inp)
+	}
+	return sh ? { from, to, dims, size, domain, range, data, shaper: sh, shaperSize: S }
+		: { from, to, dims, size, domain, range, data }
 }
 
 /**
@@ -129,9 +190,14 @@ export function table(from, to, { size, dims } = {}) {
  * @returns {number[]} target-space channel values
  */
 export function apply(tab, vals) {
-	const { dims, size, domain, range, data } = tab
+	const { dims, size, domain, range, data, shaper, shaperSize } = tab
 	const N = size, hi = N - 1
-	const fr = vals.map((v, c) => Math.min(1, Math.max(0, (v - domain[c][0]) / (domain[c][1] - domain[c][0]))))
+	let fr = vals.map((v, c) => Math.min(1, Math.max(0, (v - domain[c][0]) / (domain[c][1] - domain[c][0]))))
+	// combined cube: the host runs the 1D shaper per channel first, then the 3D lattice
+	if (shaper) fr = fr.map((v, c) => {
+		const x = v * (shaperSize - 1), i = Math.min(shaperSize - 2, Math.floor(x)), t = x - i
+		return Math.min(1, Math.max(0, shaper[i * 3 + c] * (1 - t) + shaper[(i + 1) * 3 + c] * t))
+	})
 	const out = [0, 0, 0]
 	if (dims === 1)
 		for (let c = 0; c < 3; c++) {
@@ -213,13 +279,15 @@ const scaleNote = (name, r) => r.every(([a, b]) => a === 0 && b === 1) ? `${name
  * @param {object} [opts]
  * @param {number} [opts.size] lattice size — default 33 (3D) / 4096 (1D)
  * @param {1|3} [opts.dims] force dimensionality
+ * @param {boolean|number} [opts.shaper] prepend the tone-diagonal 1D shaper (see {@link table}) —
+ *   Resolve-flavor combined cube; Resolve + OCIO read it, ffmpeg's Adobe-strict lut3d does not
  * @param {string} [opts.title] TITLE line — default "from to to"
  * @param {number|false} [opts.verify=1000] off-lattice verification samples, false to skip
  * @returns {string} the .cube file text
  */
 export function cube(from, to, opts = {}) {
 	const tab = table(from, to, opts)
-	const { dims, size, domain, range, data } = tab
+	const { dims, size, domain, range, data, shaper, shaperSize } = tab
 	const v = opts.verify === false ? null : verify(tab, opts.verify || 1000)
 	const lines = [
 		`# ${from.name} → ${to.name} — generated by color-space (https://github.com/colorjs/color-space)`,
@@ -230,9 +298,15 @@ export function cube(from, to, opts = {}) {
 		const inr = v.in.share > 0 && v.in.share < 0.999
 			? ` · in-range outputs (${(v.in.share * 100).toPrecision(2)}% of domain, ${v.in.n} samples): median ${sci(v.in.median)}, max ${sci(v.in.max)}`
 			: ''
-		lines.push(`# ${dims === 3 ? 'trilinear' : 'linear'} lattice vs direct conversion, ${v.n} off-lattice samples, fractions of full scale: median ${sci(v.median)}, max ${sci(v.max)}${inr}`)
+		lines.push(`# ${dims === 3 ? (shaper ? 'shaper + trilinear' : 'trilinear') : 'linear'} lattice vs direct conversion, ${v.n} off-lattice samples, fractions of full scale: median ${sci(v.median)}, max ${sci(v.max)}${inr}`)
 	}
+	if (shaper) lines.push(`# Resolve-flavor combined cube: 1D tone shaper + 3D lattice — DaVinci Resolve / OCIO (resolve_cube); not Adobe-strict readers (ffmpeg lut3d)`)
 	lines.push(`TITLE "${(opts.title || `${from.name} to ${to.name}`).replace(/"/g, "'")}"`)
+	if (shaper) {
+		lines.push(`LUT_1D_SIZE ${shaperSize}`)
+		for (let j = 0; j < shaper.length; j += 3)
+			lines.push(`${num(shaper[j])} ${num(shaper[j + 1])} ${num(shaper[j + 2])}`)
+	}
 	lines.push(dims === 1 ? `LUT_1D_SIZE ${size}` : `LUT_3D_SIZE ${size}`)
 	for (let j = 0; j < data.length; j += 3)
 		lines.push(`${num(data[j])} ${num(data[j + 1])} ${num(data[j + 2])}`)

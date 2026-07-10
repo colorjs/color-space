@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Every color space in one tiny API — 151 of them, CSS-style ranges, formulas verified vs colorjs.io, zero-dep & tree-shakeable",
+  "description": "Any color space",
   "version": "3.0.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
@@ -40,23 +40,37 @@
   "types": "./types/index.d.ts",
   "files": [
     "*.js",
+    "spaces",
+    "data.json",
     "wasm",
     "gl",
     "types",
-    "dist",
-    "meta"
+    "dist"
   ],
+  "bin": {
+    "color-space-mcp": "./mcp.js"
+  },
   "exports": {
     ".": "./index.js",
+    "./index.js": "./index.js",
     "./lite": {
       "types": "./types/lite.d.ts",
       "default": "./lite.js"
     },
+    "./lite.js": "./lite.js",
     "./lut": {
       "types": "./types/lut.d.ts",
       "default": "./lut.js"
     },
+    "./lut.js": "./lut.js",
+    "./icc": {
+      "types": "./types/icc.d.ts",
+      "default": "./icc.js"
+    },
+    "./icc.js": "./icc.js",
+    "./data.json": "./data.json",
     "./wasm": "./wasm.js",
+    "./wasm.js": "./wasm.js",
     "./gl": "./gl/compose.js",
     "./gl/all": "./gl/index.js",
     "./gl/wgsl": "./gl/wgsl.js",
@@ -64,8 +78,16 @@
     "./gl/*.glsl.js": "./gl/*.glsl.js",
     "./gl/*.js": "./gl/*.js",
     "./gl/*": "./gl/*.glsl.js",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./hub.js": "./hub.js",
+    "./mcp.js": "./mcp.js",
+    "./gamuts.js": "./gamuts.js",
+    "./whitepoints.js": "./whitepoints.js",
+    "./util.js": "./util.js",
+    "./transfers.js": "./transfers.js",
+    "./cie.js": "./cie.js",
+    "./spaces/*.js": "./spaces/*.js",
+    "./*.js": "./spaces/*.js",
+    "./*": "./spaces/*.js"
   },
   "devDependencies": {
     "color-name": "^2.0.0",
@@ -81,13 +103,13 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/gl.js && node test/lut.js && node test/lut-ffmpeg.js",
+    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/gl.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
-    "meta": "node scripts/generate-meta.js > meta.js",
-    "landing": "node scripts/generate-landing.js",
+    "data": "node scripts/generate-data.js",
+    "landing": "node scripts/build-site.js",
     "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
-    "prepublishOnly": "npm run types && npm run meta && npm run build:wasm && npm run build"
+    "prepare": "npm run types && npm run data && npm run build:wasm && npm run build"
   }
 }

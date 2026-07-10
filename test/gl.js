@@ -6,7 +6,8 @@
 // (scripts/check-gl-gpu.js) since GLSL/WGSL only add float32 rounding.
 import test, { is } from 'tst'
 import space from '../index.js'
-import meta from '../meta.js'
+import data from '../data.json' with { type: 'json' }
+const meta = data.spaces
 import glslDefault, { chunks, graph, glsl } from '../gl/index.js'
 
 // ---- GLSL chunk dialect → JS ----

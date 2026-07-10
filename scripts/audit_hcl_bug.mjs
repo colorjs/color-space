@@ -123,7 +123,7 @@ console.log('space.hcl:', Object.keys(space.hcl));
 // Let me check if there's a direct hcl.rgb or if it chains
 
 // Try calling directly
-import hcl_direct from '../hcl.js';
+import hcl_direct from '../spaces/hcl.js';
 console.log('\n=== Direct hcl.js import ===');
 console.log('hcl.rgb:', hcl_direct.rgb);
 console.log('Direct hcl.rgb(120,100,94.259):', hcl_direct.rgb(120, 100, 94.259));

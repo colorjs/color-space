@@ -1,0 +1,55 @@
+name: pages
+# Build the site into _site and deploy to GitHub Pages — the jz model: the repo
+# stays source-only (docs/ holds templates/styles/modules; generated pages, llms,
+# sitemap and the runtime bundles are staged here, never committed). The full test
+# suite is the deploy gate: a commit that breaks the library keeps the last good
+# deploy live.
+#
+# One-time setup: Settings → Pages → Source = GitHub Actions.
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**/*.md'
+      - '.work/**'
+      - 'LICENSE'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deploy at a time; never cancel an in-flight deploy
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/configure-pages@v5
+      # npm ci runs `prepare` — types/meta/data/wasm/dist all regenerate here;
+      # nothing generated is committed
+      - run: npm ci
+      # deploy gate — the full suite (includes the _site completeness pin)
+      - run: npm test
+      - run: npm run landing
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

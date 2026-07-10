@@ -78,7 +78,7 @@ space.rgb.range;        // [[0, 255], [0, 255], [0, 255]]
 space.hsl.range;        // [[0, 360], [0, 100], [0, 100]]
 ```
 
-Channel names, refs, provenance and more moved to `color-space/meta.js`
+Channel names, refs, provenance and more moved to `color-space/data.json` (`data.spaces`)
 (`meta.hsl.channels`). Aliases are gone — address spaces by canonical name.
 
 ### 5. `ciecam` removed; `munsell` works now
@@ -98,7 +98,7 @@ Channel names, refs, provenance and more moved to `color-space/meta.js`
 - Tiers beyond the catalog: `color-space/lite` (the compact working set, plain
   JS), `color-space/wasm` (same set, prebuilt WASM batch kernel),
   `color-space/gl` (GLSL/WGSL chunks), `color-space/lut` (.cube export).
-- `meta.js` (per-space provenance/channels/refs), `gamuts.js`, `whitepoints.js`.
+- `data.json` (per-space provenance/channels/refs + gamuts, whitepoints, CMFs, conformance), `gamuts.js`, `whitepoints.js`.
 
 ---
 

@@ -15,7 +15,8 @@ import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import space from '../index.js'
-import meta from '../meta.js'
+import data from '../data.json' with { type: 'json' }
+const meta = data.spaces
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 

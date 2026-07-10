@@ -16,9 +16,9 @@ const ident = (n) => n.replace(/[^a-zA-Z0-9]/g, '_')
 const Iface = (n) => ident(n).replace(/^./, (c) => c.toUpperCase()) + 'Space'
 const rangeLit = (r) => r && `[${r.map(([a, b]) => `[${a}, ${b}]`).join(', ')}]`
 
-// space files: basename === registered name
-const names = fs.readdirSync(root)
-	.filter((f) => f.endsWith('.js') && f !== 'index.js' && space[f.replace(/\.js$/, '')])
+// space files (spaces/): basename === registered name
+const names = fs.readdirSync(path.join(root, 'spaces'))
+	.filter((f) => f.endsWith('.js') && space[f.replace(/\.js$/, '')])
 	.map((f) => f.replace(/\.js$/, ''))
 	.sort()
 
@@ -98,6 +98,9 @@ export interface LutTable {
 	domain: ReadonlyArray<readonly [number, number]>;
 	range: ReadonlyArray<readonly [number, number]>;
 	data: Float64Array;
+	/** Resolve-flavor combined cube: the per-channel 1D tone shaper applied before the 3D lattice */
+	shaper?: Float64Array;
+	shaperSize?: number;
 }
 
 /** Off-lattice deviation vs the direct conversion, as fractions of the target's full scale. */
@@ -113,7 +116,7 @@ export interface LutStats {
 export function channelwise(from: ColorSpace, to: ColorSpace): boolean;
 
 /** Sample a conversion into a LUT lattice. */
-export function table(from: ColorSpace, to: ColorSpace, opts?: { size?: number; dims?: 1 | 3 }): LutTable;
+export function table(from: ColorSpace, to: ColorSpace, opts?: { size?: number; dims?: 1 | 3; shaper?: boolean | number }): LutTable;
 
 /** Read one color through the lattice (linear/trilinear), native units on both ends. */
 export function apply(tab: LutTable, vals: number[]): number[];
@@ -121,14 +124,32 @@ export function apply(tab: LutTable, vals: number[]): number[];
 /** Measure the lattice against the direct conversion at random off-lattice points. */
 export function verify(tab: LutTable, n?: number): LutStats;
 
-/** Render a conversion as a .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg). */
-export function cube(from: ColorSpace, to: ColorSpace, opts?: { size?: number; dims?: 1 | 3; title?: string; verify?: number | false }): string;
+/** Render a conversion as a .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg; shaper → Resolve/OCIO flavor). */
+export function cube(from: ColorSpace, to: ColorSpace, opts?: { size?: number; dims?: 1 | 3; shaper?: boolean | number; title?: string; verify?: number | false }): string;
+`)
+
+// icc — RGB working spaces as ICC v2 display profiles
+fs.writeFileSync(path.join(dir, 'icc.d.ts'), banner + `import { ColorSpace } from './color-space';
+
+/** D50-adapted colorant matrix + sampled TRC; throws when the space is not matrix×transfer RGB. */
+export function colorants(s: ColorSpace, samples?: number): {
+	rXYZ: [number, number, number];
+	gXYZ: [number, number, number];
+	bXYZ: [number, number, number];
+	/** 0–1 decode curve samples; null = identity (linear space) */
+	trc: Float64Array | null;
+	/** Bradford D65→D50 adaptation (row-major 3×3) */
+	chad: number[];
+};
+
+/** Render a space as an ICC v2 RGB display profile (.icc bytes). */
+export function profile(s: ColorSpace, opts?: { description?: string; date?: number[]; samples?: number }): Uint8Array;
 `)
 
 // remove stale: wrong-extension .ts and orphans without a .js
 for (const f of fs.readdirSync(dir)) {
 	if (f.endsWith('.ts') && !f.endsWith('.d.ts')) fs.unlinkSync(path.join(dir, f)) // lrgb.ts, xvycc.ts, …
-	else if (f.endsWith('.d.ts') && !['color-space.d.ts', 'index.d.ts', 'lite.d.ts', 'util.d.ts', 'lut.d.ts'].includes(f)) {
+	else if (f.endsWith('.d.ts') && !['color-space.d.ts', 'index.d.ts', 'lite.d.ts', 'util.d.ts', 'lut.d.ts', 'icc.d.ts'].includes(f)) {
 		const base = f.replace(/\.d\.ts$/, '')
 		if (!names.includes(base)) { fs.unlinkSync(path.join(dir, f)); console.log('removed stale', f) }
 	}

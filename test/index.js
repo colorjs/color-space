@@ -2,8 +2,10 @@
 // http://www.easyrgb.com/index.php?X=CALC#Result
 // http://colormine.org/convert/luv-to-rgb
 
+import { existsSync, readFileSync } from 'node:fs'
 import space from '../index.js';
-import meta from '../meta.js';
+import data from '../data.json' with { type: 'json' }
+const meta = data.spaces
 import test, { is } from 'tst'
 import color from 'color-name'
 import './reference.js' // authoritative differential tests vs colorjs.io
@@ -41,19 +43,50 @@ test('family — izazbz shares jzazbz opponent axes and PQ scaling (Safdar 2017)
 // relative paths), so a renamed tier (mini→lite) or stale types path ships silently.
 // Node package self-reference lets the suite import its own specifiers.
 test('integrity — package exports: every target file exists, every specifier imports', async () => {
-	const { existsSync, readFileSync } = await import('node:fs')
 	const exports = JSON.parse(readFileSync(new URL('../package.json', import.meta.url))).exports
 	for (const [key, val] of Object.entries(exports)) {
 		for (const p of typeof val === 'string' ? [val] : Object.values(val))
 			if (!p.includes('*')) is(existsSync(new URL('../' + p, import.meta.url)), true, `${key} → ${p} exists`)
-		if (!key.includes('*')) is(!!(await import('color-space' + key.slice(1))), true, `${key} imports`)
+		if (!key.includes('*')) {
+			const spec = 'color-space' + key.slice(1)
+			is(!!(await (key.endsWith('.json') ? import(spec, { with: { type: 'json' } }) : import(spec))), true, `${key} imports`)
+		}
 	}
+	// the wildcard is the public per-space path — spaces moved to spaces/, the specifier must not
+	is((await import('color-space/oklch.js')).default.name, 'oklch', 'wildcard ./*.js routes into spaces/')
+	is((await import('color-space/slog3')).default.name, 'slog3', 'extensionless ./* routes into spaces/')
 })
 
-test('integrity — meta.js carries channels, range and @see refs per space', () => {
+// the site stages into _site (npm run landing / pages.yml — docs/ stays source-only);
+// build it here and pin completeness: every space gets its reference page + sitemap
+// entry, and no import escapes the site root
+test('integrity — _site: builds complete (a page + sitemap entry per space)', async () => {
+	const { buildSite, site } = await import('../scripts/build-site.js')
+	await buildSite()
+	const missing = Object.keys(space).filter(n => !existsSync(`${site}/${n}.html`))
+	is(missing, [], 'every space has <name>.html')
+	const map = readFileSync(`${site}/sitemap.xml`, 'utf8')
+	const unmapped = Object.keys(space).filter(n => !map.includes(`/${n}</loc>`))
+	is(unmapped, [], 'every space is in the sitemap')
+	is(existsSync(`${site}/llms.txt`) && existsSync(`${site}/robots.txt`), true, 'llms + robots staged')
+})
+
+// data.json is generated (npm run data, in `prepare`) — this pins it against
+// registry drift and against a stale working copy masking a dead generator
+test('integrity — data.json mirrors the live registry', async () => {
+	const { default: data } = await import('../data.json', { with: { type: 'json' } })
+	is(Object.keys(data.spaces).sort(), Object.keys(space).sort(), 'same space set as the registry')
+	const badNeighbor = Object.entries(data.spaces).filter(([n, s]) => !s.neighbors.length || s.neighbors.some(t => !space[t]))
+	is(badNeighbor.map(([n]) => n), [], 'every space has ≥1 direct edge, all edges name registered spaces')
+	is(data.conformance.length > 100 && data.conformance.every(r => r.url && r.src), true, `${data.conformance.length} conformance points, each cited`)
+	is(data.cmf?.rows?.length, 65, 'CIE 1931 CMF table present (380–700 @ 5 nm)')
+	is(data.count, Object.keys(space).length, 'count matches')
+})
+
+test('integrity — data.json spaces carry channels, range and @see refs', () => {
 	const missing = Object.keys(space).filter(n => !meta[n] || !meta[n].channels || !meta[n].range)
 	is(missing, [], 'every space has meta channels + range')
-	// and nothing more: non-space root modules (hub, lite, lut, wasm…) must not leak in
+	// and nothing more: non-space modules (hub, lite, lut, wasm…) must not leak in
 	const bogus = Object.keys(meta).filter(n => !space[n])
 	is(bogus, [], 'every meta key is a registered space')
 	// @see links are extracted into refs (regression: the generator used to drop them)
@@ -67,9 +100,9 @@ test('integrity — meta.js carries channels, range and @see refs per space', ()
 })
 
 // `range` lives twice by design: the object literal serves tree-shaken single-file
-// imports (no meta.js dependency) and generate-types; meta.range is generated from
-// @channel JSDoc. @channel is the source of truth — this pins the literal to it.
-test('integrity — space.range literal matches @channel-derived meta.range', () => {
+// imports (no data.json dependency) and generate-types; data.spaces[n].range is
+// generated from @channel JSDoc — the source of truth. This pins the literal to it.
+test('integrity — space.range literal matches @channel-derived data range', () => {
 	const drift = Object.keys(space).filter(n => JSON.stringify(space[n].range) !== JSON.stringify(meta[n].range))
 	is(drift, [], 'no drift between range literal and @channel')
 })

@@ -23,7 +23,7 @@ const ent = (s, lite) => { const cls = classify(s)
 	</article>` }
 
 export const catHTML = () =>
-	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="tc tnum">(${c.spaces.length})</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">(${c.spaces.length})</span></h2><div class="grid">
+	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="tc tnum">${c.spaces.length}</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">${c.spaces.length}</span></h2><div class="grid">
 	${c.spaces.slice(0, LEADS).map(s => ent(s, false)).join('')}
 </div>${c.spaces.length > LEADS ? `<div class="sheet">
 	${c.spaces.slice(LEADS).map(s => ent(s, true)).join('')}

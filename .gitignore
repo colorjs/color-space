@@ -23,3 +23,11 @@ instances
 *node_modules
 
 bundle*
+/.hallmark
+_site
+
+# generated artifacts — produced by `prepare` (npm install / publish) and CI, never committed
+/data.json
+/dist/
+wasm/binary.js
+types/*.d.ts

@@ -113,6 +113,49 @@ test('lut: apply() speaks native units on both ends', () => {
 	}
 })
 
+test('lut: shaper — camera-log→display at 33³ beats plain 65³; display pairs unharmed', () => {
+	// the shaper is the conversion's own tone diagonal clamped to the target range:
+	// scene-referred sources stop wasting >95% of the lattice on super-range highlights
+	// (which clip at the shaper — the trade a display conversion LUT wants)
+	for (const [f, t, bound] of [['slog3', 'rec709', 3e-2], ['logc4', 'rec2020', 6e-3], ['vlog', 'rec709', 2e-2]]) {
+		const plain = verify(table(space[f], space[t], { size: 33 }))
+		const shaped = verify(table(space[f], space[t], { size: 33, shaper: true }))
+		const p65 = verify(table(space[f], space[t], { size: 65 }))
+		is(shaped.in.max < bound, true, `${f}→${t} shaped 33³ in-range max ${shaped.in.max.toExponential(1)} < ${bound}`)
+		is(shaped.in.max < plain.in.max, true, `beats plain 33³ (${plain.in.max.toExponential(1)})`)
+		is(shaped.in.max < p65.in.max, true, `beats plain 65³ (${p65.in.max.toExponential(1)}) at ⅙ the size`)
+		is(shaped.in.median < plain.in.median, true, `median improves (${plain.in.median.toExponential(1)} → ${shaped.in.median.toExponential(1)})`)
+	}
+	// near-identity tone (display→display): shaper must not hurt
+	const plain = verify(table(space.rgb, space.p3, { size: 33 }))
+	const shaped = verify(table(space.rgb, space.p3, { size: 33, shaper: true }))
+	is(shaped.in.max < plain.in.max * 2, true, `rgb→p3 unharmed (${plain.in.max.toExponential(1)} → ${shaped.in.max.toExponential(1)})`)
+})
+
+test('lut: shaper .cube — Resolve-flavor combined 1D+3D structure', () => {
+	const text = cube(space.slog3, space.rec709, { size: 5, shaper: 64, verify: false })
+	const lines = text.trim().split('\n')
+	const i1 = lines.findIndex((l) => l === 'LUT_1D_SIZE 64')
+	const i3 = lines.findIndex((l) => l === 'LUT_3D_SIZE 5')
+	is(i1 > 0 && i3 > i1, true, 'shaper block precedes the 3D block')
+	is(i3 - i1 - 1, 64, '64 shaper lines between the keywords')
+	is(lines.length - i3 - 1, 125, '5³ lattice lines after LUT_3D_SIZE')
+	is(/Resolve-flavor/.test(text), true, 'header states the flavor (not Adobe-strict/ffmpeg)')
+	// shaper values are a monotone 0..1 tone curve per channel
+	const shaper = lines.slice(i1 + 1, i3).map((l) => l.split(' ').map(Number))
+	for (let c = 0; c < 3; c++) {
+		is(shaper.every((r, j) => !j || r[c] >= shaper[j - 1][c] - 1e-9), true, `ch${c} monotone`)
+		is(shaper[0][c] >= 0 && shaper[63][c] <= 1, true, `ch${c} within 0..1`)
+	}
+	// host semantics reproduce the direct conversion at probe points (apply = shaper→trilinear)
+	const tab = table(space.slog3, space.rec709, { size: 33, shaper: true })
+	for (const v of [[0.2, 0.3, 0.25], [0.5, 0.45, 0.5], [0.55, 0.5, 0.4]]) {
+		const direct = space.slog3.rec709(...v), got = apply(tab, v)
+		for (let c = 0; c < 3; c++)
+			is(Math.abs(got[c] - direct[c]) < 5e-3, true, `apply(${v}) ch${c}: ${got[c].toFixed(4)} ≈ ${direct[c].toFixed(4)}`)
+	}
+})
+
 test('lut: out-of-gamut output is written unclamped', () => {
 	// rec2020 primaries live outside sRGB — the LUT must carry the negative values
 	const tab = table(space.rec2020, space.rgb, { size: 9 })
