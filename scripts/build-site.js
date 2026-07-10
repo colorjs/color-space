@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * Stage the whole site into _site/ — the deployable artifact, built from data.
- * docs/ stays source-only (template, styles, page modules, images); everything
+ * web/ is the site source (template, styles, page modules, images); everything
  * generated (prerendered catalog, 156 reference pages, sitemap/robots/llms) plus
  * the runtime modules the app imports land here. Used identically by local dev
  * (npm run landing → serve _site) and the Pages workflow, so the two can't drift.
  *
- * The staged copy flattens docs/ to the site root, so runtime modules move from
+ * The staged copy flattens web/ to the site root, so runtime modules move from
  * ../ to ./ — the four known import specifiers are rewritten in the STAGED copies
  * only, and each rewrite must hit or the build fails (a renamed import can't
  * silently ship a broken site).
@@ -30,8 +30,8 @@ const rewrite = (file, pairs) => {
 export async function buildSite() {
 	rmSync(site, { recursive: true, force: true })
 	mkdirSync(site, { recursive: true })
-	// sources: the docs/ tree verbatim (index.html template, tokens.css, js/, img/, 404, md notes)
-	cpSync(join(root, 'docs'), site, { recursive: true })
+	// sources: the web/ tree verbatim (index.html template, tokens.css, js/, img/, 404)
+	cpSync(join(root, 'web'), site, { recursive: true })
 	// runtime modules the app imports, placed beside the flattened root
 	for (const f of ['wasm.js', 'lut.js', 'data.json']) cpSync(join(root, f), join(site, f))
 	mkdirSync(join(site, 'dist'), { recursive: true })
@@ -41,8 +41,8 @@ export async function buildSite() {
 	// generated content: prerendered catalog, per-space pages, sitemap, robots, llms
 	const { build } = await import('./generate-landing.js')
 	build(site)
-	// docs/ speaks repo-relative paths; the staged site speaks root-relative —
-	// rewrite AFTER generation (build() re-emits index.html from the docs source)
+	// web/ speaks repo-relative paths; the staged site speaks root-relative —
+	// rewrite AFTER generation (build() re-emits index.html from the web source)
 	rewrite(join(site, 'index.html'), [["'../wasm.js'", "'./wasm.js'"], ["'../lut.js'", "'./lut.js'"]])
 	rewrite(join(site, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../data.json'", "'../data.json'"]])
 	rewrite(join(site, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])

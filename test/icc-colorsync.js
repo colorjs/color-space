@@ -12,7 +12,7 @@ import space from '../index.js'
 import { profile } from '../icc.js'
 
 const probe = spawnSync('sips', ['--help'], { stdio: 'ignore' })
-const img = new URL('../docs/img/wave.jpg', import.meta.url).pathname
+const img = new URL('../web/img/wave.jpg', import.meta.url).pathname
 if (probe.error || probe.status !== 0 || !existsSync(img)) {
 	console.log('icc-colorsync: sips (macOS) not available — skipping the ColorSync host test')
 	process.exit(0)

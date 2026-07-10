@@ -28,7 +28,7 @@ a{ color:var(--ink) }
 /* ── masthead: a plain identity bar — wordmark, search, toggles — that scrolls away
    with the page (no sticky float). The pick affordance is the hue line beneath it. ── */
 .mhead{ background:var(--paper) }
-.mast{ position:relative; display:flex; align-items:baseline; gap:var(--s2); flex-wrap:nowrap; min-height:3.25rem; padding:var(--s2) 0; color:var(--ink) }   /* every text item on one baseline; icons self-centre */
+.mast{ position:relative; display:flex; align-items:baseline; gap:var(--s2); flex-wrap:nowrap; min-height:3.25rem; padding:var(--s4) 0 var(--s2); color:var(--ink) }   /* every text item on one baseline; icons self-centre; extra top pad centres the text against the hue band below */
 .mast .wm,.mast .tagline,.mast .ver,.cx input,.qx input,.qx .qn{ line-height:36px }   /* text line boxes match the icon height, so the shared baseline sits centred in the bar */
 .mast .wm{ flex:none; font-weight:800; font-size:var(--t3); letter-spacing:-.01em }
 .mast .tagline{ font-size:var(--t2); color:var(--soft); white-space:nowrap }
@@ -44,12 +44,12 @@ a{ color:var(--ink) }
 .thm{ border:0; background:none; padding:0; cursor:pointer }
 /* the current color: a diamond swatch (the slider marker, grown up) and a live value input —
    shows hex, accepts anything CSS can parse (#f80, oklch(.7 .2 40), rebeccapurple) */
-.cx{ display:flex; align-items:baseline; gap:var(--s2); min-height:36px; align-self:baseline; cursor:text }
-.cx .cd{ flex:none; align-self:center; width:9px; height:9px; background:var(--c); border:1.2px solid var(--ink); transform:rotate(45deg) }
-.cx input{ width:4.6rem; font:inherit; font-size:var(--t2); font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); background:none; border:0; border-bottom:.2em solid transparent; outline:none; padding:0 }
-.cx input:focus{ border-bottom-color:var(--ink) }
+.cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:calc(var(--s4) + 12.3px); display:flex; align-items:baseline; gap:var(--s2); cursor:text }   /* sits where the spaces column starts; +10.9px lands the input's UA-centred text on the masthead baseline */
+.cx .cd{ flex:none; align-self:center; width:12px; height:12px; background:var(--c); border:1.2px solid var(--ink); transform:rotate(45deg) }
+.cx input{ width:5.4rem; font:inherit; font-size:var(--t2); font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); background:none; border:0; border-bottom:.2em solid var(--hair); outline:none; padding:0 }
+.cx input:hover,.cx input:focus{ border-bottom-color:var(--ink) }
 /* search filters spaces and metadata only; the live color parser is the header value input */
-.qx{ position:relative; display:flex; align-items:baseline; gap:var(--s2); min-height:36px; align-self:baseline; cursor:text }   /* baseline-transparent: the input's baseline joins the masthead's */
+.qx{ position:relative; display:flex; align-items:center; gap:var(--s2); min-height:36px; align-self:center; padding-top:8.6px; cursor:text }   /* inputs ignore line-height (UA centres their editor) — the pad drops the placeholder onto the masthead baseline */
 .qx svg{ flex:none; align-self:center; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
 .qx input{ width:9.5rem; opacity:1; font:inherit; font-size:var(--t2); font-weight:600; color:var(--ink); background:none; border:0; outline:none; padding:0; transition:width var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out) }
 .qx:focus-within input,.qx input:not(:placeholder-shown){ width:14rem; opacity:1 }
@@ -128,6 +128,7 @@ a{ color:var(--ink) }
 .sheet{ margin-top:var(--s3) }   /* the first sheet row breathes below the lead sliders */
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
 @media(max-width:1359px){ .g,.bar,.cat,.introcopy{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
+	.cx{ position:static; top:auto; align-self:baseline }   /* no rail to align to — back into the masthead row */
 	.sec::before{ left:0; right:0 }   /* dividers stay inside the container */
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
 	.shw .c{ font-weight:400; font-size:.8em; color:currentColor; opacity:.42 }   /* bare count, a size down, on the heading's baseline */
@@ -193,12 +194,12 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .cvs{ display:flex; gap:var(--s4); margin-left:auto; flex-shrink:0 }
 .cv{ width:3.1rem; font:inherit; font-size:var(--t2); font-weight:600; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; border-bottom:.2em solid transparent; outline:none; padding:0; text-align:right }   /* underline hugs the digits, weight in em to track the type */
 .ent:hover .cv,.ent:focus-within .cv{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its inputs, half-strength */
-.ent .cv:focus{ border-bottom-color:var(--ink); color:var(--ink) }   /* the focused one at full ink — must outrank the row's half-strength wash */
+.ent .cv:hover,.ent .cv:focus{ border-bottom-color:var(--ink); color:var(--ink) }   /* the pointed/focused one at full ink — must outrank the row's half-strength wash */
 .ent.lite .cvs{ gap:var(--s3) }
 .ent.lite .cv{ width:2.95rem; font-size:var(--t2) }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:var(--t3); font-weight:600; pointer-events:none; opacity:0; transition:opacity var(--dur-micro) var(--ease-out),left var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out) }
+.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:var(--t3); font-weight:600; pointer-events:none; opacity:.45; transition:opacity var(--dur-micro) var(--ease-out),left var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out) }   /* channel letters always on at half strength — hover (or touchless tablets) reads them; hover lifts to full */
 .ch .sy.flip{ transform:translateY(-50%) translateX(1.5rem) }   /* the letter slips just past the marker — a small nudge, not a jump to the far edge */
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
 /* pure gradients at rest — letters surface on hover */
@@ -1093,6 +1094,7 @@ const cdEl=document.getElementById('cd'), cvalEl=document.getElementById('cval')
 if(cvalEl){
 	cvalEl.addEventListener('input',()=>{ const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
 		if(p){ master=p; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
+	cvalEl.addEventListener('focus',()=>requestAnimationFrame(()=>cvalEl.select()))   // first click takes the whole value
 	cvalEl.addEventListener('keydown',e=>{ if(e.key==='Enter') cvalEl.blur() })
 	cvalEl.addEventListener('blur',()=>renderFast())   // settle back to canonical hex
 }
@@ -1287,7 +1289,8 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 			const c=classify(s).ch[i]
 			adopt(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() }
 		inp.addEventListener('pointerdown',e=>e.stopPropagation())
-		inp.addEventListener('click',e=>e.stopPropagation())   // caret lands where clicked — no auto-select
+		inp.addEventListener('click',e=>e.stopPropagation())
+		inp.addEventListener('focus',()=>requestAnimationFrame(()=>inp.select()))   // first click takes the whole number; the next click places the caret
 		inp.addEventListener('input',applyCv)
 		inp.addEventListener('blur',()=>renderFast())
 		inp.addEventListener('change',()=>{ if(open()) paintPlanes(false) })

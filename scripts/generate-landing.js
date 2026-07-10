@@ -3,19 +3,19 @@
 // (crawlable static markup — the page re-renders the identical template on load),
 // one static reference page per space (<name>.html — the 200-status document
 // /<name> deep links and search engines land on; 404.html only catches unknown
-// slugs), sitemap.xml + robots.txt, and llms.txt. docs/ itself stays source-only.
+// slugs), sitemap.xml + robots.txt, and llms.txt. web/ holds the source; docs/ is markdowns.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES } from '../docs/js/render.js'
-import { space, meta, spaceCount, LUTOK } from '../docs/js/core.js'
+import { catHTML, sections, SPACES } from '../web/js/render.js'
+import { space, meta, spaceCount, LUTOK } from '../web/js/core.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
 export function build(out = join(root, '_site')) {
-// ── index.html: static catalog + live counts + version (from the docs/ source) ──
-let html = readFileSync(join(root, 'docs/index.html'), 'utf8')
+// ── index.html: static catalog + live counts + version (from the web/ source) ──
+let html = readFileSync(join(root, 'web/index.html'), 'utf8')
 const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not found: ${re}`); html = html.replace(re, repl) }
 inject(/<main class="cat" id="cat">[\s\S]*?<\/main>/, `<main class="cat" id="cat">${catHTML()}</main>`)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
