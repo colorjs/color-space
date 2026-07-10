@@ -17,8 +17,8 @@
 :root{ --paper:oklch(0.978 0.003 92); --panel:oklch(0.952 0.005 92); --ink:oklch(0.17 0.01 60); --soft:oklch(0.52 0.01 62);
 	--hair:oklch(0.17 0.01 60/.12); --ghost:oklch(0.76 0.008 62); --body:oklch(0.34 0.012 62);
 	--dark:#1b1408; --c:#ef7a4a; --lift:#fff; --f:"Inter",system-ui,sans-serif; color-scheme:light }
-[data-theme=dark]{ --paper:oklch(0.185 0.008 70); --panel:oklch(0.243 0.01 70); --ink:oklch(0.93 0.005 85); --soft:oklch(0.62 0.012 78);
-	--hair:oklch(0.93 0.005 85/.15); --ghost:oklch(0.41 0.012 70); --body:oklch(0.79 0.01 80); --lift:oklch(0.24 0.01 70); color-scheme:dark }
+[data-theme=dark]{ --paper:oklch(0.185 0.01 255); --panel:oklch(0.243 0.012 255); --ink:oklch(0.93 0.005 255); --soft:oklch(0.62 0.012 255);
+	--hair:oklch(0.93 0.005 255/.15); --ghost:oklch(0.41 0.012 255); --body:oklch(0.79 0.008 255); --lift:oklch(0.24 0.012 255); color-scheme:dark }
 *{ box-sizing:border-box; margin:0 }
 ::selection{ background:var(--ink); color:var(--paper) }
 body{ font-family:var(--f); font-size:16px; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased }
@@ -40,6 +40,8 @@ a{ color:var(--ink) }
 .mhead{ background:var(--paper) }
 .mast{ position:relative; display:flex; align-items:center; gap:var(--s3) var(--s4); flex-wrap:wrap; padding:var(--s3) 0 var(--s4); color:var(--ink) }
 .mast .wm{ font-weight:800; font-size:var(--t3); letter-spacing:-.01em }
+.mast .tagline{ font-size:var(--t1); color:var(--soft); white-space:nowrap }
+@media(max-width:760px){ .mast .tagline{ display:none } }
 .mast .sp{ flex:1 }
 /* the hue line: a thin spectrum you click to pick a hue — not a slider, just the
    header's coloured border. The catalog itself shows the current colour. */
@@ -49,12 +51,10 @@ a{ color:var(--ink) }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh{ display:flex; align-self:center; color:var(--ink) }
 .mast .gh:hover{ color:var(--c) }
-.mast #thm,.mast .gh{ margin-left:calc(var(--s2)*-1) }   /* pair the toggles (sliders · theme) and the repo pair (version · github) */
+.mast #thm{ margin-left:calc(var(--s2)*-1) }   /* pair the funnel · theme toggles */
 .thm{ border:0; background:none; padding:var(--s1); color:var(--ink); cursor:pointer; display:flex; align-self:center }
 .thm:hover{ color:var(--c) }
 /* the all-sliders toggle — the mixer icon laid horizontal, lit while active */
-.allsb{ color:var(--soft) }
-.allsb[aria-pressed="true"]{ color:var(--ink) }
 /* search filters spaces and metadata only; the live color parser is the header value input */
 .qx{ display:flex; align-items:center; gap:var(--s2); align-self:center; cursor:text }
 .qx svg{ flex:none; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
@@ -62,6 +62,7 @@ a{ color:var(--ink) }
 .qx:focus-within input,.qx input:not(:placeholder-shown){ width:14rem; opacity:1 }
 .qx .qn{ font-size:var(--t1); font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
 .qx input:placeholder-shown ~ .qn{ display:none }
+.qx.flt input:placeholder-shown ~ .qn{ display:inline }   /* tag filters active: the match count shows even with an empty query */
 /* the tag picker beside search — chips AND-filter the catalog */
 .tagf{ position:relative; align-self:center }
 .tfb{ color:var(--soft) } .tfb.on,.tfb:hover{ color:var(--ink) }
@@ -70,32 +71,37 @@ a{ color:var(--ink) }
 .tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
+.tfp .tsep{ border:0; border-top:1px solid var(--hair); margin:var(--s1) 0 }   /* filters above, view options below */
 .tfp .tag{ border:0; cursor:pointer }
 .tfp .tag.on{ background:var(--ink); color:var(--paper) }
 /* first-time orientation: the instrument should explain itself before the grid starts */
-.introcopy{ padding:clamp(1rem,2.2vw,1.6rem) clamp(1rem,3vw,2.2rem) .9rem; }
+.introcopy{ position:relative; display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap); padding:clamp(var(--s12),5vw,4rem) clamp(1rem,3vw,2.2rem) clamp(var(--s8),4vw,var(--s12)) }   /* the hero: copy on the spaces' own left line */
+.introcopy>div{ grid-column:2; min-width:0 }
+.introcopy::before{ content:''; position:absolute; top:0; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); height:1px; background:var(--hair) }
 .introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
 .introcopy p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
 .introcopy em{ white-space:nowrap }
-.trust{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s2); list-style:none; margin:var(--s4) 0 0; padding:0; font-size:var(--t2); font-weight:600; letter-spacing:.02em; color:var(--soft) }
-.trust li{ display:inline-flex; align-items:center; gap:.4em; background:var(--panel); border-radius:999px; padding:var(--s2) var(--s3); line-height:1.1; white-space:nowrap }
-.trust svg{ flex:none; width:14px; height:14px; opacity:.72 }
+/* trust marks as solid ink pills */
+.trust{ display:flex; flex-wrap:wrap; gap:var(--s2); list-style:none; margin:var(--s6) 0 0; padding:0; font-size:var(--t2); font-weight:600; letter-spacing:.02em }
+.trust li{ display:inline-flex; align-items:center; gap:.45em; line-height:1.1; white-space:nowrap; background:var(--ink); color:var(--paper); border-radius:999px; padding:var(--s2) var(--s3) }
+.trust svg{ flex:none; width:14px; height:14px; opacity:.8 }
 .quick{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2); flex-wrap:wrap }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
 @media(max-width:560px){ .qx input{ width:0; opacity:0 } .qx:focus-within input,.qx input:not(:placeholder-shown){ width:10.5rem; opacity:1 } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
-   reading blocks (.g: api, recipes, about) stay in a centered measure for readability */
+   reading blocks (.g: api, about) stay in a centered measure for readability */
 .g,.fw,.cat{ padding-left:clamp(1rem,3vw,2.2rem); padding-right:clamp(1rem,3vw,2.2rem) }
 /* reading blocks share the spaces' grid: rail gutter + content filling the rest of the
    (now capped) measure, so the rail sits right beside the content — text kept narrow */
 .g{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
+.g[hidden]{ display:none }
 .g>section{ grid-column:2; justify-self:start; max-width:64rem; min-width:0 }
+#api{ max-width:none; justify-self:stretch }   /* the API reference uses the whole content area */
 /* rail takes its fixed width on the left; the spaces centre in the space that remains,
    not on the screen — so they don't read as shoved right of the categories */
 .cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
-.cat::before{ content:''; grid-column:1/-1; height:1px; background:var(--hair) }   /* the divider above the spaces, after the hero — same span as every section divider */
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative }
@@ -113,11 +119,11 @@ a{ color:var(--ink) }
 .sec{ position:relative; padding:var(--s6) 0 var(--s8); scroll-margin-top:3.4rem }
 /* the divider runs from the category name in the rail across to the content's right edge */
 .sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railw) + var(--railgap))); right:0; height:1px; background:var(--hair) }
-.sec:first-of-type{ padding-top:var(--s6) } .sec:first-of-type::before{ display:none }
+.sec:first-of-type{ padding-top:var(--s8) } .sec:first-of-type::before{ display:none }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
 .sheet{ margin-top:var(--s3) }   /* the first sheet row breathes below the lead sliders */
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
-@media(max-width:1024px){ .g,.bar,.cat{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
+@media(max-width:1024px){ .g,.bar,.cat,.introcopy{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.sec::before{ left:0; right:0 }   /* dividers stay inside the container */
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
 	.shw .c{ font-weight:700; color:currentColor; opacity:.42 }   /* same size as the heading, pushed to the right edge */
@@ -135,6 +141,16 @@ a{ color:var(--ink) }
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 .grid>.ent{ padding-bottom:var(--s2) }
 .sheet>.ent.lite{ padding-top:var(--s1) }
+/* hydrated masonry: entry k -> column k%C, so each column flows independently and a
+   4-channel lead (cmyk) can't push its neighbours' sheet rows down */
+.gcols{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }
+@media(max-width:960px){ .gcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
+@media(max-width:640px){ .gcols{ grid-template-columns:1fr } }
+.gcol{ display:flex; flex-direction:column; min-width:0 }
+.gcol>.ent:not(.lite){ padding-bottom:var(--s2) }
+.gcol>.ent.lite{ padding-top:var(--s1) }
+.gcol>.ent:not(.lite)+.ent.lite{ margin-top:var(--s3) }   /* the first sheet row breathes below a lead */
+body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /* sliders only on column-top leads */
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color .14s ease, opacity .14s ease, filter .14s ease }
 .ent:hover,.ent:focus-within{ background:transparent }
@@ -173,7 +189,7 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
    can't drag the dim along and reveal uncovered content at the edges */
 .modal{ position:fixed; inset:0; z-index:20; overflow-y:auto; overscroll-behavior:contain }
 body.mopen::before{ content:''; position:fixed; inset:0; z-index:19; background:oklch(0.17 0.01 60/.42) }
-[data-theme=dark] body.mopen::before{ background:oklch(0.06 0.005 70/.6) }
+[data-theme=dark] body.mopen::before{ background:oklch(0.06 0.005 255/.6) }
 @media(min-width:641px){ body.mopen .page,body.mopen .ftr{ filter:blur(10px) } }
 .modal[hidden]{ display:none }
 .mbox{ position:relative; width:min(56rem,94vw); margin:5vh auto; background:var(--paper); display:flex; overflow:hidden }   /* the 3d canvases bleed past their box for rotation headroom — the panel is the clip */
@@ -255,7 +271,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d{ position:relative; width:100%; aspect-ratio:1; cursor:grab; touch-action:none; align-self:center; overflow:hidden }
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
-.pl3d canvas{ position:absolute; left:-18%; top:-25%; display:block; width:136%; height:136%; pointer-events:none }   /* more top bleed lifts the solid, freeing the bottom axis labels */
+.pl3d canvas{ position:absolute; left:-18%; top:-22%; display:block; width:136%; height:136%; pointer-events:none }   /* top bleed balances flipped views against the bottom axis labels */
 .pl3d .grid3{ z-index:0 }
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
@@ -277,8 +293,6 @@ h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; co
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); cursor:pointer }
 .irow{ position:relative; height:3rem }
-h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:var(--t2); font-weight:400; color:var(--ink); display:inline-flex; align-items:baseline; gap:var(--s2) }
-.iend .isw{ width:1rem; height:1rem; align-self:center; border:1px solid var(--hair); padding:0; cursor:pointer }
 .irow::after{ content:''; position:absolute; right:0; top:0; bottom:0; width:20%; cursor:pointer }   /* the endpoint zone — click opens the picker */
 .irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:var(--t0); font-weight:700; cursor:pointer; z-index:2 }
 .iduel{ display:flex; flex-direction:column; gap:var(--s2); margin-top:var(--s2) }   /* same breathing room as plots and images */
@@ -338,8 +352,10 @@ h4.sec2 .iend{ text-transform:none; letter-spacing:0; font-size:var(--t2); font-
    the same width as the catalog's section dividers — laid as a grid item so it stays
    inside the container padding */
 main+.g::before{ content:''; grid-column:1/-1; height:1px; background:var(--hair) }
-main+.g .about{ border-top:0 }
+.introcopy+.g::before{ content:''; grid-column:2; height:1px; background:var(--hair) }   /* starts at the text, not the rail */
+main+.g .about,.introcopy+.g .about{ border-top:0 }
 .about h2{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em; margin-bottom:var(--s2) }
+.g>.gh2{ grid-column:1; margin:0; padding-top:clamp(1.6rem,4vw,3rem); font-size:var(--s6); font-weight:800; letter-spacing:-.02em; line-height:1 }   /* the rail voice, a size up; top pad matches the section's own */
 .about p{ font-size:var(--t3); line-height:1.65; color:var(--body); max-width:66ch }
 .about p+p{ margin-top:var(--s2) }
 pre{ font-family:ui-monospace,Menlo,monospace; font-size:var(--t2); line-height:1.7; background:var(--panel); padding:var(--s4) var(--s6); overflow-x:auto; scrollbar-width:thin; scrollbar-color:transparent transparent }
@@ -356,8 +372,6 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow button:hover{ color:var(--ink) }
 .tabrow button.on{ color:var(--ink); border-bottom-color:var(--c) }
 /* Recipes — four snippets in a real 2×2 */
-.recgrid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--s4) }
-.recgrid pre{ margin:0; min-width:0 }
 /* Not here — full width, flowing into two readable columns */
 .about.declined p.lede{ max-width:72ch; margin-bottom:var(--s4) }
 .dcols{ columns:2; column-gap:var(--s12) }
@@ -374,58 +388,36 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 .ftr{ margin-top:var(--s12); --fh:clamp(13rem,30vh,18rem); position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column }
 .fgrad{ position:absolute; inset:0; z-index:0 }
 .fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.46; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
-.fov{ position:relative; z-index:2; flex:1; display:flex; align-items:flex-end }
-.fwrap{ width:100%; max-width:64rem; margin:0 auto; padding:clamp(2rem,5vw,3.5rem) clamp(1rem,3vw,2.2rem) 1.55rem; display:flex; align-items:flex-start; gap:clamp(1.9rem,4vw,3.8rem) }
-.fcol{ display:flex; flex-direction:column; gap:var(--s1) }
-.fcol a{ color:var(--fi0,#1b1408); text-decoration:none; width:max-content; font-size:var(--t2); line-height:1.35; padding:var(--s1) 0; opacity:.78; transition:opacity .15s,color .15s }
-.fcol a:hover{ opacity:1; text-decoration:underline; text-underline-offset:3px }
-.legal{ margin-left:auto; align-self:flex-end; display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s2); max-width:30rem; color:var(--fi1,#fff); font-size:var(--t2); line-height:1.45; text-align:right; font-variant-numeric:tabular-nums }
-.legal a{ color:inherit; text-decoration:none }
+.fov{ position:relative; z-index:2; flex:1; display:flex; align-items:stretch }
+.fwrap{ position:relative; width:100%; padding:var(--s6) clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
+.legal{ position:absolute; left:0; right:0; bottom:var(--s6); display:flex; justify-content:center; align-items:baseline; gap:var(--s2); color:var(--dark); font-size:var(--t2); line-height:1.4; text-align:center; font-variant-numeric:tabular-nums }
+.legal a{ color:inherit; text-decoration:none } .legal .dot{ opacity:.56 }
 .legal a:hover{ text-decoration:underline; text-underline-offset:3px }
-.legal .credit{ opacity:.78 }
-.legal .proof::before,.legal .lic::before{ content:'·'; margin-right:var(--s2); opacity:.56 }
-.legal .lic{ white-space:nowrap }
 .legal .om{ font-size:var(--t3) }
 /* the npm command, a black plate where the logo used to sit */
-.fnpm{ font:inherit; font-family:ui-monospace,Menlo,monospace; font-size:var(--t2); font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:var(--s2) var(--s4); cursor:copy; display:inline-flex; align-items:center; gap:var(--s2); align-self:flex-start }
+.fnpm{ font:inherit; font-family:ui-monospace,Menlo,monospace; font-size:var(--t3); font-weight:600; color:#fff; background:#0c0c0c; border:0; padding:var(--s2) var(--s6); margin-bottom:var(--s8); cursor:copy; display:inline-flex; align-items:center; gap:var(--s2) }   /* the bottom margin floats it a touch above centre */
 .fnpm i{ font-style:normal; color:#9a9a9a; font-size:.9em }
 .fnpm:hover i{ color:var(--c) }
-.fnpm .cmd{ display:inline-block; overflow:hidden; white-space:nowrap; width:18ch; border-right:.5ch solid transparent }
-.fnpm.typing .cmd{ animation:ftype 1s steps(18,end) .25s both, fcaret .8s step-end .25s 4 }
-@keyframes ftype{ from{ width:0 } to{ width:18ch } }
-@keyframes fcaret{ 0%,100%{ border-right-color:#9a9a9a } 50%{ border-right-color:transparent } }
+.fnpm .cmd{ display:inline-block; overflow:hidden; white-space:nowrap; box-sizing:content-box; width:23ch; border-right:.5ch solid transparent }   /* content-box: the caret border must not eat the last glyph */
+.fnpm.typing .cmd{ animation:ftype 1.2s steps(23,end) .25s both, fcaret 1.1s step-end .25s infinite }
+@keyframes ftype{ from{ width:0 } to{ width:23ch } }
+@keyframes fcaret{ 0%,100%{ border-right-color:#9a9a9a } 55%{ border-right-color:transparent } }
 @media(prefers-reduced-motion:reduce){ .fnpm.typing .cmd{ animation:none } }
-@media(max-width:640px){ .fwrap{ flex-wrap:wrap; gap:var(--s4) var(--s6) } .legal{ margin-left:0; width:100%; justify-content:flex-start; text-align:left } }
-@media(max-width:640px){ .recgrid{ grid-template-columns:1fr } .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mnav{ top:auto; bottom:.8rem; transform:none; padding:var(--s3); color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
+@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100vw; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper) } .mnav{ top:auto; bottom:.8rem; transform:none; padding:var(--s3); color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav.prev{ left:.8rem!important } .mnav.next{ left:auto!important; right:.8rem!important } .mnav .mn{ display:none } }
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
 <div class="page">
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
+	<span class="tagline tnum"><span id="n">156</span> spaces</span>
 	<span class="sp"></span>
-	<label class="qx" title="search spaces, channels, uses (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
-	<div class="tagf"><button class="thm tfb" id="tfb" title="filter by tags" aria-label="filter spaces by tags"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
-	<button class="thm allsb" id="allsb" aria-pressed="false" title="sliders for every space"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="transform:rotate(90deg)"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
+	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
+	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </header><div class="hueline" id="hueline" title="pick a hue"></div></div>
-
-<section class="introcopy" aria-labelledby="introcopy-title">
-	<div>
-		<h2 id="introcopy-title">Any color space.</h2>
-		<p>Web, print, film, broadcast, art, science, history. Canonical formulas, real ranges, gamut shapes, metadata, unified API.
-		Convert any of <span id="n2">156</span> to any other: <em>rgb to oklch</em>, <em>rgb to cmyk</em>, <em>slog3 to rec709</em>, <em>kelvin to rgb</em>.
-		<ul class="trust" aria-label="trust factors">
-			<li title="differentially tested against colorjs.io and the source papers"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Verified</li>
-			<li title="nothing in node_modules but this"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"/><path d="M3.3 7l8.7 5 8.7-5M12 22V12"/></svg>0 deps</li>
-			<li title="ES modules — import one space ≈ 2 kB"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L7 10h3l-4 6h12l-4-6h3z"/><path d="M12 16v5"/></svg>Tree-shakeable</li>
-			<li title="the same conversions in three runtimes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>JS · GLSL · WASM</li>
-			<li title="MIT — one permission line, free forever"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>MIT</li>
-		</ul>
-	</div>
-</section>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web<span class="tc tnum">(19)</span></button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical<span class="tc tnum">(9)</span></button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern<span class="tc tnum">(12)</span></button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic<span class="tc tnum">(15)</span></button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision<span class="tc tnum">(14)</span></button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast<span class="tc tnum">(11)</span></button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera<span class="tc tnum">(36)</span></button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models<span class="tc tnum">(15)</span></button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical<span class="tc tnum">(7)</span></button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research<span class="tc tnum">(7)</span></button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw">Display & web<span class="c tnum">(19)</span></h2><div class="grid">
 	<article class="ent" data-s="rgb">
@@ -941,9 +933,8 @@ pre b{ color:color-mix(in oklab,var(--c) 70%,var(--ink)) } pre i{ font-style:nor
 	</article>
 </div></section></div></main>
 
-<div class="g"><section class="about api" id="api">
-	<h2>API</h2>
-	<p>One object, every pair wired: <code>space[from][to](…values)</code> — plain numbers in each space's conventional ranges, a plain array back. No classes, no parsing, no state.</p>
+
+<div class="g" hidden><h2 class="gh2">API</h2><section class="about api" id="api">
 	<div class="tabs" id="apitabs">
 		<div class="tabrow" role="tablist"><button class="on" data-p="core">core</button><button data-p="meta">meta</button><button data-p="wasm">wasm</button><button data-p="gl">gl</button></div>
 		<pre data-p="core"><b>import</b> space <b>from</b> 'color-space'
@@ -978,32 +969,26 @@ space.rgb.oklch(buf)     <i>// in place, zero-copy — 27 spaces</i></pre>
 	</div>
 </section></div>
 
-<div class="g"><section class="about recipes" id="recipes">
-	<h2>Recipes</h2>
-	<div class="recgrid">
-		<pre><i>// to a CSS string — oklch / lab / hsl need no massaging</i>
-<b>const</b> [l, c, h] = space.rgb.oklch(255, 128, 0)   <i>// [0.73, 0.19, 53]</i>
-el.style.color = `oklch(${l} ${c} ${h})`</pre>
-		<pre><i>// an even gradient: step through OKLab, not sRGB</i>
-<b>const</b> A = space.rgb.oklab(224, 32, 32)
-<b>const</b> B = space.rgb.oklab(32, 96, 224)
-<b>const</b> stops = Array.from({length: 7}, (_, i) =&gt;
-  space.oklab.rgb(...A.map((v, k) =&gt; v + (B[k] - v) * i / 6)))</pre>
-		<pre><i>// does an OKLCH colour fit sRGB? linear-RGB must stay in [0, 1]</i>
-<b>const</b> lin = space.oklch.lrgb(0.65, 0.25, 180)
-<b>const</b> inSRGB = lin.every(v =&gt; v &gt;= 0 &amp;&amp; v &lt;= 1)   <i>// false — too saturated</i></pre>
-		<pre><i>// on-set to delivery: S-Log3 footage → a Rec.2020 master</i>
-space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre>
+<section class="introcopy" aria-labelledby="introcopy-title">
+	<div>
+		<h2 id="introcopy-title">Any color space.</h2>
+		<p>Web, print, film, broadcast, art, science, history. Canonical formulas, real ranges, gamut shapes, metadata, unified API.
+		Convert any of <span id="n2">156</span> to any other: <em>rgb to oklch</em>, <em>rgb to cmyk</em>, <em>slog3 to rec709</em>, <em>kelvin to rgb</em>.
+		<ul class="trust" aria-label="trust factors">
+			<li title="differentially tested against colorjs.io and the source papers"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Verified</li>
+			<li title="nothing in node_modules but this"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"/><path d="M3.3 7l8.7 5 8.7-5M12 22V12"/></svg>0 deps</li>
+			<li title="ES modules — import one space ≈ 2 kB"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L7 10h3l-4 6h12l-4-6h3z"/><path d="M12 16v5"/></svg>Tree-shakeable</li>
+			<li title="the same conversions in three runtimes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>JS · GLSL · WASM</li>
+			<li title="MIT — one permission line, free forever"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>MIT</li>
+		</ul>
 	</div>
-</section></div>
+</section>
 
 <div class="g"><section class="about declined" id="declined">
-	<h2>Skipped</h2>
-	<p class="lede">A space is skipped only when nothing open can define it — no redistributable data, no published formula, or no working inverse. Everything else ships, however old.</p>
+	<h2>Not included</h2>
 	<div class="dcols">
 		<p><b>Licensed swatch catalogs</b> — <a href="https://www.pantone.com/" rel="nofollow">Pantone®</a>, <a href="https://ncscolour.com/" rel="nofollow">NCS®</a>, <a href="https://www.ral-farben.de/" rel="nofollow">RAL Classic</a>, <a href="https://www.hks-farben.de/" rel="nofollow">HKS®</a>, <a href="http://mytoyocolor.com/" rel="nofollow">Toyo</a>, British Standard — are defined by physical printed swatches and trademarked; their CIE measurements aren't openly redistributable, so there's nothing lawful to convert against (the official sites hold the authoritative values).</p>
 		<p><b>Atlas systems</b> — <a href="https://en.wikipedia.org/wiki/DIN_6164">DIN 6164</a>'s constant-hue loci were only ever published as paywalled DIN data sheets, so nothing open defines it. (<a href="https://en.wikipedia.org/wiki/Ostwald_color_system">Ostwald</a> <i>ships</i>: its ideal system — full colours as optimal semichromes — is pure mathematics over the CIE observer, no atlas needed.)</p>
-		<p><b>Historical spaces</b> — CIE RGB (1931), Ostwald, Hunt, Nayatani 95, LLAB, ATD95, NTSC (1953), S-Log 1, REDLog, Panalog, ViperLog, RYB, ANLAB — <i>are</i> shipped as working history, tagged “historical” in their dossier.</p>
 	</div>
 </section></div>
 </div>
@@ -1012,22 +997,8 @@ space.slog3.rec2020(0.41, 0.41, 0.41)   <i>// → [0.408, 0.408, 0.408]</i></pre
 	<div class="fgrad" id="fgrad"></div>
 	<div class="fov">
 		<div class="fwrap">
-			<button class="fnpm" id="fnpm" title="copy"><i>❯</i><span class="cmd">npm i color-space</span></button>
-			<nav class="fcol" aria-label="site">
-				<a href="#cat">spaces</a>
-				<a href="#api">api</a>
-				<a href="#recipes">recipes</a>
-			</nav>
-			<nav class="fcol" aria-label="project">
-				<a href="https://github.com/colorjs/color-space">github</a>
-				<a href="https://npmjs.org/color-space">npm</a>
-				<a href="https://github.com/colorjs/color-space/issues/new">issues</a>
-				<a href="./llms.txt">llms.txt</a>
-			</nav>
-			<div class="legal">
-				<span class="proof"><span id="n">156</span> spaces · differentially tested · zero dependencies</span>
-				<span class="lic"><a href="https://github.com/colorjs/color-space/blob/master/license.md">MIT</a> <span class="dot">·</span> <span class="om">ॐ</span></span>
-			</div>
+			<button class="fnpm" id="fnpm" title="copy"><i>❯</i><span class="cmd">npm install color-space</span></button>
+			<div class="legal"><a href="https://github.com/sponsors/dy">Support ♥</a> <span class="dot">·</span> <a href="https://github.com/colorjs/color-space/blob/master/license.md">MIT</a> <span class="dot">·</span> <a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></div>
 		</div>
 	</div>
 </footer>
@@ -1243,12 +1214,11 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 
 // sheet rows show sliders only when the settings toggle says so
 let ALLS=false; try{ ALLS=localStorage.csAll==='1' }catch{}
-const allsb=document.getElementById('allsb')
 const setAlls=v=>{ ALLS=v; try{ localStorage.csAll=ALLS?'1':'0' }catch{}
-	document.body.classList.toggle('alls',ALLS); allsb.setAttribute('aria-pressed',ALLS)
+	document.body.classList.toggle('alls',ALLS)
+	document.getElementById('vall')?.classList.toggle('on',ALLS)
 	paintCatalogGrad(); renderFast(); layoutToc() }
-document.body.classList.toggle('alls',ALLS); allsb.setAttribute('aria-pressed',ALLS)
-allsb.onclick=()=>setAlls(!ALLS)
+document.body.classList.toggle('alls',ALLS)
 
 // search — `/` focuses it from anywhere
 addEventListener('keydown',e=>{ if(e.key==='/'&&!open()&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){ e.preventDefault(); document.getElementById('q').focus() } })
@@ -1275,18 +1245,38 @@ function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(
 		markName(ent,hit&&q?q:null) })
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
 		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
-	layoutToc(); trackAct(); nq.textContent=(q||any)?shown:'' }
+	layoutToc(); trackAct(); nq.textContent=(q||any)?shown:SPACES.length
+	qInput.closest('.qx').classList.toggle('flt',any) }
 qInput.addEventListener('input',applyFilter)
 // facet picker beside search
 ;(()=>{ const tfb=document.getElementById('tfb'), tfp=document.getElementById('tfp'); if(!tfb) return
 	const vals=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
 	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
-	tfp.querySelectorAll('button').forEach(b=>b.onclick=()=>{ const fi=+b.dataset.f, t=b.dataset.t
+		+`<hr class="tsep"><div class="frow"><i>view</i><span class="fchips"><button class="tag" id="vall" title="unfold the channel sliders on every space, not just the lead row">all sliders</button></span></div>`
+	tfp.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{ const fi=+b.dataset.f, t=b.dataset.t
 		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
 		b.classList.toggle('on',act[fi].has(t)); tfb.classList.toggle('on',act.some(a=>a.size))
 		applyFilter() })
+	const vall=document.getElementById('vall'); vall.classList.toggle('on',ALLS); vall.onclick=()=>setAlls(!ALLS)
 	tfb.onclick=()=>{ tfp.hidden=!tfp.hidden }
 	addEventListener('pointerdown',e=>{ if(!tfp.hidden&&!e.target.closest('.tagf')) tfp.hidden=true }) })()
+
+// ── masonry hydration: the prerendered .grid/.sheet rows become per-column stacks ──
+const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:960px)')]
+const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3
+function colize(){ const C=colCount()
+	cat.querySelectorAll('.sec').forEach(sec=>{
+		const ents=[...sec.querySelectorAll('.ent')]; if(!ents.length) return
+		let box=sec.querySelector('.gcols')
+		if(box&&+box.dataset.c===C) return
+		if(!box){ box=document.createElement('div'); box.className='gcols'; sec.querySelector('.grid').before(box) }
+		box.dataset.c=C
+		const cols=Array.from({length:C},()=>{ const c=document.createElement('div'); c.className='gcol'; return c })
+		ents.forEach((e,k)=>cols[k%C].append(e))   // row-major: today's reading order, independent columns
+		box.replaceChildren(...cols)
+		sec.querySelectorAll(':scope>.grid,:scope>.sheet').forEach(x=>x.remove()) })
+	try{ layoutToc(); trackAct() }catch{} }
+colize(); COLQ.forEach(q=>q.addEventListener('change',colize))
 
 // ── modal dossier ──
 const modal=document.getElementById('modal'), detail=document.getElementById('detail')
@@ -1834,7 +1824,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	if(mv&&pts3Map){ markerN=pts3Map(mv); mcur=RGB() }
 	// fit to the spawn rotation: solid and frame open filling the box; other rotations
 	// and the wheel draw into the canvas bleed instead of trimming
-	const scale3=0.7/mesh3.f0, sc=S2*scale3/2
+	const scale3=0.66/mesh3.f0, sc=S2*scale3/2
 	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
@@ -1993,7 +1983,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			if(hi-lo>1e-6&&(up||dn)) tcurve={pts,lo,hi,ylab:percept?cls.tone.sym:'code'} } }catch{} }
 	const has3d=cls.ch.length===3&&s!=='dsh'   // dsh: wavelength+purity has no faithful box/cylinder embedding
 	const visualHTML=has3d||hasPlaneGL(s)||tcurve?`<div class="dviz2">${has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch in the channels section; drag to rotate"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''}${hasPlaneGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':'RGB-model spaces map every channel through this same curve.'}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
-	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<span class="iend" id="iend" style="margin-left:auto" title="the blend endpoint — click to pick"><button class="isw" id="isw" aria-label="pick the endpoint color"></button></span></h4>
+	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}</h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
 	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
 	const barHTML=i=>{ const c=cls.ch[i]
@@ -2087,8 +2077,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const irow=detail.querySelector('#irow'), pinb=detail.querySelector('#pinb')
 	if(irow) irow.onclick=e=>{ const r=irow.getBoundingClientRect()
 		if((e.clientX-r.left)/r.width>0.8&&!e.target.closest('.hp')) pinb.click() }
-	const isw=detail.querySelector('#isw')
-	if(isw) isw.onclick=()=>pinb.click()
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
@@ -2468,7 +2456,6 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			for(let k=0;k<=14;k++) stops.push(hex(mixAt(k/14)))
 			css=`linear-gradient(90deg, ${stops.join(',')})` }
 		r.style.background=css
-		const sw=detail.querySelector('#isw'); if(sw) sw.style.background=hex(rgbB)
 		// the duel: the SAME endpoints through the reference spaces
 		const duel=detail.querySelector('#iduel')
 		if(duel) for(const row of duel.querySelectorAll('.ird')){ const kind=row.dataset.r, lb=row.querySelector('i')
@@ -2559,9 +2546,7 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 		panes.forEach(x=>x.hidden=x.dataset.p!==p) }) })()
 
 // ── the coloroid sweep (hue A across, luminosity descending) — the footer wall AND the
-// hero stage share it. The footer stack cuts through QSTEPS; the hero sweeps the band
-// count continuously (see heroQuant). Tweak QSTEPS for the footer's discrete tiers. ──
-const QSTEPS=[0,55,34,21,13,8]   // footer stack tiers — 0 = smooth base, then fewer bands
+// hero stage share it. The footer glides its band count continuously with scroll. ──
 const coloroidCol=f=>hex(rgbF('coloroid',[10+66*f, 55, 92-80*f]))
 // precompute the sweep once so rebuilding an N-band gradient is just N lookups + a join
 const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math.round(clamp(f,0,1)*768)]
@@ -2577,24 +2562,36 @@ const GRAY=rgbF('oklch',[0.72,0,0]).map(v=>clamp(Math.round(v),0,255))
 	pg.setProperty('--igray',GRAY.join(',')) })()
 const ftrEl=document.getElementById('ftr'), fgrad=document.getElementById('fgrad'), fov=document.querySelector('.fov')
 // overlay ink per side, from the wall's own ends (same inversion as the sliders)
-fov.style.setProperty('--fi0',ink(rgbF('coloroid',[12,55,88])))
-fov.style.setProperty('--fi1',ink(rgbF('coloroid',[74,55,16])))
 // the wall is the smooth sweep the whole way down — no quantization on the approach and
 // no extra scroll added. Only once you hit the very end (footer fully in view) does more
 // downward scroll quantize it a tier at a time, the page held fixed at the bottom;
 // scrolling back up releases it to smooth again. No gap, footer stays put.
-let flvl=0, facc=0
-const paintFq=()=>{ fgrad.style.background=coloroidGrad(QSTEPS[flvl]) }
-const setFq=v=>{ v=clamp(v,0,QSTEPS.length-1); if(v!==flvl){ flvl=v; paintFq() } }
+// the footer wall: scroll sets the QUANTIZATION (band count glides 72→8 with extra
+// scroll at the very end, fully reversible) while the sweep itself slide-animates
+// beneath the FIXED band grid — reflected sampling, so the endless drift has no seam
+let fp=0, fph=0
+const FQTRAVEL=1500   // wheel units for the full quantization glide
+const fsamp=f=>{ const t=(f+fph)%2; return t<=1?t:2-t }
+const paintFq=()=>{ if(fp<=0&&!fph){ fgrad.style.background=coloroidGrad(0); return }
+	if(fp<=0){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(fsamp(k/64)))
+		fgrad.style.background=`linear-gradient(90deg, ${st.join(',')})`; return }
+	const n=Math.round(72-(72-8)*fp)
+	const st=[]; for(let k=0;k<n;k++) st.push(clut(fsamp((k+0.5)/n)))
+	fgrad.style.background=stepped(st) }
 paintFq()
+// the drift runs only while the footer is on screen (and never under reduced motion)
+let fraf=0
+const FDRIFT=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.00045
+const fstep=()=>{ fraf=0; if(!FDRIFT) return
+	fph=(fph+FDRIFT)%2; paintFq(); fraf=requestAnimationFrame(fstep) }
+new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ if(!fraf&&FDRIFT) fraf=requestAnimationFrame(fstep) } else if(fraf){ cancelAnimationFrame(fraf); fraf=0 } })).observe(ftrEl)
 addEventListener('wheel',e=>{
 	const atEnd=Math.ceil(scrollY+innerHeight)>=document.documentElement.scrollHeight-1
-	if(!atEnd){ if(flvl){ facc=0; setFq(0) } return }
-	if(e.deltaY>0){ if(flvl<QSTEPS.length-1){ e.preventDefault(); facc+=e.deltaY
-			if(facc>=110){ facc=0; setFq(flvl+1) } } }
-	else if(e.deltaY<0&&flvl){ facc=0; setFq(0) }   // any scroll-up snaps back to smooth (and scrolls the page)
+	if(!atEnd){ if(fp){ fp=0; paintFq() } return }
+	if(e.deltaY>0? fp<1 : fp>0){ e.preventDefault()
+		fp=clamp(fp+e.deltaY/FQTRAVEL,0,1); paintFq() }
 },{passive:false})
-document.getElementById('fnpm').onclick=()=>copy('npm i color-space')
+document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 // terminal buttons type themselves in when they scroll into view
 const typeObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('typing'); typeObs.unobserve(e.target) } }),{threshold:.6})
 document.querySelectorAll('.fnpm').forEach(b=>typeObs.observe(b))
@@ -2608,6 +2605,5 @@ const openHash=()=>{ const h=decodeURIComponent(location.hash.slice(1)); if(!h) 
 	else{ renderFast(); paintPlanes(false) } }
 if(location.hash.length>1) openHash()
 addEventListener('hashchange',openHash)   // same-document deep links switch spaces too
-
 
 </script></body></html>
