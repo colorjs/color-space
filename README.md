@@ -2,9 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-**Any color space.** Web, print, film, broadcast, science, history. Conventional ranges, verified values, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
+**Any color space.** Web, print, film, broadcast, science, history. Conventional ranges, verified formulas, metadata, one tiny API — scalar or whole-buffer. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
 
-Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Alpha passes through unchanged; out-of-gamut values are never clamped, so round-trips stay lossless.
+Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Alpha passes through; out-of-gamut is never clamped, so round-trips stay lossless.
 
 **[Interactive catalog & docs →](https://colorjs.github.io/color-space/)**
 
@@ -18,51 +18,57 @@ npm install color-space
 import space from 'color-space';
 
 space.rgb.hsl(255, 128, 0);          // → [30, 100, 50] — reads as CSS hsl(30 100% 50%)
-space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → broadcast
+space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → broadcast, any of 156 × 155 pairs
 space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
 
-// one space, tree-shaken:
+space.rgb.oklch(pixels);             // same call, batch: interleaved array in, Float64Array out
+```
+
+One API, three hubs — swap the import, keep the code:
+
+```js
+import space from 'color-space';                  // all 156 spaces          52 kB gz
+import space from 'color-space/lite';             // the 27-space working set  9 kB gz
+import space, { alloc } from 'color-space/wasm';  // the same 27, prebuilt WASM
+
+space.rgb.oklch(255, 128, 0);        // identical on all three — pinned by the test suite
+space.rgb.oklch(pixels);             // batch form too
+```
+
+Or one space, tree-shaken (scalar form; batch is wired by the hubs):
+
+```js
 import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // args match CSS oklch(0.65 0.25 180)
 ```
 
-Per-space metadata and the CIE illuminant table ship as separate modules:
+**Upgrading from v2?** [Migration guide](docs/migration.md) — a v2 array-taking call is a batch of one in v3.
+
+Metadata ships separately:
 
 ```js
 import meta from 'color-space/meta.js';
-meta.oklab; // { description, channels, range, refs, wiki, year, by, use,
-             //   method, encoding, illuminant, observer, referred, dynamic }
-             // method:   how it's computed — transfer | matrix | opponent | cylindrical |
-             //           luma-chroma | chromaticity | appearance | system | spectral
-             // encoding: value domain — linear | gamma | log | pq | hlg | perceptual | chromaticity
-
-meta.p3;  // RGB working spaces also carry: gamut, primaries {r,g,b}, white
-          // → { gamut: 'display-p3', white: 'D65',
-          //     primaries: { r: [0.68, 0.32], g: [0.265, 0.69], b: [0.15, 0.06] }, … }
+meta.oklab;   // { description, channels, range, refs, wiki, year, by, use,
+              //   method, encoding, illuminant, observer, referred, dynamic }
+meta.p3;      // RGB working spaces add: gamut, primaries {r,g,b}, white
 
 import whitepoint from 'color-space/whitepoints.js';
-whitepoint[2].D50; // → [96.422, 100, 82.521]
+whitepoint[2].D50;   // → [96.422, 100, 82.521]
 
 import gamut from 'color-space/gamuts.js';
-gamut.srgb; // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, white: 'D65' }
+gamut.srgb;   // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, white: 'D65' }
 ```
 
 ## WASM
 
-Prebuilt (via [jz](https://github.com/dy/jz)) whole-buffer WASM batch convertor:
+The wasm hub is the same formulas compiled ahead of time ([jz](https://github.com/dy/jz)) — each edge a true multi-value function, `rgb_lrgb(r,g,b) → (r′,g′,b′)`. Its win is zero-copy buffers:
 
 ```js
-import space, { alloc } from 'color-space/wasm';
-
-// convert a whole buffer — pass any array-like, get a converted Float64Array back:
-space.rgb.oklch(pixels);             // interleaved [r,g,b, r,g,b, …], input untouched
-
-// avoid copy in/out on hot path
 const buf = alloc(width * height);   // WASM-backed Float64Array, interleaved r,g,b
-space.rgb.oklch(buf);                // converts in place, no copy — returns buf
+space.rgb.oklch(buf);                // converts in place — nothing crosses the boundary
 ```
 
-**Covered spaces**: `rgb` · `lrgb` · `xyz`, the OKLab family (`oklab` `oklrab` `oklch` `oklrch`), CIE Lab/Luv (`lab` `lchab` `lab-d65` `lch-d65` `luv` `lchuv` `hsluv` `hpluv` `din99o-lab` `din99o-lch` `din99d`), HDR (`jzazbz` `jzczhz` `ictcp` `ipt`), and camera logs (`logc4` `slog3` `vlog` `log3g10` `clog2`). Not included: device cylinders (HSL/HSV…) and lookup/appearance spaces – gain nothing from batching or don't reduce to a tight numeric loop, use the scalar API for those.
+Coverage = the `lite` set: the numeric pipeline (rgb/lrgb/xyz · OKLab · Lab/Luv/DIN99 · HDR · camera logs). Device cylinders and lookup/appearance spaces gain nothing from batching — the full catalog carries those.
 
 ## GL/WGSL
 
@@ -79,13 +85,31 @@ glsl(oklch, p3);      // neither end rgb — routed via their shared lrgb
 wgsl(oklch);          // the same, as WGSL
 ```
 
-A chunk import brings only its own dependency chain — ~5 kB, not the catalog — and stays pure data (`oklch.code` is its raw GLSL). When the space is a *runtime* string, route any of the 155 names, at the cost of bundling all chunks (~200 kB min):
+A chunk import brings only its own dependency chain (~5 kB) and stays pure data — `oklch.code` is its raw GLSL. Runtime `from`/`to` strings: `import { glsl } from 'color-space/gl/all'` routes any of the 155 names, byte-identical, at the cost of all chunks (~200 kB min).
+
+## LUT
+
+Any conversion as a `.cube` file — the format the film world reads without JavaScript: DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg. No code path either: every space's page in the [catalog](https://colorjs.github.io/color-space/) downloads one.
 
 ```js
-import { glsl } from 'color-space/gl/all';
+import { cube } from 'color-space/lut';
 
-glsl('rgb', 'oklch');   // byte-identical output
+cube(space.slog3, space.rec709);     // camera log → broadcast, 33³ (17/33/65 via {size})
+cube(space.rec709, space.rgb);       // pure transfer — auto-emits 1D, 4096 pt
 ```
+
+Every file states its own accuracy — the header carries the measured deviation of the lattice against the direct conversion at random off-lattice points:
+
+```
+# input: slog3 0–1 · output: rec709 0–1, unclamped
+# trilinear lattice vs direct conversion, 1000 off-lattice samples, fractions of full scale: median 4.8e-3, max 8.8e-1 · in-range outputs (2.5% of domain, 1000 samples): median 2.0e-3, max 9.5e-2
+```
+
+```sh
+ffmpeg -i in.mov -vf lut3d=slog3-to-rec709.cube out.mov
+```
+
+The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are written unclamped. Corners that go non-finite or numerically degenerate throw rather than bake a broken file; the catalog also curates hue-axed spaces out of its picker — hue doesn't survive lattice interpolation — leaving 113 of 156. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
 
 ## Guarantees
 
@@ -330,7 +354,7 @@ A _complete_ collection of color spaces under a _minimal_, _consistent_ API with
 | **Spaces** | **156** | 25 | 40 | 16 |
 | **Ranges** | Conventional (CSS-matching) | 0–1 | 0–1 | 0–1 |
 | **Specialty** (camera logs, appearance, video, historical) | ✅ | ❌ | some | ❌ |
-| **Backends** | JS · WASM · GLSL/WGSL | JS | JS | JS |
+| **Backends** | JS · WASM · GLSL/WGSL · .cube LUT | JS | JS | JS |
 
 Details in [library comparison](docs/library-comparison.md); `npm run benchmark` compares performance.
 

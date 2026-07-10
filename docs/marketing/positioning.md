@@ -33,6 +33,7 @@ culori · colorjs.io · chroma-js · @texel/color · color-convert · **hand-rol
 | **CSS-native value ranges** | `lab(50,…)`, `oklch(65,…)`, `rgb(255,…)` match CSS Color 4 | every other lib normalizes 0–1 |
 | **Differential verification** | `test/reference.js`: ~30 spaces both directions vs colorjs.io at 1/255; corrects published-paper errors | others self-test only |
 | **WASM batch kernel — *same source*** | `color-space/wasm`: the scalar formulas AOT-compiled to WASM (jz, `optimize:'speed'`), composed via an edge graph like `wire()`, pinned to the JS API (`test/wasm-batch.js`) across **27 spaces**; zero-copy whole-buffer convert **1.1–1.7×** faster on cube-root/matrix paths (PQ/log paths parity-or-slower today — jz codegen targets) | no other JS color lib ships a WASM batch path at all — and none could match "same formulas, verified identical to the scalar path" |
+| **`.cube` LUT export, self-verifying** | `color-space/lut`: any conversion → a `.cube` file (DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg); the header carries the measured deviation of the interpolated lattice vs the direct conversion, so the file states its own accuracy; format pinned to Adobe Cube Spec 1.0, pinned end-to-end by an ffmpeg host test | absent from culori/colorjs.io/chroma/texel entirely |
 | **Public domain (Unlicense)** | package license | others are MIT/etc. (still permissive, but not PD) |
 
 ### 3. Value themes (attribute → outcome, with proof)
@@ -41,6 +42,7 @@ culori · colorjs.io · chroma-js · @texel/color · color-convert · **hand-rol
 3. **Drop-in CSS-native values.** *Read and write the same numbers you put in CSS — no 0–1 mental math, no translation layer.* (Proof: CSS Color 4 ranges.)
 4. **Stays small and unencumbered.** *Take one space, ship ~2 kB; no license to read.* (Proof: tree-shakeable ESM, zero deps; ~2 kB per space, ~44 kB for all 151; public domain.)
 5. **Scale from one color to a whole image.** *The scalar API for single colors; an opt-in WASM batch kernel for buffers — the same verified formulas, no per-pixel JS overhead.* (Proof: `color-space/wasm`, jz-compiled, 1.1–1.7× faster zero-copy over a 1M-px buffer, pinned to the scalar API.)
+6. **Leave JavaScript entirely.** *Export the verified formulas as a `.cube` LUT — colorists and DITs load it straight into Resolve, Premiere, Final Cut, or OBS, or apply it with one ffmpeg flag, no npm involved.* (Proof: `color-space/lut`, self-verifying header, differential + ffmpeg end-to-end tests.)
 
 ### 4. Who cares a lot (best-fit, wedge-first)
 Film/video color-pipeline devs in JS (near-zero competition) → color scientists/educators (credibility + citations) → CSS/design-system devs adopting OKLCH/P3 (volume) → creative-coding/viz (adjacent). Full traits in [audience.md](audience.md).
@@ -78,6 +80,7 @@ No CSS string parsing · no interpolation/mixing · no gamut mapping · no ΔE �
 - **"Tiny / zero-dep"** — **quote the tree-shaken per-space import (~2 kB)**, not the full bundle (all 151 ≈ 44 kB min+gz locally — *larger* than culori/colorjs.io because it has 3–5× the spaces; never call the full library "tiny"). Comparing our per-space import to culori's/colorjs.io's *full* bundle is apples-to-oranges — compare like for like. Measure real per-space numbers once v3 ships to npm. No dependencies. (See [market-data.md](market-data.md).)
 - **"Public domain"** — Unlicense.
 - **"WASM batch / same source"** — `color-space/wasm` is jz-compiled from the scalar formulas (edge graph + BFS, like `wire()`); `test/wasm-batch.js` pins every reachable space bit-for-bit to the scalar API (≤1e-3, last-bit + gamut-bound only). Speed claim, measured checksum-forced vs the *identical* JS loop, **zero-copy**, 1M px: rgb→xyz 1.7×, rgb→lab 1.5×, rgb→oklab 1.4×, rgb→oklch 1.3×, rgb→hsluv 1.1× — quote the range **1.1–1.7×**, not a single number. The drop-in copy API trades the win for convenience (a single pass loses to the two copies). The durable claim is *same formulas, two backends, verified identical* — the multiplier is the bonus. (Earlier "~parity matrix-only" was a measurement error: matrix-heavy is the *biggest* win.)
+- **"Self-verifying LUT export"** — `color-space/lut`: the `.cube` header carries the measured median/max deviation of the interpolated lattice vs the direct conversion at random off-lattice points (fractions of full scale, split out for in-range outputs when the source is scene-referred); `test/lut-ffmpeg.js` proves it end-to-end — ffmpeg applies the generated file to a float frame and reproduces the library's own numbers.
 
 ---
 

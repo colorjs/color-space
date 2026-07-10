@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `meta.wiki` — the canonical Wikipedia article per space (90 spaces; per-anchor verified), from a new `@wiki` JSDoc tag.
 - `meta.year` / `meta.by` / `meta.use` — provenance (when the space was introduced, by whom) and usage domain + current status for 139 spaces, from new `@year`/`@by`/`@use` JSDoc tags (cross-checked against each file's cited references).
 - `color-space/wasm` default export mirroring the scalar API: `space.oklch.rgb(l, c, h)` for scalars, `space.rgb.oklch(buf)` for whole buffers — an `alloc()`'d buffer converts in place (zero-copy), any other array-like returns a converted copy.
+- `color-space/lut`: any conversion as a `.cube` LUT — `cube(space.slog3, space.rec709)` — for DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg. Channelwise pairs (pure transfer curves, e.g. rec709→rgb) auto-emit LUT_1D_SIZE 4096; cross-channel pairs emit LUT_3D_SIZE 33 by default (17/33/65 Resolve convention). Every header carries the measured deviation of the interpolated lattice against the direct conversion at random off-lattice points (median + max, fractions of full scale), so the file states its own accuracy.
+- LUT differential suite against the scalar library plus an end-to-end ffmpeg check: the generated `.cube` applied to a float frame by ffmpeg itself must reproduce the library (`test/lut.js`, `test/lut-ffmpeg.js`).
+- **Batch calling form on the JS hubs** — every wired pair now also takes an interleaved array-like of pixels and returns a new `Float64Array`: `space.rgb.oklch(pixels)`, for all 156 spaces. Stride follows each space's channel count (`rgb→cmyk` maps 3n→4n, `kelvin→rgb` 1n→3n), trailing params (ycbcr `kb`/`kr`) reach every pixel, and a batch of one is exactly the v2 calling convention — `rgb.lab([50, 50, 50])` is legal again. Batch ≡ scalar pinned bit-for-bit across all 24 180 pairs (`test/batch.js`).
+- `color-space/lite` — the compact hub: exactly the WASM-covered 27 spaces (rgb/lrgb/xyz, OKLab family, CIE Lab/Luv + DIN99, HDR, camera logs) in plain JS, ~9 kB gzipped vs the catalog's ~52 kB. Same registry shape, both calling forms, `register()` included — the three hubs (`color-space`, `/lite`, `/wasm`) interchange freely; parity with the wasm space list is test-pinned.
+- **WASM scalar kernels are true multi-value exports** — each edge is `rgb_lrgb(r, g, b) → (r′, g′, b′)` (jz multi-value; i64 f64-bit lanes mapped by the `jz:i64exp` custom section), so the module's ABI mirrors the scalar API and scalar calls never touch the working buffer. Batch loops destructure the same kernels per pixel — each formula exists exactly once in `wasm/batch.js` — and the two forms are pinned bit-identical on every pair.
+- Migration guide rewritten from verified `v2.3.2` source diffs ([docs/migration.md](docs/migration.md)); linked from the README. The previous guide's central claim — "v2 normalized everything to 0–1" — was false (see the 3.0.0 correction below), and its ×255 conversion recipes would have double-scaled correct v2 code.
 
 ### Changed
 
@@ -36,11 +42,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-- **CSS-matching channel ranges**: all spaces now use conventional CSS/spec ranges instead of normalized 0–1. RGB channels are 0–255; HSL hue 0–360, saturation/lightness 0–100; Lab L 0–100, a/b ±125. Predefined-RGB spaces (P3, Rec.2020, A98-RGB, ProPhoto) stay 0–1 per the CSS `color()` function. OKLab/OKLCh/OKLrab/OKLrch use their native 0–1 / ±0.4 ranges — the CSS Color 4 & Ottosson convention (`oklch.rgb(0.65, 0.25, 180)` ≡ CSS `oklch(0.65 0.25 180)`). JzAzBz/JzCzHz and ICtCp likewise use their native ranges (Jz/I 0–1, az/bz/Ct/Cp ±0.5), matching colorjs.io / Safdar 2017 / BT.2100.
-- **Flat channel arguments**: conversions take individual arguments — `rgb.lab(10, 20, 30)` — not an array `rgb.lab([10, 20, 30])`.
+- **Channel-range corrections** *(entry corrected 2026-07 — it originally claimed v2 normalized all spaces to 0–1; it did not: v2 already used conventional ranges — rgb 0–255, hsl 0–360/0–100/0–100, cmyk 0–100, ycbcr 16–235 — and those are unchanged)*. Five spaces rescaled to conventional form: `hsm` and `tsl` (were all-0–1), `hsi`/`hcy`/`hsp` third channel 0–255 → 0–100 (`hsp` also no longer rounds its outputs). Declared bounds made truthful where the v2 metadata understated the formula (`lab` a/b ±125, `luv` ±215, …) — metadata only, outputs identical. Spaces new in v3 adopt CSS conventions: predefined-RGB (P3, Rec.2020, A98-RGB, ProPhoto) are 0–1 per the CSS `color()` function; OKLab/OKLCh/OKLrab/OKLrch native 0–1 / ±0.4 (`oklch.rgb(0.65, 0.25, 180)` ≡ CSS `oklch(0.65 0.25 180)`); JzAzBz/JzCzHz and ICtCp native (Jz/I 0–1, az/bz/Ct/Cp ±0.5), matching colorjs.io / Safdar 2017 / BT.2100.
+- **Flat channel arguments**: conversions take individual arguments — `rgb.lab(10, 20, 30)` — not an array `rgb.lab([10, 20, 30])`. (Later versions reintroduce the array call as the batch form — see Unreleased.)
 - **Space object shape change**: `.min`, `.max`, `.channel`, and `.alias` properties removed from space objects; replaced by `.range`.
-- **Lab/LCHab are now D50** (ICC/CSS convention). `lab-d65` added for display-native D65 Lab; redundant `lab-d50` removed.
-- **rec2100-pq / rec2100-hlg renamed** (were previously unhyphenated).
+- **Lab/LCHab are now D50** (ICC/CSS convention; v2 lab was D65). `lab-d65` added for the v2-equivalent display-native Lab.
+- **`ciecam` (`cam`) removed** — the v2 one-way stub is superseded by the full bidirectional `ciecam02`.
+- rec2100-pq / rec2100-hlg ship hyphenated *(corrected 2026-07: previously listed as a rename — the unhyphenated files existed only in unreleased dev builds, never in a published v2)*.
+
+See [docs/migration.md](docs/migration.md) for the v2→v3 upgrade path, verified against the v2.3.2 source.
 
 ### Added
 
