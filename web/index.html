@@ -2623,26 +2623,28 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=hx
 	syncFav(hx); syncURL(hx)
+	// is a coordinate a color at all? Same lens-independent rule the GPU sweeps void
+	// by (past ±4× diffuse white SDR / ×500 scene-HDR the formula's continuation is
+	// clamp noise, not color): a marker whose coordinate names no color goes
+	// hollow-dashed — position only, no color claim — the CIE plate's vocabulary
+	const physOf=(sp,v)=>{ try{ return sp==='rgb'||!v||space[sp].lrgb(...v).every(u=>u>-4&&u<physBound(sp)) }catch{ return true } }
+	const mark=(el,ok)=>{ el.style.background=ok?hx:'transparent'; el.style.borderColor=ink(rgb); el.style.borderStyle=ok?'':'dashed' }
 	// catalog values + ticks (visible entries) — outlines are theme ink, like the sRGB lines
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
 		const vals=valsFor(s), cls=classify(s)
 		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?fmtc(vals[i],cls.ch[i]):'' })
 		if(liteOff(ent)) return   // sheet rows: numbers only
+		const tphys=physOf(s,vals)
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1)
 				tk.style.left=(f*100)+'%' }
-			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
+			mark(tk,tphys) }) })
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const cssvEl=document.getElementById('cssv'); if(cssvEl&&vals&&CSSFMT[s]) cssvEl.textContent=CSSFMT[s](vals)
 	const shown=vals
-	// is the current coordinate a color at all? Same lens-independent rule the GPU
-	// sweeps void by (past ±4× diffuse white SDR / ×500 scene-HDR the formula's
-	// continuation is clamp noise): where the bar and plane under a marker void,
-	// the marker goes hollow — position only, no color claim (like the CIE plate's)
-	let phys=true
-	try{ if(s!=='rgb'){ const pb=physBound(s); phys=space[s].lrgb(...shown).every(u=>u>-4&&u<pb) } }catch{}
+	const phys=physOf(s,shown)
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
@@ -2685,7 +2687,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			if(k>=0) df=(k+0.5)/bar._cells.length }
 		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		dk.style.left=(mf*100)+'%'
-		dk.style.background=phys?hx:'transparent'; dk.style.borderColor=phys?ink(rgb):'var(--ink)'
+		mark(dk,phys)
 		// once the picker could overlap the number, the number yields to the picker's LEFT and
 		// follows it 1:1 — the .18s ease runs only on the yield/return, never while tracking
 		const bw=bar.clientWidth, px2=mf*bw, natR=bw-9.6
@@ -2694,7 +2696,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		nw._clash=clash
 		nw.style.transform=`translateY(-50%) translateX(${clash?Math.min(0,px2-21-natR).toFixed(1):0}px)` })
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
-		const cx=pl.querySelector('.cx'); cx.style.background=phys?hx:'transparent'; cx.style.borderColor=phys?ink(rgb):'var(--ink)'
+		const cx=pl.querySelector('.cx'); mark(cx,phys)
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
 		const gy=clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1)
 		const px=(gx-vw.x0)/(vw.x1-vw.x0), py=(gy-vw.y0)/(vw.y1-vw.y0)
