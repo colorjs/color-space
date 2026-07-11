@@ -18,12 +18,12 @@ export const LEADS = 3   // slider cards per category (the row's featured spaces
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
 const ent = (s, lite) => { const cls = classify(s)
 	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}">
-	 <div class="eh"><button class="nm" type="button" title="${s}" aria-label="Open ${s} color-space dossier">${s}</button><span class="cvs">${cls.ch.map((c2, i) => `<input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}">`).join('')}</span></div>
-	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div><span class="sy">${c2.sym}</span></div>`).join('')}</div>
+	 <div class="eh"><button class="nm" type="button" title="${s}" aria-label="Open ${s} color-space dossier">${s}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
+	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div></div>`).join('')}</div>
 	</article>` }
 
 export const catHTML = () =>
-	`<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="tc tnum">${c.spaces.length}</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">${c.spaces.length}</span></h2><div class="grid">
+	`<nav class="toc" id="toc"><i class="tsp"></i>${sections.map((c, i) => `<div class="tsg"><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="tc tnum">${c.spaces.length}</span></button></div></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">${c.spaces.length}</span></h2><div class="grid">
 	${c.spaces.slice(0, LEADS).map(s => ent(s, false)).join('')}
 </div>${c.spaces.length > LEADS ? `<div class="sheet">
 	${c.spaces.slice(LEADS).map(s => ent(s, true)).join('')}

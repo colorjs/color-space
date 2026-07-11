@@ -29,7 +29,9 @@ a{ color:var(--ink) }
    with the page (no sticky float). The pick affordance is the hue line beneath it. ── */
 .mhead{ background:var(--paper) }
 .mast{ position:relative; display:flex; align-items:baseline; gap:var(--s2); flex-wrap:nowrap; min-height:3.25rem; padding:var(--s4) 0 var(--s2); color:var(--ink) }   /* every text item on one baseline; icons self-centre; extra top pad centres the text against the hue band below */
-.mast .wm,.mast .tagline,.mast .ver,.cx input,.qx input,.qx .qn{ line-height:36px }   /* text line boxes match the icon height, so the shared baseline sits centred in the bar */
+.mast .wm,.mast .tagline,.mast .ver{ line-height:36px }   /* text line boxes match the icon height, so the shared baseline sits centred in the bar.
+   NOT the inputs (Chrome ignores line-height for input values but honours it for placeholders, splitting the two apart)
+   and NOT .qn (it appears with typing inside the padded search label — 36px there inflates the bar) */
 .mast .wm{ flex:none; font-weight:800; font-size:var(--t3); letter-spacing:-.01em }
 .mast .tagline{ font-size:var(--t2); color:var(--soft); white-space:nowrap }
 @media(max-width:760px){ .mast .tagline{ display:none } }
@@ -44,13 +46,16 @@ a{ color:var(--ink) }
 .thm{ border:0; background:none; padding:0; cursor:pointer }
 /* the current color: a diamond swatch (the slider marker, grown up) and a live value input —
    shows hex, accepts anything CSS can parse (#f80, oklch(.7 .2 40), rebeccapurple) */
-.cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:calc(var(--s4) + 12.3px); display:flex; align-items:baseline; gap:var(--s2); cursor:text }   /* sits where the spaces column starts; +10.9px lands the input's UA-centred text on the masthead baseline */
-.cx .cd{ flex:none; align-self:center; width:12px; height:12px; background:var(--c); border:1.2px solid var(--ink); transform:rotate(45deg) }
-.cx input{ width:5.4rem; font:inherit; font-size:var(--t2); font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); background:none; border:0; border-bottom:.2em solid var(--hair); outline:none; padding:0 }
-.cx input:hover,.cx input:focus{ border-bottom-color:var(--ink) }
+.cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:calc(var(--s4) + 6.7px); display:flex; align-items:flex-start; cursor:text }   /* sits where the spaces column starts; input box = its line box (no UA centring slack), so top + ascent = the masthead baseline at any DPR */
+/* one input recipe, shared with the catalog's channel inputs */
+.cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
+.cx .cd{ position:absolute; left:.15em; top:4.2px; width:11px; height:11px; padding:0; background:none; border:0; appearance:none; -webkit-appearance:none; transform:rotate(45deg); cursor:pointer }   /* the favicon rhombus, live — a native color input in disguise */
+.cd::-webkit-color-swatch-wrapper{ padding:0 }
+.cd::-webkit-color-swatch{ border:0 }
+#cval{ width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em }   /* wide enough to paste color(prophoto-rgb 0.729 0.486 0.29); no underline — the diamond is the control's face */
 /* search filters spaces and metadata only; the live color parser is the header value input */
-.qx{ position:relative; display:flex; align-items:center; gap:var(--s2); min-height:36px; align-self:center; padding-top:8.6px; cursor:text }   /* inputs ignore line-height (UA centres their editor) — the pad drops the placeholder onto the masthead baseline */
-.qx svg{ flex:none; align-self:center; color:var(--soft) } .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
+.qx{ position:relative; display:flex; align-items:flex-start; gap:var(--s2); min-height:36px; align-self:center; padding-top:8.1px; cursor:text }   /* the input's box equals its line box, so pad-top + ascent lands its text on the masthead baseline at any DPR */
+.qx svg{ flex:none; align-self:center; transform:translateY(-3.8px); color:var(--soft) }   /* centred on the placeholder's cap height */ .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
 .qx input{ width:9.5rem; opacity:1; font:inherit; font-size:var(--t2); font-weight:600; color:var(--ink); background:none; border:0; outline:none; padding:0; transition:width var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out) }
 .qx:focus-within input,.qx input:not(:placeholder-shown){ width:14rem; opacity:1 }
 .qx .qn{ font-size:var(--t2); font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums }
@@ -83,8 +88,9 @@ a{ color:var(--ink) }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
 @media(max-width:560px){
 	.mast .ver{ display:none }
-	.cx input{ display:none }   /* the diamond (and favicon) still carry the color */
-	.qx{ width:36px; justify-content:center }
+	#cval{ display:none }   /* the diamond (a native picker) and favicon still carry the color */
+	.qx{ width:36px; justify-content:center; align-items:center; padding-top:0 }   /* icon-only — no text to sit on the baseline */
+	.qx svg{ transform:none }
 	.qx input{ position:fixed; left:1rem; right:1rem; top:3.75rem; z-index:var(--z-dropdown); width:auto; padding:var(--s3) var(--s12) var(--s3) var(--s3); border:1px solid var(--hair); background:var(--paper); opacity:0; pointer-events:none; transform:translateY(calc(var(--s1)*-1)) }
 	.qx:focus-within input,.qx input:not(:placeholder-shown){ width:auto; opacity:1; pointer-events:auto; transform:none }
 	.qx .qn{ position:fixed; right:1.75rem; top:4.55rem; z-index:calc(var(--z-dropdown) + 1) }
@@ -108,13 +114,14 @@ a{ color:var(--ink) }
 .cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
-.toc{ grid-column:1; position:relative; padding-bottom:var(--s12) }   /* pinned titles clamp at the content edge — keep them off the end divider */
-.tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
-.ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper) }   /* full-width paper: clamped titles at the rail end cover each other cleanly */
+.toc{ grid-column:1; position:relative }
+.tsp{ display:block }   /* leading spacer down to the first section */
+.tsg{ display:block }   /* one segment per category — bounds its title's sticky range */
+.ti{ display:block; position:sticky; top:28px; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper) }   /* pinned below the scrolled-away header; the segment end pushes it off */
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
-.ti .tc{ font-weight:600; font-size:.8em; color:currentColor; opacity:.42; margin-left:.35em }   /* count of spaces in the category */
+.ti .tc{ font-weight:600; font-size:.8em; color:currentColor; opacity:.42; margin-left:.6em }   /* count of spaces in the category */
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }   /* fills the capped content column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
@@ -122,31 +129,31 @@ a{ color:var(--ink) }
    gaplessly: gapless grids, each entry carrying half the gutter as its own padding */
 .sec{ position:relative; padding:var(--s6) 0 var(--s8); scroll-margin-top:3.4rem }
 /* the divider runs from the category name in the rail across to the content's right edge */
-.sec::before{ content:''; position:absolute; top:0; left:calc(-1*(var(--railw) + var(--railgap))); right:0; height:1px; background:var(--hair) }
+.sec::before{ content:''; position:absolute; top:0; left:0; right:0; height:1px; background:var(--hair) }   /* starts at the spaces, clear of the rail titles */
 .sec:first-of-type{ padding-top:var(--s8) } .sec:first-of-type::before{ display:none }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
 .sheet{ margin-top:var(--s3) }   /* the first sheet row breathes below the lead sliders */
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
 @media(max-width:1359px){ .g,.bar,.cat,.introcopy{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
-	.cx{ position:static; top:auto; align-self:baseline }   /* no rail to align to — back into the masthead row */
-	.sec::before{ left:0; right:0 }   /* dividers stay inside the container */
+	.cx{ position:relative; left:auto; top:auto; align-self:baseline }   /* no rail to align to — back into the masthead row; stays the diamond's anchor */
+	#cval{ width:9rem }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
 	.shw .c{ font-weight:400; font-size:.8em; color:currentColor; opacity:.42 }   /* bare count, a size down, on the heading's baseline */
 	.sec{ padding:var(--s4) 0 var(--s6) }
 	.sec:first-of-type{ padding-top:var(--s2) } }
 /* only the first grid row carries sliders by default — three stacked sliders read wrong at 1–2 columns.
    the all-sliders toggle (body.alls) overrides this and shows every one */
-@media(max-width:960px){ .grid,.sheet{ grid-template-columns:repeat(2,minmax(0,1fr)) }
+@media(max-width:1079px){ .grid,.sheet{ grid-template-columns:repeat(2,minmax(0,1fr)) }
 	body:not(.alls) .grid>.ent:nth-child(n+3) .chs{ display:none } }
 @media(max-width:640px){ .grid,.sheet{ grid-template-columns:1fr }
 	body:not(.alls) .grid>.ent:nth-child(n+2) .chs{ display:none } }
 @media(min-width:641px) and (max-width:1360px){
 	.ent .eh{ column-gap:var(--s2) }
 	.ent:not(.lite) .eh .nm{ font-size:var(--text-md) }
-	.cvs,.ent.lite .cvs{ gap:var(--s2) }
-	.cv,.ent.lite .cv{ width:2.7rem }
+	.cvs{ gap:var(--s2) }
+	.cv{ width:4.1rem }
 }
-.ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem; cursor:pointer }
+.ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
@@ -155,20 +162,21 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 /* hydrated masonry: entry k -> column k%C, so each column flows independently and a
    4-channel lead (cmyk) can't push its neighbours' sheet rows down */
 .gcols{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }
-@media(max-width:960px){ .gcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
+@media(max-width:1079px){ .gcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
 @media(max-width:640px){ .gcols{ grid-template-columns:1fr } }
 .gcol{ display:flex; flex-direction:column; min-width:0 }
 .gcol>.ent:not(.lite){ padding-bottom:var(--s2) }
 .gcol>.ent.lite{ padding-top:var(--s1) }
 .gcol>.ent:not(.lite)+.ent.lite{ margin-top:var(--s3) }   /* the first sheet row breathes below a lead */
 body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /* sliders only on column-top leads */
+.gcol>.ent:not(.lite):not(:first-child) .eh .nm{ font-size:var(--t2) }   /* a demoted lead sheds its heavy title too */
 /* ≤640 the categories fold: the heading is a chevroned toggle, folded shows the lead with its
    sliders, unfolded lists every other space as a compact value row — small name, numbers, no sliders */
 @media(max-width:640px){
 	.shw{ justify-content:flex-start; cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none }
-	.shw .c{ margin-left:.1em }
-	.shw::after{ content:''; margin-left:auto; align-self:center; width:.4em; height:.4em; border-right:2px solid var(--soft); border-bottom:2px solid var(--soft); transform:translate(-.09em,-.1em) rotate(45deg); transition:transform var(--dur-short) var(--ease-out) }   /* -.09em: a rotated square's tip overhangs its box — pull flush with the value column */
-	.sec.open .shw::after{ transform:translate(-.09em,.1em) rotate(225deg) }
+	.shw .c{ margin-left:.4em }
+	.shw::after{ content:''; margin-left:auto; align-self:center; width:.4em; height:.4em; border-right:2px solid var(--soft); border-bottom:2px solid var(--soft); transform:translate(-.13em,-.1em) rotate(45deg); transition:transform var(--dur-short) var(--ease-out) }   /* -.13em: a rotated square's tip overhangs its box — pull flush with the value column (DPR-2 rounding included) */
+	.sec.open .shw::after{ transform:translate(-.13em,.1em) rotate(225deg) }
 	.cat .ent .eh .nm{ font-size:var(--t2) }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
 	body:not(.alls) .gcol>.ent:not(:first-child) .chs{ display:none }
 	.gcol>.ent:not(:first-child){ padding:.5rem var(--eg) .55rem; overflow:hidden; transition:max-height var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),padding var(--dur-short) var(--ease-out) }
@@ -183,27 +191,28 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover,.ent:focus-within{ background:transparent }
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
-.nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; color:var(--soft); opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
-.ent:hover .nm::after{ opacity:1 }
-.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }
+.nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
+.nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
+.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:nowrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* values never drop under the name — the name ellipsizes instead */
 .ent.lite .eh{ padding:0; row-gap:var(--s1) }
-.ent .eh .nm{ flex:0 0 auto; min-width:0; max-width:100%; overflow:hidden; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--t4); letter-spacing:-.01em; line-height:1.1; text-align:left; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; cursor:pointer }
+.ent .eh .nm{ flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--t4); letter-spacing:-.01em; line-height:1.1; text-align:left; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; cursor:pointer }
 .ent:not(.lite) .eh .nm{ white-space:nowrap }
 .ent.lite .eh .nm{ font-size:var(--t2); overflow-wrap:anywhere }
-/* channel values beside the title — plain text inputs, right-aligned tabular numbers */
+/* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
 .cvs{ display:flex; gap:var(--s4); margin-left:auto; flex-shrink:0 }
-.cv{ width:3.1rem; font:inherit; font-size:var(--t2); font-weight:600; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; border-bottom:.2em solid transparent; outline:none; padding:0; text-align:right }   /* underline hugs the digits, weight in em to track the type */
-.ent:hover .cv,.ent:focus-within .cv{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its inputs, half-strength */
-.ent .cv:hover,.ent .cv:focus{ border-bottom-color:var(--ink); color:var(--ink) }   /* the pointed/focused one at full ink — must outrank the row's half-strength wash */
-.ent.lite .cvs{ gap:var(--s3) }
-.ent.lite .cv{ width:2.95rem; font-size:var(--t2) }
+.cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:.2em solid transparent }   /* ONE underline under letter + number + chevrons; flex baselines align letter and value structurally */
+.cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:right; min-width:.9em; padding-right:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
+.cv{ width:4.6rem; font-size:var(--t2); color:var(--body); text-align:left; padding-right:1.2em }   /* reserves the chevron zone inside the box */
+@supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:2.4rem } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
+.ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its pairs, half-strength */
+.ent .cvp:hover,.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--ink) }   /* pointed, focused, slider-driven, or spinner-hovered — full ink */
+.ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
+.cvp .stk{ position:absolute; right:calc(var(--s1)*-1); top:-1px; bottom:5px; user-select:none }   /* copyable row text stays clean of the chevrons */   /* spinners ride inside the input, above the underline — no flow width */
+.cvp .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover */
+.cvp .stk button:hover{ opacity:1; color:var(--ink) }
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .sy{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:var(--t3); font-weight:600; pointer-events:none; opacity:.45; transition:opacity var(--dur-micro) var(--ease-out),left var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out) }   /* channel letters always on at half strength — hover (or touchless tablets) reads them; hover lifts to full */
-.ch .sy.flip{ transform:translateY(-50%) translateX(1.5rem) }   /* the letter slips just past the marker — a small nudge, not a jump to the far edge */
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
-/* pure gradients at rest — letters surface on hover */
-.ent:hover .ch .sy,.ent:focus-within .ch .sy{ opacity:1 }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -450,7 +459,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">156</span> spaces</span>
 	<span class="sp"></span>
-	<label class="cx" title="current color — type any CSS color"><i class="cd" id="cd" aria-hidden="true"></i><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts any CSS color"></label>
+	<span class="cx" title="current color — type any CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts any CSS color"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
@@ -1095,6 +1104,9 @@ if(cvalEl){
 	cvalEl.addEventListener('input',()=>{ const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
 		if(p){ master=p; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
 	cvalEl.addEventListener('focus',()=>requestAnimationFrame(()=>cvalEl.select()))   // first click takes the whole value
+	cdEl.addEventListener('input',()=>{ const h=cdEl.value
+		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
+		scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) })
 	cvalEl.addEventListener('keydown',e=>{ if(e.key==='Enter') cvalEl.blur() })
 	cvalEl.addEventListener('blur',()=>renderFast())   // settle back to canonical hex
 }
@@ -1102,7 +1114,13 @@ const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
 const lum=c=>0.2126*c[0]/255+0.7152*c[1]/255+0.0722*c[2]/255, ink=c=>lum(c)<0.6?'#fff':'var(--dark)'
-const decOf=c=>c.max<=1?3:(c.max===360||c.max===255?0:1)
+// decimals from the range span — similar spans get the same precision (±40 prints like 0..100):
+// span ≥50 → integers, ≥5 → 0.1, ≥0.5 → 0.01, tighter → 0.001; the printed precision IS the step
+const decOf=c=>{ const s=c.max-c.min; return s>=50?0:s>=5?1:s>=0.5?2:3 }
+// fixed decimals, never shed — 0.111 → 0.110 → 0.109 keeps its width, and the trailing
+// zeros tell the user what one spinner click moves
+const fmtc=(v,c)=>{ if(!isFinite(v)) return ''
+	const s=v.toFixed(decOf(c)); return /^-0(\.0+)?$/.test(s)?s.slice(1):s }
 // the current color as a native CSS string — only for spaces CSS can actually express
 // (lab()/lch() are D50 like ours; predefined color() spaces are 0–1; our xyz is D65 0–100)
 const r1=x=>+x.toFixed(1)+'', r2=x=>+x.toFixed(2)+'', r3=x=>+x.toFixed(3)+''
@@ -1135,7 +1153,7 @@ function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
 const favEl=document.querySelector('link[rel="icon"]')
 let favT=0, favLast=''
 function syncFav(hx){ const now=performance.now(); if(now-favT<250||hx===favLast) return; favT=now; favLast=hx
-	favEl.href=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='4.6' y='4.6' width='6.8' height='6.8' fill='${encodeURIComponent(hx)}' stroke='rgba(0,0,0,.55)' transform='rotate(45 8 8)'/></svg>` }
+	favEl.href=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='${encodeURIComponent(hx)}' transform='rotate(45 8 8)'/></svg>` }   // pure rhombus, tips at the tile edges
 function chanVals(s,v){ const cls=classify(s); return v.map((x,i)=>`${cls.ch[i].sym}${fmtn(x,cls.ch[i])}${unit(cls.ch[i])}`).join(' ') }
 function fnfmt(s,v){ const cls=classify(s); return `${s}(${v.map((x,i)=>fmtn(x,cls.ch[i])+unit(cls.ch[i])).join(' ')})` }
 // spaces CSS Color 4 can actually write — everything else has NO conventional
@@ -1254,19 +1272,21 @@ addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   
 const tocEl=document.getElementById('toc')
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
-	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
 	const t0=tocEl.getBoundingClientRect().top
 	const on=tocIt.map(t=>!t.classList.contains('off'))
-	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
-	let cur=0, up=28   // pinned titles breathe below the viewport top (the header scrolls away)
-	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
+	const segs=[...tocEl.querySelectorAll('.tsg')], lead=tocEl.querySelector('.tsp')
+	// each title lives in its own segment running to the next section — sticky within it,
+	// so a passed title is pushed off the top by the next one, like native section headers
+	const ys=tocIt.map((t,i)=>{ if(!on[i]) return null
 		const sec=secEls[i]   // align the title's text with the first visible space name
 		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
-		const y=(ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0
-		const m=Math.max(0,y-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
-		t.style.top=up+'px'; up+=hs[i]+G })
-	let dn=12
-	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
+		return (ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0 })
+	const vis=ys.map((y,i)=>({y,i})).filter(o=>o.y!=null)
+	lead.style.height=(vis.length?Math.max(0,vis[0].y):0)+'px'
+	segs.forEach((sg,i)=>{ sg.style.display=on[i]?'':'none' })
+	const end=tocEl.clientHeight
+	vis.forEach((o,k)=>{ const nextY=k+1<vis.length?vis[k+1].y:end
+		segs[o.i].style.height=Math.max(0,nextY-o.y)+'px' })
 }
 trackAct(); layoutToc()
 addEventListener('resize',layoutToc)
@@ -1277,11 +1297,11 @@ const vis=new Set()
 const io=new IntersectionObserver(es=>{ es.forEach(e=>{ const s=e.target.dataset.s; e.isIntersecting?vis.add(s):vis.delete(s) }); paintCatalogGrad(); renderFast() },{rootMargin:'300px'})
 cat.querySelectorAll('.ent').forEach(e=>io.observe(e))
 
-// entry interactions: whole card opens dossier; row drag slides; the channel value
-// inputs beside the title edit that channel directly (↑/↓ steps, Enter applies)
+// entry interactions: the TITLE opens the dossier (the card is busy with inputs, spinners,
+// sliders); row drag slides; the value inputs edit their channel (↑/↓ steps, Enter applies)
 let squelch=false
 cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
-	ent.addEventListener('click',e=>{ if(squelch||e.target.closest('.cvs')) return; openModal(s) })
+	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s,pairsFor(s)); warmMesh3(s,GM==='off'?'srgb':GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
 	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
@@ -1294,20 +1314,37 @@ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 		inp.addEventListener('input',applyCv)
 		inp.addEventListener('blur',()=>renderFast())
 		inp.addEventListener('change',()=>{ if(open()) paintPlanes(false) })
+		const c=classify(s).ch[i]
+		// fixed step from the channel's range — one click moves exactly one displayed unit
+		const spin=d=>{ const cur=parseFloat(inp.value), base=isFinite(cur)?cur:(valsFor(s)?.[i]??c.min)
+			inp.value=fmtc(clamp(base+d*10**-decOf(c),c.min,c.max),c); applyCv(); renderFast() }
 		inp.addEventListener('keydown',e=>{ e.stopPropagation()
 			if(e.key==='Enter'){ e.preventDefault(); applyCv(); inp.blur() }
 			else if(e.key==='Escape'){ e.preventDefault(); renderFast(); inp.blur() }
-			else if(e.key==='ArrowUp'||e.key==='ArrowDown'){ if(stepInputNumber(inp,e.key==='ArrowUp'?1:-1)){ e.preventDefault(); applyCv() } } }) })
+			else if(e.key==='ArrowUp'||e.key==='ArrowDown'){ e.preventDefault(); spin(e.key==='ArrowUp'?1:-1) } })
+		const stk=inp.nextElementSibling
+		if(stk?.classList.contains('stk')){
+			stk.addEventListener('click',e=>e.stopPropagation())
+			const hold=(btn,d)=>btn.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault()   // no focus — focus-within would light the whole row
+				spin(d)   // then repeat while held, native-spinner style
+				const t=setTimeout(()=>{ btn._iv=setInterval(()=>spin(d),70) },400)
+				const end=()=>{ clearTimeout(t); clearInterval(btn._iv); removeEventListener('pointerup',end); removeEventListener('pointercancel',end) }
+				addEventListener('pointerup',end); addEventListener('pointercancel',end) })
+			const [up,dn]=stk.querySelectorAll('button')
+			hold(up,1); hold(dn,-1) } })
 	ent.querySelectorAll('.ch').forEach(ch=>{ const i=+ch.dataset.i
+		const cvEl=ent.querySelectorAll('.cv')[i]?.closest('.cvp')
+		ch.addEventListener('pointerenter',()=>cvEl?.classList.add('on'))   // the slider points at its number
+		ch.addEventListener('pointerleave',()=>cvEl?.classList.remove('on'))
 		ch.addEventListener('pointerdown',e=>{
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId) }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on') }
 				if(!moved) return
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.style.cursor=''
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.style.cursor=''; cvEl?.classList.remove('on')
 				if(moved){ squelch=true; setTimeout(()=>squelch=false,0); if(open()) paintPlanes(false) } } }) }) })
 
 // sheet rows show sliders only when the settings toggle says so
@@ -1364,7 +1401,7 @@ qInput.addEventListener('input',applyFilter)
 	addEventListener('keydown',e=>{ if(e.key==='Escape'&&!tfp.hidden){ setOpen(false); tfb.focus() } }) })()
 
 // ── masonry hydration: the prerendered .grid/.sheet rows become per-column stacks ──
-const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:960px)')]
+const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:1079px)')]
 const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3
 function colize(){ const C=colCount()
 	cat.querySelectorAll('.sec').forEach(sec=>{
@@ -1447,6 +1484,11 @@ function parseColor(str){ str=str.trim().toLowerCase()
 			if((sp==='oklch'||sp==='oklab')&&parts[0]?.includes('%')) vals[0]/=100
 			if(sp==='rgb') vals.forEach((x,i)=>{ if(parts[i]?.includes('%')) vals[i]=x*2.55 })
 			return { s:sp, vals } } }
+	// a catalog row, copied: "a98rgb R 0.339 G 0.443 B 0.597" — space name, then numbers between labels
+	const m3=str.match(/^([a-z][a-z0-9-]*)[\s:]+(.+)$/)
+	if(m3&&SPACES.includes(m3[1])){ const n=classify(m3[1]).ch.length
+		const nums=(m3[2].match(/-?\d*\.?\d+/g)||[]).map(Number).filter(isFinite)
+		if(nums.length>=n) return { s:m3[1], vals:nums.slice(0,n) } }
 	return null }
 const RXNUM=/(?<![\w-])-?\d+(?:\.\d+)?/g   // digits inside names (rec2020, display-p3) are not values
 // input-number style: the number nearest the caret is selected WHOLE; ↑/↓ step it by
@@ -2277,7 +2319,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			catch{ toast('No LUT for this pair') } } }
 	// precise adjustment: spinner inputs on the big sliders
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
-		const span=c.max-c.min, STEP=span<=1?0.001:span<=40?0.01:span<=110?0.1:1, sdec=(String(STEP).split('.')[1]||'').length
+		const STEP=10**-decOf(c), sdec=decOf(c)   // one precision convention — catalog and dossier step alike
 		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
@@ -2549,24 +2591,18 @@ function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s
 function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	if(hueEl){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl.setAttribute('aria-valuenow',Math.round(h)) }catch{} }
 	// the color's public face: masthead diamond + value, favicon, url
-	if(cdEl){ cdEl.style.background=hx; cdEl.style.borderColor=ink(rgb) }
+	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=hx
 	syncFav(hx); syncURL(hx)
 	// catalog values + ticks (visible entries) — outlines are theme ink, like the sRGB lines
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
 		const vals=valsFor(s), cls=classify(s)
-		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?vals[i].toFixed(decOf(cls.ch[i])):'' })
+		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?fmtc(vals[i],cls.ch[i]):'' })
 		if(liteOff(ent)) return   // sheet rows: numbers only
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
-			const sy=ch.querySelector('.sy')
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1)
-				tk.style.left=(f*100)+'%'
-				const flip=f*ch.offsetWidth<26   // yield only when the marker actually overlaps the letter
-				sy.classList.toggle('flip',flip)
-				// ink from the gradient under the letter's landing spot (flip is a 1.5rem nudge, not the far edge)
-				const lf=clamp((sy.offsetLeft+(flip?24:0)+sy.offsetWidth/2)/ch.offsetWidth,0,1)
-				sy.style.color=ink(rgbF(s,cls.ch.map((cc,j)=>j===i?cc.min+lf*(cc.max-cc.min):vals[j]))) }
+				tk.style.left=(f*100)+'%' }
 			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
