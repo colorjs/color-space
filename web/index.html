@@ -1064,7 +1064,7 @@ cube(space.rec709, space.rgb)     <i>// pure transfer — automatically 1D, 4096
 </div>
 
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, pathToRgb, mixInSpace, rotateHue } from './js/core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, pathToRgb, mixInSpace, rotateHue, physBound } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
@@ -2608,6 +2608,12 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const cssvEl=document.getElementById('cssv'); if(cssvEl&&vals&&CSSFMT[s]) cssvEl.textContent=CSSFMT[s](vals)
 	const shown=vals
+	// is the current coordinate a color at all? Same lens-independent rule the GPU
+	// sweeps void by (past ±4× diffuse white SDR / ×500 scene-HDR the formula's
+	// continuation is clamp noise): where the bar and plane under a marker void,
+	// the marker goes hollow — position only, no color claim (like the CIE plate's)
+	let phys=true
+	try{ if(s!=='rgb'){ const pb=physBound(s); phys=space[s].lrgb(...shown).every(u=>u>-4&&u<pb) } }catch{}
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
@@ -2650,7 +2656,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			if(k>=0) df=(k+0.5)/bar._cells.length }
 		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		dk.style.left=(mf*100)+'%'
-		dk.style.background=hx; dk.style.borderColor=ink(rgb)
+		dk.style.background=phys?hx:'transparent'; dk.style.borderColor=phys?ink(rgb):'var(--ink)'
 		// once the picker could overlap the number, the number yields to the picker's LEFT and
 		// follows it 1:1 — the .18s ease runs only on the yield/return, never while tracking
 		const bw=bar.clientWidth, px2=mf*bw, natR=bw-9.6
@@ -2659,7 +2665,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		nw._clash=clash
 		nw.style.transform=`translateY(-50%) translateX(${clash?Math.min(0,px2-21-natR).toFixed(1):0}px)` })
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
-		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
+		const cx=pl.querySelector('.cx'); cx.style.background=phys?hx:'transparent'; cx.style.borderColor=phys?ink(rgb):'var(--ink)'
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
 		const gy=clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1)
 		const px=(gx-vw.x0)/(vw.x1-vw.x0), py=(gy-vw.y0)/(vw.y1-vw.y0)
