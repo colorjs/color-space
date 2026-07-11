@@ -287,6 +287,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
+.ch.gl{ background:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* GPU strip: voided spans read as the same checker as the dossier bars */
+.ch .chc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* the card strip's GPU sweep (created lazily on first ready paint) */
 .bar2 .cnm{ position:absolute; left:.6rem; top:.4rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* same as the plot axis labels — small, top-left */
 .bar2 .nvw{ position:absolute; right:.6rem; top:50%; bottom:auto; transform:translateY(-50%); z-index:1; align-items:center; transition:transform var(--dur-short) var(--ease-out) }   /* vertically centred */
 .bar2 .nvw input{ height:auto; width:3.4rem; font-size:var(--t3); font-weight:700 }   /* just the digits — a narrow box keeps the yield travel short */
@@ -1065,7 +1067,7 @@ cube(space.rec709, space.rgb)     <i>// pure transfer — automatically 1D, 4096
 </div>
 
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, pathToRgb, mixInSpace, rotateHue, physBound } from './js/core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, pathToRgb, mixInSpace, rotateHue } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
@@ -2612,39 +2614,44 @@ function paintPlanes(fast){ if(!open()) return
 		if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30) }   // probe measured — settle at the fitted res
 	if(!dragBar&&!plFreeze) draw3d()
 }
-setGLReady(()=>{ if(open()){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } })   // a program landed — upgrade the paint
+setGLReady(()=>{ paintCatalogGrad(); if(open()){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } })   // a program landed — upgrade the paint
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
+// the card strip is the dossier bar at catalog scale: the same per-pixel GPU sweep —
+// true colors everywhere the formula is nonlinear, non-physical spans voided to the
+// checker — because a sparse CSS gradient INVENTS colors between its stops (xyy's y
+// sweep really clamps bright almost to 0, but a 9-stop gradient fades it through a
+// long dark wedge). The gradient stays as the compile-time and no-GL fallback.
 function paintCatalogGrad(){ cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||liteOff(ent))return
 	const cls=classify(s), vals=valsFor(s)
-	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]; ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
+	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
+		let cv=ch.querySelector('.chc')
+		if(vals&&planeGLStatus(s,i,-1)==='ready'){
+			if(!cv){ cv=document.createElement('canvas'); cv.className='chc'; cv.width=512; cv.height=1; ch.prepend(cv) }
+			if(paintBarGL(cv,s,vals,i,[c.min,c.max],GM==='off'||GM==='vis'?null:GM)){
+				cv.style.display='block'; ch.classList.add('gl'); ch.style.background=''; return } }
+		if(cv) cv.style.display='none'
+		ch.classList.remove('gl')
+		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
 function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	if(hueEl){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl.setAttribute('aria-valuenow',Math.round(h)) }catch{} }
 	// the color's public face: masthead diamond + value, favicon, url
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=hx
 	syncFav(hx); syncURL(hx)
-	// is a coordinate a color at all? Same lens-independent rule the GPU sweeps void
-	// by (past ±4× diffuse white SDR / ×500 scene-HDR the formula's continuation is
-	// clamp noise, not color): a marker whose coordinate names no color goes
-	// hollow-dashed — position only, no color claim — the CIE plate's vocabulary
-	const physOf=(sp,v)=>{ try{ return sp==='rgb'||!v||space[sp].lrgb(...v).every(u=>u>-4&&u<physBound(sp)) }catch{ return true } }
-	const mark=(el,ok)=>{ el.style.background=ok?hx:'transparent'; el.style.borderColor=ink(rgb); el.style.borderStyle=ok?'':'dashed' }
 	// catalog values + ticks (visible entries) — outlines are theme ink, like the sRGB lines
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
 		const vals=valsFor(s), cls=classify(s)
 		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?fmtc(vals[i],cls.ch[i]):'' })
 		if(liteOff(ent)) return   // sheet rows: numbers only
-		const tphys=physOf(s,vals)
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1)
 				tk.style.left=(f*100)+'%' }
-			mark(tk,tphys) }) })
+			tk.style.background=hx; tk.style.borderColor=ink(rgb) }) })
 	if(!open()) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const cssvEl=document.getElementById('cssv'); if(cssvEl&&vals&&CSSFMT[s]) cssvEl.textContent=CSSFMT[s](vals)
 	const shown=vals
-	const phys=physOf(s,shown)
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
@@ -2687,7 +2694,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			if(k>=0) df=(k+0.5)/bar._cells.length }
 		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		dk.style.left=(mf*100)+'%'
-		mark(dk,phys)
+		dk.style.background=hx; dk.style.borderColor=ink(rgb)
 		// once the picker could overlap the number, the number yields to the picker's LEFT and
 		// follows it 1:1 — the .18s ease runs only on the yield/return, never while tracking
 		const bw=bar.clientWidth, px2=mf*bw, natR=bw-9.6
@@ -2696,7 +2703,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		nw._clash=clash
 		nw.style.transform=`translateY(-50%) translateX(${clash?Math.min(0,px2-21-natR).toFixed(1):0}px)` })
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
-		const cx=pl.querySelector('.cx'); mark(cx,phys)
+		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
 		const gy=clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1)
 		const px=(gx-vw.x0)/(vw.x1-vw.x0), py=(gy-vw.y0)/(vw.y1-vw.y0)
