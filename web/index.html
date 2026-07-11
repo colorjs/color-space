@@ -1117,9 +1117,11 @@ const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
 const lum=c=>0.2126*c[0]/255+0.7152*c[1]/255+0.0722*c[2]/255, ink=c=>lum(c)<0.6?'#fff':'var(--dark)'
-// decimals from the range span — similar spans get the same precision (±40 prints like 0..100):
-// span ≥50 → integers, ≥5 → 0.1, ≥0.5 → 0.01, tighter → 0.001; the printed precision IS the step
-const decOf=c=>{ const s=c.max-c.min; return s>=50?0:s>=5?1:s>=0.5?2:3 }
+// decimals from the range span — enough that every channel walks ≥100 steps: the step is
+// the largest power of ten with span/step ≥ 100 (0..255 → 1, 0..0.85 → 0.001, xyb's
+// 0.0435 → 0.0001, scrgb's 0–8 → 0.01; kelvin's 24000 stays 1 — decimals clamp to
+// 0..6). The printed precision IS the step.
+const decOf=c=>{ const d=-Math.floor(Math.log10((c.max-c.min)/100)); return d>0?Math.min(d,6):0 }
 // fixed decimals, never shed — 0.111 → 0.110 → 0.109 keeps its width, and the trailing
 // zeros tell the user what one spinner click moves
 const fmtc=(v,c)=>{ if(!isFinite(v)) return ''
