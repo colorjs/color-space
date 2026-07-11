@@ -8,7 +8,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Oklab_color_space}
  * @year 2020
  * @by Björn Ottosson
- * @use Cylindrical Oklab; current, the recommended CSS format for design-token color palettes.
+ * @use Design-token palettes and modern CSS color authoring; current, the recommended CSS form.
  * @channel {L} 0 1 Lightness
  * @channel {C} 0 0.4 Chroma
  * @channel {H} 0 360 Hue angle in degrees

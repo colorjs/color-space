@@ -10,7 +10,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCh)}
  * @year 1976
  * @by CIE
- * @use Cylindrical CIELUV for saturation/hue adjustment in additive-mixture contexts; current, basis for HSLuv/HPLuv.
+ * @use Saturation/hue adjustment in additive-mixture contexts; current, basis for HSLuv/HPLuv.
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 220 Chroma
  * @channel {H} 0 360 Hue angle in degrees

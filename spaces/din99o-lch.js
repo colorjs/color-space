@@ -10,7 +10,7 @@
  * @see {@link https://de.wikipedia.org/wiki/DIN99-Farbraum}
  * @year 2018
  * @by DIN (FNF/FNL 2 committee)
- * @use Cylindrical form of DIN99o for direct chroma/hue tolerance adjustment; current, same industrial QC domain as DIN99o Lab.
+ * @use Direct chroma/hue tolerance adjustment; current, same industrial QC domain as DIN99o Lab.
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 51.484 Chroma
  * @channel {H} 0 360 Hue angle in degrees

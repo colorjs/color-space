@@ -40,12 +40,12 @@ export default {
 
 	// ── perceptual, modern ──
 	oklab: { for: 'Lab’s job without Lab’s blue drift — fitted to CAM16 data, cheap enough for a shader', sin: 'tuned for D65 display work — it has no viewing-conditions story at all, by design', nm: '“OK” is literal: named for doing an OK job' },
-	oklch: { for: 'the polar form CSS adopted — perceptual hue and chroma as dials', nm: 'L · chroma · hue over OKLab' },
+	oklch: { for: 'the polar form CSS adopted — perceptual hue and chroma as dials', nm: 'lightness, chroma, hue — OKLab in polar form' },
 	okhsl: { for: 'an HSL whose saturation and lightness keep their promises, mapped to the sRGB gamut', sin: 'sRGB-bound by construction — there is no wide-gamut okhsl' },
 	okhsv: { for: 'the HSV counterpart — perceptual tints and shades inside sRGB', sin: 'sRGB-bound by construction' },
 	okhwb: { for: 'HWB’s white/black mixing lifted onto the okhsv machinery' },
 	oklrab: { for: 'OKLab with Lr — lightness given a toe so mid-grays sit where displays put them', nm: 'Lr = lightness, reference-white version' },
-	oklrch: { for: 'the polar form of OKLrab', nm: 'Lr · chroma · hue' },
+	oklrch: { for: 'the polar form of OKLrab', nm: 'Lr (toe-corrected lightness), chroma, hue — OKLrab in polar form' },
 	hct: { for: 'dynamic theming: pick tone for contrast, keep hue and chroma honest', sin: 'two models stitched together — CAM16 hue/chroma with Lab tone — so the inverse needs a solver', nm: 'hue · chroma · tone' },
 	srlab2: { for: 'CIELAB’s structure with OSA-grade hue uniformity, kept invertible' },
 	prolab: { for: 'a projective transform of XYZ that stays perceptually even — angles survive illumination change' },

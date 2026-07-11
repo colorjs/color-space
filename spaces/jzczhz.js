@@ -8,7 +8,7 @@
  * @see {@link https://www.w3.org/TR/css-color-hdr/#JzCzHz}
  * @year 2017
  * @by Safdar et al.
- * @use Cylindrical JzAzBz for HDR hue/chroma editing and gamut mapping; current, proposed in the CSS Color HDR module.
+ * @use HDR hue/chroma editing and gamut mapping; current, proposed in the CSS Color HDR module.
  * @channel {Jz} 0 1 Lightness
  * @channel {Cz} 0 1 Chroma
  * @channel {Hz} 0 360 Hue angle in degrees

@@ -168,6 +168,8 @@ For every one of the 156 spaces — enforced by the test suite:
 
 ## Spaces
 
+Notation: 🕰️ historical — shipped as working history; ~~struck~~ — declined, with the reason.
+
 <details><summary><b>Display & Web</b></summary>
 
 * [x] [RGB](https://www.w3.org/TR/css-color-4/#numeric-srgb) — sRGB, the web standard. ([IEC 61966-2-1](https://webstore.iec.ch/publication/6169))

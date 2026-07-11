@@ -323,8 +323,9 @@ h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; co
 .src a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
 /* segmented buttons — same word-style as the corner gamut flags, clickable */
 .seg{ display:flex; gap:var(--s3) }
-.seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; background:none; padding:0; color:var(--ghost); cursor:pointer }
-.seg button.on{ color:var(--ink) }
+.seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:2px solid transparent; background:none; padding:0 0 2px; color:var(--ghost); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
+.seg button:hover{ color:var(--body) }
+.seg button.on{ color:var(--ink); border-bottom-color:var(--c) }   /* the active option carries the accent, like the API tabs */
 .seg button:hover{ color:var(--soft) }
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
@@ -1297,6 +1298,34 @@ const vis=new Set()
 const io=new IntersectionObserver(es=>{ es.forEach(e=>{ const s=e.target.dataset.s; e.isIntersecting?vis.add(s):vis.delete(s) }); paintCatalogGrad(); renderFast() },{rootMargin:'300px'})
 cat.querySelectorAll('.ent').forEach(e=>io.observe(e))
 
+// copying catalog rows: the native serializer breaks every flex item onto its own line and
+// skips input values — rebuild the clipboard text from the selection instead: values included,
+// one line per entry, spaces within it
+document.addEventListener('copy',e=>{
+	const sel=getSelection(); if(!sel.rangeCount||sel.isCollapsed) return
+	const range=sel.getRangeAt(0)
+	const root=range.commonAncestorContainer
+	if(!cat.contains(root.nodeType===1?root:root.parentElement)) return
+	const parts=[]; let curEnt=null
+	const w=document.createTreeWalker(root.nodeType===1?root:root.parentElement,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT)
+	for(let n2=w.currentNode;n2;n2=w.nextNode()){
+		if(!range.intersectsNode(n2)) continue
+		const el=n2.nodeType===1?n2:n2.parentElement
+		if(!el||getComputedStyle(el).userSelect==='none'||!el.offsetParent&&el.tagName!=='INPUT') continue
+		let t=''
+		if(n2.nodeType===1){ if(n2.tagName==='INPUT') t=n2.value; else continue }
+		else{ t=n2.textContent
+			if(n2===range.startContainer) t=t.slice(range.startOffset)
+			if(n2===range.endContainer) t=t.slice(0,range.endOffset-(n2===range.startContainer?range.startOffset:0)) }
+		t=t.trim(); if(!t) continue
+		const ent=el.closest('.ent')
+		if(curEnt&&ent!==curEnt) parts.push('\n')
+		curEnt=ent
+		parts.push(t) }
+	if(!parts.length) return
+	e.clipboardData.setData('text/plain',parts.join(' ').replace(/ ?\n ?/g,'\n'))
+	e.preventDefault() })
+
 // entry interactions: the TITLE opens the dossier (the card is busy with inputs, spinners,
 // sliders); row drag slides; the value inputs edit their channel (↑/↓ steps, Enter applies)
 let squelch=false
@@ -1545,7 +1574,7 @@ let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.incl
 const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human' }
+const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human', off:'full' }
 let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'off'
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
 const inGam=(s,vv,g=GM)=>{ if(s==='rgb'||g==='off'||g==='vis') return true
@@ -2133,7 +2162,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const path=pathToRgb(s)
 	const L=LORE[s]||{}, RCH=REACH[s]
 	const RCHTIP='share of the visible gamut this space can encode — Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick'
-	const reachTxt=RCH?`${Math.round(RCH[0]*100)}% of visible`:''
+	const reachTxt=RCH?`${Math.round(RCH[0]*100)}% of visible colors`:''
 	const enc=encodingOf(s), avoid=avoidOf(s,L)
 	// the transfer curve — how a neutral linear ramp maps to this space's tone.
 	// Measured, not assumed: every non-hue channel is sampled along the grey axis; the
@@ -2173,7 +2202,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div class="dk"></div></div>` }
 	const plotPairs=pairsFor(s)
 	const segsHTML=`<span class="seg" id="qseg">${QSEG.map(([mo,lb])=>`<button data-q="${qKey(mo)}"${mo===Q?' class="on"':''} title="${QTIP[qKey(mo)]}">${lb}</button>`).join('')}</span>`
-	const gamHTML=`<span class="seg" id="gseg">${[...GAMS,'vis'].map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="${g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`}">${GAMLABEL[g]}</button>`).join('')}</span>`
+	const gamHTML=`<span class="seg" id="gseg">${[...GAMS,'vis','off'].map(g=>`<button data-g="${g}"${g===GM?' class="on"':''} title="${g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; plots and channels uncut':g==='off'?`the space's full conventional range — no gamut cut`:`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`}">${GAMLABEL[g]}</button>`).join('')}</span>`
 	detail.innerHTML=`<div class="dh"><h1>${s.toUpperCase()}</h1>${gamHTML}</div>
 	 ${HISTORICAL.has(s)?`<div class="dpills"><span class="tag" title="${TAGTIP.historical}">historical</span></div>`:''}
 	 <hr class="dhr">
@@ -2196,7 +2225,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 </div>
 	 <div class="dgrid2 dstack">
 		<div><i class="plab">description</i>
-		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>')}</div></div>
+		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
 		<div class="pcol">
 			<div><i>used for</i><p>${sent(m.use||useOf(s))}</p></div>
 			${avoid?`<div><i>avoid when</i><p>${sent(avoid)}</p></div>`:''}
@@ -2482,7 +2511,7 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	c2.fillStyle=hex(rgb); c2.strokeStyle=ink(rgb)==='#fff'?'#fff':'#1b1408'; c2.lineWidth=1
 	c2.fillRect(-4,-4,8,8); c2.strokeRect(-4,-4,8,8); c2.restore()
 	const cap=detail.querySelector('#tcap')
-	if(cap) cap.textContent=`${Math.round(lum*100)}% light → ${+code.toPrecision(3)}` }
+	if(cap) cap.textContent=`linear ${Math.round(lum*100)}% → encoded ${+code.toPrecision(3)}` }
 function gamMarker(){ const el=detail.querySelector('#gam2d'); if(!el) return
 	const cx=el.querySelector('.cx'), rgb=RGB()
 	// chromaticity from the RAW master values — the display rgb is clamped to sRGB, so a
