@@ -3,8 +3,9 @@
  * spectrum's "rainbow" of pure spectral hues, from deep violet near 380 nm to deep red
  * near 700 nm. Converting a wavelength to CIE XYZ uses the color-matching functions of
  * the CIE 1931 standard observer, the same experimentally-derived functions underlying
- * all of modern colorimetry. Going the other direction recovers the dominant wavelength
- * of any color, the same quantity that gives CIE DSH its hue.
+ * all of modern colorimetry. Going the other direction recovers the nearest spectral
+ * wavelength of any color — the dominant wavelength that gives CIE DSH its hue,
+ * projected into the 380–700 nm domain.
  *
  * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/Spectral_color}
@@ -22,10 +23,15 @@
 // Implementation notes:
 // Forward maps a wavelength in nm to CIE XYZ via the CIE 1931 2° colour-matching
 // functions (embedded at 5 nm, scaled so the 555 nm peak luminance is Y=100). The
-// inverse returns the dominant wavelength of any colour (shared with dsh.js), so it
-// round-trips for spectral inputs and is lossy otherwise (purples → negative).
+// inverse projects any colour to its nearest spectral wavelength (shared with
+// dsh.js): exact for spectral inputs, lossy otherwise — purples, which have no
+// dominant wavelength of their own, snap to the nearer end of the line of purples
+// (never a negative or out-of-range value; DSH keeps the signed complementary
+// convention). Achromatic colours return the 0 sentinel, which the forward renders
+// as the D65 neutral — mirroring dsh's d=0.
 import xyz from './xyz.js';
-import { dominantWavelength } from './dsh.js';
+import { spectralWavelength } from './dsh.js';
+import whitepoint from '../whitepoints.js';
 
 const wavelength = { name: 'wavelength', range: [[380, 700]] };
 
@@ -54,6 +60,7 @@ const N = CMF.length;
 
 // wavelength (nm) -> XYZ (0-100; 555 nm peak -> Y=100)
 wavelength.xyz = (wl) => {
+	if (wl === 0) return whitepoint[2].D65.slice();   // the 0 sentinel: no dominant hue -> neutral
 	wl = Math.max(380, Math.min(700, wl));
 	let i = 0;
 	while (i < N - 1 && CMF[i + 1][0] < wl) i++;
@@ -61,10 +68,10 @@ wavelength.xyz = (wl) => {
 	return [1, 2, 3].map(k => (CMF[i][k] + f * (CMF[i + 1][k] - CMF[i][k])) * 100);
 };
 
-// XYZ -> dominant wavelength
+// XYZ -> nearest spectral wavelength (380-700; achromatic -> 0)
 xyz.wavelength = (X, Y, Z) => {
 	const s = X + Y + Z;
-	return [s === 0 ? 0 : dominantWavelength(X / s, Y / s)];
+	return [s === 0 ? 0 : spectralWavelength(X / s, Y / s)];
 };
 
 export default wavelength;

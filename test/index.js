@@ -191,6 +191,27 @@ test('new spaces: inverse-path round-trips', () => {
 	is(space.lab['ral-design'](...space['ral-design'].lab(210, 50, 15)).map(round(2)), [210, 50, 15], 'ral-design CIELAB polar roundtrip')
 })
 
+// wavelength is a pure spectral scale (@channel 380-700): its inverse projects into
+// that domain rather than extrapolate — purples, which have no dominant wavelength
+// (DSH carries the signed complementary convention instead), snap to the nearer end
+// of the line of purples, and achromatics return the 0 sentinel, which the forward
+// renders as the D65 neutral. Regression: purples used to come back NEGATIVE
+// (xyy(0.46, 0.03) → -519) and the 0 sentinel rendered as 380 nm violet.
+test('wavelength: inverse stays in the spectral domain', () => {
+	is(space.xyy.wavelength(0.46, 0.03, 26), [380], 'purple chromaticity snaps to the violet end, not a negative')
+	is(space.rgb.wavelength(255, 0, 255), [380], 'magenta: violet-adjacent purple → 380')
+	is(space.rgb.wavelength(255, 0, 128), [700], 'red-adjacent purple → 700')
+	let out = 0
+	for (let r = 0; r <= 255; r += 17) for (let g = 0; g <= 255; g += 17) for (let b = 0; b <= 255; b += 17) {
+		const [wl] = space.rgb.wavelength(r, g, b)
+		if (!(wl === 0 || (wl >= 380 && wl <= 700))) out++
+	}
+	is(out, 0, 'whole rgb cube (16³) projects into 380-700, or the achromatic 0')
+	const w = space.wavelength.rgb(0)
+	is(Math.max(...w) - Math.min(...w) < 1e-9, true, 'the 0 sentinel renders neutral (D65 white), not violet')
+	is(space.xyz.wavelength(...space.wavelength.xyz(550)).map(round(2)), [550], 'spectral 550 still round-trips exactly')
+})
+
 // Appearance models & other numerically-inverted spaces: the NaN canary only checks
 // finiteness, so a wrong-but-finite inverse (Hunt's XYZ Newton returned near-grey for a
 // saturated purple, error ~19) passed silently. Round-trip saturated + neutral XYZ and

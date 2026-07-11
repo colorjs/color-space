@@ -16,6 +16,7 @@ const float WAVELENGTH_Z_[65] = float[65](0.00645, 0.01055, 0.02005, 0.03621, 0.
 
 vec3 wavelength_xyz(float c) {
 	float wl = c;
+	if (wl == 0.0) { return vec3(95.04559270516717, 100.0, 108.90577507598783); }   // 0 sentinel: no dominant hue -> D65 neutral (matches wavelength.js)
 	if (wl < 380.0) { wl = 380.0; }
 	if (wl > 700.0) { wl = 700.0; }
 	// find the 5 nm bracket [i, i+1] by walking the evenly-spaced grid (no float->int

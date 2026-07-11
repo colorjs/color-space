@@ -102,6 +102,23 @@ export const dominantWavelength = (x, y) => {
 };
 
 /**
+ * Nearest spectral wavelength (380–700 nm) of an xy chromaticity — the in-domain
+ * projection behind the 1-channel `wavelength` space. Purples have no dominant
+ * wavelength (CIE 15 reports a complementary one — the signed `d` above); on a
+ * pure spectral scale they snap to the nearer end of the line of purples.
+ * Achromatic xy returns the 0 sentinel: no dominant hue.
+ */
+export const spectralWavelength = (x, y) => {
+	const dx = x - Wx, dy = y - Wy;
+	if (Math.hypot(dx, dy) < 1e-10) return 0;
+	const fwd = cast(dx, dy);
+	if (!fwd) return NaN;
+	if (fwd.i === N - 1) return fwd.u < 0.5 ? 700 : 380;
+	const A = segA(fwd.i), B = segB(fwd.i);
+	return Math.max(380, A[0] + fwd.u * (B[0] - A[0]));
+};
+
+/**
  * xyY -> DSH: dominant wavelength, excitation purity, luminance
  */
 xyy.dsh = (x, y, Y) => {
