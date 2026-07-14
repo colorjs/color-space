@@ -1,0 +1,9 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>color-space</title>
+<script>
+// gh-pages serves this for <base>/<space> deep links — bounce to the app,
+// carrying the slug as ?s= (the app normalizes back to the slug url)
+var m = location.pathname.match(/([^/]+)\/?$/)
+location.replace(location.pathname.replace(/[^/]+\/?$/, '') + (m ? '?s=' + m[1] : '') + location.hash)
+</script>

@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- GPU compile smoke-test for the GL chunks: compiles every directed edge and
+     every composed rgb↔space source as a real WebGL2 fragment shader and a real
+     WebGPU (WGSL) shader module. The math is differentially verified in
+     test/gl.js; this catches what a JS evaluation cannot — GLSL/WGSL grammar,
+     type, and precision-qualifier errors on an actual GPU driver.
+     Open via a local server (needs ESM):  npx serve .  →  /test/gl-gpu.html -->
+<meta charset="utf-8">
+<title>color-space/gl — GPU compile check</title>
+<style>body { font: 13px/1.5 monospace; padding: 1rem } .fail { color: #c22 } .ok { color: #171 }</style>
+<pre id="out">compiling…</pre>
+<script type="module">
+import { glsl, graph } from '../gl/index.js'
+import { translate } from '../gl/wgsl.js'
+
+const out = document.getElementById('out')
+const results = { glsl: [], wgsl: [], total: 0, wgslTotal: 0, webgpu: 'pending' }
+
+// every directed edge + every composed rgb↔space pair
+const pairs = []
+const seen = new Set()
+const add = (a, b) => { const k = a + ' ' + b; if (!seen.has(k)) { seen.add(k); try { pairs.push([a, b, glsl(a, b)]) } catch {} } }
+for (const a in graph) for (const b in graph[a]) add(a, b)
+for (const name in graph) if (name !== 'rgb') { add('rgb', name); add(name, 'rgb') }
+results.total = pairs.length
+
+const render = () => {
+	out.innerHTML = `${results.total} pairs\n` +
+		`GLSL (WebGL2): ${results.glsl.length ? results.glsl.length + ' FAIL' : 'all pass'}\n` +
+		`WGSL (WebGPU): ${results.webgpu === 'ok' ? (results.wgsl.length ? results.wgsl.length + ' FAIL' : 'all pass') : results.webgpu}\n\n` +
+		[...results.glsl.map(f => `<span class="fail">GLSL ${f.pair}</span>\n${f.info}`),
+		 ...results.wgsl.map(f => `<span class="fail">WGSL ${f.pair}</span>\n${f.info}`)].join('\n\n')
+	out.className = results.glsl.length + results.wgsl.length ? 'fail' : 'ok'
+	window.__results = JSON.parse(JSON.stringify(results))
+}
+
+// ---- pass 1: WebGL2, synchronous — results land even if WebGPU stalls ----
+const gl2 = document.createElement('canvas').getContext('webgl2')
+for (const [a, b, src] of pairs) {
+	if (!gl2) { results.glsl.push({ pair: 'context', info: 'WebGL2 unavailable' }); break }
+	const sh = gl2.createShader(gl2.FRAGMENT_SHADER)
+	gl2.shaderSource(sh, `#version 300 es\nprecision highp float;\n${src}\nout vec4 O_; void main() { O_ = vec4(0.0); }`)
+	gl2.compileShader(sh)
+	if (!gl2.getShaderParameter(sh, gl2.COMPILE_STATUS))
+		results.glsl.push({ pair: `${a}→${b}`, info: gl2.getShaderInfoLog(sh) })
+	gl2.deleteShader(sh)
+}
+render()
+
+// ---- pass 2: WebGPU, racing a timeout so headless runs still finish ----
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rj) => setTimeout(() => rj(new Error('timeout')), ms))])
+try {
+	if (!navigator.gpu) throw new Error('unavailable')
+	const adapter = await withTimeout(navigator.gpu.requestAdapter(), 8000)
+	const device = await withTimeout(adapter.requestDevice(), 8000)
+	for (const [a, b, src] of pairs) {
+		device.pushErrorScope('validation')
+		const mod = device.createShaderModule({ code: translate(src) })
+		const info = await mod.getCompilationInfo()
+		await device.popErrorScope()
+		const errs = info.messages.filter(m => m.type === 'error')
+		if (errs.length) results.wgsl.push({ pair: `${a}→${b}`, info: errs.map(m => `${m.lineNum}:${m.linePos} ${m.message}`).join('\n') })
+		results.wgslTotal++
+	}
+	results.webgpu = 'ok'
+} catch (e) {
+	results.webgpu = `unavailable (${e.message})`
+}
+render()
+</script>

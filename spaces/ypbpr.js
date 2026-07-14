@@ -1,0 +1,80 @@
+/**
+ * YPbPr is the analog component-video counterpart to digital YCbCr, carrying the same
+ * luma-plus-color-difference structure over three separate analog cables instead of a
+ * digital bitstream. Y is the luma signal, alone sufficient for a grayscale picture,
+ * while Pb and Pr carry blue-difference and red-difference chroma scaled to a standard
+ * analog range. Defined alongside ITU-R BT.709 for high-definition and BT.601 for
+ * standard-definition, it was the standard connector-and-signal format for
+ * higher-quality analog video on DVD players, game consoles, and HDTVs before digital
+ * HDMI became universal.
+ *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.709}
+ * @wiki {@link https://en.wikipedia.org/wiki/YPbPr}
+ * @year 1982
+ * @by ITU-R
+ * @use Analog component-video color-difference signal for DVD players/consoles/HDTVs pre-HDMI; legacy, displaced by digital.
+ * @channel {Y} 0 1 Luma
+ * @channel {Pb} -0.5 0.5 Blue chroma
+ * @channel {Pr} -0.5 0.5 Red chroma
+ * @method luma-chroma
+ * @encoding gamma
+ * @referred display
+ * @dynamic sdr
+ */
+import rgb from './rgb.js';
+
+var ypbpr = {
+	name: 'ypbpr',
+	range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]]
+};
+
+
+/**
+ * YPbPr to RGB
+ *
+ * @param {Array<number>} ypbpr Y: 0-1, Pb/Pr: -0.5 to 0.5
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} RGB 0-255
+ */
+ypbpr.rgb = function (y, pb, pr, kb, kr) {
+	//default conversion is ITU-R BT.709
+	kb = kb || 0.0722;
+	kr = kr || 0.2126;
+
+	var r = y + 2 * pr * (1 - kr);
+	var b = y + 2 * pb * (1 - kb);
+	var g = (y - kr * r - kb * b) / (1 - kr - kb);
+
+	// Scale from 0-1 to 0-255
+	return [r * 255, g * 255, b * 255];
+};
+
+
+/**
+ * RGB to YPbPr
+ *
+ * @param {Array<number>} rgb RGB 0-255
+ * @param {number} kb
+ * @param {number} kr
+ * @return {Array<number>} Y: 0-1, Pb/Pr: -0.5 to 0.5
+ */
+rgb.ypbpr = function (r, g, b, kb, kr) {
+	// Normalize from 0-255 to 0-1
+	r = r / 255;
+	g = g / 255;
+	b = b / 255;
+
+	//ITU-R BT.709
+	kb = kb || 0.0722;
+	kr = kr || 0.2126;
+
+	var y = kr * r + (1 - kr - kb) * g + kb * b;
+	var pb = 0.5 * (b - y) / (1 - kb);
+	var pr = 0.5 * (r - y) / (1 - kr);
+
+	return [y, pb, pr];
+};
+
+
+export default ypbpr;

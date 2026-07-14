@@ -4,93 +4,185 @@
  * @module color-space
  *
  */
-import rgb from './rgb.js'
-import hsl from './hsl.js'
-import hsv from './hsv.js'
-import hsi from './hsi.js'
-import hwb from './hwb.js'
-import cmyk from './cmyk.js'
-import cmy from './cmy.js'
-import xyz from './xyz.js'
-import xyy from './xyy.js'
-import yiq from './yiq.js'
-import yuv from './yuv.js'
-import ydbdr from './ydbdr.js'
-import ycgco from './ycgco.js'
-import ypbpr from './ypbpr.js'
-import ycbcr from './ycbcr.js'
-import xvycc from './xvycc.js'
-import yccbccrc from './yccbccrc.js'
-import ucs from './ucs.js'
-import uvw from './uvw.js'
-import jpeg from './jpeg.js'
-import lab from './lab.js'
-import labh from './labh.js'
-import lms from './lms.js'
-import lchab from './lchab.js'
-import luv from './luv.js'
-import lchuv from './lchuv.js'
-import hsluv from './hsluv.js'
-import hpluv from './hpluv.js'
-import oklab from './oklab.js'
-import cubehelix from './cubehelix.js'
-import coloroid from './coloroid.js'
-import hcg from './hcg.js'
-import hcy from './hcy.js'
-import tsl from './tsl.js'
-import yes from './yes.js'
-import osaucs from './osaucs.js'
-import hsp from './hsp.js'
-import hsm from './hsm.js'
-import lrgb from './lrgb.js'
-
+import { createHub, wire, validate } from './hub.js'
+import rgb from './spaces/rgb.js'
+import hsl from './spaces/hsl.js'
+import hsv from './spaces/hsv.js'
+import hsi from './spaces/hsi.js'
+import hwb from './spaces/hwb.js'
+import cmyk from './spaces/cmyk.js'
+import cmy from './spaces/cmy.js'
+import xyz from './spaces/xyz.js'
+import xyy from './spaces/xyy.js'
+import yiq from './spaces/yiq.js'
+import yuv from './spaces/yuv.js'
+import ydbdr from './spaces/ydbdr.js'
+import ycgco from './spaces/ycgco.js'
+import ypbpr from './spaces/ypbpr.js'
+import ycbcr from './spaces/ycbcr.js'
+import ycbcrBt601_525 from './spaces/ycbcr-bt601-525.js'
+import ycbcrBt601_625 from './spaces/ycbcr-bt601-625.js'
+import ycbcrBt709 from './spaces/ycbcr-bt709.js'
+import ycbcrBt2020 from './spaces/ycbcr-bt2020.js'
+import xvycc from './spaces/xvycc.js'
+import yccbccrc from './spaces/yccbccrc.js'
+import ucs from './spaces/ucs.js'
+import uvw from './spaces/uvw.js'
+import jpeg from './spaces/jpeg.js'
+import lab from './spaces/lab.js'
+import labh from './spaces/labh.js'
+import lms from './spaces/lms.js'
+import maxwell from './spaces/maxwell.js'
+import lchab from './spaces/lchab.js'
+import luv from './spaces/luv.js'
+import lchuv from './spaces/lchuv.js'
+import hsluv from './spaces/hsluv.js'
+import hpluv from './spaces/hpluv.js'
+import coloroid from './spaces/coloroid.js'
+import hcg from './spaces/hcg.js'
+import hcy from './spaces/hcy.js'
+import tsl from './spaces/tsl.js'
+import yes from './spaces/yes.js'
+import osaucs from './spaces/osaucs.js'
+import hsp from './spaces/hsp.js'
+import hsm from './spaces/hsm.js'
+import lrgb from './spaces/lrgb.js'
+import oklab from './spaces/oklab.js'
+import oklch from './spaces/oklch.js'
+import okhsl from './spaces/okhsl.js'
+import okhsv from './spaces/okhsv.js'
+import oklrab from './spaces/oklrab.js'
+import oklrch from './spaces/oklrch.js'
+import jzazbz from './spaces/jzazbz.js'
+import jzczhz from './spaces/jzczhz.js'
+import p3 from './spaces/p3.js'
+import p3Linear from './spaces/p3-linear.js'
+import rec2020 from './spaces/rec2020.js'
+import rec2020Linear from './spaces/rec2020-linear.js'
+import rec2100pq from './spaces/rec2100-pq.js'
+import rec2100hlg from './spaces/rec2100-hlg.js'
+import a98rgb from './spaces/a98rgb.js'
+import a98Linear from './spaces/a98rgb-linear.js'
+import prophoto from './spaces/prophoto.js'
+import prophotoLinear from './spaces/prophoto-linear.js'
+import acescg from './spaces/acescg.js'
+import acescc from './spaces/acescc.js'
+import ictcp from './spaces/ictcp.js'
+import cam16jmh from './spaces/cam16.js'
+import hct from './spaces/hct.js'
+import xyzD50 from './spaces/xyz-d50.js'
+import xyzAbsD65 from './spaces/xyz-abs-d65.js'
+import labD65 from './spaces/lab-d65.js'
+import gray from './spaces/gray.js'
+import rg from './spaces/rg.js'
+import hcl from './spaces/hcl.js'
+import din99oLab from './spaces/din99o-lab.js'
+import din99oLch from './spaces/din99o-lch.js'
+import xyb from './spaces/xyb.js'
+import lchD65 from './spaces/lch-d65.js'
+import cam16ucs from './spaces/cam16-ucs.js'
+import okhwb from './spaces/okhwb.js'
+import aces2065 from './spaces/aces2065-1.js'
+import acescct from './spaces/acescct.js'
+import rec709 from './spaces/rec709.js'
+import logc4 from './spaces/logc4.js'
+import slog3 from './spaces/slog3.js'
+import vlog from './spaces/vlog.js'
+import log3g10 from './spaces/log3g10.js'
+import clog2 from './spaces/clog2.js'
+import dciP3 from './spaces/dci-p3.js'
+import smpteC from './spaces/smpte-c.js'
+import ipt from './spaces/ipt.js'
+import scrgb from './spaces/scrgb.js'
+import rec2100Linear from './spaces/rec2100-linear.js'
+import din99d from './spaces/din99d.js'
+import ciecam02 from './spaces/ciecam02.js'
+import cam02ucs from './spaces/cam02-ucs.js'
+import photoycc from './spaces/photoycc.js'
+import dsh from './spaces/dsh.js'
+import raldesign from './spaces/ral-design.js'
+import munsell from './spaces/munsell.js'
+import uv from './spaces/uv.js'
+import ohta from './spaces/ohta.js'
+import anlab from './spaces/anlab.js'
+import cieRgb from './spaces/cie-rgb.js'
+import ntsc from './spaces/ntsc.js'
+import appleRgb from './spaces/apple-rgb.js'
+import pal from './spaces/pal.js'
+import smpte240m from './spaces/smpte-240m.js'
+import rimm from './spaces/rimm.js'
+import cineon from './spaces/cineon.js'
+import logc3 from './spaces/logc3.js'
+import slog2 from './spaces/slog2.js'
+import clog from './spaces/clog.js'
+import clog3 from './spaces/clog3.js'
+import bmdfilm from './spaces/bmdfilm.js'
+import flog from './spaces/flog.js'
+import flog2 from './spaces/flog2.js'
+import nlog from './spaces/nlog.js'
+import applelog from './spaces/applelog.js'
+import cam02lcd from './spaces/cam02-lcd.js'
+import cam02scd from './spaces/cam02-scd.js'
+import cam16lcd from './spaces/cam16-lcd.js'
+import cam16scd from './spaces/cam16-scd.js'
+import prolab from './spaces/prolab.js'
+import dlog from './spaces/dlog.js'
+import sucs from './spaces/sucs.js'
+import hellwig2022 from './spaces/hellwig2022.js'
+import izazbz from './spaces/izazbz.js'
+import zcam from './spaces/zcam.js'
+import macboyn from './spaces/macboyn.js'
+import kelvin from './spaces/kelvin.js'
+import cctDuv from './spaces/cct-duv.js'
+import wavelength from './spaces/wavelength.js'
+import icacb from './spaces/icacb.js'
+import hdrIpt from './spaces/hdr-ipt.js'
+import hdrLab from './spaces/hdr-cie-lab.js'
+import srlab2 from './spaces/srlab2.js'
+import dkl from './spaces/dkl.js'
+import rlab from './spaces/rlab.js'
+import ryb from './spaces/ryb.js'
+import davinci from './spaces/davinci.js'
+import tlog from './spaces/tlog.js'
+import dcdm from './spaces/dcdm.js'
+import lalphabeta from './spaces/lalphabeta.js'
+import yrg from './spaces/yrg.js'
+import igpgtg from './spaces/igpgtg.js'
+import slog from './spaces/slog.js'
+import acesproxy from './spaces/acesproxy.js'
+import redlog from './spaces/redlog.js'
+import redlogfilm from './spaces/redlogfilm.js'
+import log3g12 from './spaces/log3g12.js'
+import panalog from './spaces/panalog.js'
+import viperlog from './spaces/viperlog.js'
+import llog from './spaces/llog.js'
+import protune from './spaces/protune.js'
+import milog from './spaces/milog.js'
+import olog from './spaces/olog.js'
+import filmicpro from './spaces/filmicpro.js'
+import erimm from './spaces/erimm.js'
+import llab from './spaces/llab.js'
+import nayatani95 from './spaces/nayatani95.js'
+import hunt from './spaces/hunt.js'
+import ostwald from './spaces/ostwald.js'
+import atd95 from './spaces/atd95.js'
 
 /**
- * Dict with all color spaces
- *
- * @type {{[key in SpaceId]: ColorSpace}}
+ * Dict with all color spaces, graph-wired: any space converts to any other, in
+ * scalar or batch form (see hub.js).
  */
-const spaces = {};
-export default spaces;
-
+const space = createHub([rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcrBt601_525, ycbcrBt601_625, ycbcrBt709, ycbcrBt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cctDuv, wavelength, icacb, hdrIpt, hdrLab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95]);
+export default space;
 
 /**
- * Register new color space and conversions with all existing spaces
- *
- * @param {ColorSpace} newSpace
+ * Register a color space and (re)wire conversions to/from every other space.
+ * The space is validated and copied in — the passed object stays unmutated;
+ * use the returned registry entry (`space[newSpace.name]`) for conversions.
+ * @param {space} newSpace
  */
 export function register(newSpace) {
-	const newSpaceName = newSpace.name;
-	for (const existingSpaceName in spaces) {
-		if (!newSpace[existingSpaceName]) newSpace[existingSpaceName] = createConverter(newSpace, existingSpaceName);
-
-		const existingSpace = spaces[existingSpaceName]
-		if (!existingSpace[newSpaceName]) existingSpace[newSpaceName] = createConverter(existingSpace, newSpaceName);
-	}
-	spaces[newSpaceName] = newSpace
+	validate(space, newSpace);
+	space[newSpace.name] = { ...newSpace };
+	wire(space);
+	return space;
 }
-
-/**
- * Creates a color space converter function.
- *
- * @param {ColorSpace} fromSpace
- * @param {SpaceId} toSpaceName
- * @returns {Transform}
- */
-function createConverter(fromSpace, toSpaceName) {
-	//create xyz converter, if available
-	if (fromSpace.xyz && spaces.xyz[toSpaceName])
-		return (arg) => spaces.xyz[toSpaceName](fromSpace.xyz(arg));
-
-	//create rgb converter
-	if (fromSpace.rgb && spaces.rgb[toSpaceName])
-		return (arg) => spaces.rgb[toSpaceName](fromSpace.rgb(arg));
-
-
-	return () => {
-		throw new Error(`Conversion ${fromSpace.name} to ${toSpaceName} is not available`);
-	}
-}
-
-// register all spaces by default
-[rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab].map(register)

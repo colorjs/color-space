@@ -1,0 +1,35 @@
+/**
+ * F-Log2 — Fujifilm's second-generation log curve, introduced on the X-H2S to
+ * capture roughly 14 stops of dynamic range, more than the original F-Log. Its
+ * curve is shallower than F-Log's, spreading those extra stops across the
+ * code-value range at the cost of needing more careful grading. It shares the
+ * F-Gamut primaries, matching ITU-R BT.2020, with F-Log.
+ *
+ * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log2_DataSheet_E_Ver.1.0.pdf}
+ * @year 2022
+ * @by Fujifilm
+ * @use Wider-dynamic-range log profile for Fujifilm X-series/GFX video; current flagship log curve on newer bodies.
+ * @channel {R} 0 1 Red
+ * @channel {G} 0 1 Green
+ * @channel {B} 0 1 Blue
+ * @method transfer
+ * @encoding log
+ * @illuminant D65
+ * @observer 2
+ * @referred scene
+ * @dynamic hdr
+ */
+// Implementation notes:
+// 18% grey → 0.3910.
+import rec2020Linear from './rec2020-linear.js';
+
+const flog2 = { name: 'flog2', range: [[0, 1], [0, 1], [0, 1]] };
+
+const c1 = 0.000889, a = 5.555556, b = 0.064829, c = 0.245281, d = 0.384316, e = 8.799461, f = 0.092864, c2 = 0.100686685370811;
+const enc = x => x < c1 ? e * x + f : c * Math.log10(a * x + b) + d;
+const dec = y => y < c2 ? (y - f) / e : (Math.pow(10, (y - d) / c) - b) / a;
+
+flog2['rec2020-linear'] = (r, g, b) => [dec(r), dec(g), dec(b)];
+rec2020Linear.flog2 = (r, g, b) => [enc(r), enc(g), enc(b)];
+
+export default flog2;

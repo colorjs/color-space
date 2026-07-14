@@ -1,0 +1,188 @@
+/* color-space · shared design tokens · current atlas + Almanac landing concept */
+
+@font-face {
+	font-family:"Hanken fallback";
+	src:local("Arial");
+	size-adjust:101%;
+	ascent-override:96%;
+	descent-override:24%;
+	line-gap-override:0%;
+}
+@font-face {
+	font-family:"Newsreader fallback";
+	src:local("Georgia");
+	size-adjust:96%;
+	ascent-override:91%;
+	descent-override:23%;
+	line-gap-override:0%;
+}
+@font-face {
+	font-family:"Plex Mono fallback";
+	src:local("Menlo");
+	size-adjust:94%;
+	ascent-override:101%;
+	descent-override:25%;
+	line-gap-override:0%;
+}
+
+:root {
+	/* Current atlas — cool paper (Almanac hue, lighter), slate ink, fixed coral signal. */
+	--color-paper:oklch(0.978 0.004 245);
+	--color-paper-2:oklch(0.952 0.006 245);
+	--color-paper-3:oklch(0.925 0.008 242);
+	--color-ink:oklch(0.17 0.015 248);
+	--color-ink-2:oklch(0.34 0.014 246);
+	--color-muted:oklch(0.52 0.012 246);
+	--color-rule:oklch(0.82 0.01 244);
+	--color-rule-2:oklch(0.68 0.012 244);
+	--color-accent:oklch(0.69 0.16 42);
+	--color-accent-ink:oklch(0.18 0.025 58);
+	--color-focus:oklch(0.55 0.2 34);
+	--color-lift:oklch(0.995 0.003 245);
+	--color-terminal-paper:oklch(0.17 0.012 248);
+	--color-terminal-ink:oklch(0.97 0.005 245);
+	--color-terminal-muted:oklch(0.67 0.01 246);
+	--color-error:oklch(0.52 0.19 28);
+	--color-error-on-dark:oklch(0.78 0.12 28);
+	--color-success:oklch(0.45 0.12 152);
+
+	/* Backwards-compatible aliases used by the current single-file atlas. */
+	--paper:var(--color-paper);
+	--panel:var(--color-paper-2);
+	--ink:var(--color-ink);
+	--body:var(--color-ink-2);
+	--soft:var(--color-muted);
+	--ghost:var(--color-rule-2);
+	--hair:oklch(0.17 0.015 248/.12);
+	--dark:var(--color-accent-ink);
+	--c:var(--color-accent);
+	--lift:var(--color-lift);
+
+	--font-current:"Inter",ui-sans-serif,system-ui,sans-serif;
+	--font-display:"Hanken Grotesk","Hanken fallback",ui-sans-serif,sans-serif;
+	--font-body:"Newsreader","Newsreader fallback",ui-serif,serif;
+	--font-ui:"Hanken Grotesk","Hanken fallback",ui-sans-serif,sans-serif;
+	--font-mono:"IBM Plex Mono","Plex Mono fallback",ui-monospace,monospace;
+	--f:var(--font-current);
+
+	/* Four-point scale. */
+	--space-3xs:.125rem;
+	--space-2xs:.25rem;
+	--space-xs:.5rem;
+	--space-sm:.75rem;
+	--space-md:1rem;
+	--space-lg:1.5rem;
+	--space-xl:2.5rem;
+	--space-2xl:4rem;
+	--space-3xl:6rem;
+	--space-4xl:9rem;
+	--s1:var(--space-2xs);
+	--s2:var(--space-xs);
+	--s3:var(--space-sm);
+	--s4:var(--space-md);
+	--s6:var(--space-lg);
+	--s8:2rem;
+	--s12:3rem;
+
+	--text-xs:.6875rem;
+	--text-sm:.8125rem;
+	--text-base:1rem;
+	--text-md:1.125rem;
+	--text-lg:1.375rem;
+	--text-xl:1.75rem;
+	--text-2xl:2.25rem;
+	--text-3xl:3rem;
+	--text-display:clamp(2.75rem,5vw + 1rem,5.25rem);
+	--text-stat:clamp(9rem,28vw,25rem);
+	--t0:.625rem;
+	--t1:.75rem;
+	--t2:.875rem;
+	--t3:1rem;
+	--t4:1.25rem;
+
+	--page-max:84rem;
+	--page-gutter:clamp(1rem,4vw,3rem);
+	--measure:64ch;
+	--rule-hair:1px;
+	--radius-card:.25rem;
+	--radius-control:.125rem;
+
+	--ease-out:cubic-bezier(.16,1,.3,1);
+	--ease-in:cubic-bezier(.7,0,.84,0);
+	--ease-in-out:cubic-bezier(.65,0,.35,1);
+	--dur-micro:120ms;
+	--dur-short:220ms;
+	--dur-long:420ms;
+
+	--z-base:1;
+	--z-raised:10;
+	--z-dropdown:100;
+	--z-sticky:200;
+	--z-sticky-nav:300;
+	--z-modal:400;
+	--z-toast:500;
+	--z-tooltip:600;
+	--banner-height:0px;
+
+	/* Current atlas instrument dimensions. */
+	--ctl:40px;
+	--pick:11rem;
+}
+
+[data-theme="dark"] {
+	--color-paper:oklch(0.185 0.01 255);
+	--color-paper-2:oklch(0.243 0.012 255);
+	--color-paper-3:oklch(0.275 0.014 255);
+	--color-ink:oklch(0.93 0.005 255);
+	--color-ink-2:oklch(0.79 0.008 255);
+	--color-muted:oklch(0.62 0.012 255);
+	--color-rule:oklch(0.36 0.014 255);
+	--color-rule-2:oklch(0.48 0.014 255);
+	--color-accent:oklch(0.74 0.13 42);
+	--color-accent-ink:oklch(0.16 0.015 55);
+	--color-focus:oklch(0.78 0.15 48);
+	--color-lift:oklch(0.24 0.012 255);
+	--hair:oklch(0.93 0.005 255/.15);
+	color-scheme:dark;
+}
+
+/* Almanac — cool reference paper, slate signal, dense and exact. */
+[data-theme="almanac"] {
+	--color-paper:oklch(0.955 0.008 245);
+	--color-paper-2:oklch(0.925 0.01 245);
+	--color-paper-3:oklch(0.875 0.012 240);
+	--color-ink:oklch(0.16 0.02 245);
+	--color-ink-2:oklch(0.24 0.018 245);
+	--color-muted:oklch(0.46 0.014 245);
+	--color-rule:oklch(0.76 0.012 240);
+	--color-rule-2:oklch(0.38 0.018 240);
+	--color-accent:oklch(0.38 0.135 250);
+	--color-accent-ink:oklch(0.97 0.006 245);
+	--color-focus:oklch(0.52 0.17 250);
+	--color-lift:oklch(0.98 0.006 245);
+	--color-terminal-paper:oklch(0.18 0.018 245);
+	--color-terminal-ink:oklch(0.94 0.008 245);
+	--color-terminal-muted:oklch(0.72 0.012 245);
+	--color-error:oklch(0.5 0.18 28);
+	--color-success:oklch(0.42 0.12 152);
+	--font-current:var(--font-ui);
+	--space-xl:2rem;
+	--space-2xl:3rem;
+	--space-3xl:4.5rem;
+	--space-4xl:7rem;
+	--text-xs:.6875rem;
+	--text-sm:.8125rem;
+	--text-base:1rem;
+	--text-md:1.0625rem;
+	--text-lg:1.25rem;
+	--text-xl:1.5rem;
+	--text-2xl:1.875rem;
+	--text-3xl:2.625rem;
+	--text-display:clamp(2.5rem,4vw + 1rem,4.75rem);
+	--text-stat:clamp(8.5rem,28vw,24rem);
+	--radius-card:0;
+	--radius-control:.125rem;
+	--page-max:86rem;
+	--measure:62ch;
+	color-scheme:light;
+}
