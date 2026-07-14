@@ -20,7 +20,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 156, '156 spaces registered')
+	is(names.length, 161, '161 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -69,6 +69,8 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	const unmapped = Object.keys(space).filter(n => !map.includes(`/${n}</loc>`))
 	is(unmapped, [], 'every space is in the sitemap')
 	is(existsSync(`${site}/llms.txt`) && existsSync(`${site}/robots.txt`), true, 'llms + robots staged')
+	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8'), lmsWiki = 'href="https://en.wikipedia.org/wiki/LMS_color_space"'
+	is(lmsPage.split(lmsWiki).length - 1, 1, 'LMS renders one Wikipedia link')
 })
 
 // data.json is generated (npm run data, in `prepare`) — this pins it against
@@ -81,6 +83,79 @@ test('integrity — data.json mirrors the live registry', async () => {
 	is(data.conformance.length > 100 && data.conformance.every(r => r.url && r.src), true, `${data.conformance.length} conformance points, each cited`)
 	is(data.cmf?.rows?.length, 65, 'CIE 1931 CMF table present (380–700 @ 5 nm)')
 	is(data.count, Object.keys(space).length, 'count matches')
+})
+
+// Doc drift: hand-typed space counts rot (the audit found 151/155/156 coexisting).
+// Every count-bearing surface must state the live registry's count — adding or
+// removing a space fails this until the docs follow.
+test('integrity — docs state the live space count', async () => {
+	const N = Object.keys(space).length
+	for (const f of ['README.md', 'web/index.html', 'docs/library-comparison.md', 'docs/migration.md', 'benchmark/README.md'])
+		is(readFileSync(new URL('../' + f, import.meta.url), 'utf8').includes(`${N} `) , true, `${f} mentions ${N}`)
+})
+
+// The "zero gaps" verification claim, pinned: every space is either differentially
+// tested against colorjs.io (reference.js MAP) or carries a cited anchor (refs.js).
+test('integrity — every space differentially tested or anchor-cited', async () => {
+	const { MAP } = await import('./reference.js')
+	const { REF } = await import('./refs.js')
+	const covered = new Set([...Object.keys(MAP), ...REF.map(r => r.s)])
+	is(Object.keys(space).filter(n => !covered.has(n)), [], 'no unverified space')
+})
+
+// Hub contract — each assertion pins a bug the 2026-07 audit found:
+test('hub — params bind to the target edge on composed paths', () => {
+	// kb/kr were silently dropped past the first edge: hsl.ycbcr returned BT.709
+	is(space.hsl.ycbcr(120, 50, 50, 0.2, 0.3), space.rgb.ycbcr(...space.hsl.rgb(120, 50, 50), 0.2, 0.3), 'target-edge params honored')
+	// source-side params keep their v2 meaning
+	is(space.ycbcr.hsl(126, 111, 90, 0.2, 0.3), space.rgb.hsl(...space.ycbcr.rgb(126, 111, 90, 0.2, 0.3)), 'source-edge params honored')
+	// batch form carries the same params to every pixel
+	is([...space.hsl.ycbcr([120, 50, 50], 0.2, 0.3)], space.hsl.ycbcr(120, 50, 50, 0.2, 0.3), 'batch ≡ scalar with params')
+})
+
+test('hub — identity conversion, scalar and batch', () => {
+	is(space.rgb.rgb(255, 128, 0), [255, 128, 0])
+	is([...space.oklch.oklch([0.7, 0.1, 30, 0.2, 0.05, 200])], [0.7, 0.1, 30, 0.2, 0.05, 200])
+	is(space.kelvin.kelvin(6504), [6504], '1-channel identity')
+})
+
+test('hub — scalar arity fails fast', () => {
+	let e; try { space.rgb.hsl(255, 0) } catch (err) { e = err }
+	is(/expects 3 channel values/.test(e?.message), true, 'missing channel throws, not NaN')
+	let e1; try { space.kelvin.rgb() } catch (err) { e1 = err }
+	is(/expects 1 channel/.test(e1?.message), true, '1-channel arity checked too')
+})
+
+test('hub — register validates, copies, and stays isolated', async () => {
+	const { default: lite, register } = await import('../lite.js')
+	const mine = { name: 'minetest', range: [[0, 1], [0, 1], [0, 1]], rgb: (a, b, c) => [a * 255, b * 255, c * 255] }
+	register(mine)
+	is(typeof lite.minetest.oklch, 'function', 'registered space wired through the graph')
+	is(space.minetest, undefined, 'other hub untouched')
+	is(mine.oklch, undefined, 'passed object not mutated (copied in)')
+	let e; try { register({ name: 'bad' }) } catch (err) { e = err }
+	is(/needs a `range`/.test(e?.message), true, 'invalid space rejected')
+	let e1; try { register({ name: 'island', range: [[0, 1]] }) } catch (err) { e1 = err }
+	is(/no conversion/.test(e1?.message), true, 'disconnected space rejected')
+	// deletion + rewire leaves no stale faces behind
+	delete lite.minetest
+	const { wire } = await import('../hub.js')
+	wire(lite)
+	is(lite.rgb.minetest, undefined, 'stale faces removed on rewire')
+})
+
+// The kelvin pair round-trips on the whole locus (the McCamy inverse drifted
+// ~4800 K at 25000 K); off-locus stays a projection.
+test('kelvin — exact round-trip on the Planckian locus, 1000–25000 K', () => {
+	for (const T of [1000, 1667, 2856, 5000, 6504, 10000, 17000, 25000])
+		is(Math.abs(space.xyz.kelvin(...space.kelvin.xyz(T))[0] - T) < 0.01, true, `round-trip at ${T} K`)
+})
+
+// Lossy nodes carry machine-readable semantics (README points users here)
+test('integrity — loss tags on the non-invertible nodes', () => {
+	is(Object.entries(meta).filter(([, m]) => m.loss).map(([n]) => n).sort(),
+		['acesproxy', 'cct-duv', 'cmyk', 'gray', 'kelvin', 'maxwell', 'munsell', 'rg', 'wavelength'], 'exactly the lossy set is tagged')
+	is(Object.values(meta).every(m => !m.loss || ['projective', 'lookup', 'quantized'].includes(m.loss)), true, 'known kinds only')
 })
 
 test('integrity — data.json spaces carry channels, range and @see refs', () => {
@@ -167,8 +242,7 @@ test('edge: achromatic / black inputs are NaN-safe', () => {
 test('edge: every space is NaN/Infinity-safe (black/white/gray/primaries)', () => {
 	const finite = (a) => Array.isArray(a) && a.every(Number.isFinite)
 	const inputs = [[0, 0, 0], [255, 255, 255], [128, 128, 128], [255, 0, 0], [0, 255, 0], [0, 0, 255]]
-	// every space is now bidirectional (cubehelix inverts by nearest-fraction projection,
-	// osaucs by Newton) — no one-way exceptions left
+	// every space is now bidirectional (osaucs by Newton) — no one-way exceptions left
 	for (const name of Object.keys(space)) {
 		if (name === 'rgb' || typeof space.rgb[name] !== 'function') continue
 		for (const c of inputs) {
@@ -189,6 +263,22 @@ test('new spaces: inverse-path round-trips', () => {
 	is(space.xyy.munsell(...space.munsell.xyy(5, 5, 10)).map(round(2)), [5, 5, 10], 'munsell grid-point roundtrip')
 	is(space.xyy.munsell(...space.munsell.xyy(15, 6, 7)).map(round(1)), [15, 6, 7], 'munsell off-grid iterative inverse roundtrip')
 	is(space.lab['ral-design'](...space['ral-design'].lab(210, 50, 15)).map(round(2)), [210, 50, 15], 'ral-design CIELAB polar roundtrip')
+})
+
+test('CCT+Duv, Maxwell, and explicit YCbCr variants: inverse semantics', () => {
+	for (const [name, parent] of [
+		['ycbcr-bt601-525', 'smpte-c'], ['ycbcr-bt601-625', 'pal'],
+		['ycbcr-bt709', 'rec709'], ['ycbcr-bt2020', 'rec2020']
+	]) {
+		const sample = [0.2, 0.4, 0.8]
+		const back = space[name][parent](...space[parent][name](...sample))
+		is(back.every((v, i) => Math.abs(v - sample[i]) < 1e-12), true, `${name} direct roundtrip`)
+	}
+	const white = [6504, 0.0032]
+	const cct = space.xyz['cct-duv'](...space['cct-duv'].xyz(...white))
+	is(Math.abs(cct[0] - white[0]) < 0.01 && Math.abs(cct[1] - white[1]) < 1e-8, true, 'CCT+Duv preserves chromaticity')
+	const catches = [40, 30, 20], projected = space.maxwell.lms(...space.lms.maxwell(...catches))
+	is(projected.every((v, i) => Math.abs(v / 100 - catches[i] / 90) < 1e-12), true, 'Maxwell preserves catch ratios at conventional sum=100')
 })
 
 // wavelength is a pure spectral scale (@channel 380-700): its inverse projects into
@@ -217,7 +307,11 @@ test('wavelength: inverse stays in the spectral domain', () => {
 // saturated purple, error ~19) passed silently. Round-trip saturated + neutral XYZ and
 // assert the numeric inverse actually recovers the input.
 test('appearance/numeric inverses: XYZ round-trips (regression: Hunt purple → grey)', () => {
-	const samples = [[11.229, 5.125, 30.536] /* the purple that broke Hunt */, [41.24, 21.26, 1.93], [20, 12, 60], [50, 50, 50]]
+	// spans the fragile region for iterative/near-closed-form inverses: a saturated purple,
+	// bright/mid colours, plus a near-neutral grey, a dark grey and a low-lightness colour —
+	// the neutral axis and low-J corner where Hunt's analytic inverse and its siblings are
+	// most delicate (Hunt's rod term, OSA-UCS's L lattice).
+	const samples = [[11.229, 5.125, 30.536] /* the purple that broke Hunt */, [41.24, 21.26, 1.93], [20, 12, 60], [50, 50, 50], [47.5, 50, 54.4] /* D65 grey */, [4.75, 5, 5.44] /* dark grey */, [8, 4, 18] /* low-J violet */]
 	for (const s of ['hunt', 'nayatani95', 'llab', 'atd95', 'rlab', 'osaucs']) {
 		for (const X of samples) {
 			const back = space[s].xyz(...space.xyz[s](...X))
@@ -765,10 +859,11 @@ test('ypbpr: rgb -> ypbpr', function () {
 });
 
 test('ypbpr: yuv <-> ypbpr', function () {
-	// YUV/YPbPr: Y 0-1, U/V/Pb/Pr ±0.5
-	is((space.yuv.ypbpr(1, -0.5, -0.5)).map(round(1)), [0.8, -0.4, -0.2]);
-	// Symmetric case?
-	// is((space.yuv.ypbpr(1, 0.5, 0.5)).map(round(1)), [0.8, 0.4, 0.2]); // Guess
+	// YUV Y 0-1, U ±0.436, V ±0.615; YPbPr Y 0-1, Pb/Pr ±0.5. The input sits
+	// outside YUV's declared range — out-of-gamut RGB passes through unclamped
+	// (library-wide rule), so the composed value equals the explicit two-step.
+	is(space.yuv.ypbpr(1, -0.5, -0.5), space.rgb.ypbpr(...space.yuv.rgb(1, -0.5, -0.5)), 'composed ≡ two-step, unclamped');
+	is((space.yuv.ypbpr(1, -0.5, -0.5)).map(round(1)), [1.2, -0.6, -0.5]);
 
 	is((space.ypbpr.yuv(0.8, -0.4, -0.2)).map(round(1)), [0.7, -0.3, -0.2]);
 	// is((space.ypbpr.yuv(235, 240, 240)).map(round(1))), [1, 0.5, 0.5]); // This was definitely wrong input for YPbPr
@@ -904,26 +999,6 @@ test('cam16', () => {
 });
 
 
-
-test('cubehelix: paint', function () {
-	if (typeof document === 'undefined') return;
-
-	var cnv = document.createElement('canvas');
-	cnv.width = 400;
-	cnv.height = 30;
-	document.body.appendChild(cnv);
-
-	var ctx = cnv.getContext('2d');
-
-	for (var i = 0; i < 1; i += 0.01) {
-		ctx.fillStyle = 'rgb(' + space.cubehelix.rgb(i, {
-			rotation: 1,
-			start: 0,
-			hue: 1
-		}).map(v => Math.round(v * 255)) + ')';
-		ctx.fillRect(i * cnv.width, 0, 4, cnv.height);
-	}
-});
 
 
 

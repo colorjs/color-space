@@ -25,20 +25,20 @@
 // white and background [95.05, 100, 108.88], adapting luminance L_A = 318.31 cd/m²,
 // "Normal Scenes" surround (N_c=1, N_b=75), CCT_w = 6504 K for the rod (scotopic)
 // signal, illuminant discounted, no Helson-Judd, scotopic response approximated by
-// S = Y (as in the reference). Output is (J, C_94, h). The model has no closed-form
-// inverse — Fairchild notes it must be reversed by successive approximation.
+// S = Y (as in the reference). Output is (J, C_94, h).
 //
-// hunt.xyz solves the inverse in ADAPTED-CONE space (r_a, g_a, b_a), not XYZ: the cone
-// nonlinearity f_n(x)=40·x^0.73/(x^0.73+2) has an INFINITE slope at x=0, so the
-// XYZ→(J,C,h) Jacobian is singular near black and a plain Newton diverges for
-// saturated colours (a purple round-tripped with error ~19). In cone-adapted space
-// black is the regular point (1,1,1), so the map is well conditioned; a
-// Levenberg-Marquardt solve (damping handles the still-ill-scaled chroma directions)
-// from the white-adapted seed converges to machine precision for every colour with
-// lightness J ≥ 1. XYZ is then recovered analytically — the per-channel f_n inverse
-// gives the cone signals, HPE⁻¹ gives XYZ. Colours below J = 1 (essentially black,
-// <1% lightness) sit in a residual landscape with a microscopic basin around the true
-// preimage and round-trip only approximately; they return a bounded near-black value.
+// Fairchild calls the model "not analytically invertible", but under these baked
+// conditions (Y_b = Y_w = 100) the inverse is very nearly closed form. From J alone,
+// Q/Q_w = √(J/100); C_94 then gives the saturation s directly; the hue h fixes the
+// DIRECTION of the opponent pair (C1, C2) = ρ·d(h), leaving a single magnitude ρ and a
+// single lightness Aa, both AFFINE in ρ once s is known. The only genuine coupling is
+// the rod (scotopic) term, which enters the achromatic signal through the sample
+// luminance Y — and Y depends on the very cones we are solving for. That closes with a
+// short 1-D fixed point on Y (rod is a small correction, so it contracts in ~8 steps).
+// Cone signals come back per-channel via f_n⁻¹, then HPE⁻¹ gives XYZ. This replaces the
+// former Levenberg-Marquardt solve: no Jacobian, no damping, ~4× faster, and it seals
+// the near-black plane gaps the LM basin used to void. Machine-exact for J ≥ 1; below
+// that the preimage is degenerate and the fixed point returns a bounded near-black value.
 import xyz from './xyz.js';
 import { mat3, inv3 } from '../util.js';
 
@@ -78,7 +78,7 @@ const rod = SSw => {
 	const l = 5 * LAS / 2.26;
 	const j = 0.00001 / (l + 0.00001);
 	const FLS = 3800 * j * j * l + 0.2 * Math.pow(1 - j * j, 0.4) * Math.pow(l, 1 / 6);
-	const BS = 0.5 / (1 + 0.3 * Math.pow(l * SSw, 0.3)) + 0.5 / (1 + 5 * l);
+	const BS = 0.5 / (1 + 0.3 * Math.pow(Math.max(l * SSw, 0), 0.3)) + 0.5 / (1 + 5 * l);
 	return fn(FLS * SSw) * 3.05 * BS + 0.3;
 };
 const Aw = Nbb * (Aaw - 1 + rod(1) - 0.3 + Math.sqrt(1.09));
@@ -87,9 +87,16 @@ const N2 = 7 * Aw * Math.pow(Nb, 0.362) / 200;
 
 // M_w: overall chromatic response of the white (uses the SAMPLE's e_s, per the model)
 const Cw = [rgbAw[0] - rgbAw[1], rgbAw[1] - rgbAw[2], rgbAw[2] - rgbAw[0]];
+const S109 = Math.sqrt(1.09);
+// the white's brightness Q_w at eccentricity e_s (per-sample e_s, as the model specifies)
+const Qw = es => { const fac = es * (10 / 13) * Nc * Ncb;
+	const MybW = 100 * (0.5 * (Cw[1] - Cw[2]) / 4.5) * fac * Ft, MrgW = 100 * (Cw[0] - Cw[1] / 11) * fac;
+	return Math.pow(7 * (Aw + Math.hypot(MybW, MrgW) / 100), 0.6) * N1 - N2; };
+// sample luminance Y from adapted cones (per-channel f_n⁻¹ then HPE⁻¹ row Y) — the inverse's one coupling
+const coneY = rgbA => { const rgb = rgbA.map((v, i) => rgbW[i] / FL * fnInv((v - 1) / Brgb[i]));
+	return HPEi[3] * rgb[0] + HPEi[4] * rgb[1] + HPEi[5] * rgb[2]; };
 
-// (J, C_94, h) from the adapted cone signals rgbA and the sample luminance Y — the
-// stage both the forward and the inverse's residual share
+// (J, C_94, h) from the adapted cone signals rgbA and the sample luminance Y (the forward)
 const correlate = (rgbA, Y) => {
 	const Aa = 2 * rgbA[0] + rgbA[1] + rgbA[2] / 20 - 3.05 + 1;
 	const C1 = rgbA[0] - rgbA[1], C2 = rgbA[1] - rgbA[2], C3 = rgbA[2] - rgbA[0];
@@ -98,15 +105,12 @@ const correlate = (rgbA, Y) => {
 	const Myb = 100 * (0.5 * (C2 - C3) / 4.5) * (es * (10 / 13) * Nc * Ncb * Ft);
 	const Mrg = 100 * (C1 - C2 / 11) * (es * (10 / 13) * Nc * Ncb);
 	const M = Math.hypot(Myb, Mrg);
-	const MybW = 100 * (0.5 * (Cw[1] - Cw[2]) / 4.5) * (es * (10 / 13) * Nc * Ncb * Ft);
-	const MrgW = 100 * (Cw[0] - Cw[1] / 11) * (es * (10 / 13) * Nc * Ncb);
-	const Mw = Math.hypot(MybW, MrgW);
 	const s = 50 * M / (rgbA[0] + rgbA[1] + rgbA[2]);
-	const A = Nbb * (Aa - 1 + rod(Y / Yw) - 0.3 + Math.sqrt(1.09));
+	const A = Nbb * (Aa - 1 + rod(Y / Yw) - 0.3 + S109);
 	const Q = Math.pow(7 * (A + M / 100), 0.6) * N1 - N2;
-	const Qw = Math.pow(7 * (Aw + Mw / 100), 0.6) * N1 - N2;
-	const J = 100 * Math.pow(Q / Qw, 1 + Math.sqrt(Yb / Yw));
-	const C94 = 2.44 * Math.pow(s, 0.69) * Math.pow(Q / Qw, Yb / Yw) * (1.64 - Math.pow(0.29, Yb / Yw));
+	const qr = Q / Qw(es);
+	const J = 100 * Math.pow(qr, 1 + Math.sqrt(Yb / Yw));
+	const C94 = 2.44 * Math.pow(s, 0.69) * Math.pow(qr, Yb / Yw) * (1.64 - Math.pow(0.29, Yb / Yw));
 	return [J, C94, h];
 };
 
@@ -117,37 +121,30 @@ xyz.hunt = (X, Y, Z) => {
 };
 
 hunt.xyz = (J, C, h) => {
-	const hr = h * Math.PI / 180, T = [J, C * Math.cos(hr), C * Math.sin(hr)];
-	// residual in adapted-cone space: recover the cone signals (per-channel f_n inverse)
-	// and Y (HPE⁻¹) from rgbA, then the correlates, as cartesian (J, C·cos h, C·sin h)
-	const g = rgbA => {
-		const rgb = rgbA.map((v, i) => rgbW[i] / FL * fnInv((v - 1) / Brgb[i]));
-		const Y = HPEi[3] * rgb[0] + HPEi[4] * rgb[1] + HPEi[5] * rgb[2];
-		const [j, c, hh] = correlate(rgbA, Y), a = hh * Math.PI / 180;
-		return [j, c * Math.cos(a), c * Math.sin(a)];
-	};
-	// Levenberg-Marquardt from the white-adapted seed (black = the regular (1,1,1))
-	let p = rgbAw.slice();
-	let f = g(p), e = [f[0] - T[0], f[1] - T[1], f[2] - T[2]], cost = e[0] * e[0] + e[1] * e[1] + e[2] * e[2], lam = 1e-3;
-	for (let it = 0; it < 40 && cost > 1e-24; it++) {
-		const hs = 1e-5, Jm = [[], [], []]; // numeric Jacobian d(cartesian)/d(rgbA)
-		for (let c2 = 0; c2 < 3; c2++) { const pp = p.slice(); pp[c2] += hs; const fp = g(pp); for (let r = 0; r < 3; r++) Jm[r][c2] = (fp[r] - f[r]) / hs; }
-		const H = [0, 0, 0, 0, 0, 0, 0, 0, 0], grad = [0, 0, 0]; // H = JᵀJ, grad = Jᵀe
-		for (let a = 0; a < 3; a++) { for (let b = 0; b < 3; b++) { let sm = 0; for (let r = 0; r < 3; r++) sm += Jm[r][a] * Jm[r][b]; H[a * 3 + b] = sm; } let sg = 0; for (let r = 0; r < 3; r++) sg += Jm[r][a] * e[r]; grad[a] = sg; }
-		let stepped = false;
-		for (let tries = 0; tries < 15; tries++) { // grow damping until a step reduces cost
-			const D = [H[0] * (1 + lam), H[1], H[2], H[3], H[4] * (1 + lam), H[5], H[6], H[7], H[8] * (1 + lam)];
-			const dp = mat3(inv3(D), -grad[0], -grad[1], -grad[2]);
-			if (!dp.every(Number.isFinite)) { lam *= 3; continue; }
-			const np = [p[0] + dp[0], p[1] + dp[1], p[2] + dp[2]];
-			const nf = g(np), ne = [nf[0] - T[0], nf[1] - T[1], nf[2] - T[2]], nc = ne[0] * ne[0] + ne[1] * ne[1] + ne[2] * ne[2];
-			if (nc < cost) { p = np; f = nf; e = ne; cost = nc; lam = Math.max(lam * 0.3, 1e-10); stepped = true; break; }
-			lam *= 3;
+	const es = ecc(h), qr = Math.sqrt(Math.max(J, 0) / 100);
+	const Q = qr * Qw(es), K = Math.pow(Math.max(Q + N2, 0) / N1, 1 / 0.6) / 7;   // K = A + M/100, exact from J
+	const hr = h * Math.PI / 180, ch = Math.cos(hr), sh = Math.sin(hr), fac = es * (10 / 13) * Nc * Ncb;
+	// hue fixes the opponent DIRECTION: (C1, C2) = ρ·(d1, d2); chroma M = K_m·ρ
+	const d1 = (22 * ch + 9 * sh) / 23, d2 = 11 * (9 * sh - ch) / 23, Km = 100 * fac * Math.hypot(Ft * sh, ch);
+	let rgbA;
+	if (C < 1e-9) {   // achromatic: r_a = g_a = b_a; solve lightness against the rod's Y-coupling
+		let a = rgbAw[0];
+		for (let i = 0; i < 30; i++) { const na = (K / Nbb + 1 - rod(coneY([a, a, a]) / Yw) + 0.3 - S109 + 2.05) / 3.05;
+			if (Math.abs(na - a) < 1e-13) { a = na; break; } a = na; }   // A = K, Aa = 3.05·a − 2.05
+		rgbA = [a, a, a];
+	} else {
+		const s = Math.pow(C / (2.44 * 1.35 * qr), 1 / 0.69);       // saturation, exact from C_94
+		const Ka = 3.05 / 3 * (50 * Km / s - (d1 - d2)) + 2 * d1 - d2 / 20;   // Aa = K_a·ρ − 2.05
+		let Y = 50, rho = 0, r1 = 0;
+		for (let i = 0; i < 30; i++) {   // 1-D fixed point on Y (rod is a small, contracting correction)
+			rho = (K - Nbb * (S109 - 3.35 + rod(Y / Yw))) / (Nbb * Ka + Km / 100);
+			r1 = (50 * Km * rho / s - rho * (d1 - d2)) / 3;
+			const nY = coneY([r1 + rho * d1, r1, r1 - rho * d2]);
+			if (Math.abs(nY - Y) < 1e-11) { Y = nY; break; } Y = nY;
 		}
-		if (!stepped) break;
+		rgbA = [r1 + rho * d1, r1, r1 - rho * d2];
 	}
-	const rgb = p.map((v, i) => rgbW[i] / FL * fnInv((v - 1) / Brgb[i]));
-	return mat3(HPEi, ...rgb);
+	return mat3(HPEi, ...rgbA.map((v, i) => rgbW[i] / FL * fnInv((v - 1) / Brgb[i])));
 };
 
 export default hunt;

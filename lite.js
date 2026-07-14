@@ -15,7 +15,7 @@
  *
  * @module color-space/lite
  */
-import { createHub, wire } from './hub.js'
+import { createHub, wire, validate } from './hub.js'
 import rgb from './spaces/rgb.js'
 import lrgb from './spaces/lrgb.js'
 import xyz from './spaces/xyz.js'
@@ -53,10 +53,13 @@ export default space;
 
 /**
  * Register a color space and (re)wire conversions to/from every other space.
+ * The space is validated and copied in — the passed object stays unmutated;
+ * use the returned registry entry (`space[newSpace.name]`) for conversions.
  * @param {space} newSpace
  */
 export function register(newSpace) {
-	space[newSpace.name] = newSpace;
+	validate(space, newSpace);
+	space[newSpace.name] = { ...newSpace };
 	wire(space);
 	return space;
 }

@@ -21,7 +21,7 @@ const SAMPLES = [
 ]
 
 // color-space name -> [colorjs id, per-channel scale]  (cs_value * scale = colorjs_value)
-const MAP = {
+export const MAP = {   // exported: test/index.js pins differential ∪ bonafide = all spaces
 	lrgb:              ['srgb-linear',     [1, 1, 1]],
 	p3:                ['p3',              [1, 1, 1]],
 	'p3-linear':       ['p3-linear',       [1, 1, 1]],

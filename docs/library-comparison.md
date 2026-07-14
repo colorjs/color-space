@@ -9,7 +9,7 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
 | **Version compared** | 3.x | 4.x | 0.6.x | 2.x | 0.x |
-| **Color spaces** | **151** | ~35 | ~40 | ~15 | ~16 |
+| **Color spaces** | **161** | ~35 | ~40 | ~15 | ~16 |
 | **API value ranges** | Conventional (CSS-matching) | Normalized 0–1 | Normalized 0–1 | Mixed / CSS strings | Normalized 0–1 |
 | **CSS string parsing** | No | Yes | Yes | Yes | No |
 | **Color mixing / interpolation** | No | Yes | Yes | Yes | No |
@@ -20,10 +20,10 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | **Tree-shakeable ESM** | Yes | Yes | Yes | No | Yes |
 | **Zero dependencies** | Yes | Yes | Yes | No | Yes |
 | **Differential-tested vs colorjs.io** | 29 spaces, both directions | — | — | — | — |
-| **Bundle (full, min+gz)** | ~44 kB¹ | ~22 kB | ~25 kB | ~16 kB | ~12 kB |
-| **Batch / typed-array API** | Planned (WASM) | No | No | No | Yes (WebGL/GPU) |
+| **Bundle (full, min+gz)** | ~55 kB¹ | ~22 kB | ~25 kB | ~16 kB | ~12 kB |
+| **Batch / typed-array API** | Yes (JS + WASM) | No | No | No | Yes (WebGL/GPU) |
 
-Full-library min+gz, bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~44 kB is **all 151 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle.
+Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 161 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle.
 
 ---
 
@@ -42,8 +42,8 @@ color-space uses the ranges CSS Color 4/5 specifies and color science literature
 
 ```js
 // color-space
-lab.rgb(50, 0, 0)       // L: 0–100, a/b: –125 to +125
-oklch.rgb(65, 10, 180)  // L: 0–100, C: 0–40, H: 0–360°
+lab.rgb(50, 0, 0)            // L: 0–100, a/b: –125 to +125
+oklch.rgb(0.65, 0.25, 180)   // L: 0–1, C: 0–0.4, H: 0–360° — as CSS oklch(0.65 0.25 180)
 hsl.rgb(180, 75, 50)    // H: 0–360°, S/L: 0–100%
 rgb.hsl(255, 128, 0)    // R/G/B: 0–255
 ```
@@ -70,7 +70,7 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 **Historical CIE** — CIE 1960 UCS, CIE 1964 UVW, Hunter Lab. colorjs.io includes some; culori, chroma-js, and @texel/color do not.
 
-**Cross-disciplinary specialty** — Coloroid (architectural color system, MSZ 7300), TSL (face detection), YES (face recognition), RG chromaticity (illumination-invariant vision), HSI, HCY, HSP, HCG, HCL, HSM, Cubehelix, OSA-UCS. These are absent from all other compared libraries.
+**Cross-disciplinary specialty** — Coloroid (architectural color system, MSZ 7300), TSL (face detection), YES (face recognition), RG chromaticity (illumination-invariant vision), HSI, HCY, HSP, HCG, HCL, HSM, OSA-UCS. These are absent from all other compared libraries.
 
 **LUV family** — LUV, LCHuv, HSLuv, HPLuv. culori and colorjs.io include HSLuv/HPLuv; @texel/color and chroma-js largely do not cover LUV/LCHuv.
 

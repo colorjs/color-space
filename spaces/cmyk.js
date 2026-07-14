@@ -17,6 +17,7 @@
  * @method matrix
  * @encoding gamma
  * @referred display
+ * @loss projective The naive device equation: many CMYK values map to one RGB (max-K convention on the way back).
  * @dynamic sdr
  */
 import rgb from './rgb.js';

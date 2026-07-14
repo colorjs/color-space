@@ -18,6 +18,7 @@
  * @illuminant D60
  * @observer 2
  * @referred scene
+ * @loss quantized Integral SDI code values by design; decode-encode snaps to the 10-bit lattice.
  * @dynamic hdr
  */
 // Implementation notes:

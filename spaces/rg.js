@@ -12,6 +12,7 @@
  * @method chromaticity
  * @encoding chromaticity
  * @referred display
+ * @loss projective Chromaticity only — overall intensity is discarded.
  * @dynamic sdr
  */
 // Implementation notes:

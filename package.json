@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Any color space",
-  "version": "3.0.0",
+  "version": "3.0.0-next.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
   "keywords": [
@@ -35,7 +35,7 @@
     "cinema"
   ],
   "repository": "colorjs/color-space",
-  "license": "MIT",
+  "license": "CC0-1.0",
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "files": [
@@ -51,43 +51,91 @@
     "color-space-mcp": "./mcp.js"
   },
   "exports": {
-    ".": "./index.js",
-    "./index.js": "./index.js",
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./index.js"
+    },
+    "./index.js": {
+      "types": "./types/index.d.ts",
+      "default": "./index.js"
+    },
     "./lite": {
       "types": "./types/lite.d.ts",
       "default": "./lite.js"
     },
-    "./lite.js": "./lite.js",
+    "./lite.js": {
+      "types": "./types/lite.d.ts",
+      "default": "./lite.js"
+    },
     "./lut": {
       "types": "./types/lut.d.ts",
       "default": "./lut.js"
     },
-    "./lut.js": "./lut.js",
+    "./lut.js": {
+      "types": "./types/lut.d.ts",
+      "default": "./lut.js"
+    },
     "./icc": {
       "types": "./types/icc.d.ts",
       "default": "./icc.js"
     },
-    "./icc.js": "./icc.js",
+    "./icc.js": {
+      "types": "./types/icc.d.ts",
+      "default": "./icc.js"
+    },
     "./data.json": "./data.json",
-    "./wasm": "./wasm.js",
-    "./wasm.js": "./wasm.js",
-    "./gl": "./gl/compose.js",
-    "./gl/all": "./gl/index.js",
+    "./wasm": {
+      "types": "./types/wasm.d.ts",
+      "default": "./wasm.js"
+    },
+    "./wasm.js": {
+      "types": "./types/wasm.d.ts",
+      "default": "./wasm.js"
+    },
+    "./gl": {
+      "types": "./types/gl.d.ts",
+      "default": "./gl/compose.js"
+    },
+    "./gl/all": {
+      "types": "./types/gl.d.ts",
+      "default": "./gl/index.js"
+    },
     "./gl/wgsl": "./gl/wgsl.js",
     "./gl/translate": "./gl/translate.js",
     "./gl/*.glsl.js": "./gl/*.glsl.js",
     "./gl/*.js": "./gl/*.js",
     "./gl/*": "./gl/*.glsl.js",
-    "./hub.js": "./hub.js",
+    "./hub.js": {
+      "types": "./types/hub.d.ts",
+      "default": "./hub.js"
+    },
     "./mcp.js": "./mcp.js",
-    "./gamuts.js": "./gamuts.js",
-    "./whitepoints.js": "./whitepoints.js",
-    "./util.js": "./util.js",
+    "./gamuts.js": {
+      "types": "./types/gamuts.d.ts",
+      "default": "./gamuts.js"
+    },
+    "./whitepoints.js": {
+      "types": "./types/whitepoints.d.ts",
+      "default": "./whitepoints.js"
+    },
+    "./util.js": {
+      "types": "./types/util.d.ts",
+      "default": "./util.js"
+    },
     "./transfers.js": "./transfers.js",
     "./cie.js": "./cie.js",
-    "./spaces/*.js": "./spaces/*.js",
-    "./*.js": "./spaces/*.js",
-    "./*": "./spaces/*.js"
+    "./spaces/*.js": {
+      "types": "./types/*.d.ts",
+      "default": "./spaces/*.js"
+    },
+    "./*.js": {
+      "types": "./types/*.d.ts",
+      "default": "./spaces/*.js"
+    },
+    "./*": {
+      "types": "./types/*.d.ts",
+      "default": "./spaces/*.js"
+    }
   },
   "devDependencies": {
     "color-name": "^2.0.0",

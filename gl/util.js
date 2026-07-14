@@ -6,7 +6,15 @@
  * across languages (two-arg atan, mod, negative-base pow).
  */
 export default [
-	{ name: 'cbrt_', code: /* glsl */ `float cbrt_(float x) { return sign(x) * pow(abs(x), 1.0 / 3.0); }` },
+	// one Newton polish after pow: GPU pow (exp2·log2) is loose (~many ulp), and a
+	// cube root shared by a forward/inverse pair must agree with itself to f32 ulp —
+	// a self-consistently wrong root defeats round-trip guards (OSA-UCS cap folds)
+	{ name: 'cbrt_', code: /* glsl */ `float cbrt_(float x) {
+	float a = abs(x);
+	float y = pow(a, 1.0 / 3.0);
+	y = y - (y * y * y - a) / (3.0 * y * y + 1e-30);
+	return sign(x) * y;
+}` },
 	{ name: 'spow_', code: /* glsl */ `float spow_(float x, float p) { return sign(x) * pow(abs(x), p); }` },
 	{ name: 'atan2_', code: /* glsl */ `float atan2_(float y, float x) { return atan(y, x); }` },
 	{ name: 'mod_', code: /* glsl */ `float mod_(float x, float y) { return x - y * floor(x / y); }` },

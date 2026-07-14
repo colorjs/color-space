@@ -81,17 +81,21 @@ space.hsl.range;        // [[0, 360], [0, 100], [0, 100]]
 Channel names, refs, provenance and more moved to `color-space/data.json` (`data.spaces`)
 (`meta.hsl.channels`). Aliases are gone — address spaces by canonical name.
 
-### 5. `ciecam` removed; `munsell` works now
+### 5. `ciecam` and `cubehelix` removed; `munsell` works now
 
 - v2's `ciecam.js` (registered as `cam`) was a one-way `xyz→cam` stub. v3 ships
   the full bidirectional **`ciecam02`**, plus the CAM16 family and successors.
+- v2's `cubehelix` is gone: it is a colormap — a single fraction painted to a
+  color — not a color space you convert between, so it falls outside the library's
+  scope (README "What it isn't"). No replacement; `import cubehelix from
+  'color-space/cubehelix.js'` and `space.rgb.cubehelix(…)` no longer resolve.
 - v2's `munsell` was an unfinished stub whose single conversion referenced an
   undefined variable. v3 implements the 1943 renotation, bidirectionally — code
   addressing it will now actually convert.
 
 ### 6. New since v2 — not breaking, worth knowing
 
-- 156 spaces (v2 had 41): P3, Rec.2020/2100, ACES, 30+ camera logs, appearance
+- 161 spaces (v2 had 41): P3, Rec.2020/2100, ACES, 30+ camera logs, appearance
   models, historical systems.
 - Any-to-any conversion: the graph wires every pair by shortest path (v2
   required a path through rgb/xyz to exist).

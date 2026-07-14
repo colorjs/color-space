@@ -1,18 +1,18 @@
 // GLSL chunk: CIE XYZ 0-100 <-> Hunt (J, C94, h). Baked to hunt.js's conditions
 // (D65 white+background, LA=318.31, Normal Scenes Nc=1 Nb=75, CCT 6504, discounted
 // illuminant, S=Y): FL, the rod constants, the adapted white signals, HPE⁻¹ and the
-// brightness normalisers are precomputed. The inverse mirrors hunt.js exactly: a
-// Levenberg-Marquardt solve in ADAPTED-CONE space (where black is the regular point
-// (1,1,1), not the f_n singularity at the origin — a plain Newton in XYZ diverges for
-// saturated colours), seeded from the white-adapted cone, then XYZ recovered
-// analytically (per-channel f_n inverse + HPE⁻¹). Machine-exact for J ≥ 1; below J = 1
-// (essentially black) f32 and f64 take different LM paths in a razor-thin basin, hence
-// the loose `tol`.
+// brightness normalisers are precomputed. The inverse mirrors hunt.js exactly: the
+// near-closed-form solve — J,C,h give Q/Qw, the saturation s and the opponent
+// direction directly (Y_b=Y_w=100), leaving only the rod's Y-coupling to a short 1-D
+// fixed point. Cone signals come back via f_n⁻¹, then HPE⁻¹ gives XYZ. Machine-exact
+// for J ≥ 1; below J = 1 (essentially black) the fixed point returns a bounded
+// near-black value. Unlike the former LM solve, the chunk now matches the scalar
+// library to machine precision (no divergent iteration paths), so the loose tol is gone.
 import xyz from './xyz.glsl.js'
 export default {
 	name: 'hunt',
 	deps: [xyz],
-	tol: 2e-2,
+	tol: 1e-6,
 	edges: { xyz: ['xyz_hunt', 'hunt_xyz'] },
 	code: /* glsl */ `
 float hunt_fn_(float x) {
@@ -32,7 +32,7 @@ float hunt_ecc_(float h) {
 	return 1.0 + (1.2 - 1.0) * (h - 164.25) / (237.53 - 164.25);
 }
 float hunt_rod_(float ssw) {
-	float bs = 0.5 / (1.0 + 0.3 * spow_(1703.4018333056201 * ssw, 0.3)) + 0.5 / (1.0 + 5.0 * 1703.4018333056201);
+	float bs = 0.5 / (1.0 + 0.3 * spow_(max(1703.4018333056201 * ssw, 0.0), 0.3)) + 0.5 / (1.0 + 5.0 * 1703.4018333056201);
 	return hunt_fn_(0.6911667662043256 * ssw) * 3.05 * bs + 0.3;
 }
 // (J, C94, h) from adapted cone signals rgbA and sample luminance Y
@@ -62,68 +62,58 @@ vec3 xyz_hunt(vec3 c) {
 	float ba = 1.0 + 0.9998267420595157 * hunt_fn_(1.16754446414718 * c.z / 108.88);
 	return hunt_corr_(vec3(ra, ga, ba), c.y);
 }
-// residual: rgbA -> (J, C·cos h, C·sin h). Recovers cone signals + Y analytically.
-vec3 hunt_g_(vec3 rgbA) {
+// white brightness Q_w at eccentricity e_s (per-sample e_s, as the model specifies)
+float hunt_qw_(float es) {
+	float fac = es * (10.0 / 13.0) * 0.725;
+	float MybW = 100.0 * (0.5 * (0.00016743709602273782 + 0.0002628355241203195) / 4.5) * (fac * 0.99968593951195);
+	float MrgW = 100.0 * (0.0000953984280975817 - 0.00016743709602273782 / 11.0) * fac;
+	return spow_(7.0 * (35.718916676317086 + sqrt(MybW * MybW + MrgW * MrgW) / 100.0), 0.6) * 1.6924388501569114 - 5.966759047889217;
+}
+// sample luminance Y from adapted cone signals (per-channel f_n⁻¹ then HPE⁻¹ row Y)
+float hunt_coneY_(vec3 rgbA) {
 	float cr = 97.37325710000002 / 1.16754446414718 * hunt_fninv_((rgbA.x - 1.0) / 0.9998450496060081);
 	float cg = 101.5496803 / 1.16754446414718 * hunt_fninv_((rgbA.y - 1.0) / 0.9998384047235723);
 	float cb = 108.88 / 1.16754446414718 * hunt_fninv_((rgbA.z - 1.0) / 0.9998267420595157);
-	float Y = 0.37095008824868858 * cr + 0.62905425739261323 * cg - 0.0000080551421843591486 * cb;
-	vec3 f = hunt_corr_(rgbA, Y);
-	float a = f.z * 0.017453292519943295;
-	return vec3(f.x, f.y * cos(a), f.y * sin(a));
+	return 0.37095008824868858 * cr + 0.62905425739261323 * cg - 0.0000080551421843591486 * cb;
 }
+// (J, C94, h) -> XYZ: near-closed-form (see hunt.js). Q/Qw, s and the opponent direction
+// come straight from J, C, h; only the rod's Y-coupling needs a short 1-D fixed point.
 vec3 hunt_xyz(vec3 c) {
-	float hr = c.z * 0.017453292519943295;
-	float T0 = c.x; float T1 = c.y * cos(hr); float T2 = c.y * sin(hr);
-	vec3 p = vec3(15.354452015861998, 15.3543566174339, 15.354189180337878); // rgbAw seed
-	vec3 f = hunt_g_(p);
-	float e0 = f.x - T0; float e1 = f.y - T1; float e2 = f.z - T2;
-	float cost = e0 * e0 + e1 * e1 + e2 * e2;
-	float lam = 1.0e-3;
-	for (int it = 0; it < 40; it++) {
-		if (cost < 1.0e-24) { break; }
-		float hs = 1.0e-5;
-		vec3 fx = hunt_g_(vec3(p.x + hs, p.y, p.z));
-		vec3 fy = hunt_g_(vec3(p.x, p.y + hs, p.z));
-		vec3 fz = hunt_g_(vec3(p.x, p.y, p.z + hs));
-		float j00 = (fx.x - f.x) / hs; float j01 = (fy.x - f.x) / hs; float j02 = (fz.x - f.x) / hs;
-		float j10 = (fx.y - f.y) / hs; float j11 = (fy.y - f.y) / hs; float j12 = (fz.y - f.y) / hs;
-		float j20 = (fx.z - f.z) / hs; float j21 = (fy.z - f.z) / hs; float j22 = (fz.z - f.z) / hs;
-		float h00 = j00 * j00 + j10 * j10 + j20 * j20;
-		float h01 = j00 * j01 + j10 * j11 + j20 * j21;
-		float h02 = j00 * j02 + j10 * j12 + j20 * j22;
-		float h11 = j01 * j01 + j11 * j11 + j21 * j21;
-		float h12 = j01 * j02 + j11 * j12 + j21 * j22;
-		float h22 = j02 * j02 + j12 * j12 + j22 * j22;
-		float g0 = j00 * e0 + j10 * e1 + j20 * e2;
-		float g1 = j01 * e0 + j11 * e1 + j21 * e2;
-		float g2 = j02 * e0 + j12 * e1 + j22 * e2;
-		float stepped = 0.0;
-		for (int tr = 0; tr < 15; tr++) {
-			float d00 = h00 * (1.0 + lam); float d11 = h11 * (1.0 + lam); float d22 = h22 * (1.0 + lam);
-			float A0 = d11 * d22 - h12 * h12;
-			float A1 = h12 * h02 - h01 * d22;
-			float A2 = h01 * h12 - d11 * h02;
-			float det = d00 * A0 + h01 * A1 + h02 * A2;
-			if (abs(det) < 1.0e-30) { lam = lam * 3.0; continue; }
-			float B1 = d00 * d22 - h02 * h02;
-			float B2 = h01 * h02 - d00 * h12;
-			float C2b = d00 * d11 - h01 * h01;
-			float dp0 = -(A0 * g0 + A1 * g1 + A2 * g2) / det;
-			float dp1 = -(A1 * g0 + B1 * g1 + B2 * g2) / det;
-			float dp2 = -(A2 * g0 + B2 * g1 + C2b * g2) / det;
-			vec3 np = vec3(p.x + dp0, p.y + dp1, p.z + dp2);
-			vec3 nf = hunt_g_(np);
-			float ne0 = nf.x - T0; float ne1 = nf.y - T1; float ne2 = nf.z - T2;
-			float nc = ne0 * ne0 + ne1 * ne1 + ne2 * ne2;
-			if (nc < cost) { p = np; f = nf; e0 = ne0; e1 = ne1; e2 = ne2; cost = nc; lam = max(lam * 0.3, 1.0e-10); stepped = 1.0; break; }
-			lam = lam * 3.0;
+	float J = c.x; float C = c.y; float h = c.z;
+	float es = hunt_ecc_(h);
+	float qr = sqrt(max(J, 0.0) / 100.0);
+	float K = spow_(max(qr * hunt_qw_(es) + 5.966759047889217, 0.0) / 1.6924388501569114, 1.0 / 0.6) / 7.0;
+	float hr = h * 0.017453292519943295;
+	float ch = cos(hr); float sh = sin(hr);
+	float fac = es * (10.0 / 13.0) * 0.725;
+	float d1 = (22.0 * ch + 9.0 * sh) / 23.0;
+	float d2 = 11.0 * (9.0 * sh - ch) / 23.0;
+	float Km = 100.0 * fac * sqrt(0.99968593951195 * 0.99968593951195 * sh * sh + ch * ch);
+	vec3 rgbA = vec3(0.0);
+	if (C < 1.0e-9) {
+		float a = 15.354452015861998;
+		for (int i = 0; i < 30; i++) {
+			float na = (K / 0.725 + 1.0 - hunt_rod_(hunt_coneY_(vec3(a, a, a)) / 100.0) + 0.3 - 1.0440306508910550 + 2.05) / 3.05;
+			if (abs(na - a) < 1.0e-13) { a = na; break; }
+			a = na;
 		}
-		if (stepped < 0.5) { break; }
+		rgbA = vec3(a, a, a);
+	} else {
+		float s = spow_(C / (2.44 * 1.35 * qr), 1.0 / 0.69);
+		float Ka = 3.05 / 3.0 * (50.0 * Km / s - (d1 - d2)) + 2.0 * d1 - d2 / 20.0;
+		float Y = 50.0; float rho = 0.0; float r1 = 0.0;
+		for (int i = 0; i < 30; i++) {
+			rho = (K - 0.725 * (1.0440306508910550 - 3.35 + hunt_rod_(Y / 100.0))) / (0.725 * Ka + Km / 100.0);
+			r1 = (50.0 * Km * rho / s - rho * (d1 - d2)) / 3.0;
+			float nY = hunt_coneY_(vec3(r1 + rho * d1, r1, r1 - rho * d2));
+			if (abs(nY - Y) < 1.0e-11) { Y = nY; break; }
+			Y = nY;
+		}
+		rgbA = vec3(r1 + rho * d1, r1, r1 - rho * d2);
 	}
-	float cr = 97.37325710000002 / 1.16754446414718 * hunt_fninv_((p.x - 1.0) / 0.9998450496060081);
-	float cg = 101.5496803 / 1.16754446414718 * hunt_fninv_((p.y - 1.0) / 0.9998384047235723);
-	float cb = 108.88 / 1.16754446414718 * hunt_fninv_((p.z - 1.0) / 0.9998267420595157);
+	float cr = 97.37325710000002 / 1.16754446414718 * hunt_fninv_((rgbA.x - 1.0) / 0.9998450496060081);
+	float cg = 101.5496803 / 1.16754446414718 * hunt_fninv_((rgbA.y - 1.0) / 0.9998384047235723);
+	float cb = 108.88 / 1.16754446414718 * hunt_fninv_((rgbA.z - 1.0) / 0.9998267420595157);
 	return vec3(
 		1.9101968340520348 * cr - 1.1121238927878747 * cg + 0.20190795676749937 * cb,
 		0.37095008824868858 * cr + 0.62905425739261323 * cg - 0.0000080551421843591486 * cb,

@@ -64,7 +64,6 @@ const RGB_SAMPLES = [
 ]
 // native-space inputs for spaces rgb cannot project into (one-way / parametric)
 const SAMPLE = {
-	cubehelix: [[0], [0.25], [0.5], [0.75], [1]],
 	wavelength: [[400], [480], [550], [620], [700]],
 }
 // normalized-error tolerance: 1e-6 default; iterative/table chunks declare their own `tol`
@@ -213,9 +212,6 @@ test('gl: an imported chunk is pure data — you name the conversion via glsl()'
 })
 
 test('gl: one-way and excluded chunks compose honestly', async () => {
-	const cubehelix = (await import('../gl/cubehelix.glsl.js')).default
-	is(glsl(cubehelix, 'rgb'), glsl('cubehelix', 'rgb'), 'cubehelix→rgb, the valid decode direction')
-	is(glsl(cubehelix), glsl([['cubehelix', 'rgb']]), 'bundle emits only the one-way direction')
 	const munsell = (await import('../gl/munsell.glsl.js')).default
 	let threw = ''
 	try { glsl(munsell) } catch (e) { threw = e.message }

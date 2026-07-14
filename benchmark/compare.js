@@ -93,7 +93,7 @@ const tests = [
 	{
 		name: 'RGB → Lab',
 		colorSpace: () => {
-			const result = space.rgb.lab(128 / 255, 64 / 255, 192 / 255);
+			const result = space.rgb.lab(128, 64, 192);
 		},
 		culori: () => {
 			if (!culori) return;
@@ -163,7 +163,7 @@ const tests = [
 	{
 		name: 'RGB → HSL',
 		colorSpace: () => {
-			const result = space.rgb.hsl(128 / 255, 64 / 255, 192 / 255);
+			const result = space.rgb.hsl(128, 64, 192);
 		},
 		culori: () => {
 			if (!culori) return;
@@ -233,7 +233,7 @@ const tests = [
 	{
 		name: 'RGB → Oklab',
 		colorSpace: () => {
-			const result = space.rgb.oklab(128 / 255, 64 / 255, 192 / 255);
+			const result = space.rgb.oklab(128, 64, 192);
 		},
 		culori: () => {
 			if (!culori) return;
@@ -303,7 +303,7 @@ const tests = [
 	{
 		name: 'RGB → P3',
 		colorSpace: () => {
-			const result = space.rgb.p3(128 / 255, 64 / 255, 192 / 255);
+			const result = space.rgb.p3(128, 64, 192);
 		},
 		culori: () => {
 			if (!culori) return;
@@ -338,7 +338,7 @@ const tests = [
 	{
 		name: 'RGB → HSV',
 		colorSpace: () => {
-			const result = space.rgb.hsv(128 / 255, 64 / 255, 192 / 255);
+			const result = space.rgb.hsv(128, 64, 192);
 		},
 		culori: () => {
 			if (!culori) return;
@@ -408,8 +408,35 @@ const tests = [
 	}
 ];
 
+// Startup cost: import time + RSS, each library in a fresh Node process
+async function benchmarkStartup() {
+	const { execFileSync } = await import('node:child_process');
+	const candidates = [
+		['color-space', '../index.js'],
+		['color-space/lite', '../lite.js'],
+		['culori', 'culori'],
+		['colorjs.io', 'colorjs.io'],
+		['chroma-js', 'chroma-js'],
+		['color-convert', 'color-convert'],
+	];
+	console.log('\nStartup (fresh process: import time · process RSS after import):');
+	console.log('─'.repeat(80));
+	for (const [label, specifier] of candidates) {
+		try {
+			const out = execFileSync(process.execPath, ['--input-type=module', '-e', `
+				const t = performance.now()
+				await import('${specifier}')
+				console.log(JSON.stringify({ ms: performance.now() - t, rss: process.memoryUsage().rss }))
+			`], { cwd: new URL('.', import.meta.url).pathname, encoding: 'utf8' });
+			const { ms, rss } = JSON.parse(out.trim().split('\n').pop());
+			console.log(`${label.padEnd(20)} ${(ms.toFixed(1) + 'ms').padStart(10)} ${((rss / 1e6).toFixed(0) + 'MB').padStart(8)}`);
+		} catch { /* library not installed */ }
+	}
+}
+
 // Run benchmarks
 async function runBenchmarks() {
+	await benchmarkStartup();
 	await loadLibraries();
 
 	console.log('Running benchmarks (100,000 iterations each)...\n');

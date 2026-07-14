@@ -7,7 +7,9 @@
 // Columns come from the library's own CIE 1931 2° CMF table (wavelength.js, 380–700 nm
 // at 5 nm) under illuminant E. Volume is measured in CIELAB (D50, the library's lab):
 // Monte-Carlo points uniform in Lab, kept if visible, tested for coverage by each
-// space's declared range (with a round-trip check, since poles lie).
+// space's declared range (with a round-trip check, since poles lie). Chroma-encoded
+// spaces are additionally bounded by their base rgb cube — most of a ycbcr-style box
+// decodes through negative light, and counting it once inflated yiq to 88%.
 // Gate anchors are the coverage figures commonly quoted for these gamuts (sRGB 35.9%,
 // Adobe RGB 52.1%, ProPhoto ≈90% — see each space's Wikipedia article); sources differ
 // on the exact measure (xy area vs CIELAB volume) but agree at gate width. Ratios vs sRGB.
@@ -16,6 +18,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import space from '../index.js'
 import data from '../data.json' with { type: 'json' }
+import { rangesFp } from './build-site.js'   // the stamp build-site verifies against
 const meta = data.spaces
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -52,6 +55,48 @@ console.log(`visible sample: ${PTS.length} of ${RAW} raw points`)
 
 // ── coverage per space: in declared range AND round-trips (poles lie) ──
 const wraps = c => c.max - c.min === 360 || /hue/i.test(c.name || '')
+
+// ── same law as the site's horseshoe (web/js/gl.js gamutProg): a chroma-encoded
+// space (ycbcr on sRGB, yccbccrc on Rec.2020) only owns colors whose base rgb-cube
+// coords are valid — past that, in-box coordinates decode through negative light
+// and the coverage lies. Only gamma-domain device encodings (@encoding gamma —
+// the luma/chroma and hue cylinders built on companded R'G'B') are so bounded; a
+// colorimetric space (xyz, oklab, lab, the CAMs — @encoding linear/perceptual/log)
+// spans all of vision and is held only by its own declared range. The first additive
+// space on the path BEFORE xyz is the base. Topology alone can't tell the two apart —
+// oklch/oklab/xyz carry a shortcut →rgb edge that skips xyz, which once pinned them to
+// the sRGB triangle (xyz reading 36%, the same sliver as sRGB); @encoding does.
+const spaceNames = new Set(Object.keys(meta))
+const edgesOf = s => Object.keys(space[s] || {}).filter(k => {
+	const f = space[s][k]
+	return spaceNames.has(k) && typeof f === 'function' && !(f.scalar || f).chained
+})
+const pathToRgb = name => {
+	if (name === 'rgb') return ['rgb']
+	const prev = { [name]: null }, q = [name]
+	while (q.length) {
+		const s = q.shift()
+		if (s === 'rgb') { const p = []; for (let n = 'rgb'; n; n = prev[n]) p.unshift(n); return p }
+		for (const t of edgesOf(s)) if (!(t in prev)) { prev[t] = s; q.push(t) }
+	}
+	return null
+}
+const additive = s => {   // no tone, no hue, 3 channels — mirrors web/js/core.js classify
+	const ch = meta[s]?.channels || []
+	return ch.length === 3 && !ch.some(c => c.max === 360 || /Light|Value|Intensity|Tone|Bright|Luma/.test(c.name || ''))
+}
+const baseOf = s => {
+	if (s === 'rgb') return null
+	if (meta[s]?.encoding !== 'gamma') return null   // colorimetric/linear/log — bounded only by declared range
+	const path = pathToRgb(s) || []
+	for (let i = 1; i < path.length; i++) {
+		const n = path[i]
+		if (n === 'xyz') break
+		if (additive(n)) return n
+	}
+	return null
+}
+
 const shareOf = s => {
 	const m = meta[s]
 	if (!m || !m.range || m.range.length < 3) return null
@@ -59,6 +104,8 @@ const shareOf = s => {
 	// lab itself has no self-edge in the graph — its transform is the identity
 	const to = s === 'lab' ? (...v) => v : space.lab[s], back = s === 'lab' ? (...v) => v : space[s].lab
 	if (!to || !back) return null
+	const bs = baseOf(s)
+	const toBase = bs && space[s][bs], bRange = bs && meta[bs].range
 	let cov = 0
 	for (const [L, a, b] of PTS) {
 		let v; try { v = to(L, a, b) } catch { continue }
@@ -70,6 +117,13 @@ const shareOf = s => {
 			if (v[i] < lo - pad || v[i] > hi + pad) { ok = false; break }
 		}
 		if (!ok) continue
+		if (toBase) {   // chroma-encoded: the color must be real light in the base cube
+			let bv; try { bv = toBase(...v) } catch { continue }
+			if (!bv.every((x, i) => {
+				const [lo, hi] = bRange[i], pad = (hi - lo) * 1e-3
+				return isFinite(x) && x >= lo - pad && x <= hi + pad
+			})) continue
+		}
 		let r; try { r = back(...v) } catch { continue }
 		if (Math.hypot(r[0] - L, r[1] - a, r[2] - b) <= 1.5) cov++
 	}
@@ -94,12 +148,18 @@ anchor('lab', 0.999, 1)          // the measurement space itself — identity mu
 anchor('rgb', 0.30, 0.42)        // published ≈ 35.9 %
 anchor('a98rgb', 0.44, 0.60)     // published ≈ 52.1 %
 anchor('prophoto', 0.80, 0.97)   // published ≈ 90 %
+// colorimetric spaces span all vision — a shortcut →rgb edge must never re-clamp them to
+// the sRGB triangle (the bug that once read xyz/oklch at ~36%); they track lab, not rgb.
+anchor('xyz', 0.92, 1)           // CIE master space — contains every visible color
+anchor('oklch', 0.97, 1)         // colorimetric transform of XYZ, like lab — never gamut-bound
+anchor('hsl', 0.30, 0.42)        // gamma device cylinder — MUST stay sRGB-clamped (guards the converse)
 
 const base = out.rgb
 const lines = Object.keys(out).sort().map(s =>
 	`\t'${s}': [${out[s].toFixed(3)}, ${(out[s] / base).toFixed(2)}],`)
 writeFileSync(join(root, 'web/js/reach.js'),
 	`// Generated by scripts/generate-reach.js — do not edit.
+// ranges ${rangesFp(meta)} — build-site refuses this file when any declared range has changed since
 // [share of the visible gamut's CIELAB volume, ratio vs sRGB]. The visible solid is
 // the optimal-color (Rösch–MacAdam) zonoid built from the library's CIE 1931 2° CMF
 // table under illuminant E; volume measured in CIELAB (D50), Monte Carlo n=${PTS.length}.

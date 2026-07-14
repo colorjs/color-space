@@ -6,7 +6,7 @@
  * Several competing cone-fundamental and adaptation matrices are in use — von Kries,
  * Bradford, CAT02, CAT16 among them — each modeling that adaptation differently.
  *
- * @see {@link https://en.wikipedia.org/wiki/LMS_color_space}
+ * @see {@link https://cie.co.at/publications/colour-appearance-model-colour-management-systems-ciecam02}
  * @wiki {@link https://en.wikipedia.org/wiki/LMS_color_space}
  * @channel {L} 0 100 Long
  * @channel {M} 0 105 Medium

@@ -24,6 +24,7 @@
  * @illuminant C
  * @observer 2
  * @referred display
+ * @loss lookup Renotation-table interpolation with an iterative inverse; exact only at table nodes.
  * @dynamic sdr
  */
 // Implementation notes:

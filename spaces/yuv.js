@@ -32,14 +32,11 @@ yuv.rgb = function (y, u, v) {
 	// Input: Y: 0-1, U: -0.436 to 0.436, V: -0.615 to 0.615
 	var r, g, b;
 
-	// exact inverse of the BT.601 forward matrix below — exact round-trip
+	// exact inverse of the BT.601 forward matrix below — exact round-trip;
+	// out-of-gamut RGB passes through unclamped (library-wide rule)
 	r = y + (v * 1.139837398373984);
 	g = y + (u * -0.394651704358970) + (v * -0.580598606667498);
 	b = y + (u * 2.032110091743120);
-
-	r = Math.min(Math.max(0, r), 1);
-	g = Math.min(Math.max(0, g), 1);
-	b = Math.min(Math.max(0, b), 1);
 
 	// Scale to 0-255
 	return [r * 255, g * 255, b * 255];

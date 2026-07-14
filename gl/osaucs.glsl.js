@@ -78,18 +78,16 @@ vec3 osaucs_xyz(vec3 c) {
 	float b = j / C;
 
 	// scan a window around the seed; bisect every sign-change bracket, reject poles,
-	// prefer physical roots nearest the seed (mirrors osaucs.js)
+	// prefer physical roots nearest the seed (mirrors osaucs.js — same 0.25 step:
+	// the coarser 0.5 grid missed brackets at high chroma and painted garbage)
 	float lo = t - 12.0;
 	float prevW = lo;
 	float prevF = osaucs_f_(a, b, lo, Y0);
-	float wF = lo;
-	float bestF = abs(prevF);
 	float wB = 0.0;
 	float bestScore = 1e30;
-	for (int k = 1; k <= 48; k++) {
-		float wk = lo + float(k) * 0.5;
+	for (int k = 1; k <= 96; k++) {
+		float wk = lo + float(k) * 0.25;
 		float fk = osaucs_f_(a, b, wk, Y0);
-		if (abs(fk) < bestF) { bestF = abs(fk); wF = wk; }
 		if ((prevF <= 0.0) != (fk <= 0.0)) {
 			float bLo = prevW;
 			float bHi = wk;
@@ -115,8 +113,12 @@ vec3 osaucs_xyz(vec3 c) {
 		prevW = wk;
 		prevF = fk;
 	}
-	float w = wF;
-	if (bestScore < 1e29) { w = wB; }
+	// only a sign-change-bracketed root is a preimage — a grazing |f| minimum is a
+	// FOLD (the coordinate lies just outside the image), and float noise flips it
+	// into a phantom crossing: return a huge sentinel every caller's validity test
+	// rejects, instead of a near-root that almost round-trips
+	if (bestScore >= 1e29) { return vec3(1e30, 1e30, 1e30); }
+	float w = wB;
 
 	float cr = w;
 	float cg = osaucs_cg_(a, b, w);

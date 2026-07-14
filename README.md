@@ -2,9 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-**Any color space.** Web, print, film, broadcast, science, history. Conventional ranges, verified formulas, metadata, one tiny API — scalar or whole-buffer. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
+**Any color space.** Web, print, film, broadcast, photo, art, science, history. Conventional ranges, verified formulas, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
 
-Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Alpha passes through; out-of-gamut is never clamped, so round-trips stay lossless.
+Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Channels only — carry alpha alongside yourself. Out-of-gamut values are never clamped, so invertible conversions round-trip exactly; the few inherently lossy nodes carry a machine-readable `loss` tag.
 
 **[Interactive catalog & docs →](https://colorjs.github.io/color-space/)**
 
@@ -14,26 +14,22 @@ Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Alpha pass
 npm install color-space
 ```
 
+One conversion API, three hubs — swap the import, keep the conversion calls:
+
 ```js
-import space from 'color-space';
+import space from 'color-space';       // all 161 spaces          55 kB gz
+import space from 'color-space/lite';  // the 27-space working set  9 kB gz
+import space from 'color-space/wasm';  // the same 27, prebuilt WASM
 
 space.rgb.hsl(255, 128, 0);          // → [30, 100, 50] — reads as CSS hsl(30 100% 50%)
-space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → broadcast, any of 156 × 155 pairs
+space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → broadcast, any of 161 × 160 pairs
 space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
-
-space.rgb.oklch(pixels);             // same call, batch: interleaved array in, Float64Array out
-```
-
-One API, three hubs — swap the import, keep the code:
-
-```js
-import space from 'color-space';                  // all 156 spaces          52 kB gz
-import space from 'color-space/lite';             // the 27-space working set  9 kB gz
-import space, { alloc } from 'color-space/wasm';  // the same 27, prebuilt WASM
 
 space.rgb.oklch(255, 128, 0);        // identical on all three — pinned by the test suite
 space.rgb.oklch(pixels);             // batch form too
 ```
+
+Parity is conversion-call parity: the wasm hub is the bare kernel — `range`, metadata and `register()` live on the JS hubs.
 
 Or one space, tree-shaken (scalar form; batch is wired by the hubs):
 
@@ -46,9 +42,9 @@ One module per concern — the whole surface:
 
 | import | what |
 |---|---|
-| `color-space` | all 156 spaces, graph-wired |
+| `color-space` | all 161 spaces, graph-wired |
 | `color-space/<name>.js` | one space, tree-shaken (0.4–1.5 kB; the definitions live in [`spaces/`](spaces)) |
-| `color-space/lite` | the 27-space numeric working set, 9 kB |
+| `color-space/lite` | the 27-space working set, 9 kB |
 | `color-space/wasm` | the same set, prebuilt WASM — zero-copy buffers |
 | `color-space/gl` | GLSL/WGSL shader chunks + composer |
 | `color-space/lut` | `.cube` LUT exporter (Resolve, ffmpeg, …) |
@@ -65,8 +61,9 @@ Metadata ships as one data artifact (see [Data](#data)):
 ```js
 import data from 'color-space/data.json' with { type: 'json' };
 data.spaces.oklab;   // { description, channels, range, refs, wiki, year, by, use,
-                     //   method, encoding, illuminant, observer, referred, dynamic, neighbors }
-data.spaces.p3;      // RGB working spaces add: gamut, primaries {r,g,b}, white
+                     //   method, encoding, referred, dynamic, neighbors }
+data.spaces.kelvin.loss;   // 'projective' — the 9 lossy nodes tagged by kind (projective · lookup · quantized)
+data.spaces.p3;      // RGB working spaces add: illuminant, observer, gamut, primaries {r,g,b}, white
 
 import whitepoint from 'color-space/whitepoints.js';
 whitepoint[2].D50;   // → [96.422, 100, 82.521]
@@ -101,7 +98,7 @@ glsl(oklch, p3);      // neither end rgb — routed via their shared lrgb
 wgsl(oklch);          // the same, as WGSL
 ```
 
-A chunk import brings only its own dependency chain (~5 kB) and stays pure data — `oklch.code` is its raw GLSL. Runtime `from`/`to` strings: `import { glsl } from 'color-space/gl/all'` routes any of the 155 names, byte-identical, at the cost of all chunks (~200 kB min).
+A chunk import brings only its own dependency chain (~5 kB) and stays pure data — `oklch.code` is its raw GLSL. Runtime `from`/`to` strings: `import { glsl } from 'color-space/gl/all'` routes any of the 160 shader-backed names, byte-identical, at the cost of all chunks (~200 kB min).
 
 ## LUT
 
@@ -125,9 +122,9 @@ Every file states its own accuracy — the header carries the measured deviation
 ffmpeg -i in.mov -vf lut3d=slog3-to-rec709.cube out.mov
 ```
 
-The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are written unclamped. Corners that go non-finite or numerically degenerate throw rather than bake a broken file; the catalog also curates hue-axed spaces out of its picker — hue doesn't survive lattice interpolation — leaving 113 of 156. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
+The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are unclamped. Degenerate corners throw rather than bake a broken file; hue-axed spaces are curated out (hue doesn't survive lattice interpolation), leaving 117 of 161. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
 
-`{ shaper: true }` prepends the conversion's own tone curve as a 1D shaper (Resolve-flavor combined cube — Resolve and OCIO read it; Adobe-strict readers like ffmpeg's `lut3d` don't): a shaped 33³ beats a plain 65³ for camera-log → display at ⅙ the file size, measured; super-range clips at the shaper, as a display conversion LUT wants.
+`{ shaper: true }` prepends the conversion's own tone curve as a 1D shaper (Resolve and OCIO read the combined cube; ffmpeg's `lut3d` doesn't). A shaped 33³ beats a plain 65³ for camera-log → display at ⅙ the file size, measured.
 
 ## ICC
 
@@ -140,11 +137,11 @@ profile(space.p3);         // → Uint8Array — a Display P3 .icc
 profile(space.prophoto);   // ROMM RGB; linear spaces emit the identity curve
 ```
 
-Everything derives mechanically from the space's own conversions — colorants from the full-intensity primaries (Bradford-adapted to the D50 PCS), the TRC sampled from the neutral diagonal — and a space that isn't empirically matrix×transfer (cylinders, luma/chroma, opponent) throws instead of emitting a lying profile. Colorants are pinned to Lindbloom's published D50 matrices, the TRC to the IEC 61966-2-1 formula, and every profile is accepted end-to-end by macOS ColorSync in the suite.
+Everything derives from the space's own conversions — colorants from the full-intensity primaries (Bradford-adapted to the D50 PCS), the TRC from the neutral diagonal. A space that isn't empirically matrix×transfer (cylinders, luma/chroma, opponent) throws rather than emit a lying profile. Colorants are pinned to Lindbloom's D50 matrices, the TRC to IEC 61966-2-1, and every profile passes macOS ColorSync in the suite.
 
 ## Data
 
-`color-space/data.json` is the whole registry as one language-neutral artifact — build a port or a site from it instead of re-transcribing papers: per-space metadata with conventional ranges, the conversion-graph edges, gamut primaries, CIE whitepoints, the CIE 1931 2° color-matching functions, and the 129 cited input→output conformance triples the test suite pins the formulas to.
+`color-space/data.json` is the registry's data as one language-neutral artifact: per-space metadata with conventional ranges, the conversion-graph edges, gamut primaries, CIE whitepoints, the CIE 1931 2° color-matching functions, and the cited input→output conformance triples the test suite pins the formulas to. It carries no executable formulas — those live in [`spaces/`](spaces) — but it is the scaffolding a port needs: the topology, the constants, and the conformance cases to verify against.
 
 ## MCP
 
@@ -158,10 +155,13 @@ Tools: `convert` (any pair) · `space` (the dossier: refs, ranges, provenance) �
 
 ## Guarantees
 
-For every one of the 156 spaces — enforced by the test suite:
+For every one of the 161 graph spaces — enforced by the test suite:
 
 1. **Canonical formula** — implements its primary source (ITU/SMPTE/ISO/CIE spec, original paper, vendor whitepaper), linked in `data.spaces.<space>.refs`.
-2. **Pinned values** — cited reference cases ([test/bonafide.js](test/bonafide.js)) or differential tests against colorjs.io ([test/reference.js](test/reference.js)), plus a round-trip and NaN-safety sweep.
+2. **Pinned values, tier stated** — verification depth varies and is worth knowing:
+   - *differential* — 29 CSS/core spaces cross-validated against colorjs.io both directions over a sample grid ([test/reference.js](test/reference.js));
+   - *cited anchor* — every other space pinned to at least one authoritative input→output from its source or a reference implementation ([test/bonafide.js](test/bonafide.js)) — an anchor, not a proof of every branch;
+   - all spaces additionally get round-trip and NaN-safety sweeps (self-consistency — cannot catch self-cancelling errors).
 3. **Conventional ranges** — never silently normalized.
 4. **Bidirectional** — the few one-way standards say so loudly.
 5. **Documented omissions** — whatever is missing is declined with a reason, never forgotten.
@@ -266,7 +266,9 @@ Notation: 🕰️ historical — shipped as working history; ~~struck~~ — decl
 * [x] [MacLeod-Boynton](https://doi.org/10.1364/JOSA.69.001183) — cone-excitation ls chromaticity (Smith-Pokorny), foundation of DKL/vision science.
 * [x] [DKL](https://doi.org/10.1113/jphysiol.1984.sp015499) — Derrington-Krauskopf-Lennie cardinal-axis space of early colour vision (luminance / red-green / tritan).
 * [x] [Izazbz](https://doi.org/10.1364/OE.25.015131) — the absolute opponent stage Jzazbz/ZCAM build on (Safdar 2017).
-* [x] [Kelvin (CCT)](https://en.wikipedia.org/wiki/Planckian_locus) — colour temperature on the Planckian locus (2700 K warm … 6500 K cool); Krystek + McCamy.
+* [x] [Kelvin (CCT)](https://en.wikipedia.org/wiki/Planckian_locus) — colour temperature on the Planckian locus (2700 K warm … 6500 K cool); Krystek locus, inverse = nearest locus point in CIE 1960 uv (the CCT definition) — exact round-trip on the locus, projective (lossy) off it.
+* [x] [CCT + Duv](https://doi.org/10.1080/15502724.2014.839020) — lighting's two-coordinate white specification: nearest Planckian temperature plus signed green–pink distance in CIE 1960 uv.
+* [x] [Maxwell triangle](https://doi.org/10.1017/S1464793102005985) — barycentric trichromatic receptor-catch diagram, anchored to the graph's fixed human LMS observer.
 * [x] [Wavelength](https://en.wikipedia.org/wiki/Spectral_color) — the colour of monochromatic light (the spectral locus / rainbow) via the CIE 1931 CMFs.
 * [x] [Yrg (Kirk 2019)](https://doi.org/10.2352/issn.2169-2629.2019.27.38) — FilmLight's luminance/cone-chromaticity space on CIE 2006 LMS; the basis of darktable's colour-balance UCS. Exact algebraic inverse.
 * [x] [Gray](https://www.w3.org/TR/css-color-4/#grays) — single-channel luminance.
@@ -277,7 +279,10 @@ Notation: 🕰️ historical — shipped as working history; ~~struck~~ — decl
 
 * [x] [YUV](https://www.itu.int/rec/R-REC-BT.601) — luma + chrominance, analog PAL/SECAM encoding. (ITU-R BT.601)
 * [x] [YIQ](https://en.wikipedia.org/wiki/YIQ) — analog NTSC encoding, I/Q chosen for bandwidth efficiency.
-* [x] [YC<sub>b</sub>C<sub>r</sub>](https://www.itu.int/rec/R-REC-BT.601) — digital video standard (BT.601/709), JPEG/MPEG/H.264. (ITU-R BT.601)
+* [x] [YC<sub>b</sub>C<sub>r</sub>](https://www.itu.int/rec/R-REC-BT.601) — legacy parameterised digital luma/chroma node.
+* [x] [BT.601 525-line / 625-line Y′CbCr](https://www.itu.int/rec/R-REC-BT.601) — explicit legal-range SD encodings, separated because NTSC-derived SMPTE-C and PAL/EBU primaries differ.
+* [x] [BT.709 Y′CbCr](https://www.itu.int/rec/R-REC-BT.709) — explicit legal-range HDTV encoding with Rec.709 primaries, OETF, and coefficients.
+* [x] [BT.2020 Y′CbCr](https://www.itu.int/rec/R-REC-BT.2020) — explicit non-constant-luminance legal-range UHD encoding.
 * [x] [Y<sub>c</sub>C<sub>bc</sub>C<sub>rc</sub>](https://www.itu.int/rec/R-REC-BT.2020) — constant-luminance YCbCr for BT.2020/HDR. (ITU-R BT.2020)
 * [x] [YP<sub>b</sub>P<sub>r</sub>](https://en.wikipedia.org/wiki/YPbPr) — analog component video (DVD players, projectors).
 * [x] [YD<sub>b</sub>D<sub>r</sub>](https://en.wikipedia.org/wiki/YDbDr) — SECAM analog encoding (France, Russia, Africa).
@@ -341,7 +346,7 @@ Notation: 🕰️ historical — shipped as working history; ~~struck~~ — decl
 * [x] [RLAB](https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z) 🕰️ — Fairchild (1996) cross-media appearance model; von Kries adaptation + a CIELAB-like stage.
 * [x] [LLAB](https://doi.org/10.1002/(SICI)1520-6378(199612)21:6<412::AID-COL4>3.0.CO;2-Z) 🕰️ — Luo, Lo & Kuo (1996) CIELAB successor candidate; BFD adaptation + log chroma compression. Analytically inverted.
 * [x] [Nayatani 95](https://doi.org/10.1002/col.5080200305) 🕰️ — the illuminant-level (Hunt/Stevens effects) appearance model; log-opponent cone stage. Exact 4-regime inverse.
-* [x] [Hunt](https://doi.org/10.1002/col.5080190504) 🕰️ — Hunt's flagship Kodak model with cone **and rod** signals — the direct ancestor of CIECAM97s/CIECAM02. Inverted by damped Newton (Fairchild's "successive approximation").
+* [x] [Hunt](https://doi.org/10.1002/col.5080190504) 🕰️ — Hunt's flagship Kodak model with cone **and rod** signals — the direct ancestor of CIECAM97s/CIECAM02. Inverted in near-closed form: J, C, h give the correlates directly, only the rod term needs a short 1-D iteration (Fairchild deemed the model non-invertible).
 * [x] [ATD95](https://doi.org/10.1117/12.206546) 🕰️ — Guth (1995): the vision-science opponent model (achromatic / tritan / deutan stages) — shipped as its stage-2 coordinates, with its authors' caveat that it models discrimination, not appearance. Analytically inverted.
 
 > With the four above shipped (baked to their published worked-example conditions, doctest-pinned, bidirectional), **every generation of colour appearance modelling is in the library**: Hunt, Nayatani & Guth (the 1990s ancestors) → RLAB/LLAB (the CIELAB-successor era) → CIECAM02/CAM16 families → Hellwig 2022 & ZCAM (current).
@@ -355,15 +360,8 @@ Notation: 🕰️ historical — shipped as working history; ~~struck~~ — decl
 * [x] [RYB](https://en.wikipedia.org/wiki/RYB_color_model) 🕰️ — the painters' red-yellow-blue wheel where blue + yellow makes green; Itten's chromatic cube via smoothstep-eased trilinear blend. ([meodai/rybitten](https://github.com/meodai/rybitten))
 * [x] [Munsell](https://munsell.com/about-munsell-color/) — artist hue/value/chroma; bidirectional via the 1943 renotation (Illuminant C). ([RIT MCSL](https://www.rit.edu/science/munsell-color-science-lab-educational-resources))
 * [x] [RAL Design](https://en.wikipedia.org/wiki/RAL_colour_standard) — systematic CIELAB hue/lightness/chroma; the HLC code *is* L\*C\*h by construction (D50/2°). Distinct from sample-defined RAL Classic.
-* [ ] [US Federal Standard 595](https://en.wikipedia.org/wiki/Federal_Standard_595) — US government spec; **public-domain** (FED-STD-595C), the one viable catalog candidate if a named-lookup layer is added.
-* ~~[NCS](https://ncscolour.com/)~~ — declined: proprietary atlas, no open analytic NCS→CIE map (Derefeldt & Sahlin 1986).
-* ~~[PMS / Pantone](https://www.pantone.com/)~~ — declined: trademarked + licensed (Adobe dropped it in 2022); values not openly redistributable.
-* ~~[RAL Classic](https://www.ral-farben.de/)~~ — declined: sample-defined, no open authoritative Lab (RAL gGmbH licenses its data).
-* ~~[HKS](https://en.wikipedia.org/wiki/HKS_(colour_system))~~ — declined: proprietary spot inks (PDFlib even ships a build without it).
-* ~~[British Standard Colour](http://www.britishstandardcolour.com/)~~ — declined: BSI-copyrighted; only disclaimed approximate hex circulates.
-* ~~[Toyo](http://mytoyocolor.com/)~~ — declined: ICC-profile licence forbids redistribution.
 
-> **Why these are out:** proprietary named-swatch catalogs (trademark + EU database rights, sample-defined with no open CIE data) — not continuous color spaces, and a formula can't cure the IP or the missing data. Distinct from RAL **Design** above, whose codes *are* CIELAB by construction and carry no proprietary data.
+Swatch catalogs (Pantone, NCS, RAL Classic, HKS, Toyo, Federal Standard 595…) sit under [What it isn't](#what-it-isnt) — not color spaces.
 
 </details>
 
@@ -373,7 +371,6 @@ Notation: 🕰️ historical — shipped as working history; ~~struck~~ — decl
 * [x] [OSA-UCS](https://www.osapublishing.org/josa/abstract.cfm?uri=josa-64-12-1691) — Optical Society uniform color scales; now bidirectional (1D-Newton inverse, [Schlömer 2019](https://arxiv.org/abs/1911.08323)).
 * [x] [TSL](https://ieeexplore.ieee.org/document/400568) — tint/saturation/lightness, designed for face detection skin-color clustering. ([Terrillon & Akamatsu 1999](https://doi.org/10.1109/ICIP.1999.817178))
 * [x] [YES](https://doi.org/10.2991/isaebd.2012.23) — luminance/chrominance for fast face recognition.
-* [x] [Cubehelix](https://www.mrao.cam.ac.uk/~dag/CUBEHELIX/) — monotonic lightness colormaps for scientific visualization. ([Green 2011](https://doi.org/10.1071/AS11033))
 * [x] [RG chromaticity](http://www.brucelindbloom.com/) — normalized r=R/(R+G+B), illumination-invariant for vision.
 * [x] [CIE DSH](https://en.wikipedia.org/wiki/Dominant_wavelength) — Helmholtz coordinates: dominant wavelength + excitation purity from CIE 1931 xy (D65); purples carry a negative complementary wavelength.
 * [x] [PhotoYCC](https://en.wikipedia.org/wiki/PhotoYCC) — Kodak Photo CD encoding, extended gamut (BT.709 primaries, BT.601 luma, odd-function OETF).
@@ -394,11 +391,22 @@ A _complete_ collection of color spaces under a _minimal_, _consistent_ API with
 * Visualising and educating about color spaces.
 * Test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
 
+
+### What it isn't
+
+Not a color toolbox. It leaves adjacent models out when they are not fixed channel coordinates with a context-free conversion path:
+
+- **Models without fixed, self-sufficient channels** — animal quantum catches and bee/avian/fly receptor geometries require species-specific sensitivity curves, illuminant, ocular transmission, and adaptation state. Kubelka–Munk pigment mixing, Neugebauer/Yule–Nielsen halftones, and Beer–Lambert colorants require measured spectra, inks or pigments, substrate, concentration, and thickness. These consume variable-length samples and external conditions; they are not universal channel tuples with an honest XYZ inverse.
+- **Swatch catalogs** — Pantone, NCS, RAL Classic, HKS, Toyo, British Standard, US Federal Standard 595. Discrete named-sample books, not continuous coordinate systems, and nearly all trademarked or sample-defined with no open CIE data. (RAL **Design** *is* included — its HLC code is CIELAB by construction, no catalog needed.)
+- **Colormaps** — cubehelix, viridis, turbo, and friends. A single fraction painted to a color, not a space you convert between.
+
+Operations stay out too — parsing, mixing, ΔE, gamut mapping, color-vision-deficiency simulation — this is the kernel they build on.
+
 ## Comparison
 
 | | color-space | culori | colorjs.io | texel/color |
 |---|---|---|---|---|
-| **Spaces** | **156** | 25 | 40 | 16 |
+| **Spaces** | **161** | 25 | 40 | 16 |
 | **Ranges** | Conventional (CSS-matching) | 0–1 | 0–1 | 0–1 |
 | **Specialty** (camera logs, appearance, video, historical) | ✅ | ❌ | some | ❌ |
 | **Backends** | JS · WASM · GLSL/WGSL · .cube LUT | JS | JS | JS |
@@ -409,4 +417,4 @@ Details in [library comparison](docs/library-comparison.md); `npm run benchmark`
 
 Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors. Special thanks to the libraries that informed this one: [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/) (CSS Color spec editors), [color-api](https://github.com/LeaVerou/color-api), [texel/color](https://github.com/texel-org/color).
 
-<p align="center"><a href="license.md">MIT</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
+<p align="center"><a href="license.md">Public domain (CC0)</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>

@@ -18,7 +18,7 @@ npm run benchmark
 
 ## Libraries Compared
 
-- **color-space** (this library) - Conventional ranges, 71+ color spaces
+- **color-space** (this library) - Conventional ranges, 161 color spaces
 - **culori** - Normalized ranges (0-1), 25 color spaces, comprehensive
 - **colorjs.io** - Normalized ranges (0-1), 40 color spaces, CSS Color spec reference
 - **@texel/color** - Normalized ranges (0-1), 16 color spaces, WebGL-focused
@@ -74,7 +74,7 @@ colorjs.io           1.12M         0.893µs        2.19x
 - Typical results show < 2x difference between libraries for most operations
 
 - **Choose based on your needs**:
-  - **color-space**: Most comprehensive (71+ spaces), conventional ranges (CSS-matching)
+  - **color-space**: Most comprehensive (161 spaces), conventional ranges (CSS-matching)
   - **culori**: Design-focused, comprehensive, smaller bundle
   - **colorjs.io**: W3C standard reference, CSS Color spec editors
   - **@texel/color**: WebGL-optimized, minimal, very fast

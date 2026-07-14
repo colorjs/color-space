@@ -64,7 +64,9 @@ The suite runs as part of `npm test` via `test/reference.js`.
 
 ## 2. Bona-fide cited values ([test/bonafide.js](../test/bonafide.js))
 
-Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field): **124 cited points across 123 spaces**. Together with the differential suite this covers **all 151 spaces — zero gaps**.
+Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field): **134 cited points across 134 space labels** (`test/refs.js` — the counts in `test/bonafide.js` derive from it at run time). Together with the differential suite this covers **all 161 graph spaces — zero gaps**.
+
+A cited anchor is exactly that — an anchor: it pins the formula at one (occasionally a few) points, which cannot exercise every nonlinear branch or boundary the way the differential grid does. The tier each space sits in is stated here so the guarantee is never stronger than the evidence.
 
 Oracles, in order of preference:
 
@@ -79,7 +81,7 @@ One entry is pinned by provenance rather than an external oracle: **coloroid** (
 
 ### Reference-link audit
 
-All 133 unique `@see` links across the 151 space files were liveness-checked and content-verified (2026-07). 15 dead or mis-attributed citations were fixed: the four `docs.acescentral.com/specifications/…` → `…/encodings/…` moves, Ottosson's restructured colorpicker anchors (okhsl/okhsv/okhwb), the DIN99d and Coloroid DOIs (both resolved to unrelated papers), the Xerox YES attribution (previously credited to an unrelated 2007 paper; the matrix is Xerox XNSS 289005, 1989), two colour-science readthedocs pages that no longer exist (→ pinned source files), the freieFarbe HLC atlas path, the Leica L-Log manual path, and the German-Wikipedia DIN99 link.
+All unique `@see` links across the space files (144 across 161 files at this revision) were liveness-checked and content-verified (2026-07). 15 dead or mis-attributed citations were fixed: the four `docs.acescentral.com/specifications/…` → `…/encodings/…` moves, Ottosson's restructured colorpicker anchors (okhsl/okhsv/okhwb), the DIN99d and Coloroid DOIs (both resolved to unrelated papers), the Xerox YES attribution (previously credited to an unrelated 2007 paper; the matrix is Xerox XNSS 289005, 1989), two colour-science readthedocs pages that no longer exist (→ pinned source files), the freieFarbe HLC atlas path, the Leica L-Log manual path, and the German-Wikipedia DIN99 link.
 
 ---
 
@@ -96,7 +98,5 @@ The GLSL/WGSL chunks ship the same formulas for the GPU; three layers pin them:
 ## 4. Known limitations
 
 **coloroid is EXPERIMENTAL.** The bundled hue table (Nemcsics) is internally inconsistent: each row's stored angle disagrees with its own chromaticity coordinates (xλ, yλ) by up to 14°. The T saturation formula does not round-trip: `rgb → coloroid → rgb` recovers T only approximately (~219/255 on a test sample). No external implementation exists to cross-validate against (colorjs and culori both lack coloroid). Tests assert only formula-verifiable invariants: V = 10√Y exactly, white → T = 0, valid hue grade, no NaN or crash. The A (hue angle) and T (saturation) values should be treated as provisional until the authoritative MSZ 7300 / Nemcsics table and ATV ↔ xyY formulas are sourced.
-
-**rgb.cubehelix is one-way.** Cubehelix is a parametric colormap (fraction → rgb); the reverse direction is not a color conversion and is deliberately blocked. (OSA-UCS, previously listed here, now has a working Newton inverse — pinned against colour-science `OSA_UCS_to_XYZ` in test/bonafide.js.)
 
 **okhsl S may marginally exceed 100 at the blue gamut boundary.** This is a known property of the smooth-cusp approximation in the Björnsson specification, shared by culori. It is not clamped, because clamping would break the roundtrip. The overshoot is small (~3 S units at the extreme corner) and documented in the `@channel` JSDoc.

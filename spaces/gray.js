@@ -15,6 +15,7 @@
  * @method matrix
  * @encoding linear
  * @referred display
+ * @loss projective Keeps luminance only; chromaticity is discarded.
  * @dynamic sdr
  */
 // Implementation notes:

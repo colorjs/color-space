@@ -41,8 +41,10 @@ const uv = (X, Y, Z) => {
 	return [4 * X / d, 6 * Y / d];
 };
 
-xyz.uvw = (x, y, z, i = 'D65', o = 2) => {
-	const [xn, yn, zn] = whitepoint[o][i];
+// full declared arity (no parameter defaults): the hub reads fn.length to know
+// this edge takes trailing params on composed paths
+xyz.uvw = (x, y, z, i, o) => {
+	const [xn, yn, zn] = whitepoint[o ?? 2][i ?? 'D65'];
 	const [un, vn] = uv(xn, yn, zn);
 	const d = x + 15 * y + 3 * z;
 	// black/undefined chromaticity -> use white's, so U* = V* = 0
@@ -52,8 +54,8 @@ xyz.uvw = (x, y, z, i = 'D65', o = 2) => {
 	return [13 * w * (_u - un), 13 * w * (_v - vn), w];
 };
 
-uvw.xyz = (u, v, w, i = 'D65', o = 2) => {
-	const [xn, yn, zn] = whitepoint[o][i];
+uvw.xyz = (u, v, w, i, o) => {
+	const [xn, yn, zn] = whitepoint[o ?? 2][i ?? 'D65'];
 	const [un, vn] = uv(xn, yn, zn);
 	const y = ((w + 17) / 25) ** 3; // Y in 0-100
 	// W*=0 carries no chromaticity (U*=V*=0 there) -> achromatic at this Y

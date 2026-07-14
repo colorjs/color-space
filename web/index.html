@@ -15,7 +15,11 @@
 <link href="./tokens.css" rel="stylesheet">
 <script>document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
 <style>
-html,body{ overflow-x:clip }
+/* clip on BODY only: html must stay overflow:visible so the body's overflow keeps
+   propagating to the viewport — that propagation is what lets the modal lock the
+   page scrollbar (openModal's body{overflow:hidden}); any non-visible overflow on
+   html severs it, and the page wears two scrollbars */
+body{ overflow-x:clip }
 *{ box-sizing:border-box; margin:0 }
 ::selection{ background:var(--ink); color:var(--paper) }
 body{ font-family:var(--f); font-size:16px; line-height:1.45; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility }
@@ -54,7 +58,6 @@ a{ color:var(--ink) }
 .cd::-webkit-color-swatch{ border:0 }
 #cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em }   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
 .gpill{ align-self:center; margin-left:.55em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }
-.gpill[data-g="p3"],.gpill[data-g="rec2020"]{ color:var(--ink); border-color:currentColor }   /* wide-gamut stands out; plain sRGB stays quiet */
 /* search filters spaces and metadata only; the live color parser is the header value input */
 .qx{ position:relative; display:flex; align-items:flex-start; gap:var(--s2); min-height:36px; align-self:center; padding-top:8.1px; cursor:text }   /* the input's box equals its line box, so pad-top + ascent lands its text on the masthead baseline at any DPR */
 .qx svg{ flex:none; align-self:center; transform:translateY(-3.8px); color:var(--soft) }   /* centred on the placeholder's cap height */ .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
@@ -222,7 +225,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
 .nvw .u:empty{ display:none }   /* unitless channels fold the unit slot — number sits right by the spinner */
-.stk{ display:flex; flex-direction:column }
+.stk{ display:flex; flex-direction:column; user-select:none }   /* chevrons never join a text selection */
 .stk button{ flex:1; font:inherit; font-size:var(--t1); line-height:1; font-weight:500; border:0; background:transparent; color:inherit; cursor:pointer; padding:0 var(--s1); display:flex; align-items:flex-end; justify-content:center }
 .stk .up{ margin-bottom:-2px } .stk .dn{ transform:rotate(180deg); margin-top:-2px }
 /* ── modal dossier — scrolls like a page ── */
@@ -339,6 +342,10 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
 .pl canvas{ display:block; width:100%; height:100% }
+/* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
+   labels and the mode switch stay on the square element, outside the rim */
+.pl.polar{ background:none }
+.pl.polar canvas{ background:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel); border-radius:50% }
 .pl .cx{ position:absolute; z-index:2; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* same rhombus as the sliders — rides above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
@@ -348,8 +355,12 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
 /* full channel names, set along the direction of increase: x rightward, y upward */
-.pl .laby{ position:absolute; top:.4rem; left:.45rem; writing-mode:vertical-rl; transform:rotate(180deg); font-size:var(--t0); font-weight:700; pointer-events:none }
+.pl .laby{ position:absolute; top:.4rem; left:.45rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:var(--t0); font-weight:700; pointer-events:none }
+.pl .pmode{ position:absolute; top:.25rem; right:.3rem; z-index:2; font-size:var(--t1); line-height:1; border:0; background:none; padding:2px; color:var(--ink); opacity:.5; cursor:pointer }   /* the hue disc ⟷ square switch — a dark filled dot, dim to ink on hover */
+.pl .pmode::before{ content:''; display:block; width:.75em; height:.75em; background:currentColor; border-radius:50% }
+.pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
+.pl .pmode:hover{ opacity:1 }
 h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:var(--s6) 0 var(--s2); display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap }
 .src{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .src a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
@@ -1206,9 +1217,28 @@ function fmt(s,v){ const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
 const pairs=n=>{ const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
 // the dossier's plane channel pairs, oriented to MATCH the 3D solid: the tone/lightness axis
 // stands vertical (b) and the hue angle sweeps horizontal (a) — same canonical layout as map3
-// (tone up, chroma across), so a strip reads like a slice of the solid above it.
-const pairsFor=s2=>{ const c2=classify(s2), ti=c2.tone?.i, ai=c2.angle?.i
+// (tone up, chroma across), so a strip reads like a slice of the solid above it. Tone-less
+// boxes (rgb, cmy…) stand channel 0 vertical — the same fallback the solid's map3 uses.
+const pairsFor=s2=>{ const c2=classify(s2), ti=c2.tone?.i??(c2.angle==null&&c2.ch.length===3?0:undefined), ai=c2.angle?.i
 	return pairs(c2.ch.length).map(([a,b])=>(ai===b||ti===a)?[b,a]:[a,b]) }
+// the hue×chroma pair can render as a DISC — the space's own polar geometry (hue
+// around, chroma out, matching the solid's top view). Tone pairs stay square, and
+// hwb-family radii are composites (1−W−B), not a channel.
+const polarPl=(c2,a,b)=>{ const ai=c2.angle?.i
+	if(ai==null||a!==ai||c2.ch.length!==3) return false
+	if(c2.ch.some(c=>/White/i.test(c.name||''))&&c2.ch.some(c=>/Black/i.test(c.name||''))) return false
+	return b!==c2.tone?.i }
+// per-plane axis DIRECTIONS, matched to the solid's default view (rot −0.6/0.42): model
+// x (others[0]) points right, tone up, model z (others[1]) toward the viewer — so an axis
+// sweeping z runs leftward when horizontal, downward when vertical, and the planes read
+// straight off the first 3D view. wb solids hang from the white top: Blackness grows down.
+// Returns a bitmask: 1 = flip horizontal, 2 = flip vertical.
+const flip3=(c2,a,b)=>{ if(c2.ch.length!==3) return 0
+	if(c2.angle){ const bI=c2.ch.findIndex(c=>/Black/i.test(c.name||''))
+		return bI>=0&&c2.ch.some(c=>/White/i.test(c.name||''))&&b===bI?2:0 }
+	const o=[0,1,2].filter(k=>k!==(c2.tone?.i??0))
+	return (a===o[1]?1:0)|(b===o[1]?2:0) }
+let POLAR=(localStorage.csPolar??'1')==='1'   // disc by default; the corner toggle persists
 
 const NAMED=Object.entries(NAMES).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
 const nmCache=new Map()   // exact-color memo — each unique pixel names once, then it's a hash hit
@@ -1689,7 +1719,7 @@ const hilite=code=>code.split('\n').map(line=>{
 	return src+(com?`<span class="tok-c">${esc(com)}</span>`:'')
 }).join('\n')
 // ── the sRGB solid in this space: regular surface mesh, drag to rotate ──
-let rot3={a:-0.6,b:0.42}, mesh3=null, pts3=null, tris3=null, pts3S=null, pts3Map=null, pts3Unmap=null, thru3=null, TC=null
+let rot3={a:-0.6,b:0.42}, mesh3=null, pts3=null, tris3=null, pts3S=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
 let hover3=null   // hovered slider {i} or plane {a,b} — its line/slice draws inside the solid
 // the solid idles in a slow turn so its shape reads without touching it; grabbing
 // stops it, and release hands over: a flick keeps it turning at the hand's pace,
@@ -1869,8 +1899,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		return [y, norm(v,others[0])-0.5, norm(v,others[1])-0.5] }
 	pts3Map=map3
 	// the inverse — model coords back to channel values (the guides live in model
-	// space; membership tests live in channel space). Clamped to the frame box.
-	const unmap3=n=>{ const de=(f,k)=>fmin[k]+clamp(f,0,1)*(fmax[k]-fmin[k])
+	// space; membership tests live in channel space). Unclamped: beyond-range verts
+	// (the human view pierces the box) must read their true coordinates.
+	const unmap3=n=>{ const de=(f,k)=>fmin[k]+f*(fmax[k]-fmin[k])
 		const v=[0,0,0]
 		if(wb){ const nB=0.5-n[0], r=Math.hypot(n[1],n[2])/0.55, nW=1-nB-r
 			let h=Math.atan2(n[2],n[1])/(2*Math.PI); if(h<0) h+=1
@@ -1879,15 +1910,17 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			v[ti]=de(n[0]+0.5,ti); v[mi]=de(Math.hypot(n[1],n[2])/0.55,mi); v[ai]=de(h,ai); return v }
 		v[ti]=de(n[0]+0.5,ti); v[others[0]]=de(n[1]+0.5,others[0]); v[others[1]]=de(n[2]+0.5,others[1]); return v }
 	pts3Unmap=unmap3
-	const addVert=src=>{ let v
+	// the FULL vertex pipeline (convert → singularity collapse → achromatic taper →
+	// fit clip → model map), shared by mesh building and the hover cut's refiner —
+	// a re-evaluated mid-edge source goes through exactly what the mesh went through
+	const inWin=v2=>v2.every((x2,k)=>isFinite(x2)&&x2>win[0][k]&&x2<win[1][k])
+	const evalV=src=>{ let v
 		try{ v=conv(src) }catch{ return null }
 		// past the encodable cone the coords go non-finite or fold into finite garbage
-		// (a sign-mirrored transfer) — "bad" = outside the sanity window. Bisect toward
-		// the neutral spine until the vertex lands ON the window wall — mirrors the
-		// GPU rule, closing the surface at the intersection
-		const inWin=v2=>v2.every((x2,k)=>isFinite(x2)&&x2>win[0][k]&&x2<win[1][k])
+		// (a sign-mirrored transfer) — "bad" = outside the sanity window. Collapse
+		// singularity verts to the neutral axis — mirrors the GPU rule
 		if(!inWin(v)){ const nw=g3==='vis'?[src[1]*0.9504559,src[1],src[1]*1.0890578]:Array(3).fill((src[0]+src[1]+src[2])/3)
-			try{ v=conv(nw) }catch{ return null }; if(!inWin(v)) return null }   // collapse singularity verts to the neutral axis
+			try{ v=conv(nw) }catch{ return null }; if(!inWin(v)) return null }
 		// a sub-integer channel delta — or a color too dark to carry chroma at all — is
 		// indistinguishable from gray: taper its chroma coordinates toward the
 		// achromatic axis (mirrors the GPU vertex rule)
@@ -1897,8 +1930,11 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		if(offFit(v)) return null
 		const n=map3(v)
 		if(!n.every(isFinite)) return null
+		return { n, v } }
+	const addVert=src=>{ const e=evalV(src)
+		if(!e) return null
 		let r; try{ r=dispOf(src) }catch{ return null }
-		P.push({ n, rgb:r.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 }); return P.length-1 }
+		P.push({ n:e.n, src, rgb:r.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((e.v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0 }); return P.length-1 }
 	// near the gray corners hue is unstable: such a cell fans across far-apart hue angles,
 	// chording the solid with off-surface fuzz — drop it; range faces below close the caps
 	const addTri=(a,b,c)=>{ if(a==null||b==null||c==null) return
@@ -1980,7 +2016,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	const tpos=[], tcol=[]
 	for(const tri of T) for(const i2 of tri){ const p=P[i2]
 		tpos.push(p.n[0],p.n[1],p.n[2]); tcol.push(p.rgb[0]/255,p.rgb[1]/255,p.rgb[2]/255) }
-	mesh3={ verts:P, tris:T, pos:new Float32Array(ppos), col:new Float32Array(pcol),
+	mesh3={ verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
 		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
 		gpu:gpu3, g3, map:gpu3?{ gam:g3, win, min:fmin, max:fmax, caps:capMask,
 			// cap planes sit at the solid's own extent — except the human view, whose
@@ -2033,12 +2069,15 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	el.onpointerup=()=>{ drag3=false
 		// release: near a top/front/side plane view SNAPS; a pointer held still 100ms+
 		// PARKS — an explicit "stay", for reading a view against a plane slice; anything
-		// else resumes the one ambient pace, turning the way the hand last moved
+		// else resumes the one ambient pace, turning the way the hand last moved.
+		// A cylinder is the same solid at every azimuth — its plane views are TILT-only
+		// (edge-on wall, face-on disc), so only b must land; a stays where dropped.
 		const q=Math.PI/2, na=Math.round(rot3.a/q)*q, nb=Math.round(rot3.b/q)*q
+		const cyl=mesh3&&mesh3.gd&&mesh3.gd.kind==='cyl'
 		const now=performance.now(), mt=vh3.length?vh3[vh3.length-1].t:t3
-		if(Math.abs(rot3.a-na)<0.14&&Math.abs(rot3.b-nb)<0.14){ spinV3=0
-			if(SPIN3===0){ rot3.a=na; rot3.b=nb; draw3d() }   // reduced motion: no glide
-			else snap3={a:na,b:clamp(nb,-Math.PI/2,Math.PI/2)} }
+		if((cyl||Math.abs(rot3.a-na)<0.14)&&Math.abs(rot3.b-nb)<0.14){ spinV3=0
+			if(SPIN3===0){ if(!cyl) rot3.a=na; rot3.b=nb; draw3d() }   // reduced motion: no glide
+			else snap3={a:cyl?rot3.a:na,b:clamp(nb,-Math.PI/2,Math.PI/2)} }
 		else if(now-mt>=100) spinV3=0
 		else{ const s0=vh3.find(v=>now-v.t<=150)
 			const da=s0?rot3.a-s0.a:0
@@ -2051,7 +2090,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	else{ mesh3=null; const tok=++wire3dTok   // heavy JS mesh (munsell's iterative caps): build off the open path
 		setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() },30) } }
 function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
-	const gl=cv.getContext('webgl',{alpha:true,antialias:true})||cv.getContext('experimental-webgl',{alpha:true,antialias:true})
+	const gl=cv.getContext('webgl',{alpha:true,antialias:true,stencil:true})||cv.getContext('experimental-webgl',{alpha:true,antialias:true,stencil:true})
 	if(!gl) return cv._gl3d=null
 	const sh=(type,src)=>{ const o=gl.createShader(type); gl.shaderSource(o,src); gl.compileShader(o)
 		return gl.getShaderParameter(o,gl.COMPILE_STATUS)?o:null }
@@ -2077,14 +2116,15 @@ function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
 	const fs=sh(gl.FRAGMENT_SHADER,`precision mediump float;
 		varying vec3 v_rgb;
 		uniform float u_dim;
-		void main(){ gl_FragColor=vec4(v_rgb*u_dim,1.0); }`)
+		uniform float u_alpha;
+		void main(){ gl_FragColor=vec4(v_rgb*u_dim,u_alpha); }`)
 	if(!vs||!fs) return cv._gl3d=null
 	const pr=gl.createProgram(); gl.attachShader(pr,vs); gl.attachShader(pr,fs); gl.linkProgram(pr)
 	if(!gl.getProgramParameter(pr,gl.LINK_STATUS)) return cv._gl3d=null
 	return cv._gl3d={ gl, pr, pos:gl.getAttribLocation(pr,'a_pos'), rgb:gl.getAttribLocation(pr,'a_rgb'),
-		rot:gl.getUniformLocation(pr,'u_rot'), scale:gl.getUniformLocation(pr,'u_scale'), ps:gl.getUniformLocation(pr,'u_ps'), zoff:gl.getUniformLocation(pr,'u_zoff'), dim:gl.getUniformLocation(pr,'u_dim'),
-		pb:gl.createBuffer(), cb:gl.createBuffer(), tb:gl.createBuffer(), tcb:gl.createBuffer(), mesh:null, count:0, tcount:0 } }
-function drawPtsGL(cv,m,scale3){ const st=gl3d(cv); if(!st||!m.tpos.length) return false
+		rot:gl.getUniformLocation(pr,'u_rot'), scale:gl.getUniformLocation(pr,'u_scale'), ps:gl.getUniformLocation(pr,'u_ps'), zoff:gl.getUniformLocation(pr,'u_zoff'), dim:gl.getUniformLocation(pr,'u_dim'), alpha:gl.getUniformLocation(pr,'u_alpha'),
+		pb:gl.createBuffer(), cb:gl.createBuffer(), tb:gl.createBuffer(), tcb:gl.createBuffer(), sb:gl.createBuffer(), swb:gl.createBuffer(), sn:0, mesh:null, count:0, tcount:0 } }
+function drawPtsGL(cv,m,scale3,sheet,frame){ const st=gl3d(cv); if(!st||!m.tpos.length) return false
 	const { gl, pr }=st
 	if(st.mesh!==m){ gl.bindBuffer(gl.ARRAY_BUFFER,st.pb); gl.bufferData(gl.ARRAY_BUFFER,m.pos,gl.STATIC_DRAW)
 		gl.bindBuffer(gl.ARRAY_BUFFER,st.cb); gl.bufferData(gl.ARRAY_BUFFER,m.col,gl.STATIC_DRAW)
@@ -2100,16 +2140,58 @@ function drawPtsGL(cv,m,scale3){ const st=gl3d(cv); if(!st||!m.tpos.length) retu
 		gl.drawArrays(mode,0,count) }
 	// smooth-shaded surface, matching the GPU-chunk solids (the dot cloud was a
 	// texture workaround for the old coarse mesh)
-	gl.uniform1f(st.zoff,0); gl.uniform1f(st.ps,1); gl.uniform1f(st.dim,1)
+	gl.uniform1f(st.zoff,0); gl.uniform1f(st.ps,1); gl.uniform1f(st.dim,1); gl.uniform1f(st.alpha,1)
 	draw(st.tb,st.tcb,gl.TRIANGLES,st.tcount)
+	// the hovered slice plane, depth-tested against the body in the same scene —
+	// front at full presence, the body-hidden part fainter (the pane reads continuous)
+	if(sheet&&sheet.length){ gl.bindBuffer(gl.ARRAY_BUFFER,st.sb); gl.bufferData(gl.ARRAY_BUFFER,sheet,gl.DYNAMIC_DRAW)
+		if(st.sn!==sheet.length){ gl.bindBuffer(gl.ARRAY_BUFFER,st.swb)
+			gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(sheet.length).fill(1),gl.DYNAMIC_DRAW); st.sn=sheet.length }
+		gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA)
+		gl.uniform1f(st.alpha,0.75); gl.depthMask(false)
+		draw(st.sb,st.swb,gl.TRIANGLES,sheet.length/3)
+		gl.depthFunc(gl.GREATER); gl.uniform1f(st.alpha,0.35)
+		draw(st.sb,st.swb,gl.TRIANGLES,sheet.length/3)
+		gl.depthFunc(gl.LEQUAL)
+		gl.depthMask(true); gl.disable(gl.BLEND); gl.uniform1f(st.alpha,1) }
+	// the pane's frame ribbons — clip-space geometry, exactly as drawMesh3GL draws them
+	if(frame){ if(st.fpr===undefined){ const mk=(t,src)=>{ const o=gl.createShader(t); gl.shaderSource(o,src); gl.compileShader(o)
+			return gl.getShaderParameter(o,gl.COMPILE_STATUS)?o:null }
+		const vs=mk(gl.VERTEX_SHADER,'attribute vec3 aPos; void main(){ gl_Position=vec4(aPos,1.0); }')
+		const fs=mk(gl.FRAGMENT_SHADER,'precision mediump float; uniform vec4 uTint; void main(){ gl_FragColor=uTint; }')
+		const pr=vs&&fs&&gl.createProgram()
+		if(pr){ gl.attachShader(pr,vs); gl.attachShader(pr,fs); gl.linkProgram(pr) }
+		st.fpr=pr&&gl.getProgramParameter(pr,gl.LINK_STATUS)?pr:null
+		if(st.fpr){ st.fpos=gl.getAttribLocation(st.fpr,'aPos'); st.ftint=gl.getUniformLocation(st.fpr,'uTint'); st.fb=gl.createBuffer() } }
+		if(st.fpr){ gl.useProgram(st.fpr)
+			// the main program's color array must not stay enabled here: an enabled
+			// array shorter than the ribbon draw is an INVALID_OPERATION in WebGL1
+			gl.disableVertexAttribArray(st.rgb)
+			gl.bindBuffer(gl.ARRAY_BUFFER,st.fb)
+			gl.enableVertexAttribArray(st.fpos); gl.vertexAttribPointer(st.fpos,3,gl.FLOAT,false,0,0)
+			gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA)
+			gl.depthMask(false)
+			gl.enable(gl.STENCIL_TEST); gl.stencilFunc(gl.EQUAL,0,0xff); gl.stencilOp(gl.KEEP,gl.KEEP,gl.INCR)
+			const rib=(v,r,g,b,a)=>{ if(!v.length) return
+				gl.uniform4f(st.ftint,r,g,b,a)
+				gl.bufferData(gl.ARRAY_BUFFER,v,gl.DYNAMIC_DRAW)
+				gl.clear(gl.STENCIL_BUFFER_BIT)
+				gl.drawArrays(gl.TRIANGLES,0,v.length/3) }
+			const [tr,tg,tb]=frame.tint
+			rib(frame.fr,1,1,1,0.85); rib(frame.co,tr,tg,tb,1)
+			gl.depthFunc(gl.GREATER)
+			rib(frame.fr,1,1,1,0.38); rib(frame.co,tr,tg,tb,0.2)
+			gl.depthFunc(gl.LEQUAL)
+			gl.disable(gl.STENCIL_TEST); gl.depthMask(true); gl.disable(gl.BLEND) } }
 	return true }
-// ── the hovered plane's cut outline: where its sheet crosses the shown solid's
-// surface. Marching squares over the plane's own (a,b) domain; membership = "a real
-// color of the shown volume" — the display cube via inGam plus a canonical xyz
-// roundtrip (fold branches like hwb's w+b>100 decode into the cube but aren't on the
-// solid), or the visible gamut via the Rösch–MacAdam support test (that solid IS the
-// CMF zonoid: inside iff u·X ≤ h(u) for every direction u). Crossings bisect onto the
-// wall; segments cache in MODEL space, so rotation only re-projects them.
+// ── the hovered plane renders ENTIRELY inside the GL scene: the pane as
+// depth-tested geometry, its body contact as the stencil band (the pane pulled ε
+// toward the viewer, drawn only where the pane itself was not) — the classic way,
+// pixel-exact for any solid. The hud adds only the pane's frame. Membership below
+// ("a real color of the shown volume": the ENCODED gamut cube plus a canonical xyz
+// roundtrip, or the visible gamut via the Rösch–MacAdam support test) serves the
+// hovered CHANNEL LINE and the dashed guides. Caches key on (space, pair, values);
+// rotation only re-projects. ──
 let visH=null, ctr3=null, ln3=null, gu3=null
 const visIn3=X=>{ if(!visH){ const cols=[]
 		for(let i=0;i<160;i++) cols.push(space.wavelength.xyz(380+(i+0.5)*2))   // visSurf's own 2nm CMF table and scaling
@@ -2150,6 +2232,97 @@ function ghostRuns(n0,n1,s,cls,g3){ const NS=24
 			runs.push({ a:at(t0), b:at(tb), in:i0 }); t0=tb; i0=i1 } }
 	runs.push({ a:at(t0), b:at(1), in:i0 })
 	return runs }
+// the cut: the plane ∩ the SAME mesh the solid renders. Per-vertex signed offsets to
+// the sheet (through unmap3, wrap-aware), crossings bisected ON the true surface by
+// re-evaluating mid-edge SOURCES through the mesh's own vertex pipeline, plus one
+// source-space subdivision so curved cells don't chord — segments in MODEL space,
+// constant-width when stroked, visible on both sides of the body.
+function cutSegs3(cls,vals,fi){
+	if(!pts3||!tris3||!pts3Unmap||!mesh3) return []
+	const c=cls.ch[fi], span=(c.max-c.min)||1
+	const wrap=c.max===360||cls.angle?.i===fi
+	// on the achromatic spine hue is noise — and a spine point belongs to EVERY hue
+	// plane, so its offset is genuinely zero (anchors the cut at the dark bottom)
+	const dlt=n=>{ if(wrap&&Math.hypot(n[1],n[2])<0.02) return 0
+		const val=pts3Unmap(n)[fi]
+		return wrap?((val-vals[fi])%span+span*1.5)%span-span/2:val-vals[fi] }
+	const D=pts3.map(p=>dlt(p.n))
+	// refinement compensates COARSE meshes (the GPU path's 12-lattice); a dense JS
+	// mesh needs none — and its forward conversions are the expensive kind (munsell)
+	const ev=tris3.length<5000?mesh3.ev:null
+	// a real zero-crossing — on a wrap channel, not the seam (the delta jumps ±span/2)
+	const crosses=(da,db)=>(da<0)!==(db<0)&&(!wrap||Math.abs(da)+Math.abs(db)<span/2)
+	const hit=(Pa,Pb)=>{ if(ev&&Pa.src&&Pb.src){ let a0=Pa, b0=Pb
+			for(let r2=0;r2<7;r2++){ const sm=a0.src.map((x2,k)=>(x2+b0.src[k])/2)
+				const e=ev(sm); if(!e) break
+				const m2={ n:e.n, src:sm, d:dlt(e.n) }
+				if((m2.d<0)===(a0.d<0)) a0=m2; else b0=m2 }
+			const t=a0.d/(a0.d-b0.d)||0
+			return a0.n.map((x2,k)=>x2+(b0.n[k]-x2)*t) }
+		const t=Pa.d/(Pa.d-Pb.d)||0
+		return Pa.n.map((x2,k)=>x2+(Pb.n[k]-x2)*t) }
+	// cap every segment to the sheet's own domain — the solid may pierce the range
+	// box (the human view), but the plane, and so its cut, ends at the range walls
+	const free=[0,1,2].filter(q2=>q2!==fi)
+	const cross0=(nIn,nOut,f)=>{ let a0=nIn, b0=nOut
+		for(let r2=0;r2<8;r2++){ const m2=a0.map((x2,k)=>(x2+b0[k])/2)
+			if(f(m2)>=0) a0=m2; else b0=m2 }
+		return a0.map((x2,k)=>(x2+b0[k])/2) }
+	const clip=seg=>{ for(const q2 of free){ const cq=cls.ch[q2]
+			if(cq.max===360||cls.angle?.i===q2) continue
+			// inset a hair from the wall, so a capped cut stays visible just INSIDE the
+			// pane's own dark frame instead of folding into it
+			const pad=(cq.max-cq.min)*0.008
+			for(const side of [0,1]){ const bnd=side?cq.max-pad:cq.min+pad
+				const f=n=>side?bnd-pts3Unmap(n)[q2]:pts3Unmap(n)[q2]-bnd
+				const fa=f(seg[0]), fb=f(seg[1])
+				if(fa<0&&fb<0) return null
+				if(fa<0) seg=[cross0(seg[1],seg[0],f),seg[1]]
+				else if(fb<0) seg=[seg[0],cross0(seg[0],seg[1],f)] } }
+		return seg }
+	const segs=[]
+	const emit=(P0,P1,P2q)=>{ const pts=[]
+		for(const [Pa,Pb] of [[P0,P1],[P1,P2q],[P2q,P0]]) if(crosses(Pa.d,Pb.d)) pts.push(hit(Pa,Pb))
+		if(pts.length>=2){ const s2=clip([pts[0],pts[1]])
+			if(s2) segs.push(s2) } }
+	for(const t of tris3){ const d0=D[t[0]], d1=D[t[1]], d2=D[t[2]]
+		if(!crosses(d0,d1)&&!crosses(d1,d2)&&!crosses(d2,d0)) continue
+		const A=pts3[t[0]], B2=pts3[t[1]], C2=pts3[t[2]]
+		const V0={ n:A.n, src:A.src, d:d0 }, V1={ n:B2.n, src:B2.src, d:d1 }, V2={ n:C2.n, src:C2.src, d:d2 }
+		if(ev&&A.src&&B2.src&&C2.src){
+			const mid=(p,q)=>{ const sm=p.src.map((x2,k)=>(x2+q.src[k])/2); const e=ev(sm)
+				return e&&{ n:e.n, src:sm, d:dlt(e.n) } }
+			const ab=mid(V0,V1), bc=mid(V1,V2), ca2=mid(V2,V0)
+			if(ab&&bc&&ca2){ emit(V0,ab,ca2); emit(ab,V1,bc); emit(ca2,bc,V2); emit(ab,bc,ca2); continue } }
+		emit(V0,V1,V2) }
+	return segs }
+// the sheet's boundary polyline in model space — the frame the GL scene extrudes
+function perim3(cls,vals,A,B){ const ca=cls.ch[A], cb=cls.ch[B], N=24
+	const at2=(fa,fb)=>{ const v=vals.slice()
+		v[A]=ca.min+(ca.max-ca.min)*fa; v[B]=cb.min+(cb.max-cb.min)*fb; return v }
+	const q=[]
+	for(let k=0;k<=N;k++) q.push([k/N,0])
+	for(let k=1;k<=N;k++) q.push([1,k/N])
+	for(let k=1;k<=N;k++) q.push([1-k/N,1])
+	for(let k=1;k<=N;k++) q.push([0,1-k/N])
+	return q.map(([fa,fb])=>{ const n=pts3Map(at2(fa,fb)); return n.every(isFinite)?n:null }) }
+// the frame's dark core, as the GL tint the CUT token means
+const CUT3=(()=>{ try{ return space.oklch.rgb(0.32,0.012,70).map(x=>clamp(x,0,255)/255) }catch{ return [0.19,0.18,0.16] } })()
+// tessellate the hovered plane in MODEL space (24×24 through the solid's own map3 —
+// cylindrical sheets curve for free)
+function buildSheet3(cls,vals,A,B){ const ca=cls.ch[A], cb=cls.ch[B], R2=24
+	const at2=(fa,fb)=>{ const v=vals.slice()
+		v[A]=ca.min+(ca.max-ca.min)*fa; v[B]=cb.min+(cb.max-cb.min)*fb; return v }
+	const P2=[]
+	for(let j=0;j<=R2;j++){ P2[j]=[]
+		for(let i=0;i<=R2;i++){ const n=pts3Map(at2(i/R2,j/R2))
+			P2[j][i]=n.every(isFinite)?n:null } }
+	const V=[]
+	for(let j=0;j<R2;j++) for(let i=0;i<R2;i++){
+		const pts=[P2[j][i],P2[j][i+1],P2[j+1][i+1],P2[j+1][i]]
+		if(pts.some(p=>!p)) continue
+		V.push(...pts[0],...pts[1],...pts[2],...pts[0],...pts[2],...pts[3]) }
+	return new Float32Array(V) }
 function draw3d(){ if(!mesh3||!open()) return
 	const el=detail.querySelector('#pl3d'); if(!el) return
 	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3'), gcv=el.querySelector('.grid3')
@@ -2170,7 +2343,47 @@ function draw3d(){ if(!mesh3||!open()) return
 	const plC=detail.querySelector('#gam2d canvas')||detail.querySelector('#tcv')
 	const wN=mesh3.gd?.kind==='cyl'?1.02:1   // the cylinder's rim (1.1 wide) may run a hair past the plates
 	const scale3=Math.min(plC?1.335*plC.clientWidth/((el.clientWidth||352)*wN):0.66/mesh3.f0, 1.4/wN), sc=S2*scale3/2
+	// the hovered plane's sheet, built (and cached) BEFORE the mesh draw — it renders
+	// inside the GL scene, depth-tested against the body
+	let sheet3=null, frame3=null
+	if(hover3&&hover3.i==null&&mv&&pts3Map){ const clsE=classify(pts3S)
+		const fiE=[0,1,2].find(k=>k!==hover3.a&&k!==hover3.b)
+		const keyE=`${pts3S}|${mesh3.g3}|${hover3.a},${hover3.b}|${mv[fiE]}`
+		if(!ctr3||ctr3.key!==keyE) ctr3={ key:keyE, sheet:buildSheet3(clsE,mv,hover3.a,hover3.b), cut:cutSegs3(clsE,mv,fiE),
+			per:perim3(clsE,mv,hover3.a,hover3.b) }
+		sheet3=ctr3.sheet
+		// the pane's FRAME is scene geometry too: ribbons extruded in clip space
+		// (screen-true widths), so the depth buffer decides cover exactly as it does
+		// for the pane — the frame ghosts ONLY where the body is truly in front of it.
+		// Dark core rides the boundary; the white fringe hugs its OUTSIDE.
+		const fk=`${rot3.a},${rot3.b}|${scale3}|${S2}`
+		if(ctr3.frK!==fk){ const C=ctr3.per.map(n=>{ if(!n) return null
+				const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-0.0015] })   // z nudged viewer-ward: a frame ON a face reads visible, never z-fights
+			let ar=0
+			for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(p&&q) ar+=p[0]*q[1]-q[0]*p[1] }
+			const out=ar>0?-1:1, px=2/S2   // CCW loop keeps its interior on the LEFT of travel
+			const rib=(off,hw)=>{ const V=[]
+				for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(!p||!q) continue
+					let dx=q[0]-p[0], dy=q[1]-p[1]; const L=Math.hypot(dx,dy)||1; dx/=L; dy/=L
+					const nx=-dy*out, ny=dx*out
+					const e=hw*px   // square-cap extension: joins overlap, the stencil dedups
+					const ax=p[0]-dx*e, ay=p[1]-dy*e, bx=q[0]+dx*e, by=q[1]+dy*e
+					const lo=(off-hw)*px, hi=(off+hw)*px
+					V.push(ax+nx*lo,ay+ny*lo,p[2], bx+nx*lo,by+ny*lo,q[2], ax+nx*hi,ay+ny*hi,p[2],
+						ax+nx*hi,ay+ny*hi,p[2], bx+nx*lo,by+ny*lo,q[2], bx+nx*hi,by+ny*hi,q[2]) }
+				return new Float32Array(V) }
+			ctr3.frK=fk; ctr3.frame={ fr:rib(0.75*dp,0.75*dp), co:rib(0,0.6*dp), tint:CUT3 } }
+		frame3=ctr3.frame }
+	// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
+	// (bodyM) for the thru passes; the pane and frame then join the same scene in a
+	// second pass, so their film never counts as cover and never veils the hud dashes
 	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
+	let bodyM=meshCv
+	if(drewGL&&(sheet3||frame3)){ const bm=mask3||(mask3=document.createElement('canvas'))
+		if(bm.width!==S2) bm.width=bm.height=S2
+		const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(meshCv,0,0)
+		bodyM=bm
+		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	// a GPU space whose program is still linking shows the frame alone for a beat —
@@ -2183,7 +2396,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	// the camera, so a face whose outward normal has z<0 faces away) ──
 	const gd=mesh3.gd, gx=gcv.getContext('2d')
 	gx.clearRect(0,0,S2,S2)
-	const GRID='oklch(0.5 0.01 70/.15)', EDGE='oklch(0.5 0.01 70/.34)', TXT='oklch(0.5 0.01 70/.85)', CUT='oklch(0.32 0.012 70)', WHT='#fff'   // CUT: the hover cut weight on the near surface; WHT: everything ghosted — hidden arcs, the sheet frame, beyond-the-solid line
+	const GRID='oklch(0.5 0.01 70/.15)', EDGE='oklch(0.5 0.01 70/.34)', TXT='oklch(0.5 0.01 70/.85)', CUT='oklch(0.32 0.012 70)', WHT='#fff', GHOST='oklch(0.5 0.01 70/.6)'   // CUT: the hover cut weight on the near surface; WHT: everything ghosted — hidden arcs, the sheet frame, beyond-the-solid line; GHOST: the dashed guides' gray
 	const fmtT=v=>String(Math.abs(v)>=1000?Math.round(v):+v.toPrecision(3))
 	const seg=(a,b)=>{ const p=prj(a), q=prj(b); gx.moveTo(p.x,p.y); gx.lineTo(q.x,q.y) }
 	gx.lineWidth=dp; gx.textAlign='center'; gx.textBaseline='middle'
@@ -2221,17 +2434,24 @@ function draw3d(){ if(!mesh3||!open()) return
 			hys.edge[d]={se:best.se,sf:best.sf}
 			const m2=prj(pt(d,0,e,best.se,f2,best.sf))
 			const ox=m2.x-S2/2, oy=m2.y-S2/2, ol=Math.hypot(ox,oy)||1, off=12*dp
-			// a foreshortened edge (view down this axis) can't seat every label — thin them
+			// a foreshortened edge (view down this axis) can't seat every label — thin them;
+			// pointing INTO the screen (a snapped face-on view) it collapses to a point,
+			// so its piled values and sym fade out entirely
 			const e0=prj(pt(d,-0.5,e,best.se,f2,best.sf)), e1=prj(pt(d,0.5,e,best.se,f2,best.sf))
-			const req=Math.max(1,Math.ceil(gd.dims[d].t.length*16*dp/Math.max(Math.hypot(e1.x-e0.x,e1.y-e0.y),1)))
+			const elen=Math.hypot(e1.x-e0.x,e1.y-e0.y)
+			const axA=clamp(elen/S2*9-0.35,0,1)
+			if(axA<=0.03) continue
+			const req=Math.max(1,Math.ceil(gd.dims[d].t.length*16*dp/Math.max(elen,1)))
 			const lt=hys.step[d]=req>(hys.step[d]||1)||req<=(hys.step[d]||1)*0.55?req:hys.step[d]
 			// at the snapped zoom the box nearly fills the canvas — labels stay on it
 			const cl3=v2=>clamp(v2,9*dp,S2-9*dp)
+			gx.globalAlpha=axA
 			gd.dims[d].t.forEach((t,q)=>{ if(q%lt) return
 				const p=prj(pt(d,t.x,e,best.se,f2,best.sf))
 				gx.fillText(fmtT(t.v),cl3(p.x+ox/ol*off),cl3(p.y+oy/ol*off)) })
 			const ps=prj(pt(d,0.5,e,best.se,f2,best.sf))
-			gx.font=F10; gx.fillText(gd.dims[d].sym,cl3(ps.x+ox/ol*off*2.1),cl3(ps.y+oy/ol*off*2.1)); gx.font=F9 } }
+			gx.font=F10; gx.fillText(gd.dims[d].sym,cl3(ps.x+ox/ol*off*2.1),cl3(ps.y+oy/ol*off*2.1)); gx.font=F9
+			gx.globalAlpha=1 } }
 	else if(gd){ // cylinder: far disc (spokes + rings) and the far half of the wall
 		const R=gd.R
 		yF=rot([1,0,0]).z<0?0.5:-0.5
@@ -2258,13 +2478,17 @@ function draw3d(){ if(!mesh3||!open()) return
 		const aL=rot3.a+Math.PI, aF=rot3.a+Math.PI/2
 		const cL=Math.cos(aL), sL=Math.sin(aL)
 		gx.textAlign='right'
-		// the column forecloses in top-down views — thin its labels to what fits
+		// the column forecloses in top-down views — thin its labels to what fits, and
+		// fade them out entirely as the axis turns into the screen (a snapped top view)
 		const c0h=prj([-0.5,R*cL,R*sL]), c1h=prj([0.5,R*cL,R*sL])
+		const colOpen=clamp(Math.abs(Math.cos(rot3.b))*4-0.15,0,1)
 		const req=Math.max(1,Math.ceil(gd.ty.length*13*dp/Math.max(Math.abs(c1h.y-c0h.y),1)))
 		const lty=hys.step[3]=req>(hys.step[3]||1)||req<=(hys.step[3]||1)*0.55?req:hys.step[3]
 		const typ=[]
-		gd.ty.forEach((t,q)=>{ if(q%lty) return
-			const p=prj([t.y,R*cL,R*sL]); typ.push(p); gx.fillText(fmtT(t.v),p.x-7*dp,p.y) })
+		if(colOpen>0.03){ gx.globalAlpha=colOpen
+			gd.ty.forEach((t,q)=>{ if(q%lty) return
+				const p=prj([t.y,R*cL,R*sL]); typ.push(p); gx.fillText(fmtT(t.v),p.x-7*dp,p.y) })
+			gx.globalAlpha=1 }
 		gx.textAlign='center'
 		// an edge-on disc (front/side views) collapses the whole rim onto one line —
 		// its labels would pile up unreadably: fade them with the disc's opening
@@ -2279,7 +2503,8 @@ function draw3d(){ if(!mesh3||!open()) return
 			if(al<=0.03) return
 			gx.globalAlpha=al; gx.fillText(fmtT(t.v)+(gd.deg?'°':''),p.x,p.y); gx.globalAlpha=1 })
 		gx.font=F10; gx.textAlign='right'
-		const pT=prj([0.5,R*cL,R*sL]); gx.fillText(gd.ysym,pT.x-7*dp,pT.y-15*dp)
+		if(colOpen>0.03){ gx.globalAlpha=Math.max(colOpen,0.5)
+			const pT=prj([0.5,R*cL,R*sL]); gx.fillText(gd.ysym,pT.x-7*dp,pT.y-15*dp); gx.globalAlpha=1 }
 		gx.textAlign='center'
 		const pH=prj([yF,R*1.34*Math.cos(aF),R*1.34*Math.sin(aF)])
 		if(discOpen>0.03){ gx.globalAlpha=Math.max(discOpen,0.5); gx.fillText(gd.hsym,pH.x,pH.y); gx.globalAlpha=1 } }
@@ -2292,7 +2517,7 @@ function draw3d(){ if(!mesh3||!open()) return
 		if(gt.width!==S2) gt.width=gt.height=S2
 		const g2=gt.getContext('2d')
 		g2.clearRect(0,0,S2,S2); g2.drawImage(gcv,0,0)
-		g2.globalCompositeOperation='destination-in'; g2.drawImage(meshCv,0,0)
+		g2.globalCompositeOperation='destination-in'; g2.drawImage(bodyM,0,0)
 		if(THRU_LIGHT){ g2.globalCompositeOperation='source-in'; g2.fillStyle='#fff'; g2.fillRect(0,0,S2,S2) }
 		g2.globalCompositeOperation='source-over'
 		ctx.globalAlpha=THRU_LIGHT?0.65:0.22; ctx.drawImage(gt,0,0); ctx.globalAlpha=1 }
@@ -2305,20 +2530,83 @@ function draw3d(){ if(!mesh3||!open()) return
 		if(gt.width!==S2) gt.width=gt.height=S2
 		const g2=gt.getContext('2d')
 		g2.clearRect(0,0,S2,S2); g2.lineJoin=g2.lineCap='round'; draw(g2)
-		g2.globalCompositeOperation='destination-out'; g2.drawImage(meshCv,0,0)
+		g2.globalCompositeOperation='destination-out'; g2.drawImage(bodyM,0,0)
 		g2.globalCompositeOperation='source-over'
 		ctx.drawImage(gt,0,0)
 		g2.clearRect(0,0,S2,S2); draw(g2)
-		g2.globalCompositeOperation='destination-in'; g2.drawImage(meshCv,0,0)
+		g2.globalCompositeOperation='destination-in'; g2.drawImage(bodyM,0,0)
 		if(THRU_LIGHT){ g2.globalCompositeOperation='source-in'; g2.fillStyle='#fff'; g2.fillRect(0,0,S2,S2) }
 		g2.globalCompositeOperation='source-over'
 		ctx.globalAlpha=wa??(THRU_LIGHT?0.4:0.22); ctx.drawImage(gt,0,0); ctx.globalAlpha=1 }
 	let mp=null
 	if(markerN&&markerN.every(isFinite)) mp=prj(markerN)
+	// the hovered slider's LINE / plane's SLICE, threaded through the solid at the
+	// current values — the same coordinates the picker sweeps. The linework follows
+	// the GRID's law exactly: its normal color in open space, and where the body
+	// covers it (mesh-alpha masked, per pixel) it re-emerges white — the same thru
+	// treatment as the frame planes. The channel line goes bold-dark inside the
+	// gamut. The plane is a translucent paper SHEET wherever it is OUTSIDE the
+	// volume: in front of the body it veils it, behind it the body wins (per pixel),
+	// and the cross-section stays a clean hole cut at the membership wall.
+	// Cylindrical spaces curve naturally: samples run through the solid's own map3.
+	if(hover3&&mv&&pts3Map){ const cls3=classify(pts3S), chs=cls3.ch
+		const P3=v2=>{ const n=pts3Map(v2); return n.every(isFinite)?prj(n):null }
+		ctx.save(); ctx.lineJoin=ctx.lineCap='round'
+		if(hover3.i!=null){ const c=chs[hover3.i], N=72
+			const at=f=>{ const v2=mv.slice(); v2[hover3.i]=c.min+(c.max-c.min)*f; return v2 }
+			const key3=`${pts3S}|${mesh3.g3}|L${hover3.i}|${mv.map((x2,k)=>k===hover3.i?'':x2).join(',')}`
+			if(!ln3||ln3.key!==key3){ const runs=[]; let cur=null, pv=null
+				for(let k=0;k<=N;k++){ const f=k/N, v2=at(f), n=pts3Map(v2)
+					if(!n.every(isFinite)){ cur=null; pv=null; continue }
+					const ins=inSolid3(pts3S,cls3,mesh3.g3,v2)
+					if(cur&&cur.in!==ins&&pv){ let lo=pv.f, hi=f   // sharpen the wall crossing
+						for(let r2=0;r2<5;r2++){ const m2=(lo+hi)/2
+							if(inSolid3(pts3S,cls3,mesh3.g3,at(m2))===pv.in) lo=m2; else hi=m2 }
+						const nb=pts3Map(at((lo+hi)/2))
+						if(nb.every(isFinite)){ cur.pts.push(nb)
+							cur={ in:ins, pts:[nb] }; runs.push(cur) }
+						else cur=null }
+					if(!cur||cur.in!==ins){ cur={ in:ins, pts:[] }; runs.push(cur) }
+					cur.pts.push(n); pv={ f, in:ins } }
+				ln3={ key:key3, runs } }
+			// the full line first, as a DASHED guide — the same style the marker guides
+			// wear (gray in the open, re-emerging white where the body covers it) —
+			// then the bold in-gamut segment rides OVER it: the active slider span
+			ghost(g2=>{ g2.setLineDash([3*dp,3.5*dp]); g2.lineWidth=dp; g2.strokeStyle=GHOST
+				g2.beginPath()
+				for(const r2 of ln3.runs) r2.pts.forEach((n2,k2)=>{ const p=prj(n2); k2?g2.lineTo(p.x,p.y):g2.moveTo(p.x,p.y) })
+				g2.stroke() },0.85)
+			// inside the gamut the line is the white-haloed dark path — readable on any body
+			for(const r2 of ln3.runs){ if(!r2.in||r2.pts.length<2) continue
+				ctx.beginPath()
+				r2.pts.forEach((n2,k2)=>{ const p=prj(n2); k2?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y) })
+				ctx.strokeStyle=WHT; ctx.globalAlpha=.85; ctx.lineWidth=3.2*dp; ctx.stroke()
+				ctx.strokeStyle=CUT; ctx.globalAlpha=1; ctx.lineWidth=1.4*dp; ctx.stroke() } }
+		else{
+			// the sheet AND its frame render inside the GL scene (depth-buffered — the
+			// frame ghosts exactly where the body is in front of it); the hud draws the
+			// CUT — the plane∩mesh curve, constant width, visible on both sides of the
+			// body, its alpha ramping SMOOTHLY with depth (the far arc reads softer;
+			// a hard near/far flip popped at the silhouette)
+			if(ctr3&&ctr3.cut){ ctx.strokeStyle=WHT; ctx.lineWidth=1.2*dp
+				for(const [n0,n1] of ctr3.cut){ const p=prj(n0), q=prj(n1)
+					const dep=clamp((p.z+q.z)/2/(mesh3.r||1)*1.2+0.5,0,1)
+					ctx.globalAlpha=0.3+dep*0.6
+					ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke() }
+				ctx.globalAlpha=1 }
+			// no GL scene (flat painter while programs link) — the frame paints plainly
+			if(!drewGL&&ctr3&&ctr3.per){ ctx.beginPath(); let on=false
+				for(const n of ctr3.per){ if(!n){ on=false; continue }
+					const p=prj(n); if(on) ctx.lineTo(p.x,p.y); else{ ctx.moveTo(p.x,p.y); on=true } }
+				if(on&&ctr3.per[0]) ctx.closePath()
+				ctx.strokeStyle=WHT; ctx.globalAlpha=.85; ctx.lineWidth=3*dp; ctx.stroke()
+				ctx.strokeStyle=CUT; ctx.globalAlpha=1; ctx.lineWidth=1.2*dp; ctx.stroke(); ctx.globalAlpha=1 } }
+		ctx.restore() }
 	// the current color, oriented: dashed perpendiculars dropped onto the gridded
-	// planes — ghosting WHITE where they pass through the body, gray in open space
-	if(mp&&gd){ ctx.save(); ctx.lineWidth=dp; ctx.setLineDash([3*dp,3.5*dp])
-		const GHOST='oklch(0.5 0.01 70/.6)'
+	// planes — ghosting white through the body. A hovered SLIDER retires them (its
+	// own line wears the same dashes end to end); the hovered plane keeps them,
+	// riding above the pane film (bodyM keeps the film out of the cover mask)
+	if(mp&&gd&&(!hover3||hover3.i==null)){ ctx.save(); ctx.lineWidth=dp; ctx.setLineDash([3*dp,3.5*dp])
 		const cg3=classify(pts3S)
 		const gKey=`${pts3S}|${mesh3.g3}|${mv?mv.join(','):''}`
 		if(!gu3||gu3.key!==gKey) gu3={ key:gKey, lines:{} }
@@ -2345,108 +2633,9 @@ function draw3d(){ if(!mesh3||!open()) return
 			g2.setLineDash([]); g2.fillStyle=GHOST
 			for(const p of dotD){ g2.beginPath(); g2.arc(p.x,p.y,2*dp,0,7); g2.fill() } },0.85)
 		ctx.restore() }
-	// the hovered slider's LINE / plane's SLICE, threaded through the solid at the
-	// current values — the same coordinates the picker sweeps. The linework follows
-	// the GRID's law exactly: its normal color in open space, and where the body
-	// covers it (mesh-alpha masked, per pixel) it re-emerges white — the same thru
-	// treatment as the frame planes. The channel line goes bold-dark inside the
-	// gamut. The plane is a paper SHEET: filled wherever it is not the blob (masked
-	// by the body's own pixels) — its contact edge IS the cut, no stroked outline.
-	// Cylindrical spaces curve naturally: samples run through the solid's own map3.
-	if(hover3&&mv&&pts3Map){ const cls3=classify(pts3S), chs=cls3.ch
-		const css3=getComputedStyle(document.documentElement)
-		const paper3=css3.getPropertyValue('--paper').trim()||'#fff'
-		const P3=v2=>{ const n=pts3Map(v2); return n.every(isFinite)?prj(n):null }
-		ctx.save(); ctx.lineJoin=ctx.lineCap='round'
-		const cutSeg=(n0,n1)=>{ const p=prj(n0), q=prj(n1), zm=(p.z+q.z)/2
-			ctx.strokeStyle=zm<0?WHT:CUT   // far side hides behind the body — ghost it white
-			ctx.globalAlpha=0.42+clamp((zm+mesh3.r)/(2*mesh3.r),0,1)*0.5
-			ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke() }
-		// split a projected polyline at the z=0 wall: near parts draw plain; far parts
-		// get the grid-thru treatment (own color in space, white where the body covers)
-		const zsplit=pts=>{ const near=[], far=[]; let cur=null, side=null, prev=null
-			const open=(s,p)=>{ cur=[p]; side=s; (s?far:near).push(cur) }
-			for(const p of pts){ if(!p){ cur=null; prev=null; continue }
-				const s=p.z<0
-				if(prev&&cur&&s!==side){ const t=prev.z/(prev.z-p.z)
-					const m={ x:prev.x+(p.x-prev.x)*t, y:prev.y+(p.y-prev.y)*t }
-					cur.push(m); open(s,m) }
-				else if(!cur) open(s,p)
-				if(cur[cur.length-1]!==p) cur.push(p)
-				prev=p }
-			return { near, far } }
-		const drawPoly=(g,polys,color,w)=>{ g.strokeStyle=color; g.lineWidth=w
-			for(const pl of polys){ if(pl.length<2) continue
-				g.beginPath(); g.moveTo(pl[0].x,pl[0].y)
-				for(let k=1;k<pl.length;k++) g.lineTo(pl[k].x,pl[k].y)
-				g.stroke() } }
-		if(hover3.i!=null){ const c=chs[hover3.i], N=72
-			const at=f=>{ const v2=mv.slice(); v2[hover3.i]=c.min+(c.max-c.min)*f; return v2 }
-			const key3=`${pts3S}|${mesh3.g3}|L${hover3.i}|${mv.map((x2,k)=>k===hover3.i?'':x2).join(',')}`
-			if(!ln3||ln3.key!==key3){ const runs=[]; let cur=null, pv=null
-				for(let k=0;k<=N;k++){ const f=k/N, v2=at(f), n=pts3Map(v2)
-					if(!n.every(isFinite)){ cur=null; pv=null; continue }
-					const ins=inSolid3(pts3S,cls3,mesh3.g3,v2)
-					if(cur&&cur.in!==ins&&pv){ let lo=pv.f, hi=f   // sharpen the wall crossing
-						for(let r2=0;r2<5;r2++){ const m2=(lo+hi)/2
-							if(inSolid3(pts3S,cls3,mesh3.g3,at(m2))===pv.in) lo=m2; else hi=m2 }
-						const nb=pts3Map(at((lo+hi)/2))
-						if(nb.every(isFinite)){ cur.pts.push(nb)
-							cur={ in:ins, pts:[nb] }; runs.push(cur) }
-						else cur=null }
-					if(!cur||cur.in!==ins){ cur={ in:ins, pts:[] }; runs.push(cur) }
-					cur.pts.push(n); pv={ f, in:ins } }
-				ln3={ key:key3, runs } }
-			const farsL=[]
-			for(const r2 of ln3.runs){ if(r2.in||r2.pts.length<2) continue
-				const zs=zsplit(r2.pts.map(n2=>prj(n2)))
-				ctx.globalAlpha=1; drawPoly(ctx,zs.near,TXT,0.9*dp)
-				farsL.push(...zs.far) }
-			if(farsL.length) ghost(g2=>{ drawPoly(g2,farsL,TXT,0.9*dp) })
-			for(const r2 of ln3.runs){ if(!r2.in||r2.pts.length<2) continue
-				ctx.lineWidth=1.3*dp
-				for(let k=1;k<r2.pts.length;k++) cutSeg(r2.pts[k-1],r2.pts[k]) } }
-		else{ const ca2=chs[hover3.a], cb2=chs[hover3.b], N=24
-			const at2=(fa,fb)=>{ const v2=mv.slice()
-				v2[hover3.a]=ca2.min+(ca2.max-ca2.min)*fa
-				v2[hover3.b]=cb2.min+(cb2.max-cb2.min)*fb
-				return v2 }
-			const fi3=[0,1,2].find(k=>k!==hover3.a&&k!==hover3.b)
-			const key3=`${pts3S}|${hover3.a},${hover3.b}|${mv[fi3]}`
-			if(!ctr3||ctr3.key!==key3){ const R2=24, grid=[]
-				for(let j=0;j<=R2;j++){ grid[j]=[]
-					for(let i=0;i<=R2;i++){ const n=pts3Map(at2(i/R2,j/R2)); grid[j][i]=n.every(isFinite)?n:null } }
-				ctr3={ key:key3, grid } }
-			// the sheet: paper-white wherever it is NOT the blob — masked by the body's
-			// own pixels, so the contact edge IS the cut and needs no stroked outline
-			const pg=ctr3.grid.map(row=>row.map(n2=>n2&&prj(n2)))
-			const sheet=g=>{ g.fillStyle=paper3; g.beginPath()
-				for(let j=0;j<pg.length-1;j++) for(let i=0;i<pg[j].length-1;i++){
-					const q=[pg[j][i],pg[j][i+1],pg[j+1][i+1],pg[j+1][i]]
-					if(q.some(p=>!p)) continue
-					g.moveTo(q[0].x,q[0].y); g.lineTo(q[1].x,q[1].y); g.lineTo(q[2].x,q[2].y); g.lineTo(q[3].x,q[3].y); g.closePath() }
-				g.fill() }
-			if(drewGL&&meshCv){ const gt=thru3||(thru3=document.createElement('canvas'))
-				if(gt.width!==S2) gt.width=gt.height=S2
-				const g2=gt.getContext('2d')
-				g2.clearRect(0,0,S2,S2); sheet(g2)
-				g2.globalCompositeOperation='destination-out'; g2.drawImage(meshCv,0,0)
-				g2.globalCompositeOperation='source-over'
-				ctx.globalAlpha=1; ctx.drawImage(gt,0,0) }
-			else sheet(ctx)
-			// the sheet's own frame — a grid plane outline standing in space: EDGE gray,
-			// re-emerging white where the body covers it, exactly like the frame planes
-			const per=[]
-			for(let k=0;k<=N;k++) per.push([k/N,0])
-			for(let k=1;k<=N;k++) per.push([1,k/N])
-			for(let k=1;k<=N;k++) per.push([1-k/N,1])
-			for(let k=1;k<=N;k++) per.push([0,1-k/N])
-			const fr=zsplit(per.map(([fa,fb])=>P3(at2(fa,fb))))
-			ctx.globalAlpha=1; drawPoly(ctx,fr.near,EDGE,0.9*dp)
-			ghost(g2=>{ drawPoly(g2,fr.far,EDGE,0.9*dp) }) }
-		ctx.restore() }
-	if(mp){ const depth=clamp((mp.z+mesh3.r)/(2*mesh3.r),0,1)
-		ctx.save(); ctx.translate(mp.x,mp.y); ctx.rotate(Math.PI/4); ctx.globalAlpha=0.42+depth*0.5
+	// the picked color itself: OPAQUE and last — it is the subject of the whole
+	// instrument, never veiled by the body it sits inside
+	if(mp){ ctx.save(); ctx.translate(mp.x,mp.y); ctx.rotate(Math.PI/4)
 		ctx.fillStyle=hex(mcur); ctx.strokeStyle='#fff'; ctx.lineWidth=.85*dp   // always light — a dark ring reads as a hole in the body
 		const h=5.8*dp
 		ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() } }
@@ -2491,10 +2680,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}</h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
 	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
-	// the bar carries only the sweep and the name — the value lives in the big inputs row
+	// the bar carries only the sweep and the symbol — the 3D frame's own labels;
+	// the full name lives in the title and the big inputs row
 	const barHTML=i=>{ const c=cls.ch[i]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
-		<span class="cnm" title="${c.sym}">${cname(c)}</span>
+		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<div class="dk"></div></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags" title="display gamuts that contain this color">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}">${GAMLABEL[g]}</span>`).join('')}</span></div>`
@@ -2512,7 +2702,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		</div>
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
-		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cls.ch[b].sym}">${cname(cls.ch[b])}</span><span class="labx" title="${cls.ch[a].sym}">${cname(cls.ch[a])}</span></div>`).join('')}</div>`:''}
+		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
 		${solidHTML}
 	 </section>
@@ -2572,6 +2762,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			break } }
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
+	detail.querySelectorAll('.pmode').forEach(b=>{ b.classList.toggle('sq',POLAR)   // the icon shows the mode a click switches TO
+		b.onpointerdown=e=>e.stopPropagation()   // never a pick
+		b.onclick=e=>{ e.stopPropagation(); POLAR=!POLAR
+			try{ localStorage.csPolar=POLAR?'1':'0' }catch{}
+			detail.querySelectorAll('.pmode').forEach(x=>x.classList.toggle('sq',POLAR))
+			planeNext=0; paintPlanes(false); renderFast() } })
 	// hovering a slider draws that channel's LINE through the 3d solid; hovering a
 	// plane draws its SLICE — the sheet the two swept channels span at the held value
 	hover3=null
@@ -2700,9 +2896,16 @@ let plFreeze=null   // plane being dragged in a color-cluster mode — its bitma
 function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
 		if(master.s!==selected){ let mv; try{ mv=toSpace(selected,RGB()) }catch{ return } master={ s:selected, vals:mv } }
 		const r=pl.getBoundingClientRect(), vw=pl._vw
-		// pointer → windowed fraction → global range fraction (pan-zoom aware)
-		let fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
-		let fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
+		let fx,fy
+		if(pl._polar){ // the disc: angle → hue fraction (clockwise, as the 3D top view), radius → chroma
+			const px=clamp((e.clientX-r.left)/r.width,0,1)*2-1
+			const py=clamp(1-(e.clientY-r.top)/r.height,0,1)*2-1
+			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
+			fy=Math.min(1,Math.hypot(px,py)) }
+		else{ // pointer → windowed fraction → global range fraction (pan-zoom aware)
+			fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
+			fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
+			const fl=flip3(cls,a,b); if(fl&1) fx=1-fx; if(fl&2) fy=1-fy }
 		// numeric clustering snaps the PICKED COORDINATES to the sliders' own cell lattice —
 		// held channels never move, so the bitmap stays put and the sliders land on centres
 		if(typeof Q==='number'){ fx=(Math.min(Q-1,Math.floor(fx*Q))+0.5)/Q; fy=(Math.min(Q-1,Math.floor(fy*Q))+0.5)/Q }
@@ -2719,7 +2922,8 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; set(e); pl.onpointermove=set })
 	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; pl.style.cursor=''; plFreeze=null; paintPlanes(false); paintCatalogGrad() })
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
-	pl.addEventListener('wheel',e=>{ const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
+	pl.addEventListener('wheel',e=>{ if(pl._polar){ if(e.ctrlKey) e.preventDefault(); return }   // the disc has no pan/zoom window — but pinch must not zoom the PAGE
+		const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
 		if(!e.ctrlKey&&!zoomed) return
 		e.preventDefault()
 		if(e.ctrlKey){ const r=pl.getBoundingClientRect()
@@ -2818,11 +3022,10 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	c2.textAlign='left'
 	c2.fillText(lbl(TC.hi),L+4,T+16)
 	c2.fillText(lbl(TC.lo),L+4,H-B-6)
-	// axis labels at the axis ends, like the 3D plot's; code runs up its axis
+	// axis labels at the axis ends, like the 3D plot's — straight, never rotated
 	c2.fillStyle='oklch(0.5 0.01 70/.75)'
 	c2.textAlign='right'; c2.fillText('light',W-3,H-3)
-	const yl=TC.ylab||'code'
-		c2.save(); c2.translate(L-9,T+6+c2.measureText(yl).width/2); c2.rotate(-Math.PI/2); c2.textAlign='center'; c2.fillText(yl,0,0); c2.restore(); c2.textAlign='right'
+	c2.fillText(TC.ylab||'code',L-6,T+16)
 	// the current color: its relative luminance, met by the curve (kept inside the frame)
 	const rgb=RGB(), lin=space.rgb.lrgb(...rgb)
 	const lum=0.2126*lin[0]+0.7152*lin[1]+0.0722*lin[2], code=at(lum)
@@ -2925,8 +3128,18 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		if(cv.width!==res){ cv.width=res; cv.height=res }
 		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
-		if(canGL&&paintPlaneGL(cv,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),GM==='vis'?null:GM,glq)) return
-		plane(cv.getContext('2d'),res,s,vals,a,b,wr(cls.ch[a],vw.x0,vw.x1),wr(cls.ch[b],vw.y0,vw.y1),true,GM,q) })
+		// vw lives in SCREEN fractions; a flipped axis (flip3) hands the kernel its
+		// range reversed — pan, zoom and the pointer math never see the flip
+		const fl=flip3(cls,a,b)
+		const rx=wr(cls.ch[a],fl&1?1-vw.x0:vw.x0,fl&1?1-vw.x1:vw.x1)
+		const ry=wr(cls.ch[b],fl&2?1-vw.y0:vw.y0,fl&2?1-vw.y1:vw.y1)
+		// the disc mode paints the FULL ranges polar (no pan/zoom window on a circle);
+		// it lives on the GPU path — cluster modes and no-GL stay square. The element
+		// carries the painted mode, so picking and the marker always match the paint.
+		const pol=pl._polar=POLAR&&canGL&&polarPl(cls,a,b)
+		pl.classList.toggle('polar',!!pol)
+		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol?[cls.ch[a].min,cls.ch[a].max]:rx,pol?[cls.ch[b].min,cls.ch[b].max]:ry,GM==='vis'?null:GM,glq,pol)) return
+		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
 	planesLive=canGL
 	if(planesLive) planeNext=0
 	else{ const dt=performance.now()-t0
@@ -3033,9 +3246,13 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
 		const gy=clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1)
-		const px=(gx-vw.x0)/(vw.x1-vw.x0), py=(gy-vw.y0)/(vw.y1-vw.y0)
+		if(pl._polar){ const th=gx*2*Math.PI   // clockwise: css y grows downward
+			cx.style.display=''
+			cx.style.left=(50+gy*50*Math.cos(th))+'%'; cx.style.top=(50+gy*50*Math.sin(th))+'%' }
+		else{ const fl=flip3(cls,a,b), wx=fl&1?1-gx:gx, wy=fl&2?1-gy:gy
+			const px=(wx-vw.x0)/(vw.x1-vw.x0), py=(wy-vw.y0)/(vw.y1-vw.y0)
 		cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
-		cx.style.left=(clamp(px,0,1)*100)+'%'; cx.style.top=((1-clamp(py,0,1))*100)+'%'
+		cx.style.left=(clamp(px,0,1)*100)+'%'; cx.style.top=((1-clamp(py,0,1))*100)+'%' }
 		// corner labels ink by what's ACTUALLY beneath them — sample the painted canvas
 		// itself (conversion heuristics lied for HDR corners); transparent = the void panel
 		const cvp=pl.querySelector('canvas'), ictx=cvp.getContext('2d')
@@ -3044,7 +3261,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 				if(d[3]<40) continue
 				r+=d[0]; g2+=d[1]; b2+=d[2]; k++ } }catch{}
 			el.style.color=k?ink([r/k,g2/k,b2/k]):'var(--ink)' }
-		labInk(pl.querySelector('.laby'),[[0.04,0.06],[0.04,0.22],[0.04,0.38]])
+		labInk(pl.querySelector('.laby'),[[0.03,0.06],[0.08,0.06],[0.13,0.06]])
 		labInk(pl.querySelector('.labx'),[[0.96,0.96],[0.84,0.96],[0.72,0.96]]) })
 	// blend: current → pinned end (or auto complement), computed in THIS space, clustered like the sliders
 	if(vals){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }

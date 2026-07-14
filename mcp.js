@@ -9,24 +9,26 @@
  *
  *     { "mcpServers": { "color-space": { "command": "npx", "args": ["color-space-mcp"] } } }
  *
- * Tools: convert (any of 156×155 pairs) · space (the full dossier: formula refs,
- * ranges, provenance, neighbours) · spaces (the catalog) · cube (a .cube LUT).
+ * Tools: convert (any pair, identity included) · space (the full dossier: formula
+ * refs, ranges, provenance, neighbours) · spaces (the catalog) · cube (a .cube LUT).
  * @see {@link https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#stdio}
  */
 import { createInterface } from 'node:readline'
 import space from './index.js'
 import data from './data.json' with { type: 'json' }
+import pkg from './package.json' with { type: 'json' }
 import { cube, channelwise } from './lut.js'
 
 const meta = data.spaces
 
-const VERSION = '3.0.0'
+const VERSION = pkg.version
 const names = Object.keys(space)
+const N = names.length
 
 const TOOLS = [
 	{
 		name: 'convert',
-		description: 'Convert channel values between any two of the 156 color spaces (conventional ranges: rgb 0-255, oklch L 0-1 / C 0-0.4 / H 0-360, lab L 0-100 …). Formulas are differentially verified against colorjs.io / cited specs.',
+		description: `Convert channel values between any two of the ${N} color spaces, identity included (conventional ranges: rgb 0-255, oklch L 0-1 / C 0-0.4 / H 0-360, lab L 0-100 …). Formulas are differentially verified against colorjs.io / cited specs.`,
 		inputSchema: {
 			type: 'object',
 			properties: {
@@ -48,7 +50,7 @@ const TOOLS = [
 	},
 	{
 		name: 'spaces',
-		description: 'List all 156 registered color spaces with channels and one-line usage.',
+		description: `List all ${N} registered color spaces with channels and one-line usage.`,
 		inputSchema: { type: 'object', properties: {} },
 	},
 	{
@@ -111,7 +113,7 @@ export function handle(msg) {
 			protocolVersion: params?.protocolVersion || '2025-03-26',
 			capabilities: { tools: {} },
 			serverInfo: { name: 'color-space', version: VERSION },
-			instructions: 'Verified color conversions between 156 spaces. Use `convert` instead of computing color math yourself; `space` for authoritative references and ranges; `cube` for a LUT file.',
+			instructions: `Verified color conversions between ${N} spaces. Use \`convert\` instead of computing color math yourself; \`space\` for authoritative references and ranges; \`cube\` for a LUT file.`,
 		} })
 	if (method === 'ping') return rpc(id, { result: {} })
 	if (method === 'tools/list') return rpc(id, { result: { tools: TOOLS } })

@@ -200,7 +200,7 @@ const api = {}
 for (const from of spaces) {
 	const o = api[from] = { name: from }
 	for (const to of spaces) {
-		if (to === from) continue
+		// to === from included: identity, like the JS hubs (edgeSeq is [] — a no-op)
 		o[to] = (a, b, c) => {
 			if (typeof a !== 'object' || a === null) {
 				instance()

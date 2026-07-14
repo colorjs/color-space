@@ -4,7 +4,7 @@
  * @module color-space
  *
  */
-import { createHub, wire } from './hub.js'
+import { createHub, wire, validate } from './hub.js'
 import rgb from './spaces/rgb.js'
 import hsl from './spaces/hsl.js'
 import hsv from './spaces/hsv.js'
@@ -20,6 +20,10 @@ import ydbdr from './spaces/ydbdr.js'
 import ycgco from './spaces/ycgco.js'
 import ypbpr from './spaces/ypbpr.js'
 import ycbcr from './spaces/ycbcr.js'
+import ycbcrBt601_525 from './spaces/ycbcr-bt601-525.js'
+import ycbcrBt601_625 from './spaces/ycbcr-bt601-625.js'
+import ycbcrBt709 from './spaces/ycbcr-bt709.js'
+import ycbcrBt2020 from './spaces/ycbcr-bt2020.js'
 import xvycc from './spaces/xvycc.js'
 import yccbccrc from './spaces/yccbccrc.js'
 import ucs from './spaces/ucs.js'
@@ -28,12 +32,12 @@ import jpeg from './spaces/jpeg.js'
 import lab from './spaces/lab.js'
 import labh from './spaces/labh.js'
 import lms from './spaces/lms.js'
+import maxwell from './spaces/maxwell.js'
 import lchab from './spaces/lchab.js'
 import luv from './spaces/luv.js'
 import lchuv from './spaces/lchuv.js'
 import hsluv from './spaces/hsluv.js'
 import hpluv from './spaces/hpluv.js'
-import cubehelix from './spaces/cubehelix.js'
 import coloroid from './spaces/coloroid.js'
 import hcg from './spaces/hcg.js'
 import hcy from './spaces/hcy.js'
@@ -129,6 +133,7 @@ import izazbz from './spaces/izazbz.js'
 import zcam from './spaces/zcam.js'
 import macboyn from './spaces/macboyn.js'
 import kelvin from './spaces/kelvin.js'
+import cctDuv from './spaces/cct-duv.js'
 import wavelength from './spaces/wavelength.js'
 import icacb from './spaces/icacb.js'
 import hdrIpt from './spaces/hdr-ipt.js'
@@ -166,15 +171,18 @@ import atd95 from './spaces/atd95.js'
  * Dict with all color spaces, graph-wired: any space converts to any other, in
  * scalar or batch form (see hub.js).
  */
-const space = createHub([rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, lchab, luv, lchuv, hsluv, hpluv, cubehelix, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, wavelength, icacb, hdrIpt, hdrLab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95]);
+const space = createHub([rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcrBt601_525, ycbcrBt601_625, ycbcrBt709, ycbcrBt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cctDuv, wavelength, icacb, hdrIpt, hdrLab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95]);
 export default space;
 
 /**
  * Register a color space and (re)wire conversions to/from every other space.
+ * The space is validated and copied in — the passed object stays unmutated;
+ * use the returned registry entry (`space[newSpace.name]`) for conversions.
  * @param {space} newSpace
  */
 export function register(newSpace) {
-	space[newSpace.name] = newSpace;
+	validate(space, newSpace);
+	space[newSpace.name] = { ...newSpace };
 	wire(space);
 	return space;
 }

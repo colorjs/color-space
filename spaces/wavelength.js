@@ -18,6 +18,7 @@
  * @illuminant E
  * @observer 2
  * @referred display
+ * @loss projective Any color projects to its nearest spectral-locus hue; purples have no wavelength.
  * @dynamic sdr
  */
 // Implementation notes:

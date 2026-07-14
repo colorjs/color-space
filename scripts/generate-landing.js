@@ -20,6 +20,10 @@ const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not f
 inject(/<main class="cat" id="cat">[\s\S]*?<\/main>/, `<main class="cat" id="cat">${catHTML()}</main>`)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
+inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
+inject(/(<meta name="description" content=")\d+( color coordinate systems)/, `$1${spaceCount}$2`)
+inject(/(<meta property="og:description" content=")\d+( color coordinate systems)/, `$1${spaceCount}$2`)
+html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 writeFileSync(join(out, 'index.html'), html)
 
 // ── llms.txt: machine-readable index of every space ──
@@ -33,8 +37,8 @@ const line = s => { const m = meta[s] || {}
 const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
-> (what CSS and the defining papers use). Formulas differentially tested against
-> colorjs.io. Zero dependencies, MIT.
+> (what CSS and the defining papers use). Every conversion verified against
+> colorjs.io and its source paper. Zero dependencies, public domain (CC0).
 
 Install: npm i color-space
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)
@@ -73,12 +77,14 @@ const pageOf = (s) => {
 	const short = desc.length > 155 ? desc.slice(0, 152).replace(/\s+\S*$/, '') + '…' : desc
 	const neighbors = Object.keys(space).filter((to) => { const f = space[s][to]
 		return to !== s && typeof f === 'function' && !((f.scalar || f).chained) })
+	const refs = [...new Set([...(m.refs || []), ...(m.wiki ? [m.wiki] : [])])]
 	const rows = (m.channels || []).map((c) => `<tr><td>${esc(c.name)}</td><td>${esc(c.symbol)}</td><td class="tnum">${fmtn(c.min)} … ${fmtn(c.max)}${c.max === 360 ? '°' : ''}</td></tr>`).join('')
 	const facts = [
 		m.year || m.by ? ['origin', [m.year, m.by].filter(Boolean).join(' · ')] : null,
 		m.illuminant ? ['white point', m.illuminant + (m.observer ? ` · ${m.observer}° observer` : '')] : null,
 		[m.method, m.encoding].filter(Boolean).length ? ['model', [m.method, m.encoding].filter(Boolean).join(' · ')] : null,
 		m.referred || m.dynamic ? ['signal', [m.referred && m.referred + '-referred', m.dynamic && m.dynamic.toUpperCase()].filter(Boolean).join(' · ')] : null,
+		m.loss ? ['loss', m.loss + (m.lossNote ? ' — ' + m.lossNote : '')] : null,
 		m.gamut ? ['gamut', m.gamut] : null,
 	].filter(Boolean)
 	return `<!doctype html>
@@ -124,8 +130,8 @@ space.rgb${s.includes('-') ? `['${s}']` : '.' + s}(…)   // sRGB → ${esc(s)},
 ${LUTOK.has(s) ? `<p>Also exports as a verified <a href="./?s=${s}">.cube LUT</a> — Resolve, Premiere, Final Cut, OBS, ffmpeg.</p>` : ''}
 <h2>Converts directly to</h2>
 <p class="nb">${neighbors.map((n) => `<a href="./${n}">${n}</a>`).join(' ')}</p>
-${m.refs?.length || m.wiki ? `<h2>References</h2><ul>${[...(m.refs || []), ...(m.wiki ? [m.wiki] : [])].map((u) => `<li><a href="${esc(u)}" rel="noopener">${esc(u)}</a></li>`).join('')}</ul>` : ''}
-<footer>Formulas differentially verified — see <a href="https://github.com/colorjs/color-space">colorjs/color-space</a> (<a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js">${s}.js</a>) · v${version} · MIT</footer>
+${refs.length ? `<h2>References</h2><ul>${refs.map((u) => `<li><a href="${esc(u)}" rel="noopener">${esc(u)}</a></li>`).join('')}</ul>` : ''}
+<footer>Formulas differentially verified — see <a href="https://github.com/colorjs/color-space">colorjs/color-space</a> (<a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js">${s}.js</a>) · v${version} · Public domain (CC0)</footer>
 </body>
 </html>
 `

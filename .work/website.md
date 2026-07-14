@@ -75,11 +75,10 @@ Curation — this is the Wikipedia-grade layer we're missing
 ## One move
 > the definitive, beautiful home of every color language — an encyclopedia you can't stop touching. Own the meaning of color spaces, not the feature count. The competitive claim ("every space, verified") lives in one honest line near the install command for the people comparing libraries — and then you never mention competitors again
 
-## From landing-alt (retired 2026-07)
+## From landing-alt (retired 2026-07) - not reference, but possible ideas
 Salvage list from the alt landing experiment (Hallmark almanac/editorial theme) — the ideas, not the markup:
 
 * **Field-guide framing** — "color-space *field guide*" wordmark; hero = one huge tabular number + unit ("156 registered spaces") with count-up animation; stat-led macrostructure.
-* **Copy lines that earned their place**: "One color, described every way we know." · "Pour one color through the atlas." · "The families are part of the map." · "What 'complete' and 'verified' mean here." · "The claim is useful only with its limits attached." · "Use the space you need."
 * **Specimen flow** — one 2D OKLCH hue×lightness canvas field (drag + arrow keys, real `role=slider` with `aria-valuetext`), CSS-string entry, native picker chip; everything below reads *the same stimulus*.
 * **Curated translation sheet** — show *six useful coordinates* for the current color (not all 156), with "N shown · browse all 156 ↗". Curation as the default view; the atlas as the deep end.
 * **Taxonomy as control** — family chips don't just filter a list, they *swap which conversions the live specimen shows*. The map edits the instrument.

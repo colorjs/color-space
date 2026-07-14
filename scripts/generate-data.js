@@ -82,6 +82,13 @@ function parseJSDoc(content) {
     if (g) { meta.primaries = g.primaries; if (g.white) meta.white = g.white }
   }
 
+  // Parse @loss — machine-readable loss semantics for inherently non-invertible
+  // nodes: projective (drops a dimension / projects to a locus), quantized
+  // (integral code values), lookup (table interpolation + iterative inverse).
+  // Absent = the conversion pair is exact/invertible in real arithmetic.
+  const lossMatch = jsdoc.match(/@loss\s+(\S+)(?:\s+(.+))?/)
+  if (lossMatch) { meta.loss = lossMatch[1]; if (lossMatch[2]) meta.lossNote = lossMatch[2].trim() }
+
   // Parse gamut/encoding class: @referred display|scene, @dynamic sdr|hdr
   const referredMatch = jsdoc.match(/@referred\s+(\S+)/)
   if (referredMatch) meta.referred = referredMatch[1]

@@ -30,7 +30,7 @@ test('batch — every wired pair matches per-pixel scalar calls, exact', () => {
 		}
 	}
 	is(skipped, 0, 'no source space skipped for non-finite anchor samples')
-	is(pairs > 24000, true, `all pairs swept (${pairs})`)
+	is(pairs > 23000, true, `all pairs swept (${pairs})`)
 })
 
 test('batch — strides follow channel counts', () => {

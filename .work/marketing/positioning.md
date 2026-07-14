@@ -34,7 +34,7 @@ culori · colorjs.io · chroma-js · @texel/color · color-convert · **hand-rol
 | **Differential verification** | `test/reference.js`: ~30 spaces both directions vs colorjs.io at 1/255; corrects published-paper errors | others self-test only |
 | **WASM batch kernel — *same source*** | `color-space/wasm`: the scalar formulas AOT-compiled to WASM (jz, `optimize:'speed'`), composed via an edge graph like `wire()`, pinned to the JS API (`test/wasm-batch.js`) across **27 spaces**; zero-copy whole-buffer convert **1.1–1.7×** faster on cube-root/matrix paths (PQ/log paths parity-or-slower today — jz codegen targets) | no other JS color lib ships a WASM batch path at all — and none could match "same formulas, verified identical to the scalar path" |
 | **`.cube` LUT export, self-verifying** | `color-space/lut`: any conversion → a `.cube` file (DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg); the header carries the measured deviation of the interpolated lattice vs the direct conversion, so the file states its own accuracy; format pinned to Adobe Cube Spec 1.0, pinned end-to-end by an ffmpeg host test | absent from culori/colorjs.io/chroma/texel entirely |
-| **Public domain (Unlicense)** | package license | others are MIT/etc. (still permissive, but not PD) |
+| **Public domain (CC0)** | package license | others are MIT/etc. (still permissive, but not PD) |
 
 ### 3. Value themes (attribute → outcome, with proof)
 1. **Reach any space — even the exotic ones.** *Stop hand-porting formulas from PDFs; the space you need is already here, cited.* (Proof: 151 spaces, the camera-log/appearance/Munsell long tail.)

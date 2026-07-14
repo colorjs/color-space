@@ -13,6 +13,13 @@
  * into ImageData's Uint8ClampedArray would truncate it); zero-copy stays with
  * wasm's alloc(). A batch of one is exactly the v2 calling convention:
  * `rgb.lab([255, 0, 0])`.
+ *
+ * On composed paths, trailing params bind to the source space's outgoing edge
+ * when it is parametric (`ycbcr.hsl(y, cb, cr, kb, kr)`), otherwise to the target
+ * space's incoming edge (`hsl.ycbcr(h, s, l, kb, kr)`). Converting between two
+ * parametric spaces with different params isn't expressible positionally — call
+ * the two legs explicitly. Each hub owns copies of the space objects, so hubs and
+ * `register()` never mutate the `spaces/*.js` singletons or each other.
  */
 
 // batch loop: src interleaved by `from`'s channels → new Float64Array by `to`'s
@@ -35,10 +42,13 @@ const batch = (scalar, from, to, src, p0, p1) => {
 // batch-aware face over a raw scalar conversion: first-arg dispatch, scalar path
 // allocation-free (fixed arity — ≤4 channels + ≤2 trailing params covers every space)
 const batched = (scalar, from, to) => {
-	const fn = (a, b, c, d, e) =>
-		typeof a === 'object' && a !== null
-			? batch(scalar, from, to, a, b, c)
-			: scalar(a, b, c, d, e)
+	const si = from.range.length
+	const fn = (a, b, c, d, e) => {
+		if (typeof a === 'object' && a !== null) return batch(scalar, from, to, a, b, c)
+		if ((si === 3 ? c : si === 4 ? d : si === 2 ? b : a) === undefined)
+			throw Error(`color-space: ${from.name}→${to.name} expects ${si} channel values`)
+		return scalar(a, b, c, d, e)
+	}
 	fn.scalar = scalar
 	return fn
 }
@@ -50,11 +60,17 @@ const batched = (scalar, from, to) => {
  * `oklab.rgb`, `din99o-lab.lab`). This builds the conversion graph from those
  * direct edges, fills every remaining pair with the shortest-path composition —
  * so any space reaches any other with the fewest hops — and faces every pair
- * with the batch form.
+ * (identity included) with the batch form.
  * @param {Object<string, space>} space registry, keyed by space name
  */
 export function wire(space) {
 	const names = Object.keys(space)
+	const registered = new Set(names)
+
+	// drop faces we wired to spaces since deleted from the registry — so
+	// `delete space.foo; wire(space)` leaves no stale conversions behind
+	for (const a of names) for (const k of Object.keys(space[a]))
+		if (!registered.has(k) && typeof space[a][k] === 'function' && space[a][k].scalar) delete space[a][k]
 
 	// direct adjacency: conversions defined in the source files, unwrapped to raw
 	// scalars (not our batch faces, not our compositions) — so re-wiring always
@@ -69,41 +85,73 @@ export function wire(space) {
 		}
 	}
 
-	// shortest path of direct conversions from `from` to `to` (BFS)
-	const path = (from, to) => {
-		const queue = [[from]], seen = new Set([from])
-		while (queue.length) {
-			const p = queue.shift(), last = p[p.length - 1]
-			for (const next in direct[last]) {
-				if (next === to) return [...p, next]
-				if (!seen.has(next)) { seen.add(next); queue.push([...p, next]) }
-			}
-		}
-		return null
+	// one BFS per source: predecessor map over the whole graph, not a path per pair
+	const tree = (from) => {
+		const prev = { [from]: null }, queue = [from]
+		for (let i = 0; i < queue.length; i++)
+			for (const next in direct[queue[i]])
+				if (!(next in prev)) { prev[next] = queue[i]; queue.push(next) }
+		return prev
 	}
 
-	for (const from of names) for (const to of names) {
-		if (from === to) continue
-		let scalar = direct[from][to]
-		if (!scalar) {
-			const p = path(from, to)
-			if (!p) continue
-			const steps = p.slice(1).map((n, i) => direct[p[i]][n])
-			scalar = (...args) => steps.reduce((vals, fn) => fn(...vals), args)
-			scalar.chained = true // rebuilt from source edges on re-wiring
+	for (const from of names) {
+		const prev = tree(from), si = space[from].range.length
+		for (const to of names) {
+			if (from === to) {
+				const id = (...args) => args.slice(0, si)
+				id.chained = true // not a source edge
+				space[from][to] = batched(id, space[from], space[to])
+				continue
+			}
+			let scalar = direct[from][to]
+			if (!scalar) {
+				if (!(to in prev)) continue
+				const path = [to]
+				for (let n = to; (n = prev[n]) !== null;) path.unshift(n)
+				const steps = path.slice(1).map((n, i) => direct[path[i]][n])
+				// params bind to the source's outgoing edge when parametric (declared
+				// arity beyond its channels), else to the target's incoming edge
+				const last = steps.length - 1
+				if (steps[0].length <= si && steps[last].length > space[path[last]].range.length) {
+					scalar = (...args) => {
+						const params = args.slice(si)
+						let vals = args.slice(0, si)
+						for (let i = 0; i < last; i++) vals = steps[i](...vals)
+						return steps[last](...vals, ...params)
+					}
+				} else {
+					scalar = (...args) => steps.reduce((vals, fn) => fn(...vals), args)
+				}
+				scalar.chained = true // rebuilt from source edges on re-wiring
+			}
+			space[from][to] = batched(scalar, space[from], space[to])
 		}
-		space[from][to] = batched(scalar, space[from], space[to])
 	}
 }
 
 /**
- * Build a registry from a list of spaces and wire the graph once.
+ * Build a registry from a list of spaces and wire the graph once. Every space is
+ * shallow-copied in: hubs never mutate the space singletons or each other.
  * @param {space[]} spaces
  * @returns {Object<string, space>}
  */
 export function createHub(spaces) {
 	const space = {}
-	for (const s of spaces) space[s.name] = s
+	for (const s of spaces) space[s.name] = { ...s }
 	wire(space)
 	return space
+}
+
+/**
+ * Validate a space object for registration: fail first, not at first conversion.
+ * @param {Object<string, space>} space registry the space is joining
+ * @param {space} s candidate space
+ */
+export function validate(space, s) {
+	if (!s || typeof s.name !== 'string' || !s.name) throw Error('color-space: register expects a space with a string `name`')
+	if (!Array.isArray(s.range) || !s.range.length || !s.range.every((r) => Array.isArray(r) && r.length === 2 && r.every(Number.isFinite)))
+		throw Error(`color-space: '${s.name}' needs a \`range\` — an array of [min, max] per channel`)
+	const names = Object.keys(space).filter((n) => n !== s.name)
+	const connected = names.some((n) => typeof s[n] === 'function' || typeof space[n]?.[s.name] === 'function')
+	if (names.length && !connected) throw Error(`color-space: '${s.name}' has no conversion to or from any registered space`)
 }

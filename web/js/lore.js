@@ -90,6 +90,8 @@ export default {
 	lms: { for: 'the cones themselves — long, medium, short — where chromatic adaptation actually happens' },
 	uv: { for: 'the chromaticity plane CCT is measured in', nm: 'u,v — later refined to u′,v′ in 1976' },
 	kelvin: { for: 'the color of a glowing blackbody as a one-dial space', nm: 'after Lord Kelvin’s absolute temperature scale', sin: 'only the Planckian locus exists — every real white needs a tint offset the scale cannot say' },
+	'cct-duv': { for: 'specifying white light with both warm–cool temperature and green–pink tint', sin: 'meaningful only near the Planckian locus; it discards luminance', nm: 'correlated color temperature plus signed distance in CIE 1960 uv' },
+	maxwell: { for: 'plotting three receptor catches as chromaticity — the comparative-vision triangle', sin: 'normalization discards total receptor signal' },
 	wavelength: { for: 'the spectral colors as a line — the horseshoe’s rim by nanometer', sin: 'no purples: the line between violet and red is not in it' },
 	macboyn: { for: 'chromaticity in cone space — vision science’s working diagram', nm: 'the MacLeod–Boynton diagram' },
 	dkl: { for: 'the axes LGN neurons actually respond to — cone-opponent, isoluminant', nm: 'named for its three authors' },
@@ -99,7 +101,11 @@ export default {
 	yrg: { for: 'luma plus rg chromaticity' },
 
 	// ── video & broadcast ──
-	ycbcr: { for: 'squeeze color into less bandwidth than luma — the eye forgives chroma blur', sin: 'non-constant luminance: Y′ is built from gamma’d primaries, so luma leaks into chroma at saturated colors', nm: 'the prime on Y′ matters — luma, not luminance' },
+	ycbcr: { for: 'squeeze color into less bandwidth than luma — the eye forgives chroma blur', sin: 'parameterized legacy node: prefer an explicit BT.601/709/2020 variant when the signal standard is known', nm: 'the prime on Y′ matters — luma, not luminance' },
+	'ycbcr-bt601-525': { for: '525-line SD legal-range video with SMPTE-C primaries' },
+	'ycbcr-bt601-625': { for: '625-line SD legal-range video with PAL/EBU primaries' },
+	'ycbcr-bt709': { for: 'HDTV’s exact legal-range component signal' },
+	'ycbcr-bt2020': { for: 'UHD wide-gamut non-constant-luminance component video' },
 	jpeg: { for: 'full-range YCbCr as the still-image workhorse' },
 	yuv: { for: 'hide color inside a black-and-white-compatible signal', nm: 'U,V — the analog scaling of B−Y and R−Y' },
 	yiq: { for: 'bandwidth shaped to the eye: I gets 1.3 MHz, Q gets 0.4, because orange–cyan acuity beats green–purple', nm: 'in-phase and quadrature of the color subcarrier' },
@@ -171,7 +177,6 @@ export default {
 	ryb: { for: 'the painter’s wheel every kindergarten teaches', sin: 'no standard exists — every RYB implementation mixes differently' },
 
 	// ── specialty & research ──
-	cubehelix: { for: 'astronomy colormaps that survive grayscale printing — luminance strictly monotone', nm: 'a helix wound around the gray diagonal of the RGB cube' },
 	xyb: { for: 'the codec’s cone-based space — built to hide compression error, not to look at', nm: 'X ≈ L−M opponent · Y luminance-ish · B for blue (S-cone)' },
 	osaucs: { for: 'the most uniform lattice ever measured — thirty years of committee judgments', sin: 'no closed-form inverse, and its √2 lattice neighbors make it a dataset more than a picker', nm: 'L·j·g: j is yellowness (jaune), g greenness' },
 	tsl: { for: 'skin detection — chromaticity warped so faces cluster tightly', nm: 'tint · saturation · lightness' },

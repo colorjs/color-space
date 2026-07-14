@@ -1,3 +1,26 @@
+* [ ] Make the atlas cool.
+
+## Ideas
+
+* [ ] AI-training data / education / visualizations
+* [ ] claim https://github.com/js-org/js.org
+* [ ] Color atlas - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
+* [ ] Main screen configuration - sliders, planes, just a table, CSS values etc
+* [ ] Pick a line/shape, not just a point in space
+* [ ] Interpolation: compare against the other space
+* [ ] In-space configurator: there's multiple flavors of RGB space with different matrices etc.
+* [ ] Store space formulas js-independent: worthy of?
+* [ ] Hue bar: uncollapses?
+* [ ] FAQ: no questions = disinteresting topic
+* [x] The barred spaces - add cards, display the limitation on them instead of explainer at the bottom.
+* [ ] Full screen color picker.
+* [ ] Color picker builder - combine sliders of different shapes
+* [ ] Color-map: cubehelix etc (npm package is taken)
+  * [ ] README rewrite around the kernel positioning + honest WASM story
+  * [ ] Comparison table as the proof asset (71 vs culori 35 / colorjs 40 / texel 16; only conventional-ranges lib; the cross-disciplinary spaces)
+  * [ ] Demo: all-spaces color picker / palette renderer with gamut limits (show breadth, don't claim it)
+  * [ ] Website (playwright-generated): all spaces, benchmark, alt-analysis
+
 ## [ ] CLI — naming take (2026-07)
 
 The bin name decides the docs one-liner. Key mechanic: **`npx color-space …` invokes the package's own bin when the bin name equals the package name** — zero install, zero global-name bikeshed, and that's the form every README/tutorial shows anyway. So:
@@ -134,10 +157,6 @@ Verdicts: 37 correct · 20 minor · 10 incorrect · 3 broken. All 13 incorrect/b
   * [x] **Source-only repo + _site** — scripts/build-site.js stages docs sources + runtime modules (imports rewritten to root-relative, guard against escapes) + all generated content into gitignored `_site/`; pages.yml deploys via GitHub Actions with the full suite as deploy gate; docs/ carries sources only (156 pages/llms/sitemap no longer committed). One-time setup: Settings → Pages → Source = GitHub Actions.
 
   * [x] **LUT export (color-space/lut)** — any conversion as a `.cube` file: channelwise pairs (pure transfer, e.g. rec709→rgb) auto-emit `LUT_1D_SIZE` 4096; cross-channel pairs emit `LUT_3D_SIZE` 33 default (17/33/65 Resolve convention, spec max 256, OCIO caps 129). Self-verifying header: every file carries the measured median/max deviation of the interpolated lattice vs the direct conversion at random off-lattice points, fractions of full scale, split out for in-range outputs when the source is scene-referred (camera logs put most of their domain in super-range highlights). Format pinned to Adobe Cube LUT Specification 1.0 (red-fastest indexing, unclamped values, keywords-before-data) — research pass, 12/12 claims verified against OCIO + ffmpeg parser sources. Differential test suite (test/lut.js: lattice nodes exact, off-lattice bounds, format parse-back, ordering, auto-1D) + test/lut-ffmpeg.js real-host end-to-end (ffmpeg applies the generated .cube to a float frame, must reproduce the library; auto-skips without ffmpeg). Both wired into `npm test`. Docs: catalog filter gained an export facet (wasm · lut chips), space dossier gained a lut section (target picker, 17³/33³/65³, live measured deviation, download), API tabs gained lut.
-  * [ ] README rewrite around the kernel positioning + honest WASM story
-  * [ ] Comparison table as the proof asset (71 vs culori 35 / colorjs 40 / texel 16; only conventional-ranges lib; the cross-disciplinary spaces)
-  * [ ] Demo: all-spaces color picker / palette renderer with gamut limits (show breadth, don't claim it)
-  * [ ] Website (playwright-generated): all spaces, benchmark, alt-analysis
 
 ---
 
@@ -158,23 +177,7 @@ Two deep-research + adversarial-verify passes (Opus). Each connects via an exist
   Data-table (need bundled data): Munsell (RIT renotation), NCS, Federal Std 595, BS 4800/5252, AS 2700, RAL (freieFarbe CC data).
   **Skip — proprietary/licensed:** Pantone/PMS, RAL official Lab, HKS, Toyo, DIC, ANPA (IP-enforced; no open authoritative data).
 
-## Future / out of scope for v3
-  * [ ] WebGL/WebGPU shader exports (the mat3 seam enables it; bigger batch-image win than WASM — GPUs do pow/cbrt in hardware)
+## Future
+  * [x] WebGL/WebGPU shader exports (the mat3 seam enables it; bigger batch-image win than WASM — GPUs do pow/cbrt in hardware)
   * [x] CSS Color 5 relative-color syntax hooks (we're the engine, not the polyfill) — note: CC5 adds no new *spaces*, only operations (color-mix, relative color, contrast-color, device-cmyk = our cmyk)
   * [x] Incorporate spaces from https://github.com/meodai/skill.color-expert — RYB added (Itten cube, rybitten); everything else already covered or declined-with-reason (Ostwald/DIN6164/NCS/RAL). OLO is a percept, not a space.
-  * [ ] AI-training data / education / visualizations
-* [ ] claim https://github.com/js-org/js.org
-
-## Ideas
-
-* [ ] Color atlas - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
-* [ ] Main screen configuration - sliders, planes, just a table, CSS values etc
-* [ ] Pick a line/shape, not just a point in space
-* [ ] Interpolation: compare against the other space
-* [ ] In-space configurator: there's multiple flavors of RGB space with different matrices etc.
-* [ ] Store space formulas js-independent: worthy of?
-* [ ] Hue bar: uncollapses?
-* [ ] FAQ: no questions = disinteresting topic
-* [ ] The barred spaces - add cards, display the limitation on them instead of explainer at the bottom.
-
-* [ ] Color picker builder - combine sliders of different shapes

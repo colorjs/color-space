@@ -9,7 +9,7 @@ import test, { is } from 'tst'
 
 import { REF } from './refs.js'
 
-test('bona-fide reference values (129 cited points, 128 spaces)', () => {
+test(`bona-fide reference values (${REF.length} cited points, ${new Set(REF.map(r => r.s)).size} spaces)`, () => {
   for (const r of REF) {
     const got = space[r.f][r.t](...r.in)
     for (let k = 0; k < r.out.length; k++) {
