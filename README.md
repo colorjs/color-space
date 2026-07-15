@@ -1,6 +1,6 @@
 # color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
-<img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
+<img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="a perceptually-uniform hue sweep, painted through OKLCh" width="100%"/>
 
 **Any color space.** Web, print, film, broadcast, photo, art, science, history. Conventional ranges, verified formulas, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space. JS, WASM, GLSL, LUT, ICC.
 
@@ -70,6 +70,12 @@ space.rgb.oklch(buf);                // converts in place — nothing crosses th
 ```
 
 Covers the `lite` set: the numeric pipeline (rgb/lrgb/xyz · OKLab · Lab/Luv/DIN99 · HDR · camera logs). Device cylinders and lookup/appearance spaces gain nothing from batching — the full catalog carries those.
+
+The same bytes also ship as a standalone `dist/color-space.wasm` (the `color-space/color-space.wasm` export) — zero imports, no tail calls, so it runs unhosted in non-JS runtimes. It's a reactor module: every conversion is an export.
+
+```sh
+wasmtime run --invoke rgb_lrgb color-space.wasm 255 128 0   # → the 3 f64 results, as i64 bit patterns
+```
 
 ## GL/WGSL
 

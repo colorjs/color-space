@@ -92,6 +92,7 @@
       "types": "./types/wasm.d.ts",
       "default": "./wasm.js"
     },
+    "./color-space.wasm": "./dist/color-space.wasm",
     "./gl": {
       "types": "./types/gl.d.ts",
       "default": "./gl/compose.js"
@@ -140,7 +141,7 @@
   "devDependencies": {
     "color-name": "^2.0.0",
     "esbuild": "^0.24.2",
-    "jz": "^0.8.1",
+    "jz": "^0.9.2",
     "tst": "^9.0.0"
   },
   "optionalDependencies": {
@@ -151,11 +152,12 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/gl.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js",
+    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "data": "node scripts/generate-data.js",
     "landing": "node scripts/build-site.js",
+    "banner": "node scripts/generate-banner.js",
     "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
     "prepare": "npm run types && npm run data && npm run build:wasm && npm run build"
