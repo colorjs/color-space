@@ -34,7 +34,7 @@ const TYPE = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
  * @param {Array<object>} [list] chunk objects to register
  */
 export function compose(list = []) {
-	const chunks = {}, graph = {}
+	const chunks = {}, graph = {}, luts = {}
 	const wire = (c) => {
 		for (const nbr in (c.edges || {})) {
 			const [into, outof] = c.edges[nbr]
@@ -46,6 +46,7 @@ export function compose(list = []) {
 		if (!c || chunks[c.name]) return
 		for (const d of c.deps || []) add(d)
 		chunks[c.name] = c
+		if (c.lut) luts[c.lut.name] = c.lut
 		wire(c)
 	}
 	for (const c of list) add(c)
@@ -100,7 +101,6 @@ export function compose(list = []) {
 			if (typeof from !== 'object')
 				throw new Error(`color-space/gl: glsl('${from}') needs a target — glsl(from, to). Import the chunk (color-space/gl/${from}) to bundle it, or route by name via color-space/gl/all`)
 			add(from)
-			if (from.excluded) throw new Error(`color-space/gl: ${from.name} — ${from.excluded}`)
 			const n = from.name, both = []
 			if (route(n, 'rgb')) both.push([n, 'rgb'])
 			if (route('rgb', n)) both.push(['rgb', n])
@@ -124,14 +124,19 @@ export function compose(list = []) {
 			if (a === b) { wrappers.push({ entry, code: `${TYPE[dim(a)]} ${entry}(${TYPE[dim(a)]} c) { return c; }` }); continue }
 			const seq = route(a, b)
 			if (!seq) {
-				const why = [a, b].map(n => chunks[n]?.excluded && `${n}: ${chunks[n].excluded}`).filter(Boolean).join('; ')
 				const hint = [a, b].some(n => !chunks[n] && n !== 'rgb') ? ` — pass the chunk object (import it from color-space/gl/<space>) or route by name via color-space/gl/all` : ''
-				throw new Error(`color-space/gl: no path '${a}'→'${b}'${why ? ` (${why})` : ''}${hint}`)
+				throw new Error(`color-space/gl: no path '${a}'→'${b}'${hint}`)
 			}
 			for (const s of seq) use(s.chunk)
 			wrappers.push({ entry, to: b, from: a, call: seq.reduce((acc, s) => `${s.fn}(${acc})`, 'c') })
 		}
-		let code = used.map(c => c.code.trim()).filter(Boolean).join('\n\n')
+		// a chunk-declared LUT (measured datasets — see the contract): the composed
+		// source reads it through `vec4 <name>(int i, int j)`, backed by a sampler
+		// the host binds as `<name>tex` (upload chunk.lut.data(), w×h RGBA32F,
+		// NEAREST — texelFetch is exact, interpolation stays in chunk code)
+		const samplers = used.filter(c => c.lut).map(c =>
+			`uniform highp sampler2D ${c.lut.name}tex;\nvec4 ${c.lut.name}(int i, int j) { return texelFetch(${c.lut.name}tex, ivec2(i, j), 0); }`)
+		let code = [...samplers, ...used.map(c => c.code.trim())].filter(Boolean).join('\n\n')
 		for (const w of wrappers) {
 			if (w.code) { code += `${code ? '\n\n' : ''}${w.code}`; continue }
 			if (!new RegExp(`\\b${TYPE[dim(w.to)]}\\s+${w.entry}\\s*\\(`).test(code))
@@ -140,7 +145,7 @@ export function compose(list = []) {
 		return prelude(code) + code
 	}
 
-	return { chunks, graph, glsl }
+	return { chunks, graph, glsl, luts }
 }
 
 /** One-shot lean form: `glsl(oklch)` (bundle) / `glsl(a, b)` — registry from the args. */

@@ -73,7 +73,7 @@ Covers the `lite` set: the numeric pipeline (rgb/lrgb/xyz · OKLab · Lab/Luv/DI
 
 ## GL/WGSL
 
-Every space but `munsell` ships as a GLSL shader chunk with a WGSL translation — plain data (`{ name, deps, edges, code }`, three.js-style), composed into source on demand, no build step. Import the spaces you convert, name the conversion:
+Every space ships as a GLSL shader chunk with a WGSL translation — plain data (`{ name, deps, edges, code }`, three.js-style), composed into source on demand, no build step. Import the spaces you convert, name the conversion:
 
 ```js
 import { glsl, wgsl } from 'color-space/gl';
@@ -87,6 +87,8 @@ wgsl(oklch);          // the same, as WGSL
 ```
 
 A chunk import brings only its own dependency chain (~5 kB) and stays pure data — `oklch.code` is its raw GLSL. Runtime `from`/`to` strings: `import { glsl } from 'color-space/gl/all'` routes any of the 160 shader-backed names, byte-identical, at the cost of all chunks (~200 kB min).
+
+Measured-dataset spaces (`munsell`'s renotation) declare a `lut` — the composed source reads it through `uniform sampler2D <name>tex`; upload `luts[name].data()` (w×h RGBA32F, NEAREST) and bind by that name. Everything else — interpolation, the iterative inverse — is ordinary chunk code, differentially tested like the rest.
 
 ## LUT
 
@@ -385,4 +387,4 @@ Details in [library comparison](docs/library-comparison.md); `npm run benchmark`
 
 Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors. Special thanks to the libraries that informed this one: [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/) (CSS Color spec editors), [color-api](https://github.com/LeaVerou/color-api), [texel/color](https://github.com/texel-org/color).
 
-<p align="center"><a href="license.md">Public domain (CC0)</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
+<p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>

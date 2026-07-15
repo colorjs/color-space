@@ -8,11 +8,14 @@ import test, { is } from 'tst'
 import space from '../index.js'
 import data from '../data.json' with { type: 'json' }
 const meta = data.spaces
-import glslDefault, { chunks, graph, glsl } from '../gl/index.js'
+import glslDefault, { chunks, graph, glsl, luts } from '../gl/index.js'
 
 // ---- GLSL chunk dialect → JS ----
 export function glslToJs(src) {
 	let s = src
+	// LUT samplers (composer-emitted): the uniform resolves to the chunk-declared
+	// data, texelFetch to a typed-array read — same numbers as the GPU texture
+	s = s.replace(/\buniform\s+highp\s+sampler2D\s+(\w+)tex;/g, "const $1tex = __lut('$1');")
 	// const tables: const float A_[81] = float[81](…); → const A_ = __arr(…);
 	s = s.replace(/\bconst\s+float\s+(\w+)\s*\[\s*\d+\s*\]\s*=\s*float\s*\[\s*\d+\s*\]\s*\(/g, 'const $1 = __arr(')
 	// function definitions
@@ -26,11 +29,16 @@ export function glslToJs(src) {
 	return s
 }
 
+const lutData = {}   // memoized chunk-declared LUTs, keyed by lut name
 const H = {
 	vec2: (x, y) => ({ x, y }),
 	vec3: (x, y, z) => ({ x, y, z }),
 	vec4: (x, y, z, w) => ({ x, y, z, w }),
 	__arr: (...v) => v,
+	__lut: (n) => lutData[n] ??= { w: luts[n].w, d: luts[n].data() },
+	ivec2: (x, y) => ({ x, y }),
+	texelFetch: (t, ij) => { const o = (ij.y * t.w + ij.x) * 4
+		return { x: t.d[o], y: t.d[o + 1], z: t.d[o + 2], w: t.d[o + 3] } },
 	pow: Math.pow, abs: Math.abs, sign: Math.sign, floor: Math.floor, ceil: Math.ceil,
 	sqrt: Math.sqrt, exp: Math.exp, log: Math.log, exp2: (x) => 2 ** x, log2: Math.log2,
 	sin: Math.sin, cos: Math.cos, tan: Math.tan, asin: Math.asin, acos: Math.acos,
@@ -211,11 +219,24 @@ test('gl: an imported chunk is pure data — you name the conversion via glsl()'
 	is(glsl(oklch), bundle('oklch'), 'glsl(oklch) = the both-ways bundle')
 })
 
-test('gl: one-way and excluded chunks compose honestly', async () => {
+// ── measured-dataset chunks: the `lut` contract ──
+test('gl: a lut chunk composes with its sampler and exact data', async () => {
 	const munsell = (await import('../gl/munsell.glsl.js')).default
-	let threw = ''
-	try { glsl(munsell) } catch (e) { threw = e.message }
-	is(/renotation lookup table/.test(threw), true, 'glsl(munsell) throws its excluded reason')
+	const src = glsl(munsell)
+	is(/uniform highp sampler2D munsell_ren_tex;/.test(src), true, 'composed source declares the lut sampler')
+	is(/vec4 munsell_ren_\(int i, int j\)/.test(src), true, 'and its texelFetch accessor')
+	is(luts.munsell_ren_.w * luts.munsell_ren_.h * 4, luts.munsell_ren_.data().length, 'registry descriptor matches its data')
+	const { translate } = await import('../gl/translate.js')
+	const w = translate(src)
+	is(/@group\(0\) @binding\(0\) var munsell_ren_tex: texture_2d<f32>;/.test(w), true, 'WGSL: the sampler becomes a texture binding')
+	is(/textureLoad\(munsell_ren_tex, vec2i\(i, j\), 0\)/.test(w), true, 'WGSL: texelFetch becomes textureLoad')
+	// lattice nodes are the renotation itself: the composed forward at a node
+	// equals the scalar library to texture precision (float32 texels — the same
+	// numbers the GPU reads; interpolation weights are identical)
+	const fns = evalGlsl(glsl('munsell', 'xyy'))
+	const exp = space.munsell.xyy(50, 5, 10)
+	const got = unpack(fns.munsell_xyy(pack([50, 5, 10])))
+	is(exp.every((e, k) => Math.abs(got[k] - e) < 2e-7), true, 'lattice-node forward is texture-exact')
 })
 
 // ── the full-catalog tier: one function, any space by name ──
@@ -223,9 +244,6 @@ test('gl: default export is the by-name composer', () => {
 	is(glslDefault, glsl, 'default export === named glsl')
 	is(glsl('oklch', 'p3'), glsl('oklch', 'p3'), 'any pair routes by name')
 	let threw = ''
-	try { glsl('rgb', 'munsell') } catch (e) { threw = e.message }
-	is(/renotation lookup table/.test(threw), true, 'excluded space names its reason')
-	threw = ''
 	try { glsl('rgb', 'nope') } catch (e) { threw = e.message }
 	is(/no path/.test(threw), true, 'unknown space throws no-path, not a silent empty source')
 })

@@ -17,16 +17,18 @@
  * carries its own chain).
  *
  * Chunks target GLSL ES 3.00 (WebGL2) and also run under GLSL ES 1.00 (WebGL1)
- * unless they use const arrays. No `#version`, no `precision`, no uniforms —
- * pure function libraries; the host shader supplies its own preamble. These are
- * FUNCTION CHUNKS in the three.js `*.glsl.js` mold, not `.vert`/`.frag` pipeline
- * shaders — nothing here compiles standalone, everything pastes into your stage.
+ * unless they use const arrays or a `lut`. No `#version`, no `precision`, no
+ * uniforms (a declared `lut` adds exactly one sampler — below) — pure function
+ * libraries; the host shader supplies its own preamble. These are FUNCTION CHUNKS
+ * in the three.js `*.glsl.js` mold, not `.vert`/`.frag` pipeline shaders —
+ * nothing here compiles standalone, everything pastes into your stage.
  *
  * CHUNK CONTRACT (authoring gl/<space>.glsl.js — the subset keeps every chunk valid
  * GLSL, mechanically translatable to WGSL, and evaluable as JS for testing):
- * - Scalar math only: no vector/matrix arithmetic. vecN appears ONLY as edge
- *   function parameter/return and as the `vecN(a, b, c)` constructor; read
- *   components as c.x/c.y/c.z/c.w. Expand matrix products into scalar rows.
+ * - Scalar math only: no vector/matrix arithmetic. vecN appears ONLY as function
+ *   parameter/return, as the `vecN(a, b, c)` constructor, and as a local holding
+ *   a helper/lut result for component reads (c.x/c.y/c.z/c.w). Expand matrix
+ *   products into scalar rows.
  * - Edge functions: `vec3 <a>_<b>(vec3 c)` — a/b = space names, hyphens stripped
  *   (lab-d65 → labd65). Declared in `edges`: { neighbour: [intoThisSpace,
  *   outOfThisSpace] } — GLSL function names, or null for a one-way edge.
@@ -44,6 +46,13 @@
  *   negative base — their WGSL/GLSL/JS semantics diverge; use the helpers.
  * - Constant tables: `const float NAME_[N] = float[N](v0, v1, …);` as one
  *   statement (marks the chunk GLSL ES 3.00-only).
+ * - Measured datasets too large for a const table declare `lut: { name, w, h,
+ *   data }` (name `<chunk>_<x>_`-prefixed; data() → w·h·4 Float32Array). The
+ *   composer emits `vec4 <name>(int i, int j)` backed by `uniform sampler2D
+ *   <name>tex` — the ONE uniform a composed source may carry; the host uploads
+ *   data() (RGBA32F, NEAREST) and binds it by that name (WGSL: texture_2d<f32>
+ *   bindings in declaration order). texelFetch is exact — interpolation stays
+ *   in chunk code, so JS, GLSL and WGSL read identical numbers.
  * - A chunk calling another chunk's functions declares `requires: ['thatChunk']`.
  * - `deps` imports every chunk named in `edges`/`requires` (rgb, the fileless
  *   root, excepted) — what lets ./compose.js build lean, registry-free bundles;
@@ -225,6 +234,11 @@ export const chunks = reg.chunks
 
 /** Directed edge graph: graph[a][b] = { fn, chunk } (primitive step a → b). */
 export const graph = reg.graph
+
+/** LUT descriptors by name — { name, w, h, data } for every measured-dataset
+ *  chunk (munsell's renotation). A composed source that reads one declares
+ *  `uniform sampler2D <name>tex`; upload data() (w×h RGBA32F, NEAREST) there. */
+export const luts = reg.luts
 
 /** Space names reachable by the composer (edges declared), rgb included. */
 export const spaces = Object.keys(graph)

@@ -22,6 +22,11 @@ const TYPE = { vec2: 'vec2f', vec3: 'vec3f', vec4: 'vec4f', float: 'f32', int: '
  */
 export function translate(src) {
 	let s = src
+	// LUT samplers (composer-emitted, see the `lut` contract): binding slots are
+	// assigned in declaration order, group 0 — rebind to taste in your pipeline
+	let bind = 0
+	s = s.replace(/\buniform\s+highp\s+sampler2D\s+(\w+);/g, (m, n) => `@group(0) @binding(${bind++}) var ${n}: texture_2d<f32>;`)
+	s = s.replace(/\btexelFetch\s*\(\s*(\w+)\s*,\s*ivec2\(([^;]*?)\),\s*0\s*\)/g, 'textureLoad($1, vec2i($2), 0)')
 	// const tables: const float A_[81] = float[81](…) → const A_ = array<f32, 81>(…)
 	s = s.replace(/\bconst\s+float\s+(\w+)\s*\[\s*(\d+)\s*\]\s*=\s*float\s*\[\s*\d+\s*\]\s*\(/g,
 		'const $1 = array<f32, $2>(')
