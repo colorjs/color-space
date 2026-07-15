@@ -22,6 +22,7 @@
 body{ overflow-x:clip }
 *{ box-sizing:border-box; margin:0 }
 ::selection{ background:var(--ink); color:var(--paper) }
+pre::selection,pre ::selection{ background:var(--color-terminal-ink); color:var(--color-terminal-paper) }   /* the dark code plate inverts within its own palette — the page's ink-on-ink selection would vanish there */
 body{ font-family:var(--f); font-size:16px; line-height:1.45; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility }
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px }
 .page{ --railw:16rem; --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); --maxw:108rem; max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; --eg: half the visual gutter between entries */
@@ -296,7 +297,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .props i,.plab{ display:block; font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:var(--s1) }
 .props p{ margin:0; font-size:var(--t3); line-height:1.55; color:var(--body) }
 .props a{ color:var(--body); text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }
-.props a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+.props a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
@@ -366,7 +367,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:var(--s6) 0 var(--s2); display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap }
 .src{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .src a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
-.src a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+.src a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 /* segmented buttons — same word-style as the corner gamut flags, clickable */
 .seg{ display:flex; gap:var(--s3) }
 .seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:2px solid transparent; background:none; padding:0 0 2px; color:var(--ghost); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
@@ -386,7 +387,7 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .ird i{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* inked dark/white per the row's left color */
 .srcline{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
-.srcline a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+.srcline a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 .gam{ font-size:var(--t0); font-weight:700; color:var(--soft); font-variant-numeric:tabular-nums; margin-left:auto }
 .gam b{ color:var(--ink) } .gam s{ text-decoration:none; color:var(--c) }
 .cpy{ font:inherit; font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; border:0; background:var(--panel); color:var(--ink); padding:var(--s1) var(--s2); cursor:copy }
@@ -437,25 +438,21 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .imgrow .implb{ position:absolute; left:var(--s2); top:var(--s1); font-size:var(--t0); font-weight:700; color:#fff; pointer-events:none }   /* bare label — JS inks it by the pixels beneath */
 .refs{ display:flex; flex-direction:column; gap:var(--s1); font-size:var(--t1) }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
-/* the technical exports — LUT · ICC · Source as labelled rows under the plates:
-   trust marks with real payloads; the functional code lives in the code section */
-.dl{ grid-column:1/-1; justify-self:center; display:grid; grid-template-columns:max-content minmax(0,1fr); gap:var(--s2) var(--s3); align-items:center; margin-top:var(--s2) }
-.dl .k{ display:flex; align-items:center; gap:var(--s2) }
-.dl .plab,.dl .k .plab{ margin:0 }
+.refs a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
+/* the technical exports — the .cube and .icc lines under the plates: format icon,
+   the filename with its choices inline, one icon button that IS the download */
+.dl{ grid-column:1/-1; display:flex; flex-direction:column; align-items:center; gap:var(--s2); margin-top:var(--s2) }
+.dl .drow{ display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap; justify-content:center; min-width:0 }
+.dl .fl{ display:inline-flex; flex:none; width:14px; height:14px; overflow:hidden }
+.dl .fl svg{ display:block; width:14px; height:14px }
+.dl .fname{ font-size:var(--t1); font-weight:700; color:var(--body) }
 .dl select{ font:inherit; font-size:var(--t1); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* same de-chromed select as .dctl, at row scale */
 .dl select:hover,.dl select:focus-visible{ color:var(--ink); outline:none }
-.dl .dsrc{ justify-self:start; font-size:var(--t1); font-weight:700; color:var(--body); text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair) }   /* a reference, not a download — the .props link idiom */
-.dl .dsrc:hover{ box-shadow:inset 0 -1px 0 var(--c) }
-.dlbtn{ justify-self:start; display:inline-flex; align-items:center; gap:.45em; font:inherit; font-size:var(--t1); font-weight:700; color:var(--body); background:var(--lift); border:1px solid var(--hair); padding:var(--s1) var(--s3); cursor:pointer; text-decoration:none }
+.dlbtn{ display:inline-flex; flex:none; align-items:center; font:inherit; color:var(--soft); background:var(--lift); border:1px solid var(--hair); padding:var(--s1); cursor:pointer }   /* icon-only — the action, apart from the name */
 .dlbtn:hover{ color:var(--ink); border-color:var(--c) }
-.dlbtn .fl{ display:inline-flex; flex:none; width:14px; height:14px; overflow:hidden }
-.dlbtn .fl svg{ display:block; width:14px; height:14px }
-.dlbtn .dli{ flex:none; opacity:.45 }   /* the soft download mark, after the label */
-.dlbtn:hover .dli{ opacity:.85 }
 /* the css snippet: values select whole on click; the .icc mention IS the download */
 #snip .cval{ cursor:pointer; box-shadow:inset 0 -1px 0 oklch(0.97 0.005 245/.25) }
-#snip .cval:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+#snip .cval:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 #snip a,#snip .icclnk{ color:inherit; cursor:pointer; text-decoration:underline }
 .dfoot{ margin:var(--s6) 0 var(--s2); font-size:var(--t1); color:var(--soft) } .dfoot a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--soft) }
 /* ── API snippet (in the intro's right column) ── */
@@ -2770,6 +2767,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
 			${geo(s)||enc?`<div><i>model</i><p title="${[TAGTIP[geo(s)],TAGTIP[enc]].filter(Boolean).join('; ')}">${[geo(s),enc].filter(Boolean).join(' · ')}</p></div>`:''}
 			${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
+			<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
 			${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 		</div>
 		<div class="pcol"><!-- the story and the record: when, who, the name, the sources, the trust -->
@@ -2780,17 +2778,17 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="the independent reference values every conversion is pinned to, at 1/255 tolerance">reference values</a></p></div>`:''}
 		</div>
-	 </div>
-	 <div class="dgrid2">
+	 </div></div>
+		${has3d?platesHTML:''}
+	 </section>
+	 <div class="dgrid2"><!-- the story, full measure — after the features and their plots -->
 		<div><i class="plab">description</i>
 		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
 		<div class="pcol">
 			<div><i>used for</i><p>${sent(m.use||useOf(s))}</p></div>
 			${avoid?`<div><i>avoid when</i><p>${sent(avoid)}</p></div>`:''}
 		</div>
-	 </div></div>
-		${has3d?platesHTML:''}
-	 </section>
+	 </div>
 	 ${hasPlaneGL(s)?`<h4 class="sec2" id="image">image</h4>
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
@@ -2856,8 +2854,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
-	// exports under the technical plots — LUT · ICC · Source as labelled rows: trust
-	// marks with real payloads (the functional code lives in the code section below)
+	// exports under the technical plots — the .cube and .icc lines: the filename
+	// carries its choices inline (target, lattice size), the icon button downloads
 	const dexp=detail.querySelector('#dexp')
 	if(dexp){
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
@@ -2867,15 +2865,16 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const iccTip=iccK==='mntr'?'an ICC v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management'
 			:iccK==='spac'?'an ICC v2 CLUT colour-space profile, device↔Lab lattices both ways — lcms, ArgyllCMS, ImageMagick'
 			:'an ICC v2 CLUT input profile, device→Lab lattice (one-way — the inverse cannot ride a lattice) — lcms, ArgyllCMS, ImageMagick'
-		dexp.innerHTML=(tgts.length?`<span class="k"><i class="plab">lut</i><select id="dtgt" aria-label="LUT target space" title="the delivery space the .cube converts to">${tgts.map(t=>`<option value="${t}"${t===tgt0?' selected':''}>${t}</option>`).join('')}</select></span>
-			<button class="dlbtn" id="dlut" title="a .cube LUT of ${s} → the chosen target — drop it into Resolve, Premiere, Final Cut, OBS or ffmpeg">${FLLUT}<span id="dlutn">${s}-to-${tgt0}.cube</span>${DLI}</button>`:'')
-			+(iccK?`<span class="k"><i class="plab">icc</i></span><button class="dlbtn" id="dicc" title="${iccTip}">${FLICC}${s}.icc${DLI}</button>`:'')
-			+`<span class="k"><i class="plab">source</i></span><a class="dsrc" href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a>`
-		const tsel=dexp.querySelector('#dtgt')
-		if(tsel) tsel.onchange=()=>{ dexp.querySelector('#dlutn').textContent=`${s}-to-${tsel.value}.cube` }
+		dexp.innerHTML=(tgts.length?`<span class="drow">${FLLUT}<span class="fname">${s}-to-<select id="dtgt" aria-label="LUT target space" title="the delivery space the .cube converts to">${tgts.map(t=>`<option value="${t}"${t===tgt0?' selected':''}>${t}</option>`).join('')}</select>.cube</span><select id="dsz" aria-label="lattice size" title="lattice points per channel — Resolve's own export set">${[17,33,65].map(z=>`<option value="${z}"${z===33?' selected':''}>${z}³</option>`).join('')}</select><button class="dlbtn" id="dlut" title="download the .cube — drop it into Resolve, Premiere, Final Cut, OBS or ffmpeg">${DLI}</button></span>`:'')
+			+(iccK?`<span class="drow">${FLICC}<span class="fname">${s}.icc</span><button class="dlbtn" id="dicc" title="${iccTip} — download">${DLI}</button></span>`:'')
+		const tsel=dexp.querySelector('#dtgt'), szsel=dexp.querySelector('#dsz')
+		// a pure per-channel transfer pair auto-emits a 4096-pt 1D — no lattice to size
+		const szSync=()=>{ let one=false; try{ one=lutChannelwise(space[s],space[tsel.value]) }catch{}
+			szsel.style.display=one?'none':''; return one }
+		if(tsel){ szSync(); tsel.onchange=szSync }
 		dexp.querySelector('#dlut')?.addEventListener('click',()=>{ const tgt=tsel.value
-			try{ const one=lutChannelwise(space[s],space[tgt])
-				dl(lutCube(space[s],space[tgt],one?{}:{size:33}),`${s}-to-${tgt}${one?'':'-33'}.cube`,'text/plain'); toast('LUT saved') }catch{ toast('No LUT for this pair') } })
+			try{ const one=szSync(), N=+szsel.value
+				dl(lutCube(space[s],space[tgt],one?{}:{size:N}),`${s}-to-${tgt}${one?'':'-'+N}.cube`,'text/plain'); toast('LUT saved') }catch{ toast('No LUT for this pair') } })
 		dexp.querySelector('#dicc')?.addEventListener('click',()=>{ try{ dl(iccProfile(space[s],{xyz:space.xyz}),`${s}.icc`,'application/vnd.iccprofile'); toast('ICC saved') }catch{ toast('No profile for this space') } })   // the CLUT bakes on demand — a modal open stays instant
 	}
 	// precise adjustment: the big value inputs above the sliders

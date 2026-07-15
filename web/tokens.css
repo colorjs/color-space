@@ -57,6 +57,7 @@
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--lift:var(--color-lift);
+	--uline:currentColor;   /* link hover underline — the text's own ink, never the accent */
 
 	--font-current:"Inter",ui-sans-serif,system-ui,sans-serif;
 	--font-display:"Hanken Grotesk","Hanken fallback",ui-sans-serif,sans-serif;
