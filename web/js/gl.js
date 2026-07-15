@@ -9,13 +9,14 @@
 // callers get 'pending' and paint their JS fallback instantly; setGLReady's
 // callback fires when a program lands, and the next paint upgrades to GPU —
 // the modal never waits on a shader compile. JS paths remain the fallback
-// (no WebGL2, munsell's LUT, color-cluster quantizers).
-import { glsl, graph, chunks } from '../../dist/color-space-gl.js'
+// (no WebGL2, color-cluster quantizers). Measured-dataset spaces (munsell)
+// ride the same chunks via the `lut` contract — see bindLuts.
+import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
 import { physBound, space, meta, pathToRgb, classify } from './core.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
-const VT = { 2: 'vec2', 3: 'vec3', 4: 'vec4' }
+const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 
 // one shared offscreen WebGL2 canvas renders every plane and bar, blitted into
 // each 2d canvas — existing DOM, cluster modes and fallbacks stay intact
@@ -42,17 +43,41 @@ function track(gl, pr, resolve) {
 	setTimeout(tick, 0)
 	return st
 }
-function build(gl, vsSrc, fsSrc, resolve) {
+function build(gl, vsSrc, fsSrc, resolve, preLink) {
 	const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o }
 	const pr = gl.createProgram()
 	gl.attachShader(pr, sh(gl.VERTEX_SHADER, vsSrc))
 	gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fsSrc))
+	if (preLink) preLink(pr)   // transform-feedback varyings must precede the link
 	gl.linkProgram(pr)
 	return track(gl, pr, resolve)
 }
 
 /** Is the GPU plane kernel possible for this space? */
 export const hasPlaneGL = s => !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4
+
+// ── measured-dataset LUTs (munsell's renotation): a composed source that reads one
+// declares `uniform sampler2D <name>tex` — upload the chunk-declared data once per
+// context (RGBA32F, NEAREST — texelFetch is exact) and rebind at draw ──
+const lutTex = new WeakMap()   // gl context → { lut name: WebGLTexture }
+const lutNames = (src) => Object.keys(luts).filter(n => src.includes(n + 'tex'))
+const LUT0 = 8   // first texture unit for LUTs — clear of the image unit
+function bindLuts(gl, st) {
+	if (!st.lutN || !st.lutN.length) return
+	const cache = lutTex.get(gl) ?? lutTex.set(gl, {}).get(gl)
+	st.lutN.forEach((n, k) => {
+		gl.activeTexture(gl.TEXTURE0 + LUT0 + k)
+		if (cache[n]) gl.bindTexture(gl.TEXTURE_2D, cache[n])
+		else { const t = cache[n] = gl.createTexture(), l = luts[n]
+			gl.bindTexture(gl.TEXTURE_2D, t)
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, l.w, l.h, 0, gl.RGBA, gl.FLOAT, l.data())
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE) }
+		gl.uniform1i(gl.getUniformLocation(st.pr, n + 'tex'), LUT0 + k) })
+	gl.activeTexture(gl.TEXTURE0)
+}
 
 // ── plane/bar kernel: fragment shader sweeps channel a (and b unless b<0) ──
 const FSQ_VS = `#version 300 es
@@ -65,8 +90,28 @@ function planeProg(s, a, b) {
 	const d = dimOf(s), vt = VT[d]
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
 	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'])
+	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
+	if (s !== 'rgb') pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
 	let lib
 	try { lib = glsl(pairs) } catch { planeProgs.set(key, null); return null }
+	// a folded coordinate (HSM's mirrored inverse) converts to a plausible color yet
+	// reads back DIFFERENT — not a real color of the shown volume. Same law as the
+	// solid's caps and the picker line: 3% of span, hue wrap-aware. Spans are baked
+	// as literals per space; NaN roundtrips fail the comparison too.
+	const cch = s === 'rgb' ? null : classify(s).ch
+	const hueK = s === 'rgb' ? -1 : (classify(s).angle?.i ?? -1)
+	const rt = s === 'rgb' ? '' : `
+		else {
+			${vt} bk;
+			if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
+			else if (uGam == 2) bk = p3_${san(s)}(clamp(${san(s)}_p3(v), 0.0, 1.0));
+			else bk = rec2020_${san(s)}(clamp(${san(s)}_rec2020(v), 0.0, 1.0));
+			${cch.slice(0, d).map((c, k) => {
+				const span = (c.max - c.min).toFixed(6)
+				const wrap = k === hueK ? ` dq${k} = min(dq${k}, ${span} - dq${k});` : ''
+				return `float dq${k} = abs(bk[${k}] - v[${k}]);${wrap} if (!(dq${k} <= ${span} * 0.03)) al = 0.5;`
+			}).join('\n\t\t\t')}
+		}`
 	const vswz = 'xyzw'.slice(0, d).split('').map(c => `uV.${c}`).join(', ')
 	const fs = `#version 300 es
 precision highp float;
@@ -112,7 +157,7 @@ void main() {
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
 		// saturation swept far past the solid's own wall)
 		vec3 enc = mix(lin * 12.92, 1.055 * pow(max(lin, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, lin));
-		if (any(lessThan(enc, vec3(-0.002))) || any(greaterThan(enc, vec3(1.002)))) al = 0.5;
+		if (any(lessThan(enc, vec3(-0.002))) || any(greaterThan(enc, vec3(1.002)))) al = 0.5;${rt}
 	}
 	if (uWeb == 1) rgb = floor(rgb / 51.0 + 0.5) * 51.0;
 	O = vec4(rgb / 255.0, al);
@@ -120,6 +165,7 @@ void main() {
 	const st = build(G, FSQ_VS, fs, (o) => {
 		o.u = Object.fromEntries(['uV', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar'].map(n => [n, G.getUniformLocation(o.pr, n)]))
 	})
+	st.lutN = lutNames(fs)
 	planeProgs.set(key, st)
 	return st
 }
@@ -157,6 +203,7 @@ function drawKernel(st, w, h, vals, rx, ry, gamut, quant, polar) {
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
 	G.useProgram(st.pr)
+	bindLuts(G, st)
 	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
 	G.uniform4f(st.u.uV, ...v4)
 	G.uniform2f(st.u.uRX, rx[0], rx[1])
@@ -267,6 +314,8 @@ float raw_(vec3 v, int k) { return (v[k] - uMin[k]) / (uMax[k] - uMin[k]); }
 // positions are NOT clamped: beyond-fit vertices keep their true direction and the
 // fragment clip cuts the triangle exactly at the box — a crisp planar cross-section.
 // Clamping instead flattened those triangles onto the box plane as dark spike fans.
+// The bake's cone-wall bisection is what bounds a wild formula (HSI's S at optimal
+// colors) — every vertex lands ON the sanity window, never past it.
 float nrm_(vec3 v, int k) { return raw_(v, k); }
 vec3 map3_(vec3 v) {
 	if (uWb.x >= 0) {
@@ -361,12 +410,47 @@ function mesh3State(cv) {
 	const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b }
 	const ibuf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW); return b }
 	const st = { gl, progs: new Map(),
-		tb: buf(geo.tpos), ti: ibuf(geo.tidx), tn: geo.tidx.length,
-		vb: buf(vsf.pos), vi: ibuf(vsf.idx), vn: vsf.idx.length,
+		tb: buf(geo.tpos), ti: ibuf(geo.tidx), tn: geo.tidx.length, tvn: geo.tpos.length / 3,
+		vb: buf(vsf.pos), vi: ibuf(vsf.idx), vn: vsf.idx.length, vvn: vsf.pos.length / 3,
 		cb: buf(geo.cpos), ci: ibuf(geo.cidx), cn: geo.cidx.length }
+	// the conversion BAKE lands here (v, rgb, bad — 7 floats a vertex), sized for
+	// the larger lattice; one slot — a space/gamut switch simply rebakes
+	st.bakeBuf = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, st.bakeBuf)
+	gl.bufferData(gl.ARRAY_BUFFER, Math.max(st.tvn, st.vvn) * 28, gl.DYNAMIC_COPY)
+	st.bakeKey = null
 	mesh3States.set(cv, st)
 	return st
 }
+
+// the per-frame half of the solid: ONE program for every space — model mapping and
+// view rotation over BAKED attributes (the space conversion ran once, in the bake
+// pass). The fragment stage is fully generic (uniforms only), so nothing per-space
+// remains at draw time — a munsell-grade iterative inverse costs one bake, not 60fps.
+const DRAW_VS = `#version 300 es
+precision highp float;
+precision highp int;
+${MAP_GLSL}
+in vec3 aV;
+in vec3 aRgb;
+in float aBad;
+out vec3 vRgb;
+out vec3 vN;
+out vec2 vHueV;
+out vec3 vF;
+out float vBad;
+void main() {
+	vec3 v = aV;
+	vec3 n = map3_(v);
+	vF = v;
+	vRgb = aRgb;
+	vBad = aBad;
+	if (aBad > 0.5 || isnan(n.x) || isnan(n.y) || isnan(n.z)) { vBad = 1.0; gl_Position = vec4(2e4, 2e4, 2e4, 1.0); vRgb = vec3(0.0); vN = vec3(0.0); vHueV = vec2(0.0); vF = vec3(0.0); return; }
+	float h = uMap.y >= 0 ? raw_(v, uMap.y) * 6.283185307179586 : 0.0;
+	vHueV = vec2(cos(h), sin(h));
+	vN = n;
+	gl_Position = view_(n, 0.0);
+}`
 
 
 function mesh3Progs(st, s, gam = 'srgb') {
@@ -383,30 +467,41 @@ function mesh3Progs(st, s, gam = 'srgb') {
 		const pairs = []
 		if (s !== src) pairs.push([src, s])
 		if (src !== 'rgb' && s !== 'rgb') pairs.push([src, 'rgb'])
+		// the BAKE: the space conversion, singularity collapse, achromatic taper and
+		// display knee run ONCE per (space, gamut) — captured per lattice vertex by
+		// transform feedback; the shared DRAW program consumes the capture per frame
 		const vs = `#version 300 es
 precision highp float;
 precision highp int;
 ${pairs.length ? glsl(pairs) : ''}
-${MAP_GLSL}
 ${SOFT_DISP}
 in vec3 aSrc;
+uniform ivec4 uMap;
+uniform ivec2 uWb;
 uniform ivec2 uBip;   // bipolar (opponent) channel indexes, else -1
 uniform int uClip;    // 1 → box-in-base space (all-or-nothing achromatic collapse)
 uniform vec3 uWLo, uWHi;   // sanity window for the cone-wall bisection
-out vec3 vRgb;
-out vec3 vN;
-out vec2 vHueV;
-out vec3 vF;
-out float vBad;
+out vec3 tV;
+out vec3 tRgb;
+out float tBad;
 void main() {
 	${VT[3]} v = ${s === src ? unit : `${SRC}_${S}(${unit})`};
-	${s !== src ? `// past the encodable cone the coords diverge (the chroma pole) or go non-finite.
-	// Collapse such vertices to the neutral axis at their own luminance, so the solid
-	// pinches to the gray spine like a normal solid at black - no stretch, no sliver.
+	${s !== src ? `// past the encodable cone the coords go non-finite (log of negative light) or
+	// fold into finite garbage (a sign-mirrored transfer, HSI's S at optimal colors),
+	// and a lone bad vertex shreds its triangles. "Bad" = outside the sanity window;
+	// bisect toward the neutral spine until the vertex lands ON the window wall,
+	// closing the surface along the intersection. NaN fails the comparisons too.
 	vec3 blo = uWLo, bhi = uWHi;
 	if (!(v.x > blo.x && v.x < bhi.x && v.y > blo.y && v.y < bhi.y && v.z > blo.z && v.z < bhi.z)) {
 		vec3 nw = ${src === 'xyz' ? 'vec3(aSrc.y * 0.9504559, aSrc.y, aSrc.y * 1.0890578)' : 'vec3((aSrc.r + aSrc.g + aSrc.b) / 3.0)'};
-		v = ${SRC}_${S}(nw ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
+		float lo = 0.0, hi = 1.0;
+		for (int i = 0; i < 18; i++) {
+			float md = (lo + hi) * 0.5;
+			vec3 vt = ${SRC}_${S}(mix(nw, aSrc, md) ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
+			if (vt.x > blo.x && vt.x < bhi.x && vt.y > blo.y && vt.y < bhi.y && vt.z > blo.z && vt.z < bhi.z) { lo = md; } else { hi = md; }
+		}
+		v = ${SRC}_${S}(mix(nw, aSrc, lo) ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
+		if (!(v.x > blo.x && v.x < bhi.x && v.y > blo.y && v.y < bhi.y && v.z > blo.z && v.z < bhi.z)) { v = ${SRC}_${S}(nw ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'}); }
 	}` : ''}
 	// a color indistinguishable from gray (sub-integer channel delta) — or too dark
 	// to carry chroma at all (chroma ratios degenerate at black: OSA-UCS's C divides
@@ -428,18 +523,13 @@ void main() {
 		if (uBip.x >= 0) v[uBip.x] *= gf;
 		if (uBip.y >= 0) v[uBip.y] *= gf;
 	}
-	vec3 n = map3_(v);
-	vF = v;
-	vBad = (isnan(n.x) || isnan(n.y) || isnan(n.z)) ? 1.0 : 0.0;
-	if (vBad > 0.5) { gl_Position = vec4(2e4, 2e4, 2e4, 1.0); vRgb = vec3(0.0); vN = vec3(0.0); vHueV = vec2(0.0); vF = vec3(0.0); return; }
-	float h = uMap.y >= 0 ? raw_(v, uMap.y) * 6.283185307179586 : 0.0;
-	vHueV = vec2(cos(h), sin(h));
-	vN = n;
-	${src === 'rgb' ? 'vRgb = aSrc / 255.0;' : `// an out-of-sRGB vertex desaturates toward its own luma until representable — the
+	tV = v;
+	tBad = (isnan(v.x) || isnan(v.y) || isnan(v.z)) ? 1.0 : 0.0;
+	${src === 'rgb' ? 'tRgb = aSrc / 255.0;' : `// an out-of-sRGB vertex desaturates toward its own luma until representable — the
 	// closest ACTUAL color, hue and lightness held (vs the flat channel-clamp that
 	// painted hyper-greens as one solid green). The caps seal with this SAME knee.
-	vRgb = softDisp(${SRC}_rgb(${unit}));`}
-	gl_Position = view_(n, 0.0);
+	tRgb = softDisp(${SRC}_rgb(${unit}));`}
+	gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 }`
 		const fsSurf = `#version 300 es
 precision highp float;
@@ -577,15 +667,21 @@ void main() {
 	O = vec4(softDisp(disp), 1.0);
 }`
 		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uRot', 'uScale', 'uHasHue']
-		const surf = build(gl, vs, fsSurf, (o) => {
-			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc')
-			o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)]))
+		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
+		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
+			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
+		}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS))
+		bake.lutN = lutNames(vs)
+		// the shared per-frame program: compiled once per context, with the first space
+		if (!st.draw) st.draw = build(gl, DRAW_VS, fsSurf, (o) => {
+			o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
+			uset(o)
 		})
 		const caps = !fsCap || s === src ? null : build(gl, vsCap, fsCap, (o) => {
-			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac')
-			o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)]))
+			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o)
 		})
-		out = { surf, caps }
+		if (caps) caps.lutN = lutNames(fsCap)
+		out = { bake, caps }
 	} catch { out = null }
 	st.progs.set(key, out)
 	return out
@@ -667,7 +763,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
 	const gam = map?.gam ?? 'srgb'
 	const st = mesh3State(cv)
 	const ps = st && mesh3Progs(st, s, gam)
-	if (!ps || !ps.surf || ps.surf.bad || ps.surf.pending) {
+	const dr = st && st.draw
+	if (!ps || !ps.bake || ps.bake.bad || ps.bake.pending || !dr || dr.bad || dr.pending) {
 		// never show the previous space while this one compiles — clear and fall back
 		if (st) { st.gl.clearColor(0, 0, 0, 0); st.gl.clear(st.gl.COLOR_BUFFER_BIT | st.gl.DEPTH_BUFFER_BIT) }
 		return false
@@ -700,21 +797,46 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
 		gl.uniform2f(u.uRot, rot.a, rot.b)
 		gl.uniform1f(u.uScale, scale)
 	}
-	gl.useProgram(ps.surf.pr); setU(ps.surf.u)
-	gl.uniform1i(ps.surf.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
-	gl.bindBuffer(gl.ARRAY_BUFFER, gam === 'vis' ? st.vb : st.tb)
-	gl.enableVertexAttribArray(ps.surf.aSrc); gl.vertexAttribPointer(ps.surf.aSrc, 3, gl.FLOAT, false, 0, 0)
+	// ── the bake: run the conversion ONCE per (space, gamut) — transform feedback
+	// captures {v, rgb, bad} per lattice vertex; a switch simply rebakes the slot ──
+	const bkey = s + '|' + gam
+	if (st.bakeKey !== bkey) {
+		gl.useProgram(ps.bake.pr); setU(ps.bake.u); bindLuts(gl, ps.bake)
+		// the draw pass leaves its attribute POINTERS on the capture buffer — a buffer
+		// referenced by any vertex attribute (even a disabled one, per ANGLE) may not
+		// be the TF target: INVALID_OPERATION silently skips the bake and the old
+		// capture draws under new indices. Disable AND repoint before capturing.
+		gl.bindBuffer(gl.ARRAY_BUFFER, gam === 'vis' ? st.vb : st.tb)
+		for (const a of [dr.aV, dr.aRgb, dr.aBad]) {
+			gl.disableVertexAttribArray(a)
+			gl.vertexAttribPointer(a, 1, gl.FLOAT, false, 0, 0)
+		}
+		gl.enableVertexAttribArray(ps.bake.aSrc); gl.vertexAttribPointer(ps.bake.aSrc, 3, gl.FLOAT, false, 0, 0)
+		gl.enable(gl.RASTERIZER_DISCARD)
+		gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, st.bakeBuf)
+		gl.beginTransformFeedback(gl.POINTS)
+		gl.drawArrays(gl.POINTS, 0, gam === 'vis' ? st.vvn : st.tvn)
+		gl.endTransformFeedback()
+		gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
+		gl.disable(gl.RASTERIZER_DISCARD)
+		st.bakeKey = bkey
+	}
+	const bindBaked = () => {
+		gl.bindBuffer(gl.ARRAY_BUFFER, st.bakeBuf)
+		gl.enableVertexAttribArray(dr.aV); gl.vertexAttribPointer(dr.aV, 3, gl.FLOAT, false, 28, 0)
+		gl.enableVertexAttribArray(dr.aRgb); gl.vertexAttribPointer(dr.aRgb, 3, gl.FLOAT, false, 28, 12)
+		gl.enableVertexAttribArray(dr.aBad); gl.vertexAttribPointer(dr.aBad, 1, gl.FLOAT, false, 28, 24)
+	}
+	gl.useProgram(dr.pr); setU(dr.u)
+	gl.uniform1i(dr.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
+	bindBaked()
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)
-	gl.uniform1i(ps.surf.u.uPass, 0)
+	gl.uniform1i(dr.u.uPass, 0)
 	gl.drawElements(gl.TRIANGLES, gam === 'vis' ? st.vn : st.tn, gl.UNSIGNED_INT, 0)
 	if (map.out) {   // translucent overflow BEFORE the caps: the sealed cut faces stay
 		// crisp (no ghost film smearing beyond-the-wall colors flat onto the cut —
 		// the face-on "smush"); the caps' per-pixel validity keeps the edge-on blade honest
-		gl.useProgram(ps.surf.pr)
-		gl.bindBuffer(gl.ARRAY_BUFFER, gam === 'vis' ? st.vb : st.tb)
-		gl.enableVertexAttribArray(ps.surf.aSrc); gl.vertexAttribPointer(ps.surf.aSrc, 3, gl.FLOAT, false, 0, 0)
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)
-		gl.uniform1i(ps.surf.u.uPass, 1)
+		gl.uniform1i(dr.u.uPass, 1)
 		gl.depthMask(false)
 		gl.drawElements(gl.TRIANGLES, gam === 'vis' ? st.vn : st.tn, gl.UNSIGNED_INT, 0)
 		gl.depthMask(true)
@@ -723,7 +845,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
 	if (capMask && ps.caps && !ps.caps.bad && !ps.caps.pending) {
 		const per = st.cn / 6   // one fitted-box face per slice, in (fi, side) order
 		const bindCaps = () => {
-			gl.useProgram(ps.caps.pr); setU(ps.caps.u)
+			gl.useProgram(ps.caps.pr); setU(ps.caps.u); bindLuts(gl, ps.caps)
 			gl.bindBuffer(gl.ARRAY_BUFFER, st.cb)
 			gl.enableVertexAttribArray(ps.caps.aFrac); gl.vertexAttribPointer(ps.caps.aFrac, 3, gl.FLOAT, false, 0, 0)
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.ci)
@@ -737,12 +859,11 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
 			gl.enable(gl.STENCIL_TEST)
 			for (let f = 0; f < 6; f++) if (capMask >> f & 1) {
 				gl.clear(gl.STENCIL_BUFFER_BIT)
-				gl.useProgram(ps.surf.pr)
-				gl.bindBuffer(gl.ARRAY_BUFFER, st.vb)
-				gl.enableVertexAttribArray(ps.surf.aSrc); gl.vertexAttribPointer(ps.surf.aSrc, 3, gl.FLOAT, false, 0, 0)
+				gl.useProgram(dr.pr)
+				bindBaked()
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.vi)
-				gl.uniform1i(ps.surf.u.uPass, 2)
-				gl.uniform2i(ps.surf.u.uCapK, f >> 1, f & 1)
+				gl.uniform1i(dr.u.uPass, 2)
+				gl.uniform2i(dr.u.uCapK, f >> 1, f & 1)
 				gl.colorMask(false, false, false, false); gl.depthMask(false)
 				gl.stencilFunc(gl.ALWAYS, 0, 0xff)
 				gl.stencilOp(gl.KEEP, gl.KEEP, gl.INVERT)   // parity of depth-passing crossings
@@ -892,8 +1013,8 @@ void main() {
 		float Yq = YQ[q];
 		vec3 XYZq = vec3(xy.x * Yq / xy.y, Yq, (1.0 - xy.x - xy.y) * Yq / xy.y);
 		${VT[d]} vq = xyz_${S}(XYZq);
-		bool ok = !(${'xyzw'.slice(0, d).split('').map(c => `isnan(vq.${c})`).join(' || ')});
-		${'xyzw'.slice(0, d).split('').map((c, k) => `if (vq.${c} < ${lo[k].toFixed(6)} || vq.${c} > ${hi[k].toFixed(6)}) ok = false;`).join('\n\t\t')}
+		bool ok = !(${'xyzw'.slice(0, d).split('').map(c => `isnan(${d === 1 ? 'vq' : `vq.${c}`})`).join(' || ')});
+		${'xyzw'.slice(0, d).split('').map((c, k) => `if (${d === 1 ? 'vq' : `vq.${c}`} < ${lo[k].toFixed(6)} || ${d === 1 ? 'vq' : `vq.${c}`} > ${hi[k].toFixed(6)}) ok = false;`).join('\n\t\t')}
 		if (ok) {   // and it must genuinely encode this chromaticity (poles lie)
 			vec3 back = ${S}_xyz(vq);
 			float sb = back.x + back.y + back.z;
@@ -914,6 +1035,7 @@ void main() {
 	const st = build(G, FSQ_VS, fs, (o) => {
 		o.u = { uRes: G.getUniformLocation(o.pr, 'uRes') }
 	})
+	st.lutN = lutNames(fs)
 	gamutProgs.set(s, st)
 	return st
 }
@@ -930,6 +1052,7 @@ export function paintGamutGL(cv2d, s) {
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
 	G.useProgram(st.pr)
+	bindLuts(G, st)
 	G.uniform2f(st.u.uRes, w, h)
 	G.drawArrays(G.TRIANGLES, 0, 3)
 	const ctx = cv2d.getContext('2d')
@@ -983,6 +1106,7 @@ ${spec.sat == null ? `	float fi = clamp(hq, 0.0, 1.0) * 63.0;
 	const st = build(G, FSQ_VS, fs, (o) => {
 		o.u = { uRes: G.getUniformLocation(o.pr, 'uRes'), uCusp: spec.sat == null ? G.getUniformLocation(o.pr, 'uCusp') : null }
 	})
+	st.lutN = lutNames(fs)
 	heroProgs.set(spec.s, st)
 	return st
 }
@@ -996,6 +1120,7 @@ export function paintHeroGL(cv2d, spec, cusp) {
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
 	G.useProgram(st.pr)
+	bindLuts(G, st)
 	G.uniform2f(st.u.uRes, w, h)
 	if (st.u.uCusp && cusp) G.uniform1fv(st.u.uCusp, cusp)
 	G.drawArrays(G.TRIANGLES, 0, 3)
@@ -1041,6 +1166,7 @@ void main() {
 	const st = build(G, FSQ_VS, fs, (o) => {
 		o.u = Object.fromEntries(['uTex', 'uRes', 'uN', 'uKeep'].map(n => [n, G.getUniformLocation(o.pr, n)]))
 	})
+	st.lutN = lutNames(fs)
 	imgProgs.set(s, st)
 	return st
 }
@@ -1072,6 +1198,7 @@ export function paintImageChanGL(cv2d, s, image, keep, neutral) {
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
 	G.useProgram(st.pr)
+	bindLuts(G, st)
 	G.uniform1i(st.u.uTex, 0)
 	G.uniform2f(st.u.uRes, w, h)
 	const n4 = [0, 0, 0, 0]; (neutral || []).forEach((x, k) => { if (k < 4) n4[k] = x })
@@ -1095,3 +1222,12 @@ export const gamutStatus = (s) => {
 	if (!st || st.bad) return 'no'
 	return st.pending ? 'pending' : 'ready'
 }
+/** The xy-diagram panel works for ANY dimensionality — a 1-channel space IS a locus
+ *  (kelvin's Planckian curve, gray's neutral axis). It needs the xyz round trip;
+ *  one-way spaces (wavelength) honestly have no coverage to show. */
+const gamutOK = new Map()
+export const hasGamutGL = s => { if (!G || !meta[s]?.range) return false
+	if (!gamutOK.has(s)) { let ok = s === 'rgb'
+		if (!ok) try { glsl([['xyz', s], [s, 'xyz']]); ok = true } catch {}
+		gamutOK.set(s, ok) }
+	return gamutOK.get(s) }
