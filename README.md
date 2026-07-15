@@ -2,19 +2,15 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png" width="100%" height="150"/>
 
-**Any color space.** Web, print, film, broadcast, photo, art, science, history. Conventional ranges, verified formulas, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space.
+**Any color space.** Web, print, film, broadcast, photo, art, science, history. Conventional ranges, verified formulas, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space. JS, WASM, GLSL, LUT, ICC.
 
-Pure conversions — no parsing, interpolation, ΔE or gamut mapping. Channels only — carry alpha alongside yourself. Out-of-gamut values are never clamped, so invertible conversions round-trip exactly; the few inherently lossy nodes carry a machine-readable `loss` tag.
-
-**[Interactive catalog & docs →](https://colorjs.github.io/color-space/)**
+**[Interactive atlas →](https://colorjs.github.io/color-space/)**
 
 ## Use
 
 ```sh
 npm install color-space
 ```
-
-One conversion API, three hubs — swap the import, keep the conversion calls:
 
 ```js
 import space from 'color-space';       // all 161 spaces          55 kB gz
@@ -25,44 +21,36 @@ space.rgb.hsl(255, 128, 0);          // → [30, 100, 50] — reads as CSS hsl(3
 space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → broadcast, any of 161 × 160 pairs
 space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
 
-space.rgb.oklch(255, 128, 0);        // identical on all three — pinned by the test suite
-space.rgb.oklch(pixels);             // batch form too
-```
+space.rgb.oklch(pixels);             // batch form, converts in-place
 
-Parity is conversion-call parity: the wasm hub is the bare kernel — `range`, metadata and `register()` live on the JS hubs.
-
-Or one space, tree-shaken (scalar form; batch is wired by the hubs):
-
-```js
+// one space
 import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // args match CSS oklch(0.65 0.25 180)
 ```
 
-One module per concern — the whole surface:
-
 | import | what |
 |---|---|
-| `color-space` | all 161 spaces, graph-wired |
-| `color-space/<name>.js` | one space, tree-shaken (0.4–1.5 kB; the definitions live in [`spaces/`](spaces)) |
-| `color-space/lite` | the 27-space working set, 9 kB |
-| `color-space/wasm` | the same set, prebuilt WASM — zero-copy buffers |
-| `color-space/gl` | GLSL/WGSL shader chunks + composer |
+| `color-space` | all 161 spaces |
+| `color-space/<name>.js` | one space |
+| `color-space/lite` | 27 main spaces, 9 kB |
+| `color-space/wasm` | lite set prebuilt WASM |
+| `color-space/gl` | GLSL/WGSL shader |
 | `color-space/lut` | `.cube` LUT exporter (Resolve, ffmpeg, …) |
 | `color-space/icc` | ICC display-profile exporter |
-| `color-space/data.json` | the registry as data — metadata, graph edges, gamuts, whitepoints, CMFs, conformance |
+| `color-space/data.json` | metadata, graph edges, gamuts, whitepoints, CMFs, conformance |
 | `color-space/gamuts.js` · `/whitepoints.js` | primary chromaticities · CIE illuminant tables |
-| `color-space/hub.js` | the wiring machinery (`createHub`) behind the three hubs |
+| `color-space/hub.js` | the wiring |
 | `npx color-space-mcp` | MCP server — the same conversions as agent tools |
 
-**Upgrading from v2?** [Migration guide](docs/migration.md) — a v2 array-taking call is a batch of one in v3.
+**Upgrading from v2?** [Migration guide](docs/migration.md).
 
-Metadata ships as one data artifact (see [Data](#data)):
+## Meta
 
 ```js
 import data from 'color-space/data.json' with { type: 'json' };
 data.spaces.oklab;   // { description, channels, range, refs, wiki, year, by, use,
                      //   method, encoding, referred, dynamic, neighbors }
-data.spaces.kelvin.loss;   // 'projective' — the 9 lossy nodes tagged by kind (projective · lookup · quantized)
+data.spaces.kelvin.loss;   // 'projective' | 'lookup' | 'quantized'
 data.spaces.p3;      // RGB working spaces add: illuminant, observer, gamut, primaries {r,g,b}, white
 
 import whitepoint from 'color-space/whitepoints.js';
@@ -74,14 +62,14 @@ gamut.srgb;   // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, w
 
 ## WASM
 
-The wasm hub is the same formulas compiled ahead of time ([jz](https://github.com/dy/jz)) — each edge a true multi-value function, `rgb_lrgb(r,g,b) → (r′,g′,b′)`. Its win is zero-copy buffers:
-
 ```js
+import space, { alloc } from 'color-space/wasm';
+
 const buf = alloc(width * height);   // WASM-backed Float64Array, interleaved r,g,b
 space.rgb.oklch(buf);                // converts in place — nothing crosses the boundary
 ```
 
-Coverage = the `lite` set: the numeric pipeline (rgb/lrgb/xyz · OKLab · Lab/Luv/DIN99 · HDR · camera logs). Device cylinders and lookup/appearance spaces gain nothing from batching — the full catalog carries those.
+Covers the `lite` set: the numeric pipeline (rgb/lrgb/xyz · OKLab · Lab/Luv/DIN99 · HDR · camera logs). Device cylinders and lookup/appearance spaces gain nothing from batching — the full catalog carries those.
 
 ## GL/WGSL
 
@@ -139,10 +127,6 @@ profile(space.prophoto);   // ROMM RGB; linear spaces emit the identity curve
 
 Everything derives from the space's own conversions — colorants from the full-intensity primaries (Bradford-adapted to the D50 PCS), the TRC from the neutral diagonal. A space that isn't empirically matrix×transfer (cylinders, luma/chroma, opponent) throws rather than emit a lying profile. Colorants are pinned to Lindbloom's D50 matrices, the TRC to IEC 61966-2-1, and every profile passes macOS ColorSync in the suite.
 
-## Data
-
-`color-space/data.json` is the registry's data as one language-neutral artifact: per-space metadata with conventional ranges, the conversion-graph edges, gamut primaries, CIE whitepoints, the CIE 1931 2° color-matching functions, and the cited input→output conformance triples the test suite pins the formulas to. It carries no executable formulas — those live in [`spaces/`](spaces) — but it is the scaffolding a port needs: the topology, the constants, and the conformance cases to verify against.
-
 ## MCP
 
 Color math is what language models hallucinate — plausible matrices, wrong in the third decimal. The zero-dependency MCP server lets agents call the verified conversions instead:
@@ -153,22 +137,7 @@ Color math is what language models hallucinate — plausible matrices, wrong in 
 
 Tools: `convert` (any pair) · `space` (the dossier: refs, ranges, provenance) · `spaces` · `cube` (a LUT file).
 
-## Guarantees
-
-For every one of the 161 graph spaces — enforced by the test suite:
-
-1. **Canonical formula** — implements its primary source (ITU/SMPTE/ISO/CIE spec, original paper, vendor whitepaper), linked in `data.spaces.<space>.refs`.
-2. **Pinned values, tier stated** — verification depth varies and is worth knowing:
-   - *differential* — 29 CSS/core spaces cross-validated against colorjs.io both directions over a sample grid ([test/reference.js](test/reference.js));
-   - *cited anchor* — every other space pinned to at least one authoritative input→output from its source or a reference implementation ([test/bonafide.js](test/bonafide.js)) — an anchor, not a proof of every branch;
-   - all spaces additionally get round-trip and NaN-safety sweeps (self-consistency — cannot catch self-cancelling errors).
-3. **Conventional ranges** — never silently normalized.
-4. **Bidirectional** — the few one-way standards say so loudly.
-5. **Documented omissions** — whatever is missing is declined with a reason, never forgotten.
-
 ## Spaces
-
-Notation: 🕰️ historical — shipped as working history; ~~struck~~ — declined, with the reason.
 
 <details><summary><b>Display & Web</b></summary>
 
@@ -394,13 +363,12 @@ A _complete_ collection of color spaces under a _minimal_, _consistent_ API with
 
 ### What it isn't
 
-Not a color toolbox. It leaves adjacent models out when they are not fixed channel coordinates with a context-free conversion path:
+Not parsing, interpolation, ΔE, gamut mapping or color toolbox. Channels only — carry alpha alongside yourself. It leaves models out when they are not fixed channel coordinates with a context-free conversion path:
 
 - **Models without fixed, self-sufficient channels** — animal quantum catches and bee/avian/fly receptor geometries require species-specific sensitivity curves, illuminant, ocular transmission, and adaptation state. Kubelka–Munk pigment mixing, Neugebauer/Yule–Nielsen halftones, and Beer–Lambert colorants require measured spectra, inks or pigments, substrate, concentration, and thickness. These consume variable-length samples and external conditions; they are not universal channel tuples with an honest XYZ inverse.
 - **Swatch catalogs** — Pantone, NCS, RAL Classic, HKS, Toyo, British Standard, US Federal Standard 595. Discrete named-sample books, not continuous coordinate systems, and nearly all trademarked or sample-defined with no open CIE data. (RAL **Design** *is* included — its HLC code is CIELAB by construction, no catalog needed.)
-- **Colormaps** — cubehelix, viridis, turbo, and friends. A single fraction painted to a color, not a space you convert between.
-
-Operations stay out too — parsing, mixing, ΔE, gamut mapping, color-vision-deficiency simulation — this is the kernel they build on.
+- **Colormaps, palettes, gradients** — cubehelix, viridis, turbo, and friends. A single fraction painted to a color, not a space you convert between.
+- **Color toolbox** – operations stay out: parsing, mixing, ΔE, gamut mapping, color-vision-deficiency simulation — this is the kernel they build on.
 
 ## Comparison
 
