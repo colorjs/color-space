@@ -250,14 +250,14 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
    anywhere on it lifts chevron and name together. */
 /* prev/next belong to the modal's own navigation: small chevrons in the header
    row, to the left of the close ✕ — the neighbour's name rides the tooltip */
-.mnavs{ position:absolute; top:calc(var(--dpad) - 10px); right:calc(var(--dpad) + 26px); z-index:var(--z-raised); display:flex; align-items:center; gap:var(--s3) }
-.mnav{ display:flex; align-items:center; gap:.3em; height:40px; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 var(--s1); font:inherit }
-.mnav svg{ display:block; flex:none; opacity:.55; transition:opacity var(--dur-micro) var(--ease-out) }
-.mnav .mn{ font-size:var(--t1); font-weight:700; max-width:5.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }   /* the neighbour's name, visible */
+.mnavs{ margin-left:auto; align-self:last baseline; display:flex; align-items:baseline; gap:var(--s4) }   /* LAST baseline: the h1's last line is the name (the kicker is a block above it), so the nav rides the big title's baseline, not the kicker's */
+.mnav{ display:flex; align-items:baseline; gap:.28em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0; font:inherit }
+.mnav svg{ display:block; flex:none; align-self:center; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
+.mnav .mn{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em; text-transform:uppercase; max-width:8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }   /* the neighbour's name, set like a smaller title — shares the h1 baseline */
 .mnav.next .mn{ order:-1 }   /* name before the forward chevron — the arrow points where you go */
 .mnav:hover,.mnav:focus-visible{ color:var(--ink) }
 .mnav:hover svg,.mnav:focus-visible svg{ opacity:1 }
-@media(max-width:760px){ .mnav .mn{ display:none } }   /* narrow: chevrons only — the names would crowd the title */
+@media(max-width:760px){ .mnav .mn{ max-width:4.5rem; font-size:var(--t2) } }   /* narrow: shorter names, smaller — they must not crowd the title */
 .mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
@@ -271,7 +271,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .dpills{ display:flex; gap:var(--s2); flex-wrap:wrap; margin:var(--s3) 0 var(--s4) }
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
-.dhero{ display:grid; grid-template-columns:minmax(0,1fr) minmax(15rem,19rem); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s1) 0 var(--s6) }
+.dhero{ display:grid; grid-template-columns:minmax(0,1fr) minmax(15rem,19rem); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .modal.barred .dhero{ grid-template-columns:1fr }   /* no graphics column to reserve — text takes the whole width */
 .dmain{ min-width:0 }
 .dmain .props.props3{ margin:0 0 var(--s6) }   /* one rhythm: --s6 through features, description, used-for alike */
@@ -318,7 +318,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
-.dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(15rem,19rem); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s6) }
+.dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(15rem,19rem); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .dpick.nod3 .dviz2{ grid-template-columns:1fr; margin:0 }
@@ -369,7 +369,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
 .pl .pmode:hover{ opacity:1 }
-.sec2 .upbtn{ display:inline-flex; vertical-align:-2px; margin-left:var(--s2); padding:0; border:0; background:none; color:inherit; opacity:.7; cursor:pointer }   /* the picker road into the image row — dims like every quiet control */
+.sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
 h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:var(--s6) 0 var(--s2); display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap }
 .src{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
@@ -467,6 +467,10 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow button:hover .fl,.tabrow button.on .fl{ opacity:1; filter:none }
 .tabrow button:hover{ color:var(--ink) }
 .tabrow button.on{ color:var(--ink); border-bottom-color:var(--c) }
+/* the dossier's code tabs read as section-title kickers — same type treatment as the
+   #image / #compare / #code headings they sit among */
+#cseg button{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; padding-bottom:var(--s2) }
+#cseg .fl{ width:12px; height:12px } #cseg .fl svg{ width:12px; height:12px }
 /* lut/icc tabs are live exporters — real controls, so they sit on the regular surface, not the dark code panel */
 .export{ background:var(--panel); color:var(--ink); border:1px solid var(--hair); padding:var(--s6); font-family:var(--font-mono); font-size:var(--t1); line-height:1.6; display:flex; flex-direction:column; gap:var(--s4); align-items:flex-start }
 .export[hidden]{ display:none }   /* the class display would otherwise beat the UA [hidden] rule */
@@ -1117,7 +1121,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 
 <div id="toast" role="status" aria-live="polite">Copied</div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
-	<div class="mbox"><span class="mnavs"><button class="mnav prev" id="mprev" title="previous space" aria-label="previous color space"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button><button class="mnav next" id="mnext" title="next space" aria-label="next color space"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button></span><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
+	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue } from './js/core.js'
@@ -1242,13 +1246,28 @@ const pairs=n=>{ const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a
 // stands vertical (b) and the hue angle sweeps horizontal (a) — same canonical layout as map3
 // (tone up, chroma across), so a strip reads like a slice of the solid above it. Tone-less
 // boxes (rgb, cmy…) stand channel 0 vertical — the same fallback the solid's map3 uses.
-const pairsFor=s2=>{ const c2=classify(s2), ti=c2.tone?.i??(c2.angle==null&&c2.ch.length===3?0:undefined), ai=c2.angle?.i
+// any hue-like channel is an angle wrapping over its own span — munsell's H is 0-100
+// grades, coloroid's A is 10-76, not just the 0-360 spaces. -1 = no wheel.
+const hueIdx=c2=>{ if(c2.angle) return c2.angle.i
+	if(c2.ch.length!==3) return -1
+	return c2.ch.findIndex(c3=>/hue/i.test(c3.name||'')) }
+// tone(vertical) · hue(angle) · magnitude(radial) axis picks — ONE assignment for the
+// 3D solid AND the 2D planes, so a disc reads as the solid's top view (wire3d uses it too)
+const axes3=c2=>{ const ai=hueIdx(c2)
+	if(ai<0) return { ai:-1, ti:c2.tone?c2.tone.i:0, mi:-1 }
+	const rest=[0,1,2].filter(k=>k!==ai)
+	const ti=c2.tone&&c2.tone.i!==ai?c2.tone.i:rest[1]
+	return { ai, ti, mi:rest.find(k=>k!==ti) } }
+const pairsFor=s2=>{ const c2=classify(s2), ai=hueIdx(c2)
+	const ti=c2.tone?.i??(ai<0&&c2.ch.length===3?0:undefined)
 	return pairs(c2.ch.length).map(([a,b])=>(ai===b||ti===a)?[b,a]:[a,b]) }
 // any hue pair can render as a DISC — the space's own polar geometry (hue around,
 // the paired channel out, matching the solid's top view). hwb-family radii are
 // composites (1−W−B), not a channel — those stay square.
-const polarPl=(c2,a,b)=>{ const ai=c2.angle?.i
-	if(ai==null||a!==ai||c2.ch.length!==3) return false
+const polarPl=(c2,a,b)=>{ const ai=hueIdx(c2)
+	if(ai<0||a!==ai||c2.ch.length!==3) return false
+	// the White&Black family (hwb, okhwb, ostwald) has no single radial channel —
+	// its chroma is a composite (1−W−B), so those hue planes stay square
 	return !(c2.ch.some(c=>/White/i.test(c.name||''))&&c2.ch.some(c=>/Black/i.test(c.name||''))) }
 // per-plane axis DIRECTIONS, matched to the solid's default view (rot −0.6/0.42): model
 // x (others[0]) points right, tone up, model z (others[1]) toward the viewer — so an axis
@@ -1256,14 +1275,14 @@ const polarPl=(c2,a,b)=>{ const ai=c2.angle?.i
 // straight off the first 3D view. wb solids hang from the white top: Blackness grows down.
 // Returns a bitmask: 1 = flip horizontal, 2 = flip vertical.
 const flip3=(c2,a,b)=>{ if(c2.ch.length!==3) return 0
-	if(c2.angle){ const bI=c2.ch.findIndex(c=>/Black/i.test(c.name||''))
+	if(hueIdx(c2)>=0){ const bI=c2.ch.findIndex(c=>/Black/i.test(c.name||''))
 		return bI>=0&&c2.ch.some(c=>/White/i.test(c.name||''))&&b===bI?2:0 }
 	const o=[0,1,2].filter(k=>k!==(c2.tone?.i??0))
 	return (a===o[1]?1:0)|(b===o[1]?2:0) }
 // disc/rect is chosen PER PLANE and persists: hue×chroma pairs default to the disc
 // (the solid's top view); hue×tone unwraps default to the rect
 let POLARP={}; try{ POLARP=JSON.parse(localStorage.csPolarP||'{}') }catch{}
-const polarOn=(s2,c2,a,b)=>POLARP[`${s2}:${a},${b}`]??(b!==c2.tone?.i)
+const polarOn=(s2,c2,a,b)=>POLARP[`${s2}:${a},${b}`]??(b!==axes3(c2).ti)   // default: disc for hue×radius, rect for hue×vertical (the solid's tone axis)
 
 const NAMED=Object.entries(NAMES).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
 const nmCache=new Map()   // exact-color memo — each unique pixel names once, then it's a hash hit
@@ -1569,10 +1588,15 @@ foldA11y(); COLQ[0].addEventListener('change',foldA11y)
 
 // ── modal dossier ──
 const modal=document.getElementById('modal'), detail=document.getElementById('detail')
-detail.addEventListener('click',e=>{ const el=e.target.closest('#cssv'); if(el&&navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(()=>toast()) })
+detail.addEventListener('click',e=>{ const nb=e.target.closest('.mnav'); if(nb){ nav(+nb.dataset.dir); return }
+	const el=e.target.closest('#cssv'); if(el&&navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(()=>toast()) })
 let modalReturn=null
 const open=()=>!modal.hidden
 const navLabel=key=>barredByKey.get(key)?.nm||key   // barred cards show their proper name in the nav
+// prev/next ride the title row (in .dh) so their names share the title's baseline;
+// clicks are delegated on `detail`, since the buttons rebuild with every dossier
+const CHEV=d=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="${d}"/></svg>`
+const NAVBTNS=`<span class="mnavs"><button class="mnav prev" id="mprev" data-dir="-1" title="previous space" aria-label="previous color space">${CHEV('M15 18l-6-6 6-6')}<span class="mn" id="mprevn"></span></button><button class="mnav next" id="mnext" data-dir="1" title="next space" aria-label="next color space">${CHEV('M9 6l6 6-6 6')}<span class="mn" id="mnextn"></span></button></span>`
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
@@ -1593,7 +1617,7 @@ function openModal(s){
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
 	// same shape and field order as buildDetail: header → tag → props (channels | origin · reference) → description
-	detail.innerHTML=`<div class="dh"><h1>${b.nm.toUpperCase()}${b.mark?`<sup>${b.mark}</sup>`:''}</h1></div>
+	detail.innerHTML=`<div class="dh"><h1>${b.nm.toUpperCase()}${b.mark?`<sup>${b.mark}</sup>`:''}</h1>${NAVBTNS}</div>
 	 <div class="dpills"><span class="tag" title="a licensed, sample-defined system — the authoritative colour data isn't openly redistributable">proprietary</span></div>
 	 <hr class="dhr">
 	 <section class="dhero"><div class="dmain"><div class="props props3">
@@ -1656,8 +1680,6 @@ function stepInputNumber(input,dir){ const m=numAt(input); if(!m) return false
 	input.setSelectionRange(m.start,m.start+next.length)
 	return true }
 const nav=d=>{ const k=ORDER.indexOf(selected); openModal(ORDER[(k+d+ORDER.length)%ORDER.length]) }
-document.getElementById('mprev').onclick=()=>nav(-1)
-document.getElementById('mnext').onclick=()=>nav(1)
 addEventListener('keydown',e=>{ if(!open()) return
 	if(e.key==='Escape'){ e.preventDefault(); closeModal(); return }
 	if(e.key==='Tab'){ const focusable=[...modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),[tabindex="0"]')].filter(el=>el.offsetParent!==null)
@@ -1824,15 +1846,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	const gfVis=v=>clamp((v[1]-1)/9,0,1)
 	const gfRaw=g3==='vis'?gfVis:gfCube
 	const grayF=inBase?(v=>gfRaw(v)<1?0:1):gfRaw
-	// any hue-like channel is an angle wrapping over its own span — munsell's H is
-	// 0-100 grades, coloroid's A is 10-76, not just the 0-360 spaces
-	const ai0=cls.angle?cls.angle.i:cls.ch.findIndex(c2=>/hue/i.test(c2.name))
-	const ai=ai0>=0?ai0:null
-	let ti,mi=null
-	if(ai!=null){ const rest=[0,1,2].filter(k=>k!==ai)
-		ti=cls.tone&&cls.tone.i!==ai?cls.tone.i:rest[1]
-		mi=rest.find(k=>k!==ti) }
-	else ti=cls.tone?cls.tone.i:0
+	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the
+	// solid and its plane slices always agree. Renamed wheels count as the hue angle.
+	const {ai:aiX,ti,mi}=axes3(cls), ai=aiX<0?null:aiX
 	// the sanity window for the cone-wall bisection: an additive space's coords can
 	// never go below the zero-light code (below-min = sign-mirrored garbage); other
 	// spaces may genuinely overflow by up to a whole span before it's junk
@@ -2745,7 +2761,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC tab
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}</h1></div>
+	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}</h1>${NAVBTNS}</div>
 	 ${HISTORICAL.has(s)?`<div class="dpills"><span class="tag" title="${TAGTIP.historical}">historical</span></div>`:''}
 	 <hr class="dhr">
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
