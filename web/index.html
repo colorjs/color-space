@@ -44,8 +44,9 @@ a{ color:var(--ink) }
 /* The spectrum stays visually thin while its real hit area is forgiving: the hit
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
-.hueline{ position:relative; height:18px; margin-bottom:-7px; cursor:ew-resize; touch-action:none }
-.hueline::before{ content:''; position:absolute; inset:6px 0 auto; height:5px; background:linear-gradient(90deg in oklch longer hue,oklch(.7 .18 0),oklch(.7 .18 360)) }
+.hueline{ position:relative; height:5px; cursor:ew-resize; touch-action:none }   /* the box IS the gradient — the sticky header's paper ends exactly at the line, no white beneath */
+.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg in oklch longer hue,oklch(.7 .18 0),oklch(.7 .18 360)) }
+.hueline::after{ content:''; position:absolute; left:0; right:0; top:-6px; bottom:-9px }   /* the forgiving hit band overhangs the header, transparent — clicks here still land on the line */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--ink) }
@@ -56,7 +57,8 @@ a{ color:var(--ink) }
 .cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:calc(var(--s4) + 6.7px); display:flex; align-items:flex-start; cursor:text }   /* sits where the spaces column starts; input box = its line box (no UA centring slack), so top + ascent = the masthead baseline at any DPR */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
-.cx .cd{ position:absolute; left:.15em; top:4.2px; width:11px; height:11px; padding:0; background:none; border:0; appearance:none; -webkit-appearance:none; transform:rotate(45deg); cursor:pointer }   /* the favicon rhombus, live — a native color input in disguise */
+.cx .cd{ position:absolute; left:.15em; top:4.2px; width:11px; height:11px; padding:0; background:none; border:0; appearance:none; -webkit-appearance:none; transform:rotate(45deg); cursor:pointer; transition:transform var(--dur-micro) var(--ease-out) }   /* the favicon rhombus, live — a native color input in disguise */
+.cx .cd:hover,.cx .cd:focus-visible{ transform:rotate(45deg) scale(1.18) }   /* the same lift the interpolate endpoint rhombus has */
 .cd::-webkit-color-swatch-wrapper{ padding:0 }
 .cd::-webkit-color-swatch{ border:0 }
 #cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em }   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
@@ -116,7 +118,7 @@ a{ color:var(--ink) }
 	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto }
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:44px; min-width:44px; height:44px } .hueline{ height:44px; margin-bottom:-20px } .hueline::before{ top:19px } .tfp .tag{ min-height:44px } .mx{ width:44px; height:44px } }
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:44px; min-width:44px; height:44px } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag{ min-height:44px } .mx{ width:44px; height:44px } }
 @media(max-width:360px){ .mast #thm{ display:none } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
@@ -244,20 +246,17 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* close ✕ — same style as the proprietary dialog's: quiet, top-right, inks on hover */
 .mx{ position:absolute; top:calc(var(--dpad) - 10px); right:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; font:inherit; font-size:1.5rem; line-height:1; font-weight:500; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--ink) }
-/* prev/next — chevron pinned to the screen edge, the destination's name set inboard of it, wrapping
-   inside the gutter beside the centred box (shrinks, then vanishes, as the box widens). Dim-then-ink
-   idiom, no colour shift. The control is only as tall as chevron+name (not the full page), and a hover
-   anywhere on it lifts chevron and name together. */
-/* prev/next belong to the modal's own navigation: small chevrons in the header
-   row, to the left of the close ✕ — the neighbour's name rides the tooltip */
-.mnavs{ align-self:last baseline; display:flex; align-items:baseline; gap:var(--s4) }   /* LAST baseline: the h1's last line is the name (the kicker is a block above it), so the nav rides the big title's baseline, not the kicker's */
-.mnav{ display:flex; align-items:baseline; gap:.28em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0; font:inherit }
-.mnav svg{ display:block; flex:none; align-self:center; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
-.mnav .mn{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em; text-transform:uppercase; max-width:8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }   /* the neighbour's name, set like a smaller title — shares the h1 baseline */
-.mnav.next .mn{ order:-1 }   /* name before the forward chevron — the arrow points where you go */
-.mnav:hover,.mnav:focus-visible{ color:var(--ink) }
+/* prev/next as centered post-navigation — a compact bar at the top of the dossier
+   and again at its foot. Left chevron + name · name + right chevron. Dim-then-ink. */
+.mnavbar{ display:flex; justify-content:center; align-items:center; gap:clamp(var(--s4),6vw,var(--s12)) }
+.mnavbar.top{ margin:var(--s3) 0 var(--s2) }
+.mnavbar.mfoot{ margin-top:var(--s8) }
+.mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
+.mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
+.mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; text-transform:uppercase; white-space:nowrap }   /* the neighbour's name — regular weight, no trim */
+.mnav:hover,.mnav:focus-visible{ color:var(--ink); outline:none }
 .mnav:hover svg,.mnav:focus-visible svg{ opacity:1 }
-@media(max-width:760px){ .mnav .mn{ max-width:4.5rem; font-size:var(--t2) } }   /* narrow: shorter names, smaller — they must not crowd the title */
+@media(max-width:520px){ .mnav .mn{ font-size:var(--t2) } }
 .mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
@@ -267,7 +266,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }   /* no focus rectangle around the bare select — a colour shift instead */
 .dh h1{ margin:0; font-size:clamp(1.7rem,4vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1 }
-.dh .dcat{ display:block; margin-bottom:var(--s1); font-size:var(--t1); font-weight:700; letter-spacing:.05em; color:var(--soft) }   /* the catalog section, a quiet kicker above the name */
+.dh .dcat{ display:block; margin-bottom:var(--s2); font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }   /* the catalog section — the same kicker recipe as every section label (.plab / props i) */
 .dpills{ display:flex; gap:var(--s2); flex-wrap:wrap; margin:var(--s3) 0 var(--s4) }
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
@@ -333,7 +332,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bch .nvw .u{ font-size:var(--t2); color:var(--body) }
 .props .cssv{ font-family:var(--font-mono); font-size:var(--t2) }   /* the CSS notation is code, not prose — it reads in mono under the channels */
 .props .dpills{ margin:0 }   /* model/signal values wear the shared .tag recipe, on the property grid's own rhythm */
-.gtags{ display:flex; gap:var(--s1) }
+.gtags{ display:flex; align-self:center; gap:var(--s1) }   /* the gamut pills centre on the value row, box-middle to the numbers — not baseline (which hangs them low) */
 .gtags .gt[hidden]{ display:none }
 .pick+.planes{ margin-top:var(--s2) }   /* plots sit one plane-gap below the sliders (no heading) */
 .planes+.pick{ margin-top:var(--s2) }
@@ -364,7 +363,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.4rem; left:.45rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:var(--t0); font-weight:700; pointer-events:none }
-.pl .pmode{ position:absolute; top:.25rem; right:.3rem; z-index:2; font-size:var(--t1); line-height:1; border:0; background:none; padding:2px; color:var(--ink); opacity:.5; cursor:pointer }   /* the hue disc ⟷ square switch — an outlined shape with axis lines, dim to ink on hover */
+.pl .pmode{ position:absolute; bottom:.35rem; left:.45rem; z-index:2; font-size:var(--t1); line-height:1; border:0; background:none; padding:2px; color:var(--ink); opacity:.5; cursor:pointer }   /* the hue disc ⟷ square switch — bottom-left, on the axis labels' own padding, below the picker */
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
@@ -386,17 +385,18 @@ h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; co
 /* current-colour floater — always on top, even over the modal */
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); cursor:pointer }
+#compare .hp{ margin-left:auto }   /* the hue-arc toggle rides the far right of the interpolate heading */
 /* the interpolate heading is interactive: the word rotates the comparison space, the
    rhombus picks the blend's endpoint — same title-control idiom as the swap arrow */
 .sec2 .icyc{ font:inherit; color:inherit; letter-spacing:inherit; text-transform:inherit; border:0; background:none; padding:0; cursor:pointer }
 .sec2 .icyc:hover,.sec2 .icyc:focus-visible{ color:var(--ink); outline:none }
-.sec2 .ipick{ margin-left:.28em; border:0; background:none; padding:0; cursor:pointer; display:inline-flex; align-items:center }   /* the extra nudge evens the title→⇄ and ⇄→◆ gaps (the arrow glyph's side bearing eats the flex gap) */
+.sec2 .ipick{ border:0; background:none; padding:0; cursor:pointer; display:inline-flex; align-items:center }
 .sec2 .ipick .dia{ width:12px; height:12px; transform:rotate(45deg); background:var(--panel); transition:transform var(--dur-micro) var(--ease-out) }   /* a filled swatch of the endpoint colour — no outline */
+.sec2 .ipick:hover,.sec2 .ipick:focus-visible{ color:var(--ink); outline:none }
 .sec2 .ipick:hover .dia,.sec2 .ipick:focus-visible .dia{ transform:rotate(45deg) scale(1.18) }
 /* the two blend bands butt together, same height — one block: this space over the comparison */
 .istack{ display:flex; flex-direction:column }
 .irow{ position:relative; height:2.6rem }
-.icmp{ box-shadow:inset 0 1px 0 var(--paper) }   /* a hair seam between the two bands, no gap */
 .isp{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* the band's space, inked dark/white per its left colour */
 .srcline{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
@@ -528,8 +528,8 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">161</span> spaces</span>
-	<span class="sp"></span>
 	<span class="cx" title="current color — type any CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts any CSS color"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
+	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
@@ -1598,10 +1598,12 @@ detail.addEventListener('click',e=>{ const nb=e.target.closest('.mnav'); if(nb){
 let modalReturn=null
 const open=()=>!modal.hidden
 const navLabel=key=>barredByKey.get(key)?.nm||key   // barred cards show their proper name in the nav
-// prev/next ride the title row (in .dh) so their names share the title's baseline;
-// clicks are delegated on `detail`, since the buttons rebuild with every dossier
+// prev/next as centered post-navigation — a compact bar at the top of the dossier
+// AND at its foot. Class-based (not id) so it can appear twice; clicks delegate on
+// `detail`, and names set via querySelectorAll, since the buttons rebuild each dossier.
 const CHEV=d=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="${d}"/></svg>`
-const NAVBTNS=`<span class="mnavs"><button class="mnav prev" id="mprev" data-dir="-1" title="previous space" aria-label="previous color space">${CHEV('M15 18l-6-6 6-6')}<span class="mn" id="mprevn"></span></button><button class="mnav next" id="mnext" data-dir="1" title="next space" aria-label="next color space">${CHEV('M9 6l6 6-6 6')}<span class="mn" id="mnextn"></span></button></span>`
+const MNAVBTNS=`<button class="mnav prev" data-dir="-1" aria-label="previous color space">${CHEV('M15 18l-6-6 6-6')}<span class="mn mprevn"></span></button><button class="mnav next" data-dir="1" aria-label="next color space"><span class="mn mnextn"></span>${CHEV('M9 6l6 6-6 6')}</button>`
+const MNAV=cls=>`<nav class="mnavbar ${cls}" aria-label="adjacent color spaces">${MNAVBTNS}</nav>`
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
@@ -1610,11 +1612,9 @@ function openModal(s){
 	urlLast=spaceURL(s)+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
-	const k=ORDER.indexOf(s), n=ORDER.length
-	document.getElementById('mprevn').textContent=navLabel(ORDER[(k-1+n)%n])
-	document.getElementById('mnextn').textContent=navLabel(ORDER[(k+1)%n])
-	document.getElementById('mprev').title=`previous — ${navLabel(ORDER[(k-1+n)%n])}`
-	document.getElementById('mnext').title=`next — ${navLabel(ORDER[(k+1)%n])}`
+	const k=ORDER.indexOf(s), n=ORDER.length   // set the neighbour names in every nav bar (top + foot)
+	detail.querySelectorAll('.mprevn').forEach(el=>el.textContent=navLabel(ORDER[(k-1+n)%n]))
+	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ORDER[(k+1)%n]))
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
@@ -1622,7 +1622,7 @@ function openModal(s){
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
 	// same shape and field order as buildDetail: header → tag → props (channels | origin · reference) → description
-	detail.innerHTML=`<div class="dh"><h1>${b.nm.toUpperCase()}${b.mark?`<sup>${b.mark}</sup>`:''}</h1>${NAVBTNS}</div>
+	detail.innerHTML=`<div class="dh"><h1>${b.nm.toUpperCase()}${b.mark?`<sup>${b.mark}</sup>`:''}</h1></div>${MNAV('top')}
 	 <div class="dpills"><span class="tag" title="a licensed, sample-defined system — the authoritative colour data isn't openly redistributable">proprietary</span></div>
 	 <hr class="dhr">
 	 <section class="dhero"><div class="dmain"><div class="props props3">
@@ -1631,7 +1631,8 @@ function buildBarred(b){
 	 </div>
 	 <div class="dgrid2 dstack"><div><i class="plab">description</i>
 		<div class="desc">${b.why}</div></div></div>
-	 </div></section>` }
+	 </div></section>
+	 ${MNAV('mfoot')}` }
 function closeModal(){ modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	urlLast=spaceURL('')+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
@@ -2755,7 +2756,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
 	const solidHTML=has3d?`<div class="vgrp">${dctlHTML}<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
-	const interpHTML=`<h4 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate</button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint"><span class="dia" id="idia"></span></button><input type="color" class="pinb" id="pinb" tabindex="-1"></h4>
+	const interpHTML=`<h4 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1"></h4>
 	 <div class="istack">
 		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
 		<div class="irow icmp" id="icmp" title="the same two endpoints through another space — click “interpolate” to change it"><span class="isp" id="ispc"></span></div>
@@ -2773,7 +2774,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC tab
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}</h1>${NAVBTNS}</div>
+	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}</h1></div>${MNAV('top')}
 	 ${HISTORICAL.has(s)?`<div class="dpills"><span class="tag" title="${TAGTIP.historical}">historical</span></div>`:''}
 	 <hr class="dhr">
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
@@ -2819,7 +2820,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
 	 <h4 class="sec2" id="code"><span class="tabrow" id="cseg" role="tablist" aria-label="code backends"><button data-t="js" class="on">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">${FLGL}SHADER</button>`:''}<button data-t="meta">${FLMETA}META</button>${LUTOK.has(s)?`<button data-t="lut">${FLLUT}LUT</button>`:''}${iccK?`<button data-t="icc">${FLICC}ICC</button>`:''}<button data-t="css">${FLCSS}CSS</button></span></h4>
-	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre><div class="export dex" id="dex" hidden></div></div>`
+	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre><div class="export dex" id="dex" hidden></div></div>
+	 ${MNAV('mfoot')}`
 		modal.scrollTop=0
 	// glossary terms in the prose grow a soft ? — first occurrence per paragraph
 	for(const el of detail.querySelectorAll('.desc, .dgrid2 p')) for(const [t,tip] of Object.entries(TERMS)){
