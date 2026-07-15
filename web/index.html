@@ -245,24 +245,20 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
    inside the gutter beside the centred box (shrinks, then vanishes, as the box widens). Dim-then-ink
    idiom, no colour shift. The control is only as tall as chevron+name (not the full page), and a hover
    anywhere on it lifts chevron and name together. */
-/* narrow: chevrons pinned to the screen edge (the box fills the width — no gutter to sit in) */
-.mnav{ position:fixed; top:50%; transform:translateY(-50%); z-index:calc(var(--z-modal) + 1); border:0; background:transparent; color:oklch(0.97 0.003 92); cursor:pointer; padding-inline:var(--s4); display:flex; align-items:center; gap:var(--s2) }
-.mnav.prev{ left:0; right:auto } .mnav.next{ right:0; left:auto; flex-direction:row-reverse }
-/* wide: once there's a real gutter, the chevron hugs the modal edge and its label reads outward from it */
-@media(min-width:1033px){
-	.mnav{ padding-inline:0 }
-	.mnav.prev{ left:auto; right:calc(50% + var(--mboxw)/2 + var(--s3)); flex-direction:row-reverse } .mnav.next{ right:auto; left:calc(50% + var(--mboxw)/2 + var(--s3)); flex-direction:row }
-}
-.mnav svg{ display:block; opacity:.5; transition:opacity var(--dur-micro) var(--ease-out) }
-.mnav .mn{ font-size:var(--text-md); font-weight:800; letter-spacing:-.01em; line-height:1.15; max-width:clamp(0px, calc((100vw - var(--mboxw))/2 - 5rem), 9rem); overflow:hidden; overflow-wrap:break-word; text-transform:uppercase; opacity:.82; transition:opacity var(--dur-micro) var(--ease-out) }
-.mnav.prev .mn{ text-align:right } .mnav.next .mn{ text-align:left }
-.mnav:hover svg,.mnav:focus-visible svg,.mnav:hover .mn,.mnav:focus-visible .mn{ opacity:1 }
+/* prev/next belong to the modal's own navigation: small chevrons in the header
+   row, to the left of the close ✕ — the neighbour's name rides the tooltip */
+.mnav{ position:absolute; top:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
+.mnav.prev{ right:calc(var(--dpad) + 64px) } .mnav.next{ right:calc(var(--dpad) + 30px) }
+.mnav svg{ display:block; opacity:.55; transition:opacity var(--dur-micro) var(--ease-out) }
+.mnav .mn{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%) }   /* the name stays for readers; sighted users get the title */
+.mnav:hover,.mnav:focus-visible{ color:var(--ink) }
+.mnav:hover svg,.mnav:focus-visible svg{ opacity:1 }
 .mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
 .dh{ display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s6); padding-right:var(--s12) }
-.dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin:0 0 var(--s2) }   /* gamut + quantization selects, right-aligned above the plot */
-.dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content; -webkit-appearance:none; appearance:none }   /* de-chromed: reads as text, not a gray box */
+.dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin:0 0 var(--s2) }   /* gamut + quantization selects — ride the side column, above the solid */
+.dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — but the native chevron stays: it says "openable" */
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }   /* no focus rectangle around the bare select — a colour shift instead */
 .dh h1{ margin:0; font-size:clamp(1.7rem,4vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1 }
@@ -441,9 +437,17 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .refs{ display:flex; flex-direction:column; gap:var(--s1); font-size:var(--t1) }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--c) }
-.dexp{ display:contents }   /* its lut/icc download rows flow as ordinary property rows in the features column */
-.dexp .dlnk{ font:inherit; color:var(--ink); background:none; border:0; padding:0; cursor:pointer; box-shadow:inset 0 -1px 0 var(--hair) }
-.dexp .dlnk:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+/* the technical downloads — .cube, .icc, the source file — icon buttons riding
+   under the gamut/transfer plates, full-width row of the plates grid */
+.dlbar{ grid-column:1/-1; display:flex; flex-wrap:wrap; justify-content:center; gap:var(--s2) }
+.dlbtn{ display:inline-flex; align-items:center; gap:.45em; font:inherit; font-size:var(--t1); font-weight:700; color:var(--body); background:var(--lift); border:1px solid var(--hair); padding:var(--s1) var(--s3); cursor:pointer; text-decoration:none }
+.dlbtn:hover{ color:var(--ink); border-color:var(--c) }
+.dlbtn .fl{ display:inline-flex; flex:none; width:14px; height:14px; overflow:hidden }
+.dlbtn .fl svg{ display:block; width:14px; height:14px }
+/* the css snippet: values select whole on click; the .icc mention IS the download */
+#snip .cval{ cursor:pointer; box-shadow:inset 0 -1px 0 oklch(0.97 0.005 245/.25) }
+#snip .cval:hover{ box-shadow:inset 0 -1px 0 var(--c) }
+#snip a,#snip .icclnk{ color:inherit; cursor:pointer; text-decoration:underline }
 .dfoot{ margin:var(--s6) 0 var(--s2); font-size:var(--t1); color:var(--soft) } .dfoot a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--soft) }
 /* ── API snippet (in the intro's right column) ── */
 pre{ font-family:var(--font-mono); font-size:var(--t2); line-height:1.7; background:var(--color-terminal-paper); color:var(--color-terminal-ink); padding:var(--s4) var(--s6); overflow-x:auto; scrollbar-width:thin; scrollbar-color:transparent transparent }
@@ -501,7 +505,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 @keyframes fcaret{ 0%,100%{ border-right-color:#9a9a9a } 55%{ border-right-color:transparent } }
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
 @media(prefers-reduced-motion:reduce){ .fnpm.typing .cmd{ animation:none } }
-@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper); padding-block:0 } .mnav{ top:auto; bottom:.8rem; transform:none; padding:var(--s3); color:var(--ink); background:var(--paper); border:1px solid var(--hair) } .mnav svg{ opacity:1 } .mnav.prev{ left:.8rem; right:auto } .mnav.next{ right:.8rem; left:auto } .mnav .mn{ display:none } }
+@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper); padding-block:0 } }
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
@@ -1041,7 +1045,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 		</ul>
 	</div>
 	<div class="tabs" id="apitabs">
-		<div class="tabrow" role="tablist" aria-label="API runtime examples"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>core</button><button id="api-tab-meta" role="tab" aria-selected="false" aria-controls="api-panel-meta" data-p="meta" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg></span>meta</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>wasm</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>gl</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>lut</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>icc</button></div>
+		<div class="tabrow" role="tablist" aria-label="API runtime examples"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>JS</button><button id="api-tab-css" role="tab" aria-selected="false" aria-controls="api-panel-css" data-p="css" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg></span>css</button><button id="api-tab-meta" role="tab" aria-selected="false" aria-controls="api-panel-meta" data-p="meta" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg></span>meta</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>wasm</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>gl</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>lut</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>icc</button></div>
 		<pre id="api-panel-core" role="tabpanel" aria-labelledby="api-tab-core" data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
@@ -1053,6 +1057,13 @@ space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
 <i>// one space only — tree-shaken, 0.4-1.5 kB</i>
 <b>import</b> oklch <b>from</b> 'color-space/oklch.js'
 oklch.rgb(0.65, 0.25, 180)</pre>
+		<pre id="api-panel-css" role="tabpanel" aria-labelledby="api-tab-css" data-p="css" hidden><i>// values in the notations CSS already speaks — straight from the library</i>
+color: oklch(0.732 0.186 53);            <i>// space.rgb.oklch(255, 128, 0)</i>
+color: color(display-p3 0.936 0.529 0.199);  <i>// space.rgb.p3(255, 128, 0)</i>
+color: color(xyz-d65 0.49 0.367 0.045);      <i>// space.rgb.xyz(…) / 100 — exact interchange</i>
+
+<i>// spaces CSS lacks ship as ICC profiles or LUTs — see those tabs;
+// every dossier's css tab writes the current color in copyable forms</i></pre>
 		<pre id="api-panel-meta" role="tabpanel" aria-labelledby="api-tab-meta" data-p="meta" hidden><i>// per-space metadata — sourced, ships as data.json</i>
 <b>import</b> data <b>from</b> 'color-space/data.json' with { type: 'json' }
 
@@ -1101,9 +1112,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 
 <div id="toast" role="status" aria-live="polite">Copied</div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
-	<button class="mnav prev" id="mprev" title="previous space" aria-label="previous color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button>
-	<button class="mnav next" id="mnext" title="next space" aria-label="next color space"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button>
-	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
+	<div class="mbox"><button class="mnav prev" id="mprev" title="previous space" aria-label="previous color space"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="M15 18l-6-6 6-6"/></svg><span class="mn" id="mprevn"></span></button><button class="mnav next" id="mnext" title="next space" aria-label="next color space"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="M9 6l6 6-6 6"/></svg><span class="mn" id="mnextn"></span></button><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, pathToRgb, mixInSpace, rotateHue } from './js/core.js'
@@ -1570,6 +1579,8 @@ function openModal(s){
 	const k=ORDER.indexOf(s), n=ORDER.length
 	document.getElementById('mprevn').textContent=navLabel(ORDER[(k-1+n)%n])
 	document.getElementById('mnextn').textContent=navLabel(ORDER[(k+1)%n])
+	document.getElementById('mprev').title=`previous — ${navLabel(ORDER[(k-1+n)%n])}`
+	document.getElementById('mnext').title=`next — ${navLabel(ORDER[(k+1)%n])}`
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
@@ -1721,6 +1732,16 @@ function clusterize(){
 const VERIFIED=new Set(['lrgb','p3','p3-linear','rec2020','rec2020-linear','a98rgb','a98rgb-linear','prophoto','prophoto-linear','xyz','xyz-d50','lab','lab-d65','lchab','luv','lchuv','oklab','oklch','hsl','hsv','hwb','jzazbz','jzczhz','ictcp','acescg','acescc','cam16','rec2100-pq','rec2100-hlg'])
 // minimal syntax highlighting: comments, strings, keywords, numbers
 const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+// the format icons the main page's API tabs wear — shared by the dossier's code
+// tabs and its download buttons, one drawing per format
+const FL=svg=>`<span class="fl">${svg}</span>`
+const FLJS=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg>')
+const FLWASM=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg>')
+const FLGL=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl2" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl2)"/></svg>')
+const FLCSS=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg>')
+const FLMETA=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg>')
+const FLLUT=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg>')
+const FLICC=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg>')
 const hilite=code=>code.split('\n').map(line=>{
 	const ci=line.indexOf('//'); let src=ci<0?line:line.slice(0,ci), com=ci<0?'':line.slice(ci)
 	src=esc(src).replace(/'[^']*'/g,m=>`\x01${m}\x02`)
@@ -2697,8 +2718,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const percept=!!tcurve&&tcurve.ylab!=='code'&&!/^(gamma|linear|chromaticity)$/.test(m.encoding||'')
 		&&(tcurve.pts[26]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3   // 26/144 ≈ 18% grey
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
-	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
-	const platesHTML=hasGamutGL(s)||tcurve?`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`:''
+	const gamTip=g=>g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; the fullest real shape, plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`
+	const segsHTML=`<select id="qseg" aria-label="quantization" title="${QTIP[qKey(Q)]}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
+	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gamTip(GM)}">${[...GAMS,'vis'].map(g=>`<option value="${g}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
+	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
+	const solidHTML=has3d?`<div class="vgrp">${dctlHTML}<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
+	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}<div class="dlbar" id="dexp"></div></div>`
 	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}</h4>
 	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
 	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
@@ -2711,15 +2736,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags" title="display gamuts that contain this color">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}">${GAMLABEL[g]}</span>`).join('')}</span></div>`
 	const plotPairs=pairsFor(s)
-	const gamTip=g=>g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; the fullest real shape, plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`
-	const segsHTML=`<select id="qseg" aria-label="quantization" title="${QTIP[qKey(Q)]}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
-	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gamTip(GM)}">${[...GAMS,'vis'].map(g=>`<option value="${g}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
 	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}</h1></div>
 	 ${HISTORICAL.has(s)?`<div class="dpills"><span class="tag" title="${TAGTIP.historical}">historical</span></div>`:''}
 	 <hr class="dhr">
-	 <div class="dctl">${segsHTML}${gamHTML}</div>
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
 		<div class="dmain">
 		<div class="chead">${bigchHTML}
@@ -2729,7 +2750,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
-		${has3d?solidHTML:platesHTML}
+		${has3d?solidHTML:`<div class="vgrp">${dctlHTML}${platesHTML}</div>`}
 	 </section>
 	 <section class="dhero" id="overview">
 		<div class="dmain"><div class="props props3">
@@ -2746,9 +2767,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
 			${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
 			${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
-				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank">${s}.js</a></p></div>
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="the independent reference values every conversion is pinned to, at 1/255 tolerance">reference values</a></p></div>`:''}
-				<div class="dexp" id="dexp"></div>
 		</div>
 	 </div>
 	 <div class="dgrid2 dstack">
@@ -2764,7 +2783,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 ${hasPlaneGL(s)?`<h4 class="sec2" id="image">image</h4>
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
-	 <h4 class="sec2" id="code"><span class="seg" id="cseg"><button data-t="js" class="on">js</button>${wasmSpaces.includes(s)?`<button data-t="wasm">wasm</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">shader</button>`:''}<button data-t="css">css</button></span></h4>
+	 <h4 class="sec2" id="code"><span class="tabrow" id="cseg" role="tablist" aria-label="code backends"><button data-t="js" class="on">${FLJS}js</button>${wasmSpaces.includes(s)?`<button data-t="wasm">${FLWASM}wasm</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">${FLGL}shader</button>`:''}<button data-t="css">${FLCSS}css</button><button data-t="meta">${FLMETA}meta</button></span></h4>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>`
 		modal.scrollTop=0
 	// glossary terms in the prose grow a soft ? — first occurrence per paragraph
@@ -2826,15 +2845,17 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
-	// exports: a quick .cube (this space → a sensible display target) and .icc, right in the features
+	// exports under the technical plots: .cube (this space → a sensible display
+	// target), .icc, and the source file — icon download buttons, no labels
 	const dexp=detail.querySelector('#dexp')
 	if(dexp){
 		const tgt=meta[s]?.referred==='scene'&&s!=='rec709'?'rec709':s==='rgb'?'p3':'rgb'
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
 		let iccBytes=null; try{ iccBytes=iccProfile(space[s]) }catch{}
 		const lutOK=LUTOK.has(s)&&tgt!==s
-		dexp.innerHTML=(lutOK?`<div><i>lut</i><p><button class="dlnk" id="dlut" title="a .cube LUT of ${s} → ${tgt} — drop it into Resolve, Premiere, Final Cut, OBS or ffmpeg">${s} → ${tgt} .cube</button></p></div>`:'')
-			+(iccBytes?`<div><i>icc</i><p><button class="dlnk" id="dicc" title="an ICC v2 display profile — Photoshop, macOS/Windows colour management">${s}.icc</button></p></div>`:'')
+		dexp.innerHTML=(lutOK?`<button class="dlbtn" id="dlut" title="a .cube LUT of ${s} → ${tgt} — drop it into Resolve, Premiere, Final Cut, OBS or ffmpeg">${FLLUT}${s}-to-${tgt}.cube</button>`:'')
+			+(iccBytes?`<button class="dlbtn" id="dicc" title="an ICC v2 display profile — Photoshop, macOS/Windows colour management">${FLICC}${s}.icc</button>`:'')
+			+`<a class="dlbtn" href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">${FLJS}${s}.js</a>`
 		dexp.querySelector('#dlut')?.addEventListener('click',()=>{ try{ const one=lutChannelwise(space[s],space[tgt])
 			dl(lutCube(space[s],space[tgt],one?{}:{size:33}),`${s}-to-${tgt}${one?'':'-33'}.cube`,'text/plain'); toast('LUT saved') }catch{ toast('No LUT for this pair') } })
 		dexp.querySelector('#dicc')?.addEventListener('click',()=>{ dl(iccBytes,`${s}.icc`,'application/vnd.iccprofile'); toast('ICC saved') })
@@ -3278,18 +3299,31 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	const snip=detail.querySelector('#snip')
 	if(snip){ if(codeTab==='css'){
 			// the honest CSS story: native serialization when the spec has one, else the
-			// same color in the forms CSS can write
+			// same color in the forms CSS can write. Values select whole on click;
+			// the .icc mention IS the download.
 			const g0=gamuts()
 			let okv=null, xyzv=null
 			try{ okv=s==='oklch'?shown:space[s].oklch(...shown) }catch{}
 			try{ xyzv=s==='xyz'?shown:space[s].xyz(...shown) }catch{}
+			const V=t=>`\x03${t}\x04`
 			snip.innerHTML=hilite(
-				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${fmt(s,shown)};\n`
+				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${V(fmt(s,shown))};\n`
 					:`/* CSS cannot name ${s} directly — the same color, in forms it can: */\n`)+
-				(xyzv&&s!=='xyz'?`color: ${fmt('xyz',xyzv)};   /* exact */\n`:'')+
-				(okv&&s!=='oklch'?`color: ${fmt('oklch',okv)};   /* perceptual form, wide-gamut safe */\n`:'')+
-				`color: ${hx};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`+
-				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('${s}.icc'); }\ncolor: color(--${s} ${shown.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`)) }
+				(xyzv&&s!=='xyz'?`color: ${V(fmt('xyz',xyzv))};   /* exact */\n`:'')+
+				(okv&&s!=='oklch'?`color: ${V(fmt('oklch',okv))};   /* perceptual form, wide-gamut safe */\n`:'')+
+				`color: ${V(hx)};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`+
+				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${shown.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
+				.replace(/\x03/g,'<span class="cval" title="click selects the value">').replace(/\x04/g,'</span>')
+				.replace(/\x05/g,'<span class="icclnk" role="link" tabindex="0" title="download the ICC profile">').replace(/\x06/g,'</span>')
+			snip.onclick=e=>{ const v=e.target.closest('.cval')
+				if(v){ const r2=document.createRange(); r2.selectNodeContents(v)
+					const sl=getSelection(); sl.removeAllRanges(); sl.addRange(r2); return }
+				if(e.target.closest('.icclnk')){
+					const di=detail.querySelector('#dicc'); di?di.click():toast('No ICC for this space') } } }
+		else if(codeTab==='meta'){
+			// the space's own data.json entry — provenance, ranges, refs, as shipped
+			snip.innerHTML=hilite(`import data from 'color-space/data.json' with { type: 'json' }\n\n`+
+				`data.spaces${prop(s)} = `+JSON.stringify(meta[s]||{},null,2)) }
 		else if(codeTab==='wasm'){
 			const tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 			const cp=s==='rgb'?'.oklch':'.rgb', bk=s==='rgb'?'.rgb.oklch':`.rgb${prop(s)}`   // rgb pairs with oklch — never itself
