@@ -250,7 +250,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
    anywhere on it lifts chevron and name together. */
 /* prev/next belong to the modal's own navigation: small chevrons in the header
    row, to the left of the close ✕ — the neighbour's name rides the tooltip */
-.mnavs{ margin-left:auto; align-self:last baseline; display:flex; align-items:baseline; gap:var(--s4) }   /* LAST baseline: the h1's last line is the name (the kicker is a block above it), so the nav rides the big title's baseline, not the kicker's */
+.mnavs{ align-self:last baseline; display:flex; align-items:baseline; gap:var(--s4) }   /* LAST baseline: the h1's last line is the name (the kicker is a block above it), so the nav rides the big title's baseline, not the kicker's */
 .mnav{ display:flex; align-items:baseline; gap:.28em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0; font:inherit }
 .mnav svg{ display:block; flex:none; align-self:center; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
 .mnav .mn{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em; text-transform:uppercase; max-width:8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }   /* the neighbour's name, set like a smaller title — shares the h1 baseline */
@@ -271,7 +271,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .dpills{ display:flex; gap:var(--s2); flex-wrap:wrap; margin:var(--s3) 0 var(--s4) }
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
-.dhero{ display:grid; grid-template-columns:minmax(0,1fr) minmax(15rem,19rem); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
+.dhero{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .modal.barred .dhero{ grid-template-columns:1fr }   /* no graphics column to reserve — text takes the whole width */
 .dmain{ min-width:0 }
 .dmain .props.props3{ margin:0 0 var(--s6) }   /* one rhythm: --s6 through features, description, used-for alike */
@@ -283,7 +283,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* hub spaces unfold their long children list on demand */
 .dhero .dviz2{ margin:0; display:flex; flex-direction:column; gap:var(--s6); align-items:center }   /* same vertical rhythm as the property rows */
 /* each plot group is centred and exactly as wide as its plot (names live in the tooltips) */
-.vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center; width:100% }
+.vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center; width:100%; }
 .vgrp:has(.pl3d){ max-width:17rem }
 .vgrp:has(.gam2d),.vgrp:has(.tcvw){ max-width:var(--pick) }
 .dhero .dviz2 .pl3d{ width:100%; max-width:17rem }
@@ -318,7 +318,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
-.dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(15rem,19rem); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
+.dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .dpick.nod3 .dviz2{ grid-template-columns:1fr; margin:0 }
@@ -386,12 +386,18 @@ h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; co
 /* current-colour floater — always on top, even over the modal */
 h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); cursor:pointer }
-.irow{ position:relative; height:3rem }
-.irow::after{ content:''; position:absolute; right:0; top:0; bottom:0; width:20%; cursor:pointer }   /* the endpoint zone — click opens the picker */
-.irow .hp{ position:absolute; left:.7rem; top:.5rem; font-size:var(--t0); font-weight:700; cursor:pointer; z-index:2 }
-.iduel{ display:flex; flex-direction:column; gap:var(--s2); margin-top:var(--s2) }   /* same breathing room as plots and images */
-.ird{ position:relative; height:1.5rem }
-.ird i{ position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* inked dark/white per the row's left color */
+/* the interpolate heading is interactive: the word rotates the comparison space, the
+   rhombus picks the blend's endpoint — same title-control idiom as the swap arrow */
+.sec2 .icyc{ font:inherit; color:inherit; letter-spacing:inherit; text-transform:inherit; border:0; background:none; padding:0; cursor:pointer }
+.sec2 .icyc:hover,.sec2 .icyc:focus-visible{ color:var(--ink); outline:none }
+.sec2 .ipick{ margin-left:.28em; border:0; background:none; padding:0; cursor:pointer; display:inline-flex; align-items:center }   /* the extra nudge evens the title→⇄ and ⇄→◆ gaps (the arrow glyph's side bearing eats the flex gap) */
+.sec2 .ipick .dia{ width:12px; height:12px; transform:rotate(45deg); background:var(--panel); transition:transform var(--dur-micro) var(--ease-out) }   /* a filled swatch of the endpoint colour — no outline */
+.sec2 .ipick:hover .dia,.sec2 .ipick:focus-visible .dia{ transform:rotate(45deg) scale(1.18) }
+/* the two blend bands butt together, same height — one block: this space over the comparison */
+.istack{ display:flex; flex-direction:column }
+.irow{ position:relative; height:2.6rem }
+.icmp{ box-shadow:inset 0 1px 0 var(--paper) }   /* a hair seam between the two bands, no gap */
+.isp{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* the band's space, inked dark/white per its left colour */
 .srcline{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .srcline a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
@@ -407,7 +413,7 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .lutrow .cpy[disabled]{ opacity:.4; cursor:not-allowed }
 .lutstat{ font-size:var(--t1); color:var(--soft); cursor:help }
 .snip{ margin-top:var(--s1) }
-.pinb{ position:absolute; right:.5rem; top:50%; width:1px; height:1px; opacity:0; border:0; padding:0 }   /* native picker anchor */
+.pinb{ position:absolute; width:1px; height:1px; opacity:0; border:0; padding:0; pointer-events:none }   /* native picker anchor — opened by the rhombus */
 /* notations live as the first feature rows under the title — same anatomy as the
    sibling props rows, plus copy affordance and a lead emphasis on the space's own form */
 .snipwrap{ position:relative }
@@ -1264,11 +1270,10 @@ const pairsFor=s2=>{ const c2=classify(s2), ai=hueIdx(c2)
 // any hue pair can render as a DISC — the space's own polar geometry (hue around,
 // the paired channel out, matching the solid's top view). hwb-family radii are
 // composites (1−W−B), not a channel — those stay square.
-const polarPl=(c2,a,b)=>{ const ai=hueIdx(c2)
-	if(ai<0||a!==ai||c2.ch.length!==3) return false
-	// the White&Black family (hwb, okhwb, ostwald) has no single radial channel —
-	// its chroma is a composite (1−W−B), so those hue planes stay square
-	return !(c2.ch.some(c=>/White/i.test(c.name||''))&&c2.ch.some(c=>/Black/i.test(c.name||''))) }
+// any hue plane can offer the disc — the space's own polar geometry (hue around, the
+// paired channel out). The White&Black family (hwb, okhwb, ostwald) joins in: the
+// solid already renders them as cones, so a tint/shade wheel is the honest 2D echo.
+const polarPl=(c2,a,b)=>{ const ai=hueIdx(c2); return ai>=0&&a===ai&&c2.ch.length===3 }
 // per-plane axis DIRECTIONS, matched to the solid's default view (rot −0.6/0.42): model
 // x (others[0]) points right, tone up, model z (others[1]) toward the viewer — so an axis
 // sweeping z runs leftward when horizontal, downward when vertical, and the planes read
@@ -1702,6 +1707,11 @@ const inG=v=>v.every(x=>x>=-0.002&&x<=1.002)
 function gamuts(){ try{ const X=master.s==='xyz'?master.vals:space[master.s].xyz(...master.vals)
 	return { srgb:inG(space.xyz.lrgb(...X)), p3:inG(space.xyz['p3-linear'](...X)), rec2020:inG(space.xyz['rec2020-linear'](...X)) } }catch{ return null } }
 let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto complement
+// the comparison band cycles through the spaces whose blends teach the most: the
+// perceptual gold standard, physical light-mixing, CIE perceptual, hue-constant
+// polar, naive gamma sRGB, and a cylindrical model's hue detour. Current space excluded.
+const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
+let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
 // ONE global clustering mode for sliders AND planes — remembered across sessions
 const QMODES=[null,10,20,'web','names','percept']
 const QSEG=[[null,'smooth'],[10,'10-step'],[20,'20-step'],['web','safe'],['names','name'],['percept','even']]
@@ -2745,9 +2755,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
 	const solidHTML=has3d?`<div class="vgrp">${dctlHTML}<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
-	const interpHTML=`<h4 class="sec2" id="compare">interpolate ${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}</h4>
-	 <div class="irow" id="irow" title="blend from the current color — click the right end to change the endpoint"><input type="color" class="pinb" id="pinb" tabindex="-1"></div>
-	 <div class="iduel" id="iduel" title="the same two endpoints through the reference spaces">${s!=='oklab'?`<div class="ird" data-r="oklab"><i>oklab</i></div>`:''}${s!=='lrgb'?`<div class="ird" data-r="lrgb"><i>lrgb</i></div>`:''}</div>`
+	const interpHTML=`<h4 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate</button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint"><span class="dia" id="idia"></span></button><input type="color" class="pinb" id="pinb" tabindex="-1"></h4>
+	 <div class="istack">
+		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
+		<div class="irow icmp" id="icmp" title="the same two endpoints through another space — click “interpolate” to change it"><span class="isp" id="ispc"></span></div>
+	 </div>`
 	// the bar carries only the sweep and the symbol — the 3D frame's own labels;
 	// the full name lives in the title and the big inputs row
 	const barHTML=i=>{ const c=cls.ch[i]
@@ -2864,10 +2876,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM; gs.title=gamTip(GM)   // radio: one gamut always selected — the solid always shows SOME shape
 		wire3d(); renderFast(); paintPlanes(false) }
-	const irow=detail.querySelector('#irow'), pinb=detail.querySelector('#pinb')
-	if(irow) irow.onclick=e=>{ const r=irow.getBoundingClientRect()
-		if((e.clientX-r.left)/r.width>0.8&&!e.target.closest('.hp')) pinb.click() }
+	const pinb=detail.querySelector('#pinb'), ipick=detail.querySelector('#ipick')
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
+	if(ipick&&pinb) ipick.onclick=()=>pinb.click()   // the rhombus opens the native endpoint picker
+	const icyc=detail.querySelector('#icyc')   // the heading word cycles the comparison space, like the image source
+	if(icyc) icyc.onclick=()=>{ const list=ICMP.filter(k=>k!==s); if(list.length){ cmpIdx=(cmpIdx+1)%list.length; renderFast() } }
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
 	codeTab='js'
@@ -3333,6 +3346,8 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	const r=detail.querySelector('#irow')
 	if(B&&r){ const rgbB=endB||rgbF(s,B)
 		const pin=detail.querySelector('#pinb'); if(pin&&document.activeElement!==pin) pin.value=hex(rgbB)
+		const dia=detail.querySelector('#idia'); if(dia) dia.style.background=hex(rgbB)   // the rhombus wears the endpoint colour
+		const sp0=detail.querySelector('#isp0'); if(sp0){ sp0.textContent=s; sp0.style.color=ink(rgb) }
 		const mixAt=t=>rgbF(s,mixInSpace(s,vals,B,t,huePath))
 		const qf=qTriple(Q); let css
 		if(typeof Q==='number'){ const stops=[]
@@ -3345,13 +3360,14 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			for(let k=0;k<=14;k++) stops.push(hex(mixAt(k/14)))
 			css=`linear-gradient(90deg, ${stops.join(',')})` }
 		r.style.background=css
-		// the duel: the SAME endpoints through the reference spaces
-		const duel=detail.querySelector('#iduel')
-		if(duel) for(const row of duel.querySelectorAll('.ird')){ const kind=row.dataset.r, lb=row.querySelector('i')
-			try{ const a3=toSpace(kind,rgb), b3=toSpace(kind,rgbB), st=[]
-				for(let k=0;k<=14;k++) st.push(hex(rgbF(kind,mixInSpace(kind,a3,b3,k/14))))
-				row.style.background=`linear-gradient(90deg, ${st.join(',')})`
-				if(lb) lb.style.color=ink(rgb) }catch{} } } }
+		// the comparison band: the SAME two endpoints through the cycled space, so the
+		// blend paths sit one above the other (this space over the comparison)
+		const icmp=detail.querySelector('#icmp'), ispc=detail.querySelector('#ispc')
+		const list=ICMP.filter(k=>k!==s), cmp=list.length?list[cmpIdx%list.length]:null
+		if(icmp&&cmp){ try{ const a3=toSpace(cmp,rgb), b3=toSpace(cmp,rgbB), st=[]
+			for(let k=0;k<=14;k++) st.push(hex(rgbF(cmp,mixInSpace(cmp,a3,b3,k/14))))
+			icmp.style.background=`linear-gradient(90deg, ${st.join(',')})`
+			if(ispc){ ispc.textContent=cmp; ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet — js tab carries the current values; wasm/shader show the other
 	// backends; lut/icc swap the code plate for the live exporter panel
 	const snip=detail.querySelector('#snip')
