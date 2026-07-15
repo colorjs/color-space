@@ -4,9 +4,12 @@
 // ProPhoto matrices (the values the classic sRGB/ROMM .icc profiles carry), the
 // TRC against the IEC 61966-2-1 formula, the PCS illuminant against the ICC
 // spec's exact fixed-point D50 — and the structure by parsing the bytes back.
+// CLUT profiles are verified differentially: the parsed mft2 lattice, applied the
+// way a CMM applies it (trilinear), must reproduce the direct conversion routed
+// through Lindbloom's D65→D50 Bradford and the CIE L*a*b* formula.
 import test, { is } from 'tst'
 import space from '../index.js'
-import { profile, colorants } from '../icc.js'
+import { profile, colorants, clut, kind } from '../icc.js'
 
 // minimal ICC reader — headers + tag table + the tag types we emit
 function parse(u8) {
@@ -26,11 +29,46 @@ function parse(u8) {
 		else if (type === 'curv') { const c = v.getUint32(off + 8); val = Array.from({ length: c }, (_, k) => v.getUint16(off + 12 + 2 * k) / 65535) }
 		else if (type === 'desc') { const c = v.getUint32(off + 8); val = new TextDecoder().decode(u8.subarray(off + 12, off + 12 + c - 1)) }
 		else if (type === 'text') val = new TextDecoder().decode(u8.subarray(off + 8, off + size - 1))
+		else if (type === 'mft2') {
+			const nin = v.getUint8(off + 8), nout = v.getUint8(off + 9), g = v.getUint8(off + 10)
+			const nit = v.getUint16(off + 48), start = off + 52 + 2 * nit * nin
+			const clut2 = new Float64Array(g ** nin * nout)
+			for (let k = 0; k < clut2.length; k++) clut2[k] = v.getUint16(start + 2 * k)
+			val = { nin, nout, g, clut: clut2 }
+		}
 		out.tags[sig] = { type, size, val }
 	}
 	return out
 }
 const near = (got, exp, tol, msg) => is(Math.abs(got - exp) <= tol, true, `${msg}: ${got} ≈ ${exp} (±${tol})`)
+// apply an mft2 lattice the way a CMM does — multilinear over the grid, first
+// input channel varying slowest (the ICC CLUT order)
+const applyLUT = ({ nin, g, clut: c }, f) => {
+	const i = [], fr = []
+	for (let ch = 0; ch < nin; ch++) {
+		const x = Math.min(0.999999, Math.max(0, f[ch])) * (g - 1), i0 = Math.min(g - 2, Math.floor(x))
+		i.push(i0); fr.push(x - i0)
+	}
+	const out = [0, 0, 0]
+	for (let m = 0; m < (1 << nin); m++) {
+		let w = 1, idx = 0
+		for (let ch = 0; ch < nin; ch++) { const b = (m >> ch) & 1; w *= b ? fr[ch] : 1 - fr[ch]; idx = idx * g + (i[ch] + b) }
+		for (let o = 0; o < 3; o++) out[o] += w * c[idx * 3 + o]
+	}
+	return out
+}
+// the independent PCS route: device → xyz (the library) → Lindbloom's D65→D50
+// Bradford → CIE L*a*b* — http://www.brucelindbloom.com/Eqn_ChromAdapt.html
+const BFD = [1.0478112, 0.0228866, -0.0501270, 0.0295424, 0.9904844, -0.0170491, -0.0092345, 0.0150436, 0.7521316]
+const D50W = [0.96420288, 1, 0.82490540]
+const fCIE = (t) => (t > 216 / 24389 ? Math.cbrt(t) : (t * 24389 / 27 + 16) / 116)
+const labOf = (s, v) => {
+	const w = s.xyz(...v).map((x) => x / 100)
+	const [X, Y, Z] = [0, 1, 2].map((r) => BFD[r * 3] * w[0] + BFD[r * 3 + 1] * w[1] + BFD[r * 3 + 2] * w[2])
+	const fx = fCIE(X / D50W[0]), fy = fCIE(Y / D50W[1]), fz = fCIE(Z / D50W[2])
+	return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]
+}
+const rnd = (s) => () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296 }
 
 test('icc: sRGB profile — header, D50 PCS, Lindbloom colorants, IEC TRC', () => {
 	const p = parse(profile(space.rgb))
@@ -71,13 +109,78 @@ test('icc: prophoto — ROMM D50 colorants; linear spaces — identity curve', (
 	near(dci.tags.rTRC.val[512], (512 / 1023) ** 2.6, 2e-3, 'DCI TRC = gamma 2.6')
 })
 
-test('icc: refuses spaces a matrix/TRC profile would lie about', () => {
+test('icc: the matrix gate refuses spaces a matrix/TRC profile would lie about', () => {
 	const throws = (fn, re, msg) => { let e = null; try { fn() } catch (err) { e = err } is(re.test(e?.message || ''), true, `${msg} (got: ${e?.message})`) }
-	throws(() => profile(space.oklab), /0-based bounded/, 'oklab — signed domain')
-	throws(() => profile(space.cmyk), /3-channel/, 'cmyk — four channels')
-	throws(() => profile(space.yuv), /0-based bounded/, 'yuv — signed chroma')
-	throws(() => profile(space.hsl), /matrix×transfer|not monotone/, 'hsl — not matrix×transfer')
-	throws(() => profile(space.xyy), /matrix×transfer|not monotone/, 'xyy — chromaticity, not additive RGB')
+	throws(() => colorants(space.oklab), /0-based bounded/, 'oklab — signed domain')
+	throws(() => colorants(space.cmyk), /3-channel/, 'cmyk — four channels')
+	throws(() => colorants(space.yuv), /0-based bounded/, 'yuv — signed chroma')
+	throws(() => colorants(space.hsl), /matrix×transfer|not monotone/, 'hsl — not matrix×transfer')
+	throws(() => colorants(space.xyy), /matrix×transfer|not monotone/, 'xyy — chromaticity, not additive RGB')
+})
+
+test('icc: CLUT — non-matrix spaces ship as mft2 profiles, classed by their inverse', () => {
+	// a hue wheel: forward table only — a lattice cannot interpolate a device hue
+	// across the 360→0 seam, so no reverse table rather than a wrong one
+	const p = parse(profile(space.hsl, { xyz: space.xyz }))
+	is([p.class, p.space, p.pcs], ['scnr', 'HLS ', 'Lab '], 'hsl: input class, ICC HLS signature, Lab PCS')
+	is(p.tags.A2B0.val.nin, 3, 'hsl: device→PCS lattice, 3 inputs')
+	is('B2A0' in p.tags, false, 'hsl: no reverse table — the hue seam')
+	is(kind(space.hsl, { xyz: space.xyz }), 'scnr', 'kind agrees: input profile')
+	// a continuous inverse: both tables, colour-space conversion class
+	const q = parse(profile(space.oklab, { xyz: space.xyz }))
+	is([q.class, q.space, q.pcs], ['spac', '3CLR', 'Lab '], 'oklab: colour-space class, N-colour signature')
+	is(!!q.tags.A2B0.val && !!q.tags.B2A0.val, true, 'oklab: A2B and B2A lattices present')
+	is(kind(space.oklab, { xyz: space.xyz }), 'spac', 'kind agrees: colour-space conversion')
+	// the measured dataset the matrix gate refuses; its hue wraps 100→0 like a wheel
+	is(kind(space.munsell, { xyz: space.xyz }), 'scnr', 'munsell: CLUT input profile')
+	// 1- and 4-channel scales ride the same mechanism
+	const k = parse(profile(space.kelvin))
+	is([k.class, k.space, k.tags.A2B0.val.nin], ['scnr', 'GRAY', 1], 'kelvin: 1-channel GRAY lattice')
+	const c = parse(profile(space.cmyk))
+	is([c.class, c.space, c.tags.A2B0.val.nin], ['scnr', 'CMYK', 4], 'cmyk: 4-channel CMYK lattice')
+	is(kind(space.rgb), 'mntr', 'true RGB stays a matrix display profile')
+})
+
+test('icc: CLUT lattice ≈ the direct conversion — differential, in Lab ΔE', () => {
+	// trilinear over the parsed bytes (what a CMM computes) vs the direct route
+	// through Lindbloom's Bradford; samples limited to the Lab16-encodable box,
+	// where the encoding is not saturating by design
+	const dE = (s, n = 300) => {
+		const t = parse(profile(space[s], { xyz: space.xyz })).tags.A2B0.val
+		const r = space[s].range, R = rnd(0xdecade), es = []
+		for (let k2 = 0; k2 < n * 10 && es.length < n; k2++) {
+			const f = r.map(() => R())
+			let want
+			try { want = labOf(space[s], f.map((x, c) => r[c][0] + x * (r[c][1] - r[c][0]))) } catch { continue }
+			if (!want.every(isFinite) || want[0] < 0 || want[0] > 100 || Math.abs(want[1]) > 127 || Math.abs(want[2]) > 127) continue
+			const g = applyLUT(t, f), got = [g[0] / 652.8, g[1] / 256 - 128, g[2] / 256 - 128]
+			es.push(Math.hypot(want[0] - got[0], want[1] - got[1], want[2] - got[2]))
+		}
+		es.sort((a, b) => a - b)
+		return { med: es[es.length >> 1], p95: es[Math.floor(es.length * 0.95)], max: es[es.length - 1] }
+	}
+	const lab = dE('lab')
+	is(lab.max < 0.5, true, `lab: near-identity lattice (max ΔE ${lab.max.toFixed(3)} < 0.5)`)
+	const hsl = dE('hsl')
+	is(hsl.med < 0.2 && hsl.p95 < 2, true, `hsl: med ΔE ${hsl.med.toFixed(3)} < 0.2, p95 ${hsl.p95.toFixed(2)} < 2`)
+	const mun = dE('munsell')
+	is(mun.med < 1.5 && mun.p95 < 8, true, `munsell: med ΔE ${mun.med.toFixed(3)} < 1.5, p95 ${mun.p95.toFixed(2)} < 8 (renotation lattice)`)
+	const okl = dE('oklch')
+	is(okl.med < 1 && okl.p95 < 4, true, `oklch: med ΔE ${okl.med.toFixed(3)} < 1, p95 ${okl.p95.toFixed(2)} < 4`)
+	// B2A roundtrip: PCS Lab of a device colour, read back through the reverse lattice
+	const t2 = parse(profile(space.oklab, { xyz: space.xyz })).tags.B2A0.val
+	const r2 = space.oklab.range, R2 = rnd(0x0b2a), ds = []
+	for (let k2 = 0; k2 < 2000 && ds.length < 600; k2++) {
+		const f = r2.map(() => R2())
+		let L
+		try { L = labOf(space.oklab, f.map((x, c) => r2[c][0] + x * (r2[c][1] - r2[c][0]))) } catch { continue }
+		const pf = [L[0] * 652.8 / 65535, (L[1] + 128) * 256 / 65535, (L[2] + 128) * 256 / 65535]
+		if (pf.some((x) => x < 0 || x > 1)) continue
+		const dv = applyLUT(t2, pf)
+		for (let c = 0; c < 3; c++) ds.push(Math.abs(dv[c] / 65535 - f[c]))
+	}
+	ds.sort((a, b) => a - b)
+	is(ds[ds.length >> 1] < 0.01, true, `oklab B2A: device roundtrip median ${ds[ds.length >> 1].toFixed(4)} < 1% of range`)
 })
 
 test('icc: deterministic bytes; every RGB working space with a gamut builds', async () => {

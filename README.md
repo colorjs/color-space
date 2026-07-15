@@ -36,7 +36,7 @@ oklch.rgb(0.65, 0.25, 180);          // args match CSS oklch(0.65 0.25 180)
 | `color-space/wasm` | lite set prebuilt WASM |
 | `color-space/gl` | GLSL/WGSL shader |
 | `color-space/lut` | `.cube` LUT exporter (Resolve, ffmpeg, …) |
-| `color-space/icc` | ICC display-profile exporter |
+| `color-space/icc` | ICC profile exporter — matrix+TRC or CLUT |
 | `color-space/data.json` | metadata, graph edges, gamuts, whitepoints, CMFs, conformance |
 | `color-space/gamuts.js` · `/whitepoints.js` | primary chromaticities · CIE illuminant tables |
 | `color-space/hub.js` | the wiring |
@@ -112,22 +112,24 @@ Every file states its own accuracy — the header carries the measured deviation
 ffmpeg -i in.mov -vf lut3d=slog3-to-rec709.cube out.mov
 ```
 
-The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are unclamped. Degenerate corners throw rather than bake a broken file; hue-axed spaces are curated out (hue doesn't survive lattice interpolation), leaving 117 of 161. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
+The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are unclamped. Degenerate corners throw rather than bake a broken file. Hue-axed spaces (oklch, munsell…) can *source* a LUT — the lattice covers the wrap and the output varies continuously across it — but can't *end* one: an interpolated output hue would cross the 360→0 seam. That leaves 150 of 161 sources. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
 
 `{ shaper: true }` prepends the conversion's own tone curve as a 1D shaper (Resolve and OCIO read the combined cube; ffmpeg's `lut3d` doesn't). A shaped 33³ beats a plain 65³ for camera-log → display at ⅙ the file size, measured.
 
 ## ICC
 
-The color-management analog of the LUT: any matrix×transfer RGB working space as an ICC v2 display profile — Photoshop, macOS/Windows CM, browsers, printers:
+The color-management analog of the LUT: every space as an ICC v2 profile.
 
 ```js
 import { profile } from 'color-space/icc';
 
-profile(space.p3);         // → Uint8Array — a Display P3 .icc
+profile(space.p3);         // → Uint8Array — a Display P3 .icc (matrix + TRC)
 profile(space.prophoto);   // ROMM RGB; linear spaces emit the identity curve
+profile(space.munsell);    // measured dataset → CLUT input profile
+profile(space.lab, { xyz: space.xyz });   // CLUT both ways — colour-space class
 ```
 
-Everything derives from the space's own conversions — colorants from the full-intensity primaries (Bradford-adapted to the D50 PCS), the TRC from the neutral diagonal. A space that isn't empirically matrix×transfer (cylinders, luma/chroma, opponent) throws rather than emit a lying profile. Colorants are pinned to Lindbloom's D50 matrices, the TRC to IEC 61966-2-1, and every profile passes macOS ColorSync in the suite.
+Everything derives from the space's own conversions. RGB working spaces get a matrix+TRC display profile (Photoshop, macOS/Windows CM, browsers, printers) — colorants from the full-intensity primaries, Bradford-adapted to the D50 PCS, TRC from the neutral diagonal — and only if the space empirically *is* matrix×transfer, so a matrix profile never lies. Everything else — cylinders, luma/chroma, opponent, appearance models, datasets, even 1-, 2- and 4-channel scales — ships as a CLUT profile (`mft2`, Lab PCS): device→Lab sampled on a dense lattice, the reverse table added only where the inverse is continuous (a hue wheel's inverse can't ride a lattice across the 360→0 seam — those stay honestly one-way, class `scnr`). Colorants are pinned to Lindbloom's D50 matrices, the TRC to IEC 61966-2-1; matrix profiles pass macOS ColorSync in the suite, CLUT lattices are differentially verified against the direct conversions and read back through lcms.
 
 ## MCP
 

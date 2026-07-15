@@ -49,7 +49,7 @@ Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space; scalar f
 Compact hub: import space from 'color-space/lite' — the 27 wasm-covered spaces in plain JS (~9 kB gzip), same two-form API
 WASM: import space, { alloc } from 'color-space/wasm' — same API, 27 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
-ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes (ICC v2 matrix+TRC display profile), colorants pinned to Lindbloom, ColorSync-verified
+ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
 MCP: npx color-space-mcp — zero-dep stdio server; tools: convert / space / spaces / cube, so agents call verified conversions instead of guessing color math
 Site: https://colorjs.github.io/color-space/
