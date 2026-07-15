@@ -34,10 +34,6 @@ export const LUTOK = new Set(Object.keys(space).filter(s => bounded3(s)
 export const LUTTGT = new Set(Object.keys(space).filter(s => bounded3(s)
 	&& !meta[s].channels.some(c => c.max === 360 || /hue/i.test(c.name))
 	&& (s === 'rgb' || (() => { try { return fin(space.rgb, space[s]) } catch { return false } })())))
-// the display-referred .cube ends the dossier offers — classic delivery targets
-export const lutTargets = s => LUTOK.has(s)
-	? ['rgb', 'p3', 'rec2020', 'rec709'].filter(t => t !== s && (() => { try { return fin(space[s], space[t]) } catch { return false } })())
-	: []
 export const clamp = (v, a, b) => v < a ? a : v > b ? b : v
 export const hex = rgb => '#' + rgb.map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase()
 const D = Math.PI / 180
