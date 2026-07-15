@@ -439,17 +439,14 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .refs{ display:flex; flex-direction:column; gap:var(--s1); font-size:var(--t1) }
 .refs a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); width:max-content; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .refs a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
-/* the technical exports — the .cube and .icc lines under the plates: format icon,
-   the filename with its choices inline, one icon button that IS the download */
+/* the technical exports — the .cube and .icc lines under the plates: a format
+   icon, then plain filename links; clicking one downloads it (the .icclnk idiom) */
 .dl{ grid-column:1/-1; display:flex; flex-direction:column; align-items:center; gap:var(--s2); margin-top:var(--s2) }
-.dl .drow{ display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap; justify-content:center; min-width:0 }
+.dl .drow{ display:flex; align-items:center; gap:var(--s2) var(--s3); flex-wrap:wrap; justify-content:center; min-width:0 }
 .dl .fl{ display:inline-flex; flex:none; width:14px; height:14px; overflow:hidden }
 .dl .fl svg{ display:block; width:14px; height:14px }
-.dl .fname{ font-size:var(--t1); font-weight:700; color:var(--body) }
-.dl select{ font:inherit; font-size:var(--t1); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* same de-chromed select as .dctl, at row scale */
-.dl select:hover,.dl select:focus-visible{ color:var(--ink); outline:none }
-.dlbtn{ display:inline-flex; flex:none; align-items:center; font:inherit; color:var(--soft); background:var(--lift); border:1px solid var(--hair); padding:var(--s1); cursor:pointer }   /* icon-only — the action, apart from the name */
-.dlbtn:hover{ color:var(--ink); border-color:var(--c) }
+.dllnk{ font:inherit; font-size:var(--t1); font-weight:700; color:var(--body); background:none; border:0; padding:0; cursor:pointer; box-shadow:inset 0 -1px 0 var(--hair) }
+.dllnk:hover,.dllnk:focus-visible{ color:var(--ink); box-shadow:inset 0 -1px 0 var(--uline); outline:none }
 /* the css snippet: values select whole on click; the .icc mention IS the download */
 #snip .cval{ cursor:pointer; box-shadow:inset 0 -1px 0 oklch(0.97 0.005 245/.25) }
 #snip .cval:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
@@ -1748,8 +1745,6 @@ const FLCSS=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" hei
 const FLMETA=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg>')
 const FLLUT=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg>')
 const FLICC=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg>')
-// the soft download mark the artifact buttons wear after their label
-const DLI='<svg class="dli" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v10.5M6.8 9.8 12 15l5.2-5.2M4.5 20h15"/></svg>'
 const hilite=code=>code.split('\n').map(line=>{
 	const ci=line.indexOf('//'); let src=ci<0?line:line.slice(0,ci), com=ci<0?'':line.slice(ci)
 	src=esc(src).replace(/'[^']*'/g,m=>`\x01${m}\x02`)
@@ -2854,27 +2849,23 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
-	// exports under the technical plots — the .cube and .icc lines: the filename
-	// carries its choices inline (target, lattice size), the icon button downloads
+	// exports under the technical plots — the .cube and .icc lines: a format icon,
+	// then one plain filename link per artifact; clicking downloads it. Lattice
+	// dimensionality is automatic — a pure per-channel transfer pair emits a
+	// 4096-point 1D, everything else a 33³ 3D
 	const dexp=detail.querySelector('#dexp')
 	if(dexp){
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
-		const tgts=lutTargets(s)
-		const tgt0=(g=>tgts.includes(g)?g:tgts[0])(meta[s]?.referred==='scene'&&s!=='rec709'?'rec709':s==='rgb'?'p3':'rgb')
+		const one=t=>{ try{ return lutChannelwise(space[s],space[t]) }catch{ return false } }
 		let iccK=null; try{ iccK=iccKind(space[s],{xyz:space.xyz}) }catch{}
 		const iccTip=iccK==='mntr'?'an ICC v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management'
 			:iccK==='spac'?'an ICC v2 CLUT colour-space profile, device↔Lab lattices both ways — lcms, ArgyllCMS, ImageMagick'
 			:'an ICC v2 CLUT input profile, device→Lab lattice (one-way — the inverse cannot ride a lattice) — lcms, ArgyllCMS, ImageMagick'
-		dexp.innerHTML=(tgts.length?`<span class="drow">${FLLUT}<span class="fname">${s}-to-<select id="dtgt" aria-label="LUT target space" title="the delivery space the .cube converts to">${tgts.map(t=>`<option value="${t}"${t===tgt0?' selected':''}>${t}</option>`).join('')}</select>.cube</span><select id="dsz" aria-label="lattice size" title="lattice points per channel — Resolve's own export set">${[17,33,65].map(z=>`<option value="${z}"${z===33?' selected':''}>${z}³</option>`).join('')}</select><button class="dlbtn" id="dlut" title="download the .cube — drop it into Resolve, Premiere, Final Cut, OBS or ffmpeg">${DLI}</button></span>`:'')
-			+(iccK?`<span class="drow">${FLICC}<span class="fname">${s}.icc</span><button class="dlbtn" id="dicc" title="${iccTip} — download">${DLI}</button></span>`:'')
-		const tsel=dexp.querySelector('#dtgt'), szsel=dexp.querySelector('#dsz')
-		// a pure per-channel transfer pair auto-emits a 4096-pt 1D — no lattice to size
-		const szSync=()=>{ let one=false; try{ one=lutChannelwise(space[s],space[tsel.value]) }catch{}
-			szsel.style.display=one?'none':''; return one }
-		if(tsel){ szSync(); tsel.onchange=szSync }
-		dexp.querySelector('#dlut')?.addEventListener('click',()=>{ const tgt=tsel.value
-			try{ const one=szSync(), N=+szsel.value
-				dl(lutCube(space[s],space[tgt],one?{}:{size:N}),`${s}-to-${tgt}${one?'':'-'+N}.cube`,'text/plain'); toast('LUT saved') }catch{ toast('No LUT for this pair') } })
+		dexp.innerHTML=(lutTargets(s).length?`<span class="drow">${FLLUT}${lutTargets(s).map(t=>
+			`<button class="dllnk" data-t="${t}" title="a ${one(t)?'4096-point 1D':'33³'} .cube of ${s} → ${t} — Resolve, Premiere, Final Cut, OBS or ffmpeg">${s}-to-${t}.cube</button>`).join('')}</span>`:'')
+			+(iccK?`<span class="drow">${FLICC}<button class="dllnk" id="dicc" title="${iccTip}">${s}.icc</button></span>`:'')
+		dexp.querySelectorAll('.dllnk[data-t]').forEach(b=>b.onclick=()=>{ const t=b.dataset.t
+			try{ dl(lutCube(space[s],space[t],one(t)?{}:{size:33}),`${s}-to-${t}.cube`,'text/plain'); toast('LUT saved') }catch{ toast('No LUT for this pair') } })
 		dexp.querySelector('#dicc')?.addEventListener('click',()=>{ try{ dl(iccProfile(space[s],{xyz:space.xyz}),`${s}.icc`,'application/vnd.iccprofile'); toast('ICC saved') }catch{ toast('No profile for this space') } })   // the CLUT bakes on demand — a modal open stays instant
 	}
 	// precise adjustment: the big value inputs above the sliders
