@@ -56,6 +56,7 @@
 	--hair:oklch(0.17 0.015 248/.12);
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
+	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
 	--lift:var(--color-lift);
 	--uline:currentColor;   /* link hover underline — the text's own ink, never the accent */
 
