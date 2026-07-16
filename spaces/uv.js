@@ -6,7 +6,6 @@
  * display white-point tolerancing (Δu'v'), correlated color temperature work along the
  * Planckian locus, and colorimeter reporting.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIELUV#The_CIE_1976_UCS_diagram}
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
  * @year 1976

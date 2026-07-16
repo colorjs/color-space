@@ -7,7 +7,6 @@
  * pedagogical space — the common ancestor from which nearly every later RGB space
  * descends.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_RGB_color_space}
  * @year 1931
  * @by CIE

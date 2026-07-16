@@ -8,7 +8,6 @@
  * displays and stage lighting, while Lab remains dominant for reflective and print
  * color.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIELUV}
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
  * @year 1976
  * @by CIE

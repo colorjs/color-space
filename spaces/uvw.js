@@ -8,7 +8,6 @@
  * historical interest, marking the transition between the 1960 chromaticity
  * diagram and the modern CIE 1976 spaces.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
  * @year 1964
  * @by Günther Wyszecki / CIE

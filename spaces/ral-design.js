@@ -8,7 +8,6 @@
  * in a standard, device-independent color space rather than a color that has to be
  * matched by eye against a physical chip.
  *
- * @see {@link https://en.wikipedia.org/wiki/RAL_colour_standard}
  * @see {@link https://www.freiefarbe.de/en/thema-farbe/hlc-colour-atlas/} freieFarbe HLC Colour Atlas (D50/2°, CC)
  * @wiki {@link https://en.wikipedia.org/wiki/RAL_colour_standard#RAL_Design}
  * @year 1993

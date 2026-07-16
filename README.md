@@ -28,37 +28,7 @@ import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // args match CSS oklch(0.65 0.25 180)
 ```
 
-| import | what |
-|---|---|
-| `color-space` | all 161 spaces |
-| `color-space/<name>.js` | one space |
-| `color-space/lite` | 27 main spaces, 9 kB |
-| `color-space/wasm` | lite set prebuilt WASM |
-| `color-space/gl` | GLSL/WGSL shader |
-| `color-space/lut` | `.cube` LUT exporter (Resolve, ffmpeg, …) |
-| `color-space/icc` | ICC profile exporter — matrix+TRC or CLUT |
-| `color-space/data.json` | metadata, graph edges, gamuts, whitepoints, CMFs, conformance |
-| `color-space/gamuts.js` · `/whitepoints.js` | primary chromaticities · CIE illuminant tables |
-| `color-space/hub.js` | the wiring |
-| `npx color-space-mcp` | MCP server — the same conversions as agent tools |
-
 **Upgrading from v2?** [Migration guide](docs/migration.md).
-
-## Meta
-
-```js
-import data from 'color-space/data.json' with { type: 'json' };
-data.spaces.oklab;   // { description, channels, range, refs, wiki, year, by, use,
-                     //   method, encoding, referred, dynamic, neighbors }
-data.spaces.kelvin.loss;   // 'projective' | 'lookup' | 'quantized'
-data.spaces.p3;      // RGB working spaces add: illuminant, observer, gamut, primaries {r,g,b}, white
-
-import whitepoint from 'color-space/whitepoints.js';
-whitepoint[2].D50;   // → [96.422, 100, 82.521]
-
-import gamut from 'color-space/gamuts.js';
-gamut.srgb;   // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, white: 'D65' }
-```
 
 ## WASM
 
@@ -95,6 +65,22 @@ wgsl(oklch);          // the same, as WGSL
 A chunk import brings only its own dependency chain (~5 kB) and stays pure data — `oklch.code` is its raw GLSL. Runtime `from`/`to` strings: `import { glsl } from 'color-space/gl/all'` routes any of the 160 shader-backed names, byte-identical, at the cost of all chunks (~200 kB min).
 
 Measured-dataset spaces (`munsell`'s renotation) declare a `lut` — the composed source reads it through `uniform sampler2D <name>tex`; upload `luts[name].data()` (w×h RGBA32F, NEAREST) and bind by that name. Everything else — interpolation, the iterative inverse — is ordinary chunk code, differentially tested like the rest.
+
+## JSON
+
+```js
+import data from 'color-space/data.json' with { type: 'json' };
+data.spaces.oklab;   // { description, channels, range, refs, wiki, year, by, use,
+                     //   method, encoding, referred, dynamic, neighbors }
+data.spaces.kelvin.loss;   // 'projective' | 'lookup' | 'quantized'
+data.spaces.p3;      // RGB working spaces add: illuminant, observer, gamut, primaries {r,g,b}, white
+
+import whitepoint from 'color-space/whitepoints.js';
+whitepoint[2].D50;   // → [96.422, 100, 82.521]
+
+import gamut from 'color-space/gamuts.js';
+gamut.srgb;   // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, white: 'D65' }
+```
 
 ## LUT
 

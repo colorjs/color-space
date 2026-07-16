@@ -7,7 +7,6 @@
  * color-difference channels, Db and Dr, derived from blue-minus-luma and
  * red-minus-luma respectively.
  *
- * @see {@link https://en.wikipedia.org/wiki/YDbDr}
  * @wiki {@link https://en.wikipedia.org/wiki/YDbDr}
  * @year 1967
  * @by Henri de France

@@ -8,6 +8,9 @@
  *
  * @see {@link https://cie.co.at/publications/colour-appearance-model-colour-management-systems-ciecam02}
  * @wiki {@link https://en.wikipedia.org/wiki/LMS_color_space}
+ * @year 1979
+ * @by Estévez, Hunt & Pointer
+ * @use Cone-response space for chromatic adaptation (von Kries / Bradford / CAT16); basis of the CIECAM / CAM16 appearance models.
  * @channel {L} 0 100 Long
  * @channel {M} 0 105 Medium
  * @channel {S} 0 110 Short

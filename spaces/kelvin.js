@@ -6,9 +6,11 @@
  * design and display calibration, mapping a single temperature value to a point on the
  * Planckian locus.
  *
- * @see {@link https://en.wikipedia.org/wiki/Planckian_locus}
  * @see {@link https://doi.org/10.1002/col.5080100109} Krystek 1985 (CCT→uv locus)
  * @wiki {@link https://en.wikipedia.org/wiki/Planckian_locus}
+ * @year 1931
+ * @by Raymond Davis; CIE (Judd)
+ * @use White-balance / CCT axis for photography, lighting and display calibration via the Planckian locus.
  * @channel {T} 1000 25000 Temperature
  * @method spectral
  * @encoding chromaticity

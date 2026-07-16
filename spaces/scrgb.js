@@ -5,7 +5,6 @@
  * the encoding range well beyond the usual 0-1 span, allowing values for colors
  * brighter or more saturated than standard sRGB can display.
  *
- * @see {@link https://en.wikipedia.org/wiki/ScRGB}
  * @wiki {@link https://en.wikipedia.org/wiki/ScRGB}
  * @year 2003
  * @by IEC

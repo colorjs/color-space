@@ -7,7 +7,7 @@
  * wavelength of any color — the dominant wavelength that gives CIE DSH its hue,
  * projected into the 380–700 nm domain.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIE_1931_color_space}
+ * @see {@link https://cie.co.at/datatable/cie-1931-colour-matching-functions-2-degree-observer} CIE 1931 2° colour-matching functions
  * @wiki {@link https://en.wikipedia.org/wiki/Spectral_color}
  * @year 1931
  * @by CIE

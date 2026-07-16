@@ -9,7 +9,6 @@
  * plastics, textiles and food — where legacy specifications still report in
  * Hunter Lab units.
  *
- * @see {@link https://en.wikipedia.org/wiki/Hunter_Lab}
  * @wiki {@link https://en.wikipedia.org/wiki/Hunter_Lab}
  * @year 1948
  * @by Richard S. Hunter

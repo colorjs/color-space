@@ -5,8 +5,10 @@
  * than HSV or HSL for tasks like segmentation and feature extraction, at the cost of
  * a more involved saturation calculation than its cousins.
  *
- * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
+ * @year 1976
+ * @by John R. Kender
+ * @use Image-processing / computer-vision hue-saturation-intensity model; still used in segmentation and remote sensing.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {I} 0 100 Intensity percentage

@@ -8,7 +8,6 @@
  * bandwidth on color than on brightness, exploiting the eye's lower sensitivity to
  * chrominance detail.
  *
- * @see {@link https://en.wikipedia.org/wiki/YUV}
  * @wiki {@link https://en.wikipedia.org/wiki/YUV}
  * @year 1967
  * @by Walter Bruch / Telefunken

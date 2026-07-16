@@ -8,7 +8,6 @@
  * otherwise identical to standard CIELAB: perceptually even lightness paired with
  * red-green and yellow-blue opponent axes.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
  * @year 1976
  * @by CIE

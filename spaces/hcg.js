@@ -6,6 +6,9 @@
  * additive hue-and-gray color mixing.
  *
  * @see {@link https://github.com/Qix-/color-convert}
+ * @year 2011
+ * @by community convention
+ * @use Cylindrical RGB model (absolute chroma + gray) for colour-picker UIs; niche, mainly in JS colour libraries.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {G} 0 100 Gray component percentage

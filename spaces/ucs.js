@@ -7,7 +7,6 @@
  * correlated-color-temperature calculations today, which makes it more a piece of
  * color-science history than a working color space.
  *
- * @see {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
  * @year 1960
  * @by David MacAdam / CIE

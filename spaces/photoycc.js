@@ -9,7 +9,6 @@
  * and derive prints, monitor previews, and digital copies from a single
  * scene-referred master.
  *
- * @see {@link https://en.wikipedia.org/wiki/Photo_CD}
  * @see {@link https://www.ilkeratalay.com/colorspacesfaq.php} Bourgin Color Spaces FAQ §8.10
  * @wiki {@link https://en.wikipedia.org/wiki/Photo_CD#Encoding}
  * @year 1992

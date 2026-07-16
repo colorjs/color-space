@@ -5,8 +5,10 @@
  * color matching and computer vision for describing a surface's color in a way that's
  * more robust to lighting changes than raw RGB.
  *
- * @see {@link https://en.wikipedia.org/wiki/Chromaticity}
  * @wiki {@link https://en.wikipedia.org/wiki/Rg_chromaticity}
+ * @year 1860
+ * @by James Clerk Maxwell
+ * @use Chromaticity with intensity divided out, for colour matching and illumination-robust vision.
  * @channel {r} 0 1 Red chromaticity coordinate
  * @channel {g} 0 1 Green chromaticity coordinate
  * @method chromaticity

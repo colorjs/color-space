@@ -6,7 +6,6 @@
  * As an RGB working space it shares its transfer curve with Rec. 709/BT.601 video,
  * and remains the reference gamut for describing legacy analog NTSC color.
  *
- * @see {@link https://en.wikipedia.org/wiki/SMPTE_C}
  * @wiki {@link https://en.wikipedia.org/wiki/NTSC#SMPTE_C}
  * @year 1987
  * @by SMPTE

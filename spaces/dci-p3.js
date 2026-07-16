@@ -6,7 +6,6 @@
  * consumer display variants. It remains the reference space for digital film
  * production and distribution.
  *
- * @see {@link https://en.wikipedia.org/wiki/DCI-P3}
  * @wiki {@link https://en.wikipedia.org/wiki/DCI-P3#DCI-P3_(P3-DCI)}
  * @year 2005
  * @by DCI (Digital Cinema Initiatives)

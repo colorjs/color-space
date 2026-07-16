@@ -4,7 +4,6 @@
  * proportional to light intensity. It serves as the intermediate space for accurate
  * color math, before results are re-encoded with Adobe RGB's transfer curve.
  *
- * @see {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @year 1998
  * @by Adobe Systems

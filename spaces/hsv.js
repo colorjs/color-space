@@ -6,7 +6,6 @@
  * instead of washing out toward white. It is the model behind most color-picker
  * "wheel plus square" interfaces.
  *
- * @see {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @year 1978
  * @by Alvy Ray Smith

@@ -7,6 +7,9 @@
  *
  * @see {@link http://www.brucelindbloom.com/WorkingSpaceInfo.html}
  * @wiki {@link https://en.wikipedia.org/wiki/RGB_color_spaces#Apple_RGB}
+ * @year 1987
+ * @by Apple Computer
+ * @use Legacy Mac / Photoshop RGB working space (D65, γ 1.8) from the 13″ AppleColor monitor; obsolete, superseded by sRGB.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

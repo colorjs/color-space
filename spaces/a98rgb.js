@@ -5,7 +5,6 @@
  * different gamma, making it a longstanding standard working space in photography
  * and print production, where sRGB's narrower gamut would clip too much color.
  *
- * @see {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @wiki {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @year 1998
  * @by Adobe Systems

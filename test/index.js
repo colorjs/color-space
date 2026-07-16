@@ -172,6 +172,12 @@ test('integrity — data.json spaces carry channels, range and @see refs', () =>
 	const wikis = Object.values(meta).filter(m => m.wiki)
 	is(wikis.length >= 90, true, `wiki links present (${wikis.length})`)
 	is(wikis.every(m => /^https:\/\/en\.wikipedia\.org\/wiki\//.test(m.wiki)), true, 'every wiki link is a Wikipedia article')
+	// one Wikipedia article per space: @wiki holds it, @see holds non-Wikipedia sources.
+	// Regression — cmy/rg/dci-p3/smpte-c/… cited two Wikipedia URLs, so the dossier
+	// rendered "wikipedia" twice (same page bare + anchored, or a redirect, or two articles).
+	const twoWikis = Object.entries(meta).filter(([, m]) =>
+		[...new Set([...(m.refs || []), ...(m.wiki ? [m.wiki] : [])])].filter(u => /wikipedia\.org/.test(u)).length > 1)
+	is(twoWikis.map(([n]) => n), [], 'no space cites more than one Wikipedia article')
 })
 
 // `range` lives twice by design: the object literal serves tree-shaken single-file

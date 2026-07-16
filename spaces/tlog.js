@@ -8,6 +8,9 @@
  * elsewhere — as a common space for mixing footage from multiple camera sources.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/filmlight_t_log.py}
+ * @year 2013
+ * @by FilmLight
+ * @use FilmLight’s Cineon-derived log on E-Gamut; Baselight’s camera-agnostic grading working space.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue
