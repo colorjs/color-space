@@ -57,6 +57,7 @@
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
+	--pop-shadow:0 .5rem 1.6rem oklch(0 0 0/.14);   /* the shared floating-panel shadow: filter dropdown, slider popover — no border, just lift */
 	--lift:var(--color-lift);
 	--uline:currentColor;   /* link hover underline — the text's own ink, never the accent */
 

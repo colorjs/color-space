@@ -63,6 +63,13 @@ a{ color:var(--ink) }
 .cd::-webkit-color-swatch{ border:0 }
 #cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
 .gpill{ margin-left:.55em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
+/* active facet filters, shown as removable chips right by the search — so the header shows what's on */
+.fchipsh{ display:flex; align-items:center; gap:var(--s1); flex-wrap:wrap; max-width:min(42vw,28rem); overflow:hidden }
+.fchipsh:empty{ display:none }
+.fchip{ display:inline-flex; align-items:center; gap:.35em; font:inherit; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--paper); background:var(--ink); border:0; padding:var(--s1) var(--s2); line-height:1.1; white-space:nowrap; cursor:pointer }
+.fchip svg{ opacity:.6; margin-right:-.12em }
+.fchip:hover svg{ opacity:1 }
+@media(max-width:640px){ .fchipsh{ display:none } }   /* the dropdown still carries them on narrow screens */
 /* search filters spaces and metadata only; the live color parser is the header value input */
 .qx{ position:relative; display:flex; align-items:flex-start; gap:var(--s2); min-height:36px; align-self:center; padding-top:8.1px; cursor:text }   /* the input's box equals its line box, so pad-top + ascent lands its text on the masthead baseline at any DPR */
 .qx svg{ flex:none; align-self:center; transform:translateY(-3.8px); color:var(--soft) }   /* centred on the placeholder's cap height */ .qx:hover svg,.qx:focus-within svg{ color:var(--ink) }
@@ -74,7 +81,7 @@ a{ color:var(--ink) }
 /* the tag picker beside search — chips AND-filter the catalog */
 .tagf{ position:relative; align-self:center }
 .tfb{ color:var(--soft) } .tfb.on,.tfb:hover{ color:var(--ink) }
-.tfp{ position:absolute; right:0; top:calc(100% + var(--s2)); z-index:var(--z-dropdown); display:flex; flex-direction:column; gap:var(--s2); width:min(26rem,calc(100dvw - 2rem)); max-height:min(34rem,calc(100dvh - 5rem)); overflow:auto; padding:var(--s3); background:var(--paper); border:1px solid var(--hair) }
+.tfp{ position:absolute; right:0; top:calc(100% + var(--s2)); z-index:var(--z-dropdown); display:flex; flex-direction:column; gap:var(--s2); width:min(26rem,calc(100dvw - 2rem)); max-height:min(34rem,calc(100dvh - 5rem)); overflow:auto; padding:var(--s3); background:var(--paper); box-shadow:var(--pop-shadow) }
 .tfp[hidden]{ display:none }
 .tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
@@ -131,7 +138,7 @@ a{ color:var(--ink) }
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative; padding-bottom:var(--s12) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
-.ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper) }   /* top+bottom ladders set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top — always on screen */
+.ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); --toc-top:var(--s6); top:calc(var(--ti-y,0px) + var(--toc-top)) }   /* pin point is CSS: --ti-y is the measured ladder offset (per title), --toc-top the gap below the sticky header — tune the gap here, in CSS. Bottom ladder set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top */
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
@@ -169,6 +176,9 @@ a{ color:var(--ink) }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
+.ent.pop{ z-index:var(--z-dropdown); background:var(--paper); box-shadow:var(--pop-shadow) }   /* the whole focused row becomes one raised card — name, values AND sliders enclosed */
+.ent.lite.pop .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
+.ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 .grid>.ent{ padding-bottom:var(--s2) }
 .sheet>.ent.lite{ padding-top:var(--s1) }
@@ -179,7 +189,7 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 @media(max-width:640px){ .gcols{ grid-template-columns:1fr } }
 .gcol{ display:flex; flex-direction:column; min-width:0 }
 .gcol>.ent:not(.lite){ padding-bottom:var(--s2) }
-.gcol>.ent.lite{ padding-top:var(--s1) }
+.gcol>.ent.lite{ padding:var(--eg) }   /* sheet rows carry the same --eg padding all round as their sides; the focused card inherits it, so its padding reads equal on every edge and the name never shifts on open */
 .gcol>.ent:not(.lite)+.ent.lite{ margin-top:var(--s3) }   /* the first sheet row breathes below a lead */
 body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /* sliders only on column-top leads */
 /* ≤640 the categories fold: the heading is a chevroned toggle, folded shows the lead with its
@@ -201,7 +211,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 }
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
-.ent:hover,.ent:focus-within{ background:transparent }
+.ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
 .nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
@@ -249,7 +259,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* prev/next as centered post-navigation — a compact bar at the top of the dossier
    and again at its foot. Left chevron + name · name + right chevron. Dim-then-ink. */
 .mnavbar{ display:flex; justify-content:center; align-items:center; gap:clamp(var(--s4),6vw,var(--s12)) }
-.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s8) calc(-1*var(--dpad)) 0; padding:var(--s3) var(--dpad); background:var(--paper); box-shadow:0 -1px 0 var(--hair) }   /* always-visible nav pinned to the modal's foot; full-bleed over the padding; sticky (not fixed) so it scrolls away past the modal's own end */
+.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s6) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
 .mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
 .mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
 .mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; text-transform:uppercase; white-space:nowrap }   /* the neighbour's name — regular weight, no trim */
@@ -260,20 +270,26 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
 .dh{ position:relative; display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s6); padding-right:var(--s12) }
-.mnavbar.mfoot{ flex-wrap:wrap; gap:var(--s2) clamp(var(--s3),4vw,var(--s8)) }   /* the wider bar (with the category jumps) wraps gracefully on narrow screens */
+.mnavbar.mfoot{ flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--s2) var(--s6) }   /* prev group at the left, next group at the right — the chevrons ride the modal's sides */
+.ngrp{ display:flex; align-items:center; gap:clamp(var(--s2),2vw,var(--s6)) }   /* every item is single-line now (the category floats above), so centring lines up all the space names — prev and next alike */
+.mstack{ position:relative; display:inline-flex; align-items:center }   /* holds the space name; the category floats above it out of flow, so every nav item baselines on the space name (prev and next alike) */
+.mcat .catn{ position:absolute; bottom:100%; margin-bottom:.05em; font-style:normal; font-size:var(--t0); font-weight:400; letter-spacing:0; text-transform:none; color:var(--soft); white-space:nowrap }   /* the section: small, plain, mixed-case, above the space name */
+.mcat.prev .catn{ left:-1.5rem; } .mcat.next .catn{ right:-1.5rem }
+.mnavbar .mcat:hover .mn{ color:var(--ink) }
 .dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin:0 0 var(--s2); width:100% }   /* gamut + quantization selects — ride the side column, flush with its right edge */
 .dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — but the native chevron stays: it says "openable" */
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }   /* no focus rectangle around the bare select — a colour shift instead */
 .dh h1{ margin:0; font-size:clamp(1.7rem,4vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1 }
-.dh .dcat{ display:block; margin-bottom:var(--s2); font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }   /* the catalog section — the same kicker recipe as every section label (.plab / props i) */
+.dh .dcat{ display:block; margin-bottom:.5rem; font-size:var(--t2); font-weight:400; letter-spacing:0; color:var(--soft) }   /* the catalog section — plain, mixed-case, tracking reset to 0 (the h1's -.02em would otherwise inherit) */
+.dh h1 .htag{ margin-left:var(--s3); display:inline-block; overflow:hidden; vertical-align:baseline }   /* inline-block + clipped overflow makes the pill's own baseline its bottom edge, so it sits ON the title's baseline */
 .dpills{ display:flex; gap:var(--s2); flex-wrap:wrap; margin:var(--s3) 0 var(--s4) }
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
 .dhero{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .modal.barred .dhero{ grid-template-columns:1fr }   /* no graphics column to reserve — text takes the whole width */
 .dmain{ min-width:0 }
-.dmain .props.props3{ margin:0 0 var(--s6) }   /* one rhythm: --s6 through features, description, used-for alike */
+.dmain .props.props3{ margin:0 }   /* features grid flush; the rhythm below comes from description/used-for */
 .dgrid2.dstack{ grid-template-columns:1fr }   /* description owns the full width up to the graphics; used-for follows */
 mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; padding:0 .06em }
 .dpills .tag{ cursor:help }
@@ -313,7 +329,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
 .ch.gl{ background:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* GPU strip: voided spans read as the same checker as the dossier bars */
 .ch .chc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* the card strip's GPU sweep (created lazily on first ready paint) */
-.bar2 .cnm{ position:absolute; left:.6rem; top:.4rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* same as the plot axis labels — small, top-left */
+.bar2 .cnm{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* small, centred on the slider's height */
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
@@ -396,10 +412,9 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .sec2 .ipick:hover .dia,.sec2 .ipick:focus-visible .dia{ transform:rotate(45deg) scale(1.18) }
 /* the two blend bands butt together, same height — one block: this space over the comparison */
 .istack{ display:flex; flex-direction:column }
-.irow{ position:relative; height:2.6rem }
+.irow{ position:relative; height:2.5rem; margin-bottom:.5rem; }
 .isp{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* the band's space, inked dark/white per its left colour */
 .icmp{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='white' stroke-width='5'/><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='%231b1408' stroke-width='2.2'/></g></svg>") 11 11, pointer }   /* click cycles the comparison space, like the image source panel */
-.icmp:hover{ outline:2px solid var(--accent); outline-offset:-2px }
 .srcline{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .srcline a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
@@ -448,7 +463,6 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .imgrow .imgp{ position:relative; flex:1 1 10.5rem; min-width:8rem; max-width:18.6rem }
 /* only the source panel cycles presets — the cursor IS the hint */
 .imgrow .imgp:first-child{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='white' stroke-width='5'/><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='%231b1408' stroke-width='2.2'/></g></svg>") 11 11, pointer }
-.imgrow .imgp:first-child:hover canvas{ outline:2px solid var(--accent); outline-offset:-2px }
 .imgrow canvas{ display:block; width:100%; height:auto }
 .imgrow .implb{ position:absolute; left:var(--s2); top:var(--s1); font-size:var(--t0); font-weight:700; color:#fff; pointer-events:none }   /* bare label — JS inks it by the pixels beneath */
 .refs{ display:flex; flex-direction:column; gap:var(--s1); font-size:var(--t1) }
@@ -533,6 +547,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<span class="cx" title="current color — type any CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts any CSS color"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
+	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
 	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
@@ -1397,13 +1412,13 @@ const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
 	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
-	let cur=0, up=headH+8   // top ladder: titles pin just below the now-sticky header
+	let cur=0, up=headH   // top ladder: measured offset only; the gap below the header is CSS (--toc-top)
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
 		const sec=secEls[i]   // align the title's text with the first visible space name
 		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
 		const y=(ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0
 		const m=Math.max(0,y-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
-		t.style.top=up+'px'; up+=hs[i]+G })
+		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
 	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
 }
@@ -1455,9 +1470,15 @@ document.addEventListener('copy',e=>{
 // entry interactions: the TITLE opens the dossier (the card is busy with inputs, spinners,
 // sliders); row drag slides; the value inputs edit their channel (↑/↓ steps, Enter applies)
 let squelch=false
+// focus a sheet row's channel → a gentle slider popover for that space, edited like a lead card, no full modal
+let popEnt=null
+const hidePop=()=>{ popEnt?.classList.remove('pop'); popEnt=null }
+const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop'); paintCatalogGrad([ent]); paintCatalogVals([ent]) }
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
 cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s,pairsFor(s)); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
+	ent.addEventListener('focusout',e=>{ if(popEnt===ent&&!ent.contains(e.relatedTarget)) hidePop() })   // the popover closes once focus leaves the row (blur, tab away, Esc)
 	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
@@ -1465,7 +1486,8 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 			adopt(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() }
 		inp.addEventListener('pointerdown',e=>e.stopPropagation())
 		inp.addEventListener('click',e=>e.stopPropagation())
-		inp.addEventListener('focus',()=>requestAnimationFrame(()=>inp.select()))   // first click takes the whole number; the next click places the caret
+		inp.addEventListener('focus',()=>{ requestAnimationFrame(()=>inp.select()); if(ent.classList.contains('lite')) showPop(ent) })   // first click takes the whole number; sheet rows also open the slider popover
+			inp.closest('.cvp')?.querySelector('.cl')?.addEventListener('pointerdown',e=>{ e.preventDefault(); inp.focus() })   // the channel letter acts like the value: focus + open the popover
 		inp.addEventListener('input',applyCv)
 		inp.addEventListener('blur',()=>renderFast())
 		inp.addEventListener('change',()=>{ if(open()) paintPlanes(false) })
@@ -1492,6 +1514,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		ch.addEventListener('pointerenter',()=>cvEl?.classList.add('on'))   // the slider points at its number
 		ch.addEventListener('pointerleave',()=>cvEl?.classList.remove('on'))
 		ch.addEventListener('pointerdown',e=>{
+			e.preventDefault(); ent.querySelectorAll('.cv')[i]?.focus()   // drag focuses this channel — its style (and the popover) persist through and after the drag
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
 			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on') }
 				if(!moved) return
@@ -1523,20 +1546,28 @@ const slotsOf=s=>{ const m=meta[s]
 		[wasmSpaces.includes(s)&&'wasm',LUTOK.has(s)&&'lut',!!CSSFMT[s]&&'css'],
 		[HISTORICAL.has(s)&&'historical']].map(a=>new Set(a.filter(Boolean))) }
 const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
+// search matches the space name AND its channel names/symbols ("hue", "lightness", "L"…)
+const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,(s+' '+ch.map(c=>cname(c)+' '+c.sym).join(' ')).toLowerCase()] }))
 const act=FACETS.map(()=>new Set())
+// active facets shown as removable chips in the header, right by the search
+const fchipsH=document.getElementById('fchipsH')
+const FX='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('') }
 // one filter pipeline: name match (highlighted in place) AND the picked facets
 function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size); let shown=0
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 		let hit
-		if(s){ const sl=SLOTS.get(s); hit=(!q||s.includes(q))&&(!any||act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))); if(hit)shown++ }
+		if(s){ const sl=SLOTS.get(s); hit=(!q||SEARCHSTR.get(s).includes(q))&&(!any||act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))); if(hit)shown++ }
 		else hit=!any&&(!q||(ent.querySelector('.nm')?.textContent.toLowerCase().includes(q)))   // barred cards: name match only, hidden when facets are active, not counted
 		ent.style.display=hit?'':'none'
 		markName(ent,hit&&q&&s?q:null) })
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
 		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
-	layoutToc(); trackAct(); nq.textContent=(q||any)?shown:SPACES.length
+	layoutToc(); trackAct()
+	const nEl=document.getElementById('n'); if(nEl)nEl.textContent=(q||any)?shown:spaceCount   // the logo count goes live with the filter, near the name — not tucked by the filter icon
+	nq.textContent=''
 	document.body.classList.toggle('flt',!!(q||any))   // filtering unfolds the mobile sections
-	qInput.closest('.qx').classList.toggle('flt',any) }
+	qInput.closest('.qx').classList.toggle('flt',any); renderChips() }
 qInput.addEventListener('input',applyFilter)
 // facet picker beside search
 ;(()=>{ const tfb=document.getElementById('tfb'), tfp=document.getElementById('tfp'); if(!tfb) return
@@ -1546,6 +1577,10 @@ qInput.addEventListener('input',applyFilter)
 		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
 		const on=act[fi].has(t); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); tfb.classList.toggle('on',act.some(a=>a.size))
 		applyFilter() })
+	// a header chip removes its facet — and un-presses the matching dropdown tag
+	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return; const fi=+b.dataset.f, t=b.dataset.t; act[fi].delete(t)
+		const pt=tfp.querySelector(`.tag[data-f="${fi}"][data-t="${CSS.escape(t)}"]`); if(pt){ pt.classList.remove('on'); pt.setAttribute('aria-pressed','false') }
+		tfb.classList.toggle('on',act.some(a=>a.size)); applyFilter() })
 	const setOpen=open2=>{ tfp.hidden=!open2; tfb.setAttribute('aria-expanded',String(open2)) }
 	tfb.onclick=()=>setOpen(tfp.hidden)
 	addEventListener('pointerdown',e=>{ if(!tfp.hidden&&!e.target.closest('.tagf')) setOpen(false) })
@@ -1598,11 +1633,13 @@ const navLabel=key=>barredByKey.get(key)?.nm||key   // barred cards show their p
 // AND at its foot. Class-based (not id) so it can appear twice; clicks delegate on
 // `detail`, and names set via querySelectorAll, since the buttons rebuild each dossier.
 const CHEV=d=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"><path d="${d}"/></svg>`
-const MNAVBTNS=`<button class="mnav prev" data-dir="-1" aria-label="previous color space">${CHEV('M15 18l-6-6 6-6')}<span class="mn mprevn"></span></button><button class="mnav next" data-dir="1" aria-label="next color space"><span class="mn mnextn"></span>${CHEV('M9 6l6 6-6 6')}</button>`
+const MNAVPREV=`<button class="mnav prev" data-dir="-1" aria-label="previous color space">${CHEV('M15 18l-6-6 6-6')}<span class="mn mprevn"></span></button>`
+const MNAVNEXT=`<button class="mnav next" data-dir="1" aria-label="next color space"><span class="mn mnextn"></span>${CHEV('M9 6l6 6-6 6')}</button>`
 // category jump — a double chevron to the first space of the prev/next catalog section, outside the single-space chevrons
-const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="previous category">${CHEV('M17 18l-6-6 6-6M11 18l-6-6 6-6')}<span class="mn mprevc"></span></button>`
-const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="next category"><span class="mn mnextc"></span>${CHEV('M7 6l6 6-6 6M13 6l6 6-6 6')}</button>`
-const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="adjacent color spaces">${cat?MCATPREV:''}${MNAVBTNS}${cat?MCATNEXT:''}</nav>`
+const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="previous category">${CHEV('M17 18l-6-6 6-6M11 18l-6-6 6-6')}<span class="mstack"><i class="catn catprev"></i><span class="mn mprevc"></span></span></button>`
+const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="next category"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${CHEV('M7 6l6 6-6 6M13 6l6 6-6 6')}</button>`
+// two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
+const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="adjacent color spaces"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
@@ -1614,9 +1651,10 @@ function openModal(s){
 	const k=ORDER.indexOf(s), n=ORDER.length   // set the neighbour names in every nav bar (top + foot)
 	detail.querySelectorAll('.mprevn').forEach(el=>el.textContent=navLabel(ORDER[(k-1+n)%n]))
 	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ORDER[(k+1)%n]))
-	const si=sections.findIndex(c=>c.spaces.includes(s)), L=sections.length   // category-jump labels: the prev/next section names
-	if(si>=0){ detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=sections[(si-1+L)%L].name)
-		detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=sections[(si+1)%L].name) }
+	const si=sections.findIndex(c=>c.spaces.includes(s)), L=sections.length   // category-jump labels: "Section / FIRST-SPACE"
+	if(si>=0){ const pc=sections[(si-1+L)%L], nc=sections[(si+1)%L]
+		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=pc.name); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=pc.spaces[0])
+		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=nc.name); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=nc.spaces[0]) }
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
@@ -2777,8 +2815,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC tab
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}</h1></div>
-	 ${HISTORICAL.has(s)?`<div class="dpills"><span class="tag" title="${TAGTIP.historical}">historical</span></div>`:''}
+	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
 		<div class="dmain">
@@ -2791,23 +2828,23 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 </section>
 	 <section class="dhero" id="overview">
 		<div class="dmain"><div class="props props3">
-		<div class="pcol"><!-- the space itself: its shape, its reference frame, its lineage, its measure -->
-			<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}</span><i class="csym">${c.sym}</i><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
-			${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" title="this color, CSS-notated — click to copy"></p></div>`:''}
-			${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
-			${geo(s)||enc?`<div><i>model</i><p class="dpills">${[geo(s),enc].filter(Boolean).map(t=>`<span class="tag" title="${TAGTIP[t]||''}">${t}</span>`).join('')}</p></div>`:''}
-			${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
-			<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
-			${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
-		</div>
-		<div class="pcol"><!-- the story and the record: when, who, the name, the sources, the trust -->
-			${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
-			${m.referred||m.dynamic?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
-			${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
-			${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
-			${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
+				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}</span><i class="csym">${c.sym}</i><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
+				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" title="this color, CSS-notated — click to copy"></p></div>`:''}
+				${geo(s)||enc?`<div><i>model</i><p class="dpills">${[geo(s),enc].filter(Boolean).map(t=>`<span class="tag" title="${TAGTIP[t]||''}">${t}</span>`).join('')}</p></div>`:''}
+				${m.referred||m.dynamic?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
+				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
+				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
+				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
+			</div>
+			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
+				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
+				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
+				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="the independent reference values every conversion is pinned to, at 1/255 tolerance">reference values</a></p></div>`:''}
-		</div>
+				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+			</div>
 	 </div></div>
 		${has3d?platesHTML:''}
 	 </section>
@@ -3241,7 +3278,7 @@ const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry n
 // long dark wedge). The gradient stays as the compile-time and no-GL fallback.
 // virtualized: pass the subset that just scrolled into view (from the observer) — otherwise all
 // vis entries, for a global change (color edit, gamut, quantize). Only near-screen rows ever paint.
-function paintCatalogGrad(ents){ (ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||liteOff(ent))return
+function paintCatalogGrad(ents){ (ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||(liteOff(ent)&&!ent.classList.contains('pop')))return   // a focused sheet row (.pop) paints its slider popover, live
 	const cls=classify(s), vals=valsFor(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 		let cv=ch.querySelector('.chc')
@@ -3259,7 +3296,7 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb)
 		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?fmtc(vals[i],cls.ch[i]):''
 			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends
 			if(stk&&stk.classList.contains('stk')){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
-		if(liteOff(ent)) return
+		if(liteOff(ent)&&!ent.classList.contains("pop")) return   // the focused sheet-row popover also gets its tick markers
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1); tk.style.left=(f*100)+'%' }

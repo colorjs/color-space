@@ -17,7 +17,7 @@ export const LEADS = 3   // slider cards per category (the row's featured spaces
 // shipped as working history — tagged "historical" in the modal, listed in "Skipped"
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
 const ent = (s, lite) => { const cls = classify(s)
-	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}">
+	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}" style="--nch:${cls.ch.length}">
 	 <div class="eh"><button class="nm" type="button" title="${s}" aria-label="Open ${s} color-space dossier">${s}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"><div class="tk"></div></div>`).join('')}</div>
 	</article>` }
