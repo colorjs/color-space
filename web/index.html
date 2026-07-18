@@ -327,8 +327,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
-.ch.gl{ background:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* GPU strip: voided spans read as the same checker as the dossier bars */
-.ch .chc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* the card strip's GPU sweep (created lazily on first ready paint) */
+.ch.gl{ background:var(--strip,none) 0 0/100% 100%, repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* GPU strip rides --strip as a baked image over the checker — voided spans read as the same checker as the dossier bars; no per-strip canvas (a compositor layer each) */
 .bar2 .cnm{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* small, centred on the slider's height */
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
@@ -1150,17 +1149,17 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
+import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import NAMES from './js/names.js'
-import { SPACES, sections, cname, unit, catHTML, HISTORICAL } from './js/render.js'
+import { SPACES, sections, cname, unit, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
 import BARRED from './js/barred.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
-let master={ s:'oklch', vals:[0.72,0.16,41] }, selected='oklch', huePath='shorter', codeTab='js'
+let master={ s:DEFAULT.s, vals:DEFAULT.vals.slice() }, selected='oklch', huePath='shorter', codeTab='js'
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='Copied')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
@@ -1195,7 +1194,6 @@ if(cvalEl){
 	cvalEl.addEventListener('keydown',e=>{ if(e.key==='Enter') cvalEl.blur() })
 	cvalEl.addEventListener('blur',()=>renderFast())   // settle back to canonical hex
 }
-const rgbF=(s,v)=> (s==='rgb'? v : space[s].rgb(...v)).map(x=>isFinite(x)?clamp(x,0,255):0)
 const RGB=()=>rgbF(master.s,master.vals)
 const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
 // the tightest standard gamut that holds the current colour — convert straight from the source
@@ -1205,16 +1203,7 @@ const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-
 	const conv=to=>s===to?vals:space[s][to](...vals)
 	try{ if(inR(conv('rgb'),255)) return 'srgb'; if(inR(conv('p3'),1)) return 'p3'; if(inR(conv('rec2020'),1)) return 'rec2020' }catch{}
 	return null }
-const lum=c=>0.2126*c[0]/255+0.7152*c[1]/255+0.0722*c[2]/255, ink=c=>lum(c)<0.6?'#fff':'var(--dark)'
-// decimals from the range span — enough that every channel walks ≥100 steps: the step is
-// the largest power of ten with span/step ≥ 100 (0..255 → 1, 0..0.85 → 0.001, xyb's
-// 0.0435 → 0.0001, scrgb's 0–8 → 0.01; kelvin's 24000 stays 1 — decimals clamp to
-// 0..6). The printed precision IS the step.
-const decOf=c=>{ const d=-Math.floor(Math.log10((c.max-c.min)/100)); return d>0?Math.min(d,6):0 }
-// fixed decimals, never shed — 0.111 → 0.110 → 0.109 keeps its width, and the trailing
-// zeros tell the user what one spinner click moves
-const fmtc=(v,c)=>{ if(!isFinite(v)) return ''
-	const s=v.toFixed(decOf(c)); return /^-0(\.0+)?$/.test(s)?s.slice(1):s }
+// lum/ink/decOf/fmtc/rgbF live in render.js — the prerender bakes the same formatting
 // the current color as a native CSS string — only for spaces CSS can actually express
 // (lab()/lch() are D50 like ours; predefined color() spaces are 0–1; our xyz is D65 0–100)
 const r1=x=>+x.toFixed(1)+'', r2=x=>+x.toFixed(2)+'', r3=x=>+x.toFixed(3)+''
@@ -1390,7 +1379,11 @@ const GAMTIP={ srgb:'does the current color fit inside sRGB — the standard web
 
 // ── catalog ──
 const cat=document.getElementById('cat')
-cat.innerHTML=catHTML()   // same markup the prerender ships — replaced wholesale on load
+// the prerender ships the same template markup, fingerprint-stamped — HYDRATE the
+// existing DOM (rebuilding ~160 cards froze the page for a third of a second and
+// threw away the streamed layout). Rebuild only on drift: template/data mismatch
+// or the raw web/ source, where #cat is the empty shell
+if(cat.dataset.fp!==fpOf(catHTML())) cat.innerHTML=catHTML(DEFAULT)
 // ToC: click jumps; the section under the reading line becomes the "open" category
 const secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]
 tocIt.forEach(t=>{ t.querySelector('.tn').onclick=()=>secEls[+t.dataset.i].scrollIntoView({behavior:'smooth',block:'start'}) })
@@ -1408,16 +1401,18 @@ const tocEl=document.getElementById('toc')
 const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
+	// READ phase first, WRITE phase after — a write between rect reads dirtied layout,
+	// forcing a full reflow of the (huge) page per section instead of one total
 	const t0=tocEl.getBoundingClientRect().top   // section offsets are scroll-independent (ent.top − toc.top)
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
 	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
+	const ys=secEls.map((sec,i)=>{ if(!on[i]) return 0   // align each title with the first visible space name
+		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
+		return (ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0 })
 	let cur=0, up=headH   // top ladder: measured offset only; the gap below the header is CSS (--toc-top)
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
-		const sec=secEls[i]   // align the title's text with the first visible space name
-		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
-		const y=(ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0
-		const m=Math.max(0,y-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
+		const m=Math.max(0,ys[i]-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
 		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
 	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
@@ -1477,7 +1472,7 @@ const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classLis
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
 cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
-	ent.addEventListener('pointerenter',()=>{ warmGL(s,pairsFor(s)); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
+	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
 	ent.addEventListener('focusout',e=>{ if(popEnt===ent&&!ent.contains(e.relatedTarget)) hidePop() })   // the popover closes once focus leaves the row (blur, tab away, Esc)
 	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
@@ -1658,7 +1653,7 @@ function openModal(s){
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
-	if(!b) setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]) if(!isBarred(s2)){ warmGL(s2,pairsFor(s2)); warmMesh3(s2,GM) } },400) }
+	if(!b) setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]) if(!isBarred(s2)){ warmGL(s2); warmMesh3(s2,GM) } },400) }
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
 	// same shape and field order as buildDetail: header → tag → props (channels | origin · reference) → description
@@ -3234,9 +3229,9 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 	// never a low-res preview that then "sharpens" — and the setGLReady callback
 	// paints full-res the moment linking lands (hover/neighbour warming makes that
 	// moment usually be before the modal even opens)
-	const stats=glq!==null&&hasPlaneGL(s)?pls.map(pl=>planeGLStatus(s,+pl.dataset.a,+pl.dataset.b)):null
-	const canGL=!!stats&&stats.every(x=>x==='ready')
-	const pendGL=!!stats&&!canGL&&stats.some(x=>x==='pending')
+	const stat=glq!==null&&hasPlaneGL(s)?planeGLStatus(s):null   // one shared program per space — one status for every plane and bar
+	const canGL=stat==='ready'
+	const pendGL=stat==='pending'
 	if(pendGL){ planesLive=false; planeNext=performance.now()+200
 		if(!dragBar&&!plFreeze) draw3d(); return }
 	const cost=planeMs[s]
@@ -3269,7 +3264,13 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30) }   // probe measured — settle at the fitted res
 	if(!dragBar&&!plFreeze) draw3d()
 }
-setGLReady(()=>{ paintCatalogGrad(); if(open()&&!isBarred(selected)){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } })   // a program landed — upgrade the paint
+// a program landed — upgrade the paint. COALESCED to one sweep per frame: during a
+// compile burst programs land back-to-back, and a full sweep per landing multiplied
+// the paint work by the number of programs (the stamp-skip makes each sweep touch
+// only the entries whose tier actually changed)
+let glupT=0
+setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
+	paintCatalogGrad(); if(open()&&!isBarred(selected)){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
 // the card strip is the dossier bar at catalog scale: the same per-pixel GPU sweep —
 // true colors everywhere the formula is nonlinear, non-physical spans voided to the
@@ -3278,25 +3279,38 @@ const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry n
 // long dark wedge). The gradient stays as the compile-time and no-GL fallback.
 // virtualized: pass the subset that just scrolled into view (from the observer) — otherwise all
 // vis entries, for a global change (color edit, gamut, quantize). Only near-screen rows ever paint.
-function paintCatalogGrad(ents){ (ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||(liteOff(ent)&&!ent.classList.contains('pop')))return   // a focused sheet row (.pop) paints its slider popover, live
+// fast=true (a drag/typing frame): CSS ramps only — on a strip in motion the 9-stop
+// gradient is indistinguishable, and the GL bake (draw + PNG encode per strip) is
+// deferred to the settle sweep scheduleFast arms. Full sweeps bake the per-pixel
+// GL image into --strip (see .ch.gl) — plain DOM, no per-strip canvas layer.
+function paintCatalogGrad(ents,fast){ const hx=hex(RGB())
+	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||(liteOff(ent)&&!ent.classList.contains('pop')))return   // a focused sheet row (.pop) paints its slider popover, live
+	const gl=!fast&&planeGLStatus(s)==='ready'
+	const stamp=`${hx}:${gl?1:0}`; if(ent.dataset.g===stamp) return   // already painted for this exact color + tier (incl. the prerendered CSS state)
 	const cls=classify(s), vals=valsFor(s)
+	let tier=gl?1:0
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-		let cv=ch.querySelector('.chc')
-		if(vals&&planeGLStatus(s,i,-1)==='ready'){
-			if(!cv){ cv=document.createElement('canvas'); cv.className='chc'; cv.width=512; cv.height=1; ch.prepend(cv) }
-			if(paintBarGL(cv,s,vals,i,[c.min,c.max],null)){   // card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
-				cv.style.display='block'; ch.classList.add('gl'); ch.style.background=''; return } }
-		if(cv) cv.style.display='none'
-		ch.classList.remove('gl')
-		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` }) }) }
+		if(vals&&gl){ const u=barImageURL(s,vals,i,[c.min,c.max],null)   // card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
+			if(u){ ch.classList.add('gl'); ch.style.setProperty('--strip',`url("${u}")`); ch.style.background=''; return } }
+		tier=0   // a bar fell back to CSS — stamp the lower tier so the next sweep retries GL
+		ch.classList.remove('gl'); ch.style.removeProperty('--strip')
+		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
+	ent.dataset.g=`${hx}:${tier}` }) }
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb)
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
+		// stamp-skip: values + ticks depend only on the color (and, for sheet rows, on
+		// whether the popover shows ticks — the ':l' tier). A focused entry always
+		// repaints — its input is deliberately left untouched while being edited
+		const full=!liteOff(ent)||ent.classList.contains('pop')
+		const stamp=full?hx:hx+':l'
+		if(ent.dataset.v===stamp&&!ent.contains(document.activeElement)) return
 		const vals=valsFor(s), cls=classify(s)
 		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?fmtc(vals[i],cls.ch[i]):''
 			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends
 			if(stk&&stk.classList.contains('stk')){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
-		if(liteOff(ent)&&!ent.classList.contains("pop")) return   // the focused sheet-row popover also gets its tick markers
+		ent.dataset.v=stamp
+		if(!full) return   // the focused sheet-row popover also gets its tick markers
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1); tk.style.left=(f*100)+'%' }
@@ -3315,13 +3329,14 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	const shown=vals
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
+	const barGL=planeGLStatus(s)==='ready'
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
 		if(bar!==dragBar){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
 			// smooth mode paints the sweep on the GPU — per-pixel colors AND per-pixel
 			// gamut ghosting (the stepped 48-cell CSS mask made the limits jump)
 			const smooth=typeof Q!=='number'&&!qTriple(Q)
-			if(smooth&&planeGLStatus(s,i,-1)==='ready'&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM==='vis'?null:GM)){
+			if(smooth&&barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM==='vis'?null:GM)){
 				bgc.style.display='block'; bar._cells=null
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
@@ -3481,9 +3496,10 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	// the GPU solid redraws per frame, so the marker tracks a drag live
 	if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d(); gamMarker(); paintTC()
 }
-let raf
+let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
-	renderFast(); if(!open()||!dragging) paintCatalogGrad()
+	renderFast(); if(!open()||!dragging) paintCatalogGrad(null,true)   // motion frames ride the cheap CSS ramps…
+	clearTimeout(settleT); settleT=setTimeout(()=>paintCatalogGrad(),140)   // …then one settle sweep bakes the per-pixel GL strips
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
 	// drag res, so even munsell's neighbours follow the pointer
@@ -3522,7 +3538,12 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 					lseg.style.display=one?'none':''; l1d.style.display=one?'':'none'
 					lstat.textContent=`${one?tab.size+'-pt 1D':tab.size+'³'} · median ${sci2(e.median)}, max ${sci2(e.max)} · ≈${bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'}` }
 				catch(err){ ldl.disabled=true; lstat.textContent=String(err&&err.message||'no finite LUT for this pair') } },0) }
-		measure(); lf.onchange=lt.onchange=measure
+		// the first bake (33³ table + 400-sample verify) waits until the LUT pane actually
+		// shows (tab click or keyboard) — off the boot path; hidden panes never intersect
+		const lp=document.getElementById('api-panel-lut')
+		if(lp) new IntersectionObserver((es,o)=>{ if(es.some(e=>e.isIntersecting)){ o.disconnect(); measure() } }).observe(lp)
+		else measure()
+		lf.onchange=lt.onchange=measure
 		lseg.querySelectorAll('button').forEach(b=>b.onclick=()=>{ lutN=+b.dataset.z; lseg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); measure() })
 		ldl.onclick=()=>{ const from=lf.value, to=lt.value
 			try{ if(from===to) throw 0; const one=lutChannelwise(space[from],space[to])
@@ -3585,14 +3606,18 @@ let fraf=0
 const FDRIFT=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.00045
 const fstep=()=>{ fraf=0; if(!FDRIFT) return
 	fph=(fph+FDRIFT)%2; paintFq(); fraf=requestAnimationFrame(fstep) }
-new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ if(!fraf&&FDRIFT) fraf=requestAnimationFrame(fstep) } else if(fraf){ cancelAnimationFrame(fraf); fraf=0 } })).observe(ftrEl)
-addEventListener('wheel',e=>{
+const ftrWheel=e=>{
 	if(document.body.classList.contains('mopen')) return   // modal open: it's the scroller — never hijack its wheel to the footer glide
 	const atEnd=Math.ceil(scrollY+innerHeight)>=document.documentElement.scrollHeight-1
 	if(!atEnd){ if(fp){ fp=0; paintFq() } return }
 	if(e.deltaY>0? fp<1 : fp>0){ e.preventDefault()
 		fp=clamp(fp+e.deltaY/FQTRAVEL,0,1); paintFq() }
-},{passive:false})
+}
+// the drift AND the non-passive wheel bind only while the footer is on screen — a
+// page-wide passive:false wheel listener made every scroll tick anywhere in the
+// catalog wait on the main thread before the compositor could move
+new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ if(!fraf&&FDRIFT) fraf=requestAnimationFrame(fstep); addEventListener('wheel',ftrWheel,{passive:false}) }
+	else{ if(fraf){ cancelAnimationFrame(fraf); fraf=0 } removeEventListener('wheel',ftrWheel); if(fp){ fp=0; paintFq() } } })).observe(ftrEl)
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 // terminal buttons type themselves in when they scroll into view
 const typeObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('typing'); typeObs.unobserve(e.target) } }),{threshold:.6})

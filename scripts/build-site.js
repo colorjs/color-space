@@ -49,13 +49,24 @@ export async function buildSite() {
 	// icc.js reaches into the rgb/xyz/transfers chain for the Bradford matrix — bundle it
 	// self-contained (the landing's live ICC exporter imports it) rather than flatten each dep
 	const esbuild = await import('esbuild')
-	await esbuild.build({ entryPoints: [join(root, 'icc.js')], bundle: true, format: 'esm', outfile: join(site, 'icc.js'), logLevel: 'silent' })
+	await esbuild.build({ entryPoints: [join(root, 'icc.js')], bundle: true, format: 'esm', minify: true, outfile: join(site, 'icc.js'), logLevel: 'silent' })
 	// generated content: prerendered catalog, per-space pages, sitemap, robots, llms
 	const { build } = await import('./generate-landing.js')
 	build(site)
+	// ── extract the app module out of index.html into js/app.js: the page parses lighter,
+	// the module graph preloads from the head (below), and the module minifies with the
+	// rest. Specifiers rebase from the page root to js/ — './js/x' → './x'; the '../'
+	// runtime modules (wasm/lut/icc) land beside the site root, one level up from js/,
+	// so the web-form '../x.js' specifiers are ALREADY staged-correct from js/app.js.
+	{	let html = readFileSync(join(site, 'index.html'), 'utf8')
+		const m = html.match(/<script type="module">([\s\S]*?)<\/script>/)
+		if (!m) throw new Error('build-site: inline app module not found in index.html')
+		writeFileSync(join(site, 'index.html'), html.replace(m[0], '<script type="module" src="./js/app.js"></script>'))
+		writeFileSync(join(site, 'js/app.js'), m[1])
+		rewrite(join(site, 'js/app.js'), [["'./js/", "'./"]])
+	}
 	// web/ speaks repo-relative paths; the staged site speaks root-relative —
 	// rewrite AFTER generation (build() re-emits index.html from the web source)
-	rewrite(join(site, 'index.html'), [["'../wasm.js'", "'./wasm.js'"], ["'../lut.js'", "'./lut.js'"], ["'../icc.js'", "'./icc.js'"]])
 	rewrite(join(site, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../data.json'", "'../data.json'"]])
 	rewrite(join(site, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])
 	// structural guard: any repo-relative import that escaped the map must fail the
@@ -85,6 +96,30 @@ export async function buildSite() {
 			const bad = [...new Set([...src.matchAll(/\bu[A-Z]\w*/g)].map((x) => x[0]))].filter((u) => !declared.has(u))
 			if (bad.length) throw new Error(`build-site: a site shader uses undeclared uniform(s): ${bad.join(', ')} — declare them in that shader stage (near: ${src.replace(/\s+/g, ' ').slice(0, 70)}…)`)
 		}
+	}
+	// ── flatten the load waterfall (LAST — the guards above read the pre-minified
+	// staged sources): compact data.json, BFS the staged import graph from the two
+	// entry modules, minify every module in it, and preload the WHOLE graph (plus the
+	// data.json fetch) from the head — the browser fetches everything at once instead
+	// of discovering each level after parsing the one above
+	writeFileSync(join(site, 'data.json'), JSON.stringify(JSON.parse(readFileSync(join(site, 'data.json'), 'utf8'))))
+	{	const spec = (code) => [...code.matchAll(/(?:import|from)\s*['"](\.[^'"]+)['"]/g)].map((x) => x[1])
+		const graph = ['js/app.js', 'js/tip.js'], seen = new Set(graph)
+		for (let i = 0; i < graph.length; i++) {
+			const dir = dirname(graph[i])
+			for (const sp of spec(readFileSync(join(site, graph[i]), 'utf8'))) {
+				const p = join(dir, sp)
+				if (!seen.has(p)) { seen.add(p); graph.push(p) }
+			}
+		}
+		for (const p of graph) {
+			const f = join(site, p)
+			const { code } = await esbuild.transform(readFileSync(f, 'utf8'), { minify: true, format: 'esm', target: 'es2022' })
+			writeFileSync(f, code)
+		}
+		const links = `<link rel="preload" href="./data.json" as="fetch" crossorigin>` +
+			graph.map((p) => `<link rel="modulepreload" href="./${p}">`).join('')
+		rewrite(join(site, 'index.html'), [['<link href="./tokens.css" rel="stylesheet">', `<link href="./tokens.css" rel="stylesheet">${links}`]])
 	}
 }
 

@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES } from '../web/js/render.js'
+import { catHTML, sections, SPACES, DEFAULT, fpOf } from '../web/js/render.js'
 import { space, meta, spaceCount, LUTOK } from '../web/js/core.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -17,7 +17,16 @@ export function build(out = join(root, '_site')) {
 // ── index.html: static catalog + live counts + version (from the web/ source) ──
 let html = readFileSync(join(root, 'web/index.html'), 'utf8')
 const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not found: ${re}`); html = html.replace(re, repl) }
-inject(/<main class="cat" id="cat">[\s\S]*?<\/main>/, `<main class="cat" id="cat">${catHTML()}</main>`)
+// the catalog ships COMPLETE: default-color values, slider gradients and tick markers
+// baked in (catHTML(DEFAULT)); data-fp fingerprints the bare template so the page
+// hydrates the existing DOM instead of rebuilding it, replacing only on drift.
+// Hydration contract: the baked variant may differ from the bare template ONLY in
+// attributes — an element added or dropped under `vals` would hand the page a DOM
+// its wiring doesn't expect, and the fingerprint (bare vs bare) can't see it
+const bare = catHTML(), baked = catHTML(DEFAULT)
+const shape = (h) => h.replace(/<([a-z0-9]+)(\s[^>]*)?>/gi, '<$1>')
+if (shape(bare) !== shape(baked)) throw new Error('generate-landing: catHTML(DEFAULT) changes element structure, not just attributes — hydration would desync')
+inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, `<main class="cat" id="cat" data-fp="${fpOf(bare)}">${baked}</main>`)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
 inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)

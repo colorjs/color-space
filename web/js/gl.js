@@ -27,30 +27,42 @@ let readyCb = null
 /** Called whenever an async program finishes linking — repaint to upgrade. */
 export const setGLReady = fn => { readyCb = fn }
 
-// async link tracking: create+link now, read status later (no compile stall)
-function track(gl, pr, resolve) {
-	const st = { pr, pending: true, bad: false }
-	const ext = gl._pcExt !== undefined ? gl._pcExt : (gl._pcExt = gl.getExtension('KHR_parallel_shader_compile'))
-	const tick = () => {
-		if (ext && !gl.getProgramParameter(pr, ext.COMPLETION_STATUS_KHR)) { setTimeout(tick, 25); return }
+// async link tracking: create+link now, read status later (no compile stall).
+// ONE shared poller walks every linking program — a timer per program meant a
+// sync GPU-process round trip per program per 25ms while the driver was busiest.
+const linking = new Set()
+let linkT = 0
+function pollLinks() {
+	linkT = 0
+	for (const st of linking) {
+		const gl = st.gl
+		const ext = gl._pcExt !== undefined ? gl._pcExt : (gl._pcExt = gl.getExtension('KHR_parallel_shader_compile'))
+		if (ext && !gl.getProgramParameter(st.pr, ext.COMPLETION_STATUS_KHR)) continue
+		linking.delete(st)
 		st.pending = false
-		if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) {
-			console.warn('color-space/gl link:', gl.getProgramInfoLog(pr))
+		if (!gl.getProgramParameter(st.pr, gl.LINK_STATUS)) {
+			console.warn('color-space/gl link:', gl.getProgramInfoLog(st.pr))
 			st.bad = true
-		} else resolve(st)
+		} else st.resolve && st.resolve(st)
+		st.onSettle && st.onSettle()
 		readyCb && readyCb()
 	}
-	setTimeout(tick, 0)
+	if (linking.size) linkT = setTimeout(pollLinks, 25)
+}
+function track(gl, pr, resolve, st = {}) {
+	st.pr = pr; st.pending = true; st.bad = false; st.gl = gl; st.resolve = resolve
+	linking.add(st)
+	if (!linkT) linkT = setTimeout(pollLinks, 0)
 	return st
 }
-function build(gl, vsSrc, fsSrc, resolve, preLink) {
+function build(gl, vsSrc, fsSrc, resolve, preLink, st) {
 	const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o }
 	const pr = gl.createProgram()
 	gl.attachShader(pr, sh(gl.VERTEX_SHADER, vsSrc))
 	gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fsSrc))
 	if (preLink) preLink(pr)   // transform-feedback varyings must precede the link
 	gl.linkProgram(pr)
-	return track(gl, pr, resolve)
+	return track(gl, pr, resolve, st)
 }
 
 /** Is the GPU plane kernel possible for this space? */
@@ -83,41 +95,50 @@ function bindLuts(gl, st) {
 const FSQ_VS = `#version 300 es
 void main() { gl_Position = vec4(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0, 0.0, 1.0); }`
 
-const planeProgs = new Map()   // `${s}:${a}:${b}` → { pr, pending, bad, u? } | null
-function planeProg(s, a, b) {
-	const key = `${s}:${a}:${b}`
-	if (planeProgs.has(key)) return planeProgs.get(key)
+// ONE program per space: the swept channel indices ride a uniform (uAB), so all
+// three bars and every plane pair share a single compile — six programs' worth of
+// identical conversion library collapsed into one. Compiles run through a small
+// QUEUE (max 4 in flight): a burst of new spaces (fast scroll) no longer jams the
+// GPU process, so the page's sync GL calls never stall behind a deep driver queue.
+const planeProgs = new Map()   // s → { pr, pending, bad, u?, lutN }
+const QMAX = 4, compileQ = []
+let compiling = 0
+const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift()() }
+
+function planeFS(s) {
 	const d = dimOf(s), vt = VT[d]
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
 	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'])
 	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
 	if (s !== 'rgb') pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
-	let lib
-	try { lib = glsl(pairs) } catch { planeProgs.set(key, null); return null }
+	const lib = glsl(pairs)
 	// a folded coordinate (HSM's mirrored inverse) converts to a plausible color yet
 	// reads back DIFFERENT — not a real color of the shown volume. Same law as the
 	// solid's caps and the picker line: 3% of span, hue wrap-aware. Spans are baked
 	// as literals per space; NaN roundtrips fail the comparison too.
 	const cch = s === 'rgb' ? null : classify(s).ch
 	const hueK = s === 'rgb' ? -1 : (classify(s).angle?.i ?? -1)
+	const spans = s === 'rgb' ? '' : `const float SPAN[${d}] = float[${d}](${cch.slice(0, d).map(c => (c.max - c.min).toFixed(6)).join(', ')});`
 	const rt = s === 'rgb' ? '' : `
 		else {
 			${vt} bk;
 			if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
 			else if (uGam == 2) bk = p3_${san(s)}(clamp(${san(s)}_p3(v), 0.0, 1.0));
 			else bk = rec2020_${san(s)}(clamp(${san(s)}_rec2020(v), 0.0, 1.0));
-			${cch.slice(0, d).map((c, k) => {
-				const span = (c.max - c.min).toFixed(6)
-				const wrap = k === hueK ? ` dq${k} = min(dq${k}, ${span} - dq${k});` : ''
-				return `float dq${k} = abs(bk[${k}] - v[${k}]);${wrap} if (!(dq${k} <= ${span} * 0.03)) al = 0.5;`
-			}).join('\n\t\t\t')}
+			for (int k = 0; k < ${d}; k++) {
+				float dq = abs(bk[k] - v[k]);
+				${hueK >= 0 ? `if (k == ${hueK}) dq = min(dq, SPAN[k] - dq);` : ''}
+				if (!(dq <= SPAN[k] * 0.03)) al = 0.5;
+			}
 		}`
 	const vswz = 'xyzw'.slice(0, d).split('').map(c => `uV.${c}`).join(', ')
-	const fs = `#version 300 es
+	return `#version 300 es
 precision highp float;
 precision highp int;
 ${lib}
+${spans}
 uniform vec4 uV;          // held channel values
+uniform ivec2 uAB;        // swept channel indices: x horizontal, y vertical (-1 = bar)
 uniform vec2 uRX, uRY;    // swept ranges (pan/zoom-windowed)
 uniform vec2 uRes;
 uniform float uQ;         // numeric coordinate lattice (0 = smooth)
@@ -139,8 +160,10 @@ void main() {
 	} else { fa = f.x; fb = f.y; }
 	if (uQ > 0.5) { fa = (min(uQ - 1.0, floor(fa * uQ)) + 0.5) / uQ; fb = (min(uQ - 1.0, floor(fb * uQ)) + 0.5) / uQ; }
 	${vt} v = ${vt}(${vswz});
-	v[${a}] = uRX.x + (uRX.y - uRX.x) * fa;
-	${b >= 0 ? `v[${b}] = uRY.x + (uRY.y - uRY.x) * fb;` : ''}
+	for (int k = 0; k < ${d}; k++) {
+		if (k == uAB.x) v[k] = uRX.x + (uRX.y - uRX.x) * fa;
+		else if (k == uAB.y) v[k] = uRY.x + (uRY.y - uRY.x) * fb;
+	}
 	vec3 rgb = ${s === 'rgb' ? 'vec3(v[0], v[1], v[2])' : `${san(s)}_rgb(v)`};
 	if (isnan(rgb.x) || isnan(rgb.y) || isnan(rgb.z)) rgb = vec3(0.0);
 	rgb = clamp(rgb, 0.0, 255.0);
@@ -162,50 +185,58 @@ void main() {
 	if (uWeb == 1) rgb = floor(rgb / 51.0 + 0.5) * 51.0;
 	O = vec4(rgb / 255.0, al);
 }`
-	const st = build(G, FSQ_VS, fs, (o) => {
-		o.u = Object.fromEntries(['uV', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar'].map(n => [n, G.getUniformLocation(o.pr, n)]))
+}
+
+function planeProg(s) {
+	if (planeProgs.has(s)) return planeProgs.get(s)
+	const st = { pr: null, pending: true, bad: false, u: null, lutN: null }
+	planeProgs.set(s, st)
+	compileQ.push(() => {
+		compiling++
+		st.onSettle = () => { compiling--; pump() }
+		// one try over codegen AND program creation — any throw must settle the slot,
+		// or the queue would jam with `compiling` stuck high
+		try { const fs = planeFS(s); st.lutN = lutNames(fs); build(G, FSQ_VS, fs, null, null, st) }
+		catch { st.pending = false; st.bad = true; st.onSettle() }
 	})
-	st.lutN = lutNames(fs)
-	planeProgs.set(key, st)
+	pump()
 	return st
 }
 
 /** 'ready' | 'pending' | 'no' — starts the async compile on first ask. */
-export function planeGLStatus(s, a, b = -1) {
+export function planeGLStatus(s) {
 	if (!hasPlaneGL(s)) return 'no'
-	const st = planeProg(s, a, b)
-	if (!st || st.bad) return 'no'
-	return st.pending ? 'pending' : 'ready'
+	const st = planeProg(s)
+	return st.bad ? 'no' : st.pending ? 'pending' : 'ready'
 }
 
 /**
  * Start compiling a space's programs ahead of need (hover, prev/next neighbours):
- * plane pairs, channel bars and the 3D solid all link in the background, so the
+ * the shared plane/bar program and the 3D solid link in the background, so the
  * dossier opens straight into full-quality GPU paint.
  * @param {string} s space name
- * @param {Array<[number,number]>} pairs the plane channel pairs the dossier will show
  */
-export function warmGL(s, pairs = []) {
-	if (hasPlaneGL(s)) {
-		for (const [a, b] of pairs) planeProg(s, a, b)
-		const d = dimOf(s)
-		for (let i = 0; i < d; i++) planeProg(s, i, -1)   // bars
-	}
+export function warmGL(s) {
+	if (hasPlaneGL(s)) planeProg(s)
 	if (has3dGL(s)) mesh3Progs(mesh3State(mesh3Canvas()), s)
 }
 
 const GAMI = { srgb: 1, p3: 2, rec2020: 3 }
 
-function drawKernel(st, w, h, vals, rx, ry, gamut, quant, polar) {
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar) {
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
 	G.useProgram(st.pr)
+	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
+	// process is mid-compile-burst and each lookup stalls behind the whole queue
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
 	G.uniform4f(st.u.uV, ...v4)
+	G.uniform2i(st.u.uAB, a, b)
 	G.uniform2f(st.u.uRX, rx[0], rx[1])
 	G.uniform2f(st.u.uRY, ry[0], ry[1])
 	G.uniform2f(st.u.uRes, w, h)
@@ -218,13 +249,13 @@ function drawKernel(st, w, h, vals, rx, ry, gamut, quant, polar) {
 
 /**
  * Paint one plane on the GPU and blit it into the plane's 2d canvas.
- * Call only when planeGLStatus(s, a, b) is 'ready'. quant: number N | 'web' —
+ * Call only when planeGLStatus(s) is 'ready'. quant: number N | 'web' —
  * color-cluster quantizers stay on the JS path.
  */
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar) {
-	const st = planeProg(s, a, b)
-	if (!st || st.bad || st.pending) return false
-	drawKernel(st, cv2d.width, cv2d.height, vals, rx, ry, gamut, quant, polar)
+	const st = planeProg(s)
+	if (!st.pr || st.bad || st.pending) return false
+	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
@@ -236,13 +267,27 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar) {
  * gamut alpha — the smooth version of the stepped CSS mask.
  */
 export function paintBarGL(cv2d, s, vals, i, ri, gamut) {
-	const st = planeProg(s, i, -1)
-	if (!st || st.bad || st.pending) return false
-	drawKernel(st, cv2d.width, cv2d.height, vals, ri, [0, 0], gamut, 0)
+	const st = planeProg(s)
+	if (!st.pr || st.bad || st.pending) return false
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, 0)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
 	return true
+}
+
+/**
+ * The same 1-D sweep as a data-URL image, for CSS background use — the catalog
+ * strips stay plain DOM (a live canvas per strip cost a compositor layer each;
+ * ~100 of them made every scroll re-Layerize the page). Draw + encode is one
+ * same-task read of the shared GL canvas, ~0.3ms per 512×1 strip, paid only on
+ * settle — never per drag frame.
+ */
+export function barImageURL(s, vals, i, ri, gamut) {
+	const st = planeProg(s)
+	if (!st.pr || st.bad || st.pending) return null
+	drawKernel(st, 512, 1, vals, i, -1, ri, [0, 0], gamut, 0)
+	return CV.toDataURL()
 }
 
 // ── 3D solid: static cube-surface lattice, converted rgb→space in the VERTEX
