@@ -1195,7 +1195,12 @@ if(cvalEl){
 	cvalEl.addEventListener('blur',()=>renderFast())   // settle back to canonical hex
 }
 const RGB=()=>rgbF(master.s,master.vals)
-const valsFor=s=>{ if(s===master.s) return master.vals; try{ return toSpace(s,RGB()) }catch{ return null } }
+// the instrument projection: the master color in space s, clamped into the documented channel
+// ranges — sliders, ticks and value inputs are bounded instruments, and a pure conversion can
+// leave them (studio-swing YCbCr of a full-swing color, CAM16 M past 100, OSA-UCS black below
+// −10). The record (code snippets) converts for itself, exact.
+const valsFor=s=>{ if(s===master.s) return master.vals
+	try{ const chs=classify(s).ch; return toSpace(s,RGB()).map((x,i)=>{ const c=chs[i]; return c?clamp(x,c.min,c.max):x }) }catch{ return null } }
 // the tightest standard gamut that holds the current colour — convert straight from the source
 // space (never through clamped rgb) and test each RGB space's box; null = beyond Rec.2020
 const GPILL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020' }
@@ -1425,7 +1430,9 @@ document.fonts?.ready.then(layoutToc)
 requestAnimationFrame(layoutToc)
 addEventListener('load',layoutToc)
 
-// visibility gating for chip gradients
+// visibility set: bounds the per-frame sweeps (drag frames repaint near-screen rows only;
+// the prepaint walk covers the rest at idle). Scroll-in repaints are stamp-skipped no-ops
+// unless the row went stale while offscreen.
 const vis=new Set()
 const io=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ vis.add(s); entered.push(e.target) } else vis.delete(s) })
@@ -1474,7 +1481,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
 	ent.addEventListener('focusout',e=>{ if(popEnt===ent&&!ent.contains(e.relatedTarget)) hidePop() })   // the popover closes once focus leaves the row (blur, tab away, Esc)
-	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
+	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			const c=classify(s).ch[i]
@@ -2972,7 +2979,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// precise adjustment: the big value inputs above the sliders
 	detail.querySelectorAll('#bigch .bch').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
 		const STEP=10**-decOf(c), sdec=decOf(c)   // one precision convention — catalog and dossier step alike
-		const adoptS=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
+		const adoptS=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
 			adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
@@ -2989,7 +2996,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 	if(e.target.closest('.nvw')) return
 	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX
-	const adopt=()=>{ if(master.s!==s){ let mv; try{ mv=toSpace(s,RGB()) }catch{ return false } master={ s, vals:mv } } return true }
+	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 	// quantized modes snap LIVE while sliding — in websafe/names the bar's own cells ARE the choices:
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
@@ -3010,7 +3017,7 @@ function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
 	el.onpointermove=move; el.onpointerup=up }) }
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
 function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
-		if(master.s!==selected){ let mv; try{ mv=toSpace(selected,RGB()) }catch{ return } master={ s:selected, vals:mv } }
+		if(master.s!==selected){ const mv=valsFor(selected); if(!mv) return; master={ s:selected, vals:mv } }
 		const r=pl.getBoundingClientRect(), vw=pl._vw
 		let fx,fy
 		if(pl._polar){ // the disc: angle → hue fraction (clockwise, as the 3D top view), radius → chroma
@@ -3272,19 +3279,39 @@ let glupT=0
 setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
 	paintCatalogGrad(); if(open()&&!isBarred(selected)){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
+// preload: bake EVERY card ahead of need — strips, values, ticks. One idle walk in catalog
+// order, deadline-sliced; the stamp-skip makes finished entries nearly free, so re-walks
+// (armed by each settled sweep and each program landing) touch only stale rows. Scrolling
+// then paints nothing — the observer's scroll-in repaint is a no-op unless the color changed
+// while that row was offscreen and the walk hasn't reached it yet.
+const ric=window.requestIdleCallback?.bind(window)||(f=>setTimeout(()=>f({timeRemaining:()=>8}),50))
+const cic=window.cancelIdleCallback?.bind(window)||clearTimeout
+let ppT=0
+const prepaintSoon=()=>{ cic(ppT); ppT=ric(dl=>{ ppT=0
+	for(const ent of cat.querySelectorAll('.ent[data-s]')){
+		if(dl.timeRemaining()<3) return prepaintSoon()   // slice spent — resume next idle
+		paintCatalogGrad([ent]); paintCatalogVals([ent]) } },{timeout:1000}) }
+// …and compile every lead card's program up front, through the same 4-deep queue — the first
+// scroll or scrub meets warm GPU strips, never a mid-scroll compile burst
+addEventListener('load',()=>setTimeout(()=>{
+	cat.querySelectorAll('.ent[data-s]:not(.lite)').forEach(ent=>{ const s=ent.dataset.s; if(hasPlaneGL(s)) planeGLStatus(s) })
+	prepaintSoon() },300))
 // the card strip is the dossier bar at catalog scale: the same per-pixel GPU sweep —
 // true colors everywhere the formula is nonlinear, non-physical spans voided to the
 // checker — because a sparse CSS gradient INVENTS colors between its stops (xyy's y
 // sweep really clamps bright almost to 0, but a 9-stop gradient fades it through a
 // long dark wedge). The gradient stays as the compile-time and no-GL fallback.
-// virtualized: pass the subset that just scrolled into view (from the observer) — otherwise all
-// vis entries, for a global change (color edit, gamut, quantize). Only near-screen rows ever paint.
+// pass an explicit subset (observer scroll-in, popover, the prepaint walk) and it paints
+// unconditionally — offscreen included. A no-arg sweep (color edit, gamut, quantize) paints
+// near-screen rows now and arms the prepaint walk to refresh the rest at idle.
 // fast=true (a drag/typing frame): CSS ramps only — on a strip in motion the 9-stop
 // gradient is indistinguishable, and the GL bake (draw + PNG encode per strip) is
 // deferred to the settle sweep scheduleFast arms. Full sweeps bake the per-pixel
 // GL image into --strip (see .ch.gl) — plain DOM, no per-strip canvas layer.
-function paintCatalogGrad(ents,fast){ const hx=hex(RGB())
-	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s)||(liteOff(ent)&&!ent.classList.contains('pop')))return   // a focused sheet row (.pop) paints its slider popover, live
+function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
+	if(sweep&&!fast) prepaintSoon()
+	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
+		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) paints its slider popover, live
 	const gl=!fast&&planeGLStatus(s)==='ready'
 	const stamp=`${hx}:${gl?1:0}`; if(ent.dataset.g===stamp) return   // already painted for this exact color + tier (incl. the prerendered CSS state)
 	const cls=classify(s), vals=valsFor(s)
@@ -3297,8 +3324,8 @@ function paintCatalogGrad(ents,fast){ const hx=hex(RGB())
 		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
 	ent.dataset.g=`${hx}:${tier}` }) }
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
-function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb)
-	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(!vis.has(s))return
+function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
+	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		// stamp-skip: values + ticks depend only on the color (and, for sheet rows, on
 		// whether the popover shows ticks — the ':l' tier). A focused entry always
 		// repaints — its input is deliberately left untouched while being edited
@@ -3325,8 +3352,11 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	paintCatalogVals()   // all vis entries — the color changed
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
 	const s=selected, cls=classify(s), vals=valsFor(s)
-	const cssvEl=document.getElementById('cssv'); if(cssvEl&&vals&&CSSFMT[s]) cssvEl.textContent=CSSFMT[s](vals)
 	const shown=vals
+	// the record speaks exact values: valsFor clamps into the instrument's ranges, so every
+	// code/CSS surface converts for itself — a clamped tuple would claim a false roundtrip
+	let pure=shown; if(shown&&s!==master.s){ try{ pure=toSpace(s,rgb) }catch{} }
+	const cssvEl=document.getElementById('cssv'); if(cssvEl&&pure&&CSSFMT[s]) cssvEl.textContent=CSSFMT[s](pure)
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	const barGL=planeGLStatus(s)==='ready'
@@ -3375,8 +3405,8 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		const stk=el.querySelector('.stk'); stk.firstElementChild.classList.toggle('lim',shown[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',shown[i]<=c.min+1e-9) })
 	// gamut membership pills beside the values — every display gamut that can show this color
 	{	const gt=document.getElementById('gtags')
-		if(gt&&shown) gt.querySelectorAll('.gt').forEach(t=>{ let on=false
-			try{ on=inGam(s,shown,t.dataset.g) }catch{}
+		if(gt&&pure) gt.querySelectorAll('.gt').forEach(t=>{ let on=false
+			try{ on=inGam(s,pure,t.dataset.g) }catch{}
 			t.hidden=!on }) }
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
@@ -3440,16 +3470,16 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			// the .icc mention IS the download.
 			const g0=gamuts()
 			let okv=null, xyzv=null
-			try{ okv=s==='oklch'?shown:space[s].oklch(...shown) }catch{}
-			try{ xyzv=s==='xyz'?shown:space[s].xyz(...shown) }catch{}
+			try{ okv=s==='oklch'?pure:space[s].oklch(...pure) }catch{}
+			try{ xyzv=s==='xyz'?pure:space[s].xyz(...pure) }catch{}
 			const V=t=>`\x03${t}\x04`
 			snip.innerHTML=hilite(
-				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${V(fmt(s,shown))};\n`
+				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${V(fmt(s,pure))};\n`
 					:`/* CSS cannot name ${s} directly — the same color, in forms it can: */\n`)+
 				(xyzv&&s!=='xyz'?`color: ${V(fmt('xyz',xyzv))};   /* exact */\n`:'')+
 				(okv&&s!=='oklch'?`color: ${V(fmt('oklch',okv))};   /* perceptual form, wide-gamut safe */\n`:'')+
 				`color: ${V(hx)};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`+
-				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${shown.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
+				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${pure.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
 				.replace(/\x03/g,'<span class="cval" title="click selects the value">').replace(/\x04/g,'</span>')
 				.replace(/\x05/g,'<span class="icclnk" role="link" tabindex="0" title="download the ICC profile">').replace(/\x06/g,'</span>')
 			snip.onclick=e=>{ const v=e.target.closest('.cval')
@@ -3462,7 +3492,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			snip.innerHTML=hilite(`import data from 'color-space/data.json' with { type: 'json' }\n\n`+
 				`data.spaces${prop(s)} = `+JSON.stringify(meta[s]||{},null,2)) }
 		else if(codeTab==='wasm'){
-			const tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
+			const tup=pure.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 			const cp=s==='rgb'?'.oklch':'.rgb', bk=s==='rgb'?'.rgb.oklch':`.rgb${prop(s)}`   // rgb pairs with oklch — never itself
 			snip.innerHTML=hilite(`import space, { alloc } from 'color-space/wasm'\n\n`+
 				`space${prop(s)}${cp}(${tup})  // scalar — the JS API's exact shape\n\n`+
@@ -3486,7 +3516,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 				`space.rgb.oklch(${ri.join(', ')})  // → [${okt}]\n`+
 				`space.oklch.rgb(${okt})  // → [${back.join(', ')}]\n`+
 				`\n// one space, tree-shaken (0.4-1.5 kB):\nimport rgb from 'color-space/rgb.js'`) }
-		else{ const path=pathToRgb(s), tup=shown.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
+		else{ const path=pathToRgb(s), tup=pure.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 		const ri=rgb.map(Math.round)
 		const back=toSpace(s,ri), inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n`
 		snip.innerHTML=hilite(`import space from 'color-space'\n\n`+

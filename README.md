@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="a perceptually-uniform hue sweep, painted through OKLCh" width="100%"/>
 
-**Any color space.** Web, print, film, broadcast, photo, art, science, history. Conventional ranges, verified formulas, metadata, one tiny API. Zero dependencies, tree-shakeable to 0.4–1.5 kB per space. JS, WASM, GLSL, LUT, ICC.
+**Any color space.** Web, print, film, broadcast, photo, art, science, history. Conventional ranges, verified formulas, metadata, one tiny API: JS, WASM, GLSL, LUT, ICC. Zero-deps, tree-shakeable.
 
 **[Interactive atlas →](https://colorjs.github.io/color-space/)**
 
@@ -39,41 +39,34 @@ const buf = alloc(width * height);   // WASM-backed Float64Array, interleaved r,
 space.rgb.oklch(buf);                // converts in place — nothing crosses the boundary
 ```
 
-Covers the `lite` set: the numeric pipeline (rgb/lrgb/xyz · OKLab · Lab/Luv/DIN99 · HDR · camera logs). Device cylinders and lookup/appearance spaces gain nothing from batching — the full catalog carries those.
-
-The same bytes also ship as a standalone `dist/color-space.wasm` (the `color-space/color-space.wasm` export) — zero imports, no tail calls, so it runs unhosted in non-JS runtimes. It's a reactor module: every conversion is an export.
+Covers the `lite` set. Ships standalone as `color-space/color-space.wasm`, runs in any WASM runtime:
 
 ```sh
-wasmtime run --invoke rgb_lrgb color-space.wasm 255 128 0   # → the 3 f64 results, as i64 bit patterns
+wasmtime run --invoke rgb_lrgb color-space.wasm 255 128 0   # → 3 f64s as i64 bit patterns
 ```
 
 ## GL/WGSL
 
-Every space ships as a GLSL shader chunk with a WGSL translation — plain data (`{ name, deps, edges, code }`, three.js-style), composed into source on demand, no build step. Import the spaces you convert, name the conversion:
+Every space ships as GLSL or WGSL twin — plain data (`{ name, deps, edges, code }`, three.js-style), composed on demand:
 
 ```js
 import { glsl, wgsl } from 'color-space/gl';
 import oklch from 'color-space/gl/oklch';
 import p3    from 'color-space/gl/p3';
 
-glsl(oklch, 'rgb');   // GLSL `vec3 oklch_rgb(vec3 c)`  (cf. scalar oklch.rgb(l,c,h))
+glsl(oklch, 'rgb');   // vec3 oklch_rgb(vec3 c)
 glsl(oklch);          // both ways: rgb ↔ oklch
-glsl(oklch, p3);      // neither end rgb — routed via their shared lrgb
+glsl(oklch, p3);      // neither end rgb — routed via shared lrgb
 wgsl(oklch);          // the same, as WGSL
 ```
-
-A chunk import brings only its own dependency chain (~5 kB) and stays pure data — `oklch.code` is its raw GLSL. Runtime `from`/`to` strings: `import { glsl } from 'color-space/gl/all'` routes any of the 160 shader-backed names, byte-identical, at the cost of all chunks (~200 kB min).
-
-Measured-dataset spaces (`munsell`'s renotation) declare a `lut` — the composed source reads it through `uniform sampler2D <name>tex`; upload `luts[name].data()` (w×h RGBA32F, NEAREST) and bind by that name. Everything else — interpolation, the iterative inverse — is ordinary chunk code, differentially tested like the rest.
 
 ## JSON
 
 ```js
 import data from 'color-space/data.json' with { type: 'json' };
-data.spaces.oklab;   // { description, channels, range, refs, wiki, year, by, use,
-                     //   method, encoding, referred, dynamic, neighbors }
+data.spaces.oklab;         // { description, channels, range, refs, year, by, use, method, … }
 data.spaces.kelvin.loss;   // 'projective' | 'lookup' | 'quantized'
-data.spaces.p3;      // RGB working spaces add: illuminant, observer, gamut, primaries {r,g,b}, white
+data.spaces.p3;            // RGB working spaces add illuminant, gamut, primaries, white
 
 import whitepoint from 'color-space/whitepoints.js';
 whitepoint[2].D50;   // → [96.422, 100, 82.521]
@@ -84,7 +77,7 @@ gamut.srgb;   // { primaries: { r:[0.64,0.33], g:[0.30,0.60], b:[0.15,0.06] }, w
 
 ## LUT
 
-Any conversion as a `.cube` file — the format the film world reads without JavaScript: DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg. No code path either: every space's page in the [catalog](https://colorjs.github.io/color-space/) downloads one.
+`.cube` format for the film industry: DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg.
 
 ```js
 import { cube } from 'color-space/lut';
@@ -93,24 +86,20 @@ cube(space.slog3, space.rec709);     // camera log → broadcast, 33³ (17/33/65
 cube(space.rec709, space.rgb);       // pure transfer — auto-emits 1D, 4096 pt
 ```
 
-Every file states its own accuracy — the header carries the measured deviation of the lattice against the direct conversion at random off-lattice points:
+Every file states its own accuracy — the header carries the lattice's measured deviation from the direct conversion:
 
 ```
 # input: slog3 0–1 · output: rec709 0–1, unclamped
-# trilinear lattice vs direct conversion, 1000 off-lattice samples, fractions of full scale: median 4.8e-3, max 8.8e-1 · in-range outputs (2.5% of domain, 1000 samples): median 2.0e-3, max 9.5e-2
+# trilinear lattice vs direct conversion, 1000 off-lattice samples, fractions of full scale: median 4.8e-3, max 8.8e-1 …
 ```
 
 ```sh
 ffmpeg -i in.mov -vf lut3d=slog3-to-rec709.cube out.mov
 ```
 
-The domain is the source's conventional range mapped 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are unclamped. Degenerate corners throw rather than bake a broken file. Hue-axed spaces (oklch, munsell…) can *source* a LUT — the lattice covers the wrap and the output varies continuously across it — but can't *end* one: an interpolated output hue would cross the 360→0 seam. That leaves 150 of 161 sources. Keep 3D sizes ≤129 for OpenColorIO. Lower-level exports: `table` · `apply` · `verify` · `channelwise`.
-
-`{ shaper: true }` prepends the conversion's own tone curve as a 1D shaper (Resolve and OCIO read the combined cube; ffmpeg's `lut3d` doesn't). A shaped 33³ beats a plain 65³ for camera-log → display at ⅙ the file size, measured.
+<sup>The source's conventional range maps to 0–1 (rgb 0–255 rides as 0–1, like image data); outputs are unclamped; degenerate corners throw rather than bake a broken file. Hue-axed spaces (oklch, munsell…) can *source* a LUT but can't *end* one — an interpolated output hue would cross the 360→0 seam — leaving 150 of 161 sources. `{ shaper: true }` prepends the conversion's own tone curve as a 1D shaper: a shaped 33³ beats a plain 65³ at ⅙ the size, measured (Resolve and OCIO read it; ffmpeg's `lut3d` doesn't). Lower-level: `table` · `apply` · `verify` · `channelwise`.</sup>
 
 ## ICC
-
-The color-management analog of the LUT: every space as an ICC v2 profile.
 
 ```js
 import { profile } from 'color-space/icc';
@@ -121,11 +110,10 @@ profile(space.munsell);    // measured dataset → CLUT input profile
 profile(space.lab, { xyz: space.xyz });   // CLUT both ways — colour-space class
 ```
 
-Everything derives from the space's own conversions. RGB working spaces get a matrix+TRC display profile (Photoshop, macOS/Windows CM, browsers, printers) — colorants from the full-intensity primaries, Bradford-adapted to the D50 PCS, TRC from the neutral diagonal — and only if the space empirically *is* matrix×transfer, so a matrix profile never lies. Everything else — cylinders, luma/chroma, opponent, appearance models, datasets, even 1-, 2- and 4-channel scales — ships as a CLUT profile (`mft2`, Lab PCS): device→Lab sampled on a dense lattice, the reverse table added only where the inverse is continuous (a hue wheel's inverse can't ride a lattice across the 360→0 seam — those stay honestly one-way, class `scnr`). Colorants are pinned to Lindbloom's D50 matrices, the TRC to IEC 61966-2-1; matrix profiles pass macOS ColorSync in the suite, CLUT lattices are differentially verified against the direct conversions and read back through lcms.
+<sup>Everything derives from the space's own conversions: matrix+TRC display profiles for RGB working spaces — only if the space empirically *is* matrix×transfer, so a matrix profile never lies — CLUT profiles (`mft2`, Lab PCS) for everything else, the reverse table added only where the inverse is continuous, so hue wheels stay honestly one-way. Colorants pin to Lindbloom's D50 matrices, the TRC to IEC 61966-2-1; matrix profiles pass macOS ColorSync, CLUT lattices verify against the direct conversions through lcms.</sup>
 
 ## MCP
-
-Color math is what language models hallucinate — plausible matrices, wrong in the third decimal. The zero-dependency MCP server lets agents call the verified conversions instead:
+The zero-dependency MCP server lets agents call the verified conversions instead of hallucinated matrices:
 
 ```json
 { "mcpServers": { "color-space": { "command": "npx", "args": ["color-space-mcp"] } } }
