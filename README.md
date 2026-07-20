@@ -1,6 +1,6 @@
 # color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
-<img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="an OKLCh hue sweep shown continuously, in 20 steps, and in 10 steps" width="100%"/>
+<img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="a CAM16 hue sweep shown continuously, in 20 steps, and in 10 steps" width="100%"/>
 
 **An open collection of 161 color spaces.**
 
