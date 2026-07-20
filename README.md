@@ -1,6 +1,6 @@
 # color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
-<img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="a perceptually-uniform hue sweep, painted through OKLCh" width="100%"/>
+<img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="an OKLCh hue sweep shown continuously, in 20 steps, and in 10 steps" width="100%"/>
 
 **An open collection of 161 color spaces.**
 
@@ -90,8 +90,6 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Beyond JavaScript
 
-The same formulas can leave the main-thread API when the job does.
-
 | Need | Entry point | Result |
 |---|---|---|
 | Batch / standalone WASM | `color-space/wasm` | 27-space in-place hub; zero-import `.wasm` included |
@@ -117,7 +115,7 @@ The same formulas can leave the main-thread API when the job does.
 | colorjs.io | ~40 | 0–1 | some | JS |
 | texel/color | ~16 | 0–1 | ❌ | JS |
 
-¹ Camera logs, appearance models, video encodings, and historical systems. See the factual [library comparison](docs/library-comparison.md); `npm run benchmark` compares performance.
+¹ <sup>Camera logs, appearance models, video encodings, and historical systems. See the factual [library comparison](docs/library-comparison.md); `npm run benchmark` compares performance.</sup>
 
 ## Scope
 
