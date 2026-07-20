@@ -15,7 +15,7 @@
  * @year 1974
  * @by OSA committee (David MacAdam)
  * @use Large-step perceptual uniformity for industrial/scientific color-difference work; legacy, niche next to CIELAB/CIELUV.
- * @channel {L} -10 8 Lightness
+ * @channel {L} -10 10 Lightness
  * @channel {j} -20 20 Yellow-Blue axis
  * @channel {g} -20 20 Red-Green axis
  * @method opponent
@@ -27,14 +27,15 @@ import xyz from './xyz.js';
 import { mat3, inv3 } from '../util.js';
 
 // OSA-UCS defines no fixed coordinate range — MacAdam's 1974 transform is unbounded, and the
-// old [-10,10] convention held barely a third of sRGB (which reaches ~±19 in j/g). The chroma
-// axes are widened to ±20 to contain it. L stops at -10 by design: the modified-luminance
-// factor C = L'/(5.9·(∛Y₀−2/3)) has a pole at Y₀=8/27, i.e. a constant L ≈ -10.7, below which
-// chroma diverges and the coordinates sign-flip — that region is not meaningful, so the useful
-// lightness range ends just above it. (White tops out near L=7.) Wider gamuts still exceed ±20.
+// conventional [-10,10] held barely a third of sRGB in chroma (which reaches ~±19 in j/g), so
+// those axes are widened to ±20 to contain it. L keeps the conventional [-10,10]: white
+// (Y=100) lands at L ≈ 7.1, inside it, and the floor sits just above the transform's pole —
+// the modified-luminance factor C = L'/(5.9·(∛Y₀−2/3)) diverges at Y₀=8/27, a constant
+// L ≈ -10.7, below which chroma blows up and the coordinates sign-flip; that region (black
+// itself maps to L ≈ -13.5) is not meaningful. Wider gamuts still exceed ±20 in chroma.
 var osaucs = {
 	name: 'osaucs',
-	range: [[-10, 8], [-20, 20], [-20, 20]]
+	range: [[-10, 10], [-20, 20], [-20, 20]]
 };
 
 // XYZ -> RGB (MacAdam 1974, Table 1); single source of truth, inverse derived
