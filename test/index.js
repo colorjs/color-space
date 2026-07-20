@@ -69,8 +69,11 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	const unmapped = Object.keys(space).filter(n => !map.includes(`/${n}</loc>`))
 	is(unmapped, [], 'every space is in the sitemap')
 	is(existsSync(`${site}/llms.txt`) && existsSync(`${site}/robots.txt`), true, 'llms + robots staged')
-	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8'), lmsWiki = 'href="https://en.wikipedia.org/wiki/LMS_color_space"'
-	is(lmsPage.split(lmsWiki).length - 1, 1, 'LMS renders one Wikipedia link')
+	// per-space pages are atlas copies with their own head — pin the stamp, not the body
+	// (the dossier's Wikipedia link is JS-rendered; one-article-per-space is pinned below)
+	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8')
+	is(lmsPage.split('<title>lms color space').length - 1, 1, 'LMS page carries its own title')
+	is(lmsPage.split('<link rel="canonical" href="https://colorjs.github.io/color-space/lms">').length - 1, 1, 'LMS page carries its canonical')
 })
 
 // data.json is generated (npm run data, in `prepare`) — this pins it against
