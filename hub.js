@@ -39,6 +39,21 @@ const batch = (scalar, from, to, src, p0, p1) => {
 	return out
 }
 
+// monomorphic array→call adapters for composed chains: the hop's channel count is
+// known at wiring, so no call ever rests or spreads (≤4 channels covers every space)
+const call = (fn, n) =>
+	n === 3 ? v => fn(v[0], v[1], v[2])
+	: n === 1 ? v => fn(v[0])
+	: n === 4 ? v => fn(v[0], v[1], v[2], v[3])
+	: n === 2 ? v => fn(v[0], v[1])
+	: v => fn(...v)
+const callP = (fn, n) =>
+	n === 3 ? (v, p0, p1) => fn(v[0], v[1], v[2], p0, p1)
+	: n === 1 ? (v, p0, p1) => fn(v[0], p0, p1)
+	: n === 4 ? (v, p0, p1) => fn(v[0], v[1], v[2], v[3], p0, p1)
+	: n === 2 ? (v, p0, p1) => fn(v[0], v[1], p0, p1)
+	: (v, p0, p1) => fn(...v, p0, p1)
+
 // batch-aware face over a raw scalar conversion: first-arg dispatch, scalar path
 // allocation-free (fixed arity — ≤4 channels + ≤2 trailing params covers every space)
 const batched = (scalar, from, to) => {
@@ -109,18 +124,28 @@ export function wire(space) {
 				const path = [to]
 				for (let n = to; (n = prev[n]) !== null;) path.unshift(n)
 				const steps = path.slice(1).map((n, i) => direct[path[i]][n])
+				// per-hop arity is known at wiring — monomorphic callers keep every hop
+				// rest/spread-free (the spread form used to cost more than the math itself);
+				// hop 0 is called directly by the entry, no caller needed
+				const callers = steps.map((fn, i) => i ? call(fn, space[path[i]].range.length) : null)
+				const n = steps.length
 				// params bind to the source's outgoing edge when parametric (declared
 				// arity beyond its channels), else to the target's incoming edge
-				const last = steps.length - 1
+				const last = n - 1
 				if (steps[0].length <= si && steps[last].length > space[path[last]].range.length) {
-					scalar = (...args) => {
-						const params = args.slice(si)
-						let vals = args.slice(0, si)
-						for (let i = 0; i < last; i++) vals = steps[i](...vals)
-						return steps[last](...vals, ...params)
-					}
+					const fin = callP(steps[last], space[path[last]].range.length)
+					scalar = si === 3
+						? (a, b, c, p0, p1) => { let v = steps[0](a, b, c); for (let i = 1; i < last; i++) v = callers[i](v); return fin(v, p0, p1) }
+						: (...args) => {
+							const params = args.slice(si)
+							let vals = args.slice(0, si)
+							for (let i = 0; i < last; i++) vals = steps[i](...vals)
+							return steps[last](...vals, ...params)
+						}
 				} else {
-					scalar = (...args) => steps.reduce((vals, fn) => fn(...vals), args)
+					// one fixed entry serves every source arity: batched always forwards
+					// (a,b,c,d,e) positionally, and a step ignores slots past its params
+					scalar = (a, b, c, d, e) => { let v = steps[0](a, b, c, d, e); for (let i = 1; i < n; i++) v = callers[i](v); return v }
 				}
 				scalar.chained = true // rebuilt from source edges on re-wiring
 			}
