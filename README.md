@@ -110,7 +110,7 @@ It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contra
 Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors, and the libraries that informed this one: [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/), [color-api](https://github.com/LeaVerou/color-api), and [texel/color](https://github.com/texel-org/color).
 
 
-## Alternatives
+## Comparison
 
 | Library | Spaces | Ranges | Specialty¹ | Backends | Speed² |
 |---|---:|---|---|---|---:|
