@@ -58,6 +58,7 @@
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
 	--pop-shadow:0 .5rem 1.6rem oklch(0 0 0/.14);   /* the shared floating-panel shadow: filter dropdown, slider popover — no border, just lift */
+	--checker:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel);   /* the void/alpha backdrop — dossier bars, card strips, planes */
 	--lift:var(--color-lift);
 	--uline:currentColor;   /* link hover underline — the text's own ink, never the accent */
 
@@ -83,6 +84,7 @@
 	--s2:var(--space-xs);
 	--s3:var(--space-sm);
 	--s4:var(--space-md);
+	--s5:1.25rem;
 	--s6:var(--space-lg);
 	--s8:2rem;
 	--s12:3rem;

@@ -230,8 +230,8 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ent .cvp:hover,.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--ink) }   /* pointed, focused, slider-driven, or spinner-hovered — full ink */
 .ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
 .cvp .stk{ position:absolute; right:calc(var(--s1)*-1); top:-1px; bottom:5px; user-select:none }   /* copyable row text stays clean of the chevrons */   /* spinners ride inside the input, above the underline — no flow width */
-.cvp .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover */
-.cvp .stk button:hover{ opacity:1; color:var(--ink) }
+.cvp .stk button,.bch .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover; one recipe for the catalog pair and its scaled-up modal sibling */
+.cvp .stk button:hover,.bch .stk button:hover{ opacity:1; color:var(--ink) }
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
@@ -259,7 +259,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* prev/next as centered post-navigation — a compact bar at the top of the dossier
    and again at its foot. Left chevron + name · name + right chevron. Dim-then-ink. */
 .mnavbar{ display:flex; justify-content:center; align-items:center; gap:clamp(var(--s4),6vw,var(--s12)) }
-.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s6) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
+.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s5) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
 .mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
 .mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
 .mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; text-transform:uppercase; white-space:nowrap }   /* the neighbour's name — regular weight, no trim */
@@ -323,12 +323,15 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 @media(max-width:760px){ .dhero{ grid-template-columns:1fr } }
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
-.bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:
-	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* overflow visible so the picker shows whole at the min/max edges */
+.bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
-.bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
-.ch.gl{ background:var(--strip,none) 0 0/100% 100%, repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }   /* GPU strip rides --strip as a baked image over the checker — voided spans read as the same checker as the dossier bars; no per-strip canvas (a compositor layer each) */
-.bar2 .cnm{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* small, centred on the slider's height */
+.bar2 .bgc,.ch .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
+.ch.gl{ background:var(--strip,none) 0 0/100% 100%, var(--checker) }   /* settled strips ride --strip as a baked image over the checker — voided spans read as the same checker as the dossier bars; no standing canvas layer */
+.ch.lv{ background:var(--checker) }   /* a drag frame: the live canvas replaces the baked strip — the dossier bar's .bgc at catalog scale */
+.ch.lv .bgc{ display:block }
+.bar2 .cnm{ position:absolute; left:.45rem; top:.4rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same station as the planes' axis labels */
+.bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
+.bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
@@ -339,7 +342,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 @media(max-width:760px){ .dpick{ grid-template-columns:1fr } }
 .chead{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }
 .bigch{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s2) var(--s6) }   /* symbols, numbers and the gamut pills share the baseline */
-.bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
+.bch{ display:flex; align-items:baseline; border-bottom:.2em solid transparent }   /* the catalog's letter+value pair, scaled up — name and number share the baseline, and the same ONE underline under symbol + number + chevrons */
+.bch:hover,.bch:focus-within,.bch.on{ border-bottom-color:var(--ink) }   /* pointed, focused, or slider-driven — full ink, as in the list */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
 .bch .nvw input{ height:auto; width:4.6rem; font-size:var(--t4); font-weight:700; color:var(--ink); text-align:left }
@@ -360,13 +364,12 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .chlist .rsep{ margin:0 .35em; color:var(--soft) }
 .chlist .tnum{ white-space:nowrap }
 .cssv{ cursor:copy } .cssv:hover{ color:var(--ink) }   /* the css notation copies on click */
-.pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:
-	repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel) }
+.pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
 .pl canvas{ display:block; width:100%; height:100% }
 /* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
-.pl.polar canvas{ background:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel); border-radius:50% }
+.pl.polar canvas{ background:var(--checker); border-radius:50% }
 .pl .cx{ position:absolute; z-index:2; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* same rhombus as the sliders — rides above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
@@ -1146,7 +1149,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue } from './js/core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
@@ -1229,10 +1232,10 @@ const CSSFMT={
 }
 // the url: space as the path slug, hash is just the color — <base>/oklch#ff7d4f
 let BASE=location.pathname.replace(/index\.html$/,'')
-{ const seg=(BASE.match(/([^/]+)\/?$/)||[])[1]; if(seg&&SPACES.includes(seg)) BASE=BASE.slice(0,BASE.lastIndexOf(seg)) }
+{ const m=BASE.match(/([^/]+?)(?:\.html)?\/?$/), seg=m&&m[1]; if(seg&&SPACES.includes(seg)) BASE=BASE.slice(0,m.index) }   // /<space> on Pages, /<space>.html on plain file servers — both are the atlas document
 const spaceURL=s=>BASE+(s||'')
 // snapshot the arrival url before the first render's syncURL rewrites it
-const BOOT={ hash:decodeURIComponent(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+)\/?$/)||[])[1] }
+const BOOT={ hash:decodeURIComponent(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1] }
 let urlT=0, urlLast=''
 function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
 	const u=spaceURL(open()?selected:'')+'#'+hx.slice(1).toLowerCase()
@@ -1778,8 +1781,12 @@ const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human' }
 // the always-drawn range cage already frames. (Legacy 'off' collapses to srgb default.)
 let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'srgb'
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
-const inGam=(s,vv,g=GM)=>{ if(s==='rgb'||g==='vis') return true
-	try{ return gamLin[g](s==='xyz'?vv:space[s].xyz(...vv)).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
+// the human lens asks a different question than a display gamut: not "can this screen
+// show it" but "is this a colour at all" — the spectral locus, the same law the planes,
+// the sliders and the xy panel cut by
+const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
+	try{ const X=s==='xyz'?vv:space[s].xyz(...vv)
+		return g==='vis'?visibleXYZ(...X):gamLin[g](X).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
 // perceptual quantizer: even OKLab grid, mapped back through the current space
@@ -2793,7 +2800,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const percept=!!tcurve&&tcurve.ylab!=='code'&&!/^(gamma|linear|chromaticity)$/.test(m.encoding||'')
 		&&(tcurve.pts[26]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3   // 26/144 ≈ 18% grey
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
-	const gamTip=g=>g==='vis'?'the HUMAN visual gamut — every color the eye can see (the Rösch–MacAdam optimal-color solid) in this space; the fullest real shape, plots and channels uncut':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`
+	const gamTip=g=>g==='vis'?'the HUMAN visual gamut — the solid is the Rösch–MacAdam optimal-color body, while the plots and channels cut at the spectral locus: past it lies no color at any luminance':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`
 	const segsHTML=`<select id="qseg" aria-label="quantization" title="${QTIP[qKey(Q)]}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
 	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gamTip(GM)}">${[...GAMS,'vis'].map(g=>`<option value="${g}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
@@ -2809,6 +2816,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const barHTML=i=>{ const c=cls.ch[i]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
+		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
 		<div class="dk"></div></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags" title="display gamuts that contain this color">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}">${GAMLABEL[g]}</span>`).join('')}</span></div>`
@@ -2993,25 +3001,29 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const [up,dn]=bar.querySelectorAll('.stk button')
 		up.onclick=e=>{ e.stopPropagation(); spin(1) }; dn.onclick=e=>{ e.stopPropagation(); spin(-1) } })
 }
-function wireBar(el,s){ el.addEventListener('pointerdown',e=>{
+function wireBar(el,s){
+	const bchEl=()=>document.querySelector(`#bigch .bch[data-i="${el.dataset.i}"]`)   // the big input this bar drives
+	el.addEventListener('pointerenter',()=>bchEl()?.classList.add('on'))   // the slider points at its number — same link as the list
+	el.addEventListener('pointerleave',()=>bchEl()?.classList.remove('on'))
+	el.addEventListener('pointerdown',e=>{
 	if(e.target.closest('.nvw')) return
 	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX
 	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 	// quantized modes snap LIVE while sliding — in websafe/names the bar's own cells ARE the choices:
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
-		let f=clamp((ev.clientX-r.left)/r.width,0,.999)
-		if(typeof Q==='number'){ f=(Math.floor(f*Q)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
-		else if(qTriple(Q)&&el._cells){ const k=Math.floor(f*el._cells.length)
+		let f=clamp((ev.clientX-r.left)/r.width,0,1)   // the right edge IS max — capping short of 1 (old .999) left the value at 99.9% and the spinner's limit state never engaged
+		if(typeof Q==='number'){ f=(Math.min(Math.floor(f*Q),Q-1)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
+		else if(qTriple(Q)&&el._cells){ const k=Math.min(Math.floor(f*el._cells.length),el._cells.length-1)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
 			master= mv?{ s, vals:mv }:{ s:'rgb', vals:nr }
 			el._cellF=(k+0.5)/el._cells.length }
 		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ adopt(); moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId) }
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ adopt(); moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId); bchEl()?.classList.add('on') }
 		if(!moved) return
 		apply(ev) }
-	const up=ev=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null
+	const up=ev=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null; bchEl()?.classList.remove('on')
 		if(!moved){ adopt(); apply(ev); el._cellF=null }
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
@@ -3261,7 +3273,7 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		// carries the painted mode, so picking and the marker always match the paint.
 		const pol=pl._polar=canGL&&polarPl(cls,a,b)&&polarOn(s,cls,a,b)
 		pl.classList.toggle('polar',!!pol)
-		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol?[cls.ch[a].min,cls.ch[a].max]:rx,pol?[cls.ch[b].min,cls.ch[b].max]:ry,GM==='vis'?null:GM,glq,pol)) return
+		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol?[cls.ch[a].min,cls.ch[a].max]:rx,pol?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
 	planesLive=canGL
 	if(planesLive) planeNext=0
@@ -3284,7 +3296,7 @@ const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry n
 // (armed by each settled sweep and each program landing) touch only stale rows. Scrolling
 // then paints nothing — the observer's scroll-in repaint is a no-op unless the color changed
 // while that row was offscreen and the walk hasn't reached it yet.
-const ric=window.requestIdleCallback?.bind(window)||(f=>setTimeout(()=>f({timeRemaining:()=>8}),50))
+const ric=window.requestIdleCallback?.bind(window)||(f=>setTimeout(()=>{ const t0=performance.now(); f({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },50))
 const cic=window.cancelIdleCallback?.bind(window)||clearTimeout
 let ppT=0
 const prepaintSoon=()=>{ cic(ppT); ppT=ric(dl=>{ ppT=0
@@ -3304,23 +3316,31 @@ addEventListener('load',()=>setTimeout(()=>{
 // pass an explicit subset (observer scroll-in, popover, the prepaint walk) and it paints
 // unconditionally — offscreen included. A no-arg sweep (color edit, gamut, quantize) paints
 // near-screen rows now and arms the prepaint walk to refresh the rest at idle.
-// fast=true (a drag/typing frame): CSS ramps only — on a strip in motion the 9-stop
-// gradient is indistinguishable, and the GL bake (draw + PNG encode per strip) is
-// deferred to the settle sweep scheduleFast arms. Full sweeps bake the per-pixel
-// GL image into --strip (see .ch.gl) — plain DOM, no per-strip canvas layer.
+// the strip shows the per-pixel GL sweep at ALL times — the CSS-ramp stand-in that once
+// rode motion frames confused picking (it invents colors between its 9 stops and drops
+// the void/limit spans, then snapped to the GL truth at settle). Two GL tiers, same
+// pixels: fast=true (a drag/typing frame) blits the sweep onto the strip's live canvas
+// (.bgc — the dossier bar's overlay at catalog scale; a GPU copy, no readback: the PNG
+// encode cost ~18ms/frame across visible cards), and the settle sweep bakes it into
+// --strip (see .ch.gl) so at rest the catalog is plain DOM with no standing canvas
+// layers (which made every scroll re-Layerize). The ramp remains only as the
+// compile-moment and no-WebGL2 fallback.
 function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
 	if(sweep&&!fast) prepaintSoon()
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) paints its slider popover, live
-	const gl=!fast&&planeGLStatus(s)==='ready'
-	const stamp=`${hx}:${gl?1:0}`; if(ent.dataset.g===stamp) return   // already painted for this exact color + tier (incl. the prerendered CSS state)
+	const gl=planeGLStatus(s)==='ready'
+	let tier=gl?(fast?'v':1):0   // v = live canvas: the settle sweep still owes the baked image
+	if(ent.dataset.g===`${hx}:${tier}`) return   // already painted for this exact color + tier (incl. the prerendered CSS state)
 	const cls=classify(s), vals=valsFor(s)
-	let tier=gl?1:0
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-		if(vals&&gl){ const u=barImageURL(s,vals,i,[c.min,c.max],null)   // card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
-			if(u){ ch.classList.add('gl'); ch.style.setProperty('--strip',`url("${u}")`); ch.style.background=''; return } }
+		// card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
+		if(vals&&gl&&fast){ const cv=ch._bgc??=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1}))
+			if(paintBarGL(cv,s,vals,i,[c.min,c.max],null)){ ch.classList.add('lv'); return } }
+		if(vals&&gl){ const u=barImageURL(s,vals,i,[c.min,c.max],null)
+			if(u){ ch.classList.remove('lv'); ch.classList.add('gl'); ch.style.setProperty('--strip',`url("${u}")`); ch.style.background=''; return } }
 		tier=0   // a bar fell back to CSS — stamp the lower tier so the next sweep retries GL
-		ch.classList.remove('gl'); ch.style.removeProperty('--strip')
+		ch.classList.remove('gl','lv'); ch.style.removeProperty('--strip')
 		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
 	ent.dataset.g=`${hx}:${tier}` }) }
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
@@ -3366,7 +3386,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			// smooth mode paints the sweep on the GPU — per-pixel colors AND per-pixel
 			// gamut ghosting (the stepped 48-cell CSS mask made the limits jump)
 			const smooth=typeof Q!=='number'&&!qTriple(Q)
-			if(smooth&&barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM==='vis'?null:GM)){
+			if(smooth&&barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM)){
 				bgc.style.display='block'; bar._cells=null
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
@@ -3387,8 +3407,12 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 					const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
 					mask=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'#000':'rgba(0,0,0,.5)')).join(',')})` } }
 			bgel.style.webkitMaskImage=bgel.style.maskImage=mask||'none' } }
-		const loV=cls.ch.map((cc,j)=>j===i?cc.min:shown[j])
-		bar.querySelector('.cnm').style.color=ink(rgbF(s,loV))
+		const inkAt=f=>ink(rgbF(s,cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*f:shown[j])))   // legible ink over the sweep at fraction f
+		const loInk=inkAt(0)
+		bar.querySelector('.cnm').style.color=loInk
+		bar.querySelector('.sv.lo').style.color=loInk
+		bar.querySelector('.sv.md').style.color=inkAt(.5)
+		bar.querySelector('.sv.hi').style.color=inkAt(1)
 		const dk=bar.querySelector('.dk')
 		// color-cluster modes: the marker sits on the CENTRE of the cell showing the current color
 		let df=null
@@ -3528,8 +3552,8 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 }
 let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
-	renderFast(); if(!open()||!dragging) paintCatalogGrad(null,true)   // motion frames ride the cheap CSS ramps…
-	clearTimeout(settleT); settleT=setTimeout(()=>paintCatalogGrad(),140)   // …then one settle sweep bakes the per-pixel GL strips
+	renderFast(); if(!open()||!dragging) paintCatalogGrad(null,true)   // motion frames blit near-screen strips live on the GPU…
+	clearTimeout(settleT); settleT=setTimeout(()=>paintCatalogGrad(),140)   // …then one settle sweep bakes the PNGs and arms the idle walk for the offscreen rest
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
 	// drag res, so even munsell's neighbours follow the pointer

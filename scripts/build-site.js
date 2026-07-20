@@ -2,7 +2,7 @@
 /**
  * Stage the whole site into _site/ — the deployable artifact, built from data.
  * web/ is the site source (template, styles, page modules, images); everything
- * generated (prerendered catalog, 155 reference pages, sitemap/robots/llms) plus
+ * generated (prerendered catalog, per-space atlas documents, sitemap/robots/llms) plus
  * the runtime modules the app imports land here. Used identically by local dev
  * (npm run landing → serve _site) and the Pages workflow, so the two can't drift.
  *
@@ -121,6 +121,9 @@ export async function buildSite() {
 			graph.map((p) => `<link rel="modulepreload" href="./${p}">`).join('')
 		rewrite(join(site, 'index.html'), [['<link href="./tokens.css" rel="stylesheet">', `<link href="./tokens.css" rel="stylesheet">${links}`]])
 	}
+	// per-space documents stamp LAST — byte-copies of the now-final index.html
+	const { stampSpacePages } = await import('./generate-landing.js')
+	stampSpacePages(site)
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) await buildSite()
