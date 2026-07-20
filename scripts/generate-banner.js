@@ -1,39 +1,41 @@
 #!/usr/bin/env node
 // Generate web/img/banner.svg — the README's top visual.
 //
-// One constant-lightness CAM16 JMh hue sweep at three resolutions: continuous,
-// 20 steps, 10 steps. Stops are computed BY the library, not hand-picked.
-// Colorfulness follows a smooth roll-off below the sRGB gamut edge — vivid without
-// clipping or a hard vertical seam. Pure SVG: tiny, crisp, diff-able.
+// One Munsell hue circle at three resolutions: continuous, 20 steps, 10 steps.
+// Stops come from the library's 1943 Munsell Renotation, not hand-picked colors.
+// The stepped rows follow Munsell's own structure: 20 × 5-unit positions, then the
+// ten 5R / 5YR / … / 5RP family centers. Renotation colors are Bradford-adapted from
+// their illuminant C to display D65. Pure SVG: tiny, crisp, diff-able.
 //
 //   npm run banner
 //
 import space from '../index.js'
+import whitepoint from '../whitepoints.js'
+import { mat3, inv3 } from '../util.js'
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
-const H0 = 25, J = 60, ROLL = 55, INSET = 0.97, N = 72
-const hex = (...v) => '#' + v.map(x => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, '0')).join('')
-const gamutColorfulness = h => {
-	let lo = 0, hi = 105
-	for (let i = 0; i < 24; i++) {
-		const M = (lo + hi) / 2
-		if (space.cam16.rgb(J, M, h).every(x => Number.isFinite(x) && x >= 0 && x <= 255)) lo = M
-		else hi = M
-	}
-	// Smoothly approaches ROLL instead of min(maxColorfulness, cap): no kink/seam.
-	return INSET * lo * ROLL / Math.sqrt(lo ** 2 + ROLL ** 2)
+const H0 = 5, V = 7, CHROMA = 8, N = 80
+const hex = (...v) => '#' + v.map(x => Math.round(x).toString(16).padStart(2, '0')).join('')
+const BFD = space.lms.matrix.BFD, BFD_INV = inv3(BFD)
+const LMS_C = mat3(BFD, ...whitepoint[2].C), LMS_D65 = mat3(BFD, ...whitepoint[2].D65)
+const cToD65 = xyz => mat3(BFD_INV, ...mat3(BFD, ...xyz).map((v, i) => v * LMS_D65[i] / LMS_C[i]))
+const color = H => {
+	const xyy = space.munsell.xyy((H % 100 + 100) % 100, V, CHROMA)
+	const rgb = space.xyz.rgb(...cToD65(space.xyy.xyz(...xyy)))
+	if (!rgb.every(x => Number.isFinite(x) && x >= 0 && x <= 255))
+		throw Error(`banner: Munsell ${H} ${V}/${CHROMA} falls outside sRGB`)
+	return hex(...rgb)
 }
-const color = h => hex(...space.cam16.rgb(J, gamutColorfulness(h), h))
 const continuous = Array.from({ length: N + 1 }, (_, i) =>
-	`<stop offset="${(100 * i / N).toFixed(2)}%" stop-color="${color((H0 + 360 * i / N) % 360)}"/>`).join('')
+	`<stop offset="${(100 * i / N).toFixed(2)}%" stop-color="${color(H0 + 100 * i / N)}"/>`).join('')
 const stepped = n => Array.from({ length: n }, (_, i) => {
-	const c = color((H0 + 360 * i / n) % 360)
+	const c = color(H0 + 100 * i / n)
 	return `<stop offset="${(100 * i / n).toFixed(2)}%" stop-color="${c}"/><stop offset="${(100 * (i + 1) / n).toFixed(2)}%" stop-color="${c}"/>`
 }).join('')
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 240" preserveAspectRatio="none" role="img" aria-label="a CAM16 hue sweep shown continuously, in 20 steps, and in 10 steps">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 240" preserveAspectRatio="none" role="img" aria-label="the Munsell hue circle at value 7 and chroma 8, shown continuously, in 20 steps, and in its 10 major hue families">
 <defs>
 <linearGradient id="continuous" x1="0" y1="0" x2="1" y2="0">${continuous}</linearGradient>
 <linearGradient id="steps20" x1="0" y1="0" x2="1" y2="0">${stepped(20)}</linearGradient>
@@ -47,4 +49,4 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 240" pres
 
 const out = join(dirname(fileURLToPath(import.meta.url)), '../web/img/banner.svg')
 writeFileSync(out, svg)
-console.log(`web/img/banner.svg written — continuous + 20-step + 10-step CAM16, ${(svg.length / 1024).toFixed(1)} kB`)
+console.log(`web/img/banner.svg written — continuous + 20-step + 10-family Munsell, ${(svg.length / 1024).toFixed(1)} kB`)
