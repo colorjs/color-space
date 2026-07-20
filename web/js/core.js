@@ -66,6 +66,43 @@ const px = x => isFinite(x) ? clamp(Math.round(x), 0, 255) : 0
 // how much linear light a coordinate may claim before it's formula noise:
 // scene-referred / HDR spaces really reach hundreds of diffuse whites, SDR display spaces don't
 export const physBound = name => (meta[name]?.referred === 'scene' || meta[name]?.dynamic === 'hdr') ? 500 : 4
+
+// ── the spectral locus: the boundary of colour itself ──
+// A chromaticity outside the horseshoe (the CIE 1931 2° spectral curve, closed by the
+// line of purples) is IMAGINARY — no spectral power distribution produces it, at any
+// luminance. This is the law the HUMAN lens applies everywhere it is offered: the xy
+// panel draws it, the planes and the sliders void past it. It is deliberately NOT the
+// object-colour (Rösch–MacAdam) solid the 3D shape is built from: that solid is a
+// bounded REFLECTIVE gamut under illuminant E, and a colour above its ceiling — a
+// bright emissive white, a laser — is still perfectly visible.
+let LOCUS = null
+export function locus() {
+	if (LOCUS) return LOCUS
+	const pts = []
+	for (let nm = 380; nm <= 700; nm += 5) {
+		const [X, Y, Z] = space.wavelength.xyz(nm)
+		const s = X + Y + Z
+		pts.push([X / s, Y / s])
+	}
+	return LOCUS = pts
+}
+/** Is this chromaticity a colour at all? Even-odd crossing over the closed locus. */
+function visibleXY(x, y) {
+	const P = locus()
+	let c = false
+	for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
+		const a = P[i], b = P[j]
+		if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c
+	}
+	return c
+}
+/** Is this XYZ a colour at all? Black is; anything off the locus is not. */
+export const visibleXYZ = (X, Y, Z) => {
+	const s = X + Y + Z
+	if (!isFinite(s)) return false
+	if (s <= 1e-9) return X > -1e-6 && Y > -1e-6 && Z > -1e-6   // black, not a negative coordinate
+	return visibleXY(X / s, Y / s)
+}
 export const rgbOf = (name, v) => name === 'rgb' ? v.map(px) : space[name].rgb(...v).map(px)
 export const toSpace = (name, rgb) => name === 'rgb' ? rgb.slice() : space.rgb[name](...rgb)
 
@@ -118,7 +155,10 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
 	const toXyz = name !== 'rgb' && space[name].xyz
 	const lens = gamut && gamut !== 'off'
-	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[lens ? gamut : 'srgb']]
+	// the human lens cuts by the spectral locus, not by a display gamut — so it keeps
+	// the sRGB linear map for the physical-ceiling test and voids imaginary coordinates
+	const vis = gamut === 'vis'
+	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[lens && !vis ? gamut : 'srgb']]
 	const cluster = !!qf || quant === 'web'
 	// physical ceiling: scene-referred / HDR spaces really carry big light (camera logs
 	// decode to linear 8…460); an SDR display space past ~4× diffuse white is formula
@@ -132,8 +172,9 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		v[cy] = ry[0] + (ry[1] - ry[0]) * fy
 		let rgb = rgbOf(name, v); const i = (y * s + x) * 4
 		let a = 255
-		if (gLin) { try { const lin = gLin(...toXyz(...v))
+		if (gLin) { try { const X = toXyz(...v), lin = gLin(...X)
 			if (!lin.every(u => u > -4 && u < PB)) a = 0
+			else if (vis) { if (!cluster && !visibleXYZ(...X)) a = 0 }   // imaginary: not a colour at any luminance
 			else if (lens && !cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)

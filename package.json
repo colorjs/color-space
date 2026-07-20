@@ -152,7 +152,7 @@
     "watr": "^3.1.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js",
+    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "data": "node scripts/generate-data.js",

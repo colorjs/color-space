@@ -12,7 +12,7 @@
 // (no WebGL2, color-cluster quantizers). Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
-import { physBound, space, meta, pathToRgb, classify } from './core.js'
+import { physBound, space, meta, pathToRgb, classify, locus } from './core.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -137,12 +137,13 @@ precision highp float;
 precision highp int;
 ${lib}
 ${spans}
+${locusGLSL()}
 uniform vec4 uV;          // held channel values
 uniform ivec2 uAB;        // swept channel indices: x horizontal, y vertical (-1 = bar)
 uniform vec2 uRX, uRY;    // swept ranges (pan/zoom-windowed)
 uniform vec2 uRes;
 uniform float uQ;         // numeric coordinate lattice (0 = smooth)
-uniform int uGam;         // 0 off · 1 srgb · 2 p3 · 3 rec2020
+uniform int uGam;         // 0 off · 1 srgb · 2 p3 · 3 rec2020 · 4 human (spectral locus)
 uniform int uWeb;         // web-safe output snap
 uniform int uPolar;       // 1 → the field is a hue DISC: angle→a, radius→b
 out vec4 O;
@@ -175,6 +176,9 @@ void main() {
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
 	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;
+	// the human lens cuts by the spectral locus, not by a display gamut: a chromaticity
+	// off the horseshoe is imaginary at ANY luminance, so it voids rather than ghosts
+	else if (uGam == 4) { if (uWeb == 0 && !visXYZ(xyz)) al = 0.0; }
 	else if (uGam != 0 && uWeb == 0) {
 		// gamut pad in ENCODED units (±half a code value) — a linear pad is ~16 code
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
@@ -221,7 +225,28 @@ export function warmGL(s) {
 	if (has3dGL(s)) mesh3Progs(mesh3State(mesh3Canvas()), s)
 }
 
-const GAMI = { srgb: 1, p3: 2, rec2020: 3 }
+// 4 = the HUMAN lens: not a display gamut but the spectral locus — see locusGLSL
+const GAMI = { srgb: 1, p3: 2, rec2020: 3, vis: 4 }
+
+// The spectral locus as shader source: the polygon plus the even-odd test that says
+// whether a chromaticity is a colour at all. ONE law, three surfaces — the xy panel
+// draws this boundary, and the plane and bar kernels void past it under the human
+// lens, so a coordinate no light can produce reads as void everywhere it appears.
+let LOCUS_SRC = null
+const locusGLSL = () => LOCUS_SRC ??= ((P) => `const vec2 LOC[${P.length}] = vec2[${P.length}](${P.map((q) => `vec2(${q[0].toFixed(5)}, ${q[1].toFixed(5)})`).join(', ')});
+bool inside(vec2 p) {   // even-odd over the closed locus + purple line
+	bool c = false;
+	for (int i = 0, j = ${P.length} - 1; i < ${P.length}; j = i++) {
+		vec2 a = LOC[i], b2 = LOC[j];
+		if ((a.y > p.y) != (b2.y > p.y) && p.x < (b2.x - a.x) * (p.y - a.y) / (b2.y - a.y) + a.x) c = !c;
+	}
+	return c;
+}
+bool visXYZ(vec3 c) {   // black is a colour; a chromaticity off the locus is imaginary
+	float s = c.x + c.y + c.z;
+	if (s <= 1e-6) return c.x > -1e-4 && c.y > -1e-4 && c.z > -1e-4;
+	return inside(vec2(c.x / s, c.y / s));
+}`)(locus())
 
 function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar) {
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
@@ -277,11 +302,12 @@ export function paintBarGL(cv2d, s, vals, i, ri, gamut) {
 }
 
 /**
- * The same 1-D sweep as a data-URL image, for CSS background use — the catalog
- * strips stay plain DOM (a live canvas per strip cost a compositor layer each;
- * ~100 of them made every scroll re-Layerize the page). Draw + encode is one
- * same-task read of the shared GL canvas, ~0.3ms per 512×1 strip, paid only on
- * settle — never per drag frame.
+ * The same 1-D sweep as a data-URL image, for CSS background use — at rest the
+ * catalog strips stay plain DOM (a standing canvas per strip cost a compositor
+ * layer each; ~100 of them made every scroll re-Layerize the page). Draw + encode
+ * is one same-task read of the shared GL canvas, ~0.5ms per 512×1 strip — paid on
+ * settle sweeps and the idle prepaint walk, never per drag frame: motion rides
+ * paintBarGL's readback-free blit onto the strip's transient .bgc canvas.
  */
 export function barImageURL(s, vals, i, ri, gamut) {
 	const st = planeProg(s)
@@ -964,17 +990,6 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
 // ── the CIE xy chromaticity diagram: the visible-gamut horseshoe with THIS
 // space's reachable chromaticities rendered vivid, the rest ghosted — the
 // "shape of the gamut on the xy plane" panel of the dossier ──
-let LOCUS = null
-function locus() {
-	if (LOCUS) return LOCUS
-	const pts = []
-	for (let nm = 380; nm <= 700; nm += 5) {
-		const [X, Y, Z] = space.wavelength.xyz(nm)
-		const s2 = X + Y + Z
-		pts.push([X / s2, Y / s2])
-	}
-	return LOCUS = pts
-}
 
 const gamutProgs = new Map()
 function gamutProg(s) {
@@ -997,8 +1012,6 @@ function gamutProg(s) {
 	}
 	let lib
 	try { lib = s === 'rgb' ? glsl('xyz', 'lrgb') : glsl(base ? [['xyz', s], [s, 'xyz'], [s, base]] : [['xyz', s], [s, 'xyz']]) } catch { gamutProgs.set(s, null); return null }
-	const P = locus()
-	const N = P.length
 	const S = san(s)
 	// declared range as literals (the gamut = what the range box can encode)
 	const range = meta[s]?.range
@@ -1009,17 +1022,9 @@ function gamutProg(s) {
 precision highp float;
 precision highp int;
 ${lib}
+${locusGLSL()}
 uniform vec2 uRes;
-const vec2 LOC[${N}] = vec2[${N}](${P.map(q => `vec2(${q[0].toFixed(5)}, ${q[1].toFixed(5)})`).join(', ')});
 out vec4 O;
-bool inside(vec2 p) {   // even-odd over the closed locus + purple line
-	bool c = false;
-	for (int i = 0, j = ${N} - 1; i < ${N}; j = i++) {
-		vec2 a = LOC[i], b2 = LOC[j];
-		if ((a.y > p.y) != (b2.y > p.y) && p.x < (b2.x - a.x) * (p.y - a.y) / (b2.y - a.y) + a.x) c = !c;
-	}
-	return c;
-}
 vec3 tosrgb(vec3 lin) {
 	vec3 a = abs(lin);
 	vec3 e = vec3(
