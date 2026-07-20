@@ -329,7 +329,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .ch.gl{ background:var(--strip,none) 0 0/100% 100%, var(--checker) }   /* settled strips ride --strip as a baked image over the checker — voided spans read as the same checker as the dossier bars; no standing canvas layer */
 .ch.lv{ background:var(--checker) }   /* a drag frame: the live canvas replaces the baked strip — the dossier bar's .bgc at catalog scale */
 .ch.lv .bgc{ display:block }
-.bar2 .cnm{ position:absolute; left:.45rem; top:.4rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same station as the planes' axis labels */
+.bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
@@ -379,8 +379,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
 /* full channel names, set along the direction of increase: x rightward, y upward */
-.pl .laby{ position:absolute; top:.4rem; left:.45rem; font-size:var(--t0); font-weight:700; pointer-events:none }
-.pl .labx{ position:absolute; right:.55rem; bottom:.35rem; font-size:var(--t0); font-weight:700; pointer-events:none }
+.pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }   /* corner insets match the bars' scale values — one label geometry everywhere */
+.pl .labx{ position:absolute; right:.275rem; bottom:.175rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl .pmode{ position:absolute; bottom:.35rem; left:.45rem; z-index:2; font-size:var(--t1); line-height:1; border:0; background:none; padding:2px; color:var(--ink); opacity:.5; cursor:pointer }   /* the hue disc ⟷ square switch — bottom-left, on the axis labels' own padding, below the picker */
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
@@ -2473,16 +2473,22 @@ function draw3d(){ if(!mesh3||!open()) return
 	let sheet3=null, frame3=null
 	if(hover3&&hover3.i==null&&mv&&pts3Map){ const clsE=classify(pts3S)
 		const fiE=[0,1,2].find(k=>k!==hover3.a&&k!==hover3.b)
+		// a hue×tone plane doesn't cut a FLAT sheet — swept together, hue-angle and the
+		// vertical axis trace a curved TUBE wall. Its parameter-rectangle perimeter then
+		// runs the tube's top/bottom rim CIRCLES, which read as floating-ellipse artifacts
+		// (HSL/HSV/HWB/OKHSL L×H). The pane fill and the surface-cut curve carry the
+		// highlight; only a genuinely flat pane earns the outline frame.
+		const ax3=axes3(clsE), tube=ax3.ai>=0&&fiE===ax3.mi   // hue swept against the vertical axis, radial magnitude held
 		const keyE=`${pts3S}|${mesh3.g3}|${hover3.a},${hover3.b}|${mv[fiE]}`
 		if(!ctr3||ctr3.key!==keyE) ctr3={ key:keyE, sheet:buildSheet3(clsE,mv,hover3.a,hover3.b), cut:cutSegs3(clsE,mv,fiE),
-			per:perim3(clsE,mv,hover3.a,hover3.b) }
+			per:tube?null:perim3(clsE,mv,hover3.a,hover3.b) }
 		sheet3=ctr3.sheet
 		// the pane's FRAME is scene geometry too: ribbons extruded in clip space
 		// (screen-true widths), so the depth buffer decides cover exactly as it does
 		// for the pane — the frame ghosts ONLY where the body is truly in front of it.
 		// Dark core rides the boundary; the white fringe hugs its OUTSIDE.
 		const fk=`${rot3.a},${rot3.b}|${scale3}|${S2}`
-		if(ctr3.frK!==fk){ const C=ctr3.per.map(n=>{ if(!n) return null
+		if(ctr3.per&&ctr3.frK!==fk){ const C=ctr3.per.map(n=>{ if(!n) return null
 				const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-0.0015] })   // z nudged viewer-ward: a frame ON a face reads visible, never z-fights
 			let ar=0
 			for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(p&&q) ar+=p[0]*q[1]-q[0]*p[1] }
@@ -2498,7 +2504,7 @@ function draw3d(){ if(!mesh3||!open()) return
 						ax+nx*hi,ay+ny*hi,p[2], bx+nx*lo,by+ny*lo,q[2], bx+nx*hi,by+ny*hi,q[2]) }
 				return new Float32Array(V) }
 			ctr3.frK=fk; ctr3.frame={ fr:rib(0.75*dp,0.75*dp), co:rib(0,0.6*dp), tint:CUT3 } }
-		frame3=ctr3.frame }
+		frame3=ctr3.per?ctr3.frame:null }
 	// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
 	// (bodyM) for the thru passes; the pane and frame then join the same scene in a
 	// second pass, so their film never counts as cover and never veils the hud dashes
@@ -3013,6 +3019,7 @@ function wireBar(el,s){
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
 		let f=clamp((ev.clientX-r.left)/r.width,0,1)   // the right edge IS max — capping short of 1 (old .999) left the value at 99.9% and the spinner's limit state never engaged
+		if(Math.abs(f-0.5)*r.width<5) f=0.5   // soft snap: the centre value (0 for a/b axes, 180° for hue) within ~5px
 		if(typeof Q==='number'){ f=(Math.min(Math.floor(f*Q),Q-1)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
 		else if(qTriple(Q)&&el._cells){ const k=Math.min(Math.floor(f*el._cells.length),el._cells.length-1)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
@@ -3036,11 +3043,15 @@ function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.datas
 			const px=clamp((e.clientX-r.left)/r.width,0,1)*2-1
 			const py=clamp(1-(e.clientY-r.top)/r.height,0,1)*2-1
 			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
-			fy=Math.min(1,Math.hypot(px,py)) }
+			fy=Math.min(1,Math.hypot(px,py))
+			if(fy*r.width/2<5) fy=0 }   // soft snap: the achromatic centre within ~5px
 		else{ // pointer → windowed fraction → global range fraction (pan-zoom aware)
 			fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
 			fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
-			const fl=flip3(cls,a,b); if(fl&1) fx=1-fx; if(fl&2) fy=1-fy }
+			const fl=flip3(cls,a,b); if(fl&1) fx=1-fx; if(fl&2) fy=1-fy
+			// soft snap per axis: the range midpoint within ~5px of the pointer, zoom-aware
+			if(Math.abs(fx-0.5)*r.width/(vw.x1-vw.x0)<5) fx=0.5
+			if(Math.abs(fy-0.5)*r.height/(vw.y1-vw.y0)<5) fy=0.5 }
 		// numeric clustering snaps the PICKED COORDINATES to the sliders' own cell lattice —
 		// held channels never move, so the bitmap stays put and the sliders land on centres
 		if(typeof Q==='number'){ fx=(Math.min(Q-1,Math.floor(fx*Q))+0.5)/Q; fy=(Math.min(Q-1,Math.floor(fy*Q))+0.5)/Q }
