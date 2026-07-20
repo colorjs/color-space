@@ -8,6 +8,7 @@ import space from '../index.js';
 
 // Lazy load competitor libraries to avoid startup overhead
 let culori, colorjs, texel, chroma, tinycolor, color, colorConvert;
+const texelOut = [0, 0, 0]; // texel's idiom: convert(coords, from, to, out) — reused scratch
 
 async function loadLibraries() {
 	try {
@@ -245,8 +246,8 @@ const tests = [
 			const result = c.oklab;
 		},
 		texel: () => {
-			// texel has complex API, skipping for simplicity
-			return null;
+			if (!texel) return;
+			const result = texel.convert([128/255, 64/255, 192/255], texel.sRGB, texel.OKLab, texelOut);
 		},
 		chroma: () => {
 			if (!chroma) return;
@@ -280,8 +281,8 @@ const tests = [
 			const result = c.srgb;
 		},
 		texel: () => {
-			// texel has complex API, skipping for simplicity
-			return null;
+			if (!texel) return;
+			const result = texel.convert([0.6, -0.1, 0.15], texel.OKLab, texel.sRGB, texelOut);
 		},
 		chroma: () => {
 			if (!chroma) return;
@@ -315,8 +316,8 @@ const tests = [
 			const result = c.p3;
 		},
 		texel: () => {
-			// texel doesn't have P3
-			return null;
+			if (!texel) return;
+			const result = texel.convert([128/255, 64/255, 192/255], texel.sRGB, texel.DisplayP3, texelOut);
 		},
 		chroma: () => {
 			// chroma doesn't have P3
@@ -349,7 +350,7 @@ const tests = [
 			return null;
 		},
 		texel: () => {
-			// texel has complex API, skipping for simplicity
+			// texel has OKHSV, not classic HSV
 			return null;
 		},
 		chroma: () => {
@@ -385,8 +386,8 @@ const tests = [
 			const result = c.toString({ format: 'hex' });
 		},
 		texel: () => {
-			// texel doesn't have hex conversion
-			return null;
+			if (!texel) return;
+			const result = texel.RGBToHex([128/255, 64/255, 192/255]);
 		},
 		chroma: () => {
 			if (!chroma) return;

@@ -8,8 +8,6 @@ Web, print, film, broadcast, photo, art, human vision, science, history. Convert
 
 **[Interactive atlas →](https://colorjs.github.io/color-space/)**
 
-## Spaces
-
 <table><tr><td valign="top">
 
 **Display & web**<br>
@@ -58,13 +56,20 @@ npm install color-space
 ```js
 import space from 'color-space';
 
+// API
+space[from][to](...channels);
+
+// example
 space.rgb.oklch(255, 128, 0);        // → [0.732, 0.186, 53] — modern CSS
 space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → UHD wide gamut
-const perceptual = space.rgb.oklch(pixels); // the same path over an image buffer
-space.lab.range;                            // [[0, 100], [-125, 125], [-125, 125]]
-```
+space.rgb.xyz(300, -10, 0);          // → [59.7, 30.6, 2.8] — out-of-range in, unclamped out
 
-The names read left to right: `space.<source>.<target>(...channels)`. Methods accept either channel values or an interleaved typed array; batches return a new `Float64Array`. Outputs stay unclamped.
+// interleaved batch
+space.rgb.oklch(new Uint8Array([255, 128, 0,  0, 255, 128])); // [0.732, 0.186, 53,  0.875, 0.234, 151]
+
+// meta
+space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
+```
 
 Import one space when that is all you need:
 
@@ -76,9 +81,9 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 | Import | What ships |
 |---|---|
 | `color-space` | All 161 interconnected spaces · 55 kB gzip |
-| `color-space/lite` | 27-space working set · 9 kB gzip |
 | `color-space/<name>.js` | One standalone, tree-shakeable space |
-| `color-space/wasm` | 27-space set WASM version; zero-import `.wasm` included. |
+| `color-space/lite` | 27-space working set · 9 kB gzip |
+| `color-space/wasm` | lite set WASM version; zero-import `.wasm` included. |
 | `color-space/gl` | Composed shader source GLSL/WGSL |
 | `color-space/lut` | Measured `.cube` files for Resolve, Premiere, OBS, ffmpeg |
 | `color-space/icc` | Matrix + TRC or CLUT profiles |
@@ -94,31 +99,27 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 - **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
 - **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
 
-## Comparison
-
-| Library | Spaces | Ranges | Specialty¹ | Backends |
-|---|---:|---|---|---|
-| **color-space** | **161** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC |
-| culori | ~35 | 0–1 | ❌ | JS |
-| colorjs.io | ~40 | 0–1 | some | JS |
-| texel/color | ~16 | 0–1 | ❌ | JS |
-
-<sup>¹ Camera logs, appearance models, video encodings, and historical systems. See the factual [library comparison](docs/library-comparison.md); `npm run benchmark` compares performance.</sup>
-
 ## Motivation
 
-Color spaces are scattered across standards, papers, industries, and decades. This project keeps color-space formulas, conventional ranges, provenance, and references together in one open collection, connected by one minimal API.
+Color spaces are scattered across standards, papers, industries, and decades. This collection keeps the formulas, conventional ranges, provenance, and references together, behind one minimal API.
 
-The interactive atlas, corrections to published formulas, and useful test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)) are consequences of maintaining that foundation.
-
-## Scope
-
-This is a conversion kernel, not a color toolbox. Parsing, interpolation, ΔE, gamut mapping, contrast, palettes, and alpha stay with the application layer.
-
-Pantone, NCS, RAL Classic, HKS, Toyo, and similar systems are proprietary or licensed swatch catalogs rather than open coordinate systems. RAL **Design** is included because its HLC notation is CIELAB by construction.
+It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, and alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
 
 ## Credits
 
 Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors, and the libraries that informed this one: [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/), [color-api](https://github.com/LeaVerou/color-api), and [texel/color](https://github.com/texel-org/color).
+
+
+## Alternatives
+
+| Library | Spaces | Ranges | Specialty¹ | Backends | Speed² |
+|---|---:|---|---|---|---:|
+| **color-space** | **161** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **27.8** |
+| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.3 |
+| [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
+| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 11.8³ |
+
+<sup>¹ See the factual [library comparison](docs/library-comparison.md) · ² geometric mean, million scalar calls per second over the 8 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3 · hex), Node 25 / Apple silicon · ³ over the 4 it implements (rgb ⇄ oklab, rgb → p3 · hex), scratch-vector idiom — it has no CIELAB/HSL</sup>
+
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
