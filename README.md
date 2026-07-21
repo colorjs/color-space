@@ -4,9 +4,50 @@
 
 **An open collection of color spaces.**
 
-Web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small, consistent API. 
+Web, print, film, broadcast, photo, art, human vision, science, history. Conversions, metadata, provenance, references.
 
-**[Interactive atlas →](https://color-space.io/)**
+**[Atlas →](https://color-space.io/)**
+
+## Use
+
+```js
+import space from 'color-space';
+
+space.rgb.oklch(255, 128, 0);        // → [0.732, 0.186, 53] — modern CSS
+space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → UHD wide gamut
+space.rgb.xyz(300, -10, 0);          // → [59.7, 30.6, 2.8] — out-of-range in, unclamped out
+
+// batch
+space.rgb.oklch([255, 128, 0,  0, 255, 128]); // [0.732, 0.186, 53,  0.875, 0.234, 151]
+
+// meta
+space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
+```
+
+Import individually:
+
+```js
+// single space
+import oklch from 'color-space/oklch.js';
+oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
+```
+
+| Import | What ships |
+|---|---|
+| `color-space` | All 162 interconnected spaces · 55 kB gzip |
+| `color-space/<name>.js` | One standalone, tree-shakeable space |
+| `color-space/lite` | 27-space working set · 9 kB gzip |
+| `color-space/wasm` | lite set WASM version; zero-import `.wasm` included. |
+| `color-space/gl` | Composed shader source GLSL/WGSL |
+| `color-space/lut` | Measured `.cube` files for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md) |
+| `color-space/icc` | Matrix + TRC or CLUT profiles |
+| `color-space/data.json` | Metadata: channels, ranges, provenance, references, graph, gamuts |
+| `npx --yes --package color-space color-space-mcp` | Agent tools: `convert`, `space`, `spaces`, and `cube` over MCP |
+
+[Upgrading from v2?](docs/migration.md)
+
+## Spaces
+
 
 <table><tr><td valign="top">
 
@@ -47,49 +88,17 @@ Web, print, film, broadcast, photo, art, human vision, science, history. Convert
 
 </td></tr></table>
 
-## Use
-
-```sh
-npm install color-space
-```
-
-```js
-import space from 'color-space';
-
-// API
-space[from][to](...channels);
-
-// example
-space.rgb.oklch(255, 128, 0);        // → [0.732, 0.186, 53] — modern CSS
-space.slog3.rec2020(0.5, 0.5, 0.5);  // camera log → UHD wide gamut
-space.rgb.xyz(300, -10, 0);          // → [59.7, 30.6, 2.8] — out-of-range in, unclamped out
-
-// interleaved batch
-space.rgb.oklch(new Uint8Array([255, 128, 0,  0, 255, 128])); // [0.732, 0.186, 53,  0.875, 0.234, 151]
-
-// meta
-space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
-
-// single space
-import oklch from 'color-space/oklch.js';
-oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
-```
-
-| Import | What ships |
-|---|---|
-| `color-space` | All 162 interconnected spaces · 55 kB gzip |
-| `color-space/<name>.js` | One standalone, tree-shakeable space |
-| `color-space/lite` | 27-space working set · 9 kB gzip |
-| `color-space/wasm` | lite set WASM version; zero-import `.wasm` included. |
-| `color-space/gl` | Composed shader source GLSL/WGSL |
-| `color-space/lut` | Measured `.cube` files for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md) |
-| `color-space/icc` | Matrix + TRC or CLUT profiles |
-| `color-space/data.json` | Metadata: channels, ranges, provenance, references, graph, gamuts |
-| `npx --yes --package color-space color-space-mcp` | Agent tools: `convert`, `space`, `spaces`, and `cube` over MCP |
-
-[Upgrading from v2?](docs/migration.md)
 
 ## Motivation
+
+The purpose is to have a complete collection of color spaces with minimal, consistent and clean API, verified formulas and cases. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well.
+
+Some side effects:
+
+Verifying and correcting papers.
+Visualising and educating about color spaces.
+Providing test cases for JS to WASM compilers (porffor, jz).
+
 
 Color spaces are scattered across standards, papers, industries, and decades. This collection keeps the formulas, conventional ranges, provenance, and references together, behind one minimal API.
 
@@ -102,25 +111,19 @@ It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contra
 
 ## Credits
 
-Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors, and the libraries that informed this one: [culori](https://github.com/Evercoder/culori), [colorjs.io](https://colorjs.io/), [color-api](https://github.com/LeaVerou/color-api), and [texel/color](https://github.com/texel-org/color).
+Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors, and the libraries that informed this one.
 
+## Alternatives
 
-## Comparison
-
-| Library | Spaces | Ranges | Specialty¹ | Backends | Speed² |
+| Library | Spaces | Ranges | Specialty | Backends | Speed |
 |---|---:|---|---|---|---:|
-| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **29.3** |
-| color-space/wasm | 27 | Conventional | — | WASM | 33.0 ⁴ |
-| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.5 |
+| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **36.4** |
+| color-space/wasm | 27 | Conventional | — | WASM | 32.7 (batch) |
+| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.1 |
 | [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
-| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 16.2 ³ |
-| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.5 ³ |
-| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 34.6 ³ |
-
-<sup>¹ See the factual [library comparison](docs/library-comparison.md)</sup>
-<sup>² geometric mean, million scalar calls per second over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), Node 25 / Apple silicon; unsupported operations are omitted rather than timed as no-ops</sup>
-<sup>³ measured only on the subset it implements — texel 3 (oklab, p3), chroma-js 6, d3-color 4 (lab, hsl — on those four color-space geomeans 33.6)</sup>
-<sup>⁴ batch throughput, million pixels per second: one call over a 1M-pixel interleaved buffer (rgb → oklab); same workload per-pixel-looped — color-space JS 18.6, texel 16.4, culori 12.6</sup>
+| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 15.9 |
+| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.4 |
+| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 34.4 |
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
