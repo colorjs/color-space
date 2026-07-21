@@ -69,11 +69,8 @@ space.rgb.oklch(new Uint8Array([255, 128, 0,  0, 255, 128])); // [0.732, 0.186, 
 
 // meta
 space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
-```
 
-Import one space when that is all you need:
-
-```js
+// single space
 import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 ```
