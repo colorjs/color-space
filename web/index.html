@@ -188,10 +188,9 @@ a{ color:var(--ink) }
 .ent.lite.pop .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
 .ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
-@media(max-width:1079px){   /* phones + tablets: the sliders rise as a bottom sheet — the row stays put, nothing overlays the rows around it; --kbd lifts it above the software keyboard */
-	.cat .ent.pop .chs{ position:fixed; left:0; right:0; bottom:var(--kbd,0px); z-index:var(--z-modal); max-height:none; opacity:1; overflow:visible; margin:0; padding:var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.22) }
-	body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ display:flex }   /* compact rows: the sheet shows the sliders the row itself hides */
-	.cat .ent.lite.pop{ margin-bottom:0 }   /* no in-flow growth to cancel — the sheet is out of flow */
+@media(max-width:1079px){   /* phones + tablets: the SAME in-flow popover card as desktop — sliders unfold inside the focused row's card, overlaying the rows below */
+	body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ display:flex; max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* compact rows: the card shows the sliders the row itself hides */
+	.cat .gcol>.ent.pop:not(:first-child){ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* the same growth-cancel as lite rows — the card overlays instead of pushing */
 }
 .grid>.ent{ padding-bottom:var(--s2) }
 .sheet>.ent.lite{ padding-top:var(--s1) }
@@ -202,7 +201,7 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 @media(max-width:640px){ .gcols{ grid-template-columns:1fr } }
 .gcol{ display:flex; flex-direction:column; min-width:0 }
 .gcol>.ent:not(.lite){ padding-bottom:var(--s2) }
-.gcol>.ent.lite{ padding:var(--eg) }   /* sheet rows carry the same --eg padding all round as their sides; the focused card inherits it, so its padding reads equal on every edge and the name never shifts on open */
+.gcol>.ent.lite{ padding:var(--s2) var(--eg) }   /* fixed vertical rhythm (--s2), fluid horizontal gutter (--eg) — the focused card inherits both and the name never shifts on open */
 .gcol>.ent:not(.lite)+.ent.lite{ margin-top:var(--s3) }   /* the first sheet row breathes below a lead */
 body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /* sliders only on column-top leads */
 /* ≤1079 (wherever the headings replace the rail) every category shows whole — the heading is a
@@ -1076,7 +1075,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div class="ic-lead">
 		<h2 id="introcopy-title"><span id="n2">162</span> coordinate systems.</h2>
-		<p>Web, print, photography, film, broadcast, art, science, and history. Each carries conventional ranges, gamut shapes, provenance, cited references, known limits, and the canonical conversion. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>. No code needed either — export a <em>.cube</em> LUT for Resolve, Premiere, Final Cut, and OBS.</p>
+		<p>Web, print, photography, film, broadcast, art, science, and history. Canonical conversions, channels, gamut shapes, provenance, cited references, known limits. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>.</p>
 		<ul class="trust" aria-label="why you can trust the data">
 			<li tabindex="0" title="All 162 spaces have an independent cited conformance anchor; 29 are additionally cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
 			<li tabindex="0" title="Channel ranges follow CSS and each defining source — familiar units rather than one universal normalization."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
@@ -1493,9 +1492,6 @@ let squelch=false
 // focus a sheet row's channel → a gentle slider popover for that space, edited like a lead card, no full modal
 let popEnt=null
 const hidePop=()=>{ popEnt?.classList.remove('pop'); popEnt=null }
-// software keyboard: visualViewport shrinks while the layout viewport doesn't — publish the
-// inset so the slider sheet rides above it
-visualViewport?.addEventListener('resize',()=>document.documentElement.style.setProperty('--kbd',Math.max(0,innerHeight-visualViewport.height-visualViewport.offsetTop)+'px'))
 const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop'); paintCatalogGrad([ent]); paintCatalogVals([ent]) }
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
 cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
