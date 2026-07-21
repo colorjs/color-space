@@ -250,17 +250,15 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
-/* the marker stays its size — attention is a caret-blink outline pair hugging the marker's
-   border: a ring in the marker's own ink, its inverse twin directly outside (so the pair
-   reads on any field), blinking like the terminal caret, under the pointer or while its
-   channel drives */
+/* the marker stays its size — attention is a steady outline pair hugging the marker's border:
+   a ring in the marker's own ink, its thicker inverse twin directly outside, so the pair
+   reads on any field — under the pointer or while its channel drives */
 .ch .tk::after,.bar2 .dk::after,.ch .tk::before,.bar2 .dk::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
-.ch .tk::before,.bar2 .dk::before{ inset:-2.4px; filter:invert(1) }
+.ch .tk::before,.bar2 .dk::before{ inset:-3.2px; border-width:2px; filter:invert(1) }
 .ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,
-.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ animation:blink 1.1s step-end infinite }   /* the fcaret rhythm */
+.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ opacity:1 }
 .chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
-.chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ animation:none }   /* one blink at a time — the pointer outranks the focused channel */
-@keyframes blink{ 0%,100%{ opacity:.85 } 55%{ opacity:0 } }
+.chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -1833,8 +1831,8 @@ const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
 let dragEnt=null   // the catalog entry being dragged — motion frames repaint it alone; everything else catches up on settle
-let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.includes(v)) Q=v }catch{}
-const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
+let Q=null   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
+try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
 const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human' }
@@ -2999,7 +2997,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		if(fb) fb.onclick=()=>fi.click()
 		if(fi) fi.onchange=()=>{ addImg(fi.files&&fi.files[0]); fi.value='' } }
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
-	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value); saveQ(); qs.title=QTIP[qs.value]
+	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value); qs.title=QTIP[qs.value]
 		clusterize()   // entering a mode snaps the current color onto its cluster right away
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM; gs.title=gamTip(GM)   // radio: one gamut always selected — the solid always shows SOME shape
