@@ -1173,6 +1173,7 @@ const wireToc=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.que
 	actI=-1; trackAct(); layoutToc() }
 addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // only the active-category highlight tracks scroll; the rail itself is pure CSS sticky
 colize(); wireToc(); COLQ.forEach(q=>q.addEventListener('change',colize))
+document.fonts?.ready.then(()=>{ layoutToc(); trackAct() })   // the pre-paint ladder used fallback metrics — realign once the real fonts reflow the sections
 </script>
 
 
@@ -1413,6 +1414,13 @@ const pairsFor=s2=>{ const c2=classify(s2), ai=hueIdx(c2)
 // paired channel out). The White&Black family (hwb, okhwb, ostwald) joins in: the
 // solid already renders them as cones, so a tint/shade wheel is the honest 2D echo.
 const polarPl=(c2,a,b)=>{ const ai=hueIdx(c2); return ai>=0&&a===ai&&c2.ch.length===3 }
+// cone-family vertical sections: the mag–tone plane drawn in the solid's own silhouette —
+// hsv-family cones taper to black, hsl-family bicones to both poles, the White&Black
+// families cut the tint–shade triangle (W+B ≤ 100). The gray axis rides the left edge,
+// the way the solid reads side-on; outside the silhouette there is no coordinate at all.
+const TRIS={ hsv:1, okhsv:1, hsl:2, okhsl:2, hwb:3, okhwb:3, ostwald:3 }
+const triPl=(s2,c2,a,b)=>{ const m=TRIS[s2]; if(!m) return 0
+	const ai=hueIdx(c2); return a===ai||b===ai?0:m }   // only the mag–tone pair
 // per-plane axis DIRECTIONS, matched to the solid's default view (rot −0.6/0.42): model
 // x (others[0]) points right, tone up, model z (others[1]) toward the viewer — so an axis
 // sweeping z runs leftward when horizontal, downward when vertical, and the planes read
@@ -3145,6 +3153,11 @@ function wirePlane(pl){
 			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
 			fy=Math.min(1,Math.hypot(px,py))
 			if(fy*r.width/2<3) fy=0 }   // soft snap: the achromatic centre within ~3px
+		else if(pl._tri){ // cone section: x is a fraction OF THE ROW's width — the silhouette's own frame
+			fy=clamp(1-(e.clientY-r.top)/r.height,0,1)
+			if(pl._tri===3) fx=Math.min(clamp((e.clientX-r.left)/r.width,0,1),1-fy)
+			else{ const tw=pl._tri===1?fy:1-Math.abs(2*fy-1)
+				fx=tw<=0?0:Math.min(1,clamp((e.clientX-r.left)/r.width,0,1)/tw) } }
 		else{ // pointer → windowed fraction → global range fraction (pan-zoom aware)
 			fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
 			fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
@@ -3168,7 +3181,7 @@ function wirePlane(pl){
 	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
 	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null; paintPlanes(false); paintCatalogGrad() })
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
-	pl.addEventListener('wheel',e=>{ if(pl._polar){ if(e.ctrlKey) e.preventDefault(); return }   // the disc has no pan/zoom window — but pinch must not zoom the PAGE
+	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window — but pinch must not zoom the PAGE
 		const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
 		if(!e.ctrlKey&&!zoomed) return
 		e.preventDefault()
@@ -3391,8 +3404,9 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		// it lives on the GPU path — cluster modes and no-GL stay square. The element
 		// carries the painted mode, so picking and the marker always match the paint.
 		const pol=pl._polar=canGL&&polarPl(cls,a,b)&&polarOn(s,cls,a,b)
+		const tri=pl._tri=canGL&&!pol?triPl(s,cls,a,b):0   // cone sections paint full-range, like the disc (no pan/zoom window on a silhouette)
 		pl.classList.toggle('polar',!!pol)
-		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol?[cls.ch[a].min,cls.ch[a].max]:rx,pol?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol)) return
+		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
 	planesLive=canGL
 	if(planesLive) planeNext=0
@@ -3563,6 +3577,9 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		if(pl._polar){ const th=gx*2*Math.PI   // clockwise: css y grows downward
 			cx.style.display=''
 			cx.style.left=(50+gy*50*Math.cos(th))+'%'; cx.style.top=(50+gy*50*Math.sin(th))+'%' }
+		else if(pl._tri){ const tw=pl._tri===1?gy:pl._tri===2?1-Math.abs(2*gy-1):1
+			cx.style.display=''
+			cx.style.left=((pl._tri===3?gx:gx*tw)*100)+'%'; cx.style.top=((1-gy)*100)+'%' }
 		else{ const fl=flip3(cls,a,b), wx=fl&1?1-gx:gx, wy=fl&2?1-gy:gy
 			const px=(wx-vw.x0)/(vw.x1-vw.x0), py=(wy-vw.y0)/(vw.y1-vw.y0)
 		cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''

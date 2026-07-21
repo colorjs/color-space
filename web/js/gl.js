@@ -149,6 +149,7 @@ uniform float uQ;         // numeric coordinate lattice (0 = smooth)
 uniform int uGam;         // 0 off · 1 srgb · 2 p3 · 3 rec2020 · 4 human (spectral locus)
 uniform int uWeb;         // web-safe output snap
 uniform int uPolar;       // 1 → the field is a hue DISC: angle→a, radius→b
+uniform int uTri;         // cone-family vertical section: 1 cone · 2 bicone · 3 W+B triangle
 out vec4 O;
 void main() {
 	vec2 f = gl_FragCoord.xy / uRes;
@@ -162,6 +163,14 @@ void main() {
 		fa = fract(-atan(pc.y, pc.x) / 6.283185307179586);
 		fb = rr;
 	} else { fa = f.x; fb = f.y; }
+	if (uTri != 0) {   // the solid's own silhouette: outside it there is no coordinate at all
+		if (uTri == 3) { if (fa + fb > 1.0) { O = vec4(0.0); return; } }
+		else {
+			float tw = uTri == 1 ? fb : 1.0 - abs(2.0 * fb - 1.0);   // row width: cone tapers to black, bicone to both poles
+			if (tw <= 0.0 || fa > tw) { O = vec4(0.0); return; }
+			fa /= tw;   // x is a fraction OF THE ROW — the mag channel in the silhouette's frame
+		}
+	}
 	if (uQ > 0.5) { fa = (min(uQ - 1.0, floor(fa * uQ)) + 0.5) / uQ; fb = (min(uQ - 1.0, floor(fb * uQ)) + 0.5) / uQ; }
 	${vt} v = ${vt}(${vswz});
 	for (int k = 0; k < ${d}; k++) {
@@ -255,7 +264,7 @@ bool visXYZ(vec3 c) {   // black is a colour; a chromaticity off the locus is im
 	return inside(vec2(c.x / s, c.y / s));
 }`)(locus())
 
-function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar) {
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
@@ -264,7 +273,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar) {
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
 	G.uniform4f(st.u.uV, ...v4)
@@ -276,6 +285,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar) {
 	G.uniform1i(st.u.uGam, GAMI[gamut] || 0)
 	G.uniform1i(st.u.uWeb, quant === 'web' ? 1 : 0)
 	G.uniform1i(st.u.uPolar, polar ? 1 : 0)
+	G.uniform1i(st.u.uTri, tri || 0)
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
 
@@ -284,10 +294,10 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar) {
  * Call only when planeGLStatus(s) is 'ready'. quant: number N | 'web' —
  * color-cluster quantizers stay on the JS path.
  */
-export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar) {
+export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar)
+	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
