@@ -78,7 +78,7 @@ See [docs/migration.md](docs/migration.md) for the v2→v3 upgrade path, verifie
 - `yuv`/`yiq` → rgb no longer clamp to 0–1 (JS and GLSL) — out-of-gamut values pass through, per the library-wide rule.
 - README no longer claims alpha pass-through (channels only) or blanket lossless round-trips (lossy nodes are tagged).
 - Benchmark fed color-space 0–1 rgb values where it expects 0–255 — competitors got the intended color, this library got near-black. RGB→HEX is now omitted for color-space instead of timing a no-op; timings warm up, consume outputs, and report the median of seven samples.
-- MCP version and space counts derive from `package.json` and the live registry instead of hard-coded literals; initialization negotiates the protocol version the server actually implements instead of echoing unknown client versions.
+- MCP version and space counts derive from `package.json` and the live registry instead of hard-coded literals; initialization negotiates the protocol version the server actually implements instead of echoing unknown client versions. The CLI now resolves npm's `.bin` symlink before its direct-execution check, so the installed `color-space-mcp` executable actually starts.
 - Composed conversions routed through `rgb.xyb` or `coloroid.xyy` threw (`this` lost in graph composition).
 - 15 dead or mis-attributed `@see` citations: ACES encodings paths, Ottosson colorpicker anchors, DIN99d/Coloroid DOIs, Xerox YES attribution, colour-science doc pages, freieFarbe atlas, Leica L-Log manual, DIN99 wiki.
 - **oklab**: corrected sRGB linearization (fix also propagates to oklch, okhsl, okhsv).

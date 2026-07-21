@@ -57,19 +57,36 @@ jobs:
           npm test
           npm run test:package
           npm audit --omit=dev
+      - name: Check whether this immutable version already exists
+        id: registry
+        run: |
+          if npm view "color-space@$VERSION" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Publish the tested commit with provenance
+        if: steps.registry.outputs.exists != 'true'
         run: npm publish --access public --provenance --tag "${{ inputs['dist-tag'] }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Tag the exact published commit
         run: |
-          git tag -a "v$VERSION" -m "v$VERSION"
-          git push origin "v$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --tags --force
+          if git rev-parse "refs/tags/v$VERSION" >/dev/null 2>&1; then
+            [[ "$(git rev-parse "v$VERSION^{}")" == "$GITHUB_SHA" ]] || { echo "v$VERSION points at a different commit" >&2; exit 1; }
+          else
+            git tag -a "v$VERSION" -m "v$VERSION"
+            git push origin "v$VERSION"
+          fi
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           DIST_TAG: ${{ inputs['dist-tag'] }}
         run: |
+          if gh release view "v$VERSION" >/dev/null 2>&1; then exit 0; fi
           EXTRA=()
           if [[ "$DIST_TAG" == next ]]; then EXTRA+=(--prerelease); fi
           gh release create "v$VERSION" --verify-tag --generate-notes --title "v$VERSION" "${EXTRA[@]}"

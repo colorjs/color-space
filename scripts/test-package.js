@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, join, resolve } from 'node:path'
@@ -29,7 +29,14 @@ try {
 		fail('normal install contains runtime or optional dependencies')
 	const modules = readdirSync(join(temp, 'node_modules')).filter(name => !name.startsWith('.'))
 	if (modules.join() !== 'color-space') fail(`normal install added packages: ${modules.join(', ')}`)
-	if (!existsSync(join(temp, 'node_modules/.bin/color-space-mcp'))) fail('color-space-mcp bin link is missing')
+	const mcpBin = join(temp, 'node_modules/.bin/color-space-mcp')
+	if (!existsSync(mcpBin)) fail('color-space-mcp bin link is missing')
+	const init = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'packed-smoke', version: '1' } } }) + '\n'
+	const mcp = spawnSync(mcpBin, [], { cwd: temp, input: init, encoding: 'utf8', timeout: 5000 })
+	if (mcp.status !== 0) fail(`installed MCP bin failed (${mcp.status}): ${mcp.stderr || mcp.error || 'no output'}`)
+	let initialized
+	try { initialized = JSON.parse(mcp.stdout.trim().split('\n')[0]) } catch { fail(`installed MCP bin returned invalid JSON: ${mcp.stdout}`) }
+	if (initialized?.result?.serverInfo?.version !== installed.version) fail('installed MCP bin did not initialize with the packed version')
 
 	writeFileSync(join(temp, 'consumer.mjs'), `
 import assert from 'node:assert/strict'

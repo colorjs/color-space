@@ -13,7 +13,9 @@
  * refs, ranges, provenance, neighbours) · spaces (the catalog) · cube (a .cube LUT).
  * @see {@link https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#stdio}
  */
+import { realpathSync } from 'node:fs'
 import { createInterface } from 'node:readline'
+import { fileURLToPath } from 'node:url'
 import space from './index.js'
 import data from './data.json' with { type: 'json' }
 import pkg from './package.json' with { type: 'json' }
@@ -131,8 +133,15 @@ export function handle(msg) {
 	if (id !== undefined) rpc(id, { error: { code: -32601, message: `method '${method}' not found` } })
 }
 
-// serve only when executed directly — importing this module must stay side-effect-free
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+// Serve only when executed directly — importing this module must stay side-effect-free.
+// Resolve both sides through realpath: npm launches bins through node_modules/.bin
+// symlinks, while import.meta.url names the package file itself.
+const isMain = (() => {
+	if (!process.argv[1]) return false
+	try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)) }
+	catch { return false }
+})()
+if (isMain) {
 	createInterface({ input: process.stdin }).on('line', (line) => {
 		if (!line.trim()) return
 		let msg; try { msg = JSON.parse(line) } catch { return rpc(null, { error: { code: -32700, message: 'parse error' } }) }
