@@ -3095,7 +3095,7 @@ function wireBar(el,s){
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
 		let f=clamp((ev.clientX-r.left)/r.width,0,1)   // the right edge IS max — capping short of 1 (old .999) left the value at 99.9% and the spinner's limit state never engaged
-		if(Math.abs(f-0.5)*r.width<3) f=0.5   // soft snap: the centre value (0 for a/b axes, 180° for hue) within ~3px
+		if(Math.abs(f-0.5)*r.width<1) f=0.5   // soft snap: the centre value (0 for a/b axes, 180° for hue) within ±1px only
 		if(typeof Q==='number'){ const k=Math.min(Math.floor(f*Q),Q-1); f=k===0&&f<0.5/Q?0:k===Q-1&&f>1-0.5/Q?1:(k+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }   // edge cells reach the true borders — movement is never fenced in
 		else if(qTriple(Q)&&el._cells){ const k=Math.min(Math.floor(f*el._cells.length),el._cells.length-1)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
