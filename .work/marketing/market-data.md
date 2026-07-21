@@ -1,103 +1,116 @@
 # Market data — JS color libraries
 
-> Cited competitive data, kept separate so the strategy docs stay evergreen. All figures observed **2026-06-30**; sources inline. Re-verify before quoting in public copy.
+> Cited competitive data, kept separate so the strategy docs stay evergreen. All figures observed **2026-07-21** (previous stamp 2026-06-30); sources inline. Re-verify before quoting in public copy.
 
 ---
 
 ## The headline insight: used, but invisible
 
-color-space gets **~1.0M weekly downloads — the same tier as culori (1.3M)** — yet has **356 GitHub stars** vs culori's 1,204 and chroma-js's 10,572. It has real usage (largely transitive, via the colorjs-org packages and 46 npm dependents) but **little mindshare**: people use it without knowing, starring, or talking about it.
+color-space gets **~4.0M monthly downloads (935k/week)** — real, culori-tier usage — yet has **357 GitHub stars** vs culori's 1,211 and chroma-js's 10,574. The usage is largely transitive (45 npm dependents, the colorjs-org packages): people use it without knowing, starring, or talking about it.
 
-**This changes the marketing job.** The problem is not "get users" — it's **convert existing, invisible usage into visibility, stars, direct adoption, and word-of-mouth.** Hence the emphasis in [distribution.md](distribution.md) on social surfaces (OG images, GitHub topics), the launch, and shareable proof — not on "awareness from zero."
+**This changes the marketing job.** The problem is not "get users" — it's **convert existing, invisible usage into visibility, stars, direct adoption, and word-of-mouth.** Hence the emphasis in [distribution.md](distribution.md) on social surfaces, the launch, and shareable proof — not on "awareness from zero."
 
-A second opening: **culori has not committed in ~9 months** (last push 2025-09-10) while colorjs.io and color-space are actively developed. The "comprehensive CSS color" lane has a momentum gap.
+⚠️ **Correction (2026-07-21):** the earlier "culori stalled ~9 months" opening is **gone** — culori pushed 2026-07-02 and is active again. Do not use the momentum-gap argument anywhere. The durable differentiators are breadth (162 vs ~35–40), conventional ranges, and verification — not a competitor's absence.
 
 ---
 
-## Weekly npm downloads (week of 2026-06-22 → 06-28)
+## Monthly npm downloads (2026-06-20 → 07-19/20)
 
-Source: `api.npmjs.org/downloads/point/last-week/<pkg>`; color-space & culori cross-verified via npm-stat.com.
+Source: `api.npmjs.org/downloads/point/last-month/<pkg>`.
 
-| Package | Weekly DLs | Real signal? |
+| Package | Monthly DLs | Real signal? |
 |---|---:|---|
-| color-convert | 321.7M | ❌ transitive via chalk → ansi-styles; not color work |
-| d3-color | 67.6M | ◐ d3 ecosystem sub-module |
-| color | 46.6M | ✓ general manipulation |
-| colord | 18.1M | ✓ tiny; CSS tooling (cssnano, PixiJS) |
-| tinycolor2 | 12.9M | ◐ legacy; no modern spaces |
-| colorjs.io | 6.2M | ✓ high — Sass depends on it |
-| @ctrl/tinycolor | 3.7M | ✓ TS port of tinycolor2 |
-| chroma-js | 2.7M | ✓ data viz / palettes |
-| **culori** | **1.3M** | ✓ CSS Color 4 toolkit |
-| **color-space** | **1.0M** | ✓ scientific/niche conversion |
+| color-convert | 1,277M | ❌ transitive via chalk → ansi-styles; not color work |
+| d3-color | 271M | ◐ d3 ecosystem sub-module |
+| color | 196M | ✓ general manipulation |
+| colord | 75M | ✓ tiny; CSS tooling (cssnano, PixiJS) |
+| tinycolor2 | 53M | ◐ legacy; no modern spaces |
+| colorjs.io | 25.8M | ✓ high — Sass depends on it |
+| @ctrl/tinycolor | 16.2M | ✓ TS port of tinycolor2 |
+| chroma-js | 10.8M | ✓ data viz / palettes |
+| **culori** | **5.7M** | ✓ CSS Color 4 toolkit |
+| **color-space** | **4.0M** | ✓ scientific/niche conversion (935k/wk) |
 
 ---
 
 ## GitHub stars / activity
 
-Source: GitHub REST API, 2026-06-30.
+Source: GitHub GraphQL, 2026-07-21.
 
 | Repo | Stars | Last push | State |
 |---|---:|---|---|
-| gka/chroma.js | 10,572 | 2026-06-01 | active — **most starred** |
-| color-js/color.js (colorjs.io) | 2,259 | 2026-06-29 | very active |
-| omgovich/colord | 1,874 | 2026-05-23 | active |
-| Evercoder/culori | 1,204 | 2025-09-10 | **quiet (~9 mo)** |
-| d3/d3-color | 428 | 2024-02-03 | dormant (understated — bundled in d3) |
-| **colorjs/color-space** | **356** | 2026-06-30 | active |
+| gka/chroma.js | 10,574 | 2026-06-01 | active — **most starred** |
+| color-js/color.js (colorjs.io) | 2,266 | 2026-07-20 | very active |
+| omgovich/colord | 1,877 | 2026-05-23 | active |
+| Evercoder/culori | 1,211 | 2026-07-02 | **active again** (do not quote the old stall) |
+| texel-org/color | 526 | 2026-06-01 | active |
+| **colorjs/color-space** | **357** | 2026-07-21 | active — v3.0.0 shipped 2026-07 |
 
-**Stars-per-download tells the story:** chroma-js ~4 stars per 1k weekly DLs; culori ~0.9; color-space ~0.36. Same usage as culori, a third of the recognition.
+**Stars-per-download still tells the story:** chroma ~4.2 stars per 1k weekly DLs; culori ~0.9; color-space ~0.38. Culori-tier usage, a third of the recognition.
 
 ---
 
 ## Bundle size (minzipped)
 
-Source: bundlephobia, 2026-06-30 (colord measured from tarball — bundlephobia API defective for it).
+npm now serves **v3.0.0**, so v3 numbers are quotable directly:
 
 | Package | Version | Minzipped | Note |
 |---|---|---:|---|
 | colord | 2.9.3 | ~2.1 kB | core only; Lab/LCH/etc. via plugins |
-| tinycolor2 | 1.6.0 | 5.4 kB | few spaces |
 | color-convert | 3.1.3 | 5.6 kB | few spaces |
-| color | 5.0.3 | 8.4 kB | |
-| **color-space** | **2.3.2** | **10.3 kB** | ⚠️ *all ~50 v2 spaces bundled* |
+| **color-space** (one space) | **3.0.0** | **0.4–1.5 kB** | tree-shaken `color-space/<name>.js` — **this is the number to quote** |
+| **color-space** (lite) | 3.0.0 | 9 kB | 27-space working set |
 | chroma-js | 3.2.0 | 16.2 kB | |
 | culori | 4.0.2 | 22.2 kB | tree-shakeable — subset much smaller |
 | colorjs.io | 0.6.1 | 25.4 kB | tree-shakeable — subset much smaller |
+| **color-space** (all 162) | 3.0.0 | 55 kB | the full graph — nobody imports this; never call it "tiny" |
 
-**Size caveats (important for honest copy):**
-- **npm still serves color-space v2.3.2** (10.3 kB, ~50 spaces). v3 (this branch) adds a per-file `exports` map → **per-space imports become far smaller**.
-- The **local v3 dist of *all 151 spaces* is ~44 kB min+gz** (44,572 bytes; ~2.6× v2 because v3 has ~2.6× the spaces — so the *full* bundle is actually larger than culori/colorjs.io, but nobody imports all 151). **Quote the tree-shaken per-space size (~2 kB), not the full bundle.** Measure and publish real per-space numbers once v3 ships to npm.
-- culori and colorjs.io are also tree-shakeable — don't compare our per-space import against their *full* bundle; that's apples-to-oranges. Compare like for like.
+Competitor sizes from bundlephobia 2026-06 (see docs/library-comparison.md). **Compare like for like:** our per-space import vs their tree-shaken subset, or full vs full — never our subset vs their full bundle.
 
 ---
 
 ## Competitor positioning (exact taglines)
 
-- **culori** — *"A comprehensive color library for JavaScript."* / homepage: *"Color functions for JavaScript."* Emphasis: full CSS Color 4, tree-shakeable, ΔE (CIEDE2000), interpolation, gamut mapping.
-- **colorjs.io** — *"Let's get serious about color"* · *"by the editors of the CSS Color specifications."* Emphasis: spec authority (Lea Verou, Chris Lilley), wide-gamut, every CSS format, ΔE, gamut mapping, chromatic adaptation.
-- **chroma-js** — *"a small-ish zero-dependency JavaScript library for all kinds of color conversions and color scales."* Emphasis: zero deps, size, **color scales / ColorBrewer** (data viz).
-- **colord** — *"A tiny yet powerful tool for high-performance color manipulations and conversions."* Emphasis: **2.1 kB**, speed, TS, plugins.
-- **color-convert** — *"Plain color conversion functions in JavaScript."* Low-level CLI/ANSI utility.
-- **tinycolor2** — *"a small, fast library for color manipulation and conversion."* RGB/HSL/HSV/Hex only; legacy.
+- **culori** — *"A comprehensive color library for JavaScript."* Emphasis: full CSS Color 4, tree-shakeable, ΔE, interpolation, gamut mapping.
+- **colorjs.io** — *"Let's get serious about color"* · *"by the editors of the CSS Color specifications."* Emphasis: spec authority, wide-gamut, ΔE, adaptation.
+- **chroma-js** — *"a small-ish zero-dependency JavaScript library for all kinds of color conversions and color scales."* Emphasis: scales/ColorBrewer (data viz).
+- **colord** — *"A tiny yet powerful tool for high-performance color manipulations and conversions."* Emphasis: 2 kB, speed, TS, plugins.
+- **@texel/color** — minimal fast wide-gamut conversions, GPU-adjacent.
 
-**What none of them claim, and color-space can own:** a *number* (space count), *breadth into film/broadcast/appearance/historical/Munsell*, *CSS-native ranges*, and *differential verification against the spec reference*. The lane is open.
+**What none of them claim, and color-space now owns with proof:** the *number* (162), *breadth into film/broadcast/appearance/historical/Munsell*, *conventional (CSS-matching) ranges*, *per-space cited conformance anchors*, differential testing vs colorjs.io, **camera logs verified against the Academy's official ACES vendor transforms** (docs/lut-verification.md), and non-JS backends (WASM · GLSL/WGSL · .cube LUT · ICC · MCP). The lane is open.
+
+---
+
+## Funding reality (researched 2026-07-21)
+
+Sponsorship money does not follow downloads in this category:
+
+| Author | Library | Monthly DLs | GitHub sponsors |
+|---|---|---:|---|
+| Lea Verou (W3C CSS WG) | colorjs.io | 25.8M | **1** |
+| gka | chroma-js | 10.8M | no listing |
+| danburzo | culori | 5.7M | no listing |
+| dy | color-space | 4.0M | 0 (listing live) |
+
+- Individual sponsorship follows *audience* (Sindre Sorhus, Anthony Fu — content presence), corporate follows *fear* (security-critical deps). Neither applies here; expect a tip jar, not income.
+- **Wiring done 2026-07-21:** `.github/FUNDING.yml` (Sponsor button live), thanks.dev account created. Dependency-graph funds pay small but automatically: Sentry's OSS Pledge distributed $260k/yr; Frontend Masters $50k across 350+ projects (~$140/project/yr avg); Tidelift live. Realistic: tens of $/mo.
+- The one door to real money: the colorist market via LUT traffic → named film-tech sponsorship (Colourlab, FilmLight, Frame.io) **after** 3–6 months of demonstrable traffic. See distribution.md.
 
 ---
 
 ## Verified users (for "trusted by" proof)
 
-- **colorjs.io:** Sass, axe-core (Deque), Open Props (Adam Argyle). *(colorjs.io homepage)*
-- **culori:** tailwindcss-intellisense (the VSCode extension). ⚠️ **"Tailwind v4 uses culori" is FALSE** — framework has no color deps; the claim conflates the extension with the framework. Do not repeat it.
-- **chroma-js:** ~1,827 dependents, diffuse across data viz; no single landmark verified.
-- **colord:** cssnano/postcss-colormin (the dominant CSS minifier), PixiJS (`@pixi/colord`), Sentry.
-- **color-space:** 46 npm dependents / 70 on Libraries.io; the colorjs-org packages (color-parse, color-name) build on it. Niche/scientific use (Munsell naming, LMS vision modeling).
+- **colorjs.io:** Sass, axe-core (Deque), Open Props. *(colorjs.io homepage)*
+- **culori:** tailwindcss-intellisense (the VSCode extension). ⚠️ **"Tailwind v4 uses culori" is FALSE** — do not repeat it.
+- **colord:** cssnano/postcss-colormin, PixiJS, Sentry.
+- **color-space:** 45 npm dependents (npm search API, 2026-07-21); the colorjs-org packages build on it; niche/scientific use (Munsell naming, LMS vision modeling).
 
 ---
 
 ## Could-not-verify / corrections (do not publish unchecked)
 
-- colord's self-claimed "1.7 kB" — measured ~2.1 kB ESM gz; older version or different method.
-- colorjs.io homepage "229M downloads" — API cumulative ~242M; homepage figure stale.
-- color-space v3 per-space bundle size — **not yet measurable on npm** (v3 unpublished). Measure post-release.
-- competitor *space counts* are best estimates from source (culori ~25–35, colorjs.io ~40, chroma ~15, @texel/color ~16); they shift as libs add spaces. The "3–5×" claim (151 vs 25–40) holds across that range, but recount before quoting an exact multiple.
+- colord's self-claimed "1.7 kB" — measured ~2.1 kB ESM gz.
+- colorjs.io homepage "229M downloads" — stale vs API cumulative; don't cite their homepage number.
+- Competitor *space counts* are estimates from source (culori ~35, colorjs.io ~40, chroma ~15, @texel/color ~16). 162 vs those = **4×+ any other JS library**; recount before quoting an exact multiple.
+- ~~culori stalled~~ — **corrected above**, active since 2026-07-02.
+- ~~v3 per-space size unmeasurable~~ — resolved; v3.0.0 on npm, quote 0.4–1.5 kB per space.

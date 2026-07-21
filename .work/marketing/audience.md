@@ -10,13 +10,13 @@
 
 People reach for color-space at the exact moment they need to **convert one color space into another and discover their current tool doesn't have that space** — or they don't trust the formula they found. The relief they feel is *"this one actually has it, and it's verified."*
 
-The desire is not "I want a color library." It is **"convert THIS into THAT, correctly, without re-deriving the math myself."** color-space wins by having the space they need (151 of them) and proving the numbers.
+The desire is not "I want a color library." It is **"convert THIS into THAT, correctly, without re-deriving the math myself."** color-space wins by having the space they need (162 of them) and proving the numbers.
 
 ---
 
 ## The market reality: used, but invisible
 
-color-space already gets **~1.0M weekly npm downloads — peer to culori (1.3M)** — but has only **356 GitHub stars** (culori 1,204; chroma-js 10,572). It is used (largely transitively, via colorjs-org packages and 46 dependents) but **under-known, under-starred, under-discussed.** So the job is not "find users from zero" — it's **convert invisible usage into visibility, stars, direct adoption, and word-of-mouth.** Full figures in [market-data.md](market-data.md). This is why [distribution.md](distribution.md) leads with social surfaces and shareable proof rather than cold awareness.
+color-space already gets **~4.0M monthly npm downloads (935k/wk) — culori-tier (culori: 5.7M/mo)** — but has only **357 GitHub stars** (culori 1,211; chroma-js 10,574). It is used (largely transitively, via colorjs-org packages and 45 dependents) but **under-known, under-starred, under-discussed.** So the job is not "find users from zero" — it's **convert invisible usage into visibility, stars, direct adoption, and word-of-mouth.** Full figures in [market-data.md](market-data.md). This is why [distribution.md](distribution.md) leads with social surfaces and shareable proof rather than cold awareness.
 
 ---
 
@@ -25,7 +25,7 @@ color-space already gets **~1.0M weekly npm downloads — peer to culori (1.3M)*
 Ranked by intensity × reach × how directly color-space satisfies it:
 
 1. **"Just have the space I need."** The acute pain is searching culori/colorjs.io/chroma-js, not finding S-Log3 / CAM16 / Munsell / YCbCr, and facing the prospect of hand-porting a formula from a PDF. color-space is the only JS library that ends this search. **Highest intensity, this is the wedge.**
-2. **"Let me trust the number."** Developers who *did* hand-port a formula and now can't tell if it's right. color-space is differentially tested against the CSS spec reference (colorjs.io) at 1/255 tolerance, and has corrected errors in published papers. Proof is the moat.
+2. **"Let me trust the number."** Developers who *did* hand-port a formula and now can't tell if it's right. Every space carries an independent cited conformance anchor; 29 are differentially tested against the CSS spec reference (colorjs.io) at 1/255; camera logs are verified against the Academy's official ACES vendor transforms with published deltas (docs/lut-verification.md); and it has corrected errors in published papers. Proof is the moat.
 3. **"Stop making me do 0–1 mental math."** Frontend/CSS developers who think in `oklch(65% 0.2 180)` and `rgb(255 128 0)` but whose library wants `oklch(0.65, 0.2, 0.5)`. color-space uses CSS-native ranges — the only one that does.
 4. **"Keep it small and unencumbered."** Tree-shakeable, zero deps, public domain — take one space, ship a few hundred bytes, no license to read.
 
@@ -39,9 +39,10 @@ Dunford's test: not "who they are" but *the trait that makes them see the value 
 
 ### A. Video / film / VFX color pipeline — **the moat**
 - **Trait:** working in JS/TS (web tools, Electron grading apps, browser LUT tools, render farms) and needs camera-log ↔ scene-linear ↔ display conversions.
-- **Needs:** ACES (cg/cc/cct/2065-1), S-Log3, LogC4, V-Log, RED Log3G10, Canon Log, F-Log, Cineon, BMD Film, Rec.2020/2100 (PQ/HLG), YCbCr family.
+- **Needs:** ACES (cg/cc/cct/2065-1), S-Log3 (S-Gamut3 *and* S-Gamut3.Cine), LogC4, V-Log, RED Log3G10, Canon Log, F-Log, Cineon, BMD Film, Rec.2020/2100 (PQ/HLG), YCbCr family.
 - **Alternatives today:** hand-porting from ARRI/Sony/RED whitepapers; the Python `colour-science` lib (not JS); nothing complete in JS.
-- **Why they convert instantly:** *no other JS library has these.* This is "big fish, small pond." Small segment, near-zero competition, intense need.
+- **Why they convert instantly:** *no other JS library has these* — and now the proof speaks their language: camera-log conversions are differential-tested against the Academy's official ACES vendor transforms (deltas published), and the atlas hands them verified `.cube` LUTs in-browser, no npm involved. This is "big fish, small pond." Small segment, near-zero competition, intense need.
+- **Non-JS extension of this segment — colorists/DITs:** never touch npm; reach them through the atlas LUT downloads and the ffmpeg/Resolve/OBS path. See distribution.md's film track.
 
 ### B. Color scientists / researchers / educators — **the credibility anchor**
 - **Trait:** needs a *reference* implementation they can cite and verify; values correctness over convenience.
@@ -74,6 +75,9 @@ Dunford's test: not "who they are" but *the trait that makes them see the value 
 ### G. WASM / compiler authors — *users of the code, not the API*
 - The project is used as a test corpus for JS→WASM compilers (porffor, jz). Real, but a **side effect**, not a buyer. Mention in "motivation," never lead with it.
 
+### H. AI agents / MCP clients — *emerging, don't lead with it*
+- `npx color-space-mcp` exposes `convert`, `space`, `spaces`, `cube` as MCP tools — an agent answering color questions grounds in verified conversions instead of hallucinating matrices. Real and differentiating (no other color lib ships one), but the crowd is young; mention it, measure interest, don't build the pitch on it.
+
 ---
 
 ## The words they actually use (mirror these in copy)
@@ -95,7 +99,7 @@ Per Dunford, these are real substitutes from the buyer's decision, not vendors w
 
 | Alternative | What it is | Where it wins | Where it leaves a gap |
 |---|---|---|---|
-| **culori** | The mature all-round web color toolkit | parsing, interpolation, gamut-map, ΔE, WCAG | ~3–4× fewer spaces; 0–1 ranges; no video/film/appearance breadth; *stalled — ~9 mo no commits* |
+| **culori** | The mature all-round web color toolkit | parsing, interpolation, gamut-map, ΔE, WCAG | ~3–4× fewer spaces; 0–1 ranges; no video/film/appearance breadth |
 | **colorjs.io** | W3C CSS Color spec reference impl | authoritative CSS behavior, modern perceptual | ~25 kB min+gz full; 0–1 ranges; ~3× fewer spaces |
 | **chroma-js** | Viz/palette ergonomics | scales, Brewer, fluent API | not tree-shakeable; few spaces; no exotic spaces |
 | **@texel/color** | Fast typed-array/GPU conversion | throughput, tiny | ~16 spaces; 0–1; no breadth |
@@ -111,9 +115,9 @@ Per Dunford, these are real substitutes from the buyer's decision, not vendors w
 
 1. *"Doesn't culori/colorjs.io already do this?"* — For the common spaces, yes. color-space is for **when they don't have your space**, when you want **CSS-native ranges**, or when you need the conversion **verified**. It's a conversion kernel, not a competing toolkit — it can sit *under* them.
 2. *"No parsing / interpolation / ΔE / gamut-mapping?"* — Correct, by design. That's the application layer; keeping the kernel pure is why it stays tiny and tree-shakeable. Pair it with culori/chroma for those.
-3. *"Is the math right?"* — Differentially tested against colorjs.io (the CSS spec editors' impl) both directions at 1/255; the rest cited to original papers; documented cases where it corrects the literature.
-4. *"151 spaces — is that just padding?"* — Each is a real, separately-importable transform with cited provenance and a round-trip test. Breadth is the point: the long tail (camera logs, appearance models, Munsell) is exactly what nothing else has.
-5. *"Will it bloat my bundle?"* — Import one space, ship ~2 kB. The ~44 kB figure is *all 151 together* — which nobody imports.
+3. *"Is the math right?"* — Every space pinned to an independent cited anchor; 29 differentially tested against colorjs.io (the CSS spec editors' impl) both directions at 1/255; camera logs differential-tested against the Academy's official ACES vendor transforms (deltas published, reruns on every `npm test`); documented cases where it corrects the literature.
+4. *"162 spaces — is that just padding?"* — Each is a real, separately-importable transform with cited provenance and an independent conformance anchor. Breadth is the point: the long tail (camera logs, appearance models, Munsell) is exactly what nothing else has.
+5. *"Will it bloat my bundle?"* — Import one space, ship 0.4–1.5 kB. The 55 kB figure is *all 162 together* — which nobody imports.
 6. *"v3 breaking changes?"* — Ranges moved from 0–1 to CSS-native; there's a migration guide. One-time, mechanical.
 
 ---
@@ -122,11 +126,11 @@ Per Dunford, these are real substitutes from the buyer's decision, not vendors w
 
 **Awareness (Schwartz):** mostly **Solution-Aware → Product-Aware.** They know color libraries exist; many know color-space from v1/v2 (it's a long-established package). So copy should *crystallize* "this is the complete, verified one" and *overcome the specific objection* ("isn't culori enough?") — not educate from zero.
 
-**Sophistication (Schwartz): high — Level 3–4.** "Convert colors" is a worn-out claim; three good libraries already make it. A plain claim ("collection of color spaces") lands as undifferentiated. We must lead with **mechanism**: the *number* (151, verified), the *spaces nobody else has*, the *CSS-native ranges*, the *differential verification*. These are the Level-3/4 moves.
+**Sophistication (Schwartz): high — Level 3–4.** "Convert colors" is a worn-out claim; three good libraries already make it. A plain claim ("collection of color spaces") lands as undifferentiated. We must lead with **mechanism**: the *number* (162, verified), the *spaces nobody else has*, the *CSS-native ranges*, the *differential verification*. These are the Level-3/4 moves.
 
 **Implications, carried into every surface:**
 - Lead with the ownable, ultra-specific number and the proof — never a generic "color library" claim.
-- Specificity over superlatives: "151 spaces, verified at 1/255 against colorjs.io" beats "comprehensive and accurate."
+- Specificity over superlatives: "162 spaces, every one independently anchored, 29 verified at 1/255 against colorjs.io, camera logs against the official ACES transforms" beats "comprehensive and accurate."
 - Proof before promises (skeptical dev market): surface the verification early.
 - One reader, one idea per surface: *have every space; trust every number.*
 

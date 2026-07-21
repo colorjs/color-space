@@ -117,7 +117,7 @@ extended.oklch['unit-rgb'](0.7, 0.15, 40);
 
 ### 7. New since v2 — not breaking, worth knowing
 
-- 161 spaces (v2 had 41): P3, Rec.2020/2100, ACES, 30+ camera logs, appearance
+- 162 spaces (v2 had 41): P3, Rec.2020/2100, ACES, 30+ camera logs, appearance
   models, historical systems.
 - Any-to-any conversion: the graph wires every pair by shortest path (v2
   required a path through rgb/xyz to exist).

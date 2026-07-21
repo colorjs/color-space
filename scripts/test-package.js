@@ -53,8 +53,8 @@ import wgsl from 'color-space/gl/wgsl'
 import { cube } from 'color-space/lut'
 import { profile } from 'color-space/icc'
 
-assert.equal(Object.keys(space).length, 161)
-assert.equal(Object.keys(data.spaces).length, 161)
+assert.equal(Object.keys(space).length, 162)
+assert.equal(Object.keys(data.spaces).length, 162)
 assert.equal(lite.rgb.oklch(255, 0, 0).length, 3)
 assert.equal(wasm.rgb.oklch(255, 0, 0).length, 3)
 assert.equal(convertBatch('rgb', 'oklch', [255, 0, 0]).length, 3)
