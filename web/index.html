@@ -1314,7 +1314,8 @@ function fmt(s,v){ const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
 	// everything else: CSS-style function notation — the convention colors are read in
 	case 'cmyk':return `device-cmyk(${v.map(x=>n(x)+'%').join(' ')})`
 	default:return fnfmt(s,v) } }
-const pairs=n=>{ const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
+const pairs=n=>{ if(n>3) return [[0,1],[1,2],[2,3]]   // 4 channels: the adjacent chain — every channel gets a plane, no axis monopolises (combinations would give C-M, C-Y, C-K)
+	const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
 // the dossier's plane channel pairs, oriented to MATCH the 3D solid: the tone/lightness axis
 // stands vertical (b) and the hue angle sweeps horizontal (a) — same canonical layout as map3
 // (tone up, chroma across), so a strip reads like a slice of the solid above it. Tone-less

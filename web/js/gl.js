@@ -110,7 +110,7 @@ function planeFS(s) {
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
 	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'])
 	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
-	if (s !== 'rgb') pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
+	if (s !== 'rgb' && d <= 3) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
 	const lib = glsl(pairs)
 	// a folded coordinate (HSM's mirrored inverse) converts to a plausible color yet
 	// reads back DIFFERENT — not a real color of the shown volume. Same law as the
@@ -119,7 +119,10 @@ function planeFS(s) {
 	const cch = s === 'rgb' ? null : classify(s).ch
 	const hueK = s === 'rgb' ? -1 : (classify(s).angle?.i ?? -1)
 	const spans = s === 'rgb' ? '' : `const float SPAN[${d}] = float[${d}](${cch.slice(0, d).map(c => (c.max - c.min).toFixed(6)).join(', ')});`
-	const rt = s === 'rgb' ? '' : `
+	// dim>3 over the 3D color manifold is many-to-one BY DESIGN (cmyk's undercolor
+	// freedom): every coordinate is a legitimate address of the color it shows, so the
+	// canonical-roundtrip lens would ghost nearly the whole field — skip it
+	const rt = s === 'rgb' || d > 3 ? '' : `
 		else {
 			${vt} bk;
 			if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
