@@ -35,8 +35,7 @@ inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, `<main class="cat" id
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
 inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
-inject(/(<meta name="description" content="An open collection of )\d+( color spaces)/, `$1${spaceCount}$2`)
-inject(/(<meta property="og:description" content="An open collection of )\d+( color spaces)/, `$1${spaceCount}$2`)
+// the meta descriptions carry no live count by design — the counts live in #n/#n2 and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 writeFileSync(join(out, 'index.html'), html)
 
