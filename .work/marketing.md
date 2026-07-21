@@ -40,20 +40,20 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 
 ## Drafts
 
-### Show HN (title 70 chars · URL `https://color-space.io/`)
+### Show HN (title ≤80 chars · URL `https://color-space.io/`)
 
-    Show HN: Color-space v3 – 162 color spaces in one verified JS library
+    Show HN: Color-space v3 – 162 color spaces, one small JS API, verified
 
-> I maintain color-space, a JS library that started in 2014 as a handful of RGB/HSL conversions. v3 is a rewrite I've wanted for years: 162 color spaces — web, print, film, broadcast, photo, human vision, history — under one small API, with the ranges each field actually uses (RGB 0–255, Lab 0–100, OKLCH exactly as CSS writes it — no universal 0–1 wrapper).
+> 162 color spaces — web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small API, in the ranges each field actually uses: RGB 0–255, Lab 0–100, OKLCH as CSS writes it.
 >
->     space.rgb.oklch(255, 128, 0)        // → [0.732, 0.186, 53] — matches CSS oklch()
->     space.slog3.rec2020(0.5, 0.5, 0.5)  // Sony camera log → UHD wide gamut
+>     space.rgb.oklch(255, 128, 0)        // → [0.732, 0.186, 53] — modern CSS
+>     space.slog3.rec2020(0.5, 0.5, 0.5)  // camera log → UHD wide gamut
 >
-> The part I care most about is verification, because color formulas rot in the retelling — papers disagree, Wikipedia drifts, libraries copy each other's bugs. Every space is pinned to an independently cited conformance anchor (135 reference points); 29 are differential-tested against colorjs.io (the CSS Color spec editors' implementation) both directions at 1/255; camera logs are differential-tested against the Academy's official ACES vendor transforms, deltas published [1]. The process caught real errors, including in published papers.
+> Every space carries an independent cited anchor (135 reference points). 29 are differential-tested against colorjs.io — the CSS Color editors' implementation — both directions at 1/255. Camera logs are tested against the Academy's official ACES vendor transforms, deltas published [1]. The process caught real errors, including in published papers.
 >
-> It's deliberately not a color toolkit — no parsing, interpolation, ΔE, gamut mapping. That's the application layer (culori/colorjs.io do it well and can sit on top). One imported space is 0.4–1.5 kB; the full 162-space graph is 55 kB gz — nobody imports that. The same formulas also leave JS: WASM batch, GLSL/WGSL, ICC, and .cube LUTs generated in-browser with self-verifying headers.
+> Not a toolkit: no parsing, interpolation, ΔE, gamut mapping — that layer belongs to culori/colorjs.io, and they can sit on top. One space imports at 0.4–1.5 kB; all 162 are 55 kB gz. The same formulas ship as WASM batch, composed GLSL/WGSL, ICC profiles, and browser-generated .cube LUTs whose headers state their own measured deviation.
 >
-> The site is the interactive atlas — every space with its ranges, provenance, references, live conversion. Public domain (CC0).
+> Maintained since 2014; v3 is a ground-up rework. Public domain (CC0).
 >
 > [1] https://github.com/colorjs/color-space/blob/master/docs/lut-verification.md
 
@@ -61,15 +61,17 @@ Prepared answers: *why-not-culori* (for when they lack your space / conventional
 
 ### LiftGammaGain scrutiny post (film track opener — ask, don't pitch)
 
-    Free browser-generated conversion LUTs for every camera log — tested against the official ACES transforms. Where are they wrong?
+    Free conversion LUTs for every camera log, tested against the official ACES transforms — where are they wrong?
 
-> Author of an open-source color library here (color-space, CC0). Its camera-log math is on the web as free instantly-generated .cube conversion LUTs — no email, no account: any log (S-Log3 on S-Gamut3 *or* S-Gamut3.Cine, LogC3/4, V-Log, Log3G10, C-Log 1/2/3, F-Log/2, N-Log, Apple Log, D-Log, BMD Film Gen5, ACES…) → any target (709, sRGB, P3, 2020, PQ/HLG), 17³/33³/65³, or 4096-pt 1D when the pair is transfer-only. Before I take this anywhere I'd rather this forum tears the math apart than a client does.
+> Author disclosure: I build the library behind this (color-space, CC0).
 >
-> What "tested" means: the seven pairs with official Academy CSC/IDT transforms are differential-tested against those CTLs (ampas/aces-dev v1.3). Worst-case disagreement: ≤0.5% of the dominant component (Sony/ARRI/Canon — fully explained by CAT02-vs-Bradford adaptation; swap the CAT and it collapses to 0.03%), 0.03% (Panasonic/RED). Per-pair table + method: [docs/lut-verification.md]. Each .cube header also states its own measured lattice deviation, so you can judge 33³ vs 65³ before loading.
+> Any camera log → any display, as a .cube generated in the browser. S-Log3 (S-Gamut3 or S-Gamut3.Cine), LogC3/4, V-Log, Log3G10, C-Log 1/2/3, F-Log/2, N-Log, Apple Log, D-Log, BMD Film Gen5, ACES → Rec.709, sRGB, P3, Rec.2020, PQ/HLG. 17³ / 33³ / 65³, or a 4096-point 1D when the pair is transfer-only. No email, no account.
 >
-> What these are NOT: display renders. Pure colorimetric conversions — no tone mapping, no rolloff; log→709 clips above diffuse white by design. They will not match LogC-to-video, s709, or V-709 — those are looks. Normalization, monitoring, QC, batch ffmpeg; grade on top.
+> Conversions, not looks: no tone mapping, no rolloff — log → 709 clips above diffuse white by design. Not a replacement for LogC-to-video, s709, or V-709. For normalization, monitoring, QC, batch ffmpeg; grade on top.
 >
-> Two asks: (1) if you know these transforms cold — where is it wrong? The suite is public, reruns on `npm test`. (2) which missing pair would actually help your work?
+> The seven pairs with official Academy CSC/IDT transforms are differential-tested against those CTLs (ampas/aces-dev v1.3): worst case ≤0.5% of the dominant component on Sony/ARRI/Canon — the CAT02 vs Bradford adaptation difference, 0.03% once the CAT matches — and 0.03% on Panasonic/RED. Per-pair table: [docs/lut-verification.md]. Each .cube header carries its own measured lattice deviation.
+>
+> Two questions. Where is the math wrong? — the suite is public and reruns on `npm test`. And which missing pair would help your work?
 >
 > https://color-space.io — LUT export on every camera-log page.
 
@@ -77,11 +79,11 @@ Pre-post: rerun `npm test` same day · verify downloads in Safari/Firefox · hav
 
 ### Reddit ladder (titles; body = the LGG skeleton compressed, conversion-not-look always, authorship disclosed, one per week)
 
-- **r/javascript**: `color-space v3 — 162 color spaces, one tiny API, values that match CSS, conversions independently verified` (code sample + kernel-not-toolkit + atlas link)
-- **r/webdev**: `Interactive atlas of 162 color spaces — live conversion, ranges, provenance, downloadable LUTs/ICC`
-- **r/davinciresolve**: `Free .cube conversion LUTs for every camera log — generated in-browser, verified against the official ACES transforms`
-- **r/SonyAlpha**: `Free verified S-Log3 conversion LUTs — both gamuts (S-Gamut3 and S-Gamut3.Cine), any target`
-- **iPhone filmmaking**: `Free Apple Log → Rec.709/P3 conversion LUTs, generated in-browser — no email wall`
-- **r/dji**: `Free D-Log conversion LUTs for any target — in-browser, verified, no signup`
-- **r/videography**: `A free atlas of every camera log — what each actually is, plus instant conversion LUTs`
+- **r/javascript**: `color-space v3 — 162 color spaces, one small API, values that match CSS, verified` (code sample + kernel-not-toolkit + atlas link)
+- **r/webdev**: `An atlas of 162 color spaces — live conversion, ranges, provenance, LUT/ICC export`
+- **r/davinciresolve**: `Free conversion LUTs for every camera log, tested against the official ACES transforms`
+- **r/SonyAlpha**: `Free S-Log3 conversion LUTs — S-Gamut3 and S-Gamut3.Cine, any target, verified`
+- **iPhone filmmaking**: `Free Apple Log → Rec.709/P3 conversion LUTs, generated in-browser`
+- **r/dji**: `Free D-Log conversion LUTs, any target — in-browser, verified`
+- **r/videography**: `An atlas of every camera log — what each is, with instant conversion LUTs`
 - **ACEScentral** (tools category): the CSC differential harness + deltas + request for review of the CAT notes.
