@@ -30,6 +30,7 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 
 1. **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
 2. **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
+2b. **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN. Same week, the passive listings (once, evergreen): PRs to awesome-javascript + the color/colour awesome lists · claim JS.LibHunt + AlternativeTo entries. Skip AI-tool directories — no qualified traffic, spam adjacency.
 3. **Next week — LiftGammaGain scrutiny post** (draft below). If the thread survives, it's the citable proof for the whole film track.
 4. **Then one film community per week**, led by that camera's pain, LGG thread cited: r/davinciresolve → r/SonyAlpha (both Sony gamuts) → iPhone-filmmaking (Apple Log, hottest trigger) → r/dji → r/videography (education-led) → ACEScentral (ACES story; bridge to ASWF orbit).
 5. **Dream-100 gift outreach alongside** (no ask, 3+ touches): colorists — Cullen Kelly, Darren Mostyn, Waqas Qazi, Color Grading Central, Gerald Undone (deltas table is his language); CSS — Lea Verou orbit, Björn Ottosson, Dan Burzo; newsletters after HN exists to cite.
@@ -39,6 +40,23 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 **Don'ts**: no email gates · no look/creative LUT packs · no two posts in one week per track · no stat quoted without same-day re-verification.
 
 ## Drafts
+
+### Tweet (v3 announce)
+
+> color-space v3 — 162 color spaces, one small API, verified.
+> OKLCH to Munsell to S-Log3, any to any. Or take a .cube LUT, ICC, GLSL, WASM.
+> https://color-space.io
+
+Alt, sparer:
+
+> color-space v3 is out. 162 color spaces, one small API, verified.
+> https://color-space.io
+
+### Product Hunt (atlas-framed)
+
+- **Name:** color-space · **Tagline:** `An interactive atlas of 162 color spaces` · **Topics:** design tools, developer tools, open source
+- **Description:** Every color space — web, print, film, broadcast, vision, history. Live conversion, conventional ranges, provenance, cited references. Export any pair as a .cube LUT or ICC profile, in-browser. Free, public domain.
+- **Maker comment:** one paragraph, README register: what it is, verification in one sentence, "not a toolkit" in one sentence, ask for feedback on spaces people actually use.
 
 ### Show HN (title ≤80 chars · URL `https://color-space.io/`)
 

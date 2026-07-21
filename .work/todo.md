@@ -6,7 +6,7 @@
 * [ ] Better hue picker range - unfoldable?
 * [ ] SEO something: making sure how we meet use scenarios
 * [ ] LUT/ICC download is too hard
-* [ ]
+* [ ] CMYK planes are wrong
 
 ## Ideas
 
