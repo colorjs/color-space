@@ -401,9 +401,10 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .cssv{ cursor:copy } .cssv:hover,.cssv:focus-visible{ color:var(--ink) }   /* the css notation copies on click or keyboard activation */
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
 /* cone sections: the box takes the silhouette's equilateral bounding ratio, and the checker
-   goes — outside a silhouette there is nothing to declare void */
-.pl.tric{ aspect-ratio:1.1547; background:none }   /* cone: base up, apex down — height √3/2 of the base */
-.pl.triw{ aspect-ratio:0.866; background:none }    /* W+B wedge: points right — width √3/2 of the height */
+   goes — outside a silhouette there is nothing to declare void. flex-grow matches the
+   aspect, so the row redistributes widths and every plane keeps ONE shared height */
+.pl.tric{ aspect-ratio:1.1547; flex-grow:1.1547; max-width:21.5rem; background:none }   /* cone: base up, apex down — wider box, same height */
+.pl.triw{ aspect-ratio:0.866; flex-grow:0.866; max-width:16.1rem; background:none }     /* W+B wedge: points right — narrower box, same height */
 .pl.trid{ background:none }                        /* bicone diamond: a rhombus is already equal-sided */
 .pl canvas{ display:block; width:100%; height:100% }
 /* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
@@ -499,8 +500,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gam2d .cx{ position:absolute; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }
 .gam2d .cx.ghost{ pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
-.dviz2 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5; width:100%; max-width:var(--pick) }   /* the exporters ride the plates rail in the dossier's own voice — panel chrome belongs to the homepage pane */
-.dviz2 .export.dex i{ display:block; font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); cursor:help }   /* the used-for label recipe (.dgrid2 i) */
+.export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5 }   /* a props feature, not a terminal pane — the panel chrome belongs to the homepage exporters; .props i styles its label */
+.export.dex i{ cursor:help }
 .export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select) */
 .export.dex select:hover{ color:var(--ink) }
 .export.dex select:focus-visible{ outline:none; color:var(--ink) }
@@ -2918,7 +2919,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
-	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — the real colours this space reaches, on the CIE xy plane: vivid where it reaches them, ghost where the eye sees but this space doesn't. Bounded to the visible spectrum — imaginary chromaticities its range also encodes aren't colours, so they're not shown."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}${LUTOK.has(s)||iccK?`<div class="export dex" id="dex"></div>`:''}</div>`
+	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — the real colours this space reaches, on the CIE xy plane: vivid where it reaches them, ghost where the eye sees but this space doesn't. Bounded to the visible spectrum — imaginary chromaticities its range also encodes aren't colours, so they're not shown."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
 	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
 		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
@@ -2967,6 +2968,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+				${LUTOK.has(s)||iccK?`<div class="export dex" id="dex"></div>`:''}
 			</div>
 	 </div></div>
 	 </section>
