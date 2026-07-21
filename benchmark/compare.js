@@ -7,15 +7,16 @@
 import space from '../index.js';
 
 // Lazy load competitor libraries to avoid startup overhead
-let culori, colorjs, texel, chroma, tinycolor, color, colorConvert;
+let culori, colorjs, texel, chroma, tinycolor, color, colorConvert, d3;
 const texelOut = [0, 0, 0]; // texel's idiom: convert(coords, from, to, out) — reused scratch
 
 async function loadLibraries() {
 	try {
-		const [culoriModule, colorjsModule, texelModule, chromaModule, tinycolorModule, colorModule, colorConvertModule] = await Promise.all([
+		const [culoriModule, colorjsModule, texelModule, d3Module, chromaModule, tinycolorModule, colorModule, colorConvertModule] = await Promise.all([
 			import('culori').catch(() => null),
 			import('colorjs.io').catch(() => null),
 			import('@texel/color').catch(() => null),
+			import('d3-color').catch(() => null),
 			import('chroma-js').catch(() => null),
 			import('tinycolor2').catch(() => null),
 			import('color').catch(() => null),
@@ -25,6 +26,7 @@ async function loadLibraries() {
 		culori = culoriModule;
 		colorjs = colorjsModule?.default; // Color class is default export
 		texel = texelModule;
+		d3 = d3Module;
 		chroma = chromaModule?.default;
 		tinycolor = tinycolorModule?.default;
 		color = colorModule?.default;
@@ -35,6 +37,7 @@ async function loadLibraries() {
 		if (culori) console.log('  ✓ culori');
 		if (colorjs) console.log('  ✓ colorjs.io');
 		if (texel) console.log('  ✓ @texel/color');
+		if (d3) console.log('  ✓ d3-color');
 		if (chroma) console.log('  ✓ chroma-js');
 		if (tinycolor) console.log('  ✓ tinycolor2');
 		if (color) console.log('  ✓ color');
@@ -115,6 +118,10 @@ const tests = [
 			// texel doesn't support Lab
 			return null;
 		},
+		d3: () => {
+			if (!d3) return;
+			const result = d3.lab(d3.rgb(128, 64, 192));
+		},
 		chroma: () => {
 			if (!chroma) return;
 			return chroma(128, 64, 192, 'rgb').lab();
@@ -149,6 +156,10 @@ const tests = [
 		texel: () => {
 			// texel doesn't support Lab
 			return null;
+		},
+		d3: () => {
+			if (!d3) return;
+			const result = d3.rgb(d3.lab(50, -25, 40));
 		},
 		chroma: () => {
 			if (!chroma) return;
@@ -185,6 +196,10 @@ const tests = [
 			// texel doesn't have regular HSL, only OKHSL
 			return null;
 		},
+		d3: () => {
+			if (!d3) return;
+			const result = d3.hsl(d3.rgb(128, 64, 192));
+		},
 		chroma: () => {
 			if (!chroma) return;
 			return chroma(128, 64, 192, 'rgb').hsl();
@@ -219,6 +234,10 @@ const tests = [
 		texel: () => {
 			// texel doesn't have regular HSL, only OKHSL
 			return null;
+		},
+		d3: () => {
+			if (!d3) return;
+			const result = d3.rgb(d3.hsl(270, 0.67, 0.5));
 		},
 		chroma: () => {
 			if (!chroma) return;
@@ -395,6 +414,10 @@ const tests = [
 			if (!texel) return;
 			return texel.RGBToHex([128/255, 64/255, 192/255]);
 		},
+		d3: () => {
+			if (!d3) return;
+			const result = d3.rgb(128, 64, 192).formatHex();
+		},
 		chroma: () => {
 			if (!chroma) return;
 			return chroma(128, 64, 192, 'rgb').hex();
@@ -476,6 +499,12 @@ async function runBenchmarks() {
 		if (texel && test.texel && test.texel() !== null) {
 			const texelResult = benchmark('@texel/color', test.texel);
 			results.push({ library: '@texel/color', ...texelResult });
+		}
+
+		// Benchmark d3-color
+		if (d3 && test.d3 && test.d3() !== null) {
+			const d3Result = benchmark('d3-color', test.d3);
+			results.push({ library: 'd3-color', ...d3Result });
 		}
 
 		// Benchmark chroma-js

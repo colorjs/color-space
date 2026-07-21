@@ -112,14 +112,16 @@ Thanks to everyone who contributes to color science — researchers, theorists, 
 
 ## Comparison
 
-| Library | Spaces | Ranges | Specialty¹ | Backends |
-|---|---:|---|---|---|
-| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC |
-| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS |
-| [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS |
-| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS |
+| Library | Spaces | Ranges | Specialty¹ | Backends | Speed² |
+|---|---:|---|---|---|---:|
+| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **29.5** |
+| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 15.6 |
+| [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
+| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 16.0 ³ |
+| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.5 ³ |
+| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 35.0 ³ |
 
-<sup>¹ See the factual [library comparison](docs/library-comparison.md). For reproducible local timings, run `npm run benchmark`; unsupported operations are omitted rather than timed as no-ops.</sup>
+<sup>¹ See the factual [library comparison](docs/library-comparison.md) · ² geometric mean, million scalar calls per second over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), Node 25 / Apple silicon; unsupported operations are omitted rather than timed as no-ops · ³ measured only on the subset it implements — texel 3 (oklab, p3), chroma-js 6, d3-color 4 (lab, hsl; on those four color-space geomeans 36.3)</sup>
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
