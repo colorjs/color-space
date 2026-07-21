@@ -3,23 +3,20 @@
 ## Ideas
 
 * [ ] AI-training data / education / visualizations
-* [ ] claim https://github.com/js-org/js.org
+* [x] ~~claim https://github.com/js-org/js.org~~
 * [ ] Color atlas - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
 * [ ] Main screen configuration - sliders, planes, just a table, CSS values etc
 * [ ] Pick a line/shape, not just a point in space
-* [ ] Interpolation: compare against the other space
+* [x] Interpolation: compare against the other space
 * [ ] In-space configurator: there's multiple flavors of RGB space with different matrices etc.
-* [ ] Store space formulas js-independent: worthy of?
 * [ ] Hue bar: uncollapses?
 * [ ] FAQ: no questions = disinteresting topic
 * [x] The barred spaces - add cards, display the limitation on them instead of explainer at the bottom.
 * [ ] Full screen color picker.
 * [ ] Color picker builder - combine sliders of different shapes
 * [ ] Color-map: cubehelix etc (npm package is taken)
-  * [ ] README rewrite around the kernel positioning + honest WASM story
-  * [ ] Comparison table as the proof asset (71 vs culori 35 / colorjs 40 / texel 16; only conventional-ranges lib; the cross-disciplinary spaces)
-  * [ ] Demo: all-spaces color picker / palette renderer with gamut limits (show breadth, don't claim it)
-  * [ ] Website (playwright-generated): all spaces, benchmark, alt-analysis
+* [x] Comparison table as the proof asset (71 vs culori 35 / colorjs 40 / texel 16; only conventional-ranges lib; the cross-disciplinary spaces)
+* [x] Demo: all-spaces color picker / palette renderer with gamut limits (show breadth, don't claim it)
 
 ## [ ] CLI — naming take (2026-07)
 
