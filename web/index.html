@@ -365,7 +365,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the picker rides above the label and number — the catalog's 8px rhombus; its outline pair lives with .tk's */
-.planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
+.planes{ display:flex; gap:var(--s2); align-items:flex-start }   /* one row, always — the ≤3 pair plots share it, shrinking together; no stretch — a cone section keeps its own equilateral box */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .dpick.nod3{ grid-template-columns:1fr }   /* no 3D — sliders + planes take the whole measure */
@@ -400,6 +400,11 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .chlist .tnum{ white-space:nowrap }
 .cssv{ cursor:copy } .cssv:hover,.cssv:focus-visible{ color:var(--ink) }   /* the css notation copies on click or keyboard activation */
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
+/* cone sections: the box takes the silhouette's equilateral bounding ratio, and the checker
+   goes — outside a silhouette there is nothing to declare void */
+.pl.tric{ aspect-ratio:1.1547; background:none }   /* cone: base up, apex down — height √3/2 of the base */
+.pl.triw{ aspect-ratio:0.866; background:none }    /* W+B wedge: points right — width √3/2 of the height */
+.pl.trid{ background:none }                        /* bicone diamond: a rhombus is already equal-sided */
 .pl canvas{ display:block; width:100%; height:100% }
 /* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
    labels and the mode switch stay on the square element, outside the rim */
@@ -420,7 +425,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
-.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; clip-path:polygon(50% 0,100% 100%,0 100%) }   /* the cone-section switch shows the triangle it switches TO */
+.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat; --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 1.1 9.2 9.2H.8Z' fill='none' stroke='black' stroke-width='1.1'/></svg>") }   /* the cone-section switch: an OUTLINED triangle, the circle/square's own stroke weight */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
@@ -3100,8 +3105,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 						ist.textContent=`${(b.length/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:'v2 matrix+TRC display',spac:'v2 CLUT, device↔Lab both ways',scnr:'v2 CLUT, device→Lab (one-way)'}[iccK]||''}` }
 					catch(err){ idl.disabled=true; ist.textContent=String(err&&err.message||'no profile') } },0) } }
 		// defer the first bake until the block scrolls into view — same pattern as the
-		// homepage LUT pane; opening a dossier stays light until the rail is actually seen
-		new IntersectionObserver((es,o)=>{ if(es.some(x=>x.isIntersecting)){ o.disconnect(); dex._lut?.(); dex._icc?.() } }).observe(dex)
+		// homepage LUT pane; opening a dossier stays light until the rail is actually seen.
+		// One observer per dossier: the previous one dies with its detached markup
+		detail._dexIO?.disconnect()
+		detail._dexIO=new IntersectionObserver((es,o)=>{ if(es.some(x=>x.isIntersecting)){ o.disconnect(); dex._lut?.(); dex._icc?.() } })
+		detail._dexIO.observe(dex)
 	}
 	// precise adjustment: the big value inputs above the sliders
 	detail.querySelectorAll('#bigch .bch').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
@@ -3407,7 +3415,6 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 	const t0=performance.now()
 	pls.forEach(pl=>{ if(pl===plFreeze) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
-		if(cv.width!==res){ cv.width=res; cv.height=res }
 		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
 		// vw lives in SCREEN fractions; a flipped axis (flip3) hands the kernel its
 		// range reversed — pan, zoom and the pointer math never see the flip
@@ -3420,6 +3427,11 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		const pol=pl._polar=canGL&&polarPl(cls,a,b)&&polarOn(s,cls,a,b)
 		const tri=pl._tri=canGL&&!pol&&triOn(s,a,b)?triPl(s,cls,a,b):0   // cone sections paint full-range, like the disc (no pan/zoom window on a silhouette)
 		pl.classList.toggle('polar',!!pol)
+		pl.classList.toggle('tric',tri===1); pl.classList.toggle('triw',tri===3); pl.classList.toggle('trid',tri===2)
+		// equilateral silhouettes: the BOX takes the triangle's own bounding ratio (√3/2),
+		// so every side measures equal on screen and no dead band frames the shape
+		const resH=tri===1?Math.round(res*0.8660254):tri===3?Math.round(res*1.1547005):res
+		if(cv.width!==res||cv.height!==resH){ cv.width=res; cv.height=resH }
 		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
 	planesLive=canGL
