@@ -50,10 +50,8 @@ Web, print, film, broadcast, photo, art, human vision, science, history. Convert
 ## Use
 
 ```sh
-npm install color-space@next
+npm install color-space
 ```
-
-v3 is currently a release candidate on the `next` tag; stable `npm install color-space` remains v2 until promotion.
 
 ```js
 import space from 'color-space';

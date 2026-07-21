@@ -70,6 +70,11 @@ jobs:
         run: npm publish --access public --provenance --tag "${{ inputs['dist-tag'] }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Align next with the stable release
+        if: inputs['dist-tag'] == 'latest'
+        run: npm dist-tag add "color-space@$VERSION" next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Tag the exact published commit
         run: |
           git config user.name "github-actions[bot]"
