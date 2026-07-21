@@ -26,5 +26,5 @@ test('wgsl: every edge and rgb↔space source parses with wgsl_reflect', () => {
 		} catch (error) { failures.push(`${from}→${to}: ${error.message}`) }
 	}
 	is(failures, [], failures.slice(0, 8).join('\n'))
-	is(pairs.length, 590, `all ${pairs.length} current sources parsed`)
+	is(pairs.length, 594, `all ${pairs.length} current sources parsed`)
 })
