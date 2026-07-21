@@ -67,7 +67,7 @@ a{ color:var(--ink) }
 .cd::-webkit-color-swatch-wrapper{ padding:0 }
 .cd::-webkit-color-swatch{ border:0 }
 #cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
-.gpill{ margin-left:.55em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
+.gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
 /* active facet filters, shown as removable chips right by the search — so the header shows what's on */
 .fchipsh{ display:flex; align-items:center; gap:var(--s1); flex-wrap:wrap; max-width:min(42vw,28rem); overflow:hidden }
 .fchipsh:empty{ display:none }
@@ -99,7 +99,7 @@ a{ color:var(--ink) }
 .introcopy>.ic-lead{ grid-column:2; min-width:0 }
 .introcopy>.tabs{ grid-column:3; min-width:0; max-width:none; margin:0 }   /* API snippet, right column, no title */
 .introcopy .tabs pre{ font-size:var(--t1); line-height:1.65 }   /* a touch smaller so the half-width panel holds each line whole */
-@media(max-width:1359px){ .introcopy>.tabs{ margin-top:var(--s8) } }   /* ≤1359 the section turns display:block (rail hidden) — the snippet stacks below the copy with air above it */
+@media(max-width:1079px){ .introcopy>.tabs{ margin-top:var(--s8) } }   /* ≤1079 the section turns display:block (rail hidden) — the snippet stacks below the copy with air above it */
 .introcopy::before{ content:''; position:absolute; top:0; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); height:1px; background:var(--hair) }
 .introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
 .introcopy p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
@@ -161,20 +161,20 @@ a{ color:var(--ink) }
 .grid,.sheet{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }   /* the sheet keeps the cards' columns — same grid, sliders hidden */
 .sheet{ margin-top:var(--s3) }   /* the first sheet row breathes below the lead sliders */
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
-@media(max-width:1359px){ .bar,.cat,.introcopy{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
+@media(max-width:1079px){ .bar,.cat,.introcopy{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.cx{ position:relative; left:auto; top:auto; transform:none; align-self:center }   /* no rail to align to — back into the masthead row, centred like its siblings */
-	#cval{ width:9rem }
+	#cval{ }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
 	.shw .c{ font-weight:400; font-size:.8em; color:currentColor; opacity:.42 }   /* bare count, a size down, on the heading's baseline */
 	.sec{ padding:var(--s4) 0 var(--s6) }
-	.sec:first-of-type{ padding-top:var(--s2) } }
+	.sec:first-of-type{ padding-top:var(--s6) } }   /* the first category breathes below the masthead */
 /* only the first grid row carries sliders by default — three stacked sliders read wrong at 1–2 columns.
    the all-sliders toggle (body.alls) overrides this and shows every one */
-@media(max-width:1079px){ .grid,.sheet{ grid-template-columns:repeat(2,minmax(0,1fr)) }
+@media(max-width:1359px){ .grid,.sheet{ grid-template-columns:repeat(2,minmax(0,1fr)) }
 	body:not(.alls) .grid>.ent:nth-child(n+3) .chs{ display:none } }
 @media(max-width:640px){ .grid,.sheet{ grid-template-columns:1fr }
 	body:not(.alls) .grid>.ent:nth-child(n+2) .chs{ display:none } }
-@media(min-width:641px) and (max-width:1360px){
+@media(min-width:641px) and (max-width:1079px){
 	.ent .eh{ column-gap:var(--s2) }
 	.cvs{ gap:var(--s2) }
 	.cv{ width:4.1rem }
@@ -191,21 +191,21 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 /* hydrated masonry: entry k -> column k%C, so each column flows independently and a
    4-channel lead (cmyk) can't push its neighbours' sheet rows down */
 .gcols{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 calc(-1*var(--eg)) }
-@media(max-width:1079px){ .gcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
+@media(max-width:1359px){ .gcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }   /* 1080–1359 keeps the rail and drops to two columns; three only on the widest screens */
 @media(max-width:640px){ .gcols{ grid-template-columns:1fr } }
 .gcol{ display:flex; flex-direction:column; min-width:0 }
 .gcol>.ent:not(.lite){ padding-bottom:var(--s2) }
 .gcol>.ent.lite{ padding:var(--eg) }   /* sheet rows carry the same --eg padding all round as their sides; the focused card inherits it, so its padding reads equal on every edge and the name never shifts on open */
 .gcol>.ent:not(.lite)+.ent.lite{ margin-top:var(--s3) }   /* the first sheet row breathes below a lead */
 body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /* sliders only on column-top leads */
-/* ≤640 the categories fold: the heading is a chevroned toggle, folded shows the lead with its
-   sliders, unfolded lists every other space as a compact value row — small name, numbers, no sliders */
-@media(max-width:640px){
+/* ≤1079 (wherever the headings replace the rail) the categories fold: the heading is a chevroned
+   toggle, folded shows each column's lead with its sliders, unfolded lists every other space as a
+   compact value row — small name, numbers, no sliders */
+@media(max-width:1079px){
 	.shw{ justify-content:flex-start; cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none }
 	.shw .c{ margin-left:.4em }
 	.shw::after{ content:''; margin-left:auto; align-self:center; width:.4em; height:.4em; border-right:2px solid var(--soft); border-bottom:2px solid var(--soft); transform:translate(-.13em,-.1em) rotate(45deg); transition:transform var(--dur-short) var(--ease-out) }   /* -.13em: a rotated square's tip overhangs its box — pull flush with the value column (DPR-2 rounding included) */
 	.sec.open .shw::after{ transform:translate(-.13em,.1em) rotate(225deg) }
-	.cat .ent .eh .nm{ font-size:var(--t2) }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
 	body:not(.alls) .gcol>.ent:not(:first-child) .chs{ display:none }
 	.gcol>.ent:not(:first-child){ padding:.5rem var(--eg) .55rem; overflow:hidden; transition:max-height var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),padding var(--dur-short) var(--ease-out) }
 	.gcol>.ent:not(:first-child) .eh{ padding:0; row-gap:var(--s1) }
@@ -215,15 +215,16 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 	body:not(.flt) .sec:not(.open) .gcol>.ent:not(:first-child){ max-height:0; opacity:0; padding-top:0; padding-bottom:0; visibility:hidden; transition:max-height var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),padding var(--dur-short) var(--ease-out),visibility 0s var(--dur-short) }   /* folded: lead only (search/filter unfolds) */
 	.gcol>.ent:not(.lite)+.ent.lite{ margin-top:0 }
 }
+@media(max-width:640px){ .cat .ent .eh .nm{ font-size:var(--t2) } }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
 .nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
-.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* the name owns the row — when values don't fit beside it they drop below, still right-aligned; identity never clips (REC2020-LINEAR and PROPHOTO-LINEAR used to clip to identical labels) */
+.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:nowrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* one line always: the values keep their station and a long name ellipsizes (title attr carries it whole) — never wraps the numbers to a second row */
 .ent.lite .eh{ padding:0; row-gap:var(--s1) }
-.ent .eh .nm{ flex:0 0 auto; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; white-space:nowrap; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale; case comes display-final from disp() (uppercasing here would corrupt lαβ) */
+.ent .eh .nm{ flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; white-space:nowrap; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale; case comes display-final from disp() (uppercasing here would corrupt lαβ) */
 /* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
 .cvs{ display:flex; gap:var(--s4); margin-left:auto; flex-shrink:0 }
 .cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:.2em solid transparent }   /* ONE underline under letter + number + chevrons; flex baselines align letter and value structurally */
@@ -337,7 +338,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
-.bar2 .dk{ position:absolute; top:50%; z-index:2; width:13px; height:13px; transform:translate(-50%,-50%) rotate(45deg); border:1.4px solid; pointer-events:none }   /* the picker rides above the label and number */
+.bar2 .dk{ position:absolute; top:50%; z-index:2; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* the picker rides above the label and number — same 11px rhombus as the gamut marker */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
@@ -346,8 +347,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dpick.nod3 .dviz2{ grid-template-columns:1fr; margin:0 }
 @media(max-width:760px){ .dpick{ grid-template-columns:1fr } }
 .chead{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }
-.bigch{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s2) var(--s6) }   /* symbols, numbers and the gamut pills share the baseline */
-.bch{ display:flex; align-items:baseline; border-bottom:.2em solid transparent }   /* the catalog's letter+value pair, scaled up — name and number share the baseline, and the same ONE underline under symbol + number + chevrons */
+.bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }   /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
+.bch{ display:flex; align-items:baseline; border-bottom:.2em solid var(--hair) }   /* the catalog's letter+value pair, scaled up — name and number share the baseline, and the same ONE underline under symbol + number + chevrons, hairline at rest as in the list */
 .bch:hover,.bch:focus-within,.bch.on{ border-bottom-color:var(--ink) }   /* pointed, focused, or slider-driven — full ink, as in the list */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
@@ -356,7 +357,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bch .nvw .u{ font-size:var(--t2); color:var(--body) }
 .props .cssv{ font-family:var(--font-mono); font-size:var(--t2) }   /* the CSS notation is code, not prose — it reads in mono under the channels */
 .props .dpills{ margin:0 }   /* model/signal values wear the shared .tag recipe, on the property grid's own rhythm */
-.gtags{ display:flex; align-self:center; gap:var(--s1) }   /* the gamut pills centre on the value row, box-middle to the numbers — not baseline (which hangs them low) */
+.gtags{ display:flex; flex:0 1 auto; min-width:0; flex-wrap:wrap; align-self:center; gap:var(--s1) }   /* the gamut pills centre on the value row, box-middle to the numbers — not baseline (which hangs them low); they shrink and wrap among themselves so the channel tags keep their line */
 .gtags .gt[hidden]{ display:none }
 .pick+.planes{ margin-top:var(--s2) }   /* plots sit one plane-gap below the sliders (no heading) */
 .planes+.pick{ margin-top:var(--s2) }
@@ -1598,8 +1599,9 @@ qInput.addEventListener('input',applyFilter)
 	addEventListener('keydown',e=>{ if(e.key==='Escape'&&!tfp.hidden){ setOpen(false); tfb.focus() } }) })()
 
 // ── masonry hydration: the prerendered .grid/.sheet rows become per-column stacks ──
-const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:1079px)')]
-const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3
+const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:1359px)')]
+const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3   // 1080–1359: rail + two columns; three only beyond
+const FOLDQ=matchMedia('(max-width:1079px)')   // folding lives wherever the headings replace the rail
 function colize(){ const C=colCount()
 	cat.querySelectorAll('.sec').forEach(sec=>{
 		const ents=[...sec.querySelectorAll('.ent')]; if(!ents.length) return
@@ -1624,14 +1626,14 @@ function colize(){ const C=colCount()
 	try{ layoutToc(); trackAct() }catch{} }
 colize(); COLQ.forEach(q=>q.addEventListener('change',colize))
 
-// ≤640 the category headings fold their sections; headings are buttons only while folding exists
-cat.addEventListener('click',e=>{ const h=e.target.closest('.shw'); if(!h||!COLQ[0].matches) return
+// ≤1079 (headings shown) the category headings fold their sections; headings are buttons only while folding exists
+cat.addEventListener('click',e=>{ const h=e.target.closest('.shw'); if(!h||!FOLDQ.matches) return
 	const open=h.closest('.sec').classList.toggle('open'); h.setAttribute('aria-expanded',open) })
 cat.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('.shw')){ e.preventDefault(); e.target.click() } })
 const foldA11y=()=>document.querySelectorAll('.shw').forEach(h=>{
-	if(COLQ[0].matches){ h.setAttribute('role','button'); h.tabIndex=0; h.setAttribute('aria-expanded',h.closest('.sec').classList.contains('open')) }
+	if(FOLDQ.matches){ h.setAttribute('role','button'); h.tabIndex=0; h.setAttribute('aria-expanded',h.closest('.sec').classList.contains('open')) }
 	else{ h.removeAttribute('role'); h.removeAttribute('tabindex'); h.removeAttribute('aria-expanded') } })
-foldA11y(); COLQ[0].addEventListener('change',foldA11y)
+foldA11y(); FOLDQ.addEventListener('change',foldA11y)
 
 // ── modal dossier ──
 const modal=document.getElementById('modal'), detail=document.getElementById('detail'), pageShell=document.querySelector('.page')
@@ -3027,7 +3029,7 @@ function wireBar(el,s){
 	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
 	const apply=ev=>{ const r=el.getBoundingClientRect()
 		let f=clamp((ev.clientX-r.left)/r.width,0,1)   // the right edge IS max — capping short of 1 (old .999) left the value at 99.9% and the spinner's limit state never engaged
-		if(Math.abs(f-0.5)*r.width<5) f=0.5   // soft snap: the centre value (0 for a/b axes, 180° for hue) within ~5px
+		if(Math.abs(f-0.5)*r.width<3) f=0.5   // soft snap: the centre value (0 for a/b axes, 180° for hue) within ~3px
 		if(typeof Q==='number'){ f=(Math.min(Math.floor(f*Q),Q-1)+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }
 		else if(qTriple(Q)&&el._cells){ const k=Math.min(Math.floor(f*el._cells.length),el._cells.length-1)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
@@ -3055,14 +3057,14 @@ function wirePlane(pl){
 			const py=clamp(1-(e.clientY-r.top)/r.height,0,1)*2-1
 			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
 			fy=Math.min(1,Math.hypot(px,py))
-			if(fy*r.width/2<5) fy=0 }   // soft snap: the achromatic centre within ~5px
+			if(fy*r.width/2<3) fy=0 }   // soft snap: the achromatic centre within ~3px
 		else{ // pointer → windowed fraction → global range fraction (pan-zoom aware)
 			fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
 			fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
 			const fl=flip3(cls,a,b); if(fl&1) fx=1-fx; if(fl&2) fy=1-fy
-			// soft snap per axis: the range midpoint within ~5px of the pointer, zoom-aware
-			if(Math.abs(fx-0.5)*r.width/(vw.x1-vw.x0)<5) fx=0.5
-			if(Math.abs(fy-0.5)*r.height/(vw.y1-vw.y0)<5) fy=0.5 }
+			// soft snap per axis: the range midpoint within ~3px of the pointer, zoom-aware
+			if(Math.abs(fx-0.5)*r.width/(vw.x1-vw.x0)<3) fx=0.5
+			if(Math.abs(fy-0.5)*r.height/(vw.y1-vw.y0)<3) fy=0.5 }
 		// numeric clustering snaps the PICKED COORDINATES to the sliders' own cell lattice —
 		// held channels never move, so the bitmap stays put and the sliders land on centres
 		if(typeof Q==='number'){ fx=(Math.min(Q-1,Math.floor(fx*Q))+0.5)/Q; fy=(Math.min(Q-1,Math.floor(fy*Q))+0.5)/Q }
