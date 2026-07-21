@@ -210,6 +210,7 @@
     "color-name": "^2.0.0",
     "colorjs.io": "^0.5.2",
     "culori": "^4.0.1",
+    "d3-color": "^3.1.0",
     "esbuild": "^0.28.1",
     "jz": "^0.9.2",
     "playwright": "^1.61.1",
@@ -235,8 +236,5 @@
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
     "prepare": "npm run types && npm run data && npm run build:wasm && npm run build",
     "prepublishOnly": "npm run prepare && npm run landing && npm test && npm run test:package"
-  },
-  "optionalDependencies": {
-    "d3-color": "^3.1.0"
   }
 }
