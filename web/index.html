@@ -250,11 +250,14 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
-/* the marker stays its size — attention is a caret-blink outline: a ring just outside the
-   border, blinking like the terminal caret, under the pointer or while its channel drives */
-.ch .tk::after,.bar2 .dk::after{ content:''; position:absolute; inset:-3px; border:inherit; opacity:0 }
-.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after{ animation:blink 1.1s step-end infinite }   /* the fcaret rhythm */
-.chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after{ animation:none }   /* one blink at a time — the pointer outranks the focused channel */
+/* the marker stays its size — attention is a caret-blink outline: a double ring just outside
+   the border, blinking like the terminal caret, under the pointer or while its channel drives */
+.ch .tk::after,.bar2 .dk::after,.ch .tk::before,.bar2 .dk::before{ content:''; position:absolute; inset:-3px; border:inherit; opacity:0 }
+.ch .tk::before,.bar2 .dk::before{ inset:-4.2px; filter:invert(1) }   /* the second ring — the inverse of the marker's ink, so the pair reads on any field */
+.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,
+.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ animation:blink 1.1s step-end infinite }   /* the fcaret rhythm */
+.chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
+.chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ animation:none }   /* one blink at a time — the pointer outranks the focused channel */
 @keyframes blink{ 0%,100%{ opacity:.85 } 55%{ opacity:0 } }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
@@ -1568,13 +1571,15 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 			const jump=ev=>{ const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
-			adopt(); jump(e)   // the press itself picks — the value jumps to the pointer, drag refines from there
+			adopt(); dragEnt=ent; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
 			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; dragEnt=ent; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on'); ch.classList.add('live') }
 				if(!moved) return
 				jump(ev) }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; dragEnt=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
-				squelch=true; setTimeout(()=>squelch=false,0); scheduleFast(); if(open()) paintPlanes(false) }
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
+				squelch=true; setTimeout(()=>squelch=false,0)
+				renderFast(); dragEnt=null   // settle BEFORE releasing dragEnt — the focused input must adopt the press (the scheduled frame would arrive after the release)
+				scheduleFast(); if(open()) paintPlanes(false) }
 			ch.onpointercancel=ch.onpointerup }) }) })   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 
 // sheet rows show sliders only when the settings toggle says so
@@ -2900,27 +2905,23 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 <section class="dhero" id="overview">
 		${platesHTML}
 		<div class="dmain"><div class="props props3">
-			<div class="pcol"><!-- the instrument, folded to three: its axes+notation, its nature as one pill line, its costs — every item measurable -->
-				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div>${CSSFMT[s]?`<p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p>`:''}</div>
-				${(fp=>fp?`<div><i>form</i><p class="dpills">${fp}</p></div>`:'')([
-					geo(s)&&`<span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span>`,
-					m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,
-					m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,
-					enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,
-					m.illuminant&&`<span class="tag" title="reference white — the illuminant this space's coordinates assume${m.observer?`, under the ${m.observer}° standard observer`:''}">${m.illuminant}${m.observer?` · ${m.observer}°`:''}</span>`
-				].filter(Boolean).join(''))}
-				${m.loss||(RCH&&!hasPlaneGL(s))?`<div><i>limits</i>${m.loss?`<p title="${m.lossNote||''}">${m.loss}</p>`:''}${RCH&&!hasPlaneGL(s)?`<p title="${RCHTIP}">${reachTxt}</p>`:''}</div>`:''}
+			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
+				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
+				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
+				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
+				${m.referred||m.dynamic?`<div><i>range</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${enc?`<div><i>encoding</i><p class="dpills"><span class="tag" title="${TAGTIP[enc]||''}">${enc}</span></p></div>`:''}
+				${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
+				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
+				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
+				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 			</div>
-			<div class="pcol"><!-- the record, folded to one: when and who, the name, the derivation, the citations — every line a date or a link -->
-				<div><i>origin</i>
-					${m.year||m.by?`<p>${[m.year,m.by].filter(Boolean).join(' · ')}</p>`:''}
-					${L.nm?`<p>${L.nm}</p>`:''}
-					${path&&path.length>1?`<p class="fam" title="the conversion route down to rgb — each space is defined through the next">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p>`:''}
-					<p class="fam">${[`<a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a>`,
-						VERIFIED.has(s)&&`<a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a>`,
-						...[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`)
-					].filter(Boolean).join(', ')}</p>
-				</div>
+			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
+				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
+				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
+				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
+				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
+				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			</div>
 	 </div></div>
 	 </section>
@@ -2953,6 +2954,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			break } }
 	detail.querySelectorAll('.tag[title]').forEach(tag=>{ if(!tag.matches('button')) tag.tabIndex=0 })
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
+	// the link runs both ways: hovering or focusing a big input blinks its slider's picker
+	detail.querySelectorAll('#bigch .bch').forEach(b=>{ const bar=detail.querySelector(`.bar2[data-i="${b.dataset.i}"]`); if(!bar) return
+		const sync=()=>bar.classList.toggle('live',b.matches(':hover')||b.contains(document.activeElement))
+		b.addEventListener('pointerenter',sync); b.addEventListener('pointerleave',sync)
+		b.addEventListener('focusin',sync); b.addEventListener('focusout',()=>setTimeout(sync,0)) })
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	detail.querySelectorAll('.pmode').forEach(b=>{ const pl2=b.closest('.pl'), a2=+pl2.dataset.a, b2=+pl2.dataset.b
 		const sync=()=>b.classList.toggle('sq',polarOn(s,cls,a2,b2))   // the icon shows the mode a click switches TO
@@ -3090,12 +3096,13 @@ function wireBar(el,s){
 		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
 	if(!adopt()) return
-	apply(e)   // the press itself picks — the value jumps to the pointer, drag refines from there
+	dragBar=el; apply(e)   // the press itself picks — dragBar from the down, so a focused input tracks the click too (a press is not typing)
 	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId); bchEl()?.classList.add('on'); el.classList.add('live') }
 		if(!moved) return
 		apply(ev) }
-	const up=()=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null; bchEl()?.classList.remove('on'); el.classList.remove('live')
-		renderFast(); paintPlanes(false); paintCatalogGrad() }
+	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
+		renderFast(); dragBar=null; el._cellF=null   // settle BEFORE releasing dragBar — the focused input must adopt the press (the scheduled frame would arrive after the release)
+		paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
 function wirePlane(pl){
@@ -3505,7 +3512,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		dk.style.background=hx; dk.style.borderColor=ink(rgb) })
 	// the big value inputs above the sliders — value, step limits
 	detail.querySelectorAll('#bigch .bch').forEach(el=>{ const i=+el.dataset.i, c=cls.ch[i]
-		const vin=el.querySelector('.nv'); if(document.activeElement!==vin) vin.value=shown[i].toFixed(decOf(c))
+		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing — the focused channel tracks its slider live
 		const stk=el.querySelector('.stk'); stk.firstElementChild.classList.toggle('lim',shown[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',shown[i]<=c.min+1e-9) })
 	// gamut membership pills beside the values — every display gamut that can show this color
 	{	const gt=document.getElementById('gtags')
