@@ -252,13 +252,12 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
 /* attention: the marker grows a step and wears a steady outline pair hugging its border —
    a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
-   on any field; mid-drag the twin drops, leaving the marker and its ink ring alone */
+   on any field — under the pointer, while its channel drives, and through the drag */
 .ch .tk::after,.bar2 .dk::after,.ch .tk::before,.bar2 .dk::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
 .ch .tk::before,.bar2 .dk::before{ inset:-2.4px; filter:invert(1) }
 .ch:hover .tk,.ch.live .tk,.bar2:hover .dk,.bar2.live .dk{ width:10px; height:10px }
 .ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,
 .ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ opacity:1 }
-.ch.drag .tk::before,.bar2.drag .dk::before{ opacity:0 }   /* dragging: the twin drops */
 .chs:hover .ch.live:not(:hover) .tk,.pick:hover .bar2.live:not(:hover) .dk{ width:8px; height:8px }
 .chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
 .chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
@@ -558,7 +557,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 .fgrad{ position:absolute; inset:0; z-index:0 }
 .fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.46; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
 .fov{ position:relative; z-index:2; flex:1; display:flex; align-items:stretch }
-.fwrap{ position:relative; width:100%; padding:var(--s6) clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
+.fwrap{ position:relative; width:100%; padding:4rem clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
 .fsup{ display:block; margin:calc(-1 * var(--s4)) 0 var(--s6); font-weight:700; color:inherit; text-decoration:none }
 .fsup:hover{ text-decoration:underline; text-underline-offset:3px }   /* the support line rides directly under the npm plate, its own line, bold */
 
@@ -1234,10 +1233,15 @@ if(hueEl){ let hdrag=null
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 const cdEl=document.getElementById('cd'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 if(cvalEl){
-	cvalEl.addEventListener('input',()=>{ const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
+	// isTrusted + drag guards: renderFast mirrors the hex into these fields every frame — a
+	// synthetic input event (extension autofill and the like) or one landing mid-drag would
+	// reset master to the 8-bit hex per frame, snapping wide-gamut sliders onto the hex grid
+	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
+		const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
 		if(p){ master=p; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
 	cvalEl.addEventListener('focus',()=>requestAnimationFrame(()=>cvalEl.select()))   // first click takes the whole value
-	cdEl.addEventListener('input',()=>{ const h=cdEl.value
+	cdEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
+		const h=cdEl.value
 		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
 		scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) })
 	cvalEl.addEventListener('keydown',e=>{ if(e.key==='Enter') cvalEl.blur() })
@@ -1543,7 +1547,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		inp.addEventListener('focus',()=>{ requestAnimationFrame(()=>inp.select()); ent.querySelectorAll('.ch')[i]?.classList.add('live'); if(ent.classList.contains('lite')||getComputedStyle(ent.querySelector('.chs')).display==='none') showPop(ent) })
 		inp.addEventListener('blur',()=>ent.querySelectorAll('.ch')[i]?.classList.remove('live'))   // first click takes the whole number; sheet rows AND slider-hidden compact leads open the popover
 			inp.closest('.cvp')?.querySelector('.cl')?.addEventListener('pointerdown',e=>{ e.preventDefault(); inp.focus() })   // the channel letter acts like the value: focus + open the popover
-		inp.addEventListener('input',applyCv)
+		inp.addEventListener('input',e=>{ if(e.isTrusted) applyCv() })   // synthetic input (extension echo of the per-frame mirror) must not write the rounded display value back
 		inp.addEventListener('blur',()=>renderFast())
 		inp.addEventListener('change',()=>{ if(open()) paintPlanes(false) })
 		const c=classify(s).ch[i]
@@ -1576,10 +1580,10 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 				scheduleFast() }
 			ch.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
 			adopt(); dragEnt=ent; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; cvEl?.classList.add('on'); ch.classList.add('live','drag') }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; cvEl?.classList.add('on'); ch.classList.add('live') }
 				jump(ev) }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live','drag')
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
 				squelch=true; setTimeout(()=>squelch=false,0)
 				renderFast(); dragEnt=null   // settle BEFORE releasing dragEnt — the focused input must adopt the press (the scheduled frame would arrive after the release)
 				scheduleFast(); if(open()) paintPlanes(false) }
@@ -2922,11 +2926,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
-				<div><i>sources</i><p>${[
-					`<a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a>`,
-					VERIFIED.has(s)&&`<a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a>`,
-					...[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`)
-				].filter(Boolean).join(', ')}</p></div>
+				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
+				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
+				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			</div>
 	 </div></div>
 	 </section>
@@ -3067,7 +3069,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	detail.querySelectorAll('#bigch .bch').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
 		const STEP=10**-decOf(c), sdec=decOf(c)   // one precision convention — catalog and dossier step alike
 		const adoptS=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
-		inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
+		inp.addEventListener('input',e=>{ if(!e.isTrusted) return   // synthetic input (extension echo of the per-frame mirror) must not write the rounded display value back
+			const v=parseFloat(inp.value); if(!isFinite(v)) return
 			adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
 		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
 		// focus places a caret, never a selection (browsers select-all a text input on tab-focus)
@@ -3103,9 +3106,9 @@ function wireBar(el,s){
 	if(!adopt()) return
 	el.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
 	dragBar=el; apply(e)   // the press itself picks — dragBar from the down, so a focused input tracks the click too (a press is not typing)
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live','drag') }
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live') }
 		apply(ev) }
-	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live','drag')
+	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
 		renderFast(); dragBar=null; el._cellF=null   // settle BEFORE releasing dragBar — the focused input must adopt the press (the scheduled frame would arrive after the release)
 		paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
