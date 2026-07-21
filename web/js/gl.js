@@ -176,10 +176,14 @@ void main() {
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
 	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;
-	// the human lens cuts by the spectral locus, not by a display gamut: a chromaticity
-	// off the horseshoe is imaginary at ANY luminance, so it voids rather than ghosts
-	else if (uGam == 4) { if (uWeb == 0 && !visXYZ(xyz)) al = 0.0; }
-	else if (uGam != 0 && uWeb == 0) {
+	// a chromaticity off the spectral locus is imaginary at ANY luminance — not a colour
+	// under ANY lens — so it VOIDS, always (not only under the human lens). Lab/OKLab/…
+	// range boxes reach far past the visible spectrum; without this the plane paints those
+	// imaginary coords as pickable ghost, so the gamut looks vastly bigger than the eye's.
+	else if (uWeb == 0 && !visXYZ(xyz)) al = 0.0;
+	// the display lenses then ghost real-but-undisplayable colours on top; the human lens
+	// (4) adds no ghost — the visible cut above is its whole job
+	else if (uGam != 0 && uGam != 4 && uWeb == 0) {
 		// gamut pad in ENCODED units (±half a code value) — a linear pad is ~16 code
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
 		// saturation swept far past the solid's own wall)
@@ -1036,8 +1040,11 @@ vec3 tosrgb(vec3 lin) {
 void main() {
 	vec2 f = gl_FragCoord.xy / uRes;
 	vec2 xy = vec2(-0.107 + f.x * 0.857, -0.055 + f.y * 0.955);
-	bool vis = inside(xy);
-	if (!vis && xy.y < 0.02) { O = vec4(0.0); return; }   // xyY degenerates at the x axis
+	// beyond the horseshoe is IMAGINARY — no real colour lives there at any luminance, so
+	// it stays blank. The range does encode out there (Lab/OKLab a·b boxes, prophoto, aces…),
+	// but that's encoding headroom, not a gamut: a gamut is the real colours you can pick,
+	// and the plate shows exactly that — the visible chromaticities the space reaches.
+	if (!inside(xy)) { O = vec4(0.0); return; }
 	// the horseshoe color: xyY at fixed Y, normalized to full saturation
 	float Y = 32.0;
 	vec3 XYZ = vec3(xy.x * Y / xy.y, Y, (1.0 - xy.x - xy.y) * Y / xy.y);
@@ -1077,9 +1084,6 @@ void main() {
 			}
 		}
 	}`}
-	// beyond the horseshoe no color exists to show — a neutral veil marks the
-	// imaginary chromaticities the range still encodes (prophoto, aces, xyz…)
-	if (!vis) { O = cov ? vec4(vec3(0.6), 0.16) : vec4(0.0); return; }
 	O = cov ? vec4(col, 1.0) : vec4(col * 0.55 + 0.30, 0.22);
 }`
 	const st = build(G, FSQ_VS, fs, (o) => {

@@ -1,7 +1,8 @@
-// The spectral locus is the boundary of colour itself, and the atlas leans on it: the
-// HUMAN lens voids past it (picking planes, sliders, the gamut-membership predicate)
-// and the xy panel draws it. One law, one source — web/js/core.js — so this pins the
-// law rather than any one surface.
+// The spectral locus is the boundary of colour itself, and the atlas leans on it:
+// EVERY lens voids past it (the picking planes, the sliders, the gamut-membership
+// predicate) — an off-locus chromaticity is imaginary at any luminance, so no display
+// lens can make it real; the xy panel draws the boundary. One law, one source —
+// web/js/core.js — so this pins the law rather than any one surface.
 //
 // The locus is NOT the Rösch–MacAdam optimal-colour solid the 3D shape is built from.
 // That body is a bounded REFLECTIVE gamut under illuminant E; a colour above its

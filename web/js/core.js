@@ -70,11 +70,12 @@ export const physBound = name => (meta[name]?.referred === 'scene' || meta[name]
 // ── the spectral locus: the boundary of colour itself ──
 // A chromaticity outside the horseshoe (the CIE 1931 2° spectral curve, closed by the
 // line of purples) is IMAGINARY — no spectral power distribution produces it, at any
-// luminance. This is the law the HUMAN lens applies everywhere it is offered: the xy
-// panel draws it, the planes and the sliders void past it. It is deliberately NOT the
-// object-colour (Rösch–MacAdam) solid the 3D shape is built from: that solid is a
-// bounded REFLECTIVE gamut under illuminant E, and a colour above its ceiling — a
-// bright emissive white, a laser — is still perfectly visible.
+// luminance. So it is not a colour under ANY lens: the xy panel draws the boundary, and
+// the planes and sliders void past it regardless of the selected gamut (a display lens
+// only ghosts the real colours it can't show — it can't make an imaginary one real).
+// This is deliberately NOT the object-colour (Rösch–MacAdam) solid the 3D shape is built
+// from: that solid is a bounded REFLECTIVE gamut under illuminant E, and a colour above
+// its ceiling — a bright emissive white, a laser — is still perfectly visible.
 let LOCUS = null
 export function locus() {
 	if (LOCUS) return LOCUS
@@ -155,8 +156,8 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
 	const toXyz = name !== 'rgb' && space[name].xyz
 	const lens = gamut && gamut !== 'off'
-	// the human lens cuts by the spectral locus, not by a display gamut — so it keeps
-	// the sRGB linear map for the physical-ceiling test and voids imaginary coordinates
+	// the human lens ghosts nothing (imaginary already voids for every lens, below) — so
+	// it just keeps the sRGB linear map for the physical-ceiling test, no display gamut
 	const vis = gamut === 'vis'
 	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[lens && !vis ? gamut : 'srgb']]
 	const cluster = !!qf || quant === 'web'
@@ -174,8 +175,8 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		let a = 255
 		if (gLin) { try { const X = toXyz(...v), lin = gLin(...X)
 			if (!lin.every(u => u > -4 && u < PB)) a = 0
-			else if (vis) { if (!cluster && !visibleXYZ(...X)) a = 0 }   // imaginary: not a colour at any luminance
-			else if (lens && !cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
+			else if (!cluster && !visibleXYZ(...X)) a = 0   // imaginary chromaticity: not a colour at any luminance, under any lens
+			else if (lens && !vis && !cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a

@@ -1,6 +1,6 @@
 # color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
-<img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/>
+<a href="https://color-space.io/"><img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/></a>
 
 **Collection of color space conversions & data.** <br/>
 * [Verified formulas](docs/formula-verification.md)
@@ -100,7 +100,7 @@ It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contra
 
 Thanks to the researchers, theorists, specifiers, implementors — and the libraries that informed this one.
 
-| Library | Spaces | Ranges | Specialty | Backends | Speed |
+| Library | Spaces | Ranges | Specialty | Backends | Speed (op/s) |
 |---|---:|---|---|---|---:|
 | **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **36.4** |
 | color-space/wasm | 27 | Conventional | — | WASM | 1.3–2.5× JS batches |
