@@ -289,7 +289,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .mcat .catn{ position:absolute; bottom:100%; margin-bottom:.05em; font-style:normal; font-size:var(--t0); font-weight:400; letter-spacing:0; text-transform:none; color:var(--soft); white-space:nowrap }   /* the section: small, plain, mixed-case, above the space name */
 .mcat.prev .catn{ left:-1.5rem; } .mcat.next .catn{ right:-1.5rem }
 .mnavbar .mcat:hover .mn{ color:var(--ink) }
-.dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin:0 0 var(--s2); width:100% }   /* gamut + quantization selects — ride the side column, flush with its right edge */
+.dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin-left:auto }   /* gamut + quantization selects — ride the side column, flush with its right edge */
 .dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — but the native chevron stays: it says "openable" */
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }   /* no focus rectangle around the bare select — a colour shift instead */
@@ -300,10 +300,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
 .tag[title],.tag[data-tip]{ cursor:help }
-#overview.dhero{ grid-template-columns:repeat(2,minmax(0,1fr)) }   /* features | 3D · gamut · transfer · record — two equal columns at every width */
-.props.pone{ grid-template-columns:1fr; margin:0 }
-.ocol{ display:flex; flex-direction:column; gap:var(--s4); min-width:0 }
-.ocol .pl3d{ max-width:20rem; align-self:center }
+.dhero>.dmain{ grid-column:1; grid-row:1 } .dhero>.dviz2{ grid-column:2; grid-row:1 }   /* plates ride first in the DOM (for the mobile float) but keep the side column */
 .dhero{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .modal.barred .dhero{ grid-template-columns:1fr }   /* no graphics column to reserve — text takes the whole width */
 .dmain{ min-width:0 }
@@ -338,7 +335,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
-@media(max-width:640px){ .dhero:not(#overview){ grid-template-columns:1fr } }   /* features + gamut/transfer keep two columns at every width */
+@media(max-width:640px){ .dhero{ display:block }   /* the overview flows — the plates float inside the features */
+	.dhero>.dviz2{ float:right; width:min(48%,15rem); margin:0 0 var(--s2) var(--s4) }
+	.dhero::after{ content:''; display:block; clear:both } }
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
@@ -353,7 +352,10 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* the picker rides above the label and number — same 11px rhombus as the gamut marker */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
-.dpick{ margin:var(--s2) 0 var(--s8) }   /* sliders + planes, full measure — the 3D and plates live in the overview second column */
+.dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
+.dpick.nod3{ grid-template-columns:1fr }   /* no 3D — sliders + planes take the whole measure */
+@media(max-width:640px){ .dpick{ grid-template-columns:1fr }
+	.dpick .pl3d{ max-width:20rem; margin-inline:auto } }
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }
@@ -2837,7 +2839,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const segsHTML=`<select id="qseg" aria-label="quantization" title="${QTIP[qKey(Q)]}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
 	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gamTip(GM)}">${[...GAMS,'vis'].map(g=>`<option value="${g}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
-	const solidHTML=has3d?`<div class="vgrp">${dctlHTML}<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
+	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
 	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
@@ -2860,16 +2862,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
-	 <section class="dpick" id="explore">
+	 <section class="dpick${has3d?'':' nod3'}" id="explore">
 		<div class="dmain">
-		<div class="chead">${bigchHTML}</div>
+		<div class="chead">${bigchHTML}${dctlHTML}</div>
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
+		${solidHTML}
 	 </section>
 	 <section class="dhero" id="overview">
-		<div class="props props3 pone">
+		${platesHTML}
+		<div class="dmain"><div class="props props3">
 			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
 				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
@@ -2881,11 +2885,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 			</div>
-		</div>	<!-- /props pone (instrument) -->
-		<div class="ocol"><!-- the second column: 3D · gamut · transfer, then the record -->
-		${has3d?solidHTML:`<div class="vgrp">${dctlHTML}</div>`}
-		${platesHTML}
-		<div class="props props3 pone">
 			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
@@ -2893,7 +2892,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			</div>
-	 </div></div>	<!-- /props pone /ocol -->
+	 </div></div>
 	 </section>
 	 <div class="dgrid2"><!-- the story, full measure — after the features and their plots -->
 		<div><i class="plab">description</i>
