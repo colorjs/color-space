@@ -3656,10 +3656,9 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 		if(iccBtn) iccBtn.addEventListener('click',probe,{once:true}); else probe() }
 })()
 
-// ── the ostwald sweep (the full hue wheel across, white content fading as black
-// content rises — light into deep) — the footer wall AND the hero stage share it.
-// The footer glides its band count continuously with scroll. ──
-const coloroidCol=f=>hex(rgbF('ostwald',[f*360, 45*(1-f), 55*f]))
+// ── the ostwald sweep — the SAME full-color wheel as the masthead line, so the page
+// opens and closes on one gradient; the footer wall AND the hero stage share it. ──
+const coloroidCol=f=>hex(rgbF('ostwald',[f*360, 0, 0]))
 // precompute the sweep once so rebuilding an N-band gradient is just N lookups + a join
 const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math.round(clamp(f,0,1)*768)]
 const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
@@ -3674,15 +3673,11 @@ const GRAY=rgbF('oklch',[0.72,0,0]).map(v=>clamp(Math.round(v),0,255))
 	pg.setProperty('--igray',GRAY.join(',')) })()
 const ftrEl=document.getElementById('ftr'), fgrad=document.getElementById('fgrad'), fov=document.querySelector('.fov')
 // overlay ink per side, from the wall's own ends (same inversion as the sliders)
-// the wall is the smooth sweep the whole way down — no quantization on the approach and
-// no extra scroll added. Only once you hit the very end (footer fully in view) does more
-// downward scroll quantize it a tier at a time, the page held fixed at the bottom;
-// scrolling back up releases it to smooth again. No gap, footer stays put.
-// the footer wall: scroll sets the QUANTIZATION (band count glides 72→8 with extra
-// scroll at the very end, fully reversible) while the sweep itself slide-animates
-// beneath the FIXED band grid — reflected sampling, so the endless drift has no seam
+// the footer wall: the POINTER quantizes it — the lower you point (or touch) within
+// the footer, the fewer, wider the bands (72 → 8); leave and it melts back to smooth.
+// The sweep itself slide-animates beneath the fixed band grid — reflected sampling,
+// so the endless drift has no seam.
 let fp=0, fph=0
-const FQTRAVEL=1500   // wheel units for the full quantization glide
 const fsamp=f=>{ const t=(f+fph)%2; return t<=1?t:2-t }
 const paintFq=()=>{ if(fp<=0&&!fph){ fgrad.style.background=coloroidGrad(0); return }
 	if(fp<=0){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(fsamp(k/64)))
@@ -3696,18 +3691,16 @@ let fraf=0
 const FDRIFT=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.00045
 const fstep=()=>{ fraf=0; if(!FDRIFT) return
 	fph=(fph+FDRIFT)%2; paintFq(); fraf=requestAnimationFrame(fstep) }
-const ftrWheel=e=>{
-	if(document.body.classList.contains('mopen')) return   // modal open: it's the scroller — never hijack its wheel to the footer glide
-	const atEnd=Math.ceil(scrollY+innerHeight)>=document.documentElement.scrollHeight-1
-	if(!atEnd){ if(fp){ fp=0; paintFq() } return }
-	if(e.deltaY>0? fp<1 : fp>0){ e.preventDefault()
-		fp=clamp(fp+e.deltaY/FQTRAVEL,0,1); paintFq() }
-}
-// the drift AND the non-passive wheel bind only while the footer is on screen — a
-// page-wide passive:false wheel listener made every scroll tick anywhere in the
-// catalog wait on the main thread before the compositor could move
-new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ if(!fraf&&FDRIFT) fraf=requestAnimationFrame(fstep); addEventListener('wheel',ftrWheel,{passive:false}) }
-	else{ if(fraf){ cancelAnimationFrame(fraf); fraf=0 } removeEventListener('wheel',ftrWheel); if(fp){ fp=0; paintFq() } } })).observe(ftrEl)
+const ftrPoint=e=>{ const r=ftrEl.getBoundingClientRect()
+	fp=clamp((e.clientY-r.top)/Math.max(1,r.height),0,1); paintFq() }
+const ftrLeave=()=>{ if(fp){ fp=0; paintFq() } }
+ftrEl.addEventListener('pointermove',ftrPoint)
+ftrEl.addEventListener('pointerdown',ftrPoint)
+ftrEl.addEventListener('pointerleave',ftrLeave)
+ftrEl.addEventListener('pointercancel',ftrLeave)
+// the drift runs only while the footer is on screen
+new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ if(!fraf&&FDRIFT) fraf=requestAnimationFrame(fstep) }
+	else{ if(fraf){ cancelAnimationFrame(fraf); fraf=0 } if(fp){ fp=0; paintFq() } } })).observe(ftrEl)
 document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 // terminal buttons type themselves in when they scroll into view
 const typeObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('typing'); typeObs.unobserve(e.target) } }),{threshold:.6})
