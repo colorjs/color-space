@@ -1103,6 +1103,39 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	 <div class="chs"><div class="ch" data-i="0" title="log-luminance"><div class="tk"></div><span class="sy">l</span></div><div class="ch" data-i="1" title="Yellow-Blue"><div class="tk"></div><span class="sy">alpha</span></div><div class="ch" data-i="2" title="Red-Green"><div class="tk"></div><span class="sy">beta</span></div></div>
 	</article>
 </div></section></div></main>
+<script>
+/* pre-paint masonry: the baked .grid rows become per-column stacks BEFORE first paint —
+   a plain parser-blocking script, so the first painted frame IS the final layout. Kept
+   out of the module deliberately: the module lands ~100-300ms after first paint, and a
+   post-paint columnize reshuffles every row in plain sight (row-major grid → balanced
+   column stacks). The module's own colize() call is then a data-c no-op; it still
+   re-columnizes after a fingerprint rebuild, and band changes re-enter through COLQ. */
+const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:1359px)')]
+const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3   // 1080–1359: rail + two columns; three only beyond
+function colize(){ const C=colCount()
+	document.getElementById('cat').querySelectorAll('.sec').forEach(sec=>{
+		const ents=[...sec.querySelectorAll('.ent')]; if(!ents.length) return
+		// querySelectorAll walks columns, not catalog order — stamp the order once, sort by it,
+		// or a rebuild (resize down then up) scrambles rows and the column-top lead rules miss
+		ents.forEach((e,k)=>{ if(!e.dataset.k) e.dataset.k=k })
+		ents.sort((a,b)=>a.dataset.k-b.dataset.k)
+		let box=sec.querySelector('.gcols')
+		if(box&&+box.dataset.c===C) return
+		if(!box){ box=document.createElement('div'); box.className='gcols'; sec.querySelector('.grid').before(box) }
+		box.dataset.c=C
+		const cols=Array.from({length:C},()=>{ const c=document.createElement('div'); c.className='gcol'; return c })
+		// balanced masonry: the first C leads head the columns; every following row drops into the
+		// currently-shortest column (by real measured height, so a 4-channel cmyk or 1-channel
+		// lead doesn't leave its column lopsided). Keeps leads featured, evens the heights.
+		const eh=ents.map(e=>e.offsetHeight||1)   // measured while still laid out, before the move
+		const colH=new Array(C).fill(0)
+		ents.forEach((e,k)=>{ const col=k<C?k:colH.indexOf(Math.min(...colH))
+			cols[col].append(e); colH[col]+=eh[k] })
+		box.replaceChildren(...cols)
+		sec.querySelectorAll(':scope>.grid,:scope>.sheet').forEach(x=>x.remove()) })
+	try{ window.layoutToc?.(); window.trackAct?.() }catch{} }
+colize(); COLQ.forEach(q=>q.addEventListener('change',colize))
+</script>
 
 
 <section class="introcopy" aria-labelledby="introcopy-title">
@@ -1480,6 +1513,7 @@ const layoutToc=()=>{ if(!tocEl.offsetParent) return
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
 }
 trackAct(); layoutToc()
+Object.assign(window,{layoutToc,trackAct})   // the pre-paint colize (inline, after #cat) re-lays the toc through these on band changes
 addEventListener('resize',layoutToc)
 // re-measure once layout is truly settled — a stale first pass (pre-font heights, or a restored
 // scroll position on reload) would bake a wrong ladder; each re-run recomputes and re-freezes
@@ -1654,32 +1688,9 @@ qInput.addEventListener('input',applyFilter)
 	addEventListener('pointerdown',e=>{ if(!tfp.hidden&&!e.target.closest('.tagf')) setOpen(false) })
 	addEventListener('keydown',e=>{ if(e.key==='Escape'&&!tfp.hidden){ setOpen(false); tfb.focus() } }) })()
 
-// ── masonry hydration: the prerendered .grid/.sheet rows become per-column stacks ──
-const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:1359px)')]
-const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3   // 1080–1359: rail + two columns; three only beyond
-function colize(){ const C=colCount()
-	cat.querySelectorAll('.sec').forEach(sec=>{
-		const ents=[...sec.querySelectorAll('.ent')]; if(!ents.length) return
-		// querySelectorAll walks columns, not catalog order — stamp the order once, sort by it,
-		// or a rebuild (resize down then up) scrambles rows and the column-top lead rules miss
-		ents.forEach((e,k)=>{ if(!e.dataset.k) e.dataset.k=k })
-		ents.sort((a,b)=>a.dataset.k-b.dataset.k)
-		let box=sec.querySelector('.gcols')
-		if(box&&+box.dataset.c===C) return
-		if(!box){ box=document.createElement('div'); box.className='gcols'; sec.querySelector('.grid').before(box) }
-		box.dataset.c=C
-		const cols=Array.from({length:C},()=>{ const c=document.createElement('div'); c.className='gcol'; return c })
-		// balanced masonry: the first C leads head the columns; every following row drops into the
-		// currently-shortest column (by real measured height, so a 4-channel cmyk or 1-channel
-		// lead doesn't leave its column lopsided). Keeps leads featured, evens the heights.
-		const eh=ents.map(e=>e.offsetHeight||1)   // measured while still laid out, before the move
-		const colH=new Array(C).fill(0)
-		ents.forEach((e,k)=>{ const col=k<C?k:colH.indexOf(Math.min(...colH))
-			cols[col].append(e); colH[col]+=eh[k] })
-		box.replaceChildren(...cols)
-		sec.querySelectorAll(':scope>.grid,:scope>.sheet').forEach(x=>x.remove()) })
-	try{ layoutToc(); trackAct() }catch{} }
-colize(); COLQ.forEach(q=>q.addEventListener('change',colize))
+// ── masonry: columnized PRE-PAINT by the inline script after #cat (band changes too);
+// this call covers only the fingerprint-rebuild path — for the baked page it's a data-c no-op ──
+colize()
 
 
 // ── modal dossier ──
