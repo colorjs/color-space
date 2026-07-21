@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Open collection of color-spaces",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
   "keywords": [
