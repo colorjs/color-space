@@ -3431,7 +3431,8 @@ function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) paints its slider popover, live
 	const gl=planeGLStatus(s)==='ready'
 	let tier=gl?(fast?'v':1):0   // v = live canvas: the settle sweep still owes the baked image
-	if(ent.dataset.g===`${hx}:${tier}`&&s!==master.s) return   // already painted for this exact color + tier (incl. the prerendered CSS state) — except the master's own row, whose sweeps follow master.vals, finer than the hex
+	const gkey=s===master.s?master.vals.join():hx   // the master's own row keys on master.vals — its sweeps are finer than the 8-bit hex
+	if(ent.dataset.g===`${gkey}:${tier}`) return   // already painted for this exact color + tier (incl. the prerendered CSS state)
 	const cls=classify(s), vals=valsFor(s)
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 		// card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
@@ -3442,19 +3443,20 @@ function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
 		tier=0   // a bar fell back to CSS — stamp the lower tier so the next sweep retries GL
 		ch.classList.remove('gl','lv'); ch.style.removeProperty('--strip')
 		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
-	ent.dataset.g=`${hx}:${tier}` }) }
+	ent.dataset.g=`${gkey}:${tier}` }) }
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		if(sweep&&dragEnt&&ent!==dragEnt) return   // motion frames: only the dragged row repaints — the rest catch up on settle
-		// stamp-skip: values + ticks depend only on the color (and, for sheet rows, on
-		// whether the popover shows ticks — the ':l' tier). A focused entry always
-		// repaints — its input is deliberately left untouched while being edited.
-		// The MASTER's own row is exempt: its truth is master.vals, finer than the 8-bit
-		// hex — a hex stamp froze its tick outside sRGB and hex-stepped it inside
+		// stamp-skip: values + ticks depend on the color (and, for sheet rows, on whether
+		// the popover shows ticks — the ':l' tier). A focused entry always repaints — its
+		// input is deliberately left untouched while being edited. The MASTER's own row
+		// keys on master.vals, finer than the 8-bit hex — a hex stamp froze its tick
+		// outside sRGB and hex-stepped it inside
 		const full=!liteOff(ent)||ent.classList.contains('pop')
-		const stamp=full?hx:hx+':l'
-		if(ent.dataset.v===stamp&&s!==master.s&&!ent.contains(document.activeElement)) return
+		const key=s===master.s?master.vals.join():hx
+		const stamp=full?key:key+':l'
+		if(ent.dataset.v===stamp&&!ent.contains(document.activeElement)) return
 		const vals=valsFor(s), cls=classify(s)
 		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp||ent===dragEnt) inp.value=vals?fmtc(vals[i],cls.ch[i]):''   // a drag is not typing — the focused channel tracks its slider live
 			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends
