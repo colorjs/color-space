@@ -1,11 +1,20 @@
 * [ ] Make the atlas cool.
 
+* [ ] Triangle version of view
+* [ ] Better slice outline (binary ops?)
+* [ ] Better loading (side categories - appear smoothly)
+* [ ] Better hue picker range - unfoldable?
+* [ ] SEO something: making sure how we meet use scenarios
+* [ ] LUT/ICC download is too hard
+* [ ]
+
 ## Ideas
 
 * [x] ~~claim https://github.com/js-org/js.org~~
 * [ ] Color atlas view or filter - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
 * [x] ~~Main screen configuration - sliders, planes, just a table, CSS values etc~~
-* [ ] Pick a line/shape, not just a point in space
+* [ ] Pick a line/shape, not just a point in space.
+  * [ ] Pick a color, drop an image?
 * [x] Interpolation: compare against the other space
 * [ ] In-space configurator: there's multiple flavors of RGB space with different matrices etc.
 * [ ] Hue bar: uncollapses? Rotates?
