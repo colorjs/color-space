@@ -2,9 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/>
 
-**162 color spaces. Any → any.**
+**Collection of color space conversions & data**
 
-[Verified formulas](docs/formula-verification.md) · conventional ranges · zero dependencies · JS / WASM / GLSL / LUT / ICC
+Verified formulas · conventional ranges · zero dependencies · JS / WASM / GLSL / LUT / ICC
 
 **[Atlas →](https://color-space.io/)**
 
@@ -90,9 +90,9 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Motivation
 
-A complete collection of color spaces: one minimal API, verified formulas, scope beyond digital — historical and cross-disciplinary spaces included. Side effects: corrected papers, color education, test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
+A complete collection of color spaces: one minimal API, verified formulas. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well. Side effects: corrected papers, color education, test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
 
-Not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, alpha stay out. So do licensed swatch catalogs: Pantone, NCS, RAL Classic.
+It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
 
 ## Credits
 
