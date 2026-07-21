@@ -62,7 +62,7 @@ a{ color:var(--ink) }
 .cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:50%; transform:translateY(-50%); display:flex; align-items:center; cursor:text }   /* sits where the spaces column starts; centred in the bar like every other item; rhombus, value and gamut pill share one centre line */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
-.cx .cd{ position:absolute; left:.15em; top:50%; width:11px; height:11px; padding:0; background:none; border:0; appearance:none; -webkit-appearance:none; transform:translateY(-50%) rotate(45deg); cursor:pointer; transition:transform var(--dur-micro) var(--ease-out) }   /* the favicon rhombus, live — a native color input in disguise; centred on the value's line */
+.cx .cd{ position:absolute; left:calc(.15em - 7px); top:50%; width:25px; height:25px; padding:7px; background:none; border:0; appearance:none; -webkit-appearance:none; transform:translateY(-50%) rotate(45deg); cursor:pointer; transition:transform var(--dur-micro) var(--ease-out) }   /* the favicon rhombus, live — a native color input in disguise; centred on the value's line. The box is the hit area (25px); the padding keeps the visible swatch at the same 11px */
 .cx .cd:hover,.cx .cd:focus-visible{ transform:translateY(-50%) rotate(45deg) scale(1.18) }   /* the same lift the interpolate endpoint rhombus has */
 .cd::-webkit-color-swatch-wrapper{ padding:0 }
 .cd::-webkit-color-swatch{ border:0 }
@@ -131,7 +131,7 @@ a{ color:var(--ink) }
 	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto }
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
 	input{ font-size:max(1em,16px) } }   /* iOS auto-zooms any focused input under 16px — 16 kills the zoom-on-focus without touching the viewport (axe: pinch zoom stays free) */
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
@@ -238,17 +238,24 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:right; min-width:.9em; padding-right:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
 .cv{ width:4.6rem; font-size:var(--t2); color:var(--body); text-align:left; padding-right:1.2em }   /* reserves the chevron zone inside the box */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:2.4rem } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
-.ent:hover:not(.pop) .cvp,.ent:focus-within:not(.pop) .cvp{ border-bottom-color:var(--hair) }   /* in the popover card only the driven channel highlights */   /* hovering a space underlines all its pairs, half-strength */
+.ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its pairs, half-strength — full ink stays personal (hover/focus/.on below) */
 .ent .cvp:hover,.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--ink) }   /* pointed, focused, slider-driven, or spinner-hovered — full ink */
 .ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
+.cvs:hover .cvp:focus-within:not(:hover),.ent:has(.cvp.on) .cvp:focus-within:not(.on){ border-bottom-color:var(--hair) }   /* one ink at a time — the pointer (on an input or its slider) outranks the focused pair, which falls back to half-strength */
+.cvs:hover .cvp:focus-within:not(:hover) .cv,.ent:has(.cvp.on) .cvp:focus-within:not(.on) .cv{ color:var(--body) }
 .cvp .stk{ position:absolute; right:calc(var(--s1)*-1); top:-1px; bottom:5px; user-select:none }   /* copyable row text stays clean of the chevrons */   /* spinners ride inside the input, above the underline — no flow width */
 .cvp .stk button,.bch .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover; one recipe for the catalog pair and its scaled-up modal sibling */
 .cvp .stk button:hover,.bch .stk button:hover{ opacity:1; color:var(--ink) }
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
-.ch:hover .tk,.ch.live .tk{ width:15px; height:15px }   /* the picker swells to the masthead diamond size under the pointer / while its channel drives */
+.ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
+/* the marker stays its size — attention is a caret-blink outline: a ring just outside the
+   border, blinking like the terminal caret, under the pointer or while its channel drives */
+.ch .tk::after,.bar2 .dk::after{ content:''; position:absolute; inset:-3px; border:inherit; opacity:0 }
+.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after{ animation:blink 1.1s step-end infinite }   /* the fcaret rhythm */
+.chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after{ animation:none }   /* one blink at a time — the pointer outranks the focused channel */
+@keyframes blink{ 0%,100%{ opacity:.85 } 55%{ opacity:0 } }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -352,8 +359,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
-.bar2 .dk{ position:absolute; top:50%; z-index:2; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
-.bar2:hover .dk,.bar2.live .dk{ width:15px; height:15px }   /* the picker swells to the masthead diamond size under the pointer / while its channel drives */   /* the picker rides above the label and number — same 11px rhombus as the gamut marker */
+.bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }   /* the picker rides above the label and number — the catalog's 8px rhombus; its blink lives with .tk's */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
@@ -394,7 +400,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
-.pl .cx{ position:absolute; z-index:2; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* same rhombus as the sliders — rides above the axis labels */
+.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }   /* same rhombus as the sliders — rides above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -479,7 +485,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 @media(max-width:640px){ .dgrid2,.dviz2{ grid-template-columns:1fr } }
 @media(max-width:640px){ .props.props3{ grid-template-columns:1fr } }
 .gam2d canvas{ display:block; width:100%; height:100% }
-.gam2d .cx{ position:absolute; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }
+.gam2d .cx{ position:absolute; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }
 .gam2d .cx.ghost{ pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 /* glossary terms: a soft question mark that explains the jargon in place */
@@ -555,9 +561,9 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 .legal a:hover{ text-decoration:underline; text-underline-offset:3px }
 .legal .om{ font-size:var(--t3) }
 /* the npm command, a black plate where the logo used to sit */
-.fnpm{ font:inherit; font-family:var(--font-mono); font-size:var(--t3); font-weight:600; color:var(--color-terminal-ink); background:var(--color-terminal-paper); border:0; min-height:var(--tap); padding:var(--s2) var(--s4); margin-bottom:var(--s8); cursor:copy; display:inline-flex; align-items:center; gap:var(--s2) }   /* the bottom margin floats it a touch above centre */
+.fnpm{ font:inherit; font-family:var(--font-mono); font-size:var(--t3); font-weight:600; color:var(--color-terminal-ink); background:var(--color-terminal-paper); border:0; padding:var(--s2) var(--s3); margin-bottom:var(--s8); text-decoration:none; display:inline-flex; align-items:center; gap:var(--s2) }   /* the bottom margin floats it a touch above centre; a link to the npm page — the plate hugs the command */
 .fnpm i{ font-style:normal; color:var(--color-terminal-muted); font-size:.9em }
-.fnpm:hover i{ color:var(--accent) }
+.fnpm:hover i{ color:var(--color-terminal-ink) }   /* the prompt brightens with the hover — never sinks into the plate */
 .fnpm .cmd{ display:inline-block; white-space:nowrap; width:23ch; position:relative }   /* the slot is fixed — the plate never resizes; typing happens INSIDE, like a terminal */
 .fnpm.typing .cmd::after{ content:''; position:absolute; top:0; bottom:0; left:0; right:0; background:var(--color-terminal-paper); border-left:.5ch solid var(--color-terminal-muted); animation:ftype 1.2s steps(23,end) .25s both, fcaret 1.1s step-end .25s infinite }   /* the un-typed text hides under terminal paper; the cover's left edge is the caret riding the boundary */
 @keyframes ftype{ from{ left:0 } to{ left:100% } }
@@ -1164,7 +1170,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 	<div class="fgrad" id="fgrad"></div>
 	<div class="fov">
 		<div class="fwrap">
-			<button class="fnpm" id="fnpm" title="copy"><i>❯</i><span class="cmd">npm install color-space</span></button>
+			<a class="fnpm" id="fnpm" href="https://www.npmjs.com/package/color-space" target="_blank" rel="noopener" title="color-space on npm"><i>❯</i><span class="cmd">npm install color-space</span></a>
 			<a class="fsup" href="https://github.com/sponsors/dy">Support the project</a>
 			<div class="legal"><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 — public domain">CC0</a> <span class="dot">·</span> <a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></div>
 		</div>
@@ -1559,14 +1565,16 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		ch.addEventListener('pointerdown',e=>{
 			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; dragEnt=ent; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on'); ch.classList.add('live') }
-				if(!moved) return
-				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
+			const jump=ev=>{ const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
+			adopt(); jump(e)   // the press itself picks — the value jumps to the pointer, drag refines from there
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; dragEnt=ent; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on'); ch.classList.add('live') }
+				if(!moved) return
+				jump(ev) }
 			ch.onpointermove=move
 			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; dragEnt=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
-				if(moved){ squelch=true; setTimeout(()=>squelch=false,0); scheduleFast(); if(open()) paintPlanes(false) } }
+				squelch=true; setTimeout(()=>squelch=false,0); scheduleFast(); if(open()) paintPlanes(false) }
 			ch.onpointercancel=ch.onpointerup }) }) })   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 
 // sheet rows show sliders only when the settings toggle says so
@@ -2815,7 +2823,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	// instrument, never veiled by the body it sits inside
 	if(mp){ ctx.save(); ctx.translate(mp.x,mp.y); ctx.rotate(Math.PI/4)
 		ctx.fillStyle=hex(mcur); ctx.strokeStyle='#fff'; ctx.lineWidth=.85*dp   // always light — a dark ring reads as a hole in the body
-		const h=5.8*dp
+		const h=4*dp   // the catalog's 8px rhombus, DPR-scaled
 		ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() } }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	spinV3=SPIN3; snap3=null   // a fresh dossier idles in the ambient turn; a parked view survives gamut switches
@@ -2892,23 +2900,27 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 <section class="dhero" id="overview">
 		${platesHTML}
 		<div class="dmain"><div class="props props3">
-			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
-				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
-				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
-				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
-				${m.referred||m.dynamic?`<div><i>range</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
-				${enc?`<div><i>encoding</i><p class="dpills"><span class="tag" title="${TAGTIP[enc]||''}">${enc}</span></p></div>`:''}
-				${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
-				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
-				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
-				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
+			<div class="pcol"><!-- the instrument, folded to three: its axes+notation, its nature as one pill line, its costs — every item measurable -->
+				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div>${CSSFMT[s]?`<p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p>`:''}</div>
+				${(fp=>fp?`<div><i>form</i><p class="dpills">${fp}</p></div>`:'')([
+					geo(s)&&`<span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span>`,
+					m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,
+					m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,
+					enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,
+					m.illuminant&&`<span class="tag" title="reference white — the illuminant this space's coordinates assume${m.observer?`, under the ${m.observer}° standard observer`:''}">${m.illuminant}${m.observer?` · ${m.observer}°`:''}</span>`
+				].filter(Boolean).join(''))}
+				${m.loss||(RCH&&!hasPlaneGL(s))?`<div><i>limits</i>${m.loss?`<p title="${m.lossNote||''}">${m.loss}</p>`:''}${RCH&&!hasPlaneGL(s)?`<p title="${RCHTIP}">${reachTxt}</p>`:''}</div>`:''}
 			</div>
-			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
-				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
-				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
-				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
-				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
-				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+			<div class="pcol"><!-- the record, folded to one: when and who, the name, the derivation, the citations — every line a date or a link -->
+				<div><i>origin</i>
+					${m.year||m.by?`<p>${[m.year,m.by].filter(Boolean).join(' · ')}</p>`:''}
+					${L.nm?`<p>${L.nm}</p>`:''}
+					${path&&path.length>1?`<p class="fam" title="the conversion route down to rgb — each space is defined through the next">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p>`:''}
+					<p class="fam">${[`<a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a>`,
+						VERIFIED.has(s)&&`<a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a>`,
+						...[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`)
+					].filter(Boolean).join(', ')}</p>
+				</div>
 			</div>
 	 </div></div>
 	 </section>
@@ -3074,14 +3086,15 @@ function wireBar(el,s){
 		else if(qTriple(Q)&&el._cells){ const k=Math.min(Math.floor(f*el._cells.length),el._cells.length-1)
 			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
 			master= mv?{ s, vals:mv }:{ s:'rgb', vals:nr }
-			el._cellF=(k+0.5)/el._cells.length }
+			el._cellF=k===0?0:k===el._cells.length-1?1:(k+0.5)/el._cells.length }   // edge cells park at the borders — full travel, never fenced
 		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ adopt(); moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId); bchEl()?.classList.add('on'); el.classList.add('live') }
+	if(!adopt()) return
+	apply(e)   // the press itself picks — the value jumps to the pointer, drag refines from there
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId); bchEl()?.classList.add('on'); el.classList.add('live') }
 		if(!moved) return
 		apply(ev) }
-	const up=ev=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null; bchEl()?.classList.remove('on'); el.classList.remove('live')
-		if(!moved){ adopt(); apply(ev); el._cellF=null }
+	const up=()=>{ el.onpointermove=null; el.onpointerup=null; dragBar=null; el.style.cursor=''; el._cellF=null; bchEl()?.classList.remove('on'); el.classList.remove('live')
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
@@ -3486,7 +3499,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		if(bar===dragBar&&bar._cellF!=null) df=bar._cellF
 		else if(qTriple(Q)&&bar._cells){ const ri0=Math.round(rgb[0]), ri1=Math.round(rgb[1]), ri2=Math.round(rgb[2])
 			const k=bar._cells.findIndex(cell=>cell[0]===ri0&&cell[1]===ri1&&cell[2]===ri2)
-			if(k>=0) df=(k+0.5)/bar._cells.length }
+			if(k>=0) df=k===0?0:k===bar._cells.length-1?1:(k+0.5)/bar._cells.length }   // edge cells park at the borders, as in wireBar
 		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		dk.style.left=(mf*100)+'%'
 		dk.style.background=hx; dk.style.borderColor=ink(rgb) })
@@ -3734,7 +3747,6 @@ ftrEl.addEventListener('pointercancel',ftrLeave)
 // the drift runs only while the footer is on screen
 new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ if(!fraf&&FDRIFT) fraf=requestAnimationFrame(fstep) }
 	else{ if(fraf){ cancelAnimationFrame(fraf); fraf=0 } if(fp){ fp=0; paintFq() } } })).observe(ftrEl)
-document.getElementById('fnpm').onclick=()=>copy('npm install color-space')
 // terminal buttons type themselves in when they scroll into view
 const typeObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('typing'); typeObs.unobserve(e.target) } }),{threshold:.6})
 document.querySelectorAll('.fnpm').forEach(b=>typeObs.observe(b))
