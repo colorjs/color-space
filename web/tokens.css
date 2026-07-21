@@ -131,6 +131,7 @@
 
 	/* Current atlas instrument dimensions. */
 	--ctl:40px;
+	--tap:44px;   /* minimum touch target (WCAG 2.5.8 / Apple HIG) */
 	--pick:11rem;
 }
 
