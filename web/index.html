@@ -250,12 +250,16 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
-/* the marker stays its size — attention is a caret-blink outline: one inverse-ink ring hugging
-   the marker's own border (so the pair reads on any field), blinking like the terminal caret,
-   under the pointer or while its channel drives */
-.ch .tk::after,.bar2 .dk::after{ content:''; position:absolute; inset:-1.2px; border:inherit; filter:invert(1); opacity:0 }
-.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after{ animation:blink 1.1s step-end infinite }   /* the fcaret rhythm */
-.chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after{ animation:none }   /* one blink at a time — the pointer outranks the focused channel */
+/* the marker stays its size — attention is a caret-blink outline pair hugging the marker's
+   border: a ring in the marker's own ink, its inverse twin directly outside (so the pair
+   reads on any field), blinking like the terminal caret, under the pointer or while its
+   channel drives */
+.ch .tk::after,.bar2 .dk::after,.ch .tk::before,.bar2 .dk::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
+.ch .tk::before,.bar2 .dk::before{ inset:-2.4px; filter:invert(1) }
+.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,
+.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ animation:blink 1.1s step-end infinite }   /* the fcaret rhythm */
+.chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
+.chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ animation:none }   /* one blink at a time — the pointer outranks the focused channel */
 @keyframes blink{ 0%,100%{ opacity:.85 } 55%{ opacity:0 } }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
