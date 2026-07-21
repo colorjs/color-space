@@ -132,7 +132,7 @@ a{ color:var(--ink) }
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
 @media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
-	input{ font-size:max(1em,16px) } }   /* iOS auto-zooms any focused input under 16px — 16 kills the zoom-on-focus without touching the viewport (axe: pinch zoom stays free) */
+}   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
    the footer wrap (.fw) and catalog (.cat) stay in a centered measure for readability */
@@ -576,6 +576,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
 @media(prefers-reduced-motion:reduce){ .fnpm.typing .cmd::after{ animation:none; left:100% } }
 @media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .modal{ background:var(--paper); padding-block:0 } }   /* the detail keeps its uniform --dpad — the sticky footer needs no reserved band */
+@media(pointer:coarse){ .nvw input,.cv,.qx input{ font-size:16px } }   /* iOS auto-zooms any focused input under 16px — floor the small inputs (slider inline values t1, pair values t2, search t2); LAST in the sheet so it wins their base rules (axe: pinch zoom stays free) */
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
@@ -1133,8 +1134,45 @@ function colize(){ const C=colCount()
 			cols[col].append(e); colH[col]+=eh[k] })
 		box.replaceChildren(...cols)
 		sec.querySelectorAll(':scope>.grid,:scope>.sheet').forEach(x=>x.remove()) })
-	try{ window.layoutToc?.(); window.trackAct?.() }catch{} }
-colize(); COLQ.forEach(q=>q.addEventListener('change',colize))
+	try{ layoutToc(); trackAct() }catch{} }
+/* ── ToC: stacked-sticky ladder + active tracking — laid out pre-paint, same reason as
+   colize: the rail titles must sit beside their sections in the FIRST painted frame,
+   not pile at the top and jump when the module lands. All queries run at call time so
+   the module's fingerprint-rebuild path (fresh #cat nodes) re-enters via wireToc(). */
+let actI=-1
+const trackAct=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]; let k=0
+	secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
+	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') }) } }
+// stacked-sticky rail (CSS): flow position = own section's top; sticky top+bottom insets make
+// passed titles pile at the top and upcoming ones wait at the bottom — all always on screen. JS only
+// measures the ladder once (per layout), then the browser handles every scroll state natively — so a
+// fast scroll or a restored scroll position can't desync it. The stack collapses together over the
+// last stretch as the container ends; that brief overlap is the accepted trade for zero scroll-JS.
+const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl.offsetParent) return
+	const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]
+	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
+	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
+	// READ phase first, WRITE phase after — a write between rect reads dirtied layout,
+	// forcing a full reflow of the (huge) page per section instead of one total
+	const t0=tocEl.getBoundingClientRect().top   // section offsets are scroll-independent (ent.top − toc.top)
+	const on=tocIt.map(t=>!t.classList.contains('off'))
+	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
+	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
+	const ys=secEls.map((sec,i)=>{ if(!on[i]) return 0   // align each title with the first visible space name
+		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
+		return (ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0 })
+	let cur=0, up=headH   // top ladder: measured offset only; the gap below the header is CSS (--toc-top)
+	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
+		const m=Math.max(0,ys[i]-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
+		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
+	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
+	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
+}
+const wireToc=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')]
+	cat.querySelectorAll('.ti').forEach(t=>{ t.querySelector('.tn').onclick=()=>secEls[+t.dataset.i].scrollIntoView({behavior:'smooth',block:'start'}) })
+	actI=-1; trackAct(); layoutToc() }
+addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // only the active-category highlight tracks scroll; the rail itself is pure CSS sticky
+colize(); wireToc(); COLQ.forEach(q=>q.addEventListener('change',colize))
 </script>
 
 
@@ -1347,7 +1385,7 @@ function fmt(s,v){ const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
 	// everything else: CSS-style function notation — the convention colors are read in
 	case 'cmyk':return `device-cmyk(${v.map(x=>n(x)+'%').join(' ')})`
 	default:return fnfmt(s,v) } }
-const pairs=n=>{ if(n>3) return [[0,1],[1,2],[2,3]]   // 4 channels: the adjacent chain — every channel gets a plane, no axis monopolises (combinations would give C-M, C-Y, C-K)
+const pairs=n=>{ if(n>3) return [[0,1],[1,2],[2,0]]   // 4 channels: the C-M · M-Y · Y-C cycle — each of C,M,Y once per axis; K rides its bar, held by every plane
 	const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
 // the dossier's plane channel pairs, oriented to MATCH the 3D solid: the tone/lightness axis
 // stands vertical (b) and the hue angle sweeps horizontal (a) — same canonical layout as map3
@@ -1479,41 +1517,10 @@ const cat=document.getElementById('cat')
 // threw away the streamed layout). Rebuild only on drift: template/data mismatch
 // or the raw web/ source, where #cat is the empty shell
 if(cat.dataset.fp!==fpOf(catHTML())) cat.innerHTML=catHTML(DEFAULT)
-// ToC: click jumps; the section under the reading line becomes the "open" category
-const secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]
-tocIt.forEach(t=>{ t.querySelector('.tn').onclick=()=>secEls[+t.dataset.i].scrollIntoView({behavior:'smooth',block:'start'}) })
-let actI=-1
-const trackAct=()=>{ let k=0
-	secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
-	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') }) } }
-addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // only the active-category highlight tracks scroll; the rail itself is pure CSS sticky
-// stacked-sticky rail (CSS): flow position = own section's top; sticky top+bottom insets make
-// passed titles pile at the top and upcoming ones wait at the bottom — all always on screen. JS only
-// measures the ladder once (per layout), then the browser handles every scroll state natively — so a
-// fast scroll or a restored scroll position can't desync it. The stack collapses together over the
-// last stretch as the container ends; that brief overlap is the accepted trade for zero scroll-JS.
-const tocEl=document.getElementById('toc')
-const layoutToc=()=>{ if(!tocEl.offsetParent) return
-	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
-	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
-	// READ phase first, WRITE phase after — a write between rect reads dirtied layout,
-	// forcing a full reflow of the (huge) page per section instead of one total
-	const t0=tocEl.getBoundingClientRect().top   // section offsets are scroll-independent (ent.top − toc.top)
-	const on=tocIt.map(t=>!t.classList.contains('off'))
-	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
-	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
-	const ys=secEls.map((sec,i)=>{ if(!on[i]) return 0   // align each title with the first visible space name
-		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
-		return (ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0 })
-	let cur=0, up=headH   // top ladder: measured offset only; the gap below the header is CSS (--toc-top)
-	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
-		const m=Math.max(0,ys[i]-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
-		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
-	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
-	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
-}
-trackAct(); layoutToc()
-Object.assign(window,{layoutToc,trackAct})   // the pre-paint colize (inline, after #cat) re-lays the toc through these on band changes
+// ToC: wired and laid out PRE-PAINT by the inline script after #cat (trackAct/layoutToc/
+// wireToc are its globals; applyFilter re-enters through them). Re-wire here only for the
+// fingerprint-rebuild path, where the rail's nodes were just replaced — idempotent otherwise
+wireToc()
 addEventListener('resize',layoutToc)
 // re-measure once layout is truly settled — a stale first pass (pre-font heights, or a restored
 // scroll position on reload) would bake a wrong ladder; each re-run recomputes and re-freezes
@@ -1661,7 +1668,7 @@ function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(
 		ent.style.display=hit?'':'none'
 		markName(ent,hit&&q&&s?q:null) })
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
-		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
+		sec.style.display=on?'':'none'; cat.querySelectorAll('.ti')[i]?.classList.toggle('off',!on) })
 	layoutToc(); trackAct()
 	const nores=document.getElementById('nores')
 	if(nores){ const none=(q||any)&&!shown; nores.hidden=!none

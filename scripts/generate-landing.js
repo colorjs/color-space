@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES, DEFAULT, fpOf } from '../web/js/render.js'
-import { meta, spaceCount, LUTOK } from '../web/js/core.js'
+import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
@@ -35,6 +35,11 @@ inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, `<main class="cat" id
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
 inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
+// the current-color rhombus + value carry the DEFAULT color from the first frame —
+// an unvalued <input type=color> paints BLACK until the module lands
+const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
+inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
+inject(/(<input id="cval")/, `$1 value="${dhx}"`)
 // the meta descriptions carry no live count by design — the counts live in #n/#n2 and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 writeFileSync(join(out, 'index.html'), html)
