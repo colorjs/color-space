@@ -426,7 +426,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
-.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat; --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 1.1 9.2 9.2H.8Z' fill='none' stroke='black' stroke-width='1.1'/></svg>") }   /* the cone-section switch: an OUTLINED triangle, the circle/square's own stroke weight */
+.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat; --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 1.1 9.2 9.2H.8Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 1.1V9.2M3.1 5.2h3.8' fill='none' stroke='black'/></svg>") }   /* the cone-section switch: outlined triangle + the centre cross, the circle/square's own recipe */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
@@ -502,7 +502,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5 }   /* a props feature, not a terminal pane — the panel chrome belongs to the homepage exporters; .props i styles its label */
 .export.dex i{ cursor:help }
-.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select) */
+.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; margin-inline-start:-4px; cursor:pointer; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select); the -4px eats the UA's intrinsic start inset so the value sits flush with the label */
 .export.dex select:hover{ color:var(--ink) }
 .export.dex select:focus-visible{ outline:none; color:var(--ink) }
 /* glossary terms: a soft question mark that explains the jargon in place */
@@ -570,7 +570,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 .fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.46; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
 .fov{ position:relative; z-index:2; flex:1; display:flex; align-items:stretch }
 .fwrap{ position:relative; width:100%; padding:4rem clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
-.fsup{ display:block; margin:calc(-1 * var(--s4)) 0 var(--s6); font-weight:700; color:inherit; text-decoration:none }
+.fsup{ display:block; margin:var(--s6) 0 0 ; font-weight:700; color:inherit; text-decoration:none }
 .fsup:hover{ text-decoration:underline; text-underline-offset:3px }   /* the support line rides directly under the npm plate, its own line, bold */
 
 .legal{ position:absolute; left:0; right:0; bottom:var(--s6); display:flex; justify-content:center; align-items:baseline; gap:var(--s2); color:var(--dark); font-size:var(--t2); line-height:1.4; text-align:center; font-variant-numeric:tabular-nums }
@@ -1170,12 +1170,13 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl.offs
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
 	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
-	const ys=secEls.map((sec,i)=>{ if(!on[i]) return 0   // align each title with the first visible space name
+	const ys=secEls.map((sec,i)=>{ if(!on[i]) return 0   // align each title's CENTRE with the first visible space name's centre — box tops lie when the two fonts' boxes differ
 		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
-		return (ent?ent.querySelector('.nm'):sec).getBoundingClientRect().top-t0 })
+		const r2=(ent?ent.querySelector('.nm'):sec).getBoundingClientRect()
+		return r2.top+r2.height/2-t0 })
 	let cur=0, up=headH   // top ladder: measured offset only; the gap below the header is CSS (--toc-top)
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
-		const m=Math.max(0,ys[i]-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
+		const m=Math.max(0,ys[i]-hs[i]/2-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
 		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
 	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
@@ -1430,7 +1431,7 @@ const polarPl=(c2,a,b)=>{ const ai=hueIdx(c2); return ai>=0&&a===ai&&c2.ch.lengt
 // hsv-family cones taper to black, hsl-family bicones to both poles, the White&Black
 // families cut the tint–shade triangle (W+B ≤ 100). The gray axis rides the left edge,
 // the way the solid reads side-on; outside the silhouette there is no coordinate at all.
-const TRIS={ hsv:1, okhsv:1, hsl:2, okhsl:2, hwb:3, okhwb:3, ostwald:3 }
+const TRIS={ hsv:1, okhsv:1, hsl:2, okhsl:2, hcl:2, hcy:2, hwb:3, okhwb:3, ostwald:3 }   // hcl/hcy: chroma collapses toward both luminance poles — bicones with a hue-skewed reach the voids declare
 const triPl=(s2,c2,a,b)=>{ const m=TRIS[s2]; if(!m) return 0
 	const ai=hueIdx(c2); return a===ai||b===ai?0:m }   // only the mag–tone pair
 // per-plane axis DIRECTIONS, matched to the solid's default view (rot −0.6/0.42): model
@@ -3063,8 +3064,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) }); renderFast() })
-	// the LUT · ICC exporters, under the plates — pick a target, read the measured
-	// deviation, download the real file; the long story rides in the tooltips
+	// the LUT · ICC exporters — a props feature under REFERENCE: pick a target, read
+	// the measured deviation, download the real file; the long story rides in the tooltips
 	const dex=detail.querySelector('#dex')
 	if(dex){
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
@@ -3075,10 +3076,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			:`${s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick`
 		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
 			<i title="${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
-			<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><span class="seg" id="dlsz"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
-			<div class="exrow"><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
+			<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><select id="dlsz" aria-label="LUT size"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
 			+(iccK?`<div class="dexp">
-			<div class="exrow"><button class="exdl" id="didl" type="button" title="${iccTitle}">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
+			<i title="${iccTitle}">icc profile</i>
+			<div class="exrow"><button class="exdl" id="didl" type="button">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
 		// LUT: target → the real lattice is measured (median/max deviation, size) before you take it
 		const lto=dex.querySelector('#dlto'), lsz=dex.querySelector('#dlsz'), l1d=dex.querySelector('#dl1d'), ldl=dex.querySelector('#dldl'), lst=dex.querySelector('#dlstat')
 		if(lto){ let lutN=33, ltok=0, measured=false
@@ -3090,10 +3091,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 						const v=lutVerify(tab,400), inr=v.in.share>0&&v.in.share<0.999, e=inr?v.in:v
 						const bytes=(tab.dims===3?tab.size**3:tab.size)*21+430
 						lsz.style.display=one?'none':''; l1d.style.display=one?'':'none'
-						lst.textContent=`${one?tab.size+'-pt 1D':tab.size+'³'} · median ${sci2(e.median)}, max ${sci2(e.max)} · ≈${bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'}` }
+						lst.textContent=bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'
+						lst.title=`${one?tab.size+'-pt 1D':tab.size+'³'} lattice vs the direct conversion, 400 off-lattice samples — median ${sci2(e.median)}, max ${sci2(e.max)}, fractions of full scale` }
 					catch(err){ ldl.disabled=true; lst.textContent=String(err&&err.message||'no finite LUT for this pair') } },0) }
 			lto.onchange=measure
-			lsz.querySelectorAll('button').forEach(b=>b.onclick=()=>{ lutN=+b.dataset.z; lsz.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); measure() })
+			lsz.onchange=()=>{ lutN=+lsz.value; measure() }
 			ldl.onclick=()=>{ const to=lto.value
 				try{ const one=lutChannelwise(space[s],space[to])
 					dl(lutCube(space[s],space[to],one?{}:{size:lutN}),`${s}-to-${to}${one?'':'-'+lutN}.cube`,'text/plain'); toast('LUT saved') }catch{ toast('No LUT for this pair') } }
@@ -3107,7 +3109,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 						ist.textContent=`${(b.length/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:'v2 matrix+TRC display',spac:'v2 CLUT, device↔Lab both ways',scnr:'v2 CLUT, device→Lab (one-way)'}[iccK]||''}` }
 					catch(err){ idl.disabled=true; ist.textContent=String(err&&err.message||'no profile') } },0) } }
 		// defer the first bake until the block scrolls into view — same pattern as the
-		// homepage LUT pane; opening a dossier stays light until the rail is actually seen.
+		// homepage LUT pane; opening a dossier stays light until the block is actually seen.
 		// One observer per dossier: the previous one dies with its detached markup
 		detail._dexIO?.disconnect()
 		detail._dexIO=new IntersectionObserver((es,o)=>{ if(es.some(x=>x.isIntersecting)){ o.disconnect(); dex._lut?.(); dex._icc?.() } })
