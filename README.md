@@ -2,14 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/>
 
-**An open collection of color spaces.**
+**162 color spaces. Any → any.**
 
-Web, print, film, broadcast, photo, art, human vision, science, history. Conversions, metadata, references.
-
-- **Conventional ranges.** RGB is 0–255, Lab is 0–100/±125, hue is degrees, and OKLCH matches CSS — no universal 0–1 wrapper to remember.
-- **Verified formulas.** All 162 spaces have cited anchor; 29 are additionally differential-tested against colorjs.io in both directions — [methods and limits](docs/formula-verification.md).
-- **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
-- **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
+[Verified formulas](docs/formula-verification.md) · conventional ranges · zero dependencies · JS / WASM / GLSL / LUT / ICC
 
 **[Atlas →](https://color-space.io/)**
 
@@ -29,10 +24,9 @@ space.rgb.oklch([255, 128, 0,  0, 255, 128]); // [0.732, 0.186, 53,  0.875, 0.23
 space.lab.range;                     // [[0, 100], [-125, 125], [-125, 125]]
 ```
 
-Import individually:
+Individual spaces:
 
 ```js
-// single space
 import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 ```
@@ -40,14 +34,14 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 | Import | What ships |
 |---|---|
 | `color-space` | All 162 interconnected spaces · 55 kB gzip |
-| `color-space/<name>.js` | One standalone, tree-shakeable space |
+| `color-space/<name>.js` | One standalone space |
 | `color-space/lite` | 27-space working set · 9 kB gzip |
-| `color-space/wasm` | lite set WASM version; zero-import `.wasm` included. |
-| `color-space/gl` | Composed shader source GLSL/WGSL |
-| `color-space/lut` | Measured `.cube` files for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md) |
+| `color-space/wasm` | lite set as WASM · bare `.wasm` included |
+| `color-space/gl` | GLSL/WGSL shader source |
+| `color-space/lut` | `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md) |
 | `color-space/icc` | Matrix + TRC or CLUT profiles |
-| `color-space/data.json` | Metadata: channels, ranges, provenance, references, graph, gamuts |
-| `npx --yes --package color-space color-space-mcp` | Agent tools: `convert`, `space`, `spaces`, and `cube` over MCP |
+| `color-space/data.json` | Channels, ranges, provenance, references, graph, gamuts |
+| `npx --yes --package color-space color-space-mcp` | MCP agent tools: `convert` · `space` · `spaces` · `cube` |
 
 [Upgrading from v2?](docs/migration.md)
 
@@ -96,19 +90,13 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Motivation
 
-The initial goal was to have a complete collection of color spaces with minimal, consistent and clean API, verified formulas and cases. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well.
+A complete collection of color spaces: one minimal API, verified formulas, scope beyond digital — historical and cross-disciplinary spaces included. Side effects: corrected papers, color education, test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
 
-Some side effects:
-
-* Verifying and correcting papers.
-* Visualising and educating about color spaces.
-* Providing test cases for JS to WASM compilers (porffor, jz).
-
-It is not a color toolbox: parsing, interpolation, ΔE, gamut mapping, contrast, palettes, and alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
+Not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, alpha stay out. So do licensed swatch catalogs: Pantone, NCS, RAL Classic.
 
 ## Credits
 
-Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors, and the libraries that informed this one.
+Thanks to the researchers, theorists, specifiers, implementors — and the libraries that informed this one.
 
 | Library | Spaces | Ranges | Specialty | Backends | Speed |
 |---|---:|---|---|---|---:|
