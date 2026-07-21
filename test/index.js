@@ -20,7 +20,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 161, '161 spaces registered')
+	is(names.length, 162, '162 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -78,8 +78,8 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8')
 	is(lmsPage.split('<title>lms color space').length - 1, 1, 'LMS page carries its own title')
 	is(lmsPage.match(/<link rel="canonical"/g)?.length, 1, 'LMS page carries exactly one canonical')
-	is(lmsPage.includes('<link rel="canonical" href="https://colorjs.github.io/color-space/lms">'), true, 'LMS canonical points at its dossier URL')
-	is(lmsPage.includes('<meta property="og:url" content="https://colorjs.github.io/color-space/lms">'), true, 'LMS social URL points at its dossier URL')
+	is(lmsPage.includes('<link rel="canonical" href="https://color-space.io/lms">'), true, 'LMS canonical points at its dossier URL')
+	is(lmsPage.includes('<meta property="og:url" content="https://color-space.io/lms">'), true, 'LMS social URL points at its dossier URL')
 })
 
 // the catalog's display voice: names render display-final through disp() — uppercased

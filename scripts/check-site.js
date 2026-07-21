@@ -22,7 +22,7 @@ try {
 	page.on('pageerror', error => errors.push(error.message))
 	await page.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
-	assert.equal(await page.locator('.ent').count(), 161, 'catalog has all spaces')
+	assert.equal(await page.locator('.ent').count(), 162, 'catalog has all spaces')
 
 	const search = page.locator('#q')
 	await page.locator('.qx').click()
@@ -62,12 +62,13 @@ try {
 	mobile.on('pageerror', error => errors.push(`mobile: ${error.message}`))
 	await mobile.setViewportSize({ width: 390, height: 844 })
 	await mobile.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	// no folding: headings are plain titles and every row is visible by default
 	const heading = mobile.locator('.shw').first()
 	await heading.waitFor()
-	assert.equal(await heading.getAttribute('role'), 'button', 'mobile category heading is operable')
-	const before = await heading.getAttribute('aria-expanded')
-	await heading.press('Enter')
-	assert.notEqual(await heading.getAttribute('aria-expanded'), before, 'mobile category toggles from the keyboard')
+	assert.equal(await heading.getAttribute('role'), null, 'mobile category heading is a plain title (folding removed)')
+	const rowsShown = await mobile.evaluate(() =>
+		[...document.querySelectorAll('.gcol > .ent')].slice(0, 8).every(e => e.getBoundingClientRect().height > 0))
+	assert.equal(rowsShown, true, 'mobile rows are all visible without unfolding')
 	await mobile.close()
 
 	const og = await context.request.get(`${server.origin}/img/og.png?cb=${Date.now()}`)

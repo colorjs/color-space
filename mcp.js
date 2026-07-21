@@ -58,7 +58,7 @@ const TOOLS = [
 	},
 	{
 		name: 'cube',
-		description: 'Render a conversion as a .cube LUT file (Resolve, Premiere, Final Cut, OBS, ffmpeg). The header carries the measured deviation vs the direct conversion. Pure per-channel transfers auto-emit 1D. Size ≤ 33 here (larger via the library or https://colorjs.github.io/color-space/).',
+		description: 'Render a conversion as a .cube LUT file (Resolve, Premiere, Final Cut, OBS, ffmpeg). The header carries the measured deviation vs the direct conversion. Pure per-channel transfers auto-emit 1D. Size ≤ 33 here (larger via the library or https://color-space.io/).',
 		inputSchema: {
 			type: 'object',
 			properties: {

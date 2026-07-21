@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>color-space — every color space, one tiny API, verified</title>
-<meta name="description" content="An open collection of 161 color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain.">
-<link rel="canonical" href="https://colorjs.github.io/color-space/">
+<meta name="description" content="An open collection of 162 color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain.">
+<link rel="canonical" href="https://color-space.io/">
 <meta property="og:title" content="color-space — every color space, one tiny API, verified">
-<meta property="og:description" content="An open collection of 161 color spaces. Convert any space to any other with conventional ranges and independently anchored formulas.">
-<meta property="og:image" content="https://colorjs.github.io/color-space/img/og.png">
+<meta property="og:description" content="An open collection of 162 color spaces. Convert any space to any other with conventional ranges and independently anchored formulas.">
+<meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="color-space — 161 color spaces in one open collection">
-<meta property="og:url" content="https://colorjs.github.io/color-space/">
+<meta property="og:image:alt" content="color-space — 162 color spaces in one open collection">
+<meta property="og:url" content="https://color-space.io/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image:alt" content="color-space — 161 color spaces in one open collection">
+<meta name="twitter:image:alt" content="color-space — 162 color spaces in one open collection">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%23ef7a4a'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -50,7 +50,7 @@ a{ color:var(--ink) }
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
 .hueline{ position:relative; height:5px; cursor:ew-resize; touch-action:none }   /* the box IS the gradient — the sticky header's paper ends exactly at the line, no white beneath */
-.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg in oklch longer hue,oklch(.7 .18 0),oklch(.7 .18 360)) }
+.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,#ff6173,#ff6f00,#ffa900,#ffd600,#ffff00,#b8ff00,#34ff00,#00ff4d,#00fa8b,#00f7b0,#00f4cb,#00f1e1,#00eef7,#00e9ff,#00c8ff,#0096ff,#3c00ff,#c600ff,#ff00ff,#ff00ff,#ff25ed,#ff3bd5,#ff4abc,#ff569f,#ff6173) }   /* the Ostwald full-color wheel, 24 hues + wrap — space.ostwald.rgb(k/24*360, 0, 0); regenerate if the ostwald formulas change */
 .hueline::after{ content:''; position:absolute; left:0; right:0; top:-6px; bottom:-9px }   /* the forgiving hit band overhangs the header, transparent — clicks here still land on the line */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
@@ -130,7 +130,8 @@ a{ color:var(--ink) }
 	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto }
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:44px; min-width:44px; height:44px } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button{ min-height:44px } .mx{ width:44px; height:44px } .pl .pmode{ width:44px; height:44px } }
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:44px; min-width:44px; height:44px } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button{ min-height:44px } .mx{ width:44px; height:44px } .pl .pmode{ width:44px; height:44px }
+	input{ font-size:max(1em,16px) } }   /* iOS auto-zooms any focused input under 16px — 16 kills the zoom-on-focus without touching the viewport (axe: pinch zoom stays free) */
 @media(max-width:360px){ .mast #thm{ display:none } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
@@ -186,6 +187,11 @@ a{ color:var(--ink) }
 .ent.lite.pop .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
 .ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
+@media(max-width:640px){   /* phones: the sliders rise as a bottom sheet — the row stays put, nothing overlays the rows around it */
+	.cat .ent.pop .chs{ position:fixed; left:0; right:0; bottom:0; z-index:var(--z-modal); max-height:none; opacity:1; overflow:visible; margin:0; padding:var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.22) }
+	body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ display:flex }   /* compact rows: the sheet shows the sliders the row itself hides */
+	.cat .ent.lite.pop{ margin-bottom:0 }   /* no in-flow growth to cancel — the sheet is out of flow */
+}
 .grid>.ent{ padding-bottom:var(--s2) }
 .sheet>.ent.lite{ padding-top:var(--s1) }
 /* hydrated masonry: entry k -> column k%C, so each column flows independently and a
@@ -198,21 +204,15 @@ body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 .gcol>.ent.lite{ padding:var(--eg) }   /* sheet rows carry the same --eg padding all round as their sides; the focused card inherits it, so its padding reads equal on every edge and the name never shifts on open */
 .gcol>.ent:not(.lite)+.ent.lite{ margin-top:var(--s3) }   /* the first sheet row breathes below a lead */
 body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /* sliders only on column-top leads */
-/* ≤1079 (wherever the headings replace the rail) the categories fold: the heading is a chevroned
-   toggle, folded shows each column's lead with its sliders, unfolded lists every other space as a
-   compact value row — small name, numbers, no sliders */
+/* ≤1079 (wherever the headings replace the rail) every category shows whole — the heading is a
+   plain title, each column leads with its slider card and lists every other space as a compact
+   value row — small name, numbers, no sliders. No folding: everything visible by default. */
 @media(max-width:1079px){
-	.shw{ justify-content:flex-start; cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none }
+	.shw{ justify-content:flex-start }
 	.shw .c{ margin-left:.4em }
-	.shw::after{ content:''; margin-left:auto; align-self:center; width:.4em; height:.4em; border-right:2px solid var(--soft); border-bottom:2px solid var(--soft); transform:translate(-.13em,-.1em) rotate(45deg); transition:transform var(--dur-short) var(--ease-out) }   /* -.13em: a rotated square's tip overhangs its box — pull flush with the value column (DPR-2 rounding included) */
-	.sec.open .shw::after{ transform:translate(-.13em,.1em) rotate(225deg) }
 	body:not(.alls) .gcol>.ent:not(:first-child) .chs{ display:none }
-	.gcol>.ent:not(:first-child){ padding:.5rem var(--eg) .55rem; overflow:hidden; transition:max-height var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),padding var(--dur-short) var(--ease-out) }
+	.gcol>.ent:not(:first-child){ padding:.5rem var(--eg) .55rem }
 	.gcol>.ent:not(:first-child) .eh{ padding:0; row-gap:var(--s1) }
-	/* fold animates via the page's max-height pattern; visibility flips after collapse so hidden rows leave tab order */
-	body:not(.alls) .sec.open .gcol>.ent:not(:first-child),
-	body.flt:not(.alls) .gcol>.ent:not(:first-child){ max-height:4rem }   /* alls rows outgrow any sane cap — they snap instead */
-	body:not(.flt) .sec:not(.open) .gcol>.ent:not(:first-child){ max-height:0; opacity:0; padding-top:0; padding-bottom:0; visibility:hidden; transition:max-height var(--dur-short) var(--ease-out),opacity var(--dur-short) var(--ease-out),padding var(--dur-short) var(--ease-out),visibility 0s var(--dur-short) }   /* folded: lead only (search/filter unfolds) */
 	.gcol>.ent:not(.lite)+.ent.lite{ margin-top:0 }
 }
 @media(max-width:640px){ .cat .ent .eh .nm{ font-size:var(--t2) } }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
@@ -549,7 +549,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="page">
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
-	<span class="tagline tnum"><span id="n">161</span> spaces</span>
+	<span class="tagline tnum"><span id="n">162</span> spaces</span>
 	<span class="cx" title="current color — type a supported CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts supported CSS colors"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
@@ -1074,10 +1074,10 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div class="ic-lead">
-		<h2 id="introcopy-title"><span id="n2">161</span> coordinate systems.</h2>
+		<h2 id="introcopy-title"><span id="n2">162</span> coordinate systems.</h2>
 		<p>Web, print, photography, film, broadcast, art, science, and history. Each carries conventional ranges, gamut shapes, provenance, cited references, known limits, and the canonical conversion. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>. No code needed either — export a <em>.cube</em> LUT for Resolve, Premiere, Final Cut, and OBS.</p>
 		<ul class="trust" aria-label="why you can trust the data">
-			<li tabindex="0" title="All 161 spaces have an independent cited conformance anchor; 29 are additionally cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
+			<li tabindex="0" title="All 162 spaces have an independent cited conformance anchor; 29 are additionally cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
 			<li tabindex="0" title="Channel ranges follow CSS and each defining source — familiar units rather than one universal normalization."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
 			<li tabindex="0" title="CC0 1.0 — no rights reserved. Use, sell, fork or embed it anywhere; no attribution required."><span class="pdm" aria-hidden="true">©</span><span class="term">Public domain</span></li>
 		</ul>
@@ -1087,7 +1087,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 		<pre id="api-panel-core" role="tabpanel" aria-labelledby="api-tab-core" data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
-space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 161 × 160 pairs</i>
+space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 162 × 161 pairs</i>
 
 space.oklch.name    <i>// 'oklch'</i>
 space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
@@ -1124,7 +1124,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 <i>// → self-contained: vec3 oklch_rgb(vec3 c)</i>
 <i>//   paste into any fragment shader, no uniforms</i></pre>
 		<div class="export" id="api-panel-lut" role="tabpanel" aria-labelledby="api-tab-lut" data-p="lut" hidden>
-			<p class="exlede">Any pair as a <b>.cube</b> LUT — load it into Resolve, Premiere, Final Cut, OBS or ffmpeg.</p>
+			<p class="exlede">Any pair as a <b>.cube</b> LUT — load it into Resolve, Premiere, Final Cut, OBS or ffmpeg. Camera logs are <a href="https://github.com/colorjs/color-space/blob/master/docs/lut-verification.md" target="_blank" title="measured differential agreement against the Academy's official vendor transforms (ampas/aces-dev), per pair">verified against the official ACES vendor transforms</a>.</p>
 			<div class="exrow"><select id="lutfrom" aria-label="LUT source space"></select><span class="exarrow" aria-hidden="true">→</span><select id="lutto" aria-label="LUT target space"></select><span class="seg" id="lutszL"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="lut1dL" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
 			<div class="exrow"><button class="exdl" id="lutdlL" type="button">↓ .cube</button><span class="exstat tnum" id="lutstatL" aria-live="polite"></span></div>
 		</div>
@@ -1176,7 +1176,14 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // where the current colour lives.
 const hueEl=document.getElementById('hueline')
 if(hueEl){ let hdrag=null
-	const setHue=h=>{ h=((h%360)+360)%360; master={ s:'oklch', vals:[0.7,0.18,+h.toFixed(1)] }; hueEl.setAttribute('aria-valuenow',Math.round(h)); scheduleFast() }
+	// the line sweeps the Ostwald wheel, so the strip coordinate is an OSTWALD hue θ —
+	// the picked master stays the working oklch(0.7 0.18 h) at that θ's hue family
+	const OH=Array.from({length:361},(_,k)=>{ try{ return space.ostwald.oklch(k,0,0)[2] }catch{ return 0 } })
+	const ohToOk=t=>OH[Math.round(((t%360)+360)%360)]
+	const okToOh=h=>{ h=((h%360)+360)%360; let bi=0,bd=1e9
+		for(let k=0;k<361;k++){ const d=Math.min(Math.abs(OH[k]-h),360-Math.abs(OH[k]-h)); if(d<bd){ bd=d; bi=k } } return bi }
+	hueEl._okToOh=okToOh   // renderFast keeps aria-valuenow in strip coordinates
+	const setHue=t=>{ t=((t%360)+360)%360; master={ s:'oklch', vals:[0.7,0.18,+ohToOk(t).toFixed(1)] }; hueEl.setAttribute('aria-valuenow',Math.round(t)); scheduleFast() }
 	const pick=e=>{ const r=hueEl.getBoundingClientRect(); setHue(clamp((e.clientX-r.left)/r.width,0,1)*360) }
 	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hueEl.setPointerCapture(hdrag); pick(e) })
 	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId===hdrag) pick(e) })
@@ -1219,6 +1226,9 @@ const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-
 // the current color as a native CSS string — only for spaces CSS can actually express
 // (lab()/lch() are D50 like ours; predefined color() spaces are 0–1; our xyz is D65 0–100)
 const r1=x=>+x.toFixed(1)+'', r2=x=>+x.toFixed(2)+'', r3=x=>+x.toFixed(3)+''
+// camera logs whose → ACES2065-1 composite is differential-tested against the
+// Academy's official vendor transform (test/aces-vendor.js, docs/lut-verification.md)
+const ACESV=new Set(['slog3','sgamut3cine','logc3','clog2','clog3','vlog','log3g10'])
 const CSSFMT={
 	rgb:v=>`rgb(${v.map(x=>Math.round(x)).join(' ')})`,
 	hsl:v=>`hsl(${r1(v[0])} ${r1(v[1])}% ${r1(v[2])}%)`,
@@ -1495,7 +1505,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 			adopt(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() }
 		inp.addEventListener('pointerdown',e=>e.stopPropagation())
 		inp.addEventListener('click',e=>e.stopPropagation())
-		inp.addEventListener('focus',()=>{ requestAnimationFrame(()=>inp.select()); if(ent.classList.contains('lite')) showPop(ent) })   // first click takes the whole number; sheet rows also open the slider popover
+		inp.addEventListener('focus',()=>{ requestAnimationFrame(()=>inp.select()); if(ent.classList.contains('lite')||getComputedStyle(ent.querySelector('.chs')).display==='none') showPop(ent) })   // first click takes the whole number; sheet rows AND slider-hidden compact leads open the popover
 			inp.closest('.cvp')?.querySelector('.cl')?.addEventListener('pointerdown',e=>{ e.preventDefault(); inp.focus() })   // the channel letter acts like the value: focus + open the popover
 		inp.addEventListener('input',applyCv)
 		inp.addEventListener('blur',()=>renderFast())
@@ -1525,14 +1535,15 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		ch.addEventListener('pointerdown',e=>{
 			e.preventDefault(); ent.querySelectorAll('.cv')[i]?.focus()   // drag focuses this channel — its style (and the popover) persist through and after the drag
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on') }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; dragEnt=ent; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on') }
 				if(!moved) return
 				const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.style.cursor=''; cvEl?.classList.remove('on')
-				if(moved){ squelch=true; setTimeout(()=>squelch=false,0); if(open()) paintPlanes(false) } } }) }) })
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; dragEnt=null; ch.style.cursor=''; cvEl?.classList.remove('on')
+				if(moved){ squelch=true; setTimeout(()=>squelch=false,0); scheduleFast(); if(open()) paintPlanes(false) } }
+			ch.onpointercancel=ch.onpointerup }) }) })   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 
 // sheet rows show sliders only when the settings toggle says so
 const ALLS=false   // the all-sliders view was removed from the filter — default (lead-row sliders only) always applies
@@ -1601,7 +1612,6 @@ qInput.addEventListener('input',applyFilter)
 // ── masonry hydration: the prerendered .grid/.sheet rows become per-column stacks ──
 const COLQ=[matchMedia('(max-width:640px)'),matchMedia('(max-width:1359px)')]
 const colCount=()=>COLQ[0].matches?1:COLQ[1].matches?2:3   // 1080–1359: rail + two columns; three only beyond
-const FOLDQ=matchMedia('(max-width:1079px)')   // folding lives wherever the headings replace the rail
 function colize(){ const C=colCount()
 	cat.querySelectorAll('.sec').forEach(sec=>{
 		const ents=[...sec.querySelectorAll('.ent')]; if(!ents.length) return
@@ -1626,14 +1636,6 @@ function colize(){ const C=colCount()
 	try{ layoutToc(); trackAct() }catch{} }
 colize(); COLQ.forEach(q=>q.addEventListener('change',colize))
 
-// ≤1079 (headings shown) the category headings fold their sections; headings are buttons only while folding exists
-cat.addEventListener('click',e=>{ const h=e.target.closest('.shw'); if(!h||!FOLDQ.matches) return
-	const open=h.closest('.sec').classList.toggle('open'); h.setAttribute('aria-expanded',open) })
-cat.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('.shw')){ e.preventDefault(); e.target.click() } })
-const foldA11y=()=>document.querySelectorAll('.shw').forEach(h=>{
-	if(FOLDQ.matches){ h.setAttribute('role','button'); h.tabIndex=0; h.setAttribute('aria-expanded',h.closest('.sec').classList.contains('open')) }
-	else{ h.removeAttribute('role'); h.removeAttribute('tabindex'); h.removeAttribute('aria-expanded') } })
-foldA11y(); FOLDQ.addEventListener('change',foldA11y)
 
 // ── modal dossier ──
 const modal=document.getElementById('modal'), detail=document.getElementById('detail'), pageShell=document.querySelector('.page')
@@ -1688,6 +1690,7 @@ function buildBarred(b){
 	 </div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(){ modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
+	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
 	urlLast=spaceURL('')+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
@@ -1780,6 +1783,7 @@ const QTIP={ 'smooth':'continuous color fields',
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
+let dragEnt=null   // the catalog entry being dragged — motion frames repaint it alone; everything else catches up on settle
 let Q=null; try{ const v=JSON.parse(localStorage.getItem('csQ')); if(QMODES.includes(v)) Q=v }catch{}
 const saveQ=()=>{ try{ localStorage.setItem('csQ',JSON.stringify(Q)) }catch{} }
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
@@ -2966,7 +2970,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const iccLede=iccK==='mntr'?`<b>${s}</b> as an <b>.icc</b> v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management.`
 			:iccK==='spac'?`<b>${s}</b> as an <b>.icc</b> v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick.`
 			:`<b>${s}</b> as an <b>.icc</b> v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick.`
-		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp" data-x="lut" hidden><p class="exlede"><b>${s}</b> → any space as a <b>.cube</b> LUT — Resolve, Premiere, Final Cut, OBS, ffmpeg.</p>
+		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp" data-x="lut" hidden><p class="exlede"><b>${s}</b> → any space as a <b>.cube</b> LUT — Resolve, Premiere, Final Cut, OBS, ffmpeg.${ACESV.has(s)?` <a href="https://github.com/colorjs/color-space/blob/master/docs/lut-verification.md" target="_blank" title="measured differential agreement against the Academy's official vendor transform for ${s} (ampas/aces-dev)">Verified against the official ACES transform</a>.`:''}</p>
 			<div class="exrow"><span class="exarrow">${s} →</span><select id="dlto" aria-label="LUT target space"></select><span class="seg" id="dlsz"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
 			<div class="exrow"><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
 			+(iccK?`<div class="dexp" data-x="icc" hidden><p class="exlede">${iccLede}</p>
@@ -3372,6 +3376,7 @@ function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
+		if(sweep&&dragEnt&&ent!==dragEnt) return   // motion frames: only the dragged row repaints — the rest catch up on settle
 		// stamp-skip: values + ticks depend only on the color (and, for sheet rows, on
 		// whether the popover shows ticks — the ':l' tier). A focused entry always
 		// repaints — its input is deliberately left untouched while being edited
@@ -3379,7 +3384,7 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 		const stamp=full?hx:hx+':l'
 		if(ent.dataset.v===stamp&&!ent.contains(document.activeElement)) return
 		const vals=valsFor(s), cls=classify(s)
-		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp) inp.value=vals?fmtc(vals[i],cls.ch[i]):''
+		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp||ent===dragEnt) inp.value=vals?fmtc(vals[i],cls.ch[i]):''   // a drag is not typing — the focused channel tracks its slider live
 			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends
 			if(stk&&stk.classList.contains('stk')){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
 		ent.dataset.v=stamp
@@ -3389,13 +3394,13 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1); tk.style.left=(f*100)+'%' }
 			tk.style.background=hx; tk.style.borderColor=ink0 }) }) }
 function renderFast(){ const rgb=RGB(), hx=hex(rgb)
-	if(hueEl){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl.setAttribute('aria-valuenow',Math.round(h)) }catch{} }
+	if(hueEl){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl.setAttribute('aria-valuenow',hueEl._okToOh?hueEl._okToOh(h):Math.round(h)) }catch{} }
 	// the color's public face: masthead diamond + value, favicon, url
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=hx
 	syncFav(hx); syncURL(hx)
 	if(gpillEl){ const g=gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GPILL[g]; gpillEl.dataset.g=g } }
-	paintCatalogVals()   // all vis entries — the color changed
+	if(!open()) paintCatalogVals()   // all vis entries — the color changed; behind an open dossier the catalog waits (closeModal repaints)
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const shown=vals
@@ -3578,8 +3583,8 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 }
 let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
-	renderFast(); if(!open()||!dragging) paintCatalogGrad(null,true)   // motion frames blit near-screen strips live on the GPU…
-	clearTimeout(settleT); settleT=setTimeout(()=>paintCatalogGrad(),140)   // …then one settle sweep bakes the PNGs and arms the idle walk for the offscreen rest
+	renderFast(); if(!open()&&(!dragEnt||!dragging)) paintCatalogGrad(dragEnt?[dragEnt]:null,true)   // motion frames blit near-screen strips live — during a catalog drag, only the dragged row's
+	clearTimeout(settleT); settleT=setTimeout(()=>{ paintCatalogGrad(); paintCatalogVals() },140)   // …then one settle sweep bakes the PNGs, catches every skipped row up and arms the idle walk for the offscreen rest
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
 	// drag res, so even munsell's neighbours follow the pointer
@@ -3647,9 +3652,10 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 		if(iccBtn) iccBtn.addEventListener('click',probe,{once:true}); else probe() }
 })()
 
-// ── the coloroid sweep (hue A across, luminosity descending) — the footer wall AND the
-// hero stage share it. The footer glides its band count continuously with scroll. ──
-const coloroidCol=f=>hex(rgbF('coloroid',[10+66*f, 55, 92-80*f]))
+// ── the ostwald sweep (the full hue wheel across, white content fading as black
+// content rises — light into deep) — the footer wall AND the hero stage share it.
+// The footer glides its band count continuously with scroll. ──
+const coloroidCol=f=>hex(rgbF('ostwald',[f*360, 45*(1-f), 55*f]))
 // precompute the sweep once so rebuilding an N-band gradient is just N lookups + a join
 const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math.round(clamp(f,0,1)*768)]
 const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))

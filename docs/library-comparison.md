@@ -9,7 +9,7 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
 | **Version compared** | 3.x | 4.x | 0.6.x | 3.x | 0.x |
-| **Color spaces** | **161** | ~35 | ~40 | ~15 | ~16 |
+| **Color spaces** | **162** | ~35 | ~40 | ~15 | ~16 |
 | **API value ranges** | Conventional per space | Mixed; RGB normalized | Mixed; RGB normalized | Mixed / CSS strings | Mostly normalized |
 | **CSS string parsing** | No | Yes | Yes | Yes | No |
 | **Color mixing / interpolation** | No | Yes | Yes | Yes | No |
@@ -23,7 +23,7 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | **Bundle (full, min+gz)** | ~55 kB¹ | ~22 kB | ~25 kB | ~16 kB | ~12 kB |
 | **Batch / typed-array API** | Yes (JS + WASM) | No | No | No | Yes (WebGL/GPU) |
 
-Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 161 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle.
+Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 162 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle.
 
 ---
 

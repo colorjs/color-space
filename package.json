@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Open collection of 161 independently anchored color-space conversions",
+  "description": "Open collection of 162 independently anchored color-space conversions",
   "version": "3.0.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
@@ -35,7 +35,7 @@
     "cinema"
   ],
   "repository": "colorjs/color-space",
-  "homepage": "https://colorjs.github.io/color-space/",
+  "homepage": "https://color-space.io/",
   "bugs": "https://github.com/colorjs/color-space/issues",
   "funding": "https://github.com/sponsors/dy",
   "license": "CC0-1.0",
@@ -219,7 +219,7 @@
     "wgsl_reflect": "^1.5.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
+    "test": "node test && node test/cie.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
     "test:types": "tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck false test/types/smoke.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck false test/types/smoke.ts",
     "test:package": "node scripts/test-package.js",
     "test:gpu": "node scripts/check-gl-gpu.js",
@@ -230,6 +230,7 @@
     "data": "node scripts/generate-data.js",
     "landing": "node scripts/build-site.js",
     "banner": "node scripts/generate-banner.js",
+    "og": "node scripts/generate-og.js",
     "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
     "prepare": "npm run types && npm run data && npm run build:wasm && npm run build",

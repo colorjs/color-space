@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 // the one deployment-coupled constant: canonical/sitemap URLs must be absolute.
 // If v3 publishes under a different base (e.g. …/color-space/docs), change it here.
-const SITE = 'https://colorjs.github.io/color-space'
+const SITE = 'https://color-space.io'
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 export function build(out = join(root, '_site')) {
@@ -67,7 +67,7 @@ LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.r
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
 MCP: npx --yes --package color-space color-space-mcp — zero-dep stdio server; tools: convert / space / spaces / cube, so agents call the library instead of guessing color math
-Site: https://colorjs.github.io/color-space/
+Site: https://color-space.io/
 Repo: https://github.com/colorjs/color-space
 
 ${sections.map(c => `## ${c.name}\n${c.spaces.map(line).join('\n')}`).join('\n\n')}
@@ -80,6 +80,7 @@ writeFileSync(join(out, 'sitemap.xml'),
 	[`${SITE}/`, ...SPACES.map((s) => `${SITE}/${s}`)].map((u) => `<url><loc>${u}</loc></url>`).join('\n') +
 	`\n</urlset>\n`)
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`)
+writeFileSync(join(out, 'CNAME'), SITE.replace(/^https?:\/\//, '') + '\n')   // gh-pages custom domain — must ship in every deploy artifact or the domain detaches
 
 console.log(`site content: prerendered catalog · sitemap + robots + llms · v${version} → ${out}`)
 }
