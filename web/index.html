@@ -249,14 +249,17 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column }
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none }
-/* the marker stays its size — attention is a steady outline pair hugging the marker's border:
-   a ring in the marker's own ink, its thicker inverse twin directly outside, so the pair
-   reads on any field — under the pointer or while its channel drives */
+.ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
+/* attention: the marker grows a step and wears a steady outline pair hugging its border —
+   a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
+   on any field; mid-drag the twin drops, leaving the marker and its ink ring alone */
 .ch .tk::after,.bar2 .dk::after,.ch .tk::before,.bar2 .dk::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
-.ch .tk::before,.bar2 .dk::before{ inset:-3.2px; border-width:2px; filter:invert(1) }
+.ch .tk::before,.bar2 .dk::before{ inset:-2.4px; filter:invert(1) }
+.ch:hover .tk,.ch.live .tk,.bar2:hover .dk,.bar2.live .dk{ width:10px; height:10px }
 .ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,
 .ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ opacity:1 }
+.ch.drag .tk::before,.bar2.drag .dk::before{ opacity:0 }   /* dragging: the twin drops */
+.chs:hover .ch.live:not(:hover) .tk,.pick:hover .bar2.live:not(:hover) .dk{ width:8px; height:8px }
 .chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
 .chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
@@ -362,7 +365,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
-.bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }   /* the picker rides above the label and number — the catalog's 8px rhombus; its blink lives with .tk's */
+.bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the picker rides above the label and number — the catalog's 8px rhombus; its outline pair lives with .tk's */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
@@ -1571,12 +1574,12 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 			const jump=ev=>{ const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
 				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
+			ch.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
 			adopt(); dragEnt=ent; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; dragEnt=ent; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on'); ch.classList.add('live') }
-				if(!moved) return
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; cvEl?.classList.add('on'); ch.classList.add('live','drag') }
 				jump(ev) }
 			ch.onpointermove=move
-			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
+			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live','drag')
 				squelch=true; setTimeout(()=>squelch=false,0)
 				renderFast(); dragEnt=null   // settle BEFORE releasing dragEnt — the focused input must adopt the press (the scheduled frame would arrive after the release)
 				scheduleFast(); if(open()) paintPlanes(false) }
@@ -3096,11 +3099,11 @@ function wireBar(el,s){
 		else master.vals[i]=c.min+(c.max-c.min)*f
 		scheduleFast() }
 	if(!adopt()) return
+	el.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
 	dragBar=el; apply(e)   // the press itself picks — dragBar from the down, so a focused input tracks the click too (a press is not typing)
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; dragBar=el; el.style.cursor='none'; el.setPointerCapture(e.pointerId); bchEl()?.classList.add('on'); el.classList.add('live') }
-		if(!moved) return
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live','drag') }
 		apply(ev) }
-	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
+	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live','drag')
 		renderFast(); dragBar=null; el._cellF=null   // settle BEFORE releasing dragBar — the focused input must adopt the press (the scheduled frame would arrive after the release)
 		paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
