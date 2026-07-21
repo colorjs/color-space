@@ -283,7 +283,9 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
 .dh{ position:relative; display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s6); padding-right:var(--s12) }
-.mnavbar.mfoot{ flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--s2) var(--s6) }   /* prev group at the left, next group at the right — the chevrons ride the modal's sides */
+.mnavbar.mfoot{ justify-content:space-between; align-items:center; gap:var(--s6) }   /* prev group at the left, next group at the right — the chevrons ride the modal's sides; one line always — long names trim, never wrap */
+.mfoot .ngrp,.mfoot .mnav,.mfoot .mstack{ min-width:0 }   /* let the name shrink — every flex level must yield for the ellipsis to fire */
+.mfoot .mn{ overflow:hidden; text-overflow:ellipsis }
 .ngrp{ display:flex; align-items:center; gap:clamp(var(--s2),2vw,var(--s6)) }   /* every item is single-line now (the category floats above), so centring lines up all the space names — prev and next alike */
 .mstack{ position:relative; display:inline-flex; align-items:center }   /* holds the space name; the category floats above it out of flow, so every nav item baselines on the space name (prev and next alike) */
 .mcat .catn{ position:absolute; bottom:100%; margin-bottom:.05em; font-style:normal; font-size:var(--t0); font-weight:400; letter-spacing:0; text-transform:none; color:var(--soft); white-space:nowrap }   /* the section: small, plain, mixed-case, above the space name */
@@ -335,7 +337,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
-@media(max-width:640px){ .bigch{ gap:var(--s2) var(--s3) } .chead{ gap:var(--s2) var(--s3) }
+@media(max-width:640px){ .chead .dctl{ display:none }   /* phones: no quantize/gamut selects */
 .dhero{ display:block }   /* the overview flows — the plates float inside the features */
 	.dhero>.dviz2{ float:right; width:min(48%,15rem); margin:0 0 var(--s2) var(--s4) }
 	.dhero::after{ content:''; display:block; clear:both } }
@@ -360,8 +362,10 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	.dpick .pl3d{ max-width:20rem; margin-inline:auto } }
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
-.chead{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }
-.bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }   /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
+.chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
+.bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }
+@media(max-width:640px){ .bigch{ gap:var(--s2)!important; } }   /* phones: the tight channel row */
+/* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
@@ -480,8 +484,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 /* glossary terms: a soft question mark that explains the jargon in place */
 .term{ cursor:help }   /* a defined term — the help cursor is the only cue; no glyph */
-.imgrow{ display:flex; gap:var(--s2); flex-wrap:wrap }
-.imgrow .imgp{ position:relative; flex:1 1 10.5rem; min-width:8rem; max-width:18.6rem }
+.imgrow{ display:flex; gap:var(--s2) }   /* one row, always — source + channel panels share it, shrinking together (same rule as .planes) */
+.imgrow .imgp{ position:relative; flex:1 1 0; min-width:0 }
+@media(max-width:640px){ .imgrow{ flex-wrap:wrap } .imgrow .imgp{ flex:1 1 calc(50% - var(--s2)) } }   /* phones: two per row */
 /* only the source panel cycles presets — the cursor IS the hint */
 .imgrow .imgp:first-child{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='white' stroke-width='5'/><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='%231b1408' stroke-width='2.2'/></g></svg>") 11 11, pointer }
 .imgrow canvas{ display:block; width:100%; height:auto }
