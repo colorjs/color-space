@@ -4,7 +4,12 @@
 
 **An open collection of color spaces.**
 
-Web, print, film, broadcast, photo, art, human vision, science, history. Conversions, metadata, provenance, references.
+Web, print, film, broadcast, photo, art, human vision, science, history. Conversions, metadata, references.
+
+- **Conventional ranges.** RGB is 0–255, Lab is 0–100/±125, hue is degrees, and OKLCH matches CSS — no universal 0–1 wrapper to remember.
+- **Verified formulas.** All 162 spaces have cited anchor; 29 are additionally differential-tested against colorjs.io in both directions — [methods and limits](docs/formula-verification.md).
+- **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
+- **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
 
 **[Atlas →](https://color-space.io/)**
 
@@ -91,29 +96,19 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Motivation
 
-The purpose is to have a complete collection of color spaces with minimal, consistent and clean API, verified formulas and cases. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well.
+The initial goal was to have a complete collection of color spaces with minimal, consistent and clean API, verified formulas and cases. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well.
 
 Some side effects:
 
-Verifying and correcting papers.
-Visualising and educating about color spaces.
-Providing test cases for JS to WASM compilers (porffor, jz).
+* Verifying and correcting papers.
+* Visualising and educating about color spaces.
+* Providing test cases for JS to WASM compilers (porffor, jz).
 
-
-Color spaces are scattered across standards, papers, industries, and decades. This collection keeps the formulas, conventional ranges, provenance, and references together, behind one minimal API.
-
-- **Conventional ranges.** RGB is 0–255, Lab is 0–100/±125, hue is degrees, and OKLCH matches CSS — no universal 0–1 wrapper to remember.
-- **Verified formulas.** All 162 spaces have cited anchor; 29 are additionally differential-tested against colorjs.io in both directions — [methods and limits](docs/formula-verification.md).
-- **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
-- **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
-
-It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, and alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
+It is not a color toolbox: parsing, interpolation, ΔE, gamut mapping, contrast, palettes, and alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
 
 ## Credits
 
 Thanks to everyone who contributes to color science — researchers, theorists, specifiers, implementors, and the libraries that informed this one.
-
-## Alternatives
 
 | Library | Spaces | Ranges | Specialty | Backends | Speed |
 |---|---:|---|---|---|---:|
