@@ -22,7 +22,6 @@
  * @referred display
  * @dynamic sdr
  */
-import xyz from './xyz.js';
 import lab from './lab.js';
 import { cartToPolar, polarToCart } from '../util.js';
 
@@ -32,10 +31,6 @@ var lchab = {
 	name: 'lchab',
 	range: [[0, 100], [0, 150], [0, 360]],
 
-	xyz: function (l, c, h) {
-		return lab.xyz(...lchab.lab(l, c, h));
-	},
-
 	// L,C,H -> L,a,b (C: 0-150, H: 0-360 -> a,b: -125 to 125)
 	lab: (l, c, h) => polarToCart(l, c, h)
 };
@@ -43,10 +38,5 @@ var lchab = {
 
 //extend lab: L,a,b -> L,C,H
 lab.lchab = (l, a, b) => cartToPolar(l, a, b);
-
-xyz.lchab = function (x, y, z) {
-	return lab.lchab(...xyz.lab(x, y, z));
-};
-
 
 export default (lchab);

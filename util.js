@@ -20,6 +20,19 @@ export const mat3 = (m, x, y, z) => [
  * @param {number[]} m row-major 9-element matrix
  * @returns {number[]} row-major inverse
  */
+/**
+ * Product of two 3×3 row-major matrices — A·B applies B first, then A.
+ * Lets a space pre-combine a fixed pipeline of linear steps into one matrix.
+ * @param {number[]} A row-major 3×3
+ * @param {number[]} B row-major 3×3
+ * @returns {number[]} row-major 3×3
+ */
+export const mul3 = (A, B) => [
+	A[0] * B[0] + A[1] * B[3] + A[2] * B[6], A[0] * B[1] + A[1] * B[4] + A[2] * B[7], A[0] * B[2] + A[1] * B[5] + A[2] * B[8],
+	A[3] * B[0] + A[4] * B[3] + A[5] * B[6], A[3] * B[1] + A[4] * B[4] + A[5] * B[7], A[3] * B[2] + A[4] * B[5] + A[5] * B[8],
+	A[6] * B[0] + A[7] * B[3] + A[8] * B[6], A[6] * B[1] + A[7] * B[4] + A[8] * B[7], A[6] * B[2] + A[7] * B[5] + A[8] * B[8],
+];
+
 export const inv3 = (m) => {
 	const [a, b, c, d, e, f, g, h, i] = m;
 	const A = e * i - f * h, B = f * g - d * i, C = d * h - e * g;
