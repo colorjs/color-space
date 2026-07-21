@@ -437,7 +437,7 @@ oklab.okhsl = function (l, a, b) {
 	return [h * 360, s * 100, l_ * 100];
 };
 
-okhsl.rgb = (...args) => oklab.rgb(...okhsl.oklab(...args));
-rgb.okhsl = (...args) => oklab.okhsl(...rgb.oklab(...args));
+okhsl.rgb = (h, s, l) => { const v = okhsl.oklab(h, s, l); return oklab.rgb(v[0], v[1], v[2]) };
+rgb.okhsl = (r, g, b) => { const v = rgb.oklab(r, g, b); return oklab.okhsl(v[0], v[1], v[2]) };
 
 export default okhsl;

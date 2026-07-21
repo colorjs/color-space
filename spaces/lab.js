@@ -39,15 +39,18 @@ lab.xyz = (l, a, b) => {
 	const fx = a / 500 + fy;
 	const fz = fy - b / 200;
 	// Lab is D50-relative -> XYZ D50 (0-1) -> adapt to D65 -> 0-100 convention
-	return mat3(bradford.D50_D65, labFInv(fx) * whiteD50[0], labFInv(fy) * whiteD50[1], labFInv(fz) * whiteD50[2]).map(v => v * 100);
+	// (scaled in place: one allocation, bit-identical to a .map(v => v * 100) pass)
+	const v = mat3(bradford.D50_D65, labFInv(fx) * whiteD50[0], labFInv(fy) * whiteD50[1], labFInv(fz) * whiteD50[2]);
+	v[0] *= 100; v[1] *= 100; v[2] *= 100;
+	return v;
 };
 
 xyz.lab = (x, y, z) => {
 	// XYZ D65 (0-100) -> D50 (0-1) -> Lab
-	const [x50, y50, z50] = mat3(bradford.D65_D50, x / 100, y / 100, z / 100);
-	const fx = labF(x50 / whiteD50[0]);
-	const fy = labF(y50 / whiteD50[1]);
-	const fz = labF(z50 / whiteD50[2]);
+	const v = mat3(bradford.D65_D50, x / 100, y / 100, z / 100);
+	const fx = labF(v[0] / whiteD50[0]);
+	const fy = labF(v[1] / whiteD50[1]);
+	const fz = labF(v[2] / whiteD50[2]);
 	return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 };
 

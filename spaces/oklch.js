@@ -32,7 +32,7 @@ oklch.oklab = (l, c, h) => polarToCart(l, c, h);
 // L,a,b -> L,C,H (achromatic hue -> 0)
 oklab.oklch = (l, a, b) => cartToPolar(l, a, b);
 
-oklch.rgb = (...args) => oklab.rgb(...oklch.oklab(...args));
-rgb.oklch = (...args) => oklab.oklch(...rgb.oklab(...args));
+oklch.rgb = (l, c, h) => { const v = oklch.oklab(l, c, h); return oklab.rgb(v[0], v[1], v[2]) };
+rgb.oklch = (r, g, b) => { const v = rgb.oklab(r, g, b); return oklab.oklch(v[0], v[1], v[2]) };
 
 export default oklch;

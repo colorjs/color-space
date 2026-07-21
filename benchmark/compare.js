@@ -534,6 +534,31 @@ async function runBenchmarks() {
 		printResults(test.name, results);
 	}
 
+	// ── batch: one call over 1M interleaved pixels — the image/video workload.
+	// Each library runs its own best idiom: color-space's batch API and WASM kernel,
+	// the others a tight per-pixel loop over their scalar face (none ship a batch API).
+	{
+		const PX = 1e6
+		const src = new Float64Array(PX * 3)
+		for (let i = 0; i < src.length; i++) src[i] = (i * 2654435761 % 256)
+		const wasm = await import('../wasm.js').catch(() => null)
+		const rows = []
+		const bb = (library, fn, arg = src) => { fn(arg)   // warm + JIT
+			const R = 3, t0 = performance.now()
+			for (let i = 0; i < R; i++) fn(arg)
+			const ms = (performance.now() - t0) / R
+			rows.push({ library, opsPerSec: PX / ms * 1000, perOp: ms * 1000 / PX }) }
+		bb('color-space (JS)', b => space.rgb.oklab(b))
+		if (wasm) { const buf = wasm.alloc(PX * 3); buf.set(src); bb('color-space (WASM)', b => wasm.default.rgb.oklab(b), buf) }
+		if (culori) bb('culori', b => { const c = { mode: 'rgb', r: 0, g: 0, b: 0 }, out = new Float64Array(PX * 3)
+			for (let i = 0, k = 0; i < PX; i++, k += 3) { c.r = b[k] / 255; c.g = b[k + 1] / 255; c.b = b[k + 2] / 255
+				const o = culori.oklab(c); out[k] = o.l; out[k + 1] = o.a; out[k + 2] = o.b } })
+		if (texel) bb('@texel/color', b => { const v = [0, 0, 0], out = new Float64Array(PX * 3)
+			for (let i = 0, k = 0; i < PX; i++, k += 3) { v[0] = b[k] / 255; v[1] = b[k + 1] / 255; v[2] = b[k + 2] / 255
+				texel.convert(v, texel.sRGB, texel.OKLab, v); out[k] = v[0]; out[k + 1] = v[1]; out[k + 2] = v[2] } })
+		printResults('Batch RGB → Oklab (1M px, M px/s)', rows)
+	}
+
 	console.log('\n' + '='.repeat(80));
 	console.log('Benchmark complete!');
 	console.log('='.repeat(80));

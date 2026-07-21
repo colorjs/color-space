@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/>
 
-**An open collection of 162 color spaces.**
+**An open collection of color spaces.**
 
 Web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small, consistent API. 
 
@@ -109,16 +109,18 @@ Thanks to everyone who contributes to color science — researchers, theorists, 
 
 | Library | Spaces | Ranges | Specialty¹ | Backends | Speed² |
 |---|---:|---|---|---|---:|
-| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **29.5** |
-| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 15.6 |
+| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **29.3** |
+| color-space/wasm | 27 | Conventional | — | WASM | 33.0 ⁴ |
+| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.5 |
 | [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
-| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 16.0 |
-| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.5 |
-| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 35.0 |
+| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 16.2 ³ |
+| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.5 ³ |
+| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 34.6 ³ |
 
 <sup>¹ See the factual [library comparison](docs/library-comparison.md)</sup>
 <sup>² geometric mean, million scalar calls per second over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), Node 25 / Apple silicon; unsupported operations are omitted rather than timed as no-ops</sup>
-<sup>³ measured only on the subset it implements — texel 3 (oklab, p3), chroma-js 6, d3-color 4 (lab, hsl; on those four color-space geomeans 36.3)</sup>
+<sup>³ measured only on the subset it implements — texel 3 (oklab, p3), chroma-js 6, d3-color 4 (lab, hsl — on those four color-space geomeans 33.6)</sup>
+<sup>⁴ batch throughput, million pixels per second: one call over a 1M-pixel interleaved buffer (rgb → oklab); same workload per-pixel-looped — color-space JS 18.6, texel 16.4, culori 12.6</sup>
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>

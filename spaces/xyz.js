@@ -65,15 +65,12 @@ export const M_LRGB_INV = inv3(M_LRGB); // XYZ(0..1) -> linear sRGB (reused by h
 // XYZ (0-100) to linear RGB (0-1)
 xyz.lrgb = (x, y, z) => mat3(M_LRGB_INV, x / 100, y / 100, z / 100);
 
-// Linear RGB (0-1) to XYZ (0-100)
-lrgb.xyz = (r, g, b) => {
-	const [x, y, z] = mat3(M_LRGB, r, g, b);
-	return [x * 100, y * 100, z * 100];
-}
+// Linear RGB (0-1) to XYZ (0-100) — scale in place: one allocation, bit-identical to ×100 after
+lrgb.xyz = (r, g, b) => { const v = mat3(M_LRGB, r, g, b); v[0] *= 100; v[1] *= 100; v[2] *= 100; return v }
 
-// RGB (0-255) to XYZ (0-100)
-rgb.xyz = (r, g, b) => lrgb.xyz(...rgb.lrgb(r, g, b))
+// RGB (0-255) to XYZ (0-100) — indexed hand-off, never spread (it costs more than the math)
+rgb.xyz = (r, g, b) => { const v = rgb.lrgb(r, g, b); return lrgb.xyz(v[0], v[1], v[2]) }
 // XYZ (0-100) to RGB (0-255)
-xyz.rgb = (x, y, z) => lrgb.rgb(...xyz.lrgb(x, y, z))
+xyz.rgb = (x, y, z) => { const v = xyz.lrgb(x, y, z); return lrgb.rgb(v[0], v[1], v[2]) }
 
 export default xyz;
