@@ -4,7 +4,7 @@
 
 **An open collection of 162 color spaces.**
 
-Web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small, consistent API and conventional ranges. Every space carries provenance and an independent conformance anchor; metadata and references included.
+Web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small, consistent API. 
 
 **[Interactive atlas →](https://color-space.io/)**
 
@@ -89,16 +89,14 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 [Upgrading from v2?](docs/migration.md)
 
-## Why color-space?
-
-- **Conventional ranges.** RGB is 0–255, Lab is 0–100/±125, hue is degrees, and OKLCH matches CSS — no universal 0–1 wrapper to remember.
-- **Verified formulas.** All 162 spaces have an independent cited anchor; 29 are additionally differential-tested against colorjs.io in both directions — [methods and limits](docs/formula-verification.md).
-- **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
-- **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
-
 ## Motivation
 
 Color spaces are scattered across standards, papers, industries, and decades. This collection keeps the formulas, conventional ranges, provenance, and references together, behind one minimal API.
+
+- **Conventional ranges.** RGB is 0–255, Lab is 0–100/±125, hue is degrees, and OKLCH matches CSS — no universal 0–1 wrapper to remember.
+- **Verified formulas.** All 162 spaces have cited anchor; 29 are additionally differential-tested against colorjs.io in both directions — [methods and limits](docs/formula-verification.md).
+- **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
+- **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
 
 It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, and alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
 
@@ -114,11 +112,13 @@ Thanks to everyone who contributes to color science — researchers, theorists, 
 | **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **29.5** |
 | [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 15.6 |
 | [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
-| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 16.0 ³ |
-| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.5 ³ |
-| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 35.0 ³ |
+| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 16.0 |
+| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.5 |
+| [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 35.0 |
 
-<sup>¹ See the factual [library comparison](docs/library-comparison.md) · ² geometric mean, million scalar calls per second over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), Node 25 / Apple silicon; unsupported operations are omitted rather than timed as no-ops · ³ measured only on the subset it implements — texel 3 (oklab, p3), chroma-js 6, d3-color 4 (lab, hsl; on those four color-space geomeans 36.3)</sup>
+<sup>¹ See the factual [library comparison](docs/library-comparison.md)</sup>
+<sup>² geometric mean, million scalar calls per second over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), Node 25 / Apple silicon; unsupported operations are omitted rather than timed as no-ops</sup>
+<sup>³ measured only on the subset it implements — texel 3 (oklab, p3), chroma-js 6, d3-color 4 (lab, hsl; on those four color-space geomeans 36.3)</sup>
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
