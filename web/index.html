@@ -253,11 +253,11 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 /* attention: the marker grows a step and wears a steady outline pair hugging its border —
    a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
    on any field — under the pointer, while its channel drives, and through the drag */
-.ch .tk::after,.bar2 .dk::after,.ch .tk::before,.bar2 .dk::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
-.ch .tk::before,.bar2 .dk::before{ inset:-2.4px; filter:invert(1) }
-.ch:hover .tk,.ch.live .tk,.bar2:hover .dk,.bar2.live .dk{ width:10px; height:10px }
-.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,
-.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before{ opacity:1 }
+.ch .tk::after,.bar2 .dk::after,.pl .cx::after,.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
+.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ inset:-2.4px; filter:invert(1) }
+.ch:hover .tk,.ch.live .tk,.bar2:hover .dk,.bar2.live .dk,.pl:hover .cx,.pl.live .cx{ width:10px; height:10px }
+.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,.pl:hover .cx::after,.pl.live .cx::after,
+.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before,.pl:hover .cx::before,.pl.live .cx::before{ opacity:1 }
 .chs:hover .ch.live:not(:hover) .tk,.pick:hover .bar2.live:not(:hover) .dk{ width:8px; height:8px }
 .chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
 .chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
@@ -405,7 +405,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
-.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }   /* same rhombus as the sliders — rides above the axis labels */
+.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* same rhombus as the sliders — rides above the axis labels; wears the sliders' attention pair (see .tk) */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -3146,8 +3146,8 @@ function wirePlane(pl){
 		plFreeze=pl   // the active plane's bitmap depends only on held channels — never repaint it mid-drag
 		scheduleFast() }
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
-	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; set(e); pl.onpointermove=set })
-	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; pl.style.cursor=''; plFreeze=null; paintPlanes(false); paintCatalogGrad() })
+	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
+	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null; paintPlanes(false); paintCatalogGrad() })
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar){ if(e.ctrlKey) e.preventDefault(); return }   // the disc has no pan/zoom window — but pinch must not zoom the PAGE
 		const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
