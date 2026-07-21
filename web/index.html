@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>color-space — every color space, one tiny API, verified</title>
-<meta name="description" content="An open collection of 162 color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain.">
+<meta name="description" content="An open collection of color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain.">
 <link rel="canonical" href="https://color-space.io/">
 <meta property="og:title" content="color-space — every color space, one tiny API, verified">
-<meta property="og:description" content="An open collection of 162 color spaces. Convert any space to any other with conventional ranges and independently anchored formulas.">
+<meta property="og:description" content="An open collection of color spaces. Convert any space to any other with conventional ranges and independently anchored formulas.">
 <meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="color-space — 162 color spaces in one open collection">
+<meta property="og:image:alt" content="color-space — color spaces in one open collection">
 <meta property="og:url" content="https://color-space.io/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image:alt" content="color-space — 162 color spaces in one open collection">
+<meta name="twitter:image:alt" content="color-space — color spaces in one open collection">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%23ef7a4a'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -176,6 +176,7 @@ a{ color:var(--ink) }
 @media(max-width:640px){ .grid,.sheet{ grid-template-columns:1fr }
 	body:not(.alls) .grid>.ent:nth-child(n+2) .chs{ display:none } }
 @media(min-width:641px) and (max-width:1079px){
+	.cat .ent .eh .nm{ font-size:var(--t3) }   /* two columns carry smaller names than the desktop leads */
 	.ent .eh{ column-gap:var(--s2) }
 	.cvs{ gap:var(--s2) }
 	.cv{ width:4.1rem }
@@ -187,8 +188,8 @@ a{ color:var(--ink) }
 .ent.lite.pop .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
 .ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
-@media(max-width:640px){   /* phones: the sliders rise as a bottom sheet — the row stays put, nothing overlays the rows around it */
-	.cat .ent.pop .chs{ position:fixed; left:0; right:0; bottom:0; z-index:var(--z-modal); max-height:none; opacity:1; overflow:visible; margin:0; padding:var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.22) }
+@media(max-width:1079px){   /* phones + tablets: the sliders rise as a bottom sheet — the row stays put, nothing overlays the rows around it; --kbd lifts it above the software keyboard */
+	.cat .ent.pop .chs{ position:fixed; left:0; right:0; bottom:var(--kbd,0px); z-index:var(--z-modal); max-height:none; opacity:1; overflow:visible; margin:0; padding:var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.22) }
 	body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ display:flex }   /* compact rows: the sheet shows the sliders the row itself hides */
 	.cat .ent.lite.pop{ margin-bottom:0 }   /* no in-flow growth to cancel — the sheet is out of flow */
 }
@@ -211,7 +212,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 	.shw{ justify-content:flex-start }
 	.shw .c{ margin-left:.4em }
 	body:not(.alls) .gcol>.ent:not(:first-child) .chs{ display:none }
-	.gcol>.ent:not(:first-child){ padding:.5rem var(--eg) .55rem }
+	.gcol>.ent:not(:first-child){ padding:var(--s1) var(--eg) var(--s2) }
 	.gcol>.ent:not(:first-child) .eh{ padding:0; row-gap:var(--s1) }
 	.gcol>.ent:not(.lite)+.ent.lite{ margin-top:0 }
 }
@@ -1492,6 +1493,9 @@ let squelch=false
 // focus a sheet row's channel → a gentle slider popover for that space, edited like a lead card, no full modal
 let popEnt=null
 const hidePop=()=>{ popEnt?.classList.remove('pop'); popEnt=null }
+// software keyboard: visualViewport shrinks while the layout viewport doesn't — publish the
+// inset so the slider sheet rides above it
+visualViewport?.addEventListener('resize',()=>document.documentElement.style.setProperty('--kbd',Math.max(0,innerHeight-visualViewport.height-visualViewport.offsetTop)+'px'))
 const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop'); paintCatalogGrad([ent]); paintCatalogVals([ent]) }
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
 cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
@@ -1533,7 +1537,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		ch.addEventListener('pointerenter',()=>cvEl?.classList.add('on'))   // the slider points at its number
 		ch.addEventListener('pointerleave',()=>cvEl?.classList.remove('on'))
 		ch.addEventListener('pointerdown',e=>{
-			e.preventDefault(); ent.querySelectorAll('.cv')[i]?.focus()   // drag focuses this channel — its style (and the popover) persist through and after the drag
+			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
 			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ adopt(); moved=true; dragEnt=ent; ch.style.cursor='none'; ch.setPointerCapture(e.pointerId); cvEl?.classList.add('on') }
 				if(!moved) return
