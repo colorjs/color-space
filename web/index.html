@@ -376,7 +376,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }
-@media(max-width:640px){ .bigch{ gap:var(--s2)!important; } }   /* phones: the tight channel row */
+@media(max-width:640px){ .bigch{ flex-wrap:wrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills stay one line — the group drops whole instead of stacking */
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
@@ -2922,9 +2922,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
-				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
-				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
-				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+				<div><i>sources</i><p>${[
+					`<a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a>`,
+					VERIFIED.has(s)&&`<a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a>`,
+					...[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`)
+				].filter(Boolean).join(', ')}</p></div>
 			</div>
 	 </div></div>
 	 </section>
