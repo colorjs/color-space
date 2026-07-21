@@ -6,7 +6,12 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const run = (cmd, args, options = {}) => execFileSync(cmd, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options })
-const packed = JSON.parse(run('npm', ['pack', '--json', '--ignore-scripts']))[0]
+const packOutput = run('npm', ['pack', '--json', '--ignore-scripts'])
+// npm 10 may print lifecycle/prepare output before the final JSON even with
+// --ignore-scripts; newer npm versions return JSON alone. Parse the terminal array.
+const json = packOutput.match(/\[\s*\{[\s\S]*\}\s*\]\s*$/)?.[0]
+if (!json) throw new Error(`npm pack did not emit a terminal JSON result:\n${packOutput.slice(-1000)}`)
+const packed = JSON.parse(json)[0]
 const tarball = resolve(root, packed.filename)
 const temp = mkdtempSync(join(tmpdir(), 'color-space-package-'))
 const fail = message => { throw new Error(`packed consumer: ${message}`) }
