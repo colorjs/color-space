@@ -420,6 +420,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
+.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; clip-path:polygon(50% 0,100% 100%,0 100%) }   /* the cone-section switch shows the triangle it switches TO */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
@@ -493,6 +494,11 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gam2d .cx{ position:absolute; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }
 .gam2d .cx.ghost{ pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
+.dviz2 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5; width:100%; max-width:var(--pick) }   /* the exporters ride the plates rail in the dossier's own voice — panel chrome belongs to the homepage pane */
+.dviz2 .export.dex i{ display:block; font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); cursor:help }   /* the used-for label recipe (.dgrid2 i) */
+.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select) */
+.export.dex select:hover{ color:var(--ink) }
+.export.dex select:focus-visible{ outline:none; color:var(--ink) }
 /* glossary terms: a soft question mark that explains the jargon in place */
 .term{ cursor:help }   /* a defined term — the help cursor is the only cue; no glyph */
 .imgrow{ display:flex; gap:var(--s2) }   /* one row, always — source + channel panels share it, shrinking together (same rule as .planes) */
@@ -1434,6 +1440,8 @@ const flip3=(c2,a,b)=>{ if(c2.ch.length!==3) return 0
 // disc/rect is chosen PER PLANE and persists: hue×chroma pairs default to the disc
 // (the solid's top view); hue×tone unwraps default to the rect
 let POLARP={}; try{ POLARP=JSON.parse(localStorage.csPolarP||'{}') }catch{}
+let TRIP={}; try{ TRIP=JSON.parse(localStorage.csTriP||'{}') }catch{}
+const triOn=(s2,a,b)=>TRIP[`${s2}:${a},${b}`]??false   // default: square — the silhouette is the opt-in lens, per plane, like the disc
 const polarOn=(s2,c2,a,b)=>POLARP[`${s2}:${a},${b}`]??(b!==axes3(c2).ti)   // default: disc for hue×radius, rect for hue×vertical (the solid's tone axis)
 
 const NAMED=Object.entries(NAMES).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
@@ -1922,8 +1930,6 @@ const FLWASM=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" he
 const FLGL=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl2" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl2)"/></svg>')
 const FLCSS=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg>')
 const FLMETA=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg>')
-const FLLUT=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg>')
-const FLICC=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg>')
 const hilite=code=>code.split('\n').map(line=>{
 	const ci=line.indexOf('//'); let src=ci<0?line:line.slice(0,ci), com=ci<0?'':line.slice(ci)
 	src=esc(src).replace(/'[^']*'/g,m=>`\x01${m}\x02`)
@@ -2904,8 +2910,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const segsHTML=`<select id="qseg" aria-label="quantization" title="${QTIP[qKey(Q)]}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
 	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gamTip(GM)}">${[...GAMS,'vis'].map(g=>`<option value="${g}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
+	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
+	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
-	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — the real colours this space reaches, on the CIE xy plane: vivid where it reaches them, ghost where the eye sees but this space doesn't. Bounded to the visible spectrum — imaginary chromaticities its range also encodes aren't colours, so they're not shown."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
+	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — the real colours this space reaches, on the CIE xy plane: vivid where it reaches them, ghost where the eye sees but this space doesn't. Bounded to the visible spectrum — imaginary chromaticities its range also encodes aren't colours, so they're not shown."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}${LUTOK.has(s)||iccK?`<div class="export dex" id="dex"></div>`:''}</div>`
 	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
 		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
@@ -2923,8 +2931,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const plotPairs=pairsFor(s)
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
-	// which ICC flavour this space gets (probe-cheap) — gates the ICC tab
-	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}${dctlHTML}</div>
@@ -2932,7 +2938,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
-		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
+		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri" title="triangle ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
 		${solidHTML}
 	 </section>
@@ -2970,8 +2976,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere" aria-label="open an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
-	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}${LUTOK.has(s)?`<button data-t="lut" aria-pressed="false">${FLLUT}LUT</button>`:''}${iccK?`<button data-t="icc" aria-pressed="false">${FLICC}ICC</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button></span></h2>
-	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre><div class="export dex" id="dex" hidden></div></div>
+	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button></span></h2>
+	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
 	 ${MNAV('mfoot',1)}`
 		solidHome()
 		modal.scrollTop=0
@@ -2995,12 +3001,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		b.addEventListener('focusin',sync); b.addEventListener('focusout',()=>setTimeout(sync,0)) })
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	detail.querySelectorAll('.pmode').forEach(b=>{ const pl2=b.closest('.pl'), a2=+pl2.dataset.a, b2=+pl2.dataset.b
-		const sync=()=>b.classList.toggle('sq',polarOn(s,cls,a2,b2))   // the icon shows the mode a click switches TO
+		const isTri=b.classList.contains('tri'), K=`${s}:${a2},${b2}`
+		const on=()=>isTri?triOn(s,a2,b2):polarOn(s,cls,a2,b2)
+		const sync=()=>b.classList.toggle('sq',on())   // the icon shows the mode a click switches TO
 		sync()
 		b.onpointerdown=e=>e.stopPropagation()   // never a pick
-		b.onclick=e=>{ e.stopPropagation()   // each plane keeps its OWN disc/rect choice
-			POLARP[`${s}:${a2},${b2}`]=!polarOn(s,cls,a2,b2)
-			try{ localStorage.csPolarP=JSON.stringify(POLARP) }catch{}
+		b.onclick=e=>{ e.stopPropagation()   // each plane keeps its OWN view choice
+			if(isTri){ TRIP[K]=!on(); try{ localStorage.csTriP=JSON.stringify(TRIP) }catch{} }
+			else{ POLARP[K]=!on(); try{ localStorage.csPolarP=JSON.stringify(POLARP) }catch{} }
 			sync(); planeNext=0; paintPlanes(false); renderFast() } })
 	// hovering a slider draws that channel's LINE through the 3d solid; hovering a
 	// plane draws its SLICE — the sheet the two swept channels span at the held value
@@ -3048,21 +3056,22 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
 		detail.querySelectorAll('#cseg button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) }); renderFast() })
-	// the LUT · ICC tabs — the home page's live exporters, scoped to this space:
-	// pick a target, read the measured deviation, download the real file
+	// the LUT · ICC exporters, under the plates — pick a target, read the measured
+	// deviation, download the real file; the long story rides in the tooltips
 	const dex=detail.querySelector('#dex')
 	if(dex){
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
 		const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${t}</option>`).join('')}</optgroup>`:'' }).join('')
 		const sci2=x=>x===0?'0':x.toExponential(1)
-		const iccLede=iccK==='mntr'?`<b>${s}</b> as an <b>.icc</b> v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management.`
-			:iccK==='spac'?`<b>${s}</b> as an <b>.icc</b> v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick.`
-			:`<b>${s}</b> as an <b>.icc</b> v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick.`
-		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp" data-x="lut" hidden><p class="exlede"><b>${s}</b> → any space as a <b>.cube</b> LUT — Resolve, Premiere, Final Cut, OBS, ffmpeg.${ACESV.has(s)?` <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms" target="_blank" title="measured differential agreement against the Academy's official vendor transform for ${s} (ampas/aces-dev)">Verified against the official ACES transform</a>.`:''}</p>
-			<div class="exrow"><span class="exarrow">${s} →</span><select id="dlto" aria-label="LUT target space"></select><span class="seg" id="dlsz"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
+		const iccTitle=iccK==='mntr'?`${s} as an .icc v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management`
+			:iccK==='spac'?`${s} as an .icc v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick`
+			:`${s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick`
+		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
+			<i title="${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
+			<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><span class="seg" id="dlsz"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
 			<div class="exrow"><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
-			+(iccK?`<div class="dexp" data-x="icc" hidden><p class="exlede">${iccLede}</p>
-			<div class="exrow"><button class="exdl" id="didl" type="button">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
+			+(iccK?`<div class="dexp">
+			<div class="exrow"><button class="exdl" id="didl" type="button" title="${iccTitle}">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
 		// LUT: target → the real lattice is measured (median/max deviation, size) before you take it
 		const lto=dex.querySelector('#dlto'), lsz=dex.querySelector('#dlsz'), l1d=dex.querySelector('#dl1d'), ldl=dex.querySelector('#dldl'), lst=dex.querySelector('#dlstat')
 		if(lto){ let lutN=33, ltok=0, measured=false
@@ -3088,9 +3097,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			idl.onclick=()=>{ try{ dl(iccProfile(space[s],{xyz:space.xyz}),`${s}.icc`,'application/vnd.iccprofile'); toast('ICC saved') }catch{ toast('No profile for this space') } }
 			dex._icc=()=>{ if(done) return; done=true; ist.textContent='…'
 				setTimeout(()=>{ try{ const b=iccProfile(space[s],{xyz:space.xyz})
-						ist.textContent=`${(b.length/1024).toFixed(1)} kB · D50 PCS · ${{mntr:'v2 matrix+TRC display',spac:'v2 CLUT, device↔Lab both ways',scnr:'v2 CLUT, device→Lab (one-way)'}[iccK]||''}` }
+						ist.textContent=`${(b.length/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:'v2 matrix+TRC display',spac:'v2 CLUT, device↔Lab both ways',scnr:'v2 CLUT, device→Lab (one-way)'}[iccK]||''}` }
 					catch(err){ idl.disabled=true; ist.textContent=String(err&&err.message||'no profile') } },0) } }
-		dex._open=t=>{ dex.querySelectorAll('.dexp').forEach(p=>p.hidden=p.dataset.x!==t); (t==='lut'?dex._lut:dex._icc)?.() }
+		// defer the first bake until the block scrolls into view — same pattern as the
+		// homepage LUT pane; opening a dossier stays light until the rail is actually seen
+		new IntersectionObserver((es,o)=>{ if(es.some(x=>x.isIntersecting)){ o.disconnect(); dex._lut?.(); dex._icc?.() } }).observe(dex)
 	}
 	// precise adjustment: the big value inputs above the sliders
 	detail.querySelectorAll('#bigch .bch').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i], inp=bar.querySelector('.nv')
@@ -3153,11 +3164,14 @@ function wirePlane(pl){
 			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
 			fy=Math.min(1,Math.hypot(px,py))
 			if(fy*r.width/2<3) fy=0 }   // soft snap: the achromatic centre within ~3px
-		else if(pl._tri){ // cone section: x is a fraction OF THE ROW's width — the silhouette's own frame
-			fy=clamp(1-(e.clientY-r.top)/r.height,0,1)
-			if(pl._tri===3) fx=Math.min(clamp((e.clientX-r.left)/r.width,0,1),1-fy)
-			else{ const tw=pl._tri===1?fy:1-Math.abs(2*fy-1)
-				fx=tw<=0?0:Math.min(1,clamp((e.clientX-r.left)/r.width,0,1)/tw) } }
+		else if(pl._tri){ // cone section: coordinates live in the silhouette's own frame
+			const py=clamp(1-(e.clientY-r.top)/r.height,0,1), px=clamp((e.clientX-r.left)/r.width,0,1)
+			if(pl._tri===3){ // barycentric wedge: fa=white weight, fb=black weight
+				let lw=clamp(py-0.5*px,0,1), lb=clamp(1-py-0.5*px,0,1)
+				const s2=lw+lb; if(s2>1){ lw/=s2; lb/=s2 }
+				fx=lw; fy=lb }
+			else{ const tw=pl._tri===1?py:1-Math.abs(2*py-1), x0=0.5-0.5*tw
+				fx=tw<=0?0:clamp((px-x0)/tw,0,1); fy=py } }
 		else{ // pointer → windowed fraction → global range fraction (pan-zoom aware)
 			fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
 			fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
@@ -3404,7 +3418,7 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		// it lives on the GPU path — cluster modes and no-GL stay square. The element
 		// carries the painted mode, so picking and the marker always match the paint.
 		const pol=pl._polar=canGL&&polarPl(cls,a,b)&&polarOn(s,cls,a,b)
-		const tri=pl._tri=canGL&&!pol?triPl(s,cls,a,b):0   // cone sections paint full-range, like the disc (no pan/zoom window on a silhouette)
+		const tri=pl._tri=canGL&&!pol&&triOn(s,a,b)?triPl(s,cls,a,b):0   // cone sections paint full-range, like the disc (no pan/zoom window on a silhouette)
 		pl.classList.toggle('polar',!!pol)
 		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
@@ -3577,9 +3591,11 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		if(pl._polar){ const th=gx*2*Math.PI   // clockwise: css y grows downward
 			cx.style.display=''
 			cx.style.left=(50+gy*50*Math.cos(th))+'%'; cx.style.top=(50+gy*50*Math.sin(th))+'%' }
-		else if(pl._tri){ const tw=pl._tri===1?gy:pl._tri===2?1-Math.abs(2*gy-1):1
-			cx.style.display=''
-			cx.style.left=((pl._tri===3?gx:gx*tw)*100)+'%'; cx.style.top=((1-gy)*100)+'%' }
+		else if(pl._tri){ cx.style.display=''
+			if(pl._tri===3){ const lc=clamp(1-gx-gy,0,1)   // back through the barycentric frame
+				cx.style.left=(lc*100)+'%'; cx.style.top=((1-(gx+0.5*lc))*100)+'%' }
+			else{ const tw=pl._tri===1?gy:1-Math.abs(2*gy-1)
+				cx.style.left=((0.5-0.5*tw+gx*tw)*100)+'%'; cx.style.top=((1-gy)*100)+'%' } }
 		else{ const fl=flip3(cls,a,b), wx=fl&1?1-gx:gx, wy=fl&2?1-gy:gy
 			const px=(wx-vw.x0)/(vw.x1-vw.x0), py=(wy-vw.y0)/(vw.y1-vw.y0)
 		cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
@@ -3623,14 +3639,10 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			for(let k=0;k<=14;k++) st.push(hex(rgbF(cmp,mixInSpace(cmp,a3,b3,k/14))))
 			icmp.style.background=`linear-gradient(90deg, ${st.join(',')})`
 			if(ispc){ ispc.textContent=cmp; ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
-	// live code snippet — js tab carries the current values; wasm/shader show the other
-	// backends; lut/icc swap the code plate for the live exporter panel
+	// live code snippet — js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	if(snip){ const dex=detail.querySelector('#dex'), exTab=codeTab==='lut'||codeTab==='icc'
-		snip.hidden=exTab; const csn=detail.querySelector('#csnip'); if(csn) csn.hidden=exTab
-		if(dex) dex.hidden=!exTab
-		if(exTab){ dex?._open?.(codeTab) }
-		else if(codeTab==='css'){
+	if(snip){
+		if(codeTab==='css'){
 			// the honest CSS story: native serialization when the spec has one, else the
 			// same color in the forms CSS can write. Values select whole on click;
 			// the .icc mention IS the download.

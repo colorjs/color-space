@@ -163,12 +163,16 @@ void main() {
 		fa = fract(-atan(pc.y, pc.x) / 6.283185307179586);
 		fb = rr;
 	} else { fa = f.x; fb = f.y; }
-	if (uTri != 0) {   // the solid's own silhouette: outside it there is no coordinate at all
-		if (uTri == 3) { if (fa + fb > 1.0) { O = vec4(0.0); return; } }
-		else {
+	if (uTri != 0) {   // the solid's own silhouette, centred in the frame: outside it there is no coordinate at all
+		if (uTri == 3) {   // W+B wedge, barycentric: white top-left, black bottom-left, pure hue at the right apex
+			float lw = fb - 0.5 * fa, lb = 1.0 - fb - 0.5 * fa;
+			if (lw < 0.0 || lb < 0.0) { O = vec4(0.0); return; }
+			fa = lw; fb = lb;
+		} else {
 			float tw = uTri == 1 ? fb : 1.0 - abs(2.0 * fb - 1.0);   // row width: cone tapers to black, bicone to both poles
-			if (tw <= 0.0 || fa > tw) { O = vec4(0.0); return; }
-			fa /= tw;   // x is a fraction OF THE ROW — the mag channel in the silhouette's frame
+			float x0 = 0.5 - 0.5 * tw;   // centred row — the gray axis is the left slanted edge
+			if (tw <= 0.0 || fa < x0 || fa > x0 + tw) { O = vec4(0.0); return; }
+			fa = (fa - x0) / tw;
 		}
 	}
 	if (uQ > 0.5) { fa = (min(uQ - 1.0, floor(fa * uQ)) + 0.5) / uQ; fb = (min(uQ - 1.0, floor(fb * uQ)) + 0.5) / uQ; }
