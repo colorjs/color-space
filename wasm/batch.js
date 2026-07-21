@@ -40,13 +40,16 @@ export let rgb_lrgb = (r0, g0, b0) => {
     sb * (ab > 0.04045 ? ((ab + 0.055) / 1.055) ** 2.4 : ab / 12.92)
   ]
 }
+// x^(1/2.4) by exact identity: 1/2.4 = 5/12 and x^(1/12) = sqrt(sqrt(cbrt(x))) — two native
+// f64.sqrt instructions instead of the software pow path (which ran ~2× slower than V8's)
+const srgbInv = (x) => { const t = Math.sqrt(Math.sqrt(Math.cbrt(x))); const t2 = t * t; return t2 * t2 * t }
 export let lrgb_rgb = (r, g, b) => {
   const ar = r < 0 ? -r : r, ag = g < 0 ? -g : g, ab = b < 0 ? -b : b
   const sr = r < 0 ? -1 : 1, sg = g < 0 ? -1 : 1, sb = b < 0 ? -1 : 1
   return [
-    255 * (sr * (ar > 0.0031308 ? 1.055 * ar ** (1 / 2.4) - 0.055 : 12.92 * ar)),
-    255 * (sg * (ag > 0.0031308 ? 1.055 * ag ** (1 / 2.4) - 0.055 : 12.92 * ag)),
-    255 * (sb * (ab > 0.0031308 ? 1.055 * ab ** (1 / 2.4) - 0.055 : 12.92 * ab))
+    255 * (sr * (ar > 0.0031308 ? 1.055 * srgbInv(ar) - 0.055 : 12.92 * ar)),
+    255 * (sg * (ag > 0.0031308 ? 1.055 * srgbInv(ag) - 0.055 : 12.92 * ag)),
+    255 * (sb * (ab > 0.0031308 ? 1.055 * srgbInv(ab) - 0.055 : 12.92 * ab))
   ]
 }
 export let lrgb_xyz = (r, g, b) => [

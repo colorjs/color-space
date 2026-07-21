@@ -31,17 +31,17 @@ import oklch from 'color-space/oklch.js';
 oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 ```
 
-| Import | What ships |
-|---|---|
-| `color-space` | All 162 interconnected spaces · 55 kB gzip |
-| `color-space/<name>.js` | One standalone space |
-| `color-space/lite` | 27-space working set · 9 kB gzip |
-| `color-space/wasm` | lite set as WASM · bare `.wasm` included |
-| `color-space/gl` | GLSL/WGSL shader source |
-| `color-space/lut` | `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md) |
-| `color-space/icc` | Matrix + TRC or CLUT profiles |
-| `color-space/data.json` | Channels, ranges, provenance, references, graph, gamuts |
-| `npx --yes --package color-space color-space-mcp` | MCP agent tools: `convert` · `space` · `spaces` · `cube` |
+## Imports
+
+* `color-space` – All 162 interconnected spaces · 55 kB gzip
+* `color-space/<name>.js` – One standalone space
+* `color-space/lite` – 27-space working set · 9 kB gzip
+* `color-space/wasm` – lite set as WASM · bare `.wasm` included
+* `color-space/gl` – GLSL/WGSL shader source
+* `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md)
+* `color-space/icc` – Matrix + TRC or CLUT profiles
+* `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
+* `npx --yes --package color-space color-space-mcp` – MCP agent tools: `convert` · `space` · `spaces` · `cube`
 
 [Upgrading from v2?](docs/migration.md)
 
@@ -101,7 +101,7 @@ Thanks to the researchers, theorists, specifiers, implementors — and the libra
 | Library | Spaces | Ranges | Specialty | Backends | Speed |
 |---|---:|---|---|---|---:|
 | **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **36.4** |
-| color-space/wasm | 27 | Conventional | — | WASM | 32.7 (batch) |
+| color-space/wasm | 27 | Conventional | — | WASM | 1.3–2.5× JS batches |
 | [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.1 |
 | [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
 | [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 15.9 |
