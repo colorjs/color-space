@@ -300,6 +300,10 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
 .tag[title],.tag[data-tip]{ cursor:help }
+#overview.dhero{ grid-template-columns:repeat(2,minmax(0,1fr)) }   /* features | 3D · gamut · transfer · record — two equal columns at every width */
+.props.pone{ grid-template-columns:1fr; margin:0 }
+.ocol{ display:flex; flex-direction:column; gap:var(--s4); min-width:0 }
+.ocol .pl3d{ max-width:20rem; align-self:center }
 .dhero{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .modal.barred .dhero{ grid-template-columns:1fr }   /* no graphics column to reserve — text takes the whole width */
 .dmain{ min-width:0 }
@@ -349,17 +353,12 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1px solid; pointer-events:none }   /* the picker rides above the label and number — same 11px rhombus as the gamut marker */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
-.dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
+.dpick{ margin:var(--s2) 0 var(--s8) }   /* sliders + planes, full measure — the 3D and plates live in the overview second column */
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
-.dpick.nod3 .dviz2{ grid-template-columns:1fr; margin:0 }
-@media(max-width:640px){ .dpick{ grid-template-columns:1fr }   /* the 3D keeps its side seat down to 640; alone on its row it centres */
-	.dpick>.vgrp .pl3d{ max-width:20rem; margin-inline:auto }
-	.dpick .dctl{ justify-content:center } }
 .chead{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }   /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
-.bch{ display:flex; align-items:baseline; border-bottom:.2em solid var(--hair) }   /* the catalog's letter+value pair, scaled up — name and number share the baseline, and the same ONE underline under symbol + number + chevrons, hairline at rest as in the list */
-.bch:hover,.bch:focus-within,.bch.on{ border-bottom-color:var(--ink) }   /* pointed, focused, or slider-driven — full ink, as in the list */
+.bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
 .bch .nvw input{ height:auto; width:4.6rem; font-size:var(--t4); font-weight:700; color:var(--ink); text-align:left }
@@ -373,7 +372,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .planes+.pick{ margin-top:var(--s2) }
 /* name hugs its content; the range is a min…max sub-grid — mins right-aligned, maxes
    left-aligned — so the numbers line up in columns instead of reading ragged */
-.chlist{ display:grid; grid-template-columns:minmax(0,1fr) max-content min-content max-content; gap:var(--s1) 0; align-items:baseline; font-size:var(--t3); line-height:1.55; color:var(--body) }
+.chlist{ display:grid; grid-template-columns:fit-content(60%) max-content min-content max-content; justify-content:start; gap:var(--s1) 0; align-items:baseline; font-size:var(--t3); line-height:1.55; color:var(--body) }
+.chlist .rmn{ margin-left:var(--s6); justify-self:end }   /* ranges start just past the longest name, right-aligned among themselves */
 .chlist .cn{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0 }   /* long names clip to tridots; full name in the title */
 .chlist .csym{ display:inline; margin:0; font-style:italic; font-size:inherit; font-weight:inherit; letter-spacing:0; text-transform:none; color:inherit }   /* the symbol follows the name in its own cell — same type, just italic; resets the .props i label styling it would otherwise inherit */
 .chlist .rmn{ justify-self:end }
@@ -555,7 +555,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 @keyframes fcaret{ 0%,100%{ border-left-color:var(--color-terminal-muted) } 55%{ border-left-color:transparent } }
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
 @media(prefers-reduced-motion:reduce){ .fnpm.typing .cmd::after{ animation:none; left:100% } }
-@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .detail{ padding-bottom:calc(var(--dpad) + 5rem) } .modal{ background:var(--paper); padding-block:0 } }
+@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .modal{ background:var(--paper); padding-block:0 } }   /* the detail keeps its uniform --dpad — the sticky footer needs no reserved band */
 </style></head>
 <body>
 <a class="skip" href="#cat">skip to catalog</a>
@@ -2860,19 +2860,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
-	 <section class="dpick${has3d?'':' nod3'}" id="explore">
+	 <section class="dpick" id="explore">
 		<div class="dmain">
 		<div class="chead">${bigchHTML}</div>
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
 		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
-		${has3d?solidHTML:`<div class="vgrp">${dctlHTML}${platesHTML}</div>`}
 	 </section>
 	 <section class="dhero" id="overview">
-		<div class="dmain"><div class="props props3">
+		<div class="props props3 pone">
 			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
-				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)} <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
+				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
 				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
 				${m.referred||m.dynamic?`<div><i>range</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
@@ -2882,6 +2881,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 			</div>
+		</div>	<!-- /props pone (instrument) -->
+		<div class="ocol"><!-- the second column: 3D · gamut · transfer, then the record -->
+		${has3d?solidHTML:`<div class="vgrp">${dctlHTML}</div>`}
+		${platesHTML}
+		<div class="props props3 pone">
 			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
@@ -2889,8 +2893,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			</div>
-	 </div></div>
-		${has3d?platesHTML:''}
+	 </div></div>	<!-- /props pone /ocol -->
 	 </section>
 	 <div class="dgrid2"><!-- the story, full measure — after the features and their plots -->
 		<div><i class="plab">description</i>
