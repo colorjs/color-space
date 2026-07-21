@@ -50,7 +50,7 @@ a{ color:var(--ink) }
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
 .hueline{ position:relative; height:5px; cursor:ew-resize; touch-action:none }   /* the box IS the gradient — the sticky header's paper ends exactly at the line, no white beneath */
-.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,#ff6173,#ff6f00,#ffa900,#ffd600,#ffff00,#b8ff00,#34ff00,#00ff4d,#00fa8b,#00f7b0,#00f4cb,#00f1e1,#00eef7,#00e9ff,#00c8ff,#0096ff,#3c00ff,#c600ff,#ff00ff,#ff00ff,#ff25ed,#ff3bd5,#ff4abc,#ff569f,#ff6173) }   /* the Ostwald full-color wheel, 24 hues + wrap — space.ostwald.rgb(k/24*360, 0, 0); regenerate if the ostwald formulas change */
+.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,#ff7988,#ff824c,#ffac49,#ffd045,#f4f441,#baf848,#66f854,#00f372,#00ef98,#00ecb4,#00eac9,#00e8dc,#00e5ee,#00e1ff,#00c6ff,#009eff,#694aff,#c536ff,#f534ff,#ff4ff7,#ff5ee5,#ff66d2,#ff6dbe,#ff73a7,#ff7988) }   /* the Ostwald wheel at a tenth white+black content, 24 hues + wrap — space.ostwald.rgb(k/24*360, 10, 10); regenerate if the ostwald formulas change */
 .hueline::after{ content:''; position:absolute; left:0; right:0; top:-6px; bottom:-9px }   /* the forgiving hit band overhangs the header, transparent — clicks here still land on the line */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
@@ -188,14 +188,14 @@ a{ color:var(--ink) }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
-.ent.pop{ z-index:var(--z-dropdown); background:var(--paper); box-shadow:var(--pop-shadow) }   /* the whole focused row becomes one raised card */
-.cat :is(.gcol,.grid,.sheet)>.ent.pop.pop{ padding:var(--s3) }   /* the card: one fixed --s3 on all four edges; specificity 5 outranks every row-density rule in any container */   /* the whole focused row becomes one raised card — name, values AND sliders enclosed */
+.ent.pop{ z-index:var(--z-dropdown) }   /* the whole focused row becomes one raised card */
+.ent.pop::before{ content:''; position:absolute; z-index:-1; top:calc(-1 * var(--popot,4px)); bottom:calc(-1 * var(--s1)); left:calc(var(--eg) - var(--s3)); right:calc(var(--eg) - var(--s3)); background:var(--paper); box-shadow:var(--pop-shadow) }   /* the surface outsets so every visual edge reads --s3 from content — the row box (and the name in it) never moves */   /* the whole focused row becomes one raised card — name, values AND sliders enclosed */
 .ent.lite.pop .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
-.ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch) + var(--popvd,8px))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
+.ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 /* the popover card works wherever a row hides its sliders — any width, any row kind */
 body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ display:flex; max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }
-.cat .gcol>.ent.pop:not(:first-child){ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch) + var(--popvd,8px))) }
+.cat .gcol>.ent.pop:not(:first-child){ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }
 .grid>.ent{ padding-bottom:var(--s2) }
 .sheet>.ent.lite{ padding:var(--s2) var(--eg) }   /* prerender mirrors .gcol>.ent.lite exactly — no reflow when hydration recolumns */
 /* hydrated masonry: entry k -> column k%C, so each column flows independently and a
@@ -217,7 +217,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 	.gcol>.ent.lite{ padding:var(--s1) var(--eg) var(--s2) }
 	body:not(.alls) .gcol>.ent:not(:first-child) .chs{ display:none }
 	.gcol>.ent:not(.lite)+.ent.lite{ margin-top:0 }
-	.cat .ent.pop{ --popvd:12px }   /* compact rows carry 12px vertical padding — the card's uniform --s3 needs 12 more cancelled */
+	.cat .ent.pop{ --popot:8px }   /* compact rows carry --s1 top padding — the card surface outsets 8px to keep --s3 visually */
 }
 @media(max-width:1079px){
 	.shw{ justify-content:flex-start }
@@ -334,7 +334,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
-@media(max-width:640px){ .dhero{ grid-template-columns:1fr } .dhero>.vgrp{ justify-self:center } }
+@media(max-width:640px){ .dhero:not(#overview){ grid-template-columns:1fr } }   /* features + gamut/transfer keep two columns at every width */
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
@@ -353,7 +353,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .dpick.nod3 .dviz2{ grid-template-columns:1fr; margin:0 }
-@media(max-width:760px){ .dpick{ grid-template-columns:1fr } }
+@media(max-width:640px){ .dpick{ grid-template-columns:1fr }   /* the 3D keeps its side seat down to 640; alone on its row it centres */
+	.dpick>.vgrp .pl3d{ max-width:20rem; margin-inline:auto }
+	.dpick .dctl{ justify-content:center } }
 .chead{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }   /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline; border-bottom:.2em solid var(--hair) }   /* the catalog's letter+value pair, scaled up — name and number share the baseline, and the same ONE underline under symbol + number + chevrons, hairline at rest as in the list */
@@ -1572,9 +1574,9 @@ const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if
 // each space's tag set — the same vocabulary the dossier features carry
 // the tags come in FACETS — mutually-exclusive aspects of one space. Picking within a
 // facet ORs (display OR scene), picking across facets ANDs (scene AND log encoding).
-const FACETS=['channels','signal','range','geometry','encoding','export','status']
+const FACETS=['channels','range','geometry','signal','encoding','export','status']
 const slotsOf=s=>{ const m=meta[s]
-	return [[String(classify(s).ch.length)],[m.referred],[m.dynamic&&m.dynamic.toUpperCase()],[geo(s)],[encodingOf(s)],
+	return [[String(classify(s).ch.length)],[m.dynamic&&m.dynamic.toUpperCase()],[geo(s)],[m.referred],[encodingOf(s)],
 		[wasmSpaces.includes(s)&&'wasm',LUTOK.has(s)&&'lut',!!CSSFMT[s]&&'css'],
 		[HISTORICAL.has(s)&&'historical']].map(a=>new Set(a.filter(Boolean))) }
 const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
@@ -2872,8 +2874,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
 				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)} <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
-				${geo(s)||enc?`<div><i>model</i><p class="dpills">${[geo(s),enc].filter(Boolean).map(t=>`<span class="tag" title="${TAGTIP[t]||''}">${t}</span>`).join('')}</p></div>`:''}
-				${m.referred||m.dynamic?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
+				${m.referred||m.dynamic?`<div><i>range</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${enc?`<div><i>encoding</i><p class="dpills"><span class="tag" title="${TAGTIP[enc]||''}">${enc}</span></p></div>`:''}
 				${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
 				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
 				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
@@ -2900,7 +2903,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere" aria-label="open an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
-	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}shader</button>`:''}${LUTOK.has(s)?`<button data-t="lut" aria-pressed="false">${FLLUT}LUT</button>`:''}${iccK?`<button data-t="icc" aria-pressed="false">${FLICC}ICC</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button></span></h2>
+	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}${LUTOK.has(s)?`<button data-t="lut" aria-pressed="false">${FLLUT}LUT</button>`:''}${iccK?`<button data-t="icc" aria-pressed="false">${FLICC}ICC</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button></span></h2>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre><div class="export dex" id="dex" hidden></div></div>
 	 ${MNAV('mfoot',1)}`
 		modal.scrollTop=0
@@ -3667,7 +3670,7 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 
 // ── the ostwald sweep — the SAME full-color wheel as the masthead line, so the page
 // opens and closes on one gradient; the footer wall AND the hero stage share it. ──
-const coloroidCol=f=>hex(rgbF('ostwald',[f*360, 0, 0]))
+const coloroidCol=f=>hex(rgbF('ostwald',[f*360, 10, 10]))   // a tenth of white and black content — the wheel, slightly tempered
 // precompute the sweep once so rebuilding an N-band gradient is just N lookups + a join
 const CLUT=Array.from({length:769},(_,k)=>coloroidCol(k/768)), clut=f=>CLUT[Math.round(clamp(f,0,1)*768)]
 const coloroidGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
