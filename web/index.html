@@ -1125,7 +1125,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 <i>// → self-contained: vec3 oklch_rgb(vec3 c)</i>
 <i>//   paste into any fragment shader, no uniforms</i></pre>
 		<div class="export" id="api-panel-lut" role="tabpanel" aria-labelledby="api-tab-lut" data-p="lut" hidden>
-			<p class="exlede">Any pair as a <b>.cube</b> LUT — load it into Resolve, Premiere, Final Cut, OBS or ffmpeg. Camera logs are <a href="https://github.com/colorjs/color-space/blob/master/docs/lut-verification.md" target="_blank" title="measured differential agreement against the Academy's official vendor transforms (ampas/aces-dev), per pair">verified against the official ACES vendor transforms</a>.</p>
+			<p class="exlede">Any pair as a <b>.cube</b> LUT — load it into Resolve, Premiere, Final Cut, OBS or ffmpeg. Camera logs are <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms" target="_blank" title="measured differential agreement against the Academy's official vendor transforms (ampas/aces-dev), per pair">verified against the official ACES vendor transforms</a>.</p>
 			<div class="exrow"><select id="lutfrom" aria-label="LUT source space"></select><span class="exarrow" aria-hidden="true">→</span><select id="lutto" aria-label="LUT target space"></select><span class="seg" id="lutszL"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="lut1dL" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
 			<div class="exrow"><button class="exdl" id="lutdlL" type="button">↓ .cube</button><span class="exstat tnum" id="lutstatL" aria-live="polite"></span></div>
 		</div>
@@ -1228,7 +1228,7 @@ const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-
 // (lab()/lch() are D50 like ours; predefined color() spaces are 0–1; our xyz is D65 0–100)
 const r1=x=>+x.toFixed(1)+'', r2=x=>+x.toFixed(2)+'', r3=x=>+x.toFixed(3)+''
 // camera logs whose → ACES2065-1 composite is differential-tested against the
-// Academy's official vendor transform (test/aces-vendor.js, docs/lut-verification.md)
+// Academy's official vendor transform (test/aces-vendor.js, docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 const ACESV=new Set(['slog3','sgamut3cine','logc3','clog2','clog3','vlog','log3g10'])
 const CSSFMT={
 	rgb:v=>`rgb(${v.map(x=>Math.round(x)).join(' ')})`,
@@ -2974,7 +2974,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const iccLede=iccK==='mntr'?`<b>${s}</b> as an <b>.icc</b> v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management.`
 			:iccK==='spac'?`<b>${s}</b> as an <b>.icc</b> v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick.`
 			:`<b>${s}</b> as an <b>.icc</b> v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick.`
-		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp" data-x="lut" hidden><p class="exlede"><b>${s}</b> → any space as a <b>.cube</b> LUT — Resolve, Premiere, Final Cut, OBS, ffmpeg.${ACESV.has(s)?` <a href="https://github.com/colorjs/color-space/blob/master/docs/lut-verification.md" target="_blank" title="measured differential agreement against the Academy's official vendor transform for ${s} (ampas/aces-dev)">Verified against the official ACES transform</a>.`:''}</p>
+		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp" data-x="lut" hidden><p class="exlede"><b>${s}</b> → any space as a <b>.cube</b> LUT — Resolve, Premiere, Final Cut, OBS, ffmpeg.${ACESV.has(s)?` <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms" target="_blank" title="measured differential agreement against the Academy's official vendor transform for ${s} (ampas/aces-dev)">Verified against the official ACES transform</a>.`:''}</p>
 			<div class="exrow"><span class="exarrow">${s} →</span><select id="dlto" aria-label="LUT target space"></select><span class="seg" id="dlsz"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
 			<div class="exrow"><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
 			+(iccK?`<div class="dexp" data-x="icc" hidden><p class="exlede">${iccLede}</p>

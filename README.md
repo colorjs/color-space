@@ -3,7 +3,7 @@
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/>
 
 **Collection of color space conversions & data.** <br/>
-* Verified formulas
+* [Verified formulas](docs/formula-verification.md)
 * Conventional ranges
 * Zero dependencies
 * JS / WASM / GLSL / LUT / ICC.
@@ -40,7 +40,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/lite` – 27-space working set · 9 kB gzip
 * `color-space/wasm` – lite set as WASM · bare `.wasm` included
 * `color-space/gl` – GLSL/WGSL shader source
-* `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/lut-verification.md)
+* `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
 * `npx --yes --package color-space color-space-mcp` – MCP agent tools: `convert` · `space` · `spaces` · `cube`
@@ -109,6 +109,8 @@ Thanks to the researchers, theorists, specifiers, implementors — and the libra
 | [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 15.9 |
 | [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.4 |
 | [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 34.4 |
+
+<sub>[Full comparison](docs/library-comparison.md) · `npm run benchmark`</sub>
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
