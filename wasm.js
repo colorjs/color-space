@@ -38,8 +38,9 @@
  * Float64Array, input untouched) — fine for a chain, but prefer alloc() on a hot path.
  */
 import b64 from './wasm/binary.js'
+import { spaces as WASM_SPACES } from './wasm/spaces.js'
 
-let ex, i64p, scratch, scratchN = 0
+let ex, i64p, scratch, scratchN = 0, scratchActive = 0
 
 function instance() {
 	if (!ex) {
@@ -114,7 +115,9 @@ const GRAPH = {
 }
 
 /** Spaces the WASM kernel can convert between (any pair, composed via the graph). */
-export const spaces = Object.keys(GRAPH)
+export const spaces = WASM_SPACES
+if (spaces.length !== Object.keys(GRAPH).length || spaces.some((s) => !GRAPH[s]))
+	throw new Error('color-space/wasm: wasm/spaces.js is out of sync with the kernel graph')
 
 // BFS shortest path from->to, returned as the sequence of edge-function names.
 const edgeSeq = (from, to) => {
@@ -144,6 +147,7 @@ const edgeSeq = (from, to) => {
  * @returns {Float64Array} view over WASM memory, length `n*3`
  */
 export function alloc(n) {
+	if (!Number.isSafeInteger(n) || n < 0) throw new RangeError(`color-space/wasm: alloc(n) expects a non-negative integer pixel count, got ${n}`)
 	const e = instance()
 	if (n > scratchN || !scratch || scratch.buffer !== e.memory.buffer) {
 		if (e._clear) e._clear()
@@ -151,14 +155,30 @@ export function alloc(n) {
 		scratch = new Float64Array(e.memory.buffer, offset, n * 3)
 		scratchN = n
 	}
+	scratchActive = n
 	return scratch.subarray(0, n * 3)
 }
 
 // edge path or throw — shared by the buffer and scalar forms
 const seqOrThrow = (from, to) => {
+	if (!GRAPH[from] || !GRAPH[to]) throw new Error(`color-space/wasm: unknown space in '${from}'→'${to}'. Spaces: ${spaces.join(', ')}`)
 	const seq = edgeSeq(from, to)
 	if (seq === null) throw new Error(`color-space/wasm: no path '${from}'→'${to}'. Spaces: ${spaces.join(', ')}`)
 	return seq
+}
+const countOrThrow = (n, label = 'n') => {
+	if (!Number.isSafeInteger(n) || n < 0) throw new RangeError(`color-space/wasm: ${label} expects a non-negative integer pixel count, got ${n}`)
+	return n
+}
+const batchCount = (src, n, label) => {
+	if (src == null || typeof src.length !== 'number' || !Number.isSafeInteger(src.length) || src.length < 0)
+		throw new TypeError(`color-space/wasm: ${label} expects an array-like of interleaved channel values`)
+	if (n === undefined) {
+		if (src.length % 3) throw new RangeError(`color-space/wasm: ${label} expects 3·n interleaved values, got length ${src.length}`)
+		n = src.length / 3
+	} else countOrThrow(n)
+	if (src.length < n * 3) throw new RangeError(`color-space/wasm: ${label} needs at least ${n * 3} values for ${n} pixels, got ${src.length}`)
+	return n
 }
 
 /**
@@ -169,26 +189,37 @@ const seqOrThrow = (from, to) => {
  * @param {number} n pixel count
  */
 export function convert(from, to, n) {
+	const seq = seqOrThrow(from, to)
+	countOrThrow(n)
+	if (!scratch || n > scratchActive) throw new RangeError(`color-space/wasm: convert(${n}) exceeds the active alloc() buffer (${scratchActive} pixels)`)
 	const ex = instance()
-	for (const fn of seqOrThrow(from, to)) ex[fn + '_n'](n)
+	for (const fn of seq) ex[fn + '_n'](n)
 }
 
 /**
- * Drop-in: convert `n` pixels from `src` into `dst` (defaults in place). Copies
- * through WASM memory — convenient, but prefer {@link alloc} + {@link convert} on a
- * hot path so the data never leaves WASM.
+ * Drop-in: convert `n` pixels from `src` into `dst`. Copies through WASM memory —
+ * convenient, but prefer {@link alloc} + {@link convert} on a hot path. With no
+ * `dst`, a Float64Array is overwritten in place; other array-likes produce a new
+ * Float64Array. Lengths and pixel counts are validated before the kernel runs.
  * @param {string} from source space name
  * @param {string} to target space name
- * @param {Float64Array} src interleaved input (length ≥ n*3)
- * @param {Float64Array} [dst=src] output (defaults to overwriting src)
+ * @param {ArrayLike<number>} src interleaved input (length ≥ n*3)
+ * @param {Float64Array} [dst] output
  * @param {number} [n=src.length/3] pixel count
  * @returns {Float64Array} dst
  */
-export function convertBatch(from, to, src, dst = src, n = (src.length / 3) | 0) {
-	const buf = alloc(n)
-	buf.set(src.subarray ? src.subarray(0, n * 3) : src)
+export function convertBatch(from, to, src, dst, n) {
+	seqOrThrow(from, to) // validate names before touching caller buffers
+	n = batchCount(src, n, `${from}→${to} batch`)
+	if (dst === undefined) dst = src instanceof Float64Array ? src : new Float64Array(n * 3)
+	if (!(dst instanceof Float64Array))
+		throw new TypeError('color-space/wasm: dst must be a Float64Array')
+	if (dst.length < n * 3) throw new RangeError(`color-space/wasm: dst needs at least ${n * 3} values, got ${dst.length}`)
+	const buf = alloc(n), len = n * 3
+	if (typeof src.subarray === 'function') buf.set(src.subarray(0, len))
+	else for (let i = 0; i < len; i++) buf[i] = src[i]
 	convert(from, to, n)
-	dst.set(buf)
+	dst.set(buf, 0)
 	return dst
 }
 
@@ -203,12 +234,18 @@ for (const from of spaces) {
 		// to === from included: identity, like the JS hubs (edgeSeq is [] — a no-op)
 		o[to] = (a, b, c) => {
 			if (typeof a !== 'object' || a === null) {
+				if (a === undefined || b === undefined || c === undefined)
+					throw new TypeError(`color-space/wasm: ${from}→${to} expects 3 channel values`)
 				instance()
 				for (const fn of seqOrThrow(from, to)) [a, b, c] = edge(fn, a, b, c)
 				return [a, b, c]
 			}
-			const n = (a.length / 3) | 0
-			if (a.buffer === instance().memory.buffer) { convert(from, to, n); return a }
+			const n = batchCount(a, undefined, `${from}→${to} batch`)
+			const e = instance()
+			if (scratch && a.buffer === e.memory.buffer && a.byteOffset === scratch.byteOffset && a.length === n * 3) {
+				if (n > scratchActive) throw new RangeError(`color-space/wasm: buffer exceeds the active alloc() view (${scratchActive} pixels)`)
+				convert(from, to, n); return a
+			}
 			return convertBatch(from, to, a, new Float64Array(n * 3), n)
 		}
 	}

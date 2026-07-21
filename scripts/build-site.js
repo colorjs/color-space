@@ -44,8 +44,7 @@ export async function buildSite() {
 	for (const f of ['wasm.js', 'lut.js', 'data.json']) cpSync(join(root, f), join(site, f))
 	mkdirSync(join(site, 'dist'), { recursive: true })
 	for (const f of ['color-space.js', 'color-space-gl.js']) cpSync(join(root, 'dist', f), join(site, 'dist', f))
-	mkdirSync(join(site, 'wasm'), { recursive: true })
-	cpSync(join(root, 'wasm/binary.js'), join(site, 'wasm/binary.js'))
+	cpSync(join(root, 'wasm'), join(site, 'wasm'), { recursive: true })   // the whole runtime dir — hand-listing files here once shipped a 404 (wasm/spaces.js) that killed the page's module graph
 	// icc.js reaches into the rgb/xyz/transfers chain for the Bradford matrix — bundle it
 	// self-contained (the landing's live ICC exporter imports it) rather than flatten each dep
 	const esbuild = await import('esbuild')

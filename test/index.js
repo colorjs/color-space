@@ -45,6 +45,7 @@ test('family — izazbz shares jzazbz opponent axes and PQ scaling (Safdar 2017)
 test('integrity — package exports: every target file exists, every specifier imports', async () => {
 	const exports = JSON.parse(readFileSync(new URL('../package.json', import.meta.url))).exports
 	for (const [key, val] of Object.entries(exports)) {
+		if (val === null) continue
 		for (const p of typeof val === 'string' ? [val] : Object.values(val))
 			if (!p.includes('*')) is(existsSync(new URL('../' + p, import.meta.url)), true, `${key} → ${p} exists`)
 		if (!key.includes('*')) {
@@ -52,6 +53,9 @@ test('integrity — package exports: every target file exists, every specifier i
 			is(!!(await (key.endsWith('.json') ? import(spec, { with: { type: 'json' } }) : import(spec))), true, `${key} imports`)
 		}
 	}
+	let blocked = false
+	try { await import('color-space/data') } catch (error) { blocked = error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED' }
+	is(blocked, true, 'extensionless data is explicitly blocked; use color-space/data.json')
 	// the wildcard is the public per-space path — spaces moved to spaces/, the specifier must not
 	is((await import('color-space/oklch.js')).default.name, 'oklch', 'wildcard ./*.js routes into spaces/')
 	is((await import('color-space/slog3')).default.name, 'slog3', 'extensionless ./* routes into spaces/')
@@ -73,7 +77,19 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	// (the dossier's Wikipedia link is JS-rendered; one-article-per-space is pinned below)
 	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8')
 	is(lmsPage.split('<title>lms color space').length - 1, 1, 'LMS page carries its own title')
-	is(lmsPage.split('<link rel="canonical" href="https://colorjs.github.io/color-space/lms">').length - 1, 1, 'LMS page carries its canonical')
+	is(lmsPage.match(/<link rel="canonical"/g)?.length, 1, 'LMS page carries exactly one canonical')
+	is(lmsPage.includes('<link rel="canonical" href="https://colorjs.github.io/color-space/lms">'), true, 'LMS canonical points at its dossier URL')
+	is(lmsPage.includes('<meta property="og:url" content="https://colorjs.github.io/color-space/lms">'), true, 'LMS social URL points at its dossier URL')
+})
+
+// the catalog's display voice: names render display-final through disp() — uppercased
+// ids, Greek verbatim (CSS text-transform would corrupt lαβ into LΑΒ) — and the
+// filtered-to-nothing state has its line in the template rather than a silent void
+test('integrity — _site: display names stamp display-final; empty-filter line present', async () => {
+	const { site } = await import('../scripts/build-site.js')
+	const page = readFileSync(`${site}/lalphabeta.html`, 'utf8')
+	is(page.split('>lαβ<').length - 1 >= 1, true, 'lαβ card shows the Greek name, not LALPHABETA')
+	is(readFileSync(`${site}/index.html`, 'utf8').includes('id="nores"'), true, 'no-match line is part of the stamped catalog')
 })
 
 // data.json is generated (npm run data, in `prepare`) — this pins it against
@@ -129,17 +145,25 @@ test('hub — scalar arity fails fast', () => {
 	is(/expects 1 channel/.test(e1?.message), true, '1-channel arity checked too')
 })
 
-test('hub — register validates, copies, and stays isolated', async () => {
+test('hub — register is bidirectional, validated, copied, and isolated', async () => {
 	const { default: lite, register } = await import('../lite.js')
 	const mine = { name: 'minetest', range: [[0, 1], [0, 1], [0, 1]], rgb: (a, b, c) => [a * 255, b * 255, c * 255] }
-	register(mine)
-	is(typeof lite.minetest.oklch, 'function', 'registered space wired through the graph')
+	const from = { rgb: (r, g, b) => [r / 255, g / 255, b / 255] }
+	register(mine, from)
+	is(typeof lite.minetest.oklch, 'function', 'new→existing wired through the graph')
+	is(typeof lite.oklch.minetest, 'function', 'existing→new wired through the graph')
+	is(lite.rgb.minetest(255, 128, 0), [1, 128 / 255, 0], 'declared reverse edge is live')
 	is(space.minetest, undefined, 'other hub untouched')
-	is(mine.oklch, undefined, 'passed object not mutated (copied in)')
+	is(mine.oklch, undefined, 'passed space not mutated (copied in)')
+	is(from.rgb.scalar, undefined, 'passed reverse map not mutated')
 	let e; try { register({ name: 'bad' }) } catch (err) { e = err }
 	is(/needs a `range`/.test(e?.message), true, 'invalid space rejected')
-	let e1; try { register({ name: 'island', range: [[0, 1]] }) } catch (err) { e1 = err }
-	is(/no conversion/.test(e1?.message), true, 'disconnected space rejected')
+	let e1; try { register({ name: 'island', range: [[0, 1]] }, { rgb: x => [x] }) } catch (err) { e1 = err }
+	is(/outgoing conversion/.test(e1?.message), true, 'outbound-disconnected space rejected')
+	let e2; try { register({ name: 'oneway', range: [[0, 1]], rgb: x => [x, x, x] }) } catch (err) { e2 = err }
+	is(/reverse conversion map/.test(e2?.message), true, 'one-way registration rejected')
+	let e3; try { register({ name: 'rgb', range: [[0, 1]], xyz: x => [x, x, x] }, { xyz: x => [x] }) } catch (err) { e3 = err }
+	is(/already registered/.test(e3?.message), true, 'built-ins cannot be overwritten accidentally')
 	// deletion + rewire leaves no stale faces behind
 	delete lite.minetest
 	const { wire } = await import('../hub.js')
@@ -1011,13 +1035,11 @@ test('cam16', () => {
 
 
 
-// Note: osaucs -> xyy (reverse transformation) is not implemented
-// There's no analytical solution - would require numerical methods
-// See: http://www.researchgate.net/publication/259253763_Comparison_of_the_performance_of_inverse_transformation_methods_from_OSA-UCS_to_CIEXYZ
-test.todo('osaucs -> xyy', function () {
-	// is((space.osaucspace.xyy([0,-4,-4])), [33.71, 26.46, 46.66]);
-	// is((space.osaucspace.xyy([-8,-6,+2])), [1.773902, 1.049996, 7.893570]);
-	// is((space.osaucspace.xyy(space.xyy.osaucs([10,20,30]))), [10,20,30]);
+test('osaucs: numerical inverse -> xyz', function () {
+	// colour-science's published OSA-UCS inverse example (Schlömer 2019 method)
+	is(space.osaucs.xyz(-3.0049979, 2.997137, -9.6678423).map(round(2)), [20.65, 12.2, 5.14], 'published rounded coordinates recover XYZ within 0.01');
+	for (const xyz of [[33.71, 26.46, 46.66], [20.654008, 12.197225, 5.136952], [19.01, 20, 21.78]])
+		is(space.osaucs.xyz(...space.xyz.osaucs(...xyz)).map(round(4)), xyz.map(round(4)), `roundtrip ${xyz}`);
 });
 
 test('osaucs: xyz -> osaucs (forward)', function () {
@@ -1029,8 +1051,8 @@ test('osaucs: xyz -> osaucs (forward)', function () {
 
 
 // Coloroid (Nemcsics ATV): V = 10·√Y; T = position on the white→limit line
-// (0 at white, 100 at the limit). ATV↔xyY round-trips exactly; A is quantized to
-// 48 grades so rgb→coloroid→rgb is lossy (documented). EXPERIMENTAL — see file header.
+// (0 at white, 100 at the limit). The 48 published hue grades are exact anchors;
+// fractional A interpolates their limit polygon, so ATV↔xyY round-trips exactly.
 test('coloroid', () => {
 	is(round(2)(space.xyz.coloroid(54.64, 64.0, 18.26)[2]), 80, 'V = 10·√64 = 80');
 	is(round(2)(space.xyz.coloroid(95.0456, 100, 108.9058)[1]) + 0, 0, 'white point -> T=0');

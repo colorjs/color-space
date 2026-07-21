@@ -7,7 +7,7 @@
  * conversions instead of guessing. MCP stdio transport = newline-delimited
  * JSON-RPC 2.0, small enough to speak directly — no SDK.
  *
- *     { "mcpServers": { "color-space": { "command": "npx", "args": ["color-space-mcp"] } } }
+ *     { "mcpServers": { "color-space": { "command": "npx", "args": ["--yes", "--package", "color-space", "color-space-mcp"] } } }
  *
  * Tools: convert (any pair, identity included) · space (the full dossier: formula
  * refs, ranges, provenance, neighbours) · spaces (the catalog) · cube (a .cube LUT).
@@ -22,6 +22,7 @@ import { cube, channelwise } from './lut.js'
 const meta = data.spaces
 
 const VERSION = pkg.version
+const PROTOCOL_VERSION = '2025-03-26'
 const names = Object.keys(space)
 const N = names.length
 
@@ -110,7 +111,10 @@ export function handle(msg) {
 	const { id, method, params } = msg
 	if (method === 'initialize')
 		return rpc(id, { result: {
-			protocolVersion: params?.protocolVersion || '2025-03-26',
+			// Negotiate the protocol we implement; never claim support by echoing an
+			// arbitrary client version (MCP requires the server to choose its own
+			// supported version when the requested one is unavailable).
+			protocolVersion: PROTOCOL_VERSION,
 			capabilities: { tools: {} },
 			serverInfo: { name: 'color-space', version: VERSION },
 			instructions: `Verified color conversions between ${N} spaces. Use \`convert\` instead of computing color math yourself; \`space\` for authoritative references and ranges; \`cube\` for a LUT file.`,

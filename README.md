@@ -1,10 +1,10 @@
-# color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![stable](https://img.shields.io/badge/stability-stable-brightgreen.svg)](http://github.com/badges/stability-badges) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
+# color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="a high-chroma Munsell hue circle at value 6.8, shown continuously and in its 10 major hue families" width="100%"/>
 
 **An open collection of 161 color spaces.**
 
-Web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small, consistent API, conventional ranges. Every conversion is source-checked; metadata and references included.
+Web, print, film, broadcast, photo, art, human vision, science, history. Convert any space to any other with one small, consistent API and conventional ranges. Every space carries provenance and an independent conformance anchor; metadata and references included.
 
 **[Interactive atlas →](https://colorjs.github.io/color-space/)**
 
@@ -50,8 +50,10 @@ Web, print, film, broadcast, photo, art, human vision, science, history. Convert
 ## Use
 
 ```sh
-npm install color-space
+npm install color-space@next
 ```
+
+v3 is currently a release candidate on the `next` tag; stable `npm install color-space` remains v2 until promotion.
 
 ```js
 import space from 'color-space';
@@ -88,14 +90,14 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 | `color-space/lut` | Measured `.cube` files for Resolve, Premiere, OBS, ffmpeg |
 | `color-space/icc` | Matrix + TRC or CLUT profiles |
 | `color-space/data.json` | Metadata: channels, ranges, provenance, references, graph, gamuts |
-| `npx color-space-mcp` | Agent tools: `convert`, `space`, `spaces`, and `cube` over MCP |
+| `npx --yes --package color-space color-space-mcp` | Agent tools: `convert`, `space`, `spaces`, and `cube` over MCP |
 
 [Upgrading from v2?](docs/migration.md)
 
 ## Why color-space?
 
 - **Conventional ranges.** RGB is 0–255, Lab is 0–100/±125, hue is degrees, and OKLCH matches CSS — no universal 0–1 wrapper to remember.
-- **Verified formulas.** Every space is checked against either colorjs.io in both directions or a cited authoritative value — [zero gaps](docs/formula-verification.md).
+- **Verified formulas.** All 161 spaces have an independent cited anchor; 29 are additionally differential-tested against colorjs.io in both directions — [methods and limits](docs/formula-verification.md).
 - **Broad, not padded.** Camera logs, appearance models, video encodings, colorimetry, and historical systems are first-class conversion nodes, not aliases.
 - **Small foundations.** Zero dependencies, ESM, tree-shakeable modules, scalar and typed-array forms.
 
@@ -112,14 +114,14 @@ Thanks to everyone who contributes to color science — researchers, theorists, 
 
 ## Comparison
 
-| Library | Spaces | Ranges | Specialty¹ | Backends | Speed² |
-|---|---:|---|---|---|---:|
-| **color-space** | **161** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **27.8** |
-| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.3 |
-| [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
-| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 11.8³ |
+| Library | Spaces | Ranges | Specialty¹ | Backends |
+|---|---:|---|---|---|
+| **color-space** | **161** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC |
+| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS |
+| [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS |
+| [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS |
 
-<sup>¹ See the factual [library comparison](docs/library-comparison.md) · ² geometric mean, million scalar calls per second over the 8 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3 · hex), Node 25 / Apple silicon · ³ over the 4 it implements (rgb ⇄ oklab, rgb → p3 · hex), scratch-vector idiom — it has no CIELAB/HSL</sup>
+<sup>¹ See the factual [library comparison](docs/library-comparison.md). For reproducible local timings, run `npm run benchmark`; unsupported operations are omitted rather than timed as no-ops.</sup>
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>

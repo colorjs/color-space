@@ -8,9 +8,9 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
-| **Version compared** | 3.x | 4.x | 0.6.x | 2.x | 0.x |
+| **Version compared** | 3.x | 4.x | 0.6.x | 3.x | 0.x |
 | **Color spaces** | **161** | ~35 | ~40 | ~15 | ~16 |
-| **API value ranges** | Conventional (CSS-matching) | Normalized 0–1 | Normalized 0–1 | Mixed / CSS strings | Normalized 0–1 |
+| **API value ranges** | Conventional per space | Mixed; RGB normalized | Mixed; RGB normalized | Mixed / CSS strings | Mostly normalized |
 | **CSS string parsing** | No | Yes | Yes | Yes | No |
 | **Color mixing / interpolation** | No | Yes | Yes | Yes | No |
 | **Gamut mapping** | No | Yes | Yes | No | No |
@@ -29,16 +29,7 @@ Full-library min+gz; color-space is measured from the current esbuild output, co
 
 ## Value ranges — the most consequential API difference
 
-Every library except color-space normalizes all channels to 0–1:
-
-```js
-// culori / colorjs.io / @texel/color
-lab(0.5, 0, 0)     // L = 0.5  (means 50%)
-oklch(0.65, 0.1, 0.5)  // H = 0.5  (means 180°)
-rgb(1, 0.5, 0)     // R = 1    (means 255)
-```
-
-color-space uses the ranges CSS Color 4/5 specifies and color science literature uses:
+The compared libraries do not share one range convention. culori, colorjs.io, and @texel/color normalize RGB to 0–1, but perceptual lightness and hue conventions vary by space and library. color-space deliberately keeps each space's familiar literature or CSS range:
 
 ```js
 // color-space
@@ -48,7 +39,7 @@ hsl.rgb(180, 75, 50)    // H: 0–360°, S/L: 0–100%
 rgb.hsl(255, 128, 0)    // R/G/B: 0–255
 ```
 
-Normalized ranges are convenient for GPU shaders and CSS `color-mix()` math; conventional ranges are self-documenting and match CSS output directly. Neither is wrong — the choice has downstream consequences for everything built on top.
+Normalized RGB is convenient for GPU and compositing work; conventional per-space ranges are self-documenting and often match standards or CSS coordinates directly. Neither choice is universally right, so callers should consult each library's range metadata rather than assume every channel is 0–1.
 
 ---
 
@@ -134,4 +125,4 @@ These belong to the application layer. culori, colorjs.io, and chroma-js impleme
 
 ---
 
-*Data current as of June 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*
+*Data current as of July 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*

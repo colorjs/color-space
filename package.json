@@ -1,7 +1,7 @@
 {
   "name": "color-space",
-  "description": "Any color space",
-  "version": "3.0.0-next.0",
+  "description": "Open collection of 161 independently anchored color-space conversions",
+  "version": "3.0.0-rc.0",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
   "keywords": [
@@ -35,7 +35,16 @@
     "cinema"
   ],
   "repository": "colorjs/color-space",
+  "homepage": "https://colorjs.github.io/color-space/",
+  "bugs": "https://github.com/colorjs/color-space/issues",
+  "funding": "https://github.com/sponsors/dy",
   "license": "CC0-1.0",
+  "engines": {
+    "node": ">=20.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./index.js",
   "types": "./types/index.d.ts",
   "files": [
@@ -45,7 +54,9 @@
     "wasm",
     "gl",
     "types",
-    "dist"
+    "dist",
+    "docs",
+    "CHANGELOG.md"
   ],
   "bin": {
     "color-space-mcp": "./mcp.js"
@@ -84,6 +95,7 @@
       "default": "./icc.js"
     },
     "./data.json": "./data.json",
+    "./data": null,
     "./wasm": {
       "types": "./types/wasm.d.ts",
       "default": "./wasm.js"
@@ -92,25 +104,71 @@
       "types": "./types/wasm.d.ts",
       "default": "./wasm.js"
     },
+    "./wasm/spaces": {
+      "types": "./types/wasm-spaces.d.ts",
+      "default": "./wasm/spaces.js"
+    },
+    "./wasm/spaces.js": {
+      "types": "./types/wasm-spaces.d.ts",
+      "default": "./wasm/spaces.js"
+    },
     "./color-space.wasm": "./dist/color-space.wasm",
     "./gl": {
       "types": "./types/gl.d.ts",
       "default": "./gl/compose.js"
     },
     "./gl/all": {
-      "types": "./types/gl.d.ts",
+      "types": "./types/gl-all.d.ts",
       "default": "./gl/index.js"
     },
-    "./gl/wgsl": "./gl/wgsl.js",
-    "./gl/translate": "./gl/translate.js",
-    "./gl/*.glsl.js": "./gl/*.glsl.js",
-    "./gl/*.js": "./gl/*.js",
-    "./gl/*": "./gl/*.glsl.js",
+    "./gl/wgsl": {
+      "types": "./types/gl-wgsl.d.ts",
+      "default": "./gl/wgsl.js"
+    },
+    "./gl/translate": {
+      "types": "./types/gl-translate.d.ts",
+      "default": "./gl/translate.js"
+    },
+    "./gl/compose.js": {
+      "types": "./types/gl.d.ts",
+      "default": "./gl/compose.js"
+    },
+    "./gl/index.js": {
+      "types": "./types/gl-all.d.ts",
+      "default": "./gl/index.js"
+    },
+    "./gl/wgsl.js": {
+      "types": "./types/gl-wgsl.d.ts",
+      "default": "./gl/wgsl.js"
+    },
+    "./gl/translate.js": {
+      "types": "./types/gl-translate.d.ts",
+      "default": "./gl/translate.js"
+    },
+    "./gl/util.js": {
+      "types": "./types/gl-util.d.ts",
+      "default": "./gl/util.js"
+    },
+    "./gl/*.glsl.js": {
+      "types": "./types/gl-chunk.d.ts",
+      "default": "./gl/*.glsl.js"
+    },
+    "./gl/*.js": {
+      "types": "./types/gl-chunk.d.ts",
+      "default": "./gl/*.js"
+    },
+    "./gl/*": {
+      "types": "./types/gl-chunk.d.ts",
+      "default": "./gl/*.glsl.js"
+    },
     "./hub.js": {
       "types": "./types/hub.d.ts",
       "default": "./hub.js"
     },
-    "./mcp.js": "./mcp.js",
+    "./mcp.js": {
+      "types": "./types/mcp.d.ts",
+      "default": "./mcp.js"
+    },
     "./gamuts.js": {
       "types": "./types/gamuts.d.ts",
       "default": "./gamuts.js"
@@ -123,8 +181,14 @@
       "types": "./types/util.d.ts",
       "default": "./util.js"
     },
-    "./transfers.js": "./transfers.js",
-    "./cie.js": "./cie.js",
+    "./transfers.js": {
+      "types": "./types/transfers.d.ts",
+      "default": "./transfers.js"
+    },
+    "./cie.js": {
+      "types": "./types/cie.d.ts",
+      "default": "./cie.js"
+    },
     "./spaces/*.js": {
       "types": "./types/*.d.ts",
       "default": "./spaces/*.js"
@@ -139,21 +203,28 @@
     }
   },
   "devDependencies": {
-    "color-name": "^2.0.0",
-    "esbuild": "^0.24.2",
-    "jz": "^0.9.2",
-    "tst": "^9.0.0"
-  },
-  "optionalDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@texel/color": "^1.1.11",
     "chroma-js": "^3.1.2",
     "color-convert": "^2.0.1",
+    "color-name": "^2.0.0",
     "colorjs.io": "^0.5.2",
     "culori": "^4.0.1",
-    "watr": "^3.1.0"
+    "esbuild": "^0.28.1",
+    "jz": "^0.9.2",
+    "playwright": "^1.61.1",
+    "tst": "^9.0.0",
+    "typescript": "^5.8.2",
+    "watr": "^3.1.0",
+    "wgsl_reflect": "^1.5.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js",
+    "test": "node test && node test/cie.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
+    "test:types": "tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck false test/types/smoke.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck false test/types/smoke.ts",
+    "test:package": "node scripts/test-package.js",
+    "test:gpu": "node scripts/check-gl-gpu.js",
+    "test:browser": "node scripts/check-site.js",
+    "test:a11y": "node scripts/check-a11y.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "data": "node scripts/generate-data.js",
@@ -161,6 +232,7 @@
     "banner": "node scripts/generate-banner.js",
     "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
-    "prepare": "npm run types && npm run data && npm run build:wasm && npm run build"
+    "prepare": "npm run types && npm run data && npm run build:wasm && npm run build",
+    "prepublishOnly": "npm run prepare && npm run landing && npm test && npm run test:package"
   }
 }

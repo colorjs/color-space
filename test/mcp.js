@@ -31,7 +31,9 @@ const text = (r) => r.result.content[0].text
 test('mcp: initialize → serverInfo, tools listed', async () => {
 	const init = await call('initialize', { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'test', version: '0' } })
 	is(init.result.serverInfo.name, 'color-space', 'server name')
-	is(init.result.protocolVersion, '2025-03-26', 'echoes the client protocol version')
+	is(init.result.protocolVersion, '2025-03-26', 'negotiates the supported protocol version')
+	const future = await call('initialize', { protocolVersion: '2099-01-01', capabilities: {}, clientInfo: { name: 'future', version: '0' } })
+	is(future.result.protocolVersion, '2025-03-26', 'does not claim support for an unknown client version')
 	srv.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n')
 	const tools = await call('tools/list')
 	is(tools.result.tools.map((t) => t.name).sort(), ['convert', 'cube', 'space', 'spaces'], 'four tools')

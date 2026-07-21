@@ -63,11 +63,15 @@ test('batch — a batch of one is the v2 calling convention', () => {
 	is(same(space.rgb.ycbcr([255, 0, 0], 0.0722, 0.2126), space.rgb.ycbcr(255, 0, 0, 0.0722, 0.2126)), true, 'v2 (arr, kb, kr) shape works')
 })
 
-test('batch — register()ed space gets both forms (2-channel stride)', () => {
-	register({ name: 'halfs', range: [[0, 1], [0, 1]], rgb: (a, b) => [a * 255, b * 255, 0] })
-	space.rgb.halfs = undefined // no inverse defined; direct edge only
-	is(space.halfs.rgb(0.5, 0.25), [127.5, 63.75, 0], 'scalar')
-	is(same(space.halfs.rgb([0.5, 0.25, 1, 1]), [127.5, 63.75, 0, 255, 255, 0]), true, 'batch, stride 2')
+test('batch — register()ed space gets both forms and directions (2-channel stride)', () => {
+	register(
+		{ name: 'halfs', range: [[0, 1], [0, 1]], rgb: (a, b) => [a * 255, b * 255, 0] },
+		{ rgb: (r, g) => [r / 255, g / 255] },
+	)
+	is(space.halfs.rgb(0.5, 0.25), [127.5, 63.75, 0], 'outgoing scalar')
+	is(same(space.halfs.rgb([0.5, 0.25, 1, 1]), [127.5, 63.75, 0, 255, 255, 0]), true, 'outgoing batch, stride 2')
+	is(space.rgb.halfs(255, 128, 0), [1, 128 / 255], 'incoming scalar')
+	is(same(space.rgb.halfs([255, 128, 0, 0, 64, 9]), [1, 128 / 255, 0, 64 / 255]), true, 'incoming batch')
 	delete space.halfs
 })
 
@@ -80,9 +84,12 @@ test('lite — space set is exactly the wasm coverage, hubs agree', () => {
 	is(space.rgb.hsl(255, 128, 0).map(Math.round), [30, 100, 50], 'full hub still routes catalog-only pairs')
 })
 
-test('lite — register wires a custom space into the compact graph', () => {
-	registerLite({ name: 'neg', range: [[0, 255], [0, 255], [0, 255]], rgb: (r, g, b) => [255 - r, 255 - g, 255 - b] })
-	is(lite.neg.rgb(255, 0, 255), [0, 255, 0], 'direct')
-	is(lite.neg.oklch(255, 255, 255).map((v) => +v.toFixed(4)), [0, 0, 0], 'composed through the compact graph: neg white → black oklch')
+test('lite — register wires a custom space both ways through the compact graph', () => {
+	const neg = (r, g, b) => [255 - r, 255 - g, 255 - b]
+	registerLite({ name: 'neg', range: [[0, 255], [0, 255], [0, 255]], rgb: neg }, { rgb: neg })
+	is(lite.neg.rgb(255, 0, 255), [0, 255, 0], 'direct out')
+	is(lite.rgb.neg(255, 0, 255), [0, 255, 0], 'direct in')
+	is(lite.neg.oklch(255, 255, 255).map((v) => +v.toFixed(4)), [0, 0, 0], 'new→existing composed')
+	is(lite.oklch.neg(0, 0, 0).map(Math.round), [255, 255, 255], 'existing→new composed')
 	delete lite.neg
 })

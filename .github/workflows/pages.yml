@@ -38,8 +38,10 @@ jobs:
       # npm ci runs `prepare` — types/meta/data/wasm/dist all regenerate here;
       # nothing generated is committed
       - run: npm ci
-      # deploy gate — the full suite (includes the _site completeness pin)
+      - run: npx playwright install --with-deps chromium
+      # deploy gate — source, browser/GPU, accessibility and packed consumers
       - run: npm test
+      - run: npm run test:package
       - run: npm run landing
       - uses: actions/upload-pages-artifact@v3
         with:

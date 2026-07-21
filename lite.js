@@ -15,7 +15,7 @@
  *
  * @module color-space/lite
  */
-import { createHub, wire, validate } from './hub.js'
+import { createHub, registerSpace } from './hub.js'
 import rgb from './spaces/rgb.js'
 import lrgb from './spaces/lrgb.js'
 import xyz from './spaces/xyz.js'
@@ -52,14 +52,12 @@ const space = createHub([rgb, lrgb, xyz, oklab, oklrab, oklch, oklrch, lab, lcha
 export default space;
 
 /**
- * Register a color space and (re)wire conversions to/from every other space.
- * The space is validated and copied in — the passed object stays unmutated;
- * use the returned registry entry (`space[newSpace.name]`) for conversions.
+ * Register a color space with one or more edges in each direction, then wire it
+ * to every existing space. Methods on `newSpace` point OUT; `reverse` supplies the
+ * inverse existing→new edges. Both are required so the hub stays any-to-any.
  * @param {space} newSpace
+ * @param {Object<string, Function>} reverse existing-space name → existing→new converter
  */
-export function register(newSpace) {
-	validate(space, newSpace);
-	space[newSpace.name] = { ...newSpace };
-	wire(space);
-	return space;
+export function register(newSpace, reverse) {
+	return registerSpace(space, newSpace, reverse);
 }

@@ -5,7 +5,7 @@
 // reproduces the scalar API to within last-bit cbrt/pow (+ gamut-bound) divergence —
 // so the two backends can never silently drift.
 import test, { is } from 'tst'
-import wasm, { alloc, convertBatch, spaces } from '../wasm.js'
+import wasm, { alloc, convert, convertBatch, spaces } from '../wasm.js'
 import space from '../index.js'
 
 const rnd = (s) => () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296 }
@@ -58,6 +58,23 @@ test('wasm: default export — scalar, zero-copy and copy-through forms agree', 
 // the scalar JS library is pinned by the rgb→X differential sweep above (the
 // backends may route pairs differently — JS has a direct xyz↔oklab edge, wasm goes
 // via lrgb — so cross-backend equality only holds from shared anchors).
+test('wasm: malformed arity, lengths and counts fail before touching memory', () => {
+	const throws = (fn, re, label) => { let msg = ''; try { fn() } catch (e) { msg = e.message } is(re.test(msg), true, `${label}: ${msg}`) }
+	throws(() => wasm.rgb.oklch(255, 0), /expects 3 channel values/, 'scalar arity')
+	throws(() => wasm.rgb.oklch(new Float64Array([255, 0])), /3·n/, 'typed batch stride')
+	throws(() => wasm.rgb.oklch([255, 0, 0, 7]), /3·n/, 'plain batch stride')
+	throws(() => alloc(-1), /non-negative integer/, 'negative alloc')
+	throws(() => alloc(1.5), /non-negative integer/, 'fractional alloc')
+	alloc(1)
+	throws(() => convert('rgb', 'oklch', 2), /exceeds the active/, 'convert beyond active buffer')
+	throws(() => convert('nope', 'rgb', 1), /unknown space/, 'unknown source')
+	throws(() => convertBatch('rgb', 'oklch', [255, 0, 0], new Float64Array(2)), /dst needs at least 3/, 'short destination')
+	const plain = [255, 0, 0]
+	const out = convertBatch('rgb', 'oklch', plain)
+	is(out instanceof Float64Array && out.length === 3, true, 'plain array gets a new Float64Array')
+	is(plain, [255, 0, 0], 'plain source stays untouched')
+})
+
 test('wasm: scalar form ≡ batch form, bit-for-bit, on every pair', () => {
 	const anchors = [[246, 125, 79], [0, 128, 255], [12, 200, 100]]
 	let pairs = 0

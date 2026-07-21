@@ -93,7 +93,29 @@ Channel names, refs, provenance and more moved to `color-space/data.json` (`data
   undefined variable. v3 implements the 1943 renotation, bidirectionally — code
   addressing it will now actually convert.
 
-### 6. New since v2 — not breaking, worth knowing
+### 6. Custom spaces must connect in both directions
+
+`register()` now preserves the library's any-to-any guarantee. Methods on the new
+space point outward; the second argument supplies the matching existing→new edges.
+Disconnected, duplicate, and reserved names are rejected, and neither input object
+is mutated.
+
+```js
+import { register } from 'color-space';
+
+const extended = register({
+  name: 'unit-rgb',
+  range: [[0, 1], [0, 1], [0, 1]],
+  rgb: (r, g, b) => [r * 255, g * 255, b * 255],
+}, {
+  rgb: (r, g, b) => [r / 255, g / 255, b / 255],
+});
+
+extended['unit-rgb'].oklch(1, 0.5, 0);
+extended.oklch['unit-rgb'](0.7, 0.15, 40);
+```
+
+### 7. New since v2 — not breaking, worth knowing
 
 - 161 spaces (v2 had 41): P3, Rec.2020/2100, ACES, 30+ camera logs, appearance
   models, historical systems.

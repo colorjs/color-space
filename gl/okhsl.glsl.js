@@ -13,7 +13,7 @@ const float OKHSL_TAU_ = 6.283185307179586;
 const float OKHSL_K1_ = 0.206;
 const float OKHSL_K2_ = 0.03;
 const float OKHSL_K3_ = (1.0 + OKHSL_K1_) / (1.0 + OKHSL_K2_);
-const float OKHSL_FLTMAX_ = 3.4028235e38;
+const float OKHSL_FLTMAX_ = 1.0e30;
 
 float okhsl_toe_(float x) {
 	float k = OKHSL_K3_ * x - OKHSL_K1_;

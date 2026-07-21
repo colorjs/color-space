@@ -132,7 +132,7 @@ vec3 hct_xyz(vec3 c) {
 		if (res.y == 0.0) { break; }
 		j = j - ((res.y - y) * j) / (2.0 * res.y);
 	}
-	if (last > 1.0e-3) { return vec3(sqrt(-1.0), sqrt(-1.0), sqrt(-1.0)); }
+	if (last > 1.0e-3) { float nan_ = sqrt(y - y - 1.0); return vec3(nan_); }
 	return hct_fromcam16_(best, cc, h);
 }`,
 }

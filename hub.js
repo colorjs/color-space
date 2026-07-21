@@ -174,9 +174,37 @@ export function createHub(spaces) {
  */
 export function validate(space, s) {
 	if (!s || typeof s.name !== 'string' || !s.name) throw Error('color-space: register expects a space with a string `name`')
+	if (s.name === 'name' || s.name === 'range') throw Error(`color-space: '${s.name}' is reserved and cannot be a space name`)
+	if (space[s.name]) throw Error(`color-space: '${s.name}' is already registered`)
 	if (!Array.isArray(s.range) || !s.range.length || !s.range.every((r) => Array.isArray(r) && r.length === 2 && r.every(Number.isFinite)))
 		throw Error(`color-space: '${s.name}' needs a \`range\` — an array of [min, max] per channel`)
-	const names = Object.keys(space).filter((n) => n !== s.name)
-	const connected = names.some((n) => typeof s[n] === 'function' || typeof space[n]?.[s.name] === 'function')
-	if (names.length && !connected) throw Error(`color-space: '${s.name}' has no conversion to or from any registered space`)
+	const names = Object.keys(space)
+	if (names.length && !names.some((n) => typeof s[n] === 'function'))
+		throw Error(`color-space: '${s.name}' needs an outgoing conversion to a registered space`)
+}
+
+/**
+ * Register a new space with at least one edge in EACH direction, then wire the
+ * now-strongly-connected graph. `s.rgb`, for example, converts new→rgb; the
+ * matching `from.rgb` converts rgb→new. Requiring both directions keeps the
+ * hub's defining promise true after extension: every registered pair converts.
+ * @param {Object<string, space>} space registry being extended
+ * @param {space} s new space object (copied; never mutated)
+ * @param {Object<string, Function>} from existing-space name → existing→new converter
+ * @returns {Object<string, space>} the same, extended registry
+ */
+export function registerSpace(space, s, from) {
+	validate(space, s)
+	if (!from || typeof from !== 'object' || Array.isArray(from))
+		throw Error(`color-space: '${s.name}' needs a reverse conversion map, e.g. { rgb: rgbToNew }`)
+	const incoming = Object.entries(from)
+	if (!incoming.length) throw Error(`color-space: '${s.name}' needs at least one conversion from a registered space`)
+	for (const [name, fn] of incoming) {
+		if (!space[name]) throw Error(`color-space: reverse conversion source '${name}' is not registered`)
+		if (typeof fn !== 'function') throw Error(`color-space: reverse conversion '${name}→${s.name}' must be a function`)
+	}
+	space[s.name] = { ...s }
+	for (const [name, fn] of incoming) space[name][s.name] = fn
+	wire(space)
+	return space
 }

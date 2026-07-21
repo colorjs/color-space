@@ -1,0 +1,75 @@
+name: release
+
+# Publish only from a manually selected, fully tested commit. For v3, publish an
+# rc under `next`, exercise that exact version as a consumer, then rerun this
+# workflow on the promoted stable-version commit with `latest`.
+on:
+  workflow_dispatch:
+    inputs:
+      dist-tag:
+        description: npm distribution tag
+        required: true
+        type: choice
+        options: [next, latest]
+        default: next
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Validate version and requested dist-tag
+        env:
+          DIST_TAG: ${{ inputs['dist-tag'] }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$DIST_TAG" == latest && "$VERSION" == *-* ]]; then
+            echo "Refusing to publish prerelease $VERSION as latest" >&2
+            exit 1
+          fi
+          if [[ "$DIST_TAG" == next && "$VERSION" != *-* ]]; then
+            echo "Refusing to publish stable $VERSION as next" >&2
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Build and verify source, browsers, GPU and packed consumers
+        run: |
+          npm run prepare
+          npm run landing
+          npm test
+          npm run test:package
+          npm audit --omit=dev
+      - name: Publish the tested commit with provenance
+        run: npm publish --access public --provenance --tag "${{ inputs['dist-tag'] }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Tag the exact published commit
+        run: |
+          git tag -a "v$VERSION" -m "v$VERSION"
+          git push origin "v$VERSION"
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DIST_TAG: ${{ inputs['dist-tag'] }}
+        run: |
+          EXTRA=()
+          if [[ "$DIST_TAG" == next ]]; then EXTRA+=(--prerelease); fi
+          gh release create "v$VERSION" --verify-tag --generate-notes --title "v$VERSION" "${EXTRA[@]}"

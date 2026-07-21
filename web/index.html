@@ -3,12 +3,17 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>color-space — every color space, one tiny API, verified</title>
-<meta name="description" content="161 color coordinate systems in the browser — CSS-native values, every conversion verified against colorjs.io and its source paper. Zero dependencies, public domain.">
+<meta name="description" content="An open collection of 161 color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain.">
+<link rel="canonical" href="https://colorjs.github.io/color-space/">
 <meta property="og:title" content="color-space — every color space, one tiny API, verified">
-<meta property="og:description" content="161 color coordinate systems, one API — convert any space to any other. CSS-native values, verified against colorjs.io and the source papers. Zero dependencies, public domain.">
-<meta property="og:image" content="https://raw.githubusercontent.com/colorjs/color-space/gh-pages/logo.png">
+<meta property="og:description" content="An open collection of 161 color spaces. Convert any space to any other with conventional ranges and independently anchored formulas.">
+<meta property="og:image" content="https://colorjs.github.io/color-space/img/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="color-space — 161 color spaces in one open collection">
+<meta property="og:url" content="https://colorjs.github.io/color-space/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image:alt" content="color-space — 161 color spaces in one open collection">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%23ef7a4a'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -125,7 +130,7 @@ a{ color:var(--ink) }
 	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto }
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:44px; min-width:44px; height:44px } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag{ min-height:44px } .mx{ width:44px; height:44px } }
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:44px; min-width:44px; height:44px } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button{ min-height:44px } .mx{ width:44px; height:44px } .pl .pmode{ width:44px; height:44px } }
 @media(max-width:360px){ .mast #thm{ display:none } }
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
@@ -134,6 +139,7 @@ a{ color:var(--ink) }
 /* rail takes its fixed width on the left; the spaces centre in the space that remains,
    not on the screen — so they don't read as shoved right of the categories */
 .cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
+.nores{ grid-column:2; margin:0; font-size:var(--t2); color:var(--soft); padding:var(--s8) 0 var(--s12) }   /* the filtered-to-nothing line — the void names the query instead of going silent */
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
 .toc{ grid-column:1; position:relative; padding-bottom:var(--s12) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
@@ -142,7 +148,7 @@ a{ color:var(--ink) }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
-.ti .tc{ font-weight:600; font-size:.8em; color:currentColor; opacity:.42; margin-left:.6em }   /* count of spaces in the category */
+.ti .tc{ font-weight:600; font-size:.8em; color:var(--soft); opacity:1; margin-left:.6em }   /* count of spaces in the category */
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }   /* fills the capped content column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
@@ -215,11 +221,9 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
 .nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
-.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:nowrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* values never drop under the name — the name ellipsizes instead */
+.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* the name owns the row — when values don't fit beside it they drop below, still right-aligned; identity never clips (REC2020-LINEAR and PROPHOTO-LINEAR used to clip to identical labels) */
 .ent.lite .eh{ padding:0; row-gap:var(--s1) }
-.ent .eh .nm{ flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale */
-.ent:not(.lite) .eh .nm{ white-space:nowrap }
-.ent.lite .eh .nm{ overflow-wrap:anywhere }
+.ent .eh .nm{ flex:0 0 auto; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; white-space:nowrap; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale; case comes display-final from disp() (uppercasing here would corrupt lαβ) */
 /* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
 .cvs{ display:flex; gap:var(--s4); margin-left:auto; flex-shrink:0 }
 .cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:.2em solid transparent }   /* ONE underline under letter + number + chevrons; flex baselines align letter and value structurally */
@@ -262,8 +266,8 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s5) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
 .mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
 .mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
-.mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; text-transform:uppercase; white-space:nowrap }   /* the neighbour's name — regular weight, no trim */
-.mnav:hover,.mnav:focus-visible{ color:var(--ink); outline:none }
+.mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; white-space:nowrap }   /* the neighbour's name — regular weight, no trim; case comes display-final from navLabel/disp() */
+.mnav:hover,.mnav:focus-visible{ color:var(--ink); outline:none }   /* focus signal is the soft→ink shift, the site's no-ring convention (see input:focus-visible) */
 .mnav:hover svg,.mnav:focus-visible svg{ opacity:1 }
 @media(max-width:520px){ .mnav .mn{ font-size:var(--t2) } }
 .mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
@@ -286,6 +290,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .dpills{ display:flex; gap:var(--s2); flex-wrap:wrap; margin:var(--s3) 0 var(--s4) }
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
 .tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1 }
+.tag[title],.tag[data-tip]{ cursor:help }
 .dhero{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .modal.barred .dhero{ grid-template-columns:1fr }   /* no graphics column to reserve — text takes the whole width */
 .dmain{ min-width:0 }
@@ -363,7 +368,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .chlist .rmn{ justify-self:end }
 .chlist .rsep{ margin:0 .35em; color:var(--soft) }
 .chlist .tnum{ white-space:nowrap }
-.cssv{ cursor:copy } .cssv:hover{ color:var(--ink) }   /* the css notation copies on click */
+.cssv{ cursor:copy } .cssv:hover,.cssv:focus-visible{ color:var(--ink) }   /* the css notation copies on click or keyboard activation */
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
 .pl canvas{ display:block; width:100%; height:100% }
 /* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
@@ -388,21 +393,20 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
-h4.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:var(--s6) 0 var(--s2); display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap }
+.sec2{ font-size:var(--t0); letter-spacing:.12em; text-transform:uppercase; color:var(--soft); font-weight:700; margin:var(--s6) 0 var(--s2); display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap }
 .src{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .src a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .src a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 /* segmented buttons — same word-style as the corner gamut flags, clickable */
 .seg{ display:flex; gap:var(--s3) }
-.seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:2px solid transparent; background:none; padding:0 0 2px; color:var(--ghost); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
-.seg button:hover{ color:var(--body) }
+.seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:2px solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
+.seg button:hover{ color:var(--ink) }
 .seg button.on{ color:var(--ink); border-bottom-color:var(--accent) }   /* the active option carries the accent, like the API tabs */
-.seg button:hover{ color:var(--soft) }
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
-h4.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
-h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); cursor:pointer }
+.sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
+.sec2 .hp{ font:inherit; font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); border:0; background:none; padding:0; cursor:pointer }
 #compare .hp{ margin-left:auto }   /* the hue-arc toggle rides the far right of the interpolate heading */
 /* the interpolate heading is interactive: the word rotates the comparison space, the
    rhombus picks the blend's endpoint — same title-control idiom as the swap arrow */
@@ -416,7 +420,7 @@ h4.sec2 .hp{ font-weight:700; letter-spacing:0; text-transform:none; font-size:v
 .istack{ display:flex; flex-direction:column }
 .irow{ position:relative; height:2.5rem; margin-bottom:.5rem; }
 .isp{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; pointer-events:none }   /* the band's space, inked dark/white per its left colour */
-.icmp{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='white' stroke-width='5'/><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='%231b1408' stroke-width='2.2'/></g></svg>") 11 11, pointer }   /* click cycles the comparison space, like the image source panel */
+.icmp{ display:block; width:100%; border:0; padding:0; background:transparent; cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='white' stroke-width='5'/><path d='M21 12a9 9 0 1 1-2.6-6.4M21 3.5v5h-5' stroke='%231b1408' stroke-width='2.2'/></g></svg>") 11 11, pointer }   /* click cycles the comparison space, like the image source panel */
 .srcline{ margin-top:var(--s3); font-size:var(--t1); color:var(--soft) }
 .srcline a{ text-decoration:none; box-shadow:inset 0 -1px 0 var(--hair); font-weight:600 }
 .srcline a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
@@ -503,7 +507,6 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .export .exarrow{ color:var(--soft) }
 .export select{ font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--ghost); padding:.3em .5em; cursor:pointer; max-width:12rem }
 .export select option{ color:var(--ink); background:var(--paper) }   /* the drop-down list follows color-scheme — paint it with the theme's own pair */
-.export .seg button{ color:var(--soft) } .export .seg button:hover,.export .seg button.on{ color:var(--ink) }
 .exdl{ font:inherit; font-weight:700; color:var(--color-accent-ink); background:var(--c); border:0; padding:.45em 1em; cursor:pointer }
 .exdl:disabled{ opacity:.4; cursor:not-allowed }
 .exstat{ color:var(--soft); cursor:help }
@@ -546,13 +549,13 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">161</span> spaces</span>
-	<span class="cx" title="current color — type any CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts any CSS color"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
+	<span class="cx" title="current color — type a supported CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts supported CSS colors"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
 	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
-	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3.0.0</a>
+	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </header><div class="hueline" id="hueline" role="slider" tabindex="0" aria-label="Choose hue" aria-valuemin="0" aria-valuemax="360" aria-valuenow="41" title="pick a hue"></div></div>
 
@@ -1073,9 +1076,9 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 		<h2 id="introcopy-title"><span id="n2">161</span> coordinate systems.</h2>
 		<p>Web, print, photography, film, broadcast, art, science, and history. Each carries conventional ranges, gamut shapes, provenance, cited references, known limits, and the canonical conversion. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>. No code needed either — export a <em>.cube</em> LUT for Resolve, Premiere, Final Cut, and OBS.</p>
 		<ul class="trust" aria-label="why you can trust the data">
-			<li title="Every conversion reproduces the numbers published in its own defining source — the paper, the CIE/ITU standard, or colour-science — not hand-picked values; then cross-checked both directions against colorjs.io, the CSS Color 4 editors' implementation, at 1/255."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
-			<li title="Channel ranges match CSS Color 4 and each defining paper — real units, not normalized to 0–1."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
-			<li title="CC0 1.0 — no rights reserved. Use, sell, fork or embed it anywhere; no attribution required."><span class="pdm" aria-hidden="true">©</span><span class="term">Public domain</span></li>
+			<li tabindex="0" title="All 161 spaces have an independent cited conformance anchor; 29 are additionally cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
+			<li tabindex="0" title="Channel ranges follow CSS and each defining source — familiar units rather than one universal normalization."><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
+			<li tabindex="0" title="CC0 1.0 — no rights reserved. Use, sell, fork or embed it anywhere; no attribution required."><span class="pdm" aria-hidden="true">©</span><span class="term">Public domain</span></li>
 		</ul>
 	</div>
 	<div class="tabs" id="apitabs">
@@ -1145,7 +1148,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 </footer>
 
 <div id="toast" role="status" aria-live="polite">Copied</div>
-<div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
@@ -1157,7 +1160,7 @@ import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import NAMES from './js/names.js'
-import { SPACES, sections, cname, unit, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
+import { SPACES, sections, cname, unit, disp, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
 import BARRED from './js/barred.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
@@ -1540,8 +1543,8 @@ const nq=document.getElementById('nq'); nq.textContent=SPACES.length
 const qInput=document.getElementById('q')
 // the found match lights up inside the space name (fielded searches highlight in the modal too)
 const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if(!nm||s==null) return   // barred cards keep their own markup (name + ® sup)
-	const i=q?s.indexOf(q):-1
-	nm.innerHTML=i<0?s:s.slice(0,i)+'<mark>'+s.slice(i,i+q.length)+'</mark>'+s.slice(i+q.length) }
+	const d=disp(s), i=q?d.toLowerCase().indexOf(q):-1   // mark in the display string — 1:1 with the id except display-final names, which just skip the mark
+	nm.innerHTML=i<0?d:d.slice(0,i)+'<mark>'+d.slice(i,i+q.length)+'</mark>'+d.slice(i+q.length) }
 // each space's tag set — the same vocabulary the dossier features carry
 // the tags come in FACETS — mutually-exclusive aspects of one space. Picking within a
 // facet ORs (display OR scene), picking across facets ANDs (scene AND log encoding).
@@ -1569,6 +1572,9 @@ function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(
 	cat.querySelectorAll('[data-sec]').forEach((sec,i)=>{ const on=[...sec.querySelectorAll('.ent')].some(e2=>e2.style.display!=='none')
 		sec.style.display=on?'':'none'; tocIt[i]?.classList.toggle('off',!on) })
 	layoutToc(); trackAct()
+	const nores=document.getElementById('nores')
+	if(nores){ const none=(q||any)&&!shown; nores.hidden=!none
+		if(none) nores.textContent=q?`no space matches “${q}” — search covers names, channels and symbols`:'no space matches these filters — remove a chip to widen' }
 	const nEl=document.getElementById('n'); if(nEl)nEl.textContent=(q||any)?shown:spaceCount   // the logo count goes live with the filter, near the name — not tucked by the filter icon
 	nq.textContent=''
 	document.body.classList.toggle('flt',!!(q||any))   // filtering unfolds the mobile sections
@@ -1628,12 +1634,13 @@ const foldA11y=()=>document.querySelectorAll('.shw').forEach(h=>{
 foldA11y(); COLQ[0].addEventListener('change',foldA11y)
 
 // ── modal dossier ──
-const modal=document.getElementById('modal'), detail=document.getElementById('detail')
+const modal=document.getElementById('modal'), detail=document.getElementById('detail'), pageShell=document.querySelector('.page')
 detail.addEventListener('click',e=>{ const nb=e.target.closest('.mnav'); if(nb){ 'cdir' in nb.dataset ? navCat(+nb.dataset.cdir) : nav(+nb.dataset.dir); return }
 	const el=e.target.closest('#cssv'); if(el&&navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(()=>toast()) })
+detail.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('#cssv')){ e.preventDefault(); e.target.click() } })
 let modalReturn=null
 const open=()=>!modal.hidden
-const navLabel=key=>barredByKey.get(key)?.nm||key   // barred cards show their proper name in the nav
+const navLabel=key=>barredByKey.get(key)?.nm||disp(key)   // barred cards show their proper name in the nav
 // prev/next as centered post-navigation — a compact bar at the top of the dossier
 // AND at its foot. Class-based (not id) so it can appear twice; clicks delegate on
 // `detail`, and names set via querySelectorAll, since the buttons rebuild each dossier.
@@ -1649,7 +1656,7 @@ function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
 	const b=barredByKey.get(s)
-	selected=s; modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); modal.setAttribute('aria-label',(b?b.nm+' — proprietary color system':s+' color space')); document.body.style.overflow='hidden'
+	selected=s; modal.hidden=false; pageShell.inert=true; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
 	urlLast=spaceURL(s)+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
@@ -1658,8 +1665,8 @@ function openModal(s){
 	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ORDER[(k+1)%n]))
 	const si=sections.findIndex(c=>c.spaces.includes(s)), L=sections.length   // category-jump labels: "Section / FIRST-SPACE"
 	if(si>=0){ const pc=sections[(si-1+L)%L], nc=sections[(si+1)%L]
-		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=pc.name); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=pc.spaces[0])
-		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=nc.name); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=nc.spaces[0]) }
+		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=pc.name); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=disp(pc.spaces[0]))
+		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=nc.name); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=disp(nc.spaces[0])) }
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
@@ -1667,7 +1674,7 @@ function openModal(s){
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
 	// same shape and field order as buildDetail: header → tag → props (channels | origin · reference) → description
-	detail.innerHTML=`<div class="dh"><h1>${b.nm.toUpperCase()}${b.mark?`<sup>${b.mark}</sup>`:''}</h1></div>
+	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${b.nm.toUpperCase()}${b.mark?`<sup>${b.mark}</sup>`:''}</h1></div>
 	 <div class="dpills"><span class="tag" title="a licensed, sample-defined system — the authoritative colour data isn't openly redistributable">proprietary</span></div>
 	 <hr class="dhr">
 	 <section class="dhero"><div class="dmain"><div class="props props3">
@@ -1678,7 +1685,7 @@ function buildBarred(b){
 		<div class="desc">${b.why}</div></div></div>
 	 </div></section>
 	 ${MNAV('mfoot')}` }
-function closeModal(){ modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
+function closeModal(){ modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	urlLast=spaceURL('')+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
@@ -2812,10 +2819,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
 	const solidHTML=has3d?`<div class="vgrp">${dctlHTML}<div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's range on the CIE xy plane — vivid where it reaches, ghost where only eyes go, gray veil where it encodes beyond the visible"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
-	const interpHTML=`<h4 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<span class="hp" id="hp" title="hue arc direction">⇄</span>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1"></h4>
+	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
 		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
-		<div class="irow icmp" id="icmp" title="the same blend through another space — click to compare against oklch, oklab, lab, …"><span class="isp" id="ispc"></span></div>
+		<button type="button" class="irow icmp" id="icmp" title="the same blend through another space — click to compare against oklch, oklab, lab, …"><span class="isp" id="ispc"></span></button>
 	 </div>`
 	// the bar carries only the sweep and the symbol — the 3D frame's own labels;
 	// the full name lives in the title and the big inputs row
@@ -2831,7 +2838,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC tab
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	detail.innerHTML=`<div class="dh"><h1>${dcat?`<span class="dcat">${dcat}</span>`:''}${s.toUpperCase()}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
+	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
 		<div class="dmain">
@@ -2846,7 +2853,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div class="dmain"><div class="props props3">
 			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
 				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}</span><i class="csym">${c.sym}</i><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
-				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" title="this color, CSS-notated — click to copy"></p></div>`:''}
+				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
 				${geo(s)||enc?`<div><i>model</i><p class="dpills">${[geo(s),enc].filter(Boolean).map(t=>`<span class="tag" title="${TAGTIP[t]||''}">${t}</span>`).join('')}</p></div>`:''}
 				${m.referred||m.dynamic?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`].filter(Boolean).join('')}</p></div>`:''}
 				${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
@@ -2858,7 +2865,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
 				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
-				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="the independent reference values every conversion is pinned to, at 1/255 tolerance">reference values</a></p></div>`:''}
+				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 			</div>
 	 </div></div>
@@ -2872,10 +2879,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			${avoid?`<div><i>avoid when</i><p>${sent(avoid)}</p></div>`:''}
 		</div>
 	 </div>
-	 ${hasPlaneGL(s)?`<h4 class="sec2" id="image">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h4>
+	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere" aria-label="open an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
-	 <h4 class="sec2" id="code"><span class="tabrow" id="cseg" role="tablist" aria-label="code backends"><button data-t="js" class="on">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl">${FLGL}shader</button>`:''}<button data-t="meta">${FLMETA}JSON</button>${LUTOK.has(s)?`<button data-t="lut">${FLLUT}LUT</button>`:''}${iccK?`<button data-t="icc">${FLICC}ICC</button>`:''}<button data-t="css">${FLCSS}CSS</button></span></h4>
+	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}shader</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button>${LUTOK.has(s)?`<button data-t="lut" aria-pressed="false">${FLLUT}LUT</button>`:''}${iccK?`<button data-t="icc" aria-pressed="false">${FLICC}ICC</button>`:''}<button data-t="css" aria-pressed="false">${FLCSS}CSS</button></span></h2>
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre><div class="export dex" id="dex" hidden></div></div>
 	 ${MNAV('mfoot',1)}`
 		modal.scrollTop=0
@@ -2887,9 +2894,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			const m2=rx.exec(n.nodeValue); if(!m2) continue
 			n.splitText(m2.index+m2[0].length)
 			const tn=n.splitText(m2.index)
-			const sp=document.createElement('span'); sp.className='term'; sp.title=tip; sp.textContent=tn.nodeValue
+			const sp=document.createElement('span'); sp.className='term'; sp.title=tip; sp.tabIndex=0; sp.textContent=tn.nodeValue
 			tn.replaceWith(sp)
 			break } }
+	detail.querySelectorAll('.tag[title]').forEach(tag=>{ if(!tag.matches('button')) tag.tabIndex=0 })
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
 	detail.querySelectorAll('.pmode').forEach(b=>{ const pl2=b.closest('.pl'), a2=+pl2.dataset.a, b2=+pl2.dataset.b
@@ -2915,9 +2923,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
 	TC=tcurve; paintTC()
 	const irow2=detail.querySelector('#imgrow')
-	if(irow2){ irow2.onclick=e=>{ if(!IMGS) return
-			if(e.target.closest('.imgp')!==irow2.firstElementChild) return   // only the source panel cycles
-			imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
+	if(irow2){ const nextImage=()=>{ if(!IMGS) return; imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
+		irow2.onclick=e=>{ if(e.target.closest('.imgp')===irow2.firstElementChild) nextImage() }   // only the source panel cycles
+		irow2.onkeydown=e=>{ if((e.key==='Enter'||e.key===' ')&&e.target===irow2.firstElementChild){ e.preventDefault(); nextImage() } }
 		// one intake for both roads in — the drop and the picker
 		const addImg=f=>{ if(!f||!/^image\//.test(f.type)) return
 			createImageBitmap(f).then(bm=>{ if(!IMGS) IMGS=[]
@@ -2945,7 +2953,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
 	codeTab='js'
 	detail.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{ codeTab=b.dataset.t
-		detail.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b)); renderFast() })
+		detail.querySelectorAll('#cseg button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) }); renderFast() })
 	// the LUT · ICC tabs — the home page's live exporters, scoped to this space:
 	// pick a target, read the measured deviation, download the real file
 	const dex=detail.querySelector('#dex')
@@ -3035,7 +3043,10 @@ function wireBar(el,s){
 		renderFast(); paintPlanes(false); paintCatalogGrad() }
 	el.onpointermove=move; el.onpointerup=up }) }
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
-function wirePlane(pl){ const set=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
+function wirePlane(pl){
+	// corner-label ink samples this canvas every repaint — declare the readback before first paint
+	pl.querySelector('canvas').getContext('2d',{willReadFrequently:true})
+	const set=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
 		if(master.s!==selected){ const mv=valsFor(selected); if(!mv) return; master={ s:selected, vals:mv } }
 		const r=pl.getBoundingClientRect(), vw=pl._vw
 		let fx,fy
@@ -3224,7 +3235,9 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 		const cls=classify(s), n=cls.ch.length
 		if(row._n!==n+1){ row.innerHTML=''
 			for(let i=-1;i<n;i++){ const d=document.createElement('div'); d.className='imgp'
+				if(i<0){ d.tabIndex=0; d.setAttribute('role','button'); d.setAttribute('aria-label','show the next test image') }
 				const cv=document.createElement('canvas'), lb=document.createElement('span'); lb.className='implb'
+				cv.getContext('2d',{willReadFrequently:true})   // label ink reads pixels back each repaint
 				lb.textContent=i<0?'source':cname(cls.ch[i]).toLowerCase()
 				d.append(cv,lb); row.append(d) }
 			row._n=n+1 }

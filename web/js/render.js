@@ -10,6 +10,10 @@ import CATS from './categories.js'
 
 export const SPACES = Object.keys(space).filter(k => space[k] && space[k].name && meta[k] && meta[k].channels)
 export const cname = c => c.name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/(\s*\b(percentage|percent|angle in degrees|in degrees|axis|component|coordinate)\b\s*)+$/i, '').trim()
+// display name — the uppercased id, except names the ascii id can only transliterate
+// (uppercasing the Greek would corrupt it, so values here are display-final)
+const DISP = { lalphabeta: 'lαβ' }
+export const disp = s => DISP[s] || s.toUpperCase()
 export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? '%' : '')
 const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
@@ -46,7 +50,7 @@ const ent = (s, lite, st) => { const cls = classify(s)
 	const tk = i => { const c = cls.ch[i], f = clamp((vals[i] - c.min) / (c.max - c.min), 0, 1)
 		return ` style="left:${+(f * 100).toFixed(3)}%;background:${st.hx};border-color:${st.ink}"` }
 	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}"${vals ? ` data-v="${st.hx}${full ? '' : ':l'}"${full ? ` data-g="${st.hx}:0"` : ''}` : ''} style="--nch:${cls.ch.length}">
-	 <div class="eh"><button class="nm" type="button" title="${s}" aria-label="Open ${s} color-space dossier">${s}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
+	 <div class="eh"><button class="nm" type="button" title="${s}" aria-label="Open ${s} color-space dossier">${disp(s)}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${full ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, 8).join(',')})"` : ''}><div class="tk"${full ? tk(i) : ''}></div></div>`).join('')}</div>
 	</article>` }
 
@@ -58,4 +62,4 @@ export const catHTML = m => { let st = null
 	${c.spaces.slice(0, LEADS).map(s => ent(s, false, st)).join('')}
 </div>${c.spaces.length > LEADS ? `<div class="sheet">
 	${c.spaces.slice(LEADS).map(s => ent(s, true, st)).join('')}
-</div>` : ''}</section>`).join('') + `</div>` }
+</div>` : ''}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }

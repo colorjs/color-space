@@ -35,8 +35,8 @@ inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, `<main class="cat" id
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
 inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
-inject(/(<meta name="description" content=")\d+( color coordinate systems)/, `$1${spaceCount}$2`)
-inject(/(<meta property="og:description" content=")\d+( color coordinate systems)/, `$1${spaceCount}$2`)
+inject(/(<meta name="description" content="An open collection of )\d+( color spaces)/, `$1${spaceCount}$2`)
+inject(/(<meta property="og:description" content="An open collection of )\d+( color spaces)/, `$1${spaceCount}$2`)
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 writeFileSync(join(out, 'index.html'), html)
 
@@ -48,13 +48,14 @@ const line = s => { const m = meta[s] || {}
 	const org = m.year || m.by ? ` | origin: ${[m.year, m.by].filter(Boolean).join(' ')}` : ''
 	const ref = m.refs?.[0] ? ` | ref: ${m.refs[0]}` : ''
 	return `- ${s} — ${desc}${org} | channels: ${ch}${ref}` }
+const installName = version.includes('-') ? 'color-space@next' : 'color-space'
 const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
-> (what CSS and the defining papers use). Every conversion verified against
-> colorjs.io and its source paper. Zero dependencies, public domain (CC0).
+> (what CSS and the defining papers use). All ${spaceCount} spaces carry an independent cited
+> conformance anchor; 29 are differential-tested against colorjs.io in both directions. Zero dependencies, public domain (CC0).
 
-Install: npm i color-space
+Install: npm i ${installName}
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)
 Batch: space[from][to](pixels) -> Float64Array  interleaved array-like, stride = channel count; a batch of one = the v2 array call
 Per space: space[name].range (channel ranges), space[name].name
@@ -65,7 +66,7 @@ WASM: import space, { alloc } from 'color-space/wasm' — same API, 27 spaces: s
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
-MCP: npx color-space-mcp — zero-dep stdio server; tools: convert / space / spaces / cube, so agents call verified conversions instead of guessing color math
+MCP: npx --yes --package color-space color-space-mcp — zero-dep stdio server; tools: convert / space / spaces / cube, so agents call the library instead of guessing color math
 Site: https://colorjs.github.io/color-space/
 Repo: https://github.com/colorjs/color-space
 
@@ -100,7 +101,9 @@ export function stampSpacePages(out = join(root, '_site')) {
 		h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
 		h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(s)} color space — color-space">`)
 		h = swap(h, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(short)}">`)
-		h = swap(h, /<meta property="og:type" content="[^"]*">/, `<meta property="og:type" content="article"><link rel="canonical" href="${SITE}/${s}">`)
+		h = swap(h, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${SITE}/${s}">`)
+		h = swap(h, /<meta property="og:type" content="[^"]*">/, `<meta property="og:type" content="article">`)
+		h = swap(h, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${SITE}/${s}">`)
 		writeFileSync(join(out, s + '.html'), h)
 	}
 	console.log(`stamped ${SPACES.length} per-space atlas documents`)

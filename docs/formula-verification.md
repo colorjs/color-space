@@ -77,7 +77,7 @@ Oracles, in order of preference:
 
 Appearance models (CIECAM02/CAM16 + variants, ZCAM, Hellwig2022, HCT) are validated under the library's exact declared viewing conditions; the conditions are named in each entry's `src` so the number is reproducible.
 
-One entry is pinned by provenance rather than an external oracle: **coloroid** (Nemcsics 1980, *Color Res. Appl.* 5(2):113–120, [doi:10.1002/col.5080050214](https://doi.org/10.1002/col.5080050214)) — the paper is paywalled and no other library implements the space; its value is held by formula self-consistency (V = 10√Y exact, forward/inverse agreement to 5 decimals). See Known Limitations.
+**Coloroid** is pinned to Nemcsics's published A=70, T=70, V=60 example (Nemcsics 1980, *Color Res. Appl.* 5(2):113–120, [doi:10.1002/col.5080050214](https://doi.org/10.1002/col.5080050214)). No compared JavaScript library implements it, so its corrected limit-color table and fractional-grade interpolation are also guarded by exact ATV↔xyY round-trips and the defining V = 10√Y invariant.
 
 ### Reference-link audit
 
@@ -90,13 +90,13 @@ All unique `@see` links across the space files (121 across 161 files at this rev
 The GLSL/WGSL chunks ship the same formulas for the GPU; three layers pin them:
 
 1. **Float64 differential** — chunks are written in a restricted GLSL dialect that transforms mechanically to JS, so every declared edge and every composed rgb↔space path is evaluated in float64 and compared to the scalar library at 1e-6 normalized tolerance ([test/gl.js](../test/gl.js)).
-2. **Real-GPU compile** — all 543 edge and rgb↔space sources compile as WebGL2 fragment shaders on an actual driver (ANGLE/Metal) via [test/gl-gpu.html](../test/gl-gpu.html).
-3. **WGSL grammar** — the same 543 sources, mechanically translated, parse clean under the full WGSL grammar (wgsl_reflect); the same page validates them on a live WebGPU device when available.
+2. **WebGL2 compile** — all 590 edge and rgb↔space sources compile as fragment shaders through a browser WebGL2 implementation (ANGLE/SwiftShader in CI) via [test/gl-gpu.html](../test/gl-gpu.html). This includes the LUT-backed Munsell chunk.
+3. **WGSL grammar** — the same 590 sources, mechanically translated, parse clean under the full `wgsl_reflect` grammar in CI ([test/wgsl.js](../test/wgsl.js)); the browser page additionally validates them on a live WebGPU device when one is available.
 
 ---
 
 ## 4. Known limitations
 
-**coloroid is EXPERIMENTAL.** The bundled hue table (Nemcsics) is internally inconsistent: each row's stored angle disagrees with its own chromaticity coordinates (xλ, yλ) by up to 14°. The T saturation formula does not round-trip: `rgb → coloroid → rgb` recovers T only approximately (~219/255 on a test sample). No external implementation exists to cross-validate against (colorjs and culori both lack coloroid). Tests assert only formula-verifiable invariants: V = 10√Y exactly, white → T = 0, valid hue grade, no NaN or crash. The A (hue angle) and T (saturation) values should be treated as provisional until the authoritative MSZ 7300 / Nemcsics table and ATV ↔ xyY formulas are sourced.
+**Coloroid has no independent cross-library oracle.** The limit-color chromaticities and A=70 published example are sourced to Nemcsics, and fractional A values now interpolate along the limit-color polygon so in-domain ATV↔xyY round-trips are exact. The system still has only 48 named hue grades; interpolation between them is geometric, not additional measured swatch data.
 
 **okhsl S may marginally exceed 100 at the blue gamut boundary.** This is a known property of the smooth-cusp approximation in the Björnsson specification, shared by culori. It is not clamped, because clamping would break the roundtrip. The overshoot is small (~3 S units at the extreme corner) and documented in the `@channel` JSDoc.

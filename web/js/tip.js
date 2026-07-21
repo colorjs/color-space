@@ -7,6 +7,7 @@
 const tip = document.createElement('div')
 tip.id = 'tip'
 tip.setAttribute('role', 'tooltip')
+tip.setAttribute('aria-hidden', 'true')
 document.body.appendChild(tip)
 
 let target = null, timer = 0
@@ -25,10 +26,11 @@ const show = () => {
 	const text = target && target.getAttribute('data-tip')
 	if (!text) return
 	tip.textContent = text
+	tip.setAttribute('aria-hidden', 'false')
 	tip.classList.add('on')
 	place(target)
 }
-const hide = () => { tip.classList.remove('on'); target = null; clearTimeout(timer) }
+const hide = () => { tip.classList.remove('on'); tip.setAttribute('aria-hidden', 'true'); target = null; clearTimeout(timer) }
 // only steal the title where the app already promises an explainer (question-mark cursor)
 const helpful = (el) => el.hasAttribute('data-tip') || getComputedStyle(el).cursor === 'help'
 // lazily move the native title onto data-tip so the OS tooltip never fires

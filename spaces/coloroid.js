@@ -29,9 +29,9 @@
 // The limit-color table holds the authoritative Nemcsics (1980) chromaticities
 // (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column
 // shifted by one row. ATV↔xyY round-trips exactly and reproduces the published
-// A=70,T=70,V=60 → xyY example. Remaining limitation: A is quantized to 48 discrete
-// grades, so rgb→coloroid→rgb carries ~2/255 of between-grade hue rounding (no
-// interpolation). Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann &
+// A=70,T=70,V=60 → xyY example. The 48 named grades remain the measured samples;
+// fractional A values interpolate along the limit-color polygon, preserving exact
+// in-domain ATV↔xyY round-trips. Sources: Nemcsics (1980) Color Res. Appl. 5(2) 113–120; Neumann &
 // Neumann (2004) "Gamut Clipping and Mapping Based on the Coloroid System".
 import xyy from './xyy.js';
 import xyz from './xyz.js';
