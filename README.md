@@ -2,9 +2,11 @@
 
 <img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/>
 
-**Collection of color space conversions & data**
-
-Verified formulas · conventional ranges · zero dependencies · JS / WASM / GLSL / LUT / ICC
+**Collection of color space conversions & data.** <br/>
+* Verified formulas
+* Conventional ranges
+* Zero dependencies
+* JS / WASM / GLSL / LUT / ICC.
 
 **[Atlas →](https://color-space.io/)**
 
