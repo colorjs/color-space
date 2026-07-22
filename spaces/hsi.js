@@ -17,6 +17,10 @@
  * @referred display
  * @dynamic sdr
  */
+// Defining source: J. R. Kender, "Saturation, hue, and normalized color: calculation,
+// digitization effects, and use", CMU Computer Science tech report, 1976 (reprinted as
+// CMU-RI-TR-05-40). No stable public URL exists — CMU's publication pages for it have
+// rotted — so it is cited here in prose rather than as a dead @see link.
 import rgb from './rgb.js';
 
 var hsi = {

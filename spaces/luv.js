@@ -8,6 +8,7 @@
  * displays and stage lighting, while Lab remains dominant for reflective and print
  * color.
  *
+ * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2018
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
  * @year 1976
  * @by CIE

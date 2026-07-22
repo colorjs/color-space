@@ -6,6 +6,7 @@
  * consumer display variants. It remains the reference space for digital film
  * production and distribution.
  *
+ * @see {@link https://pub.smpte.org/latest/rp431-2/rp0431-2-2011.pdf} SMPTE RP 431-2:2011
  * @wiki {@link https://en.wikipedia.org/wiki/DCI-P3#DCI-P3_(P3-DCI)}
  * @year 2005
  * @by DCI (Digital Cinema Initiatives)

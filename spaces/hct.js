@@ -17,6 +17,8 @@
  * @channel {T} 0 100 Tone
  * @method appearance
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

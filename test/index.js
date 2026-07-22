@@ -76,7 +76,9 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	// per-space pages are atlas copies with their own head — pin the stamp, not the body
 	// (the dossier's Wikipedia link is JS-rendered; one-article-per-space is pinned below)
 	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8')
-	is(lmsPage.split('<title>lms color space').length - 1, 1, 'LMS page carries its own title')
+	is(lmsPage.split('<title>LMS color space').length - 1, 1, 'LMS page titles its display name, not the slug')
+	const slogPage = readFileSync(`${site}/slog3.html`, 'utf8')
+	is(slogPage.includes('<title>S-Log3 color space — channels, ranges, conversion LUT | color-space</title>'), true, 'LUT-capable camera log titles the display name and the LUT')
 	is(lmsPage.match(/<link rel="canonical"/g)?.length, 1, 'LMS page carries exactly one canonical')
 	is(lmsPage.includes('<link rel="canonical" href="https://color-space.io/lms">'), true, 'LMS canonical points at its dossier URL')
 	is(lmsPage.includes('<meta property="og:url" content="https://color-space.io/lms">'), true, 'LMS social URL points at its dossier URL')
@@ -169,6 +171,28 @@ test('hub — register is bidirectional, validated, copied, and isolated', async
 	const { wire } = await import('../hub.js')
 	wire(lite)
 	is(lite.rgb.minetest, undefined, 'stale faces removed on rewire')
+})
+
+// A polar form is cartToPolar of its Cartesian base — a pure re-coordinate, no
+// chromatic adaptation — so it MUST declare the same white as that base. Regression:
+// lchab shipped @illuminant D65 while its base lab is D50, so the dossier stated the
+// wrong white point. Pairs are discovered from the source (the cartToPolar edge names
+// the base), so a new polar space is covered without touching this test.
+test('polar forms declare their Cartesian base\'s white point', () => {
+	const pairs = []
+	for (const n of Object.keys(meta)) {
+		let src
+		try { src = readFileSync(new URL(`../spaces/${n}.js`, import.meta.url), 'utf8') } catch { continue }
+		const alias = {}
+		for (const m of src.matchAll(/import\s+(\w+)\s+from\s+'\.\/([\w.-]+)\.js'/g)) alias[m[1]] = m[2]
+		for (const m of src.matchAll(/(\w+)(?:\.[\w$]+|\[[^\]]+\])\s*=\s*(?:\([^)]*\)\s*=>\s*)?cartToPolar/g)) {
+			const b = alias[m[1]]
+			if (b && meta[b] && !pairs.some(p => p[0] === n && p[1] === b)) pairs.push([n, b])
+		}
+	}
+	is(pairs.length >= 7, true, `polar↔Cartesian pairs discovered (${pairs.length})`)
+	const bad = pairs.filter(([p, b]) => meta[p].illuminant !== meta[b].illuminant || meta[p].observer !== meta[b].observer)
+	is(bad.map(([p, b]) => `${p}≠${b}`), [], 'each polar form shares its base white point')
 })
 
 // The kelvin pair round-trips on the whole locus (the McCamy inverse drifted

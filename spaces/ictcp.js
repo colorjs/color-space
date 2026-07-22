@@ -14,6 +14,8 @@
  * @channel {Cp} -0.5 0.5 Protanopia chroma
  * @method opponent
  * @encoding pq
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic hdr
  */

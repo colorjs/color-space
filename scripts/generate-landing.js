@@ -101,10 +101,14 @@ export function stampSpacePages(out = join(root, '_site')) {
 	for (const s of SPACES) {
 		const desc = (meta[s]?.description || '').replace(/\s+/g, ' ').trim()
 		const short = desc.length > 155 ? desc.slice(0, 152).replace(/\s+\S*$/, '') + '…' : desc
+		// searchers use the display name ("S-Gamut3.Cine"), not the slug — every
+		// description opens "Name — …", so the title leads with that; LUT-capable
+		// spaces name the artifact people actually search for
+		const name = (m => m && m[1].length <= 40 ? m[1] : s)(desc.match(/^(.+?) — /))
 		let h = html
-		h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(s)} color space — channels, ranges, conversion | color-space</title>`)
+		h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(name)} color space — channels, ranges, conversion${LUTOK.has(s) && meta[s]?.referred === 'scene' ? ' LUT' : ''} | color-space</title>`)
 		h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
-		h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(s)} color space — color-space">`)
+		h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(name)} color space — color-space">`)
 		h = swap(h, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(short)}">`)
 		h = swap(h, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${SITE}/${s}">`)
 		h = swap(h, /<meta property="og:type" content="[^"]*">/, `<meta property="og:type" content="article">`)

@@ -8,6 +8,7 @@
  * specifically to exploit the eye's greater sensitivity along the orange-cyan
  * direction than the green-purple direction, letting Q carry less bandwidth.
  *
+ * @see {@link https://www.govinfo.gov/content/pkg/CFR-2000-title47-vol4/pdf/CFR-2000-title47-vol4-sec73-682.pdf} FCC 47 CFR 73.682 (2000 ed.)
  * @wiki {@link https://en.wikipedia.org/wiki/YIQ}
  * @year 1953
  * @by NTSC

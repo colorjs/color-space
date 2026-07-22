@@ -5,6 +5,7 @@
  * extra stops of highlight and shadow information, intended for heavier grading
  * later. It shares the Cinema Gamut primaries with Canon Log and Canon Log 3.
  *
+ * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf} Canon Log Gamma Curves white paper
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2015
  * @by Canon

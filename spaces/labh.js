@@ -9,6 +9,7 @@
  * plastics, textiles and food — where legacy specifications still report in
  * Hunter Lab units.
  *
+ * @see {@link https://www.hunterlab.com/media/documents/duplicate-of-an-1005-hunterlab-vs-cie-lab.pdf} HunterLab AN-1005.00
  * @wiki {@link https://en.wikipedia.org/wiki/Hunter_Lab}
  * @year 1948
  * @by Richard S. Hunter
@@ -18,6 +19,8 @@
  * @channel {b} -210 60 Blue-Yellow axis
  * @method opponent
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

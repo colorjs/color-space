@@ -6,6 +6,8 @@
  * instead of washing out toward white. It is the model behind most color-picker
  * "wheel plus square" interfaces.
  *
+ * @see {@link https://alvyray.com/Papers/CG/color78.pdf} Smith 1978, SIGGRAPH
+ * @see {@link https://doi.org/10.1145/800248.807361} doi
  * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @year 1978
  * @by Alvy Ray Smith

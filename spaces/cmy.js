@@ -7,6 +7,7 @@
  * channel. CMY remains useful as the direct three-ink subtractive counterpart to RGB,
  * and underlies the arithmetic CMYK is built on.
  *
+ * @see {@link https://doi.org/10.1002/col.20135} Neugebauer 1937 (tr. Wyble & Kraushaar 2005)
  * @wiki {@link https://en.wikipedia.org/wiki/CMYK_color_model#Comparison_to_CMY}
  * @year 1868
  * @by Louis Ducos du Hauron

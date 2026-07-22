@@ -1,12 +1,12 @@
 * [ ] Make the atlas cool.
 
-* [ ] Triangle version of view
+* [x] Triangle version of view
 * [ ] Better slice outline (binary ops?)
-* [ ] Better loading (side categories - appear smoothly)
+* [x] Better loading (side categories - appear smoothly)
 * [ ] Better hue picker range - unfoldable?
-* [ ] SEO something: making sure how we meet use scenarios
-* [ ] LUT/ICC download is too hard
-* [ ] CMYK planes are wrong
+* [x] SEO something: making sure how we meet use scenarios
+* [x] LUT/ICC download is too hard
+* [x] CMYK planes are wrong
 
 ## Ideas
 

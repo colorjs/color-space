@@ -6,6 +6,7 @@
  * adjusting or comparing colors. It's also the basis for HSLuv and HPLuv, which
  * rescale its chroma to fit the sRGB gamut.
  *
+ * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2018
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCh)}
  * @year 1976
  * @by CIE

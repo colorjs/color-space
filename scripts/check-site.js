@@ -48,6 +48,9 @@ try {
 	await trigger.click()
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
+	// the exporters ride the plates rail: label + target select + download buttons
+	assert.match(await page.locator('#dex').innerText(), /conversion lut/i, 'LUT block rides the dossier rail')
+	assert.equal(await page.locator('#dex #dldl').count() + await page.locator('#dex #didl').count(), 2, 'cube + icc downloads present')
 	await page.keyboard.press('Escape')
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
 	assert.equal(await trigger.evaluate(el => document.activeElement === el), true, 'dossier restores focus')

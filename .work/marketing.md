@@ -8,7 +8,7 @@
 
 **Quotable claims** (each with its proof; never round up):
 - **162 spaces, 4× any JS library** (culori ~35, colorjs.io ~40, texel ~16) — runtime count, cited list in README.
-- **Verified, three layers**: every space pinned to an independent cited anchor (135 points, `test/refs.js`) · 29 spaces both directions vs colorjs.io at 1/255 · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 0.03% (Bradford pairs) — [docs/lut-verification.md](../docs/lut-verification.md), reruns on `npm test`.
+- **Verified, three layers**: every space pinned to an independent cited anchor (135 points, `test/refs.js`) · 29 spaces both directions vs colorjs.io at 1/255 · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 0.03% (Bradford pairs) — [docs/formula-verification.md](../docs/formula-verification.md#camera-log-verification-against-official-aces-transforms), reruns on `npm test`.
 - **Fast**: 29.3M scalar calls/s geomean vs culori 16.5, colorjs.io 0.7 (`npm run benchmark`, method footnoted in README).
 - **Small**: one space 0.4–1.5 kB; lite 9 kB; full graph 55 kB gz (never call the full bundle "tiny").
 - **Beyond JS**: WASM batch · GLSL/WGSL · in-browser `.cube` LUTs with self-verifying headers · ICC · MCP (`color-space-mcp` — no other color lib has one). CC0.
@@ -30,7 +30,23 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 
 1. **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
 2. **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
-2b. **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN. Same week, the passive listings (once, evergreen): PRs to awesome-javascript + the color/colour awesome lists · claim JS.LibHunt + AlternativeTo entries. Skip AI-tool directories — no qualified traffic, spam adjacency.
+2b. **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
+2c. **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, provenance, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
+
+    - [x] awesome-javascript — PR open: github.com/sorrycc/awesome-javascript/pull/1123
+    - [x] awesome-colour (colour-science) — already listed, nothing to do
+    - [ ] Best of JS — suggest the repo: github.com/bestofjs/bestofjs/issues (project suggestion issue) — real dev audience, tracks stars
+    - [ ] AlternativeTo — alternativeto.net → "Add an item"; then mark as alternative to chroma-js, culori, colorjs.io (that's where switchers search)
+    - [ ] JS.LibHunt — js.libhunt.com → "Suggest a project" / claim the auto-entry
+    - [ ] StackShare — stackshare.io → add tool page
+    - [ ] toools.design — toools.design → "Submit a resource", color category (design crowd, real traffic)
+    - [ ] devhunt.org — dev-tool launch board, GitHub login, low effort (optional, small)
+    - [ ] Uneed — uneed.best → submit (PH-lite; schedule a launch day, optional)
+    - [ ] Peerlist Launchpad — peerlist.io/launchpad (optional, indie-dev crowd)
+    - [ ] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
+
+    **Skipped, with reasons**: awesome-nodejs / awesome-creative-coding / cg-vfx-pipeline / Awesome-Design-Tools (no fitting category — forced PRs get rejected and smell of spam) · Openbase (dead since 2023) · AI-tool directories (no qualified traffic, spam adjacency) · look-LUT communities like freshluts (creative-LUT culture; conversion LUTs would confuse — reach colorists via the film track instead).
+2d. **SEO** (audit 2026-07-21 — foundation is solid: canonicals, prerendered dossier prose, per-page descriptions, sitemap+robots+llms.txt): ① **titles use raw ids** (`sgamut3cine color space — …`) — switch to display names ("S-Gamut3.Cine") from the description's "Name — " prefix in build-site.js; the title tag is the ranking+click surface, ×162 pages, non-visual change. ② camera-log pages never say "LUT" in title/description — add "conversion LUT" for LUTOK spaces (the "slog3 to rec709 lut" intent). ③ register Search Console + Bing Webmaster, submit sitemap — real query data then steers the weekly dossier work (plan §6). Minor/optional: sitemap `<lastmod>`, BreadcrumbList JSON-LD.
 3. **Next week — LiftGammaGain scrutiny post** (draft below). If the thread survives, it's the citable proof for the whole film track.
 4. **Then one film community per week**, led by that camera's pain, LGG thread cited: r/davinciresolve → r/SonyAlpha (both Sony gamuts) → iPhone-filmmaking (Apple Log, hottest trigger) → r/dji → r/videography (education-led) → ACEScentral (ACES story; bridge to ASWF orbit).
 5. **Dream-100 gift outreach alongside** (no ask, 3+ touches): colorists — Cullen Kelly, Darren Mostyn, Waqas Qazi, Color Grading Central, Gerald Undone (deltas table is his language); CSS — Lea Verou orbit, Björn Ottosson, Dan Burzo; newsletters after HN exists to cite.
@@ -41,7 +57,7 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 
 ## Drafts
 
-### Tweet (v3 announce)
+### [x] Tweet (v3 announce)
 
 > color-space v3 — 162 color spaces, one small API, verified.
 > OKLCH to Munsell to S-Log3, any to any. Or take a .cube LUT, ICC, GLSL, WASM.
@@ -73,7 +89,7 @@ Alt, sparer:
 >
 > Maintained since 2014; v3 is a ground-up rework. Public domain (CC0).
 >
-> [1] https://github.com/colorjs/color-space/blob/master/docs/lut-verification.md
+> [1] https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms
 
 Prepared answers: *why-not-culori* (for when they lack your space / conventional ranges / independent verification; kernel they can sit on) · *162 = padding?* (each separately importable, anchored; declined-list in README) · *bundle size* (quote per-space, concede full) · *0–1 is standard!* (conventional = what each field's own literature writes) · *CAT02 vs Bradford* (deltas quantify exactly that; doc has the table).
 
@@ -87,7 +103,7 @@ Prepared answers: *why-not-culori* (for when they lack your space / conventional
 >
 > Conversions, not looks: no tone mapping, no rolloff — log → 709 clips above diffuse white by design. Not a replacement for LogC-to-video, s709, or V-709. For normalization, monitoring, QC, batch ffmpeg; grade on top.
 >
-> The seven pairs with official Academy CSC/IDT transforms are differential-tested against those CTLs (ampas/aces-dev v1.3): worst case ≤0.5% of the dominant component on Sony/ARRI/Canon — the CAT02 vs Bradford adaptation difference, 0.03% once the CAT matches — and 0.03% on Panasonic/RED. Per-pair table: [docs/lut-verification.md]. Each .cube header carries its own measured lattice deviation.
+> The seven pairs with official Academy CSC/IDT transforms are differential-tested against those CTLs (ampas/aces-dev v1.3): worst case ≤0.5% of the dominant component on Sony/ARRI/Canon — the CAT02 vs Bradford adaptation difference, 0.03% once the CAT matches — and 0.03% on Panasonic/RED. Per-pair table: [docs/formula-verification.md, ACES section]. Each .cube header carries its own measured lattice deviation.
 >
 > Two questions. Where is the math wrong? — the suite is public and reruns on `npm test`. And which missing pair would help your work?
 >

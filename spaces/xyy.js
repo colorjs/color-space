@@ -15,6 +15,8 @@
  * @channel {Y} 0 100 Luminance
  * @method chromaticity
  * @encoding chromaticity
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

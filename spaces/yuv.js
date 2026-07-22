@@ -8,6 +8,7 @@
  * bandwidth on color than on brightness, exploiting the eye's lower sensitivity to
  * chrominance detail.
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.470} ITU-R BT.470
  * @wiki {@link https://en.wikipedia.org/wiki/YUV}
  * @year 1967
  * @by Walter Bruch / Telefunken

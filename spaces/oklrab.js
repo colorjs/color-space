@@ -16,6 +16,8 @@
  * @channel {b} -0.4 0.4 Blue-Yellow axis
  * @method opponent
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

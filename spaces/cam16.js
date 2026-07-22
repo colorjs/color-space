@@ -19,6 +19,8 @@
  * @channel {h} 0 360 Hue angle in degrees
  * @method appearance
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

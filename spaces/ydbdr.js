@@ -7,6 +7,7 @@
  * color-difference channels, Db and Dr, derived from blue-minus-luma and
  * red-minus-luma respectively.
  *
+ * @see {@link https://www.itu.int/rec/R-REC-BT.470} ITU-R BT.470 (SECAM)
  * @wiki {@link https://en.wikipedia.org/wiki/YDbDr}
  * @year 1967
  * @by Henri de France

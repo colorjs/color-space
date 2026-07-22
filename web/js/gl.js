@@ -636,6 +636,8 @@ uniform ivec4 uMap;
 uniform int uHasHue;
 uniform ivec2 uBip;   // bipolar (opponent) chroma channels, else (-1,-1) — marks a lightness-axis space
 uniform ivec2 uCapK;  // pass 2: the capped face (axis, side) whose clipped sheet is stencilled
+uniform ivec2 uCut;   // the hovered plane's HELD axis (x, -1 = none) and whether it wraps (y)
+uniform vec2 uCutV;   // that axis's held value (x) and full span (y)
 out vec4 O;
 void main() {
 	if (vBad > 0.001) discard;
@@ -700,6 +702,16 @@ void main() {
 		O.a = a * a * 0.6;   // near-solid at the wall, DISSOLVING to nothing — a constant
 		// alpha ends the ghost in a hard angled chop at the 0.3 cutoff instead of a fade
 	}
+	// the plane∩solid CURVE, as a per-pixel test on the shape itself: a fragment lies on
+	// the cut when its held coordinate equals the plane's. fwidth sets the band's width in
+	// SCREEN pixels, so the outline rides the real tessellated edge — exactly, everywhere,
+	// with none of a marching polyline's coarse chords or dropped segments.
+	if (uCut.x >= 0) {
+		float c = vF[uCut.x], w = fwidth(c), d = c - uCutV.x;
+		if (uCut.y == 1) d = mod(d + uCutV.y * 1.5, uCutV.y) - uCutV.y * 0.5;   // a hue axis wraps
+		// a seam or fold spikes the derivative — banding there would smear across the solid
+		if (w < uCutV.y * 0.2 && abs(d) < w * 1.1) O = vec4(1.0, 1.0, 1.0, O.a);
+	}
 }`
 		// caps: the space's own range-box faces. Display gamuts keep them only where
 		// the coords are in-gamut AND canonical (roundtrip), tested per PIXEL; the
@@ -758,7 +770,7 @@ void main() {
 	}
 	O = vec4(softDisp(disp), 1.0);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uRot', 'uScale', 'uHasHue']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
 			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
@@ -850,7 +862,7 @@ void main() { O = uTint; }`)
 		uTint: gl.getUniformLocation(pr, 'uTint'), buf: gl.createBuffer() }
 }
 
-export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
+export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut) {
 	if (!has3dGL(s)) return false
 	const gam = map?.gam ?? 'srgb'
 	const st = mesh3State(cv)
@@ -886,6 +898,9 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame) {
 		gl.uniform4i(u.uMap, map.ti, map.ai ?? -1, map.mi ?? 0, 0)
 		gl.uniform2i(u.uWb, map.wI ?? -1, map.bI ?? -1)
 		if (u.uBip !== undefined) gl.uniform2i(u.uBip, map.bip?.[0] ?? -1, map.bip?.[1] ?? -1)
+		// the hovered plane's cut, drawn per pixel on the surface (see fsSurf's uCut band)
+		if (u.uCut) gl.uniform2i(u.uCut, cut ? cut.axis : -1, cut && cut.wrap ? 1 : 0)
+		if (u.uCutV) gl.uniform2f(u.uCutV, cut ? cut.val : 0, cut ? cut.span : 1)
 		gl.uniform2f(u.uRot, rot.a, rot.b)
 		gl.uniform1f(u.uScale, scale)
 	}

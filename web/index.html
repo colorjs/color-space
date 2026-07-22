@@ -510,7 +510,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5 }   /* a props feature, not a terminal pane — the panel chrome belongs to the homepage exporters; .props i styles its label */
 .export.dex i{ cursor:help; margin-bottom:0 }   /* the .dexp flex gap is the one spacing source */
-.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; margin-inline-start:-4px; cursor:pointer; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select); the -4px eats the UA's intrinsic start inset so the value sits flush with the label */
+.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; margin-inline-start:-4px; cursor:help; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select), with the tag's help cursor — each carries its explainer; the chevron already says openable. The -4px eats the UA's intrinsic start inset so the value sits flush with the label */
 .export.dex .dexp{ gap:var(--s2) }   /* label sits on its content like every props item */
 .export.dex .exrow{ gap:var(--s2) }   /* the props column is narrow — tighter rhythm keeps target·download on one line */
 .export.dex .exdl{ padding:.35em .6em }
@@ -1522,6 +1522,13 @@ const TAGTIP={ display:'display-referred — values describe light emitted by a 
 	'gamma':'gamma-companded RGB — a power-law curve over linear light',
 	'luma / chroma':'luma plus two chroma differences — the broadcast / compression layout',
 	'perceptual':'coordinates modeled on human vision — equal numeric steps aim to look equal',
+	'D65':'CIE standard illuminant D65 — average daylight, ≈6504 K; the sRGB / Rec.709 / Rec.2020 reference white. 2° standard observer',
+	'D50':'CIE standard illuminant D50 — horizon daylight, ≈5003 K; the print and ICC-PCS white. 2° standard observer',
+	'D60':'≈6000 K daylight — the ACES white point (x 0.32168, y 0.33767). 2° standard observer',
+	'DCI':'the cinema-projector white (x 0.314, y 0.351, SMPTE RP 431-2) — greener than daylight. 2° standard observer',
+	'C':'CIE illuminant C — 1931 average-daylight approximation, ≈6774 K; legacy: NTSC 1953, the Munsell renotation. 2° standard observer',
+	'E':'CIE illuminant E — equal-energy white, x = y = ⅓; a theoretical reference. 2° standard observer',
+	'A':'CIE standard illuminant A — tungsten incandescent light, ≈2856 K. 2° standard observer',
 	wasm:'covered by the prebuilt WASM batch kernel — whole buffers, zero-copy',
 	lut:'exports as a verified .cube LUT — Resolve, Premiere, Final Cut, OBS, ffmpeg' }
 // plain-language glossary — special terms in the dossier prose grow a soft ? that
@@ -1681,9 +1688,10 @@ const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if
 // each space's tag set — the same vocabulary the dossier features carry
 // the tags come in FACETS — mutually-exclusive aspects of one space. Picking within a
 // facet ORs (display OR scene), picking across facets ANDs (scene AND log encoding).
-const FACETS=['channels','range','geometry','signal','encoding','export','status']
+const FACETS=['channels','range','geometry','signal','encoding','white point','export','status']
 const slotsOf=s=>{ const m=meta[s]
 	return [[String(classify(s).ch.length)],[m.dynamic&&m.dynamic.toUpperCase()],[geo(s)],[m.referred],[encodingOf(s)],
+		[m.illuminant],
 		[wasmSpaces.includes(s)&&'wasm',LUTOK.has(s)&&'lut',!!CSSFMT[s]&&'css'],
 		[HISTORICAL.has(s)&&'historical']].map(a=>new Set(a.filter(Boolean))) }
 const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
@@ -1791,7 +1799,7 @@ function buildBarred(b){
 	 <hr class="dhr">
 	 <section class="dhero"><div class="dmain"><div class="props props3">
 		<div class="pcol"><div><i>channels</i><p>${b.ch}</p></div></div>
-		<div class="pcol">${(b.since||b.by)?`<div><i>origin</i><p>${[b.since,b.by].filter(Boolean).join(' · ')}</p></div>`:''}<div><i>reference</i><p><a href="${b.url}" target="_blank" rel="nofollow">${host}</a></p></div></div>
+		<div class="pcol">${(b.since||b.by)?`<div><i>origin</i><p>${[b.since,b.by].filter(Boolean).join(', ')}</p></div>`:''}<div><i>reference</i><p><a href="${b.url}" target="_blank" rel="nofollow">${host}</a></p></div></div>
 	 </div>
 	 <div class="dgrid2 dstack"><div><i class="plab">description</i>
 		<div class="desc">${b.why}</div></div></div>
@@ -2589,7 +2597,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	const scale3=Math.min(plC?1.335*plC.clientWidth/((el.clientWidth||352)*wN):0.66/mesh3.f0, 1.4/wN), sc=S2*scale3/2
 	// the hovered plane's sheet, built (and cached) BEFORE the mesh draw — it renders
 	// inside the GL scene, depth-tested against the body
-	let sheet3=null, frame3=null
+	let sheet3=null, frame3=null, cut3=null
 	if(hover3&&hover3.i==null&&mv&&pts3Map){ const clsE=classify(pts3S)
 		const fiE=[0,1,2].find(k=>k!==hover3.a&&k!==hover3.b)
 		// a hue×tone plane doesn't cut a FLAT sheet — swept together, hue-angle and the
@@ -2598,8 +2606,14 @@ function draw3d(){ if(!mesh3||!open()) return
 		// (HSL/HSV/HWB/OKHSL L×H). The pane fill and the surface-cut curve carry the
 		// highlight; only a genuinely flat pane earns the outline frame.
 		const ax3=axes3(clsE), tube=ax3.ai>=0&&fiE===ax3.mi   // hue swept against the vertical axis, radial magnitude held
+		// the cut CURVE (plane ∩ solid) is a per-pixel test on the shape when the GPU draws
+		// it — see fsSurf's uCut band. The marching-triangle polyline only serves the flat
+		// painter, whose coarse lattice is exactly what made that outline chord and gap.
+		const cf=clsE.ch[fiE]
+		cut3={ axis:fiE, val:mv[fiE], span:(cf.max-cf.min)||1, wrap:cf.max===360||clsE.angle?.i===fiE }
 		const keyE=`${pts3S}|${mesh3.g3}|${hover3.a},${hover3.b}|${mv[fiE]}`
-		if(!ctr3||ctr3.key!==keyE) ctr3={ key:keyE, sheet:buildSheet3(clsE,mv,hover3.a,hover3.b), cut:cutSegs3(clsE,mv,fiE),
+		if(!ctr3||ctr3.key!==keyE) ctr3={ key:keyE, sheet:buildSheet3(clsE,mv,hover3.a,hover3.b),
+			cut:mesh3.gpu?null:cutSegs3(clsE,mv,fiE),
 			per:tube?null:perim3(clsE,mv,hover3.a,hover3.b) }
 		sheet3=ctr3.sheet
 		// the pane's FRAME is scene geometry too: ribbons extruded in clip space
@@ -2627,13 +2641,13 @@ function draw3d(){ if(!mesh3||!open()) return
 	// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
 	// (bodyM) for the thru passes; the pane and frame then join the same scene in a
 	// second pass, so their film never counts as cover and never veils the hud dashes
-	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
+	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,cut3):drawPtsGL(meshCv,mesh3,scale3))
 	let bodyM=meshCv
 	if(drewGL&&(sheet3||frame3)){ const bm=mask3||(mask3=document.createElement('canvas'))
 		if(bm.width!==S2) bm.width=bm.height=S2
 		const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(meshCv,0,0)
 		bodyM=bm
-		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
+		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	// a GPU space whose program is still linking shows the frame alone for a beat —
@@ -2964,19 +2978,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 <section class="dhero" id="overview">
 		${platesHTML}
 		<div class="dmain"><div class="props props3">
-			<div class="pcol"><!-- the instrument: its axes, its notation, its shape, its signal, its reference frame, its derivation, its cost, its reach — the name closes the column -->
+			<div class="pcol"><!-- the instrument: its axes, its notation, its shape, its signal (reference white included), its derivation, its cost, its reach — the name closes the column -->
 				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
 				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
-				${m.referred||m.dynamic||enc?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`].filter(Boolean).join('')}</p></div>`:''}
-				${m.illuminant?`<div><i>white point</i><p>${m.illuminant}${m.observer?` · ${m.observer}° observer`:''}</p></div>`:''}
+				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
 				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
 				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
 			</div>
 			<div class="pcol"><!-- the record: when and who, then the citation cluster (test · reference · source), the exports closing the column -->
-				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
+				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(', ')}</p></div>`:''}
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
@@ -3087,10 +3100,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			:`${s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick`
 		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
 			<i title="${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
-			<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><select id="dlsz" aria-label="LUT size"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
+			<div class="exrow"><select id="dlto" aria-label="LUT target space" title="target space — the .cube converts ${s} into this space"></select><select id="dlsz" aria-label="LUT size" title="lattice size — 17³ draft, 33³ standard, 65³ fine; larger is more accurate and a bigger file"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
 			+(iccK?`<div class="dexp">
 			<i title="${iccTitle}">icc profile</i>
-			<div class="exrow"><button class="exdl" id="didl" type="button">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
+			<div class="exrow"><button class="exdl" id="didl" type="button" title="${iccTitle}">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
 		// LUT: target → the real lattice is measured (median/max deviation, size) before you take it
 		const lto=dex.querySelector('#dlto'), lsz=dex.querySelector('#dlsz'), l1d=dex.querySelector('#dl1d'), ldl=dex.querySelector('#dldl'), lst=dex.querySelector('#dlstat')
 		if(lto){ let lutN=33, ltok=0, measured=false

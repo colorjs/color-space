@@ -15,6 +15,8 @@
  * @channel {L} 0 100 Lightness percentage
  * @method cylindrical
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

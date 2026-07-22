@@ -8,6 +8,7 @@
  * historical interest, marking the transition between the 1960 chromaticity
  * diagram and the modern CIE 1976 spaces.
  *
+ * @see {@link https://doi.org/10.1364/JOSA.53.001318} Wyszecki 1963, JOSA 53, 1318
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
  * @year 1964
  * @by Günther Wyszecki / CIE

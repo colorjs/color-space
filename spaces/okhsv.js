@@ -15,6 +15,8 @@
  * @channel {V} 0 100 Value percentage
  * @method cylindrical
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

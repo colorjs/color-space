@@ -16,6 +16,8 @@
  * @channel {b} -50 50 Yellow-Blue
  * @method appearance
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */

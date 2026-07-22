@@ -5,6 +5,7 @@
  * color matching and computer vision for describing a surface's color in a way that's
  * more robust to lighting changes than raw RGB.
  *
+ * @see {@link https://doi.org/10.1098/rstl.1860.0005} Maxwell 1860, Phil. Trans. 150, 57
  * @wiki {@link https://en.wikipedia.org/wiki/Rg_chromaticity}
  * @year 1860
  * @by James Clerk Maxwell

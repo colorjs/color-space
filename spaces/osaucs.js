@@ -20,6 +20,8 @@
  * @channel {g} -20 20 Red-Green axis
  * @method opponent
  * @encoding perceptual
+ * @illuminant D65
+ * @observer 2
  * @referred display
  * @dynamic sdr
  */
