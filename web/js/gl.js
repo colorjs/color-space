@@ -108,12 +108,48 @@ const QMAX = 4, compileQ = []
 let compiling = 0
 const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift()() }
 
+// The canonical-roundtrip lens presumes a faithful inverse: space→rgb→clamp→space
+// must return the coordinate it left for every REAL (in-gamut) address. Folds fail
+// it DEEP — hwb's w+b>100 collapse, hsm's mirror land 20–50% of span away — and
+// deserve the ghost. But a space whose inverse is only approximate (coloroid's
+// inconsistent hue table, oklch's achromatic hue) fails SHALLOW, a few % past the
+// 3% law, and there the lens measures imprecision, not aliasing: at f32 the
+// boundary flickers pixel-to-pixel into salt-noise dots over real colors. Probed
+// here once per space in f64 over an off-lattice grid: failures with a shallow
+// median (< 15% of span) mean no folds to catch — the lens is omitted.
+const rtFaith = new Map()
+export function rtFaithful(s) {
+	if (rtFaith.has(s)) return rtFaith.get(s)
+	let ok = true
+	try {
+		const ch = space[s].range, d = ch.length, spans = ch.map(([a, b]) => b - a)
+		const errs = [], N = 9
+		for (let n = 0; n < N ** d; n++) {
+			let m = n; const v = ch.map((r, k) => { const t = ((m % N) + 0.37) / N; m = Math.floor(m / N); return r[0] + spans[k] * t })
+			let rgb; try { rgb = space[s].rgb(...v) } catch { continue }
+			if (!rgb.every(u => u >= -0.5 && u <= 255.5)) continue
+			let bk; try { bk = space.rgb[s](...rgb.map(u => u < 0 ? 0 : u > 255 ? 255 : u)) } catch { continue }
+			if (!bk.every(isFinite)) { errs.push(1); continue }
+			const e = Math.max(...bk.map((b, k) => { let dd = Math.abs(b - v[k]); if (ch[k][1] === 360) dd = Math.min(dd, 360 - dd); return dd / spans[k] }))
+			if (e > 0.03) errs.push(e)
+		}
+		errs.sort((a, b) => a - b)
+		ok = !errs.length || errs[Math.floor((errs.length - 1) / 2)] >= 0.15
+	} catch { ok = true }
+	rtFaith.set(s, ok)
+	return ok
+}
+
 function planeFS(s) {
 	const d = dimOf(s), vt = VT[d]
+	// Munsell's measured solid has a direct local-rim predicate in its LUT. Using
+	// its iterative inverse merely to rediscover that boundary made every plane
+	// compile and execute the 760-node search per pixel.
+	const faithful = s !== 'rgb' && d <= 3 && s !== 'munsell' && rtFaithful(s)
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
 	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'], ['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab'])   // oklab both ways — the cluster lenses (uClu) live in it
 	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
-	if (s !== 'rgb' && d <= 3) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
+	if (faithful) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
 	const lib = glsl(pairs)
 	// a folded coordinate (HSM's mirrored inverse) converts to a plausible color yet
 	// reads back DIFFERENT — not a real color of the shown volume. Same law as the
@@ -124,8 +160,9 @@ function planeFS(s) {
 	const spans = s === 'rgb' ? '' : `const float SPAN[${d}] = float[${d}](${cch.slice(0, d).map(c => (c.max - c.min).toFixed(6)).join(', ')});`
 	// dim>3 over the 3D color manifold is many-to-one BY DESIGN (cmyk's undercolor
 	// freedom): every coordinate is a legitimate address of the color it shows, so the
-	// canonical-roundtrip lens would ghost nearly the whole field — skip it
-	const rt = s === 'rgb' || d > 3 ? '' : `
+	// canonical-roundtrip lens would ghost nearly the whole field — skip it.
+	// The lens also presumes a FAITHFUL inverse — see rtFaithful.
+	const rt = !faithful ? '' : `
 		else {
 			${vt} bk;
 			if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
@@ -137,6 +174,8 @@ function planeFS(s) {
 				if (!(dq <= SPAN[k] * 0.03)) al = 0.5;
 			}
 		}`
+	const nativeRim = s === 'munsell' ? `
+	else if (v.z > munsell_maxc_(v.x, v.y) + 0.0001) al = 0.0;` : ''
 	const vswz = 'xyzw'.slice(0, d).split('').map(c => `uV.${c}`).join(', ')
 	return `#version 300 es
 precision highp float;
@@ -206,7 +245,7 @@ void main() {
 	// void. The gamut ghost applies only when a lens is selected.
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
-	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;
+	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;${nativeRim}
 	// a chromaticity off the spectral locus is imaginary at ANY luminance — not a colour
 	// under ANY lens — so it VOIDS, always (not only under the human lens). Lab/OKLab/…
 	// range boxes reach far past the visible spectrum; without this the plane paints those
@@ -751,6 +790,7 @@ function mesh3Progs(st, s, gam = 'srgb') {
 	const gl = st.gl, S = san(s)
 	let out = null
 	try {
+		const faithful = s !== 'munsell' && rtFaithful(s)
 		// the solid's source volume: a display-gamut cube fed through gamut→space, or
 		// the visible (Rösch–MacAdam) surface, whose vertices arrive as raw XYZ
 		const src = gam === 'vis' ? 'xyz' : gam === 'srgb' ? 'rgb' : gam
@@ -970,10 +1010,12 @@ void main() {
 }`
 		const glin = { srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gam]
 		const GLIN = glin && san(glin), G0 = san(gam === 'srgb' ? 'rgb' : gam)
+		const capPairs = glin && [[s, 'rgb'], [s, 'xyz'], ['xyz', glin], [s, gam === 'srgb' ? 'rgb' : gam]]
+		if (faithful && glin) capPairs.push([gam === 'srgb' ? 'rgb' : gam, s])
 		const fsCap = fsCapVis || glin && `#version 300 es
 precision highp float;
 precision highp int;
-${glsl([[s, 'rgb'], [s, 'xyz'], ['xyz', glin], [gam === 'srgb' ? 'rgb' : gam, s], [s, gam === 'srgb' ? 'rgb' : gam]])}
+${glsl(capPairs)}
 ${SOFT_DISP}
 in vec3 vV;
 uniform vec3 uMin, uMax;
@@ -986,13 +1028,15 @@ void main() {
 	if (!(enc.x >= -0.002 && enc.x <= 1.002 && enc.y >= -0.002 && enc.y <= 1.002 && enc.z >= -0.002 && enc.z <= 1.002)) discard;
 	vec3 disp = ${S}_rgb(vV);
 	if (isnan(disp.x) || isnan(disp.y) || isnan(disp.z)) discard;
-	vec3 gv = ${gam === 'srgb' ? 'clamp(disp, 0.0, 255.0)' : `clamp(${S}_${G0}(vV), 0.0, 1.0)`};
+	${s === 'munsell' ? 'if (vV.z > munsell_maxc_(vV.x, vV.y) + 0.0001) discard;' : ''}
+	${faithful ? `vec3 gv = ${gam === 'srgb' ? 'clamp(disp, 0.0, 255.0)' : `clamp(${S}_${G0}(vV), 0.0, 1.0)`};
 	vec3 back = ${G0}_${S}(gv);
 	for (int k = 0; k < 3; k++) {
 		float d = abs(back[k] - vV[k]);
 		if (uMap.y == k) d = min(d, 360.0 - d);
 		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) discard;   // NaN fails too
-	}
+	}` : `// canonical-roundtrip discard omitted: this space's inverse is approximate
+	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
 	O = vec4(softDisp(disp), 1.0);
 }`
 		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uMetric', 'uPalIdx', 'uPalSites']
@@ -1008,6 +1052,10 @@ void main() {
 			uset(o)
 		}))
 		const draw=st.draws.get(s)
+		// Native 10/20 coloring runs space→RGB in the DRAW fragment shader. Measured
+		// spaces therefore need their LUT here too; without it Munsell sections read
+		// the default unit-0 texture and the whole quantized solid rendered black.
+		draw.lutN = lutNames(fsSurf)
 		const caps = !fsCap || s === src ? null : build(gl, vsCap, fsCap, (o) => {
 			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o)
 		})
@@ -1163,7 +1211,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		gl.enableVertexAttribArray(dr.aRgb); gl.vertexAttribPointer(dr.aRgb, 3, gl.FLOAT, false, 28, 12)
 		gl.enableVertexAttribArray(dr.aBad); gl.vertexAttribPointer(dr.aBad, 1, gl.FLOAT, false, 28, 24)
 	}
-	gl.useProgram(dr.pr); setU(dr.u)
+	gl.useProgram(dr.pr); setU(dr.u); bindLuts(gl, dr)
 	if (dr.u.uPalIdx) gl.uniform1i(dr.u.uPalIdx, PAL_UNIT)
 	if (dr.u.uPalSites) gl.uniform1i(dr.u.uPalSites, SITE_UNIT)
 	if (dr.u.uMetric) gl.uniform1i(dr.u.uMetric, Math.max(0, METRICS.indexOf(metric || 'oklab')))
