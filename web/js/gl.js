@@ -13,6 +13,7 @@
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
 import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid, visWhite } from './core.js'
+import NAMES from './names.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -108,7 +109,7 @@ const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift(
 function planeFS(s) {
 	const d = dimOf(s), vt = VT[d]
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
-	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'])
+	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'], ['rgb', 'oklab'], ['oklab', 'rgb'])   // oklab both ways — the cluster lenses (uClu) live in it
 	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
 	if (s !== 'rgb' && d <= 3) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
 	const lib = glsl(pairs)
@@ -141,6 +142,7 @@ precision highp int;
 ${lib}
 ${spans}
 ${locusGLSL()}
+${namedGLSL()}
 ${visSolidGLSL()}
 uniform vec4 uV;          // held channel values
 uniform ivec2 uAB;        // swept channel indices: x horizontal, y vertical (-1 = bar)
@@ -151,6 +153,7 @@ uniform int uGam;         // 0 off · 1 srgb · 2 p3 · 3 rec2020 · 4 human (sp
 uniform int uWeb;         // web-safe output snap
 uniform int uPolar;       // 1 → the field is a hue DISC: angle→a, radius→b
 uniform int uTri;         // cone-family vertical section: 1 cone · 2 bicone · 3 W+B triangle
+uniform int uClu;         // color-cluster lens: 1 nearest CSS named color · 2 even OKLab grid
 out vec4 O;
 void main() {
 	vec2 f = gl_FragCoord.xy / uRes;
@@ -185,6 +188,16 @@ void main() {
 	vec3 rgb = ${s === 'rgb' ? 'vec3(v[0], v[1], v[2])' : `${san(s)}_rgb(v)`};
 	if (isnan(rgb.x) || isnan(rgb.y) || isnan(rgb.z)) rgb = vec3(0.0);
 	rgb = clamp(rgb, 0.0, 255.0);
+	if (uClu == 1) {   // the "name" lens — nearest of the 148 CSS named colors, in OKLab
+		vec3 okp = rgb_oklab(rgb);
+		float bd = 1e9; int bi = 0;
+		for (int i = 0; i < NN; i++) { vec3 dv = okp - NMOK[i]; float dd = dot(dv, dv); if (dd < bd) { bd = dd; bi = i; } }
+		rgb = NMRGB[bi];
+	} else if (uClu == 2) {   // the "even" lens — perceptQ's OKLab grid, mirrored
+		vec3 okp = rgb_oklab(rgb);
+		okp = vec3((floor(min(okp.x, .9999) / .1) + .5) * .1, (floor(okp.y / .08) + .5) * .08, (floor(okp.z / .08) + .5) * .08);
+		rgb = clamp(oklab_rgb(okp), 0.0, 255.0);
+	}
 	float al = 1.0;
 	// physicality is lens-independent: past the space's linear-light ceiling (±4×
 	// diffuse white for SDR display spaces, 500× for scene-referred/HDR) the formula's
@@ -258,6 +271,13 @@ const GAMI = { srgb: 1, p3: 2, rec2020: 3, vis: 4 }
 // whether a chromaticity is a colour at all. ONE law, three surfaces — the xy panel
 // draws this boundary, and the plane and bar kernels void past it under the human
 // lens, so a coordinate no light can produce reads as void everywhere it appears.
+// the 148 CSS named colors as shader constants — nearest-site clustering runs on the
+// GPU (the "name" lens), in OKLab, the same metric the page's nearest() uses
+let NAMED_SRC = null
+const namedGLSL = () => NAMED_SRC ??= ((sites) => `const vec3 NMOK[${sites.length}] = vec3[${sites.length}](${sites.map((s) => `vec3(${s.ok.map((v) => v.toFixed(6)).join(',')})`).join(',')});
+const vec3 NMRGB[${sites.length}] = vec3[${sites.length}](${sites.map((s) => `vec3(${s.rgb.map((v) => v.toFixed(1)).join(',')})`).join(',')});
+const int NN = ${sites.length};`)(Object.values(NAMES).map((rgb) => ({ rgb, ok: space.rgb.oklab(...rgb) })))
+
 let LOCUS_SRC = null
 const locusGLSL = () => LOCUS_SRC ??= ((P) => `const vec2 LOC[${P.length}] = vec2[${P.length}](${P.map((q) => `vec2(${q[0].toFixed(5)}, ${q[1].toFixed(5)})`).join(', ')});
 bool inside(vec2 p) {   // even-odd over the closed locus + purple line
@@ -296,7 +316,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
 	G.uniform4f(st.u.uV, ...v4)
@@ -309,6 +329,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	G.uniform1i(st.u.uWeb, quant === 'web' ? 1 : 0)
 	G.uniform1i(st.u.uPolar, polar ? 1 : 0)
 	G.uniform1i(st.u.uTri, tri || 0)
+	G.uniform1i(st.u.uClu, quant === 'names' ? 1 : quant === 'percept' ? 2 : 0)
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
 
@@ -1116,11 +1137,8 @@ vec3 tosrgb(vec3 lin) {
 void main() {
 	vec2 f = gl_FragCoord.xy / uRes;
 	vec2 xy = vec2(-0.107 + f.x * 0.857, -0.055 + f.y * 0.955);
-	// beyond the horseshoe is IMAGINARY — no real colour lives there at any luminance, so
-	// it stays blank. The range does encode out there (Lab/OKLab a·b boxes, prophoto, aces…),
-	// but that's encoding headroom, not a gamut: a gamut is the real colours you can pick,
-	// and the plate shows exactly that — the visible chromaticities the space reaches.
-	if (!inside(xy)) { O = vec4(0.0); return; }
+	bool vis = inside(xy);
+	if (!vis && xy.y < 0.02) { O = vec4(0.0); return; }   // xyY degenerates at the x axis
 	// the horseshoe color: xyY at fixed Y, normalized to full saturation
 	float Y = 32.0;
 	vec3 XYZ = vec3(xy.x * Y / xy.y, Y, (1.0 - xy.x - xy.y) * Y / xy.y);
@@ -1160,6 +1178,12 @@ void main() {
 			}
 		}
 	}`}
+	// beyond the horseshoe no colour exists to SHOW — but the space's declared channel
+	// ranges still encode these chromaticities (Lab/OKLab a·b boxes, prophoto, aces…).
+	// The neutral veil draws that range-limited encoding extent — the channel limits
+	// impose the box's shape — while the colours themselves stay honestly absent.
+	// Inside the horseshoe: vivid = reached within range, ghost = visible but out of range.
+	if (!vis) { O = cov ? vec4(vec3(0.6), 0.16) : vec4(0.0); return; }
 	O = cov ? vec4(col, 1.0) : vec4(col * 0.55 + 0.30, 0.22);
 }`
 	const st = build(G, FSQ_VS, fs, (o) => {
