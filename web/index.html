@@ -91,9 +91,13 @@ a{ color:var(--ink) }
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
 .tfp .fcov{ display:flex; align-items:center; gap:var(--s2) }   /* coverage threshold: slider + live readout */
-.tfp .fcov input{ flex:1; min-width:0; accent-color:var(--ink) }
-.tfp .fcov .dual{ position:relative; flex:1; min-width:0; display:flex; align-items:center }   /* two thumbs, one track: the second input paints no track of its own */
-.tfp .fcov .dual input{ width:100%; margin:0 }
+.tfp .fcov .dual{ position:relative; flex:1; min-width:0; display:flex; align-items:center; --lo:0%; --hi:100% }   /* two thumbs, one hand-painted track: ink BETWEEN the thumbs, hair outside — the native progress fill (left-of-thumb) reads backwards for an interval */
+.tfp .fcov .dual input{ width:100%; margin:0; appearance:none; background:none; height:18px }
+.tfp .fcov .dual input::-webkit-slider-runnable-track{ height:4px; border-radius:2px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }
+.tfp .fcov .dual input::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--ink); margin-top:-5px; cursor:pointer }
+.tfp .fcov .dual input::-moz-range-track{ height:4px; border-radius:2px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }
+.tfp .fcov .dual input::-moz-range-thumb{ width:14px; height:14px; border:0; border-radius:50%; background:var(--ink); cursor:pointer }
+.tfp .fcov .dual input::-moz-range-progress{ background:none }
 .tfp .fcov .dual input:last-child{ position:absolute; inset:0; pointer-events:none }
 .tfp .fcov .dual input:last-child::-webkit-slider-runnable-track{ background:none }
 .tfp .fcov .dual input:last-child::-webkit-slider-thumb{ pointer-events:auto }
@@ -388,7 +392,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
-.bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }
+.bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s4) }
 @media(max-width:640px){ .bigch{ flex-wrap:nowrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills NEVER wrap — they ride the input line */
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
@@ -1304,7 +1308,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, visWhite } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist } from './js/gl.js'
+import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -1736,16 +1740,24 @@ const act=FACETS.map(()=>new Set())
 let covMin=0, covMax=1
 const covOn=()=>covMin>0||covMax<1
 const covTxt=()=>covMin>0&&covMax<1?`${covMin*100|0}–${covMax*100|0}% of visible`:covMin>0?`≥${covMin*100|0}% of visible`:covMax<1?`≤${covMax*100|0}% of visible`:'any'
+// era interval — when each space was born (meta.year), the same grammar as coverage:
+// continuous, so a from–to slider, not chips. The low end digs up the ancestors, the
+// high end keeps only the moderns.
+const YRS=SPACES.map(s=>meta[s].year).filter(isFinite), YMIN=Math.min(...YRS), YMAX=Math.max(...YRS)
+let yrMin=YMIN, yrMax=YMAX
+const yrOn=()=>yrMin>YMIN||yrMax<YMAX
+const yrTxt=()=>yrMin>YMIN&&yrMax<YMAX?`${yrMin}–${yrMax}`:yrMin>YMIN?`since ${yrMin}`:yrMax<YMAX?`until ${yrMax}`:'any era'
 // active facets shown as removable chips in the header, right by the search
 const fchipsH=document.getElementById('fchipsH')
 const FX='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
 const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('')
-	+(covOn()?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage interval">${covTxt()}${FX}</button>`:'') }
+	+(covOn()?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage interval">${covTxt()}${FX}</button>`:'')
+	+(yrOn()?`<button class="fchip" data-yr="1" aria-label="remove the era filter" title="remove the era interval">${yrTxt()}${FX}</button>`:'') }
 // one filter pipeline: name match (highlighted in place) AND the picked facets
-function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size)||covOn(); let shown=0
+function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size)||covOn()||yrOn(); let shown=0
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 		let hit
-		if(s){ const sl=SLOTS.get(s), rc=REACH[s]?.[0]??-1; hit=(!q||SEARCHSTR.get(s).includes(q))&&act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))&&(!covOn()||(rc>=covMin&&rc<=covMax)); if(hit)shown++ }
+		if(s){ const sl=SLOTS.get(s), rc=REACH[s]?.[0]??-1; hit=(!q||SEARCHSTR.get(s).includes(q))&&act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))&&(!covOn()||(rc>=covMin&&rc<=covMax))&&(!yrOn()||(meta[s].year>=yrMin&&meta[s].year<=yrMax)); if(hit)shown++ }
 		else hit=!any&&(!q||(ent.querySelector('.nm')?.textContent.toLowerCase().includes(q)))   // barred cards: name match only, hidden when facets are active, not counted
 		ent.style.display=hit?'':'none'
 		markName(ent,hit&&q&&s?q:null) })
@@ -1768,11 +1780,20 @@ qInput.addEventListener('input',applyFilter)
 		// the visible gamut (the dossier's reach number) — the low end finds the
 		// narrow-coverage spaces, the high end the wide ones
 		+`<div class="frow"><i>coverage</i><span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="minimum share of the visible gamut" title="from — keep spaces reaching at least this share of visible colors"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="maximum share of the visible gamut" title="to — keep spaces reaching at most this share"></span><b class="tnum" id="fcovv">any</b></span></div>`
-	const fcov=tfp.querySelector('#fcov'), fcov1=tfp.querySelector('#fcov1'), fcovv=tfp.querySelector('#fcovv')
-	const tfbOn=()=>tfb.classList.toggle('on',act.some(a=>a.size)||covOn())
-	const covUpd=()=>{ fcovv.textContent=covTxt(); tfbOn(); applyFilter() }
+		// history is the same continuous story told in years: birth year from meta,
+		// slid from Maxwell to the latest model
+		+`<div class="frow"><i>history</i><span class="fcov"><span class="dual"><input type="range" id="fyr" min="${YMIN}" max="${YMAX-5}" step="5" value="${YMIN}" aria-label="earliest birth year" title="from — keep spaces born in or after this year"><input type="range" id="fyr1" min="${YMIN+5}" max="${YMAX}" step="5" value="${YMAX}" aria-label="latest birth year" title="to — keep spaces born in or before this year"></span><b class="tnum" id="fyrv">any era</b></span></div>`
+	const fcov=tfp.querySelector('#fcov'), fcov1=tfp.querySelector('#fcov1'), fcovv=tfp.querySelector('#fcovv'), covD=tfp.querySelector('.fcov .dual')
+	const fyr=tfp.querySelector('#fyr'), fyr1=tfp.querySelector('#fyr1'), fyrv=tfp.querySelector('#fyrv'), yrD=fyr.closest('.dual')
+	const tfbOn=()=>tfb.classList.toggle('on',act.some(a=>a.size)||covOn()||yrOn())
+	const covPaint=()=>{ covD.style.setProperty('--lo',covMin*100+'%'); covD.style.setProperty('--hi',covMax*100+'%') }   // the fill IS the interval — full at rest, because 'any' is the full interval
+	const covUpd=()=>{ covPaint(); fcovv.textContent=covTxt(); tfbOn(); applyFilter() }
 	fcov.oninput=()=>{ covMin=+fcov.value/100; if(covMin>covMax){ covMax=covMin; fcov1.value=covMax*100 } covUpd() }
 	fcov1.oninput=()=>{ covMax=+fcov1.value/100; if(covMax<covMin){ covMin=covMax; fcov.value=covMin*100 } covUpd() }
+	const yrPaint=()=>{ const pc=y=>(y-YMIN)/(YMAX-YMIN)*100+'%'; yrD.style.setProperty('--lo',pc(yrMin)); yrD.style.setProperty('--hi',pc(yrMax)) }   // the fill IS the interval — full at rest, same as coverage
+	const yrUpd=()=>{ yrPaint(); fyrv.textContent=yrTxt(); tfbOn(); applyFilter() }
+	fyr.oninput=()=>{ yrMin=+fyr.value; if(yrMin>yrMax){ yrMax=yrMin; fyr1.value=yrMax } yrUpd() }
+	fyr1.oninput=()=>{ yrMax=+fyr1.value; if(yrMax<yrMin){ yrMin=yrMax; fyr.value=yrMin } yrUpd() }
 	tfp.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{ const fi=+b.dataset.f, t=b.dataset.t
 		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
 		const on=act[fi].has(t); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); tfbOn()
@@ -1780,7 +1801,8 @@ qInput.addEventListener('input',applyFilter)
 	// a header chip removes its facet — and un-presses the matching dropdown tag (the
 	// coverage chip resets the slider instead)
 	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return
-		if(b.dataset.cov){ covMin=0; covMax=1; fcov.value=0; fcov1.value=100; fcovv.textContent='any'; tfbOn(); applyFilter(); return }
+		if(b.dataset.cov){ covMin=0; covMax=1; fcov.value=0; fcov1.value=100; covUpd(); return }
+		if(b.dataset.yr){ yrMin=YMIN; yrMax=YMAX; fyr.value=YMIN; fyr1.value=YMAX; yrUpd(); return }
 		const fi=+b.dataset.f, t=b.dataset.t; act[fi].delete(t)
 		const pt=tfp.querySelector(`.tag[data-f="${fi}"][data-t="${CSS.escape(t)}"]`); if(pt){ pt.classList.remove('on'); pt.setAttribute('aria-pressed','false') }
 		tfbOn(); applyFilter() })
@@ -2350,8 +2372,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the cube surface misses boundary pieces that are the SPACE's own box faces (HSL's
 	// flat white L≈100 disc, HWB's pure-hue cone wall): mesh the range-box faces too,
 	// slightly inset, keeping only in-sRGB verts whose coordinates roundtrip as canonical
-	// roundtrip on FLOAT rgb: int rounding would scramble hue/sat near white and reject real caps
-	const rt=(v,rgb)=>{ let back; try{ back=toSpace(s,rgb.map(x2=>clamp(x2,0,255))) }catch{ return false }
+	// roundtrip on FLOAT rgb: int rounding would scramble hue/sat near white and reject real caps.
+	// Skipped for approximate-inverse spaces (rtFaithful) — the law would reject real cap verts
+	const rt=!rtFaithful(s)?()=>true:(v,rgb)=>{ let back; try{ back=toSpace(s,rgb.map(x2=>clamp(x2,0,255))) }catch{ return false }
 		return cls.ch.every((c,k)=>{ let d=Math.abs(back[k]-v[k])
 			if(c.max===360) d=Math.min(d,360-d)
 			return d<=(c.max-c.min)*0.03 }) }
@@ -2570,13 +2593,14 @@ let ctr3=null, ln3=null, gu3=null
 // membership in the SHOWN volume, exactly as the mesh defines it: the image of the
 // ENCODED gamut cube in its own 0-1 units — inGam's ±0.005 LINEAR pad is ~6% of the
 // encoded range near black and inflated cuts (ohta's cut triangle overshot its shape).
-// Canonical coordinates only: the xyz roundtrip drops fold branches (hwb's w+b>100).
+// Canonical coordinates only: the xyz roundtrip drops fold branches (hwb's w+b>100) —
+// skipped for approximate-inverse spaces (rtFaithful), where it would flicker on real colors.
 const inSolid3=(s,cls,g3,v)=>{ try{
 	if(g3==='vis'){ const X=s==='xyz'?v:space[s].xyz(...v)
 		return X.every(isFinite)&&inVisSolid(...X) }
 	const gv=g3==='srgb'?space[s].rgb(...v).map(x2=>x2/255):space[s][g3](...v)
 	if(!gv.every(x2=>isFinite(x2)&&x2>=-0.002&&x2<=1.002)) return false
-	if(s==='xyz') return true
+	if(s==='xyz'||!rtFaithful(s)) return true
 	const back=space.xyz[s](...space[s].xyz(...v))
 	return cls.ch.every((c,k)=>{ let d=Math.abs(back[k]-v[k])
 		if(c.max===360) d=Math.min(d,360-d)
