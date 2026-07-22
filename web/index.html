@@ -63,8 +63,8 @@ a{ color:var(--ink) }
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
 .cx .cd{ position:absolute; left:calc(.15em - 7px); top:50%; width:25px; height:25px; padding:7px; background:none; border:0; appearance:none; -webkit-appearance:none; transform:translateY(-50%) rotate(45deg); cursor:pointer; transition:transform var(--dur-micro) var(--ease-out) }   /* the favicon rhombus, live — a native color input in disguise; centred on the value's line. The box is the hit area (25px); the padding keeps the visible swatch at the same 11px */
 .cx .cd:hover,.cx .cd:focus-visible{ transform:translateY(-50%) rotate(45deg) scale(1.18) }   /* the same lift the interpolate endpoint rhombus has */
-.cd::-webkit-color-swatch-wrapper{ padding:0 }
-.cd::-webkit-color-swatch{ border:0 }
+.cd::-webkit-color-swatch-wrapper{ padding:0; border-radius:0 }
+.cd::-webkit-color-swatch{ border:0; border-radius:0 }   /* iOS rounds the native swatch into a circle — the rhombus stays a rhombus */
 #cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
 .gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
 /* active facet filters, shown as removable chips right by the search — so the header shows what's on */
@@ -221,7 +221,8 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 	.shw{ justify-content:flex-start }
 	.shw .c{ margin-left:.4em }
 }
-@media(max-width:640px){ .cat .ent .eh .nm{ font-size:var(--t2) } }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
+@media(max-width:640px){ .cat .ent .eh .nm{ font-size:calc(var(--t2) + 1px) }   /* a step up — phone names read too small at t2 */
+	.ent{ padding-top:var(--s3) } }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
@@ -246,7 +247,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .cvp .stk button,.bch .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover; one recipe for the catalog pair and its scaled-up modal sibling */
 .cvp .stk button:hover,.bch .stk button:hover{ opacity:1; color:var(--ink) }
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
-.chs{ display:flex; flex-direction:column }
+.chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
 .ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
 /* attention: the marker grows a step and wears a steady outline pair hugging its border —
@@ -374,7 +375,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s6) }
-@media(max-width:640px){ .bigch{ flex-wrap:wrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills stay one line — the group drops whole instead of stacking */
+@media(max-width:640px){ .bigch{ flex-wrap:nowrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills NEVER wrap — they ride the input line */
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
