@@ -316,7 +316,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .mnavbar .mcat:hover .mn{ color:var(--ink) }
 .dctl{ display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:var(--s2); margin-left:auto }   /* gamut + quantization selects — ride the side column, flush with its right edge */
 .dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — the native chevron says "openable"; the legend rides the ? beside it */
-.hq{ flex:none; font-size:var(--t1); font-weight:700; color:var(--soft); cursor:help }   /* one ? closes each select group — its legend, visibly discoverable */
+.hq{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:1.5em; height:1.5em; border-radius:999px; font-size:var(--t1); font-weight:800; color:var(--soft); background:var(--panel); cursor:help }   /* one ? closes each select group — the tag's gray, rounded to a circle */
 .hq:hover{ color:var(--ink) }
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }

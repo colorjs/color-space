@@ -39,6 +39,12 @@ try {
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'coverage ≥90% drops sRGB')
 	await page.locator('.fchip[data-cov]').click()
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'removing the coverage chip restores the catalog')
+	// the interval's low end: ≤50% finds the narrow-coverage spaces and drops the wide ones
+	await page.locator('#tfb').click()   // the chip click closed the picker — reopen for the interval case
+	await page.locator('#fcov1').fill('50')
+	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'coverage ≤50% keeps sRGB (~36%)')
+	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), false, 'coverage ≤50% drops oklab')
+	await page.locator('.fchip[data-cov]').click()
 	await page.keyboard.press('Escape')
 
 	await page.locator('#cval').fill('rebeccapurple')
