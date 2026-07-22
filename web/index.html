@@ -429,11 +429,12 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* the cone-section switch wears the PLANE's own silhouette — graticule outline-to-outline,
    the square glyph's height; border-radius must reset or the base icon's 50% shaves the
    masked corners into a circle */
-.pl .pmode.tri:not(.sq)::before{ border:0; border-radius:0; width:.9em; height:.85em; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat }
-.pl .pmode.t1{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M.4 .6H9.6L5 9.4Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 .6V9.4M2.8 5.2h4.4' fill='none' stroke='black'/></svg>") }   /* the cone plot: base up, apex down */
-.pl .pmode.t2{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 .7 9.3 5 5 9.3.7 5Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .7V9.3M.7 5H9.3' fill='none' stroke='black'/></svg>") }   /* the bicone plot: the diamond — tips inset so the miters render whole (edge-clipped tips read as rounding) */
-.pl .pmode.t2:not(.sq)::before{ width:1em; height:1em }   /* the diamond inscribes less area — a step larger to weigh like its siblings */
-.pl .pmode.t3{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M.5 .4V9.6L9.5 5Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M.5 5H9.5M3.5 1.95V8.05' fill='none' stroke='black'/></svg>") }   /* the W+B wedge plot: points right */
+.pl .pmode.tri:not(.sq)::before{ border:0; border-radius:0; width:1em; height:1em; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat }
+/* padded viewBoxes: the sharp (~30°) points throw miter tips ~1.2 units past the vertex —
+   a 0-origin box clips them flat, which reads as rounded corners */
+.pl .pmode.t1{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M.4 .6H9.6L5 9.4Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .6V9.4M2.8 5.2h4.4' fill='none' stroke='black'/></svg>") }   /* the cone plot: base up, apex down */
+.pl .pmode.t2{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M5 .4 9.6 5 5 9.6.4 5Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .4V9.6M.4 5H9.6' fill='none' stroke='black'/></svg>") }   /* the bicone plot: the diamond */
+.pl .pmode.t3{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M.5 .4V9.6L9.5 5Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M.5 5H9.5M3.5 1.95V8.05' fill='none' stroke='black'/></svg>") }   /* the W+B wedge plot: points right */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
