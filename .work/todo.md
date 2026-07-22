@@ -15,7 +15,7 @@
 * [ ] Pick a line/shape, not just a point in space.
   * [ ] Pick a color, drop an image?
 * [x] Interpolation: compare against the other space
-* [ ] In-space configurator: there's multiple flavors of RGB space with different matrices etc.
+* [x] ~~In-space configurator: there's multiple flavors of RGB space with different matrices etc.~~ no
 * [ ] Hue bar: uncollapses? Rotates?
 * [ ] FAQ: no questions = disinteresting topic
 * [x] The barred spaces - add cards, display the limitation on them instead of explainer at the bottom.
@@ -25,7 +25,7 @@
 * [x] Comparison table as the proof asset (71 vs culori 35 / colorjs 40 / texel 16; only conventional-ranges lib; the cross-disciplinary spaces)
 * [x] Demo: all-spaces color picker / palette renderer with gamut limits (show breadth, don't claim it)
 
-## [ ] CLI — naming take (2026-07)
+## [x] ~~CLI — naming take (2026-07)~~
 
 The bin name decides the docs one-liner. Key mechanic: **`npx color-space …` invokes the package's own bin when the bin name equals the package name** — zero install, zero global-name bikeshed, and that's the form every README/tutorial shows anyway. So:
 
@@ -35,7 +35,7 @@ The bin name decides the docs one-liner. Key mechanic: **`npx color-space …` i
 
 ## LUT file size — not a defect (2026-07)
 
-* [ ] A 65³ `.cube` is 274,625 data lines × ~23 bytes ≈ **6.3 MB — text-format arithmetic**, matching what Resolve itself exports at 65³ (~7 MB). 33³ ≈ 0.9 MB is the industry default; 17³ ≈ 0.1 MB for on-set monitoring. 6-decimal floats are the conventional precision (quantization 5e-7 — far below lattice error, so fewer decimals would save ~15% while making precision the bottleneck; gzip on the wire gets ~70% anyway). The real fix for "need 65³ accuracy, hate 6 MB" is the **shaper LUT** (1D+3D combined): a 33³-with-shaper reaches 65³-class in-range accuracy at ~1 MB.
+* [x] A 65³ `.cube` is 274,625 data lines × ~23 bytes ≈ **6.3 MB — text-format arithmetic**, matching what Resolve itself exports at 65³ (~7 MB). 33³ ≈ 0.9 MB is the industry default; 17³ ≈ 0.1 MB for on-set monitoring. 6-decimal floats are the conventional precision (quantization 5e-7 — far below lattice error, so fewer decimals would save ~15% while making precision the bottleneck; gzip on the wire gets ~70% anyway). The real fix for "need 65³ accuracy, hate 6 MB" is the **shaper LUT** (1D+3D combined): a 33³-with-shaper reaches 65³-class in-range accuracy at ~1 MB.
 
 ---
 
