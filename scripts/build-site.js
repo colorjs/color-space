@@ -36,6 +36,10 @@ const rewrite = (file, pairs) => {
 }
 
 export async function buildSite() {
+	// social cards first — they render into web/img/og (gitignored cache; only
+	// missing/stale cards bake) so the cpSync below ships them with the rest
+	const { spaceCards } = await import('./generate-og.js')
+	await spaceCards()
 	rmSync(site, { recursive: true, force: true })
 	mkdirSync(site, { recursive: true })
 	// sources: the web/ tree verbatim (index.html template, tokens.css, js/, img/, 404)
@@ -88,7 +92,7 @@ export async function buildSite() {
 	// Match every shader by its #version header, not the assignment form, so caps built as
 	// `const fsCap = fsCapVis || glin && \`#version…\`` are covered alongside vs/fsSurf.
 	{	const gl = readFileSync(join(site, 'js/gl.js'), 'utf8')
-		const decl = (s) => [...s.matchAll(/uniform\s+\w+\s+([^;]+);/g)].flatMap((x) => x[1].split(',').map((t) => t.trim().replace(/\[.*$/, '')))
+		const decl = (s) => [...s.matchAll(/uniform\s+(?:(?:lowp|mediump|highp)\s+)?\w+\s+([^;]+);/g)].flatMap((x) => x[1].split(',').map((t) => t.trim().replace(/\[.*$/, '')))
 		const mapU = new Set(decl(gl.match(/const MAP_GLSL = `([\s\S]*?)`/)[1]))
 		for (const [, src] of gl.matchAll(/`(#version 300 es[\s\S]*?)`/g)) {
 			const declared = new Set([...decl(src), ...(src.includes('${MAP_GLSL}') ? mapU : [])])
