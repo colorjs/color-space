@@ -3540,7 +3540,9 @@ function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
-		if(sweep&&dragEnt&&ent!==dragEnt) return   // motion frames: only the dragged row repaints — the rest catch up on settle
+		// every NEAR-SCREEN row's values and ticks track the drag live (a conversion per row —
+		// cheap; the hex stamp below already coalesces no-change frames); offscreen rows are
+		// vis-gated out above and catch up on the settle sweep
 		// stamp-skip: values + ticks depend on the color (and, for sheet rows, on whether
 		// the popover shows ticks — the ':l' tier). A focused entry always repaints — its
 		// input is deliberately left untouched while being edited. The MASTER's own row
@@ -3753,7 +3755,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 }
 let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
-	renderFast(); if(!open()&&(!dragEnt||!dragging)) paintCatalogGrad(dragEnt?[dragEnt]:null,true)   // motion frames blit near-screen strips live — during a catalog drag, only the dragged row's
+	renderFast(); if(!open()&&(!dragEnt||!dragging)) paintCatalogGrad(null,true)   // motion frames blit ALL near-screen strips live (vis-gated, GPU blits, no readback) — offscreen rows wait for the settle sweep
 	clearTimeout(settleT); settleT=setTimeout(()=>{ paintCatalogGrad(); paintCatalogVals() },140)   // …then one settle sweep bakes the PNGs, catches every skipped row up and arms the idle walk for the offscreen rest
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
