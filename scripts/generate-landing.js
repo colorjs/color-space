@@ -5,7 +5,8 @@
 // for every space — the 200-status document /<name> deep links and search engines
 // land on is the atlas itself (the app's router opens the dossier from the path;
 // 404.html only catches unknown slugs). web/ holds the source; docs/ is markdowns.
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { execSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
@@ -17,6 +18,18 @@ const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 // If v3 publishes under a different base (e.g. …/color-space/docs), change it here.
 const SITE = 'https://color-space.io'
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+// per-space social card, when generate-og.js has rendered it (gitignored cache)
+const cardOf = (s) => existsSync(join(root, 'web/img/og', s + '.jpg')) ? `${SITE}/img/og/${s}.jpg` : null
+// sitemap lastmod from git — the last commit touching each space's source; shallow
+// clones degrade to the HEAD date, which is still a valid (if uniform) lastmod
+const git = (cmd) => { try { return execSync(cmd, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) } catch { return '' } }
+const HEAD_DATE = git('git log -1 --format=%cI').trim().slice(0, 10) || new Date().toISOString().slice(0, 10)
+const SRC_DATE = (() => { const map = {}; let d = HEAD_DATE
+	for (const ln of git('git log --format=%x01%cI --name-only -- spaces').split('\n')) {
+		if (ln.startsWith('\x01')) d = ln.slice(1, 11)
+		else { const m = ln.match(/^spaces\/(.+)\.js$/); if (m && !map[m[1]]) map[m[1]] = d }
+	}
+	return map })()
 
 export function build(out = join(root, '_site')) {
 // ── index.html: static catalog + live counts + version (from the web/ source) ──
@@ -42,6 +55,17 @@ inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase(
 inject(/(<input id="cval")/, `$1 value="${dhx}"`)
 // the meta descriptions carry no live count by design — the counts live in #n/#n2 and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
+// the registry as a schema.org Dataset — Google Dataset Search reaches the science
+// crowd; homepage only (stampSpacePages strips it — 162 copies would read as spam)
+const ld = { '@context': 'https://schema.org', '@type': 'Dataset',
+	name: 'color-space — color space registry',
+	description: `Machine-readable registry of ${spaceCount} color spaces: channels and conventional ranges, conversion-graph edges, gamut primaries, white points, CIE 1931 2° color-matching functions, provenance and cited conformance anchors.`,
+	url: SITE, sameAs: 'https://github.com/colorjs/color-space',
+	license: 'https://creativecommons.org/publicdomain/zero/1.0/', isAccessibleForFree: true,
+	creator: { '@type': 'Person', name: 'Dmitry Ivanov' },
+	keywords: ['color space', 'color conversion', 'colorimetry', 'OKLCH', 'CIELAB', 'CAM16', 'ACES', 'LUT', 'ICC'],
+	distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${SITE}/data.json` }] }
+inject(/(<link rel="canonical" href="[^"]*">)/, `$1<script type="application/ld+json" id="ld-dataset">${JSON.stringify(ld)}</script>`)
 writeFileSync(join(out, 'index.html'), html)
 
 // ── llms.txt: machine-readable index of every space ──
@@ -79,9 +103,10 @@ ${sections.map(c => `## ${c.name}\n${c.spaces.map(line).join('\n')}`).join('\n\n
 writeFileSync(join(out, 'llms.txt'), llms)
 
 // sitemap + robots — the crawl surface: the app root + every space document
+const iurl = (loc, date, img) => `<url><loc>${loc}</loc><lastmod>${date}</lastmod>${img ? `<image:image><image:loc>${img}</image:loc></image:image>` : ''}</url>`
 writeFileSync(join(out, 'sitemap.xml'),
-	`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-	[`${SITE}/`, ...SPACES.map((s) => `${SITE}/${s}`)].map((u) => `<url><loc>${u}</loc></url>`).join('\n') +
+	`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n` +
+	[iurl(`${SITE}/`, HEAD_DATE, `${SITE}/img/og.png`), ...SPACES.map((s) => iurl(`${SITE}/${s}`, SRC_DATE[s] || HEAD_DATE, cardOf(s)))].join('\n') +
 	`\n</urlset>\n`)
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`)
 writeFileSync(join(out, 'CNAME'), SITE.replace(/^https?:\/\//, '') + '\n')   // gh-pages custom domain — must ship in every deploy artifact or the domain detaches
@@ -117,6 +142,12 @@ export function stampSpacePages(out = join(root, '_site')) {
 		h = swap(h, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${SITE}/${s}">`)
 		h = swap(h, /<meta property="og:type" content="[^"]*">/, `<meta property="og:type" content="article">`)
 		h = swap(h, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${SITE}/${s}">`)
+		h = swap(h, /<script type="application\/ld\+json" id="ld-dataset">[^<]*<\/script>/, '')
+		const card = cardOf(s)
+		if (card) {
+			h = swap(h, /<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${card}">`)
+			h = h.replace(/<meta (property="og:image:alt"|name="twitter:image:alt") content="[^"]*">/g, `<meta $1 content="${esc(name)} color space — its channel gradients, ranges and use">`)
+		}
 		writeFileSync(join(out, s + '.html'), h)
 	}
 	console.log(`stamped ${SPACES.length} per-space atlas documents`)

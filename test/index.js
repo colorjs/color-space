@@ -80,6 +80,15 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(lmsPage.split('<title>LMS color space').length - 1, 1, 'LMS page titles its display name, not the slug')
 	const slogPage = readFileSync(`${site}/slog3.html`, 'utf8')
 	is(slogPage.includes('<title>S-Log3 color space — channels, ranges, conversion LUT | color-space</title>'), true, 'LUT-capable camera log titles the display name and the LUT')
+	// social cards + structured data: every space page carries its own card, the
+	// sitemap carries images + per-space git lastmod, and the Dataset JSON-LD
+	// stays on the index alone (162 copies would read as spam)
+	is(slogPage.includes('<meta property="og:image" content="https://color-space.io/img/og/slog3.jpg">'), true, 'space page carries its own social card')
+	is(existsSync(`${site}/img/og/slog3.jpg`), true, 'the card image ships with the site')
+	is(map.includes('<image:loc>https://color-space.io/img/og/slog3.jpg</image:loc>'), true, 'sitemap lists the card image')
+	is(map.includes('<lastmod>'), true, 'sitemap carries lastmod dates')
+	is(readFileSync(`${site}/index.html`, 'utf8').includes('"@type":"Dataset"'), true, 'index carries the Dataset JSON-LD')
+	is(slogPage.includes('ld-dataset'), false, 'space pages do not repeat the Dataset JSON-LD')
 	is(lmsPage.match(/<link rel="canonical"/g)?.length, 1, 'LMS page carries exactly one canonical')
 	is(lmsPage.includes('<link rel="canonical" href="https://color-space.io/lms">'), true, 'LMS canonical points at its dossier URL')
 	is(lmsPage.includes('<meta property="og:url" content="https://color-space.io/lms">'), true, 'LMS social URL points at its dossier URL')
