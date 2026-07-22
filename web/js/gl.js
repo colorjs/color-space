@@ -695,7 +695,7 @@ void main() {
 	// — a hue or bipolar-chroma channel present): the dark/pole side. Additive spaces (ch0 = Red, not
 	// a tone) and a high ceiling for HDR/scene spaces are left alone.
 	if (uOut == 1 && (uMap.y >= 0 || uBip.x >= 0) && vF[uMap.x] < uDMin[uMap.x]) discard;
-	if (uPass == 0 && ob > 0.0) discard;
+	if ((uPass == 0 || uPass == 3) && ob > 0.0) discard;
 	if (uPass == 1) {
 		if (ob <= 0.0 || ob > 0.3) discard;   // near chroma overflow shows; far pole-fan dropped
 		float a = 1.0 - ob / 0.3;
@@ -706,12 +706,17 @@ void main() {
 	// the cut when its held coordinate equals the plane's. fwidth sets the band's width in
 	// SCREEN pixels, so the outline rides the real tessellated edge — exactly, everywhere,
 	// with none of a marching polyline's coarse chords or dropped segments.
+	bool onCut = false;
 	if (uCut.x >= 0) {
 		float c = vF[uCut.x], w = fwidth(c), d = c - uCutV.x;
 		if (uCut.y == 1) d = mod(d + uCutV.y * 1.5, uCutV.y) - uCutV.y * 0.5;   // a hue axis wraps
 		// a seam or fold spikes the derivative — banding there would smear across the solid
-		if (w < uCutV.y * 0.2 && abs(d) < w * 1.1) O = vec4(1.0, 1.0, 1.0, O.a);
+		onCut = w < uCutV.y * 0.2 && abs(d) < w * 1.1;
 	}
+	// pass 3 paints the curve ALONE, drawn depth-GREATER so it lands exactly where the body
+	// hides it: the far arc still reads, at half weight, the way a hidden line should
+	if (uPass == 3) { if (!onCut) discard; O = vec4(1.0, 1.0, 1.0, 0.38); return; }
+	if (onCut) O = vec4(1.0, 1.0, 1.0, O.a);
 }`
 		// caps: the space's own range-box faces. Display gamuts keep them only where
 		// the coords are in-gamut AND canonical (roundtrip), tested per PIXEL; the
@@ -988,20 +993,30 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut) {
 				gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4)
 		}
 	}
+	// the CUT's far arc: the same per-pixel band, drawn where the body covers it. The
+	// body is opaque, so a pane behind it can only wash the surface — the hidden CURVE
+	// is what carries "the plane continues through here", and it carries it precisely.
+	if (cut) {
+		gl.useProgram(dr.pr)
+		bindBaked()
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)
+		gl.uniform1i(dr.u.uPass, 3)
+		gl.depthFunc(gl.GREATER); gl.depthMask(false)
+		gl.drawElements(gl.TRIANGLES, gam === 'vis' ? st.vn : st.tn, gl.UNSIGNED_INT, 0)
+		gl.depthFunc(gl.LEQUAL); gl.depthMask(true)
+		gl.uniform1i(dr.u.uPass, 0)
+	}
 	if (sheet && sheet.length) { const sp = sheetProg(st)
 		if (sp) { gl.useProgram(sp.pr)
 			gl.uniform2f(sp.uRot, rot.a, rot.b); gl.uniform1f(sp.uScale, scale)
 			gl.bindBuffer(gl.ARRAY_BUFFER, sp.buf); gl.bufferData(gl.ARRAY_BUFFER, sheet, gl.DYNAMIC_DRAW)
 			gl.enableVertexAttribArray(sp.aPos); gl.vertexAttribPointer(sp.aPos, 3, gl.FLOAT, false, 0, 0)
 			gl.depthMask(false)
-			gl.uniform4f(sp.uTint, 1, 1, 1, 0.75)
+			// a half-transparent film where nothing covers it — and NOTHING where the body
+			// does. Behind an opaque body the pane could only veil the solid's own colour
+			// (the old 0.35 wash), which is exactly what greyed the cross-section out.
+			gl.uniform4f(sp.uTint, 1, 1, 1, 0.5)
 			gl.drawArrays(gl.TRIANGLES, 0, sheet.length / 3)
-			// and the part the body hides — fainter, so the pane reads CONTINUOUS
-			// through the solid instead of stopping dead at the silhouette
-			gl.depthFunc(gl.GREATER)
-			gl.uniform4f(sp.uTint, 1, 1, 1, 0.35)
-			gl.drawArrays(gl.TRIANGLES, 0, sheet.length / 3)
-			gl.depthFunc(gl.LEQUAL)
 			gl.depthMask(true) } }
 	if (frame) { const fp = frameProg(st)
 		if (fp) { gl.useProgram(fp.pr)
