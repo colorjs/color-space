@@ -365,7 +365,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
 .bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the picker rides above the label and number — the catalog's 8px rhombus; its outline pair lives with .tk's */
-.planes{ display:flex; gap:var(--s2); align-items:flex-start }   /* one row, always — the ≤3 pair plots share it, shrinking together; no stretch — a cone section keeps its own equilateral box */
+.planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
 .dpick.nod3{ grid-template-columns:1fr }   /* no 3D — sliders + planes take the whole measure */
@@ -400,12 +400,12 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .chlist .tnum{ white-space:nowrap }
 .cssv{ cursor:copy } .cssv:hover,.cssv:focus-visible{ color:var(--ink) }   /* the css notation copies on click or keyboard activation */
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
-/* cone sections: the box takes the silhouette's equilateral bounding ratio, and the checker
-   goes — outside a silhouette there is nothing to declare void. flex-grow matches the
-   aspect, so the row redistributes widths and every plane keeps ONE shared height */
-.pl.tric{ aspect-ratio:1.1547; flex-grow:1.1547; max-width:21.5rem; background:none }   /* cone: base up, apex down — wider box, same height */
-.pl.triw{ aspect-ratio:0.866; flex-grow:0.866; max-width:16.1rem; background:none }     /* W+B wedge: points right — narrower box, same height */
-.pl.trid{ background:none }                        /* bicone diamond: a rhombus is already equal-sided */
+/* cone sections: the plane BOX stays the rectangles' own square — the row's layout never
+   shifts; the silhouette canvas sits top-left at its equilateral ratio and the slack is
+   plain paper (no checker: outside a silhouette there is nothing to declare void) */
+.pl.tric,.pl.triw,.pl.trid{ background:none }
+.pl.tric canvas{ height:86.6% }   /* cone: base up, apex down — equilateral at full width, slack below */
+.pl.triw canvas{ width:86.6% }    /* W+B wedge: points right — equilateral at full height, slack right */
 .pl canvas{ display:block; width:100%; height:100% }
 /* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
    labels and the mode switch stay on the square element, outside the rim */
@@ -426,7 +426,13 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
-.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat; --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 .6 9.6 9.4H.4Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 .6V9.4M2.7 5h4.6' fill='none' stroke='black'/></svg>") }   /* the cone-section switch: outlined triangle at the circle/square's full size, the graticule running outline-to-outline — the family's own recipe */
+/* the cone-section switch wears the PLANE's own silhouette — graticule outline-to-outline,
+   the square glyph's height; border-radius must reset or the base icon's 50% shaves the
+   masked corners into a circle */
+.pl .pmode.tri:not(.sq)::before{ border:0; border-radius:0; width:.9em; height:.85em; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat }
+.pl .pmode.t1{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M.4 .6H9.6L5 9.4Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 .6V9.4M2.8 5.2h4.4' fill='none' stroke='black'/></svg>") }   /* the cone plot: base up, apex down */
+.pl .pmode.t2{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 .4 9.6 5 5 9.6.4 5Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 .4V9.6M.4 5H9.6' fill='none' stroke='black'/></svg>") }   /* the bicone plot: the diamond */
+.pl .pmode.t3{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M.5 .4V9.6L9.5 5Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M.5 5H9.5M3.5 1.95V8.05' fill='none' stroke='black'/></svg>") }   /* the W+B wedge plot: points right */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
@@ -506,10 +512,6 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .export.dex .dexp{ gap:var(--s2) }   /* label sits on its content like every props item */
 .export.dex .exrow{ gap:var(--s2) }   /* the props column is narrow — tighter rhythm keeps target·download on one line */
 .export.dex .exdl{ padding:.35em .6em }
-.export.dex .exsplit{ display:inline-flex; align-items:stretch; padding:0 }   /* the download is a split control: action + lattice size in one accent chip */
-.export.dex .exsplit button{ font:inherit; font-weight:700; color:var(--color-accent-ink); background:none; border:0; padding:.35em .5em; cursor:pointer }
-.export.dex .exsplit select{ font:inherit; font-weight:700; color:var(--color-accent-ink); background:none; border:0; border-inline-start:1px solid color-mix(in oklab,var(--color-accent-ink) 35%,transparent); padding:.35em .25em; margin:0; field-sizing:content; cursor:pointer }
-.export.dex .exsplit:has(button:disabled){ opacity:.4; cursor:not-allowed }
 .export.dex .exstat{ font-size:var(--t1) }
 .export.dex select:hover{ color:var(--ink) }
 .export.dex select:focus-visible{ outline:none; color:var(--ink) }
@@ -2953,14 +2955,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
-		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri" title="triangle ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
+		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="triangle ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
 		${solidHTML}
 	 </section>
 	 <section class="dhero" id="overview">
 		${platesHTML}
 		<div class="dmain"><div class="props props3">
-			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — every item measurable -->
+			<div class="pcol"><!-- the instrument: its axes, its notation, its kind, its encoding, its reference frame, its derivation, its cost, its reach — and its provenance (when, who, the name), closing the column -->
 				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
 				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
@@ -2970,10 +2972,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
 				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
-			</div>
-			<div class="pcol"><!-- the record: when and who, the name, the implementation, the verification, the sources — every item a date or a citation -->
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(' · ')}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
+			</div>
+			<div class="pcol"><!-- the record: the implementation, the verification, the sources, the exports — every item a link -->
 				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
@@ -3082,10 +3084,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const iccTitle=iccK==='mntr'?`${s} as an .icc v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management`
 			:iccK==='spac'?`${s} as an .icc v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick`
 			:`${s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick`
-		dex.innerHTML=(LUTOK.has(s)||iccK?`<div class="dexp">
-			<i title="${LUTOK.has(s)?`${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}`:iccTitle}">${LUTOK.has(s)?`conversion LUT${iccK?' · ICC':''}`:'ICC profile'}</i>
-			${LUTOK.has(s)?`<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><span class="exdl exsplit"><button id="dldl" type="button">↓ .cube</button><select id="dlsz" aria-label="LUT size"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select></span><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div>`:''}
-			${iccK?`<div class="exrow"><button class="exdl" id="didl" type="button" title="${iccTitle}">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div>`:''}</div>`:'')
+		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
+			<i title="${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
+			<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><select id="dlsz" aria-label="LUT size"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
+			+(iccK?`<div class="dexp">
+			<i title="${iccTitle}">icc profile</i>
+			<div class="exrow"><button class="exdl" id="didl" type="button">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
 		// LUT: target → the real lattice is measured (median/max deviation, size) before you take it
 		const lto=dex.querySelector('#dlto'), lsz=dex.querySelector('#dlsz'), l1d=dex.querySelector('#dl1d'), ldl=dex.querySelector('#dldl'), lst=dex.querySelector('#dlstat')
 		if(lto){ let lutN=33, ltok=0, measured=false
@@ -3182,8 +3186,9 @@ function wirePlane(pl){
 			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
 			fy=Math.min(1,Math.hypot(px,py))
 			if(fy*r.width/2<3) fy=0 }   // soft snap: the achromatic centre within ~3px
-		else if(pl._tri){ // cone section: coordinates live in the silhouette's own frame
-			const py=clamp(1-(e.clientY-r.top)/r.height,0,1), px=clamp((e.clientX-r.left)/r.width,0,1)
+		else if(pl._tri){ // cone section: coordinates live in the silhouette CANVAS's frame (the box pads with slack)
+			const rc=pl.querySelector('canvas').getBoundingClientRect()
+			const py=clamp(1-(e.clientY-rc.top)/rc.height,0,1), px=clamp((e.clientX-rc.left)/rc.width,0,1)
 			if(pl._tri===3){ // barycentric wedge: fa=white weight, fb=black weight
 				let lw=clamp(py-0.5*px,0,1), lb=clamp(1-py-0.5*px,0,1)
 				const s2=lw+lb; if(s2>1){ lw/=s2; lb/=s2 }
@@ -3438,10 +3443,10 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		const tri=pl._tri=canGL&&!pol&&triOn(s,a,b)?triPl(s,cls,a,b):0   // cone sections paint full-range, like the disc (no pan/zoom window on a silhouette)
 		pl.classList.toggle('polar',!!pol)
 		pl.classList.toggle('tric',tri===1); pl.classList.toggle('triw',tri===3); pl.classList.toggle('trid',tri===2)
-		// equilateral silhouettes: the BOX takes the triangle's own bounding ratio (√3/2),
-		// so every side measures equal on screen and no dead band frames the shape
-		const resH=tri===1?Math.round(res*0.8660254):tri===3?Math.round(res*1.1547005):res
-		if(cv.width!==res||cv.height!==resH){ cv.width=res; cv.height=resH }
+		// equilateral silhouettes: the CANVAS takes the triangle's own bounding ratio (√3/2)
+		// inside the unchanged square box, so every side measures equal on screen
+		const resW=tri===3?Math.round(res*0.8660254):res, resH=tri===1?Math.round(res*0.8660254):res
+		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
 		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
 	planesLive=canGL
@@ -3614,10 +3619,11 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			cx.style.display=''
 			cx.style.left=(50+gy*50*Math.cos(th))+'%'; cx.style.top=(50+gy*50*Math.sin(th))+'%' }
 		else if(pl._tri){ cx.style.display=''
+			const kx=pl._tri===3?0.866:1, ky=pl._tri===1?0.866:1   // the canvas's ratio inside the square box — marker %s are of the BOX
 			if(pl._tri===3){ const lc=clamp(1-gx-gy,0,1)   // back through the barycentric frame
-				cx.style.left=(lc*100)+'%'; cx.style.top=((1-(gx+0.5*lc))*100)+'%' }
+				cx.style.left=(lc*kx*100)+'%'; cx.style.top=((1-(gx+0.5*lc))*ky*100)+'%' }
 			else{ const tw=pl._tri===1?gy:1-Math.abs(2*gy-1)
-				cx.style.left=((0.5-0.5*tw+gx*tw)*100)+'%'; cx.style.top=((1-gy)*100)+'%' } }
+				cx.style.left=((0.5-0.5*tw+gx*tw)*kx*100)+'%'; cx.style.top=((1-gy)*ky*100)+'%' } }
 		else{ const fl=flip3(cls,a,b), wx=fl&1?1-gx:gx, wy=fl&2?1-gy:gy
 			const px=(wx-vw.x0)/(vw.x1-vw.x0), py=(wy-vw.y0)/(vw.y1-vw.y0)
 		cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
