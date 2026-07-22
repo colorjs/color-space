@@ -426,7 +426,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
-.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat; --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 1.1 9.2 9.2H.8Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 1.1V9.2M3.1 5.2h3.8' fill='none' stroke='black'/></svg>") }   /* the cone-section switch: outlined triangle + the centre cross, the circle/square's own recipe */
+.pl .pmode.tri:not(.sq)::before{ border:0; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat; --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M5 .6 9.6 9.4H.4Z' fill='none' stroke='black' stroke-width='1.1'/><path d='M5 4.2v4.6M2.7 6.5h4.6' fill='none' stroke='black'/></svg>") }   /* the cone-section switch: outlined triangle at the circle/square's full size, a balanced cross on its centroid — the family's own recipe */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
@@ -501,8 +501,16 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gam2d .cx.ghost{ pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5 }   /* a props feature, not a terminal pane — the panel chrome belongs to the homepage exporters; .props i styles its label */
-.export.dex i{ cursor:help }
+.export.dex i{ cursor:help; margin-bottom:0 }   /* the .dexp flex gap is the one spacing source */
 .export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; margin-inline-start:-4px; cursor:pointer; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select); the -4px eats the UA's intrinsic start inset so the value sits flush with the label */
+.export.dex .dexp{ gap:var(--s2) }   /* label sits on its content like every props item */
+.export.dex .exrow{ gap:var(--s2) }   /* the props column is narrow — tighter rhythm keeps target·download on one line */
+.export.dex .exdl{ padding:.35em .6em }
+.export.dex .exsplit{ display:inline-flex; align-items:stretch; padding:0 }   /* the download is a split control: action + lattice size in one accent chip */
+.export.dex .exsplit button{ font:inherit; font-weight:700; color:var(--color-accent-ink); background:none; border:0; padding:.35em .5em; cursor:pointer }
+.export.dex .exsplit select{ font:inherit; font-weight:700; color:var(--color-accent-ink); background:none; border:0; border-inline-start:1px solid color-mix(in oklab,var(--color-accent-ink) 35%,transparent); padding:.35em .25em; margin:0; field-sizing:content; cursor:pointer }
+.export.dex .exsplit:has(button:disabled){ opacity:.4; cursor:not-allowed }
+.export.dex .exstat{ font-size:var(--t1) }
 .export.dex select:hover{ color:var(--ink) }
 .export.dex select:focus-visible{ outline:none; color:var(--ink) }
 /* glossary terms: a soft question mark that explains the jargon in place */
@@ -3074,12 +3082,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const iccTitle=iccK==='mntr'?`${s} as an .icc v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management`
 			:iccK==='spac'?`${s} as an .icc v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick`
 			:`${s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick`
-		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
-			<i title="${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
-			<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><select id="dlsz" aria-label="LUT size"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div></div>`:'')
-			+(iccK?`<div class="dexp">
-			<i title="${iccTitle}">icc profile</i>
-			<div class="exrow"><button class="exdl" id="didl" type="button">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
+		dex.innerHTML=(LUTOK.has(s)||iccK?`<div class="dexp">
+			<i title="${LUTOK.has(s)?`${s} → any space as a .cube conversion LUT — DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}`:iccTitle}">${LUTOK.has(s)?`conversion LUT${iccK?' · ICC':''}`:'ICC profile'}</i>
+			${LUTOK.has(s)?`<div class="exrow"><select id="dlto" aria-label="LUT target space"></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries — a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><span class="exdl exsplit"><button id="dldl" type="button">↓ .cube</button><select id="dlsz" aria-label="LUT size"><option value="17">17³</option><option value="33" selected>33³</option><option value="65">65³</option></select></span><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div>`:''}
+			${iccK?`<div class="exrow"><button class="exdl" id="didl" type="button" title="${iccTitle}">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div>`:''}</div>`:'')
 		// LUT: target → the real lattice is measured (median/max deviation, size) before you take it
 		const lto=dex.querySelector('#dlto'), lsz=dex.querySelector('#dlsz'), l1d=dex.querySelector('#dl1d'), ldl=dex.querySelector('#dldl'), lst=dex.querySelector('#dlstat')
 		if(lto){ let lutN=33, ltok=0, measured=false
