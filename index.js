@@ -101,7 +101,7 @@ import cam02ucs from './spaces/cam02-ucs.js'
 import photoycc from './spaces/photoycc.js'
 import dsh from './spaces/dsh.js'
 import raldesign from './spaces/ral-design.js'
-import munsell from './spaces/munsell.js'
+import munsell, { xyyMunsell } from './spaces/munsell.js'
 import uv from './spaces/uv.js'
 import ohta from './spaces/ohta.js'
 import anlab from './spaces/anlab.js'
@@ -172,6 +172,7 @@ import sgamut3cine from './spaces/sgamut3cine.js'
  * Dict with all color spaces, graph-wired: any space converts to any other, in
  * scalar or batch form (see hub.js).
  */
+xyy.munsell = xyyMunsell
 const space = createHub([rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcrBt601_525, ycbcrBt601_625, ycbcrBt709, ycbcrBt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cctDuv, wavelength, icacb, hdrIpt, hdrLab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95, sgamut3cine]);
 export default space;
 

@@ -229,10 +229,11 @@ test('gl: a lut chunk composes with its sampler and exact data', async () => {
 	is(luts.munsell_ren_.w * luts.munsell_ren_.h * 4, tex.length, 'registry descriptor matches its data')
 	// RG packs this value plane; BA packs the adjacent one. Column zero reserves
 	// BA for the current/next local rim so the web field can void non-Munsell C.
-	const { cellXY, maxChroma, WC } = await import('../spaces/munsell-renotation.js')
+	const scalar = (await import('../spaces/munsell.js')).default
 	const packed=[[0,0,0],[7,3,5],[23,7,11],[39,8,19]].every(([h,v,k])=>{
-		const o=((v*20+k)*40+h)*4, a=k?cellXY(h,v,2*k):WC
-		const b=k?cellXY(h,Math.min(v+1,8),2*k):[maxChroma(h,v),maxChroma(h,Math.min(v+1,8))]
+		const o=((v*20+k)*40+h)*4
+		const a=k?scalar.xyy(2.5*(h+1),v+1,2*k):[0.31006,0.31616]
+		const b=k?scalar.xyy(2.5*(h+1),Math.min(v+2,9),2*k):[10,14]
 		return [a[0],a[1],b[0],b[1]].every((x,i)=>Math.abs(tex[o+i]-x)<1e-7) })
 	is(packed,true,'RGBA texels pack exact adjacent-value xy pairs')
 	const { translate } = await import('../gl/translate.js')
@@ -246,7 +247,7 @@ test('gl: a lut chunk composes with its sampler and exact data', async () => {
 	const exp = space.munsell.xyy(50, 5, 10)
 	const got = unpack(fns.munsell_xyy(pack([50, 5, 10])))
 	is(exp.every((e, k) => Math.abs(got[k] - e) < 2e-7), true, 'lattice-node forward is texture-exact')
-	is(Math.abs(fns.munsell_maxc_(20,4)-maxChroma(7,3))<1e-7,true,'local MacAdam rim is texture-exact')
+	is(Math.abs(fns.munsell_maxc_(20,4)-10)<1e-7,true,'local MacAdam rim is texture-exact')
 	// Quantized 3D sections call space→RGB in the draw fragment (not the bake
 	// vertex stage), so measured spaces must discover and bind their LUT there.
 	const { readFileSync } = await import('node:fs')
