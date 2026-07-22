@@ -145,7 +145,8 @@ a{ color:var(--ink) }
 .nores{ grid-column:2; margin:0; font-size:var(--t2); color:var(--soft); padding:var(--s8) 0 var(--s12) }   /* the filtered-to-nothing line — the void names the query instead of going silent */
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
-.toc{ grid-column:1; position:relative; padding-bottom:var(--s12) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
+.toc{ grid-column:1; position:relative; padding-bottom:var(--s12); opacity:0 }   /* hidden until the ladder is font-settled (see layoutToc) — the realign was a visible jump */
+.toc.on{ opacity:1; transition:opacity var(--dur-short) var(--ease-out) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); --toc-top:var(--s6); top:calc(var(--ti-y,0px) + var(--toc-top)) }   /* pin point is CSS: --ti-y is the measured ladder offset (per title), --toc-top the gap below the sticky header — tune the gap here, in CSS. Bottom ladder set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top */
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
@@ -1196,13 +1197,15 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
 	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
+	if(layoutToc.settled) tocEl.classList.add('on')   // reveal only a ladder measured under the real fonts
 }
+layoutToc.settled=!document.fonts   // no Font Loading API → nothing to wait for
 const wireToc=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')]
 	cat.querySelectorAll('.ti').forEach(t=>{ t.querySelector('.tn').onclick=()=>secEls[+t.dataset.i].scrollIntoView({behavior:'smooth',block:'start'}) })
 	actI=-1; trackAct(); layoutToc() }
 addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // only the active-category highlight tracks scroll; the rail itself is pure CSS sticky
 colize(); wireToc(); COLQ.forEach(q=>q.addEventListener('change',colize))
-document.fonts?.ready.then(()=>{ layoutToc(); trackAct() })   // the pre-paint ladder used fallback metrics — realign once the real fonts reflow the sections
+document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct() })   // the pre-paint ladder used fallback metrics — realign (hidden) once the real fonts reflow the sections, then show
 </script>
 
 
