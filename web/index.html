@@ -424,16 +424,17 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl .pmode{ position:absolute; bottom:.35rem; left:.45rem; z-index:2; font-size:var(--t1); line-height:1; border:0; background:none; padding:2px; color:var(--ink); opacity:.5; cursor:pointer }   /* the hue disc ⟷ square switch — bottom-left, on the axis labels' own padding, below the picker */
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
-.pl .pmode.sq::before{ border-radius:0 }   /* the square wears SHARP corners */
+.pl .pmode.sq::before{ border-radius:0; width:.72em; height:.72em }   /* the square wears SHARP corners — and steps down: a full square carries the most ink, optical parity with the circle */
 /* the cone-section switch wears the PLANE's own silhouette — graticule outline-to-outline,
    the square glyph's height; border-radius must reset or the base icon's 50% shaves the
    masked corners into a circle */
-.pl .pmode.tri:not(.sq)::before{ border:0; border-radius:0; width:1em; height:1em; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat }
+.pl .pmode.tri:not(.sq)::before{ border:0; border-radius:0; width:1.25em; height:1.25em; background:currentColor; -webkit-mask:var(--trimask) center/contain no-repeat; mask:var(--trimask) center/contain no-repeat }   /* optical parity: pointy shapes read lighter — sized past area parity (the padded viewBox renders the glyph at ⅚ of the box) */
+.pl .pmode.t2:not(.sq)::before{ width:1.35em; height:1.35em }   /* the diamond inscribes half its box — the largest step up */
 /* padded viewBoxes: the sharp (~30°) points throw miter tips ~1.2 units past the vertex —
    a 0-origin box clips them flat, which reads as rounded corners */
-.pl .pmode.t1{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M.4 .6H9.6L5 9.4Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .6V9.4M2.8 5.2h4.4' fill='none' stroke='black'/></svg>") }   /* the cone plot: base up, apex down */
-.pl .pmode.t2{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M5 .4 9.6 5 5 9.6.4 5Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .4V9.6M.4 5H9.6' fill='none' stroke='black'/></svg>") }   /* the bicone plot: the diamond */
-.pl .pmode.t3{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M.5 .4V9.6L9.5 5Z' fill='none' stroke='black' stroke-width='1.1' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M.5 5H9.5M3.5 1.95V8.05' fill='none' stroke='black'/></svg>") }   /* the W+B wedge plot: points right */
+.pl .pmode.t1{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M.4 .6H9.6L5 9.4Z' fill='none' stroke='black' stroke-width='.85' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .6V9.4M1.9 3.5h6.2' fill='none' stroke='black' stroke-width='.85'/></svg>") }   /* the cone plot: base up, apex down — the bar on the centroid, where the shape balances */
+.pl .pmode.t2{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M5 .4 9.6 5 5 9.6.4 5Z' fill='none' stroke='black' stroke-width='.75' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M5 .4V9.6M.4 5H9.6' fill='none' stroke='black' stroke-width='.75'/></svg>") }   /* the bicone plot: the diamond */
+.pl .pmode.t3{ --trimask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 12 12'><path d='M.5 .4V9.6L9.5 5Z' fill='none' stroke='black' stroke-width='.85' stroke-linejoin='miter' stroke-miterlimit='8'/><path d='M.5 5H9.5M3.5 1.95V8.05' fill='none' stroke='black' stroke-width='.85'/></svg>") }   /* the W+B wedge plot: points right — the bar on the centroid */
 .pl .pmode:hover{ opacity:1 }
 .sec2 .upbtn{ display:inline-flex; align-items:center; padding:0; border:0; background:none; color:var(--ink); opacity:.7; cursor:pointer }   /* the picker road into the image row — rides the sec2 flex gap, same as interpolate's ⇄ */
 .sec2 .upbtn:hover,.sec2 .upbtn:focus-visible{ color:var(--ink); opacity:1; outline:none }
@@ -496,7 +497,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dgrid2 .pcol{ display:flex; flex-direction:column; gap:var(--s6); min-width:0 }
 .dgrid2 i{ display:block; font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:var(--s1) }
 .dgrid2 p{ margin:0; font-size:var(--t3); line-height:1.55; color:var(--body) }
-.dgrid2 .pcol p{ font-size:var(--t2); line-height:1.5 }   /* used-for / avoid-when — margin notes beside the description, one step down */
+.dgrid2 .pcol p{ font-size:var(--t2); line-height:1.5 }   /* used-for / caveat — margin notes beside the description, one step down */
 .desc{ font-size:var(--t3); line-height:1.6; color:var(--body); max-width:68ch }
 .dviz2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(1rem,3vw,2.2rem); align-items:center; margin-bottom:var(--s6) }
 .dviz2 .pl3d{ max-width:30rem; justify-self:center }
@@ -1496,7 +1497,7 @@ const encodingOf=s=>{
 // only honest, space-specific cautions: the curated sin, or the device-cylindrical
 // class trap. No generic fallback — boilerplate posing as guidance misleads (it told
 // people to avoid OKLCH for palettes). No caution recorded → no row.
-const avoidOf=(s,L)=>L.sin||(/^(hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm)$/.test(s)?'when equal numeric steps must look visually even — use OKLab/OKLCH or a uniform space instead':'')
+const avoidOf=(s,L)=>L.sin||(/^(hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm)$/.test(s)?'equal numeric steps do not look visually even — for perceptual steps use OKLab/OKLCH or a uniform space':'')
 // sentence-case a curated fragment: capitalize (unless it opens with a cased term
 // like sRGB or ΔE) and close with a period
 const sent=t=>{ t=t.trim(); if(/^[a-z][a-z]/.test(t)) t=t[0].toUpperCase()+t.slice(1); return /[.!?…]$/.test(t)?t:t+'.' }
@@ -3007,7 +3008,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
 		<div class="pcol">
 			<div><i>used for</i><p>${sent(m.use||useOf(s))}</p></div>
-			${avoid?`<div><i>avoid when</i><p>${sent(avoid)}</p></div>`:''}
+			${avoid?`<div><i>caveat</i><p>${sent(avoid)}</p></div>`:''}
 		</div>
 	 </div>
 	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere" aria-label="open an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
