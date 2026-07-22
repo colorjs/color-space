@@ -1936,12 +1936,12 @@ const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
 let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
 // ONE session-local clustering lens for sliders, planes and the 3D solid
 const QSEG=[[null,'smooth'],[10,'10-step'],[20,'20-step'],['web','safe'],['names','names'],['percept','even']]
-const QTIP={ 'smooth':'continuous fields and solid',
-	'10':'10 equal cells per native channel — sliders and planes select cell centers; the 3D solid shows their boundaries',
-	'20':'20 equal cells per native channel — sliders and planes select cell centers; the 3D solid shows their boundaries',
-	'web':'216-color web-safe palette — 6 sRGB levels per channel, shown on fields and the 3D solid',
-	'names':'nearest of 148 CSS names (139 unique colors), measured in OKLab and shown on fields and the 3D solid',
-	'percept':'regular neutral-centered OKLab cells (ΔL .1, Δa/b .08), shown on fields and the 3D solid' }
+const QTIP={ 'smooth':'continuous, unquantized',
+	'10':'10 equal steps per channel',
+	'20':'20 equal steps per channel',
+	'web':'216-color web-safe palette',
+	'names':'nearest CSS named color',
+	'percept':'perceptually even OKLab cells' }
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
@@ -3007,7 +3007,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const percept=!!tcurve&&tcurve.ylab!=='code'&&!/^(gamma|linear|chromaticity)$/.test(m.encoding||'')
 		&&(tcurve.pts[26]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3   // 26/144 ≈ 18% grey
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
-	const gamTip=g=>g==='vis'?'the HUMAN visual gamut — the solid is the Rösch–MacAdam optimal-color body, while the plots and channels cut at the spectral locus: past it lies no color at any luminance':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`
+	const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
 	const qLegend=QSEG.map(([mo,lb])=>`${lb} — ${QTIP[qKey(mo)]}`).join('\n')
 	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
 	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} — ${gamTip(g)}`).join('\n')
@@ -3513,7 +3513,8 @@ function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv
 	const mx=sumX/members.length, my=sumY/members.length; let cp=members[0], cd=Infinity
 	for(const p of members){ const ds=(p%w-mx)**2+((p/w|0)-my)**2; if(ds<cd){cd=ds;cp=p} }
 	const px=cr.left+(cp%w+.5)/w*cr.width, py=cr.top+((cp/w|0)+.5)/h*cr.height
-	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null }
+	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null
+	const marker=pl.querySelector('.cx'); marker.style.display=''; marker.style.left=pl._snap.left+'%'; marker.style.top=pl._snap.top+'%' }
 function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now — numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
@@ -3737,8 +3738,10 @@ function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
 				cx.style.left=((0.5-0.5*tw+gx*tw)*kx*100)+'%'; cx.style.top=((1-gy)*ky*100)+'%' } }
 		else{ const fl=flip3(cls,a,b), wx=fl&1?1-gx:gx, wy=fl&2?1-gy:gy
 			const px=(wx-vw.x0)/(vw.x1-vw.x0), py=(wy-vw.y0)/(vw.y1-vw.y0)
-		cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
-		cx.style.left=(clamp(px,0,1)*100)+'%'; cx.style.top=((1-clamp(py,0,1))*100)+'%' }
+			cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
+			cx.style.left=(clamp(px,0,1)*100)+'%'; cx.style.top=((1-clamp(py,0,1))*100)+'%' }
+		const qf=qTriple(Q), sk=qf?byteRGB(qf(rgb)).join(','):''
+		if(qf&&pl._snap&&pl._snap.key===sk&&pl!==plFreeze){ cx.style.display=''; cx.style.left=pl._snap.left+'%'; cx.style.top=pl._snap.top+'%' }
 		// corner labels ink by what's ACTUALLY beneath them — sample the painted canvas
 		// itself (conversion heuristics lied for HDR corners); transparent = the void panel
 		const cvp=pl.querySelector('canvas'), ictx=cvp.getContext('2d')
