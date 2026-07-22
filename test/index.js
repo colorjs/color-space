@@ -66,7 +66,8 @@ test('integrity — package exports: every target file exists, every specifier i
 // entry, and no import escapes the site root
 test('integrity — _site: builds complete (a page + sitemap entry per space)', async () => {
 	const { buildSite, site } = await import('../scripts/build-site.js')
-	await buildSite()
+	process.env.CS_NO_DOSSIERS = '1'   // the dossier bake is a ~60s headless pass — this test pins build completeness, not the enhancement layer (pages.yml bakes in `npm run landing`, after the gate)
+	try { await buildSite() } finally { delete process.env.CS_NO_DOSSIERS }
 	const missing = Object.keys(space).filter(n => !existsSync(`${site}/${n}.html`))
 	is(missing, [], 'every space has <name>.html')
 	const map = readFileSync(`${site}/sitemap.xml`, 'utf8')

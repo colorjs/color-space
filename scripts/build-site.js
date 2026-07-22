@@ -123,6 +123,10 @@ export async function buildSite() {
 	// per-space documents stamp LAST — byte-copies of the now-final index.html
 	const { stampSpacePages } = await import('./generate-landing.js')
 	stampSpacePages(site)
+	// …then each gets its dossier prerendered INTO it — the name view shows its space
+	// at first paint (headless capture of the real app; skips gracefully without a browser)
+	const { bakeDossiers } = await import('./bake-dossiers.js')
+	await bakeDossiers(site)
 	// ── sw.js: stamp the offline shell. Precache set = the root document + every staged
 	// non-document asset (space pages are byte-copies of index.html and the router reads
 	// the path, so the shell alone serves the whole atlas offline). VERSION = content

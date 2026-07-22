@@ -1785,6 +1785,7 @@ function openModal(s){
 	urlLast=spaceURL(s)+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
+	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
 	const k=ORDER.indexOf(s), n=ORDER.length   // set the neighbour names in every nav bar (top + foot)
 	detail.querySelectorAll('.mprevn').forEach(el=>el.textContent=navLabel(ORDER[(k-1+n)%n]))
 	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ORDER[(k+1)%n]))
@@ -3888,7 +3889,7 @@ const route=e=>{ const h=e?decodeURIComponent(location.hash.slice(1)):BOOT.hash 
 		if(vv.length===classify(hslug).ch.length&&vv.every(isFinite)) master={ s:hslug, vals:vv } }
 	else if(/^[0-9a-fA-F]{6}$/.test(h)) master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)) }
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
-	if(slug){ if(modal.hidden||slug!==selected) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }
+	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
 addEventListener('hashchange',route)   // same-document deep links switch spaces too
