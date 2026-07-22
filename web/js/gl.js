@@ -314,11 +314,23 @@ const palData=(p,metric='oklab')=>{ const P=PALETTES[p]
 	const direct=P.sites.length<=PAL_DIRECT
 	P.lat??={}
 	if(!P.lat[metric]){ const N=direct?1:P.N, out=new Uint16Array(N**3); let o=0
+		// ΔE2000 is ~50 flops a pair — the full lattice×sites product froze the page for
+		// seconds. Shortlist by ΔE76 (same Lab space, 3 flops), exact ΔE2000 only on the
+		// top-K: the winner virtually always survives the shortlist, and the fragment
+		// re-ranks its candidates under TRUE ΔE2000 anyway (the lattice proposes, the
+		// pixel decides — the machinery's standing fast-not-exhaustive contract).
+		const K=8, kd=new Float64Array(K), ki=new Int32Array(K)
 		if(!direct) for(let z=0;z<N;z++)for(let y=0;y<N;y++)for(let x=0;x<N;x++){
 			const rgb=[x,y,z].map(v=>Math.round(v/(N-1)*255))
 			const q={rgb,ok:space.rgb.oklab(...rgb),lab:space.rgb.lab(...rgb)}
 			let bi=0, bd=Infinity
-			for(let i=0;i<P.sites.length;i++){ const d=siteDist(metric,q,P.sites[i]); if(d<bd){bd=d;bi=i} }
+			if(metric==='de2000'&&P.sites.length>K){
+				kd.fill(Infinity)
+				for(let i=0;i<P.sites.length;i++){ const s=P.sites[i]
+					const d=(q.lab[0]-s.lab[0])**2+(q.lab[1]-s.lab[1])**2+(q.lab[2]-s.lab[2])**2
+					if(d<kd[K-1]){ let j=K-1; while(j>0&&kd[j-1]>d){ kd[j]=kd[j-1]; ki[j]=ki[j-1]; j-- } kd[j]=d; ki[j]=i } }
+				for(let k=0;k<K;k++){ const d=siteDist(metric,q,P.sites[ki[k]]); if(d<bd){bd=d;bi=ki[k]} } }
+			else for(let i=0;i<P.sites.length;i++){ const d=siteDist(metric,q,P.sites[i]); if(d<bd){bd=d;bi=i} }
 			out[o++]=bi }
 		P.lat[metric]={N,out} }
 	if(!P.siteData){ const sd=new Float32Array(P.sites.length*3*3)

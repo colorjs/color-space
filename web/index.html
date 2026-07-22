@@ -92,6 +92,13 @@ a{ color:var(--ink) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
 .tfp .fcov{ display:flex; align-items:center; gap:var(--s2) }   /* coverage threshold: slider + live readout */
 .tfp .fcov input{ flex:1; min-width:0; accent-color:var(--ink) }
+.tfp .fcov .dual{ position:relative; flex:1; min-width:0; display:flex; align-items:center }   /* two thumbs, one track: the second input paints no track of its own */
+.tfp .fcov .dual input{ width:100%; margin:0 }
+.tfp .fcov .dual input:last-child{ position:absolute; inset:0; pointer-events:none }
+.tfp .fcov .dual input:last-child::-webkit-slider-runnable-track{ background:none }
+.tfp .fcov .dual input:last-child::-webkit-slider-thumb{ pointer-events:auto }
+.tfp .fcov .dual input:last-child::-moz-range-track{ background:none }
+.tfp .fcov .dual input:last-child::-moz-range-thumb{ pointer-events:auto }
 .tfp .fcov b{ font-size:var(--t1); font-weight:700; color:var(--soft); white-space:nowrap; min-width:7.5em; text-align:right }
 .tfp .tsep{ border:0; border-top:1px solid var(--hair); margin:var(--s1) 0 }
 .tfp .tag{ border:0; cursor:help }   /* the shared .tag recipe, compact like model/signal — and the help cursor, same as the dossier tags */
@@ -307,10 +314,13 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .mcat .catn{ position:absolute; bottom:100%; margin-bottom:.05em; font-style:normal; font-size:var(--t0); font-weight:400; letter-spacing:0; text-transform:none; color:var(--soft); white-space:nowrap }   /* the section: small, plain, mixed-case, above the space name */
 .mcat.prev .catn{ left:-1.5rem; } .mcat.next .catn{ right:-1.5rem }
 .mnavbar .mcat:hover .mn{ color:var(--ink) }
-.dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin-left:auto }   /* gamut + quantization selects — ride the side column, flush with its right edge */
-.dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:help; field-sizing:content }   /* de-chromed to text — the native chevron says "openable", the help cursor says "explained" (the LUT selects' idiom); the title legends every option */
+.dctl{ display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:var(--s2); margin-left:auto }   /* gamut + quantization selects — ride the side column, flush with its right edge */
+.dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — the native chevron says "openable"; the legend rides the ? beside it */
+.hq{ flex:none; font-size:var(--t1); font-weight:700; color:var(--soft); cursor:help }   /* one ? closes each select group — its legend, visibly discoverable */
+.hq:hover{ color:var(--ink) }
 .dctl select:hover{ color:var(--ink) }
-.dctl select:focus-visible{ outline:none; color:var(--ink) }   /* no focus rectangle around the bare select — a colour shift instead */
+.dctl select:focus-visible{ outline:none; color:var(--ink) }
+.dctl select:disabled{ opacity:.32; cursor:default }   /* the metric without a palette — present, inert */   /* no focus rectangle around the bare select — a colour shift instead */
 .dh h1{ margin:0; font-size:clamp(1.7rem,4vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1 }
 .dh .dcat{ display:block; margin-bottom:.5rem; font-size:var(--t2); font-weight:400; letter-spacing:0; color:var(--soft) }   /* the catalog section — plain, mixed-case, tracking reset to 0 (the h1's -.02em would otherwise inherit) */
 .dh h1 .htag{ margin-left:var(--s3); display:inline-block; overflow:hidden; vertical-align:baseline }   /* inline-block + clipped overflow makes the pill's own baseline its bottom edge, so it sits ON the title's baseline */
@@ -515,7 +525,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dviz2 .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5 }   /* a props feature, not a terminal pane — the panel chrome belongs to the homepage exporters; .props i styles its label */
 .export.dex i{ cursor:help; margin-bottom:0 }   /* the .dexp flex gap is the one spacing source */
-.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; margin-inline-start:-4px; cursor:help; field-sizing:content; max-width:none }   /* the smooth/sRGB select idiom (.dctl select), with the tag's help cursor — each carries its explainer; the chevron already says openable. The -4px eats the UA's intrinsic start inset so the value sits flush with the label */
+.export.dex select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; margin-inline-start:-4px; cursor:help; field-sizing:content; max-width:none }   /* the smooth/sRGB select recipe, but the explainer rides the select itself — the compact row wants no extra glyph. The -4px eats the UA's intrinsic start inset so the value sits flush with the label */
 .export.dex .dexp{ gap:var(--s2) }   /* label sits on its content like every props item */
 .export.dex .exrow{ gap:var(--s2) }   /* the props column is narrow — tighter rhythm keeps target·download on one line */
 .export.dex .exdl{ padding:.35em .6em }
@@ -1723,17 +1733,19 @@ const act=FACETS.map(()=>new Set())
 // minimum share of the visible gamut (0 = off) — a threshold, not a chip: coverage is
 // continuous, so it filters through a slider; spaces without a measured reach (1-, 2-
 // and 4-channel scales) drop out while a threshold is set — they claim no coverage
-let covMin=0
+let covMin=0, covMax=1
+const covOn=()=>covMin>0||covMax<1
+const covTxt=()=>covMin>0&&covMax<1?`${covMin*100|0}–${covMax*100|0}% of visible`:covMin>0?`≥${covMin*100|0}% of visible`:covMax<1?`≤${covMax*100|0}% of visible`:'any'
 // active facets shown as removable chips in the header, right by the search
 const fchipsH=document.getElementById('fchipsH')
 const FX='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
 const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('')
-	+(covMin>0?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage threshold">≥${Math.round(covMin*100)}% of visible${FX}</button>`:'') }
+	+(covOn()?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage interval">${covTxt()}${FX}</button>`:'') }
 // one filter pipeline: name match (highlighted in place) AND the picked facets
-function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size)||covMin>0; let shown=0
+function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size)||covOn(); let shown=0
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 		let hit
-		if(s){ const sl=SLOTS.get(s); hit=(!q||SEARCHSTR.get(s).includes(q))&&act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))&&(!covMin||(REACH[s]?.[0]??-1)>=covMin); if(hit)shown++ }
+		if(s){ const sl=SLOTS.get(s), rc=REACH[s]?.[0]??-1; hit=(!q||SEARCHSTR.get(s).includes(q))&&act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))&&(!covOn()||(rc>=covMin&&rc<=covMax)); if(hit)shown++ }
 		else hit=!any&&(!q||(ent.querySelector('.nm')?.textContent.toLowerCase().includes(q)))   // barred cards: name match only, hidden when facets are active, not counted
 		ent.style.display=hit?'':'none'
 		markName(ent,hit&&q&&s?q:null) })
@@ -1752,12 +1764,15 @@ qInput.addEventListener('input',applyFilter)
 ;(()=>{ const tfb=document.getElementById('tfb'), tfp=document.getElementById('tfp'); if(!tfb) return
 	const vals=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
 	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" aria-pressed="false" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
-		// coverage is continuous, so it filters by threshold, not chips: keep spaces
-		// reaching at least this share of the visible gamut (the dossier's reach number)
-		+`<div class="frow"><i>coverage</i><span class="fcov"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="minimum share of the visible gamut" title="show only spaces whose gamut reaches at least this share of visible colors"><b class="tnum" id="fcovv">any</b></span></div>`
-	const fcov=tfp.querySelector('#fcov'), fcovv=tfp.querySelector('#fcovv')
-	const tfbOn=()=>tfb.classList.toggle('on',act.some(a=>a.size)||covMin>0)
-	fcov.oninput=()=>{ covMin=+fcov.value/100; fcovv.textContent=covMin?`≥${fcov.value}% of visible`:'any'; tfbOn(); applyFilter() }
+		// coverage is continuous, so it filters by interval, not chips: from–to share of
+		// the visible gamut (the dossier's reach number) — the low end finds the
+		// narrow-coverage spaces, the high end the wide ones
+		+`<div class="frow"><i>coverage</i><span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="minimum share of the visible gamut" title="from — keep spaces reaching at least this share of visible colors"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="maximum share of the visible gamut" title="to — keep spaces reaching at most this share"></span><b class="tnum" id="fcovv">any</b></span></div>`
+	const fcov=tfp.querySelector('#fcov'), fcov1=tfp.querySelector('#fcov1'), fcovv=tfp.querySelector('#fcovv')
+	const tfbOn=()=>tfb.classList.toggle('on',act.some(a=>a.size)||covOn())
+	const covUpd=()=>{ fcovv.textContent=covTxt(); tfbOn(); applyFilter() }
+	fcov.oninput=()=>{ covMin=+fcov.value/100; if(covMin>covMax){ covMax=covMin; fcov1.value=covMax*100 } covUpd() }
+	fcov1.oninput=()=>{ covMax=+fcov1.value/100; if(covMax<covMin){ covMin=covMax; fcov.value=covMin*100 } covUpd() }
 	tfp.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{ const fi=+b.dataset.f, t=b.dataset.t
 		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
 		const on=act[fi].has(t); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); tfbOn()
@@ -1765,7 +1780,7 @@ qInput.addEventListener('input',applyFilter)
 	// a header chip removes its facet — and un-presses the matching dropdown tag (the
 	// coverage chip resets the slider instead)
 	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return
-		if(b.dataset.cov){ covMin=0; fcov.value=0; fcovv.textContent='any'; tfbOn(); applyFilter(); return }
+		if(b.dataset.cov){ covMin=0; covMax=1; fcov.value=0; fcov1.value=100; fcovv.textContent='any'; tfbOn(); applyFilter(); return }
 		const fi=+b.dataset.f, t=b.dataset.t; act[fi].delete(t)
 		const pt=tfp.querySelector(`.tag[data-f="${fi}"][data-t="${CSS.escape(t)}"]`); if(pt){ pt.classList.remove('on'); pt.setAttribute('aria-pressed','false') }
 		tfbOn(); applyFilter() })
@@ -3041,12 +3056,16 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
 	const qLegend=QSEG.map(([mo,lb])=>`${lb} — ${QTIP[qKey(mo)]}`).join('\n')
 	const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}"${mo===Q?' selected':''}>${lb}</option>`
-	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select>`
+	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select>`
 	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} — ${gamTip(g)}`).join('\n')
-	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gLegend}">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
+	const gamHTML=`<select id="gseg" aria-label="gamut subset">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	const mLegend=METRICS.map(m=>`${MLABEL[m]} — ${MTIP[m]}`).join('\n')
-	const msegHTML=`<select id="mseg" aria-label="palette distance metric" title="${mLegend}"${PALMODES.has(Q)?'':' hidden'}>${METRICS.map(m=>`<option value="${m}" title="${MTIP[m]}"${m===QM?' selected':''}>${MLABEL[m]}</option>`).join('')}</select>`
-	const dctlHTML=`<div class="dctl">${segsHTML}${msegHTML}${gamHTML}</div>`
+	const msegHTML=`<select id="mseg" aria-label="palette distance metric"${PALMODES.has(Q)?'':' disabled'}>${METRICS.map(m=>`<option value="${m}" title="${MTIP[m]}"${m===QM?' selected':''}>${MLABEL[m]}</option>`).join('')}</select>`
+	const dctlHTML=`<div class="dctl">${segsHTML}${msegHTML}${gamHTML}<span class="hq" title="${qLegend}
+
+${mLegend}
+
+${gLegend}">?</span></div>`
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
@@ -3094,8 +3113,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			</div>
 			<div class="pcol"><!-- the record: when and who, then the citation cluster (test · reference · source), the exports closing the column -->
 				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(', ')}</p></div>`:''}
-				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation — spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
 				${LUTOK.has(s)||iccK?`<div class="export dex" id="dex"></div>`:''}
 			</div>
@@ -3177,7 +3196,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
 	const ms=detail.querySelector('#mseg')
 	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value)
-		if(ms) ms.hidden=!PALMODES.has(Q)   // the metric only means something over a palette
+		if(ms) ms.disabled=!PALMODES.has(Q)   // the metric only means something over a palette — grayed elsewhere, never jumping the row
 		clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast(false)
 			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) paintPlanes(false) }) }) }
