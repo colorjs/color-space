@@ -46,10 +46,10 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
     - [x] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
 
     **Skipped, with reasons**: awesome-nodejs / awesome-creative-coding / cg-vfx-pipeline / Awesome-Design-Tools (no fitting category — forced PRs get rejected and smell of spam) · Openbase (dead since 2023) · AI-tool directories (no qualified traffic, spam adjacency) · look-LUT communities like freshluts (creative-LUT culture; conversion LUTs would confuse — reach colorists via the film track instead).
-2d. [ ] **SEO** (audit 2026-07-21, updated 07-22 — foundation solid: canonicals, prerendered prose, per-page descriptions, sitemap+robots+llms.txt, www→apex 301, colorjs.github.io→domain 301):
+2d. [x] **SEO** (audit 2026-07-21, updated 07-22 — foundation solid: canonicals, prerendered prose, per-page descriptions, sitemap+robots+llms.txt, www→apex 301, colorjs.github.io→domain 301):
     - [x] display-name titles ("S-Gamut3.Cine", not the slug) — shipped, pinned by tests
     - [x] "conversion LUT" in scene-referred titles + the visible CONVERSION LUT dossier block — shipped
-    - [ ] **register Search Console + Bing Webmaster, submit sitemap** — owner-only, the single highest-value open item; its query data steers the weekly dossier work (§6) and gates the pair-pages call below
+    - [x] **register Search Console + Bing Webmaster, submit sitemap** — owner-only, the single highest-value open item; its query data steers the weekly dossier work (§6) and gates the pair-pages call below
     - [x] **per-space OG/indexable images** — shipped 07-22: `generate-og.js spaceCards()` renders a card per space (display name, use line, the space's channel-gradient signature, ranges) into gitignored `web/img/og/` (skip-if-fresh cache, ~8.5 MB JPEG); stamped into each page's og:image + alt, listed in the image sitemap; test-pinned
     - [x] **Dataset JSON-LD** — shipped 07-22: homepage only (stamps strip it), CC0 license, data.json distribution; test-pinned
     - [x] sitemap `<lastmod>` — shipped 07-22: per-space from git history of `spaces/<s>.js` (pages.yml now checks out full history); image-sitemap namespace added

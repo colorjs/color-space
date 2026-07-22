@@ -10,7 +10,7 @@
 ## Ideas
 
 * [x] ~~claim https://github.com/js-org/js.org~~
-* [ ] Color atlas view or filter - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
+* [x] Color atlas view or filter - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
 * [x] ~~Main screen configuration - sliders, planes, just a table, CSS values etc~~
 * [ ] Pick a line/shape, not just a point in space.
   * [ ] Pick a color, drop an image?
