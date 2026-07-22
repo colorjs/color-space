@@ -1,7 +1,7 @@
 * [ ] Make the atlas cool.
 
 * [x] Triangle version of view
-* [ ] Better slice outline (binary ops?)
+* [x] Better slice outline (binary ops?)
 * [x] Better loading (side categories - appear smoothly)
 * [ ] Better hue picker range - unfoldable?
 * [x] SEO something: making sure how we meet use scenarios
