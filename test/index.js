@@ -90,9 +90,11 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 // filtered-to-nothing state has its line in the template rather than a silent void
 test('integrity — _site: display names stamp display-final; empty-filter line present', async () => {
 	const { site } = await import('../scripts/build-site.js')
-	const page = readFileSync(`${site}/lalphabeta.html`, 'utf8')
-	is(page.split('>lαβ<').length - 1 >= 1, true, 'lαβ card shows the Greek name, not LALPHABETA')
-	is(readFileSync(`${site}/index.html`, 'utf8').includes('id="nores"'), true, 'no-match line is part of the stamped catalog')
+	const index = readFileSync(`${site}/index.html`, 'utf8')
+	is(index.split('>lαβ<').length - 1 >= 1, true, 'lαβ card shows the Greek name, not LALPHABETA')
+	// the catalog stays on the index — name views ship #cat empty and carry the name in their own head
+	is(readFileSync(`${site}/lalphabeta.html`, 'utf8').includes('<title>lαβ color space'), true, 'the stamped name view titles the Greek name')
+	is(index.includes('id="nores"'), true, 'no-match line is part of the stamped catalog')
 })
 
 // data.json is generated (npm run data, in `prepare`) — this pins it against
