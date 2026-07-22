@@ -193,6 +193,17 @@ test('polar forms declare their Cartesian base\'s white point', () => {
 	is(pairs.length >= 7, true, `polar↔Cartesian pairs discovered (${pairs.length})`)
 	const bad = pairs.filter(([p, b]) => meta[p].illuminant !== meta[b].illuminant || meta[p].observer !== meta[b].observer)
 	is(bad.map(([p, b]) => `${p}≠${b}`), [], 'each polar form shares its base white point')
+	// and its chroma range must live inside the base's opponent box: at least the axis
+	// bound (else real colors overflow the dial), at most the box diagonal (else the
+	// dial has dead range no coordinate can reach). Regression: jzczhz declared Cz 0-1
+	// over an az/bz ±0.5 box — no light reaches past ~0.44.
+	const badC = pairs.flatMap(([p, b]) => {
+		const [, aR, bR] = meta[b].range, cMax = meta[p].range[1][1]
+		const axis = Math.max(Math.abs(aR[0]), aR[1], Math.abs(bR[0]), bR[1])
+		const diag = Math.hypot(Math.max(Math.abs(aR[0]), aR[1]), Math.max(Math.abs(bR[0]), bR[1]))
+		return cMax >= axis - 1e-9 && cMax <= diag + 1e-9 ? [] : [`${p} C ${cMax} outside [${axis}, ${+diag.toFixed(3)}]`]
+	})
+	is(badC, [], 'each polar chroma range spans its base box: axis ≤ C ≤ diagonal')
 })
 
 // The kelvin pair round-trips on the whole locus (the McCamy inverse drifted

@@ -10,7 +10,7 @@
  * @by Safdar et al.
  * @use HDR hue/chroma editing and gamut mapping; current, proposed in the CSS Color HDR module.
  * @channel {Jz} 0 1 Lightness
- * @channel {Cz} 0 1 Chroma
+ * @channel {Cz} 0 0.5 Chroma
  * @channel {Hz} 0 360 Hue angle in degrees
  * @method cylindrical
  * @encoding perceptual
@@ -24,8 +24,13 @@ import { cartToPolar, polarToCart } from '../util.js';
 
 const jzczhz = {
 	name: 'jzczhz',
-	// Cz 0-1 — colorjs.io reference range (az/bz corners reach hypot(0.5, 0.5) ≈ 0.71)
-	range: [[0, 1], [0, 1], [0, 360]]
+	// Cz 0-0.5 — the radial bound of the az/bz ±0.5 box, the same polar convention as
+	// oklch (C = oklab's ±0.4 axis). Measured ceiling: Rec.2020 at the 10 000-nit PQ
+	// maximum reaches Cz 0.436, so 0.5 contains everything the space can mean; the
+	// colorjs refRange of 1.0 leaves the upper half of the axis unreachable by any
+	// light. (CSS Color HDR's 100% ↔ 0.26 is an SDR-typical reference, not a range —
+	// HDR content exceeds it.)
+	range: [[0, 1], [0, 0.5], [0, 360]]
 };
 
 // jzazbz uses native ranges (Jz 0-1, az/bz ±0.5), so this is a pure

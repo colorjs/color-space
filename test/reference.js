@@ -85,6 +85,7 @@ for (const [name, [id, scale]] of Object.entries(MAP)) {
 // ±215 / 0-220 and nothing caught the drift.
 const RANGE_SKIP = {
 	acescg: 'scene-referred: we declare the 0-1 SDR working slice (0.18 = 18% grey, 1 = diffuse white); ACES half-float headroom reaches 65504 (colorjs refRange)',
+	jzczhz: 'Cz 0-0.5, the radial bound of the az/bz ±0.5 box (the oklch convention: C = the Cartesian axis) — Rec.2020 at the 10 000-nit PQ ceiling measures Cz 0.436, so colorjs\'s 1.0 refRange leaves the upper half of the axis unreachable by any light; Jz and Hz still match colorjs',
 }
 test('ref: declared ranges match colorjs.io refRange', () => {
 	for (const [name, [id, scale]] of Object.entries(MAP)) {
