@@ -8,12 +8,13 @@
 // Programs link ASYNCHRONOUSLY (KHR_parallel_shader_compile when available):
 // callers get 'pending' and paint their JS fallback instantly; setGLReady's
 // callback fires when a program lands, and the next paint upgrades to GPU —
-// the modal never waits on a shader compile. JS paths remain the fallback
-// (no WebGL2, color-cluster quantizers). Measured-dataset spaces (munsell)
+// the modal never waits on a shader compile. JS paths remain the no-WebGL2
+// fallback; numeric and palette lenses run here too. Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
 import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid, visWhite } from './core.js'
 import NAMES from './names.js'
+import * as PALS from './palettes.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -42,7 +43,8 @@ function pollLinks() {
 		linking.delete(st)
 		st.pending = false
 		if (!gl.getProgramParameter(st.pr, gl.LINK_STATUS)) {
-			console.warn('color-space/gl link:', gl.getProgramInfoLog(st.pr))
+			const shaders=gl.getAttachedShaders(st.pr)||[], logs=shaders.map(s=>gl.getShaderInfoLog(s)).filter(Boolean).join('\n')
+			console.warn(`color-space/gl link${st.label?' '+st.label:''}:`,gl.getProgramInfoLog(st.pr),logs)
 			st.bad = true
 		} else st.resolve && st.resolve(st)
 		st.onSettle && st.onSettle()
@@ -188,15 +190,14 @@ void main() {
 	vec3 rgb = ${s === 'rgb' ? 'vec3(v[0], v[1], v[2])' : `${san(s)}_rgb(v)`};
 	if (isnan(rgb.x) || isnan(rgb.y) || isnan(rgb.z)) rgb = vec3(0.0);
 	rgb = clamp(rgb, 0.0, 255.0);
-	if (uClu == 1) {   // the "name" lens — nearest of the 148 CSS named colors, in OKLab
-		vec3 okp = rgb_oklab(rgb);
-		float bd = 1e9; int bi = 0;
-		for (int i = 0; i < NN; i++) { vec3 dv = okp - NMOK[i]; float dd = dot(dv, dv); if (dd < bd) { bd = dd; bi = i; } }
-		rgb = NMRGB[bi];
-	} else if (uClu == 2) {   // the "even" lens — perceptQ's OKLab grid, mirrored
-		vec3 okp = rgb_oklab(rgb);
-		okp = vec3((floor(min(okp.x, .9999) / .1) + .5) * .1, (floor(okp.y / .08) + .5) * .08, (floor(okp.z / .08) + .5) * .08);
-		rgb = clamp(oklab_rgb(okp), 0.0, 255.0);
+	if (uClu == 1) {   // a palette lens — OKLab Voronoi cells of the bound palette's sites
+		rgb = named_(floor(rgb + 0.5));
+	} else if (uClu == 2) {   // the JND lens — a neutral-centered OKLab grid at ~one just-noticeable step
+		vec3 okp = rgb_oklab(floor(rgb + 0.5));
+		okp = vec3((floor(min(okp.x, .9999) / .023) + .5) * .023, round(okp.y / .023) * .023, round(okp.z / .023) * .023);
+		rgb = floor(clamp(oklab_rgb(okp), 0.0, 255.0) + 0.5);
+	} else if (uClu == 3) {   // the 16-bit lens — RGB565 hardware depth
+		rgb = floor(floor(rgb / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5);
 	}
 	float al = 1.0;
 	// physicality is lens-independent: past the space's linear-light ceiling (±4×
@@ -210,14 +211,14 @@ void main() {
 	// under ANY lens — so it VOIDS, always (not only under the human lens). Lab/OKLab/…
 	// range boxes reach far past the visible spectrum; without this the plane paints those
 	// imaginary coords as pickable ghost, so the gamut looks vastly bigger than the eye's.
-	else if (uWeb == 0 && !visXYZ(xyz)) al = 0.0;
+	else if (uWeb == 0 && uClu == 0 && !visXYZ(xyz)) al = 0.0;
 	// the HUMAN lens then cuts by the object-colour solid — the very body the 3D view
 	// tessellates. The locus alone admits any luminance for a real chromaticity, so the
 	// picker used to paint a far larger field than the solid's cross-section: same word,
 	// two shapes, and the plane read as if zoomed against the solid.
-	else if (uGam == 4 && uWeb == 0 && !inVisSolid(xyz)) al = 0.0;
+	else if (uGam == 4 && uWeb == 0 && uClu == 0 && !inVisSolid(xyz)) al = 0.0;
 	// the display lenses instead GHOST real-but-undisplayable colours on top
-	else if (uGam != 0 && uGam != 4 && uWeb == 0) {
+	else if (uGam != 0 && uGam != 4 && uWeb == 0 && uClu == 0) {
 		// gamut pad in ENCODED units (±half a code value) — a linear pad is ~16 code
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
 		// saturation swept far past the solid's own wall)
@@ -231,7 +232,7 @@ void main() {
 
 function planeProg(s) {
 	if (planeProgs.has(s)) return planeProgs.get(s)
-	const st = { pr: null, pending: true, bad: false, u: null, lutN: null }
+	const st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${s}` }
 	planeProgs.set(s, st)
 	compileQ.push(() => {
 		compiling++
@@ -239,7 +240,7 @@ function planeProg(s) {
 		// one try over codegen AND program creation — any throw must settle the slot,
 		// or the queue would jam with `compiling` stuck high
 		try { const fs = planeFS(s); st.lutN = lutNames(fs); build(G, FSQ_VS, fs, null, null, st) }
-		catch { st.pending = false; st.bad = true; st.onSettle() }
+		catch(e) { console.warn(`color-space/gl plane ${s}:`,e.message); st.pending = false; st.bad = true; st.onSettle() }
 	})
 	pump()
 	return st
@@ -271,12 +272,87 @@ const GAMI = { srgb: 1, p3: 2, rec2020: 3, vis: 4 }
 // whether a chromaticity is a colour at all. ONE law, three surfaces — the xy panel
 // draws this boundary, and the plane and bar kernels void past it under the human
 // lens, so a coordinate no light can produce reads as void everywhere it appears.
-// the 148 CSS named colors as shader constants — nearest-site clustering runs on the
-// GPU (the "name" lens), in OKLab, the same metric the page's nearest() uses
-let NAMED_SRC = null
-const namedGLSL = () => NAMED_SRC ??= ((sites) => `const vec3 NMOK[${sites.length}] = vec3[${sites.length}](${sites.map((s) => `vec3(${s.ok.map((v) => v.toFixed(6)).join(',')})`).join(',')});
-const vec3 NMRGB[${sites.length}] = vec3[${sites.length}](${sites.map((s) => `vec3(${s.rgb.map((v) => v.toFixed(1)).join(',')})`).join(',')});
-const int NN = ${sites.length};`)(Object.values(NAMES).map((rgb) => ({ rgb, ok: space.rgb.oklab(...rgb) })))
+// Smooth names: a compact 65³ texture stores the nearest site's INDEX. At a
+// fragment, the 27 surrounding lattice sites become candidates and their exact
+// OKLab distances decide the winner. That preserves crisp analytic Voronoi edges
+// without paying 139 comparisons per pixel or exposing the lookup lattice as pixels.
+// Palettes (names/xkcd/tailwind/pico8/ansi) share ONE machinery: a compact lattice
+// texture stores each cell's nearest-site INDEX; at a fragment the 27 surrounding
+// lattice cells become candidates and exact OKLab distances pick the winner — crisp
+// analytic Voronoi edges without hundreds of comparisons per pixel. Sites live in a
+// 2-row texture (OKLab / RGB), so 949-site xkcd never bloats a program source, and
+// switching palettes is a texture bind, not a recompile. Lattice resolution scales
+// down as site counts grow — candidates only need the winner within one cell.
+const PAL_UNIT=7, SITE_UNIT=6, PAL_DIRECT=32
+const dedupe=(list)=>[...new Map(list.map(([,rgb])=>[rgb.join(','),rgb])).values()]
+const PALETTES={ names:{rgb:dedupe(Object.entries(NAMES).map(([n,v])=>[n,v])),N:65},
+	xkcd:{rgb:dedupe(PALS.xkcd),N:33}, tailwind:{rgb:dedupe(PALS.tailwind),N:49},
+	pico8:{rgb:dedupe(PALS.pico8),N:65}, ansi:{rgb:dedupe(PALS.ansi),N:49} }
+const palTex=new WeakMap()   // gl → Map(pal → {idx,sites})
+const palData=(p)=>{ const P=PALETTES[p]; if(P.data) return P
+	P.sites=P.rgb.map(rgb=>({rgb,ok:space.rgb.oklab(...rgb)}))
+	// Small palettes are cheaper AND exact as a direct texture loop. Skip their
+	// otherwise wasted 3D accelerator build; bindPalette supplies a 1-texel dummy.
+	const direct=P.sites.length<=PAL_DIRECT, N=direct?1:P.N, out=new Uint16Array(N**3); let o=0
+	if(!direct) for(let z=0;z<N;z++)for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+		const rgb=[x,y,z].map(v=>Math.round(v/(N-1)*255)), ok=space.rgb.oklab(...rgb)
+		let bi=0, bd=Infinity
+		for(let i=0;i<P.sites.length;i++){ const s=P.sites[i], d=(ok[0]-s.ok[0])**2+(ok[1]-s.ok[1])**2+(ok[2]-s.ok[2])**2; if(d<bd){bd=d;bi=i} }
+		out[o++]=bi }
+	const sd=new Float32Array(P.sites.length*2*3)
+	P.sites.forEach((s,i)=>{ sd.set(s.ok,i*3); sd.set(s.rgb,(P.sites.length+i)*3) })
+	P.data=out; P.texN=N; P.siteData=sd; return P }
+let PAL_SRC=null
+const namedGLSL=()=>PAL_SRC??=`uniform highp usampler3D uPalIdx;   // per-cell nearest-site index, the ACTIVE palette's lattice
+uniform highp sampler2D uPalSites;  // row 0: sites in OKLab · row 1: sites in RGB
+vec3 named_(vec3 rgb) {
+	int S = textureSize(uPalSites, 0).x;
+	vec3 okp = rgb_oklab(rgb); float bd = 1e9; int bi = 0;
+	// Palette entries already live in metric space on the CPU. For a small set
+	// (PICO-8), one compact exact loop beats 27 lattice + 27 site texture fetches.
+	if (S <= ${PAL_DIRECT}) {
+		for (int i = 0; i < ${PAL_DIRECT}; i++) { if (i >= S) break;
+			vec3 d = okp - texelFetch(uPalSites, ivec2(i, 0), 0).rgb; float ds = dot(d,d); if (ds < bd) { bd = ds; bi = i; }
+		}
+		return texelFetch(uPalSites, ivec2(bi, 1), 0).rgb;
+	}
+	int N = textureSize(uPalIdx, 0).x;
+	vec3 p = clamp(rgb, 0.0, 255.0) / 255.0 * float(N - 1);
+	ivec3 c = ivec3(floor(p + 0.5));
+	for (int z = -1; z <= 1; z++) for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+		ivec3 q = clamp(c + ivec3(x,y,z), ivec3(0), ivec3(N - 1));
+		int i = int(texelFetch(uPalIdx, q, 0).r);
+		vec3 d = okp - texelFetch(uPalSites, ivec2(i, 0), 0).rgb; float ds = dot(d,d); if (ds < bd) { bd = ds; bi = i; }
+	}
+	return texelFetch(uPalSites, ivec2(bi, 1), 0).rgb;
+}`
+function bindPalette(gl,locIdx,locSites,pal){ if(!locIdx) return
+	let m=palTex.get(gl); if(!m){ m=new Map(); palTex.set(gl,m) }
+	let t=m.get(pal)
+	if(!t){ const P=palData(pal)
+		t={ idx:gl.createTexture(), sites:gl.createTexture() }; m.set(pal,t)
+		gl.activeTexture(gl.TEXTURE0+PAL_UNIT); gl.bindTexture(gl.TEXTURE_3D,t.idx)
+		gl.pixelStorei(gl.UNPACK_ALIGNMENT,1)
+		gl.texImage3D(gl.TEXTURE_3D,0,gl.R16UI,P.texN,P.texN,P.texN,0,gl.RED_INTEGER,gl.UNSIGNED_SHORT,P.data)
+		for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_R,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_3D,k,v)
+		gl.activeTexture(gl.TEXTURE0+SITE_UNIT); gl.bindTexture(gl.TEXTURE_2D,t.sites)
+		gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,P.sites.length,2,0,gl.RGB,gl.FLOAT,P.siteData)
+		for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D,k,v) }
+	else{ gl.activeTexture(gl.TEXTURE0+PAL_UNIT); gl.bindTexture(gl.TEXTURE_3D,t.idx)
+		gl.activeTexture(gl.TEXTURE0+SITE_UNIT); gl.bindTexture(gl.TEXTURE_2D,t.sites) }
+	gl.uniform1i(locIdx,PAL_UNIT); if(locSites) gl.uniform1i(locSites,SITE_UNIT); gl.activeTexture(gl.TEXTURE0) }
+const Q3I = { web: 101, names: 102, xkcd: 102, tailwind: 102, pico8: 102, ansi: 102, jnd: 103, 565: 104 }
+const q3Mode = q => typeof q === 'number' ? q : Q3I[q] || 0
+const quant3GLSL = () => `${namedGLSL()}
+vec3 quant3_(vec3 c, int mode) {
+	vec3 rgb = floor(clamp(c, 0.0, 1.0) * 255.0 + 0.5);
+	if (mode == 101) return floor(rgb / 51.0 + 0.5) * 51.0 / 255.0;
+	if (mode == 102) return named_(rgb) / 255.0;
+	if (mode == 104) return floor(floor(rgb / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5) / 255.0;
+	vec3 okp = rgb_oklab(rgb);   // 103 — the JND grid: ~2.3 ΔE*ab, the eye's own step
+	okp = vec3((floor(min(okp.x, .9999) / .023) + .5) * .023, round(okp.y / .023) * .023, round(okp.z / .023) * .023);
+	return floor(clamp(oklab_rgb(okp), 0.0, 255.0) + 0.5) / 255.0;
+}`
 
 let LOCUS_SRC = null
 const locusGLSL = () => LOCUS_SRC ??= ((P) => `const vec2 LOC[${P.length}] = vec2[${P.length}](${P.map((q) => `vec2(${q[0].toFixed(5)}, ${q[1].toFixed(5)})`).join(', ')});
@@ -311,12 +387,15 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
+	// Flat cluster fills must survive readback byte-for-byte (marker centering uses
+	// the painted run); retain hardware dithering only for genuinely smooth fields.
+	quant ? G.disable(G.DITHER) : G.enable(G.DITHER)
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
 	G.uniform4f(st.u.uV, ...v4)
@@ -329,14 +408,19 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	G.uniform1i(st.u.uWeb, quant === 'web' ? 1 : 0)
 	G.uniform1i(st.u.uPolar, polar ? 1 : 0)
 	G.uniform1i(st.u.uTri, tri || 0)
-	G.uniform1i(st.u.uClu, quant === 'names' ? 1 : quant === 'percept' ? 2 : 0)
+	G.uniform1i(st.u.uClu, PALETTES[quant] ? 1 : quant === 'jnd' ? 2 : quant === '565' ? 3 : 0)
+	// sampler units are program state and DEFAULT TO 0 — an int 3D sampler and a float 2D
+	// sampler colliding on unit 0 is GL_INVALID_OPERATION on every draw, palette bound or not
+	if (st.u.uPalIdx) G.uniform1i(st.u.uPalIdx, PAL_UNIT)
+	if (st.u.uPalSites) G.uniform1i(st.u.uPalSites, SITE_UNIT)
+	if (PALETTES[quant]) bindPalette(G, st.u.uPalIdx, st.u.uPalSites, quant)
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
 
 /**
  * Paint one plane on the GPU and blit it into the plane's 2d canvas.
- * Call only when planeGLStatus(s) is 'ready'. quant: number N | 'web' —
- * color-cluster quantizers stay on the JS path.
+ * Call only when planeGLStatus(s) is 'ready'. quant is a numeric lattice or one
+ * of the output-palette/JND/RGB565 lenses; every lens stays on the GPU path.
  */
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	const st = planeProg(s)
@@ -352,10 +436,10 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
  * Paint a channel bar (1-D sweep of channel `i`, held others) with per-pixel
  * gamut alpha — the smooth version of the stepped CSS mask.
  */
-export function paintBarGL(cv2d, s, vals, i, ri, gamut) {
+export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, 0)
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
@@ -546,7 +630,7 @@ function mesh3State(cv) {
 	const geo = geometry(), vsf = visSurf(256)   // dense: the overflow silhouette is the mesh's own edge
 	const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b }
 	const ibuf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW); return b }
-	const st = { gl, progs: new Map(),
+	const st = { gl, progs: new Map(), draws: new Map(),
 		tb: buf(geo.tpos), ti: ibuf(geo.tidx), tn: geo.tidx.length, tvn: geo.tpos.length / 3,
 		vb: buf(vsf.pos), vi: ibuf(vsf.idx), vn: vsf.idx.length, vvn: vsf.pos.length / 3,
 		cb: buf(geo.cpos), ci: ibuf(geo.cidx), cn: geo.cidx.length }
@@ -560,10 +644,10 @@ function mesh3State(cv) {
 	return st
 }
 
-// the per-frame half of the solid: ONE program for every space — model mapping and
-// view rotation over BAKED attributes (the space conversion ran once, in the bake
-// pass). The fragment stage is fully generic (uniforms only), so nothing per-space
-// remains at draw time — a munsell-grade iterative inverse costs one bake, not 60fps.
+// the per-frame half of the solid: one shared vertex program maps and rotates BAKED
+// attributes. Fragment programs are per space only because 10/20 must color each
+// native-coordinate cell by that space's inverse; smooth and output-palette modes
+// still consume the baked RGB directly.
 const DRAW_VS = `#version 300 es
 precision highp float;
 precision highp int;
@@ -673,9 +757,13 @@ void main() {
 	tRgb = softDisp(${SRC}_rgb(${unit}));`}
 	gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 }`
+		const nativeQ=s==='rgb'?'clamp(qv / 255.0, 0.0, 1.0)':`softDisp(${S}_rgb(qv))`
 		const fsSurf = `#version 300 es
 precision highp float;
 precision highp int;
+${glsl([['rgb', 'oklab'], ['oklab', 'rgb'], ...(s==='rgb'?[]:[[s, 'rgb']])])}
+${SOFT_DISP}
+${quant3GLSL()}
 in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in float vBad;
 uniform vec3 uCMin, uCMax;
 uniform vec3 uDMin, uDMax;   // the DECLARED box — where the slice outline is drawn
@@ -684,6 +772,7 @@ uniform int uClip;           // 1 → box-in-base space: shave past-the-box nois
 uniform int uPass;           // 0 = opaque in-box · 1 = translucent beyond-box
 uniform ivec4 uMap;
 uniform int uHasHue;
+uniform int uQuant;          // 0 smooth · 10/20 native-channel cells · 101/102/103 safe/name/even
 uniform ivec2 uBip;   // bipolar (opponent) chroma channels, else (-1,-1) — marks a lightness-axis space
 uniform ivec2 uCapK;  // pass 2: the capped face (axis, side) whose clipped sheet is stencilled
 uniform ivec2 uCut;   // the hovered plane's HELD axis (x, -1 = none) and whether it wraps (y)
@@ -727,6 +816,16 @@ void main() {
 		ob = max(ob, max(uDMin[k] - vF[k], vF[k] - uDMax[k]) / sp);
 	}
 	O = vec4(vRgb, 1.0);
+	// The same lens as the bars and planes reaches the solid. Palette lenses posterize
+	// sRGB output; 10/20 quantize the interpolated NATIVE coordinate and color the
+	// whole cell by its center — filled sections, without changing the gamut geometry.
+	if (uQuant >= 101) O.rgb = quant3_(vRgb, uQuant);
+	else if (uQuant > 1) {
+		vec3 span = max(uDMax - uDMin, vec3(1e-9));
+		vec3 f = clamp((vF - uDMin) / span, 0.0, 0.999999);
+		vec3 qv = uDMin + (floor(f * float(uQuant)) + 0.5) / float(uQuant) * span;
+		O.rgb = ${nativeQ};
+	}
 	// the tone is clipped HARD to its range: below the floor lies OSA-UCS's chroma pole and its
 	// pass 2 — the STENCIL parity sheet for one capped face: exactly the fragments the
 	// body clips away past THAT wall (tone-floor clips included: the floor cap seals
@@ -825,23 +924,25 @@ void main() {
 	}
 	O = vec4(softDisp(disp), 1.0);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uPalIdx', 'uPalSites']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
 			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
 		}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS))
 		bake.lutN = lutNames(vs)
-		// the shared per-frame program: compiled once per context, with the first space
-		if (!st.draw) st.draw = build(gl, DRAW_VS, fsSurf, (o) => {
+		// The draw program is shared across gamuts but not spaces: native 10/20 cells
+		// need this space's own inverse to color each section by its coordinate center.
+		if (!st.draws.has(s)) st.draws.set(s,build(gl, DRAW_VS, fsSurf, (o) => {
 			o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
 			uset(o)
-		})
+		}))
+		const draw=st.draws.get(s)
 		const caps = !fsCap || s === src ? null : build(gl, vsCap, fsCap, (o) => {
 			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o)
 		})
 		if (caps) caps.lutN = lutNames(fsCap)
-		out = { bake, caps }
-	} catch { out = null }
+		out = { bake, caps, draw }
+	} catch(e) { console.warn(`color-space/gl solid ${s}:`,e.message); out = null }
 	st.progs.set(key, out)
 	return out
 }
@@ -917,12 +1018,12 @@ void main() { O = uTint; }`)
 		uTint: gl.getUniformLocation(pr, 'uTint'), buf: gl.createBuffer() }
 }
 
-export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut) {
+export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0) {
 	if (!has3dGL(s)) return false
 	const gam = map?.gam ?? 'srgb'
 	const st = mesh3State(cv)
 	const ps = st && mesh3Progs(st, s, gam)
-	const dr = st && st.draw
+	const dr = ps && ps.draw
 	if (!ps || !ps.bake || ps.bake.bad || ps.bake.pending || !dr || dr.bad || dr.pending) {
 		// never show the previous space while this one compiles — clear and fall back
 		if (st) { st.gl.clearColor(0, 0, 0, 0); st.gl.clear(st.gl.COLOR_BUFFER_BIT | st.gl.DEPTH_BUFFER_BIT) }
@@ -933,6 +1034,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut) {
 	gl.clearColor(0, 0, 0, 0); gl.clearDepth(1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.disable(gl.CULL_FACE)
+	q3Mode(quant) ? gl.disable(gl.DITHER) : gl.enable(gl.DITHER)
 	// straight-alpha shaders on a premultiplied canvas: color blends by SRC_ALPHA,
 	// alpha accumulates as coverage (ONE) — the past-the-box fade and the pane
 	gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
@@ -953,6 +1055,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut) {
 		gl.uniform4i(u.uMap, map.ti, map.ai ?? -1, map.mi ?? 0, 0)
 		gl.uniform2i(u.uWb, map.wI ?? -1, map.bI ?? -1)
 		if (u.uBip !== undefined) gl.uniform2i(u.uBip, map.bip?.[0] ?? -1, map.bip?.[1] ?? -1)
+		if (u.uQuant) gl.uniform1i(u.uQuant, q3Mode(quant))
 		// the hovered plane's cut, drawn per pixel on the surface (see fsSurf's uCut band)
 		if (u.uCut) gl.uniform2i(u.uCut, cut ? cut.axis : -1, cut && cut.wrap ? 1 : 0)
 		if (u.uCutV) gl.uniform2f(u.uCutV, cut ? cut.val : 0, cut ? cut.span : 1)
@@ -990,6 +1093,9 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut) {
 		gl.enableVertexAttribArray(dr.aBad); gl.vertexAttribPointer(dr.aBad, 1, gl.FLOAT, false, 28, 24)
 	}
 	gl.useProgram(dr.pr); setU(dr.u)
+	if (dr.u.uPalIdx) gl.uniform1i(dr.u.uPalIdx, PAL_UNIT)
+	if (dr.u.uPalSites) gl.uniform1i(dr.u.uPalSites, SITE_UNIT)
+	if (PALETTES[quant]) bindPalette(gl, dr.u.uPalIdx, dr.u.uPalSites, quant)
 	gl.uniform1i(dr.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
 	bindBaked()
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)

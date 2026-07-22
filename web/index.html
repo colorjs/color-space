@@ -1299,6 +1299,7 @@ import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import NAMES from './js/names.js'
+import * as PALDATA from './js/palettes.js'
 import { SPACES, sections, cname, unit, disp, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
 import BARRED from './js/barred.js'
 
@@ -1470,16 +1471,18 @@ let TRIP={}; try{ TRIP=JSON.parse(localStorage.csTriP||'{}') }catch{}
 const triOn=(s2,a,b)=>TRIP[`${s2}:${a},${b}`]??false   // default: square — the silhouette is the opt-in lens, per plane, like the disc
 const polarOn=(s2,c2,a,b)=>POLARP[`${s2}:${a},${b}`]??(b!==axes3(c2).ti)   // default: disc for hue×radius, rect for hue×vertical (the solid's tone axis)
 
-const NAMED=Object.entries(NAMES).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
 const byteRGB=rgb=>rgb.map(x=>clamp(Math.round(x),0,255))
 const rgbKey=rgb=>(rgb[0]<<16)|(rgb[1]<<8)|rgb[2]
-const nmCache=new Map()   // exact 8-bit color memo — each unique pixel names once; capped for long sessions
-function nearest(rgb){ const src=byteRGB(rgb), key=rgbKey(src)
-	const hit=nmCache.get(key); if(hit) return hit
-	if(nmCache.size>65536) nmCache.clear()
+// ONE nearest-site pick for every fixed palette (CSS names, xkcd, tailwind, pico-8,
+// ansi) — OKLab metric, the shader's own; exact 8-bit memo per palette, capped
+const qCaches={}
+const sitesOf=p=>sitesOf[p]??=(p==='names'?Object.entries(NAMES):PALDATA[p]).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
+function nearestIn(p,rgb){ const src=byteRGB(rgb), key=rgbKey(src), cache=qCaches[p]??=new Map()
+	const hit=cache.get(key); if(hit) return hit
+	if(cache.size>65536) cache.clear()
 	const ok=space.rgb.oklab(...src); let best=null,bd=1e9
-	for(const c of NAMED){ const d=(ok[0]-c.ok[0])**2+(ok[1]-c.ok[1])**2+(ok[2]-c.ok[2])**2; if(d<bd){bd=d;best=c} }
-	nmCache.set(key,best); return best }
+	for(const c of sitesOf(p)){ const d=(ok[0]-c.ok[0])**2+(ok[1]-c.ok[1])**2+(ok[2]-c.ok[2])**2; if(d<bd){bd=d;best=c} }
+	cache.set(key,best); return best }
 
 const USES={ rgb:'CSS · canvas · the web default', hsl:'CSS · quick pickers', hsv:'design-tool pickers', hwb:'intuitive mixing · CSS', hsi:'machine vision',
  oklab:'gradients · gamut mapping', oklch:'design tokens · CSS palettes', okhsl:'perceptual pickers', okhsv:'perceptual pickers', okhwb:'perceptual pickers', oklrab:'picker internals', oklrch:'picker internals',
@@ -1935,13 +1938,21 @@ let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto comp
 const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
 let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
 // ONE session-local clustering lens for sliders, planes and the 3D solid
-const QSEG=[[null,'smooth'],[10,'10-step'],[20,'20-step'],['web','safe'],['names','names'],['percept','even']]
+const QGROUPS=[['',[[null,'smooth']]],
+	['steps',[[10,'10-step'],[20,'20-step'],['565','16-bit'],['jnd','jnd']]],
+	['palettes',[['web','safe'],['names','names'],['xkcd','xkcd'],['tailwind','tailwind'],['pico8','pico-8'],['ansi','ansi']]]]
+const QSEG=QGROUPS.flatMap(([,o])=>o)
 const QTIP={ 'smooth':'continuous, unquantized',
-	'10':'10 equal steps per channel',
-	'20':'20 equal steps per channel',
-	'web':'216-color web-safe palette',
-	'names':'nearest CSS named color',
-	'percept':'perceptually even OKLab cells' }
+	'10':'10 native-channel cell centers',
+	'20':'20 native-channel cell centers',
+	'565':'16-bit RGB565 depth',
+	'jnd':'just-noticeable OKLab steps',
+	'web':'216 web-safe colors',
+	'names':'CSS named colors',
+	'xkcd':'xkcd survey names',
+	'tailwind':'Tailwind tokens',
+	'pico8':'PICO-8 palette',
+	'ansi':'terminal 256 palette' }
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
@@ -1964,20 +1975,24 @@ const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
 		return g==='vis'?inVisSolid(...X):gamLin[g](X).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
-// perceptual quantizer: a regular OKLab grid. Lightness uses bounded cell centers;
-// opponent axes use zero-centered sites — neutral a=b=0 must stay neutral, not jump
-// to the old (+.04,+.04) cell merely because zero sat on both cell boundaries.
+// the JND grid: a regular OKLab lattice at ~one just-noticeable step (2.3 ΔE*ab ≈
+// .023 OKLab). Lightness uses bounded cell centers; opponent axes zero-centered —
+// neutral a=b=0 must stay neutral. Mirrors the shader's quant3_ mode 103 exactly.
 const pcCache=new Map()
-function perceptQ(t){ const src=byteRGB(t), key=rgbKey(src)
+function jndQ(t){ const src=byteRGB(t), key=rgbKey(src)
 	const hit=pcCache.get(key); if(hit) return hit
 	if(pcCache.size>65536) pcCache.clear()
 	const [L,A,B2]=space.rgb.oklab(...src)
-	const out=space.oklab.rgb((Math.floor(Math.min(L,.9999)/.1)+.5)*.1,Math.round(A/.08)*.08,Math.round(B2/.08)*.08).map(x=>clamp(Math.round(x),0,255))
+	const out=space.oklab.rgb((Math.floor(Math.min(L,.9999)/.023)+.5)*.023,Math.round(A/.023)*.023,Math.round(B2/.023)*.023).map(x=>clamp(Math.round(x),0,255))
 	pcCache.set(key,out); return out }
+// 16-bit RGB565 — real hardware depth: 5·6·5 bits per channel, mirrored from the shader
+const q565=t=>byteRGB(t).map((x,i)=>{ const n=[31,63,31][i]; return Math.round(Math.round(x/255*n)/n*255) })
 // Output-palette lenses quantize whole sRGB triples. Numeric lenses are different:
 // they divide this dossier's native coordinates, and therefore use qCell instead.
-const qTriple=v=> v==='names'? t=>nearest(t).rgb
-	: v==='percept'? perceptQ
+const PALMODES=new Set(['names','xkcd','tailwind','pico8','ansi'])
+const qTriple=v=> PALMODES.has(v)? t=>nearestIn(v,t).rgb
+	: v==='jnd'? jndQ
+	: v==='565'? q565
 	: v==='web'? t=>t.map(x=>Math.round(x/51)*51)
 	: null
 // No-WebGL fallback for palette bars: sample the real quantizer densely, then merge
@@ -1991,6 +2006,17 @@ const qBarRuns=(s,vals,i,c,qf)=>{ const runs=[]
 		else runs.push({rgb,lo:k,hi:k+1}) }
 	return runs }
 const qBarGradient=(s,vals,i,c,qf)=>`linear-gradient(90deg, ${qBarRuns(s,vals,i,c,qf).flatMap(r=>{ const lo=(r.lo/QBARN*100).toFixed(2), hi=(r.hi/QBARN*100).toFixed(2), h=hex(r.rgb); return [`${h} ${lo}%`,`${h} ${hi}%`] }).join(',')})`
+// Midpoint of the ACTUAL painted 1D region nearest `anchor`. This keeps marker and
+// shader boundaries identical (notably the accelerated names Voronoi field).
+const paintedBarCenter=(bar,target,anchor)=>{ const cv=bar.querySelector('.bgc')
+	if(!cv||cv.style.display==='none'||!cv.width) return null
+	let d; try{ d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,cv.width,1).data }catch{ return null }
+	const at=x=>{ const o=x*4; return d[o+3]>32&&Math.abs(d[o]-target[0])<=1&&Math.abs(d[o+1]-target[1])<=1&&Math.abs(d[o+2]-target[2])<=1 }
+	const runs=[]; let lo=-1
+	for(let x=0;x<=cv.width;x++){ const on=x<cv.width&&at(x); if(on&&lo<0)lo=x; if(!on&&lo>=0){runs.push([lo,x]);lo=-1} }
+	if(!runs.length) return null
+	const hit=runs.sort((a,b)=>Math.abs((a[0]+a[1])/(2*cv.width)-anchor)-Math.abs((b[0]+b[1])/(2*cv.width)-anchor))[0]
+	return (hit[0]+hit[1])/(2*cv.width) }
 // Arrow/chevron movement in a palette lens means "next visible region", not one
 // native precision tick (which often quantizes straight back to the same color).
 const qStepRGB=(s,vals,i,c,d,qf)=>{ const cur=byteRGB(qf(rgbF(s,vals))), f0=clamp((vals[i]-c.min)/(c.max-c.min),0,1), N=256
@@ -2003,15 +2029,17 @@ const clearClusterSnaps=()=>{ detail.querySelectorAll('.bar2').forEach(el=>{ el.
 // numeric N snaps every channel to ITS OWN cell centre (the sliders'/planes' shared lattice);
 // color-cluster modes snap through rgb
 function clusterize(){
-	if(typeof Q==='number'){ let mv; try{ mv=toSpace(selected,RGB()) }catch{ return }
+	if(typeof Q==='number'){ let mv; try{ mv=master.s===selected?master.vals.slice():toSpace(selected,RGB()) }catch{ return }
 		const cls=classify(selected)
 		master={ s:selected, vals:mv.map((v,i)=>{ const c=cls.ch[i]
 			return c.min+(c.max-c.min)*qCell((v-c.min)/(c.max-c.min),Q) }) }
 		return }
 	const f=qTriple(Q); if(!f) return
 	const nr=f(RGB()).map(x=>clamp(Math.round(x),0,255))
-	let mv=null; try{ mv=toSpace(selected,nr) }catch{}
-	master= mv?{ s:selected, vals:mv }:{ s:'rgb', vals:nr } }
+	// Palette modes choose a display color, not an unconstrained native coordinate.
+	// Keep RGB authoritative: valsFor() then projects and clamps every dossier's
+	// instrument range (HPLuv even→smooth used to retain S=196 in a 0…100 slider).
+	master={ s:'rgb', vals:nr } }
 // spaces covered by the differential suite vs colorjs.io (test/reference.js)
 const VERIFIED=new Set(['lrgb','p3','p3-linear','rec2020','rec2020-linear','a98rgb','a98rgb-linear','prophoto','prophoto-linear','xyz','xyz-d50','lab','lab-d65','lchab','luv','lchuv','oklab','oklch','hsl','hsv','hwb','jzazbz','jzczhz','ictcp','acescg','acescc','cam16','rec2100-pq','rec2100-hlg'])
 // minimal syntax highlighting: comments, strings, keywords, numbers
@@ -3009,13 +3037,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
 	const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
 	const qLegend=QSEG.map(([mo,lb])=>`${lb} — ${QTIP[qKey(mo)]}`).join('\n')
-	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
+	const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}"${mo===Q?' selected':''}>${lb}</option>`
+	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select>`
 	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} — ${gamTip(g)}`).join('\n')
 	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gLegend}">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch shows native cell boundaries or safe/name/even palette regions here too; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
+	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible — the box's shape, though no colour lives there."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
 	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
@@ -3224,7 +3253,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const spin=d=>{ const cur=parseFloat(inp.value), base=isFinite(cur)?cur:(valsFor(s)?.[i]??c.min)
 			clearClusterSnaps(); if(!adoptS()) return
 			if(typeof Q==='number') master.vals[i]=clamp(base+d*(c.max-c.min)/Q,c.min,c.max)
-			else if(qTriple(Q)){ const nr=qStepRGB(s,master.vals,i,c,d,qTriple(Q)); let mv=null; try{ mv=toSpace(s,nr) }catch{}; master=mv?{s,vals:mv}:{s:'rgb',vals:nr} }
+			else if(qTriple(Q)){ const nr=qStepRGB(s,master.vals,i,c,d,qTriple(Q)); master={s:'rgb',vals:nr} }
 			else master.vals[i]=clamp(base+d*STEP,c.min,c.max)
 			if(typeof Q==='number') clusterize()
 			const v=valsFor(s)?.[i]; if(isFinite(v)) inp.value=v.toFixed(decOf(c))
@@ -3493,9 +3522,9 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 const planeMs={}
 let planeNext=0, planesLive=false
 // Center a palette-mode marker in the connected painted region nearest the release
-// point. The nearest pixel to the region centroid is used, so a concave Voronoi cell
-// never puts its marker outside itself. Numeric cells need no override: their native
-// coordinates are already exact cell centers after clusterize().
+// point. Its snap site is the DEEPEST interior pixel (largest chamfer-distance from
+// every edge), not the area centroid — a crescent or tapered cell can have a centroid
+// almost on its wall. Numeric coordinates already land at exact cell centers.
 function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv.width, h=cv.height
 	if(!w||!h) return
 	let d; try{ d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data }catch{ return }
@@ -3510,8 +3539,20 @@ function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv
 	stack[top++]=start; seen[start]=1
 	while(top){ const p=stack[--top], x=p%w, y=(p/w)|0; members.push(p); sumX+=x; sumY+=y
 		for(const q of [p-1,p+1,p-w,p+w]) if(q>=0&&q<w*h&&!seen[q]&&match(q)&&((q%w===x)||((q/w|0)===y))){ seen[q]=1; stack[top++]=q } }
-	const mx=sumX/members.length, my=sumY/members.length; let cp=members[0], cd=Infinity
-	for(const p of members){ const ds=(p%w-mx)**2+((p/w|0)-my)**2; if(ds<cd){cd=ds;cp=p} }
+	// 3–4 chamfer distance transform over this component: boundary=0, orthogonal
+	// step=3, diagonal=4. The maximum is the visual pole of inaccessibility.
+	const INF=1<<28, dist=new Int32Array(w*h); dist.fill(INF)
+	for(const p of members){ const x=p%w, y=(p/w)|0
+		if(x===0||x===w-1||y===0||y===h-1||!seen[p-1]||!seen[p+1]||!seen[p-w]||!seen[p+w]) dist[p]=0 }
+	for(let y=0;y<h;y++)for(let x=0;x<w;x++){ const p=y*w+x; if(!seen[p]||dist[p]===0)continue; let v=dist[p]
+		if(x)v=Math.min(v,dist[p-1]+3); if(y)v=Math.min(v,dist[p-w]+3)
+		if(x&&y)v=Math.min(v,dist[p-w-1]+4); if(x+1<w&&y)v=Math.min(v,dist[p-w+1]+4); dist[p]=v }
+	for(let y=h-1;y>=0;y--)for(let x=w-1;x>=0;x--){ const p=y*w+x; if(!seen[p]||dist[p]===0)continue; let v=dist[p]
+		if(x+1<w)v=Math.min(v,dist[p+1]+3); if(y+1<h)v=Math.min(v,dist[p+w]+3)
+		if(x&&y+1<h)v=Math.min(v,dist[p+w-1]+4); if(x+1<w&&y+1<h)v=Math.min(v,dist[p+w+1]+4); dist[p]=v }
+	const mx=sumX/members.length, my=sumY/members.length; let cp=members[0], deep=-1, tie=Infinity
+	for(const p of members){ const ds=(p%w-mx)**2+((p/w|0)-my)**2
+		if(dist[p]>deep||(dist[p]===deep&&ds<tie)){deep=dist[p];tie=ds;cp=p} }
 	const px=cr.left+(cp%w+.5)/w*cr.width, py=cr.top+((cp/w|0)+.5)/h*cr.height
 	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null
 	const marker=pl.querySelector('.cx'); marker.style.display=''; marker.style.left=pl._snap.left+'%'; marker.style.top=pl._snap.top+'%' }
@@ -3532,7 +3573,7 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 	const dragging=!!(dragBar||plFreeze)
 	const res=canGL?Math.min(432,Math.round(216*(devicePixelRatio||1)))
 		:dragging?96:cost==null?48:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
-	const q=Q==='names'?t=>nearest(t).rgb:Q==='percept'?perceptQ:Q
+	const q=typeof Q==='number'?Q:qTriple(Q)
 	const t0=performance.now()
 	pls.forEach(pl=>{ if(pl===plFreeze) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
@@ -3707,8 +3748,9 @@ function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
 		const qf=qTriple(Q)
 		if(qf&&bar!==dragBar){ const target=byteRGB(qf(rgb)), held=shown.map((v,j)=>j===i?'':v).join(','), key=`${Q}|${target.join(',')}|${held}`
 			if(bar._snapKey===key&&bar._snapHint==null) mf=bar._snapF
-			else{ const anchor=bar._snapHint??mf, hit=qBarRuns(s,shown,i,c,qf).filter(r=>sameRGB(r.rgb,target)).sort((a,b)=>Math.abs((a.lo+a.hi)/(2*QBARN)-anchor)-Math.abs((b.lo+b.hi)/(2*QBARN)-anchor))[0]
-				if(hit) mf=(hit.lo+hit.hi)/(2*QBARN)
+			else{ const anchor=bar._snapHint??mf, painted=paintedBarCenter(bar,target,anchor)
+				if(painted!=null) mf=painted
+				else{ const hit=qBarRuns(s,shown,i,c,qf).filter(r=>sameRGB(r.rgb,target)).sort((a,b)=>Math.abs((a.lo+a.hi)/(2*QBARN)-anchor)-Math.abs((b.lo+b.hi)/(2*QBARN)-anchor))[0]; if(hit) mf=(hit.lo+hit.hi)/(2*QBARN) }
 				bar._snapKey=key; bar._snapF=mf; bar._snapHint=null } }
 		else if(!qf){ bar._snapKey=bar._snapF=bar._snapHint=null }
 		dk.style.left=(mf*100)+'%'
