@@ -20,7 +20,7 @@ const hex = (...v) => '#' + v.map(x => Math.round(x).toString(16).padStart(2, '0
 const inGamut = v => v.every(x => Number.isFinite(x) && x >= -0.5 && x <= 255.5)
 // the most colorful sRGB-representable Ostwald color of hue H: the full color desaturated
 // toward mid-gray by equal white+black content x — binary search the smallest x that fits
-const color = H => {
+export const color = H => {   // shared with generate-icon.js — one palette discipline
 	let lo = 0, hi = 50
 	if (inGamut(space.ostwald.rgb(H, 0, 0))) hi = 0
 	else for (let k = 0; k < 22; k++) {

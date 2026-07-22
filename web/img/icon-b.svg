@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="the Ostwald wheel quantized — 8, 4, 2 steps">
+<defs><linearGradient id="g0" x1="0" y1="0" x2="1" y2="0"><stop offset="0.00%" stop-color="#fe93a0"/><stop offset="12.50%" stop-color="#fe93a0"/><stop offset="12.50%" stop-color="#ffce5e"/><stop offset="25.00%" stop-color="#ffce5e"/><stop offset="25.00%" stop-color="#4fff2c"/><stop offset="37.50%" stop-color="#4fff2c"/><stop offset="37.50%" stop-color="#1cdfb9"/><stop offset="50.00%" stop-color="#1cdfb9"/><stop offset="50.00%" stop-color="#1bdae3"/><stop offset="62.50%" stop-color="#1bdae3"/><stop offset="62.50%" stop-color="#38a0ff"/><stop offset="75.00%" stop-color="#38a0ff"/><stop offset="75.00%" stop-color="#f43cff"/><stop offset="87.50%" stop-color="#f43cff"/><stop offset="87.50%" stop-color="#fe8ccd"/><stop offset="100.00%" stop-color="#fe8ccd"/></linearGradient>
+<linearGradient id="g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0.00%" stop-color="#fe93a0"/><stop offset="25.00%" stop-color="#fe93a0"/><stop offset="25.00%" stop-color="#4fff2c"/><stop offset="50.00%" stop-color="#4fff2c"/><stop offset="50.00%" stop-color="#1bdae3"/><stop offset="75.00%" stop-color="#1bdae3"/><stop offset="75.00%" stop-color="#f43cff"/><stop offset="100.00%" stop-color="#f43cff"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0.00%" stop-color="#fe93a0"/><stop offset="50.00%" stop-color="#fe93a0"/><stop offset="50.00%" stop-color="#1bdae3"/><stop offset="100.00%" stop-color="#1bdae3"/></linearGradient></defs>
+<rect y="0" width="96" height="32" fill="url(#g0)"/>
+<rect y="32" width="96" height="32" fill="url(#g1)"/>
+<rect y="64" width="96" height="32" fill="url(#g2)"/>
+</svg>

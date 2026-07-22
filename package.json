@@ -231,6 +231,7 @@
     "data": "node scripts/generate-data.js",
     "landing": "node scripts/build-site.js",
     "banner": "node scripts/generate-banner.js",
+    "icon": "node scripts/generate-icon.js",
     "og": "node scripts/generate-og.js",
     "build:wasm": "node scripts/build-wasm.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
