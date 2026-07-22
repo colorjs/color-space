@@ -41,7 +41,7 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
     - [x] StackShare — stackshare.io → add tool page
     - [x] toools.design — toools.design → "Submit a resource", color category (design crowd, real traffic)
     - [x] devhunt.org — dev-tool launch board, GitHub login, low effort (optional, small)
-    - [ ] Uneed — uneed.best → submit (PH-lite; schedule a launch day, optional)
+    - [x] Uneed — uneed.best → submit (PH-lite; schedule a launch day, optional)
     - [ ] Peerlist Launchpad — peerlist.io/launchpad (optional, indie-dev crowd)
     - [ ] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
 
