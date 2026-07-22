@@ -28,10 +28,10 @@
 
 Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/topics set, FUNDING wired). What remains is posting and repeating:
 
-1. **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
-2. **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
-2b. **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
-2c. **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, provenance, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
+1. [x] **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
+2. [ ] **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
+2b. [ ] **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
+2c. [x] **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, provenance, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
 
     - [x] awesome-javascript — PR open: github.com/sorrycc/awesome-javascript/pull/1123
     - [x] awesome-colour (colour-science) — already listed, nothing to do
@@ -42,16 +42,16 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
     - [x] toools.design — toools.design → "Submit a resource", color category (design crowd, real traffic)
     - [x] devhunt.org — dev-tool launch board, GitHub login, low effort (optional, small)
     - [x] Uneed — uneed.best → submit (PH-lite; schedule a launch day, optional)
-    - [ ] Peerlist Launchpad — peerlist.io/launchpad (optional, indie-dev crowd)
-    - [ ] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
+    - [x] Peerlist Launchpad — peerlist.io/launchpad (optional, indie-dev crowd)
+    - [x] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
 
     **Skipped, with reasons**: awesome-nodejs / awesome-creative-coding / cg-vfx-pipeline / Awesome-Design-Tools (no fitting category — forced PRs get rejected and smell of spam) · Openbase (dead since 2023) · AI-tool directories (no qualified traffic, spam adjacency) · look-LUT communities like freshluts (creative-LUT culture; conversion LUTs would confuse — reach colorists via the film track instead).
-2d. **SEO** (audit 2026-07-21 — foundation is solid: canonicals, prerendered dossier prose, per-page descriptions, sitemap+robots+llms.txt): ① **titles use raw ids** (`sgamut3cine color space — …`) — switch to display names ("S-Gamut3.Cine") from the description's "Name — " prefix in build-site.js; the title tag is the ranking+click surface, ×162 pages, non-visual change. ② camera-log pages never say "LUT" in title/description — add "conversion LUT" for LUTOK spaces (the "slog3 to rec709 lut" intent). ③ register Search Console + Bing Webmaster, submit sitemap — real query data then steers the weekly dossier work (plan §6). Minor/optional: sitemap `<lastmod>`, BreadcrumbList JSON-LD.
-3. **Next week — LiftGammaGain scrutiny post** (draft below). If the thread survives, it's the citable proof for the whole film track.
-4. **Then one film community per week**, led by that camera's pain, LGG thread cited: r/davinciresolve → r/SonyAlpha (both Sony gamuts) → iPhone-filmmaking (Apple Log, hottest trigger) → r/dji → r/videography (education-led) → ACEScentral (ACES story; bridge to ASWF orbit).
-5. **Dream-100 gift outreach alongside** (no ask, 3+ touches): colorists — Cullen Kelly, Darren Mostyn, Waqas Qazi, Color Grading Central, Gerald Undone (deltas table is his language); CSS — Lea Verou orbit, Björn Ottosson, Dan Burzo; newsletters after HN exists to cite.
-6. **Always**: new camera log announced → support within days → short post (the recurring trigger). Each community's questions → that week's dossier improvements. Log every post: venue, title, response; kill venues after two silent attempts.
-7. **Donation**: optional one-line ask at the LUT download-complete moment (*"Free and verified. If it saved your grade — sponsor the atlas."* — tone is owner's call); at 3–6 months take traffic numbers to film-tech sponsors.
+2d. [ ] **SEO** (audit 2026-07-21 — foundation is solid: canonicals, prerendered dossier prose, per-page descriptions, sitemap+robots+llms.txt): ① **titles use raw ids** (`sgamut3cine color space — …`) — switch to display names ("S-Gamut3.Cine") from the description's "Name — " prefix in build-site.js; the title tag is the ranking+click surface, ×162 pages, non-visual change. ② camera-log pages never say "LUT" in title/description — add "conversion LUT" for LUTOK spaces (the "slog3 to rec709 lut" intent). ③ register Search Console + Bing Webmaster, submit sitemap — real query data then steers the weekly dossier work (plan §6). Minor/optional: sitemap `<lastmod>`, BreadcrumbList JSON-LD.
+3. [ ] **Next week — LiftGammaGain scrutiny post** (draft below). If the thread survives, it's the citable proof for the whole film track.
+4. [ ] **Then one film community per week**, led by that camera's pain, LGG thread cited: r/davinciresolve → r/SonyAlpha (both Sony gamuts) → iPhone-filmmaking (Apple Log, hottest trigger) → r/dji → r/videography (education-led) → ACEScentral (ACES story; bridge to ASWF orbit).
+5. [ ] **Dream-100 gift outreach alongside** (no ask, 3+ touches): colorists — Cullen Kelly, Darren Mostyn, Waqas Qazi, Color Grading Central, Gerald Undone (deltas table is his language); CSS — Lea Verou orbit, Björn Ottosson, Dan Burzo; newsletters after HN exists to cite.
+6. [ ] **Always**: new camera log announced → support within days → short post (the recurring trigger). Each community's questions → that week's dossier improvements. Log every post: venue, title, response; kill venues after two silent attempts.
+7. [ ] **Donation**: optional one-line ask at the LUT download-complete moment (*"Free and verified. If it saved your grade — sponsor the atlas."* — tone is owner's call); at 3–6 months take traffic numbers to film-tech sponsors.
 
 **Don'ts**: no email gates · no look/creative LUT packs · no two posts in one week per track · no stat quoted without same-day re-verification.
 
@@ -68,13 +68,13 @@ Alt, sparer:
 > color-space v3 is out. 162 color spaces, one small API, verified.
 > https://color-space.io
 
-### Product Hunt (atlas-framed)
+### [ ] Product Hunt (atlas-framed)
 
 - **Name:** color-space · **Tagline:** `An interactive atlas of 162 color spaces` · **Topics:** design tools, developer tools, open source
 - **Description:** Every color space — web, print, film, broadcast, vision, history. Live conversion, conventional ranges, provenance, cited references. Export any pair as a .cube LUT or ICC profile, in-browser. Free, public domain.
 - **Maker comment:** one paragraph, README register: what it is, verification in one sentence, "not a toolkit" in one sentence, ask for feedback on spaces people actually use.
 
-### Show HN (title ≤80 chars · URL `https://color-space.io/`)
+### [x] Show HN (title ≤80 chars · URL `https://color-space.io/`)
 
     Show HN: Color-space v3 – 162 color spaces, one small JS API, verified
 
@@ -93,7 +93,7 @@ Alt, sparer:
 
 Prepared answers: *why-not-culori* (for when they lack your space / conventional ranges / independent verification; kernel they can sit on) · *162 = padding?* (each separately importable, anchored; declined-list in README) · *bundle size* (quote per-space, concede full) · *0–1 is standard!* (conventional = what each field's own literature writes) · *CAT02 vs Bradford* (deltas quantify exactly that; doc has the table).
 
-### LiftGammaGain scrutiny post (film track opener — ask, don't pitch)
+### [ ] LiftGammaGain scrutiny post (film track opener — ask, don't pitch)
 
     Free conversion LUTs for every camera log, tested against the official ACES transforms — where are they wrong?
 
@@ -111,7 +111,7 @@ Prepared answers: *why-not-culori* (for when they lack your space / conventional
 
 Pre-post: rerun `npm test` same day · verify downloads in Safari/Firefox · have the CAT02 and Canon-×0.9 replies ready · disclose authorship line one · never argue — thank, verify, fix, report back.
 
-### Reddit ladder (titles; body = the LGG skeleton compressed, conversion-not-look always, authorship disclosed, one per week)
+### [ ] Reddit ladder (titles; body = the LGG skeleton compressed, conversion-not-look always, authorship disclosed, one per week)
 
 - **r/javascript**: `color-space v3 — 162 color spaces, one small API, values that match CSS, verified` (code sample + kernel-not-toolkit + atlas link)
 - **r/webdev**: `An atlas of 162 color spaces — live conversion, ranges, provenance, LUT/ICC export`
