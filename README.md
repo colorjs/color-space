@@ -109,7 +109,6 @@ Thanks to the researchers, theorists, specifiers, implementors — and the libra
 | [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 3.4 |
 | [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 34.4 |
 
-<sub>[Full comparison](docs/library-comparison.md) · `npm run benchmark`</sub>
 
 
 <p align="center"><a href="license.md">CC0</a> · <a href="https://github.com/krsnzd/license/">ॐ</a></p>
