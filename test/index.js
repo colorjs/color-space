@@ -64,7 +64,7 @@ test('integrity — package exports: every target file exists, every specifier i
 // the site stages into _site (npm run landing / pages.yml — docs/ stays source-only);
 // build it here and pin completeness: every space gets its reference page + sitemap
 // entry, and no import escapes the site root
-test('integrity — _site: builds complete (a page + sitemap entry per space)', async () => {
+test('integrity — _site: builds complete (a page + sitemap entry per space)', { timeout: 30000 }, async () => {
 	const { buildSite, site } = await import('../scripts/build-site.js')
 	process.env.CS_NO_DOSSIERS = '1'   // the dossier bake is a ~60s headless pass — this test pins build completeness, not the enhancement layer (pages.yml bakes in `npm run landing`, after the gate)
 	try { await buildSite() } finally { delete process.env.CS_NO_DOSSIERS }
