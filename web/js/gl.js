@@ -272,17 +272,11 @@ const GAMI = { srgb: 1, p3: 2, rec2020: 3, vis: 4 }
 // whether a chromaticity is a colour at all. ONE law, three surfaces — the xy panel
 // draws this boundary, and the plane and bar kernels void past it under the human
 // lens, so a coordinate no light can produce reads as void everywhere it appears.
-// Smooth names: a compact 65³ texture stores the nearest site's INDEX. At a
-// fragment, the 27 surrounding lattice sites become candidates and their exact
-// OKLab distances decide the winner. That preserves crisp analytic Voronoi edges
-// without paying 139 comparisons per pixel or exposing the lookup lattice as pixels.
-// Palettes (names/xkcd/tailwind/pico8/ansi) share ONE machinery: a compact lattice
-// texture stores each cell's nearest-site INDEX; at a fragment the 27 surrounding
-// lattice cells become candidates and exact OKLab distances pick the winner — crisp
-// analytic Voronoi edges without hundreds of comparisons per pixel. Sites live in a
-// 2-row texture (OKLab / RGB), so 949-site xkcd never bloats a program source, and
-// switching palettes is a texture bind, not a recompile. Lattice resolution scales
-// down as site counts grow — candidates only need the winner within one cell.
+// Every fixed palette shares one machinery. Palette sites are preconverted to
+// OKLab on the CPU and uploaded beside their RGB values; each fragment converts its
+// input once. A compact RGB lattice supplies 27 nearby candidates, whose exact
+// OKLab distances keep edges smooth without scanning hundreds of sites per pixel.
+// Small palettes are both cheaper and exact as a direct texture loop.
 const PAL_UNIT=7, SITE_UNIT=6, PAL_DIRECT=32
 const dedupe=(list)=>[...new Map(list.map(([,rgb])=>[rgb.join(','),rgb])).values()]
 const PALETTES={ names:{rgb:dedupe(Object.entries(NAMES).map(([n,v])=>[n,v])),N:65},
