@@ -1284,7 +1284,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, visWhite } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
@@ -2035,7 +2035,13 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// (HPLuv's exploding near-white P) would land back inside the guarded box.
 	const gfCube=v=>{ const mx=Math.max(...v), dlt=mx-Math.min(...v)
 		return Math.min(clamp(dlt/2.5,0,1),clamp((mx-2)/6,0,1)) }
-	const gfVis=v=>clamp((v[1]-1)/9,0,1)
+	// same law for the human solid — only the units differ: divide XYZ by the white it
+	// integrates to and its gray axis IS r=g=b, so gfCube measures it unchanged. Judging
+	// darkness by luminance alone crushed every deep saturated colour (a violet at full
+	// chroma carries Y<1) onto the axis: the solid's dark half flattened into a skirt and
+	// a needle at black, while osaucs's real near-black blow-up stays suppressed either way.
+	const VISWP=visWhite()
+	const gfVis=v=>gfCube(v.map((x2,k)=>x2/VISWP[k]*255))
 	const gfRaw=g3==='vis'?gfVis:gfCube
 	const grayF=inBase?(v=>gfRaw(v)<1?0:1):gfRaw
 	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the

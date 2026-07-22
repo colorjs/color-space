@@ -12,7 +12,7 @@
 // (no WebGL2, color-cluster quantizers). Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
-import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid } from './core.js'
+import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid, visWhite } from './core.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -624,11 +624,16 @@ void main() {
 	// by zero there) — has noise for chroma coordinates (okhsl S at near-white is
 	// 0..103 at random). Taper the chroma coords toward the gray axis SMOOTHLY — a
 	// hard cliff saws the surface where real chroma meets the collapsed row.
+	// ONE law, two sources: the human solid's XYZ is divided by the white it integrates
+	// to, which puts its gray axis at r=g=b — the cube's own units — so the same two
+	// factors read it. (Judging its darkness by luminance alone crushed deep saturated
+	// colours, all of which sit below Y=1, onto the axis: a flat skirt and a needle.)
 	${src === 'xyz'
-		? 'float gf = clamp((aSrc.y - 1.0) / 9.0, 0.0, 1.0);'
-		: `float mx = max(aSrc.r, max(aSrc.g, aSrc.b));
-	float dlt = mx - min(aSrc.r, min(aSrc.g, aSrc.b));
-	float gf = min(clamp(dlt / 2.5, 0.0, 1.0), clamp((mx - 2.0) / 6.0, 0.0, 1.0));`}
+		? `vec3 q = aSrc / vec3(${visWhite().map(v => v.toFixed(4)).join(', ')}) * 255.0;`
+		: 'vec3 q = aSrc;'}
+	float mx = max(q.r, max(q.g, q.b));
+	float dlt = mx - min(q.r, min(q.g, q.b));
+	float gf = min(clamp(dlt / 2.5, 0.0, 1.0), clamp((mx - 2.0) / 6.0, 0.0, 1.0));
 	// a box-in-base space must collapse all-or-nothing: partially tapered junk
 	// (HPLuv's exploding near-white P) would land back INSIDE the box the clip
 	// guards — while whole-shape solids need the smooth taper, or the cliff where

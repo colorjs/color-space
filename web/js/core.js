@@ -156,6 +156,20 @@ export function visSolid() {
 	}
 	return VSOLID = dirs
 }
+let VSWP = null
+/** The white this solid integrates to — a perfect reflector under D65. Dividing XYZ by it
+ *  puts the achromatic axis at r=g=b, exactly where the RGB cube's is, so ONE taper law can
+ *  measure "distance from gray" for both sources instead of each source inventing its own. */
+export function visWhite() {
+	if (VSWP) return VSWP
+	const w = [0, 0, 0]
+	for (let nm = 380; nm <= 700; nm += 2) {
+		const c = space.wavelength.xyz(nm), k = d65(nm)
+		for (let i = 0; i < 3; i++) w[i] += c[i] * k
+	}
+	const s = 100 / w[1]
+	return VSWP = w.map(v => v * s)
+}
 /** Is this XYZ a colour a surface can show under D65 — the human solid the 3D view draws?
  *  The 0.2% slack absorbs the gap between this 2 nm integration and the tabulated white. */
 export const inVisSolid = (X, Y, Z) => {
