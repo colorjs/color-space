@@ -3,7 +3,6 @@
 * [x] Triangle version of view
 * [x] Better slice outline (binary ops?)
 * [x] Better loading (side categories - appear smoothly)
-* [ ] Better hue picker range - unfoldable?
 * [x] SEO something: making sure how we meet use scenarios
 * [x] LUT/ICC download is too hard
 * [x] CMYK planes are wrong

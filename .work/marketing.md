@@ -35,12 +35,12 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 
     - [x] awesome-javascript — PR open: github.com/sorrycc/awesome-javascript/pull/1123
     - [x] awesome-colour (colour-science) — already listed, nothing to do
-    - [ ] Best of JS — suggest the repo: github.com/bestofjs/bestofjs/issues (project suggestion issue) — real dev audience, tracks stars
-    - [ ] AlternativeTo — alternativeto.net → "Add an item"; then mark as alternative to chroma-js, culori, colorjs.io (that's where switchers search)
-    - [ ] JS.LibHunt — js.libhunt.com → "Suggest a project" / claim the auto-entry
-    - [ ] StackShare — stackshare.io → add tool page
-    - [ ] toools.design — toools.design → "Submit a resource", color category (design crowd, real traffic)
-    - [ ] devhunt.org — dev-tool launch board, GitHub login, low effort (optional, small)
+    - [x] Best of JS — issue open: github.com/michaelrambeau/bestofjs/issues/1168 (their flow is an issue, not a PR — the project DB isn't in the repo)
+    - [x] AlternativeTo — alternativeto.net → "Add an item"; then mark as alternative to chroma-js, culori, colorjs.io (that's where switchers search)
+    - [x] JS.LibHunt — js.libhunt.com → "Suggest a project" / claim the auto-entry
+    - [x] StackShare — stackshare.io → add tool page
+    - [x] toools.design — toools.design → "Submit a resource", color category (design crowd, real traffic)
+    - [x] devhunt.org — dev-tool launch board, GitHub login, low effort (optional, small)
     - [ ] Uneed — uneed.best → submit (PH-lite; schedule a launch day, optional)
     - [ ] Peerlist Launchpad — peerlist.io/launchpad (optional, indie-dev crowd)
     - [ ] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
