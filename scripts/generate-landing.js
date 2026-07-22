@@ -8,7 +8,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES, DEFAULT, fpOf } from '../web/js/render.js'
+import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -101,10 +101,10 @@ export function stampSpacePages(out = join(root, '_site')) {
 	for (const s of SPACES) {
 		const desc = (meta[s]?.description || '').replace(/\s+/g, ' ').trim()
 		const short = desc.length > 155 ? desc.slice(0, 152).replace(/\s+\S*$/, '') + '…' : desc
-		// searchers use the display name ("S-Gamut3.Cine"), not the slug — every
-		// description opens "Name — …", so the title leads with that; LUT-capable
-		// spaces name the artifact people actually search for
-		const name = (m => m && m[1].length <= 40 ? m[1] : s)(desc.match(/^(.+?) — /))
+		// searchers use the display name ("S-Gamut3.Cine"), not the slug — disp() is the
+		// site-wide derivation (description leader + pinned names); LUT-capable spaces
+		// name the artifact people actually search for
+		const name = disp(s)
 		let h = html
 		h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(name)} color space — channels, ranges, conversion${LUTOK.has(s) && meta[s]?.referred === 'scene' ? ' LUT' : ''} | color-space</title>`)
 		h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)

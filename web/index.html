@@ -2989,7 +2989,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated — click to copy"></p></div>`:''}
 				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
 				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
-				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}">${p}</a>`:p).join(' → ')}</p></div>`:''}
+				${path&&path.length>1?`<div><i title="the conversion route down to rgb — each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
 				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
@@ -3099,7 +3099,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dex=detail.querySelector('#dex')
 	if(dex){
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
-		const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${t}</option>`).join('')}</optgroup>`:'' }).join('')
+		const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${disp(t)}</option>`).join('')}</optgroup>`:'' }).join('')
 		const sci2=x=>x===0?'0':x.toExponential(1)
 		const iccTitle=iccK==='mntr'?`${s} as an .icc v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management`
 			:iccK==='spac'?`${s} as an .icc v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick`
@@ -3688,7 +3688,7 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		if(icmp&&cmp){ try{ const a3=toSpace(cmp,rgb), b3=toSpace(cmp,rgbB), st=[]
 			for(let k=0;k<=14;k++) st.push(hex(rgbF(cmp,mixInSpace(cmp,a3,b3,k/14))))
 			icmp.style.background=`linear-gradient(90deg, ${st.join(',')})`
-			if(ispc){ ispc.textContent=cmp; ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
+			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet — js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
 	if(snip){
@@ -3779,7 +3779,7 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 // the lut/icc tabs are live exporters: pick spaces → download the real file, generated in the browser
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const sci2=x=>x===0?'0':x.toExponential(1)
-	const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${t}</option>`).join('')}</optgroup>`:'' }).join('')
+	const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${disp(t)}</option>`).join('')}</optgroup>`:'' }).join('')
 	const save=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
 	// ── LUT: any pair → .cube ──
 	const lf=tabs.querySelector('#lutfrom'), lt=tabs.querySelector('#lutto'), lseg=tabs.querySelector('#lutszL'), l1d=tabs.querySelector('#lut1dL'), ldl=tabs.querySelector('#lutdlL'), lstat=tabs.querySelector('#lutstatL')

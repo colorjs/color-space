@@ -10,10 +10,23 @@ import CATS from './categories.js'
 
 export const SPACES = Object.keys(space).filter(k => space[k] && space[k].name && meta[k] && meta[k].channels)
 export const cname = c => c.name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/(\s*\b(percentage|percent|angle in degrees|in degrees|axis|component|coordinate)\b\s*)+$/i, '').trim()
-// display name — the uppercased id, except names the ascii id can only transliterate
-// (uppercasing the Greek would corrupt it, so values here are display-final)
-const DISP = { lalphabeta: 'lαβ' }
-export const disp = s => DISP[s] || s.toUpperCase()
+// display name — led by each space's own description ("Name — …", the same derivation
+// the stamped page titles use), so OKLCh families, Y′CbCr variants and vendor logs read
+// as their real names everywhere. DISP pins the spaces whose description opens otherwise
+// or whose ascii id must not be blindly uppercased (Okhsl, YDbDr, proLab, lαβ, …).
+const DISP = {
+	lab: 'CIELAB', lchab: 'CIELChab', luv: 'CIELUV', lchuv: 'CIELChuv', 'lch-d65': 'CIELCh D65',
+	labh: 'Hunter Lab', hsluv: 'HSLuv', hpluv: 'HPLuv', anlab: 'Adams–Nickerson Lab',
+	ucs: 'CIE 1960 UCS', uvw: 'CIE 1964 UVW', 'xyz-d50': 'CIE XYZ (D50)',
+	oklab: 'OKLab', oklch: 'OKLCH', okhsl: 'Okhsl', okhsv: 'Okhsv', okhwb: 'Okhwb', oklrab: 'OKLrAB', oklrch: 'OKLrCH',
+	prolab: 'proLab', sucs: 'sUCS', igpgtg: 'IgPgTg', hellwig2022: 'Hellwig 2022', srlab2: 'SRLAB2',
+	'ral-design': 'RAL Design', munsell: 'Munsell', ohta: 'Ohta I₁I₂I₃', osaucs: 'OSA-UCS',
+	'din99o-lab': 'DIN99o Lab', 'din99o-lch': 'DIN99o LCh', din99d: 'DIN99d',
+	photoycc: 'PhotoYCC', ycbcr: 'YCbCr', ydbdr: 'YDbDr', ycgco: 'YCgCo', ypbpr: 'YPbPr',
+	xvycc: 'xvYCC', yccbccrc: 'YcCbcCrc', jpeg: 'JPEG YCbCr', 'ycbcr-bt2020': 'BT.2020 Y′CbCr',
+	'ycbcr-bt601-525': 'BT.601 525-line Y′CbCr', 'ycbcr-bt601-625': 'BT.601 625-line Y′CbCr',
+	macboyn: 'MacLeod–Boynton', lalphabeta: 'lαβ' }
+export const disp = s => DISP[s] || (m => m && m[1].length <= 40 ? m[1] : s.toUpperCase())((meta[s]?.description || '').match(/^(.+?) — /))
 export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? '%' : '')
 const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
