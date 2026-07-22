@@ -123,6 +123,26 @@ export async function buildSite() {
 	// per-space documents stamp LAST — byte-copies of the now-final index.html
 	const { stampSpacePages } = await import('./generate-landing.js')
 	stampSpacePages(site)
+	// ── sw.js: stamp the offline shell. Precache set = the root document + every staged
+	// non-document asset (space pages are byte-copies of index.html and the router reads
+	// the path, so the shell alone serves the whole atlas offline). VERSION = content
+	// hash of the set — a deploy invalidates the cache exactly when bytes change.
+	{	const skip = /\.(html|xml|txt|md)$|(^|\/)(CNAME|sw\.js)$/
+		const files = []
+		const walk = (d) => { for (const f of readdirSync(join(site, d), { withFileTypes: true })) {
+			const p = d ? `${d}/${f.name}` : f.name
+			if (f.isDirectory()) walk(p)
+			else if (!skip.test(p)) files.push(p)
+		} }
+		walk('')
+		files.sort()
+		const h = createHash('sha1')
+		for (const p of ['index.html', ...files]) h.update(readFileSync(join(site, p)))
+		rewrite(join(site, 'sw.js'), [
+			["const VERSION = 'dev'", `const VERSION = '${h.digest('hex').slice(0, 10)}'`],
+			["const ASSETS = ['./']", `const ASSETS = ${JSON.stringify(['./', ...files.map((p) => './' + p)])}`],
+		])
+	}
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) await buildSite()

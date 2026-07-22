@@ -15,8 +15,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="color-space — color spaces in one open collection">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%23ef7a4a'/></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="./fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link href="./tokens.css" rel="stylesheet">
 <script>document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
 <style>
@@ -1564,11 +1563,15 @@ if(cat.dataset.fp!==fpOf(catHTML())) cat.innerHTML=catHTML(DEFAULT)
 // fingerprint-rebuild path, where the rail's nodes were just replaced — idempotent otherwise
 wireToc()
 addEventListener('resize',layoutToc)
+// 'load' can beat this module — its imports top-level-await data.json, and the browser
+// doesn't hold the load event for async module continuations — so a bare listener may
+// never fire; every load-gated step goes through this guard
+const onLoad=f=>document.readyState==='complete'?f():addEventListener('load',()=>f())
 // re-measure once layout is truly settled — a stale first pass (pre-font heights, or a restored
 // scroll position on reload) would bake a wrong ladder; each re-run recomputes and re-freezes
 document.fonts?.ready.then(layoutToc)
 requestAnimationFrame(layoutToc)
-addEventListener('load',layoutToc)
+onLoad(layoutToc)
 
 // visibility set: bounds the per-frame sweeps (drag frames repaint near-screen rows only;
 // the prepaint walk covers the rest at idle). Scroll-in repaints are stamp-skipped no-ops
@@ -2400,11 +2403,11 @@ function drawPtsGL(cv,m,scale3,sheet,frame){ const st=gl3d(cv); if(!st||!m.tpos.
 		if(st.sn!==sheet.length){ gl.bindBuffer(gl.ARRAY_BUFFER,st.swb)
 			gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(sheet.length).fill(1),gl.DYNAMIC_DRAW); st.sn=sheet.length }
 		gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA)
-		gl.uniform1f(st.alpha,0.75); gl.depthMask(false)
+		// the same law the GL path draws by: a half film where nothing covers the pane, and
+		// none where the body does — behind an opaque body a pane can only veil the solid's
+		// own colour. The cut curve (here the hud polyline) carries it through instead.
+		gl.uniform1f(st.alpha,0.5); gl.depthMask(false)
 		draw(st.sb,st.swb,gl.TRIANGLES,sheet.length/3)
-		gl.depthFunc(gl.GREATER); gl.uniform1f(st.alpha,0.35)
-		draw(st.sb,st.swb,gl.TRIANGLES,sheet.length/3)
-		gl.depthFunc(gl.LEQUAL)
 		gl.depthMask(true); gl.disable(gl.BLEND); gl.uniform1f(st.alpha,1) }
 	// the pane's frame ribbons — clip-space geometry, exactly as drawMesh3GL draws them
 	if(frame){ if(st.fpr===undefined){ const mk=(t,src)=>{ const o=gl.createShader(t); gl.shaderSource(o,src); gl.compileShader(o)
@@ -2641,7 +2644,9 @@ function draw3d(){ if(!mesh3||!open()) return
 	// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
 	// (bodyM) for the thru passes; the pane and frame then join the same scene in a
 	// second pass, so their film never counts as cover and never veils the hud dashes
-	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,cut3):drawPtsGL(meshCv,mesh3,scale3))
+	// the first draw is only the body-alpha snapshot (bodyM) — the cut band would cost a
+	// second full mesh pass and change nothing it measures; the visible render is below
+	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
 	let bodyM=meshCv
 	if(drewGL&&(sheet3||frame3)){ const bm=mask3||(mask3=document.createElement('canvas'))
 		if(bm.width!==S2) bm.width=bm.height=S2
@@ -3493,7 +3498,7 @@ const prepaintSoon=()=>{ cic(ppT); ppT=ric(dl=>{ ppT=0
 		paintCatalogGrad([ent]); paintCatalogVals([ent]) } },{timeout:1000}) }
 // …and compile every lead card's program up front, through the same 4-deep queue — the first
 // scroll or scrub meets warm GPU strips, never a mid-scroll compile burst
-addEventListener('load',()=>setTimeout(()=>{
+onLoad(()=>setTimeout(()=>{
 	cat.querySelectorAll('.ent[data-s]:not(.lite)').forEach(ent=>{ const s=ent.dataset.s; if(hasPlaneGL(s)) planeGLStatus(s) })
 	prepaintSoon() },300))
 // the card strip is the dossier bar at catalog scale: the same per-pixel GPU sweep —
@@ -3884,6 +3889,10 @@ const route=e=>{ const h=e?decodeURIComponent(location.hash.slice(1)):BOOT.hash 
 	else{ renderFast(); paintCatalogGrad() } }
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
 addEventListener('hashchange',route)   // same-document deep links switch spaces too
+
+// offline shell (sw.js precaches the app; any /<name> falls back to it) — after load, off the
+// startup path; skipped on file:, where registration is unsupported and would reject noisily
+if('serviceWorker' in navigator&&location.protocol!=='file:') onLoad(()=>navigator.serviceWorker.register('./sw.js'))
 
 </script>
 <script type="module" src="./js/tip.js"></script>

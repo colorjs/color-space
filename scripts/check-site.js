@@ -77,8 +77,22 @@ try {
 	const og = await context.request.get(`${server.origin}/img/og.png?cb=${Date.now()}`)
 	assert.equal(og.ok(), true, 'social image resolves')
 	assert.match(og.headers()['content-type'], /^image\/png/, 'social image is PNG')
+
+	// offline shell: sw.js precached the app on the first load above (regression: registration
+	// once gated on a bare 'load' listener, which the module's data await lets fire first —
+	// the SW never installed); an unvisited /<name> must come from the cached shell
+	await page.waitForFunction(async () => {
+		const keys = await caches.keys()
+		return keys.length && (await (await caches.open(keys[0])).keys()).length >= 30
+	})
+	await context.setOffline(true)
+	await page.goto(`${server.origin}/oklab?cb=${Date.now()}`)
+	await page.waitForSelector('#modal:not([hidden]) #dtitle')
+	assert.match(await page.locator('#dtitle').innerText(), /oklab/i, 'offline navigation opens the dossier from the cached shell')
+	await context.setOffline(false)
+
 	if (errors.length) throw new Error(errors.join('\n'))
-	console.log('browser: search, CSS parsing, tabs, persisted theme, modal lifecycle, direct route, mobile keyboard and social image pass')
+	console.log('browser: search, CSS parsing, tabs, persisted theme, modal lifecycle, direct route, mobile keyboard, social image and offline shell pass')
 } finally {
 	await context.close()
 	await browser.close()
