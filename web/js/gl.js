@@ -111,7 +111,7 @@ const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift(
 function planeFS(s) {
 	const d = dimOf(s), vt = VT[d]
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
-	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'], ['rgb', 'oklab'], ['oklab', 'rgb'])   // oklab both ways — the cluster lenses (uClu) live in it
+	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'], ['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab'])   // oklab both ways — the cluster lenses (uClu) live in it
 	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
 	if (s !== 'rgb' && d <= 3) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
 	const lib = glsl(pairs)
@@ -283,30 +283,93 @@ const PALETTES={ names:{rgb:dedupe(Object.entries(NAMES).map(([n,v])=>[n,v])),N:
 	xkcd:{rgb:dedupe(PALS.xkcd),N:33}, tailwind:{rgb:dedupe(PALS.tailwind),N:49},
 	pico8:{rgb:dedupe(PALS.pico8),N:65}, ansi:{rgb:dedupe(PALS.ansi),N:49} }
 const palTex=new WeakMap()   // gl → Map(pal → {idx,sites})
-const palData=(p)=>{ const P=PALETTES[p]; if(P.data) return P
-	P.sites=P.rgb.map(rgb=>({rgb,ok:space.rgb.oklab(...rgb)}))
-	// Small palettes are cheaper AND exact as a direct texture loop. Skip their
-	// otherwise wasted 3D accelerator build; bindPalette supplies a 1-texel dummy.
-	const direct=P.sites.length<=PAL_DIRECT, N=direct?1:P.N, out=new Uint16Array(N**3); let o=0
-	if(!direct) for(let z=0;z<N;z++)for(let y=0;y<N;y++)for(let x=0;x<N;x++){
-		const rgb=[x,y,z].map(v=>Math.round(v/(N-1)*255)), ok=space.rgb.oklab(...rgb)
-		let bi=0, bd=Infinity
-		for(let i=0;i<P.sites.length;i++){ const s=P.sites[i], d=(ok[0]-s.ok[0])**2+(ok[1]-s.ok[1])**2+(ok[2]-s.ok[2])**2; if(d<bd){bd=d;bi=i} }
-		out[o++]=bi }
-	const sd=new Float32Array(P.sites.length*2*3)
-	P.sites.forEach((s,i)=>{ sd.set(s.ok,i*3); sd.set(s.rgb,(P.sites.length+i)*3) })
-	P.data=out; P.texN=N; P.siteData=sd; return P }
+// nearest-site ORDER under each metric — one source for shader and page (index.html imports these)
+export const METRICS=['oklab','de2000','de76','redmean']
+// CIEDE2000, Sharma/Wu/Dalal 2005 — reproduces their canonical pairs exactly (2.0425 · 2.8615 · 3.4412)
+const de2000=(p,s)=>{ const R=Math.PI/180
+	const C1=Math.hypot(p[1],p[2]),C2=Math.hypot(s[1],s[2]),Cm0=(C1+C2)/2
+	const G=.5*(1-Math.sqrt(Cm0**7/(Cm0**7+25**7)))
+	const A1=p[1]*(1+G),A2=s[1]*(1+G)
+	const c1=Math.hypot(A1,p[2]),c2=Math.hypot(A2,s[2])
+	const h1=c1?(Math.atan2(p[2],A1)/R+360)%360:0, h2=c2?(Math.atan2(s[2],A2)/R+360)%360:0
+	const dL=s[0]-p[0], dC=c2-c1
+	let dh=h2-h1; if(c1*c2===0) dh=0; else if(dh>180) dh-=360; else if(dh<-180) dh+=360
+	const dH=2*Math.sqrt(c1*c2)*Math.sin(dh/2*R)
+	const Lm=(p[0]+s[0])/2, cm=(c1+c2)/2
+	let hm=h1+h2; if(c1*c2!==0){ hm=(h1+h2)/2; if(Math.abs(h1-h2)>180) hm+=(h1+h2)<360?180:-180 }
+	const T=1-.17*Math.cos((hm-30)*R)+.24*Math.cos(2*hm*R)+.32*Math.cos((3*hm+6)*R)-.20*Math.cos((4*hm-63)*R)
+	const SL=1+.015*(Lm-50)**2/Math.sqrt(20+(Lm-50)**2), SC=1+.045*cm, SH=1+.015*cm*T
+	const RT=-Math.sin(2*30*Math.exp(-(((hm-275)/25)**2))*R)*2*Math.sqrt(cm**7/(cm**7+25**7))
+	return Math.sqrt((dL/SL)**2+(dC/SC)**2+(dH/SH)**2+RT*(dC/SC)*(dH/SH)) }
+export const siteDist=(m,q,s)=>m==='de2000'?de2000(q.lab,s.lab)
+	:m==='de76'?(q.lab[0]-s.lab[0])**2+(q.lab[1]-s.lab[1])**2+(q.lab[2]-s.lab[2])**2
+	:m==='redmean'?(rm=>(2+rm/256)*(q.rgb[0]-s.rgb[0])**2+4*(q.rgb[1]-s.rgb[1])**2+(2+(255-rm)/256)*(q.rgb[2]-s.rgb[2])**2)((q.rgb[0]+s.rgb[0])/2)
+	:(q.ok[0]-s.ok[0])**2+(q.ok[1]-s.ok[1])**2+(q.ok[2]-s.ok[2])**2
+const palData=(p,metric='oklab')=>{ const P=PALETTES[p]
+	P.sites??=P.rgb.map(rgb=>({rgb,ok:space.rgb.oklab(...rgb),lab:space.rgb.lab(...rgb)}))
+	// Small palettes are cheaper AND exact as a direct texture loop, under ANY metric —
+	// no accelerator at all; bindPalette supplies a 1-texel dummy. Big palettes memoize
+	// one candidate lattice per METRIC: nearest-site regions move when "near" changes.
+	// (The lattice stays the same fast-but-not-exhaustive candidate scheme — see named_.)
+	const direct=P.sites.length<=PAL_DIRECT
+	P.lat??={}
+	if(!P.lat[metric]){ const N=direct?1:P.N, out=new Uint16Array(N**3); let o=0
+		if(!direct) for(let z=0;z<N;z++)for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+			const rgb=[x,y,z].map(v=>Math.round(v/(N-1)*255))
+			const q={rgb,ok:space.rgb.oklab(...rgb),lab:space.rgb.lab(...rgb)}
+			let bi=0, bd=Infinity
+			for(let i=0;i<P.sites.length;i++){ const d=siteDist(metric,q,P.sites[i]); if(d<bd){bd=d;bi=i} }
+			out[o++]=bi }
+		P.lat[metric]={N,out} }
+	if(!P.siteData){ const sd=new Float32Array(P.sites.length*3*3)
+		P.sites.forEach((s,i)=>{ sd.set(s.ok,i*3); sd.set(s.rgb,(P.sites.length+i)*3); sd.set(s.lab,(P.sites.length*2+i)*3) })
+		P.siteData=sd }
+	return { sites:P.sites, siteData:P.siteData, texN:P.lat[metric].N, data:P.lat[metric].out } }
 let PAL_SRC=null
-const namedGLSL=()=>PAL_SRC??=`uniform highp usampler3D uPalIdx;   // per-cell nearest-site index, the ACTIVE palette's lattice
-uniform highp sampler2D uPalSites;  // row 0: sites in OKLab · row 1: sites in RGB
+const namedGLSL=()=>PAL_SRC??=`uniform highp usampler3D uPalIdx;   // per-cell nearest-site index, the ACTIVE palette×metric lattice
+uniform highp sampler2D uPalSites;  // row 0: sites in OKLab · row 1: RGB · row 2: CIELAB
+uniform int uMetric;                // 0 oklab · 1 de2000 · 2 de76 · 3 redmean — METRICS order, page and shader alike
+float de2000_(vec3 p, vec3 s) {   // CIEDE2000, Sharma/Wu/Dalal 2005 — mirrors the JS above line for line
+	float R = 0.01745329252;
+	float C1 = length(p.yz), C2 = length(s.yz), Cm0 = (C1 + C2) * 0.5;
+	float c7 = pow(Cm0, 7.0);
+	float G = 0.5 * (1.0 - sqrt(c7 / (c7 + pow(25.0, 7.0))));
+	float A1 = p.y * (1.0 + G), A2 = s.y * (1.0 + G);
+	float c1 = length(vec2(A1, p.z)), c2 = length(vec2(A2, s.z));
+	float h1 = c1 > 0.0 ? mod(degrees(atan(p.z, A1)) + 360.0, 360.0) : 0.0;
+	float h2 = c2 > 0.0 ? mod(degrees(atan(s.z, A2)) + 360.0, 360.0) : 0.0;
+	float dL = s.x - p.x, dC = c2 - c1;
+	float dh = h2 - h1;
+	if (c1 * c2 == 0.0) dh = 0.0; else if (dh > 180.0) dh -= 360.0; else if (dh < -180.0) dh += 360.0;
+	float dH = 2.0 * sqrt(c1 * c2) * sin(dh * 0.5 * R);
+	float Lm = (p.x + s.x) * 0.5, cm = (c1 + c2) * 0.5;
+	float hm = h1 + h2;
+	if (c1 * c2 != 0.0) { hm = (h1 + h2) * 0.5; if (abs(h1 - h2) > 180.0) hm += (h1 + h2) < 360.0 ? 180.0 : -180.0; }
+	float T = 1.0 - 0.17 * cos((hm - 30.0) * R) + 0.24 * cos(2.0 * hm * R) + 0.32 * cos((3.0 * hm + 6.0) * R) - 0.20 * cos((4.0 * hm - 63.0) * R);
+	float SL = 1.0 + 0.015 * (Lm - 50.0) * (Lm - 50.0) / sqrt(20.0 + (Lm - 50.0) * (Lm - 50.0));
+	float SC = 1.0 + 0.045 * cm, SH = 1.0 + 0.015 * cm * T;
+	float m7 = pow(cm, 7.0);
+	float RT = -sin(2.0 * 30.0 * exp(-pow((hm - 275.0) / 25.0, 2.0)) * R) * 2.0 * sqrt(m7 / (m7 + pow(25.0, 7.0)));
+	float qa = dL / SL, qb = dC / SC, qc = dH / SH;
+	return sqrt(qa * qa + qb * qb + qc * qc + RT * qb * qc);
+}
+float siteDist_(vec3 rgb, vec3 okp, vec3 labp, int i) {
+	if (uMetric == 1) return de2000_(labp, texelFetch(uPalSites, ivec2(i, 2), 0).rgb);
+	if (uMetric == 2) { vec3 d = labp - texelFetch(uPalSites, ivec2(i, 2), 0).rgb; return dot(d, d); }
+	if (uMetric == 3) { vec3 sr = texelFetch(uPalSites, ivec2(i, 1), 0).rgb;
+		float rm = (rgb.r + sr.r) * 0.5; vec3 d = rgb - sr;
+		return (2.0 + rm / 256.0) * d.r * d.r + 4.0 * d.g * d.g + (2.0 + (255.0 - rm) / 256.0) * d.b * d.b; }
+	vec3 d = okp - texelFetch(uPalSites, ivec2(i, 0), 0).rgb; return dot(d, d);
+}
 vec3 named_(vec3 rgb) {
 	int S = textureSize(uPalSites, 0).x;
-	vec3 okp = rgb_oklab(rgb); float bd = 1e9; int bi = 0;
-	// Palette entries already live in metric space on the CPU. For a small set
-	// (PICO-8), one compact exact loop beats 27 lattice + 27 site texture fetches.
+	vec3 okp = rgb_oklab(rgb); vec3 labp = rgb_lab(rgb); float bd = 1e9; int bi = 0;
+	// For a small set (PICO-8), one compact exact loop beats lattice + site fetches —
+	// exact under every metric. The big-palette lattice below remains the fast,
+	// not-globally-exhaustive candidate scheme.
 	if (S <= ${PAL_DIRECT}) {
 		for (int i = 0; i < ${PAL_DIRECT}; i++) { if (i >= S) break;
-			vec3 d = okp - texelFetch(uPalSites, ivec2(i, 0), 0).rgb; float ds = dot(d,d); if (ds < bd) { bd = ds; bi = i; }
+			float ds = siteDist_(rgb, okp, labp, i); if (ds < bd) { bd = ds; bi = i; }
 		}
 		return texelFetch(uPalSites, ivec2(bi, 1), 0).rgb;
 	}
@@ -316,21 +379,22 @@ vec3 named_(vec3 rgb) {
 	for (int z = -1; z <= 1; z++) for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
 		ivec3 q = clamp(c + ivec3(x,y,z), ivec3(0), ivec3(N - 1));
 		int i = int(texelFetch(uPalIdx, q, 0).r);
-		vec3 d = okp - texelFetch(uPalSites, ivec2(i, 0), 0).rgb; float ds = dot(d,d); if (ds < bd) { bd = ds; bi = i; }
+		float ds = siteDist_(rgb, okp, labp, i); if (ds < bd) { bd = ds; bi = i; }
 	}
 	return texelFetch(uPalSites, ivec2(bi, 1), 0).rgb;
 }`
-function bindPalette(gl,locIdx,locSites,pal){ if(!locIdx) return
+function bindPalette(gl,locIdx,locSites,pal,metric='oklab'){ if(!locIdx) return
 	let m=palTex.get(gl); if(!m){ m=new Map(); palTex.set(gl,m) }
-	let t=m.get(pal)
-	if(!t){ const P=palData(pal)
-		t={ idx:gl.createTexture(), sites:gl.createTexture() }; m.set(pal,t)
+	const key=pal+':'+metric
+	let t=m.get(key)
+	if(!t){ const P=palData(pal,metric)
+		t={ idx:gl.createTexture(), sites:gl.createTexture() }; m.set(key,t)
 		gl.activeTexture(gl.TEXTURE0+PAL_UNIT); gl.bindTexture(gl.TEXTURE_3D,t.idx)
 		gl.pixelStorei(gl.UNPACK_ALIGNMENT,1)
 		gl.texImage3D(gl.TEXTURE_3D,0,gl.R16UI,P.texN,P.texN,P.texN,0,gl.RED_INTEGER,gl.UNSIGNED_SHORT,P.data)
 		for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_R,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_3D,k,v)
 		gl.activeTexture(gl.TEXTURE0+SITE_UNIT); gl.bindTexture(gl.TEXTURE_2D,t.sites)
-		gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,P.sites.length,2,0,gl.RGB,gl.FLOAT,P.siteData)
+		gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,P.sites.length,3,0,gl.RGB,gl.FLOAT,P.siteData)
 		for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D,k,v) }
 	else{ gl.activeTexture(gl.TEXTURE0+PAL_UNIT); gl.bindTexture(gl.TEXTURE_3D,t.idx)
 		gl.activeTexture(gl.TEXTURE0+SITE_UNIT); gl.bindTexture(gl.TEXTURE_2D,t.sites) }
@@ -377,7 +441,7 @@ bool inVisSolid(vec3 c) {   // a colour a surface can show under D65
 	return true;
 }`)(visSolid())
 
-function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric) {
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
@@ -389,7 +453,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
 	G.uniform4f(st.u.uV, ...v4)
@@ -407,7 +471,8 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	// sampler colliding on unit 0 is GL_INVALID_OPERATION on every draw, palette bound or not
 	if (st.u.uPalIdx) G.uniform1i(st.u.uPalIdx, PAL_UNIT)
 	if (st.u.uPalSites) G.uniform1i(st.u.uPalSites, SITE_UNIT)
-	if (PALETTES[quant]) bindPalette(G, st.u.uPalIdx, st.u.uPalSites, quant)
+	if (st.u.uMetric) G.uniform1i(st.u.uMetric, Math.max(0, METRICS.indexOf(metric || 'oklab')))
+	if (PALETTES[quant]) bindPalette(G, st.u.uPalIdx, st.u.uPalSites, quant, metric)
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
 
@@ -416,10 +481,10 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
  * Call only when planeGLStatus(s) is 'ready'. quant is a numeric lattice or one
  * of the output-palette/JND/RGB565 lenses; every lens stays on the GPU path.
  */
-export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri) {
+export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri)
+	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
@@ -755,7 +820,7 @@ void main() {
 		const fsSurf = `#version 300 es
 precision highp float;
 precision highp int;
-${glsl([['rgb', 'oklab'], ['oklab', 'rgb'], ...(s==='rgb'?[]:[[s, 'rgb']])])}
+${glsl([['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab'], ...(s==='rgb'?[]:[[s, 'rgb']])])}
 ${SOFT_DISP}
 ${quant3GLSL()}
 in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in float vBad;
@@ -918,7 +983,7 @@ void main() {
 	}
 	O = vec4(softDisp(disp), 1.0);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uPalIdx', 'uPalSites']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uMetric', 'uPalIdx', 'uPalSites']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
 			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
@@ -1012,7 +1077,7 @@ void main() { O = uTint; }`)
 		uTint: gl.getUniformLocation(pr, 'uTint'), buf: gl.createBuffer() }
 }
 
-export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0) {
+export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0, metric = 'oklab') {
 	if (!has3dGL(s)) return false
 	const gam = map?.gam ?? 'srgb'
 	const st = mesh3State(cv)
@@ -1089,7 +1154,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	gl.useProgram(dr.pr); setU(dr.u)
 	if (dr.u.uPalIdx) gl.uniform1i(dr.u.uPalIdx, PAL_UNIT)
 	if (dr.u.uPalSites) gl.uniform1i(dr.u.uPalSites, SITE_UNIT)
-	if (PALETTES[quant]) bindPalette(gl, dr.u.uPalIdx, dr.u.uPalSites, quant)
+	if (dr.u.uMetric) gl.uniform1i(dr.u.uMetric, Math.max(0, METRICS.indexOf(metric || 'oklab')))
+	if (PALETTES[quant]) bindPalette(gl, dr.u.uPalIdx, dr.u.uPalSites, quant, metric)
 	gl.uniform1i(dr.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
 	bindBaked()
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)

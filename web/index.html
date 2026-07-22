@@ -1294,7 +1294,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, visWhite } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
+import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -1476,12 +1476,12 @@ const rgbKey=rgb=>(rgb[0]<<16)|(rgb[1]<<8)|rgb[2]
 // ONE nearest-site pick for every fixed palette (CSS names, xkcd, tailwind, pico-8,
 // ansi) — OKLab metric, the shader's own; exact 8-bit memo per palette, capped
 const qCaches={}
-const sitesOf=p=>sitesOf[p]??=(p==='names'?Object.entries(NAMES):PALDATA[p]).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
-function nearestIn(p,rgb){ const src=byteRGB(rgb), key=rgbKey(src), cache=qCaches[p]??=new Map()
+const sitesOf=p=>sitesOf[p]??=(p==='names'?Object.entries(NAMES):PALDATA[p]).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb),lab:space.rgb.lab(...rgb)}))
+function nearestIn(p,rgb,metric=QM){ const src=byteRGB(rgb), key=rgbKey(src), cache=qCaches[p+':'+metric]??=new Map()
 	const hit=cache.get(key); if(hit) return hit
 	if(cache.size>65536) cache.clear()
-	const ok=space.rgb.oklab(...src); let best=null,bd=1e9
-	for(const c of sitesOf(p)){ const d=(ok[0]-c.ok[0])**2+(ok[1]-c.ok[1])**2+(ok[2]-c.ok[2])**2; if(d<bd){bd=d;best=c} }
+	const q={rgb:src,ok:space.rgb.oklab(...src),lab:space.rgb.lab(...src)}; let best=null,bd=1e9
+	for(const c of sitesOf(p)){ const d=siteDist(metric,q,c); if(d<bd){bd=d;best=c} }
 	cache.set(key,best); return best }
 
 const USES={ rgb:'CSS · canvas · the web default', hsl:'CSS · quick pickers', hsv:'design-tool pickers', hwb:'intuitive mixing · CSS', hsi:'machine vision',
@@ -1957,6 +1957,9 @@ const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
 let dragEnt=null   // the catalog entry being dragged — motion frames repaint it alone; everything else catches up on settle
+let QM='oklab'   // the palette lenses' distance metric — session-only, like Q
+const MTIP={ oklab:'modern perceptual distance', de2000:'CIE industry standard', de76:'plain CIELAB distance', redmean:'classic RGB heuristic' }
+const MLABEL={ oklab:'oklab', de2000:'ΔE2000', de76:'ΔE76', redmean:'redmean' }
 let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
@@ -2737,13 +2740,13 @@ function draw3d(){ if(!mesh3||!open()) return
 	// second pass, so their film never counts as cover and never veils the hud dashes
 	// the first draw is only the body-alpha snapshot (bodyM) — the cut band would cost a
 	// second full mesh pass and change nothing it measures; the visible render is below
-	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,null,Q):drawPtsGL(meshCv,mesh3,scale3))
+	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,null,Q,QM):drawPtsGL(meshCv,mesh3,scale3))
 	let bodyM=meshCv
 	if(drewGL&&(sheet3||frame3)){ const bm=mask3||(mask3=document.createElement('canvas'))
 		if(bm.width!==S2) bm.width=bm.height=S2
 		const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(meshCv,0,0)
 		bodyM=bm
-		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
+		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	// a GPU space whose program is still linking shows the frame alone for a beat —
@@ -3041,7 +3044,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select>`
 	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} — ${gamTip(g)}`).join('\n')
 	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gLegend}">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
-	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
+	const mLegend=METRICS.map(m=>`${MLABEL[m]} — ${MTIP[m]}`).join('\n')
+	const msegHTML=`<select id="mseg" aria-label="palette distance metric" title="${mLegend}"${PALMODES.has(Q)?'':' hidden'}>${METRICS.map(m=>`<option value="${m}" title="${MTIP[m]}"${m===QM?' selected':''}>${MLABEL[m]}</option>`).join('')}</select>`
+	const dctlHTML=`<div class="dctl">${segsHTML}${msegHTML}${gamHTML}</div>`
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
@@ -3170,8 +3175,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		if(fb) fb.onclick=()=>fi.click()
 		if(fi) fi.onchange=()=>{ addImg(fi.files&&fi.files[0]); fi.value='' } }
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
+	const ms=detail.querySelector('#mseg')
 	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value)
+		if(ms) ms.hidden=!PALMODES.has(Q)   // the metric only means something over a palette
 		clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
+		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast(false)
+			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) paintPlanes(false) }) }) }
+	if(ms) ms.onchange=()=>{ QM=ms.value
+		clearClusterSnaps(); clusterize()
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast(false)
 			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) paintPlanes(false) }) }) }
 	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM   // radio: one gamut always selected — the solid always shows SOME shape
@@ -3594,7 +3605,7 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		// inside the unchanged square box, so every side measures equal on screen
 		const resW=tri===3?Math.round(res*0.8660254):res, resH=tri===1?Math.round(res*0.8660254):res
 		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
-		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri)) return
+		if(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM)) return
 		plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q) })
 	planesLive=canGL
 	if(planesLive) planeNext=0
