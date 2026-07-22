@@ -40,3 +40,34 @@ test('cie: luv L* routes through the shared companding', () => {
 	const [L] = space.xyz.luv(40, tSplit * Yn, 20)
 	is(L, 116 * Math.cbrt(tSplit) - 16, 'luv L* equals the exact-cbrt CIELAB lightness')
 })
+
+// The atlas's HUMAN gamut is the optimal-colour (Rösch–MacAdam) solid, and it is built
+// under D65 — the same white every gamut it is compared against uses. That rests on a
+// vendored D65 spectrum, so pin it to an authority the library already ships: integrating
+// that spectrum against the CIE 1931 CMFs must reproduce the tabulated D65 white point.
+// A typo in the table, or a drift back to equal-energy weighting, fails here.
+// @see ISO/CIE 11664-2 (CIE S 014-2) — D65 relative spectral power distribution
+test('vis solid: the vendored D65 spectrum reproduces the shipped D65 white point', async () => {
+	const { d65, inVisSolid } = await import('../web/js/core.js')
+	let X = 0, Y = 0, Z = 0
+	for (let nm = 380; nm <= 700; nm++) {
+		const c = space.wavelength.xyz(nm), p = d65(nm)
+		X += c[0] * p; Y += c[1] * p; Z += c[2] * p
+	}
+	const k = 100 / Y, got = [X * k, 100, Z * k], wp = whitepoint[2].D65
+	// 0.15% covers the 1 nm quadrature vs the tabulated constant; equal-energy weighting
+	// lands 5.1% away in X, so this is tight enough to catch that regression
+	for (const i of [0, 2])
+		is(Math.abs(got[i] - wp[i]) / wp[i] < 0.0015, true,
+			`D65 SPD × CMF reproduces white point [${i}]: ${got[i].toFixed(3)} ≈ ${wp[i].toFixed(3)}`)
+
+	// the property the D65 build exists for: every colour a display can show is a colour
+	// a surface can show under the same illuminant, so the whole sRGB cube sits inside
+	// the solid the human view draws (under equal-energy E, white itself fell outside)
+	let out = 0
+	for (let r = 0; r <= 8; r++) for (let g = 0; g <= 8; g++) for (let b = 0; b <= 8; b++)
+		if (!inVisSolid(...space.rgb.xyz(r * 255 / 8, g * 255 / 8, b * 255 / 8))) out++
+	is(out, 0, 'the whole sRGB cube lies inside the D65 object-colour solid')
+	is(inVisSolid(...whitepoint[2].D65), true, 'D65 white itself is inside')
+	is(inVisSolid(0, 100, 0), false, 'an impossible colour (pure Y, no X or Z) is outside')
+})

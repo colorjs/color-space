@@ -1284,7 +1284,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ } from './js/core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus } from './js/gl.js'
@@ -1919,7 +1919,7 @@ const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X),
 // the sliders and the xy panel cut by
 const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
 	try{ const X=s==='xyz'?vv:space[s].xyz(...vv)
-		return g==='vis'?visibleXYZ(...X):gamLin[g](X).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
+		return g==='vis'?inVisSolid(...X):gamLin[g](X).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
 // perceptual quantizer: even OKLab grid, mapped back through the current space
@@ -2448,24 +2448,17 @@ function drawPtsGL(cv,m,scale3,sheet,frame){ const st=gl3d(cv); if(!st||!m.tpos.
 // roundtrip, or the visible gamut via the Rösch–MacAdam support test) serves the
 // hovered CHANNEL LINE and the dashed guides. Caches key on (space, pair, values);
 // rotation only re-projects. ──
-let visH=null, ctr3=null, ln3=null, gu3=null
-const visIn3=X=>{ if(!visH){ const cols=[]
-		for(let i=0;i<160;i++) cols.push(space.wavelength.xyz(380+(i+0.5)*2))   // visSurf's own 2nm CMF table and scaling
-		const tot=cols.reduce((s2,c)=>s2+c[1],0), dirs=[], H=[]
-		for(let i=0;i<256;i++){ const t=(i+0.5)/256, ph=Math.acos(1-2*t), th=Math.PI*(1+Math.sqrt(5))*i
-			dirs.push([Math.sin(ph)*Math.cos(th),Math.sin(ph)*Math.sin(th),Math.cos(ph)]) }
-		for(const u of dirs) H.push(cols.reduce((s2,c)=>s2+Math.max(0,u[0]*c[0]+u[1]*c[1]+u[2]*c[2]),0)/tot*100)
-		visH={dirs,H} }
-	for(let i=0;i<visH.dirs.length;i++){ const u=visH.dirs[i]
-		if(u[0]*X[0]+u[1]*X[1]+u[2]*X[2]>visH.H[i]+1e-6) return false }
-	return true }
+let ctr3=null, ln3=null, gu3=null
+// the guides ask the SAME body the solid and the pickers do (core's inVisSolid) — this
+// used to carry its own equal-energy copy of the support test, which drifted the moment
+// the solid moved to D65
 // membership in the SHOWN volume, exactly as the mesh defines it: the image of the
 // ENCODED gamut cube in its own 0-1 units — inGam's ±0.005 LINEAR pad is ~6% of the
 // encoded range near black and inflated cuts (ohta's cut triangle overshot its shape).
 // Canonical coordinates only: the xyz roundtrip drops fold branches (hwb's w+b>100).
 const inSolid3=(s,cls,g3,v)=>{ try{
 	if(g3==='vis'){ const X=s==='xyz'?v:space[s].xyz(...v)
-		return X.every(isFinite)&&visIn3(X) }
+		return X.every(isFinite)&&inVisSolid(...X) }
 	const gv=g3==='srgb'?space[s].rgb(...v).map(x2=>x2/255):space[s][g3](...v)
 	if(!gv.every(x2=>isFinite(x2)&&x2>=-0.002&&x2<=1.002)) return false
 	if(s==='xyz') return true

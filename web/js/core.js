@@ -104,6 +104,65 @@ export const visibleXYZ = (X, Y, Z) => {
 	if (s <= 1e-9) return X > -1e-6 && Y > -1e-6 && Z > -1e-6   // black, not a negative coordinate
 	return visibleXY(X / s, Y / s)
 }
+
+// ── the object-colour solid: the shape the HUMAN view actually draws ──
+// CIE Standard Illuminant D65, relative spectral power at 5 nm, normalised to 100 at
+// 560 nm. Built under D65 — not the equal-energy E the solid used to assume — because
+// every gamut it is compared against is D65-referenced: under D65 a perfect reflector
+// integrates to the D65 white point, so display white lands ON the solid's boundary and
+// the whole sRGB cube falls inside it. Under E it did not (white sat outside, and the
+// picker and the solid disagreed about what "human" meant).
+// @see ISO/CIE 11664-2 (CIE S 014-2) — verified here against the library's own D65
+// white point: integrating this against the shipped CMFs reproduces it to 0.08%.
+const D65_SPD = [
+	49.9755, 52.3118, 54.6482, 68.7015, 82.7549, 87.1204, 91.4860, 92.4589, 93.4318, 90.0570,
+	86.6823, 95.7736, 104.8650, 110.9360, 117.0080, 117.4100, 117.8120, 116.3360, 114.8610, 115.3920,
+	115.9230, 112.3670, 108.8110, 109.0820, 109.3540, 108.5780, 107.8020, 106.2960, 104.7900, 106.2390,
+	107.6890, 106.0470, 104.4050, 104.2250, 104.0460, 102.0230, 100.0000, 98.1671, 96.3342, 96.0611,
+	95.7880, 92.2368, 88.6856, 89.3459, 90.0062, 89.8026, 89.5991, 88.6489, 87.6987, 85.4936,
+	83.2886, 83.4939, 83.6992, 81.8630, 80.0268, 80.1207, 80.2146, 81.2462, 82.2778, 80.2810,
+	78.2842, 74.0027, 69.7213, 70.6652, 71.6091,
+]
+/** D65 relative power at a wavelength, linear between the 5 nm samples (380–700 nm). */
+export function d65(nm) {
+	const t = (nm - 380) / 5
+	if (t <= 0) return D65_SPD[0]
+	if (t >= D65_SPD.length - 1) return D65_SPD[D65_SPD.length - 1]
+	const i = Math.floor(t), f = t - i
+	return D65_SPD[i] * (1 - f) + D65_SPD[i + 1] * f
+}
+// The optimal-colour (Rösch–MacAdam) solid is a ZONOID — the Minkowski sum of one
+// segment per waveband — so it is convex and membership is exact by support function:
+// a point is inside iff u·p ≤ h(u) = Σ max(0, u·gᵢ) for every direction u. Sampling u
+// on a Fibonacci sphere gives a polytope that CONTAINS the body, so the test never
+// clips a real colour; 128 directions hold the gap under a percent.
+let VSOLID = null
+export function visSolid() {
+	if (VSOLID) return VSOLID
+	const g = []
+	for (let nm = 380; nm <= 700; nm += 2) {
+		const [X, Y, Z] = space.wavelength.xyz(nm), w = d65(nm)
+		g.push([X * w, Y * w, Z * w])
+	}
+	const k = 100 / g.reduce((s, v) => s + v[1], 0)   // a perfect reflector reads Y = 100
+	for (const v of g) { v[0] *= k; v[1] *= k; v[2] *= k }
+	const M = 128, dirs = []
+	for (let i = 0; i < M; i++) {
+		const y = 1 - 2 * (i + 0.5) / M, r = Math.sqrt(Math.max(0, 1 - y * y)), t = Math.PI * (1 + Math.sqrt(5)) * i
+		const u = [r * Math.cos(t), y, r * Math.sin(t)]
+		let h = 0
+		for (const v of g) { const d = u[0] * v[0] + u[1] * v[1] + u[2] * v[2]; if (d > 0) h += d }
+		dirs.push([u[0], u[1], u[2], h])
+	}
+	return VSOLID = dirs
+}
+/** Is this XYZ a colour a surface can show under D65 — the human solid the 3D view draws?
+ *  The 0.2% slack absorbs the gap between this 2 nm integration and the tabulated white. */
+export const inVisSolid = (X, Y, Z) => {
+	if (!(isFinite(X) && isFinite(Y) && isFinite(Z))) return false
+	for (const [ux, uy, uz, h] of visSolid()) if (ux * X + uy * Y + uz * Z > h * 1.002) return false
+	return true
+}
 export const rgbOf = (name, v) => name === 'rgb' ? v.map(px) : space[name].rgb(...v).map(px)
 export const toSpace = (name, rgb) => name === 'rgb' ? rgb.slice() : space.rgb[name](...rgb)
 
@@ -176,6 +235,7 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		if (gLin) { try { const X = toXyz(...v), lin = gLin(...X)
 			if (!lin.every(u => u > -4 && u < PB)) a = 0
 			else if (!cluster && !visibleXYZ(...X)) a = 0   // imaginary chromaticity: not a colour at any luminance, under any lens
+			else if (vis && !cluster && !inVisSolid(...X)) a = 0   // the human lens cuts by the SOLID the 3D view draws
 			else if (lens && !vis && !cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)

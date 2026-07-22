@@ -12,7 +12,7 @@
 // (no WebGL2, color-cluster quantizers). Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
-import { physBound, space, meta, pathToRgb, classify, locus } from './core.js'
+import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid } from './core.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -141,6 +141,7 @@ precision highp int;
 ${lib}
 ${spans}
 ${locusGLSL()}
+${visSolidGLSL()}
 uniform vec4 uV;          // held channel values
 uniform ivec2 uAB;        // swept channel indices: x horizontal, y vertical (-1 = bar)
 uniform vec2 uRX, uRY;    // swept ranges (pan/zoom-windowed)
@@ -197,8 +198,12 @@ void main() {
 	// range boxes reach far past the visible spectrum; without this the plane paints those
 	// imaginary coords as pickable ghost, so the gamut looks vastly bigger than the eye's.
 	else if (uWeb == 0 && !visXYZ(xyz)) al = 0.0;
-	// the display lenses then ghost real-but-undisplayable colours on top; the human lens
-	// (4) adds no ghost — the visible cut above is its whole job
+	// the HUMAN lens then cuts by the object-colour solid — the very body the 3D view
+	// tessellates. The locus alone admits any luminance for a real chromaticity, so the
+	// picker used to paint a far larger field than the solid's cross-section: same word,
+	// two shapes, and the plane read as if zoomed against the solid.
+	else if (uGam == 4 && uWeb == 0 && !inVisSolid(xyz)) al = 0.0;
+	// the display lenses instead GHOST real-but-undisplayable colours on top
 	else if (uGam != 0 && uGam != 4 && uWeb == 0) {
 		// gamut pad in ENCODED units (±half a code value) — a linear pad is ~16 code
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
@@ -245,7 +250,8 @@ export function warmGL(s) {
 	if (has3dGL(s)) mesh3Progs(mesh3State(mesh3Canvas()), s)
 }
 
-// 4 = the HUMAN lens: not a display gamut but the spectral locus — see locusGLSL
+// 4 = the HUMAN lens: not a display gamut but the object-colour solid the 3D view
+// draws — see visSolidGLSL (the locus below still voids imaginary coords in EVERY lens)
 const GAMI = { srgb: 1, p3: 2, rec2020: 3, vis: 4 }
 
 // The spectral locus as shader source: the polygon plus the even-odd test that says
@@ -267,6 +273,19 @@ bool visXYZ(vec3 c) {   // black is a colour; a chromaticity off the locus is im
 	if (s <= 1e-6) return c.x > -1e-4 && c.y > -1e-4 && c.z > -1e-4;
 	return inside(vec2(c.x / s, c.y / s));
 }`)(locus())
+
+// The HUMAN solid as shader source — the SAME body visSurf tessellates for the 3D view,
+// so the picker's field and the solid's cross-section are one shape. A zonoid is convex,
+// so membership is a support test (u·p ≤ h(u)) over sampled directions; the polytope
+// CONTAINS the body, so it never clips a real colour.
+let VSOL_SRC = null
+const visSolidGLSL = () => VSOL_SRC ??= ((D) => `const vec4 VSD[${D.length}] = vec4[${D.length}](${D.map((d) => `vec4(${d[0].toFixed(5)}, ${d[1].toFixed(5)}, ${d[2].toFixed(5)}, ${d[3].toFixed(3)})`).join(', ')});
+bool inVisSolid(vec3 c) {   // a colour a surface can show under D65
+	for (int i = 0; i < ${D.length}; i++) { vec4 d = VSD[i];
+		if (dot(d.xyz, c) > d.w * 1.002) return false;
+	}
+	return true;
+}`)(visSolid())
 
 function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri) {
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
@@ -454,16 +473,21 @@ const SOFT_DISP = `vec3 softDisp(vec3 disp) {
 // wavelength arc, 0 off it (Schrödinger 1920; MacAdam 1935). Sweeping (arc start,
 // arc width) covers the whole closed surface: zero width pinches to black, the
 // full band is white, and arcs crossing the 700→380 wrap are the purples.
-// Equal-energy illuminant: XYZ integrates the 1931 CMFs over the arc, Y peaks 100.
+// Illuminant D65: XYZ integrates the 1931 CMFs WEIGHTED by the D65 spectrum over the
+// arc, Y peaks 100 — so a perfect reflector is the D65 white point. Equal-energy E put
+// display white (and 3% of sRGB) outside the very solid the atlas compares gamuts to;
+// under D65 the whole cube fits, and the pickers can cut by the same body (core's
+// inVisSolid) instead of the looser spectral locus.
 const VIS = new Map()
 export function visSurf(G = 96) {
 	if (VIS.has(G)) return VIS.get(G)
 	const N = 160   // 380–700 nm at 2 nm
 	const cum = [[0, 0, 0]]
 	for (let i = 0; i < N; i++) {
-		const [X, Y, Z] = space.wavelength.xyz(380 + (i + 0.5) * 2)
+		const nm = 380 + (i + 0.5) * 2, w = d65(nm)
+		const [X, Y, Z] = space.wavelength.xyz(nm)
 		const p = cum[i]
-		cum.push([p[0] + X, p[1] + Y, p[2] + Z])
+		cum.push([p[0] + X * w, p[1] + Y * w, p[2] + Z * w])
 	}
 	const tot = cum[N][1]
 	const pos = new Float32Array((G + 1) * (G + 1) * 3)
