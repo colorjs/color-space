@@ -106,6 +106,10 @@ export function stampSpacePages(out = join(root, '_site')) {
 		// name the artifact people actually search for
 		const name = disp(s)
 		let h = html
+		// the name view travels LIGHT: the 300kB baked catalog stays on the index — stamped
+		// pages ship #cat empty (no data-fp → the page rebuilds it at idle, behind the
+		// prerendered dossier bake-dossiers.js injects after this)
+		h = swap(h, /<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, '<main class="cat" id="cat"></main>')
 		h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(name)} color space — channels, ranges, conversion${LUTOK.has(s) && meta[s]?.referred === 'scene' ? ' LUT' : ''} | color-space</title>`)
 		h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
 		h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(name)} color space — color-space">`)

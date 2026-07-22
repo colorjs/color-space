@@ -48,16 +48,14 @@ export async function bakeDossiers(site) {
 		}, { timeout: 30000, polling: 250 })
 		await page.evaluate(() => document.getElementById('mx').click())
 		for (const s of SPACES) {
-			const shell = await page.evaluate(async (s2) => {
-				const settle = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+			// openModal → buildDetail → renderFast all run synchronously inside the click,
+			// so the shell is capturable immediately — no settle frames, no closing between
+			// spaces (opening the next dossier replaces the current one)
+			const shell = await page.evaluate((s2) => {
 				document.querySelector(`.ent[data-s="${CSS.escape(s2)}"] .nm`).click()
-				await settle()
 				if (document.getElementById('modal').hidden) throw new Error('modal did not open: ' + s2)
 				if (!document.getElementById('dtitle')?.textContent.trim()) throw new Error('empty dossier: ' + s2)
-				const out = document.getElementById('detail').innerHTML
-				document.getElementById('mx').click()
-				await settle()
-				return out
+				return document.getElementById('detail').innerHTML
 			}, s)
 			const file = join(site, s + '.html')
 			let h = readFileSync(file, 'utf8')

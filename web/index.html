@@ -90,6 +90,9 @@ a{ color:var(--ink) }
 .tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
+.tfp .fcov{ display:flex; align-items:center; gap:var(--s2) }   /* coverage threshold: slider + live readout */
+.tfp .fcov input{ flex:1; min-width:0; accent-color:var(--ink) }
+.tfp .fcov b{ font-size:var(--t1); font-weight:700; color:var(--soft); white-space:nowrap; min-width:7.5em; text-align:right }
 .tfp .tsep{ border:0; border-top:1px solid var(--hair); margin:var(--s1) 0 }
 .tfp .tag{ border:0; cursor:help }   /* the shared .tag recipe, compact like model/signal — and the help cursor, same as the dossier tags */
 .tfp .tag.on{ background:var(--ink); color:var(--paper) }
@@ -422,7 +425,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }   /* corner insets match the bars' scale values — one label geometry everywhere */
 .pl .labx{ position:absolute; right:.275rem; bottom:.175rem; font-size:var(--t0); font-weight:700; pointer-events:none }
-.pl .pmode{ position:absolute; bottom:.35rem; left:.45rem; z-index:2; font-size:var(--t1); line-height:1; border:0; background:none; padding:2px; color:var(--ink); opacity:.5; cursor:pointer }   /* the hue disc ⟷ square switch — bottom-left, on the axis labels' own padding, below the picker */
+.pl .pmode{ position:absolute; bottom:.15rem; left:.25rem; z-index:2; width:1.7em; height:1.7em; display:grid; place-items:center; font-size:var(--t1); line-height:1; border:0; background:none; padding:0; color:var(--ink); opacity:.5; cursor:pointer }   /* the mode switch — ONE fixed box, so circle, square, triangle and diamond all centre on the same corner point regardless of their optical sizes */
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
 .pl .pmode.sq::before{ border-radius:0; width:.72em; height:.72em }   /* the square wears SHARP corners — and steps down: a full square carries the most ink, optical parity with the circle */
@@ -1173,7 +1176,7 @@ const trackAct=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.qu
 // measures the ladder once (per layout), then the browser handles every scroll state natively — so a
 // fast scroll or a restored scroll position can't desync it. The stack collapses together over the
 // last stretch as the container ends; that brief overlap is the accepted trade for zero scroll-JS.
-const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl.offsetParent) return
+const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.offsetParent) return   // name views boot with #cat (and the toc inside it) empty
 	const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
 	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
@@ -1559,7 +1562,9 @@ const cat=document.getElementById('cat')
 // existing DOM (rebuilding ~160 cards froze the page for a third of a second and
 // threw away the streamed layout). Rebuild only on drift: template/data mismatch
 // or the raw web/ source, where #cat is the empty shell
-if(cat.dataset.fp!==fpOf(catHTML())) cat.innerHTML=catHTML(DEFAULT)
+const ensureCat=()=>{ if(ensureCat.done) return; ensureCat.done=true
+	if(cat.dataset.fp!==fpOf(catHTML())){ cat.innerHTML=catHTML(DEFAULT); colize(); wireToc() }
+	wireCat() }   // wireCat is the hoisted function wrapping every per-ent attachment below
 // ToC: wired and laid out PRE-PAINT by the inline script after #cat (trackAct/layoutToc/
 // wireToc are its globals; applyFilter re-enters through them). Re-wire here only for the
 // fingerprint-rebuild path, where the rail's nodes were just replaced — idempotent otherwise
@@ -1583,7 +1588,7 @@ const io=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ vis.add(s); entered.push(e.target) } else vis.delete(s) })
 	if(entered.length){ paintCatalogGrad(entered); paintCatalogVals(entered) }   // paint only what just scrolled in, not the whole band
 },{rootMargin:'300px'})
-cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // real spaces only; barred cards carry no data
+// ents attach to the observer in wireCat() — the catalog may not exist yet on name views
 
 // copying catalog rows or dossier channel/range values: the native serializer breaks every flex
 // item onto its own line and skips input values — rebuild the text from the selection, joined by
@@ -1622,6 +1627,8 @@ let popEnt=null
 const hidePop=()=>{ popEnt?.classList.remove('pop'); popEnt=null }
 const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop'); paintCatalogGrad([ent]); paintCatalogVals([ent]) }
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
+function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
+cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
 cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
@@ -1677,6 +1684,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 				renderFast(); dragEnt=null   // settle BEFORE releasing dragEnt — the focused input must adopt the press (the scheduled frame would arrive after the release)
 				scheduleFast(); if(open()) paintPlanes(false) }
 			ch.onpointercancel=ch.onpointerup }) }) })   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
+}
 
 // sheet rows show sliders only when the settings toggle says so
 const ALLS=false   // the all-sliders view was removed from the filter — default (lead-row sliders only) always applies
@@ -1703,15 +1711,20 @@ const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
 // search matches the space name AND its channel names/symbols ("hue", "lightness", "L"…)
 const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,(s+' '+ch.map(c=>cname(c)+' '+c.sym).join(' ')).toLowerCase()] }))
 const act=FACETS.map(()=>new Set())
+// minimum share of the visible gamut (0 = off) — a threshold, not a chip: coverage is
+// continuous, so it filters through a slider; spaces without a measured reach (1-, 2-
+// and 4-channel scales) drop out while a threshold is set — they claim no coverage
+let covMin=0
 // active facets shown as removable chips in the header, right by the search
 const fchipsH=document.getElementById('fchipsH')
 const FX='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
-const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('') }
+const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('')
+	+(covMin>0?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage threshold">≥${Math.round(covMin*100)}% of visible${FX}</button>`:'') }
 // one filter pipeline: name match (highlighted in place) AND the picked facets
-function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size); let shown=0
+function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size)||covMin>0; let shown=0
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
 		let hit
-		if(s){ const sl=SLOTS.get(s); hit=(!q||SEARCHSTR.get(s).includes(q))&&(!any||act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))); if(hit)shown++ }
+		if(s){ const sl=SLOTS.get(s); hit=(!q||SEARCHSTR.get(s).includes(q))&&act.every((a,fi)=>!a.size||[...a].some(t=>sl[fi].has(t)))&&(!covMin||(REACH[s]?.[0]??-1)>=covMin); if(hit)shown++ }
 		else hit=!any&&(!q||(ent.querySelector('.nm')?.textContent.toLowerCase().includes(q)))   // barred cards: name match only, hidden when facets are active, not counted
 		ent.style.display=hit?'':'none'
 		markName(ent,hit&&q&&s?q:null) })
@@ -1720,7 +1733,7 @@ function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(
 	layoutToc(); trackAct()
 	const nores=document.getElementById('nores')
 	if(nores){ const none=(q||any)&&!shown; nores.hidden=!none
-		if(none) nores.textContent=q?`no space matches “${q}” — search covers names, channels and symbols`:'no space matches these filters — remove a chip to widen' }
+		if(none) nores.textContent=q?`no space matches “${q}” — search covers names, channels and symbols`:'no space matches these filters — remove one to widen' }
 	const nEl=document.getElementById('n'); if(nEl)nEl.textContent=(q||any)?shown:spaceCount   // the logo count goes live with the filter, near the name — not tucked by the filter icon
 	nq.textContent=''
 	document.body.classList.toggle('flt',!!(q||any))   // filtering unfolds the mobile sections
@@ -1730,14 +1743,23 @@ qInput.addEventListener('input',applyFilter)
 ;(()=>{ const tfb=document.getElementById('tfb'), tfp=document.getElementById('tfp'); if(!tfb) return
 	const vals=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
 	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" aria-pressed="false" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
+		// coverage is continuous, so it filters by threshold, not chips: keep spaces
+		// reaching at least this share of the visible gamut (the dossier's reach number)
+		+`<div class="frow"><i>coverage</i><span class="fcov"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="minimum share of the visible gamut" title="show only spaces whose gamut reaches at least this share of visible colors"><b class="tnum" id="fcovv">any</b></span></div>`
+	const fcov=tfp.querySelector('#fcov'), fcovv=tfp.querySelector('#fcovv')
+	const tfbOn=()=>tfb.classList.toggle('on',act.some(a=>a.size)||covMin>0)
+	fcov.oninput=()=>{ covMin=+fcov.value/100; fcovv.textContent=covMin?`≥${fcov.value}% of visible`:'any'; tfbOn(); applyFilter() }
 	tfp.querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{ const fi=+b.dataset.f, t=b.dataset.t
 		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
-		const on=act[fi].has(t); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); tfb.classList.toggle('on',act.some(a=>a.size))
+		const on=act[fi].has(t); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); tfbOn()
 		applyFilter() })
-	// a header chip removes its facet — and un-presses the matching dropdown tag
-	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return; const fi=+b.dataset.f, t=b.dataset.t; act[fi].delete(t)
+	// a header chip removes its facet — and un-presses the matching dropdown tag (the
+	// coverage chip resets the slider instead)
+	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return
+		if(b.dataset.cov){ covMin=0; fcov.value=0; fcovv.textContent='any'; tfbOn(); applyFilter(); return }
+		const fi=+b.dataset.f, t=b.dataset.t; act[fi].delete(t)
 		const pt=tfp.querySelector(`.tag[data-f="${fi}"][data-t="${CSS.escape(t)}"]`); if(pt){ pt.classList.remove('on'); pt.setAttribute('aria-pressed','false') }
-		tfb.classList.toggle('on',act.some(a=>a.size)); applyFilter() })
+		tfbOn(); applyFilter() })
 	const setOpen=open2=>{ tfp.hidden=!open2; tfb.setAttribute('aria-expanded',String(open2)) }
 	tfb.onclick=()=>setOpen(tfp.hidden)
 	addEventListener('pointerdown',e=>{ if(!tfp.hidden&&!e.target.closest('.tagf')) setOpen(false) })
@@ -1811,7 +1833,7 @@ function buildBarred(b){
 		<div class="desc">${b.why}</div></div></div>
 	 </div></section>
 	 ${MNAV('mfoot')}` }
-function closeModal(){ modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
+function closeModal(){ ensureCat(); modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
 	urlLast=spaceURL('')+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
@@ -2953,7 +2975,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
-	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — the real colours this space reaches, on the CIE xy plane: vivid where it reaches them, ghost where the eye sees but this space doesn't. Bounded to the visible spectrum — imaginary chromaticities its range also encodes aren't colours, so they're not shown."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
+	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible — the box's shape, though no colour lives there."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
 	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
 		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
@@ -2970,7 +2992,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags" title="display gamuts that contain this color">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}">${GAMLABEL[g]}</span>`).join('')}</span></div>`
 	const plotPairs=pairsFor(s)
 	// the space's catalog section, read straight off the catalog DOM — one source
-	const dcat=(e2=>e2?.closest('.sec')?.querySelector('.shw')?.childNodes[0]?.textContent?.trim()||'')(cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`))
+	const dcat=sections.find(c2=>c2.spaces.includes(s))?.name||''   // from the data, not the catalog DOM — name views open before the catalog builds
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}${dctlHTML}</div>
@@ -3891,6 +3913,8 @@ const route=e=>{ const h=e?decodeURIComponent(location.hash.slice(1)):BOOT.hash 
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
+if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat()
+else (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
 addEventListener('hashchange',route)   // same-document deep links switch spaces too
 
