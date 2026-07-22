@@ -4,11 +4,14 @@
  * and the GL chunk (../gl/munsell.glsl.js) read. One source of truth, no imports.
  *
  * `grid()` resamples the irregular table onto its own regular lattice for GPU
- * upload: texel (hue h 0..39, value row v 0..8, chroma column k 0..19) holds xy at
- * (H = 2.5(h+1), V = v+1, C = 2k). Column 0 is the Illuminant-C white (the C<2
- * blend's inner node) and short cells replicate their measured rim outward, so
- * plain (tri)linear interpolation over the lattice reproduces `cellXY` exactly —
- * the dataset has no empty cells, so nothing else needs representing.
+ * upload: texel (hue h 0..39, value row v 0..8, chroma column k 0..19) packs
+ * `[x(v), y(v), x(v+1), y(v+1)]` at H = 2.5(h+1), V = v+1, C = 2k. Packing the
+ * adjacent value plane into the unused BA channels halves forward texture reads
+ * and makes an exact renotation node at fractional V one fetch. In column 0, RG
+ * remains Illuminant-C white while BA carries the current/next measured maximum
+ * chroma; the shader supplies white directly for C<2. The final value repeats
+ * itself, and short cells replicate their measured rim outward, so interpolation
+ * still reproduces `cellXY` exactly — the dataset has no empty cells.
  */
 // Packed renotation: x,y ×10000 as base64 uint16, grouped by [hue 2.5..100 step 2.5]
 // [value 1..9], chroma 2,4,...; COUNTS = chroma-step count per (hue,value) cell.
@@ -23,6 +26,7 @@ for (let i = 0; i < VALS.length; i++) VALS[i] = bin.charCodeAt(i * 2) | (bin.cha
 const xyAt = (hi, vi, ci) => { const o = (off[hi * 9 + vi] + ci) * 2; return [VALS[o] / 1e4, VALS[o + 1] / 1e4]; };
 
 export const WC = [0.31006, 0.31616]; // Illuminant C 2° white chromaticity
+export const maxChroma = (hi, vi) => 2 * cnt[hi * 9 + vi];
 export const lerp2 = (A, B, t) => [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t];
 
 // chroma-interpolated xy at fractional chroma C for cell (hi,vi); clamps to its gamut
@@ -35,13 +39,17 @@ export const cellXY = (hi, vi, C) => {
 	return lerp2(xyAt(hi, vi, c0), xyAt(hi, vi, c0 + 1), ci - c0);
 };
 
-// the GPU lattice: RGBA32F, w=40 (hue), h=180 (value-major rows: j = v*20 + k)
+// GPU lattice: RGBA32F, w=40, h=180. For k>0, RG=current V and BA=next V;
+// k=0 stores [white x, white y, max chroma at V, max chroma at next V].
 export const grid = () => {
 	const g = new Float32Array(40 * 180 * 4);
 	for (let h = 0; h < 40; h++) for (let v = 0; v < 9; v++) for (let k = 0; k < 20; k++) {
-		const xy = k ? cellXY(h, v, 2 * k) : WC;
+		const xy0 = k ? cellXY(h, v, 2 * k) : WC;
+		const xy1 = k ? cellXY(h, Math.min(v + 1, 8), 2 * k) : WC;
 		const o = ((v * 20 + k) * 40 + h) * 4;
-		g[o] = xy[0]; g[o + 1] = xy[1];
+		g[o] = xy0[0]; g[o + 1] = xy0[1];
+		g[o + 2] = k ? xy1[0] : maxChroma(h, v);
+		g[o + 3] = k ? xy1[1] : maxChroma(h, Math.min(v + 1, 8));
 	}
 	return g;
 };
