@@ -116,7 +116,7 @@ a{ color:var(--ink) }
 .trust .term{ cursor:help }
 .trust .term::after{ color:currentColor; opacity:.55 }
 /* themed tooltip bubble (js/tip.js upgrades every title) — inverts with the theme */
-#tip{ position:fixed; z-index:var(--z-tooltip); max-width:20rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:normal; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
+#tip{ position:fixed; z-index:var(--z-tooltip); max-width:24rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:pre-line; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
 #tip.on{ opacity:1; transform:none }
 .quick{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2); flex-wrap:wrap }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
@@ -308,7 +308,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .mcat.prev .catn{ left:-1.5rem; } .mcat.next .catn{ right:-1.5rem }
 .mnavbar .mcat:hover .mn{ color:var(--ink) }
 .dctl{ display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2) var(--s4); margin-left:auto }   /* gamut + quantization selects — ride the side column, flush with its right edge */
-.dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — but the native chevron stays: it says "openable" */
+.dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:help; field-sizing:content }   /* de-chromed to text — the native chevron says "openable", the help cursor says "explained" (the LUT selects' idiom); the title legends every option */
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }   /* no focus rectangle around the bare select — a colour shift instead */
 .dh h1{ margin:0; font-size:clamp(1.7rem,4vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1 }
@@ -1471,11 +1471,13 @@ const triOn=(s2,a,b)=>TRIP[`${s2}:${a},${b}`]??false   // default: square — th
 const polarOn=(s2,c2,a,b)=>POLARP[`${s2}:${a},${b}`]??(b!==axes3(c2).ti)   // default: disc for hue×radius, rect for hue×vertical (the solid's tone axis)
 
 const NAMED=Object.entries(NAMES).map(([n,rgb])=>({n,rgb,ok:space.rgb.oklab(...rgb)}))
-const nmCache=new Map()   // exact-color memo — each unique color names once; capped: a drag mints ~30k new colors a second
-function nearest(rgb){ const key=(rgb[0]<<16)|(rgb[1]<<8)|rgb[2]
+const byteRGB=rgb=>rgb.map(x=>clamp(Math.round(x),0,255))
+const rgbKey=rgb=>(rgb[0]<<16)|(rgb[1]<<8)|rgb[2]
+const nmCache=new Map()   // exact 8-bit color memo — each unique pixel names once; capped for long sessions
+function nearest(rgb){ const src=byteRGB(rgb), key=rgbKey(src)
 	const hit=nmCache.get(key); if(hit) return hit
 	if(nmCache.size>65536) nmCache.clear()
-	const ok=space.rgb.oklab(...rgb); let best=null,bd=1e9
+	const ok=space.rgb.oklab(...src); let best=null,bd=1e9
 	for(const c of NAMED){ const d=(ok[0]-c.ok[0])**2+(ok[1]-c.ok[1])**2+(ok[2]-c.ok[2])**2; if(d<bd){bd=d;best=c} }
 	nmCache.set(key,best); return best }
 
@@ -1807,7 +1809,8 @@ function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
 	const b=barredByKey.get(s)
-	selected=s; modal.hidden=false; pageShell.inert=true; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
+	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
+	modal.hidden=false; pageShell.inert=true; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
 	urlLast=spaceURL(s)+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
@@ -1931,20 +1934,19 @@ let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto comp
 // polar, naive gamma sRGB, and a cylindrical model's hue detour. Current space excluded.
 const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
 let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
-// ONE global clustering mode for sliders AND planes — remembered across sessions
-const QMODES=[null,10,20,'web','names','percept']
-const QSEG=[[null,'smooth'],[10,'10-step'],[20,'20-step'],['web','safe'],['names','name'],['percept','even']]
-const QTIP={ 'smooth':'continuous color fields',
-	'10':'clusters every slider into 10 even steps',
-	'20':'clusters every slider into 20 even steps (tailwind-style scale)',
-	'web':'snaps colors to the 216-color web-safe palette (6 levels per channel)',
-	'names':'snaps colors to the nearest of the 148 CSS named colors',
-	'percept':'even OKLab cells — steps of equal perceived difference (ΔE); their warped shapes here reveal this space\'s distortion' }
+// ONE session-local clustering lens for sliders, planes and the 3D solid
+const QSEG=[[null,'smooth'],[10,'10-step'],[20,'20-step'],['web','safe'],['names','names'],['percept','even']]
+const QTIP={ 'smooth':'continuous fields and solid',
+	'10':'10 equal cells per native channel — sliders and planes select cell centers; the 3D solid shows their boundaries',
+	'20':'20 equal cells per native channel — sliders and planes select cell centers; the 3D solid shows their boundaries',
+	'web':'216-color web-safe palette — 6 sRGB levels per channel, shown on fields and the 3D solid',
+	'names':'nearest of 148 CSS names (139 unique colors), measured in OKLab and shown on fields and the 3D solid',
+	'percept':'regular neutral-centered OKLab cells (ΔL .1, Δa/b .08), shown on fields and the 3D solid' }
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
 let dragEnt=null   // the catalog entry being dragged — motion frames repaint it alone; everything else catches up on settle
-let Q=null   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
+let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
@@ -1962,20 +1964,41 @@ const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
 		return g==='vis'?inVisSolid(...X):gamLin[g](X).every(u=>u>=-0.005&&u<=1.005) }catch{ return true } }
 // one marker/line ink for everything, picked to stand out against the current color
 const inkRGB=rgb=>lum(rgb)<0.6?[255,255,255]:[27,20,8]
-// perceptual quantizer: even OKLab grid, mapped back through the current space
+// perceptual quantizer: a regular OKLab grid. Lightness uses bounded cell centers;
+// opponent axes use zero-centered sites — neutral a=b=0 must stay neutral, not jump
+// to the old (+.04,+.04) cell merely because zero sat on both cell boundaries.
 const pcCache=new Map()
-function perceptQ(t){ const key=(t[0]<<16)|(t[1]<<8)|t[2]
+function perceptQ(t){ const src=byteRGB(t), key=rgbKey(src)
 	const hit=pcCache.get(key); if(hit) return hit
 	if(pcCache.size>65536) pcCache.clear()
-	const [L,A,B2]=space.rgb.oklab(...t), qs=(v,st)=>(Math.floor(v/st)+0.5)*st
-	const out=space.oklab.rgb(qs(Math.min(L,.9999),.1),qs(A,.08),qs(B2,.08)).map(x=>clamp(Math.round(x),0,255))
+	const [L,A,B2]=space.rgb.oklab(...src)
+	const out=space.oklab.rgb((Math.floor(Math.min(L,.9999)/.1)+.5)*.1,Math.round(A/.08)*.08,Math.round(B2/.08)*.08).map(x=>clamp(Math.round(x),0,255))
 	pcCache.set(key,out); return out }
-// quantize an [r,g,b] triple per mode (null for smooth); numeric = cell CENTRES, matching the sliders
+// Output-palette lenses quantize whole sRGB triples. Numeric lenses are different:
+// they divide this dossier's native coordinates, and therefore use qCell instead.
 const qTriple=v=> v==='names'? t=>nearest(t).rgb
 	: v==='percept'? perceptQ
 	: v==='web'? t=>t.map(x=>Math.round(x/51)*51)
-	: typeof v==='number'? t=>t.map(x=>(Math.min(v-1,Math.floor(x/255*v))+0.5)*(255/v))
 	: null
+// No-WebGL fallback for palette bars: sample the real quantizer densely, then merge
+// adjacent equal colors. Region widths stay truthful instead of inventing 20 equal cells.
+const sameRGB=(a,b)=>a.every((x,i)=>x===b[i])
+const QBARN=256
+const qBarRuns=(s,vals,i,c,qf)=>{ const runs=[]
+	for(let k=0;k<QBARN;k++){ const v=vals.slice(); v[i]=c.min+(c.max-c.min)*(k+.5)/QBARN
+		const rgb=byteRGB(qf(rgbF(s,v))), last=runs.at(-1)
+		if(last&&sameRGB(last.rgb,rgb)) last.hi=k+1
+		else runs.push({rgb,lo:k,hi:k+1}) }
+	return runs }
+const qBarGradient=(s,vals,i,c,qf)=>`linear-gradient(90deg, ${qBarRuns(s,vals,i,c,qf).flatMap(r=>{ const lo=(r.lo/QBARN*100).toFixed(2), hi=(r.hi/QBARN*100).toFixed(2), h=hex(r.rgb); return [`${h} ${lo}%`,`${h} ${hi}%`] }).join(',')})`
+// Arrow/chevron movement in a palette lens means "next visible region", not one
+// native precision tick (which often quantizes straight back to the same color).
+const qStepRGB=(s,vals,i,c,d,qf)=>{ const cur=byteRGB(qf(rgbF(s,vals))), f0=clamp((vals[i]-c.min)/(c.max-c.min),0,1), N=256
+	for(let k=1;k<=N;k++){ const f=clamp(f0+d*k/N,0,1), v=vals.slice(); v[i]=c.min+(c.max-c.min)*f
+		const rgb=byteRGB(qf(rgbF(s,v))); if(!sameRGB(cur,rgb)) return rgb; if(f===0||f===1) break }
+	return cur }
+const qCell=(f,n)=>(Math.min(n-1,Math.floor(clamp(f,0,1)*n))+.5)/n
+const clearClusterSnaps=()=>{ detail.querySelectorAll('.bar2').forEach(el=>{ el._snapKey=el._snapF=el._snapHint=null }); detail.querySelectorAll('.pl').forEach(el=>{ el._snap=el._snapSeed=null }) }
 // snap the current color onto its cluster — applied LIVE during any quantized interaction
 // numeric N snaps every channel to ITS OWN cell centre (the sliders'/planes' shared lattice);
 // color-cluster modes snap through rgb
@@ -1983,8 +2006,7 @@ function clusterize(){
 	if(typeof Q==='number'){ let mv; try{ mv=toSpace(selected,RGB()) }catch{ return }
 		const cls=classify(selected)
 		master={ s:selected, vals:mv.map((v,i)=>{ const c=cls.ch[i]
-			const f=clamp((v-c.min)/(c.max-c.min),0,.9999)
-			return c.min+(c.max-c.min)*((Math.floor(f*Q)+0.5)/Q) }) }
+			return c.min+(c.max-c.min)*qCell((v-c.min)/(c.max-c.min),Q) }) }
 		return }
 	const f=qTriple(Q); if(!f) return
 	const nr=f(RGB()).map(x=>clamp(Math.round(x),0,255))
@@ -2687,13 +2709,13 @@ function draw3d(){ if(!mesh3||!open()) return
 	// second pass, so their film never counts as cover and never veils the hud dashes
 	// the first draw is only the body-alpha snapshot (bodyM) — the cut band would cost a
 	// second full mesh pass and change nothing it measures; the visible render is below
-	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3):drawPtsGL(meshCv,mesh3,scale3))
+	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,null,Q):drawPtsGL(meshCv,mesh3,scale3))
 	let bodyM=meshCv
 	if(drewGL&&(sheet3||frame3)){ const bm=mask3||(mask3=document.createElement('canvas'))
 		if(bm.width!==S2) bm.width=bm.height=S2
 		const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(meshCv,0,0)
 		bodyM=bm
-		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
+		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	// a GPU space whose program is still linking shows the frame alone for a beat —
@@ -2986,12 +3008,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		&&(tcurve.pts[26]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3   // 26/144 ≈ 18% grey
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
 	const gamTip=g=>g==='vis'?'the HUMAN visual gamut — the solid is the Rösch–MacAdam optimal-color body, while the plots and channels cut at the spectral locus: past it lies no color at any luminance':`cut the solid, plots and channels by the ${GAMLABEL[g]} display gamut`
-	const segsHTML=`<select id="qseg" aria-label="quantization" title="${QTIP[qKey(Q)]}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
-	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gamTip(GM)}">${[...GAMS,'vis'].map(g=>`<option value="${g}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
+	const qLegend=QSEG.map(([mo,lb])=>`${lb} — ${QTIP[qKey(mo)]}`).join('\n')
+	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QSEG.map(([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}"${mo===Q?' selected':''}>${lb}</option>`).join('')}</select>`
+	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} — ${gamTip(g)}`).join('\n')
+	const gamHTML=`<select id="gseg" aria-label="gamut subset" title="${gLegend}">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 	const dctlHTML=`<div class="dctl">${segsHTML}${gamHTML}</div>`
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
+	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch shows native cell boundaries or safe/name/even palette regions here too; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible — the box's shape, though no colour lives there."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
 	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="click to compare the blend through another space">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
@@ -3117,10 +3141,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		if(fb) fb.onclick=()=>fi.click()
 		if(fi) fi.onchange=()=>{ addImg(fi.files&&fi.files[0]); fi.value='' } }
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
-	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value); qs.title=QTIP[qs.value]
-		clusterize()   // entering a mode snaps the current color onto its cluster right away
-		renderFast(); paintPlanes(false); paintCatalogGrad() }
-	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM; gs.title=gamTip(GM)   // radio: one gamut always selected — the solid always shows SOME shape
+	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value)
+		clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
+		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast(false)
+			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) paintPlanes(false) }) }) }
+	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM   // radio: one gamut always selected — the solid always shows SOME shape
 		wire3d(); renderFast(); paintPlanes(false) }
 	const pinb=detail.querySelector('#pinb'), ipick=detail.querySelector('#ipick')
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
@@ -3191,14 +3216,19 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const adoptS=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 		inp.addEventListener('input',e=>{ if(!e.isTrusted) return   // synthetic input (extension echo of the per-frame mirror) must not write the rounded display value back
 			const v=parseFloat(inp.value); if(!isFinite(v)) return
-			adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
-		inp.addEventListener('change',()=>{ paintPlanes(false); paintCatalogGrad() })
+			clearClusterSnaps(); adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
+		inp.addEventListener('change',()=>{ if(Q!=null){ clusterize(); const v=valsFor(s)?.[i]; if(isFinite(v)) inp.value=v.toFixed(decOf(c)); renderFast() } paintPlanes(false) })
 		// focus places a caret, never a selection (browsers select-all a text input on tab-focus)
 		inp.addEventListener('focus',()=>requestAnimationFrame(()=>{ try{ const n=inp.value.length
 			if(inp.selectionStart===0&&inp.selectionEnd===n&&n) inp.setSelectionRange(n,n) }catch{} }))
 		const spin=d=>{ const cur=parseFloat(inp.value), base=isFinite(cur)?cur:(valsFor(s)?.[i]??c.min)
-			inp.value=clamp(base+d*STEP,c.min,c.max).toFixed(Math.max(decOf(c),sdec))
-			inp.dispatchEvent(new Event('input',{bubbles:true})) }
+			clearClusterSnaps(); if(!adoptS()) return
+			if(typeof Q==='number') master.vals[i]=clamp(base+d*(c.max-c.min)/Q,c.min,c.max)
+			else if(qTriple(Q)){ const nr=qStepRGB(s,master.vals,i,c,d,qTriple(Q)); let mv=null; try{ mv=toSpace(s,nr) }catch{}; master=mv?{s,vals:mv}:{s:'rgb',vals:nr} }
+			else master.vals[i]=clamp(base+d*STEP,c.min,c.max)
+			if(typeof Q==='number') clusterize()
+			const v=valsFor(s)?.[i]; if(isFinite(v)) inp.value=v.toFixed(decOf(c))
+			renderFast(); paintPlanes(false) }
 		inp.addEventListener('keydown',e=>{ if(e.key==='ArrowUp'||e.key==='ArrowDown'){ e.preventDefault(); spin(e.key==='ArrowUp'?1:-1) } })
 		const [up,dn]=bar.querySelectorAll('.stk button')
 		up.onclick=e=>{ e.stopPropagation(); spin(1) }; dn.onclick=e=>{ e.stopPropagation(); spin(-1) } })
@@ -3211,26 +3241,22 @@ function wireBar(el,s){
 	if(e.target.closest('.nvw')) return
 	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX
 	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
-	// quantized modes snap LIVE while sliding — in websafe/names the bar's own cells ARE the choices:
-	// dragging picks a cell and adopts exactly the color it displays, so nothing shifts underfoot
+	// Dragging is continuous in every mode. The lens colors the field, but never
+	// constrains the hand; one snap happens on release, to the chosen region's center.
 	const apply=ev=>{ const r=el.getBoundingClientRect()
-		let f=clamp((ev.clientX-r.left)/r.width,0,1)   // the right edge IS max — capping short of 1 (old .999) left the value at 99.9% and the spinner's limit state never engaged
-		if(Math.abs(f-0.5)*r.width<1) f=0.5   // soft snap: the centre value (0 for a/b axes, 180° for hue) within ±1px only
-		if(typeof Q==='number'){ const k=Math.min(Math.floor(f*Q),Q-1); f=k===0&&f<0.5/Q?0:k===Q-1&&f>1-0.5/Q?1:(k+0.5)/Q; master.vals[i]=c.min+(c.max-c.min)*f }   // edge cells reach the true borders — movement is never fenced in
-		else if(qTriple(Q)&&el._cells){ const k=Math.min(Math.floor(f*el._cells.length),el._cells.length-1)
-			const nr=el._cells[k]; let mv=null; try{ mv=toSpace(s,nr) }catch{}
-			master= mv?{ s, vals:mv }:{ s:'rgb', vals:nr }
-			el._cellF=k===0?0:k===el._cells.length-1?1:(k+0.5)/el._cells.length }   // edge cells park at the borders — full travel, never fenced
-		else master.vals[i]=c.min+(c.max-c.min)*f
+		let f=clamp((ev.clientX-r.left)/r.width,0,1)
+		if(Math.abs(f-0.5)*r.width<1) f=0.5
+		master.vals[i]=c.min+(c.max-c.min)*f; el._dragF=f
 		scheduleFast() }
 	if(!adopt()) return
-	el.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
+	clearClusterSnaps(); el.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
 	dragBar=el; apply(e)   // the press itself picks — dragBar from the down, so a focused input tracks the click too (a press is not typing)
 	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live') }
 		apply(ev) }
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
-		renderFast(); dragBar=null; el._cellF=null   // settle BEFORE releasing dragBar — the focused input must adopt the press (the scheduled frame would arrive after the release)
-		paintPlanes(false); paintCatalogGrad() }
+		el._snapHint=el._dragF; if(Q!=null) clusterize(); dragBar=null
+		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
+		renderFast(false); paintPlanes(false) }
 	el.onpointermove=move; el.onpointerup=up }) }
 let plFreeze=null   // plane being dragged in a color-cluster mode — its bitmap stays frozen
 function wirePlane(pl){
@@ -3262,21 +3288,18 @@ function wirePlane(pl){
 			// soft snap per axis: the range midpoint within ~3px of the pointer, zoom-aware
 			if(Math.abs(fx-0.5)*r.width/(vw.x1-vw.x0)<3) fx=0.5
 			if(Math.abs(fy-0.5)*r.height/(vw.y1-vw.y0)<3) fy=0.5 }
-		// numeric clustering snaps the PICKED COORDINATES to the sliders' own cell lattice —
-		// held channels never move, so the bitmap stays put and the sliders land on centres
-		if(typeof Q==='number'){ const qq=t=>{ const k=Math.min(Q-1,Math.floor(t*Q)); return k===0&&t<0.5/Q?0:k===Q-1&&t>1-0.5/Q?1:(k+0.5)/Q }; fx=qq(fx); fy=qq(fy) }   // edge cells reach the true borders
+		// Free movement while held: write the raw coordinate. The release handler
+		// quantizes once, after which paintPlanes centers the marker in that region.
 		master.vals[a]=cls.ch[a].min+(cls.ch[a].max-cls.ch[a].min)*fx
 		master.vals[b]=cls.ch[b].min+(cls.ch[b].max-cls.ch[b].min)*fy
-		const f=qTriple(Q)
-		if(f&&typeof Q!=='number'){ // color-cluster modes pick the displayed cell exactly
-			const nr=f(rgbOf(selected,master.vals)).map(x=>clamp(Math.round(x),0,255))
-			let mv=null; try{ mv=toSpace(selected,nr) }catch{}
-			master= mv?{ s:selected, vals:mv }:{ s:'rgb', vals:nr } }
+		pl._snapSeed={x:clamp((e.clientX-r.left)/r.width,0,1),y:clamp((e.clientY-r.top)/r.height,0,1)}
 		plFreeze=pl   // the active plane's bitmap depends only on held channels — never repaint it mid-drag
 		scheduleFast() }
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
-	pl.addEventListener('pointerdown',e=>{ pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
-	pl.addEventListener('pointerup',()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null; paintPlanes(false); paintCatalogGrad() })
+	pl.addEventListener('pointerdown',e=>{ clearClusterSnaps(); pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
+	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
+		if(Q!=null) clusterize(); renderFast(false); paintPlanes(false) }
+	pl.addEventListener('pointerup',end); pl.addEventListener('pointercancel',end)
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window — but pinch must not zoom the PAGE
 		const vw=pl._vw, zoomed=vw.x1-vw.x0<0.999||vw.y1-vw.y0<0.999
@@ -3464,11 +3487,33 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 // planes render on the GPU (the library's own gl chunks compiled per space): full
 // resolution for every space — OSA-UCS's Newton inverse, CAM16, HCT, munsell's
 // renotation LUT included — with the gamut lens cut per-pixel, and a repaint is
-// one uniform update, so adjacent planes track a drag live. The JS field stays as
-// the fallback (no WebGL2, and the color-cluster quantizers, which are CPU maps);
-// there heavy spaces repaint less often — the cadence stretches with measured cost.
+// one uniform update, so adjacent planes track a drag live. Numeric and palette
+// lenses stay on that GPU path too; the JS field is only the no-WebGL2 fallback,
+// where heavy spaces repaint less often on a measured, cost-stretched cadence.
 const planeMs={}
 let planeNext=0, planesLive=false
+// Center a palette-mode marker in the connected painted region nearest the release
+// point. The nearest pixel to the region centroid is used, so a concave Voronoi cell
+// never puts its marker outside itself. Numeric cells need no override: their native
+// coordinates are already exact cell centers after clusterize().
+function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv.width, h=cv.height
+	if(!w||!h) return
+	let d; try{ d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data }catch{ return }
+	const pr=pl.getBoundingClientRect(), cr=cv.getBoundingClientRect(), seed=pl._snapSeed
+	const sx=seed?(pr.left+seed.x*pr.width-cr.left)/cr.width*w:(pl.querySelector('.cx').getBoundingClientRect().left+4-cr.left)/cr.width*w
+	const sy=seed?(pr.top+seed.y*pr.height-cr.top)/cr.height*h:(pl.querySelector('.cx').getBoundingClientRect().top+4-cr.top)/cr.height*h
+	const match=p=>{ const o=p*4; return d[o+3]>32&&Math.abs(d[o]-target[0])<=1&&Math.abs(d[o+1]-target[1])<=1&&Math.abs(d[o+2]-target[2])<=1 }
+	let start=-1, best=Infinity
+	for(let p=0;p<w*h;p++) if(match(p)){ const x=p%w, y=(p/w)|0, ds=(x-sx)**2+(y-sy)**2; if(ds<best){best=ds;start=p} }
+	if(start<0){ pl._snap=null; pl._snapSeed=null; return }
+	const seen=new Uint8Array(w*h), stack=new Int32Array(w*h), members=[]; let top=0, sumX=0, sumY=0
+	stack[top++]=start; seen[start]=1
+	while(top){ const p=stack[--top], x=p%w, y=(p/w)|0; members.push(p); sumX+=x; sumY+=y
+		for(const q of [p-1,p+1,p-w,p+w]) if(q>=0&&q<w*h&&!seen[q]&&match(q)&&((q%w===x)||((q/w|0)===y))){ seen[q]=1; stack[top++]=q } }
+	const mx=sumX/members.length, my=sumY/members.length; let cp=members[0], cd=Infinity
+	for(const p of members){ const ds=(p%w-mx)**2+((p/w|0)-my)**2; if(ds<cd){cd=ds;cp=p} }
+	const px=cr.left+(cp%w+.5)/w*cr.width, py=cr.top+((cp/w|0)+.5)/h*cr.height
+	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null }
 function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now — numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
@@ -3515,6 +3560,9 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		planeMs[s]=Math.max(dt,0.5)*(216/res)**2
 		planeNext=performance.now()+Math.max(120, dt*1.8)
 		if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30) }   // probe measured — settle at the fitted res
+	const pq=qTriple(Q)
+	if(pq&&!dragging){ const target=byteRGB(pq(RGB())); pls.forEach(pl=>centerPlaneMarker(pl,target)) }
+	else if(!pq) pls.forEach(pl=>{ pl._snap=null; pl._snapSeed=null })
 	if(!dragBar&&!plFreeze) draw3d()
 }
 // a program landed — upgrade the paint. COALESCED to one sweep per frame: during a
@@ -3534,6 +3582,7 @@ const ric=window.requestIdleCallback?.bind(window)||(f=>setTimeout(()=>{ const t
 const cic=window.cancelIdleCallback?.bind(window)||clearTimeout
 let ppT=0
 const prepaintSoon=()=>{ cic(ppT); ppT=ric(dl=>{ ppT=0
+	if(open()) return   // the catalog is inert behind a dossier; closeModal's settled sweep resumes the walk
 	for(const ent of cat.querySelectorAll('.ent[data-s]')){
 		if(dl.timeRemaining()<3) return prepaintSoon()   // slice spent — resume next idle
 		paintCatalogGrad([ent]); paintCatalogVals([ent]) } },{timeout:1000}) }
@@ -3603,7 +3652,7 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1); tk.style.left=(f*100)+'%' }
 			tk.style.background=hx; tk.style.borderColor=ink0 }) }) }
-function renderFast(){ const rgb=RGB(), hx=hex(rgb)
+function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
 	if(hueEl){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl.setAttribute('aria-valuenow',hueEl._okToOh?hueEl._okToOh(h):Math.round(h)) }catch{} }
 	// the color's public face: masthead diamond + value, favicon, url
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
@@ -3624,19 +3673,17 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
 		if(bar!==dragBar){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
-			// smooth mode paints the sweep on the GPU — per-pixel colors AND per-pixel
-			// gamut ghosting (the stepped 48-cell CSS mask made the limits jump)
-			const smooth=typeof Q!=='number'&&!qTriple(Q)
-			if(smooth&&barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM)){
-				bgc.style.display='block'; bar._cells=null
+			// Every lens paints through the same GPU kernel as the planes: numeric cell
+			// centers, exact web/name/even regions, and per-pixel gamut treatment. The
+			// CSS branch is only the no-WebGL/compile-moment fallback.
+			if(barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],GM,Q??0)){
+				bgc.style.display='block'
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
-			bgc.style.display='none'
-			if(typeof Q==='number'){ bg=stepped(ramp(s,shown,i,c.min,c.max,Q-1)); bar._cells=null }
-			else if(qTriple(Q)){ const f=qTriple(Q)
-				const cells=ramp(s,shown,i,c.min,c.max,19).map(h=>f(hex2rgb(h)).map(x=>clamp(Math.round(x),0,255)))
-				bar._cells=cells; bg=stepped(cells.map(hex)) }
-			else{ bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`; bar._cells=null }
+				bgc.style.display='none'
+				if(typeof Q==='number'){ const cells=Array.from({length:Q},(_,k)=>{ const v=shown.slice(); v[i]=c.min+(c.max-c.min)*(k+.5)/Q; return hex(rgbF(s,v)) }); bg=stepped(cells) }
+				else if(qTriple(Q)) bg=qBarGradient(s,shown,i,c,qTriple(Q))
+				else bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`
 			// the gamut lens on the sweep: outside spans ghost to 50% over the checkerboard,
 			// exactly like the plots — skipped in cluster modes (their cells are real colors)
 			bgel.style.backgroundImage=bg
@@ -3655,19 +3702,21 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 		bar.querySelector('.sv.md').style.color=inkAt(.5)
 		bar.querySelector('.sv.hi').style.color=inkAt(1)
 		const dk=bar.querySelector('.dk')
-		// color-cluster modes: the marker sits on the CENTRE of the cell showing the current color
-		let df=null
-		if(bar===dragBar&&bar._cellF!=null) df=bar._cellF
-		else if(qTriple(Q)&&bar._cells){ const ri0=Math.round(rgb[0]), ri1=Math.round(rgb[1]), ri2=Math.round(rgb[2])
-			const k=bar._cells.findIndex(cell=>cell[0]===ri0&&cell[1]===ri1&&cell[2]===ri2)
-			if(k>=0) df=k===0?0:k===bar._cells.length-1?1:(k+0.5)/bar._cells.length }   // edge cells park at the borders, as in wireBar
-		const mf=df!=null?df:clamp((shown[i]-c.min)/(c.max-c.min),0,1)
+		let mf=clamp((shown[i]-c.min)/(c.max-c.min),0,1)
+		const qf=qTriple(Q)
+		if(qf&&bar!==dragBar){ const target=byteRGB(qf(rgb)), held=shown.map((v,j)=>j===i?'':v).join(','), key=`${Q}|${target.join(',')}|${held}`
+			if(bar._snapKey===key&&bar._snapHint==null) mf=bar._snapF
+			else{ const anchor=bar._snapHint??mf, hit=qBarRuns(s,shown,i,c,qf).filter(r=>sameRGB(r.rgb,target)).sort((a,b)=>Math.abs((a.lo+a.hi)/(2*QBARN)-anchor)-Math.abs((b.lo+b.hi)/(2*QBARN)-anchor))[0]
+				if(hit) mf=(hit.lo+hit.hi)/(2*QBARN)
+				bar._snapKey=key; bar._snapF=mf; bar._snapHint=null } }
+		else if(!qf){ bar._snapKey=bar._snapF=bar._snapHint=null }
 		dk.style.left=(mf*100)+'%'
 		dk.style.background=hx; dk.style.borderColor=ink(rgb) })
 	// the big value inputs above the sliders — value, step limits
 	detail.querySelectorAll('#bigch .bch').forEach(el=>{ const i=+el.dataset.i, c=cls.ch[i]
 		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing — the focused channel tracks its slider live
-		const stk=el.querySelector('.stk'); stk.firstElementChild.classList.toggle('lim',shown[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',shown[i]<=c.min+1e-9) })
+		const stk=el.querySelector('.stk'), pad=typeof Q==='number'?(c.max-c.min)/(2*Q):0
+		stk.firstElementChild.classList.toggle('lim',shown[i]>=c.max-pad-1e-9); stk.lastElementChild.classList.toggle('lim',shown[i]<=c.min+pad+1e-9) })
 	// gamut membership pills beside the values — every display gamut that can show this color
 	{	const gt=document.getElementById('gtags')
 		if(gt&&pure) gt.querySelectorAll('.gt').forEach(t=>{ let on=false
@@ -3792,12 +3841,12 @@ function renderFast(){ const rgb=RGB(), hx=hex(rgb)
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
 			`\n// one space, tree-shaken (0.4-1.5 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) } }
 	// the GPU solid redraws per frame, so the marker tracks a drag live
-	if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d(); gamMarker(); paintTC()
+	if(solid&&(!dragBar&&!plFreeze||mesh3&&mesh3.gpu)) draw3d(); gamMarker(); paintTC()
 }
 let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
 	renderFast(); if(!open()&&(!dragEnt||!dragging)) paintCatalogGrad(null,true)   // motion frames blit ALL near-screen strips live (vis-gated, GPU blits, no readback) — offscreen rows wait for the settle sweep
-	clearTimeout(settleT); settleT=setTimeout(()=>{ paintCatalogGrad(); paintCatalogVals() },140)   // …then one settle sweep bakes the PNGs, catches every skipped row up and arms the idle walk for the offscreen rest
+	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()){ paintCatalogGrad(); paintCatalogVals() } },140)   // …then one settle sweep bakes the PNGs; behind a dossier the catalog sleeps and closeModal catches it up
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
 	// drag res, so even munsell's neighbours follow the pointer
