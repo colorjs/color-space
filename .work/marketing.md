@@ -29,7 +29,7 @@
 Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/topics set, FUNDING wired). What remains is posting and repeating:
 
 1. [x] **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
-2. [ ] **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
+2. [x] **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
 2b. [ ] **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
 2c. [x] **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, provenance, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
 
@@ -46,7 +46,15 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
     - [x] Verify the automatic pages look right (nothing to submit): bundlephobia.com/package/color-space · npmtrends.com/color-space-vs-culori-vs-colorjs.io (use as comparison link in posts) · snyk.io Advisor page
 
     **Skipped, with reasons**: awesome-nodejs / awesome-creative-coding / cg-vfx-pipeline / Awesome-Design-Tools (no fitting category — forced PRs get rejected and smell of spam) · Openbase (dead since 2023) · AI-tool directories (no qualified traffic, spam adjacency) · look-LUT communities like freshluts (creative-LUT culture; conversion LUTs would confuse — reach colorists via the film track instead).
-2d. [ ] **SEO** (audit 2026-07-21 — foundation is solid: canonicals, prerendered dossier prose, per-page descriptions, sitemap+robots+llms.txt): ① **titles use raw ids** (`sgamut3cine color space — …`) — switch to display names ("S-Gamut3.Cine") from the description's "Name — " prefix in build-site.js; the title tag is the ranking+click surface, ×162 pages, non-visual change. ② camera-log pages never say "LUT" in title/description — add "conversion LUT" for LUTOK spaces (the "slog3 to rec709 lut" intent). ③ register Search Console + Bing Webmaster, submit sitemap — real query data then steers the weekly dossier work (plan §6). Minor/optional: sitemap `<lastmod>`, BreadcrumbList JSON-LD.
+2d. [ ] **SEO** (audit 2026-07-21, updated 07-22 — foundation solid: canonicals, prerendered prose, per-page descriptions, sitemap+robots+llms.txt, www→apex 301, colorjs.github.io→domain 301):
+    - [x] display-name titles ("S-Gamut3.Cine", not the slug) — shipped, pinned by tests
+    - [x] "conversion LUT" in scene-referred titles + the visible CONVERSION LUT dossier block — shipped
+    - [ ] **register Search Console + Bing Webmaster, submit sitemap** — owner-only, the single highest-value open item; its query data steers the weekly dossier work (§6) and gates the pair-pages call below
+    - [x] **per-space OG/indexable images** — shipped 07-22: `generate-og.js spaceCards()` renders a card per space (display name, use line, the space's channel-gradient signature, ranges) into gitignored `web/img/og/` (skip-if-fresh cache, ~8.5 MB JPEG); stamped into each page's og:image + alt, listed in the image sitemap; test-pinned
+    - [x] **Dataset JSON-LD** — shipped 07-22: homepage only (stamps strip it), CC0 license, data.json distribution; test-pinned
+    - [x] sitemap `<lastmod>` — shipped 07-22: per-space from git history of `spaces/<s>.js` (pages.yml now checks out full history); image-sitemap namespace added
+    - [ ] pair pages ("slog3 to rec709") — ONLY if Search Console shows impressions for pair queries; premature = thin-content risk
+    - marginal, noted not planned: title display-length (139/164 over ~60ch — names front-loaded, truncation eats only boilerplate) · BreadcrumbList JSON-LD
 3. [ ] **Next week — LiftGammaGain scrutiny post** (draft below). If the thread survives, it's the citable proof for the whole film track.
 4. [ ] **Then one film community per week**, led by that camera's pain, LGG thread cited: r/davinciresolve → r/SonyAlpha (both Sony gamuts) → iPhone-filmmaking (Apple Log, hottest trigger) → r/dji → r/videography (education-led) → ACEScentral (ACES story; bridge to ASWF orbit).
 5. [ ] **Dream-100 gift outreach alongside** (no ask, 3+ touches): colorists — Cullen Kelly, Darren Mostyn, Waqas Qazi, Color Grading Central, Gerald Undone (deltas table is his language); CSS — Lea Verou orbit, Björn Ottosson, Dan Burzo; newsletters after HN exists to cite.
@@ -68,7 +76,7 @@ Alt, sparer:
 > color-space v3 is out. 162 color spaces, one small API, verified.
 > https://color-space.io
 
-### [ ] Product Hunt (atlas-framed)
+### [x] Product Hunt (atlas-framed)
 
 - **Name:** color-space · **Tagline:** `An interactive atlas of 162 color spaces` · **Topics:** design tools, developer tools, open source
 - **Description:** Every color space — web, print, film, broadcast, vision, history. Live conversion, conventional ranges, provenance, cited references. Export any pair as a .cube LUT or ICC profile, in-browser. Free, public domain.
@@ -113,7 +121,7 @@ Pre-post: rerun `npm test` same day · verify downloads in Safari/Firefox · hav
 
 ### [ ] Reddit ladder (titles; body = the LGG skeleton compressed, conversion-not-look always, authorship disclosed, one per week)
 
-- **r/javascript**: `color-space v3 — 162 color spaces, one small API, values that match CSS, verified` (code sample + kernel-not-toolkit + atlas link)
+- [x] **r/javascript**: `color-space v3 — 162 color spaces, one small API, values that match CSS, verified` (code sample + kernel-not-toolkit + atlas link)
 - **r/webdev**: `An atlas of 162 color spaces — live conversion, ranges, provenance, LUT/ICC export`
 - **r/davinciresolve**: `Free conversion LUTs for every camera log, tested against the official ACES transforms`
 - **r/SonyAlpha**: `Free S-Log3 conversion LUTs — S-Gamut3 and S-Gamut3.Cine, any target, verified`
