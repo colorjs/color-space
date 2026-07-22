@@ -26,7 +26,8 @@ const DISP = {
 	xvycc: 'xvYCC', yccbccrc: 'YcCbcCrc', jpeg: 'JPEG YCbCr', 'ycbcr-bt2020': 'BT.2020 Y′CbCr',
 	'ycbcr-bt601-525': 'BT.601 525-line Y′CbCr', 'ycbcr-bt601-625': 'BT.601 625-line Y′CbCr',
 	macboyn: 'MacLeod–Boynton', lalphabeta: 'lαβ' }
-export const disp = s => DISP[s] || (m => m && m[1].length <= 40 ? m[1] : s.toUpperCase())((meta[s]?.description || '').match(/^(.+?) — /))
+const NAME = {}   // derived once per space — disp runs per catalog row per keystroke (markName), per template build
+export const disp = s => NAME[s] ??= DISP[s] || (m => m && m[1].length <= 40 ? m[1] : s.toUpperCase())((meta[s]?.description || '').match(/^(.+?) — /))
 export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? '%' : '')
 const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
