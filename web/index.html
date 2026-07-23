@@ -17,7 +17,9 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%23ef7a4a'/></svg>">
 <link rel="preload" href="./fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link href="./tokens.css" rel="stylesheet">
-<script>document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+<script>document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
+// temperature pre-paint: restore the stored --uh/--uk before first render (no warm flash)
+if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=document.documentElement.style;s.setProperty('--uh',h);s.setProperty('--uk',k)}</script>
 <style>
 /* clip on BODY only: html must stay overflow:visible so the body's overflow keeps
    propagating to the viewport — that propagation is what lets the modal lock the
@@ -49,7 +51,7 @@ a{ color:var(--ink) }
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
 .hueline{ position:relative; height:5px; cursor:ew-resize; touch-action:none }   /* the box IS the gradient — the sticky header's paper ends exactly at the line, no white beneath */
-.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,#ff7988,#ff824c,#ffac49,#ffd045,#f4f441,#baf848,#66f854,#00f372,#00ef98,#00ecb4,#00eac9,#00e8dc,#00e5ee,#00e1ff,#00c6ff,#009eff,#694aff,#c536ff,#f534ff,#ff4ff7,#ff5ee5,#ff66d2,#ff6dbe,#ff73a7,#ff7988) }   /* the Ostwald wheel at a tenth white+black content, 24 hues + wrap — space.ostwald.rgb(k/24*360, 10, 10); regenerate if the ostwald formulas change */
+.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,#ff7988,#ff824c,#ffac49,#ffd045,#f4f441,#baf848,#66f854,#00f372,#00ef98,#00ecb4,#00eac9,#00e8dc,#00e5ee,#00e1ff,#00c6ff,#009eff,#694aff,#c536ff,#f534ff,#ff4ff7,#ff5ee5,#ff66d2,#ff6dbe,#ff73a7,#ff7988) }   /* the Ostwald wheel at a tenth white+black content, 24 hues + wrap — space.ostwald.rgb(k/24*360, 10, 10); JS repaints with a phase when the drum spins */
 .hueline::after{ content:''; position:absolute; left:0; right:0; top:-6px; bottom:-9px }   /* the forgiving hit band overhangs the header, transparent — clicks here still land on the line */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
@@ -635,7 +637,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
-</header><div class="hueline" id="hueline" role="slider" tabindex="0" aria-label="Choose hue" aria-valuemin="0" aria-valuemax="360" aria-valuenow="41" title="pick a hue"></div></div>
+</header><div class="hueline" id="hueline" role="slider" tabindex="0" aria-label="Spin the hue wheel" aria-valuemin="0" aria-valuemax="360" aria-valuenow="41" title="the hue wheel — drag to spin; the left edge is the current hue"></div></div>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn">Display & web<span class="tc tnum">19</span></button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn">Cylindrical<span class="tc tnum">9</span></button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn">Perceptual — modern<span class="tc tnum">12</span></button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn">Perceptual — CIE classic<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn">HDR & wide gamut<span class="tc tnum">11</span></button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn">Colorimetry & vision<span class="tc tnum">14</span></button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn">Video & broadcast<span class="tc tnum">11</span></button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn">Film & camera<span class="tc tnum">36</span></button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn">Appearance models<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn">Print & physical<span class="tc tnum">7</span></button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn">Specialty & research<span class="tc tnum">6</span></button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw">Display & web<span class="c tnum">19</span></h2><div class="grid">
 	<article class="ent" data-s="rgb">
@@ -1328,27 +1330,42 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // It does NOT tint the interface (--c stays the fixed brand accent) — the catalog is
 // where the current colour lives.
 const hueEl=document.getElementById('hueline')
-if(hueEl){ let hdrag=null
-	// the line sweeps the Ostwald wheel, so the strip coordinate is an OSTWALD hue θ —
-	// the picked master stays the working oklch(0.7 0.18 h) at that θ's hue family
+if(hueEl){ let hdrag=null, hx0=0, hvel=0, hlast=0, hraf=0
+	// the line is a DRUM, not a slider: hue is circular, so the strip spins under the
+	// pointer — relative drag, no ends, the wheel phase θ (Ostwald, at the LEFT EDGE) is
+	// the picked hue family. Flicking spins it with inertia; the master follows as the
+	// working oklch(0.7 0.18 h) of the edge hue.
 	const OH=Array.from({length:361},(_,k)=>{ try{ return space.ostwald.oklch(k,0,0)[2] }catch{ return 0 } })
 	const ohToOk=t=>OH[Math.round(((t%360)+360)%360)]
 	const okToOh=h=>{ h=((h%360)+360)%360; let bi=0,bd=1e9
 		for(let k=0;k<361;k++){ const d=Math.min(Math.abs(OH[k]-h),360-Math.abs(OH[k]-h)); if(d<bd){ bd=d; bi=k } } return bi }
-	hueEl._okToOh=okToOh   // renderFast keeps aria-valuenow in strip coordinates
-	const setHue=t=>{ t=((t%360)+360)%360; master={ s:'oklch', vals:[0.7,0.18,+ohToOk(t).toFixed(1)] }; hueEl.setAttribute('aria-valuenow',Math.round(t)); scheduleFast() }
-	const pick=e=>{ const r=hueEl.getBoundingClientRect(); setHue(clamp((e.clientX-r.left)/r.width,0,1)*360) }
-	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hueEl.setPointerCapture(hdrag); pick(e) })
-	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId===hdrag) pick(e) })
-	const end=e=>{ if(e.pointerId===hdrag){ hdrag=null; renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false); try{ hueEl.releasePointerCapture(e.pointerId) }catch{} } }
+	let phase=41
+	const paint=()=>{ const st=[]; for(let k=0;k<=48;k++) st.push(clut((phase/360+k/48)%1))
+		hueEl.style.setProperty('background',`linear-gradient(90deg, ${st.join(',')})`) }
+	const setPhase=(t,apply=true)=>{ phase=((t%360)+360)%360
+		hueEl.setAttribute('aria-valuenow',Math.round(phase)); paint()
+		if(apply){ master={ s:'oklch', vals:[0.7,0.18,+ohToOk(phase).toFixed(1)] }; scheduleFast() } }
+	// typed colors and catalog picks re-phase the drum so the edge always shows the current hue
+	hueEl._syncPhase=h=>{ const t=okToOh(h); if(Math.abs(t-phase)>1&&hdrag===null&&!hraf) setPhase(t,false) }
+	const still=()=>{ if(hraf){ cancelAnimationFrame(hraf); hraf=0 } }
+	const spin=()=>{ hraf=0; if(Math.abs(hvel)<.03) return
+		setPhase(phase+hvel); hvel*=.95; hraf=requestAnimationFrame(spin) }
+	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hx0=e.clientX; hvel=0; hlast=performance.now(); still(); hueEl.setPointerCapture(hdrag) })
+	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId!==hdrag) return
+		const r=hueEl.getBoundingClientRect(), d=(e.clientX-hx0)/Math.max(1,r.width)*360; hx0=e.clientX
+		const now=performance.now(); hvel=-d/Math.max(1,now-hlast)*16; hlast=now   // °/frame, content follows the finger
+		setPhase(phase-d) })
+	const end=e=>{ if(e.pointerId!==hdrag) return
+		hdrag=null; try{ hueEl.releasePointerCapture(e.pointerId) }catch{}
+		if(!matchMedia('(prefers-reduced-motion: reduce)').matches && performance.now()-hlast<80 && Math.abs(hvel)>.5) hraf=requestAnimationFrame(spin)
+		renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
 	hueEl.addEventListener('pointerup',end); hueEl.addEventListener('pointercancel',end)
-	hueEl.addEventListener('keydown',e=>{ let h=+(hueEl.getAttribute('aria-valuenow')||0), handled=true
-		if(e.key==='ArrowLeft'||e.key==='ArrowDown') h-=e.shiftKey?10:1
-		else if(e.key==='ArrowRight'||e.key==='ArrowUp') h+=e.shiftKey?10:1
-		else if(e.key==='Home') h=0
-		else if(e.key==='End') h=359
+	hueEl.addEventListener('keydown',e=>{ let handled=true
+		if(e.key==='ArrowLeft'||e.key==='ArrowDown') setPhase(phase-(e.shiftKey?10:1))
+		else if(e.key==='ArrowRight'||e.key==='ArrowUp') setPhase(phase+(e.shiftKey?10:1))
+		else if(e.key==='Home') setPhase(0)
 		else handled=false
-		if(handled){ e.preventDefault(); setHue(h); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } }) }
+		if(handled){ e.preventDefault(); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } }) }
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 const cdEl=document.getElementById('cd'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 if(cvalEl){
@@ -1609,7 +1626,7 @@ onLoad(layoutToc)
 const vis=new Set()
 const io=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ vis.add(s); entered.push(e.target) } else vis.delete(s) })
-	if(entered.length){ paintCatalogGrad(entered); paintCatalogVals(entered) }   // paint only what just scrolled in, not the whole band
+	if(entered.length){ paintCatalogGrad(entered); paintCatalogVals(entered); prepaintSoon() }   // blit only what just scrolled in; the idle walk bakes it to plain DOM
 },{rootMargin:'300px'})
 // ents attach to the observer in wireCat() — the catalog may not exist yet on name views
 
@@ -3679,9 +3696,31 @@ const cic=window.cancelIdleCallback?.bind(window)||clearTimeout
 let ppT=0
 const prepaintSoon=()=>{ cic(ppT); ppT=ric(dl=>{ ppT=0
 	if(open()) return   // the catalog is inert behind a dossier; closeModal's settled sweep resumes the walk
-	for(const ent of cat.querySelectorAll('.ent[data-s]')){
+	const ents=[...cat.querySelectorAll('.ent[data-s]')].sort((a,b)=>vis.has(b.dataset.s)-vis.has(a.dataset.s))   // near-screen rows first — they hold the live canvases a scroll would re-Layerize
+	for(const ent of ents){
 		if(dl.timeRemaining()<3) return prepaintSoon()   // slice spent — resume next idle
-		paintCatalogGrad([ent]); paintCatalogVals([ent]) } },{timeout:1000}) }
+		paintCatalogGrad([ent]); paintCatalogVals([ent])
+		if(!bakeEnt(ent,dl)) return prepaintSoon() } },{timeout:1000}) }
+// hygiene tier: swap a row's live canvases for baked CSS strips. barImageURL is a sync
+// GPU pipeline flush + readback + PNG encode (~7ms/strip — the cost that used to freeze
+// boot and every scroll-in batch when it ran on interactive paths). ONLY this walk pays
+// it, one channel per deadline check; every interactive paint is a readback-free blit.
+// Returns false when the idle slice ran out mid-entry — per-channel stamps resume there.
+const bakeEnt=(ent,dl)=>{ const s=ent.dataset.s
+	if(liteOff(ent)&&!ent.classList.contains('pop')) return true   // sheet rows show no strips — nothing to bake
+	const gkey=s===master.s?master.vals.join():hex(RGB())
+	if(ent.dataset.g!==gkey+':v') return true   // only live-tier rows owe a bake
+	const cls=classify(s), vals=valsFor(s); if(!vals) return true
+	const chs=ent.querySelectorAll('.ch')
+	for(let i=0;i<chs.length;i++){ const ch=chs[i], c=cls.ch[i]
+		if(ch.dataset.b===gkey) continue   // this channel already baked for this color
+		if(dl.timeRemaining()<8) return false
+		const u=barImageURL(s,vals,i,[c.min,c.max],null); if(!u) return true
+		ch.classList.remove('lv'); ch.classList.add('gl'); ch.style.setProperty('--strip',`url("${u}")`); ch.style.background=''
+		ch._bgc?.remove(); ch._bgc=null   // the standing canvas layer goes — at rest the strip is plain DOM
+		ch.dataset.b=gkey }
+	ent.dataset.g=gkey+':1'
+	return true }
 // …and compile every lead card's program up front, through the same 4-deep queue — the first
 // scroll or scrub meets warm GPU strips, never a mid-scroll compile burst
 onLoad(()=>setTimeout(()=>{
@@ -3697,32 +3736,34 @@ onLoad(()=>setTimeout(()=>{
 // near-screen rows now and arms the prepaint walk to refresh the rest at idle.
 // the strip shows the per-pixel GL sweep at ALL times — the CSS-ramp stand-in that once
 // rode motion frames confused picking (it invents colors between its 9 stops and drops
-// the void/limit spans, then snapped to the GL truth at settle). Two GL tiers, same
-// pixels: fast=true (a drag/typing frame) blits the sweep onto the strip's live canvas
-// (.bgc — the dossier bar's overlay at catalog scale; a GPU copy, no readback: the PNG
-// encode cost ~18ms/frame across visible cards), and the settle sweep bakes it into
-// --strip (see .ch.gl) so at rest the catalog is plain DOM with no standing canvas
-// layers (which made every scroll re-Layerize). The ramp remains only as the
-// compile-moment and no-WebGL2 fallback.
+// the void/limit spans, then snapped to the GL truth at settle). EVERY paint here is the
+// readback-free blit onto the strip's live canvas (.bgc — the dossier bar's overlay at
+// catalog scale; a GPU copy). The baked --strip image (see .ch.gl) keeps the at-rest
+// catalog plain DOM with no standing canvas layers (which made every scroll re-Layerize) —
+// but baking is a sync GPU readback, so it lives ONLY in the idle walk's bakeEnt, never
+// here: baking visible rows inline once froze boot for seconds and put a ~400ms task
+// under every scroll-in batch. fast=true marks motion frames — they skip re-arming the
+// walk. The ramp remains only as the compile-moment and no-WebGL2 fallback.
 function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
 	if(sweep&&!fast) prepaintSoon()
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) paints its slider popover, live
 	const gl=planeGLStatus(s)==='ready'
-	let tier=gl?(fast?'v':1):0   // v = live canvas: the settle sweep still owes the baked image
+	const tier=gl?'v':0   // v = live canvas: the idle walk still owes the baked image
 	const gkey=s===master.s?master.vals.join():hx   // the master's own row keys on master.vals — its sweeps are finer than the 8-bit hex
-	if(ent.dataset.g===`${gkey}:${tier}`) return   // already painted for this exact color + tier (incl. the prerendered CSS state)
+	if(ent.dataset.g===`${gkey}:${tier}`||gl&&ent.dataset.g===`${gkey}:1`) return   // current for this exact color — live, baked, or the prerendered CSS state
 	const cls=classify(s), vals=valsFor(s)
+	let t=tier
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 		// card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
-		if(vals&&gl&&fast){ const cv=ch._bgc??=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1}))
+		if(vals&&gl){ let cv=ch._bgc
+			if(!cv){ cv=ch._bgc=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1}))
+				cv._bmr=window.OffscreenCanvas?cv.getContext('bitmaprenderer'):null }   // GPU-only transport — catalog strips are never read back
 			if(paintBarGL(cv,s,vals,i,[c.min,c.max],null)){ ch.classList.add('lv'); return } }
-		if(vals&&gl){ const u=barImageURL(s,vals,i,[c.min,c.max],null)
-			if(u){ ch.classList.remove('lv'); ch.classList.add('gl'); ch.style.setProperty('--strip',`url("${u}")`); ch.style.background=''; return } }
-		tier=0   // a bar fell back to CSS — stamp the lower tier so the next sweep retries GL
+		t=0   // a bar fell back to CSS — stamp the lower tier so the next sweep retries GL
 		ch.classList.remove('gl','lv'); ch.style.removeProperty('--strip')
 		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
-	ent.dataset.g=`${gkey}:${tier}` }) }
+	ent.dataset.g=`${gkey}:${t}` }) }
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
@@ -3749,8 +3790,8 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1); tk.style.left=(f*100)+'%' }
 			tk.style.background=hx; tk.style.borderColor=ink0 }) }) }
 function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
-	if(hueEl){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl.setAttribute('aria-valuenow',hueEl._okToOh?hueEl._okToOh(h):Math.round(h)) }catch{} }
 	// the color's public face: masthead diamond + value, favicon, url
+	if(hueEl&&hueEl._syncPhase){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl._syncPhase(h) }catch{} }
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=hx
 	syncFav(hx); syncURL(hx)
@@ -3945,7 +3986,7 @@ function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
 let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
 	renderFast(); if(!open()&&(!dragEnt||!dragging)) paintCatalogGrad(null,true)   // motion frames blit ALL near-screen strips live (vis-gated, GPU blits, no readback) — offscreen rows wait for the settle sweep
-	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()){ paintCatalogGrad(); paintCatalogVals() } },140)   // …then one settle sweep bakes the PNGs; behind a dossier the catalog sleeps and closeModal catches it up
+	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()){ paintCatalogGrad(); paintCatalogVals() } },140)   // …then one settle sweep catches offscreen rows up and arms the idle bake walk; behind a dossier the catalog sleeps and closeModal catches it up
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
 	// drag res, so even munsell's neighbours follow the pointer
@@ -3959,6 +4000,21 @@ const drawThm=()=>{ const dark=document.documentElement.dataset.theme==='dark'; 
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
 	document.documentElement.dataset.theme=t; localStorage.csTheme=t; drawThm() }
+// ── UI light temperature: the neutral ramp re-lit by a blackbody, via the library's own
+// kelvin space. Hue comes straight off the Planckian locus; chroma scales with the locus'
+// own chroma, normalized so ~9500 K reproduces the authored slate exactly (--uk:1) and
+// 6500 K daylight goes near-achromatic — neutral light, neutral grays. Accent and
+// semantic colors don't move; inline --uh/--uk beat every theme block's defaults.
+const bbUI=K=>{ const [,a,b]=space.kelvin.oklab(K), C=Math.hypot(a,b); let h=Math.atan2(b,a)*180/Math.PI; if(h<0)h+=360; return {C,h} }
+const UKREF=bbUI(9500).C
+function setUITemp(K){ const st=document.documentElement.style
+	if(!K){ st.removeProperty('--uh'); st.removeProperty('--uk'); delete localStorage.csTemp; delete localStorage.csTempV; return }
+	const {C,h}=bbUI(K=Math.round(clamp(K,1000,20000))), uk=Math.min(2.5,C/UKREF)
+	st.setProperty('--uh',h.toFixed(1)); st.setProperty('--uk',uk.toFixed(3))
+	localStorage.csTemp=K; localStorage.csTempV=`${h.toFixed(1)} ${uk.toFixed(3)}` }
+window.setUITemp=setUITemp   // the future kelvin lens on the hero bar drives this
+const tempQ=new URLSearchParams(location.search).get('temp')
+if(tempQ!=null) setUITemp(+tempQ||0); else if(localStorage.csTemp) setUITemp(+localStorage.csTemp)
 // API code panel — tabs swap which snippet shows
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const panes=[...tabs.querySelectorAll(':scope > [data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]

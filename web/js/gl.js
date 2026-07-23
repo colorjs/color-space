@@ -21,8 +21,12 @@ const dimOf = s => chunks[s]?.dim || 3
 const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 
 // one shared offscreen WebGL2 canvas renders every plane and bar, blitted into
-// each 2d canvas — existing DOM, cluster modes and fallbacks stay intact
-const CV = typeof document !== 'undefined' ? document.createElement('canvas') : null
+// each 2d canvas — existing DOM, cluster modes and fallbacks stay intact.
+// An OffscreenCanvas where supported: only it offers transferToImageBitmap, the
+// GPU-side frame transport the catalog strips ride (see paintBarGL) — drawImage
+// into a small 2D canvas looks like a blit but is a sync pipeline flush + CPU
+// readback (small canvases are CPU-backed).
+const CV = typeof document !== 'undefined' ? (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(1, 1) : document.createElement('canvas')) : null
 const G = CV && (CV.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false }) || null)
 
 let readyCb = null
@@ -550,6 +554,11 @@ export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
+	// destinations marked ._bmr (catalog strips — never read back) take the frame as
+	// an ImageBitmap: transferToImageBitmap + transferFromImageBitmap are synchronous
+	// and stay on the GPU. The 2D path remains for the dossier bars, whose pixels
+	// paintedBarCenter reads back for palette marker centering.
+	if (cv2d._bmr && CV.transferToImageBitmap) { cv2d._bmr.transferFromImageBitmap(CV.transferToImageBitmap()); return true }
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
@@ -559,16 +568,21 @@ export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0) {
 /**
  * The same 1-D sweep as a data-URL image, for CSS background use — at rest the
  * catalog strips stay plain DOM (a standing canvas per strip cost a compositor
- * layer each; ~100 of them made every scroll re-Layerize the page). Draw + encode
- * is one same-task read of the shared GL canvas, ~0.5ms per 512×1 strip — paid on
- * settle sweeps and the idle prepaint walk, never per drag frame: motion rides
- * paintBarGL's readback-free blit onto the strip's transient .bgc canvas.
+ * layer each; ~100 of them made every scroll re-Layerize the page). toDataURL on
+ * the GL canvas is a SYNC pipeline flush + readback + PNG encode — ~7ms per strip,
+ * not the sub-ms it looks like — so this is paid ONLY on the catalog's idle bake
+ * walk, budgeted per channel; every interactive paint (boot, scroll-in, drags,
+ * settle sweeps) rides paintBarGL's readback-free blit onto the .bgc canvas.
  */
+let BAKE = null   // toDataURL lives on HTMLCanvasElement only — the OffscreenCanvas kernel serializes through this bitmap holder
 export function barImageURL(s, vals, i, ri, gamut) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return null
 	drawKernel(st, 512, 1, vals, i, -1, ri, [0, 0], gamut, 0)
-	return CV.toDataURL()
+	if (!CV.transferToImageBitmap) return CV.toDataURL()
+	BAKE ??= Object.assign(document.createElement('canvas'), { width: 512, height: 1 })
+	;(BAKE._bmr ??= BAKE.getContext('bitmaprenderer')).transferFromImageBitmap(CV.transferToImageBitmap())
+	return BAKE.toDataURL()
 }
 
 // ── 3D solid: static cube-surface lattice, converted rgb→space in the VERTEX
