@@ -53,22 +53,28 @@
 }
 
 :root {
-	/* Current atlas — cool paper (Almanac hue, lighter), slate ink, fixed coral signal. */
-	--color-paper:oklch(0.978 0.004 245);
-	--color-paper-2:oklch(0.952 0.006 245);
-	--color-paper-3:oklch(0.925 0.008 242);
-	--color-ink:oklch(0.17 0.015 248);
-	--color-ink-2:oklch(0.34 0.014 246);
-	--color-muted:oklch(0.52 0.012 246);
-	--color-rule:oklch(0.82 0.01 244);
-	--color-rule-2:oklch(0.68 0.012 244);
+	/* Current atlas — cool paper (Almanac hue, lighter), slate ink, fixed coral signal.
+	   The whole neutral ramp hangs on two primitives: --uh (UI hue) and --uk (chroma
+	   multiplier). Each token keeps its own authored L and base C; temperature relights
+	   the page by moving only these two (kelvin → blackbody hue/chroma, see setUITemp).
+	   Accent, focus, error, success stay fixed — semantics don't change with the light. */
+	--uh:246;
+	--uk:1;
+	--color-paper:oklch(0.978 calc(0.004*var(--uk)) var(--uh));
+	--color-paper-2:oklch(0.952 calc(0.006*var(--uk)) var(--uh));
+	--color-paper-3:oklch(0.925 calc(0.008*var(--uk)) var(--uh));
+	--color-ink:oklch(0.17 calc(0.015*var(--uk)) var(--uh));
+	--color-ink-2:oklch(0.34 calc(0.014*var(--uk)) var(--uh));
+	--color-muted:oklch(0.52 calc(0.012*var(--uk)) var(--uh));
+	--color-rule:oklch(0.82 calc(0.01*var(--uk)) var(--uh));
+	--color-rule-2:oklch(0.68 calc(0.012*var(--uk)) var(--uh));
 	--color-accent:oklch(0.69 0.16 42);
 	--color-accent-ink:oklch(0.18 0.025 58);
 	--color-focus:oklch(0.55 0.2 34);
-	--color-lift:oklch(0.995 0.003 245);
-	--color-terminal-paper:oklch(0.17 0.012 248);
-	--color-terminal-ink:oklch(0.97 0.005 245);
-	--color-terminal-muted:oklch(0.67 0.01 246);
+	--color-lift:oklch(0.995 calc(0.003*var(--uk)) var(--uh));
+	--color-terminal-paper:oklch(0.17 calc(0.012*var(--uk)) var(--uh));
+	--color-terminal-ink:oklch(0.97 calc(0.005*var(--uk)) var(--uh));
+	--color-terminal-muted:oklch(0.67 calc(0.01*var(--uk)) var(--uh));
 	--color-error:oklch(0.52 0.19 28);
 	--color-error-on-dark:oklch(0.78 0.12 28);
 	--color-success:oklch(0.45 0.12 152);
@@ -80,7 +86,7 @@
 	--body:var(--color-ink-2);
 	--soft:var(--color-muted);
 	--ghost:var(--color-rule-2);
-	--hair:oklch(0.17 0.015 248/.12);
+	--hair:oklch(0.17 calc(0.015*var(--uk)) var(--uh)/.12);
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
@@ -163,39 +169,41 @@
 }
 
 [data-theme="dark"] {
-	--color-paper:oklch(0.185 0.01 255);
-	--color-paper-2:oklch(0.243 0.012 255);
-	--color-paper-3:oklch(0.275 0.014 255);
-	--color-ink:oklch(0.93 0.005 255);
-	--color-ink-2:oklch(0.79 0.008 255);
-	--color-muted:oklch(0.62 0.012 255);
-	--color-rule:oklch(0.36 0.014 255);
-	--color-rule-2:oklch(0.48 0.014 255);
+	--uh:255;
+	--color-paper:oklch(0.185 calc(0.01*var(--uk)) var(--uh));
+	--color-paper-2:oklch(0.243 calc(0.012*var(--uk)) var(--uh));
+	--color-paper-3:oklch(0.275 calc(0.014*var(--uk)) var(--uh));
+	--color-ink:oklch(0.93 calc(0.005*var(--uk)) var(--uh));
+	--color-ink-2:oklch(0.79 calc(0.008*var(--uk)) var(--uh));
+	--color-muted:oklch(0.62 calc(0.012*var(--uk)) var(--uh));
+	--color-rule:oklch(0.36 calc(0.014*var(--uk)) var(--uh));
+	--color-rule-2:oklch(0.48 calc(0.014*var(--uk)) var(--uh));
 	--color-accent:oklch(0.74 0.13 42);
 	--color-accent-ink:oklch(0.16 0.015 55);
 	--color-focus:oklch(0.78 0.15 48);
-	--color-lift:oklch(0.24 0.012 255);
-	--hair:oklch(0.93 0.005 255/.15);
+	--color-lift:oklch(0.24 calc(0.012*var(--uk)) var(--uh));
+	--hair:oklch(0.93 calc(0.005*var(--uk)) var(--uh)/.15);
 	color-scheme:dark;
 }
 
 /* Almanac — cool reference paper, slate signal, dense and exact. */
 [data-theme="almanac"] {
-	--color-paper:oklch(0.955 0.008 245);
-	--color-paper-2:oklch(0.925 0.01 245);
-	--color-paper-3:oklch(0.875 0.012 240);
-	--color-ink:oklch(0.16 0.02 245);
-	--color-ink-2:oklch(0.24 0.018 245);
-	--color-muted:oklch(0.46 0.014 245);
-	--color-rule:oklch(0.76 0.012 240);
-	--color-rule-2:oklch(0.38 0.018 240);
+	--uh:244;
+	--color-paper:oklch(0.955 calc(0.008*var(--uk)) var(--uh));
+	--color-paper-2:oklch(0.925 calc(0.01*var(--uk)) var(--uh));
+	--color-paper-3:oklch(0.875 calc(0.012*var(--uk)) var(--uh));
+	--color-ink:oklch(0.16 calc(0.02*var(--uk)) var(--uh));
+	--color-ink-2:oklch(0.24 calc(0.018*var(--uk)) var(--uh));
+	--color-muted:oklch(0.46 calc(0.014*var(--uk)) var(--uh));
+	--color-rule:oklch(0.76 calc(0.012*var(--uk)) var(--uh));
+	--color-rule-2:oklch(0.38 calc(0.018*var(--uk)) var(--uh));
 	--color-accent:oklch(0.38 0.135 250);
 	--color-accent-ink:oklch(0.97 0.006 245);
 	--color-focus:oklch(0.52 0.17 250);
-	--color-lift:oklch(0.98 0.006 245);
-	--color-terminal-paper:oklch(0.18 0.018 245);
-	--color-terminal-ink:oklch(0.94 0.008 245);
-	--color-terminal-muted:oklch(0.72 0.012 245);
+	--color-lift:oklch(0.98 calc(0.006*var(--uk)) var(--uh));
+	--color-terminal-paper:oklch(0.18 calc(0.018*var(--uk)) var(--uh));
+	--color-terminal-ink:oklch(0.94 calc(0.008*var(--uk)) var(--uh));
+	--color-terminal-muted:oklch(0.72 calc(0.012*var(--uk)) var(--uh));
 	--color-error:oklch(0.5 0.18 28);
 	--color-success:oklch(0.42 0.12 152);
 	--font-current:var(--font-ui);
