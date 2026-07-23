@@ -4,7 +4,7 @@
  * difference. It splits color into lightness and two opponent axes — red versus
  * green and yellow versus blue — echoing how the visual system encodes color
  * beyond the retina. Color-managed workflows conventionally anchor Lab to the D50
- * illuminant, which is why it serves as the ICC profile connection space and the
+ * illuminant, which is why it is the ICC profile connection space and the
  * reference form of CSS Color 4's lab() function, rather than tying it to any
  * particular display's white point.
  *

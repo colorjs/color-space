@@ -4,7 +4,7 @@
  * and architectural finishes. Unlike the older RAL Classic system, whose colors are
  * defined only by physical sample swatches, RAL Design colors are defined
  * algorithmically as cylindrical coordinates in CIELAB space — a hue angle, a
- * lightness, and a chroma — making every RAL Design code a directly computable point
+ * lightness, and a chroma — so every RAL Design code is a directly computable point
  * in a standard, device-independent color space rather than a color that has to be
  * matched by eye against a physical chip.
  *

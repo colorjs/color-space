@@ -3,7 +3,7 @@
  * paper, transforming CAM16's lightness and colorfulness correlates through a
  * compressive scale so that equal numerical distances correspond much more closely
  * to equal perceived color differences. Reprojected into Cartesian coordinates, it
- * behaves like a CIELAB-style space but is far more perceptually uniform, making it
+ * behaves like a CIELAB-style space but is far more perceptually uniform, so it is
  * well suited to computing color differences (ΔE) and to gamut mapping, where
  * straight-line distance needs to track actual visual difference.
  *

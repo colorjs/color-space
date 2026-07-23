@@ -4,7 +4,7 @@
  * chromatic-adaptation transform, opponent-color dimensions, and lightness correlate
  * largely intact, but revises the achromatic response and brightness equations for
  * more consistent behavior across the model's full range. Like CAM16 it reports
- * lightness, colorfulness, and hue as its core correlates, making it a close drop-in
+ * lightness, colorfulness, and hue as its core correlates — a close drop-in
  * successor wherever a CIE-endorsed appearance model is called for.
  *
  * @see {@link https://doi.org/10.1002/col.22792} Hellwig & Fairchild 2022

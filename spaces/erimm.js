@@ -4,7 +4,7 @@
  * the ROMM/RIMM family. It shares the wide ROMM (ProPhoto) primaries and D50 white
  * point with ProPhoto RGB, but its logarithmic curve lets it hold a much larger
  * range of scene exposures — well beyond diffuse white — than a linear or
- * gamma-encoded format could, making it suited to archiving raw, high-dynamic-range
+ * gamma-encoded format could, which suits archiving raw, high-dynamic-range
  * scene data.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3 / Spaulding et al. 2000

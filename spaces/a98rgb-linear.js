@@ -1,7 +1,7 @@
 /**
  * Linear-light Adobe RGB — the gamma-free counterpart to Adobe RGB 1998, sharing its
  * wider-than-sRGB primaries and D65 white point but with channel values directly
- * proportional to light intensity. It serves as the intermediate space for accurate
+ * proportional to light intensity. It is the intermediate space for accurate
  * color math, before results are re-encoded with Adobe RGB's transfer curve.
  *
  * @see {@link https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf} Adobe RGB (1998) Color Image Encoding

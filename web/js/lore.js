@@ -149,7 +149,7 @@ export default {
 	llog: { for: 'L-Log for Leica video', nm: 'L is Leica' },
 	protune: { for: 'action-camera flat log' },
 	milog: { for: 'phone cinema log' },
-	olog: { for: 'Osmo’s log profile' },
+	olog: { for: 'OPPO’s phone log' },
 	redlogfilm: { for: 'Cineon-style legacy RED log' },
 	redlog: { for: 'the original RED ONE log' },
 	panalog: { for: 'Genesis-era camera log' },

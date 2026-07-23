@@ -5,7 +5,7 @@
  * Like CAM16-UCS it reprojects CAM16's lightness and colorfulness into a
  * near-Euclidean, Cartesian layout, but its scaling is calibrated against
  * large-difference visual data rather than the small, fine-grained differences most
- * color-difference formulas target — making it the CAM16 counterpart to CAM02-LCD.
+ * color-difference formulas target — the CAM16 counterpart to CAM02-LCD.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @year 2017

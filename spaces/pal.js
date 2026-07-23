@@ -2,7 +2,7 @@
  * PAL/SECAM RGB — the primaries used by 625-line analogue television across Europe
  * and much of the world, defined in EBU Tech 3213 and ITU-R BT.470 (System B/G).
  * It shares sRGB's D65 white point and a similar gamma of about 2.2, but its green
- * primary is subtly different, making it formally distinct from Rec. 709 — the
+ * primary is subtly different, so it is formally distinct from Rec. 709 — the
  * correct gamut to use when working with archival PAL or SECAM broadcast material.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470}

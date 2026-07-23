@@ -6,8 +6,8 @@
  * merely describing the raw stimulus, yielding correlates of lightness,
  * colorfulness, and hue (plus chroma, saturation, and brightness in the full model).
  * Google adopted it, via its HCT derivative, as the foundation of Material Design's
- * dynamic color system, and it now serves broadly in color science as the default
- * replacement for CIECAM02.
+ * dynamic color system, and it is now the default
+ * replacement for CIECAM02 across color science.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#CAM16}

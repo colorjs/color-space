@@ -5,7 +5,7 @@
  * Like CAM16-UCS it reprojects CAM16's lightness and colorfulness into a
  * near-Euclidean, Cartesian layout, but its scaling is calibrated against small,
  * near-threshold visual differences rather than the coarser comparisons CAM16-LCD
- * targets — making it the CAM16 counterpart to CAM02-SCD.
+ * targets — the CAM16 counterpart to CAM02-SCD.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @year 2017

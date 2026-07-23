@@ -2,7 +2,7 @@
  * HCG — Hue, Chroma, Gray, a cylindrical RGB model that separates a color into its
  * pure hue, the chroma (colorfulness) mixed into it, and the amount of gray added to
  * dilute it. Unlike HSL or HSV, chroma here is an absolute measure of colorfulness
- * rather than one relative to lightness or value, making it a natural fit for
+ * rather than one relative to lightness or value — a natural fit for
  * additive hue-and-gray color mixing.
  *
  * @see {@link https://github.com/Qix-/color-convert}

@@ -1,7 +1,7 @@
 /**
  * Linear-light Display P3 — the gamma-free counterpart to Apple's Display P3,
  * sharing its wide DCI-P3-derived primaries and D65 white point but with channel
- * values directly proportional to light intensity. It serves as the intermediate
+ * values directly proportional to light intensity. It is the intermediate
  * space for accurate color math and image processing, before results are re-encoded
  * with the Display P3 transfer curve for output.
  *

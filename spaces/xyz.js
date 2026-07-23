@@ -3,7 +3,7 @@
  * color-matching functions of the standard observer. X, Y and Z are not themselves
  * perceptual attributes; they're engineered so Y alone carries luminance while X and Z
  * carry chromaticity, letting any visible color be written as a weighted sum of three
- * fixed imaginary primaries. It serves as the device-independent reference that RGB,
+ * fixed imaginary primaries. It is the device-independent reference that RGB,
  * Lab and other working spaces are ultimately defined against.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-xyz}
