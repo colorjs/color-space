@@ -85,6 +85,8 @@ a{ color:var(--ink) }
 body.himg .cx{ --imgw:17px }   /* the source chip stands in the flow ahead of the field, so the invitation that overlays the field starts after it */
 .imgw{ position:relative; flex:none; width:15px; height:26px; padding:0; border:0; background:none; display:grid; place-items:center; cursor:pointer; margin-right:2px }
 .imgw[hidden]{ display:none }
+#imgpk{ position:fixed; z-index:var(--z-dropdown); display:none; padding:0; border:0; background:var(--paper); box-shadow:var(--pop-shadow); cursor:crosshair; image-rendering:auto }
+body.imgpk #imgpk{ display:block }
 .imgw::before{ content:''; grid-area:1/1; width:12px; height:12px; background:var(--thumb) center/cover; border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); transition:transform var(--dur-micro) var(--ease-out) }
 .imgw:hover::before,.imgw:focus-visible::before{ transform:rotate(45deg) scale(1.14) }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
@@ -339,9 +341,14 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
    out of that scaling (non-scaling-stroke) to stay an even hairline. z1 like the ticks:
    the atlas canvas is a later sibling at z0, so anything drawn over a strip must clear it. */
 .bar2 .hist{ position:absolute; left:0; bottom:0; width:100%; height:44%; z-index:1; pointer-events:none; overflow:visible }   /* the same lane, at dossier scale */
+.rng{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,var(--tkv,var(--paper)) var(--rlo),transparent var(--rlo) var(--rhi),var(--tkv,var(--paper)) var(--rhi)); opacity:.62 }   /* outside the range steps back — the samples between the two pickers are what every other lane is now reading */
+.rng::before,.rng::after{ content:''; position:absolute; top:0; bottom:0; width:1.2px; background:var(--tki,var(--ink)) }
+.rng::before{ left:var(--rlo) } .rng::after{ left:var(--rhi) }
 .ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:52%; z-index:1; pointer-events:none; overflow:visible }   /* width EXPLICIT: an absolutely positioned svg is a replaced element — left/right alone leave it at its intrinsic (square) size */
 .ch .hist .hfill,.bar2 .hist .hfill{ fill:url(#histfade) }
-.ch .hist .hline,.bar2 .hist .hline{ fill:none; stroke:var(--tki,var(--ink)); stroke-width:.4; vector-effect:non-scaling-stroke; stroke-linejoin:round; stroke-linecap:round }
+.ch .hist path,.bar2 .hist path{ vector-effect:non-scaling-stroke; stroke-linejoin:round; stroke-linecap:round }
+.ch .hist .hedge,.bar2 .hist .hedge{ fill:none; stroke:var(--tkv,var(--paper)); stroke-width:1.4 }   /* the inverse companion, under the line */
+.ch .hist .hline,.bar2 .hist .hline{ fill:none; stroke:var(--tki,var(--ink)); stroke-width:.4 }
 #histdefs{ position:absolute; width:0; height:0 }
 #histdefs stop{ stop-color:var(--tki,var(--ink)) }   /* the one paint server every strip shares — inside #cat, where the picker's ink lives */   /* the dropped image's distribution along this channel — the picker's ink, half-strength, so it reads as a stat and never as a value */
 .ch .gtk{ position:absolute; bottom:0; width:1px; height:var(--lane); background:var(--tki,var(--ink)); transform:translateX(-50%); z-index:1; cursor:pointer; transition:transform var(--dur-micro) var(--ease-out),background var(--dur-micro) var(--ease-out) }
@@ -560,13 +567,14 @@ body.sgl #stripgl{ display:block }
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
+.sec2.term,.sec2 .term{ cursor:help }   /* headings that explain themselves use the app's bubble, like every other explainer */
 .sec2 i{ font-style:normal; font-weight:600; letter-spacing:0; text-transform:none }
 .sec2 .hp{ font:inherit; font-weight:700; letter-spacing:0; text-transform:none; font-size:var(--t1); color:var(--ink); border:0; background:none; padding:0; cursor:pointer }
 #compare .hp{ margin-left:auto }   /* the hue-arc toggle rides the far right of the interpolate heading */
 /* the interpolate heading is interactive: the word rotates the comparison space, the
    rhombus picks the blend's endpoint — same title-control idiom as the swap arrow */
-.sec2 .icyc{ font:inherit; color:inherit; letter-spacing:inherit; text-transform:inherit; border:0; background:none; padding:0; cursor:pointer }
-.sec2 .icyc:hover,.sec2 .icyc:focus-visible{ color:var(--ink); outline:none }
+.sec2 .icyc{ font:inherit; font-style:normal; color:inherit }   /* a label, nothing more — the rhombi carry the two actions */
+.sec2 .dia2{ background:none; box-shadow:inset 0 0 0 1.2px var(--ghost) }   /* the comparison's rhombus reads as an outline: it names a SPACE, not a colour */
 .sec2 .ipick{ border:0; background:none; padding:0; cursor:pointer; display:inline-flex; align-items:center }
 .sec2 .ipick .dia{ width:12px; height:12px; transform:rotate(45deg); background:var(--panel); transition:transform var(--dur-micro) var(--ease-out) }   /* a filled swatch of the endpoint colour — no outline */
 .sec2 .ipick:hover,.sec2 .ipick:focus-visible{ color:var(--ink); outline:none }
@@ -720,7 +728,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color — type a supported CSS color"><button class="imgw" id="imgw" type="button" hidden title="the image behind the histograms — click to replace it" aria-label="replace the source image"></button><span class="pstack" id="pstack" role="group" aria-label="palette — click a color to select it"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color — pick with the native picker" title="current color — pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><button class="ivb" id="ivpick" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3.75 3.75l-2 2"/></svg>pick a color</button><i class="ivs" aria-hidden="true">·</i><button class="ivb" id="ivdrop" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>drop an image</button><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><button class="prem" id="prem" type="button" hidden title="remove this color from the palette" aria-label="remove this color from the palette"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><button class="padd" id="padd" type="button" title="add the color the palette is missing — the farthest from every stop" aria-label="add a new color — the farthest from every existing stop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button></span>
+	<span class="cx" title="current color — type a supported CSS color"><button class="imgw" id="imgw" type="button" hidden title="hover to pick a colour from it · click to replace · Delete to remove" aria-label="replace the source image"></button><span class="pstack" id="pstack" role="group" aria-label="palette — click a color to select it"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color — pick with the native picker" title="current color — pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><button class="ivb" id="ivpick" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3.75 3.75l-2 2"/></svg>pick a color</button><i class="ivs" aria-hidden="true">·</i><button class="ivb" id="ivdrop" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>drop an image</button><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><button class="prem" id="prem" type="button" hidden title="remove this color from the palette" aria-label="remove this color from the palette"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><button class="padd" id="padd" type="button" title="add the color the palette is missing — the farthest from every stop" aria-label="add a new color — the farthest from every existing stop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -1576,7 +1584,39 @@ const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile
 document.getElementById('ivpick')?.addEventListener('click',()=>{ try{ cdEl.showPicker() }catch{ cdEl.click() } })
 document.getElementById('ivdrop')?.addEventListener('click',()=>cvFile?.click())
 const imgwEl=document.getElementById('imgw')
+// the rhombus is a door AND a picker: hover opens the image big enough to aim at, the
+// pointer reads it live, a click keeps that colour, leaving restores the one you had
+const imgPk=Object.assign(document.createElement('canvas'),{id:'imgpk'})
+document.body.append(imgPk)
+let pkWas=null
+const pkOpen=()=>{ const src=HIMG?.src; if(!src) return
+	const W=Math.min(260,Math.max(160,src.width*3)), H=Math.round(W*src.height/src.width)
+	imgPk.width=src.width; imgPk.height=src.height
+	imgPk.getContext('2d').drawImage(src,0,0)
+	imgPk.style.width=W+'px'; imgPk.style.height=H+'px'
+	const r=imgwEl.getBoundingClientRect()
+	imgPk.style.left=Math.max(6,Math.min(r.left-8,innerWidth-W-6))+'px'
+	imgPk.style.top=(r.bottom+6)+'px'
+	pkWas={ s:master.s, vals:master.vals.slice() }
+	document.body.classList.add('imgpk') }
+const pkClose=(keep)=>{ if(!document.body.classList.contains('imgpk')) return
+	document.body.classList.remove('imgpk')
+	if(!keep&&pkWas){ master=pkWas; pal[sel]=master; palRev++; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+	pkWas=null }
+const pkRead=e=>{ const r=imgPk.getBoundingClientRect()
+	const x=Math.floor((e.clientX-r.left)/r.width*imgPk.width), y=Math.floor((e.clientY-r.top)/r.height*imgPk.height)
+	if(x<0||y<0||x>=imgPk.width||y>=imgPk.height) return
+	const d=imgPk.getContext('2d',{willReadFrequently:true}).getImageData(x,y,1,1).data
+	master={ s:'rgb', vals:[d[0],d[1],d[2]] }; pal[sel]=master; palRev++
+	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+imgwEl?.addEventListener('pointerenter',pkOpen)
+imgwEl?.addEventListener('pointerleave',e=>{ if(!imgPk.contains(e.relatedTarget)) pkClose(false) })
+imgPk.addEventListener('pointermove',pkRead)
+imgPk.addEventListener('pointerdown',e=>{ pkRead(e); pkClose(true) })
+imgPk.addEventListener('pointerleave',()=>pkClose(false))
 imgwEl?.addEventListener('click',()=>cvFile?.click())
+// …and it lets the image go: Delete on the focused rhombus clears it everywhere
+imgwEl?.addEventListener('keydown',e=>{ if(e.key==='Delete'||e.key==='Backspace'){ e.preventDefault(); clearImage() } })
 cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeImage(f2); cvFile.value='' })
 // ── drop an image anywhere (or paste one): its prominent colors become the palette ──
 const dropEl=document.getElementById('dropcast')
@@ -1634,7 +1674,43 @@ const ric=window.requestIdleCallback?.bind(window)||(fn=>setTimeout(()=>{ const 
 let HIMG=null, hRev=0, hT=0
 const histC=new Map(), histQ=new Set(), histP=new Map(), histV=new Map()   // lane curves · waiting · half-binned · the samples themselves
 const SVGNS='http://www.w3.org/2000/svg'
+// { s, i, lo, hi } — channel i of space s, as fractions of its range. Held colours and
+// every other lane read through the mask it makes; nothing is converted twice.
+let BRUSH=null, bMask=null
+const brushMask=()=>{ if(!BRUSH) return null
+	if(bMask) return bMask
+	const rec=histV.get(BRUSH.s); if(!rec) return null
+	const cls=classify(BRUSH.s), ch=cls.ch[BRUSH.i], { v, dim, n }=rec
+	const m=new Uint8Array(n)
+	for(let k=0;k<n;k++){ const t=(v[k*dim+BRUSH.i]-ch.min)/(ch.max-ch.min)
+		m[k]=t>=BRUSH.lo&&t<=BRUSH.hi?1:0 }
+	return bMask=m }
+// a new range re-projects what is already converted: lanes rebin, scopes re-splat
+const brushApply=()=>{ bMask=null; hRev++
+	for(const s2 of [...histC.keys()]){ const rec=histV.get(s2); if(rec) histC.set(s2,histPoly(histBins(rec,classify(s2),brushMask()))) }
+	document.body.classList.toggle('brushed',!!BRUSH)
+	detail.querySelectorAll('.bar2').forEach(b=>{ b._hist&&(b._hist._p=null) })
+	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
+	if(open()) paintPlanes(false)
+	paintCatalogVals(); renderFast() }
+const setBrush=(s2,i,lo,hi)=>{ BRUSH=hi-lo<.004?null:{ s:s2, i, lo:Math.max(0,lo), hi:Math.min(1,hi) }; brushApply() }
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&BRUSH){ BRUSH=null; brushApply() } })
+const clearImage=()=>{ HIMG=null; UIMG=null; BRUSH=null; bMask=null
+	histC.clear(); histQ.clear(); histP.clear(); histV.clear(); hRev++
+	document.body.classList.remove('himg','brushed')
+	if(imgwEl) imgwEl.hidden=true
+	try{ delete localStorage.csImg }catch{}
+	if(IMGS&&IMGS._user!=null){ IMGS.splice(IMGS._user,1); IMGS._user=null; IMG=IMGS[0]; imgIdx=0 }
+	detail.querySelectorAll('.bar2').forEach(b=>{ if(b._hist){ b._hist._p=null; b._hist.style.display='none' } })
+	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
+	if(open()){ paintPlanes(false); paintImages() } else paintCatalogVals() }
 const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); hRev++; document.body.classList.toggle('himg',!!a)
+	// the sample canvas is a few kB — small enough to keep, so the atlas resumes where it was.
+	// The original is the reader's, not ours: it never leaves their machine and we never store it.
+	// (an OffscreenCanvas has no toDataURL — it converts to a blob instead)
+	if(a?.src) try{ const cv=a.src
+		if(cv.toDataURL) localStorage.csImg=cv.toDataURL('image/png')
+		else cv.convertToBlob({type:'image/png'}).then(b=>{ const rd=new FileReader(); rd.onload=()=>{ try{ localStorage.csImg=rd.result }catch{} }; rd.readAsDataURL(b) }) }catch{}
 	if(a&&!document.getElementById('histdefs')){ const d=document.createElementNS(SVGNS,'svg')
 		d.id='histdefs'; d.setAttribute('aria-hidden','true')
 		d.innerHTML='<linearGradient id="histfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-opacity=".74"/><stop offset=".8" stop-opacity=".64"/><stop offset="1" stop-opacity=".56"/></linearGradient>'
@@ -1644,12 +1720,26 @@ const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); hRev++;
 // binning is RESUMABLE: a sample costs one conversion, and the heaviest inverses are not
 // cheap (munsell's renotation search runs ~65µs — 3000 of them would stall a frame outright),
 // so a space is binned across as many idle slices as it needs, ~8ms at a time.
+// the samples, binned per channel — from COORDINATES, so it costs no conversion and can be
+// re-run for any subset the reader brushes
+function histBins(rec,cls,mask){ const { v, dim, n }=rec
+	const bins=cls.ch.map(()=>new Float32Array(HBINS))
+	for(let k=0;k<n;k++){ if(mask&&!mask[k]) continue
+		for(let c=0;c<cls.ch.length;c++){ const ch=cls.ch[c], t=(v[k*dim+c]-ch.min)/(ch.max-ch.min)
+			if(!(t>=0&&t<=1)) continue
+			// each sample splits between the two bins it falls between: a bin here is narrower
+			// than one 8-bit step, so whole-bin counting left every other bin empty and the
+			// curve combed roof-to-floor on anything with a smooth ramp in it
+			const x=t*(HBINS-1), j=x|0, fr=x-j
+			bins[c][j]+=1-fr
+			if(j+1<HBINS) bins[c][j+1]+=fr } }
+	return bins }
 function histStep(s){ let st=histP.get(s)
 	if(!st){ const cls=classify(s), n=HIMG.length/3
-		st={ cls, n, cnt:Math.min(n,HSAMP), k:0, dim:cls.ch.length, bins:cls.ch.map(()=>new Float32Array(HBINS)) }
+		st={ cls, n, cnt:Math.min(n,HSAMP), k:0, dim:cls.ch.length }
 		st.v=new Float32Array(st.cnt*st.dim)   // the image, kept in this space's own coordinates
 		histP.set(s,st) }
-	const { cls, n, cnt, bins }=st, t0=performance.now()
+	const { cls, n, cnt }=st, t0=performance.now()
 	// the walk is DECORRELATED from the image, not a stride: a fixed step divides the row
 	// width as often as not (every 3rd pixel of a 120-wide picture is one column phase), and
 	// on any gradient that phase-locking came back as a comb of alternating bins. Knuth's
@@ -1659,16 +1749,10 @@ function histStep(s){ let st=histP.get(s)
 		const i=(st.k*2654435761)%n
 		let v; try{ v=toSpace(s,[HIMG[i*3],HIMG[i*3+1],HIMG[i*3+2]]) }catch{ continue }
 		for(let c=0;c<st.dim;c++) st.v[st.k*st.dim+c]=v[c]   // the lanes are one projection of these; the planes are another
-		for(let c=0;c<cls.ch.length;c++){ const ch=cls.ch[c], t=(v[c]-ch.min)/(ch.max-ch.min)
-			if(!(t>=0&&t<=1)) continue
-			// split each sample between the two bins it falls between: a bin here is narrower
-			// than one 8-bit step, so whole-bin counting left every other bin empty and the
-			// curve combed roof-to-floor on anything with a smooth ramp in it
-			const x=t*(HBINS-1), j=x|0, fr=x-j
-			bins[c][j]+=1-fr
-			if(j+1<HBINS) bins[c][j+1]+=fr } }
-	histP.delete(s); histC.set(s,histPoly(bins))
+		}
+	histP.delete(s)
 	histV.set(s,{ v:st.v, dim:st.dim, n:cnt })
+	histC.set(s,histPoly(histBins(histV.get(s),cls)))
 	if(histV.size>10) histV.delete(histV.keys().next().value)   // a few spaces' worth of coordinates is plenty — the rest re-derive on demand
 	return true }
 // The outline runs through the bins' CENTRES, so the silhouette is a curve rather than a
@@ -1980,6 +2064,17 @@ let squelch=false
 // focus a sheet row's channel → a gentle slider popover for that space, edited like a lead card, no full modal
 let popEnt=null
 const hidePop=()=>{ if(!popEnt) return; popEnt.classList.remove('pop'); popEnt=null; sglVoid(); sglSettle() }   // the popover's strips left the page — re-capture so the atlas doesn't paint over their absence
+// alt-drag: the picker becomes two, and what lies between them is the sample set every
+// other lane and scope reads. Photoshop splits its Blend If slider the same way.
+function rangeDrag(e,el,sp,i){ e.preventDefault(); e.stopPropagation()
+	const r=el.getBoundingClientRect(), a0=clamp((e.clientX-r.left)/r.width,0,1)
+	el.setPointerCapture?.(e.pointerId)
+	const to=ev=>{ const a1=clamp((ev.clientX-r.left)/r.width,0,1)
+		setBrush(sp,i,Math.min(a0,a1),Math.max(a0,a1)) }
+	to(e)
+	el.onpointermove=to
+	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.onpointercancel=null }
+	el.onpointerup=up; el.onpointercancel=up }
 const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop')
 	paintCatalogGrad([ent]); paintCatalogVals([ent])
 	sglVoid(); sglSettle() }   // the popover's strips just appeared — fold them into the atlas band
@@ -2028,6 +2123,7 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		ch.addEventListener('pointerenter',()=>cvEl?.classList.add('on'))   // the slider points at its number
 		ch.addEventListener('pointerleave',()=>cvEl?.classList.remove('on'))
 		ch.addEventListener('pointerdown',e=>{
+			if(e.altKey&&HIMG){ rangeDrag(e,ch,s,i); return }   // alt splits the picker into a start and an end — the range, not a value
 			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
 			const jump=ev=>{ const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
@@ -3441,7 +3537,7 @@ ${gLegend}">?</span></div>`
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space — sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate — hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut — this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible — the box's shape, though no colour lives there."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer — the space's curve — scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance — the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
-	const interpHTML=`<h2 class="sec2" id="compare"><button class="icyc" id="icyc" title="the blend from the current colour to the endpoint, stepped in THIS space — the row below repeats it through another space, so you can see which path holds its lightness and hue and which one dips through mud. Click to change the space it is compared against.">interpolate to</button><button class="ipick" id="ipick" title="pick the color to blend toward — the endpoint" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
+	const interpHTML=`<h2 class="sec2" id="compare"><i class="icyc">interpolate to</i><button class="ipick" id="ipick" title="the colour this blend ends on" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button><button class="ipick icmpb" id="icmpb" title="the space the row below repeats the blend through — click to change it" aria-label="change the comparison space"><span class="dia dia2"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
 	 <div class="istack">
 		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
 		<button type="button" class="irow icmp" id="icmp" title="the same blend through another space — click to compare against oklch, oklab, lab, …"><span class="isp" id="ispc"></span></button>
@@ -3499,7 +3595,7 @@ ${gLegend}">?</span></div>`
 			${avoid?`<div><i>caveat</i><p>${sent(avoid)}</p></div>`:''}
 		</div>
 	 </div>
-	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image" title="one panel per channel: each holds THIS channel of the image and neutralises the others, so the panel shows what that channel alone carries — its shape, its contrast, what it keeps and what it throws away. The first panel is the image itself; drop your own anywhere on the page.">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere" aria-label="open an image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
+	 ${hasPlaneGL(s)?`<h2 class="sec2 term" id="image" title="each panel keeps one channel and neutralises the rest — what that channel alone carries">image<button class="upbtn" id="imgadd" title="open an image of yours — or just drop one anywhere" aria-label="open an image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
 	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button></span></h2>
@@ -3578,7 +3674,7 @@ ${gLegend}">?</span></div>`
 	if(ipick&&pinb) ipick.onclick=()=>pinb.click()   // the rhombus opens the native endpoint picker
 	// the heading word AND the comparison band itself cycle the comparison space, like clicking the image source panel
 	const cycleCmp=()=>{ const list=ICMP.filter(k=>k!==s); if(list.length){ cmpIdx=(cmpIdx+1)%list.length; renderFast() } }
-	const icyc=detail.querySelector('#icyc'); if(icyc) icyc.onclick=cycleCmp
+	const icmpb=detail.querySelector('#icmpb'); if(icmpb) icmpb.onclick=cycleCmp   // the second rhombus rotates the comparison; the words are only a label
 	const icmpEl=detail.querySelector('#icmp'); if(icmpEl) icmpEl.onclick=cycleCmp
 	const csnip=detail.querySelector('#csnip')
 	csnip.onclick=()=>copy(detail.querySelector('#snip').textContent)
@@ -3938,9 +4034,9 @@ function planeDensity(pl,s,a,b,cls){
 	const key=s+'|'+a+','+b+'|'+(pol?'p':tri?'t'+tri:'r')+'|'+vw.x0+','+vw.x1+','+vw.y0+','+vw.y1+'|'+hRev
 	if(pl._dk===key) return pl._dc
 	pl._dk=key; pl._dc=null
-	const { v, dim, n }=rec, ca=cls.ch[a], cb=cls.ch[b]
+	const { v, dim, n }=rec, ca=cls.ch[a], cb=cls.ch[b], msk=brushMask()
 	const g=new Float32Array(DG*DG)
-	for(let k=0;k<n;k++){
+	for(let k=0;k<n;k++){ if(msk&&!msk[k]) continue
 		let fa=(v[k*dim+a]-ca.min)/(ca.max-ca.min), fb=(v[k*dim+b]-cb.min)/(cb.max-cb.min)
 		let x,y
 		if(pol){ // the disc: a is the hue turn (clockwise from +x), b the radius — full ranges, no window
@@ -4274,11 +4370,17 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 					h.setAttribute('class','hist'); h.setAttribute('viewBox','0 0 100 100')
 					h.setAttribute('preserveAspectRatio','none'); h.setAttribute('aria-hidden','true')
 					h._f=h.appendChild(document.createElementNS(SVGNS,'path')); h._f.setAttribute('class','hfill')
+					h._e=h.appendChild(document.createElementNS(SVGNS,'path')); h._e.setAttribute('class','hedge')
 					h._l=h.appendChild(document.createElementNS(SVGNS,'path')); h._l.setAttribute('class','hline')
 					ch.insertBefore(h,ch.firstChild) }
 				if(h._p!==p){ h._p=p
-					if(p){ h._f.setAttribute('d',p.a); h._l.setAttribute('d',p.l) }
+					if(p){ h._f.setAttribute('d',p.a); h._e.setAttribute('d',p.l); h._l.setAttribute('d',p.l) }
 					h.style.display=p?'':'none' } }
+			// the range's own band — only on the channel it was laid on
+			const br=BRUSH&&BRUSH.s===s&&BRUSH.i===i?BRUSH:null
+			if(br||ch._rng){ const rg=ch._rng||(ch._rng=ch.appendChild(Object.assign(document.createElement('i'),{className:'rng'})))
+				rg.style.display=br?'':'none'
+				if(br){ rg.style.setProperty('--rlo',(br.lo*100).toFixed(2)+'%'); rg.style.setProperty('--rhi',(br.hi*100).toFixed(2)+'%') } }
 			const tk=ch.querySelector('.tk'), disp=vals?'':'none'
 			if(tk.style.display!==disp) tk.style.display=disp   // same-string style sets still churn CSSOM values
 			// transform, never left: a left write lays out and repaints the strip under the tick —
@@ -4335,10 +4437,11 @@ function renderFast(solid=true){ pal[sel]=master   // the selected stop IS the m
 				h.setAttribute('class','hist'); h.setAttribute('viewBox','0 0 100 100')
 				h.setAttribute('preserveAspectRatio','none'); h.setAttribute('aria-hidden','true')
 				h._f=h.appendChild(document.createElementNS(SVGNS,'path')); h._f.setAttribute('class','hfill')
+				h._e=h.appendChild(document.createElementNS(SVGNS,'path')); h._e.setAttribute('class','hedge')
 				h._l=h.appendChild(document.createElementNS(SVGNS,'path')); h._l.setAttribute('class','hline')
 				bar.append(h) }
 			if(h._p!==p){ h._p=p
-				if(p){ h._f.setAttribute('d',p.a); h._l.setAttribute('d',p.l) }
+				if(p){ h._f.setAttribute('d',p.a); h._e.setAttribute('d',p.l); h._l.setAttribute('d',p.l) }
 				h.style.display=p?'':'none' } }
 		if(bar!==dragBar){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
@@ -4547,6 +4650,8 @@ function setUITemp(K){ const st=document.documentElement.style
 window.setUITemp=setUITemp   // the future kelvin lens on the hero bar drives this
 const tempQ=new URLSearchParams(location.search).get('temp')
 if(tempQ!=null) setUITemp(+tempQ||0); else if(localStorage.csTemp) setUITemp(+localStorage.csTemp)
+// last session's image, restored from its own sample canvas — one small decode, off the boot path
+if(localStorage.csImg) onLoad(()=>setTimeout(()=>{ try{ fetch(localStorage.csImg).then(r=>r.blob()).then(b=>takeImage(new File([b],'image.png',{type:'image/png'}))).catch(()=>{}) }catch{} },600))
 // API code panel — tabs swap which snippet shows
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const panes=[...tabs.querySelectorAll(':scope > [data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]
