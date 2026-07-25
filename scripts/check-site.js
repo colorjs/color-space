@@ -20,7 +20,7 @@ const errors = []
 try {
 	const page = await context.newPage()
 	page.on('pageerror', error => errors.push(error.message))
-	await page.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	await page.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })   // ?sw: loopback skips the service worker for dev-freshness — the offline pin below needs it registered
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
 	assert.equal(await page.locator('.ent').count(), 162, 'catalog has all spaces')
 
@@ -132,7 +132,7 @@ try {
 	assert.equal(hpVoid,0,'HPLuv H×L plane remains complete after even→smooth')
 	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal').hidden)
 
-	await page.goto(`${server.origin}/oklch?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	await page.goto(`${server.origin}/oklch?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('link[rel="canonical"]').getAttribute('href'), /\/oklch$/, 'direct dossier has its canonical URL')
 	await page.locator('#mx').click()
@@ -141,7 +141,7 @@ try {
 	const mobile = await context.newPage()
 	mobile.on('pageerror', error => errors.push(`mobile: ${error.message}`))
 	await mobile.setViewportSize({ width: 390, height: 844 })
-	await mobile.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	await mobile.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	// no folding: headings are plain titles and every row is visible by default
 	const heading = mobile.locator('.shw').first()
 	await heading.waitFor()

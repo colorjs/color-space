@@ -20,13 +20,13 @@ const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
 const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 
-// one shared offscreen WebGL2 canvas renders every plane and bar, blitted into
-// each 2d canvas — existing DOM, cluster modes and fallbacks stay intact.
-// An OffscreenCanvas where supported: only it offers transferToImageBitmap, the
-// GPU-side frame transport the catalog strips ride (see paintBarGL) — drawImage
-// into a small 2D canvas looks like a blit but is a sync pipeline flush + CPU
-// readback (small canvases are CPU-backed).
-const CV = typeof document !== 'undefined' ? (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(1, 1) : document.createElement('canvas')) : null
+// one shared WebGL2 canvas renders every plane and bar. Planes blit from it into
+// their 2d canvases; catalog strips NEVER blit per strip — during motion this canvas
+// itself overlays the page and draws every visible strip in one pass (paintStripsGL),
+// and at settle the page copies the whole band into its scrolling 2D snapshot in ONE
+// drawImage. Any per-strip transport (drawImage, ImageBitmap, PNG) pays a GPU handoff
+// per strip per frame, and sixty of those a frame is what made dragging crawl.
+const CV = typeof document !== 'undefined' ? document.createElement('canvas') : null
 const G = CV && (CV.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false }) || null)
 
 let readyCb = null
@@ -84,7 +84,8 @@ const LUT0 = 8   // first texture unit for LUTs — clear of the image unit
 function bindLuts(gl, st) {
 	if (!st.lutN || !st.lutN.length) return
 	const cache = lutTex.get(gl) ?? lutTex.set(gl, {}).get(gl)
-	st.lutN.forEach((n, k) => {
+	const locs = st.uLut ??= st.lutN.map(n => gl.getUniformLocation(st.pr, n + 'tex'))   // resolved once per program — a per-draw lookup is a sync GPU-process round trip, and the atlas draws ~60× a frame
+	for (let k = 0; k < st.lutN.length; k++) { const n = st.lutN[k]
 		gl.activeTexture(gl.TEXTURE0 + LUT0 + k)
 		if (cache[n]) gl.bindTexture(gl.TEXTURE_2D, cache[n])
 		else { const t = cache[n] = gl.createTexture(), l = luts[n]
@@ -94,7 +95,7 @@ function bindLuts(gl, st) {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE) }
-		gl.uniform1i(gl.getUniformLocation(st.pr, n + 'tex'), LUT0 + k) })
+		gl.uniform1i(locs[k], LUT0 + k) }
 	gl.activeTexture(gl.TEXTURE0)
 }
 
@@ -193,6 +194,7 @@ uniform vec4 uV;          // held channel values
 uniform ivec2 uAB;        // swept channel indices: x horizontal, y vertical (-1 = bar)
 uniform vec2 uRX, uRY;    // swept ranges (pan/zoom-windowed)
 uniform vec2 uRes;
+uniform vec2 uOff;        // viewport origin in window px — the strip atlas draws many rects into one canvas
 uniform float uQ;         // numeric coordinate lattice (0 = smooth)
 uniform int uGam;         // 0 off · 1 srgb · 2 p3 · 3 rec2020 · 4 human (spectral locus)
 uniform int uWeb;         // web-safe output snap
@@ -201,7 +203,7 @@ uniform int uTri;         // cone-family vertical section: 1 cone · 2 bicone ·
 uniform int uClu;         // color-cluster lens: 1 nearest CSS named color · 2 even OKLab grid
 out vec4 O;
 void main() {
-	vec2 f = gl_FragCoord.xy / uRes;
+	vec2 f = (gl_FragCoord.xy - uOff) / uRes;
 	float fa, fb;
 	if (uPolar == 1) {
 		vec2 pc = f * 2.0 - 1.0;
@@ -496,26 +498,25 @@ bool inVisSolid(vec3 c) {   // a colour a surface can show under D65
 	return true;
 }`)(visSolid())
 
-function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric) {
-	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
-	G.viewport(0, 0, w, h)
-	G.disable(G.DEPTH_TEST)
+// program + uniforms + draw for one kernel rect — shared by the single-rect blit path
+// (drawKernel) and the strip atlas (paintStripsGL), which offsets many rects into one canvas
+const KV4 = [0, 0, 0, 0]   // reused held-values scratch — the atlas calls this ~60× per drag frame
+function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, ox = 0, oy = 0) {
 	// Flat cluster fills must survive readback byte-for-byte (marker centering uses
 	// the painted run); retain hardware dithering only for genuinely smooth fields.
 	quant ? G.disable(G.DITHER) : G.enable(G.DITHER)
-	G.clearColor(0, 0, 0, 0)
-	G.clear(G.COLOR_BUFFER_BIT)
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
-	const v4 = [0, 0, 0, 0]; for (let i = 0; i < Math.min(4, vals.length); i++) v4[i] = vals[i]
-	G.uniform4f(st.u.uV, ...v4)
+	KV4[0] = KV4[1] = KV4[2] = KV4[3] = 0; for (let i = 0; i < Math.min(4, vals.length); i++) KV4[i] = vals[i]
+	G.uniform4f(st.u.uV, KV4[0], KV4[1], KV4[2], KV4[3])
 	G.uniform2i(st.u.uAB, a, b)
 	G.uniform2f(st.u.uRX, rx[0], rx[1])
 	G.uniform2f(st.u.uRY, ry[0], ry[1])
 	G.uniform2f(st.u.uRes, w, h)
+	G.uniform2f(st.u.uOff, ox, oy)
 	G.uniform1f(st.u.uQ, typeof quant === 'number' ? quant : 0)
 	G.uniform1i(st.u.uGam, GAMI[gamut] || 0)
 	G.uniform1i(st.u.uWeb, quant === 'web' ? 1 : 0)
@@ -530,6 +531,54 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	if (PALETTES[quant]) bindPalette(G, st.u.uPalIdx, st.u.uPalSites, quant, metric)
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
+
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric) {
+	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	G.viewport(0, 0, w, h)
+	G.disable(G.DEPTH_TEST)
+	G.clearColor(0, 0, 0, 0)
+	G.clear(G.COLOR_BUFFER_BIT)
+	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric)
+}
+
+/**
+ * The strip ATLAS: every catalog strip in the jobs list drawn into ONE canvas, one
+ * present per pass — each strip is a viewport+scissor rect running its space's
+ * program. This is the whole point: any per-strip transport (blit, ImageBitmap,
+ * PNG) pays a GPU handoff per strip per frame; the atlas pays exactly one. Jobs
+ * are integral CSS px (the page draws at 1× density), y from the top of the frame;
+ * yOff maps band-space jobs into a smaller frame (the live viewport slice) and must
+ * be integral — GL truncates, and a fractional offset once nudged every strip a
+ * pixel at the live↔snapshot swap. Rects outside the frame skip, as do pending
+ * programs (their DOM strip shows). Returns the number of strips drawn.
+ */
+export function paintStripsGL(w, h, jobs, yOff = 0) {
+	if (!G) return 0
+	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	G.disable(G.DEPTH_TEST)
+	G.disable(G.SCISSOR_TEST)
+	G.viewport(0, 0, w, h)
+	G.clearColor(0, 0, 0, 0)
+	G.clear(G.COLOR_BUFFER_BIT)
+	G.enable(G.SCISSOR_TEST)
+	let n = 0
+	for (const j of jobs) {
+		const jy = j.y - yOff   // yOff maps band-space jobs into a viewport-sized frame; outside rects just skip
+		if (jy + j.h <= 0 || jy >= h) continue
+		const st = planeProg(j.s)
+		if (!st.pr || st.bad || st.pending) continue
+		const y = h - jy - j.h   // GL origin is bottom-left
+		G.viewport(j.x, y, j.w, j.h)
+		G.scissor(j.x, y, j.w, j.h)
+		kernelDraw(st, j.w, j.h, j.vals, j.i, -1, j.ri, [0, 0], null, 0, 0, 0, undefined, j.x, y)
+		n++
+	}
+	G.disable(G.SCISSOR_TEST)
+	return n
+}
+
+/** The shared kernel canvas itself — the page mounts it as the drag-time strip overlay. */
+export function kernelCanvas() { return CV }
 
 /**
  * Paint one plane on the GPU and blit it into the plane's 2d canvas.
@@ -553,36 +602,12 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
 export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
-	// destinations marked ._bmr (catalog strips — never read back) take the frame as
-	// an ImageBitmap: transferToImageBitmap + transferFromImageBitmap are synchronous
-	// and stay on the GPU. The 2D path remains for the dossier bars, whose pixels
-	// paintedBarCenter reads back for palette marker centering.
-	if (cv2d._bmr && CV.transferToImageBitmap) { cv2d._bmr.transferFromImageBitmap(CV.transferToImageBitmap()); return true }
 	const ctx = cv2d.getContext('2d')
+	if (!ctx) return false   // a canvas claimed by another context type (older transports) — the CSS ramp covers it
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
 	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
 	ctx.drawImage(CV, 0, 0)
 	return true
-}
-
-/**
- * The same 1-D sweep as a data-URL image, for CSS background use — at rest the
- * catalog strips stay plain DOM (a standing canvas per strip cost a compositor
- * layer each; ~100 of them made every scroll re-Layerize the page). toDataURL on
- * the GL canvas is a SYNC pipeline flush + readback + PNG encode — ~7ms per strip,
- * not the sub-ms it looks like — so this is paid ONLY on the catalog's idle bake
- * walk, budgeted per channel; every interactive paint (boot, scroll-in, drags,
- * settle sweeps) rides paintBarGL's readback-free blit onto the .bgc canvas.
- */
-let BAKE = null   // toDataURL lives on HTMLCanvasElement only — the OffscreenCanvas kernel serializes through this bitmap holder
-export function barImageURL(s, vals, i, ri, gamut) {
-	const st = planeProg(s)
-	if (!st.pr || st.bad || st.pending) return null
-	drawKernel(st, 512, 1, vals, i, -1, ri, [0, 0], gamut, 0)
-	if (!CV.transferToImageBitmap) return CV.toDataURL()
-	BAKE ??= Object.assign(document.createElement('canvas'), { width: 512, height: 1 })
-	;(BAKE._bmr ??= BAKE.getContext('bitmaprenderer')).transferFromImageBitmap(CV.transferToImageBitmap())
-	return BAKE.toDataURL()
 }
 
 // ── 3D solid: static cube-surface lattice, converted rgb→space in the VERTEX

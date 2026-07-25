@@ -63,12 +63,45 @@ a{ color:var(--ink) }
 .cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:50%; transform:translateY(-50%); display:flex; align-items:center; cursor:text }   /* sits where the spaces column starts; centred in the bar like every other item; rhombus, value and gamut pill share one centre line */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
-.cx .cd{ position:absolute; left:calc(.15em - 7px); top:50%; width:25px; height:25px; padding:7px; background:none; border:0; appearance:none; -webkit-appearance:none; transform:translateY(-50%) rotate(45deg); cursor:pointer; transition:transform var(--dur-micro) var(--ease-out) }   /* the favicon rhombus, live — a native color input in disguise; centred on the value's line. The box is the hit area (25px); the padding keeps the visible swatch at the same 11px */
-.cx .cd:hover,.cx .cd:focus-visible{ transform:translateY(-50%) rotate(45deg) scale(1.18) }   /* the same lift the interpolate endpoint rhombus has */
-.cd::-webkit-color-swatch-wrapper{ padding:0; border-radius:0 }
-.cd::-webkit-color-swatch{ border:0; border-radius:0 }   /* iOS rounds the native swatch into a circle — the rhombus stays a rhombus */
-#cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:1.4em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
+/* the current stop's slot: renders EXACTLY like a .psw swatch (same ::before recipe, same slice
+   box — the stack stays even and equidistant) and wears the slider tick's engaged ring pair at
+   the tick's own 1.2px offsets. The native color input is an invisible overlay: the slot IS the
+   picker, with a clean rectangular hit like every other slice. */
+.cdw{ position:relative; flex:none; width:13px; height:26px; display:grid; place-items:center }
+.cdw::before{ content:''; grid-area:1/1; width:11px; height:11px; background:var(--sw); border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the engaged picker's dress, built the same way it is: the inverse ring INSIDE the shape (a border — the fill shrinks by it) and the ink ring immediately outside, both 1.2px. Rings drawn outside the fill instead read three times heavier at the same nominal weight */   /* the current chip wears the picker pair at the engaged tick's weights — the inverse ring double-width (2.4px) hugging, the 1.2px ink ring outside; the inner ring doubles as the paper cut its neighbours get */
+.cdw .cd{ position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
+
+#cval{ field-sizing:content; min-width:5.5rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
 .gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
+/* the palette: ONE stack — every stop in palette order, uniform slice slots, and the selected
+   stop IS the masthead diamond (the native picker) riding its slot, marked by the picker's
+   ring pair. Click a swatch to select it: the diamond moves to that slot; the order never
+   changes. At one color the stack is just the diamond. */
+.pstack{ display:flex; align-items:center; padding:0 3px 0 4px; isolation:isolate; cursor:default }
+/* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
+   avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
+.psw{ position:relative; flex:none; width:13px; height:26px; padding:0; border:0; background:none; display:grid; place-items:center; cursor:pointer }
+.psw::before{ content:''; grid-area:1/1; width:11px; height:11px; background:var(--sw); box-shadow:0 0 0 2px var(--paper); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* overlapping chips separated by the 2px paper cut — no ink outline; that marks the current one */   /* hit region = the slice box alone — a rhombus lobe painting over the neighbour's slice must not steal its press */
+.psw:hover::before,.psw:focus-visible::before{ transform:rotate(45deg) scale(1.18); box-shadow:0 0 0 2px var(--paper),0 0 0 3.2px var(--swk,var(--ink)) }   /* hover enlarges in place and wears an outline in the chip's contrast ink outside the paper cut — no reorder, no lift */
+@media(pointer:coarse){ .psw,.cdw{ width:16px; height:28px } }
+/* the add slot: a tag-grey rhombus plate, always the stack's last item — adds the color
+   the palette is missing (farthest in OKLab from every stop) and selects it */
+.padd{ position:relative; flex:none; width:26px; height:26px; margin-left:.1em; padding:0; border:0; background:none; display:grid; place-items:center; color:var(--soft); cursor:pointer }
+.padd::before{ content:''; position:absolute; left:50%; top:50%; width:14px; height:14px; transform:translate(-50%,-50%) rotate(45deg); background:var(--panel); transition:transform var(--dur-micro) var(--ease-out),background var(--dur-micro) var(--ease-out) }
+.padd:hover,.padd:focus-visible{ color:var(--ink) }
+.padd:hover::before,.padd:focus-visible::before{ transform:translate(-50%,-50%) rotate(45deg) scale(1.14); background:var(--hair) }
+.padd svg{ position:relative }
+/* remove: the filter-chip cross, closing the current-color group — dim, ink on hover; the add
+   slot follows it, so the pair reads remove-this · add-next */
+.prem{ flex:none; width:26px; height:26px; margin-left:.15em; padding:0; border:0; background:none; display:grid; place-items:center; color:var(--soft); cursor:pointer }
+.prem[hidden]{ display:none }   /* the author display beats the UA [hidden] rule — restate it, or the cross haunts single-color pages */
+.prem:hover,.prem:focus-visible{ color:var(--ink) }
+#cval::placeholder{ color:var(--soft); font-weight:500 }
+/* whole-viewport drop veil — pointer-events:none so the drop still lands on the page */
+#dropcast{ position:fixed; inset:0; z-index:var(--z-toast); display:grid; place-items:center; background:color-mix(in oklab, var(--paper) 84%, transparent); pointer-events:none }
+#dropcast::before{ content:''; position:absolute; inset:14px; border:2px dashed var(--ink); opacity:.35 }
+#dropcast span{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em; color:var(--ink) }
+#dropcast[hidden]{ display:none }
 /* active facet filters, shown as removable chips right by the search — so the header shows what's on */
 .fchipsh{ display:flex; align-items:center; gap:var(--s1); flex-wrap:wrap; max-width:min(42vw,28rem); overflow:hidden }
 .fchipsh:empty{ display:none }
@@ -138,6 +171,9 @@ a{ color:var(--ink) }
 	.mast .ver{ display:none }
 	#cval{ display:none }   /* the diamond (a native picker) and favicon still carry the color */
 	#gpill{ display:none }   /* no room for the header's gamut pill once the value hides — a desktop nicety (the dossier's .gpill tags stay) */
+	.psw,.cdw{ width:9px }   /* sliver slices — nine stops still fit the phone bar */
+	.prem{ margin-left:.2em }
+	.mast:has(.pstack.on) .wm{ display:none }   /* with a live palette the stack IS the masthead's identity — the favicon keeps the brand */
 	.qx{ width:36px; justify-content:center; align-items:center; padding-top:0 }   /* icon-only — no text to sit on the baseline */
 	.qx svg{ transform:none }
 	.qx input{ position:fixed; left:1rem; right:1rem; top:3.75rem; z-index:var(--z-dropdown); width:auto; padding:var(--s3) var(--s12) var(--s3) var(--s3); border:1px solid var(--hair); background:var(--paper); opacity:0; pointer-events:none; transform:translateY(calc(var(--s1)*-1)) }
@@ -266,18 +302,26 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-.ch .tk{ position:absolute; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; z-index:2; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
+.ch .tk{ position:absolute; left:0; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; background:var(--tkc,transparent); border-color:var(--tki,transparent); z-index:2; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the mark takes the pointer (its own hover engages it — a whole-slider hover lit the picker from across the row); a press still falls through to the strip's drag. left stays 0 — JS positions via transform (a left write lays out and repaints the strip beneath, ×60 rows per drag frame). Colors ride TWO custom props set once per frame on #cat — per-tick style writes were a steady slice of the drag's GC churn */
+/* ghost marks: the OTHER palette stops' coordinates on this channel — small solid specks in
+   the PICKER'S OWN ink, the same on every strip (inking each speck against the slice beneath
+   it cost a conversion per mark and flipped visibly as the color moved). Hover turns one into
+   the picker it would become — its stop's color inside the picker's ring pair; a press selects
+   that stop AND hands the pointer to the bar's own drag — one gesture. */
+.ch .gtk{ position:absolute; top:50%; width:4px; height:4px; background:var(--tki,var(--ink)); transform:translate(-50%,-50%) rotate(45deg); z-index:3; cursor:pointer; transition:background var(--dur-micro) var(--ease-out),box-shadow var(--dur-micro) var(--ease-out) }
+.ch .gtk::after{ content:''; position:absolute; inset:-6px }   /* forgiving press pad — the mark is small, the finger is not */
+.ch .gtk:hover{ background:var(--gc,var(--ink)); box-shadow:0 0 0 1.2px var(--tki,var(--paper)),0 0 0 2.4px var(--tkv,var(--ink)) }   /* hover shows what a press would make current: same size, filled with the stop's OWN color, wearing the picker's ring pair — its ink hugging, the inverse twin outside */
 /* attention: the marker grows a step and wears a steady outline pair hugging its border —
    a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
    on any field — under the pointer, while its channel drives, and through the drag */
 .ch .tk::after,.bar2 .dk::after,.pl .cx::after,.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
-.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ inset:-2.4px; filter:invert(1) }
-.ch:hover .tk,.ch.live .tk,.bar2:hover .dk,.bar2.live .dk,.pl:hover .cx,.pl.live .cx{ width:10px; height:10px }
-.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,.pl:hover .cx::after,.pl.live .cx::after,
-.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before,.pl:hover .cx::before,.pl.live .cx::before{ opacity:1 }
-.chs:hover .ch.live:not(:hover) .tk,.pick:hover .bar2.live:not(:hover) .dk{ width:8px; height:8px }
-.chs:hover .ch.live:not(:hover) .tk::after,.pick:hover .bar2.live:not(:hover) .dk::after,
-.chs:hover .ch.live:not(:hover) .tk::before,.pick:hover .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
+.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ inset:-2.3px; filter:invert(1) }   /* 0.1px under the after-ring — rotated borders AA-seam at exact adjacency on some densities */
+.ch .tk:hover,.ch.live .tk,.bar2 .dk:hover,.bar2.live .dk,.pl .cx:hover,.pl.live .cx{ width:10px; height:10px }
+.ch .tk:hover::after,.ch.live .tk::after,.bar2 .dk:hover::after,.bar2.live .dk::after,.pl .cx:hover::after,.pl.live .cx::after,
+.ch .tk:hover::before,.ch.live .tk::before,.bar2 .dk:hover::before,.bar2.live .dk::before,.pl .cx:hover::before,.pl.live .cx::before{ opacity:1 }
+.chs:has(.tk:hover) .ch.live:not(:hover) .tk,.pick:has(.dk:hover) .bar2.live:not(:hover) .dk{ width:8px; height:8px }
+.chs:has(.tk:hover) .ch.live:not(:hover) .tk::after,.pick:has(.dk:hover) .bar2.live:not(:hover) .dk::after,
+.chs:has(.tk:hover) .ch.live:not(:hover) .tk::before,.pick:has(.dk:hover) .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -378,13 +422,19 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc,.ch .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
-.ch.gl{ background:var(--strip,none) 0 0/100% 100%, var(--checker) }   /* settled strips ride --strip as a baked image over the checker — voided spans read as the same checker as the dossier bars; no standing canvas layer */
-.ch.lv{ background:var(--checker) }   /* a drag frame: the live canvas replaces the baked strip — the dossier bar's .bgc at catalog scale */
-.ch.lv .bgc{ display:block }
+/* the strip atlas — the ONE visible strip surface: a 2D canvas absolutely positioned in
+   the document over the catalog band (viewport + overscan); the compositor scrolls it
+   with the page, so at rest the strips cost nothing. Every pass — motion or settle —
+   draws on the HIDDEN GL kernel canvas and lands here as one drawImage, so pixels update
+   in place and no swap exists. z-index 0: above the strips' painted backgrounds
+   (unpositioned), below EVERY picker mark — the current tick (z2) and the palette
+   stops' ghosts (z1) ride over. */
+#stripgl{ position:absolute; left:0; top:0; z-index:0; pointer-events:none; display:none }
+body.sgl #stripgl{ display:block }
 .bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
-.bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the picker rides above the label and number — the catalog's 8px rhombus; its outline pair lives with .tk's */
+.bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the picker rides above the label and number — the catalog's 8px rhombus; its outline pair lives with .tk's */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
@@ -431,7 +481,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
-.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* same rhombus as the sliders — rides above the axis labels; wears the sliders' attention pair (see .tk) */
+.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* same rhombus as the sliders — rides above the axis labels; wears the sliders' attention pair (see .tk) */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -629,7 +679,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color — type a supported CSS color"><input type="color" class="cd" id="cd" aria-label="pick a color" title="pick a color"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value — accepts supported CSS colors"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
+	<span class="cx" title="current color — type a supported CSS color"><span class="pstack" id="pstack" role="group" aria-label="palette — click a color to select it"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color — pick with the native picker" title="current color — pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" placeholder="pick a color · drop an image" aria-label="current color value — accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><button class="prem" id="prem" type="button" hidden title="remove this color from the palette" aria-label="remove this color from the palette"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button><button class="padd" id="padd" type="button" title="add the color the palette is missing — the farthest from every stop" aria-label="add a new color — the farthest from every existing stop"><svg viewBox="0 0 24 24" width="9" height="9" aria-hidden="true"><path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></button></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -1303,6 +1353,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 </footer>
 
 <div id="toast" role="status" aria-live="polite">Copied</div>
+<div id="dropcast" hidden aria-hidden="true"><span>drop to pick its palette</span></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
@@ -1310,7 +1361,7 @@ space.rgb.oklch(buf)              <i>// in place — 27 spaces</i></pre>
 import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, visWhite } from './js/core.js'
 import LORE from './js/lore.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, barImageURL, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
+import { paintPlaneGL, paintBarGL, paintStripsGL, kernelCanvas, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -1322,6 +1373,11 @@ import BARRED from './js/barred.js'
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
 let master={ s:DEFAULT.s, vals:DEFAULT.vals.slice() }, selected='oklch', huePath='shorter', codeTab='js'
+// the palette: ordered color stops, each {s,vals}; pal[sel] IS master — renderFast keeps the
+// reference synced, so every existing mutation path (sliders, hue drum, typed values) edits
+// the selected stop and no other. One color = today's page; the stack appears from two up.
+let pal=[master], sel=0
+const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='Copied')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
@@ -1345,8 +1401,12 @@ if(hueEl){ let hdrag=null, hx0=0, hvel=0, hlast=0, hraf=0
 	const setPhase=(t,apply=true)=>{ phase=((t%360)+360)%360
 		hueEl.setAttribute('aria-valuenow',Math.round(phase)); paint()
 		if(apply){ master={ s:'oklch', vals:[0.7,0.18,+ohToOk(phase).toFixed(1)] }; scheduleFast() } }
-	// typed colors and catalog picks re-phase the drum so the edge always shows the current hue
-	hueEl._syncPhase=h=>{ const t=okToOh(h); if(Math.abs(t-phase)>1&&hdrag===null&&!hraf) setPhase(t,false) }
+	// typed colors and catalog picks re-phase the drum so the edge always shows the current hue.
+	// Throttled: each re-phase rebuilds a 49-stop gradient (49 conversions + the string) — per
+	// drag frame that was a steady slice of the GC churn, for feedback nobody reads at 60Hz
+	let syncT=0
+	hueEl._syncPhase=h=>{ const now=performance.now(); if(now-syncT<100) return; syncT=now
+		const t=okToOh(h); if(Math.abs(t-phase)>1&&hdrag===null&&!hraf) setPhase(t,false) }
 	const still=()=>{ if(hraf){ cancelAnimationFrame(hraf); hraf=0 } }
 	const spin=()=>{ hraf=0; if(Math.abs(hvel)<.03) return
 		setPhase(phase+hvel); hvel*=.95; hraf=requestAnimationFrame(spin) }
@@ -1367,14 +1427,15 @@ if(hueEl){ let hdrag=null, hx0=0, hvel=0, hlast=0, hraf=0
 		else handled=false
 		if(handled){ e.preventDefault(); renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } }) }
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
-const cdEl=document.getElementById('cd'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
+const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 if(cvalEl){
 	// isTrusted + drag guards: renderFast mirrors the hex into these fields every frame — a
 	// synthetic input event (extension autofill and the like) or one landing mid-drag would
 	// reset master to the 8-bit hex per frame, snapping wide-gamut sliders onto the hex grid
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
-		if(p){ master=p; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
+		if(p){ master=p; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+		else{ const l=parseColorList(cvalEl.value); if(l) setPal(l) } })   // a pasted list becomes the whole palette
 	cvalEl.addEventListener('focus',()=>requestAnimationFrame(()=>cvalEl.select()))   // first click takes the whole value
 	cdEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		const h=cdEl.value
@@ -1383,13 +1444,120 @@ if(cvalEl){
 	cvalEl.addEventListener('keydown',e=>{ if(e.key==='Enter') cvalEl.blur() })
 	cvalEl.addEventListener('blur',()=>renderFast())   // settle back to canonical hex
 }
+// ── the palette strip: select / add / remove stops; paintPalette mirrors pal into the stack ──
+const MAXPAL=9
+const pstackEl=document.getElementById('pstack'), paddEl=document.getElementById('padd'), premEl=document.getElementById('prem')
+const palHex=e=>hex(rgbF(e.s,e.vals))
+let palRev=1   // bumped on any stack-shape change (add/remove/select/replace) — the ONLY thing the per-frame paths compare, so dragging the current color costs the palette machinery nothing
+const palApply=()=>{ palRev++; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+function selectPal(i){ if(i===sel||!pal[i]) return; sel=i; master=pal[i]; palApply() }
+// + never repeats a color: the new stop is the sRGB color FARTHEST (OKLab) from every
+// existing stop — farthest-point sampling, so each add augments the set with what it
+// most lacks (from one coral: a deep blue; then the widest remaining gap, and so on)
+let AUG=null   // 17³ sRGB lattice in OKLab, built on first add
+function addPal(){ if(pal.length>=MAXPAL) return toast(`palette holds ${MAXPAL}`)
+	AUG??=(()=>{ const a=[]
+		for(let r=0;r<17;r++)for(let g=0;g<17;g++)for(let b=0;b<17;b++){ const rgb=[r*255/16,g*255/16,b*255/16]; a.push({ rgb, ok:space.rgb.oklab(...rgb) }) } return a })()
+	const oks=pal.map(e=>{ try{ return space.rgb.oklab(...rgbF(e.s,e.vals).map(x=>clamp(x,0,255))) }catch{ return [0,0,0] } })
+	let best=AUG[0], bd=-1
+	for(const c of AUG){ let d=1/0
+		for(const o of oks){ const l=c.ok[0]-o[0], a2=c.ok[1]-o[1], b2=c.ok[2]-o[2], dd=l*l+a2*a2+b2*b2
+			if(dd<d){ d=dd; if(d<=bd) break } }   // this candidate already beaten — skip the rest
+		if(d>bd){ bd=d; best=c } }
+	pal.splice(sel+1,0,{ s:'rgb', vals:best.rgb.slice() }); sel++; master=pal[sel]; palApply() }
+function removePal(i){ if(pal.length<2||!pal[i]) return
+	pal.splice(i,1); if(sel>=i) sel=Math.max(0,sel-1); master=pal[sel]; palApply()
+	pstackEl.children[Math.min(i,pal.length-1)]?.focus() }
+function setPal(list){ if(!list?.length) return
+	const seen=new Set()   // pasted lists and image extracts can carry repeats — a palette holds each color once
+	list=list.filter(e=>{ let h; try{ h=palHex(e) }catch{ return false }; if(seen.has(h)) return false; seen.add(h); return true })
+	if(!list.length) return
+	pal=list.slice(0,MAXPAL).map(e=>({ s:e.s, vals:e.vals.slice() })); sel=0; master=pal[0]; palApply() }
+let palPainted=0
+function paintPalette(){ if(!pstackEl||palPainted===palRev) return
+	palPainted=palRev
+	const n=pal.length
+	pstackEl.classList.toggle('on',n>1)
+	if(premEl) premEl.hidden=n<2
+	// ONE stack, palette order, later on top — plain DOM order, no z juggling. The selected
+	// stop is the masthead diamond itself (the native picker), moved into its slot; the
+	// other stops are swatch buttons. Selection moves the diamond, never reorders stops.
+	const sws=[...pstackEl.querySelectorAll('.psw')]
+	while(sws.length>n-1) sws.pop().remove()
+	while(sws.length<n-1){ const b=document.createElement('button'); b.type='button'; b.className='psw'
+		pstackEl.append(b); sws.push(b) }
+	let j=0
+	for(let i=0;i<n;i++){ if(i===sel) continue
+		const b=sws[j++], e=pal[i], hx=palHex(e)
+		b.dataset.k=i
+		b.style.setProperty('--sw',hx)   // bare chip — no per-stop ink needed since outlines left the stack
+		b.title=`${hx} — select`
+		b.setAttribute('aria-label',`color ${i+1} of ${n}: ${hx} — select; Delete removes`) }
+	// sws hold palette indices 0..n-1 minus sel in ascending DOM order, so sws[sel] is the
+	// first stop AFTER the selected one — the diamond's slot slides in right before it (end if none)
+	if(cdwEl.nextElementSibling!==(sws[sel]??null)) pstackEl.insertBefore(cdwEl,sws[sel]??null) }
+if(pstackEl){
+	// act on the RELEASE of a captured press, not on click: leaving the value input settles it
+	// to canonical hex, field-sizing contracts the row mid-press, and an uncaptured click would
+	// land beside the button that moved. Capture pins delivery to what the finger pressed;
+	// click stays only for the keyboard (detail 0). Same "the press picks" idiom as the bars.
+	const pressPal=e=>{ const b=e.target.closest('.psw'); if(b) selectPal(+b.dataset.k) }
+	pstackEl.addEventListener('pointerdown',e=>{ if(!e.button&&e.target.closest('.psw')){ e.preventDefault(); e.target.setPointerCapture?.(e.pointerId) } })   // no focus steal: a press must not blur a channel input mid-edit — its underline survives the switch
+	pstackEl.addEventListener('pointerup',pressPal)
+	pstackEl.addEventListener('click',e=>{ if(e.detail===0) pressPal(e) })
+	pstackEl.addEventListener('keydown',e=>{ const b=e.target.closest('.psw'); if(!b) return
+		if(e.key==='Delete'||e.key==='Backspace'){ e.preventDefault(); removePal(+b.dataset.k) } })
+	const pressBtn=(el,act)=>{ el.addEventListener('pointerdown',e=>{ if(!e.button){ e.preventDefault(); el.setPointerCapture?.(e.pointerId) } })   // same no-steal rule as the swatches
+		el.addEventListener('pointerup',()=>act())
+		el.addEventListener('click',e=>{ if(e.detail===0) act() }) }
+	pressBtn(paddEl,addPal); pressBtn(premEl,()=>removePal(sel))
+	// ghost marks on the strips are pickers too: the press selects that stop, then re-enters the
+	// bar's own press machinery at the mark's EXACT centre — the drag continues with the real
+	// pointer (capture is by id), so select-then-shape is one gesture; a bare tap costs the value
+	// nothing (centre = the stop's own coordinate, not the ±5px press-pad error).
+	document.addEventListener('pointerdown',e=>{ const g=e.target.closest?.('.gtk'); if(!g) return
+		e.preventDefault(); e.stopPropagation()
+		selectPal(+g.dataset.k)
+		const ch=g.closest('.ch'); if(!ch) return
+		const r=g.getBoundingClientRect()
+		ch.dispatchEvent(new PointerEvent('pointerdown',{ bubbles:true, cancelable:true, pointerId:e.pointerId, pointerType:e.pointerType, isPrimary:e.isPrimary, button:0, buttons:1, clientX:r.left+r.width/2, clientY:r.top+r.height/2 })) },true)
+}
+// ── drop an image anywhere (or paste one): its prominent colors become the palette ──
+const dropEl=document.getElementById('dropcast')
+const dropImg=e=>[...(e.dataTransfer?.items||[])].some(x=>x.kind==='file'&&x.type.startsWith('image/'))
+async function palFromImage(f){ try{
+		const { extractPalette }=await import('./js/extract.js')   // k-means lives off the boot path
+		const cols=await extractPalette(f,5)
+		if(!cols.length) return toast('no opaque pixels in that image')
+		setPal(cols.map(v=>({ s:'rgb', vals:v }))); toast(`${cols.length} colors from the image`) }
+	catch{ toast('could not read that image') } }
+let dragN=0
+addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
+addEventListener('dragleave',()=>{ if(dragN&&!--dragN&&dropEl) dropEl.hidden=true })
+addEventListener('dragover',e=>{ if(dropImg(e)) e.preventDefault() })
+addEventListener('drop',e=>{ dragN=0; if(dropEl) dropEl.hidden=true
+	if(!dropImg(e)) return
+	e.preventDefault()
+	if(e.target.closest?.('#detail')) return   // the dossier's image lens owns its own drop zone
+	const f=[...e.dataTransfer.files].find(x=>x.type.startsWith('image/')); if(f) palFromImage(f) })
+addEventListener('paste',e=>{ const it=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'))
+	if(it){ e.preventDefault(); palFromImage(it.getAsFile()) } })
 const RGB=()=>rgbF(master.s,master.vals)
 // the instrument projection: the master color in space s, clamped into the documented channel
 // ranges — sliders, ticks and value inputs are bounded instruments, and a pure conversion can
 // leave them (studio-swing YCbCr of a full-swing color, CAM16 M past 100, OSA-UCS black below
 // −10). The record (code snippets) converts for itself, exact.
-const valsFor=s=>{ if(s===master.s) return master.vals
-	try{ const chs=classify(s).ch; return toSpace(s,RGB()).map((x,i)=>{ const c=chs[i]; return c?clamp(x,c.min,c.max):x }) }catch{ return null } }
+const valsIn=(m,s)=>{ if(s===m.s) return m.vals
+	try{ const chs=classify(s).ch; return toSpace(s,rgbF(m.s,m.vals)).map((x,i)=>{ const c=chs[i]; return c?clamp(x,c.min,c.max):x }) }catch{ return null } }
+// per-frame conversion memo: a drag frame asks for the same conversions twice (the value
+// sweep, then the atlas pass) and each multi-hop conversion allocates its intermediates —
+// ~50KB of garbage a frame drove a GC sawtooth (drags slowed until each major GC).
+// renderFast opens a new frame; everything after it in that frame reuses its conversions.
+// The memo ALSO keys on the master's identity: selecting another palette stop swaps the
+// object, and a consumer running before the next renderFast (a ghost press's adopt())
+// once read the PREVIOUS stop's conversions — the press dragged the wrong color.
+let vfF={}, vfM=null
+const valsFor=s=>{ if(vfM!==master){ vfM=master; vfF={} } return vfF[s]??=valsIn(master,s) }
 // the tightest standard gamut that holds the current colour — convert straight from the source
 // space (never through clamped rgb) and test each RGB space's box; null = beyond Rec.2020
 const GPILL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020' }
@@ -1425,9 +1593,10 @@ let BASE=location.pathname.replace(/index\.html$/,'')
 const spaceURL=s=>BASE+(s||'')
 // snapshot the arrival url before the first render's syncURL rewrites it
 const BOOT={ hash:decodeURIComponent(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1] }
-let urlT=0, urlLast=''
+let urlT=performance.now(), urlLast=''   // seeded, not 0: the boot renderFast runs before route() parses the arrival hash — the throttle absorbs it, so a shared palette URL is never clobbered by the default stamp
+const urlHash=()=>(pal.length>1?pal.map(e=>palHex(e).slice(1)).join(','):hex(RGB()).slice(1)).toLowerCase()   // the hash is the palette, comma-joined, selection-free
 function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
-	const u=spaceURL(open()?selected:'')+'#'+hx.slice(1).toLowerCase()
+	const u=spaceURL(open()?selected:'')+'#'+urlHash()
 	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
 // favicon carries the current color — the slider diamond, tab-sized
 const favEl=document.querySelector('link[rel="icon"]')
@@ -1626,7 +1795,7 @@ onLoad(layoutToc)
 const vis=new Set()
 const io=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ vis.add(s); entered.push(e.target) } else vis.delete(s) })
-	if(entered.length){ paintCatalogGrad(entered); paintCatalogVals(entered); prepaintSoon() }   // blit only what just scrolled in; the idle walk bakes it to plain DOM
+	if(entered.length){ paintCatalogGrad(entered); paintCatalogVals(entered) }   // values + the CSS fallback for what just scrolled in — the atlas band already covers its strips
 },{rootMargin:'300px'})
 // ents attach to the observer in wireCat() — the catalog may not exist yet on name views
 
@@ -1664,10 +1833,14 @@ document.addEventListener('copy',e=>{
 let squelch=false
 // focus a sheet row's channel → a gentle slider popover for that space, edited like a lead card, no full modal
 let popEnt=null
-const hidePop=()=>{ popEnt?.classList.remove('pop'); popEnt=null }
-const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop'); paintCatalogGrad([ent]); paintCatalogVals([ent]) }
+const hidePop=()=>{ if(!popEnt) return; popEnt.classList.remove('pop'); popEnt=null; sglVoid(); sglSettle() }   // the popover's strips left the page — re-capture so the atlas doesn't paint over their absence
+const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop')
+	paintCatalogGrad([ent]); paintCatalogVals([ent])
+	sglVoid(); sglSettle() }   // the popover's strips just appeared — fold them into the atlas band
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
+measureCh()   // strip widths in one layout pass — the tick transforms read only this cache
+cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
 cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
 cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
@@ -1868,7 +2041,7 @@ function openModal(s){
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
 	modal.hidden=false; pageShell.inert=true; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
-	urlLast=spaceURL(s)+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
+	urlLast=spaceURL(s)+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
@@ -1898,8 +2071,8 @@ function buildBarred(b){
 	 </div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(){ ensureCat(); modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
-	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
-	urlLast=spaceURL('')+'#'+hex(RGB()).slice(1).toLowerCase(); history.replaceState(null,'',urlLast)
+	paintCatalogVals(); paintCatalogGrad(); sglVoid(); sglSettle()   // the catalog slept behind the dossier — catch values AND the atlas up to whatever the modal picked
+	urlLast=spaceURL('')+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
 document.getElementById('mx').onclick=closeModal
@@ -1948,6 +2121,18 @@ function parseColor(str){ str=str.trim().toLowerCase()
 			const best=Math.max(...fit.map(scale)), top=fit.filter(s=>scale(s)===best)
 			return { s:top.includes(selected)?selected:top.includes(master.s)?master.s:top[0], vals:nums } } }
 	return null }
+// a color LIST: comma/newline/semicolon-separated at the top level (legacy rgb(255, 128, 0)
+// commas stay inside their parens), or space-separated bare hexes. Every part must parse.
+function parseColorList(str){ let parts=[], d=0, cur=''
+	for(const c of str){ if(c==='(') d++; else if(c===')') d=Math.max(0,d-1)
+		if((c===','||c==='\n'||c===';')&&!d){ parts.push(cur); cur='' } else cur+=c }
+	parts.push(cur)
+	parts=parts.map(t=>t.trim()).filter(Boolean)
+	if(parts.length<2){ const toks=str.trim().split(/\s+/)
+		if(toks.length>1&&toks.every(t=>/^#?[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(t))) parts=toks.map(t=>t[0]==='#'?t:'#'+t) }
+	if(parts.length<2) return null
+	const cs=parts.map(parseColor)
+	return cs.every(Boolean)?cs:null }
 const RXNUM=/(?<![\w-])-?\d+(?:\.\d+)?/g   // digits inside names (rec2020, display-p3) are not values
 // input-number style: the number nearest the caret is selected WHOLE; ↑/↓ step it by
 // its smallest displayed order and keep it selected, so presses repeat cleanly
@@ -3684,6 +3869,7 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 // only the entries whose tier actually changed)
 let glupT=0
 setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
+	sglVoid(); if(!open()){ if(PDOWN) sglFrame(); else sglSettle() }   // newly linked programs join the atlas now — mid-motion just the viewport slice (a band pass would hitch the drag)
 	paintCatalogGrad(); if(open()&&!isBarred(selected)){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
 // preload: bake EVERY card ahead of need — strips, values, ticks. One idle walk in catalog
@@ -3691,81 +3877,129 @@ const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry n
 // (armed by each settled sweep and each program landing) touch only stale rows. Scrolling
 // then paints nothing — the observer's scroll-in repaint is a no-op unless the color changed
 // while that row was offscreen and the walk hasn't reached it yet.
-const ric=window.requestIdleCallback?.bind(window)||(f=>setTimeout(()=>{ const t0=performance.now(); f({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },50))
-const cic=window.cancelIdleCallback?.bind(window)||clearTimeout
-let ppT=0
-const prepaintSoon=()=>{ cic(ppT); ppT=ric(dl=>{ ppT=0
-	if(open()) return   // the catalog is inert behind a dossier; closeModal's settled sweep resumes the walk
-	const ents=[...cat.querySelectorAll('.ent[data-s]')].sort((a,b)=>vis.has(b.dataset.s)-vis.has(a.dataset.s))   // near-screen rows first — they hold the live canvases a scroll would re-Layerize
-	for(const ent of ents){
-		if(dl.timeRemaining()<3) return prepaintSoon()   // slice spent — resume next idle
-		paintCatalogGrad([ent]); paintCatalogVals([ent])
-		if(!bakeEnt(ent,dl)) return prepaintSoon() } },{timeout:1000}) }
-// hygiene tier: swap a row's live canvases for baked CSS strips. barImageURL is a sync
-// GPU pipeline flush + readback + PNG encode (~7ms/strip — the cost that used to freeze
-// boot and every scroll-in batch when it ran on interactive paths). ONLY this walk pays
-// it, one channel per deadline check; every interactive paint is a readback-free blit.
-// Returns false when the idle slice ran out mid-entry — per-channel stamps resume there.
-const bakeEnt=(ent,dl)=>{ const s=ent.dataset.s
-	if(liteOff(ent)&&!ent.classList.contains('pop')) return true   // sheet rows show no strips — nothing to bake
-	const gkey=s===master.s?master.vals.join():hex(RGB())
-	if(ent.dataset.g!==gkey+':v') return true   // only live-tier rows owe a bake
-	const cls=classify(s), vals=valsFor(s); if(!vals) return true
-	const chs=ent.querySelectorAll('.ch')
-	for(let i=0;i<chs.length;i++){ const ch=chs[i], c=cls.ch[i]
-		if(ch.dataset.b===gkey) continue   // this channel already baked for this color
-		if(dl.timeRemaining()<8) return false
-		const u=barImageURL(s,vals,i,[c.min,c.max],null); if(!u) return true
-		ch.classList.remove('lv'); ch.classList.add('gl'); ch.style.setProperty('--strip',`url("${u}")`); ch.style.background=''
-		ch._bgc?.remove(); ch._bgc=null   // the standing canvas layer goes — at rest the strip is plain DOM
-		ch.dataset.b=gkey }
-	ent.dataset.g=gkey+':1'
-	return true }
+// a held primary pointer pauses the walk: a drag's micro-pauses (≥140ms still) fire the
+// settle sweep, which arms the walk — whose GPU-readback bakes then landed exactly when
+// the drag resumed, felt as "the slider blocks the frame". While the finger is down the
+// catalog does interactive work only; the release's settle re-arms the walk.
+let PDOWN=false
+addEventListener('pointerdown',e=>{ if(e.isPrimary) PDOWN=true },true)
+addEventListener('pointerup',e=>{ if(e.isPrimary) PDOWN=false },true)
+addEventListener('pointercancel',e=>{ if(e.isPrimary) PDOWN=false },true)
+addEventListener('blur',()=>PDOWN=false)
+// ── the strip ATLAS: ONE visible canvas, ever. #stripgl — a 2D canvas in the document,
+// holding every strip in the viewport+overscan band, scrolled by the compositor like any
+// element — at rest it costs nothing. The GL kernel canvas NEVER enters the DOM: every
+// pass draws on it hidden, then lands in the atlas as ONE drawImage (a single GPU copy —
+// it was the per-strip copies, sixty a frame, that made dragging crawl; one big one is
+// ~0.1ms, the same transport the plane views ride). Motion frames redraw just the
+// viewport's slice of the band in place; the settle and every re-anchor redraw the full
+// band. Pixels update inside the one canvas, so there is no second surface, no swap, no
+// z-order, and nothing to mismatch. Undrawn rects stay transparent, so a still-compiling
+// space shows its DOM strip (the prerendered CSS gradient — also the no-WebGL story).
+const sglCv=kernelCanvas()
+const sglSnap=sglCv&&document.createElement('canvas')
+if(sglCv){ sglSnap.id='stripgl'; document.body.append(sglSnap) }
+const SGLOVER=800   // overscan above and below the viewport — scroll re-draws only every ~600px
+let sglJobs=null, sglY=0, sglH=0
+const sglVoid=()=>{ sglJobs=null }
+const sglCapture=()=>{ const jobs=[]
+	// sglY INTEGRAL, always: the atlas rides a translateY(sglY) transform, and transforms
+	// never pixel-snap — a fractional anchor would composite every strip at a half-pixel phase
+	sglY=Math.max(0,Math.round(scrollY)-SGLOVER); sglH=innerHeight+2*SGLOVER
+	for(const ent of cat.querySelectorAll('.ent[data-s]')){ const s=ent.dataset.s
+		if(liteOff(ent)&&!ent.classList.contains('pop')) continue
+		if(planeGLStatus(s)!=='ready') continue
+		const cls=classify(s)
+		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const r=ch.getBoundingClientRect(), c=cls.ch[i]
+			const y=r.top+scrollY-sglY   // band-local document coordinates
+			if(!r.width||y+r.height<=0||y>=sglH) return
+			jobs.push({ s, i, ri:[c.min,c.max], x:Math.round(r.left), y:Math.round(y), w:Math.round(r.width), h:Math.round(r.height) }) }) }
+	jobs.sort((a,b)=>a.s<b.s?-1:a.s>b.s?1:0)   // grouped by space — fewer program switches
+	sglJobs=jobs }
+const sglVals=jobs=>{ const vcache={}, out=[]
+	for(const j of jobs){ const v=vcache[j.s]??=valsFor(j.s); if(v){ j.vals=v; out.push(j) } }
+	return out }
+// the atlas canvas tracks the band geometry; resizing clears it, so callers redraw after
+const sglFit=()=>{ if(sglSnap.width!==innerWidth||sglSnap.height!==sglH){ sglSnap.width=innerWidth; sglSnap.height=sglH
+		sglSnap.style.width=innerWidth+'px'; sglSnap.style.height=sglH+'px' }
+	sglSnap.style.transform=`translateY(${sglY}px)` }
+// 1× density regardless of DPR: strips are smooth sweeps, and it quarters the bandwidth
+const SGLV=[]   // the live frame's job list, reused — no per-frame allocation
+const sglFrame=()=>{ if(!sglCv) return   // MOTION: the on-screen slice only — and vals convert ONLY for spaces actually drawn (the band holds ~3× more, some with iterative inverses)
+	if(!sglJobs){ sglSettle(); return }   // no capture yet (or band moved) — the full pass establishes the canvas first
+	// the same SNAPPED scroll the compositor uses — scrollY itself can be fractional
+	const dy=Math.round(scrollY)-sglY, vcache={}
+	SGLV.length=0
+	for(const j of sglJobs){ if(j.y+j.h<=dy||j.y>=dy+innerHeight) continue
+		const v=vcache[j.s]??=valsFor(j.s); if(v){ j.vals=v; SGLV.push(j) } }
+	if(!paintStripsGL(innerWidth,innerHeight,SGLV,dy)) return
+	const ctx=sglSnap.getContext('2d')
+	ctx.clearRect(0,dy,innerWidth,innerHeight)
+	ctx.drawImage(sglCv,0,dy)
+	document.body.classList.add('sgl') }
+const sglSettle=()=>{ if(!sglCv) return   // FULL BAND: one pass, one GPU copy — settle, re-anchor, program landings
+	if(!sglJobs) sglCapture()
+	sglFit()
+	if(!paintStripsGL(innerWidth,sglH,sglVals(sglJobs))) return
+	const ctx=sglSnap.getContext('2d')
+	ctx.clearRect(0,0,innerWidth,sglH)
+	ctx.drawImage(sglCv,0,0)
+	document.body.classList.add('sgl') }
+// re-anchor before the viewport reaches the band's edge; between re-anchors scrolling
+// is pure compositor work — the atlas rides the page like any other element
+let sglScrollT=0
+addEventListener('scroll',()=>{ if(sglScrollT) return
+	if(scrollY>sglY+200&&scrollY+innerHeight<sglY+sglH-200) return   // still deep inside the band
+	sglScrollT=requestAnimationFrame(()=>{ sglScrollT=0; sglVoid(); sglSettle() }) },{passive:true})
 // …and compile every lead card's program up front, through the same 4-deep queue — the first
 // scroll or scrub meets warm GPU strips, never a mid-scroll compile burst
 onLoad(()=>setTimeout(()=>{
 	cat.querySelectorAll('.ent[data-s]:not(.lite)').forEach(ent=>{ const s=ent.dataset.s; if(hasPlaneGL(s)) planeGLStatus(s) })
-	prepaintSoon() },300))
-// the card strip is the dossier bar at catalog scale: the same per-pixel GPU sweep —
-// true colors everywhere the formula is nonlinear, non-physical spans voided to the
-// checker — because a sparse CSS gradient INVENTS colors between its stops (xyy's y
-// sweep really clamps bright almost to 0, but a 9-stop gradient fades it through a
-// long dark wedge). The gradient stays as the compile-time and no-GL fallback.
-// pass an explicit subset (observer scroll-in, popover, the prepaint walk) and it paints
-// unconditionally — offscreen included. A no-arg sweep (color edit, gamut, quantize) paints
-// near-screen rows now and arms the prepaint walk to refresh the rest at idle.
-// the strip shows the per-pixel GL sweep at ALL times — the CSS-ramp stand-in that once
-// rode motion frames confused picking (it invents colors between its 9 stops and drops
-// the void/limit spans, then snapped to the GL truth at settle). EVERY paint here is the
-// readback-free blit onto the strip's live canvas (.bgc — the dossier bar's overlay at
-// catalog scale; a GPU copy). The baked --strip image (see .ch.gl) keeps the at-rest
-// catalog plain DOM with no standing canvas layers (which made every scroll re-Layerize) —
-// but baking is a sync GPU readback, so it lives ONLY in the idle walk's bakeEnt, never
-// here: baking visible rows inline once froze boot for seconds and put a ~400ms task
-// under every scroll-in batch. fast=true marks motion frames — they skip re-arming the
-// walk. The ramp remains only as the compile-moment and no-WebGL2 fallback.
-function paintCatalogGrad(ents,fast){ const hx=hex(RGB()), sweep=!ents
-	if(sweep&&!fast) prepaintSoon()
+	sglSettle() },300))
+// the strips' BASE layer only: the atlas canvas above is the one live view (per-pixel
+// GPU truth, at rest as in motion); beneath it every strip keeps a CSS gradient — the
+// prerendered markup ships one, and this refreshes it where it's missing or stale.
+// It shows only where the atlas can't paint: before a space's program links, and in
+// the no-WebGL2 story. A sparse gradient INVENTS colors between its stops (xyy's y
+// sweep really clamps bright almost to 0, but a 9-stop ramp fades it through a long
+// dark wedge) — acceptable as a fallback, never as the shown-by-default surface.
+function paintCatalogGrad(ents){ const hx=hex(RGB()), sweep=!ents
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
-		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) paints its slider popover, live
-	const gl=planeGLStatus(s)==='ready'
-	const tier=gl?'v':0   // v = live canvas: the idle walk still owes the baked image
-	const gkey=s===master.s?master.vals.join():hx   // the master's own row keys on master.vals — its sweeps are finer than the 8-bit hex
-	if(ent.dataset.g===`${gkey}:${tier}`||gl&&ent.dataset.g===`${gkey}:1`) return   // current for this exact color — live, baked, or the prerendered CSS state
-	const cls=classify(s), vals=valsFor(s)
-	let t=tier
-	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-		// card strips run full-gamut — the out-of-gamut mask lives only in the modal's detailed sliders
-		if(vals&&gl){ let cv=ch._bgc
-			if(!cv){ cv=ch._bgc=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1}))
-				cv._bmr=window.OffscreenCanvas?cv.getContext('bitmaprenderer'):null }   // GPU-only transport — catalog strips are never read back
-			if(paintBarGL(cv,s,vals,i,[c.min,c.max],null)){ ch.classList.add('lv'); return } }
-		t=0   // a bar fell back to CSS — stamp the lower tier so the next sweep retries GL
-		ch.classList.remove('gl','lv'); ch.style.removeProperty('--strip')
-		ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
-	ent.dataset.g=`${gkey}:${t}` }) }
+		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) carries its slider popover
+		if(planeGLStatus(s)==='ready'){ if(ent.dataset.g!=='atlas'){ ent.dataset.g='atlas'   // the atlas owns this row: its base becomes the checker, so the shader's voided spans (alpha 0) read as void — same grammar as the dossier bars
+			ent.querySelectorAll('.ch').forEach(ch=>{ ch.style.background='var(--checker)' }) } return }
+		const gkey=s===master.s?master.vals.join():hx   // the master's own row keys on master.vals — its sweeps are finer than the 8-bit hex
+		if(ent.dataset.g===gkey+':0') return   // fallback already current for this exact color
+		const cls=classify(s), vals=valsFor(s)
+		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
+			ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
+		ent.dataset.g=gkey+':0' }) }
 // per-entry value inputs + tick markers — the same subset discipline as the gradients
+let gpalRev=0, gpalC=[], palFPC='', gvCache=new Map()   // ghost stops + their per-space projections — static while the selected color drags, so resolved once per palRev, never per frame
+// one batched layout read for every strip's width — the per-frame tick transform must never
+// read layout itself (an interleaved clientWidth per row forces a layout per visible row).
+// Boot layout settles late (columns, fonts) — a wireCat-time measure can catch the
+// pre-column full-row width, so the same settle points layoutToc trusts re-measure here.
+function measureCh(){ cat.querySelectorAll('.ent .ch').forEach(c=>{ c._w=c.clientWidth||null }) }
+// strips BREATHE: field-sizing lets a value's digit count reflow its row mid-drag (a limit
+// turns 47 into -112, the input widens, the strip shifts) — and atlas rects captured before
+// the reflow paint strips where they USED to be. The observer's entries arrive post-layout
+// (no forced reads); widths refresh from them, stamps void, and the atlas re-captures on
+// the same frame — the canvases follow the layout wherever it moves: mid-drag reflows,
+// window resizes, font swaps — one mechanism for every geometry change, no event guessing.
+const chRO=new ResizeObserver(es=>{ let moved=false
+	for(const e of es){ const ch=e.target, w=Math.round(e.contentRect.width)||null
+		if(ch._w!==w){ ch._w=w; moved=true; const ent=ch.closest('.ent'); if(ent) delete ent.dataset.v } }
+	if(!moved) return
+	sglVoid(); paintCatalogVals()
+	if(open()) return
+	if(PDOWN) sglFrame(); else sglSettle() })
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
+	if(cat._tk!==hx){ cat._tk=hx; cat.style.setProperty('--tkc',hx); cat.style.setProperty('--tki',ink0); cat.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }   // every mark's colors — the picker's fill, its ink, that ink's inverse — three writes per frame for the whole catalog
+	if(gpalRev!==palRev){ gpalRev=palRev; gvCache.clear()
+		gpalC=pal.length>1?pal.map((e,k)=>k===sel?null:{ e, idx:k, hx:palHex(e) }).filter(Boolean):[]
+		palFPC=gpalC.map(g=>g.idx+g.hx).join() }   // idx too: duplicate colors must still re-stamp when the selection moves between them
+	const gpal=gpalC, palFP=palFPC
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		// every NEAR-SCREEN row's values and ticks track the drag live (a conversion per row —
 		// cheap; the hex stamp below already coalesces no-change frames); offscreen rows are
@@ -3777,25 +4011,54 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 		// outside sRGB and hex-stepped it inside
 		const full=!liteOff(ent)||ent.classList.contains('pop')
 		const key=s===master.s?master.vals.join():hx
-		const stamp=full?key:key+':l'
+		const stamp=full?key+'|'+palFP:key+':l'   // ghost marks live only in the full tier — a palette change re-stamps it
 		if(ent.dataset.v===stamp&&!ent.contains(document.activeElement)) return
 		const vals=valsFor(s), cls=classify(s)
-		ent.querySelectorAll('.cv').forEach((inp,i)=>{ if(document.activeElement!==inp||ent===dragEnt) inp.value=vals?fmtc(vals[i],cls.ch[i]):''   // a drag is not typing — the focused channel tracks its slider live
-			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends
-			if(stk&&stk.classList.contains('stk')){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
+		ent.querySelectorAll('.cv').forEach((inp,i)=>{ const nv=vals?fmtc(vals[i],cls.ch[i]):''   // a drag is not typing — the focused channel tracks its slider live; unchanged values skip the write (each .value set churns internal state)
+			if(inp.value!==nv&&(document.activeElement!==inp||ent===dragEnt)) inp.value=nv
+			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends —
+			// frozen on OTHER rows while a pointer is held: each .lim flip repaints its row, and across 60 rows those flips (with the tick moves) were the drag's frame budget; the release settle applies them
+			if(stk&&stk.classList.contains('stk')&&(!PDOWN||ent===dragEnt)){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
 		ent.dataset.v=stamp
 		if(!full) return   // the focused sheet-row popover also gets its tick markers
+		let gvs=gvCache.get(s)
+		if(gvs===undefined){ gvs=gpal.map(g=>valsIn(g.e,s)); gvCache.set(s,gvs) }
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-			const tk=ch.querySelector('.tk'); tk.style.display=vals?'':'none'
-			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1); tk.style.left=(f*100)+'%' }
-			tk.style.background=hx; tk.style.borderColor=ink0 }) }) }
-function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
+			const tk=ch.querySelector('.tk'), disp=vals?'':'none'
+			if(tk.style.display!==disp) tk.style.display=disp   // same-string style sets still churn CSSOM values
+			// transform, never left: a left write lays out and repaints the strip under the tick —
+			// across 60 visible rows per drag frame that repaint WAS the catalog's frame budget.
+			// Widths come from one batched measure (measureCh) so no frame reads layout.
+			// Colors live in --tkc/--tki on #cat (one write per frame for ALL ticks, below).
+			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1), w=ch._w??=ch.clientWidth||null
+				if(w){ if(tk.style.left) tk.style.left=''   // the prerender positions ticks by left:% and inline colors (it can't know widths or carry vars) — inline must not shadow ours
+					if(tk.style.background) tk.style.background=''; if(tk.style.borderColor) tk.style.borderColor=''
+					tk.style.transform=`translate(calc(${(f*w).toFixed(1)}px - 50%),-50%) rotate(45deg)` } }
+			// ghost marks for the rest of the palette — pooled nodes, palette-stamped: a drag of
+			// the selected color repaints ticks every frame, the static ghosts skip entirely
+			if(ch._gp!==palFP){ ch._gp=palFP; ch._gi=null
+				const gs=ch._gtk||(ch._gtk=[])
+				while(gs.length>gvs.length) gs.pop().remove()
+				while(gs.length<gvs.length){ const d=document.createElement('i'); d.className='gtk'; ch.append(d); gs.push(d) }
+				gs.forEach((d,j)=>{ const v=gvs[j]
+					if(!v){ d.style.display='none'; return }
+					const f=clamp((v[i]-c.min)/(c.max-c.min),0,1)
+					d.style.display=''; d.style.left=(f*100)+'%'
+					d.dataset.k=gpal[j].idx; d.style.setProperty('--gc',gpal[j].hx) }) } }) }) }   // only its own color — the mark's ink and rings are the picker's, shared through #cat
+function renderFast(solid=true){ pal[sel]=master   // the selected stop IS the master — every mutation path funnels through here
+	vfF={}; vfM=master   // new frame, new conversions — the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
+	const rgb=RGB(), hx=hex(rgb)
 	// the color's public face: masthead diamond + value, favicon, url
 	if(hueEl&&hueEl._syncPhase){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl._syncPhase(h) }catch{} }
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
-	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=hx
+	if(cdwEl&&cdwEl._hx!==hx){ cdwEl._hx=hx; cdwEl.style.setProperty('--sw',hx); cdwEl.style.setProperty('--swk',ink(rgb)) }   // the slot's swatch + its tick-pair ring track the current color
+	// the untouched boot color stays an invitation (placeholder), not an asserted value —
+	// reference AND values: the default space's own sliders mutate master in place
+	const virgin=master===M0&&pal.length===1&&!BOOT.hash&&master.vals.join()===DEFAULT.vals.join()
+	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':hx
 	syncFav(hx); syncURL(hx)
-	if(gpillEl){ const g=gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GPILL[g]; gpillEl.dataset.g=g } }
+	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GPILL[g]; gpillEl.dataset.g=g } }
+	paintPalette()
 	if(!open()) paintCatalogVals()   // all vis entries — the color changed; behind an open dossier the catalog waits (closeModal repaints)
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
 	const s=selected, cls=classify(s), vals=valsFor(s)
@@ -3985,8 +4248,8 @@ function renderFast(solid=true){ const rgb=RGB(), hx=hex(rgb)
 }
 let raf, settleT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
-	renderFast(); if(!open()&&(!dragEnt||!dragging)) paintCatalogGrad(null,true)   // motion frames blit ALL near-screen strips live (vis-gated, GPU blits, no readback) — offscreen rows wait for the settle sweep
-	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()){ paintCatalogGrad(); paintCatalogVals() } },140)   // …then one settle sweep catches offscreen rows up and arms the idle bake walk; behind a dossier the catalog sleeps and closeModal catches it up
+	renderFast(); if(!open()&&!dragging) sglFrame()   // motion frames redraw every on-screen strip in the atlas — one hidden GL pass, one blit into the visible canvas; the settle repaints the full band
+	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN){ paintCatalogGrad(); paintCatalogVals(); sglSettle() } },140)   // …then one settle sweep refreshes values and the CSS fallback; the atlas needs nothing — it IS the strips, at rest as in motion. Never under a held pointer; behind a dossier the catalog sleeps and closeModal catches it up
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
 	// drag res, so even munsell's neighbours follow the pointer
@@ -4131,6 +4394,8 @@ const route=e=>{ const h=e?decodeURIComponent(location.hash.slice(1)):BOOT.hash 
 	if(SPACES.includes(hslug)&&valstr){ const vv=valstr.split(',').map(Number)
 		if(vv.length===classify(hslug).ch.length&&vv.every(isFinite)) master={ s:hslug, vals:vv } }
 	else if(/^[0-9a-fA-F]{6}$/.test(h)) master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)) }
+	else if(/^[0-9a-fA-F]{6}(,[0-9a-fA-F]{6})+$/.test(h)){   // a comma-joined hash is the whole palette; the first stop leads
+		pal=h.split(',').slice(0,MAXPAL).map(x=>({ s:'rgb', vals:[0,2,4].map(i=>parseInt(x.slice(i,i+2),16)) })); sel=0; master=pal[0]; palRev++ }
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
@@ -4141,7 +4406,15 @@ addEventListener('hashchange',route)   // same-document deep links switch spaces
 
 // offline shell (sw.js precaches the app; any /<name> falls back to it) — after load, off the
 // startup path; skipped on file:, where registration is unsupported and would reject noisily
-if('serviceWorker' in navigator&&location.protocol!=='file:') onLoad(()=>navigator.serviceWorker.register('./sw.js'))
+// production only: on localhost the offline shell serves YESTERDAY'S build after every
+// rebuild (and a half-updated cache mixes old JS with new CSS — "bugs" that aren't in
+// the code); dev must always run what's on disk. An already-registered localhost worker
+// unregisters itself so a stale one can't linger. ?sw opts back in — the site check
+// uses it to pin the offline shell against exactly this registration logic.
+if('serviceWorker' in navigator&&location.protocol!=='file:'){
+	const dev=(location.hostname==='localhost'||location.hostname==='127.0.0.1')&&!new URLSearchParams(location.search).has('sw')
+	if(dev) navigator.serviceWorker.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()))
+	else onLoad(()=>navigator.serviceWorker.register('./sw.js')) }
 
 </script>
 <script type="module" src="./js/tip.js"></script>
