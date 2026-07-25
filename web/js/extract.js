@@ -7,16 +7,29 @@ import { space } from './core.js'
 
 const D=(a,b)=>{ const x=a[0]-b[0], y=a[1]-b[1], z=a[2]-b[2]; return x*x+y*y+z*z }
 
-export async function extractPalette(src,k=5){
+/** The image as sRGB byte triples, downscaled to ≤S px on its long side and stripped of
+ *  transparent pixels — the one decode every reading of the image shares (the palette
+ *  below, and the page's per-channel histograms). */
+export async function sampleImage(src,S=96){
 	const bmp=await createImageBitmap(src)
-	const S=96, sc=Math.min(1,S/Math.max(bmp.width,bmp.height))
+	const sc=Math.min(1,S/Math.max(bmp.width,bmp.height))
 	const w=Math.max(1,Math.round(bmp.width*sc)), h=Math.max(1,Math.round(bmp.height*sc))
 	const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):Object.assign(document.createElement('canvas'),{width:w,height:h})
 	const cx=cv.getContext('2d',{willReadFrequently:true})
 	cx.drawImage(bmp,0,0,w,h); bmp.close?.()
-	const px=cx.getImageData(0,0,w,h).data, pts=[]
+	const px=cx.getImageData(0,0,w,h).data, out=new Uint8Array(px.length/4*3)
+	let n=0
 	for(let i=0;i<px.length;i+=4){ if(px[i+3]<128) continue   // transparent pixels are not colors
-		pts.push(space.rgb.oklab(px[i],px[i+1],px[i+2])) }
+		out[n++]=px[i]; out[n++]=px[i+1]; out[n++]=px[i+2] }
+	const rgb=out.subarray(0,n)
+	rgb.src=cv   // the downscaled canvas rides along: a thumbnail costs no second decode
+	return rgb
+}
+
+/** Prominent colors from already-sampled pixels. */
+export function paletteOf(rgb,k=5){
+	const pts=[]
+	for(let i=0;i<rgb.length;i+=3) pts.push(space.rgb.oklab(rgb[i],rgb[i+1],rgb[i+2]))
 	if(!pts.length) return []
 	k=Math.min(k,pts.length)
 	// k-means++ seeding: each next seed drawn by squared distance from the seeds so far
@@ -45,3 +58,6 @@ export async function extractPalette(src,k=5){
 	for(const o of out){ const t=kept.find(x=>D(x.c,o.c)<0.0009); if(t) t.n+=o.n; else kept.push(o) }
 	return kept.map(o=>space.oklab.rgb(...o.c).map(x=>Math.round(Math.min(255,Math.max(0,x)))))
 }
+
+/** Decode and extract in one call — the original entry point. */
+export const extractPalette=async(src,k=5)=>paletteOf(await sampleImage(src),k)
