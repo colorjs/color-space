@@ -1176,6 +1176,43 @@ void main() { O = uTint; }`)
 		uTint: gl.getUniformLocation(pr, 'uTint'), buf: gl.createBuffer() }
 }
 
+// ── the image inside the solid: its samples as a point cloud, converted by the SAME
+// transform-feedback bake as the lattice (rgb in, {v, display-rgb, bad} out), positioned
+// by the same map3/view, coloured as themselves. The page hands samples over here;
+// drawMesh3GL folds them into every frame while they exist.
+let CLOUDA = null, CLOUDR = ''
+export function setMeshCloud(arr, rev) { CLOUDA = arr && arr.length ? arr : null; CLOUDR = rev || '' }
+function cloudProg(gl) {
+	const vs = `#version 300 es
+${MAP_GLSL}
+uniform float uPtS;
+in vec3 aV; in vec3 aRgb; in float aBad;
+out vec3 vRgb; out float vBad;
+void main() {
+	vRgb = aRgb; vBad = aBad;
+	gl_Position = view_(map3_(aV), 0.0);
+	gl_PointSize = uPtS;
+}`
+	const fsrc = `#version 300 es
+precision highp float;
+in vec3 vRgb; in float vBad;
+out vec4 O;
+void main() {
+	if (vBad > 0.5) discard;
+	vec2 d = gl_PointCoord * 2.0 - 1.0;
+	float r = dot(d, d);
+	if (r > 1.0) discard;
+	O = vec4(vRgb, 0.9 * (1.0 - r * r));
+}`
+	const sh = (t, src) => { const h = gl.createShader(t); gl.shaderSource(h, src); gl.compileShader(h); return h }
+	const pr = gl.createProgram()
+	gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fsrc))
+	gl.linkProgram(pr)
+	if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { console.warn('color-space/gl cloud:', gl.getProgramInfoLog(pr)); return null }
+	const u = {}
+	for (const n of ['uMin', 'uMax', 'uCMin', 'uCMax', 'uMap', 'uWb', 'uRot', 'uScale', 'uPtS']) u[n] = gl.getUniformLocation(pr, n)
+	return { pr, u, aV: gl.getAttribLocation(pr, 'aV'), aRgb: gl.getAttribLocation(pr, 'aRgb'), aBad: gl.getAttribLocation(pr, 'aBad') }
+}
 export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0, metric = 'oklab') {
 	if (!has3dGL(s)) return false
 	const gam = map?.gam ?? 'srgb'
@@ -1350,6 +1387,58 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			rib(frame.fr, 1, 1, 1, 0.38); rib(frame.co, tr, tg, tb, 0.2)
 			gl.depthFunc(gl.LEQUAL)
 			gl.disable(gl.STENCIL_TEST); gl.depthMask(true) } }
+	// ── the cloud, last: the image's own colours at their own coordinates. Its bake rides
+	// the same TF program as the lattice; depth is off so the samples read THROUGH the body
+	// (inside a closed solid a depth-tested cloud would simply vanish behind the near wall).
+	if (CLOUDA) {
+		st.cloudPr ??= cloudProg(gl)
+		const cp = st.cloudPr
+		if (cp) {
+			const ckey = s + '|' + gam + '|' + CLOUDR
+			if (st.cloudKey !== ckey) {
+				st.cloudSrc ??= gl.createBuffer(); st.cloudBuf ??= gl.createBuffer()
+				gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudSrc)
+				gl.bufferData(gl.ARRAY_BUFFER, CLOUDA, gl.DYNAMIC_DRAW)
+				st.cloudN = CLOUDA.length / 3
+				// the TF target must not be referenced by ANY attribute pointer (see the lattice
+				// bake above) — repoint every index that could still sit on cloudBuf
+				for (const a2 of [dr.aV, dr.aRgb, dr.aBad, cp.aV, cp.aRgb, cp.aBad]) if (a2 >= 0) {
+					gl.disableVertexAttribArray(a2)
+					gl.vertexAttribPointer(a2, 1, gl.FLOAT, false, 0, 0)
+				}
+				gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudBuf)
+				gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudN * 28, gl.DYNAMIC_COPY)
+				gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, null)
+				gl.useProgram(ps.bake.pr); setU(ps.bake.u); bindLuts(gl, ps.bake)
+				gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudSrc)
+				gl.enableVertexAttribArray(ps.bake.aSrc); gl.vertexAttribPointer(ps.bake.aSrc, 3, gl.FLOAT, false, 0, 0)
+				gl.enable(gl.RASTERIZER_DISCARD)
+				gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, st.cloudBuf)
+				gl.beginTransformFeedback(gl.POINTS)
+				gl.drawArrays(gl.POINTS, 0, st.cloudN)
+				gl.endTransformFeedback()
+				gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
+				gl.disable(gl.RASTERIZER_DISCARD)
+				st.cloudKey = ckey
+				st.bakeKey = ''   // the lattice's own bake state was disturbed — let it rebake next frame
+			}
+			gl.useProgram(cp.pr)
+			gl.uniform3f(cp.u.uMin, map.min[0], map.min[1], map.min[2])
+			gl.uniform3f(cp.u.uMax, map.max[0], map.max[1], map.max[2])
+			gl.uniform4i(cp.u.uMap, map.ti, map.ai ?? -1, map.mi ?? 0, 0)
+			gl.uniform2i(cp.u.uWb, map.wI ?? -1, map.bI ?? -1)
+			gl.uniform2f(cp.u.uRot, rot.a, rot.b)
+			gl.uniform1f(cp.u.uScale, scale)
+			gl.uniform1f(cp.u.uPtS, Math.max(2, cv.width / 170))
+			gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudBuf)
+			gl.enableVertexAttribArray(cp.aV); gl.vertexAttribPointer(cp.aV, 3, gl.FLOAT, false, 28, 0)
+			gl.enableVertexAttribArray(cp.aRgb); gl.vertexAttribPointer(cp.aRgb, 3, gl.FLOAT, false, 28, 12)
+			gl.enableVertexAttribArray(cp.aBad); gl.vertexAttribPointer(cp.aBad, 1, gl.FLOAT, false, 28, 24)
+			gl.disable(gl.DEPTH_TEST); gl.depthMask(false)
+			gl.drawArrays(gl.POINTS, 0, st.cloudN)
+			gl.depthMask(true); gl.enable(gl.DEPTH_TEST)
+		}
+	}
 	return true
 }
 
