@@ -1821,7 +1821,7 @@ const clearImage=()=>{ HIMG=null; UIMG=null; BRUSHES.clear(); bMask=null; setMes
 	detail.querySelectorAll('.bar2').forEach(b=>{ if(b._hist){ b._hist._p=null; b._hist.style.display='none' } })
 	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
 	if(open()){ paintPlanes(false); paintImages() } else paintCatalogVals() }
-const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); hRev++; document.body.classList.toggle('himg',!!a)
+const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); histV.clear(); hRev++; document.body.classList.toggle('himg',!!a)   // histV too: a REPLACED image left the old samples cached, blocking every rebin and feeding stale dots
 	meshCloud()
 	if(a?.src) pkShow()
 	if(open()) paintPlanes(false); else paintCatalogVals() }   // a dossier open when the image lands queues ITS space and repaints; the catalog does the same for its rows
