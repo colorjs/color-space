@@ -41,7 +41,7 @@ a:hover{ text-decoration-color:currentColor }
    with the page (no sticky float). The pick affordance is the hue line beneath it. ── */
 .mhead{ position:sticky; top:0; z-index:var(--z-sticky-nav); background:var(--paper) }   /* pinned: search + current colour stay reachable while the catalog scrolls (rail titles pin just below it — see layoutToc) */
 .mast{ position:relative; z-index:1; display:flex; align-items:center; gap:var(--s2); flex-wrap:nowrap; min-height:3.25rem; padding:var(--s3) 0; color:var(--ink) }   /* every item vertically centred in the bar; symmetric padding keeps the content box on the bar's centre line */
-.mast .wm,.mast .tagline,.mast .ver{ line-height:36px }   /* text line boxes match the icon height, so the shared baseline sits centred in the bar.
+.mast .wm,.mast .tagline{ line-height:36px }   /* text line boxes match the icon height, so the shared baseline sits centred in the bar.
    NOT the inputs (Chrome ignores line-height for input values but honours it for placeholders, splitting the two apart)
    and NOT .qn (it appears with typing inside the padded search label — 36px there inflates the bar) */
 .mast .wm{ flex:none; font-weight:800; font-size:var(--t3); letter-spacing:-.01em }
@@ -52,8 +52,6 @@ a:hover{ text-decoration-color:currentColor }
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
 .hueline{ height:5px; background:var(--ink) }   /* a quiet black rule under the header — held for a future use (picked-colour history, perhaps); the spectrum lives on in the walk and the footer */
-.mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
-.mast .ver:hover{ color:var(--ink) }
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--soft) }
 .mast .gh:hover,.thm:hover,.mast .gh:focus-visible,.thm:focus-visible,.thm[aria-expanded="true"]{ color:var(--accent) }   /* every icon shares one idiom — rest soft, hover/active --accent (ink, theme-tracking); the orange --c never marks interaction */
 .thm{ border:0; background:none; padding:0; cursor:pointer }
@@ -234,7 +232,6 @@ body.himg #upfl{ display:none }
 	:root{ --t3:13px }   /* the phone base for prose — FAQ answers, dossier copy; the UI faces (t0–t2, t4) keep their scale */
 	.mast{ padding-block:var(--s1); min-height:0; --shelf:49px }   /* flush bar: the 44px tap row + the 5px hueline = 49 — every fixed drop-down hangs from --shelf, right after the rule */
 	.mast .wm{ font-size:1rem }   /* the wordmark holds its size — it keys off --t3 but is not prose */
-	.mast .ver{ display:none }
 	#cval{ display:none }   /* the diamond (a native picker) and favicon still carry the color */
 	.prem{ margin-left:.2em }
 	.mast:has(.pstack.on) .wm{ display:none }   /* with a live palette the stack IS the masthead's identity — the favicon keeps the brand */
@@ -832,7 +829,6 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
 	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg class="ic" viewBox="2 1 20 22" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
-	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </header><div class="hueline" id="hueline" aria-hidden="true"></div></div>
 
@@ -1571,7 +1567,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<div class="fwrap">
 			<a class="fnpm" id="fnpm" href="https://www.npmjs.com/package/color-space" target="_blank" rel="noopener" title="color-space on npm"><i>❯</i><span class="cmd">npm install color-space</span></a>
 			<a class="fsup" href="https://github.com/sponsors/dy">Support the project</a>
-			<div class="legal"><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a> <span class="dot">·</span> <a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></div>
+			<div class="legal"><a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a> <span class="dot">·</span> <a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a> <span class="dot">·</span> <a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></div>
 		</div>
 	</div>
 </footer>
