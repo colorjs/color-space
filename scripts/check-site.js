@@ -74,16 +74,16 @@ try {
 	await fq.locator('summary').click()
 	assert.equal(await fq.getAttribute('open'), null, 'and folds back')
 
-	// the shelf cut leads the panel: purpose and era live as groupings, not facets;
-	// the remaining filters compose on the rebuilt DOM (scene-referred × era = the
+	// the shelf cut lives at the rail's FOOT now — tabs regroup without the panel;
+	// the filters then compose on the rebuilt DOM (scene-referred × era = the
 	// camera-log timeline), and the header chips restore every layer
-	await page.locator('#tfb').click()
-	assert.equal(await page.locator('.gtag').count(), 3, 'the group row offers the three cuts')
+	assert.equal(await page.locator('.gtag').count(), 3, 'the rail offers the three cuts')
 	await page.locator('.gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().innerText(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
 	assert.equal(await page.locator('.ent[data-s]').count(), 162, 'era regroup keeps every space')
 	assert.match(await page.locator('.toc .tn').first().innerText(), /1860/, 'era shelves lead the rail')
+	await page.locator('#tfb').click()
 	await page.locator('#tfp button[data-t="scene"]').click()
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
