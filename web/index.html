@@ -260,7 +260,8 @@ body.himg #imgfloat{ display:block }
 .nores{ grid-column:2; margin:0; font-size:var(--t2); color:var(--soft); padding:var(--s8) 0 var(--s12) }   /* the filtered-to-nothing line — the void names the query instead of going silent */
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
-.toc{ grid-column:1; position:relative; padding-bottom:var(--s12); opacity:0 }   /* hidden until the ladder is font-settled (see layoutToc) — the realign was a visible jump */
+.toc{ grid-column:1; position:relative; display:flex; flex-direction:column; padding-bottom:var(--s12); opacity:0 }   /* a flex COLUMN so the shelf tabs can take margin-top:auto — their in-flow seat moves to the rail's very end, and the sticky park holds through the whole last section */
+.toc>*{ flex:none }   /* hidden until the ladder is font-settled (see layoutToc) — the realign was a visible jump */
 .toc.on{ opacity:1; transition:opacity var(--dur-short) var(--ease-out) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); --toc-top:var(--s6); top:calc(var(--ti-y,0px) + var(--toc-top)) }   /* pin point is CSS: --ti-y is the measured ladder offset (per title), --toc-top the gap below the sticky header — tune the gap here, in CSS. Bottom ladder set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top */
@@ -268,7 +269,7 @@ body.himg #imgfloat{ display:block }
    waiting titles (layoutToc seeds the bottom stack above it), so it always follows
    Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
    active tab (the row hangs from below, so its marker faces up) */
-.gtabs{ position:sticky; bottom:12px; z-index:3; margin-top:var(--s6); background:var(--paper); padding:var(--s2) 0 var(--s1); display:flex; gap:var(--s4) }
+.gtabs{ position:sticky; bottom:12px; z-index:3; margin-top:auto; background:var(--paper); padding:var(--s2) 0 var(--s1); display:flex; gap:var(--s4); align-self:flex-start }
 .gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:2px solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
@@ -356,7 +357,8 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 @media(max-width:640px){ .cat .ent .eh .nm{ font-size:calc(var(--t2) + 1px) }   /* a step up — phone names read too small at t2 */
 	.ent{ padding-top:var(--s3) } }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
 @media(max-width:640px) and (pointer:coarse){
-	.grid>.ent:nth-child(n+2),.sheet>.ent.lite,.gcol>.ent:not(:first-child):not(.lite),.gcol>.ent.lite{ padding-block:var(--space-3xs) }   /* the 44px tap names set the row height — 2px padding puts rows on a 48px pitch, not 56 */
+	.cat .ent .eh .nm{ min-height:36px }   /* the name is the row-wide target — width buys back what the 36px height concedes (WCAG 2.5.8 floor is 24) */
+	.grid>.ent:nth-child(n+2),.sheet>.ent.lite,.gcol>.ent:not(:first-child):not(.lite),.gcol>.ent.lite{ padding-block:var(--space-3xs) }   /* the tap names set the row height — 2px padding puts rows on a 40px pitch, not 56 */
 	.cat .ent.pop{ --popot:10px } .ent.pop::before{ bottom:-10px }   /* the card surface still reads --s3 around the 2px rows */
 }
 /* hover keeps the atlas flat; no white card and no global dimming */
