@@ -639,7 +639,7 @@ body.sgl #stripgl{ display:block }
 .src a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 /* segmented buttons — same word-style as the corner gamut flags, clickable */
 .seg{ display:flex; gap:var(--s3) }
-.seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:2px solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
+.seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:var(--ulw) solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
 .seg button:hover{ color:var(--ink) }
 .seg button.on{ color:var(--ink); border-bottom-color:var(--accent) }   /* the active option carries the accent, like the API tabs */
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
