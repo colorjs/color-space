@@ -54,8 +54,8 @@ a:hover{ text-decoration-color:currentColor }
 .hueline{ height:5px; background:var(--ink) }   /* a quiet black rule under the header — held for a future use (picked-colour history, perhaps); the spectrum lives on in the walk and the footer */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
-.mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--ink) }
-@media(hover:hover){ .mast .gh:hover,.thm:hover{ color:var(--c) } }   /* pointer devices only — on touch the :hover sticks after a tap and the icon stays orange */
+.mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--soft) }
+.mast .gh:hover,.thm:hover,.mast .gh:focus-visible,.thm:focus-visible,.thm[aria-expanded="true"]{ color:var(--accent) }   /* every icon shares one idiom — rest soft, hover/active --accent (ink, theme-tracking); the orange --c never marks interaction */
 .thm{ border:0; background:none; padding:0; cursor:pointer }
 /* the current color: a diamond swatch (the slider marker, grown up) and a live value input —
    shows hex, accepts anything CSS can parse (#f80, oklch(.7 .2 40), rebeccapurple) */
@@ -99,6 +99,10 @@ a:hover{ text-decoration-color:currentColor }
    dossier's scrim; ✕ appears on hover, top-left, and lets it go */
 #imgfloat{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
 body.himg #imgfloat{ display:block }
+#upfl{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); width:44px; height:44px; display:grid; place-items:center; --ic:18px; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); cursor:pointer }   /* the corner's invitation — the tooltip's dark plate, round; the image floater takes this seat once an image lands */
+#upfl .ic{ display:block }
+#upfl:hover{ box-shadow:0 8px 26px rgba(0,0,0,.32) }
+body.himg #upfl{ display:none }
 #imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
 #imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
 #imgx .ic{ display:block }
@@ -228,11 +232,10 @@ body.himg #imgfloat{ display:block }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
 @media(max-width:640px){
 	:root{ --t3:13px }   /* the phone base for prose — FAQ answers, dossier copy; the UI faces (t0–t2, t4) keep their scale */
-	.mast{ padding-block:0; min-height:0; --shelf:49px }   /* flush bar: the 44px tap row + the 5px hueline = 49 — every fixed drop-down hangs from --shelf, right after the rule */
+	.mast{ padding-block:var(--s1); min-height:0; --shelf:49px }   /* flush bar: the 44px tap row + the 5px hueline = 49 — every fixed drop-down hangs from --shelf, right after the rule */
 	.mast .wm{ font-size:1rem }   /* the wordmark holds its size — it keys off --t3 but is not prose */
 	.mast .ver{ display:none }
 	#cval{ display:none }   /* the diamond (a native picker) and favicon still carry the color */
-	#gpill{ display:none }   /* no room for the header's gamut pill once the value hides — a desktop nicety (the dossier's .gpill tags stay) */
 	.prem{ margin-left:.2em }
 	.mast:has(.pstack.on) .wm{ display:none }   /* with a live palette the stack IS the masthead's identity — the favicon keeps the brand */
 	.qx{ width:36px; justify-content:center; align-items:center; padding-top:0 }   /* icon-only — no text to sit on the baseline */
@@ -548,7 +551,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s4) 0 var(--s6) }
-@media(max-width:640px){ .chead .dctl{ display:none }   /* phones: no quantize/gamut selects */
+@media(max-width:640px){
 .dhero{ display:block }   /* the overview flows — the plates float inside the features */
 	.dhero>.dviz2{ float:right; width:min(48%,15rem); margin:0 0 var(--s2) var(--s4) }
 	.dhero::after{ content:''; display:block; clear:both } }
@@ -581,14 +584,21 @@ body.sgl #stripgl{ display:block }
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s4) }
-@media(max-width:640px){ .mnavbar.mfoot{ padding:var(--s4) 0 0 }
-	.bigch{ flex-wrap:nowrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills NEVER wrap — they ride the input line */
+@media(max-width:640px){ .mnavbar.mfoot{ padding:var(--s2) 0; }
+	.bigch{ flex-wrap:nowrap; gap:var(--s1)!important; } .gtags{ flex:none; flex-wrap:nowrap }   /* phones: tight row */
+	.chead{ flex-wrap:nowrap; gap:var(--s2) }   /* one line, always — whatever rides it must yield, never wrap */
+	.chead .dctl{ flex:none; gap:var(--s1) }
+	.chead .dctl select:not(#qseg),.chead .dctl .hq{ display:none }   /* the quantization select alone — gamut subset and metric stay desktop tools */
+	.chead .gtags{ display:none }   /* the masthead pill already names the tightest gamut — no duplicate on the tight row */
+}
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
 .bch .nvw input{ height:auto; width:4.6rem; font-size:var(--t4); font-weight:700; color:var(--ink); text-align:left }
 @supports(field-sizing:content){ .bch .nvw input{ field-sizing:content; width:auto; min-width:1.4rem } }   /* the box hugs the value — name, number and unit stay one tight phrase */
+@media(max-width:640px){ .bch .nvw input{ font-size:var(--text-base) }   /* a size down from t4 — four channels plus the quantize select must share one line (after the base rule: the override must win the cascade) */
+	.bch .stk{ display:none } }   /* the bars below are the phone's fine control — 14px arrows never were a touch target */
 .bch .nvw .u{ font-size:var(--t2); color:var(--body) }
 .props .cssv{ font-family:var(--font-mono); font-size:var(--t2) }   /* the CSS notation is code, not prose — it reads in mono under the channels */
 .props .dpills{ margin:0 }   /* model/signal values wear the shared .tag recipe, on the property grid's own rhythm */
@@ -816,7 +826,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><button class="ivb" id="ivdrop" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>drop an image</button><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
+	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -1682,7 +1692,9 @@ if(fmtbEl){
 }
 // the masthead's empty state: two doors, the same two the placeholder used to name
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
-document.getElementById('ivdrop')?.addEventListener('click',()=>cvFile?.click())
+const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',title:'add an image — drop one anywhere, or pick a file',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>'})
+document.body.append(upFl)
+upFl.addEventListener('click',()=>cvFile?.click())
 // ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
 // crisp at full resolution; a CLICK picks the pixel under the pointer, a quiet ✕ lets
 // the image go. It outlives the dossier's scrim. ──
@@ -1879,7 +1891,6 @@ let vfF={}, vfM=null
 const valsFor=s=>{ if(vfM!==master){ vfM=master; vfF={} } return vfF[s]??=valsIn(master,s) }
 // the tightest standard gamut that holds the current colour — convert straight from the source
 // space (never through clamped rgb) and test each RGB space's box; null = beyond Rec.2020
-const GPILL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020' }
 const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-eps&&x<=hi+eps)
 	const conv=to=>s===to?vals:space[s][to](...vals)
 	try{ if(inR(conv('rgb'),255)) return 'srgb'; if(inR(conv('p3'),1)) return 'p3'; if(inR(conv('rec2020'),1)) return 'rec2020' }catch{}
@@ -4622,7 +4633,7 @@ function renderFast(solid=true){
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(hx)
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // the walking colour shows as a PLACEHOLDER – a value-shaped hint in the chosen format, never an asserted value
 	if(!virgin){ syncFav(hx); syncURL(hx) }   // the unpicked walk stamps neither URL nor favicon – nothing is asserted, and 4/s replaceState+icon churn is the one perpetual cost the walk would otherwise carry
-	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GPILL[g]; gpillEl.dataset.g=g } }
+	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
 	if(!open()) paintCatalogVals()   // all vis entries – the color changed; behind an open dossier the catalog waits (closeModal repaints)
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
 	const s=selected, cls=classify(s), vals=valsFor(s)
