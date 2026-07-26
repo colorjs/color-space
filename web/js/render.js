@@ -7,6 +7,7 @@
 // before any script runs; the page's stamp-skip repaints only what actually changes.
 import { space, meta, classify, ramp, hex, toSpace, clamp } from './core.js'
 import CATS from './categories.js'
+import PURPOSE, { USE } from './purpose.js'
 
 export const SPACES = Object.keys(space).filter(k => space[k] && space[k].name && meta[k] && meta[k].channels)
 export const cname = c => c.name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/(\s*\b(percentage|percent|angle in degrees|in degrees|axis|component|coordinate)\b\s*)+$/i, '').trim()
@@ -60,7 +61,8 @@ export const fpOf = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = 
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
 // the card's quick dossier — slug + birth line (data-tip), then the tag row
 // (data-tip-tags, rendered by tip.js as chips — the same vocabulary the filter speaks)
-const entTip = s => { const m = meta[s]; return `${s} – ${[m.year, m.by].filter(Boolean).join(', ')}` }
+const entTip = s => { const m = meta[s], use = USE[PURPOSE[s]?.[0]]
+	return `${s} – ${[m.year, m.by].filter(Boolean).join(', ')}${use ? ` · for ${use}` : ''}` }
 const entTags = s => { const m = meta[s]
 	return [m.method, m.encoding, m.referred && m.referred + '-referred', m.dynamic && m.dynamic.toUpperCase(), m.illuminant].filter(Boolean).join(' · ') }
 const ent = (s, lite, st) => { const cls = classify(s)

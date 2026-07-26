@@ -55,7 +55,7 @@ a:hover{ text-decoration-color:currentColor }
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--ink) }
-.mast .gh:hover,.thm:hover{ color:var(--c) }
+@media(hover:hover){ .mast .gh:hover,.thm:hover{ color:var(--c) } }   /* pointer devices only — on touch the :hover sticks after a tap and the icon stays orange */
 .thm{ border:0; background:none; padding:0; cursor:pointer }
 /* the current color: a diamond swatch (the slider marker, grown up) and a live value input —
    shows hex, accepts anything CSS can parse (#f80, oklch(.7 .2 40), rebeccapurple) */
@@ -212,7 +212,9 @@ body.himg #imgfloat{ display:block }
 	.fqa::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
 	.fqa[open]::details-content{ opacity:1; block-size:auto }
 }
-@media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) } }   /* stacked columns: the rule the column break was providing */
+@media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) }   /* stacked columns: the rule the column break was providing */
+	.fqa summary{ font-size:calc(var(--t2) + 1px); padding:var(--s3) 0 }   /* phone scale — the space names' size, --s3 of air */
+}
 /* themed tooltip bubble (js/tip.js upgrades every title) — inverts with the theme */
 #tip{ position:fixed; z-index:var(--z-tooltip); max-width:24rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:pre-line; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
 #tip.on{ opacity:1; transform:none }
@@ -222,6 +224,7 @@ body.himg #imgfloat{ display:block }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
 @media(max-width:640px){
+	.mast{ padding-block:0; min-height:0; --shelf:49px }   /* flush bar: the 44px tap row + the 5px hueline = 49 — every fixed drop-down hangs from --shelf, right after the rule */
 	.mast .ver{ display:none }
 	#cval{ display:none }   /* the diamond (a native picker) and favicon still carry the color */
 	#gpill{ display:none }   /* no room for the header's gamut pill once the value hides — a desktop nicety (the dossier's .gpill tags stay) */
@@ -229,12 +232,13 @@ body.himg #imgfloat{ display:block }
 	.mast:has(.pstack.on) .wm{ display:none }   /* with a live palette the stack IS the masthead's identity — the favicon keeps the brand */
 	.qx{ width:36px; justify-content:center; align-items:center; padding-top:0 }   /* icon-only — no text to sit on the baseline */
 	.qx svg{ transform:none }
-	.qx input{ position:fixed; left:1rem; right:1rem; top:3.75rem; z-index:var(--z-dropdown); width:auto; padding:var(--s3) var(--s12) var(--s3) var(--s3); border:1px solid var(--hair); background:var(--paper); opacity:0; pointer-events:none; transform:translateY(calc(var(--s1)*-1)) }
+	.qx input{ position:fixed; left:1rem; right:1rem; top:var(--shelf); z-index:var(--z-dropdown); width:auto; padding:var(--s3) var(--s12) var(--s3) var(--s3); border:0; box-shadow:var(--pop-shadow); background:var(--paper); opacity:0; pointer-events:none; transform:translateY(calc(var(--s1)*-1)) }   /* the filter panel's materials — the two header drop-downs read as one family */
 	.qx:focus-within input,.qx input:not(:placeholder-shown){ width:auto; opacity:1; pointer-events:auto; transform:none }
-	.qx .qn{ position:fixed; right:1.75rem; top:4.55rem; z-index:calc(var(--z-dropdown) + 1) }
-	.qx .qclr{ position:fixed; right:1.35rem; top:4.3rem; z-index:calc(var(--z-dropdown) + 1) }   /* rides the fixed overlay bar; same reveal rule — value present */
-	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto; max-height:calc(100dvh - 4.25rem) }   /* under the header, sized to its content — the normalized chips fit without a scrollbar */
+	.qx .qn{ position:fixed; right:1.75rem; top:calc(var(--shelf) + .8rem); z-index:calc(var(--z-dropdown) + 1) }
+	.qx .qclr{ position:fixed; right:1.35rem; top:calc(var(--shelf) + .55rem); z-index:calc(var(--z-dropdown) + 1) }   /* rides the fixed overlay bar; same reveal rule — value present */
+	.tfp{ position:fixed; left:1rem; right:1rem; top:var(--shelf); width:auto; max-height:calc(100dvh - 4.25rem) }   /* under the header, sized to its content — the normalized chips fit without a scrollbar */
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
+	.fmtp{ position:fixed; left:1rem; right:1rem; top:var(--shelf); min-width:0 }   /* the notation list drops from the shelf like the filter panel */
 	.cx.inv .invite{ display:none }   /* no berth: with the value field hidden it lands on the wordmark */
 }
 @media(max-width:640px) and (prefers-reduced-motion:no-preference){
@@ -242,8 +246,8 @@ body.himg #imgfloat{ display:block }
 	.tfp[hidden]{ display:none; clip-path:inset(0 0 100% 0) }   /* allow-discrete holds display through the fold-up */
 	@starting-style{ .tfp{ clip-path:inset(0 0 100% 0) } }   /* unfurls from under the header */
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
-	.tfp{ gap:var(--s1); padding-top:var(--s1) }   /* dense shell (phones and tablets alike) */
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.tabrow button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
+	.tfp{ gap:var(--s1); padding-top:var(--s2) }   /* dense shell (phones and tablets alike) */
 	.tfp .tag{ min-height:24px; min-width:24px }   /* chips at their catalog size — 24px is the WCAG 2.5.8 floor, not the 44px inflation */
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
 @media(max-width:640px){   /* phones: the header icons hug their glyphs — even air between all four, the last flush with the hueline's end */
@@ -276,13 +280,13 @@ body.himg #imgfloat{ display:block }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
    right of the FIRST section heading */
-.gsel{ display:none; margin-left:auto; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }
+.gsel{ display:none; margin-left:auto; align-self:center; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* centred in the heading row — a select has no shared baseline to sit on */
 .gsel:hover,.gsel:focus-visible{ color:var(--ink); outline:none }
 @media(max-width:1079px){ .gsel{ display:inline-block } .sec:first-of-type .shw{ display:flex; align-items:baseline; gap:var(--s2) } }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
-.ti .tc{ font-weight:600; font-size:.8em; color:var(--soft); opacity:1; margin-left:.6em }   /* count of spaces in the category */
+.ti .tc{ margin-left:.6em }   /* count of spaces in the category — the sup-chip recipe (with .hq) carries the look */
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }   /* fills the capped content column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
@@ -299,7 +303,6 @@ body.himg #imgfloat{ display:block }
 	.mast .cx{ position:relative; left:auto; top:auto; transform:none; align-self:center }   /* no rail to align to — back into the masthead row, centred like its siblings */
 	#cval{ }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
-	.shw .c{ font-weight:400; font-size:.8em; color:currentColor; opacity:.42 }   /* bare count, a size down, on the heading's baseline */
 	.sec{ padding:var(--s4) 0 var(--s6) }
 	.sec:first-of-type{ padding-top:var(--s6) } }   /* the first category breathes below the masthead */
 /* only the first grid row carries sliders by default — three stacked sliders read wrong at 1–2 columns.
@@ -489,7 +492,8 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .mnavbar .mcat:hover .mn{ color:var(--ink) }
 .dctl{ display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:var(--s2); margin-left:auto }   /* gamut + quantization selects — ride the side column, flush with its right edge */
 .dctl select{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* de-chromed to text — the native chevron says "openable"; the legend rides the ? beside it */
-.hq{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:1.5em; height:1.5em; border-radius:999px; font-size:var(--t1); font-weight:800; color:var(--soft); background:var(--panel); cursor:help }   /* one ? closes each select group — the tag's gray, rounded to a circle */
+.hq,.ti .tc,.shw .c{ flex:none; display:inline-flex; align-items:center; justify-content:center; min-width:1.5em; height:1.5em; padding:0 .45em; border-radius:999px; font-size:var(--t1); font-weight:800; color:var(--soft); background:var(--panel) }   /* the sup chip — ONE recipe for everything riding a title: the dossier ?, the rail and heading counts */
+.hq{ width:1.5em; padding:0; cursor:help }   /* a single glyph closes to a circle */
 .hq:hover{ color:var(--ink) }
 .dctl select:hover{ color:var(--ink) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }
@@ -1499,8 +1503,8 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<p>Each fixes a real limit of an earlier one, and the old ones stay load-bearing. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – while broadcast, print and camera vendors each needed encodings of their own along the way. Grouping the catalog by <em>era</em> (in the filter) walks the whole progression.</p></details>
 		<details class="fqa"><summary>Aren't most of these spaces dead?</summary>
 		<p>Retired, not dead. Nobody broadcasts <a href="#ntsc">NTSC</a> anymore, but archives still decode its tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds a generation of PhotoCD family albums. Formats retire – their pictures don't, and decoding them is exactly what a reference is for. The history filter finds the fossils; every one is still load-bearing somewhere.</p></details>
-		<details class="fqa"><summary>Where's Pantone?</summary>
-		<p>Behind a paywall, where it lives. Pantone, NCS and RAL Classic are licensed swatch catalogs – rented lookup tables, not published formulas – so there's no math to implement, only data to sublicense. Systems whose math went public are all in: <a href="#munsell">Munsell</a> because its 1943 renotation is public record, <a href="#ral-design">RAL Design</a> because it's plain CIELAB underneath. The door policy is one line: published math enters; rented numbers don't.</p></details>
+		<details class="fqa"><summary>Where's Pantone, NCS, RAL?</summary>
+		<p>Pantone, NCS and RAL Classic are licensed swatch catalogs – rented lookup tables, not published formulas – so there's no math to implement, only data to sublicense. Systems whose math went public are all in: <a href="#munsell">Munsell</a> because its 1943 renotation is public record, <a href="#ral-design">RAL Design</a> because it's plain CIELAB underneath. The door policy is one line: published math enters; rented numbers don't.</p></details>
 		</div>
 		<div class="fqcol">
 		<details class="fqa"><summary>Are conversions exact? Do round trips lose data?</summary>
@@ -2268,7 +2272,7 @@ const fchipsH=document.getElementById('fchipsH')
 const FX=icon('x')
 const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('')
 	+(covOn()?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage interval">${covTxt()}${FX}</button>`:'')
-	+(grouping!=='family'?`<button class="fchip" data-grp="1" aria-label="back to the family grouping" title="back to the family shelves">by ${grouping}${FX}</button>`:'') }
+	}
 // re-shelve the catalog: rebuild from the template with the chosen cut, then re-wire —
 // the same path the fingerprint rebuild takes (colize/wireToc/wireCat), filters reapplied
 function regroup(g){ if(g===grouping||!GROUPS[g]) return; grouping=g
@@ -2320,7 +2324,6 @@ document.getElementById('qclr').addEventListener('click',()=>{ qInput.value=''; 
 	// a header chip removes its facet — and un-presses the matching dropdown tag (the
 	// coverage chip resets the slider instead)
 	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return
-		if(b.dataset.grp){ regroup('family'); return }
 		if(b.dataset.cov){ covMin=0; covMax=1; fcov.value=0; fcov1.value=100; covUpd(); return }
 		const fi=+b.dataset.f, t=b.dataset.t; act[fi].delete(t)
 		const pt=tfp.querySelector(`.tag[data-f="${fi}"][data-t="${CSS.escape(t)}"]`); if(pt){ pt.classList.remove('on'); pt.setAttribute('aria-pressed','false') }
@@ -2939,9 +2942,19 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	const tpos=[], tcol=[]
 	for(const tri of T) for(const i2 of tri){ const p=P[i2]
 		tpos.push(p.n[0],p.n[1],p.n[2]); tcol.push(p.rgb[0]/255,p.rgb[1]/255,p.rgb[2]/255) }
+	// the human solid clamps GLSL divergence to its OWN measured extent, not the box±span the
+	// cube modes need: an appearance model's spectral-extreme vertex blows up in the mediump
+	// bake (cam16/ciecam02 red cusp), and against the loose box±span it bisects only to 2× the
+	// box — a black spike into space. dmin/dmax are the gamut the JS scan actually reached
+	// (cam16 M≈100 at the box; ral-design chroma≈205 genuinely past it), so junk clamps to the
+	// real boundary while real overflow still shows. Hue keeps the wide window (it wraps).
+	const winV = g3==='vis'
+		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : dmin[k]-(c.max-c.min)*0.08),
+			cls.ch.map((c,k)=> k===ai ? win[1][k] : dmax[k]+(c.max-c.min)*0.08)]
+		: win
 	mesh3={ verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
 		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
-		gpu:gpu3, g3, map:gpu3?{ gam:g3, win, min:fmin, max:fmax, caps:capMask,
+		gpu:gpu3, g3, map:gpu3?{ gam:g3, win:winV, min:fmin, max:fmax, caps:capMask,
 			// cap planes sit at the solid's own extent — except the human view, whose
 			// cut walls are the declared box faces
 			cmin:dmin.map((x2,k)=>Math.max(x2,cls.ch[k].min)),   // cap wall clamped to the range face

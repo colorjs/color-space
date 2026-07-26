@@ -17,5 +17,6 @@ export default {
 		spaces: all().filter(s => PURPOSE[s][0] === t) })).filter(c => c.spaces.length),
 	era: () => ERAS.map(([until, name], i) => ({ name,
 		spaces: all().filter(s => meta[s].year < until && (!i || meta[s].year >= ERAS[i - 1][0]))
-			.sort((a, b) => meta[a].year - meta[b].year || a.localeCompare(b)) })).filter(c => c.spaces.length),
+			.sort((a, b) => meta[b].year - meta[a].year || a.localeCompare(b)) })).filter(c => c.spaces.length)
+		.reverse(),   // the present leads — 2020s first, the pioneers close the list
 }

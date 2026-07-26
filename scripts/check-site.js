@@ -88,8 +88,8 @@ try {
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
 	await page.locator('.fchip[data-f]').click()
-	await page.locator('.fchip[data-grp]').click()
-	assert.match(await page.locator('.toc .tn').first().innerText(), /Display/, 'the grouping chip restores the family cut')
+	await page.locator('.gtag[data-g="family"]').click()
+	assert.match(await page.locator('.toc .tn').first().innerText(), /Display/, 'the Family tab restores the family cut')
 
 	await page.locator('#cval').fill('rebeccapurple')
 	await page.locator('#cval').press('Enter')
@@ -174,7 +174,7 @@ try {
 	assert.equal(+(await page.locator('#bigch .nv').nth(1).inputValue())<=100,true,'HPLuv even→smooth keeps saturation in range')
 	const hpVoid=await page.locator('.pl[data-a="0"][data-b="2"] canvas').evaluate(c=>{ const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let n=0; for(let i=3;i<d.length;i+=4) if(d[i]<10)n++; return n })
 	assert.equal(hpVoid,0,'HPLuv H×L plane remains complete after even→smooth')
-	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal').hidden)
+	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
 
 	await page.goto(`${server.origin}/oklch?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
@@ -203,6 +203,14 @@ try {
 	const rowsShown = await mobile.evaluate(() =>
 		[...document.querySelectorAll('.gcol > .ent')].slice(0, 8).every(e => e.getBoundingClientRect().height > 0))
 	assert.equal(rowsShown, true, 'mobile rows are all visible without unfolding')
+	// operating the grouping select must not raise its heading's explainer (tip.js stops
+	// ancestor tips at form controls) — while the heading itself still explains
+	await mobile.locator('.gsel').first().hover()
+	await mobile.waitForTimeout(450)   // past tip.js's 300ms arm delay
+	assert.equal(await mobile.locator('#tip.on').count(), 0, 'the grouping select does not raise the section tip')
+	await mobile.locator('.shw').first().hover()
+	await mobile.waitForTimeout(450)
+	assert.equal(await mobile.locator('#tip.on').count(), 1, 'the heading itself still explains')
 	await mobile.close()
 
 	const og = await context.request.get(`${server.origin}/img/og.png?cb=${Date.now()}`)

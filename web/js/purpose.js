@@ -18,6 +18,14 @@ export const TIPS = {
 	research: 'vision science and imaging research – physiological and experimental coordinates',
 }
 
+// the 3–4 word answer to "used for?" — the catalog card tip's second breath
+export const USE = {
+	picking: 'color picker controls', palettes: 'palettes and gradients', editing: 'image-editing headroom',
+	compositing: 'linear-light compositing', grading: 'capture and grading', delivery: 'screen and stream delivery',
+	print: 'print and surface color', difference: 'color-difference metrics', measurement: 'colorimetric reference',
+	research: 'vision research',
+}
+
 export default {
 	// ── display & web ──
 	rgb: ['delivery'], p3: ['delivery'], rec2020: ['delivery'], rec709: ['delivery'],
