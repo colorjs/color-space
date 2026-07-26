@@ -1404,7 +1404,7 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
 		const m=Math.max(0,ys[i]-hs[i]/2-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
 		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
-	let dn=gtH?gtH+G:12   // bottom ladder: upcoming titles wait stacked above the fold — ABOVE the shelf tabs (whose own 12px breath is inside their box), which hold the last rung
+	let dn=gtH?gtH+G+6:12   // bottom ladder: upcoming titles wait stacked above the fold — ABOVE the shelf tabs (whose own 12px breath is inside their box), which hold the last rung; +6 ≈ a title's internal bottom padding, so the tabs sit one full title-rhythm below
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
 	if(layoutToc.settled) tocEl.classList.add('on')   // reveal only a ladder measured under the real fonts
 }
@@ -1497,6 +1497,10 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<p>Coordinates valid in one space that land outside what another space, or your display, can reach. A vivid <a href="#p3">Display P3</a> green has no sRGB address: converted, its numbers leave the range. The atlas keeps this visible – the pill by the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
 		<details class="fqa"><summary>Why 162 spaces – isn't one enough?</summary>
 		<p>Each fixes a real limit of an earlier one, and the old ones stay load-bearing. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – while broadcast, print and camera vendors each needed encodings of their own along the way. Grouping the catalog by <em>era</em> (in the filter) walks the whole progression.</p></details>
+		<details class="fqa"><summary>Aren't most of these spaces dead?</summary>
+		<p>Retired, not dead. Nobody broadcasts <a href="#ntsc">NTSC</a> anymore, but archives still decode its tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds a generation of PhotoCD family albums. Formats retire – their pictures don't, and decoding them is exactly what a reference is for. The history filter finds the fossils; every one is still load-bearing somewhere.</p></details>
+		<details class="fqa"><summary>Where's Pantone?</summary>
+		<p>Behind a paywall, where it lives. Pantone, NCS and RAL Classic are licensed swatch catalogs – rented lookup tables, not published formulas – so there's no math to implement, only data to sublicense. Systems whose math went public are all in: <a href="#munsell">Munsell</a> because its 1943 renotation is public record, <a href="#ral-design">RAL Design</a> because it's plain CIELAB underneath. The door policy is one line: published math enters; rented numbers don't.</p></details>
 		</div>
 		<div class="fqcol">
 		<details class="fqa"><summary>Are conversions exact? Do round trips lose data?</summary>
@@ -1508,9 +1512,13 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<details class="fqa"><summary>What makes a space HDR?</summary>
 		<p>Its transfer function budgets code values for luminance far beyond a standard display's white. <a href="#rec2100-pq">PQ</a> addresses absolute levels up to 10,000 nits; <a href="#rec2100-hlg">HLG</a> stays compatible with SDR broadcast; Rec. 2100 carries both. <a href="#ictcp">ICtCp</a> and <a href="#jzazbz">Jzazbz</a> are their perceptual companions for grading and difference work.</p></details>
 		<details class="fqa"><summary>Why do the numbers differ from other libraries?</summary>
-		<p>Same colors, different conventions. This library keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where most libraries normalize everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
+		<p>Same colors, different conventions. This library keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where most libraries flatten everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
+		<details class="fqa"><summary>Why should I trust these formulas?</summary>
+		<p>Don't – check. Every space cites the paper or spec it implements; values are differentially tested against <a href="https://colorjs.io">colorjs.io</a> wherever the two overlap; the camera logs are verified against the Academy's official ACES transforms. The ledger is public – <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md">formula-verification.md</a> records what was checked against what, including the published papers that turned out to carry bugs.</p></details>
 		<details class="fqa"><summary>Why does red + green make yellow on screens, but mud in paint?</summary>
 		<p>Screens add light: red and green light sum to yellow, which is how every RGB space works. Paint subtracts it: each pigment absorbs part of the spectrum, and mixing multiplies the losses, so the result darkens toward brown. Each arithmetic gets its own shelf here – additive RGB on one, subtractive <a href="#cmyk">CMYK</a> and the painters' <a href="#ryb">RYB</a> on the other.</p></details>
+		<details class="fqa"><summary>Where are viridis and the other colormaps?</summary>
+		<p>A colormap is a path, not a place – a one-dimensional route through a color space, built to carry data. The routes aren't shelved here, but their drafting tables are: viridis was drawn inside <a href="#cam02-ucs">CAM02-UCS</a>, hunting perceptually even steps. Draw a straight line through <a href="#oklab">OKLab</a> and you've designed your own.</p></details>
 		</div>
 	</div>
 </section>
