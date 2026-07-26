@@ -102,6 +102,8 @@ body.himg #imgfloat{ display:block }
 #upfl{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); width:44px; height:44px; display:grid; place-items:center; --ic:18px; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); cursor:pointer }   /* the corner's invitation — the tooltip's dark plate, round; the image floater takes this seat once an image lands */
 #upfl .ic{ display:block }
 #upfl:hover{ box-shadow:0 8px 26px rgba(0,0,0,.32) }
+#upfl .upar{ transition:transform var(--dur-short) var(--ease-out) }
+#upfl:hover .upar{ transform:translateY(-2.5px) }   /* the arrow lifts off its base — the upload, previewed */
 body.himg #upfl{ display:none }
 #imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
 #imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
@@ -1575,7 +1577,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 </footer>
 
 <div id="toast" role="status" aria-live="polite">Copied</div>
-<div id="dropcast" hidden aria-hidden="true"><span>drop to pick its palette</span></div>
+<div id="dropcast" hidden aria-hidden="true"><span>drop the image — every lane and plane will read it</span></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
@@ -1690,7 +1692,8 @@ if(fmtbEl){
 }
 // the masthead's empty state: two doors, the same two the placeholder used to name
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
-const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',title:'add an image — drop one anywhere, or pick a file',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>'})
+const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="upar" d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
+upFl.dataset.tip='drop an image anywhere — or pick a file\nit reads through every lane and plane'
 document.body.append(upFl)
 upFl.addEventListener('click',()=>cvFile?.click())
 // ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
@@ -4257,22 +4260,29 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 // two 1-D curves can never be. EVERY geometry carries it – square, disc, cone section and
 // wedge – by running each one's own pointer mapping backwards, so a sample lands exactly
 // where clicking that spot would put the picker.
-const DG=88   // density grid – soft-scaled up to the plane, so a finer one buys nothing
-function planeDensity(pl,s,a,b,cls){
+// image samples on the planes: SHARP dots at the plane's own resolution — the 3D
+// cloud's voice in 2D. Density emerges from overlap (fixed per-dot alpha), not from a
+// coarse splat grid soft-scaled up (that read as blur, not as points).
+function planeDensity(pl,s,a,b,cls,w,h){
 	const rec=histV.get(s); if(!rec) return null
 	const vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}, fl=flip3(cls,a,b), pol=pl._polar, tri=pl._tri
-	const key=s+'|'+a+','+b+'|'+(pol?'p':tri?'t'+tri:'r')+'|'+vw.x0+','+vw.x1+','+vw.y0+','+vw.y1+'|'+hRev
+	const key=s+'|'+a+','+b+'|'+(pol?'p':tri?'t'+tri:'r')+'|'+vw.x0+','+vw.x1+','+vw.y0+','+vw.y1+'|'+w+'x'+h+'|'+hRev
 	if(pl._dk===key) return pl._dc
 	pl._dk=key; pl._dc=null
 	const { v, dim, n }=rec, ca=cls.ch[a], cb=cls.ch[b], msk=brushMask()
-	const g=new Float32Array(DG*DG)
+	const cvd=Object.assign(document.createElement('canvas'),{width:w,height:h})
+	const cd=cvd.getContext('2d')
+	cd.fillStyle=ink(RGB())==='#fff'?'#fff':'#16161a'
+	cd.globalAlpha=.45
+	const r=Math.max(1.25,w/300), r2=r/2
+	let drew=0
 	for(let k=0;k<n;k++){ if(msk&&!msk[k]) continue
 		let fa=(v[k*dim+a]-ca.min)/(ca.max-ca.min), fb=(v[k*dim+b]-cb.min)/(cb.max-cb.min)
 		let x,y
-		if(pol){ // the disc: a is the hue turn (clockwise from +x), b the radius – full ranges, no window
+		if(pol){ // the disc: a is the hue turn (clockwise from +x), b the radius — full ranges, no window
 			if(!(fa>=0&&fb>=0&&fa<=1)) continue
-			const th=-fa*6.283185307179586, r=Math.min(1,fb)
-			x=(r*Math.cos(th)+1)/2; y=1-(r*Math.sin(th)+1)/2 }
+			const th=-fa*6.283185307179586, rr=Math.min(1,fb)
+			x=(rr*Math.cos(th)+1)/2; y=1-(rr*Math.sin(th)+1)/2 }
 		else if(tri===3){ // the wedge, barycentric: a is the white weight, b the black one
 			const px=1-fa-fb; if(!(px>=0&&px<=1)) continue
 			x=px; y=1-(fa+.5*px) }
@@ -4284,23 +4294,9 @@ function planeDensity(pl,s,a,b,cls){
 			if(fl&2) fb=1-fb
 			x=(fa-vw.x0)/(vw.x1-vw.x0); y=1-(fb-vw.y0)/(vw.y1-vw.y0) }
 		if(!(x>=0&&x<=1&&y>=0&&y<=1)) continue
-		const gx=x*(DG-1), gy=y*(DG-1), ix=gx|0, iy=gy|0, tx=gx-ix, ty=gy-iy, i0=iy*DG+ix
-		g[i0]+=(1-tx)*(1-ty)   // bilinear splat, for the reason the lanes use one
-		if(ix+1<DG) g[i0+1]+=tx*(1-ty)
-		if(iy+1<DG){ g[i0+DG]+=(1-tx)*ty; if(ix+1<DG) g[i0+DG+1]+=tx*ty } }
-	const srt=Float32Array.from(g).sort()
-	const m=srt[Math.floor(DG*DG*.99)]||srt[DG*DG-1]
-	if(!m) return null
-	const k0=ink(RGB())==='#fff'?[255,255,255]:[22,22,26]
-	const cvd=Object.assign(document.createElement('canvas'),{width:DG,height:DG})
-	const cd=cvd.getContext('2d'), id=cd.createImageData(DG,DG)
-	// a gentle gamma, and a floor: a scope must READ where the image actually lives, and a
-	// tail lifted as hard as the lanes' turns the whole field into a milky veil over the
-	// colours the plane exists to show
-	for(let i=0;i<DG*DG;i++){ const t=Math.min(1,g[i]/m)
-		id.data[i*4]=k0[0]; id.data[i*4+1]=k0[1]; id.data[i*4+2]=k0[2]
-		id.data[i*4+3]=t<.02?0:Math.round(Math.pow(t,.8)*190) }
-	cd.putImageData(id,0,0)
+		cd.fillRect(x*w-r2,y*h-r2,r,r); drew++ }
+	cd.globalAlpha=1
+	if(!drew) return null
 	pl._dc=cvd
 	return cvd }
 // ── painting ──
@@ -4387,8 +4383,8 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
 		if(!(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM)))
 			plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q)
-		if(HIMG){ const dc=planeDensity(pl,s,a,b,cls)
-			if(dc) cv.getContext('2d').drawImage(dc,0,0,cv.width,cv.height) } })
+		if(HIMG){ const dc=planeDensity(pl,s,a,b,cls,cv.width,cv.height)
+			if(dc) cv.getContext('2d').drawImage(dc,0,0) } })
 	if(HIMG&&!histV.has(s)&&!histP.has(s)&&!histQ.has(s)){ histQ.add(s); histSoon() }   // the open space earns its samples too, not just the rows on screen
 	planesLive=canGL
 	if(planesLive) planeNext=0
