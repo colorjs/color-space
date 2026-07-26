@@ -269,7 +269,7 @@ body.himg #imgfloat{ display:block }
    waiting titles (layoutToc seeds the bottom stack above it), so it always follows
    Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
    active tab (the row hangs from below, so its marker faces up) */
-.gtabs{ position:sticky; bottom:12px; z-index:3; margin-top:auto; background:var(--paper); padding:var(--s2) 0 var(--s1); display:flex; gap:var(--s4); align-self:flex-start }
+.gtabs{ position:sticky; bottom:0; z-index:3; margin-top:auto; background:var(--paper); padding:0 0 12px; display:flex; gap:var(--s4) }   /* full column width, paper to the very screen edge while parked; the white begins exactly at the tabs' top — the breathing room lives INSIDE as bottom padding */
 .gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:2px solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
@@ -1395,7 +1395,7 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
 		const m=Math.max(0,ys[i]-hs[i]/2-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
 		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
-	let dn=12+(gtH?gtH+G:0)   // bottom ladder: upcoming titles wait stacked above the fold — ABOVE the shelf tabs, which hold the last rung
+	let dn=gtH?gtH+G:12   // bottom ladder: upcoming titles wait stacked above the fold — ABOVE the shelf tabs (whose own 12px breath is inside their box), which hold the last rung
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
 	if(layoutToc.settled) tocEl.classList.add('on')   // reveal only a ladder measured under the real fonts
 }
@@ -1525,7 +1525,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
-import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, visWhite } from './js/core.js'
+import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
 import LORE from './js/lore.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
@@ -2679,13 +2679,12 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// (HPLuv's exploding near-white P) would land back inside the guarded box.
 	const gfCube=v=>{ const mx=Math.max(...v), dlt=mx-Math.min(...v)
 		return Math.min(clamp(dlt/2.5,0,1),clamp((mx-2)/6,0,1)) }
-	// same law for the human solid — only the units differ: divide XYZ by the white it
-	// integrates to and its gray axis IS r=g=b, so gfCube measures it unchanged. Judging
-	// darkness by luminance alone crushed every deep saturated colour (a violet at full
-	// chroma carries Y<1) onto the axis: the solid's dark half flattened into a skirt and
-	// a needle at black, while osaucs's real near-black blow-up stays suppressed either way.
-	const VISWP=visWhite()
-	const gfVis=v=>gfCube(v.map((x2,k)=>x2/VISWP[k]*255))
+	// the human solid tapers by LUMINANCE (mirrors gl.js): its near-black boundary is the
+	// spectral MacAdam cusps — near-monochromatic colours at ~0% luminance whose appearance-
+	// model chroma inflates to full (a violet at Y=0.02 reads C≈60), a black spike into space.
+	// smoothstep(0,7) collapses them to the black point so the solid pinches to a clean
+	// spindle, and reaches 1 by the deepest sRGB primary (blue, Y=7.2) so real colour is exact.
+	const gfVis=v=>{ const t=clamp(v[1]/7,0,1); return t*t*(3-2*t) }
 	const gfRaw=g3==='vis'?gfVis:gfCube
 	const grayF=inBase?(v=>gfRaw(v)<1?0:1):gfRaw
 	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the
