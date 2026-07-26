@@ -97,7 +97,7 @@ a:hover{ text-decoration-color:currentColor }
 /* the image floater — the dropped image LIVES bottom-right, macOS-screenshot style: a
    paper frame with a deep shadow, crisp at full resolution, always pickable, above the
    dossier's scrim; ✕ appears on hover, top-left, and lets it go */
-#imgfloat{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 8px 32px rgba(0,0,0,.3); padding:4px }
+#imgfloat{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
 body.himg #imgfloat{ display:block }
 #imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
 #imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
@@ -232,14 +232,24 @@ body.himg #imgfloat{ display:block }
 	.qx:focus-within input,.qx input:not(:placeholder-shown){ width:auto; opacity:1; pointer-events:auto; transform:none }
 	.qx .qn{ position:fixed; right:1.75rem; top:4.55rem; z-index:calc(var(--z-dropdown) + 1) }
 	.qx .qclr{ position:fixed; right:1.35rem; top:4.3rem; z-index:calc(var(--z-dropdown) + 1) }   /* rides the fixed overlay bar; same reveal rule — value present */
-	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto; gap:var(--s1); padding-top:var(--s1) }   /* the 44px chips carry their own air — a tighter shell keeps the panel dense */
+	.tfp{ position:fixed; left:0; right:0; top:auto; bottom:0; width:auto; max-height:min(60dvh,calc(100dvh - 5rem)); padding:var(--s1) 1rem calc(var(--s2) + env(safe-area-inset-bottom)); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.14) }   /* a bottom sheet — the catalog stays visible above while filters are worked; the shadow casts up */
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 	.cx.inv .invite{ display:none }   /* no berth: with the value field hidden it lands on the wordmark */
-	.mast .tagf,.mast>.thm,.mast .gh{ margin-left:calc(-1*var(--s2)) }   /* the icon cluster closes ranks — boxes edge to edge, glyphs on the tap pitch */
-	.mast .gh{ place-items:center end }   /* the glyph, not its box, ends where the hueline ends */
+}
+@media(max-width:640px) and (prefers-reduced-motion:no-preference){
+	.tfp{ transition:transform var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete }
+	.tfp[hidden]{ display:none; transform:translateY(100%) }   /* allow-discrete holds display through the exit slide */
+	@starting-style{ .tfp{ transform:translateY(100%) } }
 }
 @media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
+	.tfp{ gap:var(--s1); padding-top:var(--s1) }   /* the inflated chips carry their own air — the shell stays dense (phones and tablets alike) */
+	.tfp .tag{ min-height:40px }   /* with the --s1 gaps the chip rows keep the 44px pitch; 40 clears WCAG 2.5.8 */
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
+@media(max-width:640px){   /* phones: the header icons hug their glyphs — even air between all four, the last flush with the hueline's end */
+	.qx,.mast .thm,.mast .gh{ width:auto; min-width:0 }
+	.mast .tagf,.mast>.thm,.mast .gh{ margin-left:var(--s4) }   /* + the masthead's --s2 gap = a constant 24px between glyphs */
+	.qx::after,.mast .thm::after,.mast .gh::after{ content:''; position:absolute; inset:0 -12px }   /* the tap slop the boxes gave up */
+}
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
    the footer wrap (.fw) and catalog (.cat) stay in a centered measure for readability */
