@@ -200,7 +200,7 @@ body.himg #imgfloat{ display:block }
 .fqcol{ min-width:0 }
 .fqa{ max-width:68ch }
 .fqa+.fqa{ border-top:1px solid var(--hair) }   /* a soft rule BETWEEN questions only — adjacent siblings, so column tops and bottoms stay clean */
-.fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s5) 0 var(--s3) }
+.fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s5) 0 var(--s5) }
 .fqa summary::-webkit-details-marker{ display:none }
 .fqa summary::after{ content:'+'; margin-left:auto; flex:none; font-weight:400; color:var(--body); opacity:.55; transition:transform var(--dur-short) var(--ease-out) }   /* the quiet fold mark — trailing, so questions stay flush like entries in an index */
 .fqa[open] summary::after{ transform:rotate(45deg) }
@@ -250,6 +250,15 @@ body.himg #imgfloat{ display:block }
 .toc.on{ opacity:1; transition:opacity var(--dur-short) var(--ease-out) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); --toc-top:var(--s6); top:calc(var(--ti-y,0px) + var(--toc-top)) }   /* pin point is CSS: --ti-y is the measured ladder offset (per title), --toc-top the gap below the sticky header — tune the gap here, in CSS. Bottom ladder set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top */
+/* the shelf cut lives at the FOOT of the rail: three quiet tabs under a rule — a view
+   decision beside the views it re-shelves, not a filter */
+.gtabs{ margin-top:var(--s6); border-top:1px solid var(--hair); padding-top:var(--s3); display:flex; gap:var(--s1) }
+.gtabs .gtag{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--soft); background:none; border:0; padding:var(--s1) var(--s2); cursor:pointer }
+.gtabs .gtag:hover{ color:var(--ink) }
+.gtabs .gtag.on{ color:var(--paper); background:var(--ink) }
+/* phones have no rail — a compact select rides the FIRST section heading, at the right */
+.gsel{ display:none; margin-left:auto; font:inherit; font-size:var(--t1); font-weight:600; color:var(--ink); background:var(--paper); border:1px solid var(--hair); padding:.2em .35em }
+@media(max-width:1079px){ .gsel{ display:inline-block } .sec:first-of-type .shw{ display:flex; align-items:baseline; gap:var(--s2) } }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
@@ -2232,9 +2241,12 @@ const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>
 	+(grouping!=='family'?`<button class="fchip" data-grp="1" aria-label="back to the family grouping" title="back to the family shelves">by ${grouping}${FX}</button>`:'') }
 // re-shelve the catalog: rebuild from the template with the chosen cut, then re-wire —
 // the same path the fingerprint rebuild takes (colize/wireToc/wireCat), filters reapplied
-function regroup(g){ if(g===grouping) return; grouping=g
-	document.querySelectorAll('.gtag').forEach(x=>{ const on=x.dataset.g===g; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })
-	hidePop(); cat.innerHTML=catHTML(master,GROUPS[g]()); colize(); wireToc(); wireCat(); applyFilter() }
+function regroup(g){ if(g===grouping||!GROUPS[g]) return; grouping=g
+	hidePop(); cat.innerHTML=catHTML(master,GROUPS[g]()); colize(); wireToc(); wireCat(); applyFilter()
+	document.querySelectorAll('.gtag').forEach(x=>{ const on=x.dataset.g===g; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })   // AFTER the rebuild — the fresh template marks family
+	document.querySelectorAll('.gsel').forEach(x=>{ x.value=g }) }
+cat.addEventListener('click',e=>{ const b=e.target.closest('.gtag'); if(b) regroup(b.dataset.g) })
+cat.addEventListener('change',e=>{ if(e.target.classList?.contains('gsel')) regroup(e.target.value) })
 // one filter pipeline: name match (highlighted in place) AND the picked facets
 function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(a=>a.size)||covOn(); let shown=0
 	cat.querySelectorAll('.ent').forEach(ent=>{ const s=ent.dataset.s
@@ -2260,9 +2272,7 @@ document.getElementById('qclr').addEventListener('click',()=>{ qInput.value=''; 
 	const vals=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
 	// the shelf cut leads — the view decision comes before narrowing; a rule separates
 	// it from the filters (purpose and era live HERE as groupings, not as facets)
-	tfp.innerHTML=`<div class="frow"><i title="re-shelve the catalog – same entries, a different cut">group by</i><span class="fchips">${Object.keys(GROUPS).map(g=>`<button class="tag gtag${g==='family'?' on':''}" data-g="${g}" aria-pressed="${g==='family'}" title="${{family:'the canonical shelves – by what a space is',purpose:'by what you reach for it to do',era:'by birth year – the history of correcting earlier limits'}[g]}">${g}</button>`).join('')}</span></div>`
-		+`<hr class="fsep">`
-		+FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" aria-pressed="false" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
+	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" aria-pressed="false" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
 		// coverage is continuous, so it filters by interval, not chips: from–to share of
 		// the visible gamut (the dossier's reach number) — the low end finds the
 		// narrow-coverage spaces, the high end the wide ones
@@ -2277,7 +2287,6 @@ document.getElementById('qclr').addEventListener('click',()=>{ qInput.value=''; 
 		act[fi].has(t)?act[fi].delete(t):act[fi].add(t)
 		const on=act[fi].has(t); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); tfbOn()
 		applyFilter() })
-	tfp.querySelectorAll('.gtag').forEach(b=>b.onclick=()=>regroup(b.dataset.g))
 	// a header chip removes its facet — and un-presses the matching dropdown tag (the
 	// coverage chip resets the slider instead)
 	fchipsH.addEventListener('click',e=>{ const b=e.target.closest('.fchip'); if(!b)return
