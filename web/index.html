@@ -478,13 +478,14 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* prev/next as centered post-navigation — a compact bar at the top of the dossier
    and again at its foot. Left chevron + name · name + right chevron. Dim-then-ink. */
 .mnavbar{ display:flex; justify-content:center; align-items:center; gap:clamp(var(--s4),6vw,var(--s12)) }
-.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s4) 0 0; background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
+.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s5) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
 .mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
 .mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
 .mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; white-space:nowrap }   /* the neighbour's name — regular weight, no trim; case comes display-final from navLabel/disp() */
 .mnav:hover,.mnav:focus-visible{ color:var(--ink); outline:none }   /* focus signal is the soft→ink shift, the site's no-ring convention (see input:focus-visible) */
 .mnav:hover svg,.mnav:focus-visible svg{ opacity:1 }
-@media(max-width:640px){ .mnav .mn{ font-size:var(--t2) } }
+@media(max-width:640px){ .mnav .mn{ font-size:var(--t2) }
+	.mnavbar .mcat{ display:none } }   /* phones: one prev, one next — the category jumps need a wider line */
 .mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
@@ -580,7 +581,8 @@ body.sgl #stripgl{ display:block }
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s4) }
-@media(max-width:640px){ .bigch{ flex-wrap:nowrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills NEVER wrap — they ride the input line */
+@media(max-width:640px){ .mnavbar.mfoot{ padding:var(--s4) 0 0 }
+	.bigch{ flex-wrap:nowrap; gap:var(--s2)!important; } .gtags{ flex:none; flex-wrap:nowrap } }   /* phones: tight row; the gamut pills NEVER wrap — they ride the input line */
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
@@ -592,6 +594,7 @@ body.sgl #stripgl{ display:block }
 .props .dpills{ margin:0 }   /* model/signal values wear the shared .tag recipe, on the property grid's own rhythm */
 .gtags{ display:flex; flex:0 1 auto; min-width:0; flex-wrap:wrap; align-self:center; gap:var(--s1) }   /* the gamut pills centre on the value row, box-middle to the numbers — not baseline (which hangs them low); they shrink and wrap among themselves so the channel tags keep their line */
 .gtags .gt[hidden]{ display:none }
+.gtags .gwarn{ color:var(--color-error) }   /* the one warning state — Photoshop's out-of-gamut mark, error-toned */
 .pick+.planes{ margin-top:var(--s2) }   /* plots sit one plane-gap below the sliders (no heading) */
 .planes+.pick{ margin-top:var(--s2) }
 /* name hugs its content; the range is a min…max sub-grid — mins right-aligned, maxes
@@ -707,7 +710,9 @@ body.sgl #stripgl{ display:block }
 .dviz2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(1rem,3vw,2.2rem); align-items:center; margin-bottom:var(--s6) }
 .dviz2 .pl3d{ max-width:30rem; justify-self:center }
 .gam2d{ position:relative; width:100%; max-width:24rem; aspect-ratio:0.909; align-self:center; justify-self:center }
-@media(max-width:640px){ .dgrid2,.dviz2{ grid-template-columns:1fr } }
+@media(max-width:640px){ .dgrid2,.dviz2{ grid-template-columns:1fr }
+	.dgrid2 .pcol p{ font-size:var(--t3) }   /* one column — used-for/caveat read in the body's own size, no margin-note step-down to keep */
+}
 @media(max-width:640px){ .props.props3{ grid-template-columns:1fr } }
 .gam2d canvas{ display:block; width:100%; height:100% }
 .gam2d .cx{ position:absolute; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }
@@ -2556,6 +2561,7 @@ try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions 
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
 const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human' }
+const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly', p3:'beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it', rec2020:'beyond P3, fits Rec.2020 – most displays clip it', clip:'outside every standard display gamut – the on-screen preview is clipped' }
 // 'human' is the fullest REAL shape (the visible gamut) and the no-display-cut state
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which
 // the always-drawn range cage already frames. (Legacy 'off' collapses to srgb default.)
@@ -3672,7 +3678,7 @@ ${gLegend}">?</span></div>`
 		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
 		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${cname(c)} slider"><div class="dk"></div></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
-		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags" title="display gamuts that contain this color">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}">${GAMLABEL[g]}</span>`).join('')}</span></div>`
+		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}" title="${GAMTITLE[g]}">${GAMLABEL[g]}</span>`).join('')}<span class="gpill gt gwarn" data-g="clip" title="${GAMTITLE.clip}">⚠</span></span></div>`
 	const plotPairs=pairsFor(s)
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dcat=sections.find(c2=>c2.spaces.includes(s))?.name||''   // from the data, not the catalog DOM — name views open before the catalog builds
@@ -4692,11 +4698,11 @@ function renderFast(solid=true){
 		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing – the focused channel tracks its slider live
 		const stk=el.querySelector('.stk'), pad=typeof Q==='number'?(c.max-c.min)/(2*Q):0
 		stk.firstElementChild.classList.toggle('lim',shown[i]>=c.max-pad-1e-9); stk.lastElementChild.classList.toggle('lim',shown[i]<=c.min+pad+1e-9) })
-	// gamut membership pills beside the values – every display gamut that can show this color
+	// ONE gamut pill beside the values – the tightest display gamut that holds this color
+	// (containment nests, so listing every holder repeats it); ⚠ when even Rec.2020 clips
 	{	const gt=document.getElementById('gtags')
-		if(gt&&pure) gt.querySelectorAll('.gt').forEach(t=>{ let on=false
-			try{ on=inGam(s,pure,t.dataset.g) }catch{}
-			t.hidden=!on }) }
+		if(gt&&pure){ const g=gamutOf()||'clip'
+			gt.querySelectorAll('.gt').forEach(t=>{ t.hidden=t.dataset.g!==g }) } }
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
