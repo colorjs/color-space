@@ -416,7 +416,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 .modal[hidden]{ display:none }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
-.mbox{ position:relative; width:var(--mboxw); margin:5vh auto; background:var(--paper); display:flex; overflow:visible; box-shadow:0 1rem 4rem oklch(0 0 0/.28) }   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
+.mbox{ position:relative; width:var(--mboxw); margin:4rem auto; background:var(--paper); display:flex; overflow:visible; box-shadow:0 1rem 4rem oklch(0 0 0/.28) }   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
 /* close ✕ — same style as the proprietary dialog's: quiet, top-right, inks on hover */
 .mx{ position:absolute; top:calc(var(--dpad) - 10px); right:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; font:inherit; font-size:1.5rem; line-height:1; font-weight:500; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--ink) }
@@ -490,7 +490,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .props a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
-.dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s2) 0 var(--s6) }
+.dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s4) 0 var(--s6) }
 @media(max-width:640px){ .chead .dctl{ display:none }   /* phones: no quantize/gamut selects */
 .dhero{ display:block }   /* the overview flows — the plates float inside the features */
 	.dhero>.dviz2{ float:right; width:min(48%,15rem); margin:0 0 var(--s2) var(--s4) }
@@ -1440,7 +1440,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	<div class="fqs">
 		<div class="fqcol">
 		<details class="fqa"><summary>What is a color space?</summary>
-		<p>A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#ff8000" data-fmt="rgb" title="make this the current color – and read the header value as rgb()"><code>rgb(255 128 0)</code></a>, <a href="#ff8000" data-fmt="oklch" title="make this the current color – and read the header value as oklch()"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#ff8000" title="make this the current color"><code>[49, 36.7, 4.5]</code></a> – one color, many addresses. A palette picks a few colors; a space can address all of them.</p></details>
+		<p>A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color – the URL carries the notation"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color – the URL carries the notation"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color – the URL carries the notation"><code>[49, 36.7, 4.5]</code></a> – one color, many addresses. A palette picks a few colors; a space can address all of them.</p></details>
 		<details class="fqa"><summary>Which space should I actually use?</summary>
 		<p>Depends on the verb. Storing and sharing images: <a href="#rgb">sRGB</a>, the web's default. Designing palettes and gradients: <a href="#oklch">OKLCH</a>. Math on light – blending, blurring, 3D: <a href="#lrgb">linear-light RGB</a>. Shooting and grading: your camera's log space, delivered through <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>. Scoring how far apart two colors look: <a href="#lab">CIELAB</a> or <a href="#din99o-lab">DIN99o</a>. Grouping the catalog by <em>purpose</em> (in the filter) shelves it the same way.</p></details>
 		<details class="fqa"><summary>What should I use instead of HSL?</summary>
@@ -1883,9 +1883,10 @@ let BASE=location.pathname.replace(/index\.html$/,'')
 { const m=BASE.match(/([^/]+?)(?:\.html)?\/?$/), seg=m&&m[1]; if(seg&&SPACES.includes(seg)) BASE=BASE.slice(0,m.index) }   // /<space> on Pages, /<space>.html on plain file servers — both are the atlas document
 const spaceURL=s=>BASE+(s||'')
 // snapshot the arrival url before the first render's syncURL rewrites it
-const BOOT={ hash:decodeURIComponent(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1] }
+const BOOT={ hash:decodeURIComponent(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1], sw:new URLSearchParams(location.search).has('sw') }   // sw read HERE, not at the sw block: on name views openModal's replaceState strips ?sw before that block evaluates – reading live search unregistered the worker on every direct ?sw route
 let urlT=performance.now(), urlLast=''   // seeded, not 0: the boot renderFast runs before route() parses the arrival hash — the throttle absorbs it, so a shared palette URL is never clobbered by the default stamp
-const urlHash=()=>hex(RGB()).slice(1).toLowerCase()
+const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the chosen notation – hex stays the bare-hex canon, every other FMT serializes as its own function syntax (spaces pre-encoded; parens are fragment-legal)
+	return FMT==='hex'?hx.slice(1):fmtAs(FMT,hx).replace(/ /g,'%20') }
 function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
 	const u=spaceURL(open()?selected:'')+'#'+urlHash()
 	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
@@ -1917,11 +1918,9 @@ let FMT=FMTL.includes(localStorage.csFmt)?localStorage.csFmt:'hex'
 const FMTKEY={ lch:'lchab' }   // CSS's lch() is this catalog's lchab
 const fmtAs=(f,hx)=>{ if(f==='hex') return hx
 	try{ const k=FMTKEY[f]||f; return fmt(k,toSpace(k,RGB())) }catch{ return hx } }
-// ONE door for the header notation – the value dropdown and the FAQ specimen links
-// (the dropdown rebuilds its options from FMT on open, so nothing else needs syncing)
+// ONE door for the header notation – the value dropdown and the hash router both pass
+// through here (the dropdown rebuilds its options from FMT on open, nothing else to sync)
 const setFmt=v=>{ FMT=v; localStorage.csFmt=v; renderFast() }
-// the FAQ's specimen values: the hash sets the color, data-fmt switches the notation
-document.getElementById('faq')?.addEventListener('click',e=>{ const a=e.target.closest('a[data-fmt]'); if(a) setFmt(a.dataset.fmt) })
 const dispVal=hx=>fmtAs(FMT,hx)
 const pairs=n=>{ if(n>3) return [[0,1],[1,2],[2,0]]   // 4 channels: the C-M · M-Y · Y-C cycle — each of C,M,Y once per axis; K rides its bar, held by every plane
 	const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
@@ -4908,18 +4907,22 @@ renderFast(); paintCatalogGrad()
 
 // proprietary cards open the same dossier modal (barred content), joined into prev/next order
 cat.addEventListener('click',e=>{ const c=e.target.closest('.ent.barred'); if(!c) return; const b=BARRED[+c.dataset.b]; if(b) openModal(b.key) })
-// routes: <base>/<space>#rrggbb is canonical; #space and #space@vals still resolve (legacy
-// deep links + the dossier's own lineage/see-also anchors); ?s=<space> is the 404 bounce
+// routes: <base>/<space>#<color> is canonical – the path is the document (dossier), the
+// hash is the color, bare hex or any notation parseColor speaks (#oklch(0.73 0.19 53),
+// parsed AND written back; exact coords in a space = /oklch#oklch(0.65 0.25 180)).
+// A bare #space hash stays as the dossier's internal anchor channel (lineage/see-also/FAQ
+// links) – syncURL rewrites it to the canonical path immediately; ?s=<space> is the 404 bounce
 const known=x=>SPACES.includes(x)||isBarred(x)   // a slug the modal can open: real space or proprietary card
 const route=e=>{ const h=e?decodeURIComponent(location.hash.slice(1)):BOOT.hash   // boot reads the arrival snapshot
-	const [hslug,valstr]=h.split('@')
 	const qs=e?null:BOOT.q, pseg=e?null:BOOT.seg
-	const slug=known(hslug)?hslug:known(qs)?qs:known(pseg)?pseg:null
-	if(SPACES.includes(hslug)&&valstr){ const vv=valstr.split(',').map(Number)
-		if(vv.length===classify(hslug).ch.length&&vv.every(isFinite)) master={ s:hslug, vals:vv } }
-	else if(/^[0-9a-fA-F]{6}$/.test(h)) master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)) }
+	const slug=known(h)?h:known(qs)?qs:known(pseg)?pseg:null
+	if(/^[0-9a-fA-F]{6}$/.test(h)){ master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)) }; if(FMT!=='hex') setFmt('hex') }
 	else if(/^[0-9a-fA-F]{6}(,[0-9a-fA-F]{6})+$/.test(h)){   // an old comma-joined palette hash: the first color leads
 		const x=h.split(',')[0]; master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(x.slice(i,i+2),16)) } }
+	else if(h){ const p=parseColor(h); if(p){ master=p   // a notation hash – #oklch(0.73 0.19 53), #rgb(255 128 0), #color(xyz-d65 …): color and notation travel in ONE string, urlHash writes the same form back
+		const fn=h.match(/^([a-z][a-z0-9-]*)\(/)?.[1]
+		const f=fn==='color'?(/^color\(\s*display-p3\b/.test(h)?'p3':null):(FMTL.includes(fn)?fn:null)
+		if(f&&f!==FMT) setFmt(f) } }
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
@@ -4936,7 +4939,7 @@ addEventListener('hashchange',route)   // same-document deep links switch spaces
 // unregisters itself so a stale one can't linger. ?sw opts back in — the site check
 // uses it to pin the offline shell against exactly this registration logic.
 if('serviceWorker' in navigator&&location.protocol!=='file:'){
-	const dev=(location.hostname==='localhost'||location.hostname==='127.0.0.1')&&!new URLSearchParams(location.search).has('sw')
+	const dev=(location.hostname==='localhost'||location.hostname==='127.0.0.1')&&!BOOT.sw   // the ARRIVAL search: by now openModal's canonical replaceState has stripped ?sw on name views
 	if(dev) navigator.serviceWorker.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()))
 	else onLoad(()=>navigator.serviceWorker.register('./sw.js')) }
 

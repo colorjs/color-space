@@ -60,6 +60,17 @@ try {
 	const fq = page.locator('.fqa').first()
 	await fq.locator('summary').click()
 	assert.equal(await fq.getAttribute('open'), '', 'a question unfolds')
+	// a specimen value link sets color AND notation through the hash alone – the URL
+	// carries the notation both ways (parsed on arrival, written back by urlHash)
+	await fq.locator('a[href^="#oklch("]').click()
+	assert.match(await page.locator('#cval').inputValue(), /^oklch\(/, 'a FAQ specimen link switches color and notation')
+	assert.match(decodeURIComponent(page.url()), /#oklch\(/, 'and the URL speaks that notation')
+	await page.locator('#cval').click()   // now CHANGE the color while in oklch – urlHash must write the new color back in the same notation
+	await page.locator('#cval').pressSequentially('coral')
+	await page.locator('#cval').press('Enter')
+	await page.waitForFunction(() => decodeURIComponent(location.hash).startsWith('#oklch('))
+	await page.evaluate(() => location.hash = 'ff8000')   // a hex hash restores hex notation – the later canonicalize assertions read hex
+	assert.match(await page.locator('#cval').inputValue(), /^#FF8000$/i, 'a hex hash infers hex notation back')
 	await fq.locator('summary').click()
 	assert.equal(await fq.getAttribute('open'), null, 'and folds back')
 
@@ -171,6 +182,16 @@ try {
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
 
+	// the canonical exact-coords form: path opens the dossier, the hash carries the space's
+	// own coordinates and notation – one grammar for "a color" and "a color in this space"
+	await page.goto(`${server.origin}/oklab?sw&cb=${Date.now()}#oklab(0.6 0.1 -0.05)`, { waitUntil: 'networkidle' })
+	await page.waitForSelector('#modal:not([hidden]) #dtitle')
+	assert.match(await page.locator('#dtitle').innerText(), /oklab/i, 'path + notation hash opens the dossier')
+	assert.match(await page.locator('#cval').inputValue(), /^oklab\(0\.6/, 'with the exact coordinates, in that notation')
+	await page.locator('#mx').click()
+	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
+	await page.evaluate(() => location.hash = 'ff8000')   // hex notation back for the tests below
+
 	const mobile = await context.newPage()
 	mobile.on('pageerror', error => errors.push(`mobile: ${error.message}`))
 	await mobile.setViewportSize({ width: 390, height: 844 })
@@ -192,6 +213,8 @@ try {
 	// once gated on a bare 'load' listener, which the module's data await lets fire first —
 	// the SW never installed); an unvisited /<name> must come from the cached shell
 	await page.waitForFunction(async () => {
+		const r = await navigator.serviceWorker.getRegistration()
+		if (!r?.active) return false   // cache entries appear MID-install – only an active worker guarantees the precache finished and navigations are intercepted
 		const keys = await caches.keys()
 		return keys.length && (await (await caches.open(keys[0])).keys()).length >= 30
 	})

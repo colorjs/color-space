@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
-import PURPOSE, { ORDER as PORDER } from '../web/js/purpose.js'
+import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
 
 // registry drift guards: every space carries a purpose tag from the vocabulary (else it
 // silently drops out of the purpose filter), and every catalog family carries its tooltip
@@ -22,7 +22,14 @@ import PURPOSE, { ORDER as PORDER } from '../web/js/purpose.js'
 	const untipped = sections.filter(c => c.name !== 'more' && !c.tip).map(c => c.name)
 	if (untipped.length) throw new Error(`categories.js: families missing tip — ${untipped.join(', ')}`)
 	const unyeared = SPACES.filter(s => !isFinite(meta[s]?.year))
-	if (unyeared.length) throw new Error(`meta: no birth year — ${unyeared.join(', ')} (the era grouping and history filter drop them silently)`) }
+	if (unyeared.length) throw new Error(`meta: no birth year — ${unyeared.join(', ')} (the era grouping and history filter drop them silently)`)
+	// dash policy: curated site content uses the en dash; the em dash reads as generated filler.
+	// (meta descriptions are the library's JSDoc — out of this guard's reach by design.)
+	const LORE = (await import('../web/js/lore.js')).default
+	const emdash = [catHTML().includes(' — ') && 'catHTML (names/tips)',
+		Object.values(LORE).some(l => Object.values(l).some(v => String(v).includes(' — '))) && 'lore.js',
+		Object.values(PTIPS).some(v => v.includes(' — ')) && 'purpose.js tips'].filter(Boolean)
+	if (emdash.length) throw new Error(`em dash in curated content — ${emdash.join(', ')}; the site voice uses the en dash ( – )`) }
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))

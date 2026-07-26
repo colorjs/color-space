@@ -12,7 +12,7 @@ countEls.forEach(el => { el.textContent = formatInteger.format(spaceCount) })
 const routeCount = spaceCount * (spaceCount - 1)
 document.getElementById('route-count').textContent = `${formatInteger.format(routeCount)} ordered pairs`
 
-document.title = `color-space field guide — ${spaceCount} color spaces, one verified API`
+document.title = `color-space field guide – ${spaceCount} color spaces, one verified API`
 
 const heroCount = document.getElementById('hero-count')
 heroCount.dataset.target = String(spaceCount)

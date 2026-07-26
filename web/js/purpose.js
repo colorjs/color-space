@@ -6,16 +6,16 @@ export const ORDER = ['picking', 'palettes', 'editing', 'compositing', 'grading'
 
 // one line per tag — the filter chips' tooltips AND the purpose-grouped shelf tooltips
 export const TIPS = {
-	picking: 'color pickers and UI controls — hue-led handles humans can steer',
-	palettes: 'design palettes, ramps and gradients — spaces where equal steps look equal',
-	editing: 'wide working spaces — headroom for image adjustments before output',
-	compositing: 'linear-light math — blending, CG rendering and resampling done physically right',
-	grading: 'camera capture and color grading — log curves and scene-referred working spaces',
-	delivery: 'publishing to screens, files and streams — the encodings content ships in',
-	print: 'inks, paints and surface-color specification — subtractive and atlas systems',
-	difference: 'quantifying how far apart two colors look — ΔE metrics and their spaces',
-	measurement: 'colorimetry — specifying and measuring color itself, the reference layer',
-	research: 'vision science and imaging research — physiological and experimental coordinates',
+	picking: 'color pickers and UI controls – hue-led handles humans can steer',
+	palettes: 'design palettes, ramps and gradients – spaces where equal steps look equal',
+	editing: 'wide working spaces – headroom for image adjustments before output',
+	compositing: 'linear-light math – blending, CG rendering and resampling done physically right',
+	grading: 'camera capture and color grading – log curves and scene-referred working spaces',
+	delivery: 'publishing to screens, files and streams – the encodings content ships in',
+	print: 'inks, paints and surface-color specification – subtractive and atlas systems',
+	difference: 'quantifying how far apart two colors look – ΔE metrics and their spaces',
+	measurement: 'colorimetry – specifying and measuring color itself, the reference layer',
+	research: 'vision science and imaging research – physiological and experimental coordinates',
 }
 
 export default {
