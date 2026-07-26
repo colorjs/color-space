@@ -56,7 +56,7 @@ try {
 	assert.equal(await page.locator('.toc .tn[data-tip]').count(), 11, 'every family carries its tooltip')
 	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip'), /2020/, 'card names carry the quick-tag dossier')
 	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /perceptual/, 'and its tag chips')
-	assert.equal(await page.locator('.fqa').count(), 12, 'the questions are all present')
+	assert.equal(await page.locator('.fqa').count(), 16, 'the questions are all present')
 	const fq = page.locator('.fqa').first()
 	await fq.locator('summary').click()
 	assert.equal(await fq.getAttribute('open'), '', 'a question unfolds')
