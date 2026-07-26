@@ -124,8 +124,6 @@ body.himg #upfl{ display:none }
 .cx.inv #cval{ min-width:17.5rem }   /* the field spans the invitation — clicking anywhere but the two doors starts typing */
 /* the chip stays VISIBLE while nothing is picked — it carries the walking colour, and clicking it is a third door (the native picker) */
 .cx.inv .gpill,.cx.inv .fmtb{ display:none }
-.ivb{ display:flex; align-items:center; gap:.45em; padding:0; border:0; background:none; font:inherit; color:inherit; cursor:pointer; pointer-events:auto }
-.ivb:hover,.ivb:focus-visible{ color:var(--ink) }
 .ivs{ color:var(--ghost); font-style:normal }
 /* whole-viewport drop veil — pointer-events:none so the drop still lands on the page */
 #dropcast{ position:fixed; inset:0; z-index:var(--z-toast); display:grid; place-items:center; background:color-mix(in oklab, var(--paper) 84%, transparent); pointer-events:none }
@@ -1717,7 +1715,7 @@ imgPk.addEventListener('pointerdown',pkRead)
 imgPk.title='click to pick the colour under the pointer'
 imgX.addEventListener('click',()=>clearImage())
 cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeImage(f2); cvFile.value='' })
-// ── drop an image anywhere (or paste one): its prominent colors become the palette ──
+// ── drop an image anywhere (or paste one): it becomes the app-wide source ──
 const dropEl=document.getElementById('dropcast')
 const dropImg=e=>[...(e.dataTransfer?.items||[])].some(x=>x.kind==='file'&&x.type.startsWith('image/'))
 // a dropped image becomes a SOURCE, not a palette: it takes its own rhombus in the
