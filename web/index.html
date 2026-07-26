@@ -100,7 +100,8 @@ a:hover{ text-decoration-color:currentColor }
 #imgfloat{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 8px 32px rgba(0,0,0,.3); padding:4px }
 body.himg #imgfloat{ display:block }
 #imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
-#imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
+#imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
+#imgx .ic{ display:block }
 #imgfloat:hover #imgx{ display:grid }
 .imgw::before{ content:''; grid-area:1/1; width:12px; height:12px; background:var(--thumb) center/cover; border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); transition:transform var(--dur-micro) var(--ease-out) }
 .imgw:hover::before,.imgw:focus-visible::before{ transform:rotate(45deg) scale(1.14) }
@@ -210,7 +211,7 @@ body.himg #imgfloat{ display:block }
 	.fqa::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
 	.fqa[open]::details-content{ opacity:1; block-size:auto }
 }
-@media(max-width:740px){ .fqs{ grid-template-columns:1fr } }
+@media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) } }   /* stacked columns: the rule the column break was providing */
 /* themed tooltip bubble (js/tip.js upgrades every title) — inverts with the theme */
 #tip{ position:fixed; z-index:var(--z-tooltip); max-width:24rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:pre-line; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
 #tip.on{ opacity:1; transform:none }
@@ -231,8 +232,11 @@ body.himg #imgfloat{ display:block }
 	.qx:focus-within input,.qx input:not(:placeholder-shown){ width:auto; opacity:1; pointer-events:auto; transform:none }
 	.qx .qn{ position:fixed; right:1.75rem; top:4.55rem; z-index:calc(var(--z-dropdown) + 1) }
 	.qx .qclr{ position:fixed; right:1.35rem; top:4.3rem; z-index:calc(var(--z-dropdown) + 1) }   /* rides the fixed overlay bar; same reveal rule — value present */
-	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto }
+	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto; gap:var(--s1); padding-top:var(--s1) }   /* the 44px chips carry their own air — a tighter shell keeps the panel dense */
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
+	.cx.inv .invite{ display:none }   /* no berth: with the value field hidden it lands on the wordmark */
+	.mast .tagf,.mast>.thm,.mast .gh{ margin-left:calc(-1*var(--s2)) }   /* the icon cluster closes ranks — boxes edge to edge, glyphs on the tap pitch */
+	.mast .gh{ place-items:center end }   /* the glyph, not its box, ends where the hueline ends */
 }
 @media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
@@ -250,14 +254,17 @@ body.himg #imgfloat{ display:block }
 .toc.on{ opacity:1; transition:opacity var(--dur-short) var(--ease-out) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); --toc-top:var(--s6); top:calc(var(--ti-y,0px) + var(--toc-top)) }   /* pin point is CSS: --ti-y is the measured ladder offset (per title), --toc-top the gap below the sticky header — tune the gap here, in CSS. Bottom ladder set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top */
-/* the shelf cut lives at the FOOT of the rail: three quiet tabs under a rule — a view
-   decision beside the views it re-shelves, not a filter */
-.gtabs{ margin-top:var(--s6); border-top:1px solid var(--hair); padding-top:var(--s3); display:flex; gap:var(--s1) }
-.gtabs .gtag{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--soft); background:none; border:0; padding:var(--s1) var(--s2); cursor:pointer }
+/* the shelf cut closes the rail: STICKY at the viewport's bottom edge — the last rung of
+   the title ladder, always in reach. The tabrow's grammar, mirrored: the accent rides the
+   TOP of the active tab (the row hangs from below, so its marker faces up) */
+.gtabs{ position:sticky; bottom:0; z-index:3; margin-top:var(--s6); background:var(--paper); border-top:1px solid var(--hair); padding:var(--s2) 0 var(--s3); display:flex; gap:var(--s4) }
+.gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:2px solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
-.gtabs .gtag.on{ color:var(--paper); background:var(--ink) }
-/* phones have no rail — a compact select rides the FIRST section heading, at the right */
-.gsel{ display:none; margin-left:auto; font:inherit; font-size:var(--t1); font-weight:600; color:var(--ink); background:var(--paper); border:1px solid var(--hair); padding:.2em .35em }
+.gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
+/* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
+   right of the FIRST section heading */
+.gsel{ display:none; margin-left:auto; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }
+.gsel:hover,.gsel:focus-visible{ color:var(--ink); outline:none }
 @media(max-width:1079px){ .gsel{ display:inline-block } .sec:first-of-type .shw{ display:flex; align-items:baseline; gap:var(--s2) } }
 .ti .tn{ display:block; width:fit-content; font:inherit; font-size:var(--t4); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:left; white-space:nowrap; border:0; background:var(--paper); padding:0 var(--s2) var(--s1) 0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive categories greyed; no min-height — buttons centre text vertically, off the space names */
 .ti .tn:hover{ color:var(--body) }
@@ -337,6 +344,10 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 }
 @media(max-width:640px){ .cat .ent .eh .nm{ font-size:calc(var(--t2) + 1px) }   /* a step up — phone names read too small at t2 */
 	.ent{ padding-top:var(--s3) } }   /* one size for every name — a single column has no lead hierarchy to keep (outranks the later base rule) */
+@media(max-width:640px) and (pointer:coarse){
+	.grid>.ent:nth-child(n+2),.sheet>.ent.lite,.gcol>.ent:not(:first-child):not(.lite),.gcol>.ent.lite{ padding-block:var(--space-3xs) }   /* the 44px tap names set the row height — 2px padding puts rows on a 48px pitch, not 56 */
+	.cat .ent.pop{ --popot:10px } .ent.pop::before{ bottom:-10px }   /* the card surface still reads --s3 around the 2px rows */
+}
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
@@ -1620,13 +1631,12 @@ if(fmtbEl){
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
 document.getElementById('ivdrop')?.addEventListener('click',()=>cvFile?.click())
 // ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
-// crisp at full resolution, always pickable (the pointer reads it live, a click keeps,
-// leaving restores), a quiet ✕ lets it go. It outlives the dossier's scrim. ──
+// crisp at full resolution; a CLICK picks the pixel under the pointer, a quiet ✕ lets
+// the image go. It outlives the dossier's scrim. ──
 const imgPk=Object.assign(document.createElement('canvas'),{id:'imgpk'})
 const imgFl=Object.assign(document.createElement('div'),{id:'imgfloat'})
 const imgX=Object.assign(document.createElement('button'),{id:'imgx',type:'button',title:'remove the image',ariaLabel:'remove the image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'})
 imgFl.append(imgPk,imgX); document.body.append(imgFl)
-let pkWas=null
 const pkShow=()=>{ const src=HIMG?.src; if(!src) return
 	const W=Math.round(Math.min(280,Math.max(180,src.width),innerWidth*.3)), H=Math.round(W*src.height/src.width)
 	imgPk.width=src.width; imgPk.height=src.height   // backing = the FULL image — exact pixels under every read
@@ -1638,11 +1648,8 @@ const pkRead=e=>{ const r=imgPk.getBoundingClientRect()
 	const d=imgPk.getContext('2d',{willReadFrequently:true}).getImageData(x,y,1,1).data
 	master={ s:'rgb', vals:[d[0],d[1],d[2]] }
 	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-imgPk.addEventListener('pointerenter',()=>{ pkWas={ s:master.s, vals:master.vals.slice() } })
-imgPk.addEventListener('pointermove',pkRead)
-imgPk.addEventListener('pointerdown',e=>{ pkRead(e); pkWas=null })   // the click keeps — leaving no longer restores
-imgPk.addEventListener('pointerleave',()=>{ if(pkWas){ master=pkWas; pkWas=null
-	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
+imgPk.addEventListener('pointerdown',pkRead)
+imgPk.title='click to pick the colour under the pointer'
 imgX.addEventListener('click',()=>clearImage())
 cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeImage(f2); cvFile.value='' })
 // ── drop an image anywhere (or paste one): its prominent colors become the palette ──
