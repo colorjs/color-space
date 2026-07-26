@@ -12,7 +12,7 @@
 // fallback; numeric and palette lenses run here too. Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
-import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid, visWhite } from './core.js'
+import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid } from './core.js'
 import NAMES from './names.js'
 import * as PALS from './palettes.js'
 
@@ -884,11 +884,10 @@ void main() {
 	// factors read it. (Judging its darkness by luminance alone crushed deep saturated
 	// colours, all of which sit below Y=1, onto the axis: a flat skirt and a needle.)
 	${src === 'xyz'
-		? `vec3 q = aSrc / vec3(${visWhite().map(v => v.toFixed(4)).join(', ')}) * 255.0;`
-		: 'vec3 q = aSrc;'}
-	float mx = max(q.r, max(q.g, q.b));
-	float dlt = mx - min(q.r, min(q.g, q.b));
-	float gf = min(clamp(dlt / 2.5, 0.0, 1.0), clamp((mx - 2.0) / 6.0, 0.0, 1.0));
+		? `float t = clamp(aSrc.y / 7.0, 0.0, 1.0); float gf = t * t * (3.0 - 2.0 * t);`
+		: `float mx = max(aSrc.r, max(aSrc.g, aSrc.b));
+	float dlt = mx - min(aSrc.r, min(aSrc.g, aSrc.b));
+	float gf = min(clamp(dlt / 2.5, 0.0, 1.0), clamp((mx - 2.0) / 6.0, 0.0, 1.0));`}
 	// a box-in-base space must collapse all-or-nothing: partially tapered junk
 	// (HPLuv's exploding near-white P) would land back INSIDE the box the clip
 	// guards – while whole-shape solids need the smooth taper, or the cliff where
@@ -899,8 +898,21 @@ void main() {
 		if (uBip.x >= 0) v[uBip.x] *= gf;
 		if (uBip.y >= 0) v[uBip.y] *= gf;
 	}
-	tV = v;
-	tBad = (isnan(v.x) || isnan(v.y) || isnan(v.z)) ? 1.0 : 0.0;
+	// hard backstop after the bisection: an appearance model's spectral cusp can diverge in
+	// float32 faster than the 18-step bisection resolves. The window IS the sanity bound (for
+	// the human solid it is the gamut's own measured extent), so clamp to it — sealed vertices
+	// sit inside untouched; only a runaway cusp snaps to the wall, where the cap closes it.
+	${src === 'xyz'
+		? // the human solid HIDES NOTHING: flagging a divergent cusp "bad" moves it off-screen,
+		  // and the triangle from its two good neighbours then stretches across the frustum — a
+		  // thin blade into space (the fragments near the good end keep a sub-threshold vBad and
+		  // still draw). Instead SEAL it: NaN → the window's own bound (near the gray axis), a
+		  // finite in-solid vertex, so the surface closes and no vertex is ever off-screen.
+		  `vec3 vc = clamp(v, uWLo, uWHi);
+	if (isnan(vc.x)) vc.x = uWLo.x; if (isnan(vc.y)) vc.y = uWLo.y; if (isnan(vc.z)) vc.z = uWLo.z;
+	tV = vc; tBad = 0.0;`
+		: `tBad = (isnan(v.x) || isnan(v.y) || isnan(v.z)) ? 1.0 : 0.0;
+	tV = ${s !== src ? 'clamp(v, uWLo, uWHi)' : 'v'};`}
 	${src === 'rgb' ? 'tRgb = aSrc / 255.0;' : `// an out-of-sRGB vertex desaturates toward its own luma until representable — the
 	// closest ACTUAL color, hue and lightness held (vs the flat channel-clamp that
 	// painted hyper-greens as one solid green). The caps seal with this SAME knee.
@@ -1390,11 +1402,17 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	// ── the cloud, last: the image's own colours at their own coordinates. Its bake rides
 	// the same TF program as the lattice; depth is off so the samples read THROUGH the body
 	// (inside a closed solid a depth-tested cloud would simply vanish behind the near wall).
-	if (CLOUDA) {
+	// the image is sRGB, so its coordinates in this space are rgb→space – NEVER the solid's
+	// own source (xyz for the human gamut, p3/rec2020 for wide cubes): feeding image bytes to
+	// the xyz bake read them as tristimulus and scattered the cloud outside the solid. Bake it
+	// through the srgb program always; its display colour is the pixel's own sRGB, and every
+	// sample lands inside the body (sRGB ⊆ every target gamut).
+	const cps = CLOUDA ? (gam === 'srgb' ? ps : mesh3Progs(st, s, 'srgb')) : null
+	if (CLOUDA && cps && cps.bake && !cps.bake.bad && !cps.bake.pending) {
 		st.cloudPr ??= cloudProg(gl)
 		const cp = st.cloudPr
 		if (cp) {
-			const ckey = s + '|' + gam + '|' + CLOUDR
+			const ckey = s + '|' + CLOUDR   // rgb→space is gamut-independent – no rebake on the gamut switch
 			if (st.cloudKey !== ckey) {
 				st.cloudSrc ??= gl.createBuffer(); st.cloudBuf ??= gl.createBuffer()
 				gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudSrc)
@@ -1409,9 +1427,9 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 				gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudBuf)
 				gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudN * 28, gl.DYNAMIC_COPY)
 				gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, null)
-				gl.useProgram(ps.bake.pr); setU(ps.bake.u); bindLuts(gl, ps.bake)
+				gl.useProgram(cps.bake.pr); setU(cps.bake.u); bindLuts(gl, cps.bake)
 				gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudSrc)
-				gl.enableVertexAttribArray(ps.bake.aSrc); gl.vertexAttribPointer(ps.bake.aSrc, 3, gl.FLOAT, false, 0, 0)
+				gl.enableVertexAttribArray(cps.bake.aSrc); gl.vertexAttribPointer(cps.bake.aSrc, 3, gl.FLOAT, false, 0, 0)
 				gl.enable(gl.RASTERIZER_DISCARD)
 				gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, st.cloudBuf)
 				gl.beginTransformFeedback(gl.POINTS)
