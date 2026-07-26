@@ -61,7 +61,7 @@ a:hover{ text-decoration-color:currentColor }
 .thm{ border:0; background:none; padding:0; cursor:pointer }
 /* the current color: a diamond swatch (the slider marker, grown up) and a live value input —
    shows hex, accepts anything CSS can parse (#f80, oklch(.7 .2 40), rebeccapurple) */
-.cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:50%; transform:translateY(-50%); display:flex; align-items:center; cursor:text }   /* sits where the spaces column starts; centred in the bar like every other item; rhombus, value and gamut pill share one centre line */
+.mast .cx{ position:absolute; left:calc(var(--railw) + var(--railgap)); top:50%; transform:translateY(-50%); display:flex; align-items:center; cursor:text }   /* sits where the spaces column starts; centred in the bar like every other item; rhombus, value and gamut pill share one centre line */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
 /* the current colour's chip — a rhombus wearing the slider tick's engaged ring pair at the
@@ -201,7 +201,7 @@ body.imgpk #imgpk{ display:block }
 .fqa summary::-webkit-details-marker{ display:none }
 .fqa summary::after{ content:'+'; margin-left:auto; flex:none; font-weight:400; color:var(--body); opacity:.55; transition:transform var(--dur-short) var(--ease-out) }   /* the quiet fold mark — trailing, so questions stay flush like entries in an index */
 .fqa[open] summary::after{ transform:rotate(45deg) }
-.fqa p{ margin:0 0 var(--s5); color:var(--body); line-height:1.55; font-size:var(--t3) }
+.fqa p{ margin:0; padding-bottom:var(--s5); color:var(--body); line-height:1.55; font-size:var(--t3) }   /* padding, not margin: a child margin escapes ::details-content (overflow:clip forms no BFC) and lands AFTER the height transition as an end-jump */
 @media(prefers-reduced-motion:no-preference){
 	.fqa{ interpolate-size:allow-keywords }
 	.fqa::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
@@ -264,7 +264,7 @@ body.imgpk #imgpk{ display:block }
 .sheet{ margin-top:var(--s3) }   /* the first sheet row breathes below the lead sliders */
 .shw{ display:none }   /* mobile section headings — the rail carries the names on desktop */
 @media(max-width:1079px){ .bar,.cat,.introcopy,.faq{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
-	.cx{ position:relative; left:auto; top:auto; transform:none; align-self:center }   /* no rail to align to — back into the masthead row, centred like its siblings */
+	.mast .cx{ position:relative; left:auto; top:auto; transform:none; align-self:center }   /* no rail to align to — back into the masthead row, centred like its siblings */
 	#cval{ }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
 	.shw .c{ font-weight:400; font-size:.8em; color:currentColor; opacity:.42 }   /* bare count, a size down, on the heading's baseline */
@@ -355,9 +355,11 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
    painted background, the thumb is the picker diamond; the custom .tk hides beneath it */
 .ch .nrg{ position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3 }
 .ch .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
-.ch .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:8px; height:8px; margin-top:calc(var(--ctl)/2 - 4px); background:var(--tkc,#fff); border:1.2px solid var(--tki,#000); transform:rotate(45deg) }
+.ch .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:8px; height:8px; margin-top:calc(var(--ctl)/2 - 4px); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent); transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin-top var(--dur-micro) var(--ease-out) }   /* prerender carries the boot colour as inline vars on the input — never a white flash */
+.ch:hover .nrg::-webkit-slider-thumb,.ch .nrg:focus-visible::-webkit-slider-thumb{ width:10px; height:10px; margin-top:calc(var(--ctl)/2 - 5px); box-shadow:0 0 0 1.1px var(--tki,transparent),0 0 0 2.3px var(--tkv,transparent) }   /* the dossier tick's engaged grammar, on a whole-strip hover: grow with the border held at 1.2px + the ring pair (own ink, then its inverse) — shadows stand in for the ::after/::before rings a pseudo cannot carry */
 .ch .nrg::-moz-range-track{ background:transparent; border:0 }
-.ch .nrg::-moz-range-thumb{ width:8px; height:8px; background:var(--tkc,#fff); border:1.2px solid var(--tki,#000); border-radius:0; transform:rotate(45deg) }
+.ch .nrg::-moz-range-thumb{ width:8px; height:8px; background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
+.ch:hover .nrg::-moz-range-thumb,.ch .nrg:focus-visible::-moz-range-thumb{ width:10px; height:10px; box-shadow:0 0 0 1.1px var(--tki,transparent),0 0 0 2.3px var(--tkv,transparent) }
 .ch:has(.nrg) .tk{ display:none !important }
 .ch .tk{ position:absolute; left:0; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; background:var(--tkc,transparent); border-color:var(--tki,transparent); z-index:2; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the mark takes the pointer (its own hover engages it — a whole-slider hover lit the picker from across the row); a press still falls through to the strip's drag. left stays 0 — JS positions via transform (a left write lays out and repaints the strip beneath, ×60 rows per drag frame). Colors ride TWO custom props set once per frame on #cat — per-tick style writes were a steady slice of the drag's GC churn */
 /* the strip's DATA LANE — a band along the bottom edge carrying what the slice itself
@@ -4546,7 +4548,8 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 					if(tk.style.background) tk.style.background=''; if(tk.style.borderColor) tk.style.borderColor=''
 					tk.style.transform=`translate(calc(${(f*w).toFixed(1)}px - 50%),-50%) rotate(45deg)` }
 				const nr=ch._nrg??=ch.querySelector('.nrg')   // the native thumb tracks every master change — except its own live drag (writing .value mid-drag stalls the native gesture)
-				if(nr&&document.activeElement!==nr) nr.value=vals[i] } }) }) }
+				if(nr){ if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }   // the prerender's inline boot colours must not shadow the live #cat vars
+					if(document.activeElement!==nr) nr.value=vals[i] } } }) }) }
 function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions — the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
