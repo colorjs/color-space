@@ -7,11 +7,16 @@ import { space } from './core.js'
 
 const D=(a,b)=>{ const x=a[0]-b[0], y=a[1]-b[1], z=a[2]-b[2]; return x*x+y*y+z*z }
 
-/** The image as sRGB byte triples, downscaled to ≤S px on its long side and stripped of
- *  transparent pixels — the one decode every reading of the image shares (the palette
- *  below, and the page's per-channel histograms). */
-export async function sampleImage(src,S=96){
+/** The image as sRGB byte triples for statistics (≤S px on the long side — density enough
+ *  for histograms and clouds), stripped of transparent pixels. The FULL image rides along
+ *  as .src (capped at 2048 — larger only spends memory no picker can aim at): the floater
+ *  displays it crisp and reads exact pixels from it. */
+export async function sampleImage(src,S=256){
 	const bmp=await createImageBitmap(src)
+	const fsc=Math.min(1,2048/Math.max(bmp.width,bmp.height))
+	const fw=Math.max(1,Math.round(bmp.width*fsc)), fh=Math.max(1,Math.round(bmp.height*fsc))
+	const full=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(fw,fh):Object.assign(document.createElement('canvas'),{width:fw,height:fh})
+	full.getContext('2d').drawImage(bmp,0,0,fw,fh)
 	const sc=Math.min(1,S/Math.max(bmp.width,bmp.height))
 	const w=Math.max(1,Math.round(bmp.width*sc)), h=Math.max(1,Math.round(bmp.height*sc))
 	const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):Object.assign(document.createElement('canvas'),{width:w,height:h})
@@ -22,7 +27,7 @@ export async function sampleImage(src,S=96){
 	for(let i=0;i<px.length;i+=4){ if(px[i+3]<128) continue   // transparent pixels are not colors
 		out[n++]=px[i]; out[n++]=px[i+1]; out[n++]=px[i+2] }
 	const rgb=out.subarray(0,n)
-	rgb.src=cv   // the downscaled canvas rides along: a thumbnail costs no second decode
+	rgb.src=full   // the full image rides along: display and pixel picks share one decode
 	return rgb
 }
 

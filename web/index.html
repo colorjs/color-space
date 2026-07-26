@@ -51,10 +51,7 @@ a:hover{ text-decoration-color:currentColor }
 /* The spectrum stays visually thin while its real hit area is forgiving: the hit
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
-.hueline{ position:relative; height:5px; cursor:ew-resize; touch-action:none }   /* the box IS the gradient — the sticky header's paper ends exactly at the line, no white beneath */
-.hueline::before{ content:''; position:absolute; inset:0; background:var(--hstrip,linear-gradient(90deg,#040014,#15003c,#3d0094,#7a00ff,#7b00ff,#1f00ff,#0068ff,#00afa8,#00f254,#00ff00,#00ff00,#7eff00,#fffc00,#ffb600,#ff4200,#ff0000,#ff0000,#d30000,#8a0000,#540000,#310000,#260004,#1a000a,#0f000f,#040014)) }   /* the visible spectrum, clipped per channel — space.wavelength.rgb over 380-700nm for 5/6 of the width, the purple line closing the rest; a dropped image swaps in its OWN spectrum through --hstrip */
-.hueline::after{ content:''; position:absolute; left:0; right:0; top:-6px; bottom:-9px }   /* the forgiving hit band overhangs the header, transparent — clicks here still land on the line */
-.hmk{ position:absolute; left:11.4%; top:50%; width:7px; height:7px; background:var(--tkc,#fff); transform:translate(-50%,-50%) rotate(45deg); box-shadow:0 0 0 1.2px var(--paper); pointer-events:none; z-index:1 }   /* the current colour's seat on the strip — the tick's diamond, paper-cut for contrast on any band */
+.hueline{ height:5px; background:var(--ink) }   /* a quiet black rule under the header — held for a future use (picked-colour history, perhaps); the spectrum lives on in the walk and the footer */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--ink) }
@@ -95,11 +92,16 @@ a:hover{ text-decoration-color:currentColor }
    icon. Brand marks (the GitHub mark, the language tiles) are artwork, not UI, and stay out. */
 /* the source image's own rhombus — the palette stack's chip recipe, wearing a picture
    instead of a colour, so the masthead says WHERE the histograms come from */
-body.himg .cx{ --imgw:17px }   /* the source chip stands in the flow ahead of the field, so the invitation that overlays the field starts after it */
 .imgw{ position:relative; flex:none; width:15px; height:26px; padding:0; border:0; background:none; display:grid; place-items:center; cursor:pointer; margin-right:2px }
 .imgw[hidden]{ display:none }
-#imgpk{ position:fixed; z-index:var(--z-dropdown); display:none; padding:0; border:0; background:var(--paper); box-shadow:var(--pop-shadow); cursor:crosshair; image-rendering:auto }
-body.imgpk #imgpk{ display:block }
+/* the image floater — the dropped image LIVES bottom-right, macOS-screenshot style: a
+   paper frame with a deep shadow, crisp at full resolution, always pickable, above the
+   dossier's scrim; ✕ appears on hover, top-left, and lets it go */
+#imgfloat{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 8px 32px rgba(0,0,0,.3); padding:4px }
+body.himg #imgfloat{ display:block }
+#imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
+#imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
+#imgfloat:hover #imgx{ display:grid }
 .imgw::before{ content:''; grid-area:1/1; width:12px; height:12px; background:var(--thumb) center/cover; border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); transition:transform var(--dur-micro) var(--ease-out) }
 .imgw:hover::before,.imgw:focus-visible::before{ transform:rotate(45deg) scale(1.14) }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
@@ -232,7 +234,7 @@ body.imgpk #imgpk{ display:block }
 	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto }
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .hueline::after{ top:-18px; bottom:-20px } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
 /* ── catalog ── */
 /* the catalog uses the full screen — rail pinned to the left edge, entries filling the rest;
@@ -375,7 +377,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
    written once in percentages and needs no recompute when the row resizes; the stroke opts
    out of that scaling (non-scaling-stroke) to stay an even hairline. z1 like the ticks:
    the atlas canvas is a later sibling at z0, so anything drawn over a strip must clear it. */
-.bar2 .hist{ position:absolute; left:0; bottom:0; width:100%; height:44%; z-index:1; pointer-events:none; overflow:visible }   /* the same lane, at dossier scale */
+.bar2 .hist{ position:absolute; left:0; bottom:0; width:100%; height:18px; z-index:1; pointer-events:none; overflow:visible }   /* the same lane, at dossier scale — an INTEGER height: a %-of-40px box lands fractional and opens a sub-pixel hairline under the fill */
 .rng{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,var(--tkv,var(--paper)) var(--rlo),transparent var(--rlo) var(--rhi),var(--tkv,var(--paper)) var(--rhi)); opacity:.62 }   /* outside the range steps back — the samples between the split picker's halves are what every lane is now reading */
 /* the split picker: each handle is the tick itself cut in half — an outer box clips, the
    inner keeps the exact rotated-and-bordered square, so the halves ARE the picker. The
@@ -385,7 +387,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .rh.rlo{ transform:translate(-100%,-50%) } .rh.rlo i{ right:-5.5px }
 .rh.rhi{ transform:translate(0,-50%) } .rh.rhi i{ left:-5.5px }
 .ch.ranged .tk{ display:none!important }   /* the picker IS the two halves while its range lives */
-.ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:52%; z-index:1; pointer-events:none; overflow:visible }   /* width EXPLICIT: an absolutely positioned svg is a replaced element — left/right alone leave it at its intrinsic (square) size */
+.ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:21px; z-index:1; pointer-events:none; overflow:visible }   /* width EXPLICIT: an absolutely positioned svg is a replaced element — left/right alone leave it at its intrinsic (square) size. INTEGER height: a fractional box bottom opens a sub-pixel hairline under the fill */
 .ch .hist .hfill,.bar2 .hist .hfill{ fill:url(#histfade) }
 .ch .hist .hline,.bar2 .hist .hline{ fill:none; stroke:var(--tki,var(--ink)); stroke-width:.4; vector-effect:non-scaling-stroke; stroke-linejoin:round; stroke-linecap:round }
 #histdefs{ position:absolute; width:0; height:0 }
@@ -762,7 +764,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><button class="imgw" id="imgw" type="button" hidden title="hover to pick a colour from it · click to replace · Delete to remove" aria-label="replace the source image"></button><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><button class="ivb" id="ivdrop" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>drop an image</button><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
+	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><button class="ivb" id="ivdrop" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg>drop an image</button><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -770,7 +772,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
-</header><div class="hueline" id="hueline" role="slider" tabindex="0" aria-label="Spin the spectrum to steer the hue" aria-valuemin="0" aria-valuemax="360" aria-valuenow="41" title="the visible spectrum, closed by the purple line – drag to spin; it hands your colour the hue at the left edge, keeping its lightness and chroma"></div></div>
+</header><div class="hueline" id="hueline" aria-hidden="true"></div></div>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn" data-tip="RGB working and delivery spaces – primaries, a white point and a transfer curve on one cube. Defined by standards bodies and display vendors: IEC, ITU-R, SMPTE, Adobe, Apple.">Display & web<span class="tc tnum">19</span></button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn" data-tip="Hue-led remixes of RGB born in 1970s computer graphics – cheap picker math with no perceptual claims: equal numeric steps do not look equal.">Cylindrical<span class="tc tnum">9</span></button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn" data-tip="Spaces rebuilt so equal steps look equal, fitted to modern perception datasets – mostly individual researchers and design-system teams correcting CIELAB’s unevenness.">Perceptual – modern<span class="tc tnum">12</span></button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn" data-tip="The CIE’s 1976 uniform spaces and their industrial refinements – the shared language of color difference ever since (ISO/CIE 11664, DIN 6176).">Perceptual – CIE classic<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn" data-tip="Encodings for brighter-than-white and wider-than-sRGB signals – ITU-R BT.2100 broadcast standards, Dolby research, and HDR-tuned successors of Lab.">HDR & wide gamut<span class="tc tnum">11</span></button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn" data-tip="The measurement layer every other family is defined through – the CIE’s standard-observer spaces and the physiological coordinates of the eye.">Colorimetry & vision<span class="tc tnum">16</span></button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn" data-tip="Luma-plus-chroma encodings built to save bandwidth, not to look uniform – ITU-R and SMPTE broadcast standards from analog NTSC to digital UHDTV.">Video & broadcast<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn" data-tip="Each vendor’s log curve and wide gamut packing sensor dynamic range into recordable code values – ARRI, Sony, RED, Canon, Panasonic – plus the Academy’s interchange standards (SMPTE ST 2065).">Film & camera<span class="tc tnum">37</span></button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn" data-tip="CIE-track science predicting how a color appears in context – adaptation, background, viewing conditions. Heavier math, for research and cross-media matching.">Appearance models<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn" data-tip="Ink, paint and surface-color systems – subtractive process models and the color-order atlases of national and industrial standards.">Print & physical<span class="tc tnum">7</span></button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn" data-tip="Single-purpose coordinates from imaging research – codec internals, machine-vision segmentation, statistical color transfer – and the Optical Society’s uniform lattice.">Specialty & research<span class="tc tnum">6</span></button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw" data-tip="RGB working and delivery spaces – primaries, a white point and a transfer curve on one cube. Defined by standards bodies and display vendors: IEC, ITU-R, SMPTE, Adobe, Apple." tabindex="0">Display & web<span class="c tnum">19</span></h2><div class="grid">
 	<article class="ent" data-s="rgb" data-v="#F67D4F" data-g="#F67D4F:0" style="--nch:3">
@@ -1567,59 +1569,6 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // Picking is absolute: the pointer's position IS the light (WYSIWYG); a diamond marker
 // rides the current colour's place. It does NOT tint the interface (--c stays the fixed
 // brand accent) — the catalog is where the current colour lives.
-const hueEl=document.getElementById('hueline')
-let IMGSPEC=null, stripRe=null   // the image's hue-binned spectrum (setImage builds it) + the strip's repaint hook
-if(hueEl){ let hdrag=null, hk=41, OH=[], LIT=[]
-	// a FIXED strip displaying the available RANGE of light — the visible spectrum, or the
-	// dropped image's own — and the pointer takes the colour under it (WYSIWYG). A diamond
-	// marker seats the current colour's place; nothing rotates, nothing is forced elsewhere.
-	const STRIP=()=>IMGSPEC||SPEC
-	const mk=document.createElement('i'); mk.className='hmk'; hueEl.append(mk)
-	const seat=k=>{ hk=k; mk.style.left=(k/360*100)+'%'; hueEl.setAttribute('aria-valuenow',k) }
-	const reOH=()=>{ const st2=STRIP()
-		OH=st2.map(c=>{ try{ return space.rgb.oklch(...c)[2] }catch{ return 0 } })
-		LIT=st2.map(c=>Math.max(c[0],c[1],c[2])>=12) }
-	reOH()
-	// the strip's face: baked sunlight lives in the ::before; an image overrides it through
-	// ONE custom property carrying its own sweep
-	stripRe=()=>{ reOH()
-		if(!IMGSPEC){ hueEl.style.removeProperty('--hstrip'); return }
-		const st2=[]; for(let k=0;k<=120;k++){ const c=IMGSPEC[Math.round(k*360/120)]; st2.push(`rgb(${c[0]} ${c[1]} ${c[2]})`) }
-		hueEl.style.setProperty('--hstrip',`linear-gradient(90deg, ${st2.join(',')})`) }
-	const okToOh=h=>{ h=((h%360)+360)%360; let bi=0,bd=1e9
-		for(let k=0;k<361;k++){ if(!LIT[k]) continue
-			const d=Math.min(Math.abs(OH[k]-h),360-Math.abs(OH[k]-h)); if(d<bd){ bd=d; bi=k } }
-		return bi }
-	// typed colors and catalog picks re-seat the marker (throttled — nobody reads it at 60Hz)
-	let syncT=0
-	hueEl._syncPhase=h=>{ const now=performance.now(); if(now-syncT<100) return; syncT=now
-		if(hdrag===null) seat(okToOh(h)) }
-	const nearLit=k=>{ k=Math.max(0,Math.min(360,k)); if(LIT[k]) return k
-		for(let d=1;d<361;d++){ const a=(k+d)%361, b=((k-d)%361+361)%361
-			if(LIT[a]) return a; if(LIT[b]) return b } return k }   // picking darkness lands on the nearest lit band
-	const pick=e=>{ const r=hueEl.getBoundingClientRect()
-		const f=clamp((e.clientX-r.left)/Math.max(1,r.width),0,1)
-		const k=nearLit(Math.round(f*360))
-		seat(k)
-		master={ s:'rgb', vals:STRIP()[k].slice() }; scheduleFast() }
-	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hueEl.setPointerCapture(hdrag); pick(e) })
-	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId===hdrag) pick(e) })
-	const end=e=>{ if(e.pointerId!==hdrag) return
-		hdrag=null; try{ hueEl.releasePointerCapture(e.pointerId) }catch{}
-		renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-	hueEl.addEventListener('pointerup',end); hueEl.addEventListener('pointercancel',end)
-	hueEl.addEventListener('keydown',e=>{ let handled=true
-		if(e.key==='ArrowLeft'||e.key==='ArrowDown') seat(nearLit(hk-(e.shiftKey?10:1)))
-		else if(e.key==='ArrowRight'||e.key==='ArrowUp') seat(nearLit(hk+(e.shiftKey?10:1)))
-		else if(e.key==='Home') seat(nearLit(0))
-		else if(e.key==='End') seat(nearLit(360))
-		else handled=false
-		if(handled){ e.preventDefault(); master={ s:'rgb', vals:STRIP()[hk].slice() }; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
-	// with an image loaded the strip IS the image's light — hovering it raises the image
-	// itself for pixel picking (the same floater the source rhombus opens), under the pointer
-	hueEl.addEventListener('pointerenter',e=>{ if(IMGSPEC&&HIMG){ clearTimeout(pkT)
-		const r=hueEl.getBoundingClientRect(); pkOpen({ left:e.clientX-80, bottom:r.bottom }) } })
-	hueEl.addEventListener('pointerleave',()=>{ if(IMGSPEC) pkSoon() }) }
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 const mfvEl=document.getElementById('mfv'), mfswEl=document.querySelector('#mfloat .mfsw')
@@ -1661,43 +1610,31 @@ if(fmtbEl){
 // the masthead's empty state: two doors, the same two the placeholder used to name
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
 document.getElementById('ivdrop')?.addEventListener('click',()=>cvFile?.click())
-const imgwEl=document.getElementById('imgw')
-// the rhombus is a door AND a picker: hover opens the image big enough to aim at, the
-// pointer reads it live, a click keeps that colour, leaving restores the one you had
+// ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
+// crisp at full resolution, always pickable (the pointer reads it live, a click keeps,
+// leaving restores), a quiet ✕ lets it go. It outlives the dossier's scrim. ──
 const imgPk=Object.assign(document.createElement('canvas'),{id:'imgpk'})
-document.body.append(imgPk)
+const imgFl=Object.assign(document.createElement('div'),{id:'imgfloat'})
+const imgX=Object.assign(document.createElement('button'),{id:'imgx',type:'button',title:'remove the image',ariaLabel:'remove the image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'})
+imgFl.append(imgPk,imgX); document.body.append(imgFl)
 let pkWas=null
-const pkOpen=(anchor)=>{ const src=HIMG?.src; if(!src) return
-	const W=Math.min(260,Math.max(160,src.width*3)), H=Math.round(W*src.height/src.width)
-	imgPk.width=src.width; imgPk.height=src.height
+const pkShow=()=>{ const src=HIMG?.src; if(!src) return
+	const W=Math.round(Math.min(280,Math.max(180,src.width),innerWidth*.3)), H=Math.round(W*src.height/src.width)
+	imgPk.width=src.width; imgPk.height=src.height   // backing = the FULL image — exact pixels under every read
 	imgPk.getContext('2d').drawImage(src,0,0)
-	imgPk.style.width=W+'px'; imgPk.style.height=H+'px'
-	const r=anchor||imgwEl.getBoundingClientRect()
-	imgPk.style.left=Math.max(6,Math.min(r.left-8,innerWidth-W-6))+'px'
-	imgPk.style.top=(r.bottom+6)+'px'
-	pkWas={ s:master.s, vals:master.vals.slice() }
-	document.body.classList.add('imgpk') }
-const pkClose=(keep)=>{ clearTimeout(pkT); if(!document.body.classList.contains('imgpk')) return
-	document.body.classList.remove('imgpk')
-	if(!keep&&pkWas){ master=pkWas; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-	pkWas=null }
+	imgPk.style.width=W+'px'; imgPk.style.height=H+'px' }
 const pkRead=e=>{ const r=imgPk.getBoundingClientRect()
 	const x=Math.floor((e.clientX-r.left)/r.width*imgPk.width), y=Math.floor((e.clientY-r.top)/r.height*imgPk.height)
 	if(x<0||y<0||x>=imgPk.width||y>=imgPk.height) return
 	const d=imgPk.getContext('2d',{willReadFrequently:true}).getImageData(x,y,1,1).data
 	master={ s:'rgb', vals:[d[0],d[1],d[2]] }
 	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-let pkT=0   // the gap between rhombus and image is a few px — leaving starts a short fuse the image defuses on entry
-const pkSoon=()=>{ clearTimeout(pkT); pkT=setTimeout(()=>pkClose(false),160) }
-imgwEl?.addEventListener('pointerenter',()=>{ clearTimeout(pkT); pkOpen() })
-imgwEl?.addEventListener('pointerleave',pkSoon)
-imgPk.addEventListener('pointerenter',()=>clearTimeout(pkT))
+imgPk.addEventListener('pointerenter',()=>{ pkWas={ s:master.s, vals:master.vals.slice() } })
 imgPk.addEventListener('pointermove',pkRead)
-imgPk.addEventListener('pointerdown',e=>{ pkRead(e); pkClose(true) })
-imgPk.addEventListener('pointerleave',pkSoon)
-imgwEl?.addEventListener('click',()=>cvFile?.click())
-// …and it lets the image go: Delete on the focused rhombus clears it everywhere
-imgwEl?.addEventListener('keydown',e=>{ if(e.key==='Delete'||e.key==='Backspace'){ e.preventDefault(); clearImage() } })
+imgPk.addEventListener('pointerdown',e=>{ pkRead(e); pkWas=null })   // the click keeps — leaving no longer restores
+imgPk.addEventListener('pointerleave',()=>{ if(pkWas){ master=pkWas; pkWas=null
+	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
+imgX.addEventListener('click',()=>clearImage())
 cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeImage(f2); cvFile.value='' })
 // ── drop an image anywhere (or paste one): its prominent colors become the palette ──
 const dropEl=document.getElementById('dropcast')
@@ -1719,13 +1656,6 @@ async function palFromImage(f){ try{
 		if(!samples.length) return toast('no opaque pixels in that image')
 		setImage(samples); toast('histogram from the image') }
 	catch{ toast('could not read that image') } }
-// the thumbnail is pre-rotated by −45°, so the diamond's own +45° lands it upright — the
-// alternative (an unrotated clip-path rhombus) would clip the ring pair away with it
-function imgThumb(cv){ const S=48, t=Object.assign(document.createElement('canvas'),{width:S,height:S}), x=t.getContext('2d')
-	x.translate(S/2,S/2); x.rotate(-Math.PI/4)
-	const k=Math.max(S/cv.width,S/cv.height)*1.45   // cover the inscribed square the rotation leaves
-	x.drawImage(cv,-cv.width*k/2,-cv.height*k/2,cv.width*k,cv.height*k)
-	return t.toDataURL() }
 let dragN=0
 addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
 addEventListener('dragleave',()=>{ if(dragN&&!--dragN&&dropEl) dropEl.hidden=true })
@@ -1795,30 +1725,17 @@ addEventListener('keydown',e=>{ if(e.key==='Escape'&&BRUSHES.size){ BRUSHES.clea
 const clearImage=()=>{ HIMG=null; UIMG=null; BRUSHES.clear(); bMask=null; setMeshCloud(null)
 	histC.clear(); histQ.clear(); histP.clear(); histV.clear(); hRev++
 	document.body.classList.remove('himg','brushed')
-	if(imgwEl) imgwEl.hidden=true
 	if(IMGS&&IMGS._user!=null){ IMGS.splice(IMGS._user,1); IMGS._user=null; IMG=IMGS[0]; imgIdx=0 }
 	detail.querySelectorAll('.bar2').forEach(b=>{ if(b._hist){ b._hist._p=null; b._hist.style.display='none' } })
 	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
 	if(open()){ paintPlanes(false); paintImages() } else paintCatalogVals() }
 const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); hRev++; document.body.classList.toggle('himg',!!a)
 	meshCloud()
-	// the image's own spectrum: every sample binned by hue, each bin keeping its most
-	// chromatic voice; unlit bins stay near-black — absence reads as darkness, exactly
-	// like the sunlight strip's own ends
-	if(a){ const bins=new Array(361).fill(null), S=a, n=S.length/3|0
-		for(let q=0;q<n;q++){ const r=S[q*3], g=S[q*3+1], b=S[q*3+2]
-			let C,H; try{ [,C,H]=space.rgb.oklch(r,g,b) }catch{ continue }
-			if(!isFinite(H)) H=0
-			const k=Math.round(((H%360)+360)%360)%361
-			if(!bins[k]||C>bins[k].c) bins[k]={ c:C, rgb:[r,g,b] } }
-		IMGSPEC=Array.from({length:361},(_,k)=>bins[k]?bins[k].rgb:[6,6,6]) }
-	else IMGSPEC=null
-	stripRe?.()
 	if(a&&!document.getElementById('histdefs')){ const d=document.createElementNS(SVGNS,'svg')
 		d.id='histdefs'; d.setAttribute('aria-hidden','true')
-		d.innerHTML='<linearGradient id="histfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-opacity=".74"/><stop offset=".8" stop-opacity=".64"/><stop offset="1" stop-opacity=".56"/></linearGradient>'
+		d.innerHTML='<linearGradient id="histfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-opacity=".9"/><stop offset=".8" stop-opacity=".82"/><stop offset="1" stop-opacity=".74"/></linearGradient>'
 		cat.append(d) }
-	if(imgwEl&&a?.src){ imgwEl.style.setProperty('--thumb','url('+imgThumb(a.src)+')'); imgwEl.hidden=false }
+	if(a?.src) pkShow()
 	if(open()) paintPlanes(false); else paintCatalogVals() }   // a dossier open when the image lands queues ITS space and repaints; the catalog does the same for its rows
 // binning is RESUMABLE: a sample costs one conversion, and the heaviest inverses are not
 // cheap (munsell's renotation search runs ~65µs — 3000 of them would stall a frame outright),
@@ -4616,7 +4533,6 @@ function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
 	// the color's public face: masthead diamond + value, favicon, url
-	if(hueEl&&hueEl._syncPhase){ try{ const h=space.rgb.oklch(...rgb)[2]; if(isFinite(h)) hueEl._syncPhase(h) }catch{} }
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
 	if(cdwEl&&cdwEl._hx!==hx){ cdwEl._hx=hx; cdwEl.style.setProperty('--sw',hx); cdwEl.style.setProperty('--swk',ink(rgb)) }   // the slot's swatch + its tick-pair ring track the current color
 	// the untouched boot color stays an invitation (placeholder), not an asserted value —
