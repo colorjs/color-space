@@ -82,7 +82,7 @@ try {
 	assert.match(await page.locator('.toc .tn').first().innerText(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
 	assert.equal(await page.locator('.ent[data-s]').count(), 162, 'era regroup keeps every space')
-	assert.match(await page.locator('.toc .tn').first().innerText(), /1860/, 'era shelves lead the rail')
+	assert.match(await page.locator('.toc .tn').first().innerText(), /2020/, 'era shelves lead the rail, newest first')
 	await page.locator('#tfb').click()
 	await page.locator('#tfp button[data-t="scene"]').click()
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
