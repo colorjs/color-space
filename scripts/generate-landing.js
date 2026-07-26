@@ -11,6 +11,18 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
+import PURPOSE, { ORDER as PORDER } from '../web/js/purpose.js'
+
+// registry drift guards: every space carries a purpose tag from the vocabulary (else it
+// silently drops out of the purpose filter), and every catalog family carries its tooltip
+{ const untagged = SPACES.filter(s => !PURPOSE[s]?.length)
+	if (untagged.length) throw new Error(`purpose.js: untagged spaces — ${untagged.join(', ')}`)
+	const unknown = SPACES.flatMap(s => PURPOSE[s].filter(t => !PORDER.includes(t)))
+	if (unknown.length) throw new Error(`purpose.js: tags outside ORDER — ${[...new Set(unknown)].join(', ')}`)
+	const untipped = sections.filter(c => c.name !== 'more' && !c.tip).map(c => c.name)
+	if (untipped.length) throw new Error(`categories.js: families missing tip — ${untipped.join(', ')}`)
+	const unyeared = SPACES.filter(s => !isFinite(meta[s]?.year))
+	if (unyeared.length) throw new Error(`meta: no birth year — ${unyeared.join(', ')} (the era grouping and history filter drop them silently)`) }
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))

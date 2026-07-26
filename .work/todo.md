@@ -12,18 +12,21 @@
 * [x] ~~claim https://github.com/js-org/js.org~~
 * [x] Color atlas view or filter - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
 * [x] ~~Main screen configuration - sliders, planes, just a table, CSS values etc~~
-* [ ] Pick a line/shape, not just a point in space.
-  * [ ] Pick a color, drop an image?
+* [ ] Pick a line/shape/range, not just a point in space.
+* [ ] Drop an image
+  * [ ] Floater image area
 * [x] Interpolation: compare against the other space
 * [x] ~~In-space configurator: there's multiple flavors of RGB space with different matrices etc.~~ no
 * [ ] Hue bar: uncollapses? Rotates?
-* [ ] FAQ: no questions = disinteresting topic
+* [x] FAQ: no questions = disinteresting topic
 * [x] The barred spaces - add cards, display the limitation on them instead of explainer at the bottom.
 * [ ] Full screen color picker.
 * [ ] Color picker builder - combine sliders of different shapes
 * [x] ~~Color-map: cubehelix etc (npm package is taken)~~
 * [x] Comparison table as the proof asset (71 vs culori 35 / colorjs 40 / texel 16; only conventional-ranges lib; the cross-disciplinary spaces)
 * [x] Demo: all-spaces color picker / palette renderer with gamut limits (show breadth, don't claim it)
+* [x] Grouping mode: family, year?epoch?, purpose?,
+* [x] space tooltip with quick tags
 
 ## [x] ~~CLI — naming take (2026-07)~~
 

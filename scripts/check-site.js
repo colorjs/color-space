@@ -29,7 +29,11 @@ try {
 	await search.fill('oklch')
 	assert.equal(await page.locator('.ent[data-s="oklch"]').isVisible(), true, 'search keeps OKLCH visible')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'search filters non-matches')
-	await search.fill('')
+	// the overlay clear button: visible with a query, one click empties and restores
+	assert.equal(await page.locator('.qclr').isVisible(), true, 'the clear button shows with a query')
+	await page.locator('.qclr').click()
+	assert.equal(await search.inputValue(), '', 'the clear button empties the query')
+	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'and restores the catalog')
 
 	// the coverage slider: ≥90% keeps full-coverage spaces, drops sRGB (~36%), and the
 	// header chip resets it — pins the threshold predicate and its chip lifecycle
@@ -46,6 +50,35 @@ try {
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), false, 'coverage ≤50% drops oklab')
 	await page.locator('.fchip[data-cov]').click()
 	await page.keyboard.press('Escape')
+
+	// each family's tooltip rides its rail button; card names carry the quick-tag
+	// dossier; the FAQ entries fold and unfold
+	assert.equal(await page.locator('.toc .tn[data-tip]').count(), 11, 'every family carries its tooltip')
+	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip'), /2020/, 'card names carry the quick-tag dossier')
+	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /perceptual/, 'and its tag chips')
+	assert.equal(await page.locator('.fqa').count(), 12, 'the questions are all present')
+	const fq = page.locator('.fqa').first()
+	await fq.locator('summary').click()
+	assert.equal(await fq.getAttribute('open'), '', 'a question unfolds')
+	await fq.locator('summary').click()
+	assert.equal(await fq.getAttribute('open'), null, 'and folds back')
+
+	// the shelf cut leads the panel: purpose and era live as groupings, not facets;
+	// the remaining filters compose on the rebuilt DOM (scene-referred × era = the
+	// camera-log timeline), and the header chips restore every layer
+	await page.locator('#tfb').click()
+	assert.equal(await page.locator('.gtag').count(), 3, 'the group row offers the three cuts')
+	await page.locator('.gtag[data-g="purpose"]').click()
+	assert.match(await page.locator('.toc .tn').first().innerText(), /Picking/, 'purpose shelves lead the rail')
+	await page.locator('.gtag[data-g="era"]').click()
+	assert.equal(await page.locator('.ent[data-s]').count(), 162, 'era regroup keeps every space')
+	assert.match(await page.locator('.toc .tn').first().innerText(), /1860/, 'era shelves lead the rail')
+	await page.locator('#tfp button[data-t="scene"]').click()
+	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
+	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
+	await page.locator('.fchip[data-f]').click()
+	await page.locator('.fchip[data-grp]').click()
+	assert.match(await page.locator('.toc .tn').first().innerText(), /Display/, 'the grouping chip restores the family cut')
 
 	await page.locator('#cval').fill('rebeccapurple')
 	await page.locator('#cval').press('Enter')

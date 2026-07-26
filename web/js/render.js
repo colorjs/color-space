@@ -30,7 +30,7 @@ const NAME = {}   // derived once per space — disp runs per catalog row per ke
 export const disp = s => NAME[s] ??= DISP[s] || (m => m && m[1].length <= 40 ? m[1] : s.toUpperCase())((meta[s]?.description || '').match(/^(.+?) — /))
 export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? '%' : '')
 const mapped = new Set(CATS.flatMap(c => c.spaces))
-export const sections = [...CATS.map(c => ({ name: c.name, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
+export const sections = [...CATS.map(c => ({ name: c.name, tip: c.tip, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
 	{ name: 'more', spaces: SPACES.filter(s => !mapped.has(s)) }].filter(c => c.spaces.length)
 
 export const LEADS = 3   // slider cards per category (the row's featured spaces); the rest are sheet rows
@@ -58,21 +58,27 @@ export const fpOf = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = 
 
 // shipped as working history — tagged "historical" in the modal, listed in "Skipped"
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
+// the card's quick dossier — slug + birth line (data-tip), then the tag row
+// (data-tip-tags, rendered by tip.js as chips — the same vocabulary the filter speaks)
+const entTip = s => { const m = meta[s]; return `${s} — ${[m.year, m.by].filter(Boolean).join(', ')}` }
+const entTags = s => { const m = meta[s]
+	return [m.method, m.encoding, m.referred && m.referred + '-referred', m.dynamic && m.dynamic.toUpperCase(), m.illuminant].filter(Boolean).join(' · ') }
 const ent = (s, lite, st) => { const cls = classify(s)
 	let vals = null; if (st) { try { vals = s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { vals = null } }
 	const full = vals && !lite   // lead cards bake sliders + ticks; sheet rows bake values only
 	const tk = i => { const c = cls.ch[i], f = clamp((vals[i] - c.min) / (c.max - c.min), 0, 1)
 		return ` style="left:${+(f * 100).toFixed(3)}%;background:${st.hx};border-color:${st.ink}"` }
 	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}"${vals ? ` data-v="${st.hx}${full ? '' : ':l'}"${full ? ` data-g="${st.hx}:0"` : ''}` : ''} style="--nch:${cls.ch.length}">
-	 <div class="eh"><button class="nm" type="button" title="${s}" aria-label="Open ${s} color-space dossier">${disp(s)}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
+	 <div class="eh"><button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="Open ${s} color-space dossier">${disp(s)}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${full ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, 8).join(',')})"` : ''}><div class="tk"${full ? tk(i) : ''}></div></div>`).join('')}</div>
 	</article>` }
 
 // m: optional color state to bake in ({ s, vals } — the prerender passes DEFAULT);
-// omitted (the page's fingerprint check) → the bare template, byte-stable across colors
-export const catHTML = m => { let st = null
+// omitted (the page's fingerprint check) → the bare template, byte-stable across colors.
+// secs: the section cut to render — defaults to the family catalog; groups.js passes others
+export const catHTML = (m, secs = sections) => { let st = null
 	if (m) { const rgb = rgbF(m.s, m.vals); st = { rgb, hx: hex(rgb), ink: ink(rgb) } }
-	return `<nav class="toc" id="toc">${sections.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn">${c.name}<span class="tc tnum">${c.spaces.length}</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + sections.map(c => `<section class="sec" data-sec><h2 class="shw">${c.name}<span class="c tnum">${c.spaces.length}</span></h2><div class="grid">
+	return `<nav class="toc" id="toc">${secs.map((c, i) => `<i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn"${c.tip ? ` data-tip="${c.tip}"` : ''}>${c.name}<span class="tc tnum">${c.spaces.length}</span></button></div>`).join('')}</nav><div class="secs" id="secs">` + secs.map(c => `<section class="sec" data-sec><h2 class="shw"${c.tip ? ` data-tip="${c.tip}" tabindex="0"` : ''}>${c.name}<span class="c tnum">${c.spaces.length}</span></h2><div class="grid">
 	${c.spaces.slice(0, LEADS).map(s => ent(s, false, st)).join('')}
 </div>${c.spaces.length > LEADS ? `<div class="sheet">
 	${c.spaces.slice(LEADS).map(s => ent(s, true, st)).join('')}

@@ -87,6 +87,7 @@
 	--soft:var(--color-muted);
 	--ghost:var(--color-rule-2);
 	--hair:oklch(0.17 calc(0.015*var(--uk)) var(--uh)/.12);
+	--ul:color-mix(in oklab, currentColor 30%, transparent);   /* the one link underline: a third of the text's own ink, so it adapts to any context (prose, terminal, footer) and both themes */
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */

@@ -26,6 +26,15 @@ const show = () => {
 	const text = target && target.getAttribute('data-tip')
 	if (!text) return
 	tip.textContent = text
+	// optional chip row — ` · `-separated tags rendered as the catalog's .tag chips
+	// (built via textContent, so attribute text can't inject markup)
+	const tags = target.getAttribute('data-tip-tags')
+	if (tags) {
+		const row = document.createElement('span')
+		row.className = 'tags'
+		for (const t of tags.split(' · ')) { const c = document.createElement('i'); c.textContent = t; row.append(c) }
+		tip.append(row)
+	}
 	tip.setAttribute('aria-hidden', 'false')
 	tip.classList.add('on')
 	place(target)
@@ -38,6 +47,7 @@ const arm = (el) => {
 	const t = el.getAttribute('title')
 	if (t != null) { el.setAttribute('data-tip', t); el.removeAttribute('title') }
 }
+// tags alone don't arm the bubble — only elements that also carry (or arm into) data-tip
 const find = (e) => (e.target.closest ? e.target.closest('[title],[data-tip]') : null)
 
 addEventListener('pointerover', (e) => {
