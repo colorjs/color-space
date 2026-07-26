@@ -440,10 +440,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .rh.rhi{ transform:translate(0,-50%) } .rh.rhi i{ left:-5.5px }
 .ch.ranged .tk{ display:none!important }   /* the picker IS the two halves while its range lives */
 .ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:21px; z-index:1; pointer-events:none; overflow:visible }   /* width EXPLICIT: an absolutely positioned svg is a replaced element — left/right alone leave it at its intrinsic (square) size. INTEGER height: a fractional box bottom opens a sub-pixel hairline under the fill */
-.ch .hist .hfill,.bar2 .hist .hfill{ fill:url(#histfade) }
-.ch .hist .hline,.bar2 .hist .hline{ fill:none; stroke:var(--tki,var(--ink)); stroke-width:.4; vector-effect:non-scaling-stroke; stroke-linejoin:round; stroke-linecap:round }
-#histdefs{ position:absolute; width:0; height:0 }
-#histdefs stop{ stop-color:var(--tki,var(--ink)) }   /* the one paint server every strip shares — inside #cat, where the picker's ink lives */   /* the dropped image's distribution along this channel — the picker's ink, half-strength, so it reads as a stat and never as a value */
+.ch .hist,.bar2 .hist{ display:block; background:var(--tki,var(--ink)); -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }   /* the mask carries shape and fade; the background carries the picker's ink */
 /* attention: the marker grows a step and wears a steady outline pair hugging its border —
    a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
    on any field — under the pointer, while its channel drives, and through the drag */
@@ -1763,7 +1760,7 @@ const valsIn=(m,s)=>{ if(s===m.s) return m.vals
 // and caches until the next image. Drawn as a clip-path staircase on one element per
 // strip: no canvas, no per-frame work, and it inherits the picker's ink like everything
 // else in the lane.
-const HBINS=144, HSAMP=3072, HSLICE=8
+const HBINS=768, HSAMP=24576, HSLICE=8
 const ric=window.requestIdleCallback?.bind(window)||(fn=>setTimeout(()=>{ const t0=performance.now(); fn({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },40))
 let HIMG=null, hRev=0, hT=0
 const histC=new Map(), histQ=new Set(), histP=new Map(), histV=new Map()   // lane curves · waiting · half-binned · the samples themselves
@@ -1793,8 +1790,20 @@ const meshCloud=()=>{ if(!HIMG){ setMeshCloud(null); return }
 		a[m*3]=HIMG[i*3]; a[m*3+1]=HIMG[i*3+1]; a[m*3+2]=HIMG[i*3+2]; m++ }
 	setMeshCloud(a.subarray(0,m*3),hRev+'|'+m)
 	if(open()) draw3d() }
+let brT=0, brP=0
+// re-conditioning every lane per brush move re-encoded a mask per channel per space —
+// ~200ms a step. Visible lanes rebuild at ~8Hz; the rest drop to the idle queue, which
+// bins under the SAME brush, so a lane scrolled into view arrives already conditioned
+const brushHists=()=>{ const now=performance.now()
+	if(now-brT<120){ clearTimeout(brP); brP=setTimeout(brushHists,130); return }
+	brT=now
+	for(const s2 of [...histC.keys()]){ if(!vis.has(s2)&&s2!==selected){ histC.delete(s2); histQ.add(s2); continue }
+		const rec=histV.get(s2); if(rec) histC.set(s2,histMask(histBins(rec,classify(s2),brushMask()))) }
+	histSoon()
+	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
+	paintCatalogVals(); renderFast() }
 const brushApply=()=>{ bMask=null; hRev++; meshCloud()
-	for(const s2 of [...histC.keys()]){ const rec=histV.get(s2); if(rec) histC.set(s2,histPoly(histBins(rec,classify(s2),brushMask()))) }
+	brushHists()
 	document.body.classList.toggle('brushed',!!BRUSHES.size)
 	detail.querySelectorAll('.bar2').forEach(b=>{ b._hist&&(b._hist._p=null) })
 	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
@@ -1814,10 +1823,6 @@ const clearImage=()=>{ HIMG=null; UIMG=null; BRUSHES.clear(); bMask=null; setMes
 	if(open()){ paintPlanes(false); paintImages() } else paintCatalogVals() }
 const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); hRev++; document.body.classList.toggle('himg',!!a)
 	meshCloud()
-	if(a&&!document.getElementById('histdefs')){ const d=document.createElementNS(SVGNS,'svg')
-		d.id='histdefs'; d.setAttribute('aria-hidden','true')
-		d.innerHTML='<linearGradient id="histfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-opacity=".9"/><stop offset=".8" stop-opacity=".82"/><stop offset="1" stop-opacity=".74"/></linearGradient>'
-		cat.append(d) }
 	if(a?.src) pkShow()
 	if(open()) paintPlanes(false); else paintCatalogVals() }   // a dossier open when the image lands queues ITS space and repaints; the catalog does the same for its rows
 // binning is RESUMABLE: a sample costs one conversion, and the heaviest inverses are not
@@ -1855,23 +1860,27 @@ function histStep(s){ let st=histP.get(s)
 		}
 	histP.delete(s)
 	histV.set(s,{ v:st.v, dim:st.dim, n:cnt })
-	histC.set(s,histPoly(histBins(histV.get(s),cls)))
+	histC.set(s,histMask(histBins(histV.get(s),cls,brushMask())))   // an active range conditions lazily-binned lanes too
 	if(histV.size>10) histV.delete(histV.keys().next().value)   // a few spaces' worth of coordinates is plenty — the rest re-derive on demand
 	return true }
-// The outline runs through the bins' CENTRES, so the silhouette is a curve rather than a
-// wall of rectangles. Height is scaled to the 97th percentile, NOT the peak: one dominant
-// bin — a flat sky, a black band — otherwise scales itself to the roof and presses every
-// other bin into the floor, which is what left the shape reading as bare triangles.
-const histPoly=bins=>bins.map(b=>{ const sm=new Float32Array(HBINS)
-	for(let j=0;j<HBINS;j++) sm[j]=(b[Math.max(0,j-1)]+2*b[j]+b[Math.min(HBINS-1,j+1)])/4
-	const srt=Float32Array.from(sm).sort()
+// PER-PIXEL histogram: hard columns rendered into an alpha MASK the lane div wears over
+// background var(--tki) — the ink keeps tracking the picker through CSS, the fade lives
+// in the mask's alpha, and no smoothing touches the data: the staircase IS the truth.
+// Height still scales to the 97th percentile, NOT the peak: one dominant bin — a flat
+// sky, a black band — otherwise presses every other bin into the floor.
+const histMask=bins=>bins.map(b=>{ const srt=Float32Array.from(b).sort()
 	const m=srt[Math.floor(HBINS*.97)]||srt[HBINS-1]
-	if(!m) return ''
-	const y=j=>(100-Math.min(1,sm[j]/m)*100).toFixed(2)
-	let l='M0,'+y(0)
-	for(let j=0;j<HBINS;j++) l+=' '+((j+.5)/HBINS*100).toFixed(2)+','+y(j)
-	l+=' 100,'+y(HBINS-1)
-	return { l, a:l+' 100,100 0,100Z' } })   // the line, and the line closed down to the floor for the fade
+	if(!m) return null
+	const W=HBINS, H=64
+	const cv=Object.assign(document.createElement('canvas'),{width:W,height:H})
+	const cd=cv.getContext('2d')
+	const g=cd.createLinearGradient(0,0,0,H)
+	g.addColorStop(0,'rgba(0,0,0,.9)'); g.addColorStop(.8,'rgba(0,0,0,.82)'); g.addColorStop(1,'rgba(0,0,0,.74)')
+	cd.fillStyle=g
+	for(let j=0;j<W;j++){ const hh=Math.min(1,b[j]/m)*H; if(hh>0) cd.fillRect(j,H-hh,1,hh) }
+	cd.fillStyle='#000'   // the crest at full ink — the old top line, one pixel of it
+	for(let j=0;j<W;j++){ const hh=Math.min(1,b[j]/m)*H; if(hh>0) cd.fillRect(j,Math.max(0,H-hh-1.2),1,1.2) }
+	return 'url('+cv.toDataURL()+')' })
 const histSoon=()=>{ if(hT) return
 	hT=ric(dl=>{ hT=0
 		for(const s of histQ){ if(dl.timeRemaining()<3) break
@@ -4581,14 +4590,10 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 			// the image's distribution along THIS channel, at the back of the lane
 			if(hp||ch._hist){ const p=hp?.[i]||null
 				let h=ch._hist
-				if(!h){ h=ch._hist=document.createElementNS(SVGNS,'svg')
-					h.setAttribute('class','hist'); h.setAttribute('viewBox','0 0 100 100')
-					h.setAttribute('preserveAspectRatio','none'); h.setAttribute('aria-hidden','true')
-					h._f=h.appendChild(document.createElementNS(SVGNS,'path')); h._f.setAttribute('class','hfill')
-					h._l=h.appendChild(document.createElementNS(SVGNS,'path')); h._l.setAttribute('class','hline')
+				if(!h){ h=ch._hist=document.createElement('i'); h.className='hist'; h.setAttribute('aria-hidden','true')
 					ch.insertBefore(h,ch.firstChild) }
 				if(h._p!==p){ h._p=p
-					if(p){ h._f.setAttribute('d',p.a); h._l.setAttribute('d',p.l) }
+					if(p){ h.style.webkitMaskImage=p; h.style.maskImage=p }
 					h.style.display=p?'':'none' } }
 			// the range's own band and the split halves – only on the channel it was laid on
 			const br=BRUSHES.get(s+'|'+i)
@@ -4646,14 +4651,10 @@ function renderFast(solid=true){
 		// the image's distribution, in the dossier's own lane – same curve as the catalog's
 		if(hpb||bar._hist){ const p=hpb?.[i]||null
 			let h=bar._hist
-			if(!h){ h=bar._hist=document.createElementNS(SVGNS,'svg')
-				h.setAttribute('class','hist'); h.setAttribute('viewBox','0 0 100 100')
-				h.setAttribute('preserveAspectRatio','none'); h.setAttribute('aria-hidden','true')
-				h._f=h.appendChild(document.createElementNS(SVGNS,'path')); h._f.setAttribute('class','hfill')
-				h._l=h.appendChild(document.createElementNS(SVGNS,'path')); h._l.setAttribute('class','hline')
+			if(!h){ h=bar._hist=document.createElement('i'); h.className='hist'; h.setAttribute('aria-hidden','true')
 				bar.append(h) }
 			if(h._p!==p){ h._p=p
-				if(p){ h._f.setAttribute('d',p.a); h._l.setAttribute('d',p.l) }
+				if(p){ h.style.webkitMaskImage=p; h.style.maskImage=p }
 				h.style.display=p?'':'none' } }
 		if(bar!==dragBar){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
