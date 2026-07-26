@@ -1711,8 +1711,13 @@ const pkRead=e=>{ const r=imgPk.getBoundingClientRect()
 	const d=imgPk.getContext('2d',{willReadFrequently:true}).getImageData(x,y,1,1).data
 	master={ s:'rgb', vals:[d[0],d[1],d[2]] }
 	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-imgPk.addEventListener('pointerdown',pkRead)
-imgPk.title='click to pick the colour under the pointer'
+let pkDrag=null
+imgPk.addEventListener('pointerdown',e=>{ pkDrag=e.pointerId; imgPk.setPointerCapture(pkDrag); pkRead(e) })   // the press picks, the drag keeps picking — the release keeps the choice
+imgPk.addEventListener('pointermove',e=>{ if(e.pointerId===pkDrag) pkRead(e) })
+const pkEnd=e=>{ if(e.pointerId!==pkDrag) return; pkDrag=null; try{ imgPk.releasePointerCapture(e.pointerId) }catch{}
+	renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+imgPk.addEventListener('pointerup',pkEnd); imgPk.addEventListener('pointercancel',pkEnd)
+imgPk.title='press and drag to pick — the release keeps the colour'
 imgX.addEventListener('click',()=>clearImage())
 cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeImage(f2); cvFile.value='' })
 // ── drop an image anywhere (or paste one): it becomes the app-wide source ──
