@@ -41,10 +41,13 @@ export async function bakeDossiers(site) {
 	try {
 		const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
 		await page.goto(`http://127.0.0.1:${srv.address().port}/index.html`, { waitUntil: 'load' })
-		// module readiness has no global signal — the first modal that opens IS the signal
+		// module readiness has no global signal — the first modal that opens IS the signal.
+		// Null-safe throughout: a throwing predicate REJECTS waitForFunction instead of
+		// retrying, and #modal can be transiently absent mid-hydration.
 		await page.waitForFunction(() => {
 			document.querySelector('.ent[data-s="rgb"] .nm')?.click()
-			return !document.getElementById('modal').hidden
+			const m = document.getElementById('modal')
+			return !!m && !m.hidden
 		}, { timeout: 30000, polling: 250 })
 		await page.evaluate(() => document.getElementById('mx').click())
 		for (const s of SPACES) {

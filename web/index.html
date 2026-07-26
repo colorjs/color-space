@@ -72,8 +72,8 @@ a:hover{ text-decoration-color:currentColor }
 #cval{ field-sizing:content; min-width:4rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
 .gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
 /* the notation chevron: unfolds the colour in every format; picking a line sets how the field speaks */
-.fmtf{ position:relative; display:flex; align-items:center }
-.fmtb{ --ic:13px; display:grid; place-items:center; width:20px; height:20px; margin-left:.15em; padding:0; border:0; background:none; color:var(--soft); cursor:pointer }
+.fmtf{ display:flex; align-items:center }   /* NOT positioned — the dropdown anchors to .cx, unfolding from under the colour itself */
+.fmtb{ --ic:16px; display:grid; place-items:center; width:24px; height:24px; margin-left:.15em; padding:0; border:0; background:none; color:var(--soft); cursor:pointer }   /* chevron on the spinner scale — one chevron size everywhere */
 .fmtb:hover,.fmtb:focus-visible,.fmtb[aria-expanded="true"]{ color:var(--ink) }
 .fmtp{ position:absolute; left:0; top:calc(100% + var(--s2)); z-index:var(--z-dropdown); display:flex; flex-direction:column; min-width:19rem; padding:var(--s2); background:var(--paper); box-shadow:var(--pop-shadow) }
 .fmtp[hidden]{ display:none }
@@ -4273,8 +4273,8 @@ function planeDensity(pl,s,a,b,cls,w,h){
 	const cvd=Object.assign(document.createElement('canvas'),{width:w,height:h})
 	const cd=cvd.getContext('2d')
 	cd.fillStyle=ink(RGB())==='#fff'?'#fff':'#16161a'
-	cd.globalAlpha=.45
-	const r=Math.max(1.25,w/300), r2=r/2
+	cd.globalAlpha=.6
+	const r=Math.max(2,w/190), r2=r/2
 	let drew=0
 	for(let k=0;k<n;k++){ if(msk&&!msk[k]) continue
 		let fa=(v[k*dim+a]-ca.min)/(ca.max-ca.min), fb=(v[k*dim+b]-cb.min)/(cb.max-cb.min)

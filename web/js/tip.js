@@ -48,7 +48,14 @@ const arm = (el) => {
 	if (t != null) { el.setAttribute('data-tip', t); el.removeAttribute('title') }
 }
 // tags alone don't arm the bubble — only elements that also carry (or arm into) data-tip
-const find = (e) => (e.target.closest ? e.target.closest('[title],[data-tip]') : null)
+const find = (e) => {
+	if (!e.target.closest) return null
+	const el = e.target.closest('[title],[data-tip]')
+	// a native select is being operated, not consulted — never bubble an ANCESTOR's explainer
+	// over it (the section heading's tip rode the grouping select); its own title still may
+	const sel = e.target.closest('select')
+	return sel && el !== sel ? null : el
+}
 
 addEventListener('pointerover', (e) => {
 	const el = find(e)
