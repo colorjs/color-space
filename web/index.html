@@ -107,6 +107,7 @@ body.himg #imgfloat{ display:block }
 .imgw:hover::before,.imgw:focus-visible::before{ transform:rotate(45deg) scale(1.14) }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 .qx,.tfb{ --ic:16px } .trust li{ --ic:12px } .upbtn{ --ic:14px } .cpyi{ --ic:15px } .fchip{ --ic:11px } .mnav{ --ic:20px }
+.tfb .ic{ width:13.33px; height:14.67px }   /* the sliders glyph inks 20×22 of its 24-grid — a hugging viewBox at the same ⅔ scale, so the box IS the icon */
 .pstack{ display:flex; align-items:center; padding:0 3px 0 4px; isolation:isolate; cursor:default }
 /* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
    avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
@@ -203,7 +204,7 @@ body.himg #imgfloat{ display:block }
 .fqa+.fqa{ border-top:1px solid var(--hair) }   /* a soft rule BETWEEN questions only — adjacent siblings, so column tops and bottoms stay clean */
 .fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s5) 0 var(--s5) }
 .fqa summary::-webkit-details-marker{ display:none }
-.fqa summary::after{ content:'+'; margin-left:auto; flex:none; font-weight:400; color:var(--body); opacity:.55; transition:transform var(--dur-short) var(--ease-out) }   /* the quiet fold mark — trailing, so questions stay flush like entries in an index */
+.fqa summary::after{ content:'+'; margin-left:auto; flex:none; font-size:1.35em; line-height:1; font-weight:400; color:var(--body); opacity:.55; transition:transform var(--dur-short) var(--ease-out) }   /* the quiet fold mark — trailing, so questions stay flush like entries in an index */
 .fqa[open] summary::after{ transform:rotate(45deg) }
 .fqa p{ margin:0; padding-bottom:var(--s5); color:var(--body); line-height:1.55; font-size:var(--t3) }   /* padding, not margin: a child margin escapes ::details-content (overflow:clip forms no BFC) and lands AFTER the height transition as an end-jump */
 @media(prefers-reduced-motion:no-preference){
@@ -232,18 +233,18 @@ body.himg #imgfloat{ display:block }
 	.qx:focus-within input,.qx input:not(:placeholder-shown){ width:auto; opacity:1; pointer-events:auto; transform:none }
 	.qx .qn{ position:fixed; right:1.75rem; top:4.55rem; z-index:calc(var(--z-dropdown) + 1) }
 	.qx .qclr{ position:fixed; right:1.35rem; top:4.3rem; z-index:calc(var(--z-dropdown) + 1) }   /* rides the fixed overlay bar; same reveal rule — value present */
-	.tfp{ position:fixed; left:0; right:0; top:auto; bottom:0; width:auto; max-height:min(60dvh,calc(100dvh - 5rem)); padding:var(--s1) 1rem calc(var(--s2) + env(safe-area-inset-bottom)); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.14) }   /* a bottom sheet — the catalog stays visible above while filters are worked; the shadow casts up */
+	.tfp{ position:fixed; left:1rem; right:1rem; top:3.75rem; width:auto; max-height:calc(100dvh - 4.25rem) }   /* under the header, sized to its content — the normalized chips fit without a scrollbar */
 	.tfp .frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 	.cx.inv .invite{ display:none }   /* no berth: with the value field hidden it lands on the wordmark */
 }
 @media(max-width:640px) and (prefers-reduced-motion:no-preference){
-	.tfp{ transition:transform var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete }
-	.tfp[hidden]{ display:none; transform:translateY(100%) }   /* allow-discrete holds display through the exit slide */
-	@starting-style{ .tfp{ transform:translateY(100%) } }
+	.tfp{ clip-path:inset(-40px); transition:clip-path var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete }   /* -40px keeps the pop shadow outside the clip at rest */
+	.tfp[hidden]{ display:none; clip-path:inset(0 0 100% 0) }   /* allow-discrete holds display through the fold-up */
+	@starting-style{ .tfp{ clip-path:inset(0 0 100% 0) } }   /* unfurls from under the header */
 }
 @media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
-	.tfp{ gap:var(--s1); padding-top:var(--s1) }   /* the inflated chips carry their own air — the shell stays dense (phones and tablets alike) */
-	.tfp .tag{ min-height:40px }   /* with the --s1 gaps the chip rows keep the 44px pitch; 40 clears WCAG 2.5.8 */
+	.tfp{ gap:var(--s1); padding-top:var(--s1) }   /* dense shell (phones and tablets alike) */
+	.tfp .tag{ min-height:24px; min-width:24px }   /* chips at their catalog size — 24px is the WCAG 2.5.8 floor, not the 44px inflation */
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
 @media(max-width:640px){   /* phones: the header icons hug their glyphs — even air between all four, the last flush with the hueline's end */
 	.qx,.mast .thm,.mast .gh{ width:auto; min-width:0 }
@@ -270,7 +271,7 @@ body.himg #imgfloat{ display:block }
    Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
    active tab (the row hangs from below, so its marker faces up) */
 .gtabs{ position:sticky; bottom:0; z-index:3; margin-top:auto; background:var(--paper); padding:0 0 12px; display:flex; gap:var(--s4) }   /* full column width, paper to the very screen edge while parked; the white begins exactly at the tabs' top — the breathing room lives INSIDE as bottom padding */
-.gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:2px solid transparent; padding:var(--s1) 0; cursor:pointer }
+.gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
@@ -361,6 +362,14 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 	.grid>.ent:nth-child(n+2),.sheet>.ent.lite,.gcol>.ent:not(:first-child):not(.lite),.gcol>.ent.lite{ padding-block:var(--space-3xs) }   /* the tap names set the row height — 2px padding puts rows on a 40px pitch, not 56 */
 	.cat .ent.pop{ --popot:10px } .ent.pop::before{ bottom:-10px }   /* the card surface still reads --s3 around the 2px rows */
 }
+@media(max-width:640px){   /* phones: a tapped secondary row raises its sliders as a bottom sheet — the raised row card marks the source, the column never reflows */
+	body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ position:fixed; left:0; right:0; bottom:0; z-index:var(--z-dropdown); margin:0; padding:var(--s2) 1rem calc(var(--s2) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.14) }
+	body:not(.alls) .ent.lite.pop,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child){ margin-bottom:0 }   /* the sheet is out of flow — no unfolded height to compensate */
+}
+@media(max-width:640px) and (prefers-reduced-motion:no-preference){
+	body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ transition:transform var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete }
+	@starting-style{ body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ transform:translateY(100%) } }   /* rises like the filter sheet did */
+}
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
@@ -372,7 +381,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ent .eh .nm{ flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; white-space:nowrap; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale; case comes display-final from disp() (uppercasing here would corrupt lαβ) */
 /* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
 .cvs{ display:flex; gap:var(--s4); margin-left:auto; flex-shrink:0 }
-.cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:.2em solid transparent }   /* ONE underline under letter + number + chevrons; flex baselines align letter and value structurally */
+.cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:var(--ulw) solid transparent }   /* ONE underline under letter + number + chevrons; flex baselines align letter and value structurally */
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:right; min-width:.9em; padding-right:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
 .cv{ width:4.6rem; font-size:var(--t2); color:var(--body); text-align:left; padding-right:1.2em }   /* reserves the chevron zone inside the box */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:2.4rem } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
@@ -732,7 +741,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabs{ max-width:46rem; margin:var(--s6) 0 0 }
 .tabs pre{ margin:0 }
 .tabrow{ display:flex; flex-wrap:nowrap; column-gap:var(--s4); justify-content:flex-start; margin-bottom:var(--s2); overflow-x:auto; scrollbar-width:none }   /* one line always — the row scrolls when narrow, spacing lives in the gap alone */
-.tabrow button{ display:inline-flex; flex:none; align-items:center; gap:.4em; font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-bottom:2px solid transparent; padding:var(--s1) 0; cursor:pointer }
+.tabrow button{ display:inline-flex; flex:none; align-items:center; gap:.4em; font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-bottom:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
 .tabrow .fl{ display:inline-flex; flex:none; width:14px; height:14px; overflow:hidden; opacity:.5; filter:saturate(.55); transition:opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }   /* icon dim until its tab is active/hovered */
 .tabrow .fl svg{ display:block; width:14px; height:14px }
 .tabrow button:hover .fl,.tabrow button.on .fl{ opacity:1; filter:none }
@@ -795,7 +804,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
-	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
+	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg class="ic" viewBox="2 1 20 22" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
 	<a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a>
 	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
@@ -4780,8 +4789,8 @@ const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
-const SUN='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>'
-const MOON='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'
+const SUN='<svg width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>'
+const MOON='<svg width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'
 const drawThm=()=>{ const dark=document.documentElement.dataset.theme==='dark'; thm.innerHTML=dark?SUN:MOON; thm.setAttribute('aria-pressed',String(dark)); thm.setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme') }
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
