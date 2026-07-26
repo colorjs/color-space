@@ -213,6 +213,7 @@
     "d3-color": "^3.1.0",
     "esbuild": "^0.28.1",
     "jz": "^0.9.2",
+    "libheif-js": "^1.19.8",
     "playwright": "^1.61.1",
     "tst": "^9.0.0",
     "typescript": "^5.8.2",

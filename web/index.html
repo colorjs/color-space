@@ -823,7 +823,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
+	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -1689,7 +1689,7 @@ if(fmtbEl){
 // the masthead's empty state: two doors, the same two the placeholder used to name
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
 const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="upar" d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
-upFl.dataset.tip='drop an image anywhere — or pick a file\nit reads through every lane and plane'
+upFl.dataset.tip='drop or paste an image anywhere'
 document.body.append(upFl)
 upFl.addEventListener('click',()=>cvFile?.click())
 // ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
@@ -1726,7 +1726,7 @@ const dropImg=e=>[...(e.dataTransfer?.items||[])].some(x=>x.kind==='file'&&x.typ
 // masthead and speaks through every strip's histogram — the colors you picked stay yours
 // ONE image for the whole app, whichever door it came through: the samples behind every
 // histogram and scope, the bitmap the dossier's lens decomposes, and the masthead's rhombus
-const takeImage=f=>{ if(!f||!/^image\//.test(f.type)) return
+const takeImage=f=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(f.name||''))) return   // HEIC often arrives typeless
 	palFromImage(f)
 	createImageBitmap(f).then(bm=>{ UIMG=bm
 		if(IMGS){ if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }

@@ -11,8 +11,21 @@ const D=(a,b)=>{ const x=a[0]-b[0], y=a[1]-b[1], z=a[2]-b[2]; return x*x+y*y+z*z
  *  for histograms and clouds), stripped of transparent pixels. The FULL image rides along
  *  as .src (capped at 2048 — larger only spends memory no picker can aim at): the floater
  *  displays it crisp and reads exact pixels from it. */
+// HEIC/HEIF: only Safari decodes it natively — everywhere else a vendored libheif steps
+// in, lazy-loaded (1.4MB) only when such a file actually arrives
+const HEIC=/hei[cf]/i
+async function decodeBitmap(src){
+	try{ return await createImageBitmap(src) }
+	catch(e){ if(!HEIC.test(src.type||'')&&!/\.hei[cf]$/i.test(src.name||'')) throw e
+		const lib=await (await import('../vendor/libheif.mjs')).default()
+		const img=new lib.HeifDecoder().decode(await src.arrayBuffer())[0]
+		if(!img) throw e
+		const id=new ImageData(img.get_width(),img.get_height())
+		await new Promise((res,rej)=>img.display(id,ok=>ok?res():rej(e)))
+		return await createImageBitmap(id) } }
+
 export async function sampleImage(src,S=256){
-	const bmp=await createImageBitmap(src)
+	const bmp=await decodeBitmap(src)
 	const fsc=Math.min(1,2048/Math.max(bmp.width,bmp.height))
 	const fw=Math.max(1,Math.round(bmp.width*fsc)), fh=Math.max(1,Math.round(bmp.height*fsc))
 	const full=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(fw,fh):Object.assign(document.createElement('canvas'),{width:fw,height:fh})
