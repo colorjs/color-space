@@ -60,7 +60,7 @@ export const fpOf = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = 
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
 // the card's quick dossier — slug + birth line (data-tip), then the tag row
 // (data-tip-tags, rendered by tip.js as chips — the same vocabulary the filter speaks)
-const entTip = s => { const m = meta[s]; return `${s} — ${[m.year, m.by].filter(Boolean).join(', ')}` }
+const entTip = s => { const m = meta[s]; return `${s} – ${[m.year, m.by].filter(Boolean).join(', ')}` }
 const entTags = s => { const m = meta[s]
 	return [m.method, m.encoding, m.referred && m.referred + '-referred', m.dynamic && m.dynamic.toUpperCase(), m.illuminant].filter(Boolean).join(' · ') }
 const ent = (s, lite, st) => { const cls = classify(s)
@@ -70,7 +70,7 @@ const ent = (s, lite, st) => { const cls = classify(s)
 		return ` style="left:${+(f * 100).toFixed(3)}%;background:${st.hx};border-color:${st.ink}"` }
 	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}"${vals ? ` data-v="${st.hx}${full ? '' : ':l'}"${full ? ` data-g="${st.hx}:0"` : ''}` : ''} style="--nch:${cls.ch.length}">
 	 <div class="eh"><button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="Open ${s} color-space dossier">${disp(s)}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
-	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${full ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, 8).join(',')})"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${full ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${cname(c2)} slider"><div class="tk"${full ? tk(i) : ''}></div></div>`).join('')}</div>
+	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${full ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, 8).join(',')})"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${full ? ` value="${vals[i]}"` : ''} tabindex="-1" aria-label="${cname(c2)} slider"><div class="tk"${full ? tk(i) : ''}></div></div>`).join('')}</div>
 	</article>` }
 
 // m: optional color state to bake in ({ s, vals } — the prerender passes DEFAULT);
