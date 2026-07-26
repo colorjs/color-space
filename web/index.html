@@ -437,12 +437,6 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .modal.barred{ --mboxw:min(42rem,94vw) }   /* proprietary dossiers carry no graphics — the box narrows to its text */
 body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-modal) - 1); background:oklch(0.17 0.015 248/.4) }   /* same dim backdrop as the proprietary dialog */
 .modal[hidden]{ display:none }
-/* the current colour follows the reader into the dossier: chip + value floating above the
-   scrim, top-right — copyable there, always current; the full masthead stays beneath */
-#mfloat{ position:fixed; right:1rem; top:.9rem; z-index:calc(var(--z-modal) + 1); display:none; align-items:center; gap:.55em; padding:.4em .65em; background:var(--paper); box-shadow:var(--pop-shadow) }
-body.mopen #mfloat{ display:flex }
-#mfloat .mfsw{ width:11px; height:11px; flex:none; transform:rotate(45deg); background:var(--sw,#888); box-shadow:0 0 0 1.2px var(--swk,var(--ink)) }
-#mfloat .mfv{ font:inherit; font-size:var(--t2); font-weight:600; border:0; background:none; padding:0; color:var(--ink); cursor:copy }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:4rem auto; background:var(--paper); display:flex; overflow:visible; box-shadow:0 1rem 4rem oklch(0 0 0/.28) }   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
@@ -1511,7 +1505,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	</div>
 </footer>
 
-<div id="mfloat"><span class="mfsw" aria-hidden="true"></span><button class="mfv tnum" id="mfv" type="button" title="copy the current colour"></button></div><div id="toast" role="status" aria-live="polite">Copied</div>
+<div id="toast" role="status" aria-live="polite">Copied</div>
 <div id="dropcast" hidden aria-hidden="true"><span>drop to pick its palette</span></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
@@ -1591,8 +1585,6 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // brand accent) — the catalog is where the current colour lives.
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
-const mfvEl=document.getElementById('mfv'), mfswEl=document.querySelector('#mfloat .mfsw')
-mfvEl?.addEventListener('click',()=>copy(mfvEl.textContent))
 if(cvalEl){
 	// isTrusted + drag guards: renderFast mirrors the hex into these fields every frame — a
 	// synthetic input event (extension autofill and the like) or one landing mid-drag would
@@ -4558,8 +4550,6 @@ function renderFast(solid=true){
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the masthead offers the two doors instead of a value
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(hx)
-	if(mfvEl&&document.body.classList.contains('mopen')){ mfvEl.textContent=dispVal(hx)
-		mfswEl.style.setProperty('--sw',hx); mfswEl.style.setProperty('--swk',ink(rgb)) }
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // the walking colour shows as a PLACEHOLDER – a value-shaped hint in the chosen format, never an asserted value
 	if(!virgin){ syncFav(hx); syncURL(hx) }   // the unpicked walk stamps neither URL nor favicon – nothing is asserted, and 4/s replaceState+icon churn is the one perpetual cost the walk would otherwise carry
 	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GPILL[g]; gpillEl.dataset.g=g } }
