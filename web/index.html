@@ -207,6 +207,9 @@ body.himg #imgfloat{ display:block }
 .fqa summary::after{ content:'+'; margin-left:auto; flex:none; font-size:1.35em; line-height:1; font-weight:400; color:var(--body); opacity:.55; transition:transform var(--dur-short) var(--ease-out) }   /* the quiet fold mark — trailing, so questions stay flush like entries in an index */
 .fqa[open] summary::after{ transform:rotate(45deg) }
 .fqa p{ margin:0; padding-bottom:var(--s5); color:var(--body); line-height:1.55; font-size:var(--t3) }   /* padding, not margin: a child margin escapes ::details-content (overflow:clip forms no BFC) and lands AFTER the height transition as an end-jump */
+.fqa ul{ margin:0; padding:0 0 var(--s5) 1.1em; color:var(--body); line-height:1.55; font-size:var(--t3) }   /* same padding rule as p, for the structured answers */
+.fqa li{ margin:.3em 0 } .fqa li::marker{ color:var(--soft) }
+.fqa p:has(+ ul){ padding-bottom:var(--s2) }   /* a lead-in line hugs its list */
 @media(prefers-reduced-motion:no-preference){
 	.fqa{ interpolate-size:allow-keywords }
 	.fqa::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
@@ -224,7 +227,9 @@ body.himg #imgfloat{ display:block }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
 @media(max-width:640px){
+	:root{ --t3:13px }   /* the phone base for prose — FAQ answers, dossier copy; the UI faces (t0–t2, t4) keep their scale */
 	.mast{ padding-block:0; min-height:0; --shelf:49px }   /* flush bar: the 44px tap row + the 5px hueline = 49 — every fixed drop-down hangs from --shelf, right after the rule */
+	.mast .wm{ font-size:1rem }   /* the wordmark holds its size — it keys off --t3 but is not prose */
 	.mast .ver{ display:none }
 	#cval{ display:none }   /* the diamond (a native picker) and favicon still carry the color */
 	#gpill{ display:none }   /* no room for the header's gamut pill once the value hides — a desktop nicety (the dossier's .gpill tags stay) */
@@ -246,7 +251,7 @@ body.himg #imgfloat{ display:block }
 	.tfp[hidden]{ display:none; clip-path:inset(0 0 100% 0) }   /* allow-discrete holds display through the fold-up */
 	@starting-style{ .tfp{ clip-path:inset(0 0 100% 0) } }   /* unfurls from under the header */
 }
-@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 button,.tabrow button,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }
+@media(pointer:coarse){ .mast .gh,.thm,.qx{ width:var(--tap); min-width:var(--tap); height:var(--tap) } .tfp .tag,.ent .eh .nm,.mnav,.seg button,.sec2 .upbtn,.fnpm{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }   /* tabrow buttons stay at their book padding — main-page and dossier tabs share the one .tabrow recipe untouched */
 	.tfp{ gap:var(--s1); padding-top:var(--s2) }   /* dense shell (phones and tablets alike) */
 	.tfp .tag{ min-height:24px; min-width:24px }   /* chips at their catalog size — 24px is the WCAG 2.5.8 floor, not the 44px inflation */
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
@@ -287,6 +292,7 @@ body.himg #imgfloat{ display:block }
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
 .ti .tc{ margin-left:.6em }   /* count of spaces in the category — the sup-chip recipe (with .hq) carries the look */
+.ti .tc,.shw .c{ vertical-align:middle; align-self:center }   /* the count centres on the title's body, not its baseline */
 .ti.off{ display:none }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }   /* fills the capped content column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
@@ -302,8 +308,8 @@ body.himg #imgfloat{ display:block }
 @media(max-width:1079px){ .bar,.cat,.introcopy,.faq{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.mast .cx{ position:relative; left:auto; top:auto; transform:none; align-self:center }   /* no rail to align to — back into the masthead row, centred like its siblings */
 	#cval{ }
-	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 var(--s1); font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
-	.sec{ padding:var(--s4) 0 var(--s6) }
+	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 0; font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
+	.sec{ padding:var(--s6) 0 var(--s6) }
 	.sec:first-of-type{ padding-top:var(--s6) } }   /* the first category breathes below the masthead */
 /* only the first grid row carries sliders by default — three stacked sliders read wrong at 1–2 columns.
    the all-sliders toggle (body.alls) overrides this and shows every one */
@@ -368,6 +374,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 @media(max-width:640px){   /* phones: a tapped secondary row raises its sliders as a bottom sheet — the raised row card marks the source, the column never reflows */
 	body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ position:fixed; left:0; right:0; bottom:0; z-index:var(--z-dropdown); margin:0; padding:var(--s2) 1rem calc(var(--s2) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.14) }
 	body:not(.alls) .ent.lite.pop,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child){ margin-bottom:0 }   /* the sheet is out of flow — no unfolded height to compensate */
+	body:not(.alls) .cat .ent.pop::before{ display:none }   /* no raised card around the focused row — the rising sheet is signal enough */
 }
 @media(max-width:640px) and (prefers-reduced-motion:no-preference){
 	body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ transition:transform var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete }
@@ -471,7 +478,7 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 /* prev/next as centered post-navigation — a compact bar at the top of the dossier
    and again at its foot. Left chevron + name · name + right chevron. Dim-then-ink. */
 .mnavbar{ display:flex; justify-content:center; align-items:center; gap:clamp(var(--s4),6vw,var(--s12)) }
-.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s5) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
+.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s4) 0 0; background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
 .mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
 .mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
 .mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; white-space:nowrap }   /* the neighbour's name — regular weight, no trim; case comes display-final from navLabel/disp() */
@@ -1490,25 +1497,33 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	<div class="fqs">
 		<div class="fqcol">
 		<details class="fqa"><summary>What is a color space?</summary>
-		<p>A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color – the URL carries the notation"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color – the URL carries the notation"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color – the URL carries the notation"><code>[49, 36.7, 4.5]</code></a> – one color, many addresses. A palette picks a few colors; a space can address all of them.</p></details>
+		<p>A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color – the URL carries the notation"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color – the URL carries the notation"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color – the URL carries the notation"><code>[49, 36.7, 4.5]</code></a> – the same color, written three ways. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
 		<details class="fqa"><summary>Which space should I actually use?</summary>
-		<p>Depends on the verb. Storing and sharing images: <a href="#rgb">sRGB</a>, the web's default. Designing palettes and gradients: <a href="#oklch">OKLCH</a>. Math on light – blending, blurring, 3D: <a href="#lrgb">linear-light RGB</a>. Shooting and grading: your camera's log space, delivered through <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>. Scoring how far apart two colors look: <a href="#lab">CIELAB</a> or <a href="#din99o-lab">DIN99o</a>. Grouping the catalog by <em>purpose</em> (in the filter) shelves it the same way.</p></details>
+		<p>It depends on the task:</p>
+		<ul>
+		<li>storing and sharing images – <a href="#rgb">sRGB</a>, the web's default;</li>
+		<li>designing palettes and gradients – <a href="#oklch">OKLCH</a>, where equal steps look equal;</li>
+		<li>math on light (blending, blurring, 3D) – <a href="#lrgb">linear-light RGB</a>;</li>
+		<li>shooting and grading video – your camera's log space, delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>;</li>
+		<li>measuring how different two colors look – <a href="#lab">CIELAB</a> or <a href="#din99o-lab">DIN99o</a>.</li>
+		</ul>
+		<p>The <em>purpose</em> grouping in the filter shelves the catalog the same way.</p></details>
 		<details class="fqa"><summary>What should I use instead of HSL?</summary>
-		<p><a href="#oklch">OKLCH</a> – the same three handles with honest lightness. <a href="#hsl">HSL</a>'s L=50 is not one brightness: yellow at L=50 emits about four times the luminance of blue. OKLCH's L tracks perceived lightness, and CSS speaks <code>oklch()</code> natively.</p></details>
+		<p><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 is about four times as bright as blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
 		<details class="fqa"><summary>Why do my gradients turn muddy in the middle?</summary>
-		<p>They're computed in gamma-encoded sRGB, where averaging the numbers gives darker, duller light than mixing the colors would. Interpolate in <a href="#oklab">OKLab</a> instead – every dossier's <em>interpolate</em> row draws the same blend through two spaces, so the difference is visible before you commit.</p></details>
+		<p>Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
 		<details class="fqa"><summary>What does “out of gamut” mean?</summary>
-		<p>Coordinates valid in one space that land outside what another space, or your display, can reach. A vivid <a href="#p3">Display P3</a> green has no sRGB address: converted, its numbers leave the range. The atlas keeps this visible – the pill by the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
+		<p>A color one space can describe but another – or your screen – can't show. A vivid <a href="#p3">Display P3</a> green simply doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
 		<details class="fqa"><summary>Why 162 spaces – isn't one enough?</summary>
-		<p>Each fixes a real limit of an earlier one, and the old ones stay load-bearing. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – while broadcast, print and camera vendors each needed encodings of their own along the way. Grouping the catalog by <em>era</em> (in the filter) walks the whole progression.</p></details>
+		<p>Because each one fixed a real limitation of an earlier one, and the older ones are still in use. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – and along the way, broadcast, print and camera makers each needed encodings of their own. Grouping the catalog by <em>era</em> (in the filter) walks through the whole story.</p></details>
 		<details class="fqa"><summary>Aren't most of these spaces dead?</summary>
-		<p>Retired, not dead. Nobody broadcasts <a href="#ntsc">NTSC</a> anymore, but archives still decode its tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds a generation of PhotoCD family albums. Formats retire – their pictures don't, and decoding them is exactly what a reference is for. The history filter finds the fossils; every one is still load-bearing somewhere.</p></details>
+		<p>Many are retired from daily use, but they still do quiet, real work. Archives still decode <a href="#ntsc">NTSC</a> tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds family albums burned to PhotoCD. Reading old pictures takes the original math, and keeping that math available is part of what a reference is for. The history filter gathers them by era.</p></details>
 		<details class="fqa"><summary>Where's Pantone, NCS, RAL?</summary>
-		<p>Pantone, NCS and RAL Classic are licensed swatch catalogs – rented lookup tables, not published formulas – so there's no math to implement, only data to sublicense. Systems whose math went public are all in: <a href="#munsell">Munsell</a> because its 1943 renotation is public record, <a href="#ral-design">RAL Design</a> because it's plain CIELAB underneath. The door policy is one line: published math enters; rented numbers don't.</p></details>
+		<p>Those are licensed products: their colors are defined by data the owners sell, not by published formulas – so there's no open math to implement, and redistributing their tables wouldn't be legal. Close relatives whose math is public are here: <a href="#munsell">Munsell</a> (its 1943 renotation is public record) and <a href="#ral-design">RAL Design</a> (defined directly in CIELAB). The rule of thumb: if the math was ever published, it belongs in the collection.</p></details>
 		</div>
 		<div class="fqcol">
 		<details class="fqa"><summary>Are conversions exact? Do round trips lose data?</summary>
-		<p>Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The exceptions declare themselves: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p></details>
+		<p>Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p></details>
 		<details class="fqa"><summary>Which of these can CSS write?</summary>
 		<p>Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, Rec. 2020, linear sRGB and XYZ. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
 		<details class="fqa"><summary>What are the 37 camera log spaces for?</summary>
@@ -1518,11 +1533,17 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<details class="fqa"><summary>Why do the numbers differ from other libraries?</summary>
 		<p>Same colors, different conventions. This library keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where most libraries flatten everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
 		<details class="fqa"><summary>Why should I trust these formulas?</summary>
-		<p>Don't – check. Every space cites the paper or spec it implements; values are differentially tested against <a href="https://colorjs.io">colorjs.io</a> wherever the two overlap; the camera logs are verified against the Academy's official ACES transforms. The ledger is public – <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md">formula-verification.md</a> records what was checked against what, including the published papers that turned out to carry bugs.</p></details>
+		<p>You don't have to take them on faith – everything here is set up to be checked:</p>
+		<ul>
+		<li>every space links the paper or spec it implements;</li>
+		<li>values are tested against <a href="https://colorjs.io">colorjs.io</a>, an independent implementation, wherever the two overlap;</li>
+		<li>camera-log conversions are compared against the Academy's official ACES transforms.</li>
+		</ul>
+		<p><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md">formula-verification.md</a> records what was checked against what – including a few places where the published papers themselves turned out to have errors.</p></details>
 		<details class="fqa"><summary>Why does red + green make yellow on screens, but mud in paint?</summary>
 		<p>Screens add light: red and green light sum to yellow, which is how every RGB space works. Paint subtracts it: each pigment absorbs part of the spectrum, and mixing multiplies the losses, so the result darkens toward brown. Each arithmetic gets its own shelf here – additive RGB on one, subtractive <a href="#cmyk">CMYK</a> and the painters' <a href="#ryb">RYB</a> on the other.</p></details>
 		<details class="fqa"><summary>Where are viridis and the other colormaps?</summary>
-		<p>A colormap is a path, not a place – a one-dimensional route through a color space, built to carry data. The routes aren't shelved here, but their drafting tables are: viridis was drawn inside <a href="#cam02-ucs">CAM02-UCS</a>, hunting perceptually even steps. Draw a straight line through <a href="#oklab">OKLab</a> and you've designed your own.</p></details>
+		<p>They're close cousins, not quite color spaces. A colormap like viridis is a one-dimensional path drawn through a color space, made for painting data – so it lives one level above a conversion library. The connection is real, though: viridis was designed inside <a href="#cam02-ucs">CAM02-UCS</a>, chosen so its steps look even, and that space is here. To design your own, a straight line through <a href="#oklab">OKLab</a> is a good start.</p></details>
 		</div>
 	</div>
 </section>
