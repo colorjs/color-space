@@ -52,8 +52,9 @@ a:hover{ text-decoration-color:currentColor }
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
 .hueline{ position:relative; height:5px; cursor:ew-resize; touch-action:none }   /* the box IS the gradient — the sticky header's paper ends exactly at the line, no white beneath */
-.hueline::before{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,#040014,#15003c,#3d0094,#7a00ff,#7b00ff,#1f00ff,#0068ff,#00afa8,#00f254,#00ff00,#00ff00,#7eff00,#fffc00,#ffb600,#ff4200,#ff0000,#ff0000,#d30000,#8a0000,#540000,#310000,#260004,#1a000a,#0f000f,#040014); background-size:100% 100%; background-repeat:repeat; background-position:var(--hph,0px) 0 }   /* the visible spectrum, clipped per channel — space.wavelength.rgb over 380-700nm for 5/6 of the width, the purple line closing the rest. Both ends are the same dark, so the tile wraps seamlessly: the strip ROTATES (--hph) to seat the current hue at the left edge */
+.hueline::before{ content:''; position:absolute; inset:0; background:var(--hstrip,linear-gradient(90deg,#040014,#15003c,#3d0094,#7a00ff,#7b00ff,#1f00ff,#0068ff,#00afa8,#00f254,#00ff00,#00ff00,#7eff00,#fffc00,#ffb600,#ff4200,#ff0000,#ff0000,#d30000,#8a0000,#540000,#310000,#260004,#1a000a,#0f000f,#040014)) }   /* the visible spectrum, clipped per channel — space.wavelength.rgb over 380-700nm for 5/6 of the width, the purple line closing the rest; a dropped image swaps in its OWN spectrum through --hstrip */
 .hueline::after{ content:''; position:absolute; left:0; right:0; top:-6px; bottom:-9px }   /* the forgiving hit band overhangs the header, transparent — clicks here still land on the line */
+.hmk{ position:absolute; left:11.4%; top:50%; width:7px; height:7px; background:var(--tkc,#fff); transform:translate(-50%,-50%) rotate(45deg); box-shadow:0 0 0 1.2px var(--paper); pointer-events:none; z-index:1 }   /* the current colour's seat on the strip — the tick's diamond, paper-cut for contrast on any band */
 .mast .ver{ font-size:var(--t2); font-weight:700; color:var(--soft); text-decoration:none; white-space:nowrap }
 .mast .ver:hover{ color:var(--ink) }
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--ink) }
@@ -414,6 +415,12 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .modal.barred{ --mboxw:min(42rem,94vw) }   /* proprietary dossiers carry no graphics — the box narrows to its text */
 body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-modal) - 1); background:oklch(0.17 0.015 248/.4) }   /* same dim backdrop as the proprietary dialog */
 .modal[hidden]{ display:none }
+/* the current colour follows the reader into the dossier: chip + value floating above the
+   scrim, top-right — copyable there, always current; the full masthead stays beneath */
+#mfloat{ position:fixed; right:1rem; top:.9rem; z-index:calc(var(--z-modal) + 1); display:none; align-items:center; gap:.55em; padding:.4em .65em; background:var(--paper); box-shadow:var(--pop-shadow) }
+body.mopen #mfloat{ display:flex }
+#mfloat .mfsw{ width:11px; height:11px; flex:none; transform:rotate(45deg); background:var(--sw,#888); box-shadow:0 0 0 1.2px var(--swk,var(--ink)) }
+#mfloat .mfv{ font:inherit; font-size:var(--t2); font-weight:600; border:0; background:none; padding:0; color:var(--ink); cursor:copy }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:4rem auto; background:var(--paper); display:flex; overflow:visible; box-shadow:0 1rem 4rem oklch(0 0 0/.28) }   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
@@ -1482,7 +1489,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	</div>
 </footer>
 
-<div id="toast" role="status" aria-live="polite">Copied</div>
+<div id="mfloat"><span class="mfsw" aria-hidden="true"></span><button class="mfv tnum" id="mfv" type="button" title="copy the current colour"></button></div><div id="toast" role="status" aria-live="polite">Copied</div>
 <div id="dropcast" hidden aria-hidden="true"><span>drop to pick its palette</span></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
@@ -1561,39 +1568,62 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // rides the current colour's place. It does NOT tint the interface (--c stays the fixed
 // brand accent) — the catalog is where the current colour lives.
 const hueEl=document.getElementById('hueline')
-if(hueEl){ let hdrag=null, hx0=0, phase=41   // phase: the spectrum position (0-360) seated at the LEFT EDGE
-	const OH=SPEC.map(c=>{ try{ return space.rgb.oklch(...c)[2] }catch{ return 0 } })
+let IMGSPEC=null, stripRe=null   // the image's hue-binned spectrum (setImage builds it) + the strip's repaint hook
+if(hueEl){ let hdrag=null, hk=41, OH=[], LIT=[]
+	// a FIXED strip displaying the available RANGE of light — the visible spectrum, or the
+	// dropped image's own — and the pointer takes the colour under it (WYSIWYG). A diamond
+	// marker seats the current colour's place; nothing rotates, nothing is forced elsewhere.
+	const STRIP=()=>IMGSPEC||SPEC
+	const mk=document.createElement('i'); mk.className='hmk'; hueEl.append(mk)
+	const seat=k=>{ hk=k; mk.style.left=(k/360*100)+'%'; hueEl.setAttribute('aria-valuenow',k) }
+	const reOH=()=>{ const st2=STRIP()
+		OH=st2.map(c=>{ try{ return space.rgb.oklch(...c)[2] }catch{ return 0 } })
+		LIT=st2.map(c=>Math.max(c[0],c[1],c[2])>=12) }
+	reOH()
+	// the strip's face: baked sunlight lives in the ::before; an image overrides it through
+	// ONE custom property carrying its own sweep
+	stripRe=()=>{ reOH()
+		if(!IMGSPEC){ hueEl.style.removeProperty('--hstrip'); return }
+		const st2=[]; for(let k=0;k<=120;k++){ const c=IMGSPEC[Math.round(k*360/120)]; st2.push(`rgb(${c[0]} ${c[1]} ${c[2]})`) }
+		hueEl.style.setProperty('--hstrip',`linear-gradient(90deg, ${st2.join(',')})`) }
 	const okToOh=h=>{ h=((h%360)+360)%360; let bi=0,bd=1e9
-		for(let k=0;k<361;k++){ const d=Math.min(Math.abs(OH[k]-h),360-Math.abs(OH[k]-h)); if(d<bd){ bd=d; bi=k } } return bi }
-	// the ROTATION is the indicator: the strip turns so the current colour's hue sits at the
-	// left edge — no marker, the wheel's stance says where you are
-	const turn=()=>{ hueEl.style.setProperty('--hph',(-phase/361*Math.max(1,hueEl.clientWidth)).toFixed(1)+'px')
-		hueEl.setAttribute('aria-valuenow',Math.round(phase)) }
-	// picking hands the current colour the HUE of the light at the edge — lightness and
-	// chroma stay yours; the strip steers, it never replaces
-	const apply=()=>{ try{ const [L,C]=space.rgb.oklch(...RGB())
-		master={ s:'oklch', vals:[+L.toFixed(4),+C.toFixed(4),+OH[Math.round(phase)%361].toFixed(1)] } }catch{ return }
-		scheduleFast() }
-	// typed colors and catalog picks re-seat the wheel (throttled — nobody reads it at 60Hz)
+		for(let k=0;k<361;k++){ if(!LIT[k]) continue
+			const d=Math.min(Math.abs(OH[k]-h),360-Math.abs(OH[k]-h)); if(d<bd){ bd=d; bi=k } }
+		return bi }
+	// typed colors and catalog picks re-seat the marker (throttled — nobody reads it at 60Hz)
 	let syncT=0
 	hueEl._syncPhase=h=>{ const now=performance.now(); if(now-syncT<100) return; syncT=now
-		if(hdrag===null){ phase=okToOh(h); turn() } }
-	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hx0=e.clientX; hueEl.setPointerCapture(hdrag) })
-	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId!==hdrag) return
-		const d=(e.clientX-hx0)/Math.max(1,hueEl.clientWidth)*361; hx0=e.clientX   // content follows the finger
-		phase=((phase-d)%361+361)%361; turn(); apply() })
+		if(hdrag===null) seat(okToOh(h)) }
+	const nearLit=k=>{ k=Math.max(0,Math.min(360,k)); if(LIT[k]) return k
+		for(let d=1;d<361;d++){ const a=(k+d)%361, b=((k-d)%361+361)%361
+			if(LIT[a]) return a; if(LIT[b]) return b } return k }   // picking darkness lands on the nearest lit band
+	const pick=e=>{ const r=hueEl.getBoundingClientRect()
+		const f=clamp((e.clientX-r.left)/Math.max(1,r.width),0,1)
+		const k=nearLit(Math.round(f*360))
+		seat(k)
+		master={ s:'rgb', vals:STRIP()[k].slice() }; scheduleFast() }
+	hueEl.addEventListener('pointerdown',e=>{ hdrag=e.pointerId; hueEl.setPointerCapture(hdrag); pick(e) })
+	hueEl.addEventListener('pointermove',e=>{ if(e.pointerId===hdrag) pick(e) })
 	const end=e=>{ if(e.pointerId!==hdrag) return
 		hdrag=null; try{ hueEl.releasePointerCapture(e.pointerId) }catch{}
 		renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
 	hueEl.addEventListener('pointerup',end); hueEl.addEventListener('pointercancel',end)
 	hueEl.addEventListener('keydown',e=>{ let handled=true
-		if(e.key==='ArrowLeft'||e.key==='ArrowDown') phase=((phase-(e.shiftKey?10:1))%361+361)%361
-		else if(e.key==='ArrowRight'||e.key==='ArrowUp') phase=((phase+(e.shiftKey?10:1))%361+361)%361
-		else if(e.key==='Home') phase=0
+		if(e.key==='ArrowLeft'||e.key==='ArrowDown') seat(nearLit(hk-(e.shiftKey?10:1)))
+		else if(e.key==='ArrowRight'||e.key==='ArrowUp') seat(nearLit(hk+(e.shiftKey?10:1)))
+		else if(e.key==='Home') seat(nearLit(0))
+		else if(e.key==='End') seat(nearLit(360))
 		else handled=false
-		if(handled){ e.preventDefault(); turn(); apply(); paintCatalogGrad(); if(open()) paintPlanes(false) } }) }
+		if(handled){ e.preventDefault(); master={ s:'rgb', vals:STRIP()[hk].slice() }; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } })
+	// with an image loaded the strip IS the image's light — hovering it raises the image
+	// itself for pixel picking (the same floater the source rhombus opens), under the pointer
+	hueEl.addEventListener('pointerenter',e=>{ if(IMGSPEC&&HIMG){ clearTimeout(pkT)
+		const r=hueEl.getBoundingClientRect(); pkOpen({ left:e.clientX-80, bottom:r.bottom }) } })
+	hueEl.addEventListener('pointerleave',()=>{ if(IMGSPEC) pkSoon() }) }
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
+const mfvEl=document.getElementById('mfv'), mfswEl=document.querySelector('#mfloat .mfsw')
+mfvEl?.addEventListener('click',()=>copy(mfvEl.textContent))
 if(cvalEl){
 	// isTrusted + drag guards: renderFast mirrors the hex into these fields every frame — a
 	// synthetic input event (extension autofill and the like) or one landing mid-drag would
@@ -1637,12 +1667,12 @@ const imgwEl=document.getElementById('imgw')
 const imgPk=Object.assign(document.createElement('canvas'),{id:'imgpk'})
 document.body.append(imgPk)
 let pkWas=null
-const pkOpen=()=>{ const src=HIMG?.src; if(!src) return
+const pkOpen=(anchor)=>{ const src=HIMG?.src; if(!src) return
 	const W=Math.min(260,Math.max(160,src.width*3)), H=Math.round(W*src.height/src.width)
 	imgPk.width=src.width; imgPk.height=src.height
 	imgPk.getContext('2d').drawImage(src,0,0)
 	imgPk.style.width=W+'px'; imgPk.style.height=H+'px'
-	const r=imgwEl.getBoundingClientRect()
+	const r=anchor||imgwEl.getBoundingClientRect()
 	imgPk.style.left=Math.max(6,Math.min(r.left-8,innerWidth-W-6))+'px'
 	imgPk.style.top=(r.bottom+6)+'px'
 	pkWas={ s:master.s, vals:master.vals.slice() }
@@ -1772,6 +1802,18 @@ const clearImage=()=>{ HIMG=null; UIMG=null; BRUSHES.clear(); bMask=null; setMes
 	if(open()){ paintPlanes(false); paintImages() } else paintCatalogVals() }
 const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); hRev++; document.body.classList.toggle('himg',!!a)
 	meshCloud()
+	// the image's own spectrum: every sample binned by hue, each bin keeping its most
+	// chromatic voice; unlit bins stay near-black — absence reads as darkness, exactly
+	// like the sunlight strip's own ends
+	if(a){ const bins=new Array(361).fill(null), S=a, n=S.length/3|0
+		for(let q=0;q<n;q++){ const r=S[q*3], g=S[q*3+1], b=S[q*3+2]
+			let C,H; try{ [,C,H]=space.rgb.oklch(r,g,b) }catch{ continue }
+			if(!isFinite(H)) H=0
+			const k=Math.round(((H%360)+360)%360)%361
+			if(!bins[k]||C>bins[k].c) bins[k]={ c:C, rgb:[r,g,b] } }
+		IMGSPEC=Array.from({length:361},(_,k)=>bins[k]?bins[k].rgb:[6,6,6]) }
+	else IMGSPEC=null
+	stripRe?.()
 	if(a&&!document.getElementById('histdefs')){ const d=document.createElementNS(SVGNS,'svg')
 		d.id='histdefs'; d.setAttribute('aria-hidden','true')
 		d.innerHTML='<linearGradient id="histfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-opacity=".74"/><stop offset=".8" stop-opacity=".64"/><stop offset="1" stop-opacity=".56"/></linearGradient>'
@@ -4584,6 +4626,8 @@ function renderFast(solid=true){
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the masthead offers the two doors instead of a value
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(hx)
+	if(mfvEl&&document.body.classList.contains('mopen')){ mfvEl.textContent=dispVal(hx)
+		mfswEl.style.setProperty('--sw',hx); mfswEl.style.setProperty('--swk',ink(rgb)) }
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // the walking colour shows as a PLACEHOLDER – a value-shaped hint in the chosen format, never an asserted value
 	if(!virgin){ syncFav(hx); syncURL(hx) }   // the unpicked walk stamps neither URL nor favicon – nothing is asserted, and 4/s replaceState+icon churn is the one perpetual cost the walk would otherwise carry
 	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GPILL[g]; gpillEl.dataset.g=g } }
