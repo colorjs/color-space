@@ -406,7 +406,11 @@ float de2000_(vec3 p, vec3 s) {   // CIEDE2000, Sharma/Wu/Dalal 2005 – mirrors
 	float SL = 1.0 + 0.015 * (Lm - 50.0) * (Lm - 50.0) / sqrt(20.0 + (Lm - 50.0) * (Lm - 50.0));
 	float SC = 1.0 + 0.045 * cm, SH = 1.0 + 0.015 * cm * T;
 	float m7 = pow(cm, 7.0);
-	float RT = -sin(2.0 * 30.0 * exp(-pow((hm - 275.0) / 25.0, 2.0)) * R) * 2.0 * sqrt(m7 / (m7 + pow(25.0, 7.0)));
+	// GLSL pow(x, 2.0) is exp(2·log x) — NaN for x<0, and (hm-275)/25 is negative for every
+	// hue below 275° (reds, yellows, greens, cyans: most colours). That NaN poisoned ΔE2000
+	// everywhere, collapsing those pixels to site 0. Square by multiplication instead.
+	float hd = (hm - 275.0) / 25.0;
+	float RT = -sin(2.0 * 30.0 * exp(-hd * hd) * R) * 2.0 * sqrt(m7 / (m7 + pow(25.0, 7.0)));
 	float qa = dL / SL, qb = dC / SC, qc = dH / SH;
 	return sqrt(qa * qa + qb * qb + qc * qc + RT * qb * qc);
 }
