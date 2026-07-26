@@ -351,6 +351,14 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
+/* input-range experiment: a NATIVE range rides each strip — transparent track over the
+   painted background, the thumb is the picker diamond; the custom .tk hides beneath it */
+.ch .nrg{ position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3 }
+.ch .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
+.ch .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:8px; height:8px; margin-top:calc(var(--ctl)/2 - 4px); background:var(--tkc,#fff); border:1.2px solid var(--tki,#000); transform:rotate(45deg) }
+.ch .nrg::-moz-range-track{ background:transparent; border:0 }
+.ch .nrg::-moz-range-thumb{ width:8px; height:8px; background:var(--tkc,#fff); border:1.2px solid var(--tki,#000); border-radius:0; transform:rotate(45deg) }
+.ch:has(.nrg) .tk{ display:none !important }
 .ch .tk{ position:absolute; left:0; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; background:var(--tkc,transparent); border-color:var(--tki,transparent); z-index:2; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the mark takes the pointer (its own hover engages it — a whole-slider hover lit the picker from across the row); a press still falls through to the strip's drag. left stays 0 — JS positions via transform (a left write lays out and repaints the strip beneath, ×60 rows per drag frame). Colors ride TWO custom props set once per frame on #cat — per-tick style writes were a steady slice of the drag's GC churn */
 /* the strip's DATA LANE — a band along the bottom edge carrying what the slice itself
    can't say, always drawn in the picker's own ink so it reads on any color: today the
@@ -2143,6 +2151,17 @@ const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classLis
 	paintCatalogGrad([ent]); paintCatalogVals([ent])
 	sglVoid(); sglSettle() }   // the popover's strips just appeared — fold them into the atlas band
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
+// input-range experiment: the native ranges drive master through ONE delegated pair —
+// input mirrors the drag's jump (adopt + set + schedule), change is the release settle
+cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('nrg')) return
+	const ent2=r.closest('.ent'); if(!ent2) return
+	const s=ent2.dataset.s
+	if(master.s!==s){ const mv=valsFor(s); if(!mv) return; master={ s, vals:mv } }
+	master.vals[+r.dataset.i]=+r.value
+	dragEnt=ent2; scheduleFast() })
+cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) return
+	renderFast(); dragEnt=null
+	scheduleFast(); if(open()) paintPlanes(false) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 measureCh()   // strip widths in one layout pass — the tick transforms read only this cache
 cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
@@ -2189,7 +2208,8 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 		ch.addEventListener('pointerdown',e=>{
 			const rh=e.target.closest?.('.rh')
 			if(rh&&BRUSHES.has(s+'|'+i)){ rangeDrag(e,ch,s,i,rh.classList.contains('rlo')?'lo':'hi'); return }   // a half drags its own boundary
-			if(e.altKey&&HIMG){ rangeDrag(e,ch,s,i); return }   // alt splits the picker into a start and an end — the range, not a value
+			if(e.altKey&&HIMG){ e.preventDefault(); rangeDrag(e,ch,s,i); return }   // alt splits the picker into a start and an end — the range, not a value
+			if(e.target.classList?.contains('nrg')) return   // the native range owns this press — its input events drive master
 			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
 			const jump=ev=>{ const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
@@ -4524,7 +4544,9 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1), w=ch._w??=ch.clientWidth||null
 				if(w){ if(tk.style.left) tk.style.left=''   // the prerender positions ticks by left:% and inline colors (it can't know widths or carry vars) — inline must not shadow ours
 					if(tk.style.background) tk.style.background=''; if(tk.style.borderColor) tk.style.borderColor=''
-					tk.style.transform=`translate(calc(${(f*w).toFixed(1)}px - 50%),-50%) rotate(45deg)` } } }) }) }
+					tk.style.transform=`translate(calc(${(f*w).toFixed(1)}px - 50%),-50%) rotate(45deg)` }
+				const nr=ch._nrg??=ch.querySelector('.nrg')   // the native thumb tracks every master change — except its own live drag (writing .value mid-drag stalls the native gesture)
+				if(nr&&document.activeElement!==nr) nr.value=vals[i] } }) }) }
 function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions — the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
