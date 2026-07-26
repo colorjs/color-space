@@ -379,7 +379,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 /* the split picker: each handle is the tick itself cut in half — an outer box clips, the
    inner keeps the exact rotated-and-bordered square, so the halves ARE the picker. The
    flat cuts face each other across the range; dragged together, it becomes one again. */
-.rh{ position:absolute; top:50%; width:6px; height:13px; overflow:hidden; z-index:2; cursor:ew-resize }
+.rh{ position:absolute; top:50%; width:6px; height:13px; overflow:hidden; z-index:4; cursor:ew-resize }   /* above the native range input (z3) — a press on a half must drag the BOUNDARY, not start a value drag */
 .rh i{ position:absolute; top:50%; width:8px; height:8px; transform:translateY(-50%) rotate(45deg); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent) }
 .rh.rlo{ transform:translate(-100%,-50%) } .rh.rlo i{ right:-5.5px }
 .rh.rhi{ transform:translate(0,-50%) } .rh.rhi i{ left:-5.5px }
