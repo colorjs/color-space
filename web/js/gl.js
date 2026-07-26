@@ -1218,7 +1218,7 @@ void main() {
 	vec2 d = gl_PointCoord * 2.0 - 1.0;
 	float r = dot(d, d);
 	if (r > 1.0) discard;
-	O = vec4(vRgb, 0.9 * (1.0 - r * r));
+	O = vec4(vec3(1.0), 0.9 * (1.0 - r * r));   // WHITE — the voice of every mark living inside the blob
 }`
 	const sh = (t, src) => { const h = gl.createShader(t); gl.shaderSource(h, src); gl.compileShader(h); return h }
 	const pr = gl.createProgram()

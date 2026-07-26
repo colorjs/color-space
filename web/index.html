@@ -95,9 +95,9 @@ a:hover{ text-decoration-color:currentColor }
 /* the image floater — the dropped image LIVES bottom-right, macOS-screenshot style: a
    paper frame with a deep shadow, crisp at full resolution, always pickable, above the
    dossier's scrim; ✕ appears on hover, top-left, and lets it go */
-#imgfloat{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
+#imgfloat{ position:fixed; right:1.5rem; bottom:1.5rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
 body.himg #imgfloat{ display:block }
-#upfl{ position:fixed; right:1rem; bottom:1rem; z-index:calc(var(--z-modal) + 1); width:44px; height:44px; display:grid; place-items:center; --ic:18px; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); cursor:pointer }   /* the corner's invitation — the tooltip's dark plate, round; the image floater takes this seat once an image lands */
+#upfl{ position:fixed; right:1.5rem; bottom:1.5rem; z-index:calc(var(--z-modal) + 1); width:44px; height:44px; display:grid; place-items:center; --ic:18px; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); cursor:pointer }   /* the corner's invitation — the tooltip's dark plate, round; the image floater takes this seat once an image lands */
 #upfl .ic{ display:block }
 #upfl:hover{ box-shadow:0 8px 26px rgba(0,0,0,.32) }
 #upfl .upar{ transition:transform var(--dur-short) var(--ease-out) }
@@ -1883,6 +1883,7 @@ const histMask=bins=>bins.map(b=>{ const srt=Float32Array.from(b).sort()
 	return 'url('+cv.toDataURL()+')' })
 const histSoon=()=>{ if(hT) return
 	hT=ric(dl=>{ hT=0
+		if(PDOWN){ histSoon(); return }   // a held pointer owns the frame budget — lanes bin after the release
 		for(const s of histQ){ if(dl.timeRemaining()<3) break
 			let done; try{ done=histStep(s) }catch{ done=true; histC.set(s,null) }
 			if(!done) break   // half-binned — the next slice picks it up mid-image
