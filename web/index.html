@@ -254,10 +254,11 @@ body.himg #imgfloat{ display:block }
 .toc.on{ opacity:1; transition:opacity var(--dur-short) var(--ease-out) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer — margins would block sticky displacement (margin-box clamp) */
 .ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); --toc-top:var(--s6); top:calc(var(--ti-y,0px) + var(--toc-top)) }   /* pin point is CSS: --ti-y is the measured ladder offset (per title), --toc-top the gap below the sticky header — tune the gap here, in CSS. Bottom ladder set per-title in JS: future titles wait stacked at the bottom, passed ones pile at the top */
-/* the shelf cut closes the rail: STICKY at the viewport's bottom edge — the last rung of
-   the title ladder, always in reach. The tabrow's grammar, mirrored: the accent rides the
-   TOP of the active tab (the row hangs from below, so its marker faces up) */
-.gtabs{ position:sticky; bottom:0; z-index:3; margin-top:var(--s6); background:var(--paper); border-top:1px solid var(--hair); padding:var(--s2) 0 var(--s3); display:flex; gap:var(--s4) }
+/* the shelf cut closes the rail: the LAST RUNG of the title ladder — sticky under the
+   waiting titles (layoutToc seeds the bottom stack above it), so it always follows
+   Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
+   active tab (the row hangs from below, so its marker faces up) */
+.gtabs{ position:sticky; bottom:12px; z-index:3; margin-top:var(--s6); background:var(--paper); padding:var(--s2) 0 var(--s1); display:flex; gap:var(--s4) }
 .gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:2px solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
@@ -1373,6 +1374,7 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
 	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
+	const gtH=tocEl.querySelector('.gtabs')?.offsetHeight||0
 	const ys=secEls.map((sec,i)=>{ if(!on[i]) return 0   // align each title's CENTRE with the first visible space name's centre — box tops lie when the two fonts' boxes differ
 		const ent=[...sec.querySelectorAll('.ent')].find(e=>e.style.display!=='none')
 		const r2=(ent?ent.querySelector('.nm'):sec).getBoundingClientRect()
@@ -1381,7 +1383,7 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	tocIt.forEach((t,i)=>{ if(!on[i]){ sps[i].style.height='0px'; return }
 		const m=Math.max(0,ys[i]-hs[i]/2-cur); sps[i].style.height=m+'px'; cur+=m+hs[i]
 		t.style.setProperty('--ti-y',up+'px'); up+=hs[i]+G })
-	let dn=12   // bottom ladder: upcoming titles wait stacked above the fold
+	let dn=12+(gtH?gtH+G:0)   // bottom ladder: upcoming titles wait stacked above the fold — ABOVE the shelf tabs, which hold the last rung
 	for(let i=tocIt.length-1;i>=0;i--) if(on[i]){ tocIt[i].style.bottom=dn+'px'; dn+=hs[i]+G }
 	if(layoutToc.settled) tocEl.classList.add('on')   // reveal only a ladder measured under the real fonts
 }
