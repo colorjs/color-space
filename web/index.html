@@ -414,7 +414,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .cvp .stk button:hover,.bch .stk button:hover{ opacity:1; color:var(--ink) }
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
-.ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
+.ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:pan-y; background:var(--panel); user-select:none }   /* pan-y, not none: a vertical swipe on a strip must scroll the page, and iOS only streams horizontal pointermove reliably under pan-y */
 /* every strip and bar rides a NATIVE range as the INPUT DEVICE — its thumb invisible;
    the .tk/.dk div stays the one visual (the token itself, not a copy). The input
    overhangs ±4px (half a thumb) so the native thumb-inset mapping lands values exactly
@@ -560,7 +560,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	.dhero::after{ content:''; display:block; clear:both } }
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
-.bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:none; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
+.bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:pan-y; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc,.ch .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }
 .ent.pop .ch .bgc{ display:block }   /* the popped row is a RAISED card (z-index above the page), so the atlas canvas — which lives in the base layer — cannot paint through it. Its three strips paint themselves instead, the same blit the dossier bars use; what the atlas exists to avoid is sixty rows of that, not one. */   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
