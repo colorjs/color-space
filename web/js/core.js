@@ -192,14 +192,15 @@ export function wheelCoord(cls, rgb) {
 }
 
 // per-value gamut alpha under a lens — the SAME laws the GPU kernel and plane() apply:
-// non-physical linear light voids, imaginary chromaticity voids, the human lens cuts by
-// the object-colour solid, a display lens ghosts real-but-undisplayable at 50%. Null
-// when the lens doesn't apply (off, rgb itself, no xyz path) — the sweep renders plain.
+// non-physical linear light voids, imaginary chromaticity voids ('off' stops HERE — the
+// kernel's uGam=0: the widest honest sweep, bounded only by what is a colour at all),
+// the human lens additionally cuts by the object-colour solid, a display lens ghosts
+// real-but-undisplayable at 50%. Null when no lens applies (rgb itself, no xyz path).
 export const lensFor = (name, gamut) => {
-	if (!gamut || gamut === 'off' || name === 'rgb') return null
+	if (!gamut || name === 'rgb') return null
 	const toXyz = space[name].xyz; if (!toXyz) return null
-	const vis = gamut === 'vis'
-	const gLin = space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[vis ? 'srgb' : gamut] || 'lrgb']
+	const vis = gamut === 'vis', disp = gamut !== 'off' && !vis
+	const gLin = space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[disp ? gamut : 'srgb'] || 'lrgb']
 	const PB = physBound(name)
 	// a chromaticity space discards luminance — the honest question is whether the
 	// DIRECTION is displayable at any luminance (the GPU kernel's normalisation)
@@ -211,7 +212,8 @@ export const lensFor = (name, gamut) => {
 		if (!lin.every(u => u > -4 && u < PB)) return 0
 		if (!visibleXYZ(...X)) return 0
 		if (vis) return inVisSolid(...X) ? 1 : 0
-		return lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
+		if (disp) return lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
+		return 1
 	} catch { return 0 } }
 }
 // ── generic 1-D channel gradient (sweep channel ci, hold the rest) → array of hex stops;

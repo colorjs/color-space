@@ -503,7 +503,9 @@ bool visXYZ(vec3 c) {   // black is a colour; a chromaticity off the locus is im
 // The HUMAN solid as shader source — the SAME body visSurf tessellates for the 3D view,
 // so the picker's field and the solid's cross-section are one shape. A zonoid is convex,
 // so membership is a support test (u·p ≤ h(u)) over sampled directions; the polytope
-// CONTAINS the body, so it never clips a real colour.
+// CONTAINS the body, so it never clips a real colour. The SHADER subsamples to 32
+// directions: inside pixels pay the whole loop per fragment, and at plane/mesh scale the
+// looser hull moves the boundary under a pixel — the CPU test keeps all 128 (caps, scans).
 let VSOL_SRC = null
 const visSolidGLSL = () => VSOL_SRC ??= ((D) => `const vec4 VSD[${D.length}] = vec4[${D.length}](${D.map((d) => `vec4(${d[0].toFixed(5)}, ${d[1].toFixed(5)}, ${d[2].toFixed(5)}, ${d[3].toFixed(3)})`).join(', ')});
 bool inVisSolid(vec3 c) {   // a colour a surface can show under D65
@@ -511,7 +513,7 @@ bool inVisSolid(vec3 c) {   // a colour a surface can show under D65
 		if (dot(d.xyz, c) > d.w * 1.002) return false;
 	}
 	return true;
-}`)(visSolid())
+}`)(visSolid().filter((_, i) => i % 4 === 0))
 
 // program + uniforms + draw for one kernel rect — shared by the single-rect blit path
 // (drawKernel) and the strip atlas (paintStripsGL), which offsets many rects into one canvas
@@ -587,7 +589,7 @@ export function paintStripsGL(w, h, jobs, yOff = 0, q = 1) {
 		if (!st.pr || st.bad || st.pending) continue
 		G.viewport(x, y, jw, jh)
 		G.scissor(x, y, jw, jh)
-		kernelDraw(st, jw, jh, j.vals, j.i, -1, j.ri, [0, 0], j.gam ?? null, 0, 0, 0, undefined, x, y)
+		kernelDraw(st, jw, jh, j.vals, j.i, -1, j.ri, [0, 0], null, 0, 0, 0, undefined, x, y)
 		n++
 	}
 	G.disable(G.SCISSOR_TEST)

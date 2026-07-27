@@ -2622,12 +2622,13 @@ const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly'
 // 'human' is the fullest REAL shape (the visible gamut) and the no-display-cut state
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which
 // the always-drawn range cage already frames. (Legacy 'off' collapses to srgb default.)
-let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'srgb'
-// the lens a channel SWEEP renders under — one rule for the dossier bars, the card
-// popover and the catalog atlas, so the same channel never shows two different reaches.
-// A 1-channel locus: under a display lens the all-out ghosting IS its definition; under
-// the human lens it is all-in by definition – and the discretized solid would wrongly
-// fail its own rim.
+// human by default: the widest real view — a display gamut is an opt-in LIMIT, chosen in
+// the dossier's switch, and its half-transparent ghosting shows only there. The catalog
+// always renders the full reach (no lens beyond "is it a colour at all").
+let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'vis'
+// the lens the DOSSIER's sweeps render under. A 1-channel locus: under a display lens the
+// all-out ghosting IS its definition; under the human lens it is all-in by definition –
+// and the discretized solid would wrongly fail its own rim.
 const gmFor=cls=>cls.ch.length>1?GM:GM==='vis'?'off':GM
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
 // the human lens asks a different question than a display gamut: not "can this screen
@@ -4516,7 +4517,7 @@ const sglCapture=()=>{ const jobs=[], dpr=SDPR
 			// browser rasterizes the strip it covers, and neighbours tile without a seam
 			const x0=Math.round(r.left*dpr), x1=Math.round(r.right*dpr)
 			const y0=Math.round(y*dpr), y1=Math.round((y+r.height)*dpr)
-			jobs.push({ s, i, ri:[c.min,c.max], gam:gmFor(cls), x:x0, y:y0, w:x1-x0, h:y1-y0 }) }) }
+			jobs.push({ s, i, ri:[c.min,c.max], x:x0, y:y0, w:x1-x0, h:y1-y0 }) }) }   // no gam: the catalog renders at uGam=0 — full reach, no display lens
 	jobs.sort((a,b)=>a.s<b.s?-1:a.s>b.s?1:0)   // grouped by space – fewer program switches
 	sglJobs=jobs }
 const sglVals=jobs=>{ const vcache={}, out=[]
@@ -4535,7 +4536,7 @@ const paintPop=()=>{ const ent=popEnt; if(!ent) return   // the focused card's o
 	const cls=classify(s), vals=valsFor(s); if(!vals) return
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 		const cv=ch._bgc||(ch._bgc=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1})))
-		paintBarGL(cv,s,vals,i,[c.min,c.max],gmFor(cls)) }) }
+		paintBarGL(cv,s,vals,i,[c.min,c.max],null) }) }   // the raised card is still the CATALOG: full reach, no display lens
 const sglFrame=()=>{ if(!sglCv) return   // MOTION: the on-screen slice only – and vals convert ONLY for spaces actually drawn (the band holds ~3× more, some with iterative inverses)
 	if(!sglJobs){ sglSettle(); return }   // no capture yet (or band moved) – the full pass establishes the canvas first
 	// the same SNAPPED scroll the compositor uses – scrollY itself can be fractional
@@ -4587,11 +4588,13 @@ function paintCatalogGrad(ents){ const hx=hex(RGB()), sweep=!ents
 		if(planeGLStatus(s)==='ready'){ if(ent.dataset.g!=='atlas'){ ent.dataset.g='atlas'   // the atlas owns this row: the [data-g=atlas] CSS rule swaps its base to the checker – inline sweeps just release
 			ent.querySelectorAll('.ch').forEach(ch=>{ if(ch.style.background) ch.style.background='' }) } return }
 		const cls=classify(s)
-		const gkey=(s===master.s?master.vals.join():hx)+':0:'+gmFor(cls)   // the master's own row keys on master.vals – its sweeps are finer than the 8-bit hex; the lens keys too (a gamut switch re-bakes)
+		const gkey=(s===master.s?master.vals.join():hx)+':0'   // the master's own row keys on master.vals – its sweeps are finer than the 8-bit hex
 		if(ent.dataset.g===gkey) return   // fallback already current for this exact color
 		const vals=valsFor(s)
+		// the catalog NEVER wears a display lens: 'off' = the widest honest sweep (only
+		// non-colors void) — the same law the atlas renders at uGam=0. Lenses live in the dossier.
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-			ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,48,gmFor(cls)).join(',')}), var(--checker)` })
+			ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,48,'off').join(',')}), var(--checker)` })
 		ent.dataset.g=gkey }) }
 // per-entry value inputs + tick markers – the same subset discipline as the gradients
 // one batched layout read for every strip's width – the per-frame tick transform must never
@@ -4885,8 +4888,13 @@ const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()
 	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN){ paintCatalogGrad(); paintCatalogVals(); sglSettle() } },140)   // …then one settle sweep refreshes values and the CSS fallback; the atlas needs nothing — it IS the strips, at rest as in motion. Never under a held pointer; behind a dossier the catalog sleeps and closeModal catches it up
 	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
 	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
-	// drag res, so even munsell's neighbours follow the pointer
-	if(performance.now()>planeNext) paintPlanes(true) }) }
+	// drag res, so even munsell's neighbours follow the pointer.
+	// The VIRGIN walk is ambient, not a gesture: while it colours an open dossier,
+	// planes and the solid (two mesh passes + blits — seconds of queued GPU under the
+	// human lens) settle to ~5Hz through the same planeNext gate; a real drag keeps
+	// its every-frame cadence
+	if(performance.now()>planeNext){ paintPlanes(true)
+		if(VIRGIN&&!PDOWN&&!dragging&&open()) planeNext=Math.max(planeNext,performance.now()+180) } }) }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
