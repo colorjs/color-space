@@ -326,11 +326,13 @@ body.himg #upfl{ display:none }
 	.cvs{ gap:var(--s2) }
 	.cv{ width:4.1rem }
 }
-/* offscreen cards neither lay out nor raster — scrolling composits only what's near the
-   viewport (measured: scroll p50 41ms → 8ms). auto memoizes each card's real size after
-   its first render; the estimates below only seed the first pass */
-.ent{ content-visibility:auto; contain-intrinsic-size:auto 240px }
-.ent.lite{ contain-intrinsic-size:auto 44px }
+/* FAR cards (beyond the atlas band's 800px overscan) neither lay out nor raster —
+   scrolling composits only the band (measured: scroll p50 41ms → 8ms). The band itself
+   stays fully rendered, so the atlas captures true rects and ticks interleave with the
+   canvas exactly as always; farness is an IntersectionObserver class, not cv's own
+   heuristic, so the two geometries can never disagree. auto memoizes real sizes */
+.ent.far{ content-visibility:auto; contain-intrinsic-size:auto 240px }
+.ent.lite.far{ contain-intrinsic-size:auto 44px }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
@@ -2225,10 +2227,12 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) return
 	renderFast(); dragEnt=null
 	scheduleFast(); if(open()) paintPlanes(false) })
+const farIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('far',!e.isIntersecting)),{rootMargin:'800px 0px'})   // farness tracks the atlas band's own overscan
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 measureCh()   // strip widths in one layout pass — the tick transforms read only this cache
 cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
 cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
+cat.querySelectorAll('.ent').forEach(e=>farIO.observe(e))   // …and the far set: beyond the band, a card may sleep
 const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
