@@ -12,9 +12,10 @@
 * [x] ~~claim https://github.com/js-org/js.org~~
 * [x] Color atlas view or filter - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
 * [x] ~~Main screen configuration - sliders, planes, just a table, CSS values etc~~
-* [ ] Pick a line/shape/range, not just a point in space.
-* [ ] Drop an image
-  * [ ] Floater image area
+* [ ] Pick a palette.
+* [x] Drop an image
+  * [x] Floater image area
+* [x] HEIC images
 * [x] Interpolation: compare against the other space
 * [x] ~~In-space configurator: there's multiple flavors of RGB space with different matrices etc.~~ no
 * [ ] Hue bar: uncollapses? Rotates?
