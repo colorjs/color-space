@@ -3806,7 +3806,7 @@ ${gLegend}">?</span></div>`
 			el.classList.remove('live')
 			el._snapHint=el._dragF; if(Q!=null) clusterize(); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
-			renderFast(false); paintPlanes(false) }) }
+			renderFast(false); paintPlanes(false); catUp() }) }
 	// the link runs both ways: hovering or focusing a big input blinks its slider's picker
 	detail.querySelectorAll('#bigch .bch').forEach(b=>{ const bar=detail.querySelector(`.bar2[data-i="${b.dataset.i}"]`); if(!bar) return
 		const sync=()=>bar.classList.toggle('live',b.matches(':hover')||b.contains(document.activeElement))
@@ -3969,8 +3969,11 @@ function wireBar(el,s){
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
 		el._snapHint=el._dragF; if(Q!=null) clusterize(); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
-		renderFast(false); paintPlanes(false) }
+		renderFast(false); paintPlanes(false); catUp() }
 	el.onpointermove=move; el.onpointerup=up }) }
+// the dimmed catalog behind the dossier catches up on every RELEASE — values, gradients
+// and the atlas in one settle (per-frame it sleeps; closeModal still covers the rest)
+const catUp=()=>{ if(!open()) return; paintCatalogVals(); paintCatalogGrad(); sglVoid(); sglSettle() }
 let plFreeze=null   // plane being dragged in a color-cluster mode – its bitmap stays frozen
 function wirePlane(pl){
 	// corner-label ink samples this canvas every repaint – declare the readback before first paint
@@ -4011,7 +4014,7 @@ function wirePlane(pl){
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
 	pl.addEventListener('pointerdown',e=>{ clearClusterSnaps(); pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
 	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
-		if(Q!=null) clusterize(); renderFast(false); paintPlanes(false) }
+		if(Q!=null) clusterize(); renderFast(false); paintPlanes(false); catUp() }
 	pl.addEventListener('pointerup',end); pl.addEventListener('pointercancel',end)
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window – but pinch must not zoom the PAGE
