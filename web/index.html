@@ -116,12 +116,11 @@ body.himg #upfl{ display:none }
 /* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
    avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
 @media(pointer:coarse){ .cdw{ width:16px; height:28px }
-	/* iOS drags a range only from its thumb and never jumps on track taps (accepted): the
-	   thumb grows to a 44px invisible pad, so a finger near the tick grabs it natively;
-	   the overhang doubles to keep the value mapping exact at the edges */
-	.ch .nrg,.bar2 .nrg{ left:-22px; width:calc(100% + 44px) }
-	.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ width:44px; height:44px }
-	.ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:44px; height:44px } }
+	/* real iOS ignores the styled thumb for HIT TESTING (the 44px-pad experiment died on
+	   device) and never jumps on track taps — the native widget cannot serve touch here.
+	   Coarse pointers fall back to the strips' own pointer machinery: press anywhere,
+	   drag, capture, walk-stop — the mechanics that served mobile all along */
+	.ch .nrg,.bar2 .nrg{ display:none } }
 /* the empty state: nothing has been picked, so the masthead offers the two ways IN rather
    than asserting a colour — the swatch, the value and the gamut tag all stay out of it. */
 .invite{ display:none; position:absolute; right:.5em; top:0; bottom:0; align-items:center; gap:var(--s2); white-space:nowrap; font-size:var(--t2); font-weight:600; color:var(--soft); pointer-events:none }   /* it OVERLAYS the value field rather than replacing it: the field stays live, so a colour can still be typed or pasted straight into the empty masthead */
