@@ -2224,7 +2224,7 @@ function wireCat(){   // every per-ent attachment, in one place — runs when th
 measureCh()   // strip widths in one layout pass — the tick transforms read only this cache
 cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
 cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
-cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
+const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
 	ent.addEventListener('focusout',e=>{ if(popEnt===ent&&!ent.contains(e.relatedTarget)) hidePop() })   // the popover closes once focus leaves the row (blur, tab away, Esc)
@@ -2282,7 +2282,19 @@ cat.querySelectorAll('.ent[data-s]').forEach(ent=>{ const s=ent.dataset.s   // r
 				squelch=true; setTimeout(()=>squelch=false,0)
 				renderFast(); dragEnt=null   // settle BEFORE releasing dragEnt — the focused input must adopt the press (the scheduled frame would arrive after the release)
 				scheduleFast(); if(open()) paintPlanes(false) }
-			ch.onpointercancel=ch.onpointerup }) }) })   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
+			ch.onpointercancel=ch.onpointerup }) }) }   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
+// visible rows wire NOW; the long tail wires in idle slices — ~4000 listener
+// attachments for rows nobody can see yet were the boot's single biggest task
+wireCat._gen=(wireCat._gen||0)+1
+{ const gen=wireCat._gen, ents=[...cat.querySelectorAll('.ent[data-s]')]
+	const lo=-innerHeight*.5, hi=innerHeight*1.5, later=[]
+	for(const e of ents){ const r=e.getBoundingClientRect()
+		if(r.bottom>lo&&r.top<hi) wireEnt(e); else later.push(e) }
+	let i=0
+	const step=dl=>{ if(gen!==wireCat._gen) return
+		while(i<later.length&&dl.timeRemaining()>3) wireEnt(later[i++])
+		if(i<later.length) ric(step) }
+	if(later.length) ric(step) }
 }
 
 // sheet rows show sliders only when the settings toggle says so
