@@ -1638,7 +1638,7 @@ const drift=t=>{ if(!VIRGIN||driftHold) return   // someone picked (or holds the
 		driftJ=master.vals.join()
 		scheduleFast() }
 	requestAnimationFrame(drift) }
-const driftGo=()=>setTimeout(()=>{ if(VIRGIN) requestAnimationFrame(drift) },900)
+const driftGo=()=>setTimeout(()=>{ if(VIRGIN) requestAnimationFrame(drift) },2000)   // after the boot's settle — walking at 900ms fought hydration for the first seconds
 document.readyState==='complete'?driftGo():addEventListener('load',driftGo)
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
 const toastEl=document.getElementById('toast'); let toastT
@@ -4417,7 +4417,8 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 // only the entries whose tier actually changed)
 let glupT=0
 setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
-	sglVoid(); if(!open()){ if(PDOWN) sglFrame(); else sglSettle() }   // newly linked programs join the atlas now – mid-motion just the viewport slice (a band pass would hitch the drag)
+	sglVoid(); if(!open()){ sglFrame()   // newly linked programs join the atlas now — the viewport slice only: each join used to trigger a FULL band pass, and the boot's warm walk paid ~100ms × every batch
+		clearTimeout(sglWarmT); sglWarmT=setTimeout(()=>{ if(!PDOWN&&!open()) sglSettle() },400) }   // one band pass after the last program lands
 	paintCatalogGrad(); if(open()&&!isBarred(selected)){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
 // preload: bake EVERY card ahead of need – strips, values, ticks. One idle walk in catalog
@@ -4707,8 +4708,8 @@ function renderFast(solid=true){
 		else if(!qf){ bar._snapKey=bar._snapF=bar._snapHint=null }
 		dk.style.left=(mf*100)+'%'
 		dk.style.background=hx; dk.style.borderColor=ink(rgb)
-		const nr=bar._nrg??=bar.querySelector('.nrg')   // the input's value tracks the master — except its own live drag
-		if(nr&&document.activeElement!==nr) nr.value=shown[i] })
+		const nr=bar._nrg??=bar.querySelector('.nrg')   // the input's value syncs at REST only (see the catalog twin)
+		if(nr&&!PDOWN&&!VIRGIN&&document.activeElement!==nr) nr.value=shown[i] })
 	// the big value inputs above the sliders – value, step limits
 	detail.querySelectorAll('#bigch .bch').forEach(el=>{ const i=+el.dataset.i, c=cls.ch[i]
 		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing – the focused channel tracks its slider live
@@ -4842,7 +4843,7 @@ function renderFast(solid=true){
 	// the GPU solid redraws per frame, so the marker tracks a drag live
 	if(solid&&(!dragBar&&!plFreeze||mesh3&&mesh3.gpu)) draw3d(); gamMarker(); paintTC()
 }
-let raf, settleT
+let raf, settleT, sglWarmT
 const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
 	renderFast(); if(!open()&&!dragging) sglFrame()   // motion frames redraw every on-screen strip in the atlas — one hidden GL pass, one blit into the visible canvas; the settle repaints the full band
 	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN){ paintCatalogGrad(); paintCatalogVals(); sglSettle() } },140)   // …then one settle sweep refreshes values and the CSS fallback; the atlas needs nothing — it IS the strips, at rest as in motion. Never under a held pointer; behind a dossier the catalog sleeps and closeModal catches it up
