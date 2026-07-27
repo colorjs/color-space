@@ -222,6 +222,7 @@ body.himg #upfl{ display:none }
 	.fqa::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
 	.fqa[open]::details-content{ opacity:1; block-size:auto }
 }
+@media(min-width:1080px) and (max-width:1359px){ .faq{ grid-template-columns:minmax(0,1fr) } .fqs{ grid-column:1 } }   /* the railless band — the FAQ sheds its rail exactly as the intro does */
 @media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) }   /* stacked columns: the rule the column break was providing */
 	.fqa summary{ font-size:calc(var(--t2) + 1px); padding:var(--s3) 0 }   /* phone scale — the space names' size, --s3 of air */
 }
