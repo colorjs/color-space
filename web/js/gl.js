@@ -567,12 +567,13 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
  * pixel at the live↔snapshot swap. Rects outside the frame skip, as do pending
  * programs (their DOM strip shows). Returns the number of strips drawn.
  */
-export function paintStripsGL(w, h, jobs, yOff = 0) {
+export function paintStripsGL(w, h, jobs, yOff = 0, q = 1) {
 	if (!G) return 0
-	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	const W = Math.ceil(w / q), H = Math.ceil(h / q)   // q>1: MOTION quality — fill and blit cost fall by q², release crisps back
+	if (CV.width !== W || CV.height !== H) { CV.width = W; CV.height = H }
 	G.disable(G.DEPTH_TEST)
 	G.disable(G.SCISSOR_TEST)
-	G.viewport(0, 0, w, h)
+	G.viewport(0, 0, W, H)
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
 	G.enable(G.SCISSOR_TEST)
@@ -580,12 +581,13 @@ export function paintStripsGL(w, h, jobs, yOff = 0) {
 	for (const j of jobs) {
 		const jy = j.y - yOff   // yOff maps band-space jobs into a viewport-sized frame; outside rects just skip
 		if (jy + j.h <= 0 || jy >= h) continue
+		const x = Math.round(j.x / q), y2 = h - jy - j.h
+		const y = Math.round(y2 / q), jw = Math.max(1, Math.round(j.w / q)), jh = Math.max(1, Math.round(j.h / q))
 		const st = planeProg(j.s)
 		if (!st.pr || st.bad || st.pending) continue
-		const y = h - jy - j.h   // GL origin is bottom-left
-		G.viewport(j.x, y, j.w, j.h)
-		G.scissor(j.x, y, j.w, j.h)
-		kernelDraw(st, j.w, j.h, j.vals, j.i, -1, j.ri, [0, 0], null, 0, 0, 0, undefined, j.x, y)
+		G.viewport(x, y, jw, jh)
+		G.scissor(x, y, jw, jh)
+		kernelDraw(st, jw, jh, j.vals, j.i, -1, j.ri, [0, 0], null, 0, 0, 0, undefined, x, y)
 		n++
 	}
 	G.disable(G.SCISSOR_TEST)

@@ -4506,10 +4506,12 @@ const sglFrame=()=>{ if(!sglCv) return   // MOTION: the on-screen slice only –
 	for(const j of sglJobs){ if(j.y+j.h<=dy||j.y>=dy+H) continue
 		const v=vcache[j.s]??=valsFor(j.s); if(v){ j.vals=v; SGLV.push(j) } }
 	paintPop()   // BEFORE the atlas pass: both share the kernel canvas, and the atlas leaves it at the size it wants
-	if(!paintStripsGL(W,H,SGLV,dy)) return
+	const q=PDOWN?2:1   // a held pointer renders the slice at HALF res — fill+blit ÷4; the release settle crisps it
+	if(!paintStripsGL(W,H,SGLV,dy,q)) return
 	const ctx=sglSnap.getContext('2d')
 	ctx.clearRect(0,dy,W,H)
-	ctx.drawImage(sglCv,0,dy)
+	if(q===1) ctx.drawImage(sglCv,0,dy)
+	else ctx.drawImage(sglCv,0,0,Math.ceil(W/q),Math.ceil(H/q),0,dy,W,H)
 	document.body.classList.add('sgl') }
 const sglSettle=()=>{ if(!sglCv) return   // FULL BAND: one pass, one GPU copy – settle, re-anchor, program landings
 	if(!sglJobs) sglCapture()
