@@ -326,13 +326,10 @@ body.himg #upfl{ display:none }
 	.cvs{ gap:var(--s2) }
 	.cv{ width:4.1rem }
 }
-/* FAR cards (beyond the atlas band's 800px overscan) neither lay out nor raster —
-   scrolling composits only the band (measured: scroll p50 41ms → 8ms). The band itself
-   stays fully rendered, so the atlas captures true rects and ticks interleave with the
-   canvas exactly as always; farness is an IntersectionObserver class, not cv's own
-   heuristic, so the two geometries can never disagree. auto memoizes real sizes */
-.ent.far{ content-visibility:auto; contain-intrinsic-size:auto 240px }
-.ent.lite.far{ contain-intrinsic-size:auto 44px }
+/* ONE layer of strips: while the atlas paints them, the cards' own CSS sweeps retire —
+   they were invisible under the canvas yet still rastered every scrolled tile, which is
+   what made scrolling crawl (p50 41ms). No observers, no containment, no second copy. */
+body.sgl .ent:not(.pop) .ch{ background:none !important }
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
@@ -413,15 +410,15 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:none; background:var(--panel); user-select:none }
-/* input-range experiment: a NATIVE range rides each strip and bar as the INPUT DEVICE
-   only — its own thumb is invisible; the .tk/.dk div stays the one visual (same element,
-   same ring-pair pseudos: the token itself, not a copy). The input overhangs ±4px (half a
-   thumb) so the native thumb-inset mapping lands values exactly at the strip's edges. */
-.ch .nrg,.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3 }
-.ch .nrg::-webkit-slider-runnable-track,.bar2 .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
-.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:8px; height:8px; opacity:0 }
-.ch .nrg::-moz-range-track,.bar2 .nrg::-moz-range-track{ background:transparent; border:0 }
-.ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:8px; height:8px; opacity:0; border:0 }
+/* the dossier bars ride a NATIVE range as the INPUT DEVICE only — its thumb invisible;
+   the .dk div stays the one visual. The input overhangs ±4px (half a thumb) so the
+   native thumb-inset mapping lands values exactly at the bar's edges. (The catalog tried
+   these too — 500 of them were the scroll's raster cost, for no drag gain: retired.) */
+.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3 }
+.bar2 .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
+.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:8px; height:8px; opacity:0 }
+.bar2 .nrg::-moz-range-track{ background:transparent; border:0 }
+.bar2 .nrg::-moz-range-thumb{ width:8px; height:8px; opacity:0; border:0 }
 .ch .tk{ position:absolute; left:0; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; background:var(--tkc,transparent); border-color:var(--tki,transparent); z-index:2; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the mark takes the pointer (its own hover engages it — a whole-slider hover lit the picker from across the row); a press still falls through to the strip's drag. left stays 0 — JS positions via transform (a left write lays out and repaints the strip beneath, ×60 rows per drag frame). Colors ride TWO custom props set once per frame on #cat — per-tick style writes were a steady slice of the drag's GC churn */
 /* the strip's DATA LANE — a band along the bottom edge carrying what the slice itself
    can't say, always drawn in the picker's own ink so it reads on any color: today the
@@ -2216,23 +2213,10 @@ const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classLis
 	paintCatalogGrad([ent]); paintCatalogVals([ent])
 	sglVoid(); sglSettle() }   // the popover's strips just appeared — fold them into the atlas band
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
-// input-range experiment: the native ranges drive master through ONE delegated pair —
-// input mirrors the drag's jump (adopt + set + schedule), change is the release settle
-cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('nrg')) return
-	const ent2=r.closest('.ent'); if(!ent2) return
-	const s=ent2.dataset.s
-	if(master.s!==s){ const mv=valsFor(s); if(!mv) return; master={ s, vals:mv } }
-	master.vals[+r.dataset.i]=+r.value
-	dragEnt=ent2; scheduleFast() })
-cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) return
-	renderFast(); dragEnt=null
-	scheduleFast(); if(open()) paintPlanes(false) })
-const farIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('far',!e.isIntersecting)),{rootMargin:'800px 0px'})   // farness tracks the atlas band's own overscan
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 measureCh()   // strip widths in one layout pass — the tick transforms read only this cache
 cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
 cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
-cat.querySelectorAll('.ent').forEach(e=>farIO.observe(e))   // …and the far set: beyond the band, a card may sleep
 const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
 	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
@@ -2276,7 +2260,6 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			const rh=e.target.closest?.('.rh')
 			if(rh&&BRUSHES.has(s+'|'+i)){ rangeDrag(e,ch,s,i,rh.classList.contains('rlo')?'lo':'hi'); return }   // a half drags its own boundary
 			if(e.altKey&&HIMG){ e.preventDefault(); rangeDrag(e,ch,s,i); return }   // alt splits the picker into a start and an end — the range, not a value
-			if(e.target.classList?.contains('nrg')) return   // the native range owns this press — its input events drive master
 			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
 			const cls=classify(s), c=cls.ch[i]; let moved=false; const x0=e.clientX
 			const jump=ev=>{ const r=ch.getBoundingClientRect(), f=clamp((ev.clientX-r.left)/r.width,0,1)
