@@ -169,9 +169,9 @@ body.himg #upfl{ display:none }
 .tfp .fcov{ display:flex; align-items:center; gap:var(--s2); align-self:center }   /* coverage threshold: slider + live readout — centred on the label's line (the row baseline-aligns text; a replaced slider baselines at its bottom and rode low) */
 .tfp .fcov .dual{ position:relative; flex:1; min-width:0; display:flex; align-items:center; --lo:0%; --hi:100% }   /* two thumbs, one hand-painted track: ink BETWEEN the thumbs, hair outside — the native progress fill (left-of-thumb) reads backwards for an interval */
 .tfp .fcov .dual input{ width:100%; margin:0; appearance:none; background:none; height:18px }
-.tfp .fcov .dual input::-webkit-slider-runnable-track{ height:1px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }   /* the panel's own hairline weight — a rule with two stops riding it */
-.tfp .fcov .dual input::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--ink); margin-top:-6.5px; cursor:pointer }
-.tfp .fcov .dual input::-moz-range-track{ height:1px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }
+.tfp .fcov .dual input::-webkit-slider-runnable-track{ height:5px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }   /* the header line's weight — a bar with two stops riding it */
+.tfp .fcov .dual input::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--ink); margin-top:-4.5px; cursor:pointer }
+.tfp .fcov .dual input::-moz-range-track{ height:5px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }
 .tfp .fcov .dual input::-moz-range-thumb{ width:14px; height:14px; border:0; border-radius:50%; background:var(--ink); cursor:pointer }
 .tfp .fcov .dual input::-moz-range-progress{ background:none }
 .tfp .fcov .dual input:last-child{ position:absolute; inset:0; pointer-events:none }
