@@ -170,9 +170,14 @@ function planeFS(s) {
 	const rt = !faithful ? '' : `
 		else {
 			${vt} bk;
-			if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
+			${meta[s]?.method === 'chromaticity' ? `// a chromaticity space discards luminance: its Y=100 convention overflows every
+			// display encoding, so the clamp below would MOVE every value and ghost the whole
+			// instrument — normalise the direction to peak first, then the round trip is fair
+			if (uGam == 1) { vec3 c0 = ${san(s)}_rgb(v); c0 *= 255.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = rgb_${san(s)}(clamp(c0, 0.0, 255.0)); }
+			else if (uGam == 2) { vec3 c0 = ${san(s)}_p3(v); c0 *= 1.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = p3_${san(s)}(clamp(c0, 0.0, 1.0)); }
+			else { vec3 c0 = ${san(s)}_rec2020(v); c0 *= 1.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = rec2020_${san(s)}(clamp(c0, 0.0, 1.0)); }` : `if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
 			else if (uGam == 2) bk = p3_${san(s)}(clamp(${san(s)}_p3(v), 0.0, 1.0));
-			else bk = rec2020_${san(s)}(clamp(${san(s)}_rec2020(v), 0.0, 1.0));
+			else bk = rec2020_${san(s)}(clamp(${san(s)}_rec2020(v), 0.0, 1.0));`}
 			for (int k = 0; k < ${d}; k++) {
 				float dq = abs(bk[k] - v[k]);
 				${hueK >= 0 ? `if (k == ${hueK}) dq = min(dq, SPAN[k] - dq);` : ''}
@@ -251,6 +256,12 @@ void main() {
 	// void. The gamut ghost applies only when a lens is selected.
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
+	${meta[s]?.method === 'chromaticity' ? `// a CHROMATICITY space discards luminance — the honest gamut question is whether the
+	// DIRECTION is displayable at any luminance: scale to peak (display lenses) and to the
+	// solid's mid-height (human lens) before the cuts, or the fixed Y=100 convention ghosts
+	// nearly the whole instrument (cct-duv read as broken)
+	lin /= max(max(lin.x, max(lin.y, lin.z)), 1e-6);
+	xyz *= 50.0 / max(xyz.y, 1e-4);` : ''}
 	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;${nativeRim}
 	// a chromaticity off the spectral locus is imaginary at ANY luminance – not a colour
 	// under ANY lens – so it VOIDS, always (not only under the human lens). Lab/OKLab/…
