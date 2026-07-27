@@ -115,7 +115,8 @@ body.himg #upfl{ display:none }
 .pstack{ display:flex; align-items:center; padding:0 3px 0 4px; isolation:isolate; cursor:default }
 /* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
    avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
-@media(pointer:coarse){ .cdw{ width:16px; height:28px } }
+@media(pointer:coarse){ .cdw{ width:16px; height:28px }
+	.ch .nrg,.bar2 .nrg{ display:none } }   /* iOS ranges drag only from the thumb (ours is invisible) — touch falls to the strip's own pointer path, which also ends the walk on first contact */
 /* the empty state: nothing has been picked, so the masthead offers the two ways IN rather
    than asserting a colour — the swatch, the value and the gamut tag all stay out of it. */
 .invite{ display:none; position:absolute; right:.5em; top:0; bottom:0; align-items:center; gap:var(--s2); white-space:nowrap; font-size:var(--t2); font-weight:600; color:var(--soft); pointer-events:none }   /* it OVERLAYS the value field rather than replacing it: the field stays live, so a colour can still be typed or pasted straight into the empty masthead */
@@ -221,7 +222,7 @@ body.himg #upfl{ display:none }
 	.fqa summary{ font-size:calc(var(--t2) + 1px); padding:var(--s3) 0 }   /* phone scale — the space names' size, --s3 of air */
 }
 /* themed tooltip bubble (js/tip.js upgrades every title) — inverts with the theme */
-#tip{ position:fixed; z-index:var(--z-tooltip); max-width:24rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:pre-line; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
+#tip{ position:fixed; left:0; top:0; z-index:var(--z-tooltip); max-width:24rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:pre-line; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
 #tip.on{ opacity:1; transform:none }
 #tip .tags{ display:flex; flex-wrap:wrap; gap:3px; margin-top:.4rem }   /* the card tip's tag row — the catalog's .tag recipe in the bubble's inverse palette */
 #tip .tags i{ font-style:normal; font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; line-height:1.1; padding:.18em .45em; background:color-mix(in oklab, var(--paper) 16%, transparent) }
