@@ -154,7 +154,8 @@ try {
 	await page.mouse.move(lr.x+lr.width*.42,lr.y+lr.height/2); await page.mouse.down(); await page.mouse.up(); await page.waitForTimeout(120)
 	const nameCentered=await lbar.evaluate((bar,target)=>{ const cv=bar.querySelector('.bgc'), d=cv.getContext('2d').getImageData(0,0,cv.width,1).data
 		const rgb=[1,3,5].map(i=>parseInt(target.slice(i,i+2),16)), at=x=>[d[x*4],d[x*4+1],d[x*4+2]].every((v,i)=>Math.abs(v-rgb[i])<=1)
-		const mf=parseFloat(bar.querySelector('.dk').style.left)/100*cv.width; let x=Math.max(0,Math.min(cv.width-1,Math.round(mf))), lo=x,hi=x
+		const nr=bar.querySelector('.nrg')   // the native thumb IS the marker — its value carries the snap fraction
+		const mf=(parseFloat(nr.value)-parseFloat(nr.min))/(parseFloat(nr.max)-parseFloat(nr.min))*cv.width; let x=Math.max(0,Math.min(cv.width-1,Math.round(mf))), lo=x,hi=x
 		if(!at(x)) return false; while(lo>0&&at(lo-1))lo--; while(hi<cv.width-1&&at(hi+1))hi++
 		return Math.abs(mf-(lo+hi+1)/2)<=2 },await page.locator('#cd').inputValue())
 	assert.equal(nameCentered,true,'palette slider marker settles at the visual region center')

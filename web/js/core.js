@@ -191,10 +191,43 @@ export function wheelCoord(cls, rgb) {
 	return { tone: v[cls.tone.i], chroma: Math.hypot(a, b), hue: h }
 }
 
-// ── generic 1-D channel gradient (sweep channel ci, hold the rest) → array of hex stops ──
-export function ramp(name, vals, ci, min, max, n = 12) {
-	const out = []
-	for (let t = 0; t <= n; t++) { const v = vals.slice(); v[ci] = min + (max - min) * t / n; out.push(hex(rgbOf(name, v))) }
+// per-value gamut alpha under a lens — the SAME laws the GPU kernel and plane() apply:
+// non-physical linear light voids, imaginary chromaticity voids, the human lens cuts by
+// the object-colour solid, a display lens ghosts real-but-undisplayable at 50%. Null
+// when the lens doesn't apply (off, rgb itself, no xyz path) — the sweep renders plain.
+export const lensFor = (name, gamut) => {
+	if (!gamut || gamut === 'off' || name === 'rgb') return null
+	const toXyz = space[name].xyz; if (!toXyz) return null
+	const vis = gamut === 'vis'
+	const gLin = space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[vis ? 'srgb' : gamut] || 'lrgb']
+	const PB = physBound(name)
+	// a chromaticity space discards luminance — the honest question is whether the
+	// DIRECTION is displayable at any luminance (the GPU kernel's normalisation)
+	const chrom = meta[name]?.method === 'chromaticity'
+	return v => { try {
+		let X = toXyz(...v), lin = gLin(...X)
+		if (chrom) { const pk = Math.max(lin[0], lin[1], lin[2], 1e-6); lin = lin.map(u => u / pk)
+			const t = 50 / Math.max(X[1], 1e-4); X = [X[0] * t, 50, X[2] * t] }
+		if (!lin.every(u => u > -4 && u < PB)) return 0
+		if (!visibleXYZ(...X)) return 0
+		if (vis) return inVisSolid(...X) ? 1 : 0
+		return lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
+	} catch { return 0 } }
+}
+// ── generic 1-D channel gradient (sweep channel ci, hold the rest) → array of hex stops;
+// with a gamut lens: hard SEGMENTS (color+position pairs) sampled at cell centres, carrying
+// the lens alpha — over a checker backdrop the string reads exactly like the GPU sweep:
+// vivid inside, 50% ghost outside, void where no colour lives ──
+export function ramp(name, vals, ci, min, max, n = 12, gamut = null) {
+	const out = [], lens = lensFor(name, gamut)
+	if (!lens) {
+		for (let t = 0; t <= n; t++) { const v = vals.slice(); v[ci] = min + (max - min) * t / n; out.push(hex(rgbOf(name, v))) }
+		return out
+	}
+	for (let t = 0; t < n; t++) { const v = vals.slice(); v[ci] = min + (max - min) * (t + 0.5) / n
+		const rgb = rgbOf(name, v), a = lens(v)
+		const col = a === 0 ? 'transparent' : a === 1 ? hex(rgb) : `rgba(${rgb[0]},${rgb[1]},${rgb[2]},.5)`
+		out.push(`${col} ${(t * 100 / n).toFixed(2)}% ${((t + 1) * 100 / n).toFixed(2)}%`) }
 	return out
 }
 // ── generic 2-D plane (sweep channels cx,cy) → ImageData painted into ctx ──

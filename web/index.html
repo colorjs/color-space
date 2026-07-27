@@ -119,8 +119,9 @@ body.himg #upfl{ display:none }
 	/* real iOS ignores the styled thumb for HIT TESTING (the 44px-pad experiment died on
 	   device) and never jumps on track taps — the native widget cannot serve touch here.
 	   Coarse pointers fall back to the strips' own pointer machinery: press anywhere,
-	   drag, capture, walk-stop — the mechanics that served mobile all along */
-	.ch .nrg,.bar2 .nrg{ display:none } }
+	   drag, capture, walk-stop. The input stays as the VISUAL: pointer-inert, its thumb
+	   tracking the value the strip's own drag writes */
+	.ch .nrg,.bar2 .nrg{ pointer-events:none } }
 /* the empty state: nothing has been picked, so the masthead offers the two ways IN rather
    than asserting a colour — the swatch, the value and the gamut tag all stay out of it. */
 .invite{ display:none; position:absolute; right:.5em; top:0; bottom:0; align-items:center; gap:var(--s2); white-space:nowrap; font-size:var(--t2); font-weight:600; color:var(--soft); pointer-events:none }   /* it OVERLAYS the value field rather than replacing it: the field stays live, so a colour can still be typed or pasted straight into the empty masthead */
@@ -336,6 +337,7 @@ body.himg #upfl{ display:none }
    they were invisible under the canvas yet still rastered every scrolled tile, which is
    what made scrolling crawl (p50 41ms). No observers, no containment, no second copy. */
 body.sgl .ent:not(.pop) .ch{ background:none !important }
+body.sgl .ent:not(.pop)[data-g="atlas"] .ch{ background:var(--checker) !important }   /* the atlas's voided spans (alpha 0) read as void, its ghosts read over the alpha grammar — same backdrop as the dossier bars; ONE shared pattern, not 478 unique sweeps, so scrolled tiles stay cheap */
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
@@ -381,15 +383,9 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 	.grid>.ent:nth-child(n+2),.sheet>.ent.lite,.gcol>.ent:not(:first-child):not(.lite),.gcol>.ent.lite{ padding-block:var(--space-3xs) }   /* the tap names set the row height — 2px padding puts rows on a 40px pitch, not 56 */
 	.cat .ent.pop{ --popot:10px } .ent.pop::before{ bottom:-10px }   /* the card surface still reads --s3 around the 2px rows */
 }
-@media(max-width:640px){   /* phones: a tapped secondary row raises its sliders as a bottom sheet — the raised row card marks the source, the column never reflows */
-	body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ position:fixed; left:0; right:0; bottom:0; z-index:var(--z-dropdown); margin:0; padding:var(--s2) 1rem calc(var(--s2) + env(safe-area-inset-bottom)); background:var(--paper); box-shadow:0 -.5rem 1.6rem oklch(0 0 0/.14) }
-	body:not(.alls) .ent.lite.pop,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child){ margin-bottom:0 }   /* the sheet is out of flow — no unfolded height to compensate */
-	body:not(.alls) .cat .ent.pop::before{ display:none }   /* no raised card around the focused row — the rising sheet is signal enough */
-}
-@media(max-width:640px) and (prefers-reduced-motion:no-preference){
-	body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ transition:transform var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete }
-	@starting-style{ body:not(.alls) .ent.lite.pop .chs,body:not(.alls) .cat .gcol>.ent.pop:not(:first-child) .chs{ transform:translateY(100%) } }   /* rises like the filter sheet did */
-}
+/* phones once raised a tapped row's sliders as a bottom sheet — retired: the numeric
+   keyboard (channel inputs) shrank the viewport and the fixed sheet drifted away from its
+   row. The in-card unfold above serves every width; the keyboard just pushes the page. */
 /* hover keeps the atlas flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
@@ -416,16 +412,28 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:pan-y; background:var(--panel); user-select:none }   /* pan-y, not none: a vertical swipe on a strip must scroll the page, and iOS only streams horizontal pointermove reliably under pan-y */
-/* every strip and bar rides a NATIVE range as the INPUT DEVICE — its thumb invisible;
-   the .tk/.dk div stays the one visual (the token itself, not a copy). The input
-   overhangs ±4px (half a thumb) so the native thumb-inset mapping lands values exactly
-   at the edges. */
-.ch .nrg,.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3 }
+/* every strip and bar rides a NATIVE range: input device AND visual in one — the browser
+   owns the thumb, so a native drag never pays a JS frame for its own marker. The thumb IS
+   the catalog's 8px rhombus (rotate 45°), coloured by the --tkc/--tki pair stamped once
+   per frame on #cat/#detail (the prerender bakes boot colours inline per input; hydration
+   clears them). The input overhangs ±4px (half a thumb) so the native thumb-inset mapping
+   lands values exactly at the edges. --tks flips 8→10px on attention (hover/live). */
+.ch .nrg,.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3; --tks:8px }
 .ch .nrg::-webkit-slider-runnable-track,.bar2 .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
-.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:8px; height:8px; opacity:0 }
+.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:var(--tks); height:var(--tks); margin-top:calc((var(--ctl) - var(--tks)) / 2); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin var(--dur-micro) var(--ease-out) }
 .ch .nrg::-moz-range-track,.bar2 .nrg::-moz-range-track{ background:transparent; border:0 }
-.ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:8px; height:8px; opacity:0; border:0 }
-.ch .tk{ position:absolute; left:0; top:50%; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; background:var(--tkc,transparent); border-color:var(--tki,transparent); z-index:2; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the mark takes the pointer (its own hover engages it — a whole-slider hover lit the picker from across the row); a press still falls through to the strip's drag. left stays 0 — JS positions via transform (a left write lays out and repaints the strip beneath, ×60 rows per drag frame). Colors ride TWO custom props set once per frame on #cat — per-tick style writes were a steady slice of the drag's GC churn */
+.ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:var(--tks); height:var(--tks); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
+/* attention: the thumb grows a step and wears the steady outline pair — a ring in its own
+   ink with the equal-weight inverse twin outside, as concentric box-shadows (a pseudo
+   can't grow pseudos of its own); they rotate with the thumb's box */
+.ch:hover .nrg,.ch.live .nrg,.bar2:hover .nrg,.bar2.live .nrg{ --tks:10px }
+.ch:hover .nrg::-webkit-slider-thumb,.ch.live .nrg::-webkit-slider-thumb,.bar2:hover .nrg::-webkit-slider-thumb,.bar2.live .nrg::-webkit-slider-thumb{ box-shadow:0 0 0 1.2px var(--tki,transparent),0 0 0 2.3px var(--tkv,transparent) }
+.ch:hover .nrg::-moz-range-thumb,.ch.live .nrg::-moz-range-thumb,.bar2:hover .nrg::-moz-range-thumb,.bar2.live .nrg::-moz-range-thumb{ box-shadow:0 0 0 1.2px var(--tki,transparent),0 0 0 2.3px var(--tkv,transparent) }
+/* one at a time — the pointer outranks the focused channel */
+.chs:has(.ch:hover) .ch.live:not(:hover) .nrg,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg{ --tks:8px }
+.chs:has(.ch:hover) .ch.live:not(:hover) .nrg::-webkit-slider-thumb,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg::-webkit-slider-thumb{ box-shadow:none }
+.chs:has(.ch:hover) .ch.live:not(:hover) .nrg::-moz-range-thumb,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg::-moz-range-thumb{ box-shadow:none }
+.ch.noval .nrg::-webkit-slider-thumb{ visibility:hidden } .ch.noval .nrg::-moz-range-thumb{ visibility:hidden }   /* a row whose conversion failed asserts no position */
 /* the strip's DATA LANE — a band along the bottom edge carrying what the slice itself
    can't say, always drawn in the picker's own ink so it reads on any color: today the
    OTHER palette stops' coordinates as ruler ticks (a press selects that stop AND hands
@@ -448,20 +456,16 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .rh i{ position:absolute; top:50%; width:8px; height:8px; transform:translateY(-50%) rotate(45deg); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent) }
 .rh.rlo{ transform:translate(-100%,-50%) } .rh.rlo i{ right:-5.5px }
 .rh.rhi{ transform:translate(0,-50%) } .rh.rhi i{ left:-5.5px }
-.ch.ranged .tk{ display:none!important }   /* the picker IS the two halves while its range lives */
+.ch.ranged .nrg::-webkit-slider-thumb{ visibility:hidden } .ch.ranged .nrg::-moz-range-thumb{ visibility:hidden }   /* the picker IS the two halves while its range lives */
 .ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:21px; z-index:1; pointer-events:none; overflow:visible }   /* width EXPLICIT: an absolutely positioned svg is a replaced element — left/right alone leave it at its intrinsic (square) size. INTEGER height: a fractional box bottom opens a sub-pixel hairline under the fill */
 .ch .hist,.bar2 .hist{ display:block; background:var(--tki,var(--ink)); -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }   /* the mask carries shape and fade; the background carries the picker's ink */
 /* attention: the marker grows a step and wears a steady outline pair hugging its border —
    a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
    on any field — under the pointer, while its channel drives, and through the drag */
-.ch .tk::after,.bar2 .dk::after,.pl .cx::after,.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }
-.ch .tk::before,.bar2 .dk::before,.pl .cx::before{ inset:-2.3px; filter:invert(1) }   /* 0.1px under the after-ring — rotated borders AA-seam at exact adjacency on some densities */
-.ch:hover .tk,.ch.live .tk,.bar2:hover .dk,.bar2.live .dk,.pl:hover .cx,.pl.live .cx{ width:10px; height:10px }
-.ch:hover .tk::after,.ch.live .tk::after,.bar2:hover .dk::after,.bar2.live .dk::after,.pl:hover .cx::after,.pl.live .cx::after,
-.ch:hover .tk::before,.ch.live .tk::before,.bar2:hover .dk::before,.bar2.live .dk::before,.pl:hover .cx::before,.pl.live .cx::before{ opacity:1 }
-.chs:has(.ch:hover) .ch.live:not(:hover) .tk,.pick:has(.bar2:hover) .bar2.live:not(:hover) .dk{ width:8px; height:8px }
-.chs:has(.ch:hover) .ch.live:not(:hover) .tk::after,.pick:has(.bar2:hover) .bar2.live:not(:hover) .dk::after,
-.chs:has(.ch:hover) .ch.live:not(:hover) .tk::before,.pick:has(.bar2:hover) .bar2.live:not(:hover) .dk::before{ opacity:0 }   /* one at a time — the pointer outranks the focused channel */
+.pl .cx::after,.pl .cx::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }   /* the planes' marker keeps the div pair — it has no native widget to inherit */
+.pl .cx::before{ inset:-2.3px; filter:invert(1) }   /* 0.1px under the after-ring — rotated borders AA-seam at exact adjacency on some densities */
+.pl:hover .cx,.pl.live .cx{ width:10px; height:10px }
+.pl:hover .cx::after,.pl.live .cx::after,.pl:hover .cx::before,.pl.live .cx::before{ opacity:1 }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -577,7 +581,6 @@ body.sgl #stripgl{ display:block }
 .bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
-.bar2 .dk{ position:absolute; top:50%; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* the picker rides above the label and number — the catalog's 8px rhombus; its outline pair lives with .tk's */
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(var(--s4),3vw,var(--s8)); align-items:start; margin:var(--s2) 0 var(--s8) }
@@ -633,7 +636,7 @@ body.sgl #stripgl{ display:block }
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
-.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* same rhombus as the sliders — rides above the axis labels; wears the sliders' attention pair (see .tk) */
+.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* same rhombus as the sliders' thumbs — rides above the axis labels; wears the attention ring pair above */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -1945,11 +1948,17 @@ const CSSFMT={
 let BASE=location.pathname.replace(/index\.html$/,'')
 { const m=BASE.match(/([^/]+?)(?:\.html)?\/?$/), seg=m&&m[1]; if(seg&&SPACES.includes(seg)) BASE=BASE.slice(0,m.index) }   // /<space> on Pages, /<space>.html on plain file servers — both are the atlas document
 const spaceURL=s=>BASE+(s||'')
+// a hash is user-shareable text, not trusted encoding: legacy links carry RAW %-signs
+// (lch(32.39% …) written before the writer escaped them) that make decodeURIComponent
+// THROW — and a top-level throw here kills the whole module, leaving a dead page.
+// Lone %s (no hex pair behind them) re-escape first; a decode that still fails returns
+// the string as-is — a wrong color must never cost the boot.
+const dec=x=>{ x=x.replace(/%(?![0-9a-fA-F]{2})/g,'%25'); try{ return decodeURIComponent(x) }catch{ return x } }
 // snapshot the arrival url before the first render's syncURL rewrites it
-const BOOT={ hash:decodeURIComponent(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1], sw:new URLSearchParams(location.search).has('sw') }   // sw read HERE, not at the sw block: on name views openModal's replaceState strips ?sw before that block evaluates – reading live search unregistered the worker on every direct ?sw route
+const BOOT={ hash:dec(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1], sw:new URLSearchParams(location.search).has('sw') }   // sw read HERE, not at the sw block: on name views openModal's replaceState strips ?sw before that block evaluates – reading live search unregistered the worker on every direct ?sw route
 let urlT=performance.now(), urlLast=''   // seeded, not 0: the boot renderFast runs before route() parses the arrival hash — the throttle absorbs it, so a shared palette URL is never clobbered by the default stamp
-const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the chosen notation – hex stays the bare-hex canon, every other FMT serializes as its own function syntax (spaces pre-encoded; parens are fragment-legal)
-	return FMT==='hex'?hx.slice(1):fmtAs(FMT,hx).replace(/ /g,'%20') }
+const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the chosen notation – hex stays the bare-hex canon, every other FMT serializes as its own function syntax (spaces AND the lch/lab %-signs pre-encoded; parens are fragment-legal)
+	return FMT==='hex'?hx.slice(1):fmtAs(FMT,hx).replace(/%/g,'%25').replace(/ /g,'%20') }
 function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
 	const u=spaceURL(open()?selected:'')+'#'+urlHash()
 	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
@@ -2231,7 +2240,6 @@ cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) retu
 	renderFast(); dragEnt=null
 	scheduleFast(); if(open()) paintPlanes(false) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
-measureCh()   // strip widths in one layout pass — the tick transforms read only this cache
 cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
 cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
 const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
@@ -2615,6 +2623,12 @@ const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly'
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which
 // the always-drawn range cage already frames. (Legacy 'off' collapses to srgb default.)
 let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'srgb'
+// the lens a channel SWEEP renders under — one rule for the dossier bars, the card
+// popover and the catalog atlas, so the same channel never shows two different reaches.
+// A 1-channel locus: under a display lens the all-out ghosting IS its definition; under
+// the human lens it is all-in by definition – and the discretized solid would wrongly
+// fail its own rim.
+const gmFor=cls=>cls.ch.length>1?GM:GM==='vis'?'off':GM
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
 // the human lens asks a different question than a display gamut: not "can this screen
 // show it" but "is this a colour at all" — the spectral locus, the same law the planes,
@@ -3729,7 +3743,7 @@ ${gLegend}">?</span></div>`
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
-		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${cname(c)} slider"><div class="dk"></div></div>` }
+		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${cname(c)} slider"></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}" title="${GAMTITLE[g]}">${GAMLABEL[g]}</span>`).join('')}<span class="gpill gt gwarn" data-g="clip" title="${GAMTITLE.clip}">⚠</span></span></div>`
 	const plotPairs=pairsFor(s)
@@ -4502,7 +4516,7 @@ const sglCapture=()=>{ const jobs=[], dpr=SDPR
 			// browser rasterizes the strip it covers, and neighbours tile without a seam
 			const x0=Math.round(r.left*dpr), x1=Math.round(r.right*dpr)
 			const y0=Math.round(y*dpr), y1=Math.round((y+r.height)*dpr)
-			jobs.push({ s, i, ri:[c.min,c.max], x:x0, y:y0, w:x1-x0, h:y1-y0 }) }) }
+			jobs.push({ s, i, ri:[c.min,c.max], gam:gmFor(cls), x:x0, y:y0, w:x1-x0, h:y1-y0 }) }) }
 	jobs.sort((a,b)=>a.s<b.s?-1:a.s>b.s?1:0)   // grouped by space – fewer program switches
 	sglJobs=jobs }
 const sglVals=jobs=>{ const vcache={}, out=[]
@@ -4521,7 +4535,7 @@ const paintPop=()=>{ const ent=popEnt; if(!ent) return   // the focused card's o
 	const cls=classify(s), vals=valsFor(s); if(!vals) return
 	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
 		const cv=ch._bgc||(ch._bgc=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1})))
-		paintBarGL(cv,s,vals,i,[c.min,c.max],null) }) }
+		paintBarGL(cv,s,vals,i,[c.min,c.max],gmFor(cls)) }) }
 const sglFrame=()=>{ if(!sglCv) return   // MOTION: the on-screen slice only – and vals convert ONLY for spaces actually drawn (the band holds ~3× more, some with iterative inverses)
 	if(!sglJobs){ sglSettle(); return }   // no capture yet (or band moved) – the full pass establishes the canvas first
 	// the same SNAPPED scroll the compositor uses – scrollY itself can be fractional
@@ -4570,20 +4584,20 @@ onLoad(()=>setTimeout(()=>{
 function paintCatalogGrad(ents){ const hx=hex(RGB()), sweep=!ents
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) carries its slider popover
-		if(planeGLStatus(s)==='ready'){ if(ent.dataset.g!=='atlas'){ ent.dataset.g='atlas'   // the atlas owns this row: its base becomes the checker, so the shader's voided spans (alpha 0) read as void – same grammar as the dossier bars
-			ent.querySelectorAll('.ch').forEach(ch=>{ ch.style.background='var(--checker)' }) } return }
-		const gkey=s===master.s?master.vals.join():hx   // the master's own row keys on master.vals – its sweeps are finer than the 8-bit hex
-		if(ent.dataset.g===gkey+':0') return   // fallback already current for this exact color
-		const cls=classify(s), vals=valsFor(s)
+		if(planeGLStatus(s)==='ready'){ if(ent.dataset.g!=='atlas'){ ent.dataset.g='atlas'   // the atlas owns this row: the [data-g=atlas] CSS rule swaps its base to the checker – inline sweeps just release
+			ent.querySelectorAll('.ch').forEach(ch=>{ if(ch.style.background) ch.style.background='' }) } return }
+		const cls=classify(s)
+		const gkey=(s===master.s?master.vals.join():hx)+':0:'+gmFor(cls)   // the master's own row keys on master.vals – its sweeps are finer than the 8-bit hex; the lens keys too (a gamut switch re-bakes)
+		if(ent.dataset.g===gkey) return   // fallback already current for this exact color
+		const vals=valsFor(s)
 		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-			ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,8).join(',')})` })
-		ent.dataset.g=gkey+':0' }) }
+			ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,48,gmFor(cls)).join(',')}), var(--checker)` })
+		ent.dataset.g=gkey }) }
 // per-entry value inputs + tick markers – the same subset discipline as the gradients
 // one batched layout read for every strip's width – the per-frame tick transform must never
 // read layout itself (an interleaved clientWidth per row forces a layout per visible row).
 // Boot layout settles late (columns, fonts) – a wireCat-time measure can catch the
 // pre-column full-row width, so the same settle points layoutToc trusts re-measure here.
-function measureCh(){ cat.querySelectorAll('.ent .ch').forEach(c=>{ c._w=c.clientWidth||null }) }
 // strips BREATHE: field-sizing lets a value's digit count reflow its row mid-drag (a limit
 // turns 47 into -112, the input widens, the strip shifts) – and atlas rects captured before
 // the reflow paint strips where they USED to be. The observer's entries arrive post-layout
@@ -4597,9 +4611,14 @@ const chRO=new ResizeObserver(es=>{ let moved=false
 	sglVoid(); paintCatalogVals()
 	if(open()) return
 	if(PDOWN) sglFrame(); else sglSettle() })
+// every mark's colors – the picker's fill, its ink, that ink's inverse – three writes per
+// frame for a whole surface's thumbs; the dossier stamps ITS root from renderFast (the
+// catalog sweep sleeps behind an open dossier, so it can't carry the detail's colors)
+const detailTk=(hx,ink0)=>{ if(detail._tk===hx) return; detail._tk=hx
+	detail.style.setProperty('--tkc',hx); detail.style.setProperty('--tki',ink0); detail.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
 function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
 	if(cat._tk!==hx){ cat._tk=hx; cat.style.setProperty('--tkc',hx); cat.style.setProperty('--tki',ink0); cat.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
-	if(detail&&detail._tk!==hx){ detail._tk=hx; detail.style.setProperty('--tki',ink0); detail.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }   // the dossier's lane inherits from its own root   // every mark's colors – the picker's fill, its ink, that ink's inverse – three writes per frame for the whole catalog
+	if(detail) detailTk(hx,ink0)   // the dossier's lane and bar thumbs keep the same colors when a catalog paint moves the master
 	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
 		// every NEAR-SCREEN row's values and ticks track the drag live (a conversion per row —
 		// cheap; the hex stamp below already coalesces no-change frames); offscreen rows are
@@ -4642,19 +4661,12 @@ function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sw
 				ch._rlo.style.display=ch._rhi.style.display=br?'':'none'
 				if(br){ rg.style.setProperty('--rlo',(br.lo*100).toFixed(2)+'%'); rg.style.setProperty('--rhi',(br.hi*100).toFixed(2)+'%')
 					ch._rlo.style.left=(br.lo*100).toFixed(2)+'%'; ch._rhi.style.left=(br.hi*100).toFixed(2)+'%' } }
-			const tk=ch.querySelector('.tk'), disp=vals?'':'none'
-			if(tk.style.display!==disp) tk.style.display=disp   // same-string style sets still churn CSSOM values
-			// transform, never left: a left write lays out and repaints the strip under the tick —
-			// across 60 visible rows per drag frame that repaint WAS the catalog's frame budget.
-			// Widths come from one batched measure (measureCh) so no frame reads layout.
-			// Colors live in --tkc/--tki on #cat (one write per frame for ALL ticks, below).
-			if(vals){ const f=clamp((vals[i]-c.min)/(c.max-c.min),0,1), w=ch._w??=ch.clientWidth||null
-				if(w){ if(tk.style.left) tk.style.left=''   // the prerender positions ticks by left:% and inline colors (it can't know widths or carry vars) – inline must not shadow ours
-					if(tk.style.background) tk.style.background=''; if(tk.style.borderColor) tk.style.borderColor=''
-					tk.style.transform=`translate(calc(${(f*w).toFixed(1)}px - 50%),-50%) rotate(45deg)` }
-				const nr=ch._nrg??=ch.querySelector('.nrg')   // the native thumb tracks every master change – except its own live drag (writing .value mid-drag stalls the native gesture)
+			// the NATIVE thumb is the tick: one .value write moves it — the browser lays out
+			// nothing else, colors ride --tkc/--tki on #cat (one write per frame for ALL ticks)
+			ch.classList.toggle('noval',!vals)
+			if(vals){ const nr=ch._nrg??=ch.querySelector('.nrg')   // tracks every master change – except its own HELD drag (writing .value mid-gesture stalls it); focused-at-rest still syncs
 				if(nr){ if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }   // the prerender's inline boot colours must not shadow the live #cat vars
-					if(document.activeElement!==nr) nr.value=vals[i] } } }) }) }
+					if(!(PDOWN&&document.activeElement===nr)) nr.value=vals[i] } } }) }) }
 function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
@@ -4673,6 +4685,7 @@ function renderFast(solid=true){
 	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
 	if(!open()) paintCatalogVals()   // all vis entries – the color changed; behind an open dossier the catalog waits (closeModal repaints)
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
+	detailTk(hx,ink(rgb))   // the dossier's own frame keeps its thumbs and lanes in the current color
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const shown=vals
 	// the record speaks exact values: valsFor clamps into the instrument's ranges, so every
@@ -4682,7 +4695,7 @@ function renderFast(solid=true){
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	const barGL=planeGLStatus(s)==='ready'
-	const barGM=cls.ch.length>1?GM:GM==='vis'?'off':GM   // a 1-channel locus: under a display lens the all-out ghosting IS its definition; under the human lens it is all-in by definition – and the discretized solid would wrongly fail its own rim
+	const barGM=gmFor(cls)   // the one sweep-lens rule — see gmFor
 	const hpb=HIMG?histC.get(s):null
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
 		// the image's distribution, in the dossier's own lane – same curve as the catalog's
@@ -4705,25 +4718,18 @@ function renderFast(solid=true){
 				bgc.style.display='none'
 				if(typeof Q==='number'){ const cells=Array.from({length:Q},(_,k)=>{ const v=shown.slice(); v[i]=c.min+(c.max-c.min)*(k+.5)/Q; return hex(rgbF(s,v)) }); bg=stepped(cells) }
 				else if(qTriple(Q)) bg=qBarGradient(s,shown,i,c,qTriple(Q))
-				else bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,19).join(',')})`
-			// the gamut lens on the sweep: outside spans ghost to 50% over the checkerboard,
-			// exactly like the plots – skipped in cluster modes (their cells are real colors)
+				// the lens rides IN the ramp (ghost alpha, void transparency) over the bar's
+				// checker – the same segments the prerendered catalog bakes; cluster modes
+				// skip it (their cells are real colors)
+				else bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,48,barGM).join(',')})`
 			bgel.style.backgroundImage=bg
-			let mask=''
-			if(barGM!=='off'&&s!=='rgb'&&space[s].xyz&&!qTriple(Q)){ const N=48, st=[]
-				for(let k2=0;k2<=N;k2++){ const vv=cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*k2/N:shown[j])
-					st.push(inGam(s,vv)) }
-				if(st.some(x=>!x)){   // any outside ghosts – including the WHOLE bar when the held color is out of gamut
-					const seg=(k2,col)=>`${col} ${(k2/(N+1)*100).toFixed(1)}% ${((k2+1)/(N+1)*100).toFixed(1)}%`
-					mask=`linear-gradient(90deg, ${st.map((on,k2)=>seg(k2,on?'#000':'rgba(0,0,0,.5)')).join(',')})` } }
-			bgel.style.webkitMaskImage=bgel.style.maskImage=mask||'none' } }
+			bgel.style.webkitMaskImage=bgel.style.maskImage='none' } }
 		const inkAt=f=>ink(rgbF(s,cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*f:shown[j])))   // legible ink over the sweep at fraction f
 		const loInk=inkAt(0)
 		bar.querySelector('.cnm').style.color=loInk
 		bar.querySelector('.sv.lo').style.color=loInk
 		bar.querySelector('.sv.md').style.color=inkAt(.5)
 		bar.querySelector('.sv.hi').style.color=inkAt(1)
-		const dk=bar.querySelector('.dk')
 		let mf=clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		const qf=qTriple(Q)
 		if(qf&&bar!==dragBar){ const target=byteRGB(qf(rgb)), held=shown.map((v,j)=>j===i?'':v).join(','), key=`${Q}|${target.join(',')}|${held}`
@@ -4733,10 +4739,11 @@ function renderFast(solid=true){
 				else{ const hit=qBarRuns(s,shown,i,c,qf).filter(r=>sameRGB(r.rgb,target)).sort((a,b)=>Math.abs((a.lo+a.hi)/(2*QBARN)-anchor)-Math.abs((b.lo+b.hi)/(2*QBARN)-anchor))[0]; if(hit) mf=(hit.lo+hit.hi)/(2*QBARN) }
 				bar._snapKey=key; bar._snapF=mf; bar._snapHint=null } }
 		else if(!qf){ bar._snapKey=bar._snapF=bar._snapHint=null }
-		dk.style.left=(mf*100)+'%'
-		dk.style.background=hx; dk.style.borderColor=ink(rgb)
-		const nr=bar._nrg??=bar.querySelector('.nrg')   // the input's value syncs at REST only (see the catalog twin)
-		if(nr&&!PDOWN&&!VIRGIN&&document.activeElement!==nr) nr.value=shown[i] })
+		// the native thumb IS the picker mark — cluster snaps land through the same value.
+		// Skip only a HELD drag on this very input (writing .value mid-gesture stalls it);
+		// a focused-but-released input must still take the settle (the snap-to-center write)
+		const nr=bar._nrg??=bar.querySelector('.nrg')
+		if(nr&&!(PDOWN&&document.activeElement===nr)) nr.value=c.min+mf*(c.max-c.min) })
 	// the big value inputs above the sliders – value, step limits
 	detail.querySelectorAll('#bigch .bch').forEach(el=>{ const i=+el.dataset.i, c=cls.ch[i]
 		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing – the focused channel tracks its slider live
@@ -4995,13 +5002,14 @@ cat.addEventListener('click',e=>{ const c=e.target.closest('.ent.barred'); if(!c
 // A bare #space hash stays as the dossier's internal anchor channel (lineage/see-also/FAQ
 // links) – syncURL rewrites it to the canonical path immediately; ?s=<space> is the 404 bounce
 const known=x=>SPACES.includes(x)||isBarred(x)   // a slug the modal can open: real space or proprietary card
-const route=e=>{ const h=e?decodeURIComponent(location.hash.slice(1)):BOOT.hash   // boot reads the arrival snapshot
+const route=e=>{ const h=e?dec(location.hash.slice(1)):BOOT.hash   // boot reads the arrival snapshot
 	const qs=e?null:BOOT.q, pseg=e?null:BOOT.seg
 	const slug=known(h)?h:known(qs)?qs:known(pseg)?pseg:null
 	if(/^[0-9a-fA-F]{6}$/.test(h)){ master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)) }; if(FMT!=='hex') setFmt('hex') }
 	else if(/^[0-9a-fA-F]{6}(,[0-9a-fA-F]{6})+$/.test(h)){   // an old comma-joined palette hash: the first color leads
 		const x=h.split(',')[0]; master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(x.slice(i,i+2),16)) } }
-	else if(h){ const p=parseColor(h); if(p){ master=p   // a notation hash – #oklch(0.73 0.19 53), #rgb(255 128 0), #color(xyz-d65 …): color and notation travel in ONE string, urlHash writes the same form back
+	else if(h){ let p=null; try{ p=parseColor(h) }catch{}   // hostile/garbled hashes parse to nothing, never to a dead page
+		if(p){ master=p   // a notation hash – #oklch(0.73 0.19 53), #rgb(255 128 0), #color(xyz-d65 …): color and notation travel in ONE string, urlHash writes the same form back
 		const fn=h.match(/^([a-z][a-z0-9-]*)\(/)?.[1]
 		const f=fn==='color'?(/^color\(\s*display-p3\b/.test(h)?'p3':null):(FMTL.includes(fn)?fn:null)
 		if(f&&f!==FMT) setFmt(f) } }

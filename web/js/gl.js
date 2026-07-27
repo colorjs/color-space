@@ -587,7 +587,7 @@ export function paintStripsGL(w, h, jobs, yOff = 0, q = 1) {
 		if (!st.pr || st.bad || st.pending) continue
 		G.viewport(x, y, jw, jh)
 		G.scissor(x, y, jw, jh)
-		kernelDraw(st, jw, jh, j.vals, j.i, -1, j.ri, [0, 0], null, 0, 0, 0, undefined, x, y)
+		kernelDraw(st, jw, jh, j.vals, j.i, -1, j.ri, [0, 0], j.gam ?? null, 0, 0, 0, undefined, x, y)
 		n++
 	}
 	G.disable(G.SCISSOR_TEST)
