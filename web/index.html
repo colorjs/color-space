@@ -4800,18 +4800,22 @@ function scheduleCatalogSecondary(){ const active=open()?null:activeCatalogEnt()
 function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
-	// the color's public face: masthead diamond + value, favicon, url
-	if(cdEl&&document.activeElement!==cdEl) cdEl.value=hx.toLowerCase()
-	if(cdwEl&&cdwEl._hx!==hx){ cdwEl._hx=hx; cdwEl.style.setProperty('--sw',hx); cdwEl.style.setProperty('--swk',ink(rgb)) }   // the slot's swatch + its tick-pair ring track the current color
+	// the color's public face: masthead diamond + value, favicon. Under a palette-class
+	// lens the face speaks the SNAPPED color – the entry every strip shows and the chip
+	// names – while master (and the URL) keeps the exact slider coordinate. Numeric
+	// lattices quantize master itself on release, so raw already matches there.
+	const qf2=qTriple(Q), frgb=qf2?byteRGB(qf2(rgb)):rgb, fx=qf2?hex(frgb):hx
+	if(cdEl&&document.activeElement!==cdEl) cdEl.value=fx.toLowerCase()
+	if(cdwEl&&cdwEl._hx!==fx){ cdwEl._hx=fx; cdwEl.style.setProperty('--sw',fx); cdwEl.style.setProperty('--swk',ink(frgb)) }   // the slot's swatch + its tick-pair ring track the current color
 	// the untouched boot color stays an invitation (placeholder), not an asserted value —
 	// reference AND values: the default space's own sliders mutate master in place
 	const mj=master.vals.join()
 	const virgin=!BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(autoColor&&mj===autoJ))
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the masthead offers the two doors instead of a value
-	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(hx)
-	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // a value-shaped hint in the chosen format, never an asserted value
-	if(!virgin&&!PDOWN){ syncFav(hx); syncURL(hx) }
+	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(fx)
+	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value
+	if(!virgin&&!PDOWN){ syncFav(fx); syncURL(hx) }   // the favicon wears the face; the URL keeps the exact coordinate
 	if(gpillEl&&!PDOWN){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
 	if(palmEl){ const on=PALMODES.has(Q)&&!virgin   // live through drags – the address should follow the hand
 		palmEl.hidden=!on
