@@ -232,7 +232,7 @@ export const lensFor = (name, gamut) => {
 		if (!lin.every(u => u > -4 && u < PB)) return 0
 		if (spectral) return vis || !disp || lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
 		if (!visibleXYZ(...X)) return 0
-		if (vis) return inVisSolid(...X) ? 1 : 0
+		if (vis) return inVisSolid(...X) ? 1 : 0.5   // beyond the surface solid yet real – the limit ghosts, only non-colors void
 		if (disp) return lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
 		return 1
 	} catch { return 0 } }
@@ -315,7 +315,7 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		if (gLin) { try { const X = toXyz(...v), lin = gLin(...X)
 			if (!lin.every(u => u > -4 && u < PB)) a = 0
 			else if (!visibleXYZ(...X)) a = 0   // imaginary chromaticity: not a colour at any luminance, under ANY lens or render mode
-			else if (vis && !inVisSolid(...X)) a = 0   // the human lens cuts by the SOLID the 3D view draws
+			else if (vis && !inVisSolid(...X)) a = 128   // beyond the SURFACE solid yet real – the limit ghosts, like every display lens
 			else if (lens && !vis && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)

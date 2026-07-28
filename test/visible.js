@@ -80,7 +80,7 @@ test('sliders: sparse colour guides cannot hide measured or disjoint validity sp
 	// These hue sweeps contain validity islands narrower than one 8-guide cell. The
 	// colour approximation may stay sparse, but its independent validity scan may not.
 	is(hard(ramp('munsell', [50, 6.3, 15.4], 0, 0, 100, 8, 'vis')).length >= 4, true, 'Munsell H keeps every narrow prohibited interval')
-	is(hard(ramp('tsl', [45, .63, 107], 0, 0, 360, 8, 'vis')).length, 4, 'TSL T keeps both disjoint valid lobes')
+	is(hard(ramp('tsl', [45, .63, 107], 0, 0, 360, 8, 'vis')).length >= 4, true, 'TSL T keeps both disjoint valid lobes')   // ≥: the surface lens now GHOSTS beyond the solid, adding legitimate vivid↔ghost edges around the void pair
 })
 
 // The limits are a property of the COORDINATE, not the render mode: a palette cell is a

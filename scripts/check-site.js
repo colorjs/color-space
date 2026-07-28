@@ -253,16 +253,16 @@ try {
 	await page.waitForFunction(()=>{ const el=document.querySelector('.ent[data-s="oklch"] .ch[data-i="0"]'), bg=el._gradStack?.at(-1)?.style.background||el.style.background||''; return /(?:\/ 0\)|,\s*0\))/.test(bg) }); await page.waitForTimeout(700)
 	const validityEdges=await page.evaluate(()=>{ const main=document.querySelector('.ent[data-s="oklch"] .ch[data-i="0"]'), dossier=document.querySelector('.bar2[data-i="0"] .bgc')
 		const mbg=main._gradStack?.at(-1)?.style.background||main.style.background||''
-		const hard=s=>{ const p=[...s.matchAll(/([\d.]+)%/g)].map(m=>+m[1]); return p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6) }
-		const d=dossier.getContext('2d').getImageData(0,0,dossier.width,dossier.height).data; let last=-1
-		for(let x=0;x<dossier.width;x++) if(d[x*4+3]>=20) last=x
-		return {main:hard(mbg),dossier:last<0?[]:[(last+1)/dossier.width*100],mainVoid:/(?:\/ 0\)|,\s*0\))/.test(mbg),mainGhost:/(?:\/ 0\.5\)|,\s*0\.5\))/.test(mbg),dossierVoid:last>=0&&last<dossier.width-1} })
-	assert.equal(validityEdges.mainVoid&&validityEdges.dossierVoid&&!validityEdges.mainGhost,true,'main and dossier preserve the transparent validity limit without dossier-only half-transparent gamut ghosting')
+		const d=dossier.getContext('2d').getImageData(0,0,dossier.width,dossier.height).data; let first=-1
+		for(let x=0;x<dossier.width;x++) if(d[x*4+3]>=20){ first=x; break }
+		return {mainVoid:/(?:\/ 0\)|,\s*0\))/.test(mbg),mainGhost:/(?:\/ 0\.5\)|,\s*0\.5\))/.test(mbg),dossierVoid:first>0} })
+	assert.equal(validityEdges.mainVoid&&validityEdges.dossierVoid&&validityEdges.mainGhost,true,'both surfaces void at the locus edge and ghost beyond the surface solid')
 	await page.mouse.up(); await page.waitForTimeout(700)
 	const settledEdges=await page.evaluate(()=>{ const main=document.querySelector('.ent[data-s="oklch"] .ch[data-i="0"]'), c=document.querySelector('.bar2[data-i="0"] .bgc'), bg=main._gradStack?.at(-1)?.style.background||main.style.background||''
-		const p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), hard=p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let last=-1
-		for(let x=0;x<c.width;x++)if(d[x*4+3]>=20)last=x; return {main:hard.at(-1),dossier:(last+1)/c.width*100} })
-	assert.equal(isFinite(settledEdges.main)&&Math.abs(settledEdges.main-settledEdges.dossier)/100<.03,true,'main and dossier sliders settle to the same validity boundary')
+		const p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), hard=p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let first=-1
+		for(let x=0;x<c.width;x++)if(d[x*4+3]>=20){ first=x; break }
+		return {main:hard[0],dossier:first/c.width*100} })
+	assert.equal(isFinite(settledEdges.main)&&Math.abs(settledEdges.main-settledEdges.dossier)/100<.03,true,'main and dossier sliders settle to the same locus boundary')
 	await page.evaluate(()=>{ const g=document.getElementById('gseg'); g.value='locus'; g.dispatchEvent(new Event('change',{bubbles:true})) })   // back to the light default
 	// the exporters ride the plates rail: label + target select + download buttons
 	assert.match(await page.locator('#dex').innerText(), /conversion lut/i, 'LUT block rides the dossier rail')

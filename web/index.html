@@ -2686,9 +2686,9 @@ let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto comp
 const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
 let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
 // ONE session-local clustering lens for sliders, planes and the 3D solid
-const QGROUPS=[['',[[null,'smooth']]],
-	['steps',[[10,'10-step'],[20,'20-step'],['565','16-bit'],['jnd','jnd']]],
-	['palettes',[['web','safe'],['names','names'],['xkcd','xkcd'],['tailwind','tailwind'],['pico8','pico-8'],['ansi','ansi']]]]
+const QGROUPS=[['',[[null,'Smooth']]],
+	['Steps',[[10,'10-step'],[20,'20-step'],['565','16-bit'],['jnd','JND']]],
+	['Palettes',[['web','Safe'],['names','Names'],['xkcd','xkcd'],['tailwind','Tailwind'],['pico8','PICO-8'],['ansi','ANSI']]]]   // capitals as titles read; xkcd keeps its lowercase brand
 const QSEG=QGROUPS.flatMap(([,o])=>o)
 const QTIP={ 'smooth':'continuous, unquantized',
 	'10':'10 native-channel cell centers',
@@ -2709,12 +2709,12 @@ function releaseDragEnt(){ const held=dragEnt; dragEnt=null; dragEntI=-1; flushC
 	if(held){ held._tk=''; for(const p of ['--tkc','--tki','--tkv']) held.style.removeProperty(p) } }
 let QM='oklab'   // the palette lenses' distance metric — session-only, like Q
 const MTIP={ oklab:'modern perceptual distance', de2000:'CIE industry standard', de76:'plain CIELAB distance', redmean:'classic RGB heuristic' }
-const MLABEL={ oklab:'oklab', de2000:'ΔE2000', de76:'ΔE76', redmean:'redmean' }
+const MLABEL={ oklab:'OKLab', de2000:'ΔE2000', de76:'ΔE76', redmean:'Redmean' }
 let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'surface', locus:'light' }   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
+const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'Surface', locus:'Light' }   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
 const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly', p3:'beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it', rec2020:'beyond P3, fits Rec.2020 – most displays clip it', clip:'outside every standard display gamut – the on-screen preview is clipped' }
 // 'human' is the fullest REAL shape (the visible gamut) and the no-display-cut state
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which

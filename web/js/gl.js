@@ -277,7 +277,7 @@ void main() {
 	// tessellates. The locus alone admits any luminance for a real chromaticity, so the
 	// picker used to paint a far larger field than the solid's cross-section: same word,
 	// two shapes, and the plane read as if zoomed against the solid.
-	else if (uGam == 4 && !(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.0;`}
+	else if (uGam == 4 && !(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.5;`}   // beyond the SURFACE solid but on the locus: a real light – ghost, like every other limit
 	// the display lenses instead GHOST real-but-undisplayable colours on top
 	else if (uGam != 0 && uGam != 4) {
 		// gamut pad in ENCODED units (±half a code value) – a linear pad is ~16 code
