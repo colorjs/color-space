@@ -68,7 +68,7 @@ a:hover{ text-decoration-color:currentColor }
 .cdw .cd{ position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
 
 #cval{ field-sizing:content; min-width:4rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
-.gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
+.gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
 .palm{ gap:.4em; margin-left:.6em; border:0; cursor:pointer; max-width:11em; overflow:hidden }   /* rides the sup-chip recipe above – the category-count look; the address keeps its own case */
 .palm span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .palm:hover{ color:var(--ink) }
@@ -489,7 +489,10 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
    at the screen edge (the body). The dim tint is on a fixed body layer that never scrolls with it. */
 .modal{ position:fixed; inset:0; z-index:var(--z-modal); overflow-y:auto; overscroll-behavior:contain; --mboxw:min(56rem,94vw) }
 .modal.barred{ --mboxw:min(42rem,94vw) }   /* proprietary dossiers carry no graphics — the box narrows to its text */
-body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-modal) - 1); background:oklch(0.17 0.015 248/.4) }   /* same dim backdrop as the proprietary dialog */
+/* no scrim: the catalog stays lit behind the card – the shadow separates. The sticky
+   header rises ABOVE the modal plane and stays LIVE: current color, view lenses, search
+   all keep working while the dossier is open (its own paper masks content passing under). */
+body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 .modal[hidden]{ display:none }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
@@ -1593,7 +1596,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 
 <div id="toast" role="status" aria-live="polite">Copied</div>
 <div id="dropcast" hidden aria-hidden="true"><span>drop the image — every lane and plane will read it</span></div>
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
+<div class="modal" id="modal" role="dialog" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
@@ -2549,7 +2552,8 @@ function openModal(s){
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
-	modal.hidden=false; pageShell.inert=true; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
+	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
+	for(const el of pageShell.children) el.inert=!el.classList.contains('mhead')   // the header stays live – everything else behind the card sleeps
 	urlLast=spaceURL(s)+keepSearch()+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
@@ -2579,7 +2583,7 @@ function buildBarred(b){
 		<div class="desc">${b.why}</div></div></div>
 	 </div></section>
 	 ${MNAV('mfoot')}` }
-function closeModal(){ ensureCat(); modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
+function closeModal(){ ensureCat(); modal.hidden=true; for(const el of pageShell.children) el.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
 	urlLast=spaceURL('')+keepSearch()+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
