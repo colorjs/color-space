@@ -568,7 +568,8 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 // time. Otherwise a second plane/bar redraw can resize CV while Chromium's first
 // createImageBitmap is still copying it (software GL can stall that promise forever).
 // Keep only the newest waiting render per destination canvas; drain them fairly.
-let kernelPending = false
+let kernelPending = false, kernelBitmaps = true
+const KERNEL_BITMAP_TIMEOUT = 1000   // a broken software-GL snapshot must not pin every later plane/bar
 const kernelQueue = new Map()
 function queueKernel(cv2d, next) { kernelQueue.set(cv2d, next); cv2d._glQueued = next }
 function drainKernels() {
@@ -582,15 +583,19 @@ function presentKernel(cv2d, deferred) {
 	const ctx = cv2d.getContext('2d'), rev = (cv2d._glRev || 0) + 1
 	if (!ctx) return false
 	cv2d._glRev = rev
-	if (deferred && typeof createImageBitmap === 'function') {
+	if (deferred && kernelBitmaps && typeof createImageBitmap === 'function') {
 		kernelPending = true; cv2d._glPending = true
-		let done = false
-		const finish = () => { if (done) return; done = true
+		let done = false, timer = 0
+		const drawSource = source => { if (cv2d._glRev === rev) {
+			ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(source, 0, 0) } }
+		const finish = () => { if (done) return; done = true; clearTimeout(timer)
 			cv2d._glPending = false; kernelPending = false; drainKernels() }
-		try { createImageBitmap(CV).then(bitmap => { try {
-				if (cv2d._glRev === rev) { ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(bitmap, 0, 0) }
-			} finally { bitmap.close(); finish() } }, finish) }
-		catch { ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0); finish() }
+		const failed = () => { if (done) return; kernelBitmaps = false
+			try { drawSource(CV) } finally { finish() } }
+		timer = setTimeout(failed, KERNEL_BITMAP_TIMEOUT)
+		try { createImageBitmap(CV).then(bitmap => { try { if (!done) drawSource(bitmap) }
+			finally { bitmap.close(); finish() } }, failed) }
+		catch { failed() }
 	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0) }
 	return true
 }
