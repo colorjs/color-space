@@ -72,7 +72,6 @@ a:hover{ text-decoration-color:currentColor }
 .palm{ gap:.4em; margin-left:.6em; border:0; cursor:pointer; max-width:11em; overflow:hidden }   /* rides the sup-chip recipe above – the category-count look; the address keeps its own case */
 .palm span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .palm:hover{ color:var(--ink) }
-.palm .pd{ flex:none; width:.66em; height:.66em; background:var(--pmc,transparent); border:1px solid var(--hair) }
 .palm[hidden]{ display:none }   /* display:inline-flex above would otherwise defeat the hidden attr – an empty chip haunted the smooth modes */
 .palm:hover{ color:var(--ink) }
 /* the notation chevron: unfolds the colour in every format; picking a line sets how the field speaks */
@@ -177,7 +176,8 @@ body.himg #upfl{ display:none }
 .tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
 .vctl{ margin-left:0; margin-right:var(--s3); display:flex; align-items:center; gap:var(--s2) }   /* the view lens rides the header rail, text-sized like the dossier's selects; the extra right margin evens the visual gap against the search icon's padded box */
 .vctl select[hidden]{ display:none }
-@media(max-width:640px){ .vctl #mseg{ display:none!important } }   /* phones: the ΔE metric yields – the mode alone fits the tight bar */
+@media(max-width:640px){ .vctl{ display:none } }   /* phones: the seats moved into the format dropdown */
+.fmtp .vrow{ display:flex; gap:var(--s3); margin-top:var(--s2); padding-top:var(--s2); border-top:1px solid var(--hair) }
 .tfp .fsep{ border:0; border-top:1px solid var(--hair); margin:var(--s1) 0; width:100% }   /* rules the view options off the filters */
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
@@ -637,6 +637,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
+.pl.parking .cx{ transition:left .15s var(--ease-out),top .15s var(--ease-out) }
 .pl .cx{ position:absolute; z-index:2; width:var(--picker-size); height:var(--picker-size); transform:translate(-50%,-50%) rotate(45deg); background:var(--tkc,transparent); border:var(--picker-line) solid var(--tki,transparent); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* exactly the slider thumb's rhombus and outline tokens — above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
@@ -835,7 +836,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span><button class="palm" id="palm" type="button" hidden><i class="pd" aria-hidden="true"></i><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
+	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
 	<span class="sp"></span>
 	<span class="dctl vctl" id="vctl"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
@@ -1652,6 +1653,7 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // rides the current colour's place. It does NOT tint the interface (--c stays the fixed
 // brand accent) — the catalog is where the current colour lives.
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
+let vRow=null   // phones seat the view selects in the format dropdown – assigned by the header injection
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 // the palette-match chip: under a palette lens the masthead names the nearest entry –
 // the color's address IN the chosen palette – and a click snaps to it
@@ -1683,6 +1685,7 @@ if(fmtbEl){
 	fmtbEl.onclick=()=>{ if(!fmtpEl.hidden){ fmtOpen(false); return }
 		const hx=hex(RGB())
 		fmtpEl.innerHTML=FMTL.map(f=>`<button class="fmtr${f===FMT?' on':''}" role="option" aria-selected="${f===FMT}" data-v="${f}"><i>${f}</i><b class="tnum">${fmtAs(f,hx)}</b></button>`).join('')
+		if(vRow&&vRow.childElementCount) fmtpEl.append(vRow)   // phones: the view row closes the notation list
 		fmtOpen(true) }
 	fmtpEl.addEventListener('click',e=>{ const b=e.target.closest('.fmtr'); if(!b) return
 		setFmt(b.dataset.v); fmtOpen(false) })
@@ -2303,7 +2306,7 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 	dragEnt=ent2; scheduleFast() })
 cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) return
 	const s2=e.target.closest('.ent')?.dataset.s, i2=+e.target.dataset.i
-	renderFast(); releaseDragEnt(); if(s2) snapRelease(s2,i2)
+	renderFast(); releaseDragEnt(); if(s2) snapGlide(e.target,s2,i2)
 	scheduleFast(); if(open()) paintPlanes(false) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 catEnts.clear()
@@ -2370,7 +2373,7 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			ch.onpointermove=move
 			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
 				squelch=true; setTimeout(()=>squelch=false,0)
-				renderFast(); releaseDragEnt(); snapRelease(s,i)   // settle BEFORE releasing the row — the focused input must adopt the press
+				renderFast(); releaseDragEnt(); snapGlide(ch.querySelector('.nrg'),s,i)   // settle BEFORE releasing the row — the focused input must adopt the press
 				scheduleFast(); if(open()) paintPlanes(false) }
 			ch.onpointercancel=ch.onpointerup }) }) }   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 // visible rows wire NOW; the long tail wires in idle slices — ~4000 listener
@@ -2764,8 +2767,17 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 {	const vctl=document.getElementById('vctl')
 	if(vctl){ const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}">${lb}</option>`
 		const qLegend=QSEG.map(([mo,lb])=>`${lb} – ${QTIP[qKey(mo)]}`).join('\n'), mLegend=METRICS.map(m2=>`${MLABEL[m2]} – ${MTIP[m2]}`).join('\n')
-		vctl.innerHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select>`
-		const qs=vctl.querySelector('#qseg'), ms=vctl.querySelector('#mseg')
+		const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
+		const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
+		vctl.innerHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><select id="gseg" aria-label="gamut limits" title="${gLegend}">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
+		const qs=vctl.querySelector('#qseg'), ms=vctl.querySelector('#mseg'), gs=vctl.querySelector('#gseg')
+		gs.onchange=()=>{ GM=gs.value; try{ localStorage.csGm=GM }catch{}   // radio: one gamut always selected – the solid always shows SOME shape
+			if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
+			else{ renderFast(); paintCatalogGrad(); paintCatalogVals() } }
+		// phones: all three ride INSIDE the value's format dropdown – the tight bar keeps its icons
+		vRow=Object.assign(document.createElement('div'),{className:'dctl vrow'})
+		const seatViews=()=>{ const home=MOBQ.matches?vRow:vctl; if(qs.parentElement!==home) home.append(qs,ms,gs) }
+		MOBQ.addEventListener('change',seatViews); seatViews()
 		const applyView=()=>{ clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
 			cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
 				qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()) queuePlaneSettle() }) })
@@ -2804,7 +2816,12 @@ const qBarRuns=(s,vals,i,c,qf)=>{ const runs=[]
 		if(last&&sameRGB(last.rgb,rgb)) last.hi=k+1
 		else runs.push({rgb,lo:k,hi:k+1}) }
 	return runs }
-const qBarGradient=(s,vals,i,c,qf)=>`linear-gradient(90deg, ${qBarRuns(s,vals,i,c,qf).flatMap(r=>{ const lo=(r.lo/QBARN*100).toFixed(2), hi=(r.hi/QBARN*100).toFixed(2), h=hex(r.rgb); return [`${h} ${lo}%`,`${h} ${hi}%`] }).join(',')})`
+const qBarGradient=(s,vals,i,c,qf,gm)=>{ const lq=gm?lensFor(s,gm):null, segs=[]
+	for(let k=0;k<QBARN;k++){ const v=vals.slice(); v[i]=c.min+(c.max-c.min)*(k+.5)/QBARN
+		const rgb=byteRGB(qf(rgbF(s,v))), a=lq?lq(v):1, last=segs[segs.length-1]
+		if(last&&last.a===a&&sameRGB(last.rgb,rgb)) last.hi=k+1
+		else segs.push({rgb,a,lo:k,hi:k+1}) }
+	return `linear-gradient(90deg, ${segs.flatMap(r=>{ const lo=(r.lo/QBARN*100).toFixed(2), hi=(r.hi/QBARN*100).toFixed(2), col=`rgb(${r.rgb.join(' ')}${r.a===1?'':` / ${r.a}`})`; return [`${col} ${lo}%`,`${col} ${hi}%`] }).join(',')})` }   // a cluster cell is a real display color, but an IMAGINARY coordinate has nothing to quantize – the lens alpha stays
 // Midpoint of the ACTUAL painted 1D region nearest `anchor`. This keeps marker and
 // shader boundaries identical (notably the accelerated names Voronoi field).
 const paintedBarCenter=(bar,target,anchor)=>{ const cv=bar.querySelector('.bgc')
@@ -2848,6 +2865,19 @@ const runMid=(s2,vals,j,c,qf)=>{ const runs=qBarRuns(s2,vals,j,c,qf); if(!runs.l
 	const f=(vals[j]-c.min)/(c.max-c.min)*QBARN
 	const r=runs.find(r2=>f>=r2.lo&&f<r2.hi)||runs[runs.length-1]
 	return c.min+(c.max-c.min)*((r.lo+r.hi)/(2*QBARN)) }
+// the glide is VISUAL only – master snapped instantly (gradients, values, chip final);
+// one input's shown value eases into place, and the syncs below leave it alone mid-glide
+function glide(nr,to){ const from=+nr.value; if(!isFinite(to)||Math.abs(to-from)<1e-9) return
+	nr._glide=true
+	const t0=performance.now(), D=150
+	const st2=t=>{ const k=Math.min(1,(t-t0)/D)
+		nr.value=from+(to-from)*(1-(1-k)**3)
+		if(k<1) requestAnimationFrame(st2); else nr._glide=false }
+	requestAnimationFrame(st2) }
+function snapGlide(nr,s2,i2){ const from=nr?+nr.value:null
+	snapRelease(s2,i2)
+	if(nr&&isFinite(from)){ const v=valsFor(s2)?.[i2]
+		if(isFinite(v)){ nr.value=from; glide(nr,v) } } }
 function snapRelease(s2,...di){ if(Q==null) return
 	if(master.s!==s2){ const mv=valsFor(s2); if(!mv) return; master={ s:s2, vals:mv } }
 	const cls=classify(s2), qf=qTriple(Q)
@@ -3880,12 +3910,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const percept=!!tcurve&&tcurve.ylab!=='code'&&!/^(gamma|linear|chromaticity)$/.test(m.encoding||'')
 		&&(tcurve.pts[26]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3   // 26/144 ≈ 18% grey
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
-	const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
-	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
-	const gamHTML=`<select id="gseg" aria-label="gamut subset">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
-	// gamut limits alone – the rendering mode and its metric are app-wide lenses and live
-	// with the filters (they quantize the catalog too); this select is the dossier's own
-	const dctlHTML=`<div class="dctl">${gamHTML}<span class="hq" title="${gLegend}">?</span></div>`
+	// every view lens – limits, mode, metric – rides the header rail now; the dossier row is bare
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space – sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate – hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas></div></div>`:''
@@ -3911,7 +3936,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dcat=sections.find(c2=>c2.spaces.includes(s))?.name||''   // from the data, not the catalog DOM — name views open before the catalog builds
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
-	 <div class="chead">${bigchHTML}${dctlHTML}</div>
+	 <div class="chead">${bigchHTML}</div>
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
@@ -3984,7 +4009,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			const el=r.closest('.bar2'); if(!el) return
 			const s2=selected, i=+el.dataset.i, c=classify(s2).ch[i]
 			el.classList.remove('live')
-			el._snapHint=el._dragF; snapRelease(s2,i); dragBar=null
+			el._snapHint=el._dragF; snapGlide(r,s2,i); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 			renderFast(false); queuePlaneSettle(); catUp() }) }
 	// the link runs both ways: hovering or focusing a big input blinks its slider's picker
@@ -4034,8 +4059,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		if(fb) fb.onclick=()=>fi.click()
 		if(fi) fi.onchange=()=>{ addImg(fi.files&&fi.files[0]); fi.value='' } }
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
-	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM   // radio: one gamut always selected – the solid always shows SOME shape
-		wire3d(); renderFast(); queuePlaneSettle() }
 	const pinb=detail.querySelector('#pinb'), ipick=detail.querySelector('#ipick')
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	if(ipick&&pinb) ipick.onclick=()=>pinb.click()   // the rhombus opens the native endpoint picker
@@ -4143,7 +4166,7 @@ function wireBar(el,s){
 	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live') }
 		apply(ev) }
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
-		el._snapHint=el._dragF; snapRelease(s,i); dragBar=null
+		el._snapHint=el._dragF; snapGlide(el.querySelector('.nrg'),s,i); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 		renderFast(false); queuePlaneSettle(); catUp() }
 	el.onpointermove=move; el.onpointerup=up }) }
@@ -4190,7 +4213,9 @@ function wirePlane(pl){
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
 	pl.addEventListener('pointerdown',e=>{ clearClusterSnaps(); pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
 	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
-		snapRelease(selected,+pl.dataset.a,+pl.dataset.b); renderFast(false); queuePlaneSettle(); catUp() }
+		snapRelease(selected,+pl.dataset.a,+pl.dataset.b)
+		pl.classList.add('parking'); setTimeout(()=>pl.classList.remove('parking'),220)   // the marker's own CSS glide
+		renderFast(false); queuePlaneSettle(); catUp() }
 	pl.addEventListener('pointerup',end); pl.addEventListener('pointercancel',end)
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window – but pinch must not zoom the PAGE
@@ -4399,7 +4424,8 @@ function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el)
 				if(!bey&&boxInBase(master.s)){ try{ const rr=master.s==='rgb'?master.vals:space[master.s].rgb(...master.vals)
 					if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey='no such color – these coordinates decode outside sRGB, which this space is defined on' }catch{} } }
 			cx.classList.toggle('ghost',!!bey); cx.title=bey }
-		cx.style.background=cx.classList.contains('ghost')?'transparent':hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
+		const qfx=qTriple(Q), fr2=qfx?byteRGB(qfx(rgb)):rgb
+		cx.style.background=cx.classList.contains('ghost')?'transparent':hex(fr2); cx.style.borderColor=ink(fr2) }catch{}}
 // Seven complementary specimens: exact signal, physical target, contextual perception,
 // broadcast calibration, data-map paths, emissive clipping and flat print. The same seven drive the
 // picker rail and every dossier so distributions stay comparable across families.
@@ -4705,7 +4731,7 @@ const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
 function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,morph=true){ const hx=hex(RGB()), leadSpace=catalogLeadSpace()
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return
-		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=cls.ch.length>1?'vis':'off'; if(!vals)return
+		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=gmFor(cls); if(!vals)return
 		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}:${qKey(Q)}${PALMODES.has(Q)?':'+QM:''}`
 		if(skipI<0&&ent.dataset.g===gkey) return
 		let complete=true
@@ -4717,7 +4743,7 @@ function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUID
 			// coordinate, then run the lens); palette cells are real display colors and render
 			// lensless, the GL law again
 			const grad=typeof Q==='number'?stepped(qCells(s,vals,i,c,Q,lens))
-				:Q!=null&&qTriple(Q)?qBarGradient(s,vals,i,c,qTriple(Q))
+				:Q!=null&&qTriple(Q)?qBarGradient(s,vals,i,c,qTriple(Q),lens)
 				:`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,n,lens).join(',')})`
 			setCatalogGradient(ch,grad+', var(--checker)',morph); ch._g=gkey })
 		if(complete) ent.dataset.g=gkey }) }
@@ -4730,7 +4756,10 @@ const clearMotionTk=()=>{ for(const ent of motionTkEnts){ ent._tk=''; for(const 
 const stampTk=(hx,ink0)=>{ if(PDOWN||autoColor)return   // changing an inherited var on all 162 rows forces a page-wide style recalc per frame
 	setTk(cat,hx,ink0); clearMotionTk() }
 const detailTk=(hx,ink0)=>{ detail.querySelectorAll('.bar2,.pl').forEach(root=>setTk(root,hx,ink0)) }
-function paintCatalogVals(ents,{values=true,thumbs=true,tokens=true}={}){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), exact=master.s+'|'+master.vals.join()
+function paintCatalogVals(ents,{values=true,thumbs=true,tokens=true}={}){ const rgb=RGB(), exact=master.s+'|'+master.vals.join()
+	// the pickers' fill is the FACE color – under a palette-class lens that is the snapped
+	// entry, not the raw coordinate (a P3 green thumb once outshone its tailwind pick)
+	const qf3=qTriple(Q), frgb2=qf3?byteRGB(qf3(rgb)):rgb, hx=hex(frgb2), ink0=ink(frgb2)
 	if(thumbs&&tokens) stampTk(hx,ink0)
 	if(open()) detailTk(hx,ink0)
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
@@ -4763,7 +4792,7 @@ function paintCatalogVals(ents,{values=true,thumbs=true,tokens=true}={}){ const 
 			ch.classList.toggle('noval',!vals)
 			if(vals){ const nr=ch._nrg??=ch.querySelector('.nrg')
 				if(nr){ if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }
-					if(!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] } } }) }) }
+					if(!nr._glide&&!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] } } }) }) }
 function paintCatalogPickers(ents,rgb=RGB(),hx=hex(rgb),tokens=true){ const ink0=ink(rgb), rows=ents||screenEnts(), moving=PDOWN||autoColor
 	if(tokens){ if(moving) rows.forEach(ent=>{ setTk(ent,hx,ink0); motionTkEnts.add(ent) })
 		else stampTk(hx,ink0) }   // one inherited settle makes every current and future catalog picker correct
@@ -4771,7 +4800,7 @@ function paintCatalogPickers(ents,rgb=RGB(),hx=hex(rgb),tokens=true){ const ink0
 		const vals=valsFor(ent.dataset.s); if(!vals)return
 		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ const nr=ch._nrg??=ch.querySelector('.nrg'); if(!nr)return
 			if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }
-			if(!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] }) }) }
+			if(!nr._glide&&!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] }) }) }
 const CATALOG_VALUE_THROTTLE=100, CATALOG_THROTTLE=300
 let catValueLast=0, catValueTimer=0, catSlowLast=0, catSlowTimer=0, catSlowCursor=0, catSlowKey='', catSlowPending=0
 const activeCatalogEnt=()=>{ const ent=dragEnt||catEnts.get(catalogLeadSpace())
@@ -4822,7 +4851,6 @@ function renderFast(solid=true){
 		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit
 			if(palmEl._n!==b.n){ palmEl._n=b.n
 				palmEl.lastElementChild.textContent=b.n
-				palmEl.style.setProperty('--pmc',hex(b.rgb))
 				palmEl.title=`nearest ${Q} entry (${MLABEL[QM]}) – click to snap to ${b.n}`
 				palmEl.removeAttribute('data-tip') } } }   // re-arm the bubble with the fresh title
 	{ const active=activeCatalogEnt(), dossierOpen=open()
@@ -4831,7 +4859,7 @@ function renderFast(solid=true){
 		paintCatalogThrottledValues(dossierOpen)   // background numbers use the 100ms tier
 		scheduleCatalogSecondary() }   // behind a dossier every visible gradient, including the selected row, uses 300ms
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
-	detailTk(hx,ink(rgb))   // the dossier's own frame keeps its thumbs and lanes in the current color
+	detailTk(fx,ink(frgb))   // the dossier's own frame keeps its thumbs and lanes in the FACE color
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const shown=vals
 	// the record speaks exact values: valsFor clamps into the instrument's ranges, so every
@@ -4863,7 +4891,7 @@ function renderFast(solid=true){
 			else{
 				bgc.style.display='none'
 				if(typeof Q==='number') bg=stepped(qCells(s,shown,i,c,Q,barGM))   // flat cells, lens alpha at each centre – like the GL bars
-				else if(qTriple(Q)) bg=qBarGradient(s,shown,i,c,qTriple(Q))
+				else if(qTriple(Q)) bg=qBarGradient(s,shown,i,c,qTriple(Q),barGM)
 				// the lens rides IN the ramp (ghost alpha, void transparency) over the bar's
 				// checker – the same segments the prerendered catalog bakes; cluster modes
 				// skip it (their cells are real colors)
@@ -4889,7 +4917,7 @@ function renderFast(solid=true){
 		// Skip only a HELD drag on this very input (writing .value mid-gesture stalls it);
 		// a focused-but-released input must still take the settle (the snap-to-center write)
 		const nr=bar._nrg??=bar.querySelector('.nrg')
-		if(nr&&!(PDOWN&&document.activeElement===nr)) nr.value=c.min+mf*(c.max-c.min) })
+		if(nr&&!nr._glide&&!(PDOWN&&document.activeElement===nr)) nr.value=c.min+mf*(c.max-c.min) })
 	// the big value inputs above the sliders – value, step limits
 	detail.querySelectorAll('#bigch .bch').forEach(el=>{ const i=+el.dataset.i, c=cls.ch[i]
 		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing – the focused channel tracks its slider live
