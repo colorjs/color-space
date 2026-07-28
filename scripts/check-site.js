@@ -251,8 +251,8 @@ try {
 		const hard=s=>{ const p=[...s.matchAll(/([\d.]+)%/g)].map(m=>+m[1]); return p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6) }
 		const d=dossier.getContext('2d').getImageData(0,0,dossier.width,dossier.height).data; let last=-1
 		for(let x=0;x<dossier.width;x++) if(d[x*4+3]>=20) last=x
-		return {main:hard(mbg),dossier:last<0?[]:[(last+1)/dossier.width*100],mainVoid:/(?:\/ 0\)|,\s*0\))/.test(mbg),dossierVoid:last>=0&&last<dossier.width-1} })
-	assert.equal(validityEdges.mainVoid&&validityEdges.dossierVoid,true,'main and dossier L sliders both preserve the invalid high-lightness span')
+		return {main:hard(mbg),dossier:last<0?[]:[(last+1)/dossier.width*100],mainVoid:/(?:\/ 0\)|,\s*0\))/.test(mbg),mainGhost:/(?:\/ 0\.5\)|,\s*0\.5\))/.test(mbg),dossierVoid:last>=0&&last<dossier.width-1} })
+	assert.equal(validityEdges.mainVoid&&validityEdges.dossierVoid&&!validityEdges.mainGhost,true,'main and dossier preserve the transparent validity limit without dossier-only half-transparent gamut ghosting')
 	await page.mouse.up(); await page.waitForTimeout(700)
 	const settledEdges=await page.evaluate(()=>{ const main=document.querySelector('.ent[data-s="oklch"] .ch[data-i="0"]'), c=document.querySelector('.bar2[data-i="0"] .bgc'), bg=main._gradStack?.at(-1)?.style.background||main.style.background||''
 		const p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), hard=p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let last=-1

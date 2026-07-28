@@ -4605,8 +4605,10 @@ addEventListener('pointerdown',e=>{ if(e.isPrimary){ PDOWN=true
 addEventListener('pointerup',e=>{ if(e.isPrimary) PDOWN=false },true)
 addEventListener('pointercancel',e=>{ if(e.isPrimary) PDOWN=false },true)
 addEventListener('blur',()=>PDOWN=false)
-// Catalog strips stay CSS-only: the current space is live; other spaces recalculate on
-// the throttled tier and dissolve old→new without exposing the paper between layers.
+// Catalog strips stay CSS-only under one fixed human-validity lens: impossible /
+// non-visible coordinates remain fully transparent, while half-transparent display-
+// gamut ghosting belongs only to the dossier. The current space is live; other spaces
+// recalculate on the throttled tier and dissolve old→new without exposing the paper.
 const RAMP_GUIDES=48, LIVE_RAMP_GUIDES=16, SECONDARY_RAMP_GUIDES=8
 const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
 const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=bg
@@ -4628,7 +4630,7 @@ const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
 function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,morph=true){ const hx=hex(RGB()), leadSpace=catalogLeadSpace()
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return
-		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=lead?gmFor(cls):'off'; if(!vals)return
+		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=cls.ch.length>1?'vis':'off'; if(!vals)return
 		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}`
 		if(skipI<0&&ent.dataset.g===gkey) return
 		let complete=true
