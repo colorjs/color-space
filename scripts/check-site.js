@@ -213,11 +213,11 @@ try {
 	const lbar=page.locator('.bar2[data-i="0"]'), lr=await lbar.boundingBox()
 	await page.mouse.move(lr.x+lr.width*.27,lr.y+lr.height/2); await page.mouse.down(); await page.waitForTimeout(30)
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.27','quantized slider moves continuously while held')
-	await page.mouse.up(); await page.waitForTimeout(40)
+	await page.mouse.up(); await page.waitForTimeout(260)   // the release PARKS: a 180ms glide into the cell, so the read waits it out
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.25','quantized slider snaps to its cell center on release')
-	await page.mouse.click(lr.x+lr.width*.01,lr.y+lr.height/2)
+	await page.mouse.click(lr.x+lr.width*.01,lr.y+lr.height/2); await page.waitForTimeout(260)
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.05','10-step first cell selects its center, not an extra minimum')
-	await page.mouse.click(lr.x+lr.width*.99,lr.y+lr.height/2)
+	await page.mouse.click(lr.x+lr.width*.99,lr.y+lr.height/2); await page.waitForTimeout(260)
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.95','10-step last cell selects its center, not an extra maximum')
 	await page.locator('#bigch .nv').first().focus(); await page.keyboard.press('ArrowDown')
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.85','numeric spinner advances by one visible cell')
@@ -225,7 +225,7 @@ try {
 	await page.mouse.move(qr.x+qr.width*.31,qr.y+qr.height*.62); await page.mouse.down(); await page.waitForTimeout(30)
 	assert.equal(await page.locator('#bigch .nv').nth(0).inputValue(),'0.38','quantized plane moves continuously while held')
 	assert.equal(await page.locator('#bigch .nv').nth(1).inputValue(),'0.124','both plane axes remain unsnapped during drag')
-	await page.mouse.up(); await page.waitForTimeout(50)
+	await page.mouse.up(); await page.waitForTimeout(260)   // the parking glide again
 	assert.equal(await page.locator('#bigch .nv').nth(0).inputValue(),'0.35','plane lightness snaps to its cell center on release')
 	assert.equal(await page.locator('#bigch .nv').nth(1).inputValue(),'0.140','plane chroma snaps to its cell center on release')
 	const solid10=await page.locator('#pl3d').screenshot()
