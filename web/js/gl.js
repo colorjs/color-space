@@ -70,7 +70,7 @@ function build(gl, vsSrc, fsSrc, resolve, preLink, st) {
 }
 
 /** Is the GPU plane kernel possible for this space? */
-export const hasPlaneGL = s => !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4
+export const hasPlaneGL = s => kernelTransfers && !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4
 
 // ── measured-dataset LUTs (munsell's renotation): a composed source that reads one
 // declares `uniform sampler2D <name>tex` — upload the chunk-declared data once per
@@ -568,7 +568,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 // time. Otherwise a second plane/bar redraw can resize CV while Chromium's first
 // createImageBitmap is still copying it (software GL can stall that promise forever).
 // Keep only the newest waiting render per destination canvas; drain them fairly.
-let kernelPending = false, kernelBitmaps = true
+let kernelPending = false, kernelTransfers = true
 const KERNEL_BITMAP_TIMEOUT = 1000   // a broken software-GL snapshot must not pin every later plane/bar
 const kernelQueue = new Map()
 function queueKernel(cv2d, next) { kernelQueue.set(cv2d, next); cv2d._glQueued = next }
@@ -583,15 +583,20 @@ function presentKernel(cv2d, deferred) {
 	const ctx = cv2d.getContext('2d'), rev = (cv2d._glRev || 0) + 1
 	if (!ctx) return false
 	cv2d._glRev = rev
-	if (deferred && kernelBitmaps && typeof createImageBitmap === 'function') {
+	if (deferred && typeof createImageBitmap === 'function') {
 		kernelPending = true; cv2d._glPending = true
 		let done = false, timer = 0
 		const drawSource = source => { if (cv2d._glRev === rev) {
 			ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(source, 0, 0) } }
-		const finish = () => { if (done) return; done = true; clearTimeout(timer)
-			cv2d._glPending = false; kernelPending = false; drainKernels() }
-		const failed = () => { if (done) return; kernelBitmaps = false
-			try { drawSource(CV) } finally { finish() } }
+		const finish = (drain = true) => { if (done) return; done = true; clearTimeout(timer)
+			cv2d._glPending = false; kernelPending = false; if (drain) drainKernels() }
+		const failed = () => { if (done) return
+			// If the host cannot snapshot this WebGL canvas, drawing that same source
+			// synchronously can wedge the renderer too. Retire the kernel transfer path,
+			// discard its bounded queue, and ask the page to repaint via its JS/CSS fallback.
+			kernelTransfers = false
+			for (const queued of kernelQueue.keys()) queued._glQueued = null
+			kernelQueue.clear(); finish(false); queueMicrotask(() => readyCb && readyCb()) }
 		timer = setTimeout(failed, KERNEL_BITMAP_TIMEOUT)
 		try { createImageBitmap(CV).then(bitmap => { try { if (!done) drawSource(bitmap) }
 			finally { bitmap.close(); finish() } }, failed) }
@@ -601,6 +606,7 @@ function presentKernel(cv2d, deferred) {
 }
 
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false) {
+	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (kernelPending) {
@@ -617,6 +623,7 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
  * gamut alpha — the smooth version of the stepped CSS mask.
  */
 export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, deferred = false) {
+	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
