@@ -300,7 +300,7 @@ body.himg #upfl{ display:none }
    Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
    active tab (the row hangs from below, so its marker faces up) */
 .gtabs{ position:sticky; bottom:0; z-index:3; margin-top:auto; background:var(--paper); padding:0 0 12px; display:flex; gap:var(--s4) }   /* full column width, paper to the very screen edge while parked; the white begins exactly at the tabs' top — the breathing room lives INSIDE as bottom padding */
-.gtabs .gtag{ font:inherit; font-size:var(--text-md); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
+.gtabs .gtag{ font:inherit; font-size:var(--text-md); font-weight:700; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
@@ -2410,7 +2410,7 @@ const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
 // the shelf cut — a view option, not a filter: same entries, regrouped (groups.js)
 let grouping='family'
 // search matches the space name AND its channel names/symbols ("hue", "lightness", "L"…)
-const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,(s+' '+ch.map(c=>cname(c)+' '+c.sym).join(' ')).toLowerCase()] }))
+const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,(s+' '+disp(s)+' '+ch.map(c=>cname(c)+' '+c.sym).join(' ')).toLowerCase()] }))   // the DISPLAY name too – "hunter" must find Hunter Lab, not only labh
 const act=FACETS.map(()=>new Set())
 // minimum share of the visible gamut (0 = off) — a threshold, not a chip: coverage is
 // continuous, so it filters through a slider; spaces without a measured reach (1-, 2-
