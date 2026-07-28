@@ -13,16 +13,30 @@ const D=(a,b)=>{ const x=a[0]-b[0], y=a[1]-b[1], z=a[2]-b[2]; return x*x+y*y+z*z
  *  displays it crisp and reads exact pixels from it. */
 // HEIC/HEIF: only Safari decodes it natively — everywhere else a vendored libheif steps
 // in, lazy-loaded (1.4MB) only when such a file actually arrives
-const HEIC=/hei[cf]/i
+const HEIC=/hei[cf]/i, BITMAP_TIMEOUT=1500
+const nativeBitmap=src=>new Promise((resolve,reject)=>{ let done=false
+	const timer=setTimeout(()=>{ done=true; reject(new Error('image bitmap decode timed out')) },BITMAP_TIMEOUT)
+	try{ createImageBitmap(src).then(bitmap=>{ if(done){ bitmap.close?.(); return }
+			done=true; clearTimeout(timer); resolve(bitmap) },error=>{ if(done)return; done=true; clearTimeout(timer); reject(error) }) }
+	catch(error){ done=true; clearTimeout(timer); reject(error) } })
+const elementBitmap=async src=>{ const url=URL.createObjectURL(src), img=new Image(); img.decoding='async'
+	try{ img.src=url
+		if(img.decode) await img.decode()
+		else await new Promise((resolve,reject)=>{ img.onload=resolve; img.onerror=reject })
+		if(!img.naturalWidth||!img.naturalHeight) throw new Error('image element decoded no pixels')
+		return img } finally { URL.revokeObjectURL(url) } }
 async function decodeBitmap(src){
-	try{ return await createImageBitmap(src) }
-	catch(e){ if(!HEIC.test(src.type||'')&&!/\.hei[cf]$/i.test(src.name||'')) throw e
+	let nativeError
+	try{ return await nativeBitmap(src) }catch(e){ nativeError=e }
+	try{ return await elementBitmap(src) }catch{
+		if(!HEIC.test(src.type||'')&&!/\.hei[cf]$/i.test(src.name||'')) throw nativeError
 		const lib=await (await import('../vendor/libheif.mjs')).default()
 		const img=new lib.HeifDecoder().decode(await src.arrayBuffer())[0]
-		if(!img) throw e
+		if(!img) throw nativeError
 		const id=new ImageData(img.get_width(),img.get_height())
-		await new Promise((res,rej)=>img.display(id,ok=>ok?res():rej(e)))
-		return await createImageBitmap(id) } }
+		await new Promise((res,rej)=>img.display(id,ok=>ok?res():rej(nativeError)))
+		const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(id.width,id.height):Object.assign(document.createElement('canvas'),{width:id.width,height:id.height})
+		cv.getContext('2d').putImageData(id,0,0); return cv } }
 
 export async function sampleImage(src,S=256){
 	const bmp=await decodeBitmap(src)

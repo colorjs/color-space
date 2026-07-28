@@ -381,8 +381,11 @@ try {
 	await motion.mouse.move(sr.x+sr.width*.55,sr.y+sr.height*.5); await motion.mouse.down(); await motion.mouse.move(sr.x+sr.width*.55-45,sr.y+sr.height*.5,{steps:2}); await motion.mouse.up(); await motion.waitForTimeout(120)
 	const flickA=await solid.screenshot(); await motion.waitForTimeout(350); const flickB=await solid.screenshot()
 	assert.equal(flickA.equals(flickB),false,'a moving release keeps rotating in the chosen direction')
+	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__imageBitmapOrig=orig; let stall=true
+		window.createImageBitmap=(source,...rest)=>{ if(stall&&source instanceof Blob){ stall=false; return new Promise(()=>{}) } return orig(source,...rest) } })
 	await motion.locator('#cvfile').setInputFiles(resolve('_site/img/wave.jpg'))
 	await motion.waitForFunction(()=>document.body.classList.contains('himg')&&document.querySelector('#detail .pl canvas.density'))
+	await motion.evaluate(()=>{ window.createImageBitmap=window.__imageBitmapOrig; delete window.__imageBitmapOrig })
 	const firstPlane=motion.locator('#detail .pl').first(), pr=await firstPlane.boundingBox()
 	await firstPlane.evaluate(pl=>{ const density=pl._density, dc=density.getContext('2d'), oldImage=dc.drawImage.bind(dc)
 		const mesh=document.querySelector('#detail .mesh3'), gl=mesh.getContext('webgl2'), oldArrays=gl.drawArrays.bind(gl), oldElements=gl.drawElements.bind(gl)

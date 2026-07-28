@@ -1774,17 +1774,18 @@ const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(
 	// moves forward instead of duplicating
 	if(!key){ key='u:'+(f.name||'image')+':'+(f.size||0); idbPut(key,f) }
 	mruBump(key)
-	palFromImage(f)
-	createImageBitmap(f).then(bm=>{ UIMG=bm
-		if(IMGS){ if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }
-			imgIdx=IMGS._user }
-		IMG=bm
-		if(open()) paintImages() }).catch(()=>{}) }
+	palFromImage(f) }
 async function palFromImage(f){ try{
 		const { sampleImage }=await import('./js/extract.js')   // the decode + downscale lives off the boot path
 		const samples=await sampleImage(f)
 		if(!samples.length) return toast('no opaque pixels in that image')
-		setImage(samples); toast('histogram from the image') }
+		// The one capped full decode drives the floater, dossier source and histogram —
+		// no second createImageBitmap promise that can strand software-GL browsers.
+		const bm=samples.src; UIMG=bm
+		if(IMGS&&bm){ if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }
+			imgIdx=IMGS._user }
+		if(bm) IMG=bm
+		setImage(samples); if(open()) paintImages(); toast('histogram from the image') }
 	catch{ toast('could not read that image') } }
 let dragN=0
 addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
