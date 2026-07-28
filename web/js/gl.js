@@ -564,18 +564,33 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
  * Call only when planeGLStatus(s) is 'ready'. quant is a numeric lattice or one
  * of the output-palette/JND/RGB565 lenses; every lens stays on the GPU path.
  */
+// CV is one mutable WebGL source: only one asynchronous snapshot may read it at a
+// time. Otherwise a second plane/bar redraw can resize CV while Chromium's first
+// createImageBitmap is still copying it (software GL can stall that promise forever).
+// Keep only the newest waiting render per destination canvas; drain them fairly.
+let kernelPending = false
+const kernelQueue = new Map()
+function queueKernel(cv2d, next) { kernelQueue.set(cv2d, next); cv2d._glQueued = next }
+function drainKernels() {
+	if (kernelPending || !kernelQueue.size) return
+	const [cv2d, next] = kernelQueue.entries().next().value
+	kernelQueue.delete(cv2d); cv2d._glQueued = null
+	if (cv2d.isConnected) next()
+	if (!kernelPending && kernelQueue.size) queueMicrotask(drainKernels)
+}
 function presentKernel(cv2d, deferred) {
 	const ctx = cv2d.getContext('2d'), rev = (cv2d._glRev || 0) + 1
 	if (!ctx) return false
 	cv2d._glRev = rev
 	if (deferred && typeof createImageBitmap === 'function') {
-		cv2d._glPending = true
-		const finish = () => { cv2d._glPending = false
-			const next = cv2d._glQueued; cv2d._glQueued = null
-			if (next && cv2d.isConnected) next() }
-		createImageBitmap(CV).then(bitmap => { try {
-			if (cv2d._glRev === rev) { ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(bitmap, 0, 0) }
-		} finally { bitmap.close(); finish() } }, finish)
+		kernelPending = true; cv2d._glPending = true
+		let done = false
+		const finish = () => { if (done) return; done = true
+			cv2d._glPending = false; kernelPending = false; drainKernels() }
+		try { createImageBitmap(CV).then(bitmap => { try {
+				if (cv2d._glRev === rev) { ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(bitmap, 0, 0) }
+			} finally { bitmap.close(); finish() } }, finish) }
+		catch { ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0); finish() }
 	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0) }
 	return true
 }
@@ -583,9 +598,9 @@ function presentKernel(cv2d, deferred) {
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	if (deferred && cv2d._glPending) {
+	if (kernelPending) {
 		const held = vals.slice(), xr = rx.slice(), yr = ry.slice()
-		cv2d._glQueued = () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, true)
+		queueKernel(cv2d, () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, deferred))
 		return true
 	}
 	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric)
@@ -600,9 +615,9 @@ export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, deferred = fa
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
-	if (deferred && cv2d._glPending) {
+	if (kernelPending) {
 		const held = vals.slice(), range = ri.slice()
-		cv2d._glQueued = () => paintBarGL(cv2d, s, held, i, range, gamut, quant, true)
+		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, deferred))
 		return true
 	}
 	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
