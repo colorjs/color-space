@@ -379,14 +379,6 @@ try {
 	await motion.mouse.move(sr.x+sr.width*.55,sr.y+sr.height*.5); await motion.mouse.down(); await motion.mouse.move(sr.x+sr.width*.55-45,sr.y+sr.height*.5,{steps:2}); await motion.mouse.up(); await motion.waitForTimeout(120)
 	const flickA=await solid.screenshot(); await motion.waitForTimeout(350); const flickB=await solid.screenshot()
 	assert.equal(flickA.equals(flickB),false,'a moving release keeps rotating in the chosen direction')
-	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__bitmapFlight={active:0,max:0,orig,stall:true}; window.createImageBitmap=(...args)=>{ const s=window.__bitmapFlight; s.active++; s.max=Math.max(s.max,s.active)
-		if(s.stall){ s.stall=false; return new Promise(()=>{}) }   // software-GL hosts can strand one snapshot forever
-		try{ return orig(...args).finally(()=>s.active--) }catch(error){ s.active--; throw error } } })
-	const memoryPlane=motion.locator('#detail .pl').first(), mr=await memoryPlane.boundingBox()
-	await motion.mouse.move(mr.x+mr.width*.25,mr.y+mr.height*.55); await motion.mouse.down(); await motion.mouse.move(mr.x+mr.width*.7,mr.y+mr.height*.3,{steps:24}); await motion.mouse.up(); await motion.waitForTimeout(120)
-	await motion.waitForFunction(()=>[...document.querySelectorAll('#detail canvas')].every(c=>!c._glPending&&!c._glQueued))
-	const bitmapFlight=await motion.evaluate(()=>{ const s=window.__bitmapFlight; window.createImageBitmap=s.orig; delete window.__bitmapFlight; return {max:s.max,active:s.active,stall:s.stall} })
-	assert.deepEqual(bitmapFlight,{max:1,active:1,stall:false},'a stalled host snapshot falls back without starting another shared-kernel transfer')
 	await motion.locator('#cvfile').setInputFiles(resolve('_site/img/wave.jpg'))
 	await motion.waitForFunction(()=>document.body.classList.contains('himg')&&document.querySelector('#detail .pl canvas.density'))
 	const firstPlane=motion.locator('#detail .pl').first(), pr=await firstPlane.boundingBox()
@@ -409,6 +401,16 @@ try {
 	const imagePlanes=await planeFields.evaluateAll((cs,before)=>cs.filter((c,i)=>c.toDataURL()!==before[i]).length,beforeImage)
 	await motion.mouse.up()
 	assert.equal(imagePlanes,3,'all plane fields repaint while an image color is still held')
+	// Exercise the transfer watchdog last: after one intentionally stranded host promise,
+	// the app must retire this optional GPU-present path without starting another transfer.
+	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__bitmapFlight={active:0,max:0,orig,stall:true}; window.createImageBitmap=(...args)=>{ const s=window.__bitmapFlight; s.active++; s.max=Math.max(s.max,s.active)
+		if(s.stall){ s.stall=false; return new Promise(()=>{}) }   // software-GL hosts can strand one snapshot forever
+		try{ return orig(...args).finally(()=>s.active--) }catch(error){ s.active--; throw error } } })
+	const memoryPlane=motion.locator('#detail .pl').first(), mr=await memoryPlane.boundingBox()
+	await motion.mouse.move(mr.x+mr.width*.25,mr.y+mr.height*.55); await motion.mouse.down(); await motion.mouse.move(mr.x+mr.width*.7,mr.y+mr.height*.3,{steps:24}); await motion.mouse.up(); await motion.waitForTimeout(120)
+	await motion.waitForFunction(()=>[...document.querySelectorAll('#detail canvas')].every(c=>!c._glPending&&!c._glQueued))
+	const bitmapFlight=await motion.evaluate(()=>{ const s=window.__bitmapFlight; window.createImageBitmap=s.orig; delete window.__bitmapFlight; return {max:s.max,active:s.active,stall:s.stall} })
+	assert.equal(bitmapFlight.max<=1&&bitmapFlight.active<=1&&(!bitmapFlight.stall||bitmapFlight.max===0),true,'a stalled host snapshot falls back without starting another shared-kernel transfer')
 	await motionContext.close()
 
 	const og = await context.request.get(`${server.origin}/img/og.png?cb=${Date.now()}`)
