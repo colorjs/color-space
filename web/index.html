@@ -73,6 +73,7 @@ a:hover{ text-decoration-color:currentColor }
 .palm span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .palm:hover{ color:var(--ink) }
 .palm[hidden]{ display:none }   /* display:inline-flex above would otherwise defeat the hidden attr – an empty chip haunted the smooth modes */
+#gpill[data-g="clip"]{ color:var(--color-error); border-color:currentColor }   /* past the locus – the dossier's warning tone, one meaning everywhere */
 .palm:hover{ color:var(--ink) }
 /* the notation chevron: unfolds the colour in every format; picking a line sets how the field speaks */
 .fmtf{ display:flex; align-items:center }   /* NOT positioned — the dropdown anchors to .cx, unfolding from under the colour itself */
@@ -808,13 +809,12 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
    opens it with. The smooth sweep rides on top; beneath it the same spectrum posterizes
    row by row (36 → 18 → 9 nested bands) — sampling, told once, standing still ── */
 .ftr{ margin-top:var(--s12); --fh:11rem; position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column }
-.fgrad{ position:absolute; inset:0; z-index:0 }
-.fgrad::after{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.46; mix-blend-mode:overlay; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") }
+.fgrad{ position:absolute; inset:0; z-index:0; background:var(--color-terminal-paper) }   /* the npm plate's own black, wall to wall – the plate melts into it */
 .fov{ position:relative; z-index:2; flex:1; display:flex; align-items:stretch }
 .fwrap{ position:relative; width:100%; padding:4rem clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
-.fsup{ display:block; margin:var(--s6) 0 0 ; font-weight:700; color:inherit }   /* the support line rides directly under the npm plate, its own line, bold; the global half-ink underline */
+.fsup{ display:block; margin:var(--s6) 0 0 ; font-weight:700; color:var(--color-terminal-ink) }   /* the support line rides directly under the npm plate, its own line, bold; the global half-ink underline */
 
-.legal{ position:absolute; left:0; right:0; bottom:var(--s6); display:flex; justify-content:center; align-items:baseline; gap:var(--s2); color:var(--dark); font-size:var(--t2); line-height:1.4; text-align:center; font-variant-numeric:tabular-nums }
+.legal{ position:absolute; left:0; right:0; bottom:var(--s6); display:flex; justify-content:center; align-items:baseline; gap:var(--s2); color:var(--color-terminal-ink); font-size:var(--t2); line-height:1.4; text-align:center; font-variant-numeric:tabular-nums }
 .legal a{ color:inherit } .legal .dot{ opacity:.56 }
 .legal .om{ font-size:var(--t3) }
 /* the npm command, a black plate where the logo used to sit */
@@ -1982,7 +1982,11 @@ const valsFor=s=>{ if(vfM!==master){ vfM=master; vfF={} } return vfF[s]??=valsIn
 const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-eps&&x<=hi+eps)
 	const conv=to=>s===to?vals:space[s][to](...vals)
 	try{ if(inR(conv('rgb'),255)) return 'srgb'; if(inR(conv('p3'),1)) return 'p3'; if(inR(conv('rec2020'),1)) return 'rec2020' }catch{}
-	return null }
+	// beyond every display: a surface may still show it, a light may still be it – the
+	// chain ends at the locus, past which ⚠ marks a coordinate that is no color at all
+	try{ const X=s==='xyz'?vals:space[s].xyz(...vals)
+		if(X.every(isFinite)){ if(inVisSolid(...X)) return 'vis'; if(visibleXYZ(...X)) return 'locus' } }catch{}
+	return 'clip' }
 // lum/ink/decOf/fmtc/rgbF live in render.js — the prerender bakes the same formatting
 // the current color as a native CSS string — only for spaces CSS can actually express
 // (lab()/lch() are D50 like ours; predefined color() spaces are 0–1; our xyz is D65 0–100)
@@ -2714,8 +2718,8 @@ let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quan
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'Surface', locus:'Light' }   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
-const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly', p3:'beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it', rec2020:'beyond P3, fits Rec.2020 – most displays clip it', clip:'outside every standard display gamut – the on-screen preview is clipped' }
+const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'surface', locus:'light', clip:'⚠' }   // conventional casings – brands as brands, common nouns lowercase   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
+const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly', p3:'beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it', rec2020:'beyond P3, fits Rec.2020 – most displays clip it', vis:'beyond every display, yet a lit surface can show it – inside the object-color solid', locus:'no surface shows it, but it is a real light – on the spectral locus', clip:'outside the locus – not a color; the preview clips' }
 // 'human' is the fullest REAL shape (the visible gamut) and the no-display-cut state
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which
 // the always-drawn range cage already frames. (Legacy 'off' collapses to srgb default.)
@@ -3934,7 +3938,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
 		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${cname(c)} slider"></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
-		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags">${GAMS.map(g=>`<span class="gpill gt" data-g="${g}" title="${GAMTITLE[g]}">${GAMLABEL[g]}</span>`).join('')}<span class="gpill gt gwarn" data-g="clip" title="${GAMTITLE.clip}">⚠</span></span></div>`
+		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags">${[...GAMS,'vis','locus'].map(g=>`<span class="gpill gt" data-g="${g}" title="${GAMTITLE[g]}">${GAMLABEL[g]}</span>`).join('')}<span class="gpill gt gwarn" data-g="clip" title="${GAMTITLE.clip}">⚠</span></span></div>`
 	const plotPairs=pairsFor(s)
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dcat=sections.find(c2=>c2.spaces.includes(s))?.name||''   // from the data, not the catalog DOM — name views open before the catalog builds
@@ -4849,7 +4853,7 @@ function renderFast(solid=true){
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(fx)
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value
 	if(!virgin&&!PDOWN){ syncFav(fx); syncURL(hx) }   // the favicon wears the face; the URL keeps the exact coordinate
-	if(gpillEl&&!PDOWN){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
+	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
 	if(palmEl){ const on=PALMODES.has(Q)&&!virgin   // live through drags – the address should follow the hand
 		palmEl.hidden=!on
 		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit
@@ -5151,10 +5155,6 @@ if(tempQ!=null) setUITemp(+tempQ||0); else if(localStorage.csTemp) setUITemp(+lo
 // ── the spectrum sweep — the SAME light the masthead drum shows, so the page opens
 // and closes on one gradient. ──
 // precompute the sweep once so rebuilding an N-band gradient is just N lookups + a join
-const CLUT=SPEC.map(c=>hex(c)), clut=f=>CLUT[Math.round(clamp(f,0,1)*360)]
-const specGrad=n=>{ if(!n){ const st=[]; for(let k=0;k<=64;k++) st.push(clut(k/64))
-		return `linear-gradient(90deg, ${st.join(',')})` }
-	const st=[]; for(let k=0;k<n;k++) st.push(clut((k+0.5)/n)); return stepped(st) }
 // the OKLCH hue sweep at fixed L·C — the picker plane's hue layer AND the masthead line
 const WLUT=Array.from({length:721},(_,k)=>hex(rgbF('oklch',[0.72,0.15,k/720*360]))), wlut=f=>WLUT[Math.round(clamp(f,0,1)*720)]
 // the L·72 neutral the plane fades up to (saturation 0) — shared by the CSS overlay and the pick
@@ -5162,16 +5162,6 @@ const GRAY=rgbF('oklch',[0.72,0,0]).map(v=>clamp(Math.round(v),0,255))
 ;(()=>{ const pg=document.querySelector('.page').style
 	pg.setProperty('--mline',`linear-gradient(90deg, ${Array.from({length:73},(_,k)=>wlut(k/72)).join(',')})`)   // set on a shared ancestor so plane + bar both inherit
 	pg.setProperty('--igray',GRAY.join(',')) })()
-const fgrad=document.getElementById('fgrad')
-// overlay ink per side, from the wall's own ends (same inversion as the sliders)
-// the footer wall: three EQUAL rows — the smooth sweep, then the same spectrum at 20 and
-// 10 bands. Static: posterization is a fact about sampling, told once. Rows oversize a
-// touch and the earlier-listed row paints on top, so fractional row edges never open a
-// paper-coloured hairline between them.
-fgrad.style.background=[0,20,10].map(n=>specGrad(n)).join(',')
-fgrad.style.backgroundSize='100% 34%,100% 34%,100% 34%'
-fgrad.style.backgroundPosition='0 0,0 50%,0 100%'   // percent seats against the REMAINING 66% — 50/100 land the rows at 33/66
-fgrad.style.backgroundRepeat='no-repeat'
 // terminal buttons type themselves in when they scroll into view
 const typeObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('typing'); typeObs.unobserve(e.target) } }),{threshold:.6})
 document.querySelectorAll('.fnpm').forEach(b=>typeObs.observe(b))
