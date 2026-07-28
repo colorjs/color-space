@@ -1935,7 +1935,13 @@ const histMask=bins=>bins.map(b=>{ const srt=Float32Array.from(b).sort()
 const histSoon=()=>{ if(hT) return
 	hT=ric(dl=>{ hT=0
 		if(PDOWN){ histSoon(); return }   // a held pointer owns the frame budget — lanes bin after the release
-		for(const s of histQ){ if(dl.timeRemaining()<3) break
+		let attempted=false
+		for(const s of histQ){
+			// A continuously animating software renderer may never report idle time. A
+			// timeout must still buy ONE bounded histStep (it yields itself after HSLICE),
+			// rather than rescheduling zero-work callbacks forever.
+			if((dl.didTimeout&&attempted)||(!dl.didTimeout&&dl.timeRemaining()<3)) break
+			attempted=true
 			let done; try{ done=histStep(s) }catch{ done=true; histC.set(s,null) }
 			if(!done) break   // half-binned — the next slice picks it up mid-image
 			histQ.delete(s)
