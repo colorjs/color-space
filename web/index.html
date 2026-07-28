@@ -71,6 +71,7 @@ a:hover{ text-decoration-color:currentColor }
 .gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
 .palm{ display:inline-flex; align-items:center; gap:.4em; background:none; font:inherit; font-size:var(--t0); font-weight:800; cursor:pointer; text-transform:none; max-width:11em; overflow:hidden; text-overflow:ellipsis }   /* the palette address keeps its own case – "rebeccapurple", "Sky 500" */
 .palm .pd{ flex:none; width:.66em; height:.66em; background:var(--pmc,transparent); border:1px solid var(--hair) }
+.palm[hidden]{ display:none }   /* display:inline-flex above would otherwise defeat the hidden attr – an empty chip haunted the smooth modes */
 .palm:hover{ color:var(--ink) }
 /* the notation chevron: unfolds the colour in every format; picking a line sets how the field speaks */
 .fmtf{ display:flex; align-items:center }   /* NOT positioned — the dropdown anchors to .cx, unfolding from under the colour itself */
@@ -172,8 +173,9 @@ body.himg #upfl{ display:none }
 .tfp{ position:absolute; right:0; top:calc(100% + var(--s2)); z-index:var(--z-dropdown); display:flex; flex-direction:column; gap:var(--s2); width:min(26rem,calc(100dvw - 2rem)); max-height:min(34rem,calc(100dvh - 5rem)); overflow:auto; padding:var(--s3); background:var(--paper); box-shadow:var(--pop-shadow) }
 .tfp[hidden]{ display:none }
 .tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
-.vctl{ margin-left:0; display:flex; align-items:center; gap:var(--s2) }   /* the view lens rides the header rail, text-sized like the dossier's selects */
+.vctl{ margin-left:0; margin-right:var(--s2); display:flex; align-items:center; gap:var(--s2) }   /* the view lens rides the header rail, text-sized like the dossier's selects; the extra right margin evens the visual gap against the search icon's padded box */
 .vctl select[hidden]{ display:none }
+@media(max-width:640px){ .vctl #mseg{ display:none!important } }   /* phones: the ΔE metric yields – the mode alone fits the tight bar */
 .tfp .fsep{ border:0; border-top:1px solid var(--hair); margin:var(--s1) 0; width:100% }   /* rules the view options off the filters */
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
@@ -298,7 +300,7 @@ body.himg #upfl{ display:none }
    Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
    active tab (the row hangs from below, so its marker faces up) */
 .gtabs{ position:sticky; bottom:0; z-index:3; margin-top:auto; background:var(--paper); padding:0 0 12px; display:flex; gap:var(--s4) }   /* full column width, paper to the very screen edge while parked; the white begins exactly at the tabs' top — the breathing room lives INSIDE as bottom padding */
-.gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
+.gtabs .gtag{ font:inherit; font-size:var(--text-md); font-weight:700; letter-spacing:.02em; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
 .gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
