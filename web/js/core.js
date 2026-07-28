@@ -215,12 +215,21 @@ export const lensFor = (name, gamut) => {
 	// a chromaticity space discards luminance — the honest question is whether the
 	// DIRECTION is displayable at any luminance (the GPU kernel's normalisation)
 	const chrom = meta[name]?.method === 'chromaticity'
+	// a SPECTRAL space's coordinate is a light — a monochromatic line (wavelength), a
+	// Planckian radiator (kelvin) — real by definition. The locus test is vacuous there
+	// (its samples sit ON the locus polygon, where even-odd flips at random) and the
+	// object-colour solid is the wrong body (a laser is no reflectance, yet perfectly
+	// visible) — so the human lens shows all of it, and the display ghost normalises to
+	// the direction: "can this display show that light at any exposure".
+	const spectral = meta[name]?.method === 'spectral'
 	return v => { try {
 		if (nativeRim && !nativeRim(v)) return 0   // measured Munsell solid, not its global C≤38 storage box
 		let X = toXyz(...v), lin = gLin(...X)
 		if (chrom) { const pk = Math.max(lin[0], lin[1], lin[2], 1e-6); lin = lin.map(u => u / pk)
 			const t = 50 / Math.max(X[1], 1e-4); X = [X[0] * t, 50, X[2] * t] }
+		else if (spectral) { const pk = Math.max(lin[0], lin[1], lin[2], 1e-6); lin = lin.map(u => u / pk) }
 		if (!lin.every(u => u > -4 && u < PB)) return 0
+		if (spectral) return vis || !disp || lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
 		if (!visibleXYZ(...X)) return 0
 		if (vis) return inVisSolid(...X) ? 1 : 0
 		if (disp) return lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
@@ -268,13 +277,14 @@ export function ramp(name, vals, ci, min, max, n = 12, gamut = null) {
 }
 // ── generic 2-D plane (sweep channels cx,cy) → ImageData painted into ctx ──
 // gamut names a display gamut ('srgb' | 'p3' | 'rec2020'): pixels inside render full,
-// outside GHOST at ~10% — the space stays visible, the lens shows what the chosen
-// display can show. Cluster quantizers (websafe/names/ΔE) produce real display colors
-// by construction, so no ghosting applies there. Non-physical / non-finite
-// coordinates (linear < −4 or > 500: Luv's v′→0 pole, CAM16 divergence) void — the
-// formula's continuation there is clamp noise, not color. Scene-referred headroom
-// (camera logs decode to linear 8…460) is real light and renders clipped, inside
-// the +500 bound.
+// outside GHOST at 50% — the space stays visible, the lens shows what the chosen
+// display can show. The limits are a property of the COORDINATE, not the render mode:
+// smooth, stepped and cluster quantizers void and ghost identically (a palette cell is
+// a real display colour, but the coordinate under it can still be out of gamut or
+// imaginary). Non-physical / non-finite coordinates (linear < −4 or > 500: Luv's v′→0
+// pole, CAM16 divergence) void — the formula's continuation there is clamp noise, not
+// color. Scene-referred headroom (camera logs decode to linear 8…460) is real light
+// and renders clipped, inside the +500 bound.
 // quant: a number N snaps the two swept COORDINATES to N cell centres (the exact
 // lattice the sliders use), 'web' maps output to web-safe 51s, a function maps triples
 export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = null, quant = null) {
@@ -288,7 +298,6 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	// it just keeps the sRGB linear map for the physical-ceiling test, no display gamut
 	const vis = gamut === 'vis'
 	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[lens && !vis ? gamut : 'srgb']]
-	const cluster = !!qf || quant === 'web'
 	// physical ceiling: scene-referred / HDR spaces really carry big light (camera logs
 	// decode to linear 8…460); an SDR display space past ~4× diffuse white is formula
 	// noise (Luv's v'→0 pole, CAM16 divergence), not color
@@ -303,9 +312,9 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		let a = 255
 		if (gLin) { try { const X = toXyz(...v), lin = gLin(...X)
 			if (!lin.every(u => u > -4 && u < PB)) a = 0
-			else if (!cluster && !visibleXYZ(...X)) a = 0   // imaginary chromaticity: not a colour at any luminance, under any lens
-			else if (vis && !cluster && !inVisSolid(...X)) a = 0   // the human lens cuts by the SOLID the 3D view draws
-			else if (lens && !vis && !cluster && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
+			else if (!visibleXYZ(...X)) a = 0   // imaginary chromaticity: not a colour at any luminance, under ANY lens or render mode
+			else if (vis && !inVisSolid(...X)) a = 0   // the human lens cuts by the SOLID the 3D view draws
+			else if (lens && !vis && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
 		} catch { a = 0 } }
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a

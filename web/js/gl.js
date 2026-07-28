@@ -247,10 +247,11 @@ void main() {
 		rgb = floor(floor(rgb / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5);
 	}
 	float al = 1.0;
-	// physicality is lens-independent: past the space's linear-light ceiling (±4×
-	// diffuse white for SDR display spaces, 500× for scene-referred/HDR) the formula's
-	// continuation is clamp noise, not color (Luv's v'→0 pole, CAM16 divergence) —
-	// void. The gamut ghost applies only when a lens is selected.
+	// the limits are a property of the COORDINATE, not the render mode: past the space's
+	// linear-light ceiling (±4× diffuse white for SDR display spaces, 500× for scene-referred/
+	// HDR) the formula's continuation is clamp noise, not colour (Luv's v'→0 pole, CAM16
+	// divergence): void. Smooth, stepped, 16-bit, JND and palette lenses void and ghost
+	// identically; the lens only quantises the colour drawn WHERE a colour exists.
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
 	${meta[s]?.method === 'chromaticity' ? `// a CHROMATICITY space discards luminance — the honest gamut question is whether the
@@ -259,19 +260,26 @@ void main() {
 	// nearly the whole instrument (cct-duv read as broken)
 	lin /= max(max(lin.x, max(lin.y, lin.z)), 1e-6);
 	xyz *= 50.0 / max(xyz.y, 1e-4);` : ''}
+	${meta[s]?.method === 'spectral' ? `// a SPECTRAL space's coordinate is a light — a monochromatic line, a Planckian
+	// radiator — real by definition. The locus test is vacuous (its samples sit ON the
+	// locus polygon, where even-odd flips at random) and the object-colour solid is the
+	// wrong body (a laser is no reflectance, yet perfectly visible) — so no locus or
+	// solid cut, and the display ghost normalises to the direction: "can this display
+	// show that light at any exposure". Mirrors lensFor in core.js.
+	lin /= max(max(lin.x, max(lin.y, lin.z)), 1e-6);` : ''}
 	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;${nativeRim}
-	// a chromaticity off the spectral locus is imaginary at ANY luminance – not a colour
+	${meta[s]?.method === 'spectral' ? '' : `// a chromaticity off the spectral locus is imaginary at ANY luminance – not a colour
 	// under ANY lens – so it VOIDS, always (not only under the human lens). Lab/OKLab/…
 	// range boxes reach far past the visible spectrum; without this the plane paints those
 	// imaginary coords as pickable ghost, so the gamut looks vastly bigger than the eye's.
-	else if (uWeb == 0 && uClu == 0 && !visXYZ(xyz)) al = 0.0;
+	else if (!visXYZ(xyz)) al = 0.0;
 	// the HUMAN lens then cuts by the object-colour solid – the very body the 3D view
 	// tessellates. The locus alone admits any luminance for a real chromaticity, so the
 	// picker used to paint a far larger field than the solid's cross-section: same word,
 	// two shapes, and the plane read as if zoomed against the solid.
-	else if (uGam == 4 && uWeb == 0 && uClu == 0 && !(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.0;
+	else if (uGam == 4 && !(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.0;`}
 	// the display lenses instead GHOST real-but-undisplayable colours on top
-	else if (uGam != 0 && uGam != 4 && uWeb == 0 && uClu == 0) {
+	else if (uGam != 0 && uGam != 4) {
 		// gamut pad in ENCODED units (±half a code value) – a linear pad is ~16 code
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
 		// saturation swept far past the solid's own wall)

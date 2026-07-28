@@ -2,7 +2,9 @@
 // EVERY lens voids past it (the picking planes, the sliders, the gamut-membership
 // predicate) — an off-locus chromaticity is imaginary at any luminance, so no display
 // lens can make it real; the xy panel draws the boundary. One law, one source —
-// web/js/core.js — so this pins the law rather than any one surface.
+// web/js/core.js — so this pins the law rather than any one surface. The one exemption
+// is method:'spectral' (wavelength, kelvin): those coordinates ARE lights on the locus,
+// so the test is vacuous for them — and numerically unstable exactly on the polygon.
 //
 // The locus is NOT the Rösch–MacAdam optimal-colour solid the 3D shape is built from.
 // That body is a bounded REFLECTIVE gamut under illuminant E; a colour above its
@@ -13,7 +15,7 @@
 // @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004 — 1931 2° observer, D65 chromaticity
 // @see {@link https://www.iec.ch/publication/6169} IEC 61966-2-1 (sRGB) — primary chromaticities
 import test, { is } from 'tst'
-import { classify, locus, ramp, space, visibleXYZ } from '../web/js/core.js'
+import { classify, lensFor, locus, plane, ramp, space, visibleXYZ } from '../web/js/core.js'
 
 // a chromaticity, carried at some luminance — the locus law is scale-invariant
 const at = (x, y, Y = 50) => [x * Y / y, Y, (1 - x - y) * Y / y]
@@ -79,6 +81,48 @@ test('sliders: sparse colour guides cannot hide measured or disjoint validity sp
 	// colour approximation may stay sparse, but its independent validity scan may not.
 	is(hard(ramp('munsell', [50, 6.3, 15.4], 0, 0, 100, 8, 'vis')).length >= 4, true, 'Munsell H keeps every narrow prohibited interval')
 	is(hard(ramp('tsl', [45, .63, 107], 0, 0, 360, 8, 'vis')).length, 4, 'TSL T keeps both disjoint valid lobes')
+})
+
+// The limits are a property of the COORDINATE, not the render mode: a palette cell is a
+// real display colour, but the coordinate under it can still be out of gamut or imaginary.
+// The cluster lenses used to skip the voids and the ghost ("their cells are real display
+// colors"), so 16-bit/JND/palette planes filled edge to edge while smooth showed the
+// limits. Pin the law on the JS plane (the GPU kernel mirrors it line for line): the
+// alpha map must be IDENTICAL across smooth, web-safe and a function quantizer.
+test('planes: voids and ghosts are render-mode-independent', () => {
+	const alphas = (quant) => {
+		let img
+		const ctx = { createImageData: (w, h) => (img = { width: w, height: h, data: new Uint8ClampedArray(w * h * 4) }), putImageData: () => {} }
+		// the reported case: CIELAB L=78, a×b swept past the declared box under the sRGB
+		// lens (±160 reaches the off-locus corner) — the field carries all three states:
+		// in-gamut (255), out-of-sRGB ghost (128), imaginary void (0)
+		plane(ctx, 24, 'lab', [78, 0, 0], 1, 2, [-160, 160], [-160, 160], true, 'srgb', quant)
+		return Array.from({ length: 24 * 24 }, (_, i) => img.data[i * 4 + 3])
+	}
+	const q565 = rgb => rgb.map((v, k) => Math.round(Math.round(v / 255 * (k === 1 ? 63 : 31)) / (k === 1 ? 63 : 31) * 255))
+	const smooth = alphas(null), web = alphas('web'), pal = alphas(q565)
+	is(new Set(smooth).size >= 3, true, 'the slice carries full, ghost and void pixels')
+	is(web.join(), smooth.join(), 'web-safe voids and ghosts exactly like smooth')
+	is(pal.join(), smooth.join(), 'a cluster quantizer voids and ghosts exactly like smooth')
+})
+
+// A SPECTRAL space's coordinate is a light — a monochromatic line (wavelength), a
+// Planckian radiator (kelvin) — real by definition, so the human lens shows all of it.
+// The locus test is vacuous for these (their samples sit ON the locus polygon, where
+// even-odd flips at random) and the object-colour solid is the wrong body (a laser is
+// no reflectance, yet perfectly visible): the bar used to void most of its own range.
+test('sliders: a spectral space is fully visible under the human lens', () => {
+	for (const [s, lo, hi] of [['wavelength', 380, 700], ['kelvin', 1000, 40000]]) {
+		const visL = lensFor(s, 'vis'), srgbL = lensFor(s, 'srgb')
+		let full = 0, voided = 0, n = 0
+		for (let i = 0; i <= 64; i++) { const v = [lo + (hi - lo) * i / 64]; n++
+			if (visL(v) === 1) full++
+			if (srgbL(v) === 0) voided++ }
+		is(full, n, `${s}: every coordinate is a colour under the human lens (${full}/${n})`)
+		is(voided, 0, `${s}: the display lens ghosts, never voids, a real light`)
+	}
+	// no spectral line fits inside a display triangle — the sRGB lens ghosts all of it
+	is(lensFor('wavelength', 'srgb')([550]), 0.5, 'a monochromatic 550 nm line ghosts under sRGB')
 })
 
 test('visible: the boundary sits exactly on the locus', () => {

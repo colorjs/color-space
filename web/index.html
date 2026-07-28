@@ -69,6 +69,9 @@ a:hover{ text-decoration-color:currentColor }
 
 #cval{ field-sizing:content; min-width:4rem; max-width:22rem; font-size:var(--t3); color:var(--ink); padding-left:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
 .gpill{ margin-left:.75em; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
+.palm{ display:inline-flex; align-items:center; gap:.4em; background:none; font:inherit; font-size:var(--t0); font-weight:800; cursor:pointer; text-transform:none; max-width:11em; overflow:hidden; text-overflow:ellipsis }   /* the palette address keeps its own case – "rebeccapurple", "Sky 500" */
+.palm .pd{ flex:none; width:.66em; height:.66em; background:var(--pmc,transparent); border:1px solid var(--hair) }
+.palm:hover{ color:var(--ink) }
 /* the notation chevron: unfolds the colour in every format; picking a line sets how the field speaks */
 .fmtf{ display:flex; align-items:center }   /* NOT positioned — the dropdown anchors to .cx, unfolding from under the colour itself */
 .fmtb{ --ic:16px; display:grid; place-items:center; width:24px; height:24px; margin-left:.15em; padding:0; border:0; background:none; color:var(--soft); cursor:pointer }   /* chevron on the spinner scale — one chevron size everywhere */
@@ -169,6 +172,7 @@ body.himg #upfl{ display:none }
 .tfp{ position:absolute; right:0; top:calc(100% + var(--s2)); z-index:var(--z-dropdown); display:flex; flex-direction:column; gap:var(--s2); width:min(26rem,calc(100dvw - 2rem)); max-height:min(34rem,calc(100dvh - 5rem)); overflow:auto; padding:var(--s3); background:var(--paper); box-shadow:var(--pop-shadow) }
 .tfp[hidden]{ display:none }
 .tfp .frow{ display:grid; grid-template-columns:5rem minmax(0,1fr); gap:var(--s1); align-items:baseline }
+.tfp .vctl{ margin-left:0; justify-content:flex-start }   /* the view selects sit in the label grid like every other row – no dossier right-flush */
 .tfp .fsep{ border:0; border-top:1px solid var(--hair); margin:var(--s1) 0; width:100% }   /* rules the view options off the filters */
 .tfp .frow>i{ font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
 .tfp .fchips{ display:flex; flex-wrap:wrap; gap:var(--s1) }
@@ -346,7 +350,7 @@ body.himg #upfl{ display:none }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
 .ent.pop{ z-index:var(--z-dropdown) }   /* the whole focused row becomes one raised card */
 .ent.pop::before{ content:''; position:absolute; z-index:-1; top:calc(-1 * var(--popot,4px)); bottom:calc(-1 * var(--s1)); left:calc(var(--eg) - var(--s3)); right:calc(var(--eg) - var(--s3)); background:var(--paper); box-shadow:var(--pop-shadow) }   /* the surface outsets so every visual edge reads --s3 from content — the row box (and the name in it) never moves */   /* the whole focused row becomes one raised card — name, values AND sliders enclosed */
-.ent.lite.pop .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
+.ent.lite.pop .chs,.ent.lite.fea .chs{ max-height:none; opacity:1; overflow:visible; margin-top:var(--s2) }   /* sliders unfold in flow INSIDE the .ent card — one rect enclosing name, values and sliders, same size as a lead card's */
 .ent.lite.pop{ margin-bottom:calc(-1 * (var(--s2) + var(--ctl) * var(--nch))) }   /* keep the row's own padding on open (no top shift); the card grows by exactly its unfolded sliders (--s2 gap + nch × --ctl), and a matching negative margin lets it overlay the rows below instead of pushing them — no column reflow */
 body.alls .ent.lite .chs{ max-height:180px; opacity:1; margin-top:var(--s2) }
 /* the popover card works wherever a row hides its sliders — any width, any row kind */
@@ -585,8 +589,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 @media(max-width:640px){ .mnavbar.mfoot{ padding:var(--s2) 0; }
 	.bigch{ flex-wrap:nowrap; gap:var(--s1)!important; } .gtags{ flex:none; flex-wrap:nowrap }   /* phones: tight row */
 	.chead{ flex-wrap:nowrap; gap:var(--s2) }   /* one line, always — whatever rides it must yield, never wrap */
-	.chead .dctl{ flex:none; gap:var(--s1) }
-	.chead .dctl select:not(#qseg),.chead .dctl .hq{ display:none }   /* the quantization select alone — gamut subset and metric stay desktop tools */
+	.chead .dctl{ flex:none; gap:var(--s1) }   /* the gamut select rides phones too — it is the dossier's one remaining lens */
 	.chead .gtags{ display:none }   /* the masthead pill already names the tightest gamut — no duplicate on the tight row */
 }
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
@@ -827,7 +830,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
+	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><button class="gpill palm" id="palm" type="button" hidden><i class="pd" aria-hidden="true"></i><span></span></button><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -1395,9 +1398,10 @@ function colize(force){ const C=colCount()
 		const colH=new Array(C).fill(0)
 		let vi=0   // the first C VISIBLE entries head the columns — a filter must not seat its few survivors by the full catalog's geometry
 		ents.forEach(e=>{ const hid=e.style.display==='none', lead=!hid&&vi<C
+			e.classList.toggle('fea',lead&&e.classList.contains('lite'))   // a first-ROW seat means sliders – position decides, not curation; a filter's survivors earn the row
 			const col=hid?0:(lead?vi++:colH.indexOf(Math.min(...colH)))
 			cols[col].append(e)
-			if(!hid) colH[col]+=lead&&!e.classList.contains('lite')?3+(+e.style.getPropertyValue('--nch')||3):1 })
+			if(!hid) colH[col]+=lead?3+(+e.style.getPropertyValue('--nch')||3):1 })
 		box.replaceChildren(...cols)
 		sec.querySelectorAll(':scope>.grid,:scope>.sheet').forEach(x=>x.remove()) })
 	try{ layoutToc(); trackAct() }catch{} }
@@ -1643,6 +1647,12 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // brand accent) — the catalog is where the current colour lives.
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
+// the palette-match chip: under a palette lens the masthead names the nearest entry –
+// the color's address IN the chosen palette – and a click snaps to it
+const palmEl=document.getElementById('palm')
+if(palmEl) palmEl.onclick=()=>{ if(!PALMODES.has(Q)) return
+	const b=nearestIn(Q,RGB(),QM); master={ s:'rgb', vals:b.rgb.slice() }
+	scheduleFast(); paintCatalogGrad() }
 if(cvalEl){
 	// isTrusted + drag guards: renderFast mirrors the hex into these fields every frame — a
 	// synthetic input event (extension autofill and the like) or one landing mid-drag would
@@ -2001,8 +2011,11 @@ const BOOT={ hash:dec(location.hash.slice(1)), q:new URLSearchParams(location.se
 let urlT=performance.now(), urlLast=''   // seeded, not 0: the boot renderFast runs before route() parses the arrival hash — the throttle absorbs it, so a shared palette URL is never clobbered by the default stamp
 const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the chosen notation – hex stays the bare-hex canon, every other FMT serializes as its own function syntax (spaces AND the lch/lab %-signs pre-encoded; parens are fragment-legal)
 	return FMT==='hex'?hx.slice(1):fmtAs(FMT,hx).replace(/%/g,'%25').replace(/ /g,'%20') }
+// the search is the VIEW's lane (?q=names&m=…) – every color/route writer passes it
+// through, shedding only the boot flags (?sw service-worker probe, ?s= 404 bounce)
+const keepSearch=()=>{ try{ const sp=new URLSearchParams(location.search); sp.delete('sw'); sp.delete('s'); const s2=sp.toString(); return s2?'?'+s2:'' }catch{ return '' } }
 function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
-	const u=spaceURL(open()?selected:'')+'#'+urlHash()
+	const u=spaceURL(open()?selected:'')+keepSearch()+'#'+urlHash()
 	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
 // favicon carries the current color — the slider diamond, tab-sized
 const favEl=document.querySelector('link[rel="icon"]')
@@ -2434,7 +2447,7 @@ function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(
 	document.body.classList.toggle('flt',!!(q||any))   // filtering unfolds the mobile sections
 	qInput.closest('.qx').classList.toggle('flt',any); renderChips()
 	const fp=[...cat.querySelectorAll('.ent[data-s]')].filter(e=>e.style.display!=='none').map(e=>e.dataset.s).join()
-	if(fp!==applyFilter._fp){ applyFilter._fp=fp; colize(true) } }
+	if(fp!==applyFilter._fp){ applyFilter._fp=fp; colize(true); paintCatalogGrad(); paintCatalogVals() } }   // reseated rows may have PROMOTED – their sliders need paint
 qInput.addEventListener('input',applyFilter)
 document.getElementById('qclr').addEventListener('click',()=>{ qInput.value=''; applyFilter(); qInput.focus() })
 // facet picker beside search
@@ -2508,7 +2521,7 @@ function openModal(s){
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
 	modal.hidden=false; pageShell.inert=true; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
-	urlLast=spaceURL(s)+'#'+urlHash(); history.replaceState(null,'',urlLast)
+	urlLast=spaceURL(s)+keepSearch()+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
@@ -2539,7 +2552,7 @@ function buildBarred(b){
 	 ${MNAV('mfoot')}` }
 function closeModal(){ ensureCat(); modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
-	urlLast=spaceURL('')+'#'+urlHash(); history.replaceState(null,'',urlLast)
+	urlLast=spaceURL('')+keepSearch()+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
 document.getElementById('mx').onclick=closeModal
@@ -2718,6 +2731,39 @@ const qTriple=v=> PALMODES.has(v)? t=>nearestIn(v,t).rgb
 	: v==='565'? q565
 	: v==='web'? t=>t.map(x=>Math.round(x/51)*51)
 	: null
+// ── the VIEW row of the filter panel: rendering mode + distance metric are app-wide
+// lenses, not dossier tools – they quantize the catalog strips too and travel in the
+// URL. Injected here (the panel builds before this vocabulary exists); the dossier
+// keeps only its gamut-limits select. ──
+let viewFromURL=null   // assigned by the injection below; the boot route calls it before first paint
+{	const tfp=document.getElementById('tfp')
+	if(tfp){ const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}">${lb}</option>`
+		const qLegend=QSEG.map(([mo,lb])=>`${lb} – ${QTIP[qKey(mo)]}`).join('\n'), mLegend=METRICS.map(m2=>`${MLABEL[m2]} – ${MTIP[m2]}`).join('\n')
+		tfp.insertAdjacentHTML('beforeend',`<div class="frow"><i>view</i><span class="dctl vctl"><select id="qseg" aria-label="segmented rendering mode">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" disabled>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><span class="hq" title="${qLegend}
+
+${mLegend}">?</span></span></div>`)
+		const qs=tfp.querySelector('#qseg'), ms=tfp.querySelector('#mseg')
+		const applyView=()=>{ clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
+			cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
+				qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()) queuePlaneSettle() }) })
+			if(!open()){ paintCatalogGrad(); paintCatalogVals() } }   // Q rides the gradient stamps – the sweep re-bakes under the new lens
+		qs.onchange=()=>{ Q=qFromKey(qs.value); ms.disabled=!PALMODES.has(Q)   // the metric only means something over a palette – grayed elsewhere
+			applyView(); syncViewURL() }
+		ms.onchange=()=>{ QM=ms.value; applyView(); syncViewURL() }
+		// the boot URL restores a shared view – ?q=names&m=de2000 (absent params = defaults)
+		viewFromURL=()=>{ const sp=new URLSearchParams(location.search)
+			const q0=sp.get('q'), m0=sp.get('m')
+			if(q0&&QSEG.some(([mo])=>qKey(mo)===q0)&&q0!=='smooth'){ qs.value=q0; Q=qFromKey(q0); ms.disabled=!PALMODES.has(Q) }
+			if(m0&&METRICS.includes(m0)){ ms.value=m0; QM=m0 } }
+		viewFromURL() } }   // arrival params apply before the boot paints read Q/QM
+// the view params ride the url beside the color hash – written only off-default, so
+// plain addresses stay plain
+const syncViewURL=()=>{ try{ const sp=new URLSearchParams(location.search)
+	sp.delete('q'); sp.delete('m'); sp.delete('sw')
+	if(Q!=null) sp.set('q',qKey(Q))
+	if(PALMODES.has(Q)&&QM!=='oklab') sp.set('m',QM)
+	const qsStr=sp.toString()
+	history.replaceState(null,'',location.pathname+(qsStr?'?'+qsStr:'')+location.hash) }catch{} }
 // No-WebGL fallback for palette bars: sample the real quantizer densely, then merge
 // adjacent equal colors. Region widths stay truthful instead of inventing 20 equal cells.
 const sameRGB=(a,b)=>a.every((x,i)=>x===b[i])
@@ -3789,18 +3835,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		&&(tcurve.pts[26]-tcurve.lo)/(tcurve.hi-tcurve.lo)>0.3   // 26/144 ≈ 18% grey
 	const has3d=cls.ch.length===3   // dsh included: the plain box is honest — D's ±700 purple split shows as two slabs
 	const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
-	const qLegend=QSEG.map(([mo,lb])=>`${lb} – ${QTIP[qKey(mo)]}`).join('\n')
-	const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}"${mo===Q?' selected':''}>${lb}</option>`
-	const segsHTML=`<select id="qseg" aria-label="segmented rendering mode">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select>`
 	const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
 	const gamHTML=`<select id="gseg" aria-label="gamut subset">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
-	const mLegend=METRICS.map(m=>`${MLABEL[m]} – ${MTIP[m]}`).join('\n')
-	const msegHTML=`<select id="mseg" aria-label="palette distance metric"${PALMODES.has(Q)?'':' disabled'}>${METRICS.map(m=>`<option value="${m}" title="${MTIP[m]}"${m===QM?' selected':''}>${MLABEL[m]}</option>`).join('')}</select>`
-	const dctlHTML=`<div class="dctl">${segsHTML}${msegHTML}${gamHTML}<span class="hq" title="${qLegend}
-
-${mLegend}
-
-${gLegend}">?</span></div>`
+	// gamut limits alone – the rendering mode and its metric are app-wide lenses and live
+	// with the filters (they quantize the catalog too); this select is the dossier's own
+	const dctlHTML=`<div class="dctl">${gamHTML}<span class="hq" title="${gLegend}">?</span></div>`
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space – sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate – hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas></div></div>`:''
@@ -3949,16 +3988,6 @@ ${gLegend}">?</span></div>`
 		if(fb) fb.onclick=()=>fi.click()
 		if(fi) fi.onchange=()=>{ addImg(fi.files&&fi.files[0]); fi.value='' } }
 	const hp=detail.querySelector('#hp'); if(hp) hp.onclick=()=>{ huePath=huePath==='shorter'?'longer':'shorter'; renderFast() }
-	const ms=detail.querySelector('#mseg')
-	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value)
-		if(ms) ms.disabled=!PALMODES.has(Q)   // the metric only means something over a palette – grayed elsewhere, never jumping the row
-		clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
-		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
-			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) queuePlaneSettle() }) }) }
-	if(ms) ms.onchange=()=>{ QM=ms.value
-		clearClusterSnaps(); clusterize()
-		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
-			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) queuePlaneSettle() }) }) }
 	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM   // radio: one gamut always selected – the solid always shows SOME shape
 		wire3d(); renderFast(); queuePlaneSettle() }
 	const pinb=detail.querySelector('#pinb'), ipick=detail.querySelector('#ipick')
@@ -4598,7 +4627,7 @@ setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
 	if(PDOWN) return
 	if(open()&&!isBarred(selected)){ const mesh=detail.querySelector('.mesh3'); if(mesh) mesh._sceneKey=''
 		planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
-const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
+const liteOff=ent=>!ALLS&&ent.classList.contains('lite')&&!ent.classList.contains('fea')   // sheet rows carry no sliders – unless the setting says so, or a first-row seat promoted them
 let PDOWN=false
 addEventListener('pointerdown',e=>{ if(e.isPrimary){ PDOWN=true
 	if(e.target.closest?.('.ch,.bar2,.pl,.nv,.cv,.cd,#imgpk')) autoColor=false } },true)
@@ -4631,13 +4660,17 @@ function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUID
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
 		if(liteOff(ent)&&!ent.classList.contains('pop'))return
 		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=cls.ch.length>1?'vis':'off'; if(!vals)return
-		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}`
+		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}:${qKey(Q)}${PALMODES.has(Q)?':'+QM:''}`
 		if(skipI<0&&ent.dataset.g===gkey) return
 		let complete=true
 		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ if(i===skipI){ complete=false; return }
 			if(ch._g===gkey) return
-			const c=cls.ch[i], bg=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,n,lens).join(',')}), var(--checker)`
-			setCatalogGradient(ch,bg,morph); ch._g=gkey })
+			const c=cls.ch[i]
+			// the quantize lens reaches the catalog: the DOSSIER bars' own builders, cell for cell
+			const grad=typeof Q==='number'?stepped(Array.from({length:Q},(_,k2)=>{ const v=vals.slice(); v[i]=c.min+(c.max-c.min)*(k2+.5)/Q; return hex(rgbF(s,v)) }))
+				:Q!=null&&qTriple(Q)?qBarGradient(s,vals,i,c,qTriple(Q))
+				:`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,n,lens).join(',')})`
+			setCatalogGradient(ch,grad+', var(--checker)',morph); ch._g=gkey })
 		if(complete) ent.dataset.g=gkey }) }
 // The active row's values and all native picker positions stay live. Inactive numbers
 // use a light 100ms cadence; gradient fields keep the 300ms tier. Current-space gradients remain live.
@@ -4731,6 +4764,14 @@ function renderFast(solid=true){
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // a value-shaped hint in the chosen format, never an asserted value
 	if(!virgin&&!PDOWN){ syncFav(hx); syncURL(hx) }
 	if(gpillEl&&!PDOWN){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
+	if(palmEl&&!PDOWN){ const on=PALMODES.has(Q)&&!virgin
+		palmEl.hidden=!on
+		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit
+			if(palmEl._n!==b.n){ palmEl._n=b.n
+				palmEl.lastElementChild.textContent=b.n
+				palmEl.style.setProperty('--pmc',hex(b.rgb))
+				palmEl.title=`nearest ${Q} entry (${MLABEL[QM]}) – click to snap to ${b.n}`
+				palmEl.removeAttribute('data-tip') } } }   // re-arm the bubble with the fresh title
 	{ const active=activeCatalogEnt(), dossierOpen=open()
 		if(active&&!dossierOpen){ paintCatalogVals([active]); paintCatalogGrad([active],dragEnt?dragEntI:-1,(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,false) }
 		paintCatalogPickers(screenEnts(),rgb,hx,!dossierOpen)   // every background picker position stays live; hidden color tokens wait for close
