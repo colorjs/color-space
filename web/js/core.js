@@ -47,7 +47,7 @@ export function classify(name) {
 	const ch = (meta[name]?.channels || []).map((c, i) => ({ sym: c.symbol, min: c.min, max: c.max, name: c.name, i }))
 	for (const c of ch) {
 		if (c.max === 360) c.type = 'angle'
-		else if (/Light|Value|Intensity|Tone|Bright|Luma/.test(c.name)) c.type = 'tone'  // by name — 'V' means Value in HSV but chrominance in Luv
+		else if (/Light|Value|Intensity|Tone|Bright|Luma|Luminance/.test(c.name)) c.type = 'tone'  // by name — 'V' means Value in HSV but chrominance in Luv
 		else if (c.min < 0 && c.max > 0) c.type = 'bipolar'
 		else c.type = 'magnitude'
 	}

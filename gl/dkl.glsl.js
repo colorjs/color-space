@@ -1,8 +1,6 @@
-// GLSL chunk: CIE XYZ D65 0-100 <-> DKL cardinal-axis space. Mirrors dkl.js:
-// Smith-Pokorny cone matrix M, subtracting the D65 cone white (mat3(M, 95.0456,
-// 100, 108.9058) — dkl.js's own rounded literal, not xyz.js's full-precision
-// whitepoint). Inverse matrix is inv3(M) (computed once, embedded as literals,
-// same source of truth as dkl.js's runtime inv3(M)).
+// GLSL chunk: CIE XYZ D65 0-100 <-> calibrated Cartesian DKL. Mirrors dkl.js:
+// 50%-linear D65 is the adapting origin; columns of A are the luminance, scaled
+// Smith-Pokorny L−M and scaled S cardinal vectors for an sRGB display. AI is inv3(A).
 import xyz from './xyz.glsl.js'
 export default {
 	name: 'dkl',
@@ -10,21 +8,16 @@ export default {
 	edges: { xyz: ['xyz_dkl', 'dkl_xyz'] },
 	code: /* glsl */ `
 vec3 xyz_dkl(vec3 c) {
-	float L = 0.15514 * c.x + 0.54312 * c.y - 0.03286 * c.z;
-	float m = -0.15514 * c.x + 0.45684 * c.y + 0.03286 * c.z;
-	float S = 0.01608 * c.z;
-	float Lw = 65.478729796; float Mw = 34.517270204000006; float Sw = 1.751205264;
-	return vec3((L + m) - (Lw + Mw), (L - m) - (Lw - Mw), (S - (L + m)) - (Sw - (Lw + Mw)));
+	vec3 d = c - vec3(47.5228, 50.0, 54.4529);
+	return vec3(
+		-0.002125242659885096 * d.x + 0.021529715775033466 * d.y + 0.000450144861440146 * d.z,
+		 0.06650984937107116 * d.x - 0.04787272893511746 * d.y - 0.014087363995961057 * d.z,
+		 0.002473645552568517 * d.x - 0.025059202264392337 * d.y + 0.020851149348409613 * d.z);
 }
 vec3 dkl_xyz(vec3 c) {
-	float Lw = 65.478729796; float Mw = 34.517270204000006; float Sw = 1.751205264;
-	float sum = c.x + (Lw + Mw);
-	float diff = c.y + (Lw - Mw);
-	float L = (sum + diff) / 2.0; float m = (sum - diff) / 2.0;
-	float S = c.z + sum + (Sw - (Lw + Mw));
-	return vec3(
-		2.9448129066067628 * L - 3.5009779919364874 * m + 13.172182147147465 * S,
-		1.000040001600064 * L + 1.000040001600064 * m,
-		62.189054726368155 * S);
+	return vec3(47.5228, 50.0, 54.4529) + vec3(
+		47.5228 * c.x + 16.18535899466188 * c.y + 9.909137184210701 * c.z,
+		50.0 * c.x + 1.5976901767044762 * c.y,
+		54.4529 * c.x + 46.78343100299599 * c.z);
 }`,
 }

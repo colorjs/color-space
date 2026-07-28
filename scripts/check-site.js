@@ -29,6 +29,25 @@ try {
 	assert.match(initialGradient, /rgb\([^)]*\.\d+/, 'gradient guides retain sub-byte color precision')
 	assert.doesNotMatch(initialGradient, /\d(?:\.\d+)?%\s+\d(?:\.\d+)?%/, 'smooth mode has interpolated stops, not hard sampled bands')
 	assert.equal(await page.locator('#cd').inputValue(), '#808080', 'undefined color starts neutral gray')
+	await page.locator('#upfl').click(); await page.waitForSelector('#uppop:not([hidden])')
+	const specimens=page.locator('#uppop .upim:not(.upld)')
+	assert.equal(await specimens.count(),7,'image rail carries the seven canonical specimens')
+	assert.deepEqual(await specimens.evaluateAll(bs=>bs.map(b=>b.title)),['Signal chart – bars, ramps, hue, limits','Color rendition target','Simultaneous contrast – one gray, four surrounds','Video calibration – 75% bars, PLUGE, multiburst','Colormap paths – gray, viridis, plasma, inferno, magma, cool-warm, turbo','Emissive star – clipped core and chromatic glow','The Great Wave – Hokusai'],'specimen order moves from exact diagnostics through scenes and art')
+	assert.equal(await specimens.locator('canvas').count(),3,'all three graphical diagnostics are generated losslessly')
+	assert.equal(await specimens.locator('img').evaluateAll(imgs=>imgs.length===4&&imgs.every(img=>img.complete&&img.naturalWidth>0)),true,'all four raster specimens decode')
+	const rasterTruth=await specimens.locator('img').evaluateAll(imgs=>{ const raster=img=>{ const c=Object.assign(document.createElement('canvas'),{width:img.naturalWidth,height:img.naturalHeight}),x=c.getContext('2d'); x.drawImage(img,0,0); return {c,x} }, sample=(r,pts)=>pts.map(([a,b])=>[...r.x.getImageData(a,b,1,1).data.slice(0,3)])
+		const maps=raster(imgs[1]), glow=raster(imgs[2]), labels=[]; let y0=0
+		for(let row=0;row<7;row++){ const h=Math.floor(480/7)+(row<480%7?1:0),d=maps.x.getImageData(0,y0,160,h).data; let white=0; for(let i=0;i<d.length;i+=4)if(d[i]>245&&d[i+1]>245&&d[i+2]>245)white++; labels.push(white); y0+=h }
+		return {maps:sample(maps,[[0,100],[639,100],[0,380],[639,380]]),labels,glow:sample(glow,[[320,240],[350,240],[380,240]])} })
+	assert.deepEqual(rasterTruth.maps,[[68,1,84],[253,231,37],[59,76,192],[180,4,38]],'colormap atlas keeps the reference path endpoints')
+	assert.equal(rasterTruth.labels.every(n=>n>20),true,'every colormap path carries a compact white label')
+	assert.deepEqual(rasterTruth.glow,[[255,255,255],[255,238,98],[255,177,71]],'emissive target exposes its clipped white-to-warm radial sequence')
+	const generatedTruth=await specimens.locator('canvas').evaluateAll(cs=>{ const px=(c,x,y)=>[...c.getContext('2d').getImageData(x,y,1,1).data.slice(0,3)]
+		return {contrast:[[160,120],[480,120],[160,360],[480,360]].map(([x,y])=>px(cs[1],x,y)),video:[px(cs[2],40,40),px(cs[2],600,40)]} })
+	assert.deepEqual(generatedTruth.contrast,Array(4).fill([128,128,128]),'simultaneous-contrast centers are numerically identical')
+	assert.deepEqual(generatedTruth.video,[[180,180,180],[16,16,180]],'video card preserves its 75% studio-level endpoints')
+	assert.equal(await page.locator('#uppop .upld').count(),1,'upload remains available after the canonical seven')
+	await page.locator('#upfl').click()
 	const liveTier=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]')
 		const neighbor=document.querySelector('.ent[data-s="rgb"] .ch[data-i="1"]'), currentVal=document.querySelector('.ent[data-s="rgb"] .cv[data-i="0"]'), otherLane=document.querySelector('.ent[data-s="p3"] .ch'), otherVal=document.querySelector('.ent[data-s="p3"] .cv'), otherRange=document.querySelector('.ent[data-s="p3"] .nrg')
 		const frame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))), set=v=>{ src.value=v; src.dispatchEvent(new Event('input',{bubbles:true})) }, pause=ms=>new Promise(r=>setTimeout(r,ms))
@@ -260,7 +279,7 @@ try {
 	// Munsell's legal chroma is sharply bounded. A held drag must keep the exact GPU
 	// boundary instead of swapping to a sparse CSS approximation until release.
 	await page.locator('.ent[data-s="munsell"] .nm').click(); await page.waitForSelector('#detail .bar2')
-	for(const [i,v] of [[2,'15.4'],[1,'6.3'],[0,'50']]){ await page.locator('#bigch .nv').nth(i).fill(v); await page.waitForTimeout(100) }
+	for(const [i,v] of [[2,'15.4'],[1,'6.3'],[0,'50']]){ await page.locator('.bar2 .nrg').nth(i).fill(v); await page.waitForTimeout(100) }
 	await page.waitForFunction(()=>document.querySelector('.ent[data-s="munsell"]')?.dataset.g?.startsWith('munsell|50,6.3,15.4'))
 	assert.equal(await sliderBoundaryParity('munsell'),true,'Munsell H 50 V 6.3 C 15.4 has identical catalog and dossier limits')
 	await page.waitForFunction(()=>{ const c=document.querySelectorAll('#detail .bar2 .bgc')[2]; if(!c||c.style.display!=='block')return false
@@ -272,9 +291,17 @@ try {
 	await page.mouse.up(); await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
 
 	await page.locator('.ent[data-s="tsl"] .nm').click(); await page.waitForSelector('#detail .bar2')
-	for(const [i,v] of [[2,'107'],[1,'.63'],[0,'45']]){ await page.locator('#bigch .nv').nth(i).fill(v); await page.waitForTimeout(100) }
+	for(const [i,v] of [[2,'107'],[1,'0.63'],[0,'45']]){ await page.locator('.bar2 .nrg').nth(i).fill(v); await page.waitForTimeout(100) }
 	await page.waitForFunction(()=>document.querySelector('.ent[data-s="tsl"]')?.dataset.g?.startsWith('tsl|45,0.63,107'))
 	assert.equal(await sliderBoundaryParity('tsl'),true,'TSL T 45° S 0.63 L 107 has identical catalog and dossier limits')
+	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
+
+	// DKL is contrast around a mid-linear adapting background. The old white-relative,
+	// one-sided ranges collapsed its fields into nearly flat strips.
+	await page.locator('.ent[data-s="dkl"] .nm').click(); await page.waitForSelector('#detail .pl')
+	assert.deepEqual(await page.locator('.bar2 .nrg').evaluateAll(rs=>rs.map(r=>[+r.min,+r.max])),[[-1,1],[-1.7,1.7],[-1.85,1.85]],'DKL exposes signed cardinal-axis ranges')
+	for(let i=0;i<3;i++)await page.locator('.bar2 .nrg').nth(i).fill('0')
+	await page.waitForFunction(()=>[...document.querySelectorAll('#detail .pl > canvas:first-child')].every(c=>{ const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data, colors=new Set; let opaque=0; for(let i=0;i<d.length;i+=4)if(d[i+3]>20){ opaque++; colors.add((d[i]>>4)+'|'+(d[i+1]>>4)+'|'+(d[i+2]>>4)) } return opaque>1000&&colors.size>100 }))
 	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
 
 	await page.goto(`${server.origin}/oklch?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
@@ -358,7 +385,7 @@ try {
 	await motion.waitForFunction(()=>window.__bitmapFlight.active===0)
 	const maxBitmaps=await motion.evaluate(()=>{ const s=window.__bitmapFlight; window.createImageBitmap=s.orig; delete window.__bitmapFlight; return s.max })
 	assert.equal(maxBitmaps<=6,true,'dossier dragging keeps at most one deferred bitmap per plane or bar in flight')
-	await motion.locator('#cvfile').setInputFiles(resolve('_site/img/barn.jpg'))
+	await motion.locator('#cvfile').setInputFiles(resolve('_site/img/wave.jpg'))
 	await motion.waitForFunction(()=>document.body.classList.contains('himg')&&document.querySelector('#detail .pl canvas.density'))
 	const firstPlane=motion.locator('#detail .pl').first(), pr=await firstPlane.boundingBox()
 	await firstPlane.evaluate(pl=>{ const density=pl._density, dc=density.getContext('2d'), oldImage=dc.drawImage.bind(dc)

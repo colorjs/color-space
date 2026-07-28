@@ -74,6 +74,7 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	const unmapped = Object.keys(space).filter(n => !map.includes(`/${n}</loc>`))
 	is(unmapped, [], 'every space is in the sitemap')
 	is(existsSync(`${site}/llms.txt`) && existsSync(`${site}/robots.txt`), true, 'llms + robots staged')
+	is(['target.jpg','colormaps.png','glow.png','wave.jpg'].filter(n=>!existsSync(`${site}/img/${n}`)), [], 'the four raster histogram specimens ship with the site')
 	// per-space pages are atlas copies with their own head — pin the stamp, not the body
 	// (the dossier's Wikipedia link is JS-rendered; one-article-per-space is pinned below)
 	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8')

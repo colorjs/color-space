@@ -65,6 +65,7 @@ test('sliders: CSS ramps interpolate float guides and cut only real validity edg
 	const positions = lensed.map(stop => stop.match(/ ([\d.]+)%$/)?.[1]).filter(Boolean)
 	is(positions.some((p, i) => i && p === positions[i - 1]), true, 'a genuine human-gamut edge has duplicate hard-boundary stops')
 	is(classify('oklch'), classify('oklch'), 'immutable channel classification is shared across render frames')
+	is(classify('dkl').archetype,'opponent','signed DKL cardinal axes classify as luminance plus two opponents')
 })
 
 test('sliders: sparse colour guides cannot hide measured or disjoint validity spans', () => {

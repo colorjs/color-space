@@ -41,6 +41,17 @@ test('cie: luv L* routes through the shared companding', () => {
 	is(L, 116 * Math.cbrt(tSplit) - 16, 'luv L* equals the exact-cbrt CIELAB lightness')
 })
 
+test('dkl: calibrated Cartesian axes surround the adapting background', () => {
+	is(space.dkl.range, [[-1, 1], [-1.7, 1.7], [-1.85, 1.85]], 'ranges cover the sRGB cube on signed cardinal axes')
+	const bg=space.dkl.rgb(0,0,0), rgp=space.dkl.rgb(0,1,0), rgn=space.dkl.rgb(0,-1,0), byp=space.dkl.rgb(0,0,1), byn=space.dkl.rgb(0,0,-1)
+	is(Math.max(...bg)-Math.min(...bg)<1e-3&&Math.abs(bg[0]-187.516)<1e-3,true,'origin is 50%-linear D65, not display white')
+	is(rgp[0]>rgp[1]&&rgn[1]>rgn[0],true,'red-green axis has two genuinely opponent directions')
+	is(byp[2]>byp[0]&&byn[2]<byn[0],true,'tritan axis has two genuinely opponent directions')
+	let err=0
+	for(const r of [0,255])for(const g of [0,255])for(const b of [0,255]){ const d=space.rgb.dkl(r,g,b), back=space.dkl.rgb(...d); err=Math.max(err,Math.abs(back[0]-r),Math.abs(back[1]-g),Math.abs(back[2]-b)) }
+	is(err<2e-9,true,`the full sRGB cube round-trips through DKL (${err})`)
+})
+
 // The atlas's HUMAN gamut is the optimal-colour (Rösch–MacAdam) solid, and it is built
 // under D65 — the same white every gamut it is compared against uses. That rests on a
 // vendored D65 spectrum, so pin it to an authority the library already ships: integrating

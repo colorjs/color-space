@@ -1681,7 +1681,8 @@ upFl.dataset.tip=UPTIP
 document.body.append(upFl)
 // the button opens the sample stripe, not the file chooser; the chooser is the stripe's last tile
 const upPop=Object.assign(document.createElement('div'),{id:'uppop',hidden:true,ariaLabel:'sample images'})
-const SAMPLES=[['img/wave.jpg','The Great Wave – Hokusai'],['img/starry.jpg','The Starry Night – van Gogh'],['img/pearl.jpg','Girl with a Pearl Earring – Vermeer'],['img/sunrise.jpg','Impression, Sunrise – Monet'],['img/barn.jpg','Grand Teton barn'],['img/jungle.jpg','Surprised! – Rousseau']]
+const SAMPLES=[['chart','Signal chart – bars, ramps, hue, limits'],['img/target.jpg','Color rendition target'],['contrast','Simultaneous contrast – one gray, four surrounds'],['video','Video calibration – 75% bars, PLUGE, multiburst'],['img/colormaps.png','Colormap paths – gray, viridis, plasma, inferno, magma, cool-warm, turbo'],['img/glow.png','Emissive star – clipped core and chromatic glow'],['img/wave.jpg','The Great Wave – Hokusai']]
+const GENERATED_SAMPLES=new Set(['chart','contrast','video'])
 // ── the stripe REMEMBERS: the last-opened images lead (stock and uploads alike, never
 // duplicated), stock tops the rail up to 7, the chooser closes it. Order lives in
 // localStorage as keys; uploaded Files live in IndexedDB so they survive the visit.
@@ -1698,21 +1699,21 @@ const mru=()=>{ try{ const a=JSON.parse(localStorage.csImgMru||'[]'); return Arr
 const mruBump=k=>{ try{ const a=[k,...mru().filter(x=>x!==k)]
 		for(const ev of a.splice(7)) if(ev.startsWith('u:')) idbDel(ev)   // the rail is 7 deep – evicted uploads release their bytes
 		localStorage.csImgMru=JSON.stringify(a) }catch{} }
-const STOCK=new Map(SAMPLES)
+const STOCK=new Map(SAMPLES.filter(([key])=>!GENERATED_SAMPLES.has(key)))
 const upTile=(title,onpick)=>{ const b=Object.assign(document.createElement('button'),{type:'button',className:'upim',title,ariaLabel:'use '+title})
 	b.addEventListener('click',()=>{ upOpen(false); onpick() }); return b }
-let upChart=null   // drawn once, reused across rebuilds
+const upCharts=new Map()   // generated diagnostics are drawn once, reused across rebuilds
 let upB=null   // in-flight build – a double-click must join it, not interleave a second teardown
 async function upBuild(){ upPop.querySelectorAll('.upim').forEach(b=>{ if(b._url) URL.revokeObjectURL(b._url); b.remove() })
 	const recs=new Map()
 	for(const k of mru()) if(k.startsWith('u:')){ const r=await idbGet(k); if(r) recs.set(k,r) }
-	const keys=mru().filter(k=>recs.has(k)||STOCK.has(k)||k==='chart')
-	for(const p of [...STOCK.keys(),'chart']) if(!keys.includes(p)&&keys.length<7) keys.push(p)
+	const keys=mru().filter(k=>recs.has(k)||STOCK.has(k)||GENERATED_SAMPLES.has(k))
+	for(const [key] of SAMPLES) if(!keys.includes(key)&&keys.length<7) keys.push(key)
 	for(const k of keys.slice(0,7)){
 		if(STOCK.has(k)){ const b=upTile(STOCK.get(k),()=>fetch(k).then(r=>r.blob()).then(bl=>takeImage(new File([bl],k.split('/').pop(),{type:bl.type||'image/jpeg'}),k)).catch(()=>toast('could not load that image')))
 			b.append(Object.assign(document.createElement('img'),{src:k,alt:'',loading:'lazy',decoding:'async'})); upPop.append(b) }
-		else if(k==='chart'){ const ch=upChart??=chartImg()
-			const b=upTile('synthetic chart – hue sweep, gray ramp, known patches',()=>ch.toBlob(bl=>bl&&takeImage(new File([bl],'chart.png',{type:'image/png'}),'chart')))
+		else if(GENERATED_SAMPLES.has(k)){ const ch=upCharts.get(k)??generatedImg(k); upCharts.set(k,ch)
+			const title=SAMPLES.find(([key])=>key===k)[1], b=upTile(title,()=>ch.toBlob(bl=>bl&&takeImage(new File([bl],`${k}.png`,{type:'image/png'}),k)))
 			b.append(ch); upPop.append(b) }
 		else{ const f=recs.get(k), b=upTile(f.name||'your image',()=>takeImage(f,k))
 			b._url=URL.createObjectURL(f)
@@ -3835,7 +3836,7 @@ ${gLegend}">?</span></div>`
 				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
 				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
 				${path&&path.length>1?`<div><i title="the conversion route down to rgb – each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
-				${m.loss?`<div><i>loss</i><p title="${m.lossNote||''}">${m.loss}</p></div>`:''}
+				${m.loss?`<div><i>loss</i><p>${m.lossNote?`<span class="term" title="${m.lossNote}">${m.loss}</span>`:m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
 			</div>
@@ -4316,20 +4317,50 @@ function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el)
 					if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey='no such color – these coordinates decode outside sRGB, which this space is defined on' }catch{} } }
 			cx.classList.toggle('ghost',!!bey); cx.title=bey }
 		cx.style.background=cx.classList.contains('ghost')?'transparent':hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
-// canonical test images: the public-domain Grand-Teton barn, plus a synthetic chart we own
+// Seven complementary specimens: exact signal, physical target, contextual perception,
+// broadcast calibration, data-map paths, emissive clipping and flat print. The same seven drive the
+// picker rail and every dossier so distributions stay comparable across families.
 let IMG=null, imgIdx=0, IMGS=null
 let UIMG=null   // the image the reader dropped – it outranks the built-in specimens everywhere
 function chartImg(){ const c=document.createElement('canvas'); c.width=640; c.height=480; const x=c.getContext('2d')
-	for(let i=0;i<640;i++){ x.fillStyle=`hsl(${(i/640*360).toFixed(1)} 100% 50%)`; x.fillRect(i,0,1,150) }
-	for(let i=0;i<640;i++){ const g=Math.round(i/639*255); x.fillStyle=`rgb(${g} ${g} ${g})`; x.fillRect(i,150,1,76) }
-	const P=[[173,36,48],[231,138,42],[238,219,54],[62,146,72],[52,113,190],[105,63,145],[224,120,150],[240,231,214],[126,88,58],[42,42,44],[128,128,130],[222,222,224]]
-	P.forEach((q,k)=>{ x.fillStyle=`rgb(${q[0]} ${q[1]} ${q[2]})`; x.fillRect((k%6)*106+2,230+Math.floor(k/6)*126,102,122) })
+	const fill=(q,x0,y,w,h)=>{ x.fillStyle=`rgb(${q[0]} ${q[1]} ${q[2]})`; x.fillRect(x0,y,w,h) }
+	// Exact full-code additive bars: discrete histogram spikes and channel extrema.
+	const bars=[[255,255,255],[255,255,0],[0,255,255],[0,255,0],[255,0,255],[255,0,0],[0,0,255],[0,0,0]]
+	bars.forEach((q,i)=>fill(q,i*80,0,80,144))
+	// Adjacent encoded-code and linear-light ramps expose transfer-curve behavior.
+	for(let i=0;i<640;i++){ const u=i/639, code=Math.round(u*255), enc=Math.round(255*(u<=.0031308?12.92*u:1.055*u**(1/2.4)-.055))
+		fill([code,code,code],i,144,1,72); fill([enc,enc,enc],i,216,1,72) }
+	// Continuous hue reveals wheels and opponent-axis folds without quantized terraces.
+	for(let i=0;i<640;i++) fill(space.hsl.rgb(i/640*360,100,50),i,288,1,112)
+	// Near-black, middle and near-white code steps make clipping and endpoint handling obvious.
+	const limits=[0,1,2,4,8,16,32,64,96,128,160,192,224,247,254,255]
+	limits.forEach((g,i)=>fill([g,g,g],i*40,400,40,80))
 	return c }
+function contrastImg(){ const c=document.createElement('canvas'); c.width=640; c.height=480; const x=c.getContext('2d')
+	const surrounds=[[224,58,52],[24,148,168],[232,208,42],[76,54,180]], same=[128,128,128]
+	surrounds.forEach((q,i)=>{ const ox=i%2*320, oy=Math.floor(i/2)*240
+		x.fillStyle=`rgb(${q.join(' ')})`; x.fillRect(ox,oy,320,240)
+		// Every center is byte-identical. Only its surround changes, isolating simultaneous
+		// chromatic/lightness contrast rather than smuggling a numeric difference into it.
+		x.fillStyle=`rgb(${same.join(' ')})`; x.fillRect(ox+104,oy+72,112,96) })
+	return c }
+function videoImg(){ const c=document.createElement('canvas'); c.width=640; c.height=480; const x=c.getContext('2d'), fill=(q,x0,y,w,h)=>{ x.fillStyle=`rgb(${q.join(' ')})`; x.fillRect(x0,y,w,h) }
+	// RP-219-style 75% studio RGB levels: high=180, low/black=16.
+	const bars=[[180,180,180],[180,180,16],[16,180,180],[16,180,16],[180,16,180],[180,16,16],[16,16,180]]
+	bars.forEach((q,i)=>fill(q,Math.floor(i*640/7),0,Math.ceil((i+1)*640/7)-Math.floor(i*640/7),224))
+	const cast=[[16,16,180],[16,16,16],[180,16,180],[16,16,16],[16,180,180],[16,16,16],[180,180,180]]
+	cast.forEach((q,i)=>fill(q,Math.floor(i*640/7),224,Math.ceil((i+1)*640/7)-Math.floor(i*640/7),80))
+	fill([16,16,64],0,304,160,80); fill([235,235,235],160,304,160,80); fill([64,16,64],320,304,160,80); fill([16,16,16],480,304,160,80)
+	;[[7,520],[16,560],[26,600]].forEach(([g,ox])=>fill([g,g,g],ox,320,40,48))   // below, at and above studio black: PLUGE
+	const widths=[32,16,8,4,2,1]
+	widths.forEach((w,k)=>{ const x0=Math.floor(k*640/6), x1=Math.floor((k+1)*640/6)
+		for(let px=x0;px<x1;px++){ fill((Math.floor((px-x0)/w)&1)?[180,180,16]:[16,16,180],px,384,1,48); fill((Math.floor((px-x0)/w)&1)?[16,180,180]:[180,16,16],px,432,1,48) } })
+	return c }
+const generatedImg=key=>({chart:chartImg,contrast:contrastImg,video:videoImg}[key]())
 function loadImgs(cb){ if(IMGS){ cb(); return }
-	const names=SAMPLES.map(x=>x[0])   // ONE canon: the corner stripe and this lens read the same list
-	Promise.all(names.map(u=>new Promise(res=>{ const im=new Image(); im.src=u
-		im.onload=()=>res(im); im.onerror=()=>res(null) })))
-	.then(list=>{ IMGS=[...list.filter(Boolean),chartImg()]
+	Promise.all(SAMPLES.map(([u])=>GENERATED_SAMPLES.has(u)?Promise.resolve(generatedImg(u)):new Promise(res=>{ const im=new Image(); im.src=u
+		im.onload=()=>res(im); im.onerror=()=>res(null) })))   // ONE canon: rail and dossier read this exact order
+	.then(list=>{ IMGS=list.filter(Boolean)
 		if(UIMG){ IMGS.push(UIMG); IMGS._user=IMGS.length-1; IMG=UIMG; imgIdx=IMGS._user }   // dropped before this dossier ever opened – it still leads
 		else IMG=IMGS[0]
 		cb() }) }
@@ -4387,16 +4418,31 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 // image samples on the planes: SHARP dots at the plane's own resolution — the 3D
 // cloud's voice in 2D. Density emerges from overlap (fixed per-dot alpha), not from a
 // coarse splat grid soft-scaled up (that read as blur, not as points).
+// the dots' ink answers the FIELD they sit on, not the master color – cct-duv's blackbody
+// plane is near-white whatever is picked, and master-ink dots washed out on it. Sampled
+// from the plane's own painted pixels: at rest, throttled, cached through drags.
+const fieldDark=pl=>{ const now=performance.now()
+	if(pl._fd!=null&&(PDOWN||(pl._fdT??0)+400>now)) return pl._fd
+	pl._fdT=now
+	try{ const cv=pl.querySelector('canvas')
+		if(!cv?.width) return pl._fd??=true
+		const d=cv.getContext('2d',{willReadFrequently:true}).getImageData(0,0,cv.width,cv.height).data
+		let L=0,A2=0
+		for(let i2=0;i2<d.length;i2+=64){ if(d[i2+3]<128) continue
+			L+=.2126*d[i2]+.7152*d[i2+1]+.0722*d[i2+2]; A2++ }
+		return pl._fd=!A2||L/A2>153 }   // no paint yet → dark dots (they sit on paper/checker)
+	catch{ return pl._fd??=true } }
 function planeDensity(pl,s,a,b,cls,w,h){
 	const rec=histV.get(s); if(!rec) return null
 	const vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}, fl=flip3(cls,a,b), pol=pl._polar, tri=pl._tri
-	const key=s+'|'+a+','+b+'|'+(pol?'p':tri?'t'+tri:'r')+'|'+vw.x0+','+vw.x1+','+vw.y0+','+vw.y1+'|'+w+'x'+h+'|'+hRev
+	const dk2=fieldDark(pl)
+	const key=s+'|'+a+','+b+'|'+(pol?'p':tri?'t'+tri:'r')+'|'+vw.x0+','+vw.x1+','+vw.y0+','+vw.y1+'|'+w+'x'+h+'|'+hRev+'|'+dk2
 	if(pl._dk===key) return pl._dc
 	pl._dk=key; pl._dc=null
 	const { v, dim, n }=rec, ca=cls.ch[a], cb=cls.ch[b], msk=brushMask()
 	const cvd=Object.assign(document.createElement('canvas'),{width:w,height:h})
 	const cd=cvd.getContext('2d')
-	cd.fillStyle=ink(RGB())==='#fff'?'#fff':'#16161a'
+	cd.fillStyle=dk2?'#16161a':'#fff'
 	cd.globalAlpha=.20
 	const r=Math.max(2,w/190), r2=r/2
 	let drew=0
