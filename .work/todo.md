@@ -9,11 +9,12 @@
 
 ## Ideas
 
+* [ ] Pick a palette - multiple stops from an image
+* [ ] speed up ops via JZ
+* [x] picture icon -> upload, select sample
 * [x] ~~claim https://github.com/js-org/js.org~~
 * [x] Color atlas view or filter - like https://www.artlebedev.ru/susha/ - comparison by size, coverage etc - the variant of main view
 * [x] ~~Main screen configuration - sliders, planes, just a table, CSS values etc~~
-* [ ] Pick a palette - multiple stops from an image
-* [ ] speed up ops via JZ
 * [x] Drop an image
   * [x] Floater image area
 * [x] HEIC images

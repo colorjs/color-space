@@ -30,8 +30,8 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 
 1. [x] **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
 2. [x] **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
-2b. [ ] **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
-2c. [x] **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, provenance, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
+2b. [x] **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
+2c. [x] **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, image histograms in any space, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
 
     - [x] awesome-javascript — PR open: github.com/sorrycc/awesome-javascript/pull/1123
     - [x] awesome-colour (colour-science) — already listed, nothing to do
@@ -79,7 +79,7 @@ Alt, sparer:
 ### [x] Product Hunt (atlas-framed)
 
 - **Name:** color-space · **Tagline:** `An interactive atlas of 162 color spaces` · **Topics:** design tools, developer tools, open source
-- **Description:** Every color space — web, print, film, broadcast, vision, history. Live conversion, conventional ranges, provenance, cited references. Export any pair as a .cube LUT or ICC profile, in-browser. Free, public domain.
+- **Description:** Every color space — web, print, film, broadcast, vision, history. Live conversion with cited sources. Drop an image — its per-channel histograms in any of the 162 spaces. Export any pair as a .cube LUT or ICC profile, in-browser. Free, public domain.
 - **Maker comment:** one paragraph, README register: what it is, verification in one sentence, "not a toolkit" in one sentence, ask for feedback on spaces people actually use.
 
 ### [x] Show HN (title ≤80 chars · URL `https://color-space.io/`)
@@ -115,7 +115,7 @@ Prepared answers: *why-not-culori* (for when they lack your space / conventional
 >
 > Two questions. Where is the math wrong? — the suite is public and reruns on `npm test`. And which missing pair would help your work?
 >
-> https://color-space.io — LUT export on every camera-log page.
+> https://color-space.io — LUT export on every camera-log page; drop a frame there and it reads back as per-channel histograms in that log's own code values.
 
 Pre-post: rerun `npm test` same day · verify downloads in Safari/Firefox · have the CAT02 and Canon-×0.9 replies ready · disclose authorship line one · never argue — thank, verify, fix, report back.
 
