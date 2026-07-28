@@ -19,15 +19,25 @@ const nativeBitmap=src=>new Promise((resolve,reject)=>{ let done=false
 	try{ createImageBitmap(src).then(bitmap=>{ if(done){ bitmap.close?.(); return }
 			done=true; clearTimeout(timer); resolve(bitmap) },error=>{ if(done)return; done=true; clearTimeout(timer); reject(error) }) }
 	catch(error){ done=true; clearTimeout(timer); reject(error) } })
+const timed=(promise,message)=>new Promise((resolve,reject)=>{ const timer=setTimeout(()=>reject(new Error(message)),BITMAP_TIMEOUT)
+	promise.then(value=>{ clearTimeout(timer); resolve(value) },error=>{ clearTimeout(timer); reject(error) }) })
+const codecBitmap=async src=>{ if(typeof ImageDecoder==='undefined'||!src.type) throw new Error('WebCodecs image decode unavailable')
+	const decoder=new ImageDecoder({data:src.stream(),type:src.type})
+	try{ const {image}=await timed(decoder.decode({frameIndex:0}),'WebCodecs image decode timed out')
+		const w=image.displayWidth||image.codedWidth, h=image.displayHeight||image.codedHeight
+		const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):Object.assign(document.createElement('canvas'),{width:w,height:h})
+		try{ cv.getContext('2d').drawImage(image,0,0,w,h) }finally{ image.close() }
+		return cv }finally{ decoder.close() } }
 const elementBitmap=async src=>{ const url=URL.createObjectURL(src), img=new Image(); img.decoding='async'
 	try{ img.src=url
-		if(img.decode) await img.decode()
-		else await new Promise((resolve,reject)=>{ img.onload=resolve; img.onerror=reject })
+		if(img.decode) await timed(img.decode(),'image element decode timed out')
+		else await timed(new Promise((resolve,reject)=>{ img.onload=resolve; img.onerror=reject }),'image element decode timed out')
 		if(!img.naturalWidth||!img.naturalHeight) throw new Error('image element decoded no pixels')
 		return img } finally { URL.revokeObjectURL(url) } }
 async function decodeBitmap(src){
 	let nativeError
 	try{ return await nativeBitmap(src) }catch(e){ nativeError=e }
+	try{ return await codecBitmap(src) }catch{}
 	try{ return await elementBitmap(src) }catch{
 		if(!HEIC.test(src.type||'')&&!/\.hei[cf]$/i.test(src.name||'')) throw nativeError
 		const lib=await (await import('../vendor/libheif.mjs')).default()
