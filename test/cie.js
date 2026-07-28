@@ -71,3 +71,28 @@ test('vis solid: the vendored D65 spectrum reproduces the shipped D65 white poin
 	is(inVisSolid(...whitepoint[2].D65), true, 'D65 white itself is inside')
 	is(inVisSolid(0, 100, 0), false, 'an impossible colour (pure Y, no X or Z) is outside')
 })
+
+// inVisSolid is a support-function polytope that OUTER-approximates the zonoid over sampled
+// directions. Too few facets and it admits colours past the drawn surface: a 128-facet hull
+// overhung OSA-UCS's deep-blue g axis by several units, so the picker's out-of-solid guide
+// stayed white well beyond the shape. Pin the shipped hull against the EXACT support
+// h(u) = Σ max(0, u·gᵢ) sampled densely, along the very sweep that exposed it (L=-2.3 j=-7.3):
+// no coarse facet may admit a point the true convex solid rejects. Fails at 128, passes at 512.
+test('vis solid: the membership hull hugs the exact zonoid along the OSA-UCS blue guide', async () => {
+	const { d65, inVisSolid } = await import('../web/js/core.js')
+	const gen = []   // one XYZ generator per 2 nm band under D65, Y-normalised to 100
+	for (let nm = 380; nm <= 700; nm += 2) { const c = space.wavelength.xyz(nm), w = d65(nm); gen.push([c[0] * w, c[1] * w, c[2] * w]) }
+	const kk = 100 / gen.reduce((s, v) => s + v[1], 0); for (const v of gen) { v[0] *= kk; v[1] *= kk; v[2] *= kk }
+	const exact = (p) => {   // dense support test = the true object-colour solid, same 0.2% slack
+		for (let i = 0; i < 4000; i++) {
+			const y = 1 - 2 * (i + 0.5) / 4000, r = Math.sqrt(Math.max(0, 1 - y * y)), t = Math.PI * (1 + Math.sqrt(5)) * i
+			const u = [r * Math.cos(t), y, r * Math.sin(t)]
+			let h = 0; for (const v of gen) { const d = u[0] * v[0] + u[1] * v[1] + u[2] * v[2]; if (d > 0) h += d }
+			if (u[0] * p[0] + u[1] * p[1] + u[2] * p[2] > h * 1.002) return false
+		}
+		return true
+	}
+	let disagree = 0
+	for (let g = -20; g <= 20; g++) { const X = space.osaucs.xyz(-2.3, -7.3, g); if (inVisSolid(...X) !== exact(X)) disagree++ }
+	is(disagree, 0, 'inVisSolid matches the exact solid across the OSA-UCS L=-2.3 j=-7.3 sweep')
+})

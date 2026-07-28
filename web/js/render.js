@@ -37,7 +37,7 @@ export const sections = [...CATS.map(c => ({ name: c.name, tip: c.tip, spaces: c
 export const LEADS = 3   // slider cards per category (the row's featured spaces); the rest are sheet rows
 
 // the color every visitor arrives at — one source for the page's boot state AND the prerender
-export const DEFAULT = { s: 'oklch', vals: [0.72, 0.16, 41] }
+export const DEFAULT = { s: 'rgb', vals: [128, 128, 128] }
 
 // ── shared value/color formatting (page + prerender must agree byte-for-byte) ──
 // decimals from the range span — enough that every channel walks ≥100 steps: the step is
@@ -68,7 +68,7 @@ const entTags = s => { const m = meta[s]
 const ent = (s, lite, st) => { const cls = classify(s)
 	let vals = null; if (st) { try { vals = s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { vals = null } }
 	const full = vals && !lite   // lead cards bake sliders + thumb positions; sheet rows bake values only
-	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}"${vals ? ` data-v="${st.hx}${full ? '' : ':l'}"${full ? ` data-g="${st.hx}:0"` : ''}` : ''} style="--nch:${cls.ch.length}">
+	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}"${vals ? ` data-v="${st.hx}${full ? '' : ':l'}"${full ? ` data-g="${st.hx}:0:48"` : ''}` : ''} style="--nch:${cls.ch.length}">
 	 <div class="eh"><button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="Open ${s} color-space dossier">${disp(s)}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${full ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, 48, 'off').join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${full ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${cname(c2)} slider"></div>`).join('')}</div>
 	</article>` }

@@ -13,7 +13,7 @@
 // @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004 — 1931 2° observer, D65 chromaticity
 // @see {@link https://www.iec.ch/publication/6169} IEC 61966-2-1 (sRGB) — primary chromaticities
 import test, { is } from 'tst'
-import { locus, visibleXYZ } from '../web/js/core.js'
+import { classify, locus, ramp, space, visibleXYZ } from '../web/js/core.js'
 
 // a chromaticity, carried at some luminance — the locus law is scale-invariant
 const at = (x, y, Y = 50) => [x * Y / y, Y, (1 - x - y) * Y / y]
@@ -55,6 +55,29 @@ test('visible: degenerate coordinates — black counts, negatives and NaN do not
 	// scale invariance: the law reads chromaticity, so luminance never flips it
 	const dim = visibleXYZ(...at(0.31272, 0.32903, 0.01)), bright = visibleXYZ(...at(0.31272, 0.32903, 1e4))
 	is(dim && bright, true, 'D65 chromaticity is a colour at any luminance (0.01 … 10000)')
+})
+
+test('sliders: CSS ramps interpolate float guides and cut only real validity edges', () => {
+	const smooth = ramp('rgb', [128, 128, 128], 0, 0, 255, 4)
+	is(smooth.some(stop => /63\.75/.test(stop)), true, 'guides retain sub-byte precision rather than 8-bit terraces')
+	is(smooth.every(stop => !/%\s+\d/.test(stop)), true, 'ordinary guides are interpolated, never painted as hard cells')
+	const lensed = ramp('oklch', [.7, .2, 90], 1, 0, .4, 12, 'vis')
+	const positions = lensed.map(stop => stop.match(/ ([\d.]+)%$/)?.[1]).filter(Boolean)
+	is(positions.some((p, i) => i && p === positions[i - 1]), true, 'a genuine human-gamut edge has duplicate hard-boundary stops')
+	is(classify('oklch'), classify('oklch'), 'immutable channel classification is shared across render frames')
+})
+
+test('sliders: sparse colour guides cannot hide measured or disjoint validity spans', () => {
+	const hard = stops => { const p = stops.map(stop => stop.match(/ ([\d.]+)%$/)?.[1]).filter(Boolean); return p.filter((x, i) => i && x === p[i - 1]).map(Number) }
+	// The global C=0…38 box stores the whole 1943 renotation dataset, but its local
+	// MacAdam rim depends on H,V. At 50,6.3 it ends at C=25.4 (66.84% of the lane).
+	near(space.munsell.maxChroma(50, 6.3), 25.4, 1e-6, 'Munsell scalar rim matches the renotation lattice')
+	const mc = hard(ramp('munsell', [50, 6.3, 15.4], 2, 0, 38, 8, 'vis'))
+	near(mc.at(-1), 25.4 / 38 * 100, .02, 'Munsell catalog chroma stops at its local measured rim')
+	// These hue sweeps contain validity islands narrower than one 8-guide cell. The
+	// colour approximation may stay sparse, but its independent validity scan may not.
+	is(hard(ramp('munsell', [50, 6.3, 15.4], 0, 0, 100, 8, 'vis')).length >= 4, true, 'Munsell H keeps every narrow prohibited interval')
+	is(hard(ramp('tsl', [45, .63, 107], 0, 0, 360, 8, 'vis')).length, 4, 'TSL T keeps both disjoint valid lobes')
 })
 
 test('visible: the boundary sits exactly on the locus', () => {

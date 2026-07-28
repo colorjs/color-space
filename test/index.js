@@ -94,6 +94,33 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(lmsPage.includes('<meta property="og:url" content="https://color-space.io/lms">'), true, 'LMS social URL points at its dossier URL')
 })
 
+test('integrity — tiered site rendering keeps animation off the expensive paths', () => {
+	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
+	const render = readFileSync(new URL('../web/js/render.js', import.meta.url), 'utf8')
+	const gl = readFileSync(new URL('../web/js/gl.js', import.meta.url), 'utf8')
+	const tokens = readFileSync(new URL('../web/tokens.css', import.meta.url), 'utf8')
+	is(render.includes("DEFAULT = { s: 'rgb', vals: [128, 128, 128] }"), true, 'undefined color starts neutral gray')
+	is(page.includes('scheduleFast(true)'), true, 'undefined color enters the ambient tier')
+	is(page.includes('CATALOG_VALUE_THROTTLE=100'), true, 'inactive catalog numbers use the 100ms tier')
+	is(page.includes('CATALOG_THROTTLE=300'), true, 'secondary sliders share the 300ms tier')
+	is(page.includes("const SPIN3=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.0015"), true, '3D solid keeps its subtle ambient turn and respects reduced motion')
+	is(page.includes('paintStripsGL'), false, 'catalog does not import the WebGL strip atlas')
+	is(gl.includes('export function paintStripsGL'), false, 'dead atlas renderer is removed')
+	is(page.includes('HCLOUD=8192'), true, 'image clouds have a bounded display sample budget')
+	is(page.includes("cv.className='density'"), true, 'plane histograms live on a static overlay, separate from field repaints')
+	is(page.includes('paintPlanes(true,true)'), true, 'plane and image picks repaint the dependent plane fields while held')
+	is(tokens.includes('--picker-active-size:.625rem')&&tokens.includes('--picker-line:.075rem'), true, 'slider and plane pickers share one geometry token set')
+	is(page.includes('.pl:hover .cx,.pl.live .cx{ width:var(--picker-active-size)'), true, 'plane attention uses the slider picker size and outline tokens')
+	is(page.includes('setTk(cat,hx,ink0); clearMotionTk()'), true, 'one inherited settle keeps every catalog picker color current')
+	is(page.includes('motionTkEnts.add(ent)'), true, 'drag frames scope picker-color invalidation to visible rows')
+	is(page.includes('paintCatalogPickers(entered)'), true, 'picker positions refresh whenever an offscreen row enters the viewport')
+	is(page.includes('function snapshot3dMask('), true, '3D sheet scenes retain the body mask that keeps their grid visible')
+	is(page.includes('class="marker3"'), true, 'the live 3D picker has an overlay independent of its static scene')
+	is(page.includes('if(heldColor) paint3dMarker()'), true, 'held colors move only the 3D marker rather than repainting the cloud and grid')
+	is(gl.includes('_glQueued'), true, 'deferred plane transfers coalesce instead of accumulating bitmap promises')
+	is(gl.includes('0.24 * (1.0 - r * r)'), true, '3D cloud points accumulate translucently instead of painting opaque white')
+})
+
 // the catalog's display voice: names render display-final through disp() — uppercased
 // ids, Greek verbatim (CSS text-transform would corrupt lαβ into LΑΒ) — and the
 // filtered-to-nothing state has its line in the template rather than a silent void

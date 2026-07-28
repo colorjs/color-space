@@ -2,8 +2,8 @@
 // solid rendered by the library's own verified shader chunks (color-space/gl),
 // compiled per space. Exact math on every pixel: OSA-UCS's bracketed inverse,
 // CAM16, HCT run at full resolution with no cost-fitted degradation; gamut
-// limits (sRGB/P3/Rec.2020) cut per-pixel through the real conversion chain;
-// a re-render is one uniform update, so everything tracks a drag live.
+// limits (sRGB/P3/Rec.2020) cut per-pixel through the real conversion chain.
+// Input markers track gestures live; field transfers settle after release.
 //
 // Programs link ASYNCHRONOUSLY (KHR_parallel_shader_compile when available):
 // callers get 'pending' and paint their JS fallback instantly; setGLReady's
@@ -20,12 +20,9 @@ const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
 const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 
-// one shared WebGL2 canvas renders every plane and bar. Planes blit from it into
-// their 2d canvases; catalog strips NEVER blit per strip — during motion this canvas
-// itself overlays the page and draws every visible strip in one pass (paintStripsGL),
-// and at settle the page copies the whole band into its scrolling 2D snapshot in ONE
-// drawImage. Any per-strip transport (drawImage, ImageBitmap, PNG) pays a GPU handoff
-// per strip per frame, and sixty of those a frame is what made dragging crawl.
+// one shared WebGL2 canvas renders dossier planes and bars, then transfers their
+// settled image into the visible 2D canvases. Interactive gestures defer those transfers;
+// the directly-presented 3D canvas remains independent.
 const CV = typeof document !== 'undefined' ? document.createElement('canvas') : null
 const G = CV && (CV.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false }) || null)
 
@@ -272,7 +269,7 @@ void main() {
 	// tessellates. The locus alone admits any luminance for a real chromaticity, so the
 	// picker used to paint a far larger field than the solid's cross-section: same word,
 	// two shapes, and the plane read as if zoomed against the solid.
-	else if (uGam == 4 && uWeb == 0 && uClu == 0 && !inVisSolid(xyz)) al = 0.0;
+	else if (uGam == 4 && uWeb == 0 && uClu == 0 && !(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.0;
 	// the display lenses instead GHOST real-but-undisplayable colours on top
 	else if (uGam != 0 && uGam != 4 && uWeb == 0 && uClu == 0) {
 		// gamut pad in ENCODED units (±half a code value) – a linear pad is ~16 code
@@ -503,20 +500,24 @@ bool visXYZ(vec3 c) {   // black is a colour; a chromaticity off the locus is im
 // The HUMAN solid as shader source — the SAME body visSurf tessellates for the 3D view,
 // so the picker's field and the solid's cross-section are one shape. A zonoid is convex,
 // so membership is a support test (u·p ≤ h(u)) over sampled directions; the polytope
-// CONTAINS the body, so it never clips a real colour. The SHADER subsamples to 32
-// directions: inside pixels pay the whole loop per fragment, and at plane/mesh scale the
-// looser hull moves the boundary under a pixel — the CPU test keeps all 128 (caps, scans).
+// CONTAINS the body, so it never clips a real colour. Plane fragments use a 32-direction
+// preview hull for interaction cost. A bar has only one scanline, so it can afford all
+// 512 directions and must: nonlinear TSL/Munsell sweeps magnify a coarse hull by several
+// percent, making the dossier disagree with the catalog's exact scalar boundary.
 let VSOL_SRC = null
-const visSolidGLSL = () => VSOL_SRC ??= ((D) => `const vec4 VSD[${D.length}] = vec4[${D.length}](${D.map((d) => `vec4(${d[0].toFixed(5)}, ${d[1].toFixed(5)}, ${d[2].toFixed(5)}, ${d[3].toFixed(3)})`).join(', ')});
-bool inVisSolid(vec3 c) {   // a colour a surface can show under D65
-	for (int i = 0; i < ${D.length}; i++) { vec4 d = VSD[i];
-		if (dot(d.xyz, c) > d.w * 1.002) return false;
-	}
+const visSolidGLSL = () => VSOL_SRC ??= ((full) => { const fast = full.filter((_, i) => i % 16 === 0), src = D => D.map(d => `vec4(${d[0].toFixed(5)}, ${d[1].toFixed(5)}, ${d[2].toFixed(5)}, ${d[3].toFixed(3)})`).join(', ')
+	return `const vec4 VSD[${fast.length}] = vec4[${fast.length}](${src(fast)});
+const vec4 VSDE[${full.length}] = vec4[${full.length}](${src(full)});
+bool inVisSolid(vec3 c) {   // interactive plane preview
+	for (int i = 0; i < ${fast.length}; i++) { vec4 d = VSD[i]; if (dot(d.xyz, c) > d.w * 1.002) return false; }
 	return true;
-}`)(visSolid().filter((_, i) => i % 4 === 0))
+}
+bool inVisSolidExact(vec3 c) {   // one-pixel-high bars: exact scalar/GPU parity
+	for (int i = 0; i < ${full.length}; i++) { vec4 d = VSDE[i]; if (dot(d.xyz, c) > d.w * 1.002) return false; }
+	return true;
+}` })(visSolid())
 
-// program + uniforms + draw for one kernel rect — shared by the single-rect blit path
-// (drawKernel) and the strip atlas (paintStripsGL), which offsets many rects into one canvas
+// program + uniforms + draw for one plane/bar kernel
 const KV4 = [0, 0, 0, 0]   // reused held-values scratch — the atlas calls this ~60× per drag frame
 function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, ox = 0, oy = 0) {
 	// Flat cluster fills must survive readback byte-for-byte (marker centering uses
@@ -559,74 +560,53 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 }
 
 /**
- * The strip ATLAS: every catalog strip in the jobs list drawn into ONE canvas, one
- * present per pass — each strip is a viewport+scissor rect running its space's
- * program. This is the whole point: any per-strip transport (blit, ImageBitmap,
- * PNG) pays a GPU handoff per strip per frame; the atlas pays exactly one. Jobs
- * are integral CSS px (the page draws at 1× density), y from the top of the frame;
- * yOff maps band-space jobs into a smaller frame (the live viewport slice) and must
- * be integral — GL truncates, and a fractional offset once nudged every strip a
- * pixel at the live↔snapshot swap. Rects outside the frame skip, as do pending
- * programs (their DOM strip shows). Returns the number of strips drawn.
- */
-export function paintStripsGL(w, h, jobs, yOff = 0, q = 1) {
-	if (!G) return 0
-	const W = Math.ceil(w / q), H = Math.ceil(h / q)   // q>1: MOTION quality — fill and blit cost fall by q², release crisps back
-	if (CV.width !== W || CV.height !== H) { CV.width = W; CV.height = H }
-	G.disable(G.DEPTH_TEST)
-	G.disable(G.SCISSOR_TEST)
-	G.viewport(0, 0, W, H)
-	G.clearColor(0, 0, 0, 0)
-	G.clear(G.COLOR_BUFFER_BIT)
-	G.enable(G.SCISSOR_TEST)
-	let n = 0
-	for (const j of jobs) {
-		const jy = j.y - yOff   // yOff maps band-space jobs into a viewport-sized frame; outside rects just skip
-		if (jy + j.h <= 0 || jy >= h) continue
-		const x = Math.round(j.x / q), y2 = h - jy - j.h
-		const y = Math.round(y2 / q), jw = Math.max(1, Math.round(j.w / q)), jh = Math.max(1, Math.round(j.h / q))
-		const st = planeProg(j.s)
-		if (!st.pr || st.bad || st.pending) continue
-		G.viewport(x, y, jw, jh)
-		G.scissor(x, y, jw, jh)
-		kernelDraw(st, jw, jh, j.vals, j.i, -1, j.ri, [0, 0], null, 0, 0, 0, undefined, x, y)
-		n++
-	}
-	G.disable(G.SCISSOR_TEST)
-	return n
-}
-
-/** The shared kernel canvas itself — the page mounts it as the drag-time strip overlay. */
-export function kernelCanvas() { return CV }
-
-/**
  * Paint one plane on the GPU and blit it into the plane's 2d canvas.
  * Call only when planeGLStatus(s) is 'ready'. quant is a numeric lattice or one
  * of the output-palette/JND/RGB565 lenses; every lens stays on the GPU path.
  */
-export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric) {
+function presentKernel(cv2d, deferred) {
+	const ctx = cv2d.getContext('2d'), rev = (cv2d._glRev || 0) + 1
+	if (!ctx) return false
+	cv2d._glRev = rev
+	if (deferred && typeof createImageBitmap === 'function') {
+		cv2d._glPending = true
+		const finish = () => { cv2d._glPending = false
+			const next = cv2d._glQueued; cv2d._glQueued = null
+			if (next && cv2d.isConnected) next() }
+		createImageBitmap(CV).then(bitmap => { try {
+			if (cv2d._glRev === rev) { ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(bitmap, 0, 0) }
+		} finally { bitmap.close(); finish() } }, finish)
+	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0) }
+	return true
+}
+
+export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
+	if (deferred && cv2d._glPending) {
+		const held = vals.slice(), xr = rx.slice(), yr = ry.slice()
+		cv2d._glQueued = () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, true)
+		return true
+	}
 	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric)
-	const ctx = cv2d.getContext('2d')
-	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
-	ctx.drawImage(CV, 0, 0)
-	return true
+	return presentKernel(cv2d, deferred)
 }
 
 /**
  * Paint a channel bar (1-D sweep of channel `i`, held others) with per-pixel
  * gamut alpha — the smooth version of the stepped CSS mask.
  */
-export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0) {
+export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, deferred = false) {
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	const ctx = cv2d.getContext('2d')
-	if (!ctx) return false   // a canvas claimed by another context type (older transports) — the CSS ramp covers it
+	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
+	if (deferred && cv2d._glPending) {
+		const held = vals.slice(), range = ri.slice()
+		cv2d._glQueued = () => paintBarGL(cv2d, s, held, i, range, gamut, quant, true)
+		return true
+	}
 	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
-	ctx.clearRect(0, 0, cv2d.width, cv2d.height)
-	ctx.drawImage(CV, 0, 0)
-	return true
+	return presentKernel(cv2d, deferred)
 }
 
 // ── 3D solid: static cube-surface lattice, converted rgb→space in the VERTEX
@@ -1233,7 +1213,7 @@ void main() {
 	vec2 d = gl_PointCoord * 2.0 - 1.0;
 	float r = dot(d, d);
 	if (r > 1.0) discard;
-	O = vec4(vec3(1.0), 0.9 * (1.0 - r * r));   // WHITE — the voice of every mark living inside the blob
+	O = vec4(vec3(1.0), 0.24 * (1.0 - r * r));   // translucent marks accumulate into a white cloud only where samples overlap
 }`
 	const sh = (t, src) => { const h = gl.createShader(t); gl.shaderSource(h, src); gl.compileShader(h); return h }
 	const pr = gl.createProgram()
@@ -1466,7 +1446,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.uniform2i(cp.u.uWb, map.wI ?? -1, map.bI ?? -1)
 			gl.uniform2f(cp.u.uRot, rot.a, rot.b)
 			gl.uniform1f(cp.u.uScale, scale)
-			gl.uniform1f(cp.u.uPtS, Math.max(2, cv.width / 170))
+			gl.uniform1f(cp.u.uPtS, Math.max(1.75, cv.width / 280))
 			gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudBuf)
 			gl.enableVertexAttribArray(cp.aV); gl.vertexAttribPointer(cp.aV, 3, gl.FLOAT, false, 28, 0)
 			gl.enableVertexAttribArray(cp.aRgb); gl.vertexAttribPointer(cp.aRgb, 3, gl.FLOAT, false, 28, 12)

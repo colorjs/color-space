@@ -40,7 +40,10 @@ const D = Math.PI / 180
 
 // ── classify each channel from metadata ──
 //   tone (achromatic axis) · angle (hue, wraps 0–360) · bipolar (a/b) · magnitude (chroma/sat)
+// Registry metadata is immutable; classification is shared by every frame and renderer.
+const CLASSIFIED = new Map()
 export function classify(name) {
+	if (CLASSIFIED.has(name)) return CLASSIFIED.get(name)
 	const ch = (meta[name]?.channels || []).map((c, i) => ({ sym: c.symbol, min: c.min, max: c.max, name: c.name, i }))
 	for (const c of ch) {
 		if (c.max === 360) c.type = 'angle'
@@ -56,7 +59,9 @@ export function classify(name) {
 	if (tone && angle && mags.length) archetype = 'polar'          // hsl, oklch, cam16, hct…
 	else if (tone && bips.length >= 2) archetype = 'opponent'      // lab, oklab, luv, jzazbz…
 	else if (!tone && !angle && ch.length === 3) archetype = 'additive' // rgb, p3…
-	return { name, ch, tone, angle, bips, mags, archetype }
+	const classified = { name, ch, tone, angle, bips, mags, archetype }
+	CLASSIFIED.set(name, classified)
+	return classified
 }
 
 // convert a space's raw channel values → clamped sRGB
@@ -146,7 +151,11 @@ export function visSolid() {
 	}
 	const k = 100 / g.reduce((s, v) => s + v[1], 0)   // a perfect reflector reads Y = 100
 	for (const v of g) { v[0] *= k; v[1] *= k; v[2] *= k }
-	const M = 128, dirs = []
+	// 512 directions, not 128: the polytope OUTER-approximates the solid, and 128 facets leave
+	// a gap that a non-linear opponent axis (OSA-UCS's g near deep blue) magnifies into a
+	// several-unit overhang, leaving the picker's out-of-solid guide white past the drawn surface.
+	// 512 closes it to sub-pixel; an outer hull only ever admits, so real colours (sRGB) never clip.
+	const M = 512, dirs = []
 	for (let i = 0; i < M; i++) {
 		const y = 1 - 2 * (i + 0.5) / M, r = Math.sqrt(Math.max(0, 1 - y * y)), t = Math.PI * (1 + Math.sqrt(5)) * i
 		const u = [r * Math.cos(t), y, r * Math.sin(t)]
@@ -201,11 +210,13 @@ export const lensFor = (name, gamut) => {
 	const toXyz = space[name].xyz; if (!toXyz) return null
 	const vis = gamut === 'vis', disp = gamut !== 'off' && !vis
 	const gLin = space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[disp ? gamut : 'srgb'] || 'lrgb']
-	const PB = physBound(name)
+	const PB = physBound(name), nativeRim = name === 'munsell' && typeof space.munsell.maxChroma === 'function'
+		? v => v[2] <= space.munsell.maxChroma(v[0], v[1]) + 1e-4 : null
 	// a chromaticity space discards luminance — the honest question is whether the
 	// DIRECTION is displayable at any luminance (the GPU kernel's normalisation)
 	const chrom = meta[name]?.method === 'chromaticity'
 	return v => { try {
+		if (nativeRim && !nativeRim(v)) return 0   // measured Munsell solid, not its global C≤38 storage box
 		let X = toXyz(...v), lin = gLin(...X)
 		if (chrom) { const pk = Math.max(lin[0], lin[1], lin[2], 1e-6); lin = lin.map(u => u / pk)
 			const t = 50 / Math.max(X[1], 1e-4); X = [X[0] * t, 50, X[2] * t] }
@@ -216,20 +227,43 @@ export const lensFor = (name, gamut) => {
 		return 1
 	} catch { return 0 } }
 }
-// ── generic 1-D channel gradient (sweep channel ci, hold the rest) → array of hex stops;
-// with a gamut lens: hard SEGMENTS (color+position pairs) sampled at cell centres, carrying
-// the lens alpha — over a checker backdrop the string reads exactly like the GPU sweep:
-// vivid inside, 50% ghost outside, void where no colour lives ──
+// ── generic 1-D channel gradient (sweep channel ci, hold the rest) → smooth CSS stops.
+// Colors interpolate between samples; only a lens-state boundary stays hard, so a real
+// range never turns into visible bands while an imaginary span still cuts cleanly to the
+// checker. `off` preserves every real color outside display gamuts and voids only coordinates
+// that are not physical colors at all. ──
 export function ramp(name, vals, ci, min, max, n = 12, gamut = null) {
-	const out = [], lens = lensFor(name, gamut)
-	if (!lens) {
-		for (let t = 0; t <= n; t++) { const v = vals.slice(); v[ci] = min + (max - min) * t / n; out.push(hex(rgbOf(name, v))) }
-		return out
-	}
-	for (let t = 0; t < n; t++) { const v = vals.slice(); v[ci] = min + (max - min) * (t + 0.5) / n
-		const rgb = rgbOf(name, v), a = lens(v)
-		const col = a === 0 ? 'transparent' : a === 1 ? hex(rgb) : `rgba(${rgb[0]},${rgb[1]},${rgb[2]},.5)`
-		out.push(`${col} ${(t * 100 / n).toFixed(2)}% ${((t + 1) * 100 / n).toFixed(2)}%`) }
+	const lens = lensFor(name, gamut)
+	const sample = f => { const v = vals.slice(); v[ci] = min + (max - min) * f
+		let rgb; try { rgb = name === 'rgb' ? v.slice() : space[name].rgb(...v) } catch { rgb = [0, 0, 0] }
+		rgb = rgb.map(x => isFinite(x) ? clamp(x, 0, 255) : 0)
+		return { rgb, a: lens ? lens(v) : 1, f } }
+	const guides = Array.from({ length: n + 1 }, (_, t) => sample(t / n))
+	// Float channels avoid baking 8-bit terraces into the approximation. CSS performs
+	// the interpolation; these are curve guides, not painted cells.
+	const css = ({ rgb, a }) => `rgb(${rgb.map(x => +x.toFixed(4)).join(' ')}${a === 1 ? '' : ` / ${a}`})`
+	if (!lens) return guides.map(css)
+
+	// Validity is not necessarily monotone along a channel. TSL's hue sweep crosses
+	// several disjoint lobes, and Munsell has narrow gaps/local MacAdam rims that can
+	// sit entirely between eight colour guides. Probe validity independently from the
+	// colour approximation, then bisect every transition. 128 probes for the selected
+	// lens (64 for ordinary physicality) remain far cheaper than a bitmap, while making
+	// the CSS catalog and the per-pixel dossier kernel describe the same coordinate set.
+	const probeN = Math.max(n, gamut === 'off' ? 64 : 128), edges = []
+	let prev = sample(0)
+	for (let t = 1; t <= probeN; t++) { const cur = sample(t / probeN)
+		if (cur.a !== prev.a) { let lo = prev.f, hi = cur.f, left = prev, right = cur
+			for (let k = 0; k < 11; k++) { const mid = sample((lo + hi) / 2)
+				if (mid.a === left.a) { lo = mid.f; left = mid } else { hi = mid.f; right = mid } }
+			edges.push({ f: (lo + hi) / 2, left, right }) }
+		prev = cur }
+	const events = guides.slice(1, -1).map(v => ({ f: v.f, guide: v })).concat(edges).sort((a, b) => a.f - b.f || ('guide' in a ? -1 : 1))
+	const out = [`${css(guides[0])} 0%`]
+	for (const e of events) { const p = (e.f * 100).toFixed(4)
+		if (e.guide) out.push(`${css(e.guide)} ${p}%`)
+		else out.push(`${css(e.left)} ${p}%`, `${css(e.right)} ${p}%`) }
+	out.push(`${css(guides.at(-1))} 100%`)
 	return out
 }
 // ── generic 2-D plane (sweep channels cx,cy) → ImageData painted into ctx ──

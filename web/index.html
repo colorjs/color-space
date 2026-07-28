@@ -51,7 +51,7 @@ a:hover{ text-decoration-color:currentColor }
 /* The spectrum stays visually thin while its real hit area is forgiving: the hit
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
-.hueline{ height:5px; background:var(--ink) }   /* a quiet black rule under the header — held for a future use (picked-colour history, perhaps); the spectrum lives on in the walk and the footer */
+.hueline{ height:5px; background:var(--ink) }   /* a quiet black rule under the header — held for future picked-colour history; the spectrum remains in the footer */
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--soft) }
 .mast .gh:hover,.thm:hover,.mast .gh:focus-visible,.thm:focus-visible,.thm[aria-expanded="true"]{ color:var(--accent) }   /* every icon shares one idiom — rest soft, hover/active --accent (ink, theme-tracking); the orange --c never marks interaction */
 .thm{ border:0; background:none; padding:0; cursor:pointer }
@@ -97,12 +97,18 @@ a:hover{ text-decoration-color:currentColor }
    dossier's scrim; ✕ appears on hover, top-left, and lets it go */
 #imgfloat{ position:fixed; right:1.5rem; bottom:1.5rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
 body.himg #imgfloat{ display:block }
-#upfl{ position:fixed; right:1.5rem; bottom:1.5rem; z-index:calc(var(--z-modal) + 1); width:44px; height:44px; display:grid; place-items:center; --ic:18px; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); cursor:pointer }   /* the corner's invitation — the tooltip's dark plate, round; the image floater takes this seat once an image lands */
+#upfl{ position:fixed; right:1.5rem; bottom:1.5rem; z-index:calc(var(--z-modal) + 1); width:44px; height:44px; display:grid; place-items:center; --ic:20px; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 6px 22px rgba(0,0,0,.24); cursor:pointer }   /* the corner's invitation — the tooltip's dark plate, round; the image floater takes this seat once an image lands */
 #upfl .ic{ display:block }
 #upfl:hover{ box-shadow:0 8px 26px rgba(0,0,0,.32) }
-#upfl .upar{ transition:transform var(--dur-short) var(--ease-out) }
-#upfl:hover .upar{ transform:translateY(-2.5px) }   /* the arrow lifts off its base — the upload, previewed */
 body.himg #upfl{ display:none }
+/* the corner's picker: a stripe of the canonical test images — the same canon the dossier's
+   lens cycles — closed by the upload tile. Rises from the button's seat on the pop skin. */
+#uppop{ position:fixed; right:1.5rem; bottom:calc(1.5rem + 44px + var(--s2)); z-index:calc(var(--z-modal) + 1); display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s1); padding:var(--s2); background:var(--paper); box-shadow:var(--pop-shadow); width:min(20.9rem,92vw) }   /* 7 memories + the chooser: a flush 4×2, no stray slack */
+#uppop[hidden]{ display:none }
+#uppop .upim{ display:block; position:relative; width:100%; aspect-ratio:4/3; padding:0; border:0; background:var(--panel); cursor:pointer }
+#uppop .upim img,#uppop .upim canvas{ display:block; width:100%; height:100%; object-fit:cover }
+#uppop .upim:hover,#uppop .upim:focus-visible{ box-shadow:0 0 0 2px var(--ink) }
+#uppop .upld{ display:grid; place-items:center; color:var(--ink); --ic:20px }
 #imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
 #imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
 #imgx .ic{ display:block }
@@ -119,7 +125,7 @@ body.himg #upfl{ display:none }
 	/* real iOS ignores the styled thumb for HIT TESTING (the 44px-pad experiment died on
 	   device) and never jumps on track taps — the native widget cannot serve touch here.
 	   Coarse pointers fall back to the strips' own pointer machinery: press anywhere,
-	   drag, capture, walk-stop. The input stays as the VISUAL: pointer-inert, its thumb
+	   drag and capture. The input stays as the VISUAL: pointer-inert, its thumb
 	   tracking the value the strip's own drag writes */
 	.ch .nrg,.bar2 .nrg{ pointer-events:none } }
 /* the empty state: nothing has been picked, so the masthead offers the two ways IN rather
@@ -128,7 +134,7 @@ body.himg #upfl{ display:none }
 .cx.inv .invite{ display:flex }
 .cx.inv:has(#cval:focus) .invite{ display:none }   /* …and it steps aside the moment that field takes focus, so it never covers what is being typed */
 .cx.inv #cval{ min-width:17.5rem }   /* the field spans the invitation — clicking anywhere but the two doors starts typing */
-/* the chip stays VISIBLE while nothing is picked — it carries the walking colour, and clicking it is a third door (the native picker) */
+/* the chip stays VISIBLE while nothing is picked — it carries the default colour, and clicking it is a third door (the native picker) */
 .cx.inv .gpill,.cx.inv .fmtb{ display:none }
 .ivs{ color:var(--ghost); font-style:normal }
 /* whole-viewport drop veil — pointer-events:none so the drop still lands on the page */
@@ -210,7 +216,7 @@ body.himg #upfl{ display:none }
 .fqcol{ min-width:0 }
 .fqa{ max-width:68ch }
 .fqa+.fqa{ border-top:1px solid var(--hair) }   /* a soft rule BETWEEN questions only — adjacent siblings, so column tops and bottoms stay clean */
-.fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s5) 0 var(--s5) }
+.fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s4) 0 var(--s5) }
 .fqa summary::-webkit-details-marker{ display:none }
 .fqa summary::after{ content:'+'; margin-left:auto; flex:none; font-size:1.35em; line-height:1; font-weight:400; color:var(--body); opacity:.55; transition:transform var(--dur-short) var(--ease-out) }   /* the quiet fold mark — trailing, so questions stay flush like entries in an index */
 .fqa[open] summary::after{ transform:rotate(45deg) }
@@ -333,11 +339,8 @@ body.himg #upfl{ display:none }
 	.cvs{ gap:var(--s2) }
 	.cv{ width:4.1rem }
 }
-/* ONE layer of strips: while the atlas paints them, the cards' own CSS sweeps retire —
-   they were invisible under the canvas yet still rastered every scrolled tile, which is
-   what made scrolling crawl (p50 41ms). No observers, no containment, no second copy. */
-body.sgl .ent:not(.pop) .ch{ background:none !important }
-body.sgl .ent:not(.pop)[data-g="atlas"] .ch{ background:var(--checker) !important }   /* the atlas's voided spans (alpha 0) read as void, its ghosts read over the alpha grammar — same backdrop as the dossier bars; ONE shared pattern, not 478 unique sweeps, so scrolled tiles stay cheap */
+/* Catalog strips stay native CSS surfaces: prerendered at first paint and refreshed only
+   after interaction settles. No page-sized canvas participates in scrolling or input. */
 .ent{ display:block; position:relative; padding:.85rem var(--eg) 1rem }   /* only the title is a dossier link */
 .ent.lite{ padding:.5rem var(--eg) .55rem }
 .ent.lite .chs{ display:flex; max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:opacity var(--dur-short) var(--ease-out) }   /* sheet rows: numbers only — the toggle unfolds sliders smoothly */
@@ -386,7 +389,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 /* phones once raised a tapped row's sliders as a bottom sheet — retired: the numeric
    keyboard (channel inputs) shrank the viewport and the fixed sheet drifted away from its
    row. The in-card unfold above serves every width; the keyboard just pushes the page. */
-/* hover keeps the atlas flat; no white card and no global dimming */
+/* hover keeps the catalog flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
@@ -412,23 +415,25 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:pan-y; background:var(--panel); user-select:none }   /* pan-y, not none: a vertical swipe on a strip must scroll the page, and iOS only streams horizontal pointermove reliably under pan-y */
+.ch>.gbg{ position:absolute; inset:0; z-index:0; opacity:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100%; transition:opacity var(--dur-short) var(--ease-out) }
+.ch>.gbg.on{ opacity:1 }
 /* every strip and bar rides a NATIVE range: input device AND visual in one — the browser
    owns the thumb, so a native drag never pays a JS frame for its own marker. The thumb IS
    the catalog's 8px rhombus (rotate 45°), coloured by the --tkc/--tki pair stamped once
    per frame on #cat/#detail (the prerender bakes boot colours inline per input; hydration
    clears them). The input overhangs ±4px (half a thumb) so the native thumb-inset mapping
-   lands values exactly at the edges. --tks flips 8→10px on attention (hover/live). */
-.ch .nrg,.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3; --tks:8px }
+   lands values exactly at the edges. --tks flips 8→10px on attention (hover/live),
+   while --tkline keeps both outlines at one invariant weight. */
+.ch .nrg,.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3; --tks:var(--picker-size); --tkline:var(--picker-line) }
 .ch .nrg::-webkit-slider-runnable-track,.bar2 .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
-.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:var(--tks); height:var(--tks); margin-top:calc((var(--ctl) - var(--tks)) / 2); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin var(--dur-micro) var(--ease-out) }
+.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:var(--tks); height:var(--tks); margin-top:calc((var(--ctl) - var(--tks)) / 2); background:var(--tkc,transparent); border:var(--tkline) solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin var(--dur-micro) var(--ease-out) }
 .ch .nrg::-moz-range-track,.bar2 .nrg::-moz-range-track{ background:transparent; border:0 }
-.ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:var(--tks); height:var(--tks); background:var(--tkc,transparent); border:1.2px solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
-/* attention: the thumb grows a step and wears the steady outline pair — a ring in its own
-   ink with the equal-weight inverse twin outside, as concentric box-shadows (a pseudo
-   can't grow pseudos of its own); they rotate with the thumb's box */
-.ch:hover .nrg,.ch.live .nrg,.bar2:hover .nrg,.bar2.live .nrg{ --tks:10px }
-.ch:hover .nrg::-webkit-slider-thumb,.ch.live .nrg::-webkit-slider-thumb,.bar2:hover .nrg::-webkit-slider-thumb,.bar2.live .nrg::-webkit-slider-thumb{ box-shadow:0 0 0 1.2px var(--tki,transparent),0 0 0 2.3px var(--tkv,transparent) }
-.ch:hover .nrg::-moz-range-thumb,.ch.live .nrg::-moz-range-thumb,.bar2:hover .nrg::-moz-range-thumb,.bar2.live .nrg::-moz-range-thumb{ box-shadow:0 0 0 1.2px var(--tki,transparent),0 0 0 2.3px var(--tkv,transparent) }
+.ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:var(--tks); height:var(--tks); background:var(--tkc,transparent); border:var(--tkline) solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
+/* attention: the thumb's box grows, but its ink outline does not gain weight. The
+   existing border and one equal-weight inverse ring form the steady outline pair. */
+.ch:hover .nrg,.ch.live .nrg,.bar2:hover .nrg,.bar2.live .nrg{ --tks:var(--picker-active-size) }
+.ch:hover .nrg::-webkit-slider-thumb,.ch.live .nrg::-webkit-slider-thumb,.bar2:hover .nrg::-webkit-slider-thumb,.bar2.live .nrg::-webkit-slider-thumb{ box-shadow:0 0 0 var(--tkline) var(--tkv,transparent) }
+.ch:hover .nrg::-moz-range-thumb,.ch.live .nrg::-moz-range-thumb,.bar2:hover .nrg::-moz-range-thumb,.bar2.live .nrg::-moz-range-thumb{ box-shadow:0 0 0 var(--tkline) var(--tkv,transparent) }
 /* one at a time — the pointer outranks the focused channel */
 .chs:has(.ch:hover) .ch.live:not(:hover) .nrg,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg{ --tks:8px }
 .chs:has(.ch:hover) .ch.live:not(:hover) .nrg::-webkit-slider-thumb,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg::-webkit-slider-thumb{ box-shadow:none }
@@ -446,7 +451,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
    solid mass. An SVG on a 0–100 viewBox with preserveAspectRatio:none, so the curve is
    written once in percentages and needs no recompute when the row resizes; the stroke opts
    out of that scaling (non-scaling-stroke) to stay an even hairline. z1 like the ticks:
-   the atlas canvas is a later sibling at z0, so anything drawn over a strip must clear it. */
+   the strip surface, so anything drawn over it must remain pointer-transparent. */
 .bar2 .hist{ position:absolute; left:0; bottom:0; width:100%; height:18px; z-index:1; pointer-events:none; overflow:visible }   /* the same lane, at dossier scale — an INTEGER height: a %-of-40px box lands fractional and opens a sub-pixel hairline under the fill */
 .rng{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,var(--tkv,var(--paper)) var(--rlo),transparent var(--rlo) var(--rhi),var(--tkv,var(--paper)) var(--rhi)); opacity:.62 }   /* outside the range steps back — the samples between the split picker's halves are what every lane is now reading */
 /* the split picker: each handle is the tick itself cut in half — an outer box clips, the
@@ -459,13 +464,9 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ch.ranged .nrg::-webkit-slider-thumb{ visibility:hidden } .ch.ranged .nrg::-moz-range-thumb{ visibility:hidden }   /* the picker IS the two halves while its range lives */
 .ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:21px; z-index:1; pointer-events:none; overflow:visible }   /* width EXPLICIT: an absolutely positioned svg is a replaced element — left/right alone leave it at its intrinsic (square) size. INTEGER height: a fractional box bottom opens a sub-pixel hairline under the fill */
 .ch .hist,.bar2 .hist{ display:block; background:var(--tki,var(--ink)); -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }   /* the mask carries shape and fade; the background carries the picker's ink */
-/* attention: the marker grows a step and wears a steady outline pair hugging its border —
-   a ring in its own ink, the equal-weight inverse twin directly outside, so the pair reads
-   on any field — under the pointer, while its channel drives, and through the drag */
-.pl .cx::after,.pl .cx::before{ content:''; position:absolute; inset:-1.2px; border:inherit; opacity:0 }   /* the planes' marker keeps the div pair — it has no native widget to inherit */
-.pl .cx::before{ inset:-2.3px; filter:invert(1) }   /* 0.1px under the after-ring — rotated borders AA-seam at exact adjacency on some densities */
-.pl:hover .cx,.pl.live .cx{ width:10px; height:10px }
-.pl:hover .cx::after,.pl.live .cx::after,.pl:hover .cx::before,.pl.live .cx::before{ opacity:1 }
+/* attention is the slider thumb's exact state: larger box, invariant ink outline,
+   and one equal-weight inverse ring outside. */
+.pl:hover .cx,.pl.live .cx{ width:var(--picker-active-size); height:var(--picker-active-size); box-shadow:0 0 0 var(--picker-line) var(--tkv,transparent) }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -567,17 +568,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:pan-y; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
-.bar2 .bgc,.ch .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }
-.ent.pop .ch .bgc{ display:block }   /* the popped row is a RAISED card (z-index above the page), so the atlas canvas — which lives in the base layer — cannot paint through it. Its three strips paint themselves instead, the same blit the dossier bars use; what the atlas exists to avoid is sixty rows of that, not one. */   /* GPU sweep: per-pixel gamut alpha, no stepped mask */
-/* the strip atlas — the ONE visible strip surface: a 2D canvas absolutely positioned in
-   the document over the catalog band (viewport + overscan); the compositor scrolls it
-   with the page, so at rest the strips cost nothing. Every pass — motion or settle —
-   draws on the HIDDEN GL kernel canvas and lands here as one drawImage, so pixels update
-   in place and no swap exists. z-index 0: above the strips' painted backgrounds
-   (unpositioned), below EVERY picker mark — the current tick (z2) and the palette
-   stops' ghosts (z1) ride over. */
-#stripgl{ position:absolute; left:0; top:0; z-index:0; pointer-events:none; display:none }
-body.sgl #stripgl{ display:block }
+.bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* dossier GPU sweep: per-pixel gamut alpha */
 .bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }   /* top-left corner — same insets as the scale values below */
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
@@ -632,11 +623,13 @@ body.sgl #stripgl{ display:block }
 .pl.tric canvas{ height:86.6% }   /* cone: base up, apex down — equilateral at full width, slack below */
 .pl.triw canvas{ width:86.6% }    /* W+B wedge: points right — equilateral at full height, slack right */
 .pl canvas{ display:block; width:100%; height:100% }
+.pl canvas.density{ position:absolute; inset:0; z-index:1; pointer-events:none; background:none }
+.pl.polar canvas.density{ background:none }
 /* the hue DISC is a circle, not a tile: the checker rides the canvas and clips round;
    labels and the mode switch stay on the square element, outside the rim */
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
-.pl .cx{ position:absolute; z-index:2; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* same rhombus as the sliders' thumbs — rides above the axis labels; wears the attention ring pair above */
+.pl .cx{ position:absolute; z-index:2; width:var(--picker-size); height:var(--picker-size); transform:translate(-50%,-50%) rotate(45deg); background:var(--tkc,transparent); border:var(--picker-line) solid var(--tki,transparent); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* exactly the slider thumb's rhombus and outline tokens — above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -644,6 +637,7 @@ body.sgl #stripgl{ display:block }
 .pl3d .grid3{ z-index:0 }
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
+.pl3d .marker3{ z-index:3 }
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }   /* corner insets match the bars' scale values — one label geometry everywhere */
 .pl .labx{ position:absolute; right:.275rem; bottom:.175rem; font-size:var(--t0); font-weight:700; pointer-events:none }
@@ -833,7 +827,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
 	<span class="tagline tnum"><span id="n">162</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#f67d4f;--swk:#000"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
+	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span></span>
 	<span class="sp"></span>
 	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
@@ -1394,15 +1388,16 @@ function colize(force){ const C=colCount()
 		if(!box){ box=document.createElement('div'); box.className='gcols'; sec.querySelector('.grid').before(box) }
 		box.dataset.c=C
 		const cols=Array.from({length:C},()=>{ const c=document.createElement('div'); c.className='gcol'; return c })
-		// balanced masonry: the first C leads head the columns; every following row drops into the
-		// currently-shortest column (by real measured height, so a 4-channel cmyk or 1-channel
-		// lead doesn't leave its column lopsided). Keeps leads featured, evens the heights.
-		const eh=ents.map(e=>e.style.display==='none'?0:(e.offsetHeight||1))   // measured while still laid out, before the move; filtered-out cards weigh nothing
+		// balanced masonry without a pre-move layout read: compact rows weigh one; only the
+		// first C visible full slider leads add their declared channel count. Reading all 162
+		// offsetHeights here forced a whole-page layout before moving the nodes, then another
+		// for the final columns — the largest parser-blocking startup cost.
 		const colH=new Array(C).fill(0)
 		let vi=0   // the first C VISIBLE entries head the columns — a filter must not seat its few survivors by the full catalog's geometry
-		ents.forEach((e,k)=>{ const hid=!eh[k]||e.style.display==='none'
-			const col=hid?0:(vi<C?vi++:colH.indexOf(Math.min(...colH)))
-			cols[col].append(e); if(!hid) colH[col]+=eh[k] })
+		ents.forEach(e=>{ const hid=e.style.display==='none', lead=!hid&&vi<C
+			const col=hid?0:(lead?vi++:colH.indexOf(Math.min(...colH)))
+			cols[col].append(e)
+			if(!hid) colH[col]+=lead&&!e.classList.contains('lite')?3+(+e.style.getPropertyValue('--nch')||3):1 })
 		box.replaceChildren(...cols)
 		sec.querySelectorAll(':scope>.grid,:scope>.sheet').forEach(x=>x.remove()) })
 	try{ layoutToc(); trackAct() }catch{} }
@@ -1446,7 +1441,8 @@ layoutToc.settled=!document.fonts   // no Font Loading API → nothing to wait f
 const wireToc=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')]
 	cat.querySelectorAll('.ti').forEach(t=>{ t.querySelector('.tn').onclick=()=>secEls[+t.dataset.i].scrollIntoView({behavior:'smooth',block:'start'}) })
 	actI=-1; trackAct(); layoutToc() }
-addEventListener('scroll',()=>requestAnimationFrame(trackAct),{passive:true})   // only the active-category highlight tracks scroll; the rail itself is pure CSS sticky
+let actRaf=0
+addEventListener('scroll',()=>{ if(actRaf) return; actRaf=requestAnimationFrame(()=>{ actRaf=0; trackAct() }) },{passive:true})   // coalesced to one read pass per frame; the rail itself is pure CSS sticky
 colize(); wireToc(); COLQ.forEach(q=>q.addEventListener('change',colize))
 document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct() })   // the pre-paint ladder used fallback metrics — realign (hidden) once the real fonts reflow the sections, then show
 </script>
@@ -1594,7 +1590,7 @@ import { space, meta, clamp, classify, ramp, plane, toSpace, hex, rgbOf, spaceCo
 import LORE from './js/lore.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, paintStripsGL, kernelCanvas, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
+import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -1606,9 +1602,9 @@ import BARRED from './js/barred.js'
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
 let master={ s:DEFAULT.s, vals:DEFAULT.vals.slice() }, selected='oklch', huePath='shorter', codeTab='js'
-// nothing picked yet: the colour WANDERS — a slow walk around the hue circle, every mark
-// and sweep following, which says "alive" without asserting a choice. The first act (a
-// press, a typed colour, the drum, the image) stops it exactly where it is.
+// Undefined starts at neutral gray, then quietly enters a hue orbit. This ambient source
+// uses the same tiered renderer as a drag: current-space surfaces live, secondary sliders
+// throttled. Any authored color input claims the state and stops it.
 let VIRGIN=false
 // icons: one path per name, one renderer. The static markup carries the same class and
 // the same 24×24 grammar (test/index.js pins that they agree), so an icon is never a
@@ -1618,7 +1614,7 @@ const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3
 	prev:'M15 18l-6-6 6-6', next:'M9 6l6 6-6 6',
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
-// the visible spectrum, PHYSICAL — the drum's colours AND the unpicked walk's path.
+// the visible spectrum, PHYSICAL — the drum and footer use these colours.
 // Radiance honestly dies to black at both ends and across the purple line; that darkness
 // is what makes it read as the spectrum and not another hue wheel. Out-of-gamut chroma
 // clips per channel — the same rendering the wavelength bar's GL pipeline lands on, so
@@ -1628,32 +1624,15 @@ const SPEC=Array.from({length:361},(_,k)=>{ let rgb
 		else{ const t=(k-300)/60, A=space.wavelength.rgb(700), B=space.wavelength.rgb(380)
 			rgb=A.map((x,j2)=>x*(1-t)+B[j2]*t) } }catch{ rgb=[255,0,255] }
 	return rgb.map(x=>Math.round(Math.max(0,Math.min(255,x)))) })
-// while nothing is picked the masthead WALKS THE SPECTRUM — the drum's own colours,
-// creeping wavelength-wise; the boot coral dissolves into the walk over the first
-// seconds, so neither the script's landing nor the first step ever kicks.
-// WALK reparameterizes SPEC by equal colour distance — wavelength-linear pacing would
-// park ~9s on the long red plateau (640→700nm is one chromaticity) and look stuck
-const WALK=[]
-for(let k=0;k<361;k++){ const a=SPEC[k], b=WALK.length?SPEC[WALK[WALK.length-1]]:null
-	if(Math.max(...a)>=48&&(!b||Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])>=24)) WALK.push(k) }   // skip the near-black tails — the bar shows the physics, the walk shows colours
-let driftJ='', driftT=0, driftK=-1, driftW=0, driftHold=false, driftR0=null
-const drift=t=>{ if(!VIRGIN||driftHold) return   // someone picked (or holds the field) — the walk rests where it stands
-	if(PDOWN){ requestAnimationFrame(drift); return }   // a held pointer means a gesture is writing master — the walk must not stomp it; the gesture's own write ends virginity, and this loop then dies on its guard
-	if(driftK<0){ driftT=t; driftR0=rgbF(DEFAULT.s,DEFAULT.vals).map(Math.round)
-		let bd=1e9; for(let w=0;w<WALK.length;w++){ const d=SPEC[WALK[w]].reduce((a,c,j)=>a+(c-driftR0[j])**2,0); if(d<bd){ bd=d; driftK=w } } }   // enter the wheel where it is nearest the boot colour
-	if(t-driftT>40){ const dt=Math.min(t-driftT,200); driftT=t   // ~25fps is plenty for a slow walk, and a fraction of a drag's cost
-		driftW=Math.min(1,driftW+dt/2600)   // one-way: boot colour → spectrum; speed leans in with the same weight
-		driftK=(driftK+WALK.length/45000*driftW*dt)%WALK.length   // one revolution ≈ 45s at even perceptual pace
-		// lerp BETWEEN walk stops: snapped to entries the colour would step only ~once a
-		// second (a stop per ≥24 rgb units) and read as stalling, not walking
-		const i0=Math.floor(driftK), fr=driftK-i0, A=SPEC[WALK[i0%WALK.length]], B=SPEC[WALK[(i0+1)%WALK.length]]
-		master={ s:'rgb', vals:driftR0.map((v,j)=>{ const c=A[j]+(B[j]-A[j])*fr; return Math.round(v+(c-v)*driftW) }) }
-		driftJ=master.vals.join()
-		scheduleFast() }
-	requestAnimationFrame(drift) }
-const driftGo=()=>setTimeout(()=>{ if(VIRGIN) requestAnimationFrame(drift) },2000)   // after the boot's settle — walking at 900ms fought hydration for the first seconds
-document.readyState==='complete'?driftGo():addEventListener('load',driftGo)
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
+const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200
+const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
+let autoColor=false, autoStart=0, autoLast=0, autoJ=''
+const autoStep=t=>{ if(!autoColor) return
+	if(!PDOWN&&t-autoLast>=AUTO_FRAME){ autoLast=t
+		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360
+		master={ s:'oklch', vals:[AUTO_L,.16*w,h] }; autoJ=master.vals.join(); scheduleFast(true) }
+	requestAnimationFrame(autoStep) }
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='Copied')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
@@ -1670,17 +1649,13 @@ if(cvalEl){
 	// reset master to the 8-bit hex per frame, snapping wide-gamut sliders onto the hex grid
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
-		if(p){ master=p; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
-		else{ const l=parseColorList(cvalEl.value); if(l?.length){ master={ s:l[0].s, vals:l[0].vals.slice() }; scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) } } })   // a pasted list: its first color leads
+		if(p){ master=p; scheduleFast(); if(open()) queuePlaneSettle() }
+		else{ const l=parseColorList(cvalEl.value); if(l?.length){ master={ s:l[0].s, vals:l[0].vals.slice() }; scheduleFast(); if(open()) queuePlaneSettle() } } })   // a pasted list: its first color leads
 	cvalEl.addEventListener('focus',()=>requestAnimationFrame(()=>cvalEl.select()))   // first click takes the whole value
-	// while nothing is picked the field carries the walking colour as its placeholder;
-	// taking the field holds the walk on the last colour — leaving it empty lets it carry on
-	cvalEl.addEventListener('focus',()=>{ if(VIRGIN) driftHold=true })
-	cvalEl.addEventListener('blur',()=>{ if(VIRGIN&&!cvalEl.value&&driftHold){ driftHold=false; requestAnimationFrame(drift) } })
 	cdEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		const h=cdEl.value
 		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
-		scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) })
+		scheduleFast(); if(open()) queuePlaneSettle() })
 	cvalEl.addEventListener('keydown',e=>{ if(e.key==='Enter') cvalEl.blur() })
 	cvalEl.addEventListener('blur',()=>renderFast())   // settle back to canonical hex
 }
@@ -1700,10 +1675,63 @@ if(fmtbEl){
 }
 // the masthead's empty state: two doors, the same two the placeholder used to name
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
-const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="upar" d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
-upFl.dataset.tip='drop or paste an image anywhere'
+const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4H18.5a2.5 2.5 0 0 1 2.5 2.5V15"/><rect x="3" y="7" width="15" height="13.5" rx="2.5"/><circle cx="13.6" cy="11.3" r="1.6"/><path d="M5.5 17.8 9.5 13.5l3.6 3.9 1.9-2 2.5 2.6"/></svg>'})   // PICTURES, plural – the second card peeks out behind the photo
+const UPTIP='test images – or drop / paste your own'
+upFl.dataset.tip=UPTIP
 document.body.append(upFl)
-upFl.addEventListener('click',()=>cvFile?.click())
+// the button opens the sample stripe, not the file chooser; the chooser is the stripe's last tile
+const upPop=Object.assign(document.createElement('div'),{id:'uppop',hidden:true,ariaLabel:'sample images'})
+const SAMPLES=[['img/wave.jpg','The Great Wave – Hokusai'],['img/starry.jpg','The Starry Night – van Gogh'],['img/pearl.jpg','Girl with a Pearl Earring – Vermeer'],['img/sunrise.jpg','Impression, Sunrise – Monet'],['img/barn.jpg','Grand Teton barn'],['img/jungle.jpg','Surprised! – Rousseau']]
+// ── the stripe REMEMBERS: the last-opened images lead (stock and uploads alike, never
+// duplicated), stock tops the rail up to 7, the chooser closes it. Order lives in
+// localStorage as keys; uploaded Files live in IndexedDB so they survive the visit.
+// Every failure degrades to the stock stripe – storage is a convenience, never a wall. ──
+const IDBN='cs-imgs'
+const idb=()=>new Promise((res,rej)=>{ const q=indexedDB.open(IDBN,1)
+	q.onupgradeneeded=()=>q.result.createObjectStore('imgs')
+	q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error) })
+const idbPut=(k,v)=>idb().then(db=>{ db.transaction('imgs','readwrite').objectStore('imgs').put(v,k) }).catch(()=>{})
+const idbGet=k=>idb().then(db=>new Promise(res=>{ const g=db.transaction('imgs').objectStore('imgs').get(k)
+	g.onsuccess=()=>res(g.result||null); g.onerror=()=>res(null) })).catch(()=>null)
+const idbDel=k=>idb().then(db=>{ db.transaction('imgs','readwrite').objectStore('imgs').delete(k) }).catch(()=>{})
+const mru=()=>{ try{ const a=JSON.parse(localStorage.csImgMru||'[]'); return Array.isArray(a)?a.filter(x=>typeof x==='string'):[] }catch{ return [] } }
+const mruBump=k=>{ try{ const a=[k,...mru().filter(x=>x!==k)]
+		for(const ev of a.splice(7)) if(ev.startsWith('u:')) idbDel(ev)   // the rail is 7 deep – evicted uploads release their bytes
+		localStorage.csImgMru=JSON.stringify(a) }catch{} }
+const STOCK=new Map(SAMPLES)
+const upTile=(title,onpick)=>{ const b=Object.assign(document.createElement('button'),{type:'button',className:'upim',title,ariaLabel:'use '+title})
+	b.addEventListener('click',()=>{ upOpen(false); onpick() }); return b }
+let upChart=null   // drawn once, reused across rebuilds
+let upB=null   // in-flight build – a double-click must join it, not interleave a second teardown
+async function upBuild(){ upPop.querySelectorAll('.upim').forEach(b=>{ if(b._url) URL.revokeObjectURL(b._url); b.remove() })
+	const recs=new Map()
+	for(const k of mru()) if(k.startsWith('u:')){ const r=await idbGet(k); if(r) recs.set(k,r) }
+	const keys=mru().filter(k=>recs.has(k)||STOCK.has(k)||k==='chart')
+	for(const p of [...STOCK.keys(),'chart']) if(!keys.includes(p)&&keys.length<7) keys.push(p)
+	for(const k of keys.slice(0,7)){
+		if(STOCK.has(k)){ const b=upTile(STOCK.get(k),()=>fetch(k).then(r=>r.blob()).then(bl=>takeImage(new File([bl],k.split('/').pop(),{type:bl.type||'image/jpeg'}),k)).catch(()=>toast('could not load that image')))
+			b.append(Object.assign(document.createElement('img'),{src:k,alt:'',loading:'lazy',decoding:'async'})); upPop.append(b) }
+		else if(k==='chart'){ const ch=upChart??=chartImg()
+			const b=upTile('synthetic chart – hue sweep, gray ramp, known patches',()=>ch.toBlob(bl=>bl&&takeImage(new File([bl],'chart.png',{type:'image/png'}),'chart')))
+			b.append(ch); upPop.append(b) }
+		else{ const f=recs.get(k), b=upTile(f.name||'your image',()=>takeImage(f,k))
+			b._url=URL.createObjectURL(f)
+			b.append(Object.assign(document.createElement('img'),{src:b._url,alt:'',decoding:'async'})); upPop.append(b) } }
+	const ub=Object.assign(document.createElement('button'),{type:'button',className:'upim upld',title:'upload your own',ariaLabel:'upload an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
+	ub.addEventListener('click',()=>{ upOpen(false); cvFile?.click() })
+	upPop.append(ub) }
+let upWant=false   // the CURRENT intent – a close during the async build must win over its pending unhide
+const upOpen=on=>{ upWant=on
+	if(on){ (upB??=upBuild().finally(()=>{ upB=null })).then(()=>{ if(upWant) upPop.hidden=false })   // rebuilt per open – the rail follows the memory
+		// the open stripe must not sit under its own tooltip – hide the bubble AND cancel
+		// its pending delayed show (the leave clears tip.js's timer)
+		upFl.dispatchEvent(new PointerEvent('pointerleave',{bubbles:true}))
+		document.getElementById('tip')?.setAttribute('aria-hidden','true'); delete upFl.dataset.tip }
+	else{ upFl.dataset.tip=UPTIP; upPop.hidden=true } }
+upFl.addEventListener('click',()=>upOpen(!upWant))   // toggle on INTENT – the hidden attr lags the async build
+addEventListener('pointerdown',e=>{ if(upWant&&!e.target.closest('#uppop,#upfl')) upOpen(false) })
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&upWant){ upOpen(false); upFl.focus() } })
+document.body.append(upPop)
 // ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
 // crisp at full resolution; a CLICK picks the pixel under the pointer, a quiet ✕ lets
 // the image go. It outlives the dossier's scrim. ──
@@ -1721,12 +1749,12 @@ const pkRead=e=>{ const r=imgPk.getBoundingClientRect()
 	if(x<0||y<0||x>=imgPk.width||y>=imgPk.height) return
 	const d=imgPk.getContext('2d',{willReadFrequently:true}).getImageData(x,y,1,1).data
 	master={ s:'rgb', vals:[d[0],d[1],d[2]] }
-	scheduleFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+	scheduleFast(); if(open()) queuePlaneSettle() }
 let pkDrag=null
 imgPk.addEventListener('pointerdown',e=>{ pkDrag=e.pointerId; imgPk.setPointerCapture(pkDrag); pkRead(e) })   // the press picks, the drag keeps picking — the release keeps the choice
 imgPk.addEventListener('pointermove',e=>{ if(e.pointerId===pkDrag) pkRead(e) })
 const pkEnd=e=>{ if(e.pointerId!==pkDrag) return; pkDrag=null; try{ imgPk.releasePointerCapture(e.pointerId) }catch{}
-	renderFast(); paintCatalogGrad(); if(open()) paintPlanes(false) }
+	renderFast(); if(open()){ flushCatalogValues(); queuePlaneSettle() } else flushCatalogSecondary() }
 imgPk.addEventListener('pointerup',pkEnd); imgPk.addEventListener('pointercancel',pkEnd)
 imgPk.title='press and drag to pick — the release keeps the colour'
 imgX.addEventListener('click',()=>clearImage())
@@ -1738,7 +1766,13 @@ const dropImg=e=>[...(e.dataTransfer?.items||[])].some(x=>x.kind==='file'&&x.typ
 // masthead and speaks through every strip's histogram — the colors you picked stay yours
 // ONE image for the whole app, whichever door it came through: the samples behind every
 // histogram and scope, the bitmap the dossier's lens decomposes, and the masthead's rhombus
-const takeImage=f=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(f.name||''))) return   // HEIC often arrives typeless
+const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(f.name||''))) return   // HEIC often arrives typeless
+	upOpen(false)   // an image through ANY door retires the stripe with its button (body.himg hides the seat)
+	// …and takes its place at the head of the stripe's memory. A stripe pick carries its
+	// own key (no re-store); a fresh file keys on name+size, so the same file re-dropped
+	// moves forward instead of duplicating
+	if(!key){ key='u:'+(f.name||'image')+':'+(f.size||0); idbPut(key,f) }
+	mruBump(key)
 	palFromImage(f)
 	createImageBitmap(f).then(bm=>{ UIMG=bm
 		if(IMGS){ if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }
@@ -1775,7 +1809,7 @@ const valsIn=(m,s)=>{ if(s===m.s) return m.vals
 // and caches until the next image. Drawn as a clip-path staircase on one element per
 // strip: no canvas, no per-frame work, and it inherits the picker's ink like everything
 // else in the lane.
-const HBINS=768, HSAMP=24576, HSLICE=8
+const HBINS=768, HSAMP=24576, HCLOUD=8192, HSLICE=8
 const ric=window.requestIdleCallback?.bind(window)||(fn=>setTimeout(()=>{ const t0=performance.now(); fn({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },40))
 let HIMG=null, hRev=0, hT=0
 const histC=new Map(), histQ=new Set(), histP=new Map(), histV=new Map()   // lane curves · waiting · half-binned · the samples themselves
@@ -1798,7 +1832,7 @@ const brushMask=()=>{ if(!BRUSHES.size) return null
 	return bMask=m }
 // a changed range re-projects what is already converted: lanes rebin, scopes re-splat
 const meshCloud=()=>{ if(!HIMG){ setMeshCloud(null); return }
-	const n=HIMG.length/3, cnt=Math.min(n,HSAMP), msk=brushMask()
+	const n=HIMG.length/3, cnt=Math.min(n,HCLOUD), msk=brushMask()
 	const a=new Float32Array(cnt*3); let m=0
 	for(let k=0;k<cnt;k++){ if(msk&&!msk[k]) continue
 		const i=(k*2654435761)%n
@@ -1822,7 +1856,7 @@ const brushApply=()=>{ bMask=null; hRev++; meshCloud()
 	document.body.classList.toggle('brushed',!!BRUSHES.size)
 	detail.querySelectorAll('.bar2').forEach(b=>{ b._hist&&(b._hist._p=null) })
 	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
-	if(open()) paintPlanes(false)
+	if(open()) queuePlaneSettle()
 	paintCatalogVals(); renderFast() }
 const setBrush=(s2,i,lo,hi)=>{ const k=s2+'|'+i
 	if(hi-lo<.004) BRUSHES.delete(k)   // the halves met — the picker is whole again
@@ -2164,15 +2198,20 @@ document.fonts?.ready.then(layoutToc)
 requestAnimationFrame(layoutToc)
 onLoad(layoutToc)
 
-// visibility set: bounds the per-frame sweeps (drag frames repaint near-screen rows only;
-// the prepaint walk covers the rest at idle). Scroll-in repaints are stamp-skipped no-ops
-// unless the row went stale while offscreen.
-const vis=new Set()
+// Visibility bounds conversion/value work to near-screen rows. Scroll-in gradient refreshes
+// are stamp-skipped no-ops unless a row went stale while offscreen.
+const vis=new Set(), screenVis=new Set(), catEnts=new Map()
+const entsIn=set=>[...set].map(s=>catEnts.get(s)).filter(Boolean)
+const visibleEnts=()=>entsIn(vis), screenEnts=()=>entsIn(screenVis)
 const io=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ vis.add(s); entered.push(e.target) } else vis.delete(s) })
-	if(entered.length){ paintCatalogGrad(entered); paintCatalogVals(entered) }   // values + the CSS fallback for what just scrolled in — the atlas band already covers its strips
+	if(entered.length){ paintCatalogVals(entered); ric(()=>{ if(!PDOWN) paintCatalogGrad(entered) }) }   // values now; stale offscreen gradients refresh only when input/scroll leaves idle time
 },{rootMargin:'300px'})
-// ents attach to the observer in wireCat() — the catalog may not exist yet on name views
+const screenIO=new IntersectionObserver(es=>{ const entered=[]
+	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ screenVis.add(s); entered.push(e.target) } else screenVis.delete(s) })
+	if(entered.length){ paintCatalogVals(entered,{thumbs:false}); paintCatalogPickers(entered) }
+})
+// ents attach to the observers in wireCat() — the catalog may not exist yet on name views
 
 // copying catalog rows or dossier channel/range values: the native serializer breaks every flex
 // item onto its own line and skips input values — rebuild the text from the selection, joined by
@@ -2208,7 +2247,7 @@ document.addEventListener('copy',e=>{
 let squelch=false
 // focus a sheet row's channel → a gentle slider popover for that space, edited like a lead card, no full modal
 let popEnt=null
-const hidePop=()=>{ if(!popEnt) return; popEnt.classList.remove('pop'); popEnt=null; sglVoid(); sglSettle() }   // the popover's strips left the page — re-capture so the atlas doesn't paint over their absence
+const hidePop=()=>{ if(!popEnt) return; popEnt.classList.remove('pop'); popEnt=null }
 // alt-drag: the picker splits into its two halves — Photoshop's Blend If gesture — and
 // what lies between them is the sample set every other lane and scope reads. Afterwards
 // each half drags on its own, no modifier; drag them back together and the picker is one.
@@ -2225,8 +2264,7 @@ function rangeDrag(e,el,sp,i,end){ e.preventDefault(); e.stopPropagation()
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.onpointercancel=null }
 	el.onpointerup=up; el.onpointercancel=up }
 const showPop=ent=>{ if(popEnt===ent)return; hidePop(); popEnt=ent; ent.classList.add('pop')
-	paintCatalogGrad([ent]); paintCatalogVals([ent])
-	sglVoid(); sglSettle() }   // the popover's strips just appeared — fold them into the atlas band
+	paintCatalogGrad([ent]); paintCatalogVals([ent]) }
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&popEnt){ document.activeElement?.blur?.(); hidePop() } })   // Esc closes AND blurs (the cv's own Esc also blurs → focusout closes)
 // the native ranges drive master through ONE delegated pair — input mirrors the drag's
 // jump (adopt + set + schedule), change is the release settle
@@ -2234,17 +2272,23 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 	const ent2=r.closest('.ent'); if(!ent2) return
 	const s=ent2.dataset.s
 	if(master.s!==s){ const mv=valsFor(s); if(!mv) return; master={ s, vals:mv } }
-	master.vals[+r.dataset.i]=+r.value
+	dragEntI=+r.dataset.i; master.vals[dragEntI]=+r.value
 	dragEnt=ent2; scheduleFast() })
 cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) return
-	renderFast(); dragEnt=null
+	renderFast(); releaseDragEnt()
 	scheduleFast(); if(open()) paintPlanes(false) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
-cat.querySelectorAll('.ent[data-s] .ch').forEach(c=>chRO.observe(c))   // …and the observer keeps them (and the atlas rects) honest through every reflow
-cat.querySelectorAll('.ent[data-s]').forEach(e=>io.observe(e))   // visibility set — real spaces only; barred cards carry no data
+catEnts.clear()
+// Picker color is inherited once from #cat. Strip the prerender's per-input seed so a
+// row that has never intersected can still acquire the current color through CSS alone.
+cat.querySelectorAll('.nrg').forEach(nr=>{ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki'); nr.style.removeProperty('--tkv') })
+cat.querySelectorAll('.ent[data-s]').forEach(e=>{ catEnts.set(e.dataset.s,e); io.observe(e); screenIO.observe(e) })   // visibility sets — real spaces only; barred cards carry no data
 const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	ent.querySelector('.nm').addEventListener('click',()=>{ if(!squelch) openModal(s) })
-	ent.addEventListener('pointerenter',()=>{ warmGL(s); warmMesh3(s,GM) })   // compile while the pointer hovers — the dossier opens GPU-sharp
+	let warmT=0
+	ent.addEventListener('pointerenter',()=>{ const warm=()=>{ if(PDOWN){ warmT=setTimeout(warm,300); return } warmT=0; warmGL(s); warmMesh3(s,GM) }
+		warmT=setTimeout(warm,300) })   // deliberate hover warms, but compilation never lands inside a drag
+	ent.addEventListener('pointerleave',()=>{ clearTimeout(warmT); warmT=0 })
 	ent.addEventListener('focusout',e=>{ if(popEnt===ent&&!ent.contains(e.relatedTarget)) hidePop() })   // the popover closes once focus leaves the row (blur, tab away, Esc)
 	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
@@ -2292,13 +2336,13 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 				master.vals[i]=c.min+(c.max-c.min)*f
 				scheduleFast() }
 			ch.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
-			adopt(); dragEnt=ent; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
+			adopt(); dragEnt=ent; dragEntI=i; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
 			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; cvEl?.classList.add('on'); ch.classList.add('live') }
 				jump(ev) }
 			ch.onpointermove=move
 			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
 				squelch=true; setTimeout(()=>squelch=false,0)
-				renderFast(); dragEnt=null   // settle BEFORE releasing dragEnt — the focused input must adopt the press (the scheduled frame would arrive after the release)
+				renderFast(); releaseDragEnt()   // settle BEFORE releasing the row — the focused input must adopt the press
 				scheduleFast(); if(open()) paintPlanes(false) }
 			ch.onpointercancel=ch.onpointerup }) }) }   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 // visible rows wire NOW; the long tail wires in idle slices — ~4000 listener
@@ -2310,6 +2354,7 @@ wireCat._gen=(wireCat._gen||0)+1
 		if(r.bottom>lo&&r.top<hi) wireEnt(e); else later.push(e) }
 	let i=0
 	const step=dl=>{ if(gen!==wireCat._gen) return
+		if(PDOWN){ ric(step); return }   // idle hydration is background work, never drag work
 		while(i<later.length&&dl.timeRemaining()>3) wireEnt(later[i++])
 		if(i<later.length) ric(step) }
 	if(later.length) ric(step) }
@@ -2485,7 +2530,7 @@ function buildBarred(b){
 	 </div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(){ ensureCat(); modal.hidden=true; pageShell.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
-	paintCatalogVals(); paintCatalogGrad(); sglVoid(); sglSettle()   // the catalog slept behind the dossier — catch values AND the atlas up to whatever the modal picked
+	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
 	urlLast=spaceURL('')+'#'+urlHash(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
@@ -2609,7 +2654,9 @@ const QTIP={ 'smooth':'continuous, unquantized',
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
-let dragEnt=null   // the catalog entry being dragged — motion frames repaint it alone; everything else catches up on settle
+let dragEnt=null, dragEntI=-1   // active row/channel stay live; secondary slider surfaces update on the shared throttle
+function releaseDragEnt(){ const held=dragEnt; dragEnt=null; dragEntI=-1; flushCatalogSecondary()
+	if(held){ held._tk=''; for(const p of ['--tkc','--tki','--tkv']) held.style.removeProperty(p) } }
 let QM='oklab'   // the palette lenses' distance metric — session-only, like Q
 const MTIP={ oklab:'modern perceptual distance', de2000:'CIE industry standard', de76:'plain CIELAB distance', redmean:'classic RGB heuristic' }
 const MLABEL={ oklab:'oklab', de2000:'ΔE2000', de76:'ΔE76', redmean:'redmean' }
@@ -2623,10 +2670,10 @@ const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly'
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which
 // the always-drawn range cage already frames. (Legacy 'off' collapses to srgb default.)
 // human by default: the widest real view — a display gamut is an opt-in LIMIT, chosen in
-// the dossier's switch, and its half-transparent ghosting shows only there. The catalog
-// always renders the full reach (no lens beyond "is it a colour at all").
+// the dossier's switch, and its ghosting also appears on the catalog's current-space row;
+// other catalog rows retain full reach until they become current.
 let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'vis'
-// the lens the DOSSIER's sweeps render under. A 1-channel locus: under a display lens the
+// the lens the current-space sweeps render under. A 1-channel locus: under a display lens the
 // all-out ghosting IS its definition; under the human lens it is all-in by definition –
 // and the discretized solid would wrongly fail its own rim.
 const gmFor=cls=>cls.ch.length>1?GM:GM==='vis'?'off':GM
@@ -2729,12 +2776,11 @@ const hilite=code=>code.split('\n').map(line=>{
 	return src+(com?`<span class="tok-c">${esc(com)}</span>`:'')
 }).join('\n')
 // ── the sRGB solid in this space: regular surface mesh, drag to rotate ──
-let rot3={a:-0.6,b:0.42}, mesh3=null, pts3=null, tris3=null, pts3S=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
-let hover3=null   // hovered slider {i} or plane {a,b} — its line/slice draws inside the solid
-// the solid idles in a slow turn so its shape reads without touching it; grabbing
-// stops it, and release hands over: a flick keeps it turning at the hand's pace,
-// a still drop parks it (snapping onto an exact plane view when near one) —
-// dblclick resets view and ambient turn both
+let rot3={a:-0.6,b:0.42}, mesh3=null, mesh3Rev=0, pts3=null, tris3=null, pts3S=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
+let hover3=null, hover3T=0
+const PLANE_SHEET_DELAY=300   // a click-through hover never builds the costly 3D slice in front of the pointer
+// The solid starts in a subtle ambient turn. A moving release keeps that same slow pace
+// in the hand's direction; a still drop parks it, with exact plane views snapping gently.
 let drag3=false, spinRaf=0, wire3dTok=0
 // a NON-ADDITIVE space whose whole declared box decodes inside sRGB (hsl-family,
 // gamut-normalized pickers like hsluv/okhsl) cannot SAY anything beyond it — beyond
@@ -2757,7 +2803,7 @@ let spinV3=SPIN3, snap3=null
 function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
 	if(!spinV3&&!snap3) return
 	const step=()=>{ if(!open()||!mesh3){ spinRaf=0; return }
-		if(!drag3){
+		if(!drag3&&!PDOWN){
 			if(snap3){ const da=snap3.a-rot3.a, db=snap3.b-rot3.b
 				if(Math.abs(da)<0.002&&Math.abs(db)<0.002){ rot3.a=snap3.a; rot3.b=snap3.b; snap3=null }
 				else{ rot3.a+=da*0.22; rot3.b+=db*0.22 } }
@@ -3047,7 +3093,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : dmin[k]-(c.max-c.min)*0.08),
 			cls.ch.map((c,k)=> k===ai ? win[1][k] : dmax[k]+(c.max-c.min)*0.08)]
 		: win
-	mesh3={ verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
+	mesh3={ rev:++mesh3Rev, verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
 		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
 		gpu:gpu3, g3, map:gpu3?{ gam:g3, win:winV, min:fmin, max:fmax, caps:capMask,
 			// cap planes sit at the solid's own extent — except the human view, whose
@@ -3348,6 +3394,11 @@ function buildSheet3(cls,vals,A,B){ const ca=cls.ch[A], cb=cls.ch[B], R2=24
 		if(pts.some(p=>!p)) continue
 		V.push(...pts[0],...pts[1],...pts[2],...pts[0],...pts[2],...pts[3]) }
 	return new Float32Array(V) }
+function snapshot3dMask(mesh,key=mesh?._sceneKey){ if(!mesh||!key) return mesh
+	const bm=mask3||(mask3=document.createElement('canvas')), S2=mesh.width
+	if(bm.width!==S2) bm.width=bm.height=S2
+	const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(mesh,0,0)
+	bm._sceneKey=key; return bm }
 function draw3d(){ if(!mesh3||!open()) return
 	const el=detail.querySelector('#pl3d'); if(!el) return
 	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3'), gcv=el.querySelector('.grid3')
@@ -3359,8 +3410,8 @@ function draw3d(){ if(!mesh3||!open()) return
 	const rot=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0
 		const X1=x*ca+z*sa, Z1=-x*sa+z*ca
 		return { x:X1, y:y*cb-Z1*sb, z:y*sb+Z1*cb } }
-	const mv=valsFor(pts3S); let markerN=null, mcur=null
-	if(mv&&pts3Map){ markerN=pts3Map(mv); mcur=RGB() }
+	const mv=valsFor(pts3S); let markerN=null
+	if(mv&&pts3Map) markerN=pts3Map(mv)
 	// one STATIC scale: sized so a face-on (snapped) frame spans the same on-screen
 	// width as the gamut/transfer plates' frames (0.872 of a plate canvas — box css
 	// = w·elW·scale/2·1.36). Diagonal rotations may run into the canvas bleed and
@@ -3368,6 +3419,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	const plC=detail.querySelector('#gam2d canvas')||detail.querySelector('#tcv')
 	const wN=mesh3.gd?.kind==='cyl'?1.02:1   // the cylinder's rim (1.1 wide) may run a hair past the plates
 	const scale3=Math.min(plC?1.335*plC.clientWidth/((el.clientWidth||352)*wN):0.66/mesh3.f0, 1.4/wN), sc=S2*scale3/2
+	meshCv._scale3=scale3; meshCv._markerDp=dp
 	// the hovered plane's sheet, built (and cached) BEFORE the mesh draw — it renders
 	// inside the GL scene, depth-tested against the body
 	let sheet3=null, frame3=null, cut3=null
@@ -3411,18 +3463,22 @@ function draw3d(){ if(!mesh3||!open()) return
 				return new Float32Array(V) }
 			ctr3.frK=fk; ctr3.frame={ fr:rib(0.75*dp,0.75*dp), co:rib(0,0.6*dp), tint:CUT3 } }
 		frame3=ctr3.per?ctr3.frame:null }
-	// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
-	// (bodyM) for the thru passes; the pane and frame then join the same scene in a
-	// second pass, so their film never counts as cover and never veils the hud dashes
-	// the first draw is only the body-alpha snapshot (bodyM) — the cut band would cost a
-	// second full mesh pass and change nothing it measures; the visible render is below
-	const drewGL=meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,null,Q,QM):drawPtsGL(meshCv,mesh3,scale3))
-	let bodyM=meshCv
-	if(drewGL&&(sheet3||frame3)){ const bm=mask3||(mask3=document.createElement('canvas'))
-		if(bm.width!==S2) bm.width=bm.height=S2
-		const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(meshCv,0,0)
-		bodyM=bm
-		mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3) }
+	// The body, image cloud and histogram-conditioned sheet are scene pixels, not picker
+	// pixels. While a slider/plane drag only moves the HUD marker, keep this canvas intact:
+	// a large image cloud must never be replayed merely to move one diamond.
+	const sceneKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}|${Q}|${QM}|${HIMG?hRev:'-'}|${sheet3||frame3?ctr3?.key:''}`
+	let drewGL=!!(meshCv&&meshCv._sceneKey===sceneKey)
+	let bodyM=mask3?._sceneKey===sceneKey?mask3:meshCv
+	if(!drewGL){
+		// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
+		drewGL=!!(meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,null,Q,QM):drawPtsGL(meshCv,mesh3,scale3)))
+		bodyM=meshCv
+		// A cached WebGL canvas may discard its drawing buffer after compositing. Preserve
+		// one small alpha snapshot at the start of a colour gesture so the white through-grid
+		// cannot disappear while only the picker HUD is moving.
+		if(drewGL&&(PDOWN||sheet3||frame3)) bodyM=snapshot3dMask(meshCv,sceneKey)
+		if(drewGL&&(sheet3||frame3)) mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3)
+		if(drewGL) meshCv._sceneKey=sceneKey }
 	ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	// a GPU space whose program is still linking shows the frame alone for a beat —
@@ -3434,16 +3490,18 @@ function draw3d(){ if(!mesh3||!open()) return
 	// ── reference frame, under the solid: grid the FAR planes (rot().z grows toward
 	// the camera, so a face whose outward normal has z<0 faces away) ──
 	const gd=mesh3.gd, gx=gcv.getContext('2d')
-	gx.clearRect(0,0,S2,S2)
-	const GRID='oklch(0.5 0.01 70/.15)', EDGE='oklch(0.5 0.01 70/.34)', TXT='oklch(0.5 0.01 70/.85)', CUT='oklch(0.32 0.012 70)', WHT='#fff', GHOST='oklch(0.5 0.01 70/.6)'   // CUT: the hover cut weight on the near surface; WHT: everything ghosted — hidden arcs, the sheet frame, beyond-the-solid line; GHOST: the dashed guides' gray
+	const CUT='oklch(0.32 0.012 70)', WHT='#fff', GHOST='oklch(0.5 0.01 70/.6)'   // CUT: the hover cut weight on the near surface; WHT: everything ghosted — hidden arcs, the sheet frame, beyond-the-solid line; GHOST: the dashed guides' gray
+	const gridKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}`
+	const farC=gd?.kind==='box'?[0,1,2].map(d=>{ const dir=[0,0,0]; dir[d]=1; return rot(dir).z<0?0.5:-0.5 }):null
+	const yF=gd&&gd.kind!=='box'?(rot([1,0,0]).z<0?0.5:-0.5):-0.5
+	if(gcv._gridKey!==gridKey){ gcv._gridKey=gridKey; gx.clearRect(0,0,S2,S2)
+	const GRID='oklch(0.5 0.01 70/.15)', EDGE='oklch(0.5 0.01 70/.34)', TXT='oklch(0.5 0.01 70/.85)'
 	const fmtT=v=>String(Math.abs(v)>=1000?Math.round(v):+v.toPrecision(3))
 	const seg=(a,b)=>{ const p=prj(a), q=prj(b); gx.moveTo(p.x,p.y); gx.lineTo(q.x,q.y) }
 	gx.lineWidth=dp; gx.textAlign='center'; gx.textBaseline='middle'
 	const F9=`600 ${Math.round(9.5*dp)}px Inter,sans-serif`, F10=`700 ${Math.round(10.5*dp)}px Inter,sans-serif`
 	gx.font=F9
-	let farC=null, yF=-0.5
 	if(gd&&gd.kind==='box'){
-		farC=[0,1,2].map(d=>{ const dir=[0,0,0]; dir[d]=1; return rot(dir).z<0?0.5:-0.5 })
 		const pt=(d,cd,e,ve,f2,vf)=>{ const n=[0,0,0]; n[d]=cd; n[e]=ve; n[f2]=vf; return n }
 		gx.strokeStyle=GRID; gx.beginPath()
 		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
@@ -3493,7 +3551,6 @@ function draw3d(){ if(!mesh3||!open()) return
 			gx.globalAlpha=1 } }
 	else if(gd){ // cylinder: far disc (spokes + rings) and the far half of the wall
 		const R=gd.R
-		yF=rot([1,0,0]).z<0?0.5:-0.5
 		const farA=a2=>rot([0,Math.cos(a2),Math.sin(a2)]).z<0
 		const circ=(y,r,half)=>{ let on=false
 			for(let q=0;q<=96;q++){ const a2=q/96*2*Math.PI
@@ -3546,7 +3603,7 @@ function draw3d(){ if(!mesh3||!open()) return
 			const pT=prj([0.5,R*cL,R*sL]); gx.fillText(gd.ysym,pT.x-7*dp,pT.y-15*dp); gx.globalAlpha=1 }
 		gx.textAlign='center'
 		const pH=prj([yF,R*1.34*Math.cos(aF),R*1.34*Math.sin(aF)])
-		if(discOpen>0.03){ gx.globalAlpha=Math.max(discOpen,0.5); gx.fillText(gd.hsym,pH.x,pH.y); gx.globalAlpha=1 } }
+		if(discOpen>0.03){ gx.globalAlpha=Math.max(discOpen,0.5); gx.fillText(gd.hsym,pH.x,pH.y); gx.globalAlpha=1 } } }
 	// the frame stays legible through the solid — the far planes re-emerge over the
 	// blob, faint, as if it were slightly transparent (grid masked by the mesh's alpha).
 	// THRU_LIGHT recolours those lines to white — dark ink drowns on the colourful body;
@@ -3672,12 +3729,20 @@ function draw3d(){ if(!mesh3||!open()) return
 			g2.setLineDash([]); g2.fillStyle=GHOST
 			for(const p of dotD){ g2.beginPath(); g2.arc(p.x,p.y,2*dp,0,7); g2.fill() } },0.85)
 		ctx.restore() }
-	// the picked color itself: OPAQUE and last — it is the subject of the whole
-	// instrument, never veiled by the body it sits inside
-	if(mp){ ctx.save(); ctx.translate(mp.x,mp.y); ctx.rotate(Math.PI/4)
-		ctx.fillStyle=hex(mcur); ctx.strokeStyle='#fff'; ctx.lineWidth=.85*dp   // always light — a dark ring reads as a hole in the body
-		const h=4*dp   // the catalog's 8px rhombus, DPR-scaled
-		ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() } }
+	paint3dMarker() }
+function paint3dMarker(){ if(!mesh3||!open()||!pts3Map) return
+	const el=detail.querySelector('#pl3d'), meshCv=el?.querySelector('.mesh3'), cv=el?.querySelector('.marker3')
+	if(!el||!meshCv||!cv||!meshCv._scale3) return
+	if(cv.width!==meshCv.width){ cv.width=meshCv.width; cv.height=meshCv.height }
+	const ctx=cv.getContext('2d'), S2=cv.width; ctx.clearRect(0,0,S2,S2)
+	const mv=valsFor(pts3S); if(!mv)return
+	const n=pts3Map(mv); if(!n?.every(isFinite))return
+	const ca=Math.cos(rot3.a),sa=Math.sin(rot3.a),cb=Math.cos(rot3.b),sb=Math.sin(rot3.b)
+	const y=n[0], x=n[1]??0, z=n[2]??0, X1=x*ca+z*sa, Z1=-x*sa+z*ca, sc=S2*meshCv._scale3/2
+	const px=S2/2+X1*sc, py=S2/2-(y*cb-Z1*sb)*sc, dp=meshCv._markerDp||1, rgb=RGB()
+	ctx.save(); ctx.translate(px,py); ctx.rotate(Math.PI/4)
+	ctx.fillStyle=hex(rgb); ctx.strokeStyle='#fff'; ctx.lineWidth=.85*dp
+	const h=4*dp; ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	spinV3=SPIN3; snap3=null   // a fresh dossier idles in the ambient turn; a parked view survives gamut switches
 	const path=pathToRgb(s)
@@ -3729,7 +3794,7 @@ ${mLegend}
 ${gLegend}">?</span></div>`
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space – sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate – hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas></div></div>`:''
+	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space – sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate – hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas></div></div>`:''
 	const LOCUS1=s==='wavelength'   // one-way, forward-only: its reach IS the spectral locus — drawn in JS, no inverse needed
 	const FWD1=!!space[s]?.xyz     // no GL inverse ≠ no plate: a forward map is enough to SAMPLE the reach
 	const platesHTML=`<div class="dviz2">${hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no colour lives there."><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer – the space's curve – scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
@@ -3827,7 +3892,7 @@ ${gLegend}">?</span></div>`
 			el.classList.remove('live')
 			el._snapHint=el._dragF; if(Q!=null) clusterize(); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
-			renderFast(false); paintPlanes(false); catUp() }) }
+			renderFast(false); queuePlaneSettle(); catUp() }) }
 	// the link runs both ways: hovering or focusing a big input blinks its slider's picker
 	detail.querySelectorAll('#bigch .bch').forEach(b=>{ const bar=detail.querySelector(`.bar2[data-i="${b.dataset.i}"]`); if(!bar) return
 		const sync=()=>bar.classList.toggle('live',b.matches(':hover')||b.contains(document.activeElement))
@@ -3843,7 +3908,7 @@ ${gLegend}">?</span></div>`
 		b.onclick=e=>{ e.stopPropagation()   // each plane keeps its OWN view choice
 			if(isTri){ TRIP[K]=!on(); try{ localStorage.csTriP=JSON.stringify(TRIP) }catch{} }
 			else{ POLARP[K]=!on(); try{ localStorage.csPolarP=JSON.stringify(POLARP) }catch{} }
-			sync(); planeNext=0; paintPlanes(false); renderFast() } })
+			sync(); renderFast(); queuePlaneSettle() } })
 	// hovering a slider draws that channel's LINE through the 3d solid; hovering a
 	// plane draws its SLICE – the sheet the two swept channels span at the held value
 	hover3=null
@@ -3851,8 +3916,14 @@ ${gLegend}">?</span></div>`
 		bar.addEventListener('pointerenter',()=>{ hover3={ i:+bar.dataset.i }; draw3d() })
 		bar.addEventListener('pointerleave',()=>{ hover3=null; draw3d() }) })
 	detail.querySelectorAll('.pl').forEach(pl=>{
-		pl.addEventListener('pointerenter',()=>{ hover3={ a:+pl.dataset.a, b:+pl.dataset.b }; draw3d() })
-		pl.addEventListener('pointerleave',()=>{ hover3=null; draw3d() }) })
+		pl.addEventListener('pointerenter',()=>{ const h={ a:+pl.dataset.a, b:+pl.dataset.b }
+			clearTimeout(hover3T)
+			const show=()=>{ if(!pl.matches(':hover')) return
+				if(PDOWN){ hover3T=setTimeout(show,PLANE_SHEET_DELAY); return }
+				hover3=h; draw3d() }
+			hover3T=setTimeout(show,PLANE_SHEET_DELAY) })
+		pl.addEventListener('pointerleave',()=>{ clearTimeout(hover3T); hover3T=0
+			if(hover3?.a===+pl.dataset.a&&hover3?.b===+pl.dataset.b){ hover3=null; draw3d() } }) })
 	wire3d()
 	paintGamut(); paintImages()
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
@@ -3873,14 +3944,14 @@ ${gLegend}">?</span></div>`
 	const qs=detail.querySelector('#qseg'); qs.onchange=()=>{ Q=qFromKey(qs.value)
 		if(ms) ms.disabled=!PALMODES.has(Q)   // the metric only means something over a palette – grayed elsewhere, never jumping the row
 		clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the native select open
-		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast(false)
-			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) paintPlanes(false) }) }) }
+		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
+			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) queuePlaneSettle() }) }) }
 	if(ms) ms.onchange=()=>{ QM=ms.value
 		clearClusterSnaps(); clusterize()
-		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast(false)
-			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) paintPlanes(false) }) }) }
+		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
+			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()&&selected===s) queuePlaneSettle() }) }) }
 	const gs=detail.querySelector('#gseg'); gs.onchange=()=>{ GM=gs.value; localStorage.csGm=GM   // radio: one gamut always selected – the solid always shows SOME shape
-		wire3d(); renderFast(); paintPlanes(false) }
+		wire3d(); renderFast(); queuePlaneSettle() }
 	const pinb=detail.querySelector('#pinb'), ipick=detail.querySelector('#ipick')
 	if(pinb) pinb.oninput=e=>{ endB=hex2rgb(e.target.value); renderFast() }
 	if(ipick&&pinb) ipick.onclick=()=>pinb.click()   // the rhombus opens the native endpoint picker
@@ -3950,7 +4021,7 @@ ${gLegend}">?</span></div>`
 		inp.addEventListener('input',e=>{ if(!e.isTrusted) return   // synthetic input (extension echo of the per-frame mirror) must not write the rounded display value back
 			const v=parseFloat(inp.value); if(!isFinite(v)) return
 			clearClusterSnaps(); adoptS(); master.vals[i]=clamp(v,c.min,c.max); scheduleFast() })
-		inp.addEventListener('change',()=>{ if(Q!=null){ clusterize(); const v=valsFor(s)?.[i]; if(isFinite(v)) inp.value=v.toFixed(decOf(c)); renderFast() } paintPlanes(false) })
+		inp.addEventListener('change',()=>{ if(Q!=null){ clusterize(); const v=valsFor(s)?.[i]; if(isFinite(v)) inp.value=v.toFixed(decOf(c)); renderFast() } queuePlaneSettle() })
 		// focus places a caret, never a selection (browsers select-all a text input on tab-focus)
 		inp.addEventListener('focus',()=>requestAnimationFrame(()=>{ try{ const n=inp.value.length
 			if(inp.selectionStart===0&&inp.selectionEnd===n&&n) inp.setSelectionRange(n,n) }catch{} }))
@@ -3961,7 +4032,7 @@ ${gLegend}">?</span></div>`
 			else master.vals[i]=clamp(base+d*STEP,c.min,c.max)
 			if(typeof Q==='number') clusterize()
 			const v=valsFor(s)?.[i]; if(isFinite(v)) inp.value=v.toFixed(decOf(c))
-			renderFast(); paintPlanes(false) }
+			renderFast(); queuePlaneSettle() }
 		inp.addEventListener('keydown',e=>{ if(e.key==='ArrowUp'||e.key==='ArrowDown'){ e.preventDefault(); spin(e.key==='ArrowUp'?1:-1) } })
 		const [up,dn]=bar.querySelectorAll('.stk button')
 		up.onclick=e=>{ e.stopPropagation(); spin(1) }; dn.onclick=e=>{ e.stopPropagation(); spin(-1) } })
@@ -3990,11 +4061,11 @@ function wireBar(el,s){
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
 		el._snapHint=el._dragF; if(Q!=null) clusterize(); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
-		renderFast(false); paintPlanes(false); catUp() }
+		renderFast(false); queuePlaneSettle(); catUp() }
 	el.onpointermove=move; el.onpointerup=up }) }
 // the dimmed catalog behind the dossier catches up on every RELEASE — values, gradients
-// and the atlas in one settle (per-frame it sleeps; closeModal still covers the rest)
-const catUp=()=>{ if(!open()) return; paintCatalogVals(); paintCatalogGrad(); sglVoid(); sglSettle() }
+// and the catalog in one release settle
+const catUp=()=>{ if(open()) flushCatalogValues() }
 let plFreeze=null   // plane being dragged in a color-cluster mode – its bitmap stays frozen
 function wirePlane(pl){
 	// corner-label ink samples this canvas every repaint – declare the readback before first paint
@@ -4035,7 +4106,7 @@ function wirePlane(pl){
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
 	pl.addEventListener('pointerdown',e=>{ clearClusterSnaps(); pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
 	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
-		if(Q!=null) clusterize(); renderFast(false); paintPlanes(false); catUp() }
+		if(Q!=null) clusterize(); renderFast(false); queuePlaneSettle(); catUp() }
 	pl.addEventListener('pointerup',end); pl.addEventListener('pointercancel',end)
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window – but pinch must not zoom the PAGE
@@ -4223,7 +4294,7 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	c2.fillRect(-4,-4,8,8); c2.strokeRect(-4,-4,8,8); c2.restore()
 	const cap=detail.querySelector('#tcap')
 	if(cap) cap.textContent=`linear ${Math.round(lum*100)}% → encoded ${+code.toPrecision(3)}` }
-function gamMarker(){ const el=detail.querySelector('#gam2d'); if(!el) return
+function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el) return
 	const cx=el.querySelector('.cx'), rgb=RGB()
 	// chromaticity from the RAW master values – the display rgb is clamped to sRGB, so a
 	// marker derived from it could never enter the beyond-rgb coverage the plate paints
@@ -4239,13 +4310,12 @@ function gamMarker(){ const el=detail.querySelector('#gam2d'); if(!el) return
 		// out-of-range rgb – both get the hollow marker
 		// a 1-channel locus (kelvin, wavelength) picks only a CHROMATICITY – its luminance
 		// scale is the space's own normalization, not a claim the MacAdam test may judge
-		let bey=''
-		if(classify(master.s).ch.length>1){ bey=beyondVisible(xyz)?'not a visible color – brighter than the MacAdam limit at this chromaticity':''
-			if(!bey&&boxInBase(master.s)){ try{ const rr=master.s==='rgb'?master.vals:space[master.s].rgb(...master.vals)
-				if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey='no such color – these coordinates decode outside sRGB, which this space is defined on' }catch{} } }
-		cx.classList.toggle('ghost',!!bey)
-		cx.title=bey
-		cx.style.background=bey?'transparent':hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
+		if(!fast){ let bey=''
+			if(classify(master.s).ch.length>1){ bey=beyondVisible(xyz)?'not a visible color – brighter than the MacAdam limit at this chromaticity':''
+				if(!bey&&boxInBase(master.s)){ try{ const rr=master.s==='rgb'?master.vals:space[master.s].rgb(...master.vals)
+					if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey='no such color – these coordinates decode outside sRGB, which this space is defined on' }catch{} } }
+			cx.classList.toggle('ghost',!!bey); cx.title=bey }
+		cx.style.background=cx.classList.contains('ghost')?'transparent':hex(rgb); cx.style.borderColor=ink(rgb) }catch{}}
 // canonical test images: the public-domain Grand-Teton barn, plus a synthetic chart we own
 let IMG=null, imgIdx=0, IMGS=null
 let UIMG=null   // the image the reader dropped – it outranks the built-in specimens everywhere
@@ -4256,7 +4326,7 @@ function chartImg(){ const c=document.createElement('canvas'); c.width=640; c.he
 	P.forEach((q,k)=>{ x.fillStyle=`rgb(${q[0]} ${q[1]} ${q[2]})`; x.fillRect((k%6)*106+2,230+Math.floor(k/6)*126,102,122) })
 	return c }
 function loadImgs(cb){ if(IMGS){ cb(); return }
-	const names=['img/wave.jpg','img/starry.jpg','img/pearl.jpg','img/sunrise.jpg','img/barn.jpg']
+	const names=SAMPLES.map(x=>x[0])   // ONE canon: the corner stripe and this lens read the same list
 	Promise.all(names.map(u=>new Promise(res=>{ const im=new Image(); im.src=u
 		im.onload=()=>res(im); im.onerror=()=>res(null) })))
 	.then(list=>{ IMGS=[...list.filter(Boolean),chartImg()]
@@ -4327,7 +4397,7 @@ function planeDensity(pl,s,a,b,cls,w,h){
 	const cvd=Object.assign(document.createElement('canvas'),{width:w,height:h})
 	const cd=cvd.getContext('2d')
 	cd.fillStyle=ink(RGB())==='#fff'?'#fff':'#16161a'
-	cd.globalAlpha=.6
+	cd.globalAlpha=.20
 	const r=Math.max(2,w/190), r2=r/2
 	let drew=0
 	for(let k=0;k<n;k++){ if(msk&&!msk[k]) continue
@@ -4353,15 +4423,27 @@ function planeDensity(pl,s,a,b,cls,w,h){
 	if(!drew) return null
 	pl._dc=cvd
 	return cvd }
+function paintPlaneDensityLayer(pl,s,a,b,cls,w,h){ const dc=planeDensity(pl,s,a,b,cls,w,h)
+	let cv=pl._density
+	if(!dc){ if(cv) cv.style.display='none'; return }
+	if(!cv){ cv=pl._density=document.createElement('canvas'); cv.className='density'; cv.setAttribute('aria-hidden','true'); pl.querySelector('canvas').after(cv) }
+	if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; cv._dk='' }
+	if(cv._dk!==pl._dk){ const cx=cv.getContext('2d'); cx.clearRect(0,0,w,h); cx.drawImage(dc,0,0); cv._dk=pl._dk }
+	cv.style.display='' }
 // ── painting ──
 // planes render on the GPU (the library's own gl chunks compiled per space): full
 // resolution for every space – OSA-UCS's Newton inverse, CAM16, HCT, munsell's
 // renotation LUT included – with the gamut lens cut per-pixel, and a repaint is
-// one uniform update, so adjacent planes track a drag live. Numeric and palette
-// lenses stay on that GPU path too; the JS field is only the no-WebGL2 fallback,
-// where heavy spaces repaint less often on a measured, cost-stretched cadence.
+// one uniform update. While one plane is held its own field stays stable and the two
+// neighbouring slices alternate live frames; image picks repaint all three. The static density
+// overlays never join that work. JS is only the no-WebGL2 fallback.
 const planeMs={}
-let planeNext=0, planesLive=false
+let planeNext=0, planeLiveNext=0, planeLiveCursor=0, planesLive=false, planeSettleToken=0
+function queuePlaneSettle(){ const token=++planeSettleToken; planeNext=Infinity
+	setTimeout(()=>ric(()=>{ if(token!==planeSettleToken) return
+		if(!open()||isBarred(selected)){ planeNext=0; return }
+		if(PDOWN){ queuePlaneSettle(); return }
+		planeNext=0; paintPlanes(false) }),80) }
 // Center a palette-mode marker in the connected painted region nearest the release
 // point. Its snap site is the DEEPEST interior pixel (largest chamfer-distance from
 // every edge), not the area centroid – a crescent or tapered cell can have a centroid
@@ -4397,7 +4479,7 @@ function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv
 	const px=cr.left+(cp%w+.5)/w*cr.width, py=cr.top+((cp/w|0)+.5)/h*cr.height
 	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null
 	const marker=pl.querySelector('.cx'); marker.style.display=''; marker.style.left=pl._snap.left+'%'; marker.style.top=pl._snap.top+'%' }
-function paintPlanes(fast){ if(!open()||isBarred(selected)) return
+function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now – numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
 	const pls=[...detail.querySelectorAll('.pl')]
@@ -4409,14 +4491,17 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 	const canGL=stat==='ready'
 	const pendGL=stat==='pending'
 	if(pendGL){ planesLive=false; planeNext=performance.now()+200
-		if(!dragBar&&!plFreeze) draw3d(); return }
+		if(!fast&&!dragBar&&!plFreeze) draw3d(); return }
+	if(livePick&&!canGL&&performance.now()<planeLiveNext) return
 	const cost=planeMs[s]
-	const dragging=!!(dragBar||plFreeze)
-	const res=canGL?Math.min(432,Math.round(216*(devicePixelRatio||1)))
+	const dragging=!!(livePick||dragBar||plFreeze)
+	const fullRes=Math.min(432,Math.round(216*(devicePixelRatio||1)))
+	const res=canGL?(dragging?96:fullRes)
 		:dragging?96:cost==null?48:Math.round(clamp(216*Math.sqrt(250/cost),96,216)/2)*2
 	const q=typeof Q==='number'?Q:qTriple(Q)
-	const t0=performance.now()
-	pls.forEach(pl=>{ if(pl===plFreeze) return
+	const t0=performance.now(), liveNeighbours=livePick&&plFreeze?pls.filter(pl=>pl!==plFreeze):null
+	const liveTarget=liveNeighbours?.length?liveNeighbours[planeLiveCursor++%liveNeighbours.length]:null
+	pls.forEach(pl=>{ if(pl===plFreeze||liveTarget&&pl!==liveTarget) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
 		// vw lives in SCREEN fractions; a flipped axis (flip3) hands the kernel its
@@ -4435,241 +4520,145 @@ function paintPlanes(fast){ if(!open()||isBarred(selected)) return
 		// inside the unchanged square box, so every side measures equal on screen
 		const resW=tri===3?Math.round(res*0.8660254):res, resH=tri===1?Math.round(res*0.8660254):res
 		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
-		if(!(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM)))
+		if(!(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM,!HIMG&&!qTriple(Q))))
 			plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q)
-		if(HIMG){ const dc=planeDensity(pl,s,a,b,cls,cv.width,cv.height)
-			if(dc) cv.getContext('2d').drawImage(dc,0,0) } })
+		if(HIMG){ if(!livePick) paintPlaneDensityLayer(pl,s,a,b,cls,cv.width,cv.height) }
+		else if(pl._density) pl._density.style.display='none' })
 	if(HIMG&&!histV.has(s)&&!histP.has(s)&&!histQ.has(s)){ histQ.add(s); histSoon() }   // the open space earns its samples too, not just the rows on screen
 	planesLive=canGL
 	if(planesLive) planeNext=0
 	else{ const dt=performance.now()-t0
 		planeMs[s]=Math.max(dt,0.5)*(216/res)**2
 		planeNext=performance.now()+Math.max(120, dt*1.8)
+		if(livePick) planeLiveNext=performance.now()+Math.max(80,dt*1.5)
 		if(!fast&&cost==null) setTimeout(()=>paintPlanes(false),30) }   // probe measured – settle at the fitted res
 	const pq=qTriple(Q)
 	if(pq&&!dragging){ const target=byteRGB(pq(RGB())); pls.forEach(pl=>centerPlaneMarker(pl,target)) }
 	else if(!pq) pls.forEach(pl=>{ pl._snap=null; pl._snapSeed=null })
-	if(!dragBar&&!plFreeze) draw3d()
+	if(!fast&&!dragBar&&!plFreeze) draw3d()
 }
-// a program landed – upgrade the paint. COALESCED to one sweep per frame: during a
-// compile burst programs land back-to-back, and a full sweep per landing multiplied
-// the paint work by the number of programs (the stamp-skip makes each sweep touch
-// only the entries whose tier actually changed)
+// A program landing upgrades an open dossier only. Catalog strips are CSS and never join
+// a shader-compile burst; a neighbour finishing cannot interrupt an active gesture.
 let glupT=0
 setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
-	sglVoid(); if(!open()){ sglFrame()   // newly linked programs join the atlas now — the viewport slice only: each join used to trigger a FULL band pass, and the boot's warm walk paid ~100ms × every batch
-		clearTimeout(sglWarmT); sglWarmT=setTimeout(()=>{ if(!PDOWN&&!open()) sglSettle() },400) }   // one band pass after the last program lands
-	paintCatalogGrad(); if(open()&&!isBarred(selected)){ planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
+	if(PDOWN) return
+	if(open()&&!isBarred(selected)){ const mesh=detail.querySelector('.mesh3'); if(mesh) mesh._sceneKey=''
+		planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
 const liteOff=ent=>!ALLS&&ent.classList.contains('lite')   // sheet rows carry no sliders unless the setting says so
-// preload: bake EVERY card ahead of need – strips, values, ticks. One idle walk in catalog
-// order, deadline-sliced; the stamp-skip makes finished entries nearly free, so re-walks
-// (armed by each settled sweep and each program landing) touch only stale rows. Scrolling
-// then paints nothing – the observer's scroll-in repaint is a no-op unless the color changed
-// while that row was offscreen and the walk hasn't reached it yet.
-// a held primary pointer pauses the walk: a drag's micro-pauses (≥140ms still) fire the
-// settle sweep, which arms the walk – whose GPU-readback bakes then landed exactly when
-// the drag resumed, felt as "the slider blocks the frame". While the finger is down the
-// catalog does interactive work only; the release's settle re-arms the walk.
 let PDOWN=false
-addEventListener('pointerdown',e=>{ if(e.isPrimary) PDOWN=true },true)
+addEventListener('pointerdown',e=>{ if(e.isPrimary){ PDOWN=true
+	if(e.target.closest?.('.ch,.bar2,.pl,.nv,.cv,.cd,#imgpk')) autoColor=false } },true)
 addEventListener('pointerup',e=>{ if(e.isPrimary) PDOWN=false },true)
 addEventListener('pointercancel',e=>{ if(e.isPrimary) PDOWN=false },true)
 addEventListener('blur',()=>PDOWN=false)
-// ── the strip ATLAS: ONE visible canvas, ever. #stripgl – a 2D canvas in the document,
-// holding every strip in the viewport+overscan band, scrolled by the compositor like any
-// element – at rest it costs nothing. The GL kernel canvas NEVER enters the DOM: every
-// pass draws on it hidden, then lands in the atlas as ONE drawImage (a single GPU copy —
-// it was the per-strip copies, sixty a frame, that made dragging crawl; one big one is
-// ~0.1ms, the same transport the plane views ride). Motion frames redraw just the
-// viewport's slice of the band in place; the settle and every re-anchor redraw the full
-// band. Pixels update inside the one canvas, so there is no second surface, no swap, no
-// z-order, and nothing to mismatch. Undrawn rects stay transparent, so a still-compiling
-// space shows its DOM strip (the prerendered CSS gradient – also the no-WebGL story).
-const sglCv=kernelCanvas()
-const sglSnap=sglCv&&document.createElement('canvas')
-if(sglCv){ sglSnap.id='stripgl'; document.body.append(sglSnap) }
-const SGLOVER=800   // overscan above and below the viewport – scroll re-draws only every ~600px
-// the atlas rasterizes on the DEVICE grid, not the CSS grid: a 1× canvas can only place an
-// edge on whole CSS pixels, but the strips it paints over sit at fractional ones (x 326.39),
-// so every edge missed by up to half a pixel – a hairline of bare row along the bottom, a
-// sliver of overshoot at the left – and the sweep itself arrived upscaled. Capped at 2×:
-// past that the fill cost is real and the gain invisible.
-const SDPR=Math.min(2,devicePixelRatio||1)
-let sglJobs=null, sglY=0, sglH=0, sglBot=0
-const sglVoid=()=>{ sglJobs=null }
-const sglCapture=()=>{ const jobs=[], dpr=SDPR
-	// sglY INTEGRAL, always: the atlas rides a translateY(sglY) transform, and transforms
-	// never pixel-snap – a fractional anchor would composite every strip at a half-pixel phase
-	sglY=Math.max(0,Math.round(scrollY)-SGLOVER)
-	// the band stops where the strips do: an absolutely positioned canvas ADDS to the page's
-	// scrollable area, so an overscan hanging below the last row scrolled into empty space
-	sglBot=Math.ceil(cat.getBoundingClientRect().bottom+scrollY)
-	sglH=Math.max(1,Math.min(innerHeight+2*SGLOVER,sglBot-sglY))
-	for(const ent of cat.querySelectorAll('.ent[data-s]')){ const s=ent.dataset.s
-		if(ent.classList.contains('pop')) continue   // raised out of the base layer – paintPop draws this one
-		if(liteOff(ent)) continue
-		if(planeGLStatus(s)!=='ready') continue
-		const cls=classify(s)
-		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const r=ch.getBoundingClientRect(), c=cls.ch[i]
-			const y=r.top+scrollY-sglY   // band-local document coordinates
-			if(!r.width||y+r.height<=0||y>=sglH) return
-			// both EDGES rounded, never origin+size: each rect then lands exactly where the
-			// browser rasterizes the strip it covers, and neighbours tile without a seam
-			const x0=Math.round(r.left*dpr), x1=Math.round(r.right*dpr)
-			const y0=Math.round(y*dpr), y1=Math.round((y+r.height)*dpr)
-			jobs.push({ s, i, ri:[c.min,c.max], x:x0, y:y0, w:x1-x0, h:y1-y0 }) }) }   // no gam: the catalog renders at uGam=0 — full reach, no display lens
-	jobs.sort((a,b)=>a.s<b.s?-1:a.s>b.s?1:0)   // grouped by space – fewer program switches
-	sglJobs=jobs }
-const sglVals=jobs=>{ const vcache={}, out=[]
-	for(const j of jobs){ const v=vcache[j.s]??=valsFor(j.s); if(v){ j.vals=v; out.push(j) } }
-	return out }
-// the atlas canvas tracks the band geometry; resizing clears it, so callers redraw after
-const sglFit=()=>{ const w=Math.round(innerWidth*SDPR), h=Math.round(sglH*SDPR)
-	if(sglSnap.width!==w||sglSnap.height!==h){ sglSnap.width=w; sglSnap.height=h
-		sglSnap.style.width=innerWidth+'px'; sglSnap.style.height=sglH+'px' }   // backed at device resolution, laid out in CSS pixels
-	sglSnap.style.transform=`translateY(${sglY}px)` }
-// 1× density regardless of DPR: strips are smooth sweeps, and it quarters the bandwidth
-const SGLV=[]   // the live frame's job list, reused – no per-frame allocation
-const paintPop=()=>{ const ent=popEnt; if(!ent) return   // the focused card's own strips, straight into it
-	const s=ent.dataset.s
-	if(planeGLStatus(s)!=='ready') return
-	const cls=classify(s), vals=valsFor(s); if(!vals) return
-	ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-		const cv=ch._bgc||(ch._bgc=ch.appendChild(Object.assign(document.createElement('canvas'),{className:'bgc',width:512,height:1})))
-		paintBarGL(cv,s,vals,i,[c.min,c.max],null) }) }   // the raised card is still the CATALOG: full reach, no display lens
-const sglFrame=()=>{ if(!sglCv) return   // MOTION: the on-screen slice only – and vals convert ONLY for spaces actually drawn (the band holds ~3× more, some with iterative inverses)
-	if(!sglJobs){ sglSettle(); return }   // no capture yet (or band moved) – the full pass establishes the canvas first
-	// the same SNAPPED scroll the compositor uses – scrollY itself can be fractional
-	const dpr=SDPR, W=Math.round(innerWidth*dpr), H=Math.round(innerHeight*dpr)
-	const dy=Math.round((Math.round(scrollY)-sglY)*dpr), vcache={}
-	SGLV.length=0
-	for(const j of sglJobs){ if(j.y+j.h<=dy||j.y>=dy+H) continue
-		const v=vcache[j.s]??=valsFor(j.s); if(v){ j.vals=v; SGLV.push(j) } }
-	paintPop()   // BEFORE the atlas pass: both share the kernel canvas, and the atlas leaves it at the size it wants
-	const q=PDOWN?2:1   // a held pointer renders the slice at HALF res — fill+blit ÷4; the release settle crisps it
-	if(!paintStripsGL(W,H,SGLV,dy,q)) return
-	const ctx=sglSnap.getContext('2d')
-	ctx.clearRect(0,dy,W,H)
-	if(q===1) ctx.drawImage(sglCv,0,dy)
-	else ctx.drawImage(sglCv,0,0,Math.ceil(W/q),Math.ceil(H/q),0,dy,W,H)
-	document.body.classList.add('sgl') }
-const sglSettle=()=>{ if(!sglCv) return   // FULL BAND: one pass, one GPU copy – settle, re-anchor, program landings
-	if(!sglJobs) sglCapture()
-	sglFit()
-	paintPop()
-	const W=Math.round(innerWidth*SDPR), H=Math.round(sglH*SDPR)
-	if(!paintStripsGL(W,H,sglVals(sglJobs))) return
-	const ctx=sglSnap.getContext('2d')
-	ctx.clearRect(0,0,W,H)
-	ctx.drawImage(sglCv,0,0)
-	document.body.classList.add('sgl') }
-// re-anchor before the viewport reaches the band's edge; between re-anchors scrolling
-// is pure compositor work – the atlas rides the page like any other element
-let sglScrollT=0
-addEventListener('scroll',()=>{ if(sglScrollT) return
-	if(scrollY>sglY+200&&scrollY+innerHeight<sglY+sglH-200) return   // still deep inside the band
-	if(sglBot&&scrollY>sglBot) return   // below the last strip – nothing to re-anchor to
-	sglScrollT=requestAnimationFrame(()=>{ sglScrollT=0; sglVoid(); sglSettle() }) },{passive:true})
-// …and compile every lead card's program up front, through the same 4-deep queue – the first
-// scroll or scrub meets warm GPU strips, never a mid-scroll compile burst
-onLoad(()=>setTimeout(()=>{
-	cat.querySelectorAll('.ent[data-s]:not(.lite)').forEach(ent=>{ const s=ent.dataset.s; if(hasPlaneGL(s)) planeGLStatus(s) })
-	sglSettle() },300))
-// the strips' BASE layer only: the atlas canvas above is the one live view (per-pixel
-// GPU truth, at rest as in motion); beneath it every strip keeps a CSS gradient – the
-// prerendered markup ships one, and this refreshes it where it's missing or stale.
-// It shows only where the atlas can't paint: before a space's program links, and in
-// the no-WebGL2 story. A sparse gradient INVENTS colors between its stops (xyy's y
-// sweep really clamps bright almost to 0, but a 9-stop ramp fades it through a long
-// dark wedge) – acceptable as a fallback, never as the shown-by-default surface.
-function paintCatalogGrad(ents){ const hx=hex(RGB()), sweep=!ents
-	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
-		if(liteOff(ent)&&!ent.classList.contains('pop'))return   // a focused sheet row (.pop) carries its slider popover
-		if(planeGLStatus(s)==='ready'){ if(ent.dataset.g!=='atlas'){ ent.dataset.g='atlas'   // the atlas owns this row: the [data-g=atlas] CSS rule swaps its base to the checker – inline sweeps just release
-			ent.querySelectorAll('.ch').forEach(ch=>{ if(ch.style.background) ch.style.background='' }) } return }
-		const cls=classify(s)
-		const gkey=(s===master.s?master.vals.join():hx)+':0'   // the master's own row keys on master.vals – its sweeps are finer than the 8-bit hex
-		if(ent.dataset.g===gkey) return   // fallback already current for this exact color
-		const vals=valsFor(s)
-		// the catalog NEVER wears a display lens: 'off' = the widest honest sweep (only
-		// non-colors void) — the same law the atlas renders at uGam=0. Lenses live in the dossier.
-		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-			ch.style.background=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,48,'off').join(',')}), var(--checker)` })
-		ent.dataset.g=gkey }) }
-// per-entry value inputs + tick markers – the same subset discipline as the gradients
-// one batched layout read for every strip's width – the per-frame tick transform must never
-// read layout itself (an interleaved clientWidth per row forces a layout per visible row).
-// Boot layout settles late (columns, fonts) – a wireCat-time measure can catch the
-// pre-column full-row width, so the same settle points layoutToc trusts re-measure here.
-// strips BREATHE: field-sizing lets a value's digit count reflow its row mid-drag (a limit
-// turns 47 into -112, the input widens, the strip shifts) – and atlas rects captured before
-// the reflow paint strips where they USED to be. The observer's entries arrive post-layout
-// (no forced reads); widths refresh from them, stamps void, and the atlas re-captures on
-// the same frame – the canvases follow the layout wherever it moves: mid-drag reflows,
-// window resizes, font swaps – one mechanism for every geometry change, no event guessing.
-const chRO=new ResizeObserver(es=>{ let moved=false
-	for(const e of es){ const ch=e.target, w=Math.round(e.contentRect.width)||null
-		if(ch._w!==w){ ch._w=w; moved=true; const ent=ch.closest('.ent'); if(ent) delete ent.dataset.v } }
-	if(!moved) return
-	sglVoid(); paintCatalogVals()
-	if(open()) return
-	if(PDOWN) sglFrame(); else sglSettle() })
-// every mark's colors – the picker's fill, its ink, that ink's inverse – three writes per
-// frame for a whole surface's thumbs; the dossier stamps ITS root from renderFast (the
-// catalog sweep sleeps behind an open dossier, so it can't carry the detail's colors)
-const detailTk=(hx,ink0)=>{ if(detail._tk===hx) return; detail._tk=hx
-	detail.style.setProperty('--tkc',hx); detail.style.setProperty('--tki',ink0); detail.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
-function paintCatalogVals(ents){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), sweep=!ents
-	if(cat._tk!==hx){ cat._tk=hx; cat.style.setProperty('--tkc',hx); cat.style.setProperty('--tki',ink0); cat.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
-	if(detail) detailTk(hx,ink0)   // the dossier's lane and bar thumbs keep the same colors when a catalog paint moves the master
-	;(ents||cat.querySelectorAll('.ent')).forEach(ent=>{ const s=ent.dataset.s; if(sweep&&!vis.has(s))return
-		// every NEAR-SCREEN row's values and ticks track the drag live (a conversion per row —
-		// cheap; the hex stamp below already coalesces no-change frames); offscreen rows are
-		// vis-gated out above and catch up on the settle sweep
-		// stamp-skip: values + ticks depend on the color (and, for sheet rows, on whether
-		// the popover shows ticks – the ':l' tier). A focused entry always repaints – its
-		// input is deliberately left untouched while being edited. The MASTER's own row
-		// keys on master.vals, finer than the 8-bit hex – a hex stamp froze its tick
-		// outside sRGB and hex-stepped it inside
-		const full=!liteOff(ent)||ent.classList.contains('pop')
-		const key=s===master.s?master.vals.join():hx
-		const stamp=full?key+'|'+hRev:key+':l'   // the histogram lives in the full tier – a new image re-stamps it
-		if(ent.dataset.v===stamp&&!ent.contains(document.activeElement)) return
+// Catalog strips stay CSS-only: the current space is live; other spaces recalculate on
+// the throttled tier and dissolve old→new without exposing the paper between layers.
+const RAMP_GUIDES=48, LIVE_RAMP_GUIDES=16, SECONDARY_RAMP_GUIDES=8
+const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
+const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=bg
+		ch._gradStack?.forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=null; return }
+	if(!ch._gradStack){ const base=document.createElement('i'); base.className='gbg on'; base.setAttribute('aria-hidden','true')
+		base.style.background=ch.style.background; ch.prepend(base); ch.style.background='var(--panel)'; ch._gradStack=[base] }
+	const next=document.createElement('i'); next.className='gbg'; next.setAttribute('aria-hidden','true'); next.style.background=bg
+	ch._gradStack.at(-1).after(next); ch._gradStack.push(next); void next.offsetWidth
+	let done=false
+	const finish=()=>{ if(done)return; done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
+		const stack=ch._gradStack, i=stack?.indexOf(next)??-1; if(i<0)return
+		// Once this opaque checker-backed layer reaches 1, everything below it is
+		// visually covered. Newer in-flight layers remain exactly where they are.
+		stack.slice(0,i).forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=stack.slice(i) }
+	const onend=e=>{ if(e.propertyName==='opacity') finish() }
+	next.addEventListener('transitionend',onend); next.classList.add('on')
+	const ms=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
+const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
+function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,morph=true){ const hx=hex(RGB()), leadSpace=catalogLeadSpace()
+	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
+		if(liteOff(ent)&&!ent.classList.contains('pop'))return
+		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=lead?gmFor(cls):'off'; if(!vals)return
+		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}`
+		if(skipI<0&&ent.dataset.g===gkey) return
+		let complete=true
+		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ if(i===skipI){ complete=false; return }
+			if(ch._g===gkey) return
+			const c=cls.ch[i], bg=`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,n,lens).join(',')}), var(--checker)`
+			setCatalogGradient(ch,bg,morph); ch._g=gkey })
+		if(complete) ent.dataset.g=gkey }) }
+// The active row's values and all native picker positions stay live. Inactive numbers
+// use a light 100ms cadence; gradient fields keep the 300ms tier. Current-space gradients remain live.
+const motionTkEnts=new Set()
+const setTk=(root,hx,ink0)=>{ if(root._tk===hx)return; root._tk=hx
+	root.style.setProperty('--tkc',hx); root.style.setProperty('--tki',ink0); root.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
+const clearMotionTk=()=>{ for(const ent of motionTkEnts){ ent._tk=''; for(const p of ['--tkc','--tki','--tkv']) ent.style.removeProperty(p) } motionTkEnts.clear() }
+const stampTk=(hx,ink0)=>{ if(PDOWN||autoColor)return   // changing an inherited var on all 162 rows forces a page-wide style recalc per frame
+	setTk(cat,hx,ink0); clearMotionTk() }
+const detailTk=(hx,ink0)=>{ detail.querySelectorAll('.bar2,.pl').forEach(root=>setTk(root,hx,ink0)) }
+function paintCatalogVals(ents,{values=true,thumbs=true,tokens=true}={}){ const rgb=RGB(), hx=hex(rgb), ink0=ink(rgb), exact=master.s+'|'+master.vals.join()
+	if(thumbs&&tokens) stampTk(hx,ink0)
+	if(open()) detailTk(hx,ink0)
+	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
+		const full=!liteOff(ent)||ent.classList.contains('pop'), key=exact, cvs=ent._cvs??=ent.querySelectorAll('.cv')
 		const vals=valsFor(s), cls=classify(s)
-		ent.querySelectorAll('.cv').forEach((inp,i)=>{ const nv=vals?fmtc(vals[i],cls.ch[i]):''   // a drag is not typing – the focused channel tracks its slider live; unchanged values skip the write (each .value set churns internal state)
-			if(inp.value!==nv&&(document.activeElement!==inp||ent===dragEnt)) inp.value=nv
-			const stk=inp.nextElementSibling, c=cls.ch[i]   // spent-direction chevrons dim out at the channel's range ends —
-			// frozen on OTHER rows while a pointer is held: each .lim flip repaints its row, and across 60 rows those flips (with the tick moves) were the drag's frame budget; the release settle applies them
-			if(stk&&stk.classList.contains('stk')&&(!PDOWN||ent===dragEnt)){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
+		if(values&&(ent._vv!==key||ent.contains(document.activeElement))){
+			cvs.forEach((inp,i)=>{ const nv=vals?fmtc(vals[i],cls.ch[i]):''
+				if(inp.value!==nv&&(document.activeElement!==inp||ent===dragEnt)) inp.value=nv })
+			ent._vv=key }
+		if(!thumbs) return
+		const stamp=full?key+'|'+hRev:key+':l'
+		if(ent.dataset.v===stamp&&!ent.contains(document.activeElement)) return
+		cvs.forEach((inp,i)=>{ const stk=inp.nextElementSibling, c=cls.ch[i]
+			if(stk&&stk.classList.contains('stk')){ stk.firstElementChild.classList.toggle('lim',!!vals&&vals[i]>=c.max-1e-9); stk.lastElementChild.classList.toggle('lim',!!vals&&vals[i]<=c.min+1e-9) } })
 		ent.dataset.v=stamp
-		if(!full) return   // the focused sheet-row popover also gets its tick markers
+		if(!full) return
 		const hp=HIMG?histC.get(s):null
-		if(HIMG&&!hp&&!histQ.has(s)){ histQ.add(s); histSoon() }   // not binned yet – the idle walk will, then re-stamp this row
-		ent.querySelectorAll('.ch').forEach((ch,i)=>{ const c=cls.ch[i]
-			// the image's distribution along THIS channel, at the back of the lane
+		if(HIMG&&!hp&&!histQ.has(s)){ histQ.add(s); histSoon() }
+		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ const c=cls.ch[i]
 			if(hp||ch._hist){ const p=hp?.[i]||null
 				let h=ch._hist
-				if(!h){ h=ch._hist=document.createElement('i'); h.className='hist'; h.setAttribute('aria-hidden','true')
-					ch.insertBefore(h,ch.firstChild) }
-				if(h._p!==p){ h._p=p
-					if(p){ h.style.webkitMaskImage=p; h.style.maskImage=p }
-					h.style.display=p?'':'none' } }
-			// the range's own band and the split halves – only on the channel it was laid on
+				if(!h){ h=ch._hist=document.createElement('i'); h.className='hist'; h.setAttribute('aria-hidden','true'); ch.insertBefore(h,ch.firstChild) }
+				if(h._p!==p){ h._p=p; if(p){ h.style.webkitMaskImage=p; h.style.maskImage=p } h.style.display=p?'':'none' } }
 			const br=BRUSHES.get(s+'|'+i)
 			if(br||ch._rng){ const rg=ch._rng||(ch._rng=ch.appendChild(Object.assign(document.createElement('i'),{className:'rng'})))
-				rg.style.display=br?'':'none'
-				ch.classList.toggle('ranged',!!br)
-				if(!ch._rlo){ ch._rlo=ch.appendChild(Object.assign(document.createElement('i'),{className:'rh rlo'})); ch._rlo.append(document.createElement('i'))
-					ch._rhi=ch.appendChild(Object.assign(document.createElement('i'),{className:'rh rhi'})); ch._rhi.append(document.createElement('i')) }
+				rg.style.display=br?'':'none'; ch.classList.toggle('ranged',!!br)
+				if(!ch._rlo){ ch._rlo=ch.appendChild(Object.assign(document.createElement('i'),{className:'rh rlo'})); ch._rlo.append(document.createElement('i')); ch._rhi=ch.appendChild(Object.assign(document.createElement('i'),{className:'rh rhi'})); ch._rhi.append(document.createElement('i')) }
 				ch._rlo.style.display=ch._rhi.style.display=br?'':'none'
-				if(br){ rg.style.setProperty('--rlo',(br.lo*100).toFixed(2)+'%'); rg.style.setProperty('--rhi',(br.hi*100).toFixed(2)+'%')
-					ch._rlo.style.left=(br.lo*100).toFixed(2)+'%'; ch._rhi.style.left=(br.hi*100).toFixed(2)+'%' } }
-			// the NATIVE thumb is the tick: one .value write moves it — the browser lays out
-			// nothing else, colors ride --tkc/--tki on #cat (one write per frame for ALL ticks)
+				if(br){ rg.style.setProperty('--rlo',(br.lo*100).toFixed(2)+'%'); rg.style.setProperty('--rhi',(br.hi*100).toFixed(2)+'%'); ch._rlo.style.left=(br.lo*100).toFixed(2)+'%'; ch._rhi.style.left=(br.hi*100).toFixed(2)+'%' } }
 			ch.classList.toggle('noval',!vals)
-			if(vals){ const nr=ch._nrg??=ch.querySelector('.nrg')   // tracks every master change – except its own HELD drag (writing .value mid-gesture stalls it); focused-at-rest still syncs
-				if(nr){ if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }   // the prerender's inline boot colours must not shadow the live #cat vars
-					if(!(PDOWN&&document.activeElement===nr)) nr.value=vals[i] } } }) }) }
+			if(vals){ const nr=ch._nrg??=ch.querySelector('.nrg')
+				if(nr){ if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }
+					if(!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] } } }) }) }
+function paintCatalogPickers(ents,rgb=RGB(),hx=hex(rgb),tokens=true){ const ink0=ink(rgb), rows=ents||screenEnts(), moving=PDOWN||autoColor
+	if(tokens){ if(moving) rows.forEach(ent=>{ setTk(ent,hx,ink0); motionTkEnts.add(ent) })
+		else stampTk(hx,ink0) }   // one inherited settle makes every current and future catalog picker correct
+	;rows.forEach(ent=>{ if(liteOff(ent)&&!ent.classList.contains('pop'))return
+		const vals=valsFor(ent.dataset.s); if(!vals)return
+		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ const nr=ch._nrg??=ch.querySelector('.nrg'); if(!nr)return
+			if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }
+			if(!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] }) }) }
+const CATALOG_VALUE_THROTTLE=100, CATALOG_THROTTLE=300
+let catValueLast=0, catValueTimer=0, catSlowLast=0, catSlowTimer=0, catSlowCursor=0, catSlowKey='', catSlowPending=0
+const activeCatalogEnt=()=>{ const ent=dragEnt||catEnts.get(catalogLeadSpace())
+	return ent&&screenVis.has(ent.dataset.s)?ent:null }
+const flushCatalogValues=()=>{ clearTimeout(catValueTimer); catValueTimer=0; catValueLast=performance.now()
+	vfF={}; vfM=master; const rows=screenEnts(), rgb=RGB(); paintCatalogVals(rows,{thumbs:false}); paintCatalogPickers(rows,rgb,hex(rgb),!open()) }
+const paintCatalogThrottledValues=(all=false)=>{ const wait=CATALOG_VALUE_THROTTLE-(performance.now()-catValueLast)
+	const paint=()=>{ clearTimeout(catValueTimer); catValueTimer=0
+		vfF={}; vfM=master; const active=all?null:activeCatalogEnt(), rows=screenEnts().filter(ent=>ent!==active)
+		paintCatalogVals(rows,{thumbs:false}); catValueLast=performance.now() }
+	if(wait<=0) paint(); else if(!catValueTimer) catValueTimer=setTimeout(paint,wait) }
+const secondaryCatalogEnts=active=>screenEnts().filter(ent=>ent!==active&&(!liteOff(ent)||ent.classList.contains('pop')))
+function flushCatalogSecondary(all=true){ clearTimeout(catSlowTimer); catSlowTimer=0; catSlowLast=performance.now()
+	const active=open()?null:activeCatalogEnt(), rows=secondaryCatalogEnts(active)
+	if(all){ clearTimeout(catValueTimer); catValueTimer=0; catSlowPending=0; catSlowKey=master.s+'|'+master.vals.join(); catValueLast=catSlowLast; paintCatalogVals(screenEnts()); paintCatalogGrad(rows,-1,RAMP_GUIDES,true)
+		if(active) paintCatalogGrad([active],dragEnt?dragEntI:-1,RAMP_GUIDES,false) }
+	else if(rows.length){ const ent=rows[catSlowCursor++%rows.length]
+		paintCatalogGrad([ent],-1,SECONDARY_RAMP_GUIDES,true)
+		catSlowPending=Math.max(0,catSlowPending-1); if(catSlowPending) scheduleCatalogSecondary() } }
+function scheduleCatalogSecondary(){ const active=open()?null:activeCatalogEnt(), count=secondaryCatalogEnts(active).length; if(!count)return
+	const key=master.s+'|'+master.vals.join(); if(key!==catSlowKey){ catSlowKey=key; catSlowPending=count }
+	if(!catSlowPending)return
+	const wait=CATALOG_THROTTLE/count-(performance.now()-catSlowLast)
+	if(wait<=0) flushCatalogSecondary(false)
+	else if(!catSlowTimer) catSlowTimer=setTimeout(()=>flushCatalogSecondary(false),wait) }
 function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
@@ -4678,15 +4667,19 @@ function renderFast(solid=true){
 	if(cdwEl&&cdwEl._hx!==hx){ cdwEl._hx=hx; cdwEl.style.setProperty('--sw',hx); cdwEl.style.setProperty('--swk',ink(rgb)) }   // the slot's swatch + its tick-pair ring track the current color
 	// the untouched boot color stays an invitation (placeholder), not an asserted value —
 	// reference AND values: the default space's own sliders mutate master in place
-	const mj=master.vals.join()   // the walk REPLACES master each step (rgb spectrum stops), so untouched = boot state or the walk's own signed write
-	const virgin=!BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(master.s==='rgb'&&!!driftJ&&mj===driftJ))
+	const mj=master.vals.join()
+	const virgin=!BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(autoColor&&mj===autoJ))
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the masthead offers the two doors instead of a value
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(hx)
-	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // the walking colour shows as a PLACEHOLDER – a value-shaped hint in the chosen format, never an asserted value
-	if(!virgin){ syncFav(hx); syncURL(hx) }   // the unpicked walk stamps neither URL nor favicon – nothing is asserted, and 4/s replaceState+icon churn is the one perpetual cost the walk would otherwise carry
-	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
-	if(!open()) paintCatalogVals()   // all vis entries – the color changed; behind an open dossier the catalog waits (closeModal repaints)
+	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(hx)   // a value-shaped hint in the chosen format, never an asserted value
+	if(!virgin&&!PDOWN){ syncFav(hx); syncURL(hx) }
+	if(gpillEl&&!PDOWN){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // same labels and explainers as the dossier's pill — one vocabulary
+	{ const active=activeCatalogEnt(), dossierOpen=open()
+		if(active&&!dossierOpen){ paintCatalogVals([active]); paintCatalogGrad([active],dragEnt?dragEntI:-1,(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,false) }
+		paintCatalogPickers(screenEnts(),rgb,hx,!dossierOpen)   // every background picker position stays live; hidden color tokens wait for close
+		paintCatalogThrottledValues(dossierOpen)   // background numbers use the 100ms tier
+		scheduleCatalogSecondary() }   // behind a dossier every visible gradient, including the selected row, uses 300ms
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
 	detailTk(hx,ink(rgb))   // the dossier's own frame keeps its thumbs and lanes in the current color
 	const s=selected, cls=classify(s), vals=valsFor(s)
@@ -4702,7 +4695,7 @@ function renderFast(solid=true){
 	const hpb=HIMG?histC.get(s):null
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]
 		// the image's distribution, in the dossier's own lane – same curve as the catalog's
-		if(hpb||bar._hist){ const p=hpb?.[i]||null
+		if(!PDOWN&&(hpb||bar._hist)){ const p=hpb?.[i]||null
 			let h=bar._hist
 			if(!h){ h=bar._hist=document.createElement('i'); h.className='hist'; h.setAttribute('aria-hidden','true')
 				bar.append(h) }
@@ -4714,7 +4707,7 @@ function renderFast(solid=true){
 			// Every lens paints through the same GPU kernel as the planes: numeric cell
 			// centers, exact web/name/even regions, and per-pixel gamut treatment. The
 			// CSS branch is only the no-WebGL/compile-moment fallback.
-			if(barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],barGM,Q??0)){
+			if(barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],barGM,Q??0,PDOWN||!HIMG&&!qTriple(Q))){
 				bgc.style.display='block'
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
@@ -4724,18 +4717,18 @@ function renderFast(solid=true){
 				// the lens rides IN the ramp (ghost alpha, void transparency) over the bar's
 				// checker – the same segments the prerendered catalog bakes; cluster modes
 				// skip it (their cells are real colors)
-				else bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,48,barGM).join(',')})`
+				else bg=`linear-gradient(90deg, ${ramp(s,shown,i,c.min,c.max,s==='rgb'?1:(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,barGM).join(',')})`
 			bgel.style.backgroundImage=bg
 			bgel.style.webkitMaskImage=bgel.style.maskImage='none' } }
-		const inkAt=f=>ink(rgbF(s,cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*f:shown[j])))   // legible ink over the sweep at fraction f
-		const loInk=inkAt(0)
-		bar.querySelector('.cnm').style.color=loInk
-		bar.querySelector('.sv.lo').style.color=loInk
-		bar.querySelector('.sv.md').style.color=inkAt(.5)
-		bar.querySelector('.sv.hi').style.color=inkAt(1)
+		if(!PDOWN){ const inkAt=f=>ink(rgbF(s,cls.ch.map((cc,j)=>j===i?cc.min+(cc.max-cc.min)*f:shown[j])))   // settle-only: label ink does not affect slider truth
+			const loInk=inkAt(0)
+			bar.querySelector('.cnm').style.color=loInk
+			bar.querySelector('.sv.lo').style.color=loInk
+			bar.querySelector('.sv.md').style.color=inkAt(.5)
+			bar.querySelector('.sv.hi').style.color=inkAt(1) }
 		let mf=clamp((shown[i]-c.min)/(c.max-c.min),0,1)
 		const qf=qTriple(Q)
-		if(qf&&bar!==dragBar){ const target=byteRGB(qf(rgb)), held=shown.map((v,j)=>j===i?'':v).join(','), key=`${Q}|${target.join(',')}|${held}`
+		if(qf&&bar!==dragBar&&!PDOWN){ const target=byteRGB(qf(rgb)), held=shown.map((v,j)=>j===i?'':v).join(','), key=`${Q}|${target.join(',')}|${held}`
 			if(bar._snapKey===key&&bar._snapHint==null) mf=bar._snapF
 			else{ const anchor=bar._snapHint??mf, painted=paintedBarCenter(bar,target,anchor)
 				if(painted!=null) mf=painted
@@ -4755,10 +4748,10 @@ function renderFast(solid=true){
 	// ONE gamut pill beside the values – the tightest display gamut that holds this color
 	// (containment nests, so listing every holder repeats it); ⚠ when even Rec.2020 clips
 	{	const gt=document.getElementById('gtags')
-		if(gt&&pure){ const g=gamutOf()||'clip'
+		if(gt&&pure&&!PDOWN){ const g=gamutOf()||'clip'
 			gt.querySelectorAll('.gt').forEach(t=>{ t.hidden=t.dataset.g!==g }) } }
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
-		const cx=pl.querySelector('.cx'); cx.style.background=hx; cx.style.borderColor=ink(rgb)
+		const cx=pl.querySelector('.cx')
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)
 		const gy=clamp((shown[b]-cls.ch[b].min)/(cls.ch[b].max-cls.ch[b].min),0,1)
 		if(pl._polar){ const th=gx*2*Math.PI   // clockwise: css y grows downward
@@ -4790,7 +4783,7 @@ function renderFast(solid=true){
 		labInk(pl.querySelector('.labx'),[[0.96,0.96],[0.84,0.96],[0.72,0.96]])
 		const pm=pl.querySelector('.pmode'); if(pm) labInk(pm,[[0.04,0.94],[0.09,0.94],[0.14,0.94]]) } })   // the disc⟷square switch reads the same white-or-dark ink as the axis labels
 	// blend: current → pinned end (or auto complement), computed in THIS space, clustered like the sliders
-	if(vals){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
+	if(vals&&!PDOWN){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
 	if(!B){ B=rotateHue(cls,vals,180); if(!B){ try{ B=toSpace(s,rgb.map(x=>255-x)) }catch{ B=null } } }
 	const r=detail.querySelector('#irow')
 	if(B&&r){ const rgbB=endB||rgbF(s,B)
@@ -4819,7 +4812,7 @@ function renderFast(solid=true){
 			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet – js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	if(snip){
+	if(snip&&!PDOWN){
 		if(codeTab==='css'){
 			// the honest CSS story: native serialization when the spec has one, else the
 			// same color in the forms CSS can write. Values select whole on click;
@@ -4879,22 +4872,22 @@ function renderFast(solid=true){
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
 			`\n// one space, tree-shaken (0.4-1.5 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) } }
-	// the GPU solid redraws per frame, so the marker tracks a drag live
-	if(solid&&(!dragBar&&!plFreeze||mesh3&&mesh3.gpu)) draw3d(); gamMarker(); paintTC()
+	// A held plane keeps its own field fixed and alternates its two neighbouring slices;
+	// image picking changes every held coordinate, so all three slices follow live.
+	if(PDOWN&&(plFreeze||pkDrag!==null)) paintPlanes(true,true)
+	// The 3D marker owns a tiny overlay: held colors move it without repainting the solid,
+	// cloud, coordinate grid or guide layer. Gamut defers only its expensive validity audit.
+	if(solid){ const heldColor=PDOWN&&(dragBar||plFreeze||dragEnt||pkDrag!==null)
+		if(heldColor) paint3dMarker()
+		else if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d() }
+	gamMarker(PDOWN); paintTC()
 }
-let raf, settleT, sglWarmT
-const scheduleFast=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const dragging=!!(dragBar||plFreeze)
-	renderFast(); if(!open()&&!dragging) sglFrame()   // motion frames redraw every on-screen strip in the atlas — one hidden GL pass, one blit into the visible canvas; the settle repaints the full band
-	clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN){ paintCatalogGrad(); paintCatalogVals(); sglSettle() } },140)   // …then one settle sweep refreshes values and the CSS fallback; the atlas needs nothing — it IS the strips, at rest as in motion. Never under a held pointer; behind a dossier the catalog sleeps and closeModal catches it up
-	// GPU planes repaint every frame (planeNext stays 0) — adjacent planes track
-	// the drag live; the JS fallback repaints on its cost-stretched cadence, at
-	// drag res, so even munsell's neighbours follow the pointer.
-	// The VIRGIN walk is ambient, not a gesture: while it colours an open dossier,
-	// planes and the solid (two mesh passes + blits — seconds of queued GPU under the
-	// human lens) settle to ~5Hz through the same planeNext gate; a real drag keeps
-	// its every-frame cadence
-	if(performance.now()>planeNext){ paintPlanes(true)
-		if(VIRGIN&&!PDOWN&&!dragging&&open()) planeNext=Math.max(planeNext,performance.now()+180) } }) }
+let raf, settleT
+const scheduleFast=(ambient=false)=>{ if(!ambient) autoColor=false
+	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{
+		renderFast()
+		clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN) flushCatalogSecondary() },140)
+		if(!PDOWN&&performance.now()>planeNext) paintPlanes(true) }) }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
@@ -5010,7 +5003,8 @@ cat.addEventListener('click',e=>{ const c=e.target.closest('.ent.barred'); if(!c
 // A bare #space hash stays as the dossier's internal anchor channel (lineage/see-also/FAQ
 // links) – syncURL rewrites it to the canonical path immediately; ?s=<space> is the 404 bounce
 const known=x=>SPACES.includes(x)||isBarred(x)   // a slug the modal can open: real space or proprietary card
-const route=e=>{ const h=e?dec(location.hash.slice(1)):BOOT.hash   // boot reads the arrival snapshot
+const route=e=>{ if(e) autoColor=false
+	const h=e?dec(location.hash.slice(1)):BOOT.hash   // boot reads the arrival snapshot
 	const qs=e?null:BOOT.q, pseg=e?null:BOOT.seg
 	const slug=known(h)?h:known(qs)?qs:known(pseg)?pseg:null
 	if(/^[0-9a-fA-F]{6}$/.test(h)){ master={ s:'rgb', vals:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)) }; if(FMT!=='hex') setFmt('hex') }
@@ -5028,6 +5022,8 @@ if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat(
 else (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
 addEventListener('hashchange',route)   // same-document deep links switch spaces too
+onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&!known(BOOT.q)&&!known(BOOT.seg)&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+	autoColor=true; autoStart=autoLast=performance.now(); requestAnimationFrame(autoStep) } },300))
 
 // offline shell (sw.js precaches the app; any /<name> falls back to it) — after load, off the
 // startup path; skipped on file:, where registration is unsupported and would reject noisily

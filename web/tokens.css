@@ -124,6 +124,11 @@
 	--s8:2rem;
 	--s12:3rem;
 
+	/* One picker geometry across native slider thumbs and plane diamonds. */
+	--picker-size:var(--s2);
+	--picker-active-size:.625rem;
+	--picker-line:.075rem;
+
 	--text-xs:.6875rem;
 	--text-sm:.8125rem;
 	--text-base:1rem;

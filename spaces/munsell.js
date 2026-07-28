@@ -71,6 +71,15 @@ const xyAt = (hi, vi, ci) => { const o = (off[hi * 9 + vi] + ci) * 2; return [VA
 
 const WC = [0.31006, 0.31616]; // Illuminant C 2° white chromaticity
 const maxChroma = (hi, vi) => 2 * cnt[hi * 9 + vi];
+/** Local MacAdam-limit chroma of the 1943 renotation table at fractional H,V.
+ *  This is the scalar twin of munsell_maxc_ in the shader below: the atlas uses it
+ *  to void coordinates beyond the measured solid rather than the global C≤38 box. */
+export const munsellMaxChroma = (H, V) => {
+	const vif = Math.max(0, Math.min(8, Math.floor(V) - 1)), tv = Math.max(0, Math.min(1, V - 1 - vif))
+	const hf = ((((H - 1e-9) % 100) + 100) % 100) / 2.5 - 1, h0 = ((Math.floor(hf) % 40) + 40) % 40, h1 = (h0 + 1) % 40, th = hf - Math.floor(hf)
+	const at = hi => { const a = maxChroma(hi, vif), b = maxChroma(hi, Math.min(vif + 1, 8)); return a + (b - a) * tv }
+	return at(h0) + (at(h1) - at(h0)) * th
+}
 const lerp2 = (A, B, t) => [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t];
 
 // chroma-interpolated xy at fractional chroma C for cell (hi,vi); clamps to its gamut
@@ -265,6 +274,7 @@ export const xyyMunsell = (x, y, Y) => toHVC(x, y, Y);
 const munsell = {
 	name: 'munsell',
 	range: [[0, 100], [0, 10], [0, 38]],
+	maxChroma: munsellMaxChroma,
 	xyy: (H, V, C) => toXyY(H, V, C)
 };
 
