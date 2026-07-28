@@ -170,7 +170,8 @@ try {
 	await trigger.click()
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
-	const mode=async value=>{ await page.locator('#qseg').selectOption(value); await page.waitForTimeout(80) }
+	const mode=async value=>{ await page.locator('#qseg').selectOption(value)
+		await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))) }
 	const sliderBoundaryParity=async s=>page.evaluate(s=>[...document.querySelector(`.ent[data-s="${s}"]`).querySelectorAll('.ch')].every((ch,i)=>{ const bg=ch._gradStack?.at(-1)?.style.background||ch.style.background||'', p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), css=p.filter((x,k)=>k&&Math.abs(x-p[k-1])<1e-6)
 		const c=document.querySelector(`.bar2[data-i="${i}"] .bgc`), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data, gpu=[]; let a=d[3]>=20
 		for(let x=1;x<c.width;x++){ const next=d[x*4+3]>=20; if(next!==a){ gpu.push(x/c.width*100); a=next } }
@@ -203,7 +204,8 @@ try {
 	assert.notEqual(await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g),backMid.gradient,'dossier drag catches other catalog gradients up on the throttle')
 	await page.mouse.up()
 	for(const [i,v] of [[0,'0.46'],[1,'0'],[2,'90']]) await page.locator('#bigch .nv').nth(i).fill(v)
-	await page.locator('#bigch .nv').nth(2).evaluate(el=>el.blur()); await page.waitForTimeout(200)
+	await page.locator('#bigch .nv').nth(2).evaluate(el=>el.blur())
+	await page.waitForFunction(()=>{ const h=document.querySelector('#cd').value, v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); return Math.max(...v)-Math.min(...v)<=1 })
 	await mode('jnd')
 	const evenHex=await page.locator('#cd').inputValue(), evenRgb=[1,3,5].map(i=>parseInt(evenHex.slice(i,i+2),16))
 	assert.equal(Math.max(...evenRgb)-Math.min(...evenRgb)<=4,true,'even mode preserves the neutral axis')
