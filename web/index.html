@@ -3133,17 +3133,20 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		rim.push([-0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)],[0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)]) }
 	else for(let q=0;q<8;q++) rim.push([q&1?0.5:-0.5,q&2?0.5:-0.5,q&4?0.5:-0.5])
 	for(const n of rim){ const f=ext(n)*1.14; if(f>mesh3.f0) mesh3.f0=f }   // the frame + its labels stay in view
-	let px0=0,py0=0,mx3=0,my3=0,t3=0,vh3=[]
-	el.onpointerdown=e=>{ drag3=true; spinV3=0; snap3=null; vh3=[]; t3=performance.now()
+	let px0=0,py0=0,mx3=0,my3=0,move3T=-Infinity,move3Dir=1
+	el.onpointerdown=e=>{ drag3=true; spinV3=0; snap3=null; move3T=-Infinity
 		px0=mx3=e.clientX; py0=my3=e.clientY; el.setPointerCapture(e.pointerId) }
 	el.onpointermove=e=>{ if(!drag3) return
 		rot3.a+=(e.clientX-px0)*0.011; rot3.b=clamp(rot3.b+(e.clientY-py0)*0.011,-Math.PI/2,Math.PI/2)
 		px0=e.clientX; py0=e.clientY
 		// only travel beyond a ±5px rectangle counts as motion — release jitter can't
-		// read as a fling, and the still-hold park survives a trembling hand
-		if(Math.abs(e.clientX-mx3)>5||Math.abs(e.clientY-my3)>5){ mx3=e.clientX; my3=e.clientY
-			vh3.push({t:performance.now(),a:rot3.a}); if(vh3.length>6) vh3.shift() }
-		draw3d() }
+		// read as a fling, and the still-hold park survives a trembling hand. Timestamp
+		// after drawing: this render's own cost must not make a fresh flick look parked.
+		let moved=false
+		if(Math.abs(e.clientX-mx3)>5||Math.abs(e.clientY-my3)>5){ move3Dir=e.clientX<mx3?-1:1
+			mx3=e.clientX; my3=e.clientY; moved=true }
+		draw3d()
+		if(moved) move3T=performance.now() }
 	el.onpointerup=()=>{ drag3=false
 		// release: near a top/front/side plane view SNAPS; a pointer held still 100ms+
 		// PARKS — an explicit "stay", for reading a view against a plane slice; anything
@@ -3152,14 +3155,12 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		// (edge-on wall, face-on disc), so only b must land; a stays where dropped.
 		const q=Math.PI/2, na=Math.round(rot3.a/q)*q, nb=Math.round(rot3.b/q)*q
 		const cyl=mesh3&&mesh3.gd&&mesh3.gd.kind==='cyl'
-		const now=performance.now(), mt=vh3.length?vh3[vh3.length-1].t:t3
+		const now=performance.now()
 		if((cyl||Math.abs(rot3.a-na)<0.14)&&Math.abs(rot3.b-nb)<0.14){ spinV3=0
 			if(SPIN3===0){ if(!cyl) rot3.a=na; rot3.b=nb; draw3d() }   // reduced motion: no glide
 			else snap3={a:cyl?rot3.a:na,b:clamp(nb,-Math.PI/2,Math.PI/2)} }
-		else if(now-mt>=100) spinV3=0
-		else{ const s0=vh3.find(v=>now-v.t<=150)
-			const da=s0?rot3.a-s0.a:0
-			spinV3=SPIN3*(da<0?-1:1) }
+		else if(now-move3T>=100) spinV3=0
+		else spinV3=SPIN3*move3Dir
 		spin3() }
 	el.onpointercancel=el.onpointerup
 	el.ondblclick=()=>{ rot3={a:-0.65,b:0.5}; snap3=null; spinV3=SPIN3; draw3d(); spin3() }
