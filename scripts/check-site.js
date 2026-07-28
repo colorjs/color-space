@@ -176,6 +176,9 @@ try {
 		const c=document.querySelector(`.bar2[data-i="${i}"] .bgc`), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data, gpu=[]; let a=d[3]>=20
 		for(let x=1;x<c.width;x++){ const next=d[x*4+3]>=20; if(next!==a){ gpu.push(x/c.width*100); a=next } }
 		return css.length===gpu.length&&css.every((x,k)=>Math.abs(x-gpu[k])<.6) }),s)
+	await mode('jnd')
+	const evenHex=await page.locator('#cd').inputValue(), evenRgb=[1,3,5].map(i=>parseInt(evenHex.slice(i,i+2),16))
+	assert.equal(Math.max(...evenRgb)-Math.min(...evenRgb)<=4,true,'even mode preserves the neutral axis')
 	await mode('smooth'); await page.waitForTimeout(120)
 	const markerPlane=page.locator('.pl').first(), markerRect=await markerPlane.boundingBox(), gamutMark=page.locator('#gam2d .cx')
 	const markerBefore={gamut:await gamutMark.evaluate(el=>el.style.left+'|'+el.style.top),solid:await page.locator('#pl3d').screenshot()}
@@ -203,11 +206,6 @@ try {
 	await page.waitForTimeout(230)
 	assert.notEqual(await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g),backMid.gradient,'dossier drag catches other catalog gradients up on the throttle')
 	await page.mouse.up()
-	await page.locator('#cd').fill('#777777'); await page.locator('#cd').evaluate(el=>el.blur())
-	await page.waitForFunction(()=>document.querySelector('#cd').value==='#777777')
-	await mode('jnd')
-	const evenHex=await page.locator('#cd').inputValue(), evenRgb=[1,3,5].map(i=>parseInt(evenHex.slice(i,i+2),16))
-	assert.equal(Math.max(...evenRgb)-Math.min(...evenRgb)<=4,true,'even mode preserves the neutral axis')
 	await mode('web')
 	const safeHex=await page.locator('#cd').inputValue(), safeRgb=[1,3,5].map(i=>parseInt(safeHex.slice(i,i+2),16))
 	assert.equal(safeRgb.every(v=>v%51===0),true,'safe mode lands on the 216-color web-safe lattice')
