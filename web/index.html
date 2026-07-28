@@ -2867,17 +2867,20 @@ const runMid=(s2,vals,j,c,qf)=>{ const runs=qBarRuns(s2,vals,j,c,qf); if(!runs.l
 	return c.min+(c.max-c.min)*((r.lo+r.hi)/(2*QBARN)) }
 // the glide is VISUAL only – master snapped instantly (gradients, values, chip final);
 // one input's shown value eases into place, and the syncs below leave it alone mid-glide
-function glide(nr,to){ const from=+nr.value; if(!isFinite(to)||Math.abs(to-from)<1e-9) return
+function glide(nr,to){ const from=+nr.value; if(!isFinite(to)||Math.abs(to-from)<1e-9){ nr._glide=false; return }
 	nr._glide=true
 	const t0=performance.now(), D=150
 	const st2=t=>{ const k=Math.min(1,(t-t0)/D)
-		nr.value=from+(to-from)*(1-(1-k)**3)
+		nr.value=from+(to-from)*(k<.5?4*k*k*k:1-(-2*k+2)**3/2)   // ease-in-out: departs AND arrives gently, no counter-kick
 		if(k<1) requestAnimationFrame(st2); else nr._glide=false }
 	requestAnimationFrame(st2) }
-function snapGlide(nr,s2,i2){ const from=nr?+nr.value:null
+function snapGlide(nr,s2,i2){ if(!nr){ snapRelease(s2,i2); return }
+	nr._glide=true   // marked BEFORE the snap: a paint slotting in between once jumped the thumb to the target, and the glide's reset then read as a backward swing
+	const from=+nr.value
 	snapRelease(s2,i2)
-	if(nr&&isFinite(from)){ const v=valsFor(s2)?.[i2]
-		if(isFinite(v)){ nr.value=from; glide(nr,v) } } }
+	const v=valsFor(s2)?.[i2]
+	if(isFinite(v)&&isFinite(from)){ nr.value=from; glide(nr,v) }
+	else nr._glide=false }
 function snapRelease(s2,...di){ if(Q==null) return
 	if(master.s!==s2){ const mv=valsFor(s2); if(!mv) return; master={ s:s2, vals:mv } }
 	const cls=classify(s2), qf=qTriple(Q)
