@@ -2302,7 +2302,8 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 	dragEntI=+r.dataset.i; master.vals[dragEntI]=+r.value
 	dragEnt=ent2; scheduleFast() })
 cat.addEventListener('change',e=>{ if(!e.target.classList?.contains('nrg')) return
-	renderFast(); releaseDragEnt(); parkCluster()
+	const s2=e.target.closest('.ent')?.dataset.s, i2=+e.target.dataset.i
+	renderFast(); releaseDragEnt(); if(s2) snapRelease(s2,i2)
 	scheduleFast(); if(open()) paintPlanes(false) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 catEnts.clear()
@@ -2369,7 +2370,7 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			ch.onpointermove=move
 			ch.onpointerup=()=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; cvEl?.classList.remove('on'); ch.classList.remove('live')
 				squelch=true; setTimeout(()=>squelch=false,0)
-				renderFast(); releaseDragEnt(); parkCluster()   // settle BEFORE releasing the row — the focused input must adopt the press
+				renderFast(); releaseDragEnt(); snapRelease(s,i)   // settle BEFORE releasing the row — the focused input must adopt the press
 				scheduleFast(); if(open()) paintPlanes(false) }
 			ch.onpointercancel=ch.onpointerup }) }) }   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 // visible rows wire NOW; the long tail wires in idle slices — ~4000 listener
@@ -2837,20 +2838,23 @@ function clusterTarget(){ if(Q==null) return null
 	const f=qTriple(Q); if(!f) return null
 	return { s:'rgb', vals:f(RGB()).map(x=>clamp(Math.round(x),0,255)) } }
 function clusterize(){ const t=clusterTarget(); if(t) master=t }   // the instant snap – mode switches, navigation
-// …and the RELEASE snap parks: a 180ms ease-out glide into the cell, master itself
-// animated so thumbs, values, planes and the dossier all roll in together
-let parkRaf=0
-function parkCluster(){ const t=clusterTarget(); if(!t) return
-	cancelAnimationFrame(parkRaf)
-	let fv; try{ fv=master.s===t.s?master.vals.slice():toSpace(t.s,RGB()) }catch{ master=t; scheduleFast(); return }
-	if(fv.every((v,i)=>Math.abs(v-t.vals[i])<1e-9)){ master=t; scheduleFast(); return }
-	const t0=performance.now(), D=180
-	const step=tm=>{ const k=Math.min(1,(tm-t0)/D), e2=1-(1-k)**3
-		master={ s:t.s, vals:fv.map((v,i2)=>v+(t.vals[i2]-v)*e2) }
-		scheduleFast()
-		parkRaf=k<1?requestAnimationFrame(step):0 }
-	parkRaf=requestAnimationFrame(step) }
-addEventListener('pointerdown',()=>{ if(parkRaf){ cancelAnimationFrame(parkRaf); parkRaf=0 } },{capture:true,passive:true})   // a new grip interrupts the glide mid-flight
+// …and the RELEASE snap works PER SLIDER, and ONLY on the channels the hand held: the
+// released channel lands on the midpoint of the color RUN it was let go in (a palette's
+// runs are uneven – the entry's absolute coordinate read as random drift). The other
+// channels never move: re-centring them would recompute THIS slider's runs and shove the
+// fresh landing off-centre – the very disorientation the snap exists to end. Values
+// match the visual; the hop stays inside the band the eye already picked.
+const runMid=(s2,vals,j,c,qf)=>{ const runs=qBarRuns(s2,vals,j,c,qf); if(!runs.length) return vals[j]
+	const f=(vals[j]-c.min)/(c.max-c.min)*QBARN
+	const r=runs.find(r2=>f>=r2.lo&&f<r2.hi)||runs[runs.length-1]
+	return c.min+(c.max-c.min)*((r.lo+r.hi)/(2*QBARN)) }
+function snapRelease(s2,...di){ if(Q==null) return
+	if(master.s!==s2){ const mv=valsFor(s2); if(!mv) return; master={ s:s2, vals:mv } }
+	const cls=classify(s2), qf=qTriple(Q)
+	for(const j of di.filter(j2=>j2>=0)){ const c=cls.ch[j]
+		if(typeof Q==='number') master.vals[j]=c.min+(c.max-c.min)*qCell((master.vals[j]-c.min)/(c.max-c.min),Q)
+		else if(qf) master.vals[j]=runMid(s2,master.vals,j,c,qf) }
+	scheduleFast() }
 // spaces covered by the differential suite vs colorjs.io (test/reference.js)
 const VERIFIED=new Set(['lrgb','p3','p3-linear','rec2020','rec2020-linear','a98rgb','a98rgb-linear','prophoto','prophoto-linear','xyz','xyz-d50','lab','lab-d65','lchab','luv','lchuv','oklab','oklch','hsl','hsv','hwb','jzazbz','jzczhz','ictcp','acescg','acescc','cam16','rec2100-pq','rec2100-hlg'])
 // minimal syntax highlighting: comments, strings, keywords, numbers
@@ -3980,7 +3984,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			const el=r.closest('.bar2'); if(!el) return
 			const s2=selected, i=+el.dataset.i, c=classify(s2).ch[i]
 			el.classList.remove('live')
-			el._snapHint=el._dragF; parkCluster(); dragBar=null
+			el._snapHint=el._dragF; snapRelease(s2,i); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 			renderFast(false); queuePlaneSettle(); catUp() }) }
 	// the link runs both ways: hovering or focusing a big input blinks its slider's picker
@@ -4139,7 +4143,7 @@ function wireBar(el,s){
 	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live') }
 		apply(ev) }
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
-		el._snapHint=el._dragF; parkCluster(); dragBar=null
+		el._snapHint=el._dragF; snapRelease(s,i); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 		renderFast(false); queuePlaneSettle(); catUp() }
 	el.onpointermove=move; el.onpointerup=up }) }
@@ -4186,7 +4190,7 @@ function wirePlane(pl){
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
 	pl.addEventListener('pointerdown',e=>{ clearClusterSnaps(); pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
 	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
-		parkCluster(); renderFast(false); queuePlaneSettle(); catUp() }
+		snapRelease(selected,+pl.dataset.a,+pl.dataset.b); renderFast(false); queuePlaneSettle(); catUp() }
 	pl.addEventListener('pointerup',end); pl.addEventListener('pointercancel',end)
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window – but pinch must not zoom the PAGE
