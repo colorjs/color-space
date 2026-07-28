@@ -206,6 +206,7 @@ export function wheelCoord(cls, rgb) {
 // the human lens additionally cuts by the object-colour solid, a display lens ghosts
 // real-but-undisplayable at 50%. Null when no lens applies (rgb itself, no xyz path).
 export const lensFor = (name, gamut) => {
+	if (gamut === 'locus') gamut = 'off'   // light = every real light: physicality + the locus, exactly the off law
 	if (!gamut || name === 'rgb') return null
 	const toXyz = space[name].xyz; if (!toXyz) return null
 	const vis = gamut === 'vis', disp = gamut !== 'off' && !vis
@@ -288,6 +289,7 @@ export function ramp(name, vals, ci, min, max, n = 12, gamut = null) {
 // quant: a number N snaps the two swept COORDINATES to N cell centres (the exact
 // lattice the sliders use), 'web' maps output to web-safe 51s, a function maps triples
 export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = null, quant = null) {
+	if (gamut === 'locus') gamut = 'off'   // light: physicality + the locus, the off law – see lensFor
 	const img = ctx.createImageData(s, s), d = img.data
 	const qf = typeof quant === 'function' ? quant : null   // function quant maps a whole [r,g,b] triple
 	const qc = typeof quant === 'number' ? f => (Math.min(quant - 1, Math.floor(f * quant)) + 0.5) / quant : null

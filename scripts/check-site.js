@@ -242,6 +242,11 @@ try {
 		return Math.abs(mf-(lo+hi+1)/2)<=2 },await page.locator('#cd').inputValue())
 	assert.equal(nameCentered,true,'palette slider marker settles at the visual region center')
 	await mode('smooth')
+	// the validity-parity scenario needs BOTH sweep ends to void – true under the SURFACE
+	// lens (near-white chroma leaves the object-color solid); under the light default the
+	// bright end is a real light and honestly stays. Drive the lens explicitly, restore after.
+	await page.evaluate(()=>{ const g=document.getElementById('gseg'); g.value='vis'; g.dispatchEvent(new Event('change',{bubbles:true})) })
+	await page.waitForTimeout(200)
 	for(const [i,v] of [[0,'0.30'],[1,'0.143'],[2,'263']]) await page.locator('#bigch .nv').nth(i).fill(v)
 	const cbar=page.locator('.bar2[data-i="1"]'), cr=await cbar.boundingBox()
 	await page.mouse.move(cr.x+cr.width*(.143/.4),cr.y+cr.height/2); await page.mouse.down(); await page.mouse.move(cr.x+cr.width*(.143/.4)+2,cr.y+cr.height/2)
@@ -258,6 +263,7 @@ try {
 		const p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), hard=p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let last=-1
 		for(let x=0;x<c.width;x++)if(d[x*4+3]>=20)last=x; return {main:hard.at(-1),dossier:(last+1)/c.width*100} })
 	assert.equal(isFinite(settledEdges.main)&&Math.abs(settledEdges.main-settledEdges.dossier)/100<.03,true,'main and dossier sliders settle to the same validity boundary')
+	await page.evaluate(()=>{ const g=document.getElementById('gseg'); g.value='locus'; g.dispatchEvent(new Event('change',{bubbles:true})) })   // back to the light default
 	// the exporters ride the plates rail: label + target select + download buttons
 	assert.match(await page.locator('#dex').innerText(), /conversion lut/i, 'LUT block rides the dossier rail')
 	assert.equal(await page.locator('#dex #dldl').count() + await page.locator('#dex #didl').count(), 2, 'cube + icc downloads present')

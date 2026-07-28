@@ -2714,7 +2714,7 @@ let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quan
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the gamut lens: which display gamut the plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'human' }
+const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'surface', locus:'light' }   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
 const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly', p3:'beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it', rec2020:'beyond P3, fits Rec.2020 – most displays clip it', clip:'outside every standard display gamut – the on-screen preview is clipped' }
 // 'human' is the fullest REAL shape (the visible gamut) and the no-display-cut state
 // for the plots — there is nothing to show beyond it but imaginary coordinates, which
@@ -2722,17 +2722,18 @@ const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly'
 // human by default: the widest real view — a display gamut is an opt-in LIMIT, chosen in
 // the dossier's switch, and its ghosting also appears on the catalog's current-space row;
 // other catalog rows retain full reach until they become current.
-let GM=[...GAMS,'vis'].includes(localStorage.csGm)?localStorage.csGm:'vis'
+let GM=[...GAMS,'vis','locus'].includes(localStorage.csGm)?localStorage.csGm:'locus'
 // the lens the current-space sweeps render under. A 1-channel locus: under a display lens the
 // all-out ghosting IS its definition; under the human lens it is all-in by definition –
 // and the discretized solid would wrongly fail its own rim.
-const gmFor=cls=>cls.ch.length>1?GM:GM==='vis'?'off':GM
+const gmFor=cls=>cls.ch.length>1?GM:GM==='vis'||GM==='locus'?'off':GM
 const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X), rec2020:X=>space.xyz['rec2020-linear'](...X) }
 // the human lens asks a different question than a display gamut: not "can this screen
 // show it" but "is this a colour at all" — the spectral locus, the same law the planes,
 // the sliders and the xy panel cut by
 const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
 	try{ const X=s==='xyz'?vv:space[s].xyz(...vv)
+		if(g==='locus') return visibleXYZ(...X)   // any real light – the locus is the only wall
 		if(meta[s]?.method==='chromaticity'){ // luminance is discarded by the SPACE — test the direction: displayable at ANY luminance (the fixed Y=100 convention read as 'broken' ghost)
 			if(g==='vis'){ const t=50/Math.max(X[1],1e-4); return inVisSolid(X[0]*t,50,X[2]*t) }
 			const L=gamLin[g](X), m=Math.max(L[0],L[1],L[2])
@@ -2767,9 +2768,9 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 {	const vctl=document.getElementById('vctl')
 	if(vctl){ const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}">${lb}</option>`
 		const qLegend=QSEG.map(([mo,lb])=>`${lb} – ${QTIP[qKey(mo)]}`).join('\n'), mLegend=METRICS.map(m2=>`${MLABEL[m2]} – ${MTIP[m2]}`).join('\n')
-		const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'all humanly visible color' })[g]
-		const gLegend=[...GAMS,'vis'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
-		vctl.innerHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><select id="gseg" aria-label="gamut limits" title="${gLegend}">${[...GAMS,'vis'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
+		const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'colors a lit surface can show – the object-color solid', locus:'every real light – the full spectral reach, no limit' })[g]
+		const gLegend=[...GAMS,'vis','locus'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
+		vctl.innerHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><select id="gseg" aria-label="gamut limits" title="${gLegend}">${[...GAMS,'vis','locus'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>`
 		const qs=vctl.querySelector('#qseg'), ms=vctl.querySelector('#mseg'), gs=vctl.querySelector('#gseg')
 		gs.onchange=()=>{ GM=gs.value; try{ localStorage.csGm=GM }catch{}   // radio: one gamut always selected – the solid always shows SOME shape
 			if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
@@ -2950,7 +2951,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the solid's source volume follows the gamut switch: a display cube (sRGB by
 	// default, P3/Rec.2020 widen it) or the visible gamut itself — the Rösch–MacAdam
 	// optimal-color surface, arriving as raw XYZ
-	let g3=GM
+	let g3=GM==='locus'?'vis':GM   // the locus admits unbounded luminance – no finite body to tessellate; the surface solid remains the 3D's honest shape
 	// a box-in-base space caps its view at sRGB — a wider volume decodes through
 	// out-of-base light into non-canonical junk sheets, never new shape
 	const inBase=boxInBase(s)
