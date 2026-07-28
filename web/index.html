@@ -2429,7 +2429,10 @@ const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>
 function regroup(g){ if(g===grouping||!GROUPS[g]) return; grouping=g
 	hidePop(); cat.innerHTML=catHTML(master,GROUPS[g]()); colize(); wireToc(); wireCat(); applyFilter()
 	document.querySelectorAll('.gtag').forEach(x=>{ const on=x.dataset.g===g; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })   // AFTER the rebuild — the fresh template marks family
-	document.querySelectorAll('.gsel').forEach(x=>{ x.value=g }) }
+	document.querySelectorAll('.gsel').forEach(x=>{ x.value=g })
+	try{ const sp=new URLSearchParams(location.search); sp.delete('g'); sp.delete('sw')   // the grouping rides the URL like every filter – family (the default) stays unwritten
+		if(g!=='family') sp.set('g',g)
+		const s2=sp.toString(); history.replaceState(null,'',location.pathname+(s2?'?'+s2:'')+location.hash) }catch{} }
 cat.addEventListener('click',e=>{ const b=e.target.closest('.gtag'); if(b) regroup(b.dataset.g) })
 cat.addEventListener('change',e=>{ if(e.target.classList?.contains('gsel')) regroup(e.target.value) })
 // one filter pipeline: name match (highlighted in place) AND the picked facets
@@ -5135,6 +5138,7 @@ const route=e=>{ if(e) autoColor=false
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
+try{ const g0=new URLSearchParams(location.search).get('g'); if(g0) regroup(g0) }catch{}   // arrival restores a shared grouping – HERE, after the catalog wiring exists (regroup rebuilds through wireCat)
 if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat()
 else (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
