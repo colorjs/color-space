@@ -4982,7 +4982,7 @@ function renderFast(solid=true){
 			el.style.color=k?ink([r/k,g2/k,b2/k]):'var(--ink)' }
 		labInk(pl.querySelector('.laby'),[[0.03,0.06],[0.08,0.06],[0.13,0.06]])
 		labInk(pl.querySelector('.labx'),[[0.96,0.96],[0.84,0.96],[0.72,0.96]])
-		const pm=pl.querySelector('.pmode'); if(pm) labInk(pm,[[0.04,0.94],[0.09,0.94],[0.14,0.94]]) } })   // the disc⟷square switch reads the same white-or-dark ink as the axis labels
+		const pm=pl.querySelector('.pmode'); if(pm&&pm.style.color) pm.style.color='' } })   // the mode switch keeps its steady theme gray – its corner often sits on void/checker, and the sampled ink flipped black-on-black there
 	// blend: current → pinned end (or auto complement), computed in THIS space, clustered like the sliders
 	if(vals&&!PDOWN){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
 	if(!B){ B=rotateHue(cls,vals,180); if(!B){ try{ B=toSpace(s,rgb.map(x=>255-x)) }catch{ B=null } } }
