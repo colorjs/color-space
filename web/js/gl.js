@@ -821,7 +821,7 @@ export function lightSurf(G = 96) {
 	const pos = new Float32Array((G + 1) * (G + 1) * 3)
 	const half = Math.ceil(G / 2)
 	let o = 0
-	for (let i = 0; i <= G; i++) { const [px, py] = per[Math.round(i / G * (M - 1)) % M]
+	for (let i = 0; i <= G; i++) { const [px, py] = per[Math.round(i / G * M) % M]   // i=G wraps to per[0] – the final purple→violet strip closes, no seam gap
 		for (let j = 0; j <= G; j++) {
 			let x, y, Y
 			if (j <= half) { x = px; y = py; Y = Math.pow(j / half, 1.6) * 100 }   // lateral: black-biased rows, like the surface body's dark skirt

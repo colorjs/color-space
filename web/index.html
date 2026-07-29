@@ -2554,17 +2554,18 @@ function openModal(s){
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
-	const k=ORDER.indexOf(s), n=ORDER.length   // set the neighbour names in every nav bar (top + foot)
-	detail.querySelectorAll('.mprevn').forEach(el=>el.textContent=navLabel(ORDER[(k-1+n)%n]))
-	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ORDER[(k+1)%n]))
-	const si=sections.findIndex(c=>c.spaces.includes(s)), L=sections.length   // category-jump labels: "Section / FIRST-SPACE"
-	if(si>=0){ const pc=sections[(si-1+L)%L], nc=sections[(si+1)%L]
+	const ord=[...activeSecs().flatMap(c2=>c2.spaces),...BARRED.map(b2=>b2.key)]   // the ACTIVE grouping orders the walk – labels AND actions agree
+	const k=ord.indexOf(s), n=ord.length   // set the neighbour names in every nav bar (top + foot)
+	detail.querySelectorAll('.mprevn').forEach(el=>el.textContent=navLabel(ord[(k-1+n)%n]))
+	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ord[(k+1)%n]))
+	const secs=activeSecs(), si=secs.findIndex(c=>c.spaces.includes(s)), L=secs.length   // category-jump labels: "Section / FIRST-SPACE"
+	if(si>=0){ const pc=secs[(si-1+L)%L], nc=secs[(si+1)%L]
 		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=pc.name); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=disp(pc.spaces[0]))
 		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=nc.name); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=disp(nc.spaces[0])) }
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
-	if(!b) setTimeout(()=>{ if(selected===s) for(const s2 of [ORDER[(k-1+n)%n],ORDER[(k+1)%n]]) if(!isBarred(s2)){ warmGL(s2); warmMesh3(s2,GM) } },400) }
+	if(!b) setTimeout(()=>{ if(selected===s) for(const s2 of [ord[(k-1+n)%n],ord[(k+1)%n]]) if(!isBarred(s2)){ warmGL(s2); warmMesh3(s2,GM) } },400) }
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
 	// same shape and field order as buildDetail: header → tag → props (channels | origin · reference) → description
@@ -3175,7 +3176,12 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// GPU path (the library's gl chunks convert rgb→space in the vertex shader):
 	// the CPU pass only fits the view and places axes, so a COARSE grid suffices —
 	// dense geometry, caps and dots live on the GPU and need no rebuild on repaint
-	const gpu3=has3dGL(s)
+	// a MIRRORING inverse collapses the xyz-sourced body onto its fold envelope – those
+	// spaces assemble the surface/light shape forward, from their own lattice through
+	// membership, like the planes. Deliberately narrower than rtFaithful: merely
+	// approximate inverses (hwb's clamp, coloroid's tables) still image the body fine.
+	const FOLD3D=gH&&['hsm'].includes(s)
+	const gpu3=has3dGL(s)&&!FOLD3D
 	// the GPU solid lives on ONE persistent canvas (contexts are scarce; buffers stay warm)
 	if(gpu3){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()) mc.replaceWith(mesh3Canvas()) }
 	const build=()=>{
