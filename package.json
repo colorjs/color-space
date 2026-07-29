@@ -59,6 +59,8 @@
     "CHANGELOG.md"
   ],
   "bin": {
+    "color-space": "./cli.js",
+    "colr": "./cli.js",
     "color-space-mcp": "./mcp.js"
   },
   "exports": {
@@ -221,7 +223,7 @@
     "wgsl_reflect": "^1.5.0"
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
+    "test": "node test && node test/cie.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
     "test:types": "tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck false test/types/smoke.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck false test/types/smoke.ts",
     "test:package": "node scripts/test-package.js",
     "test:gpu": "node scripts/check-gl-gpu.js",

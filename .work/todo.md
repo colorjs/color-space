@@ -20,7 +20,7 @@
 * [x] HEIC images
 * [x] Interpolation: compare against the other space
 * [x] ~~In-space configurator: there's multiple flavors of RGB space with different matrices etc.~~ no
-* [ ] Hue bar: uncollapses? Rotates?
+* [ ] ~~Hue bar: uncollapses? Rotates?~~
 * [x] FAQ: no questions = disinteresting topic
 * [x] The barred spaces - add cards, display the limitation on them instead of explainer at the bottom.
 * [ ] Full screen color picker.

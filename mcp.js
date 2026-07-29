@@ -7,7 +7,7 @@
  * conversions instead of guessing. MCP stdio transport = newline-delimited
  * JSON-RPC 2.0, small enough to speak directly — no SDK.
  *
- *     { "mcpServers": { "color-space": { "command": "npx", "args": ["--yes", "--package", "color-space", "color-space-mcp"] } } }
+ *     { "mcpServers": { "color-space": { "command": "npx", "args": ["--yes", "color-space", "mcp"] } } }
  *
  * Tools: convert (any pair, identity included) · space (the full dossier: formula
  * refs, ranges, provenance, neighbours) · spaces (the catalog) · cube (a .cube LUT).
@@ -133,6 +133,15 @@ export function handle(msg) {
 	if (id !== undefined) rpc(id, { error: { code: -32601, message: `method '${method}' not found` } })
 }
 
+// The stdio loop — run by this bin directly, and by `color-space mcp` (cli.js).
+export function serve() {
+	createInterface({ input: process.stdin }).on('line', (line) => {
+		if (!line.trim()) return
+		let msg; try { msg = JSON.parse(line) } catch { return rpc(null, { error: { code: -32700, message: 'parse error' } }) }
+		try { handle(msg) } catch (e) { if (msg.id !== undefined) rpc(msg.id, { error: { code: -32603, message: String(e.message || e) } }) }
+	})
+}
+
 // Serve only when executed directly — importing this module must stay side-effect-free.
 // Resolve both sides through realpath: npm launches bins through node_modules/.bin
 // symlinks, while import.meta.url names the package file itself.
@@ -141,10 +150,4 @@ const isMain = (() => {
 	try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)) }
 	catch { return false }
 })()
-if (isMain) {
-	createInterface({ input: process.stdin }).on('line', (line) => {
-		if (!line.trim()) return
-		let msg; try { msg = JSON.parse(line) } catch { return rpc(null, { error: { code: -32700, message: 'parse error' } }) }
-		try { handle(msg) } catch (e) { if (msg.id !== undefined) rpc(msg.id, { error: { code: -32603, message: String(e.message || e) } }) }
-	})
-}
+if (isMain) serve()

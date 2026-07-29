@@ -42,7 +42,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
-* `npx --yes --package color-space color-space-mcp` – MCP agent tools: `convert` · `space` · `spaces` · `cube`
+* `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default) · `cube` · `icc` · `space` · `spaces` · `mcp` (the same tools over MCP stdio for agents)
 
 [Upgrading from v2?](docs/migration.md)
 
@@ -99,10 +99,11 @@ It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contra
 
 Thanks to the researchers, theorists, specifiers, implementors — and the libraries that informed this one.
 
-| Library | Spaces | Ranges | Specialty | Backends | Speed (op/s) |
+| Library | Spaces | Ranges | Camera log · CAM · historic | Backends | Speed (M op/s) |
 |---|---:|---|---|---|---:|
 | **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **36.4** |
-| color-space/wasm | 27 | Conventional | — | WASM | 1.3–2.5× JS batches |
+| color-space/lite | 27 | Conventional | logs · HDR | JS · 9 kB gzip | 36.4 |
+| color-space/wasm | 27 | Conventional | logs · HDR | WASM | 1.3–2.5× JS batches |
 | [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.1 |
 | [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.7 |
 | [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 15.9 |

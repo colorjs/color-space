@@ -1696,3 +1696,10 @@ test('yccbccrc: constant-luminance (BT.2020 Table 4)', () => {
 	is(space['rec2020-linear'].yccbccrc(1, 0, 0).map(round(6)), [0.503085, -0.259269, 0.500116]);
 	is(space['rec2020-linear'].yccbccrc(1, 1, 1).map(round(6)), [1, 0, 0], 'white -> Yc=1, Cbc=Crc=0');
 });
+
+test('README space count matches the registry', () => {
+	const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8')
+	const n = Object.keys(space).length
+	is(readme.match(/All (\d+) interconnected spaces/)?.[1], String(n), 'Imports line')
+	is(readme.match(/\| \*\*color-space\*\* \| \*\*(\d+)\*\*/)?.[1], String(n), 'comparison table')
+});

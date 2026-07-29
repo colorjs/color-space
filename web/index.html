@@ -2030,6 +2030,11 @@ const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the c
 // through, shedding only the boot flags (?sw service-worker probe, ?s= 404 bounce)
 const keepSearch=()=>{ try{ const sp=new URLSearchParams(location.search); sp.delete('sw'); sp.delete('s'); const s2=sp.toString(); return s2?'?'+s2:'' }catch{ return '' } }
 function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
+	// a hash we did not write is a NAVIGATION in flight (a FAQ specimen link, the boot
+	// arrival) – route() owns it until consumed; writing here rewrote the link to the
+	// current color's canon before hashchange could fire, and CI's slower frames lost
+	// the notation switch every time
+	if(location.hash&&location.hash!==(urlLast.split('#')[1]!=null?'#'+urlLast.split('#')[1]:'')) return
 	const u=spaceURL(open()?selected:'')+keepSearch()+'#'+urlHash()
 	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
 // favicon carries the current color — the slider diamond, tab-sized
@@ -5198,6 +5203,7 @@ const route=e=>{ if(e) autoColor=false
 		const f=fn==='color'?(/^color\(\s*display-p3\b/.test(h)?'p3':null):(FMTL.includes(fn)?fn:null)
 		if(f&&f!==FMT) setFmt(f) } }
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
+	urlLast=location.pathname+location.search+location.hash   // the navigation is CONSUMED – syncURL may write over it from now on
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
 try{ const g0=new URLSearchParams(location.search).get('g'); if(g0) regroup(g0) }catch{}   // arrival restores a shared grouping – HERE, after the catalog wiring exists (regroup rebuilds through wireCat)
