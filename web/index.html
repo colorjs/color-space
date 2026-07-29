@@ -1982,9 +1982,12 @@ const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-
 	const conv=to=>s===to?vals:space[s][to](...vals)
 	try{ if(inR(conv('rgb'),255)) return 'srgb'; if(inR(conv('p3'),1)) return 'p3'; if(inR(conv('rec2020'),1)) return 'rec2020' }catch{}
 	// beyond every display: a surface may still show it, a light may still be it – the
-	// chain ends at the locus, past which ⚠ marks a coordinate that is no color at all
+	// chain ends at the locus, past which ⚠ marks a coordinate that is no color at all.
+	// The LOCUS is asked FIRST: the solid's convex 128-direction hull contains the body
+	// and lets a slightly-imaginary point pass (HCT C=106 carried Z=-0.94 and read
+	// 'surface' while every slider honestly voided it)
 	try{ const X=s==='xyz'?vals:space[s].xyz(...vals)
-		if(X.every(isFinite)){ if(inVisSolid(...X)) return 'vis'; if(visibleXYZ(...X)) return 'locus' } }catch{}
+		if(X.every(isFinite)&&visibleXYZ(...X)) return inVisSolid(...X)?'vis':'locus' }catch{}
 	return 'clip' }
 // lum/ink/decOf/fmtc/rgbF live in render.js — the prerender bakes the same formatting
 // the current color as a native CSS string — only for spaces CSS can actually express

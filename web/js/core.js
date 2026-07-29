@@ -169,6 +169,7 @@ export function visSolid() {
  *  The 0.2% slack absorbs the gap between this 2 nm integration and the tabulated white. */
 export const inVisSolid = (X, Y, Z) => {
 	if (!(isFinite(X) && isFinite(Y) && isFinite(Z))) return false
+	if (!visibleXYZ(X, Y, Z)) return false   // the solid lives INSIDE the locus – its convex outer hull alone would admit slightly-imaginary neighbours
 	for (const [ux, uy, uz, h] of visSolid()) if (ux * X + uy * Y + uz * Z > h * 1.002) return false
 	return true
 }
