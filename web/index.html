@@ -2731,7 +2731,7 @@ const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly'
 // human by default: the widest real view — a display gamut is an opt-in LIMIT, chosen in
 // the dossier's switch, and its ghosting also appears on the catalog's current-space row;
 // other catalog rows retain full reach until they become current.
-let GM=[...GAMS,'vis','locus'].includes(localStorage.csGm)?localStorage.csGm:'locus'
+let GM=[...GAMS,'vis','locus'].includes(localStorage.csGm)?localStorage.csGm:'vis'   // surface by default – light's cone spans far past most boxes and reads as noise first; light stays one click away as the true no-limit view
 // the lens the current-space sweeps render under. A 1-channel locus: under a display lens the
 // all-out ghosting IS its definition; under the human lens it is all-in by definition –
 // and the discretized solid would wrongly fail its own rim.
