@@ -496,7 +496,7 @@ body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 .modal[hidden]{ display:none }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
-.mbox{ position:relative; width:var(--mboxw); margin:4rem auto; background:var(--paper); display:flex; overflow:visible; box-shadow:0 1rem 4rem oklch(0 0 0/.28) }   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
+.mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:0 1rem 4rem oklch(0 0 0/.28) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
 /* close ✕ — same style as the proprietary dialog's: quiet, top-right, inks on hover */
 .mx{ position:absolute; top:calc(var(--dpad) - 10px); right:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; font:inherit; font-size:1.5rem; line-height:1; font-weight:500; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--ink) }
@@ -596,10 +596,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s4) }
 @media(max-width:640px){ .mnavbar.mfoot{ padding:var(--s2) 0; }
-	.bigch{ flex-wrap:nowrap; gap:var(--s1)!important; } .gtags{ flex:none; flex-wrap:nowrap }   /* phones: tight row */
+	.bigch{ flex-wrap:nowrap; gap:var(--s1)!important }   /* phones: tight row */
 	.chead{ flex-wrap:nowrap; gap:var(--s2) }   /* one line, always — whatever rides it must yield, never wrap */
 	.chead .dctl{ flex:none; gap:var(--s1) }   /* the gamut select rides phones too — it is the dossier's one remaining lens */
-	.chead .gtags{ display:none }   /* the masthead pill already names the tightest gamut — no duplicate on the tight row */
 }
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
 .bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
@@ -612,9 +611,6 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bch .nvw .u{ font-size:var(--t2); color:var(--body) }
 .props .cssv{ font-family:var(--font-mono); font-size:var(--t2) }   /* the CSS notation is code, not prose — it reads in mono under the channels */
 .props .dpills{ margin:0 }   /* model/signal values wear the shared .tag recipe, on the property grid's own rhythm */
-.gtags{ display:flex; flex:0 1 auto; min-width:0; flex-wrap:wrap; align-self:center; gap:var(--s1) }   /* the gamut pills centre on the value row, box-middle to the numbers — not baseline (which hangs them low); they shrink and wrap among themselves so the channel tags keep their line */
-.gtags .gt[hidden]{ display:none }
-.gtags .gwarn{ color:var(--color-error) }   /* the one warning state — Photoshop's out-of-gamut mark, error-toned */
 .pick+.planes{ margin-top:var(--s2) }   /* plots sit one plane-gap below the sliders (no heading) */
 .planes+.pick{ margin-top:var(--s2) }
 /* name hugs its content; the range is a min…max sub-grid — mins right-aligned, maxes
@@ -1604,7 +1600,7 @@ import { space, meta, clamp, classify, ramp, lensFor, plane, toSpace, hex, rgbOf
 import LORE from './js/lore.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
+import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -2660,8 +2656,12 @@ function stepInputNumber(input,dir){ const m=numAt(input); if(!m) return false
 	input.value=input.value.slice(0,m.start)+next+input.value.slice(m.end)
 	input.setSelectionRange(m.start,m.start+next.length)
 	return true }
-const nav=d=>{ const k=ORDER.indexOf(selected); openModal(ORDER[(k+d+ORDER.length)%ORDER.length]) }
-const navCat=d=>{ const si=sections.findIndex(c=>c.spaces.includes(selected)); if(si<0)return; const t=sections[(si+d+sections.length)%sections.length]; openModal(t.spaces[0]) }
+// prev/next and the category label follow the ACTIVE grouping – regroup the catalog by
+// era and the dossier walks eras too, its heading naming the era it stands in
+const activeSecs=()=>{ try{ return grouping!=='family'&&GROUPS[grouping]?GROUPS[grouping]():sections }catch{ return sections } }
+const nav=d=>{ const ord=[...activeSecs().flatMap(c=>c.spaces),...BARRED.map(b=>b.key)]
+	const k=ord.indexOf(selected); openModal(ord[(k+d+ord.length)%ord.length]) }
+const navCat=d=>{ const secs=activeSecs(), si=secs.findIndex(c=>c.spaces.includes(selected)); if(si<0)return; const t=secs[(si+d+secs.length)%secs.length]; openModal(t.spaces[0]) }
 addEventListener('keydown',e=>{ if(!open()) return
 	if(e.key==='Escape'){ e.preventDefault(); closeModal(); return }
 	if(e.key==='Tab'){ const focusable=[...modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),[tabindex="0"]')].filter(el=>el.offsetParent!==null)
@@ -2694,9 +2694,9 @@ let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto comp
 const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
 let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
 // ONE session-local clustering lens for sliders, planes and the 3D solid
-const QGROUPS=[['',[[null,'Smooth']]],
-	['Steps',[[10,'10-step'],[20,'20-step'],['565','16-bit'],['jnd','JND']]],
-	['Palettes',[['web','Safe'],['names','Names'],['xkcd','xkcd'],['tailwind','Tailwind'],['pico8','PICO-8'],['ansi','ANSI']]]]   // capitals as titles read; xkcd keeps its lowercase brand
+const QGROUPS=[['',[[null,'smooth']]],
+	['steps',[[10,'10-step'],[20,'20-step'],['565','16-bit'],['jnd','JND']]],
+	['Palettes',[['web','safe'],['names','names'],['xkcd','xkcd'],['tailwind','tailwind'],['pico8','pico-8'],['ansi','ANSI']]]]   // capitals as titles read; xkcd keeps its lowercase brand
 const QSEG=QGROUPS.flatMap(([,o])=>o)
 const QTIP={ 'smooth':'continuous, unquantized',
 	'10':'10 native-channel cell centers',
@@ -2959,12 +2959,13 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the solid's source volume follows the gamut switch: a display cube (sRGB by
 	// default, P3/Rec.2020 widen it) or the visible gamut itself — the Rösch–MacAdam
 	// optimal-color surface, arriving as raw XYZ
-	let g3=GM==='locus'?'vis':GM   // the locus admits unbounded luminance – no finite body to tessellate; the surface solid remains the 3D's honest shape
+	let g3=GM   // light carries its own body now – the spectral cone up to the Y=100 lid (gl.lightSurf)
 	// a box-in-base space caps its view at sRGB — a wider volume decodes through
 	// out-of-base light into non-canonical junk sheets, never new shape
 	const inBase=boxInBase(s)
 	if(inBase) g3='srgb'
-	const conv=g3==='srgb'?(v=>toSpace(s,v)):g3==='vis'?(v=>s==='xyz'?v.slice():space.xyz[s](...v)):(v=>space[g3][s](...v.map(x2=>x2/255)))
+	const gH=g3==='vis'||g3==='locus'   // both human-class bodies (surface zonoid, light cone) arrive as raw XYZ
+	const conv=g3==='srgb'?(v=>toSpace(s,v)):gH?(v=>s==='xyz'?v.slice():space.xyz[s](...v)):(v=>space[g3][s](...v.map(x2=>x2/255)))
 	// out-of-sRGB display colors desaturate toward their own luma until representable
 	// (closest ACTUAL color, hue and lightness held) — mirrors the GPU vertex rule
 	const gmap=r=>{ const lum=clamp(0.2126*r[0]+0.7152*r[1]+0.0722*r[2],0,255)
@@ -2975,7 +2976,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		// soft knee (mirrors the GPU): slightly-out barely desaturates, far-out grades
 		const ts=Math.pow(clamp(t,0,1),0.4)
 		return r.map(x2=>clamp(lum+(x2-lum)*ts,0,255)) }
-	const dispOf=g3==='srgb'?(v=>v):g3==='vis'?(v=>gmap(space.xyz.rgb(...v))):(v=>gmap(space[g3].rgb(...v.map(x2=>x2/255))))
+	const dispOf=g3==='srgb'?(v=>v):gH?(v=>gmap(space.xyz.rgb(...v))):(v=>gmap(space[g3].rgb(...v.map(x2=>x2/255))))
 	// smooth achromatic taper (mirrors the GPU): 1 = full chroma, 0 = on the gray
 	// axis — a hard cliff saws the surface where real chroma meets a collapsed row.
 	// Box-in-base spaces collapse all-or-nothing instead: partially tapered junk
@@ -2988,7 +2989,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// smoothstep(0,7) collapses them to the black point so the solid pinches to a clean
 	// spindle, and reaches 1 by the deepest sRGB primary (blue, Y=7.2) so real colour is exact.
 	const gfVis=v=>{ const t=clamp(v[1]/7,0,1); return t*t*(3-2*t) }
-	const gfRaw=g3==='vis'?gfVis:gfCube
+	const gfRaw=gH?gfVis:gfCube
 	const grayF=inBase?(v=>gfRaw(v)<1?0:1):gfRaw
 	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the
 	// solid and its plane slices always agree. Renamed wheels count as the hue angle.
@@ -3013,7 +3014,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 				const u=i2/12*255, w=j2/12*255
 				out.push([[0,u,w],[255,u,w],[u,0,w],[u,255,w],[u,w,0],[u,w,255]][f]) }
 			return out }
-		const visProbes=()=>{ const out=[], vp=visSurf(12).pos
+		const visProbes=()=>{ const out=[], vp=(g3==='locus'?lightSurf:visSurf)(12).pos
 			for(let q=0;q<vp.length;q+=3) out.push([vp[q],vp[q+1],vp[q+2]])
 			return out }
 		// mirror the mesh's achromatic taper — else near-black chroma noise
@@ -3026,7 +3027,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 				if(v.every(isFinite)) pts.push(v)
 				for(let k=0;k<3;k++) if(isFinite(v[k])) smp[k].push(v[k]) }
 			return { smp, pts } }
-		const solidScan=scan(g3==='vis'?visProbes():cubeProbes(), conv, grayF)
+		const solidScan=scan(gH?visProbes():cubeProbes(), conv, grayF)
 		// the frame IS the declared channel range: the box axes match the sliders and
 		// planes exactly (a tick at the range limit sits on the box wall), so the frame
 		// measures instead of merely surrounding. The solid fills whatever part of that
@@ -3066,7 +3067,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		// DECLARED box instead: caps close every pierced face with the visible
 		// cross-section, so the in-range body reads whole under the dissolving shell.
 		capMask|=cutMask
-		if(g3==='vis'){ capMask=0
+		if(gH){ capMask=0
 			cls.ch.forEach((c,k)=>{ if(k===ai) return
 				const eps3=(c.max-c.min)*0.004
 				if(dmin[k]<c.min-eps3) capMask|=1<<(k*2)
@@ -3122,7 +3123,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		// (a sign-mirrored transfer, HSI's S at optimal colors) — "bad" = outside the
 		// sanity window. Bisect toward the neutral spine until the vertex lands ON the
 		// window wall — mirrors the GPU bake, closing the surface at the intersection
-		if(!inWin(v)){ const nw=g3==='vis'?[src[1]*0.9504559,src[1],src[1]*1.0890578]:Array(3).fill((src[0]+src[1]+src[2])/3)
+		if(!inWin(v)){ const nw=gH?[src[1]*0.9504559,src[1],src[1]*1.0890578]:Array(3).fill((src[0]+src[1]+src[2])/3)
 			let lo=0, hi=1
 			for(let i2=0;i2<18;i2++){ const md=(lo+hi)/2
 				let vt; try{ vt=conv(nw.map((x2,k)=>x2+(src[k]-x2)*md)) }catch{ vt=null }
@@ -3179,7 +3180,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	if(gpu3){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()) mc.replaceWith(mesh3Canvas()) }
 	const build=()=>{
 	const G2=gpu3?12:64
-	if(g3==='vis'){ const vsf=visSurf(gpu3?12:48), gv=vsf.G
+	if(gH){ const vsf=(g3==='locus'?lightSurf:visSurf)(gpu3?12:48), gv=vsf.G
 		face(gv,(u,w)=>{ const q=(Math.round(u*gv)*(gv+1)+Math.round(w*gv))*3
 			return addVert([vsf.pos[q],vsf.pos[q+1],vsf.pos[q+2]]) }) }
 	else for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
@@ -3231,7 +3232,8 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// box — a black spike into space. dmin/dmax are the gamut the JS scan actually reached
 	// (cam16 M≈100 at the box; ral-design chroma≈205 genuinely past it), so junk clamps to the
 	// real boundary while real overflow still shows. Hue keeps the wide window (it wraps).
-	const winV = g3==='vis'
+	const winV = g3==='locus' ? win   // the light cone's measured extent is ENORMOUS (a/b in the hundreds) – the standard box±span halo keeps the overflow a readable fringe, the box caps seal the cuts
+		: gH
 		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : dmin[k]-(c.max-c.min)*0.08),
 			cls.ch.map((c,k)=> k===ai ? win[1][k] : dmax[k]+(c.max-c.min)*0.08)]
 		: win
@@ -3422,7 +3424,7 @@ let ctr3=null, ln3=null, gu3=null
 // Canonical coordinates only: the xyz roundtrip drops fold branches (hwb's w+b>100) —
 // skipped for approximate-inverse spaces (rtFaithful), where it would flicker on real colors.
 const inSolid3=(s,cls,g3,v)=>{ try{
-	if(g3==='vis'){ const X=s==='xyz'?v:space[s].xyz(...v)
+	if(gH){ const X=s==='xyz'?v:space[s].xyz(...v)
 		return X.every(isFinite)&&inVisSolid(...X) }
 	const gv=g3==='srgb'?space[s].rgb(...v).map(x2=>x2/255):space[s][g3](...v)
 	if(!gv.every(x2=>isFinite(x2)&&x2>=-0.002&&x2<=1.002)) return false
@@ -3942,10 +3944,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
 		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${cname(c)} slider"></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
-		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}<span class="gtags" id="gtags">${[...GAMS,'vis','locus'].map(g=>`<span class="gpill gt" data-g="${g}" title="${GAMTITLE[g]}">${GAMLABEL[g]}</span>`).join('')}<span class="gpill gt gwarn" data-g="clip" title="${GAMTITLE.clip}">⚠</span></span></div>`
+		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}</div>`
 	const plotPairs=pairsFor(s)
 	// the space's catalog section, read straight off the catalog DOM — one source
-	const dcat=sections.find(c2=>c2.spaces.includes(s))?.name||''   // from the data, not the catalog DOM — name views open before the catalog builds
+	const dcat=activeSecs().find(c2=>c2.spaces.includes(s))?.name||''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}</div>
@@ -4935,11 +4937,6 @@ function renderFast(solid=true){
 		const vin=el.querySelector('.nv'); if(document.activeElement!==vin||(dragBar&&+dragBar.dataset.i===i)) vin.value=shown[i].toFixed(decOf(c))   // a drag is not typing – the focused channel tracks its slider live
 		const stk=el.querySelector('.stk'), pad=typeof Q==='number'?(c.max-c.min)/(2*Q):0
 		stk.firstElementChild.classList.toggle('lim',shown[i]>=c.max-pad-1e-9); stk.lastElementChild.classList.toggle('lim',shown[i]<=c.min+pad+1e-9) })
-	// ONE gamut pill beside the values – the tightest display gamut that holds this color
-	// (containment nests, so listing every holder repeats it); ⚠ when even Rec.2020 clips
-	{	const gt=document.getElementById('gtags')
-		if(gt&&pure&&!PDOWN){ const g=gamutOf()||'clip'
-			gt.querySelectorAll('.gt').forEach(t=>{ t.hidden=t.dataset.g!==g }) } }
 	detail.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const cx=pl.querySelector('.cx')
 		const gx=clamp((shown[a]-cls.ch[a].min)/(cls.ch[a].max-cls.ch[a].min),0,1)

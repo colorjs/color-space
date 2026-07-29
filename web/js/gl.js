@@ -802,6 +802,42 @@ export function visSurf(G = 96) {
 	return out
 }
 
+// ── the LIGHT body: {XYZ real per the locus, 0 ≤ Y ≤ 100} – the cone of every real
+// light up to the display-white ceiling. Lateral surface: rays from black through the
+// locus perimeter (spectrals + the purple line); lid: the filled horseshoe at Y=100,
+// shrinking to the white point so the grid closes at a pole. Same contract as visSurf. ──
+const LIGHTS = new Map()
+export function lightSurf(G = 96) {
+	if (LIGHTS.has(G)) return LIGHTS.get(G)
+	const N = 160, per = []   // the closed perimeter: 380–700 nm spectrals, then the purple line
+	for (let i = 0; i < N; i++) { const nm = 380 + i / (N - 1) * 320
+		const [X, Y, Z] = space.wavelength.xyz(nm), t = X + Y + Z
+		per.push([X / t, Y / t]) }
+	const PURP = 24
+	for (let i = 1; i <= PURP; i++) { const t = i / (PURP + 1), a = per[N - 1], b = per[0]
+		per.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]) }
+	const M = per.length
+	const W = [0.31272, 0.32903]   // D65 white chromaticity – the lid's closing pole
+	const pos = new Float32Array((G + 1) * (G + 1) * 3)
+	const half = Math.ceil(G / 2)
+	let o = 0
+	for (let i = 0; i <= G; i++) { const [px, py] = per[Math.round(i / G * (M - 1)) % M]
+		for (let j = 0; j <= G; j++) {
+			let x, y, Y
+			if (j <= half) { x = px; y = py; Y = Math.pow(j / half, 1.6) * 100 }   // lateral: black-biased rows, like the surface body's dark skirt
+			else { const t = (j - half) / (G - half); x = px + (W[0] - px) * t; y = py + (W[1] - py) * t; Y = 100 }   // the lid, closing at white
+			pos[o++] = x / y * Y; pos[o++] = Y; pos[o++] = (1 - x - y) / y * Y } }
+	const idx = new Uint32Array(G * G * 6)
+	o = 0
+	for (let i = 0; i < G; i++) for (let j = 0; j < G; j++) {
+		const q = i * (G + 1) + j
+		idx[o++] = q; idx[o++] = q + G + 1; idx[o++] = q + 1
+		idx[o++] = q + G + 1; idx[o++] = q + G + 2; idx[o++] = q + 1 }
+	const out = { pos, idx, G }
+	LIGHTS.set(G, out)
+	return out
+}
+
 const mesh3States = new WeakMap()   // canvas → { gl, progs: Map, buffers }
 function mesh3State(cv) {
 	if (mesh3States.has(cv)) return mesh3States.get(cv)
@@ -810,18 +846,19 @@ function mesh3State(cv) {
 	// blended pixels at source×alpha (the white pane rendered 50% GRAY over paper)
 	const gl = cv.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: true, stencil: true })
 	if (!gl) { mesh3States.set(cv, null); return null }
-	const geo = geometry(), vsf = visSurf(256)   // dense: the overflow silhouette is the mesh's own edge
+	const geo = geometry(), vsf = visSurf(256), lsf = lightSurf(256)   // dense: the overflow silhouette is the mesh's own edge
 	const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b }
 	const ibuf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW); return b }
 	const st = { gl, progs: new Map(), draws: new Map(),
 		tb: buf(geo.tpos), ti: ibuf(geo.tidx), tn: geo.tidx.length, tvn: geo.tpos.length / 3,
 		vb: buf(vsf.pos), vi: ibuf(vsf.idx), vn: vsf.idx.length, vvn: vsf.pos.length / 3,
+		lb: buf(lsf.pos), li: ibuf(lsf.idx), ln: lsf.idx.length, lvn: lsf.pos.length / 3,
 		cb: buf(geo.cpos), ci: ibuf(geo.cidx), cn: geo.cidx.length }
 	// the conversion BAKE lands here (v, rgb, bad — 7 floats a vertex), sized for
 	// the larger lattice; one slot — a space/gamut switch simply rebakes
 	st.bakeBuf = gl.createBuffer()
 	gl.bindBuffer(gl.ARRAY_BUFFER, st.bakeBuf)
-	gl.bufferData(gl.ARRAY_BUFFER, Math.max(st.tvn, st.vvn) * 28, gl.DYNAMIC_COPY)
+	gl.bufferData(gl.ARRAY_BUFFER, Math.max(st.tvn, st.vvn, st.lvn) * 28, gl.DYNAMIC_COPY)
 	st.bakeKey = null
 	mesh3States.set(cv, st)
 	return st
@@ -866,7 +903,7 @@ function mesh3Progs(st, s, gam = 'srgb') {
 		const faithful = s !== 'munsell' && rtFaithful(s)
 		// the solid's source volume: a display-gamut cube fed through gamut→space, or
 		// the visible (Rösch–MacAdam) surface, whose vertices arrive as raw XYZ
-		const src = gam === 'vis' ? 'xyz' : gam === 'srgb' ? 'rgb' : gam
+		const src = gam === 'vis' || gam === 'locus' ? 'xyz' : gam === 'srgb' ? 'rgb' : gam
 		const SRC = san(src)
 		const unit = src === 'rgb' || src === 'xyz' ? 'aSrc' : '(aSrc / 255.0)'
 		const pairs = []
@@ -1271,6 +1308,9 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		return false
 	}
 	const { gl } = st
+	const hs = gam === 'vis' ? { b: st.vb, ib: st.vi, n: st.vn, cnt: st.vvn }
+		: gam === 'locus' ? { b: st.lb, ib: st.li, n: st.ln, cnt: st.lvn }
+		: { b: st.tb, ib: st.ti, n: st.tn, cnt: st.tvn }
 	gl.viewport(0, 0, cv.width, cv.height)
 	gl.clearColor(0, 0, 0, 0); gl.clearDepth(1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -1312,7 +1352,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		// referenced by any vertex attribute (even a disabled one, per ANGLE) may not
 		// be the TF target: INVALID_OPERATION silently skips the bake and the old
 		// capture draws under new indices. Disable AND repoint before capturing.
-		gl.bindBuffer(gl.ARRAY_BUFFER, gam === 'vis' ? st.vb : st.tb)
+		gl.bindBuffer(gl.ARRAY_BUFFER, hs.b)
 		for (const a of [dr.aV, dr.aRgb, dr.aBad]) {
 			gl.disableVertexAttribArray(a)
 			gl.vertexAttribPointer(a, 1, gl.FLOAT, false, 0, 0)
@@ -1321,7 +1361,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		gl.enable(gl.RASTERIZER_DISCARD)
 		gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, st.bakeBuf)
 		gl.beginTransformFeedback(gl.POINTS)
-		gl.drawArrays(gl.POINTS, 0, gam === 'vis' ? st.vvn : st.tvn)
+		gl.drawArrays(gl.POINTS, 0, hs.cnt)
 		gl.endTransformFeedback()
 		gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
 		gl.disable(gl.RASTERIZER_DISCARD)
@@ -1340,15 +1380,15 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	if (PALETTES[quant]) bindPalette(gl, dr.u.uPalIdx, dr.u.uPalSites, quant, metric)
 	gl.uniform1i(dr.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
 	bindBaked()
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
 	gl.uniform1i(dr.u.uPass, 0)
-	gl.drawElements(gl.TRIANGLES, gam === 'vis' ? st.vn : st.tn, gl.UNSIGNED_INT, 0)
+	gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
 	if (map.out) {   // translucent overflow BEFORE the caps: the sealed cut faces stay
 		// crisp (no ghost film smearing beyond-the-wall colors flat onto the cut —
 		// the face-on "smush"); the caps' per-pixel validity keeps the edge-on blade honest
 		gl.uniform1i(dr.u.uPass, 1)
 		gl.depthMask(false)
-		gl.drawElements(gl.TRIANGLES, gam === 'vis' ? st.vn : st.tn, gl.UNSIGNED_INT, 0)
+		gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
 		gl.depthMask(true)
 	}
 	const capMask = map.caps ?? 63
@@ -1360,7 +1400,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.enableVertexAttribArray(ps.caps.aFrac); gl.vertexAttribPointer(ps.caps.aFrac, 3, gl.FLOAT, false, 0, 0)
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.ci)
 		}
-		if (gam === 'vis') {
+		if (gam === 'vis' || gam === 'locus') {
 			// human view: per pierced face, STENCIL-parity the sheet the body clipped away
 			// past that wall – pixels crossed an odd number of times are inside the solid
 			// at the cut – then paint the face quad only there. The cross-section follows
@@ -1371,13 +1411,13 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 				gl.clear(gl.STENCIL_BUFFER_BIT)
 				gl.useProgram(dr.pr)
 				bindBaked()
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.vi)
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
 				gl.uniform1i(dr.u.uPass, 2)
 				gl.uniform2i(dr.u.uCapK, f >> 1, f & 1)
 				gl.colorMask(false, false, false, false); gl.depthMask(false)
 				gl.stencilFunc(gl.ALWAYS, 0, 0xff)
 				gl.stencilOp(gl.KEEP, gl.KEEP, gl.INVERT)   // parity of depth-passing crossings
-				gl.drawElements(gl.TRIANGLES, st.vn, gl.UNSIGNED_INT, 0)
+				gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
 				gl.colorMask(true, true, true, true); gl.depthMask(true)
 				bindCaps()
 				gl.stencilFunc(gl.NOTEQUAL, 0, 0xff)
@@ -1397,10 +1437,10 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	if (cut) {
 		gl.useProgram(dr.pr)
 		bindBaked()
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gam === 'vis' ? st.vi : st.ti)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
 		gl.uniform1i(dr.u.uPass, 3)
 		gl.depthFunc(gl.GREATER); gl.depthMask(false)
-		gl.drawElements(gl.TRIANGLES, gam === 'vis' ? st.vn : st.tn, gl.UNSIGNED_INT, 0)
+		gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
 		gl.depthFunc(gl.LEQUAL); gl.depthMask(true)
 		gl.uniform1i(dr.u.uPass, 0)
 	}
