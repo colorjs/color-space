@@ -15,7 +15,7 @@
 // @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004 — 1931 2° observer, D65 chromaticity
 // @see {@link https://www.iec.ch/publication/6169} IEC 61966-2-1 (sRGB) — primary chromaticities
 import test, { is } from 'tst'
-import { classify, lensFor, locus, plane, ramp, space, visibleXYZ } from '../web/js/core.js'
+import { classify, inVisSolid, lensFor, locus, plane, ramp, space, visibleXYZ } from '../web/js/core.js'
 
 // a chromaticity, carried at some luminance — the locus law is scale-invariant
 const at = (x, y, Y = 50) => [x * Y / y, Y, (1 - x - y) * Y / y]
@@ -33,6 +33,11 @@ test('visible: the locus IS the CIE 1931 2° spectral curve', () => {
 	near(my[1], 0.8338, 5e-4, '~520 nm green extreme y')
 	near(P[0][0], 0.1741, 5e-4, '380 nm violet end x')
 	near(P[0][1], 0.0050, 5e-4, '380 nm violet end y')
+	// the object-colour solid lives INSIDE the locus: its convex 128-direction outer
+	// hull alone once admitted a slightly-imaginary neighbour (HCT 53,106,56 → Z<0
+	// read 'surface' while every slider voided it) – off-locus must refuse outright
+	is(inVisSolid(38.63, 23.91, -0.94), false, 'an off-locus XYZ is outside the solid, hull slack or not')
+	is(inVisSolid(41, 21, 2), true, 'a deep real red stays inside')
 })
 
 test('visible: real colours pass, imaginary chromaticities do not', () => {
