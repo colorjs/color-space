@@ -416,8 +416,7 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .cv{ width:4.6rem; font-size:var(--t2); color:var(--body); text-align:left; padding-right:1.2em }   /* reserves the chevron zone inside the box */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:2.4rem } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
 .ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its pairs, half-strength — full ink stays personal (hover/focus/.on below) */
-.ent .cvp:hover{ border-bottom-color:var(--ink) }   /* pointed — full ink */
-.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--cur,var(--ink)) }   /* focused or slider-driven — the CURRENT color underlines what it drives */
+.ent .cvp:hover,.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--cur,var(--ink)) }   /* pointed, focused or slider-driven — the CURRENT color underlines what it drives */
 .ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
 .cvs:hover .cvp:focus-within:not(:hover),.ent:has(.cvp.on) .cvp:focus-within:not(.on){ border-bottom-color:var(--hair) }   /* one ink at a time — the pointer (on an input or its slider) outranks the focused pair, which falls back to half-strength */
 .cvs:hover .cvp:focus-within:not(:hover) .cv,.ent:has(.cvp.on) .cvp:focus-within:not(.on) .cv{ color:var(--body) }
