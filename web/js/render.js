@@ -62,7 +62,7 @@ export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog
 // the card's quick dossier — slug + birth line (data-tip), then the tag row
 // (data-tip-tags, rendered by tip.js as chips — the same vocabulary the filter speaks)
 const entTip = s => { const m = meta[s], use = USE[PURPOSE[s]?.[0]]
-	return `${s} – ${[m.year, m.by].filter(Boolean).join(', ')}${use ? `\nfor ${use}` : ''}` }   // the purpose takes its own line — the tip renders pre-line
+	return `${s} – ${[m.year, m.by].filter(Boolean).join(', ')}${use ? `\n${use[0].toUpperCase() + use.slice(1)}` : ''}` }   // the purpose takes its own line, sentence-cased — the tip renders pre-line
 const entTags = s => { const m = meta[s]
 	return [m.method, m.encoding, m.referred && m.referred + '-referred', m.dynamic && m.dynamic.toUpperCase(), m.illuminant].filter(Boolean).join(' · ') }
 const ent = (s, lite, st) => { const cls = classify(s)
