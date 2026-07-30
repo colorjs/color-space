@@ -51,7 +51,7 @@ a:hover{ text-decoration-color:currentColor }
 /* The spectrum stays visually thin while its real hit area is forgiving: the hit
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
-.hueline{ height:5px; background:var(--ink) }   /* a quiet black rule under the header — held for future picked-colour history; the spectrum remains in the footer */
+.hueline{ height:5px; background:var(--ink) }   /* the rule under the header WEARS the current color (renderFast paints it live) – ink is only the pre-boot state */
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--soft) }
 .mast .gh:hover,.thm:hover,.mast .gh:focus-visible,.thm:focus-visible,.thm[aria-expanded="true"]{ color:var(--accent) }   /* every icon shares one idiom — rest soft, hover/active --accent (ink, theme-tracking); the orange --c never marks interaction */
 .thm{ border:0; background:none; padding:0; cursor:pointer }
@@ -807,13 +807,13 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 /* ── footer: the visible spectrum ends the page — the same light the masthead line
    opens it with. The smooth sweep rides on top; beneath it the same spectrum posterizes
    row by row (36 → 18 → 9 nested bands) — sampling, told once, standing still ── */
-.ftr{ margin-top:var(--s12); --fh:11rem; position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column }
-.fgrad{ position:absolute; inset:0; z-index:0; background:var(--color-terminal-paper) }   /* the npm plate's own black, wall to wall – the plate melts into it */
+.ftr{ margin-top:var(--s12); --fh:11rem; position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column; color:var(--color-terminal-ink) }   /* ink adapts with the painted wall – renderFast flips it by the current color's own luminance */
+.fgrad{ position:absolute; inset:0; z-index:0; background:var(--color-terminal-paper) }   /* pre-boot: the plate's black; renderFast paints the wall in the CURRENT color – the page closes on the color it carries */
 .fov{ position:relative; z-index:2; flex:1; display:flex; align-items:stretch }
 .fwrap{ position:relative; width:100%; padding:4rem clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
-.fsup{ display:block; margin:var(--s6) 0 0 ; font-weight:700; color:var(--color-terminal-ink) }   /* the support line rides directly under the npm plate, its own line, bold; the global half-ink underline */
+.fsup{ display:block; margin:var(--s6) 0 0 ; font-weight:700; color:inherit }   /* the support line rides directly under the npm plate, its own line, bold; the global half-ink underline */
 
-.legal{ position:absolute; left:0; right:0; bottom:var(--s6); display:flex; justify-content:center; align-items:baseline; gap:var(--s2); color:var(--color-terminal-ink); font-size:var(--t2); line-height:1.4; text-align:center; font-variant-numeric:tabular-nums }
+.legal{ position:absolute; left:0; right:0; bottom:var(--s6); display:flex; justify-content:center; align-items:baseline; gap:var(--s2); color:inherit; font-size:var(--t2); line-height:1.4; text-align:center; font-variant-numeric:tabular-nums }
 .legal a{ color:inherit } .legal .dot{ opacity:.56 }
 .legal .om{ font-size:var(--t3) }
 /* the npm command, a black plate where the logo used to sit */
@@ -1654,6 +1654,7 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 let vRow=null   // phones seat the view selects in the format dropdown – assigned by the header injection
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
+const hueEl=document.getElementById('hueline'), ftrEl=document.getElementById('ftr')
 // the palette-match chip: under a palette lens the masthead names the nearest entry –
 // the color's address IN the chosen palette – and a click snaps to it
 const palmEl=document.getElementById('palm')
@@ -4863,7 +4864,14 @@ function renderFast(solid=true){
 	// lattices quantize master itself on release, so raw already matches there.
 	const qf2=qTriple(Q), frgb=qf2?byteRGB(qf2(rgb)):rgb, fx=qf2?hex(frgb):hx
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=fx.toLowerCase()
-	if(cdwEl&&cdwEl._hx!==fx){ cdwEl._hx=fx; cdwEl.style.setProperty('--sw',fx); cdwEl.style.setProperty('--swk',ink(frgb)) }   // the slot's swatch + its tick-pair ring track the current color
+	if(cdwEl&&cdwEl._hx!==fx){ cdwEl._hx=fx; cdwEl.style.setProperty('--sw',fx); cdwEl.style.setProperty('--swk',ink(frgb))
+		// the header rule and the footer wall WEAR the color – the page opens and closes
+		// on the signal it carries. The footer's ink is TEXT, so it flips by true WCAG
+		// relative luminance to pure black/white: a midtone wall (#808080) gives neither
+		// theme ink the 4.5:1 the axe gate demands – only the extremes clear it everywhere
+		if(hueEl) hueEl.style.background=fx
+		if(ftrEl){ const wl=frgb.reduce((t,c,i)=>{ const u=c/255; return t+[0.2126,0.7152,0.0722][i]*(u<=0.03928?u/12.92:((u+0.055)/1.055)**2.4) },0)
+			ftrEl.firstElementChild.style.background=fx; ftrEl.style.color=wl>=0.18?'#000':'#fff' } }   // the slot's swatch + its tick-pair ring track the current color
 	// the untouched boot color stays an invitation (placeholder), not an asserted value —
 	// reference AND values: the default space's own sliders mutate master in place
 	const mj=master.vals.join()
