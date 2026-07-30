@@ -29,8 +29,8 @@
 Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/topics set, FUNDING wired). What remains is posting and repeating:
 
 1. [x] **This week — Show HN** (the "v3 just shipped" hook decays). Draft below; stay in the thread all day.
-2. [x] **Days 2–4** — lobste.rs (`javascript, web`), r/javascript (OKLCH angle), r/webdev (atlas-led). One venue per day.
-2b. [x] **Day 5–7 — Product Hunt**: launch the *atlas* as a free tool (not "a JS library") — tagline + maker comment below; launches at 12:01 AM PT, own the day, don't overlap HN.
+2. [~] **Web reddit** — r/javascript posted 07-27: reddit.com/r/javascript/comments/1v3fgbz — **31↑ · 17K views · few comments** (healthy for a niche library; the author comment carried it). Keep answering; the "papers have bugs — coloroid, OSA-UCS, even oklab" reply is the best social-currency line so far — reuse it. **r/webdev not yet posted — their promo window is Showoff Saturday only → post Sat Aug 1**, atlas-framed, histogram demo lead; doubles as warm-up for PH the next day. Don't lazy-repost the JS post to r/colorists via reddit's nudge — the film track has its own tailored posts (r/colorists joins the ladder after LGG; it skews pro).
+2b. [~] **Product Hunt — scheduled Aug 2** (Sunday: lowest traffic, lowest competition — decent top-of-day odds for a free tool; Tue–Thu would maximize raw eyeballs). The *atlas* as a free tool — tagline + maker comment below; 12:01 AM PT.
 2c. [x] **Passive listings — the posting checklist** (once, evergreen · audited 2026-07-21). Text to reuse everywhere: name `color-space` · one-liner *"An interactive atlas of 162 color spaces — live conversion, image histograms in any space, LUT/ICC export. Open source, CC0."* · URL `https://color-space.io` · repo `github.com/colorjs/color-space`:
 
     - [x] awesome-javascript — PR open: github.com/sorrycc/awesome-javascript/pull/1123
@@ -122,10 +122,10 @@ Pre-post: rerun `npm test` same day · verify downloads in Safari/Firefox · hav
 ### [ ] Reddit ladder (titles; body = the LGG skeleton compressed, conversion-not-look always, authorship disclosed, one per week)
 
 - [x] **r/javascript**: `color-space v3 — 162 color spaces, one small API, values that match CSS, verified` (code sample + kernel-not-toolkit + atlas link)
-- **r/webdev**: `An atlas of 162 color spaces — live conversion, ranges, provenance, LUT/ICC export`
-- **r/davinciresolve**: `Free conversion LUTs for every camera log, tested against the official ACES transforms`
-- **r/SonyAlpha**: `Free S-Log3 conversion LUTs — S-Gamut3 and S-Gamut3.Cine, any target, verified`
-- **iPhone filmmaking**: `Free Apple Log → Rec.709/P3 conversion LUTs, generated in-browser`
-- **r/dji**: `Free D-Log conversion LUTs, any target — in-browser, verified`
-- **r/videography**: `An atlas of every camera log — what each is, with instant conversion LUTs`
-- **ACEScentral** (tools category): the CSC differential harness + deltas + request for review of the CAT notes.
+- [ ] **r/webdev**: `An atlas of 162 color spaces — live conversion, ranges, provenance, LUT/ICC export`
+- [ ] **r/davinciresolve**: `Free conversion LUTs for every camera log, tested against the official ACES transforms`
+- [ ] **r/SonyAlpha**: `Free S-Log3 conversion LUTs — S-Gamut3 and S-Gamut3.Cine, any target, verified`
+- [ ] **iPhone filmmaking**: `Free Apple Log → Rec.709/P3 conversion LUTs, generated in-browser`
+- [ ] **r/dji**: `Free D-Log conversion LUTs, any target — in-browser, verified`
+- [ ] **r/videography**: `An atlas of every camera log — what each is, with instant conversion LUTs`
+- [ ] **ACEScentral** (tools category): the CSC differential harness + deltas + request for review of the CAT notes.
