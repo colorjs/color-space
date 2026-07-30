@@ -51,7 +51,8 @@ a:hover{ text-decoration-color:currentColor }
 /* The spectrum stays visually thin while its real hit area is forgiving: the hit
    zone below the gradient hangs OUT of the sticky header, so the header's paper
    finishes exactly at the color line */
-.hueline{ height:5px; background:var(--ink) }   /* the rule under the header WEARS the current color (renderFast paints it live) – ink is only the pre-boot state */
+html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the current color too */
+.hueline{ height:.25em; background:var(--cur,var(--ink)) }   /* the rule under the header WEARS the current color – ink is only the pre-boot state */
 .mast .gh,.thm{ position:relative; flex:none; width:36px; height:36px; display:grid; place-items:center; align-self:center; color:var(--soft) }
 .mast .gh:hover,.thm:hover,.mast .gh:focus-visible,.thm:focus-visible,.thm[aria-expanded="true"]{ color:var(--accent) }   /* every icon shares one idiom — rest soft, hover/active --accent (ink, theme-tracking); the orange --c never marks interaction */
 .thm{ border:0; background:none; padding:0; cursor:pointer }
@@ -305,7 +306,7 @@ body.himg #upfl{ display:none }
 .gtabs{ position:sticky; bottom:0; z-index:3; margin-top:auto; background:var(--paper); padding:0 0 12px; display:flex; gap:var(--s4) }   /* full column width, paper to the very screen edge while parked; the white begins exactly at the tabs' top — the breathing room lives INSIDE as bottom padding */
 .gtabs .gtag{ font:inherit; font-size:var(--text-md); font-weight:700; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
 .gtabs .gtag:hover{ color:var(--ink) }
-.gtabs .gtag.on{ color:var(--ink); border-top-color:var(--accent) }
+.gtabs .gtag.on{ color:var(--ink); border-top-color:var(--cur,var(--accent)) }
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
    right of the FIRST section heading */
 .gsel{ display:none; margin-left:auto; align-self:center; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* centred in the heading row — a select has no shared baseline to sit on */
@@ -415,7 +416,8 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .cv{ width:4.6rem; font-size:var(--t2); color:var(--body); text-align:left; padding-right:1.2em }   /* reserves the chevron zone inside the box */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:2.4rem } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
 .ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its pairs, half-strength — full ink stays personal (hover/focus/.on below) */
-.ent .cvp:hover,.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--ink) }   /* pointed, focused, slider-driven, or spinner-hovered — full ink */
+.ent .cvp:hover{ border-bottom-color:var(--ink) }   /* pointed — full ink */
+.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--cur,var(--ink)) }   /* focused or slider-driven — the CURRENT color underlines what it drives */
 .ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
 .cvs:hover .cvp:focus-within:not(:hover),.ent:has(.cvp.on) .cvp:focus-within:not(.on){ border-bottom-color:var(--hair) }   /* one ink at a time — the pointer (on an input or its slider) outranks the focused pair, which falls back to half-strength */
 .cvs:hover .cvp:focus-within:not(:hover) .cv,.ent:has(.cvp.on) .cvp:focus-within:not(.on) .cv{ color:var(--body) }
@@ -675,7 +677,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .seg{ display:flex; gap:var(--s3) }
 .seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:var(--ulw) solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
 .seg button:hover{ color:var(--ink) }
-.seg button.on{ color:var(--ink); border-bottom-color:var(--accent) }   /* the active option carries the accent, like the API tabs */
+.seg button.on{ color:var(--ink); border-bottom-color:var(--cur,var(--accent)) }   /* the active option carries the CURRENT color, like the API tabs */
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
@@ -782,7 +784,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow .fl svg{ display:block; width:14px; height:14px }
 .tabrow button:hover .fl,.tabrow button.on .fl{ opacity:1; filter:none }
 .tabrow button:hover{ color:var(--ink) }
-.tabrow button.on{ color:var(--ink); border-bottom-color:var(--accent) }
+.tabrow button.on{ color:var(--ink); border-bottom-color:var(--cur,var(--accent)) }
 /* the dossier's code tabs read as section-title kickers — same type treatment as the
    #image / #compare / #code headings they sit among */
 #cseg button{ text-transform:none }   /* labels read as written (abbreviations caps, words lower) — same as the main-page API tabs; overrides the .sec2 heading's uppercase */
@@ -808,7 +810,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
    opens it with. The smooth sweep rides on top; beneath it the same spectrum posterizes
    row by row (36 → 18 → 9 nested bands) — sampling, told once, standing still ── */
 .ftr{ margin-top:var(--s12); --fh:11rem; position:relative; min-height:var(--fh); overflow:hidden; display:flex; flex-direction:column; color:var(--color-terminal-ink) }   /* ink adapts with the painted wall – renderFast flips it by the current color's own luminance */
-.fgrad{ position:absolute; inset:0; z-index:0; background:var(--color-terminal-paper) }   /* pre-boot: the plate's black; renderFast paints the wall in the CURRENT color – the page closes on the color it carries */
+.fgrad{ position:absolute; inset:0; z-index:0; background:var(--cur,var(--color-terminal-paper)) }   /* pre-boot: the plate's black; renderFast paints the wall in the CURRENT color – the page closes on the color it carries */
 .fov{ position:relative; z-index:2; flex:1; display:flex; align-items:stretch }
 .fwrap{ position:relative; width:100%; padding:4rem clamp(1rem,3vw,2.2rem); display:flex; flex-direction:column; align-items:center; justify-content:center }   /* plate dead-centre in the band */
 .fsup{ display:block; margin:var(--s6) 0 0 ; font-weight:700; color:inherit }   /* the support line rides directly under the npm plate, its own line, bold; the global half-ink underline */
@@ -1640,8 +1642,10 @@ const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
 let autoColor=false, autoStart=0, autoLast=0, autoJ=''
 const autoStep=t=>{ if(!autoColor) return
 	if(!PDOWN&&t-autoLast>=AUTO_FRAME){ autoLast=t
-		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360
-		master={ s:'oklch', vals:[AUTO_L,.16*w,h] }; autoJ=master.vals.join(); scheduleFast(true) }
+		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
+		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
+		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
+		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true) }
 	requestAnimationFrame(autoStep) }
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='Copied')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
@@ -1654,7 +1658,7 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // the masthead value input: live like the channel inputs — a valid CSS color applies as you type
 let vRow=null   // phones seat the view selects in the format dropdown – assigned by the header injection
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
-const hueEl=document.getElementById('hueline'), ftrEl=document.getElementById('ftr')
+const ftrEl=document.getElementById('ftr')
 // the palette-match chip: under a palette lens the masthead names the nearest entry –
 // the color's address IN the chosen palette – and a click snaps to it
 const palmEl=document.getElementById('palm')
@@ -4865,13 +4869,14 @@ function renderFast(solid=true){
 	const qf2=qTriple(Q), frgb=qf2?byteRGB(qf2(rgb)):rgb, fx=qf2?hex(frgb):hx
 	if(cdEl&&document.activeElement!==cdEl) cdEl.value=fx.toLowerCase()
 	if(cdwEl&&cdwEl._hx!==fx){ cdwEl._hx=fx; cdwEl.style.setProperty('--sw',fx); cdwEl.style.setProperty('--swk',ink(frgb))
-		// the header rule and the footer wall WEAR the color – the page opens and closes
-		// on the signal it carries. The footer's ink is TEXT, so it flips by true WCAG
-		// relative luminance to pure black/white: a midtone wall (#808080) gives neither
-		// theme ink the 4.5:1 the axe gate demands – only the extremes clear it everywhere
-		if(hueEl) hueEl.style.background=fx
+		// ONE variable carries the current color: --cur on the root feeds the header rule,
+		// the footer wall, the active tab underlines, the focused-input underlines and the
+		// native accent-color – dependency-tracked, so only its few consumers recalc.
+		// JS keeps only the footer's ink flip: true WCAG relative luminance to pure
+		// black/white (a midtone wall gives neither theme ink the 4.5:1 the axe demands)
+		document.documentElement.style.setProperty('--cur',fx)
 		if(ftrEl){ const wl=frgb.reduce((t,c,i)=>{ const u=c/255; return t+[0.2126,0.7152,0.0722][i]*(u<=0.03928?u/12.92:((u+0.055)/1.055)**2.4) },0)
-			ftrEl.firstElementChild.style.background=fx; ftrEl.style.color=wl>=0.18?'#000':'#fff' } }   // the slot's swatch + its tick-pair ring track the current color
+			ftrEl.style.color=wl>=0.18?'#000':'#fff' } }   // the slot's swatch + its tick-pair ring track the current color
 	// the untouched boot color stays an invitation (placeholder), not an asserted value —
 	// reference AND values: the default space's own sliders mutate master in place
 	const mj=master.vals.join()
