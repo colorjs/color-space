@@ -48,7 +48,7 @@ export default {
 	'din99o-lab': ['difference'], 'din99o-lch': ['difference'], din99d: ['difference'],
 	labh: ['difference'], anlab: ['difference'], ucs: ['measurement'], uvw: ['measurement'],
 	// ── HDR & wide gamut ──
-	ictcp: ['grading', 'difference'], jzazbz: ['difference'], jzczhz: ['palettes'],
+	ictcp: ['grading', 'difference'], jzazbz: ['difference'], jzczhz: ['editing'],
 	'rec2100-pq': ['delivery'], 'rec2100-hlg': ['delivery'], 'rec2100-linear': ['compositing', 'grading'],
 	ipt: ['research'], izazbz: ['research'], 'hdr-ipt': ['research'], 'hdr-cie-lab': ['research'], icacb: ['research'],
 	// ── colorimetry & vision ──
