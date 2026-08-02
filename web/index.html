@@ -1599,6 +1599,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 <script type="module">
 import { space, meta, clamp, classify, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
 import LORE from './js/lore.js'
+import { primariesOf, trcOf } from './js/profile.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
@@ -3909,6 +3910,9 @@ function paint3dMarker(){ if(!mesh3||!open()||!pts3Map) return
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	spinV3=SPIN3; snap3=null   // a fresh dossier idles in the ambient turn; a parked view survives gamut switches
 	const path=pathToRgb(s)
+	const prof=primariesOf(s), trcv=trcOf(s), f4=v=>(+v).toFixed(4)
+	// related: direct conversion-graph edges beyond the lineage path; the hubs (rgb, xyz) relate to everything – no row
+	const rel=(m.neighbors||[]).filter(n=>n!==s&&meta[n]&&!(path||[]).includes(n)), relRow=rel.length&&rel.length<=14
 	const L=LORE[s]||{}, RCH=REACH[s]
 	const RCHTIP='share of the visible gamut this space can encode – Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick'
 	const reachTxt=RCH?`${Math.round(RCH[0]*100)}% of visible colors`:''
@@ -3985,7 +3989,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated – click to copy"></p></div>`:''}
 				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
 				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${prof?`<div><i title="the gamut's corner chromaticities as xy – computed from the shipped conversion, not stored${prof.adapted?`; the conversions land in the D65 hub, so these are Bradford-adapted from the native ${prof.ill} white – the ICC convention for colorants`:''}">primaries</i><p class="tnum">R ${prof.r.map(f4).join(' ')} · G ${prof.g.map(f4).join(' ')} · B ${prof.b.map(f4).join(' ')}${prof.adapted?' <span class="term" style="font-variant-numeric:normal">· D65-adapted</span>':''}</p></div>`:''}
+				${prof?`<div><i title="${prof.wSrc==='cie'?`reference white tristimulus – CIE 15 tabulated value for ${prof.ill}, 2° observer`:'media white tristimulus at Y = 1 – computed from the shipped conversion'}">white point</i><p class="tnum">${prof.ill?prof.ill+' · ':''}XYZ ${prof.w.map(f4).join(' ')}</p></div>`:''}
+				${trcv?`<div><i title="transfer-curve constants from the defining specification, cross-checked against the shipped conversion on the neutral axis">transfer</i><p>${trcv.name}<span class="tnum"> · ${trcv.par.map(([k,v])=>`${k} ${v}`).join(' · ')}</span></p></div>`:''}
 				${path&&path.length>1?`<div><i title="the conversion route down to rgb – each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
+				${relRow?`<div><i title="directly convertible neighbors in the conversion graph, beyond the lineage">related</i><p class="fam">${rel.map(n=>`<a href="#${n}" title="${n}">${disp(n)}</a>`).join(', ')}</p></div>`:''}
 				${m.loss?`<div><i>loss</i><p>${m.lossNote?`<span class="term" title="${m.lossNote}">${m.loss}</span>`:m.loss}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
@@ -3995,6 +4003,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
 				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation – spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
+				${iccK?`<div><i title="the ICC profile class this space exports as">icc</i><p>${{mntr:'mntr · matrix + TRC display',spac:'spac · CLUT, both directions',scnr:'scnr · CLUT, device → PCS'}[iccK]||iccK}</p></div>`:''}
 				${LUTOK.has(s)||iccK?`<div class="export dex" id="dex"></div>`:''}
 			</div>
 	 </div></div>
