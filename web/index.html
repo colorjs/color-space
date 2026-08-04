@@ -5045,12 +5045,10 @@ function renderFast(solid=true){
 			try{ xyzv=s==='xyz'?pure:space[s].xyz(...pure) }catch{}
 			const V=t=>`\x03${t}\x04`
 			snip.innerHTML=hilite(
-				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${V(fmt(s,pure))};\n`
-					:`/* CSS cannot name ${s} directly — the same color, in forms it can: */\n`)+
-				(xyzv&&s!=='xyz'?`color: ${V(fmt('xyz',xyzv))};   /* exact */\n`:'')+
-				(okv&&s!=='oklch'?`color: ${V(fmt('oklch',okv))};   /* perceptual form, wide-gamut safe */\n`:'')+
-				`color: ${V(hx)};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`+
-				(CSSABLE.has(s)?'':`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${pure.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
+				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${V(fmt(s,pure))};\n`+
+					`color: ${V(hx)};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`
+					:`/* CSS cannot name ${s} directly */\n`+
+					`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${pure.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
 				.replace(/\x03/g,'<span class="cval" title="click selects the value">').replace(/\x04/g,'</span>')
 				.replace(/\x05/g,'<span class="icclnk" role="link" tabindex="0" title="download the ICC profile">').replace(/\x06/g,'</span>')
 			snip.onclick=e=>{ const v=e.target.closest('.cval')
@@ -5059,9 +5057,16 @@ function renderFast(solid=true){
 				if(e.target.closest('.icclnk')){
 					const di=detail.querySelector('#didl'); di?di.click():toast('No ICC for this space') } } }
 		else if(codeTab==='meta'){
-			// the space's own data.json entry – provenance, ranges, refs, as shipped
+			// the space's own data.json entry – provenance, ranges, refs. COMPACT: leaf
+			// objects and primitive arrays stay on one line, and the value rides as line
+			// comments under the access expression – it is a READING, not an assignment
+			const cfmt=(v,ind='')=>{ if(Array.isArray(v)) return v.every(x=>typeof x!=='object'||x===null)?JSON.stringify(v):'[\n'+v.map(x=>ind+'  '+cfmt(x,ind+'  ')).join(',\n')+'\n'+ind+']'
+				if(v&&typeof v==='object'){ const es=Object.entries(v)
+					return es.every(([,x])=>typeof x!=='object'||x===null)?'{ '+es.map(([k,x])=>`${k}: ${JSON.stringify(x)}`).join(', ')+' }'
+						:'{\n'+es.map(([k,x])=>ind+'  '+k+': '+cfmt(x,ind+'  ')).join(',\n')+'\n'+ind+'}' }
+				return JSON.stringify(v) }
 			snip.innerHTML=hilite(`import data from 'color-space/data.json' with { type: 'json' }\n\n`+
-				`data.spaces${prop(s)} = `+JSON.stringify(meta[s]||{},null,2)) }
+				`data.spaces${prop(s)}\n`+cfmt(meta[s]||{}).split('\n').map(l=>'// '+l).join('\n')) }
 		else if(codeTab==='wasm'){
 			const tup=pure.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 			const cp=s==='rgb'?'.oklch':'.rgb', bk=s==='rgb'?'.rgb.oklch':`.rgb${prop(s)}`   // rgb pairs with oklch – never itself
@@ -5090,10 +5095,15 @@ function renderFast(solid=true){
 		else{ const path=pathToRgb(s), tup=pure.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')
 		const ri=rgb.map(Math.round)
 		const back=toSpace(s,ri), inv=`space.rgb${prop(s)}(${ri.join(', ')})  // → [${back.map((x,j)=>fmtn(x,cls.ch[j])).join(', ')}]\n`
-		snip.innerHTML=hilite(`import space from 'color-space'\n\n`+
+		// the standalone file carries the space's own DECLARED edge (its first hop to rgb);
+		// the wired hub gives any-to-any and the reverse
+		const nb=path&&path[1], nbv=(()=>{ if(!nb) return null; try{ return space[s][nb](...pure) }catch{ return null } })()
+		const one=nb&&nbv?`// one space, tree-shaken (0.4-1.5 kB) — its own edge:\nimport ${camel(s)} from 'color-space/${s}.js'\n\n`+
+			`${camel(s)}${prop(nb)}(${tup})  // → [${nbv.map(x=>+x.toFixed(4)).join(', ')}]\n\n`:''
+		snip.innerHTML=hilite(one+
+			`// any-to-any, both ways — the wired hub:\nimport space from 'color-space'\n\n`+
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
-			(path&&path.length>2?`// route: ${path.join(' → ')}\n`:'')+
-			`\n// one space, tree-shaken (0.4-1.5 kB):\nimport ${camel(s)} from 'color-space/${s}.js'`) } }
+			(path&&path.length>2?`// route: ${path.join(' → ')}`:'')) } }
 	// A held plane keeps its own field fixed and alternates its two neighbouring slices;
 	// image picking changes every held coordinate, so all three slices follow live.
 	if(PDOWN&&(plFreeze||pkDrag!==null)) paintPlanes(true,true)
