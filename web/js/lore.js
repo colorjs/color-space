@@ -28,7 +28,7 @@ export default {
 	'smpte-240m': { for: 'interim HDTV before Rec.709 settled', sin: 'remembered mostly because misreading its numbers created Adobe RGB' },
 
 	// ── cylindrical ──
-	hsl: { for: 'hue controls cheap enough for 1970s framebuffers', sin: 'L=50 is not one brightness: yellow at L=50 emits ~4× the luminance of blue', nm: 'lightness – the double-cone: L=100 is always white' },
+	hsl: { for: 'hue controls cheap enough for 1970s framebuffers', sin: 'L=50 is not one brightness: yellow at L=50 emits ~13× the luminance of blue', nm: 'lightness – the double-cone: L=100 is always white' },
 	hsv: { for: 'painter-style “tints and shades” for early paint programs', sin: 'V is just max(R,G,B): full-value blue and yellow claim equal brightness and are nowhere near', nm: 'aka HSB; V=100 is the pure hue, not white' },
 	hwb: { for: 'mixing the way painters think – a hue plus white plus black', sin: 'W+B>100 all collapse to the same gray: a whole wedge of coordinates means nothing', nm: 'hue · whiteness · blackness, now native in CSS' },
 	hsi: { for: 'machine-vision variant where I is the plain mean of R,G,B', sin: 'hue is numerically unstable near gray – sensor noise sends it spinning' },
