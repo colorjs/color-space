@@ -120,12 +120,12 @@ Deviation is the max channel error relative to the point's dominant official com
 | color-space | Official transform (ampas/aces-dev v1.3) | CAT in CTL | Max deviation |
 |---|---|---|---:|
 | `slog3` | [ACEScsc.Academy.SLog3_SGamut3_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/sony/ACEScsc.Academy.SLog3_SGamut3_to_ACES.ctl) | CAT02 | 4.1e-3 |
-| `sgamut3cine` | [ACEScsc.Academy.SLog3_SGamut3Cine_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/sony/ACEScsc.Academy.SLog3_SGamut3Cine_to_ACES.ctl) | CAT02 | 4.2e-3 |
+| `sgamut3cine` | [ACEScsc.Academy.SLog3_SGamut3Cine_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/sony/ACEScsc.Academy.SLog3_SGamut3Cine_to_ACES.ctl) | CAT02 | 4.4e-3 |
 | `logc3` | [ACEScsc.Academy.LogC_EI800_AWG_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/arri/ACEScsc.Academy.LogC_EI800_AWG_to_ACES.ctl) | CAT02 | 4.3e-3 |
-| `clog2` | [ACEScsc.Academy.CLog2_CGamut_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/canon/ACEScsc.Academy.CLog2_CGamut_to_ACES.ctl) | CAT02 | 4.9e-3 |
+| `clog2` | [ACEScsc.Academy.CLog2_CGamut_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/canon/ACEScsc.Academy.CLog2_CGamut_to_ACES.ctl) | CAT02 | 4.8e-3 |
 | `clog3` | [ACEScsc.Academy.CLog3_CGamut_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/canon/ACEScsc.Academy.CLog3_CGamut_to_ACES.ctl) | CAT02 | 4.9e-3 |
-| `vlog` | [ACEScsc.Academy.VLog_VGamut_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/panasonic/ACEScsc.Academy.VLog_VGamut_to_ACES.ctl) | Bradford | 3.0e-4 |
-| `log3g10` | [ACEScsc.Academy.Log3G10_RWG_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/red/ACEScsc.Academy.Log3G10_RWG_to_ACES.ctl) | Bradford | 3.0e-4 |
+| `vlog` | [ACEScsc.Academy.VLog_VGamut_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/panasonic/ACEScsc.Academy.VLog_VGamut_to_ACES.ctl) | Bradford | 1.0e-10 |
+| `log3g10` | [ACEScsc.Academy.Log3G10_RWG_to_ACES](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/csc/red/ACEScsc.Academy.Log3G10_RWG_to_ACES.ctl) | Bradford | 1.0e-10 |
 
 The two Sony matrices are additionally pinned to the digits Sony itself typed into
 [IDT.Sony.SLog3_SGamut3.ctl](https://github.com/ampas/aces-dev/blob/v1.3/transforms/ctl/idt/vendorSupplied/sony/IDT.Sony.SLog3_SGamut3.ctl) /
@@ -135,16 +135,20 @@ the Academy's matrix recipe (primaries + CAT02) reproduces Sony's published matr
 
 ### Why not zero
 
-The residuals are two documented conventions, not formula error:
+The residuals are documented conventions, not formula error:
 
 - **Chromatic adaptation transform.** The Sony/ARRI/Canon CTLs adapt the camera's D65
   white to the ACES white with **CAT02**; color-space routes through its XYZ D65 hub and
-  adapts with **Bradford**, matching colorjs.io and the CSS Color 4 convention (the
-  Panasonic and RED CTLs also default to Bradford — and agree to 3e-4). Swapping
-  Bradford into a CAT02 recipe collapses its residual to the same 3e-4. The remaining
-  difference peaks at ~0.5% of a point's dominant component at gamut extremes.
-- **D65 white digits.** The ~3e-4 floor is the CSS-convention D65 white point versus the
-  CTL library's chromaticity-derived white — a digit convention, sub-perceptual.
+  adapts with **Bradford**, matching colorjs.io and the CSS Color 4 convention, derived
+  from the two white points (D65 x 0.3127, y 0.3290 → ACES x 0.32168, y 0.33767) the way
+  the CTL library's `calculate_cat_matrix` does. The Panasonic and RED CTLs default to
+  Bradford and agree to 1.0e-10. Swapping Bradford into a CAT02 recipe collapses its
+  residual to the vendor-curve floor: 1.5e-10 (S-Log3, S-Gamut3.Cine), 1.0e-10 (C-Log3),
+  5.3e-9 (C-Log2), 7.1e-6 (LogC3 — the 6-decimal EI 800 curve constants in
+  `spaces/logc3.js` versus the CTL's 10-decimal ones). The CAT02-vs-Bradford difference itself peaks at ~0.5% of
+  a point's dominant component at gamut extremes.
+- **AP1→AP0 digits.** The 1.0e-10 floor is the 10-decimal AP1→AP0 matrix color-space
+  carries (≤ 4.8e-11 per element from the exact primaries-derived one).
 - **Canon reflection factor.** Canon's Log v1.2 paper, Canon's vendor IDTs, and
   colour-science define scene reflectance as IRE-linear × 0.9; the Academy *container*
   CSC omits that factor. color-space follows Canon's reflectance convention; the test
@@ -163,3 +167,93 @@ LUTs to move between encodings — normalization, monitoring, pipeline QC, batch
 Each generated `.cube` also states its own accuracy: the header carries the measured
 deviation of the interpolated lattice against the direct conversion at random
 off-lattice points ([details](../lut.js)).
+
+## Python equivalents
+
+The site's Python tab ([web/js/python.js](../web/js/python.js)) shows colour-science and
+OpenCV code that reproduces color-space's numbers. A snippet ships only after it has been
+run and compared against color-space itself; a space with no equivalent gets no snippet.
+
+### Method
+
+[scripts/verify-python.py](../scripts/verify-python.py) has node import `index.js` and
+`web/js/python.js`, so it checks the snippets exactly as the page shows them. Each one runs
+after its preamble with only the sample swapped in (`rgb`, `v`, or the `cv2.imread()` image).
+
+- **Samples:** 14 sRGB colors (primaries, secondaries, gray, white, mid-tones, near-black).
+  OpenCV routes add black, the sRGB linear toe and 24 seeded random colors (43 in all).
+- **Error:** max |Python − color-space| ÷ the channel's range from `data.json`. Hue channels
+  are compared on the circle and skipped on grays. Inverse snippets (space → sRGB) are
+  scored in sRGB code values ÷ 255.
+- **Pass:** ≤ 1e-3 of range. An entry over that must carry a one-line caveat in the module.
+  A caveat on an entry that now passes is reported as stale. Either one exits 1.
+- It is not part of `npm test`, because it needs Python:
+
+  ```sh
+  python3 -m venv .venv && .venv/bin/pip install colour-science==0.4.7 numpy scipy opencv-python-headless
+  .venv/bin/python scripts/verify-python.py
+  ```
+
+The harness is a condensed version of the 2026-10-02 research harnesses. Those also swept
+the OpenCV routes over all 16,777,216 8-bit colors against a numpy port of the library.
+lch-d65 and lchuv were swept through their Lab and Luv input; their polar step is plain numpy.
+
+### Measured (2026-10-02)
+
+Versions: colour-science 0.4.7, OpenCV 5.0.0 (opencv-python-headless 5.0.0.93), numpy 2.4.6,
+color-space 3.1.0.
+
+| | snippets | pass | caveat |
+|---|---|---|---|
+| colour-science, rgb → space | 130 | 127 | 3: cct-duv, wavelength, munsell |
+| colour-science, space → sRGB | 35 | 32 | 3: oklab, oklch (≤ 0.94 code value), prophoto (≤ 0.49) |
+| OpenCV `cvtColor`, rgb → space | 10 | 10 | — |
+
+- **No equivalent in colour-science 0.4.7 (32 spaces):** checked against the installed
+  package source, so these spaces get no snippet. yuv still gets an OpenCV route.
+- **85 of the 127 passing rgb → space snippets agree to better than 1e-10.** 18 sit between
+  1e-5 and 8.3e-4. Several of those trace to colour's own data: it ships the rounded
+  published ProPhoto/RIMM and DJI D-Gamut matrices, Ottosson's original XYZ→LMS matrix for
+  Oklab, a `+ 0.02` in Fairchild's hdr-CIELab/hdr-IPT lightness, and rounded DIN99o
+  constants (303.67 and 23.0).
+- **Caveats:**
+  - **cct-duv:** matches to 7.9e-9 inside the defined CCT domain (1000–25000 K, |Duv| ≤ 0.05).
+    Outside it, color-space clamps T and colour's Krystek solver diverges.
+  - **wavelength:** matches to 7.1e-4 except on purples. There colour returns −(complementary
+    wavelength), while color-space snaps to 380 or 700 nm.
+  - **munsell:** value matches. Hue and chroma interpolate the renotation data differently,
+    and colour raises on 4 of the 14 samples.
+- **acescg:** the research run found color-space's D65 → ACES matrix 3e-4 off the ACES white
+  (white came out as B = 1.0003). That made the acescg and acescct inverses and the acesproxy
+  forward snippet convention-diffs. `spaces/acescg.js` now derives Bradford D65 → ACES white
+  (x 0.32168, y 0.33767), and all three agree exactly: 3e-13, or the same 10-bit code. The
+  harness flagged the stale caveats, and they were removed.
+
+### What the snippets encode
+
+colour-science conventions:
+
+- The preamble decodes sRGB and converts through `'ITU-R BT.709'`, whose matrix colour
+  derives from the primaries, as CSS Color 4 and color-space do. colour's `'sRGB'`
+  colourspace carries the rounded 4-decimal IEC matrix, which costs about 1e-4.
+- Bradford is passed explicitly, because colour defaults to CAT02.
+- `colour.convert` is never used: it needs networkx and returns the 0–1 reference scale.
+- DIN99d applies Cui et al.'s X′ = 1.12X − 0.12Z step, which colour's `DIN99d` method leaves out.
+- HCT is composed from CAM16 under Material's viewing conditions plus CIE L*, because colour
+  has no HCT.
+- Munsell scales Y by 0.975, because color-space's value uses the 1943 Newhall (MgO = 100)
+  polynomial.
+- kelvin, cct-duv, wavelength, dsh and munsell also need scipy; the requirement line adds it.
+
+OpenCV (`cvtColor`) rules:
+
+- `cv2.imread` returns BGR, so the preamble flips it to RGB.
+- Inputs are float32 in 0–1. float64 is rejected, and 0–255 floats silently clip in Lab.
+- cv2 Lab and Luv are D65, so they map to `lab-d65` and `luv` only; `lab` (D50) has no
+  cv2 route.
+- The float sRGB `RGB2Lab` path interpolates a 33³ table and is off by up to 0.0019 of
+  range, so the snippet linearizes first and uses `LRGB2Lab`.
+- `RGB2GRAY` is BT.601 luma, not color-space's `gray` (luminance); `gray` uses the Y row
+  of `RGB2XYZ` on linear input.
+- uint8 YUV clips V for saturated colors, so only the float route is offered.
+- Oklab exists only on OpenCV's unreleased 5.x branch, not in 5.0.0, so it gets no snippet.

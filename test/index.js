@@ -1462,6 +1462,18 @@ test('a98rgb', () => {
 test('acescg', () => {
 	// ACEScg: 0-1 (linear), XYZ 0-100
 	is(space.acescg.xyz(1, 1, 1).map(round(1)), [95.0, 100.0, 108.9], 'acescg white to xyz');
+	// White anchors: AP0 and AP1 share the ACES white (x 0.32168, y 0.33767 — SMPTE ST 2065-1,
+	// ampas/aces-dev ACESlib.Utilities_Color.ctl), and Bradford maps the D65 white onto it, so
+	// D65 white is [1, 1, 1] in both. Regression: a typed adaptation matrix gave B = 1.0003.
+	const near = (got, exp, tol) => got.every((v, i) => Math.abs(v - exp[i]) < tol);
+	is(near(space.rgb.acescg(255, 255, 255), [1, 1, 1], 1e-9), true, 'sRGB white → ACEScg [1,1,1] within 1e-9');
+	is(near(space.xyz.acescg(...space.rgb.xyz(255, 255, 255)), [1, 1, 1], 1e-9), true, 'D65 XYZ white → ACEScg [1,1,1]');
+	is(near(space.xyz['aces2065-1'](...space.rgb.xyz(255, 255, 255)), [1, 1, 1], 1e-9), true, 'D65 XYZ white → ACES2065-1 [1,1,1]');
+	is(near(space.acescg.xyz(1, 1, 1), space.rgb.xyz(255, 255, 255), 1e-9), true, 'ACEScg [1,1,1] → D65 XYZ white');
+	// colour-science 0.4.7: RGB_to_RGB(cctf_decoding(rgb,'sRGB'), 'ITU-R BT.709', 'ACEScg',
+	// chromatic_adaptation_transform='Bradford')
+	is(near(space.rgb.acescg(255, 0, 0), [0.6130974024011874, 0.07019372246958167, 0.02061559288222692], 1e-9), true, 'sRGB red → ACEScg (colour-science, Bradford)');
+	is(near(space.rgb.acescg(0, 0, 255), [0.0473794514147067, 0.01345239847307408, 0.8698146341796373], 1e-9), true, 'sRGB blue → ACEScg (colour-science, Bradford)');
 });
 
 // gray = CIE relative luminance Y (linearized Rec.709), so it equals XYZ Y / 100.
@@ -1738,3 +1750,137 @@ test('README space count matches the registry', () => {
 	is(readme.match(/All (\d+) interconnected spaces/)?.[1], String(n), 'Imports line')
 	is(readme.match(/\| \*\*color-space\*\* \| \*\*(\d+)\*\*/)?.[1], String(n), 'comparison table')
 });
+
+
+// --- web data modules: LUT editors, Python tab, vision lens, analytics (pure parts) ---
+
+test('editors — a plain 3D cube for every editor; 65 only where allowed; shaper only for Resolve', async () => {
+	const { default: EDITORS, cubeOpts, ffmpeg, SOFT } = await import('../web/js/editors.js')
+	const { cube } = await import('../lut.js')
+	const by = Object.fromEntries(EDITORS.map((e) => [e.id, e]))
+	is(Object.keys(by), ['davinci-resolve', 'premiere-pro', 'final-cut-pro', 'capcut-desktop', 'capcut-mobile', 'obs-studio', 'ffmpeg', 'lumafusion', 'vn'], 'nine editors')
+	for (const ed of EDITORS) {
+		is(ed.dims, 3, `${ed.id}: never 1D`)
+		is(ed.steps.length > 0 && ed.notes.length > 0 && /^https:\/\//.test(ed.source), true, `${ed.id}: steps, notes, source`)
+		is(ed.shaper, ed.id === 'davinci-resolve', `${ed.id}: shaper ${ed.shaper}`)
+		for (const n of ed.sizes) is(cubeOpts(ed, n), { dims: 3, size: n }, `${ed.id} ${n}: plain 3D options`)
+		is(cubeOpts(ed, 17), null, `${ed.id}: an unlisted size is refused`)
+	}
+	is(EDITORS.filter((e) => e.sizes.includes(65)).map((e) => e.id), ['davinci-resolve', 'premiere-pro', 'final-cut-pro', 'obs-studio', 'ffmpeg'], '65 (high precision) only where the research allows')
+	is(by.lumafusion.sizes, [33], 'LumaFusion: documented "up to 64 points"')
+	is(by['capcut-desktop'].sizes, [33], 'CapCut: 33')
+	is([by['capcut-mobile'].sizes, cubeOpts(by['capcut-mobile'])], [[], null], 'CapCut mobile: no .cube import, no file offered')
+	is(cubeOpts(by['davinci-resolve'], 33, true), { dims: 3, size: 33, shaper: true }, 'Resolve may take the shaper cube')
+	is(cubeOpts(by['obs-studio'], 33, true), { dims: 3, size: 33 }, 'the shaper never reaches another editor')
+	// only the source-checked entries (OBS, FFmpeg) state menu paths without the soft caveat
+	is(EDITORS.filter((e) => !e.notes.includes(SOFT)).map((e) => e.id), ['capcut-mobile', 'obs-studio', 'ffmpeg'], 'snippet-sourced steps say menu names may vary')
+	is(ffmpeg('slog3-to-rec709-33.cube').includes('-vf "lut3d=file=slog3-to-rec709-33.cube:interp=tetrahedral"'), true, 'ffmpeg: lut3d, tetrahedral')
+	is(by.ffmpeg.steps.some((s) => s.includes("lut3d=file='C\\:/")), true, 'ffmpeg: Windows drive-letter escaping')
+	is(by['obs-studio'].steps.some((s) => /Amount.*1\.0/.test(s)) && by['obs-studio'].notes.some((s) => /SDR/.test(s)), true, 'OBS: Amount 1.0, SDR only')
+	// a channelwise pair would auto-emit LUT_1D_SIZE 4096 — the editor options force the 3D cube
+	const lines = cube(space.rec709, space.rgb, { ...cubeOpts(by['obs-studio'], 33), verify: false }).split('\n')
+	is(lines.filter((l) => /^LUT_/.test(l)), ['LUT_3D_SIZE 33'], 'rec709→rgb for OBS: one LUT_3D_SIZE, no 1D')
+})
+
+test('python — Python tab data: verified snippets only, research rules held', async () => {
+	const py = await import('../web/js/python.js')
+	const E = py.default, ids = Object.keys(E), all = JSON.stringify(E)
+	is(ids.filter((id) => !space[id]), [], 'every entry is a registered space')
+	is(ids.filter((id) => !E[id].colour), ['yuv'], 'colour snippet everywhere but yuv (OpenCV only)')
+	is(ids.length >= 120 && ids.filter((id) => E[id].opencv).length, 10, '10 OpenCV routes (the full-cube-verified set)')
+	// absent: the 'none' spaces (no colour-science 0.4.7 equivalent) and the reference-only row
+	for (const id of ['hsluv', 'okhsl', 'xyb', 'olog', 'din99d-plain']) is(E[id], undefined, `${id}: absent`)
+	for (const [id, e] of Object.entries(E)) {
+		for (const k of ['caveat', 'inverseCaveat']) if (k in e) is(typeof e[k] === 'string' && !e[k].includes('\n'), true, `${id}.${k}: one line`)
+		if (e.inverse) is(/\bv\b/.test(e.inverse), true, `${id}: inverse reads v`)
+		if (e.opencv) is(/\b(f|lin)\b/.test(e.opencv), true, `${id}: OpenCV reads the preamble's f / lin`)
+	}
+	is(['cct-duv', 'wavelength', 'munsell'].every((id) => E[id].caveat), true, 'convention-diff entries carry their caveat')
+	// digest-opencv rules: cv2 Lab is D65 (no route for D50 lab), RGB2GRAY is luma (not gray)
+	is([E.lab.opencv, /RGB2GRAY/.test(all)], [undefined, false], 'no D65-as-D50 Lab, no luma-as-gray')
+	is(/::-1/.test(py.PREAMBLE_CV) && /float32/.test(py.PREAMBLE_CV), true, 'OpenCV preamble: BGR flip, float32')
+	// digest-colour rules: derived BT.709 matrix, not colour's rounded 'sRGB'; no networkx-only convert()
+	is(/'ITU-R BT\.709'/.test(py.PREAMBLE) && !/sRGB_to_XYZ|colour\.convert\(/.test(all), true, 'derived matrix, no colour.convert')
+	is([py.pip(E.munsell), py.pip(E.lab)], ['pip install colour-science numpy scipy', 'pip install colour-science numpy'], 'requirement line adds scipy where needed')
+})
+
+test('cvd — filter values are the published matrices, row-major 4×5, in linear light', async () => {
+	const { defs, LENSES } = await import('../web/js/cvd.js')
+	const svg = defs()
+	const fe = (id) => [...svg.match(new RegExp(`<filter id="cvd-${id}"[^>]*>(.*?)</filter>`))[1].matchAll(/values="([^"]+)"/g)]
+		.map((m) => { const v = m[1].trim().split(/\s+/).map(Number); is(v.length, 20, `cvd-${id}: 20 values`); return [0, 1, 2, 3].map((r) => v.slice(r * 5, r * 5 + 5)) })
+	const rgb3 = (m) => m.slice(0, 3).map((r) => r.slice(0, 3))
+	// Machado, Oliveira & Fernandes 2009 (doi:10.1109/TVCG.2009.113), severity 1.0 — colour-science
+	// CVD_MATRICES_MACHADO2010, identical in Firefox DevTools (Chromium ships them to 3 dp)
+	const PROTAN = [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]]
+	const DEUTAN = [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]]
+	for (const [id, M] of [['protan', PROTAN], ['deutan', DEUTAN]]) {
+		const [m] = fe(id)
+		is(rgb3(m), M, `${id}: Machado severity 1.0`)
+		is([m[0][3], m[0][4], m[1][3], m[1][4], m[2][3], m[2][4], ...m[3]], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], `${id}: no offsets, alpha kept`)
+	}
+	// Brettel, Viénot & Mollon 1997 (doi:10.1364/JOSAA.14.002647) — DaltonLens svg/cvd_svg_filters.html
+	const [p1, p2] = fe('tritan')
+	is(rgb3(p1), [[1.01354, 0.14268, -0.15622], [-0.01181, 0.87561, 0.13619], [0.07707, 0.81208, 0.11085]], 'tritan plane 1')
+	is(rgb3(p2), [[0.93337, 0.19999, -0.13336], [0.05809, 0.82565, 0.11626], [-0.37923, 1.13825, 0.24098]], 'tritan plane 2')
+	is(p1[3], [7.92482, -5.66475, -2.26007, 1, -0.2], 'separation-plane selector row')
+	is(svg.match(/color-interpolation-filters="linearRGB"/g).length, 3, 'linearRGB set explicitly on every filter')
+	is(/display\s*:\s*none/.test(svg) || !/width:0;height:0/.test(svg), false, 'zero-size container, never display:none')
+	is(LENSES.map((l) => [l.id, l.label]), [['none', 'Typical vision'], ['protan', 'Protanopia'], ['deutan', 'Deuteranopia'], ['tritan', 'Tritanopia']], 'lens options')
+	is([LENSES[1].cite, LENSES[3].cite].map((c) => c.match(/doi:\S+/)[0]), ['doi:10.1109/TVCG.2009.113', 'doi:10.1364/JOSAA.14.002647'], 'citations')
+})
+
+test('cvd — the SVG pipeline and simulate() reproduce colour-science (Machado) and DaltonLens (Brettel)', async () => {
+	const { defs, simulate } = await import('../web/js/cvd.js')
+	// linear-sRGB references, clipped 0–1. protan/deutan: colour-science 0.4.7
+	// matrix_cvd_Machado2009(<Protanomaly|Deuteranomaly>, 1.0) @ lin; tritan: daltonlens 0.1.5
+	// Simulator_Brettel1997(LMSModel_sRGB_SmithPokorny75)._simulate_cvd_linear_rgb(lin, TRITAN, 1.0),
+	// full-precision model (5 dp: it runs in float32), lin = colour.cctf_decoding(rgb/255, 'sRGB')
+	const RGB = [[255, 128, 0], [255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50], [30, 60, 200], [128, 128, 128], [255, 255, 0], [0, 255, 255], [255, 0, 255], [100, 200, 150], [10, 20, 30]]
+	const REF = {
+		protan: [[0.379497, 0.28423, 0], [0.152286, 0.114503, 0], [1, 0.786281, 0], [0, 0.099216, 1], [0.215562, 0.169501, 0.025181], [0, 0.094321, 0.605389], [0.215861, 0.215861, 0.215861], [1, 0.900784, 0], [0.847715, 0.885497, 1], [0, 0.213719, 1], [0.564876, 0.498992, 0.29256], [0.005166, 0.007136, 0.01331]],
+		deutan: [[0.553101, 0.425251, 0], [0.367322, 0.280085, 0], [0.860646, 0.672501, 0.04294], [0, 0.047413, 0.968881], [0.314565, 0.248986, 0.029549], [0, 0.061409, 0.561394], [0.215861, 0.21586, 0.215861], [1, 0.952586, 0.03112], [0.632678, 0.719914, 1], [0.139354, 0.327498, 0.957061], [0.474376, 0.438577, 0.318791], [0.004176, 0.00617, 0.012844]],
+		tritan: [[1, 0.1772, 0.25237], [1, 0, 0.07707], [0.19999, 0.82565, 1], [0, 0.11626, 0.24098], [0.5986, 0.10911, 0.15154], [0, 0.10521, 0.18569], [0.21586, 0.21586, 0.21586], [1, 0.86381, 0.88915], [0.06663, 0.94191, 1], [0.85732, 0.12439, 0.18792], [0.19378, 0.51974, 0.6826], [0.0025, 0.00746, 0.00994]],
+	}
+	const TOL = { protan: 2e-6, deutan: 2e-6, tritan: 3e-5 } // 6-dp table exact; Brettel filter values are 5 dp
+	// Filter Effects 1 semantics: feColorMatrix on non-premultiplied [r,g,b,a,1], each result clamped;
+	// feFuncA discrete over n=5 table values; feBlend normal = P1 over P2
+	const c01 = (x) => Math.min(1, Math.max(0, x))
+	const svg = defs()
+	const vals = (id) => [...svg.match(new RegExp(`<filter id="cvd-${id}"[^>]*>(.*?)</filter>`))[1].matchAll(/values="([^"]+)"/g)].map((m) => m[1].trim().split(/\s+/).map(Number))
+	const cm = (v, px) => [0, 1, 2, 3].map((r) => c01(v[r * 5] * px[0] + v[r * 5 + 1] * px[1] + v[r * 5 + 2] * px[2] + v[r * 5 + 3] * px[3] + v[r * 5 + 4]))
+	const table = svg.match(/tableValues="([^"]+)"/)[1].split(' ').map(Number)
+	is(table, [0, 0, 0, 0, 1], 'alpha selector: discrete, 1 from 0.8 up')
+	const run = (id, lin) => {
+		const [a, b] = vals(id), px = [...lin, 1]
+		if (!b) return cm(a, px).slice(0, 3)
+		const p1 = cm(a, px), p2 = cm(b, px), al = table[Math.min(table.length - 1, Math.floor(p1[3] * table.length))]
+		return [0, 1, 2].map((c) => al * p1[c] + (1 - al) * p2[c])
+	}
+	for (const id of ['protan', 'deutan', 'tritan']) RGB.forEach((rgb, i) => {
+		const lin = space.rgb.lrgb(...rgb)
+		for (const [how, got] of [['svg', run(id, lin)], ['simulate', simulate(lin, id)]])
+			is(got.every((v, c) => Math.abs(v - REF[id][i][c]) < TOL[id]), true, `${id} ${how} rgb(${rgb}) → ${got.map((v) => v.toFixed(5))}`)
+	})
+	is(space.lrgb.rgb(...simulate(space.rgb.lrgb(255, 128, 0), 'protan')).map(Math.round), [166, 145, 0], '#ff8000 protan readout = colour-science [166,145,0]')
+	is(simulate([0.2, 0.4, 0.6], 'none'), [0.2, 0.4, 0.6], 'none is identity')
+})
+
+test('track — analytics is off by default: no-ops, nothing injected; load() injects the pinned script once', async () => {
+	const { GC, EVENT, track, view, load } = await import('../web/js/track.js')
+	is(GC, '', 'shipped disabled')
+	is([EVENT.lut('slog3', 'rec709'), EVENT.icc('p3', 'mntr'), EVENT.drop(), EVENT.embed('oklch'), EVENT.tour(3, 'rgb'), EVENT.lang('python')],
+		['lut-download/slog3-rec709', 'icc-download/p3-mntr', 'image-drop', 'embed-copy/oklch', 'tour-step/3-rgb', 'code-lang/python'], 'event names per research')
+	is(EVENT.embed('My Photo.JPG'), 'embed-copy/my-photo-jpg', 'names are slugged — nothing raw reaches the endpoint')
+	const added = []
+	globalThis.document = { createElement: () => ({ dataset: {} }), head: { append: (s) => added.push(s) } }
+	try {
+		track('lut-download/x-y'); view('oklch'); load()
+		is(added.length, 0, 'GC empty: track/view/load inject nothing')
+		load('acct'); load('acct')
+		is(added.length, 1, 'injected once')
+		const [s] = added
+		is([s.src, s.integrity, s.crossOrigin, s.async, s.dataset.goatcounter],
+			['https://gc.zgo.at/count.v5.js', 'sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ', 'anonymous', true, 'https://acct.goatcounter.com/count'], 'pinned v5 + SRI')
+	} finally { delete globalThis.document }
+})

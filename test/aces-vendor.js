@@ -5,13 +5,14 @@
 //
 // The official transforms adapt the vendor's D65 white to the ACES white with the
 // cone matrix each CTL names (CAT02 for ARRI/Canon/Sony, Bradford default for
-// Panasonic/RED). color-space routes through its XYZ D65 hub and adapts with the
-// colorjs-matched Bradford ACES matrices, so two known conventions bound the
-// agreement: CAT02-vs-Bradford adaptation (≤ ~4e-3 of the point's magnitude at
-// gamut extremes — swapping Bradford into the official recipe collapses it) and
-// the CSS-convention D65 white digits (~3e-4). Tolerances sit just above the
-// measured maxima of those conventions; anything larger would flag a real
-// formula defect.
+// Panasonic/RED). color-space routes through its XYZ D65 hub and adapts with
+// Bradford, derived from the two whites exactly as the CTL's calculate_cat_matrix
+// does, so the Bradford pairs agree to the 1e-10 floor of the 10-decimal AP1→AP0
+// matrix, and the CAT02 pairs differ only by the CAT02-vs-Bradford adaptation
+// (< 5e-3 of the point's magnitude at gamut extremes). Swapping Bradford into the
+// CAT02 recipes collapses that to the vendor curve constants (≤ 7.1e-6, LogC3's
+// 6-decimal curve constants vs the CTL's 10-decimal ones). Tolerances sit just
+// above those measured maxima; anything larger would flag a real formula defect.
 //
 // Sources (ampas/aces-dev @ v1.3):
 //   transforms/ctl/csc/<vendor>/ACEScsc.Academy.<pair>_to_ACES.ctl
@@ -132,9 +133,11 @@ const PAIRS = [
 	{ id: 'logc3', ctl: 'ACEScsc.Academy.LogC_EI800_AWG_to_ACES', decode: logcToLin, M: rgb2rgb(AWG3, AP0, CAT02), tol: 5e-3 },
 	{ id: 'clog2', ctl: 'ACEScsc.Academy.CLog2_CGamut_to_ACES', decode: clog2ToLin, M: rgb2rgb(CGAMUT, AP0, CAT02), tol: 5e-3 },
 	{ id: 'clog3', ctl: 'ACEScsc.Academy.CLog3_CGamut_to_ACES', decode: clog3ToLin, M: rgb2rgb(CGAMUT, AP0, CAT02), tol: 5e-3 },
-	{ id: 'vlog', ctl: 'ACEScsc.Academy.VLog_VGamut_to_ACES', decode: vlogToLin, M: rgb2rgb(VGAMUT, AP0, BRADFORD), tol: 5e-4 },
-	{ id: 'log3g10', ctl: 'ACEScsc.Academy.Log3G10_RWG_to_ACES', decode: log3g10ToLin, M: rgb2rgb(RWG, AP0, BRADFORD), tol: 5e-4 }
+	{ id: 'vlog', ctl: 'ACEScsc.Academy.VLog_VGamut_to_ACES', decode: vlogToLin, M: rgb2rgb(VGAMUT, AP0, BRADFORD), tol: 1e-9 },
+	{ id: 'log3g10', ctl: 'ACEScsc.Academy.Log3G10_RWG_to_ACES', decode: log3g10ToLin, M: rgb2rgb(RWG, AP0, BRADFORD), tol: 1e-9 }
 ]
+// camera gamut each pair's recipe adapts from (for the CAT-swap check below)
+const GAMUT = { slog3: SGAMUT3, sgamut3cine: SGAMUT3CINE, logc3: AWG3, clog2: CGAMUT, clog3: CGAMUT }
 
 // 5³ grid of encoded triplets
 const STEPS = [0.1, 0.3, 0.5, 0.7, 0.9]
@@ -159,6 +162,17 @@ test('official ACES vendor transforms — camera log → ACES2065-1', () => {
 			max = Math.max(max, relErr(got, official))
 		}
 		ok(max < tol, `${id} vs ${ctl}: max rel err ${max.toExponential(2)} < ${tol.toExponential(0)}`)
+	}
+})
+
+test('CAT02 pairs: the residual is the adaptation alone', () => {
+	// same CTL recipe with its CAT02 cone matrix swapped for Bradford: what remains is
+	// the vendor curve constants (LogC3 6- vs 10-decimal, 7.1e-6 measured)
+	for (const { id, ctl, decode } of PAIRS.filter(p => p.id in GAMUT)) {
+		const M = rgb2rgb(GAMUT[id], AP0, BRADFORD)
+		let max = 0
+		for (const enc of grid) max = Math.max(max, relErr(space[id]['aces2065-1'](...enc), mul3(M, enc.map(decode))))
+		ok(max < 1e-5, `${id} vs ${ctl} with Bradford: max rel err ${max.toExponential(2)} < 1e-5`)
 	}
 })
 

@@ -57,6 +57,24 @@ jobs:
           npm test
           npm run test:package
           npm audit --omit=dev
+      # MCP Registry (stable releases only): io.github.colorjs/color-space, granted to this
+      # repo's GitHub OIDC token (id-token: write, above). Validated BEFORE npm publish, so bad
+      # metadata stops the release while nothing irreversible has happened yet.
+      # https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/github-actions.mdx
+      - name: Prepare and validate MCP Registry metadata
+        if: inputs['dist-tag'] == 'latest'
+        run: |
+          # pinned publisher, checked against the sha256 in that release's checksums file
+          curl -fsSL -o mcp-publisher.tar.gz https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz
+          echo "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  mcp-publisher.tar.gz" | sha256sum -c -
+          tar xzf mcp-publisher.tar.gz mcp-publisher && rm mcp-publisher.tar.gz
+          # server.json registers one exact npm version: align it with package.json
+          node -e "
+            const fs = require('fs'), s = JSON.parse(fs.readFileSync('server.json')), { version, mcpName } = require('./package.json')
+            if (s.name !== mcpName) throw Error('server.json name ' + s.name + ' != package.json mcpName ' + mcpName)
+            s.version = version; for (const p of s.packages) p.version = version
+            fs.writeFileSync('server.json', JSON.stringify(s, null, 2) + '\n')"
+          ./mcp-publisher validate server.json
       - name: Check whether this immutable version already exists
         id: registry
         run: |
@@ -95,3 +113,20 @@ jobs:
           EXTRA=()
           if [[ "$DIST_TAG" == next ]]; then EXTRA+=(--prerelease); fi
           gh release create "v$VERSION" --verify-tag --generate-notes --title "v$VERSION" "${EXTRA[@]}"
+      # Last on purpose: npm, the tag and the GitHub release are already out, so a registry
+      # outage can't strand them half-done. A failure turns the run red (never swallowed);
+      # rerunning skips every finished step above and retries only this one.
+      - name: Publish to the MCP Registry
+        if: inputs['dist-tag'] == 'latest'
+        run: |
+          NAME=$(node -p "require('./package.json').mcpName")
+          if curl -fsS -o /dev/null "https://registry.modelcontextprotocol.io/v0.1/servers/${NAME/\//%2F}/versions/$VERSION"; then
+            echo "$NAME $VERSION is already registered"; exit 0
+          fi
+          # the registry proves ownership by reading mcpName from registry.npmjs.org/color-space/$VERSION
+          for i in $(seq 30); do
+            [[ "$(npm view "color-space@$VERSION" mcpName 2>/dev/null)" == "$NAME" ]] && break
+            sleep 10
+          done
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish server.json

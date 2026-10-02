@@ -135,14 +135,18 @@ test('lut: shaper — camera-log→display at 33³ beats plain 65³; display pai
 test('lut: shaper .cube — Resolve-flavor combined 1D+3D structure', () => {
 	const text = cube(space.slog3, space.rec709, { size: 5, shaper: 64, verify: false })
 	const lines = text.trim().split('\n')
+	// Blackmagic's documented combined header — both sizes and input ranges before any
+	// data, no TITLE (OpenColorIO's resolve_cube reader refuses it; with TITLE, or with
+	// LUT_3D_SIZE after the shaper rows, OCIO 2.6 fell back to a reader that dropped the shaper)
 	const i1 = lines.findIndex((l) => l === 'LUT_1D_SIZE 64')
-	const i3 = lines.findIndex((l) => l === 'LUT_3D_SIZE 5')
-	is(i1 > 0 && i3 > i1, true, 'shaper block precedes the 3D block')
-	is(i3 - i1 - 1, 64, '64 shaper lines between the keywords')
-	is(lines.length - i3 - 1, 125, '5³ lattice lines after LUT_3D_SIZE')
+	is(i1 > 0, true, 'LUT_1D_SIZE header present')
+	is(lines.slice(i1, i1 + 4), ['LUT_1D_SIZE 64', 'LUT_1D_INPUT_RANGE 0.0 1.0', 'LUT_3D_SIZE 5', 'LUT_3D_INPUT_RANGE 0.0 1.0'], 'Resolve header: sizes + input ranges, then data')
+	is(lines.slice(0, i1).every((l) => l.startsWith('#')), true, 'only comments before the header — no TITLE')
+	const d0 = i1 + 4
+	is(lines.length - d0, 64 + 125, '64 shaper rows then 5³ lattice rows')
 	is(/Resolve-flavor/.test(text), true, 'header states the flavor (not Adobe-strict/ffmpeg)')
 	// shaper values are a monotone 0..1 tone curve per channel
-	const shaper = lines.slice(i1 + 1, i3).map((l) => l.split(' ').map(Number))
+	const shaper = lines.slice(d0, d0 + 64).map((l) => l.split(' ').map(Number))
 	for (let c = 0; c < 3; c++) {
 		is(shaper.every((r, j) => !j || r[c] >= shaper[j - 1][c] - 1e-9), true, `ch${c} monotone`)
 		is(shaper[0][c] >= 0 && shaper[63][c] <= 1, true, `ch${c} within 0..1`)
@@ -185,4 +189,25 @@ test('lut: non-0–1 domains are mapped and documented in the header', () => {
 	// rgb's 0–255 range rides as the LUT's 0–1, the way image data does
 	const t2 = cube(space.rgb, space.p3, { size: 5, verify: false })
 	is(/rgb scaled to 0–1 from \[0\.\.255/.test(t2), true, 'rgb 0–255 mapping documented')
+})
+
+test('lut: dims:3 — the editor cube for any pair, channelwise ones included', () => {
+	// editors (CapCut, Premiere, Final Cut, OBS, ffmpeg lut3d, LumaFusion, VN) take a
+	// plain 3D cube; a channelwise pair would otherwise auto-emit LUT_1D_SIZE 4096, which
+	// ffmpeg's lut3d rejects ("3D LUT is empty") and OBS's 1D path can't allocate
+	for (const [f, t] of [['rec709', 'rgb'], ['rgb', 'lrgb'], ['slog3', 'rec709']]) {
+		const text = cube(space[f], space[t], { size: 33, dims: 3 })
+		const lines = text.trim().split('\n')
+		is(lines.filter((l) => /^LUT_/.test(l)), ['LUT_3D_SIZE 33'], `${f}→${t}: one size keyword, 3D`)
+		is(lines.length - lines.findIndex((l) => l === 'LUT_3D_SIZE 33') - 1, 33 ** 3, `${f}→${t}: 33³ rows`)
+		// OBS reads lines into a 256-byte buffer, ffmpeg into 512 — the verify comment is the longest
+		const longest = Math.max(...lines.map((l) => Buffer.byteLength(l)))
+		is(longest < 256, true, `${f}→${t}: longest line ${longest} bytes < 256`)
+	}
+	// the price of 3D for a pure transfer curve: trilinear across the dark knee — measured
+	// max 5.8e-3 of full scale (≈1.5/255) at 33³, 1.7e-3 at 65³; median ~2e-5
+	const v33 = verify(table(space.rec709, space.rgb, { size: 33, dims: 3 }))
+	const v65 = verify(table(space.rec709, space.rgb, { size: 65, dims: 3 }))
+	is(v33.max < 1e-2 && v33.median < 1e-4, true, `rec709→rgb 33³: max ${v33.max.toExponential(1)}, median ${v33.median.toExponential(1)}`)
+	is(v65.max < v33.max / 2, true, `65³ (high precision) tightens it: max ${v65.max.toExponential(1)}`)
 })

@@ -113,7 +113,7 @@ WASM: import space, { alloc } from 'color-space/wasm' — same API, 27 spaces: s
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
-MCP: npx --yes --package color-space color-space-mcp — zero-dep stdio server; tools: convert / space / spaces / cube, so agents call the library instead of guessing color math
+MCP: npx -y color-space mcp — zero-dep stdio server; tools: convert (batches, per-channel range flags) / gamut (sRGB ⊂ Display P3 ⊂ Rec. 2020 membership) / css (CSS Color 4 strings) / space / spaces (search by name, family, purpose) / cube, so agents call the library instead of guessing color math
 Site: https://color-space.io/
 Repo: https://github.com/colorjs/color-space
 

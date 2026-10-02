@@ -42,9 +42,24 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
-* `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default) · `cube` · `icc` · `space` · `spaces` · `mcp` (the same tools over MCP stdio for agents)
+* `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default) · `cube` · `icc` · `space` · `spaces` · `mcp` (MCP server for [agents](#agents))
 
 [Upgrading from v2?](docs/migration.md)
+
+## Agents
+
+MCP tools – `convert` · `gamut` · `css` · `space` · `spaces` · `cube` – so agents call verified math instead of guessing it.
+
+```sh
+claude mcp add color-space -- npx -y color-space mcp                                      # Claude Code
+code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space","mcp"]}'  # VS Code
+```
+
+Claude Desktop `claude_desktop_config.json`, Cursor `.cursor/mcp.json`, any project `.mcp.json`:
+
+```json
+{ "mcpServers": { "color-space": { "command": "npx", "args": ["-y", "color-space", "mcp"] } } }
+```
 
 ## Spaces
 

@@ -3,7 +3,8 @@
  *
  * The library's verified formulas, projected into the one artifact the film and
  * video world consumes without JavaScript: DaVinci Resolve, Premiere, Final Cut,
- * OBS, ffmpeg all read .cube. Every generated LUT verifies itself — the header
+ * OBS, ffmpeg (lut3d) all read a 3D .cube — the 1D and shaper variants are
+ * host-specific (see {@link cube}). Every generated LUT verifies itself — the header
  * carries the measured deviation of the interpolated lattice against the direct
  * conversion at random off-lattice points, so the file states its own accuracy.
  *
@@ -86,8 +87,8 @@ export function channelwise(from, to) {
  *   each channel's shaper is the conversion's own normalized tone diagonal, so the 3D
  *   lattice spends its nodes where the curvature lives — a shaped 33³ reaches plain-65³
  *   accuracy. A number sets the shaper size (default 1024). Channels whose diagonal
- *   isn't monotone fall back to identity. Read by Resolve and OCIO ('resolve_cube');
- *   NOT by ffmpeg's lut3d (Adobe-strict, one size keyword per file)
+ *   isn't monotone fall back to identity. Read by DaVinci Resolve and OpenColorIO
+ *   ('resolve_cube') only — ffmpeg's lut3d rejects it, OBS reads only its 1D part
  * @returns {{from, to, dims: 1|3, size: number, domain: number[][], range: number[][], data: Float64Array, shaper?: Float64Array, shaperSize?: number}}
  *   `data` holds 0–1-normalized output triples; 3D is red-fastest (index = r + g·N + b·N²)
  */
@@ -270,20 +271,27 @@ const scaleNote = (name, r) => r.every(([a, b]) => a === 0 && b === 1) ? `${name
 	: `${name} scaled to 0–1 from [${r.map(([a, b]) => `${end(a)}..${end(b)}`).join(', ')}]`
 
 /**
- * Render a conversion as a .cube file (Adobe/IRIDAS format — Resolve, Premiere,
- * Final Cut, OBS, ffmpeg). Channelwise pairs emit LUT_1D_SIZE, the rest LUT_3D_SIZE
- * with red varying fastest. The header records provenance and the measured
- * deviation vs the direct conversion.
+ * Render a conversion as a .cube file (Adobe/IRIDAS format). Cross-channel pairs emit
+ * LUT_3D_SIZE with red varying fastest — the one form every editor reads (Resolve,
+ * Premiere, Final Cut, OBS, ffmpeg lut3d). Channelwise pairs default to LUT_1D_SIZE,
+ * which only some hosts read (Resolve, ffmpeg lut1d — not lut3d; OBS's 1D path sizes
+ * its buffer as N³, which overflows at the 4096-point default per its source): pass
+ * `dims: 3` for an editor. The header records provenance and the measured deviation
+ * vs the direct conversion.
  * @param {object} from source space object
  * @param {object} to target space object
  * @param {object} [opts]
  * @param {number} [opts.size] lattice size — default 33 (3D) / 4096 (1D)
- * @param {1|3} [opts.dims] force dimensionality
+ * @param {1|3} [opts.dims] force dimensionality — `dims: 3` gives any pair the plain 3D cube
  * @param {boolean|number} [opts.shaper] prepend the tone-diagonal 1D shaper (see {@link table}) —
- *   Resolve-flavor combined cube; Resolve + OCIO read it, ffmpeg's Adobe-strict lut3d does not
- * @param {string} [opts.title] TITLE line — default "from to to"
+ *   Resolve-flavor combined cube in Blackmagic's documented layout (both sizes and input
+ *   ranges before any data, no TITLE): DaVinci Resolve / OpenColorIO only. ffmpeg's lut3d
+ *   rejects it as invalid data; OBS would load only its 1D part
+ * @param {string} [opts.title] TITLE line — default "from to to" (none on a shaper cube:
+ *   OpenColorIO's resolve_cube reader refuses the keyword)
  * @param {number|false} [opts.verify=1000] off-lattice verification samples, false to skip
  * @returns {string} the .cube file text
+ * @see {@link https://forum.blackmagicdesign.com/viewtopic.php?f=21&t=40284#p232952} Resolve .cube layout (Blackmagic, quoted in OpenColorIO's FileFormatResolveCube.cpp)
  */
 export function cube(from, to, opts = {}) {
 	const tab = table(from, to, opts)
@@ -300,14 +308,16 @@ export function cube(from, to, opts = {}) {
 			: ''
 		lines.push(`# ${dims === 3 ? (shaper ? 'shaper + trilinear' : 'trilinear') : 'linear'} lattice vs direct conversion, ${v.n} off-lattice samples, fractions of full scale: median ${sci(v.median)}, max ${sci(v.max)}${inr}`)
 	}
-	if (shaper) lines.push(`# Resolve-flavor combined cube: 1D tone shaper + 3D lattice — DaVinci Resolve / OCIO (resolve_cube); not Adobe-strict readers (ffmpeg lut3d)`)
-	lines.push(`TITLE "${(opts.title || `${from.name} to ${to.name}`).replace(/"/g, "'")}"`)
 	if (shaper) {
-		lines.push(`LUT_1D_SIZE ${shaperSize}`)
+		// Blackmagic's combined header: both sizes and input ranges, then shaper rows, then
+		// the lattice. OCIO 2.6's resolve_cube reader refuses TITLE and its iridas reader
+		// LUT_3D_SIZE after data — either way it fell back to a reader that drops the shaper
+		lines.push(`# Resolve-flavor combined cube: 1D tone shaper + 3D lattice — DaVinci Resolve / OpenColorIO only; not ffmpeg lut3d or OBS`,
+			`LUT_1D_SIZE ${shaperSize}`, `LUT_1D_INPUT_RANGE 0.0 1.0`, `LUT_3D_SIZE ${size}`, `LUT_3D_INPUT_RANGE 0.0 1.0`)
 		for (let j = 0; j < shaper.length; j += 3)
 			lines.push(`${num(shaper[j])} ${num(shaper[j + 1])} ${num(shaper[j + 2])}`)
-	}
-	lines.push(dims === 1 ? `LUT_1D_SIZE ${size}` : `LUT_3D_SIZE ${size}`)
+	} else lines.push(`TITLE "${(opts.title || `${from.name} to ${to.name}`).replace(/"/g, "'")}"`,
+		dims === 1 ? `LUT_1D_SIZE ${size}` : `LUT_3D_SIZE ${size}`)
 	for (let j = 0; j < data.length; j += 3)
 		lines.push(`${num(data[j])} ${num(data[j + 1])} ${num(data[j + 2])}`)
 	return lines.join('\n') + '\n'

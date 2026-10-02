@@ -8,7 +8,7 @@
  *     npx color-space icc p3 > p3.icc        → ICC profile on stdout
  *     npx color-space space oklch            → one space's dossier, JSON
  *     npx color-space spaces                 → the catalog
- *     npx color-space mcp                    → MCP stdio server (agent tools)
+ *     npx -y color-space mcp                 → MCP stdio server (agent tools)
  */
 import space from './index.js'
 import data from './data.json' with { type: 'json' }
@@ -28,9 +28,10 @@ const usage = `color-space ${pkg.version} — ${names.length} verified color spa
   color-space icc <space>              ICC profile → stdout
   color-space space <name>             one space's dossier (JSON)
   color-space spaces                   list every space
-  color-space mcp                      MCP server on stdio (tools: convert · space · spaces · cube)
+  color-space mcp                      MCP server on stdio (tools: convert · gamut · css · space · spaces · cube)
 
   color-space rgb oklch 255 128 0      → 0.7319 0.1858 52.98
+  npx -y color-space mcp               → the MCP server, as agent configs launch it
 `
 
 const run = {

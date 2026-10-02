@@ -8,7 +8,7 @@
 
 **Quotable claims** (each with its proof; never round up):
 - **162 spaces, 4× any JS library** (culori ~35, colorjs.io ~40, texel ~16) — runtime count, cited list in README.
-- **Verified, three layers**: every space pinned to an independent cited anchor (135 points, `test/refs.js`) · 29 spaces both directions vs colorjs.io at 1/255 · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 0.03% (Bradford pairs) — [docs/formula-verification.md](../docs/formula-verification.md#camera-log-verification-against-official-aces-transforms), reruns on `npm test`.
+- **Verified, three layers**: every space pinned to an independent cited anchor (135 points, `test/refs.js`) · 29 spaces both directions vs colorjs.io at 1/255 · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 1e-10 (Bradford pairs) — [docs/formula-verification.md](../docs/formula-verification.md#camera-log-verification-against-official-aces-transforms), reruns on `npm test`.
 - **Fast**: 29.3M scalar calls/s geomean vs culori 16.5, colorjs.io 0.7 (`npm run benchmark`, method footnoted in README).
 - **Small**: one space 0.4–1.5 kB; lite 9 kB; full graph 55 kB gz (never call the full bundle "tiny").
 - **Beyond JS**: WASM batch · GLSL/WGSL · in-browser `.cube` LUTs with self-verifying headers · ICC · MCP (`color-space-mcp` — no other color lib has one). CC0.
@@ -111,7 +111,7 @@ Prepared answers: *why-not-culori* (for when they lack your space / conventional
 >
 > Conversions, not looks: no tone mapping, no rolloff — log → 709 clips above diffuse white by design. Not a replacement for LogC-to-video, s709, or V-709. For normalization, monitoring, QC, batch ffmpeg; grade on top.
 >
-> The seven pairs with official Academy CSC/IDT transforms are differential-tested against those CTLs (ampas/aces-dev v1.3): worst case ≤0.5% of the dominant component on Sony/ARRI/Canon — the CAT02 vs Bradford adaptation difference, 0.03% once the CAT matches — and 0.03% on Panasonic/RED. Per-pair table: [docs/formula-verification.md, ACES section]. Each .cube header carries its own measured lattice deviation.
+> The seven pairs with official Academy CSC/IDT transforms are differential-tested against those CTLs (ampas/aces-dev v1.3): worst case ≤0.5% of the dominant component on Sony/ARRI/Canon — the CAT02 vs Bradford adaptation difference, ≤7.1e-6 once the CAT matches — and 1e-10 on Panasonic/RED. Per-pair table: [docs/formula-verification.md, ACES section]. Each .cube header carries its own measured lattice deviation.
 >
 > Two questions. Where is the math wrong? — the suite is public and reruns on `npm test`. And which missing pair would help your work?
 >

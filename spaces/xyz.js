@@ -25,9 +25,30 @@
 // Values are on a 0-100 scale (Y = 100 at white).
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../util.js';
 
 
+
+// Bradford cone-response matrix (Lam 1985), as tabulated by Lindbloom
+// http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
+const M_BRADFORD = [
+	0.8951, 0.2664, -0.1614,
+	-0.7502, 1.7135, 0.0367,
+	0.0389, -0.0685, 1.0296
+];
+
+/**
+ * Bradford (von Kries in Bradford cone space) adaptation matrix between two white
+ * points given as XYZ on a common scale — for spaces whose white is neither D50 nor
+ * D65 (ACES), so they derive the matrix from their white instead of typing one.
+ * @param {number[]} from source white XYZ
+ * @param {number[]} to destination white XYZ
+ * @returns {number[]} row-major 3×3, XYZ(from) → XYZ(to)
+ */
+export const bradfordAdaptation = (from, to) => {
+	const s = mat3(M_BRADFORD, from[0], from[1], from[2]), d = mat3(M_BRADFORD, to[0], to[1], to[2]);
+	return mul3(inv3(M_BRADFORD), mul3([d[0] / s[0], 0, 0, 0, d[1] / s[1], 0, 0, 0, d[2] / s[2]], M_BRADFORD));
+};
 
 /**
  * Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision).

@@ -28,7 +28,7 @@ import { pathToFileURL } from 'node:url'
 // The compile contract — ONE source of truth for the build and test/wasm-standalone.js:
 // 'speed' = O3 fast-paths + SIMD; grow to the wasm32 max (4 GB) for large batches;
 // Feature switches keep the bytes portable to runtimes without tail calls or EH.
-export const WASM_OPTS = { optimize: { level: 'speed', tailCall: false, exceptions: false }, memory: { initial: 1, maximum: 65536 } }
+export const WASM_OPTS = { optimize: 'speed', maxMemory: 65536, noTailCall: true }   // jz 0.9.2's public options: an object `memory` is read as a SHARED memory and imported (env.memory) – the standalone kernel must own and export its own; the math emits no exception handling (pinned in test/wasm-standalone.js)
 export const wasmSource = () => readFileSync(new URL('../wasm/batch.js', import.meta.url), 'utf8')
 
 // Build only when run directly (`npm run build:wasm`) — importing stays side-effect-free.
