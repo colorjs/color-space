@@ -93,6 +93,17 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(lmsPage.match(/<link rel="canonical"/g)?.length, 1, 'LMS page carries exactly one canonical')
 	is(lmsPage.includes('<link rel="canonical" href="https://color-space.io/lms">'), true, 'LMS canonical points at its dossier URL')
 	is(lmsPage.includes('<meta property="og:url" content="https://color-space.io/lms">'), true, 'LMS social URL points at its dossier URL')
+	// Execute the staged dependency graph: source-relative imports can resolve in
+	// the repo while escaping _site and breaking the workshop's download controls.
+	const runtime = await import(`${site}/js/study-runtime.js`)
+	is(runtime.kind(space.rgb, { xyz: space.xyz }), 'mntr', 'staged ICC runtime classifies RGB')
+	const profile = runtime.profile(space.rgb, { xyz: space.xyz })
+	is(new TextDecoder().decode(profile.slice(36, 40)), 'acsp', 'staged runtime produces an ICC profile')
+	is(runtime.channelwise(space.rgb, space.rgb), true, 'staged LUT runtime recognizes an identity transform')
+	const cube = runtime.cube(space.rgb, space.rgb, { size: 2 })
+	is(cube.includes('LUT_1D_SIZE 2'), true, 'staged runtime generates a minimal identity LUT')
+	is(cube.trim().split('\n').filter(line => /^\d/.test(line)).map(line => line.split(' ').map(Number)), [[0,0,0],[1,1,1]], 'identity LUT retains black and white endpoints')
+	is(runtime.spaces.includes('oklch'), true, 'staged WASM registry includes OKLCH')
 })
 
 test('integrity — tiered site rendering keeps animation off the expensive paths', () => {
@@ -141,6 +152,21 @@ test('integrity — _site: display names stamp display-final; empty-filter line 
 	// the catalog stays on the index — name views ship #cat empty and carry the name in their own head
 	is(readFileSync(`${site}/lalphabeta.html`, 'utf8').includes('<title>lαβ color space'), true, 'the stamped name view titles the Greek name')
 	is(index.includes('id="nores"'), true, 'no-match line is part of the stamped catalog')
+})
+
+// display names are NAMES: one derived from a description's opening clause must not leak
+// the sentence ("Lab-D65 is CIELAB" once shipped) – and nbh, which sets them for wrapping,
+// swaps word-internal hyphens one code unit for one (search marks keep their offsets)
+test('integrity — display names read as names; nbh keeps them whole', async () => {
+	const { SPACES, disp, nbh } = await import('../web/js/render.js')
+	is(SPACES.filter(s => / (is|are|was|the|of|for) /i.test(` ${disp(s)} `)).join(', '), '', 'no display name reads as a sentence')
+	is(disp('lab-d65'), 'CIELAB D65', 'lab-d65 carries the README name')
+	is(nbh('Linear-light sRGB'), 'Linear\u2011light sRGB', 'a word-internal hyphen turns non-breaking')
+	is(nbh('BT.601 525-line Y′CbCr'), 'BT.601 525\u2011line Y′CbCr', 'between digit and letter too')
+	is(nbh(''), '', 'empty stays empty')
+	is(nbh('-a a- a--b'), '-a a- a--b', 'edge and doubled hyphens stay breakable')
+	is(nbh('Adams–Nickerson Lab'), 'Adams–Nickerson Lab', 'an en dash is not a hyphen')
+	is(SPACES.every(s => { const d = disp(s), n = nbh(d); return n.length === d.length && n.replace(/\u2011/g, '-') === d }), true, 'every name: hyphens swap 1:1, nothing else changes')
 })
 
 // data.json is generated (npm run data, in `prepare`) — this pins it against

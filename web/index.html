@@ -404,14 +404,14 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 .ent:hover:not(.pop),.ent:focus-within:not(.pop){ background:transparent }   /* rows stay flat on hover/focus — except the popped card, which keeps its opaque paper to mask the rows it overlays */
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
-.nm::after{ content:'↗'; margin-left:.3em; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
+.nm::after{ content:'↗'; display:inline-block; width:0; text-indent:.3em; white-space:nowrap; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* a zero-width box the glyph overflows: the hidden mark claims no line width, so it never pushes a name onto a second line */
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
-.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:nowrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* one line always: the values keep their station and a long name ellipsizes (title attr carries it whole) — never wraps the numbers to a second row */
+.ent .eh{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:nowrap; gap:var(--s2) var(--s4); padding:0 0 var(--s2) }   /* the values keep their station on the first line; a long name wraps beside them instead of losing its end (CMYK once read "CM…") — never wraps the numbers to a second row */
 .ent.lite .eh{ padding:0; row-gap:var(--s1) }
-.ent .eh .nm{ flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:800; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; white-space:nowrap; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale; case comes display-final from disp() (uppercasing here would corrupt lαβ) */
+.ent .eh .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:700; font-size:var(--text-md); letter-spacing:-.01em; line-height:1.1; text-align:left; text-wrap:balance; cursor:pointer }   /* one size for lead and sheet names — the row hierarchy is position, not scale; case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
 /* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
 .cvs{ display:flex; gap:var(--s4); margin-left:auto; flex-shrink:0 }
-.cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:var(--ulw) solid transparent }   /* ONE underline under letter + number + chevrons; flex baselines align letter and value structurally */
+.cvp{ position:relative; display:flex; align-items:baseline; min-width:0; font-size:var(--t2); border-bottom:var(--ulw) solid transparent }   /* ONE underline under letter + number (+ chevrons on touch – hover devices hang them in the gap, see the hover:hover block); flex baselines align letter and value structurally */
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:right; min-width:.9em; padding-right:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
 .cv{ width:4.6rem; font-size:var(--t2); color:var(--body); text-align:left; padding-right:1.2em }   /* reserves the chevron zone inside the box */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:2.4rem } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
@@ -420,10 +420,18 @@ body:not(.alls) .gcol>.ent:not(.lite):not(:first-child) .chs{ display:none }   /
 .ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
 .cvs:hover .cvp:focus-within:not(:hover),.ent:has(.cvp.on) .cvp:focus-within:not(.on){ border-bottom-color:var(--hair) }   /* one ink at a time — the pointer (on an input or its slider) outranks the focused pair, which falls back to half-strength */
 .cvs:hover .cvp:focus-within:not(:hover) .cv,.ent:has(.cvp.on) .cvp:focus-within:not(.on) .cv{ color:var(--body) }
-.cvp .stk{ position:absolute; right:calc(var(--s1)*-1); top:-1px; bottom:5px; user-select:none }   /* copyable row text stays clean of the chevrons */   /* spinners ride inside the input, above the underline — no flow width */
+.cvp .stk{ position:absolute; right:calc(var(--s1)*-1); top:-1px; bottom:5px; user-select:none }   /* copyable row text stays clean of the chevrons */   /* spinners ride inside the input, above the underline — no flow width (hover devices: after it, in the pair gap) */
 .cvp .stk button,.bch .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover; one recipe for the catalog pair and its scaled-up modal sibling */
 .cvp .stk button:hover,.bch .stk button:hover{ opacity:1; color:var(--ink) }
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
+@media(hover:hover){   /* pointers that hover: the chevrons wait for their row – ~500 resting spinner pairs read as a control room, not a catalog. They hang in the pair gap instead of reserving a zone inside each input, so the width goes back to the names; touch keeps them always on (no hover to reveal them) */
+	.cv{ padding-right:0 }
+	.cvp .stk{ right:auto; left:100% }
+	.cvp .stk button{ opacity:0 }
+	.ent:hover .cvp .stk button,.ent:focus-within .cvp .stk button{ opacity:.4 }
+	.ent .cvp .stk button:hover{ opacity:1 }
+	.ent:hover .cvp .stk button.lim,.ent:focus-within .cvp .stk button.lim{ opacity:.12 }
+}
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:pan-y; background:var(--panel); user-select:none }   /* pan-y, not none: a vertical swipe on a strip must scroll the page, and iOS only streams horizontal pointermove reliably under pan-y */
 .ch>.gbg{ position:absolute; inset:0; z-index:0; opacity:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100%; transition:opacity var(--dur-short) var(--ease-out) }
@@ -1608,7 +1616,7 @@ import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import NAMES from './js/names.js'
 import * as PALDATA from './js/palettes.js'
-import { SPACES, sections, cname, unit, disp, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
+import { SPACES, sections, cname, unit, disp, nbh, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
 import BARRED from './js/barred.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
@@ -2177,7 +2185,7 @@ const encodingOf=s=>{
 const avoidOf=(s,L)=>L.sin||(/^(hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm)$/.test(s)?'equal numeric steps do not look visually even – for perceptual steps use OKLab/OKLCH or a uniform space':'')
 // sentence-case a curated fragment: capitalize (unless it opens with a cased term
 // like sRGB or ΔE) and close with a period
-const sent=t=>{ t=t.trim(); if(/^[a-z][a-z]/.test(t)) t=t[0].toUpperCase()+t.slice(1); return /[.!?…]$/.test(t)?t:t+'.' }
+const sent=t=>{ t=t.trim(); if(/^[a-z][a-z\s]/.test(t)) t=t[0].toUpperCase()+t.slice(1); return /[.!?…]$/.test(t)?t:t+'.' }   // a one-letter first word capitalizes too ("a Photoshop…"); identifiers like sRGB still don't
 // tooltips for the dossier tags and gamut flags
 const TAGTIP={ display:'display-referred – values describe light emitted by a display',
 	scene:'scene-referred – values describe light in the scene, as a camera sees it',
@@ -2429,7 +2437,7 @@ const qInput=document.getElementById('q')
 // the found match lights up inside the space name (fielded searches highlight in the modal too)
 const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if(!nm||s==null) return   // barred cards keep their own markup (name + ® sup)
 	const d=disp(s), i=q?d.toLowerCase().indexOf(q):-1   // mark in the display string — 1:1 with the id except display-final names, which just skip the mark
-	nm.innerHTML=i<0?d:d.slice(0,i)+'<mark>'+d.slice(i,i+q.length)+'</mark>'+d.slice(i+q.length) }
+	nm.innerHTML=nbh(i<0?d:d.slice(0,i)+'<mark>'+d.slice(i,i+q.length)+'</mark>'+d.slice(i+q.length)) }   // nbh after marking: a 1:1 code-unit swap, the mark offsets hold
 // each space's tag set — the same vocabulary the dossier features carry
 // the tags come in FACETS — mutually-exclusive aspects of one space. Picking within a
 // facet ORs (display OR scene), picking across facets ANDs (scene AND log encoding).
@@ -4019,6 +4027,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div><i class="plab">description</i>
 		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
 		<div class="pcol">
+			${L.for?`<div><i>made for</i><p>${sent(L.for)}</p></div>`:''}
 			<div><i>used for</i><p>${sent(m.use||useOf(s))}</p></div>
 			${avoid?`<div><i>caveat</i><p>${sent(avoid)}</p></div>`:''}
 		</div>

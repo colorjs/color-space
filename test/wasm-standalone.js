@@ -1,8 +1,7 @@
 // The published dist/color-space.wasm must run in standalone runtimes (wasmtime,
-// wasmer, non-JS hosts), not only Node. Two invariants make that true, and both have
-// bitten us: the kernel must import NOTHING (pure math, no host services), and it must
-// avoid the tail-call proposal — jz tail-calls the PQ encoder's `exp` by default, which
-// wasmer 4.x rejects outright. Pinned on the SAME compile contract the build ships
+// wasmer, non-JS hosts), not only Node. The kernel must import nothing (pure math,
+// no host services), and must avoid tail calls and exception handling, which
+// Wasmer 4.x does not enable. Pinned on the SAME compile contract the build ships
 // (scripts/build-wasm.js), so the two can't drift. A wasmer smoke runs the bytes
 // end-to-end when the runtime is on PATH — like test/icc-colorsync.js, it skips cleanly.
 import test, { is } from 'tst'
@@ -20,9 +19,10 @@ test('wasm: the standalone kernel imports nothing', async () => {
 	is(WebAssembly.Module.imports(m).length, 0, 'zero imports — the module needs no host, it runs unhosted')
 })
 
-test('wasm: no tail-call opcodes — portable to runtimes without the proposal', () => {
+test('wasm: no tail calls or exception handling — portable standalone bytes', () => {
 	const wat = compile(wasmSource(), { ...WASM_OPTS, wat: true })
 	is(/return_call/.test(wat), false, 'no return_call in the emitted module')
+	is(/\((?:tag|throw|throw_ref|try|try_table|catch|catch_all|rethrow|delegate)(?:\s|\))/.test(wat), false, 'no exception-handling declarations or instructions')
 })
 
 // end-to-end through a strict standalone runtime, when present

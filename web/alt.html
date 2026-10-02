@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Color spaces — atlas study</title>
+<meta name="description" content="Browse and compare the color-space atlas in gallery, list, and table views.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
+<script>document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+<style>
+/* An Apple-genre catalogue study — system face, translucent chrome, soft depth, one
+   selection blue. Self-contained on purpose: the main site's tokens.css idiom stays
+   on the main page; this page speaks Font Book. */
+:root{
+	color-scheme:light;
+	interpolate-size:allow-keywords;
+	--railw:13.5rem; --inspw:22rem;
+	--zoom:.35;
+	--tw:calc(9rem + var(--zoom)*13.5rem);        /* gallery column width, fed by the A-slider — zooms out to icon-size tiles */
+	--rowh:calc(18px + var(--zoom)*14px);         /* list/inspector strip height, same slider */
+	--dark:#1d1d1f;                               /* theme-static dark — the tick ring pair flips against the FILL, not the theme */
+	--bg:#f5f5f7; --content:#ffffff; --panel:#ffffff; --chrome:rgba(246,246,248,.85); --line:rgba(0,0,0,.08);
+	--tile:#ffffff; --tile-line:rgba(0,0,0,.09);
+	--ink:#1d1d1f; --body:#48484a; --soft:#6e6e73; --ghost:#aeaeb2;
+	--sel:#0a63ff; --sel-soft:#dbe7fd; --hover:rgba(0,0,0,.045); --stripe:rgba(0,0,0,.03);
+	--seg:rgba(120,120,128,.12); --seg-on:#ffffff;
+	--err:#d92d20; --star:#f0a500;
+	--checker:repeating-conic-gradient(rgba(0,0,0,.07) 0% 25%, transparent 0% 50%) 0 0/12px 12px;
+	--r:20px; --rs:10px;
+	--sh-sm:0 1px 2px rgba(0,0,0,.05);
+	--sh-md:0 2px 6px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.07);
+	--sh-pop:0 12px 40px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.08);
+	--ease:cubic-bezier(.25,.1,.25,1); --fast:140ms;
+}
+[data-theme="dark"]{
+	color-scheme:dark;
+	--bg:#1c1c1e; --content:#1c1c1e; --panel:#2c2c2e; --chrome:rgba(28,28,30,.85); --line:rgba(255,255,255,.1);
+	--tile:#2c2c2e; --tile-line:rgba(255,255,255,.1);
+	--ink:#f5f5f7; --body:#d1d1d6; --soft:#98989d; --ghost:#636366;
+	--sel:#3a7bfd; --sel-soft:#1c3966; --hover:rgba(255,255,255,.06); --stripe:rgba(255,255,255,.035);
+	--seg:rgba(120,120,128,.26); --seg-on:#5a5a5e;
+	--err:#f97066;
+	--checker:repeating-conic-gradient(rgba(255,255,255,.08) 0% 25%, transparent 0% 50%) 0 0/12px 12px;
+	--sh-sm:0 1px 2px rgba(0,0,0,.3);
+	--sh-md:0 2px 8px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.4);
+	--sh-pop:0 12px 40px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.4);
+}
+*{ box-sizing:border-box; margin:0 }
+html,body{ height:100%; overflow-x:clip }
+body{ overflow:hidden; background:var(--bg); color:var(--ink); font:13px/1.45 -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif; -webkit-font-smoothing:antialiased }
+button,input,select{ color:inherit; font:inherit }
+button{ padding:0; border:0; background:none; cursor:pointer }
+button,input,select,a{ -webkit-tap-highlight-color:transparent }
+button:disabled{ cursor:not-allowed; opacity:.4 }
+a{ color:inherit }
+:focus-visible{ outline:2px solid var(--sel); outline-offset:2px }
+[hidden]{ display:none!important }
+.tnum{ font-variant-numeric:tabular-nums }
+code{ font-family:ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace; font-size:.92em }
+mark{ background:color-mix(in srgb, var(--sel) 26%, transparent); border-radius:3px; color:inherit }
+/* overlay-quiet scrollbars — content keeps the space */
+.scroll,.side,#insp,.tblw,.doss{ scrollbar-width:thin; scrollbar-color:color-mix(in srgb, var(--ink) 22%, transparent) transparent }
+.scroll::-webkit-scrollbar,.side::-webkit-scrollbar,#insp::-webkit-scrollbar,.tblw::-webkit-scrollbar,.doss::-webkit-scrollbar{ width:9px; height:9px; background:transparent }
+.scroll::-webkit-scrollbar-thumb,.side::-webkit-scrollbar-thumb,#insp::-webkit-scrollbar-thumb,.tblw::-webkit-scrollbar-thumb,.doss::-webkit-scrollbar-thumb{ background:color-mix(in srgb, var(--ink) 22%, transparent); border:2.5px solid transparent; border-radius:9px; background-clip:padding-box }
+.app{ display:grid; grid-template-rows:auto minmax(0,1fr); height:100dvh }
+/* squircle corners where supported; plain rounding elsewhere */
+.card .tile,.row,.tblw,.cfg .menu,.curmsg,.plbox canvas,.insp .viz canvas,.empty button,.dpanel{ corner-shape:squircle }
+
+/* ── toolbar: identity · color · size · render · views · search · theme ── */
+.bar{ position:relative; z-index:30; display:grid; grid-template-areas:"id cur gh theme" "views find find find"; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:8px 10px; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--chrome); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%) }
+.bar .id{ grid-area:id; display:flex; min-width:0; align-items:center; gap:9px; text-decoration:none }
+.bar .id .diamond{ flex:none; width:12px; height:12px; transform:rotate(45deg); border-radius:2.5px; background:var(--cur,#ef7a4a); box-shadow:inset 0 0 0 1px rgba(0,0,0,.12) }
+.bar .id h1{ overflow:hidden; font-size:15px; font-weight:700; letter-spacing:-.01em; line-height:1.15; text-overflow:ellipsis; white-space:nowrap }
+.bar .id small{ display:none; color:var(--soft); font-size:11px; font-weight:500; white-space:nowrap }
+.seg{ display:flex; padding:2px; border-radius:9px; background:var(--seg) }
+.seg button{ display:grid; width:36px; height:26px; place-items:center; border-radius:7px; color:var(--soft); transition:color var(--fast) var(--ease), background-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease) }
+.seg button:hover{ color:var(--ink) }
+.seg button[aria-pressed="true"]{ background:var(--seg-on); color:var(--ink); box-shadow:0 1px 2.5px rgba(0,0,0,.16) }
+.vseg2{ grid-area:views }
+.qseg{ grid-area:quant; display:none }
+.zoom{ grid-area:zoom; display:none; align-items:center; gap:7px; color:var(--soft) }
+.zoom .a1{ font-size:10px } .zoom .a2{ font-size:15px }
+.zoom input{ width:104px; height:26px; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize }
+.zoom input::-webkit-slider-runnable-track{ height:3px; border:0; border-radius:2px; background:rgba(120,120,128,.32) }
+.zoom input::-moz-range-track{ height:3px; border:0; border-radius:2px; background:rgba(120,120,128,.32) }
+.zoom input::-webkit-slider-thumb{ width:15px; height:15px; margin-top:-6px; appearance:none; -webkit-appearance:none; border:0; border-radius:50%; background:#fff; box-shadow:0 .5px 2.5px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.06) }
+.zoom input::-moz-range-thumb{ width:15px; height:15px; border:0; border-radius:50%; background:#fff; box-shadow:0 .5px 2.5px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.06) }
+.ibtn{ display:grid; width:30px; height:30px; place-items:center; border-radius:8px; color:var(--soft); transition:color var(--fast) var(--ease), background-color var(--fast) var(--ease) }
+.ibtn:hover{ background:var(--hover); color:var(--ink) }
+.ibtn:active{ transform:scale(.94) }
+#thm{ grid-area:theme }
+#ghl{ grid-area:gh }
+.sp{ grid-area:gap; display:none }
+/* the current color — the subject every specimen renders — rides beside the identity */
+.cur{ position:relative; grid-area:cur; display:flex; height:32px; align-items:center; gap:7px; padding:0 9px 0 5px; border:1px solid var(--line); border-radius:var(--rs); background:var(--panel); box-shadow:var(--sh-sm) }
+.cur .cur-label{ display:none; color:var(--soft); font-size:11px; font-weight:600 }
+.cur .sw{ position:relative; flex:none; width:22px; height:22px; border-radius:6px; background:var(--cur,#ef7a4a); box-shadow:inset 0 0 0 1px rgba(0,0,0,.14) }
+.cur .sw input{ position:absolute; inset:-6px; width:calc(100% + 12px); height:calc(100% + 12px); cursor:pointer; opacity:0 }
+.cur .sw input:focus{ outline:0 }
+.cur .sw:has(input:focus-visible){ box-shadow:inset 0 0 0 1px rgba(0,0,0,.14), 0 0 0 3px color-mix(in srgb, var(--sel) 30%, transparent) }
+.cur #chex{ min-width:0; width:7.5ch; border:0; outline:0; background:none; font-weight:600; font-variant-numeric:tabular-nums; text-transform:uppercase }
+.cur:focus-within{ border-color:var(--sel); box-shadow:0 0 0 3px color-mix(in srgb, var(--sel) 18%, transparent) }
+.cur:has(#chex[aria-invalid="true"]){ border-color:var(--err); box-shadow:0 0 0 3px color-mix(in srgb, var(--err) 18%, transparent) }
+.curmsg{ position:absolute; right:0; top:calc(100% + 8px); z-index:40; width:max-content; max-width:36ch; padding:7px 10px; border-radius:8px; background:var(--ink); color:var(--bg); font-size:11.5px; box-shadow:var(--sh-pop) }
+.find{ position:relative; grid-area:find; height:32px }
+.find svg{ position:absolute; left:9px; top:50%; width:13px; height:13px; transform:translateY(-50%); fill:none; stroke:var(--soft); stroke-linecap:round; stroke-width:2; pointer-events:none }
+.find input{ width:100%; height:100%; padding:0 28px; border:1px solid var(--line); border-radius:var(--rs); background:var(--panel); outline:0; box-shadow:var(--sh-sm) }
+.find input::placeholder{ color:var(--ghost); opacity:1 }
+.find input:focus{ border-color:var(--sel); box-shadow:0 0 0 3px color-mix(in srgb, var(--sel) 18%, transparent) }
+.find .x{ position:absolute; right:6px; top:50%; display:none; width:18px; height:18px; transform:translateY(-50%); place-items:center; border-radius:50%; background:var(--ghost); color:var(--panel); font-size:9px; line-height:1 }
+.find.has .x{ display:grid }
+
+/* ── frame: collections rail · work surface · inspector · dossier page ── */
+.cols{ position:relative; display:grid; grid-template-rows:auto minmax(0,1fr); min-width:0; min-height:0 }
+.side{ display:flex; min-width:0; gap:4px; overflow-x:auto; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--chrome); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); scrollbar-width:none }
+.side::-webkit-scrollbar{ display:none }
+.side h2{ display:none }
+.side button{ display:flex; flex:none; min-height:30px; align-items:center; gap:8px; padding:0 11px; border-radius:8px; white-space:nowrap; transition:background-color var(--fast) var(--ease) }
+.side button:hover{ background:var(--hover) }
+.side button.on{ background:var(--sel-soft) }
+.side button .n{ overflow:hidden; text-overflow:ellipsis }
+.side button .c{ color:var(--ghost); font-size:11px }
+.side button.on .c{ color:var(--soft) }
+.side .fs{ color:var(--star) }
+/* tags wear a different cloth than collections: a wrapped pill cloud */
+.side .tcloud{ display:flex; flex-wrap:wrap; gap:4px; padding:2px 10px 10px }
+.side .tcloud button{ width:auto; min-height:24px; flex:none; padding:2px 10px; border:1px solid var(--line); border-radius:99px; font-size:11.5px; color:var(--soft) }
+.side .tcloud button:hover{ background:none; color:var(--ink); border-color:var(--soft) }
+.side .tcloud button.on{ background:var(--ink); border-color:transparent; color:var(--bg) }
+.main{ display:flex; min-width:0; min-height:0; flex-direction:column }
+/* filter row — every facet as a quiet selector (the main page's filter panel, unfolded), + sort */
+.scope{ display:flex; flex:none; min-height:42px; align-items:center; gap:14px; overflow-x:auto; padding:0 14px; border-bottom:1px solid var(--line); background:var(--content); scrollbar-width:none }
+.scope::-webkit-scrollbar{ display:none }
+.fsel{ display:flex; flex:none; align-items:center; gap:4px }
+.fsel>span{ color:var(--ghost); font-size:11px; font-weight:600 }
+.scope select{ flex:none; field-sizing:content; max-width:11rem; border:0; outline:0; background:none; color:var(--soft); font-size:12.5px; font-weight:600; cursor:pointer }
+.scope select.on{ color:var(--sel) }
+.scope .sp{ display:block; min-width:10px; flex:1 }
+.scroll{ min-height:0; flex:1; overflow-y:auto; overscroll-behavior:contain; padding:18px 18px 24px; background:var(--content) }
+.empty{ display:grid; min-height:50vh; place-content:center; gap:8px; text-align:center }
+.empty b{ font-size:15px }
+.empty span{ color:var(--soft) }
+.empty button{ justify-self:center; margin-top:6px; padding:7px 16px; border-radius:99px; background:var(--sel); color:#fff; font-weight:600 }
+/* the lineage shelf cut — content is always shelved, never alphabet soup */
+.gsec{ display:flex; align-items:baseline; gap:8px; margin:12px 2px 0; font-size:13px; font-weight:700; letter-spacing:-.005em }
+.gsec i{ color:var(--ghost); font-size:11px; font-style:normal; font-weight:600 }
+#gal>.gsec:first-child,.list>.gsec:first-child{ margin-top:0 }
+/* view entrances — replayed by the view switch only, never by filtering */
+.vin{ animation:vin 180ms var(--ease) }
+@keyframes vin{ from{ opacity:0; transform:translateY(4px) } }
+
+/* ── gallery — Font Book tiles: the specimen in a soft card, name beneath ── */
+#gal{ display:flex; flex-direction:column; gap:calc(8px + var(--zoom)*16px) }
+.ggrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%,var(--tw)),1fr)); gap:calc(12px + var(--zoom)*26px) calc(10px + var(--zoom)*22px) }
+.card{ display:flex; min-width:0; flex-direction:column; gap:7px }
+.card .tile{ position:relative }
+.card .face{ position:relative }
+.card .face.fin{ animation:fin var(--fast) var(--ease) }
+@keyframes fin{ from{ opacity:0 } }
+/* the specimen IS the icon: channels joined as one rounded block, no chrome around it */
+.stk{ display:flex; flex-direction:column; overflow:clip; border-radius:14px; corner-shape:squircle; transition:box-shadow var(--fast) var(--ease) }
+.card.on .stk,.card.on .face.pl .plbox canvas{ box-shadow:0 0 0 2.5px var(--sel) }
+.card .face .st{ --row-h:calc(12px + var(--zoom)*28px); position:relative; flex:none; height:var(--row-h); background:var(--checker); touch-action:pan-y; cursor:ew-resize }
+.card .face.pl{ display:grid; place-items:center }
+.plbox{ position:relative; display:block; width:100%; max-width:100%; aspect-ratio:1; margin:0 auto }
+.plbox canvas{ display:block; width:100%; height:100%; border-radius:14px; background:var(--checker) }
+.face.pl.disc .plbox canvas{ border-radius:50% }
+.plbox canvas,.insp .viz canvas,.doss .plwrap canvas{ touch-action:none; cursor:crosshair }
+/* the values ARE the caption's data — live inputs under the block */
+.card .nch{ display:flex; justify-content:center; gap:9px; overflow:hidden; padding:0 4px; color:var(--soft); font-size:calc(10px + var(--zoom)*3px) }
+.card .nch .mt{ color:var(--ghost); font-style:normal; font-weight:600 }
+.card .nch .nv{ display:flex; gap:3px; align-items:baseline; white-space:nowrap }
+.card .nch i{ color:var(--ghost); font-style:normal; font-weight:600 }
+.card .nch em{ color:var(--ghost); font-style:normal }
+.card .nch input{ width:4.5ch; field-sizing:content; max-width:8ch; padding:0; border:0; border-bottom:1px solid transparent; background:none; outline:0; color:var(--soft); font-size:11px; font-weight:600; transition:border-color var(--fast) var(--ease), color var(--fast) var(--ease) }
+.card .nch input:hover{ border-bottom-color:var(--line); color:var(--ink) }
+.card .nch input:focus{ border-bottom-color:var(--sel); color:var(--ink) }
+/* the pager: bare arrows riding the block's sides — values stay, faces change */
+.card .pg{ position:absolute; inset:0 -4px; display:flex; align-items:center; justify-content:space-between; pointer-events:none }
+.card .pg button{ display:grid; width:21px; height:21px; place-items:center; border-radius:50%; background:color-mix(in srgb, var(--ink) 55%, transparent); color:var(--bg); font-size:12px; line-height:1; opacity:0; pointer-events:auto; transition:opacity var(--fast) var(--ease), background-color var(--fast) var(--ease), transform var(--fast) var(--ease) }
+.card .tile:hover .pg button,.card .tile:focus-within .pg button{ opacity:1 }
+.card .pg button:hover{ background:var(--ink) }
+.card .pg button:active{ transform:scale(.92) }
+.card .cap{ display:flex; min-width:0; justify-content:center; align-items:baseline; padding:0 4px; text-align:center }
+.card .cap .mt{ color:var(--ghost); font-size:.85em; font-weight:600; white-space:pre }
+.card .cap .nm{ max-width:100%; overflow:hidden; font-size:calc(11.5px + var(--zoom)*3px); font-weight:600; letter-spacing:-.005em; text-overflow:ellipsis; white-space:nowrap }
+.card.on .cap .nm{ color:var(--sel) }
+/* zoomed-in cards speak their channel symbols inside the strips */
+.zoomed .card .st::after{ content:attr(data-sym); position:absolute; left:9px; top:50%; transform:translateY(-50%); color:#fff; font-size:10.5px; font-weight:700; mix-blend-mode:difference; opacity:.75; pointer-events:none }
+/* icon-size zoom: the block becomes pure specimen — values step aside */
+.zmin .card .nch{ display:none }
+.zmin .card .cap .nm{ font-size:11.5px }
+
+/* ── one native range recipe everywhere: the strip is the track, the tick is the main page's ── */
+.st input[type="range"],.strip input[type="range"]{ --pad:0px; position:absolute; inset:calc(var(--pad)*-1) -2px; width:calc(100% + 4px); height:calc(100% + var(--pad)*2); margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; touch-action:pan-y }
+.strip input[type="range"]{ --pad:4px }   /* free-standing strips take a taller overlay; stacked ones must not steal the neighbour's drags */
+.st input[type="range"]::-webkit-slider-runnable-track,.strip input[type="range"]::-webkit-slider-runnable-track{ height:100%; border:0; background:transparent }
+.st input[type="range"]::-moz-range-track,.strip input[type="range"]::-moz-range-track{ height:100%; border:0; background:transparent }
+/* the main page's tick: a rotated square wearing the color, ringed by the color's own ink;
+   the inverse ring joins on hover — the engaged pair from index.html */
+.st input[type="range"]::-webkit-slider-thumb,.strip input[type="range"]::-webkit-slider-thumb{ width:11px; height:11px; margin-top:calc((var(--row-h,20px) + var(--pad,0px)*2 - 13.4px)/2); appearance:none; -webkit-appearance:none; border:1.2px solid var(--tki,var(--dark)); border-radius:0; background:var(--tkc,#fff); transform:rotate(45deg); transition:transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease) }
+.st input[type="range"]::-moz-range-thumb{ width:11px; height:11px; border:1.2px solid var(--tki,var(--dark)); border-radius:0; background:var(--tkc,#fff); transform:rotate(45deg); transition:transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease) }
+.strip input[type="range"]::-moz-range-thumb{ width:11px; height:11px; border:1.2px solid var(--tki,var(--dark)); border-radius:0; background:var(--tkc,#fff); transform:rotate(45deg); transition:transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease) }
+.st:hover input[type="range"]::-webkit-slider-thumb,.strip:hover input[type="range"]::-webkit-slider-thumb{ transform:rotate(45deg) scale(1.25); box-shadow:0 0 0 1.2px var(--tkv,transparent) }
+.st:hover input[type="range"]::-moz-range-thumb,.strip:hover input[type="range"]::-moz-range-thumb{ transform:rotate(45deg) scale(1.25); box-shadow:0 0 0 1.2px var(--tkv,transparent) }
+.st input[type="range"]:focus,.strip input[type="range"]:focus{ outline:0 }
+.st input[type="range"]:focus-visible::-webkit-slider-thumb,.strip input[type="range"]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px color-mix(in srgb, var(--sel) 40%, transparent) }
+.st input[type="range"]:focus-visible::-moz-range-thumb,.strip input[type="range"]:focus-visible::-moz-range-thumb{ box-shadow:0 0 0 4px color-mix(in srgb, var(--sel) 40%, transparent) }
+/* the plane's position marker — the same tick, free of its strip, wearing the engaged pair */
+.cx{ position:absolute; left:var(--px,50%); top:var(--py,50%); width:11px; height:11px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid var(--tki,var(--dark)); background:var(--tkc,#fff); box-shadow:0 0 0 1.2px var(--tkv,transparent); pointer-events:none }
+
+/* ── list — expandable rows, the complete labeled instrument inside ── */
+.list{ display:flex; max-width:56rem; flex-direction:column; gap:10px; margin:0 auto }
+.list .gsec{ margin-bottom:2px }
+.row{ border:1px solid var(--tile-line); border-radius:var(--r); background:var(--tile); box-shadow:var(--sh-sm); transition:background-color var(--fast) var(--ease), border-color var(--fast) var(--ease) }
+.row.on{ border-color:transparent; background:var(--sel-soft) }
+.row .hd{ display:flex; width:100%; min-height:44px; align-items:center; gap:10px; padding:10px 16px; border-radius:var(--r); text-align:left }
+.row .hd .dis{ flex:none; color:var(--ghost); font-size:9px; transition:transform 200ms var(--ease) }
+.row.open .hd .dis{ transform:rotate(90deg) }
+.row .hd .ident{ display:flex; min-width:0; align-items:baseline; gap:0 }
+.row .hd .meta{ white-space:pre }
+.row .hd .nm{ display:block; overflow:hidden; font-size:15px; font-weight:700; letter-spacing:-.01em; text-overflow:ellipsis; white-space:nowrap }
+.row .hd .meta{ color:var(--soft); font-size:11px }
+.row .hd .vals{ min-width:0; margin-left:auto; overflow:hidden; color:var(--soft); font-size:12px; text-overflow:ellipsis; white-space:nowrap }
+/* disclosure that breathes: grid-rows 0fr→1fr, chevron in step */
+.row .chs{ display:grid; grid-template-rows:0fr; opacity:0; visibility:hidden; transition:grid-template-rows 200ms var(--ease), opacity 200ms var(--ease), visibility 200ms }
+.row.open .chs{ grid-template-rows:1fr; opacity:1; visibility:visible }
+.chsw{ display:flex; min-height:0; flex-direction:column; gap:10px; overflow:hidden; padding:0 16px 0 34px; transition:padding-bottom 200ms var(--ease) }   /* border-box padding cannot compress below itself — the bottom pad animates alongside the track instead */
+.row.open .chsw{ padding-bottom:16px }
+.ch{ display:grid; min-width:0; align-items:center; gap:12px }
+.ch:first-child{ margin-top:4px }
+.ch2{ grid-template-columns:56px minmax(0,1fr) }
+.ch .lb{ min-width:0; color:var(--soft); font-size:11px; line-height:1.3; text-align:right }
+.ch .lb b{ display:block; color:var(--ink); font-size:13px }
+.ch .lb .cn{ display:none }
+.ch .lb .rng{ display:none; color:var(--ghost); font-size:10px }
+.zoomed .ch .lb .rng{ display:block }
+.strip{ --row-h:var(--rowh); position:relative; min-width:0; height:var(--row-h); background:var(--checker); touch-action:pan-y; cursor:ew-resize }
+.strip .g{ position:absolute; inset:0 }
+.ch .cv{ width:100%; height:20px; margin-top:1px; padding:0; border:0; border-bottom:1px solid transparent; border-radius:0; background:none; outline:0; color:var(--ink); font-size:12px; font-weight:600; text-align:right; transition:border-color var(--fast) var(--ease) }   /* the value lives UNDER its label, one left column */
+.ch .cv:hover{ border-bottom-color:var(--line) }
+.ch .cv:focus{ border-bottom-color:var(--sel) }
+
+/* ── table — the flat record: sticky header, pair striping, channel sub-rows ── */
+.tblw{ overflow-x:auto; border:1px solid var(--tile-line); border-radius:var(--r); background:var(--tile); box-shadow:var(--sh-sm) }
+.tblw table{ width:100%; min-width:72ch; border-collapse:separate; border-spacing:0 }
+th{ position:sticky; top:0; z-index:1; padding:9px 14px; border-bottom:1px solid var(--line); background:var(--tile); color:var(--soft); font-size:11px; font-weight:600; text-align:left; white-space:nowrap; user-select:none }
+th:first-child{ border-top-left-radius:calc(var(--r) - 1px) }
+th:last-child{ border-top-right-radius:calc(var(--r) - 1px) }
+th[data-k]{ cursor:pointer }
+th[data-k]:hover{ color:var(--ink) }
+th .ar{ color:var(--ghost); font-size:8px }
+td{ padding:8px 14px; font-size:13px }
+tbody tr.gh td{ padding:14px 14px 5px; color:var(--ink); font-size:12px; font-weight:700 }
+tbody tr.odd td{ background:var(--stripe) }
+tbody tr.sr:hover td{ background:var(--hover) }
+tbody tr.sr.on td{ background:var(--sel-soft) }
+.trpick{ display:flex; align-items:center; gap:2px; font-weight:600; white-space:nowrap }
+tbody tr.sr .dis{ display:inline-block; width:14px; color:var(--ghost); font-size:9px; transition:transform 160ms var(--ease) }
+tbody tr.sr.open .dis{ transform:rotate(90deg) }
+tbody tr.sub td{ padding:4px 14px 4px 44px; color:var(--soft); font-size:12px }
+tbody tr.sub td b{ color:var(--ink); font-weight:600 }
+td .pill{ display:inline-flex; align-items:center; padding:1px 6px; border:1px solid currentColor; border-radius:5px; color:var(--sel); font-size:10px; font-weight:700; letter-spacing:.03em; line-height:1.5 }
+.tag{ display:inline-flex; align-items:center; padding:2px 9px; border:1px solid var(--line); border-radius:99px; color:var(--soft); font-size:11px; font-style:normal; font-weight:600; line-height:1.5 }
+.cfgth{ text-align:right }
+.cfg{ position:relative }
+.cfg>button{ padding:2px 6px; border-radius:6px; color:var(--soft); font-size:11px; font-weight:600 }
+.cfg>button:hover{ background:var(--hover); color:var(--ink) }
+/* the menu grows from its trigger corner */
+.cfg .menu{ position:absolute; right:0; top:calc(100% + 6px); z-index:40; display:none; min-width:11.5rem; flex-direction:column; gap:1px; padding:6px; border:1px solid var(--line); border-radius:12px; background:var(--panel); box-shadow:var(--sh-pop); opacity:0; transform:scale(.96); transform-origin:top right; transition:opacity 150ms var(--ease), transform 150ms var(--ease), display 150ms allow-discrete }
+.cfg.open .menu{ display:flex; opacity:1; transform:none; @starting-style{ opacity:0; transform:scale(.96) } }
+.cfg .menu label{ display:flex; min-height:28px; align-items:center; gap:8px; padding:0 8px; border-radius:6px; color:var(--ink); font-size:12.5px; font-weight:400; letter-spacing:0; text-transform:none; white-space:nowrap; cursor:pointer }
+.cfg .menu label:hover{ background:var(--hover) }
+.cfg .menu input{ accent-color:var(--sel) }
+
+/* ── inspector — always present; resizable at full width ── */
+#insp{ position:fixed; inset:0 0 0 auto; z-index:50; width:min(100%,var(--inspw)); min-width:0; overflow-y:auto; overflow-x:clip; overscroll-behavior:contain; padding:16px 16px 32px; border-left:1px solid var(--line); background:var(--panel); box-shadow:var(--sh-pop); opacity:0; pointer-events:none; transform:translateX(100%) }
+.cols.ready #insp{ transition:transform 240ms var(--ease), opacity 240ms var(--ease) }
+.cols.insp>#insp{ opacity:1; pointer-events:auto; transform:none }
+.rsz{ display:none }
+.ihead{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px }
+.ihead .hgrow{ min-width:0; flex:1 }
+.insp h2{ min-width:0; overflow-wrap:anywhere; font-size:17px; font-weight:700; letter-spacing:-.015em; line-height:1.2 }
+.insp .sub{ margin-top:3px; color:var(--soft); font-size:11.5px }
+.mx{ display:grid; flex:none; width:26px; height:26px; place-items:center; border-radius:50%; background:var(--hover); color:var(--soft); font-size:11px }
+.mx:hover{ color:var(--ink) }
+.star svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linejoin:round }
+.star[aria-pressed="true"]{ color:var(--star) }
+.star[aria-pressed="true"] svg{ fill:currentColor }
+.dpills{ display:flex; flex-wrap:wrap; gap:5px; margin-top:10px }
+.dhr{ margin:14px 0; border-top:1px solid var(--line) }
+.props{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px }
+.props>div{ min-width:0 }
+.props b{ display:block; overflow:hidden; font-size:15px; font-weight:700; letter-spacing:-.01em; text-overflow:ellipsis; white-space:nowrap }
+.props b a{ color:var(--sel); font-size:13px; text-decoration:none }
+.props b a:hover{ text-decoration:underline }
+.props span{ display:block; margin-top:2px; color:var(--soft); font-size:10.5px; line-height:1.35 }
+.desc{ margin-top:14px; color:var(--body); font-size:12.5px; line-height:1.55 }
+.used{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:10px; margin:14px 0; padding:10px 12px; border-radius:10px; background:var(--bg); color:var(--body); font-size:12px }
+.used b{ color:var(--ink); font-size:11px; font-weight:600; white-space:nowrap }
+.insp .vseg{ display:flex; margin-bottom:12px; padding:2px; border-radius:8px; background:var(--seg) }
+.insp .vseg button{ flex:1; padding:4px 0; border-radius:6px; color:var(--soft); font-size:12px; font-weight:600; transition:color var(--fast) var(--ease), background-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease) }
+.insp .vseg button[aria-pressed="true"]{ background:var(--seg-on); color:var(--ink); box-shadow:0 1px 2.5px rgba(0,0,0,.16) }
+.insp .viz{ margin-bottom:14px }
+.insp .viz .chs{ display:flex; flex-direction:column; gap:10px }
+.insp .viz .ch{ grid-template-columns:52px minmax(0,1fr) }
+.insp .viz .ch .lb{ color:var(--ink); font-size:12px; font-weight:700; text-align:right }
+.insp .viz .ch .lb .cv{ color:var(--soft); font-weight:600 }
+.insp .viz .plwrap{ position:relative; width:min(100%,260px); aspect-ratio:1; margin:4px auto 0 }
+.insp .viz canvas{ display:block; width:100%; height:100%; border-radius:12px; background:var(--checker) }
+.insp .viz.disc canvas{ border-radius:50% }
+.insp details{ border-top:1px solid var(--line) }
+.insp summary{ display:flex; min-height:38px; align-items:center; justify-content:space-between; color:var(--ink); font-size:12.5px; font-weight:600; cursor:pointer; list-style:none }
+.insp summary::-webkit-details-marker{ display:none }
+.insp summary::after{ color:var(--ghost); content:"›"; font-size:13px; transform:rotate(90deg); transition:transform 160ms var(--ease) }
+.insp details:not([open]) summary::after{ transform:none }
+.insp details::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size 220ms var(--ease), opacity 220ms var(--ease), content-visibility 220ms allow-discrete }
+.insp details[open]::details-content{ opacity:1; block-size:auto }
+.insp .kv{ display:grid; gap:10px; padding:0 0 14px; font-size:12px }
+.insp .kv .k{ display:block; margin-bottom:1px; font-weight:600 }
+.insp .kv .v{ color:var(--soft); overflow-wrap:anywhere }
+.insp .kv .v a{ color:var(--sel); text-decoration:none }
+.insp .kv .v a:hover{ text-decoration:underline }
+.insp .chtab{ width:100%; margin-bottom:14px; border-collapse:collapse; table-layout:fixed }   /* fixed layout: the name cell yields, the record never scrolls sideways */
+.insp .chtab td{ padding:6px 0; border-top:1px solid var(--line); font-size:12px }
+.insp .chtab tr:first-child td{ border-top:0 }
+.insp .chtab td:nth-child(2){ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.insp .chtab .sy{ width:26px; font-weight:700 }
+.insp .chtab .rg{ width:9.5em; color:var(--soft); font-size:11px; text-align:right; white-space:nowrap }
+.rel{ display:flex; flex-wrap:wrap; gap:5px; padding:0 0 14px }
+.rel button{ padding:2px 9px; border:1px solid var(--line); border-radius:99px; color:var(--soft); font-size:11px; font-weight:600; transition:color var(--fast) var(--ease), border-color var(--fast) var(--ease) }
+.rel button:hover{ color:var(--ink); border-color:var(--soft) }
+
+/* ── the dossier — the content area becomes the space's page; rail, filters and record stay ── */
+.doss{ display:none; min-height:0; flex:1; overflow-y:auto; overscroll-behavior:contain; background:var(--content) }
+.cols.dossmode .scroll{ display:none }
+.cols.dossmode .doss{ display:block; animation:vin 200ms var(--ease) }
+.dhead{ position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:12px; padding:10px 18px; border-bottom:1px solid var(--line); background:var(--chrome); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px) }
+.dhead .back{ display:flex; align-items:center; gap:3px; padding:4px 10px 4px 6px; border-radius:8px; color:var(--sel); font-size:13px; font-weight:600 }
+.dhead .back:hover{ background:var(--hover) }
+.dhead .dtit{ display:flex; min-width:0; align-items:baseline; gap:9px }
+.dhead h2{ overflow:hidden; font-size:16px; font-weight:700; letter-spacing:-.01em; text-overflow:ellipsis; white-space:nowrap }
+.dhead .sub{ color:var(--soft); font-size:11.5px; white-space:nowrap }
+.dhead .spx{ flex:1 }
+.dhead .xmeta{ color:var(--soft); font-size:11.5px; white-space:nowrap }
+.dhead .xmeta a{ color:var(--sel); text-decoration:none }
+.dhead .xmeta a:hover{ text-decoration:underline }
+.dbody{ display:grid; max-width:76rem; grid-template-columns:minmax(0,1fr); gap:18px; margin:0 auto; padding:18px 18px 48px }
+.dpanel{ border:1px solid var(--tile-line); border-radius:var(--r); background:var(--tile); box-shadow:var(--sh-sm); padding:16px }
+.dpanel h4{ margin:0 0 10px; color:var(--soft); font-size:11px; font-weight:700; letter-spacing:.02em; text-transform:uppercase }
+.doss .d3d canvas{ display:block; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto; touch-action:none; cursor:grab }
+.doss .d3d canvas:active{ cursor:grabbing }
+.doss .dnote{ margin-top:6px; color:var(--ghost); font-size:10.5px; text-align:center }
+.doss .plwrap{ position:relative; width:min(100%,380px); aspect-ratio:1; margin:0 auto }
+.doss .plwrap canvas{ display:block; width:100%; height:100%; border-radius:12px; background:var(--checker) }
+.doss .dpl.disc .plwrap canvas{ border-radius:50% }
+.doss .axes{ display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-top:10px }
+.doss .axes button{ padding:2px 9px; border:1px solid var(--line); border-radius:99px; color:var(--soft); font-size:11px; font-weight:600 }
+.doss .axes button:hover{ color:var(--ink) }
+.doss .axes button[aria-pressed="true"]{ border-color:transparent; background:var(--ink); color:var(--bg) }
+.doss .chs{ display:flex; flex-direction:column; gap:12px }
+.doss .chs .strip{ --row-h:26px }
+.doss .chs .cv{ height:24px; font-size:15px }
+.doss .chs .lb b{ font-size:15px }
+.doss .mix{ position:relative; height:24px; background:var(--checker); margin-bottom:4px }
+.doss .mix .g{ position:absolute; inset:0 }
+.doss .mixnote{ color:var(--ghost); font-size:10.5px }
+.doss .ddesc{ color:var(--body); font-size:12.5px; line-height:1.55 }
+.doss .prof{ display:grid; grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr)); gap:10px 14px; font-size:12px }
+.doss .prof b{ display:block; color:var(--ink); font-weight:600; font-size:11px }
+.doss .prof span{ color:var(--soft); overflow-wrap:anywhere }
+.doss .chtab2{ width:100%; border-collapse:collapse; font-size:12px }
+.doss .chtab2 td{ padding:6px 0; border-top:1px solid var(--line) }
+.doss .chtab2 tr:first-child td{ border-top:0 }
+.doss .chtab2 .sy{ width:30px; font-weight:700 }
+.doss .chtab2 .rg{ color:var(--soft); text-align:right; white-space:nowrap }
+@media (min-width:64rem){
+	.dbody{ grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); align-items:start }
+	.dcol1,.dcol2{ display:flex; flex-direction:column; gap:18px; min-width:0 }
+}
+
+@media (hover:none){
+	.card .pg button{ opacity:1 }
+}
+@media (pointer:coarse){
+	.seg button{ width:40px; height:32px }
+	.ibtn{ width:36px; height:36px }
+	.side button{ min-height:36px }
+	.card .pg button{ width:28px; height:28px }
+	.card .face .st{ --row-h:calc(16px + var(--zoom)*28px) }
+}
+@media (min-width:40rem){
+	.bar .id small{ display:block }
+	.scroll{ padding:22px }
+	.chsw{ padding-left:44px }
+	.ch2{ grid-template-columns:9.5rem minmax(0,1fr) }
+	.ch .lb .cn{ display:block }
+}
+@media (min-width:60rem){
+	.cols{ grid-template-rows:minmax(0,1fr); grid-template-columns:var(--railw) minmax(0,1fr) }
+	.side{ min-height:0; flex-direction:column; gap:2px; overflow:hidden auto; padding:10px 8px; border-right:1px solid var(--line); border-bottom:0 }
+	.side h2{ display:block; padding:14px 11px 4px; color:var(--ghost); font-size:11px; font-weight:600 }
+	.side button{ width:100%; flex:none; justify-content:flex-start; text-align:left }
+	.side button .n{ flex:1 }
+	.scope{ padding:0 22px }
+	.scroll{ padding:22px }
+	.tblw{ overflow:visible }
+}
+@media (min-width:70rem){
+	.bar{ grid-template-areas:"id cur gap zoom quant views find gh theme"; grid-template-columns:minmax(0,max-content) auto minmax(12px,1fr) auto auto auto minmax(12rem,19rem) auto auto; padding:8px 14px }
+	.zoom{ display:flex }
+	.qseg{ display:flex }
+	.sp{ display:block }
+	.cur .cur-label{ display:block }
+}
+@media (min-width:80rem){
+	.cols,.cols.insp{ grid-template-columns:var(--railw) minmax(0,1fr) var(--inspw) }
+	#insp{ position:relative; inset:auto; z-index:auto; display:block; width:auto; min-height:0; box-shadow:none; opacity:1; pointer-events:auto; transform:none; transition:none; background:var(--chrome); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px) }
+	.insp .mx.iclose{ display:none }
+	/* the record's width is the reader's to set */
+	.rsz{ display:block; position:absolute; inset:0 auto 0 0; z-index:2; width:9px; cursor:col-resize }
+	.rsz::after{ content:""; position:absolute; inset:0 auto 0 3px; width:2px; background:transparent; transition:background-color var(--fast) var(--ease) }
+	.rsz:hover::after,.rsz.drag::after{ background:var(--sel) }
+}
+@media (prefers-reduced-motion:reduce){
+	*,*::before,*::after{ transition-duration:.01ms!important; animation:none!important; scroll-behavior:auto!important }
+}
+@media (prefers-reduced-transparency:reduce){
+	.bar,.side,#insp,.dhead{ background:var(--bg); backdrop-filter:none; -webkit-backdrop-filter:none }
+}
+@media (prefers-contrast:more){
+	:root{ --line:rgba(0,0,0,.3); --tile-line:rgba(0,0,0,.32) }
+	[data-theme="dark"]{ --line:rgba(255,255,255,.36); --tile-line:rgba(255,255,255,.38) }
+}
+</style>
+</head>
+<body>
+<div class="app">
+	<header class="bar">
+		<a class="id" href="./" aria-label="Open the current color-space atlas"><i class="diamond" aria-hidden="true"></i><span><h1>color-space</h1><small id="count" aria-live="polite">spaces</small></span></a>
+		<div class="cur" title="The current color — every space below renders it">
+			<span class="cur-label">Color</span><span class="sw" id="csw"><input type="color" id="cpick" aria-label="Pick the current color"></span>
+			<input id="chex" class="tnum" spellcheck="false" autocomplete="off" aria-label="Current color as hexadecimal" aria-describedby="curmsg">
+			<span class="curmsg" id="curmsg" role="status" hidden>Use six hexadecimal digits, for example #F67D4F.</span>
+		</div>
+		<span class="sp"></span>
+		<div class="zoom" title="Preview density"><span class="a1">A</span><input id="zoom" type="range" min="0" max="1" step="any" value=".35" aria-label="Preview density"><span class="a2">A</span></div>
+		<div class="seg qseg" role="group" aria-label="Rendering">
+			<button id="q-smooth" aria-pressed="true" title="Smooth"><svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true"><defs><linearGradient id="qs" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor"/></linearGradient></defs><rect x="1" y="4.5" width="13" height="6" rx="2" fill="url(#qs)"/></svg></button>
+			<button id="q-steps" aria-pressed="false" title="Stepped"><svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><rect x="1" y="4.5" width="3" height="6" opacity=".25"/><rect x="4.33" y="4.5" width="3" height="6" opacity=".5"/><rect x="7.66" y="4.5" width="3" height="6" opacity=".75"/><rect x="11" y="4.5" width="3" height="6"/></svg></button>
+			<button id="q-web" aria-pressed="false" title="Web-safe"><svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><circle cx="3" cy="3" r="1.4"/><circle cx="7.5" cy="3" r="1.4"/><circle cx="12" cy="3" r="1.4"/><circle cx="3" cy="7.5" r="1.4"/><circle cx="7.5" cy="7.5" r="1.4"/><circle cx="12" cy="7.5" r="1.4"/><circle cx="3" cy="12" r="1.4"/><circle cx="7.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/></svg></button>
+		</div>
+		<div class="seg vseg2" role="group" aria-label="Catalogue view">
+			<button id="v-gal" aria-pressed="true" title="Gallery" aria-label="Gallery view"><svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="6.5" height="6.5" rx="1.5"/><rect x="8.5" y="0" width="6.5" height="6.5" rx="1.5"/><rect x="0" y="8.5" width="6.5" height="6.5" rx="1.5"/><rect x="8.5" y="8.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
+			<button id="v-list" aria-pressed="false" title="List" aria-label="List view"><svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><rect x="0" y="1" width="15" height="5.5" rx="1.5"/><rect x="0" y="8.5" width="15" height="5.5" rx="1.5" opacity=".45"/></svg></button>
+			<button id="v-tbl" aria-pressed="false" title="Table" aria-label="Table view"><svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><rect x="0" y="1" width="15" height="2.6" rx="1.3"/><rect x="0" y="6.2" width="15" height="2.6" rx="1.3"/><rect x="0" y="11.4" width="15" height="2.6" rx="1.3"/></svg></button>
+		</div>
+		<div class="find" id="findw">
+			<svg viewBox="0 0 15 15" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l3.5 3.5"/></svg>
+			<input id="q" type="search" placeholder="Search color spaces" aria-label="Search color spaces">
+			<button class="x" id="qx" aria-label="Clear search">✕</button>
+		</div>
+		<a class="ibtn" id="ghl" href="https://github.com/colorjs/color-space" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub repository"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+		<button class="ibtn" id="thm" aria-pressed="false" title="Change theme" aria-label="Switch theme"></button>
+	</header>
+	<div class="cols" id="cols">
+		<nav class="side" id="side" aria-label="Collections and purpose filters"></nav>
+		<main class="main">
+			<div class="scope" id="scope" role="group" aria-label="Filters"></div>
+			<section class="doss" id="doss" aria-label="Color-space dossier"></section>
+			<div class="scroll" id="scroll">
+				<div id="gal" role="list" hidden></div>
+				<div class="list" id="list" hidden></div>
+				<div class="tblw" id="tblw" hidden></div>
+				<div class="empty" id="empty" hidden></div>
+			</div>
+		</main>
+		<aside class="insp" id="insp" aria-label="Selected color-space information"></aside>
+	</div>
+</div>
+
+<script type="module">
+import { space, meta, classify, ramp, plane, lensFor, hex, toSpace, clamp, LUTOK, LUTTGT, mixInSpace, rotateHue } from './js/core.js'
+import { SPACES, disp, cname, fmtc, unit, sections, rgbF, ink, HISTORICAL } from './js/render.js'
+import PURPOSE, { ORDER, TIPS } from './js/purpose.js'
+import { kind as iccKind } from '../icc.js'
+import { primariesOf, trcOf } from './js/profile.js'
+
+// spaces the browser itself speaks — CSS Color 4/HDR function or color() ids
+const CSSN = { rgb:'rgb()', lrgb:'color(srgb-linear)', hsl:'hsl()', hwb:'hwb()', lab:'lab()', lchab:'lch()',
+	oklab:'oklab()', oklch:'oklch()', p3:'color(display-p3)', a98rgb:'color(a98-rgb)', prophoto:'color(prophoto-rgb)',
+	rec2020:'color(rec2020)', xyz:'color(xyz-d65)', 'xyz-d50':'color(xyz-d50)' }
+
+const $ = id => document.getElementById(id)
+const WIDE = matchMedia('(min-width:80rem)')
+
+// ── the lineage cut: families are ancestry only. Geometry, medium and capability moved to
+// facets, so the HDR shelf dissolves into its parents and "Cylindrical" reads as what it is —
+// the HSL picker lineage. (A proposal for categories.js, staged here.) ──
+const LIN_RENAME = { 'Cylindrical':'RGB remixes', 'Print & physical':'Color order & surface', 'Specialty & research':'Specialty' }
+const LIN_MOVE = { ictcp:'Video & broadcast', 'rec2100-pq':'Video & broadcast', 'rec2100-hlg':'Video & broadcast',
+	'rec2100-linear':'Video & broadcast', icacb:'Video & broadcast',
+	jzazbz:'Perceptual – modern', jzczhz:'Perceptual – modern', izazbz:'Perceptual – modern',
+	ipt:'Perceptual – modern', 'hdr-ipt':'Perceptual – modern', 'hdr-cie-lab':'Perceptual – CIE classic' }
+const LIN_MERGE = { 'Perceptual – modern':'Perceptual', 'Perceptual – CIE classic':'Perceptual', 'Appearance models':'Perceptual',
+	'Colorimetry & vision':'Colorimetry & research', 'Specialty':'Colorimetry & research', 'more':'Colorimetry & research' }
+const MTIPS = { 'Perceptual':'Spaces built so equal steps look equal – the CIE uniform track, its industrial refinements, the OK generation, and full appearance models.',
+	'Colorimetry & research':'The measurement layer and single-purpose research coordinates – standard observers, physiological spaces, imaging-research systems.' }
+const LINEAGE = (() => {
+	const pre = sections.filter(c => c.name !== 'HDR & wide gamut').map(c => ({ name: LIN_RENAME[c.name] || c.name, tip: c.tip, spaces: [...c.spaces] }))
+	const byName = new Map(pre.map(c => [c.name, c]))
+	for (const s of sections.find(c => c.name === 'HDR & wide gamut')?.spaces || [])
+		(byName.get(LIN_MOVE[s]) || byName.get('Specialty') || pre.at(-1)).spaces.push(s)
+	const out = [], seen = new Map()
+	for (const c of pre) { const name = LIN_MERGE[c.name] || c.name
+		if (seen.has(name)) seen.get(name).spaces.push(...c.spaces)
+		else { const g = { name, tip: MTIPS[name] || c.tip, spaces: [...c.spaces] }; seen.set(name, g); out.push(g) } }
+	return out
+})()
+const famOf = {}; for (const c of LINEAGE) for (const s of c.spaces) famOf[s] ??= c.name
+const famOrd = new Map(); { let i = 0; for (const c of LINEAGE) for (const s of c.spaces) famOrd.set(s, i++) }
+const PCOUNT = Object.fromEntries(ORDER.map(t => [t, SPACES.filter(s => PURPOSE[s]?.includes(t)).length]))
+
+// ── state — one current color (the prism's subject), authored in whichever space last spoke.
+// The URL fragment carries the whole reading: color, selection, dossier, view, filters, lens. ──
+const H0 = new URLSearchParams(location.search)
+const HEX0 = (location.hash.slice(1).match(/^([0-9a-f]{6})$/i) || [])[1]
+const stored = k => H0.get(k) ?? localStorage['alt' + k[0].toUpperCase() + k.slice(1)]
+const pick = (v, list, dflt) => list.includes(v) ? v : dflt
+const S = {
+	rgb: [246,125,79], space: 'rgb', vals: [246,125,79],
+	view: pick(stored('view'), ['gal','list','tbl'], 'gal'), z: .35, purposes: new Set(), favsOnly: false, family: null,
+	q: H0.get('q') || '', sort: pick({ family:'popular', new:'era', old:'era' }[stored('sort')] || stored('sort'), ['popular','era','name'], 'popular'),
+	sel: 'oklch', insp: false, faces: {}, open: new Set(), doss: null,
+	quant: pick(stored('quant'), ['smooth','steps','web'], 'smooth'),
+	favs: new Set((() => { try { return JSON.parse(localStorage.altFavs || '[]') } catch { return [] } })()),
+	cols: new Set(['values','channels','model','year','css']),
+}
+if (SPACES.includes(H0.get('sel') || H0.get('s') || localStorage.altSel)) S.sel = H0.get('sel') || H0.get('s') || localStorage.altSel
+if (HEX0) { S.rgb = [0,2,4].map(i => parseInt(HEX0.slice(i,i+2),16)); S.vals = S.rgb.slice() }
+if (H0.get('p')) S.purposes = new Set(H0.get('p').split('.').filter(t => ORDER.includes(t)))
+if (H0.get('fav') === '1') S.favsOnly = true
+if (H0.get('fam')) S.family = H0.get('fam')
+const V = new Map()   // per-space current vals, refreshed on every paint
+const valsOf = s => s === S.space ? S.vals.slice() : (() => { try { return toSpace(s, S.rgb) } catch { return meta[s].channels.map(c => c.min) } })()
+const setColor = (s,vals) => { S.space = s; S.vals = vals.slice(); S.rgb = rgbF(s,vals); setHexError(false); dirtyAll() }
+const cssHex = () => hex(S.rgb)
+const thumbChannels = s => meta[s].channels.slice(0,3)
+const inlineCode = text => (text||'').replace(/`([^`]+)`/g,'<code>$1</code>')
+const yearSort = () => S.sort === 'era'
+// search echo: the matched span lights up wherever the name is printed
+const hi = name => { if (!S.q) return name
+	const i = name.toLowerCase().indexOf(S.q.toLowerCase()); if (i < 0) return name
+	return name.slice(0,i) + '<mark>' + name.slice(i, i+S.q.length) + '</mark>' + name.slice(i+S.q.length) }
+
+// ── the facet vocabulary — the main page's filter panel, one selector per facet ──
+const capSets = {
+	css: new Set(Object.keys(CSSN)),
+	lut: new Set(LUTOK),
+	icc: new Set(SPACES.filter(s => { try { return !!iccKind(space[s], { xyz: space.xyz }) } catch { return false } })),
+	gl: new Set(), wasm: new Set(),   // filled lazily — their modules are heavy, the options appear once known
+}
+const legacySet = new Set(SPACES.filter(s => HISTORICAL.has(s) || meta[s].year < 1960))
+const GEO = s => ({ polar:'polar', opponent:'opponent' })[classify(s).archetype] || 'component'
+const F = { avail:'', chn:'', range:'', geo:'', signal:'', enc:'', wp:'', status:'' }
+const FDEF = [
+	['avail','Availability', [['css','CSS'],['gl','GL'],['wasm','WASM'],['lut','LUT'],['icc','ICC']]],
+	['chn','Channels', [['1','1'],['2','2'],['3','3'],['4','4+']]],
+	['range','Range', [['sdr','SDR'],['hdr','HDR']]],
+	['geo','Geometry', [['component','Component'],['opponent','Opponent'],['polar','Polar']]],
+	['signal','Signal', [['display','Display'],['scene','Scene']]],
+	['enc','Encoding', [['gamma','Gamma'],['linear','Linear'],['log','Log'],['pq','PQ'],['hlg','HLG'],['perceptual','Perceptual'],['chromaticity','Chromaticity']]],
+	['wp','White point', [['D65','D65'],['D50','D50'],['D60','D60'],['DCI','DCI'],['A','A'],['C','C'],['E','E']]],
+	['status','Status', [['current','Current'],['historical','Historical']]],
+]
+const FTEST = {
+	avail: (s,v) => capSets[v]?.has(s),
+	chn: (s,v) => v === '4' ? classify(s).ch.length >= 4 : classify(s).ch.length === +v,
+	range: (s,v) => (meta[s].dynamic || 'sdr') === v,
+	geo: (s,v) => GEO(s) === v,
+	signal: (s,v) => meta[s].referred === v,
+	enc: (s,v) => meta[s].encoding === v,
+	wp: (s,v) => meta[s].illuminant === v,
+	status: (s,v) => v === 'historical' ? legacySet.has(s) : !legacySet.has(s),
+}
+for (const [k] of FDEF) { const v = H0.get('f_' + k); if (v && FDEF.find(d => d[0] === k)[2].some(([o]) => o === v)) F[k] = v }
+Promise.all([import('../wasm.js').catch(() => null), import('../../dist/color-space-gl.js').catch(() => null)]).then(([w, g]) => {
+	if (w?.spaces) capSets.wasm = new Set(w.spaces.filter(s => SPACES.includes(s)))
+	if (g?.graph) capSets.gl = new Set(SPACES.filter(s => (s === 'rgb' || g.graph[s]) && meta[s].channels.length >= 2 && meta[s].channels.length <= 4))
+	paintFacets() })
+
+let hashT = 0
+// the main site's grammar: the fragment IS the color (bare hex), the space rides ?s=, the view lane rides the query
+function hashStr() { const p = new URLSearchParams()
+	if (S.doss) p.set('s', S.doss)
+	else if (S.sel !== 'oklch') p.set('sel', S.sel)
+	if (S.view !== 'gal') p.set('view', S.view)
+	if (S.sort !== 'popular') p.set('sort', S.sort)
+	for (const [k] of FDEF) if (F[k]) p.set('f_' + k, F[k])
+	if (S.family) p.set('fam', S.family)
+	if (S.purposes.size) p.set('p', [...S.purposes].join('.'))
+	if (S.q) p.set('q', S.q)
+	if (S.quant !== 'smooth') p.set('quant', S.quant)
+	if (S.favsOnly) p.set('fav','1')
+	const qs = p.toString()
+	return location.pathname + (qs ? '?' + qs : '') + '#' + cssHex().slice(1).toLowerCase() }
+function writeHash() { clearTimeout(hashT); hashT = setTimeout(() => history.replaceState(null, '', hashStr()), 250) }   // replaceState is rate-limited — trail the writes
+
+// ── composition: favorites ∧ purposes (rail, OR) ∧ facets (row) ∧ query.
+// Content is ALWAYS shelved by lineage; the sort chooses the order within each shelf. ──
+function shown() {
+	let L = SPACES.slice()
+	if (S.favsOnly) L = L.filter(s => S.favs.has(s))
+	if (S.family) L = L.filter(s => famOf[s] === S.family)
+	for (const [k] of FDEF) if (F[k]) L = L.filter(s => FTEST[k](s, F[k]))
+	if (S.purposes.size) L = L.filter(s => PURPOSE[s]?.some(t => S.purposes.has(t)))
+	if (S.q) { const q = S.q.toLowerCase(); L = L.filter(s => s.includes(q) || disp(s).toLowerCase().includes(q)) }
+	return L
+}
+const cmp = () => S.sort === 'name' ? (a,b) => disp(a).localeCompare(disp(b))
+	: S.sort === 'era' ? (a,b) => (meta[b].year||0) - (meta[a].year||0) || disp(a).localeCompare(disp(b))
+	: (a,b) => (famOrd.get(a)??9e9) - (famOrd.get(b)??9e9)   // popularity: within a family, canonical order IS relevance
+function grouped(L) {
+	const set = new Set(L), c = cmp()
+	return LINEAGE.map(g => ({ name:g.name, tip:g.tip, spaces:g.spaces.filter(s => set.has(s)).sort(c) })).filter(g => g.spaces.length)
+}
+const RENDER = { flat: [] }
+
+// ── specimen helpers ──
+const CARD_PLANE = 160, INSPECTOR_PLANE = 320, DOSS_PLANE = 420
+// a 1-D sweep rendered under the current lens: smooth curve guides, stepped cells, or web-safe snapping
+function grad(s, vals, c, i) {
+	if (S.quant === 'smooth') return `linear-gradient(90deg, ${ramp(s, vals, i, c.min, c.max, 24, null).join(',')})`
+	const N = S.quant === 'steps' ? 16 : 48, snap = S.quant === 'web', out = []
+	for (let k = 0; k < N; k++) { const v = vals.slice(); v[i] = c.min + (c.max - c.min) * (k + .5) / N
+		let rgb; try { rgb = rgbF(s, v) } catch { rgb = [0,0,0] }
+		if (snap) rgb = rgb.map(x => Math.round(x/51)*51)
+		const css = `rgb(${rgb.map(Math.round).join(' ')})`
+		out.push(`${css} ${(k/N*100).toFixed(2)}%`, `${css} ${((k+1)/N*100).toFixed(2)}%`) }
+	return `linear-gradient(90deg, ${out.join(',')})`
+}
+const pct = (v, c) => clamp((v - c.min) / (c.max - c.min) * 100, 0, 100) + '%'
+const valsLine = (s, vals) => meta[s].channels.map((c,i) => `${c.symbol} ${fmtc(vals[i],c)}${unit(c)}`).join('  ')
+const placeMarker = (host, x, y) => { host.style.setProperty('--px', `${clamp(x,0,100).toFixed(3)}%`); host.style.setProperty('--py', `${clamp(y,0,100).toFixed(3)}%`) }
+// plane axes: the two chromatic channels (opponent pair first), tone held at the current value
+function planeAxes(cls) {
+	if (cls.ch.length < 2) return null
+	if (cls.bips.length >= 2) return [cls.bips[0].i, cls.bips[1].i]
+	const non = cls.ch.filter(c => c !== cls.tone)
+	return non.length >= 2 ? [non[0].i, non[1].i] : [cls.ch[0].i, cls.ch[1].i]
+}
+const polarOf = cls => cls.archetype === 'polar' && cls.angle && cls.mags.length ? { angle:cls.angle.i, mag:cls.mags[0].i } : null
+// Polar spaces read as hue×chroma discs; other pairs as cartesian sections. The image depends
+// only on the HELD channels and the lens — while the swept pair is dragged, only the marker moves.
+function paintPlane(cv, s, px, axes) {
+	const cls = classify(s), vals = valsOf(s), ctx = cv.getContext('2d'), host = cv.parentElement
+	const pol0 = polarOf(cls)
+	const pol = pol0 && (!axes || (axes[0] === pol0.angle && axes[1] === pol0.mag)) ? pol0 : null
+	const ax = pol ? [pol.angle, pol.mag] : (axes || planeAxes(cls))
+	if (!ax) { cv.width = cv.height = px; ctx.clearRect(0,0,px,px); placeMarker(host,50,50); return '' }
+	const held = vals.filter((_,i) => i !== ax[0] && i !== ax[1]).map(v => +(+v).toFixed(4)).join(',')
+	const key = `${s}|${px}|${held}|${pol?'d':'c'+ax.join('.')}|${S.quant}`
+	if (cv.dataset.k !== key) { cv.width = cv.height = px
+		if (pol) {
+			const img = ctx.createImageData(px,px), d = img.data, R = px/2, cm = cls.mags[0], lens = lensFor(s,'srgb')
+			const qr = S.quant === 'steps' ? f => (Math.min(15, Math.floor(f*16)) + .5)/16 : f => f
+			const qh = S.quant === 'steps' ? h => (Math.floor(h/15) + .5)*15 : h => h
+			for (let y = 0; y < px; y++) for (let x = 0; x < px; x++) {
+				const dx = (x-R+.5)/R, dy = (y-R+.5)/R, r = Math.hypot(dx,dy), k = (y*px+x)*4
+				if (r > 1) { d[k+3] = 0; continue }
+				let h = Math.atan2(-dy,dx)*180/Math.PI; if (h < 0) h += 360
+				const v = vals.slice(); v[cls.angle.i] = qh(h); v[cm.i] = cm.min+(cm.max-cm.min)*qr(r)
+				let rgb, a = lens ? lens(v) : 1; try { rgb = rgbF(s,v) } catch { rgb = [0,0,0]; a = 0 }
+				if (S.quant === 'web') rgb = rgb.map(u => Math.round(u/51)*51)
+				d[k]=rgb[0]; d[k+1]=rgb[1]; d[k+2]=rgb[2]; d[k+3]=Math.round(a*255)
+			}
+			ctx.putImageData(img,0,0)
+		} else {
+			const [cx,cy] = ax, chx = cls.ch[cx], chy = cls.ch[cy]
+			const quant = S.quant === 'steps' ? 16 : S.quant === 'web' ? 'web' : null
+			try { plane(ctx,px,s,vals,cx,cy,[chx.min,chx.max],[chy.min,chy.max],true,null,quant) } catch { ctx.clearRect(0,0,px,px) }
+		}
+		cv.dataset.k = key }
+	if (pol) { const cm = cls.mags[0], r = clamp((vals[cm.i]-cm.min)/(cm.max-cm.min),0,1), h = vals[cls.angle.i]*Math.PI/180
+		placeMarker(host,50+Math.cos(h)*r*50,50-Math.sin(h)*r*50) }
+	else { const [cx,cy] = ax, chx = cls.ch[cx], chy = cls.ch[cy]
+		placeMarker(host,parseFloat(pct(vals[cx],chx)),100-parseFloat(pct(vals[cy],chy))) }
+	return pol ? 'disc' : ''
+}
+// the plane is a picker: pointer position → the two swept channels
+function planePick(cv, s, e, axes) {
+	const r = cv.getBoundingClientRect(), cls = classify(s), vals = (V.get(s) || valsOf(s)).slice()
+	const fx = clamp((e.clientX-r.left)/r.width,0,1), fy = clamp((e.clientY-r.top)/r.height,0,1)
+	const pol0 = polarOf(cls), pol = pol0 && (!axes || (axes[0] === pol0.angle && axes[1] === pol0.mag)) ? pol0 : null
+	if (pol) { const dx = fx*2-1, dy = fy*2-1, cm = cls.mags[0]
+		const rad = Math.min(Math.hypot(dx,dy),1); let h = Math.atan2(-dy,dx)*180/Math.PI; if (h < 0) h += 360
+		vals[cls.angle.i] = h; vals[cm.i] = cm.min+(cm.max-cm.min)*rad }
+	else { const ax = axes || planeAxes(cls); if (!ax) return
+		const [cx,cy] = ax, chx = cls.ch[cx], chy = cls.ch[cy]
+		vals[cx] = chx.min+(chx.max-chx.min)*fx; vals[cy] = chy.min+(chy.max-chy.min)*(1-fy) }
+	if (S.sel !== s) select(s)
+	setColor(s,vals)
+}
+function wirePlane(host, sOf) { host.addEventListener('pointerdown', e => {
+	const cv = e.target.closest('.plbox canvas, .plwrap canvas'); if (!cv) return
+	e.preventDefault(); cv.setPointerCapture(e.pointerId)
+	const s = sOf(cv), axes = cv.closest('.doss') ? DOSS.axes : null
+	planePick(cv,s,e,axes)
+	const mv = ev => planePick(cv,s,ev,axes)
+	cv.addEventListener('pointermove',mv)
+	cv.addEventListener('pointerup',() => cv.removeEventListener('pointermove',mv),{ once:true }) }) }
+
+// ── gallery ──
+const io = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) { paintEnt(e.target); io.unobserve(e.target) } }, { rootMargin: '50%' })
+const thumbStrips = s => `<div class="stk">${thumbChannels(s).map((c,i) => `<div class="st" data-i="${i}" data-sym="${c.symbol}"><input type="range" min="${c.min}" max="${c.max}" step="any" data-i="${i}" aria-label="${disp(s)} ${cname(c)}"></div>`).join('')}</div>`
+function cardHTML(s, rank) {
+	const m = meta[s]
+	const badge = yearSort() && m.year ? `, ${m.year}` : S.sort === 'popular' && rank ? `, #${rank}` : ''
+	return `<div class="card" data-s="${s}" role="listitem">
+		<div class="tile">
+			<div class="face" data-f="strips">${thumbStrips(s)}</div>
+			<div class="pg"><button class="pv" aria-label="Show previous ${disp(s)} preview">‹</button><button class="nx" aria-label="Show next ${disp(s)} preview">›</button></div>
+		</div>
+		<div class="nch tnum">${thumbChannels(s).map((c,i) => `<label class="nv" data-i="${i}"><i>${c.symbol}</i><input class="cv" data-i="${i}" inputmode="decimal" spellcheck="false" aria-label="${disp(s)} ${cname(c)} value"></label>`).join('')}${m.channels.length > 3 ? `<em>+${m.channels.length-3}</em>` : ''}</div>
+		<div class="cap"><button class="nm" type="button" aria-pressed="false">${hi(disp(s))}</button>${badge ? `<span class="mt tnum">${badge}</span>` : ''}</div>
+	</div>`
+}
+function paintCard(el) {
+	const s = el.dataset.s, vals = valsOf(s); V.set(s, vals)
+	const face = el.querySelector('.face'), selected = s === S.sel
+	el.classList.toggle('on',selected); el.querySelector('.nm').setAttribute('aria-pressed',selected)
+	el.querySelectorAll('.nch .nv').forEach(nv => { const i = +nv.dataset.i, c = meta[s].channels[i]
+		const cv = nv.querySelector('input'); if (document.activeElement !== cv) cv.value = fmtc(vals[i],c) })
+	const fi = S.faces[s] || 0
+	if (!fi) {
+		if (face.dataset.f !== 'strips') { face.className = 'face'; face.dataset.f = 'strips'; face.innerHTML = thumbStrips(s) }
+		face.querySelectorAll('.st').forEach((st,i) => { const c = thumbChannels(s)[i]
+			st.style.background = grad(s,vals,c,i) + ', var(--checker)'
+			const r = st.querySelector('input'); if (document.activeElement !== r) r.value = vals[i] })
+	} else {
+		if (face.dataset.f !== 'plane') { face.dataset.f = 'plane'; face.innerHTML = `<span class="plbox"><canvas role="img" aria-label="${disp(s)} channel plane"></canvas><i class="cx" aria-hidden="true"></i></span>` }
+		const kind = paintPlane(face.querySelector('canvas'),s,CARD_PLANE)
+		face.className = 'face pl' + (kind ? ' ' + kind : '')
+	}
+}
+
+// ── list ──
+function rowHTML(s, rank) {
+	const m = meta[s], open = S.open.has(s)
+	const badge = yearSort() && m.year ? `<span class="meta tnum">, ${m.year}</span>` : S.sort === 'popular' && rank ? `<span class="meta tnum">, #${rank}</span>` : ''
+	return `<div class="row${open?' open':''}" data-s="${s}">
+		<button class="hd" aria-expanded="${open}"><span class="dis">▶</span><span class="ident"><span class="nm">${hi(disp(s))}</span>${badge}</span><span class="vals tnum"></span></button>
+		<div class="chs"><div class="chsw">${m.channels.map((c,i) => `<div class="ch ch2" data-i="${i}">
+			<div class="lb"><b>${c.symbol}</b><span class="cn">${cname(c)}</span><span class="rng tnum">${fmtc(c.min,c)} … ${fmtc(c.max,c)}${unit(c)}</span><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" aria-label="${disp(s)} ${cname(c)} value"></div>
+			<div class="strip"><div class="g"></div><input type="range" min="${c.min}" max="${c.max}" step="any" data-i="${i}" aria-label="${disp(s)} ${cname(c)}"></div>
+		</div>`).join('')}</div></div>
+	</div>`
+}
+function paintRow(el) {
+	const s = el.dataset.s, vals = valsOf(s); V.set(s, vals)
+	el.classList.toggle('on',s === S.sel); el.querySelector('.hd').setAttribute('aria-expanded',el.classList.contains('open'))
+	el.querySelector('.hd .vals').textContent = valsLine(s,vals)
+	if (!el.classList.contains('open')) return
+	const m = meta[s]
+	el.querySelectorAll('.chs .ch').forEach((chl,i) => { const c = m.channels[i]
+		chl.querySelector('.g').style.background = grad(s,vals,c,i) + ', var(--checker)'
+		const r = chl.querySelector('input[type=range]'); if (document.activeElement !== r) r.value = vals[i]
+		const cv = chl.querySelector('.cv'); if (document.activeElement !== cv) cv.value = fmtc(vals[i],c) })
+}
+
+// ── table ──
+const COLS = [ ['values','Values'], ['channels','Channels'], ['model','Model'], ['year','Year'], ['by','By'], ['illuminant','Illuminant'], ['purpose','Purpose'], ['css','CSS'] ]
+function tblHTML(G) {
+	const on = k => S.cols.has(k)
+	const rowTr = (s, odd) => { const m = meta[s]
+		return `<tr class="sr${odd}${S.open.has(s)?' open':''}${s===S.sel?' on':''}" data-s="${s}">
+			<td><button class="trpick" type="button" aria-pressed="${s===S.sel}" aria-expanded="${S.open.has(s)}"><span class="dis">▶</span>${hi(disp(s))}</button></td>
+			${on('values')?`<td class="tnum vals"></td>`:''}
+			${on('channels')?`<td>${m.channels.map(c=>c.symbol).join(' ')}</td>`:''}
+			${on('model')?`<td>${[m.method, m.encoding].filter(Boolean).join(' · ')}</td>`:''}
+			${on('year')?`<td class="tnum">${m.year||''}</td>`:''}
+			${on('by')?`<td>${m.by||''}</td>`:''}
+			${on('illuminant')?`<td>${m.illuminant||''}${m.observer?` / ${m.observer}°`:''}</td>`:''}
+			${on('purpose')?`<td>${(PURPOSE[s]||[]).join(', ')}</td>`:''}
+			${on('css')?`<td>${CSSN[s]?`<span class="pill">CSS</span>`:''}</td>`:''}
+			<td></td></tr>${S.open.has(s) ? m.channels.map((c,i) => `<tr class="sub${odd}" data-s="${s}"><td colspan="99"><b>${c.symbol}</b> ${cname(c)} · <span class="tnum">${fmtc(c.min,c)} … ${fmtc(c.max,c)}${unit(c)}</span> · <span class="tnum vv" data-i="${i}"></span></td></tr>`).join('') : ''}`
+	}
+	return `<table><thead><tr>
+		<th data-k="name">Space ${S.sort==='name'?'<span class="ar">▲</span>':''}</th>
+		${on('values')?'<th>Values</th>':''}${on('channels')?'<th>Channels</th>':''}${on('model')?'<th>Model</th>':''}
+		${on('year')?`<th data-k="year">Year ${S.sort==='era'?'<span class="ar">▼</span>':''}</th>`:''}
+		${on('by')?'<th>By</th>':''}${on('illuminant')?'<th>Illuminant</th>':''}${on('purpose')?'<th>Purpose</th>':''}${on('css')?'<th>CSS</th>':''}
+		<th class="cfgth"><span class="cfg" id="cfg"><button title="Configure columns" aria-label="Configure table columns" aria-expanded="false">Columns</button><span class="menu" role="group" aria-label="Visible columns">${COLS.map(([k,l]) => `<label><input type="checkbox" data-k="${k}"${on(k)?' checked':''}>${l}</label>`).join('')}</span></span></th>
+	</tr></thead><tbody>${G.map(g =>
+		(g.name ? `<tr class="gh"><td colspan="99">${g.name}</td></tr>` : '') +
+		g.spaces.map((s,si) => rowTr(s, si % 2 ? ' odd' : '')).join('')
+	).join('')}</tbody></table>`
+}
+function paintTbl() {
+	$('tblw').querySelectorAll('tr.sr').forEach(tr => { const s = tr.dataset.s, vals = valsOf(s), selected = s === S.sel; V.set(s,vals)
+		tr.classList.toggle('on',selected); tr.querySelector('.trpick')?.setAttribute('aria-pressed',selected)
+		const vc = tr.querySelector('.vals'); if (vc) vc.textContent = valsLine(s,vals) })
+	$('tblw').querySelectorAll('tr.sub').forEach(tr => { const s = tr.dataset.s, vals = V.get(s) || valsOf(s)
+		const vv = tr.querySelector('.vv'); vv.textContent = fmtc(vals[+vv.dataset.i], meta[s].channels[+vv.dataset.i]) })
+}
+
+// ── inspector ──
+const IVIEW = { v: 'sliders' }
+const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z"/></svg>'
+function inspHTML(s) {
+	const m = meta[s], cls = classify(s), tags = PURPOSE[s] || [], ref = m.refs?.[0]
+	const hasPlane = cls.ch.length >= 2, origin = [m.year,m.by].filter(Boolean).join(' · ')
+	const rel = (m.neighbors || []).filter(n => SPACES.includes(n) && n !== s)
+	const kv = (k,v) => v ? `<div><span class="k">${k}</span><div class="v">${v}</div></div>` : ''
+	return `<div class="rsz" aria-hidden="true"></div>
+	<header class="ihead"><div class="hgrow"><h2>${disp(s)}</h2><div class="sub"><code>${s}</code>${famOf[s]?` · ${famOf[s]}`:''}</div></div><button class="mx star" type="button" aria-pressed="${S.favs.has(s)}" aria-label="Toggle favorite">${STAR}</button><button class="mx iclose" type="button" aria-label="Close space info">✕</button></header>
+	<div class="dpills">${tags.map(t => `<i class="tag" title="${TIPS[t]||''}">${t}</i>`).join('')||'<i class="tag">reference</i>'}</div>
+	<div class="dhr"></div>
+	<div class="props props3">
+		<div><b>${m.channels.length}</b><span>channels</span></div>
+		<div><b>${m.year||'—'}</b><span>${m.by||'origin not recorded'}</span></div>
+		<div>${ref?`<b><a href="${ref}" target="_blank" rel="noopener">Reference ↗</a></b>`:'<b>—</b>'}<span>${[m.illuminant,m.observer&&`${m.observer}°`].filter(Boolean).join(' · ')||'definition'}</span></div>
+	</div>
+	<p class="desc">${inlineCode(m.description || 'No description recorded.')}</p>
+	<div class="used used-for"><b>Used for</b><span>${m.use || 'No primary use recorded.'}</span></div>
+	<div class="vseg" role="group" aria-label="Visualizer">${['sliders','plane'].map(v => `<button data-v="${v}" aria-pressed="${IVIEW.v===v}"${v==='plane'&&!hasPlane?' disabled':''}>${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>
+	<div class="viz" id="iviz"></div>
+	<details open><summary>Channels</summary><table class="chtab">${m.channels.map(c =>
+		`<tr><td class="sy">${c.symbol}</td><td>${cname(c)}</td><td class="rg tnum">${fmtc(c.min,c)} … ${fmtc(c.max,c)}${unit(c)}</td></tr>`).join('')}</table></details>
+	${rel.length ? `<details open><summary>Related</summary><div class="rel">${rel.map(n => `<button data-rel="${n}">${disp(n)}</button>`).join('')}</div></details>` : ''}
+	<details><summary>Identifiers</summary><div class="kv">${kv('ID',`<code>${s}</code>`)}${kv('Name',disp(s))}${kv('Family',famOf[s])}${kv('Origin',origin)}</div></details>
+	<details><summary>Implementation</summary><div class="kv">
+		${kv('CSS',CSSN[s]?`<code>${CSSN[s]}</code>`:'not native — via color-space')}
+		${kv('Backends',['JS', capSets.wasm.has(s)&&'WASM', capSets.gl.has(s)&&'GL', capSets.icc.has(s)&&'ICC'].filter(Boolean).join(' · '))}
+		${kv('LUT',[LUTOK.has(s)&&'source',LUTTGT.has(s)&&'target'].filter(Boolean).join(' + ')||'—')}
+		${kv('Model',[m.method,m.encoding,m.referred,m.dynamic?.toUpperCase()].filter(Boolean).join(' · '))}
+		${kv('References',(m.refs||[]).map(r => `<a href="${r}" target="_blank" rel="noopener">${new URL(r).hostname.replace('www.','')} ↗</a>`).join(' · '))}
+		${kv('Wiki',m.wiki?`<a href="${m.wiki}" target="_blank" rel="noopener">${decodeURIComponent(m.wiki.split('/wiki/')[1]||'Wikipedia').replace(/_/g,' ')} ↗</a>`:'')}
+	</div></details>`
+}
+function paintInsp() {
+	const s = S.sel; if (!s || !$('insp').dataset.s || $('insp').dataset.s !== s) { $('insp').innerHTML = inspHTML(s); $('insp').dataset.s = s }
+	const viz = $('iviz'), m = meta[s], vals = valsOf(s); V.set(s,vals)
+	$('insp').querySelectorAll('.vseg button').forEach(b => b.setAttribute('aria-pressed',IVIEW.v === b.dataset.v))
+	if (IVIEW.v === 'sliders' || classify(s).ch.length < 2) {
+		if (viz.dataset.v !== 'sliders') { viz.dataset.v = 'sliders'; viz.className = 'viz'
+			viz.innerHTML = `<div class="chs">${m.channels.map((c,i) => `<div class="ch ch2" data-i="${i}">
+				<div class="lb">${c.symbol}<input class="cv tnum" data-i="${i}" inputmode="decimal" aria-label="${cname(c)} value"></div>
+				<div class="strip"><div class="g"></div><input type="range" min="${c.min}" max="${c.max}" step="any" data-i="${i}" aria-label="${cname(c)}"></div>
+			</div>`).join('')}</div>` }
+		viz.querySelectorAll('.ch').forEach((chl,i) => { const c = m.channels[i]
+			chl.querySelector('.g').style.background = grad(s,vals,c,i) + ', var(--checker)'
+			const r = chl.querySelector('input[type=range]'); if (document.activeElement !== r) r.value = vals[i]
+			const cv = chl.querySelector('.cv'); if (document.activeElement !== cv) cv.value = fmtc(vals[i],c) })
+	} else {
+		if (viz.dataset.v !== 'plane') { viz.dataset.v = 'plane'; viz.innerHTML = `<div class="plwrap"><canvas role="img" aria-label="${disp(s)} channel plane"></canvas><i class="cx" aria-hidden="true"></i></div>` }
+		const kind = paintPlane(viz.querySelector('canvas'),s,INSPECTOR_PLANE)
+		viz.className = 'viz' + (kind ? ' ' + kind : '')
+	}
+}
+
+// ── the dossier — a full page: back nav, 3D solid, big pickable plane, the complete record ──
+const DOSS = { axes:null, rot:[-2.5,-1.05], pushed:false }
+// the sRGB hull through this space: the RGB cube's boundary sampled on a quad grid and mapped
+// into the space's own 3-axis body — ColorSync's Lab-plot idea, generalized. Static per space.
+const HULL = new Map()
+function hullOf(s) {
+	if (HULL.has(s)) return HULL.get(s)
+	const cls = classify(s)
+	if (cls.ch.length < 3) { HULL.set(s,null); return null }
+	const nrm = (c,v) => clamp((v - c.min) / (c.max - c.min), -.25, 1.25)
+	const map3 = vals => {
+		if (cls.archetype === 'polar') { const th = vals[cls.angle.i]*Math.PI/180, r = nrm(cls.mags[0],vals[cls.mags[0].i])*.5
+			return [r*Math.cos(th), r*Math.sin(th), (cls.tone?nrm(cls.tone,vals[cls.tone.i]):.5)-.5] }
+		if (cls.archetype === 'opponent') return [nrm(cls.bips[0],vals[cls.bips[0].i])-.5, nrm(cls.bips[1],vals[cls.bips[1].i])-.5, (cls.tone?nrm(cls.tone,vals[cls.tone.i]):.5)-.5]
+		return [nrm(cls.ch[0],vals[cls.ch[0].i])-.5, nrm(cls.ch[1],vals[cls.ch[1].i])-.5, nrm(cls.ch[2],vals[cls.ch[2].i])-.5]
+	}
+	const K = 16, quads = [], faces = [[0,255],[1,255],[2,255],[0,0],[1,0],[2,0]]
+	for (const [fix,fv] of faces) {
+		const grid = []
+		for (let u = 0; u <= K; u++) { grid.push([])
+			for (let v = 0; v <= K; v++) {
+				const rgb = [0,0,0]; rgb[fix] = fv
+				rgb[(fix+1)%3] = u/K*255; rgb[(fix+2)%3] = v/K*255
+				let p = null; try { const vals = toSpace(s, rgb); p = map3(vals); if (!p.every(isFinite)) p = null } catch { p = null }
+				grid[u].push({ p, rgb })
+			} }
+		for (let u = 0; u < K; u++) for (let v = 0; v < K; v++) {
+			const c4 = [grid[u][v], grid[u+1][v], grid[u+1][v+1], grid[u][v+1]]
+			if (c4.some(c => !c.p)) continue
+			const col = c4.reduce((a,c) => [a[0]+c.rgb[0]/4, a[1]+c.rgb[1]/4, a[2]+c.rgb[2]/4], [0,0,0])
+			quads.push({ pts: c4.map(c => c.p), col })
+		}
+	}
+	const hull = quads.length ? { quads } : null
+	HULL.set(s, hull); return hull
+}
+function drawHull(cv, s) {
+	const hull = hullOf(s); if (!hull) return false
+	const dpr = Math.min(devicePixelRatio || 1, 2), size = cv.clientWidth || 340
+	if (cv.width !== size*dpr) { cv.width = cv.height = size*dpr }
+	const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,size,size)
+	const [ay,ap] = DOSS.rot, cy = Math.cos(ay), sy = Math.sin(ay), cp = Math.cos(ap), sp = Math.sin(ap)
+	const sc = size*.62, cxp = size/2, cyp = size/2
+	const proj = ([x,y,z]) => { const x1 = x*cy - y*sy, y1 = x*sy + y*cy
+		const y2 = y1*cp - z*sp, z2 = y1*sp + z*cp
+		return [cxp + x1*sc, cyp - z2*sc, y2] }
+	const wire = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#1d1d1f'
+	const ordered = hull.quads.map(q => { const p = q.pts.map(proj)
+		return { p, d: (p[0][2]+p[1][2]+p[2][2]+p[3][2])/4, col: q.col } }).sort((a,b) => b.d - a.d)
+	void 0
+	ctx.lineWidth = .5; ctx.strokeStyle = wire + '26'
+	ctx.lineJoin = 'round'
+	for (const q of ordered) { ctx.beginPath()
+		ctx.moveTo(q.p[0][0], q.p[0][1])
+		for (let i = 1; i < 4; i++) ctx.lineTo(q.p[i][0], q.p[i][1])
+		ctx.closePath()
+		// a whisper of lambert from the screen-space normal — the facets read as a body, not a decal
+		const ux = q.p[1][0]-q.p[0][0], uy = q.p[1][1]-q.p[0][1], vx = q.p[3][0]-q.p[0][0], vy = q.p[3][1]-q.p[0][1]
+		const nz = ux*vy - uy*vx, sh = .82 + .18*Math.min(1, Math.abs(nz)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)+1e-6))
+		ctx.fillStyle = `rgb(${q.col.map(c => Math.round(c*sh)).join(' ')})`
+		ctx.fill(); ctx.stroke() }
+	return true
+}
+function dossHTML(s) {
+	const m = meta[s], cls = classify(s), ref = m.refs?.[0]
+	const pairs = []
+	for (let a = 0; a < cls.ch.length; a++) for (let b = a+1; b < cls.ch.length; b++) pairs.push([cls.ch[a].i, cls.ch[b].i])
+	const rel = (m.neighbors || []).filter(n => SPACES.includes(n) && n !== s)
+	const pr = (k,v) => v ? `<div><b>${k}</b><span>${v}</span></div>` : ''
+	let icc = null; try { icc = iccKind(space[s], { xyz: space.xyz }) } catch {}
+	const prim = primariesOf(s), f4 = v => (+v).toFixed(4), trc = trcOf(s)
+	return `
+	<header class="dhead">
+		<button class="back" id="dback">‹ All spaces</button>
+		<div class="dtit"><h2>${disp(s)}</h2><span class="sub"><code>${s}</code>${famOf[s]?` · ${famOf[s]}`:''}</span></div>
+		<button class="mx star" type="button" aria-pressed="${S.favs.has(s)}" aria-label="Toggle favorite">${STAR}</button>
+		<span class="spx"></span>
+		<span class="xmeta tnum">${[m.year, m.by].filter(Boolean).join(' · ')}${ref ? ` · <a href="${ref}" target="_blank" rel="noopener">Reference ↗</a>` : ''}</span>
+	</header>
+	<div class="dbody">
+		<div class="dcol1">
+			${cls.ch.length >= 3 ? `<section class="dpanel d3d"><h4>Solid</h4><canvas aria-label="sRGB gamut solid in ${disp(s)}"></canvas><div class="dnote">the sRGB gamut, wireframed in ${disp(s)}'s own body — drag to rotate</div></section>` : ''}
+			${cls.ch.length >= 2 ? `<section class="dpanel dpl"><h4>Plane</h4><div class="plwrap"><canvas aria-label="${disp(s)} plane picker"></canvas><i class="cx" aria-hidden="true"></i></div>
+				${pairs.length > 1 ? `<div class="axes" role="group" aria-label="Plane axes">${pairs.map(p =>
+					`<button data-ax="${p.join(',')}">${cls.ch.find(c=>c.i===p[0]).sym}×${cls.ch.find(c=>c.i===p[1]).sym}</button>`).join('')}</div>` : ''}</section>` : ''}
+		</div>
+		<div class="dcol2">
+			<section class="dpanel"><h4>Channels</h4>
+				<div class="chs">${m.channels.map((c,i) => `<div class="ch ch2" data-i="${i}">
+					<div class="lb"><b>${c.symbol}</b><span class="cn">${cname(c)}</span><span class="rng tnum">${fmtc(c.min,c)} … ${fmtc(c.max,c)}${unit(c)}</span><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" aria-label="${cname(c)} value"></div>
+					<div class="strip"><div class="g"></div><input type="range" min="${c.min}" max="${c.max}" step="any" data-i="${i}" aria-label="${cname(c)}"></div>
+				</div>`).join('')}</div></section>
+			<section class="dpanel"><h4>Interpolation</h4><div class="mix"><div class="g"></div></div><div class="mixnote">current → complement, stepped through ${disp(s)}</div></section>
+			<section class="dpanel"><h4>About</h4><p class="ddesc">${inlineCode(m.description || m.use || 'No description recorded.')}</p></section>
+			<section class="dpanel"><h4>Profile</h4><div class="prof">
+				${pr('Family', famOf[s])}${pr('Method', m.method)}${pr('Encoding', m.encoding)}
+				${pr('Geometry', GEO(s))}${pr('Signal', m.referred)}${pr('Range', (m.dynamic||'sdr').toUpperCase())}
+				${pr('White point', m.illuminant ? `${m.illuminant}${m.observer?` / ${m.observer}°`:''}` : '')}
+				${pr('CSS', CSSN[s] ? `<code>${CSSN[s]}</code>` : '')}
+				${pr('ICC class', icc || '')}
+				${pr('Backends', ['JS', capSets.wasm.has(s)&&'WASM', capSets.gl.has(s)&&'GL'].filter(Boolean).join(' · '))}
+				${pr('LUT', [LUTOK.has(s)&&'source', LUTTGT.has(s)&&'target'].filter(Boolean).join(' + '))}
+				${pr('Tags', (PURPOSE[s]||[]).join(', '))}
+				${prim ? pr('Primaries (xy)', `R ${prim.r.map(f4).join(' ')}<br>G ${prim.g.map(f4).join(' ')}<br>B ${prim.b.map(f4).join(' ')}${prim.adapted ? '<br>D65-adapted' : ''}`) : ''}
+				${prim ? pr('White XYZ', `${prim.ill ? prim.ill + ' · ' : ''}${prim.w.map(f4).join(' ')}`) : ''}
+				${trc ? `<div title="Constants from the defining specification, cross-checked against the shipped conversion on the neutral axis"><b>Transfer</b><span>${trc.name}<br>${trc.par.map(([k,v]) => `${k} ${v}`).join(' · ')}</span></div>` : ''}
+			</div></section>
+			<section class="dpanel"><h4>Record</h4><table class="chtab2">${m.channels.map(c =>
+				`<tr><td class="sy">${c.symbol}</td><td>${cname(c)}</td><td class="rg tnum">${fmtc(c.min,c)} … ${fmtc(c.max,c)}${unit(c)}</td></tr>`).join('')}</table>
+				${rel.length ? `<h4 style="margin-top:14px">Related</h4><div class="rel">${rel.map(n => `<button data-rel="${n}">${disp(n)}</button>`).join('')}</div>` : ''}
+				${(m.refs||[]).length ? `<h4 style="margin-top:6px">References</h4><div class="prof">${(m.refs||[]).map(r => `<div><span><a href="${r}" target="_blank" rel="noopener" style="color:var(--sel);text-decoration:none">${new URL(r).hostname.replace('www.','')} ↗</a></span></div>`).join('')}${m.wiki?`<div><span><a href="${m.wiki}" target="_blank" rel="noopener" style="color:var(--sel);text-decoration:none">Wikipedia ↗</a></span></div>`:''}</div>` : ''}
+			</section>
+		</div>
+	</div>`
+}
+function paintDoss() {
+	const s = S.doss; if (!s) return
+	const d = $('doss'), vals = valsOf(s); V.set(s, vals)
+	const m = meta[s], cls = classify(s)
+	const cv3 = d.querySelector('.d3d canvas'); if (cv3) drawHull(cv3, s)
+	const cvp = d.querySelector('.dpl canvas')
+	if (cvp) { const kind = paintPlane(cvp, s, DOSS_PLANE, DOSS.axes)
+		d.querySelector('.dpl').classList.toggle('disc', kind === 'disc')
+		const cur = DOSS.axes || (polarOf(cls) ? [polarOf(cls).angle, polarOf(cls).mag] : planeAxes(cls)) || []
+		d.querySelectorAll('.axes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.ax === cur.join(','))) }
+	d.querySelectorAll('.dcol2 .chs .ch').forEach((chl,i) => { const c = m.channels[i]
+		chl.querySelector('.g').style.background = grad(s,vals,c,i) + ', var(--checker)'
+		const r = chl.querySelector('input[type=range]'); if (document.activeElement !== r) r.value = vals[i]
+		const cv = chl.querySelector('.cv'); if (document.activeElement !== cv) cv.value = fmtc(vals[i],c) })
+	// interpolation: current ↔ its complement, mixed inside THIS space
+	let comp; try { comp = (cls.archetype === 'polar' || cls.archetype === 'opponent') ? rotateHue(cls, vals, 180) : toSpace(s, S.rgb.map(x => 255 - x)) } catch { comp = vals }
+	const stops = []
+	for (let k = 0; k <= 12; k++) { let rgb
+		try { rgb = rgbF(s, mixInSpace(s, vals, comp, k/12)) } catch { rgb = [0,0,0] }
+		if (S.quant === 'web') rgb = rgb.map(x => Math.round(x/51)*51)
+		stops.push(`rgb(${rgb.map(Math.round).join(' ')}) ${(k/12*100).toFixed(1)}%`) }
+	const mix = d.querySelector('.mix .g')
+	if (mix) mix.style.background = S.quant === 'steps'
+		? `linear-gradient(90deg, ${stops.flatMap((st,k) => { const c = st.split(' ')[0]; return [`${c} ${(k/13*100).toFixed(1)}%`, `${c} ${((k+1)/13*100).toFixed(1)}%`] }).join(',')})`
+		: `linear-gradient(90deg, ${stops.join(',')})`
+	const st = d.querySelector('.dhead .star'); if (st) st.setAttribute('aria-pressed', S.favs.has(s))
+}
+function openDossier(s, push = true) {
+	S.doss = s; DOSS.axes = null; select(s)
+	$('doss').innerHTML = dossHTML(s)
+	$('cols').classList.add('dossmode')
+	$('doss').scrollTop = 0
+	paintDoss()
+	if (push) { DOSS.pushed = true; clearTimeout(hashT); history.pushState(null,'',hashStr()) } else writeHash()
+}
+function exitDossier() {   // leave the page view; history is already where it should be
+	S.doss = null; $('cols').classList.remove('dossmode'); $('doss').innerHTML = ''
+	dirtyAll(); reveal(S.sel)
+}
+function closeDossier() { if (DOSS.pushed) { DOSS.pushed = false; history.back() } else { exitDossier(); writeHash() } }
+addEventListener('popstate', () => {
+	const P = new URLSearchParams(location.search), d = P.get('s')
+	if (d && SPACES.includes(d)) { if (S.doss !== d) openDossier(d, false) }
+	else if (S.doss) exitDossier()
+})
+
+// ── chrome: collections rail (favorites + purpose facets), filter row, toolbar ──
+const PLABEL = { print: 'Print & surface' }   // the tag's tip has always meant inks, paints AND atlases — the label now says so
+function paintSide() {
+	const b = (on,attr,label,count) => `<button class="${on?'on':''}" ${attr} aria-pressed="${on}"><span class="n">${label}</span>${count!=null?`<span class="c tnum">${count}</span>`:''}</button>`
+	$('side').innerHTML = `
+		${b(!S.purposes.size && !S.favsOnly && !S.family,'data-all','All spaces',SPACES.length)}
+		${b(S.favsOnly,'data-favs','<span class="fs">★</span> Favorites',S.favs.size)}
+		<h2>Families</h2>${LINEAGE.map(c => b(S.family === c.name,`data-fam="${c.name}" title="${c.tip||''}"`,c.name,c.spaces.length)).join('')}
+		<h2>Tags</h2><div class="tcloud">${ORDER.map(t => `<button class="${S.purposes.has(t)?'on':''}" data-p="${t}" aria-pressed="${S.purposes.has(t)}" title="${TIPS[t]} (${PCOUNT[t]})">${PLABEL[t] || t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div>`
+}
+function paintFacets() {
+	$('scope').innerHTML = FDEF.map(([k,label,opts]) => {
+		const shown = opts.filter(([v]) => k !== 'avail' || !['gl','wasm'].includes(v) || capSets[v].size)
+		return `<label class="fsel"><span>${label}</span><select data-fk="${k}" class="${F[k]?'on':''}" aria-label="${label} filter">
+			<option value="">Any</option>${shown.map(([v,l]) => `<option value="${v}"${F[k]===v?' selected':''}>${l}</option>`).join('')}</select></label>`
+	}).join('') +
+	`<span class="sp"></span><label class="fsel"><span>Sort</span><select id="sort" aria-label="Order within families">
+		<option value="popular"${S.sort==='popular'?' selected':''}>Popularity</option>
+		<option value="era"${S.sort==='era'?' selected':''}>Era</option>
+		<option value="name"${S.sort==='name'?' selected':''}>Name</option></select></label>`
+	$('sort').onchange = e => { S.sort = e.target.value; localStorage.altSort = S.sort; render() }
+}
+$('scope').addEventListener('change', e => { const k = e.target.dataset.fk; if (!k) return
+	F[k] = e.target.value; render(); $('scroll').scrollTop = 0 })
+
+// ── render & repaint ──
+const paintEnt = el => el.classList.contains('card') ? paintCard(el) : paintRow(el)
+const viewEl = () => $(S.view === 'tbl' ? 'tblw' : S.view)
+function render() {
+	const L = shown(), G = grouped(L)
+	RENDER.flat = G.flatMap(g => g.spaces)
+	$('count').textContent = `${L.length} space${L.length===1?'':'s'}${L.length!==SPACES.length?` of ${SPACES.length}`:''}`
+	;['gal','list','tblw','empty'].forEach(id => $(id).hidden = true)
+	if (!L.length) { $('empty').hidden = false; $('empty').innerHTML = `<b>No matching color spaces</b><span>Clear search and filters to return to the full catalogue.</span><button type="button">Show all</button>` }
+	else if (S.view === 'gal') { $('gal').hidden = false
+		$('gal').innerHTML = G.map(g => `<h3 class="gsec"${g.tip?` title="${g.tip}"`:''}>${g.name}<i class="tnum">${g.spaces.length}</i></h3><div class="ggrid">${g.spaces.map((sp,i2) => cardHTML(sp, i2+1)).join('')}</div>`).join('')
+		$('gal').querySelectorAll('.card').forEach(el => io.observe(el)) }
+	else if (S.view === 'list') { $('list').hidden = false
+		$('list').innerHTML = G.map(g => `<h3 class="gsec"${g.tip?` title="${g.tip}"`:''}>${g.name}<i class="tnum">${g.spaces.length}</i></h3>${g.spaces.map((sp,i2) => rowHTML(sp, i2+1)).join('')}`).join('')
+		$('list').querySelectorAll('.row').forEach(el => io.observe(el)) }
+	else { $('tblw').hidden = false; $('tblw').innerHTML = tblHTML(G); paintTbl() }
+	paintSide(); paintFacets(); paintCur(); paintInsp()
+	;['v-gal','v-list','v-tbl'].forEach(id => $(id).setAttribute('aria-pressed',id === 'v-' + S.view))
+	;[['q-smooth','smooth'],['q-steps','steps'],['q-web','web']].forEach(([id,v]) => $(id).setAttribute('aria-pressed', S.quant === v))
+	writeHash()
+}
+let raf = 0
+function dirtyAll() {   // color changed: repaint what's on screen this frame, the rest re-primes lazily
+	if (raf) return
+	raf = requestAnimationFrame(() => { raf = 0
+		const vh = innerHeight, pad = vh/3
+		document.querySelectorAll('.card, .row').forEach(el => {
+			const r = el.getBoundingClientRect()
+			if (r.bottom > -pad && r.top < vh + pad) paintEnt(el); else io.observe(el) })
+		if (!$('tblw').hidden) paintTbl()
+		paintCur(); paintInsp(); if (S.doss) paintDoss(); writeHash()
+	})
+}
+function paintCur() { const h = cssHex(), tki = ink(S.rgb), root = document.documentElement
+	root.style.setProperty('--cur',h); root.style.setProperty('--tkc',h)
+	root.style.setProperty('--tki',tki); root.style.setProperty('--tkv',tki === '#fff' ? 'var(--dark)' : '#fff')   // the tick's ring pair: the fill's own ink, and its inverse on engagement
+	$('csw').style.background = h; $('cpick').value = h
+	if (document.activeElement !== $('chex')) $('chex').value = h
+}
+
+// ── wiring ──
+const setInspector = on => { S.insp = on; $('cols').classList.toggle('insp',on) }   // narrow-screen overlay only — at full width the record is always present
+function setHexError(on) { $('chex').toggleAttribute('aria-invalid',on); $('curmsg').hidden = !on }
+const resetFilters = () => { S.purposes.clear(); S.favsOnly = false; for (const [k] of FDEF) F[k] = ''; S.q = ''; $('q').value = ''; $('findw').classList.remove('has'); render() }
+function reveal(s) { const el = document.querySelector(`.card[data-s="${CSS.escape(s)}"], .row[data-s="${CSS.escape(s)}"], tr.sr[data-s="${CSS.escape(s)}"]`)
+	el?.scrollIntoView({ block:'nearest' }) }
+
+const setView = view => { S.view = view; localStorage.altView = view; render(); $('scroll').scrollTop = 0
+	const el = viewEl(); el.classList.remove('vin'); void el.offsetWidth; el.classList.add('vin') }   // entrance replayed by the switch, never by filtering
+$('v-gal').onclick = () => setView('gal')
+$('v-list').onclick = () => setView('list')
+$('v-tbl').onclick = () => setView('tbl')
+$('zoom').oninput = e => { S.z = +e.target.value; document.documentElement.style.setProperty('--zoom',S.z)
+	document.body.classList.toggle('zoomed',S.z > .55); document.body.classList.toggle('zmin',S.z < .18) }
+$('zoom').oninput({ target:$('zoom') })
+;[['q-smooth','smooth'],['q-steps','steps'],['q-web','web']].forEach(([id,v]) => $(id).onclick = () => {
+	S.quant = v; localStorage.altQuant = v
+	document.querySelectorAll('.plbox canvas, .plwrap canvas').forEach(cv => delete cv.dataset.k)
+	render(); if (S.doss) paintDoss() })
+$('q').oninput = e => { S.q = e.target.value.trim(); $('findw').classList.toggle('has',!!S.q); render() }
+$('qx').onclick = () => { S.q = ''; $('q').value = ''; $('findw').classList.remove('has'); render(); $('q').focus() }
+$('empty').onclick = e => { if (e.target.closest('button')) resetFilters() }
+$('cpick').oninput = e => { const h = e.target.value; setColor('rgb',[1,3,5].map(i => parseInt(h.slice(i,i+2),16))) }
+$('chex').oninput = e => { if (/^#?[0-9a-f]{6}$/i.test(e.target.value.trim())) setHexError(false) }
+$('chex').onchange = e => { const m = e.target.value.trim().match(/^#?([0-9a-f]{6})$/i)
+	if (m) setColor('rgb',[0,2,4].map(i => parseInt(m[1].slice(i,i+2),16))); else setHexError(true) }
+
+const SUN='<svg width="14" height="14" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>'
+const MOON='<svg width="13" height="13" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'
+const drawTheme = () => { const dark = document.documentElement.dataset.theme === 'dark'; $('thm').innerHTML = dark ? SUN : MOON; $('thm').setAttribute('aria-pressed',dark); $('thm').setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme') }
+$('thm').onclick = () => { const flip = () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+		document.documentElement.dataset.theme = t; localStorage.csTheme = t; drawTheme(); if (S.doss) paintDoss() }
+	// ease the brightness jump when the platform can cross-fade it
+	if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(flip); else flip() }
+
+$('side').onclick = e => { const b = e.target.closest('button'); if (!b) return
+	if ('all' in b.dataset) { S.purposes.clear(); S.favsOnly = false; S.family = null }
+	else if ('favs' in b.dataset) S.favsOnly = !S.favsOnly
+	else if (b.dataset.fam) S.family = S.family === b.dataset.fam ? null : b.dataset.fam
+	else if (b.dataset.p) S.purposes[S.purposes.has(b.dataset.p)?'delete':'add'](b.dataset.p)
+	else return
+	render(); $('scroll').scrollTop = 0 }
+
+// selection + face paging + dossier — one delegated listener per view.
+// Selecting changes no color: touch only the selection dress and the record, never the specimens.
+function select(s) { if (S.sel === s) return; S.sel = s; localStorage.altSel = s; delete $('insp').dataset.s
+	document.querySelectorAll('.card.on,.row.on,tr.sr.on').forEach(el => { el.classList.remove('on')
+		el.querySelector('.nm,.trpick')?.setAttribute('aria-pressed','false') })
+	document.querySelectorAll(`[data-s="${CSS.escape(s)}"]`).forEach(el => { if (el.matches('.card,.row,tr.sr')) { el.classList.add('on')
+		el.querySelector('.nm,.trpick')?.setAttribute('aria-pressed','true') } })
+	paintInsp(); writeHash() }
+$('gal').onclick = e => { const card = e.target.closest('.card'); if (!card) return
+	const s = card.dataset.s; select(s)
+	if (e.target.closest('.nm') && !WIDE.matches) setInspector(true)   // the name is the door to the record where it isn't already open
+	const pv = e.target.closest('.pv'), nx = e.target.closest('.nx'), FACES = 2   // sliders · plane (a 3D solid face would slot in here)
+	if (pv || nx) { S.faces[s] = ((S.faces[s]||0)+(nx?1:FACES-1))%FACES; paintCard(card)
+		const f = card.querySelector('.face'); f.classList.remove('fin'); void f.offsetWidth; f.classList.add('fin') } }
+$('gal').addEventListener('dblclick', e => { const card = e.target.closest('.card'); if (!card) return
+	if (e.target.closest('.nch, .pg, button, .cv')) return   // strips pass through — a double-click on the specimen IS the door to the dossier
+	e.preventDefault(); openDossier(card.dataset.s) })
+$('list').onclick = e => { const row = e.target.closest('.row'); if (!row) return
+	const s = row.dataset.s; select(s)
+	if (e.target.closest('.hd')) { row.classList.toggle('open'); S.open[row.classList.contains('open')?'add':'delete'](s); paintRow(row) } }
+$('list').addEventListener('dblclick', e => { const row = e.target.closest('.row'); if (!row) return
+	if (e.target.closest('input,.cv')) return
+	e.preventDefault(); openDossier(row.dataset.s) })
+$('tblw').onclick = e => {
+	const cfg = e.target.closest('#cfg'); if (cfg) { const b = e.target.closest('button'); if (b) { cfg.classList.toggle('open'); b.setAttribute('aria-expanded',cfg.classList.contains('open')) } return }
+	const th = e.target.closest('th[data-k]'); if (th) { S.sort = th.dataset.k === 'year' ? 'era' : 'name'; localStorage.altSort = S.sort; render(); return }
+	const tr = e.target.closest('tr.sr'); if (!tr) return
+	const s = tr.dataset.s; select(s)
+	if (e.target.closest('.trpick') && !e.target.closest('.dis') && !WIDE.matches && e.detail !== 2) setInspector(true)
+	if (e.target.closest('.dis')) { S.open[S.open.has(s)?'delete':'add'](s); render() }
+	else if (e.detail === 2) openDossier(s) }
+$('tblw').onchange = e => { const k = e.target.dataset.k; if (!k) return; S.cols[e.target.checked?'add':'delete'](k); render() }
+
+// live channel editing — sliders and value fields in gallery tiles, list rows, the inspector, and the dossier
+function onEdit(host,sOf) { host.addEventListener('input',e => {
+	const t = e.target; if (t.type !== 'range' && !t.classList.contains('cv')) return
+	const chl = t.closest('.ch,.st,.nv'); if (!chl) return
+	const s = sOf(t), i = +chl.dataset.i, vals = (V.get(s)||valsOf(s)).slice(), parsed = parseFloat(t.value)
+	if (!isFinite(parsed)) return; if (S.sel !== s) select(s)
+	const c = meta[s].channels[i]; vals[i] = clamp(parsed,c.min,c.max); setColor(s,vals) }) }
+onEdit($('gal'),t => t.closest('.card').dataset.s)
+onEdit($('list'),t => t.closest('.row').dataset.s)
+onEdit($('insp'),() => S.sel)
+onEdit($('doss'),() => S.doss)
+wirePlane($('gal'),cv => cv.closest('.card').dataset.s)
+wirePlane($('insp'),() => S.sel)
+wirePlane($('doss'),() => S.doss)
+$('insp').addEventListener('click',e => {
+	if (e.target.closest('.iclose')) { setInspector(false); return }
+	const st = e.target.closest('.star'); if (st) { toggleFav(S.sel, st); return }
+	const rl = e.target.closest('[data-rel]'); if (rl) { select(rl.dataset.rel); reveal(rl.dataset.rel); return }
+	const b = e.target.closest('.vseg button'); if (b && !b.disabled) { IVIEW.v = b.dataset.v; paintInsp() } })
+function toggleFav(s, btn) { S.favs[S.favs.has(s)?'delete':'add'](s); localStorage.altFavs = JSON.stringify([...S.favs])
+	btn?.setAttribute('aria-pressed',S.favs.has(s)); paintSide(); if (S.favsOnly && !S.doss) render() }
+$('doss').addEventListener('click',e => {
+	if (e.target.closest('#dback')) { closeDossier(); return }
+	const st = e.target.closest('.star'); if (st) { toggleFav(S.doss, st); return }
+	const rl = e.target.closest('[data-rel]'); if (rl) { openDossier(rl.dataset.rel, false); clearTimeout(hashT); history.replaceState(null,'',hashStr()); return }
+	const ax = e.target.closest('.axes button'); if (ax) { DOSS.axes = ax.dataset.ax.split(',').map(Number); paintDoss() } })
+// the solid is in the hand: drag rotates the hull
+$('doss').addEventListener('pointerdown',e => { const cv = e.target.closest('.d3d canvas'); if (!cv) return
+	e.preventDefault(); cv.setPointerCapture(e.pointerId)
+	let lx = e.clientX, ly = e.clientY
+	const mv = ev => { DOSS.rot[0] += (ev.clientX - lx) * .011; DOSS.rot[1] = clamp(DOSS.rot[1] - (ev.clientY - ly) * .011, -Math.PI/2, Math.PI/2)
+		lx = ev.clientX; ly = ev.clientY; drawHull(cv, S.doss) }
+	cv.addEventListener('pointermove',mv)
+	cv.addEventListener('pointerup',() => cv.removeEventListener('pointermove',mv),{ once:true }) })
+// the record's width is a grab: drag the inspector's left edge at full width
+$('insp').addEventListener('pointerdown',e => { const h = e.target.closest('.rsz'); if (!h || !WIDE.matches) return
+	e.preventDefault(); h.classList.add('drag')
+	const move = ev => { const w = clamp(window.innerWidth - ev.clientX, 300, 560)
+		document.documentElement.style.setProperty('--inspw', w + 'px') }
+	const up = () => { removeEventListener('pointermove',move); removeEventListener('pointerup',up); h.classList.remove('drag')
+		localStorage.altInspW = document.documentElement.style.getPropertyValue('--inspw') }
+	addEventListener('pointermove',move); addEventListener('pointerup',up) })
+$('insp').addEventListener('dblclick',e => { if (!e.target.closest('.rsz')) return
+	document.documentElement.style.removeProperty('--inspw'); delete localStorage.altInspW })
+document.addEventListener('click',e => { const c = document.querySelector('.cfg.open'); if (c && !e.target.closest('.cfg')) { c.classList.remove('open'); c.querySelector('button')?.setAttribute('aria-expanded','false') } })
+
+// ── keyboard: arrows walk the shelves (or leaf through dossiers), Enter/Space discloses, Escape unwinds ──
+const colsOf = () => { const g = document.querySelector('.ggrid'); return g ? getComputedStyle(g).gridTemplateColumns.split(' ').length : 1 }
+document.addEventListener('keydown',e => {
+	if (e.key === 'Escape') {
+		const c = document.querySelector('.cfg.open'); if (c) { c.classList.remove('open'); c.querySelector('button')?.setAttribute('aria-expanded','false'); return }
+		if (S.doss) { closeDossier(); return }
+		if (S.insp && !WIDE.matches) setInspector(false)
+		return }
+	if (e.target.closest('input,select,textarea,[contenteditable]')) return
+	const flat = RENDER.flat; if (!flat.length) return
+	if (S.doss) {   // in the dossier, ← → leaf through neighbouring spaces
+		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+		e.preventDefault()
+		let i = flat.indexOf(S.doss); if (i < 0) i = 0
+		i = clamp(i + (e.key === 'ArrowRight' ? 1 : -1), 0, flat.length - 1)
+		if (flat[i] !== S.doss) { openDossier(flat[i], false); clearTimeout(hashT); history.replaceState(null,'',hashStr()) }
+		return }
+	let i = flat.indexOf(S.sel); if (i < 0) i = 0
+	const step = S.view === 'gal' ? colsOf() : 1
+	if (e.key === 'ArrowLeft') i--
+	else if (e.key === 'ArrowRight') i++
+	else if (e.key === 'ArrowUp') i -= step
+	else if (e.key === 'ArrowDown') i += step
+	else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault()
+		if (S.view === 'gal') openDossier(S.sel)
+		else if (S.view === 'list') { const row = document.querySelector(`.row[data-s="${CSS.escape(S.sel)}"]`)
+			if (row) { row.classList.toggle('open'); S.open[row.classList.contains('open')?'add':'delete'](S.sel); paintRow(row) } }
+		else { S.open[S.open.has(S.sel)?'delete':'add'](S.sel); render() }
+		return }
+	else return
+	e.preventDefault()
+	i = clamp(i, 0, flat.length - 1)
+	if (flat[i] !== S.sel) { select(flat[i]); reveal(flat[i]) }
+})
+
+if (localStorage.altInspW) document.documentElement.style.setProperty('--inspw', localStorage.altInspW)
+if (S.q) { $('q').value = S.q; $('findw').classList.add('has') }
+drawTheme(); render(); requestAnimationFrame(() => $('cols').classList.add('ready'))
+if (SPACES.includes(H0.get('s'))) openDossier(H0.get('s'), false)   // deep-linked dossier (the main site's ?s= slug): no push, Back leaves the site as it should
+</script>
+</body>
+</html>

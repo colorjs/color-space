@@ -244,7 +244,7 @@ void main() {
 		okp = vec3((floor(min(okp.x, .9999) / .023) + .5) * .023, round(okp.y / .023) * .023, round(okp.z / .023) * .023);
 		rgb = floor(clamp(oklab_rgb(okp), 0.0, 255.0) + 0.5);
 	} else if (uClu == 3) {   // the 16-bit lens – RGB565 hardware depth
-		rgb = floor(floor(rgb / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5);
+		rgb = floor(floor(floor(rgb + 0.5) / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5);
 	}
 	float al = 1.0;
 	// the limits are a property of the COORDINATE, not the render mode: past the space's
@@ -1006,6 +1006,7 @@ uniform int uPass;           // 0 = opaque in-box · 1 = translucent beyond-box
 uniform ivec4 uMap;
 uniform int uHasHue;
 uniform int uQuant;          // 0 smooth · 10/20 native-channel cells · 101/102/103 safe/name/even
+uniform int uGrid;           // optional native-coordinate contours, independent of tessellation
 uniform ivec2 uBip;   // bipolar (opponent) chroma channels, else (-1,-1) – marks a lightness-axis space
 uniform ivec2 uCapK;  // pass 2: the capped face (axis, side) whose clipped sheet is stencilled
 uniform ivec2 uCut;   // the hovered plane's HELD axis (x, -1 = none) and whether it wraps (y)
@@ -1058,6 +1059,15 @@ void main() {
 		vec3 f = clamp((vF - uDMin) / span, 0.0, 0.999999);
 		vec3 qv = uDMin + (floor(f * float(uQuant)) + 0.5) / float(uQuant) * span;
 		O.rgb = ${nativeQ};
+	}
+	if (uGrid == 1) {
+		vec3 f = (vF - uDMin) / max(uDMax - uDMin, vec3(1e-9)) * 10.0;
+		vec3 width = fwidth(f);
+		vec3 line = abs(fract(f + 0.5) - 0.5) / max(width, vec3(1e-5));
+		// A constant coordinate (a cube face) is not a contour covering that face.
+		for (int k = 0; k < 3; k++) if (width[k] < 1e-5) line[k] = 1e5;
+		float ink = 1.0 - smoothstep(0.3, 0.9, min(line.x, min(line.y, line.z)));
+		O.rgb *= 1.0 - ink * 0.55;
 	}
 	// the tone is clipped HARD to its range: below the floor lies OSA-UCS's chroma pole and its
 	// pass 2 – the STENCIL parity sheet for one capped face: exactly the fragments the
@@ -1161,7 +1171,7 @@ void main() {
 	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
 	O = vec4(softDisp(disp), 1.0);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uMetric', 'uPalIdx', 'uPalSites']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
 			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
@@ -1337,6 +1347,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		gl.uniform2i(u.uWb, map.wI ?? -1, map.bI ?? -1)
 		if (u.uBip !== undefined) gl.uniform2i(u.uBip, map.bip?.[0] ?? -1, map.bip?.[1] ?? -1)
 		if (u.uQuant) gl.uniform1i(u.uQuant, q3Mode(quant))
+		if (u.uGrid) gl.uniform1i(u.uGrid, map.grid ? 1 : 0)
 		// the hovered plane's cut, drawn per pixel on the surface (see fsSurf's uCut band)
 		if (u.uCut) gl.uniform2i(u.uCut, cut ? cut.axis : -1, cut && cut.wrap ? 1 : 0)
 		if (u.uCutV) gl.uniform2f(u.uCutV, cut ? cut.val : 0, cut ? cut.span : 1)

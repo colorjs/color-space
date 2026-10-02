@@ -24,6 +24,11 @@ try {
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
 	assert.equal(await page.locator('.ent').count(), 162, 'catalog has all spaces')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
+	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
+	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
+		const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width > n.getBoundingClientRect().width + 1 }).map(n => n.closest('.ent').dataset.s)), [], 'no catalog name is clipped')
+	assert.equal(await page.locator('.ent[data-s="cmyk"] .cvp .stk button').first().evaluate(b => getComputedStyle(b).opacity), '0', 'on hover-capable pointers the spinners rest until their row is pointed')
 	const initialGradient=await page.locator('.ent[data-s="oklch"] .ch').first().evaluate(el => el.style.background.includes('linear-gradient')?el.style.background:el._gradStack?.at(-1)?.style.background||'')
 	assert.match(initialGradient, /linear-gradient/, 'catalog strips use CSS gradients')
 	assert.match(initialGradient, /rgb\([^)]*\.\d+/, 'gradient guides retain sub-byte color precision')
@@ -207,6 +212,7 @@ try {
 	await trigger.click()
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
+	assert.match(await page.locator('#detail .dgrid2').evaluate(el => el.textContent), /made for\s*The polar form CSS adopted/, 'the lore line says what the space was made for, sentence-cased')
 	assert.equal(await page.locator('#cseg').evaluate(el=>getComputedStyle(el).getPropertyValue('--cur').trim().toLowerCase()),(await page.locator('#cd').inputValue()).toLowerCase(),'dynamic dossier tabs receive the scoped current color')
 	const mode=async value=>{ await page.evaluate(v=>{ const q=document.getElementById('qseg'); q.value=v; q.dispatchEvent(new Event('change',{bubbles:true})) },value)   // the view select lives in the (closed) filter panel now — drive it by value, not by visibility
 		await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))) }
@@ -513,8 +519,68 @@ try {
 	assert.match(await page.locator('#dtitle').innerText(), /oklab/i, 'offline navigation opens the dossier from the cached shell')
 	await context.setOffline(false)
 
+	// Exercise the staged renderer directly, with a fresh module instance and no
+	// page animation. Read pixels in the draw task (WebGL clears between frames).
+	const gpu = await context.newPage()
+	gpu.on('pageerror', error => errors.push(error.message))
+	await gpu.goto(`${server.origin}/robots.txt?cb=${Date.now()}`)
+	const rendering = await gpu.evaluate(async () => {
+		const { paintBarGL, paintPlaneGL, mesh3Canvas, drawMesh3GL } = await import('/js/gl.js')
+		const { quantRGB } = await import('/js/study-render.js')
+		const check = (ok, message) => { if (!ok) throw new Error(message) }
+		const ready = async draw => { const end = performance.now() + 20000
+			while (!draw()) { check(performance.now() < end, 'renderer did not become ready'); await new Promise(r => requestAnimationFrame(r)) } }
+		const pixel = Object.assign(document.createElement('canvas'), { width: 1, height: 1 })
+		const samples = [
+			[[0,0,0], '565'], [[255,255,255], '565'], [[4.49,2.49,4.49], '565'], [[4.5,2.5,4.5], '565'],
+			[[25.49,127.49,229.49], 'web'], [[25.5,127.5,229.5], 'web'],
+			[[0,0,0], 'jnd'], [[127.49,127.49,127.49], 'jnd'], [[255,255,255], 'jnd'],
+			[[245.49,105.49,22.49], 'pico8'], [[255,0,0], 'names'], [[255,0,0], 'pico8'], [[255,0,0], 'names'],
+		]
+		for (const [rgb, mode] of samples) {
+			const expected = quantRGB(rgb, mode), rx = [rgb[0],rgb[0]], ry = [rgb[1],rgb[1]]
+			for (const draw of [
+				() => paintBarGL(pixel, 'rgb', rgb, 0, rx, 'off', mode),
+				() => paintPlaneGL(pixel, 'rgb', rgb, 0, 1, rx, ry, 'off', mode),
+			]) {
+				await ready(draw); draw()
+				const got = pixel.getContext('2d').getImageData(0,0,1,1).data
+				check(got[3] === 255 && expected.every((v,i) => Math.abs(v-got[i]) <= (mode === 'jnd' ? 1 : 0)), `${mode} ${rgb}: GPU ${[...got]} differs from CPU ${expected}`)
+			}
+		}
+		const cv = mesh3Canvas(); cv.width = cv.height = 256
+		const gl = cv.getContext('webgl2'), rot = { a: -.6, b: .42 }
+		const maps = { rgb: { min:[0,0,0], max:[255,255,255], ti:0 }, oklab: { min:[0,-.4,-.4], max:[1,.4,.4], ti:0, bip:[1,2] } }
+		const draw = (s, grid) => drawMesh3GL(cv, s, { ...maps[s], grid }, rot, 1.2)
+		const capture = (s, grid) => { check(draw(s,grid), `${s}: warmed renderer failed`)
+			const out = new Uint8Array(cv.width*cv.height*4); gl.readPixels(0,0,cv.width,cv.height,gl.RGBA,gl.UNSIGNED_BYTE,out); return out }
+		const equal = (a,b) => a.every((v,i) => v === b[i])
+		let first, changed = 0
+		for (const s of ['rgb','oklab','rgb']) {
+			await ready(() => draw(s))
+			const off = capture(s), repeat = capture(s), on = capture(s,true), reset = capture(s), explicit = capture(s,false)
+			check(equal(off,repeat), `${s}: repeated draw changed pixels`)
+			check(equal(off,reset) && equal(off,explicit), `${s}: contour uniform leaked into default/off draw`)
+			if (s === 'rgb') { if (first) check(equal(first,off), 'RGB → OKLab → RGB changed the original surface'); else first = off }
+			let visible = 0, darkened = 0, untouched = 0
+			for (let i = 0; i < off.length; i += 4) {
+				check(off[i+3] === on[i+3], `${s}: contours changed surface coverage`)
+				check(on[i] <= off[i] && on[i+1] <= off[i+1] && on[i+2] <= off[i+2], `${s}: contours lightened a pixel`)
+				if (!off[i+3]) continue
+				visible++
+				if (on[i] < off[i] || on[i+1] < off[i+1] || on[i+2] < off[i+2]) darkened++; else untouched++
+			}
+			check(visible > 1000 && darkened > 100 && untouched > visible*.2, `${s}: contours missing or covering whole faces (${visible}/${darkened}/${untouched})`)
+			changed += darkened
+		}
+		return { samples: samples.length*2, changed }
+	})
+	assert.equal(rendering.samples, 26, 'one-pixel bar and plane quantization agree with the CPU at byte boundaries')
+	assert.ok(rendering.changed > 0, 'contours preserve coverage and reset across RGB → OKLab → RGB on one canvas')
+	await gpu.close()
+
 	if (errors.length) throw new Error(errors.join('\n'))
-	console.log('browser: search, coverage filter, CSS parsing, tabs, persisted theme, modal lifecycle, direct route, mobile keyboard, social image and offline shell pass')
+	console.log('browser: search, coverage filter, CSS parsing, tabs, persisted theme, modal lifecycle, direct route, mobile keyboard, social image, offline shell, quantization boundaries and contour reuse pass')
 } finally {
 	await context.close()
 	await browser.close()

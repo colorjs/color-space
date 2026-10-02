@@ -16,7 +16,7 @@ export const cname = c => c.name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/(\s*\
 // as their real names everywhere. DISP pins the spaces whose description opens otherwise
 // or whose ascii id must not be blindly uppercased (Okhsl, YDbDr, proLab, lαβ, …).
 const DISP = {
-	lab: 'CIELAB', lchab: 'CIELChab', luv: 'CIELUV', lchuv: 'CIELChuv', 'lch-d65': 'CIELCh D65',
+	lab: 'CIELAB', lchab: 'CIELChab', luv: 'CIELUV', lchuv: 'CIELChuv', 'lab-d65': 'CIELAB D65', 'lch-d65': 'CIELCh D65',
 	labh: 'Hunter Lab', hsluv: 'HSLuv', hpluv: 'HPLuv', anlab: 'Adams–Nickerson Lab',
 	ucs: 'CIE 1960 UCS', uvw: 'CIE 1964 UVW', 'xyz-d50': 'CIE XYZ (D50)',
 	oklab: 'OKLab', oklch: 'OKLCH', okhsl: 'Okhsl', okhsv: 'Okhsv', okhwb: 'Okhwb', oklrab: 'OKLrAB', oklrch: 'OKLrCH',
@@ -29,6 +29,10 @@ const DISP = {
 	macboyn: 'MacLeod–Boynton', lalphabeta: 'lαβ' }
 const NAME = {}   // derived once per space — disp runs per catalog row per keystroke (markName), per template build
 export const disp = s => NAME[s] ??= DISP[s] || (m => m && m[1].length <= 40 ? m[1] : s.toUpperCase())((meta[s]?.description || '').match(/^(.+?) — /))
+// set a display name for wrapping: word-internal hyphens turn non-breaking (U+2011, one code
+// unit for one, so match offsets from disp() still land) – a wrapped name breaks at spaces,
+// never as "Linear- / light sRGB"
+export const nbh = t => t.replace(/(\w)-(?=\w)/g, '$1\u2011')
 export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? '%' : '')
 const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ name: c.name, tip: c.tip, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
@@ -69,7 +73,7 @@ const ent = (s, lite, st) => { const cls = classify(s)
 	let vals = null; if (st) { try { vals = s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { vals = null } }
 	const full = vals && !lite, lens='off'   // lead cards bake Light (full real reach) sliders + thumb positions; sheet rows bake values only
 	return `<article class="ent${lite ? ' lite' : ''}" data-s="${s}"${vals ? ` data-v="${st.hx}${full ? '' : ':l'}"${full ? ` data-g="${st.hx}:0:48:${lens}"` : ''}` : ''} style="--nch:${cls.ch.length}">
-	 <div class="eh"><button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="Open ${s} color-space dossier">${disp(s)}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
+	 <div class="eh"><button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="Open ${s} color-space dossier">${nbh(disp(s))}</button><span class="cvs">${cls.ch.map((c2, i) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}><span class="stk" aria-hidden="true"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span>`).join('')}</span></div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${full ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, 48, lens).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${full ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${cname(c2)} slider"></div>`).join('')}</div>
 	</article>` }
 

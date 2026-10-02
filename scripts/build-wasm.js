@@ -12,11 +12,10 @@
 // ~760 bytes. It's a reactor module (function exports, no `_start`); a host instantiates
 // it and calls the conversions directly (e.g. `wasmtime run --invoke rgb_lrgb file 255 128 0`).
 //
-// `noTailCall` matters for reach: jz tail-calls the PQ encoder's `exp` by default, and the
-// tail-call proposal isn't universal (wasmtime yes, wasmer 4.x no). Ordinary frames cost
-// one byte and nothing measurable (the batch loops aren't recursive) and run everywhere.
-// `maxMemory` declares a growable memory so `alloc()` can grow it for large batches;
-// without it the buffer is pinned to one 64 kB page and big batches fault.
+// Disable tail calls and exception handling for standalone runtimes such as Wasmer
+// 4.x that do not enable these proposals. The math kernel needs neither feature.
+// The declared memory maximum lets alloc() grow for large batches; without it
+// the buffer is pinned to one 64 kB page and large batches fault.
 //
 //   npm run build:wasm
 //
@@ -28,8 +27,8 @@ import { pathToFileURL } from 'node:url'
 
 // The compile contract — ONE source of truth for the build and test/wasm-standalone.js:
 // 'speed' = O3 fast-paths + SIMD; grow to the wasm32 max (4 GB) for large batches;
-// noTailCall keeps the bytes valid on runtimes without the tail-call proposal.
-export const WASM_OPTS = { optimize: 'speed', maxMemory: 65536, noTailCall: true }
+// Feature switches keep the bytes portable to runtimes without tail calls or EH.
+export const WASM_OPTS = { optimize: { level: 'speed', tailCall: false, exceptions: false }, memory: { initial: 1, maximum: 65536 } }
 export const wasmSource = () => readFileSync(new URL('../wasm/batch.js', import.meta.url), 'utf8')
 
 // Build only when run directly (`npm run build:wasm`) — importing stays side-effect-free.

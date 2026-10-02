@@ -16,6 +16,7 @@
 // @see {@link https://www.iec.ch/publication/6169} IEC 61966-2-1 (sRGB) — primary chromaticities
 import test, { is } from 'tst'
 import { classify, inVisSolid, lensFor, locus, plane, ramp, space, visibleXYZ } from '../web/js/core.js'
+import './workshop.js'
 
 // a chromaticity, carried at some luminance — the locus law is scale-invariant
 const at = (x, y, Y = 50) => [x * Y / y, Y, (1 - x - y) * Y / y]
