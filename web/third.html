@@ -362,7 +362,7 @@ pre i{ font-style:normal; color:var(--color-terminal-muted) }
 		</ul>
 		<p>The <em>purpose</em> grouping in the filter shelves the catalog the same way.</p></details>
 		<details class="fqa"><summary>What should I use instead of HSL?</summary>
-		<p><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 is about four times as bright as blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
+		<p><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 emits about 13 times the light of blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
 		<details class="fqa"><summary>Why do my gradients turn muddy in the middle?</summary>
 		<p>Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
 		<details class="fqa"><summary>What does “out of gamut” mean?</summary>

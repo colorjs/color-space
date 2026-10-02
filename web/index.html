@@ -1547,7 +1547,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		</ul>
 		<p>The <em>purpose</em> grouping in the filter shelves the catalog the same way.</p></details>
 		<details class="fqa"><summary>What should I use instead of HSL?</summary>
-		<p><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 is about four times as bright as blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
+		<p><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 emits about 13 times the light of blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
 		<details class="fqa"><summary>Why do my gradients turn muddy in the middle?</summary>
 		<p>Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
 		<details class="fqa"><summary>What does “out of gamut” mean?</summary>
@@ -5259,7 +5259,7 @@ if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat(
 else (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
 addEventListener('hashchange',route)   // same-document deep links switch spaces too
-onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&!known(BOOT.q)&&!known(BOOT.seg)&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){   // name views orbit too – a dossier first seen at neutral gray reads as an empty instrument
 	autoColor=true; autoStart=autoLast=performance.now(); requestAnimationFrame(autoStep) } },300))
 
 // offline shell (sw.js precaches the app; any /<name> falls back to it) — after load, off the
