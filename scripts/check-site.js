@@ -433,8 +433,9 @@ try {
 	assert.equal(ambientPicker.colors.length>0&&ambientPicker.colors.every(c=>c===ambientPicker.hx),true,'all visible slider pickers wear the animated color')
 	const nameView=await motionContext.newPage()
 	await nameView.goto(`${server.origin}/oklch?cb=${Date.now()}`,{waitUntil:'networkidle'})
-	await nameView.waitForTimeout(700)
-	assert.notEqual(await nameView.locator('#cd').inputValue(),'#808080','a name view enters the same ambient orbit as the index')
+	await nameView.waitForFunction(()=>document.querySelector('#cd').value!=='#808080',null,{timeout:20000})   // a dossier's GL instruments make the first orbit frame late on software GL – wait for it, don't race it
+	assert.equal(await nameView.locator('#cval').inputValue(),'','the orbit stays ambient on a name view – no value asserted, no URL written')
+	assert.equal(new URL(nameView.url()).hash,'','the ambient orbit never writes the URL')
 	await nameView.close()
 	await motion.locator('#cval').fill('#123456'); await motion.waitForTimeout(450)
 	assert.equal(await motion.locator('#cd').inputValue(),'#123456','authored color input stops the ambient orbit')

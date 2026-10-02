@@ -1647,14 +1647,20 @@ const SPEC=Array.from({length:361},(_,k)=>{ let rgb
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
 const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
-let autoColor=false, autoStart=0, autoLast=0, autoJ=''
+let autoColor=false, autoStart=0, autoLast=0, autoJ='', autoSlow=0
 const autoStep=t=>{ if(!autoColor) return
-	if(!PDOWN&&t-autoLast>=AUTO_FRAME){ autoLast=t
+	if(!PDOWN&&t-autoLast>=AUTO_FRAME){ autoSlow=t-autoLast>AUTO_FRAME*5?autoSlow+1:0; autoLast=t
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
-		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true) }
+		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true)
+		// a device that can't hold the cadence (a dossier's GL instruments on a weak GPU) PARKS
+		// the orbit once it has colored in – still ambient (virgin, URL untouched), just still
+		if(autoSlow>=4&&w===1) return }
 	requestAnimationFrame(autoStep) }
+// nothing chosen yet: the boot gray, or the ambient orbit's own frame – an invitation, never
+// an asserted value. Reference AND values: the default space's sliders mutate master in place
+const virginNow=()=>{ const mj=master.vals.join(); return !BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(autoColor&&mj===autoJ)) }
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(t='Copied')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
@@ -2046,6 +2052,7 @@ const dec=x=>{ x=x.replace(/%(?![0-9a-fA-F]{2})/g,'%25'); try{ return decodeURIC
 // snapshot the arrival url before the first render's syncURL rewrites it
 const BOOT={ hash:dec(location.hash.slice(1)), q:new URLSearchParams(location.search).get('s'), seg:(location.pathname.match(/([^/]+?)(?:\.html)?\/?$/)||[])[1], sw:new URLSearchParams(location.search).has('sw') }   // sw read HERE, not at the sw block: on name views openModal's replaceState strips ?sw before that block evaluates – reading live search unregistered the worker on every direct ?sw route
 let urlT=performance.now(), urlLast=''   // seeded, not 0: the boot renderFast runs before route() parses the arrival hash — the throttle absorbs it, so a shared palette URL is never clobbered by the default stamp
+const colorHash=()=>virginNow()?'':'#'+urlHash()   // the hash carries a CHOSEN color only – an untouched view's link is its bare path
 const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the chosen notation – hex stays the bare-hex canon, every other FMT serializes as its own function syntax (spaces AND the lch/lab %-signs pre-encoded; parens are fragment-legal)
 	return FMT==='hex'?hx.slice(1):fmtAs(FMT,hx).replace(/%/g,'%25').replace(/ /g,'%20') }
 // the search is the VIEW's lane (?q=names&m=…) – every color/route writer passes it
@@ -2582,7 +2589,7 @@ function openModal(s){
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
 	for(const el of pageShell.children) el.inert=!el.classList.contains('mhead')   // the header stays live – everything else behind the card sleeps
-	urlLast=spaceURL(s)+keepSearch()+'#'+urlHash(); history.replaceState(null,'',urlLast)
+	urlLast=spaceURL(s)+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
@@ -2614,7 +2621,7 @@ function buildBarred(b){
 	 ${MNAV('mfoot')}` }
 function closeModal(){ ensureCat(); modal.hidden=true; for(const el of pageShell.children) el.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
-	urlLast=spaceURL('')+keepSearch()+'#'+urlHash(); history.replaceState(null,'',urlLast)
+	urlLast=spaceURL('')+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
 document.getElementById('mx').onclick=closeModal
@@ -4902,10 +4909,8 @@ function renderFast(solid=true){
 	// An inherited --cur on <html> made Chrome recalculate all ~8,000 elements per drag
 	// frame. Stamp only its consumers; native accent-color catches up at rest.
 	setCurrentUI(fx)
-	// the untouched boot color stays an invitation (placeholder), not an asserted value —
-	// reference AND values: the default space's own sliders mutate master in place
-	const mj=master.vals.join()
-	const virgin=!BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(autoColor&&mj===autoJ))
+	// the untouched color stays an invitation (placeholder), not an asserted value — see virginNow
+	const virgin=virginNow()
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the masthead offers the two doors instead of a value
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(fx)
