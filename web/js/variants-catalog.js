@@ -7,7 +7,7 @@ import { paintPlaneGL, paintBarGL, hasPlaneGL, planeGLStatus, warmGL } from './g
 import { quantRGB } from './study-render.js'
 import { drawSolid } from './study-solid.js'
 import { FK, PICKS, PURPOSE, qArg, plabel, CAP } from './variants-data.js'
-import { UI } from './variants-icons.js'
+import { UI, OI } from './variants-icons.js'
 import { S, LORE, SPACES, RGB, hexNow, valsOf, shelves, pairsOf, famOf, sent, classify, meta, rgbF, disp } from './variants-model.js'
 
 export const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
@@ -42,27 +42,31 @@ const rowHTML = s => `<article class="sp lr${S.sel === s ? ' on' : ''}" data-s="
 	<div class="lv">${classify(s).ch.map((c, i) => `<div class="lch"><i class="cl" title="${esc(cname(c))}">${esc(c.sym.slice(0, 2))}</i><div class="ch" data-i="${i}"><input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" aria-label="${esc(disp(s))} ${esc(cname(c))}"></div><b class="cv tnum" data-i="${i}"></b></div>`).join('')}</div>
 </article>`
 
-// the spec sheet: sortable, grouped by the arrangement until a column takes the order
+// the spec sheet: one table per shelf, beside its title as the grid's and the rows' entries are – until a column
+// takes the order, then one table for every space. Shelved by family, the Family column would only repeat the title
 const COLS = [['name', 'Name', s => disp(s)], ['fam', 'Family', s => famOf[s]], ['year', 'Year', s => meta[s].year || 0],
 	['by', 'Made by', s => meta[s].by || ''], ['ch', 'Channels', s => meta[s].channels.map(c => c.symbol).join(' ')],
 	['geo', 'Shape', geoWord], ['curve', 'Curve', s => plabel(meta[s].encoding || '')], ['range', 'Range', s => (meta[s].dynamic || 'sdr').toUpperCase()],
 	['white', 'White', s => meta[s].illuminant || ''], ['runs', 'Runs in', runs]]
-const trHTML = s => `<tr class="sp tr${S.sel === s ? ' on' : ''}" data-s="${s}"><td class="tsw">${strips(s, 'chs mini')}</td>${COLS.map(([k, , f], i) => i ? `<td class="c-${k}">${esc(f(s))}</td>` : `<th scope="row">${nameBtn(s)}${star(s)}</th>`).join('')}</tr>`
-function tableHTML(sh) {
-	const head = `<thead><tr><th class="tsw"><span class="sr">Preview</span></th>${COLS.map(([k, l]) => `<th scope="col" aria-sort="${S.tsort === k ? (S.tdir > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${l}${S.tsort === k ? `<span aria-hidden="true">${S.tdir > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}</tr></thead>`
-	if (S.tsort) { const f = COLS.find(c => c[0] === S.tsort)[2], all = sh.flatMap(c => c.spaces)
-		all.sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * S.tdir })
-		return `<div class="tblw"><table class="tbl">${head}<tbody>${all.map(trHTML).join('')}</tbody></table></div>` }
-	return `<div class="tblw"><table class="tbl">${head}${sh.map(c => `<tbody><tr class="tg"><th colspan="${COLS.length + 1}" scope="rowgroup">${esc(c.name)} <span class="cnt tnum">${c.spaces.length}</span></th></tr>${[...c.lead, ...c.rest].map(trHTML).join('')}</tbody>`).join('')}</table></div>` }
+const RUNS = ['css', 'glsl', 'wasm', 'lut']
+const runsHTML = s => `<span class="runs" title="${esc(runs(s))}">${RUNS.map(k => CAP[k].has(s) ? `<span class="ri">${OI[k]}<span class="sr">${k.toUpperCase()}</span></span>` : '<span class="ri off"></span>').join('')}</span>`   // the Runs in filter's icons, one place each
+const colsOf = shelved => COLS.filter(([k]) => !(shelved && k === 'fam' && S.arrange === 'family'))
+const theadHTML = cols => `<thead><tr><th class="tsw"><span class="sr">Preview</span></th>${cols.map(([k, l]) => `<th scope="col" class="c-${k}" aria-sort="${S.tsort === k ? (S.tdir > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${l}${S.tsort === k ? `<span aria-hidden="true">${S.tdir > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}</tr></thead>`
+const trHTML = (s, cols) => `<tr class="sp tr${S.sel === s ? ' on' : ''}" data-s="${s}"><td class="tsw">${strips(s, 'chs mini')}</td>${cols.map(([k, , f], i) => i ? `<td class="c-${k}">${k === 'runs' ? runsHTML(s) : esc(f(s))}</td>` : `<th scope="row" class="c-name">${nameBtn(s)}${star(s)}</th>`).join('')}</tr>`
+const tableOf = (spaces, cols) => `<div class="tblw"><table class="tbl">${theadHTML(cols)}<tbody>${spaces.map(s => trHTML(s, cols)).join('')}</tbody></table></div>`
+function sortedHTML(sh) { const f = COLS.find(c => c[0] === S.tsort)[2], all = sh.flatMap(c => c.spaces)
+	all.sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * S.tdir })
+	return tableOf(all, colsOf(false)) }
 
 export function catalogHTML() {
 	const sh = shelves()
 	if (!sh.length) return `<div class="none"><p>No space matches all of that.</p><button type="button" class="lnk" data-reset>Clear the search and filters</button></div>`
-	if (S.view === 'table') return tableHTML(sh)
+	if (S.view === 'table' && S.tsort) return sortedHTML(sh)
 	return sh.map(c => `<section class="shelf${S.shut.has(c.name) ? ' shut' : ''}" aria-label="${esc(c.name)}">
 	<header class="sh"><button class="fold" type="button" data-shut="${esc(c.name)}" aria-expanded="${!S.shut.has(c.name)}" aria-label="Fold ${esc(c.name)}">${UI.chev}</button><h2>${esc(c.name)}</h2><span class="cnt tnum">${c.spaces.length < c.total ? `${c.spaces.length} of ${c.total}` : c.total}</span></header>${c.tip ? `<p class="tip">${esc(c.tip)}</p>` : ''}
 	${S.view === 'grid'
 		? `${c.lead.length ? `<div class="lead n${c.lead.length}">${c.lead.map(leadHTML).join('')}</div>` : ''}${c.rest.length ? `<div class="tiles">${c.rest.map(tileHTML).join('')}</div>` : ''}`
+		: S.view === 'table' ? tableOf([...c.lead, ...c.rest], colsOf(true))
 		: `<div class="rows">${[...c.lead, ...c.rest].map(rowHTML).join('')}</div>`}
 </section>`).join('') }
 

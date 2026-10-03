@@ -1,16 +1,20 @@
-/* Atlas top · Drawer – variants.html's Studio masthead over its Drawer's cells, both pinned; a calm hero under
-   them that scrolls away. Hierarchy left to right: identity → color → find; then refine (the eight facets) →
-   how it is drawn (Draw · Limit · View). Scoped to :root[data-top="drawer"]; values are tokens, the quantities
-   below are this top's own. */
+/* Atlas header · Drawer – variants.html's Studio masthead over its Drawer's cells, both pinned. Hierarchy left to
+   right: identity → color → find; then refine (the eight facets) → how it is drawn (Draw · Limit · Vision · View).
+   On a page wide enough for the catalog's ladder, the masthead hangs on the catalog's grid: the identity takes
+   the label column, the color starts where the spaces do. Scoped to :root[data-top="drawer"]; values are tokens,
+   the quantities below are this header's own. */
 :root[data-top="drawer"]{
 	--dr-rowh:4.5rem;                            /* the masthead – variants.html Studio's ([data-bar="studio"] --rowh) */
 	--dr-find:30rem;                             /* the search at its widest */
 	--dr-val:14rem;                              /* a wide color's notation gives way here and scrolls inside its field */
 	--dr-val0:8rem;                              /* a cell's value at its widest – 'Screen or scene' whole, a longer pick ellipsized */
+	--dr-gap:var(--s5);                          /* between the masthead's groups */
 }
 
 /* ── the masthead wears the current color – variants.css [data-bar="studio"] .top, its ink chosen live (--cur-ink) ── */
-:root[data-top="drawer"] .dmast{ height:var(--dr-rowh); gap:var(--s5); background:var(--cur); color:var(--cur-ink); border-bottom:0 }
+:root[data-top="drawer"] .dmast{ container:mast / inline-size; height:var(--dr-rowh); gap:var(--dr-gap); background:var(--cur); color:var(--cur-ink); border-bottom:0 }
+/* its content box is the catalog's width (both inset by --gut), so this is the ladder's own breakpoint (atlas.css) */
+@container mast (width >= 56rem){ :root[data-top="drawer"] .did{ width:calc(var(--lad) + var(--lgap) - var(--dr-gap)) } }
 :root[data-top="drawer"] .dmast :focus-visible{ outline-color:currentColor }   /* the footer's rule: on the color, the ring is the ink */
 :root[data-top="drawer"] .did{ display:flex; flex:none; align-items:baseline; gap:var(--s2) }
 :root[data-top="drawer"] .dmast .brand{ color:inherit }
@@ -41,50 +45,48 @@
    wears the current color's underline while a facet it holds is set ── */
 :root[data-top="drawer"] [data-k="d-more"],:root[data-top="drawer"] .wb-msec{ display:none }
 :root[data-top="drawer"] .wb-msec+.wb-msec{ padding-top:var(--s4) }
-@container page (width < 94rem){
+@container page (width < 100.5rem){
 	:root[data-top="drawer"] [data-k="d-more"]{ display:flex }
 	:root[data-top="drawer"] :is([data-k="d-age"],[data-k="d-white"]){ display:none }
 	:root[data-top="drawer"] .wb-msec:is([data-m="age"],[data-m="white"]){ display:block }
 	:root[data-top="drawer"] .dcells:has(:is([data-k="d-age"],[data-k="d-white"]) b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
-@container page (width < 85rem){
+@container page (width < 91.5rem){
 	:root[data-top="drawer"] [data-k="d-signal"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="signal"]{ display:block }
 	:root[data-top="drawer"] .dcells:has([data-k="d-signal"] b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
-@container page (width < 74rem){
+@container page (width < 81rem){
 	:root[data-top="drawer"] [data-k="d-curve"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="curve"]{ display:block }
 	:root[data-top="drawer"] .dcells:has([data-k="d-curve"] b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
-@container page (width < 65.5rem){
+@container page (width < 72.5rem){
 	:root[data-top="drawer"] [data-k="d-shape"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="shape"]{ display:block }
 	:root[data-top="drawer"] .dcells:has([data-k="d-shape"] b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
-@container page (width < 57rem){
+@container page (width < 64.5rem){
 	:root[data-top="drawer"] [data-k="d-light"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="light"]{ display:block }
 	:root[data-top="drawer"] .dcells:has([data-k="d-light"] b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
-@container page (width < 48rem){
+@container page (width < 56rem){
 	:root[data-top="drawer"] [data-k="d-runs"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="runs"]{ display:block }
 	:root[data-top="drawer"] .dcells:has([data-k="d-runs"] b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
-@container page (width < 40rem){
+@container page (width < 47.5rem){
 	:root[data-top="drawer"] [data-k="d-for"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="for"]{ display:block }
 	:root[data-top="drawer"] .dcells:has([data-k="d-for"] b.on) [data-k="d-more"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
 }
 
-/* ── the hero: the definition, then the tour as one numbered line; a stop opens under it ── */
-:root[data-top="drawer"] #hero{ display:flex; flex-direction:column; gap:var(--s3); padding-block:var(--s6) var(--s4) }
-:root[data-top="drawer"] #hero .wb-orient{ font-size:var(--t3); color:var(--body) }
-:root[data-top="drawer"] .dtour{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4) }
-:root[data-top="drawer"] .dtour .lab{ font-size:var(--t1); font-weight:600 }
-:root[data-top="drawer"] .dtour [data-wb="stops"]{ flex:1 1 20rem; min-width:0 }
-:root[data-top="drawer"] .dstop:empty{ display:none }
-:root[data-top="drawer"] .dstop .wb-eyebrow{ display:none }   /* the strip already marks the open stop */
-:root[data-top="drawer"] .dstop .wb-tour-t{ font-size:var(--t3) }
-:root[data-top="drawer"] .dstop .wb-tour-d{ font-size:var(--t2) }
+/* a phone's row keeps More · Draw · Limit · View – Vision's options move into View's menu, as facets move into More */
+@container page (width < 36rem){
+	:root[data-top="drawer"] [data-k="d-vision"]{ display:none } :root[data-top="drawer"] .wb-msec[data-m="vision"]{ display:block }
+	:root[data-top="drawer"] .dcells:has([data-k="d-vision"] b.on) [data-k="d-view"] b{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }
+}
 
 /* a page too narrow for the swatches – a docked dossier leaves ~49rem at 1440: the color still edits in the chip */
-@container page (width < 64rem){ :root[data-top="drawer"] .dmast{ --dr-val:8rem; gap:var(--s3) } :root[data-top="drawer"] .dmast .try{ display:none } }
+@container page (width < 64rem){ :root[data-top="drawer"] .dmast{ --dr-val:8rem; --dr-gap:var(--s3) } }
+/* the five to try need the room of a wide masthead – the identity, the color, the swatches, a search worth typing in
+   (15rem) and the end group, measured: under 72rem of masthead they step aside and the search takes the room */
+@container mast (width < 72rem){ :root[data-top="drawer"] .dmast .try{ display:none } }
 
 /* ── phones: the masthead takes two lines – identity and count, language and theme · then the color and the
    search; the cells drop their chevrons ── */

@@ -18,8 +18,9 @@
 <link rel="preload" href="./fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link href="./tokens.css" rel="stylesheet">
 <script>// embed pre-paint: /<name>?embed is the dossier card alone (CSS keys off the attribute) – set FIRST,
-// before any storage read that a sandboxed frame can refuse
-if(/[^/]\/?$/.test(location.pathname)&&!/\/index(\.html)?$/.test(location.pathname)&&new URLSearchParams(location.search).has('embed')) document.documentElement.dataset.embed=''
+// before any storage read that a sandboxed frame can refuse. ?s=<name>&embed is the same card addressed by
+// query – what a plain file server holds without the stamped /<name> documents
+{ const q=new URLSearchParams(location.search); if(q.has('embed')&&(q.has('s')||/[^/]\/?$/.test(location.pathname)&&!/\/index(\.html)?$/.test(location.pathname))) document.documentElement.dataset.embed='' }
 // every storage touch is guarded: a third-party frame with storage blocked THROWS on access
 let thm0; try{ thm0=localStorage.csTheme }catch{}
 document.documentElement.dataset.theme=thm0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
@@ -5364,12 +5365,12 @@ const route=e=>{ if(e) autoColor=false
 		const fn=h.match(/^([a-z][a-z0-9-]*)\(/)?.[1]
 		const f=fn==='color'?(/^color\(\s*display-p3\b/.test(h)?'p3':null):(FMTL.includes(fn)?fn:null)
 		if(f&&f!==FMT) setFmt(f) } }
-	if(qs) history.replaceState(null,'',spaceURL(slug||'')+(h?'#'+h:''))   // normalize the 404 bounce
+	if(qs) history.replaceState(null,'',spaceURL(slug||'')+keepSearch()+(h?'#'+h:''))   // normalize the 404 bounce – ?s= becomes the path, the rest of the query (?embed) stays
 	urlLast=location.pathname+location.search+location.hash   // the navigation is CONSUMED – syncURL may write over it from now on
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
 try{ const g0=new URLSearchParams(location.search).get('g'); if(g0) regroup(g0) }catch{}   // arrival restores a shared grouping – HERE, after the catalog wiring exists (regroup rebuilds through wireCat)
-if(EMBED&&!known(BOOT.seg)){ EMBED=false; delete document.documentElement.dataset.embed }   // ?embed off a name view frames nothing – the full page shows
+if(EMBED&&!known(BOOT.seg)&&!known(BOOT.q)){ EMBED=false; delete document.documentElement.dataset.embed }   // ?embed off a name view frames nothing – the full page shows
 if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat()
 else if(!EMBED) (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil (an embed never shows it, so never builds it)
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()

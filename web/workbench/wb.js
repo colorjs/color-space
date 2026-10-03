@@ -13,8 +13,8 @@
 import { S, setColor, RGB, hexNow, valsOf, gamutOf, GAMLABEL, GAMTIP, parseColor, clearAll, toggle, SPACES, classify, meta, countIf, nOn, disp } from '../js/variants-model.js'
 import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE, esc } from '../js/variants-catalog.js'
 import { countText, opt, chip, lensOpt, quantList, limitList, cellWords, TRY } from '../js/variants-bars.js'
-import { FK, FACETS, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE } from '../js/variants-data.js'
-import { UI, QI, VI, PI, FI, LI } from '../js/variants-icons.js'
+import { FK, FACETS, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE, ARRANGE } from '../js/variants-data.js'
+import { UI, QI, VI, PI, FI, LI, OI } from '../js/variants-icons.js'
 import { setGLReady, hasPlaneGL, METRICS } from '../js/gl.js'
 import { DEFAULT, rgbF, decOf, unit } from '../js/render.js'
 import { clamp, hex, space, LUTOK, LUTTGT, pathToRgb } from '../js/core.js'
@@ -117,6 +117,10 @@ export const swatchHTML = () => seg('quant', 'Swatch style', SWATCH, QI)
 export const layoutHTML = () => seg('view', 'Layout', LAYOUT, VI)
 export const previewHTML = () => seg('preview', 'Featured spaces show', PREVIEWS, PI)
 export const viewHTML = () => sizeHTML() + swatchHTML() + layoutHTML() + previewHTML()
+// how the shelves are cut – the ladder's foot (index.html's .gtabs) and the View menu's first group; A–Z stays the sheet's
+const CUTS = ARRANGE.filter(([v]) => v !== 'name'), CUTI = { family: OI.compositing, purpose: FI.task, era: FI.age },
+	CUTTIP = { family: 'what each space is – its lineage', purpose: 'what each space is for', era: 'when each space was born, newest first' }
+export const arrangeHTML = () => CUTS.map(([v, n]) => `<button type="button" class="gtag${S.arrange === v ? ' on' : ''}" data-set="arrange" data-v="${v}" data-k="g-${v}" aria-pressed="${S.arrange === v}" title="${esc(CUTTIP[v])}">${esc(n)}</button>`).join('')
 // the quantization lens – ONE select, the atlas's groups and words (QSITE); a palette adds its distance metric
 export const quantHTML = () => `<label class="fsel wb-quant"><span>Quantize</span><select data-wset="quant" data-k="quant"${S.quant !== 'smooth' ? ' class="on"' : ''} aria-label="Quantize – how strips and planes are drawn" title="${esc(QFLAT.map(([v]) => `${QSITE[v][0]} – ${QSITE[v][1]}`).join('\n'))}">${QUANT.map(([, o], g) => {
 	const opts = o.map(([v]) => `<option value="${v}" title="${esc(QSITE[v][1])}"${S.quant === v ? ' selected' : ''}>${esc(QSITE[v][0])}</option>`).join('')
@@ -141,8 +145,10 @@ export const tryHTML = () => `<span class="try" role="group" aria-label="Try a c
 // face, [data-wb="menu"][data-m=<key>] a menu's header and options, [data-wb="dclear"] the Clear link.
 // A menu re-renders in place: it stays open while you pick. 'More' holds every facet as a section – a page
 // shows only the sections of the facet cells its row has no room for (CSS: the cells' data-k, the sections' data-m)
+const VISW = { none: 'Typical', protan: 'Protan', deutan: 'Deutan', tritan: 'Tritan' }   // the field's short names – the menu says them whole
 const LENSES_D = { quant: ['Draw', () => QI[S.quant], () => QFLAT.find(q => q[0] === S.quant)[1], () => S.quant !== 'smooth'],
 	limit: ['Limit', () => LI[S.limit], () => LIMITS.find(l => l[0] === S.limit)[1], () => S.limit !== 'locus'],
+	vision: ['Vision', () => UI.eye, () => VISW[W.cvd], () => W.cvd !== 'none'],
 	view: ['View', () => VI[S.view], () => LAYOUT.find(l => l[0] === S.view)[1], () => false] }
 const DRAWS = [...FACETS.map(f => f.k), 'more', ...Object.keys(LENSES_D)]
 export const drawerHTML = () => DRAWS.map(k => `${k === 'quant' ? '<span class="fill"></span>' : ''}<button type="button" class="cell wb-dcell" popovertarget="wd-${k}" data-k="d-${k}" aria-expanded="false"><span data-wb="cell" data-m="${k}"></span></button>`).join('')
@@ -153,11 +159,17 @@ export const dclearHTML = () => nOn() || S.q ? `<button type="button" class="lnk
 const mhead = (k, q, hint, any) => `<header class="dh2"><div><b id="wd-${k}-t">${esc(q)}</b><small>${esc(hint)}</small></div>${any ? `<button type="button" class="lnk" data-wclear="${k}" data-k="m-${k}-any">Any</button>` : ''}<button type="button" class="ib" popovertarget="wd-${k}" popovertargetaction="hide" data-k="m-${k}-x" aria-label="Close">${UI.x}</button></header>`
 const mgroup = (label, items) => `<div class="optg"><span class="gl">${esc(label)}</span>${items}</div>`
 const PICKANY = 'Pick any – a space that matches one of them stays.'
+// a vision option's icon is a hue wheel seen through that lens's own filter – what it does to color, at a glance
+const VISTIP = { none: 'no simulation – the page as your eyes see it', protan: 'no long-wavelength cones – reds darken and merge with greens',
+	deutan: 'no medium-wavelength cones – reds and greens merge', tritan: 'no short-wavelength cones – blue merges with green, yellow with pink' }
+const visOpt = l => `<button type="button" class="opt" data-wcvd="${l.id}" data-k="m-vision-${l.id}" aria-pressed="${W.cvd === l.id}" data-tip="${esc(l.label)} – ${esc(VISTIP[l.id])}"><span class="oi"><i class="wdot wb-hues"${l.id === 'none' ? '' : ` style="filter:url(#cvd-${l.id})"`}></i></span><span class="ot"><b>${esc(l.label)}</b><small>${esc(VISTIP[l.id])}${l.cite ? ` · ${esc(l.cite.replace(/, (severity|doi).*$/, ''))}` : ''}</small></span></button>`
 export const menuHTML = k => FK[k] ? mhead(k, FK[k].q, PICKANY, S.F[k].size) + `<div class="cards${FK[k].opts.length > 3 ? ' c2' : ''}">${FK[k].opts.map(o => opt(k, o)).join('')}</div>`
-	: k === 'more' ? mhead(k, 'More filters', PICKANY) + FACETS.map(f => `<section class="sg wb-msec" data-m="${f.k}" aria-label="${esc(f.label)}"><header><b>${esc(f.label)}</b> <small>${esc(f.q)}</small>${S.F[f.k].size ? ` <button type="button" class="lnk" data-wclear="${f.k}" data-k="m-more-${f.k}-any">Any</button>` : ''}</header><div class="chips">${f.opts.map(o => chip(f.k, o, f.k !== 'runs')).join('')}</div></section>`).join('')
+	: k === 'more' ? mhead(k, 'More filters', PICKANY) + FACETS.map(f => `<section class="sg wb-msec" data-m="${f.k}" aria-label="${esc(f.label)}"><header><b>${esc(f.label)}</b> <small>${esc(f.q)}</small>${S.F[f.k].size ? ` <button type="button" class="lnk" data-wclear="${f.k}" data-k="m-more-${f.k}-any">Any</button>` : ''}</header><div class="chips">${f.opts.map(o => chip(f.k, o)).join('')}</div></section>`).join('')
 	: k === 'quant' ? mhead(k, 'Draw every strip and plane…', 'Smooth shows every value; steps and palettes show what survives quantizing.') + `<div class="cards wb-mcols">${quantList()}${PALMODES.has(S.quant) ? mgroup('Distance', METRICS.map(m => lensOpt('metric', m, MSITE[m], '')).join('')) : ''}</div>`
 	: k === 'limit' ? mhead(k, 'Show colors as far as…', 'Past the limit a color dims, and what no light can be is cut.') + `<div class="cards">${limitList()}</div>`
-	: k === 'view' ? mhead(k, 'View the catalog as…', 'The layout, what the featured spaces show, their size and the vision they are seen with.') + `<div class="cards wb-mcols">${mgroup('Layout', LAYOUT.map(([v, n, t]) => lensOpt('view', v, [n, t], VI[v])).join(''))}${mgroup('Featured spaces show', PREVIEWS.map(([v, n, t]) => lensOpt('preview', v, [n, t], PI[v])).join(''))}<div class="optg wb-mrow">${sizeHTML()}${visionHTML()}</div></div>`
+	: k === 'vision' ? mhead(k, 'See the page as…', 'A color-vision deficiency, simulated over the whole page in linear light – readouts keep the true color.') + `<div class="cards c2">${LENSES.map(visOpt).join('')}</div>`
+	: k === 'view' ? mhead(k, 'View the catalog as…', 'How the shelves are cut, the layout, and what the featured spaces show.') + `<div class="cards wb-mcols">${mgroup('Shelves by', CUTS.map(([v, n]) => lensOpt('arrange', v, [n, CUTTIP[v]], CUTI[v])).join(''))}${mgroup('Layout', LAYOUT.map(([v, n, t]) => lensOpt('view', v, [n, t], VI[v])).join(''))}${mgroup('Featured spaces show', PREVIEWS.map(([v, n, t]) => lensOpt('preview', v, [n, t], PI[v])).join(''))}</div>`
+		+ `<section class="sg wb-msec" data-m="vision" aria-label="Vision"><header><b>Vision</b> <small>See the page as…</small></header><div class="cards c2">${LENSES.map(visOpt).join('')}</div></section>`   // where the row has no room for Vision's cell (CSS), View holds it
 	: ''
 export const menusHTML = (keys = DRAWS) => keys.map(k => `<div class="wb-dpop" id="wd-${k}" popover role="dialog" aria-labelledby="wd-${k}-t"><div data-wb="menu" data-m="${k}"></div></div>`).join('')
 
@@ -185,8 +197,8 @@ export const agentsHTML = ({ title = true } = {}) => `<section class="wb-agents"
 const R = { brand: () => brandHTML(), chip: chipHTML, search: () => searchHTML(), tools: toolsHTML, theme: themeHTML, gh: ghHTML, orient: orientHTML, count: countHTML,
 	stripe: stripeHTML, cells: cellsHTML, tags: tagsHTML, view: viewHTML, size: sizeHTML, swatch: swatchHTML, layout: layoutHTML, preview: previewHTML,
 	quant: quantHTML, metric: metricHTML, limit: limitHTML, vision: visionHTML, lang: langHTML, stops: stopsHTML, stop: () => W.tourOpen ? tourHTML() : '', tour: () => tourHTML(), agents: () => agentsHTML(),
-	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML }   // a renderer gets its host – a cell or a menu reads which one it is
-const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu']   // the hosts a view/lens change re-renders
+	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML, arrange: arrangeHTML }   // a renderer gets its host – a cell or a menu reads which one it is
+const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu', 'arrange']   // the hosts a view/lens change re-renders
 /** Fill every host under `el` (a page that mounts controls after boot – Atlas's top variants). */
 export function fill(el = document) { for (const h of el.querySelectorAll('[data-wb]')) if (R[h.dataset.wb]) h.innerHTML = R[h.dataset.wb](h); paintCur() }
 // re-render hosts in place; a control that had focus gets it back (by its data-k, in the same host first – a
@@ -253,6 +265,8 @@ export function renderCat() { const cat = $('cat'); if (!cat) return
 	for (const sh of cat.querySelectorAll('.shelf')) sh.id = 'shelf-' + slug(sh.getAttribute('aria-label'))
 	for (const el of document.querySelectorAll(LIVE)) IO.observe(el) }
 const filtered = () => { renderCat(); refresh('stripe', 'cells', 'tags', 'count', 'cell', 'menu', 'dclear') }
+// the vision lens: one filter over the whole page (cvd.js, :root[data-cvd]); the cell, its menu and any select follow
+function vision(id) { W.cvd = id; id === 'none' ? delete root.dataset.cvd : root.dataset.cvd = id; refresh('vision', 'cell', 'menu') }
 /** Set a shared view/model key (arrange · view · preview · quant · metric · limit) and repaint what it touches.
  *  The quantization lens and its metric are session-only and ride the URL (?q= · ?m=, the atlas's grammar) –
  *  a stored lens reads as broken sliders a week later (index.html's reason); view and preview are stored. */
@@ -441,6 +455,7 @@ function onClick(e) { const t = e.target.closest('button,a[data-wt]'); if (!t) r
 	if (d.wbReset !== undefined || d.reset !== undefined) { clearAll(); const q = $('q'); if (q) { q.value = ''; $('findw')?.classList.remove('has') } filtered(); return }
 	if (d.sort) { S.tdir = S.tsort === d.sort ? (S.tdir > 0 ? -1 : (S.tsort = null, 1)) : (S.tsort = d.sort, 1); renderCat(); return }
 	if (d.set) return set(d.set, d.v)
+	if (d.wcvd) return vision(d.wcvd)
 	if (t.id === 'thm') return theme(root.dataset.theme === 'dark' ? 'light' : 'dark')
 	if (t.id === 'qx') { S.q = ''; $('q').value = ''; $('findw').classList.remove('has'); filtered(); $('q').focus() } }
 let qT = 0
@@ -455,7 +470,7 @@ function onChange(e) { const t = e.target
 	if (t.id === 'cval') { const c = parseColor(t.value); if (c) { color(c.s, c.vals); t.blur() } else t.setAttribute('aria-invalid', 'true'); return }
 	if (t.dataset.wf) { S.F[t.dataset.wf].clear(); if (t.value) S.F[t.dataset.wf].add(t.value); filtered(); return }
 	if (t.dataset.wset) return set(t.dataset.wset, t.value)
-	if (t.dataset.wbCvd !== undefined) { W.cvd = t.value; t.value === 'none' ? delete root.dataset.cvd : root.dataset.cvd = t.value; return }
+	if (t.dataset.wbCvd !== undefined) return vision(t.value)
 	if (t.dataset.wl === 'from') { lutHost(t).dataset.wlFrom = t.value; relut(t, 'from'); return }
 	if (t.dataset.wl === 'to') { W.lutTo = t.value; relut(t, 'to'); return }
 	if (t.dataset.wl === 'ed') { W.lutEd = t.value; relut(t, 'ed'); return }

@@ -30,16 +30,20 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
 - rec2020 in the CSS tab: CSS Color 4's `rec2020` uses a pure 2.4 gamma (BT.1886 — css-color-4
   Overview.bs + conversions.js), the library's `rec2020` uses the BT.2020 OETF, so the tab says
   CSS can't name it directly instead of emitting a `color(rec2020 …)` that decodes differently.
-- Atlas workshop: five headers at `web/workbench/atlas.html?top=drawer|studio|editorial|search|statusbar`,
-  chooser at `/workbench/`, contract at the top of `web/workbench/atlas.js`; side panel = the real dossier via
-  `/<space>?embed` iframe with two-way color sync. **Drawer** is the owner's two `variants.html` picks joined:
-  Studio's masthead (wearing the current color) over the Drawer's icon cells, each opening its illustrated
-  options in a popover anchored under the cell (CSS anchor positioning, flips at the screen edge, bounded
-  by the room under it), a row too narrow moves facets into More (container queries). Studio and Editorial
-  had a critic pass: their icon groups became one View ▾ (layout, featured preview, size, vision).
-  Shared fixes: a docked dossier keeps the clicked entry in place, Esc in a menu closes the menu only,
-  the ladder fits "Colorimetry & research" with a filtered count, header swaps keep color/filters/open
-  space/scroll.
+- Atlas workshop: the header is decided – the Drawer (`top-drawer.js/.css`: Studio's masthead over the Drawer's
+  cells; the other four headers are retired, in git history before this round) – and the hero is the workshop:
+  `web/workbench/atlas.html?hero=<key>`, nine variants (`hero-<key>.js/.css`, contract at the top of `atlas.js`,
+  shared helpers in `hero.js`; the chooser at `/workbench/` lists them). On a page wide enough for the ladder the
+  masthead and every hero hang on the catalog's grid: identity and labels in the ladder column, the color and the
+  hero's text where the spaces start. The ladder's foot carries Family · Purpose · Era (index.html's tabs); the View
+  menu repeats them for narrow pages. Menus: options borderless (as Draw's); Runs in has icons (CSS braces, GLSL
+  mesh, WASM's notched square, a LUT lattice); Vision is its own cell, each option a hue wheel seen through that
+  lens (phones fold it into View's menu). Grid columns are fixed – N featured over N + 1 tiles, 3 · 4 on a desktop,
+  2 · 3 docked or at ~1100 px, 1 · 2 on phones – the size dial is gone (it never reached rows or the list). The
+  List (spec sheet) is one table per shelf beside its title, columns fixed so they line up; narrower pages drop
+  channels/white, then maker/shape, then curve/runs. The dock loads `index.html?s=<space>&embed` (index.html now
+  accepts that address for embed and keeps the rest of the query when it normalizes `?s=`), so it works from the
+  source tree too – the stamped `/<space>` pages exist only in a build.
 - Dossier bake (`scripts/bake-dossiers.js`): it had baked another space's dossier into 132 of 168 name
   views – the ambient hue orbit repainted the open dossier every frame (software GL in headless Chrome),
   starving the idle slices that wire catalog rows, so clicks on unwired rows were no-ops and the previous
@@ -74,9 +78,9 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
 
 ## Not done — pick up here
 
-1. **Atlas workshop** – done: all five headers, the critic pass, the swap check, both shared bugs.
-   Left: the owner's choice, then porting that header into `web/index.html` (the workshop's `[data-wb]`
-   hosts map onto the page's existing controls; `atlas.js` documents the contract).
+1. **Atlas workshop** – the header is done; the hero study awaits the owner's pick (Palette is the default). Then
+   port the Drawer header, the chosen hero, the ladder's foot and the grouped list into `web/index.html` (the
+   workshop's `[data-wb]` hosts map onto the page's existing controls; `atlas.js` documents the contract).
 2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
    the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
 3. **Translations (pt-BR, es, tr)** – built, wired, translated; not yet reviewed. To promote a language:

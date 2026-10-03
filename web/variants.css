@@ -311,6 +311,15 @@ body.paneon .work,body.paneon .ctl{ margin-right:var(--panew) }
 .tbl .tg th{ padding:var(--s6) var(--s3) var(--s2); font-size:var(--text-md); font-weight:750; color:var(--ink); border-bottom-color:var(--rule) }
 [data-style="paper"] .tbl .tg th{ font-family:var(--prose); font-weight:600 }
 .tbl .tsw{ width:5rem; padding-right:0 }
+/* one table per shelf: fixed columns line up from shelf to shelf, the name takes what is left */
+.shelf .tbl{ --tc-s:4rem; --tc-m:6.5rem; --tc-l:9rem; table-layout:fixed }   /* the sheet's measures: a number · a word · a phrase */
+.shelf .tbl :is(th,td){ padding-inline:var(--s2); white-space:normal }
+.shelf .tbl :is(.c-year,.c-range,.c-white){ width:var(--tc-s) }
+.shelf .tbl :is(.c-ch,.c-geo,.c-curve,.c-runs){ width:var(--tc-m) }
+.shelf .tbl :is(.c-fam,.c-by){ width:var(--tc-l) }
+.runs{ display:flex; gap:var(--s1) }   /* where it runs – the Runs in filter's icons, each kind in its own slot */
+.runs .ri{ display:grid; place-items:center; width:1.25em; color:var(--soft) } .runs .ri .ic{ --ic:16px }
+.runs .ri.off{ visibility:hidden }
 .tbl td{ color:var(--body) } .tbl .c-year{ font-variant-numeric:tabular-nums }
 .tbl tbody tr:hover{ background:var(--sel) }
 

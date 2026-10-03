@@ -1,5 +1,5 @@
-/* Atlas – the workbench's catalog-first direction, and the workshop shell its top variants mount into
-   (atlas.js holds the contract). This file is the shared body: the three mounts, the hanging grid
+/* Atlas – the workbench's catalog-first direction, and the workshop shell its hero variants mount into
+   (atlas.js holds the contract). This file is the shared body: the two mounts, the hanging grid
    (labels in the left column, content in the right), the catalog with its family ladder, the footer, the
    docked dossier and the workshop bar. The family titles are the section headings themselves; on a wide
    catalog they float into the left column and stick as index.html's ladder – passed titles pile at the
@@ -11,8 +11,9 @@
 	--lgap:var(--s8);                            /* the gutter between labels and content */
 	--rung:calc(var(--s8) + var(--s1));          /* one title's height on the ladder */
 	--top-h:var(--rowh);                         /* #top's height – atlas.js measures it */
-	--stick-top:var(--top-h);                    /* what stays pinned above the catalog – atlas.js adds a pinned #opts */
-	--stick-bot:0px;                             /* what stays pinned below it – a variant's bottom bar sets its height here */
+	--stick-top:var(--top-h);                    /* what stays pinned above the catalog – the header, measured */
+	--stick-bot:0px;                             /* what stays pinned below it – a variant's bottom bar would set its height here */
+	--gtab:var(--rung);                          /* the ladder's foot – the arrangement tabs, one rung */
 	--dockw:clamp(32rem,46vw,60rem);             /* the docked dossier – a touch under half the screen, so the catalog keeps two columns beside it */
 	--dock:0px;                                  /* the dock's width while it is docked – fixed elements keep clear with right:var(--dock) */
 }
@@ -22,12 +23,11 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 /* ── the page: everything but the dock and the workshop bar. A size container – the room beside the dock –
    so a variant's breakpoints are @container page (…), never the viewport (fixed elements stay outside it) ── */
 .page{ container:page / inline-size }
-/* ── the mounts: #top pinned, #hero and #opts in the page's gutter; a variant restyles them ── */
+/* ── the mounts: #top pinned, #hero in the page's gutter – its width is the catalog's; a variant styles it ── */
 #top{ position:sticky; top:0; z-index:var(--z-sticky-nav); background:var(--paper) }
 #top>.top{ position:relative }                /* variants.css's sticky bar, pinned by its mount instead */
-#hero,#opts{ container:work / inline-size; padding-inline:var(--gut) }
-#hero:empty,#opts:empty{ display:none }
-#opts{ z-index:var(--z-sticky); background:var(--paper) }
+#hero{ container:work / inline-size; padding-inline:var(--gut) }
+#hero:empty{ display:none }
 
 /* ── one hanging grid: a label, then its content (any mount may use it) ── */
 .work{ container:work / inline-size }
@@ -54,11 +54,12 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 .sh h2{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
 .shelf>.sh+*{ scroll-margin-top:var(--s6) }   /* past the html's scroll-padding: room for the inline title itself */
 
+.gtabs{ display:none }   /* the ladder's foot – only beside a ladder (below); narrower, the View menu cuts the shelves */
 /* wide catalog: the ladder. Each title floats into the label column; top and bottom insets stack them */
 @container cat (width >= 56rem){
 	.shelf{ display:contents }
 	.shelf>.sh{ float:left; clear:left; position:sticky; z-index:2; width:var(--lad); height:var(--rung); margin:var(--s6) 0 0; padding:0; background:var(--paper);
-		top:calc(var(--stick-top) + var(--s5) + var(--i, 0) * var(--rung)); bottom:calc(var(--stick-bot) + var(--s5) + var(--j, 0) * var(--rung)); color:var(--soft) }
+		top:calc(var(--stick-top) + var(--s5) + var(--i, 0) * var(--rung)); bottom:calc(var(--stick-bot) + var(--gtab) + var(--s5) + var(--j, 0) * var(--rung)); color:var(--soft) }
 	.shelf>.sh .tn{ transition:color var(--dur-micro) var(--ease-out) }
 	.shelf>.sh .tn:hover{ color:var(--body) }
 	.shelf>.sh.act{ color:var(--ink) }   /* the family on screen is ink, the rest muted – index.html's rail */
@@ -66,21 +67,38 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 	.shelf>.sh+*{ padding-top:var(--s6); border-top:var(--rule-hair) solid var(--rule); scroll-margin-top:0 }
 	.shelf:first-child>.sh+*{ border-top:0 }
 	.shelf>:last-child{ margin-bottom:0; padding-bottom:var(--s8) }
+	/* the ladder's foot: the shelves' cut, index.html's tabs – the last float, so it waits pinned at the bottom
+	   under the pile of titles and settles at the catalog's end */
+	.gtabs{ display:flex; float:left; clear:left; position:sticky; bottom:var(--stick-bot); z-index:2; width:var(--lad); height:var(--gtab); align-items:center; gap:var(--s4); background:var(--paper) }
 }
+.gtabs .gtag{ font:inherit; font-size:var(--text-md); font-weight:700; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }   /* index.html's .gtabs .gtag */
+.gtabs .gtag:hover{ color:var(--ink) }
+.gtabs .gtag.on{ color:var(--ink); border-top-color:var(--cur) }
 
-/* the families' tip line, then the featured spaces at full reading */
+/* the families' tip line, then the featured spaces at full reading and the rest as tiles: N columns of
+   featured spaces over N + 1 of tiles – one more, always – by the width the catalog's entries get (the ladder
+   takes --lad + --lgap, 22.5rem, from 56rem): 3 · 4 from 52rem of entries, 2 · 3 from 34rem, 1 · 2 below.
+   Fixed, not a size dial: a dial reached only the grid, never rows or the list */
 .tip{ margin-bottom:var(--s5) }
-.lead{ gap:var(--s6) var(--s8) }
-.lead.n1{ grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) }
+.shelf{ --cols:1 }
+@container cat (34rem <= width < 52rem){ .shelf{ --cols:2 } }
+@container cat (52rem <= width < 56rem){ .shelf{ --cols:3 } }
+@container cat (56rem <= width < 74.5rem){ .shelf{ --cols:2 } }
+@container cat (width >= 74.5rem){ .shelf{ --cols:3 } }
+.lead,.lead.n1,.lead.n2{ grid-template-columns:repeat(var(--cols),minmax(0,1fr)); gap:var(--s6) var(--s8) }
+.tiles{ grid-template-columns:repeat(calc(var(--cols) + 1),minmax(0,1fr)) }
+.chs.thin .ch{ --sth:var(--s3) }
 .lh{ gap:var(--s1) var(--s3) }
 .lh .nm{ font-size:var(--t4); font-weight:750 }
 .lh .by{ margin-left:auto; font-size:var(--t1); text-align:right }
-.lc .chs .ch{ --sth:calc(var(--s6) + var(--wb-z) * var(--s5)) }
+.lc .chs .ch{ --sth:var(--s8) }
+/* the spec sheet keeps what its column has room for (entries' width, as above): first the channels and the white
+   go, then the maker and the shape, then the curve and where it runs – name, year and range stay */
+@container cat (width < 82.5rem){ .shelf .tbl :is(.c-ch,.c-white){ display:none } }
+@container cat (width < 48rem) or (56rem <= width < 70.5rem){ .shelf .tbl :is(.c-by,.c-geo){ display:none } }
+@container cat (width < 36rem) or (56rem <= width < 58.5rem){ .shelf .tbl :is(.c-curve,.c-runs){ display:none } }
 .lc{ display:grid; grid-row:span 4; grid-template-rows:subgrid; align-content:start; row-gap:var(--s3) }   /* name · story · numbers · strips line up across the row */
 .lc .pls{ gap:var(--s1) }
-@container cat (56rem <= width < 68rem){ .lead{ grid-template-columns:repeat(2,minmax(0,1fr)) } .lead.n1{ grid-template-columns:minmax(0,1fr) minmax(0,1fr) } }
-@container cat (30rem <= width < 48rem){ .lead,.lead.n1{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
-@container cat (width < 30rem){ .lead,.lead.n2,.lead.n1{ grid-template-columns:minmax(0,1fr) } }
 
 /* ── the footer: index.html's closing wall, painted in the current color ── */
 .foot{ padding:var(--s12) var(--gut) calc(var(--s12) * 2 + var(--stick-bot)); background:var(--cur); color:var(--cur-ink); transition:color var(--dur-long) var(--ease-out) }
