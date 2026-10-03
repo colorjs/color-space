@@ -2,7 +2,7 @@
 // GitHub) whose search lands on the hero's content column; a generous hero (the definition as the lede, the
 // tour as a numbered strip, the open stop's two sentences beneath); then ONE sticky options bar: the count,
 // 'Filter' (a panel – the 10 purposes and the 8 facets; whatever is on rides the bar as removable chips), the
-// view and the lens. Where the page is too narrow for them, the view and the lens fold behind 'View' – the
+// view (View ▾ – the Drawer's View menu: layout, preview, size, vision – and the swatch kinds) and the lens. Where the page is too narrow for them, the view and the lens fold behind 'View' – the
 // same element, a popover only while folded (CSS decides; there is no second copy). Contract: atlas.js.
 import { UI } from '../js/variants-icons.js'
 
@@ -22,10 +22,11 @@ export default function mount({ top, hero, opts, wb }) {
 		<div class="echips" role="group" aria-label="Active filters"></div>
 		<button type="button" class="ebtn evb" popovertarget="ed-vp" aria-haspopup="dialog">View${UI.chev}</button>
 		<div class="evp" id="ed-vp" popover role="group" aria-label="View and lens">
-			<div class="evg" data-wb="view"></div>
-			<div class="elens"><span data-wb="quant"></span><span data-wb="metric"></span><span data-wb="limit"></span><span data-wb="vision"></span></div>
+			<div class="evg"><button type="button" class="fsel wb-vbtn" popovertarget="wd-view"><span data-wb="cell" data-m="view"></span></button><span data-wb="swatch"></span></div>
+			<div class="elens"><span data-wb="quant"></span><span data-wb="metric"></span><span data-wb="limit"></span></div>
 		</div>
 	</div>
+	${wb.menusHTML(['view'])}
 	<div class="efp" id="ed-fp" popover role="dialog" aria-label="Filter the spaces">
 		<div class="etags" data-wb="tags"></div>
 		<div class="ecells" data-wb="cells"></div>

@@ -63,7 +63,7 @@
 /* ── the drawer: variants.css's cells, each opening its menu under itself – a popover the cell anchors
    (centred where anchors are unknown); the menus hold variants.css's option cards and rows ── */
 .wb-dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--stick-top, 0px) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
-@supports (anchor-name:--a){ .wb-dpop{ inset:auto; margin:var(--s1) 0 0; position-area:bottom span-right; position-try-fallbacks:flip-inline } }   /* under its cell, turning left at the screen's edge */
+@supports (anchor-name:--a){ .wb-dpop{ inset:auto; margin:var(--s1) 0 0; max-height:calc(100% - var(--s4)); position-area:bottom span-right; position-try-fallbacks:flip-inline } }   /* under its cell, turning left at the screen's edge; 100% is the room under the cell – a menu taller than it scrolls, so the turn always fits */
 .wb-dpop .dh2{ margin-bottom:var(--s4) }
 .wb-dpop .dh2 b{ font-size:var(--t3) }
 .wb-dpop .dh2 .ib{ margin:calc(-1 * var(--s2)) calc(-1 * var(--s2)) 0 0 }
@@ -84,6 +84,15 @@
 .wb-dcell:has(b.on) .ci{ color:var(--ink) }
 .wb-dcell .cw+.ic{ --ic:12px; color:var(--soft); transition:rotate var(--dur-short) var(--ease-out) }
 .wb-dcell[aria-expanded="true"] .cw+.ic{ rotate:180deg }
+
+/* View ▾ – the drawer's View menu behind one word (its face a cell host), spoken as a .fsel: the label quiet,
+   the value in body ink, the chevron the native one's weight – the view control of the tops with a toolbar */
+.wb-vbtn .ci{ display:none }
+.wb-vbtn .cw{ display:inline-flex; align-items:baseline; gap:var(--s1) }
+.wb-vbtn small{ font-size:var(--t1); font-weight:600; color:var(--soft) }
+.wb-vbtn b{ font-size:var(--t2); font-weight:650; line-height:1.35; color:var(--body); border-bottom:var(--ulw) solid transparent; transition:color var(--dur-micro) var(--ease-out) }
+.wb-vbtn .cw+.ic{ --ic:12px; align-self:center; stroke-width:3; color:var(--body) }
+.wb-vbtn:is(:hover,[aria-expanded="true"]) :is(b,.ic){ color:var(--ink) }
 
 /* ── the tour as a numbered strip: the numbers are the separators – nothing dangles where a line wraps ── */
 .wb-stops{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4); margin:0; padding:0; list-style:none }

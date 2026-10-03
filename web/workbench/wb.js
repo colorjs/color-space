@@ -159,7 +159,7 @@ export const menuHTML = k => FK[k] ? mhead(k, FK[k].q, PICKANY, S.F[k].size) + `
 	: k === 'limit' ? mhead(k, 'Show colors as far as…', 'Past the limit a color dims, and what no light can be is cut.') + `<div class="cards">${limitList()}</div>`
 	: k === 'view' ? mhead(k, 'View the catalog as…', 'The layout, what the featured spaces show, their size and the vision they are seen with.') + `<div class="cards wb-mcols">${mgroup('Layout', LAYOUT.map(([v, n, t]) => lensOpt('view', v, [n, t], VI[v])).join(''))}${mgroup('Featured spaces show', PREVIEWS.map(([v, n, t]) => lensOpt('preview', v, [n, t], PI[v])).join(''))}<div class="optg wb-mrow">${sizeHTML()}${visionHTML()}</div></div>`
 	: ''
-export const menusHTML = () => DRAWS.map(k => `<div class="wb-dpop" id="wd-${k}" popover role="dialog" aria-labelledby="wd-${k}-t"><div data-wb="menu" data-m="${k}"></div></div>`).join('')
+export const menusHTML = (keys = DRAWS) => keys.map(k => `<div class="wb-dpop" id="wd-${k}" popover role="dialog" aria-labelledby="wd-${k}-t"><div data-wb="menu" data-m="${k}"></div></div>`).join('')
 
 // the start-here tour: eleven stops from light to ink, each one a space already in the catalog
 export const tourHTML = (i = W.tour) => { const st = TOUR[i], n = TOUR.length
@@ -518,7 +518,7 @@ export function boot(o = {}) {
 	document.addEventListener('click', onClick); document.addEventListener('input', onInput); document.addEventListener('change', onChange)
 	document.addEventListener('keydown', onKey); document.addEventListener('pointerdown', onDown)
 	// a popover's invoker says whether it is open – the drawer's cells and any top's menu buttons style by it (toggle doesn't bubble)
-	document.addEventListener('toggle', e => { if (e.target.matches?.('[popover]')) document.querySelector(`[popovertarget="${CSS.escape(e.target.id)}"]:not([popovertargetaction="hide"])`)?.setAttribute('aria-expanded', e.newState === 'open') }, true)
+	document.addEventListener('toggle', e => { if (e.target.matches?.('[popover]')) for (const b of document.querySelectorAll(`[popovertarget="${CSS.escape(e.target.id)}"]:not([popovertargetaction="hide"])`)) b.setAttribute('aria-expanded', e.newState === 'open') }, true)
 	addEventListener('pointerup', () => { pdown = false }); addEventListener('pointercancel', () => { pdown = false })
 	WIDE.addEventListener('change', () => { if (W.persistent && WIDE.matches && !S.sel) openPane(o.space || 'oklch', { focus: false, url: false }); else if (S.sel && !W.dock) paneFill(S.sel), paintPane(true); modalize() })
 	setGLReady(() => { CAP.glsl = new Set(SPACES.filter(s => { try { return hasPlaneGL(s) } catch { return false } })); dirty(); paintPane(true); refresh('stripe') })

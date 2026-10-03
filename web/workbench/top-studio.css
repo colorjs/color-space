@@ -20,9 +20,8 @@
 :root[data-top="studio"] .stbar .find{ flex:1 1 var(--stu-find0); min-width:var(--stu-find0); max-width:var(--stu-find); margin-left:0 }
 :root[data-top="studio"] .stset{ display:flex; flex:none; align-items:center; gap:var(--stu-gap); margin-left:auto }
 :root[data-top="studio"] .stgrp{ display:flex; flex:none; align-items:center; gap:var(--s2) }
-:root[data-top="studio"] .stpair{ display:flex; flex:none; align-items:center; gap:var(--stu-gap) }   /* limit and vision wrap as one in #opts */
 :root[data-top="studio"] .stend{ display:flex; flex:none; align-items:center; gap:var(--s2) }
-:root[data-top="studio"] .stset .wb-size input{ width:calc(var(--s12) + var(--s5)) }
+:root[data-top="studio"] .wb-vbtn .cw+.ic{ display:none }   /* View ▾ (wb.css) takes this top's value chevron, below */
 :root[data-top="studio"] .stbar .wb-lang select{ font-weight:700 }
 
 /* every value select in this top: the value, then the chevron – the label quieter than both */
@@ -79,13 +78,10 @@
 :root[data-top="studio"] .ststop .wb-tour-t{ font-size:var(--t3) }
 :root[data-top="studio"] .ststop .wb-tour-d{ font-size:var(--t2) }
 
-/* ── room: full labels from 100rem; down to 75rem the toolbar condenses; below, view and lens go to #opts ── */
+/* ── room: everything from 100rem; down to 75rem the toolbar condenses; below, view and lens go to #opts ── */
 @container page (width < 100rem){
 	:root[data-top="studio"]{ --stu-gap:var(--s4) }
-	/* the swatch toggles yield to the quantize select (its first options are the same three kinds), the lens
-	   labels too (the selects keep their names), then the gamut pill and the search's key hint */
-	:root[data-top="studio"] .stbar [data-wb="swatch"]{ display:none }
-	:root[data-top="studio"] .stbar .wb-quant>span,:root[data-top="studio"] .stbar [data-wb="vision"] .fsel>span{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }
+	/* the gamut pill and the search's key hint yield first – the swatch kinds and every lens label stay */
 	:root[data-top="studio"] .stbar .gam,:root[data-top="studio"] .stbar .find kbd{ display:none }
 }
 @container page (width >= 75rem){ :root[data-top="studio"] .narrow{ display:none !important } }

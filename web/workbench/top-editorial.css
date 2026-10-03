@@ -57,8 +57,7 @@
 :root[data-top="editorial"] .evb{ display:none }
 :root[data-top="editorial"] .evp:not(:popover-open){ display:flex; position:static; inset:auto; width:auto; height:auto; margin:0; padding:0; border:0; overflow:visible; background:none; color:inherit }
 :root[data-top="editorial"] .evp{ flex:none; align-items:center; gap:var(--s5) }
-:root[data-top="editorial"] .evg{ flex-wrap:nowrap; column-gap:var(--s3) }
-:root[data-top="editorial"] .evg .wb-size input{ width:var(--s12) }   /* the status bar's dial */
+:root[data-top="editorial"] .evg{ display:flex; align-items:center; column-gap:var(--s4) }
 :root[data-top="editorial"] .elens{ display:flex; align-items:baseline; gap:var(--s4) }
 
 /* ── the panels: paper, the floating-panel shadow, hung from their buttons ── */
@@ -80,13 +79,11 @@
 :root[data-top="editorial"] .ecells .cw{ align-items:flex-start }   /* the value hugs its word – the chevron never drifts to the label's width */
 :root[data-top="editorial"] .ecells .lnk{ grid-column:1/-1; justify-self:start; margin:var(--s2) 0 0 var(--s2) }
 
-/* a page too narrow for the view and the lens inline: they fold behind View ▾ */
-@container page (width < 72rem){
+/* a page too narrow for the view and the lens inline (~44rem of controls, room left for the chips): they fold
+   behind View ▾ */
+@container page (width < 56rem){
 	:root[data-top="editorial"] .evb{ display:inline-flex; margin-left:auto }
 	:root[data-top="editorial"] .evp:not(:popover-open){ display:none }
-	:root[data-top="editorial"] .evg{ flex-wrap:wrap }
-}
-@container page (width < 56rem){
 	:root[data-top="editorial"] .ecells{ grid-template-columns:repeat(2,minmax(0,1fr)) }
 	:root[data-top="editorial"] .efp{ left:var(--gut); right:calc(var(--dock) + var(--gut)); width:auto }   /* the panel spans the page, clear of a docked dossier */
 	:root[data-top="editorial"] #hero{ gap:var(--s6); padding-block:var(--s8) var(--s6) }

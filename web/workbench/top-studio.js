@@ -1,6 +1,7 @@
 // Atlas top · Studio – the top the owner liked in the Studio prototype, refined. ONE toolbar in the order a
-// reader works – identity (wordmark) → color (chip) → find (search) → view (size · layout · preview) → how it
-// is drawn (swatch kind + quantize ▾ · distance ▾ · limit ▾) → vision ▾ · EN ▾ · theme · GitHub – then ONE
+// reader works – identity (wordmark) → color (chip) → find (search) → view ▾ (layout · preview · size · vision:
+// the Drawer's View menu – the owner asked for the icon groups as dropdowns) → how it is drawn (swatch kind +
+// quantize ▾ · distance ▾ · limit ▾) → EN ▾ · theme · GitHub – then ONE
 // row of facet cells, the count at its left and the purposes as the first cell ('For', its pills in a
 // popover). Both stay pinned; the hero under them – the definition and the tour strip – scrolls away.
 // Below 75rem the view and lens leave the toolbar for #opts, a quiet row under the hero, and the facet cells
@@ -9,10 +10,10 @@ import { S } from './wb.js'
 import { FK } from '../js/variants-data.js'
 import { FI, UI } from '../js/variants-icons.js'
 
-const LENS = `<span class="stgrp"><span data-wb="swatch"></span><span data-wb="quant"></span><span data-wb="metric"></span></span><span class="stpair"><span data-wb="limit"></span><span data-wb="vision"></span></span>`
-const VIEW = `<span class="stgrp"><span data-wb="size"></span><span data-wb="layout"></span><span data-wb="preview"></span></span>`
+const LENS = `<span class="stgrp"><span data-wb="swatch"></span><span data-wb="quant"></span><span data-wb="metric"></span></span><span data-wb="limit"></span>`
+const VIEW = `<button type="button" class="fsel wb-vbtn" popovertarget="wd-view"><span data-wb="cell" data-m="view"></span></button>`
 
-export default function mount({ top, hero, opts }) {
+export default function mount({ top, hero, opts, wb }) {
 	top.innerHTML = `<header class="top stbar">
 		<span data-wb="brand"></span><span data-wb="chip"></span><span data-wb="search"></span>
 		<span class="stset wide">${VIEW}${LENS}</span>
@@ -25,7 +26,8 @@ export default function mount({ top, hero, opts }) {
 		<button type="button" class="cell wb-cell stmore" popovertarget="st-more"><span class="ci">${UI.filter}</span><span class="cw"><small>More</small><span class="stv"><b>Filters</b></span></span></button>
 	</div>
 	<div class="stpop" id="st-for" popover role="dialog" aria-labelledby="st-for-t"><p class="stpop-t" id="st-for-t">${FK.for.q}</p><div data-wb="tags"></div></div>
-	<div class="wb-dpop" id="st-more" popover role="dialog" aria-labelledby="st-more-t"><p class="stpop-t" id="st-more-t">More filters</p><div class="stmorel" data-wb="stripe"></div></div>`
+	<div class="wb-dpop" id="st-more" popover role="dialog" aria-labelledby="st-more-t"><p class="stpop-t" id="st-more-t">More filters</p><div class="stmorel" data-wb="stripe"></div></div>
+	${wb.menusHTML(['view'])}`
 	hero.innerHTML = `<div data-wb="orient"></div>
 	<div class="sttour"><span class="lab" aria-hidden="true">Start here</span><div data-wb="stops"></div></div>
 	<div class="ststop" data-wb="stop"></div>`
