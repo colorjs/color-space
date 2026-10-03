@@ -1,0 +1,58 @@
+/* Atlas hero · Table – the periodic table of color spaces, on the catalog's grid: the key (one tile, read out) in the
+   label column beside the headline where the spaces start; then a block per family, its name level with its first row
+   in the label column (the ladder's icons and counts), its tiles where the spaces start. On a narrow page each family
+   is one row of tiles that scrolls sideways, the drawer's cells' idiom. Scoped to :root[data-hero="table"]; tokens
+   only – a tile's foot is the data. */
+:root[data-hero="table"]{
+	--ht-tile:calc(var(--s8) + var(--s2));       /* a tile, 2.5rem: twenty-four to a row where the spaces start on a 1440 screen */
+	--ht-gap:var(--space-3xs);                   /* between tiles */
+}
+:root[data-hero="table"] #hero{ padding-block:var(--s12) }
+
+/* the headline, and the key beside it */
+:root[data-hero="table"] .ht-head{ align-items:center }
+:root[data-hero="table"] .ht-body{ flex:1 1 100%; min-width:0 }
+:root[data-hero="table"] .ht-h{ margin:0; font-size:var(--text-3xl); font-weight:750; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }
+:root[data-hero="table"] .ht-dek{ margin:var(--s3) 0 0; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:pretty }
+:root[data-hero="table"] .ht-key{ display:flex; align-items:center; gap:var(--s4); font-weight:500; white-space:normal }
+:root[data-hero="table"] .ht-key>.ht-t{ flex:none; width:calc(var(--s12) + var(--s4)); padding-bottom:var(--s2); font-size:var(--t4); background-size:100% var(--s2) }
+:root[data-hero="table"] .ht-key>.ht-t::before{ top:var(--s2); left:var(--s2); font-size:var(--t1) }
+:root[data-hero="table"] .ht-key>.ht-t .pick{ top:var(--s1); right:var(--s1) }
+:root[data-hero="table"] .ht-key ul{ display:flex; flex-direction:column; gap:var(--s1); min-width:0; margin:0; padding:0; list-style:none; font-size:var(--t1); line-height:1.3 }
+:root[data-hero="table"] .ht-key li{ display:flex; align-items:center; gap:var(--s2) }
+:root[data-hero="table"] .ht-key li>:first-child{ flex:none; display:inline-grid; place-items:center; min-width:var(--s8); color:var(--ink) }
+:root[data-hero="table"] .ht-key li>i{ height:var(--s1) }   /* the key's foot again, in short */
+
+/* the table: a block per family */
+:root[data-hero="table"] .ht-tab{ display:flex; flex-direction:column; gap:var(--s3); margin-top:var(--s8) }
+:root[data-hero="table"] .ht-fam{ align-items:start }
+:root[data-hero="table"] .ht-fn{ display:inline-flex; align-items:center; gap:var(--s2); max-width:100%; height:var(--ht-tile); font-size:var(--t3); font-weight:750; color:var(--soft); white-space:nowrap; transition:color var(--dur-micro) var(--ease-out) }
+:root[data-hero="table"] .ht-fn .fic{ display:inline-grid; place-items:center } :root[data-hero="table"] .ht-fn .fic .ic{ --ic:18px }   /* the ladder's .fic */
+:root[data-hero="table"] .ht-fnm{ overflow:hidden; text-overflow:ellipsis }
+:root[data-hero="table"] .ht-fn .cnt{ font-size:var(--t0) }
+:root[data-hero="table"] .ht-fn:hover{ color:var(--ink) }   /* dim → ink, the ladder's rule */
+:root[data-hero="table"] .ht-grid{ flex:1 1 100%; min-width:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--ht-tile),1fr)); gap:var(--ht-gap) }
+
+/* a tile: its year, its symbol, its foot – the current color swept along its first channel (the background image,
+   painted by hero-table.js) – one element */
+:root[data-hero="table"] .ht-t{ position:relative; display:grid; place-items:center; aspect-ratio:1; min-width:0; padding-top:var(--s2); padding-bottom:var(--s1); overflow:hidden; font-size:var(--t2); font-weight:750; line-height:1; letter-spacing:-.01em; white-space:nowrap; color:var(--ink);
+	background-color:var(--panel); background-repeat:no-repeat; background-position:bottom; background-size:100% var(--s1);
+	transition-property:background-color; transition-duration:var(--dur-micro); transition-timing-function:var(--ease-out) }   /* longhands: every tile is restyled with each frame of the orbit, and a shorthand holding a var() is parsed again each time */
+:root[data-hero="table"] .ht-t.l4{ font-size:var(--t1) }
+:root[data-hero="table"] .ht-t.l5{ font-size:var(--t0) }
+:root[data-hero="table"] .ht-t::before{ content:attr(data-y); position:absolute; top:var(--s1); left:var(--s1); font-size:var(--t0); font-weight:400; letter-spacing:0; font-variant-numeric:tabular-nums; color:var(--soft) }
+:root[data-hero="table"] button.ht-t:hover{ background-color:var(--sel) }   /* the spec sheet's row hover */
+:root[data-hero="table"] button.ht-t:focus-visible{ z-index:1 }
+:root[data-hero="table"] .ht-t .pick{ position:absolute; top:var(--space-3xs); right:var(--space-3xs); display:grid } :root[data-hero="table"] .ht-t .pick .star{ --ic:8px }   /* the catalog's star: a space to meet first – in the corner, clear of the year */
+:root[data-hero="table"] .ht-key li .pick .star{ --ic:13px }
+
+/* narrow: each family's name over one row of its tiles, scrolling sideways to the screen's edge */
+@container work (width < 56rem){
+	:root[data-hero="table"] .ht-h{ font-size:var(--text-2xl) }
+	:root[data-hero="table"] .ht-key{ display:none }   /* the dek says it instead – .ht-anat, read to everyone and shown here */
+	:root[data-hero="table"] .ht-anat.sr{ position:static; width:auto; height:auto; overflow:visible; clip-path:none; white-space:normal }
+	:root[data-hero="table"] .ht-tab{ gap:var(--s2); margin-top:var(--s6) }
+	:root[data-hero="table"] .ht-fam.row{ row-gap:var(--space-3xs) }
+	:root[data-hero="table"] .ht-fn{ height:auto; font-size:var(--t1) } :root[data-hero="table"] .ht-fn .fic .ic{ --ic:14px }
+	:root[data-hero="table"] .ht-grid{ grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:var(--ht-tile); margin-inline:calc(-1 * var(--gut)); padding-inline:var(--gut); overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:none; scroll-padding-inline:var(--gut) }
+}
