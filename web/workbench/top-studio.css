@@ -26,11 +26,11 @@
 :root[data-top="studio"] .stbar .wb-lang select{ font-weight:700 }
 
 /* every value select in this top: the value, then the chevron – the label quieter than both */
-:root[data-top="studio"] :is(.stbar,#opts,.scells) select{ appearance:none; padding:0 }
-:root[data-top="studio"] :is(.stbar,#opts) .fsel::after,:root[data-top="studio"] .scells label.wb-cell .cw::after,:root[data-top="studio"] .stv::after{ content:''; flex:none; width:var(--t1); height:var(--t1); align-self:center; background:currentColor; mask:var(--stu-chev); pointer-events:none }
-:root[data-top="studio"] :is(.stbar,#opts) .fsel{ color:var(--body) }
-:root[data-top="studio"] :is(.stbar,#opts) .fsel:hover{ color:var(--ink) }
-:root[data-top="studio"] :is(.stbar,#opts) .fsel select{ color:inherit }
+:root[data-top="studio"] :is(.stbar,#opts,.scells,#st-more) select{ appearance:none; padding:0 }
+:root[data-top="studio"] :is(.stbar,#opts,#st-more) .fsel::after,:root[data-top="studio"] .scells label.wb-cell .cw::after,:root[data-top="studio"] .stv::after{ content:''; flex:none; width:var(--t1); height:var(--t1); align-self:center; background:currentColor; mask:var(--stu-chev); pointer-events:none }
+:root[data-top="studio"] :is(.stbar,#opts,#st-more) .fsel{ color:var(--body) }
+:root[data-top="studio"] :is(.stbar,#opts,#st-more) .fsel:hover{ color:var(--ink) }
+:root[data-top="studio"] :is(.stbar,#opts,#st-more) .fsel select{ color:inherit }
 
 /* ── the facet row: the count on the values' baseline, then 'For' and the eight facets as equal cells ── */
 :root[data-top="studio"] .scells{ margin:0; padding:0 var(--gut); background:var(--paper); border-bottom:var(--rule-hair) solid var(--rule) }
@@ -51,7 +51,7 @@
 :root[data-top="studio"] .stfor{ anchor-name:--stfor }
 :root[data-top="studio"] .stv{ display:flex; align-items:center; gap:var(--s1); min-width:0; color:var(--body) }
 :root[data-top="studio"] .stv b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--t2); font-weight:650; line-height:1.35; border-bottom:var(--ulw) solid transparent }
-:root[data-top="studio"] .stfor:hover .stv,:root[data-top="studio"] .stfor[aria-expanded="true"] .stv,:root[data-top="studio"] .stfor.on .stv{ color:var(--ink) }
+:root[data-top="studio"] :is(.stfor,.stmore):is(:hover,[aria-expanded="true"],.on) .stv{ color:var(--ink) }
 :root[data-top="studio"] .stfor.on b{ border-bottom-color:var(--cur) }
 :root[data-top="studio"] .stfor.on .ci{ color:var(--ink) }
 /* … its pills open under it: a popover in the top layer, anchored by CSS (centred where anchors are unknown) */
@@ -60,6 +60,12 @@
 :root[data-top="studio"] .stpop-t{ margin:0 0 var(--s3); font-size:var(--t2); font-weight:700 }
 :root[data-top="studio"] .stpop .fsel-l{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* .sr – the cell already says 'For' */
 :root[data-top="studio"] .stpop .wb-tagrow{ gap:var(--s2) }
+
+/* 'More' – the facets the row has no room for (below): the stripe's selects, label over value, the menu under the cell */
+:root[data-top="studio"] .stmore{ display:none; order:1 }   /* after the facets, before Clear */
+:root[data-top="studio"] .scells .lnk{ order:2 }
+:root[data-top="studio"] .stmorel{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--s3) }
+:root[data-top="studio"] .stmorel>:is(.fsel,.lnk){ display:none }
 
 /* ── the hero: the definition, then the tour as one numbered line; a stop opens under it ── */
 :root[data-top="studio"] #hero{ display:flex; flex-direction:column; gap:var(--s3); padding-block:var(--s6) var(--s4) }
@@ -88,6 +94,39 @@
 	:root[data-top="studio"] .scells .cell{ flex:none }
 	:root[data-top="studio"] .stend{ margin-left:auto }
 	:root[data-top="studio"] #opts .stset{ flex-wrap:wrap; row-gap:var(--s3); margin:0; padding-block:var(--s3); border-block:var(--rule-hair) solid var(--rule) }
+}
+/* the cells at their natural widths (measured, Inter, Clear included): the least asked-for leave first – Status
+   and White point, then Channels, Signal, Geometry, Encoding, Range, Availability – into 'More', which shows
+   exactly those, and wears the current color's underline while one of them is set */
+@container page (width < 72.5rem){
+	:root[data-top="studio"] .stmore{ display:flex }
+	:root[data-top="studio"] .scells .wb-cell:has(:is([data-wf="age"],[data-wf="white"])){ display:none }
+	:root[data-top="studio"] .stmorel>.fsel:has(:is([data-wf="age"],[data-wf="white"])){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on :is([data-wf="age"],[data-wf="white"])) .stmore b{ border-bottom-color:var(--cur) }
+}
+@container page (width < 65.5rem){
+	:root[data-top="studio"] .scells .wb-cell:has([data-wf="chn"]){ display:none } :root[data-top="studio"] .stmorel>.fsel:has([data-wf="chn"]){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on [data-wf="chn"]) .stmore b{ border-bottom-color:var(--cur) }
+}
+@container page (width < 59rem){
+	:root[data-top="studio"] .scells .wb-cell:has([data-wf="signal"]){ display:none } :root[data-top="studio"] .stmorel>.fsel:has([data-wf="signal"]){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on [data-wf="signal"]) .stmore b{ border-bottom-color:var(--cur) }
+}
+@container page (width < 53rem){
+	:root[data-top="studio"] .scells .wb-cell:has([data-wf="shape"]){ display:none } :root[data-top="studio"] .stmorel>.fsel:has([data-wf="shape"]){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on [data-wf="shape"]) .stmore b{ border-bottom-color:var(--cur) }
+}
+@container page (width < 46rem){
+	:root[data-top="studio"] .scells .wb-cell:has([data-wf="curve"]){ display:none } :root[data-top="studio"] .stmorel>.fsel:has([data-wf="curve"]){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on [data-wf="curve"]) .stmore b{ border-bottom-color:var(--cur) }
+}
+@container page (width < 39.5rem){
+	:root[data-top="studio"] .scells .wb-cell:has([data-wf="light"]){ display:none } :root[data-top="studio"] .stmorel>.fsel:has([data-wf="light"]){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on [data-wf="light"]) .stmore b{ border-bottom-color:var(--cur) }
+}
+@container page (width < 33.5rem){
+	:root[data-top="studio"] .scells .wb-cell:has([data-wf="runs"]){ display:none } :root[data-top="studio"] .stmorel>.fsel:has([data-wf="runs"]){ display:inline-flex }
+	:root[data-top="studio"] .scells:has(.wb-cell.on [data-wf="runs"]) .stmore b{ border-bottom-color:var(--cur) }
 }
 /* phones: the toolbar takes two lines – wordmark, color, language, theme; then the search */
 @container page (width < 40rem){

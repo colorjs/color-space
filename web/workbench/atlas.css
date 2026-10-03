@@ -7,7 +7,7 @@
    display:contents shelf, so its sticky containing block is the whole catalog. Values are tokens; the
    quantities named below are this layout's own, built from them. */
 :root{
-	--lad:19rem;                                 /* the label column – the longest family title (Colorimetry & research), its icon and count */
+	--lad:20.5rem;                               /* the label column – the longest family title (Colorimetry & research), its icon and a filtered count (21 of 22) */
 	--lgap:var(--s8);                            /* the gutter between labels and content */
 	--rung:calc(var(--s8) + var(--s1));          /* one title's height on the ladder */
 	--top-h:var(--rowh);                         /* #top's height – atlas.js measures it */

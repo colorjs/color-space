@@ -3,8 +3,8 @@
 // and the docked live dossier – is this file's and every variant shares it.
 //
 // ── THE TOP-VARIANT CONTRACT ──────────────────────────────────────────────────────────────────────────────
-// A variant is a pair, top-<key>.css + top-<key>.js; <key> ∈ studio · editorial · search · statusbar (TOPS
-// below; studio is the default). The workshop bar swaps variants in place – no reload – and writes ?top=<key>.
+// A variant is a pair, top-<key>.css + top-<key>.js; <key> ∈ studio · editorial · search · statusbar · drawer
+// (TOPS below; studio is the default). The workshop bar swaps variants in place – no reload – and writes ?top=<key>.
 // All state lives in wb.js (S, W) and the URL, never in a variant: the color, the filters, the search, the lens,
 // the open dossier and the scroll survive a swap.
 //
@@ -32,6 +32,12 @@
 //     cells    the 8 facets as Studio's cells (icon, label over value)       stripe the 8 facets as quiet text selects
 //     tags     the 10 purposes                    orient   the definition sentence
 //     stops    the tour as a numbered strip       stop     the open stop's card (empty when none)   tour  the card, always
+//     try      five colors to try (variants.html Studio's swatches)
+//     cell     data-m="<key>": a drawer cell's face (icon, label over value)    dclear  the drawer's Clear link
+//     menu     data-m="<key>": one drawer cell's illustrated options
+//   The drawer (the 8 facets, Draw · Limit · View) is written once with wb.drawerHTML() – its cells – and
+//   wb.menusHTML() – their popovers: both must persist (an open menu is anchored to its cell), so they hold
+//   cell and menu hosts rather than being hosts themselves.
 //   Every host's render function is exported from wb.js too (brandHTML … stopsHTML) for markup a host cannot
 //   express. Controls that carry ids (chip, search, theme) render once per page. Behaviour is wb.js's one
 //   delegate; a variant adds listeners only for its own layout affordances (a toggle, a popover) and returns a
@@ -59,7 +65,7 @@ const WIDE = matchMedia('(width >= 75rem)')   // wb.js's breakpoint: the dossier
 const top = $('top'), hero = $('hero'), opts = $('opts'), cat = $('cat')
 
 // ── the workshop: four top variants, swapped in place ──
-const TOPS = [['studio', 'Studio'], ['editorial', 'Editorial'], ['search', 'Search'], ['statusbar', 'Status bar']]
+const TOPS = [['studio', 'Studio'], ['editorial', 'Editorial'], ['search', 'Search'], ['statusbar', 'Status bar'], ['drawer', 'Drawer']]
 const topOf = k => TOPS.some(t => t[0] === k) ? k : 'studio'
 $('tops').innerHTML = TOPS.map(([k, n]) => `<button type="button" data-top="${k}" aria-pressed="false">${n}</button>`).join('')
 let topKey = null, cleanup = null, seq = 0
@@ -69,23 +75,28 @@ function sheet(k) { const old = $('topcss'), href = `./top-${k}.css`
 	if (old.getAttribute('href') === href) return Promise.resolve(() => {})
 	return new Promise(ok => { const l = Object.assign(document.createElement('link'), { rel: 'stylesheet', href })
 		l.onload = l.onerror = () => ok(() => { old.remove(); l.id = 'topcss' }); old.after(l) }) }
-// what the reader is looking at: the first catalog entry below the pinned bars, and where it sits
-function anchor() { const lim = parseFloat(getComputedStyle(root).getPropertyValue('--stick-top')) || 0
+// what the reader is looking at: `el` while it is on screen, else the first catalog entry below the pinned bars
+function anchor(el) { const lim = parseFloat(getComputedStyle(root).getPropertyValue('--stick-top')) || 0
+	const r = el?.getBoundingClientRect(); if (r && r.bottom > lim && r.top < innerHeight) return { el, y: r.top }
 	if (cat.getBoundingClientRect().top > lim) return null   // still above the catalog – the page stays at its top
 	for (const el of cat.querySelectorAll('.sp')) { const r = el.getBoundingClientRect(); if (r.bottom > lim) return { el, y: r.top } } return null }   // entries only – a stuck family title sits still
+// a change that reflows the catalog – another top, the dock taking or giving back its width – leaves what the
+// reader was looking at where it was. The browser's own scroll anchoring can't: a margin changing on an
+// ancestor (the dock's) suppresses it, and where it does run it would correct the same shift twice
+function steady(change, el) { const at = anchor(el)
+	root.style.overflowAnchor = 'none'; change()
+	if (at?.el.isConnected) scrollBy({ top: at.el.getBoundingClientRect().top - at.y, behavior: 'instant' })
+	requestAnimationFrame(() => root.style.removeProperty('overflow-anchor')) }
 async function useTop(k) { k = topOf(k); if (k === topKey) return
 	const my = ++seq, [mod, retire] = await Promise.all([import(`./top-${k}.js`), sheet(k)]); if (my !== seq) return
-	const at = topKey && anchor()
-	root.style.overflowAnchor = 'none'   // the browser's own scroll anchoring would correct the same shift twice
-	try { cleanup?.() } catch {} cleanup = null
-	for (const m of [top, hero, opts]) { m.replaceChildren(); m.removeAttribute('class'); m.removeAttribute('style') }
-	root.dataset.top = topKey = k; retire()
-	cleanup = mod.default({ top, hero, opts, wb }) || null
-	fill(top); fill(hero); fill(opts); pin()
+	const swap = () => { try { cleanup?.() } catch {} cleanup = null
+		for (const m of [top, hero, opts]) { m.replaceChildren(); m.removeAttribute('class'); m.removeAttribute('style') }
+		root.dataset.top = topKey = k; retire()
+		cleanup = mod.default({ top, hero, opts, wb }) || null
+		fill(top); fill(hero); fill(opts); pin() }
+	topKey ? steady(swap) : swap()   // the first top mounts on an unscrolled page
 	for (const b of $('tops').children) b.setAttribute('aria-pressed', b.dataset.top === k)
-	try { const u = new URL(location.href); u.searchParams.set('top', k); history.replaceState(null, '', u) } catch {}
-	if (at?.el.isConnected) scrollBy({ top: at.el.getBoundingClientRect().top - at.y, behavior: 'instant' })   // the entry in view stays where it was
-	requestAnimationFrame(() => root.style.removeProperty('overflow-anchor')) }
+	try { const u = new URL(location.href); u.searchParams.set('top', k); history.replaceState(null, '', u) } catch {} }
 $('tops').addEventListener('click', e => { const b = e.target.closest('[data-top]'); if (b) useTop(b.dataset.top) })
 
 // the pinned stack: #top always, #opts when the variant makes it sticky
@@ -173,8 +184,9 @@ function loaded() { ready = true; dload.hidden = true; const cw = cwin(); if (!c
 	tick() }
 function navState(s) { const list = [...cat.querySelectorAll('.sp')].map(e => e.dataset.s), k = list.indexOf(s)
 	$('dock-prev').disabled = k <= 0; $('dock-next').disabled = k < 0 || k >= list.length - 1 }
-function show(focus) { const a = document.activeElement
-	if (!dock.open) { WIDE.matches ? dock.show() : dock.showModal(); document.body.classList.add('dockon'); tickT = setInterval(tick, 150) }
+const entry = s => s && cat.querySelector(`.sp[data-s="${CSS.escape(s)}"]`)
+function show(focus, s) { const a = document.activeElement
+	if (!dock.open) { steady(() => { WIDE.matches ? dock.show() : dock.showModal(); document.body.classList.add('dockon') }, entry(s)); tickT = setInterval(tick, 150) }   // docked, the page gives up its width – the entry opened stays under the pointer
 	if (focus || !WIDE.matches) { $('dock-x').focus({ preventScroll: true }); return }   // then the dossier's own title takes it, as the app does on every open
 	// a quiet open (a tour stop, prev/next) keeps focus where it was: show() moves it, and so does the app –
 	// it focuses its card on every open, which pulls focus into the frame; tick() hands it back for a moment after
@@ -185,8 +197,8 @@ const DOCK = {
 		if (!frame) { frame = Object.assign(document.createElement('iframe'), { title: `${disp(s)} – the dossier`, src: src(s) }); frame.addEventListener('load', loaded); dfr.append(frame) }
 		else if (ready) { want = s; tick() }   // in place: the app opens the dossier for a #<space> fragment – no reload
 		else frame.src = src(s)
-		show(focus) },
-	close() { if (!dock.open) return; clearInterval(tickT); dock.close(); document.body.classList.remove('dockon') },
+		show(focus, s) },
+	close() { if (!dock.open) return; clearInterval(tickT); steady(() => { dock.close(); document.body.classList.remove('dockon') }, cat.querySelector('.sp.on')) },
 }
 // Esc on a full-screen dock is a close request: it goes through wb.js, which keeps S.sel, the URL and focus
 dock.addEventListener('cancel', e => { e.preventDefault(); closePane() })

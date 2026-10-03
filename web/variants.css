@@ -398,7 +398,10 @@ body.paneon .ws{ left:calc((100% - var(--panew)) / 2) }
 	.ws .wl{ display:none }
 }
 @media (pointer:coarse){ .ch{ --sth:36px } .chs.thin .ch{ --sth:16px } .seg button{ width:var(--tap); height:var(--tap) } .ib{ width:var(--tap); height:var(--tap) } }
-@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition-duration:.01ms !important } }
+/* reduced motion: no transitions at all – not the common .01ms, which (transition-property's initial value
+   is all) turns every style change into a one-frame transition, so a layout read in that frame sees the old
+   page: the dock's margin landed a frame after openPane measured where to scroll */
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important } }
 /* drawer cards show their picture large enough to read – a curve's bend, a white's tint */
 .cards>.opt{ grid-template-columns:2.25rem minmax(0,1fr) auto }
 .cards>.opt .oi{ height:auto; min-height:2rem }

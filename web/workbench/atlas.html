@@ -14,7 +14,7 @@
 <!-- the top variant's stylesheet: ?top=<key> picks it before first paint (atlas.js swaps it live) -->
 <link rel="stylesheet" href="./top-studio.css" id="topcss">
 <script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}
-try{const k=new URLSearchParams(location.search).get('top');if(['editorial','search','statusbar'].includes(k)){document.documentElement.dataset.top=k;document.getElementById('topcss').href='./top-'+k+'.css'}}catch{}</script>
+try{const k=new URLSearchParams(location.search).get('top');if(['editorial','search','statusbar','drawer'].includes(k)){document.documentElement.dataset.top=k;document.getElementById('topcss').href='./top-'+k+'.css'}}catch{}</script>
 </head>
 <body>
 <a class="skip" href="#cat">Skip to the spaces</a>

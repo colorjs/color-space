@@ -12,9 +12,9 @@
 // them itself. Breakpoint: the pane is a side panel at ≥ 75rem and a modal dialog below.
 import { S, setColor, RGB, hexNow, valsOf, gamutOf, GAMLABEL, GAMTIP, parseColor, clearAll, toggle, SPACES, classify, meta, countIf, nOn, disp } from '../js/variants-model.js'
 import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE, esc } from '../js/variants-catalog.js'
-import { countText } from '../js/variants-bars.js'
-import { FK, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE } from '../js/variants-data.js'
-import { UI, QI, VI, PI, FI } from '../js/variants-icons.js'
+import { countText, opt, chip, lensOpt, quantList, limitList, cellWords, TRY } from '../js/variants-bars.js'
+import { FK, FACETS, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE } from '../js/variants-data.js'
+import { UI, QI, VI, PI, FI, LI } from '../js/variants-icons.js'
 import { setGLReady, hasPlaneGL, METRICS } from '../js/gl.js'
 import { DEFAULT, rgbF, decOf, unit } from '../js/render.js'
 import { clamp, hex, space, LUTOK, LUTTGT, pathToRgb } from '../js/core.js'
@@ -131,6 +131,36 @@ export const langHTML = () => `<label class="fsel wb-lang"><span class="sr">Lang
 export const stopsHTML = () => `<ol class="wb-stops" aria-label="Start here – a tour in ${TOUR.length} stops">${TOUR.map((st, i) => { const on = W.tourOpen && W.tour === i
 	return `<li><button type="button" data-stop="${i}" data-k="stop-${i}" aria-expanded="${on}"${on ? ' aria-current="step"' : ''} title="${esc(st.t)}"><span class="tnum">${i + 1}</span>${esc(STOPW[i] || disp(st.s))}</button></li>` }).join('')}</ol>`
 
+// five colors to try – variants.html Studio's swatches; a click makes one the current color
+export const tryHTML = () => `<span class="try" role="group" aria-label="Try a color"><span>Try</span>${TRY.map(([c, n]) => `<button type="button" data-wtry="${esc(c)}" title="${esc(n)}" style="--sw:${esc(c)}"><span class="sr">${esc(n)}</span></button>`).join('')}</span>`
+
+// ── the drawer: variants.html's labeled cells – each facet and lens its icon, its label over the value – whose
+// illustrated options open in a menu under the cell (a popover; the cell is its anchor), not across the page.
+// drawerHTML() and menusHTML() are written once: the cells and the popovers must persist – a cell is its open
+// menu's anchor – so what changes re-renders inside them, in hosts: [data-wb="cell"][data-m=<key>] a cell's
+// face, [data-wb="menu"][data-m=<key>] a menu's header and options, [data-wb="dclear"] the Clear link.
+// A menu re-renders in place: it stays open while you pick. 'More' holds every facet as a section – a page
+// shows only the sections of the facet cells its row has no room for (CSS: the cells' data-k, the sections' data-m)
+const LENSES_D = { quant: ['Draw', () => QI[S.quant], () => QFLAT.find(q => q[0] === S.quant)[1], () => S.quant !== 'smooth'],
+	limit: ['Limit', () => LI[S.limit], () => LIMITS.find(l => l[0] === S.limit)[1], () => S.limit !== 'locus'],
+	view: ['View', () => VI[S.view], () => LAYOUT.find(l => l[0] === S.view)[1], () => false] }
+const DRAWS = [...FACETS.map(f => f.k), 'more', ...Object.keys(LENSES_D)]
+export const drawerHTML = () => DRAWS.map(k => `${k === 'quant' ? '<span class="fill"></span>' : ''}<button type="button" class="cell wb-dcell" popovertarget="wd-${k}" data-k="d-${k}" aria-expanded="false"><span data-wb="cell" data-m="${k}"></span></button>`).join('')
+const face = (icon, label, words, on) => `<span class="ci">${icon}</span><span class="cw"><small>${esc(label)}</small><b${on ? ' class="on"' : ''}>${esc(words)}</b></span>${UI.chev}`
+export const cellHTML = k => FK[k] ? face(FI[FK[k].icon], FK[k].label, cellWords(FK[k]), S.F[k].size) : k === 'more' ? face(UI.filter, 'More', 'Filters')
+	: (([label, icon, words, on]) => face(icon(), label, words(), on()))(LENSES_D[k])
+export const dclearHTML = () => nOn() || S.q ? `<button type="button" class="lnk" data-wb-reset data-k="reset">Clear</button>` : ''
+const mhead = (k, q, hint, any) => `<header class="dh2"><div><b id="wd-${k}-t">${esc(q)}</b><small>${esc(hint)}</small></div>${any ? `<button type="button" class="lnk" data-wclear="${k}" data-k="m-${k}-any">Any</button>` : ''}<button type="button" class="ib" popovertarget="wd-${k}" popovertargetaction="hide" data-k="m-${k}-x" aria-label="Close">${UI.x}</button></header>`
+const mgroup = (label, items) => `<div class="optg"><span class="gl">${esc(label)}</span>${items}</div>`
+const PICKANY = 'Pick any – a space that matches one of them stays.'
+export const menuHTML = k => FK[k] ? mhead(k, FK[k].q, PICKANY, S.F[k].size) + `<div class="cards${FK[k].opts.length > 3 ? ' c2' : ''}">${FK[k].opts.map(o => opt(k, o)).join('')}</div>`
+	: k === 'more' ? mhead(k, 'More filters', PICKANY) + FACETS.map(f => `<section class="sg wb-msec" data-m="${f.k}" aria-label="${esc(f.label)}"><header><b>${esc(f.label)}</b> <small>${esc(f.q)}</small>${S.F[f.k].size ? ` <button type="button" class="lnk" data-wclear="${f.k}" data-k="m-more-${f.k}-any">Any</button>` : ''}</header><div class="chips">${f.opts.map(o => chip(f.k, o, f.k !== 'runs')).join('')}</div></section>`).join('')
+	: k === 'quant' ? mhead(k, 'Draw every strip and plane…', 'Smooth shows every value; steps and palettes show what survives quantizing.') + `<div class="cards wb-mcols">${quantList()}${PALMODES.has(S.quant) ? mgroup('Distance', METRICS.map(m => lensOpt('metric', m, MSITE[m], '')).join('')) : ''}</div>`
+	: k === 'limit' ? mhead(k, 'Show colors as far as…', 'Past the limit a color dims, and what no light can be is cut.') + `<div class="cards">${limitList()}</div>`
+	: k === 'view' ? mhead(k, 'View the catalog as…', 'The layout, what the featured spaces show, their size and the vision they are seen with.') + `<div class="cards wb-mcols">${mgroup('Layout', LAYOUT.map(([v, n, t]) => lensOpt('view', v, [n, t], VI[v])).join(''))}${mgroup('Featured spaces show', PREVIEWS.map(([v, n, t]) => lensOpt('preview', v, [n, t], PI[v])).join(''))}<div class="optg wb-mrow">${sizeHTML()}${visionHTML()}</div></div>`
+	: ''
+export const menusHTML = () => DRAWS.map(k => `<div class="wb-dpop" id="wd-${k}" popover role="dialog" aria-labelledby="wd-${k}-t"><div data-wb="menu" data-m="${k}"></div></div>`).join('')
+
 // the start-here tour: eleven stops from light to ink, each one a space already in the catalog
 export const tourHTML = (i = W.tour) => { const st = TOUR[i], n = TOUR.length
 	return `<section class="wb-tour" aria-labelledby="wb-tour-t">
@@ -154,15 +184,17 @@ export const agentsHTML = ({ title = true } = {}) => `<section class="wb-agents"
 
 const R = { brand: () => brandHTML(), chip: chipHTML, search: () => searchHTML(), tools: toolsHTML, theme: themeHTML, gh: ghHTML, orient: orientHTML, count: countHTML,
 	stripe: stripeHTML, cells: cellsHTML, tags: tagsHTML, view: viewHTML, size: sizeHTML, swatch: swatchHTML, layout: layoutHTML, preview: previewHTML,
-	quant: quantHTML, metric: metricHTML, limit: limitHTML, vision: visionHTML, lang: langHTML, stops: stopsHTML, stop: () => W.tourOpen ? tourHTML() : '', tour: () => tourHTML(), agents: agentsHTML }
-const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit']   // the hosts a view/lens change re-renders
+	quant: quantHTML, metric: metricHTML, limit: limitHTML, vision: visionHTML, lang: langHTML, stops: stopsHTML, stop: () => W.tourOpen ? tourHTML() : '', tour: () => tourHTML(), agents: () => agentsHTML(),
+	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML }   // a renderer gets its host – a cell or a menu reads which one it is
+const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu']   // the hosts a view/lens change re-renders
 /** Fill every host under `el` (a page that mounts controls after boot – Atlas's top variants). */
-export function fill(el = document) { for (const h of el.querySelectorAll('[data-wb]')) if (R[h.dataset.wb]) h.innerHTML = R[h.dataset.wb](); paintCur() }
-// re-render hosts in place; a control that had focus gets it back (by its data-k)
-export function refresh(...names) { const a = document.activeElement, k = a?.closest?.('[data-wb]') && a.dataset.k
-	for (const name of names) for (const el of document.querySelectorAll(`[data-wb="${name}"]`)) el.innerHTML = R[name]()
-	if (!k) return; const el = document.querySelector(`[data-wb] [data-k="${CSS.escape(k)}"]`)
-	;(el && !el.disabled ? el : el?.closest('[data-wb]')?.querySelector('button:not(:disabled),select,input'))?.focus({ preventScroll: true }) }
+export function fill(el = document) { for (const h of el.querySelectorAll('[data-wb]')) if (R[h.dataset.wb]) h.innerHTML = R[h.dataset.wb](h); paintCur() }
+// re-render hosts in place; a control that had focus gets it back (by its data-k, in the same host first – a
+// page may show a control twice) – or, gone, the first control of its host
+export function refresh(...names) { const a = document.activeElement, h = a?.closest?.('[data-wb]'), k = h && a.dataset.k
+	for (const name of names) for (const el of document.querySelectorAll(`[data-wb="${name}"]`)) el.innerHTML = R[name](el)
+	if (!k) return; const sel = `[data-k="${CSS.escape(k)}"]`, el = (h.isConnected && h.querySelector(sel)) || document.querySelector(`[data-wb] ${sel}`)
+	;(el && !el.disabled ? el : (el?.closest('[data-wb]') || h).querySelector('button:not(:disabled),select,input'))?.focus({ preventScroll: true }) }
 
 // ── the current color: authored, or the ambient orbit until something is ──
 // text ON the current color takes whichever ink contrasts more (WCAG 2.x relative luminance) – variants.js's rule
@@ -220,7 +252,7 @@ export function renderCat() { const cat = $('cat'); if (!cat) return
 	IO.disconnect(); vis.clear(); todo.clear(); cat.innerHTML = catalogHTML()
 	for (const sh of cat.querySelectorAll('.shelf')) sh.id = 'shelf-' + slug(sh.getAttribute('aria-label'))
 	for (const el of document.querySelectorAll(LIVE)) IO.observe(el) }
-const filtered = () => { renderCat(); refresh('stripe', 'cells', 'tags', 'count') }
+const filtered = () => { renderCat(); refresh('stripe', 'cells', 'tags', 'count', 'cell', 'menu', 'dclear') }
 /** Set a shared view/model key (arrange · view · preview · quant · metric · limit) and repaint what it touches.
  *  The quantization lens and its metric are session-only and ride the URL (?q= · ?m=, the atlas's grammar) –
  *  a stored lens reads as broken sliders a week later (index.html's reason); view and preview are stored. */
@@ -404,6 +436,8 @@ function onClick(e) { const t = e.target.closest('button,a[data-wt]'); if (!t) r
 		return }
 	if (d.shut) { const sh = t.closest('.shelf'), on = !S.shut.has(d.shut); on ? S.shut.add(d.shut) : S.shut.delete(d.shut); sh.classList.toggle('shut', on); t.setAttribute('aria-expanded', !on); return }
 	if ((d.f || d.wf === 'for') && d.v) { toggle(d.f || 'for', d.v); filtered(); return }
+	if (d.wclear) { S.F[d.wclear].clear(); filtered(); return }
+	if (d.wtry) { const c = parseColor(d.wtry); if (c) color(c.s, c.vals); return }
 	if (d.wbReset !== undefined || d.reset !== undefined) { clearAll(); const q = $('q'); if (q) { q.value = ''; $('findw')?.classList.remove('has') } filtered(); return }
 	if (d.sort) { S.tdir = S.tsort === d.sort ? (S.tdir > 0 ? -1 : (S.tsort = null, 1)) : (S.tsort = d.sort, 1); renderCat(); return }
 	if (d.set) return set(d.set, d.v)
@@ -431,7 +465,7 @@ function onChange(e) { const t = e.target
 		const v = valsOf(s).slice(); v[i] = c.max === 360 ? ((x % 360) + 360) % 360 : clamp(x, c.min, c.max); color(s, v) } }
 function onKey(e) {
 	if (e.key === 'Enter' && e.target.id === 'cval') { e.target.dispatchEvent(new Event('change', { bubbles: true })); return }
-	if (e.key === 'Escape' && S.sel && !e.target.closest?.('select')) { closePane(); return }
+	if (e.key === 'Escape' && S.sel && !e.target.closest?.('select') && !document.querySelector(':is([popover=""],[popover="auto"]):popover-open')) { closePane(); return }   // an open menu takes its Esc alone – the browser closes it after this listener
 	if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) && $('q')) { e.preventDefault(); $('q').focus(); return }
 	const tab = e.target.closest?.('[role="tab"][data-wtab]')
 	if (tab && /^(ArrowLeft|ArrowRight|Home|End)$/.test(e.key)) { const all = [...tab.parentElement.querySelectorAll('[role="tab"]')], k = all.indexOf(tab)
@@ -474,7 +508,7 @@ export function boot(o = {}) {
 	CAP.css = new Set(Object.keys(CSS_FMT))   // the Availability filter and the Code tab agree on what CSS can write
 	CAP.glsl = new Set(SPACES.filter(s => { try { return hasPlaneGL(s) } catch { return false } }))
 	root.style.setProperty('--wb-z', W.z)
-	for (const el of document.querySelectorAll('[data-wb]')) if (R[el.dataset.wb]) el.innerHTML = R[el.dataset.wb]()
+	for (const el of document.querySelectorAll('[data-wb]')) if (R[el.dataset.wb]) el.innerHTML = R[el.dataset.wb](el)
 	theme(root.dataset.theme === 'dark' ? 'dark' : 'light')
 	// arrival: an authored color in the fragment, an open space in ?s=; otherwise the orbit
 	const P = new URLSearchParams(location.search), h = location.hash.slice(1), c = /^[0-9a-f]{6}$/i.test(h) ? parseColor('#' + h) : null
@@ -483,6 +517,8 @@ export function boot(o = {}) {
 	const s0 = P.get('s'); if (SPACES.includes(s0)) openPane(s0, { focus: false, url: false, scroll: W.follow }); else if (W.persistent && WIDE.matches) openPane(o.space || 'oklch', { focus: false, url: false })
 	document.addEventListener('click', onClick); document.addEventListener('input', onInput); document.addEventListener('change', onChange)
 	document.addEventListener('keydown', onKey); document.addEventListener('pointerdown', onDown)
+	// a popover's invoker says whether it is open – the drawer's cells and any top's menu buttons style by it (toggle doesn't bubble)
+	document.addEventListener('toggle', e => { if (e.target.matches?.('[popover]')) document.querySelector(`[popovertarget="${CSS.escape(e.target.id)}"]:not([popovertargetaction="hide"])`)?.setAttribute('aria-expanded', e.newState === 'open') }, true)
 	addEventListener('pointerup', () => { pdown = false }); addEventListener('pointercancel', () => { pdown = false })
 	WIDE.addEventListener('change', () => { if (W.persistent && WIDE.matches && !S.sel) openPane(o.space || 'oklch', { focus: false, url: false }); else if (S.sel && !W.dock) paneFill(S.sel), paintPane(true); modalize() })
 	setGLReady(() => { CAP.glsl = new Set(SPACES.filter(s => { try { return hasPlaneGL(s) } catch { return false } })); dirty(); paintPane(true); refresh('stripe') })

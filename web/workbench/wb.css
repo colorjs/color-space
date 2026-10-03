@@ -1,16 +1,17 @@
 /* color-space.io workbench – the components every direction shares. Loads after tokens.css and
    variants.css: the catalog (shelves, featured cards, compact slider cards, rows, the spec sheet),
    the top bar's pieces (.brand .cur .find .ib) and the pane's dossier all come from there, with their
-   class names. This file adds what wb.js renders on top – the filter stripe, the tags, the view
-   controls, the tour, the agents block, the pane's tabs and panels, the code plates – and moves the
-   pane's breakpoint to 75rem. Values are tokens; the three quantities named in :root are new. */
+   class names. This file adds what wb.js renders on top – the filter stripe, the tags, the drawer's
+   menus, the view controls, the tour, the agents block, the pane's tabs and panels, the code plates –
+   and moves the pane's breakpoint to 75rem. Values are tokens; the quantities named in :root are new. */
 :root{
 	--wb-z:.35;                              /* the size dial, 0–1 – the A–A slider writes it */
 	--wb-tile-0:11rem; --wb-tile-1:22rem;    /* a compact card's column at the smallest and largest size */
 	--wb-sheet:36rem;                        /* the details sheet below 75rem */
+	--wb-card:16rem;                         /* one option card in a drawer menu – two abreast at most */
 }
 [data-wb="brand"],[data-wb="chip"],[data-wb="search"],[data-wb="tools"],[data-wb="lang"],[data-wb="vision"],[data-wb="count"],
-[data-wb="theme"],[data-wb="gh"],[data-wb="size"],[data-wb="swatch"],[data-wb="layout"],[data-wb="preview"],[data-wb="quant"],[data-wb="metric"],[data-wb="limit"]{ display:contents }   /* their pieces sit in the direction's own bar */
+[data-wb="theme"],[data-wb="gh"],[data-wb="size"],[data-wb="swatch"],[data-wb="layout"],[data-wb="preview"],[data-wb="quant"],[data-wb="metric"],[data-wb="limit"],[data-wb="try"],[data-wb="cell"],[data-wb="dclear"]{ display:contents }   /* their pieces sit in the direction's own bar */
 [hidden]{ display:none !important }
 
 /* the rule under a header wears the current color – index.html's hue line */
@@ -58,6 +59,31 @@
 .wb-cell.on select{ color:var(--ink); border-bottom-color:var(--cur) }
 .wb-cell.on .ci{ color:var(--ink) }
 .wb-cell option:disabled{ color:var(--ghost) }
+
+/* ── the drawer: variants.css's cells, each opening its menu under itself – a popover the cell anchors
+   (centred where anchors are unknown); the menus hold variants.css's option cards and rows ── */
+.wb-dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--stick-top, 0px) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
+@supports (anchor-name:--a){ .wb-dpop{ inset:auto; margin:var(--s1) 0 0; position-area:bottom span-right; position-try-fallbacks:flip-inline } }   /* under its cell, turning left at the screen's edge */
+.wb-dpop .dh2{ margin-bottom:var(--s4) }
+.wb-dpop .dh2 b{ font-size:var(--t3) }
+.wb-dpop .dh2 .ib{ margin:calc(-1 * var(--s2)) calc(-1 * var(--s2)) 0 0 }
+.wb-dpop .cards{ grid-template-columns:minmax(0,var(--wb-card)) }
+.wb-dpop .cards.c2{ grid-template-columns:repeat(2,minmax(0,var(--wb-card))) }
+.wb-dpop .wb-mcols{ display:block; width:calc(2 * var(--wb-card) + var(--s4)); columns:2; column-gap:var(--s4) }   /* groups balance into two columns, none split */
+.wb-mcols>.optg{ break-inside:avoid; margin:0 0 var(--s3) }
+.wb-mrow{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s3) var(--s5); padding:var(--s2) }
+#wd-more{ width:calc(2 * var(--wb-card) + var(--s4) + 2 * var(--s4)) }   /* its chips wrap at two cards' width */
+/* phones: a menu rises from the bottom edge, one column */
+@media (width < 36rem){
+	.wb-dpop,#wd-more{ inset:auto 0 0 0; width:100%; max-width:none; max-height:85dvh; margin:0; padding-bottom:var(--s8); position-area:none }
+	.wb-dpop .cards.c2,.wb-dpop .cards{ grid-template-columns:minmax(0,1fr) }
+	.wb-dpop .wb-mcols{ width:auto; columns:1 }
+}
+/* a cell's face sits in its host (display:contents), one level under the button – variants.css's .cell>… rules, reached */
+.wb-dcell b.on{ box-shadow:inset 0 calc(-1 * var(--ulw)) 0 var(--cur) }   /* .cell.on – the cell persists, its face says what is set */
+.wb-dcell:has(b.on) .ci{ color:var(--ink) }
+.wb-dcell .cw+.ic{ --ic:12px; color:var(--soft); transition:rotate var(--dur-short) var(--ease-out) }
+.wb-dcell[aria-expanded="true"] .cw+.ic{ rotate:180deg }
 
 /* ── the tour as a numbered strip: the numbers are the separators – nothing dangles where a line wraps ── */
 .wb-stops{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4); margin:0; padding:0; list-style:none }

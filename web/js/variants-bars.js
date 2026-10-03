@@ -18,11 +18,12 @@ const QTIP = Object.fromEntries(QFLAT.map(([v, n, t]) => [v, [n, t]])), LTIP = O
 
 // ── the pieces every variant arranges ──
 const optIcon = (k, v) => k === 'white' ? `<i class="wdot" style="--w:${whiteCSS(v)}"></i>` : OI[v] || ''
-const opt = (k, [v, name, tip]) => { const n = countIf(k, v), on = S.F[k].has(v)
-	return `<button type="button" class="opt" data-f="${k}" data-v="${v}" aria-pressed="${on}" data-tip="${esc(name)} – ${esc(tip)}"${n || on ? '' : ' disabled'}><span class="oi">${optIcon(k, v)}</span><span class="ot"><b>${esc(name)}</b><small>${esc(tip)}</small></span><span class="oc tnum">${n}</span></button>` }
-const chip = (k, [v, name, tip], icon = true) => { const n = countIf(k, v), on = S.F[k].has(v)
-	return `<button type="button" class="chip" data-f="${k}" data-v="${v}" aria-pressed="${on}" data-tip="${esc(name)} – ${esc(tip)} · ${n} spaces"${n || on ? '' : ' disabled'}>${icon ? optIcon(k, v) : ''}<span>${esc(name)}</span><span class="oc tnum">${n}</span></button>` }
-const lensOpt = (key, v, [name, tip], icon) => `<button type="button" class="opt" data-set="${key}" data-v="${v}" aria-pressed="${S[key] === v}" data-tip="${esc(name)} – ${esc(tip)}"><span class="oi">${icon}</span><span class="ot"><b>${esc(name)}</b><small>${esc(tip)}</small></span></button>`
+// data-k: the workbench re-renders menus in place and hands focus back to the same option by it
+export const opt = (k, [v, name, tip]) => { const n = countIf(k, v), on = S.F[k].has(v)
+	return `<button type="button" class="opt" data-f="${k}" data-v="${v}" data-k="m-${k}-${v}" aria-pressed="${on}" data-tip="${esc(name)} – ${esc(tip)}"${n || on ? '' : ' disabled'}><span class="oi">${optIcon(k, v)}</span><span class="ot"><b>${esc(name)}</b><small>${esc(tip)}</small></span><span class="oc tnum">${n}</span></button>` }
+export const chip = (k, [v, name, tip], icon = true) => { const n = countIf(k, v), on = S.F[k].has(v)
+	return `<button type="button" class="chip" data-f="${k}" data-v="${v}" data-k="m-${k}-${v}" aria-pressed="${on}" data-tip="${esc(name)} – ${esc(tip)} · ${n} spaces"${n || on ? '' : ' disabled'}>${icon ? optIcon(k, v) : ''}<span>${esc(name)}</span><span class="oc tnum">${n}</span></button>` }
+export const lensOpt = (key, v, [name, tip], icon) => `<button type="button" class="opt" data-set="${key}" data-v="${v}" data-k="m-${key}-${v}" aria-pressed="${S[key] === v}" data-tip="${esc(name)} – ${esc(tip)}"><span class="oi">${icon}</span><span class="ot"><b>${esc(name)}</b><small>${esc(tip)}</small></span></button>`
 const seg = (key, label, items, icons, cls = '') => `<div class="seg ${cls}" role="group" aria-label="${label}">${items.map(([v, name, tip]) =>
 	`<button type="button" data-set="${key}" data-v="${v}" aria-pressed="${S[key] === v}" title="${esc(name)} – ${esc(tip)}" data-tip="${esc(name)} – ${esc(tip)}">${icons[v]}<span class="sr">${esc(name)}</span></button>`).join('')}</div>`
 const tabs = (key, label, items) => `<div class="tabs" role="group" aria-label="${label}">${items.map(([v, name]) =>
@@ -30,12 +31,12 @@ const tabs = (key, label, items) => `<div class="tabs" role="group" aria-label="
 const quantSegs = () => QUANT.map(([g, items]) => seg('quant', g, items, QI)).join('')
 const clearBtn = () => nOn() || S.q ? `<button type="button" class="lnk" data-reset>Clear all</button>` : ''
 const popHead = (q, k) => `<header class="poph"><b>${esc(q)}</b>${k && S.F[k]?.size ? `<button type="button" class="lnk" data-clear="${k}">Any</button>` : ''}</header>`
-const quantList = () => QUANT.map(([g, items]) => `<div class="optg"><span class="gl">${g}</span>${items.map(([v]) => lensOpt('quant', v, QTIP[v], QI[v])).join('')}</div>`).join('')
-const limitList = () => LIMITS.map(([v]) => lensOpt('limit', v, LTIP[v], LI[v])).join('')
+export const quantList = () => QUANT.map(([g, items]) => `<div class="optg"><span class="gl">${g}</span>${items.map(([v]) => lensOpt('quant', v, QTIP[v], QI[v])).join('')}</div>`).join('')
+export const limitList = () => LIMITS.map(([v]) => lensOpt('limit', v, LTIP[v], LI[v])).join('')
 
 // ── row one: identity, the color, search, the room's switches ──
 const PH = { sentence: 'Search by name, maker, year or use', drawer: 'Find a space', guide: 'Search – try “HDR”, “Apple”, “1976” or “hue”', studio: 'Search 168 spaces' }
-const TRY = [['tomato', 'Tomato'], ['gold', 'Gold'], ['teal', 'Teal'], ['rebeccapurple', 'Rebecca purple'], ['color(display-p3 0 1 0)', 'The greenest P3 green']]
+export const TRY = [['tomato', 'Tomato'], ['gold', 'Gold'], ['teal', 'Teal'], ['rebeccapurple', 'Rebecca purple'], ['color(display-p3 0 1 0)', 'The greenest P3 green']]
 export const topHTML = () => `<a class="brand" href="./" title="The atlas"><b>color-space</b><span class="n tnum" id="count"></span></a>
 	<div class="cur" title="The current color – every space below draws it"><span class="cdw"><input type="color" id="cpick" aria-label="Pick the current color"></span><input id="cval" spellcheck="false" autocomplete="off" enterkeyhint="done" aria-label="Current color – any CSS color, or a space's own numbers like cam16(60 40 50)"><span class="gam" id="gam"></span></div>
 	${S.bar === 'studio' ? `<div class="try" role="group" aria-label="Try a color"><span>Try</span>${TRY.map(([c, n]) => `<button type="button" data-try="${c}" title="${n}" style="--sw:${c}"><span class="sr">${n}</span></button>`).join('')}</div>` : ''}
@@ -69,7 +70,7 @@ function sentence() {
 </div>` }
 
 // ── drawer: labeled cells; the open one pours its options into a drawer below ──
-const cellWords = f => { const v = onOf(f.k); return v.length ? v.map(x => nameOf(f.k, x)).join(', ') : f.any[0].toUpperCase() + f.any.slice(1) }
+export const cellWords = f => { const v = onOf(f.k); return v.length ? v.map(x => nameOf(f.k, x)).join(', ') : f.any[0].toUpperCase() + f.any.slice(1) }
 const cell = (key, icon, label, words, on) => `<button type="button" class="cell${on ? ' on' : ''}" data-open="${key}" aria-expanded="${S.open === key}"><span class="ci">${icon}</span><span class="cw"><small>${esc(label)}</small><b>${esc(words)}</b></span>${UI.chev}</button>`
 function drawerBody() { const k = S.open
 	if (FK[k]) return `<header class="dh2"><div><b>${esc(FK[k].q)}</b><small>Pick any – a space that matches one of them stays.</small></div>${S.F[k].size ? `<button type="button" class="lnk" data-clear="${k}">Any</button>` : ''}<button type="button" class="ib" data-open="${k}" aria-label="Close">${UI.x}</button></header><div class="cards">${FK[k].opts.map(o => opt(k, o)).join('')}</div>`
