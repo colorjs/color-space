@@ -1,10 +1,13 @@
 // Atlas top · Search – search-first, and no longer collapsed. The first screen is the definition and ONE wide
 // box: the color's diamond and notation inside it, 'Type a color or a color space' – a color paints the
 // catalog, a word finds spaces (the Search prototype's double duty). Quiet examples and the tour as one line
-// sit under it. Scroll, and the box docks into the bar's middle (sticky – no script places it) while the
-// options fade in as one slim bar under it: count · Filter ▾ | view | quantize ▾ · limit ▾ · vision ▾ (a
-// scroll-driven fade; at once when the box has focus). The facets and the purposes open in a sheet from the
-// side. The catalog keeps the page's full width. Contract: atlas.js.
+// sit under it, then the catalog's results line: the count and 'Filter' – the purposes and the eight facets in
+// a sheet from the side, one click away and naming what is on. Scroll, and the box docks into the bar's middle
+// (sticky – no script places it) while the results line pins under it and the view and lens fade in at its end:
+// view | quantize ▾ · limit ▾ · vision ▾ (a scroll-driven fade; at once when focus is in the hero or the bar).
+// Where the page is too narrow for them (a docked dossier, phones) they fold behind 'View ▾' – the same
+// element, a popover only while folded – so the line stays one line and stays pinned. The catalog keeps the
+// page's full width. Contract: atlas.js.
 import { S, color, renderCat, refresh, searchHTML, esc } from './wb.js'
 import { parseColor } from '../js/variants-model.js'
 import { FK } from '../js/variants-data.js'
@@ -28,9 +31,10 @@ export default function mount({ top, hero, opts }) {
 	<div class="qtour"><span class="fsel-l">Start here</span><div data-wb="stops"></div></div>
 	<div class="qstop" data-wb="stop"></div>`
 	opts.innerHTML = `<div class="qopts">
-		<span class="qgrp"><span data-wb="count"></span><button type="button" class="qfil" popovertarget="q-sheet" aria-haspopup="dialog"><span>Filter</span><b id="q-filv">Any</b></button></span>
-		<span class="qgrp qview" data-wb="view"></span>
-		<span class="qgrp qlens"><span data-wb="quant"></span><span data-wb="metric"></span><span data-wb="limit"></span><span data-wb="vision"></span></span>
+		<span class="qgrp"><span data-wb="count"></span><button type="button" class="qfil" popovertarget="q-sheet" aria-haspopup="dialog">${UI.filter}<span>Filter</span><b id="q-filv"></b></button></span>
+		<button type="button" class="qvb" popovertarget="q-vp" aria-haspopup="dialog">View${UI.chev}</button>
+		<span class="qmore" id="q-vp" popover role="group" aria-label="View and lens"><span class="qgrp qview" data-wb="view"></span>
+		<span class="qgrp qlens"><span data-wb="quant"></span><span data-wb="metric"></span><span data-wb="limit"></span><span data-wb="vision"></span></span></span>
 	</div>`
 
 	// the box's double duty: a color paints and filters nothing – wb.js's search never sees it; a word goes on to wb.js
@@ -47,12 +51,16 @@ export default function mount({ top, hero, opts }) {
 	const onColor = e => { if (e.detail?.authored && document.activeElement !== q && colorish(q.value.trim())) { q.value = ''; q.closest('.find')?.classList.remove('has') } }
 	hero.addEventListener('input', onType); hero.addEventListener('click', onTry); document.addEventListener('wb:color', onColor)
 
-	// the Filter button's value: the facets and purposes that are on – re-read whenever wb.js re-renders the sheet
+	// the Filter button names what is on – the purposes and facets, re-read whenever wb.js re-renders the sheet
 	const val = opts.querySelector('#q-filv'), fil = opts.querySelector('.qfil')
 	const name = (k, v) => FK[k]?.opts.find(o => o[0] === v)?.[1] || v
 	const sum = () => { const on = Object.entries(S.F).flatMap(([k, set]) => [...set].map(v => name(k, v)))
-		val.textContent = on.length ? on[0] + (on.length > 1 ? ` +${on.length - 1}` : '') : 'Any'; fil.classList.toggle('on', on.length > 0) }
+		val.textContent = on.length ? on[0] + (on.length > 1 ? ` +${on.length - 1}` : '') : ''; fil.classList.toggle('on', on.length > 0) }
 	const MO = new MutationObserver(sum); for (const h of top.querySelectorAll('.qsheet [data-wb]')) MO.observe(h, { childList: true })
+	sum()
+	// the page widened past the fold while View was open: the options are inline again
+	const vp = opts.querySelector('#q-vp'), vb = opts.querySelector('.qvb')
+	const RO = new ResizeObserver(() => { if (!vb.offsetWidth && vp.matches(':popover-open')) vp.hidePopover() }); RO.observe(opts)
 
-	return () => { clearTimeout(fixT); MO.disconnect(); hero.removeEventListener('input', onType); hero.removeEventListener('click', onTry); document.removeEventListener('wb:color', onColor) }
+	return () => { clearTimeout(fixT); MO.disconnect(); RO.disconnect(); hero.removeEventListener('input', onType); hero.removeEventListener('click', onTry); document.removeEventListener('wb:color', onColor) }
 }
