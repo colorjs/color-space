@@ -64,7 +64,7 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 **Cross-disciplinary specialty** — Coloroid (architectural color system, MSZ 7300), TSL (face detection), YES (face recognition), RG chromaticity (illumination-invariant vision), HSI, HCY, HSP, HCG, HCL, HSM, OSA-UCS. These are absent from all other compared libraries.
 
-**LUV family** — LUV, LCHuv, HSLuv, HPLuv. culori and colorjs.io include HSLuv/HPLuv; @texel/color and chroma-js largely do not cover LUV/LCHuv.
+**LUV family** — LUV, LCHuv, HSLuv, HPLuv. culori and colorjs.io include LUV/LCHuv, colorjs.io alone HSLuv/HPLuv; @texel/color and chroma-js largely do not cover LUV/LCHuv.
 
 ---
 

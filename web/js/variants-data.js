@@ -6,7 +6,7 @@ import { space, meta, classify, LUTOK } from './core.js'
 import { SPACES, HISTORICAL } from './render.js'
 import PURPOSE, { ORDER, TIPS } from './purpose.js'
 import FAMILIES from './study-families.js'
-import { spaces as wasmSpaces } from './study-runtime.js'
+import { spaces as wasmSpaces, CSS } from './study-runtime.js'
 
 export { FAMILIES, ORDER, TIPS, PURPOSE }
 
@@ -17,9 +17,8 @@ export const PICKS = new Set(['rgb', 'p3', 'rec2020', 'hsl', 'hsv', 'oklch', 'la
 export const plabel = t => ({ print: 'Print & surface' })[t] || t[0].toUpperCase() + t.slice(1)
 
 // ── where a space runs beyond JS ──
-const CSSN = ['rgb', 'lrgb', 'hsl', 'hwb', 'lab', 'lchab', 'oklab', 'oklch', 'p3', 'a98rgb', 'prophoto', 'rec2020', 'xyz', 'xyz-d50']
 export const CAP = {
-	css: new Set(CSSN), lut: new Set(LUTOK), glsl: new Set(),
+	css: new Set(Object.keys(CSS)), lut: new Set(LUTOK), glsl: new Set(),   // css: css.js's table – no rec2020 (CSS's is a pure 2.4 gamma)
 	wasm: new Set((wasmSpaces || []).filter(s => SPACES.includes(s))),
 }
 const geo = s => ({ polar: 'polar', opponent: 'opponent' })[classify(s).archetype] || 'component'

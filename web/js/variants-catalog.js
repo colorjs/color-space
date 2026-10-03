@@ -132,7 +132,7 @@ export function paintPane(full = true) {
 	pane.querySelectorAll('.big .cv').forEach(v => { const i = +v.dataset.i; if (document.activeElement !== v) v.value = fmtc(vals[i], m.channels[i]) })
 	pane.querySelectorAll('.bar').forEach(bar => { const i = +bar.dataset.i, ch = m.channels[i], cv = bar.querySelector('.bgc'), st = bar.querySelector('.ch')
 		if (full) { if (cv.width !== 512) { cv.width = 512; cv.height = 1 }
-			const ok = gl && paintBarGL(cv, s, vals, i, [ch.min, ch.max], c.ch.length > 1 ? S.limit : 'locus', qArg(S.quant))
+			const ok = gl && paintBarGL(cv, s, vals, i, [ch.min, ch.max], c.ch.length > 1 ? S.limit : 'locus', qArg(S.quant), S.metric || 'oklab')
 			cv.hidden = !ok; st.style.background = ok ? 'transparent' : strip(s, vals, i, 40, S.limit) + ', var(--checker)' }
 		const r = st.querySelector('.nrg'); if (document.activeElement !== r) r.value = vals[i] })
 	if (pane.querySelector('.pls')) paintPlanes(pane, s, vals, 216)

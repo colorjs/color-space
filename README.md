@@ -39,7 +39,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/lite` – 27-space working set · 9 kB gzip
 * `color-space/wasm` – lite set as WASM · bare `.wasm` included
 * `color-space/gl` – GLSL/WGSL shader source
-* `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL · `await hlsl('rgb', 'oklch')` · needs the optional peer `naga-wasm`
+* `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL · `await hlsl('rgb', 'oklch')` · needs the optional peer `naga-wasm` (it declares Node ≥ 24.12; CI runs it on 22, where npm only warns)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
@@ -120,7 +120,7 @@ Thanks to the researchers, theorists, specifiers, implementors and the libraries
 | **color-space** | **168** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **5.52** |
 | color-space/lite | 27 | Conventional | logs · HDR | JS · 9 kB gzip | 3.01 ² |
 | color-space/wasm | 27 | Conventional | logs · HDR | WASM | 1.38–4.78× JS batches ³ |
-| [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 4.46 |
+| [culori](https://github.com/Evercoder/culori) | 30 | 0–1 | ❌ | JS | 4.46 |
 | [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.23 |
 | [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 3.49 ² |
 | [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 1.19 ² |

@@ -301,6 +301,8 @@ test('integrity — loss tags on the non-invertible nodes', () => {
 test('integrity — data.json spaces carry channels, range and @see refs', () => {
 	const missing = Object.keys(space).filter(n => !meta[n] || !meta[n].channels || !meta[n].range)
 	is(missing, [], 'every space has meta channels + range')
+	// @use is the dossier's "used for" row – there is no fallback table behind it
+	is(Object.keys(meta).filter(n => !meta[n].use), [], 'every space carries @use')
 	// and nothing more: non-space modules (hub, lite, lut, wasm…) must not leak in
 	const bogus = Object.keys(meta).filter(n => !space[n])
 	is(bogus, [], 'every meta key is a registered space')

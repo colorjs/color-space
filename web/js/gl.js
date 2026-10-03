@@ -628,19 +628,20 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
 
 /**
  * Paint a channel bar (1-D sweep of channel `i`, held others) with per-pixel
- * gamut alpha — the smooth version of the stepped CSS mask.
+ * gamut alpha — the smooth version of the stepped CSS mask. `metric` is the palette
+ * lens's distance, as for the planes – a bar and a plane of one lens agree.
  */
-export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, deferred = false) {
+export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, metric, deferred = false) {
 	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
 	if (kernelPending) {
 		const held = vals.slice(), range = ri.slice()
-		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, deferred))
+		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, metric, deferred))
 		return true
 	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant)
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric)
 	return presentKernel(cv2d, deferred)
 }
 

@@ -486,10 +486,11 @@ import PURPOSE, { ORDER, TIPS } from './js/purpose.js'
 import { kind as iccKind } from '../icc.js'
 import { primariesOf, trcOf } from './js/profile.js'
 
-// spaces the browser itself speaks — CSS Color 4/HDR function or color() ids
+// spaces the browser itself speaks — CSS Color 4/HDR function or color() ids. Not rec2020: CSS's
+// color(rec2020) is a pure 2.4 gamma, this library's carries the BT.2020 OETF (css.js says why)
 const CSSN = { rgb:'rgb()', lrgb:'color(srgb-linear)', hsl:'hsl()', hwb:'hwb()', lab:'lab()', lchab:'lch()',
 	oklab:'oklab()', oklch:'oklch()', p3:'color(display-p3)', a98rgb:'color(a98-rgb)', prophoto:'color(prophoto-rgb)',
-	rec2020:'color(rec2020)', xyz:'color(xyz-d65)', 'xyz-d50':'color(xyz-d50)' }
+	xyz:'color(xyz-d65)', 'xyz-d50':'color(xyz-d50)' }
 
 const $ = id => document.getElementById(id)
 const WIDE = matchMedia('(min-width:80rem)')

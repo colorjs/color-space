@@ -357,7 +357,11 @@ try {
 	await page.locator('.ent[data-s="hpluv"] .nm').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	await mode('jnd'); await mode('smooth')
 	assert.equal(+(await page.locator('#bigch .nv').nth(1).inputValue())<=100,true,'HPLuv even→smooth keeps saturation in range')
-	const hpVoid=await page.locator('.pl[data-a="0"][data-b="2"] canvas').evaluate(c=>{ const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let n=0; for(let i=3;i<d.length;i+=4) if(d[i]<10)n++; return n })
+	// polled, not read after two frames: a loaded runner can land the repaint later (it read a still-blank canvas, every
+	// pixel void); holes that persist – the bug – still fail, with their count
+	const hpVoid=await page.locator('.pl[data-a="0"][data-b="2"] canvas').evaluate(c=>new Promise(ok=>{ const end=performance.now()+10000
+		const tick=()=>{ const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let n=0; for(let i=3;i<d.length;i+=4) if(d[i]<10)n++
+			n&&performance.now()<end?requestAnimationFrame(tick):ok(n) }; tick() }))
 	assert.equal(hpVoid,0,'HPLuv H×L plane remains complete after even→smooth')
 	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
 
@@ -558,6 +562,20 @@ try {
 	assert.match(py, /# verified against color-space – colour-science /, 'Python tab: says what it was verified with')
 	await wire.locator('#cseg [data-t="embed"]').click()
 	assert.match(await wire.locator('#snip').innerText(), /^<iframe src="https:\/\/color-space\.io\/oklch\?embed"\s+title="OKLCH color space – color-space\.io"\s+width="\d+" height="\d+" style="[^"]+" loading="lazy"><\/iframe>$/, 'embed tab: the iframe for this space')
+	// GL tab: four languages from one source, each text carrying the entry it names; naga (2 MB) loads on the first HLSL/MSL pick, not before
+	await wire.locator('#cseg [data-t="gl"]').click()
+	assert.equal(await wire.locator('#glseg').isVisible(), true, 'GL tab shows its language switch')
+	const nagaFetched = () => wire.evaluate(() => performance.getEntriesByType('resource').some(e => /naga/.test(e.name)))
+	for (const [l, entry] of [['glsl', /\bvec3 oklch_rgb\(/], ['wgsl', /\bfn oklch_rgb\(/], ['hlsl', /\bfloat3 oklch_rgb\(/], ['msl', /\bmetal::float3 oklch_rgb\(/]]) {
+		if (l === 'hlsl') assert.equal(await nagaFetched(), false, 'GLSL and WGSL never fetch naga')
+		await wire.locator(`#glseg [data-l="${l}"]`).click()
+		await wire.waitForFunction(() => !/^\/\/ \w+: loading /.test(document.getElementById('snip').textContent), null, { timeout: 30000 })
+		const sh = await wire.locator('#snip').innerText()
+		assert.match(sh, new RegExp(`^// oklch → rgb · ${l.toUpperCase()} for `), `GL tab ${l}: the header names the pair and the language`)
+		assert.match(sh, entry, `GL tab ${l}: the entry function is present`)
+	}
+	assert.equal(await nagaFetched(), true, 'HLSL/MSL loaded naga on demand')
+	await wire.locator('#glseg [data-l="glsl"]').click()   // the language is page state – leave GLSL for what follows
 	await wire.evaluate(() => { location.hash = 'hsluv' })   // the data module is in – a space without a verified entry gets no tab
 	await wire.waitForFunction(() => /hsluv/i.test(document.getElementById('dtitle')?.textContent || ''))
 	await wire.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))))
@@ -643,16 +661,18 @@ try {
 			[[25.49,127.49,229.49], 'web'], [[25.5,127.5,229.5], 'web'],
 			[[0,0,0], 'jnd'], [[127.49,127.49,127.49], 'jnd'], [[255,255,255], 'jnd'],
 			[[245.49,105.49,22.49], 'pico8'], [[255,0,0], 'names'], [[255,0,0], 'pico8'], [[255,0,0], 'names'],
+			// one color, three nearest entries – one per distance: a bar that drops the lens's metric lands on oklab's
+			...['oklab','de2000','redmean'].flatMap(m => [[[0,51,255], 'pico8', m], [[0,51,153], 'names', m]]),
 		]
-		for (const [rgb, mode] of samples) {
-			const expected = quantRGB(rgb, mode), rx = [rgb[0],rgb[0]], ry = [rgb[1],rgb[1]]
+		for (const [rgb, mode, metric] of samples) {
+			const expected = quantRGB(rgb, mode, metric), rx = [rgb[0],rgb[0]], ry = [rgb[1],rgb[1]]
 			for (const draw of [
-				() => paintBarGL(pixel, 'rgb', rgb, 0, rx, 'off', mode),
-				() => paintPlaneGL(pixel, 'rgb', rgb, 0, 1, rx, ry, 'off', mode),
+				() => paintBarGL(pixel, 'rgb', rgb, 0, rx, 'off', mode, metric),
+				() => paintPlaneGL(pixel, 'rgb', rgb, 0, 1, rx, ry, 'off', mode, false, 0, metric),
 			]) {
 				await ready(draw); draw()
 				const got = pixel.getContext('2d').getImageData(0,0,1,1).data
-				check(got[3] === 255 && expected.every((v,i) => Math.abs(v-got[i]) <= (mode === 'jnd' ? 1 : 0)), `${mode} ${rgb}: GPU ${[...got]} differs from CPU ${expected}`)
+				check(got[3] === 255 && expected.every((v,i) => Math.abs(v-got[i]) <= (mode === 'jnd' ? 1 : 0)), `${mode}${metric ? ' ' + metric : ''} ${rgb}: GPU ${[...got]} differs from CPU ${expected}`)
 			}
 		}
 		const cv = mesh3Canvas(); cv.width = cv.height = 256
@@ -682,7 +702,7 @@ try {
 		}
 		return { samples: samples.length*2, changed }
 	})
-	assert.equal(rendering.samples, 26, 'one-pixel bar and plane quantization agree with the CPU at byte boundaries')
+	assert.equal(rendering.samples, 38, 'one-pixel bar and plane quantization agree with the CPU at byte boundaries, under each palette distance')
 	assert.ok(rendering.changed > 0, 'contours preserve coverage and reset across RGB → OKLab → RGB on one canvas')
 	await gpu.close()
 

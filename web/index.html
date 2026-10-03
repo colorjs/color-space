@@ -2178,20 +2178,6 @@ function nearestIn(p,rgb,metric=QM){ const src=byteRGB(rgb), key=rgbKey(src), ca
 	for(const c of sitesOf(p)){ const d=siteDist(metric,q,c); if(d<bd){bd=d;best=c} }
 	cache.set(key,best); return best }
 
-const USES={ rgb:'CSS · canvas · the web default', hsl:'CSS · quick pickers', hsv:'design-tool pickers', hwb:'intuitive mixing · CSS', hsi:'machine vision',
- oklab:'gradients · gamut mapping', oklch:'design tokens · CSS palettes', okhsl:'perceptual pickers', okhsv:'perceptual pickers', okhwb:'perceptual pickers', oklrab:'picker internals', oklrch:'picker internals',
- lab:'ΔE · print QC · interchange', lchab:'perceptual palettes', 'lab-d65':'display-native ΔE', 'lch-d65':'display-native palettes', luv:'additive light · lighting', lchuv:'lighting · displays', hsluv:'accessible palettes', hpluv:'pastel palettes',
- cam16:'appearance modeling', 'cam16-ucs':'ΔE · gamut mapping', 'cam16-lcd':'large-ΔE metrics', 'cam16-scd':'small-ΔE metrics', ciecam02:'ICC v4 profiles', 'cam02-ucs':'ΔE research', 'cam02-lcd':'large-ΔE metrics', 'cam02-scd':'small-ΔE metrics', hct:'Material Design theming', hellwig2022:'appearance research', zcam:'HDR appearance', rlab:'appearance (Fairchild)',
- xyz:'colorimetry hub · calibration', 'xyz-d50':'ICC interchange', 'xyz-abs-d65':'absolute luminance', xyy:'chromaticity diagrams', lms:'chromatic adaptation', uv:'CCT · LED binning', macboyn:'vision science', dkl:'cone-opponent vision', dsh:'dominant wavelength', gray:'luminance ops', kelvin:'color temperature', wavelength:'spectral colors',
- ycbcr:'JPEG · MPEG · H.264', jpeg:'JPEG encoding', yuv:'analog PAL', yiq:'NTSC', ydbdr:'SECAM', ypbpr:'component video', ycgco:'lossless codecs', yccbccrc:'BT.2020 video', xvycc:'extended-gamut video', 'smpte-c':'legacy broadcast', photoycc:'Photo CD archives',
- rec709:'HDTV cameras', rec2020:'UHD masters', 'rec2020-linear':'UHD compositing', 'rec2100-pq':'HDR10 · Dolby Vision', 'rec2100-hlg':'broadcast HDR', 'rec2100-linear':'HDR compositing', ictcp:'HDR grading · ΔE ITP', jzazbz:'HDR uniform math', jzczhz:'HDR palettes', ipt:'hue-preserving ops', izazbz:'HDR research', 'hdr-ipt':'HDR appearance', 'hdr-cie-lab':'HDR reflectance', icacb:'HDR ΔE',
- acescg:'CGI · compositing', acescc:'cinema grading', acescct:'grading with toe', 'aces2065-1':'archival masters', logc3:'ARRI workflows', logc4:'ARRI ALEXA 35', slog2:'Sony cameras', slog3:'Sony cine cameras', vlog:'Panasonic cameras', log3g10:'RED cameras', clog:'Canon cameras', clog2:'Canon cine', clog3:'Canon cine', flog:'Fujifilm cameras', flog2:'Fujifilm cameras', nlog:'Nikon cameras', applelog:'iPhone ProRes Log', applelog2:'iPhone log · Apple Wide Gamut', bmdfilm:'Blackmagic cameras', dlog:'DJI drones', cineon:'film scans · DPX',
- flog2c:'Fujifilm cameras · F-Gamut C', gplog2:'GoPro MISSION 1 cameras', protune:'GoPro Hero cameras', kinelog3:'Kinefinity cine cameras', milog:'Xiaomi phone log', olog:'OPPO phone log', samsunglog:'Galaxy phone log', ilog:'Insta360 camera log', davinci:'Resolve color management', tlog:'Baselight grading',
- p3:'Apple displays · wide CSS', 'p3-linear':'wide-gamut math', 'dci-p3':'cinema projection', a98rgb:'photo print workflows', prophoto:'photo editing', rimm:'scene-referred photo', scrgb:'Windows HDR', lrgb:'physically-correct blending',
- cmyk:'print separation', cmy:'subtractive teaching', munsell:'soil · art · standards', 'ral-design':'industrial coatings', coloroid:'architecture', ryb:'artist color mixing',
- tsl:'skin detection', yes:'face detection', hsm:'skin segmentation', ohta:'image segmentation', rg:'illumination-invariant vision',
- hcg:'pickers', hcl:'legacy pickers', hcy:'shader luma pickers', hsp:'perceived brightness', xyb:'JPEG XL', osaucs:'uniform-scales research', ucs:'CIE history', uvw:'CIE history', labh:'reflectance QC', 'din99o-lab':'ΔE99o difference', 'din99o-lch':'ΔE99o palettes', din99d:'ΔE99d difference', prolab:'projective perceptual math', sucs:'lightweight uniform math', anlab:'historical ΔE', srlab2:'Lab-successor math', 'cie-rgb':'colorimetry history', ntsc:'gamut benchmark', 'apple-rgb':'legacy Mac', pal:'legacy PAL', 'smpte-240m':'early HDTV' }
-const useOf=s=>USES[s]||(s.endsWith('-linear')?'linear-light math':({polar:'pickers · palettes',opponent:'perceptual math',additive:'device RGB',strips:'component work'})[classify(s).archetype])
 const geo=s=>({polar:'polar',opponent:'opponent',additive:'component',strips:'component'})[classify(s).archetype]
 const encodingOf=s=>{
 	if(/linear|^lrgb$|scrgb|acescg|aces2065|rec2100-linear/.test(s)) return 'linear'
@@ -4118,7 +4104,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
 		<div class="pcol">
 			${L.for?`<div><i>made for</i><p>${sent(L.for)}</p></div>`:''}
-			<div><i>used for</i><p>${sent(m.use||useOf(s))}</p></div>
+			<div><i>used for</i><p>${sent(m.use)}</p></div>
 			${avoid?`<div><i>caveat</i><p>${sent(avoid)}</p></div>`:''}
 		</div>
 	 </div>
@@ -5075,7 +5061,7 @@ function renderFast(solid=true){
 			// Every lens paints through the same GPU kernel as the planes: numeric cell
 			// centers, exact web/name/even regions, and per-pixel gamut treatment. The
 			// CSS branch is only the no-WebGL/compile-moment fallback.
-			if(barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],barGM,Q??0,PDOWN||!HIMG&&!qTriple(Q))){
+			if(barGL&&paintBarGL(bgc,s,shown,i,[c.min,c.max],barGM,Q??0,QM,PDOWN||!HIMG&&!qTriple(Q))){
 				bgc.style.display='block'
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
@@ -5218,7 +5204,7 @@ function renderFast(solid=true){
 				`const buf = alloc(n)   // Float64Array(n·3) living in WASM memory\n`+
 				`// … write rgb 0-255 pixels into buf …\n`+
 				`space${bk}(buf)   // the whole buffer, in place, zero-copy\n`+
-				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
+				`\n// same verified formulas as the JS API, compiled ahead-of-time: 1.38–4.78× the JS batch API, by target`) }
 		else if(codeTab==='gl'){ // the shader itself in the picked language – copy-ready, its call in the header; re-highlighted only when the text changes
 			const t=shaderText(s,shLang), k=t==null?'':`${shLang}:${s}`
 			if(!k||snip._gk!==k){ snip._gk=k
