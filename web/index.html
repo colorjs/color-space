@@ -870,19 +870,19 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 @media(pointer:coarse){ .nvw input,.cv,.qx input{ font-size:16px } }   /* iOS auto-zooms any focused input under 16px — floor the small inputs (slider inline values t1, pair values t2, search t2); LAST in the sheet so it wins their base rules (axe: pinch zoom stays free) */
 </style></head>
 <body>
-<a class="skip" href="#cat">skip to catalog</a>
+<a class="skip" href="#cat" data-i18n="ui.skip">skip to catalog</a>
 <div class="page">
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
-	<span class="tagline tnum"><span id="n">168</span> spaces</span>
-	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
+	<span class="tagline tnum" data-i18n="ui.header.tagline"><span id="n">168</span> spaces</span>
+	<span class="cx" title="current color – type a supported CSS color" data-i18n="title:ui.header.color-tip"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker" data-i18n="aria-label:ui.header.pick title:ui.header.pick"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done" data-i18n="aria-label:ui.header.value"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation" data-i18n="title:ui.header.fmt-tip aria-label:ui.header.fmt-label"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation" data-i18n="aria-label:ui.header.fmt-list"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour" data-i18n="title:ui.header.gamut-tip"></span></span>
 	<span class="sp"></span>
 	<span class="dctl vctl" id="vctl"></span>
-	<label class="qx" title="search spaces by name (press /)" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-label"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
-	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
-	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg class="ic" viewBox="2 1 20 22" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
-	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
-	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+	<label class="qx" title="search spaces by name (press /)" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-label"><button class="qclr" id="qclr" type="button" aria-label="clear the search" data-i18n="aria-label:ui.header.find-clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
+	<span class="fchipsh" id="fchipsH" aria-label="active filters" data-i18n="aria-label:ui.filter.active"></span>
+	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp" data-i18n="title:ui.filter.tip aria-label:ui.filter.label"><svg class="ic" viewBox="2 1 20 22" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
+	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"></button>
+	<a class="gh" href="https://github.com/colorjs/color-space" aria-label="GitHub repository" title="GitHub" data-i18n="aria-label:ui.github"><svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </header><div class="hueline" id="hueline" aria-hidden="true"></div></div>
 
 <main class="cat" id="cat"><nav class="toc" id="toc"><i class="tsp"></i><div class="ti" data-i="0"><button class="tn" data-tip="RGB working and delivery spaces – primaries, a white point and a transfer curve on one cube. Defined by standards bodies and display vendors: IEC, ITU-R, SMPTE, Adobe, Apple.">Display & web<span class="tc tnum">19</span></button></div><i class="tsp"></i><div class="ti" data-i="1"><button class="tn" data-tip="Hue-led remixes of RGB born in 1970s computer graphics – cheap picker math with no perceptual claims: equal numeric steps do not look equal.">Cylindrical<span class="tc tnum">9</span></button></div><i class="tsp"></i><div class="ti" data-i="2"><button class="tn" data-tip="Spaces rebuilt so equal steps look equal, fitted to modern perception datasets – mostly individual researchers and design-system teams correcting CIELAB’s unevenness.">Perceptual – modern<span class="tc tnum">12</span></button></div><i class="tsp"></i><div class="ti" data-i="3"><button class="tn" data-tip="The CIE’s 1976 uniform spaces and their industrial refinements – the shared language of color difference ever since (ISO/CIE 11664, DIN 6176).">Perceptual – CIE classic<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="4"><button class="tn" data-tip="Encodings for brighter-than-white and wider-than-sRGB signals – ITU-R BT.2100 broadcast standards, Dolby research, and HDR-tuned successors of Lab.">HDR & wide gamut<span class="tc tnum">11</span></button></div><i class="tsp"></i><div class="ti" data-i="5"><button class="tn" data-tip="The measurement layer every other family is defined through – the CIE’s standard-observer spaces and the physiological coordinates of the eye.">Colorimetry & vision<span class="tc tnum">16</span></button></div><i class="tsp"></i><div class="ti" data-i="6"><button class="tn" data-tip="Luma-plus-chroma encodings built to save bandwidth, not to look uniform – ITU-R and SMPTE broadcast standards from analog NTSC to digital UHDTV.">Video & broadcast<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="7"><button class="tn" data-tip="Each vendor’s log curve and wide gamut packing sensor dynamic range into recordable code values – ARRI, Sony, RED, Canon, Panasonic – plus the Academy’s interchange standards (SMPTE ST 2065).">Film & camera<span class="tc tnum">37</span></button></div><i class="tsp"></i><div class="ti" data-i="8"><button class="tn" data-tip="CIE-track science predicting how a color appears in context – adaptation, background, viewing conditions. Heavier math, for research and cross-media matching.">Appearance models<span class="tc tnum">15</span></button></div><i class="tsp"></i><div class="ti" data-i="9"><button class="tn" data-tip="Ink, paint and surface-color systems – subtractive process models and the color-order atlases of national and industrial standards.">Print & physical<span class="tc tnum">7</span></button></div><i class="tsp"></i><div class="ti" data-i="10"><button class="tn" data-tip="Single-purpose coordinates from imaging research – codec internals, machine-vision segmentation, statistical color transfer – and the Optical Society’s uniform lattice.">Specialty & research<span class="tc tnum">6</span></button></div></nav><div class="secs" id="secs"><section class="sec" data-sec><h2 class="shw" data-tip="RGB working and delivery spaces – primaries, a white point and a transfer curve on one cube. Defined by standards bodies and display vendors: IEC, ITU-R, SMPTE, Adobe, Apple." tabindex="0">Display & web<span class="c tnum">19</span></h2><div class="grid">
@@ -1500,16 +1500,16 @@ document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct()
 
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div class="ic-lead">
-		<h2 id="introcopy-title"><span id="n2">168</span> coordinate systems.</h2>
-		<p>Web, print, photography, film, broadcast, art, science, and history. Canonical conversions, channels, gamut shapes, provenance, cited references, known limits. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>.</p>
-		<ul class="trust" aria-label="why you can trust the data">
-			<li tabindex="0" title="All 168 spaces are test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
-			<li tabindex="0" title="Channel ranges follow CSS and each defining source – familiar units rather than one universal normalization."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
-			<li tabindex="0" title="CC0 1.0 – no rights reserved. Use, sell, fork or embed it anywhere; no attribution required."><span class="pdm" aria-hidden="true">©</span><span class="term">Public domain</span></li>
+		<h2 id="introcopy-title" data-i18n="ui.intro.title"><span id="n2">168</span> coordinate systems.</h2>
+		<p data-i18n="ui.intro.lede">Web, print, photography, film, broadcast, art, science, and history. Canonical conversions, channels, gamut shapes, provenance, cited references, known limits. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>.</p>
+		<ul class="trust" aria-label="why you can trust the data" data-i18n="aria-label:ui.intro.trust">
+			<li tabindex="0" title="All 168 spaces are test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255." data-i18n="title:ui.intro.tested-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term" data-i18n="ui.intro.tested">Reference-tested</span></li>
+			<li tabindex="0" title="Channel ranges follow CSS and each defining source – familiar units rather than one universal normalization." data-i18n="title:ui.intro.ranges-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term" data-i18n="ui.intro.ranges">Conventional ranges</span></li>
+			<li tabindex="0" title="CC0 1.0 – no rights reserved. Use, sell, fork or embed it anywhere; no attribution required." data-i18n="title:ui.intro.cc0-tip"><span class="pdm" aria-hidden="true">©</span><span class="term" data-i18n="ui.intro.cc0">Public domain</span></li>
 		</ul>
 	</div>
 	<div class="tabs" id="apitabs">
-		<div class="tabrow" role="tablist" aria-label="API runtime examples"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>JS</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>WASM</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>GL</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>LUT</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>ICC</button><button id="api-tab-meta" role="tab" aria-selected="false" aria-controls="api-panel-meta" data-p="meta" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg></span>JSON</button><button id="api-tab-css" role="tab" aria-selected="false" aria-controls="api-panel-css" data-p="css" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg></span>CSS</button></div>
+		<div class="tabrow" role="tablist" aria-label="API runtime examples" data-i18n="aria-label:ui.api.tabs"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>JS</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>WASM</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>GL</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>LUT</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>ICC</button><button id="api-tab-meta" role="tab" aria-selected="false" aria-controls="api-panel-meta" data-p="meta" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg></span>JSON</button><button id="api-tab-css" role="tab" aria-selected="false" aria-controls="api-panel-css" data-p="css" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg></span>CSS</button></div>
 		<pre id="api-panel-core" role="tabpanel" aria-labelledby="api-tab-core" data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
@@ -1550,69 +1550,69 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 <i>// → self-contained: vec3 oklch_rgb(vec3 c)</i>
 <i>//   paste into any fragment shader, no uniforms</i></pre>
 		<div class="export" id="api-panel-lut" role="tabpanel" aria-labelledby="api-tab-lut" data-p="lut" hidden>
-			<p class="exlede">Any pair as a <b>.cube</b> LUT – load it into Resolve, Premiere, Final Cut, OBS or ffmpeg. Camera logs are <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms" target="_blank" title="measured differential agreement against the Academy's official vendor transforms (ampas/aces-dev), per pair">verified against the official ACES vendor transforms</a>.</p>
-			<div class="exrow"><select id="lutfrom" aria-label="LUT source space"></select><span class="exarrow" aria-hidden="true">→</span><select id="lutto" aria-label="LUT target space"></select><span class="seg" id="lutszL"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="lut1dL" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – a space's dossier writes the 3D cube other editors need">1D</span></div>
+			<p class="exlede" data-i18n="ui.api.lut-lede">Any pair as a <b>.cube</b> LUT – load it into Resolve, Premiere, Final Cut, OBS or ffmpeg. Camera logs are <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms" target="_blank" title="measured differential agreement against the Academy's official vendor transforms (ampas/aces-dev), per pair">verified against the official ACES vendor transforms</a>.</p>
+			<div class="exrow"><select id="lutfrom" aria-label="LUT source space" data-i18n="aria-label:ui.api.lut-from"></select><span class="exarrow" aria-hidden="true">→</span><select id="lutto" aria-label="LUT target space" data-i18n="aria-label:ui.api.lut-to"></select><span class="seg" id="lutszL"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="lut1dL" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – a space's dossier writes the 3D cube other editors need" data-i18n="title:ui.api.lut-1d">1D</span></div>
 			<div class="exrow"><button class="exdl" id="lutdlL" type="button">↓ .cube</button><span class="exstat tnum" id="lutstatL" aria-live="polite"></span></div>
 		</div>
 		<div class="export" id="api-panel-icc" role="tabpanel" aria-labelledby="api-tab-icc" data-p="icc" hidden>
-			<p class="exlede">Any space as an <b>.icc</b> v2 profile – matrix + tone curve for RGB working spaces (Photoshop, OS colour management), a CLUT lattice for everything else (lcms, ArgyllCMS, ImageMagick).</p>
-			<div class="exrow"><select id="iccsp" aria-label="ICC profile space"></select></div>
+			<p class="exlede" data-i18n="ui.api.icc-lede">Any space as an <b>.icc</b> v2 profile – matrix + tone curve for RGB working spaces (Photoshop, OS colour management), a CLUT lattice for everything else (lcms, ArgyllCMS, ImageMagick).</p>
+			<div class="exrow"><select id="iccsp" aria-label="ICC profile space" data-i18n="aria-label:ui.api.icc-space"></select></div>
 			<div class="exrow"><button class="exdl" id="iccdlL" type="button" disabled>↓ .icc</button><span class="exstat tnum" id="iccstatL" aria-live="polite">…</span></div>
 		</div>
 	</div>
 </section>
 
-<section class="faq" id="faq" aria-label="frequently asked questions">
+<section class="faq" id="faq" aria-label="frequently asked questions" data-i18n="aria-label:faq.label">
 	<div class="fqs">
 		<div class="fqcol">
-		<details class="fqa"><summary>What is a color space?</summary>
-		<p>A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color – the URL carries the notation"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color – the URL carries the notation"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color – the URL carries the notation"><code>[49, 36.7, 4.5]</code></a> – the same color, written three ways. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
-		<details class="fqa"><summary>Which space should I actually use?</summary>
-		<p>It depends on the task:</p>
+		<details class="fqa"><summary data-i18n="faq.what.q">What is a color space?</summary>
+		<p data-i18n="faq.what.p1">A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color – the URL carries the notation"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color – the URL carries the notation"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color – the URL carries the notation"><code>[49, 36.7, 4.5]</code></a> – the same color, written three ways. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
+		<details class="fqa"><summary data-i18n="faq.which.q">Which space should I actually use?</summary>
+		<p data-i18n="faq.which.p1">It depends on the task:</p>
 		<ul>
-		<li>storing and sharing images – <a href="#rgb">sRGB</a>, the web's default;</li>
-		<li>designing palettes and gradients – <a href="#oklch">OKLCH</a>, where equal steps look equal;</li>
-		<li>math on light (blending, blurring, 3D) – <a href="#lrgb">linear-light RGB</a>;</li>
-		<li>shooting and grading video – your camera's log space, delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>;</li>
-		<li>measuring how different two colors look – <a href="#lab">CIELAB</a> or <a href="#din99o-lab">DIN99o</a>.</li>
+		<li data-i18n="faq.which.li1">storing and sharing images – <a href="#rgb">sRGB</a>, the web's default;</li>
+		<li data-i18n="faq.which.li2">designing palettes and gradients – <a href="#oklch">OKLCH</a>, where equal steps look equal;</li>
+		<li data-i18n="faq.which.li3">math on light (blending, blurring, 3D) – <a href="#lrgb">linear-light RGB</a>;</li>
+		<li data-i18n="faq.which.li4">shooting and grading video – your camera's log space, delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>;</li>
+		<li data-i18n="faq.which.li5">measuring how different two colors look – <a href="#lab">CIELAB</a> or <a href="#din99o-lab">DIN99o</a>.</li>
 		</ul>
-		<p>The <em>purpose</em> grouping in the filter shelves the catalog the same way.</p></details>
-		<details class="fqa"><summary>What should I use instead of HSL?</summary>
-		<p><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 emits about 13 times the light of blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
-		<details class="fqa"><summary>Why do my gradients turn muddy in the middle?</summary>
-		<p>Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
-		<details class="fqa"><summary>What does “out of gamut” mean?</summary>
-		<p>A color one space can describe but another – or your screen – can't show. A vivid <a href="#p3">Display P3</a> green simply doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
-		<details class="fqa"><summary>Why 168 spaces – isn't one enough?</summary>
-		<p>Because each one fixed a real limitation of an earlier one, and the older ones are still in use. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – and along the way, broadcast, print and camera makers each needed encodings of their own. Grouping the catalog by <em>era</em> (in the filter) walks through the whole story.</p></details>
-		<details class="fqa"><summary>Aren't most of these spaces dead?</summary>
-		<p>Many are retired from daily use, but they still do quiet, real work. Archives still decode <a href="#ntsc">NTSC</a> tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds family albums burned to PhotoCD. Reading old pictures takes the original math, and keeping that math available is part of what a reference is for. The history filter gathers them by era.</p></details>
-		<details class="fqa"><summary>Where's Pantone, NCS, RAL?</summary>
-		<p>Those are licensed products: their colors are defined by data the owners sell, not by published formulas – so there's no open math to implement, and redistributing their tables wouldn't be legal. Close relatives whose math is public are here: <a href="#munsell">Munsell</a> (its 1943 renotation is public record) and <a href="#ral-design">RAL Design</a> (defined directly in CIELAB). The rule of thumb: if the math was ever published, it belongs in the collection.</p></details>
+		<p data-i18n="faq.which.p2">The <em>purpose</em> grouping in the filter shelves the catalog the same way.</p></details>
+		<details class="fqa"><summary data-i18n="faq.hsl.q">What should I use instead of HSL?</summary>
+		<p data-i18n="faq.hsl.p1"><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 emits about 13 times the light of blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
+		<details class="fqa"><summary data-i18n="faq.muddy.q">Why do my gradients turn muddy in the middle?</summary>
+		<p data-i18n="faq.muddy.p1">Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
+		<details class="fqa"><summary data-i18n="faq.gamut.q">What does “out of gamut” mean?</summary>
+		<p data-i18n="faq.gamut.p1">A color one space can describe but another – or your screen – can't show. A vivid <a href="#p3">Display P3</a> green simply doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
+		<details class="fqa"><summary data-i18n="faq.many.q">Why 168 spaces – isn't one enough?</summary>
+		<p data-i18n="faq.many.p1">Because each one fixed a real limitation of an earlier one, and the older ones are still in use. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – and along the way, broadcast, print and camera makers each needed encodings of their own. Grouping the catalog by <em>era</em> (in the filter) walks through the whole story.</p></details>
+		<details class="fqa"><summary data-i18n="faq.dead.q">Aren't most of these spaces dead?</summary>
+		<p data-i18n="faq.dead.p1">Many are retired from daily use, but they still do quiet, real work. Archives still decode <a href="#ntsc">NTSC</a> tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds family albums burned to PhotoCD. Reading old pictures takes the original math, and keeping that math available is part of what a reference is for. The history filter gathers them by era.</p></details>
+		<details class="fqa"><summary data-i18n="faq.pantone.q">Where's Pantone, NCS, RAL?</summary>
+		<p data-i18n="faq.pantone.p1">Those are licensed products: their colors are defined by data the owners sell, not by published formulas – so there's no open math to implement, and redistributing their tables wouldn't be legal. Close relatives whose math is public are here: <a href="#munsell">Munsell</a> (its 1943 renotation is public record) and <a href="#ral-design">RAL Design</a> (defined directly in CIELAB). The rule of thumb: if the math was ever published, it belongs in the collection.</p></details>
 		</div>
 		<div class="fqcol">
-		<details class="fqa"><summary>Are conversions exact? Do round trips lose data?</summary>
-		<p>Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p></details>
-		<details class="fqa"><summary>Which of these can CSS write?</summary>
-		<p>Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="#rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
-		<details class="fqa"><summary>What are the camera log spaces for?</summary>
-		<p>A log curve packs a sensor's wide dynamic range into a small recordable code range, so highlights and shadows both survive. Every vendor ships its own: <a href="#logc4">ARRI LogC4</a>, <a href="#slog3">Sony S-Log3</a>, <a href="#log3g10">RED Log3G10</a>. Footage is graded in log or through ACES, then delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>. Each log dossier exports the conversion as a <code>.cube</code> LUT your editor loads.</p></details>
-		<details class="fqa"><summary>What makes a space HDR?</summary>
-		<p>Its transfer function budgets code values for luminance far beyond a standard display's white. <a href="#rec2100-pq">PQ</a> addresses absolute levels up to 10,000 nits; <a href="#rec2100-hlg">HLG</a> stays compatible with SDR broadcast; Rec. 2100 carries both. <a href="#ictcp">ICtCp</a> and <a href="#jzazbz">Jzazbz</a> are their perceptual companions for grading and difference work.</p></details>
-		<details class="fqa"><summary>Why do the numbers differ from other libraries?</summary>
-		<p>Same colors, different conventions. This library keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where most libraries flatten everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
-		<details class="fqa"><summary>Why should I trust these formulas?</summary>
-		<p>You don't have to take them on faith – everything here is set up to be checked:</p>
+		<details class="fqa"><summary data-i18n="faq.exact.q">Are conversions exact? Do round trips lose data?</summary>
+		<p data-i18n="faq.exact.p1">Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p></details>
+		<details class="fqa"><summary data-i18n="faq.css.q">Which of these can CSS write?</summary>
+		<p data-i18n="faq.css.p1">Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="#rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
+		<details class="fqa"><summary data-i18n="faq.log.q">What are the camera log spaces for?</summary>
+		<p data-i18n="faq.log.p1">A log curve packs a sensor's wide dynamic range into a small recordable code range, so highlights and shadows both survive. Every vendor ships its own: <a href="#logc4">ARRI LogC4</a>, <a href="#slog3">Sony S-Log3</a>, <a href="#log3g10">RED Log3G10</a>. Footage is graded in log or through ACES, then delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>. Each log dossier exports the conversion as a <code>.cube</code> LUT your editor loads.</p></details>
+		<details class="fqa"><summary data-i18n="faq.hdr.q">What makes a space HDR?</summary>
+		<p data-i18n="faq.hdr.p1">Its transfer function budgets code values for luminance far beyond a standard display's white. <a href="#rec2100-pq">PQ</a> addresses absolute levels up to 10,000 nits; <a href="#rec2100-hlg">HLG</a> stays compatible with SDR broadcast; Rec. 2100 carries both. <a href="#ictcp">ICtCp</a> and <a href="#jzazbz">Jzazbz</a> are their perceptual companions for grading and difference work.</p></details>
+		<details class="fqa"><summary data-i18n="faq.numbers.q">Why do the numbers differ from other libraries?</summary>
+		<p data-i18n="faq.numbers.p1">Same colors, different conventions. This library keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where most libraries flatten everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
+		<details class="fqa"><summary data-i18n="faq.trust.q">Why should I trust these formulas?</summary>
+		<p data-i18n="faq.trust.p1">You don't have to take them on faith – everything here is set up to be checked:</p>
 		<ul>
-		<li>every space links the paper or spec it implements;</li>
-		<li>values are tested against <a href="https://colorjs.io">colorjs.io</a>, an independent implementation, wherever the two overlap;</li>
-		<li>camera-log conversions are compared against the Academy's official ACES transforms.</li>
+		<li data-i18n="faq.trust.li1">every space links the paper or spec it implements;</li>
+		<li data-i18n="faq.trust.li2">values are tested against <a href="https://colorjs.io">colorjs.io</a>, an independent implementation, wherever the two overlap;</li>
+		<li data-i18n="faq.trust.li3">camera-log conversions are compared against the Academy's official ACES transforms.</li>
 		</ul>
-		<p><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md">formula-verification.md</a> records what was checked against what – including a few places where the published papers themselves turned out to have errors.</p></details>
-		<details class="fqa"><summary>Why does red + green make yellow on screens, but mud in paint?</summary>
-		<p>Screens add light: red and green light sum to yellow, which is how every RGB space works. Paint subtracts it: each pigment absorbs part of the spectrum, and mixing multiplies the losses, so the result darkens toward brown. Each arithmetic gets its own shelf here – additive RGB on one, subtractive <a href="#cmyk">CMYK</a> and the painters' <a href="#ryb">RYB</a> on the other.</p></details>
-		<details class="fqa"><summary>Where are viridis and the other colormaps?</summary>
-		<p>They're close cousins, not quite color spaces. A colormap like viridis is a one-dimensional path drawn through a color space, made for painting data – so it lives one level above a conversion library. The connection is real, though: viridis was designed inside <a href="#cam02-ucs">CAM02-UCS</a>, chosen so its steps look even, and that space is here. To design your own, a straight line through <a href="#oklab">OKLab</a> is a good start.</p></details>
+		<p data-i18n="faq.trust.p2"><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md">formula-verification.md</a> records what was checked against what – including a few places where the published papers themselves turned out to have errors.</p></details>
+		<details class="fqa"><summary data-i18n="faq.mixing.q">Why does red + green make yellow on screens, but mud in paint?</summary>
+		<p data-i18n="faq.mixing.p1">Screens add light: red and green light sum to yellow, which is how every RGB space works. Paint subtracts it: each pigment absorbs part of the spectrum, and mixing multiplies the losses, so the result darkens toward brown. Each arithmetic gets its own shelf here – additive RGB on one, subtractive <a href="#cmyk">CMYK</a> and the painters' <a href="#ryb">RYB</a> on the other.</p></details>
+		<details class="fqa"><summary data-i18n="faq.colormaps.q">Where are viridis and the other colormaps?</summary>
+		<p data-i18n="faq.colormaps.p1">They're close cousins, not quite color spaces. A colormap like viridis is a one-dimensional path drawn through a color space, made for painting data – so it lives one level above a conversion library. The connection is real, though: viridis was designed inside <a href="#cam02-ucs">CAM02-UCS</a>, chosen so its steps look even, and that space is here. To design your own, a straight line through <a href="#oklab">OKLab</a> is a good start.</p></details>
 		</div>
 	</div>
 </section>
@@ -1623,23 +1623,23 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	<div class="fgrad" id="fgrad"></div>
 	<div class="fov">
 		<div class="fwrap">
-			<a class="fnpm" id="fnpm" href="https://www.npmjs.com/package/color-space" target="_blank" rel="noopener" title="color-space on npm"><i>❯</i><span class="cmd">npm install color-space</span></a>
-			<a class="fsup" href="https://github.com/sponsors/dy">Support the project</a>
-			<div class="legal"><a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases">v3 next</a> <span class="dot">·</span> <a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a> <span class="dot">·</span> <button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff">Cite</button> <span class="dot">·</span> <a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></div>
+			<a class="fnpm" id="fnpm" href="https://www.npmjs.com/package/color-space" target="_blank" rel="noopener" title="color-space on npm" data-i18n="title:ui.footer.npm"><i>❯</i><span class="cmd">npm install color-space</span></a>
+			<a class="fsup" href="https://github.com/sponsors/dy" data-i18n="ui.footer.support">Support the project</a>
+			<div class="legal"><a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases" data-i18n="title:ui.footer.releases">v3 next</a> <span class="dot">·</span> <a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a> <span class="dot">·</span> <button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button> <span class="dot">·</span> <a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></div>
 		</div>
 	</div>
 </footer>
 
-<div class="citep" id="citep" popover role="dialog" aria-label="cite color-space">
+<div class="citep" id="citep" popover role="dialog" aria-label="cite color-space" data-i18n="aria-label:ui.cite.label">
 	<i class="plab">BibTeX</i>
-	<div class="snipwrap"><button class="cpyi" type="button" data-copy="citebib" title="copy BibTeX" aria-label="copy BibTeX"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="citebib"></pre></div>
+	<div class="snipwrap"><button class="cpyi" type="button" data-copy="citebib" title="copy BibTeX" aria-label="copy BibTeX" data-i18n="title:ui.cite.copy-bib aria-label:ui.cite.copy-bib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="citebib"></pre></div>
 	<i class="plab">APA</i>
-	<div class="snipwrap"><button class="cpyi" type="button" data-copy="citeapa" title="copy APA" aria-label="copy APA"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="citeapa"></pre></div>
+	<div class="snipwrap"><button class="cpyi" type="button" data-copy="citeapa" title="copy APA" aria-label="copy APA" data-i18n="title:ui.cite.copy-apa aria-label:ui.cite.copy-apa"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="citeapa"></pre></div>
 </div>
 <div id="toast" role="status" aria-live="polite" data-i18n="ui.toast.copied">Copied</div>
-<div id="dropcast" hidden aria-hidden="true"><span>drop the image — every lane and plane will read it</span></div>
+<div id="dropcast" hidden aria-hidden="true"><span data-i18n="ui.drop">drop the image — every lane and plane will read it</span></div>
 <div class="modal" id="modal" role="dialog" aria-labelledby="dtitle" hidden>
-	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><a class="embl" id="embl" href="./" target="_blank" rel="noopener" title="open this space on color-space.io, in a new tab">color-space.io ↗</a><div class="detail" id="detail" tabindex="-1"></div></div>
+	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier" data-i18n="title:ui.modal.close aria-label:ui.modal.close-label">✕</button><a class="embl" id="embl" href="./" target="_blank" rel="noopener" title="open this space on color-space.io, in a new tab" data-i18n="title:ui.modal.site">color-space.io ↗</a><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
 import { space, meta, clamp, classify, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
@@ -1655,12 +1655,12 @@ import { CSS as CSSFMT } from '../css.js'   // the library's CSS Color 4 seriali
 import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's source – the very bundle js/gl.js compiles, already in the graph
 import NAMES from './js/names.js'
 import * as PALDATA from './js/palettes.js'
-import { SPACES, sections, cname, unit, disp, nbh, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
+import { SPACES, sections, cname, unit, disp, nbh, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName } from './js/render.js'
 import BARRED from './js/barred.js'
-import EDITORS, { cubeOpts, SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
+import EDITORS, { cubeOpts, SHAPER_LABEL, SIZE_LABEL, SOFT, isCommand } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
 import { track, view as countView, load as loadStats, EVENT } from './js/track.js'
-import { t, at as rootURL, langHref } from './js/i18n.js'
+import { t, LANG, at as rootURL, langHref } from './js/i18n.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
@@ -1764,13 +1764,13 @@ if(fmtbEl){
 }
 // the masthead's empty state: two doors, the same two the placeholder used to name
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
-const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',ariaLabel:'add an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4H18.5a2.5 2.5 0 0 1 2.5 2.5V15"/><rect x="3" y="7" width="15" height="13.5" rx="2.5"/><circle cx="13.6" cy="11.3" r="1.6"/><path d="M5.5 17.8 9.5 13.5l3.6 3.9 1.9-2 2.5 2.6"/></svg>'})   // PICTURES, plural – the second card peeks out behind the photo
-const UPTIP='test images – or drop / paste your own'
+const upFl=Object.assign(document.createElement('button'),{id:'upfl',type:'button',ariaLabel:t('ui.img.add','add an image'),innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4H18.5a2.5 2.5 0 0 1 2.5 2.5V15"/><rect x="3" y="7" width="15" height="13.5" rx="2.5"/><circle cx="13.6" cy="11.3" r="1.6"/><path d="M5.5 17.8 9.5 13.5l3.6 3.9 1.9-2 2.5 2.6"/></svg>'})   // PICTURES, plural – the second card peeks out behind the photo
+const UPTIP=t('ui.img.tip','test images – or drop / paste your own')
 upFl.dataset.tip=UPTIP
 document.body.append(upFl)
 // the button opens the sample stripe, not the file chooser; the chooser is the stripe's last tile
-const upPop=Object.assign(document.createElement('div'),{id:'uppop',hidden:true,ariaLabel:'sample images'})
-const SAMPLES=[['chart','Signal chart – bars, ramps, hue, limits'],['img/target.jpg','Color rendition target'],['contrast','Simultaneous contrast – one gray, four surrounds'],['video','Video calibration – 75% bars, PLUGE, multiburst'],['img/colormaps.png','Colormap paths – gray, viridis, plasma, inferno, magma, cool-warm, turbo'],['img/glow.png','Emissive star – clipped core and chromatic glow'],['img/wave.jpg','The Great Wave – Hokusai']]
+const upPop=Object.assign(document.createElement('div'),{id:'uppop',hidden:true,ariaLabel:t('ui.img.samples','sample images')})
+const SAMPLES=[['chart',t('ui.img.chart','Signal chart – bars, ramps, hue, limits')],['img/target.jpg',t('ui.img.target','Color rendition target')],['contrast',t('ui.img.contrast','Simultaneous contrast – one gray, four surrounds')],['video',t('ui.img.video','Video calibration – 75% bars, PLUGE, multiburst')],['img/colormaps.png',t('ui.img.colormaps','Colormap paths – gray, viridis, plasma, inferno, magma, cool-warm, turbo')],['img/glow.png',t('ui.img.glow','Emissive star – clipped core and chromatic glow')],['img/wave.jpg',t('ui.img.wave','The Great Wave – Hokusai')]]
 const GENERATED_SAMPLES=new Set(['chart','contrast','video'])
 // ── the stripe REMEMBERS: the last-opened images lead (stock and uploads alike, never
 // duplicated), stock tops the rail up to 7, the chooser closes it. Order lives in
@@ -1789,7 +1789,7 @@ const mruBump=k=>{ try{ const a=[k,...mru().filter(x=>x!==k)]
 		for(const ev of a.splice(7)) if(ev.startsWith('u:')) idbDel(ev)   // the rail is 7 deep – evicted uploads release their bytes
 		localStorage.csImgMru=JSON.stringify(a) }catch{} }
 const STOCK=new Map(SAMPLES.filter(([key])=>!GENERATED_SAMPLES.has(key)))
-const upTile=(title,onpick)=>{ const b=Object.assign(document.createElement('button'),{type:'button',className:'upim',title,ariaLabel:'use '+title})
+const upTile=(title,onpick)=>{ const b=Object.assign(document.createElement('button'),{type:'button',className:'upim',title,ariaLabel:t('ui.img.use','use {title}',{title})})
 	b.addEventListener('click',()=>{ upOpen(false); onpick() }); return b }
 const upCharts=new Map()   // generated diagnostics are drawn once, reused across rebuilds
 let upB=null   // in-flight build – a double-click must join it, not interleave a second teardown
@@ -1799,15 +1799,15 @@ async function upBuild(){ upPop.querySelectorAll('.upim').forEach(b=>{ if(b._url
 	const keys=mru().filter(k=>recs.has(k)||STOCK.has(k)||GENERATED_SAMPLES.has(k))
 	for(const [key] of SAMPLES) if(!keys.includes(key)&&keys.length<7) keys.push(key)
 	for(const k of keys.slice(0,7)){
-		if(STOCK.has(k)){ const b=upTile(STOCK.get(k),()=>fetch(rootURL(k)).then(r=>r.blob()).then(bl=>takeImage(new File([bl],k.split('/').pop(),{type:bl.type||'image/jpeg'}),k)).catch(()=>toast('could not load that image')))
+		if(STOCK.has(k)){ const b=upTile(STOCK.get(k),()=>fetch(rootURL(k)).then(r=>r.blob()).then(bl=>takeImage(new File([bl],k.split('/').pop(),{type:bl.type||'image/jpeg'}),k)).catch(()=>toast(t('ui.toast.img-load','could not load that image'))))
 			b.append(Object.assign(document.createElement('img'),{src:rootURL(k),alt:'',loading:'lazy',decoding:'async'})); upPop.append(b) }   // the site root's, not the document's – /<lang>/ pages share the images
 		else if(GENERATED_SAMPLES.has(k)){ const ch=upCharts.get(k)??generatedImg(k); upCharts.set(k,ch)
 			const title=SAMPLES.find(([key])=>key===k)[1], b=upTile(title,()=>ch.toBlob(bl=>bl&&takeImage(new File([bl],`${k}.png`,{type:'image/png'}),k)))
 			b.append(ch); upPop.append(b) }
-		else{ const f=recs.get(k), b=upTile(f.name||'your image',()=>takeImage(f,k))
+		else{ const f=recs.get(k), b=upTile(f.name||t('ui.img.yours','your image'),()=>takeImage(f,k))
 			b._url=URL.createObjectURL(f)
 			b.append(Object.assign(document.createElement('img'),{src:b._url,alt:'',decoding:'async'})); upPop.append(b) } }
-	const ub=Object.assign(document.createElement('button'),{type:'button',className:'upim upld',title:'upload your own',ariaLabel:'upload an image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
+	const ub=Object.assign(document.createElement('button'),{type:'button',className:'upim upld',title:t('ui.img.upload-tip','upload your own'),ariaLabel:t('ui.img.upload','upload an image'),innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
 	ub.addEventListener('click',()=>{ upOpen(false); cvFile?.click() })
 	upPop.append(ub) }
 let upWant=false   // the CURRENT intent – a close during the async build must win over its pending unhide
@@ -1827,7 +1827,7 @@ document.body.append(upPop)
 // the image go. It outlives the dossier's scrim. ──
 const imgPk=Object.assign(document.createElement('canvas'),{id:'imgpk'})
 const imgFl=Object.assign(document.createElement('div'),{id:'imgfloat'})
-const imgX=Object.assign(document.createElement('button'),{id:'imgx',type:'button',title:'remove the image',ariaLabel:'remove the image',innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'})
+const imgX=Object.assign(document.createElement('button'),{id:'imgx',type:'button',title:t('ui.img.remove','remove the image'),ariaLabel:t('ui.img.remove','remove the image'),innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'})
 imgFl.append(imgPk,imgX); document.body.append(imgFl)
 const pkShow=()=>{ const src=HIMG?.src; if(!src) return
 	const W=Math.round(Math.min(280,Math.max(180,src.width),innerWidth*.3)), H=Math.round(W*src.height/src.width)
@@ -1846,7 +1846,7 @@ imgPk.addEventListener('pointermove',e=>{ if(e.pointerId===pkDrag) pkRead(e) })
 const pkEnd=e=>{ if(e.pointerId!==pkDrag) return; pkDrag=null; try{ imgPk.releasePointerCapture(e.pointerId) }catch{}
 	renderFast(); if(open()){ flushCatalogValues(); queuePlaneSettle() } else settleCatalog() }
 imgPk.addEventListener('pointerup',pkEnd); imgPk.addEventListener('pointercancel',pkEnd)
-imgPk.title='press and drag to pick — the release keeps the colour'
+imgPk.title=t('ui.img.pick','press and drag to pick — the release keeps the colour')
 imgX.addEventListener('click',()=>clearImage())
 cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeImage(f2); cvFile.value='' })
 // ── drop an image anywhere (or paste one): it becomes the app-wide source ──
@@ -1867,15 +1867,15 @@ const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(
 async function palFromImage(f){ try{
 		const { sampleImage }=await import('./js/extract.js')   // the decode + downscale lives off the boot path
 		const samples=await sampleImage(f)
-		if(!samples.length) return toast('no opaque pixels in that image')
+		if(!samples.length) return toast(t('ui.toast.img-empty','no opaque pixels in that image'))
 		// The one capped full decode drives the floater, dossier source and histogram —
 		// no second createImageBitmap promise that can strand software-GL browsers.
 		const bm=samples.src; UIMG=bm
 		if(IMGS&&bm){ if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }
 			imgIdx=IMGS._user }
 		if(bm) IMG=bm
-		setImage(samples); if(open()) paintImages(); toast('histogram from the image') }
-	catch{ toast('could not read that image') } }
+		setImage(samples); if(open()) paintImages(); toast(t('ui.toast.img-read','histogram from the image')) }
+	catch{ toast(t('ui.toast.img-fail','could not read that image')) } }
 let dragN=0
 addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
 addEventListener('dragleave',()=>{ if(dragN&&!--dragN&&dropEl) dropEl.hidden=true })
@@ -2192,60 +2192,60 @@ const encodingOf=s=>{
 // only honest, space-specific cautions: the curated sin, or the device-cylindrical
 // class trap. No generic fallback — boilerplate posing as guidance misleads (it told
 // people to avoid OKLCH for palettes). No caution recorded → no row.
-const avoidOf=(s,L)=>L.sin||(/^(hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm)$/.test(s)?'equal numeric steps do not look visually even – for perceptual steps use OKLab/OKLCH or a uniform space':'')
+const avoidOf=(s,L)=>L.sin||(/^(hsl|hsv|hwb|hsi|hcg|hcy|hsp|hsm)$/.test(s)?t('ui.dossier.avoid-cylindrical','equal numeric steps do not look visually even – for perceptual steps use OKLab/OKLCH or a uniform space'):'')
 // sentence-case a curated fragment: capitalize (unless it opens with a cased term
 // like sRGB or ΔE) and close with a period
-const sent=t=>{ t=t.trim(); if(/^[a-z][a-z\s]/.test(t)) t=t[0].toUpperCase()+t.slice(1); return /[.!?…]$/.test(t)?t:t+'.' }   // a one-letter first word capitalizes too ("a Photoshop…"); identifiers like sRGB still don't
+const sent=x=>{ x=x.trim(); if(/^\p{Ll}[\p{Ll}\s]/u.test(x)) x=x[0].toLocaleUpperCase(LANG)+x.slice(1); return /[.!?…]$/.test(x)?x:x+'.' }   // a one-letter first word capitalizes too ("a Photoshop…"); identifiers like sRGB still don't
 // tooltips for the dossier tags and gamut flags
-const TAGTIP={ display:'display-referred – values describe light emitted by a display',
-	scene:'scene-referred – values describe light in the scene, as a camera sees it',
-	SDR:'standard dynamic range – bounded display signals',
-	HDR:'high dynamic range – extended or unbounded luminance',
-	polar:'polar geometry – a hue angle plus radial chroma/saturation',
-	opponent:'opponent geometry – two signed color axes around a neutral center',
-	component:'component geometry – independent channels, no hue axis',
-	historical:'shipped as working history – superseded in practice, kept faithful',
-	css:'expressible as a native CSS color – rgb()/hsl()/lab()/oklch()/color(…)',
-	'1':'one channel – a scalar scale (gray, kelvin, wavelength)',
-	'2':'two channels – chromaticity pairs',
-	'3':'three channels – the tristimulus norm',
-	'4':'four channels – cmyk',
-	'linear':'code proportional to physical light – no transfer curve',
-	'PQ':'PQ (SMPTE ST 2084) – absolute-luminance HDR encoding, up to 10,000 nits',
-	'HLG':'hybrid log-gamma (BBC/NHK) – backward-compatible broadcast HDR',
-	'log':'logarithmic camera encoding – wide scene range packed into a small code range',
-	'gamma':'gamma-companded RGB – a power-law curve over linear light',
-	'luma / chroma':'luma plus two chroma differences – the broadcast / compression layout',
-	'perceptual':'coordinates modeled on human vision – equal numeric steps aim to look equal',
-	'D65':'CIE standard illuminant D65 – average daylight, ≈6504 K; the sRGB / Rec.709 / Rec.2020 reference white. 2° standard observer',
-	'D50':'CIE standard illuminant D50 – horizon daylight, ≈5003 K; the print and ICC-PCS white. 2° standard observer',
-	'D60':'≈6000 K daylight – the ACES white point (x 0.32168, y 0.33767). 2° standard observer',
-	'DCI':'the cinema-projector white (x 0.314, y 0.351, SMPTE RP 431-2) – greener than daylight. 2° standard observer',
-	'C':'CIE illuminant C – 1931 average-daylight approximation, ≈6774 K; legacy: NTSC 1953, the Munsell renotation. 2° standard observer',
-	'E':'CIE illuminant E – equal-energy white, x = y = ⅓; a theoretical reference. 2° standard observer',
-	'A':'CIE standard illuminant A – tungsten incandescent light, ≈2856 K. 2° standard observer',
-	wasm:'covered by the prebuilt WASM batch kernel – whole buffers, zero-copy',
-	lut:'exports as a verified .cube LUT – Resolve, Premiere, Final Cut, OBS, ffmpeg' }
+const TAGTIP={ display:t('tip.display','display-referred – values describe light emitted by a display'),
+	scene:t('tip.scene','scene-referred – values describe light in the scene, as a camera sees it'),
+	SDR:t('tip.sdr','standard dynamic range – bounded display signals'),
+	HDR:t('tip.hdr','high dynamic range – extended or unbounded luminance'),
+	polar:t('tip.polar','polar geometry – a hue angle plus radial chroma/saturation'),
+	opponent:t('tip.opponent','opponent geometry – two signed color axes around a neutral center'),
+	component:t('tip.component','component geometry – independent channels, no hue axis'),
+	historical:t('tip.historical','shipped as working history – superseded in practice, kept faithful'),
+	css:t('tip.css','expressible as a native CSS color – rgb()/hsl()/lab()/oklch()/color(…)'),
+	'1':t('tip.ch1','one channel – a scalar scale (gray, kelvin, wavelength)'),
+	'2':t('tip.ch2','two channels – chromaticity pairs'),
+	'3':t('tip.ch3','three channels – the tristimulus norm'),
+	'4':t('tip.ch4','four channels – cmyk'),
+	'linear':t('tip.linear','code proportional to physical light – no transfer curve'),
+	'PQ':t('tip.pq','PQ (SMPTE ST 2084) – absolute-luminance HDR encoding, up to 10,000 nits'),
+	'HLG':t('tip.hlg','hybrid log-gamma (BBC/NHK) – backward-compatible broadcast HDR'),
+	'log':t('tip.log','logarithmic camera encoding – wide scene range packed into a small code range'),
+	'gamma':t('tip.gamma','gamma-companded RGB – a power-law curve over linear light'),
+	'luma / chroma':t('tip.luma-chroma','luma plus two chroma differences – the broadcast / compression layout'),
+	'perceptual':t('tip.perceptual','coordinates modeled on human vision – equal numeric steps aim to look equal'),
+	'D65':t('tip.d65','CIE standard illuminant D65 – average daylight, ≈6504 K; the sRGB / Rec.709 / Rec.2020 reference white. 2° standard observer'),
+	'D50':t('tip.d50','CIE standard illuminant D50 – horizon daylight, ≈5003 K; the print and ICC-PCS white. 2° standard observer'),
+	'D60':t('tip.d60','≈6000 K daylight – the ACES white point (x 0.32168, y 0.33767). 2° standard observer'),
+	'DCI':t('tip.dci','the cinema-projector white (x 0.314, y 0.351, SMPTE RP 431-2) – greener than daylight. 2° standard observer'),
+	'C':t('tip.c','CIE illuminant C – 1931 average-daylight approximation, ≈6774 K; legacy: NTSC 1953, the Munsell renotation. 2° standard observer'),
+	'E':t('tip.e','CIE illuminant E – equal-energy white, x = y = ⅓; a theoretical reference. 2° standard observer'),
+	'A':t('tip.a','CIE standard illuminant A – tungsten incandescent light, ≈2856 K. 2° standard observer'),
+	wasm:t('tip.wasm','covered by the prebuilt WASM batch kernel – whole buffers, zero-copy'),
+	lut:t('tip.lut','exports as a verified .cube LUT – Resolve, Premiere, Final Cut, OBS, ffmpeg') }
 // plain-language glossary — special terms in the dossier prose grow a soft ? that
 // explains them in place (first occurrence per paragraph)
 const TERMS={
-	'untagged images':'images with no embedded color profile – browsers assume they are sRGB',
-	'white point':'the reference white a space adapts to – D65 ≈ daylight, D50 ≈ print viewing, E = equal energy',
-	'illuminant':'the standardized light source a space assumes – D65 daylight, D50 print viewing, E equal energy',
-	'chromaticity':'color with luminance factored out – the (x, y) spot on the CIE horseshoe',
-	'chromatic adaptation':'the re-balancing of colors when the light source changes, so white stays white',
-	'perceptually uniform':'equal numeric steps look like equal color steps – distance in the space matches what eyes report',
-	'scene-linear':'values proportional to physical light in the scene, before any display encoding',
-	'gamut mapping':'squeezing colors a display cannot show into its reachable set without breaking the image',
-	'dynamic range':'the luminance span between the darkest and brightest values a signal can carry',
-	'color difference':'how far apart two colors look – ΔE metrics score it; ≈1 is the smallest visible step',
-	'OETF':'opto-electronic transfer function – scene light in, code value out (the camera curve)',
-	'EOTF':'electro-optical transfer function – code value in, display light out (the display curve)',
-	'PQ':'perceptual quantizer (SMPTE ST 2084) – the absolute-luminance HDR curve, up to 10,000 nits',
-	'standard observer':'the CIE-averaged human eye – the color-matching functions colorimetry is built on' }
-const GAMTIP={ srgb:'does the current color fit inside sRGB – the standard web gamut',
-	p3:'does it fit inside Display-P3 – wide-gamut Apple & modern displays',
-	rec2020:'does it fit inside Rec.2020 – the UHD wide gamut' }
+	[t('term.untagged','untagged images')]:t('term.untagged.tip','images with no embedded color profile – browsers assume they are sRGB'),
+	[t('term.white-point','white point')]:t('term.white-point.tip','the reference white a space adapts to – D65 ≈ daylight, D50 ≈ print viewing, E = equal energy'),
+	[t('term.illuminant','illuminant')]:t('term.illuminant.tip','the standardized light source a space assumes – D65 daylight, D50 print viewing, E equal energy'),
+	[t('term.chromaticity','chromaticity')]:t('term.chromaticity.tip','color with luminance factored out – the (x, y) spot on the CIE horseshoe'),
+	[t('term.adaptation','chromatic adaptation')]:t('term.adaptation.tip','the re-balancing of colors when the light source changes, so white stays white'),
+	[t('term.uniform','perceptually uniform')]:t('term.uniform.tip','equal numeric steps look like equal color steps – distance in the space matches what eyes report'),
+	[t('term.scene-linear','scene-linear')]:t('term.scene-linear.tip','values proportional to physical light in the scene, before any display encoding'),
+	[t('term.gamut-mapping','gamut mapping')]:t('term.gamut-mapping.tip','squeezing colors a display cannot show into its reachable set without breaking the image'),
+	[t('term.dynamic-range','dynamic range')]:t('term.dynamic-range.tip','the luminance span between the darkest and brightest values a signal can carry'),
+	[t('term.difference','color difference')]:t('term.difference.tip','how far apart two colors look – ΔE metrics score it; ≈1 is the smallest visible step'),
+	[t('term.oetf','OETF')]:t('term.oetf.tip','opto-electronic transfer function – scene light in, code value out (the camera curve)'),
+	[t('term.eotf','EOTF')]:t('term.eotf.tip','electro-optical transfer function – code value in, display light out (the display curve)'),
+	[t('term.pq','PQ')]:t('term.pq.tip','perceptual quantizer (SMPTE ST 2084) – the absolute-luminance HDR curve, up to 10,000 nits'),
+	[t('term.observer','standard observer')]:t('term.observer.tip','the CIE-averaged human eye – the color-matching functions colorimetry is built on') }
+const GAMTIP={ srgb:t('tip.fit-srgb','does the current color fit inside sRGB – the standard web gamut'),
+	p3:t('tip.fit-p3','does it fit inside Display-P3 – wide-gamut Apple & modern displays'),
+	rec2020:t('tip.fit-rec2020','does it fit inside Rec.2020 – the UHD wide gamut') }
 
 // ── catalog ──
 const cat=document.getElementById('cat')
@@ -2452,6 +2452,7 @@ const markName=(ent,q)=>{ const s=ent.dataset.s, nm=ent.querySelector('.nm'); if
 // the tags come in FACETS — mutually-exclusive aspects of one space. Picking within a
 // facet ORs (display OR scene), picking across facets ANDs (scene AND log encoding).
 const FACETS=['channels','range','geometry','signal','encoding','white point','export','status']
+const FACETL=[t('ui.filter.channels','channels'),t('ui.filter.range','range'),t('ui.filter.geometry','geometry'),t('ui.filter.signal','signal'),t('ui.filter.encoding','encoding'),t('ui.filter.white','white point'),t('ui.filter.export','export'),t('ui.filter.status','status')]   // the facets as the panel names them
 const slotsOf=s=>{ const m=meta[s]
 	return [[String(classify(s).ch.length)],[m.dynamic&&m.dynamic.toUpperCase()],[geo(s)],[m.referred],[encodingOf(s)],
 		[m.illuminant],
@@ -2468,12 +2469,12 @@ const act=FACETS.map(()=>new Set())
 // and 4-channel scales) drop out while a threshold is set — they claim no coverage
 let covMin=0, covMax=1
 const covOn=()=>covMin>0||covMax<1
-const covTxt=()=>covMin>0&&covMax<1?`${covMin*100|0}–${covMax*100|0}% of visible`:covMin>0?`≥${covMin*100|0}% of visible`:covMax<1?`≤${covMax*100|0}% of visible`:'any'
+const covTxt=()=>covMin>0&&covMax<1?t('ui.filter.cov-range','{lo}–{hi}% of visible',{lo:covMin*100|0,hi:covMax*100|0}):covMin>0?t('ui.filter.cov-min','≥{lo}% of visible',{lo:covMin*100|0}):covMax<1?t('ui.filter.cov-max','≤{hi}% of visible',{hi:covMax*100|0}):t('ui.filter.any','any')
 // active facets shown as removable chips in the header, right by the search
 const fchipsH=document.getElementById('fchipsH')
 const FX=icon('x')
-const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(t=>`<button class="fchip" data-f="${fi}" data-t="${t}" aria-label="remove filter: ${t}" title="remove ‘${t}’">${t}${FX}</button>`)).join('')
-	+(covOn()?`<button class="fchip" data-cov="1" aria-label="remove the coverage filter" title="remove the coverage interval">${covTxt()}${FX}</button>`:'')
+const renderChips=()=>{ fchipsH.innerHTML=act.flatMap((set,fi)=>[...set].map(v=>`<button class="fchip" data-f="${fi}" data-t="${v}" aria-label="${t('ui.filter.remove-label','remove filter: {tag}',{tag:tagL(v)})}" title="${t('ui.filter.remove','remove ‘{tag}’',{tag:tagL(v)})}">${tagL(v)}${FX}</button>`)).join('')
+	+(covOn()?`<button class="fchip" data-cov="1" aria-label="${t('ui.filter.cov-remove-label','remove the coverage filter')}" title="${t('ui.filter.cov-remove','remove the coverage interval')}">${covTxt()}${FX}</button>`:'')
 	}
 // re-shelve the catalog: rebuild from the template with the chosen cut, then re-wire —
 // the same path the fingerprint rebuild takes (colize/wireToc/wireCat), filters reapplied
@@ -2499,7 +2500,7 @@ function applyFilter(){ const q=qInput.value.trim().toLowerCase(), any=act.some(
 	layoutToc(); trackAct()
 	const nores=document.getElementById('nores')
 	if(nores){ const none=(q||any)&&!shown; nores.hidden=!none
-		if(none) nores.textContent=q?`no space matches “${q}” – search covers names, channels and symbols`:'no space matches these filters – remove one to widen' }
+		if(none) nores.textContent=q?t('ui.filter.none-q','no space matches “{q}” – search covers names, channels and symbols',{q}):t('ui.filter.none','no space matches these filters – remove one to widen') }
 	const nEl=document.getElementById('n'); if(nEl)nEl.textContent=(q||any)?shown:spaceCount   // the logo count goes live with the filter, near the name — not tucked by the filter icon
 	nq.textContent=''
 	document.body.classList.toggle('flt',!!(q||any))   // filtering unfolds the mobile sections
@@ -2514,11 +2515,11 @@ document.getElementById('qclr').addEventListener('click',()=>{ qInput.value=''; 
 	const vals=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
 	// the shelf cut leads — the view decision comes before narrowing; a rule separates
 	// it from the filters (purpose and era live HERE as groupings, not as facets)
-	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${nm}</i><span class="fchips">${vals[fi].map(t=>`<button class="tag" data-f="${fi}" data-t="${t}" aria-pressed="false" title="${TAGTIP[t]||''}">${t}</button>`).join('')}</span></div>`:'').join('')
+	tfp.innerHTML=FACETS.map((nm,fi)=>vals[fi].length?`<div class="frow"><i>${FACETL[fi]}</i><span class="fchips">${vals[fi].map(v=>`<button class="tag" data-f="${fi}" data-t="${v}" aria-pressed="false" title="${TAGTIP[v]||''}">${tagL(v)}</button>`).join('')}</span></div>`:'').join('')
 		// coverage is continuous, so it filters by interval, not chips: from–to share of
 		// the visible gamut (the dossier's reach number) — the low end finds the
 		// narrow-coverage spaces, the high end the wide ones
-		+`<div class="frow"><i>coverage</i><span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="minimum share of the visible gamut" title="from – keep spaces reaching at least this share of visible colors"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="maximum share of the visible gamut" title="to – keep spaces reaching at most this share"></span><b class="tnum" id="fcovv">any</b></span></div>`
+		+`<div class="frow"><i>${t('ui.filter.coverage','coverage')}</i><span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span><b class="tnum" id="fcovv">${t('ui.filter.any','any')}</b></span></div>`
 	const fcov=tfp.querySelector('#fcov'), fcov1=tfp.querySelector('#fcov1'), fcovv=tfp.querySelector('#fcovv'), covD=tfp.querySelector('.fcov .dual')
 	const tfbOn=()=>tfb.classList.toggle('on',act.some(a=>a.size)||covOn())
 	const covPaint=()=>{ covD.style.setProperty('--lo',covMin*100+'%'); covD.style.setProperty('--hi',covMax*100+'%') }   // the fill IS the interval — full at rest, because 'any' is the full interval
@@ -2578,13 +2579,13 @@ const navLabel=key=>barredByKey.get(key)?.nm||disp(key)   // barred cards show t
 // prev/next as centered post-navigation — a compact bar at the top of the dossier
 // AND at its foot. Class-based (not id) so it can appear twice; clicks delegate on
 // `detail`, and names set via querySelectorAll, since the buttons rebuild each dossier.
-const MNAVPREV=`<button class="mnav prev" data-dir="-1" aria-label="previous color space">${icon('prev')}<span class="mn mprevn"></span></button>`
-const MNAVNEXT=`<button class="mnav next" data-dir="1" aria-label="next color space"><span class="mn mnextn"></span>${icon('next')}</button>`
+const MNAVPREV=`<button class="mnav prev" data-dir="-1" aria-label="${t('ui.nav.prev','previous color space')}">${icon('prev')}<span class="mn mprevn"></span></button>`
+const MNAVNEXT=`<button class="mnav next" data-dir="1" aria-label="${t('ui.nav.next','next color space')}"><span class="mn mnextn"></span>${icon('next')}</button>`
 // category jump — a double chevron to the first space of the prev/next catalog section, outside the single-space chevrons
-const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="previous category">${icon('prev2')}<span class="mstack"><i class="catn catprev"></i><span class="mn mprevc"></span></span></button>`
-const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="next category"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${icon('next2')}</button>`
+const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="${t('ui.nav.prev-cat','previous category')}">${icon('prev2')}<span class="mstack"><i class="catn catprev"></i><span class="mn mprevc"></span></span></button>`
+const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="${t('ui.nav.next-cat','next category')}"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${icon('next2')}</button>`
 // two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
-const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="adjacent color spaces"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
+const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="${t('ui.nav.label','adjacent color spaces')}"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
@@ -2603,8 +2604,8 @@ function openModal(s){
 	detail.querySelectorAll('.mnextn').forEach(el=>el.textContent=navLabel(ord[(k+1)%n]))
 	const secs=activeSecs(), si=secs.findIndex(c=>c.spaces.includes(s)), L=secs.length   // category-jump labels: "Section / FIRST-SPACE"
 	if(si>=0){ const pc=secs[(si-1+L)%L], nc=secs[(si+1)%L]
-		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=pc.name); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=disp(pc.spaces[0]))
-		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=nc.name); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=disp(nc.spaces[0])) }
+		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=secName(pc)); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=disp(pc.spaces[0]))
+		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=secName(nc)); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=disp(nc.spaces[0])) }
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
@@ -2743,21 +2744,21 @@ let endB=null   // pinned interpolation endpoint (sRGB triple), null = auto comp
 const ICMP=['oklab','lrgb','lab','oklch','rgb','hsl']
 let cmpIdx=0   // which comparison space the band shows — clicking the heading rotates it
 // ONE session-local clustering lens for sliders, planes and the 3D solid
-const QGROUPS=[['',[[null,'smooth']]],
-	['steps',[[10,'10-step'],[20,'20-step'],['565','16-bit'],['jnd','JND']]],
-	['Palettes',[['web','safe'],['names','names'],['xkcd','xkcd'],['tailwind','tailwind'],['pico8','pico-8'],['ansi','ANSI']]]]   // capitals as titles read; xkcd keeps its lowercase brand
+const QGROUPS=[['',[[null,t('ui.quant.smooth','smooth')]]],
+	[t('ui.quant.steps','steps'),[[10,t('ui.quant.10','10-step')],[20,t('ui.quant.20','20-step')],['565','16-bit'],['jnd','JND']]],
+	[t('ui.quant.palettes','Palettes'),[['web',t('ui.quant.web','safe')],['names',t('ui.quant.names','names')],['xkcd','xkcd'],['tailwind','tailwind'],['pico8','pico-8'],['ansi','ANSI']]]]   // capitals as titles read; xkcd keeps its lowercase brand
 const QSEG=QGROUPS.flatMap(([,o])=>o)
-const QTIP={ 'smooth':'continuous, unquantized',
-	'10':'10 native-channel cell centers',
-	'20':'20 native-channel cell centers',
-	'565':'16-bit RGB565 depth',
-	'jnd':'just-noticeable OKLab steps',
-	'web':'216 web-safe colors',
-	'names':'CSS named colors',
-	'xkcd':'xkcd survey names',
-	'tailwind':'Tailwind tokens',
-	'pico8':'PICO-8 palette',
-	'ansi':'terminal 256 palette' }
+const QTIP={ 'smooth':t('ui.quant.tip.smooth','continuous, unquantized'),
+	'10':t('ui.quant.tip.10','10 native-channel cell centers'),
+	'20':t('ui.quant.tip.20','20 native-channel cell centers'),
+	'565':t('ui.quant.tip.565','16-bit RGB565 depth'),
+	'jnd':t('ui.quant.tip.jnd','just-noticeable OKLab steps'),
+	'web':t('ui.quant.tip.web','216 web-safe colors'),
+	'names':t('ui.quant.tip.names','CSS named colors'),
+	'xkcd':t('ui.quant.tip.xkcd','xkcd survey names'),
+	'tailwind':t('ui.quant.tip.tailwind','Tailwind tokens'),
+	'pico8':t('ui.quant.tip.pico8','PICO-8 palette'),
+	'ansi':t('ui.quant.tip.ansi','terminal 256 palette') }
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
@@ -2765,14 +2766,14 @@ let dragEnt=null, dragEntI=-1   // active row/channel stay live; secondary slide
 function releaseDragEnt(){ const held=dragEnt; dragEnt=null; dragEntI=-1
 	if(held){ held._tk=''; held._cur=''; for(const p of ['--tkc','--tki','--tkv','--cur']) held.style.removeProperty(p) } }
 let QM='oklab'   // the palette lenses' distance metric — session-only, like Q
-const MTIP={ oklab:'modern perceptual distance', de2000:'CIE industry standard', de76:'plain CIELAB distance', redmean:'classic RGB heuristic' }
+const MTIP={ oklab:t('ui.metric.oklab','modern perceptual distance'), de2000:t('ui.metric.de2000','CIE industry standard'), de76:t('ui.metric.de76','plain CIELAB distance'), redmean:t('ui.metric.redmean','classic RGB heuristic') }
 const MLABEL={ oklab:'OKLab', de2000:'ΔE2000', de76:'ΔE76', redmean:'Redmean' }
 let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the dossier lens: which gamut its plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
-const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'surface', locus:'light', clip:'⚠' }   // conventional casings – brands as brands, common nouns lowercase   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
-const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly', p3:'beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it', rec2020:'beyond P3, fits Rec.2020 – most displays clip it', vis:'beyond every display, yet a lit surface can show it – inside the object-color solid', locus:'no surface shows it, but it is a real light – on the spectral locus', clip:'outside the locus – not a color; the preview clips' }
+const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:t('ui.gamut.vis','surface'), locus:t('ui.gamut.locus','light'), clip:'⚠' }   // conventional casings – brands as brands, common nouns lowercase   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
+const GAMTITLE={ srgb:t('ui.gamut.fit.srgb','fits sRGB – every standard display shows it losslessly'), p3:t('ui.gamut.fit.p3','beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it'), rec2020:t('ui.gamut.fit.rec2020','beyond P3, fits Rec.2020 – most displays clip it'), vis:t('ui.gamut.fit.vis','beyond every display, yet a lit surface can show it – inside the object-color solid'), locus:t('ui.gamut.fit.locus','no surface shows it, but it is a real light – on the spectral locus'), clip:t('ui.gamut.fit.clip','outside the locus – not a color; the preview clips') }
 // Surface is the dossier default: the widest reflective view that still reads as a
 // compact body. Catalog sliders stay on Light for unrestricted adjustment. Gamut
 // comparison belongs to the dossier.
@@ -2821,11 +2822,11 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 {	const vctl=document.getElementById('vctl')
 	if(vctl){ const qOpt=([mo,lb])=>`<option value="${qKey(mo)}" title="${QTIP[qKey(mo)]}">${lb}</option>`
 		const qLegend=QSEG.map(([mo,lb])=>`${lb} – ${QTIP[qKey(mo)]}`).join('\n'), mLegend=METRICS.map(m2=>`${MLABEL[m2]} – ${MTIP[m2]}`).join('\n')
-		const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'colors a lit surface can show – the object-color solid', locus:'every real light – the full spectral reach, no limit' })[g]
+		const gamTip=g=>({ srgb:t('ui.gamut.tip.srgb','standard web gamut'), p3:t('ui.gamut.tip.p3','wide Apple-display gamut'), rec2020:t('ui.gamut.tip.rec2020','ultra-wide UHD gamut'), vis:t('ui.gamut.tip.vis','colors a lit surface can show – the object-color solid'), locus:t('ui.gamut.tip.locus','every real light – the full spectral reach, no limit') })[g]
 		const gLegend=[...GAMS,'vis','locus'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
-		const vTip=l=>l.cite||'no simulation', vLegend=LENSES.map(l=>`${l.label.toLowerCase()} – ${vTip(l)}`).join('\n')+'\nthe whole page, simulated in linear light; readouts keep the true color'
-		const vSel=`<select id="vseg" aria-label="vision lens – simulate a color-vision deficiency" title="${vLegend}">${LENSES.map(l=>`<option value="${l.id}" title="${vTip(l)}">${l.label.toLowerCase()}</option>`).join('')}</select>`
-		vctl.innerHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><select id="gseg" aria-label="dossier gamut limits" title="${gLegend}">${[...GAMS,'vis','locus'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>${vSel}`
+		const vTip=l=>l.cite||t('ui.vision.none','no simulation'), vName=l=>t(`lens.${l.id}`,l.label).toLocaleLowerCase(LANG), vLegend=LENSES.map(l=>`${vName(l)} – ${vTip(l)}`).join('\n')+'\n'+t('ui.vision.tip','the whole page, simulated in linear light; readouts keep the true color')
+		const vSel=`<select id="vseg" aria-label="${t('ui.vision.label','vision lens – simulate a color-vision deficiency')}" title="${vLegend}">${LENSES.map(l=>`<option value="${l.id}" title="${vTip(l)}">${vName(l)}</option>`).join('')}</select>`
+		vctl.innerHTML=`<select id="qseg" aria-label="${t('ui.quant.label','segmented rendering mode')}" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="${t('ui.metric.label','palette distance metric')}" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><select id="gseg" aria-label="${t('ui.gamut.label','dossier gamut limits')}" title="${gLegend}">${[...GAMS,'vis','locus'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>${vSel}`
 		const qs=vctl.querySelector('#qseg'), ms=vctl.querySelector('#mseg'), gs=vctl.querySelector('#gseg'), vs=vctl.querySelector('#vseg')
 		gs.onchange=()=>{ GM=gs.value; try{ localStorage.csGm=GM }catch{}   // radio: one gamut always selected – the solid always shows SOME shape
 			if(open()){ wire3d(); renderFast(); queuePlaneSettle() } }
@@ -3021,7 +3022,9 @@ function shaderText(s,lang){ const k=lang+':'+s
 		.finally(()=>{ if(open()&&selected===s&&codeTab==='gl'&&shLang===lang) renderFast(false) })
 	return null }
 // the dossier LUT's apps (js/editors.js) and its size words
-const EDBY=new Map(EDITORS.map(e=>[e.id,e])), SZL={ 17:'draft', ...SIZE_LABEL }
+const EDBY=new Map(EDITORS.map(e=>[e.id,e])), SZL={ 17:t('ui.lut.draft','draft'), ...Object.fromEntries(Object.entries(SIZE_LABEL).map(([n,l])=>[n,t(`editor.size.${n}`,l)])) }
+const SHAPERL=t(`editor.shaper`,SHAPER_LABEL)
+const edSteps=ed=>ed.steps.map((st,i)=>isCommand(st)?st:t(`editor.${ed.id}.steps.${i}`,st)), edNotes=ed=>ed.notes.map((n,i)=>n===SOFT?t(`editor.soft`,SOFT):t(`editor.${ed.id}.notes.${i}`,n))
 // ── the sRGB solid in this space: regular surface mesh, drag to rotate ──
 let rot3={a:-0.6,b:0.42}, mesh3=null, mesh3Rev=0, pts3=null, tris3=null, pts3S=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
 let hover3=null, hover3T=0
@@ -4004,9 +4007,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const prof=primariesOf(s), trcv=trcOf(s), f4=v=>(+v).toFixed(4)
 	// related: direct conversion-graph edges beyond the lineage path; the hubs (rgb, xyz) relate to everything – no row
 	const rel=(m.neighbors||[]).filter(n=>n!==s&&meta[n]&&!(path||[]).includes(n)), relRow=rel.length&&rel.length<=14
-	const L=LORE[s]||{}, RCH=REACH[s]
-	const RCHTIP='share of the visible gamut this space can encode – Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick'
-	const reachTxt=RCH?`${Math.round(RCH[0]*100)}% of visible colors`:''
+	const L0=LORE[s]||{}, L={ ...L0, for:L0.for&&t(`lore.${s}.for`,L0.for), sin:L0.sin&&t(`lore.${s}.sin`,L0.sin), nm:L0.nm&&t(`lore.${s}.nm`,L0.nm) }, RCH=REACH[s]   // the lore in the page's language (lore.<id>.*), English per key until translated
+	const RCHTIP=t('ui.dossier.reach-tip','share of the visible gamut this space can encode – Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ~36% by the same yardstick')
+	const reachTxt=RCH?t('ui.dossier.reach','{p}% of visible colors',{p:Math.round(RCH[0]*100)}):''
 	const enc=encodingOf(s), avoid=avoidOf(s,L)
 	// the transfer curve — how a neutral linear ramp maps to this space's tone.
 	// Measured, not assumed: every non-hue channel is sampled along the grey axis; the
@@ -4040,18 +4043,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// every view lens – limits, mode, metric – rides the header rail now; the dossier row is bare
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="the gamut solid in this space – sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate – hover a slider or plane to see its line or slice inside"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas></div></div>`:''
+	const solidHTML=has3d?`<div class="vgrp"><div class="pl3d" id="pl3d" title="${t('ui.dossier.solid-tip','the gamut solid in this space – sRGB · P3 · Rec.2020 · human, per the gamut switch; the render-mode switch fills native 10/20 cells or safe/names/even palette regions here too; drag to rotate – hover a slider or plane to see its line or slice inside')}"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas></div></div>`:''
 	const LOCUS1=s==='wavelength'   // one-way, forward-only: its reach IS the spectral locus — drawn in JS, no inverse needed
 	const FWD1=!!space[s]?.xyz     // no GL inverse ≠ no plate: a forward map is enough to SAMPLE the reach
 	// the technical constants live ON the instruments that draw them: primaries in the
 	// gamut plate's tip (the triangle's own corners), transfer constants in the curve's
-	const primTip=prof?`\n\nprimaries, xy – computed from the shipped conversion${prof.adapted?`, Bradford-adapted from the native ${prof.ill} white to the D65 hub (the ICC colorant convention)`:''}:\nR ${prof.r.map(f4).join(' ')}\nG ${prof.g.map(f4).join(' ')}\nB ${prof.b.map(f4).join(' ')}`:''
-	const trcTip=trcv?`\n\n${trcv.name}: ${trcv.par.map(([k,v])=>`${k} ${v}`).join(', ')} – constants from the defining specification, cross-checked against the shipped conversion on the neutral axis`:''
-	const platesHTML=`<div class="dviz2">${hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp"><div class="gam2d" id="gam2d" title="gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no colour lives there.${primTip}"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">reaches ${reachTxt}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="transfer – the space's curve – scene-linear light across (0–1), ${s}'s ${percept?'perceptual lightness':'code value'} up; the dashed diagonal is linear. ${percept?'The bow above the diagonal is why equal steps in this space look even to the eye.':tcurve.ylab==='code'?'RGB-model spaces map every channel through this same curve.':tcurve.ylab+" is this space's tone channel."}${trcTip}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve"></span></div>`:''}</div>`
-	const interpHTML=`<h2 class="sec2" id="compare"><span class="term" title="the blend to the endpoint colour, stepped in this space – the row below repeats it through another space for comparison">interpolate to</span><button class="ipick" id="ipick" title="the colour this blend ends on" aria-label="pick the interpolation endpoint"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="hue arc direction" aria-label="toggle hue arc direction">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="interpolation endpoint color"></h2>
+	const primTip=prof?`\n\n${t('ui.dossier.prim','primaries, xy – computed from the shipped conversion')}${prof.adapted?t('ui.dossier.prim-adapted',', Bradford-adapted from the native {ill} white to the D65 hub (the ICC colorant convention)',{ill:prof.ill}):''}:\nR ${prof.r.map(f4).join(' ')}\nG ${prof.g.map(f4).join(' ')}\nB ${prof.b.map(f4).join(' ')}`:''
+	const trcTip=trcv?`\n\n${trcv.name}: ${trcv.par.map(([k,v])=>`${k} ${v}`).join(', ')} – ${t('ui.dossier.trc-tip','constants from the defining specification, cross-checked against the shipped conversion on the neutral axis')}`:''
+	const platesHTML=`<div class="dviz2">${hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp"><div class="gam2d" id="gam2d" title="${t('ui.dossier.gamut-tip',"gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colours, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no colour lives there.")}${primTip}"><canvas width="320" height="352"></canvas><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''}${tcurve?`<div class="vgrp"><div class="tcvw" title="${t('ui.dossier.tcurve',"transfer – the space's curve – scene-linear light across (0–1), {s}'s {y} up; the dashed diagonal is linear.",{s,y:percept?t('ui.dossier.tcurve-percept','perceptual lightness'):t('ui.dossier.tcurve-code','code value')})} ${percept?t('ui.dossier.tcurve-bow','The bow above the diagonal is why equal steps in this space look even to the eye.'):tcurve.ylab==='code'?t('ui.dossier.tcurve-rgb','RGB-model spaces map every channel through this same curve.'):t('ui.dossier.tcurve-tone',"{ch} is this space's tone channel.",{ch:tcurve.ylab})}${trcTip}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve')}"></span></div>`:''}</div>`
+	const interpHTML=`<h2 class="sec2" id="compare"><span class="term" title="${t('ui.dossier.interp-tip','the blend to the endpoint colour, stepped in this space – the row below repeats it through another space for comparison')}">${t('ui.dossier.interp','interpolate to')}</span><button class="ipick" id="ipick" title="${t('ui.dossier.interp-end-tip','the colour this blend ends on')}" aria-label="${t('ui.dossier.interp-end','pick the interpolation endpoint')}"><span class="dia" id="idia"></span></button>${cls.angle?`<button type="button" class="hp" id="hp" title="${t('ui.dossier.hue-arc','hue arc direction')}" aria-label="${t('ui.dossier.hue-arc-label','toggle hue arc direction')}">⇄</button>`:''}<input type="color" class="pinb" id="pinb" tabindex="-1" aria-label="${t('ui.dossier.interp-color','interpolation endpoint color')}"></h2>
 	 <div class="istack">
-		<div class="irow" id="irow" title="blend from the current color, in ${s}"><span class="isp" id="isp0"></span></div>
-		<button type="button" class="irow icmp" id="icmp" title="the same blend through another space – click to compare against oklch, oklab, lab, …"><span class="isp" id="ispc"></span></button>
+		<div class="irow" id="irow" title="${t('ui.dossier.interp-row','blend from the current color, in {s}',{s})}"><span class="isp" id="isp0"></span></div>
+		<button type="button" class="irow icmp" id="icmp" title="${t('ui.dossier.interp-cmp','the same blend through another space – click to compare against oklch, oklab, lab, …')}"><span class="isp" id="ispc"></span></button>
 	 </div>`
 	// the bar carries only the sweep and the symbol – the 3D frame's own labels;
 	// the full name lives in the title and the big inputs row
@@ -4059,20 +4062,20 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
 		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
-		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${cname(c)} slider"></div>` }
+		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${t('ui.card.slider','{name} slider',{name:cname(c)})}"></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}</div>`
 	const plotPairs=pairsFor(s)
 	// the space's catalog section, read straight off the catalog DOM — one source
-	const dcat=activeSecs().find(c2=>c2.spaces.includes(s))?.name||''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
-	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">historical</span>`:''}</h1></div>
+	const dsec=activeSecs().find(c2=>c2.spaces.includes(s)), dcat=dsec?secName(dsec):''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
+	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}</div>
 	 <section class="dpick${has3d?'':' nod3'}" id="explore">
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
-		`<div class="pl" data-a="${a}" data-b="${b}" title="drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="disc ⟷ square"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="triangle ⟷ square"></button>`:''}</div>`).join('')}</div>`:''}
+		`<div class="pl" data-a="${a}" data-b="${b}" title="${t('ui.dossier.plane-tip','drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset')}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="${t('ui.dossier.disc','disc ⟷ square')}"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="${t('ui.dossier.tri','triangle ⟷ square')}"></button>`:''}</div>`).join('')}</div>`:''}
 		</div>
 		${solidHTML}
 	 </section>
@@ -4080,47 +4083,47 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		${platesHTML}
 		<div class="dmain"><div class="props props3">
 			<div class="pcol"><!-- the instrument: its axes, its notation, its shape, its signal (reference white included), its derivation, its cost, its reach – the name closes the column -->
-				<div><i>channels</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
-				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="this color, CSS-notated – click to copy"></p></div>`:''}
-				${geo(s)?`<div><i>geometry</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${geo(s)}</span></p></div>`:''}
-				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>signal</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${m.referred}-referred</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${enc}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}${prof?`\nwhite point XYZ ${prof.w.map(f4).join(' ')} – ${prof.wSrc==='cie'?`CIE 15 tabulated for ${prof.ill}, 2° observer`:'computed from the shipped conversion at Y = 1'}`:''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
-				${path&&path.length>1?`<div><i title="the conversion route down to rgb – each space is defined through the next">lineage</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
-				${relRow?`<div><i title="directly convertible neighbors in the conversion graph, beyond the lineage">related</i><p class="fam">${rel.map(n=>`<a href="#${n}" title="${n}">${disp(n)}</a>`).join(', ')}</p></div>`:''}
-				${m.loss?`<div><i>loss</i><p>${m.lossNote?`<span class="term" title="${m.lossNote}">${m.loss}</span>`:m.loss}</p></div>`:''}
-				${RCH&&!hasPlaneGL(s)?`<div><i>reach</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
-				${L.nm?`<div><i>etymology</i><p>${L.nm}</p></div>`:''}
+				<div><i>${t('ui.dossier.channels','channels')}</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
+				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="${t('ui.dossier.css-tip','this color, CSS-notated – click to copy')}"></p></div>`:''}
+				${geo(s)?`<div><i>${t('ui.dossier.geometry','geometry')}</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${tagL(geo(s))}</span></p></div>`:''}
+				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>${t('ui.dossier.signal','signal')}</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${tagL(m.referred+'-referred')}</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${tagL(enc)}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}${prof?`\n${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${path&&path.length>1?`<div><i title="${t('ui.dossier.lineage-tip','the conversion route down to rgb – each space is defined through the next')}">${t('ui.dossier.lineage','lineage')}</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
+				${relRow?`<div><i title="${t('ui.dossier.related-tip','directly convertible neighbors in the conversion graph, beyond the lineage')}">${t('ui.dossier.related','related')}</i><p class="fam">${rel.map(n=>`<a href="#${n}" title="${n}">${disp(n)}</a>`).join(', ')}</p></div>`:''}
+				${m.loss?`<div><i>${t('ui.dossier.loss','loss')}</i><p>${m.lossNote?`<span class="term" title="${t(`space.${s}.loss-note`,m.lossNote)}">${tagL(m.loss)}</span>`:tagL(m.loss)}</p></div>`:''}
+				${RCH&&!hasPlaneGL(s)?`<div><i>${t('ui.dossier.reach-label','reach')}</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
+				${L.nm?`<div><i>${t('ui.dossier.etymology','etymology')}</i><p>${L.nm}</p></div>`:''}
 			</div>
 			<div class="pcol"><!-- the record: when and who, then the citation cluster (test · reference · source), the exports closing the column -->
-				${m.year||m.by?`<div><i>origin</i><p>${[m.year,m.by].filter(Boolean).join(', ')}</p></div>`:''}
-				${m.refs||m.wiki?`<div><i>reference</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
-				${VERIFIED.has(s)?`<div><i>test</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="this space's bidirectional colorjs.io differential test, at 1/255 tolerance">reference values</a></p></div>`:''}
-				<div><i>source</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="the implementation – spaces/${s}.js on GitHub">spaces/${s}.js</a></p></div>
-				${iccK?`<div><i title="the ICC profile class this space exports as">icc</i><p>${{mntr:'mntr · matrix + TRC display',spac:'spac · CLUT, both directions',scnr:'scnr · CLUT, device → PCS'}[iccK]||iccK}</p></div>`:''}
+				${m.year||m.by?`<div><i>${t('ui.dossier.origin','origin')}</i><p>${[m.year,m.by].filter(Boolean).join(', ')}</p></div>`:''}
+				${m.refs||m.wiki?`<div><i>${t('ui.dossier.reference','reference')}</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
+				${VERIFIED.has(s)?`<div><i>${t('ui.dossier.test','test')}</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="${t('ui.dossier.test-tip',"this space's bidirectional colorjs.io differential test, at 1/255 tolerance")}">${t('ui.dossier.test-link','reference values')}</a></p></div>`:''}
+				<div><i>${t('ui.dossier.source','source')}</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="${t('ui.dossier.source-tip','the implementation – {file} on GitHub',{file:`spaces/${s}.js`})}">spaces/${s}.js</a></p></div>
+				${iccK?`<div><i title="${t('ui.dossier.icc-tip','the ICC profile class this space exports as')}">icc</i><p>${{mntr:t('ui.dossier.icc-mntr','mntr · matrix + TRC display'),spac:t('ui.dossier.icc-spac','spac · CLUT, both directions'),scnr:t('ui.dossier.icc-scnr','scnr · CLUT, device → PCS')}[iccK]||iccK}</p></div>`:''}
 				${LUTOK.has(s)||iccK?`<div class="export dex" id="dex"></div>`:''}
 			</div>
 	 </div></div>
 	 </section>
 	 <div class="dgrid2"><!-- the story, full measure – after the features and their plots -->
-		<div><i class="plab">description</i>
-		<div class="desc">${(m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
+		<div><i class="plab">${t('ui.dossier.description','description')}</i>
+		<div class="desc">${t(`space.${s}.desc`,m.description||'').replace(/(https?:\/\/[^\s)]+)/g,'<a href="$1" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div></div>
 		<div class="pcol">
-			${L.for?`<div><i>made for</i><p>${sent(L.for)}</p></div>`:''}
-			<div><i>used for</i><p>${sent(m.use)}</p></div>
-			${avoid?`<div><i>caveat</i><p>${sent(avoid)}</p></div>`:''}
+			${L.for?`<div><i>${t('ui.dossier.made-for','made for')}</i><p>${sent(L.for)}</p></div>`:''}
+			<div><i>${t('ui.dossier.used-for','used for')}</i><p>${sent(t(`space.${s}.use`,m.use))}</p></div>
+			${avoid?`<div><i>${t('ui.dossier.caveat','caveat')}</i><p>${sent(avoid)}</p></div>`:''}
 		</div>
 	 </div>
-	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image"><span class="term" title="each panel keeps one channel and neutralises the rest – what that channel alone carries">image</span><button class="upbtn" id="imgadd" title="open an image of yours – or just drop one anywhere" aria-label="open an image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
-	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
+	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image"><span class="term" title="${t('ui.dossier.image-tip','each panel keeps one channel and neutralises the rest – what that channel alone carries')}">${t('ui.dossier.image','image')}</span><button class="upbtn" id="imgadd" title="${t('ui.dossier.img-open-tip','open an image of yours – or just drop one anywhere')}" aria-label="${t('ui.dossier.img-open','open an image')}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
+	 <div class="imgrow" id="imgrow" title="${t('ui.dossier.img-row','click the source panel for the next test image · drop your own image anywhere')}"></div>`:''}
 	 ${interpHTML}
-	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button><button data-t="embed" aria-pressed="false">${FLEMBED}embed</button></span></h2>
-	 ${hasPlaneGL(s)?`<span class="seg" id="glseg" role="group" aria-label="shader language" hidden>${Object.entries(SHL).map(([l,n])=>`<button type="button" data-l="${l}" aria-pressed="${l===shLang}"${l===shLang?' class="on"':''}>${n}</button>`).join('')}</span>`:''}
-	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
+	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="${t('ui.dossier.code-tabs','code backends')}"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button><button data-t="embed" aria-pressed="false">${FLEMBED}${t('ui.dossier.embed','embed')}</button></span></h2>
+	 ${hasPlaneGL(s)?`<span class="seg" id="glseg" role="group" aria-label="${t('ui.dossier.shader','shader language')}" hidden>${Object.entries(SHL).map(([l,n])=>`<button type="button" data-l="${l}" aria-pressed="${l===shLang}"${l===shLang?' class="on"':''}>${n}</button>`).join('')}</span>`:''}
+	 <div class="snipwrap"><button class="cpyi" id="csnip" title="${t('ui.copy','copy')}"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
 	 ${MNAV('mfoot',1)}`
 		solidHome()
 		modal.scrollTop=0
 	// glossary terms in the prose grow a soft ? – first occurrence per paragraph
 	for(const el of detail.querySelectorAll('.desc, .dgrid2 p')) for(const [t,tip] of Object.entries(TERMS)){
-		const rx=new RegExp(`(?<![\\w-])${t.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&')}(?![\\w-])`,'i')
+		const rx=new RegExp(`(?<![\\p{L}\\p{N}_-])${t.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&')}(?![\\p{L}\\p{N}_-])`,'iu')   // letters in any script: a term beside ç or ı is still inside a word
 		const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT)
 		let n; while(n=w.nextNode()){ if(n.parentNode.closest('.term,a')) continue
 			const m2=rx.exec(n.nodeValue); if(!m2) continue
@@ -4220,18 +4223,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const dex=detail.querySelector('#dex')
 	if(dex){
 		const dl=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
-		const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${disp(t)}</option>`).join('')}</optgroup>`:'' }).join('')
+		const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${secName(c)}">${o.map(v=>`<option value="${v}">${disp(v)}</option>`).join('')}</optgroup>`:'' }).join('')
 		const sci2=x=>x===0?'0':x.toExponential(1)
-		const iccTitle=iccK==='mntr'?`${s} as an .icc v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management`
-			:iccK==='spac'?`${s} as an .icc v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick`
-			:`${s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick`
+		const iccTitle=iccK==='mntr'?t('ui.icc.mntr','{s} as an .icc v2 matrix+TRC display profile — Photoshop, macOS/Windows colour management',{s})
+			:iccK==='spac'?t('ui.icc.spac','{s} as an .icc v2 CLUT colour-space profile — device↔Lab lattices both ways; lcms, ArgyllCMS, ImageMagick',{s})
+			:t('ui.icc.scnr','{s} as an .icc v2 CLUT input profile — device→Lab only: a lattice cannot carry this inverse; lcms, ArgyllCMS, ImageMagick',{s})
 		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
-			<i title="${s} → any space as a .cube conversion LUT – DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
-			<div class="exrow"><select id="dlto" aria-label="LUT target space" title="target space – the .cube converts ${s} into this space"></select><select id="dled" aria-label="the app the LUT is for" title="the app you will load it in – picks a .cube that app reads, at a size it takes, and shows where it goes"><option value="" title="color-space's own cube() – a 3D lattice, or a 4096-point 1D curve where the pair is per-channel">generic</option><optgroup label="editors">${EDITORS.map(e=>`<option value="${e.id}" title="${e.platforms.join(' · ')}">${e.name}</option>`).join('')}</optgroup></select></div>
-			<div class="exrow"><select id="dlsz" aria-label="LUT size" title="lattice size – larger is more accurate and a bigger file"></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – pick an app for the 3D cube other editors need">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div>
+			<i title="${t('ui.lut.tip','{s} → any space as a .cube conversion LUT – DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg',{s})}${ACESV.has(s)?t('ui.lut.aces',"; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)"):''}">${t('ui.lut.label','conversion LUT')}</i>
+			<div class="exrow"><select id="dlto" aria-label="${t('ui.api.lut-to','LUT target space')}" title="${t('ui.lut.to-tip','target space – the .cube converts {s} into this space',{s})}"></select><select id="dled" aria-label="${t('ui.lut.app','the app the LUT is for')}" title="${t('ui.lut.app-tip','the app you will load it in – picks a .cube that app reads, at a size it takes, and shows where it goes')}"><option value="" title="${t('ui.lut.generic-tip',"color-space's own cube() – a 3D lattice, or a 4096-point 1D curve where the pair is per-channel")}">${t('ui.lut.generic','generic')}</option><optgroup label="${t('ui.lut.editors','editors')}">${EDITORS.map(e=>`<option value="${e.id}" title="${e.platforms.join(' · ')}">${e.name}</option>`).join('')}</optgroup></select></div>
+			<div class="exrow"><select id="dlsz" aria-label="${t('ui.lut.size','LUT size')}" title="${t('ui.lut.size-tip','lattice size – larger is more accurate and a bigger file')}"></select><span class="ex1d" id="dl1d" style="display:none" title="${t('ui.lut.1d-tip',"same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – pick an app for the 3D cube other editors need")}">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div>
 			<div class="dhow" id="dlhow" hidden></div></div>`:'')
 			+(iccK?`<div class="dexp">
-			<i title="${iccTitle}">icc profile</i>
+			<i title="${iccTitle}">${t('ui.icc.label','icc profile')}</i>
 			<div class="exrow"><button class="exdl" id="didl" type="button" title="${iccTitle}">↓ .icc</button><span class="exstat tnum" id="distat" aria-live="polite"></span></div></div>`:'')
 		// LUT: target → the real lattice is measured (median/max deviation, size) before you take it
 		const lto=dex.querySelector('#dlto'), led=dex.querySelector('#dled'), lsz=dex.querySelector('#dlsz'), l1d=dex.querySelector('#dl1d'), ldl=dex.querySelector('#dldl'), lst=dex.querySelector('#dlstat'), lhow=dex.querySelector('#dlhow')
@@ -4244,7 +4247,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			const edOf=()=>EDBY.get(led.value)
 			const szOpts=ed=>{ const zs=ed?ed.sizes:[17,33,65], sh=!ed||ed.shaper?zs.filter(n=>n>=33):[]
 				return zs.map(n=>`<option value="${n}">${n}³ ${SZL[n]}</option>`).join('')
-					+(sh.length?`<optgroup label="${SHAPER_LABEL}">${sh.map(n=>`<option value="${n}s" title="1D tone shaper + ${n}³ lattice in one file, Blackmagic's layout – ffmpeg rejects it, OBS reads only its 1D part">${n}³ + shaper</option>`).join('')}</optgroup>`:'') }
+					+(sh.length?`<optgroup label="${SHAPERL}">${sh.map(n=>`<option value="${n}s" title="${t('ui.lut.shaper-tip',"1D tone shaper + {n}³ lattice in one file, Blackmagic's layout – ffmpeg rejects it, OBS reads only its 1D part",{n})}">${t('ui.lut.shaper-opt','{n}³ + shaper',{n})}</option>`).join('')}</optgroup>`:'') }
 			const fillSz=()=>{ const prev=lsz.value; lsz.innerHTML=szOpts(edOf()); const vs=[...lsz.options].map(o=>o.value)
 				lsz.value=vs.includes(prev)?prev:vs.includes('33')?'33':vs[0]??'' }
 			// the cube() options for the current pick – null where the app takes no .cube (CapCut mobile)
@@ -4253,21 +4256,21 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				return lutChannelwise(space[s],space[lto.value])?{}:sh?{size:n,shaper:true}:{size:n} }
 			const fileOf=(to,o)=>`${s}-to-${to}${o.size?'-'+o.size:''}${o.shaper?'-shaper':''}.cube`
 			const how=(ed,file)=>{ lhow.hidden=!ed; if(!ed){ lhow.innerHTML=''; return }   // the app's steps (the ffmpeg line names this very file) + its notes and source
-				lhow.innerHTML=`<ol>${ed.steps.map(st=>`<li>${/^ffmpeg /.test(st)?`<code>${esc(file?st.replace('<file>.cube',file):st)}</code>`:esc(st)}</li>`).join('')}</ol><p>${ed.notes.map(esc).join(' ')} <a href="${ed.source}" target="_blank" rel="noopener">${ed.source.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a></p>` }
+				lhow.innerHTML=`<ol>${edSteps(ed).map(st=>`<li>${isCommand(st)?`<code>${esc(file?st.replace('<file>.cube',file):st)}</code>`:esc(st)}</li>`).join('')}</ol><p>${edNotes(ed).map(esc).join(' ')} <a href="${ed.source}" target="_blank" rel="noopener">${ed.source.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a></p>` }
 			const measure=()=>{ measured=true; const to=lto.value, ed=edOf(), k=++ltok
-				let o; try{ o=pickO() }catch(err){ ldl.disabled=true; how(ed,null); lst.textContent=String(err&&err.message||'no finite LUT for this pair'); return }
+				let o; try{ o=pickO() }catch(err){ ldl.disabled=true; how(ed,null); lst.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')); return }
 				const flat=!ed&&o&&!o.size   // generic over a per-channel pair: the 1D curve, no lattice size to pick
 				lsz.style.display=flat||!lsz.options.length?'none':''; l1d.style.display=flat?'':'none'
 				how(ed,o&&fileOf(to,o))
 				if(!o){ ldl.disabled=true; lst.textContent=''; lst.title=''; return }   // no .cube import – the steps say where to take it instead
-				lst.textContent='measuring…'; ldl.disabled=false
+				lst.textContent=t('ui.lut.measuring','measuring…'); ldl.disabled=false
 				setTimeout(()=>{ if(k!==ltok) return
 					try{ const tab=lutTable(space[s],space[to],o)
 						const v=lutVerify(tab,400), inr=v.in.share>0&&v.in.share<0.999, e=inr?v.in:v
 						const bytes=((tab.dims===3?tab.size**3:tab.size)+(tab.shaperSize||0))*21+430
-						lst.textContent=(bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB')+(tab.shaper?` · ${SHAPER_LABEL}`:'')
-						lst.title=`${tab.dims===1?tab.size+'-pt 1D':(tab.shaper?tab.shaperSize+'-pt shaper + ':'')+tab.size+'³'} lattice vs the direct conversion, 400 off-lattice samples — median ${sci2(e.median)}, max ${sci2(e.max)}, fractions of full scale` }
-					catch(err){ ldl.disabled=true; lst.textContent=String(err&&err.message||'no finite LUT for this pair') } },0) }
+						lst.textContent=(bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB')+(tab.shaper?` · ${SHAPERL}`:'')
+						lst.title=t('ui.lut.measure-tip','{lattice} lattice vs the direct conversion, 400 off-lattice samples — median {median}, max {max}, fractions of full scale',{lattice:tab.dims===1?t('ui.lut.pt-1d','{n}-pt 1D',{n:tab.size}):(tab.shaper?t('ui.lut.pt-shaper','{n}-pt shaper +',{n:tab.shaperSize})+' ':'')+tab.size+'³',median:sci2(e.median),max:sci2(e.max)}) }
+					catch(err){ ldl.disabled=true; lst.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')) } },0) }
 			try{ const e0=localStorage.csEd; if(EDBY.has(e0)) led.value=e0 }catch{}
 			fillSz()
 			lto.onchange=lsz.onchange=measure
@@ -4275,16 +4278,16 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				fillSz(); measure() }
 			ldl.onclick=()=>{ const to=lto.value
 				try{ const o=pickO(); if(!o) throw 0
-					dl(lutCube(space[s],space[to],o),fileOf(to,o),'text/plain'); toast('LUT saved'); track(EVENT.lut(s,to,led.value||'generic')) }catch{ toast('No LUT for this pair') } }
+					dl(lutCube(space[s],space[to],o),fileOf(to,o),'text/plain'); toast(t('ui.toast.lut','LUT saved')); track(EVENT.lut(s,to,led.value||'generic')) }catch{ toast(t('ui.toast.no-lut','No LUT for this pair')) } }
 			dex._lut=()=>{ if(!measured) measure() } }
 		// ICC: the numbers appear on first open; the profile bakes on download
 		const idl=dex.querySelector('#didl'), ist=dex.querySelector('#distat')
 		if(idl){ let done=false
-			idl.onclick=()=>{ try{ dl(iccProfile(space[s],{xyz:space.xyz}),`${s}.icc`,'application/vnd.iccprofile'); toast('ICC saved'); track(EVENT.icc(s,iccK)) }catch{ toast('No profile for this space') } }
+			idl.onclick=()=>{ try{ dl(iccProfile(space[s],{xyz:space.xyz}),`${s}.icc`,'application/vnd.iccprofile'); toast(t('ui.toast.icc','ICC saved')); track(EVENT.icc(s,iccK)) }catch{ toast(t('ui.toast.no-icc','No profile for this space')) } }
 			dex._icc=()=>{ if(done) return; done=true; ist.textContent='…'
 				setTimeout(()=>{ try{ const b=iccProfile(space[s],{xyz:space.xyz})
-						ist.textContent=`${(b.length/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:'v2 matrix+TRC display',spac:'v2 CLUT, device↔Lab both ways',scnr:'v2 CLUT, device→Lab (one-way)'}[iccK]||''}` }
-					catch(err){ idl.disabled=true; ist.textContent=String(err&&err.message||'no profile') } },0) } }
+						ist.textContent=`${(b.length/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:t('ui.icc.v-mntr','v2 matrix+TRC display'),spac:t('ui.icc.v-spac','v2 CLUT, device↔Lab both ways'),scnr:t('ui.icc.v-scnr','v2 CLUT, device→Lab (one-way)')}[iccK]||''}` }
+					catch(err){ idl.disabled=true; ist.textContent=String(err&&err.message||t('ui.icc.none','no profile')) } },0) } }
 		// defer the first bake until the block scrolls into view – same pattern as the
 		// homepage LUT pane; opening a dossier stays light until the block is actually seen.
 		// One observer per dossier: the previous one dies with its detached markup
@@ -4572,7 +4575,7 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	c2.fillStyle=hex(rgb); c2.strokeStyle=ink(rgb)==='#fff'?'#fff':'#1b1408'; c2.lineWidth=1
 	c2.fillRect(-4,-4,8,8); c2.strokeRect(-4,-4,8,8); c2.restore()
 	const cap=detail.querySelector('#tcap')
-	if(cap) cap.textContent=`linear ${Math.round(lum*100)}% → encoded ${+code.toPrecision(3)}` }
+	if(cap) cap.textContent=t('ui.dossier.tcap-val','linear {l}% → encoded {c}',{l:Math.round(lum*100),c:+code.toPrecision(3)}) }
 function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el) return
 	const cx=el.querySelector('.cx'), rgb=RGB()
 	// chromaticity from the RAW master values – the display rgb is clamped to sRGB, so a
@@ -4590,9 +4593,9 @@ function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el)
 		// a 1-channel locus (kelvin, wavelength) picks only a CHROMATICITY – its luminance
 		// scale is the space's own normalization, not a claim the MacAdam test may judge
 		if(!fast){ let bey=''
-			if(classify(master.s).ch.length>1){ bey=beyondVisible(xyz)?'not a visible color – brighter than the MacAdam limit at this chromaticity':''
+			if(classify(master.s).ch.length>1){ bey=beyondVisible(xyz)?t('ui.dossier.beyond','not a visible color – brighter than the MacAdam limit at this chromaticity'):''
 				if(!bey&&boxInBase(master.s)){ try{ const rr=master.s==='rgb'?master.vals:space[master.s].rgb(...master.vals)
-					if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey='no such color – these coordinates decode outside sRGB, which this space is defined on' }catch{} } }
+					if(!rr.every(x2=>isFinite(x2)&&x2>-2.5&&x2<258)) bey=t('ui.dossier.nocolor','no such color – these coordinates decode outside sRGB, which this space is defined on') }catch{} } }
 			cx.classList.toggle('ghost',!!bey); cx.title=bey }
 		const qfx=qTriple(Q), fr2=qfx?byteRGB(qfx(rgb)):rgb
 		cx.style.background=cx.classList.contains('ghost')?'transparent':hex(fr2); cx.style.borderColor=ink(fr2) }catch{}}
@@ -4650,10 +4653,10 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 		const cls=classify(s), n=cls.ch.length
 		if(row._n!==n+1){ row.innerHTML=''
 			for(let i=-1;i<n;i++){ const d=document.createElement('div'); d.className='imgp'
-				if(i<0){ d.tabIndex=0; d.setAttribute('role','button'); d.setAttribute('aria-label','show the next test image') }
+				if(i<0){ d.tabIndex=0; d.setAttribute('role','button'); d.setAttribute('aria-label',t('ui.dossier.img-next','show the next test image')) }
 				const cv=document.createElement('canvas'), lb=document.createElement('span'); lb.className='implb'
 				cv.getContext('2d',{willReadFrequently:true})   // label ink reads pixels back each repaint
-				lb.textContent=i<0?'source':cname(cls.ch[i]).toLowerCase()
+				lb.textContent=i<0?t('ui.dossier.img-source','source'):cname(cls.ch[i]).toLocaleLowerCase(LANG)
 				d.append(cv,lb); row.append(d) }
 			row._n=n+1 }
 		const W=Math.min(640,Math.round(300*(devicePixelRatio||1))), H=Math.round(W*IMG.height/IMG.width)
@@ -5028,7 +5031,7 @@ function renderFast(solid=true){
 		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit
 			if(palmEl._n!==b.n){ palmEl._n=b.n
 				palmEl.lastElementChild.textContent=b.n
-				palmEl.title=`nearest ${Q} entry (${MLABEL[QM]}) – click to snap to ${b.n}`
+				palmEl.title=t('ui.palette.near','nearest {q} entry ({m}) – click to snap to {n}',{q:Q,m:MLABEL[QM],n:b.n})
 				palmEl.removeAttribute('data-tip') } } }   // re-arm the bubble with the fresh title
 	{ const active=activeCatalogEnt(), dossierOpen=open()
 		if(active&&!dossierOpen){ paintCatalogVals([active]); paintCatalogGrad([active],dragEnt?dragEntI:-1,(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,false) }
@@ -5179,13 +5182,13 @@ function renderFast(solid=true){
 					`color: ${V(hx)};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`
 					:`/* CSS cannot name ${s} directly */\n`+
 					`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${pure.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
-				.replace(/\x03/g,'<span class="cval" title="click selects the value">').replace(/\x04/g,'</span>')
-				.replace(/\x05/g,'<span class="icclnk" role="link" tabindex="0" title="download the ICC profile">').replace(/\x06/g,'</span>')
+				.replace(/\x03/g,`<span class="cval" title="${t('ui.dossier.css-select','click selects the value')}">`).replace(/\x04/g,'</span>')
+				.replace(/\x05/g,`<span class="icclnk" role="link" tabindex="0" title="${t('ui.dossier.css-icc','download the ICC profile')}">`).replace(/\x06/g,'</span>')
 			snip.onclick=e=>{ const v=e.target.closest('.cval')
 				if(v){ const r2=document.createRange(); r2.selectNodeContents(v)
 					const sl=getSelection(); sl.removeAllRanges(); sl.addRange(r2); return }
 				if(e.target.closest('.icclnk')){
-					const di=detail.querySelector('#didl'); di?di.click():toast('No ICC for this space') } } }
+					const di=detail.querySelector('#didl'); di?di.click():toast(t('ui.toast.no-icc','No profile for this space')) } } }
 		else if(codeTab==='meta'){
 			// the space's own data.json entry – provenance, ranges, refs. COMPACT: leaf
 			// objects and primitive arrays stay on one line, and the value rides as line
@@ -5253,7 +5256,7 @@ const scheduleFast=(ambient=false)=>{ if(!ambient) autoColor=false
 const thm=document.getElementById('thm')
 const SUN='<svg width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>'
 const MOON='<svg width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'
-const drawThm=()=>{ const dark=document.documentElement.dataset.theme==='dark'; thm.innerHTML=dark?SUN:MOON; thm.setAttribute('aria-pressed',String(dark)); thm.setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme') }
+const drawThm=()=>{ const dark=document.documentElement.dataset.theme==='dark'; thm.innerHTML=dark?SUN:MOON; thm.setAttribute('aria-pressed',String(dark)); thm.setAttribute('aria-label',dark?t('ui.theme.to-light','Switch to light theme'):t('ui.theme.to-dark','Switch to dark theme')) }
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
 	document.documentElement.dataset.theme=t; try{ localStorage.csTheme=t }catch{}; drawThm() }
@@ -5280,7 +5283,7 @@ if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp 
 // the lut/icc tabs are live exporters: pick spaces → download the real file, generated in the browser
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const sci2=x=>x===0?'0':x.toExponential(1)
-	const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${c.name}">${o.map(t=>`<option value="${t}">${disp(t)}</option>`).join('')}</optgroup>`:'' }).join('')
+	const groups=ok=>sections.map(c=>{ const o=c.spaces.filter(ok); return o.length?`<optgroup label="${secName(c)}">${o.map(v=>`<option value="${v}">${disp(v)}</option>`).join('')}</optgroup>`:'' }).join('')
 	const save=(data,name,type)=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000) }
 	// ── LUT: any pair → .cube ──
 	const lf=tabs.querySelector('#lutfrom'), lt=tabs.querySelector('#lutto'), lseg=tabs.querySelector('#lutszL'), l1d=tabs.querySelector('#lut1dL'), ldl=tabs.querySelector('#lutdlL'), lstat=tabs.querySelector('#lutstatL')
@@ -5288,15 +5291,15 @@ if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp 
 		lf.innerHTML=groups(t=>LUTOK.has(t))          // sources: hue wheels ride too — the lattice covers the wrap
 		lt.innerHTML=groups(t=>LUTTGT.has(t))         // targets: no cyclic axis — an interpolated OUTPUT hue would cross the seam wrong
 		lf.value='slog3'; lt.value='rec709'; if(!lf.value)lf.selectedIndex=0; if(!lt.value)lt.selectedIndex=0
-		const measure=()=>{ const from=lf.value, to=lt.value, k=++tok; lstat.textContent='measuring…'; ldl.disabled=false
+		const measure=()=>{ const from=lf.value, to=lt.value, k=++tok; lstat.textContent=t('ui.lut.measuring','measuring…'); ldl.disabled=false
 			setTimeout(()=>{ if(k!==tok) return
-				try{ if(from===to) throw new Error('pick two different spaces')
+				try{ if(from===to) throw new Error(t('ui.lut.same','pick two different spaces'))
 					const one=lutChannelwise(space[from],space[to]), tab=lutTable(space[from],space[to],one?{}:{size:lutN})
 					const v=lutVerify(tab,400), inr=v.in.share>0&&v.in.share<0.999, e=inr?v.in:v
 					const bytes=(tab.dims===3?tab.size**3:tab.size)*21+430
 					lseg.style.display=one?'none':''; l1d.style.display=one?'':'none'
-					lstat.textContent=`${one?tab.size+'-pt 1D':tab.size+'³'} · median ${sci2(e.median)}, max ${sci2(e.max)} · ≈${bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'}` }
-				catch(err){ ldl.disabled=true; lstat.textContent=String(err&&err.message||'no finite LUT for this pair') } },0) }
+					lstat.textContent=`${one?t('ui.lut.pt-1d','{n}-pt 1D',{n:tab.size}):tab.size+'³'} · ${t('ui.lut.median','median {median}, max {max}',{median:sci2(e.median),max:sci2(e.max)})} · ≈${bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'}` }
+				catch(err){ ldl.disabled=true; lstat.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')) } },0) }
 		// the first bake (33³ table + 400-sample verify) waits until the LUT pane actually
 		// shows (tab click or keyboard) — off the boot path; hidden panes never intersect
 		const lp=document.getElementById('api-panel-lut')
@@ -5306,22 +5309,22 @@ if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp 
 		lseg.querySelectorAll('button').forEach(b=>b.onclick=()=>{ lutN=+b.dataset.z; lseg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); measure() })
 		ldl.onclick=()=>{ const from=lf.value, to=lt.value
 			try{ if(from===to) throw 0; const one=lutChannelwise(space[from],space[to])
-				save(lutCube(space[from],space[to],one?{}:{size:lutN}),`${from}-to-${to}${one?'':'-'+lutN}.cube`,'text/plain'); toast('LUT saved'); track(EVENT.lut(from,to)) }
-			catch{ toast('No LUT for this pair') } } }
+				save(lutCube(space[from],space[to],one?{}:{size:lutN}),`${from}-to-${to}${one?'':'-'+lutN}.cube`,'text/plain'); toast(t('ui.toast.lut','LUT saved')); track(EVENT.lut(from,to)) }
+			catch{ toast(t('ui.toast.no-lut','No LUT for this pair')) } } }
 	// ── ICC: any space → .icc — matrix+TRC where the space IS one, CLUT elsewhere ──
 	const ic=tabs.querySelector('#iccsp'), idl=tabs.querySelector('#iccdlL'), istat=tabs.querySelector('#iccstatL')
 	if(ic){ const all=sections.flatMap(c=>c.spaces)
-		const FLAVOR={ mntr:'v2 matrix+TRC display', spac:'v2 CLUT, device↔Lab both ways', scnr:'v2 CLUT, device→Lab (one-way)' }
+		const FLAVOR={ mntr:t('ui.icc.v-mntr','v2 matrix+TRC display'), spac:t('ui.icc.v-spac','v2 CLUT, device↔Lab both ways'), scnr:t('ui.icc.v-scnr','v2 CLUT, device→Lab (one-way)') }
 		const kindOf=sp=>{ try{ return iccKind(space[sp],{xyz:space.xyz}) }catch{ return null } }
 		const show=()=>{ const sp=ic.value; if(!sp){ istat.textContent='—'; idl.disabled=true; return }
 			try{ const b=iccProfile(space[sp],{xyz:space.xyz}); idl.disabled=false
 				istat.textContent=`${(b.length/1024).toFixed(1)} kB · D50 PCS · ${FLAVOR[kindOf(sp)]||''}` }
-			catch(err){ idl.disabled=true; istat.textContent=String(err&&err.message||'no profile for this space') } }
+			catch(err){ idl.disabled=true; istat.textContent=String(err&&err.message||t('ui.icc.none-space','no profile for this space')) } }
 		// kind() is probe-cheap (no lattice bake) — still deferred to first open, off the boot path
 		const probe=()=>{ const okset=new Set(all.filter(kindOf))
 			ic.innerHTML=groups(t=>okset.has(t)); ic.value=okset.has('p3')?'p3':(ic.options[0]&&ic.options[0].value); show() }
 		ic.onchange=show
-		idl.onclick=()=>{ const sp=ic.value; try{ save(iccProfile(space[sp],{xyz:space.xyz}),`${sp}.icc`,'application/vnd.iccprofile'); toast('ICC saved'); track(EVENT.icc(sp,kindOf(sp))) }catch{ toast('No profile for this space') } }
+		idl.onclick=()=>{ const sp=ic.value; try{ save(iccProfile(space[sp],{xyz:space.xyz}),`${sp}.icc`,'application/vnd.iccprofile'); toast(t('ui.toast.icc','ICC saved')); track(EVENT.icc(sp,kindOf(sp))) }catch{ toast(t('ui.toast.no-icc','No profile for this space')) } }
 		const iccBtn=document.getElementById('api-tab-icc')
 		if(iccBtn) iccBtn.addEventListener('click',probe,{once:true}); else probe() }
 })()

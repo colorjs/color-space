@@ -98,7 +98,7 @@ export default {
 	gray: { for: 'luminance alone' },
 	dsh: { for: 'colorimetry’s classic triple: dominant wavelength, saturation, brightness – Helmholtz coordinates', sin: 'purples have no dominant wavelength, only a complementary one – the space folds there' },
 	rg: { for: 'normalized rg chromaticity – brightness divided out for illumination-robust vision' },
-	yrg: { for: 'luma plus rg chromaticity' },
+	yrg: { for: 'luminance plus rg chromaticity' },
 
 	// ── video & broadcast ──
 	ycbcr: { for: 'squeeze color into less bandwidth than luma – the eye forgives chroma blur', sin: 'parameterized legacy node: prefer an explicit BT.601/709/2020 variant when the signal standard is known', nm: 'the prime on Y′ matters – luma, not luminance' },
@@ -131,7 +131,7 @@ export default {
 	slog3: { for: 'the Cineon-like revision most Sony cine cameras speak today' },
 	sgamut3cine: { for: 'S-Gamut3 pulled in toward DCI-P3, so Sony footage grades straight to a cinema target', nm: 'Sony’s S-Gamut, third revision; “.Cine” is the DCI-P3-leaning variant' },
 	vlog: { for: 'VariCam’s log, one curve across sensors', nm: 'V is for VariCam, the camera it launched on' },
-	'log3g10': { for: 'REDWideGamutRGB’s companion log', nm: 'log, ×10 gain, 3 stops of headroom above mid-gray at 1.0' },
+	'log3g10': { for: 'REDWideGamutRGB’s companion log', nm: 'log; 3 – mid-gray encodes at 1/3; G10 – 10 stops above mid-gray reach 1.0' },
 	'log3g12': { for: 'the wider 12-stop variant' },
 	clog: { for: 'Canon’s first log (C300 era)', nm: 'C is Canon – a different “C” from ARRI’s Log C, where C is for Cineon' },
 	clog2: { for: 'the full-range grading log' },
@@ -167,7 +167,7 @@ export default {
 	'cam16-ucs': { for: 'CAM16 squeezed into a uniform space – modern ΔE work', nm: 'UCS = uniform colour space' },
 	'cam16-lcd': { for: 'the variant tuned for large differences', nm: 'LCD = large color differences' },
 	'cam16-scd': { for: 'the variant tuned for small differences', nm: 'SCD = small color differences' },
-	ciecam02: { for: 'the committee appearance model behind ICC v4', sin: 'its CAT02 matrix can go negative for saturated blues – the defect that begat CAM16', nm: 'CAM = colour appearance model; 02 is the year, 2002' },
+	ciecam02: { for: 'the committee appearance model behind Windows Color System', sin: 'its CAT02 matrix can go negative for saturated blues – the defect that begat CAM16', nm: 'CAM = colour appearance model; 02 is the year, 2002' },
 	'cam02-ucs': { for: 'CIECAM02 as a uniform space – the ΔE workhorse of the 2010s', nm: 'UCS = uniform colour space' },
 	'cam02-lcd': { for: 'large-difference variant', nm: 'LCD = large color differences' },
 	'cam02-scd': { for: 'small-difference variant', nm: 'SCD = small color differences' },

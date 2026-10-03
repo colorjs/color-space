@@ -3,7 +3,7 @@
  * primaries, the model taught in painting and design education long before RGB or
  * CMYK existed. It captures how pigments actually mix on a palette rather than how
  * light combines — blue and yellow mixed as paint make green, not the grey that
- * additive red and green light would produce — matching painters' lived experience of
+ * additive blue and yellow light would produce — matching painters' lived experience of
  * color instead of colorimetric physics. The version implemented here follows Johannes
  * Itten's chromatic color wheel from his Bauhaus color theory, still a standard
  * reference for teaching color harmony in art and design.

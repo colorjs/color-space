@@ -1,5 +1,5 @@
 /**
- * CIE DSH — dominant wavelength, saturation (excitation purity) and hue, the classical
+ * CIE DSH — dominant wavelength, saturation (excitation purity) and luminance, the classical
  * Helmholtz coordinates for CIE 1931 chromaticity. Rather than the Cartesian x, y pair,
  * a color is located by the spectral wavelength it most resembles and how far it sits
  * from white toward that pure spectral color — a natural way to talk about hue and
@@ -11,7 +11,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Dominant_wavelength}
  * @year 1860
  * @by Hermann von Helmholtz
- * @use Classical dominant-wavelength / purity / hue (Helmholtz) coordinates for CIE 1931 chromaticity.
+ * @use Classical dominant-wavelength / purity / luminance (Helmholtz) coordinates for CIE 1931 chromaticity.
  * @channel {d} -700 700 Dominant wavelength
  * @channel {s} 0 1 Excitation purity
  * @channel {Y} 0 100 Luminance

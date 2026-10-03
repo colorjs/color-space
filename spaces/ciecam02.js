@@ -6,14 +6,14 @@
  * opponent-color stage to produce correlates of lightness, colorfulness and hue,
  * along with chroma, saturation and brightness in the full model. Though CAM16 has
  * since superseded it as a simpler, more robust successor, CIECAM02 remains embedded
- * in ICC v4 color-management workflows and is still widely used for gamut mapping and
+ * in Microsoft's Windows Color System and is still widely used for gamut mapping and
  * cross-media color reproduction.
  *
  * @see {@link https://doi.org/10.1002/col.10125}
  * @wiki {@link https://en.wikipedia.org/wiki/CIECAM02}
  * @year 2002
  * @by CIE
- * @use Color-appearance modeling for gamut mapping and cross-media reproduction; still embedded in ICC v4 workflows, though superseded by CAM16.
+ * @use Color-appearance modeling for gamut mapping and cross-media reproduction; still embedded in Windows Color System, though superseded by CAM16.
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

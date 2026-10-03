@@ -1,6 +1,6 @@
 /**
- * xvYCC (extended-gamut YCC), standardized by Sony as IEC 61966-2-4 and marketed as
- * x.v.Color, extends traditional YCbCr to encode colors lying outside the conventional
+ * xvYCC (extended-gamut YCC), proposed by Sony, standardized as IEC 61966-2-4 and
+ * marketed as x.v.Color, extends traditional YCbCr to encode colors lying outside the conventional
  * BT.601/BT.709 gamut triangle. Where legal-range YCbCr clips any signal exceeding the
  * primaries it was built around, xvYCC keeps the same luma/chroma structure but
  * permits values beyond that limited range, letting cameras and displays capture and

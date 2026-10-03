@@ -1,6 +1,6 @@
 /**
- * HSL — Hue, Saturation, Lightness, a cylindrical remapping of RGB devised by Alvy
- * Ray Smith in 1978. Hue is the angle around a color wheel, saturation measures
+ * HSL — Hue, Saturation, Lightness, a cylindrical remapping of RGB first described by
+ * George Joblove and Donald Greenberg in 1978, beside Alvy Ray Smith's HSV. Hue is the angle around a color wheel, saturation measures
  * colorfulness relative to gray at that lightness, and lightness runs from black
  * through the pure hue up to white. It offers a far more intuitive way to pick and
  * adjust colors than raw RGB, and underlies the `hsl()` notation in CSS and countless
@@ -9,7 +9,7 @@
  * @see {@link https://www.w3.org/TR/css-color-4/#the-hsl-notation}
  * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @year 1978
- * @by Alvy Ray Smith
+ * @by Joblove & Greenberg
  * @use Intuitive hue/saturation/lightness color picking; current, standardized as CSS's hsl().
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
