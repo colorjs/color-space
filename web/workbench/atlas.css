@@ -12,10 +12,11 @@
 	--rung:calc(var(--s8) + var(--s1));          /* one title's height on the ladder */
 	--top-h:var(--rowh);                         /* #top's height – atlas.js measures it */
 	--stick-top:var(--top-h);                    /* what stays pinned above the catalog – atlas.js adds a pinned #opts */
+	--stick-bot:0px;                             /* what stays pinned below it – a variant's bottom bar sets its height here */
 	--dockw:clamp(32rem,46vw,60rem);             /* the docked dossier – a touch under half the screen, so the catalog keeps two columns beside it */
 	--dock:0px;                                  /* the dock's width while it is docked – fixed elements keep clear with right:var(--dock) */
 }
-html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)) }
+html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bottom:var(--stick-bot) }
 @media (prefers-reduced-motion:no-preference){ html{ scroll-behavior:smooth } }
 
 /* ── the page: everything but the dock and the workshop bar. A size container – the room beside the dock –
@@ -57,7 +58,7 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)) }
 @container cat (width >= 56rem){
 	.shelf{ display:contents }
 	.shelf>.sh{ float:left; clear:left; position:sticky; z-index:2; width:var(--lad); height:var(--rung); margin:var(--s6) 0 0; padding:0; background:var(--paper);
-		top:calc(var(--stick-top) + var(--s5) + var(--i, 0) * var(--rung)); bottom:calc(var(--s5) + var(--j, 0) * var(--rung)); color:var(--soft) }
+		top:calc(var(--stick-top) + var(--s5) + var(--i, 0) * var(--rung)); bottom:calc(var(--stick-bot) + var(--s5) + var(--j, 0) * var(--rung)); color:var(--soft) }
 	.shelf>.sh .tn{ transition:color var(--dur-micro) var(--ease-out) }
 	.shelf>.sh .tn:hover{ color:var(--body) }
 	.shelf>.sh.act{ color:var(--ink) }   /* the family on screen is ink, the rest muted – index.html's rail */
@@ -82,7 +83,7 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)) }
 @container cat (width < 30rem){ .lead,.lead.n2,.lead.n1{ grid-template-columns:minmax(0,1fr) } }
 
 /* ── the footer: index.html's closing wall, painted in the current color ── */
-.foot{ padding:var(--s12) var(--gut) calc(var(--s12) * 2); background:var(--cur); color:var(--cur-ink); transition:color var(--dur-long) var(--ease-out) }
+.foot{ padding:var(--s12) var(--gut) calc(var(--s12) * 2 + var(--stick-bot)); background:var(--cur); color:var(--cur-ink); transition:color var(--dur-long) var(--ease-out) }
 .fin{ container:work / inline-size; display:flex; flex-direction:column; gap:var(--s8) }
 .fcols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr)); gap:var(--s6) var(--s8); max-width:52rem }
 .fcols section{ min-width:0 }
@@ -117,14 +118,15 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)) }
 
 /* ── the workshop bar: which top variant – third.html's "Layout study" bar, floating at the corner the
    catalog scrolls under (the ladder's corner stays clear), beside the dock when it is open ── */
-.study{ position:fixed; right:calc(var(--dock) + var(--s4)); bottom:var(--s4); z-index:var(--z-sticky-nav); display:flex; align-items:center; gap:var(--s4); max-width:calc(100% - var(--dock) - 2 * var(--s4)); padding:var(--s1) var(--s1) var(--s1) var(--s4); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); color:var(--soft); font-size:var(--t1); background:var(--panel); box-shadow:var(--pop-shadow) }
+.study{ position:fixed; right:calc(var(--dock) + var(--s4)); bottom:calc(var(--stick-bot) + var(--s4)); z-index:var(--z-sticky-nav); display:flex; align-items:center; gap:var(--s4); max-width:calc(100% - var(--dock) - 2 * var(--s4)); padding:var(--s1) var(--s1) var(--s1) var(--s4); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); color:var(--soft); font-size:var(--t1); background:var(--panel); box-shadow:var(--pop-shadow) }
 .study-options{ display:flex; flex-wrap:wrap; gap:var(--s1) }
 .study button{ padding:var(--s1) var(--s2); min-height:var(--s8); border-radius:var(--radius-card); color:var(--body); white-space:nowrap }
 .study button:hover{ color:var(--ink) }
 .study button[aria-pressed="true"]{ background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair) }
+#toast{ bottom:calc(var(--stick-bot) + var(--s5)) }   /* wb.css's toast, above a variant's bottom bar */
 @media (width < 56rem){
-	.study{ left:var(--s2); right:var(--s2); bottom:var(--s2); padding:var(--s1) }
+	.study{ left:var(--s2); right:var(--s2); bottom:calc(var(--stick-bot) + var(--s2)); padding:var(--s1) }
 	.study>span{ display:none }
 	.study-options{ flex-wrap:nowrap; justify-content:space-between; width:100% }
-	.foot{ padding-block:var(--s8) calc(var(--s12) + var(--s8)) }
+	.foot{ padding-block:var(--s8) calc(var(--s12) + var(--s8) + var(--stick-bot)) }
 }

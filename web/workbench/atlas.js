@@ -14,6 +14,8 @@
 //   #opts  the facets, the purpose tags, the count, the view and lens controls. A variant that pins it
 //          (position:sticky; top:var(--top-h)) gets its height added to --stick-top – the line the catalog's
 //          sticky family titles hang under (CSS cannot read a wrapped bar's height, so the shell measures).
+//          A bar pinned to the bottom edge sets its own height as --stick-bot: the ladder's bottom pile, the
+//          workshop bar, the toast, the footer's last line and scrolled-to focus keep clear of it.
 //
 // JS – `export default function mount({ top, hero, opts, wb })`, optionally returning a cleanup function:
 //   write markup with HOSTS, <span data-wb="<name>"></span>; the shell fills them right after (wb.fill) and
