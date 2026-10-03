@@ -16,7 +16,7 @@ import { countText, opt, chip, lensOpt, quantList, limitList, cellWords, TRY } f
 import { FK, FACETS, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE, ARRANGE } from '../js/variants-data.js'
 import { UI, QI, VI, PI, FI, LI, OI } from '../js/variants-icons.js'
 import { setGLReady, hasPlaneGL, METRICS } from '../js/gl.js'
-import { DEFAULT, rgbF, decOf, unit } from '../js/render.js'
+import { DEFAULT, rgbF, decOf, unit, fmtc } from '../js/render.js'
 import { clamp, hex, space, LUTOK, LUTTGT, pathToRgb } from '../js/core.js'
 import { cube, CSS as CSS_FMT } from '../js/study-runtime.js'
 import TOUR from '../js/tour.js'
@@ -120,6 +120,8 @@ export const viewHTML = () => sizeHTML() + swatchHTML() + layoutHTML() + preview
 // how the shelves are cut – the ladder's foot (index.html's .gtabs) and the View menu's first group; A–Z stays the sheet's
 const CUTS = ARRANGE.filter(([v]) => v !== 'name'), CUTI = { family: OI.compositing, purpose: FI.task, era: FI.age },
 	CUTTIP = { family: 'what each space is – its lineage', purpose: 'what each space is for', era: 'when each space was born, newest first' }
+// the cut as a quiet select beside the count – the cut study's "By the count" (the masthead says "168 spaces by Family ▾")
+export const cutselHTML = () => `<label class="fsel wb-cut"><span>by</span><select data-wset="arrange" data-k="cut" aria-label="Arrange the catalog by">${CUTS.map(([v, n]) => `<option value="${v}"${S.arrange === v ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>`
 export const arrangeHTML = () => CUTS.map(([v, n]) => `<button type="button" class="gtag${S.arrange === v ? ' on' : ''}" data-set="arrange" data-v="${v}" data-k="g-${v}" aria-pressed="${S.arrange === v}" title="${esc(CUTTIP[v])}">${esc(n)}</button>`).join('')
 // the quantization lens – ONE select, the atlas's groups and words (QSITE); a palette adds its distance metric
 export const quantHTML = () => `<label class="fsel wb-quant"><span>Quantize</span><select data-wset="quant" data-k="quant"${S.quant !== 'smooth' ? ' class="on"' : ''} aria-label="Quantize – how strips and planes are drawn" title="${esc(QFLAT.map(([v]) => `${QSITE[v][0]} – ${QSITE[v][1]}`).join('\n'))}">${QUANT.map(([, o], g) => {
@@ -135,8 +137,18 @@ export const langHTML = () => `<label class="fsel wb-lang"><span class="sr">Lang
 export const stopsHTML = () => `<ol class="wb-stops" aria-label="Start here – a tour in ${TOUR.length} stops">${TOUR.map((st, i) => { const on = W.tourOpen && W.tour === i
 	return `<li><button type="button" data-stop="${i}" data-k="stop-${i}" aria-expanded="${on}"${on ? ' aria-current="step"' : ''} title="${esc(st.t)}"><span class="tnum">${i + 1}</span>${esc(STOPW[i] || disp(st.s))}</button></li>` }).join('')}</ol>`
 
-// five colors to try – variants.html Studio's swatches; a click makes one the current color
-export const tryHTML = () => `<span class="try" role="group" aria-label="Try a color"><span>Try</span>${TRY.map(([c, n]) => `<button type="button" data-wtry="${esc(c)}" title="${esc(n)}" style="--sw:${esc(c)}"><span class="sr">${esc(n)}</span></button>`).join('')}</span>`
+// the masthead's swatches – variants.html Studio's five to try, until a person has picked colors: then the ones
+// they picked before this one, the last five (the current color is the masthead itself). This browser only, a
+// convenience – refused storage keeps Try. A swatch paints the color's sRGB hex; its button sets the color
+let recent = (() => { try { return JSON.parse(store.get('recent') || '[]').filter(r => r && r.c && r.h).slice(0, 6) } catch { return [] } })(), recT = 0, shown = ''
+const was = () => recent.filter(r => r.h !== hexNow()).slice(0, 5), key = l => l.map(r => r.h).join()
+function remember() { if (key(was()) !== shown) refresh('try')   // a swatch just taken leaves the row at once – the color left behind takes its place
+	clearTimeout(recT); recT = setTimeout(() => { const h = hexNow(), c = gamutOf() === 'srgb' ? h : $('cval')?.value || h
+		recent = [{ c, h }, ...recent.filter(r => r.h !== h)].slice(0, 6); store.set('recent', JSON.stringify(recent)); refresh('try') }, 900) }   // a drag settles before it is kept
+export const tryHTML = () => { const w = was(); shown = key(w)
+	return w.length
+		? `<span class="try" role="group" aria-label="Recent colors"><span>Recent</span>${w.map(({ c, h }) => `<button type="button" data-wtry="${esc(c)}" title="${esc(c)}" style="--sw:${esc(h)}"><span class="sr">${esc(c)}</span></button>`).join('')}</span>`
+		: `<span class="try" role="group" aria-label="Try a color"><span>Try</span>${TRY.map(([c, n]) => `<button type="button" data-wtry="${esc(c)}" title="${esc(n)}" style="--sw:${esc(c)}"><span class="sr">${esc(n)}</span></button>`).join('')}</span>` }
 
 // ── the drawer: variants.html's labeled cells – each facet and lens its icon, its label over the value – whose
 // illustrated options open in a menu under the cell (a popover; the cell is its anchor), not across the page.
@@ -197,8 +209,8 @@ export const agentsHTML = ({ title = true } = {}) => `<section class="wb-agents"
 const R = { brand: () => brandHTML(), chip: chipHTML, search: () => searchHTML(), tools: toolsHTML, theme: themeHTML, gh: ghHTML, orient: orientHTML, count: countHTML,
 	stripe: stripeHTML, cells: cellsHTML, tags: tagsHTML, view: viewHTML, size: sizeHTML, swatch: swatchHTML, layout: layoutHTML, preview: previewHTML,
 	quant: quantHTML, metric: metricHTML, limit: limitHTML, vision: visionHTML, lang: langHTML, stops: stopsHTML, stop: () => W.tourOpen ? tourHTML() : '', tour: () => tourHTML(), agents: () => agentsHTML(),
-	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML, arrange: arrangeHTML }   // a renderer gets its host – a cell or a menu reads which one it is
-const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu', 'arrange']   // the hosts a view/lens change re-renders
+	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML, arrange: arrangeHTML, cutsel: cutselHTML }   // a renderer gets its host – a cell or a menu reads which one it is
+const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu', 'arrange', 'cutsel']   // the hosts a view/lens change re-renders
 /** Fill every host under `el` (a page that mounts controls after boot – Atlas's top variants). */
 export function fill(el = document) { for (const h of el.querySelectorAll('[data-wb]')) if (R[h.dataset.wb]) h.innerHTML = R[h.dataset.wb](h); paintCur() }
 // re-render hosts in place; a control that had focus gets it back (by its data-k, in the same host first – a
@@ -216,7 +228,7 @@ function paintCur() { const h = hexNow(), g = gamutOf()
 	root.style.setProperty('--cur', h); root.style.setProperty('--cur-ink', textInk(RGB))
 	const cp = $('cpick'), cv = $('cval'), gm = $('gam')
 	if (cp) cp.value = h.toLowerCase()
-	if (cv && document.activeElement !== cv) { cv.value = g === 'srgb' ? h : `${S.space}(${S.vals.map(v => +(+v).toFixed(4)).join(' ')})`; cv.removeAttribute('aria-invalid') }
+	if (cv && document.activeElement !== cv) { const ch = classify(S.space).ch; cv.value = g === 'srgb' ? h : `${S.space}(${S.vals.map((v, i) => fmtc(+v, ch[i])).join(' ')})`; cv.removeAttribute('aria-invalid') }   // beyond sRGB, the space's own numbers at the catalog's precision – what its card reads
 	if (gm) { gm.textContent = GAMLABEL[g]; gm.title = GAMTIP[g]; gm.dataset.g = g } }
 let hashT = 0
 /** Set the current color. `authored` (any person's input) stops the orbit and writes the URL hash. */
@@ -224,7 +236,7 @@ let authoredC = false   // has a person chosen the color? only then does the URL
 export function color(s, vals, { from, authored = true } = {}) {
 	if (authored) { stopOrbit(); authoredC = true }
 	setColor(s, vals); paintCur(); dirty(); if (from) paintEntry(from, 24)
-	if (authored) { paintPane(true); refreshCode(); clearTimeout(hashT); hashT = setTimeout(writeURL, 250) }
+	if (authored) { paintPane(true); refreshCode(); clearTimeout(hashT); hashT = setTimeout(writeURL, 250); remember() }
 	else if (S.sel && performance.now() - paneT > 180) { paneT = performance.now(); paintPane(true) }
 	document.dispatchEvent(new CustomEvent('wb:color', { detail: { authored } })) }   // a direction's own live readouts listen
 let paneT = 0
@@ -480,6 +492,7 @@ function onChange(e) { const t = e.target
 		const v = valsOf(s).slice(); v[i] = c.max === 360 ? ((x % 360) + 360) % 360 : clamp(x, c.min, c.max); color(s, v) } }
 function onKey(e) {
 	if (e.key === 'Enter' && e.target.id === 'cval') { e.target.dispatchEvent(new Event('change', { bubbles: true })); return }
+	if (e.key === 'Escape' && e.target.id === 'q') { e.preventDefault(); if (e.target.value) { e.target.value = ''; S.q = ''; $('findw')?.classList.remove('has'); filtered() } else e.target.blur(); return }   // the search's Esc: clear it, then leave it
 	if (e.key === 'Escape' && S.sel && !e.target.closest?.('select') && !document.querySelector(':is([popover=""],[popover="auto"]):popover-open')) { closePane(); return }   // an open menu takes its Esc alone – the browser closes it after this listener
 	if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) && $('q')) { e.preventDefault(); $('q').focus(); return }
 	const tab = e.target.closest?.('[role="tab"][data-wtab]')
@@ -529,6 +542,7 @@ export function boot(o = {}) {
 	const P = new URLSearchParams(location.search), h = location.hash.slice(1), c = /^[0-9a-f]{6}$/i.test(h) ? parseColor('#' + h) : null
 	if (c) { setColor(c.s, c.vals); authoredC = true } else startOrbit()
 	paintCur(); renderCat()
+	document.dispatchEvent(new CustomEvent('wb:color', { detail: { authored: false } }))   // the color the page arrived with – a hero mounted before boot paints it now
 	const s0 = P.get('s'); if (SPACES.includes(s0)) openPane(s0, { focus: false, url: false, scroll: W.follow }); else if (W.persistent && WIDE.matches) openPane(o.space || 'oklch', { focus: false, url: false })
 	document.addEventListener('click', onClick); document.addEventListener('input', onInput); document.addEventListener('change', onChange)
 	document.addEventListener('keydown', onKey); document.addEventListener('pointerdown', onDown)

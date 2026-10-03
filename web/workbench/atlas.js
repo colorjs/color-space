@@ -17,7 +17,9 @@
 // CSS – scope every rule under :root[data-hero="<key>"] (the shell sets it; during a swap both sheets are live for
 //   a moment). Tokens only. Breakpoints are container queries – @container work (…) on #hero itself, whose width
 //   is the catalog's – never the viewport. On a wide page (work ≥ 56rem) a hero hangs on the catalog's grid: a
-//   label column (--lad) and, after --lgap, the content column where the spaces start (.row in atlas.css).
+//   label column (--lad) and, after --lgap, the content column where the spaces start (.row in atlas.css). A mark
+//   of the current color takes the swatch study's shape (atlas.css): rotate:var(--mk-turn,45deg);
+//   border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1) – a rhombus where the study is off.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 //
 // The details are the atlas's own dossier, not the workbench pane: index.html?s=<space>&embed (its chrome-free
@@ -26,7 +28,7 @@
 // `dock` hook. The color travels both ways through the iframe's URL fragment, the app's own channel.
 import * as wb from './wb.js'
 import { boot, fill, S, disp, esc, plate, loadCite, citeHTML, closePane, stopOrbit, orbiting, color, PALMODES } from './wb.js'
-import { RGBX, valsOf, gamutOf, hexNow, parseColor, space } from '../js/variants-model.js'
+import { RGBX, valsOf, gamutOf, hexNow, parseColor, space, SPACES } from '../js/variants-model.js'
 import { CSS as CSS_FMT } from '../js/study-runtime.js'
 import { OI, UI } from '../js/variants-icons.js'
 
@@ -36,7 +38,7 @@ const top = $('top'), hero = $('hero'), cat = $('cat')
 
 // ── the header, once; the workshop: the hero's variants, swapped in place ──
 import mountTop from './top-drawer.js'
-const HEROS = [['palette', 'Palette'], ['spectrum', 'Spectrum'], ['steps', 'Steps'], ['rings', 'Rings'], ['lineage', 'Lineage'],
+const HEROS = [['promise', 'Promise'], ['spectrum', 'Spectrum'], ['steps', 'Steps'], ['rings', 'Rings'], ['lineage', 'Lineage'],
 	['locus', 'Locus'], ['conic', 'Conic'], ['specimen', 'Specimen'], ['table', 'Table']]
 const heroOf = k => HEROS.some(h => h[0] === k) ? k : HEROS[0][0]
 $('heros').innerHTML = HEROS.map(([k, n]) => `<button type="button" data-hero="${k}" aria-pressed="false">${n}</button>`).join('')
@@ -73,11 +75,19 @@ async function useHero(k) { k = heroOf(k); if (k === heroKey) return
 	for (const b of $('heros').children) b.setAttribute('aria-pressed', b.dataset.hero === k)
 	try { const u = new URL(location.href); u.searchParams.set('hero', k); history.replaceState(null, '', u) } catch {} }
 $('heros').addEventListener('click', e => { const b = e.target.closest('[data-hero]'); if (b) useHero(b.dataset.hero) })
+// the other two studies – where the shelves' cut sits (?cut=) and the swatch's shape (?sw=): an attribute each on
+// <html>, the CSS answers (atlas.css, top-drawer.css); the cut also re-seats the ladder's tabs (decorate)
+const STUDY = { cut: [['foot', 'Ladder foot'], ['head', 'Ladder head'], ['count', 'By the count']], sw: [['rhombus', 'Rhombus'], ['circle', 'Circle'], ['square', 'Square'], ['chip', 'Chip']] }
+for (const [k, opts] of Object.entries(STUDY)) { const host = $(k + 's')
+	const use = v => { root.dataset[k] = v; for (const b of host.children) b.setAttribute('aria-pressed', b.dataset.sv === v)
+		try { const u = new URL(location.href); u.searchParams.set(k, v); history.replaceState(null, '', u) } catch {} }
+	host.innerHTML = opts.map(([v, n]) => `<button type="button" data-sv="${v}" aria-pressed="false">${n}</button>`).join('')
+	host.addEventListener('click', e => { const b = e.target.closest('[data-sv]'); if (b) steady(() => { use(b.dataset.sv); decorate() }) })
+	const v0 = new URLSearchParams(location.search).get(k); use(opts.some(o => o[0] === v0) ? v0 : opts[0][0]) }
 
-// the pinned header's height: the line the catalog's sticky family titles hang under (a wrapped masthead's height
-// is not CSS's to read, so the shell measures)
-function pin() { const th = top.offsetHeight; root.style.setProperty('--top-h', th + 'px'); root.style.setProperty('--stick-top', th + 'px') }
-const RO = new ResizeObserver(pin); RO.observe(top)
+// the pinned masthead's height: the line the catalog's sticky family titles hang under and the header's cells
+// come down to (a wrapped masthead's height is not CSS's to read, so the shell measures)
+function pin() { const th = top.querySelector('.top')?.offsetHeight || 0; root.style.setProperty('--top-h', th + 'px'); root.style.setProperty('--stick-top', th + 'px') }
 addEventListener('resize', pin, { passive: true })
 
 // the footer's two commands, as the site's code plates
@@ -93,7 +103,8 @@ let act = -1
 // seated again after every render (wb.js rewrites the catalog), its buttons a wb host that re-renders on a change
 const gtabs = Object.assign(document.createElement('nav'), { className: 'gtabs', innerHTML: '<span data-wb="arrange"></span>' })
 gtabs.setAttribute('aria-label', 'Arrange the catalog by'); fill(gtabs)
-function decorate() { if (gtabs.parentNode !== cat || cat.lastChild !== gtabs) { cat.append(gtabs); fill(gtabs) }   // a render detached it before wb.js's refresh could reach it
+function decorate() { const head = root.dataset.cut === 'head'   // the cut study: the ladder's head or its foot (the first float or the last)
+	if (head ? cat.firstChild !== gtabs : cat.lastChild !== gtabs) { head ? cat.prepend(gtabs) : cat.append(gtabs); fill(gtabs) }   // a render detached it before wb.js's refresh could reach it
 	const shs = [...cat.querySelectorAll('.shelf')], n = shs.length
 	shs.forEach((sh, i) => { const hd = sh.querySelector(':scope>.sh'), h2 = hd?.querySelector('h2'); if (!h2 || h2.querySelector('.tn')) return
 		const name = h2.textContent
@@ -185,8 +196,67 @@ dock.addEventListener('cancel', e => { e.preventDefault(); closePane() })
 // crossing 75rem: the same dock, docked or full-screen – the iframe stays loaded
 WIDE.addEventListener('change', () => { if (!dock.open) return; dock.close(); WIDE.matches ? dock.show() : dock.showModal() })
 
+// ── the featured row is the layout's: as many featured spaces per shelf as the grid has columns (--cols, atlas.css –
+// 3 · 2 · 1 by the catalog's width), the starred ones first; crossing a breakpoint re-renders the shelves ──
+const colsNow = () => { const sh = cat.querySelector('.shelf') || cat.appendChild(Object.assign(document.createElement('div'), { className: 'shelf' }))
+	const n = +getComputedStyle(sh).getPropertyValue('--cols') || 3; if (!sh.isConnected || !sh.childElementCount) sh.remove(); return n }
+S.leadN = colsNow()
+new ResizeObserver(() => { const n = colsNow(); if (n !== S.leadN) { S.leadN = n; wb.renderCat() } }).observe(cat)
+
+// ── the closing: index.html's API and its questions, borrowed – index.html is the one source of their words. They
+// load as the reader nears the footer, take the hanging grid (atlas.css) and work as they do there: the tabs swap
+// their panels, the LUT and ICC panels make real files, and the links speak index.html's fragments – #<space>
+// opens that dossier, #<color> makes it the current color ──
+const foot = document.querySelector('.foot')
+async function borrow() { const html = await fetch('../index.html').then(r => r.ok ? r.text() : '', () => '')
+	const d = new DOMParser().parseFromString(html, 'text/html'), intro = d.querySelector('.introcopy'), fqs = d.querySelector('.faq .fqs')
+	if (!intro || !fqs) return
+	const sec = (attrs, body) => { const el = Object.assign(document.createElement('section'), { className: 'work clo' })
+		for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v)
+		el.innerHTML = '<div class="row"><span class="lab" aria-hidden="true"></span><div class="clo-c"></div></div>'; el.querySelector('.clo-c').append(body); return el }
+	const api = Object.assign(document.createElement('div'), { className: 'clo-api' }); api.append(...intro.children)
+	foot.before(sec({ id: 'api', 'aria-labelledby': 'introcopy-title' }, api), sec({ id: 'faq', 'aria-label': 'Questions' }, fqs))
+	for (const a of document.querySelectorAll('.clo a[href^="#"]')) a.addEventListener('click', e => { const h = dec(a.hash.slice(1)), c = !SPACES.includes(h) && read(h)
+		if (SPACES.includes(h)) { e.preventDefault(); wb.openPane(h, { from: a }) } else if (c) { e.preventDefault(); color(c.s, c.vals) } })
+	wireApi($('apitabs')) }
+// index.html's API panel: the tabs, then the two exporters – any pair to a .cube, any space to an .icc
+async function wireApi(tabs) { if (!tabs) return
+	const panes = [...tabs.querySelectorAll(':scope>[data-p]')], btns = [...tabs.querySelectorAll('.tabrow button')]
+	const act = (p, focus) => { for (const b of btns) { const on = b.dataset.p === p; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus() }
+		for (const x of panes) x.hidden = x.dataset.p !== p }
+	btns.forEach((b, i) => { b.onclick = () => act(b.dataset.p)
+		b.onkeydown = e => { const n = btns.length, k = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: n - 1 }[e.key]; if (k === undefined) return; e.preventDefault(); act(btns[(k + n) % n].dataset.p, true) } })
+	const [{ sections, secName }, { LUTOK, LUTTGT }, X] = await Promise.all([import('../js/render.js'), import('../js/core.js'), import('../js/study-runtime.js')])
+	const groups = ok => sections.map(c => { const o = c.spaces.filter(ok); return o.length ? `<optgroup label="${esc(secName(c))}">${o.map(v => `<option value="${v}">${esc(disp(v))}</option>`).join('')}</optgroup>` : '' }).join('')
+	const save = (data, name, type) => { const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([data], { type })), download: name }); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
+	const sci = x => x === 0 ? '0' : x.toExponential(1)
+	const lf = $('lutfrom'), lt = $('lutto'), lseg = $('lutszL'), l1d = $('lut1dL'), ldl = $('lutdlL'), lst = $('lutstatL')
+	if (lf) { let n = 33
+		lf.innerHTML = groups(s => LUTOK.has(s)); lt.innerHTML = groups(s => LUTTGT.has(s)); lf.value = 'slog3'; lt.value = 'rec709'
+		const one = () => X.channelwise(space[lf.value], space[lt.value])
+		const measure = () => { try { if (lf.value === lt.value) throw new Error('pick two different spaces')
+				const o = one(), tab = X.table(space[lf.value], space[lt.value], o ? {} : { size: n }), v = X.verify(tab, 400), e = v.in.share > 0 && v.in.share < .999 ? v.in : v
+				const bytes = (tab.dims === 3 ? tab.size ** 3 : tab.size) * 21 + 430; ldl.disabled = false; lseg.style.display = o ? 'none' : ''; l1d.style.display = o ? '' : 'none'
+				lst.textContent = `${o ? tab.size + '-pt 1D' : tab.size + '³'} · median ${sci(e.median)}, max ${sci(e.max)} · ≈${bytes > 1e6 ? (bytes / 1e6).toFixed(1) + ' MB' : Math.round(bytes / 1e3) + ' kB'}` }
+			catch (err) { ldl.disabled = true; lst.textContent = err?.message || 'no finite LUT for this pair' } }
+		lf.onchange = lt.onchange = measure
+		lseg.onclick = e => { const b = e.target.closest('[data-z]'); if (!b) return; n = +b.dataset.z; for (const x of lseg.children) x.classList.toggle('on', x === b); measure() }
+		ldl.onclick = () => { try { const o = one(); save(X.cube(space[lf.value], space[lt.value], o ? {} : { size: n }), `${lf.value}-to-${lt.value}${o ? '' : '-' + n}.cube`, 'text/plain'); wb.toast('LUT saved') } catch { wb.toast('No LUT for this pair') } }
+		once($('api-panel-lut'), measure) }
+	const ic = $('iccsp'), idl = $('iccdlL'), ist = $('iccstatL')
+	if (ic) { const KIND = { mntr: 'v2 matrix+TRC display', spac: 'v2 CLUT, device↔Lab both ways', scnr: 'v2 CLUT, device→Lab (one-way)' }
+		const kind = s => { try { return X.kind(space[s], { xyz: space.xyz }) } catch { return null } }
+		const show = () => { try { const b = X.profile(space[ic.value], { xyz: space.xyz }); idl.disabled = false; ist.textContent = `${(b.length / 1024).toFixed(1)} kB · D50 PCS · ${KIND[kind(ic.value)] || ''}` }
+			catch (err) { idl.disabled = true; ist.textContent = err?.message || 'no profile for this space' } }
+		ic.onchange = show
+		idl.onclick = () => { try { save(X.profile(space[ic.value], { xyz: space.xyz }), `${ic.value}.icc`, 'application/vnd.iccprofile'); wb.toast('ICC saved') } catch { wb.toast('No profile for this space') } }
+		once($('api-panel-icc'), () => { const ok = new Set(SPACES.filter(kind)); ic.innerHTML = groups(s => ok.has(s)); ic.value = ok.has('p3') ? 'p3' : ic.options[0]?.value; show() }) } }
+// once, when an element first comes into view – a hidden panel never does, so its work waits for its tab, by click or by key
+function once(el, f, margin = '0px') { if (el) new IntersectionObserver((es, o) => { if (es.some(e => e.isIntersecting)) { o.disconnect(); f() } }, { rootMargin: margin }).observe(el) }
+once(foot, borrow, '0px 0px 150% 0px')
+
 // ── boot: the header and the hero first, then the workbench wires the page ──
-mountTop({ top, wb }); fill(top); pin()
+mountTop({ top, wb }); fill(top); pin(); new ResizeObserver(pin).observe(top.querySelector('.top'))
 await useHero(new URLSearchParams(location.search).get('hero'))
 boot({ arrange: 'family', view: 'grid', preview: 'sliders', quant: 'smooth', dock: DOCK })
 

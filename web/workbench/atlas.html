@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-top="drawer" data-hero="palette">
+<html lang="en" data-top="drawer" data-hero="promise" data-cut="foot" data-sw="rhombus">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas – color-space workbench</title>
@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="./atlas.css">
 <link rel="stylesheet" href="./top-drawer.css">
 <!-- the hero variant's stylesheet: ?hero=<key> picks it before first paint (atlas.js swaps it live; its HEROS list is the one to extend) -->
-<link rel="stylesheet" href="./hero-palette.css" id="herocss">
+<link rel="stylesheet" href="./hero-promise.css" id="herocss">
 <script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}
 try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(k||'')){document.documentElement.dataset.hero=k;document.getElementById('herocss').href='./hero-'+k+'.css'}}catch{}</script>
 </head>
@@ -41,7 +41,7 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 		</div>
 		<div class="row">
 			<span class="lab" aria-hidden="true"></span>
-			<p class="legal"><button type="button" class="flnk" popovertarget="a-cite">Cite</button><a href="https://github.com/sponsors/dy">Support the project</a><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a><a href="https://github.com/colorjs/color-space">GitHub</a><a href="./">Workbench</a></p>
+			<p class="legal"><button type="button" class="flnk" popovertarget="a-cite">Cite</button><a href="https://github.com/sponsors/dy">Support the project</a><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a><a href="https://github.com/colorjs/color-space">GitHub</a><a href="./">Workbench</a><a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></p>
 		</div>
 	</div>
 </footer>
@@ -63,8 +63,13 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 	<div class="dfr"><p class="dload" id="dock-load" role="status">Opening the dossier…</p></div>
 </dialog>
 
-<!-- the workshop: which hero – it rides the URL (?hero=), the color, filters, open space and scroll stay -->
-<nav class="study" aria-label="Hero study"><span>Hero study</span><div class="study-options" id="heros"></div></nav>
+<!-- the workshop: which hero, where the shelves' cut sits, the swatch's shape – each rides the URL (?hero= ?cut= ?sw=);
+     the color, filters, open space and scroll stay -->
+<nav class="study" aria-label="Workshop">
+	<div class="study-g"><span>Hero</span><div class="study-options" id="heros"></div></div>
+	<div class="study-g"><span>Shelves</span><div class="study-options" id="cuts"></div></div>
+	<div class="study-g"><span>Swatch</span><div class="study-options" id="sws"></div></div>
+</nav>
 
 <script type="module" src="./atlas.js"></script>
 </body>

@@ -1,0 +1,78 @@
+/* Atlas hero · Locus – the CIE 1931 diagram on the catalog's grid: the facts in the label column, the promise and
+   the key where the spaces start, the diagram across the catalog's other columns; between 56 and 74.5rem the words
+   take the label column and the diagram the content column. Scoped to :root[data-hero="locus"]; tokens only – the
+   horseshoe's colors are the data. */
+:root[data-hero="locus"] #hero{ padding-block:var(--s8) var(--s12) }
+:root[data-hero="locus"] .hl{ display:grid; grid-template-columns:minmax(0,1fr); gap:var(--s4) var(--s8) }
+:root[data-hero="locus"] .hl-facts{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s4); font-weight:600; white-space:normal }
+:root[data-hero="locus"] .hl-h{ margin:0; font-size:var(--text-2xl); font-weight:750; line-height:1.05; letter-spacing:-.025em; color:var(--ink); text-wrap:balance }
+:root[data-hero="locus"] .hl-sub{ margin:0; font-size:var(--text-lg); font-weight:600; line-height:1.25; letter-spacing:-.01em; color:var(--body); text-wrap:balance }
+
+/* the key: each triangle's line, its name and its share of the diagram; then the diamond's own reading */
+:root[data-hero="locus"] .hl-key{ display:grid; align-content:start; gap:var(--s2); font-size:var(--t2) }
+:root[data-hero="locus"] .hl-kt{ margin:0; font-size:var(--t1); font-weight:650; color:var(--soft) }
+:root[data-hero="locus"] .hl-key ul{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s5); margin:0; padding:0; list-style:none }
+:root[data-hero="locus"] .hl-key li{ display:inline-flex; align-items:baseline; gap:var(--s2) }
+@container work (width >= 34rem){   /* a table: line, name, share – the shares right-aligned in one column */
+	:root[data-hero="locus"] .hl-key ul{ display:grid; grid-template-columns:auto auto auto; justify-content:start; align-items:baseline; gap:var(--s1) var(--s3) }
+	:root[data-hero="locus"] .hl-key li{ display:contents }
+}
+:root[data-hero="locus"] .hl-key li span{ color:var(--body) }
+:root[data-hero="locus"] .hl-key li b{ font-weight:650; color:var(--ink); text-align:right }
+:root[data-hero="locus"] .hl-sw{ align-self:center; width:var(--s6); height:var(--s2); overflow:visible }
+:root[data-hero="locus"] .hl-sw line{ stroke:var(--ink); stroke-width:1.25 }
+:root[data-hero="locus"] .hl-now{ display:flex; align-items:baseline; gap:var(--s3); margin:var(--s1) 0 0; color:var(--soft) }
+:root[data-hero="locus"] .hl-now .tnum{ font-family:var(--font-mono); color:var(--body); white-space:nowrap }
+:root[data-hero="locus"] .hl-dk{ flex:none; align-self:center; width:var(--picker-active-size); height:var(--picker-active-size); margin-inline:calc((var(--s6) - var(--picker-active-size)) / 2); rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--cur-ink) }
+
+/* the diagram: a box in the plot's own proportions (the script sets them: x −0.1…0.8 over y −0.075…0.9) – the fill,
+   the lines over it, the labels at its percentages; room left of it and under it for the axes' numbers */
+:root[data-hero="locus"] .hl-fig{ margin:0; padding:var(--s5) var(--s5) var(--s6) var(--s6); min-width:0 }   /* room for the axes' numbers and names */
+:root[data-hero="locus"] .hl-plot{ position:relative; width:100%; max-width:28rem }
+:root[data-hero="locus"] .hl-plot canvas,:root[data-hero="locus"] .hl-plot svg{ position:absolute; inset:0; width:100%; height:100% }
+:root[data-hero="locus"] .hl-plot svg{ overflow:visible; fill:none }
+:root[data-hero="locus"] .hl-plot svg *{ stroke-width:1; vector-effect:non-scaling-stroke }
+:root[data-hero="locus"] :is(.hl-ax,.hl-loc,.hl-tk){ stroke:var(--soft) }
+/* the triangles lie on the fill, bright in either theme: they take the dark ink made for bright color */
+:root[data-hero="locus"] .hl-plot :is(.hl-g0,.hl-g1,.hl-g2,.hl-wp){ stroke:var(--dark); stroke-width:1.25 }
+:root[data-hero="locus"] .hl-g1{ stroke-dasharray:5 3 }
+:root[data-hero="locus"] .hl-g2{ stroke-dasharray:1.5 2.5; stroke-linecap:round }
+:root[data-hero="locus"] :is(.hl-nm,.hl-ti,.hl-an,.hl-wl){ position:absolute; font-size:var(--t0); line-height:1; color:var(--soft); white-space:nowrap; pointer-events:none }
+:root[data-hero="locus"] .hl-nm{ translate:calc(-50% + 50% * var(--nx) + var(--nx) * var(--s1)) calc(-50% + 50% * var(--ny) + var(--ny) * var(--s1)) }
+:root[data-hero="locus"] .hl-tx{ top:100%; translate:-50% var(--s2) }
+:root[data-hero="locus"] .hl-ty{ left:0; translate:calc(-100% - var(--s2)) -50% }
+:root[data-hero="locus"] .hl-ax-x{ top:100%; translate:var(--s4) var(--s2) }
+:root[data-hero="locus"] .hl-ax-y{ left:0; translate:calc(-100% - var(--s2)) calc(-50% - var(--s4)) }
+:root[data-hero="locus"] .hl-wl{ translate:var(--s2) var(--s1); color:var(--dark); font-weight:650 }
+/* the catalog's marker (variants.css .pl .cx): the current color, ringed in its own legible ink */
+:root[data-hero="locus"] .hl-dm{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); translate:-50% -50%; rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--cur-ink); pointer-events:none }
+
+/* the catalog's grid: the words down its first column, the diagram hanging from the next column's line; the rows –
+   the facts, the promise, its line, air, the key – let the key sit level with the diagram's foot. Without a label
+   column (34–56rem) the columns are the catalog's own (.lead: two, three from 52rem) */
+@container work (width >= 34rem){
+	:root[data-hero="locus"] .hl{ --hl-cols:2; grid-template-columns:repeat(var(--hl-cols),minmax(0,1fr)); grid-template-rows:repeat(3,auto) 1fr auto; align-items:baseline }
+	:root[data-hero="locus"] .hl-facts{ grid-area:1 / 1; margin-bottom:var(--s2) }
+	:root[data-hero="locus"] .hl-h{ grid-area:2 / 1 }
+	:root[data-hero="locus"] .hl-sub{ grid-area:3 / 1 }
+	:root[data-hero="locus"] .hl-key{ grid-area:5 / 1; align-self:end }
+	:root[data-hero="locus"] .hl-fig{ grid-area:1 / 2 / -1 / -1; align-self:start; justify-self:start; width:calc(28rem + var(--s6) + var(--s5)); max-width:100% }
+}
+@container work (52rem <= width < 56rem){ :root[data-hero="locus"] .hl{ --hl-cols:3 } }
+/* 56–74.5rem: the words down the label column, the diagram from where the spaces start */
+@container work (width >= 56rem){
+	:root[data-hero="locus"] #hero{ padding-block:var(--s12) }
+	:root[data-hero="locus"] .hl{ grid-template-columns:var(--lad) minmax(0,1fr); column-gap:var(--lgap) }
+	:root[data-hero="locus"] .hl-facts{ flex-direction:column; margin-bottom:var(--s4) }
+}
+/* 74.5rem on (the catalog's three columns): the facts alone in the label column, the words and the key in the
+   first column of spaces, the diagram from the second – .row's columns, the content one cut as .lead cuts it */
+@container work (width >= 74.5rem){
+	:root[data-hero="locus"] .hl{ grid-template-columns:var(--lad) var(--lgap) minmax(0,1fr) var(--s8) minmax(0,1fr) var(--s8) minmax(0,1fr); column-gap:0 }
+	:root[data-hero="locus"] .hl-facts{ grid-area:1 / 1 / 3; margin-bottom:0 }
+	:root[data-hero="locus"] .hl-h{ grid-area:1 / 3; font-size:var(--text-3xl) }
+	:root[data-hero="locus"] .hl-sub{ grid-area:2 / 3 }
+	:root[data-hero="locus"] .hl-key{ grid-area:5 / 3 }
+	:root[data-hero="locus"] .hl-fig{ grid-area:1 / 5 / -1 / -1; width:calc(30rem + var(--s6) + var(--s5)) }
+	:root[data-hero="locus"] .hl-plot{ max-width:30rem }
+}

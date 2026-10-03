@@ -1,12 +1,13 @@
-/* Atlas header · Drawer – variants.html's Studio masthead over its Drawer's cells, both pinned. Hierarchy left to
-   right: identity → color → find; then refine (the eight facets) → how it is drawn (Draw · Limit · Vision · View).
+/* Atlas header · Drawer – variants.html's Studio masthead over its Drawer's cells (the masthead pinned, the cells
+   tucked under it once the page scrolls – atlas.css). Hierarchy left to right: identity → color → find; then
+   refine (the eight facets) → how it is drawn (Draw · Limit · Vision · View).
    On a page wide enough for the catalog's ladder, the masthead hangs on the catalog's grid: the identity takes
    the label column, the color starts where the spaces do. Scoped to :root[data-top="drawer"]; values are tokens,
    the quantities below are this header's own. */
 :root[data-top="drawer"]{
 	--dr-rowh:4.5rem;                            /* the masthead – variants.html Studio's ([data-bar="studio"] --rowh) */
 	--dr-find:30rem;                             /* the search at its widest */
-	--dr-val:14rem;                              /* a wide color's notation gives way here and scrolls inside its field */
+	--dr-val:20rem;                              /* the color's value fits its text (field-sizing) up to here – oklch(0.59 0.166 166) whole; longer scrolls inside */
 	--dr-val0:8rem;                              /* a cell's value at its widest – 'Screen or scene' whole, a longer pick ellipsized */
 	--dr-gap:var(--s5);                          /* between the masthead's groups */
 }
@@ -83,7 +84,7 @@
 }
 
 /* a page too narrow for the swatches – a docked dossier leaves ~49rem at 1440: the color still edits in the chip */
-@container page (width < 64rem){ :root[data-top="drawer"] .dmast{ --dr-val:8rem; --dr-gap:var(--s3) } }
+@container page (width < 64rem){ :root[data-top="drawer"] .dmast{ --dr-val:13rem; --dr-gap:var(--s3) } }
 /* the five to try need the room of a wide masthead – the identity, the color, the swatches, a search worth typing in
    (15rem) and the end group, measured: under 72rem of masthead they step aside and the search takes the room */
 @container mast (width < 72rem){ :root[data-top="drawer"] .dmast .try{ display:none } }
@@ -99,3 +100,10 @@
 	:root[data-top="drawer"] .dmast #cval{ font-size:var(--t3) }
 	:root[data-top="drawer"] .dcells .cw+.ic{ display:none }
 }
+
+/* ── the cut study, By the count: the masthead says "168 spaces by Family ▾" – the count's quiet select ── */
+:root[data-top="drawer"] .dmast .wb-cut{ display:none }
+:root[data-cut="count"][data-top="drawer"] .dmast .wb-cut{ display:inline-flex }
+:root[data-top="drawer"] .dmast .wb-cut>span{ font-size:var(--t2); font-weight:500; color:inherit; opacity:.85 }
+:root[data-top="drawer"] .dmast .wb-cut select{ font-size:var(--t2); font-weight:700; color:inherit }
+:root[data-top="drawer"] .dmast .wb-cut select:hover{ border-bottom-color:currentColor }

@@ -63,7 +63,7 @@ export function catalogHTML() {
 	if (!sh.length) return `<div class="none"><p>No space matches all of that.</p><button type="button" class="lnk" data-reset>Clear the search and filters</button></div>`
 	if (S.view === 'table' && S.tsort) return sortedHTML(sh)
 	return sh.map(c => `<section class="shelf${S.shut.has(c.name) ? ' shut' : ''}" aria-label="${esc(c.name)}">
-	<header class="sh"><button class="fold" type="button" data-shut="${esc(c.name)}" aria-expanded="${!S.shut.has(c.name)}" aria-label="Fold ${esc(c.name)}">${UI.chev}</button><h2>${esc(c.name)}</h2><span class="cnt tnum">${c.spaces.length < c.total ? `${c.spaces.length} of ${c.total}` : c.total}</span></header>${c.tip ? `<p class="tip">${esc(c.tip)}</p>` : ''}
+	<header class="sh"><button class="fold" type="button" data-shut="${esc(c.name)}" aria-expanded="${!S.shut.has(c.name)}" aria-label="Fold ${esc(c.name)}">${UI.chev}</button><h2>${esc(c.name)}</h2><span class="cnt tnum">${c.spaces.length < c.total ? `${c.spaces.length} of ${c.total}` : c.total}</span></header>${c.tip ? `<p class="tip">${esc(sent(c.tip))}</p>` : ''}
 	${S.view === 'grid'
 		? `${c.lead.length ? `<div class="lead n${c.lead.length}">${c.lead.map(leadHTML).join('')}</div>` : ''}${c.rest.length ? `<div class="tiles">${c.rest.map(tileHTML).join('')}</div>` : ''}`
 		: S.view === 'table' ? tableOf([...c.lead, ...c.rest], colsOf(true))

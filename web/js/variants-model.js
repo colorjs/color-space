@@ -22,6 +22,7 @@ export const S = {
 	F: Object.fromEntries(ALLF.map(f => [f.k, new Set()])),
 	q: '', arrange: 'family', view: 'grid', preview: 'sliders', quant: 'smooth', metric: 'oklab', limit: 'locus',   // metric: a palette lens's distance (gl.js METRICS)
 	sel: null, open: null, tsort: null, tdir: 1, shut: new Set(),
+	leadN: 0,   // featured per shelf: 0 – its stars (up to 3); N – the layout's row, the first N seats with the stars first
 }
 
 // ── the current color: authored in any space, read in every other ──
@@ -99,8 +100,10 @@ export function shelves() {
 			const last = out.at(-1); if (last?.name === L) last.spaces.push(s); else out.push({ name: L, spaces: [s] }); return out }, [])
 		: GROUPS[S.arrange]()
 	return cut.map(c => { const spaces = c.spaces.filter(s => passes(s))
-		const stars = S.arrange === 'name' ? [] : spaces.filter(s => PICKS.has(s)).slice(0, 3)
-		const lead = stars.length || S.arrange === 'name' ? stars : spaces.slice(0, 1)
+		const stars = S.arrange === 'name' ? [] : spaces.filter(s => PICKS.has(s))
+		const lead = S.arrange === 'name' ? []   // A–Z: every space alike
+			: S.leadN ? [...stars, ...spaces.filter(s => !PICKS.has(s))].slice(0, S.leadN)   // a row's worth – position decides, a filter's survivors earn it (index.html's colize)
+			: stars.length ? stars.slice(0, 3) : spaces.slice(0, 1)
 		return { name: c.name, tip: c.tip, total: c.spaces.length, lead, rest: spaces.filter(s => !lead.includes(s)), spaces } })
 		.filter(c => c.spaces.length) }
 export const shown = () => shelves().flatMap(c => [...c.lead, ...c.rest])

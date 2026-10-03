@@ -44,6 +44,22 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
   channels/white, then maker/shape, then curve/runs. The dock loads `index.html?s=<space>&embed` (index.html now
   accepts that address for embed and keeps the rest of the query when it normalizes `?s=`), so it works from the
   source tree too – the stamped `/<space>` pages exist only in a build.
+- Atlas, second round (owner's notes of 2026-10-03, quoted below): the hero is no search – Palette is retired,
+  Promise (one promise, the facts, the catalog as the way in) is the default. The workshop panel has three
+  studies, each in the URL: Hero (nine), Shelves (where Family · Purpose · Era sits – the ladder's foot, its
+  head, or "168 spaces by Family ▾" in the masthead) and Swatch (rhombus · circle · square · chip – one shape
+  for every mark of a color: the masthead's color and swatches, slider thumbs, plane cursors, the menus' dots,
+  a hero's marks; `--mk-*` tokens in atlas.css, the contract in atlas.js). Only the masthead pins: the cells wait
+  under it once the page scrolls and come down while the header is pointed at, focused or has a menu open (CSS
+  – the cells' sticky top moves). The color value shows whole, at the catalog's precision; Try becomes Recent
+  once a person has picked colors (the ones before the current, this browser only). The featured row is the
+  layout's – as many per shelf as the grid has columns, starred first. Purpose tips are sentence case; every
+  menu's options are as compact as Draw's. Search: Esc clears, then leaves. The ladder no longer stacks
+  titles: the waiting pile stays out until it fits, and at the catalog's end the titles fade before they would
+  meet (a view timeline on #cat). After the catalog: index.html's API (its tabs, the LUT and ICC exporters
+  live) and its questions, borrowed from index.html at runtime – one source of their words – on the hanging
+  grid; their #space links open the dossier, #color links set the color; ॐ joins the legal row. `boot()`
+  fires one `wb:color` with the arrival color, so a hero needs no first-frame workaround.
 - Dossier bake (`scripts/bake-dossiers.js`): it had baked another space's dossier into 132 of 168 name
   views – the ambient hue orbit repainted the open dossier every frame (software GL in headless Chrome),
   starving the idle slices that wire catalog rows, so clicks on unwired rows were no-ops and the previous
@@ -72,15 +88,22 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
 - Header (2026-10-03, on `/variants.html`): "studio look for header is pretty good there, except for
   selectors can be dropdowns to be shorter"; "the drawer style is pretty good as well – it has nice icons
   but could have not the full-width dropdowns" → Atlas · Drawer. The owner picks the variant for the site.
+- Atlas, 2026-10-03: "hero cannot be search I think – besides it's strange when hero opens some modal for
+  search instead of inviting to the main page"; featured spaces: "favor layout there (as current website
+  does) rather than semantics – just display last 3/2/1 (depending on media) featured spaces"; "keep filters
+  row showable on-hover in sticky mode"; "replace [Try] with recent colors once we have selected something";
+  "workshop picker style everywhere - rhombus vs circle vs square vs what else?"; the FAQ must not go missing.
 - "i18n should be done during the build, so that search engines hook up right pages right away without
   JS" – it is: stamped documents carry the translated markup, catalog, head and baked dossier; the
   runtime table only serves what the app renders after load (menus, tooltips, toasts).
 
 ## Not done — pick up here
 
-1. **Atlas workshop** – the header is done; the hero study awaits the owner's pick (Palette is the default). Then
-   port the Drawer header, the chosen hero, the ladder's foot and the grouped list into `web/index.html` (the
-   workshop's `[data-wb]` hosts map onto the page's existing controls; `atlas.js` documents the contract).
+1. **Atlas workshop** – the header is done; three studies await the owner's pick: the hero (Promise is the
+   default), where the shelves' cut sits, the swatch's shape. Then port the Drawer header (with its tucking
+   cells), the chosen hero, the cut, the shape, the ladder (with its fit rules) and the grouped list into
+   `web/index.html` (the workshop's `[data-wb]` hosts map onto the page's existing controls; `atlas.js`
+   documents the contract). The swatch shape stops at the dock: the dossier is index.html's own.
 2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
    the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
 3. **Translations (pt-BR, es, tr)** – built, wired, translated; not yet reviewed. To promote a language:

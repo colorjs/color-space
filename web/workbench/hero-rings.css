@@ -1,0 +1,81 @@
+/* Atlas hero · Rings – a poster on the catalog's grid: hairlines where the catalog's columns start, the facts and
+   the name in the label column, the promise and the legend where the spaces start, three hue rings at the right.
+   Scoped to :root[data-hero="rings"]; tokens only – the ring colors are the data. */
+:root[data-hero="rings"] .hr{ --hr-cols:1; position:relative; display:grid; grid-template-columns:minmax(0,1fr); gap:var(--s5) var(--s8); padding-block:var(--s8) }
+:root[data-hero="rings"] .hr-side,:root[data-hero="rings"] .hr-main{ display:contents }
+
+/* the grid: one hairline where each of the catalog's columns starts – its titles, then its spaces, column by column
+   (.lead's tracks: --cols of them, --s8 apart) – and one at the right edge; a rule across the top and the foot, out
+   to the page's edges, the content set a step inside them */
+:root[data-hero="rings"] .hr-grid{ position:absolute; inset:0; display:grid; grid-template-columns:minmax(0,1fr); pointer-events:none }
+:root[data-hero="rings"] .hr-grid>i:first-child{ display:none }
+:root[data-hero="rings"] .hr-cols{ display:grid; grid-template-columns:repeat(var(--hr-cols),minmax(0,1fr)); column-gap:var(--s8); border-right:var(--rule-hair) solid var(--rule) }
+:root[data-hero="rings"] .hr-cols>i:nth-child(n+2){ display:none }
+:root[data-hero="rings"] :is(.hr-grid>i:first-child,.hr-cols>i){ border-left:var(--rule-hair) solid var(--rule) }
+:root[data-hero="rings"] .hr::before,:root[data-hero="rings"] .hr::after{ content:''; position:absolute; inset-inline:calc(-1 * var(--gut)); border-top:var(--rule-hair) solid var(--rule); pointer-events:none }
+:root[data-hero="rings"] .hr::before{ top:var(--s4) }
+:root[data-hero="rings"] .hr::after{ bottom:0 }   /* the foot's rule sits under the name's descender */
+:root[data-hero="rings"] .hr-row{ display:none }
+
+/* the blocks – small, as a poster's: the facts, the promise, the legend */
+:root[data-hero="rings"] .hr-facts{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s4); font-weight:600; white-space:normal }
+:root[data-hero="rings"] .hr-promise{ margin:0; font-size:var(--text-xl); font-weight:750; line-height:1.05; letter-spacing:-.025em; color:var(--ink); text-wrap:balance }
+:root[data-hero="rings"] .hr-note{ margin:0; max-width:34ch; font-size:var(--t2); line-height:1.5; color:var(--body); text-wrap:pretty }
+:root[data-hero="rings"] .hr-note b{ font-weight:700; color:var(--ink) }
+
+/* the name: huge, two lines – the line breaks at its own hyphen, as no room here holds the whole word. Inter 800 at
+   this tracking sets "space" 2.8em wide, so the size is the room over that – the label column on a wide page, else
+   the column it stands in */
+:root[data-hero="rings"] .hr-type{ --hr-room:100cqi; max-width:var(--hr-room); margin:0 0 0 -.03em; font-size:min(calc(var(--lad) / 2.8),calc(var(--hr-room) / 2.8)); font-weight:800; line-height:.8; letter-spacing:-.04em; color:var(--ink) }   /* the margin: Inter's side bearing at this weight, so the ink, not the box, stands on the column's line */
+
+/* the rings: an SVG, its labels and markers laid over it in its own proportions; the labels hang into the opening */
+:root[data-hero="rings"] .hr-fig{ position:relative; width:100%; max-width:min(15rem,calc(100% - var(--s12) - var(--s4))); margin:0; justify-self:end }   /* room on the left for the labels in the opening */
+:root[data-hero="rings"] .hr-fig svg{ display:block; width:100%; height:auto; overflow:visible }
+:root[data-hero="rings"] .hr-rl{ position:absolute; translate:0 -50%; font-size:var(--t1); font-weight:700; line-height:1.2; color:var(--ink); white-space:nowrap }
+:root[data-hero="rings"] .hr-h{ font-family:var(--font-mono); font-weight:500; color:var(--soft) }
+/* the catalog's marker (variants.css .pl .cx): the current color, ringed in its own legible ink */
+:root[data-hero="rings"] .hr-dm{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); translate:-50% -50%; rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--cur-ink); pointer-events:none }
+
+/* a phone: one column, read as the poster is – the facts and the promise, the rings over their legend, the name */
+:root[data-hero="rings"] .hr-type{ order:1 }
+
+/* the catalog's columns without its label column (its .lead: two from 34rem, three from 52rem): the facts and the
+   promise in the first, the rings across the rest; at the foot the name, and the legend in the last column on the
+   name's baseline */
+@container work (34rem <= width < 56rem){
+	:root[data-hero="rings"] .hr{ --hr-cols:2; grid-template-columns:repeat(var(--hr-cols),minmax(0,1fr)); grid-template-rows:auto auto 1fr auto }
+	:root[data-hero="rings"] .hr-facts{ grid-column:1; grid-row:1 }
+	:root[data-hero="rings"] .hr-promise{ grid-column:1; grid-row:2 }
+	:root[data-hero="rings"] .hr-type{ --hr-room:calc((100cqi - var(--s8)) / 2); grid-column:1 / -2; grid-row:4; align-self:last baseline }
+	:root[data-hero="rings"] .hr-fig{ grid-column:2 / -1; grid-row:1 / 4; align-self:center; max-width:22rem }
+	:root[data-hero="rings"] .hr-note{ grid-column:-2; grid-row:4; align-self:last baseline }
+	:root[data-hero="rings"] .hr-cols>i:nth-child(2){ display:block }
+}
+@container work (52rem <= width < 56rem){
+	:root[data-hero="rings"] .hr{ --hr-cols:3 }
+	:root[data-hero="rings"] .hr-cols>i:nth-child(3){ display:block }
+}
+
+/* the catalog's grid: the label column holds the facts over the name; where the spaces start, the promise over the
+   legend in the first of the catalog's columns, the rings across the rest. Three rows – the top, the air, the foot –
+   that both sides share as subgrids, so the top lines share a baseline and so do the foot's */
+@container work (width >= 56rem){
+	:root[data-hero="rings"] .hr{ --hr-cols:2; grid-template-columns:var(--lad) minmax(0,1fr); grid-template-rows:auto 1fr auto; column-gap:var(--lgap); padding-block:var(--s12) }
+	:root[data-hero="rings"] .hr::before{ top:var(--s8) } :root[data-hero="rings"] .hr::after{ bottom:var(--s4) }
+	:root[data-hero="rings"] .hr-grid{ grid-template-columns:var(--lad) minmax(0,1fr); column-gap:var(--lgap) }
+	:root[data-hero="rings"] :is(.hr-grid>i:first-child,.hr-cols>i:nth-child(2)){ display:block }
+	:root[data-hero="rings"] :is(.hr-side,.hr-main){ display:grid; grid-template-rows:subgrid; grid-row:1 / -1; align-items:baseline }
+	:root[data-hero="rings"] .hr-side{ grid-column:1 }
+	:root[data-hero="rings"] .hr-main{ grid-column:2; grid-template-columns:repeat(var(--hr-cols),minmax(0,1fr)); column-gap:var(--s8) }
+	:root[data-hero="rings"] .hr-facts{ grid-row:1; flex-direction:column }
+	:root[data-hero="rings"] .hr-type{ --hr-room:var(--lad); grid-row:3; align-self:last baseline }
+	:root[data-hero="rings"] .hr-promise{ grid-column:1; grid-row:1; font-size:var(--text-2xl) }
+	:root[data-hero="rings"] .hr-note{ grid-column:1; grid-row:3; align-self:last baseline; max-width:min(34ch,calc(100% - var(--s6))) }   /* clear of the ring labels that reach into its column */
+	:root[data-hero="rings"] .hr-fig{ grid-column:2 / -1; grid-row:1 / -1; align-self:start; max-width:30rem }
+	:root[data-hero="rings"] .hr-row{ display:block; grid-column:1 / -1; grid-row:2; align-self:start; margin-inline:calc(-1 * var(--gut)); border-top:var(--rule-hair) solid var(--rule) }   /* a rule under the top's blocks, behind the rings */
+}
+@container work (width >= 74.5rem){
+	:root[data-hero="rings"] .hr{ --hr-cols:3 }
+	:root[data-hero="rings"] .hr-cols>i:nth-child(3){ display:block }
+	:root[data-hero="rings"] .hr-fig{ align-self:center }
+}
