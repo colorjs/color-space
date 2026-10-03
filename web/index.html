@@ -4651,7 +4651,7 @@ function videoImg(){ const c=document.createElement('canvas'); c.width=640; c.he
 	return c }
 const generatedImg=key=>({chart:chartImg,contrast:contrastImg,video:videoImg}[key]())
 function loadImgs(cb){ if(IMGS){ cb(); return }
-	Promise.all(SAMPLES.map(([u])=>GENERATED_SAMPLES.has(u)?Promise.resolve(generatedImg(u)):new Promise(res=>{ const im=new Image(); im.src=u
+	Promise.all(SAMPLES.map(([u])=>GENERATED_SAMPLES.has(u)?Promise.resolve(generatedImg(u)):new Promise(res=>{ const im=new Image(); im.src=rootURL(u)
 		im.onload=()=>res(im); im.onerror=()=>res(null) })))   // ONE canon: rail and dossier read this exact order
 	.then(list=>{ IMGS=list.filter(Boolean)
 		if(UIMG){ IMGS.push(UIMG); IMGS._user=IMGS.length-1; IMG=UIMG; imgIdx=IMGS._user }   // dropped before this dossier ever opened – it still leads
