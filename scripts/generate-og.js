@@ -104,7 +104,7 @@ export async function spaceCards({ force = false } = {}) {
 		return m < genM || (existsSync(src) && m < statSync(src).mtimeMs)
 	})
 	if (!stale.length) return 0
-	const browser = await chromium.launch()
+	const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined })
 	const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 })
 	for (const s of stale) {
 		await page.setContent(cardHTML(s))
@@ -116,7 +116,7 @@ export async function spaceCards({ force = false } = {}) {
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
-	const browser = await chromium.launch()
+	const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined })
 	const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 })
 	await page.setContent(siteHTML)
 	await page.waitForTimeout(120)

@@ -112,7 +112,7 @@ test('i18n — build: reviewed is promoted, reciprocal and in the sitemap', { ti
 // the runtime: the same fixture served, the page read in a browser
 test('i18n — runtime: per-key fallback, root-relative loads, the select keeps space and color', { timeout: 90000 }, async () => {
 	const { chromium } = await import('playwright'), { serve } = await import('../scripts/test-server.js')
-	const server = await serve(join(tmp, 'live/site')), browser = await chromium.launch()
+	const server = await serve(join(tmp, 'live/site')), browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined })
 	try {
 		const page = await browser.newPage(), errors = [], missing = []
 		page.on('pageerror', (e) => errors.push(e.message))

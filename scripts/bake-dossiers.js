@@ -39,7 +39,7 @@ export async function bakeDossiers(site, i18n) {
 	})
 	await new Promise((r) => srv.listen(0, '127.0.0.1', r))
 	let browser
-	try { browser = await chromium.launch() }
+	try { browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined }) }
 	catch (e) { srv.close(); console.warn(`bake-dossiers: browser launch failed (${String(e.message).split('\n')[0]}) — name views ship without prerendered dossiers`); return }
 	try { for (const L of [{ code: 'en', pages: new Set(SPACES) }, ...(i18n?.langs || [])]) {
 		const pre = L.code === 'en' ? '' : L.code + '/', spaces = SPACES.filter((s) => L.pages.has(s))
