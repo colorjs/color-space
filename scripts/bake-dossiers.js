@@ -58,13 +58,17 @@ export async function bakeDossiers(site, i18n) {
 		for (const s of spaces) {
 			// openModal → buildDetail → renderFast all run synchronously inside the click,
 			// so the shell is capturable immediately — no settle frames, no closing between
-			// spaces (opening the next dossier replaces the current one)
-			const shell = await page.evaluate((s2) => {
-				document.querySelector(`.ent[data-s="${CSS.escape(s2)}"] .nm`).click()
-				if (document.getElementById('modal').hidden) throw new Error('modal did not open: ' + s2)
-				if (!document.getElementById('dtitle')?.textContent.trim()) throw new Error('empty dossier: ' + s2)
-				return document.getElementById('detail').innerHTML
-			}, s)
+			// spaces (opening the next dossier replaces the current one). But a row below the
+			// fold wires at idle (wireCat), and a click on it before then is a no-op that leaves
+			// the PREVIOUS dossier open — baked into this page, it once gave 132 of 168 name views
+			// another space's dossier. So the click repeats until the router names THIS space
+			// (openModal's replaceState runs in the same click as buildDetail)
+			const shell = await (await page.waitForFunction((s2) => {
+				document.querySelector(`.ent[data-s="${CSS.escape(s2)}"] .nm`)?.click()
+				const m = document.getElementById('modal')
+				return !!m && !m.hidden && location.pathname.endsWith('/' + s2) && !!document.getElementById('dtitle')?.textContent.trim()
+					&& document.getElementById('detail').innerHTML
+			}, s, { timeout: 30000, polling: 50 }).catch(() => { throw new Error(`bake-dossiers: ${pre}${s} – its dossier never opened`) })).jsonValue()
 			const file = join(site, pre + s + '.html')
 			let h = readFileSync(file, 'utf8')
 			const anchor = '<div class="detail" id="detail" tabindex="-1"></div>'

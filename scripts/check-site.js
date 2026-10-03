@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from 'playwright'
 import { serve } from './test-server.js'
@@ -14,6 +14,18 @@ if (!executablePath) throw new Error('Chromium is not installed; run `npx playwr
 // CS_SITE points the check at another staged copy (a snapshot built elsewhere); default _site
 const SITE = resolve(process.env.CS_SITE || '_site')
 if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missing; run \`npm run landing\` first`)
+
+// every name view's prerendered dossier is ITS OWN space's – the document crawlers read, in every
+// stamped language. The bake once clicked rows the app wires only at idle: the click was a no-op,
+// and the previous space's dossier went into 132 of 168 pages. A page shipped unbaked is skipped
+{	const { SPACES } = await import('../web/js/render.js')
+	const langs = existsSync(resolve(SITE, 'i18n')) ? readdirSync(resolve(SITE, 'i18n')).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5) + '/') : []
+	const wrong = ['', ...langs].flatMap(pre => SPACES.map(s => pre + s).filter(p => { const f = resolve(SITE, p + '.html')
+		if (!existsSync(f)) return false
+		const h = readFileSync(f, 'utf8'), i = h.indexOf('<div class="detail" id="detail" tabindex="-1">')
+		return i >= 0 && !h.startsWith('</div>', i + 46) && !h.includes(`/spaces/${p.split('/').at(-1)}.js"`, i) }))
+	assert.deepEqual(wrong, [], 'every baked name view carries its own space\'s dossier')
+}
 
 const server = await serve(SITE)
 const browser = await chromium.launch({ headless: true, executablePath })
