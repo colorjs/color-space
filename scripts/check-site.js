@@ -592,8 +592,16 @@ try {
 	await embed.keyboard.press('Escape')
 	assert.equal(await embed.locator('#modal').isVisible(), true, 'Esc does not close an embedded card')
 	const hist = await embed.evaluate(() => history.length)
-	const [tab] = await Promise.all([wireContext.waitForEvent('page'), embed.locator('#detail .fam a[href^="#"]').first().click()])
+	const famLink = embed.locator('#detail .fam a[href^="#"]').first(), famTo = (await famLink.getAttribute('href')).slice(1)
+	const [tab] = await Promise.all([wireContext.waitForEvent('page'), famLink.click()])
 	assert.equal(new URL(embed.url()).pathname === '/oklch' && await embed.evaluate(() => history.length) === hist, true, 'an in-card space link opens a new tab – the frame and its history stay put')
+	await tab.waitForURL((u) => u.protocol.startsWith('http'))
+	assert.equal(new URL(tab.url()).pathname, `/${famTo}`, 'the new tab is that space’s full page (no ?embed)')
+	// no keyboard trap (WCAG 2.1.2): Tab off either end of the card is left to the host page
+	assert.deepEqual(await embed.evaluate(() => {
+		const els = [...document.querySelector('#modal').querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),[tabindex="0"]')].filter(el => el.offsetParent !== null)   // the dossier's own focus-trap set
+		return [[els.at(-1), false], [els[0], true]].map(([el, shiftKey]) => { el.focus(); const ev = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true }); el.dispatchEvent(ev); return ev.defaultPrevented })
+	}), [false, false], 'embed: Tab and Shift+Tab off the card’s ends are not wrapped back in')
 	await wireContext.close()
 
 	const og = await context.request.get(`${server.origin}/img/og.png?cb=${Date.now()}`)

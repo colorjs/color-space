@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio – color-space workbench</title>
+<meta name="description" content="Workbench direction Studio: tool-first – a toolbar and filter cells over a dense catalog, beside an inspector that always holds the current color or a space.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
+<link rel="preload" href="../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../variants.css">
+<link rel="stylesheet" href="./wb.css">
+<link rel="stylesheet" href="./studio.css">
+<script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}</script>
+</head>
+<body>
+<a class="skip" href="#cat">Skip to the spaces</a>
+
+<!-- the toolbar: wordmark · the color (well, notation, gamut) · search · view · vision · language · theme -->
+<header class="top tbar">
+	<span data-wb="brand"></span><span data-wb="chip"></span><span data-wb="search"></span>
+	<div class="wide" data-wb="view"></div><span class="wide" data-wb="vision"></span><span data-wb="lang"></span>
+	<button type="button" class="ibt" popovertarget="rest" data-k="insp">Inspector</button>
+	<span data-wb="tools"></span>
+</header>
+
+<!-- the filter cells: the count, then alt's eight facets; on phones the view controls ride along -->
+<div class="cells" role="region" aria-label="Filters">
+	<span class="tot" data-wb="count"></span><div class="cellrow" data-wb="stripe"></div>
+	<div class="narrow" data-wb="view"></div><span class="narrow" data-wb="vision"></span>
+</div>
+
+<div class="shell">
+	<!-- the catalog: one sentence, the ten purposes, then the families – each heading is the family switcher -->
+	<main class="catcol" id="catcol">
+		<div class="intro"><div data-wb="orient"></div><div data-wb="tags"></div></div>
+		<div id="cat" aria-label="Color spaces"></div>
+	</main>
+
+	<!-- the inspector: the current color's passport at rest, a space when one is open (a dialog on phones) -->
+	<div class="insp">
+		<section class="rest" id="rest" popover aria-labelledby="rest-t">
+			<header class="passhd">
+				<div class="pt"><span class="eyebrow">Current color</span><h2 id="rest-t" class="tnum">—</h2><span class="by" id="rest-g"></span></div>
+				<button type="button" class="ib narrow" popovertarget="rest" popovertargetaction="hide" aria-label="Close the inspector"></button>
+			</header>
+			<div class="tabs wb-ptabs" role="tablist" aria-label="Current color">
+				<button type="button" role="tab" id="rt-color" aria-controls="rp-color" aria-selected="true" data-rtab="color">Color</button><button type="button" role="tab" id="rt-lut" aria-controls="rp-lut" aria-selected="false" tabindex="-1" data-rtab="lut">LUT</button><button type="button" role="tab" id="rt-code" aria-controls="rp-code" aria-selected="false" tabindex="-1" data-rtab="code">Code</button><button type="button" role="tab" id="rt-share" aria-controls="rp-share" aria-selected="false" tabindex="-1" data-rtab="share">Share</button><button type="button" role="tab" id="rt-agents" aria-controls="rp-agents" aria-selected="false" tabindex="-1" data-rtab="agents">Agents</button>
+			</div>
+			<section class="wb-panel" role="tabpanel" id="rp-color" aria-labelledby="rt-color">
+				<div class="rtour" data-wb="tour"></div>
+				<h3 class="wb-h">In the featured spaces</h3>
+				<div class="pass" id="pass"></div>
+			</section>
+			<section class="wb-panel" role="tabpanel" id="rp-lut" aria-labelledby="rt-lut" hidden><div data-wl-from="slog3" data-wl-pick id="rlut"></div></section>
+			<section class="wb-panel" role="tabpanel" id="rp-code" aria-labelledby="rt-code" hidden>
+				<div class="tabs wb-langs" role="group" aria-label="Language"><button type="button" data-rcode="js" aria-pressed="true">JS</button><button type="button" data-rcode="py" aria-pressed="false">Python</button></div>
+				<div id="rcode"></div>
+			</section>
+			<section class="wb-panel" role="tabpanel" id="rp-share" aria-labelledby="rt-share" hidden>
+				<h3 class="wb-h">Link</h3><div id="rlink"></div>
+				<h3 class="wb-h">Embed</h3><p class="wb-note">Open a space – its Share tab holds the iframe for that space's card.</p>
+				<h3 class="wb-h">Cite</h3><div class="wb-cite" id="rcite" aria-live="polite"><p class="wb-note">…</p></div>
+			</section>
+			<section class="wb-panel" role="tabpanel" id="rp-agents" aria-labelledby="rt-agents" hidden></section>
+		</section>
+		<aside id="pane" hidden></aside>
+	</div>
+</div>
+
+<!-- the family switcher: every family heading opens it (native popover – the top layer, no positioning script) -->
+<div class="famsw" id="famsw" popover role="dialog" aria-label="Families"><ul id="famlist"></ul></div>
+
+<script type="module" src="./studio.js"></script>
+</body>
+</html>

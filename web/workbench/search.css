@@ -1,0 +1,110 @@
+/* Search – the workbench's search-first direction. One centered column: the wordmark, one sentence and
+   the input on the first screen; the results take the hero's place below the input, which stays in
+   reach; a quiet band at the foot holds the tour and the build lines. The input's underline wears the
+   current color – index.html's hue line, moved to the one thing on the page. Values are tokens; the
+   quantities named below are this layout's own, built from them. */
+:root{
+	--sr-col:58rem;                              /* the column: a passport row reads name · numbers · strips · flag across it */
+	--sr-box:calc(var(--s12) + var(--s2));       /* the input's height */
+	--sr-bar:calc(var(--sr-box) + 2 * var(--s3));   /* the sticky bar around it – the family titles stick under it */
+}
+.sr-main,.sr-foot{ padding-inline:var(--gut) }
+.sr-main>*,.sr-foot>*{ max-width:var(--sr-col); margin-inline:auto }
+
+/* ── the bar: the wordmark moves here once a query takes the hero's place ── */
+.sr-top{ border-bottom:0 }
+body:not(.q) .sr-top .brand{ display:none }
+
+/* ── the first screen ── */
+.sr-hero{ padding:calc(var(--s12) * 2) 0 var(--s6) }
+.sr-mark{ margin:0 0 var(--s4); font-size:var(--text-display); font-weight:800; letter-spacing:-.035em; line-height:1 }
+.sr-hero .wb-orient{ font-size:var(--text-lg); line-height:1.4; letter-spacing:-.005em }
+body.q .sr-hero,body.q .sr-try{ display:none }
+
+/* the one input: the color's diamond (the native picker), the query, the gamut pill */
+.sr-bar{ position:sticky; top:var(--rowh); z-index:var(--z-sticky); padding-block:var(--s3); background:var(--paper) }
+.sr-box{ display:flex; align-items:center; gap:var(--s3); height:var(--sr-box); padding:0 var(--s4); background:var(--panel); border-bottom:var(--s1) solid var(--cur); cursor:text; transition:box-shadow var(--dur-micro) var(--ease-out) }
+.sr-box:focus-within{ background:var(--paper); box-shadow:inset 0 0 0 1.5px var(--ink) }   /* .find's focus */
+.sr-box .cdw{ width:var(--s6); height:var(--s8) }
+.sr-box .cdw::before{ width:var(--s4); height:var(--s4) }
+.sr-box input[type="search"]{ flex:1; min-width:0; padding:0; font:inherit; font-size:var(--text-lg); font-weight:550; color:var(--ink); background:none; border:0; outline:none }
+.sr-box input::placeholder{ color:var(--soft); opacity:1 }
+.sr-box input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
+.sr-try{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4); margin-top:var(--s1) }
+.sr-ex{ font-family:var(--font-mono); font-size:var(--t2); color:var(--soft); transition:color var(--dur-micro) var(--ease-out) }
+.sr-ex:hover{ color:var(--ink) }
+
+/* ── results ── */
+.sr-res{ padding:var(--s8) 0 var(--s12); scroll-margin-top:calc(var(--rowh) + var(--sr-bar)) }
+body.q .sr-res{ padding-top:var(--s5) }
+.sr-rh{ margin-bottom:var(--s5) }
+.sr-pass{ display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:var(--s5) }
+.sr-sw{ width:calc(var(--s12) * 2); aspect-ratio:1; background:var(--cur) }   /* the passport photo: the color itself */
+.sr-who{ display:flex; flex-direction:column; gap:var(--s1); min-width:0 }
+.sr-hex,.sr-q{ margin:0; font-size:var(--text-xl); font-weight:800; letter-spacing:-.015em; line-height:1.15 }
+.sr-tip{ margin:0; max-width:var(--measure); font-size:var(--t2); line-height:1.5; color:var(--body); overflow-wrap:anywhere }
+.sr-sub{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4); margin:var(--s6) 0 var(--s1); font-size:var(--t2); font-weight:750; color:var(--ink) }
+
+/* one row per space: who · the numbers · the strips · the flag */
+.sr-rows{ container:rows / inline-size }
+.sr-row{ display:grid; grid-template-columns:minmax(0,13rem) minmax(0,15rem) minmax(0,1fr) calc(var(--s12) + var(--s4)); align-items:center; gap:var(--s2) var(--s5); padding:var(--s3) 0; border-top:var(--rule-hair) solid var(--rule) }
+.sr-srow{ grid-template-columns:minmax(0,15rem) minmax(0,1fr) minmax(0,14rem) }
+.sr-id{ display:flex; flex-direction:column; gap:calc(var(--s1) / 2); min-width:0 }
+.sr-id .nm{ font-size:var(--t3); font-weight:700; line-height:1.25 }
+.sr-meta{ font-size:var(--t1); color:var(--soft) }
+.sr-row .rd{ gap:var(--s1) var(--s4); font-size:var(--t2) }
+.sr-row .cv{ font-weight:600; color:var(--body) }
+.sr-use{ margin:0; font-size:var(--t2); line-height:1.45; color:var(--body); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+.sr-flag{ justify-self:end; font-size:var(--t1); font-weight:650; color:var(--soft); cursor:help }
+.sr-flag.out{ font-size:var(--t0); font-weight:800; letter-spacing:.03em; color:var(--ink); border:var(--rule-hair) solid var(--hair); border-radius:999px; padding:.15em .5em; line-height:1.2 }   /* the .gam pill */
+@container rows (width < 40rem){
+	.sr-row,.sr-srow{ grid-template-columns:minmax(0,1fr) auto }
+	.sr-row>.rd,.sr-row>.chs,.sr-use{ grid-column:1 / -1 }
+	.sr-flag{ grid-area:1 / 2 }
+}
+.sr-more{ display:block; width:100%; padding:var(--s4) 0; font-size:var(--t2); font-weight:750; color:var(--ink); text-align:left; border-top:var(--rule-hair) solid var(--rule) }
+.sr-more:hover{ text-decoration:underline; text-decoration-thickness:var(--ulw); text-decoration-color:var(--cur); text-underline-offset:.3em }
+
+/* the best match, opened up */
+.sr-best{ display:flex; flex-direction:column; gap:var(--s3); padding:var(--s5) 0 var(--s6); border-top:var(--rule-hair) solid var(--rule) }
+.sr-best .lh .nm{ font-size:var(--text-xl); font-weight:800 }
+.sr-best .by{ font-size:var(--t2); color:var(--soft) }
+.sr-best .desc{ margin:0; max-width:var(--measure); font-size:var(--t2); color:var(--body) }
+.sr-best .desc code{ font-family:var(--font-mono); font-size:.92em }
+.sr-best .rd{ font-size:var(--t2) }
+.sr-lut{ margin-top:var(--s4); padding-top:var(--s4); border-top:var(--rule-hair) solid var(--rule) }
+.sr-lut .wb-form{ margin-top:var(--s2) }
+
+/* every space, by family: each title is a text-select onto the others, and sticks under the bar */
+.sr-fh{ position:sticky; top:calc(var(--rowh) + var(--sr-bar)); z-index:2; display:flex; align-items:baseline; gap:var(--s3); margin:var(--s6) 0 0; padding:var(--s2) 0; background:var(--paper) }
+.sr-fh .fsel select{ font-size:var(--t4); font-weight:800; color:var(--ink); letter-spacing:-.01em }
+.sr-fh .cnt{ font-size:var(--t1); font-weight:700; color:var(--soft) }
+.sr-none{ padding:var(--s6) 0 }
+.sr-none p:first-child{ margin:0 0 var(--s2); font-size:var(--t4); font-weight:700 }
+
+/* ── the foot: a quiet band – the tour, then build with it ── */
+.sr-foot{ padding-block:var(--s12) var(--s8); background:var(--panel) }
+.sr-fin{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr)); gap:var(--s8) var(--s12) }
+.sr-build{ display:flex; flex-direction:column; gap:var(--s3); min-width:0 }
+.sr-build .tabs{ gap:var(--s4) }
+.sr-bp{ display:flex; flex-direction:column; gap:var(--s2); min-width:0 }
+.sr-bp:focus{ outline:none }
+.sr-bp .wb-note{ margin:0 }
+.sr-legal{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s5); margin-top:var(--s8); padding-top:var(--s4); border-top:var(--rule-hair) solid var(--rule) }
+
+/* the popovers – index.html's .citep */
+.sr-pop{ margin:auto; width:min(var(--measure),calc(100vw - 2 * var(--s4))); max-height:calc(100dvh - 2 * var(--s4)); overflow:auto; padding:var(--s5); border:0; background:var(--paper); color:var(--ink); box-shadow:var(--pop-shadow) }
+.sr-pop::backdrop{ background:color-mix(in oklab,var(--ink) 18%,transparent) }
+
+/* the pane beside the column (≥ 75rem): the page makes room */
+@media (width >= 75rem){ body.paneon .sr-main,body.paneon .sr-foot{ margin-right:var(--panew) } }
+
+@media (width < 56rem){
+	.sr-hero{ padding-top:var(--s12) }
+	.sr-hero .wb-orient{ font-size:var(--text-md) }
+	.sr-box input[type="search"]{ font-size:var(--t3) }
+	.sr-sw{ width:var(--s12) }
+	.sr-foot{ padding-block:var(--s8) }
+	.sr-top{ gap:var(--s3) }
+	.sr-top [data-wb="vision"] .fsel>span{ display:none }   /* the lens's own value says what it is */
+}

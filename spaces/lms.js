@@ -19,7 +19,7 @@
  * @referred display
  * @dynamic sdr
  */
-import xyz from './xyz.js';
+import xyz, { M_BRADFORD } from './xyz.js';
 
 var lms = {
 	name: 'lms',
@@ -36,10 +36,7 @@ var lms = {
 			0.4002, 0.7076, -0.0808,
 			-0.2263, 1.1653, 0.0457,
 			0.00000, 0.00000, 0.9182],
-		BFD: [
-			0.8951, 0.2664, -0.1614,
-			-0.7502, 1.7135, 0.0367,
-			0.0389, -0.0686, 1.0296],
+		BFD: M_BRADFORD,   // Lam 1985 – one copy, the one xyz.js adapts with (this table once read -0.0686 for -0.0685)
 		CAT97: [
 			0.8562, 0.3372, -0.1934,
 			-0.8360, 1.8327, 0.0033,

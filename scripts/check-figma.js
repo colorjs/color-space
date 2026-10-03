@@ -313,6 +313,14 @@ try {
 		await settle(page, n)
 		ok(await ui.locator('.paint').count() === 2 && /mixed fills/.test(await notes(ui)), 'mixed text next to other layers: their paints, plus the note')
 
+		// an error from the main thread belongs to its paint: selecting another layer drops it
+		await page.evaluate(() => figma.ui.postMessage({ type: 'error', text: 'Write failed (mock).' }))
+		await ui.locator('#notes', { hasText: 'Write failed' }).waitFor()
+		n = await selections(page)
+		await page.evaluate(() => window.__select(['1:4']))
+		await settle(page, n)
+		ok(!/Write failed/.test(await notes(ui)), 'main-thread error dropped when the selection moves to another paint')
+
 		// empty selection
 		n = await selections(page)
 		await page.evaluate(() => window.__select([]))
@@ -401,6 +409,14 @@ try {
 		await page.evaluate(() => figma.ui.onmessage({ type: 'set', id: '3:1', kind: 'fills', index: 0, profile: 'LEGACY', color: { r: 0, g: 0, b: 0 } }))
 		await page.waitForTimeout(50)
 		ok(!(await page.evaluate(() => window.__log.writes.length)), 'code.js ignores set in Dev Mode')
+		// layout: the longest channel symbols (lalphabeta's "alpha", "beta") stay clear of their inputs
+		await ui.locator('#space').selectOption('lalphabeta')
+		const clear = await ui.locator('#channels .sym').evaluateAll(els => els.map(s => {
+			const r = document.createRange()
+			r.selectNodeContents(s)
+			return r.getBoundingClientRect().right <= s.nextElementSibling.getBoundingClientRect().left
+		}))
+		ok(clear.length === 3 && clear.every(Boolean), `channel symbols clear of their inputs: ${clear}`)
 		ok(!errors.length, `Dev Mode page errors: ${errors.join(' | ')}`)
 		await page.context().close()
 	}

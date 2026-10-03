@@ -2,6 +2,10 @@
 // exactly on the sRGB gamut boundary at each (L,H). Mirrors hsluv.js getBounds()/
 // maxChromaForLH(); the sRGB->XYZ inverse matrix and the unrolled 6-line bound scan
 // are the same literals as wasm/batch.js's lchuv_hsluv/hsluv_lchuv.
+// GPU float32: the white guard's margin is 1e-4 (l > 99.9999), not hsluv.js's 1e-7 —
+// 99.9999999 rounds to exactly 100.0 in float32, so the scalar margin never fired and
+// white (L = 100) divided by a ~0 max chroma (NaN/Inf on lavapipe). 1e-4 is ~13 float32
+// ulps at 100; the scalar library's own guard, just resolvable on the GPU.
 import lchuv from './lchuv.glsl.js'
 export default {
 	name: 'hsluv',
@@ -35,13 +39,13 @@ float hsluv_maxchroma_(float l, float h) {
 }
 vec3 lchuv_hsluv(vec3 c) {
 	float l = c.x; float ch = c.y; float h = c.z;
-	if (l > 99.9999999) { return vec3(h, 0.0, 100.0); }
+	if (l > 99.9999) { return vec3(h, 0.0, 100.0); }
 	if (l < 1.0e-8) { return vec3(h, 0.0, 0.0); }
 	return vec3(h, ch / hsluv_maxchroma_(l, h) * 100.0, l);
 }
 vec3 hsluv_lchuv(vec3 c) {
 	float h = c.x; float s = c.y; float l = c.z;
-	if (l > 99.9999999) { return vec3(100.0, 0.0, h); }
+	if (l > 99.9999) { return vec3(100.0, 0.0, h); }
 	if (l < 1.0e-8) { return vec3(0.0, 0.0, h); }
 	return vec3(l, hsluv_maxchroma_(l, h) / 100.0 * s, h);
 }`,

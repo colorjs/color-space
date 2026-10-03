@@ -3,7 +3,9 @@
 // gl/index.js) transforms mechanically to JS — and compared against the scalar
 // library, which is itself pinned to the authoritative references. This checks
 // formula equivalence in float64; GPU compilation is smoke-tested separately
-// (scripts/check-gl-gpu.js) since GLSL/WGSL only add float32 rounding.
+// (scripts/check-gl-gpu.js). The float32 tier below re-runs the same dialect with
+// every op rounded to binary32, because that rounding is not free: it is where
+// black/white NaNs and float64-sized guards hide.
 import test, { is } from 'tst'
 import space from '../index.js'
 import data from '../data.json' with { type: 'json' }
@@ -180,6 +182,153 @@ test('gl: composed rgb → space → rgb across the graph', () => {
 		}
 	}
 	is(misses.slice(0, 20), [], `composed paths match scalar lib (${misses.length} misses)`)
+})
+
+// ---- float32 tier: the same dialect, every op rounded to binary32 ----
+// f32ify re-emits glslToJs output with each + - * / result, compound assignment and
+// literal rounded through __f. Modes: 'near' (round-to-nearest, as a shader runs),
+// 'fma' (a·b ± c contracted, as compilers may), 'down'/'up' (directed rounding — a
+// ≤1-ulp-per-op bias standing in for the reassociation a GPU compiler may apply).
+// On the 2026-10 sweep, 'near' reproduced lavapipe's (Mesa CPU Vulkan) float32
+// outliers in ryb, cct-duv and okhsl; 'down' reproduced its CAM02 black NaN.
+export function f32ify(js, fma = false) {
+	const toks = js.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '').match(/'[^']*'|\d+\.?\d*(?:e[+-]?\d+)?|\.\d+(?:e[+-]?\d+)?|[A-Za-z_$][\w$]*|&&|\|\||[=!]==?|[<>]=?|\+\+|--|[-+*/]=|\S/g)
+	const prod = new Map() // rounded product text → unrounded, for fma contraction
+	let p = 0
+	const peek = () => toks[p], next = () => toks[p++]
+	const eat = (t) => { if (toks[p++] !== t) throw new Error(`f32ify: expected ${t} near ${toks.slice(p - 6, p + 3).join(' ')}`) }
+	const PREC = { '||': 1, '&&': 2, '==': 3, '!=': 3, '===': 3, '!==': 3, '<': 4, '>': 4, '<=': 4, '>=': 4, '+': 5, '-': 5, '*': 6, '/': 6 }
+	const atom = () => {
+		const t = next()
+		if (t === '(') { const e = assign(); eat(')'); return `(${e})` }
+		return /^[\d.]/.test(t) ? String(Math.fround(+t)) : t
+	}
+	const postfix = () => {
+		let e = atom()
+		for (;;) {
+			const t = peek()
+			if (t === '.') { next(); e += '.' + next() }
+			else if (t === '[') { next(); e += `[${assign()}]`; eat(']') }
+			else if (t === '(') { next(); const a = []; while (peek() !== ')') { a.push(assign()); if (peek() === ',') next() } next(); e += `(${a.join(', ')})` }
+			else if (t === '++' || t === '--') e += next()
+			else return e
+		}
+	}
+	const unary = () => peek() === '-' ? (next(), `(-${unary()})`) : peek() === '!' ? (next(), `!${unary()}`) : postfix()
+	const binary = (min) => {
+		let l = unary()
+		for (let op, pr; (pr = PREC[op = peek()]) && pr >= min;) {
+			next()
+			let r = binary(pr + 1)
+			if (pr < 5) { l = `${l} ${op} ${r}`; continue }
+			if (fma && pr === 5) { if (prod.has(l)) l = prod.get(l); else if (prod.has(r)) r = prod.get(r) }
+			const s = `__f(${l} ${op} ${r})`
+			if (op === '*') prod.set(s, `${l} * ${r}`)
+			l = s
+		}
+		return l
+	}
+	const assign = () => {
+		const l = binary(1), op = peek()
+		if (op === '=') { next(); return `${l} = ${assign()}` }
+		if (/^[-+*/]=$/.test(op)) { next(); return `${l} = __f(${l} ${op[0]} ${assign()})` }
+		return l
+	}
+	const stmt = () => {
+		const t = peek()
+		if (t === '{') { next(); let s = '{\n'; while (peek() !== '}') s += stmt() + '\n'; next(); return s + '}' }
+		if (t === 'function') { let s = ''; while (peek() !== '{') s += next() + ' '; return s + stmt() }
+		if (t === 'if') { next(); eat('('); let s = `if (${assign()}) `; eat(')'); s += stmt(); if (peek() === 'else') { next(); s += ' else ' + stmt() } return s }
+		if (t === 'for') { let s = '', d = 0; do { const x = next(); d += x === '(' ? 1 : x === ')' ? -1 : 0; s += x + ' ' } while (d || s === 'for '); return s + stmt() }
+		if (t === 'break' || t === 'continue') { next(); eat(';'); return t + ';' }
+		const kw = t === 'const' || t === 'let' || t === 'return' ? next() + ' ' : ''
+		const s = kw + assign() + ';'; eat(';'); return s
+	}
+	let out = ''
+	while (p < toks.length) out += stmt() + '\n'
+	return out
+}
+
+const B32 = new Float32Array(1), I32 = new Int32Array(B32.buffer)
+const nudge = (r, up) => { if (r === 0) return up ? 1.4e-45 : -1.4e-45; B32[0] = r; I32[0] += (r > 0) === up ? 1 : -1; return B32[0] }
+const ROUND = {
+	near: Math.fround,
+	down: (x) => { const r = Math.fround(x); return r > x ? nudge(r, false) : r },
+	up: (x) => { const r = Math.fround(x); return r < x ? nudge(r, true) : r },
+}
+export function evalGlsl32(src, mode = 'near') {
+	const F = ROUND[mode] ?? Math.fround, f1 = (fn) => (x) => F(fn(x))
+	const H32 = { ...H, __f: F,
+		vec2: (x, y) => ({ x: F(x), y: F(y) }),
+		vec3: (x, y, z) => ({ x: F(x), y: F(y), z: F(z) }),
+		vec4: (x, y, z, w) => ({ x: F(x), y: F(y), z: F(z), w: F(w) }),
+		__arr: (...v) => v.map(Math.fround),
+		pow: (x, y) => x < 0 ? NaN : F(Math.pow(x, y)), // GPU pow is exp2(y·log2 x): NaN below 0
+		sqrt: f1(Math.sqrt), exp: f1(Math.exp), log: f1(Math.log), exp2: f1((x) => 2 ** x), log2: f1(Math.log2),
+		sin: f1(Math.sin), cos: f1(Math.cos), tan: f1(Math.tan), asin: f1(Math.asin), acos: f1(Math.acos),
+		atan: (a, b) => F(b === undefined ? Math.atan(a) : Math.atan2(a, b)),
+		mix: (a, b, t) => F(a + F(F(b - a) * t)),
+		fract: (x) => F(x - Math.floor(x)),
+		float: F,
+	}
+	const js = f32ify(glslToJs(src), mode === 'fma')
+	const names = [...new Set([...js.matchAll(/function (\w+)/g)].map(m => m[1]))]
+	return new Function(...Object.keys(H32), `${js}; return { ${names.join(', ')} }`)(...Object.values(H32))
+}
+
+const F32_MODES = ['near', 'fma', 'down', 'up']
+const SOURCES = [], seenSrc = new Set()
+for (const [a, b] of [...EDGES, ...Object.keys(graph).flatMap(n => n === 'rgb' ? [] : [['rgb', n], [n, 'rgb']])]) {
+	if (seenSrc.has(`${a} ${b}`)) continue
+	seenSrc.add(`${a} ${b}`)
+	try { SOURCES.push([a, b, glsl(a, b)]) } catch {} // one-way space: no path
+}
+
+test('gl: float32 — black, white and the primaries stay finite through every source', () => {
+	is(evalGlsl32('float f_(float x) { return x + 1.0e-8; }').f_(1), 1, 'the evaluator rounds to binary32')
+	const bad = []
+	let checked = 0
+	for (const [a, b, src] of SOURCES) {
+		const ins = samplesIn(a)?.slice(0, 8) // rgb: primaries, secondaries, white, black
+		if (!ins || typeof space[a]?.[b] !== 'function') continue
+		const entry = `${san(a)}_${san(b)}`, f64 = evalGlsl(src)[entry]
+		const fns = F32_MODES.map(m => evalGlsl32(src, m)[entry])
+		for (const input of ins) {
+			// float32 must not ADD a non-finite value, so inputs already non-finite in the
+			// scalar library or the float64 evaluation are skipped. The float64 tier's
+			// `e > worst` never trips on NaN either, so a chunk that is NaN in float64 passes
+			// both tiers unchecked — today dkl, whose vec3 arithmetic glslToJs can't run.
+			if (!space[a][b](...input).every(Number.isFinite) || !unpack(f64(pack(input))).every(Number.isFinite)) continue
+			const x = pack(input.map(Math.fround))
+			checked++
+			fns.forEach((fn, i) => {
+				const got = unpack(fn(x))
+				if (!got.every(Number.isFinite)) bad.push(`${a}→${b} ${F32_MODES[i]} [${input.map(v => +v.toFixed(4))}] → [${got}]`)
+			})
+		}
+	}
+	is(checked > 3000, true, `${checked} source × sample checks ran`)
+	is(bad.slice(0, 12), [], `${bad.length} non-finite float32 outputs`)
+})
+
+// iterative chunks whose float64-tuned difference steps once lost float32 entirely
+// (lavapipe: rgb→ryb magenta B 0 vs 62.1; cct-duv Duv at #0000ff −0.0090 vs −0.0283)
+test('gl: float32 — ryb and cct-duv stay within 1e-3 of range', () => {
+	const misses = []
+	for (const [a, b] of [['rgb', 'ryb'], ['ryb', 'rgb'], ['rgb', 'cct-duv'], ['cct-duv', 'rgb'], ['xyz', 'cct-duv'], ['cct-duv', 'xyz']]) {
+		const src = glsl(a, b), entry = `${san(a)}_${san(b)}`, range = meta[b].range
+		for (const mode of F32_MODES) {
+			const fn = evalGlsl32(src, mode)[entry]
+			for (const input of samplesIn(a)) {
+				const exp = space[a][b](...input), got = unpack(fn(pack(input.map(Math.fround))))
+				exp.forEach((e, k) => {
+					const rel = Math.abs(got[k] - e) / (range[k][1] - range[k][0])
+					if (!(rel <= 1e-3)) misses.push(`${a}→${b} ${mode} [${input.map(v => +v.toFixed(4))}] ch${k}: ${got[k]} vs ${e} (${rel.toExponential(1)} of range)`)
+				})
+			}
+		}
+	}
+	is(misses.slice(0, 12), [], `${misses.length} float32 misses`)
 })
 
 // ── the lean tier: registry-free composition from imported chunks ──

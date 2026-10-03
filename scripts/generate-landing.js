@@ -99,8 +99,8 @@ const installName = version.includes('-') ? 'color-space@next' : 'color-space'
 const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
-> (what CSS and the defining papers use). All ${spaceCount} spaces carry an independent cited
-> conformance anchor; 29 are differential-tested against colorjs.io in both directions. Zero dependencies, public domain (CC0).
+> (what CSS and the defining papers use). All ${spaceCount} spaces are test-pinned: most by an
+> independent cited reference value, 29 differential-tested against colorjs.io in both directions. Zero dependencies, public domain (CC0).
 
 Install: npm i ${installName}
 API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0)
@@ -110,7 +110,7 @@ Metadata: color-space/data.json — spaces (channels, refs, illuminant, referred
 Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space; scalar form — batch is wired by the hubs)
 Compact hub: import space from 'color-space/lite' — the 27 wasm-covered spaces in plain JS (~9 kB gzip), same two-form API
 WASM: import space, { alloc } from 'color-space/wasm' — same API, 27 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
-LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
+LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (3D: Resolve, Premiere, Final Cut, OBS, ffmpeg lut3d; 1D, for transfer-only pairs: Resolve, ffmpeg lut1d; { dims: 3 } forces 3D), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
 MCP: npx -y color-space mcp — zero-dep stdio server; tools: convert (batches, per-channel range flags) / gamut (sRGB ⊂ Display P3 ⊂ Rec. 2020 membership) / css (CSS Color 4 strings) / space / spaces (search by name, family, purpose) / cube, so agents call the library instead of guessing color math

@@ -66,10 +66,12 @@ Checked against the spec's own examples (computed with `src/gamut.js`):
 | `color(display-p3 1.1 0.4 0.2)` → P3 | `color(display-p3 1 0.473 0.314)` | `1, 0.4728, 0.3142` |
 | `oklch(76% 0.27 60)` → P3 | `color(display-p3 1 0.546 0)` | `1, 0.5458, 0` |
 
-It was also compared with colorjs.io 0.5.2 `toGamut({ method: 'css' })` on 2,016 OkLCh
-samples per gamut. Results agree within 8e-8 in sRGB and within 0.0016 in P3. The P3
-differences come from where the binary search stops, which shifts with floating-point
-noise near the JND. All of them are under half of one 8-bit step (1/255).
+It was also compared with colorjs.io 0.5.2 `toGamut({ method: 'css' })` on two OkLCh
+sample grids (2,016 and 3,024 colors per gamut). Results agree within 2e-7 in sRGB and
+within 0.0022 in P3, about half of one 8-bit step (1/255). The P3 differences come from
+where the binary search stops: the spec accepts any chroma whose clipped ΔEOK lies within
+ε of the JND, and floating-point noise moves that stop. The raw OkLCh → RGB conversions
+agree within 4e-7.
 
 ## Load it for development
 

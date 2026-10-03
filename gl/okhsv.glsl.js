@@ -2,6 +2,10 @@
 // fit exactly inside the sRGB gamut. Mirrors okhsv.js exactly: findCusp/toSt/
 // oklabToLinearRGB reused from okhsl's family, duplicated here with the chunk's
 // own prefix (same constants as okhsl.js's toSRGBLinear/LabtoLMS_M/RGBCoeff).
+// GPU float32: findCusp shares okhsl's knife edge — pure sRGB blue sits on the max-
+// saturation branch test below float32 resolution, so rgb->okhsv S at #0000ff reads 92.40
+// on lavapipe vs the float64 108.74, and okhsv->rgb at the float64 S misses blue by G -61.7
+// (see okhsl.glsl.js). Inherent to the approximation; documented, not guarded.
 import oklab from './oklab.glsl.js'
 export default {
 	name: 'okhsv',

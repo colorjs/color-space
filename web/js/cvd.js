@@ -36,12 +36,12 @@ export const BRETTEL_TRITAN = {
 	n: [7.92482, -5.66475, -2.26007],
 }
 
-const MACHADO_CITE = 'Machado, Oliveira & Fernandes 2009, severity 1.0 — doi:10.1109/TVCG.2009.113'
+const MACHADO_CITE = 'Machado, Oliveira & Fernandes 2009, severity 1.0, doi:10.1109/TVCG.2009.113'
 export const LENSES = [
 	{ id: 'none', label: 'Typical vision' },
 	{ id: 'protan', label: 'Protanopia', cite: MACHADO_CITE },
 	{ id: 'deutan', label: 'Deuteranopia', cite: MACHADO_CITE },
-	{ id: 'tritan', label: 'Tritanopia', cite: 'Brettel, Viénot & Mollon 1997 — doi:10.1364/JOSAA.14.002647' },
+	{ id: 'tritan', label: 'Tritanopia', cite: 'Brettel, Viénot & Mollon 1997, doi:10.1364/JOSAA.14.002647' },
 ]
 
 // feColorMatrix values: 4 rows × 5 columns, row-major (a00 … a34) — R G B A offset

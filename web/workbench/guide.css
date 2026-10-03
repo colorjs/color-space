@@ -1,0 +1,129 @@
+/* Guide – the workbench's learning-first direction. One column of sections, each opened by its own
+   title: the definition shown on the current color, the tour as a numbered track, the ten tasks as
+   tiles, the camera-log LUT, the code, then the atlas shelved by purpose. In the atlas the shelves'
+   titles live in one sticky row (guide.js gathers them; the in-shelf headings stay for assistive tech
+   only) – the row is the headings, the current one ink. Values are tokens. */
+html{ scroll-padding-top:var(--rowh) }
+@media (prefers-reduced-motion:no-preference){ html{ scroll-behavior:smooth } }
+.top{ gap:var(--s4) }
+
+/* ── 1 · the hero: the sentence, the specimen, the same color three ways ── */
+.gd-hero{ display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); grid-template-areas:"say spec" "ways ways"; gap:var(--s8) var(--s12); padding:var(--s12) 0 }
+.gd-say{ grid-area:say; align-self:center; display:flex; flex-direction:column; gap:var(--s5) }
+.gd-lede{ margin:0; max-width:26ch; font-size:var(--text-2xl); font-weight:700; letter-spacing:-.02em; line-height:1.15; text-wrap:balance }
+.gd-sub{ margin:0; max-width:var(--measure); font-family:var(--prose); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }
+.gd-acts{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s6); margin:0 }
+.gd-act{ font-size:var(--t3); font-weight:700; color:var(--ink); text-decoration:underline; text-decoration-thickness:var(--ulw); text-decoration-color:var(--ul); text-underline-offset:.3em; transition:text-decoration-color var(--dur-micro) var(--ease-out) }
+.gd-act:hover{ text-decoration-color:var(--cur) }
+.gd-spec{ grid-area:spec; position:relative; margin:0; aspect-ratio:4/3; background:var(--cur); border-radius:var(--radius-card) }
+.gd-hex{ position:absolute; left:var(--s4); bottom:var(--s3); font-size:var(--t2); font-weight:700; color:var(--cur-ink) }
+.gd-ways{ grid-area:ways; padding-top:var(--s5); border-top:var(--rule-hair) solid var(--rule) }
+.gd-eye{ margin:0 0 var(--s4); font-size:var(--t1); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft) }
+.gd-three{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--s5) var(--s8) }
+.gd-way{ display:flex; flex-direction:column; gap:var(--s2); min-width:0 }
+.gd-way .th{ flex-wrap:wrap; gap:0 var(--s3) }
+.gd-way .wy{ font-size:var(--t2); color:var(--soft) }
+.gd-way .rd{ gap:var(--s1) var(--s4) }
+.gd-way .cl{ font-size:var(--t2) }
+.gd-way .cv{ font-size:var(--text-lg); font-weight:700; color:var(--ink) }
+.gd-way .chs.thin .ch{ --sth:var(--s3) }
+
+/* ── sections: a title and one line, then the thing itself ── */
+.gd-sec{ padding:var(--s12) 0; border-top:var(--rule-hair) solid var(--rule) }
+.gd-sh{ margin-bottom:var(--s6) }
+.gd-sh h2{ margin:0; font-size:var(--text-xl); font-weight:800; letter-spacing:-.02em; line-height:1.1 }
+.gd-sh p{ margin:var(--s2) 0 0; max-width:var(--measure); font-family:var(--prose); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:pretty }
+
+/* ── 2 · the tour: a segmented track – each stop's segment, number, name, space and strips ── */
+.gd-stops{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(7rem,1fr); gap:var(--s3); margin:0; padding:0 0 var(--s2); list-style:none; overflow-x:auto; scroll-snap-type:x proximity; scrollbar-width:thin }
+.gd-stop{ display:flex; flex-direction:column; gap:var(--s3); min-width:0; padding-top:var(--s3); border-top:var(--s1) solid var(--hair); scroll-snap-align:start; transition:border-color var(--dur-micro) var(--ease-out) }
+.gd-stop button{ display:flex; flex-direction:column; align-items:flex-start; min-width:0 }
+.gd-stop .n{ font-size:var(--t1); font-weight:700; color:var(--soft) }
+.gd-stop .t{ font-size:var(--t3); font-weight:750; line-height:1.25 }
+.gd-stop .s{ font-size:var(--t1); color:var(--soft) }
+.gd-stop button:hover .nm::after,.gd-stop button:focus-visible .nm::after{ opacity:1 }
+.gd-stop:hover{ border-top-color:var(--soft) }
+.gd-stop:has([aria-current]){ border-top-color:var(--cur) }
+.gd-stop [aria-current] .n{ color:var(--ink) }
+/* the stop's card heading the pane */
+.gd-ptour{ max-width:none; margin-bottom:var(--s5); padding-bottom:var(--s4); border-bottom:var(--rule-hair) solid var(--rule) }
+.gd-ptour .wb-tour-t{ font-size:var(--t4) }
+.gd-ptour .wb-tour-d{ font-size:var(--t2) }
+.gd-pn{ font-size:var(--t1); font-weight:700; color:var(--soft) }
+
+/* ── 3 · the tasks: ten tiles, each a filter – the tile is the button's hit area ── */
+.gd-tasks{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,14rem),1fr)); gap:var(--s3); margin:0; padding:0; list-style:none }
+.gd-task{ position:relative; display:flex; flex-direction:column; gap:var(--s1); padding:var(--s4); background:var(--panel); transition:background-color var(--dur-short) var(--ease-out) }
+.gd-task:hover{ background:color-mix(in oklab,var(--panel),var(--ink) 4%) }
+.gd-task:has([aria-pressed="true"]){ background:var(--sel); box-shadow:inset 0 var(--s1) 0 var(--cur) }
+.gd-th{ display:flex; align-items:center; gap:var(--s2) }
+.gd-tic{ display:inline-grid; color:var(--soft) }
+.gd-task h3{ margin:0; font-size:var(--t3); font-weight:750 }
+.gd-task h3 button{ color:var(--ink) }
+.gd-task h3 button::before{ content:''; position:absolute; inset:0 }
+.gd-task h3 button:focus-visible{ outline:none }
+.gd-task:has(h3 button:focus-visible){ outline:2px solid var(--color-focus); outline-offset:2px }
+.gd-th .cnt{ margin-left:auto }
+.gd-use{ margin:0; font-size:var(--t2); line-height:1.45; color:var(--body) }
+.gd-rec{ position:relative; display:flex; flex-wrap:wrap; gap:0 var(--s2); margin:auto 0 0; padding-top:var(--s2); font-size:var(--t2); font-weight:650; color:var(--soft) }   /* above the tile's hit area: each name opens its space */
+.gd-rec .nm{ font-weight:700 }
+
+/* ── 4 · the LUT: what to make beside how to load it ── */
+.gd-lut{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s6) var(--s12); align-items:start }
+.gd-lut .wb-form{ margin-top:var(--s2) }
+.gd-lut .wb-lut-how{ padding-left:var(--s8); border-left:var(--rule-hair) solid var(--rule) }
+
+/* ── 5 · build with it ── */
+.gd-bbar{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s2) var(--s6); margin-bottom:var(--s5); border-bottom:var(--rule-hair) solid var(--rule) }
+.gd-btabs{ flex-wrap:wrap; gap:0 var(--s5) }
+.gd-btabs [role="tab"]{ display:inline-flex; align-items:center; gap:var(--s2); padding:var(--s2) 0; font-size:var(--t3) }
+.gd-btabs .tag{ color:var(--soft) }
+.gd-bsp{ margin-left:auto }
+.gd-bpanel{ display:flex; flex-direction:column; gap:var(--s3); max-width:56rem }
+.gd-bpanel:focus{ outline:none }
+.gd-bpanel .wb-note{ margin:0 }
+
+/* ── 6 · the atlas: filters, the row of shelf titles, the shelves ── */
+.gd-atlas{ padding-top:var(--s12); border-top:var(--rule-hair) solid var(--rule) }
+.gd-filters{ display:flex; flex-direction:column; gap:var(--s3); padding-bottom:var(--s4) }
+.gd-frow{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s2) var(--s5) }
+.gd-frow .find{ flex:0 1 22rem; margin-left:0 }
+.gd-on{ display:inline-flex; align-items:center; gap:var(--s2) }
+.gd-on:empty{ display:none }
+.gd-on .tag{ display:inline-flex; align-items:center; gap:var(--s1); color:var(--paper); background:var(--ink); cursor:pointer; --ic:10px }
+.gd-row{ position:sticky; top:var(--rowh); z-index:var(--z-sticky); display:flex; gap:var(--s5); height:var(--s12); margin:0 calc(-1 * var(--gut)); padding:0 var(--gut); overflow-x:auto; scrollbar-width:none; background:var(--paper); border-block:var(--rule-hair) solid var(--rule) }
+.gd-row::-webkit-scrollbar{ display:none }
+.gd-row button{ flex:none; display:inline-flex; align-items:center; gap:var(--s1); padding-top:var(--ulw); font-size:var(--t4); font-weight:800; letter-spacing:-.015em; color:var(--soft); border-bottom:var(--ulw) solid transparent; white-space:nowrap; transition:color var(--dur-micro) var(--ease-out) }
+.gd-row button:hover{ color:var(--ink) }
+.gd-row [aria-current]{ color:var(--ink); border-bottom-color:var(--cur) }
+.gd-row .n{ font-size:var(--t1); font-weight:700; letter-spacing:0; color:var(--soft) }   /* the count, quieter than the shelf pill – the row has ten to hold */
+.gd-atlas:has(.tblw) .gd-row{ display:none }   /* the spec sheet heads its own groups */
+#cat .shelf{ scroll-margin-top:var(--s12) }
+#cat .sh{ position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* the row above is the visible heading */
+#cat .tip{ margin-bottom:var(--s5); font-size:var(--t2); color:var(--soft) }
+#cat .lead{ gap:var(--s6) var(--s8) }
+
+/* ── the footer, the Cite popover ── */
+.gd-foot{ padding:var(--s8) var(--gut) var(--s12); border-top:var(--rule-hair) solid var(--rule) }
+.gd-foot .legal{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s5); margin:0 }
+.gd-cite{ margin:auto; width:min(var(--measure),calc(100vw - 2 * var(--s4))); max-height:calc(100dvh - 2 * var(--s4)); overflow:auto; padding:var(--s5); border:0; background:var(--paper); color:var(--ink); box-shadow:var(--pop-shadow) }
+.gd-cite::backdrop{ background:color-mix(in oklab,var(--ink) 18%,transparent) }
+.gd-ptl{ margin:0 0 var(--s2); font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em }
+@media (width >= 75rem){ body.paneon .gd-foot{ margin-right:var(--panew) } }
+
+/* ── narrower rooms ── */
+@container (width < 60rem){ .gd-lut{ grid-template-columns:minmax(0,1fr) } .gd-lut .wb-lut-how{ padding:var(--s5) 0 0; border-left:0; border-top:var(--rule-hair) solid var(--rule) } }
+@media (width < 56rem){
+	.gd-hero{ grid-template-columns:minmax(0,1fr); grid-template-areas:"say" "spec" "ways"; gap:var(--s6); padding:var(--s8) 0 }
+	.gd-lede{ font-size:var(--text-xl) }
+	.gd-sub{ font-size:var(--t3) }
+	.gd-spec{ aspect-ratio:3/1 }
+	.gd-three{ grid-template-columns:minmax(0,1fr) }
+	.gd-sec,.gd-atlas{ padding-top:var(--s8) }
+	.gd-sh h2{ font-size:var(--text-lg) }
+	.gd-row{ gap:var(--s4) }
+	.gd-row button{ font-size:var(--t3) }
+	.gd-bsp{ margin-left:0 }
+	.top{ gap:var(--s2) }
+	#cval{ max-width:7.5rem }   /* a wide color's notation must leave room for the language and theme switches */
+}

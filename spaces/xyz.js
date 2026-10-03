@@ -31,7 +31,7 @@ import { mat3, mul3, inv3 } from '../util.js';
 
 // Bradford cone-response matrix (Lam 1985), as tabulated by Lindbloom
 // http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
-const M_BRADFORD = [
+export const M_BRADFORD = [
 	0.8951, 0.2664, -0.1614,
 	-0.7502, 1.7135, 0.0367,
 	0.0389, -0.0685, 1.0296

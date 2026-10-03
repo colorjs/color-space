@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Workbench – color-space</title>
-<meta name="description" content="Three directions for the color-space.io front page, and the prototypes they grew from.">
+<meta name="description" content="Four directions for the color-space.io front page, and the prototypes they grew from.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
 <link rel="preload" href="../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -33,7 +33,7 @@ h1{ margin:0; font-size:var(--text-3xl); font-weight:800; letter-spacing:-.025em
 .sec{ margin-top:var(--s12) }
 .sec>h2{ margin:0 0 var(--s4); font-size:var(--t1); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--soft) }
 
-/* the three directions: a schematic of each layout, its name, what it puts first */
+/* the four directions: a schematic of each layout, its name, what it puts first */
 .dirs{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--s6); margin:0; padding:0; list-style:none }
 .dir{ position:relative; display:flex; flex-direction:column; gap:var(--s2) }
 .dir h3{ margin:var(--s3) 0 0; font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em; line-height:1.2 }
@@ -59,16 +59,29 @@ h1{ margin:0; font-size:var(--text-3xl); font-weight:800; letter-spacing:-.025em
 .sch-atlas .r3{ grid-template-columns:repeat(3,1fr) }
 .sch-atlas .r5{ grid-template-columns:repeat(5,1fr); gap:var(--s2) var(--s2) }
 .sch-guide{ align-content:start }
+.sch-guide .hero{ display:grid; grid-template-columns:7fr 5fr; gap:var(--s3); align-items:center }
+.sch-guide .spec{ aspect-ratio:2/1; background:var(--cur) }
+.sch-guide .r3{ grid-template-columns:repeat(3,1fr) }
+.sch-guide .trk{ display:grid; grid-template-columns:repeat(11,1fr); gap:calc(var(--s1) / 2) } .sch-guide .trk i{ height:calc(var(--s1) / 2) } .sch-guide .trk .on{ background:var(--cur) }
+.sch-guide .r5{ grid-template-columns:repeat(5,1fr) } .sch-guide .r5 i{ height:var(--s3); background:var(--paper) }
+.sch-guide .heads{ display:flex; gap:var(--s2) } .sch-guide .heads i{ width:12%; height:var(--s1) } .sch-guide .heads i:first-child{ background:var(--ink); opacity:.7 }
 .sch-guide .r4{ grid-template-columns:repeat(4,1fr) }
-.sch-guide .tour{ display:grid; gap:var(--s1); padding:var(--s2); background:var(--paper); border-left:var(--s1) solid var(--cur) }
-.sch-guide .dots{ display:flex; gap:var(--s1) } .sch-guide .dots i{ width:12%; height:var(--s2) }
-.sch-studio{ grid-template-columns:1fr 36%; grid-template-rows:auto 1fr; align-items:start }
+.sch-studio{ grid-template-columns:1fr 36%; grid-template-rows:auto auto 1fr; align-items:start }
 .sch-studio .hd{ grid-column:1/-1 }
+.sch-studio .cl{ grid-template-columns:repeat(8,1fr) } .sch-studio .cl i{ height:var(--s2) }
+.sch-studio .col{ display:grid; gap:var(--s2); align-content:start }
+.sch-studio .feat{ display:grid; grid-template-columns:1fr 45%; gap:var(--s2); align-items:center; padding:var(--s1); background:var(--paper) }
 .sch-studio .r4{ grid-template-columns:repeat(4,1fr); align-content:start }
 .sch-studio .insp{ display:grid; align-content:start; gap:var(--s1); padding:var(--s2); background:var(--paper) }
-.sch-studio .insp .strip{ height:var(--s2) }
-.sch-studio .sq{ display:grid; grid-template-columns:repeat(3,1fr); gap:calc(var(--s1) / 2); margin-top:var(--s1) }
+.sch-studio .insp .sw{ height:var(--s5); margin:calc(-1 * var(--s2)) calc(-1 * var(--s2)) var(--s1); background:var(--cur) }
+.sch-studio .sq{ display:grid; grid-template-columns:repeat(3,1fr); gap:calc(var(--s1) / 2) }
 .sch-studio .sq i{ aspect-ratio:1; background:linear-gradient(135deg,var(--cur),color-mix(in oklab,var(--cur) 20%,var(--paper))) }
+.sch-search{ align-content:start; padding-inline:16% }
+.sch-search .box{ height:var(--s4); background:var(--paper); border-bottom:calc(var(--s1) / 2) solid var(--cur) }
+.sch-search .ex{ display:flex; gap:var(--s2) } .sch-search .ex i{ width:12%; height:calc(var(--s1) / 2) }
+.sch-search .pass{ display:grid; grid-template-columns:var(--s6) 1fr; gap:var(--s2); align-items:center; margin-top:var(--s1) }
+.sch-search .sw{ aspect-ratio:1; background:var(--cur) }
+.sch-search .res{ display:grid; grid-template-columns:28% 1fr 30%; gap:var(--s2); align-items:center }
 
 /* the owner's prototypes: one line each */
 .protos{ margin:0; padding:0; list-style:none; border-top:var(--rule-hair) solid var(--rule) }
@@ -98,7 +111,7 @@ h1{ margin:0; font-size:var(--text-3xl); font-weight:800; letter-spacing:-.025em
 </header>
 <main class="page" id="main">
 	<h1>Workbench</h1>
-	<p class="lede">Three directions for the color-space.io front page, built on one shared catalog and details pane – prototypes to choose between; the live atlas stays as it is.</p>
+	<p class="lede">Four directions for the color-space.io front page, built on one shared catalog and details pane – prototypes to choose between; the live atlas stays as it is.</p>
 
 	<section class="sec" aria-labelledby="h-dirs">
 		<h2 id="h-dirs">Directions</h2>
@@ -117,25 +130,39 @@ h1{ margin:0; font-size:var(--text-3xl); font-weight:800; letter-spacing:-.025em
 			</li>
 			<li class="dir">
 				<div class="sch sch-guide" aria-hidden="true">
-					<span class="row"><i class="ln ink w8"></i><i class="ln ink w6"></i><i class="ln w8"></i></span>
-					<span class="tour"><i class="ln ink w4"></i><i class="ln w8"></i><i class="ln w6"></i></span>
-					<span class="dots"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-					<i class="ln ink w4"></i>
+					<span class="hero"><span class="tiny"><i class="ln ink w8"></i><i class="ln ink w8"></i><i class="ln ink w6"></i><i class="ln w4"></i></span><i class="spec"></i></span>
+					<span class="row r3"><i class="strip"></i><i class="strip"></i><i class="strip"></i></span>
+					<span class="trk"><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+					<span class="row r5"><i></i><i></i><i></i><i></i><i></i></span>
+					<span class="heads"><i></i><i></i><i></i><i></i><i></i><i></i></span>
 					<span class="row r4"><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span></span>
 				</div>
 				<h3><a href="./guide.html">Guide</a></h3>
 				<p class="what">Learning-first, then the atlas by purpose</p>
-				<p>Starts by answering what a color space is and walks the start-here tour; the catalog follows, shelved by what each space is for.</p>
+				<p>Opens on what a color space is, shown on the drifting color in three spaces at once; then the tour as a numbered track, the ten tasks as ways in, a camera-log LUT and the code – and the atlas shelved by purpose, its titles one sticky row.</p>
 			</li>
 			<li class="dir">
 				<div class="sch sch-studio" aria-hidden="true">
 					<i class="ln hd"></i>
-					<span class="row r4"><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span></span>
-					<span class="insp"><i class="ln ink w6"></i><i class="ln w4"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i><span class="sq"><i></i><i></i><i></i></span></span>
+					<span class="row cl hd"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+					<span class="col"><span class="feat"><span class="tiny"><i class="ln ink w6"></i><i class="ln"></i><i class="ln w4"></i></span><span class="sq"><i></i><i></i><i></i></span></span><span class="feat"><span class="tiny"><i class="ln ink w6"></i><i class="ln"></i><i class="ln w4"></i></span><span class="sq"><i></i><i></i><i></i></span></span><span class="row r4"><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span><span class="tiny"><i class="ln w6"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i></span></span></span>
+					<span class="insp"><i class="sw"></i><i class="ln w4"></i><i class="strip"></i><i class="strip"></i><i class="strip"></i><i class="ln w6"></i><i class="strip"></i><i class="strip"></i></span>
 				</div>
 				<h3><a href="./studio.html">Studio</a></h3>
 				<p class="what">Tool-first, with a persistent inspector</p>
-				<p>A working surface: the catalog beside an inspector that always holds a space – its channels, LUT, code and share – while the color stays in your hands.</p>
+				<p>A working surface: a toolbar and filter cells over a dense catalog whose family headings switch family, beside an inspector that always holds something – the current color read across the featured spaces, or the space you open, with its LUT, code, share and agents.</p>
+			</li>
+			<li class="dir">
+				<div class="sch sch-search" aria-hidden="true">
+					<i class="ln ink w4"></i><i class="ln w8"></i>
+					<i class="box"></i>
+					<span class="ex"><i></i><i></i><i></i><i></i><i></i></span>
+					<span class="pass"><i class="sw"></i><span class="tiny"><i class="ln ink w6"></i><i class="ln w8"></i></span></span>
+					<span class="res"><i class="ln ink"></i><i class="ln"></i><i class="strip"></i><i class="ln ink"></i><i class="ln"></i><i class="strip"></i><i class="ln ink"></i><i class="ln"></i><i class="strip"></i></span>
+				</div>
+				<h3><a href="./search.html">Search</a></h3>
+				<p class="what">Search-first, one input</p>
+				<p>The wordmark, one sentence and one input for a color or a space. A color returns its passport across the spaces; a name or a task returns the spaces that match, the best one opened up.</p>
 			</li>
 		</ul>
 	</section>

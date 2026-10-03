@@ -25,10 +25,10 @@
 	<section class="gd-hero" aria-labelledby="gd-h1">
 		<div class="gd-say">
 			<h1 class="gd-lede" id="gd-h1">A color space is a coordinate system for color – axes, ranges and a rule tying the numbers to measurable light.</h1>
-			<p class="gd-sub">Each one here writes the current color its own way.</p>
-			<p class="gd-acts"><a href="#tour" data-gd-start>Start the tour</a><a href="#atlas">Browse the atlas</a></p>
+			<p class="gd-sub">Each one writes the same color its own way. This one is drifting until you pick your own.</p>
+			<p class="gd-acts"><button type="button" class="gd-act" data-gd-start>Start the tour</button><a class="gd-act" href="#atlas">Browse the atlas</a></p>
 		</div>
-		<div class="gd-spec" aria-hidden="true"><i class="gd-dia"></i></div>
+		<figure class="gd-spec"><span class="gd-hex tnum" id="gd-hex"></span><figcaption class="sr">The current color</figcaption></figure>
 		<section class="gd-ways" aria-labelledby="gd-ways-t">
 			<h2 class="gd-eye" id="gd-ways-t">The same color, three ways</h2>
 			<div class="gd-three" id="gd-three"></div>
@@ -37,7 +37,7 @@
 
 	<!-- 2 · the start-here tour: a numbered track; a stop opens its space in the details pane -->
 	<section class="gd-sec" id="tour" aria-labelledby="gd-tour-t">
-		<header class="gd-sh"><h2 id="gd-tour-t">Start here</h2><p>Color spaces in the order they make sense – light, measurement, screens, pickers, perception, video, cameras, HDR, ink. Each stop opens its space beside the page.</p></header>
+		<header class="gd-sh"><h2 id="gd-tour-t">Start here</h2><p>Eleven spaces in the order they make sense – from light itself to ink on paper. Each stop opens its space beside the page.</p></header>
 		<ol class="gd-stops" id="gd-stops"></ol>
 	</section>
 
@@ -55,19 +55,19 @@
 
 	<!-- 5 · build with it: the library, Python, agents, an embed, the Figma plugin -->
 	<section class="gd-sec" id="build" aria-labelledby="gd-build-t">
-		<header class="gd-sh"><h2 id="gd-build-t">Build with it</h2><p>The same conversions, wherever you work. The code below writes the current color.</p></header>
+		<header class="gd-sh"><h2 id="gd-build-t">Build with it</h2><p>The same conversions, wherever you work. The code writes the current color.</p></header>
 		<div class="gd-bbar">
 			<div class="tabs gd-btabs" role="tablist" aria-label="Build with it" id="gd-btabs"></div>
-			<label class="fsel gd-bsp" id="gd-bsp"><span>Space</span><select data-gd-bs aria-label="Space the code converts"></select></label>
+			<label class="fsel gd-bsp" id="gd-bsp"><span>Space</span><select data-gd-bs></select></label>
 		</div>
-		<div id="gd-bpanels"></div>
+		<div class="gd-bpanel" id="gd-bpanel" role="tabpanel" tabindex="-1"></div>
 	</section>
 
-	<!-- 6 · the atlas, shelved by purpose: the shelves' titles gather into one sticky row – their headings and the way between them -->
+	<!-- 6 · the atlas, shelved by purpose: the shelf titles are one sticky row – the headings and the way between them -->
 	<section class="gd-atlas" id="atlas" aria-labelledby="gd-atlas-t">
 		<header class="gd-sh"><h2 id="gd-atlas-t">The atlas</h2><p>Every space, shelved by what it is for. Open one for its channels, a LUT, its code and a link.</p></header>
 		<div class="gd-filters" role="region" aria-label="Filters and view">
-			<div class="gd-frow"><span data-wb="search"></span><span data-wb="count"></span><span class="gd-on" id="gd-on"></span><span class="fill"></span><div data-wb="view"></div><span data-wb="vision"></span></div>
+			<div class="gd-frow"><span data-wb="search"></span><span data-wb="count"></span><span class="gd-on" id="gd-on"></span><span class="fill"></span><span data-wb="vision"></span><div data-wb="view"></div></div>
 			<div data-wb="stripe"></div>
 		</div>
 		<nav class="gd-row" id="gd-row" aria-label="Shelves"></nav>
@@ -76,11 +76,11 @@
 </main>
 
 <footer class="gd-foot">
-	<p class="legal"><button type="button" class="lnk" popovertarget="gd-cite">Cite</button><span aria-hidden="true">·</span><a class="lnk" href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a><span aria-hidden="true">·</span><a class="lnk" href="https://github.com/colorjs/color-space">GitHub</a><span aria-hidden="true">·</span><a class="lnk" href="https://github.com/sponsors/dy">Support the project</a><span aria-hidden="true">·</span><a class="lnk" href="./">Workbench</a></p>
+	<p class="legal"><button type="button" class="lnk" popovertarget="gd-cite">Cite</button><a class="lnk" href="https://github.com/sponsors/dy">Support the project</a><a class="lnk" href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a><a class="lnk" href="https://github.com/colorjs/color-space">GitHub</a><a class="lnk" href="./">Workbench</a></p>
 </footer>
 <div class="gd-cite" id="gd-cite" popover role="dialog" aria-labelledby="gd-cite-t">
-	<h2 class="wb-h" id="gd-cite-t">Cite color-space</h2>
-	<div id="gd-cite-b"><p class="wb-note">…</p></div>
+	<h2 class="gd-ptl" id="gd-cite-t">Cite color-space</h2>
+	<div id="gd-cite-b" aria-live="polite"><p class="wb-note">…</p></div>
 </div>
 
 <aside id="pane" hidden></aside>

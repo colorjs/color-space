@@ -1500,7 +1500,7 @@ document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct()
 		<h2 id="introcopy-title"><span id="n2">166</span> coordinate systems.</h2>
 		<p>Web, print, photography, film, broadcast, art, science, and history. Canonical conversions, channels, gamut shapes, provenance, cited references, known limits. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>.</p>
 		<ul class="trust" aria-label="why you can trust the data">
-			<li tabindex="0" title="All 166 spaces have an independent cited conformance anchor; 29 are additionally cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
+			<li tabindex="0" title="All 166 spaces are test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
 			<li tabindex="0" title="Channel ranges follow CSS and each defining source – familiar units rather than one universal normalization."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
 			<li tabindex="0" title="CC0 1.0 – no rights reserved. Use, sell, fork or embed it anywhere; no attribution required."><span class="pdm" aria-hidden="true">©</span><span class="term">Public domain</span></li>
 		</ul>
@@ -1548,7 +1548,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 <i>//   paste into any fragment shader, no uniforms</i></pre>
 		<div class="export" id="api-panel-lut" role="tabpanel" aria-labelledby="api-tab-lut" data-p="lut" hidden>
 			<p class="exlede">Any pair as a <b>.cube</b> LUT – load it into Resolve, Premiere, Final Cut, OBS or ffmpeg. Camera logs are <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md#camera-log-verification-against-official-aces-transforms" target="_blank" title="measured differential agreement against the Academy's official vendor transforms (ampas/aces-dev), per pair">verified against the official ACES vendor transforms</a>.</p>
-			<div class="exrow"><select id="lutfrom" aria-label="LUT source space"></select><span class="exarrow" aria-hidden="true">→</span><select id="lutto" aria-label="LUT target space"></select><span class="seg" id="lutszL"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="lut1dL" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span></div>
+			<div class="exrow"><select id="lutfrom" aria-label="LUT source space"></select><span class="exarrow" aria-hidden="true">→</span><select id="lutto" aria-label="LUT target space"></select><span class="seg" id="lutszL"><button type="button" data-z="17">17³</button><button type="button" data-z="33" class="on">33³</button><button type="button" data-z="65">65³</button></span><span class="ex1d" id="lut1dL" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – a space's dossier writes the 3D cube other editors need">1D</span></div>
 			<div class="exrow"><button class="exdl" id="lutdlL" type="button">↓ .cube</button><span class="exstat tnum" id="lutstatL" aria-live="polite"></span></div>
 		</div>
 		<div class="export" id="api-panel-icc" role="tabpanel" aria-labelledby="api-tab-icc" data-p="icc" hidden>
@@ -1654,7 +1654,7 @@ import { SPACES, sections, cname, unit, disp, nbh, catHTML, HISTORICAL, DEFAULT,
 import BARRED from './js/barred.js'
 import EDITORS, { cubeOpts, SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
-import { track, load as loadStats, EVENT } from './js/track.js'
+import { track, view as countView, load as loadStats, EVENT } from './js/track.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
@@ -2630,6 +2630,7 @@ function openModal(s){
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
 	for(const el of pageShell.children) el.inert=!el.classList.contains('mhead')   // the header stays live – everything else behind the card sleeps
 	urlLast=spaceURL(s)+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
+	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: count.js can't see a replaceState open – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
@@ -2745,7 +2746,8 @@ const nav=d=>{ const ord=[...activeSecs().flatMap(c=>c.spaces),...BARRED.map(b=>
 const navCat=d=>{ const secs=activeSecs(), si=secs.findIndex(c=>c.spaces.includes(selected)); if(si<0)return; const t=secs[(si+d+secs.length)%secs.length]; openModal(t.spaces[0]) }
 addEventListener('keydown',e=>{ if(!open()) return
 	if(e.key==='Escape'){ e.preventDefault(); closeModal(); return }
-	if(e.key==='Tab'){ const focusable=[...modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),[tabindex="0"]')].filter(el=>el.offsetParent!==null)
+	if(e.key==='Tab'){ if(EMBED) return   // an embedded card is the whole document – Tab past its ends returns to the host page, never a trap (WCAG 2.1.2)
+		const focusable=[...modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),[tabindex="0"]')].filter(el=>el.offsetParent!==null)
 		if(focusable.length){ const first=focusable[0], last=focusable.at(-1)
 			if(document.activeElement===detail){ e.preventDefault(); (e.shiftKey?last:first).focus() }
 			else if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus() }
@@ -2855,7 +2857,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 		const qLegend=QSEG.map(([mo,lb])=>`${lb} – ${QTIP[qKey(mo)]}`).join('\n'), mLegend=METRICS.map(m2=>`${MLABEL[m2]} – ${MTIP[m2]}`).join('\n')
 		const gamTip=g=>({ srgb:'standard web gamut', p3:'wide Apple-display gamut', rec2020:'ultra-wide UHD gamut', vis:'colors a lit surface can show – the object-color solid', locus:'every real light – the full spectral reach, no limit' })[g]
 		const gLegend=[...GAMS,'vis','locus'].map(g=>`${GAMLABEL[g]} – ${gamTip(g)}`).join('\n')
-		const vTip=l=>l.cite?l.cite.replace(' — ',', '):'no simulation', vLegend=LENSES.map(l=>`${l.label.toLowerCase()} – ${vTip(l)}`).join('\n')+'\nthe whole page, simulated in linear light; readouts keep the true color'
+		const vTip=l=>l.cite||'no simulation', vLegend=LENSES.map(l=>`${l.label.toLowerCase()} – ${vTip(l)}`).join('\n')+'\nthe whole page, simulated in linear light; readouts keep the true color'
 		const vSel=`<select id="vseg" aria-label="vision lens – simulate a color-vision deficiency" title="${vLegend}">${LENSES.map(l=>`<option value="${l.id}" title="${vTip(l)}">${l.label.toLowerCase()}</option>`).join('')}</select>`
 		vctl.innerHTML=`<select id="qseg" aria-label="segmented rendering mode" title="${qLegend}">${QGROUPS.map(([gn,os])=>gn?`<optgroup label="${gn}">${os.map(qOpt).join('')}</optgroup>`:os.map(qOpt).join('')).join('')}</select><select id="mseg" aria-label="palette distance metric" title="${mLegend}" hidden>${METRICS.map(m2=>`<option value="${m2}" title="${MTIP[m2]}">${MLABEL[m2]}</option>`).join('')}</select><select id="gseg" aria-label="dossier gamut limits" title="${gLegend}">${[...GAMS,'vis','locus'].map(g=>`<option value="${g}" title="${gamTip(g)}"${g===GM?' selected':''}>${GAMLABEL[g]}</option>`).join('')}</select>${vSel}`
 		const qs=vctl.querySelector('#qseg'), ms=vctl.querySelector('#mseg'), gs=vctl.querySelector('#gseg'), vs=vctl.querySelector('#vseg')
@@ -2867,7 +2869,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 		vs.onchange=()=>{ const v=vs.value, root=document.documentElement
 			if(v!=='none'&&!document.getElementById('cvd-'+v)) document.body.insertAdjacentHTML('beforeend',cvdDefs())
 			if(v==='none') delete root.dataset.cvd; else root.dataset.cvd=v
-			track(`vision-lens/${v}`) }
+			track(EVENT.vision(v)) }
 		// phones: all four ride INSIDE the value's format dropdown – the tight bar keeps its icons
 		vRow=Object.assign(document.createElement('div'),{className:'dctl vrow'})
 		const seatViews=()=>{ const home=MOBQ.matches?vRow:vctl; if(qs.parentElement!==home) home.append(qs,ms,gs,vs) }
@@ -4226,7 +4228,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		dex.innerHTML=(LUTOK.has(s)?`<div class="dexp">
 			<i title="${s} → any space as a .cube conversion LUT – DaVinci Resolve, Premiere, Final Cut, OBS, ffmpeg${ACESV.has(s)?`; verified against the Academy's official ACES vendor transform (docs/formula-verification.md)`:''}">conversion LUT</i>
 			<div class="exrow"><select id="dlto" aria-label="LUT target space" title="target space – the .cube converts ${s} into this space"></select><select id="dled" aria-label="the app the LUT is for" title="the app you will load it in – picks a .cube that app reads, at a size it takes, and shows where it goes"><option value="" title="color-space's own cube() – a 3D lattice, or a 4096-point 1D curve where the pair is per-channel">generic</option><optgroup label="editors">${EDITORS.map(e=>`<option value="${e.id}" title="${e.platforms.join(' · ')}">${e.name}</option>`).join('')}</optgroup></select></div>
-			<div class="exrow"><select id="dlsz" aria-label="LUT size" title="lattice size – larger is more accurate and a bigger file"></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT (no 3D lattice needed)">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div>
+			<div class="exrow"><select id="dlsz" aria-label="LUT size" title="lattice size – larger is more accurate and a bigger file"></select><span class="ex1d" id="dl1d" style="display:none" title="same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – pick an app for the 3D cube other editors need">1D</span><button class="exdl" id="dldl" type="button">↓ .cube</button><span class="exstat tnum" id="dlstat" aria-live="polite"></span></div>
 			<div class="dhow" id="dlhow" hidden></div></div>`:'')
 			+(iccK?`<div class="dexp">
 			<i title="${iccTitle}">icc profile</i>
@@ -4273,7 +4275,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				fillSz(); measure() }
 			ldl.onclick=()=>{ const to=lto.value
 				try{ const o=pickO(); if(!o) throw 0
-					dl(lutCube(space[s],space[to],o),fileOf(to,o),'text/plain'); toast('LUT saved'); track(EVENT.lut(s,`${to}-${led.value||'generic'}`)) }catch{ toast('No LUT for this pair') } }
+					dl(lutCube(space[s],space[to],o),fileOf(to,o),'text/plain'); toast('LUT saved'); track(EVENT.lut(s,to,led.value||'generic')) }catch{ toast('No LUT for this pair') } }
 			dex._lut=()=>{ if(!measured) measure() } }
 		// ICC: the numbers appear on first open; the profile bakes on download
 		const idl=dex.querySelector('#didl'), ist=dex.querySelector('#distat')
@@ -5306,7 +5308,7 @@ if(tempQ!=null) setUITemp(+tempQ||0); else if(localStorage.csTemp) setUITemp(+lo
 		lseg.querySelectorAll('button').forEach(b=>b.onclick=()=>{ lutN=+b.dataset.z; lseg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); measure() })
 		ldl.onclick=()=>{ const from=lf.value, to=lt.value
 			try{ if(from===to) throw 0; const one=lutChannelwise(space[from],space[to])
-				save(lutCube(space[from],space[to],one?{}:{size:lutN}),`${from}-to-${to}${one?'':'-'+lutN}.cube`,'text/plain'); toast('LUT saved'); track(EVENT.lut(from,`${to}-generic`)) }
+				save(lutCube(space[from],space[to],one?{}:{size:lutN}),`${from}-to-${to}${one?'':'-'+lutN}.cube`,'text/plain'); toast('LUT saved'); track(EVENT.lut(from,to)) }
 			catch{ toast('No LUT for this pair') } } }
 	// ── ICC: any space → .icc — matrix+TRC where the space IS one, CLUT elsewhere ──
 	const ic=tabs.querySelector('#iccsp'), idl=tabs.querySelector('#iccdlL'), istat=tabs.querySelector('#iccstatL')

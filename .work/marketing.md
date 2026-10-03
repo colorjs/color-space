@@ -1,6 +1,6 @@
 # color-space — marketing
 
-> Single source of truth. Stamped **2026-07-21**, Search Console block **2026-10-02** — re-verify any number the day it's quoted publicly.
+> Single source of truth. Stamped **2026-07-21**; Search Console block and plan 8–14 **2026-10-02**; space and anchor counts re-taken **2026-10-03** — re-verify any number the day it's quoted publicly.
 
 ## Data
 
@@ -14,7 +14,7 @@
 
 **Quotable claims** (each with its proof; never round up):
 - **166 spaces, 4× any JS library** (culori ~35, colorjs.io ~40, texel ~16) — runtime count on master (published 3.1.0 has 162 until the next release), cited list in README.
-- **Verified, three layers**: every space pinned to an independent cited anchor (135 points, `test/refs.js`) · 29 spaces both directions vs colorjs.io at 1/255 · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 1e-10 (Bradford pairs) — [docs/formula-verification.md](../docs/formula-verification.md#camera-log-verification-against-official-aces-transforms), reruns on `npm test`.
+- **Verified, three layers**: every space pinned by an independent cited anchor (143 points on master, `test/refs.js`) or both directions vs colorjs.io at 1/255 (29 spaces) — the union is test-pinned, neither alone covers all · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 1e-10 (Bradford pairs) — [docs/formula-verification.md](../docs/formula-verification.md#camera-log-verification-against-official-aces-transforms), reruns on `npm test`.
 - **Fast**: 29.3M scalar calls/s geomean vs culori 16.5, colorjs.io 0.7 (`npm run benchmark`, method footnoted in README).
 - **Small**: one space 0.4–1.5 kB; lite 9 kB; full graph 55 kB gz (never call the full bundle "tiny").
 - **Beyond JS**: WASM batch · GLSL/WGSL · in-browser `.cube` LUTs with self-verifying headers · ICC · MCP (`color-space-mcp` — no other color lib has one). CC0.
@@ -70,10 +70,10 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 Added 2026-10-02 (Search Console read + research digests):
 
 8. [ ] **Analytics** — hosted GoatCounter: free, cookieless, no backend, custom events, country + referrer, export. Wired but **OFF**: `web/js/track.js` `GC = ''` until the owner creates the account and sets the code. Counts people per 8 h, not clicks; adblockers miss ~⅓ (GoatCounter's own estimate). Search Console stays the query source. Gates the localization pilot.
-9. [ ] **Creator LUT flow, per editor** (camera → target → editor → download + steps). Interop facts it rests on: editors get a plain 3D 33³ by default (one `LUT_3D_SIZE`, no shaper) · OBS: a 1D cube whose size is a multiple of 1024 (lut.js's 4096-point 1D default, its 1024-entry shaper) overflows OBS's uint32 allocation to 0 bytes → crash (per its source; not reproduced in a running OBS) · LumaFusion ≤64 points (its 2017 release note) → no 65³ · ffmpeg `lut3d` silently ignores a shaper. Conversions, not looks — same guardrail.
-10. [ ] **MCP Registry** — `io.github.colorjs/color-space`; `server.json` + `mcp-publisher` step in `release.yml` (GitHub OIDC, no secrets). Goes live with the next npm release: the registry checks `mcpName` on the *published* version, and 3.1.0 has none.
+9. [ ] **Creator LUT flow, per editor** (camera → target → editor → download + steps). Interop facts it rests on: editors get a plain 3D 33³ by default (one `LUT_3D_SIZE`, no shaper) · OBS: a 1D cube whose size is a multiple of 1024 (lut.js's 4096-point 1D default; its 1024-entry shaper, since OBS reads only a shaper cube's 1D part) overflows OBS's uint32 allocation to 0 bytes → crash (per its source; not reproduced in a running OBS) · LumaFusion ≤64 points (its 2017 release note) → no 65³ · ffmpeg `lut3d` silently ignores a shaper. Conversions, not looks — same guardrail.
+10. [ ] **MCP Registry** — `io.github.colorjs/color-space`; `server.json` + `mcp-publisher` step in `release.yml` (GitHub OIDC, no secrets). Goes live with the next stable npm release, not an rc (release.yml skips the registry for `next`): the registry checks `mcpName` on the *published* version, and 3.1.0 has none.
 11. [ ] **Figma plugin** (`plugins/figma/`) — owner publishes; an account action, not code.
-12. [ ] **CITATION.cff + Zenodo DOI** — `CITATION.cff` at the root gives GitHub's "Cite this repository" (validated with cffconvert). DOI: owner signs in to Zenodo with GitHub and toggles the repo On (colorjs is an org — the org owner may need to approve the Zenodo app); Zenodo then archives each GitHub release (release.yml creates one) and mints a DOI. Add the DOI to CITATION.cff after the first one. Bump its `version` + `date-released` with each release: release.yml syncs server.json's version, not this file's, and the site's Cite plates (build-site.js) read it.
+12. [ ] **CITATION.cff + Zenodo DOI** — `CITATION.cff` at the root gives GitHub's "Cite this repository" (validated with cffconvert). DOI: owner signs in to Zenodo with GitHub and toggles the repo On (colorjs is an org — the org owner may need to approve the Zenodo app); Zenodo then archives each GitHub release (release.yml creates one) and mints a DOI. Add the DOI to CITATION.cff after the first one. Bump its `version` + `date-released` with each release: release.yml syncs server.json's version, not this file's, and the site's Cite plates (build-site.js) read it. The release's `npm test` (check-site.js) fails while `version` differs from package.json; `date-released` is unchecked.
 13. [ ] **New camera logs = the "new log → post" trigger (§6)**: Apple Log 2, F-Log2 C, GP-Log2, KineLOG3 — vendor math checked 2026-10-02. Each one shipped → one short post in its camera's community. Waiting on vendor proof: vivo Log, Huawei H-Log, DJI D-Log2.
 14. [ ] **Wikipedia** — Oklab has an article (en; the other-language count could not be checked from the sandbox — verify before quoting). **Never self-insert links to color-space** (COI).
 

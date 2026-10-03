@@ -316,7 +316,7 @@ export function apply(tab: LutTable, vals: number[]): number[];
 /** Measure the lattice against the direct conversion at random off-lattice points. */
 export function verify(tab: LutTable, n?: number): LutStats;
 
-/** Render a conversion as a .cube file (Resolve, Premiere, Final Cut, OBS, ffmpeg; shaper → Resolve/OCIO flavor). */
+/** Render a conversion as a .cube file — 3D reads in Resolve, Premiere, Final Cut, OBS, ffmpeg lut3d; 1D in Resolve and ffmpeg lut1d; shaper → Resolve/OCIO only. */
 export function cube(from: ColorSpace, to: ColorSpace, opts?: { size?: number; dims?: 1 | 3; shaper?: boolean | number; title?: string; verify?: number | false }): string;
 `)
 

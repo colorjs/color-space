@@ -10,6 +10,11 @@
 // fractional pow() (not the sign-preserving spow), so — like the scalar library
 // itself — this chunk is only defined where the achromatic signal stays non-negative
 // (true for the whole sRGB gamut).
+// GPU float32: at black A is the cancellation 2·0.1 + 0.1 + 0.05·0.1 − 0.305, which float64
+// happens to land one ulp above zero (J = 1.5e-22) but float32, with the compiler's own
+// rounding/contraction, can land a few ulps below — and pow() of a negative base is NaN, so
+// J and M read NaN at black on a real GPU (lavapipe). A is floored at 0 before the pow:
+// identical wherever the scalar library is defined (A >= 0); J = M = 0 at black.
 import xyz from './xyz.glsl.js'
 export default {
 	name: 'ciecam02',
@@ -54,7 +59,7 @@ vec3 xyz_ciecam02(vec3 col) {
 	if (h < 0.0) { h = h + 360.0; }
 	float et = 0.25 * (cos(h * 0.017453292519943295 + 2.0) + 3.8);
 	float A = CIECAM02_NBB_ * (2.0 * Ra + Ga + 0.05 * Ba - 0.305);
-	float J = 100.0 * pow(A / CIECAM02_AW_, CIECAM02_C_Z_);
+	float J = 100.0 * pow(max(A, 0.0) / CIECAM02_AW_, CIECAM02_C_Z_);
 	float denom = Ra + Ga + (21.0 / 20.0) * Ba;
 	float t = 0.0;
 	if (denom != 0.0) { t = CIECAM02_T_PREFACTOR_ * et * sqrt(a * a + b * b) / denom; }

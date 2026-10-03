@@ -215,6 +215,7 @@ window.addEventListener('message', e => {
 		if (!state.paints.some(p => keyOf(p) === state.key)) {
 			state.key = state.paints.length ? keyOf(state.paints[0]) : null
 			state.mapped = null
+			state.error = ''   // an error belongs to the paint it came from, as on a paint click
 		}
 		renderPaints()
 		update()

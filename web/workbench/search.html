@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Search – color-space workbench</title>
+<meta name="description" content="Workbench direction Search: search-first – one input for a color or a color space; a color returns its passport across the spaces, a name or a task returns the spaces that match.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
+<link rel="preload" href="../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../variants.css">
+<link rel="stylesheet" href="./wb.css">
+<link rel="stylesheet" href="./search.css">
+<script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}</script>
+</head>
+<body>
+<a class="skip" href="#sq">Skip to the search</a>
+
+<!-- a thin bar: the wordmark only once a query takes the hero's place · language · vision · theme · GitHub -->
+<header class="top sr-top"><span data-wb="brand"></span><span class="fill"></span><span data-wb="lang"></span><span data-wb="vision"></span><span data-wb="tools"></span></header>
+
+<main class="sr-main" id="main">
+	<!-- the first screen: the wordmark, one sentence, one input -->
+	<div class="sr-hero">
+		<h1 class="sr-mark">color-space</h1>
+		<div data-wb="orient"></div>
+	</div>
+	<form class="sr-bar" role="search" id="sform">
+		<label class="sr-box"><span class="cdw" title="Pick the current color"><input type="color" id="cpick" aria-label="Pick the current color"></span>
+			<input id="sq" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Type a color or a color space" aria-label="A color – #ff8000, oklch(0.7 0.15 30) – or a color space, or a task" aria-controls="cat">
+			<span class="gam" id="gam"></span></label>
+	</form>
+	<p class="sr-try" id="try"><span class="fsel-l">Try</span></p>
+
+	<!-- the results: a color's passport, or the spaces a word finds (wb.js paints every .sp here) -->
+	<section id="cat" class="sr-res" aria-live="polite" aria-label="Results"></section>
+</main>
+
+<!-- a quiet band: the tour, then what to build with -->
+<footer class="sr-foot">
+	<div class="sr-fin">
+		<div class="sr-ftour" data-wb="tour"></div>
+		<section class="sr-build" aria-labelledby="sb-t">
+			<h2 class="wb-eyebrow" id="sb-t">Build with it</h2>
+			<div class="tabs" role="tablist" aria-labelledby="sb-t" id="btabs"></div>
+			<div class="sr-bp" role="tabpanel" id="bpanel" tabindex="0"></div>
+		</section>
+	</div>
+	<p class="sr-legal"><button type="button" class="lnk" popovertarget="s-cite">Cite</button><button type="button" class="lnk" popovertarget="s-agents">Agents</button><a class="lnk" href="https://github.com/colorjs/color-space">GitHub</a><a class="lnk" href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a><a class="lnk" href="./">Workbench</a></p>
+</footer>
+
+<!-- native popovers – the top layer, no positioning script (index.html's Cite) -->
+<div class="sr-pop" id="s-cite" popover role="dialog" aria-labelledby="s-cite-t"><h2 class="wb-h" id="s-cite-t">Cite color-space</h2><div id="s-cite-b" aria-live="polite"><p class="wb-note">…</p></div></div>
+<div class="sr-pop" id="s-agents" popover role="dialog" aria-labelledby="wb-ag-t"><div data-wb="agents"></div></div>
+
+<aside id="pane" hidden></aside>
+<script type="module" src="./search.js"></script>
+</body>
+</html>

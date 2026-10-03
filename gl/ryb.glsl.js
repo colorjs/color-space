@@ -10,8 +10,13 @@ export default {
 	name: 'ryb',
 	edges: { rgb: ['rgb_ryb', 'ryb_rgb'] },
 	// No `tol` override: this re-expresses ryb.js's Newton solve scalar-for-scalar
-	// (same iteration order, same Jacobian, same backtracking), and measured error
-	// across the test samples is exactly 0 — the default 1e-6 already holds.
+	// (same iteration order, same Jacobian, same backtracking); measured float64 error
+	// across the test samples is 1.8e-7 normalized — the default 1e-6 already holds.
+	// GPU float32: the Jacobian's difference step is h = 1/16, not ryb.js's 1e-6. The
+	// plain trilinear is linear in each q with the others fixed, so a one-axis forward
+	// difference is the exact partial for ANY step — the same Jacobian in exact
+	// arithmetic. In float32, 1e-6 is ~17 ulps at q = 0.5, so the quotient carried ~6%
+	// error and out-of-cube targets stalled elsewhere (lavapipe: magenta B 0 vs 62.1).
 	code: /* glsl */ `
 float ryb_lerp_(float a, float b, float t) { return a + t * (b - a); }
 float ryb_bl_(float p0, float p1, float p2, float p3, float p4, float p5, float p6, float p7, float fr, float fy, float fb) {
@@ -44,7 +49,7 @@ vec3 rgb_ryb(vec3 c) {
 		float errv = sqrt(e0 * e0 + e1 * e1 + e2 * e2);
 		if (errv < bestE) { bestE = errv; best0 = q0; best1 = q1; best2 = q2; }
 		if (errv < 1.0e-12) { break; }
-		float h = 1.0e-6;
+		float h = 0.0625;
 		float step0 = h; if (q0 + h > 1.0) { step0 = -h; }
 		vec3 fp0 = ryb_blend_(q0 + step0, q1, q2);
 		float J00 = (fp0.x - f.x) / step0;

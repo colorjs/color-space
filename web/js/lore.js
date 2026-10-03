@@ -150,7 +150,7 @@ export default {
 	erimm: { for: 'extended-range RIMM for scene-referred archives', nm: 'ER = extended range, stretching RIMM’s headroom' },
 	llog: { for: 'L-Log for Leica video', nm: 'L is Leica' },
 	protune: { for: 'action-camera flat log' },
-	gplog2: { for: 'pure-log capture on GoPro’s MISSION 1 series – log base 600, normalized to the clip point', sin: 'its linear is clip-relative: 18% grey decodes to 0.0517, not 0.18 – GoPro’s own LUTs add +1.8 EV to put it back' },
+	gplog2: { for: 'pure-log capture on GoPro’s MISSION 1 series – log base 600, clipping about 1.8 stops above white', sin: 'GoPro’s docs quote clip-relative linear (18% grey = 0.0517); scene linear here is 2^1.8 larger – the LUT generator’s default +1.8 EV – so mixing the two shifts exposure by 1.8 stops' },
 	kinelog3: { for: 'Kinefinity’s film-scan-style camera log, on the wide gamut of the MAVO Edge 6K and MM2 LF', sin: 'an earlier copy of its spec, same date, prints blue y −0.2282 with matrices that disagree – the revised −0.2236 is the one that holds together' },
 	milog: { for: 'phone cinema log' },
 	olog: { for: 'OPPO’s phone log' },

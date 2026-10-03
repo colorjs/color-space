@@ -1,5 +1,6 @@
 // GLSL chunk: OkHSV <-> OkHWB (W = (1-S)*V, B = 1-V; achromatic when W+B >= 1).
 // Mirrors okhwb.js exactly.
+// GPU float32: inherits okhsv's pure-blue branch knife edge (see okhsv.glsl.js).
 import okhsv from './okhsv.glsl.js'
 export default {
 	name: 'okhwb',

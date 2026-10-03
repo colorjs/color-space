@@ -23,12 +23,13 @@ const SRI = 'sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYe
 
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48)
 export const EVENT = {
-	lut: (from, to) => `lut-download/${slug(from)}-${slug(to)}`,
+	lut: (from, to, app = 'generic') => `lut-download/${slug(from)}-${slug(to)}-${slug(app)}`,   // app: an editors.js id, or 'generic' (the library's own cube())
 	icc: (space, kind) => `icc-download/${slug(space)}-${slug(kind)}`,
 	drop: () => 'image-drop',
 	embed: (space) => `embed-copy/${slug(space)}`,
 	tour: (n, space) => `tour-step/${slug(n)}-${slug(space)}`,
 	lang: (lang) => `code-lang/${slug(lang)}`,
+	vision: (id) => `vision-lens/${slug(id)}`,   // a cvd.js LENSES id
 }
 
 let state = 0 // 0 idle · 1 loading · 2 ready · -1 blocked

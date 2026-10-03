@@ -65,7 +65,7 @@ const CSS_FMT = { rgb: v => `rgb(${rn(v[0])} ${rn(v[1])} ${rn(v[2])})`, hsl: v =
 let CITE = null
 export const loadCite = () => CITE ??= fetch('../').then(r => r.ok ? r.text() : '').then(t => { const d = new DOMParser().parseFromString(t, 'text/html')
 	return { bibtex: d.getElementById('citebib')?.textContent.trim() || '', apa: d.getElementById('citeapa')?.textContent.trim() || '' } }).catch(() => ({ bibtex: '', apa: '' }))
-const MCP = { npx: 'npx -y color-space mcp', claude: 'claude mcp add color-space -- npx -y color-space mcp',
+export const MCP = { npx: 'npx -y color-space mcp', claude: 'claude mcp add color-space -- npx -y color-space mcp',
 	vscode: `code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space","mcp"]}'`,
 	json: '{\n  "mcpServers": {\n    "color-space": {\n      "command": "npx",\n      "args": ["-y", "color-space", "mcp"]\n    }\n  }\n}' }
 

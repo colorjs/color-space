@@ -41,8 +41,8 @@ input[readonly]{ color:var(--soft) }
 .sw{ width:var(--s3); height:var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-control) }
 .pn{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
-.channels{ display:grid; gap:var(--s1); margin:0 0 var(--s3); padding:0; border:0 }
-.ch{ display:grid; grid-template-columns:var(--s5) minmax(0,1fr) minmax(0,1fr); align-items:center; gap:var(--s2) }
+.channels{ display:grid; grid-template-columns:minmax(var(--s5),auto) minmax(0,1fr) minmax(0,1fr); gap:var(--s1) var(--s2); margin:0 0 var(--s3); padding:0; border:0 }
+.ch{ display:grid; grid-column:1 / -1; grid-template-columns:subgrid; align-items:center }   /* one symbol column for all rows, as wide as the longest symbol (lalphabeta's "alpha") */
 .sym{ font-weight:700 }
 .ch input{ font-family:var(--font-mono); font-variant-numeric:tabular-nums }
 .nm{ color:var(--soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }

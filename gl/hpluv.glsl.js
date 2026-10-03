@@ -2,6 +2,10 @@
 // rescales chroma by the single largest circle that fits inside the sRGB gamut at
 // L (hue-independent). Mirrors hsluv.js getBounds()/maxSafeChromaForL(); same
 // literals as wasm/batch.js's lchuv_hpluv/hpluv_lchuv.
+// GPU float32: the white guard's margin is 1e-4 (l > 99.9999), not hsluv.js's 1e-7 —
+// 99.9999999 rounds to exactly 100.0 in float32, so the scalar margin never fired and
+// white (L = 100) divided by a ~0 max chroma (NaN/Inf on lavapipe). 1e-4 is ~13 float32
+// ulps at 100; the scalar library's own guard, just resolvable on the GPU.
 import lchuv from './lchuv.glsl.js'
 export default {
 	name: 'hpluv',
@@ -33,13 +37,13 @@ float hpluv_maxsafechroma_(float l) {
 }
 vec3 lchuv_hpluv(vec3 c) {
 	float l = c.x; float ch = c.y; float h = c.z;
-	if (l > 99.9999999) { return vec3(h, 0.0, 100.0); }
+	if (l > 99.9999) { return vec3(h, 0.0, 100.0); }
 	if (l < 1.0e-8) { return vec3(h, 0.0, 0.0); }
 	return vec3(h, ch / hpluv_maxsafechroma_(l) * 100.0, l);
 }
 vec3 hpluv_lchuv(vec3 c) {
 	float h = c.x; float s = c.y; float l = c.z;
-	if (l > 99.9999999) { return vec3(100.0, 0.0, h); }
+	if (l > 99.9999) { return vec3(100.0, 0.0, h); }
 	if (l < 1.0e-8) { return vec3(0.0, 0.0, h); }
 	return vec3(l, hpluv_maxsafechroma_(l) / 100.0 * s, h);
 }`,

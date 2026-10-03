@@ -3,6 +3,15 @@
 // lands on the sRGB gamut boundary. Mirrors okhsl.js exactly: computeMaxSaturation
 // / findCusp / findGamutIntersection / getCs (cusp-finding machinery) plus the Lr
 // toe, using okhsl.js's own LabtoLMS_M / toSRGBLinear / RGBCoeff constants.
+// GPU float32: (1) the white guard is |1 - l| < 1e-6, not okhsl.js's 1e-7 — 1e-7 is under
+// two float32 ulps below 1, so a white whose toe lands 2+ ulps off 1 kept the NaN the
+// saturation solve makes from ulp-sized chroma there. (2) Pure sRGB blue sits on
+// computeMaxSaturation's red-branch test to 6e-8 — half a float32 ulp (the red and green
+// primaries sit within ~2e-7 of theirs) — so the GPU can take the other branch:
+// rgb->okhsl S at #0000ff reads 100 on lavapipe vs the float64 102.92, and okhsl->rgb fed
+// the float64 S (> 100, beyond the cMax the other branch yields) lands far outside the
+// gamut (G -110.9 instead of 0). Ottosson's approximation is discontinuous there; no cheap
+// guard reproduces float64's branch choice, so it is documented, not fixed.
 import oklab from './oklab.glsl.js'
 export default {
 	name: 'okhsl',
@@ -226,7 +235,7 @@ vec3 oklab_okhsl(vec3 c) {
 	} else if (lp == 0.0) {
 		h = 0.0;
 		s = 0.0;
-	} else if (abs(1.0 - lp) < 1.0e-7) {
+	} else if (abs(1.0 - lp) < 1.0e-6) {
 		h = 0.0;
 		s = 0.0;
 	} else {

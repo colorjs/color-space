@@ -13,6 +13,8 @@ import './bonafide.js' // cited reference values for the non-differential spaces
 
 // get round fn for a precision
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision
+// every element of a (flat or nested) array within tol of the expected one
+const near = (a, b, tol) => a.flat().every((v, i) => Math.abs(v - b.flat()[i]) <= tol)
 
 
 // Structural integrity: catches the class of v3 breakage where a space file fails to
@@ -1465,7 +1467,6 @@ test('acescg', () => {
 	// White anchors: AP0 and AP1 share the ACES white (x 0.32168, y 0.33767 — SMPTE ST 2065-1,
 	// ampas/aces-dev ACESlib.Utilities_Color.ctl), and Bradford maps the D65 white onto it, so
 	// D65 white is [1, 1, 1] in both. Regression: a typed adaptation matrix gave B = 1.0003.
-	const near = (got, exp, tol) => got.every((v, i) => Math.abs(v - exp[i]) < tol);
 	is(near(space.rgb.acescg(255, 255, 255), [1, 1, 1], 1e-9), true, 'sRGB white → ACEScg [1,1,1] within 1e-9');
 	is(near(space.xyz.acescg(...space.rgb.xyz(255, 255, 255)), [1, 1, 1], 1e-9), true, 'D65 XYZ white → ACEScg [1,1,1]');
 	is(near(space.xyz['aces2065-1'](...space.rgb.xyz(255, 255, 255)), [1, 1, 1], 1e-9), true, 'D65 XYZ white → ACES2065-1 [1,1,1]');
@@ -1630,7 +1631,6 @@ test('clog2: Canon Log 2 / Cinema Gamut', () => {
 // encoded with the vendor curve, decoded by the space, xy of the resulting XYZ.
 const logXy = (s, hi, lo) => [[hi, lo, lo], [lo, hi, lo], [lo, lo, hi]].map(c => {
 	const [X, Y, Z] = space[s].xyz(...c); return [X / (X + Y + Z), Y / (X + Y + Z)] })
-const near = (a, b, tol) => a.flat().every((v, i) => Math.abs(v - b.flat()[i]) <= tol)
 const D65W = space.lrgb.xyz(1, 1, 1)
 const grey = (k) => D65W.map(v => v * k)
 
@@ -1656,13 +1656,16 @@ test('flog2c: F-Log2 C / F-Gamut C', () => {
 		is(space.flog2c.rgb(...space.rgb.flog2c(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
-test('gplog2: GoPro GP-Log2 (clip-normalized linear, Rec.2020)', () => {
-	// GoPro Labs doc: L 0 → 0, 0.0517 (18% grey) → ~0.542 (~554/1023), 0.25 → ~0.784, 0.5 → ~0.892, 1 (clip) → 1
-	is(space['rec2020-linear'].gplog2(0, 0.0517, 0.25).map(round(3)), [0, 0.542, 0.784], 'doc mapping')
-	is(space['rec2020-linear'].gplog2(0.5, 1, 0.0517).map(round(3)), [0.892, 1, 0.542], 'doc mapping, clip')
-	is(round(0)(space['rec2020-linear'].gplog2(0.0517, 0, 0)[0] * 1023), 554, '18% grey code')
-	// GoPro's own linear, not reflectance: a linear 0.18 is 1.8 stops over the metered grey
-	is(round(6)(space.xyz.gplog2(...grey(0.18))[1]), 0.733117, 'linear 0.18 → 0.7331')
+test('gplog2: GoPro GP-Log2 (scene linear, Rec.2020)', () => {
+	// GoPro Labs doc, in GoPro's clip-normalized L: 0 → 0, 0.0517 (18% grey) → ~0.542 (~554/1023),
+	// 0.25 → ~0.784, 0.5 → ~0.892, 1 (clip) → 1. The space speaks scene linear = L · 2^1.8
+	// (the LUT generator's default exposure gain), so the doc's L values enter scaled by G
+	const G = 2 ** 1.8, L = (...v) => v.map(x => x * G)
+	is(space['rec2020-linear'].gplog2(...L(0, 0.0517, 0.25)).map(round(3)), [0, 0.542, 0.784], 'doc mapping')
+	is(space['rec2020-linear'].gplog2(...L(0.5, 1, 0.0517)).map(round(3)), [0.892, 1, 0.542], 'doc mapping, clip')
+	// scene middle grey IS GoPro's metered grey – a GP-Log2 → display LUT keeps exposure
+	is(round(0)(space['rec2020-linear'].gplog2(0.18, 0, 0)[0] * 1023), 554, '18% grey code')
+	is(round(4)(space.xyz.gplog2(...grey(0.18))[1]), 0.5416, 'scene 0.18 → 0.5416')
 	// negatives mirror (the LUT generator's logEnc) and decode back
 	const [neg, pos] = space['rec2020-linear'].gplog2(-0.25, 0.25, 0)
 	is(neg, -pos, 'mirror')
@@ -1928,8 +1931,8 @@ test('cvd — the SVG pipeline and simulate() reproduce colour-science (Machado)
 test('track — analytics is off by default: no-ops, nothing injected; load() injects the pinned script once', async () => {
 	const { GC, EVENT, track, view, load } = await import('../web/js/track.js')
 	is(GC, '', 'shipped disabled')
-	is([EVENT.lut('slog3', 'rec709'), EVENT.icc('p3', 'mntr'), EVENT.drop(), EVENT.embed('oklch'), EVENT.tour(3, 'rgb'), EVENT.lang('python')],
-		['lut-download/slog3-rec709', 'icc-download/p3-mntr', 'image-drop', 'embed-copy/oklch', 'tour-step/3-rgb', 'code-lang/python'], 'event names per research')
+	is([EVENT.lut('slog3', 'rec709'), EVENT.lut('slog3', 'rec709', 'davinci-resolve'), EVENT.icc('p3', 'mntr'), EVENT.drop(), EVENT.embed('oklch'), EVENT.tour(3, 'rgb'), EVENT.lang('python'), EVENT.vision('deutan')],
+		['lut-download/slog3-rec709-generic', 'lut-download/slog3-rec709-davinci-resolve', 'icc-download/p3-mntr', 'image-drop', 'embed-copy/oklch', 'tour-step/3-rgb', 'code-lang/python', 'vision-lens/deutan'], 'event names per research (+ the app a LUT is for, the vision lens)')
 	is(EVENT.embed('My Photo.JPG'), 'embed-copy/my-photo-jpg', 'names are slugged — nothing raw reaches the endpoint')
 	const added = []
 	globalThis.document = { createElement: () => ({ dataset: {} }), head: { append: (s) => added.push(s) } }

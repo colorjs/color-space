@@ -87,11 +87,28 @@ All unique `@see` links across the space files (121 across 161 files at this rev
 
 ## 3. Shader backends (gl/)
 
-The GLSL/WGSL chunks ship the same formulas for the GPU; three layers pin them:
+The GLSL/WGSL chunks ship the same formulas for the GPU; four layers pin them:
 
 1. **Float64 differential** — chunks are written in a restricted GLSL dialect that transforms mechanically to JS, so every declared edge and every composed rgb↔space path is evaluated in float64 and compared to the scalar library at 1e-6 normalized tolerance ([test/gl.js](../test/gl.js)).
-2. **WebGL2 compile** — all 590 edge and rgb↔space sources compile as fragment shaders through a browser WebGL2 implementation (ANGLE/SwiftShader in CI) via [test/gl-gpu.html](../test/gl-gpu.html). This includes the LUT-backed Munsell chunk.
-3. **WGSL grammar** — the same 590 sources, mechanically translated, parse clean under the full `wgsl_reflect` grammar in CI ([test/wgsl.js](../test/wgsl.js)); the browser page additionally validates them on a live WebGPU device when one is available.
+2. **WebGL2 compile** — all 610 edge and rgb↔space sources compile as fragment shaders through a browser WebGL2 implementation (ANGLE/SwiftShader in CI) via [test/gl-gpu.html](../test/gl-gpu.html). This includes the LUT-backed Munsell chunk.
+3. **WGSL grammar** — the same 610 sources, mechanically translated, parse clean under the full `wgsl_reflect` grammar in CI ([test/wgsl.js](../test/wgsl.js)); the browser page additionally validates them on a live WebGPU device when one is available.
+4. **Float32 stress** — the same dialect re-evaluated with every operation rounded to binary32, under round-to-nearest, contracted multiply-add and both directed roundings. Every source must stay finite at black, white and the six primaries and secondaries, and ryb and cct-duv must stay within 1e-3 of range ([test/gl.js](../test/gl.js)).
+
+### GPU float32
+
+GPUs run these chunks in float32 (WebGL2 `highp`, WGSL `f32`). A 2026-10 run of all 610 sources on lavapipe (Mesa's CPU Vulkan driver, via wgpu) found defects that float64 cannot show, and the float32 stress above found one more. These five were fixed in the chunks; the scalar library is unchanged.
+
+- **CAM02 (ciecam02, cam02-ucs/lcd/scd) gave NaN at black.** The achromatic signal A cancels to a few ulps below zero, and `pow` of a negative base is NaN. A is now floored at 0, which changes nothing where the scalar library is defined.
+- **HSLuv and HPLuv gave NaN/Inf at white.** The 1e-7 white margin (`99.9999999`) rounds to exactly 100.0 in float32, so the guard never fired. The chunk margin is now 1e-4, about 13 float32 ulps at 100.
+- **OkHSL's 1e-7 white margin was under two ulps.** The directed-rounding stress found it, not lavapipe. It is now 1e-6.
+- **ryb missed out-of-cube targets.** Its 1e-6 Jacobian step left about 6% error in float32 (magenta B came out 0 instead of 62.1). The step is now 1/16, which is exact because the trilinear is linear along each axis.
+- **cct-duv's normal tilted.** The secant subtracted two locus points 10–250 mK apart (Duv at #0000ff read −0.0090 instead of −0.0283). It is now written in a cancellation-free closed form that matches the float64 secant to about 2e-8.
+
+Some limits remain and are documented rather than guarded:
+
+- **OkHSL, OkHSV and OkHWB at pure blue.** Blue sits on a branch test inside Ottosson's `computeMaxSaturation` within half a float32 ulp, so the GPU can take the other branch. rgb→okhsl S reads 100 instead of 102.92, rgb→okhsv S reads 92.40 instead of 108.74, and the inverse at the float64 S leaves the gamut.
+- **Hue at an achromatic input** (for example cam16 at black) takes whatever angle float32 noise points to. It is undefined in float64 too.
+- **PQ-based spaces and kelvin's CCT search keep small float32 errors.** Jzazbz→rgb and ICtCp→rgb miss a zero channel of a saturated primary by up to 1.5e-3 of range (0.39 of 255), and kelvin's golden-section CCT is off by up to 2.4e-4 of range.
 
 ---
 
@@ -211,6 +228,8 @@ color-space 3.1.0.
 
 - **No equivalent in colour-science 0.4.7 (32 spaces):** checked against the installed
   package source, so these spaces get no snippet. yuv still gets an OpenCV route.
+  The four camera logs added after this run (applelog2, flog2c, gplog2, kinelog3) have
+  not been checked yet, so they have no snippet either.
 - **85 of the 127 passing rgb → space snippets agree to better than 1e-10.** 18 sit between
   1e-5 and 8.3e-4. Several of those trace to colour's own data: it ships the rounded
   published ProPhoto/RIMM and DJI D-Gamut matrices, Ottosson's original XYZ→LMS matrix for
