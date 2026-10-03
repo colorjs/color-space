@@ -49,11 +49,13 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
 
 ## Not done — pick up here
 
-1. **Atlas workshop, finish**: `top-search.*` and `top-statusbar.*` are working stubs, not designed
-   (briefs in the workflow: search = large centered input, controls appear as a slim sticky bar after
-   scroll, catalog full-width; statusbar = minimal top, all rendering options in an organized bottom
-   bar, facets above the catalog). Then a critic pass over all four at 1440/1280/390/dark, and the
-   chooser card (`web/workbench/index.html`) linking the four.
+1. **Atlas workshop** – Search and Status bar are designed, the chooser links all four headers
+   (`atlas.html?top=studio|editorial|search|statusbar`); `--stick-bot` (atlas.css, contract in atlas.js)
+   is the bottom bar's counterpart of `--stick-top`. Left: the critic pass on Studio and Editorial; a live
+   variant-swap check (color, filters, open dossier, scroll survive); opening a space mid-page at 1440 can
+   leave its entry off-screen in every variant – `openPane`'s `scrollIntoView` (wb.js) runs before the dock
+   narrows the page, re-run it a frame after the dock opens; with filters on, a ladder count like
+   "1 of 22" truncates "Colorimetry & research" (label column too narrow).
 2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
    the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
 3. **Translations pilot (pt-BR, es, tr)** — design decided, nothing built:
