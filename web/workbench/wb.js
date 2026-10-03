@@ -444,7 +444,7 @@ function theme(t) { root.dataset.theme = t; try { localStorage.csTheme = t } cat
 // ── one delegate for every control, wherever a direction drew it ──
 function onClick(e) { const t = e.target.closest('button,a[data-wt]'); if (!t) return; const d = t.dataset
 	if (t.classList.contains('wb-scrim')) return closePane()
-	if (d.openS) return openPane(d.openS, { from: t, scroll: W.follow || !!t.closest('#cat') })
+	if (d.openS) return openPane(d.openS, { from: t, scroll: !t.closest('[data-wstay]') && (W.follow || !!t.closest('#cat')) })   // a [data-wstay] region (a hero) opens where the reader is
 	if (d.close !== undefined) return closePane()
 	if (d.go) return go(+d.go)
 	if (d.wtab) return selectTab(d.wtab)

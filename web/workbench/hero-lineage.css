@@ -18,7 +18,6 @@
 /* the figure: milestones, the river, the years – one column of rows, each a label and its content */
 :root[data-hero="lineage"] .hl-fig{ margin:var(--s8) 0 0 }
 :root[data-hero="lineage"] .hl-fig .row{ align-items:center }
-:root[data-hero="lineage"] .hl-ann .lab:empty,:root[data-hero="lineage"] .hl-cap .lab:empty{ align-self:stretch }
 
 /* the milestones: a flag on its leader – left of the stretch's middle the words run right, past it they run left */
 :root[data-hero="lineage"] .hl-anns{ position:relative; flex:1 1 100%; height:var(--s12) }
@@ -46,7 +45,7 @@
 :root[data-hero="lineage"] .hl-b.z{ fill-opacity:.82 }
 :root[data-hero="lineage"] .hl-b.on{ fill:var(--ink) }
 :root[data-hero="lineage"] .hl-b:focus{ outline:0 } :root[data-hero="lineage"] .hl-b:focus-visible{ stroke:var(--color-focus); stroke-width:2px; vector-effect:non-scaling-stroke }
-:root[data-hero="lineage"] .hl-ld{ stroke:var(--soft); stroke-width:1px; vector-effect:non-scaling-stroke }
+:root[data-hero="lineage"] .hl-ld{ stroke:var(--soft); stroke-width:var(--rule-hair); vector-effect:non-scaling-stroke }
 /* where a milestone begins: the catalog's diamond (a space), on its leader */
 :root[data-hero="lineage"] .hl-dm{ position:absolute; left:calc(var(--x) * 1%); top:calc(var(--hl-pad) + (var(--y) + .5) * var(--hl-t)); width:var(--s2); height:var(--s2); translate:-50% -50%; rotate:45deg; background:var(--paper); border:var(--picker-line) solid var(--ink); pointer-events:none }
 
@@ -57,7 +56,7 @@
 :root[data-hero="lineage"] .hl-read.on{ color:var(--ink) }
 :root[data-hero="lineage"] .hl-read.on .hl-rd::after{ content:' ↗' }
 :root[data-hero="lineage"] .hl-ax{ position:relative; flex:1 1 100%; height:var(--s6); border-top:var(--rule-hair) solid var(--rule) }
-:root[data-hero="lineage"] .hl-ax svg{ position:absolute; top:0; left:0; display:block; width:100%; height:var(--s1); overflow:visible; shape-rendering:crispEdges; stroke:var(--soft); stroke-width:1px; vector-effect:non-scaling-stroke }
+:root[data-hero="lineage"] .hl-ax svg{ position:absolute; top:0; left:0; display:block; width:100%; height:var(--s1); overflow:visible; shape-rendering:crispEdges; stroke:var(--soft); stroke-width:var(--rule-hair) }
 :root[data-hero="lineage"] .hl-ax path{ vector-effect:non-scaling-stroke }
 :root[data-hero="lineage"] .hl-ax span{ position:absolute; top:var(--s2); left:calc(var(--x) * 1%); translate:-50% 0; font-size:var(--t1); line-height:1; color:var(--soft) }
 :root[data-hero="lineage"] .hl-ax span.start{ translate:0 } :root[data-hero="lineage"] .hl-ax span.end{ translate:-100% 0 }
@@ -65,9 +64,9 @@
 
 /* the river flows in, once, from the first year to the last */
 @media (prefers-reduced-motion:no-preference){ :root[data-hero="lineage"] .hl-sv{ animation:hl-flow calc(var(--dur-long) * 3) var(--ease-out) backwards } }
-@keyframes hl-flow{ from{ clip-path:inset(0 100% 0 0) } to{ clip-path:inset(0) } }
+@keyframes hl-flow{ from{ clip-path:inset(calc(-1 * var(--hl-pad)) 100% calc(-1 * var(--hl-pad)) 0) } to{ clip-path:inset(calc(-1 * var(--hl-pad)) 0 calc(-1 * var(--hl-pad)) 0) } }   /* the leaders' overflow into the gaps stays whole */
 
-/* narrow: each name over its stream; the leaders would cross the names, so a milestone is its flag and its ink band */
+/* narrow: each name over its stream; the leaders would cross the names, so a milestone is its flag and its diamond */
 @container work (width < 56rem){
 	:root[data-hero="lineage"] .hl-h{ font-size:var(--text-2xl) }
 	:root[data-hero="lineage"] .hl-fig{ --hl-t:calc(var(--s1) * .375); --hl-pad:var(--s1); margin-top:var(--s6) }   /* 1.5px bands – three device pixels or more on a phone (set here: :root is outside the container) */

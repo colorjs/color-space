@@ -6,17 +6,12 @@
 // sweeps are too many for every frame of the ambient orbit – a pass paints them a slice per frame, at most four
 // passes a second, and none while the table is off screen. Every tile is the workbench's own button
 // (data-open-s): its click delegate opens the dossier.
-import { FACTS, onColor, all } from './hero.js'
+import { FACTS, FAMI, onColor, all } from './hero.js'
 import { meta, disp, valsOf, S } from '../js/variants-model.js'
 import { FAMILIES, PICKS } from '../js/variants-data.js'
-import { strip } from '../js/variants-catalog.js'
-import { OI, UI } from '../js/variants-icons.js'
+import { strip, esc } from '../js/variants-catalog.js'
+import { UI } from '../js/variants-icons.js'
 
-// the ladder's icons, one per family (atlas.js's FAMI)
-const FAMI = { 'Display & web': OI.display, 'RGB remixes': OI.polar, 'Perceptual': OI.opponent, 'Colorimetry & research': OI.chromaticity,
-	'Video & broadcast': OI.delivery, 'Film & camera': OI.scene, 'Color order & surface': OI.palettes }
-const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
-const slug = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')   // wb.js's shelf ids, #shelf-<slug>
 
 // a tile's symbol: the name itself where it is short – less the words a whole shelf shares (RGB, CIE, Y′CbCr …), a
 // linear-light variant a leading l – else the short form it is written in; five characters at most, all distinct
@@ -45,11 +40,11 @@ const said = s => `${disp(s)} · ${meta[s].year}`
 const FAM = FAMILIES.map(f => ({ name: f.name, spaces: f.spaces.map((s, i) => [s, +meta[s].year, i]).sort((a, b) => a[1] - b[1] || a[2] - b[2]).map(a => a[0]) }))
 const KEY = 'lab'   // the key's tile: a starred space whose first channel – lightness – sweeps black to white through the color
 
-// a tile is one element – the orbit restyles every element on the page each frame, so the year is its ::before, the
-// sweep its background image, and only a starred tile has a child (the catalog's star)
+// a tile is the button and its year: the orbit restyles every element on the page with each frame, so the symbol is
+// the button's own text, the sweep its background image; a starred tile adds the catalog's star
 const tileHTML = (s, key) => { const y = sym(s), n = [...y].length
-	return `<${key ? 'span' : 'button type="button"'} class="ht-t${n > 3 ? ` l${Math.min(n, 5)}` : ''}" data-y="${meta[s].year}"${key ? '' : ` data-open-s="${s}" title="${esc(said(s))}" aria-label="${esc(said(s))}"`}>`
-		+ `${esc(y)}${PICKS.has(s) ? `<span class="pick">${UI.star}</span>` : ''}</${key ? 'span' : 'button'}>` }
+	return `<${key ? 'span' : 'button type="button"'} class="ht-t${n > 3 ? ` l${Math.min(n, 5)}` : ''}"${key ? '' : ` data-open-s="${s}" title="${esc(said(s))}" aria-label="${esc(said(s))}"`}>`
+		+ `<span class="ht-y tnum">${meta[s].year}</span>${esc(y)}${PICKS.has(s) ? `<span class="pick">${UI.star}</span>` : ''}</${key ? 'span' : 'button'}>` }
 
 export default function mount({ hero }) {
 	hero.innerHTML = `<div class="row ht-head">
@@ -63,7 +58,7 @@ export default function mount({ hero }) {
 	</div>
 	<section class="ht-tab" aria-label="The periodic table: ${FACTS.count} color spaces in ${FACTS.families} families, oldest first in each">${FAM.map((f, i) => `
 		<div class="row ht-fam" role="group" aria-labelledby="ht-f${i}">
-			<p class="lab"><button type="button" class="ht-fn" id="ht-f${i}" data-ht-jump="${slug(f.name)}" title="Go to ${esc(f.name)} in the catalog">${FAMI[f.name] ? `<span class="fic">${FAMI[f.name]}</span>` : ''}<span class="ht-fnm">${esc(f.name)}</span><span class="cnt tnum">${f.spaces.length}</span></button></p>
+			<p class="lab"><button type="button" class="ht-fn" id="ht-f${i}" data-jump="${esc(f.name)}" title="Go to ${esc(f.name)} in the catalog">${FAMI[f.name] ? `<span class="fic">${FAMI[f.name]}</span>` : ''}<span class="ht-fnm">${esc(f.name)}</span><span class="cnt tnum">${f.spaces.length}</span></button></p>
 			<div class="ht-grid">${f.spaces.map(s => tileHTML(s)).join('')}</div>
 		</div>`).join('')}
 	</section>`
@@ -78,14 +73,13 @@ export default function mount({ hero }) {
 			if (now - last < GAP) { raf = requestAnimationFrame(pump); return }
 			want = false; last = now; q = feet.slice() }
 		const t0 = performance.now()
-		do { const [s, el] = q.shift(); el.style.backgroundImage = strip(s, valsOf(s), 0, 8, S.limit) } while (q.length && performance.now() - t0 < SLICE)   // no var() inline: a shorthand with one is parsed again on every restyle
+		do { const [s, el] = q.shift(); el.style.backgroundImage = strip(s, valsOf(s), 0, 8, S.limit) } while (q.length && performance.now() - t0 < SLICE)   // no var() in it: with one, each frame's restyle of the page recomputed all 168 sweeps
 		if (q.length || want) raf = requestAnimationFrame(pump) }
 	const kick = () => { want = true; if (seen) raf ||= requestAnimationFrame(pump) }
 	const io = new IntersectionObserver(es => { seen = es.some(e => e.isIntersecting); if (seen && (want || q.length)) raf ||= requestAnimationFrame(pump) })
 	io.observe(hero.querySelector('.ht-tab'))
 	const lens = e => { if (['quant', 'metric', 'limit'].includes(e.detail?.key)) kick() }   // a new lens redraws every foot
-	const jump = e => { const j = e.target.closest('[data-ht-jump]'); if (j) document.getElementById('shelf-' + j.dataset.htJump)?.querySelector(':scope>.sh+*')?.scrollIntoView({ block: 'start' }) }
-	document.addEventListener('wb:set', lens); hero.addEventListener('click', jump)
+	document.addEventListener('wb:set', lens)
 	kick()
-	return all(onColor(kick), () => { cancelAnimationFrame(raf); io.disconnect(); document.removeEventListener('wb:set', lens); hero.removeEventListener('click', jump) })
+	return all(onColor(kick), () => { cancelAnimationFrame(raf); io.disconnect(); document.removeEventListener('wb:set', lens) })
 }

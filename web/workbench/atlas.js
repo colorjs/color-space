@@ -13,7 +13,8 @@
 //   set(key, v), disp; the model (variants-model.js: SPACES, meta, valsOf, RGB, hexNow, shelves, famOf) and the
 //   color science (core.js: locus, data – gamuts, CMFs). The current color changes with a 'wb:color' event on
 //   document – repaint on it (a frame, not a reflow: the catalog is repainting too). A variant listens only for
-//   its own affordances and returns a cleanup that removes them.
+//   its own affordances and returns a cleanup that removes them. A button with data-open-s="<space>" opens its
+//   dossier where the reader is (#hero is a [data-wstay] region); data-jump="<family>" scrolls to that shelf.
 // CSS – scope every rule under :root[data-hero="<key>"] (the shell sets it; during a swap both sheets are live for
 //   a moment). Tokens only. Breakpoints are container queries – @container work (…) on #hero itself, whose width
 //   is the catalog's – never the viewport. On a wide page (work ≥ 56rem) a hero hangs on the catalog's grid: a
@@ -30,7 +31,7 @@ import * as wb from './wb.js'
 import { boot, fill, S, disp, esc, plate, loadCite, citeHTML, closePane, stopOrbit, orbiting, color, PALMODES } from './wb.js'
 import { RGBX, valsOf, gamutOf, hexNow, parseColor, space, SPACES } from '../js/variants-model.js'
 import { CSS as CSS_FMT } from '../js/study-runtime.js'
-import { OI, UI } from '../js/variants-icons.js'
+import { UI } from '../js/variants-icons.js'
 
 const $ = id => document.getElementById(id), root = document.documentElement
 const WIDE = matchMedia('(width >= 75rem)')   // wb.js's breakpoint: the dossier docks from here up
@@ -38,6 +39,7 @@ const top = $('top'), hero = $('hero'), cat = $('cat')
 
 // ── the header, once; the workshop: the hero's variants, swapped in place ──
 import mountTop from './top-drawer.js'
+import { FAMI } from './hero.js'
 const HEROS = [['promise', 'Promise'], ['spectrum', 'Spectrum'], ['steps', 'Steps'], ['rings', 'Rings'], ['lineage', 'Lineage'],
 	['locus', 'Locus'], ['conic', 'Conic'], ['specimen', 'Specimen'], ['table', 'Table']]
 const heroOf = k => HEROS.some(h => h[0] === k) ? k : HEROS[0][0]
@@ -95,9 +97,6 @@ $('f-npm-p').innerHTML = plate('npm install color-space', 'npm install command',
 $('f-mcp-p').innerHTML = plate('npx -y color-space mcp', 'MCP server command', { wrap: true })
 
 // ── the ladder: every render of the catalog gets its titles' icons, jump buttons and stack positions ──
-// the families' icons – glyphs the shared line family already draws, one per family
-const FAMI = { 'Display & web': OI.display, 'RGB remixes': OI.polar, 'Perceptual': OI.opponent, 'Colorimetry & research': OI.chromaticity,
-	'Video & broadcast': OI.delivery, 'Film & camera': OI.scene, 'Color order & surface': OI.palettes }
 let act = -1
 // the ladder's foot: how the shelves are cut – family, purpose, era – index.html's tabs under its rail; one node,
 // seated again after every render (wb.js rewrites the catalog), its buttons a wb host that re-renders on a change
@@ -121,7 +120,10 @@ let mraf = 0
 addEventListener('scroll', () => { mraf ||= requestAnimationFrame(() => { mraf = 0; mark() }) }, { passive: true })
 addEventListener('resize', () => { act = -1; mark() }, { passive: true })
 new MutationObserver(decorate).observe(cat, { childList: true })   // wb.js re-renders the catalog on every filter and view change
-document.addEventListener('click', e => { const j = e.target.closest('[data-jump]'); if (j) j.closest('.shelf')?.querySelector(':scope>.sh+*')?.scrollIntoView({ block: 'start' }) })
+// a jump: a ladder title to its own shelf; anywhere else (a hero), data-jump names the family
+document.addEventListener('click', e => { const j = e.target.closest('[data-jump]'); if (!j) return
+	const sh = j.dataset.jump ? cat.querySelector(`.shelf[aria-label="${CSS.escape(j.dataset.jump)}"]`) : j.closest('.shelf')
+	sh?.querySelector(':scope>.sh+*')?.scrollIntoView({ block: 'start' }) })
 
 // ── the dock: the live dossier in an iframe ──
 const dock = $('dock'), dfr = dock.querySelector('.dfr'), dload = $('dock-load')
@@ -217,7 +219,7 @@ async function borrow() { const html = await fetch('../index.html').then(r => r.
 	const api = Object.assign(document.createElement('div'), { className: 'clo-api' }); api.append(...intro.children)
 	foot.before(sec({ id: 'api', 'aria-labelledby': 'introcopy-title' }, api), sec({ id: 'faq', 'aria-label': 'Questions' }, fqs))
 	for (const a of document.querySelectorAll('.clo a[href^="#"]')) a.addEventListener('click', e => { const h = dec(a.hash.slice(1)), c = !SPACES.includes(h) && read(h)
-		if (SPACES.includes(h)) { e.preventDefault(); wb.openPane(h, { from: a }) } else if (c) { e.preventDefault(); color(c.s, c.vals) } })
+		if (SPACES.includes(h)) { e.preventDefault(); wb.openPane(h, { from: a, scroll: false }) } else if (c) { e.preventDefault(); color(c.s, c.vals) } })
 	wireApi($('apitabs')) }
 // index.html's API panel: the tabs, then the two exporters – any pair to a .cube, any space to an .icc
 async function wireApi(tabs) { if (!tabs) return

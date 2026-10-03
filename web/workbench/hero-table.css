@@ -16,7 +16,7 @@
 :root[data-hero="table"] .ht-dek{ margin:var(--s3) 0 0; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:pretty }
 :root[data-hero="table"] .ht-key{ display:flex; align-items:center; gap:var(--s4); font-weight:500; white-space:normal }
 :root[data-hero="table"] .ht-key>.ht-t{ flex:none; width:calc(var(--s12) + var(--s4)); padding-bottom:var(--s2); font-size:var(--t4); background-size:100% var(--s2) }
-:root[data-hero="table"] .ht-key>.ht-t::before{ top:var(--s2); left:var(--s2); font-size:var(--t1) }
+:root[data-hero="table"] .ht-key>.ht-t .ht-y{ top:var(--s2); left:var(--s2); font-size:var(--t1) }
 :root[data-hero="table"] .ht-key>.ht-t .pick{ top:var(--s1); right:var(--s1) }
 :root[data-hero="table"] .ht-key ul{ display:flex; flex-direction:column; gap:var(--s1); min-width:0; margin:0; padding:0; list-style:none; font-size:var(--t1); line-height:1.3 }
 :root[data-hero="table"] .ht-key li{ display:flex; align-items:center; gap:var(--s2) }
@@ -33,14 +33,13 @@
 :root[data-hero="table"] .ht-fn:hover{ color:var(--ink) }   /* dim → ink, the ladder's rule */
 :root[data-hero="table"] .ht-grid{ flex:1 1 100%; min-width:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--ht-tile),1fr)); gap:var(--ht-gap) }
 
-/* a tile: its year, its symbol, its foot – the current color swept along its first channel (the background image,
-   painted by hero-table.js) – one element */
-:root[data-hero="table"] .ht-t{ position:relative; display:grid; place-items:center; aspect-ratio:1; min-width:0; padding-top:var(--s2); padding-bottom:var(--s1); overflow:hidden; font-size:var(--t2); font-weight:750; line-height:1; letter-spacing:-.01em; white-space:nowrap; color:var(--ink);
-	background-color:var(--panel); background-repeat:no-repeat; background-position:bottom; background-size:100% var(--s1);
-	transition-property:background-color; transition-duration:var(--dur-micro); transition-timing-function:var(--ease-out) }   /* longhands: every tile is restyled with each frame of the orbit, and a shorthand holding a var() is parsed again each time */
+/* a tile: the button and its year – its text the symbol, its background image the foot (the current color swept along
+   its first channel, painted by hero-table.js): the orbit restyles every element on the page each frame */
+:root[data-hero="table"] .ht-t{ position:relative; display:grid; place-items:center; aspect-ratio:1; min-width:0; padding-top:var(--s3); padding-bottom:var(--s1); overflow:hidden; font-size:var(--t2); font-weight:750; line-height:1; letter-spacing:-.01em; white-space:nowrap; color:var(--ink);
+	background-color:var(--panel); background-repeat:no-repeat; background-position:bottom; background-size:100% var(--s1); transition:background-color var(--dur-micro) var(--ease-out) }   /* longhands round the inline image */
 :root[data-hero="table"] .ht-t.l4{ font-size:var(--t1) }
 :root[data-hero="table"] .ht-t.l5{ font-size:var(--t0) }
-:root[data-hero="table"] .ht-t::before{ content:attr(data-y); position:absolute; top:var(--s1); left:var(--s1); font-size:var(--t0); font-weight:400; letter-spacing:0; font-variant-numeric:tabular-nums; color:var(--soft) }
+:root[data-hero="table"] .ht-y{ position:absolute; top:var(--space-3xs); left:var(--space-3xs); font-size:var(--t0); font-weight:400; letter-spacing:0; color:var(--soft) }   /* in its corner as the star is in the other, clear of it */
 :root[data-hero="table"] button.ht-t:hover{ background-color:var(--sel) }   /* the spec sheet's row hover */
 :root[data-hero="table"] button.ht-t:focus-visible{ z-index:1 }
 :root[data-hero="table"] .ht-t .pick{ position:absolute; top:var(--space-3xs); right:var(--space-3xs); display:grid } :root[data-hero="table"] .ht-t .pick .star{ --ic:8px }   /* the catalog's star: a space to meet first – in the corner, clear of the year */

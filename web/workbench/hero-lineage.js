@@ -7,16 +7,11 @@
 // A band answers the pointer within a few pixels (the bands are 2px), its name below; a click, or Enter on a focused
 // band (arrows move between them), opens its dossier. Live: one OKLCH hue per family, spread evenly and turned so
 // the current color's hue leads the first – one custom property per color change; the bands are written once.
-import { FACTS, onColor, all } from './hero.js'
+import { FACTS, FAMI, onColor, all } from './hero.js'
 import { meta, disp, LORE, valsOf } from '../js/variants-model.js'
 import { FAMILIES } from '../js/variants-data.js'
-import { OI } from '../js/variants-icons.js'
+import { esc } from '../js/variants-catalog.js'
 
-// the ladder's icons, one per family (atlas.js's FAMI)
-const FAMI = { 'Display & web': OI.display, 'RGB remixes': OI.polar, 'Perceptual': OI.opponent, 'Colorimetry & research': OI.chromaticity,
-	'Video & broadcast': OI.delivery, 'Film & camera': OI.scene, 'Color order & surface': OI.palettes }
-const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
-const slug = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')   // wb.js's shelf ids, #shelf-<slug>
 
 // the river: x in a 1000-wide viewBox stretched to the column, one unit per band in y (--hl-t px on screen). It runs
 // to the end of the latest year, so this year's spaces have a length; x grows with the square of the years since
@@ -48,8 +43,8 @@ const YRS = [...new Set([T0, ...DEC.filter(d => d % 50 === 0 && X(d) > 20 && X(d
 const near = y => y !== T0 && y !== FACTS.to && (X(y) < 80 || X(y) > 920)   // a half-century this close to an end gives way on a narrow axis
 
 // a family's color: its hue, deepest at the founder and lightening toward the newest at its edges – one gradient per
-// family in a defs-only SVG, the one element the current hue is written to (a custom property set higher up would
-// restyle every band; this restyles 21 stops). Every other row a shade lighter, so the lines read as lines
+// family in a defs-only SVG, the one element the current hue is written to, so a change restyles 21 stops rather than
+// 168 bands. Every other row a shade lighter, so the lines read as lines
 const gradSVG = F => `<linearGradient id="hl-g${F.fi}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${F.H}" style="--fh:${+(F.fi * 360 / FAM.length).toFixed(2)}"><stop class="e" offset="0"/><stop offset="${+((F.c + .5) / F.H).toFixed(4)}"/><stop class="e" offset="1"/></linearGradient>`
 // a band is a button named for its space; the one <title> (the tooltip) moves to the band picked – every element in
 // the hero is restyled with each frame of the orbit, so 168 more would cost
@@ -59,7 +54,7 @@ const bandSVG = b => `<rect class="hl-b${b.row % 2 ? ' z' : ''}" x="${+b.x.toFix
 // overflow shows in its padding), down to the top of its band
 const leadSVG = F => MS.filter(m => m.b.fi >= F.fi).map(m => `<line class="hl-ld" x1="${+m.b.x.toFixed(2)}" x2="${+m.b.x.toFixed(2)}" y1="${-PAD}" y2="${m.b.fi === F.fi ? m.b.row : F.H + PAD}"/>`).join('')
 const famHTML = F => `<div class="row hl-fam">
-	<p class="lab"><button type="button" class="hl-fn" data-hl-jump="${slug(F.name)}" title="Go to ${esc(F.name)} in the catalog">${FAMI[F.name] ? `<span class="fic">${FAMI[F.name]}</span>` : ''}<span class="hl-fnm">${esc(F.name)}</span><span class="cnt tnum">${F.n}</span></button></p>
+	<p class="lab"><button type="button" class="hl-fn" data-jump="${esc(F.name)}" title="Go to ${esc(F.name)} in the catalog">${FAMI[F.name] ? `<span class="fic">${FAMI[F.name]}</span>` : ''}<span class="hl-fnm">${esc(F.name)}</span><span class="cnt tnum">${F.n}</span></button></p>
 	<div class="hl-st"><svg class="hl-sv" data-f="${F.fi}" viewBox="0 0 ${W} ${F.H}" preserveAspectRatio="none" fill="url(#hl-g${F.fi})" style="--u:${F.H}" role="group" aria-label="${esc(F.name)}: ${F.n} spaces, the first in ${F.from}">${leadSVG(F)}${F.bands.map(bandSVG).join('')}</svg>${MS.filter(m => m.b.fi === F.fi).map(m => `<i class="hl-dm" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i>`).join('')}</div>
 </div>`
 const SUMMARY = `${FACTS.count} color spaces as lines from the year each appeared, ${FACTS.from} to ${FACTS.to}, in ${FACTS.families} families: `
@@ -102,15 +97,14 @@ export default function mount({ hero, wb }) {
 		let best = null, d = 3   // within three bands (6px)
 		for (const b of F.bands) if (b.x <= x) { const dd = Math.abs(b.row + .5 - u); if (dd < d) { d = dd; best = b } }
 		return best }
-	const open = b => wb.openPane(b.s, { from: els.get(b.s), scroll: wb.W.follow })   // the workbench delegate's call for a data-open-s button
+	const open = b => wb.openPane(b.s, { from: els.get(b.s), scroll: false })   // as the delegate opens a hero's data-open-s button: the page stays
 	const move = b => { if (!b) return; tab.tabIndex = -1; tab = els.get(b.s); tab.tabIndex = 0; tab.focus(); pick(b) }
 
 	// the pointer's band, else the focused one
 	const held = () => { const a = document.activeElement; return a?.classList?.contains('hl-b') && fig.contains(a) ? BAND.get(a.dataset.s) : null }
 	const over = e => { if (e.pointerType !== 'touch') pick(hit(e) || held()) }
 	const leave = () => pick(held())
-	const click = e => { const j = e.target.closest('[data-hl-jump]')
-		if (j) { document.getElementById('shelf-' + j.dataset.hlJump)?.querySelector(':scope>.sh+*')?.scrollIntoView({ block: 'start' }); return }
+	const click = e => { if (e.target.closest('[data-jump]')) return   // a family name: the shell jumps to its shelf
 		const b = hit(e) || BAND.get(e.target.closest?.('.hl-b')?.dataset.s); if (b) open(b) }
 	const key = e => { const el = e.target.closest?.('.hl-b'); if (!el) return; const b = BAND.get(el.dataset.s), F = FAM[b.fi], k = DOWN.indexOf(b)
 		const to = { ArrowDown: DOWN[k + 1], ArrowUp: DOWN[k - 1], ArrowRight: F.bands[b.r + 1], ArrowLeft: F.bands[b.r - 1], Home: DOWN[0], End: DOWN.at(-1) }
