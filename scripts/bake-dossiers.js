@@ -9,6 +9,9 @@
 // the same DEFAULT state and replaces the shell with byte-equivalent markup, so
 // nothing visibly moves. Crawlers get the full dossier as document content.
 //
+// Every stamped language gets its own pass from its own /<lang>/ index: the dossiers
+// it bakes are the runtime's, read through that language's table.
+//
 // Skips (with a warning) when playwright or its browser is unavailable — the site
 // still works, the name view just boots the old way. CS_NO_DOSSIERS=1 skips for
 // quick dev builds.
@@ -19,7 +22,7 @@ import { SPACES } from '../web/js/render.js'
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.wasm': 'application/wasm', '.txt': 'text/plain', '.xml': 'application/xml', '.woff2': 'font/woff2' }
 
-export async function bakeDossiers(site) {
+export async function bakeDossiers(site, i18n) {
 	if (process.env.CS_NO_DOSSIERS) { console.warn('bake-dossiers: skipped (CS_NO_DOSSIERS)'); return }
 	let chromium
 	try { ({ chromium } = await import('playwright')) }
@@ -38,9 +41,11 @@ export async function bakeDossiers(site) {
 	let browser
 	try { browser = await chromium.launch() }
 	catch (e) { srv.close(); console.warn(`bake-dossiers: browser launch failed (${String(e.message).split('\n')[0]}) — name views ship without prerendered dossiers`); return }
-	try {
+	try { for (const L of [{ code: 'en', pages: new Set(SPACES) }, ...(i18n?.langs || [])]) {
+		const pre = L.code === 'en' ? '' : L.code + '/', spaces = SPACES.filter((s) => L.pages.has(s))
+		if (!spaces.length) continue
 		const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-		await page.goto(`http://127.0.0.1:${srv.address().port}/index.html`, { waitUntil: 'load' })
+		await page.goto(`http://127.0.0.1:${srv.address().port}/${pre}index.html`, { waitUntil: 'load' })
 		// module readiness has no global signal — the first modal that opens IS the signal.
 		// Null-safe throughout: a throwing predicate REJECTS waitForFunction instead of
 		// retrying, and #modal can be transiently absent mid-hydration.
@@ -50,7 +55,7 @@ export async function bakeDossiers(site) {
 			return !!m && !m.hidden
 		}, { timeout: 30000, polling: 250 })
 		await page.evaluate(() => document.getElementById('mx').click())
-		for (const s of SPACES) {
+		for (const s of spaces) {
 			// openModal → buildDetail → renderFast all run synchronously inside the click,
 			// so the shell is capturable immediately — no settle frames, no closing between
 			// spaces (opening the next dossier replaces the current one)
@@ -60,11 +65,11 @@ export async function bakeDossiers(site) {
 				if (!document.getElementById('dtitle')?.textContent.trim()) throw new Error('empty dossier: ' + s2)
 				return document.getElementById('detail').innerHTML
 			}, s)
-			const file = join(site, s + '.html')
+			const file = join(site, pre + s + '.html')
 			let h = readFileSync(file, 'utf8')
 			const anchor = '<div class="detail" id="detail" tabindex="-1"></div>'
 			if (!h.includes(anchor)) throw new Error('bake-dossiers: detail anchor missing in ' + s + '.html')
-			h = h.replace(anchor, `<div class="detail" id="detail" tabindex="-1">${shell}</div>`)
+			h = h.replace(anchor, () => `<div class="detail" id="detail" tabindex="-1">${shell}</div>`)   // a function: translated text may carry $
 			const modal = /<div class="modal" id="modal"([^>]*?) hidden>/
 			if (!modal.test(h)) throw new Error('bake-dossiers: modal anchor missing in ' + s + '.html')
 			h = h.replace(modal, '<div class="modal" id="modal"$1>')
@@ -72,8 +77,9 @@ export async function bakeDossiers(site) {
 			h = h.replace('<body>', '<body class="mopen" style="overflow:hidden">')
 			writeFileSync(file, h)
 		}
-		console.log(`baked ${SPACES.length} dossier shells into the name views`)
-	} finally {
+		await page.close()
+		console.log(`baked ${spaces.length} dossier shells into the ${L.code === 'en' ? '' : `/${L.code}/ `}name views`)
+	} } finally {
 		await browser.close()
 		srv.close()
 	}

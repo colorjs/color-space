@@ -17,6 +17,8 @@ export const SOFT = 'Menu names may vary by version.'
 export const SHAPER_LABEL = 'DaVinci Resolve / OCIO only'
 export const SIZE_LABEL = { 33: 'standard', 65: 'high precision' }
 
+// a step that IS a command – shown as code, never translated
+export const isCommand = (st) => /^ffmpeg /.test(st)
 // the copy-paste line for a cube the page just saved (its names are [a-z0-9-.] only, so
 // the filter string needs no quoting); interp is lut3d's default, spelled out
 export const ffmpeg = (file) => `ffmpeg -i in.mov -vf "lut3d=file=${file}:interp=tetrahedral" -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a copy out.mp4`

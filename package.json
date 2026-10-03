@@ -270,6 +270,7 @@
     "types": "node scripts/generate-types.js",
     "data": "node scripts/generate-data.js",
     "landing": "node scripts/build-site.js",
+    "i18n": "node scripts/i18n-extract.js",
     "banner": "node scripts/generate-banner.js",
     "icon": "node scripts/generate-icon.js",
     "og": "node scripts/generate-og.js",
