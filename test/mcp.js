@@ -110,11 +110,23 @@ test('mcp: convert batches tuples and flags each channel against its range', asy
 test('mcp: unknown spaces suggest ids and display names', async () => {
 	const typo = await tool('convert', { from: 'okclh', to: 'rgb', values: [0.7, 0.1, 30] })
 	is(typo.isError, true, 'a tool error, not a crash')
-	ok(/unknown space 'okclh' — did you mean oklch \(OKLCH\), oklab \(Oklab\), okhsl \(OkHSL\)\?/.test(typo.content[0].text), typo.content[0].text)
+	ok(/unknown space 'okclh' — did you mean oklch, oklab, okhsl\?/.test(typo.content[0].text), typo.content[0].text)   // a name that is only the id recased adds nothing
 	const name = await tool('space', { name: 'Display P3' })
 	ok(/did you mean p3 \(Display P3\)/.test(name.content[0].text), name.content[0].text)
 	const cie = await tool('gamut', { from: 'CIELAB', values: [50, 0, 0] })
 	ok(/did you mean lab \(CIELAB\)/.test(cie.content[0].text), cie.content[0].text)
+	const lch = await tool('space', { name: 'CIELChab' })
+	ok(/did you mean lchab \(CIELChab\)/.test(lch.content[0].text), lch.content[0].text)   // the site's pinned names, not a second derivation
+})
+
+test('mcp: display names are the site\'s – data.json spaces[id].title, one source', async () => {
+	const { disp } = await import('../web/js/render.js')
+	for (const s of ['lalphabeta', 'okhsl', 'ycbcr-bt601-525', 'slog3', 'p3']) {
+		const d = (await tool('space', { name: s })).structuredContent
+		is(d.title, disp(s), `${s}: ${d.title}`)
+	}
+	const list = (await tool('spaces', { query: 'oklab' })).structuredContent.spaces
+	is(list[0].title, disp(list[0].name), 'the catalog list carries it too')
 })
 
 test('mcp: gamut walks the site ladder sRGB ⊂ Display P3 ⊂ Rec. 2020', async () => {

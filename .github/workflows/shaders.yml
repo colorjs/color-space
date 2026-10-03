@@ -1,0 +1,100 @@
+name: shaders
+# Tier 3 for color-space/gl/hlsl and /msl: compile every generated source with the vendor
+# compilers — DXC + FXC on Windows, Apple's metal on macOS — wrapped in a one-thread compute
+# entry (test/shader-compile.js). Tier 1 (test/hlsl.js: naga translation, names, lint,
+# snapshots) runs inside npm test and gates the deploy; this workflow does NOT gate pages.yml
+# or test.yml — a red run here is a report, not a broken site.
+#
+# Recipe from upstream naga's own validation (gfx-rs/wgpu .github/workflows/shaders.yml and
+# .github/actions/install-dxc): FXC from the runner's Windows SDK, a pinned DXC release, and
+# `xcodebuild -downloadComponent MetalToolchain` before `xcrun metal` on macos-26.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'gl/**'
+      - 'test/shader-compile.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/shaders.yml'
+  pull_request:
+    paths:
+      - 'gl/**'
+      - 'test/shader-compile.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/shaders.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shaders-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hlsl:
+    name: HLSL (DXC + FXC)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # gl/ is plain source — skip prepare (types/data/wasm/dist); naga-wasm is a devDependency
+      - run: npm ci --ignore-scripts
+      # FXC ships with the runner's Windows SDK (newest bin\<version>\x64 wins)
+      - name: Locate FXC
+        shell: pwsh
+        run: |
+          $fxc = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\fxc.exe" |
+            Sort-Object { $_.Directory.Parent.Name -as [version] } -Descending | Select-Object -First 1
+          if (-not $fxc) { throw 'fxc.exe not found in the Windows SDK' }
+          "FXC=$($fxc.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      # the SDK's dxc.exe is older; pin the release upstream naga validates with
+      - name: Install DXC
+        shell: bash
+        run: |
+          set -e
+          curl.exe -fL --retry 5 -o dxc.zip https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602.24/dxc_2026_05_27.zip
+          7z.exe x dxc.zip -odxc >/dev/null
+          echo "DXC=$(cygpath --windows "$PWD/dxc/bin/x64/dxc.exe")" >> "$GITHUB_ENV"
+      - name: Compiler versions
+        shell: pwsh
+        run: |
+          & $env:DXC --version
+          & $env:FXC /? | Select-Object -First 3
+          exit 0
+      - name: Compile every source
+        run: node test/shader-compile.js hlsl "${{ runner.temp }}/shaders/hlsl"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hlsl-sources
+          path: ${{ runner.temp }}/shaders/hlsl
+
+  msl:
+    name: MSL (xcrun metal)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      # Xcode 26 ships the Metal toolchain as a separate component; upstream installs it
+      # unconditionally because it is not always present (gfx-rs/wgpu#9514)
+      - name: Install the Metal toolchain
+        run: xcrun -sdk macosx metal --version || sudo xcodebuild -downloadComponent MetalToolchain
+      - name: Compiler version
+        run: xcrun -sdk macosx metal --version
+      - name: Compile every source
+        run: node test/shader-compile.js msl "${{ runner.temp }}/shaders/msl"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: msl-sources
+          path: ${{ runner.temp }}/shaders/msl

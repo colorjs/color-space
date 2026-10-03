@@ -7,12 +7,13 @@
 import space from '../index.js';
 
 // Lazy load competitor libraries to avoid startup overhead
-let culori, colorjs, texel, chroma, tinycolor, color, colorConvert, d3;
+let lite, culori, colorjs, texel, chroma, tinycolor, color, colorConvert, d3;
 const texelOut = [0, 0, 0]; // texel's idiom: convert(coords, from, to, out) — reused scratch
 
 async function loadLibraries() {
 	try {
-		const [culoriModule, colorjsModule, texelModule, d3Module, chromaModule, tinycolorModule, colorModule, colorConvertModule] = await Promise.all([
+		const [liteModule, culoriModule, colorjsModule, texelModule, d3Module, chromaModule, tinycolorModule, colorModule, colorConvertModule] = await Promise.all([
+			import('../lite.js').catch(() => null),
 			import('culori').catch(() => null),
 			import('colorjs.io').catch(() => null),
 			import('@texel/color').catch(() => null),
@@ -23,6 +24,7 @@ async function loadLibraries() {
 			import('color-convert').catch(() => null)
 		]);
 
+		lite = liteModule?.default;
 		culori = culoriModule;
 		colorjs = colorjsModule?.default; // Color class is default export
 		texel = texelModule;
@@ -34,6 +36,7 @@ async function loadLibraries() {
 
 		console.log('Loaded libraries:');
 		console.log('  ✓ color-space (this library)');
+		if (lite) console.log('  ✓ color-space/lite');
 		if (culori) console.log('  ✓ culori');
 		if (colorjs) console.log('  ✓ colorjs.io');
 		if (texel) console.log('  ✓ @texel/color');
@@ -53,11 +56,11 @@ async function loadLibraries() {
 // cases return null and are never timed.
 let sink
 function benchmark(name, fn, iterations = 100000, rounds = 7) {
-	for (let i = 0; i < Math.min(iterations, 20000); i++) sink = fn()
+	for (let i = 0; i < Math.min(iterations, 20000); i++) sink = fn(i)
 	const samples = []
 	for (let round = 0; round < rounds; round++) {
 		const start = performance.now()
-		for (let i = 0; i < iterations; i++) sink = fn()
+		for (let i = 0; i < iterations; i++) sink = fn(i)
 		samples.push(performance.now() - start)
 	}
 	samples.sort((a, b) => a - b)
@@ -98,343 +101,136 @@ function printResults(testName, results) {
 	});
 }
 
-// Test cases
+// ── inputs: a fixed table of 256 colors, read by every library in its own units ──
+// Literal arguments let V8 inline a pure conversion and fold it to a constant, so a
+// library would be timed on code that no longer runs (2026-10, Node 22: d3-color
+// rgb→lab 47 M op/s on literals vs 2.6 M on varied input, color-space rgb.lab 17 vs
+// 3.5, culori — which allocates per call — 3.2 vs 3.2). Every case reads entry
+// `i & 255` from a precomputed table in its library's units, so no case pays for a
+// per-call unit conversion and the index cost is the same for all of them.
+const N = 256, at = (i) => (i & (N - 1)) * 3
+const RGB = new Float64Array(N * 3).map((_, i) => (i * 2654435761) % 256) // never gray
+const conv = (to) => { const t = new Float64Array(N * 3)
+	for (let k = 0; k < N * 3; k += 3) t.set(space.rgb[to](RGB[k], RGB[k + 1], RGB[k + 2]), k)
+	return t }
+const LAB = conv('lab'), HSL = conv('hsl'), OKLAB = conv('oklab')
+const RGB01 = RGB.map((v) => v / 255)
+const HSL01 = HSL.map((v, k) => k % 3 ? v / 100 : v) // h 0-360, s/l 0-1
+
+// Test cases — `i` selects the input; a case returning null is unsupported, never timed
 const tests = [
 	{
 		name: 'RGB → Lab',
-		colorSpace: () => {
-			return space.rgb.lab(128, 64, 192);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.lab({ mode: 'rgb', r: 128/255, g: 64/255, b: 192/255 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('srgb', [128/255, 64/255, 192/255]);
-			return c.lab;
-		},
-		texel: () => {
-			// texel doesn't support Lab
-			return null;
-		},
-		d3: () => {
-			if (!d3) return;
-			const result = d3.lab(d3.rgb(128, 64, 192));
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma(128, 64, 192, 'rgb').lab();
-		},
-		tinycolor: () => {
-			// tinycolor doesn't support Lab
-			return null;
-		},
-		color: () => {
-			if (!color) return;
-			return color({ r: 128, g: 64, b: 192 }).lab().array();
-		},
-		colorConvert: () => {
-			if (!colorConvert) return;
-			return colorConvert.rgb.lab(128, 64, 192);
-		}
+		colorSpace: (i) => { const k = at(i); return space.rgb.lab(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		lite: (i) => { const k = at(i); return lite.rgb.lab(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		culori: (i) => { const k = at(i); return culori.lab({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).lab },
+		texel: () => null, // texel doesn't support Lab
+		d3: (i) => { const k = at(i); return d3.lab(d3.rgb(RGB[k], RGB[k + 1], RGB[k + 2])) },
+		chroma: (i) => { const k = at(i); return chroma(RGB[k], RGB[k + 1], RGB[k + 2], 'rgb').lab() },
+		tinycolor: () => null, // tinycolor doesn't support Lab
+		color: (i) => { const k = at(i); return color({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).lab().array() },
+		colorConvert: (i) => { const k = at(i); return colorConvert.rgb.lab(RGB[k], RGB[k + 1], RGB[k + 2]) },
 	},
 	{
 		name: 'Lab → RGB',
-		colorSpace: () => {
-			return space.lab.rgb(50, -25, 40);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.rgb({ mode: 'lab', l: 50, a: -25, b: 40 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('lab', [50, -25, 40]);
-			return c.srgb;
-		},
-		texel: () => {
-			// texel doesn't support Lab
-			return null;
-		},
-		d3: () => {
-			if (!d3) return;
-			const result = d3.rgb(d3.lab(50, -25, 40));
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma.lab(50, -25, 40).rgb();
-		},
-		tinycolor: () => {
-			// tinycolor doesn't support Lab
-			return null;
-		},
-		color: () => {
-			if (!color) return;
-			return color.lab(50, -25, 40).rgb().array();
-		},
-		colorConvert: () => {
-			if (!colorConvert) return;
-			return colorConvert.lab.rgb(50, -25, 40);
-		}
+		colorSpace: (i) => { const k = at(i); return space.lab.rgb(LAB[k], LAB[k + 1], LAB[k + 2]) },
+		lite: (i) => { const k = at(i); return lite.lab.rgb(LAB[k], LAB[k + 1], LAB[k + 2]) },
+		culori: (i) => { const k = at(i); return culori.rgb({ mode: 'lab', l: LAB[k], a: LAB[k + 1], b: LAB[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('lab', [LAB[k], LAB[k + 1], LAB[k + 2]]).srgb },
+		texel: () => null, // texel doesn't support Lab
+		d3: (i) => { const k = at(i); return d3.rgb(d3.lab(LAB[k], LAB[k + 1], LAB[k + 2])) },
+		chroma: (i) => { const k = at(i); return chroma.lab(LAB[k], LAB[k + 1], LAB[k + 2]).rgb() },
+		tinycolor: () => null, // tinycolor doesn't support Lab
+		color: (i) => { const k = at(i); return color.lab(LAB[k], LAB[k + 1], LAB[k + 2]).rgb().array() },
+		colorConvert: (i) => { const k = at(i); return colorConvert.lab.rgb(LAB[k], LAB[k + 1], LAB[k + 2]) },
 	},
 	{
 		name: 'RGB → HSL',
-		colorSpace: () => {
-			return space.rgb.hsl(128, 64, 192);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.hsl({ mode: 'rgb', r: 128/255, g: 64/255, b: 192/255 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('srgb', [128/255, 64/255, 192/255]);
-			return c.hsl;
-		},
-		texel: () => {
-			// texel doesn't have regular HSL, only OKHSL
-			return null;
-		},
-		d3: () => {
-			if (!d3) return;
-			const result = d3.hsl(d3.rgb(128, 64, 192));
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma(128, 64, 192, 'rgb').hsl();
-		},
-		tinycolor: () => {
-			if (!tinycolor) return;
-			return tinycolor({ r: 128, g: 64, b: 192 }).toHsl();
-		},
-		color: () => {
-			if (!color) return;
-			return color({ r: 128, g: 64, b: 192 }).hsl().array();
-		},
-		colorConvert: () => {
-			if (!colorConvert) return;
-			return colorConvert.rgb.hsl(128, 64, 192);
-		}
+		colorSpace: (i) => { const k = at(i); return space.rgb.hsl(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		lite: () => null, // device cylinders live in the full catalog
+		culori: (i) => { const k = at(i); return culori.hsl({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).hsl },
+		texel: () => null, // texel has OKHSL, not classic HSL
+		d3: (i) => { const k = at(i); return d3.hsl(d3.rgb(RGB[k], RGB[k + 1], RGB[k + 2])) },
+		chroma: (i) => { const k = at(i); return chroma(RGB[k], RGB[k + 1], RGB[k + 2], 'rgb').hsl() },
+		tinycolor: (i) => { const k = at(i); return tinycolor({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).toHsl() },
+		color: (i) => { const k = at(i); return color({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).hsl().array() },
+		colorConvert: (i) => { const k = at(i); return colorConvert.rgb.hsl(RGB[k], RGB[k + 1], RGB[k + 2]) },
 	},
 	{
 		name: 'HSL → RGB',
-		colorSpace: () => {
-			return space.hsl.rgb(270, 67, 50);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.rgb({ mode: 'hsl', h: 270, s: 0.67, l: 0.5 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('hsl', [270, 67, 50]);
-			return c.srgb;
-		},
-		texel: () => {
-			// texel doesn't have regular HSL, only OKHSL
-			return null;
-		},
-		d3: () => {
-			if (!d3) return;
-			const result = d3.rgb(d3.hsl(270, 0.67, 0.5));
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma.hsl(270, 0.67, 0.5).rgb();
-		},
-		tinycolor: () => {
-			if (!tinycolor) return;
-			return tinycolor({ h: 270, s: 0.67, l: 0.5 }).toRgb();
-		},
-		color: () => {
-			if (!color) return;
-			return color.hsl(270, 67, 50).rgb().array();
-		},
-		colorConvert: () => {
-			if (!colorConvert) return;
-			return colorConvert.hsl.rgb(270, 67, 50);
-		}
+		colorSpace: (i) => { const k = at(i); return space.hsl.rgb(HSL[k], HSL[k + 1], HSL[k + 2]) },
+		lite: () => null, // device cylinders live in the full catalog
+		culori: (i) => { const k = at(i); return culori.rgb({ mode: 'hsl', h: HSL01[k], s: HSL01[k + 1], l: HSL01[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('hsl', [HSL[k], HSL[k + 1], HSL[k + 2]]).srgb },
+		texel: () => null, // texel has OKHSL, not classic HSL
+		d3: (i) => { const k = at(i); return d3.rgb(d3.hsl(HSL01[k], HSL01[k + 1], HSL01[k + 2])) },
+		chroma: (i) => { const k = at(i); return chroma.hsl(HSL01[k], HSL01[k + 1], HSL01[k + 2]).rgb() },
+		tinycolor: (i) => { const k = at(i); return tinycolor({ h: HSL01[k], s: HSL01[k + 1], l: HSL01[k + 2] }).toRgb() },
+		color: (i) => { const k = at(i); return color.hsl(HSL[k], HSL[k + 1], HSL[k + 2]).rgb().array() },
+		colorConvert: (i) => { const k = at(i); return colorConvert.hsl.rgb(HSL[k], HSL[k + 1], HSL[k + 2]) },
 	},
 	{
 		name: 'RGB → Oklab',
-		colorSpace: () => {
-			return space.rgb.oklab(128, 64, 192);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.oklab({ mode: 'rgb', r: 128/255, g: 64/255, b: 192/255 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('srgb', [128/255, 64/255, 192/255]);
-			return c.oklab;
-		},
-		texel: () => {
-			if (!texel) return;
-			return texel.convert([128/255, 64/255, 192/255], texel.sRGB, texel.OKLab, texelOut);
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma(128, 64, 192, 'rgb').oklab();
-		},
-		tinycolor: () => {
-			// tinycolor doesn't support Oklab
-			return null;
-		},
-		color: () => {
-			// color doesn't support Oklab
-			return null;
-		},
-		colorConvert: () => {
-			// color-convert doesn't support Oklab
-			return null;
-		}
+		colorSpace: (i) => { const k = at(i); return space.rgb.oklab(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		lite: (i) => { const k = at(i); return lite.rgb.oklab(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		culori: (i) => { const k = at(i); return culori.oklab({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).oklab },
+		texel: (i) => { const k = at(i); return texel.convert([RGB01[k], RGB01[k + 1], RGB01[k + 2]], texel.sRGB, texel.OKLab, texelOut) },
+		chroma: (i) => { const k = at(i); return chroma(RGB[k], RGB[k + 1], RGB[k + 2], 'rgb').oklab() },
+		tinycolor: () => null, // tinycolor doesn't support Oklab
+		color: () => null, // color doesn't support Oklab
+		colorConvert: () => null, // color-convert doesn't support Oklab
 	},
 	{
 		name: 'Oklab → RGB',
-		colorSpace: () => {
-			return space.oklab.rgb(0.6, -0.1, 0.15);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.rgb({ mode: 'oklab', l: 0.6, a: -0.1, b: 0.15 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('oklab', [0.6, -0.1, 0.15]);
-			return c.srgb;
-		},
-		texel: () => {
-			if (!texel) return;
-			return texel.convert([0.6, -0.1, 0.15], texel.OKLab, texel.sRGB, texelOut);
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma.oklab(0.6, -0.1, 0.15).rgb();
-		},
-		tinycolor: () => {
-			// tinycolor doesn't support Oklab
-			return null;
-		},
-		color: () => {
-			// color doesn't support Oklab
-			return null;
-		},
-		colorConvert: () => {
-			// color-convert doesn't support Oklab
-			return null;
-		}
+		colorSpace: (i) => { const k = at(i); return space.oklab.rgb(OKLAB[k], OKLAB[k + 1], OKLAB[k + 2]) },
+		lite: (i) => { const k = at(i); return lite.oklab.rgb(OKLAB[k], OKLAB[k + 1], OKLAB[k + 2]) },
+		culori: (i) => { const k = at(i); return culori.rgb({ mode: 'oklab', l: OKLAB[k], a: OKLAB[k + 1], b: OKLAB[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('oklab', [OKLAB[k], OKLAB[k + 1], OKLAB[k + 2]]).srgb },
+		texel: (i) => { const k = at(i); return texel.convert([OKLAB[k], OKLAB[k + 1], OKLAB[k + 2]], texel.OKLab, texel.sRGB, texelOut) },
+		chroma: (i) => { const k = at(i); return chroma.oklab(OKLAB[k], OKLAB[k + 1], OKLAB[k + 2]).rgb() },
+		tinycolor: () => null, // tinycolor doesn't support Oklab
+		color: () => null, // color doesn't support Oklab
+		colorConvert: () => null, // color-convert doesn't support Oklab
 	},
 	{
 		name: 'RGB → P3',
-		colorSpace: () => {
-			return space.rgb.p3(128, 64, 192);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.p3({ mode: 'rgb', r: 128/255, g: 64/255, b: 192/255 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('srgb', [128/255, 64/255, 192/255]);
-			return c.p3;
-		},
-		texel: () => {
-			if (!texel) return;
-			return texel.convert([128/255, 64/255, 192/255], texel.sRGB, texel.DisplayP3, texelOut);
-		},
-		chroma: () => {
-			// chroma doesn't have P3
-			return null;
-		},
-		tinycolor: () => {
-			// tinycolor doesn't have P3
-			return null;
-		},
-		color: () => {
-			// color doesn't have P3
-			return null;
-		},
-		colorConvert: () => {
-			// color-convert doesn't have P3
-			return null;
-		}
+		colorSpace: (i) => { const k = at(i); return space.rgb.p3(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		lite: () => null, // p3 lives in the full catalog
+		culori: (i) => { const k = at(i); return culori.p3({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).p3 },
+		texel: (i) => { const k = at(i); return texel.convert([RGB01[k], RGB01[k + 1], RGB01[k + 2]], texel.sRGB, texel.DisplayP3, texelOut) },
+		chroma: () => null, // chroma doesn't have P3
+		tinycolor: () => null, // tinycolor doesn't have P3
+		color: () => null, // color doesn't have P3
+		colorConvert: () => null, // color-convert doesn't have P3
 	},
 	{
 		name: 'RGB → HSV',
-		colorSpace: () => {
-			return space.rgb.hsv(128, 64, 192);
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.hsv({ mode: 'rgb', r: 128/255, g: 64/255, b: 192/255 });
-		},
-		colorjs: () => {
-			// colorjs doesn't support HSV
-			return null;
-		},
-		texel: () => {
-			// texel has OKHSV, not classic HSV
-			return null;
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma(128, 64, 192, 'rgb').hsv();
-		},
-		tinycolor: () => {
-			if (!tinycolor) return;
-			return tinycolor({ r: 128, g: 64, b: 192 }).toHsv();
-		},
-		color: () => {
-			if (!color) return;
-			return color({ r: 128, g: 64, b: 192 }).hsv().array();
-		},
-		colorConvert: () => {
-			if (!colorConvert) return;
-			return colorConvert.rgb.hsv(128, 64, 192);
-		}
+		colorSpace: (i) => { const k = at(i); return space.rgb.hsv(RGB[k], RGB[k + 1], RGB[k + 2]) },
+		lite: () => null, // device cylinders live in the full catalog
+		culori: (i) => { const k = at(i); return culori.hsv({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
+		colorjs: () => null, // colorjs doesn't support HSV
+		texel: () => null, // texel has OKHSV, not classic HSV
+		chroma: (i) => { const k = at(i); return chroma(RGB[k], RGB[k + 1], RGB[k + 2], 'rgb').hsv() },
+		tinycolor: (i) => { const k = at(i); return tinycolor({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).toHsv() },
+		color: (i) => { const k = at(i); return color({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).hsv().array() },
+		colorConvert: (i) => { const k = at(i); return colorConvert.rgb.hsv(RGB[k], RGB[k + 1], RGB[k + 2]) },
 	},
 	{
 		name: 'RGB → HEX',
-		colorSpace: () => {
-			// color-space doesn't have dedicated hex space, skip
-			return null;
-		},
-		culori: () => {
-			if (!culori) return;
-			return culori.formatHex({ mode: 'rgb', r: 128/255, g: 64/255, b: 192/255 });
-		},
-		colorjs: () => {
-			if (!colorjs) return;
-			const c = new colorjs('srgb', [128/255, 64/255, 192/255]);
-			return c.toString({ format: 'hex' });
-		},
-		texel: () => {
-			if (!texel) return;
-			return texel.RGBToHex([128/255, 64/255, 192/255]);
-		},
-		d3: () => {
-			if (!d3) return;
-			const result = d3.rgb(128, 64, 192).formatHex();
-		},
-		chroma: () => {
-			if (!chroma) return;
-			return chroma(128, 64, 192, 'rgb').hex();
-		},
-		tinycolor: () => {
-			if (!tinycolor) return;
-			return tinycolor({ r: 128, g: 64, b: 192 }).toHexString();
-		},
-		color: () => {
-			if (!color) return;
-			return color({ r: 128, g: 64, b: 192 }).hex();
-		},
-		colorConvert: () => {
-			if (!colorConvert) return;
-			const rgb = [128, 64, 192];
-			return '#' + colorConvert.rgb.hex(rgb[0], rgb[1], rgb[2]);
-		}
+		colorSpace: () => null, // a conversion kernel, not a formatter
+		lite: () => null,
+		culori: (i) => { const k = at(i); return culori.formatHex({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
+		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).toString({ format: 'hex' }) },
+		texel: (i) => { const k = at(i); return texel.RGBToHex([RGB01[k], RGB01[k + 1], RGB01[k + 2]]) },
+		d3: (i) => { const k = at(i); return d3.rgb(RGB[k], RGB[k + 1], RGB[k + 2]).formatHex() },
+		chroma: (i) => { const k = at(i); return chroma(RGB[k], RGB[k + 1], RGB[k + 2], 'rgb').hex() },
+		tinycolor: (i) => { const k = at(i); return tinycolor({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).toHexString() },
+		color: (i) => { const k = at(i); return color({ r: RGB[k], g: RGB[k + 1], b: RGB[k + 2] }).hex() },
+		colorConvert: (i) => { const k = at(i); return '#' + colorConvert.rgb.hex(RGB[k], RGB[k + 1], RGB[k + 2]) },
 	}
 ];
 
@@ -469,69 +265,45 @@ async function runBenchmarks() {
 	await benchmarkStartup();
 	await loadLibraries();
 
-	console.log('Running benchmarks (20,000 warmup calls + median of 7 × 100,000 iterations)...\n');
+	console.log('Running benchmarks (20,000 warmup calls + median of 7 × 100,000 iterations over a 256-color input table)...\n');
 	console.log('Note: Results vary by hardware and JS engine optimization; unsupported operations are omitted.');
 	console.log('Lower time/op and higher ops/sec is better.\n');
 
+	// [label, case key, loaded library] — a case returning null is unsupported and
+	// never timed (RGB→HEX: this package is a conversion kernel, not a formatter)
+	const LIBS = [
+		['color-space', 'colorSpace', space], ['color-space/lite', 'lite', lite],
+		['culori', 'culori', culori], ['colorjs.io', 'colorjs', colorjs], ['@texel/color', 'texel', texel],
+		['d3-color', 'd3', d3], ['chroma-js', 'chroma', chroma], ['tinycolor2', 'tinycolor', tinycolor],
+		['color', 'color', color], ['color-convert', 'colorConvert', colorConvert],
+	]
+	const byTest = {}
 	for (const test of tests) {
 		const results = [];
-
-		// Benchmark only implemented operations — RGB→HEX deliberately returns
-		// null because this package is a conversion kernel, not a formatter.
-		if (test.colorSpace && test.colorSpace() !== null) {
-			const csResult = benchmark('color-space', test.colorSpace)
-			results.push({ library: 'color-space', ...csResult })
+		for (const [library, key, lib] of LIBS) {
+			const fn = test[key]
+			if (lib && fn && fn(0) !== null) results.push({ library, ...benchmark(library, fn) })
 		}
-
-		// Benchmark culori
-		if (culori && test.culori) {
-			const culoriResult = benchmark('culori', test.culori);
-			results.push({ library: 'culori', ...culoriResult });
-		}
-
-		// Benchmark colorjs.io
-		if (colorjs && test.colorjs && test.colorjs() !== null) {
-			const colorjsResult = benchmark('colorjs.io', test.colorjs);
-			results.push({ library: 'colorjs.io', ...colorjsResult });
-		}
-
-		// Benchmark @texel/color
-		if (texel && test.texel && test.texel() !== null) {
-			const texelResult = benchmark('@texel/color', test.texel);
-			results.push({ library: '@texel/color', ...texelResult });
-		}
-
-		// Benchmark d3-color
-		if (d3 && test.d3 && test.d3() !== null) {
-			const d3Result = benchmark('d3-color', test.d3);
-			results.push({ library: 'd3-color', ...d3Result });
-		}
-
-		// Benchmark chroma-js
-		if (chroma && test.chroma && test.chroma() !== null) {
-			const chromaResult = benchmark('chroma-js', test.chroma);
-			results.push({ library: 'chroma-js', ...chromaResult });
-		}
-
-		// Benchmark tinycolor2
-		if (tinycolor && test.tinycolor && test.tinycolor() !== null) {
-			const tinycolorResult = benchmark('tinycolor2', test.tinycolor);
-			results.push({ library: 'tinycolor2', ...tinycolorResult });
-		}
-
-		// Benchmark color
-		if (color && test.color && test.color() !== null) {
-			const colorResult = benchmark('color', test.color);
-			results.push({ library: 'color', ...colorResult });
-		}
-
-		// Benchmark color-convert
-		if (colorConvert && test.colorConvert && test.colorConvert() !== null) {
-			const colorConvertResult = benchmark('color-convert', test.colorConvert);
-			results.push({ library: 'color-convert', ...colorConvertResult });
-		}
-
+		byTest[test.name] = results
 		printResults(test.name, results);
+	}
+
+	// ── the README "Speed" column: geometric mean of M op/s over the 7 shared
+	// conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), each library over the subset it
+	// implements; color-space over that same subset alongside, for like-for-like
+	{
+		const SHARED = ['RGB → Lab', 'Lab → RGB', 'RGB → HSL', 'HSL → RGB', 'RGB → Oklab', 'Oklab → RGB', 'RGB → P3']
+		const ops = (t, library) => byTest[t]?.find((r) => r.library === library)?.opsPerSec
+		const gm = (v) => Math.exp(v.reduce((a, x) => a + Math.log(x), 0) / v.length) / 1e6
+		console.log('\nSpeed — geometric mean, M op/s over the shared conversions each library implements:')
+		console.log('─'.repeat(80))
+		console.log(`${'Library'.padEnd(20)} ${'M op/s'.padStart(8)} ${'of 7'.padStart(6)} ${'color-space on the same'.padStart(26)}`)
+		for (const [library] of LIBS) {
+			const ts = SHARED.filter((t) => ops(t, library))
+			if (!ts.length) continue
+			const same = gm(ts.map((t) => ops(t, 'color-space')))
+			console.log(`${library.padEnd(20)} ${gm(ts.map((t) => ops(t, library))).toFixed(2).padStart(8)} ${String(ts.length).padStart(6)} ${same.toFixed(2).padStart(26)}`)
+		}
 	}
 
 	// ── batch: one call over 1M interleaved pixels — the image/video workload.
@@ -549,7 +321,12 @@ async function runBenchmarks() {
 			const ms = (performance.now() - t0) / R
 			rows.push({ library, opsPerSec: PX / ms * 1000, perOp: ms * 1000 / PX }) }
 		bb('color-space (JS)', b => space.rgb.oklab(b))
-		if (wasm) { const buf = wasm.alloc(PX * 3); buf.set(src); bb('color-space (WASM)', b => wasm.default.rgb.oklab(b), buf) }
+		// WASM converts its alloc()'d buffer in place, so each call first refills it with
+		// the source pixels — otherwise every call after the first would convert Oklab
+		// output read as near-black rgb (the linear sRGB segment: no pow), not the image.
+		// alloc() takes a PIXEL count: alloc(PX * 3) would hand back 3M px, and the kernel
+		// would convert the 1M real pixels plus 2M stale near-black ones on every call
+		if (wasm) { const buf = wasm.alloc(PX); bb('color-space (WASM)', b => { b.set(src); wasm.default.rgb.oklab(b) }, buf) }
 		if (culori) bb('culori', b => { const c = { mode: 'rgb', r: 0, g: 0, b: 0 }, out = new Float64Array(PX * 3)
 			for (let i = 0, k = 0; i < PX; i++, k += 3) { c.r = b[k] / 255; c.g = b[k + 1] / 255; c.b = b[k + 2] / 255
 				const o = culori.oklab(c); out[k] = o.l; out[k + 1] = o.a; out[k + 2] = o.b } })
@@ -557,6 +334,21 @@ async function runBenchmarks() {
 			for (let i = 0, k = 0; i < PX; i++, k += 3) { v[0] = b[k] / 255; v[1] = b[k + 1] / 255; v[2] = b[k + 2] / 255
 				texel.convert(v, texel.sRGB, texel.OKLab, v); out[k] = v[0]; out[k + 1] = v[1]; out[k + 2] = v[2] } })
 		printResults('Batch RGB → Oklab (1M px, M px/s)', rows)
+
+		// WASM vs the JS batch API across every WASM-covered target — the README's
+		// color-space/wasm range. Same source, same refill-then-convert idiom as above.
+		if (wasm) {
+			const buf = wasm.alloc(PX), ratios = []
+			const ms = (fn) => { fn(); const t0 = performance.now(); for (let i = 0; i < 3; i++) fn(); return (performance.now() - t0) / 3 }
+			for (const to of wasm.spaces) {
+				if (to === 'rgb' || typeof wasm.default.rgb[to] !== 'function') continue
+				ratios.push([to, ms(() => space.rgb[to](src)) / ms(() => { buf.set(src); wasm.default.rgb[to](buf) })])
+			}
+			ratios.sort((a, b) => a[1] - b[1])
+			console.log(`\nWASM speedup over the JS batch API (JS time ÷ WASM time), rgb → each of ${ratios.length} WASM targets, 1M px:`)
+			console.log('─'.repeat(80))
+			console.log(ratios.map(([to, x]) => `${to} ${x.toFixed(2)}×`).join(' · '))
+		}
 	}
 
 	console.log('\n' + '='.repeat(80));

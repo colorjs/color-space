@@ -91,7 +91,7 @@ export async function buildSite() {
 	// sources: the web/ tree verbatim (index.html template, tokens.css, js/, img/, 404)
 	cpSync(join(root, 'web'), site, { recursive: true })
 	// runtime modules the app imports, placed beside the flattened root
-	for (const f of ['wasm.js', 'lut.js', 'data.json']) cpSync(join(root, f), join(site, f))
+	for (const f of ['wasm.js', 'lut.js', 'css.js', 'data.json']) cpSync(join(root, f), join(site, f))
 	mkdirSync(join(site, 'dist'), { recursive: true })
 	for (const f of ['color-space.js', 'color-space-gl.js']) cpSync(join(root, 'dist', f), join(site, 'dist', f))
 	cpSync(join(root, 'wasm'), join(site, 'wasm'), { recursive: true })   // the whole runtime dir — hand-listing files here once shipped a 404 (wasm/spaces.js) that killed the page's module graph
@@ -99,6 +99,11 @@ export async function buildSite() {
 	// self-contained (the landing's live ICC exporter imports it) rather than flatten each dep
 	const esbuild = await import('esbuild')
 	await esbuild.build({ entryPoints: [join(root, 'icc.js')], bundle: true, format: 'esm', minify: true, outfile: join(site, 'icc.js'), logLevel: 'silent' })
+	// gl/naga.js (HLSL/MSL via naga) the same way, for the GL tab to lazy-load beside the
+	// vendored vendor/naga-wasm: the page passes that module to emit(), so naga-wasm stays external.
+	// gl/translate.js (the WGSL pick) rides the same build, split, so naga.js and translate.js
+	// share one translator chunk instead of each carrying a copy
+	await esbuild.build({ entryPoints: [join(root, 'gl/naga.js'), join(root, 'gl/translate.js')], bundle: true, splitting: true, format: 'esm', minify: true, outdir: join(site, 'gl'), external: ['naga-wasm'], logLevel: 'silent' })
 	// generated content: prerendered catalog, per-space pages, sitemap, robots, llms
 	const { build } = await import('./generate-landing.js')
 	build(site)
@@ -109,21 +114,22 @@ export async function buildSite() {
 	}
 	// ── extract the app module out of index.html into js/app.js: the page parses lighter,
 	// the module graph preloads from the head (below), and the module minifies with the
-	// rest. Specifiers rebase from the page root to js/ — './js/x' → './x'; the '../'
-	// runtime modules (wasm/lut/icc) land beside the site root, one level up from js/,
-	// so the web-form '../x.js' specifiers are ALREADY staged-correct from js/app.js.
+	// rest. Specifiers rebase from the page root to js/ — './js/x' → './x', './vendor/x' →
+	// '../vendor/x' (the lazy naga-wasm); the '../' runtime modules (wasm/lut/icc) land beside
+	// the site root, one level up from js/, so the web-form '../x.js' specifiers are ALREADY
+	// staged-correct from js/app.js.
 	{	let html = readFileSync(join(site, 'index.html'), 'utf8')
 		const m = html.match(/<script type="module">([\s\S]*?)<\/script>/)
 		if (!m) throw new Error('build-site: inline app module not found in index.html')
 		writeFileSync(join(site, 'index.html'), html.replace(m[0], '<script type="module" src="./js/app.js"></script>'))
 		writeFileSync(join(site, 'js/app.js'), m[1])
-		rewrite(join(site, 'js/app.js'), [["'./js/", "'./"]])
+		rewrite(join(site, 'js/app.js'), [["'./js/", "'./"], ["'./vendor/", "'../vendor/"]])
 	}
 	// web/ speaks repo-relative paths; the staged site speaks root-relative —
 	// rewrite AFTER generation (build() re-emits index.html from the web source)
 	rewrite(join(site, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../data.json'", "'../data.json'"]])
 	rewrite(join(site, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])
-	rewrite(join(site, 'js/study-runtime.js'), [['../../icc.js', '../icc.js'], ['../../lut.js', '../lut.js'], ['../../wasm.js', '../wasm.js']])
+	rewrite(join(site, 'js/study-runtime.js'), [['../../icc.js', '../icc.js'], ['../../lut.js', '../lut.js'], ['../../wasm.js', '../wasm.js'], ['../../css.js', '../css.js']])
 	// structural guard: any repo-relative import that escaped the map must fail the
 	// build here, not 404 in production
 	for (const f of readdirSync(join(site, 'js')))
@@ -187,7 +193,8 @@ export async function buildSite() {
 	// non-document asset (space pages are byte-copies of index.html and the router reads
 	// the path, so the shell alone serves the whole atlas offline). VERSION = content
 	// hash of the set — a deploy invalidates the cache exactly when bytes change.
-	{	const skip = /\.(html|xml|txt|md)$|(^|\/)(CNAME|sw\.js)$/
+	// vendor/naga-wasm (2 MB, loaded only when a shader tab opens) stays out of the precache
+	{	const skip = /\.(html|xml|txt|md)$|(^|\/)(CNAME|sw\.js)$|^vendor\/naga-wasm\//
 		const files = []
 		const walk = (d) => { for (const f of readdirSync(join(site, d), { withFileTypes: true })) {
 			const p = d ? `${d}/${f.name}` : f.name

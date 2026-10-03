@@ -3,8 +3,9 @@
  * actually write (everything else has no textual notation, and inventing one would read
  * as a standard that doesn't exist). Pure: values in, string out, no conversion.
  *
- * Lifted from the atlas (web/index.html `fmt` / `CSSABLE`) so the MCP `css` tool and the
- * site speak one notation. Decimals meet CSS Color 4's own serialization minimums: 8-bit
+ * The one serializer: the MCP `css` tool, the atlas (web/index.html) and the workbench
+ * (via web/js/study-runtime.js) all import this table — build-site stages it beside lut.js.
+ * Decimals meet CSS Color 4's own serialization minimums: 8-bit
  * round trip for rgb()/hsl()/hwb() (#serializing-sRGB-values), ≥ 3 places for lab()/lch()
  * (#serializing-lab-lch), ≥ 5 for oklab()/oklch() (#serializing-oklab-oklch), and the
  * predefined-precision table for color() — 10 bits display-p3 / a98-rgb, 12 srgb-linear /

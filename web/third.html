@@ -309,7 +309,7 @@ pre i{ font-style:normal; color:var(--color-terminal-muted) }
 		<button type="button" data-style="quiet">Quiet</button><button type="button" data-style="notebook">Notebook</button><button type="button" data-style="studio">Studio</button><button type="button" data-style="instrument">Instrument</button>
 	</div><span id="style-note"></span></nav>
 	<header class="top">
-		<a class="brand" href="./" title="The atlas"><b>color-space</b><span class="n tnum" id="count">162 spaces</span></a>
+		<a class="brand" href="./" title="The atlas"><b>color-space</b><span class="n tnum" id="count"></span></a>
 		<div class="cur" title="The current color – every space in the catalog writes it">
 			<span class="cdw"><input type="color" id="cpick" aria-label="Pick the current color with the system picker"></span>
 			<input id="cval" spellcheck="false" autocomplete="off" enterkeyhint="done" aria-label="Current color: any CSS color, or a space's own coordinates such as cam16(60 40 50)">
@@ -340,10 +340,10 @@ pre i{ font-style:normal; color:var(--color-terminal-muted) }
 
 <template id="aboutT">
 	<div class="pbody about">
-		<h2><span class="tnum" data-count>162</span> coordinate systems.</h2>
+		<h2><span class="tnum" data-count></span> coordinate systems.</h2>
 		<p class="lead">Web, print, photography, film, broadcast, art, science, and history. Canonical conversions, channels, gamut shapes, provenance, cited references, known limits. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>.</p>
 		<ul class="trust" aria-label="why you can trust the data">
-			<li tabindex="0" title="All 162 spaces have an independent cited conformance anchor; 29 are additionally cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255.">Reference-tested</li>
+			<li tabindex="0" title="Every space is test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255.">Reference-tested</li>
 			<li tabindex="0" title="Channel ranges follow CSS and each defining source – familiar units rather than one universal normalization.">Conventional ranges</li>
 			<li tabindex="0" title="CC0 1.0 – no rights reserved. Use, sell, fork or embed it anywhere; no attribution required.">Public domain</li>
 		</ul>
@@ -367,7 +367,7 @@ pre i{ font-style:normal; color:var(--color-terminal-muted) }
 		<p>Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
 		<details class="fqa"><summary>What does “out of gamut” mean?</summary>
 		<p>A color one space can describe but another – or your screen – can't show. A vivid <a href="#p3">Display P3</a> green simply doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
-		<details class="fqa"><summary>Why 162 spaces – isn't one enough?</summary>
+		<details class="fqa"><summary>Why <span class="tnum" data-count></span> spaces – isn't one enough?</summary>
 		<p>Because each one fixed a real limitation of an earlier one, and the older ones are still in use. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – and along the way, broadcast, print and camera makers each needed encodings of their own. Grouping the catalog by <em>era</em> (in the filter) walks through the whole story.</p></details>
 		<details class="fqa"><summary>Aren't most of these spaces dead?</summary>
 		<p>Many are retired from daily use, but they still do quiet, real work. Archives still decode <a href="#ntsc">NTSC</a> tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds family albums burned to PhotoCD. Reading old pictures takes the original math, and keeping that math available is part of what a reference is for. The history filter gathers them by era.</p></details>
@@ -376,8 +376,8 @@ pre i{ font-style:normal; color:var(--color-terminal-muted) }
 		<details class="fqa"><summary>Are conversions exact? Do round trips lose data?</summary>
 		<p>Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p></details>
 		<details class="fqa"><summary>Which of these can CSS write?</summary>
-		<p>Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, Rec. 2020, linear sRGB and XYZ. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
-		<details class="fqa"><summary>What are the 37 camera log spaces for?</summary>
+		<p>Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="#rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
+		<details class="fqa"><summary>What are the camera log spaces for?</summary>
 		<p>A log curve packs a sensor's wide dynamic range into a small recordable code range, so highlights and shadows both survive. Every vendor ships its own: <a href="#logc4">ARRI LogC4</a>, <a href="#slog3">Sony S-Log3</a>, <a href="#log3g10">RED Log3G10</a>. Footage is graded in log or through ACES, then delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>. Each log dossier exports the conversion as a <code>.cube</code> LUT your editor loads.</p></details>
 		<details class="fqa"><summary>What makes a space HDR?</summary>
 		<p>Its transfer function budgets code values for luminance far beyond a standard display's white. <a href="#rec2100-pq">PQ</a> addresses absolute levels up to 10,000 nits; <a href="#rec2100-hlg">HLG</a> stays compatible with SDR broadcast; Rec. 2100 carries both. <a href="#ictcp">ICtCp</a> and <a href="#jzazbz">Jzazbz</a> are their perceptual companions for grading and difference work.</p></details>
@@ -399,7 +399,7 @@ pre i{ font-style:normal; color:var(--color-terminal-muted) }
 		<pre tabindex="0" aria-label="Code example"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
-space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 162 × 161 pairs</i></pre>
+space.oklch.rgb(0.65, 0.25, 180)  <i>// any space to any other</i></pre>
 		<p class="legal"><a href="https://www.npmjs.com/package/color-space" target="_blank" rel="noopener">npm install color-space</a><span>·</span><a href="https://github.com/sponsors/dy" target="_blank" rel="noopener">Support the project</a><span>·</span><a href="https://github.com/colorjs/color-space/blob/master/license.md" target="_blank" rel="noopener">CC0</a><span>·</span><a href="https://github.com/krishnized/license" target="_blank" rel="noopener">ॐ</a></p>
 	</div>
 </template>
@@ -418,7 +418,7 @@ import NAMES from './js/names.js'
 import { primariesOf, trcOf } from './js/profile.js'
 import { paintPlaneGL, paintBarGL, paintGamutGL, gamutPos, hasPlaneGL, hasGamutGL, planeGLStatus, gamutStatus, warmGL, setGLReady } from './js/gl.js'
 import { kind as iccKind, profile as iccProfile } from './js/study-runtime.js'
-import { cube as lutCube, channelwise as lutChannelwise } from './js/study-runtime.js'
+import { cube as lutCube, channelwise as lutChannelwise, CSS as CSSF } from './js/study-runtime.js'   // CSSF: css.js, the library's one CSS Color 4 serializer
 
 const $ = id => document.getElementById(id)
 const app = $('app')
@@ -432,8 +432,9 @@ const copy = t => { navigator.clipboard?.writeText(t); toast('Copied') }
 const famOf = {}; for (const c of FAMILIES) for (const s of c.spaces) famOf[s] ??= c.name
 const PLABEL = { print: 'Print & surface' }
 const plabel = t => PLABEL[t] || t[0].toUpperCase() + t.slice(1)
+// the notation each of css.js's spaces is written in – no rec2020: CSS's is a pure 2.4 gamma, ours the BT.2020 OETF
 const CSSN = { rgb:'rgb()', lrgb:'color(srgb-linear)', hsl:'hsl()', hwb:'hwb()', lab:'lab()', lchab:'lch()', oklab:'oklab()', oklch:'oklch()',
-	p3:'color(display-p3)', a98rgb:'color(a98-rgb)', prophoto:'color(prophoto-rgb)', rec2020:'color(rec2020)', xyz:'color(xyz-d65)', 'xyz-d50':'color(xyz-d50)' }
+	p3:'color(display-p3)', a98rgb:'color(a98-rgb)', prophoto:'color(prophoto-rgb)', xyz:'color(xyz-d65)', 'xyz-d50':'color(xyz-d50)' }
 const capSets = { css: new Set(Object.keys(CSSN)), lut: new Set(LUTOK), icc: new Set(SPACES.filter(s => { try { return !!iccKind(space[s], { xyz: space.xyz }) } catch { return false } })), gl: new Set(), wasm: new Set() }
 const legacy = new Set(SPACES.filter(s => HISTORICAL.has(s) || meta[s].year < 1960))
 const GEO = s => ({ polar:'polar', opponent:'opponent' })[classify(s).archetype] || 'component'
@@ -502,7 +503,9 @@ const quantArg = () => /^(10|20)$/.test(S.quant) ? +S.quant : S.quant === 'smoot
 
 // ── color notation: every CSS color (css-color-4 §§ 4–10), plus any space's own coordinates ──
 const CSSFN = { rgb:'rgb', rgba:'rgb', hsl:'hsl', hsla:'hsl', hwb:'hwb', lab:'lab', lch:'lchab', oklab:'oklab', oklch:'oklch' }
-const COLORID = { srgb:['rgb',255], 'srgb-linear':['lrgb',1], 'display-p3':['p3',1], 'a98-rgb':['a98rgb',1], 'prophoto-rgb':['prophoto',1], rec2020:['rec2020',1], xyz:['xyz',100], 'xyz-d65':['xyz',100], 'xyz-d50':['xyz-d50',100] }
+// CSS's rec2020 is a pure 2.4 gamma (css-color-4 #predefined-rec2020, BT.1886), not the BT.2020 OETF our rec2020
+// carries – decoded to linear light it lands on rec2020-linear, the same primaries ([space, scale, gamma])
+const COLORID = { srgb:['rgb',255], 'srgb-linear':['lrgb',1], 'display-p3':['p3',1], 'a98-rgb':['a98rgb',1], 'prophoto-rgb':['prophoto',1], rec2020:['rec2020-linear',1,2.4], xyz:['xyz',100], 'xyz-d65':['xyz',100], 'xyz-d50':['xyz-d50',100] }
 function parseColor(str) {
 	const t = String(str || '').trim().toLowerCase(); if (!t) return null
 	let m = t.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/)
@@ -512,7 +515,7 @@ function parseColor(str) {
 	const fn = m[1], parts = m[2].replace(/\/.*$/, '').split(/[\s,]+/).filter(Boolean)
 	if (fn === 'color') { const c = COLORID[parts.shift()]; if (!c) return null
 		const v = parts.map(p => p.endsWith('%') ? parseFloat(p) / 100 : parseFloat(p))
-		return v.length === 3 && v.every(isFinite) ? { s:c[0], vals:v.map(x => x * c[1]) } : null }
+		return v.length === 3 && v.every(isFinite) ? { s:c[0], vals:v.map(x => c[2] ? Math.sign(x) * Math.abs(x) ** c[2] : x * c[1]) } : null }
 	const s = CSSFN[fn] || (SPACES.includes(fn) ? fn : null); if (!s) return null
 	const ch = meta[s].channels
 	const v = parts.map((p, i) => { const x = parseFloat(p); if (!p.endsWith('%')) return x
@@ -522,16 +525,8 @@ function parseColor(str) {
 		return ch[i].min + (ch[i].max - ch[i].min) * x / 100 })
 	return v.length === ch.length && v.every(isFinite) ? { s, vals:v } : null
 }
-// CSS Color 4 writes 14 of these spaces natively – lab()/lch() are D50 (§9); color() puts reference
-// white at Y = 1 where this library's XYZ uses Y = 100 (§10)
+// CSS Color 4 notation is css.js's table (CSSF, imported above); nf writes the other spaces' own coordinates
 const nf = (v, d) => { const t = (+v).toFixed(d).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, ''); return t === '-0' ? '0' : t }
-const colf = (id, v, k = 1) => `color(${id} ${v.map(x => nf(x / k, 4)).join(' ')})`
-const CSSF = {
-	rgb: v => `rgb(${v.map(x => Math.round(x)).join(' ')})`, hsl: v => `hsl(${nf(v[0],1)} ${nf(v[1],1)}% ${nf(v[2],1)}%)`, hwb: v => `hwb(${nf(v[0],1)} ${nf(v[1],1)}% ${nf(v[2],1)}%)`,
-	lab: v => `lab(${nf(v[0],2)} ${nf(v[1],2)} ${nf(v[2],2)})`, lchab: v => `lch(${nf(v[0],2)} ${nf(v[1],2)} ${nf(v[2],1)})`,
-	oklab: v => `oklab(${nf(v[0],3)} ${nf(v[1],3)} ${nf(v[2],3)})`, oklch: v => `oklch(${nf(v[0],3)} ${nf(v[1],3)} ${nf(v[2],1)})`,
-	lrgb: v => colf('srgb-linear', v), p3: v => colf('display-p3', v), a98rgb: v => colf('a98-rgb', v), prophoto: v => colf('prophoto-rgb', v),
-	rec2020: v => colf('rec2020', v), xyz: v => colf('xyz-d65', v, 100), 'xyz-d50': v => colf('xyz-d50', v, 100) }
 // the smallest standard set that holds the color – the main page's pill, one vocabulary
 const GAMLABEL = { srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:'surface', locus:'light', clip:'⚠' }
 const GAMTIP = { srgb:'inside sRGB – every screen shows it', p3:'beyond sRGB, inside Display P3 – wide-gamut screens show it', rec2020:'beyond P3, inside Rec. 2020',

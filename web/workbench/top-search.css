@@ -1,0 +1,111 @@
+/* Atlas top · Search – the definition, one wide box (color + find), quiet examples and the tour line; the box
+   docks into the bar's middle as the page scrolls, the options fade in as one slim bar under it.
+   Hierarchy: identity (bar) → color + find (the box) → refine (count · Filter) → view (view · lens).
+   Scoped to :root[data-top="search"]; values are tokens, the quantities below are this top's own. */
+:root[data-top="search"]{
+	--srch-box:40rem;                            /* the box at its widest – the definition sentence's measure too */
+	--srch-boxh:calc(var(--s8) + var(--s3));     /* the box's height: it docks inside the bar's --rowh with room around it */
+	--srch-side:calc(var(--s12) * 3);            /* the bar keeps this either side of the docked box: the wordmark, EN · theme · GitHub */
+	--srch-optsh:calc(var(--s8) + var(--s3));    /* the options bar – one line, the box's height */
+	--srch-sheet:22rem;                          /* the side sheet: one column of cells */
+	/* the value chevron – UI.chev as a mask in the value's own ink, a fixed --s1 after every value
+	   (Studio's --stu-chev; hoist both to wb.css if the two tops stay) */
+	--srch-chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9.5 12 15.5 18 9.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ── the bar: the wordmark, then EN · theme · GitHub at the end; the middle stays clear for the docked box ── */
+:root[data-top="search"] .qbar{ gap:var(--s2) }
+:root[data-top="search"] .qbar .qfind{ display:none; cursor:pointer }
+:root[data-top="search"] .qbar .wb-lang{ margin-right:var(--s2) }
+
+/* ── the hero: centred, its pieces straight in the page (display:contents) so the box sticks for the whole page ── */
+:root[data-top="search"] #hero{ display:contents }
+:root[data-top="search"] :is(.qintro,.qtry,.qtour,.qstop){ padding-inline:var(--gut); text-align:center }
+:root[data-top="search"] .qintro{ padding-top:calc(var(--s12) * 2) }
+:root[data-top="search"] .qintro .wb-orient{ max-width:var(--srch-box); margin-inline:auto; font-size:var(--text-lg); line-height:1.4; letter-spacing:-.005em; color:var(--ink); text-wrap:balance }
+
+/* the box: the diamond (the picker), the query, the current notation and its gamut – the hue line under it */
+:root[data-top="search"] .qbox{ position:sticky; top:calc((var(--top-h) - var(--srch-boxh)) / 2); z-index:calc(var(--z-sticky-nav) + 1); display:flex; align-items:center; gap:var(--s3);
+	box-sizing:border-box; width:min(var(--srch-box),100% - 2 * (var(--gut) + var(--srch-side))); height:var(--srch-boxh); margin:var(--s6) auto 0; padding:0 var(--s4) 0 var(--s3);
+	background:var(--panel); border-bottom:var(--ulw) solid var(--cur); cursor:text; transition:background-color var(--dur-micro) var(--ease-out),box-shadow var(--dur-micro) var(--ease-out) }
+:root[data-top="search"] .qbox:focus-within{ background:var(--paper); box-shadow:inset 0 0 0 calc(1.5 * var(--rule-hair)) var(--ink) }   /* .find's focus */
+:root[data-top="search"] .qbox .cur{ display:contents }
+:root[data-top="search"] .qbox .find{ order:1; flex:1 1 0; min-width:0; max-width:none; height:100%; margin:0; padding:0; background:none; border-radius:0 }
+:root[data-top="search"] .qbox .find:focus-within{ background:none; box-shadow:none }
+:root[data-top="search"] .qbox .find>.ic,:root[data-top="search"] .qbox .find kbd{ display:none }   /* the diamond leads, the placeholder says it */
+:root[data-top="search"] .qbox .find input{ font-size:var(--text-md); font-weight:500 }
+:root[data-top="search"] .qbox #cval{ order:2; flex:0 1 auto; min-width:0; max-width:calc(var(--s12) * 4); font-size:var(--t2); color:var(--soft) }
+:root[data-top="search"] .qbox #cval:is(:hover,:focus){ color:var(--ink) }
+:root[data-top="search"] .qbox .gam{ order:3 }
+
+/* examples, then the tour – quiet lines under the box */
+:root[data-top="search"] .qtry{ display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline; gap:var(--s1) var(--s4); margin:var(--s3) 0 0 }
+:root[data-top="search"] .qtry button{ font-family:var(--font-mono); font-size:var(--t1); color:var(--soft); transition:color var(--dur-micro) var(--ease-out) }
+:root[data-top="search"] .qtry button:hover{ color:var(--ink) }
+:root[data-top="search"] .qtour{ display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline; gap:var(--s1) var(--s3); margin-top:var(--s8) }
+:root[data-top="search"] .qtour .wb-stops{ justify-content:center; gap:var(--s1) var(--s3) }
+:root[data-top="search"] .qtour .wb-stops button{ font-weight:500 }
+:root[data-top="search"] .qstop{ margin-top:var(--s5) }
+:root[data-top="search"] .qstop:empty{ display:none }
+:root[data-top="search"] .qstop .wb-tour{ align-items:center; margin-inline:auto }
+:root[data-top="search"] .qstop .wb-eyebrow,:root[data-top="search"] .qstop .wb-tour-nav .fill{ display:none }   /* the strip marks the open stop */
+:root[data-top="search"] .qstop .wb-tour-t{ font-size:var(--t4) }
+:root[data-top="search"] .qstop .wb-tour-d{ font-size:var(--t2) }
+:root[data-top="search"] .qstop .wb-tour-nav{ margin:0 }
+
+/* ── the options: one slim line pinned under the bar – what (count · Filter) left, how (view · lens) right ── */
+:root[data-top="search"] #opts{ position:sticky; top:var(--top-h); margin-top:var(--s6); border-bottom:var(--rule-hair) solid var(--rule) }
+:root[data-top="search"] .qopts{ display:flex; align-items:center; gap:var(--s2) var(--s8); min-height:var(--srch-optsh) }
+:root[data-top="search"] .qgrp{ display:flex; flex:none; align-items:center; gap:var(--s5) }
+:root[data-top="search"] .qopts .qview{ flex-wrap:nowrap; gap:var(--s4); margin-left:auto }
+:root[data-top="search"] .qopts .cnt2{ font-size:var(--t2); font-weight:750; color:var(--ink) }
+:root[data-top="search"] .qopts .wb-size input{ width:calc(var(--s12) + var(--s5)) }
+/* every value in the bar – the selects and Filter – reads label · value · chevron, the label quieter */
+:root[data-top="search"] .qopts select{ appearance:none; padding:0 }
+:root[data-top="search"] .qopts .fsel::after,:root[data-top="search"] .qfil::after{ content:''; flex:none; width:var(--t1); height:var(--t1); align-self:center; background:currentColor; mask:var(--srch-chev); pointer-events:none }
+:root[data-top="search"] .qopts .fsel{ color:var(--body) }
+:root[data-top="search"] .qopts .fsel:hover{ color:var(--ink) }
+:root[data-top="search"] .qopts .fsel select{ color:inherit }
+:root[data-top="search"] .qfil{ display:inline-flex; align-items:baseline; gap:var(--s1); color:var(--body); white-space:nowrap }
+:root[data-top="search"] .qfil>span{ font-size:var(--t1); font-weight:600; color:var(--soft) }
+:root[data-top="search"] .qfil b{ max-width:calc(var(--s12) * 3); overflow:hidden; text-overflow:ellipsis; font-size:var(--t2); font-weight:650; border-bottom:var(--ulw) solid transparent }
+:root[data-top="search"] .qfil:hover,:root[data-top="search"] .qfil.on{ color:var(--ink) }
+:root[data-top="search"] .qfil.on b{ border-bottom-color:var(--cur) }   /* .fsel select.on */
+
+/* where it pins, it arrives with the scroll – at once when the box (or anything in the hero) has focus */
+@keyframes srch-reveal{ from{ opacity:0; visibility:hidden } }
+@supports (animation-timeline:scroll()){ @container page (width >= 56rem){
+	:root[data-top="search"] #opts{ animation:srch-reveal linear both; animation-timeline:scroll(root); animation-range:0 calc(var(--s12) * 2) }
+	:root[data-top="search"]:has(#hero :focus,#opts :focus) #opts{ animation:none }
+} }
+
+/* ── the sheet: the purposes and the eight facets, from the left edge – the top layer, no positioning script ── */
+:root[data-top="search"] .qsheet{ position:fixed; inset:0 auto 0 0; width:min(var(--srch-sheet),100%); height:100dvh; max-height:none; margin:0; padding:var(--s4) var(--s5) var(--s12); overflow:auto; overscroll-behavior:contain; border:0; border-right:var(--rule-hair) solid var(--rule); background:var(--paper); color:var(--ink); box-shadow:var(--pop-shadow) }
+:root[data-top="search"] .qsheet::backdrop{ background:color-mix(in oklab,var(--ink) 18%,transparent) }
+:root[data-top="search"] .qhd{ display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--s4) }
+:root[data-top="search"] .qhd h2{ margin:0; font-size:var(--t4); font-weight:750 }
+:root[data-top="search"] .qtags{ flex-direction:column; align-items:flex-start; gap:var(--s2); padding-bottom:var(--s4); border-bottom:var(--rule-hair) solid var(--rule) }
+:root[data-top="search"] .qcells{ display:flex; flex-direction:column }
+:root[data-top="search"] .qcells .cell{ padding:var(--s3) 0; border-bottom:var(--rule-hair) solid var(--rule); border-radius:0; box-shadow:none }
+:root[data-top="search"] .qcells .cell:hover{ background:none }
+:root[data-top="search"] .qcells .lnk{ align-self:flex-start; margin-top:var(--s3) }
+
+/* ── room: lens labels give way first; below 56rem the options wrap and stop pinning; phones keep the box in flow ── */
+@container page (56rem <= width < 80rem){
+	:root[data-top="search"] .qlens .fsel>span{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* .sr – the values name themselves */
+}
+@container page (width < 56rem){
+	:root[data-top="search"] #opts{ position:relative; top:auto }   /* pinned only while it is one line */
+	:root[data-top="search"] .qopts{ flex-wrap:wrap; padding-block:var(--s3); row-gap:var(--s3) }
+	:root[data-top="search"] .qgrp{ flex-wrap:wrap; row-gap:var(--s3) }
+	:root[data-top="search"] .qopts .qview{ margin-left:0 }
+}
+@container page (width < 40rem){
+	:root[data-top="search"] .qbox{ position:relative; top:auto; z-index:auto; width:auto; margin-inline:var(--gut) }   /* in flow – the bar's ⌕ brings it back */
+	:root[data-top="search"] .qbar .qfind{ display:grid }
+	:root[data-top="search"] .qintro{ padding-top:var(--s8) }
+	:root[data-top="search"] .qintro .wb-orient{ font-size:var(--text-md) }
+	:root[data-top="search"] .qbox{ gap:var(--s2); padding-inline:var(--s3) }
+	:root[data-top="search"] .qbox .find input{ font-size:var(--t3) }
+	:root[data-top="search"] .qtour{ margin-top:var(--s6) }
+}

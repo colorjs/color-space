@@ -1,0 +1,47 @@
+{
+	"name": "naga-wasm",
+	"version": "30.2.0",
+	"description": "naga shader translator (wgpu) compiled to WebAssembly",
+	"keywords": [
+		"glsl",
+		"hlsl",
+		"msl",
+		"naga",
+		"shader",
+		"spirv",
+		"wasm",
+		"webassembly",
+		"wgpu",
+		"wgsl"
+	],
+	"license": "MIT OR Apache-2.0",
+	"contributors": [
+		"Ryan Suhartanto <suhartanto@kekkon.nexus>"
+	],
+	"repository": "kekkon-nexus/naga-wasm",
+	"files": [
+		"dist",
+		"LICENSE-APACHE",
+		"LICENSE-MIT"
+	],
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"dev": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"node": "./dist/node.js",
+			"default": "./dist/index.js"
+		},
+		"./naga_bg.wasm": "./dist/wasm/naga_bg.wasm"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"prepack": "bun scripts/build.ts"
+	},
+	"engines": {
+		"node": ">=24.12"
+	}
+}

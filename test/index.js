@@ -22,7 +22,7 @@ const near = (a, b, tol) => a.flat().every((v, i) => Math.abs(v - b.flat()[i]) <
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 166, '166 spaces registered')
+	is(names.length, 168, '168 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -181,6 +181,7 @@ test('integrity — data.json mirrors the live registry', async () => {
 	is(data.conformance.length > 100 && data.conformance.every(r => r.url && r.src), true, `${data.conformance.length} conformance points, each cited`)
 	is(data.cmf?.rows?.length, 65, 'CIE 1931 CMF table present (380–700 @ 5 nm)')
 	is(data.count, Object.keys(space).length, 'count matches')
+	is(Object.keys(data.spaces).filter(n => typeof data.spaces[n].title !== 'string' || !data.spaces[n].title), [], 'every space carries its display name (title) – the site and the MCP server read it')
 })
 
 // Doc drift: hand-typed space counts rot (the audit found 151/155/156 coexisting).
@@ -1687,6 +1688,42 @@ test('kinelog3: KineLOG3 / Kinefinity Wide Gamut (revised spec)', () => {
 		is(space.kinelog3.rgb(...space.rgb.kinelog3(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
+const BT2020xy = [[0.708, 0.292], [0.170, 0.797], [0.131, 0.046]]
+
+test('samsunglog: Samsung Log (white paper 2025, BT.2020)', () => {
+	// Table 1: 0 → 0.125124 (128), 0.01 → 0.206562 (211), 0.18 → 0.527859 (540), 0.90 → 0.708700 (725), 12.0 → 1.0 (1023)
+	is([0, 0.01, 0.18, 0.9, 12].map(k => round(0)(space.xyz.samsunglog(...grey(k))[1] * 1023)), [128, 211, 540, 725, 1023], '10-bit codes')
+	is(near([0, 0.01, 0.18, 0.9, 12].map(k => space['rec2020-linear'].samsunglog(k, k, k)[0]), [0.125124, 0.206562, 0.527859, 0.7087, 1], 5e-7), true, 'Table 1 floats')
+	// Samsung Log to Linear 1DLUT v1.0 (4096 entries, log → linear, input i/4095): the inverse holds to 1e-11
+	const lut = [[0, -0.050002813497], [846, 0.010002902881], [1024, 0.014893883316], [2048, 0.140581129049], [3072, 1.301586692111]]
+	is(lut.every(([i, x]) => Math.abs(space.samsunglog['rec2020-linear'](i / 4095, 0, 0)[0] - x) < 1e-11), true, '1D LUT entries')
+	// the LUT writes its last entry as exactly 12.0; the formula gives 12.0000123
+	is(round(4)(space.samsunglog['rec2020-linear'](1, 1, 1)[0]), 12, 'code 1.0 → 12.0')
+	// as specified: below x0 encodes to 0, below code 0 decodes to x0; past 1 the formula runs on
+	is(space['rec2020-linear'].samsunglog(-0.2, 20, 0).map(round(4)), [0, 1.0575, 0.1251], 'encode clamp and overrange')
+	is(space.samsunglog['rec2020-linear'](-0.1, 1.1, 0).map(round(4)), [-0.05, 29.1953, -0.05], 'decode clamp and overrange')
+	const [hi, lo] = space['rec2020-linear'].samsunglog(1, 0, 0)
+	is(near(logXy('samsunglog', hi, lo), BT2020xy, 1e-9), true, 'BT.2020 primaries')
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.samsunglog.rgb(...space.rgb.samsunglog(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('ilog: Insta360 I-Log (10-bit container curve, white paper 2026.05.20, BT.2020)', () => {
+	// white paper table: 0% → 0.0905593 (93), 18% → 0.422003 (432), 2200% → 1.0 (1023)
+	is([0, 0.18, 22].map(k => round(0)(space.xyz.ilog(...grey(k))[1] * 1023)), [93, 432, 1023], '10-bit codes')
+	is(near(space['rec2020-linear'].ilog(0, 0.18, 22), [0.0905593, 0.422003, 1], 1e-6), true, 'table floats')
+	// the linear toe meets the log segment at τ = 0.01104854 (code 0.154402)
+	const t = 0.01104854, [a, b] = space['rec2020-linear'].ilog(t, t + 1e-12, 0)
+	is(Math.abs(a - b) < 1e-8 && round(6)(a) === 0.154402, true, 'segments meet at τ')
+	// the toe runs on below 0 (code 0 → −0.0157) and the curve past 1, both decoding back
+	is(round(4)(space.ilog['rec2020-linear'](0, 0, 0)[0]), -0.0157, 'code 0')
+	is(space.ilog['rec2020-linear'](...space['rec2020-linear'].ilog(-0.01, 0.005, 30)).map(round(9)), [-0.01, 0.005, 30], 'toe and overrange roundtrip')
+	const [hi, lo] = space['rec2020-linear'].ilog(1, 0, 0)
+	is(near(logXy('ilog', hi, lo), BT2020xy, 1e-9), true, 'BT.2020 primaries')
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.ilog.rgb(...space.rgb.ilog(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
 test('dci-p3: theatrical P3 (DCI white, gamma 2.6)', () => {
 	// encoded white -> D65 white; 0.5 gray (SMPTE RP 431-2 + Bradford, colour-science)
 	is(space['dci-p3'].xyz(1, 1, 1).map(round(2)), [95.05, 100, 108.91]);
@@ -1928,21 +1965,36 @@ test('cvd — the SVG pipeline and simulate() reproduce colour-science (Machado)
 	is(simulate([0.2, 0.4, 0.6], 'none'), [0.2, 0.4, 0.6], 'none is identity')
 })
 
-test('track — analytics is off by default: no-ops, nothing injected; load() injects the pinned script once', async () => {
-	const { GC, EVENT, track, view, load } = await import('../web/js/track.js')
-	is(GC, '', 'shipped disabled')
+test('track — analytics is off by default: no-ops, nothing injected; load() injects Umami once, auto-track off', async () => {
+	const { UMAMI, EVENT, track, view, load } = await import('../web/js/track.js')
+	is(UMAMI, '', 'shipped disabled')
 	is([EVENT.lut('slog3', 'rec709'), EVENT.lut('slog3', 'rec709', 'davinci-resolve'), EVENT.icc('p3', 'mntr'), EVENT.drop(), EVENT.embed('oklch'), EVENT.tour(3, 'rgb'), EVENT.lang('python'), EVENT.vision('deutan')],
-		['lut-download/slog3-rec709-generic', 'lut-download/slog3-rec709-davinci-resolve', 'icc-download/p3-mntr', 'image-drop', 'embed-copy/oklch', 'tour-step/3-rgb', 'code-lang/python', 'vision-lens/deutan'], 'event names per research (+ the app a LUT is for, the vision lens)')
+		['slog3>rec709/generic', 'slog3>rec709/davinci-resolve', 'icc-download/p3-mntr', 'image-drop', 'embed-copy/oklch', 'tour-step/3-rgb', 'code-lang/python', 'vision-lens/deutan'], 'event names: the fact rides in the name (Umami bills every property as an event)')
 	is(EVENT.embed('My Photo.JPG'), 'embed-copy/my-photo-jpg', 'names are slugged — nothing raw reaches the endpoint')
-	const added = []
+	// Umami truncates event names past 50 characters (docs track-events.mdx) – the longest real ids fit
+	const { default: EDITORS } = await import('../web/js/editors.js'), { LENSES } = await import('../web/js/cvd.js')
+	const long = (xs) => xs.reduce((a, b) => b.length > a.length ? b : a, '')
+	const id = long(Object.keys(data.spaces)), ed = long(EDITORS.map((e) => e.id))
+	const worst = [EVENT.lut(id, id, ed), EVENT.icc(id, 'mntr'), EVENT.embed(id), EVENT.tour(99, id), EVENT.vision(long(LENSES.map((l) => l.id)))]
+	is(worst.filter((n) => n.length > 50), [], `longest names ≤ 50: ${worst.map((n) => n.length).join(', ')}`)
+	const added = [], sent = []
 	globalThis.document = { createElement: () => ({ dataset: {} }), head: { append: (s) => added.push(s) } }
 	try {
-		track('lut-download/x-y'); view('oklch'); load()
-		is(added.length, 0, 'GC empty: track/view/load inject nothing')
+		track('x>y/generic'); view('oklch'); load()
+		is(added.length, 0, 'UMAMI empty: track/view/load inject nothing')
 		load('acct'); load('acct')
 		is(added.length, 1, 'injected once')
 		const [s] = added
-		is([s.src, s.integrity, s.crossOrigin, s.async, s.dataset.goatcounter],
-			['https://gc.zgo.at/count.v5.js', 'sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ', 'anonymous', true, 'https://acct.goatcounter.com/count'], 'pinned v5 + SRI')
-	} finally { delete globalThis.document }
+		is([s.src, s.async, { ...s.dataset }], ['https://cloud.umami.is/script.js', true,
+			{ websiteId: 'acct', domains: 'color-space.io', autoTrack: 'false', excludeSearch: 'true', excludeHash: 'true' }], 'cloud tracker, auto-track off, production domain only, no query or hash')
+		globalThis.umami = { track: (v) => sent.push(v) }; globalThis.location = { pathname: '/oklch' }
+		s.onload()
+		is(sent.length, 1, 'the landing counts one pageview')
+		const pv = sent[0]({ website: 'w', url: 'https://color-space.io/oklch?find=my+text#ff8000', title: 't' })
+		is([pv.url, pv.name, pv.website], ['/oklch', undefined, 'w'], 'a pageview by path only – no name, no query, no hash')
+		// auto-track off: the tracker's own url stays the landing page's, so an event names the path it happened on
+		globalThis.location.pathname = '/slog3'; track(EVENT.lut('slog3', 'rec709'))
+		const ev = sent[1]?.({ website: 'w', url: 'https://color-space.io/oklch' })
+		is([sent.length, ev?.name, ev?.url, ev && Object.keys(ev).includes('data')], [2, 'slog3>rec709/generic', '/slog3', false], 'an event: its name on the current path, no properties')
+	} finally { delete globalThis.document; delete globalThis.umami; delete globalThis.location }
 })

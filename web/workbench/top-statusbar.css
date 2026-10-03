@@ -1,0 +1,105 @@
+/* Atlas top · Status bar – a minimal masthead (identity · color | find | language · theme · GitHub), a compact
+   hero, the facets as one quiet row above the catalog, and every rendering option in a status bar along the
+   bottom – an editor's. Scoped to :root[data-top="statusbar"]; values are tokens, the quantities below are
+   this top's own. */
+:root[data-top="statusbar"]{
+	--sb-h:var(--ctl);                           /* the status bar's one row – every control centres on it */
+	--sb-find0:12rem; --sb-find:32rem;           /* the masthead's search: its narrowest and its widest */
+	--sb-val:14rem;                              /* a wide color's notation gives way here and scrolls inside its field */
+	--sb-menu:22rem;                             /* the folded 'View' menu */
+	--sb-pop:36rem;                              /* the purposes' popover: ten pills in three short lines */
+	scroll-padding-bottom:calc(var(--sb-h) + var(--s4));   /* a focused control never lands under the bar */
+}
+@media (pointer:coarse){ :root[data-top="statusbar"]{ --sb-h:var(--tap) } }
+
+/* ── the masthead: three columns – identity and color | the search, centred | language, theme, GitHub ── */
+:root[data-top="statusbar"] .sbtop{ display:grid; grid-template-columns:minmax(0,1fr) minmax(var(--sb-find0),var(--sb-find)) minmax(0,1fr); gap:var(--s5) }
+:root[data-top="statusbar"] .sbid{ display:flex; align-items:center; gap:var(--s4); min-width:0 }
+:root[data-top="statusbar"] .sbid .cur{ flex:0 1 auto; min-width:0 }
+:root[data-top="statusbar"] .sbid #cval{ flex:0 1 auto; min-width:0; max-width:var(--sb-val) }
+:root[data-top="statusbar"] .sbtop .gam{ display:none }   /* the gamut is the status bar's – said once */
+:root[data-top="statusbar"] .sbtop .find{ min-width:0; max-width:none; margin:0 }
+:root[data-top="statusbar"] .sbend{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2) }
+:root[data-top="statusbar"] .sbend .wb-lang select{ font-weight:700 }
+
+/* ── the hero: the definition, then the tour as one numbered line; a stop opens under it ── */
+:root[data-top="statusbar"] #hero{ display:flex; flex-direction:column; gap:var(--s3); padding-block:var(--s6) var(--s5) }
+:root[data-top="statusbar"] #hero .wb-orient{ max-width:var(--measure); margin:0; font-size:var(--t3); color:var(--body); text-wrap:pretty }
+:root[data-top="statusbar"] .sbtour{ display:flex; align-items:baseline; gap:var(--s4) }
+:root[data-top="statusbar"] .sbtour .lab{ font-size:var(--t1); font-weight:600 }
+:root[data-top="statusbar"] .sbtour [data-wb="stops"]{ flex:1; min-width:0 }
+:root[data-top="statusbar"] .sbstop:empty{ display:none }
+:root[data-top="statusbar"] .sbstop .wb-eyebrow{ display:none }   /* the strip already marks the open stop */
+:root[data-top="statusbar"] .sbstop .wb-tour-t{ font-size:var(--t3) }
+:root[data-top="statusbar"] .sbstop .wb-tour-d{ font-size:var(--t2) }
+
+/* ── the facet row: 'For' and the eight facets as equal cells, between two hairlines ── */
+:root[data-top="statusbar"] .sbcells{ border-block:var(--rule-hair) solid var(--rule) }
+:root[data-top="statusbar"] .sbrow{ display:contents }
+:root[data-top="statusbar"] .sbcells .cell{ flex:1 1 0; min-width:0; padding:var(--s2) var(--s3) }
+:root[data-top="statusbar"] .sbcells .cell:first-child{ padding-left:0 }
+:root[data-top="statusbar"] .sbcells .cell:first-child:hover{ padding-left:var(--s3) }
+:root[data-top="statusbar"] .sbcells .cell small{ font-weight:500 }
+:root[data-top="statusbar"] .sbcells .lnk{ flex:none; align-self:center; padding-left:var(--s4) }
+:root[data-top="statusbar"] .sbv{ display:flex; align-items:center; gap:var(--s1); color:var(--body) }
+:root[data-top="statusbar"] .sbv .ic{ --ic:var(--t2) }
+:root[data-top="statusbar"] .sbfor{ anchor-name:--sbfor }
+:root[data-top="statusbar"] .sbfor:hover .sbv,:root[data-top="statusbar"] .sbfor.on .sbv{ color:var(--ink) }
+/* … its pills open under it: a popover in the top layer, anchored by CSS (centred where anchors are unknown) */
+:root[data-top="statusbar"] .sbpop{ --w:min(var(--sb-pop),calc(100vw - 2 * var(--s4))); margin:auto; width:var(--w); padding:var(--s4); border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
+@supports (anchor-name:--a){ :root[data-top="statusbar"] .sbpop{ position-anchor:--sbfor; inset:auto; top:anchor(bottom); left:clamp(var(--s4),anchor(left),calc(100vw - var(--s4) - var(--w))); margin:var(--s1) 0 0 } }
+:root[data-top="statusbar"] .sbpop-t{ margin:0 0 var(--s3); font-size:var(--t2); font-weight:700 }
+:root[data-top="statusbar"] .sbpop .fsel-l{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* .sr – the cell already says 'For' */
+:root[data-top="statusbar"] .sbpop .wb-tagrow{ gap:var(--s2) }
+
+/* ── the status bar: pinned to the screen's bottom edge, beside the dock; the page keeps clear of it ── */
+:root[data-top="statusbar"] .sbar{ container:sbar / inline-size; position:fixed; inset:auto var(--dock) 0 0; width:auto; height:var(--sb-h); margin:0; padding:0 var(--gut); overflow:visible; border:0; border-top:var(--rule-hair) solid var(--rule); background:var(--paper); color:var(--ink) }
+:root[data-top="statusbar"] .sbin{ display:flex; align-items:center; gap:var(--s5); height:100%; white-space:nowrap }
+:root[data-top="statusbar"] .sbst{ display:flex; flex:none; align-items:center; gap:var(--s3); margin:0 }
+:root[data-top="statusbar"] .sbcol{ display:flex; align-items:center; gap:var(--s1); color:var(--ink); font-size:var(--t2); font-weight:650 }
+:root[data-top="statusbar"] .sbcol .cdw{ width:var(--s5) }
+:root[data-top="statusbar"] .sbar .gam{ display:inline }   /* variants.css hides the chip's pill on phones – this one is the readout */
+:root[data-top="statusbar"] .sbar .cnt2{ font-size:var(--t2); font-weight:650; color:var(--body) }
+:root[data-top="statusbar"] .sbopts,:root[data-top="statusbar"] .sbmore{ margin-left:auto }
+:root[data-top="statusbar"] .sbview,:root[data-top="statusbar"] .sblens{ display:flex; flex-wrap:nowrap; align-items:center; gap:var(--s4) }
+:root[data-top="statusbar"] .sbview .wb-size input{ width:calc(var(--s12) + var(--s5)) }
+/* the folded menu's button: 'View', then what is set – the label quieter than the value */
+:root[data-top="statusbar"] .sbmore{ display:none; align-items:center; gap:var(--s2); min-width:0; height:100%; font-size:var(--t1); font-weight:600; color:var(--soft) }
+:root[data-top="statusbar"] .sbmore b{ min-width:0; overflow:hidden; text-overflow:ellipsis; font-size:var(--t2); font-weight:650; color:var(--body) }
+:root[data-top="statusbar"] .sbmore:hover b,:root[data-top="statusbar"] .sbmore:hover .ic{ color:var(--ink) }
+:root[data-top="statusbar"] .sbmore .ic{ --ic:var(--t2); flex:none; color:var(--body); rotate:180deg }   /* it opens upward */
+
+/* wide: the options inline – the menu element is laid out in the bar, not opened */
+@container sbar (width >= 64rem){
+	:root[data-top="statusbar"] .sbopts:not(:popover-open){ position:static; display:flex; align-items:center; gap:var(--s4); width:auto; height:auto; margin:0 0 0 auto; padding:0; overflow:visible; border:0; background:none; color:inherit }
+	:root[data-top="statusbar"] .sblens{ padding-left:var(--s4); border-left:var(--rule-hair) solid var(--rule) }   /* view | lens */
+}
+@container sbar (64rem <= width < 80rem){   /* the lens selects keep their names as tooltips; the values speak */
+	:root[data-top="statusbar"] .sblens .fsel>span{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }
+}
+@container sbar (width < 64rem){ :root[data-top="statusbar"] .sbmore{ display:flex } }
+@container sbar (width < 36rem){ :root[data-top="statusbar"] .sbmore b{ display:none } :root[data-top="statusbar"] .sbin{ gap:var(--s3) } }
+/* folded: the same options as a sheet over the bar's end – labels left, values right */
+:root[data-top="statusbar"] .sbopts:popover-open{ position:fixed; inset:auto calc(var(--dock) + var(--s2)) calc(var(--sb-h) + var(--s2)) auto; display:flex; flex-direction:column; gap:var(--s4); width:min(var(--sb-menu),calc(100vw - var(--dock) - 2 * var(--s2))); height:auto; margin:0; padding:var(--s4); border:0; background:var(--paper); color:var(--ink); white-space:nowrap; box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
+:root[data-top="statusbar"] .sbopts:popover-open .sbview{ flex-wrap:wrap; justify-content:space-between; row-gap:var(--s3) }
+:root[data-top="statusbar"] .sbopts:popover-open .wb-size{ flex-basis:100% }
+:root[data-top="statusbar"] .sbopts:popover-open .wb-size input{ flex:1 }
+:root[data-top="statusbar"] .sbopts:popover-open .sblens{ flex-direction:column; align-items:stretch; gap:var(--s3); padding-top:var(--s4); border-top:var(--rule-hair) solid var(--rule) }
+:root[data-top="statusbar"] .sbopts:popover-open .fsel{ justify-content:space-between }
+
+/* the page keeps clear of the bar: the footer's last line, the toast and the workshop bar ride above it */
+:root[data-top="statusbar"] .foot{ padding-bottom:calc(var(--s12) * 2 + var(--sb-h)) }
+:root[data-top="statusbar"] #toast{ bottom:calc(var(--sb-h) + var(--s5)) }
+:root[data-top="statusbar"] .study{ bottom:calc(var(--sb-h) + var(--s2)) }
+
+/* ── narrower pages: the cells keep their size and the row scrolls; phones take the masthead in two lines ── */
+@container page (width < 75rem){ :root[data-top="statusbar"] .sbcells .cell{ flex:none } }
+@container page (width < 48rem){
+	:root[data-top="statusbar"] .sbtop{ grid-template-columns:minmax(0,1fr) auto; height:auto; padding-block:var(--s2); column-gap:var(--s3); row-gap:var(--s2) }
+	:root[data-top="statusbar"] .sbtop .find{ grid-column:1 / -1; grid-row:2 }
+	:root[data-top="statusbar"] .sbend{ gap:var(--s1) }
+	:root[data-top="statusbar"] #hero{ padding-block:var(--s5) var(--s4) }
+	:root[data-top="statusbar"] .sbtour{ flex-direction:column; gap:var(--s1) }
+	:root[data-top="statusbar"] .sbtour [data-wb="stops"]{ width:100%; overflow-x:auto; scrollbar-width:none }   /* the strip scrolls in its own line */
+	:root[data-top="statusbar"] .sbtour .wb-stops{ flex-wrap:nowrap }
+}

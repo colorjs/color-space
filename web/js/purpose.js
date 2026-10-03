@@ -68,7 +68,7 @@ export default {
 	slog3: ['grading'], sgamut3cine: ['grading'], vlog: ['grading'], log3g10: ['grading'], log3g12: ['grading'],
 	clog: ['grading'], clog2: ['grading'], clog3: ['grading'], flog: ['grading'], flog2: ['grading'], flog2c: ['grading'],
 	nlog: ['grading'], applelog: ['grading'], applelog2: ['grading'], bmdfilm: ['grading'], dlog: ['grading'], tlog: ['grading'],
-	kinelog3: ['grading'], gplog2: ['grading'],
+	kinelog3: ['grading'], gplog2: ['grading'], ilog: ['grading'], samsunglog: ['grading'],
 	davinci: ['grading'], cineon: ['grading'], llog: ['grading'], protune: ['grading'], milog: ['grading'],
 	olog: ['grading'], redlog: ['grading'], redlogfilm: ['grading'], panalog: ['grading'], viperlog: ['grading'],
 	filmicpro: ['grading'], dcdm: ['delivery'], erimm: ['editing'],

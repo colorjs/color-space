@@ -60,11 +60,11 @@ const cyclic = (c) => c.max === 360 || /hue/i.test(c.name)
 const inRange = (s, v) => (meta[s]?.channels || []).map((c, i) => Number.isFinite(v[i])
 	&& (cyclic(c) || (v[i] >= c.min - 1e-4 * (c.max - c.min) && v[i] <= c.max + 1e-4 * (c.max - c.min))))
 
-// ── "did you mean": edit distance over ids and display names — a description opens with its
-// space's name ("Display P3 — …", "CIELAB is …"); the shortest such lead, '' when none
+// ── "did you mean": edit distance over ids and display names — data.json's spaces[id].title, the
+// names the site shows (scripts/generate-data.js); '' where the name is just the id (HSV for hsv)
 const norm = (x) => String(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
-const TITLE = Object.fromEntries(names.map((s) => { const d = meta[s]?.description || ''
-	return [s, [/^(.+?) — /, /^(.+?) is /].map((r) => d.match(r)?.[1]).filter((t) => t && t.length <= 40).sort((a, b) => a.length - b.length)[0] || ''] }))
+const TITLE = Object.fromEntries(names.map((s) => { const t = meta[s]?.title || ''
+	return [s, norm(t) === norm(s) ? '' : t] }))
 const lev = (a, b) => {
 	const d = Array.from({ length: b.length + 1 }, (_, j) => j)
 	for (let i = 1; i <= a.length; i++) {
@@ -163,17 +163,17 @@ const TOOLS = [
 	},
 	{
 		name: 'space', title: 'Space dossier',
-		description: 'The dossier of one color space: description, channels + conventional ranges, defining references, provenance (year, author), illuminant/observer, encoding class, family and purpose, and its direct conversion neighbours.',
+		description: 'The dossier of one color space: display name (as color-space.io shows it), description, channels + conventional ranges, defining references, provenance (year, author), illuminant/observer, encoding class, family and purpose, and its direct conversion neighbours.',
 		inputSchema: { type: 'object', additionalProperties: false, required: ['name'], properties: { name: SPACE('the') } },
-		outputSchema: { type: 'object', required: ['name', 'family', 'purpose', 'channels', 'neighbors', 'source'], properties: {
-			name: { type: 'string' }, family: { type: 'string' }, purpose: { type: 'array', items: { type: 'string' } },
+		outputSchema: { type: 'object', required: ['name', 'title', 'family', 'purpose', 'channels', 'neighbors', 'source'], properties: {
+			name: { type: 'string' }, title: { type: 'string' }, family: { type: 'string' }, purpose: { type: 'array', items: { type: 'string' } },
 			channels: CHANNELS, neighbors: { type: 'array', items: { type: 'string' } }, source: { type: 'string' },
 		} },
 		annotations: { title: 'Space dossier', ...RO },
 	},
 	{
 		name: 'spaces', title: 'Space catalog',
-		description: `List the ${N} color spaces with family, purpose, channels and one-line use. Optional filters: \`query\` (words matched against id, name, use line and description; best matches first), \`family\`, \`purpose\`.`,
+		description: `List the ${N} color spaces with display name, family, purpose, channels and one-line use. Optional filters: \`query\` (words matched against id, name, use line and description; best matches first), \`family\`, \`purpose\`.`,
 		inputSchema: { type: 'object', additionalProperties: false, properties: {
 			query: { type: 'string', description: "free text, e.g. 'camera log', 'cielab', 'display p3'" },
 			family: { type: 'string', enum: FAMILIES },
@@ -181,8 +181,8 @@ const TOOLS = [
 		} },
 		outputSchema: { type: 'object', required: ['count', 'spaces'], properties: {
 			count: { type: 'integer' },
-			spaces: { type: 'array', items: { type: 'object', required: ['name', 'family', 'purpose', 'channels'], properties: {
-				name: { type: 'string' }, family: { type: 'string' }, purpose: { type: 'array', items: { type: 'string' } },
+			spaces: { type: 'array', items: { type: 'object', required: ['name', 'title', 'family', 'purpose', 'channels'], properties: {
+				name: { type: 'string' }, title: { type: 'string' }, family: { type: 'string' }, purpose: { type: 'array', items: { type: 'string' } },
 				channels: { type: 'string' }, use: { type: 'string' } } } },
 		} },
 		annotations: { title: 'Space catalog', ...RO },
@@ -243,7 +243,7 @@ const CALL = {
 		}
 		const list = names.filter((s) => (!family || FAMILY[s] === family) && (!purpose || PURPOSE[s]?.includes(purpose)))
 			.map((s) => [s, rank(s)]).filter(([, r]) => r < Infinity).sort((a, b) => a[1] - b[1])
-			.map(([s]) => ({ name: s, family: FAMILY[s] || 'more', purpose: PURPOSE[s] || [], channels: chans(s).map((c) => c.symbol).join(''), use: meta[s]?.use }))
+			.map(([s]) => ({ name: s, title: meta[s]?.title, family: FAMILY[s] || 'more', purpose: PURPOSE[s] || [], channels: chans(s).map((c) => c.symbol).join(''), use: meta[s]?.use }))
 		return { count: list.length, spaces: list }
 	},
 	cube({ from, to, size }) {

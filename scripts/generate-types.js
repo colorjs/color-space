@@ -212,6 +212,29 @@ fs.writeFileSync(path.join(dir, 'gl-wgsl.d.ts'), banner + `export { translate } 
 export function wgsl(from: string, to: string): string;
 export default wgsl;
 `)
+// HLSL / MSL via naga — structural naga type so naga-wasm (an optional peer) is never
+// needed to type-check; its own module namespace satisfies NagaWasm
+fs.writeFileSync(path.join(dir, 'gl-naga.d.ts'), banner + `export interface NagaHandle { free(): void; }
+/** The part of the naga-wasm module emit() calls — pass \`import * as naga from 'naga-wasm'\` after \`await naga.init()\`. */
+export interface NagaWasm {
+	parseWgsl(source: string): NagaHandle;
+	validate(module: NagaHandle): NagaHandle;
+	writeHlsl(module: NagaHandle, info: NagaHandle): string | { code: string };
+	writeMsl(module: NagaHandle, info: NagaHandle): string | { code: string };
+}
+/** The naga-wasm version the output is tested against. */
+export const NAGA_WASM: string;
+/** Import and initialize naga-wasm once; rejects with the install command when it is absent. */
+export function load(): Promise<NagaWasm>;
+/** Write a composed GLSL source (from glsl()) as HLSL or MSL; entry and edge functions keep their names. */
+export function emit(naga: NagaWasm, target: 'hlsl' | 'msl', glsl: string): string;
+`)
+for (const [lang, file] of [['hlsl', 'gl-hlsl.d.ts'], ['msl', 'gl-msl.d.ts']])
+	fs.writeFileSync(path.join(dir, file), banner + `/** Compose the ${lang.toUpperCase()} source converting from → to (needs the optional peer naga-wasm). */
+export function ${lang}(from: string, to: string): Promise<string>;
+export function ${lang}(pairs: readonly (readonly [string, string])[]): Promise<string>;
+export default ${lang};
+`)
 fs.writeFileSync(path.join(dir, 'gl-chunk.d.ts'), banner + `import { GlChunk } from './gl.js';
 declare const chunk: GlChunk;
 export default chunk;
@@ -349,7 +372,7 @@ export function profile(s: ColorSpace, opts?: IccOptions): Uint8Array;
 // remove stale: wrong-extension .ts and orphans without a .js
 const KEEP = [
 	'color-space.d.ts', 'index.d.ts', 'lite.d.ts', 'hub.d.ts', 'wasm.d.ts', 'wasm-spaces.d.ts',
-	'gl.d.ts', 'gl-all.d.ts', 'gl-wgsl.d.ts', 'gl-translate.d.ts', 'gl-chunk.d.ts', 'gl-util.d.ts',
+	'gl.d.ts', 'gl-all.d.ts', 'gl-wgsl.d.ts', 'gl-translate.d.ts', 'gl-chunk.d.ts', 'gl-util.d.ts', 'gl-naga.d.ts', 'gl-hlsl.d.ts', 'gl-msl.d.ts',
 	'whitepoints.d.ts', 'gamuts.d.ts', 'util.d.ts', 'transfers.d.ts', 'cie.d.ts', 'mcp.d.ts', 'lut.d.ts', 'icc.d.ts',
 ]
 for (const f of fs.readdirSync(dir)) {

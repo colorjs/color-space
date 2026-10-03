@@ -9,7 +9,8 @@
 	--wb-tile-0:11rem; --wb-tile-1:22rem;    /* a compact card's column at the smallest and largest size */
 	--wb-sheet:36rem;                        /* the details sheet below 75rem */
 }
-[data-wb="brand"],[data-wb="chip"],[data-wb="search"],[data-wb="tools"],[data-wb="lang"],[data-wb="vision"],[data-wb="count"]{ display:contents }   /* their pieces sit in the direction's own bar */
+[data-wb="brand"],[data-wb="chip"],[data-wb="search"],[data-wb="tools"],[data-wb="lang"],[data-wb="vision"],[data-wb="count"],
+[data-wb="theme"],[data-wb="gh"],[data-wb="size"],[data-wb="swatch"],[data-wb="layout"],[data-wb="preview"],[data-wb="quant"],[data-wb="metric"],[data-wb="limit"]{ display:contents }   /* their pieces sit in the direction's own bar */
 [hidden]{ display:none !important }
 
 /* the rule under a header wears the current color – index.html's hue line */
@@ -19,6 +20,11 @@
 .tiles{ grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(var(--wb-tile-0) + var(--wb-z) * (var(--wb-tile-1) - var(--wb-tile-0)))),1fr)) }
 .chs.thin .ch{ --sth:calc(var(--s2) + var(--wb-z) * var(--s4)) }
 .lc .ch{ --sth:calc(var(--s5) + var(--wb-z) * var(--s4)) }
+/* a card's channel strips stack flush, one block – index.html's .chs: no seams of page paper between them,
+   no corners of their own (a gap per strip read as noise across a whole catalog) */
+.chs,.chs.thin,.chs.mini,.lv{ gap:0 }
+.chs{ background:var(--panel) }
+.chs .ch{ border-radius:0 }
 
 /* ── one quiet text-select: a label, then the value with the native chevron (index.html's view selects) ── */
 .fsel{ display:inline-flex; flex:none; align-items:baseline; gap:var(--s1); white-space:nowrap }
@@ -41,6 +47,26 @@
 .wb-size{ display:inline-flex; align-items:center; gap:var(--s2); color:var(--soft); font-weight:700; line-height:1 }
 .wb-size .a0{ font-size:var(--t0) } .wb-size .a1{ font-size:var(--t3) }
 .wb-size input{ width:calc(var(--s12) * 2); margin:0 }
+
+/* ── the lens selects: quantize (+ its palette distance) and the gamut limit read as the facets do ── */
+.wb-metric[hidden]{ display:none }
+
+/* ── the facet cells: Studio's – the facet's icon, its label over the value (variants.css .cell) ── */
+.wb-cell{ cursor:pointer }
+.wb-cell select{ max-width:100%; padding:0; font:inherit; font-size:var(--t2); font-weight:650; line-height:1.35; color:var(--body); background:none; border:0; border-bottom:var(--ulw) solid transparent; cursor:pointer; field-sizing:content }
+.wb-cell:hover select{ color:var(--ink) }
+.wb-cell.on select{ color:var(--ink); border-bottom-color:var(--cur) }
+.wb-cell.on .ci{ color:var(--ink) }
+.wb-cell option:disabled{ color:var(--ghost) }
+
+/* ── the tour as a numbered strip: the numbers are the separators – nothing dangles where a line wraps ── */
+.wb-stops{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4); margin:0; padding:0; list-style:none }
+.wb-stops li{ display:inline-flex; white-space:nowrap }
+.wb-stops button{ display:inline-flex; align-items:baseline; gap:var(--s1); font-size:var(--t2); font-weight:600; color:var(--body); border-bottom:var(--ulw) solid transparent; transition:color var(--dur-micro) var(--ease-out) }
+.wb-stops .tnum{ font-size:var(--t1); font-weight:700; color:var(--soft) }
+.wb-stops button:hover,.wb-stops button:hover .tnum{ color:var(--ink) }
+.wb-stops button[aria-current="step"]{ color:var(--ink); border-bottom-color:var(--cur) }
+.wb-stops button[aria-current="step"] .tnum{ color:var(--ink) }
 
 /* ── orientation: one understated sentence ── */
 .wb-orient{ margin:0; max-width:var(--measure); font-family:var(--prose); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }

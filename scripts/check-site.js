@@ -24,7 +24,7 @@ try {
 	page.on('pageerror', error => errors.push(error.message))
 	await page.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })   // ?sw: loopback skips the service worker for dev-freshness — the offline pin below needs it registered
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
-	assert.equal(await page.locator('.ent').count(), 166, 'catalog has all spaces')
+	assert.equal(await page.locator('.ent').count(), 168, 'catalog has all spaces')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
@@ -176,7 +176,7 @@ try {
 	await page.locator('.gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().innerText(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
-	assert.equal(await page.locator('.ent[data-s]').count(), 166, 'era regroup keeps every space')
+	assert.equal(await page.locator('.ent[data-s]').count(), 168, 'era regroup keeps every space')
 	assert.match(await page.locator('.toc .tn').first().innerText(), /2020/, 'era shelves lead the rail, newest first')
 	await page.locator('#tfb').click()
 	await page.locator('#tfp button[data-t="scene"]').click()

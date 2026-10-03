@@ -64,7 +64,7 @@ The suite runs as part of `npm test` via `test/reference.js`.
 
 ## 2. Bona-fide cited values ([test/bonafide.js](../test/bonafide.js))
 
-Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field; the four camera logs added 2026-10 — Apple Log 2, F-Log2 C, GP-Log2, KineLOG3 — were computed the same way, colour-science 0.4.7 cross-checked in Node): **143 cited points across 139 space labels** (`test/refs.js` — the counts in `test/bonafide.js` derive from it at run time). Together with the differential suite this covers **all 166 graph spaces — zero gaps**.
+Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field; the six camera logs added 2026-10 — Apple Log 2, F-Log2 C, GP-Log2, KineLOG3, Samsung Log, Insta360 I-Log — were computed the same way, colour-science 0.4.7 cross-checked in Node; Samsung Log is also pinned to entries of Samsung's own log-to-linear 1D LUT): **150 cited points across 141 space labels** (`test/refs.js` — the counts in `test/bonafide.js` derive from it at run time). Together with the differential suite this covers **all 168 graph spaces — zero gaps**.
 
 A cited anchor is exactly that — an anchor: it pins the formula at one (occasionally a few) points, which cannot exercise every nonlinear branch or boundary the way the differential grid does. The tier each space sits in is stated here so the guarantee is never stronger than the evidence.
 
@@ -90,8 +90,8 @@ All unique `@see` links across the space files (121 across 161 files at this rev
 The GLSL/WGSL chunks ship the same formulas for the GPU; four layers pin them:
 
 1. **Float64 differential** — chunks are written in a restricted GLSL dialect that transforms mechanically to JS, so every declared edge and every composed rgb↔space path is evaluated in float64 and compared to the scalar library at 1e-6 normalized tolerance ([test/gl.js](../test/gl.js)).
-2. **WebGL2 compile** — all 610 edge and rgb↔space sources compile as fragment shaders through a browser WebGL2 implementation (ANGLE/SwiftShader in CI) via [test/gl-gpu.html](../test/gl-gpu.html). This includes the LUT-backed Munsell chunk.
-3. **WGSL grammar** — the same 610 sources, mechanically translated, parse clean under the full `wgsl_reflect` grammar in CI ([test/wgsl.js](../test/wgsl.js)); the browser page additionally validates them on a live WebGPU device when one is available.
+2. **WebGL2 compile** — all 618 edge and rgb↔space sources compile as fragment shaders through a browser WebGL2 implementation (ANGLE/SwiftShader in CI) via [test/gl-gpu.html](../test/gl-gpu.html). This includes the LUT-backed Munsell chunk.
+3. **WGSL grammar** — the same 618 sources, mechanically translated, parse clean under the full `wgsl_reflect` grammar in CI ([test/wgsl.js](../test/wgsl.js)); the browser page additionally validates them on a live WebGPU device when one is available.
 4. **Float32 stress** — the same dialect re-evaluated with every operation rounded to binary32, under round-to-nearest, contracted multiply-add and both directed roundings. Every source must stay finite at black, white and the six primaries and secondaries, and ryb and cct-duv must stay within 1e-3 of range ([test/gl.js](../test/gl.js)).
 
 ### GPU float32
@@ -109,6 +109,21 @@ Some limits remain and are documented rather than guarded:
 - **OkHSL, OkHSV and OkHWB at pure blue.** Blue sits on a branch test inside Ottosson's `computeMaxSaturation` within half a float32 ulp, so the GPU can take the other branch. rgb→okhsl S reads 100 instead of 102.92, rgb→okhsv S reads 92.40 instead of 108.74, and the inverse at the float64 S leaves the gamut.
 - **Hue at an achromatic input** (for example cam16 at black) takes whatever angle float32 noise points to. It is undefined in float64 too.
 - **PQ-based spaces and kelvin's CCT search keep small float32 errors.** Jzazbz→rgb and ICtCp→rgb miss a zero channel of a saturated primary by up to 1.5e-3 of range (0.39 of 255), and kelvin's golden-section CCT is off by up to 2.4e-4 of range.
+
+### HLSL and MSL
+
+`color-space/gl/hlsl` and `color-space/gl/msl` are not separate formulas. [naga](https://github.com/gfx-rs/wgpu/tree/trunk/naga) 30.0.1 (npm `naga-wasm` 30.2.0, pinned) parses and validates the WGSL above and writes HLSL and MSL with the backends wgpu runs on DirectX and Metal; upstream compiles those backends' output with DXC, FXC and `xcrun metal` in CI. [gl/naga.js](../gl/naga.js) only renames: naga appends `_` to a function name ending in a digit (the name is restored when free), and the shared helpers whose trailing `_` naga strips become `colorspace_cbrt`, `colorspace_spow`, `colorspace_atan2` and `colorspace_mod`. HLSL and MSL output does not depend on the shader model (5_0–6_2) or Metal version (1.0–3.0) setting, apart from MSL's `// language:` header line (checked over every source).
+
+- **Tier 1, in `npm test`** ([test/hlsl.js](../test/hlsl.js)): every source above (618 on 2026-10-03) translates to both languages; each entry and digit-ending function keeps its name; no output contains `fmod`, `%`, `mul()`, a matrix type or naga's integer div/mod helpers, so GLSL's floored `mod` survives as `colorspace_mod`. The Munsell LUT keeps its texture (HLSL `register(t0)`, an extra MSL entry parameter). rgb→oklch and slog3→rec709 are pinned by hash. The vendored site copy of naga-wasm must be byte-identical to the pinned package and write the same MSL.
+- **Executed once (2026-10-03, not in CI):** the shipped HLSL, wrapped in a one-thread compute entry, was compiled by glslang 15.1.0 (Khronos's HLSL front end) to SPIR-V and run on lavapipe (llvmpipe, LLVM 20.1.2). Each source ran on 14 inputs and was compared with the float64 library, range-relative. The tolerance counts below leave out the four achromatic inputs (black, white and two grays), where hue is undefined.
+  - 600 of the 614 non-LUT sources ran. The other 14 are the const-table spaces coloroid, dsh, ostwald and wavelength: glslang rejects naga's `ConstructarrayN` initializer, and it also rejects upstream naga's own DXC/FXC-validated snapshot of that construct.
+  - No output was NaN or Inf at any input, including black, white and the grays.
+  - 592 of 600 are within 1e-2 of range, 588 within 1e-3, 576 within 1e-4 and 423 within 1e-6.
+  - Everything above 1e-3 is a limit already listed above: OkHSL, OkHSV and OkHWB at pure blue (8 sources, up to 0.44 of range — okhsl→rgb G reads −110.9 instead of 0), and ictcp, jzazbz, jzczhz and izazbz → rgb (1.1e-3 to 1.5e-3).
+
+  So HLSL inherits exactly the float32 limits documented above and no new ones; the five fixed defects are fixed in it too. MSL is written from the same validated module but was not executed: there is no Metal device here.
+- **Tier 3, not a deploy gate** ([.github/workflows/shaders.yml](../.github/workflows/shaders.yml), [test/shader-compile.js](../test/shader-compile.js)): every source is compiled with DXC `cs_6_0` as HLSL 2018 and 2021, with FXC `cs_5_0`, and with `xcrun metal` at naga's header std and at the SDK default. This follows upstream naga's recipe, and it is unverified until its first run.
+- **Metal compiles with fast math by default.** Apple documents `MTLCompileOptions.fastMathEnabled` as defaulting to `true` (now `mathMode`); `.fast` makes "aggressive, potentially lossy assumptions about floating-point math" ([Apple: fastMathEnabled](https://developer.apple.com/documentation/metal/mtlcompileoptions/fastmathenabled), [MTLMathMode](https://developer.apple.com/documentation/metal/mtlmathmode)). The float32 figures above assume IEEE-honoring math, so use `mathMode = .safe` to rely on them.
 
 ---
 
@@ -228,8 +243,8 @@ color-space 3.1.0.
 
 - **No equivalent in colour-science 0.4.7 (32 spaces):** checked against the installed
   package source, so these spaces get no snippet. yuv still gets an OpenCV route.
-  The four camera logs added after this run (applelog2, flog2c, gplog2, kinelog3) have
-  not been checked yet, so they have no snippet either.
+  The six camera logs added after this run (applelog2, flog2c, gplog2, kinelog3,
+  samsunglog, ilog) have not been checked yet, so they have no snippet either.
 - **85 of the 127 passing rgb → space snippets agree to better than 1e-10.** 18 sit between
   1e-5 and 8.3e-4. Several of those trace to colour's own data: it ships the rounded
   published ProPhoto/RIMM and DJI D-Gamut matrices, Ottosson's original XYZ→LMS matrix for

@@ -8,8 +8,8 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
-| **Version compared** | 3.x | 4.x | 0.6.x | 3.x | 0.x |
-| **Color spaces** | **166** | ~35 | ~40 | ~15 | ~16 |
+| **Version compared** | 3.x | 4.x | 0.6.x | 3.x | 1.x |
+| **Color spaces** | **168** | ~35 | ~40 | ~15 | ~16 |
 | **API value ranges** | Conventional per space | Mixed; RGB normalized | Mixed; RGB normalized | Mixed / CSS strings | Mostly normalized |
 | **CSS string parsing** | No | Yes | Yes | Yes | No |
 | **Color mixing / interpolation** | No | Yes | Yes | Yes | No |
@@ -21,9 +21,10 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | **Zero dependencies** | Yes | Yes | Yes | No | Yes |
 | **Differential-tested vs colorjs.io** | 29 spaces, both directions | — | — | — | — |
 | **Bundle (full, min+gz)** | ~55 kB¹ | ~22 kB | ~25 kB | ~16 kB | ~12 kB |
-| **Batch / typed-array API** | Yes (JS + WASM) | No | No | No | Yes (WebGL/GPU) |
+| **Batch / typed-array API** | Yes (JS + WASM) | No | No | No | No (per-color `convert` into a reused `output`) |
+| **Scalar speed, M op/s²** | 5.52 | 4.46 | 0.23 | 1.19 (6 of 7) | 3.49 (3 of 7) |
 
-Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 166 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle.
+Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 168 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle. ²Geometric mean over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), each library over the subset it implements — color-space on chroma-js's 6 is 6.45, on texel's 3 is 2.76; median of 3 runs, 2026-10-03, Node 22.22 / Intel Xeon 2.1 GHz, versions and method in the [README](../README.md#credits) footnote. Absolute figures move with the machine; compare ratios.
 
 ---
 
@@ -53,7 +54,7 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 **Video and broadcast** — YUV, YIQ, YCbCr (BT.601), YcCbcCrc (BT.2020 constant-luminance), YPbPr, YDbDr, YCgCo, JPEG full-range YCbCr, xvYCC. None of culori, colorjs.io, chroma-js, or @texel/color include these.
 
-**Film / professional** — ACEScg/cc/cct, ACES2065-1, plus the camera log encodings: ARRI LogC3/LogC4, Sony S-Log2/S-Log3, Panasonic V-Log, RED Log3G10, Canon Log/Log2/Log3, Fujifilm F-Log/F-Log2/F-Log2 C, Nikon N-Log, Apple Log/Apple Log 2, Blackmagic Film Gen5, DJI D-Log, GoPro GP-Log2, Kinefinity KineLOG3, Cineon. culori and colorjs.io include ACEScc/cg, but **none** of the compared libraries include the camera log curves — this is color-space's clearest moat.
+**Film / professional** — ACEScg/cc/cct, ACES2065-1, plus the camera log encodings: ARRI LogC3/LogC4, Sony S-Log2/S-Log3, Panasonic V-Log, RED Log3G10, Canon Log/Log2/Log3, Fujifilm F-Log/F-Log2/F-Log2 C, Nikon N-Log, Apple Log/Apple Log 2, Blackmagic Film Gen5, DJI D-Log, GoPro GP-Log2, Kinefinity KineLOG3, Samsung Log, Insta360 I-Log, Cineon. culori and colorjs.io include ACEScc/cg, but **none** of the compared libraries include the camera log curves — this is color-space's clearest moat.
 
 **HDR** — Jzazbz, JzCzHz, ICtCp, Rec. 2100 PQ, Rec. 2100 HLG. colorjs.io covers most of these; culori covers Jzazbz/JzCzHz and ICtCp; @texel/color and chroma-js largely do not.
 
@@ -75,7 +76,7 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 **chroma-js** is the most ergonomic library for palette and visualization work. It includes Brewer color scales, palette generation, and a fluent API that makes common tasks (brighten, darken, mix, scale) one-liners. For data visualization tooling or quick color palette code, chroma-js is the most productive library of this group.
 
-**@texel/color** is the fastest library for batch color conversion over typed arrays, and is designed for WebGL and GPU workflows where data stays normalized 0–1. It has the smallest bundle and is the correct choice when throughput over large pixel buffers matters more than space coverage.
+**@texel/color** is designed for WebGL and GPU workflows where data stays normalized 0–1, and it has the smallest bundle. On the conversions it implements it is the fastest of these five (3.49 M op/s over rgb ⇄ oklab and rgb → p3, color-space 2.76 on the same²); over a 1M-pixel rgb → oklab buffer its per-pixel loop runs slightly ahead of color-space's JS batch API (3.62 vs 3.39 M px/s, medians of 3 runs the same day), and color-space's WASM kernel runs 12.61 M px/s there, 3.48× texel. It is the correct choice when 0–1 data and a minimal bundle matter more than space coverage.
 
 ---
 
@@ -95,7 +96,7 @@ color-space v3 includes a differential test suite (`test/reference.js`) that val
 
 **chroma-js** — you are doing data visualization, need palette generation or Brewer scales, or want a fluent API where `chroma('red').brighten(2).hex()` is the right level of abstraction.
 
-**@texel/color** — you are processing pixel buffers in WebGL, compute shaders, or tight JS loops over typed arrays. Throughput and 0–1 normalization matter more than space breadth.
+**@texel/color** — you are processing pixel buffers in WebGL, compute shaders, or tight JS loops over typed arrays. 0–1 normalization and a minimal bundle matter more than space breadth.
 
 ---
 

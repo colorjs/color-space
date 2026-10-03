@@ -20,9 +20,11 @@
 <script>// embed pre-paint: /<name>?embed is the dossier card alone (CSS keys off the attribute) – set FIRST,
 // before any storage read that a sandboxed frame can refuse
 if(/[^/]\/?$/.test(location.pathname)&&!/\/index(\.html)?$/.test(location.pathname)&&new URLSearchParams(location.search).has('embed')) document.documentElement.dataset.embed=''
-document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
+// every storage touch is guarded: a third-party frame with storage blocked THROWS on access
+let thm0; try{ thm0=localStorage.csTheme }catch{}
+document.documentElement.dataset.theme=thm0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
 // temperature pre-paint: restore the stored --uh/--uk before first render (no warm flash)
-if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=document.documentElement.style;s.setProperty('--uh',h);s.setProperty('--uk',k)}</script>
+try{ if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=document.documentElement.style;s.setProperty('--uh',h);s.setProperty('--uk',k)} }catch{}</script>
 <style>
 /* clip on BODY only: html must stay overflow:visible so the body's overflow keeps
    propagating to the viewport — that propagation is what lets the modal lock the
@@ -697,6 +699,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .src a:hover{ box-shadow:inset 0 -1px 0 var(--uline) }
 /* segmented buttons — same word-style as the corner gamut flags, clickable */
 .seg{ display:flex; gap:var(--s3) }
+.seg[hidden]{ display:none }   /* display:flex would otherwise defeat the hidden attr – the GL tab's language switch rests hidden under the other tabs */
 .seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:var(--ulw) solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
 .seg button:hover{ color:var(--ink) }
 .seg button.on{ color:var(--ink); border-bottom-color:var(--cur,var(--accent)) }   /* the active option carries the CURRENT color, like the API tabs */
@@ -871,7 +874,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <div class="page">
 <div class="fw mhead"><header class="mast">
 	<h1 class="wm">color-space</h1>
-	<span class="tagline tnum"><span id="n">166</span> spaces</span>
+	<span class="tagline tnum"><span id="n">168</span> spaces</span>
 	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
 	<span class="sp"></span>
 	<span class="dctl vctl" id="vctl"></span>
@@ -1435,8 +1438,8 @@ function colize(force){ const C=colCount()
 		box.dataset.c=C
 		const cols=Array.from({length:C},()=>{ const c=document.createElement('div'); c.className='gcol'; return c })
 		// balanced masonry without a pre-move layout read: compact rows weigh one; only the
-		// first C visible full slider leads add their declared channel count. Reading all 166
-		// offsetHeights here forced a whole-page layout before moving the nodes, then another
+		// first C visible full slider leads add their declared channel count. Reading every row’s
+		// offsetHeight here forced a whole-page layout before moving the nodes, then another
 		// for the final columns — the largest parser-blocking startup cost.
 		const colH=new Array(C).fill(0)
 		let vi=0   // the first C VISIBLE entries head the columns — a filter must not seat its few survivors by the full catalog's geometry
@@ -1497,10 +1500,10 @@ document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct()
 
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div class="ic-lead">
-		<h2 id="introcopy-title"><span id="n2">166</span> coordinate systems.</h2>
+		<h2 id="introcopy-title"><span id="n2">168</span> coordinate systems.</h2>
 		<p>Web, print, photography, film, broadcast, art, science, and history. Canonical conversions, channels, gamut shapes, provenance, cited references, known limits. Convert any space to any other: <em>rgb to oklch</em>, <em>slog3 to rec709</em>, <em>cct-duv to rgb</em>.</p>
 		<ul class="trust" aria-label="why you can trust the data">
-			<li tabindex="0" title="All 166 spaces are test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
+			<li tabindex="0" title="All 168 spaces are test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span class="term">Reference-tested</span></li>
 			<li tabindex="0" title="Channel ranges follow CSS and each defining source – familiar units rather than one universal normalization."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg><span class="term">Conventional ranges</span></li>
 			<li tabindex="0" title="CC0 1.0 – no rights reserved. Use, sell, fork or embed it anywhere; no attribution required."><span class="pdm" aria-hidden="true">©</span><span class="term">Public domain</span></li>
 		</ul>
@@ -1510,7 +1513,7 @@ document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct()
 		<pre id="api-panel-core" role="tabpanel" aria-labelledby="api-tab-core" data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
-space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 166 × 165 pairs</i>
+space.oklch.rgb(0.65, 0.25, 180)  <i>// any of 168 × 167 pairs</i>
 
 space.oklch.name    <i>// 'oklch'</i>
 space.oklch.range   <i>// [[0,1], [0,0.4], [0,360]]</i>
@@ -1580,7 +1583,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<p>Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
 		<details class="fqa"><summary>What does “out of gamut” mean?</summary>
 		<p>A color one space can describe but another – or your screen – can't show. A vivid <a href="#p3">Display P3</a> green simply doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
-		<details class="fqa"><summary>Why 166 spaces – isn't one enough?</summary>
+		<details class="fqa"><summary>Why 168 spaces – isn't one enough?</summary>
 		<p>Because each one fixed a real limitation of an earlier one, and the older ones are still in use. <a href="#xyz">XYZ</a> made color measurable (1931), <a href="#lab">Lab</a> made differences comparable (1976), <a href="#oklab">OKLab</a> made screen steps look even (2020) – and along the way, broadcast, print and camera makers each needed encodings of their own. Grouping the catalog by <em>era</em> (in the filter) walks through the whole story.</p></details>
 		<details class="fqa"><summary>Aren't most of these spaces dead?</summary>
 		<p>Many are retired from daily use, but they still do quiet, real work. Archives still decode <a href="#ntsc">NTSC</a> tapes; <a href="#cineon">Cineon</a> still opens the film scans of the '90s; <a href="#photoycc">PhotoYCC</a> still holds family albums burned to PhotoCD. Reading old pictures takes the original math, and keeping that math available is part of what a reference is for. The history filter gathers them by era.</p></details>
@@ -1591,8 +1594,8 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 		<details class="fqa"><summary>Are conversions exact? Do round trips lose data?</summary>
 		<p>Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p></details>
 		<details class="fqa"><summary>Which of these can CSS write?</summary>
-		<p>Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, Rec. 2020, linear sRGB and XYZ. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
-		<details class="fqa"><summary>What are the 37 camera log spaces for?</summary>
+		<p>Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="#rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
+		<details class="fqa"><summary>What are the camera log spaces for?</summary>
 		<p>A log curve packs a sensor's wide dynamic range into a small recordable code range, so highlights and shadows both survive. Every vendor ships its own: <a href="#logc4">ARRI LogC4</a>, <a href="#slog3">Sony S-Log3</a>, <a href="#log3g10">RED Log3G10</a>. Footage is graded in log or through ACES, then delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>. Each log dossier exports the conversion as a <code>.cube</code> LUT your editor loads.</p></details>
 		<details class="fqa"><summary>What makes a space HDR?</summary>
 		<p>Its transfer function budgets code values for luminance far beyond a standard display's white. <a href="#rec2100-pq">PQ</a> addresses absolute levels up to 10,000 nits; <a href="#rec2100-hlg">HLG</a> stays compatible with SDR broadcast; Rec. 2100 carries both. <a href="#ictcp">ICtCp</a> and <a href="#jzazbz">Jzazbz</a> are their perceptual companions for grading and difference work.</p></details>
@@ -1648,6 +1651,8 @@ import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasG
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
+import { CSS as CSSFMT } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
+import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's source – the very bundle js/gl.js compiles, already in the graph
 import NAMES from './js/names.js'
 import * as PALDATA from './js/palettes.js'
 import { SPACES, sections, cname, unit, disp, nbh, catHTML, HISTORICAL, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink } from './js/render.js'
@@ -2055,27 +2060,12 @@ const gamutOf=()=>{ const {s,vals}=master, eps=1e-4, inR=(v,hi)=>v.every(x=>x>=-
 		if(X.every(isFinite)&&visibleXYZ(...X)) return inVisSolid(...X)?'vis':'locus' }catch{}
 	return 'clip' }
 // lum/ink/decOf/fmtc/rgbF live in render.js — the prerender bakes the same formatting
-// the current color as a native CSS string — only for spaces CSS can actually express
-// (lab()/lch() are D50 like ours; predefined color() spaces are 0–1; our xyz is D65 0–100)
-const r1=x=>+x.toFixed(1)+'', r2=x=>+x.toFixed(2)+'', r3=x=>+x.toFixed(3)+''
+// the current color as a native CSS string: CSSFMT is css.js's table – only the spaces CSS can
+// actually express, at CSS Color 4's serialization precision. No rec2020 there on purpose: CSS's
+// rec2020 is a pure 2.4 gamma (BT.1886), this library's carries the BT.2020 OETF
 // camera logs whose → ACES2065-1 composite is differential-tested against the
 // Academy's official vendor transform (test/aces-vendor.js, docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 const ACESV=new Set(['slog3','sgamut3cine','logc3','clog2','clog3','vlog','log3g10'])
-const CSSFMT={
-	rgb:v=>`rgb(${v.map(x=>Math.round(x)).join(' ')})`,
-	hsl:v=>`hsl(${r1(v[0])} ${r1(v[1])}% ${r1(v[2])}%)`,
-	hwb:v=>`hwb(${r1(v[0])} ${r1(v[1])}% ${r1(v[2])}%)`,
-	lab:v=>`lab(${r2(v[0])} ${r2(v[1])} ${r2(v[2])})`,
-	lchab:v=>`lch(${r2(v[0])} ${r2(v[1])} ${r1(v[2])})`,
-	oklab:v=>`oklab(${v.map(r3).join(' ')})`,
-	oklch:v=>`oklch(${r3(v[0])} ${r3(v[1])} ${r1(v[2])})`,
-	lrgb:v=>`color(srgb-linear ${v.map(r3).join(' ')})`,
-	p3:v=>`color(display-p3 ${v.map(r3).join(' ')})`,
-	a98rgb:v=>`color(a98-rgb ${v.map(r3).join(' ')})`,
-	prophoto:v=>`color(prophoto-rgb ${v.map(r3).join(' ')})`,
-	rec2020:v=>`color(rec2020 ${v.map(r3).join(' ')})`,
-	xyz:v=>`color(xyz-d65 ${v.map(x=>r3(x/100)).join(' ')})`,
-}
 // the url: space as the path slug, hash is just the color — <base>/oklch#ff7d4f
 let BASE=location.pathname.replace(/index\.html$/,'')
 { const m=BASE.match(/([^/]+?)(?:\.html)?\/?$/), seg=m&&m[1]; if(seg&&SPACES.includes(seg)) BASE=BASE.slice(0,m.index) }   // /<space> on Pages, /<space>.html on plain file servers — both are the atlas document
@@ -2112,31 +2102,16 @@ let favT=0, favLast=''
 function syncFav(hx){ const now=performance.now(); if(now-favT<250||hx===favLast) return; favT=now; favLast=hx
 	favEl.href=`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='${encodeURIComponent(hx)}' transform='rotate(45 8 8)'/></svg>` }   // pure rhombus, tips at the tile edges
 function chanVals(s,v){ const cls=classify(s); return v.map((x,i)=>`${cls.ch[i].sym}${fmtn(x,cls.ch[i])}${unit(cls.ch[i])}`).join(' ') }
-function fnfmt(s,v){ const cls=classify(s); return `${s}(${v.map((x,i)=>fmtn(x,cls.ch[i])+unit(cls.ch[i])).join(' ')})` }
-// spaces CSS Color 4 can actually write — everything else has NO conventional
-// textual notation, and inventing one would read as a standard that doesn't exist
-const CSSABLE=new Set(['rgb','hsl','hwb','lab','lchab','oklab','oklch','p3','a98rgb','prophoto','rec2020','xyz','xyz-d50','lrgb'])
-function fmt(s,v){ const n=x=>Math.round(x),f=(x,d)=>x.toFixed(d); switch(s){
-	case 'rgb':return `rgb(${n(v[0])} ${n(v[1])} ${n(v[2])})`; case 'hsl':return `hsl(${n(v[0])} ${f(v[1],1)}% ${f(v[2],1)}%)`
-	case 'hwb':return `hwb(${n(v[0])} ${f(v[1],1)}% ${f(v[2],1)}%)`; case 'lab':return `lab(${f(v[0],2)}% ${f(v[1],2)} ${f(v[2],2)})`
-	case 'lchab':return `lch(${f(v[0],2)}% ${f(v[1],2)} ${f(v[2],2)})`; case 'oklab':return `oklab(${f(v[0],4)} ${f(v[1],4)} ${f(v[2],4)})`
-	case 'oklch':return `oklch(${f(v[0],4)} ${f(v[1],4)} ${f(v[2],1)})`; case 'p3':return `color(display-p3 ${v.map(x=>f(x,4)).join(' ')})`
-	case 'a98rgb':return `color(a98-rgb ${v.map(x=>f(x,3)).join(' ')})`; case 'prophoto':return `color(prophoto-rgb ${v.map(x=>f(x,3)).join(' ')})`
-	case 'rec2020':return `color(rec2020 ${v.map(x=>f(x,3)).join(' ')})`; case 'xyz':return `color(xyz-d65 ${v.map(x=>f(x/100,3)).join(' ')})`
-	case 'xyz-d50':return `color(xyz-d50 ${v.map(x=>f(x/100,3)).join(' ')})`; case 'lrgb':return `color(srgb-linear ${v.map(x=>f(x,3)).join(' ')})`
-	// everything else: CSS-style function notation — the convention colors are read in
-	case 'cmyk':return `device-cmyk(${v.map(x=>n(x)+'%').join(' ')})`
-	default:return fnfmt(s,v) } }
 // the masthead value's notation, pickable in the filter's view options — the parser
 // accepts every form regardless, so the field round-trips whatever it shows
 const FMTL=['hex','rgb','hsl','oklch','oklab','lab','lch','p3']
-let FMT=FMTL.includes(localStorage.csFmt)?localStorage.csFmt:'hex'
+let FMT='hex'; try{ if(FMTL.includes(localStorage.csFmt)) FMT=localStorage.csFmt }catch{}   // storage is a convenience – a storage-blocked frame throws here
 const FMTKEY={ lch:'lchab' }   // CSS's lch() is this catalog's lchab
 const fmtAs=(f,hx)=>{ if(f==='hex') return hx
-	try{ const k=FMTKEY[f]||f; return fmt(k,toSpace(k,RGB())) }catch{ return hx } }
+	try{ const k=FMTKEY[f]||f; return CSSFMT[k](toSpace(k,RGB())) }catch{ return hx } }
 // ONE door for the header notation – the value dropdown and the hash router both pass
 // through here (the dropdown rebuilds its options from FMT on open, nothing else to sync)
-const setFmt=v=>{ FMT=v; localStorage.csFmt=v; renderFast() }
+const setFmt=v=>{ FMT=v; try{ localStorage.csFmt=v }catch{}; renderFast() }
 const dispVal=hx=>fmtAs(FMT,hx)
 const pairs=n=>{ if(n>3) return [[0,1],[1,2],[2,0]]   // 4 channels: the C-M · M-Y · Y-C cycle — each of C,M,Y once per axis; K rides its bar, held by every plane
 	const p=[]; for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)p.push([a,b]); return p.slice(0,3) }
@@ -2210,7 +2185,8 @@ const USES={ rgb:'CSS · canvas · the web default', hsl:'CSS · quick pickers',
  xyz:'colorimetry hub · calibration', 'xyz-d50':'ICC interchange', 'xyz-abs-d65':'absolute luminance', xyy:'chromaticity diagrams', lms:'chromatic adaptation', uv:'CCT · LED binning', macboyn:'vision science', dkl:'cone-opponent vision', dsh:'dominant wavelength', gray:'luminance ops', kelvin:'color temperature', wavelength:'spectral colors',
  ycbcr:'JPEG · MPEG · H.264', jpeg:'JPEG encoding', yuv:'analog PAL', yiq:'NTSC', ydbdr:'SECAM', ypbpr:'component video', ycgco:'lossless codecs', yccbccrc:'BT.2020 video', xvycc:'extended-gamut video', 'smpte-c':'legacy broadcast', photoycc:'Photo CD archives',
  rec709:'HDTV cameras', rec2020:'UHD masters', 'rec2020-linear':'UHD compositing', 'rec2100-pq':'HDR10 · Dolby Vision', 'rec2100-hlg':'broadcast HDR', 'rec2100-linear':'HDR compositing', ictcp:'HDR grading · ΔE ITP', jzazbz:'HDR uniform math', jzczhz:'HDR palettes', ipt:'hue-preserving ops', izazbz:'HDR research', 'hdr-ipt':'HDR appearance', 'hdr-cie-lab':'HDR reflectance', icacb:'HDR ΔE',
- acescg:'CGI · compositing', acescc:'cinema grading', acescct:'grading with toe', 'aces2065-1':'archival masters', logc3:'ARRI workflows', logc4:'ARRI ALEXA 35', slog2:'Sony cameras', slog3:'Sony cine cameras', vlog:'Panasonic cameras', log3g10:'RED cameras', clog:'Canon cameras', clog2:'Canon cine', clog3:'Canon cine', flog:'Fujifilm cameras', flog2:'Fujifilm cameras', nlog:'Nikon cameras', applelog:'iPhone ProRes Log', bmdfilm:'Blackmagic cameras', dlog:'DJI drones', cineon:'film scans · DPX',
+ acescg:'CGI · compositing', acescc:'cinema grading', acescct:'grading with toe', 'aces2065-1':'archival masters', logc3:'ARRI workflows', logc4:'ARRI ALEXA 35', slog2:'Sony cameras', slog3:'Sony cine cameras', vlog:'Panasonic cameras', log3g10:'RED cameras', clog:'Canon cameras', clog2:'Canon cine', clog3:'Canon cine', flog:'Fujifilm cameras', flog2:'Fujifilm cameras', nlog:'Nikon cameras', applelog:'iPhone ProRes Log', applelog2:'iPhone log · Apple Wide Gamut', bmdfilm:'Blackmagic cameras', dlog:'DJI drones', cineon:'film scans · DPX',
+ flog2c:'Fujifilm cameras · F-Gamut C', gplog2:'GoPro MISSION 1 cameras', protune:'GoPro Hero cameras', kinelog3:'Kinefinity cine cameras', milog:'Xiaomi phone log', olog:'OPPO phone log', samsunglog:'Galaxy phone log', ilog:'Insta360 camera log', davinci:'Resolve color management', tlog:'Baselight grading',
  p3:'Apple displays · wide CSS', 'p3-linear':'wide-gamut math', 'dci-p3':'cinema projection', a98rgb:'photo print workflows', prophoto:'photo editing', rimm:'scene-referred photo', scrgb:'Windows HDR', lrgb:'physically-correct blending',
  cmyk:'print separation', cmy:'subtractive teaching', munsell:'soil · art · standards', 'ral-design':'industrial coatings', coloroid:'architecture', ryb:'artist color mixing',
  tsl:'skin detection', yes:'face detection', hsm:'skin segmentation', ohta:'image segmentation', rg:'illumination-invariant vision',
@@ -2630,7 +2606,7 @@ function openModal(s){
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
 	for(const el of pageShell.children) el.inert=!el.classList.contains('mhead')   // the header stays live – everything else behind the card sleeps
 	urlLast=spaceURL(s)+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
-	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: count.js can't see a replaceState open – every one but a /<name> page's own first (its pageview) is counted
+	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
@@ -2683,7 +2659,10 @@ function parseColor(str){ str=str.trim().toLowerCase()
 			sp={'display-p3':'p3','a98-rgb':'a98rgb','prophoto-rgb':'prophoto','xyz-d65':'xyz','xyz':'xyz','srgb-linear':'lrgb','srgb':'rgb'}[parts[0]]||parts[0]
 			const nums=parts.slice(1,4).map(parseFloat)
 			if(sp==='rgb') nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x*2.55; else if(x<=1) nums[i]=x*255 })
-			else if(['p3','rec2020','a98rgb','prophoto','lrgb'].includes(sp)) nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x/100 })
+			else if(['p3','rec2020','a98rgb','prophoto','lrgb'].includes(sp)){ nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x/100 })
+				// CSS's rec2020 is a pure 2.4 gamma (BT.1886), not the BT.2020 OETF our rec2020 carries –
+				// decode to linear light and land on rec2020-linear, the same primaries
+				if(sp==='rec2020'){ sp='rec2020-linear'; nums.forEach((x,i)=>{ nums[i]=Math.sign(x)*Math.abs(x)**2.4 }) } }
 			else if(sp==='xyz'||sp==='xyz-d50') nums.forEach((x,i)=>{ if(!parts[i+1]?.includes('%')&&Math.abs(x)<=1.5) nums[i]=x*100 })
 			return SPACES.includes(sp)&&nums.length===3&&nums.every(isFinite)?{ s:sp, vals:nums }:null }
 		if(sp==='lch') sp='lchab'
@@ -2810,7 +2789,7 @@ const GAMTITLE={ srgb:'fits sRGB – every standard display shows it losslessly'
 // Surface is the dossier default: the widest reflective view that still reads as a
 // compact body. Catalog sliders stay on Light for unrestricted adjustment. Gamut
 // comparison belongs to the dossier.
-let GM=[...GAMS,'vis','locus'].includes(localStorage.csGm)?localStorage.csGm:'vis'
+let GM='vis'; try{ if([...GAMS,'vis','locus'].includes(localStorage.csGm)) GM=localStorage.csGm }catch{}
 // The dossier's sweep lens. A 1-channel locus under a display lens is all ghost; under
 // Surface or Light it is all in by definition, so the discretized solid must not test its rim.
 const gmFor=cls=>cls.ch.length>1?GM:GM==='vis'||GM==='locus'?'off':GM
@@ -3027,6 +3006,33 @@ const pyCode=(s,rgb)=>{ const e=PY.default[s], L=[]
 const SITEURL=(document.querySelector('link[rel="canonical"]')?.href||location.origin+'/').replace(/\/[^/]*$/,'')
 const attrEsc=t=>String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')
 const embedCode=s=>`<iframe src="${SITEURL}/${s}?embed${colorHash()}"\n  title="${attrEsc(disp(s))} color space – ${new URL(SITEURL).host}"\n  width="720" height="800" style="max-width:100%;border:0" loading="lazy"></iframe>`
+// the GL tab speaks four shader languages from one source: GLSL as composed, WGSL through the
+// translator, HLSL/MSL written by naga from that WGSL (gl/naga.js + the vendored naga-wasm, 2 MB,
+// kept out of the precache). Translator and naga load on first pick; each space's text is kept.
+// The header comments name the one call that returns exactly the text below them
+const SHL={ glsl:'GLSL', wgsl:'WGSL', hlsl:'HLSL', msl:'MSL' }, SHFOR={ glsl:'WebGL · OpenGL', wgsl:'WebGPU', hlsl:'Unity · Unreal · DirectX', msl:'Metal' }
+let shLang='glsl', nagaP=null
+const shText={}
+const nagaLoad=()=>nagaP||(nagaP=Promise.all([import('../gl/naga.js'),import('./vendor/naga-wasm/index.js')])
+	.then(async([m,naga])=>{ await naga.init(); return { m, naga } }).catch(e=>{ nagaP=null; throw e }))
+const shHead=(a,b,lang,src,nv)=>{ const lut=src.match(/uniform\s+(?:\w+\s+)?sampler2D\s+(\w+)tex\b/)
+	const ch=a==='rgb'?b:a, arg=x=>x===ch?camel(x):`'${x}'`   // GLSL/WGSL name the lean composer + the one chunk (rgb has none) – byte-identical to the full registry
+	return [`// ${a} → ${b} · ${SHL[lang]} for ${SHFOR[lang]}${nv?' – written by naga from the verified WGSL':''}`,
+		nv?`// import { ${lang} } from 'color-space/gl/${lang}'   – needs npm i naga-wasm@${nv}`:`// import { ${lang} } from 'color-space/gl'; import ${camel(ch)} from 'color-space/gl/${ch}'`,
+		nv?`// await ${lang}('${a}', '${b}')`:`// ${lang}(${arg(a)}, ${arg(b)})`,
+		...(lut?[`// reads ${lut[1]}tex: upload luts.${lut[1]}.data() from color-space/gl/all there (w×h RGBA32F, NEAREST)`]:[]),'',''].join('\n') }
+// the open space's text in one language: a string, { err } after a failed load, null while loading
+function shaderText(s,lang){ const k=lang+':'+s
+	if(k in shText) return shText[k]
+	const a=s, b=s==='rgb'?'oklch':'rgb'   // rgb pairs with oklch — never itself
+	let src; try{ src=glslOf(a,b) }catch(e){ return shText[k]={ err:e.message } }
+	if(lang==='glsl') return shText[k]=shHead(a,b,lang,src)+src
+	shText[k]=null
+	;(lang==='wgsl'?import('../gl/translate.js').then(m=>shHead(a,b,lang,src)+m.translate(src))
+		:nagaLoad().then(({m,naga})=>shHead(a,b,lang,src,m.NAGA_WASM)+m.emit(naga,lang,src)))
+		.then(t=>{ shText[k]=t },e=>{ shText[k]={ err:e.message } })
+		.finally(()=>{ if(open()&&selected===s&&codeTab==='gl'&&shLang===lang) renderFast(false) })
+	return null }
 // the dossier LUT's apps (js/editors.js) and its size words
 const EDBY=new Map(EDITORS.map(e=>[e.id,e])), SZL={ 17:'draft', ...SIZE_LABEL }
 // ── the sRGB solid in this space: regular surface mesh, drag to rotate ──
@@ -4120,6 +4126,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 <div class="imgrow" id="imgrow" title="click the source panel for the next test image · drop your own image anywhere"></div>`:''}
 	 ${interpHTML}
 	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="code backends"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button><button data-t="embed" aria-pressed="false">${FLEMBED}embed</button></span></h2>
+	 ${hasPlaneGL(s)?`<span class="seg" id="glseg" role="group" aria-label="shader language" hidden>${Object.entries(SHL).map(([l,n])=>`<button type="button" data-l="${l}" aria-pressed="${l===shLang}"${l===shLang?' class="on"':''}>${n}</button>`).join('')}</span>`:''}
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="copy"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
 	 ${MNAV('mfoot',1)}`
 		solidHome()
@@ -4207,12 +4214,18 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// the heading word AND the comparison band itself cycle the comparison space, like clicking the image source panel
 	const cycleCmp=()=>{ const list=ICMP.filter(k=>k!==s); if(list.length){ cmpIdx=(cmpIdx+1)%list.length; renderFast() } }
 	const icmpEl=detail.querySelector('#icmp'); if(icmpEl) icmpEl.onclick=cycleCmp
-	const csnip=detail.querySelector('#csnip'), cseg=detail.querySelector('#cseg')
+	const csnip=detail.querySelector('#csnip'), cseg=detail.querySelector('#cseg'), glseg=detail.querySelector('#glseg')
 	csnip.onclick=()=>{ copy(detail.querySelector('#snip').textContent); if(codeTab==='embed') track(EVENT.embed(s)) }
 	codeTab='js'
 	// one delegated handler – the Python tab joins the row once its data module lands
 	cseg.onclick=e=>{ const b=e.target.closest('button[data-t]'); if(!b) return; codeTab=b.dataset.t
-		cseg.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) }); track(EVENT.lang(codeTab)); renderFast() }
+		cseg.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) }); track(EVENT.lang(codeTab)); renderFast()
+		if(glseg) glseg.hidden=codeTab!=='gl' }
+	// the GL tab's language switch – same handler shape; a failed naga load retries on the next pick
+	if(glseg) glseg.onclick=e=>{ const b=e.target.closest('button[data-l]'); if(!b) return; shLang=b.dataset.l
+		glseg.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })
+		if(shText[`${shLang}:${s}`]?.err) delete shText[`${shLang}:${s}`]
+		track(EVENT.lang(shLang)); renderFast(false) }
 	pyLoad().then(py=>{ if(!py?.default[s]||!cseg.isConnected||cseg.querySelector('[data-t="py"]')) return   // verified entries only – no tab where colour-science and OpenCV have no equivalent
 		cseg.querySelector('[data-t="js"]').insertAdjacentHTML('afterend',`<button data-t="py" aria-pressed="false">${FLPY}Python</button>`) })
 	// the LUT · ICC exporters – a props feature under REFERENCE: pick a target, read
@@ -4922,7 +4935,7 @@ const setTk=(root,hx,ink0)=>{ if(root._tk===hx)return; root._tk=hx
 	root.style.setProperty('--tkc',hx); root.style.setProperty('--tki',ink0); root.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
 const setCur=(root,hx)=>{ if(root._cur===hx)return; root._cur=hx; root.style.setProperty('--cur',hx) }
 const clearMotionTk=()=>{ for(const ent of motionTkEnts){ ent._tk=ent._cur=''; for(const p of ['--tkc','--tki','--tkv','--cur']) ent.style.removeProperty(p) } motionTkEnts.clear() }
-const stampTk=(hx,ink0)=>{ if(PDOWN||autoColor)return   // changing inherited vars on all 166 rows forces a page-wide style recalc per frame
+const stampTk=(hx,ink0)=>{ if(PDOWN||autoColor)return   // changing inherited vars on every row forces a page-wide style recalc per frame
 	setTk(cat,hx,ink0); setCur(cat,hx); clearMotionTk() }
 const detailTk=(hx,ink0)=>{ detail.querySelectorAll('.bar2,.pl').forEach(root=>setTk(root,hx,ink0)) }
 function paintCatalogVals(ents,{values=true,thumbs=true}={}){ const rgb=RGB(), exact=master.s+'|'+master.vals.join()
@@ -5162,7 +5175,7 @@ function renderFast(solid=true){
 			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet – js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	if(snip&&!PDOWN){
+	if(snip&&!PDOWN){ if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return
 		if(codeTab==='py'&&PY?.default[s]) snip.innerHTML=hilite(pyCode(s,rgb.map(x=>clamp(Math.round(x),0,255))),'#')
 		else if(codeTab==='embed') snip.innerHTML=hilite(embedCode(s),null,'"')   // the copy icon copies it (counted as embed-copy)
 		else if(codeTab==='css'){
@@ -5175,7 +5188,7 @@ function renderFast(solid=true){
 			try{ xyzv=s==='xyz'?pure:space[s].xyz(...pure) }catch{}
 			const V=t=>`\x03${t}\x04`
 			snip.innerHTML=hilite(
-				(CSSABLE.has(s)?`/* ${s} is a native CSS notation */\ncolor: ${V(fmt(s,pure))};\n`+
+				(CSSFMT[s]?`/* ${s} is a native CSS notation */\ncolor: ${V(CSSFMT[s](pure))};\n`+
 					`color: ${V(hx)};${g0&&!g0.srgb?'                 /* nearest sRGB fallback */':'                 /* sRGB hex */'}\n`
 					:`/* CSS cannot name ${s} directly */\n`+
 					`\n/* proposal — CSS Color 5 custom spaces (no browser ships this yet):\n@color-profile --${s} { src: url('\x05${s}.icc\x06'); }\ncolor: color(--${s} ${pure.map((x,j)=>fmtn(x,cls.ch[j])).join(' ')}); */`))
@@ -5206,13 +5219,11 @@ function renderFast(solid=true){
 				`// … write rgb 0-255 pixels into buf …\n`+
 				`space${bk}(buf)   // the whole buffer, in place, zero-copy\n`+
 				`\n// same verified formulas as the JS API, compiled ahead-of-time (~1.4× faster)`) }
-		else if(codeTab==='gl'){ const gd={1:'float',2:'vec2',3:'vec3',4:'vec4'}[cls.ch.length]||'vec3', sn=s.replace(/-/g,'')
-			const cp=s==='rgb'?'oklch':'rgb'   // rgb pairs with oklch — never itself
-			snip.innerHTML=hilite(`import { glsl, wgsl } from 'color-space/gl'\n`+
-				`import ${camel(s)} from 'color-space/gl/${s}'\n\n`+
-				`glsl(${camel(s)}, '${cp}')   // GLSL: vec3 ${sn}_${cp}(${gd} c) { … }\n`+
-				`wgsl(${camel(s)}, '${cp}')   // WGSL: fn ${sn}_${cp}(c: ${gd}f) -> vec3f { … }\n`+
-				`\n// chunks are pure data – name the conversion via glsl(), like space${prop(s)}${prop(cp)}.\n// glsl(${camel(s)}) bundles both ways; any space by name via color-space/gl/all`) }
+		else if(codeTab==='gl'){ // the shader itself in the picked language – copy-ready, its call in the header; re-highlighted only when the text changes
+			const t=shaderText(s,shLang), k=t==null?'':`${shLang}:${s}`
+			if(!k||snip._gk!==k){ snip._gk=k
+				snip.innerHTML=hilite(t==null?`// ${SHL[shLang]}: loading ${shLang==='wgsl'?'the WGSL translator':'naga, the shader translator wgpu runs on'} …`
+					:t.err?`// ${SHL[shLang]} didn't load (${t.err}) – pick it again to retry`:t) } }
 		else if(s==='rgb'){ // rgb→rgb would be a no-op — pair the base space with oklch instead
 			const ri=shown.map(Math.round), oc=classify('oklch').ch
 			let ok=null; try{ ok=toSpace('oklch',ri) }catch{}
@@ -5258,7 +5269,7 @@ const MOON='<svg width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stro
 const drawThm=()=>{ const dark=document.documentElement.dataset.theme==='dark'; thm.innerHTML=dark?SUN:MOON; thm.setAttribute('aria-pressed',String(dark)); thm.setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme') }
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
-	document.documentElement.dataset.theme=t; localStorage.csTheme=t; drawThm() }
+	document.documentElement.dataset.theme=t; try{ localStorage.csTheme=t }catch{}; drawThm() }
 // ── UI light temperature: the neutral ramp re-lit by a blackbody, via the library's own
 // kelvin space. Hue comes straight off the Planckian locus; chroma scales with the locus'
 // own chroma, normalized so ~9500 K reproduces the authored slate exactly (--uk:1) and
@@ -5267,13 +5278,13 @@ thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light
 const bbUI=K=>{ const [,a,b]=space.kelvin.oklab(K), C=Math.hypot(a,b); let h=Math.atan2(b,a)*180/Math.PI; if(h<0)h+=360; return {C,h} }
 const UKREF=bbUI(9500).C
 function setUITemp(K){ const st=document.documentElement.style
-	if(!K){ st.removeProperty('--uh'); st.removeProperty('--uk'); delete localStorage.csTemp; delete localStorage.csTempV; return }
+	if(!K){ st.removeProperty('--uh'); st.removeProperty('--uk'); try{ delete localStorage.csTemp; delete localStorage.csTempV }catch{}; return }
 	const {C,h}=bbUI(K=Math.round(clamp(K,1000,20000))), uk=Math.min(2.5,C/UKREF)
 	st.setProperty('--uh',h.toFixed(1)); st.setProperty('--uk',uk.toFixed(3))
-	localStorage.csTemp=K; localStorage.csTempV=`${h.toFixed(1)} ${uk.toFixed(3)}` }
+	try{ localStorage.csTemp=K; localStorage.csTempV=`${h.toFixed(1)} ${uk.toFixed(3)}` }catch{} }
 window.setUITemp=setUITemp   // the future kelvin lens on the hero bar drives this
 const tempQ=new URLSearchParams(location.search).get('temp')
-if(tempQ!=null) setUITemp(+tempQ||0); else if(localStorage.csTemp) setUITemp(+localStorage.csTemp)
+if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp }catch{}; if(k0) setUITemp(+k0) }
 // API code panel — tabs swap which snippet shows
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const panes=[...tabs.querySelectorAll(':scope > [data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]
@@ -5381,7 +5392,7 @@ if(EMBED){ const embl=document.getElementById('embl'), out=()=>{ embl.href=new U
 		const h=dec(a.getAttribute('href').slice(1)); if(known(h)) window.open(new URL(spaceURL(h),location.href).href,'_blank','noopener') }) }
 onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){   // name views orbit too – a dossier first seen at neutral gray reads as an empty instrument
 	autoColor=true; autoStart=autoLast=performance.now(); requestAnimationFrame(autoStep) } },300))
-// analytics (js/track.js) counts the pageview at idle – a no-op until an account code is set
+// analytics (js/track.js) counts the pageview at idle – a no-op until a website id is set
 onLoad(()=>(window.requestIdleCallback||setTimeout)(()=>loadStats()))
 // Cite: the popover's plates were filled from CITATION.cff at build (build-site.js); copy rides the code idiom
 document.getElementById('citep')?.addEventListener('click',e=>{ const b=e.target.closest('[data-copy]'); if(b) copy(document.getElementById(b.dataset.copy).textContent) })
@@ -5396,7 +5407,7 @@ document.getElementById('citep')?.addEventListener('click',e=>{ const b=e.target
 if('serviceWorker' in navigator&&location.protocol!=='file:'){
 	const dev=(location.hostname==='localhost'||location.hostname==='127.0.0.1')&&!BOOT.sw   // the ARRIVAL search: by now openModal's canonical replaceState has stripped ?sw on name views
 	if(dev) navigator.serviceWorker.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()))
-	else onLoad(()=>navigator.serviceWorker.register('./sw.js')) }
+	else onLoad(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})) }   // refused where storage is blocked (a third-party embed) – the page runs on without it
 
 </script>
 <script type="module" src="./js/tip.js"></script>

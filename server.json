@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.colorjs/color-space",
   "title": "color-space",
-  "description": "Verified conversions across 166 color spaces: CSS strings, gamut checks, .cube LUTs",
+  "description": "Verified conversions across 168 color spaces: CSS strings, gamut checks, .cube LUTs",
   "websiteUrl": "https://color-space.io/",
   "repository": {
     "url": "https://github.com/colorjs/color-space",

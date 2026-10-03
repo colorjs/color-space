@@ -134,6 +134,18 @@
       "types": "./types/gl-translate.d.ts",
       "default": "./gl/translate.js"
     },
+    "./gl/hlsl": {
+      "types": "./types/gl-hlsl.d.ts",
+      "default": "./gl/hlsl.js"
+    },
+    "./gl/msl": {
+      "types": "./types/gl-msl.d.ts",
+      "default": "./gl/msl.js"
+    },
+    "./gl/naga": {
+      "types": "./types/gl-naga.d.ts",
+      "default": "./gl/naga.js"
+    },
     "./gl/compose.js": {
       "types": "./types/gl.d.ts",
       "default": "./gl/compose.js"
@@ -149,6 +161,18 @@
     "./gl/translate.js": {
       "types": "./types/gl-translate.d.ts",
       "default": "./gl/translate.js"
+    },
+    "./gl/hlsl.js": {
+      "types": "./types/gl-hlsl.d.ts",
+      "default": "./gl/hlsl.js"
+    },
+    "./gl/msl.js": {
+      "types": "./types/gl-msl.d.ts",
+      "default": "./gl/msl.js"
+    },
+    "./gl/naga.js": {
+      "types": "./types/gl-naga.d.ts",
+      "default": "./gl/naga.js"
     },
     "./gl/util.js": {
       "types": "./types/gl-util.d.ts",
@@ -219,14 +243,23 @@
     "esbuild": "^0.28.1",
     "jz": "^0.9.2",
     "libheif-js": "^1.19.8",
+    "naga-wasm": "30.2.0",
     "playwright": "^1.61.1",
     "tst": "^9.0.0",
     "typescript": "^5.8.2",
     "watr": "^3.1.0",
     "wgsl_reflect": "^1.5.0"
   },
+  "peerDependencies": {
+    "naga-wasm": "^30.2.0"
+  },
+  "peerDependenciesMeta": {
+    "naga-wasm": {
+      "optional": true
+    }
+  },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
+    "test": "node test && node test/cie.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/hlsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
     "test:types": "tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck false test/types/smoke.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck false test/types/smoke.ts",
     "test:package": "node scripts/test-package.js",
     "test:gpu": "node scripts/check-gl-gpu.js",

@@ -20,7 +20,7 @@ export const S = {
 	style: pick(P0.get('style') || store.get('style'), STYLES, 'bench'),
 	space: 'oklch', vals: [0.72, 0.16, 41],   // the authored color: the space that last spoke, and its numbers
 	F: Object.fromEntries(ALLF.map(f => [f.k, new Set()])),
-	q: '', arrange: 'family', view: 'grid', preview: 'sliders', quant: 'smooth', limit: 'locus',
+	q: '', arrange: 'family', view: 'grid', preview: 'sliders', quant: 'smooth', metric: 'oklab', limit: 'locus',   // metric: a palette lens's distance (gl.js METRICS)
 	sel: null, open: null, tsort: null, tdir: 1, shut: new Set(),
 }
 

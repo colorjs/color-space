@@ -73,7 +73,7 @@ export function strip(s, vals, i, n, gm) {
 	const N = typeof q === 'number' ? q : 64, alpha = lensFor(s, gm), out = []
 	for (let k = 0; k < N; k++) { const v = vals.slice(); v[i] = c.min + (c.max - c.min) * (k + .5) / N
 		let rgb; try { rgb = rgbF(s, v) } catch { rgb = [0, 0, 0] }
-		if (typeof q !== 'number') rgb = quantRGB(rgb, q)
+		if (typeof q !== 'number') rgb = quantRGB(rgb, q, S.metric)
 		const col = `rgb(${rgb.map(x => Math.round(x)).join(' ')} / ${alpha ? alpha(v) : 1})`, lo = (k / N * 100).toFixed(2), hi = ((k + 1) / N * 100).toFixed(2)
 		if (out.length && out.at(-1).col === col) out.at(-1).hi = hi; else out.push({ col, lo, hi }) }
 	return `linear-gradient(90deg, ${out.map(r => `${r.col} ${r.lo}% ${r.hi}%`).join(',')})` }
@@ -84,8 +84,8 @@ export function paintPlanes(host, s, vals, res) {
 	host.querySelectorAll('.pl').forEach(pl => { const a = +pl.dataset.a, b = +pl.dataset.b, ca = c.ch[a], cb = c.ch[b], cv = pl.querySelector('canvas')
 		const px = gl ? Math.min(res * 2, Math.round((pl.clientWidth || res) * (devicePixelRatio || 1))) : res
 		if (cv.width !== px) cv.width = cv.height = px
-		if (!(gl && paintPlaneGL(cv, s, vals, a, b, [ca.min, ca.max], [cb.min, cb.max], S.limit, q, false, 0, 'oklab')))
-			try { plane(cv.getContext('2d'), px, s, vals, a, b, [ca.min, ca.max], [cb.min, cb.max], true, S.limit, typeof q === 'string' && q !== 'web' ? rgb => quantRGB(rgb, q) : q || null) } catch {}
+		if (!(gl && paintPlaneGL(cv, s, vals, a, b, [ca.min, ca.max], [cb.min, cb.max], S.limit, q, false, 0, S.metric || 'oklab')))
+			try { plane(cv.getContext('2d'), px, s, vals, a, b, [ca.min, ca.max], [cb.min, cb.max], true, S.limit, typeof q === 'string' && q !== 'web' ? rgb => quantRGB(rgb, q, S.metric) : q || null) } catch {}
 		const x = pl.querySelector('.cx'); x.style.left = frac(vals[a], ca) * 100 + '%'; x.style.top = (1 - frac(vals[b], cb)) * 100 + '%' }) }
 // one entry: its strips, thumbs, readings and planes – n guides for the sweep (fewer while dragging)
 export function paintEntry(el, n = 24) {

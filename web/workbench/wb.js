@@ -13,12 +13,12 @@
 import { S, setColor, RGB, hexNow, valsOf, gamutOf, GAMLABEL, GAMTIP, parseColor, clearAll, toggle, SPACES, classify, meta, countIf, nOn, disp } from '../js/variants-model.js'
 import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE, esc } from '../js/variants-catalog.js'
 import { countText } from '../js/variants-bars.js'
-import { FK, QFLAT, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE } from '../js/variants-data.js'
-import { UI, QI, VI, PI } from '../js/variants-icons.js'
-import { setGLReady, hasPlaneGL } from '../js/gl.js'
+import { FK, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE } from '../js/variants-data.js'
+import { UI, QI, VI, PI, FI } from '../js/variants-icons.js'
+import { setGLReady, hasPlaneGL, METRICS } from '../js/gl.js'
 import { DEFAULT, rgbF, decOf, unit } from '../js/render.js'
 import { clamp, hex, space, LUTOK, LUTTGT, pathToRgb } from '../js/core.js'
-import { cube } from '../js/study-runtime.js'
+import { cube, CSS as CSS_FMT } from '../js/study-runtime.js'
 import TOUR from '../js/tour.js'
 import EDITORS, { cubeOpts, ffmpeg, SIZE_LABEL } from '../js/editors.js'
 import { LENSES, defs as cvdDefs } from '../js/cvd.js'
@@ -32,7 +32,7 @@ const pick = (v, list, d) => list.includes(v) ? v : d
 const SITE = 'https://color-space.io'
 
 // the workbench's own dials, beside the shared S
-export const W = { z: clamp(+(store.get('z') ?? .35) || 0, 0, 1), cvd: 'none', tab: 'space', code: 'js', lutTo: null, lutEd: EDITORS[0].id, lutHi: false, tour: 0, persistent: false, follow: true }
+export const W = { z: clamp(+(store.get('z') ?? .35) || 0, 0, 1), cvd: 'none', tab: 'space', code: 'js', lutTo: null, lutEd: EDITORS[0].id, lutHi: false, tour: 0, tourOpen: false, persistent: false, follow: true, dock: null }
 
 // ── the vocabulary the controls speak ──
 // the filter stripe: alt.html's eight facets, its labels and option words, over the model's tests.
@@ -46,18 +46,22 @@ const SWATCH = [['smooth', 'Smooth'], ['10', 'Steps'], ['web', 'Dots']].map(([v,
 // alt's three layouts, as the shared catalog's views: grid · rows · list (the spec sheet)
 const LAYOUT = [['grid', 'Grid'], ['list', 'Rows'], ['table', 'List']].map(([v, n]) => [v, n, VIEWS.find(x => x[0] === v)[2]])
 // the language affordance: English today, the rest listed and not yet selectable
+// the quantization lens, as the atlas's own select speaks it (index.html QGROUPS · QTIP): its three groups
+// and labels over variants-data's QUANT keys – one state, S.quant; the palette distance metric (gl.js
+// METRICS, index.html MLABEL · MTIP) matters only for the nearest-entry palettes (index.html PALMODES)
+const QSITE = { smooth: ['smooth', 'continuous, unquantized'], 10: ['10-step', '10 native-channel cell centers'], 20: ['20-step', '20 native-channel cell centers'],
+	565: ['16-bit', '16-bit RGB565 depth'], jnd: ['JND', 'just-noticeable OKLab steps'], web: ['safe', '216 web-safe colors'], names: ['names', 'CSS named colors'],
+	xkcd: ['xkcd', 'xkcd survey names'], tailwind: ['tailwind', 'Tailwind tokens'], pico8: ['pico-8', 'PICO-8 palette'], ansi: ['ANSI', 'terminal 256 palette'] }
+const QGROUP = ['', 'steps', 'Palettes']   // QUANT's three groups, titled as the atlas titles them – the first unlabeled
+const MSITE = { oklab: ['OKLab', 'modern perceptual distance'], de2000: ['ΔE2000', 'CIE industry standard'], de76: ['ΔE76', 'plain CIELAB distance'], redmean: ['Redmean', 'classic RGB heuristic'] }
+export const PALMODES = new Set(['names', 'xkcd', 'tailwind', 'pico8', 'ansi'])
+// the tour's stops, one word each for a strip (the full title is the button's tooltip and the card's heading)
+const STOPW = ['Light', 'Measuring', 'The horseshoe', 'Screens', 'Controls', 'Perception', 'Modern', 'Video', 'Cameras', 'HDR', 'Paper']
 const PLANNED = [['pt-BR', 'Português (Brasil)'], ['es', 'Español'], ['tr', 'Türkçe'], ['ja', '日本語'], ['zh-Hans', '简体中文'], ['th', 'ไทย'], ['ko', '한국어'], ['ru', 'Русский']]
 
-// CSS Color 4 notation – mirrors the library's css.js serializers (decimals included), which the
-// site does not stage; rec2020 is absent there on purpose (CSS's rec2020 is a pure 2.4 gamma, the
-// library's carries the BT.2020 OETF – the same numbers would name a different color)
-const fx = (x, d) => (+x.toFixed(d) || 0).toFixed(d), rn = x => Math.round(x) || 0
-const cfn = (name, d, k = 1) => v => `color(${name} ${v.map(x => fx(x / k, d)).join(' ')})`
-const CSS_FMT = { rgb: v => `rgb(${rn(v[0])} ${rn(v[1])} ${rn(v[2])})`, hsl: v => `hsl(${rn(v[0])} ${fx(v[1], 1)}% ${fx(v[2], 1)}%)`,
-	hwb: v => `hwb(${rn(v[0])} ${fx(v[1], 1)}% ${fx(v[2], 1)}%)`, lab: v => `lab(${fx(v[0], 2)}% ${fx(v[1], 2)} ${fx(v[2], 2)})`,
-	lchab: v => `lch(${fx(v[0], 2)}% ${fx(v[1], 2)} ${fx(v[2], 2)})`, oklab: v => `oklab(${fx(v[0], 4)} ${fx(v[1], 4)} ${fx(v[2], 4)})`,
-	oklch: v => `oklch(${fx(v[0], 4)} ${fx(v[1], 4)} ${fx(v[2], 1)})`, p3: cfn('display-p3', 4), a98rgb: cfn('a98-rgb', 3),
-	prophoto: cfn('prophoto-rgb', 3), xyz: cfn('xyz-d65', 3, 100), 'xyz-d50': cfn('xyz-d50', 3, 100), lrgb: cfn('srgb-linear', 3) }
+// CSS Color 4 notation is the library's css.js table (CSS_FMT, via study-runtime) – one serializer for
+// the atlas, the workbench and the MCP css tool; rec2020 is absent there on purpose (CSS's rec2020 is a
+// pure 2.4 gamma, the library's carries the BT.2020 OETF – the same numbers would name a different color)
 
 // the citation is the atlas's own: build-site bakes CITATION.cff into index.html's Cite plates
 // (#citebib, #citeapa – GitHub's "Cite this repository" format); the Share tab reads them from there,
@@ -86,26 +90,46 @@ export const hilite = (code, cm = '//', q = "'") => code.split('\n').map(line =>
 
 export const brandHTML = (sub = '') => `<a class="brand" href="../" title="The atlas – color-space.io"><b>color-space</b>${sub ? `<span class="n">${esc(sub)}</span>` : ''}</a>`
 export const chipHTML = () => `<div class="cur" title="The current color – every space draws it"><span class="cdw"><input type="color" id="cpick" aria-label="Pick the current color"></span><input id="cval" spellcheck="false" autocomplete="off" enterkeyhint="done" aria-label="Current color – any CSS color, or a space's own numbers like cam16(60 40 50)"><span class="gam" id="gam"></span></div>`
-export const searchHTML = (ph = 'Find a space') => `<label class="find" id="findw">${UI.search}<input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(ph)}" aria-label="Search the spaces"><button class="qx" type="button" id="qx" aria-label="Clear the search">${UI.x}</button><kbd>/</kbd></label>`
-export const toolsHTML = () => `<span class="tools1"><button class="ib" type="button" id="thm" aria-label="Switch light and dark"></button><a class="ib" href="https://github.com/colorjs/color-space" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub">${UI.gh}</a></span>`
+export const searchHTML = (ph = 'Find a space') => `<label class="find${S.q ? ' has' : ''}" id="findw">${UI.search}<input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(ph)}" aria-label="Search the spaces" value="${esc(S.q)}"><button class="qx" type="button" id="qx" aria-label="Clear the search">${UI.x}</button><kbd>/</kbd></label>`
+const dark = () => root.dataset.theme === 'dark'
+export const themeHTML = () => `<button class="ib" type="button" id="thm" aria-label="Switch light and dark" aria-pressed="${dark()}" title="${dark() ? 'Light' : 'Dark'}">${dark() ? UI.sun : UI.moon}</button>`
+export const ghHTML = () => `<a class="ib" href="https://github.com/colorjs/color-space" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub">${UI.gh}</a>`
+export const toolsHTML = () => `<span class="tools1">${themeHTML()}${ghHTML()}</span>`
 // the one orienting sentence – what a color space is, in the site's own FAQ words; no numbers
 export const ORIENT = ['A color space is a coordinate system for color – axes, ranges and a rule tying the numbers to measurable light.', 'Each one here writes the current color its own way.']
 export const orientHTML = () => `<p class="wb-orient">${ORIENT.join(' ')}</p>`
 export const countHTML = () => `<span class="cnt2 tnum" aria-live="polite">${countText()}</span>`
 // alt's filter stripe: one quiet text-select per facet, "Any" at rest; an option that would empty the catalog is disabled
+const fopts = (k, on, words) => `<option value="">Any</option>${FK[k].opts.map(([v, name, tip]) => { const n = countIf(k, v)
+	return `<option value="${v}" title="${esc(tip)}"${on === v ? ' selected' : ''}${n || on === v ? '' : ' disabled'}>${esc(words[v] || name)}</option>` }).join('')}`
+const clearHTML = () => nOn() - S.F.for.size || S.q ? `<button type="button" class="lnk" data-wb-reset data-k="reset">Clear</button>` : ''
 export const stripeHTML = () => STRIPE.map(([k, label, words = {}]) => { const on = [...S.F[k]][0] || ''
-	return `<label class="fsel"><span>${label}</span><select data-wf="${k}" data-k="f-${k}"${on ? ' class="on"' : ''}><option value="">Any</option>${FK[k].opts.map(([v, name, tip]) => { const n = countIf(k, v)
-		return `<option value="${v}" title="${esc(tip)}"${on === v ? ' selected' : ''}${n || on === v ? '' : ' disabled'}>${esc(words[v] || name)}</option>` }).join('')}</select></label>` }).join('')
-	+ (nOn() - S.F.for.size || S.q ? `<button type="button" class="lnk" data-wb-reset data-k="reset">Clear</button>` : '')
+	return `<label class="fsel"><span>${label}</span><select data-wf="${k}" data-k="f-${k}"${on ? ' class="on"' : ''}>${fopts(k, on, words)}</select></label>` }).join('') + clearHTML()
+// the same eight facets as Studio's cells: the facet's icon, then its label over the value (variants.css .cell)
+export const cellsHTML = () => STRIPE.map(([k, label, words = {}]) => { const on = [...S.F[k]][0] || ''
+	return `<label class="cell wb-cell${on ? ' on' : ''}"><span class="ci">${FI[FK[k].icon] || ''}</span><span class="cw"><small>${label}</small><select data-wf="${k}" data-k="c-${k}">${fopts(k, on, words)}</select></span></label>` }).join('') + clearHTML()
 // the ten task tags – pills, any number on (a space matching one of them stays)
 export const tagsHTML = () => `<span class="fsel-l" id="wb-for">For</span><span class="wb-tagrow" role="group" aria-labelledby="wb-for">${FK.for.opts.map(([v, name, tip]) => { const on = S.F.for.has(v), n = countIf('for', v)
 	return `<button type="button" class="tag" data-wf="for" data-v="${v}" data-k="t-${v}" aria-pressed="${on}" title="${esc(tip)} – ${n} spaces"${n || on ? '' : ' disabled'}>${esc(name)}</button>` }).join('')}</span>`
 // alt's view controls: size A–A, swatch style, layout – and what the featured spaces preview
-export const viewHTML = () => `<label class="wb-size" title="Size"><span class="a0" aria-hidden="true">A</span><input type="range" min="0" max="1" step=".05" value="${W.z}" data-wv="z" data-k="v-z" aria-label="Size of the catalog"><span class="a1" aria-hidden="true">A</span></label>
-	${seg('quant', 'Swatch style', SWATCH, QI)}${seg('view', 'Layout', LAYOUT, VI)}${seg('preview', 'Featured spaces show', PREVIEWS, PI)}`
+export const sizeHTML = () => `<label class="wb-size" title="Size"><span class="a0" aria-hidden="true">A</span><input type="range" min="0" max="1" step=".05" value="${W.z}" data-wv="z" data-k="v-z" aria-label="Size of the catalog"><span class="a1" aria-hidden="true">A</span></label>`
+export const swatchHTML = () => seg('quant', 'Swatch style', SWATCH, QI)
+export const layoutHTML = () => seg('view', 'Layout', LAYOUT, VI)
+export const previewHTML = () => seg('preview', 'Featured spaces show', PREVIEWS, PI)
+export const viewHTML = () => sizeHTML() + swatchHTML() + layoutHTML() + previewHTML()
+// the quantization lens – ONE select, the atlas's groups and words (QSITE); a palette adds its distance metric
+export const quantHTML = () => `<label class="fsel wb-quant"><span>Quantize</span><select data-wset="quant" data-k="quant"${S.quant !== 'smooth' ? ' class="on"' : ''} aria-label="Quantize – how strips and planes are drawn" title="${esc(QFLAT.map(([v]) => `${QSITE[v][0]} – ${QSITE[v][1]}`).join('\n'))}">${QUANT.map(([, o], g) => {
+	const opts = o.map(([v]) => `<option value="${v}" title="${esc(QSITE[v][1])}"${S.quant === v ? ' selected' : ''}>${esc(QSITE[v][0])}</option>`).join('')
+	return QGROUP[g] ? `<optgroup label="${QGROUP[g]}">${opts}</optgroup>` : opts }).join('')}</select></label>`
+export const metricHTML = () => `<label class="fsel wb-metric"${PALMODES.has(S.quant) ? '' : ' hidden'}><span>Distance</span><select data-wset="metric" data-k="metric" aria-label="Palette distance metric" title="${esc(METRICS.map(m => `${MSITE[m][0]} – ${MSITE[m][1]}`).join('\n'))}">${METRICS.map(m => `<option value="${m}" title="${esc(MSITE[m][1])}"${S.metric === m ? ' selected' : ''}>${esc(MSITE[m][0])}</option>`).join('')}</select></label>`
+// how far a color may reach before strips and planes dim it (variants-data LIMITS)
+export const limitHTML = () => `<label class="fsel wb-limit"><span>Limit</span><select data-wset="limit" data-k="limit" aria-label="Gamut limit" title="${esc(LIMITS.map(([, n, t]) => `${n} – ${t}`).join('\n'))}">${LIMITS.map(([v, n, t]) => `<option value="${v}" title="${esc(t)}"${S.limit === v ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>`
 // the vision lens – a color-vision-deficiency simulation over the whole page (cvd.js filters)
 export const visionHTML = () => `<label class="fsel"><span>Vision</span><select data-wb-cvd data-k="cvd">${LENSES.map(l => `<option value="${l.id}"${l.cite ? ` title="${esc(l.cite)}"` : ''}${W.cvd === l.id ? ' selected' : ''}>${esc(l.label)}</option>`).join('')}</select></label>`
 export const langHTML = () => `<label class="fsel wb-lang"><span class="sr">Language</span><select data-wb-lang data-k="lang" title="Language – more are planned"><option value="en" lang="en" selected>EN</option>${PLANNED.map(([c, n]) => `<option value="${c}" lang="${c}" disabled>${esc(n)} – planned</option>`).join('')}</select></label>`
+// the tour as a numbered strip – a stop's number opens its card ([data-wb="stop"]), again folds it
+export const stopsHTML = () => `<ol class="wb-stops" aria-label="Start here – a tour in ${TOUR.length} stops">${TOUR.map((st, i) => { const on = W.tourOpen && W.tour === i
+	return `<li><button type="button" data-stop="${i}" data-k="stop-${i}" aria-expanded="${on}"${on ? ' aria-current="step"' : ''} title="${esc(st.t)}"><span class="tnum">${i + 1}</span>${esc(STOPW[i] || disp(st.s))}</button></li>` }).join('')}</ol>`
 
 // the start-here tour: eleven stops from light to ink, each one a space already in the catalog
 export const tourHTML = (i = W.tour) => { const st = TOUR[i], n = TOUR.length
@@ -128,8 +152,12 @@ export const agentsHTML = ({ title = true } = {}) => `<section class="wb-agents"
 	</dl>
 </section>`
 
-const R = { brand: () => brandHTML(), chip: chipHTML, search: () => searchHTML(), tools: toolsHTML, orient: orientHTML, count: countHTML,
-	stripe: stripeHTML, tags: tagsHTML, view: viewHTML, vision: visionHTML, lang: langHTML, tour: () => tourHTML(), agents: agentsHTML }
+const R = { brand: () => brandHTML(), chip: chipHTML, search: () => searchHTML(), tools: toolsHTML, theme: themeHTML, gh: ghHTML, orient: orientHTML, count: countHTML,
+	stripe: stripeHTML, cells: cellsHTML, tags: tagsHTML, view: viewHTML, size: sizeHTML, swatch: swatchHTML, layout: layoutHTML, preview: previewHTML,
+	quant: quantHTML, metric: metricHTML, limit: limitHTML, vision: visionHTML, lang: langHTML, stops: stopsHTML, stop: () => W.tourOpen ? tourHTML() : '', tour: () => tourHTML(), agents: agentsHTML }
+const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit']   // the hosts a view/lens change re-renders
+/** Fill every host under `el` (a page that mounts controls after boot – Atlas's top variants). */
+export function fill(el = document) { for (const h of el.querySelectorAll('[data-wb]')) if (R[h.dataset.wb]) h.innerHTML = R[h.dataset.wb](); paintCur() }
 // re-render hosts in place; a control that had focus gets it back (by its data-k)
 export function refresh(...names) { const a = document.activeElement, k = a?.closest?.('[data-wb]') && a.dataset.k
 	for (const name of names) for (const el of document.querySelectorAll(`[data-wb="${name}"]`)) el.innerHTML = R[name]()
@@ -192,32 +220,38 @@ export function renderCat() { const cat = $('cat'); if (!cat) return
 	IO.disconnect(); vis.clear(); todo.clear(); cat.innerHTML = catalogHTML()
 	for (const sh of cat.querySelectorAll('.shelf')) sh.id = 'shelf-' + slug(sh.getAttribute('aria-label'))
 	for (const el of document.querySelectorAll(LIVE)) IO.observe(el) }
-const filtered = () => { renderCat(); refresh('stripe', 'tags', 'count') }
-/** Set a shared view/model key (arrange · view · preview · quant · limit) and repaint what it touches. */
-export function set(key, v) { S[key] = v; if (['quant', 'view', 'preview'].includes(key)) store.set(key, v)
+const filtered = () => { renderCat(); refresh('stripe', 'cells', 'tags', 'count') }
+/** Set a shared view/model key (arrange · view · preview · quant · metric · limit) and repaint what it touches.
+ *  The quantization lens and its metric are session-only and ride the URL (?q= · ?m=, the atlas's grammar) –
+ *  a stored lens reads as broken sliders a week later (index.html's reason); view and preview are stored. */
+export function set(key, v) { S[key] = v; if (['view', 'preview'].includes(key)) store.set(key, v)
 	if (['arrange', 'view', 'preview'].includes(key)) renderCat(); else { dirty(); paintPane(true) }
-	refresh('view') }
+	if (key === 'quant' || key === 'metric') writeURL()
+	refresh(...VIEWK); document.dispatchEvent(new CustomEvent('wb:set', { detail: { key, v } })) }
 
 // ── the pane: a side panel at ≥ 75rem, a modal dialog below; Esc closes, focus returns ──
 let back = null, scrim = null, inerted = []
 const TABS = [['space', 'Space'], ['lut', 'LUT'], ['code', 'Code'], ['share', 'Share']]
 /** Open a space's details. `focus`: move focus into the pane (always when it is a dialog). */
+// W.dock (boot's `dock` option) replaces the pane with a page's own details host – { open(s, { focus }), close() } –
+// while S.sel, the URL, the catalog's highlight, prev/next and focus return stay this code's (Atlas docks the live dossier)
 export function openPane(s, { from, focus = true, url = true, scroll = true } = {}) { if (!SPACES.includes(s)) return
 	if (!S.sel) back = from || document.activeElement
-	S.sel = s; const pane = $('pane'); paneFill(s); pane.hidden = false; pane.scrollTop = 0
-	document.body.classList.add('paneon'); modalize()
+	S.sel = s
+	if (W.dock) W.dock.open(s, { focus })
+	else { const pane = $('pane'); paneFill(s); pane.hidden = false; pane.scrollTop = 0; document.body.classList.add('paneon'); modalize() }
 	document.querySelectorAll('#cat .sp').forEach(el => el.classList.toggle('on', el.dataset.s === s))
-	paintPane(true)
-	if (focus || !WIDE.matches) $('ptitle')?.focus({ preventScroll: true })
+	if (!W.dock) { paintPane(true); if (focus || !WIDE.matches) $('ptitle')?.focus({ preventScroll: true }) }
 	if (scroll) document.querySelector(`#cat .sp[data-s="${CSS.escape(s)}"]`)?.scrollIntoView({ block: 'nearest', behavior: CALM.matches ? 'auto' : 'smooth' })   // the catalog follows the pane
 	if (url) { writeURL(); trackView(s, disp(s)) } }
 export function closePane() { if (!S.sel || W.persistent && WIDE.matches) return
-	S.sel = null; const pane = $('pane'); pane.hidden = true; pane.innerHTML = ''; document.body.classList.remove('paneon'); modalize()
+	S.sel = null
+	if (W.dock) W.dock.close(); else { const pane = $('pane'); pane.hidden = true; pane.innerHTML = ''; document.body.classList.remove('paneon'); modalize() }
 	document.querySelectorAll('#cat .sp.on').forEach(el => el.classList.remove('on')); writeURL()
 	if (back?.isConnected) back.focus({ preventScroll: true }); back = null }
 const go = d => { const list = [...document.querySelectorAll('#cat .sp')].map(e => e.dataset.s), k = list.indexOf(S.sel); if (k < 0 || !list[k + d]) return
-	openPane(list[k + d], { focus: false, scroll: W.follow }); const b = $('pane').querySelector(`[data-go="${d}"]`); (b && !b.disabled ? b : $('ptitle'))?.focus({ preventScroll: true }) }
-function modalize() { const pane = $('pane'); if (!pane) return; const m = !WIDE.matches && !!S.sel
+	openPane(list[k + d], { focus: false, scroll: W.follow }); const b = $('pane')?.querySelector(`[data-go="${d}"]`); (b && !b.disabled ? b : $('ptitle'))?.focus({ preventScroll: true }) }
+function modalize() { const pane = $('pane'); if (!pane || W.dock) return; const m = !WIDE.matches && !!S.sel
 	pane.setAttribute('role', m ? 'dialog' : 'complementary'); pane.setAttribute('aria-labelledby', 'ptitle')
 	m ? pane.setAttribute('aria-modal', 'true') : pane.removeAttribute('aria-modal'); if (scrim) scrim.hidden = !m
 	for (const el of inerted) el.inert = false; inerted = []
@@ -339,12 +373,15 @@ const copy = t => { try { navigator.clipboard?.writeText(t)?.catch?.(() => {}) }
 
 // ── the URL: ?s=<space> is the open pane, the fragment is an authored color (the site's grammar) ──
 function writeURL() { try { const u = new URL(location.href); S.sel ? u.searchParams.set('s', S.sel) : u.searchParams.delete('s')
+	S.quant !== 'smooth' ? u.searchParams.set('q', S.quant) : u.searchParams.delete('q')
+	PALMODES.has(S.quant) && S.metric !== 'oklab' ? u.searchParams.set('m', S.metric) : u.searchParams.delete('m')
 	if (authoredC) u.hash = hex(RGB).slice(1).toLowerCase()
 	history.replaceState(null, '', u) } catch {} }
 
 // ── the theme: the site's own key, so the workbench and the atlas agree ──
 function theme(t) { root.dataset.theme = t; try { localStorage.csTheme = t } catch {}
-	const b = $('thm'); if (b) { b.innerHTML = t === 'dark' ? UI.sun : UI.moon; b.title = t === 'dark' ? 'Light' : 'Dark'; b.setAttribute('aria-pressed', t === 'dark') } }
+	const b = $('thm'); if (b) { b.innerHTML = t === 'dark' ? UI.sun : UI.moon; b.title = t === 'dark' ? 'Light' : 'Dark'; b.setAttribute('aria-pressed', t === 'dark') }
+	document.dispatchEvent(new CustomEvent('wb:theme', { detail: t })) }
 
 // ── one delegate for every control, wherever a direction drew it ──
 function onClick(e) { const t = e.target.closest('button,a[data-wt]'); if (!t) return; const d = t.dataset
@@ -358,8 +395,12 @@ function onClick(e) { const t = e.target.closest('button,a[data-wt]'); if (!t) r
 	if (d.copy !== undefined) { copy(t.closest('.snipwrap').querySelector('pre').textContent); if (d.trk?.startsWith('embed')) track(EVENT.embed(d.trk.split(':')[1] || S.sel)); return }
 	if (d.wt) { const n = TOUR.length
 		if (d.wt === 'open') return openPane(TOUR[W.tour].s, { from: t })
-		W.tour = clamp(W.tour + +d.wt, 0, n - 1); refresh('tour'); const st = TOUR[W.tour]; track(EVENT.tour(W.tour + 1, st.s))
+		W.tour = clamp(W.tour + +d.wt, 0, n - 1); refresh('tour', 'stop', 'stops'); const st = TOUR[W.tour]; track(EVENT.tour(W.tour + 1, st.s))
 		if (WIDE.matches) openPane(st.s, { from: t, focus: false })
+		return }
+	if (d.stop) { const i = +d.stop; W.tourOpen = !(W.tourOpen && W.tour === i); W.tour = i   // the open stop's number folds its card again
+		refresh('stops', 'stop', 'tour'); if (!W.tourOpen) return; track(EVENT.tour(i + 1, TOUR[i].s))
+		if (WIDE.matches) openPane(TOUR[i].s, { from: t, focus: false })   // beside the catalog the stop's space opens with it, as the card's arrows do
 		return }
 	if (d.shut) { const sh = t.closest('.shelf'), on = !S.shut.has(d.shut); on ? S.shut.add(d.shut) : S.shut.delete(d.shut); sh.classList.toggle('shut', on); t.setAttribute('aria-expanded', !on); return }
 	if ((d.f || d.wf === 'for') && d.v) { toggle(d.f || 'for', d.v); filtered(); return }
@@ -379,6 +420,7 @@ function onChange(e) { const t = e.target
 	if (t.classList.contains('nrg')) { drag = null; t.closest('.ch')?.classList.remove('live'); dirty(); paintPane(true); return }
 	if (t.id === 'cval') { const c = parseColor(t.value); if (c) { color(c.s, c.vals); t.blur() } else t.setAttribute('aria-invalid', 'true'); return }
 	if (t.dataset.wf) { S.F[t.dataset.wf].clear(); if (t.value) S.F[t.dataset.wf].add(t.value); filtered(); return }
+	if (t.dataset.wset) return set(t.dataset.wset, t.value)
 	if (t.dataset.wbCvd !== undefined) { W.cvd = t.value; t.value === 'none' ? delete root.dataset.cvd : root.dataset.cvd = t.value; return }
 	if (t.dataset.wl === 'from') { lutHost(t).dataset.wlFrom = t.value; relut(t, 'from'); return }
 	if (t.dataset.wl === 'to') { W.lutTo = t.value; relut(t, 'to'); return }
@@ -426,8 +468,9 @@ export function boot(o = {}) {
 	S.arrange = pick(o.arrange, ['family', 'purpose', 'era', 'name'], 'family')
 	S.view = pick(store.get('view') || o.view, ['grid', 'list', 'table'], 'grid')
 	S.preview = pick(store.get('preview') || o.preview, ['sliders', 'planes'], 'sliders')
-	S.quant = pick(store.get('quant') || o.quant, SWATCH.map(x => x[0]), 'smooth')
-	W.persistent = !!o.persistent; W.follow = o.follow !== false
+	const P0 = new URLSearchParams(location.search)   // the lens arrives in the URL (?q= · ?m=), never from storage
+	S.quant = pick(P0.get('q') || o.quant, QFLAT.map(x => x[0]), 'smooth'); S.metric = pick(P0.get('m'), METRICS, 'oklab')
+	W.persistent = !!o.persistent; W.follow = o.follow !== false; W.dock = o.dock || null
 	CAP.css = new Set(Object.keys(CSS_FMT))   // the Availability filter and the Code tab agree on what CSS can write
 	CAP.glsl = new Set(SPACES.filter(s => { try { return hasPlaneGL(s) } catch { return false } }))
 	root.style.setProperty('--wb-z', W.z)
@@ -441,7 +484,7 @@ export function boot(o = {}) {
 	document.addEventListener('click', onClick); document.addEventListener('input', onInput); document.addEventListener('change', onChange)
 	document.addEventListener('keydown', onKey); document.addEventListener('pointerdown', onDown)
 	addEventListener('pointerup', () => { pdown = false }); addEventListener('pointercancel', () => { pdown = false })
-	WIDE.addEventListener('change', () => { if (W.persistent && WIDE.matches && !S.sel) openPane(o.space || 'oklch', { focus: false, url: false }); else if (S.sel) paneFill(S.sel), paintPane(true); modalize() })
+	WIDE.addEventListener('change', () => { if (W.persistent && WIDE.matches && !S.sel) openPane(o.space || 'oklch', { focus: false, url: false }); else if (S.sel && !W.dock) paneFill(S.sel), paintPane(true); modalize() })
 	setGLReady(() => { CAP.glsl = new Set(SPACES.filter(s => { try { return hasPlaneGL(s) } catch { return false } })); dirty(); paintPane(true); refresh('stripe') })
 	;(window.requestIdleCallback || setTimeout)(() => trackLoad())
 	return { S, W, color, openPane, closePane, renderCat, refresh, set, stopOrbit } }

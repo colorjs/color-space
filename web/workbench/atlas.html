@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-top="studio">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas – color-space workbench</title>
-<meta name="description" content="Workbench direction Atlas: catalog-first and editorial – the family titles are the navigation, featured spaces lead each family, the rest follow as compact sliders.">
+<meta name="description" content="Workbench direction Atlas: catalog-first – the family titles are the navigation, featured spaces lead each family, the live dossier docks beside it. A workshop for the header, hero and options.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
 <link rel="preload" href="../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -11,37 +11,23 @@
 <link rel="stylesheet" href="../variants.css">
 <link rel="stylesheet" href="./wb.css">
 <link rel="stylesheet" href="./atlas.css">
-<script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}</script>
+<!-- the top variant's stylesheet: ?top=<key> picks it before first paint (atlas.js swaps it live) -->
+<link rel="stylesheet" href="./top-studio.css" id="topcss">
+<script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}
+try{const k=new URLSearchParams(location.search).get('top');if(['editorial','search','statusbar'].includes(k)){document.documentElement.dataset.top=k;document.getElementById('topcss').href='./top-'+k+'.css'}}catch{}</script>
 </head>
 <body>
 <a class="skip" href="#cat">Skip to the spaces</a>
 
-<!-- the masthead: wordmark · the current color · a wide search · language · vision · theme · GitHub -->
-<header class="top mast wb-hue"><span data-wb="brand"></span><span data-wb="chip"></span><span data-wb="search"></span><span data-wb="lang"></span><span data-wb="vision"></span><span data-wb="tools"></span></header>
+<!-- the page beside the dock – a size container: a variant asks @container page (…) how much room it has -->
+<div class="page">
+<!-- the three mounts a top variant fills (atlas.js documents the contract): the bar(s), the hero, the options -->
+<div id="top"></div>
+<section id="hero" aria-label="Start here"></section>
+<div id="opts" role="region" aria-label="Filters and view"></div>
 
-<div class="work">
-	<!-- one sentence, then the tour and the ten purposes – labels hang in the ladder's column -->
-	<section class="intro" aria-label="Start here">
-		<div class="row"><span class="lab" aria-hidden="true"></span><div data-wb="orient"></div></div>
-		<div class="row">
-			<h2 class="lab" id="a-tour">Start here</h2>
-			<div class="tour">
-				<ol class="stops" id="stops" aria-labelledby="a-tour"></ol>
-				<div class="stop" id="stop" data-wb="tour" hidden></div>
-			</div>
-		</div>
-		<div class="row tags" data-wb="tags"></div>
-	</section>
-
-	<!-- the filter stripe: alt's eight facets, the view controls at its right end; it stays in view -->
-	<div class="stripe row" id="stripe" role="region" aria-label="Filters and view">
-		<span class="lab" data-wb="count"></span>
-		<div class="sbody"><div data-wb="stripe"></div><div data-wb="view"></div></div>
-	</div>
-
-	<!-- the catalog: each family's title is its own heading and, on wide screens, a rung of the ladder -->
-	<main id="cat" aria-label="Color spaces"></main>
-</div>
+<!-- the catalog: each family's title is its own heading and, on wide screens, a rung of the ladder -->
+<div class="work"><main id="cat" aria-label="Color spaces"></main></div>
 
 <footer class="foot">
 	<div class="fin">
@@ -59,12 +45,27 @@
 		</div>
 	</div>
 </footer>
+</div>
 
 <!-- native popovers – the top layer, no positioning script (index.html's Cite) -->
 <div class="apop" id="a-cite" popover role="dialog" aria-labelledby="a-cite-t"><h2 class="ptl" id="a-cite-t">Cite color-space</h2><div id="a-cite-b" aria-live="polite"><p class="wb-note">…</p></div></div>
 <div class="apop" id="a-agents" popover role="dialog" aria-labelledby="wb-ag-t"><div data-wb="agents"></div></div>
 
+<!-- the workbench's own pane stays mounted but unused here (its painters expect it); the details are the live dossier -->
 <aside id="pane" hidden></aside>
+<!-- the dock: the atlas's own dossier, chrome-free (/<space>?embed), docked right from 75rem, a full-screen dialog below -->
+<dialog class="dock" id="dock" aria-labelledby="dock-t">
+	<div class="dbar">
+		<button class="ib" type="button" data-go="-1" aria-label="Previous space" id="dock-prev"></button><button class="ib" type="button" data-go="1" aria-label="Next space" id="dock-next"></button>
+		<h2 class="dnm" id="dock-t"></h2>
+		<button class="ib" type="button" data-close aria-label="Close the dossier" id="dock-x"></button>
+	</div>
+	<div class="dfr"><p class="dload" id="dock-load" role="status">Opening the dossier…</p></div>
+</dialog>
+
+<!-- the workshop: which top variant – it rides the URL (?top=), the color, filters, open space and scroll stay -->
+<nav class="study" aria-label="Header study"><span>Header study</span><div class="study-options" id="tops"></div></nav>
+
 <script type="module" src="./atlas.js"></script>
 </body>
 </html>

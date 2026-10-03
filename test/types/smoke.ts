@@ -8,6 +8,9 @@ import chunk from 'color-space/gl/oklch'
 import { glsl as leanGlsl, wgsl as leanWgsl } from 'color-space/gl'
 import allGlsl, { chunks, graph, luts, spaces as glSpaces } from 'color-space/gl/all'
 import fullWgsl, { translate } from 'color-space/gl/wgsl'
+import hlsl from 'color-space/gl/hlsl'
+import { msl } from 'color-space/gl/msl'
+import { emit, load, NAGA_WASM, type NagaWasm } from 'color-space/gl/naga'
 import { table, verify, cube } from 'color-space/lut'
 import { clut, colorants, kind, profile } from 'color-space/icc'
 import gamut, { gamut as namedGamut } from 'color-space/gamuts.js'
@@ -52,6 +55,12 @@ const full: string = allGlsl('rgb', 'oklch')
 const fullW: string = fullWgsl('rgb', 'oklch')
 const translated: string = translate(lean)
 const chunkName: string = chunk.name
+// HLSL / MSL are async (naga loads on first call); never run here — the peer may be absent
+const toHlsl = (): Promise<string> => hlsl('rgb', 'oklch')
+const toMsl = (): Promise<string> => msl([['oklch', 'rgb'], ['rgb', 'xyz']])
+const viaNaga = async (): Promise<string> => emit(await load(), 'msl', full) + NAGA_WASM
+// @ts-expect-error emit writes HLSL or MSL only
+const notGlsl = (naga: NagaWasm) => emit(naga, 'glsl', full)
 
 const tab = table(space.rgb, space.oklch, { size: 17 })
 const stats = verify(tab, 10)
@@ -73,7 +82,7 @@ if (false) {
 console.log(
 	name, liteName, scalar, batch, direct, cam, customOut,
 	lite.rgb.oklch(255, 0, 0), wb, ws, wbatch, copied, wasmSpaces,
-	lean, leanW, full, fullW, translated, chunkName, chunks, graph, luts, glSpaces,
+	lean, leanW, full, fullW, translated, chunkName, chunks, graph, luts, glSpaces, toHlsl, toMsl, viaNaga, notGlsl,
 	tab, stats, cubeText, profileBytes, profileKind, lut, cols,
 	gamut, namedGamut, whitepoint, namedWhitepoint,
 	mat3([1, 0, 0, 0, 1, 0, 0, 0, 1], 1, 2, 3), inv3([1, 0, 0, 0, 1, 0, 0, 0, 1]),

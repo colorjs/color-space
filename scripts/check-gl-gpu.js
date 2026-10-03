@@ -29,7 +29,7 @@ try {
 		...result.glsl.map(f => `GLSL ${f.pair}: ${f.info}`),
 		...result.wgsl.map(f => `WGSL ${f.pair}: ${f.info}`),
 	]
-	if (result.total !== 610) failures.push(`expected 610 generated sources, got ${result.total}`)
+	if (result.total !== 618) failures.push(`expected 618 generated sources, got ${result.total}`)
 	if (failures.length) throw new Error(failures.slice(0, 12).join('\n'))
 	console.log(`gpu: ${result.total} GLSL sources compiled on WebGL2; WGSL ${result.webgpu === 'ok' ? `${result.wgslTotal} modules validated on WebGPU` : result.webgpu}`)
 } finally {

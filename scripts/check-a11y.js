@@ -11,9 +11,11 @@ const systemChrome = process.platform === 'darwin'
 		: '/usr/bin/google-chrome'
 const executablePath = [process.env.CHROME_PATH, chromium.executablePath(), systemChrome].find(p => p && existsSync(p))
 if (!executablePath) throw new Error('Chromium is not installed; run `npx playwright install chromium` or set CHROME_PATH')
-if (!existsSync(resolve('_site/index.html'))) throw new Error('_site is missing; run `npm run landing` first')
+// CS_SITE points the check at another staged copy (a snapshot built elsewhere); default _site – as check-site.js
+const SITE = resolve(process.env.CS_SITE || '_site')
+if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missing; run \`npm run landing\` first`)
 
-const server = await serve(resolve('_site'))
+const server = await serve(SITE)
 const browser = await chromium.launch({ headless: true, executablePath })
 try {
 	const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'light', reducedMotion: 'reduce' })

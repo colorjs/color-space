@@ -90,6 +90,12 @@ const err = (got, exp, hue) => {
 	const d = hue ? Math.min(Math.abs(got - exp) % 360, 360 - Math.abs(got - exp) % 360) : Math.abs(got - exp)
 	return d / (1 + Math.abs(exp))
 }
+// a chunk channel against the scalar library: a non-finite output where JS is finite
+// is a failure (Infinity), never 'not worse' — NaN compares false against any bound,
+// so a plain err() > tol check passes a NaN chunk silently
+const chanErr = (got, exp, hue) => !Number.isFinite(exp) ? 0
+	: Number.isFinite(got) ? err(got, exp, hue) : Infinity
+const errMsg = (e) => e === Infinity ? 'non-finite output where JS is finite' : `max err ${e.toExponential(2)}`
 const san = (s) => s.replace(/-/g, '')
 
 // ---- contract lint: the chunk dialect stays translatable ----
@@ -100,6 +106,7 @@ test('gl: chunks obey the dialect contract', () => {
 		if (/\?/.test(code)) bad.push(`${name}: ternary`)
 		if (/\bmod\s*\(/.test(code)) bad.push(`${name}: mod() — use mod_`)
 		if (/\batan\s*\(/.test(code)) bad.push(`${name}: atan() — use atan2_`)
+		if (/[-+*/]\s*vec[234]\s*\(/.test(code)) bad.push(`${name}: vector arithmetic — expand into scalar rows`)
 		for (const m of code.matchAll(/\b(?:vec[234]|float|int)\s+(\w+)\s*\([^)]*\)\s*{/g)) {
 			if (fns.has(m[1])) bad.push(`${name}: fn ${m[1]} collides with chunk ${fns.get(m[1])}`)
 			else fns.set(m[1], name)
@@ -112,6 +119,16 @@ test('gl: chunks obey the dialect contract', () => {
 		}
 	}
 	is(bad, [], 'no contract violations')
+})
+
+// ---- the comparator itself: NaN must never read as 'not worse' ----
+test('gl: comparator fails a non-finite chunk output where JS is finite', () => {
+	is([NaN, Infinity, -Infinity, undefined].map(g => chanErr(g, 0.5, false) > 1e-6), [true, true, true, true], 'non-finite vs finite fails')
+	is(chanErr(NaN, 0.5, true) > 1e-6, true, 'hue channels too')
+	is(chanErr(0.5, 0.5, false), 0, 'finite equal passes')
+	// vector arithmetic (outside the dialect) evaluates to NaN / a string, never silently passes
+	const fns = evalGlsl('vec3 t_(vec3 c) { return c - vec3(1.0, 1.0, 1.0); }')
+	is(unpack(fns.t_(pack([2, 2, 2]))).every((g) => chanErr(g, 1, false) > 1e-6), true, 'vec3 arithmetic is caught')
 })
 
 // ---- every declared primitive edge, both directions ----
@@ -130,11 +147,11 @@ for (const [a, b] of EDGES) {
 			const exp = space[a][b](...input)
 			const got = unpack(entry(pack(input)))
 			for (let k = 0; k < exp.length; k++) {
-				const e = err(got[k], exp[k], isHue(b, k))
+				const e = chanErr(got[k], exp[k], isHue(b, k))
 				if (e > worst) { worst = e; at = `[${input.map(v => +v.toFixed(4))}] ch${k}: ${got[k]} vs ${exp[k]}` }
 			}
 		}
-		is(worst <= tolOf(a, b), true, `${a}→${b} max err ${worst.toExponential(2)} at ${at} (tol ${tolOf(a, b)})`)
+		is(worst <= tolOf(a, b), true, `${a}→${b} ${errMsg(worst)} at ${at} (tol ${tolOf(a, b)})`)
 	})
 }
 
@@ -149,7 +166,7 @@ test('gl: multi-pair glsl() dedupes chunks across pairs', () => {
 		const inn = from === 'oklch' ? input : space.oklch.xyz(...input)
 		const exp = space[from][to](...inn)
 		const got = unpack(fns[fn](pack(inn)))
-		is(exp.every((e, k) => err(got[k], e, isHue(to, k)) < 1e-6), true, `${fn} matches scalar lib`)
+		is(exp.every((e, k) => chanErr(got[k], e, isHue(to, k)) < 1e-6), true, `${fn} matches scalar lib`)
 	}
 })
 
@@ -166,7 +183,7 @@ test('gl: composed rgb → space → rgb across the graph', () => {
 			const exp = space.rgb[name](...s)
 			const got = unpack(entry(pack(s)))
 			for (let k = 0; k < exp.length; k++)
-				if (err(got[k], exp[k], isHue(name, k)) > tolOf('rgb', name))
+				if (chanErr(got[k], exp[k], isHue(name, k)) > tolOf('rgb', name))
 					misses.push(`rgb→${name} [${s}] ch${k}: ${got[k]} vs ${exp[k]}`)
 		}
 		if (inv) {
@@ -176,7 +193,7 @@ test('gl: composed rgb → space → rgb across the graph', () => {
 				const exp = space[name].rgb(...mid)
 				const got = unpack(ientry(pack(mid)))
 				for (let k = 0; k < exp.length; k++)
-					if (err(got[k], exp[k], isHue('rgb', k)) > tolOf(name, 'rgb'))
+					if (chanErr(got[k], exp[k], isHue('rgb', k)) > tolOf(name, 'rgb'))
 						misses.push(`${name}→rgb [${s}] ch${k}: ${got[k]} vs ${exp[k]}`)
 			}
 		}
@@ -295,10 +312,11 @@ test('gl: float32 — black, white and the primaries stay finite through every s
 		const fns = F32_MODES.map(m => evalGlsl32(src, m)[entry])
 		for (const input of ins) {
 			// float32 must not ADD a non-finite value, so inputs already non-finite in the
-			// scalar library or the float64 evaluation are skipped. The float64 tier's
-			// `e > worst` never trips on NaN either, so a chunk that is NaN in float64 passes
-			// both tiers unchecked — today dkl, whose vec3 arithmetic glslToJs can't run.
-			if (!space[a][b](...input).every(Number.isFinite) || !unpack(f64(pack(input))).every(Number.isFinite)) continue
+			// scalar library are skipped. A float64 non-finite where JS is finite fails here
+			// too: the tiers above (chanErr) cover edges and rgb round trips, not every
+			// source in this list (wavelength → rgb has no rgb → wavelength composition).
+			if (!space[a][b](...input).every(Number.isFinite)) continue
+			if (!unpack(f64(pack(input))).every(Number.isFinite)) { bad.push(`${a}→${b} float64 [${input.map(v => +v.toFixed(4))}] → [${unpack(f64(pack(input)))}]`); continue }
 			const x = pack(input.map(Math.fround))
 			checked++
 			fns.forEach((fn, i) => {
@@ -308,7 +326,7 @@ test('gl: float32 — black, white and the primaries stay finite through every s
 		}
 	}
 	is(checked > 3000, true, `${checked} source × sample checks ran`)
-	is(bad.slice(0, 12), [], `${bad.length} non-finite float32 outputs`)
+	is(bad.slice(0, 12), [], `${bad.length} non-finite outputs (float32, or float64 where JS is finite)`)
 })
 
 // iterative chunks whose float64-tuned difference steps once lost float32 entirely
