@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>color-space – every color space, one tiny API, verified</title>
-<meta name="description" content="An open collection of color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain.">
+<title data-i18n="page.title">color-space – every color space, one tiny API, verified</title>
+<meta name="description" content="An open collection of color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain." data-i18n="content:page.desc">
 <link rel="canonical" href="https://color-space.io/">
-<meta property="og:title" content="color-space – every color space, one tiny API, verified">
-<meta property="og:description" content="An open collection of color spaces. Convert any space to any other with conventional ranges and independently anchored formulas.">
+<meta property="og:title" content="color-space – every color space, one tiny API, verified" data-i18n="content:page.title">
+<meta property="og:description" content="An open collection of color spaces. Convert any space to any other with conventional ranges and independently anchored formulas." data-i18n="content:page.og-desc">
 <meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="color-space – color spaces in one open collection">
+<meta property="og:image:alt" content="color-space – color spaces in one open collection" data-i18n="content:page.og-alt">
 <meta property="og:url" content="https://color-space.io/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image:alt" content="color-space – color spaces in one open collection">
+<meta name="twitter:image:alt" content="color-space – color spaces in one open collection" data-i18n="content:page.og-alt">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
 <link rel="preload" href="./fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link href="./tokens.css" rel="stylesheet">
@@ -878,7 +878,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<span class="cx" title="current color – type a supported CSS color"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" aria-haspopup="listbox" aria-expanded="false" title="this colour in every notation" aria-label="choose the value's notation"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" hidden role="listbox" aria-label="value notation"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this colour"></span></span>
 	<span class="sp"></span>
 	<span class="dctl vctl" id="vctl"></span>
-	<label class="qx" title="search spaces by name (press /)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
+	<label class="qx" title="search spaces by name (press /)" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="search spaces…" autocomplete="off" aria-label="search spaces by name (press / to focus)" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-label"><button class="qclr" id="qclr" type="button" aria-label="clear the search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="qn tnum" id="nq"></span></label>
 	<span class="fchipsh" id="fchipsH" aria-label="active filters"></span>
 	<div class="tagf"><button class="thm tfb" id="tfb" title="filter & view" aria-label="filter spaces by tags, view options" aria-expanded="false" aria-controls="tfp"><svg class="ic" viewBox="2 1 20 22" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg></button><div class="tfp" id="tfp" hidden></div></div>
 	<button class="thm" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark"></button>
@@ -1636,7 +1636,7 @@ space.rgb.oklch(buf)              <i>// in place – 27 spaces</i></pre>
 	<i class="plab">APA</i>
 	<div class="snipwrap"><button class="cpyi" type="button" data-copy="citeapa" title="copy APA" aria-label="copy APA"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="citeapa"></pre></div>
 </div>
-<div id="toast" role="status" aria-live="polite">Copied</div>
+<div id="toast" role="status" aria-live="polite" data-i18n="ui.toast.copied">Copied</div>
 <div id="dropcast" hidden aria-hidden="true"><span>drop the image — every lane and plane will read it</span></div>
 <div class="modal" id="modal" role="dialog" aria-labelledby="dtitle" hidden>
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier">✕</button><a class="embl" id="embl" href="./" target="_blank" rel="noopener" title="open this space on color-space.io, in a new tab">color-space.io ↗</a><div class="detail" id="detail" tabindex="-1"></div></div>
@@ -1660,6 +1660,7 @@ import BARRED from './js/barred.js'
 import EDITORS, { cubeOpts, SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
 import { track, view as countView, load as loadStats, EVENT } from './js/track.js'
+import { t, at as rootURL, langHref } from './js/i18n.js'
 
 for(const id of ['n','n2']) document.getElementById(id).textContent=spaceCount
 
@@ -1704,7 +1705,7 @@ const autoStep=t=>{ if(!autoColor) return
 // an asserted value. Reference AND values: the default space's sliders mutate master in place
 const virginNow=()=>{ const mj=master.vals.join(); return !BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(autoColor&&mj===autoJ)) }
 const toastEl=document.getElementById('toast'); let toastT
-const toast=(t='Copied')=>{ toastEl.textContent=t; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
+const toast=(msg=t('ui.toast.copied','Copied'))=>{ toastEl.textContent=msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // the spectrum line under the header — a FIXED strip of the visible spectrum, violet at
 // the left, the purple line closing to the right, dark at both ends like the footer wall.
@@ -1798,8 +1799,8 @@ async function upBuild(){ upPop.querySelectorAll('.upim').forEach(b=>{ if(b._url
 	const keys=mru().filter(k=>recs.has(k)||STOCK.has(k)||GENERATED_SAMPLES.has(k))
 	for(const [key] of SAMPLES) if(!keys.includes(key)&&keys.length<7) keys.push(key)
 	for(const k of keys.slice(0,7)){
-		if(STOCK.has(k)){ const b=upTile(STOCK.get(k),()=>fetch(k).then(r=>r.blob()).then(bl=>takeImage(new File([bl],k.split('/').pop(),{type:bl.type||'image/jpeg'}),k)).catch(()=>toast('could not load that image')))
-			b.append(Object.assign(document.createElement('img'),{src:k,alt:'',loading:'lazy',decoding:'async'})); upPop.append(b) }
+		if(STOCK.has(k)){ const b=upTile(STOCK.get(k),()=>fetch(rootURL(k)).then(r=>r.blob()).then(bl=>takeImage(new File([bl],k.split('/').pop(),{type:bl.type||'image/jpeg'}),k)).catch(()=>toast('could not load that image')))
+			b.append(Object.assign(document.createElement('img'),{src:rootURL(k),alt:'',loading:'lazy',decoding:'async'})); upPop.append(b) }   // the site root's, not the document's – /<lang>/ pages share the images
 		else if(GENERATED_SAMPLES.has(k)){ const ch=upCharts.get(k)??generatedImg(k); upCharts.set(k,ch)
 			const title=SAMPLES.find(([key])=>key===k)[1], b=upTile(title,()=>ch.toBlob(bl=>bl&&takeImage(new File([bl],`${k}.png`,{type:'image/png'}),k)))
 			b.append(ch); upPop.append(b) }
@@ -4636,7 +4637,7 @@ function videoImg(){ const c=document.createElement('canvas'); c.width=640; c.he
 	return c }
 const generatedImg=key=>({chart:chartImg,contrast:contrastImg,video:videoImg}[key]())
 function loadImgs(cb){ if(IMGS){ cb(); return }
-	Promise.all(SAMPLES.map(([u])=>GENERATED_SAMPLES.has(u)?Promise.resolve(generatedImg(u)):new Promise(res=>{ const im=new Image(); im.src=u
+	Promise.all(SAMPLES.map(([u])=>GENERATED_SAMPLES.has(u)?Promise.resolve(generatedImg(u)):new Promise(res=>{ const im=new Image(); im.src=rootURL(u)
 		im.onload=()=>res(im); im.onerror=()=>res(null) })))   // ONE canon: rail and dossier read this exact order
 	.then(list=>{ IMGS=list.filter(Boolean)
 		if(UIMG){ IMGS.push(UIMG); IMGS._user=IMGS.length-1; IMG=UIMG; imgIdx=IMGS._user }   // dropped before this dossier ever opened – it still leads
@@ -5380,6 +5381,9 @@ onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-re
 	autoColor=true; autoStart=autoLast=performance.now(); requestAnimationFrame(autoStep) } },300))
 // analytics (js/track.js) counts the pageview at idle – a no-op until a website id is set
 onLoad(()=>(window.requestIdleCallback||setTimeout)(()=>loadStats()))
+// the language select (stamped by the build when there is a language to choose): the same page in
+// the other language – space, view and color carried over; a real navigation, never an in-place swap
+document.getElementById('lang')?.addEventListener('change',e=>location.assign(langHref(e.target.value)))
 // Cite: the popover's plates were filled from CITATION.cff at build (build-site.js); copy rides the code idiom
 document.getElementById('citep')?.addEventListener('click',e=>{ const b=e.target.closest('[data-copy]'); if(b) copy(document.getElementById(b.dataset.copy).textContent) })
 
@@ -5393,7 +5397,7 @@ document.getElementById('citep')?.addEventListener('click',e=>{ const b=e.target
 if('serviceWorker' in navigator&&location.protocol!=='file:'){
 	const dev=(location.hostname==='localhost'||location.hostname==='127.0.0.1')&&!BOOT.sw   // the ARRIVAL search: by now openModal's canonical replaceState has stripped ?sw on name views
 	if(dev) navigator.serviceWorker.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()))
-	else onLoad(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})) }   // refused where storage is blocked (a third-party embed) – the page runs on without it
+	else onLoad(()=>navigator.serviceWorker.register(rootURL('sw.js')).catch(()=>{})) }   // refused where storage is blocked (a third-party embed) – the page runs on without it
 
 </script>
 <script type="module" src="./js/tip.js"></script>

@@ -6,16 +6,18 @@
 import { sections } from './render.js'
 import { meta } from './core.js'
 import PURPOSE, { ORDER, TIPS } from './purpose.js'
+import { t } from './i18n.js'
 
 const all = () => sections.flatMap(c => c.spaces)
 // era shelves: CIE 1931 opens measurement, 1976 opens uniform spaces, then by decade
-const ERAS = [[1931, '1860–1930'], [1960, '1931–1959'], [1976, '1960–1975'], [1990, '1976–1989'], [2000, '1990s'], [2010, '2000s'], [2020, '2010s'], [Infinity, '2020s']]
+// (a decade's label is a phrase – '1990s', 'anos 1990' – so it reads through t() at call time)
+const ERAS = [[1931, '1860–1930'], [1960, '1931–1959'], [1976, '1960–1975'], [1990, '1976–1989'], [2000, 1990], [2010, 2000], [2020, 2010], [Infinity, 2020]]
 
 export default {
 	family: () => sections,
-	purpose: () => ORDER.map(t => ({ name: t[0].toUpperCase() + t.slice(1), tip: TIPS[t],
-		spaces: all().filter(s => PURPOSE[s][0] === t) })).filter(c => c.spaces.length),
-	era: () => ERAS.map(([until, name], i) => ({ name,
+	purpose: () => ORDER.map(p => ({ key: 'purpose.' + p, name: p[0].toUpperCase() + p.slice(1), tip: TIPS[p],
+		spaces: all().filter(s => PURPOSE[s][0] === p) })).filter(c => c.spaces.length),
+	era: () => ERAS.map(([until, name], i) => ({ name: typeof name === 'number' ? t('ui.group.decade', '{d}s', { d: name }) : name,
 		spaces: all().filter(s => meta[s].year < until && (!i || meta[s].year >= ERAS[i - 1][0]))
 			.sort((a, b) => meta[b].year - meta[a].year || a.localeCompare(b)) })).filter(c => c.spaces.length)
 		.reverse(),   // the present leads — 2020s first, the pioneers close the list
