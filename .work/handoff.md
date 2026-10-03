@@ -58,7 +58,14 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
    "1 of 22" truncates "Colorimetry & research" (label column too narrow).
 2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
    the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
-3. **Translations pilot (pt-BR, es, tr)** — design decided, nothing built:
+3. **Translations pilot (pt-BR, es, tr)** – the pipeline is built on branch `wip/i18n` (not in this PR):
+   `npm run i18n` → `web/i18n/en.json` (912 keys, 18.6k words), `scripts/i18n.js` stamps `/<lang>/`
+   documents, `web/js/i18n.js` is the runtime, `web/i18n/README.md` the translators' notes,
+   `test/i18n.js` covers it against a fixture locale; the English build differs only by one
+   modulepreload. One rule added: a language stays `noindex`, out of hreflang/sitemap/select until
+   `@meta.reviewed` names its native reader. Left: string coverage of index.html (head, search and
+   toast only so far – the app module's local `t` variables must be renamed while wrapping), the
+   translations themselves, a visual check of the select, a full `npm test`. The decided design:
    - URLs `/<lang>/` and `/<lang>/<space>`, stamped documents (GitHub Pages can't rewrite) with
      `<html lang>`, translated title/description/og, self canonical, reciprocal hreflang
      (pt-BR · es · tr · en · x-default→en), sitemap alternates. No auto-redirect.
