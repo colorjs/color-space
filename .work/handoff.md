@@ -19,7 +19,7 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
 - HLSL + MSL: `gl/naga.js`, `gl/hlsl.js`, `gl/msl.js` translate the verified WGSL with naga.
   `naga-wasm` is an OPTIONAL peer (package keeps zero install deps) + exact devDependency;
   `web/vendor/naga-wasm/` follows the libheif vendoring idiom (test pins it byte-identical).
-  `.github/workflows/shaders.yml` (DXC/FXC/Metal) is unverified until its first run.
+  `.github/workflows/shaders.yml` (DXC/FXC/Metal) passed on its first PR run.
 - Follow-ups: one CSS serializer (`css.js`) for site + MCP + workbench; display names from one
   source; Umami analytics (OFF until `UMAMI` in `web/js/track.js` holds the website id);
   guarded storage for embeds; stale counts in third.html.
@@ -54,9 +54,8 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
    scroll, catalog full-width; statusbar = minimal top, all rendering options in an organized bottom
    bar, facets above the catalog). Then a critic pass over all four at 1440/1280/390/dark, and the
    chooser card (`web/workbench/index.html`) linking the four.
-2. **Shader tabs on the site**: in the dossier's GL code tab add GLSL · WGSL · HLSL · MSL (existing
-   tab idiom), lazy-load `vendor/naga-wasm` only on first HLSL/MSL use, cache per pair, copy
-   affordance, `track()` code-lang events, a check-site assertion (entry names present).
+2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
+   the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
 3. **Translations pilot (pt-BR, es, tr)** — design decided, nothing built:
    - URLs `/<lang>/` and `/<lang>/<space>`, stamped documents (GitHub Pages can't rewrite) with
      `<html lang>`, translated title/description/og, self canonical, reciprocal hreflang
@@ -71,12 +70,11 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
    - Per language: glossary first (CIE e-ILV equivalents, national standards), translator, then an
      independent reviewer. Google accepts AI translation only with human review → have a native
      speaker read each language before promoting it.
-4. **Smaller**: `web/index.html` WASM tab says "~1.4× faster" (measured 1.38–4.78×, rgb→oklab 3.97×);
-   `web/js/variants-data.js` CSSN and `web/alt.html` still list rec2020 as CSS-writable; third.html
-   keeps its own coarse CSS formatter; the dossier's USES map is a fallback no space reaches (all
-   carry @use) — delete or keep deliberately; naga-wasm declares `engines: node>=24.12` (works on 22
-   with a warning); `paintBarGL` takes no palette metric (pane bars ignore it); benchmark/README says
-   culori has 25 spaces vs README's ~35 — unverified.
+4. **Smaller** – done: the WASM tab quotes 1.38–4.78×; `variants-data.js` reads CSS capability from
+   css.js and alt.html drops rec2020; the dead USES fallback is deleted (a test requires `@use`);
+   `paintBarGL` takes the palette metric (check-site samples per metric); culori is 30 spaces with no
+   HSLuv (culori 4.0.2's registered modes); README notes naga-wasm's Node ≥ 24.12 engines field.
+   third.html's CSS notation already came from css.js – nothing left there.
 
 ## Owner actions
 
