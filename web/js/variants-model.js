@@ -5,7 +5,8 @@ import { SPACES, disp, rgbF } from './render.js'
 import GROUPS from './groups.js'
 import LORE from './lore.js'
 import NAMES from './names.js'
-import { FAMILIES, FACETS, FK, PICKS, PURPOSE } from './variants-data.js'
+import { FAMILIES, FACETS, MORE_FACETS, FK, PICKS, PURPOSE } from './variants-data.js'
+const ALLF = [...FACETS, ...MORE_FACETS]
 
 export { SPACES, LORE }
 const P0 = new URLSearchParams(location.search)
@@ -18,7 +19,7 @@ export const S = {
 	bar: pick(P0.get('bar') || store.get('bar'), BARS, 'drawer'),
 	style: pick(P0.get('style') || store.get('style'), STYLES, 'bench'),
 	space: 'oklch', vals: [0.72, 0.16, 41],   // the authored color: the space that last spoke, and its numbers
-	F: Object.fromEntries(FACETS.map(f => [f.k, new Set()])),
+	F: Object.fromEntries(ALLF.map(f => [f.k, new Set()])),
 	q: '', arrange: 'family', view: 'grid', preview: 'sliders', quant: 'smooth', limit: 'locus',
 	sel: null, open: null, tsort: null, tdir: 1, shut: new Set(),
 }
@@ -84,11 +85,11 @@ const hit = (s, q) => q.split(/\s+/).every(w => IDX.get(s).includes(w))
 
 // ── filtering: OR inside a facet, AND across facets ──
 export const passes = (s, skip) => (!S.q || hit(s, S.q.toLowerCase())) &&
-	FACETS.every(f => f.k === skip || !S.F[f.k].size || [...S.F[f.k]].some(v => f.test(s, v)))
+	ALLF.every(f => f.k === skip || !S.F[f.k].size || [...S.F[f.k]].some(v => f.test(s, v)))
 export const countIf = (k, v) => SPACES.filter(s => passes(s, k) && FK[k].test(s, v)).length
-export const nOn = () => FACETS.reduce((n, f) => n + S.F[f.k].size, 0)
+export const nOn = () => ALLF.reduce((n, f) => n + S.F[f.k].size, 0)
 export const toggle = (k, v) => { const set = S.F[k]; set.has(v) ? set.delete(v) : set.add(v) }
-export const clearAll = () => { for (const f of FACETS) S.F[f.k].clear(); S.q = '' }
+export const clearAll = () => { for (const f of ALLF) S.F[f.k].clear(); S.q = '' }
 
 // ── shelves: the arrangement's sections, each opening with its stars ──
 const byName = (a, b) => disp(a).localeCompare(disp(b), 'en', { sensitivity: 'base' })

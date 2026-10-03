@@ -1,0 +1,151 @@
+/* Atlas – the workbench's catalog-first direction, the closest evolution of index.html. One hanging
+   grid runs down the page: labels in the left column (the tour's "Start here", "For", the count, then
+   the family titles), content in the right. The family titles are the section headings themselves;
+   on a wide catalog they float into the left column and stick as index.html's ladder – passed titles
+   pile at the top, upcoming ones wait at the bottom – with no measuring script: each title is a float
+   inside a display:contents shelf, so its sticky containing block is the whole catalog. Values are
+   tokens; the quantities named below are this layout's own, built from them. */
+:root{
+	--lad:19rem;                                 /* the label column – the longest family title (Colorimetry & research), its icon and count */
+	--lgap:var(--s8);                            /* the gutter between labels and content */
+	--rung:calc(var(--s8) + var(--s1));          /* one title's height on the ladder */
+	--stick-top:calc(var(--rowh) + var(--wb-stripe, 0px));   /* what stays pinned above the catalog: the masthead, the stripe (atlas.js measures it) */
+	--panew:clamp(24rem,30vw,38rem);             /* the details pane – a touch narrower than the workshop's, so the ladder survives beside it at 1440 */
+}
+html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)) }
+@media (prefers-reduced-motion:no-preference){ html{ scroll-behavior:smooth } }
+
+/* ── the masthead: wordmark · color · a wide, centered search · EN ▾ · vision ▾ · theme · GitHub ── */
+.mast{ gap:var(--s4) }
+.mast .find{ flex:1 1 20rem; max-width:40rem; margin-inline:auto }
+.mast .wb-lang select{ font-weight:700 }
+
+/* ── one hanging grid: a label, then its content ── */
+.work{ container:work / inline-size }
+.row{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s2) var(--s3) }
+.lab{ flex:none; margin:0; font-size:var(--t2); font-weight:650; color:var(--soft); white-space:nowrap }
+.lab:empty{ display:none }
+@container work (width >= 56rem){
+	.row{ display:grid; grid-template-columns:var(--lad) minmax(0,1fr); column-gap:var(--lgap) }
+	.lab:empty{ display:block }
+}
+
+/* ── the start: one sentence, the tour as a numbered strip, the ten purposes ── */
+.intro{ display:flex; flex-direction:column; gap:var(--s4); padding:var(--s8) 0 var(--s6) }
+.intro .wb-orient{ max-width:58rem; font-size:var(--text-lg); line-height:1.4; letter-spacing:-.005em }   /* two lines on a wide screen */
+.tour{ min-width:0 }
+.stops{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s4); margin:0; padding:0; list-style:none }   /* the numbers are the separators – nothing dangles where a line wraps */
+.stops li{ display:inline-flex; white-space:nowrap }
+.stops button{ display:inline-flex; align-items:baseline; gap:var(--s1); font-size:var(--t2); font-weight:600; color:var(--body); border-bottom:var(--ulw) solid transparent; transition:color var(--dur-micro) var(--ease-out) }
+.stops button .tnum{ font-size:var(--t1); font-weight:700; color:var(--soft) }
+.stops button:hover,.stops button:hover .tnum{ color:var(--ink) }
+.stops button[aria-current="step"]{ color:var(--ink); border-bottom-color:var(--cur) }
+.stops button[aria-current="step"] .tnum{ color:var(--ink) }
+/* the chosen stop – the tour's own card, quieter: its eyebrow is the strip above */
+.stop{ max-width:var(--measure); margin-top:var(--s4) }
+.stop .wb-tour{ gap:var(--s1) }
+.stop .wb-eyebrow{ display:none }
+.stop .wb-tour-t{ font-size:var(--t3); font-weight:750; letter-spacing:-.01em }
+.stop .wb-tour-d{ font-size:var(--t2); line-height:1.55 }
+.stop .wb-tour-nav{ margin-top:var(--s1) }
+.stop .wb-tour-nav .fill{ display:none }
+.tags .wb-tagrow{ min-width:0 }
+.tags .fsel-l{ font-size:var(--t2); font-weight:650 }   /* "For" speaks in the label column's voice */
+
+/* ── the filter stripe: sticky under the masthead; the view controls ride its right end ── */
+.stripe{ position:sticky; top:var(--rowh); z-index:var(--z-sticky); container:stripe / inline-size; align-items:start; padding:var(--s2) 0; background:var(--paper); border-block:var(--rule-hair) solid var(--rule) }
+.stripe .lab{ font-weight:750; color:var(--ink); line-height:var(--s8) }
+/* one flow: the facets, then the view controls pushed to the end of the last line; every line is one control tall */
+.sbody{ display:flex; flex-wrap:wrap; align-items:center; gap:0 var(--s4); min-width:0 }
+.sbody [data-wb="stripe"]{ display:contents }
+.sbody [data-wb="stripe"]>*{ line-height:var(--s8) }
+.sbody [data-wb="view"]{ min-height:var(--s8); margin-left:auto; justify-content:flex-end; gap:var(--s2) var(--s3) }
+/* room for both: the facets wrap in their own column, the view controls hold the first line's end */
+@container stripe (width >= 81rem){
+	.sbody{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; column-gap:var(--s6) }
+	.sbody [data-wb="stripe"]{ display:flex; flex-wrap:wrap; gap:0 var(--s4); min-width:0 }
+}
+.sbody .wb-size input{ width:calc(var(--s12) + var(--s8)) }
+
+/* ── the catalog ── */
+#cat{ display:flow-root; container:cat / inline-size; padding-top:var(--s2) }
+.sh .fic{ display:inline-grid; place-items:center; color:inherit }
+.sh .fic .ic{ --ic:18px }
+.sh h2{ min-width:0 }
+.sh .tn{ display:inline-flex; align-items:center; gap:var(--s2); max-width:100%; color:inherit; white-space:nowrap }
+.sh .tn>span{ overflow:hidden; text-overflow:ellipsis }
+.sh .cnt{ align-self:center }
+.sp>.lh .nm,.sp>.th .nm{ text-wrap:balance }
+
+/* narrow catalog: the titles stay inline above their families and stick under what is pinned */
+.sh{ top:var(--stick-top); align-items:center; gap:var(--s2); color:var(--ink) }
+.sh h2{ font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
+.shelf>.sh+*{ scroll-margin-top:var(--s6) }   /* past the html's scroll-padding: room for the inline title itself */
+
+/* wide catalog: the ladder. Each title floats into the label column; top and bottom insets stack them */
+@container cat (width >= 56rem){
+	.shelf{ display:contents }
+	.shelf>.sh{ float:left; clear:left; position:sticky; z-index:2; width:var(--lad); height:var(--rung); margin:var(--s6) 0 0; padding:0; background:var(--paper);
+		top:calc(var(--stick-top) + var(--s5) + var(--i, 0) * var(--rung)); bottom:calc(var(--s5) + var(--j, 0) * var(--rung)); color:var(--soft) }
+	.shelf>.sh .tn{ transition:color var(--dur-micro) var(--ease-out) }
+	.shelf>.sh .tn:hover{ color:var(--body) }
+	.shelf>.sh.act{ color:var(--ink) }   /* the family on screen is ink, the rest muted – index.html's rail */
+	.shelf>:not(.sh){ margin-left:calc(var(--lad) + var(--lgap)) }
+	.shelf>.sh+*{ padding-top:var(--s6); border-top:var(--rule-hair) solid var(--rule); scroll-margin-top:0 }
+	.shelf:first-child>.sh+*{ border-top:0 }
+	.shelf>:last-child{ margin-bottom:0; padding-bottom:var(--s8) }
+}
+
+/* the families' tip line, then the featured spaces at full reading */
+.tip{ margin-bottom:var(--s5) }
+.lead{ gap:var(--s6) var(--s8) }
+.lead.n1{ grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) }
+.lh{ gap:var(--s1) var(--s3) }
+.lh .nm{ font-size:var(--t4); font-weight:750 }
+.lh .by{ margin-left:auto; font-size:var(--t1); text-align:right }
+.lc .chs .ch{ --sth:calc(var(--s6) + var(--wb-z) * var(--s5)) }
+.lc{ display:grid; grid-row:span 4; grid-template-rows:subgrid; align-content:start; row-gap:var(--s3) }   /* name · story · numbers · strips line up across the row */
+.lc .pls{ gap:var(--s1) }
+@container cat (56rem <= width < 68rem){ .lead{ grid-template-columns:repeat(2,minmax(0,1fr)) } .lead.n1{ grid-template-columns:minmax(0,1fr) minmax(0,1fr) } }
+@container cat (30rem <= width < 48rem){ .lead,.lead.n1{ grid-template-columns:repeat(2,minmax(0,1fr)) } }
+@container cat (width < 30rem){ .lead,.lead.n2,.lead.n1{ grid-template-columns:minmax(0,1fr) } }
+
+/* ── the footer: index.html's closing wall, painted in the current color ── */
+.foot{ padding:var(--s12) var(--gut); background:var(--cur); color:var(--cur-ink); transition:color var(--dur-long) var(--ease-out) }
+.fin{ container:work / inline-size; display:flex; flex-direction:column; gap:var(--s8) }
+.fcols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr)); gap:var(--s6) var(--s8); max-width:52rem }
+.fcols section{ min-width:0 }
+.flab{ margin:0 0 var(--s2); font-size:var(--t2); font-weight:750 }
+.fmore{ margin:var(--s2) 0 0; font-size:var(--t2) }
+.flnk{ font-weight:600; text-decoration:underline; text-decoration-color:var(--ul); text-underline-offset:3px }
+.flnk:hover{ text-decoration-color:currentColor }
+.legal{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s5); margin:0; font-size:var(--t2) }   /* the underlines part the links – no separator to dangle where the line wraps */
+.legal a{ color:inherit; text-decoration-color:var(--ul); text-underline-offset:3px }
+.legal a:hover{ text-decoration-color:currentColor }
+.foot :focus-visible{ outline-color:currentColor }
+
+/* the popovers – index.html's .citep: paper, the floating-panel shadow, the dossier's labels and plates */
+.apop{ margin:auto; width:min(var(--measure),calc(100vw - 2 * var(--s4))); max-height:calc(100dvh - 2 * var(--s4)); overflow:auto; padding:var(--s5); border:0; background:var(--paper); color:var(--ink); box-shadow:var(--pop-shadow) }
+.apop::backdrop{ background:color-mix(in oklab,var(--ink) 18%,transparent) }
+.ptl{ margin:0 0 var(--s2); font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em }
+.apop .plab:first-of-type{ margin-top:var(--s2) }
+
+/* ── the pane beside the catalog (≥ 75rem): everything under the masthead makes room ── */
+@media (width >= 75rem){ body.paneon .foot{ margin-right:var(--panew) } }
+
+/* ── phones: the masthead takes two fixed rows – identity and color, then search, language, vision;
+   the stripe scrolls away with the page (variants.css's phone rule) ── */
+@media (width < 56rem){
+	:root{ --mrow:calc(var(--s8) + var(--s3)); --stick-top:calc(var(--mrow) * 2 + var(--s1)) }
+	.mast{ flex-wrap:wrap; align-content:stretch; height:var(--stick-top); column-gap:var(--s3); row-gap:0 }   /* two lines share the fixed height equally */
+	.mast .brand{ order:1 } .mast .cur{ order:2 } .mast .tools1{ order:3; margin-left:auto }
+	.mast::after{ content:''; order:4; flex-basis:100% }   /* the line break */
+	.mast .find{ order:5; flex:1 1 0; max-width:none; margin:0; height:calc(var(--s8) + var(--s1)) }
+	.mast .wb-lang{ order:6 } .mast [data-wb="vision"] .fsel{ order:7 }
+	.mast .gam{ display:inline }
+	.stripe{ position:static }
+	.intro{ padding-top:var(--s6) }
+	.intro .wb-orient{ font-size:var(--text-md) }
+	.sbody [data-wb="view"]{ margin-left:0; justify-content:flex-start }
+	.foot{ padding-block:var(--s8) }
+}

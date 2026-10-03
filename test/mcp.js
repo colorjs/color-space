@@ -7,6 +7,7 @@
 import { spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import test, { is, ok } from 'tst'
+import Color from 'colorjs.io'
 import space from '../index.js'
 import data from '../data.json' with { type: 'json' }
 import pkg from '../package.json' with { type: 'json' }
@@ -109,7 +110,7 @@ test('mcp: convert batches tuples and flags each channel against its range', asy
 test('mcp: unknown spaces suggest ids and display names', async () => {
 	const typo = await tool('convert', { from: 'okclh', to: 'rgb', values: [0.7, 0.1, 30] })
 	is(typo.isError, true, 'a tool error, not a crash')
-	ok(/unknown space 'okclh' — did you mean oklch\b/.test(typo.content[0].text), typo.content[0].text)
+	ok(/unknown space 'okclh' — did you mean oklch \(OKLCH\), oklab \(Oklab\), okhsl \(OkHSL\)\?/.test(typo.content[0].text), typo.content[0].text)
 	const name = await tool('space', { name: 'Display P3' })
 	ok(/did you mean p3 \(Display P3\)/.test(name.content[0].text), name.content[0].text)
 	const cie = await tool('gamut', { from: 'CIELAB', values: [50, 0, 0] })
@@ -132,9 +133,9 @@ test('mcp: css writes CSS Color 4 strings, null where CSS would clamp', async ()
 	const at = (s) => c.css.find((x) => x.space === s).css
 	is(c.gamut, 'srgb', 'inside sRGB')
 	is(c.hex, '#' + space.oklch.rgb(0.7, 0.15, 150).map((x) => Math.round(x).toString(16).padStart(2, '0')).join(''), 'hex from the rgb conversion')
-	is(at('oklch'), 'oklch(0.7000 0.1500 150.0)', 'oklch()')
+	is(at('oklch'), 'oklch(0.7 0.15 150)', 'oklch(), trailing zeros dropped as CSS serializes')
 	is(at('rgb'), `rgb(${space.oklch.rgb(0.7, 0.15, 150).map(Math.round).join(' ')})`, 'rgb()')
-	ok(/^lab\(\d+\.\d\d% -?\d+\.\d\d -?\d+\.\d\d\)$/.test(at('lab')), 'lab() with a percent lightness')
+	ok(/^lab\(\d+(\.\d{1,3})?% -?\d+(\.\d{1,3})? -?\d+(\.\d{1,3})?\)$/.test(at('lab')), 'lab() with a percent lightness, ≤ 3 places')
 	ok(/^color\(display-p3 [\d.]+ [\d.]+ [\d.]+\)$/.test(at('p3')), 'color(display-p3 …)')
 	ok(!c.css.some((x) => x.space === 'rec2020'), 'no color(rec2020): CSS now defines it with a 2.4 gamma, not our BT.2020 OETF')
 	const wide = (await tool('css', { from: 'oklch', values: [0.7, 0.25, 150] })).structuredContent
@@ -142,7 +143,18 @@ test('mcp: css writes CSS Color 4 strings, null where CSS would clamp', async ()
 	is(wide.css.filter((x) => x.css === null).map((x) => x.space), ['rgb', 'hsl', 'hwb'], 'the sRGB functions would clamp — null, never a wrong color')
 	is(wide.gamut, 'display-p3', 'and says where it does fit')
 	const only = (await tool('css', { from: 'rgb', values: [255, 0, 0], notations: ['hsl'] })).structuredContent
-	is(only.css, [{ space: 'hsl', css: 'hsl(0 100.0% 50.0%)' }], 'notations narrows the list')
+	is(only.css, [{ space: 'hsl', css: 'hsl(0 100% 50%)' }], 'notations narrows the list')
+	// CSS Color 4's serialization minimums (≥ 5 places for oklch, 16 bits for xyz …) – every string
+	// parses back (colorjs.io) to the same 8-bit sRGB color; the old 3-place xyz missed by ~8 levels
+	for (const rgb of [[5, 5, 5], [1, 2, 3], [11, 251, 5], [248, 1, 213], [9, 241, 87]]) {
+		const r = (await tool('css', { from: 'rgb', values: rgb })).structuredContent
+		for (const { css } of r.css) {
+			const back = new Color(css).to('srgb').coords.map((x) => x * 255)
+			ok(back.every((x, k) => Math.abs(x - rgb[k]) < 0.5), `${css} → rgb(${rgb})`)
+		}
+	}
+	const neg = (await tool('css', { from: 'oklch', values: [0.6, -0.1, 30] })).structuredContent
+	is(neg.css.find((x) => x.space === 'oklch').css, null, 'a negative chroma clamps to 0 in CSS — null')
 })
 
 test('mcp: spaces searches by query, family and purpose', async () => {

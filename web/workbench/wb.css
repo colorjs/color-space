@@ -1,0 +1,127 @@
+/* color-space.io workbench – the components every direction shares. Loads after tokens.css and
+   variants.css: the catalog (shelves, featured cards, compact slider cards, rows, the spec sheet),
+   the top bar's pieces (.brand .cur .find .ib) and the pane's dossier all come from there, with their
+   class names. This file adds what wb.js renders on top – the filter stripe, the tags, the view
+   controls, the tour, the agents block, the pane's tabs and panels, the code plates – and moves the
+   pane's breakpoint to 75rem. Values are tokens; the three quantities named in :root are new. */
+:root{
+	--wb-z:.35;                              /* the size dial, 0–1 – the A–A slider writes it */
+	--wb-tile-0:11rem; --wb-tile-1:22rem;    /* a compact card's column at the smallest and largest size */
+	--wb-sheet:36rem;                        /* the details sheet below 75rem */
+}
+[data-wb="brand"],[data-wb="chip"],[data-wb="search"],[data-wb="tools"],[data-wb="lang"],[data-wb="vision"],[data-wb="count"]{ display:contents }   /* their pieces sit in the direction's own bar */
+[hidden]{ display:none !important }
+
+/* the rule under a header wears the current color – index.html's hue line */
+.wb-hue{ border-bottom:var(--s1) solid var(--cur) }
+
+/* ── the size dial: compact cards widen, their strips thicken ── */
+.tiles{ grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(var(--wb-tile-0) + var(--wb-z) * (var(--wb-tile-1) - var(--wb-tile-0)))),1fr)) }
+.chs.thin .ch{ --sth:calc(var(--s2) + var(--wb-z) * var(--s4)) }
+.lc .ch{ --sth:calc(var(--s5) + var(--wb-z) * var(--s4)) }
+
+/* ── one quiet text-select: a label, then the value with the native chevron (index.html's view selects) ── */
+.fsel{ display:inline-flex; flex:none; align-items:baseline; gap:var(--s1); white-space:nowrap }
+.fsel>span:not(.sr),.fsel-l{ font-size:var(--t1); font-weight:600; color:var(--soft) }
+.fsel select{ padding:0; font:inherit; font-size:var(--t2); font-weight:650; color:var(--body); background:none; border:0; border-bottom:var(--ulw) solid transparent; cursor:pointer; field-sizing:content }
+.fsel select:hover{ color:var(--ink) }
+.fsel select.on{ color:var(--ink); border-bottom-color:var(--cur) }
+.fsel option:disabled{ color:var(--ghost) }
+
+/* ── the filter stripe and the task tags ── */
+[data-wb="stripe"]{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s2) var(--s5) }
+[data-wb="tags"]{ display:flex; align-items:baseline; gap:var(--s3) }
+.wb-tagrow{ display:flex; flex-wrap:wrap; gap:var(--s1) }
+.wb-tagrow .tag{ color:var(--body); cursor:pointer; transition:background-color var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }
+.wb-tagrow .tag:hover:not(:disabled):not([aria-pressed="true"]){ color:var(--ink) }
+.wb-tagrow .tag[aria-pressed="true"]{ background:var(--ink); color:var(--paper) }
+
+/* ── view controls: size A–A, swatch style, layout, the featured preview ── */
+[data-wb="view"]{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s2) var(--s4) }
+.wb-size{ display:inline-flex; align-items:center; gap:var(--s2); color:var(--soft); font-weight:700; line-height:1 }
+.wb-size .a0{ font-size:var(--t0) } .wb-size .a1{ font-size:var(--t3) }
+.wb-size input{ width:calc(var(--s12) * 2); margin:0 }
+
+/* ── orientation: one understated sentence ── */
+.wb-orient{ margin:0; max-width:var(--measure); font-family:var(--prose); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }
+
+/* ── the start-here tour ── */
+.wb-tour{ display:flex; flex-direction:column; gap:var(--s2); max-width:var(--measure) }
+.wb-eyebrow{ margin:0; font-size:var(--t1); font-weight:650; color:var(--soft) }
+.wb-tour-t{ margin:0; font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em; line-height:1.2 }
+.wb-tour-d{ margin:0; font-family:var(--prose); font-size:var(--t3); line-height:1.55; color:var(--body); text-wrap:pretty }
+.wb-tour-nav{ display:flex; align-items:center; gap:var(--s2); margin-left:calc(-1 * var(--s2)) }
+.wb-tour-nav .nm{ font-size:var(--t2); font-weight:700 }
+.wb-tour-nav .nm::after{ opacity:1 }   /* the open-the-space arrow is the point of this button – always shown */
+
+/* ── agents: the MCP install lines ── */
+.wb-agents h2{ margin:0 0 var(--s2); font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em }
+.wb-cmds{ display:grid; grid-template-columns:minmax(0,1fr); gap:var(--s4); margin:var(--s4) 0 0 }
+.wb-cmds>div{ min-width:0 }
+.wb-cmds dt{ margin-bottom:var(--s1); font-size:var(--t1); font-weight:650; color:var(--soft) }
+.wb-cmds dd{ margin:0 }
+.wb-cmds dd .wb-note{ margin-top:var(--s2); font-size:var(--t1) }
+.wb-agents code,.wb-note code{ font-family:var(--font-mono); font-size:.92em }
+
+/* ── code plates – the site's terminal-black snip, its copy glyph, its highlighter tokens ── */
+.snipwrap{ position:relative; min-width:0 }
+.snip{ margin:0; padding:var(--s3) var(--s8) var(--s3) var(--s4); font-family:var(--font-mono); font-size:var(--t1); line-height:1.7; color:var(--color-terminal-ink); background:var(--color-terminal-paper); white-space:pre; overflow-x:auto; tab-size:2; scrollbar-width:thin }   /* code keeps its lines – the plate scrolls, never the page */
+.snip.wrap{ white-space:pre-wrap; overflow-wrap:anywhere }   /* commands, links and citations wrap whole */
+[data-theme="dark"] .snip{ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair) }   /* the black plate on dark paper keeps an edge */
+.cpyi{ position:absolute; top:var(--s2); right:var(--s2); display:grid; place-items:center; padding:var(--s1); color:var(--color-terminal-muted); cursor:copy; --ic:15px }
+.cpyi:hover,.cpyi:focus-visible{ color:var(--color-terminal-ink) }
+.tok-k{ font-weight:700; color:var(--color-terminal-ink) }
+.tok-s{ color:color-mix(in oklab,var(--c) 62%,var(--color-terminal-ink)) }
+.tok-c{ color:var(--color-terminal-muted) }
+.tok-n{ font-weight:600 }
+.plab{ display:block; margin:var(--s3) 0 var(--s2); font-style:normal; font-size:var(--t0); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--soft) }
+
+/* ── the pane: tabs under the dossier's header, then one panel ── */
+.wb-ptabs{ margin:var(--s4) 0 var(--s4); border-bottom:var(--rule-hair) solid var(--rule) }
+.tabs [role="tab"]{ padding:var(--s2) 0 }
+.tabs [aria-selected="true"]{ color:var(--ink); border-bottom-color:var(--cur) }
+.wb-panel:focus{ outline:none }
+.pane #ptitle{ width:fit-content }   /* focus lands on the title when the pane opens – its ring hugs the name */
+.wb-langs{ margin-bottom:var(--s3) }
+.wb-refs a{ font-weight:600; text-decoration-color:var(--ul); text-underline-offset:3px }
+.wb-note{ margin:0 0 var(--s2); max-width:var(--measure); font-size:var(--t2); line-height:1.5; color:var(--body) }
+.wb-h{ margin:var(--s5) 0 var(--s2); font-size:var(--t2); font-weight:750; color:var(--ink) }
+.wb-h:first-child{ margin-top:0 }
+
+/* the LUT flow: target · editor · size, then the file and the editor's own steps */
+.wb-form{ display:flex; flex-wrap:wrap; align-items:end; gap:var(--s3) var(--s5); margin:var(--s4) 0 }
+.wb-field{ display:flex; flex-direction:column; gap:var(--s1); min-width:0; max-width:100% }
+.wb-field>span{ font-size:var(--t1); font-weight:650; color:var(--soft) }
+.wb-field select{ max-width:100%; padding:var(--s2) var(--s3); font:inherit; font-size:var(--t2); font-weight:700; color:var(--ink); background:var(--panel); border:0; border-radius:var(--rc); cursor:pointer }   /* index.html's LUT exporter select */
+.wb-check{ display:inline-flex; align-items:center; gap:var(--s2); padding-bottom:var(--s2); font-size:var(--t2); color:var(--body); cursor:pointer }
+.wb-dlrow{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s2) var(--s4); margin:0 0 var(--s5) }
+.wb-btn{ padding:var(--s2) var(--s3); font:inherit; font-size:var(--t0); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); border:0; border-radius:var(--rc); cursor:pointer }   /* index.html's .cpy */
+.wb-btn:hover:not(:disabled){ color:var(--paper); background:var(--ink) }
+.wb-btn:disabled{ opacity:.4; cursor:not-allowed }
+.wb-file{ font-size:var(--t1); color:var(--soft); overflow-wrap:anywhere }
+.wb-steps{ margin:0; padding-left:var(--s5); font-size:var(--t2); line-height:1.55; color:var(--body) }
+.wb-steps li+li{ margin-top:var(--s2) }
+.wb-steps .snipwrap{ margin-top:var(--s1) }
+.wb-notes{ margin:var(--s3) 0 0; padding-left:var(--s5); font-size:var(--t1); line-height:1.5; color:var(--soft) }
+.wb-src{ margin:var(--s3) 0 0; font-size:var(--t1); color:var(--soft) }
+.wb-src a{ color:inherit; text-decoration-color:var(--ul); text-underline-offset:3px }
+.wb-src a:hover{ color:var(--ink) }
+
+/* side panel at ≥ 75rem (variants.css); below it, a sheet over a scrim – full width on phones */
+.wb-scrim{ position:fixed; inset:0; z-index:calc(var(--z-modal) - 1); width:100%; height:100%; background:color-mix(in oklab,var(--ink) 32%,transparent); cursor:default }
+@media (width < 75rem){
+	.pane{ inset:0 0 0 auto; width:min(var(--wb-sheet),100%); z-index:var(--z-modal); border-left:0; box-shadow:var(--pop-shadow) }
+	body.paneon{ overflow:hidden }
+	body.paneon .work,body.paneon .ctl{ margin-right:0 }
+}
+
+/* ── the one toast (index.html's) ── */
+#toast{ position:fixed; left:50%; bottom:var(--s5); z-index:var(--z-toast); padding:var(--s2) var(--s4); font-size:var(--t1); font-weight:700; letter-spacing:.04em; color:var(--paper); background:var(--ink); opacity:0; pointer-events:none; transform:translate(-50%,var(--s2)); transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out) }
+#toast.on{ opacity:1; transform:translate(-50%,0) }
+
+/* ── the vision lens: on the root, so fixed layers stay fixed (cvd.js) ── */
+:root[data-cvd="protan"]{ filter:url(#cvd-protan) }
+:root[data-cvd="deutan"]{ filter:url(#cvd-deutan) }
+:root[data-cvd="tritan"]{ filter:url(#cvd-tritan) }
+
+@media (pointer:coarse){ .fsel select{ min-height:var(--s8) } .wb-tagrow .tag{ min-height:var(--s6) } }   /* ≥ 24px targets – WCAG 2.2 SC 2.5.8 */

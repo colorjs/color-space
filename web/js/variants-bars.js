@@ -1,5 +1,5 @@
 // UI-variants workshop – four ways to hold the same controls. Each variant is a different answer to
-// "how does a curious person narrow 162 spaces and change how they are drawn?":
+// "how does a curious person narrow 166 spaces and change how they are drawn?":
 //   sentence – the state reads as one plain sentence; every value is a word you can change
 //   drawer   – labeled cells; one opens a drawer of illustrated options, all visible at once
 //   guide    – starts from the task; every choice stays in view, one line explains what you point at
@@ -34,7 +34,7 @@ const quantList = () => QUANT.map(([g, items]) => `<div class="optg"><span class
 const limitList = () => LIMITS.map(([v]) => lensOpt('limit', v, LTIP[v], LI[v])).join('')
 
 // ── row one: identity, the color, search, the room's switches ──
-const PH = { sentence: 'Search by name, maker, year or use', drawer: 'Find a space', guide: 'Search – try “HDR”, “Apple”, “1976” or “hue”', studio: 'Search 162 spaces' }
+const PH = { sentence: 'Search by name, maker, year or use', drawer: 'Find a space', guide: 'Search – try “HDR”, “Apple”, “1976” or “hue”', studio: 'Search 166 spaces' }
 const TRY = [['tomato', 'Tomato'], ['gold', 'Gold'], ['teal', 'Teal'], ['rebeccapurple', 'Rebecca purple'], ['color(display-p3 0 1 0)', 'The greenest P3 green']]
 export const topHTML = () => `<a class="brand" href="./" title="The atlas"><b>color-space</b><span class="n tnum" id="count"></span></a>
 	<div class="cur" title="The current color – every space below draws it"><span class="cdw"><input type="color" id="cpick" aria-label="Pick the current color"></span><input id="cval" spellcheck="false" autocomplete="off" enterkeyhint="done" aria-label="Current color – any CSS color, or a space's own numbers like cam16(60 40 50)"><span class="gam" id="gam"></span></div>
@@ -42,7 +42,7 @@ export const topHTML = () => `<a class="brand" href="./" title="The atlas"><b>co
 	<label class="find" id="findw">${UI.search}<input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="${innerWidth <= 896 ? 'Search spaces' : PH[S.bar]}" aria-label="Search the spaces"><button class="qx" type="button" id="qx" aria-label="Clear the search">${UI.x}</button><kbd>/</kbd></label>
 	<span class="tools1"><button class="ib" type="button" id="dice" title="Try a random color" aria-label="Try a random color">${UI.dice}</button><button class="ib" type="button" id="thm" aria-label="Switch light and dark"></button><a class="ib" href="https://github.com/colorjs/color-space" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub">${UI.gh}</a></span>`
 
-// ── sentence: "162 spaces for any task, running anywhere, in SDR and HDR – arranged by family." ──
+// ── sentence: "166 spaces for any task, running anywhere, in SDR and HDR – arranged by family." ──
 const SAY = {
 	for: ['for', v => v.length ? v.map(x => plabel(x).toLowerCase()).join(' or ') : 'any task'],
 	runs: ['running', v => v.length ? 'in ' + v.map(x => x.toUpperCase()).join(' or ') : 'anywhere'],

@@ -62,7 +62,7 @@ Disconnected, duplicate and reserved names are rejected; neither input is mutate
 
 ### 7. New since v2
 
-162 spaces (v2: 41) · any-to-any by shortest path · `lite` / `wasm` / `gl` / `lut` / `icc` tiers · `data.json`, `gamuts.js`, `whitepoints.js`.
+166 spaces (v2: 41) · any-to-any by shortest path · `lite` / `wasm` / `gl` / `lut` / `icc` tiers · `data.json`, `gamuts.js`, `whitepoints.js`.
 
 ## From v1 to v2
 

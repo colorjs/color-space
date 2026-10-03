@@ -20,7 +20,7 @@ const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** pr
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 162, '162 spaces registered')
+	is(names.length, 166, '166 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -83,7 +83,7 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(slogPage.includes('<title>S-Log3 color space — channels, ranges, conversion LUT | color-space</title>'), true, 'LUT-capable camera log titles the display name and the LUT')
 	// social cards + structured data: every space page carries its own card, the
 	// sitemap carries images + per-space git lastmod, and the Dataset JSON-LD
-	// stays on the index alone (162 copies would read as spam)
+	// stays on the index alone (a copy on every space page would read as spam)
 	is(slogPage.includes('<meta property="og:image" content="https://color-space.io/img/og/slog3.jpg">'), true, 'space page carries its own social card')
 	is(existsSync(`${site}/img/og/slog3.jpg`), true, 'the card image ships with the site')
 	is(map.includes('<image:loc>https://color-space.io/img/og/slog3.jpg</image:loc>'), true, 'sitemap lists the card image')
@@ -1623,6 +1623,65 @@ test('clog2: Canon Log 2 / Cinema Gamut', () => {
 	is(round(2)(space.clog2.xyz(0.562304264803537, 0.562304264803537, 0.562304264803537)[1]), 90);
 	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
 		is(space.clog2.rgb(...space.rgb.clog2(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+// --- camera logs added 2026-10 (vendor documents; values in each file's header) ---
+// The primaries are read back through each space's own codes: linear (1,0,0) etc.
+// encoded with the vendor curve, decoded by the space, xy of the resulting XYZ.
+const logXy = (s, hi, lo) => [[hi, lo, lo], [lo, hi, lo], [lo, lo, hi]].map(c => {
+	const [X, Y, Z] = space[s].xyz(...c); return [X / (X + Y + Z), Y / (X + Y + Z)] })
+const near = (a, b, tol) => a.flat().every((v, i) => Math.abs(v - b.flat()[i]) <= tol)
+const D65W = space.lrgb.xyz(1, 1, 1)
+const grey = (k) => D65W.map(v => v * k)
+
+test('applelog2: Apple Log 2 / Apple Wide Gamut', () => {
+	// white paper table (Sept 2025): 0% 154, 18% 500, 90% 697, 1200% 1023 (10-bit full range)
+	is([0, 0.18, 0.9, 12].map(k => round(0)(space.xyz.applelog2(...grey(k))[1] * 1023)), [154, 500, 697, 1023], '10-bit codes')
+	is(round(6)(space.xyz.applelog2(...grey(0.18))[0]), 0.488272, '18% grey')
+	// the curve is Apple Log's, unchanged — a neutral encodes identically; only the gamut moved
+	is([0.01, 0.18, 4].every(k => Math.abs(space.xyz.applelog2(...grey(k))[0] - space.xyz.applelog(...grey(k))[0]) < 1e-12), true, 'same curve as applelog')
+	const [hi, lo] = space['rec2020-linear'].applelog(1, 0, 0)
+	is(near(logXy('applelog2', hi, lo), [[0.725, 0.301], [0.221, 0.814], [0.068, -0.076]], 1e-9), true, 'Apple Wide Gamut primaries')
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.applelog2.rgb(...space.rgb.applelog2(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('flog2c: F-Log2 C / F-Gamut C', () => {
+	// data sheet Ver.1.0: 0% 95, 18% 400, 90% 570 (10-bit) — "identical to F-Log2"
+	is([0, 0.18, 0.9].map(k => round(0)(space.xyz.flog2c(...grey(k))[1] * 1023)), [95, 400, 570], '10-bit codes')
+	is([0.01, 0.18, 4].every(k => Math.abs(space.xyz.flog2c(...grey(k))[0] - space.xyz.flog2(...grey(k))[0]) < 1e-12), true, 'same curve as flog2')
+	const [hi, lo] = space['rec2020-linear'].flog2(1, 0, 0)
+	is(near(logXy('flog2c', hi, lo), [[0.7347, 0.2653], [0.0263, 0.9737], [0.1173, -0.0224]], 1e-9), true, 'F-Gamut C primaries')
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.flog2c.rgb(...space.rgb.flog2c(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('gplog2: GoPro GP-Log2 (clip-normalized linear, Rec.2020)', () => {
+	// GoPro Labs doc: L 0 → 0, 0.0517 (18% grey) → ~0.542 (~554/1023), 0.25 → ~0.784, 0.5 → ~0.892, 1 (clip) → 1
+	is(space['rec2020-linear'].gplog2(0, 0.0517, 0.25).map(round(3)), [0, 0.542, 0.784], 'doc mapping')
+	is(space['rec2020-linear'].gplog2(0.5, 1, 0.0517).map(round(3)), [0.892, 1, 0.542], 'doc mapping, clip')
+	is(round(0)(space['rec2020-linear'].gplog2(0.0517, 0, 0)[0] * 1023), 554, '18% grey code')
+	// GoPro's own linear, not reflectance: a linear 0.18 is 1.8 stops over the metered grey
+	is(round(6)(space.xyz.gplog2(...grey(0.18))[1]), 0.733117, 'linear 0.18 → 0.7331')
+	// negatives mirror (the LUT generator's logEnc) and decode back
+	const [neg, pos] = space['rec2020-linear'].gplog2(-0.25, 0.25, 0)
+	is(neg, -pos, 'mirror')
+	is(space.gplog2['rec2020-linear'](...space['rec2020-linear'].gplog2(-0.4, 0.3, 2)).map(round(9)), [-0.4, 0.3, 2], 'negative roundtrip')
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.gplog2.rgb(...space.rgb.gplog2(...c)).map(round(0)), c, `roundtrip ${c}`);
+});
+
+test('kinelog3: KineLOG3 / Kinefinity Wide Gamut (revised spec)', () => {
+	// spec (2025-09-24): 18% → IRE 39.2, 90% → IRE 57.2; 0% gives 9.29 by its formula (the printed 0.09 is a typo)
+	is([0.18, 0.9, 0].map(k => round(1)(space.xyz.kinelog3(...grey(k))[1] * 100)), [39.2, 57.2, 9.3], 'IRE')
+	is(round(2)(space.kinelog3.xyz(1, 1, 1)[1] / 100), 35.85, 'code 1.0 decodes to linear 35.85')
+	const d = 0.092864, hi = Math.log10(66.64 + 1) * 0.296 * 0.907136 + d
+	is(near(logXy('kinelog3', hi, d), [[0.7571, 0.2282], [0.2139, 1.148], [0.0536, -0.2236]], 1e-9), true, 'KWG revised primaries')
+	// the three published 4-decimal matrices hold to 5e-5 against the revised primaries
+	const M = [[hi, d, d], [d, hi, d], [d, d, hi]].map(c => space.kinelog3.xyz(...c).map(v => v / 100))
+	is(near(M, [[0.6879, 0.2073, 0.0134], [0.1979, 1.0622, -0.3349], [0.0646, -0.2696, 1.4106]], 5e-5), true, 'KWG → XYZ matrix (columns)')
+	for (const c of [[255, 0, 0], [0, 128, 255], [200, 100, 50]])
+		is(space.kinelog3.rgb(...space.rgb.kinelog3(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
 test('dci-p3: theatrical P3 (DCI white, gamma 2.6)', () => {

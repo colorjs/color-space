@@ -70,7 +70,14 @@ export const FACETS = [
 		opts: [['current', 'In use', 'in use today'], ['historical', 'Historical', 'kept to read older material']],
 		test: (s, v) => v === 'historical' ? old(s) : !old(s) },
 ]
-export const FK = Object.fromEntries(FACETS.map(f => [f.k, f]))
+// facets the four bars never draw – the model filters by them, and a page that wants them
+// (the workbench's filter stripe) draws them itself
+export const MORE_FACETS = [
+	{ k: 'chn', label: 'Channels', q: 'How many numbers?', any: 'any count', icon: 'shape',
+		opts: [['1', '1', 'one number – a single quantity'], ['2', '2', 'two numbers'], ['3', '3', 'three numbers'], ['4', '4+', 'four or more numbers']],
+		test: (s, v) => v === '4' ? classify(s).ch.length >= 4 : classify(s).ch.length === +v },
+]
+export const FK = Object.fromEntries([...FACETS, ...MORE_FACETS].map(f => [f.k, f]))
 
 // white points as chromaticities, so each option can show its own tint –
 // CIE 15:2004 Table T.3 (D65, D50, C, A, E), SMPTE ST 2065-1 (ACES ≈ D60), SMPTE RP 431-2 (DCI)

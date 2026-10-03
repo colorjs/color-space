@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using these metadata.
+title: color-space
+type: software
+abstract: >-
+  An open collection of color spaces with conventional ranges, cited
+  references, and one conversion API, as JavaScript, WASM, GLSL/WGSL,
+  .cube LUTs and ICC profiles. Zero dependencies, public domain.
+authors:
+  - given-names: Dmitry
+    family-names: Ivanov
+    email: df.creative@gmail.com
+repository-code: https://github.com/colorjs/color-space
+url: https://color-space.io
+license: CC0-1.0
+version: 3.1.0
+date-released: "2026-07-21"
+keywords:
+  - color
+  - colour
+  - color-space
+  - color-conversion
+  - color-science
+  - oklab
+  - oklch
+  - ciecam02
+  - cam16
+  - munsell
+  - hdr
+  - wide-gamut
+  - css-color
+  - aces

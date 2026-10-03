@@ -73,10 +73,12 @@ const lev = (a, b) => {
 	}
 	return d[b.length]
 }
+// ties go to the id sharing the longer prefix: okclh → oklch, oklab, okhsl — not hcl, dkl
+const prefix = (a, b) => { let i = 0; while (i < a.length && a[i] === b[i]) i++; return i }
 const suggest = (q) => {
 	const k = norm(q)
-	return names.map((s) => [s, Math.min(lev(k, norm(s)), TITLE[s] ? lev(k, norm(TITLE[s])) : Infinity)])
-		.sort((a, b) => a[1] - b[1] || a[0].length - b[0].length).slice(0, 3)
+	return names.map((s) => [s, Math.min(lev(k, norm(s)), TITLE[s] ? lev(k, norm(TITLE[s])) : Infinity), prefix(k, norm(s))])
+		.sort((a, b) => a[1] - b[1] || b[2] - a[2] || a[0].length - b[0].length).slice(0, 3)
 		.map(([s]) => TITLE[s] ? `${s} (${TITLE[s]})` : s)
 }
 const need = (s) => {
@@ -171,7 +173,7 @@ const TOOLS = [
 	},
 	{
 		name: 'spaces', title: 'Space catalog',
-		description: `List the ${N} color spaces with family, purpose, channels and one-line use. Optional filters: \`query\` (words matched against id, name and use), \`family\`, \`purpose\`.`,
+		description: `List the ${N} color spaces with family, purpose, channels and one-line use. Optional filters: \`query\` (words matched against id, name, use line and description; best matches first), \`family\`, \`purpose\`.`,
 		inputSchema: { type: 'object', additionalProperties: false, properties: {
 			query: { type: 'string', description: "free text, e.g. 'camera log', 'cielab', 'display p3'" },
 			family: { type: 'string', enum: FAMILIES },
@@ -257,7 +259,9 @@ const rpc = (id, body) => process.stdout.write(JSON.stringify({ jsonrpc: '2.0', 
 export function handle(msg) {
 	if (Array.isArray(msg) || !msg || typeof msg !== 'object') return rpc(null, { error: { code: -32600, message: 'invalid request: one JSON-RPC object per line' } })
 	const { id, method, params } = msg
-	if (method?.startsWith('notifications/')) return   // no response to notifications
+	if (typeof method !== 'string')   // a response (result/error) needs no answer; anything else is malformed
+		return 'result' in msg || 'error' in msg ? undefined : rpc(id ?? null, { error: { code: -32600, message: 'invalid request: method must be a string' } })
+	if (method.startsWith('notifications/')) return   // no response to notifications
 	const m = params?._meta || {}, version = m[P + 'protocolVersion']
 	const modern = method !== 'initialize' && version !== undefined
 	const ok = (result) => rpc(id, { result: modern ? { resultType: 'complete', ...result, _meta: { [P + 'serverInfo']: { name: SERVER.name, version: SERVER.version } } } : result })
@@ -270,7 +274,8 @@ export function handle(msg) {
 		// a version we don't serve per-request → -32022 listing what we do; required _meta missing → -32602
 		// @see https://modelcontextprotocol.io/specification/2026-07-28/basic/index#meta
 		if (!MODERN.includes(version)) return err(-32022, 'Unsupported protocol version', { supported: MODERN, requested: version })
-		if (!m[P + 'clientCapabilities'] || typeof m[P + 'clientCapabilities'] !== 'object') return err(-32602, `missing _meta['${P}clientCapabilities']`)
+		const caps = m[P + 'clientCapabilities']
+		if (!caps || typeof caps !== 'object' || Array.isArray(caps)) return err(-32602, `missing _meta['${P}clientCapabilities'] (an object)`)
 		if (method === 'server/discover')
 			return ok({ supportedVersions: MODERN, capabilities: { tools: {} }, instructions: INSTRUCTIONS, ttlMs: TTL, cacheScope: 'public' })
 	} else if (method === 'ping') return ok({})   // legacy only: 2026-07-28 removed ping

@@ -34,7 +34,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Imports
 
-* `color-space` – All 162 interconnected spaces · 55 kB gzip
+* `color-space` – All 166 interconnected spaces · 55 kB gzip
 * `color-space/<name>.js` – One standalone space
 * `color-space/lite` – 27-space working set · 9 kB gzip
 * `color-space/wasm` – lite set as WASM · bare `.wasm` included
@@ -55,7 +55,7 @@ claude mcp add color-space -- npx -y color-space mcp                            
 code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space","mcp"]}'  # VS Code
 ```
 
-Claude Desktop `claude_desktop_config.json`, Cursor `.cursor/mcp.json`, any project `.mcp.json`:
+Claude Desktop `claude_desktop_config.json`, any project `.mcp.json`:
 
 ```json
 { "mcpServers": { "color-space": { "command": "npx", "args": ["-y", "color-space", "mcp"] } } }
@@ -90,7 +90,7 @@ Claude Desktop `claude_desktop_config.json`, Cursor `.cursor/mcp.json`, any proj
 <sub>[BT.709 Y′CbCr](https://color-space.io/ycbcr-bt709) · [BT.2020 Y′CbCr](https://color-space.io/ycbcr-bt2020) · [BT.601 525-line Y′CbCr](https://color-space.io/ycbcr-bt601-525) · [BT.601 625-line Y′CbCr](https://color-space.io/ycbcr-bt601-625) · [YCbCr (parameterized)](https://color-space.io/ycbcr) · [YUV](https://color-space.io/yuv) · [YIQ](https://color-space.io/yiq) · [YPbPr](https://color-space.io/ypbpr) · [YCgCo](https://color-space.io/ycgco) · [JPEG YCbCr](https://color-space.io/jpeg) · [YDbDr](https://color-space.io/ydbdr) · [YcCbcCrc](https://color-space.io/yccbccrc) · [xvYCC](https://color-space.io/xvycc) · [SMPTE-C](https://color-space.io/smpte-c) · [PhotoYCC](https://color-space.io/photoycc)</sub>
 
 **Film & camera**<br>
-<sub>[ACEScg](https://color-space.io/acescg) · [ACEScc](https://color-space.io/acescc) · [ARRI LogC3](https://color-space.io/logc3) · [Sony S-Log3](https://color-space.io/slog3) · [Sony S-Gamut3.Cine](https://color-space.io/sgamut3cine) · [ACES2065-1](https://color-space.io/aces2065-1) · [ACEScct](https://color-space.io/acescct) · [ARRI LogC4](https://color-space.io/logc4) · [Cineon](https://color-space.io/cineon) · [DaVinci Wide Gamut / Intermediate](https://color-space.io/davinci) · [Sony S-Log2](https://color-space.io/slog2) · [Panasonic V-Log](https://color-space.io/vlog) · [RED Log3G10](https://color-space.io/log3g10) · [Canon Log](https://color-space.io/clog) · [Canon Log 2](https://color-space.io/clog2) · [Canon Log 3](https://color-space.io/clog3) · [Fujifilm F-Log](https://color-space.io/flog) · [Fujifilm F-Log2](https://color-space.io/flog2) · [Nikon N-Log](https://color-space.io/nlog) · [Apple Log](https://color-space.io/applelog) · [Blackmagic Film Gen 5](https://color-space.io/bmdfilm) · [DJI D-Log](https://color-space.io/dlog) · [FilmLight T-Log / E-Gamut](https://color-space.io/tlog) · [DCDM X′Y′Z′](https://color-space.io/dcdm) · [Sony S-Log](https://color-space.io/slog) · [ACESproxy](https://color-space.io/acesproxy) · [ERIMM RGB](https://color-space.io/erimm) · [Leica L-Log](https://color-space.io/llog) · [GoPro Protune](https://color-space.io/protune) · [Xiaomi Mi-Log](https://color-space.io/milog) · [OPPO O-Log](https://color-space.io/olog) · [REDLog](https://color-space.io/redlog) · [REDLogFilm](https://color-space.io/redlogfilm) · [RED Log3G12](https://color-space.io/log3g12) · [Panalog](https://color-space.io/panalog) · [ViperLog](https://color-space.io/viperlog) · [Filmic Pro 6](https://color-space.io/filmicpro)</sub>
+<sub>[ACEScg](https://color-space.io/acescg) · [ACEScc](https://color-space.io/acescc) · [ARRI LogC3](https://color-space.io/logc3) · [Sony S-Log3](https://color-space.io/slog3) · [Sony S-Gamut3.Cine](https://color-space.io/sgamut3cine) · [ACES2065-1](https://color-space.io/aces2065-1) · [ACEScct](https://color-space.io/acescct) · [ARRI LogC4](https://color-space.io/logc4) · [Cineon](https://color-space.io/cineon) · [DaVinci Wide Gamut / Intermediate](https://color-space.io/davinci) · [Sony S-Log2](https://color-space.io/slog2) · [Panasonic V-Log](https://color-space.io/vlog) · [RED Log3G10](https://color-space.io/log3g10) · [Canon Log](https://color-space.io/clog) · [Canon Log 2](https://color-space.io/clog2) · [Canon Log 3](https://color-space.io/clog3) · [Fujifilm F-Log](https://color-space.io/flog) · [Fujifilm F-Log2](https://color-space.io/flog2) · [Fujifilm F-Log2 C](https://color-space.io/flog2c) · [Nikon N-Log](https://color-space.io/nlog) · [Apple Log](https://color-space.io/applelog) · [Apple Log 2](https://color-space.io/applelog2) · [Blackmagic Film Gen 5](https://color-space.io/bmdfilm) · [DJI D-Log](https://color-space.io/dlog) · [FilmLight T-Log / E-Gamut](https://color-space.io/tlog) · [Kinefinity KineLOG3](https://color-space.io/kinelog3) · [DCDM X′Y′Z′](https://color-space.io/dcdm) · [Sony S-Log](https://color-space.io/slog) · [ACESproxy](https://color-space.io/acesproxy) · [ERIMM RGB](https://color-space.io/erimm) · [Leica L-Log](https://color-space.io/llog) · [GoPro Protune](https://color-space.io/protune) · [GoPro GP-Log2](https://color-space.io/gplog2) · [Xiaomi Mi-Log](https://color-space.io/milog) · [OPPO O-Log](https://color-space.io/olog) · [REDLog](https://color-space.io/redlog) · [REDLogFilm](https://color-space.io/redlogfilm) · [RED Log3G12](https://color-space.io/log3g12) · [Panalog](https://color-space.io/panalog) · [ViperLog](https://color-space.io/viperlog) · [Filmic Pro 6](https://color-space.io/filmicpro)</sub>
 
 **Appearance models**<br>
 <sub>[CAM16](https://color-space.io/cam16) · [CIECAM02](https://color-space.io/ciecam02) · [CAM16-UCS](https://color-space.io/cam16-ucs) · [ZCAM](https://color-space.io/zcam) · [CAM02-UCS](https://color-space.io/cam02-ucs) · [CAM16-LCD](https://color-space.io/cam16-lcd) · [CAM16-SCD](https://color-space.io/cam16-scd) · [CAM02-LCD](https://color-space.io/cam02-lcd) · [CAM02-SCD](https://color-space.io/cam02-scd) · [Hellwig 2022](https://color-space.io/hellwig2022) · [RLAB](https://color-space.io/rlab) · [LLAB](https://color-space.io/llab) · [Nayatani 95](https://color-space.io/nayatani95) · [Hunt](https://color-space.io/hunt) · [ATD95](https://color-space.io/atd95)</sub>
@@ -116,7 +116,7 @@ Thanks to the researchers, theorists, specifiers, implementors and the libraries
 
 | Library | Spaces | Ranges | Camera log · CAM · historic | Backends | Speed (M op/s) |
 |---|---:|---|---|---|---:|
-| **color-space** | **162** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **36.4** |
+| **color-space** | **166** | Conventional | ✅ | JS · WASM · GLSL/WGSL · LUT · ICC | **36.4** |
 | color-space/lite | 27 | Conventional | logs · HDR | JS · 9 kB gzip | 36.4 |
 | color-space/wasm | 27 | Conventional | logs · HDR | WASM | 1.3–2.5× JS batches |
 | [culori](https://github.com/Evercoder/culori) | ~35 | 0–1 | ❌ | JS | 16.1 |

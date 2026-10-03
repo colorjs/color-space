@@ -11,7 +11,7 @@
  * only, and each rewrite must hit or the build fails (a renamed import can't
  * silently ship a broken site).
  */
-import { cpSync, rmSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { cpSync, rmSync, mkdirSync, readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { createHash } from 'node:crypto'
@@ -25,6 +25,52 @@ export const site = join(root, '_site')
 export const rangesFp = m => createHash('sha1')
 	.update(JSON.stringify(Object.keys(m).filter(s => m[s].range?.length >= 3).sort().map(s => [s, m[s].range])))
 	.digest('hex').slice(0, 10)
+
+// ── Cite: BibTeX + APA from CITATION.cff, formatted the way GitHub's "Cite this repository"
+// does (ruby-cff's BibTeX and APALike formatters: @software, fields sorted, month as its
+// three-letter macro, repository-code over url, a DOI first when there is one). Without a
+// .cff the same record comes from package.json — the version is never typed twice.
+// @see https://github.com/citation-file-format/ruby-cff/tree/main/lib/cff/formatters
+const unq = (v) => v.trim().replace(/^(["'])(.*)\1$/, '$2')
+export function readCff(txt) {   // the flat CFF subset a software record uses: top-level scalars + the authors list
+	const out = { authors: [] }
+	let list = null, item = null
+	for (const line of txt.split('\n')) {
+		if (/^\s*(#|$)/.test(line)) continue
+		const top = line.match(/^([\w-]+):\s*(.*)$/)
+		if (top) { list = top[1] === 'authors' ? out.authors : null; if (!list && top[2] && !/^[>|]/.test(top[2])) out[top[1]] = unq(top[2]); continue }
+		const it = list && line.match(/^\s*(-\s+)?([\w-]+):\s*(.*)$/)
+		if (!it) continue
+		if (it[1]) list.push(item = {})
+		if (item) item[it[2]] = unq(it[3])
+	}
+	return out
+}
+export function citation(dir = root) {
+	let c
+	if (existsSync(join(dir, 'CITATION.cff'))) c = readCff(readFileSync(join(dir, 'CITATION.cff'), 'utf8'))
+	else {
+		const p = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')), a = String(p.author || '').match(/^\s*(.*?)\s+(\S+)\s*(?:<|$)/)
+		c = { title: p.name, version: p.version, license: p.license, url: p.homepage,
+			'repository-code': /^[\w.-]+\/[\w.-]+$/.test(p.repository || '') ? `https://github.com/${p.repository}` : '',
+			authors: a ? [{ 'given-names': a[1], 'family-names': a[2] }] : [] }
+	}
+	const tex = (s) => String(s).replace(/([&%$#_{}])/g, '\\$1')
+	const date = /^(\d{4})-(\d{2})/.exec(c['date-released'] || ''), year = date ? date[1] : ''
+	const MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+	const url = c.doi ? `https://doi.org/${c.doi}` : c['repository-code'] || c.url || ''
+	const fam = (a) => [a['name-particle'], a['family-names']].filter(Boolean).join(' ')
+	const bibAuthor = c.authors.map((a) => a.name ? `{${tex(a.name)}}` : [fam(a), a['name-suffix'], a['given-names']].filter(Boolean).join(', ')).join(' and ')
+	const fields = { author: bibAuthor, doi: c.doi && tex(c.doi), license: c.license && tex(c.license), month: date ? MON[+date[2] - 1] : '',
+		title: `{${tex(c.title)}}`, url: c['repository-code'] || c.url || '', version: c.version && tex(c.version), year }
+	const key = `${bibAuthor.split(',')[0]}_${fields.title.split(/\s+/).slice(0, 3).join('_')}_${year}`.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\-_]+/gi, '_').replace(/_{2,}/g, '_').replace(/^_|_$/g, '')
+	const bibtex = `@software{${key},\n${Object.keys(fields).filter((k) => fields[k]).sort().map((k) => `  ${k} = ${k === 'month' ? fields[k] : `{${fields[k]}}`}`).join(',\n')}\n}`
+	const ini = (g) => g.split(/\s+/).map((p) => p.includes('-') ? p.split('-').map((x) => x[0].toUpperCase()).join('.-') : p[0].toUpperCase()).join('. ')
+	const apaName = (a) => a.name || [a['name-particle'], [a['family-names'], a['given-names'] && `${ini(a['given-names'])}.`].filter(Boolean).join(', ')].filter(Boolean).join(' ') + (a['name-suffix'] ? `, ${a['name-suffix']}` : '')
+	const names = c.authors.map(apaName), who = (names.length > 1 ? `${names.slice(0, -1).join(', ')}, & ${names.at(-1)}` : names[0] || '').replace(/\.$/, '')
+	const apa = [who, year && `(${year})`, `${c.title}${c.version ? ` (Version ${c.version})` : ''} [Computer software]`, url].filter(Boolean).join('. ')
+	return { title: c.title, bibtex, apa }
+}
 
 const rewrite = (file, pairs) => {
 	let s = readFileSync(file, 'utf8')
@@ -56,6 +102,11 @@ export async function buildSite() {
 	// generated content: prerendered catalog, per-space pages, sitemap, robots, llms
 	const { build } = await import('./generate-landing.js')
 	build(site)
+	// Cite: the footer popover's two plates, filled from CITATION.cff (the stamped name views
+	// copy index.html later, so they carry it too)
+	{	const { bibtex, apa } = citation(), h = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+		rewrite(join(site, 'index.html'), [['<pre class="snip" id="citebib"></pre>', `<pre class="snip" id="citebib">${h(bibtex)}</pre>`], ['<pre class="snip" id="citeapa"></pre>', `<pre class="snip" id="citeapa">${h(apa)}</pre>`]])
+	}
 	// ── extract the app module out of index.html into js/app.js: the page parses lighter,
 	// the module graph preloads from the head (below), and the module minifies with the
 	// rest. Specifiers rebase from the page root to js/ — './js/x' → './x'; the '../'

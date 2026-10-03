@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>color-space</title>
+<style>
+/* Colors come from Figma's theme tokens (showUI themeColors: true), so the panel follows
+   Figma's light and dark themes. Outside Figma, such as in scripts/check-figma.js, they
+   fall back to CSS system colors. Spacing and type tokens are the atlas's own, copied
+   from web/tokens.css at build time. */
+:root{
+	color-scheme:light dark;
+	--paper:var(--figma-color-bg, Canvas);
+	--panel:var(--figma-color-bg-secondary, Canvas);
+	--ink:var(--figma-color-text, CanvasText);
+	--soft:var(--figma-color-text-secondary, GrayText);
+	--hair:var(--figma-color-border, GrayText);
+/*TOKENS*/
+}
+*{ box-sizing:border-box }
+body{ margin:0; padding:var(--s3); background:var(--paper); color:var(--ink); font:var(--text-xs)/1.45 var(--font-current) }
+:focus-visible{ outline:calc(var(--rule-hair)*2) solid var(--ink); outline-offset:var(--space-3xs) }   /* the atlas's focus ring (web/workshop.css) */
+[hidden]{ display:none !important }
+
+.bar{ display:flex; align-items:center; justify-content:space-between; gap:var(--s2); margin-bottom:var(--s3) }
+.bar label{ display:flex; align-items:center; gap:var(--s2); color:var(--soft) }
+select,input,button{ font:inherit; color:inherit }
+select,input{ background:var(--paper); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-control); padding:var(--s1) var(--s2); min-width:0 }
+select:hover,input:hover{ border-color:var(--soft) }
+input[readonly]{ color:var(--soft) }
+/* the atlas's .tag pill, as on the dossier */
+.tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1; white-space:nowrap }
+.tag[title]{ cursor:help }
+
+.empty{ color:var(--soft); margin:var(--s4) 0 }
+.paints{ list-style:none; margin:0 0 var(--s3); padding:0; max-height:calc(4 * var(--s6)); overflow:auto; border-block:var(--rule-hair) solid var(--hair) }
+.paint{ display:grid; grid-template-columns:var(--s3) minmax(0,1fr) auto; align-items:center; gap:var(--s2); width:100%; padding:var(--s1); background:none; border:0; text-align:start; color:var(--soft); cursor:pointer }
+.paint:hover,.paint:focus-visible,.paint[aria-pressed="true"]{ color:var(--ink) }   /* dim → ink, the atlas's hover idiom */
+.paint[aria-pressed="true"]{ background:var(--panel) }
+.paint:focus-visible{ outline-offset:calc(var(--rule-hair)*-2) }   /* the same ring, drawn inside: the scrolling list would clip it outside */
+.sw{ width:var(--s3); height:var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-control) }
+.pn{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+.channels{ display:grid; gap:var(--s1); margin:0 0 var(--s3); padding:0; border:0 }
+.ch{ display:grid; grid-template-columns:var(--s5) minmax(0,1fr) minmax(0,1fr); align-items:center; gap:var(--s2) }
+.sym{ font-weight:700 }
+.ch input{ font-family:var(--font-mono); font-variant-numeric:tabular-nums }
+.nm{ color:var(--soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+.notes{ color:var(--soft); margin:0 0 var(--s3) }
+.notes:empty{ margin:0 }   /* the live region stays in the page, empty, so its first note is announced */
+.notes p{ margin:0 0 var(--s1) }
+
+.css{ display:grid; gap:var(--s1) }
+.row{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--s2) }
+.row input{ font-family:var(--font-mono) }
+.row button{ background:none; border:0; padding:var(--s1) var(--s2); color:var(--soft); cursor:pointer }
+.row button:hover,.row button:focus-visible{ color:var(--ink) }
+</style>
+</head>
+<body>
+<header class="bar">
+	<label>Space <select id="space"></select></label>
+	<span class="tag" id="profile" title="Document color profile">sRGB</span>
+</header>
+<p class="empty" id="empty">Select a layer with a solid fill or stroke.</p>
+<ul class="paints" id="paints" aria-label="Solid paints in the selection"></ul>
+<fieldset class="channels" id="channels" aria-label="Channels"></fieldset>
+<div class="notes" id="notes" role="status"></div>
+<section class="css" id="css" aria-label="CSS">
+	<div class="row"><input id="css-1" readonly aria-label="CSS oklch()"><button type="button" data-copy="css-1">Copy</button></div>
+	<div class="row"><input id="css-2" readonly aria-label="CSS in the document's RGB"><button type="button" data-copy="css-2">Copy</button></div>
+</section>
+<script>/*BUNDLE*/</script>
+</body>
+</html>

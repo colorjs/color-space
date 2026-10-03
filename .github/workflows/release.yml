@@ -115,7 +115,9 @@ jobs:
           gh release create "v$VERSION" --verify-tag --generate-notes --title "v$VERSION" "${EXTRA[@]}"
       # Last on purpose: npm, the tag and the GitHub release are already out, so a registry
       # outage can't strand them half-done. A failure turns the run red (never swallowed);
-      # rerunning skips every finished step above and retries only this one.
+      # a rerun repeats the job from the top, and every publishing step above is idempotent
+      # (npm publish, the tag and the release are skipped when they exist), so only this one
+      # does new work.
       - name: Publish to the MCP Registry
         if: inputs['dist-tag'] == 'latest'
         run: |

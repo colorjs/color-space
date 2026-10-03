@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atlas – color-space workbench</title>
+<meta name="description" content="Workbench direction Atlas: catalog-first and editorial – the family titles are the navigation, featured spaces lead each family, the rest follow as compact sliders.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
+<link rel="preload" href="../fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../variants.css">
+<link rel="stylesheet" href="./wb.css">
+<link rel="stylesheet" href="./atlas.css">
+<script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}</script>
+</head>
+<body>
+<a class="skip" href="#cat">Skip to the spaces</a>
+
+<!-- the masthead: wordmark · the current color · a wide search · language · vision · theme · GitHub -->
+<header class="top mast wb-hue"><span data-wb="brand"></span><span data-wb="chip"></span><span data-wb="search"></span><span data-wb="lang"></span><span data-wb="vision"></span><span data-wb="tools"></span></header>
+
+<div class="work">
+	<!-- one sentence, then the tour and the ten purposes – labels hang in the ladder's column -->
+	<section class="intro" aria-label="Start here">
+		<div class="row"><span class="lab" aria-hidden="true"></span><div data-wb="orient"></div></div>
+		<div class="row">
+			<h2 class="lab" id="a-tour">Start here</h2>
+			<div class="tour">
+				<ol class="stops" id="stops" aria-labelledby="a-tour"></ol>
+				<div class="stop" id="stop" data-wb="tour" hidden></div>
+			</div>
+		</div>
+		<div class="row tags" data-wb="tags"></div>
+	</section>
+
+	<!-- the filter stripe: alt's eight facets, the view controls at its right end; it stays in view -->
+	<div class="stripe row" id="stripe" role="region" aria-label="Filters and view">
+		<span class="lab" data-wb="count"></span>
+		<div class="sbody"><div data-wb="stripe"></div><div data-wb="view"></div></div>
+	</div>
+
+	<!-- the catalog: each family's title is its own heading and, on wide screens, a rung of the ladder -->
+	<main id="cat" aria-label="Color spaces"></main>
+</div>
+
+<footer class="foot">
+	<div class="fin">
+		<div class="row">
+			<span class="lab" aria-hidden="true"></span>
+			<div class="fcols">
+				<section aria-labelledby="f-npm"><h2 class="flab" id="f-npm">Install</h2><div id="f-npm-p"></div></section>
+				<section aria-labelledby="f-mcp"><h2 class="flab" id="f-mcp">For agents</h2><div id="f-mcp-p"></div>
+					<p class="fmore"><button type="button" class="flnk" popovertarget="a-agents">Set up Claude Code, Claude Desktop, Cursor or VS Code</button></p></section>
+			</div>
+		</div>
+		<div class="row">
+			<span class="lab" aria-hidden="true"></span>
+			<p class="legal"><button type="button" class="flnk" popovertarget="a-cite">Cite</button><a href="https://github.com/sponsors/dy">Support the project</a><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain">CC0</a><a href="https://github.com/colorjs/color-space">GitHub</a><a href="./">Workbench</a></p>
+		</div>
+	</div>
+</footer>
+
+<!-- native popovers – the top layer, no positioning script (index.html's Cite) -->
+<div class="apop" id="a-cite" popover role="dialog" aria-labelledby="a-cite-t"><h2 class="ptl" id="a-cite-t">Cite color-space</h2><div id="a-cite-b" aria-live="polite"><p class="wb-note">…</p></div></div>
+<div class="apop" id="a-agents" popover role="dialog" aria-labelledby="wb-ag-t"><div data-wb="agents"></div></div>
+
+<aside id="pane" hidden></aside>
+<script type="module" src="./atlas.js"></script>
+</body>
+</html>

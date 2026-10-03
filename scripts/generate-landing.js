@@ -75,7 +75,7 @@ inject(/(<input id="cval")/, `$1 value="${dhx}"`)
 // the meta descriptions carry no live count by design — the counts live in #n/#n2 and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset — Google Dataset Search reaches the science
-// crowd; homepage only (stampSpacePages strips it — 162 copies would read as spam)
+// crowd; homepage only (stampSpacePages strips it — a copy on every space page would read as spam)
 const ld = { '@context': 'https://schema.org', '@type': 'Dataset',
 	name: 'color-space — color space registry',
 	description: `Machine-readable registry of ${spaceCount} color spaces: channels and conventional ranges, conversion-graph edges, gamut primaries, white points, CIE 1931 2° color-matching functions, provenance and cited conformance anchors.`,

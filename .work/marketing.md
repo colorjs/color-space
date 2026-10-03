@@ -1,13 +1,19 @@
 # color-space — marketing
 
-> Single source of truth. Stamped **2026-07-21** — re-verify any number the day it's quoted publicly.
+> Single source of truth. Stamped **2026-07-21**, Search Console block **2026-10-02** — re-verify any number the day it's quoted publicly.
 
 ## Data
 
 **Reach** (npm month 06-20→07-19 · GitHub 07-21): color-space **4.0M DLs · 357★** — culori 5.7M · 1,211★ — colorjs.io 25.8M · 2,266★ — chroma-js 10.8M · 10,574★. Culori-tier usage, ⅓ the recognition, mostly transitive (45 dependents). **The job: convert invisible usage into visibility — not awareness from zero.**
 
+**Search Console** (pulled 2026-10-02; current vs previous period as the report gave them — clicks vs impressions not recorded, note it on the next pull):
+- Countries: Brazil 39% · Turkey 15% · Thailand 9% · UK 7% · US 7%
+- Queries (current / previous / Δ): `color space` 117/42/+75 · `colorspace` 23/8/+15 · `space color` 7/1/+6 · `color this space` 7/0/+7 · `colour space` 3/0/+3 · `color spaces` 3/7/−4 · `all color spaces` 2/0/+2 · `colorspace, lp` 2/2/0 · `ipt color space` 2/0/+2 · `colorspace labs` 2/1/+1
+- Pages: `/` 1,229 · `/sgamut3cine` 190 · `/prophoto` 108 · `/dlog` 102 · `/xyb` 47 · `/labh` 36 · `/hsv` 24 · `/ciecam02` 20 · `/slog3` 19 · `/panalog` 8
+- Read: the head term is the generic English *color space* → learners land on `/`, so orientation (what a color space is) and the start-here tour matter most. Film pages (sgamut3cine, dlog, slog3) and prophoto are the second door → the creator flow (camera → target → editor → .cube). Volumes are small, so the country split is noise-prone: localization stays a pilot (pt-BR first), and only after analytics exist.
+
 **Quotable claims** (each with its proof; never round up):
-- **162 spaces, 4× any JS library** (culori ~35, colorjs.io ~40, texel ~16) — runtime count, cited list in README.
+- **166 spaces, 4× any JS library** (culori ~35, colorjs.io ~40, texel ~16) — runtime count on master (published 3.1.0 has 162 until the next release), cited list in README.
 - **Verified, three layers**: every space pinned to an independent cited anchor (135 points, `test/refs.js`) · 29 spaces both directions vs colorjs.io at 1/255 · **camera logs vs the Academy's official ACES vendor transforms** — deltas ≤0.5% (CAT02 pairs, fully attributed to adaptation convention) / 1e-10 (Bradford pairs) — [docs/formula-verification.md](../docs/formula-verification.md#camera-log-verification-against-official-aces-transforms), reruns on `npm test`.
 - **Fast**: 29.3M scalar calls/s geomean vs culori 16.5, colorjs.io 0.7 (`npm run benchmark`, method footnoted in README).
 - **Small**: one space 0.4–1.5 kB; lite 9 kB; full graph 55 kB gz (never call the full bundle "tiny").
@@ -17,11 +23,11 @@
 
 **Funding reality**: sponsorship ≈ 0 across this whole category (Lea Verou: 1 sponsor at 25.8M DLs/mo). Wired: FUNDING.yml, thanks.dev. Expect tens of $/mo from dependency funds (OSS Pledge, Tidelift). The only real-money door: film-tech named sponsorship (Colourlab, FilmLight, Frame.io) **after** 3–6 months of demonstrable LUT traffic.
 
-**Standing corrections**: culori is active again (never use the old "stalled" line) · "Tailwind v4 uses culori" is false · npm registry text updates on next publish.
+**Standing corrections**: culori is active again (never use the old "stalled" line) · "Tailwind v4 uses culori" is false · npm registry text updates on next publish · HSL yellow vs blue at L=50 is **~13×** in luminance (sRGB Y 0.928 vs 0.072, computed) — it was mis-stated as 4×.
 
 ## Stance
 
-- **Owned surfaces stay understated** (owner's decision 2026-07-21): hero and npm description say *"An open collection of color spaces"* — no counts, evergreen. The substance (162, verification, benchmark, comparison) sits one scroll below and in docs. **Number-led selling happens in posts, never on owned surfaces.** Don't re-add it.
+- **Owned surfaces stay understated** (owner's decision 2026-07-21): hero and npm description say *"An open collection of color spaces"* — no counts, evergreen. The substance (166, verification, benchmark, comparison) sits one scroll below and in docs. **Number-led selling happens in posts, never on owned surfaces.** Don't re-add it.
 - **Honesty guardrail**: state verification by its exact layer; LUTs are colorimetric conversions, *not looks* — say it before anyone asks; one inflated proof point costs more than the launch earns.
 
 ## Plan
@@ -49,17 +55,27 @@ Surfaces are done (atlas live at color-space.io, OG image wired, GitHub About/to
 2d. [x] **SEO** (audit 2026-07-21, updated 07-22 — foundation solid: canonicals, prerendered prose, per-page descriptions, sitemap+robots+llms.txt, www→apex 301, colorjs.github.io→domain 301):
     - [x] display-name titles ("S-Gamut3.Cine", not the slug) — shipped, pinned by tests
     - [x] "conversion LUT" in scene-referred titles + the visible CONVERSION LUT dossier block — shipped
-    - [x] **register Search Console + Bing Webmaster, submit sitemap** — owner-only, the single highest-value open item; its query data steers the weekly dossier work (§6) and gates the pair-pages call below
+    - [x] **register Search Console + Bing Webmaster, submit sitemap** — done; first query data 2026-10-02 (Data → Search Console). It steers the weekly dossier work (§6) and gates the pair-pages call below
     - [x] **per-space OG/indexable images** — shipped 07-22: `generate-og.js spaceCards()` renders a card per space (display name, use line, the space's channel-gradient signature, ranges) into gitignored `web/img/og/` (skip-if-fresh cache, ~8.5 MB JPEG); stamped into each page's og:image + alt, listed in the image sitemap; test-pinned
     - [x] **Dataset JSON-LD** — shipped 07-22: homepage only (stamps strip it), CC0 license, data.json distribution; test-pinned
     - [x] sitemap `<lastmod>` — shipped 07-22: per-space from git history of `spaces/<s>.js` (pages.yml now checks out full history); image-sitemap namespace added
-    - [ ] pair pages ("slog3 to rec709") — ONLY if Search Console shows impressions for pair queries; premature = thin-content risk
+    - [ ] pair pages ("slog3 to rec709") — ONLY if Search Console shows impressions for pair queries; premature = thin-content risk. 2026-10-02: no pair query in the top 10 — not yet
     - marginal, noted not planned: title display-length (139/164 over ~60ch — names front-loaded, truncation eats only boilerplate) · BreadcrumbList JSON-LD
 3. [ ] **Next week — LiftGammaGain scrutiny post** (draft below). If the thread survives, it's the citable proof for the whole film track.
 4. [ ] **Then one film community per week**, led by that camera's pain, LGG thread cited: r/davinciresolve → r/SonyAlpha (both Sony gamuts) → iPhone-filmmaking (Apple Log, hottest trigger) → r/dji → r/videography (education-led) → ACEScentral (ACES story; bridge to ASWF orbit).
 5. [ ] **Dream-100 gift outreach alongside** (no ask, 3+ touches): colorists — Cullen Kelly, Darren Mostyn, Waqas Qazi, Color Grading Central, Gerald Undone (deltas table is his language); CSS — Lea Verou orbit, Björn Ottosson, Dan Burzo; newsletters after HN exists to cite.
 6. [ ] **Always**: new camera log announced → support within days → short post (the recurring trigger). Each community's questions → that week's dossier improvements. Log every post: venue, title, response; kill venues after two silent attempts.
 7. [ ] **Donation**: optional one-line ask at the LUT download-complete moment (*"Free and verified. If it saved your grade — sponsor the atlas."* — tone is owner's call); at 3–6 months take traffic numbers to film-tech sponsors.
+
+Added 2026-10-02 (Search Console read + research digests):
+
+8. [ ] **Analytics** — hosted GoatCounter: free, cookieless, no backend, custom events, country + referrer, export. Wired but **OFF**: `web/js/track.js` `GC = ''` until the owner creates the account and sets the code. Counts people per 8 h, not clicks; adblockers miss ~⅓ (GoatCounter's own estimate). Search Console stays the query source. Gates the localization pilot.
+9. [ ] **Creator LUT flow, per editor** (camera → target → editor → download + steps). Interop facts it rests on: editors get a plain 3D 33³ by default (one `LUT_3D_SIZE`, no shaper) · OBS: a 1D cube whose size is a multiple of 1024 (lut.js's 4096-point 1D default, its 1024-entry shaper) overflows OBS's uint32 allocation to 0 bytes → crash (per its source; not reproduced in a running OBS) · LumaFusion ≤64 points (its 2017 release note) → no 65³ · ffmpeg `lut3d` silently ignores a shaper. Conversions, not looks — same guardrail.
+10. [ ] **MCP Registry** — `io.github.colorjs/color-space`; `server.json` + `mcp-publisher` step in `release.yml` (GitHub OIDC, no secrets). Goes live with the next npm release: the registry checks `mcpName` on the *published* version, and 3.1.0 has none.
+11. [ ] **Figma plugin** (`plugins/figma/`) — owner publishes; an account action, not code.
+12. [ ] **CITATION.cff + Zenodo DOI** — `CITATION.cff` at the root gives GitHub's "Cite this repository" (validated with cffconvert). DOI: owner signs in to Zenodo with GitHub and toggles the repo On (colorjs is an org — the org owner may need to approve the Zenodo app); Zenodo then archives each GitHub release (release.yml creates one) and mints a DOI. Add the DOI to CITATION.cff after the first one. Bump its `version` + `date-released` with each release: release.yml syncs server.json's version, not this file's, and the site's Cite plates (build-site.js) read it.
+13. [ ] **New camera logs = the "new log → post" trigger (§6)**: Apple Log 2, F-Log2 C, GP-Log2, KineLOG3 — vendor math checked 2026-10-02. Each one shipped → one short post in its camera's community. Waiting on vendor proof: vivo Log, Huawei H-Log, DJI D-Log2.
+14. [ ] **Wikipedia** — Oklab has an article (en; the other-language count could not be checked from the sandbox — verify before quoting). **Never self-insert links to color-space** (COI).
 
 **Don'ts**: no email gates · no look/creative LUT packs · no two posts in one week per track · no stat quoted without same-day re-verification.
 

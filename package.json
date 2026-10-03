@@ -232,6 +232,7 @@
     "test:gpu": "node scripts/check-gl-gpu.js",
     "test:browser": "node scripts/check-site.js",
     "test:a11y": "node scripts/check-a11y.js",
+    "test:figma": "node scripts/check-figma.js",
     "benchmark": "node benchmark/compare.js",
     "types": "node scripts/generate-types.js",
     "data": "node scripts/generate-data.js",
@@ -240,6 +241,7 @@
     "icon": "node scripts/generate-icon.js",
     "og": "node scripts/generate-og.js",
     "build:wasm": "node scripts/build-wasm.js",
+    "build:figma": "node plugins/figma/build.js",
     "build": "esbuild ./index.js --bundle --format=esm --outfile=dist/color-space.js && esbuild ./dist/color-space.js --minify --outfile=dist/color-space.min.js && esbuild ./lite.js --bundle --format=esm --outfile=dist/color-space-lite.js && esbuild ./gl/index.js --bundle --format=esm --outfile=dist/color-space-gl.js",
     "prepare": "npm run types && npm run data && npm run build:wasm && npm run build",
     "prepublishOnly": "npm run prepare && npm run landing && npm test && npm run test:package"

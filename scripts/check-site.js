@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from 'playwright'
 import { serve } from './test-server.js'
@@ -11,9 +11,11 @@ const systemChrome = process.platform === 'darwin'
 		: '/usr/bin/google-chrome'
 const executablePath = [process.env.CHROME_PATH, chromium.executablePath(), systemChrome].find(p => p && existsSync(p))
 if (!executablePath) throw new Error('Chromium is not installed; run `npx playwright install chromium` or set CHROME_PATH')
-if (!existsSync(resolve('_site/index.html'))) throw new Error('_site is missing; run `npm run landing` first')
+// CS_SITE points the check at another staged copy (a snapshot built elsewhere); default _site
+const SITE = resolve(process.env.CS_SITE || '_site')
+if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missing; run \`npm run landing\` first`)
 
-const server = await serve(resolve('_site'))
+const server = await serve(SITE)
 const browser = await chromium.launch({ headless: true, executablePath })
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
 const errors = []
@@ -22,7 +24,7 @@ try {
 	page.on('pageerror', error => errors.push(error.message))
 	await page.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })   // ?sw: loopback skips the service worker for dev-freshness — the offline pin below needs it registered
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
-	assert.equal(await page.locator('.ent').count(), 162, 'catalog has all spaces')
+	assert.equal(await page.locator('.ent').count(), 166, 'catalog has all spaces')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
@@ -173,7 +175,7 @@ try {
 	await page.locator('.gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().innerText(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
-	assert.equal(await page.locator('.ent[data-s]').count(), 162, 'era regroup keeps every space')
+	assert.equal(await page.locator('.ent[data-s]').count(), 166, 'era regroup keeps every space')
 	assert.match(await page.locator('.toc .tn').first().innerText(), /2020/, 'era shelves lead the rail, newest first')
 	await page.locator('#tfb').click()
 	await page.locator('#tfp button[data-t="scene"]').click()
@@ -471,7 +473,7 @@ try {
 	assert.equal(flickA.equals(flickB),false,'a moving release keeps rotating in the chosen direction')
 	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__imageBitmapOrig=orig; let stall=true
 		window.createImageBitmap=(source,...rest)=>{ if(stall&&source instanceof Blob){ stall=false; return new Promise(()=>{}) } return orig(source,...rest) } })
-	await motion.locator('#cvfile').setInputFiles(resolve('_site/img/wave.jpg'))
+	await motion.locator('#cvfile').setInputFiles(resolve(SITE, 'img/wave.jpg'))
 	await motion.waitForFunction(()=>document.body.classList.contains('himg')&&document.querySelector('#detail .pl canvas.density'))
 	await motion.evaluate(()=>{ window.createImageBitmap=window.__imageBitmapOrig; delete window.__imageBitmapOrig })
 	const firstPlane=motion.locator('#detail .pl').first(), pr=await firstPlane.boundingBox()
@@ -505,6 +507,94 @@ try {
 	const bitmapFlight=await motion.evaluate(()=>{ const s=window.__bitmapFlight; window.createImageBitmap=s.orig; delete window.__bitmapFlight; return {max:s.max,active:s.active,stall:s.stall} })
 	assert.equal(bitmapFlight.max<=1&&bitmapFlight.active<=1&&(!bitmapFlight.stall||bitmapFlight.max===0),true,'a stalled host snapshot falls back without starting another shared-kernel transfer')
 	await motionContext.close()
+
+	// the creator LUT flow: the editor picks the file – a plain 3D cube at a size that app takes,
+	// the shaper cube only under Resolve (and the library's generic path), the app's steps beneath.
+	// Its own context: these loads skip ?sw, and on loopback that unregisters the offline shell
+	// the check below pins
+	const wireContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
+	const wire = await wireContext.newPage()
+	wire.on('pageerror', error => errors.push(`wire: ${error.message}`))
+	await wire.goto(`${server.origin}/rec709?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	await wire.waitForSelector('#modal:not([hidden]) #dex #dled')
+	await wire.locator('#dex').scrollIntoViewIfNeeded()
+	await wire.locator('#dlto').selectOption('rgb')   // a per-channel pair: the generic path's 1D curve, an editor's 3D lattice
+	const lutOf = async (editor, size) => {
+		if (editor != null) await wire.locator('#dled').selectOption({ value: editor })
+		if (size != null) await wire.locator('#dlsz').selectOption({ value: size })
+		const [dl] = await Promise.all([wire.waitForEvent('download'), wire.locator('#dldl').click()])
+		return { name: dl.suggestedFilename(), text: readFileSync(await dl.path(), 'utf8'),
+			sizes: await wire.locator('#dlsz option').evaluateAll(os => os.map(o => o.value)),
+			how: await wire.locator('#dlhow').evaluate(el => el.hidden ? '' : el.innerText) } }
+	const generic = await lutOf('', null)
+	assert.equal(generic.name, 'rec709-to-rgb.cube', 'generic: a per-channel pair saves the library’s own 1D cube')
+	assert.match(generic.text, /^LUT_1D_SIZE 4096$/m, 'generic: the 4096-point 1D curve')
+	assert.equal(generic.how, '', 'generic: no app steps')
+	const ff = await lutOf('ffmpeg', null)
+	assert.equal(ff.name, 'rec709-to-rgb-33.cube', 'an editor turns the same pair into a 33³ file')
+	assert.equal(/^LUT_3D_SIZE 33$/m.test(ff.text) && !/LUT_1D_SIZE/.test(ff.text), true, 'an editor always gets a plain 3D cube')
+	assert.deepEqual(ff.sizes, ['33', '65'], 'ffmpeg offers 33 and 65, no shaper')
+	assert.match(ff.how, /lut3d=file=rec709-to-rgb-33\.cube:interp=tetrahedral/, 'the ffmpeg step names the very file it saved')
+	assert.deepEqual((await lutOf('lumafusion', null)).sizes, ['33'], 'LumaFusion (up to 64 points) gets 33 only')
+	const r65 = await lutOf('davinci-resolve', '65')
+	assert.equal(r65.name === 'rec709-to-rgb-65.cube' && /^LUT_3D_SIZE 65$/m.test(r65.text), true, 'Resolve takes the 65³ high-precision cube')
+	assert.deepEqual(r65.sizes, ['33', '65', '33s', '65s'], 'Resolve alone among the editors adds the shaper cubes')
+	assert.equal(await wire.locator('#dlsz optgroup').getAttribute('label'), 'DaVinci Resolve / OCIO only', 'the shaper option is labeled for its only readers')
+	assert.match(r65.how, /Project Settings/, 'Resolve shows its own steps')
+	const shaped = await lutOf(null, '33s')
+	assert.equal(shaped.name, 'rec709-to-rgb-33-shaper.cube', 'the shaper cube says so in its name')
+	assert.equal(/^LUT_1D_SIZE 1024$/m.test(shaped.text) && /^LUT_3D_SIZE 33$/m.test(shaped.text), true, 'shaper cube: 1D shaper + 3D lattice in one file')
+	await wire.locator('#dled').selectOption('capcut-mobile')
+	assert.equal(await wire.locator('#dldl').isDisabled(), true, 'CapCut mobile takes no .cube – no download, the steps send it to desktop')
+	// Python + embed tabs: the verified snippet (preamble once), the iframe for this very space
+	await wire.goto(`${server.origin}/oklch?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	await wire.locator('#cseg [data-t="py"]').click()
+	const py = await wire.locator('#snip').innerText()
+	assert.equal(py.split('import numpy as np, colour').length - 1, 1, 'Python tab: the colour-science preamble, once')
+	assert.match(py, /v = colour\.Oklab_to_Oklch\(colour\.XYZ_to_Oklab\(XYZ\)\)/, 'Python tab: the verified oklch expression')
+	assert.match(py, /# verified against color-space – colour-science /, 'Python tab: says what it was verified with')
+	await wire.locator('#cseg [data-t="embed"]').click()
+	assert.match(await wire.locator('#snip').innerText(), /^<iframe src="https:\/\/color-space\.io\/oklch\?embed"\s+title="OKLCH color space – color-space\.io"\s+width="\d+" height="\d+" style="[^"]+" loading="lazy"><\/iframe>$/, 'embed tab: the iframe for this space')
+	await wire.evaluate(() => { location.hash = 'hsluv' })   // the data module is in – a space without a verified entry gets no tab
+	await wire.waitForFunction(() => /hsluv/i.test(document.getElementById('dtitle')?.textContent || ''))
+	await wire.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))))
+	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
+	// the vision lens: one root filter, defs mounted once, cited models
+	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	assert.match(await wire.locator('#vseg').getAttribute('title'), /doi:10\.1109\/TVCG\.2009\.113[\s\S]*doi:10\.1364\/JOSAA\.14\.002647/, 'the vision tooltip cites Machado 2009 and Brettel 1997')
+	await wire.locator('#vseg').selectOption('deutan')
+	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
+	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')
+	assert.match(await wire.evaluate(() => getComputedStyle(document.documentElement).filter), /url\(.*#cvd-deutan/, 'the root wears the filter')
+	await wire.locator('#vseg').selectOption('tritan'); await wire.locator('#vseg').selectOption('none')
+	assert.deepEqual(await wire.evaluate(() => [document.documentElement.dataset.cvd, document.querySelectorAll('filter#cvd-tritan').length]), [undefined, 1], 'typical vision clears the lens; the defs mounted once')
+	// Cite: BibTeX + APA from CITATION.cff, the version package.json's
+	await wire.locator('.legal .cite').click()
+	await wire.waitForSelector('#citep:popover-open')
+	const cite = await wire.locator('#citep').innerText(), { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
+	assert.equal(cite.includes('title = {{color-space}}') && cite.includes(`version = {${version}}`), true, 'Cite: BibTeX carries the title and the package version')
+	assert.match(cite, new RegExp(`Ivanov, D\\. \\(\\d{4}\\)\\. color-space \\(Version ${version.replace(/\./g, '\\.')}\\) \\[Computer software\\]\\. https://github\\.com/colorjs/color-space`), 'Cite: APA in GitHub’s CITATION.cff form')
+	await wire.keyboard.press('Escape')
+	assert.equal(await wire.locator('#citep:popover-open').count(), 0, 'Esc closes the Cite popover')
+	await wire.close()
+	// embed: /<name>?embed is the card alone – no chrome, no close, no route leaving the frame
+	const embed = await wireContext.newPage()
+	embed.on('pageerror', error => errors.push(`embed: ${error.message}`))
+	await embed.goto(`${server.origin}/oklch?embed&cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	await embed.waitForSelector('#modal:not([hidden]) #dtitle')
+	assert.deepEqual(await embed.evaluate(() => ['.mast', '#cat', '#faq', '#ftr', '#mx', '.mnavbar', '#upfl'].filter(q => { const el = document.querySelector(q); return el && el.getClientRects().length })), [], 'embed hides header, catalog, FAQ, footer, close, prev/next and the image seat')
+	assert.equal(await embed.locator('#cat .ent').count(), 0, 'embed never builds the catalog')
+	assert.match(await embed.locator('link[rel="canonical"]').getAttribute('href'), /\/oklch$/, 'embed keeps the clean canonical')
+	const mb = await embed.locator('.mbox').boundingBox(), vw = await embed.evaluate(() => document.documentElement.clientWidth)
+	assert.equal(Math.abs(mb.width - vw) <= 20 && mb.x <= 1, true, 'the card fills the frame')
+	const embl = embed.locator('#embl'), emblHref = await embl.getAttribute('href')
+	assert.equal(await embl.isVisible() && await embl.getAttribute('target') === '_blank' && /\/oklch(#|$)/.test(emblHref) && !/embed/.test(emblHref), true, 'one link out: the full page, new tab')
+	await embed.keyboard.press('Escape')
+	assert.equal(await embed.locator('#modal').isVisible(), true, 'Esc does not close an embedded card')
+	const hist = await embed.evaluate(() => history.length)
+	const [tab] = await Promise.all([wireContext.waitForEvent('page'), embed.locator('#detail .fam a[href^="#"]').first().click()])
+	assert.equal(new URL(embed.url()).pathname === '/oklch' && await embed.evaluate(() => history.length) === hist, true, 'an in-card space link opens a new tab – the frame and its history stay put')
+	await wireContext.close()
 
 	const og = await context.request.get(`${server.origin}/img/og.png?cb=${Date.now()}`)
 	assert.equal(og.ok(), true, 'social image resolves')
