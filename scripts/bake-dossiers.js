@@ -44,7 +44,11 @@ export async function bakeDossiers(site, i18n) {
 	try { for (const L of [{ code: 'en', pages: new Set(SPACES) }, ...(i18n?.langs || [])]) {
 		const pre = L.code === 'en' ? '' : L.code + '/', spaces = SPACES.filter((s) => L.pages.has(s))
 		if (!spaces.length) continue
-		const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+		// reduced motion: the ambient hue orbit and the solid's spin stay off, so every dossier bakes
+		// in the DEFAULT state hydration rebuilds (an orbiting color once froze into each page at
+		// capture, a different one per build), and their per-frame repaints – software GL here –
+		// can't starve the idle slices that wire the catalog's rows
+		const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
 		await page.goto(`http://127.0.0.1:${srv.address().port}/${pre}index.html`, { waitUntil: 'load' })
 		// module readiness has no global signal — the first modal that opens IS the signal.
 		// Null-safe throughout: a throwing predicate REJECTS waitForFunction instead of
@@ -55,29 +59,40 @@ export async function bakeDossiers(site, i18n) {
 			return !!m && !m.hidden
 		}, { timeout: 30000, polling: 250 })
 		await page.evaluate(() => document.getElementById('mx').click())
+		// the rows below the fold wire in idle slices, in document order (wireCat), and an open
+		// dossier's instruments leave a software-rendered page almost no idle time – so the catalog
+		// finishes wiring with no dossier open: its LAST row opening one says every row is live
+		await page.waitForFunction(() => {
+			;[...document.querySelectorAll('.ent[data-s] .nm')].at(-1)?.click()
+			const m = document.getElementById('modal')
+			return !!m && !m.hidden
+		}, { timeout: 60000, polling: 250 })
+		await page.evaluate(() => document.getElementById('mx').click())
 		for (const s of spaces) {
-			// openModal → buildDetail → renderFast all run synchronously inside the click,
-			// so the shell is capturable immediately — no settle frames, no closing between
-			// spaces (opening the next dossier replaces the current one). But a row below the
-			// fold wires at idle (wireCat), and a click on it before then is a no-op that leaves
-			// the PREVIOUS dossier open — baked into this page, it once gave 132 of 168 name views
-			// another space's dossier. So the click repeats until the router names THIS space
-			// (openModal's replaceState runs in the same click as buildDetail)
+			// openModal → buildDetail → renderFast all run synchronously inside the click, so the
+			// shell is capturable at once, and closing the dossier in the same task leaves the GL
+			// paints queued behind it nothing to draw (software GL spent ~4 s a dossier on them).
+			// A click on a row not yet wired is a no-op – with the last dossier closed it captures
+			// nothing (left open, it once baked another space's dossier into 132 of 168 name views):
+			// the click repeats until the router names THIS space (openModal's replaceState runs in
+			// the same click as buildDetail), or the build fails
 			const shell = await (await page.waitForFunction((s2) => {
 				document.querySelector(`.ent[data-s="${CSS.escape(s2)}"] .nm`)?.click()
 				const m = document.getElementById('modal')
-				return !!m && !m.hidden && location.pathname.endsWith('/' + s2) && !!document.getElementById('dtitle')?.textContent.trim()
-					&& document.getElementById('detail').innerHTML
-			}, s, { timeout: 30000, polling: 50 }).catch(() => { throw new Error(`bake-dossiers: ${pre}${s} – its dossier never opened`) })).jsonValue()
+				if (!m || m.hidden || !location.pathname.endsWith('/' + s2) || !document.getElementById('dtitle')?.textContent.trim()) return false
+				const h = document.getElementById('detail').innerHTML
+				document.getElementById('mx').click()
+				return h
+			}, s, { timeout: 30000, polling: 50 }).catch((e) => { throw new Error(`bake-dossiers: ${pre}${s} – its dossier never opened (${String(e.message).split('\n')[0]})`) })).jsonValue()
 			const file = join(site, pre + s + '.html')
 			let h = readFileSync(file, 'utf8')
 			const anchor = '<div class="detail" id="detail" tabindex="-1"></div>'
-			if (!h.includes(anchor)) throw new Error('bake-dossiers: detail anchor missing in ' + s + '.html')
+			if (!h.includes(anchor)) throw new Error(`bake-dossiers: detail anchor missing in ${pre}${s}.html`)
 			h = h.replace(anchor, () => `<div class="detail" id="detail" tabindex="-1">${shell}</div>`)   // a function: translated text may carry $
 			const modal = /<div class="modal" id="modal"([^>]*?) hidden>/
-			if (!modal.test(h)) throw new Error('bake-dossiers: modal anchor missing in ' + s + '.html')
+			if (!modal.test(h)) throw new Error(`bake-dossiers: modal anchor missing in ${pre}${s}.html`)
 			h = h.replace(modal, '<div class="modal" id="modal"$1>')
-			if (!h.includes('<body>')) throw new Error('bake-dossiers: body anchor missing in ' + s + '.html')
+			if (!h.includes('<body>')) throw new Error(`bake-dossiers: body anchor missing in ${pre}${s}.html`)
 			h = h.replace('<body>', '<body class="mopen" style="overflow:hidden">')
 			writeFileSync(file, h)
 		}
