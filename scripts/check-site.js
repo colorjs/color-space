@@ -108,6 +108,7 @@ try {
 	assert.match(customCatalogCancel.after,/:48:off:/,'custom catalog cancellation restores full-quality ranges')
 	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
 	assert.equal(await page.locator('#cd').inputValue(),'#123456','pointer cancellation releases the catalog drag guard')
+	await page.waitForFunction(()=>document.documentElement._accent==='#123456')   // the typed color's own root accent lands CURRENT_SETTLE after its frame – let it, or it counts inside the burst below
 	const nonPointerRoot=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]'); let writes=0
 		const observer=new MutationObserver(()=>writes++); observer.observe(document.documentElement,{attributes:true,attributeFilter:['style']})
 		for(let n=0;n<12;n++){ src.value=40+n*10; src.dispatchEvent(new Event('input',{bubbles:true})); await new Promise(r=>requestAnimationFrame(r)) }
@@ -433,14 +434,16 @@ try {
 		const colors=[...document.querySelectorAll('.ent:not(.lite) .nrg')].filter(el=>{ const r=el.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight }).map(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toUpperCase())
 		return {hx,colors} })
 	assert.equal(ambientPicker.colors.length>0&&ambientPicker.colors.every(c=>c===ambientPicker.hx),true,'all visible slider pickers wear the animated color')
-	const nameView=await motionContext.newPage()
+	const nameContext=await browser.newContext({viewport:{width:800,height:600}}), nameView=await nameContext.newPage()   // its OWN context: a second page in motionContext backgrounds the index, whose rAF pauses (CI caught the orbit unrepainted after typed input)
 	await nameView.goto(`${server.origin}/oklch?cb=${Date.now()}`,{waitUntil:'networkidle'})
 	await nameView.waitForFunction(()=>document.querySelector('#cd').value!=='#808080',null,{timeout:20000})   // a dossier's GL instruments make the first orbit frame late on software GL – wait for it, don't race it
 	assert.equal(await nameView.locator('#cval').inputValue(),'','the orbit stays ambient on a name view – no value asserted, no URL written')
 	assert.equal(new URL(nameView.url()).hash,'','the ambient orbit never writes the URL')
-	await nameView.close()
-	await motion.locator('#cval').fill('#123456'); await motion.waitForTimeout(450)
-	assert.equal(await motion.locator('#cd').inputValue(),'#123456','authored color input stops the ambient orbit')
+	await nameContext.close()
+	await motion.locator('#cval').fill('#123456')
+	await motion.waitForFunction(()=>document.querySelector('#cd').value==='#123456',null,{timeout:10000})   // wait for the repaint, don't race it – a loaded runner paints later than 450ms
+	await motion.waitForTimeout(400)
+	assert.equal(await motion.locator('#cd').inputValue(),'#123456','authored color input stops the ambient orbit')   // …and it HOLDS: a still-running orbit would have moved on
 	await motion.locator('.ent:not(.lite)').last().scrollIntoViewIfNeeded(); await motion.waitForTimeout(180)
 	const bottomPickers=await motion.evaluate(()=>{ const rows=[...document.querySelectorAll('.ent:not(.lite)')].filter(e=>{ const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight&&e.querySelector('.nrg') })
 		const ranges=rows.flatMap(e=>[...e.querySelectorAll('.nrg')]), positioned=rows.every(e=>{ const cvs=e.querySelectorAll('.cv'), rs=e.querySelectorAll('.nrg'); return [...rs].every((r,i)=>Math.abs(+r.value-+cvs[i].value)<=(+r.max-+r.min)*.006+1e-9) })
