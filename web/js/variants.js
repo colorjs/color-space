@@ -1,7 +1,7 @@
 // UI-variants workshop – wiring. One state, four control variants, three looks; the catalog and
 // the pane never change between them, so a comparison is about the controls and the feel alone.
 import { S, BARS, STYLES, store, setColor, RGB, hexNow, valsOf, gamutOf, GAMLABEL, GAMTIP, parseColor, clearAll, toggle, SPACES, classify, meta } from './variants-model.js'
-import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE } from './variants-catalog.js'
+import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE, fieldKey, fieldDown } from './variants-catalog.js'
 import { topHTML, ctlHTML, sbarHTML, placePops, explain0 } from './variants-bars.js'
 import { CAP } from './variants-data.js'
 import { UI } from './variants-icons.js'
@@ -105,7 +105,7 @@ document.addEventListener('change', e => { const t = e.target
 	if (t.classList.contains('cv') && t.tagName === 'INPUT') { const el = t.closest('.sp,#pane'), s = el.id === 'pane' ? S.sel : el.dataset.s, i = +t.dataset.i, c = meta[s].channels[i], x = parseFloat(t.value)
 		if (!isFinite(x)) { t.setAttribute('aria-invalid', 'true'); return } t.removeAttribute('aria-invalid')
 		const v = valsOf(s).slice(); v[i] = c.max === 360 ? ((x % 360) + 360) % 360 : clamp(x, c.min, c.max); color(s, v) } })
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', e => { if (fieldKey(e)) return   // a channel's field steps, takes or puts back
 	if (e.key === 'Enter' && e.target.id === 'cval') { e.target.dispatchEvent(new Event('change', { bubbles: true })); return }
 	if (e.key === 'Escape') { if (S.open) { S.open = null; renderCtl(); return } if (S.sel) { close(); return } }
 	if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName)) { e.preventDefault(); $('q').focus(); return }
@@ -116,7 +116,7 @@ document.addEventListener('keydown', e => {
 		else PANE.rot[1] = clamp(PANE.rot[1] + (e.key === 'ArrowUp' ? .15 : -.15), -Math.PI / 2, Math.PI / 2); paintSolid() } })
 
 // ── dragging on planes picks two channels at once; dragging the solid turns it ──
-document.addEventListener('pointerdown', e => {
+document.addEventListener('pointerdown', e => { if (fieldDown(e)) return   // a spinner pressed
 	const pl = e.target.closest('.pl'), w = e.target.closest('.solid-wrap')
 	if (pl) { const el = pl.closest('.sp,#pane'), s = el.id === 'pane' ? S.sel : el.dataset.s, c = classify(s), a = +pl.dataset.a, b = +pl.dataset.b
 		const at = ev => { const r = pl.getBoundingClientRect(), fx = clamp((ev.clientX - r.left) / r.width, 0, 1), fy = clamp((ev.clientY - r.top) / r.height, 0, 1), v = valsOf(s).slice()

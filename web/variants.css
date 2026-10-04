@@ -248,19 +248,49 @@ body.paneon .work,body.paneon .ctl{ margin-right:var(--panew) }
 .lh .nm{ font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em; line-height:1.2 }
 .by{ font-size:var(--t2); color:var(--soft) }
 .for{ margin:0; max-width:62ch; font-family:var(--prose); font-size:var(--t3); line-height:1.5; color:var(--body) }
-.rd{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s4) }
-.cvp{ display:inline-flex; align-items:baseline; gap:.3em; border-bottom:var(--ulw) solid transparent }
+.rd{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s4); font-size:var(--t2) }
+/* a channel's field – index.html's pair: the letter, the value to type over, the spinners hung in the gap after
+   it (on a hover device they wait for their space to be pointed at); one underline under letter and value */
+.cvp{ position:relative; display:inline-flex; align-items:baseline; gap:.3em; border-bottom:var(--ulw) solid transparent }
 .cl{ font-style:normal; font-size:var(--t1); font-weight:650; color:var(--soft) }
-.cv{ font-variant-numeric:tabular-nums }
-.lc .cv{ field-sizing:content; min-width:3ch; font:inherit; font-size:var(--t2); font-weight:650; color:var(--body); background:none; border:0; outline:none; padding:0 }
-.lc .cvp:hover{ border-bottom-color:var(--hair) } .lc .cvp:hover .cv{ color:var(--ink) }
-.lc .cvp:focus-within{ border-bottom-color:var(--cur) } .lc .cvp:focus-within .cv{ color:var(--ink) }
+.cv{ field-sizing:content; min-width:3ch; font:inherit; font-weight:650; font-variant-numeric:tabular-nums; color:var(--body); background:none; border:0; outline:none; padding:0 }
 .cv[aria-invalid="true"]{ color:var(--color-error) }
+.stk{ display:flex; flex-direction:column; user-select:none }
+.stk button{ display:flex; flex:1; align-items:flex-end; justify-content:center; padding:0 var(--s1); font:inherit; font-size:var(--t1); font-weight:500; line-height:1; color:inherit; background:transparent; border:0; cursor:pointer; opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }
+.stk .up{ margin-bottom:-2px } .stk .dn{ margin-top:-2px; transform:rotate(180deg) }
+.cvp .stk{ position:absolute; right:calc(-1 * var(--s1)); top:-1px; bottom:5px }
+.cvp .stk button:hover{ opacity:1; color:var(--ink) }
+.cvp .stk button.lim{ opacity:.12; pointer-events:none }   /* the value at the channel's limit – that direction is spent */
+.cvp .cv{ padding-right:1.2em }   /* touch: the spinners ride inside the field, always at half strength */
+@media (hover:hover){
+	.cvp .cv{ padding-right:0 }
+	.cvp .stk{ right:auto; left:100% }
+	.cvp .stk button{ opacity:0 }
+	.sp:is(:hover,:focus-within) .cvp .stk button{ opacity:.4 }
+	.sp .cvp .stk button:hover{ opacity:1 }
+	.sp:is(:hover,:focus-within) .cvp .stk button.lim{ opacity:.12 }
+}
+/* the pair being moved wears the current color (index.html's .cvp.on): the strip pointed at or dragged lights its
+   field, a field pointed at or typed in lights itself – and its strip's thumb; a space pointed at underlines all its
+   pairs at half strength */
+.sp:hover .cvp{ border-bottom-color:var(--hair) }
+.sp .cvp:is(:hover,:focus-within),
+.sp:has(.ch[data-i="0"]:is(:hover,.live)) .rd>.cvp:nth-child(1),.sp:has(.ch[data-i="1"]:is(:hover,.live)) .rd>.cvp:nth-child(2),
+.sp:has(.ch[data-i="2"]:is(:hover,.live)) .rd>.cvp:nth-child(3),.sp:has(.ch[data-i="3"]:is(:hover,.live)) .rd>.cvp:nth-child(4),
+.lch:has(.ch:is(:hover,.live)) .cvp{ border-bottom-color:var(--cur) }
+.sp .cvp:is(:hover,:focus-within) .cv,
+.sp:has(.ch[data-i="0"]:is(:hover,.live)) .rd>.cvp:nth-child(1) .cv,.sp:has(.ch[data-i="1"]:is(:hover,.live)) .rd>.cvp:nth-child(2) .cv,
+.sp:has(.ch[data-i="2"]:is(:hover,.live)) .rd>.cvp:nth-child(3) .cv,.sp:has(.ch[data-i="3"]:is(:hover,.live)) .rd>.cvp:nth-child(4) .cv,
+.lch:has(.ch:is(:hover,.live)) .cv{ color:var(--ink) }
+.sp:has(.rd>.cvp:nth-child(1) .cv:focus) .ch[data-i="0"] .nrg,.sp:has(.rd>.cvp:nth-child(2) .cv:focus) .ch[data-i="1"] .nrg,
+.sp:has(.rd>.cvp:nth-child(3) .cv:focus) .ch[data-i="2"] .nrg,.sp:has(.rd>.cvp:nth-child(4) .cv:focus) .ch[data-i="3"] .nrg,
+.lch:has(.cv:focus) .nrg{ --tks:var(--picker-active-size) }
 
 /* strips – the atlas slider: a sweep with the current color riding it as a rhombus */
 .chs{ display:flex; flex-direction:column; gap:3px }
 .ch{ --sth:30px; position:relative; height:var(--sth); background-color:var(--panel); border-radius:calc(var(--r) * .45); cursor:ew-resize; touch-action:pan-y }
 .ch.live,.ch:hover{ z-index:1 }
+:root:has(.ch.live),:root:has(.ch.live) *{ cursor:none }   /* dragging: the thumb is the pointer – the cursor steps aside until the release (index.html) */
 .ch .nrg{ --tks:var(--picker-size); position:absolute; top:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize }
 .ch .nrg::-webkit-slider-runnable-track{ height:100%; background:transparent; border:0 }
 .ch .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:var(--tks); height:var(--tks); margin-top:calc((var(--sth) - var(--tks)) / 2); background:var(--tkc,transparent); border:var(--picker-line) solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin var(--dur-micro) var(--ease-out) }
@@ -285,8 +315,8 @@ body.paneon .work,body.paneon .ctl{ margin-right:var(--panew) }
 .th{ display:flex; align-items:baseline; gap:var(--s2); min-width:0 }
 .th .nm{ font-size:var(--t3); font-weight:650; line-height:1.25 }
 .th .yr{ margin-left:auto; font-size:var(--t1); color:var(--soft) }
-.tc .rd{ gap:var(--s3); font-size:var(--t1); color:var(--soft) }
-.tc .cv{ font-weight:600; color:var(--body) }
+.tc .rd{ font-size:var(--t1) }
+.tc .cv{ font-weight:600 }
 
 /* list: one line per space – who and why on the left, the sliders at full width */
 .rows{ display:flex; flex-direction:column }
@@ -297,7 +327,8 @@ body.paneon .work,body.paneon .ctl{ margin-right:var(--panew) }
 .lv{ display:flex; flex-direction:column; justify-content:center; gap:4px }
 .lch{ display:grid; grid-template-columns:1.6rem minmax(0,1fr) 4.5rem; align-items:center; gap:var(--s3) }
 .lch .ch{ --sth:20px }
-.lch .cv{ text-align:right; font-size:var(--t2); font-weight:600; color:var(--body) }
+.lch .cvp{ justify-self:start; font-size:var(--t2) }
+.lch .cv{ font-weight:600 }
 [data-style="soft"] .rows{ padding:0 var(--s5); background:var(--card); border-radius:var(--r); box-shadow:var(--card-sh) }
 
 /* table: the spec sheet */

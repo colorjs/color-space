@@ -25,14 +25,15 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 .page{ container:page / inline-size }
 /* ── the mounts: #top, the header – its rows pin on their own (below); #hero in the page's gutter – its width is
    the catalog's; a variant styles it ── */
-/* the header pins only its masthead (variants.css's sticky .top). Its cells scroll up and wait UNDER it – stuck
-   at the top, the masthead drawn over them – and come down below it while the header is pointed at, focused or
-   has a menu open. #top lends its rows the page as their sticky range (display:contents); only the cells' top
-   moves, so at the top of the page they sit in place, and --stick-top stays the masthead's height */
-#top{ display:contents }
-#top>.dcells{ position:sticky; top:0; z-index:var(--z-sticky); transition:top var(--dur-short) var(--ease-out) var(--dur-short) }   /* leaving: a beat later, so a pointer crossing the edge doesn't shut it */
-#top:is(:hover,:focus-within,:has(:popover-open))>.dcells{ top:var(--top-h); transition-delay:var(--dur-micro) }
-@media (prefers-reduced-motion:reduce){ #top>.dcells{ transition:none } }
+/* the header pins only its masthead (variants.css's sticky .top). The Drawer's cells open the atlas, under the
+   hero: scrolled past, they wait UNDER the masthead – stuck at the top, the masthead drawn over them – and come
+   down below it while the masthead or the cells are pointed at or focused, or a menu is open. #top and #cells lend
+   their rows the page as their sticky range (display:contents); only the cells' top moves, so where they sit in
+   the page they stay in place, and --stick-top stays the masthead's height */
+#top,#cells{ display:contents }
+.dcells{ position:sticky; top:0; z-index:var(--z-sticky); transition:top var(--dur-short) var(--ease-out) var(--dur-short) }   /* leaving: a beat later, so a pointer crossing the edge doesn't shut it */
+.page:has(.dmast:is(:hover,:focus-within),#cells:is(:hover,:focus-within),:popover-open) .dcells{ top:var(--top-h); transition-delay:var(--dur-micro) }
+@media (prefers-reduced-motion:reduce){ .dcells{ transition:none } }
 #hero{ container:work / inline-size; padding-inline:var(--gut) }
 #hero:empty{ display:none }
 
@@ -70,9 +71,12 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 	.shelf>.sh .tn{ transition:color var(--dur-micro) var(--ease-out) }
 	.shelf>.sh .tn:hover{ color:var(--body) }
 	.shelf>.sh.act{ color:var(--ink) }   /* the family on screen is ink, the rest muted – index.html's rail */
-	.shelf>:not(.sh){ margin-left:calc(var(--lad) + var(--lgap)) }
-	.shelf>.sh+*{ padding-top:var(--s6); border-top:var(--rule-hair) solid var(--rule); scroll-margin-top:0 }
-	.shelf:first-child>.sh+*{ border-top:0 }
+	/* the family's description under its name, in the label column – the content starts with the spaces. It
+	   floats with the title but doesn't stick: it scrolls under the piles, whose titles are paper */
+	.shelf>.tip{ float:left; clear:left; width:calc(var(--lad) - var(--s4)); margin:var(--s1) 0 0; font-size:var(--t2); line-height:1.45; color:var(--soft) }
+	.shelf>:not(.sh,.tip){ margin-left:calc(var(--lad) + var(--lgap)) }
+	.shelf>:is(.sh,.tip)+:not(.tip){ padding-top:var(--s6); border-top:var(--rule-hair) solid var(--rule); scroll-margin-top:0 }
+	.shelf:first-of-type>:is(.sh,.tip)+:not(.tip){ border-top:0 }
 	.shelf>:last-child{ margin-bottom:0; padding-bottom:var(--s8) }
 	/* the ladder's foot: the shelves' cut, index.html's tabs – the last float, so it waits pinned at the bottom
 	   under the pile of titles and settles at the catalog's end */
@@ -85,8 +89,8 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 :root[data-cut="count"]{ --gtab:0px } :root[data-cut="count"] .gtabs{ display:none }   /* the cut study, By the count: the masthead says it (top-drawer.css) */
 /* the ladder never stacks one title on another. Every title is held inside the catalog, so where the catalog
    leaves too little room the held titles would meet on one line: coming in, while the catalog's top is too low
-   for the whole waiting pile to fit under its first title, the waiting titles stay out (the first stands where
-   it is) and fade in over the last rung of room; going out, once the catalog's end leaves too little room under
+   for the whole waiting pile to fit under its first title and its description, the waiting titles stay out (the
+   first stands where it is) and fade in over the next rung of room; going out, once the catalog's end leaves too little room under
    the passed pile, the titles fade over a rung and the tabs leave alone. The room is read off the catalog's view
    timeline; a title knows the families' count as --i + --j + 1 (atlas.js) */
 @supports (animation-timeline:view()){
@@ -94,8 +98,8 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 	@container cat (width >= 56rem){
 		.shelf>.sh{ --pile:calc(var(--s5) + var(--gtab) + (var(--i, 0) + var(--j, 0) + 1) * var(--rung));   /* the pile and its tabs, above the screen's edge */
 			animation:lad-in linear backwards,lad-out linear forwards; animation-timeline:--cat,--cat;
-			animation-range:entry calc(var(--stick-bot) + var(--s2) + var(--s6) + var(--pile) - var(--rung)) entry calc(var(--stick-bot) + var(--s2) + var(--s6) + var(--pile)),
-				exit calc(100% - var(--stick-top) - var(--pile) - var(--rung)) exit calc(100% - var(--stick-top) - var(--pile)) }   /* coming in: under the catalog's padding and the first title's margin */
+			animation-range:entry calc(var(--stick-bot) + var(--s2) + var(--s6) + var(--tip0, 0px) + var(--pile)) entry calc(var(--stick-bot) + var(--s2) + var(--s6) + var(--tip0, 0px) + var(--pile) + var(--rung)),
+				exit calc(100% - var(--stick-top) - var(--pile) - var(--rung)) exit calc(100% - var(--stick-top) - var(--pile)) }   /* coming in: under the catalog's padding, the first title's margin and its description (--tip0, measured) */
 		.shelf:first-of-type>.sh{ animation-name:none,lad-out }
 	}
 }
@@ -217,19 +221,33 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 .ptl{ margin:0 0 var(--s2); font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em }
 .apop .plab:first-of-type{ margin-top:var(--s2) }
 
-/* ── the dock: the live dossier. From 75rem it sits beside the page and the page makes room;
-   below, the same dialog fills the screen (modal – the top layer, the rest inert) ── */
+/* ── the dock: the live dossier, two ways (the Dossier study, ?dossier=). Modal – index.html's: the card at the
+   site's width over the lit page, no scrim, the masthead and its cells live above it; a click beside the card
+   closes it. Side – from 75rem it sits beside the page and the page makes room; below, the same dialog fills the
+   screen (modal – the top layer, the rest inert) ── */
 .dock{ position:fixed; inset:0 0 0 auto; z-index:var(--z-modal); width:var(--dockw); max-width:100%; height:100dvh; max-height:none; margin:0; padding:0; border:0; border-left:var(--rule-hair) solid var(--rule); background:var(--paper); color:var(--ink); overflow:hidden }
 .dock[open]{ display:flex; flex-direction:column }
 .dock:modal{ inset:0; width:100%; border-left:0 }
 .dock::backdrop{ background:color-mix(in oklab,var(--ink) 32%,transparent) }   /* wb.css's scrim */
+.dbox{ display:flex; flex:1; flex-direction:column; min-height:0 }
+:root[data-dossier="modal"] .dock{ inset:0; width:100%; border-left:0; background:none }   /* the layer beside the card: the page shows through it */
+:root[data-dossier="modal"]:has(body.dockon){ overflow:hidden; scrollbar-gutter:stable }   /* and holds still under it, as under the site's modal – the gutter stays, so nothing shifts */
+:root[data-dossier="modal"] .dbox{ flex:none; width:min(56rem,94vw); height:calc(100dvh - var(--top-h) - 2 * var(--s8)); margin:calc(var(--top-h) + var(--s8)) auto var(--s8); background:var(--paper); box-shadow:var(--modal-shadow) }   /* index.html's .mbox width */
+:root[data-dossier="modal"] body.dockon :is(.dmast,.dcells){ z-index:calc(var(--z-modal) + 1) }   /* the header stays live over the card, as on the site */
+:root[data-dossier="modal"] body.dockon .dmast{ z-index:calc(var(--z-modal) + 2) }
+@media (width < 40rem){ :root[data-dossier="modal"] .dbox{ width:100%; height:calc(100dvh - var(--top-h)); margin:var(--top-h) 0 0; box-shadow:none } }   /* phones: the sheet under the masthead */
 .dbar{ display:flex; flex:none; align-items:center; gap:var(--s1); padding:var(--s1) var(--s2); border-bottom:var(--rule-hair) solid var(--rule) }
-.dnm{ flex:1; min-width:0; margin:0 0 0 var(--s2); font-size:var(--t2); font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.dnm{ flex:1; min-width:0; margin:0; font-size:var(--t2); font-weight:700; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.dnav{ display:inline-flex; flex:0 1 auto; align-items:center; gap:var(--s1); min-width:0; max-width:30%; padding:var(--s2); font-size:var(--t2); color:var(--soft); transition:color var(--dur-micro) var(--ease-out) }   /* index.html's .mnav: the neighbour's name, dim → ink */
+.dnav span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.dnav:hover{ color:var(--ink) }
+.dnav:disabled{ visibility:hidden }
+.dnav .ic{ --ic:16px; flex:none }
 .dfr{ position:relative; flex:1; min-height:0 }
 .dfr iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--paper) }
 .dload{ position:absolute; inset:0; z-index:1; display:grid; place-items:center; margin:0; font-size:var(--t2); color:var(--soft); background:var(--paper) }
-@media (width >= 75rem){ body.dockon{ --dock:var(--dockw) } body.dockon .page{ margin-right:var(--dockw) } }
-@media (width < 75rem){ body.dockon{ overflow:hidden } }
+@media (width >= 75rem){ :root[data-dossier="side"] body.dockon{ --dock:var(--dockw) } :root[data-dossier="side"] body.dockon .page{ margin-right:var(--dockw) } }
+@media (width < 75rem){ :root[data-dossier="side"] body.dockon{ overflow:hidden } }
 
 /* ── the workshop panel: which hero, where the shelves' cut sits, the swatch's shape – third.html's "Layout study"
    bar grown to three rows, floating at the corner the catalog scrolls under (the ladder's corner stays clear),

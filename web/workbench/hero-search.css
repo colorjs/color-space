@@ -1,0 +1,59 @@
+/* Atlas hero · Search – the owner's reference (2026-10-04): a landing around one field, the page's first screen. Behind
+   the field, every hue as a conic burst at the current color's lightness and chroma (held to a light band, so the
+   words read on it), turned so the current hue points up; --hs-h, the current hue, is registered so a new color turns
+   it rather than snaps it. The hero runs under the masthead, which stands clear over the burst until the page
+   leaves the top – then it fills with the color; its search and swatches step aside while the field is on screen.
+   Scoped to :root[data-hero="search"]; tokens only, but for the burst's own reach and band. */
+@property --hs-h{ syntax:'<number>'; inherits:true; initial-value:0 }
+:root[data-hero="search"] #hero{ --hs-c:oklch(from var(--cur) clamp(.72, l, .86) clamp(.1, c, .17) 0);
+	position:relative; isolation:isolate; overflow:clip; display:flex; flex-direction:column; min-height:100svh; margin-top:calc(-1 * var(--top-h)); padding:calc(var(--top-h) + var(--s8)) var(--gut) var(--s8); transition:--hs-h var(--dur-long) var(--ease-out) }
+:root[data-theme="dark"][data-hero="search"] #hero{ --hs-c:oklch(from var(--cur) clamp(.42, l, .56) clamp(.1, c, .17) 0) }
+@media (prefers-reduced-motion:reduce){ :root[data-hero="search"] #hero{ transition:none } }
+:root[data-hero="search"] .hs{ flex:1; display:flex; flex-direction:column; align-items:center; gap:var(--s8); text-align:center }
+:root[data-hero="search"] .hs-main{ display:flex; flex-direction:column; align-items:center; width:100%; margin-block:auto }
+:root[data-hero="search"] .hs-eye{ margin:0 0 var(--s4); font-size:var(--t1); font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--body) }
+:root[data-hero="search"] .hs-h{ margin:0; font-size:var(--text-display); font-weight:800; line-height:1; letter-spacing:-.035em; color:var(--ink); text-wrap:balance }
+:root[data-hero="search"] .hs-sub{ max-width:var(--measure); margin:var(--s5) 0 var(--s8); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:balance }
+
+/* the field – the masthead's .find, grown: the current color's mark (a picker), the words, a color off the screen.
+   The burst hangs from its centre */
+:root[data-hero="search"] .hs-q{ position:relative; display:flex; align-items:center; gap:var(--s3); width:min(42rem,100%); height:calc(var(--s12) + var(--s4)); padding:0 var(--s2) 0 var(--s4); color:var(--soft); background:var(--paper); border-radius:var(--rc); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); cursor:text }
+:root[data-hero="search"] .hs-q:focus-within{ box-shadow:inset 0 0 0 1.5px var(--ink),var(--pop-shadow); color:var(--ink) }   /* .find:focus-within */
+:root[data-hero="search"] .hs-q::before{ content:''; position:absolute; left:50%; top:50%; z-index:-1; width:max(160vmax,96rem); aspect-ratio:1; translate:-50% -50%; pointer-events:none;
+	background:radial-gradient(closest-side,var(--paper),transparent 14%),conic-gradient(from calc(var(--hs-h) * -1deg) in oklch longer hue,var(--hs-c),var(--hs-c));
+	mask:radial-gradient(closest-side,#000 18%,transparent 62%) }   /* the current hue points up; the centre stays calm under the field */
+:root[data-hero="search"] .hs-sw{ flex:none; width:var(--s6); height:var(--s8) }
+:root[data-hero="search"] .hs-sw::before{ width:var(--s4); height:var(--s4); background:var(--sw,var(--cur)) }   /* .cdw's mark: the current color, or the one typed */
+:root[data-hero="search"] .hs-ic{ display:grid; place-items:center } :root[data-hero="search"] .hs-ic .ic{ --ic:20px }
+:root[data-hero="search"] .hs-in{ flex:1; min-width:0; height:100%; padding:0; font:inherit; font-size:var(--text-md); font-weight:500; color:var(--ink); background:none; border:0; outline:none }
+:root[data-hero="search"] .hs-in::placeholder{ color:var(--soft); opacity:1 }
+:root[data-hero="search"] .hs-in::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
+:root[data-hero="search"] .hs-drop{ display:grid; flex:none; place-items:center; width:var(--s12); height:var(--s8); color:var(--soft); border-left:var(--rule-hair) solid var(--hair); transition:color var(--dur-micro) var(--ease-out) }   /* dim → ink */
+:root[data-hero="search"] .hs-drop:hover{ color:var(--ink) }
+:root[data-hero="search"] .hs-drop[hidden]{ display:none }
+:root[data-hero="search"] .hs-hint{ min-height:1.5em; margin:var(--s2) 0 0; font-size:var(--t2); color:var(--body) }
+:root[data-hero="search"] .hs-try{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:var(--s2); margin:var(--s5) 0 0 }
+:root[data-hero="search"] .hs-try>span{ margin-right:var(--s2); font-size:var(--t1); font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--body) }
+:root[data-hero="search"] .hs-try .chip{ background:color-mix(in oklab,var(--paper) 82%,transparent); box-shadow:0 0 0 var(--rule-hair) var(--hair) }   /* the drawer's chip, on the burst */
+
+/* the facts – the index page's trust list, a row at the landing's foot */
+:root[data-hero="search"] .hs-facts{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); width:100%; margin:0; padding:0; list-style:none; text-align:left }
+:root[data-hero="search"] .hs-facts li{ display:flex; align-items:flex-start; gap:var(--s3); min-width:0; padding:var(--s2) var(--s5); font-size:var(--t2); line-height:1.4; color:var(--body) }
+:root[data-hero="search"] .hs-facts li+li{ border-left:var(--rule-hair) solid var(--hair) }
+:root[data-hero="search"] .hs-facts .ic{ --ic:22px; flex:none; color:var(--ink) }
+:root[data-hero="search"] .hs-facts b{ display:block; font-weight:700; color:var(--ink) }
+:root[data-hero="search"] .hs-facts .pdm{ flex:none; width:22px; font-size:var(--text-lg); line-height:1; text-align:center; color:var(--ink); rotate:180deg }   /* the public-domain mark: a © turned */
+@container work (width < 64rem){ :root[data-hero="search"] .hs-facts{ grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:var(--s4) } :root[data-hero="search"] .hs-facts li:nth-child(3n+1){ border-left:0 } }
+@container work (width < 40rem){ :root[data-hero="search"] .hs-facts{ grid-template-columns:repeat(2,minmax(0,1fr)) } :root[data-hero="search"] .hs-facts li{ padding-inline:var(--s2) } :root[data-hero="search"] .hs-facts li:nth-child(n){ border-left:0 } }
+
+/* the masthead over the landing: clear on the burst, the ink its words – it fills with the current color over the
+   first rungs of scroll. Its search and swatches step aside while the field is on screen, and come back as the field
+   goes under the masthead (the field's view timeline, shared with the page) */
+:root[data-hero="search"] .page{ timeline-scope:--hs-q }
+:root[data-hero="search"] .hs-q{ view-timeline:--hs-q block; view-timeline-inset:0 }
+@supports (animation-timeline:scroll()){
+	:root[data-hero="search"][data-top="drawer"] .dmast{ animation:hs-fill linear both; animation-timeline:scroll(root); animation-range:0 calc(var(--s12) * 2) }
+	:root[data-hero="search"][data-top="drawer"] .dmast :is(.find,.try){ animation:hs-step linear both; animation-timeline:--hs-q; animation-range:cover calc(100% - var(--top-h) - var(--s8)) cover calc(100% - var(--top-h)) }
+}
+@keyframes hs-fill{ from{ background-color:transparent; color:var(--ink) } }
+@keyframes hs-step{ from{ opacity:0; visibility:hidden } }

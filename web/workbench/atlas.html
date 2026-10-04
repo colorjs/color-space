@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-top="drawer" data-hero="promise" data-cut="foot" data-sw="rhombus">
+<html lang="en" data-top="drawer" data-hero="search" data-cut="foot" data-sw="rhombus" data-dossier="modal">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas – color-space workbench</title>
@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="./atlas.css">
 <link rel="stylesheet" href="./top-drawer.css">
 <!-- the hero variant's stylesheet: ?hero=<key> picks it before first paint (atlas.js swaps it live; its HEROS list is the one to extend) -->
-<link rel="stylesheet" href="./hero-promise.css" id="herocss">
+<link rel="stylesheet" href="./hero-search.css" id="herocss">
 <script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}
 try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(k||'')){document.documentElement.dataset.hero=k;document.getElementById('herocss').href='./hero-'+k+'.css'}}catch{}</script>
 </head>
@@ -22,9 +22,10 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 
 <!-- the page beside the dock – a size container: a variant asks @container page (…) how much room it has -->
 <div class="page">
-<!-- the header (the Drawer: the masthead and its cells, pinned), then the hero a variant fills (atlas.js documents the contract) -->
+<!-- the masthead (pinned), the hero a variant fills (atlas.js documents the contract), then the atlas: the Drawer's cells and the catalog -->
 <div id="top"></div>
 <section id="hero" aria-label="color-space" data-wstay></section>
+<div id="cells"></div>
 
 <!-- the catalog: each family's title is its own heading and, on wide screens, a rung of the ladder -->
 <div class="work"><main id="cat" aria-label="Color spaces"></main></div>
@@ -54,14 +55,15 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 <!-- the workbench's own pane stays mounted but unused here (its painters expect it); the details are the live dossier -->
 <aside id="pane" hidden></aside>
 <!-- the dock: the atlas's own dossier, chrome-free (index.html?s=<space>&embed), docked right from 75rem, a full-screen dialog below -->
-<dialog class="dock" id="dock" aria-labelledby="dock-t">
+<dialog class="dock" id="dock" aria-labelledby="dock-t"><div class="dbox">
 	<div class="dbar">
-		<button class="ib" type="button" data-go="-1" aria-label="Previous space" id="dock-prev"></button><button class="ib" type="button" data-go="1" aria-label="Next space" id="dock-next"></button>
+		<button class="dnav" type="button" data-go="-1" id="dock-prev"></button>
 		<h2 class="dnm" id="dock-t"></h2>
+		<button class="dnav" type="button" data-go="1" id="dock-next"></button>
 		<button class="ib" type="button" data-close aria-label="Close the dossier" id="dock-x"></button>
 	</div>
 	<div class="dfr"><p class="dload" id="dock-load" role="status">Opening the dossier…</p></div>
-</dialog>
+</div></dialog>
 
 <!-- the workshop: which hero, where the shelves' cut sits, the swatch's shape – each rides the URL (?hero= ?cut= ?sw=);
      the color, filters, open space and scroll stay -->
@@ -69,6 +71,7 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 	<div class="study-g"><span>Hero</span><div class="study-options" id="heros"></div></div>
 	<div class="study-g"><span>Shelves</span><div class="study-options" id="cuts"></div></div>
 	<div class="study-g"><span>Swatch</span><div class="study-options" id="sws"></div></div>
+	<div class="study-g"><span>Dossier</span><div class="study-options" id="dossiers"></div></div>
 </nav>
 
 <script type="module" src="./atlas.js"></script>

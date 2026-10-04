@@ -2,7 +2,7 @@
 // and the detail pane. Layout decisions live here, not in the variants: 1–3 starred spaces open
 // each shelf with the full reading, the rest follow as tiles with sliders only.
 import { ramp, plane, lensFor, clamp } from './core.js'
-import { cname, unit, fmtc, ink, HISTORICAL } from './render.js'
+import { cname, unit, fmtc, decOf, ink, HISTORICAL } from './render.js'
 import { paintPlaneGL, paintBarGL, hasPlaneGL, planeGLStatus, warmGL } from './gl.js'
 import { quantRGB } from './study-render.js'
 import { drawSolid } from './study-solid.js'
@@ -18,9 +18,9 @@ const runs = s => ['css', 'glsl', 'wasm', 'lut'].filter(k => CAP[k].has(s)).map(
 
 // ── markup ──
 const nameBtn = (s, cls = 'nm') => `<button class="${cls}" type="button" data-open-s="${s}" title="${esc(lede(s))}" aria-label="Open ${esc(disp(s))} details">${esc(disp(s))}</button>`
-const readings = (s, edit) => `<span class="rd">${classify(s).ch.map((c, i) => edit
-	? `<label class="cvp" title="${esc(cname(c))}"><i class="cl">${esc(c.sym.slice(0, 2))}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${esc(disp(s))} ${esc(cname(c))}"></label>`
-	: `<span class="cvp" title="${esc(cname(c))}"><i class="cl">${esc(c.sym.slice(0, 2))}</i><b class="cv tnum" data-i="${i}"></b></span>`).join('')}</span>`
+// a channel's field – index.html's pair: its letter, the value to type over, the spinners (↑ ↓ step one displayed unit)
+const field = (s, c, i, letter = true) => `<label class="cvp" title="${esc(cname(c))}">${letter ? `<i class="cl">${esc(c.sym.slice(0, 2))}</i>` : ''}<input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${esc(disp(s))} ${esc(cname(c))}"><span class="stk" aria-hidden="true"><button type="button" class="up" tabindex="-1">⌃</button><button type="button" class="dn" tabindex="-1">⌃</button></span></label>`
+const readings = s => `<span class="rd">${classify(s).ch.map((c, i) => field(s, c, i)).join('')}</span>`
 const strips = (s, cls = 'chs') => `<div class="${cls}">${classify(s).ch.map((c, i) => `<div class="ch" data-i="${i}" title="${esc(cname(c))}"><input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" aria-label="${esc(disp(s))} ${esc(cname(c))}"></div>`).join('')}</div>`
 const planes = (s, cls = 'pls') => { const c = classify(s)
 	return `<div class="${cls}">${pairsOf(c).map(([a, b]) => `<div class="pl" data-a="${a}" data-b="${b}" title="${esc(cname(c.ch[a]))} across, ${esc(cname(c.ch[b]))} up – drag to pick"><canvas></canvas><i class="cx"></i><span class="lx">${esc(c.ch[a].sym)}</span><span class="ly">${esc(c.ch[b].sym)}</span></div>`).join('')}</div>` }
@@ -29,17 +29,17 @@ const star = s => PICKS.has(s) ? `<span class="pick" title="One of our starred s
 const leadHTML = s => `<article class="sp lc${S.sel === s ? ' on' : ''}" data-s="${s}">
 	<header class="lh">${nameBtn(s)}<span class="by">${esc(byline(s))}</span></header>
 	<p class="for">${esc(lede(s))}</p>
-	${readings(s, true)}
+	${readings(s)}
 	${S.preview === 'planes' && pairsOf(classify(s)).length ? planes(s) : strips(s)}
 </article>`
 const tileHTML = s => `<article class="sp tc${S.sel === s ? ' on' : ''}" data-s="${s}">
 	<header class="th">${nameBtn(s)}${star(s)}<span class="yr tnum">${meta[s].year || ''}</span></header>
 	${strips(s, 'chs thin')}
-	${readings(s, false)}
+	${readings(s)}
 </article>`
 const rowHTML = s => `<article class="sp lr${S.sel === s ? ' on' : ''}" data-s="${s}">
 	<div class="li"><header class="th">${nameBtn(s)}${star(s)}</header><span class="by">${esc(byline(s))}</span><p class="for">${esc(lede(s))}</p></div>
-	<div class="lv">${classify(s).ch.map((c, i) => `<div class="lch"><i class="cl" title="${esc(cname(c))}">${esc(c.sym.slice(0, 2))}</i><div class="ch" data-i="${i}"><input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" aria-label="${esc(disp(s))} ${esc(cname(c))}"></div><b class="cv tnum" data-i="${i}"></b></div>`).join('')}</div>
+	<div class="lv">${classify(s).ch.map((c, i) => `<div class="lch"><i class="cl" title="${esc(cname(c))}">${esc(c.sym.slice(0, 2))}</i><div class="ch" data-i="${i}"><input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" aria-label="${esc(disp(s))} ${esc(cname(c))}"></div>${field(s, c, i, false)}</div>`).join('')}</div>
 </article>`
 
 // the spec sheet: one table per shelf, beside its title as the grid's and the rows' entries are – until a column
@@ -98,10 +98,30 @@ export function paintEntry(el, n = 24) {
 	el.querySelectorAll('.ch').forEach(ch => { const i = +ch.dataset.i
 		ch.style.background = strip(s, vals, i, n, gm) + ', var(--checker)'
 		const r = ch.querySelector('.nrg'); if (r && document.activeElement !== r) r.value = vals[i] })
-	el.querySelectorAll('.cv').forEach(v => { const i = +v.dataset.i, t = fmtc(vals[i], m.channels[i]) + (v.tagName === 'B' ? unit(m.channels[i]) : '')
-		if (v.tagName === 'INPUT') { if (document.activeElement !== v) v.value = t } else v.textContent = t })
+	el.querySelectorAll('.cv').forEach(v => { const i = +v.dataset.i, c = m.channels[i], k = v.nextElementSibling
+		if (document.activeElement !== v) v.value = fmtc(vals[i], c)
+		if (k) { k.firstChild.classList.toggle('lim', vals[i] >= c.max); k.lastChild.classList.toggle('lim', vals[i] <= c.min) } })   // a spent direction
 	if (el.querySelector('.pls')) paintPlanes(el, s, vals, 160)
 	el._clean = true }
+
+// ── a channel's field at work (index.html's): ↑ ↓ and the spinners step one displayed unit, and repeat while held;
+// Enter takes what was typed, Esc puts the current value back. A step reaches the page as the field's change, so
+// each page's own change handler applies it. Each page calls these first from its keydown and pointerdown ──
+const chOf = inp => { const el = inp.closest('.sp,#pane'), s = el.id === 'pane' ? S.sel : el.dataset.s, i = +inp.dataset.i; return [s, i, meta[s].channels[i]] }
+function spin(inp, d) { const [s, i, c] = chOf(inp), x = parseFloat(inp.value), base = isFinite(x) ? x : valsOf(s)[i]
+	inp.value = fmtc(clamp(base + d * 10 ** -decOf(c), c.min, c.max), c); inp.dispatchEvent(new Event('change', { bubbles: true })) }
+export function fieldKey(e) { const t = e.target; if (t.tagName !== 'INPUT' || !t.classList.contains('cv') || !t.closest('.sp')) return false
+	if (e.key === 'ArrowUp' || e.key === 'ArrowDown') spin(t, e.key === 'ArrowUp' ? 1 : -1)
+	else if (e.key === 'Enter') { t.dispatchEvent(new Event('change', { bubbles: true })); t.blur() }
+	else if (e.key === 'Escape') { const [s, i, c] = chOf(t); t.value = fmtc(valsOf(s)[i], c); t.removeAttribute('aria-invalid'); t.blur() }
+	else return false
+	e.preventDefault(); return true }
+export function fieldDown(e) { const b = e.target.closest?.('.stk button'); if (!b) return false
+	e.preventDefault()   // no focus: the press steps, the field keeps showing the value
+	const inp = b.parentElement.previousElementSibling, d = b.classList.contains('up') ? 1 : -1; spin(inp, d)
+	let iv = 0; const t = setTimeout(() => { iv = setInterval(() => spin(inp, d), 70) }, 400)   // held: the native spinner's rhythm
+	const end = () => { clearTimeout(t); clearInterval(iv); removeEventListener('pointerup', end); removeEventListener('pointercancel', end) }
+	addEventListener('pointerup', end); addEventListener('pointercancel', end); return true }
 
 // ── the detail pane – the dossier's order: header → tags → rule → instrument → record → story ──
 const tagsOf = s => { const m = meta[s]

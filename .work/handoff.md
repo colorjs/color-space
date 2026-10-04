@@ -60,6 +60,22 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
   live) and its questions, borrowed from index.html at runtime – one source of their words – on the hanging
   grid; their #space links open the dossier, #color links set the color; ॐ joins the legal row. `boot()`
   fires one `wb:color` with the arrival color, so a hero needs no first-frame workaround.
+- Atlas, third round (owner's notes of 2026-10-04, quoted below): the hero is the owner's Search – one field for a
+  color or a space over a conic burst of every hue at the current color's lightness and chroma, turned so the
+  current hue points up (a registered `--hs-h` eases the turn); Enter, a chip, the eyedropper or the picker move
+  the page into the atlas – the masthead, clear over the burst at the top, fills with the color as the page
+  scrolls, and its search and swatches step aside while the field is on screen (scroll-driven: `scroll(root)` and
+  the field's view timeline via `timeline-scope`). Words go to the masthead's search – one search, two places.
+  The Drawer's cells moved under the hero: they open the atlas and tuck under the masthead past it. Each family's
+  description sits under its name in the ladder column; the content starts with the spaces (the ladder's fit now
+  counts the first description, measured as --tip0). Every card's channel values are index.html's fields: type
+  over them, ↑ ↓ and the spinners step one displayed unit (held, they repeat), Enter takes, Esc puts back; the
+  strip pointed at or dragged lights its field in the current color, a focused field lights its strip's thumb, and
+  the cursor steps aside while a strip is dragged (shared in variants-catalog.js, used by variants.html too). The
+  dossier opens as the site's modal by default – the 56rem card over the lit page, the header live above it, the
+  page held still, a click beside it closes; the bar names the neighbours (‹ HSM · OKLCH · CIELAB ›) – with the
+  side dock one study away (?dossier=side). The modal shadow is a token now (`--modal-shadow`), the site's .mbox
+  uses it too.
 - Dossier bake (`scripts/bake-dossiers.js`): it had baked another space's dossier into 132 of 168 name
   views – the ambient hue orbit repainted the open dossier every frame (software GL in headless Chrome),
   starving the idle slices that wire catalog rows, so clicks on unwired rows were no-ops and the previous
@@ -93,14 +109,23 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
   does) rather than semantics – just display last 3/2/1 (depending on media) featured spaces"; "keep filters
   row showable on-hover in sticky mode"; "replace [Try] with recent colors once we have selected something";
   "workshop picker style everywhere - rhombus vs circle vs square vs what else?"; the FAQ must not go missing.
+- Atlas, 2026-10-04: "the category descriptions should come under the category names, not in the content. Content
+  should start with color-space sliders right away"; "Slider inputs should have the number spinners and react to
+  up/down"; "when we drag slider we can hide cursor"; the channel highlight "as in the current website"; the side
+  info "in modal – to make sure we didn't lose anything from the current website … the 3d shape should not be
+  damaged"; on the hero: "I feel like we're trying to force something into uncertain user scenarios. One very
+  prominent scenario was search indeed … we enter the color or space, and we get scrolled into the "atlas" view
+  where the header same-color fill is the chosen color - and the conic gradient gets rotated and changed to the
+  selected color."
 - "i18n should be done during the build, so that search engines hook up right pages right away without
   JS" – it is: stamped documents carry the translated markup, catalog, head and baked dossier; the
   runtime table only serves what the app renders after load (menus, tooltips, toasts).
 
 ## Not done — pick up here
 
-1. **Atlas workshop** – the header is done; three studies await the owner's pick: the hero (Promise is the
-   default), where the shelves' cut sits, the swatch's shape. Then port the Drawer header (with its tucking
+1. **Atlas workshop** – the header is done and the hero is chosen: Search (the other nine variants stay in the
+   study bar for comparison until the owner drops them). Three studies await the owner's pick: where the shelves'
+   cut sits, the swatch's shape, the dossier as a modal or beside the page. Then port the Drawer header (with its tucking
    cells), the chosen hero, the cut, the shape, the ladder (with its fit rules) and the grouped list into
    `web/index.html` (the workshop's `[data-wb]` hosts map onto the page's existing controls; `atlas.js`
    documents the contract). The swatch shape stops at the dock: the dossier is index.html's own.

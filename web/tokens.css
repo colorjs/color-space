@@ -91,7 +91,8 @@
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
-	--pop-shadow:0 .5rem 1.6rem oklch(0 0 0/.14);   /* the shared floating-panel shadow: filter dropdown, slider popover — no border, just lift */
+	--pop-shadow:0 .5rem 1.6rem oklch(0 0 0/.14);
+	--modal-shadow:0 1rem 4rem oklch(0 0 0/.28);   /* the dossier's card over the page: lifted further than a panel, no scrim needed */   /* the shared floating-panel shadow: filter dropdown, slider popover — no border, just lift */
 	--checker:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel);   /* the void/alpha backdrop — dossier bars, card strips, planes */
 	--lift:var(--color-lift);
 	--uline:currentColor;   /* link hover underline — the text's own ink, never the accent */

@@ -11,7 +11,7 @@
 // boot(). Every host is filled from an exported render function, so a direction can also call
 // them itself. Breakpoint: the pane is a side panel at ≥ 75rem and a modal dialog below.
 import { S, setColor, RGB, hexNow, valsOf, gamutOf, GAMLABEL, GAMTIP, parseColor, clearAll, toggle, SPACES, classify, meta, countIf, nOn, disp } from '../js/variants-model.js'
-import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE, esc } from '../js/variants-catalog.js'
+import { catalogHTML, paintEntry, paneHTML, paintPane, paintSolid, PANE, esc, fieldKey, fieldDown } from '../js/variants-catalog.js'
 import { countText, opt, chip, lensOpt, quantList, limitList, cellWords, TRY } from '../js/variants-bars.js'
 import { FK, FACETS, QUANT, QFLAT, LIMITS, VIEWS, PREVIEWS, CAP, FAMILIES, PURPOSE, ARRANGE } from '../js/variants-data.js'
 import { UI, QI, VI, PI, FI, LI, OI } from '../js/variants-icons.js'
@@ -490,7 +490,7 @@ function onChange(e) { const t = e.target
 	if (t.classList.contains('cv') && t.tagName === 'INPUT') { const el = t.closest('.sp,#pane'), s = el.id === 'pane' ? S.sel : el.dataset.s, i = +t.dataset.i, c = meta[s].channels[i], x = parseFloat(t.value)
 		if (!isFinite(x)) { t.setAttribute('aria-invalid', 'true'); return } t.removeAttribute('aria-invalid')
 		const v = valsOf(s).slice(); v[i] = c.max === 360 ? ((x % 360) + 360) % 360 : clamp(x, c.min, c.max); color(s, v) } }
-function onKey(e) {
+function onKey(e) { if (fieldKey(e)) return   // a channel's field steps, takes or puts back – its Esc never closes the dossier
 	if (e.key === 'Enter' && e.target.id === 'cval') { e.target.dispatchEvent(new Event('change', { bubbles: true })); return }
 	if (e.key === 'Escape' && e.target.id === 'q') { e.preventDefault(); if (e.target.value) { e.target.value = ''; S.q = ''; $('findw')?.classList.remove('has'); filtered() } else e.target.blur(); return }   // the search's Esc: clear it, then leave it
 	if (e.key === 'Escape' && S.sel && !e.target.closest?.('select') && !document.querySelector(':is([popover=""],[popover="auto"]):popover-open')) { closePane(); return }   // an open menu takes its Esc alone – the browser closes it after this listener
@@ -505,7 +505,7 @@ function onKey(e) {
 		if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') PANE.rot[0] += e.key === 'ArrowLeft' ? -.15 : .15
 		else PANE.rot[1] = clamp(PANE.rot[1] + (e.key === 'ArrowUp' ? .15 : -.15), -Math.PI / 2, Math.PI / 2); paintSolid() } }
 // dragging on planes picks two channels at once; dragging the solid turns it
-function onDown(e) { pdown = true
+function onDown(e) { pdown = true; if (fieldDown(e)) return stopOrbit()   // a spinner pressed
 	const pl = e.target.closest('.pl'), w = e.target.closest('.solid-wrap')
 	if (e.target.closest('.ch,.cv,.cdw')) stopOrbit()
 	if (pl) { stopOrbit(); const el = pl.closest('.sp,#pane'), s = el.id === 'pane' ? S.sel : el.dataset.s, c = classify(s), a = +pl.dataset.a, b = +pl.dataset.b

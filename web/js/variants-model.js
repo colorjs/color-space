@@ -83,6 +83,8 @@ export const famOf = {}; for (const f of FAMILIES) for (const s of f.spaces) fam
 const IDX = new Map(SPACES.map(s => { const m = meta[s], L = LORE[s] || {}
 	return [s, [disp(s), s, m.by, m.year, famOf[s], (PURPOSE[s] || []).join(' '), m.channels.map(c => c.name).join(' '), L.for, m.description].filter(Boolean).join(' · ').toLowerCase()] }))
 const hit = (s, q) => q.split(/\s+/).every(w => IDX.get(s).includes(w))
+/** The spaces the catalog's search finds for these words – the search alone, before any facet. */
+export const finds = q => { q = String(q).trim().toLowerCase(); return q ? SPACES.filter(s => hit(s, q)) : [] }
 
 // ── filtering: OR inside a facet, AND across facets ──
 export const passes = (s, skip) => (!S.q || hit(s, S.q.toLowerCase())) &&
