@@ -11,7 +11,7 @@
 	--wb-card:16rem;                         /* one option card in a drawer menu – two abreast at most */
 }
 [data-wb="brand"],[data-wb="chip"],[data-wb="search"],[data-wb="tools"],[data-wb="lang"],[data-wb="vision"],[data-wb="count"],
-[data-wb="theme"],[data-wb="gh"],[data-wb="size"],[data-wb="arrange"],[data-wb="cutsel"],[data-wb="swatch"],[data-wb="layout"],[data-wb="preview"],[data-wb="quant"],[data-wb="metric"],[data-wb="limit"],[data-wb="try"],[data-wb="cell"],[data-wb="dclear"]{ display:contents }   /* their pieces sit in the direction's own bar */
+[data-wb="theme"],[data-wb="gh"],[data-wb="size"],[data-wb="arrange"],[data-wb="swatch"],[data-wb="layout"],[data-wb="preview"],[data-wb="quant"],[data-wb="metric"],[data-wb="limit"],[data-wb="try"],[data-wb="cell"],[data-wb="dclear"]{ display:contents }   /* their pieces sit in the direction's own bar */
 [hidden]{ display:none !important }
 
 /* the rule under a header wears the current color – index.html's hue line */

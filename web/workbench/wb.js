@@ -120,8 +120,6 @@ export const viewHTML = () => sizeHTML() + swatchHTML() + layoutHTML() + preview
 // how the shelves are cut – the ladder's foot (index.html's .gtabs) and the View menu's first group; A–Z stays the sheet's
 const CUTS = ARRANGE.filter(([v]) => v !== 'name'), CUTI = { family: OI.compositing, purpose: FI.task, era: FI.age },
 	CUTTIP = { family: 'what each space is – its lineage', purpose: 'what each space is for', era: 'when each space was born, newest first' }
-// the cut as a quiet select beside the count – the cut study's "By the count" (the masthead says "168 spaces by Family ▾")
-export const cutselHTML = () => `<label class="fsel wb-cut"><span>by</span><select data-wset="arrange" data-k="cut" aria-label="Arrange the catalog by">${CUTS.map(([v, n]) => `<option value="${v}"${S.arrange === v ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>`
 export const arrangeHTML = () => CUTS.map(([v, n]) => `<button type="button" class="gtag${S.arrange === v ? ' on' : ''}" data-set="arrange" data-v="${v}" data-k="g-${v}" aria-pressed="${S.arrange === v}" title="${esc(CUTTIP[v])}">${esc(n)}</button>`).join('')
 // the quantization lens – ONE select, the atlas's groups and words (QSITE); a palette adds its distance metric
 export const quantHTML = () => `<label class="fsel wb-quant"><span>Quantize</span><select data-wset="quant" data-k="quant"${S.quant !== 'smooth' ? ' class="on"' : ''} aria-label="Quantize – how strips and planes are drawn" title="${esc(QFLAT.map(([v]) => `${QSITE[v][0]} – ${QSITE[v][1]}`).join('\n'))}">${QUANT.map(([, o], g) => {
@@ -145,6 +143,8 @@ const was = () => recent.filter(r => r.h !== hexNow()).slice(0, 5), key = l => l
 function remember() { if (key(was()) !== shown) refresh('try')   // a swatch just taken leaves the row at once – the color left behind takes its place
 	clearTimeout(recT); recT = setTimeout(() => { const h = hexNow(), c = gamutOf() === 'srgb' ? h : $('cval')?.value || h
 		recent = [{ c, h }, ...recent.filter(r => r.h !== h)].slice(0, 6); store.set('recent', JSON.stringify(recent)); refresh('try') }, 900) }   // a drag settles before it is kept
+/** The swatches a page offers: the colors picked before this one if there are any, else the five to try – [value, name, paint]. */
+export const swatches = () => { const w = was(); return w.length ? { recent: true, list: w.map(r => [r.c, r.c, r.h]) } : { recent: false, list: TRY.map(([c, n]) => [c, n, c]) } }
 export const tryHTML = () => { const w = was(); shown = key(w)
 	return w.length
 		? `<span class="try" role="group" aria-label="Recent colors"><span>Recent</span>${w.map(({ c, h }) => `<button type="button" data-wtry="${esc(c)}" title="${esc(c)}" style="--sw:${esc(h)}"><span class="sr">${esc(c)}</span></button>`).join('')}</span>`
@@ -209,8 +209,8 @@ export const agentsHTML = ({ title = true } = {}) => `<section class="wb-agents"
 const R = { brand: () => brandHTML(), chip: chipHTML, search: () => searchHTML(), tools: toolsHTML, theme: themeHTML, gh: ghHTML, orient: orientHTML, count: countHTML,
 	stripe: stripeHTML, cells: cellsHTML, tags: tagsHTML, view: viewHTML, size: sizeHTML, swatch: swatchHTML, layout: layoutHTML, preview: previewHTML,
 	quant: quantHTML, metric: metricHTML, limit: limitHTML, vision: visionHTML, lang: langHTML, stops: stopsHTML, stop: () => W.tourOpen ? tourHTML() : '', tour: () => tourHTML(), agents: () => agentsHTML(),
-	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML, arrange: arrangeHTML, cutsel: cutselHTML }   // a renderer gets its host – a cell or a menu reads which one it is
-const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu', 'arrange', 'cutsel']   // the hosts a view/lens change re-renders
+	try: tryHTML, cell: el => cellHTML(el.dataset.m), menu: el => menuHTML(el.dataset.m), dclear: dclearHTML, arrange: arrangeHTML }   // a renderer gets its host – a cell or a menu reads which one it is
+const VIEWK = ['view', 'size', 'swatch', 'layout', 'preview', 'quant', 'metric', 'limit', 'cell', 'menu', 'arrange']   // the hosts a view/lens change re-renders
 /** Fill every host under `el` (a page that mounts controls after boot – Atlas's top variants). */
 export function fill(el = document) { for (const h of el.querySelectorAll('[data-wb]')) if (R[h.dataset.wb]) h.innerHTML = R[h.dataset.wb](h); paintCur() }
 // re-render hosts in place; a control that had focus gets it back (by its data-k, in the same host first – a

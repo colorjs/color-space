@@ -76,6 +76,18 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
   page held still, a click beside it closes; the bar names the neighbours (‹ HSM · OKLCH · CIELAB ›) – with the
   side dock one study away (?dossier=side). The modal shadow is a token now (`--modal-shadow`), the site's .mbox
   uses it too.
+- Atlas, fourth round (owner's notes of 2026-10-05): the swatch is a rhombus and the shelves' cut sits at the
+  ladder's foot (both studies retired); the dossier is the modal only – its card at its natural height (the frame
+  grows to the dossier), the page layer scrolling it, the site's footer bar (« family · ‹ prev · next › · family »)
+  pinned to its foot, the card over the cells, ✕ in its corner. Each family's description sticks under its title
+  while the family is on screen. Lineage left the heroes: it is the section after the atlas (lineage.js/.css). An
+  image dropped or pasted anywhere is a source, as on the site: every strip wears its histogram (image.js; the
+  catalog's painters take extra lane painters through `lanes`). The search hero: "Every color space." and the
+  promise; a quiet field – the color itself as the picker, "Any color or space", a color off the screen; recent
+  colors when there are some, else five to try; the facts as wide as their words; the burst is the real OKLCH
+  hue × chroma slice at the current lightness (sRGB's gamut at that L, the hue up, the color a rhombus at its
+  chroma, captioned) or rays (?burst=rays); centered or left (?lay=left). Enter floods the color out from the
+  field, then the atlas slides up over the pinned hero (a curtain; the hero settles back as it goes).
 - Dossier bake (`scripts/bake-dossiers.js`): it had baked another space's dossier into 132 of 168 name
   views – the ambient hue orbit repainted the open dossier every frame (software GL in headless Chrome),
   starving the idle slices that wire catalog rows, so clicks on unwired rows were no-ops and the previous
@@ -117,18 +129,25 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
   prominent scenario was search indeed … we enter the color or space, and we get scrolled into the "atlas" view
   where the header same-color fill is the chosen color - and the conic gradient gets rotated and changed to the
   selected color."
+- Atlas, 2026-10-05: "the section description should stay sticky under the section title"; "keep swatch rhombus,
+  shelves ladder foot"; "lineage chart can be a section after the atlas"; the hero: "Every color space" with the
+  Promise line, "the search bar is too noisy … placeholder must be much shorter … maybe just picker right away …
+  user can also drop an image", recent swatches if persisted else samples, a conic "more justified, not pure
+  visual", a more effectful search → atlas transition ("search gets overlapped with the scrolled-on content");
+  "I'd pick modal view" – with its footer, over the selector bar, the page scrolling, not the modal; facts "not
+  full-width"; workbench left and center layouts and line-drawn bursts.
 - "i18n should be done during the build, so that search engines hook up right pages right away without
   JS" – it is: stamped documents carry the translated markup, catalog, head and baked dossier; the
   runtime table only serves what the app renders after load (menus, tooltips, toasts).
 
 ## Not done — pick up here
 
-1. **Atlas workshop** – the header is done and the hero is chosen: Search (the other nine variants stay in the
-   study bar for comparison until the owner drops them). Three studies await the owner's pick: where the shelves'
-   cut sits, the swatch's shape, the dossier as a modal or beside the page. Then port the Drawer header (with its tucking
+1. **Atlas workshop** – the header is done and the hero is chosen: Search (the other variants stay in the study
+   bar for comparison until the owner drops them). Two studies await the owner's pick: the hero's layout (center ·
+   left) and its burst (hue × chroma · rays). Then port the Drawer header (with its tucking
    cells), the chosen hero, the cut, the shape, the ladder (with its fit rules) and the grouped list into
    `web/index.html` (the workshop's `[data-wb]` hosts map onto the page's existing controls; `atlas.js`
-   documents the contract). The swatch shape stops at the dock: the dossier is index.html's own.
+   documents the contract).
 2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
    the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
 3. **Translations (pt-BR, es, tr)** – built, wired, translated; not yet reviewed. To promote a language:

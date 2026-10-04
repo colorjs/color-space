@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-top="drawer" data-hero="search" data-cut="foot" data-sw="rhombus" data-dossier="modal">
+<html lang="en" data-top="drawer" data-hero="search" data-lay="center" data-burst="plane">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas – color-space workbench</title>
@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./wb.css">
 <link rel="stylesheet" href="./atlas.css">
 <link rel="stylesheet" href="./top-drawer.css">
+<link rel="stylesheet" href="./lineage.css">
 <!-- the hero variant's stylesheet: ?hero=<key> picks it before first paint (atlas.js swaps it live; its HEROS list is the one to extend) -->
 <link rel="stylesheet" href="./hero-search.css" id="herocss">
 <script>try{document.documentElement.dataset.theme=localStorage.csTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch{}
@@ -29,6 +30,8 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 
 <!-- the catalog: each family's title is its own heading and, on wide screens, a rung of the ladder -->
 <div class="work"><main id="cat" aria-label="Color spaces"></main></div>
+<!-- after the atlas: its history – every space a band from its year (lineage.js) -->
+<section class="work" id="lineage" aria-label="The history of color spaces" data-wstay></section>
 
 <footer class="foot">
 	<div class="fin">
@@ -54,24 +57,24 @@ try{const k=new URLSearchParams(location.search).get('hero');if(/^[a-z]+$/.test(
 
 <!-- the workbench's own pane stays mounted but unused here (its painters expect it); the details are the live dossier -->
 <aside id="pane" hidden></aside>
-<!-- the dock: the atlas's own dossier, chrome-free (index.html?s=<space>&embed), docked right from 75rem, a full-screen dialog below -->
+<!-- the dossier: index.html's modal – its card (index.html?s=<space>&embed, chrome-free) over the lit page, the page
+     layer scrolling it, the masthead live above; the card's foot walks the neighbours as the site's does -->
 <dialog class="dock" id="dock" aria-labelledby="dock-t"><div class="dbox">
-	<div class="dbar">
-		<button class="dnav" type="button" data-go="-1" id="dock-prev"></button>
-		<h2 class="dnm" id="dock-t"></h2>
-		<button class="dnav" type="button" data-go="1" id="dock-next"></button>
-		<button class="ib" type="button" data-close aria-label="Close the dossier" id="dock-x"></button>
-	</div>
+	<h2 class="sr" id="dock-t"></h2>
+	<button class="dx" type="button" data-close aria-label="Close the dossier" id="dock-x"></button>
 	<div class="dfr"><p class="dload" id="dock-load" role="status">Opening the dossier…</p></div>
+	<nav class="mnavbar mfoot" aria-label="Adjacent color spaces">
+		<span class="ngrp"><button class="mnav mcat prev" type="button" id="dock-pc"></button><button class="mnav prev" type="button" data-go="-1" id="dock-prev"></button></span>
+		<span class="ngrp"><button class="mnav next" type="button" data-go="1" id="dock-next"></button><button class="mnav mcat next" type="button" id="dock-nc"></button></span>
+	</nav>
 </div></dialog>
 
-<!-- the workshop: which hero, where the shelves' cut sits, the swatch's shape – each rides the URL (?hero= ?cut= ?sw=);
+<!-- the workshop: which hero, and the search hero's layout and burst – each rides the URL (?hero= ?lay= ?burst=);
      the color, filters, open space and scroll stay -->
 <nav class="study" aria-label="Workshop">
 	<div class="study-g"><span>Hero</span><div class="study-options" id="heros"></div></div>
-	<div class="study-g"><span>Shelves</span><div class="study-options" id="cuts"></div></div>
-	<div class="study-g"><span>Swatch</span><div class="study-options" id="sws"></div></div>
-	<div class="study-g"><span>Dossier</span><div class="study-options" id="dossiers"></div></div>
+	<div class="study-g"><span>Layout</span><div class="study-options" id="lays"></div></div>
+	<div class="study-g"><span>Burst</span><div class="study-options" id="bursts"></div></div>
 </nav>
 
 <script type="module" src="./atlas.js"></script>

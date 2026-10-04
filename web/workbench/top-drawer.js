@@ -8,7 +8,7 @@
 // column, the color where the spaces start (top-drawer.css). The hero under it is a variant's (atlas.js).
 export default function mount({ top, cells, wb }) {
 	top.innerHTML = `<header class="top dmast">
-		<span class="did"><span data-wb="brand"></span><span data-wb="count"></span><span data-wb="cutsel"></span><span data-wb="dclear"></span></span>
+		<span class="did"><span data-wb="brand"></span><span data-wb="count"></span><span data-wb="dclear"></span></span>
 		<span data-wb="chip"></span><span data-wb="try"></span><span data-wb="search"></span>
 		<span class="dend"><span data-wb="lang"></span><span data-wb="tools"></span></span>
 	</header>`

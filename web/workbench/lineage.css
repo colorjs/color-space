@@ -1,0 +1,88 @@
+/* Atlas · Lineage – the section after the atlas (it was a hero variant) – the catalog as a river of years, on the catalog's grid: the headline where the spaces start,
+   the families' names in the label column level with their streams (the ladder's icons and counts), the river, its
+   milestones above and its years below in the content column. The SVGs stretch across the column and are --hl-t px
+   per band, so nothing is measured. Scoped to #lineage, the section after the atlas; tokens only – the bands' OKLCH is the data. */
+#lineage{
+	--hl-t:calc(var(--s1) / 2);                  /* one space's band: half the smallest step, 2px */
+	--hl-pad:calc(3 * var(--hl-t));              /* the gap above and below a family's stream (hero-lineage.js PAD) */
+	--hl-c:.12; --hl-l0:.48; --hl-dl:.34;        /* the bands: chroma, the founder's lightness, the step to the edges */
+}
+:root[data-theme="dark"] #lineage{ --hl-c:.1; --hl-l0:.56; --hl-dl:.3 }
+#lineage{ padding:0 var(--gut) }
+#lineage>.row:first-child{ padding-top:var(--s12); border-top:var(--rule-hair) solid var(--hair) }   /* the closing sections' hair (atlas.css .clo) */
+#lineage>:last-child{ padding-bottom:var(--s12) }
+
+/* the headline */
+#lineage .hl-body{ flex:1 1 100%; min-width:0 }
+#lineage .hl-h{ margin:0; font-size:var(--text-3xl); font-weight:750; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }
+#lineage .hl-dek{ margin:var(--s3) 0 0; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:pretty }
+
+/* the figure: milestones, the river, the years – one column of rows, each a label and its content */
+#lineage .hl-fig{ margin:var(--s8) 0 0 }
+#lineage .hl-fig .row{ align-items:center }
+
+/* the milestones: a flag on its leader – left of the stretch's middle the words run right, past it they run left */
+#lineage .hl-anns{ position:relative; flex:1 1 100%; height:var(--s12) }
+#lineage .hl-ms{ position:absolute; top:0; bottom:0; left:calc(var(--x) * 1%); max-width:calc(var(--w) * 1% - var(--s3)); padding:0 0 0 var(--s2); font-size:var(--t1); line-height:1.35; text-align:left; color:var(--soft); border-left:var(--rule-hair) solid var(--soft) }
+#lineage .hl-ms.end{ left:auto; right:calc(100% - var(--x) * 1%); padding:0 var(--s2) 0 0; text-align:right; border-left:0; border-right:var(--rule-hair) solid var(--soft) }
+#lineage .hl-ms b{ display:block; font-weight:700; color:var(--ink); white-space:nowrap }
+#lineage .hl-ms b::after{ content:'↗'; display:inline-block; width:0; text-indent:.25em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the atlas idiom, as .nm: ↗ opens the space */
+#lineage .hl-ms:is(:hover,:focus-visible) b::after{ opacity:1 }
+#lineage .hl-ms:hover .hl-mw{ color:var(--body) }
+#lineage .hl-mw{ display:block; text-wrap:balance }
+
+/* the river: a row per family – its name level with its stream. Scrolled away, it is skipped: the orbit restyles the
+   page every frame, and 168 bands are the hero's share of that */
+#lineage .hl-river{ content-visibility:auto; contain-intrinsic-block-size:auto none }
+#lineage .hl-fn{ display:inline-flex; align-items:center; gap:var(--s2); max-width:100%; font-size:var(--t3); font-weight:750; color:var(--soft); white-space:nowrap; transition:color var(--dur-micro) var(--ease-out) }
+#lineage .hl-fn .fic{ display:inline-grid; place-items:center } #lineage .hl-fn .fic .ic{ --ic:18px }   /* the ladder's .fic */
+#lineage .hl-fnm{ overflow:hidden; text-overflow:ellipsis }
+#lineage .hl-fn .cnt{ font-size:var(--t0) }
+#lineage :is(.hl-fn:hover,.act .hl-fn){ color:var(--ink) }   /* dim → ink, the ladder's rule: the family under the pointer is ink */
+#lineage .hl-st{ position:relative; flex:1 1 100%; min-width:0; padding-block:var(--hl-pad); cursor:pointer }
+#lineage .hl-sv{ display:block; width:100%; height:calc(var(--u) * var(--hl-t)); overflow:visible; shape-rendering:crispEdges }
+#lineage .hl-defs{ position:absolute; width:0; height:0 }
+#lineage .hl-defs stop{ stop-color:oklch(var(--hl-l0) var(--hl-c) calc(var(--hl-h, 42) + var(--fh))) }
+#lineage .hl-defs stop.e{ stop-color:oklch(calc(var(--hl-l0) + var(--hl-dl)) var(--hl-c) calc(var(--hl-h, 42) + var(--fh))) }
+#lineage .hl-b.z{ fill-opacity:.82 }
+#lineage .hl-b.on{ fill:var(--ink) }
+#lineage .hl-b:focus{ outline:0 } #lineage .hl-b:focus-visible{ stroke:var(--color-focus); stroke-width:2px; vector-effect:non-scaling-stroke }
+#lineage .hl-ld{ stroke:var(--soft); stroke-width:var(--rule-hair); vector-effect:non-scaling-stroke }
+/* where a milestone begins: the catalog's diamond (a space), on its leader */
+#lineage .hl-dm{ position:absolute; left:calc(var(--x) * 1%); top:calc(var(--hl-pad) + (var(--y) + .5) * var(--hl-t)); width:var(--s2); height:var(--s2); translate:-50% -50%; rotate:45deg; background:var(--paper); border:var(--picker-line) solid var(--ink); pointer-events:none }
+
+/* the years: a tick each decade, the ends and the half-centuries named; the band under the pointer reads out at left */
+#lineage .hl-axis{ margin-top:var(--s2) }
+#lineage .hl-axis.row{ align-items:start }
+#lineage .hl-read{ min-width:0; overflow:hidden; text-overflow:ellipsis; transition:color var(--dur-micro) var(--ease-out) }
+#lineage .hl-read.on{ color:var(--ink) }
+#lineage .hl-read.on .hl-rd::after{ content:' ↗' }
+#lineage .hl-ax{ position:relative; flex:1 1 100%; height:var(--s6); border-top:var(--rule-hair) solid var(--rule) }
+#lineage .hl-ax svg{ position:absolute; top:0; left:0; display:block; width:100%; height:var(--s1); overflow:visible; shape-rendering:crispEdges; stroke:var(--soft); stroke-width:var(--rule-hair) }
+#lineage .hl-ax path{ vector-effect:non-scaling-stroke }
+#lineage .hl-ax span{ position:absolute; top:var(--s2); left:calc(var(--x) * 1%); translate:-50% 0; font-size:var(--t1); line-height:1; color:var(--soft) }
+#lineage .hl-ax span.start{ translate:0 } #lineage .hl-ax span.end{ translate:-100% 0 }
+#lineage .hl-cap{ margin-top:var(--s1); font-size:var(--t1); color:var(--soft) }
+
+/* the river flows in, once, from the first year to the last */
+@media (prefers-reduced-motion:no-preference){ #lineage .hl-sv{ animation:hl-flow calc(var(--dur-long) * 3) var(--ease-out) backwards } }
+@keyframes hl-flow{ from{ clip-path:inset(calc(-1 * var(--hl-pad)) 100% calc(-1 * var(--hl-pad)) 0) } to{ clip-path:inset(calc(-1 * var(--hl-pad)) 0 calc(-1 * var(--hl-pad)) 0) } }   /* the leaders' overflow into the gaps stays whole */
+
+/* narrow: each name over its stream; the leaders would cross the names, so a milestone is its flag and its diamond */
+@container work (width < 56rem){
+	#lineage .hl-h{ font-size:var(--text-2xl) }
+	#lineage .hl-fig{ --hl-t:calc(var(--s1) * .375); --hl-pad:var(--s1); margin-top:var(--s6) }   /* 1.5px bands – three device pixels or more on a phone (set here: :root is outside the container) */
+	#lineage .hl-fig .row{ row-gap:var(--s1) }
+	#lineage .hl-fam+.hl-fam{ margin-top:var(--s1) }
+	#lineage .hl-fn{ font-size:var(--t2) } #lineage .hl-fn .fic .ic{ --ic:14px }
+	#lineage .hl-ld{ display:none }
+	#lineage .hl-anns{ height:calc(var(--s8) + var(--s2)) }
+	#lineage .hl-ms{ max-width:none }
+	#lineage .hl-ms b>span{ display:block }   /* the year over the name */
+	#lineage .hl-mw{ display:none }
+	#lineage .hl-axis .hl-read{ order:1 }
+	#lineage .hl-axis .hl-read:not(.on){ display:none }   /* the axis reads without its title; a focused band still reads out */
+}
+@container work (width < 67.5rem){
+	#lineage .hl-ax span.near{ display:none }   /* 1900 crowds 1860 once the axis is under 45rem */
+}

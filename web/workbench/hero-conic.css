@@ -16,7 +16,7 @@
 :root[data-hero="conic"] .cn[data-sw="hsl"] .cn-hs{ opacity:1 }
 :root[data-hero="conic"] .cn-rays{ color:var(--paper) }   /* the canvas paints in its own color */
 /* the current color – the masthead's diamond (.cdw), sized on the picker geometry */
-:root[data-hero="conic"] .cn-dm{ position:absolute; left:50%; top:50%; width:var(--s4); height:var(--s4); translate:-50% -50%; rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--paper); box-shadow:0 0 0 var(--picker-line) var(--ink) }
+:root[data-hero="conic"] .cn-dm{ position:absolute; left:50%; top:50%; width:var(--s4); height:var(--s4); translate:-50% -50%; rotate:45deg; background:var(--cur); border:var(--picker-line) solid var(--paper); box-shadow:0 0 0 var(--picker-line) var(--ink) }
 @media (prefers-reduced-motion:no-preference){ :root[data-hero="conic"] .cn-hs{ transition:opacity var(--dur-short) var(--ease-out) } }
 
 /* what the square shows, and the switch – the task tags' pills (.wb-tagrow .tag) */

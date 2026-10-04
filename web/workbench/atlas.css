@@ -14,8 +14,6 @@
 	--stick-top:var(--top-h);                    /* what stays pinned above the catalog – the header, measured */
 	--stick-bot:0px;                             /* what stays pinned below it – a variant's bottom bar would set its height here */
 	--gtab:var(--rung);                          /* the ladder's foot – the arrangement tabs, one rung */
-	--dockw:clamp(32rem,46vw,60rem);             /* the docked dossier – a touch under half the screen, so the catalog keeps two columns beside it */
-	--dock:0px;                                  /* the dock's width while it is docked – fixed elements keep clear with right:var(--dock) */
 }
 html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bottom:var(--stick-bot) }
 @media (prefers-reduced-motion:no-preference){ html{ scroll-behavior:smooth } }
@@ -71,9 +69,11 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 	.shelf>.sh .tn{ transition:color var(--dur-micro) var(--ease-out) }
 	.shelf>.sh .tn:hover{ color:var(--body) }
 	.shelf>.sh.act{ color:var(--ink) }   /* the family on screen is ink, the rest muted – index.html's rail */
-	/* the family's description under its name, in the label column – the content starts with the spaces. It
-	   floats with the title but doesn't stick: it scrolls under the piles, whose titles are paper */
-	.shelf>.tip{ float:left; clear:left; width:calc(var(--lad) - var(--s4)); margin:var(--s1) 0 0; font-size:var(--t2); line-height:1.45; color:var(--soft) }
+	/* the family's description under its name, in the label column – the content starts with the spaces. It sticks
+	   under its title, one rung below where the title rides in the passed pile, while that family is the one on
+	   screen (.act); the other families' descriptions keep out of the piles */
+	.shelf>.tip{ float:left; clear:left; position:sticky; top:calc(var(--stick-top) + var(--s5) + (var(--i, 0) + 1) * var(--rung) + var(--s1)); width:calc(var(--lad) - var(--s4)); margin:var(--s1) 0 0; font-size:var(--t2); line-height:1.45; color:var(--soft); opacity:0; visibility:hidden; transition:opacity var(--dur-short) var(--ease-out),visibility var(--dur-short) allow-discrete }
+	.shelf>.sh.act+.tip{ opacity:1; visibility:visible }
 	.shelf>:not(.sh,.tip){ margin-left:calc(var(--lad) + var(--lgap)) }
 	.shelf>:is(.sh,.tip)+:not(.tip){ padding-top:var(--s6); border-top:var(--rule-hair) solid var(--rule); scroll-margin-top:0 }
 	.shelf:first-of-type>:is(.sh,.tip)+:not(.tip){ border-top:0 }
@@ -81,12 +81,7 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 	/* the ladder's foot: the shelves' cut, index.html's tabs – the last float, so it waits pinned at the bottom
 	   under the pile of titles and settles at the catalog's end */
 	.gtabs{ display:flex; float:left; clear:left; position:sticky; bottom:var(--stick-bot); z-index:2; width:var(--lad); height:var(--gtab); align-items:center; gap:var(--s4); background:var(--paper) }
-	/* the cut study, Ladder head: the tabs head the column instead – the first float, pinned under the header; the
-	   pile of passed titles stacks under them and the waiting pile drops to the bottom edge */
-	:root[data-cut="head"] .gtabs{ top:calc(var(--stick-top) + var(--s3)); bottom:auto }
-	:root[data-cut="head"] .shelf>.sh{ top:calc(var(--stick-top) + var(--s3) + var(--gtab) + var(--s2) + var(--i, 0) * var(--rung)); bottom:calc(var(--stick-bot) + var(--s5) + var(--j, 0) * var(--rung)) }
 }
-:root[data-cut="count"]{ --gtab:0px } :root[data-cut="count"] .gtabs{ display:none }   /* the cut study, By the count: the masthead says it (top-drawer.css) */
 /* the ladder never stacks one title on another. Every title is held inside the catalog, so where the catalog
    leaves too little room the held titles would meet on one line: coming in, while the catalog's top is too low
    for the whole waiting pile to fit under its first title and its description, the waiting titles stay out (the
@@ -101,6 +96,8 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 			animation-range:entry calc(var(--stick-bot) + var(--s2) + var(--s6) + var(--tip0, 0px) + var(--pile)) entry calc(var(--stick-bot) + var(--s2) + var(--s6) + var(--tip0, 0px) + var(--pile) + var(--rung)),
 				exit calc(100% - var(--stick-top) - var(--pile) - var(--rung)) exit calc(100% - var(--stick-top) - var(--pile)) }   /* coming in: under the catalog's padding, the first title's margin and its description (--tip0, measured) */
 		.shelf:first-of-type>.sh{ animation-name:none,lad-out }
+		.shelf>.tip{ --pile:calc(var(--s5) + var(--gtab) + (var(--i, 0) + var(--j, 0) + 1) * var(--rung)); animation:lad-out linear forwards; animation-timeline:--cat;
+			animation-range:exit calc(100% - var(--stick-top) - var(--pile) - var(--rung)) exit calc(100% - var(--stick-top) - var(--pile)) }   /* the active description leaves with the ladder */
 	}
 }
 @keyframes lad-in{ from{ opacity:0; visibility:hidden } }
@@ -221,38 +218,35 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 .ptl{ margin:0 0 var(--s2); font-size:var(--text-lg); font-weight:750; letter-spacing:-.015em }
 .apop .plab:first-of-type{ margin-top:var(--s2) }
 
-/* ── the dock: the live dossier, two ways (the Dossier study, ?dossier=). Modal – index.html's: the card at the
-   site's width over the lit page, no scrim, the masthead and its cells live above it; a click beside the card
-   closes it. Side – from 75rem it sits beside the page and the page makes room; below, the same dialog fills the
-   screen (modal – the top layer, the rest inert) ── */
-.dock{ position:fixed; inset:0 0 0 auto; z-index:var(--z-modal); width:var(--dockw); max-width:100%; height:100dvh; max-height:none; margin:0; padding:0; border:0; border-left:var(--rule-hair) solid var(--rule); background:var(--paper); color:var(--ink); overflow:hidden }
-.dock[open]{ display:flex; flex-direction:column }
-.dock:modal{ inset:0; width:100%; border-left:0 }
-.dock::backdrop{ background:color-mix(in oklab,var(--ink) 32%,transparent) }   /* wb.css's scrim */
-.dbox{ display:flex; flex:1; flex-direction:column; min-height:0 }
-:root[data-dossier="modal"] .dock{ inset:0; width:100%; border-left:0; background:none }   /* the layer beside the card: the page shows through it */
-:root[data-dossier="modal"]:has(body.dockon){ overflow:hidden; scrollbar-gutter:stable }   /* and holds still under it, as under the site's modal – the gutter stays, so nothing shifts */
-:root[data-dossier="modal"] .dbox{ flex:none; width:min(56rem,94vw); height:calc(100dvh - var(--top-h) - 2 * var(--s8)); margin:calc(var(--top-h) + var(--s8)) auto var(--s8); background:var(--paper); box-shadow:var(--modal-shadow) }   /* index.html's .mbox width */
-:root[data-dossier="modal"] body.dockon :is(.dmast,.dcells){ z-index:calc(var(--z-modal) + 1) }   /* the header stays live over the card, as on the site */
-:root[data-dossier="modal"] body.dockon .dmast{ z-index:calc(var(--z-modal) + 2) }
-@media (width < 40rem){ :root[data-dossier="modal"] .dbox{ width:100%; height:calc(100dvh - var(--top-h)); margin:var(--top-h) 0 0; box-shadow:none } }   /* phones: the sheet under the masthead */
-.dbar{ display:flex; flex:none; align-items:center; gap:var(--s1); padding:var(--s1) var(--s2); border-bottom:var(--rule-hair) solid var(--rule) }
-.dnm{ flex:1; min-width:0; margin:0; font-size:var(--t2); font-weight:700; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.dnav{ display:inline-flex; flex:0 1 auto; align-items:center; gap:var(--s1); min-width:0; max-width:30%; padding:var(--s2); font-size:var(--t2); color:var(--soft); transition:color var(--dur-micro) var(--ease-out) }   /* index.html's .mnav: the neighbour's name, dim → ink */
-.dnav span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.dnav:hover{ color:var(--ink) }
-.dnav:disabled{ visibility:hidden }
-.dnav .ic{ --ic:16px; flex:none }
-.dfr{ position:relative; flex:1; min-height:0 }
-.dfr iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--paper) }
+/* ── the dossier: index.html's modal. A non-modal dialog is the page layer over the lit catalog (no scrim): it scrolls
+   the card, which stands at its natural height – the frame grows to the dossier (atlas.js) – and a click on the layer
+   beside it closes it. The masthead stays live above; the card's foot is the site's ‹ › « » bar, pinned to the
+   layer's bottom while the card scrolls (index.html's .mnavbar.mfoot) ── */
+.dock{ position:fixed; inset:0; z-index:var(--z-modal); width:100%; max-width:none; height:100dvh; max-height:none; margin:0; padding:0; border:0; background:none; color:var(--ink); overflow-y:auto; overscroll-behavior:contain }
+:root:has(body.dockon){ overflow:hidden; scrollbar-gutter:stable }   /* the page under the card holds still; the gutter stays, so nothing shifts */
+body.dockon .dmast{ z-index:calc(var(--z-modal) + 1) }   /* the header stays live over the card, as on the site */
+.dbox{ position:relative; width:min(56rem,94vw); margin:calc(var(--top-h) + var(--s8)) auto var(--s12); background:var(--paper); box-shadow:var(--modal-shadow) }   /* index.html's .mbox */
+.dfr{ position:relative; min-height:60dvh }
+.dfr iframe{ display:block; width:100%; height:60dvh; border:0; background:var(--paper) }   /* until the dossier says its height */
 .dload{ position:absolute; inset:0; z-index:1; display:grid; place-items:center; margin:0; font-size:var(--t2); color:var(--soft); background:var(--paper) }
-@media (width >= 75rem){ :root[data-dossier="side"] body.dockon{ --dock:var(--dockw) } :root[data-dossier="side"] body.dockon .page{ margin-right:var(--dockw) } }
-@media (width < 75rem){ :root[data-dossier="side"] body.dockon{ overflow:hidden } }
+.dx{ position:absolute; top:var(--s4); right:var(--s4); z-index:2; display:grid; place-items:center; width:var(--s8); height:var(--s8); color:var(--soft); transition:color var(--dur-micro) var(--ease-out) }   /* index.html's .mx: quiet, top-right, inks on hover */
+.dx:hover{ color:var(--ink) } .dx .ic{ --ic:22px }
+.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; display:flex; justify-content:space-between; align-items:center; gap:var(--s6); padding:var(--s5) clamp(1.2rem,3vw,2.2rem) var(--s2); background:var(--paper); border-top:var(--rule-hair) solid var(--hair) }
+.mfoot .ngrp{ display:flex; align-items:center; gap:clamp(var(--s2),2vw,var(--s6)); min-width:0 }
+.mnav{ display:flex; align-items:center; gap:.4em; min-width:0; padding:var(--s2) 0; color:var(--soft); transition:color var(--dur-micro) var(--ease-out) }
+.mnav .ic{ --ic:18px; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
+.mnav .mn{ overflow:hidden; text-overflow:ellipsis; font-size:var(--t3); font-weight:500; letter-spacing:.01em; white-space:nowrap }
+.mnav:is(:hover,:focus-visible){ color:var(--ink) } .mnav:is(:hover,:focus-visible) .ic{ opacity:1 }
+.mnav:disabled{ visibility:hidden }
+.mstack{ position:relative; display:inline-flex; align-items:center; min-width:0 }
+.mcat .catn{ position:absolute; bottom:100%; margin-bottom:.05em; font-style:normal; font-size:var(--t0); font-weight:400; color:var(--soft); white-space:nowrap }   /* the family, small, above the space's name */
+.mcat.prev .catn{ left:-1.5rem } .mcat.next .catn{ right:-1.5rem }
+@media (width < 40rem){ .dbox{ width:100%; margin:var(--top-h) 0 0; box-shadow:none } .mnavbar .mcat{ display:none } }   /* phones: the sheet under the masthead, one prev and one next */
 
 /* ── the workshop panel: which hero, where the shelves' cut sits, the swatch's shape – third.html's "Layout study"
    bar grown to three rows, floating at the corner the catalog scrolls under (the ladder's corner stays clear),
    beside the dock when it is open ── */
-.study{ position:fixed; right:calc(var(--dock) + var(--s4)); bottom:calc(var(--stick-bot) + var(--s4)); z-index:var(--z-sticky-nav); display:grid; grid-template-columns:auto minmax(0,auto); align-items:center; gap:0 var(--s3); max-width:calc(100% - var(--dock) - 2 * var(--s4)); padding:var(--s1) var(--s1) var(--s1) var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); color:var(--soft); font-size:var(--t1); background:var(--panel); box-shadow:var(--pop-shadow) }
+.study{ position:fixed; right:var(--s4); bottom:calc(var(--stick-bot) + var(--s4)); z-index:var(--z-sticky-nav); display:grid; grid-template-columns:auto minmax(0,auto); align-items:center; gap:0 var(--s3); max-width:calc(100% - 2 * var(--s4)); padding:var(--s1) var(--s1) var(--s1) var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); color:var(--soft); font-size:var(--t1); background:var(--panel); box-shadow:var(--pop-shadow) }
 .study-g{ display:contents }   /* a label column and an options column, one row a study */
 .study-options{ display:flex; flex-wrap:wrap; gap:var(--s1) }
 .study button{ padding:var(--s1) var(--s2); min-height:var(--s8); border-radius:var(--radius-card); color:var(--body); white-space:nowrap }
@@ -267,19 +261,14 @@ html{ scroll-padding-top:calc(var(--stick-top) + var(--s5)); scroll-padding-bott
 	.foot{ padding-block:var(--s8) calc(var(--s12) + var(--s8) + var(--stick-bot)) }
 }
 
-/* ── the swatch study (?sw=): one shape for every mark of a color – the masthead's color and its swatches, the
-   sliders' thumbs, the planes' cursors, the white points and lenses in the menus, a hero's marks. Each mark keeps
-   its own box; the study turns it, rounds it and scales it from four tokens. A rhombus is the unit: the marks are
-   drawn as rhombi (variants.css), so they scale by the tokens as they are; the swatches are drawn as circles, so
-   they scale by the tokens over the circle's own (1.25). A circle and a square come out larger than the rhombus's
-   side, so each weighs about what the rhombus does – its span is 1.41× its side ── */
-:root[data-sw="rhombus"]{ --mk-turn:45deg; --mk-r:0; --mk-x:1; --mk-y:1 }
-:root[data-sw="circle"]{ --mk-turn:0deg; --mk-r:50%; --mk-x:1.25; --mk-y:1.25 }
-:root[data-sw="square"]{ --mk-turn:0deg; --mk-r:0; --mk-x:1.12; --mk-y:1.12 }
-:root[data-sw="chip"]{ --mk-turn:0deg; --mk-r:0; --mk-x:.9; --mk-y:1.5 }   /* a paint chip: taller than wide */
-:root[data-sw] .cdw::before{ border-radius:var(--mk-r); transform:rotate(var(--mk-turn)); scale:var(--mk-x) var(--mk-y) }
-:root[data-sw] .cdw:hover::before{ transform:rotate(var(--mk-turn)) scale(1.15) }
-:root[data-sw] .ch .nrg::-webkit-slider-thumb{ border-radius:var(--mk-r); transform:rotate(var(--mk-turn)); scale:var(--mk-x) var(--mk-y) }
-:root[data-sw] .ch .nrg::-moz-range-thumb{ border-radius:var(--mk-r); transform:rotate(var(--mk-turn)); scale:var(--mk-x) var(--mk-y) }
-:root[data-sw] .pl .cx{ border-radius:var(--mk-r); rotate:var(--mk-turn); scale:var(--mk-x) var(--mk-y) }
-:root[data-sw] :is(.try button,.wdot){ border-radius:var(--mk-r); rotate:var(--mk-turn); scale:calc(var(--mk-x) / 1.25) calc(var(--mk-y) / 1.25) }
+/* ── one shape for every mark of a color: the rhombus (the owner's pick). The marks are drawn as rhombi
+   (variants.css); the swatches drawn as circles there – the masthead's, the menus' dots – turn too, a little smaller
+   so each weighs what the rhombus does (its span is 1.41× its side) ── */
+:is(.try button,.wdot){ border-radius:0; rotate:45deg; scale:.8 }
+
+/* ── an image as a source (image.js): its histogram over each strip in the picker's ink (index.html's .ch .hist), and
+   the veil that says where a dragged image lands ── */
+.ch .hist{ position:absolute; left:0; bottom:0; width:100%; height:70%; pointer-events:none; background:var(--tki,var(--ink)); opacity:.85; mask-size:100% 100%; mask-repeat:no-repeat; -webkit-mask-size:100% 100%; -webkit-mask-repeat:no-repeat }
+.ch .hist[hidden]{ display:none }
+.veil{ position:fixed; inset:var(--s4); z-index:var(--z-toast); display:grid; place-items:center; font-size:var(--text-lg); font-weight:700; color:var(--ink); background:color-mix(in oklab,var(--paper) 72%,transparent); outline:2px dashed var(--ink); outline-offset:calc(-1 * var(--s4)); pointer-events:none }
+.veil[hidden]{ display:none }

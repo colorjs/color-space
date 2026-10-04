@@ -34,7 +34,7 @@
 :root[data-hero="rings"] .hr-rl{ position:absolute; translate:0 -50%; font-size:var(--t1); font-weight:700; line-height:1.2; color:var(--ink); white-space:nowrap }
 :root[data-hero="rings"] .hr-h{ font-family:var(--font-mono); font-weight:500; color:var(--soft) }
 /* the catalog's marker (variants.css .pl .cx): the current color, ringed in its own legible ink */
-:root[data-hero="rings"] .hr-dm{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); translate:-50% -50%; rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--cur-ink); pointer-events:none }
+:root[data-hero="rings"] .hr-dm{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); translate:-50% -50%; rotate:45deg; background:var(--cur); border:var(--picker-line) solid var(--cur-ink); pointer-events:none }
 
 /* a phone: one column, read as the poster is – the facts and the promise, the rings over their legend, the name */
 :root[data-hero="rings"] .hr-type{ order:1 }

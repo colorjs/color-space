@@ -23,7 +23,7 @@
 :root[data-hero="locus"] .hl-sw line{ stroke:var(--ink); stroke-width:1.25 }
 :root[data-hero="locus"] .hl-now{ display:flex; align-items:baseline; gap:var(--s3); margin:var(--s1) 0 0; color:var(--soft) }
 :root[data-hero="locus"] .hl-now .tnum{ font-family:var(--font-mono); color:var(--body); white-space:nowrap }
-:root[data-hero="locus"] .hl-dk{ flex:none; align-self:center; width:var(--picker-active-size); height:var(--picker-active-size); margin-inline:calc((var(--s6) - var(--picker-active-size)) / 2); rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--cur-ink) }
+:root[data-hero="locus"] .hl-dk{ flex:none; align-self:center; width:var(--picker-active-size); height:var(--picker-active-size); margin-inline:calc((var(--s6) - var(--picker-active-size)) / 2); rotate:45deg; background:var(--cur); border:var(--picker-line) solid var(--cur-ink) }
 
 /* the diagram: a box in the plot's own proportions (the script sets them: x −0.1…0.8 over y −0.075…0.9) – the fill,
    the lines over it, the labels at its percentages; room left of it and under it for the axes' numbers */
@@ -45,7 +45,7 @@
 :root[data-hero="locus"] .hl-ax-y{ left:0; translate:calc(-100% - var(--s2)) calc(-50% - var(--s4)) }
 :root[data-hero="locus"] .hl-wl{ translate:var(--s2) var(--s1); color:var(--dark); font-weight:650 }
 /* the catalog's marker (variants.css .pl .cx): the current color, ringed in its own legible ink */
-:root[data-hero="locus"] .hl-dm{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); translate:-50% -50%; rotate:var(--mk-turn,45deg); border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1); background:var(--cur); border:var(--picker-line) solid var(--cur-ink); pointer-events:none }
+:root[data-hero="locus"] .hl-dm{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); translate:-50% -50%; rotate:45deg; background:var(--cur); border:var(--picker-line) solid var(--cur-ink); pointer-events:none }
 
 /* the catalog's grid: the words down its first column, the diagram hanging from the next column's line; the rows –
    the facts, the promise, its line, air, the key – let the key sit level with the diagram's foot. Without a label

@@ -102,7 +102,10 @@ export function paintEntry(el, n = 24) {
 		if (document.activeElement !== v) v.value = fmtc(vals[i], c)
 		if (k) { k.firstChild.classList.toggle('lim', vals[i] >= c.max); k.lastChild.classList.toggle('lim', vals[i] <= c.min) } })   // a spent direction
 	if (el.querySelector('.pls')) paintPlanes(el, s, vals, 160)
+	for (const f of lanes) f(el, s)
 	el._clean = true }
+/** What else rides an entry's strips – a page adds a painter here (the Atlas's image histograms, image.js). */
+export const lanes = []
 
 // ── a channel's field at work (index.html's): ↑ ↓ and the spinners step one displayed unit, and repeat while held;
 // Enter takes what was typed, Esc puts the current value back. A step reaches the page as the field's change, so

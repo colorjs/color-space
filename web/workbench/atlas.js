@@ -19,8 +19,7 @@
 //   a moment). Tokens only. Breakpoints are container queries – @container work (…) on #hero itself, whose width
 //   is the catalog's – never the viewport. On a wide page (work ≥ 56rem) a hero hangs on the catalog's grid: a
 //   label column (--lad) and, after --lgap, the content column where the spaces start (.row in atlas.css). A mark
-//   of the current color takes the swatch study's shape (atlas.css): rotate:var(--mk-turn,45deg);
-//   border-radius:var(--mk-r,0); scale:var(--mk-x,1) var(--mk-y,1) – a rhombus where the study is off.
+//   of the current color is a rhombus (rotate:45deg), as every mark of a color on the page.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 //
 // The details are the atlas's own dossier, not the workbench pane: index.html?s=<space>&embed (its chrome-free
@@ -34,13 +33,14 @@ import { CSS as CSS_FMT } from '../js/study-runtime.js'
 import { UI } from '../js/variants-icons.js'
 
 const $ = id => document.getElementById(id), root = document.documentElement
-const WIDE = matchMedia('(width >= 75rem)')   // wb.js's breakpoint: the dossier docks from here up
 const top = $('top'), hero = $('hero'), cells = $('cells'), cat = $('cat')
 
 // ── the header, once; the workshop: the hero's variants, swapped in place ──
 import mountTop from './top-drawer.js'
 import { FAMI } from './hero.js'
-const HEROS = [['search', 'Search'], ['promise', 'Promise'], ['spectrum', 'Spectrum'], ['steps', 'Steps'], ['rings', 'Rings'], ['lineage', 'Lineage'],
+import mountLineage from './lineage.js'
+import './image.js'   // an image dropped or pasted anywhere: every strip reads it
+const HEROS = [['search', 'Search'], ['promise', 'Promise'], ['spectrum', 'Spectrum'], ['steps', 'Steps'], ['rings', 'Rings'],
 	['locus', 'Locus'], ['conic', 'Conic'], ['specimen', 'Specimen'], ['table', 'Table']]
 const heroOf = k => HEROS.some(h => h[0] === k) ? k : HEROS[0][0]
 $('heros').innerHTML = HEROS.map(([k, n]) => `<button type="button" data-hero="${k}" aria-pressed="false">${n}</button>`).join('')
@@ -77,16 +77,14 @@ async function useHero(k) { k = heroOf(k); if (k === heroKey) return
 	for (const b of $('heros').children) b.setAttribute('aria-pressed', b.dataset.hero === k)
 	try { const u = new URL(location.href); u.searchParams.set('hero', k); history.replaceState(null, '', u) } catch {} }
 $('heros').addEventListener('click', e => { const b = e.target.closest('[data-hero]'); if (b) useHero(b.dataset.hero) })
-// the other studies – where the shelves' cut sits (?cut=), the swatch's shape (?sw=), how the dossier opens
-// (?dossier=): an attribute each on <html>, the CSS answers (atlas.css, top-drawer.css); the cut also re-seats the
-// ladder's tabs (decorate), the dossier reopens an open dock the new way
-const STUDY = { cut: [['foot', 'Ladder foot'], ['head', 'Ladder head'], ['count', 'By the count']], sw: [['rhombus', 'Rhombus'], ['circle', 'Circle'], ['square', 'Square'], ['chip', 'Chip']],
-	dossier: [['modal', 'Modal'], ['side', 'Side']] }
+// the search hero's two studies – its layout (?lay=) and its burst (?burst=): an attribute each on <html>, the CSS
+// answers (hero-search.css)
+const STUDY = { lay: [['center', 'Center'], ['left', 'Left']], burst: [['plane', 'Hue × chroma'], ['rays', 'Rays']] }
 for (const [k, opts] of Object.entries(STUDY)) { const host = $(k + 's')
 	const use = v => { root.dataset[k] = v; for (const b of host.children) b.setAttribute('aria-pressed', b.dataset.sv === v)
 		try { const u = new URL(location.href); u.searchParams.set(k, v); history.replaceState(null, '', u) } catch {} }
 	host.innerHTML = opts.map(([v, n]) => `<button type="button" data-sv="${v}" aria-pressed="false">${n}</button>`).join('')
-	host.addEventListener('click', e => { const b = e.target.closest('[data-sv]'); if (b) steady(() => { use(b.dataset.sv); decorate(); if (k === 'dossier' && dock.open) present() }) })
+	host.addEventListener('click', e => { const b = e.target.closest('[data-sv]'); if (b) { use(b.dataset.sv); document.dispatchEvent(new CustomEvent('wb:study', { detail: { k, v: b.dataset.sv } })) } })
 	const v0 = new URLSearchParams(location.search).get(k); use(opts.some(o => o[0] === v0) ? v0 : opts[0][0]) }
 
 // the pinned masthead's height: the line the catalog's sticky family titles hang under and the header's cells
@@ -104,12 +102,12 @@ let act = -1
 // seated again after every render (wb.js rewrites the catalog), its buttons a wb host that re-renders on a change
 const gtabs = Object.assign(document.createElement('nav'), { className: 'gtabs', innerHTML: '<span data-wb="arrange"></span>' })
 gtabs.setAttribute('aria-label', 'Arrange the catalog by'); fill(gtabs)
-function decorate() { const head = root.dataset.cut === 'head'   // the cut study: the ladder's head or its foot (the first float or the last)
-	if (head ? cat.firstChild !== gtabs : cat.lastChild !== gtabs) { head ? cat.prepend(gtabs) : cat.append(gtabs); fill(gtabs) }   // a render detached it before wb.js's refresh could reach it
+function decorate() {
+	if (cat.lastChild !== gtabs) { cat.append(gtabs); fill(gtabs) }   // the last float; a render detached it before wb.js's refresh could reach it
 	const shs = [...cat.querySelectorAll('.shelf')], n = shs.length
 	shs.forEach((sh, i) => { const hd = sh.querySelector(':scope>.sh'), h2 = hd?.querySelector('h2'); if (!h2 || h2.querySelector('.tn')) return
 		const name = h2.textContent
-		hd.style.setProperty('--i', i); hd.style.setProperty('--j', n - 1 - i)   // its rung in the top pile, and in the bottom one
+		for (const el of [hd, sh.querySelector(':scope>.tip')]) if (el) { el.style.setProperty('--i', i); el.style.setProperty('--j', n - 1 - i) }   // its rung in the top pile, and in the bottom one (its description rides under it)
 		h2.innerHTML = `<button type="button" class="tn" data-jump>${FAMI[name] ? `<span class="fic">${FAMI[name]}</span>` : ''}<span>${esc(name)}</span></button>` })
 	const t0 = cat.querySelector('.shelf:first-of-type>.tip'), f0 = t0 && getComputedStyle(t0)   // the first title's description, in the ladder's fit (atlas.css) – a float's height is not CSS's to read
 	cat.style.setProperty('--tip0', (f0 && f0.float !== 'none' ? t0.offsetHeight + parseFloat(f0.marginTop) : 0) + 'px')
@@ -134,7 +132,9 @@ document.addEventListener('click', e => { const j = e.target.closest('[data-jump
 
 // ── the dock: the live dossier in an iframe ──
 const dock = $('dock'), dfr = dock.querySelector('.dfr'), dload = $('dock-load')
-$('dock-prev').innerHTML = `${UI.prev}<span></span>`; $('dock-next').innerHTML = `<span></span>${UI.next}`; $('dock-x').innerHTML = UI.x
+// the card's foot, index.html's: ‹ › the neighbours, « » the first space of the neighbouring family, its name above
+$('dock-prev').innerHTML = `${UI.prev}<span class="mn"></span>`; $('dock-next').innerHTML = `<span class="mn"></span>${UI.next}`; $('dock-x').innerHTML = UI.x
+$('dock-pc').innerHTML = `${UI.prev2}<span class="mstack"><i class="catn"></i><span class="mn"></span></span>`; $('dock-nc').innerHTML = `<span class="mstack"><i class="catn"></i><span class="mn"></span></span>${UI.next2}`
 let frame = null, ready = false, want = null, seen = '', dirty = false, pulling = false, tickT = 0, limitSet = false, hold = null
 const cwin = () => { try { return ready ? frame.contentWindow : null } catch { return null } }
 const spaceOf = p => decodeURIComponent((p.match(/([^/]+?)(?:\.html)?\/?$/) || [])[1] || '')
@@ -176,23 +176,33 @@ document.addEventListener('wb:set', ({ detail: { key } }) => { if (key === 'limi
 function themeIn() { const cw = cwin(); if (!cw) return; const d = cw.document.documentElement, t = root.dataset.theme
 	if (d.dataset.theme !== t) { const b = cw.document.getElementById('thm'); b ? b.click() : d.dataset.theme = t } }
 document.addEventListener('wb:theme', themeIn)
+// the card at its natural height: the frame grows to the dossier, so the page layer scrolls it as the site's modal
+// scrolls its card – the embed's own sheet height and its link out (this IS the site) give way
+const FIT = ':root[data-embed] .mbox{ min-height:0 } :root[data-embed] .modal{ overflow:hidden } :root[data-embed] .embl{ display:none }'
+let fitRO = null
+function fit(cw) { const d = cw.document; d.head.append(Object.assign(d.createElement('style'), { textContent: FIT }))
+	const box = d.querySelector('.mbox'); if (!box) return
+	fitRO?.disconnect(); fitRO = new cw.ResizeObserver(() => { frame.style.height = box.offsetHeight + 'px' }); fitRO.observe(box) }
 function loaded() { ready = true; dload.hidden = true; const cw = cwin(); if (!cw) return
-	seen = cw.location.hash.slice(1); themeIn(); lens('limit')
+	seen = cw.location.hash.slice(1); themeIn(); lens('limit'); fit(cw)
 	cw.addEventListener('hashchange', tick)   // a fragment link inside the dossier – read at once
 	cw.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.target.closest?.('select')) { e.preventDefault(); closePane() } })   // Esc inside the frame never reaches this document
 	cw.addEventListener('pointerdown', () => { hold = null }, true)   // a person reaching into the dossier keeps the focus they give it
 	tick() }
 function navState(s) { const list = [...cat.querySelectorAll('.sp')].map(e => e.dataset.s), k = list.indexOf(s)
 	for (const [b, t, w] of [[$('dock-prev'), list[k - 1], 'Previous'], [$('dock-next'), list[k + 1], 'Next']]) {   // the neighbours by name, as the site's card does
-		b.disabled = k < 0 || !t; b.querySelector('span').textContent = t ? disp(t) : ''; b.setAttribute('aria-label', t ? `${w} space – ${disp(t)}` : `${w} space`) } }
+		b.disabled = k < 0 || !t; b.querySelector('.mn').textContent = t ? disp(t) : ''; b.setAttribute('aria-label', t ? `${w} space – ${disp(t)}` : `${w} space`) }
+	const shs = [...cat.querySelectorAll('.shelf')], f = shs.findIndex(sh => sh.querySelector(`.sp[data-s="${CSS.escape(s)}"]`))
+	for (const [b, sh, w] of [[$('dock-pc'), shs[f - 1], 'Previous'], [$('dock-nc'), shs[f + 1], 'Next']]) { const t = f >= 0 && sh?.querySelector('.sp')?.dataset.s
+		b.disabled = !t; b.toggleAttribute('data-open-s', !!t); if (t) b.dataset.openS = t
+		b.querySelector('.mn').textContent = t ? disp(t) : ''; b.querySelector('.catn').textContent = t ? sh.getAttribute('aria-label') : ''
+		b.setAttribute('aria-label', t ? `${w} family – ${sh.getAttribute('aria-label')}, ${disp(t)}` : `${w} family`) } }
 const entry = s => s && cat.querySelector(`.sp[data-s="${CSS.escape(s)}"]`)
-// as a modal (index.html's card over the lit page, the header live above it) or beside the page from 75rem, a
-// full-screen dialog below it
-const modal = () => root.dataset.dossier === 'modal'
-function present() { if (dock.open) dock.close(); modal() || WIDE.matches ? dock.show() : dock.showModal() }
+// index.html's modal: the card over the lit page – a non-modal dialog, so the masthead stays live above it
 function show(focus, s) { const a = document.activeElement
-	if (!dock.open) { steady(() => { present(); document.body.classList.add('dockon') }, entry(s)); tickT = setInterval(tick, 150) }   // docked, the page gives up its width – the entry opened stays under the pointer
-	if (focus || modal() || !WIDE.matches) { $('dock-x').focus({ preventScroll: true }); return }   // then the dossier's own title takes it, as the app does on every open
+	if (!dock.open) { dock.show(); document.body.classList.add('dockon'); tickT = setInterval(tick, 150) }
+	dock.scrollTop = 0   // each space opens at its card's head
+	if (focus !== false) { $('dock-x').focus({ preventScroll: true }); return }   // then the dossier's own title takes it, as the app does on every open
 	// a quiet open (a tour stop, prev/next) keeps focus where it was: show() moves it, and so does the app –
 	// it focuses its card on every open, which pulls focus into the frame; tick() hands it back for a moment after
 	if (a && a !== document.body && a.isConnected) { a.focus({ preventScroll: true }); hold = { el: a, t: performance.now() + 8000 } } }
@@ -203,13 +213,11 @@ const DOCK = {
 		else if (ready) { want = s; tick() }   // in place: the app opens the dossier for a #<space> fragment – no reload
 		else frame.src = src(s)
 		show(focus, s) },
-	close() { if (!dock.open) return; clearInterval(tickT); steady(() => { dock.close(); document.body.classList.remove('dockon') }, cat.querySelector('.sp.on')) },
+	close() { if (!dock.open) return; clearInterval(tickT); dock.close(); document.body.classList.remove('dockon') },
 }
 // Esc on a full-screen dock is a close request: it goes through wb.js, which keeps S.sel, the URL and focus
 dock.addEventListener('cancel', e => { e.preventDefault(); closePane() })
-dock.addEventListener('click', e => { if (e.target === dock && modal()) closePane() })   // beside the card: the page, as on the site
-// crossing 75rem: the same dock, docked or full-screen – the iframe stays loaded
-WIDE.addEventListener('change', () => { if (dock.open && !modal()) present() })
+dock.addEventListener('click', e => { if (e.target === dock) closePane() })   // beside the card: the page, as on the site
 
 // ── the featured row is the layout's: as many featured spaces per shelf as the grid has columns (--cols, atlas.css –
 // 3 · 2 · 1 by the catalog's width), the starred ones first; crossing a breakpoint re-renders the shelves ──
@@ -274,6 +282,7 @@ once(foot, borrow, '0px 0px 150% 0px')
 mountTop({ top, cells, wb }); fill(top); fill(cells); pin(); new ResizeObserver(pin).observe(top.querySelector('.top'))
 await useHero(new URLSearchParams(location.search).get('hero'))
 boot({ arrange: 'family', view: 'grid', preview: 'sliders', quant: 'smooth', dock: DOCK })
+mountLineage({ hero: $('lineage'), wb })   // after the atlas: its history
 
 // Cite: the atlas's own BibTeX and APA (CITATION.cff, baked by build-site), read once on first open
 $('a-cite').addEventListener('toggle', e => { if (e.newState === 'open') loadCite().then(c => { $('a-cite-b').innerHTML = citeHTML(c) }) })

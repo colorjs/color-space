@@ -100,10 +100,3 @@
 	:root[data-top="drawer"] .dmast #cval{ font-size:var(--t3) }
 	:root[data-top="drawer"] .dcells .cw+.ic{ display:none }
 }
-
-/* ── the cut study, By the count: the masthead says "168 spaces by Family ▾" – the count's quiet select ── */
-:root[data-top="drawer"] .dmast .wb-cut{ display:none }
-:root[data-cut="count"][data-top="drawer"] .dmast .wb-cut{ display:inline-flex }
-:root[data-top="drawer"] .dmast .wb-cut>span{ font-size:var(--t2); font-weight:500; color:inherit; opacity:.85 }
-:root[data-top="drawer"] .dmast .wb-cut select{ font-size:var(--t2); font-weight:700; color:inherit }
-:root[data-top="drawer"] .dmast .wb-cut select:hover{ border-bottom-color:currentColor }

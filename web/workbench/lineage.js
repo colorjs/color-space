@@ -1,4 +1,4 @@
-// Atlas hero · Lineage – the catalog as a history, after the chart of Crayola's box growing from 8 crayons to 120:
+// Atlas · Lineage – the section after the atlas: the catalog as a history, after the chart of Crayola's box growing from 8 crayons to 120:
 // every space a thin band from the year it appeared to now, stacked in its family as the shelves below stack them,
 // each family fanning out from its oldest member – the river widens wherever the box grew. The years run on a
 // stretched scale (a handful of spaces before 1931, most of them since 1990) whose decade ticks show the stretch;
@@ -64,7 +64,7 @@ export default function mount({ hero, wb }) {
 	hero.innerHTML = `<div class="row hl-head">
 		<span class="lab" aria-hidden="true"></span>
 		<div class="hl-body">
-			<h1 class="hl-h">${FACTS.to - FACTS.from} years of writing color down.</h1>
+			<h2 class="hl-h">${FACTS.to - FACTS.from} years of writing color down.</h2>
 			<p class="hl-dek">Each line is one of the ${FACTS.count} spaces below, from the year it appeared to now.</p>
 		</div>
 	</div>
