@@ -27,6 +27,9 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 	assert.deepEqual(wrong, [], 'every baked name view carries its own space\'s dossier')
 }
 
+// a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
+// with 'f', a facet value
+const lens = (pg, k, v) => pg.evaluate(([k, v]) => document.querySelector(k === 'f' ? `.dpop [data-t="${v}"]` : `.dpop [data-lens="${k}"][data-v="${v}"]`).click(), [k, v])
 const server = await serve(SITE)
 const browser = await chromium.launch({ headless: true, executablePath })
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
@@ -42,18 +45,22 @@ try {
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
 		const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width > n.getBoundingClientRect().width + 1 }).map(n => n.closest('.ent').dataset.s)), [], 'no catalog name is clipped')
-	assert.equal(await page.locator('.ent[data-s="cmyk"] .cvp .stk button').first().evaluate(b => getComputedStyle(b).opacity), '0', 'on hover-capable pointers the spinners rest until their row is pointed')
+	assert.equal(await page.locator('#cat .stk').count(), 0, 'the catalog carries no spinners – its numbers take typing and ↑ ↓; the spinners are the dossier\'s')
 	const initialGradient=await page.locator('.ent[data-s="oklch"] .ch').first().evaluate(el => el.style.background.includes('linear-gradient')?el.style.background:el._gradStack?.at(-1)?.style.background||'')
 	assert.match(initialGradient, /linear-gradient/, 'catalog strips use CSS gradients')
 	assert.match(initialGradient, /rgb\([^)]*\.\d+/, 'gradient guides retain sub-byte color precision')
 	assert.doesNotMatch(initialGradient, /\d(?:\.\d+)?%\s+\d(?:\.\d+)?%/, 'smooth mode has interpolated stops, not hard sampled bands')
+	// one Limit cuts every slider – the catalog's as the dossier's: Surface by default (Light for a 1-channel sweep)
 	const mainLensesBefore=await page.locator('.ent[data-g]').evaluateAll(els=>els.map(el=>el.dataset.g))
-	assert.equal(mainLensesBefore.length>1&&mainLensesBefore.every(key=>/:off(?::|$)/.test(key)),true,'every populated catalog slider renders on full Light')
-	await page.locator('#gseg').selectOption('srgb'); await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
-	assert.deepEqual(await page.locator('.ent[data-g]').evaluateAll(els=>els.map(el=>el.dataset.g)),mainLensesBefore,'dossier limits do not repaint any main slider')
-	await page.locator('#gseg').selectOption('vis')
+	assert.equal(mainLensesBefore.length>1&&mainLensesBefore.every(key=>/:(vis|off)(?::|$)/.test(key)),true,'every populated catalog slider renders under the Limit – Surface by default')
+	const frames2=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
+	await page.evaluate(()=>document.querySelector('.ent[data-s="p3"]').scrollIntoView({block:'center'}))
+	await lens(page,'g','srgb'); await frames2()
+	assert.match(await page.locator('.ent[data-s="p3"]').getAttribute('data-g'),/:srgb(?::|$)/,'the Limit repaints the catalog\'s sliders')
+	await lens(page,'g','vis'); await frames2()
+	assert.match(await page.locator('.ent[data-s="p3"]').getAttribute('data-g'),/:vis(?::|$)/,'and back')
 	assert.equal(await page.locator('#cd').inputValue(), '#808080', 'undefined color starts neutral gray')
-	await page.locator('#upfl').click(); await page.waitForSelector('#uppop:not([hidden])')
+	await page.locator('#him').click(); await page.waitForSelector('#uppop:popover-open .upim')
 	const specimens=page.locator('#uppop .upim:not(.upld)')
 	assert.equal(await specimens.count(),7,'image rail carries the seven canonical specimens')
 	assert.deepEqual(await specimens.evaluateAll(bs=>bs.map(b=>b.title)),['Signal chart – bars, ramps, hue, limits','Color rendition target','Simultaneous contrast – one gray, four surrounds','Video calibration – 75% bars, PLUGE, multiburst','Colormap paths – gray, viridis, plasma, inferno, magma, cool-warm, turbo','Emissive star – clipped core and chromatic glow','The Great Wave – Hokusai'],'specimen order moves from exact diagnostics through scenes and art')
@@ -71,15 +78,17 @@ try {
 	assert.deepEqual(generatedTruth.contrast,Array(4).fill([128,128,128]),'simultaneous-contrast centers are numerically identical')
 	assert.deepEqual(generatedTruth.video,[[180,180,180],[16,16,180]],'video card preserves its 75% studio-level endpoints')
 	assert.equal(await page.locator('#uppop .upld').count(),1,'upload remains available after the canonical seven')
-	await page.locator('#upfl').click()
+	await page.locator('#him').click()
+	// the catalog starts under the hero's first screen – bring its first family into view (the live tiers paint what is on screen)
+	await page.evaluate(async()=>{ document.querySelector('.ent[data-s="rgb"]').scrollIntoView({block:'center'}); await new Promise(r=>setTimeout(r,300)) })
 	const liveTier=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]')
-		const neighbor=document.querySelector('.ent[data-s="rgb"] .ch[data-i="1"]'), currentVal=document.querySelector('.ent[data-s="rgb"] .cv[data-i="0"]'), otherLane=document.querySelector('.ent[data-s="p3"] .ch'), otherVal=document.querySelector('.ent[data-s="p3"] .cv'), otherRange=document.querySelector('.ent[data-s="p3"] .nrg'), hueLine=document.querySelector('.hueline')
-		const frame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))), set=v=>{ src.value=v; src.dispatchEvent(new Event('input',{bubbles:true})) }, pause=ms=>new Promise(r=>setTimeout(r,ms)), cur=el=>getComputedStyle(el).getPropertyValue('--cur').trim(), rowKeys=()=>[...document.querySelectorAll('.ent:not(.lite)')].filter(el=>{ const r=el.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight }).map(el=>({s:el.dataset.s,key:el.querySelector('.ch')?._g||el.dataset.g||''}))
+		const neighbor=document.querySelector('.ent[data-s="rgb"] .ch[data-i="1"]'), currentVal=document.querySelector('.ent[data-s="rgb"] .cv[data-i="0"]'), otherLane=document.querySelector('.ent[data-s="p3"] .ch'), otherVal=document.querySelector('.ent[data-s="p3"] .cv'), otherRange=document.querySelector('.ent[data-s="p3"] .nrg'), hueLine=document.getElementById('strip')
+		const frame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))), set=v=>{ src.value=v; src.dispatchEvent(new Event('input',{bubbles:true})) }, pause=ms=>new Promise(r=>setTimeout(r,ms)), cur=el=>getComputedStyle(el).getPropertyValue('--cur').trim(), rowKeys=()=>[...document.querySelectorAll('.ent')].filter(el=>{ const r=el.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight }).map(el=>({s:el.dataset.s,key:el.querySelector('.ch')?._g||el.dataset.g||''}))
 		let rootWrites=0; const rootObserver=new MutationObserver(()=>rootWrites++); rootObserver.observe(document.documentElement,{attributes:true,attributeFilter:['style']})
 		src.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:17,isPrimary:true}))
 		set(160); await frame()
 		const mid={gradient:neighbor.style.background,value:otherVal.value,thumb:otherRange.value,thumbColor:getComputedStyle(otherRange).getPropertyValue('--tkc'),otherGradient:otherLane._g,uiColor:hueLine.style.getPropertyValue('--cur')}
-		set(190); await frame(); const uiColor=cur(hueLine), scoped=[hueLine,document.querySelector('.fgrad'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,document.querySelector('.gtabs'),src.closest('.ent')].filter(Boolean).map(cur)
+		set(190); await frame(); const uiColor=cur(hueLine), scoped=[hueLine,document.getElementById('ftr'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,document.querySelector('.gtabs'),src.closest('.ent')].filter(Boolean).map(cur)
 		const immediate={gradient:neighbor.style.background,currentValue:currentVal.value,thumb:otherRange.value,thumbColor:getComputedStyle(otherRange).getPropertyValue('--tkc'),otherGradient:otherLane._g,uiColor,scoped}
 		const vd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value'), writes=[]
 		Object.defineProperty(otherVal,'value',{configurable:true,get(){return vd.get.call(this)},set(v){writes.push(performance.now());vd.set.call(this,v)}})
@@ -87,7 +96,7 @@ try {
 		delete otherVal.value; const throttled={writes:writes.length,value:otherVal.value}; await pause(180); const held={thumb:otherRange.value,otherGradient:otherLane._g,rootWrites}; rootObserver.disconnect()
 		set(245); const beforeRelease={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g}
 		src.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:17,isPrimary:true})); src.dispatchEvent(new Event('change',{bubbles:true})); const released={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g,rows:rowKeys()}
-		await pause(500); const post={accent:document.documentElement.style.accentColor,current:getComputedStyle(hueLine).backgroundColor}; return {mid,immediate,throttled,held,beforeRelease,released,post} })
+		await pause(500); const post={accent:document.documentElement.style.accentColor,current:getComputedStyle(document.getElementById('ftr')).backgroundColor}; return {mid,immediate,throttled,held,beforeRelease,released,post} })
 	assert.notEqual(liveTier.immediate.gradient,liveTier.mid.gradient,'current-space neighboring gradients update live')
 	assert.notEqual(liveTier.immediate.uiColor,liveTier.mid.uiColor,'scoped current-color UI stays live during a drag')
 	assert.equal(liveTier.immediate.scoped.length===6&&liveTier.immediate.scoped.every(color=>color===liveTier.immediate.uiColor),true,'every static current-color consumer follows the scoped drag color')
@@ -99,25 +108,24 @@ try {
 	assert.notEqual(liveTier.immediate.thumb,liveTier.mid.thumb,'every visible slider picker follows a held drag immediately')
 	assert.notEqual(liveTier.immediate.thumbColor,liveTier.mid.thumbColor,'every visible slider picker color follows a held drag immediately')
 	assert.equal(liveTier.immediate.thumbColor.trim().toLowerCase(),liveTier.immediate.uiColor.toLowerCase(),'every visible picker wears the current displayed color')
-	assert.notEqual(liveTier.held.otherGradient,liveTier.immediate.otherGradient,'other-space gradients repaint on the held throttle')
-	assert.match(liveTier.held.otherGradient,/:8:off:/,'held secondary gradients use the reduced guide count')
+	assert.equal(liveTier.held.otherGradient,liveTier.immediate.otherGradient,'a held hand leaves the other spaces\' gradients still – the drag\'s frames go to the strip in hand')
 	assert.notEqual(liveTier.released.thumb,liveTier.beforeRelease.thumb,'release flushes the final picker position synchronously')
 	assert.notEqual(liveTier.released.otherGradient,liveTier.beforeRelease.otherGradient,'release repaints secondary gradients synchronously')
-	assert.match(liveTier.released.otherGradient,/:48:off:/,'released secondary sliders regain full-quality Light guides immediately')
-	assert.equal(liveTier.released.rows.length>1&&liveTier.released.rows.every(({s,key})=>key.includes(`:${s==='rgb'?1:48}:off:`)),true,'release repaints every visible catalog row at its full Light guide count')
+	assert.match(liveTier.released.otherGradient,/:48:(vis|off):/,'released secondary sliders regain full-quality guides immediately')
+	assert.equal(liveTier.released.rows.length>1&&liveTier.released.rows.every(({s,key})=>new RegExp(`:${s==='rgb'?1:48}:(vis|off):`).test(key)),true,'release repaints every visible catalog row at its full guide count')
 	assert.equal(liveTier.post.accent,liveTier.post.current,'native accent color catches up after release')
 	const cancelled=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]'), lane=document.querySelector('.ent[data-s="p3"] .ch'), before=lane._g
 		src.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:18,isPrimary:true})); src.value=32; src.dispatchEvent(new Event('input',{bubbles:true})); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))
 		src.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:18,isPrimary:true})); return {before,after:lane._g} })
 	assert.notEqual(cancelled.after,cancelled.before,'pointer cancellation repaints catalog gradients synchronously')
-	assert.match(cancelled.after,/:48:off:/,'pointer cancellation restores full-quality Light guides immediately')
+	assert.match(cancelled.after,/:48:(vis|off):/,'pointer cancellation restores full-quality guides immediately')
 	const customCatalogCancel=await page.evaluate(async()=>{ const ch=document.querySelector('.ent[data-s="rgb"] .ch'), back=document.querySelector('.ent[data-s="p3"] .ch'), r=ch.getBoundingClientRect(), capture=ch.setPointerCapture; ch.setPointerCapture=()=>{}
 		const pointer=(type,f)=>ch.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:21,isPrimary:true,clientX:r.left+r.width*f,clientY:r.top+r.height/2}))
 		pointer('pointerdown',.2); pointer('pointermove',.65); await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))); const active=ch.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
 		pointer('pointercancel',.65); ch.setPointerCapture=capture; return {active,parked:!ch.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
 	assert.equal(customCatalogCancel.active&&customCatalogCancel.parked,true,'pointer cancellation parks a custom catalog slider')
 	assert.notEqual(customCatalogCancel.after,customCatalogCancel.held,'custom catalog cancellation repaints ranges synchronously')
-	assert.match(customCatalogCancel.after,/:48:off:/,'custom catalog cancellation restores full-quality ranges')
+	assert.match(customCatalogCancel.after,/:48:(vis|off):/,'custom catalog cancellation restores full-quality ranges')
 	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
 	assert.equal(await page.locator('#cd').inputValue(),'#123456','pointer cancellation releases the catalog drag guard')
 	await page.waitForFunction(()=>document.documentElement._accent==='#123456')   // the typed color's own root accent lands CURRENT_SETTLE after its frame – let it, or it counts inside the burst below
@@ -128,41 +136,75 @@ try {
 	assert.equal(nonPointerRoot.during,0,'a rapid non-pointer input burst does not mutate inherited root style')
 	assert.equal(nonPointerRoot.after,1,'the native root accent updates once after the input burst settles')
 
+	// the hero's field: words find the spaces they name once committed; Esc empties it and lets the search go
 	const search = page.locator('#q')
-	await page.locator('.qx').click()
 	await search.fill('oklch')
+	assert.match(await page.locator('#hhint').innerText(), /space it names/, 'the field says what Enter will do with the words')
+	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'typing alone filters nothing – a color typed there is not a search')
+	await search.press('Enter')
 	assert.equal(await page.locator('.ent[data-s="oklch"]').isVisible(), true, 'search keeps OKLCH visible')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'search filters non-matches')
-	// the overlay clear button: visible with a query, one click empties and restores
-	assert.equal(await page.locator('.qclr').isVisible(), true, 'the clear button shows with a query')
-	await page.locator('.qclr').click()
-	assert.equal(await search.inputValue(), '', 'the clear button empties the query')
+	assert.equal(new URL(page.url()).searchParams.get('find'), 'oklch', 'the committed search rides the URL')
+	await search.press('Escape')
+	assert.equal(new URL(page.url()).searchParams.get('find'), null, 'and leaves it when let go')
+	assert.equal(await search.inputValue(), '', 'Esc empties the query')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'and restores the catalog')
+	await page.evaluate(()=>scrollTo(0,0))
+	await search.fill('tomato'); await search.press('Enter')
+	await page.waitForFunction(()=>document.querySelector('#cd').value==='#ff6347',null,{timeout:5000})   // a color in the field becomes the current color
+	assert.equal(await search.inputValue(), '', 'and leaves the field')
 
-	// the coverage slider: ≥90% keeps full-coverage spaces, drops sRGB (~36%), and the
-	// header chip resets it — pins the threshold predicate and its chip lifecycle
-	await page.locator('#tfb').click()
+	// the coverage slider: ≥90% keeps full-coverage spaces, drops sRGB (~36%), and More's Any resets it — pins the
+	// threshold predicate and its reset lifecycle
+	await page.locator('#c-more').click()
 	await page.locator('#fcov').fill('90')
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), true, 'coverage ≥90% keeps oklab')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'coverage ≥90% drops sRGB')
-	await page.locator('.fchip[data-cov]').click()
-	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'removing the coverage chip restores the catalog')
+	assert.match(await page.locator('#c-more b').innerText(), /1/, 'More counts what it holds')
+	// the row holds every facet or lends it to More – never both, never one missing: each facet's options exist once,
+	// in its own cell's menu while the cell is in the row, else in More's section
+	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage','status'].filter(k=>{ const out=document.getElementById('c-'+k).hidden, body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
+		return body.length!==1||(out?!body[0].closest('#m-more'):body[0].closest('#m-more')) })),[],'each facet lives in its cell or in More, once')
+	assert.equal(await page.locator('.cell b.on').evaluateAll(bs=>bs.every(b=>getComputedStyle(b).boxShadow==='none')),true,'a picked value is not underlined')
+	await page.locator('[data-any="coverage"]').click()
+	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'Coverage\'s Any restores the catalog')
 	// the interval's low end: ≤50% finds the narrow-coverage spaces and drops the wide ones
-	await page.locator('#tfb').click()   // the chip click closed the picker — reopen for the interval case
 	await page.locator('#fcov1').fill('50')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'coverage ≤50% keeps sRGB (~36%)')
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), false, 'coverage ≤50% drops oklab')
-	await page.locator('.fchip[data-cov]').click()
+	await page.locator('[data-any="coverage"]').click()
 	// the fill IS the interval: after a reset the track must return to full ink, not clear
 	assert.equal(await page.locator('#fcov').evaluate(i => { const d = i.closest('.dual'); return d.style.getPropertyValue('--lo') + ' ' + d.style.getPropertyValue('--hi') }), '0% 100%', 'coverage reset repaints the full interval')
 	await page.keyboard.press('Escape')
 
 	// each family's tooltip rides its rail button; card names carry the quick-tag
 	// dossier; the FAQ entries fold and unfold
-	assert.equal(await page.locator('.toc .tn[data-tip]').count(), 11, 'every family carries its tooltip')
+	assert.equal(await page.locator('.toc .tn[data-tip]').count(), 7, 'every family carries its tooltip')
+	// the rail rests by the first space: as each family reaches the pinned row, its title sits on its first space's
+	// line – every family, not only the first (a passed title steps out of sight)
+	assert.deepEqual(await page.evaluate(async()=>{ const off=[]
+		for(const [i,sec] of [...document.querySelectorAll('.sec')].entries()){ sec.scrollIntoView(); scrollBy(0,40); await new Promise(r=>setTimeout(r,150))
+			const t=document.querySelectorAll('.ti .tn')[i].getBoundingClientRect(), n=sec.querySelector('.ent .nm').getBoundingClientRect(), d=Math.abs(t.top+t.height/2-(n.top+40+n.height/2))
+			if(d>8||document.querySelectorAll('.ti')[i].classList.contains('past')) off.push(i+':'+Math.round(d)) }
+		return off }), [], 'each family\'s title rests on its first space\'s line')
+	// entering, the first title comes up with its first space; the waiting stack stays at the screen's foot but never
+	// rises over the first family – its box begins under that family's description
+	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelector('.sec'); scrollTo(0,sec.getBoundingClientRect().top+scrollY-56-300); await new Promise(r=>setTimeout(r,300))
+		const t=document.querySelector('.ti .tn').getBoundingClientRect(), n=sec.querySelector('.ent .nm').getBoundingClientRect(); const tip=document.querySelector('.ti .tip').getBoundingClientRect(), nx=document.querySelectorAll('.ti')[1].getBoundingClientRect()
+		return Math.abs(t.top+t.height/2-(n.top+n.height/2))<8&&nx.top>=tip.bottom-1&&nx.bottom<=innerHeight }), true, 'the first title enters with its first space; the coming ones wait on screen under its description')
+	// …and the shelf tabs wait below its description, never riding up over the first family
+	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelector('.sec'); scrollTo(0,sec.getBoundingClientRect().top+scrollY-innerHeight+80); await new Promise(r=>setTimeout(r,300))
+		return document.querySelector('.gtabs').getBoundingClientRect().top>=document.querySelector('.ti .tip').getBoundingClientRect().bottom-1 }), true, 'the shelf tabs stay below the first family\'s description')
+	// a window too short to stack the coming titles under that line keeps the line – they wait in their flow places
+	await page.setViewportSize({ width: 1440, height: 440 }); await page.waitForTimeout(300)
+	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelector('.sec'); sec.scrollIntoView(); await new Promise(r=>setTimeout(r,300))
+		const t=document.querySelector('.ti .tn').getBoundingClientRect(), n=sec.querySelector('.ent .nm').getBoundingClientRect(); return Math.abs(t.top+t.height/2-(n.top+n.height/2)) }) < 8, true, 'a short window keeps the first title on its line')
+	await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(300)
+	// a card's kind (.lc lead, .tc tile, .lr row) styles only catalog entries – the rail's count chip is .tc too
+	assert.deepEqual(await page.locator('.ti .tc').first().evaluate(el => { const c = getComputedStyle(el); return [c.contentVisibility, c.flexDirection] }), ['visible', 'row'], 'the rail\'s count is not styled as a tile')
 	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip'), /2020/, 'card names carry the quick-tag dossier')
 	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /perceptual/, 'and its tag chips')
-	assert.equal(await page.locator('.fqa').count(), 16, 'the questions are all present')
+	assert.equal(await page.locator('.fqa').count(), 10, 'the questions are all present')
 	const fq = page.locator('.fqa').first()
 	await fq.locator('summary').click()
 	assert.equal(await fq.getAttribute('open'), '', 'a question unfolds')
@@ -186,17 +228,46 @@ try {
 	// camera-log timeline), and the header chips restore every layer
 	assert.equal(await page.locator('.gtag').count(), 3, 'the rail offers the three cuts')
 	await page.locator('.gtag[data-g="purpose"]').click()
-	assert.match(await page.locator('.toc .tn').first().innerText(), /Picking/, 'purpose shelves lead the rail')
+	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
 	assert.equal(await page.locator('.ent[data-s]').count(), 168, 'era regroup keeps every space')
-	assert.match(await page.locator('.toc .tn').first().innerText(), /2020/, 'era shelves lead the rail, newest first')
-	await page.locator('#tfb').click()
-	await page.locator('#tfp button[data-t="scene"]').click()
+	assert.match(await page.locator('.toc .tn').first().textContent(), /2020/, 'era shelves lead the rail, newest first')
+	await lens(page,'f','scene')
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
-	await page.locator('.fchip[data-f]').click()
+	assert.match(await page.locator('#c-signal b').innerText(), /^Scene/, 'the Signal cell names its pick')
+	await page.evaluate(()=>document.querySelector('[data-any="signal"]').click())
 	await page.locator('.gtag[data-g="family"]').click()
-	assert.match(await page.locator('.toc .tn').first().innerText(), /Display/, 'the Family tab restores the family cut')
+	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
+
+	// the views: Rows and the List rebuild the same catalog; a List column orders every space in one shelf, again the
+	// other way; Grid returns. A lead card's own switch shows its channel pairs as planes
+	await lens(page,'w','rows')
+	assert.equal(await page.locator('.ent.lr').count(), 168, 'Rows shows every space')
+	await lens(page,'w','list')
+	assert.equal(await page.locator('.ent.tr').count(), 168, 'the List shows every space')
+	await page.locator('[data-sort="year"]').first().click()
+	assert.equal(await page.locator('.sec').count(), 1, 'a sorted column gathers every space in one shelf')
+	const years = await page.locator('.ent.tr .c-year').allInnerTexts()
+	assert.equal(years.every((y, i) => !i || +years[i - 1] <= +y), true, 'oldest first')
+	await page.locator('[data-sort="year"]').first().click()
+	assert.equal(+(await page.locator('.ent.tr .c-year').first().innerText()) >= +years.at(-1), true, 'and again, newest first')
+	assert.equal(await page.evaluate(() => localStorage.csView), 'list', 'the view is kept for the next visit')
+	await lens(page,'w','grid')
+	assert.equal(await page.locator('.ent.lc').count(), 21, 'Grid returns: the families\' featured cards')
+	const okl = page.locator('.ent[data-s="oklch"]'); await okl.scrollIntoViewIfNeeded(); await okl.hover()
+	await okl.locator('.pvs').click()
+	assert.equal(await okl.locator('.pl').count(), 3, 'the switch shows a card\'s three planes')
+	assert.equal(await okl.locator('.pv>.chs').isVisible(), false, 'in place of its strips')
+	await okl.locator('.pvs').click()
+	assert.equal(await okl.locator('.pv>.chs').isVisible(), true, 'and back')
+	// the history builds as the reader nears it: one band per space, its milestones read off the data; a band opens its dossier
+	await page.locator('#lineage').scrollIntoViewIfNeeded(); await page.waitForSelector('#lineage .hl-b')
+	assert.equal(await page.locator('#lineage .hl-b').count(), 168, 'the history draws every space')
+	assert.deepEqual(await page.locator('#lineage .hl-ms').evaluateAll(b => b.map(x => x.dataset.s)), ['xyz', 'lab', 'rgb', 'oklab'], 'its milestones: CIE XYZ, CIELAB, sRGB, OKLab')
+	await page.locator('#lineage .hl-ms[data-s="lab"]').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
+	assert.match(await page.locator('#dtitle').innerText(), /CIELAB/, 'a milestone opens its dossier')
+	await page.locator('#mx').click(); await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
 
 	await page.locator('#cval').fill('rebeccapurple')
 	await page.locator('#cval').press('Enter')
@@ -229,22 +300,25 @@ try {
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
 	assert.match(await page.locator('#detail .dgrid2').evaluate(el => el.textContent), /made for\s*The polar form CSS adopted/, 'the lore line says what the space was made for, sentence-cased')
 	assert.equal(await page.locator('#cseg').evaluate(el=>getComputedStyle(el).getPropertyValue('--cur').trim().toLowerCase()),(await page.locator('#cd').inputValue()).toLowerCase(),'dynamic dossier tabs receive the scoped current color')
-	const mode=async value=>{ await page.evaluate(v=>{ const q=document.getElementById('qseg'); q.value=v; q.dispatchEvent(new Event('change',{bubbles:true})) },value)   // the view select lives in the (closed) filter panel now — drive it by value, not by visibility
+	const mode=async value=>{ await lens(page,'q',value)   // Draw's menu option, through the page's own handler
 		await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))) }
-	const sliderBoundaryParity=async s=>page.evaluate(s=>[...document.querySelector(`.ent[data-s="${s}"]`).querySelectorAll('.ch')].every((ch,i)=>{ const bg=ch._gradStack?.at(-1)?.style.background||ch.style.background||'', p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), css=p.filter((x,k)=>k&&Math.abs(x-p[k-1])<1e-6)
+	// the void's edges (what no light can be): the catalog's hard stops where alpha crosses 0, the dossier bar's alpha < 20
+	const sliderBoundaryParity=async s=>page.evaluate(s=>[...document.querySelector(`.ent[data-s="${s}"]`).querySelectorAll('.ch')].every((ch,i)=>{ const bg=ch._gradStack?.at(-1)?.style.background||ch.style.background||''
+		const st=[...bg.matchAll(/rgb\(([^)]*)\)\s+([\d.]+)%/g)].map(m=>{ const am=m[1].match(/\/\s*([\d.]+)/); return { a:am?+am[1]:1, p:+m[2] } })
+		const css=st.filter((x,k)=>k&&Math.abs(x.p-st[k-1].p)<1e-6&&(x.a===0)!==(st[k-1].a===0)).map(x=>x.p)
 		const c=document.querySelector(`.bar2[data-i="${i}"] .bgc`), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data, gpu=[]; let a=d[3]>=20
 		for(let x=1;x<c.width;x++){ const next=d[x*4+3]>=20; if(next!==a){ gpu.push(x/c.width*100); a=next } }
 		return css.length===gpu.length&&css.every((x,k)=>Math.abs(x-gpu[k])<.6) }),s)
 	await mode('names')
 	const paletteLane=page.locator('.ent[data-s="oklab"] .ch').first(); await page.waitForFunction(()=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'); return (el._g||el.closest('.ent').dataset.g||'').endsWith(':names:oklab') })
 	const paletteBefore={color:await page.locator('#cd').inputValue(),key:await paletteLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}
-	await page.evaluate(()=>{ const m=document.getElementById('mseg'); m.value='de76'; m.dispatchEvent(new Event('change',{bubbles:true})) })
+	await lens(page,'m','de76')
 	await page.waitForFunction(before=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'), key=el._g||el.closest('.ent').dataset.g||''; return key!==before&&key.endsWith(':names:de76') },paletteBefore.key)
 	const paletteAfter={color:await page.locator('#cd').inputValue(),key:await paletteLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}
 	assert.equal(paletteAfter.color,paletteBefore.color,'an exact named color stays fixed across palette metrics')
 	assert.notEqual(paletteAfter.key,paletteBefore.key,'a palette metric change repaints background gradients even when the color stays fixed')
 	assert.match(paletteAfter.key,/:names:de76$/,'settled catalog gradients carry the new palette metric')
-	await page.evaluate(()=>{ const m=document.getElementById('mseg'); m.value='oklab'; m.dispatchEvent(new Event('change',{bubbles:true})) }); await mode('smooth')
+	await lens(page,'m','oklab'); await mode('smooth')
 	await mode('jnd')
 	const evenHex=await page.locator('#cd').inputValue(), evenRgb=[1,3,5].map(i=>parseInt(evenHex.slice(i,i+2),16))
 	assert.equal(Math.max(...evenRgb)-Math.min(...evenRgb)<=4,true,'even mode preserves the neutral axis')
@@ -274,18 +348,17 @@ try {
 	assert.notEqual(await backValue.inputValue(),backMid.value,'dossier drag updates background catalog numbers on the 100ms tier')
 	await page.waitForTimeout(230)
 	const backHeld=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
-	assert.notEqual(backHeld,backMid.gradient,'dossier drag repaints background catalog gradients on the throttle')
-	assert.match(backHeld,/:8:off:/,'held background catalog gradients use reduced guides')
+	assert.equal(backHeld,backMid.gradient,'a dossier drag leaves the catalog\'s gradients behind it still until release')
 	await page.mouse.up()
 	const backReleased=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
 	assert.notEqual(backReleased,backHeld,'dossier release repaints background catalog gradients synchronously')
-	assert.match(backReleased,/:48:off:/,'dossier release restores full-quality background gradients immediately')
+	assert.match(backReleased,/:48:(vis|off):/,'dossier release restores full-quality background gradients immediately')
 	const nativeCancel=await page.evaluate(async()=>{ const r=document.querySelector('.bar2[data-i="1"] .nrg'), bar=r.closest('.bar2'), back=document.querySelector('.ent[data-s="oklab"] .ch'), frame=()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))
 		r.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:19,isPrimary:true})); r.value=+r.min+(+r.max-+r.min)*.37; r.dispatchEvent(new Event('input',{bubbles:true})); await frame(); const active=bar.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
 		r.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:19,isPrimary:true})); return {active,parked:!bar.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
 	assert.equal(nativeCancel.active&&nativeCancel.parked,true,'pointer cancellation parks a native dossier slider')
 	assert.notEqual(nativeCancel.after,nativeCancel.held,'native dossier cancellation repaints background ranges synchronously')
-	assert.match(nativeCancel.after,/:48:off:/,'native dossier cancellation restores full-quality background ranges')
+	assert.match(nativeCancel.after,/:48:(vis|off):/,'native dossier cancellation restores full-quality background ranges')
 	await page.locator('#cval').fill('#234567'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#234567')
 	assert.equal(await page.locator('#cd').inputValue(),'#234567','native pointer cancellation releases the dossier drag guard')
 	const customCancel=await smoothL.evaluate(async el=>{ const back=document.querySelector('.ent[data-s="oklab"] .ch'), r=el.getBoundingClientRect(), capture=el.setPointerCapture; el.setPointerCapture=()=>{}
@@ -294,7 +367,7 @@ try {
 		pointer('pointercancel',.58); el.setPointerCapture=capture; return {active,parked:!el.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
 	assert.equal(customCancel.active&&customCancel.parked,true,'pointer cancellation parks a custom dossier slider')
 	assert.notEqual(customCancel.after,customCancel.held,'custom dossier cancellation repaints background ranges synchronously')
-	assert.match(customCancel.after,/:48:off:/,'custom dossier cancellation restores full-quality background ranges')
+	assert.match(customCancel.after,/:48:(vis|off):/,'custom dossier cancellation restores full-quality background ranges')
 	await page.locator('#cval').fill('#345678'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#345678')
 	assert.equal(await page.locator('#cd').inputValue(),'#345678','custom pointer cancellation releases the dossier drag guard')
 	await mode('web')
@@ -305,7 +378,7 @@ try {
 	await page.mouse.move(lr.x+lr.width*.27,lr.y+lr.height/2); await page.mouse.down(); await page.waitForTimeout(30)
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.27','quantized slider moves continuously while held')
 	await page.mouse.up()
-	assert.match(await page.locator('.ent[data-s="oklch"] .ch').first().evaluate(el=>el._g||el.closest('.ent').dataset.g),/^oklch\|0\.25,.*:0:48:off:10$/,'release synchronously repaints catalog ranges from the final snapped value')
+	assert.match(await page.locator('.ent[data-s="oklch"] .ch').first().evaluate(el=>el._g||el.closest('.ent').dataset.g),/^oklch\|0\.25,.*:0:48:vis:10$/,'release synchronously repaints catalog ranges from the final snapped value')
 	await page.waitForTimeout(260)   // the release PARKS: a 180ms glide into the cell, so the read waits it out
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.25','quantized slider snaps to its cell center on release')
 	await page.mouse.click(lr.x+lr.width*.01,lr.y+lr.height/2); await page.waitForTimeout(260)
@@ -337,7 +410,7 @@ try {
 	await mode('smooth')
 	// The catalog is always Light; the dossier alone wears the selected Surface limit.
 	// Both still void imaginary coordinates at the same locus boundary.
-	await page.evaluate(()=>{ const g=document.getElementById('gseg'); g.value='vis'; g.dispatchEvent(new Event('change',{bubbles:true})) })
+	await lens(page,'g','vis')
 	await page.waitForTimeout(200)
 	for(const [i,v] of [[0,'0.30'],[1,'0.143'],[2,'263']]) await page.locator('#bigch .nv').nth(i).fill(v)
 	await page.waitForFunction(()=>{ const el=document.querySelector('.ent[data-s="oklch"] .ch[data-i="0"]'), bg=el._gradStack?.at(-1)?.style.background||el.style.background||''; return /(?:\/ 0\)|,\s*0\))/.test(bg) }); await page.waitForTimeout(400)
@@ -348,14 +421,14 @@ try {
 		const d=dossier.getContext('2d').getImageData(0,0,dossier.width,dossier.height).data; let first=-1, ghost=false
 		for(let x=0;x<dossier.width;x++){ const a=d[x*4+3]; if(first<0&&a>=20) first=x; if(a>=80&&a<=180) ghost=true }
 		return {mainVoid:/(?:\/ 0\)|,\s*0\))/.test(mbg),mainGhost:/(?:\/ 0\.5\)|,\s*0\.5\))/.test(mbg),dossierVoid:first>0,dossierGhost:ghost} })
-	assert.equal(validityEdges.mainVoid&&!validityEdges.mainGhost&&validityEdges.dossierVoid&&validityEdges.dossierGhost,true,'catalog gradients stay on Light while the held dossier shows the Surface limit')
+	assert.equal(validityEdges.mainVoid&&validityEdges.mainGhost&&validityEdges.dossierVoid&&validityEdges.dossierGhost,true,'catalog gradients take the Surface limit the held dossier shows')
 	await page.mouse.up(); await page.waitForTimeout(700)
 	const settledEdges=await page.evaluate(()=>{ const main=document.querySelector('.ent[data-s="oklch"] .ch[data-i="0"]'), c=document.querySelector('.bar2[data-i="0"] .bgc'), bg=main._gradStack?.at(-1)?.style.background||main.style.background||''
 		const p=[...bg.matchAll(/([\d.]+)%/g)].map(m=>+m[1]), hard=p.filter((x,i)=>i&&Math.abs(x-p[i-1])<1e-6), d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let first=-1
 		for(let x=0;x<c.width;x++)if(d[x*4+3]>=20){ first=x; break }
 		return {main:hard[0],dossier:first/c.width*100} })
 	assert.equal(isFinite(settledEdges.main)&&Math.abs(settledEdges.main-settledEdges.dossier)/100<.03,true,'Light catalog and limited dossier share the same locus boundary')
-	await page.evaluate(()=>{ const g=document.getElementById('gseg'); g.value='vis'; g.dispatchEvent(new Event('change',{bubbles:true})) })   // restore the dossier default
+	await lens(page,'g','vis')   // restore the dossier default
 	// the exporters ride the plates rail: label + target select + download buttons
 	assert.match(await page.locator('#dex').innerText(), /conversion lut/i, 'LUT block rides the dossier rail')
 	assert.equal(await page.locator('#dex #dldl').count() + await page.locator('#dex #didl').count(), 2, 'cube + icc downloads present')
@@ -430,8 +503,9 @@ try {
 	await heading.waitFor()
 	assert.equal(await heading.getAttribute('role'), null, 'mobile category heading is a plain title (folding removed)')
 	const rowsShown = await mobile.evaluate(() =>
-		[...document.querySelectorAll('.gcol > .ent')].slice(0, 8).every(e => e.getBoundingClientRect().height > 0))
+		[...document.querySelectorAll('.sec .ent')].slice(0, 8).every(e => e.getBoundingClientRect().height > 0))
 	assert.equal(rowsShown, true, 'mobile rows are all visible without unfolding')
+	assert.equal(await mobile.locator('.sec').first().locator('.lead .ent').count(), 1, 'a phone\'s one column leads each family with one featured space')
 	// operating the grouping select must not raise its heading's explainer (tip.js stops
 	// ancestor tips at form controls) — while the heading itself still explains
 	await mobile.locator('.gsel').first().hover()
@@ -446,8 +520,9 @@ try {
 	await motion.goto(`${server.origin}/?cb=${Date.now()}`,{waitUntil:'networkidle'})
 	await motion.waitForTimeout(700)
 	assert.notEqual(await motion.locator('#cd').inputValue(),'#808080','undefined gray enters its ambient color orbit')
+	await motion.evaluate(async()=>{ document.getElementById('cat').scrollIntoView(); await new Promise(r=>setTimeout(r,300)) })   // the catalog, under the hero
 	const ambientPicker=await motion.evaluate(()=>{ const hx=document.querySelector('#cd').value.toUpperCase()
-		const colors=[...document.querySelectorAll('.ent:not(.lite) .nrg')].filter(el=>{ const r=el.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight }).map(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toUpperCase())
+		const colors=[...document.querySelectorAll('.ent .nrg')].filter(el=>{ const r=el.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight }).map(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toUpperCase())
 		return {hx,colors} })
 	assert.equal(ambientPicker.colors.length>0&&ambientPicker.colors.every(c=>c===ambientPicker.hx),true,'all visible slider pickers wear the animated color')
 	const nameContext=await browser.newContext({viewport:{width:800,height:600}}), nameView=await nameContext.newPage()   // its OWN context: a second page in motionContext backgrounds the index, whose rAF pauses (CI caught the orbit unrepainted after typed input)
@@ -455,18 +530,23 @@ try {
 	await nameView.waitForFunction(()=>document.querySelector('#cd').value!=='#808080',null,{timeout:20000})   // a dossier's GL instruments make the first orbit frame late on software GL – wait for it, don't race it
 	assert.equal(await nameView.locator('#cval').inputValue(),'','the orbit stays ambient on a name view – no value asserted, no URL written')
 	assert.equal(new URL(nameView.url()).hash,'','the ambient orbit never writes the URL')
+	// the pinned row stays over a name view's card – its Limit, Quantize and Vision reach the dossier – floating under the
+	// masthead; closing the card returns it to the first screen's foot
+	assert.deepEqual(await nameView.evaluate(()=>{ const st=getComputedStyle(document.getElementById('strip')); return [st.position,st.visibility,document.getElementById('strip').inert] }),['fixed','visible',false],'the row floats, live, over a first-screen card')
+	await nameView.locator('#mx').click()
+	assert.deepEqual(await nameView.evaluate(()=>[document.body.classList.contains('mfloat'),getComputedStyle(document.getElementById('strip')).position,scrollY]),[false,'sticky',0],'closing the card seats the row back at the first screen\'s foot')
 	await nameContext.close()
 	await motion.locator('#cval').fill('#123456')
 	await motion.waitForFunction(()=>document.querySelector('#cd').value==='#123456',null,{timeout:10000})   // wait for the repaint, don't race it – a loaded runner paints later than 450ms
 	await motion.waitForTimeout(400)
 	assert.equal(await motion.locator('#cd').inputValue(),'#123456','authored color input stops the ambient orbit')   // …and it HOLDS: a still-running orbit would have moved on
-	await motion.locator('.ent:not(.lite)').last().scrollIntoViewIfNeeded(); await motion.waitForTimeout(180)
-	const bottomPickers=await motion.evaluate(()=>{ const rows=[...document.querySelectorAll('.ent:not(.lite)')].filter(e=>{ const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight&&e.querySelector('.nrg') })
+	await motion.locator('.ent').last().scrollIntoViewIfNeeded(); await motion.waitForTimeout(180)
+	const bottomPickers=await motion.evaluate(()=>{ const rows=[...document.querySelectorAll('.ent')].filter(e=>{ const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight&&e.querySelector('.nrg') })
 		const ranges=rows.flatMap(e=>[...e.querySelectorAll('.nrg')]), positioned=rows.every(e=>{ const cvs=e.querySelectorAll('.cv'), rs=e.querySelectorAll('.nrg'); return [...rs].every((r,i)=>Math.abs(+r.value-+cvs[i].value)<=(+r.max-+r.min)*.006+1e-9) })
 		return {n:ranges.length,colored:ranges.every(r=>getComputedStyle(r).getPropertyValue('--tkc').trim().toUpperCase()==='#123456'),positioned} })
 	assert.equal(bottomPickers.n>0&&bottomPickers.colored,true,'offscreen catalog pickers inherit the current color when scrolled into view')
 	assert.equal(bottomPickers.positioned,true,'newly visible catalog picker positions catch up to the current color')
-	await motion.evaluate(()=>scrollTo(0,0)); await motion.waitForTimeout(180)
+	await motion.evaluate(()=>document.querySelector('.ent[data-s="rgb"]').scrollIntoView({block:'center'})); await motion.waitForTimeout(180)
 	const interrupted=await motion.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg'), lane=document.querySelector('.ent[data-s="p3"] .ch'), sleep=ms=>new Promise(r=>setTimeout(r,ms))
 		const g0=lane._g||lane.closest('.ent').dataset.g; src.value=160; src.dispatchEvent(new Event('input',{bubbles:true}))
 		for(let n=0;n<80&&((lane._g||lane.closest('.ent').dataset.g)===g0||!lane._gradStack?.length);n++) await sleep(10)
@@ -594,12 +674,12 @@ try {
 	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
 	// the vision lens: one root filter, defs mounted once, cited models
 	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	assert.match(await wire.locator('#vseg').getAttribute('title'), /doi:10\.1109\/TVCG\.2009\.113[\s\S]*doi:10\.1364\/JOSAA\.14\.002647/, 'the vision tooltip cites Machado 2009 and Brettel 1997')
-	await wire.locator('#vseg').selectOption('deutan')
+	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-vision .opt')].map(o => o.textContent + ' ' + o.title).join(' ')), /Machado[\s\S]*doi:10\.1109\/TVCG\.2009\.113[\s\S]*Brettel[\s\S]*doi:10\.1364\/JOSAA\.14\.002647/, 'the vision options cite Machado 2009 and Brettel 1997, their DOIs in the tooltips')
+	await lens(wire,'v','deutan')
 	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
 	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')
 	assert.match(await wire.evaluate(() => getComputedStyle(document.documentElement).filter), /url\(.*#cvd-deutan/, 'the root wears the filter')
-	await wire.locator('#vseg').selectOption('tritan'); await wire.locator('#vseg').selectOption('none')
+	await lens(wire,'v','tritan'); await lens(wire,'v','none')
 	assert.deepEqual(await wire.evaluate(() => [document.documentElement.dataset.cvd, document.querySelectorAll('filter#cvd-tritan').length]), [undefined, 1], 'typical vision clears the lens; the defs mounted once')
 	// Cite: BibTeX + APA from CITATION.cff, the version package.json's
 	await wire.locator('.legal .cite').click()
@@ -615,7 +695,7 @@ try {
 	embed.on('pageerror', error => errors.push(`embed: ${error.message}`))
 	await embed.goto(`${server.origin}/oklch?embed&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await embed.waitForSelector('#modal:not([hidden]) #dtitle')
-	assert.deepEqual(await embed.evaluate(() => ['.mast', '#cat', '#faq', '#ftr', '#mx', '.mnavbar', '#upfl'].filter(q => { const el = document.querySelector(q); return el && el.getClientRects().length })), [], 'embed hides header, catalog, FAQ, footer, close, prev/next and the image seat')
+	assert.deepEqual(await embed.evaluate(() => ['.top', '#hero', '#strip', '#cat', '#faq', '#ftr', '#mx', '.mnavbar'].filter(q => { const el = document.querySelector(q); return el && el.getClientRects().length })), [], 'embed hides header, catalog, FAQ, footer, close, prev/next and the image seat')
 	assert.equal(await embed.locator('#cat .ent').count(), 0, 'embed never builds the catalog')
 	assert.match(await embed.locator('link[rel="canonical"]').getAttribute('href'), /\/oklch$/, 'embed keeps the clean canonical')
 	const mb = await embed.locator('.mbox').boundingBox(), vw = await embed.evaluate(() => document.documentElement.clientWidth)
@@ -663,7 +743,7 @@ try {
 	await gpu.goto(`${server.origin}/robots.txt?cb=${Date.now()}`)
 	const rendering = await gpu.evaluate(async () => {
 		const { paintBarGL, paintPlaneGL, mesh3Canvas, drawMesh3GL } = await import('/js/gl.js')
-		const { quantRGB } = await import('/js/study-render.js')
+		const { quantRGB } = await import('/js/quant.js')
 		const check = (ok, message) => { if (!ok) throw new Error(message) }
 		const ready = async draw => { const end = performance.now() + 20000
 			while (!draw()) { check(performance.now() < end, 'renderer did not become ready'); await new Promise(r => requestAnimationFrame(r)) } }

@@ -88,6 +88,111 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
   hue × chroma slice at the current lightness (sRGB's gamut at that L, the hue up, the color a rhombus at its
   chroma, captioned) or rays (?burst=rays); centered or left (?lay=left). Enter floods the color out from the
   field, then the atlas slides up over the pinned hero (a curtain; the hero settles back as it goes).
+- Atlas, fifth round (owner's notes of 2026-10-05): the burst is rays – the plane and its study retired. Thicker
+  rays (ninety, soft-edged), solid and fullest at the centre, thinning into the page; the hint and the swatches'
+  label read in body ink over it. The masthead takes the burst's wheel at the same centre (hero-search.js
+  measures the field into `--hs-x/--hs-y` on <html>, where `--hs-h` lives now too): scrolling, the wheel comes in
+  over the hero, then every hue turns to the current color (`--hs-in`, `--hs-fold`). The masthead's icon buttons
+  no longer transition color (it chased the scroll-driven ink every frame and left the theme button dark-on-dark).
+  The API block keeps index.html's halves as long as the site does – it takes the label column below 86rem of
+  row and stacks under 63.5rem – with index.html's pill icon and gap. The channel spinners hug their numbers.
+- Atlas, sixth round (owner's notes of 2026-10-05): Family · Purpose · Era at a card title's size. The search
+  hero's field takes a color only – the picker on the left (EyeDropper where the browser has it, else the color
+  dialog), an image on the right; words no longer search spaces. Recents keep images too (image.js keeps the image
+  at 256 px, the sampler's size, as a data URL; a recent image reads again, squared – a rhombus marks a color). The
+  masthead's color value sits on the rhombus's centre (#cval's underline has a transparent twin above). The masthead
+  search is an icon beside the language that opens into a field on the color (focus or words; '/' too); phones put
+  it on the color's line. Russian: ru.json (AI, three passes against the glossary's new ru column), Inter's Cyrillic
+  subset vendored (Google Fonts v20, as the others); the Purpose tab reads «Задача» so the ladder's foot fits its rail.
+- Atlas, seventh round (owner's notes of 2026-10-05): the hero is Search and centered – the eight other heroes and the
+  left layout retired with their code (git history has them); the workshop bar keeps one study, how the page moves
+  into the atlas (?move= curtain · scroll · band – band paints the docked cells in the masthead's color). The field
+  reads «Any color or image», no hint until there is something to say, 48 px targets. The burst is 360 rays of one
+  width (an svg, non-scaling strokes): crowded into a hue cloud at the centre, parted and faded outward. The
+  language select wears the masthead's underline, not a ring. CMYK's maker line is «Eagle Printing Ink Co.».
+  Dragging measured ~30 fps: paint is ~4 ms a frame, style ~35 ms and layout ~15 ms – the color is a custom
+  property on :root, so each change restyles every element (4–7k). Off-screen tiles and sections now skip their
+  work (content-visibility): ~48 fps. The rest needs the color set only where it is drawn, not on :root – a
+  single WebGL canvas for the strips would remove the gradient building (~10 ms JS), not the restyle.
+- Atlas, eighth round (owner's notes of 2026-10-05): the move is scroll (curtain and band retired). Three studies in
+  the workshop bar: head (?head= color · strip · chip · split – what stays pinned: the colored masthead, the cells'
+  row, the row led by the color, or a second row of color + drawing + search while the facets scroll away;
+  top-drawer.js place() moves the hosts), cells (?cells= rules · plain · underline; a row is a scroll-state
+  container, so plain rows take paper only when stuck) and burst (?burst= fine · rays · bold · conic). The burst is a
+  WebGL fragment shader now (burst.js): rays of one width, the same centre cloud for each weight (n·w/2π), fading out
+  before the hero's foot. The ladder's foot tabs are gone (the View menu's "Arrange by" cuts the shelves). The image
+  in use sits in the field as a removable token. The label column narrows on tablets (16rem at 1024 px). Dragging:
+  the color reaches :root at most every 160 ms (wb.js ROOT_MS); the pinned rows ([data-cur-live]) and the painted
+  entries (.sp carries its own --cur) follow every frame – ~48 → ~110 fps measured, p90 25 ms (the :root catch-up).
+- Atlas, ninth round (owner's notes of 2026-10-05): the burst is fine (480 rays × 2 px; studies: dense 720 × 2, thick
+  480 × 3); the cells keep their rules – a panel with a hair above and below and short hairs between cells; head
+  defaults to chip. Arrange (family · purpose · era) is the row's first cell; For and Age left the row (arranging
+  covers them); View is the layout alone; Vision's menu is one column. The first screen ends with the cells' row
+  (#hero's height minus --cells-h); the five facts moved to the closing, where the site has its pills. A featured
+  space switches sliders ⇄ planes itself (the icon above its preview's right end, on hover; variants-catalog.js
+  PVFLIP). The list view drops the star and its tables' last hair (one line between families). Spent spinners hide
+  until hovered. On a tablet the questions and the footer take the full width in two columns.
+- Atlas, tenth round (owner's notes of 2026-10-06): head settled on chip – the masthead is plain and stays with the
+  hero, one row pins (the color, Arrange, the facets, the drawing, the search); the other heads and the masthead's
+  wheel retired. The burst is dense (720 × 2 px), its strength a study (?burst= soft · medium · strong, light and dark
+  each); how the row draws the color a study (?chip= rhombus · block · swatch). The ladder is one sticky list of the
+  families (atlas.js builds it from the shelves; the headings stay for the outline): no fades, it rides off with the
+  catalog's end, the description only under the family on screen. Menus carry no title or hint ('Any' only). The
+  catalog's cards drop their spinners (the dossier keeps them). The corner (corner.js): the image in use, framed and
+  pickable as the site's floater, and the current color – nearest CSS name, hex, rgb(), oklch(), display-p3 – each
+  a copy; the workshop bar moved bottom-left. The dossier: a wheel over its card scrolls the modal (the embed's
+  .modal no longer contains overscroll); prev/next wrap round the ends; its foot is tighter.
+- Atlas, eleventh round (owner's notes of 2026-10-06): the image behaves as the site's – its floater's backing is the
+  full picture, a press picks and a drag keeps picking; histograms at index.html's precision (768 bins, 24576
+  samples, a 64-row mask with its fill and crest). The current color left the pinned row for the corner, as the
+  page's main value (the chip's hosts: mark/picker, value, gamut; then the nearest CSS name and rgb/oklch/p3), lifted
+  clear of the first screen's row. The burst is strong (full strength), its ray width a workshop slider (?rw=,
+  1–5 px). The flood circle is gone; how a taken color reaches the page is a study (?enter= fly · rays · none). The
+  promise's words are doors: the spaces (into the atlas), the years (arrange by era), "Pick a color" (the picker),
+  "analyze an image" (the file dialog).
+- Atlas, twelfth round (owner's notes of 2026-10-06): the rays are the hero's entrance – they grow out from the field
+  as the page opens (no color transition; the fly and the slider retired); 4 px rays; the foot softens to half, the
+  cells' row cuts them. One field again for a color or a space's name (words go to the row's search). The promise is
+  a study (?line= purpose · runs · ask), its words doors: a purpose cuts the shelves by purpose and opens that
+  shelf, a runs-in or range word filters, the years cut by era, pick and image open their dialogs. Arrange is the
+  ladder's tabs again (under the list; on a narrow catalog, over it). The list hangs by its shelf: the family on
+  screen level with where its spaces start, or with the line under the pinned row once they have passed it
+  (atlas.js sets --ly/--li each frame).
+- Atlas, thirteenth round (owner's notes of 2026-10-06): no flash on load – the page hides (html.boot) until the
+  shell has built header, hero and catalog (3 s fallback). The ladder is index.html's rail again: a full-height column
+  sticks; in it each title sits beside its shelf, passed ones piling at the top, coming ones waiting at the bottom
+  over the Family · Purpose · Era tabs (atlas.js place()). The cells' row has no top line and sits on the burst,
+  which fades out behind it; stuck, it takes paper and a hair below (scroll-state). The title lost its period; the
+  promise no longer repeats it ("For gradients that look even, footage to grade, colors to print and colors to
+  measure – 168 spaces …"). The corner is the masthead's chip as it was (mark, value, tag), above the row. The
+  row's search is gone: the hero's field is the one search – colors and space names.
+- Atlas, fourteenth round (owner's notes of 2026-10-06): the rail is index.html's own mechanism – a column as tall as
+  the catalog, each title after a measured spacer (its centre on its first space name's), sticky between the passed
+  pile at the top and the coming stack at the screen's foot over the tabs; measured once per layout, the browser runs
+  the scroll. Descriptions fade in under the family on screen (absolute, over what follows); the last family takes
+  over once the catalog's end is on screen. The cells' row has its hair from the start and lines up with the
+  content's edges. No count by the wordmark. The promise (?line= scope · tasks · ask) – scope: "168 spaces from web
+  to broadcast, film and print, for every purpose, from 1860 to 2026. Ready for CSS, shaders, WASM and LUTs.", each
+  word a door (a family, the purpose cut, the era cut, a runs-in filter); pick and image left the line.
+- Atlas, fifteenth round (owner's notes of 2026-10-06): the active family's description steps out while the next title
+  or the tabs ride over it; the rail re-measures when the catalog's height moves. Planes as tall as three strips,
+  labelled as index.html labels them; the preview switch sits higher. Runs in left the filters (it is what the library
+  has built so far – a space's fact, kept on its card and in the list). The closing speaks to the developer ("One
+  import, every space" and how it goes into code); the site's own title and lede are a hero line (?line=site); the
+  count fact became "Cross-disciplinary". The history is one stream – no families (the catalog's sorting, not
+  history's) – with sRGB among the milestones. The footer's wall is a study (?foot= flat · hues · tones): the color's
+  hue wheel or its tones in four rows quantized ever coarser, the words on a plate of the color.
+- Atlas, sixteenth round (owner's notes of 2026-10-06): the hero line is the site's own wording (?line=site, the
+  default): "Web, print, photography, film, broadcast, art, science and history – 168 coordinate systems with
+  canonical conversions and cited references, in the public domain.", every field a door. The closing is the four
+  facts beside the code, no title. The footer is hues by default: its words on the page, the quantized wall under
+  them. The history takes the whole width. Where the current color stands is a study (?cur= corner · edge – a strip
+  of the color down the right edge, the value running up it · column – a column of its own, the color a square over
+  its value).
+- Atlas, seventeenth round (owner's notes of 2026-10-06): the line is scope (default; site, tasks, ask stay in the
+  study). The footer is hues by default: its words over the wall, no plate (every hue at the color's lightness, so the
+  color's ink reads). The current color leads the cells' row again – its rhombus (the picker), its value, its tag; the
+  ?cur study retired, the corner keeps only the image.
 - Dossier bake (`scripts/bake-dossiers.js`): it had baked another space's dossier into 132 of 168 name
   views – the ambient hue orbit repainted the open dossier every frame (software GL in headless Chrome),
   starving the idle slices that wire catalog rows, so clicks on unwired rows were no-ops and the previous
@@ -142,15 +247,15 @@ Figma plugin source; CITATION.cff; workbench prototypes at `/workbench/`.
 
 ## Not done — pick up here
 
-1. **Atlas workshop** – the header is done and the hero is chosen: Search (the other variants stay in the study
-   bar for comparison until the owner drops them). Two studies await the owner's pick: the hero's layout (center ·
-   left) and its burst (hue × chroma · rays). Then port the Drawer header (with its tucking
+1. **Atlas workshop** – the header is done and the hero is chosen: Search, centered, over rays. One study awaits
+   the owner's pick: the promise line. Then port the Drawer header (with its tucking
    cells), the chosen hero, the cut, the shape, the ladder (with its fit rules) and the grouped list into
    `web/index.html` (the workshop's `[data-wb]` hosts map onto the page's existing controls; `atlas.js`
    documents the contract).
 2. ~~**Shader tabs on the site**~~ – done: GLSL · WGSL · HLSL · MSL in the dossier's GL tab, naga lazy on
    the first HLSL/MSL pick, check-site pins each language's entry name and the on-demand load.
-3. **Translations (pt-BR, es, tr)** – built, wired, translated; not yet reviewed. To promote a language:
+3. **Translations (pt-BR, es, tr, ru)** – built, wired, translated; not yet reviewed. The owner asked for ru and es
+   first (2026-10-05); ru is theirs to read. To promote a language:
    a native speaker reads `/<lang>/` (served locally after `npm run landing`), settles the open questions at
    the end of `web/i18n/GLOSSARY.md`, then sets `"@meta": { "reviewed": "<name, date>" }` in
    `web/i18n/<lang>.json` – the build then indexes it, adds hreflang + sitemap alternates, and lists it in

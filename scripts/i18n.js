@@ -64,10 +64,11 @@ export const ownerOf = (key) => /^(space|lore)\.([^.]+)\./.exec(key)?.[2] ?? ''
 
 // one language against the current English: every key's state, the compiled table (fresh +
 // valid only – the runtime falls back per key for the rest), and the pages it may stamp.
-// Unreviewed: a page needs every key it shows ok – complete and current, so the native
-// reader reviews what will ship. Reviewed: promoted pages stay up through English drift – a
-// changed or new string falls back to English per key (the build reports it) – and a space
-// page needs only that its own content has been translated at all.
+// A language ships once it is translated: nearly every shared string (COVER – a new or reworded one reads English,
+// per key, until it is translated: an English edit never takes a language off the site), and each space page once its
+// own content is translated at all (a changed sentence reads English until retranslated). A published language is in
+// search – indexed, in the sitemap and the hreflang group – reviewed or not; `reviewed` records the native reader's pass.
+export const COVER = .95
 export function status(en, file, spaces) {
 	const meta = file['@meta'] || {}, keys = Object.keys(en).filter((k) => k !== '@meta')
 	const state = {}, table = {}
@@ -76,9 +77,9 @@ export function status(en, file, spaces) {
 		state[k] = !e?.t ? 'missing' : !valid(en[k].t, e.t) ? 'invalid' : e.h !== en[k].h ? 'stale' : 'ok'
 		if (state[k] === 'ok') table[k] = e.t
 	}
-	const of = (o) => keys.filter((k) => ownerOf(k) === o)
-	const shared = of('').every((k) => state[k] === 'ok')
-	const own = (s) => of(s).every((k) => state[k] === 'ok' || (meta.reviewed && state[k] === 'stale'))
+	const of = (o) => keys.filter((k) => ownerOf(k) === o), done = (k) => state[k] === 'ok' || state[k] === 'stale'
+	const sh = of(''), shared = sh.filter(done).length >= COVER * sh.length
+	const own = (s) => of(s).every(done)
 	const pages = new Set(meta.reviewed || shared ? ['', ...spaces.filter(own)] : [])
 	const extra = Object.keys(file).filter((k) => k !== '@meta' && !en[k])
 	const count = (s) => keys.filter((k) => state[k] === s)
@@ -95,7 +96,7 @@ export function plan(dir, spaces) {
 		if (!CODE.test(code)) throw new Error(`i18n: ${f} – name language files by their BCP 47 tag (pt-BR.json, es.json)`)
 		const file = JSON.parse(readFileSync(join(dir, f), 'utf8')), st = status(en, file, spaces)
 		if (!st.meta.name) throw new Error(`i18n: ${f} – "@meta": { "name": … } is the language's own name, shown in the language select`)
-		return { code, name: st.meta.name, reviewed: st.meta.reviewed || null, indexed: !!st.meta.reviewed && st.pages.size > 0, ...st }
+		return { code, name: st.meta.name, reviewed: st.meta.reviewed || null, indexed: st.pages.size > 0, ...st }
 	})
 	return { en, langs: langs.filter((l) => l.pages.size), all: langs }
 }

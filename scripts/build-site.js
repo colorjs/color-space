@@ -141,7 +141,6 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// rewrite AFTER generation (build() re-emits index.html from the web source)
 	rewrite(join(out, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../data.json'", "'../data.json'"]])
 	rewrite(join(out, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])
-	rewrite(join(out, 'js/study-runtime.js'), [['../../icc.js', '../icc.js'], ['../../lut.js', '../lut.js'], ['../../wasm.js', '../wasm.js'], ['../../css.js', '../css.js']])
 	// structural guard: any repo-relative import that escaped the map must fail the
 	// build here, not 404 in production
 	for (const f of readdirSync(join(out, 'js')))

@@ -61,8 +61,8 @@ const dateOf = (s, lang) => { const d = s ? SRC_DATE[s] || HEAD_DATE : HEAD_DATE
 // is a stamped document). EN is the plan's shape for the source language
 const EN = { code: 'en', name: 'English', table: {}, pages: new Set(['', ...SPACES]), indexed: true }
 export const pageURL = (lang, s = '') => `${SITE}/${lang === 'en' ? '' : lang + '/'}${s}`
-// the hreflang group of a page: English, every PROMOTED language that stamps it, x-default →
-// English. Unreviewed languages stay out of every group; a page only English has carries none
+// the hreflang group of a page: English, every language that stamps it, x-default → English;
+// a page only English has carries none
 export const alternates = (i18n, s = '') => {
 	const ls = (i18n?.langs || []).filter((l) => l.indexed && l.pages.has(s))
 	return ls.length ? [['en', pageURL('en', s)], ...ls.map((l) => [l.code, pageURL(l.code, s)]), ['x-default', pageURL('en', s)]] : [] }
@@ -76,7 +76,9 @@ const catalog = () => { const bare = catHTML(), baked = catHTML(DEFAULT)
 	const shape = (h) => h.replace(/<([a-z0-9]+)(\s[^>]*)?>/gi, '<$1>')
 	if (shape(bare) !== shape(baked)) throw new Error('generate-landing: catHTML(DEFAULT) changes element structure, not just attributes — hydration would desync')
 	return `<main class="cat" id="cat" data-fp="${fpOf(bare)}">${baked}</main>` }
-const counts = (h) => h.replace(/(<span id="n2?">)[^<]*(<\/span>)/g, (m, a, b) => a + spaceCount + b)
+// the hero's facts, read off the data: how many spaces, and the years they span
+const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { n: spaceCount, y0: Math.min(...years), y1: Math.max(...years) }
+const counts = (h) => h.replace(/(<span id="(n|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
 
 export function build(out = join(root, '_site'), i18n) {
 // ── index.html: static catalog + live counts + version (from the web/ source) ──
@@ -86,14 +88,13 @@ const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not f
 const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
-inject(/(<span id="n">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
-inject(/(<span id="n2">)[^<]*(<\/span>)/, `$1${spaceCount}$2`)
+for (const k of ['n', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
 // the current-color rhombus + value carry the DEFAULT color from the first frame —
 // an unvalued <input type=color> paints BLACK until the module lands
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
 inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
 inject(/(<input id="cval")/, `$1 value="${dhx}"`)
-// the meta descriptions carry no live count by design — the counts live in #n/#n2 and the per-space stamps
+// the meta descriptions carry no live count by design — the counts live in #n and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset — Google Dataset Search reaches the science
 // crowd; homepage only (stampSpacePages strips it — a copy on every space page would read as spam)
@@ -143,8 +144,7 @@ ${sections.map(c => `## ${c.name}\n${c.spaces.map(line).join('\n')}`).join('\n\n
 writeFileSync(join(out, 'llms.txt'), llms)
 
 // sitemap + robots — the crawl surface: the app root + every space document, and each under
-// every PROMOTED language, every member of a group listing the whole group (xhtml:link) –
-// unreviewed languages stay out (they carry noindex until a native speaker has read them)
+// every published language, every member of a group listing the whole group (xhtml:link)
 const iurl = (loc, date, img, alts = []) => `<url><loc>${loc}</loc><lastmod>${date}</lastmod>${alts.map(([l, u]) => `<xhtml:link rel="alternate" hreflang="${l}" href="${u}"/>`).join('')}${img ? `<image:image><image:loc>${img}</image:loc></image:image>` : ''}</url>`
 const langs = [EN, ...(i18n?.langs || []).filter((l) => l.indexed)]
 const urls = ['', ...SPACES].flatMap((s) => langs.filter((l) => l.pages.has(s)).map((l) => iurl(pageURL(l.code, s), dateOf(s, l.code), s ? cardOf(s) : `${SITE}/img/og.png`, alternates(i18n, s))))
@@ -167,7 +167,7 @@ console.log(`site content: prerendered catalog · sitemap + robots + llms · v${
 // same document with its marked markup translated (scripts/i18n.js apply), <html lang>,
 // the catalog baked in that language, asset URLs one level up (the document sits in
 // /<lang>/, the assets stay at the root; routes stay relative, so ./oklch stays in the
-// language), its own canonical, the hreflang group once promoted, noindex until reviewed,
+// language), its own canonical and the hreflang group,
 // and its runtime table (i18n/<lang>.json, fresh + valid keys only) preloaded.
 const swap = (h, re, repl) => { if (!re.test(h)) throw new Error(`stamp anchor not found: ${re}`); return h.replace(re, typeof repl === 'string' ? () => repl : repl) }
 // the language select, in the de-chromed select idiom of the header's view lenses: the
@@ -176,14 +176,12 @@ const langSelect = (opts, L) => `<span class="dctl"><select id="lang" aria-label
 	`<option value="${l.code}" lang="${l.code}"${l === L ? ' selected' : ''}>${l === L ? l.code.split('-')[0].toUpperCase() : esc(l.name)}</option>`).join('')}</select></span>`
 // what every stamped document's head says about its address and its language siblings
 const head = (h, L, s, i18n) => {
-	const url = pageURL(L.code, s), group = L.indexed ? alternates(i18n, s) : []
-	h = swap(h, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">` + (L.indexed
-		? group.map(([l, u]) => `<link rel="alternate" hreflang="${l}" href="${u}">`).join('')
-		: '<meta name="robots" content="noindex">'))   // unreviewed: readable at its URL, invisible to search
+	const url = pageURL(L.code, s), group = alternates(i18n, s)
+	h = swap(h, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">` + group.map(([l, u]) => `<link rel="alternate" hreflang="${l}" href="${u}">`).join(''))
 	h = swap(h, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${url}">`)
-	// the select lists English, the promoted languages that stamp this page, and the current one
-	// (a reviewer's preview lists itself); absent while there is nothing to choose
-	const opts = [EN, ...(i18n?.langs || []).filter((l) => l.pages.has(s) && (l.indexed || l === L))]
+	// the select lists English and every language that stamps this page – reviewed or not: a reader
+	// may choose a current translation; only search waits for the review. Absent while there is nothing to choose
+	const opts = [EN, ...(i18n?.langs || []).filter((l) => l.pages.has(s))]
 	return opts.length > 1 ? swap(h, /<a class="gh" /, (m) => langSelect(opts, L) + m) : h }
 // one space's document from its language's index
 const spaceDoc = (html, s) => {
@@ -220,7 +218,7 @@ export function stampPages(out = join(root, '_site'), i18n) {
 		let html = apply(tpl, L.table)
 		if (L.code !== 'en') {
 			mkdirSync(dir, { recursive: true }); mkdirSync(join(out, 'i18n'), { recursive: true })
-			html = swap(html, /<html lang="en">/, `<html lang="${L.code}">`)
+			html = swap(html, /<html lang="en">/, `<html lang="${L.code}"${((l) => l.getTextInfo?.() ?? l.textInfo)(new Intl.Locale(L.code)).direction === 'rtl' ? ' dir="rtl"' : ''}>`)   // Arabic reads right to left
 			html = counts(swap(html, /<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, catalog()))
 			html = swap(html, /<script type="application\/ld\+json" id="ld-dataset">[^<]*<\/script>/, '')   // the Dataset is the English index's
 			html = html.replace(/(\s(?:href|src)=")\.\/([^"#?]+)/g, (m, a, p) => !p.endsWith('.html') && existsSync(join(out, p)) ? `${a}../${p}` : m)
@@ -231,7 +229,7 @@ export function stampPages(out = join(root, '_site'), i18n) {
 		let n = 0
 		for (const s of SPACES) if (L.pages.has(s)) { writeFileSync(join(dir, s + '.html'), head(spaceDoc(html, s), L, s, i18n)); n++ }
 		console.log(L.code === 'en' ? `stamped ${n} per-space atlas documents`
-			: `stamped /${L.code}/: index + ${n} space pages${L.indexed ? '' : ' (unreviewed – noindex, unlisted)'}${L.stale.length + L.missing.length + L.invalid.length ? ` · ${L.stale.length} stale, ${L.missing.length} missing, ${L.invalid.length} invalid keys read English` : ''}`)
+			: `stamped /${L.code}/: index + ${n} space pages${L.reviewed ? '' : ' (unreviewed)'}${L.stale.length + L.missing.length + L.invalid.length ? ` · ${L.stale.length} stale, ${L.missing.length} missing, ${L.invalid.length} invalid keys read English` : ''}`)
 	}
 	use({})
 }

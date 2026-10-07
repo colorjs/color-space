@@ -7,7 +7,7 @@
 // meta.refs); absence means "not confidently known", never "nothing to say".
 export default {
 	// ── display & web ──
-	rgb: { for: 'one default color for monitors, printers and the web – the average 1990s CRT, standardized', sin: 'gamma-encoded: averaging two colors numerically gives a darker color than mixing their light', nm: 'the s in sRGB is “standard”' },
+	rgb: { for: 'Default for monitors, printers and web – the average CRT, standardized', sin: 'gamma-encoded: averaging two colors numerically gives a darker color than mixing their light', nm: 'the s in sRGB is “standard”' },
 	lrgb: { for: 'the linear-light form – where physical math (blending, shading, resampling) is correct', sin: 'perceptually lopsided: three quarters of its numeric range covers the brightest stops' },
 	p3: { for: 'DCI cinema primaries domesticated for displays – D65 white, sRGB curve', nm: 'Display P3 – the P3 gamut minus the projector' },
 	'dci-p3': { for: 'a gamut real xenon projectors could cover', sin: 'its native white is greenish ~6300 K cinema white, not D65 – grading for TV needs adaptation' },
@@ -30,7 +30,7 @@ export default {
 	// ── cylindrical ──
 	hsl: { for: 'hue controls cheap enough for 1970s framebuffers', sin: 'L=50 is not one brightness: yellow at L=50 emits ~13× the luminance of blue', nm: 'lightness – the double-cone: L=100 is always white' },
 	hsv: { for: 'painter-style “tints and shades” for early paint programs', sin: 'V is just max(R,G,B): full-value blue and yellow claim equal brightness and are nowhere near', nm: 'aka HSB; V=100 is the pure hue, not white' },
-	hwb: { for: 'mixing the way painters think – a hue plus white plus black', sin: 'W+B>100 all collapse to the same gray: a whole wedge of coordinates means nothing', nm: 'hue · whiteness · blackness, now native in CSS' },
+	hwb: { for: 'mixing the way painters think – a hue plus white plus black', sin: 'W+B>100 produces gray; hue no longer affects the result', nm: 'hue · whiteness · blackness, now native in CSS' },
 	hsi: { for: 'machine-vision variant where I is the plain mean of R,G,B', sin: 'hue is numerically unstable near gray – sensor noise sends it spinning' },
 	hcg: { for: 'HSV refactored as chroma plus gray base' },
 	hcl: { for: 'hue–chroma–luminance picker math (not the Lab-based LCh)' },

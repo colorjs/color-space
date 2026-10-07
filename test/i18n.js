@@ -22,7 +22,7 @@ test('i18n — extraction is deterministic and the committed en.json is current'
 	is(a, b, 'two runs, one byte stream')
 	is(readFileSync(join(DIR, 'en.json'), 'utf8') === a, true, 'web/i18n/en.json is current (npm run i18n)')
 	is(Object.entries(en).filter(([k, v]) => k !== '@meta' && v.h !== hash(v.t)).map(([k]) => k), [], 'every h fingerprints its English')
-	ok(['page.title', 'ui.header.find', 'cat.display.name', 'space.oklch.desc', 'lore.rgb.sin', 'tour.rgb.body', 'purpose.palettes.tip', 'channel.lightness', 'tag.perceptual'].every((k) => en[k]), 'every source contributes: markup, code, data.json, lore, tour, categories, purpose, channels, tags')
+	ok(['page.title', 'ui.hero.field', 'cat.display.name', 'space.oklch.desc', 'lore.rgb.sin', 'tour.rgb.body', 'purpose.palettes.tip', 'channel.lightness', 'tag.perceptual'].every((k) => en[k]), 'every source contributes: markup, code, data.json, lore, tour, categories, purpose, channels, tags')
 	is(Object.keys(en).filter((k) => k !== '@meta' && !/^[a-z]+(\.[\w-]+)+$/.test(k)), [], 'keys are namespaced, readable, never hashes')
 })
 
@@ -44,19 +44,22 @@ test('i18n — markup units: the English document is the source minus its marker
 	const out = apply(html)
 	is(out.includes('data-i18n='), false, 'every marker stripped')
 	is(out.length, html.length - [...html.matchAll(/ data-i18n="[^"]*"/g)].reduce((n, m) => n + m[0].length, 0), 'nothing else changed')
-	const u = units(html).find((x) => x.key === 'ui.header.find')
-	is([u.attr, u.en], ['placeholder', 'search spaces…'], 'an attribute unit reads its own value')
-	ok(apply(html, { 'ui.header.find': 'buscar…' }).includes('placeholder="buscar…"'), 'a translation lands in place')
+	const u = units(html).find((x) => x.key === 'ui.hero.field')
+	is([u.attr, u.en], ['placeholder', 'A color or a space – tomato, #ff8000, OKLCH'], 'an attribute unit reads its own value')
+	ok(apply(html, { 'ui.hero.field': 'Un color o un espacio' }).includes('placeholder="Un color o un espacio"'), 'a translation lands in place')
 })
 
-test('i18n — the gate: unreviewed needs everything current, reviewed survives drift', () => {
+test('i18n — the gate: a translated language ships and survives English drift; review only adds search', () => {
 	const drop = (k) => (f) => { delete f[k]; return f }, stale = (k) => (f) => { f[k].h = '00000000'; return f }
 	const pages = (f) => status(en, f, SPACES).pages
 	is(pages(fixture()).size, SPACES.length + 1, 'complete + current: index and every space page')
-	is(pages(fixture({}, drop('ui.header.find'))).size, 0, 'unreviewed, a shared string missing: nothing stamps')
+	is(pages(fixture({}, drop('ui.hero.field'))).size, SPACES.length + 1, 'a new shared string reads English: every page still stamps')
+	const few = (f) => { for (const k of Object.keys(f).filter((k) => k !== '@meta' && !/^(space|lore)\./.test(k)).slice(0, 200)) delete f[k]; return f }
+	is(pages(fixture({}, few)).size, 0, 'a language far from done: nothing stamps')
 	const p = pages(fixture({}, stale('space.oklch.desc')))
-	is([p.has(''), p.has('oklch'), p.has('lab')], [true, false, true], 'unreviewed, one space stale: only that page waits')
-	const r = pages(fixture({ reviewed: 'fixture' }, (f) => stale('space.oklch.desc')(drop('ui.header.find')(f))))
+	is([p.has(''), p.has('oklch'), p.has('lab')], [true, true, true], 'one space reworded: its page stays, the sentence reads English')
+	is(pages(fixture({}, drop('space.oklch.desc'))).has('oklch'), false, 'a space never translated stays English-only')
+	const r = pages(fixture({ reviewed: 'fixture' }, (f) => stale('space.oklch.desc')(drop('ui.hero.field')(f))))
 	is([r.has(''), r.has('oklch')], [true, true], 'reviewed: English drift falls back per key, no page drops')
 	is(pages(fixture({ reviewed: 'fixture' }, drop('space.oklch.desc'))).has('oklch'), false, 'reviewed: a space never translated stays English-only')
 })
@@ -81,23 +84,23 @@ test('i18n — build: no language, no trace', { timeout: 60000 }, async () => {
 	is(r('sitemap.xml').includes('xhtml'), false, 'sitemap stays monolingual')
 })
 
-test('i18n — build: unreviewed is readable, noindexed and unlisted', { timeout: 60000 }, async () => {
+test('i18n — build: a published language is readable, offered and in search, reviewed or not', { timeout: 60000 }, async () => {
 	const r = await site('draft', fixture())
 	const page = r('en-XA/oklch.html')
 	ok(page.startsWith('<!doctype html>\n<html lang="en-XA">'), '<html lang> from the path')
-	ok(page.includes('<link rel="canonical" href="https://color-space.io/en-XA/oklch"><meta name="robots" content="noindex">'), 'self canonical, noindex')
+	ok(page.includes('<link rel="canonical" href="https://color-space.io/en-XA/oklch">') && !page.includes('noindex'), 'self canonical, indexable')
 	ok(page.includes('<title>⟦OKLCH'), 'translated title')
 	ok(page.includes('src="../js/app.js"') && page.includes('href="../tokens.css"') && !/(href|src)="\.\/(js|fonts|dist)\//.test(page), 'assets resolve from the root')
 	ok(page.includes('<link rel="preload" href="../i18n/en-XA.json" as="fetch" crossorigin>'), 'the runtime table preloads')
-	is(/hreflang/.test(page + r('oklch.html') + r('index.html')) || r('sitemap.xml').includes('en-XA'), false, 'out of every hreflang set and the sitemap')
-	is(r('oklch.html').includes('id="lang"'), false, 'English lists no unreviewed language')
-	ok(page.includes('<option value="en" lang="en">English</option><option value="en-XA" lang="en-XA" selected>EN</option>'), 'the preview lists itself beside English')
+	ok(page.includes('hreflang="en-XA"') && r('oklch.html').includes('hreflang="en-XA"') && r('sitemap.xml').includes('<loc>https://color-space.io/en-XA/oklch</loc>'), 'in the hreflang group and the sitemap')
+	ok(r('oklch.html').includes('<option value="en-XA" lang="en-XA">Pseudo</option>'), 'English offers it')
+	ok(page.includes('<option value="en" lang="en">English</option><option value="en-XA" lang="en-XA" selected>EN</option>'), 'it lists itself beside English')
 	ok(r('en-XA/index.html').includes('⟦Díspláy &amp; wéb⟧') || r('en-XA/index.html').includes('⟦Díspláy & wéb⟧'), 'the catalog bakes in the language')
 	is(JSON.parse(r('i18n/en-XA.json'))['cat.display.name'], '⟦Díspláy & wéb⟧', 'the compiled table ships')
 	ok(r('sw.js').includes('"./en-XA/"') && r('sw.js').includes('const LANGS = ["en-XA"]'), 'its shell is precached for offline')
 })
 
-test('i18n — build: reviewed is promoted, reciprocal and in the sitemap', { timeout: 60000 }, async () => {
+test('i18n — build: reviewed survives drift, reciprocal and in the sitemap', { timeout: 60000 }, async () => {
 	const r = await site('live', fixture({ reviewed: 'fixture 2026-10-03' }, (f) => { f['cat.display.name'].h = '00000000'; delete f['ui.group.era']; return f }))
 	const alt = '<link rel="alternate" hreflang="en" href="https://color-space.io/oklch"><link rel="alternate" hreflang="en-XA" href="https://color-space.io/en-XA/oklch"><link rel="alternate" hreflang="x-default" href="https://color-space.io/oklch">'
 	ok(r('oklch.html').includes(alt) && r('en-XA/oklch.html').includes(alt), 'one hreflang group, on both members')
@@ -120,8 +123,8 @@ test('i18n — runtime: per-key fallback, root-relative loads, the select keeps 
 		await page.goto(`${server.origin}/en-XA/?cb=${Date.now()}#ff8000`, { waitUntil: 'networkidle' })
 		await page.waitForSelector('.ent[data-s="oklch"] .nm')
 		is(await page.evaluate(() => document.documentElement.lang), 'en-XA', 'the document speaks its language')
-		const names = await page.locator('.ti .tn').evaluateAll((b) => b.map((x) => x.firstChild.textContent))
-		is([names[0], names[1]], ['Display & web', '⟦Cylíndrícál⟧'], 'stale key → English, fresh key → translation, side by side')
+		const names = await page.locator('.ti .tt').evaluateAll((b) => b.map((x) => x.textContent))
+		is([names[0], names[1]], ['Display & web', pseudo('RGB remixes')], 'stale key → English, fresh key → translation, side by side')
 		is(await page.locator('.gtag[data-g="era"]').textContent(), 'Era', 'a missing key reads English')
 		await page.locator('.ent[data-s="oklch"] .nm').click()
 		await page.waitForFunction(() => location.pathname.endsWith('/en-XA/oklch'))

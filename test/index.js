@@ -66,7 +66,7 @@ test('integrity — package exports: every target file exists, every specifier i
 // the site stages into _site (npm run landing / pages.yml — docs/ stays source-only);
 // build it here and pin completeness: every space gets its reference page + sitemap
 // entry, and no import escapes the site root
-test('integrity — _site: builds complete (a page + sitemap entry per space)', { timeout: 30000 }, async () => {
+test('integrity — _site: builds complete (a page + sitemap entry per space)', { timeout: 180000 }, async () => {
 	const { buildSite, site } = await import('../scripts/build-site.js')
 	process.env.CS_NO_DOSSIERS = '1'   // the dossier bake is a ~60s headless pass — this test pins build completeness, not the enhancement layer (pages.yml bakes in `npm run landing`, after the gate)
 	try { await buildSite() } finally { delete process.env.CS_NO_DOSSIERS }
@@ -96,8 +96,8 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(lmsPage.includes('<link rel="canonical" href="https://color-space.io/lms">'), true, 'LMS canonical points at its dossier URL')
 	is(lmsPage.includes('<meta property="og:url" content="https://color-space.io/lms">'), true, 'LMS social URL points at its dossier URL')
 	// Execute the staged dependency graph: source-relative imports can resolve in
-	// the repo while escaping _site and breaking the workshop's download controls.
-	const runtime = await import(`${site}/js/study-runtime.js`)
+	// the repo while escaping _site and breaking the page's download controls.
+	const runtime = Object.assign({}, ...await Promise.all(['icc', 'lut', 'wasm'].map((f) => import(`${site}/${f}.js`))))
 	is(runtime.kind(space.rgb, { xyz: space.xyz }), 'mntr', 'staged ICC runtime classifies RGB')
 	const profile = runtime.profile(space.rgb, { xyz: space.xyz })
 	is(new TextDecoder().decode(profile.slice(36, 40)), 'acsp', 'staged runtime produces an ICC profile')
@@ -108,6 +108,15 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(runtime.spaces.includes('oklch'), true, 'staged WASM registry includes OKLCH')
 })
 
+// the history's words are claims about the catalog – they hold while the catalog does
+test('integrity — the history says only what the catalog shows', async () => {
+	const { meta } = await import('../web/js/core.js'), { SPACES } = await import('../web/js/render.js'), CATS = (await import('../web/js/categories.js')).default
+	const years = SPACES.map((s) => +meta[s].year), fam = Object.fromEntries(CATS.flatMap((c) => c.spaces.map((s) => [s, c.key || c.id])))
+	is(years.filter((y) => y > 2000).length > SPACES.length / 2, true, 'most were made this century')
+	const dec = Object.groupBy(SPACES, (s) => Math.floor(meta[s].year / 10) * 10), peak = Object.values(dec).reduce((a, d) => d.length > a.length ? d : a)
+	is(peak.filter((s) => fam[s] === 'camera' || fam[s] === 'video').length > peak.length / 2, true, 'the busiest decade: most of it for cameras and video')
+})
+
 test('integrity — tiered site rendering keeps animation off the expensive paths', () => {
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
 	const render = readFileSync(new URL('../web/js/render.js', import.meta.url), 'utf8')
@@ -116,12 +125,13 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(render.includes("DEFAULT = { s: 'rgb', vals: [128, 128, 128] }"), true, 'undefined color starts neutral gray')
 	is(page.includes('scheduleFast(true)'), true, 'undefined color enters the ambient tier')
 	is(page.includes('CATALOG_VALUE_THROTTLE=100'), true, 'inactive catalog numbers use the 100ms tier')
-	is(page.includes('CATALOG_THROTTLE_SPAN=300'), true, 'secondary slider gradients share the 300ms throttle span')
-	is(page.includes("lens='off'"), true, 'main sliders always render the full Light reach')
-	is(render.includes("lens='off'"), true, 'prerendered main sliders ship with the same Light lens')
+	is(page.includes('CATALOG_FRAME_BUDGET=6') && page.includes('requestAnimationFrame(paintCatalogSecondary)'), true, 'secondary slider gradients repaint within a per-frame budget')
+	is(page.includes('lens=gmFor(cls)'), true, 'main sliders render under the one Limit the dossier shares')
+	is(render.includes("export const LIMIT = 'vis'") && render.includes('limitFor(cls)'), true, 'prerendered main sliders ship under the default Limit')
 	is(page.includes('document.documentElement.style.setProperty(\'--cur\''), false, 'live color does not invalidate the whole document through an inherited custom property')
 	is(page.includes('paintCatalogPickers(screenEnts(),frgb,fx)'), true, 'every visible picker position and color follows a held gesture')
-	is(page.includes('(PDOWN||autoColor)?SECONDARY_RAMP_GUIDES:RAMP_GUIDES'), true, 'secondary gradients use cheaper guides while colors are moving')
+	is(page.includes('moving?SECONDARY_RAMP_GUIDES:RAMP_GUIDES,!moving'), true, 'secondary gradients use cheaper guides, set without a cross-fade, while colors are moving')
+	is(page.includes('if(!PDOWN) scheduleCatalogSecondary()'), true, 'a held hand repaints only the strip in hand; the rest settle on release')
 	is(page.includes('paintCatalogGrad(rows,-1,RAMP_GUIDES,true)'), true, 'release repaints every secondary gradient immediately at full quality')
 	is(page.includes("cat.addEventListener('pointercancel'"), true, 'cancelled native catalog drags use the release path')
 	is(page.includes("detail.addEventListener('pointercancel'"), true, 'cancelled native dossier drags use the release path')

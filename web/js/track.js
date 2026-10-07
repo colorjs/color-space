@@ -16,8 +16,8 @@
 //
 // Script options (data-*, per tracker-configuration.mdx and the tracker source): auto-track off –
 // Umami's auto-tracker hooks history.replaceState and counts each path change as a pageview, which
-// here would count a dossier's close (the URL returns to /) as a visit and miss the workbench's
-// panes (?s=, a query); so pageviews are sent here, by path only. With auto-track off the tracker
+// here would count a dossier's close (the URL returns to /) as a visit; so pageviews are sent here,
+// by path only. With auto-track off the tracker
 // never re-reads the URL after it loads, so every hit names its own: a pageview its path, an event
 // location.pathname at send time (else an event would carry the landing page's URL). domains –
 // only color-space.io counts (localhost, previews and CI stay out); automated browsers

@@ -125,6 +125,6 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
 		console.log(`en.json: ${keys} keys, ${words} English words`)
 		const { SPACES } = await import('../web/js/render.js')
 		for (const l of plan(DIR, SPACES).all)
-			console.log(`${l.code}: ${l.ok.length} ok · ${l.stale.length} stale · ${l.missing.length} missing · ${l.invalid.length} invalid${l.extra.length ? ` · ${l.extra.length} unknown keys` : ''} → ${l.pages.size ? `${l.pages.has('') ? 'index + ' : ''}${[...l.pages].filter(Boolean).length} space pages` : 'no pages'}${l.reviewed ? ', reviewed' : l.pages.size ? ', unreviewed (noindex)' : ''}`)
+			console.log(`${l.code}: ${l.ok.length} ok · ${l.stale.length} stale · ${l.missing.length} missing · ${l.invalid.length} invalid${l.extra.length ? ` · ${l.extra.length} unknown keys` : ''} → ${l.pages.size ? `${l.pages.has('') ? 'index + ' : ''}${[...l.pages].filter(Boolean).length} space pages` : 'no pages'}${l.reviewed ? ', reviewed' : l.pages.size ? ', unreviewed' : ''}`)
 	}
 }

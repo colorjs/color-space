@@ -15,8 +15,8 @@
  * @by Ruderman, Cronin & Chiao
  * @use Natural-image color-statistics decorrelation for color transfer between photographs; still used in image-processing research (popularized by Reinhard et al. 2001).
  * @channel {l} -6 0 log-luminance
- * @channel {alpha} -1 0.9 Yellow-Blue
- * @channel {beta} -0.21 0.21 Red-Green
+ * @channel {α} -1 0.9 Yellow-Blue
+ * @channel {β} -0.21 0.21 Red-Green
  * @method opponent
  * @encoding perceptual
  * @illuminant D65
