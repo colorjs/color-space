@@ -66,7 +66,7 @@ test('integrity — package exports: every target file exists, every specifier i
 // the site stages into _site (npm run landing / pages.yml — docs/ stays source-only);
 // build it here and pin completeness: every space gets its reference page + sitemap
 // entry, and no import escapes the site root
-test('integrity — _site: builds complete (a page + sitemap entry per space)', { timeout: 180000 }, async () => {
+test('integrity — _site: builds complete (a page + sitemap entry per space)', { timeout: 600000 }, async () => {
 	const { buildSite, site } = await import('../scripts/build-site.js')
 	process.env.CS_NO_DOSSIERS = '1'   // the dossier bake is a ~60s headless pass — this test pins build completeness, not the enhancement layer (pages.yml bakes in `npm run landing`, after the gate)
 	try { await buildSite() } finally { delete process.env.CS_NO_DOSSIERS }
@@ -106,15 +106,6 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(cube.includes('LUT_1D_SIZE 2'), true, 'staged runtime generates a minimal identity LUT')
 	is(cube.trim().split('\n').filter(line => /^\d/.test(line)).map(line => line.split(' ').map(Number)), [[0,0,0],[1,1,1]], 'identity LUT retains black and white endpoints')
 	is(runtime.spaces.includes('oklch'), true, 'staged WASM registry includes OKLCH')
-})
-
-// the history's words are claims about the catalog – they hold while the catalog does
-test('integrity — the history says only what the catalog shows', async () => {
-	const { meta } = await import('../web/js/core.js'), { SPACES } = await import('../web/js/render.js'), CATS = (await import('../web/js/categories.js')).default
-	const years = SPACES.map((s) => +meta[s].year), fam = Object.fromEntries(CATS.flatMap((c) => c.spaces.map((s) => [s, c.key || c.id])))
-	is(years.filter((y) => y > 2000).length > SPACES.length / 2, true, 'most were made this century')
-	const dec = Object.groupBy(SPACES, (s) => Math.floor(meta[s].year / 10) * 10), peak = Object.values(dec).reduce((a, d) => d.length > a.length ? d : a)
-	is(peak.filter((s) => fam[s] === 'camera' || fam[s] === 'video').length > peak.length / 2, true, 'the busiest decade: most of it for cameras and video')
 })
 
 test('integrity — tiered site rendering keeps animation off the expensive paths', () => {

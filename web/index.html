@@ -83,6 +83,7 @@ html{ scroll-padding-top:var(--cells-h) }   /* whatever scrolls into view lands 
 .htry button:hover{ color:var(--ink) }
 .htry .wdot{ width:var(--s3); height:var(--s3) }
 .htry img{ display:block; width:var(--s6); height:var(--s6); object-fit:cover; box-shadow:0 0 0 var(--rule-hair) var(--hair) }   /* an image read before: itself, square – a rhombus marks a color */
+.htry .rc{ width:var(--s6); height:var(--s6); justify-content:center } .htry .rc .wdot{ width:var(--s5); height:var(--s5) }   /* a recent color: a rhombus as tall as an image (its 20px, scaled .8 and turned, spans 23) */
 .wdot{ display:block; flex:none; width:15px; height:15px; background:var(--w); box-shadow:inset 0 0 0 1px var(--hair); rotate:45deg; scale:.8 }   /* a color's mark: the rhombus */
 /* ── the pinned row: the current color, then the facets, then how the catalog is drawn. On the hero's foot it sits
    on the fading burst, a hair below; stuck, it takes paper (a scroll-state container knows) ── */
@@ -254,10 +255,7 @@ body.himg #imgfloat{ display:block }
 .lineage{ --hl-t:calc(var(--s1) / 2); --hl-pad:calc(3 * var(--hl-t)); --hl-c:.12; --hl-l0:.48; --hl-dl:.34; container:hl / inline-size; padding:0 var(--gut) }   /* a band: half the smallest step, 2px; the gap above and below the stream; the bands' chroma, the founder's lightness, the step to the edges */
 :root[data-theme="dark"] .lineage{ --hl-c:.1; --hl-l0:.56; --hl-dl:.3 }
 .lineage:empty{ min-height:40rem }   /* its room, near enough, before it is built */
-.hl-head{ padding-top:var(--s12); border-top:var(--rule-hair) solid var(--hair) }
-.hl-h{ margin:0; font-size:var(--text-3xl); font-weight:750; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }
-.hl-dek{ margin:var(--s3) 0 0; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:pretty }
-.hl-fig{ margin:var(--s8) 0 0; padding-bottom:var(--s12) }
+.hl-fig{ margin:0; padding:var(--s12) 0; border-top:var(--rule-hair) solid var(--hair) }   /* no title: a hair after the catalog, then the figure */
 /* the milestones: a flag on its leader – left of the stretch's middle the words run right, past it they run left */
 .hl-anns{ position:relative; height:var(--s12) }
 .hl-ms{ position:absolute; top:0; bottom:0; left:calc(var(--x) * 1%); max-width:calc(var(--w) * 1% - var(--s3)); padding:0 0 0 var(--s2); font:inherit; font-size:var(--t1); line-height:1.35; text-align:left; color:var(--soft); background:none; border:0; border-left:var(--rule-hair) solid var(--soft); cursor:pointer }
@@ -296,8 +294,7 @@ body.himg #imgfloat{ display:block }
 @keyframes hl-flow{ from{ clip-path:inset(calc(-1 * var(--hl-pad)) 100% calc(-1 * var(--hl-pad)) 0) } to{ clip-path:inset(calc(-1 * var(--hl-pad)) 0 calc(-1 * var(--hl-pad)) 0) } }   /* the leaders' overflow into the gaps stays whole */
 /* narrow: a milestone is its flag and its rhombus – the leaders and the words would cross */
 @container hl (width < 56rem){
-	.hl-h{ font-size:var(--text-2xl) }
-	.hl-fig{ --hl-t:calc(var(--s1) * .375); --hl-pad:var(--s1); margin-top:var(--s6) }   /* 1.5px bands – three device pixels or more on a phone */
+	.hl-fig{ --hl-t:calc(var(--s1) * .375); --hl-pad:var(--s1); padding-top:var(--s8) }   /* 1.5px bands – three device pixels or more on a phone */
 	.hl-ld,.hl-mw{ display:none }
 	.hl-anns{ height:calc(var(--s8) + var(--s2)) }
 	.hl-ms{ max-width:none }
@@ -957,8 +954,8 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<canvas class="hburst" aria-hidden="true"></canvas>
 	<div class="hmain">
-		<h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Every color space</h1>
-		<p class="hsub" id="hsub" data-i18n="ui.hero.line"><span id="n">168</span> spaces from <button type="button" data-door="fam:display">web</button> to <button type="button" data-door="fam:video">broadcast</button>, <button type="button" data-door="fam:camera">film</button> and <button type="button" data-door="fam:surface">print</button>, for <button type="button" data-door="cut:purpose">every purpose</button>, from <button type="button" data-door="cut:era"><span id="y0">1860</span> to <span id="y1">2026</span></button>. Ready for CSS, shaders, WASM and LUTs.</p>
+		<h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span id="n">168</span> color spaces</h1>
+		<p class="hsub" id="hsub" data-i18n="ui.hero.line">From <button type="button" data-door="fam:display">web</button> to <button type="button" data-door="fam:video">broadcast</button>, <button type="button" data-door="fam:camera">film</button> and <button type="button" data-door="fam:surface">print</button>, for <button type="button" data-door="cut:purpose">every purpose</button>, from <button type="button" data-door="cut:era"><span id="y0">1860</span> to <span id="y1">2026</span></button>. Ready for CSS, shaders, WASM and LUTs.</p>
 		<form class="hfield" id="hq" role="search" aria-label="a color or a space" data-i18n="aria-label:ui.hero.field-label">
 			<label class="hib" title="pick a color" data-i18n="title:ui.hero.pick"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z"/></svg><input type="color" id="hpk" aria-label="pick a color" data-i18n="aria-label:ui.hero.pick"></label>
 			<input id="q" type="text" autocomplete="off" spellcheck="false" enterkeyhint="go" placeholder="A color or a space – tomato, #ff8000, OKLCH" aria-label="a color – any CSS color, or a space’s own numbers – or a space’s name" aria-describedby="hhint" data-i18n="placeholder:ui.hero.field aria-label:ui.hero.field-aria">
@@ -5005,7 +5002,7 @@ renderFast(); paintCatalogGrad()
 		if(shown!==k) return
 		tryRow.replaceChildren(Object.assign(document.createElement('span'),{textContent:t('ui.hero.recent','Recent')}),...items.filter(([x,im])=>!x.startsWith('img:')||im).map(([x,im])=>{ const b=Object.assign(document.createElement('button'),{type:'button'})
 			if(im){ b.dataset.img=x.slice(4); b.title=t('ui.hero.again','read this image again'); b.append(im) }
-			else{ b.dataset.try=x; b.innerHTML=`<i class="wdot" style="--w:${x}"></i>${x.toUpperCase()}` }
+			else{ b.dataset.try=x; b.className='rc'; b.title=b.ariaLabel=x.toUpperCase(); b.innerHTML=`<i class="wdot" style="--w:${x}"></i>` }   // a color read before: its rhombus, as an image is its square – the value on hover
 			return b })) }
 	tryRow.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.img) useImage(b.dataset.img).then(go); else take(b.dataset.try) })
 	// a color is remembered once it rests – an authored change, still for a moment; an image as it is read

@@ -211,12 +211,15 @@ try {
 	// a specimen value link sets color AND notation through the hash alone – the URL
 	// carries the notation both ways (parsed on arrival, written back by urlHash)
 	await fq.locator('a[href^="#oklch("]').click()
+	await page.waitForFunction(() => document.querySelector('#cval').value.startsWith('oklch('))
 	assert.match(await page.locator('#cval').inputValue(), /^oklch\(/, 'a FAQ specimen link switches color and notation')
 	assert.match(decodeURIComponent(page.url()), /#oklch\(/, 'and the URL speaks that notation')
 	await page.locator('#cval').click()   // now CHANGE the color while in oklch – urlHash must write the new color back in the same notation
 	await page.locator('#cval').pressSequentially('coral')
 	await page.locator('#cval').press('Enter')
-	await page.waitForFunction(() => decodeURIComponent(location.hash).startsWith('#oklch('))
+	await page.waitForFunction(() => document.querySelector('#cd').value === '#ff7f50'
+		&& decodeURIComponent(location.hash).startsWith('#oklch(')
+		&& decodeURIComponent(location.hash).slice(1) === document.querySelector('#cval').value)
 	await page.evaluate(() => location.hash = 'ff8000')   // a hex hash restores hex notation – the later canonicalize assertions read hex
 	await page.waitForFunction(()=>/^#FF8000$/i.test(document.querySelector('#cval').value))
 	assert.match(await page.locator('#cval').inputValue(), /^#FF8000$/i, 'a hex hash infers hex notation back')

@@ -24,8 +24,6 @@ const MILES = ['xyz', 'lab', 'rgb', 'oklab']   // sRGB is the library's rgb
 const BANDS = SPACES.map((s, i) => ({ s, y: yearOf(s), i })).sort((a, b) => a.y - b.y || a.i - b.i)
 const N = BANDS.length
 BANDS.forEach((b, r) => Object.assign(b, { r, row: N - 1 - r, x: X(b.y) }))
-const FIRST = BANDS.filter(b => b.y === Y0).length, MID = BANDS.filter(b => b.y < 1950).length   // the first year's · before 1950
-const DECS = Object.entries(Object.groupBy(BANDS, b => Math.floor(b.y / 10) * 10)), [PEAK, PB] = DECS.reduce((a, d) => d[1].length > a[1].length ? d : a)   // the busiest decade
 const BAND = new Map(BANDS.map(b => [b.s, b])), DOWN = [...BANDS].sort((a, b) => a.row - b.row)   // the keyboard's two orders: down the stream, through time
 // the axis: a tick every decade (they spread out as the scale stretches), years at the ends and the half-centuries
 const DEC = []; for (let d = Math.ceil(Y0 / 10) * 10; d <= Y1; d += 10) DEC.push(d)
@@ -45,11 +43,7 @@ export function lineageHTML() {
 	// a band is a button named for its space; the one <title> (the tooltip) moves to the band picked. The stack's colour
 	// is one gradient – the current hue, deepest at the oldest and lightening toward the newest on top – written
 	// to the defs alone; every other row a shade lighter, so the lines read as lines
-	return `<header class="hl-head">
-		<h2 class="hl-h">${t('ui.lineage.title', 'Most were made this century.')}</h2>
-		<p class="hl-dek">${t('ui.lineage.dek', '{a} in {y0}, {m} by 1950. Then screens, video and digital cameras each needed their own – {p} in the {d}s alone, most of them for cameras and video.', { a: FIRST, y0: Y0, m: MID, p: PB.length, d: PEAK })}</p>
-	</header>
-	<figure class="hl-fig" aria-label="${esc(t('ui.lineage.summary', '{n} color spaces as lines from the year each appeared, {from} to {to}. Arrow keys move between the spaces, Enter opens one.', { n: N, from: Y0, to: Y1 }))}">
+	return `<figure class="hl-fig" aria-label="${esc(t('ui.lineage.summary', '{n} color spaces as lines from the year each appeared, {from} to {to}. Arrow keys move between the spaces, Enter opens one.', { n: N, from: Y0, to: Y1 }))}">
 		<div class="hl-anns">${MS.map(m => `<button type="button" class="hl-ms${m.end ? ' end' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--w:${m.w.toFixed(2)}"><b><span class="tnum">${m.b.y}</span> ${esc(disp(m.s))}</b><span class="hl-mw">${esc(m.words)}</span></button>`).join('')}</div>
 		<svg class="hl-defs" aria-hidden="true" focusable="false"><defs><linearGradient id="hl-g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${N}"><stop class="e" offset="0"/><stop offset="1"/></linearGradient></defs></svg>
 		<div class="hl-st"><svg class="hl-sv" viewBox="0 0 ${W} ${N}" preserveAspectRatio="none" fill="url(#hl-g)" style="--u:${N}" role="group">${MS.map(m => `<line class="hl-ld" x1="${+m.b.x.toFixed(2)}" x2="${+m.b.x.toFixed(2)}" y1="-3" y2="${m.b.row}"/>`).join('')}${BANDS.map(b => `<rect class="hl-b${b.row % 2 ? ' z' : ''}" x="${+b.x.toFixed(2)}" y="${b.row}" width="${+(W - b.x).toFixed(2)}" height="1" data-s="${b.s}" role="button" tabindex="-1" aria-label="${esc(said(b))}"/>`).join('')}</svg>${MS.map(m => `<i class="hl-dm" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i>`).join('')}</div>
