@@ -112,7 +112,9 @@ export async function bakeDossiers(site, i18n) {
 	}
 	// the languages bake one after another by default – side by side (BAKE_JOBS=n pages of one browser) they share the
 	// CPU that software GL already saturates, and a starved page misses its idle slices; every language waits its turn
-	const only = process.env.BAKE_LANGS?.split(',')   // BAKE_LANGS=en,de – bake just those (a quick local build); the rest open their dossier in the browser
+	// which languages bake: all of them on CI (the deploy), English alone on a local build – BAKE_LANGS=en,de (or
+	// BAKE_LANGS=all) overrides; a language not baked opens its dossier in the browser
+	const want = process.env.BAKE_LANGS || (process.env.CI ? 'all' : 'en'), only = want === 'all' ? null : want.split(',')
 	const queue = [{ code: 'en', pages: new Set(SPACES) }, ...(i18n?.langs || [])].filter((L) => !only || only.includes(L.code))
 	const n = Math.max(1, +process.env.BAKE_JOBS || 1)
 	try { await Promise.all(Array.from({ length: n }, async () => { for (let L; (L = queue.shift());) await bake1(L) })) } finally {

@@ -81,20 +81,20 @@ html{ scroll-padding-top:var(--cells-h) }   /* whatever scrolls into view lands 
 .htry>span{ font-weight:650; color:var(--body) }
 .htry button{ display:inline-flex; align-items:center; gap:var(--s2); padding:var(--s1) 0; font:inherit; color:var(--body); background:none; border:0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
 .htry button:hover{ color:var(--ink) }
-.htry .wdot{ width:var(--s3); height:var(--s3) }
+.htry .wdot{ width:var(--s3); height:var(--s3); border:var(--picker-line) solid var(--paper); box-shadow:0 0 0 var(--picker-line) var(--ink) }   /* the slider thumb's ring */
 .htry img{ display:block; width:var(--s6); height:var(--s6); object-fit:cover; box-shadow:0 0 0 var(--rule-hair) var(--hair) }   /* an image read before: itself, square – a rhombus marks a color */
 .htry .rc{ width:var(--s6); height:var(--s6); justify-content:center } .htry .rc .wdot{ width:var(--s5); height:var(--s5) }   /* a recent color: a rhombus as tall as an image (its 20px, scaled .8 and turned, spans 23) */
 .wdot{ display:block; flex:none; width:15px; height:15px; background:var(--w); box-shadow:inset 0 0 0 1px var(--hair); rotate:45deg; scale:.8 }   /* a color's mark: the rhombus */
 /* ── the pinned row: the current color, then the facets, then how the catalog is drawn. On the hero's foot it sits
    on the fading burst, a hair below; stuck, it takes paper (a scroll-state container knows) ── */
 .mhead{ position:sticky; top:0; z-index:var(--z-sticky-nav); container-type:scroll-state }   /* the rail titles pin just below it — see layoutToc */
-.cells{ display:flex; align-items:stretch; height:var(--cells-h); padding:0 calc(var(--gut) - var(--s3)); overflow-x:auto; scrollbar-width:none; border-bottom:var(--rule-hair) solid var(--hair); transition:background-color var(--dur-short) var(--ease-out) }   /* the cells' own inset taken from the gutter: icons and words line up with the content's edges */
+.cells{ display:flex; align-items:stretch; height:var(--cells-h); padding:0 calc(var(--gut) - var(--s3)); overflow-x:auto; scrollbar-width:none; border-bottom:var(--ulw) solid var(--cur,var(--hair)); transition:background-color var(--dur-short) var(--ease-out) }   /* the cells' own inset taken from the gutter: icons and words line up with the content's edges */
 .cells::-webkit-scrollbar{ display:none }
+.ambient .cells{ border-image:linear-gradient(90deg in oklch longer hue,oklch(.72 .15 0),oklch(.72 .15 0)) 1 }   /* the row's edge: the current color – while the color still roams (no pick yet), the hero's every hue */
 @container scroll-state(stuck: top){ .cells{ background:var(--paper) } }
-.cells .fill{ flex:1 }
+.cells .fill{ flex:1 }   /* the row's controls sit at its right end */
 .cell{ flex:none; display:flex; align-items:center; gap:var(--s2); padding:var(--s2) var(--s3); font:inherit; text-align:start; color:var(--ink); background:none; border:0; cursor:pointer; transition:background-color var(--dur-micro) var(--ease-out) }
-:is(.cell,.cx)+.cell{ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair between cells, kept off the row's edges */
-.fill+.cell{ background:none }
+:is(.cell+.cell,.fcells:has(>.cell:not([hidden]))+.cell){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair between cells, and after the picked tags, kept off the row's edges */
 .cells .cell:is(:hover,[aria-expanded="true"]){ background:var(--panel) }
 .cell .ci{ display:grid; place-items:center; color:var(--soft) }
 .cell .ci :is(.ic,.fi){ --ic:18px }
@@ -106,16 +106,21 @@ html{ scroll-padding-top:var(--cells-h) }   /* whatever scrolls into view lands 
 .cell>.ic:last-child{ --ic:12px; color:var(--soft); transition:rotate var(--dur-short) var(--ease-out) }
 .cell[aria-expanded="true"]>.ic:last-child{ rotate:180deg }
 .cell:focus-visible{ outline-offset:-2px }   /* the row scrolls (overflow-x) and so clips outside its cells – the ring sits inside */
-.cell[hidden]{ display:none }   /* out of the row (fitCells): its options wait in More */
+.cell[hidden]{ display:none }
+/* the lenses speak by their icons – the name and the pick are the tooltip and the accessible name */
+.cell.lens{ gap:var(--s1); padding:var(--s2) var(--s3) }
+.cell.lens .cw{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }
+.cell.lens:has(b.on) .ci{ color:var(--ink) }
+@media(width >= 90rem){ .cell.lens .cw{ position:static; width:auto; height:auto; overflow:visible; clip-path:none } }   /* room enough: the name over the pick, as a facet cell */
+/* a facet with a pick rides the row as its own cell – name over pick, its menu its options – beside Filters */
+.fcells{ display:contents }
 @media(width < 36rem){ #c-vision{ display:none } .dpop .vsec{ display:block } }   /* a phone's row keeps More · Quantize · Limit · View – Vision's options move into View's menu */
 .dpop .vsec{ display:none }
 @media(width < 40rem){ .cell>.ic:last-child{ display:none } }   /* phones: the cells drop their chevrons */
 /* a cell's menu: a popover under its cell (centred where anchors are unknown), its options in rows */
 .dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--cells-h) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--hair) transparent; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
-@supports (anchor-name:--a){ .dpop{ inset:auto; margin:var(--s1) 0; max-height:calc(100% - var(--s4)); position-area:bottom span-right; position-try-fallbacks:flip-inline,flip-block,flip-block flip-inline; position-try-order:most-height } }   /* under or over its cell – whichever side has more room, so a menu opens whole rather than scrolled; turning left at the screen's edge */
+@supports (anchor-name:--a){ .dpop{ inset:auto; margin:var(--s1) 0; position-area:bottom span-right; position-try-fallbacks:flip-inline,flip-block,flip-block flip-inline } }   /* under its cell, turning left at the screen's edge, above it only where below won't hold it (the first screen's foot) – decided once, so a menu never slides as it opens */
 @media(width < 36rem){ .dpop{ inset:auto 0 0 0; width:100%; max-width:none; max-height:85dvh; margin:0; padding-bottom:var(--s8); position-area:none } }   /* phones: a menu rises from the bottom edge */
-.dpop .dh2{ display:flex; justify-content:flex-end; margin-bottom:var(--s2) }   /* only Any, when a facet is set */
-.dpop .dh2[hidden]{ display:none }
 .dpop .lnk{ font:inherit; font-size:var(--t2); font-weight:600; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-decoration-color:var(--ul); text-underline-offset:3px }
 .dpop .lnk:hover{ color:var(--ink); text-decoration-color:currentColor }
 .opts{ display:grid; grid-template-columns:fit-content(16rem); gap:0 var(--s4) }   /* as wide as its options, up to a measure – a longer gloss wraps */
@@ -137,21 +142,41 @@ html{ scroll-padding-top:var(--cells-h) }   /* whatever scrolls into view lands 
 @media(width < 36rem){ .dpop .mcols{ width:auto; columns:1 } }
 .dpop .msec[hidden]{ display:none }
 .dpop .msec:not([hidden])~.msec:not([hidden]),.dpop .vsec{ margin-top:var(--s4); padding-top:var(--s4); border-top:var(--rule-hair) solid var(--hair) }
+/* Filters: every facet, in two balanced columns, each facet whole */
+#m-more:popover-open{ display:flex; gap:var(--s8) } #m-more .mcol{ display:flex; flex-direction:column; gap:var(--s4) }
+#m-more .msec~.msec{ margin-top:0; padding-top:0; border-top:0 }
+#m-more .opts.c2{ grid-template-columns:fit-content(16rem) }
+@media(width < 36rem){ #m-more:popover-open{ flex-direction:column; gap:var(--s4) } }
 .dpop :is(.msec,.vsec)>header{ margin:0 0 var(--s1); padding:0 var(--s2); font-size:var(--t1); font-weight:600; color:var(--soft) }
 .mbody .fcov{ width:min(32rem,100%); padding:var(--s2) }
-.opts.c4{ grid-template-columns:repeat(4,minmax(0,4rem)) }   /* Channels: its counts in one row */
+.opts.c4{ grid-template-columns:repeat(4,var(--s8)) }   /* Channels: its counts in one row, as narrow as a count */
+.opts.row{ grid-template-columns:repeat(2,max-content) }   /* Range: SDR and HDR side by side */
 .opt.num{ grid-template-columns:1fr; justify-items:center }
 .wb-hues{ --w:conic-gradient(in oklch longer hue, oklch(.72 .16 30), oklch(.72 .16 30)) }   /* a hue wheel – Vision's options draw it through their own lens */
 .fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
 /* the current color, leading the row: the page's mark of a color (the picker), its value to type over, its gamut tag */
+/* the current color, leading the row: its mark (the picker), its value to type over with the nearest name under it,
+   the notation, its gamut tag */
 .cells .cx{ position:relative; flex:none; display:flex; align-items:center; padding:0 var(--s4) 0 var(--s3); cursor:text }
+/* the count stands where the rail does, so the color starts where the spaces do */
+.tagline{ flex:none; align-self:center; width:calc(var(--railw) + var(--railgap) - var(--s3)); padding-inline-start:var(--s3); font-size:var(--t2); font-weight:700; color:var(--soft) }
+@media(max-width:1079px){ .tagline{ display:none } }   /* no rail, no column to stand in – the hero says the count */
+/* search: the icon, opening into a field as it is used */
+.qx{ cursor:text; color:var(--soft); --ic:18px } .qx:is(:hover,:focus-within){ color:var(--ink) }
+.qx input{ width:0; padding:0; font:inherit; font-size:var(--t2); font-weight:600; color:var(--ink); background:none; border:0; outline:none; transition:width var(--dur-short) var(--ease-out) }
+.qx:focus-within input,.qx input:not(:placeholder-shown){ width:11rem }
+.qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
+.cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
+.cxw #cval{ font-size:var(--t3); line-height:1.2 }
+.cnm{ padding-inline-start:.5em; font-size:var(--t1); line-height:1.3; color:var(--soft); white-space:nowrap }
+.cnm:empty{ display:none }
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
 /* the current colour's chip — a rhombus wearing the slider tick's engaged ring pair at the
    tick's own 1.2px offsets. The native color input is an invisible overlay: the chip IS the
    picker, with a clean rectangular hit. */
-.cdw{ position:relative; flex:none; width:13px; height:26px; display:grid; place-items:center }
-.cdw::before{ content:''; grid-area:1/1; width:11px; height:11px; background:var(--sw); border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the engaged picker's dress, built the same way it is: the inverse ring INSIDE the shape (a border — the fill shrinks by it) and the ink ring immediately outside, both 1.2px. Rings drawn outside the fill instead read three times heavier at the same nominal weight */   /* the current chip wears the picker pair at the engaged tick's weights — the inverse ring double-width (2.4px) hugging, the 1.2px ink ring outside; the inner ring doubles as the paper cut its neighbours get */
+.cdw{ position:relative; flex:none; width:17px; height:28px; display:grid; place-items:center }
+.cdw::before{ content:''; grid-area:1/1; width:14px; height:14px; background:var(--sw); border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the engaged picker's dress, built the same way it is: the inverse ring INSIDE the shape (a border — the fill shrinks by it) and the ink ring immediately outside, both 1.2px. Rings drawn outside the fill instead read three times heavier at the same nominal weight */   /* the current chip wears the picker pair at the engaged tick's weights — the inverse ring double-width (2.4px) hugging, the 1.2px ink ring outside; the inner ring doubles as the paper cut its neighbours get */
 .cdw .cd{ position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
 
 #cval{ field-sizing:content; min-width:4rem; max-width:20rem; font-size:var(--t4); font-weight:750; color:var(--ink); padding-inline-start:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
@@ -187,11 +212,11 @@ html{ scroll-padding-top:var(--cells-h) }   /* whatever scrolls into view lands 
 .imgw[hidden]{ display:none }
 /* the image floater — the dropped image LIVES bottom-right, macOS-screenshot style: a
    paper frame with a deep shadow, crisp at full resolution, always pickable, above the
-   dossier's scrim; ✕ appears on hover, top-left, and lets it go */
-#imgfloat{ position:fixed; inset-inline-end:1.5rem; bottom:1.5rem; z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
+   dossier's scrim; its ✕, top-left, lets it go */
+#imgfloat{ position:fixed; inset-inline-end:var(--s5); bottom:var(--s5); z-index:calc(var(--z-modal) + 1); display:none; background:var(--paper); box-shadow:0 2px 20px rgba(0,0,0,.28); padding:4px }   /* the shadow hugs the frame — a deep downward throw ate the bottom margin visually */
 body.himg #imgfloat{ display:block }
-@supports (animation-timeline:scroll()){ #imgfloat{ animation:float-lift linear both; animation-timeline:scroll(root); animation-range:0 var(--cells-h) } }   /* the first screen ends with the pinned row: the floater waits above it */
-@keyframes float-lift{ from{ bottom:calc(var(--cells-h) + 1.5rem) } }
+@supports (animation-timeline:scroll()){ #imgfloat{ animation:float-lift linear both; animation-timeline:scroll(root); animation-range:0 var(--cells-h) } }   /* the first screen ends with the pinned row: the image waits above it */
+@keyframes float-lift{ from{ translate:0 calc(-1 * var(--cells-h)) } }
 /* the image stripe: the canonical test images — the same canon the dossier's lens cycles — the ones read
    before first, closed by the upload tile */
 #uppop{ inset:auto; margin:var(--s2) 0 0; padding:var(--s2); position-area:bottom span-left; position-try-fallbacks:flip-block; display:grid; grid-template-columns:repeat(4,7rem); gap:var(--s1); border:0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* a popover under the hero field's image button */
@@ -201,9 +226,8 @@ body.himg #imgfloat{ display:block }
 #uppop .upim:hover,#uppop .upim:focus-visible{ box-shadow:0 0 0 2px var(--ink) }
 #uppop .upld{ display:grid; place-items:center; color:var(--ink); --ic:20px }
 #imgpk{ display:block; padding:0; border:0; cursor:crosshair; image-rendering:auto }
-#imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:none; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
+#imgx{ position:absolute; top:-8px; left:-8px; width:22px; height:22px; --ic:12px; display:grid; place-items:center; line-height:0; padding:0; border:0; border-radius:999px; background:var(--ink); color:var(--paper); cursor:pointer }
 #imgx .ic{ display:block }
-#imgfloat:hover #imgx{ display:grid }
 .imgw::before{ content:''; grid-area:1/1; width:12px; height:12px; background:var(--thumb) center/cover; border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); transition:transform var(--dur-micro) var(--ease-out) }
 .imgw:hover::before,.imgw:focus-visible::before{ transform:rotate(45deg) scale(1.14) }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
@@ -220,7 +244,7 @@ body.himg #imgfloat{ display:block }
 	.ch .nrg,.bar2 .nrg{ pointer-events:none } }
 /* the empty state: nothing has been picked – the value is a placeholder, the gamut tag and the notation stay out */
 /* the chip stays VISIBLE while nothing is picked — it carries the default colour, and clicking it is a third door (the native picker) */
-.cx.inv .gpill,.cx.inv .fmtb{ display:none }
+.cx.inv .fmtb{ display:none }   /* nothing picked yet: the notation waits; the gamut tag and the name follow the roaming color */
 /* whole-viewport drop veil — pointer-events:none so the drop still lands on the page */
 #dropcast{ position:fixed; inset:0; z-index:var(--z-toast); display:grid; place-items:center; background:color-mix(in oklab, var(--paper) 84%, transparent); pointer-events:none }
 #dropcast::before{ content:''; position:absolute; inset:14px; border:2px dashed var(--ink); opacity:.35 }
@@ -367,7 +391,7 @@ body.himg #imgfloat{ display:block }
 .cat{ padding-inline-start:var(--gut); padding-inline-end:var(--gut) }
 /* rail takes its fixed width on the left; the spaces centre in the space that remains,
    not on the screen — so they don't read as shoved right of the categories */
-.cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap) }
+.cat{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap); min-height:calc(100dvh - var(--cells-h)) }   /* a narrowed catalog still lets the row pin above it */
 .nores{ grid-column:2; margin:0; font-size:var(--t2); color:var(--soft); padding:var(--s8) 0 var(--s12) }   /* the filtered-to-nothing line — the void names the query instead of going silent */
 /* categories: markers on the screen's left edge — each travels with its section,
    piles at the top once passed, waits stacked at the viewport bottom before it */
@@ -430,8 +454,11 @@ body.himg #imgfloat{ display:block }
 .ent.pvon .pv>.chs,.ent:not(.pvon) .pls{ display:none }
 .pls{ --plh:calc(3 * var(--ctl)); display:grid; grid-template-columns:repeat(auto-fill,var(--plh)); gap:var(--s1) }   /* a plane as tall as three strips: the switch keeps the card's height */
 .pls .pl{ width:var(--plh); max-width:none }
+/* each card its own compositing layer: a drag repaints the card in hand and moves the other cards' thumbs without
+   re-recording the page's one big layer – measured in headless Chrome, the median drag frame went from 74 ms to 17 ms */
+.ent:is(.lc,.tc,.lr){ will-change:transform }
 .lead,.tiles{ display:grid; grid-template-columns:repeat(var(--cols),minmax(0,1fr)); gap:var(--s6) var(--s8) }
-.tiles{ grid-template-columns:repeat(calc(var(--cols) + 1),minmax(0,1fr)); gap:var(--s5) var(--s6); margin-top:var(--s8) }
+.tiles{ grid-template-columns:repeat(calc(var(--cols) + 1),minmax(0,1fr)); gap:var(--s5) var(--s6); margin-top:var(--s6) }
 .shw,.stip{ display:none }   /* mobile section headings and their descriptions — the rail carries both on desktop */
 @media(max-width:1079px){ .cat,.introcopy,.faq{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 0; font-size:var(--t4); font-weight:800; letter-spacing:-.01em }
@@ -441,7 +468,7 @@ body.himg #imgfloat{ display:block }
 /* Catalog strips stay native CSS surfaces: prerendered at first paint and refreshed only
    after interaction settles. No page-sized canvas participates in scrolling or input. */
 .ent{ position:relative; min-width:0 }
-.ent.lc{ display:grid; grid-row:span 4; grid-template-rows:subgrid; align-content:start; row-gap:var(--s3); --ctl:var(--s8) }   /* name · story · strips · numbers line up across the row */
+.ent.lc{ display:grid; grid-row:span 3; grid-template-rows:subgrid; align-content:start; row-gap:var(--s3); --ctl:var(--s8) }   /* name · strips · numbers line up across the row */
 /* only what is on screen does the work: a tile off screen keeps its size and skips style, layout and paint (the lead
    cards stay out – containment breaks their subgrid). A strip's end knob overhangs its tile – the clip gives it room */
 .ent.tc{ display:flex; flex-direction:column; gap:var(--s2); --ctl:var(--s3); content-visibility:auto; contain-intrinsic-size:auto 5.75rem; overflow-clip-margin:var(--s3) }
@@ -495,7 +522,9 @@ body.himg #imgfloat{ display:block }
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
 .nm::after{ content:'↗'; display:inline-block; width:0; text-indent:.3em; white-space:nowrap; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* a zero-width box the glyph overflows: the hidden mark claims no line width, so it never pushes a name onto a second line */
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
-.ent .eh{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s3); min-width:0 }
+.ent .eh{ position:relative; display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s3); min-width:0 }
+.ent .eh .nm::before,.ent.lr .li .nm::before{ content:''; position:absolute; inset:0 }   /* the whole head – the name, the year, the maker – opens the card */
+.ent.lr .li{ position:relative }
 .ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
 .ent.tc .eh .nm{ font-size:var(--t3); font-weight:650; line-height:1.25 }
 .by,.yr{ margin-inline-start:auto; font-size:var(--t1); color:var(--soft) }
@@ -651,7 +680,8 @@ body.mopen :is(.mhead,.top){ z-index:calc(var(--z-modal) + 1) }
 .dmain .props.props3{ margin:0 }   /* features grid flush; the rhythm below comes from description/used-for */
 .dgrid2.dstack{ grid-template-columns:1fr }   /* description owns the full width up to the graphics; used-for follows */
 mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; padding:0 .06em }
-.dpills .tag{ cursor:help }
+.dpills .tag{ cursor:help; display:inline-flex; align-items:center; gap:var(--s1) }   /* a tag wears its filter's mark */
+.dpills .tag .ic{ --ic:13px } .dpills .tag .wdot{ width:var(--s3); height:var(--s3) }
 /* the transfer curve — code value over scene-linear light, painted per space */
 .tcv{ display:block; width:100%; height:auto }   /* transparent — it wears the 3D solid's reference-grid style */
 /* hub spaces unfold their long children list on demand */
@@ -966,30 +996,17 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	</div>
 </section>
 <div class="mhead" id="strip"><div class="cells" role="group" aria-label="the color, filters and view" data-i18n="aria-label:ui.cells.label">
-	<span class="cx" title="current color – type a supported CSS color" data-i18n="title:ui.header.color-tip"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker" data-i18n="aria-label:ui.header.pick title:ui.header.pick"></span></span><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done" data-i18n="aria-label:ui.header.value"><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" popovertarget="fmtp" aria-haspopup="listbox" aria-expanded="false" title="this color in every notation" aria-label="choose the value's notation" data-i18n="title:ui.header.fmt-tip aria-label:ui.header.fmt-label"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" popover role="listbox" aria-label="value notation" data-i18n="aria-label:ui.header.fmt-list"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this color" data-i18n="title:ui.header.gamut-tip"></span></span>
-	<button class="cell" type="button" id="c-range" popovertarget="m-range" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg></span><span class="cw"><small data-i18n="ui.cell.range">Range</small><b data-i18n="ui.cell.range-any">SDR & HDR</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-geometry" popovertarget="m-geometry" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span><span class="cw"><small data-i18n="ui.cell.shape">Shape</small><b data-i18n="ui.cell.shape-any">Any shape</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-signal" popovertarget="m-signal" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="1.5"/><path d="M16 10.5 21 8v8l-5-2.5"/></svg></span><span class="cw"><small data-i18n="ui.cell.signal">Signal</small><b data-i18n="ui.cell.signal-any">Screen or scene</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-encoding" popovertarget="m-encoding" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M6.5 17.5C10 17 11 7 19 6"/></svg></span><span class="cw"><small data-i18n="ui.cell.curve">Tone curve</small><b data-i18n="ui.cell.curve-any">Any curve</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-white" popovertarget="m-white" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg></span><span class="cw"><small data-i18n="ui.cell.white">White</small><b data-i18n="ui.cell.white-any">Any white</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-channels" popovertarget="m-channels" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M12 5v14M18 5v14"/></svg></span><span class="cw"><small data-i18n="ui.cell.channels">Channels</small><b data-i18n="ui.cell.channels-any">Any count</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-coverage" popovertarget="m-coverage" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/></svg></span><span class="cw"><small data-i18n="ui.cell.coverage">Coverage</small><b data-i18n="ui.cell.coverage-any">Any coverage</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-status" popovertarget="m-status" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="cw"><small data-i18n="ui.cell.status">Status</small><b data-i18n="ui.cell.status-any">In use or history</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-more" popovertarget="m-more" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><span class="cw"><small data-i18n="ui.cell.more">More</small><b data-i18n="ui.cell.more-any">Filters</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
+	<span class="tagline tnum" data-i18n="ui.header.tagline"><span id="nn">168</span> spaces</span>
+	<span class="cx" title="current color – type a supported CSS color" data-i18n="title:ui.header.color-tip"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker" data-i18n="aria-label:ui.header.pick title:ui.header.pick"></span></span><span class="cxw"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done" data-i18n="aria-label:ui.header.value"><small class="cnm" id="cnm"></small></span><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" popovertarget="fmtp" aria-haspopup="listbox" aria-expanded="false" title="this color in every notation" aria-label="choose the value's notation" data-i18n="title:ui.header.fmt-tip aria-label:ui.header.fmt-label"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" popover role="listbox" aria-label="value notation" data-i18n="aria-label:ui.header.fmt-list"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this color" data-i18n="title:ui.header.gamut-tip"></span></span>
 	<span class="fill"></span>
-	<button class="cell" type="button" id="c-draw" popovertarget="m-draw" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="14" height="6" rx="1" fill="url(#vq-smooth)"/></svg></span><span class="cw"><small data-i18n="ui.cell.draw">Quantize</small><b data-i18n="ui.cell.draw-smooth">Smooth</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-limit" popovertarget="m-limit" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/><path d="M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z"/></svg></span><span class="cw"><small data-i18n="ui.cell.limit">Limit</small><b data-i18n="ui.cell.limit-light">Light</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-vision" popovertarget="m-vision" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="cw"><small data-i18n="ui.cell.vision">Vision</small><b data-i18n="ui.cell.vision-none">Typical</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
-	<button class="cell" type="button" id="c-view" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b data-i18n="ui.cell.view-grid">Grid</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
+	<span class="fcells" id="fcells"></span>
+	<label class="cell qx" title="search the spaces by name" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq" type="search" placeholder="search spaces…" autocomplete="off" spellcheck="false" aria-label="search the spaces by name" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-tip"></label>
+	<button class="cell lens" type="button" id="c-more" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="title:ui.cell.more-any"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><span class="cw"><small data-i18n="ui.cell.more-any">Filters</small><b>Off</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
+	<button class="cell lens" type="button" id="c-draw" popovertarget="m-draw" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="5" width="14" height="6" rx="1" fill="url(#vq-smooth)"/></svg></span><span class="cw"><small data-i18n="ui.cell.draw">Quantize</small><b data-i18n="ui.cell.draw-smooth">Smooth</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
+	<button class="cell lens" type="button" id="c-limit" popovertarget="m-limit" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/><path d="M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z"/></svg></span><span class="cw"><small data-i18n="ui.cell.limit">Limit</small><b data-i18n="ui.cell.limit-light">Light</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
+	<button class="cell lens" type="button" id="c-vision" popovertarget="m-vision" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="cw"><small data-i18n="ui.cell.vision">Vision</small><b data-i18n="ui.cell.vision-none">Typical</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
+	<button class="cell lens" type="button" id="c-view" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b data-i18n="ui.cell.view-grid">Grid</b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>
 </div></div>
-<div class="dpop" id="m-range" popover role="dialog" aria-labelledby="c-range"></div>
-<div class="dpop" id="m-geometry" popover role="dialog" aria-labelledby="c-geometry"></div>
-<div class="dpop" id="m-signal" popover role="dialog" aria-labelledby="c-signal"></div>
-<div class="dpop" id="m-encoding" popover role="dialog" aria-labelledby="c-encoding"></div>
-<div class="dpop" id="m-white" popover role="dialog" aria-labelledby="c-white"></div>
-<div class="dpop" id="m-channels" popover role="dialog" aria-labelledby="c-channels"></div>
-<div class="dpop" id="m-coverage" popover role="dialog" aria-labelledby="c-coverage"></div>
-<div class="dpop" id="m-status" popover role="dialog" aria-labelledby="c-status"></div>
 <div class="dpop" id="m-more" popover role="dialog" aria-labelledby="c-more"></div>
 <div class="dpop" id="m-draw" popover role="dialog" aria-labelledby="c-draw"></div>
 <div class="dpop" id="m-limit" popover role="dialog" aria-labelledby="c-limit"></div>
@@ -1213,7 +1230,7 @@ import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasG
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
-import { CSS as CSSFMT } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
+import { CSS as CSSFMT, CSS_FIXED } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
 import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's source – the very bundle js/gl.js compiles, already in the graph
 import NAMES from './js/names.js'
 import * as PALDATA from './js/palettes.js'
@@ -1266,7 +1283,7 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // rides the current colour's place. It does NOT tint the interface (--c stays the fixed
 // brand accent) — the catalog is where the current colour lives.
 // the row's value input: live like the channel inputs — a valid CSS color applies as you type
-const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
+const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill'), cnmEl=document.getElementById('cnm')
 const ftrEl=document.getElementById('ftr'), stripEl=document.getElementById('strip')
 const currentStatic=[ftrEl,stripEl,...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement], CURRENT_SETTLE=140
 // the footer's wall: the current color's hue wheel at its lightness, four rows quantized ever coarser – written once,
@@ -1294,7 +1311,10 @@ if(cvalEl){
 		const p=parseColor(cvalEl.value)   // the page parser: hex, names, any space's function syntax
 		if(p){ master=p; scheduleFast(); if(open()) queuePlaneSettle() }
 		else{ const l=parseColorList(cvalEl.value); if(l?.length){ master={ s:l[0].s, vals:l[0].vals.slice() }; scheduleFast(); if(open()) queuePlaneSettle() } } })   // a pasted list: its first color leads
-	cvalEl.addEventListener('focus',()=>requestAnimationFrame(()=>cvalEl.select()))   // first click takes the whole value
+	// first click takes the whole value: selected AS it focuses, and the click's own mouseup kept from collapsing it to
+	// a caret – a deferred select raced the first keystroke (typing landed mid-value)
+	cvalEl.addEventListener('focus',()=>{ cvalEl.select(); cvalEl._fresh=true })
+	cvalEl.addEventListener('mouseup',e=>{ if(cvalEl._fresh) e.preventDefault(); cvalEl._fresh=false })
 	cdEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		const h=cdEl.value
 		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
@@ -1634,7 +1654,9 @@ const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the c
 // the search is the VIEW's lane (?q=names&m=…) – every color/route writer passes it
 // through, shedding only the boot flags (?sw service-worker probe, ?s= 404 bounce)
 const keepSearch=()=>{ try{ const sp=new URLSearchParams(location.search); sp.delete('sw'); sp.delete('s'); const s2=sp.toString(); return s2?'?'+s2:'' }catch{ return '' } }
-function syncURL(hx){ const now=performance.now(); if(now-urlT<250) return
+let urlTT=0
+function syncURL(hx){ const now=performance.now(), wait=250-(now-urlT)
+	if(wait>0){ clearTimeout(urlTT); urlTT=setTimeout(()=>{ if(!PDOWN) syncURL() },wait); return }   // a throttle keeps its trailing write – the last color of a burst (typing, a click) must reach the URL
 	// a hash we did not write is a NAVIGATION in flight (a FAQ specimen link, the boot
 	// arrival) – route() owns it until consumed; writing here rewrote the link to the
 	// current color's canon before hashchange could fire, and CI's slower frames lost
@@ -1654,7 +1676,7 @@ const FMTL=['hex','rgb','hsl','oklch','oklab','lab','lch','p3']
 let FMT='hex'; try{ if(FMTL.includes(localStorage.csFmt)) FMT=localStorage.csFmt }catch{}   // storage is a convenience – a storage-blocked frame throws here
 const FMTKEY={ lch:'lchab' }   // CSS's lch() is this catalog's lchab
 const fmtAs=(f,hx)=>{ if(f==='hex') return hx
-	try{ const k=FMTKEY[f]||f; return CSSFMT[k](toSpace(k,RGB())) }catch{ return hx } }
+	try{ const k=FMTKEY[f]||f; return CSS_FIXED[k](toSpace(k,RGB())) }catch{ return hx } }   // fixed places: the field's length holds still as the color moves
 // ONE door for the header notation – the value dropdown and the hash router both pass
 // through here (the dropdown rebuilds its options from FMT on open, nothing else to sync)
 const setFmt=v=>{ FMT=v; try{ localStorage.csFmt=v }catch{}; renderFast() }
@@ -2022,7 +2044,11 @@ wireCat._gen=(wireCat._gen||0)+1
 
 // the search is the hero's field: words find the spaces they name once committed (Enter) – a color typed there is not a
 // search. `/` finds the field from anywhere
-const qInput=document.getElementById('q')
+const qInput=document.getElementById('q'), fqEl=document.getElementById('fq'), nnEl=document.getElementById('nn')
+// the row's search: the catalog's one search word, typed where the reader is – live, as the hero's field commits it
+fqEl.addEventListener('input',()=>{ qWord=fqEl.value.trim().toLowerCase(); qInput.value=fqEl.value; applyFilter()
+	const top=stripEl.getBoundingClientRect().top; if(top>1) scrollTo({top:top+scrollY,behavior:'instant'}) })   // the row stays pinned while its search narrows the catalog
+fqEl.addEventListener('keydown',e=>{ if(e.key==='Escape'&&fqEl.value){ e.stopPropagation(); fqEl.value=''; qWord=''; qInput.value=''; applyFilter() } })
 let qWord=''   // the committed search, lowercased
 addEventListener('keydown',e=>{ if(e.key==='/'&&!open()&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){ e.preventDefault()
 	scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}); qInput.focus({preventScroll:true}) } })
@@ -2088,15 +2114,12 @@ function applyFilter(){ const q=qWord, any=act.some(a=>a.size)||covOn(); let sho
 		if(none) nores.textContent=q?t('ui.filter.none-q','no space matches “{q}” – search covers names, channels and symbols',{q}):t('ui.filter.none','no space matches these filters – remove one to widen') }
 	document.body.classList.toggle('flt',!!(q||any))   // filtering unfolds the mobile sections
 	paintCells(); applyFilter.shown=shown
+	nnEl.textContent=q||any?shown:SPACES.length; if(document.activeElement!==fqEl) fqEl.value=qWord   // the row's count and its search say what the catalog shows
 	syncFiltURL() }
-// ── the pinned row's cells: each facet a cell over its menu (a popover the cell invokes) – a pick ORs within its
-// facet and ANDs across them. The row keeps every cell it has room for; the least asked-for leave first, into More,
-// whose menu then holds exactly those – the same options, moved, never copied (fitCells). Menus are built once; a pick
-// restyles them ──
-const CELLS={ range:'range', geometry:'geometry', signal:'signal', encoding:'encoding', white:'white point', channels:'channels', coverage:null, status:'status' }   // a cell's id → its facet (coverage is an interval)
-const FIT=['status','coverage','channels','white','signal','encoding','geometry','range']   // the order cells leave the row
-const ANYW={ range:t('ui.cell.range-any','SDR & HDR'), geometry:t('ui.cell.shape-any','Any shape'), signal:t('ui.cell.signal-any','Screen or scene'), encoding:t('ui.cell.curve-any','Any curve'),
-	white:t('ui.cell.white-any','Any white'), channels:t('ui.cell.channels-any','Any count'), coverage:t('ui.cell.coverage-any','Any coverage'), status:t('ui.cell.status-any','In use or history') }
+// ── the filters: one menu (the row's Filters cell) holding every facet – a pick ORs within its facet and ANDs across
+// them – and in the row only what is picked, each a tag that lets it go. Built once; a pick restyles it ──
+const CELLS={ range:'range', geometry:'geometry', signal:'signal', encoding:'encoding', white:'white point', channels:'channels', coverage:null }   // a facet's id → its facet (coverage is an interval)
+const CLABEL={ range:t('ui.cell.range','Range'), geometry:t('ui.cell.shape','Shape'), signal:t('ui.cell.signal','Signal'), encoding:t('ui.cell.curve','Tone curve'), white:t('ui.cell.white','White'), channels:t('ui.cell.channels','Channels'), coverage:t('ui.cell.coverage','Coverage') }
 const fiOf=k=>FACETS.indexOf(CELLS[k])
 const FVALS=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
 // each white as its chromaticity, so its option wears its own tint – CIE 15:2004 Table T.3 (D65, D50, C, A, E),
@@ -2110,49 +2133,47 @@ const optIcon=(fi,v)=>WHITE_XY[v]&&FACETS[fi]==='white point'?`<i class="wdot" s
 // a count needs no gloss – Channels' options are their numbers, in one row
 const facetOpt=(fi,v)=>FACETS[fi]==='channels'?`<button class="opt num" type="button" data-f="${fi}" data-t="${v}" aria-pressed="false" title="${TAGTIP[v]||''}"><b>${v}</b></button>`
 	:`<button class="opt" type="button" data-f="${fi}" data-t="${v}" aria-pressed="false" title="${TAGTIP[v]||''}"><span class="oi">${optIcon(fi,v)}</span><span><b>${cap(tagL(v))}</b>${TAGLINE[v]?`<small>${TAGLINE[v]}</small>`:''}</span></button>`
-const ONEC=new Set(['range','geometry'])   // two or three options read best as one column
-const anyHead=k=>`<header class="dh2" hidden><button type="button" class="lnk" data-any="${k}">${t('ui.cell.any','Any')}</button></header>`
-// a cell's menu body – it lives in the cell's own menu, or in More's section while the cell is out of the row.
-// Coverage is continuous, so it filters by interval, not options: from–to share of the visible gamut (the dossier's
-// reach number) – the low end finds the narrow-coverage spaces, the high end the wide ones
-for(const k in CELLS){ const fi=fiOf(k)
-	document.getElementById('m-'+k).innerHTML=`<div class="mbody" data-m="${k}">${anyHead(k)}${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span><b class="tnum" id="fcovv">${covTxt()}</b></span>`
-		:`<div class="opts${CELLS[k]==='channels'?' c4':ONEC.has(k)?'':' c2'}">${FVALS[fi].map(v=>facetOpt(fi,v)).join('')}</div>`}</div>` }
+const ONEC=new Set(['geometry'])   // three options read best as one column; Range's two sit in a row
+// a facet's section of the menu. Coverage is continuous, so it filters by interval, not options: from–to share of the
+// visible gamut (the dossier's reach number) – the low end finds the narrow-coverage spaces, the high end the wide ones
 const moreEl=document.getElementById('m-more')
-moreEl.innerHTML=Object.keys(CELLS).map(k=>`<section class="msec" data-m="${k}" hidden><header>${document.querySelector(`#c-${k} small`).textContent}</header></section>`).join('')
+moreEl.addEventListener('beforetoggle',e=>{ if(e.newState==='open') for(const k in CELLS) home(k).append(document.querySelector(`.mbody[data-m="${k}"]`)) })   // every facet home again
+moreEl.innerHTML=[['range','channels','geometry','signal'],['encoding'],['white','coverage']].map(ks=>`<div class="mcol">${ks.map(k=>`<section class="msec" data-m="${k}"><header>${CLABEL[k]}</header></section>`).join('')}</div>`).join('')   // three columns of about one height
+for(const k in CELLS){ const fi=fiOf(k)
+	moreEl.querySelector(`.msec[data-m="${k}"]`).insertAdjacentHTML('beforeend',`<div class="mbody" data-m="${k}">${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span><b class="tnum" id="fcovv">${covTxt()}</b></span>`
+		:`<div class="opts${CELLS[k]==='channels'?' c4':k==='range'?' row':ONEC.has(k)?'':' c2'}">${FVALS[fi].map(v=>facetOpt(fi,v)).join('')}</div>`}</div>`) }
 const fcov=document.getElementById('fcov'), fcov1=document.getElementById('fcov1'), fcovv=document.getElementById('fcovv'), covD=document.querySelector('.fcov .dual')
 const isOn=k=>k==='coverage'?covOn():act[fiOf(k)].size>0
-const cellWords=k=>{ if(k==='coverage') return covOn()?covTxt():ANYW[k]
-	const on=[...act[fiOf(k)]]; return !on.length?ANYW[k]:on.length===1?cap(tagL(on[0])):t('ui.cell.n','{n} picked',{n:on.length}) }
-// the row's room: every cell in, then out in FIT's order (More taking a seat) until the row fits; More's sections
-// show the cells that left, each holding that cell's very options
-const rowEl=stripEl.querySelector('.cells'), moreC=document.getElementById('c-more')
-function fitCells(){ const over=()=>rowEl.scrollWidth>rowEl.clientWidth+1
-	for(const k of FIT) document.getElementById('c-'+k).hidden=false; moreC.hidden=true
-	if(over()){ moreC.hidden=false; for(const k of FIT){ document.getElementById('c-'+k).hidden=true; if(!over()) break } }
-	let n=0
-	for(const k in CELLS){ const out=document.getElementById('c-'+k).hidden, sec=moreEl.querySelector(`.msec[data-m="${k}"]`)
-		sec.hidden=!out; (out?sec:document.getElementById('m-'+k)).append(document.querySelector(`.mbody[data-m="${k}"]`)); if(out&&isOn(k)) n++ }
-	const mb=moreC.querySelector('b'); mb.textContent=n?t('ui.cell.more-n','{n} set',{n}):t('ui.cell.more-any','Filters'); mb.classList.toggle('on',n>0) }
-new ResizeObserver(fitCells).observe(rowEl)
-function paintCells(){
-	for(const k in CELLS){ const b=document.querySelector(`#c-${k} b`), on=isOn(k); b.textContent=cellWords(k); b.classList.toggle('on',on)
-		document.querySelector(`.mbody[data-m="${k}"] .dh2`).hidden=!on }
+// a facet with a pick rides the row as its own cell – its mark, its name over its pick – whose menu holds that facet's
+// options: the very options of the Filters menu, moved into it while it is open and back when Filters opens, never
+// copied. Built once; a pick shows or hides a cell and rewords it
+const FICON={ range:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
+	geometry:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z M4 7.5l8 4.5 8-4.5M12 12v9"/>', signal:'<rect x="3" y="7" width="13" height="10" rx="1.5"/><path d="M16 10.5 21 8v8l-5-2.5"/>',
+	encoding:'<path d="M4 4v16h16M6.5 17.5C10 17 11 7 19 6"/>', white:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
+	channels:'<path d="M6 5v14M12 5v14M18 5v14"/>', coverage:'<path d="M12 3a9 9 0 1 0 9 9h-9z"/>' }
+const fcellsEl=document.getElementById('fcells'), moreN=document.querySelector('#c-more b'), home=k=>moreEl.querySelector(`.msec[data-m="${k}"]`)
+fcellsEl.innerHTML=Object.keys(CELLS).map(k=>`<button class="cell" type="button" id="c-${k}" popovertarget="m-${k}" aria-expanded="false" hidden><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${FICON[k]}</svg></span><span class="cw"><small>${CLABEL[k]}</small><b class="on"></b></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button>`).join('')
+for(const k in CELLS){ const m=Object.assign(document.createElement('div'),{id:'m-'+k,className:'dpop',popover:'auto'}); m.setAttribute('role','dialog'); m.setAttribute('aria-labelledby','c-'+k)
+	m.addEventListener('beforetoggle',e=>{ const b=document.querySelector(`.mbody[data-m="${k}"]`); (e.newState==='open'?m:home(k)).append(b) })
+	moreEl.before(m) }
+const cellWords=k=>{ if(k==='coverage') return covTxt()
+	const v=[...act[fiOf(k)]][0]; return FACETS[fiOf(k)]==='channels'?t('ui.filter.ch-n','{n} channels',{n:v}):cap(tagL(v)) }
+function paintCells(){ let n=0
+	for(const k in CELLS){ const on=isOn(k), c=document.getElementById('c-'+k)
+		c.hidden=!on; if(on){ c.querySelector('b').textContent=cellWords(k); n++ } }
 	document.querySelectorAll('.dpop [data-f][data-t]').forEach(x=>{ const on=act[+x.dataset.f].has(x.dataset.t); x.setAttribute('aria-pressed',String(on)) })
-	covD.style.setProperty('--lo',covMin*100+'%'); covD.style.setProperty('--hi',covMax*100+'%'); fcovv.textContent=covTxt()   // the fill IS the interval — full at rest, because 'any' is the full interval
-	fitCells() }   // a pick's words change the cells' widths
-document.addEventListener('click',e=>{ const b=e.target.closest('.dpop [data-f][data-t]'), any=e.target.closest('.dpop [data-any]')
-	if(b){ const set=act[+b.dataset.f], v=b.dataset.t; set.has(v)?set.delete(v):set.add(v); applyFilter() }
-	else if(any){ const k=any.dataset.any
-		if(k==='coverage'){ covMin=0; covMax=1; fcov.value=0; fcov1.value=100 } else act[fiOf(k)].clear()
-		applyFilter() } })
+	covD.style.setProperty('--lo',covMin*100+'%'); covD.style.setProperty('--hi',covMax*100+'%'); fcovv.textContent=covOn()?covTxt():''   // the fill IS the interval — full at rest, because 'any' is the full interval
+	moreN.textContent=n?t('ui.cell.more-n','{n} on',{n}):t('ui.cell.off','Off'); moreN.classList.toggle('on',n>0) }
+document.addEventListener('click',e=>{ const b=e.target.closest('.dpop [data-f][data-t]')
+	if(b){ const set=act[+b.dataset.f], v=b.dataset.t, had=set.has(v); set.clear(); if(!had) set.add(v); applyFilter()   // one pick per facet: a pick replaces the last, the same again lets it go
+		const pop=b.closest('[popover]'); if(pop&&pop!==moreEl&&pop.matches(':popover-open')) pop.hidePopover() } })   // a facet cell's menu closes on its pick; Filters stays for the next
 fcov.oninput=()=>{ covMin=+fcov.value/100; if(covMin>covMax){ covMax=covMin; fcov1.value=covMax*100 } applyFilter() }
 fcov1.oninput=()=>{ covMax=+fcov1.value/100; if(covMax<covMin){ covMin=covMax; fcov.value=covMin*100 } applyFilter() }
 // a popover's invoker says whether it is open – the cells style by it (toggle doesn't bubble)
 document.addEventListener('toggle',e=>{ if(e.target.matches?.('[popover]')) for(const b of document.querySelectorAll(`[popovertarget="${CSS.escape(e.target.id)}"]`)) b.setAttribute('aria-expanded',String(e.newState==='open')) },true)
 // arrival: restore the shared filters – the tags, the interval, the words – then one applyFilter seats everything
 try{ const sp=new URLSearchParams(location.search), tg=sp.get('t'), cov=sp.get('cov'), fq=sp.get('find')
-	if(tg) for(const tag of tg.split(',')){ const fi=FVALS.findIndex(v=>v.includes(tag)); if(fi>=0) act[fi].add(tag) }
+	if(tg) for(const tag of tg.split(',')){ const fi=FVALS.findIndex(v=>v.includes(tag)); if(fi>=0){ act[fi].clear(); act[fi].add(tag) } }   // one pick per facet: the last one named
 	if(cov){ const m2=cov.match(/^(\d+)-(\d+)$/); if(m2){ covMin=clamp(+m2[1],0,100)/100; covMax=Math.max(covMin,clamp(+m2[2],0,100)/100); fcov.value=covMin*100; fcov1.value=covMax*100 } }
 	if(fq){ qInput.value=fq; qWord=fq.trim().toLowerCase() }
 	if(tg||cov||fq) applyFilter(); else paintCells() }catch{ paintCells() }
@@ -2194,11 +2215,14 @@ function openModal(s){
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
-	// the pinned row stays live above the card – its Limit, Quantize and Vision reach the dossier too. Opened on the first
-	// screen (a name view, the row still at its foot), the masthead keeps its place and the row floats right under it
-	// (the page back at its top meanwhile); everything else behind the card sleeps
-	if(modalScroll==null&&stripEl.getBoundingClientRect().top>1){ modalScroll=scrollY; scrollTo({top:0,behavior:'instant'}); document.body.classList.add('mfloat') }
-	for(const el of pageShell.children) el.inert=!(el===stripEl||el.matches('.top,.dpop'))
+	// the pinned row stays live above the card – its Limit, Quantize and Vision reach the dossier too. A card opened with the
+	// hero still in view first brings the catalog up: the row pinned at the top, the spaces behind the card – not the hero
+	// (the page goes back on close). A name view's own first card keeps the first screen it was baked on: the masthead in
+	// place, the row floating right under it. Everything else behind the card sleeps
+	if(modalScroll==null&&stripEl.getBoundingClientRect().top>1){ modalScroll=scrollY
+		if(!openModal.seen&&s===BOOT.seg){ scrollTo({top:0,behavior:'instant'}); document.body.classList.add('mfloat') }
+		else scrollTo({top:stripEl.getBoundingClientRect().top+scrollY,behavior:'instant'}) }
+	for(const el of pageShell.children) el.inert=!(el===stripEl||el.matches('.top,.dpop'))   // the row – the color and the lenses – stays live over the card
 	urlLast=spaceURL(s)+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
@@ -2440,7 +2464,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	document.getElementById('m-vision').innerHTML=`<div class="opts">${visionOpts()}</div>`
 	const VIEWS=[['grid',t('ui.cell.view-grid','Grid'),t('ui.view.grid','featured spaces large, the rest as tiles'),VI.grid],['rows',t('ui.cell.view-rows','Rows'),t('ui.view.rows','one line per space, its strips at full width'),VI.list],['list',t('ui.cell.view-list','List'),t('ui.view.list','the spec sheet – every column sorts'),VI.table]]
 	document.getElementById('m-view').innerHTML=`<div class="opts">${VIEWS.map(([v,n,tip,ic])=>lensOpt('w',v,n,'',ic,tip)).join('')}</div><section class="vsec"><header>${t('ui.cell.vision','Vision')}</header><div class="opts">${visionOpts()}</div></section>`   // where the row has no room for Vision's cell (CSS), View holds it
-	const face=(k,icon,word,on)=>{ const c=document.getElementById('c-'+k); c.querySelector('.ci').innerHTML=icon; const b=c.querySelector('b'); b.textContent=word; b.classList.toggle('on',on) }
+	const face=(k,icon,word,on)=>{ const c=document.getElementById('c-'+k); c.querySelector('.ci').innerHTML=icon; const b=c.querySelector('b'); b.textContent=word; b.classList.toggle('on',on); c.title=c.querySelector('small').textContent+': '+word }   // an icon cell: its name and pick on hover
 	paintLens=()=>{ const ql=QSEG.find(([mo])=>qKey(mo)===qKey(Q)), vl=LENSES.find(l=>l.id===VIS)
 		face('draw',QI[qKey(Q)],qName(ql[1]),Q!=null); face('limit',LI[GM],cap(GAMLABEL[GM]),GM!=='vis'); face('vision',EYE,VISW[VIS]||vName(vl),VIS!=='none'); { const w=VIEWS.find(x=>x[0]===VIEW); face('view',w[3],w[1],false) }
 		document.getElementById('mdist').hidden=!PALMODES.has(Q)
@@ -3703,8 +3727,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			<div class="pcol"><!-- the instrument: its axes, its notation, its shape, its signal (reference white included), its derivation, its cost, its reach – the name closes the column -->
 				<div><i>${t('ui.dossier.channels','channels')}</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="${t('ui.dossier.css-tip','this color, CSS-notated – click to copy')}"></p></div>`:''}
-				${geo(s)?`<div><i>${t('ui.dossier.geometry','geometry')}</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${tagL(geo(s))}</span></p></div>`:''}
-				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>${t('ui.dossier.signal','signal')}</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${tagL(m.referred+'-referred')}</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${tagL(enc)}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}${prof?`\n${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:''}">${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${geo(s)?`<div><i>${t('ui.dossier.geometry','geometry')}</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${OPTI[geo(s)]||''}${tagL(geo(s))}</span></p></div>`:''}
+				${m.referred||m.dynamic||enc||m.illuminant?`<div><i>${t('ui.dossier.signal','signal')}</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${OPTI[m.referred]||''}${tagL(m.referred+'-referred')}</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${OPTI[m.dynamic.toUpperCase()]||''}${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${OPTI[enc]||''}${tagL(enc)}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}${prof?`\n${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:''}">${WHITE_XY[m.illuminant]?`<i class="wdot" style="--w:${whiteHex(m.illuminant)}"></i>`:''}${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
 				${path&&path.length>1?`<div><i title="${t('ui.dossier.lineage-tip','the conversion route down to rgb – each space is defined through the next')}">${t('ui.dossier.lineage','lineage')}</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
 				${relRow?`<div><i title="${t('ui.dossier.related-tip','directly convertible neighbors in the conversion graph, beyond the lineage')}">${t('ui.dossier.related','related')}</i><p class="fam">${rel.map(n=>`<a href="#${n}" title="${n}">${disp(n)}</a>`).join(', ')}</p></div>`:''}
 				${m.loss?`<div><i>${t('ui.dossier.loss','loss')}</i><p>${m.lossNote?`<span class="term" title="${t(`space.${s}.loss-note`,m.lossNote)}">${tagL(m.loss)}</span>`:tagL(m.loss)}</p></div>`:''}
@@ -4655,7 +4679,9 @@ function renderFast(solid=true){
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(fx)
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value
 	if(!virgin&&!PDOWN){ syncFav(fx); syncURL(hx) }   // the favicon wears the face; the URL keeps the exact coordinate
-	if(gpillEl){ const g=virgin?null:gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
+	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
+	if(cnmEl){ const n=nearestIn('xkcd',frgb,'oklab').n; if(cnmEl.textContent!==n) cnmEl.textContent=n }   // the nearest name a person gave it (the xkcd survey) – live through drags, an 8-bit memo
+	if(gpillEl){ const g=gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
 	if(palmEl){ const on=PALMODES.has(Q)&&!virgin   // live through drags – the address should follow the hand
 		palmEl.hidden=!on
 		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit
@@ -5013,20 +5039,25 @@ renderFast(); paintCatalogGrad()
 	// out from the centre when it is first drawn, and turn – slowly, one turn in SPIN ms – while it is on screen
 	const hero=document.getElementById('hero'), cv=hero.querySelector('.hburst'), gl=burst(cv), root=document.documentElement
 	const RAYS=720, RAYW=2, STRONG=[1,.95], GROW=1400, SPIN=360000   // 720 rays of 2 CSS px at full strength (light paper, dark)
-	let hue=null, want=0, raf=0, seen=true, geo=null, grow=reduce()?0:-1, BAND=null   // grow: -1 until the first frame drawn
+	let hue=null, want=0, raf=0, seen=true, geo=null, grow=reduce()?0:-1, BAND=null, F=0, Y=1, spin=0, last=0   // grow: -1 until the first frame drawn
+	// while the color roams (none picked yet) the burst is every hue in lines, turning; a pick fills it with that hue from
+	// its place round both ways and melts the lines into a cloud – F, Y ease toward those ends a frame at a time
 	const band=()=>BAND??=(c=>['--hs-l0','--hs-l1','--hs-c0','--hs-c1'].map(k=>parseFloat(c.getPropertyValue(k))))(getComputedStyle(root))   // read once a theme, not a frame
-	const frame=()=>{ raf=0; const now=performance.now()
+	const frame=()=>{ raf=0; const now=performance.now(), dt=last?Math.min(64,now-last):16; last=now
 		const d=((want-hue)%360+540)%360-180; hue=Math.abs(d)<.05?want:hue+d*.18
+		const roam=autoColor||virginNow(), ease=(x,to)=>reduce()?to:Math.abs(to-x)<.002?to:x+(to-x)*(1-Math.exp(-dt/280))
+		F=ease(F,roam?0:1); Y=ease(Y,roam?1:0); if(!reduce()) spin+=dt/SPIN*2*Math.PI*Y
 		if(gl&&seen&&geo){ if(grow<0) grow=now
 			const g=grow?Math.min(1,(now-grow)/GROW):1; if(g===1) grow=0
 			const [l0,l1,c0,c1]=band(), [L,C]=heroLC, k=geo.dpr
 			gl.draw({ cx:geo.x*k, cy:geo.y*k, hue:hue*Math.PI/180, L:clamp(L,l0,l1), C:clamp(C,c0,c1), n:RAYS, w:RAYW*k,
 				reach:Math.max(geo.w,geo.h)*.7*k*(.02+.98*(1-(1-g)**3)), foot:geo.h*k, alpha:STRONG[+(root.dataset.theme==='dark')],
-				spin:reduce()?0:now/SPIN*2*Math.PI }) }
-		if(gl&&seen&&(hue!==want||grow||!reduce())) raf=requestAnimationFrame(frame) }   // no WebGL, nothing to animate
+				spin, fill:F, rays:Y }) }
+		const still=hue===want&&!grow&&F===(roam?0:1)&&Y===(roam?1:0)&&(reduce()||!Y)
+		if(gl&&seen&&!still) raf=requestAnimationFrame(frame); else last=0 }   // a cloud at rest, or no WebGL: nothing to animate
 	const redraw=()=>{ raf||=requestAnimationFrame(frame) }
 	let heroLC=[.7,.15], heroHx=''
-	heroPaint=rgb=>{ const hx=hex(rgb); if(hx===heroHx) return; heroHx=hx
+	heroPaint=rgb=>{ const hx=hex(rgb)+(autoColor||virginNow()); if(hx===heroHx) return; heroHx=hx   // a new color, or the same one picked
 		const [L,C,h]=space.rgb.oklch(...rgb); heroLC=[L,C]; if(isFinite(h)&&C>1e-3) want=h; if(hue===null) hue=want
 		if(seen) redraw()
 		if(!PDOWN) offer() }

@@ -77,8 +77,8 @@ const catalog = () => { const bare = catHTML(), baked = catHTML(DEFAULT)
 	if (shape(bare) !== shape(baked)) throw new Error('generate-landing: catHTML(DEFAULT) changes element structure, not just attributes — hydration would desync')
 	return `<main class="cat" id="cat" data-fp="${fpOf(bare)}">${baked}</main>` }
 // the hero's facts, read off the data: how many spaces, and the years they span
-const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { n: spaceCount, y0: Math.min(...years), y1: Math.max(...years) }
-const counts = (h) => h.replace(/(<span id="(n|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
+const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { n: spaceCount, nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years) }   // nn: the row's count
+const counts = (h) => h.replace(/(<span id="(n|nn|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
 
 export function build(out = join(root, '_site'), i18n) {
 // ── index.html: static catalog + live counts + version (from the web/ source) ──
@@ -88,7 +88,7 @@ const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not f
 const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
-for (const k of ['n', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
+for (const k of ['n', 'nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
 // the current-color rhombus + value carry the DEFAULT color from the first frame —
 // an unvalued <input type=color> paints BLACK until the module lands
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))

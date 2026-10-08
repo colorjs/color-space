@@ -160,19 +160,18 @@ try {
 	await page.locator('#fcov').fill('90')
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), true, 'coverage ≥90% keeps oklab')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'coverage ≥90% drops sRGB')
-	assert.match(await page.locator('#c-more b').innerText(), /1/, 'More counts what it holds')
-	// the row holds every facet or lends it to More – never both, never one missing: each facet's options exist once,
-	// in its own cell's menu while the cell is in the row, else in More's section
-	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage','status'].filter(k=>{ const out=document.getElementById('c-'+k).hidden, body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
-		return body.length!==1||(out?!body[0].closest('#m-more'):body[0].closest('#m-more')) })),[],'each facet lives in its cell or in More, once')
-	assert.equal(await page.locator('.cell b.on').evaluateAll(bs=>bs.every(b=>getComputedStyle(b).boxShadow==='none')),true,'a picked value is not underlined')
-	await page.locator('[data-any="coverage"]').click()
-	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'Coverage\'s Any restores the catalog')
+	assert.equal(await page.locator('#c-coverage').isVisible(), true, 'the picked interval rides the row as its own cell')
+	// one menu holds every facet, once – the row shows only what is picked
+	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage'].filter(k=>{ const body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
+		return body.length!==1||!body[0].closest('#m-more') })),[],'each facet lives once, in the Filters menu')
+	assert.equal(await page.locator('.cells .cell:visible').count(), 7, 'the row: the picked facet, search, Filters and the four lenses')
+	await page.locator('#fcov').fill('0')
+	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'the full interval again restores the catalog')
 	// the interval's low end: ≤50% finds the narrow-coverage spaces and drops the wide ones
 	await page.locator('#fcov1').fill('50')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'coverage ≤50% keeps sRGB (~36%)')
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), false, 'coverage ≤50% drops oklab')
-	await page.locator('[data-any="coverage"]').click()
+	await page.locator('#fcov1').fill('100')
 	// the fill IS the interval: after a reset the track must return to full ink, not clear
 	assert.equal(await page.locator('#fcov').evaluate(i => { const d = i.closest('.dual'); return d.style.getPropertyValue('--lo') + ' ' + d.style.getPropertyValue('--hi') }), '0% 100%', 'coverage reset repaints the full interval')
 	await page.keyboard.press('Escape')
@@ -238,8 +237,8 @@ try {
 	await lens(page,'f','scene')
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
-	assert.match(await page.locator('#c-signal b').innerText(), /^Scene/, 'the Signal cell names its pick')
-	await page.evaluate(()=>document.querySelector('[data-any="signal"]').click())
+	assert.match(await page.locator('#c-signal b').innerText(), /^Scene/, 'the picked signal rides the row as its cell, naming its pick')
+	await lens(page,'f','scene')   // unpicked where it was picked – no Any
 	await page.locator('.gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
 

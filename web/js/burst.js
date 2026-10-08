@@ -3,18 +3,21 @@
 // Where rays pass closer than a few pixels apart a pixel takes their mean coverage (width over spacing) – thin rays
 // would otherwise alias into moiré.
 // Ray k carries hue k·360/n at the current color's OKLCH lightness and chroma (Ottosson's OKLab → linear sRGB,
-// clipped), the current hue at the top – until the burst turns, its colors riding along. It fades out toward its reach, and toward the hero's foot – behind the pinned
-// row, which sits on it. One quad a frame, no DOM – the page's styles never hear of it.
+// clipped), the current hue at the top – until the burst turns, its colors riding along. It fades out toward its reach,
+// and toward the hero's foot – behind the pinned row, which sits on it. A picked color fills it: from the picked hue's
+// place round both ways (fill 0 → 1) every ray takes that hue, and the rays melt into their mean – a cloud (rays 1 → 0).
+// One quad a frame, no DOM – the page's styles never hear of it.
 const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'
 const FS = `precision highp float;
-uniform vec2 uC,uS;uniform float uH,uL,uK,uN,uW,uR,uB,uA,uP;
+uniform vec2 uC,uS;uniform float uH,uL,uK,uN,uW,uR,uB,uA,uP,uF,uY;
 vec3 enc(vec3 c){c=clamp(c,0.,1.);return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(.0031308,c));}
 vec3 oklch(float L,float C,float h){float a=C*cos(h),b=C*sin(h);
  vec3 l=vec3(L+.3963377774*a+.2158037573*b,L-.1055613458*a-.0638541728*b,L-.0894841775*a-1.291485548*b);l=l*l*l;
  return enc(vec3(4.0767416621*l.x-3.3077115913*l.y+.2309699292*l.z,-1.2684380046*l.x+2.6097574011*l.y-.3413193965*l.z,-.0041960863*l.x-.7034186147*l.y+1.707614701*l.z));}
-void main(){vec2 q=vec2(gl_FragCoord.x,uS.y-gl_FragCoord.y),d=q-uC;float r=length(d),t=atan(d.x,-d.y)+uP,h=t+uH;
- float s=6.2831853/uN,dh=mod(t+s*.5,s)-s*.5,cov=clamp(uW*.5-r*abs(sin(dh))+.5,0.,1.),sp=r*s;
- cov=mix(min(1.,uW/sp),cov,smoothstep(1.,3.,sp));
+void main(){vec2 q=vec2(gl_FragCoord.x,uS.y-gl_FragCoord.y),d=q-uC;float r=length(d),t=atan(d.x,-d.y)+uP;
+ float o=mod(t+3.1415927,6.2831853)-3.1415927,w=1.-smoothstep(uF*3.6-.5,uF*3.6,abs(o)),h=uH+o*(1.-w);
+ float s=6.2831853/uN,dh=mod(t+s*.5,s)-s*.5,cov=clamp(uW*.5-r*abs(sin(dh))+.5,0.,1.),sp=r*s,m=min(1.,uW/sp);
+ cov=mix(m,mix(m,cov,smoothstep(1.,3.,sp)),uY);
  float a=cov*(1.-smoothstep(uR*.12,uR,r))*(1.-smoothstep(uB*.7,uB,q.y))*uA;
  gl_FragColor=vec4(oklch(uL,uK,h)*a,a);}`
 
@@ -26,14 +29,14 @@ export function burst(cv) {
 	if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null
 	gl.useProgram(pr); gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW)
 	const at = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(at); gl.vertexAttribPointer(at, 2, gl.FLOAT, false, 0, 0)
-	const u = Object.fromEntries(['uC', 'uS', 'uH', 'uL', 'uK', 'uN', 'uW', 'uR', 'uB', 'uA', 'uP'].map(k => [k, gl.getUniformLocation(pr, k)]))
+	const u = Object.fromEntries(['uC', 'uS', 'uH', 'uL', 'uK', 'uN', 'uW', 'uR', 'uB', 'uA', 'uP', 'uF', 'uY'].map(k => [k, gl.getUniformLocation(pr, k)]))
 	return {
 		/** cx, cy – the centre; hue – at the top; L, C – the band; n – rays; w – a ray's width;
 		 *  reach – where it is gone; foot – the y it is gone by; alpha – its strength; spin – the burst's turn, its
-		 *  colors riding along the rays */
-		draw({ cx, cy, hue, L, C, n, w, reach, foot, alpha, spin = 0 }) {
+		 *  colors riding along the rays; fill – how far round the picked hue has spread (0 – 1); rays – lines (1) or cloud (0) */
+		draw({ cx, cy, hue, L, C, n, w, reach, foot, alpha, spin = 0, fill = 0, rays = 1 }) {
 			gl.viewport(0, 0, cv.width, cv.height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT)
 			gl.uniform2f(u.uC, cx, cy); gl.uniform2f(u.uS, cv.width, cv.height); gl.uniform1f(u.uH, hue); gl.uniform1f(u.uL, L); gl.uniform1f(u.uK, C)
-			gl.uniform1f(u.uN, n); gl.uniform1f(u.uW, w); gl.uniform1f(u.uR, reach); gl.uniform1f(u.uB, foot); gl.uniform1f(u.uA, alpha); gl.uniform1f(u.uP, spin)
+			gl.uniform1f(u.uN, n); gl.uniform1f(u.uW, w); gl.uniform1f(u.uR, reach); gl.uniform1f(u.uB, foot); gl.uniform1f(u.uA, alpha); gl.uniform1f(u.uP, spin); gl.uniform1f(u.uF, fill); gl.uniform1f(u.uY, rays)
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4) } }
 }

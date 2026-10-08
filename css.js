@@ -23,11 +23,12 @@
  */
 
 const n = (x) => Math.round(x) || 0                       // || 0 — never "-0"
-const f = (x, d) => String(+x.toFixed(d) || 0)            // ≤ d decimals, trailing zeros dropped, never "-0"
-const fn = (name, d, k = 1) => (v) => `color(${name} ${v.map((x) => f(x / k, d)).join(' ')})`
+const trim = (x, d) => String(+x.toFixed(d) || 0)         // ≤ d decimals, trailing zeros dropped, never "-0"
+const keep = (x, d) => (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(d)   // exactly d decimals – a live readout keeps its width; never "-0.0"
 
-/** library space id → its CSS Color 4 serializer */
-export const CSS = {
+// the table over a number formatter: CSS's own serialization (trailing zeros dropped), or fixed places
+const table = (f) => { const fn = (name, d, k = 1) => (v) => `color(${name} ${v.map((x) => f(x / k, d)).join(' ')})`
+	return {
 	rgb: (v) => `rgb(${n(v[0])} ${n(v[1])} ${n(v[2])})`,
 	hsl: (v) => `hsl(${f(v[0], 1)} ${f(v[1], 1)}% ${f(v[2], 1)}%)`,
 	hwb: (v) => `hwb(${f(v[0], 1)} ${f(v[1], 1)}% ${f(v[2], 1)}%)`,
@@ -41,7 +42,12 @@ export const CSS = {
 	xyz: fn('xyz-d65', 5, 100),
 	'xyz-d50': fn('xyz-d50', 5, 100),
 	lrgb: fn('srgb-linear', 4),
-}
+} }
+
+/** library space id → its CSS Color 4 serializer */
+export const CSS = table(trim)
+/** the same notations at fixed places (40.0%, not 40%) – for a value shown live, whose length must not jump */
+export const CSS_FIXED = table(keep)
 
 /** the library spaces CSS can write natively */
 export const CSSABLE = new Set(Object.keys(CSS))

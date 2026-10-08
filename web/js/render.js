@@ -103,13 +103,13 @@ export const pairsOf = cls => { const n = cls.ch.length; if (n < 2) return []
 	const ps = n > 3 ? [[0, 1], [1, 2], [2, 0]] : n === 2 ? [[0, 1]] : [[0, 1], [0, 2], [1, 2]]
 	const ai = cls.angle ? cls.angle.i : -1, ti = cls.tone ? cls.tone.i : (ai < 0 && n === 3 ? 0 : undefined)
 	return ps.map(([a, b]) => (ai === b || ti === a) ? [b, a] : [a, b]) }
-const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12, story = lead && lede(s)
+const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12
 	const head = lead ? `<span class="by">${byline(s)}</span>` : `<span class="yr tnum">${meta[s].year || ''}</span>`
 	const nums = `<span class="cvs">${cls.ch.map((c2, i) => field(s, c2, i, vals)).join('')}</span>`
 	const strips = `<div class="chs">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, n)).join('')}</div>`
 	return `<article class="ent ${lead ? 'lc' : 'tc'}" ${entAttrs(s, cls, vals, st, n)}>
 	 <header class="eh">${nameBtn(s)}${head}</header>
-	 ${lead ? `${story ? `<p class="for">${story}</p>` : '<p class="for"></p>'}<div class="pv">${strips}${pairsOf(cls).length ? `<button type="button" class="pvs" aria-pressed="false" title="${t('ui.card.planes', 'Planes')}" aria-label="${t('ui.card.planes-label', 'Show {name} as planes', { name: disp(s) })}">${PI.planes}</button>` : ''}</div>${nums}` : strips + nums}
+	 ${lead ? `<div class="pv">${strips}${pairsOf(cls).length ? `<button type="button" class="pvs" aria-pressed="false" title="${t('ui.card.planes', 'Planes')}" aria-label="${t('ui.card.planes-label', 'Show {name} as planes', { name: disp(s) })}">${PI.planes}</button>` : ''}</div>${nums}` : strips + nums}
 	</article>` }
 // Rows: one line per space – who and why on the left, a strip per channel at full width with its number
 const row = (s, st) => { const cls = classify(s), vals = valsAt(s, st), story = lede(s)
