@@ -104,7 +104,7 @@ export async function bakeDossiers(site, i18n) {
 			if (!modal.test(h)) throw new Error(`bake-dossiers: modal anchor missing in ${pre}${s}.html`)
 			h = h.replace(modal, '<div class="modal" id="modal"$1>')
 			if (!h.includes('<body>')) throw new Error(`bake-dossiers: body anchor missing in ${pre}${s}.html`)
-			h = h.replace('<body>', '<body class="mopen mfloat" style="overflow:hidden">')   // the card open over the first screen, the pinned row floating under the masthead (openModal's state)
+			h = h.replace('<body>', '<body class="mopen" style="overflow:hidden">')   // the card open over the first screen, the pinned row live above it (openModal's state)
 			writeFileSync(file, h)
 		}
 		await page.close()

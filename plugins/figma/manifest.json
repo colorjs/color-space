@@ -5,7 +5,28 @@
   "main": "code.js",
   "ui": "ui.html",
   "editorType": ["figma", "dev"],
-  "capabilities": ["inspect"],
+  "capabilities": ["inspect", "codegen", "vscode"],
+  "codegenLanguages": [{ "label": "CSS (color-space)", "value": "css" }],
+  "codegenPreferences": [
+    {
+      "itemType": "select",
+      "propertyName": "format",
+      "label": "Color format",
+      "options": [
+        { "label": "oklch()", "value": "oklch", "isDefault": true },
+        { "label": "oklab()", "value": "oklab" },
+        { "label": "lch()", "value": "lchab" },
+        { "label": "lab()", "value": "lab" },
+        { "label": "color(display-p3)", "value": "p3" },
+        { "label": "hsl()", "value": "hsl" },
+        { "label": "hwb()", "value": "hwb" },
+        { "label": "rgb()", "value": "rgb" },
+        { "label": "hex", "value": "hex" }
+      ],
+      "includedLanguages": ["css"]
+    }
+  ],
+  "relaunchButtons": [{ "command": "open", "name": "color-space" }],
   "documentAccess": "dynamic-page",
   "networkAccess": {
     "allowedDomains": ["none"]

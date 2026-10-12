@@ -139,7 +139,8 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	}
 	// web/ speaks repo-relative paths; the staged site speaks root-relative —
 	// rewrite AFTER generation (build() re-emits index.html from the web source)
-	rewrite(join(out, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../data.json'", "'../data.json'"]])
+	rewrite(join(out, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"]])
+	rewrite(join(out, 'js/data.js'), [["'../../data.json'", "'../data.json'"]])
 	rewrite(join(out, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])
 	// structural guard: any repo-relative import that escaped the map must fail the
 	// build here, not 404 in production

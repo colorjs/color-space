@@ -150,6 +150,7 @@ function planeFS(s) {
 	const faithful = s !== 'rgb' && d <= 3 && s !== 'munsell' && rtFaithful(s)
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
 	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'], ['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab'])   // oklab both ways — the cluster lenses (uClu) live in it
+	pairs.push([s, 'p3'], ['rgb', 'p3'])   // a display-p3 destination canvas is painted in its own encoding (uEnc)
 	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
 	if (faithful) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
 	const lib = glsl(pairs)
@@ -203,6 +204,7 @@ uniform int uWeb;         // web-safe output snap
 uniform int uPolar;       // 1 → the field is a hue DISC: angle→a, radius→b
 uniform int uTri;         // cone-family vertical section: 1 cone · 2 bicone · 3 W+B triangle
 uniform int uClu;         // color-cluster lens: 1 nearest CSS named color · 2 even OKLab grid
+uniform int uEnc;         // 1 → encode Display P3, for a display-p3 canvas; else sRGB
 out vec4 O;
 void main() {
 	vec2 f = (gl_FragCoord.xy - uOff) / uRes;
@@ -287,6 +289,12 @@ void main() {
 		if (any(lessThan(enc, vec3(-0.002))) || any(greaterThan(enc, vec3(1.002)))) al = 0.5;${rt}
 	}
 	if (uWeb == 1) rgb = floor(rgb / 51.0 + 0.5) * 51.0;
+	// a display-p3 destination: a smooth field paints the coordinate's own P3 color, not its sRGB
+	// clip; a quantized one re-encodes its sRGB result (palette and web-safe colors are sRGB)
+	if (uEnc == 1) {
+		vec3 p3c = uClu == 0 && uWeb == 0 ? ${san(s)}_p3(v) : rgb_p3(rgb);
+		rgb = any(isnan(p3c)) ? vec3(0.0) : clamp(p3c, 0.0, 1.0) * 255.0;
+	}
 	O = vec4(rgb / 255.0, al);
 }`
 }
@@ -527,14 +535,14 @@ bool inVisSolidExact(vec3 c) {   // one-pixel-high bars: exact scalar/GPU parity
 
 // program + uniforms + draw for one plane/bar kernel
 const KV4 = [0, 0, 0, 0]   // reused held-values scratch — the atlas calls this ~60× per drag frame
-function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, ox = 0, oy = 0) {
+function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, ox = 0, oy = 0, enc = 0) {
 	// Flat cluster fills must survive readback byte-for-byte (marker centering uses
 	// the painted run); retain hardware dithering only for genuinely smooth fields.
 	quant ? G.disable(G.DITHER) : G.enable(G.DITHER)
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uEnc', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	KV4[0] = KV4[1] = KV4[2] = KV4[3] = 0; for (let i = 0; i < Math.min(4, vals.length); i++) KV4[i] = vals[i]
 	G.uniform4f(st.u.uV, KV4[0], KV4[1], KV4[2], KV4[3])
@@ -549,6 +557,7 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.uniform1i(st.u.uPolar, polar ? 1 : 0)
 	G.uniform1i(st.u.uTri, tri || 0)
 	G.uniform1i(st.u.uClu, PALETTES[quant] ? 1 : quant === 'jnd' ? 2 : quant === '565' ? 3 : 0)
+	G.uniform1i(st.u.uEnc, enc)
 	// sampler units are program state and DEFAULT TO 0 — an int 3D sampler and a float 2D
 	// sampler colliding on unit 0 is GL_INVALID_OPERATION on every draw, palette bound or not
 	if (st.u.uPalIdx) G.uniform1i(st.u.uPalIdx, PAL_UNIT)
@@ -558,13 +567,17 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
 
-function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric) {
+// the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end
+const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && 'drawingBufferColorSpace' in G ? 1 : 0
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0) {
+	const cs = enc ? 'display-p3' : 'srgb'
+	if (G.drawingBufferColorSpace && G.drawingBufferColorSpace !== cs) G.drawingBufferColorSpace = cs
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
-	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric)
+	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, 0, 0, enc)
 }
 
 /**
@@ -622,7 +635,7 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
 		queueKernel(cv2d, () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, deferred))
 		return true
 	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric)
+	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, encOf(cv2d))
 	return presentKernel(cv2d, deferred)
 }
 
@@ -641,7 +654,7 @@ export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, metric, defer
 		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, metric, deferred))
 		return true
 	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric)
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric, encOf(cv2d))
 	return presentKernel(cv2d, deferred)
 }
 

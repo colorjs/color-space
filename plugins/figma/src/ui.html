@@ -6,71 +6,219 @@
 <style>
 /* Colors come from Figma's theme tokens (showUI themeColors: true), so the panel follows
    Figma's light and dark themes. Outside Figma, such as in scripts/check-figma.js, they
-   fall back to CSS system colors. Spacing and type tokens are the atlas's own, copied
-   from web/tokens.css at build time. */
+   fall back to CSS system colors. Spacing, type and picker tokens are the atlas's own,
+   copied from web/tokens.css at build time; the picker's rules mirror the dossier's
+   (web/index.html .pl, .bar2, .nrg, .seg, .opt, #tip). Layout and shapes follow Figma's own
+   color picker: the plane, the eyedropper beside the sliders, the format select beside one
+   row of values; filled fields, pill tracks, round knobs in a white ring. */
 :root{
 	color-scheme:light dark;
 	--paper:var(--figma-color-bg, Canvas);
-	--panel:var(--figma-color-bg-secondary, Canvas);
+	--panel:var(--figma-color-bg-secondary, color-mix(in oklab, CanvasText 7%, Canvas));
 	--ink:var(--figma-color-text, CanvasText);
 	--soft:var(--figma-color-text-secondary, GrayText);
 	--hair:var(--figma-color-border, GrayText);
+	--sel:var(--figma-color-border-selected, Highlight);
+	--edge:color-mix(in oklab, var(--ink) 12%, transparent);   /* the hairline inside a field, as Figma draws its plane and tracks */
+	/* the handles: the current color (--tkc, stamped on #picker) in a white ring with a faint shadow */
+	--tkc:transparent;
+	--knob:var(--s4);   /* Figma's knob: as tall as its 16 px track, a 3 px white ring around the color */
+	--knob-ring:.1875rem solid #fff;
+	--knob-edge:0 0 0 .5px color-mix(in oklab, #000 12%, transparent), 0 .0625rem .1875rem color-mix(in oklab, #000 25%, transparent);
+	--track:var(--s4);
+	--field-radius:var(--radius-card);
 /*TOKENS*/
 }
 *{ box-sizing:border-box }
+/* the window follows the content; if it ever can't, it scrolls without a scrollbar taking width from the layout */
+html{ overflow-y:auto; scrollbar-width:none }
+html::-webkit-scrollbar{ display:none }
+/* a drag hides the cursor, as Figma's own picker does: the knob is where the pointer is */
+html.drag,html.drag *{ cursor:none !important }
 body{ margin:0; padding:var(--s3); background:var(--paper); color:var(--ink); font:var(--text-xs)/1.45 var(--font-current) }
 :focus-visible{ outline:calc(var(--rule-hair)*2) solid var(--ink); outline-offset:var(--space-3xs) }   /* the atlas's focus ring (web/workshop.css) */
 [hidden]{ display:none !important }
+button,select,input{ font:inherit; color:inherit }
+.fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
+.ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 
-.bar{ display:flex; align-items:center; justify-content:space-between; gap:var(--s2); margin-bottom:var(--s3) }
-.bar label{ display:flex; align-items:center; gap:var(--s2); color:var(--soft) }
-select,input,button{ font:inherit; color:inherit }
-select,input{ background:var(--paper); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-control); padding:var(--s1) var(--s2); min-width:0 }
-select:hover,input:hover{ border-color:var(--soft) }
-input[readonly]{ color:var(--soft) }
+/* Figma's field: filled, a hairline on hover, the selection color on focus */
+.fld{ height:var(--s6); background:var(--panel); border:var(--rule-hair) solid transparent; border-radius:var(--field-radius); padding:0 var(--s2); min-width:0 }
+.fld:hover{ border-color:var(--hair) }
+.fld:focus-within{ border-color:var(--sel) }
+.fld input{ width:100%; height:100%; min-width:0; padding:0; border:0; background:none; outline:none }
+.fld input[readonly]{ color:var(--soft) }
+/* Figma's select: an outlined box on the panel, its chevron at the right */
+.sel{ position:relative; display:flex; align-items:center; gap:var(--s1); height:var(--s6); min-width:0; padding:0 var(--s2); border:var(--rule-hair) solid var(--hair); border-radius:var(--field-radius); background:var(--paper); color:var(--ink); cursor:pointer; text-align:start }
+.sel:hover{ border-color:var(--soft) }
+.sel:focus-within,.sel:focus-visible{ border-color:var(--sel); outline:none }
+.sel select{ appearance:none; -webkit-appearance:none; flex:1; min-width:0; height:100%; padding:0; border:0; background:none; outline:none; cursor:pointer }
+.sel .chev{ margin-left:auto; --ic:10px; color:var(--soft); pointer-events:none; flex:none }
+
+/* the space picker: Figma's font menu — search, a family filter, the list; featured spaces set bold, the current one checked */
+.top{ position:relative; display:flex; align-items:center; gap:var(--s2) }
+.top .sel{ flex:1 }
+#spname{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+/* in the page (a plugin frame can't paint outside itself): under its button, over the plane, and the window grows to hold it */
+.spmenu{ position:absolute; z-index:10; top:calc(100% + var(--s1)); left:0; right:0; display:flex; flex-direction:column; height:20rem; border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow); overflow:hidden }
+.sphead{ display:grid; gap:var(--s2); padding:var(--s2); border-bottom:var(--rule-hair) solid var(--hair) }
+.srch{ display:flex; align-items:center; gap:var(--s1) }
+.srch .ic{ --ic:12px; color:var(--soft) }
+.srch input{ flex:1 }
+.srch .clr{ display:grid; place-items:center; padding:0; border:0; background:none; color:var(--soft); cursor:pointer }
+.srch .clr:hover{ color:var(--ink) }
+.splist{ overflow:auto; padding:var(--s1) 0 }
+.splist h6{ margin:var(--s2) 0 0; padding:var(--s1) var(--s3); font-size:var(--t0); font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--soft) }
+.sp{ display:grid; grid-template-columns:var(--s4) minmax(0,1fr) auto; align-items:center; gap:var(--s1); width:100%; padding:var(--s1) var(--s3) var(--s1) var(--s2); border:0; background:none; color:var(--ink); text-align:start; cursor:pointer; font-size:var(--t1) }
+.sp .nm{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.sp .id{ color:var(--soft); font-family:var(--font-mono); font-size:var(--t0); white-space:nowrap }
+.sp.feat .nm{ font-weight:700 }   /* a family's featured spaces read bold */
+.sp[aria-selected="true"]::before{ content:''; width:.4rem; height:.65rem; margin-left:.15rem; border:solid currentColor; border-width:0 .125rem .125rem 0; transform:rotate(45deg) translate(-.05rem,-.1rem) }   /* the check */
+.sp:not([aria-selected="true"])::before{ content:'' }
+.sp.on,.sp:hover{ background:var(--panel) }
+.spnone{ padding:var(--s3); color:var(--soft) }
+
+/* a value cell, Figma's: filled, the channel letter inside at its left (drag it to scrub, as in Figma) */
+.cvp{ display:flex; align-items:center; gap:var(--space-3xs); height:var(--s6); min-width:0; padding:0 var(--s1) 0 var(--s2); background:var(--panel); border:var(--rule-hair) solid transparent; border-radius:var(--field-radius) }
+.cvp:hover{ border-color:var(--hair) }
+.cvp:focus-within{ border-color:var(--sel) }
+.cl{ font-style:normal; font-weight:600; color:var(--soft); cursor:ew-resize; touch-action:none; user-select:none; white-space:nowrap }
+.cvp.locked .cl{ cursor:default }
+.cv{ width:100%; min-width:0; height:100%; padding:0; border:0; background:none; outline:none; font-variant-numeric:tabular-nums; text-align:end }
+.cv[readonly]{ color:var(--soft) }
+.cv::-webkit-inner-spin-button,.cv::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0 }
+.cv{ -moz-appearance:textfield; appearance:textfield }
+
+.icb{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; border-radius:var(--field-radius); background:none; color:var(--soft); cursor:pointer }
+.icb:hover,.icb:focus-visible{ color:var(--ink); background:var(--panel) }   /* dim → ink, the atlas's hover idiom */
 /* the atlas's .tag pill, as on the dossier */
-.tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1; white-space:nowrap }
-.tag[title]{ cursor:help }
+.tag{ font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); background:var(--panel); padding:var(--s1) var(--s2); line-height:1.1; white-space:nowrap }
+.tag[data-tip]{ cursor:help }
 
-.empty{ color:var(--soft); margin:var(--s4) 0 }
-.paints{ list-style:none; margin:0 0 var(--s3); padding:0; max-height:calc(4 * var(--s6)); overflow:auto; border-block:var(--rule-hair) solid var(--hair) }
-.paint{ display:grid; grid-template-columns:var(--s3) minmax(0,1fr) auto; align-items:center; gap:var(--s2); width:100%; padding:var(--s1); background:none; border:0; text-align:start; color:var(--soft); cursor:pointer }
-.paint:hover,.paint:focus-visible,.paint[aria-pressed="true"]{ color:var(--ink) }   /* dim → ink, the atlas's hover idiom */
-.paint[aria-pressed="true"]{ background:var(--panel) }
-.paint:focus-visible{ outline-offset:calc(var(--rule-hair)*-2) }   /* the same ring, drawn inside: the scrolling list would clip it outside */
-.sw{ width:var(--s3); height:var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-control) }
-.pn{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+/* the layers, as Figma lists them: full-width rows, the selected one tinted with the selection color */
+.empty{ color:var(--soft); margin:0 0 var(--s3) }
+.paints{ list-style:none; margin:0 0 var(--s3); padding:0; max-height:calc(4 * var(--s6)); overflow:auto }
+.paint{ display:grid; grid-template-columns:var(--s3) minmax(0,1fr) auto; align-items:center; gap:var(--s2); width:100%; height:var(--s6); padding:0 var(--s2); background:none; border:0; border-radius:var(--field-radius); text-align:start; color:var(--ink); cursor:pointer }
+.paint:hover{ background:color-mix(in oklab, var(--panel) 60%, transparent) }
+.paint[aria-pressed="true"]{ background:var(--panel) }   /* selected, not focused: Figma's quiet fill, not its blue */
+.paint:focus-visible{ outline-offset:calc(var(--rule-hair)*-2) }   /* the ring drawn inside: the scrolling list would clip it outside */
+.sw{ width:var(--s3); height:var(--s3); border:var(--rule-hair) solid var(--edge); border-radius:var(--radius-control) }
+.pn,.src{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.src{ max-width:9rem; color:var(--soft) }
 
-.channels{ display:grid; grid-template-columns:minmax(var(--s5),auto) minmax(0,1fr) minmax(0,1fr); gap:var(--s1) var(--s2); margin:0 0 var(--s3); padding:0; border:0 }
-.ch{ display:grid; grid-column:1 / -1; grid-template-columns:subgrid; align-items:center }   /* one symbol column for all rows, as wide as the longest symbol (lalphabeta's "alpha") */
-.sym{ font-weight:700 }
-.ch input{ font-family:var(--font-mono); font-variant-numeric:tabular-nums }
-.nm{ color:var(--soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+/* ── the picker: the plane, the sliders, the values ── */
+.picker{ display:flex; flex-direction:column; gap:var(--s2); margin-bottom:var(--s2) }
+/* the plane: two channels swept, the rest held; past the file's gamut it ghosts, where no color exists it voids to the checker */
+.pl{ position:relative; width:100%; aspect-ratio:1; cursor:crosshair; touch-action:none; user-select:none; background:var(--checker); border-radius:var(--field-radius) }
+.pl::after,.bar2::after{ content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 var(--rule-hair) var(--edge); pointer-events:none }
+.pl canvas{ display:block; width:100%; height:100%; border-radius:var(--field-radius) }
+/* an image's pixels as dots over the field: where its colors sit in this slice of the space */
+.pl canvas.density{ position:absolute; inset:0; pointer-events:none }
+.pl.polar{ background:none }
+.pl.polar::after{ border-radius:50% }
+.pl.polar canvas{ background:var(--checker); border-radius:50% }
+/* the axis letters, set as on the dossier's planes: in the corner, inked for the field beneath (or --ink on the checker) */
+.pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }
+.pl .labx{ position:absolute; right:.275rem; bottom:.175rem; font-size:var(--t0); font-weight:700; pointer-events:none }
+.pl.polar .laby,.pl.polar .labx{ display:none }   /* a disc reads by its pair button: hue around, the other channel out */
+/* the marker: the current color in Figma's white ring */
+.pl .cx{ position:absolute; z-index:3; width:var(--knob); height:var(--knob); transform:translate(-50%,-50%); border-radius:50%; background:var(--tkc); border:var(--knob-ring); box-shadow:var(--knob-edge); pointer-events:none }
+.pl.locked{ cursor:default }
+/* the document's colors: small rings where each sits on this plane, over it (not inside the slider); a click takes it */
+.plw{ position:relative }
+.plw:has(.pl[hidden]){ display:none }
+.marks{ position:absolute; inset:0; pointer-events:none }
+.marks .dm{ pointer-events:auto; position:absolute; z-index:2; width:var(--s2); height:var(--s2); padding:0; transform:translate(-50%,-50%); border-radius:50%; border:var(--rule-hair) solid color-mix(in oklab, #fff 85%, transparent); box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab, #000 20%, transparent); opacity:.8; cursor:pointer }   /* a reference, not a handle: small and quiet */
+.marks .dm:hover,.marks .dm:focus-visible{ opacity:1 }
 
-.notes{ color:var(--soft); margin:0 0 var(--s3) }
+/* the sliders, the eyedropper beside them as in Figma; each row's value cell at its right */
+.sliders{ display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:var(--s2) }
+.sliders .icb[hidden] + .bars{ grid-column:1 / -1 }
+.bars{ display:grid; grid-template-columns:minmax(0,1fr) 4.5rem; align-items:center; gap:var(--s2); margin:0; padding:0; border:0 }
+/* a bar: the channel swept with the others held, on the same kernel as the plane; its knob (role slider) rides inside the pill, as on Figma's sliders */
+.bar2{ position:relative; height:var(--track); cursor:ew-resize; touch-action:none; user-select:none; background:var(--checker); border-radius:var(--track) }   /* Figma's pill track */
+.bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; border-radius:var(--track) }
+.bar2 .nrg{ position:absolute; z-index:1; top:50%; left:calc(var(--knob) / 2 + var(--f, 0) * (100% - var(--knob))); width:var(--knob); height:var(--knob); transform:translate(-50%,-50%); border-radius:50%; background:var(--tkc); border:var(--knob-ring); box-shadow:var(--knob-edge) }
+.bar2 .nrg:focus-visible{ outline-offset:var(--space-3xs) }
+.bar2:has(.nrg[aria-disabled="true"]){ cursor:default }
+
+.opts{ display:flex; align-items:center; justify-content:space-between; gap:var(--s2) }
+/* the plane's channel pair: the site's .seg recipe — dim at rest, ink on hover, the current color under the active one */
+.seg{ display:flex; gap:var(--s3) }
+.seg button{ font-size:var(--t1); font-weight:700; border:0; border-bottom:var(--ulw) solid transparent; background:none; padding:0 0 var(--space-3xs); color:var(--soft); cursor:pointer; white-space:nowrap; transition:color var(--dur-micro) var(--ease-out) }
+.seg button:hover{ color:var(--ink) }
+.seg button[aria-pressed="true"]{ color:var(--ink); border-bottom-color:var(--tkc,var(--ink)) }
+
+/* the quantize menu: the atlas's lens menu — its icon, its name, two columns of options */
+.qbtn{ display:flex; align-items:center; gap:var(--s1); cursor:pointer }
+.qbtn .chev{ --ic:10px; color:var(--soft) }
+.qmenu{ position:fixed; inset:auto; right:var(--s3); margin:0; padding:var(--s1); border:var(--rule-hair) solid var(--hair); border-radius:var(--field-radius); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow) }
+.qcols{ display:grid; grid-template-columns:1fr 1fr; gap:0 var(--s1) }
+.opt{ display:flex; align-items:center; gap:var(--s2); width:100%; padding:var(--s1) var(--s2); border:0; border-radius:var(--radius-control); background:none; color:var(--soft); text-align:start; cursor:pointer; white-space:nowrap }
+.opt:hover,.opt:focus-visible{ color:var(--ink); background:var(--panel) }
+.opt[aria-pressed="true"]{ color:var(--ink) }
+.opt .oi{ display:grid; place-items:center; --ic:14px }
+
+/* the image's prominent colors: a pick writes that color */
+.pal{ display:flex; align-items:center; gap:var(--s1) }
+.pal .sw{ width:var(--s5); height:var(--s5); padding:0; cursor:pointer; border-radius:var(--field-radius) }
+.pal .sw:hover{ border-color:var(--ink) }
+
+/* the gamut status: always one line, so it never moves anything as a drag crosses the gamut */
+.gamut{ margin:var(--s2) 0 0; color:var(--soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.gamut.out{ color:var(--ink) }
+.notes{ color:var(--soft); margin:var(--s1) 0 0 }
 .notes:empty{ margin:0 }   /* the live region stays in the page, empty, so its first note is announced */
 .notes p{ margin:0 0 var(--s1) }
 
 .css{ display:grid; gap:var(--s1) }
-.row{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--s2) }
+.row{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--s1) }
 .row input{ font-family:var(--font-mono) }
-.row button{ background:none; border:0; padding:var(--s1) var(--s2); color:var(--soft); cursor:pointer }
-.row button:hover,.row button:focus-visible{ color:var(--ink) }
+.row .icb[aria-label="Copied"],.row .icb[aria-label="Selected"]{ color:var(--ink) }   /* the copy glyph (the site footer's), lit while it confirms */
+
+/* the atlas's themed tooltip (web/js/tip.js): Figma's frame shows no native title */
+/* secondary: small, and it fades on its own after a moment (Figma's frame may never report the pointer leaving) */
+#tip{ position:fixed; left:0; top:0; z-index:var(--z-tooltip); max-width:12rem; padding:var(--space-3xs) var(--s1); font-size:var(--t0); font-weight:500; line-height:1.35; white-space:pre-line; background:var(--ink); color:var(--paper); border-radius:var(--radius-control); pointer-events:none; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
+#tip.on{ animation:tip 2.4s var(--ease-out) forwards }
+@keyframes tip{ 0%,80%{ opacity:.92 } 100%{ opacity:0 } }
+html.drag #tip{ display:none }
 </style>
 </head>
 <body>
-<header class="bar">
-	<label>Space <select id="space"></select></label>
-	<span class="tag" id="profile" title="Document color profile">sRGB</span>
-</header>
-<p class="empty" id="empty">Select a layer with a solid fill or stroke.</p>
-<ul class="paints" id="paints" aria-label="Solid paints in the selection"></ul>
-<fieldset class="channels" id="channels" aria-label="Channels"></fieldset>
-<div class="notes" id="notes" role="status"></div>
-<section class="css" id="css" aria-label="CSS">
-	<div class="row"><input id="css-1" readonly aria-label="CSS oklch()"><button type="button" data-copy="css-1">Copy</button></div>
-	<div class="row"><input id="css-2" readonly aria-label="CSS in the document's RGB"><button type="button" data-copy="css-2">Copy</button></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="vq-smooth" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor"/></linearGradient></defs></svg>
+<ul class="paints" id="paints" aria-label="Colors in the selection"></ul>
+<p class="empty" id="empty">Select a layer with a solid fill, a gradient or an image.</p>
+<section class="picker" id="picker" aria-label="Picker">
+	<div class="top">
+		<button class="sel" id="spbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="spmenu"><span id="spname"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+		<span class="tag" id="profile">sRGB</span>
+		<div class="spmenu" id="spmenu" hidden aria-label="Color spaces">
+		<div class="sphead">
+			<label class="fld srch"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="spq" type="search" placeholder="Search spaces" aria-label="Search spaces" autocomplete="off" spellcheck="false"><button class="clr" id="spclr" type="button" aria-label="Clear the search" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></label>
+			<label class="sel"><select id="spcat" aria-label="Family"></select><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+		</div>
+		<div class="splist" id="splist" role="listbox" aria-label="Color spaces"></div>
+		</div>
+	</div>
+	<div class="plw"><div class="pl" id="plane" tabindex="0" role="slider"><canvas></canvas><canvas class="density" aria-hidden="true"></canvas><span class="laby"></span><span class="labx"></span><i class="cx"></i></div><div class="marks" id="marks" role="group" aria-label="The document's colors"></div></div>
+	<div class="sliders">
+		<button class="icb" id="drop" type="button" hidden aria-label="Pick a color from the screen" data-tip="Pick from the screen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button>
+		<div class="bars" id="channels" role="group" aria-label="Channels"></div>
+	</div>
+	<div class="opts">
+		<div class="seg" id="pairs" role="group" aria-label="Plane"></div>
+		<button class="fld qbtn" id="quant" type="button" popovertarget="qmenu" aria-haspopup="true" aria-label="Quantize"></button>
+	</div>
+	<div class="qmenu" id="qmenu" popover aria-label="Quantize"><div class="qcols"><div id="qsteps"></div><div id="qpals"></div></div></div>
+	<div class="pal" id="pal" role="group" aria-label="The image's prominent colors" hidden></div>
 </section>
+<section class="css" id="css" aria-label="CSS">
+	<div class="row"><label class="fld"><input id="css-1" readonly aria-label="CSS oklch()"></label><button class="icb" type="button" data-copy="css-1" aria-label="Copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+	<div class="row"><label class="fld"><input id="css-2" readonly aria-label="CSS in the document's RGB"></label><button class="icb" type="button" data-copy="css-2" aria-label="Copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+	<div class="row" id="named" hidden><label class="fld"><input id="css-3" readonly aria-label="Palette color name"></label><button class="icb" type="button" data-copy="css-3" aria-label="Copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+</section>
+<p class="gamut" id="gamut" role="status"></p>
+<div class="notes" id="notes" role="status"></div>
 <script>/*BUNDLE*/</script>
 </body>
 </html>

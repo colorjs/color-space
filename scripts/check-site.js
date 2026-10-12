@@ -30,6 +30,12 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 // a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
 // with 'f', a facet value
 const lens = (pg, k, v) => pg.evaluate(([k, v]) => document.querySelector(k === 'f' ? `.dpop [data-t="${v}"]` : `.dpop [data-lens="${k}"][data-v="${v}"]`).click(), [k, v])
+// the catalog's layout switch, beside the grouping – it offers the next view: grid → rows → list → grid (the rail's
+// copy on a wide screen, the first heading's on a phone)
+const layout = (pg, v) => pg.locator(`.vt[data-view="${v}"]:visible`).first().click()
+// the row's own value field shows once the hero's field has passed under the row – bring the catalog up to type in it
+const toCatalog = (pg) => pg.evaluate(async () => { const y = document.getElementById('cat').getBoundingClientRect().top + scrollY - document.getElementById('strip').offsetHeight; if (scrollY < y) scrollTo(0, y)
+	await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))) })   // the scroll timeline moves the row's cells on the frames after the scroll
 const server = await serve(SITE)
 const browser = await chromium.launch({ headless: true, executablePath })
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
@@ -41,6 +47,19 @@ try {
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
 	assert.equal(await page.locator('.ent').count(), 168, 'catalog has all spaces')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
+	// the row's color rests in the hero's field – its rhombus on the field's middle – and, sticky, pins in the row
+	const dockAt=()=>page.evaluate(()=>{ const c=document.querySelector('.cx .cdw').getBoundingClientRect(), f=document.getElementById('hq').getBoundingClientRect(), r=document.getElementById('strip').getBoundingClientRect()
+		return { onField:Math.abs(c.top+c.height/2-(f.top+f.height/2))<2&&c.left>=f.left, inRow:c.top>=r.top&&c.bottom<=r.bottom } })
+	assert.equal((await dockAt()).onField, true, 'over the hero the color rests in the field')
+	const docked=()=>page.evaluate(()=>{ const i=getComputedStyle(document.querySelector('.hpaper>i')); return i.backgroundColor!=='rgba(0, 0, 0, 0)'&&i.borderTopColor!=='rgba(0, 0, 0, 0)' })
+	assert.equal(await docked(), false, 'over the hero the row is clear, with no edge')
+	await page.evaluate(async()=>{ scrollTo(0,document.getElementById('hq').getBoundingClientRect().top+scrollY-120); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) })
+	assert.equal((await dockAt()).onField, true, 'scrolled, it rides with the field')
+	await page.evaluate(async()=>{ scrollTo(0,document.getElementById('cat').getBoundingClientRect().top+scrollY); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) })
+	assert.equal((await dockAt()).inRow, true, 'past the field it rests in the row')
+	await page.waitForTimeout(400)   // the stuck state is read after the scroll, and the paper eases in
+	assert.equal(await docked(), true, 'docked, the row has paper and an edge of the current color')
+	await page.evaluate(()=>scrollTo(0,0))
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
@@ -126,6 +145,7 @@ try {
 	assert.equal(customCatalogCancel.active&&customCatalogCancel.parked,true,'pointer cancellation parks a custom catalog slider')
 	assert.notEqual(customCatalogCancel.after,customCatalogCancel.held,'custom catalog cancellation repaints ranges synchronously')
 	assert.match(customCatalogCancel.after,/:48:(vis|off):/,'custom catalog cancellation restores full-quality ranges')
+	await toCatalog(page)
 	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
 	assert.equal(await page.locator('#cd').inputValue(),'#123456','pointer cancellation releases the catalog drag guard')
 	await page.waitForFunction(()=>document.documentElement._accent==='#123456')   // the typed color's own root accent lands CURRENT_SETTLE after its frame – let it, or it counts inside the burst below
@@ -136,23 +156,20 @@ try {
 	assert.equal(nonPointerRoot.during,0,'a rapid non-pointer input burst does not mutate inherited root style')
 	assert.equal(nonPointerRoot.after,1,'the native root accent updates once after the input burst settles')
 
-	// the hero's field: words find the spaces they name once committed; Esc empties it and lets the search go
-	const search = page.locator('#q')
+	// the row's search: words narrow the catalog as typed; Esc empties it and lets the search go
+	const search = page.locator('#fq')
+	await page.locator('.cells .qx').click()   // the icon opens the field
 	await search.fill('oklch')
-	assert.match(await page.locator('#hhint').innerText(), /space it names/, 'the field says what Enter will do with the words')
-	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'typing alone filters nothing – a color typed there is not a search')
-	await search.press('Enter')
 	assert.equal(await page.locator('.ent[data-s="oklch"]').isVisible(), true, 'search keeps OKLCH visible')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'search filters non-matches')
-	assert.equal(new URL(page.url()).searchParams.get('find'), 'oklch', 'the committed search rides the URL')
+	assert.equal(new URL(page.url()).searchParams.get('find'), 'oklch', 'the search rides the URL')
 	await search.press('Escape')
 	assert.equal(new URL(page.url()).searchParams.get('find'), null, 'and leaves it when let go')
 	assert.equal(await search.inputValue(), '', 'Esc empties the query')
+	await search.fill('display-p3')
+	assert.equal(await page.locator('.ent[data-s="p3"]').isVisible(), true, 'a CSS id finds its space – a hyphen reads as the name\'s space')
+	await search.press('Escape')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'and restores the catalog')
-	await page.evaluate(()=>scrollTo(0,0))
-	await search.fill('tomato'); await search.press('Enter')
-	await page.waitForFunction(()=>document.querySelector('#cd').value==='#ff6347',null,{timeout:5000})   // a color in the field becomes the current color
-	assert.equal(await search.inputValue(), '', 'and leaves the field')
 
 	// the coverage slider: ≥90% keeps full-coverage spaces, drops sRGB (~36%), and More's Any resets it — pins the
 	// threshold predicate and its reset lifecycle
@@ -160,13 +177,16 @@ try {
 	await page.locator('#fcov').fill('90')
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), true, 'coverage ≥90% keeps oklab')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'coverage ≥90% drops sRGB')
+	assert.equal(await page.locator('.cells .count').innerText(), `${await page.locator('.ent:visible').count()} spaces`, 'the row\'s count is what the filters leave')
 	assert.equal(await page.locator('#c-coverage').isVisible(), true, 'the picked interval rides the row as its own cell')
 	// one menu holds every facet, once – the row shows only what is picked
 	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage'].filter(k=>{ const body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
 		return body.length!==1||!body[0].closest('#m-more') })),[],'each facet lives once, in the Filters menu')
-	assert.equal(await page.locator('.cells .cell:visible').count(), 7, 'the row: the picked facet, search, Filters and the four lenses')
+	await toCatalog(page)
+	assert.equal(await page.locator('.cells .cell:visible').count(), 6, 'the row: the picked facet, Filters, the view\'s one menu, search, the theme and the source')
 	await page.locator('#fcov').fill('0')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'the full interval again restores the catalog')
+	assert.equal(await page.evaluate(()=>[document.getElementById('c-coverage').hidden,document.getElementById('m-coverage')?.matches(':popover-open')||false].join()), 'true,false', 'let go, the facet leaves the row, its menu with it')
 	// the interval's low end: ≤50% finds the narrow-coverage spaces and drops the wide ones
 	await page.locator('#fcov1').fill('50')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'coverage ≤50% keeps sRGB (~36%)')
@@ -201,8 +221,9 @@ try {
 	await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(300)
 	// a card's kind (.lc lead, .tc tile, .lr row) styles only catalog entries – the rail's count chip is .tc too
 	assert.deepEqual(await page.locator('.ti .tc').first().evaluate(el => { const c = getComputedStyle(el); return [c.contentVisibility, c.flexDirection] }), ['visible', 'row'], 'the rail\'s count is not styled as a tile')
-	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip'), /2020/, 'card names carry the quick-tag dossier')
-	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /perceptual/, 'and its tag chips')
+	{ const tip = await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip')
+		assert.equal(/CSS/.test(tip) && /Ottosson/.test(tip) && !/2020/.test(tip), true, 'card names carry the maker whole and what the space was made for – not the year the card shows') }
+	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /^polar\|.*perceptual\|perceptual/, 'and its tag chips, each with its icon key')
 	assert.equal(await page.locator('.fqa').count(), 10, 'the questions are all present')
 	const fq = page.locator('.fqa').first()
 	await fq.locator('summary').click()
@@ -213,6 +234,7 @@ try {
 	await page.waitForFunction(() => document.querySelector('#cval').value.startsWith('oklch('))
 	assert.match(await page.locator('#cval').inputValue(), /^oklch\(/, 'a FAQ specimen link switches color and notation')
 	assert.match(decodeURIComponent(page.url()), /#oklch\(/, 'and the URL speaks that notation')
+	await toCatalog(page)
 	await page.locator('#cval').click()   // now CHANGE the color while in oklch – urlHash must write the new color back in the same notation
 	await page.locator('#cval').pressSequentially('coral')
 	await page.locator('#cval').press('Enter')
@@ -244,9 +266,11 @@ try {
 
 	// the views: Rows and the List rebuild the same catalog; a List column orders every space in one shelf, again the
 	// other way; Grid returns. A lead card's own switch shows its channel pairs as planes
-	await lens(page,'w','rows')
+	assert.equal(await page.locator('#m-view [data-lens="w"]').count(), 0, 'the layout is not a lens – the View menu holds Quantize, Limit and Vision')
+	await layout(page,'rows')
 	assert.equal(await page.locator('.ent.lr').count(), 168, 'Rows shows every space')
-	await lens(page,'w','list')
+	assert.equal(await page.locator('.vt:visible').first().getAttribute('data-view'), 'list', 'the switch shows the view it turns to next')
+	await layout(page,'list')
 	assert.equal(await page.locator('.ent.tr').count(), 168, 'the List shows every space')
 	await page.locator('[data-sort="year"]').first().click()
 	assert.equal(await page.locator('.sec').count(), 1, 'a sorted column gathers every space in one shelf')
@@ -255,7 +279,11 @@ try {
 	await page.locator('[data-sort="year"]').first().click()
 	assert.equal(+(await page.locator('.ent.tr .c-year').first().innerText()) >= +years.at(-1), true, 'and again, newest first')
 	assert.equal(await page.evaluate(() => localStorage.csView), 'list', 'the view is kept for the next visit')
-	await lens(page,'w','grid')
+	{ const r = page.locator('.ent.tr').nth(2), s = await r.getAttribute('data-s'); await r.locator('.c-year').click()   // not the name: any cell of the row
+		await page.waitForSelector('#modal:not([hidden]) #dtitle')
+		assert.equal(await page.evaluate(() => location.pathname.split('/').pop()), s, 'a List row opens its dossier from any cell')
+		await page.locator('#mx').click(); await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true) }
+	await layout(page,'grid')
 	assert.equal(await page.locator('.ent.lc').count(), 21, 'Grid returns: the families\' featured cards')
 	const okl = page.locator('.ent[data-s="oklch"]'); await okl.scrollIntoViewIfNeeded(); await okl.hover()
 	await okl.locator('.pvs').click()
@@ -266,11 +294,12 @@ try {
 	// the history builds as the reader nears it: one band per space, its milestones read off the data; a band opens its dossier
 	await page.locator('#lineage').scrollIntoViewIfNeeded(); await page.waitForSelector('#lineage .hl-b')
 	assert.equal(await page.locator('#lineage .hl-b').count(), 168, 'the history draws every space')
-	assert.deepEqual(await page.locator('#lineage .hl-ms').evaluateAll(b => b.map(x => x.dataset.s)), ['xyz', 'lab', 'rgb', 'oklab'], 'its milestones: CIE XYZ, CIELAB, sRGB, OKLab')
+	assert.deepEqual(await page.locator('#lineage .hl-ms[data-s]').evaluateAll(b => b.map(x => x.dataset.s)), ['xyz', 'lab', 'rgb', 'oklab'], 'its milestones: CIE XYZ, CIELAB, sRGB, OKLab')
 	await page.locator('#lineage .hl-ms[data-s="lab"]').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /CIELAB/, 'a milestone opens its dossier')
 	await page.locator('#mx').click(); await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
 
+	await toCatalog(page)
 	await page.locator('#cval').fill('rebeccapurple')
 	await page.locator('#cval').press('Enter')
 	assert.equal(await page.locator('#cval').inputValue(), '#663399', 'supported CSS color input canonicalizes')
@@ -294,6 +323,7 @@ try {
 
 	// segmented rendering starts from a neutral so the OKLab lattice's neutral-axis
 	// invariant is visible (the old floor-based a/b sites turned #808080 brown)
+	await toCatalog(page)
 	await page.locator('#cval').fill('#808080')
 	await page.locator('#cval').press('Enter')
 	const trigger = page.locator('.ent[data-s="oklch"] .nm')
@@ -361,6 +391,7 @@ try {
 	assert.equal(nativeCancel.active&&nativeCancel.parked,true,'pointer cancellation parks a native dossier slider')
 	assert.notEqual(nativeCancel.after,nativeCancel.held,'native dossier cancellation repaints background ranges synchronously')
 	assert.match(nativeCancel.after,/:48:(vis|off):/,'native dossier cancellation restores full-quality background ranges')
+	await toCatalog(page)
 	await page.locator('#cval').fill('#234567'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#234567')
 	assert.equal(await page.locator('#cd').inputValue(),'#234567','native pointer cancellation releases the dossier drag guard')
 	const customCancel=await smoothL.evaluate(async el=>{ const back=document.querySelector('.ent[data-s="oklab"] .ch'), r=el.getBoundingClientRect(), capture=el.setPointerCapture; el.setPointerCapture=()=>{}
@@ -370,6 +401,7 @@ try {
 	assert.equal(customCancel.active&&customCancel.parked,true,'pointer cancellation parks a custom dossier slider')
 	assert.notEqual(customCancel.after,customCancel.held,'custom dossier cancellation repaints background ranges synchronously')
 	assert.match(customCancel.after,/:48:(vis|off):/,'custom dossier cancellation restores full-quality background ranges')
+	await toCatalog(page)
 	await page.locator('#cval').fill('#345678'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#345678')
 	assert.equal(await page.locator('#cd').inputValue(),'#345678','custom pointer cancellation releases the dossier drag guard')
 	await mode('web')
@@ -532,12 +564,13 @@ try {
 	await nameView.waitForFunction(()=>document.querySelector('#cd').value!=='#808080',null,{timeout:20000})   // a dossier's GL instruments make the first orbit frame late on software GL – wait for it, don't race it
 	assert.equal(await nameView.locator('#cval').inputValue(),'','the orbit stays ambient on a name view – no value asserted, no URL written')
 	assert.equal(new URL(nameView.url()).hash,'','the ambient orbit never writes the URL')
-	// the pinned row stays over a name view's card – its Limit, Quantize and Vision reach the dossier – floating under the
-	// masthead; closing the card returns it to the first screen's foot
-	assert.deepEqual(await nameView.evaluate(()=>{ const st=getComputedStyle(document.getElementById('strip')); return [st.position,st.visibility,document.getElementById('strip').inert] }),['fixed','visible',false],'the row floats, live, over a first-screen card')
+	// the pinned row stays over a name view's card – its Limit, Quantize and Vision reach the dossier – at the top, paper,
+	// live; closing the card leaves the first screen where it was
+	assert.deepEqual(await nameView.evaluate(()=>{ const el=document.getElementById('strip'), st=getComputedStyle(el); return [st.position,st.visibility,el.inert,Math.round(el.getBoundingClientRect().top),getComputedStyle(el.firstElementChild).backgroundColor!=='rgba(0, 0, 0, 0)'] }),['sticky','visible',false,0,true],'the row stays, live and paper, over a first-screen card')
 	await nameView.locator('#mx').click()
-	assert.deepEqual(await nameView.evaluate(()=>[document.body.classList.contains('mfloat'),getComputedStyle(document.getElementById('strip')).position,scrollY]),[false,'sticky',0],'closing the card seats the row back at the first screen\'s foot')
+	assert.deepEqual(await nameView.evaluate(()=>[Math.round(document.getElementById('strip').getBoundingClientRect().top),scrollY]),[0,0],'closing the card leaves the first screen in place')
 	await nameContext.close()
+	await toCatalog(motion)
 	await motion.locator('#cval').fill('#123456')
 	await motion.waitForFunction(()=>document.querySelector('#cd').value==='#123456',null,{timeout:10000})   // wait for the repaint, don't race it – a loaded runner paints later than 450ms
 	await motion.waitForTimeout(400)
@@ -608,6 +641,17 @@ try {
 	const bitmapFlight=await motion.evaluate(()=>{ const s=window.__bitmapFlight; window.createImageBitmap=s.orig; delete window.__bitmapFlight; return {max:s.max,active:s.active,stall:s.stall} })
 	assert.equal(bitmapFlight.max<=1&&bitmapFlight.active<=1&&(!bitmapFlight.stall||bitmapFlight.max===0),true,'a stalled host snapshot falls back without starting another shared-kernel transfer')
 	await motionContext.close()
+	// a value emptied lets the color go once the field is let go; the distance waits for a palette; the row's own field focuses where it is
+	const freshContext=await browser.newContext({viewport:{width:1440,height:800},reducedMotion:'reduce'}), fresh=await freshContext.newPage(); await fresh.goto(`${server.origin}/?cb=${Date.now()}`,{waitUntil:'networkidle'})
+	await fresh.locator('#cval').fill('#336699'); await fresh.waitForFunction(()=>location.hash.length>1,null,{timeout:5000})
+	await fresh.locator('#cval').fill(''); await fresh.waitForTimeout(300)
+	assert.ok(await fresh.evaluate(()=>location.hash.length>1), 'emptied in hand, the color holds – the field is let go first')
+	await fresh.locator('#cval').blur(); await fresh.waitForFunction(()=>!location.hash,null,{timeout:5000})
+	assert.equal(await fresh.evaluate(()=>document.getElementById('cval').placeholder.length>0), true, 'emptied, the field invites again – no color chosen, no hash')
+	assert.equal(await fresh.evaluate(()=>[...document.querySelectorAll('.mdist .opt')].every(o=>o.disabled)), true, 'the palette distance is shown, disabled, until a palette is picked')
+	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForTimeout(200); await fresh.locator('#cval').click(); await fresh.waitForTimeout(200)
+	assert.equal(await fresh.evaluate(()=>scrollY), 900, 'focusing the pinned color does not scroll the page')
+	await freshContext.close()
 
 	// the creator LUT flow: the editor picks the file – a plain 3D cube at a size that app takes,
 	// the shaper cube only under Resolve (and the library's generic path), the app's steps beneath.
@@ -676,7 +720,7 @@ try {
 	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
 	// the vision lens: one root filter, defs mounted once, cited models
 	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-vision .opt')].map(o => o.textContent + ' ' + o.title).join(' ')), /Machado[\s\S]*doi:10\.1109\/TVCG\.2009\.113[\s\S]*Brettel[\s\S]*doi:10\.1364\/JOSAA\.14\.002647/, 'the vision options cite Machado 2009 and Brettel 1997, their DOIs in the tooltips')
+	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view [data-lens="v"]')].map(o => o.textContent + ' ' + o.title).join(' ')), /Machado[\s\S]*doi:10\.1109\/TVCG\.2009\.113[\s\S]*Brettel[\s\S]*doi:10\.1364\/JOSAA\.14\.002647/, 'the vision options cite Machado 2009 and Brettel 1997, their DOIs in the tooltips')
 	await lens(wire,'v','deutan')
 	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
 	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')
@@ -697,7 +741,7 @@ try {
 	embed.on('pageerror', error => errors.push(`embed: ${error.message}`))
 	await embed.goto(`${server.origin}/oklch?embed&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await embed.waitForSelector('#modal:not([hidden]) #dtitle')
-	assert.deepEqual(await embed.evaluate(() => ['.top', '#hero', '#strip', '#cat', '#faq', '#ftr', '#mx', '.mnavbar'].filter(q => { const el = document.querySelector(q); return el && el.getClientRects().length })), [], 'embed hides header, catalog, FAQ, footer, close, prev/next and the image seat')
+	assert.deepEqual(await embed.evaluate(() => ['#hero', '#strip', '#cat', '#faq', '#ftr', '#mx', '.mnavbar'].filter(q => { const el = document.querySelector(q); return el && el.getClientRects().length })), [], 'embed hides header, catalog, FAQ, footer, close, prev/next and the image seat')
 	assert.equal(await embed.locator('#cat .ent').count(), 0, 'embed never builds the catalog')
 	assert.match(await embed.locator('link[rel="canonical"]').getAttribute('href'), /\/oklch$/, 'embed keeps the clean canonical')
 	const mb = await embed.locator('.mbox').boundingBox(), vw = await embed.evaluate(() => document.documentElement.clientWidth)

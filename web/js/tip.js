@@ -1,9 +1,10 @@
 // Themed tooltips — upgrades the native `title` into a positioned bubble, but
 // ONLY on elements the app marks as explainers (cursor:help — the `.term` "?"
 // affordance, plot captions, export status…). Everything else keeps its plain
-// native title. No dependency: colors invert with the theme through --ink/--paper
-// (dark bubble on the light theme, light bubble on the dark one). Event-delegated
-// on the document, so it also covers the dossier and catalog built at runtime.
+// native title. The popovers' paper through --ink/--paper (light on the light theme, dark on
+// the dark one). Event-delegated on the document, so it also covers the dossier and catalog
+// built at runtime.
+import { OI } from './icons.js'
 const tip = document.createElement('div')
 tip.id = 'tip'
 tip.setAttribute('role', 'tooltip')
@@ -23,16 +24,18 @@ const place = (el) => {
 	tip.style.top = y + 'px'
 }
 const show = () => {
-	const text = target && target.getAttribute('data-tip')
-	if (!text) return
-	tip.textContent = text
-	// optional chip row — ` · `-separated tags rendered as the catalog's .tag chips
-	// (built via textContent, so attribute text can't inject markup)
-	const tags = target.getAttribute('data-tip-tags')
+	const text = target && target.getAttribute('data-tip'), tags = target && target.getAttribute('data-tip-tags')
+	if (!text && !tags) return
+	tip.textContent = ''
+	if (text) tip.append(Object.assign(document.createElement('span'), { textContent: text }))   // an element, so a lone chip row knows it is first
+	// optional chip row — ` · `-separated `icon|label` tags rendered as the catalog's .tag chips, the icon
+	// looked up in the app's own set (the label via textContent, so attribute text can't inject markup)
 	if (tags) {
 		const row = document.createElement('span')
 		row.className = 'tags'
-		for (const t of tags.split(' · ')) { const c = document.createElement('i'); c.textContent = t; row.append(c) }
+		for (const t of tags.split(' · ')) { const [k, label] = t.includes('|') ? t.split('|') : ['', t], c = document.createElement('i')
+			if (OI[k]) c.innerHTML = OI[k]
+			c.append(label); row.append(c) }
 		tip.append(row)
 	}
 	tip.setAttribute('aria-hidden', 'false')

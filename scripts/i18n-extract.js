@@ -8,6 +8,7 @@
  *   data.json        space.<id>.desc · .use · .loss-note
  *   web/js/          lore.js lore.<id>.for|sin|nm · tour.js tour.<id>.title|body ·
  *                    categories.js cat.<id>.name|tip · purpose.js purpose.<tag>.name|tip|use ·
+ *                    eras.js era.<from>.tip ·
  *                    editors.js editor.* · cvd.js lens.<id> · channel names channel.<slug>
  * Output: { "@meta", key: { t, h } }, keys sorted, one per line – deterministic, so a diff
  * shows exactly which English changed; h is the English's fingerprint (scripts/i18n.js).
@@ -89,6 +90,7 @@ export async function extract() {
 	for (const c of (await import('../web/js/categories.js')).default) { add(`cat.${c.id}.name`, c.name, 'web/js/categories.js'); add(`cat.${c.id}.tip`, c.tip, 'web/js/categories.js') }
 	const P = await import('../web/js/purpose.js')
 	for (const p of P.ORDER) { add(`purpose.${p}.name`, p[0].toUpperCase() + p.slice(1), 'web/js/purpose.js'); add(`purpose.${p}.tip`, P.TIPS[p], 'web/js/purpose.js'); add(`purpose.${p}.use`, P.USE[p], 'web/js/purpose.js') }
+	for (const e of (await import('../web/js/eras.js')).default) add(`era.${e.from}.tip`, e.tip, 'web/js/eras.js')
 	const E = await import('../web/js/editors.js')
 	add('editor.soft', E.SOFT, 'web/js/editors.js'); add('editor.shaper', E.SHAPER_LABEL, 'web/js/editors.js')
 	for (const [n, l] of Object.entries(E.SIZE_LABEL)) add(`editor.size.${n}`, l, 'web/js/editors.js')

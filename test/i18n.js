@@ -22,7 +22,7 @@ test('i18n — extraction is deterministic and the committed en.json is current'
 	is(a, b, 'two runs, one byte stream')
 	is(readFileSync(join(DIR, 'en.json'), 'utf8') === a, true, 'web/i18n/en.json is current (npm run i18n)')
 	is(Object.entries(en).filter(([k, v]) => k !== '@meta' && v.h !== hash(v.t)).map(([k]) => k), [], 'every h fingerprints its English')
-	ok(['page.title', 'ui.hero.field', 'cat.display.name', 'space.oklch.desc', 'lore.rgb.sin', 'tour.rgb.body', 'purpose.palettes.tip', 'channel.lightness', 'tag.perceptual'].every((k) => en[k]), 'every source contributes: markup, code, data.json, lore, tour, categories, purpose, channels, tags')
+	ok(['page.title', 'ui.hero.image', 'cat.display.name', 'space.oklch.desc', 'lore.rgb.sin', 'tour.rgb.body', 'purpose.palettes.tip', 'channel.lightness', 'tag.perceptual'].every((k) => en[k]), 'every source contributes: markup, code, data.json, lore, tour, categories, purpose, channels, tags')
 	is(Object.keys(en).filter((k) => k !== '@meta' && !/^[a-z]+(\.[\w-]+)+$/.test(k)), [], 'keys are namespaced, readable, never hashes')
 })
 
@@ -44,22 +44,22 @@ test('i18n — markup units: the English document is the source minus its marker
 	const out = apply(html)
 	is(out.includes('data-i18n='), false, 'every marker stripped')
 	is(out.length, html.length - [...html.matchAll(/ data-i18n="[^"]*"/g)].reduce((n, m) => n + m[0].length, 0), 'nothing else changed')
-	const u = units(html).find((x) => x.key === 'ui.hero.field')
-	is([u.attr, u.en], ['placeholder', 'A color or a space – tomato, #ff8000, OKLCH'], 'an attribute unit reads its own value')
-	ok(apply(html, { 'ui.hero.field': 'Un color o un espacio' }).includes('placeholder="Un color o un espacio"'), 'a translation lands in place')
+	const u = units(html).find((x) => x.key === 'ui.header.find')
+	is([u.attr, u.en], ['placeholder', 'search spaces…'], 'an attribute unit reads its own value')
+	ok(apply(html, { 'ui.header.find': 'buscar espacios…' }).includes('placeholder="buscar espacios…"'), 'a translation lands in place')
 })
 
 test('i18n — the gate: a translated language ships and survives English drift; review only adds search', () => {
 	const drop = (k) => (f) => { delete f[k]; return f }, stale = (k) => (f) => { f[k].h = '00000000'; return f }
 	const pages = (f) => status(en, f, SPACES).pages
 	is(pages(fixture()).size, SPACES.length + 1, 'complete + current: index and every space page')
-	is(pages(fixture({}, drop('ui.hero.field'))).size, SPACES.length + 1, 'a new shared string reads English: every page still stamps')
+	is(pages(fixture({}, drop('ui.hero.image'))).size, SPACES.length + 1, 'a new shared string reads English: every page still stamps')
 	const few = (f) => { for (const k of Object.keys(f).filter((k) => k !== '@meta' && !/^(space|lore)\./.test(k)).slice(0, 200)) delete f[k]; return f }
 	is(pages(fixture({}, few)).size, 0, 'a language far from done: nothing stamps')
 	const p = pages(fixture({}, stale('space.oklch.desc')))
 	is([p.has(''), p.has('oklch'), p.has('lab')], [true, true, true], 'one space reworded: its page stays, the sentence reads English')
 	is(pages(fixture({}, drop('space.oklch.desc'))).has('oklch'), false, 'a space never translated stays English-only')
-	const r = pages(fixture({ reviewed: 'fixture' }, (f) => stale('space.oklch.desc')(drop('ui.hero.field')(f))))
+	const r = pages(fixture({ reviewed: 'fixture' }, (f) => stale('space.oklch.desc')(drop('ui.hero.image')(f))))
 	is([r.has(''), r.has('oklch')], [true, true], 'reviewed: English drift falls back per key, no page drops')
 	is(pages(fixture({ reviewed: 'fixture' }, drop('space.oklch.desc'))).has('oklch'), false, 'reviewed: a space never translated stays English-only')
 })
@@ -94,7 +94,7 @@ test('i18n — build: a published language is readable, offered and in search, r
 	ok(page.includes('<link rel="preload" href="../i18n/en-XA.json" as="fetch" crossorigin>'), 'the runtime table preloads')
 	ok(page.includes('hreflang="en-XA"') && r('oklch.html').includes('hreflang="en-XA"') && r('sitemap.xml').includes('<loc>https://color-space.io/en-XA/oklch</loc>'), 'in the hreflang group and the sitemap')
 	ok(r('oklch.html').includes('<option value="en-XA" lang="en-XA">Pseudo</option>'), 'English offers it')
-	ok(page.includes('<option value="en" lang="en">English</option><option value="en-XA" lang="en-XA" selected>EN</option>'), 'it lists itself beside English')
+	ok(page.includes('<option value="en" lang="en">English</option><option value="en-XA" lang="en-XA" selected>Pseudo</option>'), 'it lists itself beside English, by its own name')
 	ok(r('en-XA/index.html').includes('⟦Díspláy &amp; wéb⟧') || r('en-XA/index.html').includes('⟦Díspláy & wéb⟧'), 'the catalog bakes in the language')
 	is(JSON.parse(r('i18n/en-XA.json'))['cat.display.name'], '⟦Díspláy & wéb⟧', 'the compiled table ships')
 	ok(r('sw.js').includes('"./en-XA/"') && r('sw.js').includes('const LANGS = ["en-XA"]'), 'its shell is precached for offline')

@@ -12,8 +12,9 @@ an idiom, or a JS workaround on the spot instead of reusing what already exists.
    stop — find the token that means it. New tokens only for genuinely new, reused quantities.
 
 2. **New components mirror existing ones.** Same structure, same class names, same field order.
-   The dossier modal order is canonical: **header → tag pill (`.dpills .tag`) → `.dhr` → `.props
-   props3` (channels | origin · reference …) → `.desc` description → used-for**. Any variant
+   The dossier modal order is canonical: **header → tag pill (`.dpills .tag`) → `.dhr` → `.dgrid2`
+   (`.desc` description | made for · used for · caveat) → `.props props3` (channels | origin ·
+   reference …)**. Any variant
    (e.g. the proprietary dossier) must read as the same component, not a cousin. Match order and
    naming; don't reorder or rename.
 

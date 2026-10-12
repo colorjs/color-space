@@ -5,11 +5,12 @@
 // The prerender passes the DEFAULT color state, so values, slider gradients and tick
 // markers are baked into the static HTML — the catalog is complete at first paint,
 // before any script runs; the page's stamp-skip repaints only what actually changes.
-import { space, meta, classify, ramp, hex, toSpace, clamp } from './core.js'
+import { space, meta, classify, ramp, hex, toSpace, clamp, pairsOf, decOf, fmtc } from './core.js'
+export { pairsOf, decOf, fmtc }   // the dossier imports them from here with the rest of the catalog
 import CATS from './categories.js'
 import PURPOSE, { USE } from './purpose.js'
 import LORE from './lore.js'
-import { OI, PI } from './icons.js'
+import { OI, PI, VI } from './icons.js'
 import REACH from './reach.js'
 import { t, slug, LANG } from './i18n.js'
 
@@ -31,10 +32,11 @@ export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? 
 const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ key: 'cat.' + c.id, name: c.name, tip: c.tip, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
 	{ name: 'more', spaces: SPACES.filter(s => !mapped.has(s)) }].filter(c => c.spaces.length)
-// a shelf's name and tip, as the page shows them: keyed shelves (families, purposes) translate,
-// the rest (era spans, 'more') read as they are. The English stays on the section – it is the data
+// a shelf's name and tip, as the page shows them: keyed shelves (families, purposes, eras) translate,
+// 'more' reads as it is (an era's name is its span, or a decade already through t()). The English stays
+// on the section – it is the data. A tip reads as a sentence, whatever case its source line keeps
 export const secName = c => c.key ? t(c.key + '.name', c.name) : c.name
-export const secTip = c => c.tip && (c.key ? t(c.key + '.tip', c.tip) : c.tip)
+export const secTip = c => c.tip && cap(c.key ? t(c.key + '.tip', c.tip) : c.tip)
 // sentence-case in the page's language (Turkish i → İ)
 export const cap = s => s && s[0].toLocaleUpperCase(LANG) + s.slice(1)
 // the tag vocabulary – catalog tips, dossier pills and filter chips speak it. The value stays the
@@ -56,15 +58,6 @@ export const LEADS = 3   // lead cards per family on a wide catalog (its feature
 export const DEFAULT = { s: 'rgb', vals: [128, 128, 128] }
 
 // ── shared value/color formatting (page + prerender must agree byte-for-byte) ──
-// decimals from the range span — enough that every channel walks ≥100 steps: the step is
-// the largest power of ten with span/step ≥ 100 (0..255 → 1, 0..0.85 → 0.001, xyb's
-// 0.0435 → 0.0001, scrgb's 0–8 → 0.01; kelvin's 24000 stays 1 — decimals clamp to
-// 0..6). The printed precision IS the step.
-export const decOf = c => { const d = -Math.floor(Math.log10((c.max - c.min) / 100)); return d > 0 ? Math.min(d, 6) : 0 }
-// fixed decimals, never shed — 0.111 → 0.110 → 0.109 keeps its width, and the trailing
-// zeros tell the user what one spinner click moves
-export const fmtc = (v, c) => { if (!isFinite(v)) return ''
-	const s = v.toFixed(decOf(c)); return /^-0(\.0+)?$/.test(s) ? s.slice(1) : s }
 export const rgbF = (s, v) => (s === 'rgb' ? v : space[s].rgb(...v)).map(x => isFinite(x) ? clamp(x, 0, 255) : 0)
 export const lum = c => 0.2126 * c[0] / 255 + 0.7152 * c[1] / 255 + 0.0722 * c[2] / 255
 export const ink = c => lum(c) < 0.6 ? '#fff' : 'var(--dark)'
@@ -75,15 +68,19 @@ export const fpOf = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = 
 
 // shipped as working history — tagged "historical" in the modal, listed in "Skipped"
 export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
-// the card's quick dossier — slug + birth line (data-tip), then the tag row
-// (data-tip-tags, rendered by tip.js as chips — the same vocabulary the filter speaks)
-const entTip = s => { const m = meta[s], p = PURPOSE[s]?.[0], use = p && t(`purpose.${p}.use`, USE[p])
-	return `${s} – ${[m.year, m.by].filter(Boolean).join(', ')}${use ? `\n${cap(use)}` : ''}` }   // the purpose takes its own line, sentence-cased — the tip renders pre-line
-const entTags = s => { const m = meta[s]
-	return [m.method, m.encoding, m.referred && m.referred + '-referred', m.dynamic && m.dynamic.toUpperCase(), m.illuminant].filter(Boolean).map(tagL).join(' · ') }
+// the card's quick dossier — what it was made for, as the rows view reads it (data-tip: the card already shows its maker
+// and year – the maker here whole, as the card's head may shorten or cut it); then
+// the kinds the list sheet shows, each with the filters' icon, and the white (data-tip-tags: icon|label, rendered by
+// tip.js as chips — the same vocabulary the filter speaks)
+const entTip = s => { const p = PURPOSE[s]?.[0], by = meta[s].by || '', use = lede(s) || (p && cap(t(`purpose.${p}.use`, USE[p]))) || ''
+	return [by, use].filter(Boolean).join('\n').replace(/"/g, '&quot;') }   // the maker whole – the card's line shortens it, and a narrow card cuts it; an attribute, so a translation's quote is escaped
+const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${tagL(k === 'sig' ? v + '-referred' : v)}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
 // a lead card's story – the lore's "made for" line in the page's language, as a sentence
 const lede = s => { const f = LORE[s]?.for; if (!f) return ''; const x = cap(t(`lore.${s}.for`, f)); return /[.!?…]$/.test(x) ? x : x + '.' }
-const byline = s => { const m = meta[s]; return [m.year, m.by].filter(Boolean).join(' · ') }
+// the maker, short (no asides in parentheses; past two names, the first et al.), then the year – the year ends the line,
+// at the card's corner; a maker still too long gives way (ellipsis), the year never. The whole maker is the tip's
+const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.split(/\s*[,&;]\s*/); return n.length > 2 ? `${n[0]} et al.` : x }
+const byline = s => { const m = meta[s]; return [m.by && `<span class="au">${shortBy(m.by)}${m.year ? ',' : ''}</span>`, m.year && `<span class="tnum">${m.year}</span>`].filter(Boolean).join(' ') }
 // an entry: the featured (lead) card reads in full – name and by-line, its story, the strips, the numbers; a tile
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its
@@ -97,14 +94,8 @@ const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.
 const nameBtn = s => `<button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</button>`
 const field = (s, c2, i, vals) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}></span>`
 const strip = (s, c2, i, vals, st, n) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${vals ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, n, limitFor(classify(s))).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${vals ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${t('ui.card.slider', '{name} slider', { name: cname(c2) })}"></div>`
-// a space's channel pairs as planes – three of them (two for two channels), the angle across and the tone up where
-// the space has them
-export const pairsOf = cls => { const n = cls.ch.length; if (n < 2) return []
-	const ps = n > 3 ? [[0, 1], [1, 2], [2, 0]] : n === 2 ? [[0, 1]] : [[0, 1], [0, 2], [1, 2]]
-	const ai = cls.angle ? cls.angle.i : -1, ti = cls.tone ? cls.tone.i : (ai < 0 && n === 3 ? 0 : undefined)
-	return ps.map(([a, b]) => (ai === b || ti === a) ? [b, a] : [a, b]) }
 const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12
-	const head = lead ? `<span class="by">${byline(s)}</span>` : `<span class="yr tnum">${meta[s].year || ''}</span>`
+	const head = `<span class="by">${byline(s)}</span>`   // a tile as a lead card: the maker and the year
 	const nums = `<span class="cvs">${cls.ch.map((c2, i) => field(s, c2, i, vals)).join('')}</span>`
 	const strips = `<div class="chs">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, n)).join('')}</div>`
 	return `<article class="ent ${lead ? 'lc' : 'tc'}" ${entAttrs(s, cls, vals, st, n)}>
@@ -122,7 +113,8 @@ const row = (s, st) => { const cls = classify(s), vals = valsAt(s, st), story = 
 // share one cell (.c-kind)
 const geoOf = s => ({ polar: 'polar', opponent: 'opponent' })[classify(s).archetype] || 'component'
 const KIND = { geo: geoOf, curve: s => meta[s].encoding || '', sig: s => meta[s].referred || '', range: s => (meta[s].dynamic || 'sdr').toUpperCase() }
-const kindIcon = (k, s) => { const v = KIND[k](s), ic = OI[v === 'luma / chroma' ? 'opponent' : v.toLowerCase()]
+const kindKey = v => v === 'luma / chroma' ? 'opponent' : v.toLowerCase()   // a kind's value → its icon in OI
+const kindIcon = (k, s) => { const v = KIND[k](s), ic = OI[kindKey(v)]
 	return v && ic ? `<span class="ki" role="img" aria-label="${tagL(v)}" title="${tagL(v)}">${ic}</span>` : '' }
 export const COLS = [['name', s => disp(s)], ['year', s => meta[s].year || 0], ['by', s => meta[s].by || ''], ['ch', s => classify(s).ch.map(c => c.sym).join(' ')],
 	['cov', s => REACH[s]?.[0] ?? -1], ['geo', s => tagL(geoOf(s))], ['curve', s => KIND.curve(s) && tagL(KIND.curve(s))], ['sig', s => KIND.sig(s) && tagL(KIND.sig(s))],
@@ -138,6 +130,14 @@ const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead
 // a list sorted by a column: every space in one shelf, in that order
 export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 	return [{ name: t('ui.view.all', 'All spaces'), spaces: SPACES.slice().sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * d }) }] }
+
+// the layout: one button beside the grouping, its icon the view it turns to (as a lead card's planes switch shows the
+// other face) – grid → rows → list → grid; on the rail at the tabs' end, in a phone's first heading after the select
+const VIEWS = () => [['grid', t('ui.cell.view-grid', 'Grid'), t('ui.view.grid', 'featured spaces large, the rest as tiles'), VI.grid],
+	['rows', t('ui.cell.view-rows', 'Rows'), t('ui.view.rows', 'one line per space, its strips at full width'), VI.list],
+	['list', t('ui.cell.view-list', 'List'), t('ui.view.list', 'the spec sheet – every column sorts'), VI.table]]
+const vtog = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
+	return `<button type="button" class="vt" data-view="${v}" aria-label="${t('ui.cell.layout', 'Layout')}: ${n}" title="${n} – ${tip}">${ic}</button>` }
 
 // a shelf's icon on the rail: the families' glyphs, a purpose's own (the line family the menus draw); era shelves go bare
 const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.perceptual': OI.opponent, 'cat.colorimetry': OI.chromaticity,
@@ -159,4 +159,4 @@ export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sor
 	${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}
 </div>` : ''}`
 	const ti = (c, i) => `<div class="trg"><i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn"${c.tip ? ` data-tip="${secTip(c)}"` : ''}>${SHELFI[c.key] ? `<span class="fic">${SHELFI[c.key]}</span>` : ''}<span class="tt">${secName(c)}</span><span class="tc tnum">${c.spaces.length}</span></button>${c.tip ? `<p class="tip">${secTip(c)}</p>` : ''}</div></div>`
-	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec" data-sec><h2 class="shw"${c.tip ? ` data-tip="${secTip(c)}" tabindex="0"` : ''}>${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }
+	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}${vtog(view)}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec" data-sec><h2 class="shw"${c.tip ? ` data-tip="${secTip(c)}" tabindex="0"` : ''}>${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>${vtog(view)}` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }

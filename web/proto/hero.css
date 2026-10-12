@@ -1,0 +1,38 @@
+/* Workshop: the hero laid on the catalog's grid (?hero=<variant>) – the rail's column and the spaces' column – so the
+   title and the field rest over the row's cells (the color at its left edge, the count where the spaces start):
+   scrolling down, they shrink where they stand (x unchanged), and the row takes over. Tokens only. */
+.hw-study{ position:fixed; left:var(--s3); bottom:var(--s3); z-index:var(--z-tooltip); display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s3); max-width:min(22rem,calc(100vw - 2 * var(--s3))); padding:var(--s2) var(--s3); font-size:var(--t1); color:var(--body); background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
+.hw-study span{ font-weight:700; color:var(--ink) } .hw-study a{ color:var(--soft); font-weight:600; text-decoration:none } .hw-study a:hover{ color:var(--ink) }
+.hw-study a[aria-current]{ color:var(--ink); text-decoration:underline; text-decoration-thickness:var(--ulw); text-underline-offset:4px }
+.hw-study i{ flex-basis:100%; font-style:normal; color:var(--soft) }
+
+/* the catalog's grid, inside the hero: the page's measure, its gutter, the rail's column and gap */
+:root[data-hero]:not([data-hero="center"]) .hmain{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap); align-items:start; width:100%; max-width:var(--maxw); margin-inline:auto }
+:root[data-hero]:not([data-hero="center"]) .hmain{ text-align:start }
+:root[data-hero]:not([data-hero="center"]) :is(.hh,.hsub,.htry,.hhint){ text-align:start; justify-content:flex-start; margin-inline:0 }
+:root[data-hero]:not([data-hero="center"]) .hfield{ width:min(40rem,100%) }
+/* the field shows the color it holds – the row's rhombus, larger */
+:root[data-hero]:not([data-hero="center"]) .hfield .hib:has(#hpk)>svg{ display:none }
+:root[data-hero]:not([data-hero="center"]) .hfield .hib:has(#hpk)::before{ content:''; width:var(--s6); height:var(--s6); background:var(--w,#808080); border:var(--picker-line) solid var(--paper); box-shadow:0 0 0 var(--picker-line) var(--ink); rotate:45deg; scale:.8; pointer-events:none }
+
+/* Rail: the title in the rail's column, the words and the field in the spaces' column */
+:root[data-hero="rail"] .hh{ grid-column:1; grid-row:1 / span 4; font-size:clamp(2.6rem,1rem + 3vw,4.2rem); text-wrap:balance }
+:root[data-hero="rail"] :is(.hsub,.hfield,.hhint,.htry){ grid-column:2 }
+:root[data-hero="rail"] .hsub{ margin-top:0 }
+
+/* Column: everything in the spaces' column, left-aligned, the title over it */
+:root[data-hero="column"] .hmain>*{ grid-column:2 }
+
+/* Split: the title across the page from the rail's edge, the words and the field in the spaces' column under it */
+:root[data-hero="split"] .hh{ grid-column:1 / -1; font-size:clamp(3rem,1rem + 6vw,7rem); margin-bottom:var(--s6) }
+:root[data-hero="split"] :is(.hsub,.hfield,.hhint,.htry){ grid-column:2 }
+
+/* scrolling down: the title and the field shrink toward the row, each where it stands */
+@supports (animation-timeline:scroll()){
+	:root[data-hero]:not([data-hero="center"]) .hh{ transform-origin:0 100%; animation:hw-title linear both; animation-timeline:scroll(root); animation-range:0 calc(100svh - var(--top-h) - var(--cells-h)) }
+	:root[data-hero]:not([data-hero="center"]) .hfield{ transform-origin:0 50%; animation:hw-field linear both; animation-timeline:scroll(root); animation-range:0 calc(100svh - var(--top-h) - var(--cells-h)) }
+	:root[data-hero]:not([data-hero="center"]) :is(.hsub,.htry,.hhint){ animation:hw-fade linear both; animation-timeline:scroll(root); animation-range:0 40svh }
+}
+@keyframes hw-title{ to{ scale:.3; opacity:.2 } }
+@keyframes hw-field{ to{ scale:.55; opacity:.2 } }
+@keyframes hw-fade{ to{ opacity:0 } }

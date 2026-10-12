@@ -1,14 +1,9 @@
 // Shared COLOR MATH only — every study brings its own design + interaction.
 // Metadata drives everything: type each channel, then sample gamut-correct fields.
 import space from '../../dist/color-space.js'
+import data from './data.js'
 
-// one data artifact for the site and everything else — fetched in the browser,
-// imported as a JSON module in node (generate-landing); top-level await makes
-// every importer wait transparently
-const dataURL = new URL('../../data.json', import.meta.url)
-export const data = dataURL.protocol === 'file:'
-	? (await import(dataURL, { with: { type: 'json' } })).default
-	: await (await fetch(dataURL)).json()
+export { data }
 export const meta = data.spaces
 export { space }
 
@@ -63,6 +58,29 @@ export function classify(name) {
 	CLASSIFIED.set(name, classified)
 	return classified
 }
+
+// any hue-like channel is an angle wrapping over its own span — munsell's H is 0-100
+// grades, coloroid's A is 10-76, not just the 0-360 spaces. -1 = no wheel.
+export const hueIdx = cls => { if (cls.angle) return cls.angle.i
+	if (cls.ch.length !== 3) return -1
+	return cls.ch.findIndex(c => /hue/i.test(c.name || '')) }
+
+// a space's channel pairs as planes – three of them (two for two channels), the angle across and the tone up where
+// the space has them
+export const pairsOf = cls => { const n = cls.ch.length; if (n < 2) return []
+	const ps = n > 3 ? [[0, 1], [1, 2], [2, 0]] : n === 2 ? [[0, 1]] : [[0, 1], [0, 2], [1, 2]]
+	const ai = cls.angle ? cls.angle.i : -1, ti = cls.tone ? cls.tone.i : (ai < 0 && n === 3 ? 0 : undefined)
+	return ps.map(([a, b]) => (ai === b || ti === a) ? [b, a] : [a, b]) }
+
+// decimals from the range span — enough that every channel walks ≥100 steps: the step is
+// the largest power of ten with span/step ≥ 100 (0..255 → 1, 0..0.85 → 0.001, xyb's
+// 0.0435 → 0.0001, scrgb's 0–8 → 0.01; kelvin's 24000 stays 1 — decimals clamp to
+// 0..6). The printed precision IS the step.
+export const decOf = c => { const d = -Math.floor(Math.log10((c.max - c.min) / 100)); return d > 0 ? Math.min(d, 6) : 0 }
+// fixed decimals, never shed — 0.111 → 0.110 → 0.109 keeps its width, and the trailing
+// zeros tell the user what one spinner click moves
+export const fmtc = (v, c) => { if (!isFinite(v)) return ''
+	const s = v.toFixed(decOf(c)); return /^-0(\.0+)?$/.test(s) ? s.slice(1) : s }
 
 // convert a space's raw channel values → clamped sRGB
 // non-finite components (coordinates outside the space's domain, e.g. ICtCp I=0 with chroma) clamp to 0
@@ -243,7 +261,16 @@ export const lensFor = (name, gamut) => {
 // range never turns into visible bands while an imaginary span still cuts cleanly to the
 // checker. `off` preserves every real color outside display gamuts and voids only coordinates
 // that are not physical colors at all. ──
+// A ramp is pure in its arguments – the same strip asked again (a re-shelve, a view change, a repaint of the same
+// color) is a lookup, not 128 solid tests. Bounded: a drag streams new colors, so the memo restarts past RAMPS entries.
+const RAMP = new Map(), RAMPS = 4096
 export function ramp(name, vals, ci, min, max, n = 12, gamut = null) {
+	const key = `${name}|${vals.join()}|${ci}|${min}|${max}|${n}|${gamut}`, hit = RAMP.get(key)
+	if (hit) return hit
+	if (RAMP.size >= RAMPS) RAMP.clear()
+	const out = ramp1(name, vals, ci, min, max, n, gamut); RAMP.set(key, out); return out
+}
+function ramp1(name, vals, ci, min, max, n, gamut) {
 	const lens = lensFor(name, gamut)
 	const sample = f => { const v = vals.slice(); v[ci] = min + (max - min) * f
 		let rgb; try { rgb = name === 'rgb' ? v.slice() : space[name].rgb(...v) } catch { rgb = [0, 0, 0] }

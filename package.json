@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "description": "Open collection of color-spaces",
+  "description": "Open collection of color spaces",
   "version": "3.1.0",
   "mcpName": "io.github.colorjs/color-space",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",

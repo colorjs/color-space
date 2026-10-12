@@ -13,6 +13,7 @@ import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
+import { iconURL, START } from '../web/js/favicon.js'
 import { t, use } from '../web/js/i18n.js'
 import { apply } from './i18n.js'
 
@@ -77,8 +78,8 @@ const catalog = () => { const bare = catHTML(), baked = catHTML(DEFAULT)
 	if (shape(bare) !== shape(baked)) throw new Error('generate-landing: catHTML(DEFAULT) changes element structure, not just attributes — hydration would desync')
 	return `<main class="cat" id="cat" data-fp="${fpOf(bare)}">${baked}</main>` }
 // the hero's facts, read off the data: how many spaces, and the years they span
-const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { n: spaceCount, nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years) }   // nn: the row's count
-const counts = (h) => h.replace(/(<span id="(n|nn|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
+const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years) }   // nn: the row's count
+const counts = (h) => h.replace(/(<span id="(nn|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
 
 export function build(out = join(root, '_site'), i18n) {
 // ── index.html: static catalog + live counts + version (from the web/ source) ──
@@ -88,13 +89,15 @@ const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not f
 const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
 inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
-for (const k of ['n', 'nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
+for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
 // the current-color rhombus + value carry the DEFAULT color from the first frame —
 // an unvalued <input type=color> paints BLACK until the module lands
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
 inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
 inject(/(<input id="cval")/, `$1 value="${dhx}"`)
-// the meta descriptions carry no live count by design — the counts live in #n and the per-space stamps
+// the favicon's first frame – the cloud before the module turns it (js/favicon.js)
+inject(/<link rel="icon" href="[^"]*">/, () => `<link rel="icon" href="${iconURL(START)}">`)
+// the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset — Google Dataset Search reaches the science
 // crowd; homepage only (stampSpacePages strips it — a copy on every space page would read as spam)
@@ -170,10 +173,11 @@ console.log(`site content: prerendered catalog · sitemap + robots + llms · v${
 // language), its own canonical and the hreflang group,
 // and its runtime table (i18n/<lang>.json, fresh + valid keys only) preloaded.
 const swap = (h, re, repl) => { if (!re.test(h)) throw new Error(`stamp anchor not found: ${re}`); return h.replace(re, typeof repl === 'string' ? () => repl : repl) }
-// the language select, in the de-chromed select idiom of the header's view lenses: the
-// current language names itself short (EN), the others by their own names
-const langSelect = (opts, L) => `<span class="dctl"><select id="lang" aria-label="${esc(t('ui.header.lang', 'Language'))}">${opts.map((l) =>
-	`<option value="${l.code}" lang="${l.code}"${l === L ? ' selected' : ''}>${l === L ? l.code.split('-')[0].toUpperCase() : esc(l.name)}</option>`).join('')}</select></span>`
+// the language select: the row shows its mark (文A), the select itself unseen over it – so its
+// menu names every language by its own name, the current one included
+const langSelect = (opts, L) => { const nm = esc(t('ui.header.lang', 'Language'))
+	return `<span class="dctl"><select id="lang" aria-label="${nm}" title="${nm}">${opts.map((l) =>
+	`<option value="${l.code}" lang="${l.code}"${l === L ? ' selected' : ''}>${esc(l.name)}</option>`).join('')}</select></span>` }
 // what every stamped document's head says about its address and its language siblings
 const head = (h, L, s, i18n) => {
 	const url = pageURL(L.code, s), group = alternates(i18n, s)
@@ -182,7 +186,7 @@ const head = (h, L, s, i18n) => {
 	// the select lists English and every language that stamps this page – reviewed or not: a reader
 	// may choose a current translation; only search waits for the review. Absent while there is nothing to choose
 	const opts = [EN, ...(i18n?.langs || []).filter((l) => l.pages.has(s))]
-	return opts.length > 1 ? swap(h, /<a class="gh" /, (m) => langSelect(opts, L) + m) : h }
+	return swap(h, /<span class="dctl"><select id="lang"[\s\S]*?<\/select><\/span>\n?\t?/, () => opts.length > 1 ? langSelect(opts, L) + '\n\t' : '') }   // the source's EN stub: the real select, or nothing to choose
 // one space's document from its language's index
 const spaceDoc = (html, s) => {
 	const desc = t(`space.${s}.desc`, meta[s]?.description || '').replace(/\s+/g, ' ').trim()

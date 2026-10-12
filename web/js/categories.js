@@ -15,6 +15,6 @@ export default [
 		spaces: ['ycbcr-bt709', 'ictcp', 'ycbcr-bt2020', 'ycbcr-bt601-525', 'ycbcr-bt601-625', 'ycbcr', 'yuv', 'yiq', 'ypbpr', 'ycgco', 'jpeg', 'ydbdr', 'yccbccrc', 'xvycc', 'smpte-c', 'photoycc', 'rec2100-pq', 'rec2100-hlg', 'rec2100-linear', 'icacb'] },
 	{ id: 'camera', name: 'Film & camera', tip: 'Camera log encodings and working spaces for capturing and grading light.',
 		spaces: ['acescg', 'logc3', 'acescc', 'slog3', 'sgamut3cine', 'aces2065-1', 'acescct', 'logc4', 'cineon', 'davinci', 'slog2', 'vlog', 'log3g10', 'clog', 'clog2', 'clog3', 'flog', 'flog2', 'flog2c', 'nlog', 'applelog', 'applelog2', 'bmdfilm', 'dlog', 'tlog', 'kinelog3', 'dcdm', 'slog', 'acesproxy', 'erimm', 'llog', 'protune', 'gplog2', 'ilog', 'milog', 'olog', 'samsunglog', 'redlog', 'redlogfilm', 'log3g12', 'panalog', 'viperlog', 'filmicpro'] },
-	{ id: 'surface', name: 'Color order & surface', tip: 'Ink, paint and the measured organization of surface colors.',
+	{ id: 'surface', name: 'Print & paint', tip: 'Ink, paint and the measured organization of surface colors.',
 		spaces: ['cmyk', 'munsell', 'ryb', 'cmy', 'ral-design', 'coloroid', 'ostwald'] },
 ]
