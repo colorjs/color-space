@@ -25,7 +25,11 @@
 let thm0; try{ thm0=localStorage.csTheme }catch{}
 document.documentElement.dataset.theme=thm0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
 // temperature pre-paint: restore the stored --uh/--uk before first render (no warm flash)
-try{ if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=document.documentElement.style;s.setProperty('--uh',h);s.setProperty('--uk',k)} }catch{}</script>
+try{ if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=document.documentElement.style;s.setProperty('--uh',h);s.setProperty('--uk',k)} }catch{}
+// a deploy's first visit under the previous service worker can pair this document with that worker's cached modules;
+// once the new worker takes over, a page whose modules failed reloads – once
+{ let broke=0; addEventListener('error',(e)=>{ if(/\/js\/[^/]+\.js/.test(e.filename||'')) broke=1 },true)
+	navigator.serviceWorker?.addEventListener('controllerchange',()=>{ if(!broke) return; let done; try{ done=sessionStorage.csHealed; sessionStorage.csHealed=1 }catch{} if(!done) location.reload() }) }</script>
 <style>
 /* clip on BODY only: html must stay overflow:visible so the body's overflow keeps
    propagating to the viewport — that propagation is what lets the modal lock the
@@ -191,6 +195,7 @@ body.mopen .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-index:calc
 @media(min-width:1080px){ body.mopen .hcolor{ max-width:var(--maxw); margin-inline:auto } }
 /* the theme and the source close the row, icons as the lenses are */
 .cells .thm{ color:var(--soft) } .cells .thm:is(:hover,:focus-visible){ color:var(--ink) }
+.thm .sun,:root[data-theme="dark"] .thm .moon{ display:none } :root[data-theme="dark"] .thm .sun{ display:block }   /* the mark is the theme it turns to – in the markup, picked by the pre-paint data-theme */
 /* the language select (stamped by the build where there is a language to choose), before search: a cell as the
    lenses are – the mark alone, as wide as theirs – with the native select unseen over it, its own menu, keys and name */
 .cells .dctl{ --ic:18px; flex:none; position:relative; display:flex; align-items:center; margin:0; padding-inline:var(--s3); color:var(--soft) }
@@ -1023,7 +1028,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<button class="cell lens" type="button" id="c-layout" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"></span></button>
 	<label class="cell qx" title="search the spaces by name" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq" type="search" placeholder="search spaces…" autocomplete="off" spellcheck="false" aria-label="search the spaces by name" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-tip"><button type="button" class="qclr" id="fqx" hidden title="clear the search" aria-label="clear the search" data-i18n="title:ui.header.find-clear aria-label:ui.header.find-clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></label>
 	<span class="dctl"><select id="lang" aria-label="Language" title="Language" data-i18n="aria-label:ui.header.lang title:ui.header.lang"><option value="en" lang="en" selected>English</option></select></span>
-	<button class="cell thm" type="button" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"></button>
+	<button class="cell thm" type="button" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"><svg class="moon" width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg><svg class="sun" width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></button>
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
@@ -2498,7 +2503,8 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	document.getElementById('m-view').innerHTML=`<div class="mcol">${msec(t('ui.cell.draw','Quantize'),drawOpts)}</div><div class="mcol">${msec(t('ui.cell.limit','Limit'),limitOpts)}</div>`
 		+`<div class="mcol">${msec(t('ui.cell.vision','Vision'),`<div class="opts">${visionOpts()}</div>`)}</div>`   // in columns, as Filters' menu
 	paintLens=()=>{
-		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.setAttribute('aria-label',n.label); b.title=n.title; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to
+		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); b.setAttribute('aria-label',n.label); b.title=n.title
+			if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to – the build stamps the first visit's
 		{ const v=document.getElementById('c-view'), on=Q!=null||GM!=='vis'||VIS!=='none'; v.querySelector('b').classList.toggle('on',on); v.title=v.querySelector('small').textContent
 			if(v.dataset.g!==GM){ v.dataset.g=GM; v.querySelector('.ci').innerHTML=LI[GM] } }   // its mark: the Limit's own – the lenses work inside it (Quantize steps, Vision sees, within the limit)
 		document.querySelectorAll('.mdist .opt').forEach(o=>o.disabled=!PALMODES.has(Q))   // the distance waits for a palette – shown, not offered
@@ -4943,10 +4949,8 @@ const scheduleFast=(ambient=false)=>{ if(!ambient){ autoColor=false }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
-const SUN='<svg width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>'
-const MOON='<svg width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'
 const drawThm=()=>{ const dark=document.documentElement.dataset.theme==='dark', say=dark?t('ui.theme.to-light','Switch to light theme'):t('ui.theme.to-dark','Switch to dark theme')
-	thm.innerHTML=dark?SUN:MOON; thm.setAttribute('aria-pressed',String(dark)); thm.setAttribute('aria-label',say) }
+	thm.setAttribute('aria-pressed',String(dark)); thm.setAttribute('aria-label',say) }   // its marks are the markup's – CSS shows the one data-theme asks for
 drawThm()
 thm.onclick=()=>{ const t=document.documentElement.dataset.theme==='dark'?'light':'dark'
 	document.documentElement.dataset.theme=t; try{ localStorage.csTheme=t }catch{}; drawThm() }

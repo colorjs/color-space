@@ -31,6 +31,7 @@ self.addEventListener('fetch', (e) => {
 		e.respondWith(fetch(request).catch(() =>
 			caches.match(request, { ignoreSearch: true }).then((r) => r || caches.match(shell(request.url)))))
 	else
-		// precached assets are immutable per VERSION — cache-first
-		e.respondWith(caches.match(request, { ignoreSearch: true }).then((r) => r || fetch(request)))
+		// network-first too: the document comes fresh, so its modules must – a cache-first module from the previous
+		// deploy beside a new document breaks the page. The precache is the offline copy
+		e.respondWith(fetch(request).catch(() => caches.match(request, { ignoreSearch: true })))
 })

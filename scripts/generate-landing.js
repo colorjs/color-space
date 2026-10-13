@@ -10,7 +10,8 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
+import { catHTML, sections, SPACES, DEFAULT, LIMIT, nextView, fpOf, disp } from '../web/js/render.js'
+import { LI } from '../web/js/icons.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
 import { iconURL, START } from '../web/js/favicon.js'
@@ -95,6 +96,10 @@ for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(<
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
 inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
 inject(/(<input id="cval")/, `$1 value="${dhx}"`)
+// the row's marks from their one source (icons.js), so the stripe is whole before the module lands: the view's mark is
+// the default Limit's, the layout's the view a first visit turns to (the page opens in grid)
+inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
+{ const n = nextView('grid'); inject(/(<button class="cell lens" type="button" id="c-layout")([^>]*><span class="ci">)(<\/span>)/, (m, a, b, c) => `${a} data-view="${n.v}"${b}${n.ic}${c}`) }
 // the favicon's first frame – the cloud before the module turns it (js/favicon.js)
 inject(/<link rel="icon" href="[^"]*">/, () => `<link rel="icon" href="${iconURL(START)}">`)
 // the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
