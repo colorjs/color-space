@@ -19,15 +19,16 @@
  * under the pointer while the mapped color is written.
  */
 import { space, meta, classify, hueIdx, pairsOf, plane, ramp, decOf, fmtc } from '../../../web/js/core.js'
-import { hasPlaneGL, planeGLStatus, paintPlaneGL, paintBarGL, setGLReady, warmGL } from '../../../web/js/gl.js'
+import { hasPlaneGL, planeGLStatus, paintPlaneGL, paintBarGL, setGLReady, warmPlaneGL, softGL } from '../../../web/js/gl.js'
 import { quantRGB } from '../../../web/js/quant.js'
-import { QI } from '../../../web/js/icons.js'
+import GLYPHS from '../../../web/fonts/color-space-icons.json'
 import NAMES from '../../../web/js/names.js'
 import * as PALETTES from '../../../web/js/palettes.js'
 import CATS from '../../../web/js/categories.js'
-import '../../../web/js/tip.js'
+import { showTip, hideTip } from '../../../web/js/tip.js'
 import { sampleImage, paletteOf } from '../../../web/js/extract.js'
 import { gamutMap, deltaEOK, DEST, JND } from './gamut.js'
+import { cssShort } from './notation.js'
 
 const PROFILE = {
 	DISPLAY_P3: ['Display P3', 'The file\'s color profile: values are Display P3'],
@@ -35,10 +36,13 @@ const PROFILE = {
 	LEGACY: ['sRGB, legacy', 'No color profile set (a file from before color management): read as sRGB'],
 }
 // the site's quantize lenses (web/index.html QGROUPS, QTIP), in its two columns: smooth and stepped | palettes
+// The lenses' icons are glyphs of the atlas's icon font (scripts/icon-font.js), so the closed control and the native
+// list show the same mark; their codepoints are Unicode symbols that look alike, for a list the OS draws in its own font
+const glyph = key => String.fromCodePoint(parseInt(GLYPHS[key], 16))
 const QUANT = [
 	[[0, 'smooth', 'continuous, unquantized'], [10, '10-step', '10 native-channel cell centers'], [20, '20-step', '20 native-channel cell centers'], ['565', '16-bit', '16-bit RGB565 depth'], ['jnd', 'JND', 'just-noticeable OKLab steps']],
 	[['web', 'web-safe', '216 web-safe colors'], ['names', 'CSS names', 'CSS named colors'], ['xkcd', 'xkcd', 'xkcd survey names'], ['tailwind', 'Tailwind', 'Tailwind tokens'], ['pico8', 'PICO-8', 'PICO-8 palette'], ['ansi', 'ANSI', 'terminal 256 palette']],
-]
+].map(g => g.map(([v, name, tip]) => [v, name, tip, glyph(`QI.${v || 'smooth'}`)]))
 const QKEYS = QUANT.flat().map(q => q[0])
 const NAMED = { names: Object.entries(NAMES), xkcd: PALETTES.xkcd, tailwind: PALETTES.tailwind, pico8: PALETTES.pico8, ansi: PALETTES.ansi }
 const CHEV = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
@@ -46,9 +50,10 @@ const CHEV = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path 
 // vals: the coordinates in S.space, the UI's own while it edits and re-read from the paint otherwise.
 // own: the colors this UI wrote recently; a re-read that returns one of them keeps vals.
 // quant: 0 (smooth), a step count, or a palette lens ('565' | 'jnd' | 'web' | 'names' | 'tailwind' …)
-// images: the selection's image paints [{hash, name}]; img: hash → {rgb samples, pal} once decoded; virtual: the
-// image's color when no solid or gradient is selected, a paint that moves but writes nothing
-const S = { space: 'oklch', quant: 0, pairs: {}, doc: [], editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, vals: null, own: [], lossy: false, error: '', live: false }
+// images: the selection's image paints [{hash, name}]; img: hash → {rgb samples, mean} once decoded; virtual: the
+// image's color when no solid or gradient is selected, a paint that moves but writes nothing.
+// mine: the current paint as this UI last wrote it, shown over any re-read that trails a newer write
+const S = { space: 'oklch', quant: 0, limit: 'file', pairs: {}, disc: {}, doc: [], editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, vals: null, mine: null, own: [], lossy: false, error: '', live: false }
 const $ = id => document.getElementById(id)
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e }
 const post = msg => parent.postMessage({ pluginMessage: msg }, '*')
@@ -76,7 +81,7 @@ const hex = v => Math.round(v * 255).toString(16).padStart(2, '0')
 
 function cssFor(p) {
 	const [L, C, H] = space[doc().id].oklch(...base(p))
-	const out = [`oklch(${num(L, 4)} ${num(C, 4)} ${num(H, 2)}${alpha(p)})`]
+	const out = [cssShort('oklch', [L, C, H]).replace(/\)$/, `${alpha(p)})`)]
 	if (S.profile === 'DISPLAY_P3') out.push(`color(display-p3 ${num(p.r, 4)} ${num(p.g, 4)} ${num(p.b, 4)}${alpha(p)})`)
 	else out.push(`#${hex(p.r)}${hex(p.g)}${hex(p.b)}${p.opacity < 1 ? hex(p.opacity) : ''}`)
 	return out
@@ -90,10 +95,20 @@ const nameOf = p => { const list = NAMED[S.quant]; if (!list) return ''; const k
 const cls = () => classify(S.space)
 // the plane pairs: the atlas's orientation (angle across, tone up); a hue paired with a
 // channel other than the tone is the space's own wheel – hue around, that channel out
+// (wheel: the pair can be a disc; polar: it is drawn as one – the wheel/square switch, saved per space and pair, wheel by default)
 function pairs() {
 	const c = cls(), hi = hueIdx(c), ti = c.tone ? c.tone.i : -1
-	return pairsOf(c).map(([a, b]) => c.ch.length === 3 && hi >= 0 && (a === hi || b === hi) && a !== ti && b !== ti
-		? { a: hi, b: a === hi ? b : a, polar: true } : { a, b, polar: false })
+	return pairsOf(c).map(([a, b]) => {
+		const wheel = c.ch.length === 3 && hi >= 0 && (a === hi || b === hi) && a !== ti && b !== ti
+		const p = wheel ? { a: hi, b: a === hi ? b : a } : { a, b }
+		return { ...p, wheel, polar: wheel && S.disc[`${S.space}:${p.a},${p.b}`] !== false }
+	})
+}
+// a click on an axis swaps it for the channel held: the next pair that keeps the other axis
+function swapAxis(axis) {
+	const ps = pairs(), q = pair(), keep = axis === 'a' ? q.b : q.a, k0 = ps.findIndex(p => p.a === q.a && p.b === q.b)
+	const cand = ps.map((p, k) => [p, k]).filter(([p, k]) => k !== k0 && (p.a === keep || p.b === keep))
+	return (cand.find(([, k]) => k > k0) || cand[0] || [ps[(k0 + 1) % ps.length], (k0 + 1) % ps.length])
 }
 // the default plane holds the hue (lightness × chroma at one hue), else the tone (a × b at one lightness)
 function defaultPair(ps) {
@@ -119,51 +134,35 @@ const FAMILIES = (() => {
 	return rest.length ? fams.concat({ name: 'More', ids: rest, feat: new Set() }) : fams
 })()
 const titleOf = id => meta[id]?.title || id
-function renderSpaceMenu() {
-	const q = typed ? $('spq').value.trim().toLowerCase() : '', cat = $('spcat').value, list = $('splist')
-	$('spclr').hidden = !$('spq').value
-	const hit = id => !q || id.includes(q) || titleOf(id).toLowerCase().includes(q)
-	const rows = []
-	for (const f of FAMILIES) {
-		if (cat && cat !== f.name) continue
-		const ids = f.ids.filter(hit)
-		if (!ids.length) continue
-		if (!cat) rows.push(el('h6', null, f.name))
-		for (const id of ids) {
-			const b = el('button', 'sp' + (f.feat.has(id) ? ' feat' : ''))
-			b.type = 'button'
-			b.dataset.id = id
-			b.setAttribute('role', 'option')
-			b.setAttribute('aria-selected', String(id === S.space))
-			b.append(el('span', 'nm', titleOf(id)), el('span', 'id', id))
-			rows.push(b)
-		}
-	}
-	list.replaceChildren(...(rows.length ? rows : [el('p', 'spnone', 'No space by that name')]))
-	const on = list.querySelector('[aria-selected="true"]') || list.querySelector('.sp')
-	if (on) { on.classList.add('on'); on.scrollIntoView({ block: 'nearest' }) }
-}
-function renderSpaces() {
-	$('spcat').replaceChildren(new Option('All families', ''), ...FAMILIES.map(f => new Option(f.name, f.name)))
-}
+// a group's label is also a legend, which a customizable select draws (and the CSS spaces) like any other row
+const group = (label, options) => { const g = document.createElement('optgroup'); g.label = label; g.append(el('legend', null, label), ...options); return g }
 const showSpace = () => { $('spname').textContent = titleOf(S.space); $('spbtn').dataset.id = S.space }
 
-function renderQuant() {
-	const opt = ([v, name, tip]) => {
-		const b = el('button', 'opt')
-		b.type = 'button'
-		b.dataset.q = String(v)
-		b.dataset.tip = tip
-		b.setAttribute('aria-pressed', String(v === S.quant))
-		b.innerHTML = `<span class="oi">${QI[v || 'smooth']}</span>`
-		b.append(el('span', null, name))
-		return b
+// the lenses: the site's Quantize and Limit as native selects, its two groups (steps | palettes) kept
+const LIMITS = [['file', 'File gamut', 'the file\'s own gamut'], ['srgb', 'sRGB', 'standard web gamut'], ['p3', 'P3', 'wide Apple-display gamut'], ['rec2020', 'Rec.2020', 'ultra-wide UHD gamut'], ['vis', 'Surface', 'colors a lit surface can show'], ['locus', 'Light', 'every color a light can have']]
+	.map(([v, name, tip]) => [v, name, tip, v === 'file' ? '' : glyph(`LI.${v}`)])
+const gamutOf = () => S.limit === 'file' ? doc().gamut : S.limit
+// an option: its icon and its name as spans – a customizable select (appearance: base-select) draws them, icon in the
+// icon font; an older one reads the text, the icon's look-alike symbol then the name
+const opt = ([v, name, tip, g]) => {
+	const o = new Option('', String(v))   // no native tooltip: it would cover the list
+	o.append(Object.assign(el('span', 'ico', g || ''), { ariaHidden: 'true' }), el('span', 'nm', g ? `  ${name}` : name))
+	return o
+}
+function renderLenses() {
+	const q = $('quant'), l = $('limit')
+	if (!q.options.length) {
+		q.append(group('Steps', QUANT[0].map(opt)), group('Palettes', QUANT[1].map(opt)))
+		l.append(...LIMITS.map(opt))
 	}
-	$('qsteps').replaceChildren(...QUANT[0].map(opt))
-	$('qpals').replaceChildren(...QUANT[1].map(opt))
-	const [, name] = QUANT.flat().find(q => q[0] === S.quant)
-	$('quant').innerHTML = QI[S.quant || 'smooth'] + CHEV
-	$('quant').insertBefore(el('span', null, name), $('quant').lastChild)
+	q.value = String(S.quant)
+	l.value = S.limit
+	const [, qn, qt, qg] = QUANT.flat().find(x => x[0] === S.quant), [, ln, lt] = LIMITS.find(x => x[0] === S.limit)
+	$('quantface').textContent = qg
+	$('limitface').textContent = glyph(`LI.${gamutOf()}`)   // the file's gamut wears that gamut's icon
+	l.querySelector('option[value="file"] .ico').textContent = glyph(`LI.${doc().gamut}`)
+	$('quantf').dataset.tip = `Quantize: ${qn}, ${qt}`
+	$('limitf').dataset.tip = `Limit: ${S.limit === 'file' ? `${ln} (${doc().name})` : ln}, ${lt}`
 }
 
 // a field canvas in the file's color space, so a P3 file's plane shows P3 colors, not their sRGB clip
@@ -176,19 +175,9 @@ function canvas(cls) {
 
 // the picker's DOM for the current space and file: the plane's canvas, the pair buttons and one row per channel
 function renderPicker() {
-	const ps = pairs(), p = pair(), c = cls()
+	const p = pair(), c = cls()
 	$('plane').hidden = !p
 	$('plane').querySelector('canvas').replaceWith(canvas())
-	const seg = $('pairs')
-	seg.replaceChildren(...ps.map((q, k) => {
-		const b = el('button', null, `${c.ch[q.a].sym} ${q.polar ? '○' : '×'} ${c.ch[q.b].sym}`)
-		b.type = 'button'
-		b.dataset.k = k
-		b.dataset.tip = q.polar ? `${c.ch[q.a].name} around, ${c.ch[q.b].name} out` : `${c.ch[q.a].name} across, ${c.ch[q.b].name} up`
-		b.setAttribute('aria-pressed', String(q.a === p.a && q.b === p.b))
-		return b
-	}))
-	seg.hidden = ps.length < 2
 	// a row per channel: its bar (the field and a knob, role slider, that the pointer and the keys drive), then
 	// its value cell, whose letter scrubs it
 	$('channels').replaceChildren(...c.ch.flatMap((ch, i) => {
@@ -208,8 +197,24 @@ function renderPicker() {
 		l.dataset.tip = `${ch.name}, ${fmtc(ch.min, ch)}–${fmtc(ch.max, ch)}. Drag to scrub.`
 		fld.append(l, cv)
 		return [bar, fld]
-	}))
+	}), ...opacityRow())
 	invalidate()
+}
+
+// the opacity: Figma's checkered bar under the current color, its value in percent; a solid paint's opacity, a stop's alpha
+const A = 'a'
+const idx = d => d === A ? A : +d
+function opacityRow() {
+	const bar = el('div', 'bar2 alpha'), knob = el('i', 'nrg'), fld = el('label', 'cvp'), cv = el('input', 'cv'), l = el('i', 'cl', 'A')
+	knob.tabIndex = 0
+	for (const [k, v] of [['role', 'slider'], ['aria-label', 'Opacity slider'], ['aria-valuemin', '0'], ['aria-valuemax', '100']]) knob.setAttribute(k, v)
+	bar.dataset.i = knob.dataset.i = cv.dataset.i = l.dataset.i = A
+	bar.append(knob)
+	Object.assign(cv, { type: 'number', step: '1', min: '0', max: '100', inputMode: 'numeric', autocomplete: 'off' })
+	cv.setAttribute('aria-label', 'Opacity, percent')
+	l.dataset.tip = 'Opacity, 0–100%. Drag to scrub.'
+	fld.append(l, cv)
+	return [bar, fld]
 }
 
 // the list is rebuilt only when its rows change; a re-read of the same rows (every write answers with one) just recolors the swatches
@@ -268,7 +273,6 @@ function update() {
 	// an image still on its way says so; one that couldn't be read falls back to the plain hint
 	$('empty').textContent = S.images.some(i => !S.img.has(i.hash)) ? 'Reading the image…' : 'Select a layer with a solid fill, a gradient or an image.'
 	for (const id of ['paints', 'picker', 'css']) $(id).hidden = !p
-	renderPal()
 	if ($('drop')) $('drop').hidden = !p || !('EyeDropper' in window) || locked(p)
 	const mixed = S.mixed ? 'Text with mixed fills is skipped. Select text whose fill is the same throughout.' : ''
 	if (!p) { renderGamut(null); return renderNotes(mixed ? [mixed] : []) }
@@ -277,17 +281,20 @@ function update() {
 	// the picker's ink: the current color, outlined in the ink that reads on it
 	const pk = $('picker').style
 	pk.setProperty('--tkc', swatch(p))
+	const pct = Math.round(p.opacity * 100)
+	for (const e of $('channels').querySelectorAll(`[data-i="${A}"]`)) e.closest('.bar2, .cvp').hidden = !!p.virtual   // an image's color has no opacity to set
 	for (const input of $('channels').querySelectorAll('.cv')) {
 		input.readOnly = lock
 		input.closest('.cvp').classList.toggle('locked', lock)
 		if (input.dataset.dirty && input === document.activeElement) continue
-		input.value = v ? fmtc(v[input.dataset.i], c.ch[input.dataset.i]) : ''
+		input.value = input.dataset.i === A ? String(pct) : v ? fmtc(v[input.dataset.i], c.ch[input.dataset.i]) : ''
 	}
 	for (const k of $('channels').querySelectorAll('.nrg')) {
-		const i = +k.dataset.i
+		const i = idx(k.dataset.i)
 		k.setAttribute('aria-disabled', String(lock))
 		k.hidden = !v
 		if (!v) continue
+		if (i === A) { k.style.setProperty('--f', p.opacity); k.setAttribute('aria-valuenow', String(pct)); k.setAttribute('aria-valuetext', `${pct}%`); continue }
 		k.style.setProperty('--f', clamp01(frac(i, v[i])))
 		k.setAttribute('aria-valuenow', String(v[i]))
 		k.setAttribute('aria-valuetext', `${c.ch[i].sym} ${fmtc(v[i], c.ch[i])}`)
@@ -308,7 +315,10 @@ function update() {
 	if (p.src) notes.push(p.src.remote
 		? `This color comes from the ${p.src.type} ${p.src.name}, which this file can't edit. Edit it where it's defined.`
 		: `Editing the ${p.src.type} ${p.src.name}: every layer that uses it changes.`)
-	if (p.virtual) notes.push('The dots on the plane are this image\'s pixels, the swatches its prominent colors. Select a fill or stroke to write a color.')
+	// what the faint dots are: the other colors the selection holds, the file's variables, an image's pixels
+	const dots = [S.paints.length > 1 && 'other selected colors', S.doc.length && 'color variables', decoded().length && 'image pixels'].filter(Boolean)
+	if (dots.length) notes.push(`Dots: ${dots.join(', ')}.`)
+	if (p.virtual) notes.push('Select a fill or stroke to edit a color.')
 	else if (!S.editable) notes.push('Dev Mode is read-only. Copy the values below.')
 	if (S.more) notes.push(`Showing the first ${S.paints.length} paints.`)
 	if (mixed) notes.push(mixed)
@@ -322,15 +332,15 @@ function renderGamut(v) {
 	const { id, scale, name } = doc(), g = $('gamut')
 	let text = '', out = false
 	if (!v) text = ''
-	else if (lens()) text = `Snapped to ${QUANT.flat().find(q => q[0] === S.quant)[1]}`
+	else if (lens()) text = `Snapped to ${QUANT.flat().find(q => q[0] === S.quant)[1]}.`
 	else {
 		const rgb = S.space === id ? v : space[S.space][id](...v)
 		out = !rgb.every(x => Number.isFinite(x) && x >= -1e-4 * scale && x <= (1 + 1e-4) * scale)
-		text = out ? `Outside ${name}: written as the nearest ${name} color (CSS Color 4 gamut mapping)` : `In ${name}`
+		text = out ? `Outside ${name}, mapped in.` : `In ${name}.`
 	}
 	g.classList.toggle('out', out)
 	if (g.textContent !== text) g.textContent = text
-	g.title = text
+	g.dataset.tip = out ? `Outside ${name}: written as its nearest ${name} color (CSS Color 4 gamut mapping: chroma reduced at the same lightness and hue).` : text
 }
 
 // #notes is a live region, so it stays in place (empty when there is nothing to say) and is
@@ -357,8 +367,19 @@ function placeMarker() {
 	}
 	cx.style.left = `${x * 100}%`
 	cx.style.top = `${(1 - y) * 100}%`
-	pl.querySelector('.laby').textContent = c.ch[q.b].sym
-	pl.querySelector('.labx').textContent = c.ch[q.a].sym
+	// the axis letters: a click swaps that axis for the channel held (named in the tip); the wheel/square switch where a wheel exists
+	const ax = $('axes'), ps = pairs(), [lx, ly, pm] = ['.labx', '.laby', '.pmode'].map(k => ax.querySelector(k))
+	for (const [b, axis, i, how] of [[lx, 'a', q.a, q.polar ? 'around' : 'across'], [ly, 'b', q.b, q.polar ? 'out' : 'up']]) {
+		const [to] = swapAxis(axis), other = axis === 'a' ? to.a === q.b ? to.b : to.a : to.b === q.a ? to.a : to.b
+		b.textContent = c.ch[i].sym
+		b.dataset.tip = ps.length > 1 ? `${c.ch[i].name} ${how}. Click for ${c.ch[other].name}` : `${c.ch[i].name} ${how}`
+		b.setAttribute('aria-label', b.dataset.tip)
+		b.disabled = ps.length < 2
+	}
+	pm.hidden = !q.wheel
+	pm.setAttribute('aria-pressed', String(!!q.polar))
+	pm.dataset.tip = q.polar ? 'Show as a square' : 'Show as a wheel'
+	pm.setAttribute('aria-label', pm.dataset.tip)
 	pl.setAttribute('aria-label', q.polar ? `${c.ch[q.a].name} and ${c.ch[q.b].name} wheel` : `${c.ch[q.a].name} and ${c.ch[q.b].name} plane`)
 	pl.setAttribute('aria-valuenow', String(+v[q.a].toFixed(4)))
 	pl.setAttribute('aria-valuetext', `${c.ch[q.a].sym} ${fmtc(v[q.a], c.ch[q.a])}, ${c.ch[q.b].sym} ${fmtc(v[q.b], c.ch[q.b])}`)
@@ -387,7 +408,7 @@ const invalidate = () => { for (const cv of document.querySelectorAll('canvas'))
 setGLReady(invalidate)
 
 function paint() {
-	const v = S.vals, s = S.space, q = pair(), gm = doc().gamut, n = S.quant
+	const v = S.vals, s = S.space, q = pair(), gm = gamutOf(), n = S.quant
 	if (!v || !current()) return
 	const st = hasPlaneGL(s) ? planeGLStatus(s) : 'no'
 	if (q) {
@@ -395,7 +416,8 @@ function paint() {
 		const full = Math.min(512, Math.round((cv.clientWidth || 256) * (devicePixelRatio || 1)))
 		// the field depends on the held channels, never on the swept two: a drag across the plane never repaints it.
 		// A held channel dragged on a bar repaints at half resolution (the dossier's live law); release settles full.
-		const top = st === 'no' ? Math.min(full, 160) : full, w = S.live ? top >> 1 : top
+		// the GPU paints full resolution even mid-gesture; only the CPU fallback drops to half while a held channel moves
+		const top = st === 'no' ? Math.min(full, 160) : full, w = S.live && st === 'no' ? top >> 1 : top
 		const polar = q.polar && st !== 'no'
 		const key = [s, q.a, q.b, v.map((x, k) => k === q.a || k === q.b ? '' : x), n, gm, st, polar].join()
 		if (cv._key !== key || (cv.width !== top && !S.live)) {
@@ -407,18 +429,19 @@ function paint() {
 			else if (st === 'no') plane(cv.getContext('2d'), w, s, v, q.a, q.b, range(q.a), range(q.b), true, gm, lens() ? rgb => quantRGB(rgb, n) : n || null)
 			else cv.getContext('2d').clearRect(0, 0, w, w)   // linking: blank until the program lands, never a low-res preview that then sharpens
 			cv._key = st === 'pending' ? '' : key
-			labInk(cv, pl.querySelector('.laby'), [[0.03, 0.06], [0.08, 0.06], [0.13, 0.06]])
-			labInk(cv, pl.querySelector('.labx'), [[0.96, 0.96], [0.84, 0.96], [0.72, 0.96]])
+			labInk(cv, $('axes').querySelector('.laby'), [[0.03, 0.06], [0.08, 0.06], [0.13, 0.06]])
+			labInk(cv, $('axes').querySelector('.labx'), [[0.96, 0.96], [0.84, 0.96], [0.72, 0.96]])
 			pl._dark = fieldDark(cv)
 			placeMarker()
 		}
 		// the dots depend on the pair and the samples, never on the held channel
-		const dc = pl.querySelector('.density'), ck = coords(), dkey = [ck && ck.key, q.a, q.b, polar, w, pl._dark].join()
-		if (dc._key !== dkey) { dc._key = dkey; paintDensity(dc, q, w, polar, pl._dark) }
+		// the image's dots: their own layer at full resolution, never touched by a gesture's repaints
+		const dc = pl.querySelector('.density'), ck = cloudReady(), dkey = [ck && ck.key, q.a, q.b, polar, full, pl._dark].join()
+		if (dc._key !== dkey) { dc._key = dkey; paintDensity(dc, ck, q, full, polar, pl._dark) }
 	}
 	// a bar keeps its knob inside the pill, as Figma's do, so the channel's range spans the knob's travel: the field is
 	// painted into that inset span and its end columns stretch over the caps, so the knob always sits on its own color
-	for (const bar of $('channels').querySelectorAll('.bar2')) {
+	for (const bar of $('channels').querySelectorAll('.bar2:not(.alpha)')) {   // the opacity bar is CSS: the color over the checker
 		const i = +bar.dataset.i, cv = bar.querySelector('canvas'), kn = bar.querySelector('.nrg')
 		const css = cv.clientWidth || 200, w = Math.min(512, Math.round(css * (devicePixelRatio || 1)))
 		const cap = Math.round((kn.offsetWidth || 18) / 2 / css * w), span = Math.max(1, w - 2 * cap)
@@ -446,8 +469,9 @@ function paint() {
 
 // The newest write waits for the next frame; a gesture's end (commit) goes at once and
 // closes one undo step in Figma
-let queued = null, qraf = 0
-function flush() { cancelAnimationFrame(qraf); qraf = 0; if (queued) post(queued); queued = null }
+// Each write is numbered; a re-read says the last number it saw (ack), so one that trails a newer write is known
+let queued = null, qraf = 0, sent = 0
+function flush() { cancelAnimationFrame(qraf); qraf = 0; if (queued) post({ ...queued, seq: ++sent }); queued = null }
 function send(msg) { queued = msg; if (msg.commit) flush(); else if (!qraf) qraf = requestAnimationFrame(flush) }
 
 // write a color (the file's 0..1 channels) to the current paint; the coordinates it came from stay the UI's
@@ -456,7 +480,8 @@ function write(rgb, commit) {
 	S.own.push(rgb)
 	if (S.own.length > 64) S.own.shift()
 	p.r = rgb[0]; p.g = rgb[1]; p.b = rgb[2]   // shown now; the re-read confirms it
-	if (!p.virtual) send({ type: 'set', id: p.id, kind: p.kind, index: p.index, stop: p.stop, profile: S.profile, color: { r: rgb[0], g: rgb[1], b: rgb[2] }, commit: !!commit })
+	if (!p.virtual) S.mine = { key: S.key, r: rgb[0], g: rgb[1], b: rgb[2], opacity: p.opacity }
+	if (!p.virtual) send({ type: 'set', id: p.id, kind: p.kind, index: p.index, stop: p.stop, profile: S.profile, color: { r: rgb[0], g: rgb[1], b: rgb[2] }, opacity: p.opacity, commit: !!commit })
 	const sw = $('paints').querySelector(`[data-key="${CSS.escape(S.key)}"] .sw`)
 	if (sw) sw.style.background = swatch(p)
 	update()
@@ -476,6 +501,16 @@ function edit(next, commit) {
 	write(rgb, commit)
 }
 const set = (i, v, commit) => { if (!S.vals) return; const next = S.vals.slice(); next[i] = v; edit(next, commit) }
+// the opacity, in whole percent as Figma keeps it; the color stays
+function setAlpha(f, commit) {
+	const p = current()
+	if (locked(p) || p.virtual) return
+	p.opacity = Math.round(clamp01(f) * 100) / 100
+	write([p.r, p.g, p.b], commit)
+}
+// a channel's place along its bar, 0..1, and back: the opacity's is itself
+const fracAt = i => i === A ? current().opacity : clamp01(frac(i, S.vals[i]))
+const setFrac = (i, f, commit) => i === A ? setAlpha(f, commit) : set(i, at(i, snap(f)), commit)
 // the live gesture: the plane repaints at half resolution and the window only grows until release
 const live = on => { S.live = on; if (!on) { draw(); fit() } }
 
@@ -549,22 +584,22 @@ plane$.addEventListener('keydown', e => {
 $('channels').addEventListener('pointerdown', e => {
 	const bar = e.target.closest('.bar2')
 	if (!bar) return
-	const i = +bar.dataset.i, kn = bar.querySelector('.nrg')
+	const i = idx(bar.dataset.i), kn = bar.querySelector('.nrg')
 	grab(bar, e, ev => {
 		const r = bar.getBoundingClientRect(), k = kn.offsetWidth
-		set(i, at(i, snap((ev.clientX - r.left - k / 2) / Math.max(1, r.width - k))))
+		setFrac(i, (ev.clientX - r.left - k / 2) / Math.max(1, r.width - k))
 	})
 	kn.focus({ preventScroll: true })
 })
 $('channels').addEventListener('keydown', e => {
 	const t = e.target
 	if (!t.classList.contains('nrg') || !S.vals || locked(current())) return
-	const i = +t.dataset.i
+	const i = idx(t.dataset.i)
 	const d = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 }[e.key]
-	const to = e.key === 'Home' ? 0 : e.key === 'End' ? 1 : d == null ? null : clamp01(frac(i, S.vals[i])) + d * cell()
+	const to = e.key === 'Home' ? 0 : e.key === 'End' ? 1 : d == null ? null : fracAt(i) + d * (i === A ? 0.01 : cell())
 	if (to == null) return
 	e.preventDefault()
-	set(i, at(i, snap(to)), true)
+	setFrac(i, clamp01(to), true)
 })
 
 // the values: type and commit; drag a cell's letter sideways to scrub, as on Figma's own fields — the span
@@ -578,18 +613,19 @@ vals$.addEventListener('change', e => {
 	if (t.readOnly) return
 	const v = t.valueAsNumber
 	if (!Number.isFinite(v)) return update()
-	set(+t.dataset.i, v, true)
+	if (t.dataset.i === A) setAlpha(v / 100, true)
+	else set(+t.dataset.i, v, true)
 })
 vals$.addEventListener('pointerdown', e => {
 	const l = e.target.closest('.cl')
 	if (!l || !S.vals) return
-	const i = +l.dataset.i
-	let f = frac(i, S.vals[i]), x = e.clientX
+	const i = idx(l.dataset.i)
+	let f = i === A ? current().opacity : frac(i, S.vals[i]), x = e.clientX
 	grab(l, e, ev => {
 		f += (ev.clientX - x) / 300 * (ev.shiftKey ? 0.1 : 1)   // the step since the last event (movementX is unreliable across frames)
 		x = ev.clientX
 		f = hueIdx(cls()) === i ? ((f % 1) + 1) % 1 : clamp01(f)   // past an end the scrub holds there, and turns back at once
-		set(i, at(i, snap(f)))
+		setFrac(i, f)
 	})
 })
 
@@ -607,7 +643,7 @@ $('drop').addEventListener('click', async () => {
 	adopt(fromSrgb8([1, 3, 5].map(k => parseInt(hexc.slice(k, k + 2), 16))))
 })
 
-// a color from outside the picker (a screen pixel, an image swatch, a document color), in the file's 0..1
+// a color from outside the picker (a screen pixel, a dot on the plane), in the file's 0..1
 // channels: written through the active palette lens, and the coordinates are read from it
 function adopt(rgb) {
 	if (locked(current())) return
@@ -617,67 +653,104 @@ function adopt(rgb) {
 	update()
 }
 
-/* ---------- the document's colors: rings on the plane where each sits; a click takes it ---------- */
+/* ---------- the other colors: the selection's own and the file's variables, faint dots on the plane; a gradient's
+   stops joined by a soft line, in order. A dot names where its color lives; a click takes it ---------- */
 
+// coordinates → their place on the plane ([x, y] from the top-left, 0..1), or null where they fall outside it;
+// a color (the file's 0..1 channels) goes through its coordinates
+function place(v) {
+	const q = pair()
+	if (!q || !v || !v.every(Number.isFinite)) return null
+	const fa = frac(q.a, v[q.a]), fb = frac(q.b, v[q.b])
+	let x = fa, y = fb
+	if ($('plane')._polar) { const t = -fa * 2 * Math.PI, rr = Math.min(1, fb); x = 0.5 + 0.5 * rr * Math.cos(t); y = 0.5 + 0.5 * rr * Math.sin(t) }
+	return x >= 0 && x <= 1 && y >= 0 && y <= 1 ? [x, 1 - y] : null
+}
+const at2 = c => place(space[doc().id][S.space](...base(c)))
+const hex6 = c => '#' + [c.r, c.g, c.b].map(u => Math.round(u * 255).toString(16).padStart(2, '0')).join('')
 function placeMarks() {
-	const box = $('marks'), q = pair(), pl = $('plane')
-	const key = [S.space, q && q.a, q && q.b, pl._polar, S.profile, S.doc.map(c => c.r + ',' + c.g + ',' + c.b).join(';')].join('|')
+	const box = $('marks'), q = pair(), cur = current(), v = S.vals
+	const key = [S.space, q && q.a, q && q.b, $('plane')._polar, S.profile, S.key, cur && cur.stop >= 0 ? v : '', S.paints.map(p => keyOf(p) + p.r + p.g + p.b).join(), S.doc.map(c => c.r + c.g + c.b).join()].join('|')   // the coordinates count only for a gradient's line
 	if (box._key === key) return
 	box._key = key
 	box.replaceChildren()
 	if (!q) return
-	for (const c of S.doc) {
-		const v = space[doc().id][S.space](...base(c))
-		if (!v.every(Number.isFinite)) continue
-		const fa = frac(q.a, v[q.a]), fb = frac(q.b, v[q.b])
-		let x = fa, y = fb
-		if (pl._polar) { const t = -fa * 2 * Math.PI, rr = Math.min(1, fb); x = 0.5 + 0.5 * rr * Math.cos(t); y = 0.5 + 0.5 * rr * Math.sin(t) }
-		if (!(x >= 0 && x <= 1 && y >= 0 && y <= 1)) continue
-		const b = el('button', 'dm'), h = '#' + [c.r, c.g, c.b].map(u => Math.round(u * 255).toString(16).padStart(2, '0')).join('')
+	const dot = (c, tip) => {
+		const p = at2(c); if (!p) return
+		const b = el('button', 'dm')
 		b.type = 'button'
-		b.style.left = `${x * 100}%`
-		b.style.top = `${(1 - y) * 100}%`
+		b.style.left = `${p[0] * 100}%`
+		b.style.top = `${p[1] * 100}%`
 		b.style.background = swatch(c)
-		b.dataset.tip = c.name ? `${c.name}, ${h}` : h
-		b.setAttribute('aria-label', `Use ${c.name || h}`)
+		b.dataset.tip = `${tip}\n${hex6(c)}`
+		b.setAttribute('aria-label', `Use ${tip}`)
 		b.onclick = () => adopt([c.r, c.g, c.b])
 		box.append(b)
 	}
+	// a gradient's stops, in order, joined by a soft line; the current stop sits where the knob is (its coordinates)
+	const lines = [], grads = new Map()
+	for (const p of S.paints) if (p.stop >= 0) { const g = `${p.id}:${p.kind}:${p.index}`; grads.set(g, [...(grads.get(g) || []), p]) }
+	for (const stops of grads.values()) {
+		const pts = stops.sort((a, b) => a.stop - b.stop).map(p => keyOf(p) === S.key ? place(v) : at2(p)).filter(Boolean)
+		if (pts.length > 1) lines.push(pts.map(p => `${(p[0] * 100).toFixed(2)},${(p[1] * 100).toFixed(2)}`).join(' '))
+	}
+	if (lines.length) {
+		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+		svg.setAttribute('class', 'links')
+		svg.setAttribute('viewBox', '0 0 100 100')
+		svg.setAttribute('preserveAspectRatio', 'none')
+		svg.innerHTML = lines.map(l => `<polyline points="${l}"/>`).join('')
+		box.append(svg)
+	}
+	for (const p of S.paints) if (keyOf(p) !== S.key) dot(p, `${p.name}, ${where(p)}${p.src ? `, ${p.src.type} ${p.src.name}` : ''}`)
+	for (const c of S.doc) dot(c, `${c.name} (variable)`)
 }
 
-/* ---------- an image's pixels: dots on the plane, its prominent colors as swatches ---------- */
+/* ---------- an image's pixels: dots on the plane ---------- */
 
 const pending = new Set()
 const decoded = () => S.images.map(i => S.img.get(i.hash)).filter(d => d && d.rgb)
-// the selection's images as one sample set, each sample's coordinates in the current space, computed once per space
-let cloud = null
-function coords() {
+// the selection's images as one set of unique colors (each with its pixel count), their coordinates in the current
+// space computed in slices across frames – the picker draws first and never waits on them
+let cloud = null, job = null
+function cloudReady() {
 	const parts = decoded()
 	if (!parts.length) return null
 	const key = S.space + '|' + S.images.map(i => i.hash).join()
 	if (cloud && cloud.key === key) return cloud
-	const n = parts.reduce((t, d) => t + d.rgb.length / 3, 0), dim = cls().ch.length, out = new Float32Array(n * dim)
-	let k = 0
-	for (const { rgb } of parts) for (let i = 0; i < rgb.length; i += 3, k++) {
-		const v = S.space === 'rgb' ? [rgb[i], rgb[i + 1], rgb[i + 2]] : space.rgb[S.space](rgb[i], rgb[i + 1], rgb[i + 2])
-		for (let d = 0; d < dim; d++) out[k * dim + d] = v[d]
+	if (job !== key) { job = key; buildCloud(key, parts) }
+	return null
+}
+async function buildCloud(key, parts) {
+	const seen = new Map()
+	for (const { rgb } of parts) for (let i = 0; i < rgb.length; i += 3) { const k = (rgb[i] << 16) | (rgb[i + 1] << 8) | rgb[i + 2]; seen.set(k, (seen.get(k) || 0) + 1) }
+	const keys = [...seen.keys()], n = keys.length, dim = cls().ch.length, v = new Float32Array(n * dim), w = new Float32Array(n)
+	for (let k = 0; k < n; k++) {
+		if (k && !(k % 1500)) { await new Promise(r => requestAnimationFrame(r)); if (job !== key) return }   // a newer space or selection took over
+		const c = keys[k], r = c >> 16, g = (c >> 8) & 255, b = c & 255
+		const x = S.space === 'rgb' ? [r, g, b] : space.rgb[S.space](r, g, b)
+		for (let d = 0; d < dim; d++) v[k * dim + d] = x[d]
+		w[k] = seen.get(c)
 	}
-	return cloud = { key, v: out, dim, n }
+	if (job !== key) return
+	cloud = { key, v, w, dim, n }
+	job = null
+	draw()
 }
 // the dots, as on the dossier's image density: a fifth-opaque square per sample, light on a dark field, dark on a light one
-function paintDensity(cv, q, w, polar, dark) {
-	const c = coords(), ctx = cv.getContext('2d')
+function paintDensity(cv, c, q, w, polar, dark) {
+	const ctx = cv.getContext('2d')
 	if (cv.width !== w || cv.height !== w) { cv.width = w; cv.height = w }
 	ctx.clearRect(0, 0, w, w)
 	if (!c) return
 	const [a0, a1] = range(q.a), [b0, b1] = range(q.b), r = Math.max(2, w / 190)
 	ctx.fillStyle = dark ? '#fff' : '#16161a'
-	ctx.globalAlpha = 0.2
 	for (let k = 0; k < c.n; k++) {
 		const fa = (c.v[k * c.dim + q.a] - a0) / (a1 - a0), fb = (c.v[k * c.dim + q.b] - b0) / (b1 - b0)
 		let x = fa, y = fb
 		if (polar) { if (!(fa >= 0 && fa <= 1 && fb >= 0)) continue; const t = -fa * 2 * Math.PI, rr = Math.min(1, fb); x = 0.5 + 0.5 * rr * Math.cos(t); y = 0.5 + 0.5 * rr * Math.sin(t) }
 		if (!(x >= 0 && x <= 1 && y >= 0 && y <= 1)) continue
+		ctx.globalAlpha = 1 - 0.8 ** c.w[k]   // a color seen n times reads as n fifth-opaque dots stacked
 		ctx.fillRect(x * w - r / 2, (1 - y) * w - r / 2, r, r)
 	}
 	ctx.globalAlpha = 1
@@ -692,29 +765,13 @@ function fieldDark(cv) {
 	} catch { return true }
 }
 
-function renderPal() {
-	const pal = decoded().flatMap(d => d.pal).slice(0, 8), box = $('pal'), key = pal.join('|')
-	box.hidden = !pal.length || !current()
-	if (box._key === key) return
-	box._key = key
-	box.replaceChildren(...pal.map(rgb => {
-		const b = el('button', 'sw'), h = '#' + rgb.map(v => v.toString(16).padStart(2, '0')).join('')
-		b.type = 'button'
-		b.style.background = `rgb(${rgb.join(' ')})`
-		b.dataset.tip = h
-		b.setAttribute('aria-label', `Use ${h}`)
-		b.onclick = () => adopt(fromSrgb8(rgb))
-		return b
-	}))
-}
-
 // the image's color stands in for a paint when the selection has no solid or gradient: it moves, it writes nothing
 function refreshVirtual() {
 	if (S.paints.length) { S.virtual = null; return }
-	const first = S.images.find(i => S.img.get(i.hash)?.pal?.length)
+	const first = S.images.find(i => S.img.get(i.hash)?.mean)
 	if (!first) { S.virtual = null; if (S.key === 'virtual') S.key = null; return }
 	if (S.virtual && S.virtual.hash === first.hash && S.key === 'virtual') return
-	const [r, g, b] = fromSrgb8(S.img.get(first.hash).pal[0])
+	const [r, g, b] = fromSrgb8(S.img.get(first.hash).mean)
 	S.virtual = { virtual: true, hash: first.hash, id: '', name: first.name, kind: 'fills', index: 0, stop: -1, r, g, b, opacity: 1, visible: true, src: null }
 	S.key = 'virtual'
 	sync(true)
@@ -722,17 +779,18 @@ function refreshVirtual() {
 }
 async function receiveImage(m) {
 	pending.delete(m.hash)
+	await new Promise(r => requestAnimationFrame(() => setTimeout(r)))   // the picker's frame first; the image after it
 	let rgb = null
-	try { if (m.bytes) rgb = await sampleImage(new Blob([m.bytes]), 128) } catch {}   // missing or undecodable: no dots, no swatches
-	S.img.set(m.hash, { rgb, pal: rgb && rgb.length ? paletteOf(rgb, 5) : [] })
-	cloud = null
+	try { if (m.bytes) rgb = await sampleImage(new Blob([m.bytes]), 96) } catch {}   // ≤ 96 px a side: dots enough; missing or undecodable: none
+	S.img.set(m.hash, { rgb, mean: rgb && rgb.length ? paletteOf(rgb, 1)[0] : null })   // the pixel nearest the mean (OkLab), standing in as its color
 	refreshVirtual()
 	update()
 }
 
-// the tooltip stays secondary: any press dismisses it (it also fades on its own, in CSS), and focus brings
-// it only from the keyboard — a clicked button takes focus, and tip.js would show its tip again
-addEventListener('pointerdown', () => document.getElementById('tip')?.classList.remove('on'), true)
+// the tooltip stays secondary: any press dismisses it, and focus brings it only from the keyboard — a clicked button
+// takes focus, and tip.js would show its tip again. A quiet explainer (the status line, the profile) shows it on a click too
+addEventListener('pointerdown', hideTip, true)
+addEventListener('click', e => { const el = e.target.closest?.('[data-tip]'); if (el && !el.closest('button, input, select, label, a, [tabindex]')) showTip(el) })
 addEventListener('focusin', e => { if (!e.target.matches?.(':focus-visible')) e.stopPropagation() }, true)
 
 /* ---------- copy ---------- */
@@ -756,25 +814,60 @@ function useSpace(id) {
 	S.space = id
 	showSpace()
 	S.error = ''
-	warmGL(id)
 	renderPicker()
 	sync(true)
 	update()
 }
-// the space menu: opens with the current space's name in the search, selected (as Figma's font menu does), the
-// list on the current space; typing filters, ↑↓ move, Enter takes, Escape or a press outside closes
-const spmenu = $('spmenu')
-let typed = false
+// A space's plane is a shader compiled on its first draw: 0.5–1 s for a space the GPU has never built (measured on an
+// Apple M4 Max under ANGLE Metal; the OS caches it after), tens of ms once built. Once the current one is up, the
+// featured spaces compile and draw a pixel in the background, so the usual picks open at once. Not on a software GL
+function warmFeatured() {
+	if (softGL()) return
+	if (planeGLStatus(S.space) === 'pending') return setTimeout(warmFeatured, 100)
+	for (const f of FAMILIES) for (const id of f.feat) warmPlaneGL(id)
+}
+// the space menu: a search, then folding sections – the featured spaces, then each family (the current space's open).
+// Typing opens every section to its matches; ↑↓ move through what shows, Enter takes, Escape or a press outside closes
+const spmenu = $('spmenu'), folds = new Set()
+function renderSpaceMenu() {
+	const q = $('spq').value.trim().toLowerCase(), list = $('splist'), rows = []
+	const hit = id => !q || id.includes(q) || titleOf(id).toLowerCase().includes(q)
+	const sections = [{ name: 'Featured', ids: FAMILIES.flatMap(f => f.ids.filter(id => f.feat.has(id))), feat: new Set() }, ...FAMILIES]
+	for (const f of sections) {
+		const ids = f.ids.filter(hit)
+		if (!ids.length) continue
+		const open = !!q || !folds.has(f.name), h = el('button', 'fam')
+		h.type = 'button'
+		h.dataset.fam = f.name
+		h.setAttribute('aria-expanded', String(open))
+		h.innerHTML = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
+		h.append(el('span', null, f.name), el('span', 'n', String(ids.length)))
+		rows.push(h)
+		if (open) for (const id of ids) {
+			const b = el('button', 'spo' + (f.feat.has(id) ? ' feat' : ''))
+			b.type = 'button'
+			b.dataset.id = id
+			b.setAttribute('role', 'option')
+			b.setAttribute('aria-selected', String(id === S.space))
+			b.append(el('span', 'nm', titleOf(id)), el('span', 'id', id))
+			rows.push(b)
+		}
+	}
+	list.replaceChildren(...(rows.length ? rows : [el('p', 'spnone', 'No space by that name')]))
+	const on = (!q && list.querySelector('[aria-selected="true"]')) || list.querySelector('.spo')
+	if (on) on.classList.add('on')
+	fit()
+}
 function openSpaces() {
+	// every family folded but the current space's (Featured stays open: the usual picks, one glance)
+	folds.clear()
+	for (const f of FAMILIES) if (!f.ids.includes(S.space)) folds.add(f.name)
 	spmenu.hidden = false
 	$('spbtn').setAttribute('aria-expanded', 'true')
-	typed = false
-	$('spq').value = titleOf(S.space)
+	$('spq').value = ''
 	renderSpaceMenu()
-	$('splist').querySelector('.on')?.scrollIntoView({ block: 'center' })
+	$('splist').querySelector('.spo.on')?.scrollIntoView({ block: 'center' })
 	$('spq').focus()
-	$('spq').select()
-	fit()
 }
 function closeSpaces() {
 	if (spmenu.hidden) return
@@ -782,16 +875,6 @@ function closeSpaces() {
 	$('spbtn').setAttribute('aria-expanded', 'false')
 	fit()
 }
-$('spbtn').addEventListener('click', () => spmenu.hidden ? openSpaces() : closeSpaces())
-// a press outside only closes the menu, as a dropdown does: it doesn't also pick on the plane beneath
-// (the click that follows the press is swallowed too: preventing a press doesn't cancel its click)
-let swallow = false
-addEventListener('pointerdown', e => { if (spmenu.hidden || e.target.closest('.top')) return; e.preventDefault(); e.stopPropagation(); swallow = true; closeSpaces() }, true)
-addEventListener('click', e => { if (!swallow) return; swallow = false; e.preventDefault(); e.stopPropagation() }, true)
-addEventListener('pointerup', () => setTimeout(() => { swallow = false }), true)   // a press that never clicks (a drag) leaves nothing armed
-$('spq').addEventListener('input', () => { typed = true; renderSpaceMenu() })
-$('spcat').addEventListener('change', () => { renderSpaceMenu(); $('spq').focus() })
-$('spclr').addEventListener('click', () => { $('spq').value = ''; typed = true; renderSpaceMenu(); $('spq').focus() })
 const takeSpace = id => {
 	closeSpaces()
 	$('spbtn').focus()
@@ -799,36 +882,56 @@ const takeSpace = id => {
 	post({ type: 'store', key: 'space', value: id })
 	useSpace(id)
 }
-$('splist').addEventListener('click', e => { const b = e.target.closest('.sp'); if (b) takeSpace(b.dataset.id) })
+$('spbtn').addEventListener('click', () => spmenu.hidden ? openSpaces() : closeSpaces())
+$('spq').addEventListener('input', renderSpaceMenu)
+// a space pointed at in the menu starts compiling ahead of the rest: by the click it is often ready
+$('splist').addEventListener('pointerover', e => { const b = e.target.closest('.spo'); if (b) warmPlaneGL(b.dataset.id, true) })
+$('splist').addEventListener('click', e => {
+	const f = e.target.closest('.fam')
+	if (f) { folds.has(f.dataset.fam) ? folds.delete(f.dataset.fam) : folds.add(f.dataset.fam); renderSpaceMenu(); return }
+	const b = e.target.closest('.spo')
+	if (b) takeSpace(b.dataset.id)
+})
 spmenu.addEventListener('keydown', e => {
 	if (e.key === 'Escape') { e.preventDefault(); closeSpaces(); return $('spbtn').focus() }
-	const items = [...$('splist').querySelectorAll('.sp')], k = items.findIndex(b => b.classList.contains('on'))
-	if (e.key === 'Enter' && items[k]) { e.preventDefault(); return takeSpace(items[k].dataset.id) }
+	const items = [...$('splist').querySelectorAll('.spo')], k = items.findIndex(b => b.classList.contains('on'))
+	if (e.key === 'Enter' && items[k] && e.target === $('spq')) { e.preventDefault(); return takeSpace(items[k].dataset.id) }
 	const d = { ArrowDown: 1, ArrowUp: -1 }[e.key]
 	if (!d || !items.length) return
 	e.preventDefault()
 	const next = items[Math.max(0, Math.min(items.length - 1, k + d))]
 	items.forEach(b => b.classList.toggle('on', b === next))
+	warmPlaneGL(next.dataset.id, true)
 	next.scrollIntoView({ block: 'nearest' })
 })
-// the quantize menu: below its button, right-aligned with the panel
-$('qmenu').addEventListener('beforetoggle', e => { if (e.newState === 'open') $('qmenu').style.top = `${$('quant').getBoundingClientRect().bottom + 4}px` })
-$('qmenu').addEventListener('click', e => {
-	const b = e.target.closest('.opt')
-	if (!b) return
-	const q = QKEYS.find(k => String(k) === b.dataset.q)
-	S.quant = q
-	post({ type: 'store', key: 'quant', value: q })
-	$('qmenu').hidePopover()
-	renderQuant()
+// a press outside only closes the menu; the click that follows it is swallowed too (preventing a press doesn't cancel it)
+let swallow = false
+addEventListener('pointerdown', e => { if (spmenu.hidden || e.target.closest('#spmenu, #spbtn')) return; if (e.target.closest('.lens')) return closeSpaces(); e.preventDefault(); e.stopPropagation(); swallow = true; closeSpaces() }, true)   // a lens opens in its place: one menu at a time
+addEventListener('click', e => { if (!swallow) return; swallow = false; e.preventDefault(); e.stopPropagation() }, true)
+addEventListener('pointerup', () => setTimeout(() => { swallow = false }), true)
+$('quant').addEventListener('change', e => {
+	S.quant = QKEYS.find(k => String(k) === e.target.value)
+	post({ type: 'store', key: 'quant', value: S.quant })
+	renderLenses()
 	update()
 })
-$('pairs').addEventListener('click', e => {
+$('limit').addEventListener('change', e => {
+	S.limit = e.target.value
+	post({ type: 'store', key: 'limit', value: S.limit })
+	renderLenses()
+	update()
+})
+$('axes').addEventListener('click', e => {
 	const b = e.target.closest('button')
 	if (!b) return
-	S.pairs[S.space] = +b.dataset.k
-	post({ type: 'store', key: 'pairs', value: S.pairs })
-	for (const x of $('pairs').children) x.setAttribute('aria-pressed', String(x === b))
+	if (b.classList.contains('pmode')) {
+		const q = pair()
+		S.disc[`${S.space}:${q.a},${q.b}`] = !q.polar
+		post({ type: 'store', key: 'disc', value: S.disc })
+	} else {
+		S.pairs[S.space] = swapAxis(b.classList.contains('labx') ? 'a' : 'b')[1]
+		post({ type: 'store', key: 'pairs', value: S.pairs })
+	}
 	invalidate()
 	update()
 })
@@ -849,16 +952,23 @@ window.addEventListener('message', e => {
 	if (m.type === 'init') {
 		S.editable = !!m.editable
 		if (QKEYS.includes(m.quant)) S.quant = m.quant
+		if (LIMITS.some(l => l[0] === m.limit)) S.limit = m.limit
 		if (m.pairs && typeof m.pairs === 'object') S.pairs = m.pairs
-		renderQuant()
+		if (m.disc && typeof m.disc === 'object') S.disc = m.disc
+		if (m.width > 0) post({ type: 'resize', width: m.width })   // the width this person dragged it to
+		renderLenses()
 		const id = space[m.space] && meta[m.space] ? m.space : S.space
 		useSpace(id)
+		warmFeatured()
 	}
 	else if (m.type === 'selection') {
 		const profile = m.profile !== S.profile
 		S.profile = m.profile
 		S.paints = m.paints || []
 		S.images = m.images || []
+		// a re-read that trails a newer write (live writes outrun Figma's answers, and the last one may still be on its
+		// way after release) shows the paint as written, not as it was a moment ago
+		if ((m.ack || 0) < sent && S.mine) { const p = S.paints.find(p => keyOf(p) === S.mine.key); if (p) Object.assign(p, { r: S.mine.r, g: S.mine.g, b: S.mine.b, opacity: S.mine.opacity }) }
 		for (const { hash } of S.images) if (!S.img.has(hash) && !pending.has(hash)) { pending.add(hash); post({ type: 'image', hash }) }
 		S.more = m.more || 0
 		S.mixed = m.mixed || 0
@@ -872,12 +982,41 @@ window.addEventListener('message', e => {
 		if (!S.paints.length) refreshVirtual()
 		renderPaints()
 		sync(force)
-		if (profile) renderPicker()   // the fields' canvases take the new color space; nothing else needs a repaint: their keys say what changed
+		if (profile) { renderPicker(); renderLenses() }   // the fields' canvases take the new color space; nothing else needs a repaint: their keys say what changed
 		update()
 	}
 	else if (m.type === 'image') receiveImage(m)
-	else if (m.type === 'doc') { S.doc = Array.isArray(m.colors) ? m.colors : []; placeMarks() }
+	else if (m.type === 'doc') { S.doc = Array.isArray(m.colors) ? m.colors : []; update() }
 	else if (m.type === 'error') { S.error = m.text; update() }
+})
+
+// the width: the grip on the panel's right edge, dragged; the height follows the content (the plane is square)
+const grip = $('grip')
+grip.addEventListener('pointerdown', e => {
+	if (e.button) return
+	e.preventDefault()
+	const x0 = e.screenX, w0 = innerWidth
+	grip.setPointerCapture(e.pointerId)
+	grip.classList.add('live')
+	const widthAt = ev => Math.min(560, Math.max(240, Math.round(w0 + ev.screenX - x0)))   // the main thread's own bounds
+	const move = ev => post({ type: 'resize', width: widthAt(ev) })
+	const up = ev => {
+		grip.releasePointerCapture(ev.pointerId)
+		grip.classList.remove('live')
+		grip.removeEventListener('pointermove', move)
+		post({ type: 'store', key: 'width', value: widthAt(ev) })
+	}
+	grip.addEventListener('pointermove', move)
+	grip.addEventListener('pointerup', up, { once: true })
+	grip.addEventListener('pointercancel', up, { once: true })
+})
+grip.addEventListener('keydown', e => {
+	const d = { ArrowRight: 16, ArrowLeft: -16 }[e.key]
+	if (!d) return
+	e.preventDefault()
+	const w = Math.min(560, Math.max(240, innerWidth + d))
+	post({ type: 'resize', width: w })
+	post({ type: 'store', key: 'width', value: w })
 })
 
 // the window follows the content: Figma sizes the iframe, so the UI reports its height.
@@ -892,9 +1031,9 @@ function fit() {
 	post({ type: 'resize', height: h })
 }
 new ResizeObserver(fit).observe(document.documentElement)
+addEventListener('resize', () => grip.setAttribute('aria-valuenow', String(innerWidth)))
 
-renderSpaces()
-renderQuant()
+renderLenses()
 showSpace()
 renderPicker()
 update()

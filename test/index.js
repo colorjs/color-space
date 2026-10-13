@@ -321,6 +321,17 @@ test('integrity — data.json spaces carry channels, range and @see refs', () =>
 	const twoWikis = Object.entries(meta).filter(([, m]) =>
 		[...new Set([...(m.refs || []), ...(m.wiki ? [m.wiki] : [])])].filter(u => /wikipedia\.org/.test(u)).length > 1)
 	is(twoWikis.map(([n]) => n), [], 'no space cites more than one Wikipedia article')
+	// @successor names the space that superseded it – registered, and not older than what it replaced (the history
+	// ends a band where its successor begins)
+	const succ = Object.entries(meta).filter(([, m]) => m.successor)
+	is(succ.filter(([n, m]) => !meta[m.successor] || m.successor === n || meta[m.successor].year < m.year).map(([n]) => n), [], `every @successor is a registered, later space (${succ.length})`)
+	is(meta['apple-rgb'].successor, 'rgb', '@successor extracted')
+	is(succ.filter(([, m]) => !m.successorNote).map(([n]) => n), [], 'every @successor says why')
+	// @retired <why>: out of use with no successor here – a space ends one way or the other, never both; the history and
+	// the catalog's "historical" read the same record
+	const ret = Object.entries(meta).filter(([, m]) => m.retired)
+	is(meta.panalog.retired, 'Recorded only by the Panavision Genesis', '@retired extracted with its reason')
+	is(ret.filter(([, m]) => m.successor || !m.retired.trim()).map(([n]) => n), [], 'a retired space has a reason and no successor')
 })
 
 // `range` lives twice by design: the object literal serves tree-shaken single-file
@@ -1855,6 +1866,16 @@ test('README space count matches the registry', () => {
 
 
 // --- web data modules: LUT editors, Python tab, vision lens, analytics (pure parts) ---
+
+test('historical — the catalog reads the library: replaced (@successor) or retired (@retired)', async () => {
+	const { HISTORICAL, ending, run } = await import('../web/js/render.js')
+	is([...HISTORICAL].sort(), Object.keys(meta).filter(n => meta[n].successor || meta[n].retired).sort(), 'historical = replaced ∪ retired')
+	is(HISTORICAL.has('ryb'), false, 'RYB, still taught (its own @use), is not historical')
+	is([run('slog2'), ending('slog2').by], ['2012–2014', 'slog3'], 'a replaced space runs to its successor’s year')
+	is([run('panalog'), ending('panalog').y, !!ending('panalog').why], ['2005', undefined, true], 'a retired one keeps its year alone, and says why')
+	is(ending('oklab'), null, 'a current space has no ending')
+	is([run('anlab', true), run('cmy', true), run('cie-rgb')], ['1942–76', '1868–1906', '1931'], 'a card shortens an end year within its century; one replaced the year it came reads that year alone')
+})
 
 test('editors — a plain 3D cube for every editor; 65 only where allowed; shaper only for Resolve', async () => {
 	const { default: EDITORS, cubeOpts, ffmpeg, SOFT } = await import('../web/js/editors.js')

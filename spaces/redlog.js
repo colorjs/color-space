@@ -9,6 +9,7 @@
  * @year 2007
  * @by RED Digital Cinema
  * @use Original log curve of the RED ONE digital cinema camera; legacy, superseded by REDLogFilm/Log3G10.
+ * @successor redlogfilm REDLogFilm matched Cineon, so RED footage fit film pipelines
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

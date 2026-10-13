@@ -11,6 +11,7 @@
  * @year 2005
  * @by Panavision / Sony
  * @use Log curve for the Panavision Genesis digital cinema camera; legacy/historical.
+ * @retired Recorded only by the Panavision Genesis
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

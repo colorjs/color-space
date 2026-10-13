@@ -13,6 +13,8 @@
  * - The spacing and type tokens that src/ui.html uses (var(--…)) come from
  *   web/tokens.css. They are copied, never retyped, and the build fails if one is missing.
  *
+ * - The atlas's icons become a font (scripts/icon-font.js), written to web/fonts/ and inlined
+ *   here as a data URL, so the lens selects' options can carry them.
  * - src/code.js and the library become plugins/figma/code.js, the main thread.
  *
  *   node plugins/figma/build.js      (npm run build:figma)
@@ -20,10 +22,18 @@
 import { build } from 'esbuild'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { buildIconFont } from '../../scripts/icon-font.js'
 
 const here = p => fileURLToPath(new URL(p, import.meta.url))
 const root = p => fileURLToPath(new URL('../../' + p, import.meta.url))
 const fail = msg => { console.error(`build:figma: ${msg}`); process.exit(1) }
+
+// 0. the atlas's icons as a font (scripts/icon-font.js): the whole font written to web/fonts/ for any page or tool;
+// the plugin inlines the subset it shows (the lenses' icons), on the same codepoints
+const full = buildIconFont()
+writeFileSync(root('web/fonts/color-space-icons.ttf'), full.ttf)
+writeFileSync(root('web/fonts/color-space-icons.json'), JSON.stringify(full.map, null, '\t') + '\n')
+const iconFont = buildIconFont('color-space icons', key => /^(QI|LI)\./.test(key))
 
 // 1. registry metadata, checked against the runtime ranges
 if (!existsSync(root('data.json'))) fail('data.json is missing. Run `npm run data` first.')
@@ -86,6 +96,7 @@ const js = out.outputFiles[0].text.replace(/<\/(script)/gi, '<\\/$1')
 template = template.replace('/*TOKENS*/', () => tokens)
 if (/<script[^>]+src=|<link[^>]+href=|@import|url\(/i.test(template)) fail('src/ui.html must be self-contained (no external src/href/url)')
 if (/\bimport\(|\bfetch\(/.test(js)) fail('the UI bundle must not load anything at runtime (manifest networkAccess is none)')
+template = template.replace('/*ICONFONT*/', () => `@font-face{ font-family:'color-space icons'; src:url(data:font/ttf;base64,${Buffer.from(iconFont.ttf).toString('base64')}) format('truetype') }`)
 template = template.replace('/*BUNDLE*/', () => js.trim())
 writeFileSync(here('ui.html'), template)
 console.log(`plugins/figma/ui.html  ${(template.length / 1024).toFixed(1)} KB  (${Object.keys(meta).length} spaces, ${need.size} tokens)`)

@@ -8,19 +8,21 @@
  * lives (the paint, its variable or its style) when the UI asks, and only in Figma
  * Design: Dev Mode is read-only. Image paints are sent as bytes for the UI's statistics.
  *
- * In Dev Mode's Code panel (codegen) it prints the selection's colors as CSS in the
- * format chosen in the panel's settings, with no UI.
+ * In Dev Mode's Code panel (codegen) it prints the layer's colors as CSS in the format
+ * chosen in the panel's settings, and a group's inner colors as custom properties, with no UI.
  */
 import space from '../../../index.js'
-import { css, hex } from '../../../css.js'
+import { hex } from '../../../css.js'
+import { cssShort } from './notation.js'
 import { gamutMap, DEST } from './gamut.js'
 
 const KINDS = ['fills', 'strokes']
 const STYLE = { fills: 'fillStyleId', strokes: 'strokeStyleId' }   // the paint style each list can link to
 const MAX = 100   // color slots sent per selection; a huge selection shouldn't flood the UI
 const IMAGES = 4   // image paints sampled per selection
-const PREFS = ['space', 'quant', 'pairs']   // what the UI may keep in clientStorage
-const WIDTH = 264   // near Figma's own picker (240), with room for the value cells
+const PREFS = ['space', 'quant', 'limit', 'pairs', 'disc', 'width']   // what the UI may keep in clientStorage
+const WIDTH = 288, MIN = 240, MAX_W = 560   // a little wider than Figma's own picker (240); the panel's edge drags it
+let width = WIDTH, height = 560
 const editable = figma.editorType === 'figma'
 
 // A color slot: a SOLID paint, or one stop of a gradient (stop ≥ 0)
@@ -41,21 +43,24 @@ const where = (kind, slot) => `${kind === 'fills' ? 'fill' : 'stroke'} ${slot.in
  * The plugin edits the color where it lives, so an edit to a token changes every layer
  * that uses it. Library (remote) variables and styles can't be edited from this file.
  */
-async function sourceOf(node, kind, slot) {
+// memo: one read's lookups, shared – a group of 100 paints bound to three tokens asks Figma three times, not 100
+async function sourceOf(node, kind, slot, memo = new Map()) {
+	const get = (k, f) => memo.has(k) ? memo.get(k) : (memo.set(k, f()), memo.get(k))
+	const variable = id => get('v' + id, () => figma.variables.getVariableByIdAsync(id))
 	const sid = node[STYLE[kind]]
 	if (sid === figma.mixed) return { type: 'style', name: 'mixed styles', remote: true }
 	if (slot.ref) {
-		let v = await figma.variables.getVariableByIdAsync(slot.ref.id)
+		let v = await variable(slot.ref.id)
 		for (let hop = 0; v && hop < 8; hop++) {
 			const mode = (node.resolvedVariableModes || {})[v.variableCollectionId]   // the node's own or inherited mode
 			const value = v.valuesByMode[mode]
 			if (!value || value.type !== 'VARIABLE_ALIAS') return { type: 'variable', name: v.name, remote: v.remote || !value, variable: v, mode, color: value }
-			v = await figma.variables.getVariableByIdAsync(value.id)
+			v = await variable(value.id)
 		}
 		return { type: 'variable', name: 'unresolved variable', remote: true }
 	}
 	if (sid) {
-		const st = await figma.getStyleByIdAsync(sid)
+		const st = await get('s' + sid, () => figma.getStyleByIdAsync(sid))
 		return st ? { type: 'style', name: st.name, remote: st.remote, style: st } : { type: 'style', name: 'missing style', remote: true }
 	}
 	return null
@@ -77,40 +82,97 @@ function cssColor(c, a, format) {
 	}
 	const alpha = a < 1 ? +a.toFixed(3) : 1
 	if (format === 'hex') return [hex(v) + (alpha < 1 ? Math.round(alpha * 255).toString(16).padStart(2, '0') : ''), note]
-	const out = css(format, from === format ? v : space[from][format](...v))
+	const out = cssShort(format, from === format ? v : space[from][format](...v))
 	return [alpha < 1 ? out.replace(/\)$/, ` / ${alpha})`) : out, note]
 }
-const slug = name => name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const slug = name => name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'color'
+const alphaOf = (slot, c) => slot.stop >= 0 ? (c.a === undefined ? 1 : c.a) : (slot.paint.opacity === undefined ? 1 : slot.paint.opacity)
 
-async function generate(node) {
-	const settings = (figma.codegen.preferences && figma.codegen.preferences.customSettings) || {}
-	const format = settings.format || 'oklch'
-	const lines = []
+// every visible color slot of a node, with where it lives and its CSS in the chosen format
+async function colorsOf(node, format, memo) {
+	const out = []
 	for (const kind of KINDS) {
 		if (!(kind in node) || node[kind] === figma.mixed) continue
-		const prop = kind === 'strokes' ? 'border-color' : node.type === 'TEXT' ? 'color' : 'background'
 		for (const slot of slots(node[kind])) {
 			if (slot.paint.visible === false) continue
-			const src = await sourceOf(node, kind, slot)
+			const src = await sourceOf(node, kind, slot, memo)
 			const c = src && src.color ? src.color : slot.color
-			let [value, note] = cssColor(c, slot.stop >= 0 ? (c.a === undefined ? 1 : c.a) : (slot.paint.opacity === undefined ? 1 : slot.paint.opacity), format)
-			if (src && src.type === 'variable' && src.color) value = `var(--${slug(src.name)}, ${value})`
-			const notes = [src && `${src.type} ${src.name}`, note].filter(Boolean).join(', ')
-			lines.push((slot.stop >= 0 ? `/* ${where(kind, slot)} */ ${value}` : `${prop}: ${value};`) + (notes ? ` /* ${notes} */` : ''))
+			const [value, note] = cssColor(c, alphaOf(slot, c), format)
+			out.push({ kind, slot, src, value, note })
 		}
 	}
-	return [{ language: 'CSS', title: 'color-space', code: lines.join('\n') || '/* no solid or gradient colors */' }]
+	return out
+}
+
+/*
+ * The Code panel, for a developer building what's selected. First the layer's own colors as declarations (a variable
+ * as var(--token, its value)); then, for a group, frame or component, the colors of everything inside it once each,
+ * as custom properties ready for :root – named by their variable, else by the first layer that uses them, with the
+ * layers that use them in a comment. Its palette, in the format the panel's settings name.
+ */
+const INSIDE = 64
+async function generate(node) {
+	const settings = (figma.codegen.preferences && figma.codegen.preferences.customSettings) || {}
+	const format = settings.format || 'oklch', memo = new Map()
+	const prop = kind => kind === 'strokes' ? 'border-color' : node.type === 'TEXT' ? 'color' : 'background'
+	const own = (await colorsOf(node, format, memo)).map(({ kind, slot, src, value, note }) => {
+		if (src && src.type === 'variable' && src.color) value = `var(--${slug(src.name)}, ${value})`
+		const notes = [src && `${src.type} ${src.name}`, note].filter(Boolean).join(', ')
+		return (slot.stop >= 0 ? `/* ${where(kind, slot)} */ ${value}` : `${prop(kind)}: ${value};`) + (notes ? ` /* ${notes} */` : '')
+	})
+	const out = [{ language: 'CSS', title: 'Color Space', code: own.join('\n') || '/* no solid or gradient colors */' }]
+	if (!('children' in node)) return out
+	const found = new Map(), names = new Set()
+	for (const n of layers([node]).slice(1)) {
+		for (const { src, value, note } of await colorsOf(n, format, memo)) {
+			const token = src && src.type === 'variable' && src.color ? src.name : ''
+			const key = token + '|' + value
+			if (!found.has(key)) {
+				if (found.size >= INSIDE) continue
+				let name = slug(token || n.name), k = 2
+				while (names.has(name)) name = `${slug(token || n.name)}-${k++}`
+				names.add(name)
+				found.set(key, { name, value, notes: [token && `variable ${token}`, src && src.type === 'style' && `style ${src.name}`, note].filter(Boolean), users: [] })
+			}
+			const f = found.get(key)
+			if (f.users.indexOf(n.name) < 0) f.users.push(n.name)
+		}
+	}
+	if (!found.size) return out
+	const lines = [...found.values()].map(f => {
+		const users = f.users.length > 3 ? `${f.users.slice(0, 3).join(', ')} +${f.users.length - 3}` : f.users.join(', ')
+		return `--${f.name}: ${f.value}; /* ${f.notes.concat(users).join('; ')} */`
+	})
+	out.push({ language: 'CSS', title: 'Colors inside', code: lines.join('\n') })
+	return out
 }
 
 /* ---------- the panel ---------- */
 
-// reads overlap (a selection change during a write's re-read); only the newest one answers
-let reading = 0
+// The selection's layers and everything inside them, depth-first in layer order: a selected group or frame shows the
+// colors of what it holds. Hidden descendants are skipped (a hidden layer selected itself is read); a huge tree stops
+// at WALK layers – the color slots stop at MAX anyway.
+const WALK = 2000
+function layers(selection) {
+	const out = [], seen = new Set(), stack = selection.slice().reverse()
+	while (stack.length && out.length < WALK) {
+		const n = stack.pop()
+		if (seen.has(n.id)) continue   // a group selected with one of its own layers: that layer once
+		seen.add(n.id)
+		out.push(n)
+		if ('children' in n) for (let k = n.children.length - 1; k >= 0; k--) if (n.children[k].visible !== false) stack.push(n.children[k])
+	}
+	return out
+}
+
+// reads overlap (a selection change during a write's re-read); only the newest one answers. Each answer carries the
+// last write it has seen (ack: the UI's 'set' seq), so the UI can tell a read that trails its newer writes
+let reading = 0, acked = 0
 async function read() {
-	const seq = ++reading
+	const seq = ++reading, ack = acked, memo = new Map()
 	const paints = [], images = []
 	let more = 0, mixed = 0
-	for (const node of figma.currentPage.selection) {
+	for (const node of layers(figma.currentPage.selection)) {
 		for (const kind of KINDS) {
 			if (!(kind in node)) continue
 			const list = node[kind]
@@ -118,12 +180,12 @@ async function read() {
 			for (const paint of list) if (paint.type === 'IMAGE' && paint.imageHash && images.length < IMAGES && !images.some(i => i.hash === paint.imageHash)) images.push({ hash: paint.imageHash, name: node.name })
 			for (const slot of slots(list)) {
 				if (paints.length >= MAX) { more++; continue }
-				const src = await sourceOf(node, kind, slot)
+				const src = await sourceOf(node, kind, slot, memo)
 				const c = src && src.color ? src.color : slot.color   // a variable's own value, not a stale resolved copy
 				paints.push({
 					id: node.id, name: node.name, kind, index: slot.index, stop: slot.stop,
 					r: c.r, g: c.g, b: c.b,
-					opacity: slot.stop >= 0 ? (c.a === undefined ? 1 : c.a) : slot.paint.opacity === undefined ? 1 : slot.paint.opacity,
+					opacity: alphaOf(slot, c),
 					visible: slot.paint.visible !== false,
 					src: src && { type: src.type, name: src.name, remote: !!src.remote },
 				})
@@ -131,7 +193,7 @@ async function read() {
 		}
 	}
 	if (seq !== reading) return
-	figma.ui.postMessage({ type: 'selection', profile: figma.root.documentColorProfile, paints, images, more, mixed })
+	figma.ui.postMessage({ type: 'selection', profile: figma.root.documentColorProfile, paints, images, more, mixed, ack })
 }
 
 async function write(msg) {
@@ -150,20 +212,27 @@ async function write(msg) {
 	const src = await sourceOf(node, msg.kind, slot)
 	if (src && src.remote) return
 	const color = { r: c.r, g: c.g, b: c.b }
+	// the opacity: a solid paint's own, a gradient stop's alpha; absent, it stays
+	const a = typeof msg.opacity === 'number' && msg.opacity >= 0 && msg.opacity <= 1 ? msg.opacity : null
 	// Paints are readonly: copy the array, replace this paint with a copy that has the new
 	// color (or the new stop), and reassign. Figma's invert-image sample does the same.
 	const swap = paints => {
 		const next = paints.slice(), p = paints[msg.index]
-		if (stop < 0) next[msg.index] = Object.assign({}, p, { color })
+		if (stop < 0) next[msg.index] = Object.assign({}, p, { color }, a === null ? {} : { opacity: a })
 		else {
 			const stops = p.gradientStops.slice()
-			stops[stop] = Object.assign({}, stops[stop], { color: Object.assign({}, color, { a: stops[stop].color.a }) })   // the stop's alpha stays
+			stops[stop] = Object.assign({}, stops[stop], { color: Object.assign({}, color, { a: a === null ? stops[stop].color.a : a }) })
 			next[msg.index] = Object.assign({}, p, { gradientStops: stops })
 		}
 		return next
 	}
 	if (!src) node[msg.kind] = swap(list)
-	else if (src.type === 'variable') src.variable.setValueForMode(src.mode, Object.assign({ a: src.color.a === undefined ? 1 : src.color.a }, color))   // the token's alpha stays
+	else if (src.type === 'variable') {
+		// the token holds the color, and a stop's alpha; a solid paint's opacity is the layer's own, beside the token
+		const keep = src.color.a === undefined ? 1 : src.color.a
+		src.variable.setValueForMode(src.mode, Object.assign({ a: stop >= 0 && a !== null ? a : keep }, color))
+		if (stop < 0 && a !== null && a !== alphaOf(slot, c)) node[msg.kind] = swap(list)
+	}
 	else {
 		const sp = src.style.paints[msg.index]
 		if (!sp || sp.type !== slot.paint.type) return
@@ -173,30 +242,19 @@ async function write(msg) {
 	if (node.setRelaunchData) node.setRelaunchData({ open: 'Pick its colors in any color space' })
 }
 
-// The document's colors: its local color variables and paint styles (named, first), then the solid colors
-// on the current page, deduplicated by 8-bit value. The UI marks them on the plane.
-const DOC = 48, SCAN = 4000
+// The file's color variables: the defined colors, by name, that the UI marks on the plane beside the selection's own.
+// Local ones only (a library's tokens are named in their own file); each mode's value, aliases skipped.
+const DOC = 64
 async function docColors() {
-	const seen = new Map()
-	const add = (c, name) => {
-		if (!c || typeof c.r !== 'number') return
-		const k = [c.r, c.g, c.b].map(v => Math.round(v * 255)).join(), e = seen.get(k)
-		if (!e) seen.set(k, { r: c.r, g: c.g, b: c.b, name: name || '' })
-		else if (name && !e.name) e.name = name
-	}
+	const out = []
 	for (const v of await figma.variables.getLocalVariablesAsync('COLOR'))
-		for (const m in v.valuesByMode) { const val = v.valuesByMode[m]; if (val && val.type !== 'VARIABLE_ALIAS') add(val, v.name) }
-	for (const st of await figma.getLocalPaintStylesAsync()) for (const p of st.paints) if (p.type === 'SOLID') add(p.color, st.name)
-	figma.skipInvisibleInstanceChildren = true
-	let n = 0
-	for (const node of figma.currentPage.findAll(nd => 'fills' in nd || 'strokes' in nd)) {
-		if (++n > SCAN) break   // a huge page: the first few thousand layers are enough to place its colors
-		for (const kind of KINDS) if (Array.isArray(node[kind])) for (const p of node[kind]) if (p.type === 'SOLID' && p.visible !== false) add(p.color)
-	}
-	const all = [...seen.values()]
-	return all.filter(c => c.name).concat(all.filter(c => !c.name)).slice(0, DOC)
+		for (const m in v.valuesByMode) { const val = v.valuesByMode[m]; if (val && typeof val.r === 'number') out.push({ r: val.r, g: val.g, b: val.b, name: v.name }) }
+	return out.slice(0, DOC)
 }
 async function sendDoc() { figma.ui.postMessage({ type: 'doc', colors: await docColors() }) }
+// a variable's edit fires no nodechange: a commit refreshes them a moment later
+let docT = 0
+const docSoon = () => { clearTimeout(docT); docT = setTimeout(sendDoc, 300) }
 
 async function sendImage(hash) {
 	const img = figma.getImageByHash(hash)
@@ -212,8 +270,9 @@ function onNodeChange(event) {
 		&& ch.properties.some(p => KINDS.indexOf(p) >= 0 || p === STYLE.fills || p === STYLE.strokes))
 	if (!paintChanges.length) return
 	const ids = new Set(figma.currentPage.selection.map(n => n.id))
-	// ch.id rather than ch.node.id: a node removed since the event is a RemovedNode
-	if (paintChanges.some(ch => ids.has(ch.id))) read()
+	// a change in the selection or anywhere inside it; ch.id first: a node removed since the event is a RemovedNode
+	const inside = ch => { if (ids.has(ch.id)) return true; for (let n = !ch.node.removed && ch.node.parent; n; n = n.parent) if (ids.has(n.id)) return true; return false }
+	if (paintChanges.some(inside)) read()
 }
 function watchPage() {
 	if (page) page.off('nodechange', onNodeChange)
@@ -222,9 +281,9 @@ function watchPage() {
 }
 
 function panel() {
-	figma.showUI(__html__, { width: WIDTH, height: 560, themeColors: true })   // the UI then reports its own height
+	figma.showUI(__html__, { width, height, themeColors: true })   // the UI then reports its own height
 	figma.on('selectionchange', read)
-	figma.on('currentpagechange', () => { watchPage(); sendDoc() })   // a selectionchange always follows, and that re-reads
+	figma.on('currentpagechange', watchPage)   // a selectionchange always follows, and that re-reads
 	watchPage()
 	figma.ui.onmessage = async msg => {
 		if (!msg || typeof msg !== 'object') return
@@ -237,12 +296,16 @@ function panel() {
 				sendDoc()
 			}
 			else if (msg.type === 'store' && PREFS.indexOf(msg.key) >= 0) await figma.clientStorage.setAsync(msg.key, msg.value)
-			else if (msg.type === 'resize' && msg.height > 0) figma.ui.resize(WIDTH, Math.min(800, Math.max(120, Math.round(msg.height))))
+			else if (msg.type === 'resize') {   // the UI reports its height; the grip, a width
+				if (msg.width > 0) width = Math.min(MAX_W, Math.max(MIN, Math.round(msg.width)))
+				if (msg.height > 0) height = Math.min(800, Math.max(120, Math.round(msg.height)))
+				figma.ui.resize(width, height)
+			}
 			else if (msg.type === 'image' && typeof msg.hash === 'string') await sendImage(msg.hash)
 			else if (msg.type === 'set') {
-				await write(msg)
+				try { await write(msg) } finally { if (typeof msg.seq === 'number') acked = msg.seq }
 				// a gesture's live writes and its release are one step in Figma's undo history
-				if (msg.commit) figma.commitUndo()
+				if (msg.commit) { figma.commitUndo(); docSoon() }   // a variable's or a style's edit fires no nodechange
 				read()   // always answer, so the UI settles even when nothing changed
 			}
 		}

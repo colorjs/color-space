@@ -14,6 +14,7 @@
  * @year 2002
  * @by CIE
  * @use Color-appearance modeling for gamut mapping and cross-media reproduction; still embedded in Windows Color System, though superseded by CAM16.
+ * @successor cam16 CAM16 uses one matrix where it used two, and avoids its computational failures
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

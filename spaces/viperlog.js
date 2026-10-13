@@ -10,6 +10,7 @@
  * @year 2002
  * @by Thomson Grass Valley
  * @use Log curve for the Thomson Viper FilmStream, one of the earliest digital cinema cameras; legacy/historical.
+ * @retired The tapeless RED and ARRI ALEXA workflows came to dominate digital cinema
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

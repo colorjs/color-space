@@ -12,6 +12,7 @@
  * @year 2006
  * @by Luo, Cui & Li
  * @use General-purpose uniform space for delta-E computation and gamut mapping; superseded by CAM16-UCS but still in wide use – matplotlib's viridis was designed in it.
+ * @successor cam16-ucs Rebuilt on CAM16 when CAM16 replaced CIECAM02
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

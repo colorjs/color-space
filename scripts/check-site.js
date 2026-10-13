@@ -30,9 +30,8 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 // a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
 // with 'f', a facet value
 const lens = (pg, k, v) => pg.evaluate(([k, v]) => document.querySelector(k === 'f' ? `.dpop [data-t="${v}"]` : `.dpop [data-lens="${k}"][data-v="${v}"]`).click(), [k, v])
-// the catalog's layout switch, beside the grouping – it offers the next view: grid → rows → list → grid (the rail's
-// copy on a wide screen, the first heading's on a phone)
-const layout = (pg, v) => pg.locator(`.vt[data-view="${v}"]:visible`).first().click()
+// the catalog's layout switch, in the pinned row – it offers the next view: grid → rows → list → grid
+const layout = (pg, v) => pg.locator(`#c-layout[data-view="${v}"]`).click()
 // the row's own value field shows once the hero's field has passed under the row – bring the catalog up to type in it
 const toCatalog = (pg) => pg.evaluate(async () => { const y = document.getElementById('cat').getBoundingClientRect().top + scrollY - document.getElementById('strip').offsetHeight; if (scrollY < y) scrollTo(0, y)
 	await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))) })   // the scroll timeline moves the row's cells on the frames after the scroll
@@ -178,15 +177,17 @@ try {
 	assert.equal(await page.locator('.ent[data-s="oklab"]').isVisible(), true, 'coverage ≥90% keeps oklab')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'coverage ≥90% drops sRGB')
 	assert.equal(await page.locator('.cells .count').innerText(), `${await page.locator('.ent:visible').count()} spaces`, 'the row\'s count is what the filters leave')
+	assert.equal(await page.evaluate(()=>[document.querySelector('#c-more b').textContent,document.getElementById('c-more').title].join('|')), '≥90%|Filters: ≥90%', 'the pick inks Filters and names itself there')
 	assert.equal(await page.locator('#c-coverage').isVisible(), true, 'the picked interval rides the row as its own cell')
 	// one menu holds every facet, once – the row shows only what is picked
 	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage'].filter(k=>{ const body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
 		return body.length!==1||!body[0].closest('#m-more') })),[],'each facet lives once, in the Filters menu')
 	await toCatalog(page)
-	assert.equal(await page.locator('.cells .cell:visible').count(), 6, 'the row: the picked facet, Filters, the view\'s one menu, search, the theme and the source')
+	assert.equal(await page.locator('.cells .cell:visible').count(), 6, 'the row: Filters, the picked facet, the view\'s one menu, the layout, search and the theme')
 	await page.locator('#fcov').fill('0')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'the full interval again restores the catalog')
-	assert.equal(await page.evaluate(()=>[document.getElementById('c-coverage').hidden,document.getElementById('m-coverage')?.matches(':popover-open')||false].join()), 'true,false', 'let go, the facet leaves the row, its menu with it')
+	assert.equal(await page.evaluate(()=>[document.querySelector('#c-more b').textContent,document.querySelector('#c-more b.on')].join('|')), '|', 'let go, Filters is plain again')
+	assert.equal(await page.evaluate(()=>[document.getElementById('c-coverage').hidden,document.getElementById('m-coverage')?.matches(':popover-open')||false].join()), 'true,false', 'and the facet leaves the row, its menu with it')
 	// the interval's low end: ≤50% finds the narrow-coverage spaces and drops the wide ones
 	await page.locator('#fcov1').fill('50')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'coverage ≤50% keeps sRGB (~36%)')
@@ -221,8 +222,9 @@ try {
 	await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(300)
 	// a card's kind (.lc lead, .tc tile, .lr row) styles only catalog entries – the rail's count chip is .tc too
 	assert.deepEqual(await page.locator('.ti .tc').first().evaluate(el => { const c = getComputedStyle(el); return [c.contentVisibility, c.flexDirection] }), ['visible', 'row'], 'the rail\'s count is not styled as a tile')
-	{ const tip = await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip')
-		assert.equal(/CSS/.test(tip) && /Ottosson/.test(tip) && !/2020/.test(tip), true, 'card names carry the maker whole and what the space was made for – not the year the card shows') }
+	{ const nm = page.locator('.ent[data-s="oklch"] .nm')
+		assert.equal(await nm.getAttribute('data-tip-head'), 'Björn Ottosson, 2020', 'card names carry the maker whole and the year as the tip\'s head')
+		assert.match(await nm.getAttribute('data-tip'), /CSS/, 'and what the space was made for') }
 	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /^polar\|.*perceptual\|perceptual/, 'and its tag chips, each with its icon key')
 	assert.equal(await page.locator('.fqa').count(), 10, 'the questions are all present')
 	const fq = page.locator('.fqa').first()
@@ -259,7 +261,8 @@ try {
 	await lens(page,'f','scene')
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
-	assert.match(await page.locator('#c-signal b').innerText(), /^Scene/, 'the picked signal rides the row as its cell, naming its pick')
+	assert.match(await page.locator('#c-more').getAttribute('title'), /^Filters: .*Scene/, 'Filters names the picked signal')
+	assert.match(await page.locator('#c-signal').getAttribute('title'), /Scene/, 'and the picked signal rides the row as its cell')
 	await lens(page,'f','scene')   // unpicked where it was picked – no Any
 	await page.locator('.gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
@@ -269,7 +272,7 @@ try {
 	assert.equal(await page.locator('#m-view [data-lens="w"]').count(), 0, 'the layout is not a lens – the View menu holds Quantize, Limit and Vision')
 	await layout(page,'rows')
 	assert.equal(await page.locator('.ent.lr').count(), 168, 'Rows shows every space')
-	assert.equal(await page.locator('.vt:visible').first().getAttribute('data-view'), 'list', 'the switch shows the view it turns to next')
+	assert.equal(await page.locator('#c-layout').getAttribute('data-view'), 'list', 'the switch shows the view it turns to next')
 	await layout(page,'list')
 	assert.equal(await page.locator('.ent.tr').count(), 168, 'the List shows every space')
 	await page.locator('[data-sort="year"]').first().click()
@@ -515,6 +518,17 @@ try {
 	await page.goto(`${server.origin}/oklch?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('link[rel="canonical"]').getAttribute('href'), /\/oklch$/, 'direct dossier has its canonical URL')
+	// the figure by the sliders: one at a time, switched, remembered. A hidden plate has no width – the solid must not
+	// size itself by one (it once shrank to a dot), and a plate shown is painted at its own size, the locus's marks on it
+	assert.deepEqual(await page.locator('#figseg button').evaluateAll(bs=>bs.map(b=>b.dataset.v)), ['3d','xy','tc'], 'oklch offers the solid, the xy plate and the transfer curve')
+	await page.evaluate(()=>{ try{ localStorage.removeItem('csFig') }catch{} })
+	await page.locator('#figseg button[data-v="3d"]').click()
+	await page.waitForFunction(()=>document.querySelector('#pl3d .mesh3')?._scale3>0)
+	assert.ok(await page.evaluate(()=>document.querySelector('#pl3d .mesh3')._scale3>0.3), 'the solid keeps its own size while the plates hide')
+	await page.locator('#figseg button[data-v="xy"]').click()
+	assert.deepEqual(await page.evaluate(()=>{ const g=document.querySelector('#gam2d'); return [document.querySelector('#dfig').dataset.v, g.clientWidth>200, g.querySelector('canvas').width>=g.clientWidth, g.querySelectorAll('.gxy .lg').length, [...g.querySelectorAll('.gxy text')].some(t=>t.textContent==='520'), getComputedStyle(document.querySelector('#pl3d')).display==='none'||!document.querySelector('#pl3d').offsetParent, localStorage.csFig] }),
+		['xy',true,true,3,true,true,'xy'], 'xy shown alone, painted at its size, ticked and three reference gamuts on it; the choice remembered')
+	await page.locator('#figseg button[data-v="3d"]').click()
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
 
@@ -661,36 +675,34 @@ try {
 	const wire = await wireContext.newPage()
 	wire.on('pageerror', error => errors.push(`wire: ${error.message}`))
 	await wire.goto(`${server.origin}/rec709?cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	await wire.waitForSelector('#modal:not([hidden]) #dex #dled')
+	await wire.waitForSelector('#modal:not([hidden]) #dex #dlsz')
 	await wire.locator('#dex').scrollIntoViewIfNeeded()
-	await wire.locator('#dlto').selectOption('rgb')   // a per-channel pair: the generic path's 1D curve, an editor's 3D lattice
-	const lutOf = async (editor, size) => {
-		if (editor != null) await wire.locator('#dled').selectOption({ value: editor })
+	assert.equal(await wire.locator('#dex select').count(), 2, 'the LUT asks two things – the target and the size; no app picker')
+	await wire.locator('#dlto').selectOption('rgb')   // a per-channel pair: still a 3D cube by default, the 1D curve on request
+	const lutOf = async (size) => {
 		if (size != null) await wire.locator('#dlsz').selectOption({ value: size })
 		const [dl] = await Promise.all([wire.waitForEvent('download'), wire.locator('#dldl').click()])
 		return { name: dl.suggestedFilename(), text: readFileSync(await dl.path(), 'utf8'),
 			sizes: await wire.locator('#dlsz option').evaluateAll(os => os.map(o => o.value)),
-			how: await wire.locator('#dlhow').evaluate(el => el.hidden ? '' : el.innerText) } }
-	const generic = await lutOf('', null)
-	assert.equal(generic.name, 'rec709-to-rgb.cube', 'generic: a per-channel pair saves the library’s own 1D cube')
-	assert.match(generic.text, /^LUT_1D_SIZE 4096$/m, 'generic: the 4096-point 1D curve')
-	assert.equal(generic.how, '', 'generic: no app steps')
-	const ff = await lutOf('ffmpeg', null)
-	assert.equal(ff.name, 'rec709-to-rgb-33.cube', 'an editor turns the same pair into a 33³ file')
-	assert.equal(/^LUT_3D_SIZE 33$/m.test(ff.text) && !/LUT_1D_SIZE/.test(ff.text), true, 'an editor always gets a plain 3D cube')
-	assert.deepEqual(ff.sizes, ['33', '65'], 'ffmpeg offers 33 and 65, no shaper')
-	assert.match(ff.how, /lut3d=file=rec709-to-rgb-33\.cube:interp=tetrahedral/, 'the ffmpeg step names the very file it saved')
-	assert.deepEqual((await lutOf('lumafusion', null)).sizes, ['33'], 'LumaFusion (up to 64 points) gets 33 only')
-	const r65 = await lutOf('davinci-resolve', '65')
-	assert.equal(r65.name === 'rec709-to-rgb-65.cube' && /^LUT_3D_SIZE 65$/m.test(r65.text), true, 'Resolve takes the 65³ high-precision cube')
-	assert.deepEqual(r65.sizes, ['33', '65', '33s', '65s'], 'Resolve alone among the editors adds the shaper cubes')
+			note: await wire.locator('#dlnote').evaluate(el => el.hidden ? '' : el.textContent) } }
+	const plain = await lutOf(null)
+	assert.equal(plain.name, 'rec709-to-rgb-33.cube', 'the default: a 33³ cube, even for a per-channel pair')
+	assert.equal(/^LUT_3D_SIZE 33$/m.test(plain.text) && !/LUT_1D_SIZE/.test(plain.text), true, 'the default is a plain 3D cube – the file every editor reads')
+	assert.equal(plain.note, '', 'every editor reads it – nothing to warn')
+	assert.deepEqual(plain.sizes, ['33', '65', '17', '33s', '65s', '1d'], 'sizes, the shaper cubes, and the 1D curve where the pair is per-channel')
 	assert.equal(await wire.locator('#dlsz optgroup').getAttribute('label'), 'DaVinci Resolve / OCIO only', 'the shaper option is labeled for its only readers')
-	assert.match(r65.how, /Project Settings/, 'Resolve shows its own steps')
-	const shaped = await lutOf(null, '33s')
+	const big = await lutOf('65')
+	assert.equal(big.name === 'rec709-to-rgb-65.cube' && /^LUT_3D_SIZE 65$/m.test(big.text), true, '65³ high precision')
+	assert.equal(big.note, 'Not read by CapCut (desktop), LumaFusion, and VN Video Editor.', '65³ names the editors that take 33³ only (js/editors.js)')
+	const shaped = await lutOf('33s')
 	assert.equal(shaped.name, 'rec709-to-rgb-33-shaper.cube', 'the shaper cube says so in its name')
 	assert.equal(/^LUT_1D_SIZE 1024$/m.test(shaped.text) && /^LUT_3D_SIZE 33$/m.test(shaped.text), true, 'shaper cube: 1D shaper + 3D lattice in one file')
-	await wire.locator('#dled').selectOption('capcut-mobile')
-	assert.equal(await wire.locator('#dldl').isDisabled(), true, 'CapCut mobile takes no .cube – no download, the steps send it to desktop')
+	assert.equal(shaped.note, 'For DaVinci Resolve only.', 'the shaper cube: its one reader')
+	const curve = await lutOf('1d')
+	assert.equal(curve.name === 'rec709-to-rgb.cube' && /^LUT_1D_SIZE 4096$/m.test(curve.text), true, 'the 1D curve on request: 4096 points')
+	assert.match(curve.note, /^No editor here reads it/, 'the 1D curve: no editor slot takes it')
+	await wire.locator('#dlto').selectOption('p3')   // not per-channel: no 1D option, the pick falls back to 33³
+	assert.deepEqual([await wire.locator('#dlsz option[value="1d"]').count(), await wire.locator('#dlsz').inputValue()], [0, '33'], 'a 3D-only pair offers no 1D curve')
 	// Python + embed tabs: the verified snippet (preamble once), the iframe for this very space
 	await wire.goto(`${server.origin}/oklch?cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await wire.locator('#cseg [data-t="py"]').click()

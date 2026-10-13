@@ -10,6 +10,7 @@
  * @year 2006
  * @by Luo, Cui & Li
  * @use Uniform space for small color-difference tolerance/QC judgments; largely superseded by CAM16-SCD.
+ * @successor cam16-scd Rebuilt on CAM16 when CAM16 replaced CIECAM02
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

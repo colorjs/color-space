@@ -59,6 +59,13 @@ function parseJSDoc(content) {
   if (byMatch) meta.by = byMatch[1].trim()
   const useMatch = jsdoc.match(/@use\s+(.+)/)
   if (useMatch) meta.use = useMatch[1].trim()
+  // @successor <space> <why>: the space that superseded it and the reason – its run as the current one ends the year
+  // the successor appears
+  const successorMatch = jsdoc.match(/@successor\s+(\S+)(?:[ \t]+(.+))?/)
+  if (successorMatch) { meta.successor = successorMatch[1]; if (successorMatch[2]) meta.successorNote = successorMatch[2].trim() }
+  // @retired <why>: out of use with no successor here – the reason (a space either has a successor or is retired)
+  const retiredMatch = jsdoc.match(/@retired[ \t]+(.+)/)
+  if (retiredMatch) meta.retired = retiredMatch[1].trim()
 
   // Parse illuminant
   const illuminantMatch = jsdoc.match(/@illuminant\s+(\S+)/)

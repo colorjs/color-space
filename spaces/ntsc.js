@@ -11,6 +11,7 @@
  * @year 1953
  * @by FCC
  * @use Original US color-television primaries; historical, retained only as the '% NTSC' gamut-coverage benchmark.
+ * @successor smpte-c Receivers moved to brighter phosphors, and SMPTE-C standardized them
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

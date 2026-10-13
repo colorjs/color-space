@@ -12,6 +12,7 @@
  * @year 2010
  * @by ARRI
  * @use Cinema camera log capture for the original ARRI ALEXA line; legacy, superseded by LogC4 but still widely supported in post.
+ * @successor logc4 The ALEXA 35's wider dynamic range needed a new curve
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

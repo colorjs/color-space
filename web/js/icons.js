@@ -9,6 +9,11 @@ const grid = (n, r) => Array.from({ length: n * n }, (_, k) => `<rect x="${1 + (
 // the spectral locus in a 16 box (CIE 1931 2° locus points, x·17+1.5, 15−y·16) and gamut triangles in the same frame
 const LOCUS = 'M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z'
 const lim = inner => fi(`<path d="${LOCUS}" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/>${inner}`)
+// a share of the visible gamut, drawn as the locus scaled about its middle: area goes as the square of the scale
+const LMID = [7.1, 9.1], locusAt = k => LOCUS.replace(/([\d.]+) ([\d.]+)/g, (_, x, y) => `${(LMID[0] + (x - LMID[0]) * k).toFixed(2)} ${(LMID[1] + (y - LMID[1]) * k).toFixed(2)}`)
+// a coverage pick as a gauge: the locus filled to its upper share – "at least N%" stays the whole locus, only a smaller
+// ceiling shrinks it
+export const locusShare = hi => lim(`<path d="${locusAt(Math.sqrt(hi))}"/>`)
 
 export const QI = {
 	smooth: fi('<rect x="1" y="5" width="14" height="6" rx="1" fill="url(#vq-smooth)"/>'),
@@ -33,10 +38,11 @@ export const PI = {
 	sliders: fi('<rect x="1" y="2.5" width="14" height="2.6" rx=".6"/><rect x="1" y="6.7" width="14" height="2.6" rx=".6" opacity=".7"/><rect x="1" y="10.9" width="14" height="2.6" rx=".6" opacity=".45"/>'),
 	planes: fi('<rect x=".5" y="5" width="4.4" height="4.4" rx=".5"/><rect x="5.8" y="5" width="4.4" height="4.4" rx=".5" opacity=".7"/><rect x="11.1" y="5" width="4.4" height="4.4" rx=".5" opacity=".45"/>'),
 }
+// the layout's marks – square-cornered, each drawing its view: tiles, rows of a name and its strips, a sheet of columns
 export const VI = {
-	grid: fi('<rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/>'),
-	list: fi('<rect x="1" y="1.5" width="14" height="5.5" rx="1.2"/><rect x="1" y="9" width="14" height="5.5" rx="1.2" opacity=".45"/>'),
-	table: fi('<rect x="1" y="1.5" width="14" height="2.4" rx="1"/><rect x="1" y="6.8" width="14" height="2.4" rx="1"/><rect x="1" y="12.1" width="14" height="2.4" rx="1"/>'),
+	grid: fi('<path d="M1 1h6v6H1zM9 1h6v6H9zM1 9h6v6H1zM9 9h6v6H9z"/>'),
+	list: fi('<path d="M1 2h3v3H1zM5 2h10v3H5zM1 6.5h3v3H1zM5 6.5h10v3H5zM1 11h3v3H1zM5 11h10v3H5z"/>'),
+	table: fi('<path d="M1 1.5h14v2.5H1zM1 6h4v1.8H1zM6 6h4v1.8H6zM11 6h4v1.8h-4zM1 9.2h4v1.8H1zM6 9.2h4v1.8H6zM11 9.2h4v1.8h-4zM1 12.4h4v1.8H1zM6 12.4h4v1.8H6zM11 12.4h4v1.8h-4z"/>'),
 }
 // what a space is and what it is for: the facets' options, the shelves' glyphs
 export const OI = {
@@ -65,8 +71,10 @@ export const OI = {
 	log: ic('<path d="M4 4v16h16"/><path d="M4 16.5C7 9 11 7 20 5.5"/>'),
 	pq: ic('<path d="M4 4v16h16"/><path d="M4 20C5 12 7 8 11 6.5S17 5 20 4.5"/>'),
 	hlg: ic('<path d="M4 4v16h16"/><path d="M4 20Q6.5 11 11 10T20 5"/>'),
-	current: ic('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/>'),
-	historical: ic('<path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/>'),
+	current: ic('<path d="M3 12h4l3-8 4 16 3-8h4"/>'),   // a pulse: alive, in use today
+	historical: ic('<path d="M3.5 12a8.5 8.5 0 1 0 2.5-6L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/>'),   // a clock turned back: history
+	archived: ic('<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'),   // retired: put away, no successor
 	chromaticity: ic('<path d="M7 20 5.5 17 4.3 12 4.5 6 6 4 9.5 5.5 13.5 9 17 12.5 20 15.5z"/>'),
 }
+export const DL = ic('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')   // a download
 export const EYE = ic('<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>')   // Vision's cell

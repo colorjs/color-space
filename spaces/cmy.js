@@ -12,6 +12,7 @@
  * @year 1868
  * @by Louis Ducos du Hauron
  * @use Three-ink subtractive counterpart to RGB and the arithmetic base of CMYK; superseded by CMYK in print.
+ * @successor cmyk Impure inks mix to a muddy brown, so print added a black key ink
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage

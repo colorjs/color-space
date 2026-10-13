@@ -26,6 +26,11 @@ const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 const CV = typeof document !== 'undefined' ? document.createElement('canvas') : null
 const G = CV && (CV.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false }) || null)
 
+// a software rasterizer (SwiftShader, llvmpipe) spends seconds of CPU on each compile: nothing worth compiling ahead of
+// need. Asked lazily: a renderer query at load stalls the page's first frames
+let soft
+export const softGL = () => soft ??= !!G && (ri => /SwiftShader|llvmpipe|software/i.test(ri ? G.getParameter(ri.UNMASKED_RENDERER_WEBGL) : G.getParameter(G.RENDERER)))(G.getExtension('WEBGL_debug_renderer_info'))
+
 let readyCb = null
 /** Called whenever an async program finishes linking — repaint to upgrade. */
 export const setGLReady = fn => { readyCb = fn }
@@ -299,18 +304,24 @@ void main() {
 }`
 }
 
-function planeProg(s) {
-	if (planeProgs.has(s)) return planeProgs.get(s)
-	const st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${s}` }
-	planeProgs.set(s, st)
-	compileQ.push(() => {
-		compiling++
-		st.onSettle = () => { compiling--; pump() }
-		// one try over codegen AND program creation — any throw must settle the slot,
-		// or the queue would jam with `compiling` stuck high
-		try { const fs = planeFS(s); st.lutN = lutNames(fs); build(G, FSQ_VS, fs, null, null, st) }
-		catch(e) { console.warn(`color-space/gl plane ${s}:`,e.message); st.pending = false; st.bad = true; st.onSettle() }
-	})
+function planeProg(s, soon) {
+	let st = planeProgs.get(s)
+	if (!st) {
+		st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${s}` }
+		planeProgs.set(s, st)
+		st.job = () => {
+			st.job = null
+			compiling++
+			st.onSettle = () => { compiling--; pump() }
+			// one try over codegen AND program creation — any throw must settle the slot,
+			// or the queue would jam with `compiling` stuck high
+			try { const fs = planeFS(s); st.lutN = lutNames(fs); build(G, FSQ_VS, fs, () => st.prime && primeKernel(s, st), null, st) }
+			catch(e) { console.warn(`color-space/gl plane ${s}:`,e.message); st.pending = false; st.bad = true; st.onSettle() }
+		}
+		compileQ.push(st.job)
+	}
+	// a space asked for now goes ahead of the warm-ups still waiting
+	if (soon && st.job) { compileQ.splice(compileQ.indexOf(st.job), 1); compileQ.unshift(st.job) }
 	pump()
 	return st
 }
@@ -318,8 +329,19 @@ function planeProg(s) {
 /** 'ready' | 'pending' | 'no' — starts the async compile on first ask. */
 export function planeGLStatus(s) {
 	if (!hasPlaneGL(s)) return 'no'
-	const st = planeProg(s)
+	const st = planeProg(s, true)
 	return st.bad ? 'no' : st.pending ? 'pending' : 'ready'
+}
+
+/** Start compiling a space's plane and bar program ahead of need: behind the programs asked for now, or (soon) ahead of the other warm-ups. */
+export const warmPlaneGL = (s, soon) => { if (hasPlaneGL(s)) planeProg(s, soon).prime = true }
+
+// A warmed program draws one pixel once it links: a driver may build the GPU pipeline only at a program's first draw
+// (Metal under ANGLE compiles its shader library there), which would otherwise stall the first real paint
+function primeKernel(s, st) {
+	if (kernelPending) return setTimeout(() => primeKernel(s, st), 50)   // a transfer still reads the shared canvas
+	const ch = s === 'rgb' ? [0, 1, 2].map(() => ({ min: 0, max: 255 })) : classify(s).ch.slice(0, dimOf(s))
+	drawKernel(st, 1, 1, ch.map(c => (c.min + c.max) / 2), 0, 1, [ch[0].min, ch[0].max], [ch[1].min, ch[1].max], 'srgb', 0, false, 0, 'oklab')
 }
 
 /**
@@ -329,7 +351,7 @@ export function planeGLStatus(s) {
  * @param {string} s space name
  */
 export function warmGL(s) {
-	if (hasPlaneGL(s)) planeProg(s)
+	warmPlaneGL(s)
 	if (has3dGL(s)) mesh3Progs(mesh3State(mesh3Canvas()), s)
 }
 
@@ -1625,12 +1647,8 @@ void main() {
 	bool cov = false;
 	const float YQ[6] = float[6](2.0, 10.0, 25.0, 45.0, 70.0, 95.0);
 	${s === 'rgb'
-		? `for (int q = 0; q < 6; q++) {
-		float Yq = YQ[q];
-		vec3 XYZq = vec3(xy.x * Yq / xy.y, Yq, (1.0 - xy.x - xy.y) * Yq / xy.y);
-		vec3 rq = xyz_lrgb(XYZq);
-		if (all(greaterThanEqual(rq, vec3(-0.001))) && all(lessThanEqual(rq, vec3(1.001)))) { cov = true; break; }
-	}`
+		? `vec3 r1 = xyz_lrgb(vec3(xy.x / xy.y, 1.0, (1.0 - xy.x - xy.y) / xy.y) * 50.0);   // sRGB reaches a chromaticity iff its linear rgb is non-negative there – at any luminance, scale cancels; an absolute tolerance at low Y once let a band past the primaries in
+	cov = min(r1.x, min(r1.y, r1.z)) >= -0.001 * max(r1.x, max(r1.y, r1.z));`
 		: `for (int q = 0; q < 6; q++) {
 		float Yq = YQ[q];
 		vec3 XYZq = vec3(xy.x * Yq / xy.y, Yq, (1.0 - xy.x - xy.y) * Yq / xy.y);

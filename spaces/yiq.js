@@ -13,6 +13,7 @@
  * @year 1953
  * @by NTSC
  * @use Original NTSC analog color-TV luma/chroma encoding (US); legacy/historical, replaced operationally by digital YCbCr.
+ * @successor ycbcr Digital video carries color as YCbCr, with no analog subcarrier to modulate
  * @channel {Y} 0 1 Luma
  * @channel {I} -0.5957 0.5957 In-phase
  * @channel {Q} -0.5226 0.5226 Quadrature

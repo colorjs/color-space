@@ -10,6 +10,7 @@
  * @year 2008
  * @by RED Digital Cinema
  * @use RED’s Cineon-matching log for film-style pipelines; superseded by Log3G10 / REDWideGamutRGB.
+ * @successor log3g10 RED's IPP2 pipeline replaced it with Log3G10
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -13,6 +13,7 @@
  * @year 1964
  * @by Günther Wyszecki / CIE
  * @use 3-D extension of CIE 1960 UCS; superseded by CIELUV in 1976, now historical only.
+ * @successor luv The CIE adopted CIELUV, built on the improved u′v′ diagram
  * @channel {U} -85 175 U* chrominance
  * @channel {V} -90 75 V* chrominance
  * @channel {W} -17 100 W* lightness

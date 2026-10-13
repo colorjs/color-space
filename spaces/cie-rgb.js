@@ -12,6 +12,7 @@
  * @year 1931
  * @by CIE
  * @use Historical/pedagogical reference space built from the Wright-Guild matching data; obsolete in production, ancestor of CIE XYZ.
+ * @successor xyz Its color-matching functions go negative, so the CIE adopted all-positive XYZ the same year
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -11,6 +11,7 @@
  * @year 2012
  * @by Sony
  * @use Sony's second-generation cinema log curve (F5/F55 era); legacy, superseded by S-Log3.
+ * @successor slog3 Sony moved to S-Log3, modeled on film's Cineon curve
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -1,4 +1,4 @@
-# color-space for Figma
+# Color Space for Figma
 
 A Figma plugin that picks the solid fills and strokes of the current selection in any of
 color-space's 168 color spaces: a plane of two channels over a bar for each one, painted
@@ -13,35 +13,52 @@ The plugin lives in this repository but isn't part of the npm package: package.j
 - **Reads the selection.** It reads every color slot of the selected layers' fills and
   strokes, up to 100: each `SOLID` paint and each gradient stop (a stop keeps its alpha
   and position when edited), along with the file's color profile
-  (`figma.root.documentColorProfile`). Image paints are read for their pixels (below).
+  (`figma.root.documentColorProfile`). A selected group or frame shows the colors of what it
+  holds, depth-first in layer order (hidden layers skipped, each layer once even when it's
+  selected with its group, up to 2,000 layers), and a change anywhere inside it re-reads. Image paints are read for their pixels (below).
   Other paint types are skipped.
 - **Uses the file's color space.** Figma paint channels are 0–1 values in the document's
   profile (per Figma's docs; see Limitations). In a Display P3 file they're read as Display P3 (the library's `p3`). In an sRGB
   file they're read as sRGB (`rgb`). A legacy file, made before Figma had color
   management, is also read as sRGB and labelled "sRGB, legacy"; the tag's tooltip says so.
-- **Shows any space.** The space picker works like Figma's font menu: a search over names and
-  ids, a family filter, and the list in the atlas's seven families, each led by its three
-  featured spaces (`web/js/categories.js`) set bold, the current one checked. It opens with
-  the current space's name in the search, selected; ↑↓ move, Enter takes, Escape or a press
-  outside closes (that press only closes it; the control under it doesn't act). A plugin frame can't paint outside itself, so the menu opens in the page
-  under its button and the window grows to hold it while it's open. The plugin saves the choice on your machine with
-  `figma.clientStorage`, and the default is `oklch`.
+- **Shows any space.** The space menu opens in the page under its button, the window growing
+  to hold it: a search, then folding sections – Featured (each family's three,
+  `web/js/categories.js`), then every family, only the current space's family open. A
+  header folds or unfolds its section; a search opens every section to its matches; ↑↓ move,
+  Enter takes, Escape or a press outside closes (that press acts on nothing else). The
+  plugin saves the choice on your machine with `figma.clientStorage`, and the default is
+  `oklch`.
 - **Picks on a plane.** Two channels are swept across a square and the rest are held. Each
   space opens on its natural plane: lightness × chroma at one hue (OkLCh, HSL, HCT…), a × b
   at one lightness (Lab, OSA-UCS…). A hue paired with chroma or saturation is drawn as the
-  space's wheel. The pair buttons switch planes, and the choice is saved per space.
+  space's wheel. The axis letters in the plane's corners are buttons: a click swaps that axis
+  for the channel held (the tip names it), so C×L becomes H×L with one click on C. A wheel's
+  corner holds the site's wheel/square switch. Both choices are saved per space.
 - **One bar per channel.** Each bar sweeps its channel with the others held, so it shows
   what moving it would do. Drag the thumb, use the arrow keys (1% a press; Page Up/Down
   10%), or type the exact value in the field beside it.
-- **Figma's layout and shapes.** The panel is 264 px wide, near Figma's own picker. The
+- **Opacity.** The last row is Figma's opacity bar, the color over the checker, with its
+  value in percent (A). It sets a solid paint's opacity or a gradient stop's alpha, in whole
+  percent as Figma keeps it. A stop bound to a variable sets the variable's alpha; a solid
+  bound to one keeps the variable's alpha and sets the layer's paint opacity; a style-linked
+  paint sets the style's.
+- **Opens a space at once.** A space's plane is a shader that the GPU builds on its first
+  draw: 0.5–1 s for a space it has never built (measured on an Apple M4 Max under ANGLE
+  Metal; the OS caches it after), tens of ms once built. Once the current space is up, the
+  featured spaces build in the background (one pixel each), and a space hovered or arrowed
+  to in the menu goes first, so the usual picks open in about 10–50 ms. Software GL skips
+  the background builds.
+- **Figma's layout and shapes.** The panel opens 288 px wide, a little wider than Figma's own picker (240), and its right edge drags it from 240 to 560 px. The
   selection's colors head it as full-width rows, like Figma's layers, the current one on
-  Figma's quiet fill (selected, not focused). Then the space picker
-  (an outlined box with a chevron) with the file's profile beside it, the plane, and the
-  sliders with the eyedropper beside them and each channel's value cell at the end of its
-  row. Handles are Figma's knobs, 16 px with a 3 px white ring around the color; bars are
+  Figma's quiet fill (selected, not focused). Then the space field and the two lenses, the
+  plane, and the sliders with the eyedropper beside them and each channel's value cell at
+  the end of its row; the file's color profile is said once, quietly, at the end of the
+  status line. Handles are Figma's knobs as measured on its picker, 14 px with a 2.5 px white
+  ring around the color; bars are
   16 px pill tracks with the knob kept inside, each painted along the knob's travel so the
   knob sits on its own color.
-- **Gestures.** A drag on the plane, a bar or a value's letter writes live once per frame,
+- **Gestures.** A drag on the plane, a bar or a value's letter writes live once per frame
+  (the plane repaints at full resolution throughout),
   hides the cursor, keeps going past its element (the plane and bars clamp at their edge),
   and ends exactly once with one commit and one undo step, however it ends: a release, a
   cancel, lost capture, the window losing focus, or (when the frame never saw the release)
@@ -55,12 +72,27 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   bars fade to half; where a coordinate is no color at all (off the spectral locus, past the
   space's physical range) they show the checkerboard. In a P3 file the fields are painted
   in Display P3, not clipped to sRGB.
-- **Quantize.** The atlas's lens menu, with its icons. 10-step and 20-step snap the plane
-  and the bars to that many cell centres per channel, for palettes in even steps; keys then
-  move one cell. 16-bit and JND snap the color to RGB565 or to a just-noticeable OkLab grid.
-  The palettes (web-safe, CSS names, xkcd, Tailwind, PICO-8, ANSI) draw their colors as
-  cells on the plane and bars, and every pick writes the nearest palette color. A named
-  palette's color also shows its name (for example `sky-500`) in a field you can copy.
+- **Quantize and Limit.** The site's two lenses sit beside the space, Quantize first, each
+  marked with its icon from the atlas's icon font (below). They are customizable selects
+  (`appearance: base-select`, Chromium 135+): the page draws the list, so every option shows
+  its icon in the font beside its name and the closed control shows the icon alone; the lists
+  are short enough to open inside the plugin's frame. An OS-drawn list ignores web fonts (on
+  macOS it draws in the system font), so where the select isn't customizable the native one
+  stays, its options showing the icons' look-alike Unicode symbols. Quantize: 10-step and 20-step snap
+  the plane and the bars to that many cell centres per channel, for palettes in even steps
+  (keys then move one cell); 16-bit and JND snap the color to RGB565 or to a just-noticeable
+  OkLab grid; the palettes (web-safe, CSS names, xkcd, Tailwind, PICO-8, ANSI) draw their
+  colors as cells and every pick writes the nearest one, a named palette's color showing its
+  name in a field you can copy. Limit: the file's gamut by default, or sRGB, P3, Rec.2020,
+  Surface (the colors a lit surface can show) or Light (every real light) as the body the
+  plane and bars ghost past; writes stay in the file's gamut.
+- **The atlas's icon font.** `scripts/icon-font.js` compiles every icon in `web/js/icons.js`
+  (the filled 16-grid family and the stroked 24-grid one, 48 glyphs) into a TrueType font with
+  no dependency, written to `web/fonts/color-space-icons.ttf` with a name → codepoint map
+  (`.json`) for any page or tool. The lens icons sit on look-alike Unicode symbols (▥ 10-step,
+  ☰ Tailwind, △ P3…), so a list the OS draws in its own font still shows a fitting mark; the
+  rest use the Private Use Area. The plugin inlines the subset it shows. A font is one color:
+  icons that speak through opacity keep their shapes at full ink.
 - **Same picker as the atlas.** The plane and bar fields come from the site's own GPU
   kernel (`web/js/gl.js`), which runs the library's verified shader chunks per pixel,
   including OSA-UCS's iterative inverse and CAM16. Without WebGL2 the plugin falls back
@@ -72,7 +104,7 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   chroma, and a point past the gamut stays under the pointer while the mapped color is
   written (the panel says so). Paints are read-only objects in Figma, so the plugin
   copies the `fills`/`strokes` array, swaps in the edited paint and reassigns the array.
-  Opacity, blend mode and visibility stay as they were.
+  Blend mode and visibility stay as they were.
 - **Edits tokens where they live.** A paint bound to a color variable is edited in that
   variable, in the layer's mode (`resolvedVariableModes`), following aliases to the
   variable that holds the value; the token keeps its alpha and its other modes. A fill or
@@ -82,7 +114,9 @@ The plugin lives in this repository but isn't part of the npm package: package.j
 - **Eyedropper.** Where the browser has the EyeDropper API, a button picks any pixel on
   screen into the current paint (through the active palette lens, if any).
 - **Copies CSS.** There are two copy fields, each with a copy button:
-  - `oklch(L C H / a)`
+  - `oklch(L C H / a)`, at three digits: L and C to three decimals, the hue to three
+    significant digits (`src/notation.js`; at most 0.004 ΔEOK from the unrounded color,
+    a fifth of a JND, which the test checks over 4000 colors)
   - `color(display-p3 r g b / a)` in P3 files, or `#rrggbb[aa]` in sRGB files
 - **Follows Figma's theme.** It opens with `showUI({ themeColors: true })` and uses only
   Figma's `--figma-color-*` variables for color. It takes spacing and type from the
@@ -91,38 +125,52 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   `inspect` capability. In Dev Mode the plugin shows values and copies CSS but never
   writes. The main thread refuses any write unless `figma.editorType === 'figma'`.
 - **Writes CSS in Dev Mode's Code panel.** With the `codegen` capability, the Code panel
-  gets a "CSS (color-space)" language: the selected layer's fills (`background`, or
-  `color` for text), strokes (`border-color`) and gradient stops, in the format chosen in
-  the panel's settings: `oklch()` (the default), `oklab()`, `lch()`, `lab()`,
-  `color(display-p3)`, `hsl()`, `hwb()`, `rgb()` or hex, serialized by the library's
-  `css.js`. A color bound to a variable prints as `var(--brand-500, …)`. The sRGB-only
-  formats gamut-map a wider P3 color into sRGB and say so in a comment. The `vscode`
-  capability offers the same in Figma for VS Code.
+  gets a "CSS (Color Space)" language, for a developer building what's selected. First the
+  layer's own fills (`background`, or `color` for text), strokes (`border-color`) and
+  gradient stops, in the format chosen in the panel's settings: `oklch()` (the default),
+  `oklab()`, `lch()`, `lab()`, `color(display-p3)`, `hsl()`, `hwb()`, `rgb()` or hex,
+  serialized by the library's `css.js` (`oklch()` and `oklab()` at three digits, as in the
+  panel). A color bound to a variable prints as `var(--brand-500, …)`. Then, for a group,
+  frame or component, a "Colors inside" section: every color of what it holds once, as a
+  custom property ready for `:root` – named by its variable, else by the first layer that
+  uses it (a second layer of the same name numbered), with the layers that use it in a
+  comment; up to 64. The sRGB-only formats gamut-map a wider P3 color into sRGB and say
+  so in a comment. The `vscode` capability offers the same in Figma for VS Code.
 - **Images as statistics.** An image paint's bytes (`getBytesAsync`) are decoded and
-  sampled in the UI (the atlas's `extract.js`): every pixel is a dot on the plane, as on
-  the dossier, and the image's prominent colors (k-means in OkLab) are swatches under the
-  bars. A swatch writes its color into the current paint. With only an image selected, the
-  image's color stands in for a paint: the picker explores it and the CSS fields copy it,
-  but nothing is written.
-- **Document colors.** The file's local color variables and paint styles (by name) and the
-  solid colors on the current page (the first 4,000 layers) are small, quiet dots on the
-  plane, where each sits in this slice of the space; a click writes that color.
+  sampled in the UI (the atlas's `extract.js`, ≤ 96 px a side) after the picker has drawn:
+  every distinct color is a dot on the plane, as on the dossier, as opaque as the pixels
+  sharing it, on its own full-resolution layer; their coordinates are computed in slices
+  across frames, so the picker never waits on them. With only an image selected, its pixel
+  nearest the mean (OkLab) stands in for a paint: the picker explores it and the CSS fields
+  copy it, but nothing is written.
+- **The other colors.** The selection's other colors and the file's local color variables
+  (every mode's value) are faint 6 px dots on the plane, where each sits in this slice of the
+  space; nothing else on the page is marked. A gradient's stops are joined in order by a soft
+  white line, through the knob when a stop is current. Hovering a dot names where its color
+  lives (the layer and its fill, stroke or stop; the variable); a click writes that color.
+  The selection's dots follow edits at once; the variables refresh after each commit. A
+  short legend under the copy fields says which kinds of dots are showing ("Dots: other
+  selected colors, color variables, image pixels.").
 - **Relaunch button.** A layer the plugin has edited gets a "color-space" button in its
   properties panel (`setRelaunchData`) that reopens the plugin on it.
 - **Follows live edits.** If you edit a selected layer's fills or strokes while the
   plugin is open, it picks up the change. It listens for `nodechange` on the current page.
   Under `documentAccess: "dynamic-page"`, `documentchange` would first need
   `loadAllPagesAsync`.
-- **Fits its content.** The panel reports its height and the window follows it. During a
-  drag the window only grows; it settles on release.
+- **Fits its content, any width.** The panel reports its height and the window follows it;
+  during a drag the window only grows and settles on release. It opens 288 px wide; the grip
+  on its right edge (or its arrow keys) sets the width from 240 to 560 px, the plane growing
+  with it, and the width is saved.
 - **A steady gamut status.** One line under the copy fields always says where the
-  coordinate is: "In sRGB", or "Outside sRGB: written as the nearest sRGB color (CSS Color 4
-  gamut mapping)", or the palette it snaps to. It reads the coordinate itself, not the last
-  write, so it never flickers or changes height as a drag crosses the gamut.
+  coordinate is: "In sRGB", "Outside sRGB, mapped in" (the CSS Color 4 gamut mapping spelled
+  out in its tooltip), or the palette it snaps to; the file's profile sits at its right. It reads the coordinate itself, not the last write, so it never flickers or changes
+  height as a drag crosses the gamut.
 - **Tooltips.** Figma's frame shows no native `title`, so the plugin uses the atlas's
-  themed tooltip (`web/js/tip.js`), kept secondary: small, gone on any press, fading on its
-  own after a moment, and brought by focus only from the keyboard (a clicked button takes
-  focus, which would otherwise show its tip again).
+  themed tooltip (`web/js/tip.js`), kept secondary: small, shown while its element is
+  hovered, gone when the pointer leaves it or the panel, on any press, on Escape and when
+  Figma takes focus; a click on a quiet explainer (the status line, the profile) shows it;
+  focus brings it only from the keyboard (a clicked button takes focus, which would
+  otherwise show its tip again).
 - **Never uses the network.** The manifest sets `networkAccess` to `none`, and `ui.html`
   carries the whole library, its shader chunks and the registry metadata inline.
 
@@ -234,25 +282,45 @@ DISPLAY_P3 file. That includes:
   buttonless move, and the next press works; blur mid-drag commits once; a bar press lands
   at its place along the knob's travel and clamps past the end; the bar's pixel under its
   knob is the coordinate's color
-- document colors: the token and the style marked by name, a click writing into the stop
-- the space menu: every space listed, each family led by its three featured spaces in bold,
-  search by name, no-match message, the family filter, Enter taking the highlighted space; it opens on
-  the current space in view, ↓↑ come back to it, Enter on it changes nothing, Escape closes
+- the other colors: the variable and the selection's other stop named, no style or page color
+  marked, the gradient's stops joined by one line, the color just written shown on the next
+  paint's plane, a variable's dot writing into the stop
+- a selected group: its children's colors in layer order with a hidden one skipped, a layer
+  selected with its group listed once, an edit
+  writing the child, a change two levels inside re-reading
+- the space menu: Featured first and open, the families holding every space once, only the
+  current family open, a header folding and unfolding, a search opening only the matching
+  sections, Enter, Escape, a press outside acting on nothing else
+- the plane's controls: a click on C making C×L into H×L and back, the wheel/square switch
+  saved per pair, the disc's centre showing its color on screen; the lens controls keeping
+  their width on hover and opening from the chevron; the grip and its arrow keys setting the
+  width
+- one menu at a time: a lens closing the space menu and the space menu closing a lens; a held
+  channel's drag repainting the plane at full resolution, the dots' layer too
+- the lens lists: open, each option's icon in the icon font (P3's △), the closed control
+  showing the icon alone, a click on an option taking it and closing the list
+- the icon font: accepted by the browser's font sanitizer, every glyph tracing its SVG (IoU
+  at 64 px), loaded in the panel
 - the tooltip: a press dismisses it; focus after a press shows none, keyboard focus does
-- a press outside the space menu closing it without acting on the row under it; the status
-  naming a palette lens
-- the space menu's search opening on the current name, selected; the window growing to hold
-  the open menu on a short panel and returning when it closes
+- the Limit: Surface repaints the plane and names itself, the status stays in the file's
+  gamut; the status naming a palette lens
 - the status line: one line in and out of the gamut, and a drag across the gamut resizing
   nothing; the image's row shaded as the current row
 - a gradient: its stops listed, an edit writing one stop with its alpha and position kept;
-  the relaunch button on an edited layer; the notes under the copy fields; the featured
-  spaces starred
-- an image (a PNG painted by the mock): its two colors as swatches, its pixels as dots,
-  the image alone exploring without a write, a swatch writing into a gradient stop
+  the relaunch button on an edited layer; the notes under the copy fields
+- an image (a PNG painted by the mock): its pixels as dots, one of its pixels standing in
+  as its color, no opacity row, exploring without a write; the dots' legend naming each kind
+- opacity: a solid's read and typed (past 100% and below 0% clamped), an arrow key's percent,
+  a drag landing in one undo step, its knob and color holding through re-reads that trail a
+  newer write (mid-drag and after release) while a current re-read is taken,
+  a stop's alpha with its color and position kept, a variable-bound solid's paint opacity with
+  the token's alpha kept, a style's paint, a variable-bound stop's alpha in the token
 - codegen with no UI: the default `oklch()` with a stroke's alpha, `lab()` for a text color
   from a variable as `var(--brand-500, …)`, hex of P3 red mapped into sRGB with a comment,
-  and `color(display-p3 1 0 0)` in a P3 file
+  `color(display-p3 1 0 0)` in a P3 file, and a frame's colors inside (a token by name, a
+  raw color by its layer, a repeated name numbered; none inside: no section)
+- the three-digit `oklch()`/`oklab()`: within JND/5 of the unrounded color over 4000 sRGB
+  and P3 colors
 - `clientStorage`, the copy fallback, and an axe structure scan
 
 Every expected number comes from the library and `src/gamut.js` in Node. The test isn't
@@ -268,6 +336,8 @@ part of `npm test`.
   - `display-p3` canvases in a P3 file, on a P3 display
   - live writes while dragging, and one undo step per drag (`figma.commitUndo`)
   - the window resizing to its content (`figma.ui.resize`)
+  - the space field's suggestion list and the lens selects opening past the plugin's frame
+    (native popups do in Chromium; Figma's desktop shell is unverified)
   - that a Display P3 file's paint values are Display P3. Figma's `RGB` docs page says
     colors are in the document's color profile, but only a search snippet of that page
     was seen here, and the typings don't say.

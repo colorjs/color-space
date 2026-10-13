@@ -13,6 +13,7 @@
  * @year 1942
  * @by Elliot Q. Adams (ext. Dorothy Nickerson, 1950)
  * @use Industrial color-difference measurement; historical, superseded by CIELAB and CIEDE2000.
+ * @successor lab CIELAB kept its opponent logic and swapped the Munsell function for a cube root
  * @channel {L} 0 100 Lightness
  * @channel {a} -100 100 Red-Green
  * @channel {b} -100 100 Yellow-Blue

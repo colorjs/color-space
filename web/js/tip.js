@@ -24,9 +24,10 @@ const place = (el) => {
 	tip.style.top = y + 'px'
 }
 const show = () => {
-	const text = target && target.getAttribute('data-tip'), tags = target && target.getAttribute('data-tip-tags')
-	if (!text && !tags) return
+	const text = target && target.getAttribute('data-tip'), tags = target && target.getAttribute('data-tip-tags'), head = target && target.getAttribute('data-tip-head')
+	if (!text && !tags && !head) return
 	tip.textContent = ''
+	if (head) tip.append(Object.assign(document.createElement('b'), { className: 'th', textContent: head }))   // an optional heading line, set apart
 	if (text) tip.append(Object.assign(document.createElement('span'), { textContent: text }))   // an element, so a lone chip row knows it is first
 	// optional chip row — ` · `-separated `icon|label` tags rendered as the catalog's .tag chips, the icon
 	// looked up in the app's own set (the label via textContent, so attribute text can't inject markup)
@@ -43,6 +44,9 @@ const show = () => {
 	place(target)
 }
 const hide = () => { tip.classList.remove('on'); tip.setAttribute('aria-hidden', 'true'); target = null; clearTimeout(timer) }
+/** Show an element's tip now (a click on a quiet explainer, say), or hide whatever shows */
+export const showTip = (el) => { arm(el); target = el; clearTimeout(timer); show() }
+export { hide as hideTip }
 // only steal the title where the app already promises an explainer (question-mark cursor)
 const helpful = (el) => el.hasAttribute('data-tip') || getComputedStyle(el).cursor === 'help'
 // lazily move the native title onto data-tip so the OS tooltip never fires
@@ -62,7 +66,7 @@ const find = (e) => {
 
 addEventListener('pointerover', (e) => {
 	const el = find(e)
-	if (!el || el === target || !helpful(el)) return
+	if (!el || (el === target && tip.classList.contains('on')) || !helpful(el)) return
 	arm(el)
 	target = el
 	clearTimeout(timer)
@@ -75,4 +79,7 @@ addEventListener('pointerout', (e) => {
 addEventListener('focusin', (e) => { const el = find(e); if (el && helpful(el)) { arm(el); target = el; show() } })
 addEventListener('focusout', hide)
 addEventListener('scroll', hide, true)
+// the pointer leaving the page (an embedding frame may never report a pointerout for it) or the window losing focus
+document.documentElement.addEventListener('pointerleave', hide)
+addEventListener('blur', hide)
 addEventListener('keydown', (e) => { if (e.key === 'Escape') hide() })

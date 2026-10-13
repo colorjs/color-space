@@ -12,6 +12,7 @@
  * @year 1960
  * @by David MacAdam / CIE
  * @use Historical uniform chromaticity diagram, basis for correlated-color-temperature calculations; superseded by CIE 1976 u'v'.
+ * @successor uv The CIE stretched its v axis by 1.5 for better uniformity: u′v′
  * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate
  * @channel {W} 0 160 W

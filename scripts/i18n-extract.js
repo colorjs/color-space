@@ -82,6 +82,8 @@ export async function extract() {
 		add(`space.${s}.desc`, meta[s].description, 'data.json')
 		add(`space.${s}.use`, meta[s].use, 'data.json')
 		add(`space.${s}.loss-note`, meta[s].lossNote, 'data.json')
+		add(`space.${s}.successor-note`, meta[s].successorNote, 'data.json')
+		add(`space.${s}.retired`, meta[s].retired, 'data.json')
 		for (const c of meta[s].channels || []) if (chKey(c)) add(chKey(c), chEn(c), 'data.json channels', true)
 	}
 	const LORE = (await import('../web/js/lore.js')).default

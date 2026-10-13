@@ -10,6 +10,7 @@
  * @year 1988
  * @by SMPTE
  * @use Interim analog HDTV standard preceding Rec. 709; historical, superseded.
+ * @successor rec709 An interim analog HDTV standard, replaced by the worldwide Rec. 709
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

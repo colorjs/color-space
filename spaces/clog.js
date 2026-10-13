@@ -11,6 +11,7 @@
  * @year 2011
  * @by Canon
  * @use Cinema EOS camera log capture; largely superseded by Canon Log 2/3 but still supported for compatibility.
+ * @successor clog2 Canon Log 2 held more of the newer sensors' dynamic range
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

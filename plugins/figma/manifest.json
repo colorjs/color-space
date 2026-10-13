@@ -1,12 +1,12 @@
 {
-  "name": "color-space",
+  "name": "Color Space",
   "id": "color-space",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
   "editorType": ["figma", "dev"],
   "capabilities": ["inspect", "codegen", "vscode"],
-  "codegenLanguages": [{ "label": "CSS (color-space)", "value": "css" }],
+  "codegenLanguages": [{ "label": "CSS (Color Space)", "value": "css" }],
   "codegenPreferences": [
     {
       "itemType": "select",
@@ -26,7 +26,7 @@
       "includedLanguages": ["css"]
     }
   ],
-  "relaunchButtons": [{ "command": "open", "name": "color-space" }],
+  "relaunchButtons": [{ "command": "open", "name": "Color Space" }],
   "documentAccess": "dynamic-page",
   "networkAccess": {
     "allowedDomains": ["none"]

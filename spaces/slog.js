@@ -11,6 +11,7 @@
  * @year 2008
  * @by Sony
  * @use Sony's first cinema log curve (F35/F3 cameras); legacy, kept for archival-footage compatibility.
+ * @successor slog2 S-Log2 rescaled it to hold more of the sensor's range
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

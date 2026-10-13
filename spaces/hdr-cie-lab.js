@@ -10,6 +10,7 @@
  * @year 2010
  * @by Mark Fairchild & Garrett Wyble
  * @use HDR-adapted CIELAB for wide-luminance-range image-difference work; academic, superseded in practice by ICtCp/Jzazbz.
+ * @successor ictcp HDR image-difference work moved to HDR-native spaces such as ICtCp and Jzazbz
  * @channel {L} 0 100 Lightness
  * @channel {a} -100 100 Red-Green
  * @channel {b} -100 100 Yellow-Blue

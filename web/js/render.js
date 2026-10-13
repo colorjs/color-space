@@ -51,6 +51,16 @@ export const tagL = v => ({
 	'luma / chroma': t('tag.luma-chroma-pair', 'luma / chroma'), historical: t('tag.historical', 'historical'), current: t('tag.current', 'in use'),
 	projective: t('tag.projective', 'projective'), lookup: t('tag.lookup', 'lookup'), quantized: t('tag.quantized', 'quantized'),
 })[v] ?? v
+// a short gloss for a tag whose name alone doesn't say it (Shape, Signal, Tone curve, White) – the filter options carry
+// it under their names, the list view's icons in their tips; SDR, HDR, In use, Historical and channel counts say themselves
+export const tagLine = v => ({
+	component: t('tagline.component', 'independent channels, no hue'), polar: t('tagline.polar', 'a hue angle and a chroma'), opponent: t('tagline.opponent', 'two axes around neutral gray'),
+	display: t('tagline.display', 'light a display emits'), scene: t('tagline.scene', 'light in the scene, as filmed'),
+	gamma: t('tagline.gamma', 'a power curve over linear light'), 'luma / chroma': t('tagline.luma-chroma', 'the broadcast and compression layout'), perceptual: t('tagline.perceptual', 'equal steps look equal'),
+	linear: t('tagline.linear', 'proportional to light, no curve'), PQ: t('tagline.pq', 'absolute HDR, up to 10,000 nits'), HLG: t('tagline.hlg', 'broadcast HDR that SDR can show'), log: t('tagline.log', 'a camera\'s range in few codes'),
+	D65: t('tagline.d65', 'daylight, ≈6504 K'), D50: t('tagline.d50', 'horizon daylight, ≈5003 K'), D60: t('tagline.d60', 'the ACES white, ≈6000 K'), DCI: t('tagline.dci', 'the cinema projector\'s white'),
+	C: t('tagline.c', '1931 average daylight, ≈6774 K'), E: t('tagline.e', 'equal-energy white'), A: t('tagline.a', 'tungsten light, ≈2856 K'),
+})[v] || ''
 
 export const LEADS = 3   // lead cards per family on a wide catalog (its featured spaces – the first three); the rest are tiles
 
@@ -66,21 +76,33 @@ export const ink = c => lum(c) < 0.6 ? '#fff' : 'var(--dark)'
 // compares before hydrating; a mismatch (template/data drift, raw web/ source) rebuilds
 export const fpOf = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0; return h.toString(36) }
 
-// shipped as working history — tagged "historical" in the modal, listed in "Skipped"
-export const HISTORICAL = new Set(['cie-rgb', 'ntsc', 'slog', 'redlog', 'panalog', 'viperlog', 'ryb', 'anlab'])
-// the card's quick dossier — what it was made for, as the rows view reads it (data-tip: the card already shows its maker
-// and year – the maker here whole, as the card's head may shorten or cut it); then
+// historical: replaced (@successor) or retired (@retired) – the library's own record, the one the history draws
+export const HISTORICAL = new Set(Object.keys(meta).filter(s => meta[s].successor || meta[s].retired))
+/** How a space's run ended, or null: replaced – by whom, the year it arrived (when later than the space's own), why;
+ *  retired – why, with no year to give. The words in the page's language, as the history's flags read them. */
+export const ending = s => { const m = meta[s]
+	if (m.successor) { const z = +meta[m.successor].year; return { by: m.successor, y: z > +m.year ? z : 0, why: m.successorNote ? t(`space.${s}.successor-note`, m.successorNote) : '' } }
+	return m.retired ? { why: t(`space.${s}.retired`, m.retired) } : null }
+// the run in words – a sentence for a tooltip: who replaced it and why, or that it was retired and why
+export const endingSays = s => { const e = ending(s); if (!e) return ''
+	return !e.by ? t('ui.card.retired', 'Retired. {why}.', { why: e.why }) : e.y ? t('ui.card.replaced-in', 'Replaced by {s} in {y}. {why}.', { s: disp(e.by), y: e.y, why: e.why }) : t('ui.card.replaced', 'Replaced by {s}. {why}.', { s: disp(e.by), why: e.why }) }
+// the card's quick dossier — its maker whole and year (data-tip-head: the card's head may shorten or cut the maker), what
+// it was made for, as the rows view reads it (data-tip); then
 // the kinds the list sheet shows, each with the filters' icon, and the white (data-tip-tags: icon|label, rendered by
 // tip.js as chips — the same vocabulary the filter speaks)
-const entTip = s => { const p = PURPOSE[s]?.[0], by = meta[s].by || '', use = lede(s) || (p && cap(t(`purpose.${p}.use`, USE[p]))) || ''
-	return [by, use].filter(Boolean).join('\n').replace(/"/g, '&quot;') }   // the maker whole – the card's line shortens it, and a narrow card cuts it; an attribute, so a translation's quote is escaped
+const attr = x => x.replace(/"/g, '&quot;')   // an attribute, so a translation's quote is escaped
+const entTip = s => { const p = PURPOSE[s]?.[0]; return attr([lede(s) || (p && cap(t(`purpose.${p}.use`, USE[p]))), endingSays(s)].filter(Boolean).join('\n')) }   // and, ended, how
+const entHead = s => attr([meta[s].by, run(s)].filter(Boolean).join(', '))   // the maker whole – the card's line shortens it, and a narrow card cuts it – and the year
 const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${tagL(k === 'sig' ? v + '-referred' : v)}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
 // a lead card's story – the lore's "made for" line in the page's language, as a sentence
 const lede = s => { const f = LORE[s]?.for; if (!f) return ''; const x = cap(t(`lore.${s}.for`, f)); return /[.!?…]$/.test(x) ? x : x + '.' }
 // the maker, short (no asides in parentheses; past two names, the first et al.), then the year – the year ends the line,
 // at the card's corner; a maker still too long gives way (ellipsis), the year never. The whole maker is the tip's
 const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.split(/\s*[,&;]\s*/); return n.length > 2 ? `${n[0]} et al.` : x }
-const byline = s => { const m = meta[s]; return [m.by && `<span class="au">${shortBy(m.by)}${m.year ? ',' : ''}</span>`, m.year && `<span class="tnum">${m.year}</span>`].filter(Boolean).join(' ') }
+// the years it ran: from its year to its successor's – or its year alone (still current, or retired with no year to give)
+// (short: the end year's last two digits within its century, 1942–76 – a card's corner is narrow)
+export const run = (s, short) => { const y = meta[s].year, z = y && ending(s)?.y; return !y ? '' : !z ? `${y}` : `${y}–${short && String(z).slice(0, 2) === String(y).slice(0, 2) ? String(z).slice(2) : z}` }
+const byline = s => { const m = meta[s], e = ending(s); return [m.by && `<span class="au">${shortBy(m.by)}${m.year ? ',' : ''}</span>`, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.archived : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
 // an entry: the featured (lead) card reads in full – name and by-line, its story, the strips, the numbers; a tile
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its
@@ -91,7 +113,7 @@ export const LIMIT = 'vis'
 export const limitFor = (cls, gm = LIMIT) => cls.ch.length > 1 ? gm : gm === 'vis' || gm === 'locus' ? 'off' : gm
 const valsAt = (s, st) => { if (!st) return null; try { return s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { return null } }
 const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.hx}" data-g="${st.hx}:0:${n}:${limitFor(cls)}"` : ''} style="--nch:${cls.ch.length}"`
-const nameBtn = s => `<button class="nm" type="button" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</button>`
+const nameBtn = s => `<button class="nm" type="button" data-tip-head="${entHead(s)}" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</button>`
 const field = (s, c2, i, vals) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}></span>`
 const strip = (s, c2, i, vals, st, n) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${vals ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, n, limitFor(classify(s))).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${vals ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${t('ui.card.slider', '{name} slider', { name: cname(c2) })}"></div>`
 const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12
@@ -114,8 +136,9 @@ const row = (s, st) => { const cls = classify(s), vals = valsAt(s, st), story = 
 const geoOf = s => ({ polar: 'polar', opponent: 'opponent' })[classify(s).archetype] || 'component'
 const KIND = { geo: geoOf, curve: s => meta[s].encoding || '', sig: s => meta[s].referred || '', range: s => (meta[s].dynamic || 'sdr').toUpperCase() }
 const kindKey = v => v === 'luma / chroma' ? 'opponent' : v.toLowerCase()   // a kind's value → its icon in OI
-const kindIcon = (k, s) => { const v = KIND[k](s), ic = OI[kindKey(v)]
-	return v && ic ? `<span class="ki" role="img" aria-label="${tagL(v)}" title="${tagL(v)}">${ic}</span>` : '' }
+// a kind's icon in the list view, its tip saying what it means: the column and the kind, then the gloss
+const kindIcon = (k, s) => { const v = KIND[k](s), ic = OI[kindKey(v)], say = `${colName(k)}: ${cap(tagL(v))}`
+	return v && ic ? `<span class="ki" role="img" aria-label="${say}" data-tip-head="${say}" data-tip="${tagLine(v)}">${ic}</span>` : '' }
 export const COLS = [['name', s => disp(s)], ['year', s => meta[s].year || 0], ['by', s => meta[s].by || ''], ['ch', s => classify(s).ch.map(c => c.sym).join(' ')],
 	['cov', s => REACH[s]?.[0] ?? -1], ['geo', s => tagL(geoOf(s))], ['curve', s => KIND.curve(s) && tagL(KIND.curve(s))], ['sig', s => KIND.sig(s) && tagL(KIND.sig(s))],
 	['range', KIND.range], ['white', s => meta[s].illuminant || '']]
@@ -131,13 +154,13 @@ const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead
 export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 	return [{ name: t('ui.view.all', 'All spaces'), spaces: SPACES.slice().sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * d }) }] }
 
-// the layout: one button beside the grouping, its icon the view it turns to (as a lead card's planes switch shows the
-// other face) – grid → rows → list → grid; on the rail at the tabs' end, in a phone's first heading after the select
+// the layout: one button in the pinned row, its icon the view it turns to (as a lead card's planes switch shows the
+// other face) – grid → rows → list → grid
 const VIEWS = () => [['grid', t('ui.cell.view-grid', 'Grid'), t('ui.view.grid', 'featured spaces large, the rest as tiles'), VI.grid],
 	['rows', t('ui.cell.view-rows', 'Rows'), t('ui.view.rows', 'one line per space, its strips at full width'), VI.list],
 	['list', t('ui.cell.view-list', 'List'), t('ui.view.list', 'the spec sheet – every column sorts'), VI.table]]
-const vtog = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
-	return `<button type="button" class="vt" data-view="${v}" aria-label="${t('ui.cell.layout', 'Layout')}: ${n}" title="${n} – ${tip}">${ic}</button>` }
+export const nextView = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
+	return { v, label: `${t('ui.cell.layout', 'Layout')}: ${n}`, title: `${n} – ${tip}`, ic } }
 
 // a shelf's icon on the rail: the families' glyphs, a purpose's own (the line family the menus draw); era shelves go bare
 const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.perceptual': OI.opponent, 'cat.colorimetry': OI.chromaticity,
@@ -159,4 +182,4 @@ export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sor
 	${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}
 </div>` : ''}`
 	const ti = (c, i) => `<div class="trg"><i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn"${c.tip ? ` data-tip="${secTip(c)}"` : ''}>${SHELFI[c.key] ? `<span class="fic">${SHELFI[c.key]}</span>` : ''}<span class="tt">${secName(c)}</span><span class="tc tnum">${c.spaces.length}</span></button>${c.tip ? `<p class="tip">${secTip(c)}</p>` : ''}</div></div>`
-	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}${vtog(view)}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec" data-sec><h2 class="shw"${c.tip ? ` data-tip="${secTip(c)}" tabindex="0"` : ''}>${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>${vtog(view)}` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }
+	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec" data-sec><h2 class="shw"${c.tip ? ` data-tip="${secTip(c)}" tabindex="0"` : ''}>${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }
