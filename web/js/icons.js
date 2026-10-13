@@ -38,11 +38,11 @@ export const PI = {
 	sliders: fi('<rect x="1" y="2.5" width="14" height="2.6" rx=".6"/><rect x="1" y="6.7" width="14" height="2.6" rx=".6" opacity=".7"/><rect x="1" y="10.9" width="14" height="2.6" rx=".6" opacity=".45"/>'),
 	planes: fi('<rect x=".5" y="5" width="4.4" height="4.4" rx=".5"/><rect x="5.8" y="5" width="4.4" height="4.4" rx=".5" opacity=".7"/><rect x="11.1" y="5" width="4.4" height="4.4" rx=".5" opacity=".45"/>'),
 }
-// the layout's marks – square-cornered, each drawing its view: tiles, rows of a name and its strips, a sheet of columns
+// the layout's marks – compact, square-cornered: four tiles, two rows (the second dimmed), three lines of a sheet
 export const VI = {
-	grid: fi('<path d="M1 1h6v6H1zM9 1h6v6H9zM1 9h6v6H1zM9 9h6v6H9z"/>'),
-	list: fi('<path d="M1 2h3v3H1zM5 2h10v3H5zM1 6.5h3v3H1zM5 6.5h10v3H5zM1 11h3v3H1zM5 11h10v3H5z"/>'),
-	table: fi('<path d="M1 1.5h14v2.5H1zM1 6h4v1.8H1zM6 6h4v1.8H6zM11 6h4v1.8h-4zM1 9.2h4v1.8H1zM6 9.2h4v1.8H6zM11 9.2h4v1.8h-4zM1 12.4h4v1.8H1zM6 12.4h4v1.8H6zM11 12.4h4v1.8h-4z"/>'),
+	grid: fi('<path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/>'),
+	list: fi('<path d="M2 2.5h12v4.5H2z"/><path d="M2 9h12v4.5H2z" opacity=".45"/>'),
+	table: fi('<path d="M2 3h12v2H2zM2 7h12v2H2zM2 11h12v2H2z"/>'),
 }
 // what a space is and what it is for: the facets' options, the shelves' glyphs
 export const OI = {
