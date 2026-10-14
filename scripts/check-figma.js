@@ -530,7 +530,7 @@ try {
 			await page.waitForTimeout(150)
 			const sw = await ui.locator('#paints .paint[aria-pressed="true"] .sw').evaluate(e => [e.style.getPropertyValue('--sw'), e.style.getPropertyValue('--swo')])
 			ok(/ \/ 0\.5\)$/.test(sw[0]) && !sw[1].includes('/'), `a translucent swatch: half with its opacity, half opaque (${sw})`)
-			ok(await ui.locator('.foot').evaluate(f => { const v = [...f.children].filter(e => e.offsetParent && e.id !== 'err' && !e.classList.contains('sr')).map(e => e.id); const b = document.getElementById('badge').getBoundingClientRect(), i = document.getElementById('aboutb').getBoundingClientRect(); return v.join() === 'badge,aboutb' && i.left - b.right < 12 && document.body.clientWidth - i.right < 16 }), 'the badge right-aligned, beside the info mark at the foot\'s right')
+			ok(await ui.locator('.foot').evaluate(f => { const v = [...f.children].filter(e => e.offsetParent && e.id !== 'err' && !e.classList.contains('sr')).map(e => e.id); const b = document.getElementById('badge').getBoundingClientRect(), i = document.getElementById('aboutb').getBoundingClientRect(); return v.join() === 'badge,aboutb' && b.left - document.body.getBoundingClientRect().left < 16 && document.body.clientWidth - i.right < 16 }), 'the badge at the foot\'s left, the info mark at its right')
 			// the value's field is its format's select: a pick there changes the value, and the field holds no other control
 			ok(await ui.locator('#fmt').evaluate(sel => sel.closest('.fld') === document.getElementById('css-1').closest('.fld')), 'the format select is the value\'s own field')
 			await ui.locator('.fmt').click()
@@ -670,6 +670,10 @@ try {
 		await ui.locator('#quant option[value="20"]').hover()
 		ok(await optW() === ow0, `the open list keeps its width on hover (${ow0})`)
 		if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-lens.png` })
+		// Figma's menu rhythm and check, as measured on its own: 24 px rows, the check's left about 15.5 px in, text 17 px past it
+		const rh = await ui.locator('#quant option').evaluateAll(os => { const r = os.map(o => o.getBoundingClientRect()); return [r[1].top - r[0].top, r[0].height] })
+		ok(rh[0] === 24 && rh[1] === 24, `the menu's rows 24 px apart (${rh})`)
+		ok(await ui.locator('#quant option:checked').evaluate(o => getComputedStyle(o, '::checkmark').width) === '12px', 'the check in a 12 px box, its mark about Figma\'s 9 px')
 		ok(await ui.locator('#quant legend').first().isHidden() && await ui.locator('#quant option[value="20"]').evaluate(o => o.querySelector('.nm').getBoundingClientRect().left - o.querySelector('.ico').getBoundingClientRect().right >= 3), 'the sections unlabelled, a hairline apart; each icon apart from its name')
 		ok(await frame.evaluate(async () => { await document.fonts.load('11px Inter', 'Abc'); return document.fonts.check('11px Inter', 'Abc') }) && await ui.locator('#quant option').first().evaluate(o => getComputedStyle(o).fontSize) === '11px', 'the panel speaks Inter, Figma\'s face, bundled; its menus at Figma\'s 11 px')
 		// a small dropdown's list is Figma's menu: dark, its row under the pointer on the menu's selection color

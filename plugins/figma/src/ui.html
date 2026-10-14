@@ -116,10 +116,12 @@ button,select,input{ font:inherit; color:inherit }
 	/* the small dropdowns' lists are Figma's own menus: dark, rounded, white rows; the row under the pointer or the keys on
 	   the menu's selection blue, inset from the edges; a check at the current row's left; sections parted by a hairline.
 	   Their colors are --menu-*, Figma's own (measured; see :root) */
-	.grp ::picker(select),.fmt ::picker(select),.lens ::picker(select){ margin:var(--s1) 0; padding:var(--s2) 0; border:var(--rule-hair) solid var(--menu-edge); border-radius:var(--menu-radius); background:var(--menu-bg); color:var(--menu-ink); box-shadow:var(--modal-shadow) }
-	.grp option,.fmt option,.lens option{ display:flex; align-items:center; gap:var(--space-3xs); min-height:var(--s6); margin:0 var(--s2); padding:var(--s1) var(--s2); border-radius:var(--radius-card); font-size:var(--text-xs);   /* Figma's menu text, 11 px */ color:var(--menu-ink); white-space:nowrap }
+	/* the rhythm measured on Figma's menu (2026-10, at 2×): 6 px above the first row and below the last, 24 px rows, 7 px
+	   either side of a separator; the check's left 15.5 px from the menu's edge, 9 px wide, the text 17 px past its left */
+	.grp ::picker(select),.fmt ::picker(select),.lens ::picker(select){ margin:var(--s1) 0; padding:calc(var(--s1) + var(--space-3xs)) 0; border:var(--rule-hair) solid var(--menu-edge); border-radius:var(--menu-radius); background:var(--menu-bg); color:var(--menu-ink); box-shadow:var(--modal-shadow); -webkit-font-smoothing:antialiased }   /* light text on dark, thin as Figma draws it */
+	.grp option,.fmt option,.lens option{ display:flex; align-items:center; gap:var(--space-3xs); min-height:var(--s6); margin:0 var(--s2); padding:var(--s1) var(--s2) var(--s1) var(--s1); border-radius:var(--radius-card); font-size:var(--text-xs);   /* Figma's menu text, 11 px */ color:var(--menu-ink); white-space:nowrap }
 	.grp option:hover,.grp option:focus-visible,.fmt option:hover,.fmt option:focus-visible,.lens option:hover,.lens option:focus-visible{ background:var(--menu-sel); color:var(--menu-sel-ink); outline:none }
-	.grp hr,.fmt hr,.lens hr{ margin:var(--s2) 0; border:0; border-top:var(--rule-hair) solid var(--menu-rule) }
+	.grp hr,.fmt hr,.lens hr{ margin:calc(var(--s2) - var(--rule-hair)) 0; border:0; border-top:var(--rule-hair) solid var(--menu-rule) }
 	/* the check: Figma's, bold (the .ok icon's path at a heavier stroke), in the column the select keeps on every row (an
 	   unchecked row's mark is there, unseen) */
 	.grp option::checkmark,.fmt option::checkmark,.lens option::checkmark{ order:-1; content:''; flex:none; width:var(--s3); height:var(--s3); margin-inline-end:var(--space-3xs); background:currentColor; -webkit-mask:var(--check); mask:var(--check) }
@@ -129,7 +131,7 @@ button,select,input{ font:inherit; color:inherit }
 	   for an OS-drawn list, not on the page's */
 	.lens legend{ display:none }
 	.lens option .ico{ margin-inline-end:var(--s1) }   /* the icon apart from its name */
-	.lens optgroup + optgroup{ margin-top:var(--s2); padding-top:var(--s2); border-top:var(--rule-hair) solid var(--menu-rule) }   /* the second section, parted by a hairline */
+	.lens optgroup + optgroup{ margin-top:calc(var(--s2) - var(--rule-hair)); padding-top:calc(var(--s2) - var(--rule-hair)); border-top:var(--rule-hair) solid var(--menu-rule) }   /* the second section, parted by a hairline */
 }
 /* a menu, Figma's white one (its font list): a card under its control, the window growing to hold it; rows with the check
    at their left, the current row and the one under the pointer or the arrows on the panel's quiet fill */
@@ -314,7 +316,7 @@ html.drag #tip{ display:none }
 	<a class="logo" href="https://color-space.io/" data-open="site"><img src="/*LOCUS*/" alt="">Color Space</a>
 	<p><span data-i18n="pl.about.by">by</span> <a href="https://github.com/colorjs/color-space" data-open="github">colorjs</a> <a class="love" href="https://github.com/sponsors/colorjs" data-open="support" aria-label="Support" data-i18n="aria-label:pl.about.support"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg></a></p>
 </div>
-<div class="foot"><p class="err" id="err" role="alert"></p><span class="badge" id="badge" hidden></span><p class="sr" id="gamut" role="status"></p><div class="sr" id="notes" role="status"></div><button class="info" id="aboutb" type="button" popovertarget="about" aria-label="About Color Space" data-tip="About" data-i18n="aria-label:pl.about.label data-tip:pl.about.tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg></button></div>
+<div class="foot"><span class="badge" id="badge" hidden></span><p class="err" id="err" role="alert"></p><p class="sr" id="gamut" role="status"></p><div class="sr" id="notes" role="status"></div><button class="info" id="aboutb" type="button" popovertarget="about" aria-label="About Color Space" data-tip="About" data-i18n="aria-label:pl.about.label data-tip:pl.about.tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg></button></div>
 <div class="ghost" id="ghost" hidden aria-hidden="true"><span class="sw"></span><span class="lbl" data-i18n="pl.fold">Merge</span></div>
 <div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Panel width" data-i18n="aria-label:pl.grip.label" aria-valuemin="240" aria-valuemax="560" aria-valuenow="288" tabindex="0"></div>
 <script>/*BUNDLE*/</script>
