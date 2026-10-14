@@ -101,7 +101,7 @@ const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.
 // the years it ran: from its year to its successor's – or its year alone (still current, or retired with no year to give)
 // (short: the end year's last two digits within its century, 1942–76 – a card's corner is narrow)
 export const run = (s, short) => { const y = meta[s].year, z = y && ending(s)?.y; return !y ? '' : !z ? `${y}` : `${y}–${short && String(z).slice(0, 2) === String(y).slice(0, 2) ? String(z).slice(2) : z}` }
-const byline = s => { const m = meta[s], e = ending(s); return [m.by && `<span class="au">${shortBy(m.by)}${m.year ? ',' : ''}</span>`, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.archived : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
+const byline = s => { const m = meta[s], e = ending(s); return [m.by && `<span class="au">${shortBy(m.by)}${m.year ? ',' : ''}</span>`, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.historical : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
 // an entry: the featured (lead) card reads in full – name and by-line, its story, the strips, the numbers; a tile
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its

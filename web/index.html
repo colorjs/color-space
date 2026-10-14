@@ -24,6 +24,10 @@
 // the catalog's Greek (α, β, Δ…) lives below the fold: left to its first glyph, that face lands mid-scroll and every Inter
 // line on the page lays out again. Loaded now, its swap is the boot one – the one fonts.ready (and the rail) waits for
 document.fonts?.load('1em Inter','\u03b1').catch(()=>{})
+// iOS zooms the page into any focused field set under 16px – the catalog's numbers, the dossier's – and no CSS turns that
+// off. Its Safari alone lets a maximum scale stop it while the reader's own pinch zoom stays free (iOS 10 on ignores the
+// cap for pinching); anywhere else the cap would lock pinch zoom, so iOS alone gets it – the fields keep their sizes
+if(/iP(hone|od|ad)/.test(navigator.platform)||navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1) document.querySelector('meta[name=viewport]').content+=', maximum-scale=1'
 // every storage touch is guarded: a third-party frame with storage blocked THROWS on access
 let thm0; try{ thm0=localStorage.csTheme }catch{}
 document.documentElement.dataset.theme=thm0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
@@ -45,14 +49,14 @@ pre::selection,pre ::selection{ background:var(--color-terminal-ink); color:var(
 body{ font-family:var(--f); font-size:16px; line-height:1.45; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility }
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px }
 .page{ --railw:clamp(16rem,8rem + 12.5vw,20.5rem); --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; the rail widens to hold the longest family title, its icon and a count; --eg: half the visual gutter between entries */
-:root{ --maxw:108rem; --gut:clamp(1rem,3vw,2.2rem); --cells-h:3.5rem; --sel:color-mix(in oklab,var(--cur,var(--accent)) 14%,transparent) }   /* the page's side gutter; the pinned row's height – the hero runs under it; a picked option's tint */
+:root{ --maxw:108rem; --gut:clamp(var(--s3),3vw,2.2rem); --secp:clamp(var(--s8),4vw,var(--s12)); --cells-h:3.5rem; --sel:color-mix(in oklab,var(--cur,var(--accent)) 14%,transparent) }   /* the page's side gutter; a section's air above and below (history, usage, questions, footer); the pinned row's height – the hero runs under it; a picked option's tint */
 .tnum{ font-variant-numeric:tabular-nums }
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* said, not shown */
-a{ color:var(--ink); font-weight:500; text-decoration-thickness:1px; text-decoration-color:var(--ul); text-underline-offset:3px }
+a{ color:var(--ink); font-weight:500; text-decoration-thickness:1px; text-decoration-color:var(--ul); text-underline-offset:var(--ulo) }
 /* prose links (an <a> with no class: chrome links carry one), the hero's doors, Cite: a step bolder, the soft ink underline,
    inked whole when pointed at */
-:is(a:not([class]),.hsub button,.ftr .cite){ font-weight:500; background:none; text-decoration:underline; text-decoration-thickness:max(1px,.08em); text-decoration-color:var(--ul); text-underline-offset:3px; transition:text-decoration-color var(--dur-long) var(--ease-out) }
-:is(a:not([class]),.hsub button,.ftr .cite):hover{ text-decoration-color:currentColor }   /* every underlined link: a step bolder than prose, the same soft-ink line at the same distance (--ul); chrome links opt out with text-decoration:none */
+:is(a:not([class]),.ftr .cite){ font-weight:500; background:none; text-decoration:underline; text-decoration-thickness:max(1px,.08em); text-decoration-color:var(--ul); text-underline-offset:var(--ulo); transition:text-decoration-color var(--dur-long) var(--ease-out) }
+:is(a:not([class]),.ftr .cite):hover{ text-decoration-color:currentColor }   /* every underlined link: a step bolder than prose, the same soft-ink line at the same distance (--ul); chrome links opt out with text-decoration:none */
 a:hover{ text-decoration-color:currentColor }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:var(--z-tooltip); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; text-decoration:none; padding:var(--s2) var(--s3); transform:translateY(-3.6rem); transition:transform var(--dur-micro) var(--ease-out) }
 .skip:focus{ transform:none }
@@ -90,16 +94,19 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .hmain{ position:relative; display:grid; grid-template-columns:var(--railw) minmax(0,50rem); column-gap:var(--railgap); justify-items:start; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the catalog's grid: the words start where the spaces do */
 .hmain>*{ grid-column:2 }
 @media(max-width:1079px){ .hmain{ grid-template-columns:0 minmax(0,1fr); column-gap:0; max-width:calc(64rem - 2 * var(--gut)) } .hmain .hfield{ width:100%; margin-inline-start:0 } }   /* no rail: the catalog's one centred column – the row's color sits after Filters there, nothing to hang toward */
-.hh{ max-width:14em; margin:0; font-size:var(--text-3xl); font-weight:800; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }   /* two lines, flush left, in every language – the measure holds French's and Russian's longest in two, English balanced across two; a title, not a poster: the hero is a band over the catalog, not the first screen */
+.hh{ max-width:14em; margin:0; font-size:1em; font-weight:800; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }   /* two lines, flush left, in every language – the measure holds French's and Russian's longest in two, English balanced across two; a title, not a poster: the hero is a band over the catalog, not the first screen */
 .htitle .hh{ display:inline }   /* the title and, on its line, the plugin's announcement standing on its baseline */
-.htitle{ white-space:nowrap } .htitle .hh{ white-space:normal }   /* the announcement never leaves the title's last line: a long title breaks within itself, not before the pill */
+.htitle{ font-size:var(--text-3xl); line-height:1.05; white-space:nowrap } .htitle .hh{ white-space:normal }   /* the title's size on its line, which its mark shares */   /* the announcement never leaves the title's last line: a long title breaks within itself, not before the pill */
 @media(width < 36rem){ .htitle{ white-space:normal } }   /* a phone's column can't hold a long word and the pill together */
+/* the mark before the title – the locus, as the tab's icon draws it – where the hero's own locus has no room beside the words */
+.hmark{ display:none }
+@media(max-width:1079px){ .htitle{ display:flex; align-items:center; gap:var(--s2) } .hmark{ display:block; flex:none; width:auto; height:1.5em } .htt{ min-width:0 } }   /* the mark centred on the title and its tag – on one line, or beside the two a long title takes */
 .hplug{ display:inline-block; overflow:hidden; vertical-align:baseline; margin-inline-start:var(--s4); text-decoration:none; white-space:nowrap }   /* the catalog's tag, Figma's mark leading; overflow other than visible puts an inline block's baseline at its bottom edge (CSS 2.2 §10.8.1) */
 .hplug .hpi{ display:flex; align-items:center; gap:var(--s2) }   /* inside the pill, the mark and the words centred on each other */
 .hplug .figma{ height:var(--s4); width:auto }
 .hplug:hover{ background:var(--hair) }
-.hsub{ max-width:50rem; margin:var(--s4) 0 var(--s6); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }
-.hsub button{ font:inherit; color:var(--ink); border:0; padding:0; cursor:pointer }   /* the promise's doors – the page's link */
+.hsub{ max-width:50rem; margin:var(--s4) 0 var(--s6); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }   /* its doors are the page's links: inline, a comma stays on its word's line */
+@media(width < 36rem){ .hero{ padding-block:calc(var(--cells-h) + var(--s5)) var(--s6) } .hsub{ margin:var(--s2) 0 var(--s5); font-size:var(--text-base) } }   /* a phone: the promise a step down, closer to its title, the catalog closer under the field */
 /* the field: the row's own color rests in it (a view timeline carries it up into the row, below) – the field is its
    frame, an image on the right. As tall as the row, its box hung out by the row's inset (s3): the color lands on the
    field's pixels, and the field's on the row's */
@@ -142,7 +149,7 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .count{ flex:none; align-self:center; padding-inline:var(--s3) 0; font-size:var(--t2); font-weight:700; color:var(--body); white-space:nowrap }
 #nn{ display:inline-block; min-width:3ch; text-align:end }   /* the number holds three digits' room – a narrower count never moves Filters, nor its open menu */
 .fcells:has(>.cell:not([hidden])){ padding-inline-start:var(--s2) }
-@media(width < 30rem){ .cells .qx{ display:none } #m-more>label.msq{ display:flex; align-items:center; gap:var(--s2); padding:var(--s2); color:var(--soft); box-shadow:inset 0 calc(-1 * var(--rule-hair)) var(--hair); --ic:18px } #m-more>label.msq input{ flex:1; min-width:0; font:inherit; font-size:var(--text-md); color:var(--ink); background:none; border:0; outline:none } #gpill{ display:none } .hcolor #cval{ min-width:0 } .hh{ font-size:var(--text-xl) } }   /* a phone's: the color yields first – its gamut tag goes, its name ellipsizes */
+@media(width < 30rem){ .cells .qx{ display:none } #m-more>label.msq{ display:flex; align-items:center; gap:var(--s2); padding:var(--s2); color:var(--soft); box-shadow:inset 0 calc(-1 * var(--rule-hair)) var(--hair); --ic:18px } #m-more>label.msq input{ flex:1; min-width:0; font:inherit; font-size:var(--text-md); color:var(--ink); background:none; border:0; outline:none } #gpill{ display:none } .hcolor #cval{ min-width:0 } .htitle{ font-size:var(--text-xl) } }   /* a phone's: the color yields first – its gamut tag goes, its name ellipsizes */
 /* a cell's menu: a popover under its cell (centred where anchors are unknown), its options in rows */
 .dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--cells-h) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--hair) transparent; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
 @supports (anchor-name:--a){ .dpop{ inset:auto; margin:var(--s1) 0; position-area:bottom span-right; position-try-fallbacks:flip-inline,flip-block,flip-block flip-inline } }   /* under its cell, turning left at the screen's edge, above it only where below won't hold it – decided once, so a menu never slides as it opens */
@@ -154,7 +161,7 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 @starting-style{ :where(.dpop,.fmtp,#uppop):popover-open{ opacity:0; translate:var(--from) } }
 @media(width < 36rem){ .dpop{ --from:0 100% } }
 @media(prefers-reduced-motion:reduce){ :is(.dpop,.fmtp,#uppop){ --from:0 0 } }   /* still: the fade alone */
-.dpop .lnk{ font:inherit; font-size:var(--t2); font-weight:600; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-decoration-color:var(--ul); text-underline-offset:3px }
+.dpop .lnk{ font:inherit; font-size:var(--t2); font-weight:600; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-decoration-color:var(--ul); text-underline-offset:var(--ulo) }
 .dpop .lnk:hover{ color:var(--ink); text-decoration-color:currentColor }
 .opts{ display:grid; grid-template-columns:fit-content(16rem); gap:0 var(--s4) }   /* as wide as its options, up to a measure – a longer gloss wraps */
 .opts.c2{ grid-template-columns:repeat(2,fit-content(16rem)) }
@@ -201,9 +208,9 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .hcolor{ position:sticky; top:0; z-index:calc(var(--z-sticky-nav) + 1); height:0; margin-block:calc(-1 * var(--hc-up,0px)) var(--hc-up,0px); padding-inline:var(--gut); pointer-events:none }
 .hcolor>.cx{ position:relative; display:flex; align-items:center; width:max-content; height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--s3)); padding:0 var(--s4) 0 var(--s3); cursor:text; pointer-events:auto }
 @media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:0 } }
-.mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); opacity:0; pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before */
+.mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before: clear only while the scroll timeline holds it so (dock), so an engine that drops the timeline mid-scroll leaves the row paper, never see-through */
 @supports (animation-timeline:scroll()){ .mhead::after{ animation:dock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - var(--s4)) var(--hc-dock,50vh) } }
-@keyframes dock{ to{ opacity:1 } }
+@keyframes dock{ from{ opacity:0 } }
 @media(min-width:1080px){ .mhead::after{ inset-inline-start:calc(max(0px,(100% - var(--maxw)) / 2) + var(--gut) + var(--railw) + var(--railgap) - var(--s3) - var(--s8)) } }   /* the paper over the spaces' column and the search field's shadow (the field hangs s3 out, its shadow ~s8 past it): the rail's column is the titles' own, a pushed title leaving through it – under the edge */
 /* past the catalog the row lets go: as the catalog's end (--cat-end, measured) passes under it, the row and its docked
    color slide up with the page, one row's height, and are gone – the history, the usage and the footer run free.
@@ -211,7 +218,6 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 @supports (animation-timeline:scroll()){ :is(.mhead,.hcolor){ animation:unstick linear both; animation-timeline:scroll(root); animation-range:calc(var(--cat-end,100000px) - var(--cells-h)) var(--cat-end,100000px) } }
 @keyframes unstick{ to{ translate:0 calc(-1 * var(--cells-h) - var(--s1)) } }
 body.mopen :is(.mhead,.hcolor){ animation:none }
-@supports not (animation-timeline:scroll()){ .mhead::after{ opacity:1 } }   /* no scroll timeline: paper always */
 .mhead::before{ content:''; position:absolute; z-index:1; inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); pointer-events:none }   /* the row's edge: the current color, always, the window's width – animated while it roams */
 /* …and at the page's top, the hue circle round it – the footer's steps, the current color the middle one: scrolling
    down zooms into that step until, as the color docks, it is the whole edge */
@@ -344,16 +350,16 @@ body.himg #imgfloat{ display:block }
 /* ── the history (js/lineage.js): the catalog as a stack of years, at the full width of the page's measure – the
    headline, the milestones above the stack, its years below. The SVGs stretch across and are --hl-t px per band,
    so nothing is measured; tokens only – the bands' OKLCH is the data ── */
-.lineage{ --hl-t:calc(var(--s1) * .75); --hl-pad:calc(3 * var(--hl-t)); --hl-c:.12; --hl-l0:.46; --hl-dl:.36; container:hl / inline-size; padding:0 var(--gut) }   /* a band: three quarters of the smallest step, 3px; the gap above and below the stream; the bands' chroma at most (the current color's, --hl-cc, below it), the darkest light's lightness (print), the span the four lights step across */
+.lineage{ --hl-t:calc(var(--s1) * .75); --hl-pad:calc(3 * var(--hl-t)); --hl-ah:var(--s12); --hl-c:.12; --hl-l0:.46; --hl-dl:.36; container:hl / inline-size; padding:0 var(--gut) }   /* a band: three quarters of the smallest step, 3px; the gap above and below the stream; the milestones' height over it; the bands' chroma at most (the current color's, --hl-cc, below it), the darkest light's lightness (print), the span the four lights step across */
 :root[data-theme="dark"] .lineage{ --hl-c:.1; --hl-l0:.48; --hl-dl:.34 }
 .lineage:empty{ min-height:40rem }   /* its room, near enough, before it is built */
-.hl-fig{ margin:0; padding:var(--s12) 0; border-top:var(--rule-hair) solid var(--hair) }   /* no title: a hair after the catalog, then the figure */
+.hl-fig{ margin:0; padding:var(--secp) 0; border-top:var(--rule-hair) solid var(--hair) }   /* no title: a hair after the catalog, then the figure */
 /* the milestones: a flag on its leader – left of the stretch's middle the words run right, past it they run left */
-.hl-anns{ position:relative; height:var(--s12) }
+.hl-anns{ position:relative; height:var(--hl-ah) }
 .hl-ms{ position:absolute; top:0; bottom:0; left:calc(var(--x) * 1%); max-width:calc(var(--w) * 1% - var(--s3)); padding:0 0 0 var(--s2); font:inherit; font-size:var(--t1); line-height:1.35; text-align:left; color:var(--soft); background:none; border:0; border-left:var(--rule-hair) solid var(--soft); cursor:pointer }
 .hl-ms.end{ left:auto; right:calc(100% - var(--x) * 1%); padding:0 var(--s2) 0 0; text-align:right; border-left:0; border-right:var(--rule-hair) solid var(--soft) }
 .hl-ms{ translate:calc(var(--rule-hair) / -2) 0 } .hl-ms.end{ translate:calc(var(--rule-hair) / 2) 0 }   /* the flag's words a hair off its line, as before */
-@container hl (width >= 56rem){ :is(.hl-ms,.hl-ms.end){ border-color:transparent } }   /* wide: the leader draws the flag's line; narrow (no leaders) the flag keeps its own */
+:is(.hl-ms,.hl-ms.end){ border-color:transparent }   /* the leader draws the flag's line */
 .hl-ms b{ display:block; font-weight:700; color:var(--ink); white-space:nowrap }
 .hl-ms b::after{ content:'↗'; display:inline-block; width:0; text-indent:.25em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the catalog's idiom, as .nm: ↗ opens the space */
 .hl-ms:is(:hover,:focus-visible) b::after{ opacity:1 }
@@ -373,7 +379,7 @@ body.himg #imgfloat{ display:block }
 .hl-fig .out{ opacity:0; pointer-events:none }   /* the key keeps one light: the others' bands step out, their rows kept, and their milestones with them */
 .hl-b.on{ fill:var(--ink) }
 .hl-b:focus{ outline:0 } .hl-b:focus-visible{ stroke:var(--ink); stroke-width:2px; vector-effect:non-scaling-stroke }
-.hl-ld{ position:absolute; left:calc(var(--x) * 1%); top:calc(-1 * var(--s12)); width:var(--rule-hair); height:calc(var(--s12) + var(--hl-pad) + var(--y) * var(--hl-t)); translate:-50% 0; background:var(--soft); pointer-events:none }   /* a milestone's line, from its flag's top down to its band – one element, so flag and leader can't part by a pixel; placed as the rhombus is (left: x %) */
+.hl-ld{ position:absolute; left:calc(var(--x) * 1%); top:calc(-1 * var(--hl-ah)); width:var(--rule-hair); height:calc(var(--hl-ah) + var(--hl-pad) + var(--y) * var(--hl-t)); translate:-50% 0; background:var(--soft); pointer-events:none }   /* a milestone's line, from its flag's top down to its band – one element, so flag and leader can't part by a pixel; placed as the rhombus is (left: x %) */
 /* where a milestone begins: the catalog's rhombus (a space), on its leader */
 .hl-dm{ position:absolute; left:calc(var(--x) * 1%); top:calc(var(--hl-pad) + (var(--y) + .5) * var(--hl-t)); width:var(--s2); height:var(--s2); translate:-50% -50%; rotate:45deg; background:var(--paper); border:var(--picker-line) solid var(--ink); pointer-events:none }
 /* the years: a tick each decade, the ends and the half-centuries named */
@@ -385,23 +391,22 @@ body.himg #imgfloat{ display:block }
 /* the stack grows in, once, from the first year to the last */
 @media (prefers-reduced-motion:no-preference){ .hl-sv{ animation:hl-flow calc(var(--dur-long) * 3) var(--ease-out) backwards } }
 @keyframes hl-flow{ from{ clip-path:inset(calc(-1 * var(--hl-pad)) 100% calc(-1 * var(--hl-pad)) 0) } to{ clip-path:inset(calc(-1 * var(--hl-pad)) 0 calc(-1 * var(--hl-pad)) 0) } }   /* the leaders' overflow into the gaps stays whole */
-/* narrow: a milestone is its flag and its rhombus – the leaders and the words would cross */
+/* narrow: a milestone is its year and name on its leader – its words would cross the next one's */
 @container hl (width < 56rem){
-	.hl-fig{ --hl-t:calc(var(--s1) / 2); --hl-pad:var(--s1); padding-top:var(--s8) }   /* 2px bands – four device pixels or more on a phone */
-	.hl-ld,.hl-mw,.hl-fig .wide{ display:none }
-	.hl-anns{ height:calc(var(--s8) + var(--s2)) }
+	.hl-fig{ --hl-t:calc(var(--s1) / 2); --hl-pad:var(--s1); --hl-ah:calc(var(--s8) + var(--s2)) }   /* 2px bands – four device pixels or more on a phone */
+	.hl-mw,.hl-fig .wide{ display:none }
 	.hl-ms{ max-width:none }
 	.hl-ms b>span{ display:block }   /* the year over the name */
 }
 @container hl (width < 67.5rem){ .hl-ax span.near{ display:none } }   /* 1900 crowds 1860 once the axis is under 45rem */
 /* the key: a swatch and a name per light, a toggle – dim to ink, as the catalog's; one picked, the rest's swatches fade */
-.hl-key{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:var(--s2) var(--s6); margin-top:var(--s2) }   /* at the right, under the years most spaces arrived in – the key beside what it keys */
+.hl-key{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:var(--s2) var(--s4); margin-top:var(--s2) }   /* at the right, under the years most spaces arrived in – the key beside what it keys */
 .hl-kd{ display:inline-flex; align-items:center; gap:var(--s2); padding:0; font:inherit; font-size:var(--t1); line-height:1; color:var(--soft); background:none; border:0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
 .hl-kd:hover,.hl-kd[aria-pressed="true"]{ color:var(--ink) }
 .hl-kd i{ flex:none; width:var(--s3); height:var(--s3); background:var(--hl-kc); transition:opacity var(--dur-micro) var(--ease-out) }
 .hl-key:has([aria-pressed="true"]) .hl-kd:not([aria-pressed="true"]) i{ opacity:.35 }
 /* first-time orientation: the instrument should explain itself before the grid starts */
-.introcopy{ position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:var(--s8); align-items:start; padding:clamp(var(--s12),5vw,4rem) clamp(1rem,3vw,2.2rem) clamp(var(--s8),4vw,var(--s12)) }   /* the hero: copy and the API snippet split the measure half-and-half */
+.introcopy{ position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:var(--s8); align-items:start; padding:var(--secp) var(--gut) }   /* the hero: copy and the API snippet split the measure half-and-half */
 .introcopy>.ic-lead{ min-width:0 }
 .introcopy>.tabs{ min-width:0; max-width:none; margin:0 }   /* API snippet, right column, no title */
 .introcopy .tabs pre{ font-size:var(--t1); line-height:1.65 }
@@ -411,18 +416,17 @@ body.himg #imgfloat{ display:block }
 /* big screens: the history full-width, its title over the chart's quiet early years */
 @media(min-width:1080px){
 	.hl-fig{ position:relative }
-	.hl-lead{ position:absolute; inset-inline-start:0; top:var(--s12); margin:0; pointer-events:none } }
-.introcopy::before{ content:''; position:absolute; top:0; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); height:1px; background:var(--hair) }
+	.hl-lead{ position:absolute; inset-inline-start:0; top:var(--secp); margin:0; pointer-events:none } }
+.introcopy::before{ content:''; position:absolute; top:0; left:var(--gut); right:var(--gut); height:1px; background:var(--hair) }
 :is(.introcopy,.hl-lead) h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
 :is(.introcopy,.hl-lead) p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
 .hl-lead{ margin-bottom:var(--s8) }   /* narrow: the history's title over its chart */
 .introcopy em{ white-space:nowrap }
 /* the facts – what the library is: an icon, a name, a line */
 .facts{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s5) var(--s6); margin:var(--s8) 0 0; padding:0; list-style:none }
-/* four facts read as a row of four or two rows of two – never three and one: the lead column's own width decides */
+/* four facts read as a row of four or two rows of two – never three and one, never a column: the lead column's own width decides */
 .introcopy>.ic-lead{ container-type:inline-size }
 @container (min-width:56rem){ .facts{ grid-template-columns:repeat(4,minmax(0,1fr)) } }
-@container (max-width:24rem){ .facts{ grid-template-columns:minmax(0,1fr) } }
 .facts li{ display:flex; align-items:flex-start; gap:var(--s3); font-size:var(--t2); line-height:1.4; color:var(--body); cursor:default }
 .facts li[title]{ cursor:help }
 .facts .ic{ --ic:20px; color:var(--ink) }
@@ -430,8 +434,8 @@ body.himg #imgfloat{ display:block }
 .facts .pdm{ flex:none; width:20px; font-size:var(--text-lg); line-height:1; text-align:center; color:var(--ink); rotate:180deg }   /* the public-domain mark: a © turned */
 /* the questions — the same reference-book register as the intro: hairline above, rail-aligned,
    two columns of folded entries. No section title: the questions ARE the invitation */
-.faq{ position:relative; padding:clamp(var(--s8),4vw,var(--s12)) clamp(1rem,3vw,2.2rem) clamp(var(--s12),5vw,4rem) }
-.faq::before{ content:''; position:absolute; top:0; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); height:1px; background:var(--hair) }
+.faq{ position:relative; padding:var(--secp) var(--gut) }
+.faq::before{ content:''; position:absolute; top:0; left:var(--gut); right:var(--gut); height:1px; background:var(--hair) }
 .fqs{ min-width:0; display:grid; grid-template-columns:1fr 1fr; column-gap:var(--s8); align-items:start }   /* two FIXED halves, not balancing columns — unfolding one entry must not shuffle its neighbours across columns */
 .fqcol{ min-width:0 }
 .fqa+.fqa{ border-top:1px solid var(--hair) }   /* a soft rule BETWEEN questions only — adjacent siblings, so column tops and bottoms stay clean */
@@ -466,7 +470,7 @@ body.himg #imgfloat{ display:block }
 	.prem{ margin-inline-start:.2em }
 	.frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .cells .thm{ min-width:var(--tap); justify-content:center } .ent .nm,.mnav,.seg button,.sec2 .upbtn{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }   /* tabrow buttons stay at their book padding — main-page and dossier tabs share the one .tabrow recipe untouched */
+@media(pointer:coarse){ .cells .thm{ min-width:var(--tap); justify-content:center } .mnav,.seg button,.sec2 .upbtn{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }   /* tabrow buttons stay at their book padding — main-page and dossier tabs share the one .tabrow recipe untouched */
 	.dpop .tag{ min-height:24px; min-width:24px }   /* chips at their catalog size — 24px is the WCAG 2.5.8 floor, not the 44px inflation */
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
 /* ── catalog ── */
@@ -610,6 +614,7 @@ body.himg #imgfloat{ display:block }
 .ent .eh{ position:relative; display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s1); min-width:0 }
 .ent .eh .nm{ flex-shrink:0; max-width:80%; padding-inline-end:1.1em }   /* room for the ↗ its hover shows, in its own em: the maker never sits under it */   /* the name keeps its line while the maker gives way; only a name past four fifths of the card wraps – the year always has room */
 .ent .eh .nm::before,.ent.lr .li .nm::before{ content:''; position:absolute; inset:0 }   /* the whole head – the name, the year, the maker – opens the card */
+@media(pointer:coarse){ .ent .eh .nm::before{ inset:calc(-1 * var(--s2)) 0 } }   /* a finger's target reaches into the air around the head, not the head itself: a taller name pushed its strips away */
 .ent.lr .li{ position:relative }
 .ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; text-decoration:none; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
 .ent.tc .eh .nm{ font-size:var(--t3); font-weight:650; line-height:1.25 }
@@ -620,6 +625,14 @@ body.himg #imgfloat{ display:block }
 /* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
 .cvs{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s4); font-size:var(--t2) }
 .ent.tc .cvs{ font-size:var(--t1) }
+/* a phone's catalog: closer spaces under closer headings; a tile's head one line – its name and year, the maker (cut to
+   a few letters there) left to its tip – and its numbers one line, so every tile keeps one rhythm */
+@media(max-width:640px){
+	.sec,.sec:first-of-type{ padding-block:var(--s5) } .stip{ margin-bottom:var(--s4) }
+	.lead,.tiles{ gap:var(--s4) } .tiles{ margin-top:var(--s5) } .ent.lc{ row-gap:var(--s2) }
+	.ent.tc .by .au{ display:none }
+	.ent.tc .eh .nm{ flex-shrink:1; max-width:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+	.ent.tc .cvs{ flex-wrap:nowrap; gap:var(--s2) } .ent.tc .cvs:has(>.cvp:nth-child(4)){ gap:0 } }   /* four numbers: the letters alone part them */
 .cvp{ position:relative; display:flex; align-items:baseline; min-width:0; border-bottom:var(--ulw) solid transparent }   /* ONE underline under letter + number; flex baselines align letter and value structurally */
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:end; min-width:.9em; padding-inline-end:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
 .cv{ width:4.6rem; font-size:inherit; color:var(--body); text-align:start }
@@ -645,14 +658,16 @@ body.himg #imgfloat{ display:block }
    while --tkline keeps both outlines at one invariant weight. */
 .ch .nrg,.bar2 .nrg{ position:absolute; top:0; bottom:0; left:-4px; width:calc(100% + 8px); height:100%; margin:0; padding:0; appearance:none; -webkit-appearance:none; background:transparent; cursor:ew-resize; z-index:3; --tks:var(--picker-size); --tkline:var(--picker-line) }
 .ch .nrg::-webkit-slider-runnable-track,.bar2 .nrg::-webkit-slider-runnable-track{ background:transparent; border:0; height:100% }
-.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:var(--tks); height:var(--tks); margin-top:calc((var(--ctl) - var(--tks)) / 2); background:var(--tkc,transparent); border:var(--tkline) solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin var(--dur-micro) var(--ease-out) }
+.ch .nrg::-webkit-slider-thumb,.bar2 .nrg::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:var(--tks); height:var(--tks); margin-top:calc((var(--ctl) - var(--tks)) / 2); background:var(--tkc,transparent); border:var(--tkline) solid var(--tki,transparent); border-radius:0; box-shadow:none; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),margin var(--dur-micro) var(--ease-out) }   /* no shadow: a touch browser's own thumb casts one */
 .ch .nrg::-moz-range-track,.bar2 .nrg::-moz-range-track{ background:transparent; border:0 }
 .ch .nrg::-moz-range-thumb,.bar2 .nrg::-moz-range-thumb{ width:var(--tks); height:var(--tks); background:var(--tkc,transparent); border:var(--tkline) solid var(--tki,transparent); border-radius:0; transform:rotate(45deg); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
 /* attention: the thumb's box grows, but its ink outline does not gain weight. The
-   existing border and one equal-weight inverse ring form the steady outline pair. */
+   existing border and one equal-weight inverse ring form the steady outline pair – where a pointer hovers: a touch
+   leaves :hover stuck on the strip last touched, and the ring read as a shadow there */
 .ch:hover .nrg,.ch.live .nrg,.bar2:hover .nrg,.bar2.live .nrg{ --tks:var(--picker-active-size) }
-.ch:hover .nrg::-webkit-slider-thumb,.ch.live .nrg::-webkit-slider-thumb,.bar2:hover .nrg::-webkit-slider-thumb,.bar2.live .nrg::-webkit-slider-thumb{ box-shadow:0 0 0 var(--tkline) var(--tkv,transparent) }
-.ch:hover .nrg::-moz-range-thumb,.ch.live .nrg::-moz-range-thumb,.bar2:hover .nrg::-moz-range-thumb,.bar2.live .nrg::-moz-range-thumb{ box-shadow:0 0 0 var(--tkline) var(--tkv,transparent) }
+@media(hover:hover){
+	.ch:hover .nrg::-webkit-slider-thumb,.ch.live .nrg::-webkit-slider-thumb,.bar2:hover .nrg::-webkit-slider-thumb,.bar2.live .nrg::-webkit-slider-thumb{ box-shadow:0 0 0 var(--tkline) var(--tkv,transparent) }
+	.ch:hover .nrg::-moz-range-thumb,.ch.live .nrg::-moz-range-thumb,.bar2:hover .nrg::-moz-range-thumb,.bar2.live .nrg::-moz-range-thumb{ box-shadow:0 0 0 var(--tkline) var(--tkv,transparent) } }
 /* one at a time — the pointer outranks the focused channel */
 .chs:has(.ch:hover) .ch.live:not(:hover) .nrg,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg{ --tks:8px }
 .chs:has(.ch:hover) .ch.live:not(:hover) .nrg::-webkit-slider-thumb,.pick:has(.bar2:hover) .bar2.live:not(:hover) .nrg::-webkit-slider-thumb{ box-shadow:none }
@@ -685,7 +700,8 @@ body.himg #imgfloat{ display:block }
 .ch .hist,.bar2 .hist{ display:block; background:var(--tki,var(--ink)); -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }   /* the mask carries shape and fade; the background carries the picker's ink */
 /* attention is the slider thumb's exact state: larger box, invariant ink outline,
    and one equal-weight inverse ring outside. */
-.pl:hover .cx,.pl.live .cx{ width:var(--picker-active-size); height:var(--picker-active-size); box-shadow:0 0 0 var(--picker-line) var(--tkv,transparent) }
+.pl:hover .cx,.pl.live .cx{ width:var(--picker-active-size); height:var(--picker-active-size) }
+@media(hover:hover){ :is(.pl:hover,.pl.live) .cx{ box-shadow:0 0 0 var(--picker-line) var(--tkv,transparent) } }
 .nvw{ position:absolute; right:0; top:0; bottom:0; display:flex; align-items:stretch }
 .nvw input{ align-self:stretch; height:100%; width:3.6rem; font:inherit; font-size:var(--t1); font-weight:600; font-variant-numeric:tabular-nums; text-align:right; border:0; background:transparent; color:inherit; outline:none; padding:0 }
 .nvw .u{ align-self:center; font-size:var(--t1); font-weight:600; opacity:.85; width:.7rem; text-align:left; font-style:normal; margin-left:var(--s1) }
@@ -722,7 +738,7 @@ body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
    alone fills the frame – no header, catalog, FAQ, footer, scrim or close; prev/next would
    walk the frame away from the space it embeds. One quiet link out rides the category line. */
 :root[data-embed] .page,:root[data-embed] .ftr,:root[data-embed] .skip,:root[data-embed] #uppop,:root[data-embed] .mx,:root[data-embed] .mnavbar{ display:none }
-:root[data-embed] .modal{ background:var(--paper) }
+:root[data-embed] .modal{ background:var(--paper); padding-block:0 }   /* no row over it: the card from the frame's top */
 :root[data-embed] .mbox{ width:100%; margin:0; min-height:100dvh; box-shadow:none }   /* the phone sheet's recipe, at every width */
 .embl{ display:none }
 :root[data-embed] .embl{ display:block; position:absolute; top:var(--dpad); inset-inline-end:var(--dpad); z-index:var(--z-raised); font-size:var(--t2); color:var(--soft); text-decoration:none }   /* on the .dcat line, clear of the title */
@@ -730,7 +746,7 @@ body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 /* prev/next as centered post-navigation — a compact bar at the top of the dossier
    and again at its foot. Left chevron + name · name + right chevron. Dim-then-ink. */
 .mnavbar{ display:flex; justify-content:center; align-items:center; gap:clamp(var(--s4),6vw,var(--s12)) }
-.mnavbar.mfoot{ position:sticky; bottom:0; z-index:1; margin:var(--s6) 0 -1.5rem; padding:var(--s5) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
+.mnavbar.mfoot{ position:sticky; bottom:0; z-index:var(--z-raised); margin:var(--s6) 0 -1.5rem; padding:var(--s5) 0 var(--s2); background:var(--paper); border-top:1px solid var(--hair) }   /* always-visible nav pinned to the modal's foot; content-width, light hairline; negative bottom margin trims the dead space past the modal's end; sticky (not fixed) so it scrolls away, contained */
 .mnav{ display:flex; align-items:center; gap:.4em; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:var(--s2) 0; font:inherit }
 .mnav svg{ display:block; flex:none; opacity:.6; transition:opacity var(--dur-micro) var(--ease-out) }
 .mnav .mn{ font-size:var(--t3); font-weight:500; letter-spacing:.01em; white-space:nowrap }   /* the neighbour's name — regular weight, no trim; case comes display-final from navLabel/disp() */
@@ -738,7 +754,7 @@ body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 .mnav:hover svg,.mnav:focus-visible svg{ opacity:1 }
 @media(max-width:640px){ .mnav .mn{ font-size:var(--t2) }
 	.mnavbar .mcat{ display:none } }   /* phones: one prev, one next — the category jumps need a wider line */
-.mbox{ --dpad:clamp(1.2rem,3vw,2.2rem) }
+.mbox{ --dpad:var(--gut) }   /* the dossier's inset is the page's gutter */
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
 .dh{ position:relative; display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s6); padding-inline-end:var(--s12) }
@@ -803,7 +819,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .plab{ margin-bottom:var(--s2) }
 .props.pfoot{ margin:var(--s6) 0 var(--s2); border-top:1px solid var(--hair); padding-top:var(--s6) }
 .dhr{ border:0; border-top:1px solid var(--hair); margin:var(--s4) 0 var(--s6) }
-@media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr } }
+@media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr }
+	.dh h1{ font-size:var(--text-lg) } .dhr{ margin:var(--s3) 0 var(--s4) }   /* a phone: the title a step down, closer to what it names */
+	.props .pcol:has(>[data-k="source"]){ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s6) var(--s4) } .props .pcol>:is([data-k="origin"],[data-k="ending"],[data-k="aka"],[data-k="etymology"]){ grid-column:1 / -1 }   /* the record's short facts – lineage, reference, test, source – two a row; its sentences whole */ }
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:pan-y; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
@@ -815,15 +833,25 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:var(--dcol); align-items:start; margin:var(--s2) 0 var(--s8) }
 .dpick.nod3{ grid-template-columns:1fr }   /* no 3D — sliders + planes take the whole measure */
+/* a phone: one face at a time – the sliders or the planes, switched where the figure's switch stood (.pvseg, the
+   catalog cards' icons); the figure under them, centred, its plates at the solid's grid size, its own switch at its bottom left */
+.seg.pvseg{ display:none }
 @media(max-width:640px){ .dpick{ grid-template-columns:1fr }
-	.dpick :is(.pl3d,.gam2d){ max-width:20rem; margin-inline:auto } }   /* a phone: the figure, whichever, at the solid's size */
+	.seg.pvseg{ display:flex } .dpick.pvon .pick,.dpick:not(.pvon) .planes{ display:none }
+	.dfig .vgrp:is(:has(.gam2d),:has(.tcvw)){ max-width:14rem; translate:-6.25% 0 }   /* the plates' frames as wide as the solid's grid draws, and centred on the column, not their boxes – the label strip at a plate's left half-shifted out (the caption rides with them) */
+	.vgrp:has(.pl3d){ translate:-4% 0 } .dfig .pl3d{ aspect-ratio:1 } .dfig .pl3d canvas{ top:-18% }   /* the solid's scene, drawn 4% right of its box to meet the plates' frames, centred too; its box square, the scene centred in it – no headroom above and below it */
+	.dpick{ gap:var(--s3) }
+	@supports (anchor-name:--a){ .dfig{ anchor-name:--dfig } #figseg{ position:absolute; position-anchor:--dfig; bottom:anchor(bottom); left:anchor(left); z-index:calc(var(--z-raised) - 1) } }   /* the switch at the figure's bottom left, beside the plot – no row of its own */
+	.planes{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)) } .planes .pl{ max-width:none }   /* two a row: a plane a finger can work */
+	.dpick{ margin-block:0 var(--s5) } .chead .seg button{ margin-block:calc((var(--s6) - var(--tap)) / 2) }   /* the numbers close over the sliders: the switch's touch target overhangs its row, it doesn't widen it */
+ }
 /* no solid (1–2 channels, dsh): the right column stays — the gamut/transfer plates
    move up into it, stacked, so a narrow space never sprawls its bars full-width */
 .chead{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s6); margin-bottom:var(--s4) }   /* the selects centre on the number inputs' box, not their descenders */
 .bigch{ display:flex; flex-wrap:nowrap; align-items:baseline; gap:var(--s2) var(--s4) }
 @media(max-width:640px){ .mnavbar.mfoot{ padding:var(--s2) 0; }
 	.bigch{ flex-wrap:nowrap; gap:var(--s1)!important }   /* phones: tight row */
-	.chead{ flex-wrap:nowrap; gap:var(--s2) }   /* one line, always — whatever rides it must yield, never wrap */
+	.chead{ flex-wrap:nowrap; gap:var(--s2); margin-bottom:var(--s2) }   /* one line, always — whatever rides it must yield, never wrap */
 	.chead .dctl{ flex:none; gap:var(--s1) }   /* the gamut select rides phones too — it is the dossier's one remaining lens */
 }
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
@@ -848,6 +876,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .chlist .rmn{ justify-self:end }
 .chlist .rsep{ margin:0 .35em; color:var(--soft) }
 .chlist .tnum{ white-space:nowrap }
+@media(max-width:640px){ .chlist{ grid-template-columns:calc(50% + var(--s4) / 2) max-content min-content max-content } .chlist .rmn{ margin-inline-start:0 } }   /* a phone: the ranges open on the record's second column (lineage | reference below) */
 .cssv{ cursor:copy } .cssv:hover,.cssv:focus-visible{ color:var(--ink) }   /* the css notation copies on click or keyboard activation */
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
 /* cone sections: the plane BOX stays the rectangles' own square — the row's layout never
@@ -982,6 +1011,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .export.dex .dopt .exstat{ margin-inline-start:auto; text-align:end }   /* the file's weight flush right */
 .export.dex .exstat{ font-size:var(--t1) }
 .export.dex .dnote{ margin:0; font-size:var(--t1); line-height:1.45; color:var(--soft) }   /* which editors can't read the pick – said only when some can't */
+@media(max-width:640px){ .export.dex{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s6) var(--s4) } .export.dex .dopt{ flex-wrap:wrap; row-gap:var(--s1) } }   /* a phone: the LUT and the ICC profile side by side, their options wrapping under each */
 /* glossary terms: a soft question mark that explains the jargon in place */
 .term{ cursor:help }   /* a defined term — the help cursor is the only cue; no glyph */
 .imgrow{ display:flex; gap:var(--s2) }   /* one row, always — source + channel panels share it, shrinking together (same rule as .planes) */
@@ -1043,7 +1073,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 /* ── the footer: the motivation and the install command beside four columns of links, the maker and the license under
    them – over the wall, the current color's hue wheel at its lightness, four rows quantized ever coarser (5° → 10° → 20° →
    45°: sampling, told once, standing still), the color in the middle of each as at the top edge. The color's own ink (renderFast) reads on all of it ── */
-.ftr{ display:flex; flex-direction:column; gap:var(--s12); margin-top:var(--s12); padding:calc(var(--s12) * 1.5) var(--gut) var(--s12); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
+.ftr{ display:flex; flex-direction:column; gap:var(--secp); margin-top:var(--secp); padding:calc(var(--secp) * 1.5) var(--gut) var(--secp); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
 .fbody{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
 .fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: where to go | how to get it, and who made it */
 .fend{ display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:var(--s8) }   /* the install command at the top, the maker and the license at the foot – both to the right */
@@ -1058,7 +1088,7 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 .legal{ display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker, the license and the dedication, at the right */
 .legal span{ display:flex; gap:var(--s5) }
 @media(max-width:1079px){ .fcols{ grid-template-columns:repeat(2,minmax(max-content,1fr)) } }
-@media(max-width:740px){ .fbody{ grid-template-columns:1fr } .fend{ align-items:flex-start } .legal{ justify-content:flex-start } }
+@media(max-width:740px){ .fbody{ grid-template-columns:1fr; gap:var(--s6) } .fend{ align-items:flex-start; gap:var(--s6) } .fcols{ row-gap:var(--s6) } .legal{ align-self:stretch; justify-content:center } }   /* one column: closer, the maker and the license its centred last line */
 .ftr :focus-visible{ outline-color:currentColor }
 /* Cite: a native popover – the top layer, no positioning script; the floating-panel skin (paper, --pop-shadow), the
    dossier's labels and code plates inside */
@@ -1066,8 +1096,8 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 .citep .plab{ margin-top:var(--s3) } .citep .plab:first-child{ margin-top:0 }
 #citeapa{ white-space:pre-wrap }   /* the APA reference is prose – it wraps in the plate; the BibTeX keeps its lines */
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
-@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .modal{ background:var(--paper); padding-block:0 } }   /* the detail keeps its uniform --dpad — the sticky footer needs no reserved band */
-@media(pointer:coarse){ .nvw input,.cv,#q{ font-size:16px } }   /* iOS auto-zooms any focused input under 16px — floor the small inputs (slider inline values t1, pair values t2, search t2); LAST in the sheet so it wins their base rules (axe: pinch zoom stays free) */
+@media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:calc(100dvh - var(--cells-h)); box-shadow:none } .mnavbar.mfoot{ margin-bottom:calc(-1 * var(--dpad)) }
+	body.mopen :is(.hero,.cat,.lineage,.introcopy,.faq,.ftr){ visibility:hidden }   /* the sheet covers the page: what it covers is hidden too – a browser's see-through toolbar shows the page under it, a footer's links there */ .modal{ background:var(--paper); padding-block:var(--cells-h) 0 } }   /* a phone's sheet starts under the pinned row – the title and the ✕ in sight; the detail keeps its uniform --dpad – the sticky footer needs no reserved band */
 .sliding,.sliding *{ cursor:none!important }   /* dragging a strip or a plane: its marker is the pointer */
 /* a right-to-left page (Arabic) mirrors the layout – the logical properties above do it – but not what is drawn: strips,
    planes and their numbers, the history's years, code and color notations run left to right in every language */
@@ -1089,8 +1119,8 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
-		<div class="htitle"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span data-i18n="ui.hero.plugin">New: Figma plugin</span></span></a></div>
-		<p class="hsub" id="hsub" data-i18n="ui.hero.line">From <button type="button" data-door="family:display">web</button> to <button type="button" data-door="family:surface">print</button>, <button type="button" data-door="purpose:picking">pickers</button> to <button type="button" data-door="purpose:research">research</button>, <button type="button" data-door="era:1860"><span id="y0">1860</span></button> to <button type="button" data-door="era:2020"><span id="y1">2026</span></button>.<br>Ready for CSS, shaders, WASM and LUTs.</p>
+		<div class="htitle"><img class="hmark" src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span data-i18n="ui.hero.plugin">New</span></span></a></span></div>
+		<p class="hsub" id="hsub" data-i18n="ui.hero.line">From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>. Ready for CSS, shaders, WASM and LUTs.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
 			<button class="hib" type="button" id="him" popovertarget="uppop" aria-expanded="false" title="read an image – its colors on every strip" aria-label="read an image" data-i18n="title:ui.hero.image-tip aria-label:ui.hero.image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></button>
 		</div>
@@ -2356,6 +2386,7 @@ try{ const sp=new URLSearchParams(location.search), tg=sp.get('t'), cov=sp.get('
 const modal=document.getElementById('modal'), detail=document.getElementById('detail')
 // the dossier's figure by the sliders – the solid, the xy plate or the transfer curve – the last chosen, remembered
 let FIG='3d'; try{ if(['3d','xy','tc'].includes(localStorage.csFig)) FIG=localStorage.csFig }catch{}
+let PV=false   // a phone's dossier shows the sliders or the planes, not both – the face last chosen, from space to space
 const GXY=([x,y])=>[(x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352]   // the xy plate's mapping (gamutPos's, gamGrid's) in its 320 × 352 units
 const pageShell=document.querySelector('.page')
 // where the catalog ends on the page – the row lets go there (CSS: unstick); re-measured as the catalog or anything above it changes size
@@ -3873,12 +3904,14 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}</div>`
 	const plotPairs=pairsFor(s)
+	// a phone's switch between the two faces, the sliders and the planes – the catalog cards' own, their icons (CSS shows it ≤640)
+	const pvSeg=cls.ch.length>1&&plotPairs.length?`<span class="seg figseg pvseg" id="pvseg" role="group">${[[0,PI.sliders,t('ui.card.sliders','Sliders')],[1,PI.planes,t('ui.card.planes','Planes')]].map(([k,ic,n])=>`<button type="button" data-p="${k}" title="${n}" aria-label="${n}" aria-pressed="${!!k===PV}"${!!k===PV?' class="on"':''}>${ic}</button>`).join('')}</span>`:''
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dsec=activeSecs().find(c2=>c2.spaces.includes(s)), dcat=dsec?secName(dsec):''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
 	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1></div>
 	 <hr class="dhr">
-	 <div class="chead">${bigchHTML}${figSeg}</div>
-	 <section class="dpick${figHTML?'':' nod3'}" id="explore">
+	 <div class="chead">${bigchHTML}${pvSeg}${figSeg}</div>
+	 <section class="dpick${figHTML?'':' nod3'}${pvSeg&&PV?' pvon':''}" id="explore">
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
@@ -3897,11 +3930,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 </div>
 	 <section class="dhero" id="overview">
 		<div class="dmain"><div class="props props3">
-			<div class="pcol"><!-- the instrument: its axes, its notation, its shape, its signal (reference white included), its cost, its reach -->
+			<div class="pcol"><!-- the instrument: its axes, its notation, its kind – shape, signal, range, curve, white: the filters' facets, one row of their tags –, its cost, its reach -->
 				<div data-k="channels"><i>${t('ui.dossier.channels','channels')}</i><div class="chlist">${cls.ch.map(c=>`<span class="cn" title="${cname(c)} · ${c.sym}">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${CSSFMT[s]?`<div data-k="css"><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="${t('ui.dossier.css-tip','this color, CSS-notated – click to copy')}"></p></div>`:''}
-				${geo(s)?`<div data-k="geometry"><i>${t('ui.dossier.geometry','geometry')}</i><p class="dpills"><span class="tag" title="${TAGTIP[geo(s)]||''}">${OPTI[geo(s)]||''}${tagL(geo(s))}</span></p></div>`:''}
-				${m.referred||m.dynamic||enc||m.illuminant?`<div data-k="signal"><i>${t('ui.dossier.signal','signal')}</i><p class="dpills">${[m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${OPTI[m.referred]||''}${tagL(m.referred+'-referred')}</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${OPTI[m.dynamic.toUpperCase()]||''}${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${OPTI[enc]||''}${tagL(enc)}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}${prof?`\n${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:''}">${WHITE_XY[m.illuminant]?`<i class="wdot" style="--w:${whiteHex(m.illuminant)}"></i>`:''}${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
+				${geo(s)||m.referred||m.dynamic||enc||m.illuminant?`<div data-k="kind"><i>${t('ui.dossier.kind','kind')}</i><p class="dpills">${[geo(s)&&`<span class="tag" title="${TAGTIP[geo(s)]||''}">${OPTI[geo(s)]||''}${tagL(geo(s))}</span>`,m.referred&&`<span class="tag" title="${TAGTIP[m.referred]||''}">${OPTI[m.referred]||''}${tagL(m.referred+'-referred')}</span>`,m.dynamic&&`<span class="tag" title="${TAGTIP[m.dynamic.toUpperCase()]||''}">${OPTI[m.dynamic.toUpperCase()]||''}${m.dynamic.toUpperCase()}</span>`,enc&&`<span class="tag" title="${TAGTIP[enc]||''}">${OPTI[enc]||''}${tagL(enc)}</span>`,m.illuminant&&`<span class="tag" title="${TAGTIP[m.illuminant]||''}${prof?`\n${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:''}">${WHITE_XY[m.illuminant]?`<i class="wdot" style="--w:${whiteHex(m.illuminant)}"></i>`:''}${m.illuminant}</span>`].filter(Boolean).join('')}</p></div>`:''}
 				${m.loss?`<div data-k="loss"><i>${t('ui.dossier.loss','loss')}</i><p>${m.lossNote?`<span class="term" title="${t(`space.${s}.loss-note`,m.lossNote)}">${tagL(m.loss)}</span>`:tagL(m.loss)}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div data-k="reach"><i>${t('ui.dossier.reach-label','reach')}</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 			</div>
@@ -4004,6 +4036,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
 	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
 	TC=tcurve; paintTC()
+	const pvseg=detail.querySelector('#pvseg')
+	if(pvseg) pvseg.onclick=e=>{ const b=e.target.closest('button[data-p]'); if(!b) return; PV=b.dataset.p==='1'
+		detail.querySelector('#explore').classList.toggle('pvon',PV)
+		pvseg.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })
+		if(PV){ planeNext=0; paintPlanes(false) } renderFast() }   // planes shown are painted at their size – hidden, they had none
 	const figseg=detail.querySelector('#figseg')
 	if(figseg) figseg.onclick=e=>{ const b=e.target.closest('button[data-v]'); if(!b) return; FIG=b.dataset.v; try{ localStorage.csFig=FIG }catch{}
 		detail.querySelector('#dfig').dataset.v=FIG
@@ -4071,7 +4108,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			// the sizes: 33³ first (every editor), 65³, a 17³ draft, the shaper cubes; the 1D curve only where the pair is
 			// per-channel (exact, small – but no editor's 3D slot takes it)
 			const fillSz=()=>{ const prev=lsz.value, ch=!!lutChannelwise(space[s],space[lto.value])
-				lsz.innerHTML=[33,65,17].map(n=>`<option value="${n}">${n}³ ${SZL[n]}</option>`).join('')
+				lsz.innerHTML=[33,65,17].map(n=>`<option value="${n}" title="${SZL[n]}">${n}³</option>`).join('')   // the lattice by its size, as the editors name it (Resolve's 17/33/65-point cubes); its word in the tip
 					+`<optgroup label="${SHAPERL}">${[33,65].map(n=>`<option value="${n}s" title="${t('ui.lut.shaper-tip',"1D tone shaper + {n}³ lattice in one file, Blackmagic's layout – ffmpeg rejects it, OBS reads only its 1D part",{n})}">${t('ui.lut.shaper-opt','{n}³ + shaper',{n})}</option>`).join('')}</optgroup>`
 					+(ch?`<option value="1d" title="${t('ui.lut.1d-tip',"same primaries – a per-channel transfer curve, so a 4096-point 1D LUT; DaVinci Resolve and ffmpeg's lut1d read it – the 3D cubes are for every other editor")}">${t('ui.lut.1d-opt','1D curve · 4096')}</option>`:'')
 				const vs=[...lsz.options].map(o=>o.value); lsz.value=vs.includes(prev)?prev:'33' }
@@ -4720,7 +4757,7 @@ setGLReady(()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
 		planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) })
 let PDOWN=false
 addEventListener('pointerdown',e=>{ if(e.isPrimary){ PDOWN=true
-	if(e.target.closest?.('.ch,.bar2,.pl,.nv,.cv,.cd,#imgpk')) autoColor=false
+	if(e.target.closest?.(e.pointerType==='mouse'?'.ch,.bar2,.pl,.nv,.cv,.cd,#imgpk':'.pl,.nv,.cv,.cd,#imgpk')) autoColor=false   // a finger on a strip may be scrolling the page (pan-y): the orbit only holds still – the strip's drag, once it moves sideways, takes the color
 	if(e.pointerType==='mouse'&&e.target.closest?.('.ch:not(.mini .ch),.bar2,.pl')) document.documentElement.classList.add('sliding') } },true)
 const lift=()=>{ PDOWN=false; document.documentElement.classList.remove('sliding') }
 addEventListener('pointerup',e=>{ if(e.isPrimary) lift() },true)
@@ -5186,8 +5223,9 @@ renderFast(); paintCatalogGrad()
 	// into the catalog: the page moves to where it starts – right under the row
 	const go=()=>scrollTo({ top:catY(), behavior:reduce()?'instant':'smooth' })
 	// the promise's doors: cut:shelf – the catalog re-shelves by that cut and opens at that shelf (a family's shelf keys as cat.<id>)
+	// (links to the catalog, #cat, where no script runs)
 	document.getElementById('hsub').addEventListener('click',e=>{ const d=e.target.closest('[data-door]')?.dataset.door; if(!d) return
-		const [g,v]=d.split(':'), key=(g==='family'?'cat':g)+'.'+v
+		e.preventDefault(); const [g,v]=d.split(':'), key=(g==='family'?'cat':g)+'.'+v
 		regroup(g); const sec=cat.querySelectorAll('.sec')[GROUPS[g]().findIndex(c=>c.key===key)]
 		sec?toShelf(sec):go() })   // as the rail's own shelf links land
 }

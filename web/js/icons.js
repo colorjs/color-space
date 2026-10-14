@@ -74,8 +74,7 @@ export const OI = {
 	pq: ic('<path d="M4 4v16h16"/><path d="M4 20C5 12 7 8 11 6.5S17 5 20 4.5"/>'),
 	hlg: ic('<path d="M4 4v16h16"/><path d="M4 20Q6.5 11 11 10T20 5"/>'),
 	current: ic('<path d="M3 12h4l3-8 4 16 3-8h4"/>'),   // a pulse: alive, in use today
-	historical: ic('<path d="M3.5 12a8.5 8.5 0 1 0 2.5-6L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/>'),   // a clock turned back: history
-	archived: ic('<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'),   // retired: put away, no successor
+	historical: ic('<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'),   // the archive box: put away – the filter's mark and a retired card's, one sign
 	chromaticity: ic('<path d="M7 20 5.5 17 4.3 12 4.5 6 6 4 9.5 5.5 13.5 9 17 12.5 20 15.5z"/>'),
 }
 export const DL = ic('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')   // a download

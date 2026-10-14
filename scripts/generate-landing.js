@@ -229,7 +229,9 @@ export function stampPages(out = join(root, '_site'), i18n) {
 			html = swap(html, /<html lang="en">/, `<html lang="${L.code}"${((l) => l.getTextInfo?.() ?? l.textInfo)(new Intl.Locale(L.code)).direction === 'rtl' ? ' dir="rtl"' : ''}>`)   // Arabic reads right to left
 			html = counts(swap(html, /<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, catalog()))
 			html = swap(html, /<script type="application\/ld\+json" id="ld-dataset">[^<]*<\/script>/, '')   // the Dataset is the English index's
-			html = html.replace(/(\s(?:href|src)=")\.\/([^"#?]+)/g, (m, a, p) => !p.endsWith('.html') && existsSync(join(out, p)) ? `${a}../${p}` : m)
+			const up = (m, p) => !p.endsWith('.html') && existsSync(join(out, p)) ? '../' + p : m
+			html = html.replace(/(\s(?:href|src)=")\.\/([^"#?]+)/g, (m, a, p) => a + up('./' + p, p))
+				.replace(/(\ssrcset=")([^"]*)/g, (m, a, set) => a + set.replace(/\.\/([^\s,]+)/g, up))   // each candidate of a srcset too
 			html = swap(html, /<link rel="preload" href="\.\.\/data\.json" as="fetch" crossorigin>/, (m) => `${m}<link rel="preload" href="../i18n/${L.code}.json" as="fetch" crossorigin>`)
 			writeFileSync(join(out, 'i18n', L.code + '.json'), JSON.stringify(L.table))
 		}

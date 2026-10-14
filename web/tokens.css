@@ -96,6 +96,7 @@
 	--ghost:var(--color-rule-2);
 	--hair:oklch(0.17 calc(0.015*var(--uk)) var(--uh)/.12);
 	--ul:color-mix(in oklab, currentColor 30%, transparent);   /* the one link underline: a third of the text's own ink, so it adapts to any context (prose, terminal, footer) and both themes */
+	--ulo:.1em;   /* …and its distance below the baseline, in the text's own em: as close at the hero's size as at the footer's */
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */

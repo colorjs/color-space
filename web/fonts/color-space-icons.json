@@ -31,10 +31,9 @@
 	"OI.hlg": "E018",
 	"OI.current": "E019",
 	"OI.historical": "E01A",
-	"OI.archived": "E01B",
-	"OI.chromaticity": "E01C",
-	"PI.sliders": "E01D",
-	"PI.planes": "E01E",
+	"OI.chromaticity": "E01B",
+	"PI.sliders": "E01C",
+	"PI.planes": "E01D",
 	"QI.10": "25A5",
 	"QI.20": "25A6",
 	"QI.565": "25A4",
@@ -46,7 +45,7 @@
 	"QI.tailwind": "2630",
 	"QI.pico8": "25A9",
 	"QI.ansi": "25B8",
-	"VI.grid": "E01F",
-	"VI.list": "E020",
-	"VI.table": "E021"
+	"VI.grid": "E01E",
+	"VI.list": "E01F",
+	"VI.table": "E020"
 }
