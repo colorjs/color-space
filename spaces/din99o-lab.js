@@ -12,6 +12,7 @@
  * @year 2018
  * @by DIN (FNF/FNL 2 committee)
  * @use Industrial color-tolerance measurement standardized in DIN 6176; current lighter alternative to CIEDE2000 in coatings/plastics/automotive QC.
+ * @aka DIN99b
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 40 Green-Red axis
  * @channel {b} -40 40 Blue-Yellow axis

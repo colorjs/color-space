@@ -59,6 +59,10 @@ function parseJSDoc(content) {
   if (byMatch) meta.by = byMatch[1].trim()
   const useMatch = jsdoc.match(/@use\s+(.+)/)
   if (useMatch) meta.use = useMatch[1].trim()
+  // @aka <name>; <name>: other names the space goes by – a vendor's or a library's name for the same
+  // math (F-Gamut is BT.2020, DIN99b is DIN99o); searched and shown, never ids
+  const akaMatch = jsdoc.match(/@aka\s+(.+)/)
+  if (akaMatch) meta.aka = akaMatch[1].split(';').map(x => x.trim()).filter(Boolean)
   // @successor <space> <why>: the space that superseded it and the reason – its run as the current one ends the year
   // the successor appears
   const successorMatch = jsdoc.match(/@successor\s+(\S+)(?:[ \t]+(.+))?/)

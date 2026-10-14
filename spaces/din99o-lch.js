@@ -11,6 +11,7 @@
  * @year 2018
  * @by DIN (FNF/FNL 2 committee)
  * @use Direct chroma/hue tolerance adjustment; current, same industrial QC domain as DIN99o Lab.
+ * @aka DIN99b LCh
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 51.484 Chroma
  * @channel {H} 0 360 Hue angle in degrees

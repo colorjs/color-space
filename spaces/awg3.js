@@ -11,6 +11,7 @@
  * @year 2011
  * @by ARRI
  * @use Scene-linear camera gamut beneath LogC3 for ALEXA/AMIRA footage in VFX and grading; still active, succeeded by AWG4 on the ALEXA 35.
+ * @aka ALEXA Wide Gamut RGB
  * @successor awg4 ARRI's fourth color-science generation, with the ALEXA 35, moved to ARRI Wide Gamut 4
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

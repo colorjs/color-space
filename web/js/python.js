@@ -128,7 +128,7 @@ export default {
 	"luv": { colour: "colour.XYZ_to_Luv(XYZ, illuminant=D65)", inverse: "colour.cctf_encoding(colour.XYZ_to_RGB(colour.Luv_to_XYZ(v, D65), 'ITU-R BT.709'), 'sRGB')*255", opencv: "cv2.cvtColor(f, cv2.COLOR_RGB2Luv)" },
 	"lchuv": { colour: "colour.Luv_to_LCHuv(colour.XYZ_to_Luv(XYZ, illuminant=D65))", opencv: "(lambda o: np.stack([o[..., 0], np.hypot(o[..., 1], o[..., 2]), np.degrees(np.arctan2(o[..., 2], o[..., 1])) % 360], -1))(cv2.cvtColor(lin, cv2.COLOR_LRGB2Luv))" },
 	"msh": { colour: "(lambda L: np.array([np.linalg.norm(L), np.arctan2(np.hypot(L[1], L[2]), L[0]), np.arctan2(L[2], L[1]) % (2*np.pi)]))(colour.XYZ_to_Lab(XYZ, illuminant=D65))" },
-	"labh": { colour: "colour.XYZ_to_Hunter_Lab(XYZ*100, XYZ_n=[95.047, 100, 108.883], K_ab=[175, 70])" },
+	"labh": { colour: "colour.XYZ_to_Hunter_Lab(XYZ*100, XYZ_n=colour.xy_to_XYZ(D65)*100)" },
 	"hunter-rdab": { colour: "colour.XYZ_to_Hunter_Rdab(XYZ*100, XYZ_n=colour.xy_to_XYZ(D65)*100)" },
 	"lms": { colour: "colour.adaptation.CAT_CAT02 @ (XYZ*100)" },
 	"dcdm": { colour: "colour.models.eotf_inverse_DCDM(XYZ*48)" },

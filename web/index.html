@@ -2225,7 +2225,7 @@ const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
 let grouping='family'
 // search matches the space name AND its channel names/symbols ("hue", "lightness", "L"…)
 const sKey=w=>w.toLowerCase().replace(/[\s_-]+/g,' ')   // one separator: display-p3, display_p3 and Display P3 read alike
-const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,sKey(s+' '+disp(s)+' '+ch.map(c=>cname(c)+' '+c.sym).join(' '))] }))   // the DISPLAY name too – "hunter" must find Hunter Lab, not only labh
+const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,sKey(s+' '+disp(s)+' '+(meta[s].aka||[]).join(' ')+' '+ch.map(c=>cname(c)+' '+c.sym).join(' '))] }))   // the DISPLAY name too – "hunter" must find Hunter Lab, not only labh – and its other names: "F-Gamut" finds Rec. 2020
 const act=FACETS.map(()=>new Set())
 // minimum share of the visible gamut (0 = off) — a threshold, not a chip: coverage is
 // continuous, so it filters through a slider; spaces without a measured reach (1-, 2-
@@ -3916,6 +3916,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			<div class="pcol"><!-- the record: when and who, the name, the route it is defined by, then the citation cluster (reference · test · source) -->
 				${m.year||m.by?`<div data-k="origin"><i>${t('ui.dossier.origin','origin')}</i><p>${[run(s),m.by].filter(Boolean).join(', ')}</p></div>`:''}
 				${(e=>e?`<div data-k="ending"><i>${e.by?t('ui.dossier.replaced','replaced by'):t('ui.dossier.retired','retired')}</i><p>${e.by?`<a href="${e.by}">${disp(e.by)}</a>${e.y?`, ${e.y}`:''}${e.why?` – ${e.why}`:''}`:e.why}</p></div>`:'')(ending(s))}
+				${m.aka?`<div data-k="aka"><i>${t('ui.dossier.aka','also known as')}</i><p>${m.aka.join(', ')}</p></div>`:''}
 				${L.nm?`<div data-k="etymology"><i>${t('ui.dossier.etymology','etymology')}</i><p>${L.nm}</p></div>`:''}
 				${path&&path.length>1?`<div data-k="lineage"><i title="${t('ui.dossier.lineage-tip','the conversion route down to rgb – each space is defined through the next')}">${t('ui.dossier.lineage','lineage')}</i><p class="fam">${path.map((p,i)=>i?`<a href="${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
 				${m.refs||m.wiki?`<div data-k="reference"><i>${t('ui.dossier.reference','reference')}</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}

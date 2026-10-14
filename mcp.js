@@ -60,7 +60,7 @@ const cyclic = (c) => c.max === 360 || /hue/i.test(c.name)
 const inRange = (s, v) => (meta[s]?.channels || []).map((c, i) => Number.isFinite(v[i])
 	&& (cyclic(c) || (v[i] >= c.min - 1e-4 * (c.max - c.min) && v[i] <= c.max + 1e-4 * (c.max - c.min))))
 
-// ── "did you mean": edit distance over ids and display names — data.json's spaces[id].title, the
+// ── "did you mean": edit distance over ids, display names and other names (@aka) — data.json's spaces[id].title, the
 // names the site shows (scripts/generate-data.js); '' where the name is just the id (HSV for hsv)
 const norm = (x) => String(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
 const TITLE = Object.fromEntries(names.map((s) => { const t = meta[s]?.title || ''
@@ -77,7 +77,7 @@ const lev = (a, b) => {
 const prefix = (a, b) => { let i = 0; while (i < a.length && a[i] === b[i]) i++; return i }
 const suggest = (q) => {
 	const k = norm(q)
-	return names.map((s) => [s, Math.min(lev(k, norm(s)), TITLE[s] ? lev(k, norm(TITLE[s])) : Infinity), prefix(k, norm(s))])
+	return names.map((s) => [s, Math.min(lev(k, norm(s)), TITLE[s] ? lev(k, norm(TITLE[s])) : Infinity, ...(meta[s]?.aka || []).map((n) => lev(k, norm(n)))), prefix(k, norm(s))])
 		.sort((a, b) => a[1] - b[1] || b[2] - a[2] || a[0].length - b[0].length).slice(0, 3)
 		.map(([s]) => TITLE[s] ? `${s} (${TITLE[s]})` : s)
 }

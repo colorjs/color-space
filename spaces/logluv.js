@@ -10,7 +10,7 @@
  * @year 1998
  * @by Larson (SGI)
  * @use HDR image storage in TIFF (SGILOG compression, 32-bit LogLuv); legacy, still read and written by LibTIFF.
- * @channel {Le} 0 32767 Log luminance, 256·(log2 Y + 64)
+ * @channel {Le} 12288 17408 Log luminance, 256·log₂Y + 16384
  * @channel {ue} 0 255 u′ chromaticity × 410
  * @channel {ve} 0 255 v′ chromaticity × 410
  * @method chromaticity
@@ -38,9 +38,12 @@
 // (l.752-753) as 0.210526316/0.473684211. Negative Y encodes as Le = 0: LibTIFF keeps a sign
 // bit, but LogLuv32toXYZ (l.1278-1282) decodes L <= 0 as black. LibTIFF also clamps ue/ve
 // codes to 0-255 and Le below 2^-64 to 0; only the latter is applied here.
+// Range: Le 12288-17408 is 16 stops below to 4 stops above reference white, the working
+// window of a camera log; the 15-bit code itself spans 0-32767 (2^±64), which every
+// conversion still accepts.
 import xyz from './xyz.js';
 
-const logluv = { name: 'logluv', range: [[0, 32767], [0, 255], [0, 255]] };
+const logluv = { name: 'logluv', range: [[12288, 17408], [0, 255], [0, 255]] };
 
 const UN = 4 / 19, VN = 9 / 19;
 

@@ -10,6 +10,7 @@
  * @year 1999
  * @by Kodak
  * @use Ultra-wide-gamut RGB for high-end digital photography/raw processing; current common working space.
+ * @aka ROMM RGB
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -10,6 +10,7 @@
  * @year 2012
  * @by ITU-R
  * @use Linear intermediate for Rec. 2020 UHDTV primaries; current UHD/HDR grading working space.
+ * @aka F-Gamut; N-Gamut
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

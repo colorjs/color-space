@@ -9,6 +9,7 @@
  * @year 1967
  * @by Walter Bruch / Telefunken
  * @use Legacy analog PAL/SECAM broadcast TV primaries (Europe, EBU Tech 3213/BT.470); historical.
+ * @aka EBU Tech 3213; EBU 3213-E
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

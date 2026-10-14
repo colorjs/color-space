@@ -117,6 +117,8 @@ test('mcp: unknown spaces suggest ids and display names', async () => {
 	ok(/did you mean lab \(CIELAB\)/.test(cie.content[0].text), cie.content[0].text)
 	const lch = await tool('space', { name: 'CIELChab' })
 	ok(/did you mean lchab \(CIELChab\)/.test(lch.content[0].text), lch.content[0].text)   // the site's pinned names, not a second derivation
+	const aka = await tool('space', { name: 'F-Gamut' })
+	ok(/did you mean rec2020-linear/.test(aka.content[0].text), aka.content[0].text)   // another name for the same math (@aka) points at the space
 })
 
 test('mcp: display names are the site\'s – data.json spaces[id].title, one source', async () => {

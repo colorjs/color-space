@@ -1,17 +1,17 @@
 /**
- * Hunter Lab is Richard Hunter's 1948 opponent-color space, developed years before
- * CIELAB as one of the first practical attempts at a perceptually meaningful,
- * roughly uniform coordinate system for measuring surface color. Like Lab it
- * separates lightness from a red-green and a yellow-blue axis, but reaches them
- * through a simpler transform tied to Hunter's own reflectance instruments rather
- * than CIELAB's cube root. It's less perceptually uniform than CIELAB, but its
- * head start left it entrenched in industrial color-quality work — paints,
- * plastics, textiles and food — where legacy specifications still report in
+ * Hunter Lab is Richard Hunter's opponent-color scale for measuring surface color,
+ * published in its L, a, b form in 1958 and adapted to other illuminants through the Ka,
+ * Kb coefficients in 1967. It came years before CIELAB as one of the first practical
+ * attempts at a roughly uniform coordinate system: lightness plus a red-green and a
+ * yellow-blue axis, reached through square roots of the tristimulus values that
+ * Hunter's photoelectric instruments could compute, not CIELAB's cube root. It is less
+ * uniform than CIELAB, but its head start left it entrenched in industrial color-quality
+ * work (paints, plastics, textiles, food), where legacy specifications still report in
  * Hunter Lab units.
  *
- * @see {@link https://www.hunterlab.com/media/documents/duplicate-of-an-1005-hunterlab-vs-cie-lab.pdf} HunterLab AN-1005.00
+ * @see {@link https://doi.org/10.1364/JOSA.48.000985} Hunter 1958, Photoelectric Color Difference Meter, JOSA 48(12):985
  * @wiki {@link https://en.wikipedia.org/wiki/Hunter_Lab}
- * @year 1948
+ * @year 1958
  * @by Richard S. Hunter
  * @use Industrial surface-color quality control (paints, plastics, textiles, food); legacy but still specified in some industry standards.
  * @channel {L} 0 100 Lightness
@@ -24,34 +24,36 @@
  * @referred display
  * @dynamic sdr
  */
+
+// Implementation notes:
+// L = 100·√(Y/Yn); a = Ka·(X/Xn − Y/Yn)/√(Y/Yn); b = Kb·(Y/Yn − Z/Zn)/√(Y/Yn), on this
+// library's D65 white, so the white maps to (100, 0, 0). Ka = 175·√(Xn/98.043),
+// Kb = 70·√(Zn/118.115): the 1967 scaling of the illuminant-C originals 175 and 70
+// (colour-science 0.4.7 XYZ_to_K_ab_HunterLab1966, after HunterLab's "Illuminant Factors
+// in Universal Software and EasyMatch Coatings", 2008), giving 172.304 and 67.216 here;
+// HunterLab tabulates 172.30 and 67.20 for its D65 white (95.02, 100, 108.82). Ka = 175,
+// Kb = 70 belong to illuminant C only. Dates: HunterLab KA-06216 gives Rd,a,b 1943,
+// L,a,b 1958, Ka/Kb 1967; the space is often dated 1948, after Hunter's first
+// photoelectric color-difference meter papers.
 import xyz from './xyz.js';
+
+export const Xn = 95.04559270516717, Yn = 100, Zn = 108.90577507598783;
+export const Ka = 175 * Math.sqrt(Xn / 98.043), Kb = 70 * Math.sqrt(Zn / 118.115);
 
 const labh = {
 	name: 'labh',
 	range: [[0, 100], [-75, 115], [-210, 60]]
 };
 
-// Hunter Lab is white-point relative; this library's XYZ is D65, so a/b are
-// normalized by D65 ratios (a=b=0 at D65 white), matching lab.js's white point.
-// L = 100·√(Y/Yn); a = Ka·(X/Xn − Y/Yn)/√(Y/Yn); b = Kb·(Y/Yn − Z/Zn)/√(Y/Yn),
-// with Ka=175 (=> coeff 17.5 at Yn=100), Kb=70 (=> 7), kx=Yn/Xn, kz=Yn/Zn.
-const kx = 100 / 95.047;   // 1.05211 (D65 Xn; was Illuminant-C 1.02)
-const kz = 100 / 108.883;  // 0.91842 (D65 Zn; was Illuminant-C 0.847)
+labh.xyz = (L, a, b) => {
+	const r = L / 100, Y = r * r * Yn;
+	return [(a * r / Ka + r * r) * Xn, Y, (r * r - b * r / Kb) * Zn];
+};
 
-labh.xyz = (l, a, b) => {
-	const _y = l / 10;        // √Y  (Yn=100 => √(Y/Yn)·10 = √Y)
-	const _x = a / 17.5 * _y;
-	const _z = b / 7 * _y;
-	const y = _y * _y;
-	return [(_x + y) / kx, y, (y - _z) / kz];
-}
-
-xyz.labh = (x, y, z) => {
-	const _y12 = Math.sqrt(y);
-	const l = _y12 * 10;
-	const a = y === 0 ? 0 : 17.5 * ((kx * x - y) / _y12);
-	const b = y === 0 ? 0 : 7 * ((y - kz * z) / _y12);
-	return [l, a, b];
+xyz.labh = (X, Y, Z) => {
+	const r = Math.sqrt(Y / Yn);
+	if (r === 0) return [0, 0, 0];
+	return [100 * r, Ka * (X / Xn - Y / Yn) / r, Kb * (Y / Yn - Z / Zn) / r];
 };
 
 export default labh;

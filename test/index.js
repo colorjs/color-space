@@ -324,6 +324,7 @@ test('integrity — data.json spaces carry channels, range and @see refs', () =>
 	is(meta.munsell.refs.length, 2, 'multiple @see per space extracted')
 	// @wiki → meta.wiki (90 spaces audited 2026-07; every value must be a Wikipedia article)
 	is(meta.ycbcr.wiki, 'https://en.wikipedia.org/wiki/YCbCr', 'ycbcr @wiki extracted')
+	is([meta['din99o-lab'].aka, meta['rec2020-linear'].aka, meta.pal.aka], [['DIN99b'], ['F-Gamut', 'N-Gamut'], ['EBU Tech 3213', 'EBU 3213-E']], '@aka: the skipped duplicates are names of existing spaces')
 	const wikis = Object.values(meta).filter(m => m.wiki)
 	is(wikis.length >= 90, true, `wiki links present (${wikis.length})`)
 	is(wikis.every(m => /^https:\/\/en\.wikipedia\.org\/wiki\//.test(m.wiki)), true, 'every wiki link is a Wikipedia article')
@@ -802,6 +803,8 @@ test('labh: rgb -> labh', function () {
 	is((space.rgb.labh(0, 0, 0).map(round(1))), [0, 0, 0]);
 	// D65 white must be neutral: L=100, a=b=0 (guards the Illuminant-C constant bug)
 	is(space.rgb.labh(255, 255, 255).map(round(1)), [100, 0, 0]);
+	// colour-science 0.4.7 XYZ_to_Hunter_Lab(XYZ, XYZ_n=D65) – Ka/Kb from the white, not illuminant C's 175/70
+	is(near(space.xyz.labh(20.654008, 12.197225, 5.136952), [34.92452577, 47.03415673, 14.39667577], 1e-7), true, 'vs colour-science (D65 Ka, Kb)')
 });
 
 test('labh: labh -> rgb', function () {

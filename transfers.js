@@ -70,6 +70,23 @@ export const bt2020Decode = (v) => {
 };
 
 /**
+ * ITU-R BT.2100 HLG OETF (Table 5, Note 5c's rounded a, b, c), on relative scene light
+ * normalized so diffuse white 1.0 sits at signal 0.75 (scale = 12/(exp((0.75 − c)/a) + b)).
+ * `encode`: relative linear → HLG signal; `decode`: the inverse. Sign-extended.
+ * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
+ */
+const HLG_A = 0.17883277, HLG_B = 0.28466892, HLG_C = 0.55991073;
+const HLG_SCALE = 12 / (Math.exp((0.75 - HLG_C) / HLG_A) + HLG_B);
+export const hlgEncode = (v) => {
+	const e = Math.abs(v) / HLG_SCALE;
+	return sgn(v) * (e <= 1 / 12 ? Math.sqrt(3 * e) : HLG_A * Math.log(12 * e - HLG_B) + HLG_C);
+};
+export const hlgDecode = (v) => {
+	const p = Math.abs(v);
+	return sgn(v) * HLG_SCALE * (p <= 0.5 ? p * p / 3 : (Math.exp((p - HLG_C) / HLG_A) + HLG_B) / 12);
+};
+
+/**
  * SMPTE ST 2084 (PQ). `encode` maps absolute linear nits → PQ signal; `decode`
  * the reverse. Callers that work in relative light scale by the reference white
  * (e.g. ×203 nits) at the call site.
