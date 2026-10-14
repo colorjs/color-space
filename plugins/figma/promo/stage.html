@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Color Space – promo stage</title>
+<!-- The stage promo.js films and photographs: a headline, a small design drawn from the mock document's own
+     paints (scripts/figma-mock.js), and the real plugin panel beside it. 1440×810 CSS px at 4/3 = 1920×1080. -->
+<link rel="stylesheet" href="/web/tokens.css">
+<style>
+:root{ --stage-ink:#16161a; --stage-soft:#5b5f68; --stage-paper:#f5f5f5; --select:#0d99ff }   /* a design canvas's grey and its selection blue */
+*{ box-sizing:border-box }
+html,body{ margin:0; width:1440px; height:810px; overflow:hidden; background:var(--stage-paper); color:var(--stage-ink); font-family:Inter,ui-sans-serif,system-ui,sans-serif; -webkit-font-smoothing:antialiased }
+.stage{ transform-origin:0 0; transition:transform calc(.9s * var(--slow, 1)) cubic-bezier(.65,0,.35,1); position:relative; display:grid; grid-template-columns:470px minmax(0,1fr) 300px; gap:56px; height:100%; padding:56px 64px }
+.copy{ display:flex; flex-direction:column; min-width:0 }
+.mid{ display:grid; place-items:center; min-width:0 }
+.brand{ display:flex; align-items:center; gap:10px; font-weight:600; font-size:17px; letter-spacing:-0.01em }
+.brand img{ width:22px; height:22px }
+.brand .tag{ margin-left:6px; padding:3px 9px; border-radius:999px; background:#16161a; color:#fff; font-size:12px; font-weight:600; letter-spacing:.02em }
+h1{ margin:48px 0 18px; font-size:54px; line-height:1.04; letter-spacing:-0.035em; font-weight:700; text-wrap:balance }   /* lines of even length, never an orphaned word */
+.sub:empty{ display:none }
+.sub{ margin:0; font-size:21px; line-height:1.45; color:var(--stage-soft); text-wrap:pretty }
+.cap{ transition:opacity calc(.35s * var(--slow, 1)) ease, transform calc(.35s * var(--slow, 1)) ease }
+/* the cover's facts as pills; the outro's secondary features as a checked list */
+.pills{ display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 0 }
+.pills:empty,.feats:empty{ display:none }
+.pills span{ padding:6px 13px; border-radius:999px; background:#16161a0f; font-size:15px; font-weight:600; color:var(--stage-ink) }
+.feats{ margin:22px 0 0; padding:0; list-style:none; display:grid; gap:10px; font-size:19px; color:var(--stage-ink) }
+.feats li{ display:flex; gap:10px; align-items:baseline }
+.feats li::before{ content:''; flex:none; width:7px; height:12px; border:solid #16161a; border-width:0 2.5px 2.5px 0; transform:rotate(45deg) translate(-2px,-3px) }
+.cap.out{ opacity:0; transform:translateY(6px) }
+/* the design: a card drawn from the document's paints, each layer outlined while selected. Square throughout – the
+   plugin's window is the rounded thing on screen; the frame's drop shadow sets it on the canvas as a layer */
+.card{ position:relative; width:360px; padding:14px; box-shadow:0 1px 3px #0000001a, 0 6px 20px #00000012 }
+.card::before{ content:attr(data-name); position:absolute; left:0; bottom:100%; margin-bottom:6px; font-size:11px; color:#00000080 }   /* the frame's name over its corner */
+.photo{ height:190px; background-size:cover; background-position:center }
+.card h2{ margin:14px 2px 2px; font-size:22px; letter-spacing:-0.02em }
+.card p{ margin:0 2px; font-size:14px }
+.row{ display:flex; align-items:center; gap:10px; margin-top:14px }
+.btn{ padding:7px 14px; border:2px solid transparent; color:#fff; font-weight:600; font-size:14px }   /* a fill and a stroke: two colors on one layer */
+.pill{ flex:1; height:34px }
+.dot{ width:34px; height:34px; border-radius:50% }
+/* hover: a thin blue outline; selection: the outline and four corner handles (#selbox, drawn over the selected layer) */
+[data-node].hov{ outline:1px solid var(--select); outline-offset:0 }
+.selbox{ position:fixed; z-index:7; pointer-events:none; border:1px solid var(--select) }
+.selbox i{ position:absolute; width:7px; height:7px; background:#fff; border:1px solid var(--select); transform:translate(-50%,-50%) }
+/* the panel, in a plain window */
+.win{ align-self:start; width:300px; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 1px 2px #0000000f, 0 18px 48px #00000024 }
+.win header{ display:flex; align-items:center; gap:8px; height:36px; padding:0 12px; border-bottom:1px solid #e6e6e6; font-size:12px; font-weight:600 }
+.win header img{ width:14px; height:14px }
+#mount iframe{ display:block }
+/* the Code panel's output, for the Dev Mode scene */
+.code{ display:none; grid-column:2 / 4; grid-row:1; align-self:center; border-radius:12px; overflow:hidden; background:#1e1e1e; color:#e6e6e6; box-shadow:0 18px 48px #0000003a }
+.code header{ display:flex; gap:8px; align-items:center; height:36px; padding:0 14px; border-bottom:1px solid #333; font-size:12px; font-weight:600; color:#bbb }
+.code pre{ margin:0; padding:18px 20px; font:14px/1.7 "IBM Plex Mono",ui-monospace,monospace; white-space:pre-wrap; word-break:break-word }
+.code .c{ color:#8a8f98 } .code .p{ color:#7cc7ff } .code .v{ color:#ffd28a }
+/* the cover: the panel larger (zoom re-renders it, crisp), the design beside it */
+body.cover .stage{ grid-template-columns:470px minmax(0,1fr) 345px }
+body.cover .win{ zoom:1.15 }
+body.cover .mid{ justify-items:end }
+body.dev .code{ display:block } body.dev .mid,body.dev .right{ display:none }   /* the code takes the design's place and the panel's 
+/* the caption while the camera is in close: a lower third, the headline only */
+#lower{ position:fixed; left:40px; bottom:36px; z-index:8; max-width:900px; text-wrap:balance; padding:14px 22px; border-radius:14px; background:#16161ae6; color:#fff; font-size:34px; font-weight:700; letter-spacing:-0.02em; line-height:1.15; opacity:0; transform:translateY(8px); transition:opacity calc(.35s * var(--slow, 1)) ease, transform calc(.35s * var(--slow, 1)) ease; pointer-events:none }
+body.zoomed #lower{ opacity:1; transform:none }
+.copy{ transition:opacity calc(.4s * var(--slow, 1)) ease } body.zoomed .copy{ opacity:0 }   /* in close, the lower third speaks; a cropped headline would only distract */
+/* a pointer, drawn: the headless browser shows none */
+#cursor{ position:fixed; left:0; top:0; z-index:9; width:20px; height:20px; pointer-events:none; transform:translate(-2px,-2px); transition:opacity calc(.2s * var(--slow, 1)); opacity:0 }
+#cursor.on{ opacity:1 }
+</style>
+</head>
+<body>
+<div class="stage">
+	<div class="copy">
+		<div class="brand"><img src="/web/img/locus-64.png" alt="">Color Space<span class="tag">Figma plugin</span></div>
+		<div class="cap" id="cap"><h1 id="h"></h1><p class="sub" id="s"></p><ul class="feats" id="feats"></ul><p class="pills" id="pills"></p></div>
+	</div>
+	<div class="mid">
+			<div class="card" data-node="9:1" data-name="Card">
+				<div class="photo" data-node="9:2" style="background-image:url(/web/img/wave.jpg)"></div>
+				<h2 data-node="9:3">The Great Wave</h2>
+				<p data-node="9:4">Hokusai, c. 1831</p>
+				<div class="row"><span class="btn" data-node="9:5">View print</span><span class="pill" data-node="9:6"></span><span class="dot" data-node="9:7"></span></div>
+			</div>
+	</div>
+	<div class="right">
+		<div class="win"><header><img src="/web/img/locus-64.png" alt="">Color Space</header><div id="mount"></div></div>
+	</div>
+	<div class="code"><header>Dev Mode · Code · CSS (Color Space) · the card, as selected</header><pre id="code"></pre></div>
+</div>
+<div id="lower"></div>
+<svg id="cursor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 2l6.2 15 2.1-6.3L16.6 8.6z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+<script>
+// how each layer shows its paints: the property its fill sets, and its stroke's
+const PROP = { '9:1': 'background', '9:3': 'color', '9:4': 'color', '9:5': 'background', '9:6': 'background', '9:7': 'background' }
+const STROKE = { '9:5': 'border-color' }
+const doc = () => window.figma && figma.root.documentColorProfile === 'DISPLAY_P3' ? 'display-p3' : 'srgb'
+const col = (c, a = 1) => `color(${doc()} ${c.r} ${c.g} ${c.b}${a < 1 ? ` / ${a}` : ''})`
+// a paint's color, through its variable in the layer's mode (the mock keeps a bound paint's own copy stale, as Figma does)
+function resolve(node, c, ref) {
+	if (!ref) return c
+	for (let id = ref.id, hop = 0; hop < 8; hop++) {
+		const v = window.__var(id), mode = Object.values(node.resolvedVariableModes || {})[0], val = v && v[mode]
+		if (!val) return c
+		if (val.type !== 'VARIABLE_ALIAS') return val
+		id = val.id
+	}
+	return c
+}
+function css(node, p) {
+	if (p.type === 'SOLID') return col(resolve(node, p.color, p.boundVariables && p.boundVariables.color), p.opacity ?? 1)
+	if (p.type === 'GRADIENT_LINEAR') return `linear-gradient(90deg, ${p.gradientStops.map(s => `${col(resolve(node, s.color, s.boundVariables && s.boundVariables.color), s.color.a ?? 1)} ${s.position * 100}%`).join(', ')})`
+	return ''
+}
+function paint() {
+	if (window.__node) for (const [id, prop] of Object.entries(PROP)) {
+		const n = window.__node(id), p = n && n.fills && n.fills[0], e = document.querySelector(`[data-node="${id}"]`)
+		if (p) e.style.setProperty(prop, css(n, p))
+		const k = n && n.strokes && n.strokes[0]
+		if (k && STROKE[id]) e.style.setProperty(STROKE[id], css(n, k))
+	}
+	// the selection's boxes, each with its handles, kept on its layer's bounds (the camera moves them)
+	const sel = window.figma ? figma.currentPage.selection.map(n => n.id) : []
+	const boxes = document.querySelectorAll('.selbox')
+	for (const [k, id] of sel.entries()) {
+		const e = document.querySelector(`[data-node="${id}"]`); if (!e) continue
+		const b = boxes[k] || document.body.appendChild(Object.assign(document.createElement('div'), { className: 'selbox', innerHTML: '<i style="left:0;top:0"></i><i style="left:100%;top:0"></i><i style="left:0;top:100%"></i><i style="left:100%;top:100%"></i>' }))
+		const r = e.getBoundingClientRect()
+		Object.assign(b.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', display: '' })
+	}
+	for (let k = sel.length; k < boxes.length; k++) boxes[k].style.display = 'none'
+	requestAnimationFrame(paint)
+}
+requestAnimationFrame(paint)
+// a caption: the headline, its line, and optionally pills (short facts) and a list (the secondary features)
+window.caption = (h, s, now, { pills = [], list = [] } = {}) => new Promise(done => {
+	const box = document.getElementById('cap'), el = (tag, t) => Object.assign(document.createElement(tag), { textContent: t })
+	const set = () => {
+		document.getElementById('h').textContent = h; document.getElementById('s').textContent = s; document.getElementById('lower').textContent = h
+		document.getElementById('pills').replaceChildren(...pills.map(t => el('span', t)))
+		document.getElementById('feats').replaceChildren(...list.map(t => el('li', t)))
+		box.classList.remove('out'); done() }
+	if (now || !document.getElementById('h').textContent) return set()
+	box.classList.add('out')
+	setTimeout(set, 350 * (window.SLOW || 1))
+})
+// the camera: zoom the stage onto named parts (their union filling the frame, a margin round it), or back to the whole
+const PARTS = { panel: '.win', design: '.card', code: '.code', copy: '.copy' }
+window.camera = (names, margin = 40) => {
+	const st = document.querySelector('.stage')
+	document.body.classList.toggle('zoomed', !!names)
+	if (!names) { st.style.transform = ''; return }
+	const m = new DOMMatrix(getComputedStyle(st).transform === 'none' ? undefined : getComputedStyle(st).transform)
+	const rs = names.map(n => document.querySelector(PARTS[n] || n).getBoundingClientRect()).map(r => {   // back to the stage's own coordinates
+		const a = m.inverse().transformPoint({ x: r.left, y: r.top }), b = m.inverse().transformPoint({ x: r.right, y: r.bottom })
+		return [a.x, a.y, b.x, b.y] })
+	const [x0, y0, x1, y1] = [Math.min(...rs.map(r => r[0])), Math.min(...rs.map(r => r[1])), Math.max(...rs.map(r => r[2])), Math.max(...rs.map(r => r[3]))]
+	const W = innerWidth, H = innerHeight, k = Math.min((W - 2 * margin) / (x1 - x0), (H - 2 * margin) / (y1 - y0))
+	st.style.transform = `translate(${(W - (x1 - x0) * k) / 2 - x0 * k}px, ${(H - (y1 - y0) * k) / 2 - y0 * k}px) scale(${k})`
+}
+// the drawn pointer; over the design it hovers the deepest layer under it, as a design tool does
+window.pointer = (x, y, on = true) => {
+	const c = document.getElementById('cursor'); c.style.left = x + 'px'; c.style.top = y + 'px'; c.classList.toggle('on', on)
+	const under = on ? document.elementsFromPoint(x, y).find(e => e.dataset && e.dataset.node) : null
+	for (const e of document.querySelectorAll('[data-node].hov')) if (e !== under) e.classList.remove('hov')
+	if (under) under.classList.add('hov')
+}
+window.showCode = text => {
+	document.getElementById('code').innerHTML = text.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+		.replace(/(\/\*.*?\*\/)/g, '<span class="c">$1</span>').replace(/^(\s*)([\w-]+):/gm, '$1<span class="p">$2</span>:')
+	document.body.classList.toggle('dev', !!text)
+}
+</script>
+</body>
+</html>

@@ -54,6 +54,8 @@ const arm = (el) => {
 	const t = el.getAttribute('title')
 	if (t != null) { el.setAttribute('data-tip', t); el.removeAttribute('title') }
 }
+// a select whose list is open (:open, where supported) is being operated: no tip over its list
+const isOpen = (sel) => { try { return sel.matches(':open') } catch { return false } }
 // tags alone don't arm the bubble — only elements that also carry (or arm into) data-tip
 const find = (e) => {
 	if (!e.target.closest) return null
@@ -61,7 +63,7 @@ const find = (e) => {
 	// a native select is being operated, not consulted — never bubble an ANCESTOR's explainer
 	// over it (the section heading's tip rode the grouping select); its own title still may
 	const sel = e.target.closest('select')
-	return sel && el !== sel ? null : el
+	return sel && (el !== sel || isOpen(sel)) ? null : el
 }
 
 addEventListener('pointerover', (e) => {

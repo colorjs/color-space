@@ -27,8 +27,9 @@ import space from '../index.js'
 import { classify, decOf } from '../web/js/core.js'
 import * as PALETTES from '../web/js/palettes.js'
 import { gamutMap, deltaEOK, DEST, JND } from '../plugins/figma/src/gamut.js'
-import { cssShort } from '../plugins/figma/src/notation.js'
+import { cssShort, cssOf } from '../plugins/figma/src/notation.js'
 import { CSS, css } from '../css.js'
+import { host } from './figma-mock.js'
 
 const dir = fileURLToPath(new URL('../plugins/figma/', import.meta.url))
 execFileSync(process.execPath, [dir + 'build.js'], { stdio: 'inherit' })
@@ -67,130 +68,11 @@ ok(JSON.stringify(manifest.networkAccess) === '{"allowedDomains":["none"]}', 'ma
 	ok(worst <= JND / 5, `oklch()/oklab() at three digits stay within JND/5 of the color: worst ΔEOK ${worst.toFixed(5)} (${bad})`)
 }
 
-/* ---------- the mock Figma host (runs in the page) ---------- */
-
-function host(setup) {
-	const deepFreeze = o => { if (o && typeof o === 'object') { Object.values(o).forEach(deepFreeze); Object.freeze(o) } return o }
-	const clone = v => JSON.parse(JSON.stringify(v))
-	const mixed = Symbol('figma.mixed')
-	const events = {}, pageEvents = {}, store = new Map(Object.entries(setup.stored || {}))
-	const fire = (bag, type, arg) => setTimeout(() => (bag[type] || []).forEach(f => f(arg)))   // Figma's events are async
-	const log = window.__log = { toUI: [], fromUI: [], writes: [], varWrites: [], styleWrites: [], relaunch: [], varLookups: 0, showUI: null, undo: 0, resize: [] }
-	const nodes = new Map()
-
-	for (const spec of setup.nodes) {
-		// Figma reports '' for a fill or stroke list that isn't linked to a paint style
-		const node = { id: spec.id, name: spec.name, type: spec.type, visible: spec.visible !== false, parent: null, fillStyleId: spec.fillStyleId || '', strokeStyleId: spec.strokeStyleId || '', resolvedVariableModes: spec.modes || {}, _put: {}, setRelaunchData: d => log.relaunch.push({ id: spec.id, d }) }
-		for (const kind of ['fills', 'strokes']) {
-			if (!(kind in spec)) continue
-			let value = spec[kind] === 'mixed' ? mixed : deepFreeze(clone(spec[kind]))
-			// a linked style's edit reaches the node through the style, not through this setter
-			node._put[kind] = next => { value = deepFreeze(clone(next)); fire(pageEvents, 'nodechange', { nodeChanges: [{ type: 'PROPERTY_CHANGE', id: node.id, node, origin: 'LOCAL', properties: [kind] }] }) }
-			Object.defineProperty(node, kind, {
-				enumerable: true,
-				get: () => value,
-				set: next => {
-					if (!Array.isArray(next)) throw new Error(`${kind} must be an array`)
-					for (const p of next) if (p.type === 'SOLID' && !['r', 'g', 'b'].every(c => p.color[c] >= 0 && p.color[c] <= 1)) throw new Error('color channel out of [0, 1]')
-					value = deepFreeze(clone(next))
-					log.writes.push({ id: node.id, kind, paints: clone(next) })
-					fire(pageEvents, 'nodechange', { nodeChanges: [{ type: 'PROPERTY_CHANGE', id: node.id, node, origin: 'LOCAL', properties: [kind] }] })
-				},
-			})
-		}
-		nodes.set(node.id, node)
-	}
-	// a group or frame holds its children (spec.children: ids), each knowing its parent
-	for (const spec of setup.nodes) if (spec.children) { const g = nodes.get(spec.id); g.children = spec.children.map(id => nodes.get(id)); for (const ch of g.children) ch.parent = g }
-	// color variables (aliases included) and paint styles; remote ones throw on edit, as Figma's library tokens do
-	const vars = new Map(Object.entries(setup.variables || {}).map(([id, v]) => [id, {
-		id, name: v.name, remote: !!v.remote, variableCollectionId: v.collection, valuesByMode: clone(v.values),
-		setValueForMode(mode, value) {
-			if (this.remote) throw new Error('cannot edit a remote variable')
-			this.valuesByMode[mode] = clone(value)
-			log.varWrites.push({ id, mode, value: clone(value) })
-		},
-	}]))
-	const styles = new Map(Object.entries(setup.styles || {}).map(([id, st]) => {
-		let paints = deepFreeze(clone(st.paints))
-		const style = { id, name: st.name, remote: !!st.remote }
-		Object.defineProperty(style, 'paints', {
-			get: () => paints,
-			set: next => {
-				if (style.remote) throw new Error('cannot edit a remote style')
-				paints = deepFreeze(clone(next))
-				log.styleWrites.push({ id, paints: clone(next) })
-				for (const n of nodes.values()) for (const [kind, key] of [['fills', 'fillStyleId'], ['strokes', 'strokeStyleId']]) if (n[key] === id) n._put[kind](next)
-			},
-		})
-		return [id, style]
-	}))
-
-	let iframe = null
-	const currentPage = {
-		selection: (setup.selection || []).map(id => nodes.get(id)),
-		on: (t, f) => { (pageEvents[t] ||= []).push(f) },
-		off: (t, f) => { pageEvents[t] = (pageEvents[t] || []).filter(g => g !== f) },
-	}
-	window.figma = {
-		editorType: setup.editorType,
-		mode: setup.mode || 'default',
-		// Dev Mode's Code panel: the plugin registers a generator; the check calls it as Figma would
-		codegen: { preferences: { customSettings: setup.codegen || {} }, on: (t, f) => { if (t === 'generate') window.__generate = f } },
-		// an image's bytes, painted from the setup's colors (left half, right half) and encoded as PNG
-		getImageByHash: hash => setup.images && setup.images[hash] ? { getBytesAsync: async () => {
-			if (setup.images[hash] === 'corrupt') return new Uint8Array([1, 2, 3])
-			const cv = new OffscreenCanvas(16, 16), cx = cv.getContext('2d'), [a, b] = setup.images[hash]
-			cx.fillStyle = `rgb(${a.join(' ')})`; cx.fillRect(0, 0, 8, 16)
-			cx.fillStyle = `rgb(${b.join(' ')})`; cx.fillRect(8, 0, 8, 16)
-			return new Uint8Array(await (await cv.convertToBlob({ type: 'image/png' })).arrayBuffer())
-		} } : null,
-		mixed,
-		root: { documentColorProfile: setup.profile },
-		currentPage,
-		on: (t, f) => { (events[t] ||= []).push(f) },
-		getNodeByIdAsync: async id => nodes.get(id) || null,
-		getStyleByIdAsync: async id => styles.get(id) || null,
-		variables: { getVariableByIdAsync: async id => { log.varLookups++; return vars.get(id) || null }, getLocalVariablesAsync: async () => [...vars.values()].filter(v => !v.remote) },
-		commitUndo: () => { log.undo++ },
-		clientStorage: {
-			getAsync: async k => store.get(k),
-			setAsync: async (k, v) => { store.set(k, v) },
-		},
-		showUI(doc, options) {
-			log.showUI = options
-			// themeColors: Figma adds its --figma-color-* variables to the iframe. These dark
-			// values are stand-ins (not Figma's), so the check can see that the panel uses them.
-			if (options.themeColors) doc = doc.replace('<head>', '<head><style>:root{--figma-color-bg:#2c2c2c;--figma-color-bg-secondary:#383838;--figma-color-text:#ffffff;--figma-color-text-secondary:#b3b3b3;--figma-color-border:#4d4d4d}</style>')
-			iframe = document.createElement('iframe')
-			iframe.sandbox = 'allow-scripts'   // an opaque origin: the UI may not rely on storage or same-origin access
-			iframe.title = 'color-space plugin'
-			iframe.style.border = '0'   // Figma's panel frame has none, and pointer math in the checks reads the bare box
-			iframe.width = options.width
-			iframe.height = options.height
-			iframe.srcdoc = doc
-			document.body.append(iframe)
-		},
-		ui: {
-			onmessage: null,
-			resize(w, h) { log.resize.push([w, h]); iframe.width = w; iframe.height = h },
-			postMessage(msg) { log.toUI.push(clone(msg)); iframe.contentWindow.postMessage({ pluginMessage: msg }, '*') },
-		},
-	}
-	window.addEventListener('message', e => {
-		if (!iframe || e.source !== iframe.contentWindow || !e.data || !('pluginMessage' in e.data)) return
-		log.fromUI.push(clone(e.data.pluginMessage))
-		if (figma.ui.onmessage) figma.ui.onmessage(e.data.pluginMessage, { origin: e.origin })
-	})
-	// test controls
-	window.__select = ids => { currentPage.selection = ids.map(id => nodes.get(id)); fire(events, 'selectionchange') }
-	window.__edit = (id, kind, paints) => { nodes.get(id)[kind] = paints }   // as if the user edited in Figma
-	window.__profile = p => { figma.root.documentColorProfile = p }
-	window.__paints = (id, kind) => clone(nodes.get(id)[kind])
-	window.__stored = k => store.get(k)
-	window.__var = id => clone(vars.get(id).valuesByMode)
-	window.__style = id => clone(styles.get(id).paints)
-	window.__node = id => nodes.get(id)
+// a P3 file's color that sRGB holds converts exactly into the sRGB-only formats (no mapping round trip): #ff8000 stays #ff8000
+{
+	const [r, g, b] = space.rgb.p3(255, 128, 0)
+	const [hx, note] = cssOf('hex', { r, g, b }, 1, 'DISPLAY_P3'), [rg] = cssOf('rgb', { r, g, b }, 0.5, 'DISPLAY_P3')
+	ok(hx === '#ff8000' && !note && rg === 'rgb(255 128 0 / 0.5)', `P3 inside sRGB, as hex and rgb(): ${hx} ${rg} ${note}`)
 }
 
 /* ---------- helpers ---------- */
@@ -212,7 +94,7 @@ try {
 	const halfStep = id => classify(id).ch.map(c => 0.5 * 10 ** -decOf(c) + 1e-9)
 
 	async function open(setup) {
-		const context = await browser.newContext({ viewport: { width: 360, height: 520 } })
+		const context = await browser.newContext({ viewport: { width: 360, height: 800 } })
 		await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: ORIGIN })
 		const page = await context.newPage()
 		const errors = []
@@ -242,6 +124,9 @@ try {
 		await ui.locator(`#splist .spo[data-id="${id}"]`).first().click()   // a featured space shows twice: in Featured and its family
 	}
 	const spaceOf = ui => ui.locator('#spbtn').getAttribute('data-id')
+	const near3 = (a, b) => a.every((v, i) => Math.abs(v - b[i]) < 1e-3)
+	// the copy field in a format, as a person picks it from the format select
+	const asFmt = async (ui, f) => { await ui.locator('#fmt').selectOption(f); return ui.locator('#css-1').inputValue() }
 	const QV = { smooth: '0', '10-step': '10', Tailwind: 'tailwind' }
 	const quant = (ui, label) => ui.locator('#quant').selectOption(QV[label])
 	const shown = async ui => (await inputs(ui).evaluateAll(els => els.map(e => e.value))).map(Number)
@@ -425,8 +310,10 @@ try {
 		close(await shown(ui), valuesIn(profile, 'oklch', rgb), halfStep('oklch'), 'sRGB read: oklch values')
 		const [L, C, H] = valuesIn(profile, 'oklch', rgb)
 		ok(await ui.locator('#css-1').inputValue() === oklch3([L, C, H]), `css oklch(): ${await ui.locator('#css-1').inputValue()}`)
-		ok(await ui.locator('#css-2').inputValue() === '#ff8000', `css hex: ${await ui.locator('#css-2').inputValue()}`)
-		ok(await ui.locator('#notes').innerText() === 'Dots: other selected colors, color variables.', `an in-gamut sRGB paint: only the dots' legend (${await ui.locator('#notes').innerText()})`)
+		const hexv = await asFmt(ui, 'hex')
+		ok(hexv === '#ff8000' && await page.evaluate(() => window.__log.fromUI.some(m => m.type === 'store' && m.key === 'format' && m.value === 'hex')), `css hex, the format saved: ${hexv}`)
+		ok(await asFmt(ui, 'lab') === css('lab', space.rgb.lab(255, 127.5, 0)) && await asFmt(ui, 'oklch') === oklch3([L, C, H]), 'the format select: lab(), then back to oklch()')
+		ok(await ui.locator('#notes').innerText() === 'Dots are other selected colors.', `an in-gamut sRGB paint: only the dots' legend (${await ui.locator('#notes').innerText()})`)
 
 		// theme: the panel takes Figma's colors
 		const theme = await ui.locator('body').evaluate(b => [getComputedStyle(b).backgroundColor, getComputedStyle(b).color])
@@ -484,7 +371,7 @@ try {
 		close(rgbOf(strokes[0]), exp.rgb, 1e-12, 'stroke written')
 		ok(strokes[0].opacity === 0.5, 'stroke opacity kept')
 		close(rgbOf((await page.evaluate(() => window.__paints('1:1', 'fills')))[0]), rgb, 1e-12, 'fill untouched by the stroke edit')
-		ok(/ \/ 0\.5\)$/.test(await ui.locator('#css-1').inputValue()) && (await ui.locator('#css-2').inputValue()).endsWith('80'), 'opacity appears in the CSS')
+		ok(/ \/ 0\.5\)$/.test(await ui.locator('#css-1').inputValue()) && (await asFmt(ui, 'hex')).endsWith('80') && await asFmt(ui, 'oklch'), 'opacity appears in the CSS')
 
 		// copy: the iframe has no clipboard-write permission policy (whether Figma's does is
 		// unverified), so this exercises the select + execCommand('copy') fallback
@@ -585,6 +472,20 @@ try {
 		const axe = await new AxeBuilder({ page }).include('iframe').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).disableRules(['color-contrast']).analyze()
 		ok(!axe.violations.length, `axe: ${axe.violations.map(v => `${v.id}: ${v.nodes.map(x => x.target.join(' ')).join(', ')}`).join('; ')}`)
 
+		// about: the info mark opens a card (a popover) whose links open in the browser through the main thread – only its
+		// three pages, whatever the UI sends; Escape closes it
+		await ui.locator('#aboutb').click()
+		ok(await ui.locator('#about').evaluate(e => e.matches(':popover-open')), 'the info mark opens the about card')
+		await ui.locator('#about [data-open="support"]').click()
+		await ui.locator('#about [data-open="github"]').click()
+		await page.waitForFunction(() => window.__log.opened.length >= 2, null, { timeout: 3000 }).catch(() => {})
+		for (const to of ['evil', '__proto__', 'toString']) await page.evaluate(to => figma.ui.onmessage({ type: 'open', to }), to)
+		await page.evaluate(() => figma.ui.onmessage({ type: 'open', url: 'https://example.com' }))
+		await page.waitForTimeout(50)
+		ok(JSON.stringify(await page.evaluate(() => window.__log.opened)) === '["https://github.com/sponsors/dy","https://github.com/colorjs/color-space"]', `the card opens its own pages only: ${JSON.stringify(await page.evaluate(() => window.__log.opened))}`)
+		await page.keyboard.press('Escape')
+		ok(!(await ui.locator('#about').evaluate(e => e.matches(':popover-open'))), 'Escape closes the about card')
+
 		if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-srgb.png` })
 		ok(!errors.length, `sRGB page errors: ${errors.join(' | ')}`)
 		await page.context().close()
@@ -598,12 +499,15 @@ try {
 
 		ok(await spaceOf(ui) === 'hct', 'stored space (hct) restored')
 		ok(await page.evaluate(() => window.__log.resize.some(r => r[0] === 320)), 'the stored width (320) restored')
-		ok(await ui.locator('#limit').inputValue() === 'file' && /File gamut \(Display P3\)/.test(await ui.locator('#limitf').getAttribute('data-tip')), 'the stored limit (the file\'s gamut) restored, naming Display P3 in a P3 file')
+		ok(await ui.locator('#limit').inputValue() === 'file' && /File gamut \(Display P3\)/.test(await ui.locator('#limit').getAttribute('data-tip')), 'the stored limit (the file\'s gamut) restored, naming Display P3 in a P3 file')
 		ok(await ui.locator('#limit option[value="file"] .ico').textContent() === '\u25B3', 'the File gamut option wears the P3 icon in a P3 file')
 		ok(await ui.locator('#profile').textContent() === 'Display P3', 'profile tag reads Display P3')
 		let rgb = [1, 0, 0]
 		close(await shown(ui), valuesIn(profile, 'hct', rgb), halfStep('hct'), 'P3 read: hct values of P3 red')
-		ok(await ui.locator('#css-2').inputValue() === 'color(display-p3 1 0 0)', 'css color(display-p3)')
+		ok(await asFmt(ui, 'p3') === 'color(display-p3 1 0 0)', 'css color(display-p3)')
+		const hexP3 = await asFmt(ui, 'hex')
+		ok(hexP3 === '#' + gamutMap(space.p3.oklch(1, 0, 0), DEST.rgb).rgb.map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join('') && /mapped into sRGB/.test(await ui.locator('#css-1').evaluate(e => e.closest('.fld').dataset.tip)), `hex of P3 red: mapped into sRGB, and it says so (${hexP3})`)
+		await asFmt(ui, 'oklch')
 		const [L, C, H] = space.p3.oklch(...rgb)
 		ok(await ui.locator('#css-1').inputValue() === oklch3([L, C, H]), `P3 css oklch(): ${await ui.locator('#css-1').inputValue()}`)
 		ok(await ui.locator('#notes').isHidden(), 'no notes: P3 red is inside the document gamut')
@@ -673,7 +577,9 @@ try {
 	{
 		const profile = 'SRGB'
 		const swatch = { id: '4:1', name: 'Swatch', type: 'RECTANGLE', fills: [solid(0.2, 0.5, 0.8)], strokes: [] }
-		const { page, ui, errors } = await open({ profile, editorType: 'figma', nodes: [swatch], selection: ['4:1'] })
+		// a host stylesheet holding the document at least the window's height, as a frame's injected rules may: the window must
+		// still shrink back to its content
+		const { page, ui, errors } = await open({ profile, editorType: 'figma', nodes: [swatch], selection: ['4:1'], css: 'html,body{min-height:100vh}' })
 		const frame = page.frames().find(f => f !== page.mainFrame())
 		const writesOf = () => page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set'))
 		const fill = async () => rgbOf((await page.evaluate(() => window.__paints('4:1', 'fills')))[0])
@@ -695,12 +601,18 @@ try {
 		const lf = await ui.locator('#quantf').boundingBox(), w0 = lf.width
 		await page.mouse.move(lf.x + lf.width - 5, lf.y + lf.height / 2)
 		ok((await ui.locator('#quantf').boundingBox()).width === w0, 'hover keeps the lens control\'s width')
+		// the lens's tooltip: on hover of the control itself; gone once its list opens, and none over the open list
+		const tipText = () => frame.evaluate(() => { const t = document.getElementById('tip'); return t.classList.contains('on') ? t.textContent : '' })
+		await frame.waitForFunction(() => document.getElementById('tip').classList.contains('on'), null, { timeout: 2000 }).catch(() => {})
+		ok(/^Quantize: /.test(await tipText()), `hovering a lens shows its tooltip (${await tipText()})`)
 		await page.mouse.down(); await page.mouse.up()
 		ok(await frame.evaluate(() => document.getElementById('quant').matches(':open')), 'a click on the chevron opens the list')
 		const optW = () => frame.evaluate(() => document.querySelector('#quant option').getBoundingClientRect().width)
 		const ow0 = await optW()
 		await ui.locator('#quant option[value="20"]').hover()
 		ok(await optW() === ow0, `the open list keeps its width on hover (${ow0})`)
+		await page.waitForTimeout(500)
+		ok(!(await tipText()), `no tooltip over the open list (${await tipText()})`)
 		await page.keyboard.press('Escape')
 		// one menu at a time: a lens opened over the space menu closes it, and the space menu closes an open lens
 		await ui.locator('#spbtn').click()
@@ -709,12 +621,14 @@ try {
 		await ui.locator('#spbtn').click()
 		ok(await ui.locator('#spmenu').isVisible() && !(await frame.evaluate(() => document.getElementById('quant').matches(':open'))), 'opening the space menu closes the lens')
 		await page.keyboard.press('Escape')
-		// the width: the grip on the panel's edge drags it, saved (here narrower: a drag out of this mock's frame loses the
-		// pointer, where Figma's own frame keeps it); the arrow keys widen it back
-		const gb = await ui.locator('#grip').boundingBox()
-		await page.mouse.move(gb.x + gb.width / 2, gb.y + 200)
+		// the size: the grip by the panel's corner drags its width (the height follows), saved; the resize cursor shows
+		// throughout (a picker drag hides it); here narrower, as a drag out of this mock's frame loses the pointer
+		const gb = await ui.locator('#grip').boundingBox(), gx = gb.x + gb.width * 0.75, gy = gb.y + gb.height * 0.75   // in the corner's triangle, where the grip takes presses
+		await page.mouse.move(gx, gy)
 		await page.mouse.down()
-		await page.mouse.move(gb.x + gb.width / 2 - 16, gb.y + 200, { steps: 2 })
+		await page.mouse.move(gx - 8, gy, { steps: 2 })
+		ok(await frame.evaluate(() => getComputedStyle(document.body).cursor) === 'nwse-resize', 'resizing keeps the resize cursor')
+		await page.mouse.move(gx - 16, gy - 10, { steps: 2 })
 		await page.mouse.up()
 		await page.waitForFunction(() => window.__stored('width') === 272, null, { timeout: 3000 }).catch(() => {})
 		ok(await page.evaluate(() => window.__stored('width')) === 272 && (await page.evaluate(() => window.__log.resize.at(-1)))[0] === 272, `the grip sets the panel's width by its drag (${await page.evaluate(() => window.__stored('width'))})`)
@@ -722,6 +636,32 @@ try {
 		await page.keyboard.press('ArrowRight')
 		await page.waitForFunction(() => window.__stored('width') === 288, null, { timeout: 3000 }).catch(() => {})
 		ok(await page.evaluate(() => window.__stored('width')) === 288, 'the arrow key widens it by 16')
+		// a release the frame never sees (let go outside the panel): the next move without a button ends the resize, saved,
+		// and later moves resize nothing
+		const gr = await ui.locator('#grip').boundingBox()
+		await page.mouse.move(gr.x + gr.width * 0.75, gr.y + gr.height * 0.75)
+		await page.mouse.down()
+		await page.mouse.move(gr.x + gr.width * 0.75 - 16, gr.y + gr.height * 0.75, { steps: 2 })
+		await frame.evaluate(([x, y]) => dispatchEvent(new PointerEvent('pointermove', { pointerId: 1, buttons: 0, clientX: x, clientY: y, bubbles: true })), [gr.x - 40, gr.y - 40])
+		const nResize = await page.evaluate(() => window.__log.resize.length), wAfter = await page.evaluate(() => window.__stored('width'))
+		ok(!(await ui.locator('#grip').evaluate(g => g.classList.contains('live'))) && wAfter === 272, `a lost release ends the resize, saved (${wAfter})`)
+		await frame.evaluate(([x, y]) => dispatchEvent(new PointerEvent('pointermove', { pointerId: 1, buttons: 1, clientX: x, clientY: y, bubbles: true })), [gr.x - 60, gr.y])
+		ok(await page.evaluate(n => window.__log.resize.length === n || window.__log.resize.slice(n).every(r => r[0] === 272), nResize), 'and the next moves resize nothing')
+		await page.mouse.up()
+		await ui.locator('#grip').focus()
+		await page.keyboard.press('ArrowRight')
+		await page.waitForFunction(() => window.__stored('width') === 288, null, { timeout: 3000 }).catch(() => {})
+		// widen, then narrow back: the height follows both ways
+		const hNow = () => page.evaluate(() => window.__log.resize.at(-1)[1])
+		// the height once it has settled: the last arrow's resize may still be on its way
+		const settled = async () => { let n = -1; for (let t = 0; t < 40; t++) { const m = await page.evaluate(() => window.__log.resize.length); if (m === n) break; n = m; await page.waitForTimeout(250) } return hNow() }
+		const h0 = await settled()
+		for (let k = 0; k < 4; k++) await page.keyboard.press('ArrowRight')
+		await page.waitForFunction(h => window.__log.resize.at(-1)[1] > h, h0, { timeout: 10000 }).catch(() => {})
+		const h1 = await hNow()
+		for (let k = 0; k < 4; k++) await page.keyboard.press('ArrowLeft')
+		await page.waitForFunction(h => window.__log.resize.at(-1)[1] === h, h0, { timeout: 10000 }).catch(() => {})   // a loaded machine resizes slowly
+		ok(h1 > h0 && await hNow() === h0 && await page.evaluate(() => window.__stored('width')) === 288, `wider then narrower: the height grows and comes back (${h0} → ${h1} → ${await hNow()})`)
 		near8(await underMarker(), await own('oklch'), 3, 'oklch plane: the pixel under the marker is the coordinate\'s color')
 		const bar = await frame.evaluate(() => { const cv = document.querySelector('#channels .bar2 canvas'); return !cv.hidden && cv.getContext('2d').getImageData(0, 0, cv.width, 1).data.some((v, i) => i % 4 === 3 && v > 0) })
 		ok(bar, 'the L bar is painted by the GPU kernel')
@@ -931,7 +871,7 @@ try {
 		await page.waitForFunction(() => window.__stored('limit') === 'vis')
 		// the repaint lands on the next frame: wait for the count to move (the old pixels would satisfy a pixel wait)
 		await frame.waitForFunction(n => (document.querySelector('#plane canvas')._paints || 0) > n, lim0, { timeout: 5000 }).catch(() => {})
-		ok(await planePaints() > lim0 && /Surface/.test(await ui.locator('#limitf').getAttribute('data-tip')), 'Surface repaints the plane and names itself')
+		ok(await planePaints() > lim0 && /Surface/.test(await ui.locator('#limit').getAttribute('data-tip')), 'Surface repaints the plane and names itself')
 		ok(/^(In|Outside) sRGB/.test(await ui.locator('#gamut').innerText()), 'the status stays in the file\'s gamut')
 		await ui.locator('#limit').selectOption('file')
 
@@ -947,12 +887,21 @@ try {
 		const gray = space.oklch.rgb((await held(ui))[0], 0.005, 0).map(Math.round)
 		close(centre.slice(0, 3), gray, 12, `the disc's centre shows its near-gray on screen (${centre})`)
 		// the wheel/square switch: back to the square plane and to the wheel again, saved per space and pair
+		const inks = () => ui.locator('#axes').evaluate(a => ['.laby', '.labx', '.pmode'].map(k => a.querySelector(k).style.color).join())
+		const ink0 = await inks()
+		// a wheel's corners are void: the letters and the switch ink against the panel showing through (its token color
+		// resolved by a canvas – the paper may be any notation), the bare transparent pixel once read as black
+		const paperInk = await frame.evaluate(() => { const g = document.createElement('canvas').getContext('2d'); g.fillStyle = getComputedStyle(document.body).backgroundColor; g.fillRect(0, 0, 1, 1)
+			const [r, gr, b] = g.getImageData(0, 0, 1, 1).data; return (0.2126 * r + 0.7152 * gr + 0.0722 * b) / 255 < 0.6 ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)' })
+		ok(ink0 === [paperInk, paperInk, paperInk].join(), `the wheel's letters and switch ink against the panel behind the void corners (${ink0}, panel → ${paperInk})`)
 		await ui.locator('#axes .pmode').click()
 		await page.waitForFunction(() => window.__stored('disc')?.['oklch:2,1'] === false)
 		ok(!(await ui.locator('#plane').evaluate(e => e.classList.contains('polar'))), 'the switch shows H×C as a square plane')
 		await ui.locator('#axes .pmode').click()
 		await page.waitForFunction(() => window.__stored('disc')?.['oklch:2,1'] === true)
 		ok(await ui.locator('#plane').evaluate(e => e.classList.contains('polar')), 'and back as a wheel')
+		await painted()
+		ok(await inks() === ink0, `the letters and the switch ink as they did on this wheel before the round trip (${await inks()} vs ${ink0})`)
 		near8(await underMarker(), await own('oklch'), 3, 'wheel: the pixel under the marker is the coordinate\'s color')
 		// a click straight right of centre is hue 0 (clockwise from +x, as the kernel paints), half way out C 0.2
 		box = await ui.locator('#plane').boundingBox()
@@ -995,6 +944,45 @@ try {
 		const midW = await frame.evaluate(() => [document.querySelector('#plane canvas').width, document.querySelector('#plane .density').width])
 		await page.mouse.up()
 		ok(await planePaints() > pp0 && midW[0] === fullW && midW[1] === fullW, `mid-drag the plane repaints, and it and its dots keep full resolution (${midW} of ${fullW})`)
+		// the view: a pinch (⌃ wheel) zooms about the pointer, so a click then picks inside the window; a double click shows
+		// the whole again. OkLCh's C × L square, smooth: the plane's middle is C 0.2, L 0.5
+		await pickSpace(ui, 'oklch'); await quant(ui, 'smooth')
+		for (let k = 0; k < 6 && !(await ui.locator('#axes .labx').innerText() === 'C' && await ui.locator('#axes .laby').innerText() === 'L'); k++) await ui.locator(k % 2 ? '#axes .laby' : '#axes .labx').click()   // the C × L square
+		await planePainted(frame)
+		const pz = await ui.locator('#plane').boundingBox(), pmid = [pz.x + pz.width / 2, pz.y + pz.height / 2]
+		const clickMid = async () => { await page.mouse.click(...pmid); await page.waitForTimeout(150); return held(ui) }
+		const whole = await clickMid()
+		await page.mouse.move(pz.x + pz.width * 0.25, pz.y + pz.height * 0.75)
+		await page.keyboard.down('Control'); await page.mouse.wheel(0, -400); await page.keyboard.up('Control')
+		await page.waitForTimeout(250)
+		// zoomed about (¼, ¼ up) by e^(−400·0.0024): each axis shows [¼ − ¼·k, ¼ + ¾·k] of its range, its middle at ¼ + k/4
+		const k = Math.exp(-400 * 0.0024), zoomed = await clickMid(), wantF = 0.25 - 0.25 * k + 0.5 * k
+		close(whole.slice(0, 2), [0.5, 0.2], [1e-3, 1e-3], 'the whole plane: its middle picks L 0.5, C 0.2')
+		close(zoomed.slice(0, 2), [wantF, wantF * 0.4], [2e-3, 1e-3], 'zoomed in about the pointer: the middle picks the window\'s middle')
+		// zoomed into a corner away from the color: no marker pinned to the edge
+		await page.mouse.move(pz.x + pz.width * 0.95, pz.y + pz.height * 0.05)
+		await page.keyboard.down('Control'); await page.mouse.wheel(0, -600); await page.keyboard.up('Control'); await page.waitForTimeout(200)
+		ok(await ui.locator('#plane .cx').isHidden(), 'zoomed away from the color: the marker hides')
+		await page.mouse.dblclick(...pmid); await page.waitForTimeout(200)
+		close((await clickMid()).slice(0, 2), [0.5, 0.2], [1e-3, 1e-3], 'a double click shows the whole again')
+		// a new pair starts whole: zoom, swap an axis and back, and the middle picks the full range's middle
+		await page.mouse.move(pz.x + pz.width * 0.25, pz.y + pz.height * 0.75)
+		await page.keyboard.down('Control'); await page.mouse.wheel(0, -400); await page.keyboard.up('Control'); await page.waitForTimeout(200)
+		for (let k = 0; k < 6 && !(await ui.locator('#axes .labx').innerText() !== 'C'); k++) await ui.locator('#axes .labx').click()
+		for (let k = 0; k < 6 && !(await ui.locator('#axes .labx').innerText() === 'C' && await ui.locator('#axes .laby').innerText() === 'L'); k++) await ui.locator(k % 2 ? '#axes .laby' : '#axes .labx').click()
+		close((await clickMid()).slice(0, 2), [0.5, 0.2], [1e-3, 1e-3], 'another pair, then back: the plane is whole again')
+		// ⌘ held mid-drag: the pick moves a tenth as far as the pointer
+		await page.mouse.move(...pmid); await page.mouse.down()
+		await page.keyboard.down('Meta'); await page.mouse.move(pmid[0] + 100, pmid[1], { steps: 5 }); await page.mouse.up(); await page.keyboard.up('Meta')
+		await page.waitForTimeout(150)
+		close((await held(ui)).slice(0, 2), [0.5, 0.2 + 0.1 * 100 / pz.width * 0.4], [2e-3, 1e-3], '⌘-drag: a tenth of the pointer\'s move')
+		// letting go of ⌘ mid-drag keeps the offset: the next moves add at full rate, no jump back under the pointer
+		const f0 = (await held(ui))[1]
+		await page.mouse.move(...pmid); await page.mouse.down()
+		await page.keyboard.down('Meta'); await page.mouse.move(pmid[0] + 100, pmid[1], { steps: 5 }); await page.keyboard.up('Meta')
+		await page.mouse.move(pmid[0] + 120, pmid[1], { steps: 2 }); await page.mouse.up(); await page.waitForTimeout(150)
+		close([(await held(ui))[1]], [0.2 + (0.1 * 100 + 20) / pz.width * 0.4], [1e-3], `⌘ let go mid-drag: the offset stays (from C ${f0.toFixed(3)})`)
+
 		// two channels: one plane, no pair buttons; one channel: no plane, the bar alone still writes
 		await pickSpace(ui, 'rg')
 		ok(await ui.locator('#plane').isVisible() && await ui.locator('#axes .labx').isDisabled(), 'rg (two channels): the plane, its axes fixed')
@@ -1008,7 +996,9 @@ try {
 
 		// the window follows the content
 		const sizes = await page.evaluate(() => window.__log.resize)
-		const docH = await frame.evaluate(() => Math.ceil(document.documentElement.getBoundingClientRect().height))
+		// the content's own height (this page's host stylesheet holds the document at the window's height): its lowest
+		// laid-out part, and the body's padding under it
+		const docH = await frame.evaluate(() => Math.ceil(Math.max(...[...document.body.children].filter(e => e.offsetParent !== null && !e.matches('[popover]')).map(e => e.getBoundingClientRect().bottom)) + parseFloat(getComputedStyle(document.body).paddingBottom)))
 		ok(sizes.length && sizes.at(-1)[0] === 288 && Math.abs(sizes.at(-1)[1] - docH) <= 1, `resize to content: ${JSON.stringify(sizes.at(-1))} vs ${docH}`)
 
 		if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-picker.png` })
@@ -1047,28 +1037,52 @@ try {
 		ok(g.gradientStops[1].color.a === 0.5 && g.gradientStops[1].position === 1, 'stop 2 keeps its alpha and position')
 		ok(JSON.stringify(g.gradientStops[0]) === JSON.stringify(stops[0]) && g.type === 'GRADIENT_LINEAR', 'stop 1 and the gradient untouched')
 		ok(await page.evaluate(() => window.__log.relaunch.some(r => r.id === '5:1' && r.d.open)), 'an edited layer gets the relaunch button')
-		ok(await frame.evaluate(() => !!document.querySelector('#css ~ #notes')), 'the notes sit under the copy fields')
+		ok(await frame.evaluate(() => !!document.querySelector('#css ~ .foot #notes')), 'the notes sit under the copy fields')
 
-		// the other colors: the selection's own (the gradient's other stop) and the file's color variables – nothing else on the
-		// page – as faint dots; the gradient's stops joined by a line through the knob; a dot names where its color lives
+		// the other colors: the selection's own (the gradient's other stop) – nothing else in the file, its variables and
+		// styles included – as faint dots; the gradient's stops joined by a line through the knob; a dot names where its color lives
 		await ui.locator('#marks .dm').first().waitFor()
 		const marks = await ui.locator('#marks .dm').evaluateAll(els => els.map(e => e.dataset.tip))
-		ok(marks.includes('Brand/500 (variable)\n#1a994d'), `the variable is named: ${JSON.stringify(marks)}`)
 		ok(marks.includes('Sky, fill 1, stop 1\n#ff0000'), 'the selection\'s other stop names its layer and place')
-		ok(!marks.some(t => /Accent/.test(t)), 'a paint style isn\'t marked (variables only)')
-		ok(marks.length === 2, `nothing else from the file is marked (${marks.length})`)
-		const line = await ui.locator('#marks .links polyline').getAttribute('points')
-		ok(line && line.split(' ').length === 2, `the gradient's two stops joined by one line (${line})`)
+		ok(marks.length === 1, `nothing outside the selection is marked, the file's variables and styles included (${JSON.stringify(marks)})`)
+		// the gradient's line: its colors as Figma mixes them (each channel of the file's RGB, linearly between stops), each
+		// placed on the plane – checked against the library at the stops and halfway
+		const line = (await ui.locator('#marks .links polyline').getAttribute('points') || '').split(' ').map(p => p.split(',').map(Number))
+		const plane0 = await ui.locator('#plane').evaluate(pl => pl._polar)
+		const g0 = (await page.evaluate(() => window.__paints('5:1', 'fills')))[0].gradientStops.map(s => [s.color.r, s.color.g, s.color.b])
+		const posOf = rgb => { const v = valuesIn(profile, 'oklch', rgb); return [100 * v[1] / 0.4, 100 * (1 - v[0])] }   // the default OkLCh plane: C across (0–0.4), L up
+		const mid = posOf(g0[0].map((x, k) => (x + g0[1][k]) / 2))
+		ok(!plane0 && line.length === 25 && [[0, posOf(g0[0])], [12, mid], [24, posOf(g0[1])]].every(([k, p]) => Math.hypot(line[k][0] - p[0], line[k][1] - p[1]) < 0.05), `the gradient's line runs through its mixed colors: ${JSON.stringify([line[0], line[12], line[24]])} vs ${JSON.stringify([posOf(g0[0]), mid, posOf(g0[1])])}`)
+		// on a square plane with the hue across, the line breaks where the mix wraps round the hue's ends (red → purple →
+		// blue crosses 0/360) rather than striking across the plane
+		await ui.locator('#axes .labx').click()   // C × L → H × L
+		const runs = (await ui.locator('#marks .links polyline').evaluateAll(ls => ls.map(l => l.getAttribute('points').split(' ').map(p => p.split(',').map(Number)))))
+		const jump = Math.max(...runs.flatMap(r => r.slice(1).map((p, k) => Math.abs(p[0] - r[k][0]))))
+		ok(await ui.locator('#axes .labx').innerText() === 'H' && runs.length === 2 && jump < 50, `H × L: the gradient's line breaks at the hue wrap (${runs.length} runs, largest step ${jump.toFixed(1)}%)`)
+		for (let k = 0; k < 6 && !(await ui.locator('#axes .labx').innerText() === 'C' && await ui.locator('#axes .laby').innerText() === 'L'); k++) await ui.locator(k % 2 ? '#axes .laby' : '#axes .labx').click()   // back to C × L
+		ok(await ui.locator('#axes .labx').innerText() === 'C' && await ui.locator('#axes .laby').innerText() === 'L', 'and back to C × L')
 		// the selection follows the edit at once: the stop just written is the other stop's dot when the first is current
 		const written = (await page.evaluate(() => window.__paints('5:1', 'fills')))[0].gradientStops[1].color
 		await ui.locator('.paint', { hasText: 'stop 1' }).click()
 		ok((await ui.locator('#marks .dm').evaluateAll(els => els.map(e => e.dataset.tip))).includes(`Sky, fill 1, stop 2\n${'#' + [written.r, written.g, written.b].map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join('')}`), 'the color just written is a dot on the next paint\'s plane')
 		await ui.locator('.paint', { hasText: 'stop 2' }).click()
-		await ui.locator('#marks .dm[data-tip^="Brand/500"]').click()
-		await page.waitForTimeout(150)
 		const st2 = (await page.evaluate(() => window.__paints('5:1', 'fills')))[0].gradientStops[1]
-		close(rgbOf(st2), [0.1, 0.6, 0.3], 1e-9, 'a variable\'s dot clicked writes into the current stop')
-		ok(st2.color.a === 0.5, 'the stop keeps its alpha')
+		// a dot of the selection is taken up: a press makes its paint the current one and writes nothing; a press that drags
+		// moves that paint, in one undo step
+		const setsBefore = (await page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set'))).length
+		const dot1 = await ui.locator('#marks .dm[data-key*=":fills:0:0"]').boundingBox()
+		await page.mouse.click(dot1.x + dot1.width / 2, dot1.y + dot1.height / 2)
+		await page.waitForTimeout(100)
+		ok(await ui.locator('.paint[aria-pressed="true"] .src').innerText() === 'fill 1, stop 1' && (await page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set'))).length === setsBefore, 'a press on stop 1\'s dot makes it current and writes nothing')
+		const dot2 = await ui.locator('#marks .dm[data-key*=":fills:0:1"]').boundingBox(), undoD = await page.evaluate(() => window.__log.undo)
+		const stop1 = JSON.stringify((await page.evaluate(() => window.__paints('5:1', 'fills')))[0].gradientStops[0])
+		await page.mouse.move(dot2.x + dot2.width / 2, dot2.y + dot2.height / 2)
+		await page.mouse.down()
+		await page.mouse.move(dot2.x + dot2.width / 2 - 30, dot2.y + dot2.height / 2 + 20, { steps: 4 })
+		await page.mouse.up()
+		await page.waitForTimeout(150)
+		const gd = (await page.evaluate(() => window.__paints('5:1', 'fills')))[0].gradientStops
+		ok(await ui.locator('.paint[aria-pressed="true"] .src').innerText() === 'fill 1, stop 2' && JSON.stringify(gd[0]) === stop1 && !near3(rgbOf(gd[1]), rgbOf(st2)) && gd[1].color.a === st2.color.a && await page.evaluate(n => window.__log.undo - n, undoD) === 1, 'a drag from stop 2\'s dot moves stop 2, its alpha kept, in one undo step')
 
 		// a selected group shows the colors of what it holds, in layer order (hidden layers skipped); an edit writes the child,
 		// and a change inside the group re-reads it
@@ -1097,14 +1111,18 @@ try {
 		await settle(page, n)
 		await ui.locator('#picker').waitFor({ timeout: 10000 })
 		const hx = c => '#' + c.map(v => v.toString(16).padStart(2, '0')).join('')
-		const stand = await ui.locator('#css-2').inputValue()
+		const stand = await asFmt(ui, 'hex')
 		const sb = [1, 3, 5].map(k => parseInt(stand.slice(k, k + 2), 16))   // a pixel of the image: red, blue, or a blend where the halves meet
 		ok(/^#[0-9a-f]{6}$/.test(stand) && sb.every((v, k) => v >= Math.min(red[k], blue[k]) && v <= Math.max(red[k], blue[k])), `the image's color is one of its own pixels: ${stand}`)
 		ok(await ui.locator('#channels .bar2.alpha').isHidden(), 'an image\'s color has no opacity row')
+		// each bar carries the image's histogram of its channel, over the bar's own field
+		await frame.waitForFunction(() => [...document.querySelectorAll('#channels .bar2:not(.alpha) .hist')].some(h => !h.hidden), null, { timeout: 10000 }).catch(() => {})
+		const lanes = await frame.evaluate(() => [...document.querySelectorAll('#channels .bar2:not(.alpha)')].map(b => { const h = b.querySelector('.hist'); return [!!h && !h.hidden && /^url\(/.test(h.style.maskImage || h.style.webkitMaskImage), !b.querySelector('canvas').hidden || /gradient/.test(b.style.background)] }))
+		ok(lanes.length === 3 && lanes.every(([h, field]) => h && field), `an image's histogram on every bar, the bars keeping their fields: ${JSON.stringify(lanes)}`)
 		await planePainted(frame)
 		const dots = await frame.evaluate(() => { const cv = document.querySelector('#plane .density'); return cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data.some((v, i) => i % 4 === 3 && v > 0) })
 		ok(dots, 'the image\'s pixels are dots on the plane')
-		ok(/Dots: color variables, image pixels\.\s+Select a fill or stroke to edit a color\./.test(await notes(ui)), `image-only notes: ${await notes(ui)}`)
+		ok(/Dots are image pixels\. Select a fill or stroke to edit a color\./.test(await notes(ui)), `image-only notes: ${await notes(ui)}`)
 		ok(await ui.locator('.paint').first().getAttribute('aria-pressed') === 'true', 'the image\'s row is the current row, shaded like any other')
 		const sets0 = (await page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set'))).length
 		const pb = await ui.locator('#plane').boundingBox()
@@ -1112,6 +1130,9 @@ try {
 		await page.waitForTimeout(100)
 		ok((await page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set'))).length === sets0, 'the image\'s color explores without writing')
 
+		// a selection without an image: no histogram lanes
+		{ const n2 = await selections(page); await page.evaluate(() => window.__select(['5:1'])); await settle(page, n2); await page.waitForTimeout(200)
+			ok(await frame.evaluate(() => [...document.querySelectorAll('#channels .bar2 .hist')].every(h => h.hidden)), 'no image: no histogram') }
 		// an image that can't be decoded, or whose bytes Figma no longer has: no dots, and the plain hint, not a wait
 		for (const id of ['5:3', '5:4']) {
 			n = await selections(page)
@@ -1126,7 +1147,7 @@ try {
 		await page.evaluate(() => window.__select(['5:1', '5:2']))
 		await settle(page, n)
 		await frame.waitForFunction(() => /image pixels/.test(document.getElementById('notes').textContent), null, { timeout: 10000 })
-		ok(/Dots: other selected colors, color variables, image pixels\./.test(await notes(ui)), `gradient and image: the dots' legend (${await notes(ui)})`)
+		ok(/Dots are other selected colors and image pixels\./.test(await notes(ui)), `gradient and image: the dots' legend (${await notes(ui)})`)
 
 		if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-image.png` })
 		ok(!errors.length, `integration page errors: ${errors.join(' | ')}`)
@@ -1245,14 +1266,14 @@ try {
 		await page.waitForTimeout(50)
 		ok(await knob.getAttribute('aria-valuenow') === String(Math.round(fd * 100)), `a re-read trailing the release keeps the knob (${await knob.getAttribute('aria-valuenow')})`)
 		// and its color: a trailing re-read of an older color leaves the swatch and the CSS as written
-		const hex0 = await ui.locator('#css-2').inputValue(), sw0 = await ui.locator('.paint .sw').first().evaluate(e => e.style.background)
+		const hex0 = await asFmt(ui, 'hex'), sw0 = await ui.locator('.paint .sw').first().evaluate(e => e.style.background)
 		await page.evaluate(() => { const m = window.__log.toUI.filter(m => m.type === 'selection').at(-1); figma.ui.postMessage({ ...m, ack: m.ack - 1, paints: m.paints.map(p => ({ ...p, r: 0, g: 0, b: 0 })) }) })
 		await page.waitForTimeout(50)
-		ok(await ui.locator('#css-2').inputValue() === hex0 && await ui.locator('.paint .sw').first().evaluate(e => e.style.background) === sw0, `a re-read trailing a write keeps the color as written (${await ui.locator('#css-2').inputValue()} vs ${hex0})`)
+		ok(await ui.locator('#css-1').inputValue() === hex0 && await ui.locator('.paint .sw').first().evaluate(e => e.style.background) === sw0, `a re-read trailing a write keeps the color as written (${await ui.locator('#css-1').inputValue()} vs ${hex0})`)
 		// a re-read that has seen every write is the truth, even when it differs (an edit made in Figma)
 		await page.evaluate(() => { const all = window.__log.toUI.filter(m => m.type === 'selection'), m = all.at(-1); figma.ui.postMessage({ ...m, ack: Math.max(...all.map(m => m.ack)), paints: m.paints.map(p => ({ ...p, r: 0, g: 0, b: 0 })) }) })
 		await page.waitForTimeout(50)
-		ok(/^#000000/.test(await ui.locator('#css-2').inputValue()), `a current re-read is taken (${await ui.locator('#css-2').inputValue()})`)
+		ok(/^#000000/.test(await ui.locator('#css-1').inputValue()), `a current re-read is taken (${await ui.locator('#css-1').inputValue()})`)
 		await pick(['7:1'])   // a real re-read: back to the paint as it is
 		// typed past either end: clamped to 100% and 0%
 		await typeAlpha(150)
@@ -1292,6 +1313,31 @@ try {
 
 		ok(!errors.length, `opacity page errors: ${errors.join(' | ')}`)
 		await page.context().close()
+	}
+
+	/* ---------- 8. languages: the browser's, where the plugin has a table for it, else English ---------- */
+	{
+		const tr = l => Object.fromEntries(Object.entries(JSON.parse(readFileSync(dir + `src/i18n/${l}.json`, 'utf8'))).filter(([k]) => k !== '@meta').map(([k, v]) => [k, v.t]))
+		const site = l => Object.fromEntries(Object.entries(JSON.parse(readFileSync(new URL(`../web/i18n/${l}.json`, import.meta.url), 'utf8'))).filter(([k]) => k !== '@meta').map(([k, v]) => [k, v.t]))
+		const node = { id: '8:1', name: 'Swatch', type: 'RECTANGLE', fills: [solid(0.25, 0.5, 0.75)], strokes: [] }
+		// the browser's languages as the panel's first script reads them (the mock sets navigator.languages: an emulated
+		// locale reaches a sandboxed frame only after its first script has run)
+		const said = async (locale, want) => {
+			const { page, ui, errors } = await open({ profile: 'SRGB', editorType: 'figma', nodes: [node], selection: ['8:1'], languages: [locale].flat() })
+			const got = { lang: await ui.locator('html').getAttribute('lang'), gamut: await ui.locator('#gamut').innerText(), smooth: await ui.locator('#quant option[value="0"] .nm').textContent(), search: await ui.locator('#spq').getAttribute('placeholder') }
+			ok(Object.entries(want).every(([k, v]) => got[k].trim() === v) && !errors.length, `${locale}: ${JSON.stringify(got)} vs ${JSON.stringify(want)} ${errors.join(' | ')}`)
+			await page.context().close()
+		}
+		const de = tr('de'), sde = site('de')
+		await said('de-DE', { lang: 'de', gamut: de['pl.gamut.in'].replace('{gamut}', 'sRGB'), smooth: sde['ui.quant.smooth'], search: de['pl.menu.search'] })   // its own words and the site's
+		const pt = tr('pt')
+		await said('pt-BR', { lang: 'pt', gamut: pt['pl.gamut.in'].replace('{gamut}', 'sRGB'), smooth: site('pt')['ui.quant.smooth'], search: pt['pl.menu.search'] })   // a region falls to its language
+		const zh = tr('zh-Hans')
+		await said('zh-CN', { lang: 'zh-Hans', gamut: zh['pl.gamut.in'].replace('{gamut}', 'sRGB'), smooth: site('zh-Hans')['ui.quant.smooth'], search: zh['pl.menu.search'] })   // Simplified Chinese
+		await said('zh-TW', { lang: 'en', gamut: 'In sRGB.', smooth: 'smooth', search: 'Search spaces' })   // Traditional: no table, English
+		await said('nl-NL', { lang: 'en', gamut: 'In sRGB.', smooth: 'smooth', search: 'Search spaces' })   // no Dutch: English
+		await said(['en-US', 'ru-RU'], { lang: 'en', gamut: 'In sRGB.', smooth: 'smooth', search: 'Search spaces' })   // English first: a second language read is no reason to switch
+		await said(['nl-NL', 'de-DE'], { lang: 'en', gamut: 'In sRGB.', smooth: 'smooth', search: 'Search spaces' })   // only the first language counts
 	}
 
 	/* ---------- 4. Dev Mode and LEGACY ---------- */

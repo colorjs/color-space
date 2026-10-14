@@ -16,8 +16,8 @@ export const use = (d, lang = 'en') => { DICT = d || {}; LANG = lang }
 // t('ui.nores', 'no space matches “{q}”', { q })
 export const t = (k, en, v) => { const s = DICT[k] ?? en
 	return v ? s.replace(/\{(\w+)\}/g, (m, n) => n in v ? v[n] : m) : s }
-// a vocabulary key: the term IS its identity (channel names) – 'Hue angle' → 'hue-angle', U* → u-star
-export const slug = (s) => String(s).replace(/\*/g, '-star').replace(/[′']/g, '-prime').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+// a vocabulary key: the term IS its identity (channel names) – web/js/vocab.js
+export { slug } from './vocab.js'
 // the same page in another language: swap the path prefix, keep the space, view and color
 export const langHref = (code) => { const root = new URL(at('')).pathname
 	const rest = location.pathname.slice(root.length).replace(LANG === 'en' ? '' : new RegExp(`^${LANG}(/|$)`), '')

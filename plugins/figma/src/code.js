@@ -11,19 +11,18 @@
  * In Dev Mode's Code panel (codegen) it prints the layer's colors as CSS in the format
  * chosen in the panel's settings, and a group's inner colors as custom properties, with no UI.
  */
-import space from '../../../index.js'
-import { hex } from '../../../css.js'
-import { cssShort } from './notation.js'
-import { gamutMap, DEST } from './gamut.js'
+import { cssOf } from './notation.js'
 
 const KINDS = ['fills', 'strokes']
 const STYLE = { fills: 'fillStyleId', strokes: 'strokeStyleId' }   // the paint style each list can link to
 const MAX = 100   // color slots sent per selection; a huge selection shouldn't flood the UI
 const IMAGES = 4   // image paints sampled per selection
-const PREFS = ['space', 'quant', 'limit', 'pairs', 'disc', 'width']   // what the UI may keep in clientStorage
+const PREFS = ['space', 'quant', 'limit', 'pairs', 'disc', 'width', 'format']   // what the UI may keep in clientStorage
 const WIDTH = 288, MIN = 240, MAX_W = 560   // a little wider than Figma's own picker (240); the panel's edge drags it
 let width = WIDTH, height = 560
 const editable = figma.editorType === 'figma'
+// the about card's links (package.json homepage, repository, funding): the only pages the UI may open
+const LINKS = { site: 'https://color-space.io/', github: 'https://github.com/colorjs/color-space', support: 'https://github.com/sponsors/dy' }
 
 // A color slot: a SOLID paint, or one stop of a gradient (stop ≥ 0)
 function slots(list) {
@@ -68,23 +67,6 @@ async function sourceOf(node, kind, slot, memo = new Map()) {
 
 /* ---------- codegen: Dev Mode's Code panel ---------- */
 
-// a color slot as CSS in the chosen format → [value, note]; formats bound to sRGB map a wider color in (CSS Color 4) and say so
-const SRGB_ONLY = new Set(['rgb', 'hsl', 'hwb', 'hex'])
-function cssColor(c, a, format) {
-	const p3 = figma.root.documentColorProfile === 'DISPLAY_P3'
-	const doc = p3 ? space.p3 : space.rgb, vals = p3 ? [c.r, c.g, c.b] : [c.r * 255, c.g * 255, c.b * 255]
-	let note = '', from = p3 ? 'p3' : 'rgb', v = vals
-	if (SRGB_ONLY.has(format)) {
-		const m = gamutMap(doc.oklch(...vals), DEST.rgb)
-		if (m.mapped) note = 'mapped into sRGB'
-		from = 'rgb'
-		v = m.rgb.map(x => x * 255)
-	}
-	const alpha = a < 1 ? +a.toFixed(3) : 1
-	if (format === 'hex') return [hex(v) + (alpha < 1 ? Math.round(alpha * 255).toString(16).padStart(2, '0') : ''), note]
-	const out = cssShort(format, from === format ? v : space[from][format](...v))
-	return [alpha < 1 ? out.replace(/\)$/, ` / ${alpha})`) : out, note]
-}
 const slug = name => name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'color'
 const alphaOf = (slot, c) => slot.stop >= 0 ? (c.a === undefined ? 1 : c.a) : (slot.paint.opacity === undefined ? 1 : slot.paint.opacity)
 
@@ -97,7 +79,7 @@ async function colorsOf(node, format, memo) {
 			if (slot.paint.visible === false) continue
 			const src = await sourceOf(node, kind, slot, memo)
 			const c = src && src.color ? src.color : slot.color
-			const [value, note] = cssColor(c, alphaOf(slot, c), format)
+			const [value, note] = cssOf(format, c, alphaOf(slot, c), figma.root.documentColorProfile)
 			out.push({ kind, slot, src, value, note })
 		}
 	}
@@ -242,20 +224,6 @@ async function write(msg) {
 	if (node.setRelaunchData) node.setRelaunchData({ open: 'Pick its colors in any color space' })
 }
 
-// The file's color variables: the defined colors, by name, that the UI marks on the plane beside the selection's own.
-// Local ones only (a library's tokens are named in their own file); each mode's value, aliases skipped.
-const DOC = 64
-async function docColors() {
-	const out = []
-	for (const v of await figma.variables.getLocalVariablesAsync('COLOR'))
-		for (const m in v.valuesByMode) { const val = v.valuesByMode[m]; if (val && typeof val.r === 'number') out.push({ r: val.r, g: val.g, b: val.b, name: v.name }) }
-	return out.slice(0, DOC)
-}
-async function sendDoc() { figma.ui.postMessage({ type: 'doc', colors: await docColors() }) }
-// a variable's edit fires no nodechange: a commit refreshes them a moment later
-let docT = 0
-const docSoon = () => { clearTimeout(docT); docT = setTimeout(sendDoc, 300) }
-
 async function sendImage(hash) {
 	const img = figma.getImageByHash(hash)
 	figma.ui.postMessage({ type: 'image', hash, bytes: img ? await img.getBytesAsync() : null })   // always answer: the UI waits on it
@@ -293,7 +261,6 @@ function panel() {
 				for (const k of PREFS) init[k] = await figma.clientStorage.getAsync(k)
 				figma.ui.postMessage(init)
 				read()
-				sendDoc()
 			}
 			else if (msg.type === 'store' && PREFS.indexOf(msg.key) >= 0) await figma.clientStorage.setAsync(msg.key, msg.value)
 			else if (msg.type === 'resize') {   // the UI reports its height; the grip, a width
@@ -302,10 +269,11 @@ function panel() {
 				figma.ui.resize(width, height)
 			}
 			else if (msg.type === 'image' && typeof msg.hash === 'string') await sendImage(msg.hash)
+			else if (msg.type === 'open' && Object.prototype.hasOwnProperty.call(LINKS, msg.to)) figma.openExternal(LINKS[msg.to])
 			else if (msg.type === 'set') {
 				try { await write(msg) } finally { if (typeof msg.seq === 'number') acked = msg.seq }
 				// a gesture's live writes and its release are one step in Figma's undo history
-				if (msg.commit) { figma.commitUndo(); docSoon() }   // a variable's or a style's edit fires no nodechange
+				if (msg.commit) figma.commitUndo()
 				read()   // always answer, so the UI settles even when nothing changed
 			}
 		}

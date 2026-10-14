@@ -108,6 +108,18 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	is(runtime.spaces.includes('oklch'), true, 'staged WASM registry includes OKLCH')
 })
 
+// a CSS comment left open swallows every rule up to the next comment's close – silently: the locus's labels once fell
+// back to 16px unfilled glyphs and its Limit to 0.35 opacity that way. Every comment closes before the next one opens
+test('integrity — no CSS comment or stray brace in the page swallows rules', () => {
+	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
+	const css = [...page.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]).join('\n'), open = []
+	for (let i = 0; (i = css.indexOf('/*', i)) >= 0;) { const e = css.indexOf('*/', i + 2); if (e < 0 || css.slice(i + 2, e).includes('/*')) open.push(css.slice(i, i + 60)); i = e < 0 ? css.length : e + 2 }
+	is(open, [], 'every CSS comment closes before the next opens')
+	// …and a block cut short leaves a stray brace that ends the rule set early, as silently
+	let depth = 0, lowest = 0; for (const c of css.replace(/\/\*[\s\S]*?\*\//g, '')) { if (c === '{') depth++; else if (c === '}') lowest = Math.min(lowest, --depth) }
+	is([depth, lowest], [0, 0], 'every CSS brace pairs – none closes a block that never opened')
+})
+
 test('integrity — tiered site rendering keeps animation off the expensive paths', () => {
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
 	const render = readFileSync(new URL('../web/js/render.js', import.meta.url), 'utf8')
@@ -122,7 +134,7 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(page.includes('document.documentElement.style.setProperty(\'--cur\''), false, 'live color does not invalidate the whole document through an inherited custom property')
 	is(page.includes('paintCatalogPickers(screenEnts(),frgb,fx)'), true, 'every visible picker position and color follows a held gesture')
 	is(page.includes('moving?SECONDARY_RAMP_GUIDES:RAMP_GUIDES,!moving'), true, 'secondary gradients use cheaper guides, set without a cross-fade, while colors are moving')
-	is(page.includes('if(!PDOWN) scheduleCatalogSecondary()'), true, 'a held hand repaints only the strip in hand; the rest settle on release')
+	is(page.includes('throttleCatalogSecondary()') && page.includes('if(open()||catSlowPending||catSlowHeld) return'), true, 'a held hand repaints the other strips throttled – one pass at a time, on the 100ms tier – and in full on release')
 	is(page.includes('paintCatalogGrad(rows,-1,RAMP_GUIDES,true)'), true, 'release repaints every secondary gradient immediately at full quality')
 	is(page.includes("cat.addEventListener('pointercancel'"), true, 'cancelled native catalog drags use the release path')
 	is(page.includes("detail.addEventListener('pointercancel'"), true, 'cancelled native dossier drags use the release path')

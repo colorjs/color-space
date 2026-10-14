@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="page.title">color-space – any color space, one tiny API, verified</title>
+<title data-i18n="page.title">Color spaces – an open atlas of formulas and conversions | color-space</title>
 <meta name="description" content="An open collection of color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain." data-i18n="content:page.desc">
 <link rel="canonical" href="https://color-space.io/">
-<meta property="og:title" content="color-space – any color space, one tiny API, verified" data-i18n="content:page.title">
+<meta property="og:title" content="Color spaces – an open atlas of formulas and conversions | color-space" data-i18n="content:page.title">
 <meta property="og:description" content="An open collection of color spaces. Convert any space to any other with conventional ranges and independently anchored formulas." data-i18n="content:page.og-desc">
 <meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -14,13 +14,16 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image:alt" content="color-space – color spaces in one open collection" data-i18n="content:page.og-alt">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.34' y='2.34' width='11.32' height='11.32' fill='%23ef7a4a' transform='rotate(45 8 8)'/></svg>">
+<link rel="icon" type="image/png" href="./img/locus-64.png"><link rel="apple-touch-icon" href="./img/locus-512.png">   <!-- the mark: the spectral locus in its own colors (plugins/figma/promo/promo.js writes both) -->
 <link rel="preload" href="./fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link href="./tokens.css" rel="stylesheet">
 <script>// embed pre-paint: /<name>?embed is the dossier card alone (CSS keys off the attribute) – set FIRST,
 // before any storage read that a sandboxed frame can refuse. ?s=<name>&embed is the same card addressed by
 // query – what a plain file server holds without the stamped /<name> documents
 { const q=new URLSearchParams(location.search); if(q.has('embed')&&(q.has('s')||/[^/]\/?$/.test(location.pathname)&&!/\/index(\.html)?$/.test(location.pathname))) document.documentElement.dataset.embed='' }
+// the catalog's Greek (α, β, Δ…) lives below the fold: left to its first glyph, that face lands mid-scroll and every Inter
+// line on the page lays out again. Loaded now, its swap is the boot one – the one fonts.ready (and the rail) waits for
+document.fonts?.load('1em Inter','\u03b1').catch(()=>{})
 // every storage touch is guarded: a third-party frame with storage blocked THROWS on access
 let thm0; try{ thm0=localStorage.csTheme }catch{}
 document.documentElement.dataset.theme=thm0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
@@ -41,11 +44,18 @@ body{ overflow-x:clip }
 pre::selection,pre ::selection{ background:var(--color-terminal-ink); color:var(--color-terminal-paper) }   /* the dark code plate inverts within its own palette — the page's ink-on-ink selection would vanish there */
 body{ font-family:var(--f); font-size:16px; line-height:1.45; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility }
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px }
-.page{ --railw:clamp(16rem,8rem + 12.5vw,20.5rem); --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); --maxw:108rem; max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; the rail widens to hold the longest family title, its icon and a count; --eg: half the visual gutter between entries */
-:root{ --gut:clamp(1rem,3vw,2.2rem); --cells-h:3.5rem; --sel:color-mix(in oklab,var(--cur,var(--accent)) 14%,transparent) }   /* the page's side gutter; the pinned row's height – the hero runs under it; a picked option's tint */
+.page{ --railw:clamp(16rem,8rem + 12.5vw,20.5rem); --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; the rail widens to hold the longest family title, its icon and a count; --eg: half the visual gutter between entries */
+:root{ --maxw:108rem; --gut:clamp(1rem,3vw,2.2rem); --cells-h:3.5rem; --sel:color-mix(in oklab,var(--cur,var(--accent)) 14%,transparent) }   /* the page's side gutter; the pinned row's height – the hero runs under it; a picked option's tint */
 .tnum{ font-variant-numeric:tabular-nums }
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* said, not shown */
-a{ color:var(--ink); font-weight:500; text-decoration-thickness:1px; text-decoration-color:var(--ul); text-underline-offset:3px }   /* every underlined link: a step bolder than prose, the same soft-ink line at the same distance (--ul); chrome links opt out with text-decoration:none */
+a{ color:var(--ink); font-weight:500; text-decoration-thickness:1px; text-decoration-color:var(--ul); text-underline-offset:3px }
+/* a link's underline: a soft line of the text's own ink, 2 px, close under the letters; pointed at, the hue circle slides
+   in over it from the start, and on leaving slides on out past the end – its width eases, its anchor switches sides at
+   once (start while it grows, end while it shrinks), where the switch can't be seen. Backgrounds, as a decoration can't
+   be a gradient. Prose links (an <a> with no class: chrome links carry one), the hero's doors, Cite */
+:is(a:not([class]),.hsub button,.ftr .cite){ text-decoration:none; background-color:transparent; background-image:linear-gradient(90deg in oklch longer hue,oklch(.66 .19 30),oklch(.66 .19 30)),linear-gradient(var(--ul),var(--ul)); background-repeat:no-repeat; background-size:0% 2px,100% 2px; background-position:100% calc(100% - .08em),0 calc(100% - .08em); transition:background-size var(--dur-long) var(--ease-out) }
+:is(a:not([class]),.hsub button,.ftr .cite):is(:hover,:focus-visible){ background-size:100% 2px,100% 2px; background-position:0 calc(100% - .08em),0 calc(100% - .08em) }
+@media(prefers-reduced-motion:reduce){ :is(a:not([class]),.hsub button,.ftr .cite){ transition:none } }   /* every underlined link: a step bolder than prose, the same soft-ink line at the same distance (--ul); chrome links opt out with text-decoration:none */
 a:hover{ text-decoration-color:currentColor }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:var(--z-tooltip); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; text-decoration:none; padding:var(--s2) var(--s3); transform:translateY(-3.6rem); transition:transform var(--dur-micro) var(--ease-out) }
 .skip:focus{ transform:none }
@@ -57,39 +67,55 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
    The field IS the current color here – its rhombus, its value the placeholder; scrolled under the row, it hands
    over to the row's own color and search ── */
 .hero{ position:relative; isolation:isolate; overflow:clip; width:100vw; margin:calc(-1 * var(--cells-h)) 0 0 calc(50% - 50vw); padding:calc(var(--cells-h) + var(--s8)) var(--gut) var(--s12) }
-/* the hero's locus (js/locus.js): the chromaticity diagram in the rail's column (an absolute grid child: its area is
-   its box – column 1, the three rows of words), soft, as tall as the words and a little into the hero's padding; hairlines in the ink, or the horseshoe filled (?locus=fill). No rail, no room */
-.hmain>.hlocus{ grid-column:1; grid-row:1 / span 3; position:absolute; z-index:-1; inset-inline-start:0; top:calc(-1 * var(--s6)); width:auto; height:calc(100% + var(--s6) + var(--s8)); max-width:calc(100% - var(--s4)); fill:none; stroke:var(--ink); pointer-events:none; overflow:visible }
-.hlocus *{ vector-effect:non-scaling-stroke; stroke-width:1 }
-.hlocus .ll{ stroke-opacity:.3 } .hlocus .lp{ stroke-opacity:.2; stroke-dasharray:3 3 } .hlocus .lg{ stroke-opacity:.16 } .hlocus .lt path,.hlocus .lw{ stroke-opacity:.3 }
-.hlocus text{ fill:var(--soft); stroke:none; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; opacity:.8 }
-.hlocus image{ opacity:.35 } :root[data-theme="dark"] .hlocus image{ opacity:.3 }   /* filled, a wash the words read on */
-.hlocus .lc{ stroke:var(--paper); stroke-width:1.5 }   /* the current color – the site's rhombus, cut from the lines by a paper ring */
+/* the hero's locus (js/locus.js): the chromaticity diagram in the rail's column beside the words – an absolute grid child,
+   its grid area its box (column 1, the four rows of words), as tall as they are and a little into the hero's padding.
+   As the sliders draw a Limit: inside it the chromaticities' own colors; outside it the same colors half-transparent
+   over the checker; the rim's wavelengths; no outlines, no names. Pointed at, the displays' gamuts and the horseshoe
+   show their edges and names – the one under the pointer darkest – and a click picks it (Surface is the row's alone:
+   in xy, object colors span the horseshoe); the current color rides it as the planes' picker */
+.hmain>.hlocus{ grid-column:1; grid-row:1 / span 4; position:absolute; inset-inline-start:0; top:calc(-1 * var(--s6)); height:calc(100% + var(--s6) + var(--s8)); aspect-ratio:290/318; max-width:calc(100% - var(--s4)) }
+.hlocus>svg{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); overflow:visible }
+.hlocus svg *{ vector-effect:non-scaling-stroke; stroke-width:1 }
+.hlocus .chk{ fill:url(#hl-chk); stroke:none } #hl-chk *{ stroke:none } #hl-chk rect{ fill:var(--panel) } #hl-chk path{ fill:oklch(0.5 0 0/.14) }   /* the sliders' checker (--checker), as an SVG pattern at its 12 px (JS scales it) – no stroke: the svg's ink reaches into a pattern too */
+.hlocus .all{ opacity:.5 }   /* outside the Limit: the colors half there, as on a slider */
+.hlocus :is(.ll,.lp,.lg,.lw){ display:none } .hlocus .lt path{ stroke-opacity:.35 }   /* no outlines: the ticks and the wavelengths */
+.hlocus text{ fill:var(--soft); stroke:none; font-size:11px; font-weight:600; font-variant-numeric:tabular-nums; opacity:.85 }
+:root[data-theme="dark"] :is(.hlocus,.gxy) text{ fill:var(--ink) }   /* dark paper: the labels in the ink itself (white) – the soft gray sank into the colors */
+.hlocus .lgn{ display:none } .hlocus:has(.chk:hover) .lgn{ display:inline }   /* names only when pointed at */
+.hlocus .lims{ opacity:0; transition:opacity var(--dur-short) var(--ease-out) } .hlocus:has(.chk:hover) .lims{ opacity:1 }
+.hlocus .lims path{ stroke:var(--ink); stroke-opacity:.35 } .hlocus .lims path.on{ stroke-opacity:.8; stroke-width:1.5 }   /* the theme's ink, see-through – dark on light paper, light on dark; the one under the pointer strongest */
+.hlocus svg,.hlocus svg *{ pointer-events:none } .hlocus .chk{ pointer-events:fill; cursor:pointer }   /* only the horseshoe answers the pointer, not its box: its painted shape catches it, everything over it lets it through */
+.hlocus:has(.chk:hover) .cx{ width:var(--picker-active-size); height:var(--picker-active-size) }
+.hlocus .cx{ pointer-events:none }   /* the mark shows, the horseshoe under it answers – pointing at the current color still reaches the Limits */   /* the planes' picker grows under the pointer, as a slider's does */
 @media(max-width:1079px){ .hmain>.hlocus{ display:none } }
 .hmain{ position:relative; display:grid; grid-template-columns:var(--railw) minmax(0,50rem); column-gap:var(--railgap); justify-items:start; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the catalog's grid: the words start where the spaces do */
 .hmain>*{ grid-column:2 }
 @media(max-width:1079px){ .hmain{ grid-template-columns:0 minmax(0,1fr); column-gap:0; max-width:calc(64rem - 2 * var(--gut)) } .hmain .hfield{ width:100%; margin-inline-start:0 } }   /* no rail: the catalog's one centred column – the row's color sits after Filters there, nothing to hang toward */
 .hh{ max-width:14em; margin:0; font-size:var(--text-3xl); font-weight:800; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }   /* two lines, flush left, in every language – the measure holds French's and Russian's longest in two, English balanced across two; a title, not a poster: the hero is a band over the catalog, not the first screen */
+.htitle .hh{ display:inline }   /* the title and, on its line, the plugin's announcement standing on its baseline */
+.hplug{ display:inline-block; overflow:hidden; vertical-align:baseline; margin-inline-start:var(--s4); text-decoration:none; white-space:nowrap }   /* the catalog's tag, Figma's mark leading; overflow other than visible puts an inline block's baseline at its bottom edge (CSS 2.2 §10.8.1) */
+.hplug .hpi{ display:flex; align-items:center; gap:var(--s2) }   /* inside the pill, the mark and the words centred on each other */
+.hplug .figma{ height:var(--s4); width:auto }
+.hplug:hover{ background:var(--hair) }
 .hsub{ max-width:50rem; margin:var(--s4) 0 var(--s6); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }
-.hsub button{ font:inherit; color:var(--ink); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-decoration-thickness:1px; text-decoration-color:var(--ul); text-underline-offset:3px; transition:text-decoration-color var(--dur-micro) var(--ease-out) }   /* the promise's doors – the page's link */
-.hsub button:hover{ text-decoration-color:currentColor }
+.hsub button{ font:inherit; color:var(--ink); border:0; padding:0; cursor:pointer }   /* the promise's doors – the page's link */
 /* the field: the row's own color rests in it (a view timeline carries it up into the row, below) – the field is its
    frame, an image on the right. As tall as the row, its box hung out by the row's inset (s3): the color lands on the
    field's pixels, and the field's on the row's */
-.hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--s3)); max-width:32rem; height:var(--cells-h); margin-inline-start:calc(-1 * var(--s3)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
+.hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--s3)); max-width:44rem; height:var(--cells-h); margin-inline-start:calc(-1 * var(--s3)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
 .hql{ flex:1; align-self:stretch; cursor:text }   /* the frame's empty run: a click there types the color */
 .hib{ position:relative; display:grid; flex:none; place-items:center; width:var(--s12); height:var(--s12); padding:0; color:var(--soft); background:none; border:0; cursor:pointer; --ic:20px; transition:color var(--dur-micro) var(--ease-out),background-color var(--dur-micro) var(--ease-out) }   /* dim → ink, as every icon */
 .hib:hover,.hib[aria-expanded="true"]{ color:var(--ink); background:var(--panel) }
 .wdot{ display:block; flex:none; width:15px; height:15px; background:var(--w); box-shadow:inset 0 0 0 1px var(--hair); rotate:45deg; scale:.8 }   /* a color's mark: the rhombus */
 /* ── the pinned row: the page's one bar – its left free for the hero's words and the color that pins there; at its
    right the count and its filters, the view, the language, search, the theme, the source.
-   Clear over the hero – its words pass under it; its top edge the current color, always; paper arrives with the
-   color's dock (.hpaper) ── */
-.mhead{ position:sticky; top:0; z-index:var(--z-sticky-nav); overflow-x:clip }   /* sideways only: the color stands below the row over the hero's field; the rail titles pin just below it – see layoutToc */
-.cells{ display:flex; align-items:stretch; height:var(--cells-h); padding:0 calc(var(--gut) - var(--s3)); position:relative }   /* the cells' own inset taken from the gutter: icons and words line up with the content's edges */
+   Full-bleed, its cells in the page's measure: its top edge the current color across the whole window. Clear over the
+   hero; as the field docks into it, paper ── */
+.mhead{ position:sticky; top:0; z-index:var(--z-sticky-nav); width:100vw; margin-inline:calc(50% - 50vw); overflow-x:clip }   /* sideways only: the color stands below the row over the hero's field; the rail titles pin just below it – see layoutToc */
+.cells{ display:flex; align-items:stretch; max-width:var(--maxw); height:var(--cells-h); margin-inline:auto; padding:0 calc(var(--gut) - var(--s3)); position:relative }   /* the cells' own inset taken from the gutter: icons and words line up with the content's edges */
 .cells .fill{ flex:1 }   /* the row's controls sit at its right end */
 .cell{ flex:none; display:flex; align-items:center; gap:var(--s2); padding:var(--s2) var(--s3); font:inherit; text-align:start; color:var(--ink); background:none; border:0; cursor:pointer; transition:background-color var(--dur-micro) var(--ease-out) }
-:is(#c-view,.qx,.thm,.dctl){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair before each item, kept off the row's edges – none before the first of the right group */
+:is(#c-view,#c-layout,.thm,.dctl){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair before each item, kept off the row's edges – none before the first of the right group */
 .cells .cell:is(:hover,[aria-expanded="true"]) :is(.ci,.ic,small){ color:var(--ink) }   /* hover inks the mark – no fill: the row stays clear, its edge seen */
 .cell .ci{ display:grid; place-items:center; color:var(--soft) }
 .cell .ci :is(.ic,.fi){ --ic:18px }
@@ -105,21 +131,16 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .cell.lens:has(b.on) .ci{ color:var(--ink) }
 /* the count, Filters and its marks: how many spaces the catalog shows and what narrows it – "32 spaces ⧩ ◆ ◇", the
    marks after Filters so its menu never moves. Each pick is its own mark, a button that lets its filter go; Filters'
-   menu sets them. Over the rail all three stay pinned,
-   the marks yielding where they would reach the pinned color (Filters' inked mark and its tooltip still say them). With
-   no rail the count and its marks belong to the page's head, scrolling away with it, the pinned color taking the row's
-   left – and Filters leads the controls at the right */
-.cells.tight .fcells{ display:none }
+   menu sets them. With the search before them they lead the controls at the row's right – search · count · Filters |
+   view | layout | language | theme – on every screen, always pinned; the row's left is the color's; the marks yield where the row has no room (Filters' inked mark and its tooltip still say them) */
+.cells.tight .fcells{ display:none } .cells.under :is(.qx,.count,.fcells){ visibility:hidden }   /* under the docked color: out of sight, their room kept – nothing shifts as it comes and goes */
 .fcells{ flex:none; display:flex; align-items:center; gap:var(--s1) }
 .fcells>.cell{ padding:0 }   /* marks at the count's text size, close together, soft until pointed at */
 .fcells .ci :is(.ic,.fi){ --ic:var(--s4) } .fcells .wdot{ box-shadow:inset 0 0 0 var(--rule-hair) currentColor }   /* a white's tint still reads on paper: ringed in the mark's own soft ink */
 .fcells>.cell:focus-visible{ outline-offset:1px }
 .count{ flex:none; align-self:center; padding-inline:var(--s3) 0; font-size:var(--t2); font-weight:700; color:var(--body); white-space:nowrap }
 #nn{ display:inline-block; min-width:3ch; text-align:end }   /* the number holds three digits' room – a narrower count never moves Filters, nor its open menu */
-@supports (animation-timeline:scroll()){ @media(max-width:1079px){ .cells :is(.count,.fcells){ animation:away linear both; animation-timeline:scroll(root); animation-range:0 var(--cells-h) } } }   /* no rail: the page's first row-height of scroll carries them up, one to one */
-@keyframes away{ to{ translate:0 calc(-1 * var(--cells-h)); visibility:hidden } }
-@media(max-width:1079px){ body.mopen .cells :is(.count,.fcells){ visibility:hidden }
-	.cells .fill~*{ order:2 } .cells #c-more{ order:1 } .fcells:has(>.cell:not([hidden])){ padding-inline-start:var(--s2) } .cells #c-layout{ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat } }   /* Filters leads the right group – the layout, no longer first, takes a hair */   /* over a card the color holds the row's left, docked or not */
+.fcells:has(>.cell:not([hidden])){ padding-inline-start:var(--s2) }
 @media(width < 30rem){ .cells .qx{ display:none } #m-more>label.msq{ display:flex; align-items:center; gap:var(--s2); padding:var(--s2); color:var(--soft); box-shadow:inset 0 calc(-1 * var(--rule-hair)) var(--hair); --ic:18px } #m-more>label.msq input{ flex:1; min-width:0; font:inherit; font-size:var(--text-md); color:var(--ink); background:none; border:0; outline:none } #gpill{ display:none } .hcolor #cval{ min-width:0 } .hh{ font-size:var(--text-xl) } }   /* a phone's: the color yields first – its gamut tag goes, its name ellipsizes */
 /* a cell's menu: a popover under its cell (centred where anchors are unknown), its options in rows */
 .dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--cells-h) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--hair) transparent; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
@@ -175,20 +196,26 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 /* the current color: its mark (the picker), its value to type over, the notation, its gamut tag. It is sticky – the
    browser's own: placed in the page's flow over the hero's field (a zero-height box pulled up by the field's distance
    from the hero's foot, --hc-up), it scrolls with the field and pins at the top, at the row's free left. Over the row,
-   above it; over a card, fixed where it pins. With it pins .hpaper, under the row: as the field docks it turns paper
-   with the edge of the current color – the field's own paper lies under the row just then, so it doesn't show */
+   above it; over a card, fixed where it pins */
 .hcolor{ position:sticky; top:0; z-index:calc(var(--z-sticky-nav) + 1); height:0; margin-block:calc(-1 * var(--hc-up,0px)) var(--hc-up,0px); padding-inline:var(--gut); pointer-events:none }
 .hcolor>.cx{ position:relative; display:flex; align-items:center; width:max-content; height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--s3)); padding:0 var(--s4) 0 var(--s3); cursor:text; pointer-events:auto }
-@media(max-width:1079px){ :is(.hcolor,.hpaper){ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:0 } }
-.hpaper{ position:sticky; top:0; z-index:calc(var(--z-sticky-nav) - 1); height:0; margin-block:calc(-1 * var(--hc-up,0px)) var(--hc-up,0px); container-type:scroll-state; pointer-events:none }
-.hpaper>i{ display:block; width:100vw; height:var(--cells-h); margin-inline-start:calc(50% - 50vw); transition:background-color var(--dur-short) var(--ease-out) }
-@container scroll-state(stuck: top){ .hpaper>i{ background:var(--paper) } }
-.cells::before{ content:''; position:absolute; inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); pointer-events:none }   /* the row's edge: the current color, always – animated while it roams */
+@media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:0 } }
+.mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); opacity:0; pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before */
+@supports (animation-timeline:scroll()){ .mhead::after{ animation:dock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - var(--s4)) var(--hc-dock,50vh) } }
+@keyframes dock{ to{ opacity:1 } }
+@media(min-width:1080px){ .mhead::after{ inset-inline-start:calc(max(0px,(100% - var(--maxw)) / 2) + var(--gut) + var(--railw) + var(--railgap) - var(--s3) - var(--s8)) } }   /* the paper over the spaces' column and the search field's shadow (the field hangs s3 out, its shadow ~s8 past it): the rail's column is the titles' own, a pushed title leaving through it – under the edge */
+/* past the catalog the row lets go: as the catalog's end (--cat-end, measured) passes under it, the row and its docked
+   color slide up with the page, one row's height, and are gone – the history, the usage and the footer run free.
+   Over a card it stays */
+@supports (animation-timeline:scroll()){ :is(.mhead,.hcolor){ animation:unstick linear both; animation-timeline:scroll(root); animation-range:calc(var(--cat-end,100000px) - var(--cells-h)) var(--cat-end,100000px) } }
+@keyframes unstick{ to{ translate:0 calc(-1 * var(--cells-h) - var(--s1)) } }
+body.mopen :is(.mhead,.hcolor){ animation:none }
+@supports not (animation-timeline:scroll()){ .mhead::after{ opacity:1 } }   /* no scroll timeline: paper always */
+.mhead::before{ content:''; position:absolute; z-index:1; inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); pointer-events:none }   /* the row's edge: the current color, always, the window's width – animated while it roams */
 /* …and at the page's top, the hue circle round it – the footer's steps, the current color the middle one: scrolling
    down zooms into that step until, as the color docks, it is the whole edge */
-@supports (animation-timeline:scroll()){ .cells::before{ background:var(--hues) center / 100% 100% no-repeat,var(--cur,var(--hair)); animation:edge-zoom linear both; animation-timeline:scroll(root); animation-range:0 var(--hc-dock,50vh) } }
+@supports (animation-timeline:scroll()){ .mhead::before{ background:var(--hues) center / 100% 100% no-repeat,var(--cur,var(--hair)); animation:edge-zoom linear both; animation-timeline:scroll(root); animation-range:0 var(--hc-dock,50vh) } }
 @keyframes edge-zoom{ 0%{ background-size:100% 100%,auto } 12.5%{ background-size:157% 100%,auto } 25%{ background-size:247% 100%,auto } 37.5%{ background-size:387% 100%,auto } 50%{ background-size:608% 100%,auto } 62.5%{ background-size:955% 100%,auto } 75%{ background-size:1500% 100%,auto } 87.5%{ background-size:2356% 100%,auto } 100%{ background-size:3700% 100%,auto } }   /* 37 steps: the middle one grown to the width – a geometric zoom, each eighth of the way ×1.57, so it feels even */
-@supports not (container-type:scroll-state){ .cells{ background:var(--paper) } }   /* no stuck state to read: paper always */
 body.mopen .cells{ background:var(--paper) }   /* over a card the row is paper */
 body.mopen .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-index:calc(var(--z-modal) + 2) }
 @media(min-width:1080px){ body.mopen .hcolor{ max-width:var(--maxw); margin-inline:auto } }
@@ -218,7 +245,7 @@ body.mopen .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-index:calc
    tick's own 1.2px offsets. The native color input is an invisible overlay: the chip IS the
    picker, with a clean rectangular hit. */
 .cdw{ position:relative; flex:none; width:17px; height:28px; display:grid; place-items:center }
-.cdw::before{ content:''; grid-area:1/1; width:14px; height:14px; background:var(--sw); border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the engaged picker's dress, built the same way it is: the inverse ring INSIDE the shape (a border — the fill shrinks by it) and the ink ring immediately outside, both 1.2px. Rings drawn outside the fill instead read three times heavier at the same nominal weight */   /* the current chip wears the picker pair at the engaged tick's weights — the inverse ring double-width (2.4px) hugging, the 1.2px ink ring outside; the inner ring doubles as the paper cut its neighbours get */
+.cdw::before{ content:''; grid-area:1/1; width:16px; height:16px; background:var(--sw); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the current color, plain – the site's color mark, no rings; a hair inside keeps a color near the paper's in sight */
 .cdw .cd{ position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
 
 #cval{ anchor-name:--cval; field-sizing:content; min-width:4rem; max-width:20rem; font-size:var(--t4); font-weight:750; color:var(--ink); padding-inline-start:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
@@ -316,7 +343,7 @@ body.himg #imgfloat{ display:block }
 /* ── the history (js/lineage.js): the catalog as a stack of years, at the full width of the page's measure – the
    headline, the milestones above the stack, its years below. The SVGs stretch across and are --hl-t px per band,
    so nothing is measured; tokens only – the bands' OKLCH is the data ── */
-.lineage{ --hl-t:calc(var(--s1) * .75); --hl-pad:calc(3 * var(--hl-t)); --hl-c:.12; --hl-l0:.46; --hl-dl:.36; container:hl / inline-size; padding:0 var(--gut) }   /* a band: three quarters of the smallest step, 3px; the gap above and below the stream; the bands' chroma, the first family's lightness, the span the families step across */
+.lineage{ --hl-t:calc(var(--s1) * .75); --hl-pad:calc(3 * var(--hl-t)); --hl-c:.12; --hl-l0:.46; --hl-dl:.36; container:hl / inline-size; padding:0 var(--gut) }   /* a band: three quarters of the smallest step, 3px; the gap above and below the stream; the bands' chroma at most (the current color's, --hl-cc, below it), the darkest light's lightness (print), the span the four lights step across */
 :root[data-theme="dark"] .lineage{ --hl-c:.1; --hl-l0:.48; --hl-dl:.34 }
 .lineage:empty{ min-height:40rem }   /* its room, near enough, before it is built */
 .hl-fig{ margin:0; padding:var(--s12) 0; border-top:var(--rule-hair) solid var(--hair) }   /* no title: a hair after the catalog, then the figure */
@@ -338,7 +365,7 @@ body.himg #imgfloat{ display:block }
 /* the stack: one figure. Scrolled away, it is skipped – the orbit restyles the page every frame */
 .hl-st{ position:relative; padding-block:var(--hl-pad); cursor:pointer; content-visibility:auto; contain-intrinsic-block-size:auto none }
 .hl-sv{ display:block; width:100%; height:calc(var(--u) * var(--hl-t)); overflow:visible; shape-rendering:crispEdges }
-:is(.hl-b,.hl-kd){ --hl-kc:oklch(calc(var(--hl-l0) + var(--hl-dl) * var(--k) / (var(--hl-n) - 1)) var(--hl-c) var(--hl-h, 42)) }   /* the current hue; the light the values describe, a step of lightness – reflected darkest, the scene lightest */
+:is(.hl-b,.hl-kd){ --hl-kc:oklch(calc(var(--hl-l0) + var(--hl-dl) * var(--k) / (var(--hl-n) - 1)) min(var(--hl-c), var(--hl-cc, var(--hl-c))) var(--hl-h, 42)) }   /* the current hue; the light the values describe, a step of lightness – reflected darkest, the scene lightest */
 .hl-b{ fill:var(--hl-kc); transition:opacity var(--dur-short) var(--ease-out) }
 .hl-fig .out{ opacity:0; pointer-events:none }   /* the key keeps one light: the others' bands step out, their rows kept, and their milestones with them */
 .hl-b.on{ fill:var(--ink) }
@@ -365,7 +392,7 @@ body.himg #imgfloat{ display:block }
 }
 @container hl (width < 67.5rem){ .hl-ax span.near{ display:none } }   /* 1900 crowds 1860 once the axis is under 45rem */
 /* the key: a swatch and a name per light, a toggle – dim to ink, as the catalog's; one picked, the rest's swatches fade */
-.hl-key{ display:flex; flex-wrap:wrap; gap:var(--s2) var(--s6); margin-top:var(--s2) }
+.hl-key{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:var(--s2) var(--s6); margin-top:var(--s2) }   /* at the right, under the years most spaces arrived in – the key beside what it keys */
 .hl-kd{ display:inline-flex; align-items:center; gap:var(--s2); padding:0; font:inherit; font-size:var(--t1); line-height:1; color:var(--soft); background:none; border:0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
 .hl-kd:hover,.hl-kd[aria-pressed="true"]{ color:var(--ink) }
 .hl-kd i{ flex:none; width:var(--s3); height:var(--s3); background:var(--hl-kc); transition:opacity var(--dur-micro) var(--ease-out) }
@@ -375,14 +402,24 @@ body.himg #imgfloat{ display:block }
 .introcopy>.ic-lead{ min-width:0 }
 .introcopy>.tabs{ min-width:0; max-width:none; margin:0 }   /* API snippet, right column, no title */
 .introcopy .tabs pre{ font-size:var(--t1); line-height:1.65 }
+.introcopy .tabs pre a{ color:inherit; font-weight:inherit }   /* a link in a code comment: the comment's own color, underlined – the page's ink would vanish on the dark plate */
 #api-panel-mcp{ white-space:pre-wrap; overflow-wrap:anywhere }   /* commands and a config: they wrap whole, the plate never scrolls sideways */   /* a touch smaller so the half-width panel holds each line whole */
 @media(max-width:1079px){ .introcopy>.tabs{ margin-top:var(--s8) } }   /* ≤1079 the section turns display:block (rail hidden) — the snippet stacks below the copy with air above it */
+/* big screens: the history full-width, its title over the chart's quiet early years */
+@media(min-width:1080px){
+	.hl-fig{ position:relative }
+	.hl-lead{ position:absolute; inset-inline-start:0; top:var(--s12); margin:0; pointer-events:none } }
 .introcopy::before{ content:''; position:absolute; top:0; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); height:1px; background:var(--hair) }
-.introcopy h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
-.introcopy p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
+:is(.introcopy,.hl-lead) h2{ font-size:clamp(1.45rem,2.2vw,2rem); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
+:is(.introcopy,.hl-lead) p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
+.hl-lead{ margin-bottom:var(--s8) }   /* narrow: the history's title over its chart */
 .introcopy em{ white-space:nowrap }
 /* the facts – what the library is: an icon, a name, a line */
-.facts{ display:grid; grid-template-columns:repeat(auto-fill,minmax(13rem,1fr)); gap:var(--s5) var(--s6); margin:var(--s8) 0 0; padding:0; list-style:none }
+.facts{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s5) var(--s6); margin:var(--s8) 0 0; padding:0; list-style:none }
+/* four facts read as a row of four or two rows of two – never three and one: the lead column's own width decides */
+.introcopy>.ic-lead{ container-type:inline-size }
+@container (min-width:56rem){ .facts{ grid-template-columns:repeat(4,minmax(0,1fr)) } }
+@container (max-width:24rem){ .facts{ grid-template-columns:minmax(0,1fr) } }
 .facts li{ display:flex; align-items:flex-start; gap:var(--s3); font-size:var(--t2); line-height:1.4; color:var(--body); cursor:default }
 .facts li[title]{ cursor:help }
 .facts .ic{ --ic:20px; color:var(--ink) }
@@ -443,7 +480,7 @@ body.himg #imgfloat{ display:block }
 .toc{ grid-column:1; position:relative; padding-bottom:var(--s12); opacity:0 }   /* hidden until the ladder is font-settled (see layoutToc) — the realign was a visible jump */
 .toc.on{ opacity:1; transition:opacity var(--dur-short) var(--ease-out) }   /* the top-pinned stack clamps at the content edge — scrolls off only with the last spaces */
 .tsp{ display:block }   /* flow spacer – a margin above a title would hold it back (margin-box clamp); the margin below is that clamp at work (layoutToc) */
-.ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); top:var(--ti-y,0px); bottom:var(--ti-b,auto) }   /* pin point: --ti-y, measured (layoutToc) – every title rests where a family's first space name rests once it has reached the pinned row; the bottom ladder is set per title in JS: future titles wait stacked at the bottom */
+.ti{ display:block; position:sticky; z-index:2; margin:0; padding:0 0 var(--s1); width:100%; background:var(--paper); top:var(--ti-y,0px); bottom:var(--ti-b,auto) }   /* pin point: --ti-y, measured (layoutToc) – every title rests where a family's first space name rests once it has reached the pinned row; the bottom ladder is set per title in JS: future titles wait stacked at the bottom; a pushed title leaves through the row's clear left, under its edge */
 /* the shelf cut closes the rail: the LAST RUNG of the title ladder — sticky under the
    waiting titles (layoutToc seeds the bottom stack above it), so it always follows
    Specialty & research. The tabrow's grammar, mirrored: the accent rides the TOP of the
@@ -451,7 +488,7 @@ body.himg #imgfloat{ display:block }
 /* each title and the tabs in a range of their own: from --rg-y (layoutToc) to the rail's end. The first family's opens
    at the rail's top; every later one opens under the first family's description and the coming titles before it – so
    the waiting stack sits at the screen's foot, and entering, the first family pushes it down in order, never riding over */
-.trg{ position:absolute; left:0; right:0; top:var(--rg-y,0px); bottom:var(--s12); display:flex; flex-direction:column; pointer-events:none }
+.trg{ position:absolute; left:0; right:0; top:var(--rg-y,0px); bottom:var(--rg-b,var(--s12)); display:flex; flex-direction:column; pointer-events:none }
 .trg>*{ flex:none; pointer-events:auto }
 .gtabs{ position:sticky; bottom:0; z-index:3; margin-top:auto; background:var(--paper); padding:0 0 12px; display:flex; gap:var(--s4) }   /* full column width, paper to the very screen edge while parked; the white begins exactly at the tabs' top — the breathing room lives INSIDE as bottom padding */
 .gtabs .gtag{ font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; border-top:var(--ulw) solid transparent; padding:var(--s1) 0; cursor:pointer }
@@ -465,16 +502,18 @@ body.himg #imgfloat{ display:block }
 .ti .tn{ display:flex; align-items:center; gap:var(--s2); max-width:100%; min-height:var(--s8); font:inherit; font-size:clamp(var(--t3),.55rem + .7vw,var(--t4)); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:start; border:0; background:var(--paper); padding:0 0 var(--s1); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive families greyed; the titles narrow with the rail; a longer one (a translation) wraps, balanced – layoutToc measures each title's height */
 .ti .tt{ min-width:0; text-wrap:balance }
 .ti .fic{ display:inline-grid; place-items:center; flex:none; color:inherit } .ti .fic .ic{ --ic:18px }
-/* the family on screen speaks its description under its title, over what follows – stepping out while the next title
-   or the tabs ride over it (trackAct), so the gaps between them never show its words */
-.ti .tip{ position:absolute; top:100%; inset-inline-start:0; width:calc(var(--railw) - var(--s4)); margin:0; padding-bottom:var(--s3); font-size:var(--t2); line-height:1.45; color:var(--soft); background:var(--paper); opacity:0; visibility:hidden; transition:opacity var(--dur-short) var(--ease-out),visibility var(--dur-short) allow-discrete }
+/* the family on screen speaks its description under its title, over what follows – one always shown: the moment the
+   next title reaches it, the next family is active and the description is its (trackAct), the old one gone at once, the
+   new fading in; only the shelf tabs, riding over the last family's, hide it */
+.ti .tip{ position:absolute; top:100%; inset-inline-start:0; width:calc(var(--railw) - var(--s4)); margin:0; padding-bottom:var(--s3); font-size:var(--t2); line-height:1.45; color:var(--soft); background:var(--paper); opacity:0; visibility:hidden }
+.ti .tip{ transition:opacity var(--dur-short) var(--ease-out),visibility var(--dur-short) allow-discrete }   /* the old one fades out */
+.ti.act:not(.tipoff)>.tip{ transition:opacity var(--dur-long) var(--ease-out) var(--dur-micro) }   /* the new one fades in a beat later – the two never read at once; a fade, nothing moves */
 .ti.act:not(.tipoff)>.tip{ opacity:1; visibility:visible }
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
 .ti .tc{ margin-inline-start:var(--s1) }   /* count of spaces in the family — the sup-chip recipe (with .hq) carries the look */
 .ti .tc,.shw .c{ vertical-align:middle; align-self:center }   /* the count centres on the title's body, not its baseline */
 .ti.off{ display:none }
-.ti.past{ visibility:hidden }
 .secs{ grid-column:2; min-width:0; padding-bottom:clamp(2rem,5vw,3.5rem) }   /* fills the capped content column */
 /* a section: one row of lead cards with sliders, then the REST as a compact sheet —
    name + channel values, always visible, no folding. Sheets of both kinds tile
@@ -515,7 +554,7 @@ body.himg #imgfloat{ display:block }
 .ent.lc{ display:grid; grid-row:span 3; grid-template-rows:subgrid; align-content:start; row-gap:var(--s3); --ctl:var(--s8) }   /* name · strips · numbers line up across the row */
 /* only what is on screen does the work: a tile off screen keeps its size and skips style, layout and paint (the lead
    cards stay out – containment breaks their subgrid). A strip's end knob overhangs its tile – the clip gives it room */
-.ent.tc{ display:flex; flex-direction:column; gap:var(--s2); --ctl:var(--s3); content-visibility:auto; contain-intrinsic-size:auto 5.75rem; overflow-clip-margin:var(--s3) }
+.ent.tc{ display:flex; flex-direction:column; gap:var(--s2); --ctl:var(--s3); content-visibility:auto; contain-intrinsic-size:auto calc(var(--tc0,3.5rem) + var(--nch,3) * var(--ctl)); overflow-clip-margin:var(--s3) }   /* the placeholder: its strips, plus what fonts decide – the name and the numbers – measured (sizeTiles) */
 /* Rows: one line per space – who and why on the left, a strip per channel at full width with its number */
 .rows{ display:flex; flex-direction:column }
 .ent.lr{ display:grid; grid-template-columns:minmax(13rem,20rem) minmax(0,1fr); gap:var(--s3) var(--s8); padding:var(--s4) 0; border-top:var(--rule-hair) solid var(--hair); --ctl:var(--s6) }
@@ -570,7 +609,7 @@ body.himg #imgfloat{ display:block }
 .ent .eh .nm{ flex-shrink:0; max-width:80%; padding-inline-end:1.1em }   /* room for the ↗ its hover shows, in its own em: the maker never sits under it */   /* the name keeps its line while the maker gives way; only a name past four fifths of the card wraps – the year always has room */
 .ent .eh .nm::before,.ent.lr .li .nm::before{ content:''; position:absolute; inset:0 }   /* the whole head – the name, the year, the maker – opens the card */
 .ent.lr .li{ position:relative }
-.ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
+.ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; text-decoration:none; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
 .ent.tc .eh .nm{ font-size:var(--t3); font-weight:650; line-height:1.25 }
 .by{ display:grid; grid-template-columns:minmax(0,max-content) max-content; column-gap:var(--s1); flex-shrink:1000; max-width:100%; margin-inline-start:auto; font-size:var(--t1); color:var(--soft); white-space:nowrap }
 .by .au{ min-width:0; overflow:hidden; text-overflow:ellipsis } .by .tnum{ grid-column:2 }
@@ -593,8 +632,8 @@ body.himg #imgfloat{ display:block }
 .stk button.lim{ opacity:.12; pointer-events:none }   /* value at the channel's limit — that direction is spent */
 .chs{ display:flex; flex-direction:column; background:var(--panel) }   /* fractional row edges (mobile DPR) otherwise open a hairline of page paper between sliders — and blink during live blits */
 .ch{ position:relative; height:var(--ctl); cursor:ew-resize; touch-action:pan-y; background:var(--panel); user-select:none }   /* pan-y, not none: a vertical swipe on a strip must scroll the page, and iOS only streams horizontal pointermove reliably under pan-y */
-.ch>.gbg{ position:absolute; inset:0; z-index:0; opacity:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100%; transition:opacity var(--dur-short) var(--ease-out) }
-.ch>.gbg.on{ opacity:1 }
+.ch>.gbg{ position:absolute; inset:0; z-index:0; pointer-events:none; background-repeat:no-repeat; background-size:100% 100%; transition:opacity var(--dur-short) var(--ease-out) }
+@starting-style{ .ch>.gbg.in{ opacity:0 } }   /* an arriving layer fades in over the one it replaces; the base, the strip's last face, stands at once */
 /* every strip and bar rides a NATIVE range: input device AND visual in one — the browser
    owns the thumb, so a native drag never pays a JS frame for its own marker. The thumb IS
    the catalog's 8px rhombus (rotate 45°), coloured by the --tkc/--tki pair stamped once
@@ -814,7 +853,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl.polar{ background:none }
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
 .pl.parking .cx{ transition:left .15s var(--ease-out),top .15s var(--ease-out) }
-.pl .cx{ position:absolute; z-index:2; width:var(--picker-size); height:var(--picker-size); transform:translate(-50%,-50%) rotate(45deg); background:var(--tkc,transparent); border:var(--picker-line) solid var(--tki,transparent); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* exactly the slider thumb's rhombus and outline tokens — above the axis labels */
+:is(.pl,.hlocus) .cx{ position:absolute; z-index:2; width:var(--picker-size); height:var(--picker-size); transform:translate(-50%,-50%) rotate(45deg); background:var(--tkc,transparent); border:var(--picker-line) solid var(--tki,transparent); transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }   /* exactly the slider thumb's rhombus and outline tokens — above the axis labels */
 .pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
@@ -911,9 +950,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 }
 @media(max-width:640px){ .props.props3{ grid-template-columns:1fr } }
 .gam2d canvas{ display:block; width:100%; height:100% }
-.gam2d .gxy{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); pointer-events:none; overflow:visible }   /* the locus's marks (js/locus.js): wavelengths, the reference gamuts, D65 – hairlines over the space's own reach */
+.gam2d .gxy{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); pointer-events:none; overflow:visible }   /* the locus's marks (js/locus.js): wavelengths, the Limit's region, D65 – hairlines over the space's own reach */
 .gxy *{ vector-effect:non-scaling-stroke; stroke-width:1 }
-.gxy .ll{ stroke-opacity:.45 } .gxy .lp{ stroke-opacity:.3; stroke-dasharray:3 3 } .gxy .lg{ stroke-opacity:.3 } .gxy .lt path,.gxy .lw{ stroke-opacity:.5 }
+.gxy :is(.ll,.lp,.lg),.gxy .lgn:not(.on){ display:none } .gxy .lt path,.gxy .lw{ stroke-opacity:.5 } .gxy .glim{ stroke-opacity:.35 }   /* no rim: the plate's colors are the horseshoe; the Limit's edge in the theme's ink, see-through */   /* the horseshoe, the space's own reach (the plate's colors) and the Limit's region – no other references */
 .gxy text{ fill:var(--soft); stroke:none; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums }
 .gam2d .cx{ position:absolute; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }
 .gam2d .cx.ghost{ pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
@@ -990,56 +1029,64 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 /* proprietary catalog cards — an ordinary sheet row (same padding, size, ↗ arrow); only the ® mark is added */
 .ent.barred .nm sup{ font-size:.5em; font-weight:600; vertical-align:super; color:var(--soft) }
 pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{ font-style:normal; color:var(--color-terminal-muted) }
-/* ── the footer: Install, For agents and the legal line over the wall – the current color's hue wheel at its
-   lightness, four rows quantized ever coarser (72 → 36 → 18 → 9: sampling, told once, standing still). The words sit
-   low on it; the color's own ink (renderFast) reads on all of it ── */
-.ftr{ display:flex; flex-direction:column; gap:calc(var(--s12) * 2); margin-top:var(--s12); padding:calc(var(--s12) * 1.5) var(--gut) var(--s12); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
-.finst{ width:min(28rem,100%); margin-inline:auto }   /* the install command, centred over the wall; the legal line under it */
-.legal .cite{ font:inherit; font-weight:600; color:inherit; background:none; border:0; padding:0; cursor:pointer; text-decoration:underline 1px var(--ul); text-underline-offset:3px }   /* a button (it opens, not navigates) dressed as its link neighbours */
-.legal .cite:hover{ text-decoration-color:currentColor }
-.legal{ position:relative; display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline; gap:var(--s1) var(--s5); margin:0; font-size:var(--t2); font-variant-numeric:tabular-nums }   /* the underlines part the links – no separator to dangle where the line wraps */
-.legal a{ color:inherit }
+/* ── the footer: the motivation and the install command beside four columns of links, the maker and the license under
+   them – over the wall, the current color's hue wheel at its lightness, four rows quantized ever coarser (72 → 36 → 18 →
+   9: sampling, told once, standing still). The color's own ink (renderFast) reads on all of it ── */
+.ftr{ display:flex; flex-direction:column; gap:var(--s12); margin-top:var(--s12); padding:calc(var(--s12) * 1.5) var(--gut) var(--s12); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
+.fbody,.legal{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
+.fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: what this is and how to get it | where to go */
+.flead h2{ font-size:var(--text-xl); font-weight:800; letter-spacing:-.02em; line-height:1.15; text-wrap:balance }
+.flead p{ margin-top:var(--s3); max-width:56ch; font-size:var(--t3); line-height:1.5; text-wrap:pretty }
+.finst{ width:min(28rem,100%); margin-top:var(--s6) }
+.finst .cpyi{ top:50%; translate:0 -50% }   /* one line of command: the copy button centred on it */
+.fcols{ display:grid; grid-template-columns:repeat(4,minmax(max-content,1fr)); gap:var(--s8) var(--s6); align-content:start }
+.fcols .plab{ color:inherit; opacity:.75; white-space:nowrap }   /* the wall's ink, a step back – every title on one line */
+.fcols ul{ list-style:none; margin:0; padding:0 }
+.fcols li{ margin-top:var(--s2); font-size:var(--t2); line-height:1.4; white-space:nowrap }
+.ftr a{ color:inherit }
+.ftr .cite{ font:inherit; font-weight:500; color:inherit; border:0; padding:0; cursor:pointer }   /* a button (it opens, not navigates) dressed as its link neighbours */
+.legal{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker on the left; the license and the dedication together on the right */
+.legal span{ display:flex; gap:var(--s5) }
+@media(max-width:1079px){ .fcols{ grid-template-columns:repeat(2,minmax(max-content,1fr)) } }
+@media(max-width:740px){ .fbody{ grid-template-columns:1fr } }
 .ftr :focus-visible{ outline-color:currentColor }
 /* Cite: a native popover – the top layer, no positioning script; the floating-panel skin (paper, --pop-shadow), the
    dossier's labels and code plates inside */
 .citep{ margin:auto; width:min(var(--measure),calc(100vw - 2*var(--s4))); max-height:calc(100dvh - 2*var(--s4)); overflow:auto; padding:var(--s4); border:0; background:var(--paper); color:var(--ink); box-shadow:var(--pop-shadow) }
 .citep .plab{ margin-top:var(--s3) } .citep .plab:first-child{ margin-top:0 }
 #citeapa{ white-space:pre-wrap }   /* the APA reference is prose – it wraps in the plate; the BibTeX keeps its lines */
-.legal .om{ position:absolute; inset-inline-end:0; bottom:0; font-size:var(--t3) }   /* the links centred under the install command; the dedication at the line's right */
-@media(width < 40rem){ .legal .om{ position:static } }   /* a wrapped line keeps it in the flow, centred with the rest */
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
 @media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:100dvh } .modal{ background:var(--paper); padding-block:0 } }   /* the detail keeps its uniform --dpad — the sticky footer needs no reserved band */
 @media(pointer:coarse){ .nvw input,.cv,#q{ font-size:16px } }   /* iOS auto-zooms any focused input under 16px — floor the small inputs (slider inline values t1, pair values t2, search t2); LAST in the sheet so it wins their base rules (axe: pinch zoom stays free) */
 .sliding,.sliding *{ cursor:none!important }   /* dragging a strip or a plane: its marker is the pointer */
 /* a right-to-left page (Arabic) mirrors the layout – the logical properties above do it – but not what is drawn: strips,
    planes and their numbers, the history's years, code and color notations run left to right in every language */
-:is(.chs,.pls,.cvs,.bch,.bar2,.dfig,.imgrow,.hl-fig,pre,code,#cval,.tbl .tsw){ direction:ltr }
+:is(.chs,.pls,.cvs,.bch,.bar2,.dfig,.imgrow,.hl-fig,.snipwrap,pre,code,#cval,.tbl .tsw){ direction:ltr }
 </style></head>
 <body>
 <a class="skip" href="#cat" data-i18n="ui.skip">skip to catalog</a>
 <div class="page">
 <div class="mhead" id="strip"><div class="cells" role="group" aria-label="the color, filters and view" data-i18n="aria-label:ui.cells.label">
+	<span class="fill"></span>
+	<label class="cell qx" title="search the spaces by name" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq" type="search" placeholder="search spaces…" autocomplete="off" spellcheck="false" aria-label="search the spaces by name" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-tip"><button type="button" class="qclr" id="fqx" hidden title="clear the search" aria-label="clear the search" data-i18n="title:ui.header.find-clear aria-label:ui.header.find-clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></label>
 	<span class="count tnum" data-i18n="ui.header.tagline"><span id="nn">168</span><span class="nnu"> spaces</span></span>
 	<button class="cell lens" type="button" id="c-more" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="title:ui.cell.more-any"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><span class="cw"><small data-i18n="ui.cell.more-any">Filters</small><b></b></span></button>
 	<span class="fcells" id="fcells"></span>
-	<span class="fill"></span>
-	<button class="cell lens" type="button" id="c-layout" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"></span></button>
 	<button class="cell lens" type="button" id="c-view" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b></b></span></button>
-	<label class="cell qx" title="search the spaces by name" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq" type="search" placeholder="search spaces…" autocomplete="off" spellcheck="false" aria-label="search the spaces by name" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-tip"><button type="button" class="qclr" id="fqx" hidden title="clear the search" aria-label="clear the search" data-i18n="title:ui.header.find-clear aria-label:ui.header.find-clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></label>
+	<button class="cell lens" type="button" id="c-layout" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"></span></button>
 	<span class="dctl"><select id="lang" aria-label="Language" title="Language" data-i18n="aria-label:ui.header.lang title:ui.header.lang"><option value="en" lang="en" selected>English</option></select></span>
 	<button class="cell thm" type="button" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"><svg class="moon" width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg><svg class="sun" width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></button>
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
-		<h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color spaces</h1>
+		<div class="htitle"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span data-i18n="ui.hero.plugin">New: Figma plugin</span></span></a></div>
 		<p class="hsub" id="hsub" data-i18n="ui.hero.line">From <button type="button" data-door="family:display">web</button> to <button type="button" data-door="family:surface">print</button>, <button type="button" data-door="purpose:picking">pickers</button> to <button type="button" data-door="purpose:research">research</button>, <button type="button" data-door="era:1860"><span id="y0">1860</span></button> to <button type="button" data-door="era:2020"><span id="y1">2026</span></button>.<br>Ready for CSS, shaders, WASM and LUTs.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
 			<button class="hib" type="button" id="him" popovertarget="uppop" aria-expanded="false" title="read an image – its colors on every strip" aria-label="read an image" data-i18n="title:ui.hero.image-tip aria-label:ui.hero.image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></button>
 		</div>
 	</div>
 </section>
-<div class="hpaper" aria-hidden="true"><i></i></div>
-<div class="hcolor" id="hcolor"><span class="cx" title="current color – type a supported CSS color" data-i18n="title:ui.header.color-tip"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker" data-i18n="aria-label:ui.header.pick title:ui.header.pick"></span></span><span class="cxw"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color value – accepts supported CSS colors, or a comma-separated list" enterkeyhint="done" data-i18n="aria-label:ui.header.value"></span><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" popovertarget="fmtp" aria-haspopup="listbox" aria-expanded="false" title="this color in every notation" aria-label="choose the value's notation" data-i18n="title:ui.header.fmt-tip aria-label:ui.header.fmt-label"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" popover role="listbox" aria-label="value notation" data-i18n="aria-label:ui.header.fmt-list"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this color" data-i18n="title:ui.header.gamut-tip"></span></span></div>
+<div class="hcolor" id="hcolor"><span class="cx" title="current color – type hex or any CSS color" data-i18n="title:ui.header.color-tip"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker" data-i18n="aria-label:ui.header.pick title:ui.header.pick"></span></span><span class="cxw"><input id="cval" spellcheck="false" autocomplete="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" data-i18n="aria-label:ui.header.value"></span><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" popovertarget="fmtp" aria-haspopup="listbox" aria-expanded="false" title="this color in every notation" aria-label="choose the value's notation" data-i18n="title:ui.header.fmt-tip aria-label:ui.header.fmt-label"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" popover role="listbox" aria-label="value notation" data-i18n="aria-label:ui.header.fmt-list"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this color" data-i18n="title:ui.header.gamut-tip"></span></span></div>
 <script>/* the sticky color starts where the hero's field is: the field's distance from the hero's foot (--hc-up), and the scroll at which it docks – its top on the page (--hc-dock), measured before first paint */{ const h=document.getElementById('hero'), q=document.getElementById('hq'), pg=document.querySelector('.page'), up=()=>{ const t=q.getBoundingClientRect().top; pg.style.setProperty('--hc-up',Math.round(h.getBoundingClientRect().bottom-t)+'px'); pg.style.setProperty('--hc-dock',Math.round(t+scrollY)+'px') }; up(); new ResizeObserver(up).observe(h) }</script>
 <div class="dpop" id="m-more" popover role="dialog" aria-labelledby="c-more"></div>
 <div class="dpop" id="m-view" popover role="dialog" aria-labelledby="c-view"></div>
@@ -1053,13 +1100,19 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
    the module's fingerprint-rebuild path (fresh #cat nodes) re-enters via wireToc(). */
 let actI=-1
 const trackAct=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]; let k=0
-	secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
+	// the rail shown: the active family is the one whose title holds the line – the one that has just pushed the last
+	// one out; before any reaches it, the first. And the moment the next title reaches the active one's description,
+	// the next is active – the description jumps to it, never a moment without one. No rail: the section past a third
+	// of the screen
+	const rail=cat.querySelector('.toc')?.offsetParent, shown=t=>!t.classList.contains('off')
+	if(rail){ k=tocIt.findIndex(shown); tocIt.forEach((t,i)=>{ if(shown(t)&&t.getBoundingClientRect().top<=(parseFloat(t.style.getPropertyValue('--ti-y'))||0)+1) k=i })
+		for(let n;(n=tocIt.findIndex((t,i)=>i>k&&shown(t)))>=0&&tocIt[k]&&n>=0;){ const tip=tocIt[k].querySelector('.tip'); if(!tip||tocIt[n].getBoundingClientRect().top>=tip.getBoundingClientRect().bottom) break; k=n } }
+	else secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
 	if(secEls.length&&cat.getBoundingClientRect().bottom<=innerHeight) k=secEls.findLastIndex(el=>el.offsetParent)   // the catalog's end on screen: its last family (a short one never reaches the third)
 	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); t.classList.toggle('past',i<k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') }) }
-	// the active family's description steps out while the next title or the tabs ride over it
+	// the last family's description steps out while the shelf tabs ride over it – there is no next one to take it
 	const t=tocIt[k], tip=t?.querySelector('.tip'); if(!tip) return
-	const nx=tocIt.slice(k+1).find(x=>!x.classList.contains('off')), b=tip.getBoundingClientRect().bottom
-	t.classList.toggle('tipoff',[nx,cat.querySelector('.gtabs')].some(el=>el&&el.getBoundingClientRect().top<b)) }
+	t.classList.toggle('tipoff',(cat.querySelector('.gtabs')?.getBoundingClientRect().top??Infinity)<tip.getBoundingClientRect().bottom) }
 // stacked-sticky rail (CSS): flow position = own section's first space; sticky top+bottom insets make
 // the active title rest on the first space's line and upcoming ones wait stacked at the bottom. JS only
 // measures the ladder (per layout: the catalog's size moving re-measures it), then the browser handles
@@ -1098,11 +1151,15 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	// each range opens where the one before it ends: the first family's at the top, then under its title and description,
 	// then under each coming title in turn – the tabs' under them all
 	let rg=0
-	tocIt.forEach((t,i)=>{ const box=t.parentElement; if(!on[i]){ sps[i].style.height='0px'; t.style.marginBottom=''; return }
+	// …and each range ENDS where the next shown title begins: a title stays on the line until the next one, coming up
+	// from below, reaches it – then is pushed up ahead of it and out behind the row (a sticky box never leaves its range)
+	const tocH=tocEl.offsetHeight, tops=ys.map((y,i)=>y-hs[i]/2), nx=i=>{ for(let k=i+1;k<on.length;k++) if(on[k]) return k; return -1 }
+	tocIt.forEach((t,i)=>{ const box=t.parentElement; if(!on[i]){ sps[i].style.height='0px'; t.style.marginBottom=''; box.style.removeProperty('--rg-b'); return }
+		const k=nx(i); if(k>=0) box.style.setProperty('--rg-b',Math.round(tocH-(tops[k]-G))+'px'); else box.style.removeProperty('--rg-b')
 		box.style.setProperty('--rg-y',rg+'px'); const top=ys[i]-hs[i]/2; sps[i].style.height=Math.max(0,top-rg)+'px'
 		rg=i===f0?Math.max(rg,top)+hs[i]+tipH:rg+hs[i]+G
 		t.style.setProperty('--ti-y',headH+rest+'px')
-		t.style.setProperty('--ti-b',fits&&i!==f0?below[i]+'px':'auto'); t.style.marginBottom=below[i]+'px' })   // the first family's title arrives with its first space – it never waits in the stack above it
+		t.style.setProperty('--ti-b',fits&&i!==f0?below[i]+'px':'auto'); t.style.marginBottom=k<0?below[i]+'px':'' })   // the first family's title arrives with its first space – it never waits in the stack above it; only the last keeps the foot's clearance (the others end at the next title)
 	tocEl.querySelector('.gtabs').parentElement.style.setProperty('--rg-y',rg+'px')
 	if(layoutToc.settled) tocEl.classList.add('on')   // reveal only a ladder measured under the real fonts
 }
@@ -1111,21 +1168,31 @@ layoutToc.settled=!document.fonts   // no Font Loading API → nothing to wait f
 // placeholder height (content-visibility) for their own and move it. The settle is armed for this scroll alone
 const toShelf=sec=>{ sec.scrollIntoView({ behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth', block:'start' })
 	const ac=new AbortController(); addEventListener('scrollend',()=>{ ac.abort(); sec.scrollIntoView({ block:'start' }) },{ signal:ac.signal }); setTimeout(()=>ac.abort(),3000) }
+// a tile off screen holds a placeholder (content-visibility) – it must be the tile's true height, or every first draw
+// shifts the page under the reader, re-measures the rail and re-anchors the scroll. The strips CSS adds per tile (--nch);
+// the name and number lines are font metrics, read once off a few tiles drawn for it – the least, a name on one line
+const sizeTiles=()=>{ const cat=document.getElementById('cat'), ts=[...cat.querySelectorAll('.ent.tc')].slice(0,8); if(!ts.length) return
+	ts.forEach(t=>t.style.contentVisibility='visible')
+	const h=t=>{ const [eh,cvs]=[t.querySelector('.eh'),t.querySelector('.cvs')]; return eh&&cvs?eh.getBoundingClientRect().height+cvs.getBoundingClientRect().height+2*parseFloat(getComputedStyle(t).rowGap):Infinity }
+	const h0=Math.min(...ts.map(h)); ts.forEach(t=>t.style.contentVisibility='')
+	if(isFinite(h0)&&cat._tc0!==h0){ cat._tc0=h0; cat.style.setProperty('--tc0',h0+'px') } }
+{ let w=innerWidth, raf=0; addEventListener('resize',()=>{ if(innerWidth===w) return; w=innerWidth; raf||=requestAnimationFrame(()=>{ raf=0; sizeTiles() }) }) }   // the type is fluid: a new width, new lines
 const wireToc=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')]
+	sizeTiles()
 	cat.querySelectorAll('.ti').forEach(t=>{ t.querySelector('.tn').onclick=()=>toShelf(secEls[+t.dataset.i]) })
 	actI=-1; trackAct(); layoutToc() }
 let actRaf=0
 addEventListener('scroll',()=>{ if(actRaf) return; actRaf=requestAnimationFrame(()=>{ actRaf=0; trackAct() }) },{passive:true})   // coalesced to one read pass per frame; the rail itself is pure CSS sticky
 wireToc()
-document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct() })   // the pre-paint ladder used fallback metrics — realign (hidden) once the real fonts reflow the sections, then show
+document.fonts?.ready.then(()=>{ layoutToc.settled=true; sizeTiles(); layoutToc(); trackAct() })   // the pre-paint ladder used fallback metrics — realign (hidden) once the real fonts reflow the sections, then show
 </script>
 
 
 <section class="lineage" id="lineage" aria-label="the history of color spaces" data-i18n="aria-label:ui.lineage.label"></section>
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<div class="ic-lead">
-		<h2 id="introcopy-title" data-i18n="ui.intro.title">Use it</h2>
-		<p data-i18n="ui.intro.lede">One package for JavaScript: import a single space for under 1.5&nbsp;kB, or all of them to convert any space to any other. The same conversions run as WASM over whole images and as GLSL or WGSL in shaders, and export as LUTs and ICC profiles. Agents call them through its MCP server.</p>
+		<h2 id="introcopy-title" data-i18n="ui.intro.title">Usage</h2>
+		<p data-i18n="ui.intro.lede">One JavaScript package. The same conversions run as WASM over whole images, in GLSL and WGSL shaders, and export as LUTs and ICC profiles.</p>
 		<ul class="facts">
 			<li tabindex="0" title="All 168 spaces are test-pinned: most to an independent cited reference value, and 29 cross-checked in both directions against colorjs.io, the CSS Color editors' implementation, at 1/255." data-i18n="title:ui.intro.tested-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span><b data-i18n="ui.intro.tested">Reference-tested</b><span data-i18n="ui.intro.tested-line">every space test-pinned</span></span></li>
 			<li tabindex="0" title="Channel ranges follow CSS and each defining source – familiar units rather than one universal normalization." data-i18n="title:ui.intro.ranges-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg><span><b data-i18n="ui.intro.both">Both ways</b><span data-i18n="ui.intro.both-line">any space to any other</span></span></li>
@@ -1134,7 +1201,7 @@ document.fonts?.ready.then(()=>{ layoutToc.settled=true; layoutToc(); trackAct()
 		</ul>
 	</div>
 	<div class="tabs" id="apitabs">
-		<div class="tabrow" role="tablist" aria-label="API runtime examples" data-i18n="aria-label:ui.api.tabs"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>JS</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>WASM</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>GL</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>LUT</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>ICC</button><button id="api-tab-meta" role="tab" aria-selected="false" aria-controls="api-panel-meta" data-p="meta" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg></span>JSON</button><button id="api-tab-css" role="tab" aria-selected="false" aria-controls="api-panel-css" data-p="css" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg></span>CSS</button><button id="api-tab-mcp" role="tab" aria-selected="false" aria-controls="api-panel-mcp" data-p="mcp" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#2b2a28"/><text x="12" y="15.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="7" font-weight="800" fill="#fff">MCP</text></svg></span>MCP</button></div>
+		<div class="tabrow" role="tablist" aria-label="API runtime examples" data-i18n="aria-label:ui.api.tabs"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>JS</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>WASM</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>GL</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>LUT</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>ICC</button><button id="api-tab-meta" role="tab" aria-selected="false" aria-controls="api-panel-meta" data-p="meta" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg></span>JSON</button><button id="api-tab-css" role="tab" aria-selected="false" aria-controls="api-panel-css" data-p="css" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#264de4"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="800" fill="#fff">CSS</text></svg></span>CSS</button><button id="api-tab-mcp" role="tab" aria-selected="false" aria-controls="api-panel-mcp" data-p="mcp" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#2b2a28"/><text x="12" y="15.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="7" font-weight="800" fill="#fff">MCP</text></svg></span>MCP</button><button id="api-tab-figma" role="tab" aria-selected="false" aria-controls="api-panel-figma" data-p="figma" tabindex="-1"><span class="fl"><svg  viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg></span>Figma</button></div>
 		<pre id="api-panel-core" role="tabpanel" aria-labelledby="api-tab-core" data-p="core"><b>import</b> space <b>from</b> 'color-space'
 
 space.rgb.oklch(255, 128, 0)      <i>// → [0.732, 0.186, 53]</i>
@@ -1194,6 +1261,16 @@ claude mcp add color-space -- npx -y color-space mcp
 code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space","mcp"]}'
 <i>// Claude Desktop · Cursor · .mcp.json</i>
 { "mcpServers": { "color-space": { "command": "npx", "args": ["-y", "color-space", "mcp"] } } }</pre>
+		<pre id="api-panel-figma" role="tabpanel" aria-labelledby="api-tab-figma" data-p="figma" hidden><i data-i18n="ui.api.figma-what">// a Figma plugin: the selection's fills and strokes in any of the 168 spaces –
+// a plane and a bar per channel, cut to the file's gamut; copy the color as CSS</i>
+<a href="https://www.figma.com/community/plugin/1691970922817908383/color-space">figma.com/community/plugin/1691970922817908383/color-space</a>
+
+git clone https://github.com/colorjs/color-space
+
+<i data-i18n="ui.api.figma-load">// Figma desktop: right-click › Plugins › Development › Import plugin from manifest…</i>
+color-space/plugins/figma/manifest.json
+
+<i>// <a href="https://github.com/colorjs/color-space/tree/master/plugins/figma" data-i18n="ui.api.figma-more">what it reads, writes and keeps – plugins/figma</a></i></pre>
 	</div>
 </section>
 
@@ -1201,38 +1278,46 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 	<div class="fqs">
 		<div class="fqcol">
 		<details class="fqa"><summary data-i18n="faq.what.q">What is a color space?</summary>
-		<p data-i18n="faq.what.p1">A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color – the URL carries the notation"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color – the URL carries the notation"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color – the URL carries the notation"><code>[49, 36.7, 4.5]</code></a> – the same color, written three ways. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
+		<p data-i18n="faq.what.p1">A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color"><code>[49, 36.7, 4.5]</code></a>. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
 		<details class="fqa"><summary data-i18n="faq.model.q">Color model or color space – what's the difference?</summary>
-		<p data-i18n="faq.model.p1">A color model is a shape for the numbers: RGB says three primaries, HSL says hue, saturation and lightness, CMYK says four inks. A color space ties a model to measurable light – which primaries, which white, which curve – so each set of numbers names exactly one color. <code>rgb(255 0 0)</code> is a different red in <a href="#rgb">sRGB</a>, <a href="#p3">Display P3</a> and <a href="#a98rgb">Adobe RGB</a>: one model, three spaces.</p>
-		<p data-i18n="faq.model.p2">Everyday usage calls both spaces – so does CSS's <code>color-mix(in hsl, …)</code>, and so does this catalog. A model without an anchor of its own borrows one: <a href="#hsl">HSL</a> and <a href="#hsv">HSV</a> here reshape sRGB, as in CSS.</p></details>
+		<p data-i18n="faq.model.p1">A color model is a shape for the numbers: RGB says three primaries, HSL says hue, saturation and lightness, CMYK says four inks. A color space ties a model to measurable light – which primaries, which white, which curve – so each set of numbers names exactly one color. <code>rgb(255 0 0)</code> is a different red in <a href="rgb">sRGB</a>, <a href="p3">Display P3</a> and <a href="a98rgb">Adobe RGB</a>: one model, three spaces.</p>
+		<p data-i18n="faq.model.p2">Everyday usage calls both spaces – so does CSS's <code>color-mix(in hsl, …)</code>, and so does this catalog. A model without an anchor of its own borrows one: <a href="hsl">HSL</a> and <a href="hsv">HSV</a> here reshape sRGB, as in CSS.</p></details>
 		<details class="fqa"><summary data-i18n="faq.which.q">Which space should I actually use?</summary>
 		<p data-i18n="faq.which.p1">It depends on the task:</p>
 		<ul>
-		<li data-i18n="faq.which.li1">storing and sharing images – <a href="#rgb">sRGB</a>, the web's default;</li>
-		<li data-i18n="faq.which.li2">designing palettes and gradients – <a href="#oklch">OKLCH</a>, where equal steps look equal;</li>
-		<li data-i18n="faq.which.li3">math on light (blending, blurring, 3D) – <a href="#lrgb">linear-light RGB</a>;</li>
-		<li data-i18n="faq.which.li4">shooting and grading video – your camera's log space, delivered in <a href="#rec709">Rec. 709</a> or <a href="#rec2100-pq">Rec. 2100</a>;</li>
-		<li data-i18n="faq.which.li5">measuring how different two colors look – <a href="#lab">CIELAB</a> or <a href="#din99o-lab">DIN99o</a>.</li>
+		<li data-i18n="faq.which.li1">storing and sharing images – <a href="rgb">sRGB</a>, the web's default;</li>
+		<li data-i18n="faq.which.li2">designing palettes and gradients – <a href="oklch">OKLCH</a>, where equal steps look equal;</li>
+		<li data-i18n="faq.which.li3">math on light (blending, blurring, 3D) – <a href="lrgb">linear-light RGB</a>;</li>
+		<li data-i18n="faq.which.li4">shooting and grading video – your camera's log space, delivered in <a href="rec709">Rec. 709</a> or <a href="rec2100-pq">Rec. 2100</a>;</li>
+		<li data-i18n="faq.which.li5">measuring how different two colors look – <a href="lab">CIELAB</a> or <a href="din99o-lab">DIN99o</a>.</li>
 		</ul>
-		<p data-i18n="faq.which.p2">Grouping the catalog by <em>purpose</em> shelves it the same way.</p></details>
+		<p data-i18n="faq.which.p2">To see every space sorted by task, group the catalog by <em>purpose</em>.</p></details>
 		<details class="fqa"><summary data-i18n="faq.hsl.q">What should I use instead of HSL?</summary>
-		<p data-i18n="faq.hsl.p1"><a href="#oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="#hsl">HSL</a>, yellow at L=50 emits about 13 times the light of blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
+		<p data-i18n="faq.hsl.p1"><a href="oklch">OKLCH</a>. It keeps the same three controls – hue, chroma, lightness – but its lightness is trustworthy: in <a href="hsl">HSL</a>, yellow at L=50 emits about 13 times the light of blue at L=50, so equal L doesn't mean equal brightness. In OKLCH it does. CSS supports <code>oklch()</code> natively.</p></details>
+		<details class="fqa"><summary data-i18n="faq.hex.q">How do I convert hex to OKLCH?</summary>
+		<p data-i18n="faq.hex.p1">Type or paste it into the color field at the top, say <a href="#ff8000" title="make this the current color"><code>#ff8000</code></a>. Every space on the page shows that color at once; in <a href="oklch">OKLCH</a> it reads 0.732, 0.186, 53, which CSS writes as <code>oklch(0.732 0.186 53)</code>. Each dossier's <em>css</em> tab gives the copyable form, and in code it's <code>space.rgb.oklch(255, 128, 0)</code>.</p></details>
 		<details class="fqa"><summary data-i18n="faq.muddy.q">Why do my gradients turn muddy in the middle?</summary>
-		<p data-i18n="faq.muddy.p1">Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="#oklab">OKLab</a> avoids this. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
+		<p data-i18n="faq.muddy.p1">Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="oklab">OKLab</a> avoids this; in CSS that's <code>linear-gradient(in oklab, red, blue)</code>. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
+		<details class="fqa"><summary data-i18n="faq.log.q">How do I convert S-Log3 or another camera log to Rec. 709?</summary>
+		<p data-i18n="faq.log.p1">Open your camera's log space, such as <a href="slog3">S-Log3</a>, <a href="logc4">LogC4</a> or <a href="applelog">Apple Log</a>. In its <em>conversion LUT</em> block, choose <a href="rec709">Rec. 709</a> and your editor: DaVinci Resolve, Premiere Pro, Final Cut Pro, OBS, ffmpeg and others. Your browser writes the <code>.cube</code> file. It is a technical conversion with no tone mapping: highlights above diffuse white clip, and the look is yours to add.</p></details>
 		</div>
 		<div class="fqcol">
 		<details class="fqa"><summary data-i18n="faq.gamut.q">What does “out of gamut” mean?</summary>
-		<p data-i18n="faq.gamut.p1">A color one space can describe but another – or your screen – can't show. A vivid <a href="#p3">Display P3</a> green simply doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
+		<p data-i18n="faq.gamut.p1">A color one space can describe but another – or your screen – can't show. A vivid <a href="p3">Display P3</a> green doesn't exist in sRGB: convert it, and the numbers fall outside the valid range. The atlas keeps this visible: the pill next to the current color names the tightest standard gamut that holds it, and out-of-range stretches ghost over a checkerboard.</p></details>
 		<details class="fqa"><summary data-i18n="faq.print.q">Why does print look duller than the screen?</summary>
-		<p data-i18n="faq.print.p1">A screen emits light; paper reflects what its inks don't absorb. Ink on paper reaches fewer vivid colors – saturated RGB blues, greens and reds fall outside it – so they print duller. Prepress converts through an ICC profile made for the press and paper, such as FOGRA39 for European coated stock or GRACoL in the US. This catalog's <a href="#cmyk">CMYK</a> is the plain formula CSS uses for <code>device-cmyk()</code> without a profile – right for the numbers, not a proof of the print.</p></details>
+		<p data-i18n="faq.print.p1">A screen emits light; paper reflects what its inks don't absorb. Ink on paper reaches fewer vivid colors – saturated RGB blues, greens and reds fall outside it – so they print duller. Prepress converts through an ICC profile made for the press and paper, such as FOGRA39 for European coated stock or GRACoL in the US. This catalog's <a href="cmyk">CMYK</a> is the plain formula CSS uses for <code>device-cmyk()</code> without a profile – right for the numbers, not a proof of the print.</p></details>
+		<details class="fqa"><summary data-i18n="faq.photo.q">Which color space should I export photos in?</summary>
+		<p data-i18n="faq.photo.p1">For the web and for sharing, <a href="rgb">sRGB</a>: browsers and phones assume it when a file carries no profile. <a href="p3">Display P3</a> keeps more of a vivid scene on Apple and many Android screens, as long as the profile stays embedded. Send <a href="a98rgb">Adobe RGB</a> when a print lab asks for it. Keep <a href="prophoto">ProPhoto RGB</a> for 16-bit editing: its gamut is so wide that 8-bit files band.</p></details>
 		<details class="fqa"><summary data-i18n="faq.exact.q">Are conversions exact? Do round trips lose data?</summary>
-		<p data-i18n="faq.exact.p1">Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="#osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="#munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="#xyz">XYZ</a> or <a href="#lrgb">linear RGB</a> when you need values outside it.</p>
+		<p data-i18n="faq.exact.p1">Conversions are closed formulas, not lookup approximations, and round trips return within floating-point noise. The few exceptions are documented where they occur: <a href="osaucs">OSA-UCS</a> has no closed inverse, atlas systems like <a href="munsell">Munsell</a> interpolate between published grades, and <code>rgb</code> output clamps to the sRGB gamut – route through <a href="xyz">XYZ</a> or <a href="lrgb">linear RGB</a> when you need values outside it.</p>
 		<p data-i18n="faq.exact.p2">They are also checked: every space links the paper or spec it implements, values are tested against <a href="https://colorjs.io">colorjs.io</a> wherever the two overlap, and the camera logs against the Academy's official ACES transforms. <a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md">formula-verification.md</a> records what was checked against what – including a few places where the published papers themselves had errors.</p>
 		<p data-i18n="faq.exact.p3">If the numbers differ from another library's, compare ranges: this one keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where many flatten everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
 		<details class="fqa"><summary data-i18n="faq.css.q">Which of these can CSS write?</summary>
-		<p data-i18n="faq.css.p1">Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="#rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
+		<p data-i18n="faq.css.p1">Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
+		<details class="fqa"><summary data-i18n="faq.cvd.q">How do colors look to color-blind people?</summary>
+		<p data-i18n="faq.cvd.p1">Open <em>View</em> and pick a <em>Vision</em>: red-blind (protanopia), green-blind (deuteranopia) or blue-blind (tritanopia). The catalog redraws as that eye sees it, so you can check that the colors of a palette stay apart. About 1 in 12 men have a color vision deficiency, <a href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/color-blindness">by the NEI's count</a>.</p></details>
 		<details class="fqa"><summary data-i18n="faq.pantone.q">Where's Pantone, NCS, RAL?</summary>
-		<p data-i18n="faq.pantone.p1">Those are licensed products: their colors are defined by data the owners sell, not by published formulas – so there's no open math to implement, and redistributing their tables wouldn't be legal. Close relatives whose math is public are here: <a href="#munsell">Munsell</a> (its 1943 renotation is public record) and <a href="#ral-design">RAL Design</a> (defined directly in CIELAB). The rule of thumb: if the math was ever published, it belongs in the collection.</p></details>
+		<p data-i18n="faq.pantone.p1">Those are licensed products: their colors are defined by data the owners sell, not by published formulas – so there's no open math to implement, and redistributing their tables wouldn't be legal. Close relatives whose math is public are here: <a href="munsell">Munsell</a> (its 1943 renotation is public record) and <a href="ral-design">RAL Design</a> (defined directly in CIELAB). Any system whose math was ever published belongs here; <a href="https://github.com/colorjs/color-space/issues/new?title=Space%3A%20">suggest one that's missing</a>.</p></details>
 		</div>
 	</div>
 </section>
@@ -1240,8 +1325,19 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 </div>
 
 <footer class="ftr" id="ftr">
-	<section class="finst" aria-label="install" data-i18n="aria-label:ui.footer.install-label"><div class="snipwrap"><button class="cpyi" type="button" data-copy="npmcmd" title="copy" aria-label="copy the install command" data-i18n="title:ui.copy aria-label:ui.footer.copy-npm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="npmcmd">npm install color-space</pre></div></section>
-	<p class="legal"><button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button><a href="https://github.com/sponsors/dy" data-i18n="ui.footer.support">Support the project</a><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/colorjs/color-space">GitHub</a><a class="ver tnum" id="ver" href="https://github.com/colorjs/color-space/releases" title="releases" data-i18n="title:ui.footer.releases">v3 next</a><a class="om" href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></p>
+	<div class="fbody">
+		<div class="flead">
+			<h2 data-i18n="ui.footer.title">Open collection of color spaces</h2>
+			<section class="finst" aria-label="install" data-i18n="aria-label:ui.footer.install-label"><div class="snipwrap"><button class="cpyi" type="button" data-copy="npmcmd" title="copy" aria-label="copy the install command" data-i18n="title:ui.copy aria-label:ui.footer.copy-npm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="npmcmd">npm install color-space</pre></div></section>
+		</div>
+		<div class="fcols">
+			<div><p class="plab" data-i18n="ui.footer.project">Project</p><ul><li><a href="https://github.com/colorjs/color-space">GitHub</a></li><li><a href="https://www.npmjs.com/package/color-space">npm</a></li><li><a href="https://github.com/colorjs" title="the colorjs family of color packages" data-i18n="title:ui.footer.colorjs">colorjs</a></li></ul></div>
+			<div><p class="plab" data-i18n="ui.footer.research">Research</p><ul><li><button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button></li><li><a href="https://github.com/colorjs/color-space/issues/new?title=Wrong%20value%3A%20" data-i18n="ui.footer.report">Report an error</a></li><li><a href="https://github.com/colorjs/color-space/issues/new?title=Space%3A%20" data-i18n="ui.footer.suggest">Suggest a space</a></li></ul></div>
+			<div><p class="plab" data-i18n="ui.footer.supported">Supported by</p><ul><li><a href="https://www.herodevs.com">HeroDevs</a></li><li><a href="https://thanks.dev">thanks.dev</a></li><li><a href="https://github.com/sponsors/dy" data-i18n="ui.footer.support">Sponsor</a></li></ul></div>
+			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li></ul></div>
+		</div>
+	</div>
+	<p class="legal"><a href="https://github.com/dy" data-i18n="ui.footer.by">Made by dy</a><span><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></span></p>
 </footer>
 
 <div class="citep" id="citep" popover role="dialog" aria-label="cite color-space" data-i18n="aria-label:ui.cite.label">
@@ -1259,7 +1355,7 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 import { space, meta, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
 import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
-import { locusMarks, locusFill } from './js/locus.js'
+import { locusMarks, locusFill, locusPath, gamutPath } from './js/locus.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
@@ -1271,8 +1367,7 @@ import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's sou
 import NAMES from './js/names.js'
 import * as PALDATA from './js/palettes.js'
 import { SPACES, sections, cname, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap } from './js/render.js'
-import { OI, QI, LI, VI, PI, DL as DLI, locusShare } from './js/icons.js'
-import { favicon } from './js/favicon.js'
+import { OI, QI, LI, VI, PI, DL as DLI, locusShare, VIS16 } from './js/icons.js'
 import BARRED from './js/barred.js'
 import EDITORS, { SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
@@ -1296,8 +1391,12 @@ const icon=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="$
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
 const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
-let autoColor=false, autoStart=0, autoLast=0, autoJ='', autoSlow=0
+let autoColor=false, autoPark=false, autoStart=0, autoLast=0, autoJ='', autoSlow=0
+// the page's last scroll: a card's hover warm-up waits a scroll out (wireEnt)
+const SCROLL_QUIET=200; let scrollAt=-Infinity
+addEventListener('scroll',()=>{ scrollAt=performance.now() },{passive:true})
 const autoStep=t=>{ if(!autoColor) return
+	autoPark=false
 	if(!PDOWN&&t-autoLast>=AUTO_FRAME){ autoSlow=t-autoLast>AUTO_FRAME*5?autoSlow+1:0; autoLast=t
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
@@ -1305,7 +1404,7 @@ const autoStep=t=>{ if(!autoColor) return
 		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true)
 		// a device that can't hold the cadence (a dossier's GL instruments on a weak GPU) PARKS
 		// the orbit once it has colored in – still ambient (virgin, URL untouched), just still
-		if(autoSlow>=4&&w===1) return }
+		if(autoSlow>=4&&w===1){ autoPark=true; return } }   // parked: the color rests, and settles
 	requestAnimationFrame(autoStep) }
 // the color let go (its value emptied): the boot gray again, the hash gone, the orbit again where motion is welcome
 const ambient=()=>{ BOOT.hash=''; M0.s=DEFAULT.s; M0.vals=DEFAULT.vals.slice(); master=M0
@@ -1327,7 +1426,7 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 const ftrEl=document.getElementById('ftr'), stripEl=document.getElementById('strip')
 const catY=()=>document.getElementById('cat').getBoundingClientRect().top+scrollY-stripEl.offsetHeight   // where the catalog starts: its top right under the row; short of it, the hero is in view
-const currentStatic=[ftrEl,stripEl,document.getElementById('hcolor'),document.querySelector('.hpaper'),...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement], CURRENT_SETTLE=140
+const currentStatic=[ftrEl,stripEl,document.getElementById('hcolor'),...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement], CURRENT_SETTLE=140
 // the footer's wall: the current color's hue wheel at its lightness, four rows quantized ever coarser – written once,
 // each step relative to --cur, so a color change restyles the footer alone
 // the row's edge at the top: the same steps round the current color, 37 of 10° with the color itself in the middle (CSS
@@ -1706,8 +1805,6 @@ function syncURL(hx){ const now=performance.now(), wait=250-(now-urlT)
 	if(location.hash&&location.hash!==(urlLast.split('#')[1]!=null?'#'+urlLast.split('#')[1]:'')) return
 	const u=spaceURL(open()?selected:'')+keepSearch()+'#'+urlHash()
 	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
-// favicon carries the current color – the rhombus as a cloud gathered round it; none picked, the wheel turning (js/favicon.js)
-const syncFav=favicon(document.querySelector('link[rel="icon"]'))
 function chanVals(s,v){ const cls=classify(s); return v.map((x,i)=>`${cls.ch[i].sym}${fmtn(x,cls.ch[i])}${unit(cls.ch[i])}`).join(' ') }
 // the row's value notation, picked from its chevron's list — the parser
 // accepts every form regardless, so the field round-trips whatever it shows
@@ -1882,9 +1979,18 @@ onLoad(layoutToc)
 const vis=new Set(), screenVis=new Set(), catEnts=new Map()
 const entsIn=set=>[...set].map(s=>catEnts.get(s)).filter(Boolean)
 const visibleEnts=()=>entsIn(vis), screenEnts=()=>entsIn(screenVis)
+// a fast scroll brings rows into reach faster than idle time paints them: one queue, drained a row at a time within each
+// idle deadline – never one 100 ms callback per batch. An idle period can grant 50 ms while the compositor scrolls alone;
+// the slice keeps to a frame's share, so the next scroll frame is never kept waiting. A row that left reach before its
+// turn waits for its next entry
+const gradQ=new Set()
+const drainGrad=dl=>{ if(PDOWN){ gradQ.clear(); return }
+	const t0=performance.now()
+	for(const ent of gradQ){ if(dl.timeRemaining()<1||performance.now()-t0>CATALOG_FRAME_BUDGET){ ric(drainGrad); return }
+		gradQ.delete(ent); if(vis.has(ent.dataset.s)) paintCatalogGrad([ent]) } }
 const io=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ vis.add(s); entered.push(e.target) } else vis.delete(s) })
-	if(entered.length){ paintCatalogVals(entered); ric(()=>{ if(!PDOWN) paintCatalogGrad(entered) }) }   // values now; stale offscreen gradients refresh only when input/scroll leaves idle time
+	if(entered.length){ paintCatalogVals(entered); if(!gradQ.size) ric(drainGrad); entered.forEach(ent=>gradQ.add(ent)) }   // values now; stale offscreen gradients refresh only when input/scroll leaves idle time
 },{rootMargin:'300px'})
 const screenIO=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ screenVis.add(s); entered.push(e.target) } else screenVis.delete(s) })
@@ -1985,8 +2091,12 @@ cat.addEventListener('pointerdown',e=>{ const pl=e.target.closest('.ent .pl'); i
 	pl.onpointerup=pl.onpointercancel=()=>{ pl.onpointermove=pl.onpointerup=pl.onpointercancel=null; pl.classList.remove('live'); renderFast(); releaseDragEnt(); settleCatalog() } })
 // a name opens its dossier – one delegated listener, live from the first frame (rows wire their own inputs at idle); in the
 // list the whole row does, its mini sweep too (the name stays the keyboard's way in)
-cat.addEventListener('click',e=>{ const ent=e.target.closest('.ent[data-s]'); if(!ent||squelch) return
-	if(e.target.closest('.nm')||ent.matches('tr')&&!e.target.closest('.chs:not(.mini),input,button,a,select')) openModal(ent.dataset.s) })
+// a click that asks for a new tab or window (⌘/ctrl/shift/alt) – the browser follows the link's real path
+const tabClick=e=>e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0
+cat.addEventListener('click',e=>{ const ent=e.target.closest('.ent[data-s]'); if(!ent) return
+	const nm=e.target.closest('.nm'); if(nm){ if(tabClick(e)) return; e.preventDefault() }   // the name is a link to the space's document; in place, it opens the dossier
+	if(squelch) return
+	if(nm||ent.matches('tr')&&!e.target.closest('.chs:not(.mini),input,button,a,select')) openModal(ent.dataset.s) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 catEnts.clear(); planeEnts.clear()
 for(const s of [...PVFLIP]){ const e=cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`); if(e?.querySelector('.pvs')) planesOn(e,true); else PVFLIP.delete(s) }   // a rebuilt grid keeps the cards' planes
@@ -1996,9 +2106,12 @@ cat.querySelectorAll('.nrg').forEach(nr=>{ nr.style.removeProperty('--tkc'); nr.
 cat.querySelectorAll('.ent[data-s]').forEach(e=>{ catEnts.set(e.dataset.s,e); io.observe(e); screenIO.observe(e) })   // visibility sets — real spaces only; barred cards carry no data
 const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire their own info dialog
 	let warmT=0
-	ent.addEventListener('pointerenter',()=>{ const warm=()=>{ if(PDOWN){ warmT=setTimeout(warm,300); return } warmT=0; warmGL(s); warmMesh3(s,GM) }
-		warmT=setTimeout(warm,300) })   // deliberate hover warms, but compilation never lands inside a drag
-	ent.addEventListener('pointerleave',()=>{ clearTimeout(warmT); warmT=0 })
+	// deliberate hover warms: a pointer that MOVES over the card – a card scrolled under a resting cursor enters it too, and
+	// its 50–150 ms of shader source would land as the scroll resumes. Compilation never lands inside a drag or a scroll
+	let warmed=false
+	const warm=()=>{ if(PDOWN||performance.now()-scrollAt<SCROLL_QUIET){ warmT=setTimeout(warm,300); return } warmT=0; warmed=true; warmGL(s); warmMesh3(s,GM) }
+	ent.addEventListener('pointermove',e=>{ if(!warmed&&!warmT&&(e.movementX||e.movementY)) warmT=setTimeout(warm,300) })
+	ent.addEventListener('pointerleave',()=>{ clearTimeout(warmT); warmT=0; warmed=false })
 	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
 	ent.querySelectorAll('.cv').forEach(inp=>{ const i=+inp.dataset.i
 		const applyCv=()=>{ const v=parseFloat(inp.value); if(!isFinite(v)) return
@@ -2195,13 +2308,16 @@ const cellWords=k=>{ if(k==='coverage') return covTxt()
 const bars=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${Array.from({length:n},(_,i)=>`M${12+(i-(n-1)/2)*(n<4?6:5)} 5v14`).join('')}"/></svg>`
 const cellMark=k=>{ if(k==='coverage') return locusShare(covMax)
 	const fi=fiOf(k), v=[...act[fi]][0]; return FACETS[fi]==='channels'?bars(+v):optIcon(fi,v)||bars(1) }
-// the picks ride the row only where they fit – short of the pinned color over the rail, and inside the row – else
+// the picks ride the row only where they fit inside it – else
 // Filters alone says them, its mark inked. One element's place against another's is a measure, not CSS's
-const fitCells=()=>{ const row=stripEl.querySelector('.cells'); row.classList.remove('tight')
-	const on=[...fcellsEl.children].filter(c=>!c.hidden); if(!on.length) return   // measured with the marks shown
-	const a=on[0].getBoundingClientRect(), b=on[on.length-1].getBoundingClientRect(), cx=cxEl.getBoundingClientRect(), lo=Math.min(a.left,b.left), hi=Math.max(a.right,b.right)
-	if(row.querySelector('.fill').getBoundingClientRect().width<1||matchMedia('(min-width:1080px)').matches&&hi>cx.left&&lo<cx.right) row.classList.add('tight') }
-{ const ro=new ResizeObserver(()=>fitCells()); ro.observe(stripEl); ro.observe(cxEl) }
+// The count steps aside too (.under, its room kept) while the docked color reaches it – a narrow row, scrolled
+const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySelector('.count'); row.classList.remove('tight')
+	const on=[...fcellsEl.children].filter(c=>!c.hidden)   // measured with the marks shown
+	if(on.length&&row.querySelector('.fill').getBoundingClientRect().width<1) row.classList.add('tight')
+	const cx=cxEl.getBoundingClientRect(), docked=cx.top<row.getBoundingClientRect().bottom, lo=Math.min(...[row.querySelector('.qx'),cnt,...on].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))
+	row.classList.toggle('under',docked&&lo<cx.right+8) }
+{ const ro=new ResizeObserver(()=>fitCells()); ro.observe(stripEl); ro.observe(cxEl)
+	let rq=0; addEventListener('scroll',()=>{ rq||=requestAnimationFrame(()=>{ rq=0; fitCells() }) },{ passive:true }) }   // the color docks as the page scrolls
 // a pick filters the catalog, shows its cell and inks Filters' mark; Filters' name and tooltip say every pick
 function paintCells(){ const w=Object.keys(CELLS).filter(isOn).map(cellWords).join(' · '), nm=t('ui.cell.more-any','Filters')
 	for(const k in CELLS){ const on=isOn(k), c=document.getElementById('c-'+k); c.hidden=!on
@@ -2230,6 +2346,8 @@ const modal=document.getElementById('modal'), detail=document.getElementById('de
 let FIG='3d'; try{ if(['3d','xy','tc'].includes(localStorage.csFig)) FIG=localStorage.csFig }catch{}
 const GXY=([x,y])=>[(x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352]   // the xy plate's mapping (gamutPos's, gamGrid's) in its 320 × 352 units
 const pageShell=document.querySelector('.page')
+// where the catalog ends on the page – the row lets go there (CSS: unstick); re-measured as the catalog or anything above it changes size
+{ const cat=document.getElementById('cat'), mark=()=>pageShell.style.setProperty('--cat-end',Math.round(cat.getBoundingClientRect().bottom+scrollY)+'px'), ro=new ResizeObserver(mark); ro.observe(cat); ro.observe(document.getElementById('hero')) }
 detail.addEventListener('click',e=>{ const nb=e.target.closest('.mnav'); if(nb){ 'cdir' in nb.dataset ? navCat(+nb.dataset.cdir) : nav(+nb.dataset.dir); return }
 	const el=e.target.closest('#cssv'); if(el&&navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(()=>toast()) })
 detail.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches('#cssv')){ e.preventDefault(); e.target.click() } })
@@ -2434,12 +2552,19 @@ function releaseDragEnt(){ const held=dragEnt; dragEnt=null; dragEntI=-1
 let QM='oklab'   // the palette lenses' distance metric — session-only, like Q
 const MTIP={ oklab:t('ui.metric.oklab','modern perceptual distance'), de2000:t('ui.metric.de2000','CIE industry standard'), de76:t('ui.metric.de76','plain CIELAB distance'), redmean:t('ui.metric.redmean','classic RGB heuristic') }
 const MLABEL={ oklab:'OKLab', de2000:'ΔE2000', de76:'ΔE76', redmean:'Redmean' }
-let VIS='none', paintLens=()=>{}, lineagePaint=()=>{}, heroPaint=()=>{}   // the vision lens (session-only) · the lens cells' painter (the row's injection assigns it) · the hero's locus (its block assigns it)
+let VIS='none', paintLens=()=>{}, setLimit=()=>{}, lineagePaint=()=>{}, heroPaint=()=>{}, heroLimit=()=>{}   // the vision lens (session-only) · the lens cells' painter and the Limit's setter (the row's injection assigns them) · the hero's locus: its mark, its Limit (its block assigns them)
 let Q=null, qRaf=0   // session-only, always smooth on load — a persisted quantize mode reads as broken sliders ("rec2020 snaps") a week later; the select is a lens, not a setting
 try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions persisted
 // the dossier lens: which gamut its plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
 const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:t('ui.gamut.vis','surface'), locus:t('ui.gamut.locus','light'), clip:'⚠' }   // conventional casings – brands as brands, common nouns lowercase   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
+// a Limit's region on the xy plate (GXY): a display's triangle; Surface – the shape its own mark draws (VIS16, the
+// icon's 16-box back to xy); Light – the whole horseshoe. The hero's locus and the dossier's plate draw these
+const LIMS=['srgb','p3','rec2020','vis','locus']   // narrowest first
+const LIMD=(()=>{ const vis='M'+VIS16.match(/[\d.]+ [\d.]+/g).map(p=>{ const [u,v]=p.split(' ').map(Number); return GXY([(u-1.5)/17,(15-v)/16]).map(n=>n.toFixed(1)).join(' ') }).join('L')+'Z'
+	const D={}; return g=>D[g]??=GAMS.includes(g)?gamutPath(g==='srgb'?'rgb':g,GXY):g==='vis'?vis:locusPath(GXY) })()
+// a plate's Limit: its region's edge, a display's triangle named (the marks' own label, .lgn)
+const plateLimit=svg=>{ if(!svg) return; svg.querySelector('.glim')?.setAttribute('d',LIMD(GM)); const g=GM==='srgb'?'rgb':GM; svg.querySelectorAll('.lgn').forEach(t=>t.classList.toggle('on',t.dataset.g===g)) }
 const GAMTITLE={ srgb:t('ui.gamut.fit.srgb','fits sRGB – every standard display shows it losslessly'), p3:t('ui.gamut.fit.p3','beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it'), rec2020:t('ui.gamut.fit.rec2020','beyond P3, fits Rec.2020 – most displays clip it'), vis:t('ui.gamut.fit.vis','beyond every display, yet a lit surface can show it – inside the object-color solid'), locus:t('ui.gamut.fit.locus','no surface shows it, but it is a real light – on the spectral locus'), clip:t('ui.gamut.fit.clip','outside the locus – not a color; the preview clips') }
 // the Limit – one for every slider, plane and solid, the catalog's and the dossier's (render.js LIMIT, Surface by default)
 let GM=LIMIT; try{ if([...GAMS,'vis','locus'].includes(localStorage.csGm)) GM=localStorage.csGm }catch{}
@@ -2513,13 +2638,16 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
 			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()) queuePlaneSettle() }) })
 		if(!open()){ paintCatalogGrad(); paintCatalogVals() } }   // Q rides the gradient stamps – the sweep re-bakes under the new lens
+	// the Limit: one gamut always selected – the solid always shows SOME shape; every slider and plane takes it (the rest
+	// repaint as they scroll in), the hero's locus and the dossier's plate show it. The row's menu and the locus both pick it here
+	setLimit=v=>{ GM=v; try{ localStorage.csGm=GM }catch{}
+		if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
+		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); plateLimit(detail.querySelector('.gxy')); paintLens() }
 	document.addEventListener('click',e=>{ const b=e.target.closest('.dpop [data-lens]'); if(!b) return; const v=b.dataset.v
 		switch(b.dataset.lens){
 			case 'q': Q=qFromKey(v); applyView(); syncViewURL(); break
 			case 'm': QM=v; applyView(); syncViewURL(); break
-			case 'g': GM=v; try{ localStorage.csGm=GM }catch{}   // one gamut always selected – the solid always shows SOME shape
-				if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
-				paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); break   // every slider and plane takes the Limit – the rest repaint as they scroll in
+			case 'g': setLimit(v); break
 			// the vision lens: the whole page through a simulated eye – session-only like the quantize lens (a filter
 			// persisted into next week reads as a broken screen), never in the URL; the filter defs mount on the first pick
 			case 'v': VIS=v; { const root=document.documentElement
@@ -3726,7 +3854,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// gamut plate's tip (the triangle's own corners), transfer constants in the curve's
 	const primTip=prof?`\n\n${t('ui.dossier.prim','primaries, xy – computed from the shipped conversion')}${prof.adapted?t('ui.dossier.prim-adapted',', Bradford-adapted from the native {ill} white to the D65 hub (the ICC colorant convention)',{ill:prof.ill}):''}:\nR ${prof.r.map(f4).join(' ')}\nG ${prof.g.map(f4).join(' ')}\nB ${prof.b.map(f4).join(' ')}`:''
 	const trcTip=trcv?`\n\n${trcv.name}: ${trcv.par.map(([k,v])=>`${k} ${v}`).join(', ')} – ${t('ui.dossier.trc-tip','constants from the defining specification, cross-checked against the shipped conversion on the neutral axis')}`:''
-	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d" title="${t('ui.dossier.gamut-tip',"gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colors, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no color lives there.")}${primTip}"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}</svg><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
+	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d" title="${t('ui.dossier.gamut-tip',"gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colors, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no color lives there.")}${primTip}"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}<path class="glim"/></svg><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
 	const tcHTML=tcurve?`<div class="vgrp" data-f="tc"><div class="tcvw" title="${t('ui.dossier.tcurve',"transfer – the space's curve – scene-linear light across (0–1), {s}'s {y} up; the dashed diagonal is linear.",{s,y:percept?t('ui.dossier.tcurve-percept','perceptual lightness'):t('ui.dossier.tcurve-code','code value')})} ${percept?t('ui.dossier.tcurve-bow','The bow above the diagonal is why equal steps in this space look even to the eye.'):tcurve.ylab==='code'?t('ui.dossier.tcurve-rgb','RGB-model spaces map every channel through this same curve.'):t('ui.dossier.tcurve-tone',"{ch} is this space's tone channel.",{ch:tcurve.ylab})}${trcTip}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve')}"></span></div>`:''
 	// one figure at a time by the sliders – the switch only where there is a choice; the last one chosen leads
 	const FIGS=[['3d',solidHTML,OI.component,t('ui.dossier.fig-3d','solid')],['xy',xyHTML,OI.chromaticity,t('ui.dossier.fig-xy','chromaticity')],['tc',tcHTML,OI.gamma,t('ui.dossier.fig-tc','transfer')]].filter(f=>f[1]), fig=FIGS.find(f=>f[0]===FIG)?.[0]||FIGS[0]?.[0]
@@ -3781,9 +3909,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			</div>
 			<div class="pcol"><!-- the record: when and who, the name, the route it is defined by, then the citation cluster (reference · test · source) -->
 				${m.year||m.by?`<div data-k="origin"><i>${t('ui.dossier.origin','origin')}</i><p>${[run(s),m.by].filter(Boolean).join(', ')}</p></div>`:''}
-				${(e=>e?`<div data-k="ending"><i>${e.by?t('ui.dossier.replaced','replaced by'):t('ui.dossier.retired','retired')}</i><p>${e.by?`<a href="#${e.by}">${disp(e.by)}</a>${e.y?`, ${e.y}`:''}${e.why?` – ${e.why}`:''}`:e.why}</p></div>`:'')(ending(s))}
+				${(e=>e?`<div data-k="ending"><i>${e.by?t('ui.dossier.replaced','replaced by'):t('ui.dossier.retired','retired')}</i><p>${e.by?`<a href="${e.by}">${disp(e.by)}</a>${e.y?`, ${e.y}`:''}${e.why?` – ${e.why}`:''}`:e.why}</p></div>`:'')(ending(s))}
 				${L.nm?`<div data-k="etymology"><i>${t('ui.dossier.etymology','etymology')}</i><p>${L.nm}</p></div>`:''}
-				${path&&path.length>1?`<div data-k="lineage"><i title="${t('ui.dossier.lineage-tip','the conversion route down to rgb – each space is defined through the next')}">${t('ui.dossier.lineage','lineage')}</i><p class="fam">${path.map((p,i)=>i?`<a href="#${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
+				${path&&path.length>1?`<div data-k="lineage"><i title="${t('ui.dossier.lineage-tip','the conversion route down to rgb – each space is defined through the next')}">${t('ui.dossier.lineage','lineage')}</i><p class="fam">${path.map((p,i)=>i?`<a href="${p}" title="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
 				${m.refs||m.wiki?`<div data-k="reference"><i>${t('ui.dossier.reference','reference')}</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 				${VERIFIED.has(s)?`<div data-k="test"><i>${t('ui.dossier.test','test')}</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="${t('ui.dossier.test-tip',"this space's bidirectional colorjs.io differential test, at 1/255 tolerance")}">${t('ui.dossier.test-link','reference values')}</a></p></div>`:''}
 				<div data-k="source"><i>${t('ui.dossier.source','source')}</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="${t('ui.dossier.source-tip','the implementation – {file} on GitHub',{file:`spaces/${s}.js`})}">spaces/${s}.js</a></p></div>
@@ -3877,6 +4005,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
 	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
 	TC=tcurve; paintTC()
+	plateLimit(detail.querySelector('.gxy'))
 	const figseg=detail.querySelector('#figseg')
 	if(figseg) figseg.onclick=e=>{ const b=e.target.closest('button[data-v]'); if(!b) return; FIG=b.dataset.v; try{ localStorage.csFig=FIG }catch{}
 		detail.querySelector('#dfig').dataset.v=FIG
@@ -4039,6 +4168,9 @@ let plFreeze=null   // plane being dragged in a color-cluster mode – its bitma
 function wirePlane(pl){
 	// corner-label ink samples this canvas every repaint – declare the readback before first paint
 	pl.querySelector('canvas').getContext('2d',{willReadFrequently:true})
+	// …once the kernel's frame has landed in it (a GPU paint presents asynchronously; sampled sooner, the corners still
+	// held the previous view – a disc inked from the square it replaced)
+	pl.querySelector('canvas').addEventListener('present',()=>{ if(!PDOWN) plateInk(pl) })
 	const set=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
 		if(master.s!==selected){ const mv=valsFor(selected); if(!mv) return; master={ s:selected, vals:mv } }
 		const r=pl.getBoundingClientRect(), vw=pl._vw
@@ -4497,6 +4629,27 @@ function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv
 	const px=cr.left+(cp%w+.5)/w*cr.width, py=cr.top+((cp/w|0)+.5)/h*cr.height
 	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null
 	const marker=pl.querySelector('.cx'); marker.style.display=''; marker.style.left=pl._snap.left+'%'; marker.style.top=pl._snap.top+'%' }
+// A plate's corner labels and mode switch ink by what's ACTUALLY beneath them – the painted canvas itself, sampled
+// right after it is painted (conversion heuristics lied for HDR corners). Each sample is composited over what shows
+// through it: the first opaque backdrop behind the plate (a disc's corners are the panel itself), so a translucent
+// ghost or a void reads as what is seen, not as its color alone. NEVER under a held pointer: getImageData is a
+// synchronous GPU readback, and three planes × per-frame sampling was the dossier drag's hidden tax – inks settle late
+// the first opaque background behind `el`, as sRGB bytes – resolved by a canvas, since a computed color may be any
+// CSS notation (the tokens are oklch())
+const bdCtx=document.createElement('canvas').getContext('2d',{willReadFrequently:true})
+function backdrop(el){ for(;el;el=el.parentElement){ const c=getComputedStyle(el).backgroundColor
+		bdCtx.clearRect(0,0,1,1); bdCtx.fillStyle=c; bdCtx.fillRect(0,0,1,1); const d=bdCtx.getImageData(0,0,1,1).data
+		if(d[3]===255) return [d[0],d[1],d[2]] }
+	return [128,128,128] }
+function plateInk(pl){ const cv=pl.querySelector('canvas'), ctx=cv.getContext('2d')
+	const bk=backdrop(pl)
+	const at=(el,pts)=>{ if(!el) return; let r=0,g=0,b=0,k=0
+		try{ for(const [fx,fy] of pts){ const d=ctx.getImageData(Math.round(fx*(cv.width-1)),Math.round(fy*(cv.height-1)),1,1).data, a=d[3]/255
+			r+=d[0]*a+bk[0]*(1-a); g+=d[1]*a+bk[1]*(1-a); b+=d[2]*a+bk[2]*(1-a); k++ } }catch{}
+		el.style.color=k?ink([r/k,g/k,b/k]):'var(--ink)' }
+	at(pl.querySelector('.laby'),[[0.03,0.06],[0.08,0.06],[0.13,0.06]])
+	at(pl.querySelector('.labx'),[[0.96,0.96],[0.84,0.96],[0.72,0.96]])
+	at(pl.querySelector('.pmode'),[[0.04,0.96],[0.09,0.96],[0.04,0.91]]) }   // the mode switch inks like the letters, from its own corner
 function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now – numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
@@ -4519,6 +4672,7 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)) retur
 	const q=typeof Q==='number'?Q:qTriple(Q)
 	const t0=performance.now(), liveNeighbours=livePick&&plFreeze?pls.filter(pl=>pl!==plFreeze):null
 	const liveTarget=liveNeighbours?.length?liveNeighbours[planeLiveCursor++%liveNeighbours.length]:null
+	let remode=false
 	pls.forEach(pl=>{ if(pl===plFreeze||liveTarget&&pl!==liveTarget) return
 		const a=+pl.dataset.a, b=+pl.dataset.b, cv=pl.querySelector('canvas'), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}
 		const wr=(c,f0,f1)=>[c.min+(c.max-c.min)*f0, c.min+(c.max-c.min)*f1]
@@ -4530,8 +4684,10 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)) retur
 		// the disc mode paints the FULL ranges polar (no pan/zoom window on a circle);
 		// it lives on the GPU path – only no-WebGL2 stays square (every lens rides uQ/uWeb/uClu
 		// now). The element carries the painted mode, so picking and the marker match the paint.
+		const was=`${pl._polar}${pl._tri}`
 		const pol=pl._polar=canGL&&polarPl(cls,a,b)&&polarOn(s,cls,a,b)
 		const tri=pl._tri=canGL&&!pol&&triOn(s,a,b)?triPl(s,cls,a,b):0   // cone sections paint full-range, like the disc (no pan/zoom window on a silhouette)
+		if(was!==`${pl._polar}${pl._tri}`) remode=true
 		pl.classList.toggle('polar',!!pol)
 		pl.classList.toggle('tric',tri===1); pl.classList.toggle('triw',tri===3); pl.classList.toggle('trid',tri===2)
 		// equilateral silhouettes: the CANVAS takes the triangle's own bounding ratio (√3/2)
@@ -4539,10 +4695,11 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)) retur
 		const resW=tri===3?Math.round(res*0.8660254):res, resH=tri===1?Math.round(res*0.8660254):res
 		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
 		if(!(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM,!HIMG&&!qTriple(Q))))
-			plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q)
+			{ plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q); if(!PDOWN) plateInk(pl) }   // the GPU's paint lands later: its 'present' inks (wirePlane)
 		if(HIMG){ if(!livePick) paintPlaneDensityLayer(pl,s,a,b,cls,cv.width,cv.height) }
 		else if(pl._density) pl._density.style.display='none' })
 	if(HIMG&&!histV.has(s)&&!histP.has(s)&&!histQ.has(s)){ histQ.add(s); histSoon() }   // the open space earns its samples too, not just the rows on screen
+	if(remode) renderFast(false)   // the marker is placed by the mode the plate was painted in (a switch, a first paint): re-placed now it has one
 	planesLive=canGL
 	if(planesLive) planeNext=0
 	else{ const dt=performance.now()-t0
@@ -4574,13 +4731,16 @@ addEventListener('blur',lift)
 // Catalog strips stay CSS-only, cut by the Limit as the dossier's are: past it a color dims, and what no light can be
 // is transparent.
 const RAMP_GUIDES=48, LIVE_RAMP_GUIDES=16, SECONDARY_RAMP_GUIDES=8
+// the layers' fade is one CSS constant: read once – a getComputedStyle per strip forced a style pass per strip
+let gbgMs
 const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
+// a new layer fades in from its @starting-style – no forced reflow per strip to arm the transition
 const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=bg
 		ch._gradStack?.forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=null; return }
-	if(!ch._gradStack){ const base=document.createElement('i'); base.className='gbg on'; base.setAttribute('aria-hidden','true')
+	if(!ch._gradStack){ const base=document.createElement('i'); base.className='gbg'; base.setAttribute('aria-hidden','true')
 		base.style.background=ch.style.background; ch.prepend(base); ch.style.background='var(--panel)'; ch._gradStack=[base] }
-	const next=document.createElement('i'); next.className='gbg'; next.setAttribute('aria-hidden','true'); next.style.background=bg
-	ch._gradStack.at(-1).after(next); ch._gradStack.push(next); void next.offsetWidth
+	const next=document.createElement('i'); next.className='gbg in'; next.setAttribute('aria-hidden','true'); next.style.background=bg
+	ch._gradStack.at(-1).after(next); ch._gradStack.push(next)
 	let done=false
 	const finish=()=>{ if(done)return; done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
 		const stack=ch._gradStack, i=stack?.indexOf(next)??-1; if(i<0)return
@@ -4588,12 +4748,13 @@ const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=b
 		// visually covered. Newer in-flight layers remain exactly where they are.
 		stack.slice(0,i).forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=stack.slice(i) }
 	const onend=e=>{ if(e.propertyName==='opacity') finish() }
-	next.addEventListener('transitionend',onend); next.classList.add('on')
-	const ms=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
+	next.addEventListener('transitionend',onend)
+	const ms=gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
 const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
 function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,morph=true){ const hx=hex(RGB()), leadSpace=catalogLeadSpace()
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
 		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:guides, lead=s===leadSpace, lens=gmFor(cls); if(!vals)return
+		const onScreen=screenVis.has(s)   // a cross-fade no one sees is a layer, a transition and a timer per strip for nothing
 		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}:${qKey(Q)}${PALMODES.has(Q)?':'+QM:''}`
 		if(skipI<0&&ent.dataset.g===gkey) return
 		let complete=true
@@ -4607,7 +4768,7 @@ function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUID
 			const grad=typeof Q==='number'?stepped(qCells(s,vals,i,c,Q,lens))
 				:Q!=null&&qTriple(Q)?qBarGradient(s,vals,i,c,qTriple(Q),lens)
 				:`linear-gradient(90deg, ${ramp(s,vals,i,c.min,c.max,n,lens).join(',')})`
-			setCatalogGradient(ch,grad+', var(--checker)',morph); ch._g=gkey })
+			setCatalogGradient(ch,grad+', var(--checker)',morph&&onScreen); ch._g=gkey })
 		if(complete) ent.dataset.g=gkey }) }
 // Every native picker stays live. Inactive numbers update every 100ms; secondary
 // gradients cycle through low-cost guides while held and repaint in full on release.
@@ -4664,7 +4825,7 @@ function paintCatalogPickers(ents,rgb,hx){ if(!rgb){ const raw=RGB(), qf=qTriple
 			if(nr.style.length){ nr.style.removeProperty('--tkc'); nr.style.removeProperty('--tki') }
 			if(!nr._glide&&!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] }) }) }
 const CATALOG_VALUE_THROTTLE=100, CATALOG_FRAME_BUDGET=6   // ms of a 16.7 ms frame the secondary strips may take
-let catValueLast=0, catValueTimer=0, catSlowLast=0, catSlowTimer=0, catSlowCursor=0, catSlowKey='', catSlowPending=0
+let catValueLast=0, catValueTimer=0, catSlowLast=0, catSlowTimer=0, catSlowHeld=0, catSlowCursor=0, catSlowKey='', catSlowPending=0
 const activeCatalogEnt=()=>{ const ent=dragEnt||catEnts.get(catalogLeadSpace())
 	return ent&&screenVis.has(ent.dataset.s)?ent:null }
 const flushCatalogValues=()=>{ clearTimeout(catValueTimer); catValueTimer=0; catValueLast=performance.now()
@@ -4677,26 +4838,34 @@ const paintCatalogThrottledValues=(all=false)=>{ const wait=CATALOG_VALUE_THROTT
 const secondaryCatalogEnts=active=>screenEnts().filter(ent=>ent!==active)
 const catalogGradientKey=()=>catalogLeadSpace()+'|'+master.s+'|'+master.vals.join()+'|'+qKey(Q)+'|'+(PALMODES.has(Q)?QM:'')
 function paintCatalogSecondary(){ cancelAnimationFrame(catSlowTimer); catSlowTimer=0; const t0=catSlowLast=performance.now()
-	const active=open()?null:activeCatalogEnt(), rows=secondaryCatalogEnts(active); if(!rows.length)return
+	const active=open()?null:activeCatalogEnt(), rows=secondaryCatalogEnts(active); if(!rows.length){ catSlowPending=0; return }
 	// rows until the frame's budget is spent, the rest next frame – a held slider keeps its 60fps however many rows are on
 	// screen. While a hand or the orbit moves the color the strips are set, not cross-faded: a fade a frame would stack a
 	// layer and a transition per strip per frame (the morph is for a settled change)
 	const moving=PDOWN||autoColor
 	while(catSlowPending&&performance.now()-t0<CATALOG_FRAME_BUDGET){ catSlowPending--
 		paintCatalogGrad([rows[catSlowCursor++%rows.length]],-1,moving?SECONDARY_RAMP_GUIDES:RAMP_GUIDES,!moving) }
-	if(catSlowPending) scheduleCatalogSecondary() }
+	if(catSlowPending) catSlowTimer=requestAnimationFrame(paintCatalogSecondary)   // the pass runs out its rows – restarted by every moving frame, it would never end
+	else if(moving&&catalogGradientKey()!==catSlowKey) throttleCatalogSecondary() }   // the color moved on during the pass: the next one – the last move always lands
 function scheduleCatalogSecondary(){ const active=open()?null:activeCatalogEnt(), count=secondaryCatalogEnts(active).length; if(!count)return
 	const key=catalogGradientKey(); if(key!==catSlowKey){ catSlowKey=key; catSlowPending=count }
 	if(!catSlowPending)return
 	if(!catSlowTimer) catSlowTimer=requestAnimationFrame(paintCatalogSecondary) }
-const settleCatalog=()=>{ cancelAnimationFrame(catSlowTimer); catSlowTimer=0; catSlowLast=performance.now(); flushCatalogValues()
+// a held hand: the other strips follow on the numbers' 100 ms tier – throttled, not held for the release, so they move
+// with the thumbs, while the drag's frames stay with the strip in hand. One pass at a time, the next a tier after; a pass
+// in flight paints the live color as it goes. Behind an open dossier the catalog waits for its close. Any other change –
+// the orbit too – repaints at once: the strips keep the pickers' pace
+const throttleCatalogSecondary=()=>{ if(!PDOWN){ scheduleCatalogSecondary(); return } if(open()||catSlowPending||catSlowHeld) return
+	const wait=CATALOG_VALUE_THROTTLE-(performance.now()-catSlowLast)
+	if(wait<=0) scheduleCatalogSecondary(); else catSlowHeld=setTimeout(()=>{ catSlowHeld=0; throttleCatalogSecondary() },wait) }
+const settleCatalog=()=>{ cancelAnimationFrame(catSlowTimer); catSlowTimer=0; clearTimeout(catSlowHeld); catSlowHeld=0; catSlowLast=performance.now(); flushCatalogValues()
 	const active=open()?null:activeCatalogEnt(), rows=secondaryCatalogEnts(active)
 	paintCatalogGrad(rows,-1,RAMP_GUIDES,true); if(active) paintCatalogGrad([active],-1,RAMP_GUIDES,false)
 	catSlowKey=catalogGradientKey(); catSlowPending=0 }
 function renderFast(solid=true){
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
-	// the color's public face: the row's rhombus + value, favicon. Under a palette-class
+	// the color's public face: the row's rhombus + value. Under a palette-class
 	// lens the face speaks the SNAPPED color – the entry every strip shows and the chip
 	// names – while master (and the URL) keeps the exact slider coordinate. Numeric
 	// lattices quantize master itself on release, so raw already matches there.
@@ -4716,7 +4885,7 @@ function renderFast(solid=true){
 	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
 	if(cvalEl&&document.activeElement!==cvalEl) cvalEl.value=virgin?'':dispVal(fx)
 	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value
-	if(!PDOWN){ syncFav(virgin?null:frgb); if(!virgin) syncURL(hx) }   // the favicon wears the face; the URL keeps the exact coordinate
+	if(!PDOWN&&!virgin) syncURL(hx)   // the URL keeps the exact coordinate
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
 	if(gpillEl){ const g=gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
 	if(palmEl){ const on=PALMODES.has(Q)&&!virgin   // live through drags – the address should follow the hand
@@ -4730,7 +4899,7 @@ function renderFast(solid=true){
 		if(active&&!dossierOpen){ paintCatalogVals([active]); paintCatalogGrad([active],dragEnt?dragEntI:-1,(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,false) }
 		paintCatalogPickers(screenEnts(),frgb,fx)   // every visible thumb follows the hand; offscreen rows catch up on entry
 		paintCatalogThrottledValues(dossierOpen)   // background numbers use the 100ms tier
-		if(!PDOWN) scheduleCatalogSecondary()   // a held hand moves the thumbs only: the other spaces' strips repaint once, on release (settleCatalog) – a drag's frames go to the strip in hand
+		throttleCatalogSecondary()   // the other spaces' strips: every frame's budget at rest, the 100 ms tier under a held hand; in full once released (settleCatalog)
 		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) }   // a card's planes follow the color as its strips do
 	if(!open()||isBarred(selected)) return   // barred cards have no live color content
 	detailTk(fx,ink(frgb))   // the dossier's own frame keeps its thumbs and lanes in the FACE color
@@ -4815,20 +4984,7 @@ function renderFast(solid=true){
 			cx.style.display=(px<-0.01||px>1.01||py<-0.01||py>1.01)?'none':''
 			cx.style.left=(clamp(px,0,1)*100)+'%'; cx.style.top=((1-clamp(py,0,1))*100)+'%' }
 		const qf=qTriple(Q), sk=qf?byteRGB(qf(rgb)).join(','):''
-		if(qf&&pl._snap&&pl._snap.key===sk&&pl!==plFreeze){ cx.style.display=''; cx.style.left=pl._snap.left+'%'; cx.style.top=pl._snap.top+'%' }
-		// corner labels ink by what's ACTUALLY beneath them – sample the painted canvas
-		// itself (conversion heuristics lied for HDR corners); transparent = the void panel.
-		// NEVER under a held pointer: getImageData is a synchronous GPU readback, and three
-		// planes × per-frame sampling was the dossier drag's hidden tax — inks settle late
-		if(!PDOWN){ const cvp=pl.querySelector('canvas'), ictx=cvp.getContext('2d')
-		const labInk=(el,pts)=>{ let r=0,g2=0,b2=0,k=0
-			try{ for(const [fx,fy] of pts){ const d=ictx.getImageData(Math.round(fx*(cvp.width-1)),Math.round(fy*(cvp.height-1)),1,1).data
-				if(d[3]<40) continue
-				r+=d[0]; g2+=d[1]; b2+=d[2]; k++ } }catch{}
-			el.style.color=k?ink([r/k,g2/k,b2/k]):'var(--ink)' }
-		labInk(pl.querySelector('.laby'),[[0.03,0.06],[0.08,0.06],[0.13,0.06]])
-		labInk(pl.querySelector('.labx'),[[0.96,0.96],[0.84,0.96],[0.72,0.96]])
-		const pm=pl.querySelector('.pmode'); if(pm&&pm.style.color) pm.style.color='' } })   // the mode switch keeps its steady theme gray – its corner often sits on void/checker, and the sampled ink flipped black-on-black there
+		if(qf&&pl._snap&&pl._snap.key===sk&&pl!==plFreeze){ cx.style.display=''; cx.style.left=pl._snap.left+'%'; cx.style.top=pl._snap.top+'%' } })
 	// blend: current → pinned end (or auto complement), computed in THIS space, clustered like the sliders
 	if(vals&&!PDOWN){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
 	if(!B){ B=rotateHue(cls,vals,180); if(!B){ try{ B=toSpace(s,rgb.map(x=>255-x)) }catch{ B=null } } }
@@ -4943,7 +5099,9 @@ let raf, settleT
 const scheduleFast=(ambient=false)=>{ if(!ambient){ autoColor=false }
 	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{
 		renderFast()
-		clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN) settleCatalog() },CURRENT_SETTLE)
+		// the settle is for a color at rest: the orbit never rests – a frame late past the settle would repaint every row
+		// in full under a color the next step replaces, and that repaint makes the next frame late (a 1 s stall, looping)
+		clearTimeout(settleT); settleT=setTimeout(()=>{ if(!open()&&!PDOWN&&(!autoColor||autoPark)) settleCatalog() },CURRENT_SETTLE)
 		if(!PDOWN&&performance.now()>planeNext) paintPlanes(true) }) }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
@@ -5035,18 +5193,29 @@ renderFast(); paintCatalogGrad()
 		regroup(g); const sec=cat.querySelectorAll('.sec')[GROUPS[g]().findIndex(c=>c.key===key)]
 		sec?toShelf(sec):go() })   // as the rail's own shelf links land
 }
-// ── the hero's locus: the chromaticity diagram, soft, in the rail's column – every color a point in the horseshoe, the
-// current one marked at its own chromaticity. Drawn as the dossier's xy plate draws it (js/locus.js): its outlines, or
-// (?locus=fill) the horseshoe filled ──
-{	const hm=document.querySelector('#hero .hmain'), fill=new URLSearchParams(location.search).get('locus')==='fill'
-	const P=([x,y])=>[x*400,(.85-y)*400], W=304, H=340   // xy 0 … .76 across, .85 … 0 down: 400 units to 1
-	hm.insertAdjacentHTML('beforeend',`<svg class="hlocus${fill?' fill':''}" viewBox="-36 -14 360 368" aria-hidden="true">${fill?'<image width="304" height="340"/>':locusMarks(P)}<rect class="lc" width="11" height="11" x="-5.5" y="-5.5"/></svg>`)
-	const svg=hm.lastElementChild, mk=svg.querySelector('.lc')
-	if(fill) (window.requestIdleCallback||setTimeout)(()=>svg.querySelector('image').setAttribute('href',locusFill(([u,v])=>[u*.76,.85-v*.85],W,H)))   // painted once, off the first frame
+// ── the hero's locus (CSS above): drawn in the xy plate's own units (GXY), the horseshoe's colors painted once at idle –
+// whole and half-transparent over the checker, opaque inside the Limit; the current color at its own chromaticity.
+// Pointing shows the displays' and the horseshoe's edges and names, the tightest under the pointer darkest; a click picks
+// it, as the row's Limit menu does ──
+{	const hm=document.querySelector('#hero .hmain'), img=c=>`<image class="${c}" width="320" height="352"${c==='lim'?' clip-path="url(#hl-lim)"':''}/>`
+	const HL=LIMS.filter(g=>g!=='vis'), hd=g=>LIMD(g==='vis'?'locus':g)   // the hero's Limits: the displays' and Light – Surface spans the horseshoe in xy
+	hm.insertAdjacentHTML('beforeend',`<div class="hlocus" aria-hidden="true"><svg viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}${locusMarks(GXY)}<g class="lims">${HL.map(g=>`<path data-g="${g}" d="${LIMD(g)}"/>`).join('')}</g></svg><i class="cx"></i></div>`)
+	const box=hm.lastElementChild, svg=box.firstElementChild, mk=box.querySelector('.cx'), lim=svg.querySelector('#hl-lim path'), edge=Object.fromEntries([...svg.querySelectorAll('.lims path')].map(e=>[e.dataset.g,e]))   // the mark: the planes' own picker (.cx), a fixed size over a drawing that scales
+	;(window.requestIdleCallback||setTimeout)(()=>{ const u=locusFill(([a,b])=>[a*.857-.107,(1-b)*.955-.055],320,352); svg.querySelectorAll('image').forEach(i=>i.setAttribute('href',u)) })   // painted once, off the first frame
+	// the checker at the sliders' 12 px, whatever the drawing's scale
+	new ResizeObserver(()=>{ const k=svg.getScreenCTM()?.a; if(k) svg.querySelector('#hl-chk').setAttribute('patternTransform',`scale(${(1/k).toFixed(4)})`) }).observe(box)
 	heroPaint=()=>{ let X; try{ X=master.s==='xyz'?master.vals:space[master.s].xyz(...master.vals) }catch{} if(!X?.every(isFinite)) X=space.rgb.xyz(...RGB())
 		const t=X[0]+X[1]+X[2]; mk.style.display=t>1e-6?'':'none'; if(t<=1e-6) return
-		const [x,y]=P([X[0]/t,X[1]/t]); mk.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(45)`); mk.style.fill=hex(RGB()) }
-	heroPaint() }
+		const [x,y]=GXY([X[0]/t,X[1]/t]), c=RGB(); mk.style.left=((x-36)/290*100).toFixed(2)+'%'; mk.style.top=((y-18)/318*100).toFixed(2)+'%'   // the viewBox's crop, in percent
+		mk.style.setProperty('--tkc',hex(c)); mk.style.setProperty('--tki',ink(c)) }
+	heroLimit=()=>lim.setAttribute('d',hd(GM))
+	// the tightest Limit under the pointer (narrowest first)
+	const at=e=>{ const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse()); return HL.find(g=>edge[g].isPointInFill(q)) }
+	const point=g=>{ for(const k in edge) edge[k].classList.toggle('on',k===g); box.title=g&&g!==GM?t('ui.locus.pick','Limit: {g} – click to pick it',{g:GAMLABEL[g]}):'' }
+	svg.addEventListener('pointermove',e=>point(at(e)))
+	svg.addEventListener('pointerleave',()=>point(''))
+	svg.addEventListener('click',e=>{ const g=at(e); if(g&&g!==GM){ setLimit(g); point(g) } })
+	heroPaint(); heroLimit() }
 // ── the history: after the catalog, built as the reader nears it (its module off the boot path) ──
 {	const el=document.getElementById('lineage')
 	const io=new IntersectionObserver(([e])=>{ if(!e.isIntersecting) return; io.disconnect()
@@ -5061,6 +5230,11 @@ cat.addEventListener('click',e=>{ const c=e.target.closest('.ent.barred'); if(!c
 // A bare #space hash stays as the dossier's internal anchor channel (lineage/see-also/FAQ
 // links) – syncURL rewrites it to the canonical path immediately; ?s=<space> is the 404 bounce
 const known=x=>SPACES.includes(x)||isBarred(x)   // a slug the modal can open: real space or proprietary card
+// the space a link points to – its href is the space's document (<base><space>), relative, so crawlers follow it
+const spaceOf=a=>{ const u=new URL(a.href,location.href); if(u.origin!==location.origin||!u.pathname.startsWith(BASE)) return null
+	const s=u.pathname.slice(BASE.length).replace(/\.html$/,''); return known(s)?s:null }
+document.addEventListener('click',e=>{ if(e.defaultPrevented||tabClick(e)) return; const a=e.target.closest('a[href]'); if(!a||a.target) return
+	const s=spaceOf(a); if(!s) return; e.preventDefault(); openModal(s) })
 const route=e=>{ if(e) autoColor=false
 	const h=e?dec(location.hash.slice(1)):BOOT.hash   // boot reads the arrival snapshot
 	const qs=e?null:BOOT.q, pseg=e?null:BOOT.seg
@@ -5087,8 +5261,8 @@ if(EMBED){ const embl=document.getElementById('embl'), out=()=>{ embl.href=new U
 	out(); for(const ev of ['pointerdown','focus','click']) embl.addEventListener(ev,out)   // the full page at this space AND color, fresh at the moment of leaving
 	// a link to another space would walk the frame – and the embedder's back button – away from
 	// the space it embeds: it opens that space's full page in a new tab instead
-	detail.addEventListener('click',e=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; e.preventDefault()
-		const h=dec(a.getAttribute('href').slice(1)); if(known(h)) window.open(new URL(spaceURL(h),location.href).href,'_blank','noopener') }) }
+	detail.addEventListener('click',e=>{ const a=e.target.closest('a[href]'), h=a&&(a.getAttribute('href')[0]==='#'?dec(a.getAttribute('href').slice(1)):spaceOf(a)); if(!h||!known(h)) return; e.preventDefault()
+		window.open(new URL(spaceURL(h),location.href).href,'_blank','noopener') }) }
 onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){   // name views orbit too – a dossier first seen at neutral gray reads as an empty instrument
 	autoColor=true; autoStart=autoLast=performance.now(); requestAnimationFrame(autoStep) } },300))
 // analytics (js/track.js) counts the pageview at idle – a no-op until a website id is set

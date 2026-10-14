@@ -37,7 +37,8 @@
 html{ overflow-y:auto; scrollbar-width:none }
 html::-webkit-scrollbar{ display:none }
 /* a drag hides the cursor, as Figma's own picker does: the knob is where the pointer is */
-html.drag,html.drag *{ cursor:none !important }
+html.drag:not(:has(#grip.live)),html.drag:not(:has(#grip.live)) *{ cursor:none !important }
+html:has(#grip.live),html:has(#grip.live) *{ cursor:nwse-resize !important }   /* resizing: the resize cursor throughout */
 body{ margin:0; padding:var(--s3); background:var(--paper); color:var(--ink); font:var(--text-xs)/1.45 var(--font-current) }
 :focus-visible{ outline:calc(var(--rule-hair)*2) solid var(--ink); outline-offset:var(--space-3xs) }   /* the atlas's focus ring (web/workshop.css) */
 [hidden]{ display:none !important }
@@ -70,11 +71,21 @@ button,select,input{ font:inherit; color:inherit }
    icons' look-alike Unicode symbols */
 .lens select{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer }
 .lens select > button{ display:none }
+/* the copy row's format: a select over the whole control, its chevron at the right (page-drawn where customizable) */
+.fmt{ width:3.75rem; padding:0 }   /* Figma's own format select is as narrow; the names are short (P3, not Display P3) */
+.fmt select{ position:absolute; inset:0; width:100%; height:100%; padding:0 var(--s2); border:0; background:none; color:inherit; font:inherit; cursor:pointer; appearance:none }
+.fmt select > button{ display:none }
+.fmt > .chev{ position:absolute; right:var(--s2) }
 /* where the select is customizable (Chromium 135+) the page draws it: the closed control shows the current option's
    icon, the list every icon in the icon font beside its name; these lists are short enough to open inside the frame */
 @supports (appearance: base-select) {
 	.lens .face,.lens > .chev{ display:none }
-	.lens select,.lens ::picker(select){ appearance:base-select }
+	.lens select,.lens ::picker(select),.fmt select,.fmt ::picker(select){ appearance:base-select }
+	.fmt > .chev{ display:none }
+	.fmt select{ padding:0 }
+	.fmt select > button{ display:flex; align-items:center; justify-content:space-between; width:100%; height:100%; padding:0 var(--s1) 0 var(--s2); border:0; background:none; color:inherit; font:inherit; cursor:pointer }
+	.fmt select::picker-icon{ display:none }
+	.fmt ::picker(select){ position-area:bottom span-right; position-try-fallbacks:flip-block; min-width:8rem; margin:var(--s1) 0; padding:var(--s1); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow) }
 	.lens select{ opacity:1; padding:0; border:0; background:none; color:var(--soft); font:inherit }
 	.lens select:hover{ color:var(--ink) }
 	.lens select::picker-icon{ display:none }
@@ -83,10 +94,10 @@ button,select,input{ font:inherit; color:inherit }
 	.lens selectedcontent .nm{ display:none }
 	.lens .ico{ font:var(--t3)/1 'color-space icons'; width:1.2em; text-align:center }
 	.lens ::picker(select){ position-area:bottom span-left; position-try-fallbacks:flip-block; width:10.5rem; margin:var(--s1) 0; padding:var(--s1); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow) }
-	.lens option{ display:flex; align-items:center; gap:var(--s2); padding:var(--s1) var(--s2); border-radius:var(--radius-control); font-size:var(--t1); color:var(--soft); white-space:nowrap }
-	.lens option:hover,.lens option:focus-visible{ background:var(--panel); color:var(--ink); outline:none }
-	.lens option:checked{ color:var(--ink) }
-	.lens option::checkmark{ order:1; margin-inline-start:auto; padding-inline-start:var(--s2) }
+	.fmt option,.lens option{ display:flex; align-items:center; gap:var(--s2); padding:var(--s1) var(--s2); border-radius:var(--radius-control); font-size:var(--t1); color:var(--soft); white-space:nowrap }
+	.fmt option:hover,.fmt option:focus-visible,.lens option:hover,.lens option:focus-visible{ background:var(--panel); color:var(--ink); outline:none }
+	.fmt option:checked,.lens option:checked{ color:var(--ink) }
+	.fmt option::checkmark,.lens option::checkmark{ order:1; margin-inline-start:auto; padding-inline-start:var(--s2) }
 	/* a group's label on the list's rhythm: a row's padding around it, and a row's gap before the second group */
 	.lens legend{ padding:var(--s1) var(--s2); font-size:var(--t0); font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--soft) }
 	.lens optgroup + optgroup legend{ margin-top:var(--s2) }
@@ -156,9 +167,9 @@ button,select,input{ font:inherit; color:inherit }
 .axes button:hover,.axes button:focus-visible{ background:color-mix(in oklab, var(--paper) 70%, transparent); color:var(--ink) !important }
 .axes .laby{ top:var(--space-3xs); left:var(--space-3xs) }
 .axes .labx{ right:var(--space-3xs); bottom:var(--space-3xs) }
-.axes .pmode{ left:var(--space-3xs); bottom:var(--space-3xs); display:grid; place-items:center; width:var(--s5); height:var(--s5); padding:0; color:var(--soft) }
-.axes .pmode::before{ content:''; width:.6rem; height:.6rem; border:var(--rule-hair) solid currentColor; border-radius:50% }   /* a circle: the wheel */
-.axes .pmode[aria-pressed="true"]::before{ border-radius:0 }   /* in the wheel, the square: back to the plane */
+.axes .pmode{ left:var(--space-3xs); bottom:var(--space-3xs); display:grid; place-items:center; height:calc(1.45em + var(--space-3xs) * 2) }   /* the letters' own box and inset: the icon sits as far from the corner as H or L does */
+.axes .pmode::before{ content:''; width:.8em; height:.8em; border:var(--rule-hair) solid currentColor; border-radius:50%; background:linear-gradient(currentColor,currentColor) 50% 0/var(--rule-hair) 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% var(--rule-hair) no-repeat }   /* the site's switch (web/index.html .pl .pmode): a circle crossed, the wheel */
+.axes .pmode[aria-pressed="true"]::before{ border-radius:0; width:.72em; height:.72em }   /* in the wheel, a square crossed – sharp corners, a step smaller for optical parity: back to the plane */
 /* the marker: the current color in Figma's white ring */
 .pl .cx{ position:absolute; z-index:3; width:var(--knob); height:var(--knob); transform:translate(-50%,-50%); border-radius:50%; background:var(--tkc); border:var(--knob-ring); box-shadow:var(--knob-edge); pointer-events:none }
 .pl.locked{ cursor:default }
@@ -182,6 +193,9 @@ button,select,input{ font:inherit; color:inherit }
 .bar2 .nrg:focus-visible{ outline-offset:var(--space-3xs) }
 .bar2:has(.nrg[aria-disabled="true"]){ cursor:default }
 /* the opacity bar, Figma's: the current color over the checker, clear to solid across the knob's travel */
+/* the image's histogram along a bar: its channel's pixels as a lane in the pill's lower part, over the field, along the
+   knob's travel (the site's .bar2 .hist: the mask carries shape and fade, the background the ink) */
+.bar2 .hist{ position:absolute; left:calc(var(--knob) / 2); right:calc(var(--knob) / 2); bottom:var(--rule-hair); height:62%; pointer-events:none; background:var(--ink); -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }
 .bar2.alpha{ background:linear-gradient(90deg, transparent calc(var(--knob) / 2), var(--tkc) calc(100% - var(--knob) / 2)), var(--checker) }
 
 /* the gamut status: always one line, so it never moves anything as a drag crosses the gamut */
@@ -189,18 +203,42 @@ button,select,input{ font:inherit; color:inherit }
 .gamut{ flex:1; min-width:0; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }   /* one line, its words short enough to fit; the detail rides the tooltip */
 .gamut.out{ color:var(--ink) }
 .status .prof{ flex:none; cursor:help }   /* the file's color profile, said once, quietly */
-.notes{ color:var(--soft); margin:var(--s1) 0 0 }
-.notes:empty{ margin:0 }   /* the live region stays in the page, empty, so its first note is announced */
-.notes p{ margin:0 0 var(--s1) }
+/* about: a quiet info mark at the panel's bottom right (dim → ink); it opens a small card above it – the mark and the
+   name (the site), then by colorjs (the code) and a heart (support) – that a press anywhere else or Escape closes (a popover) */
+.info{ flex:none; display:grid; place-items:center; align-self:flex-end; padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:12px; anchor-name:--about }
+.info:hover,.info:focus-visible{ color:var(--ink) }
+.about{ position-anchor:--about; position-area:top span-left; inset:auto; margin:0 0 var(--s1); width:max-content; max-width:14rem; padding:var(--s2) var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); background:var(--paper); color:var(--soft); box-shadow:var(--modal-shadow) }
+.about p{ margin:var(--space-3xs) 0 0 }
+.about .logo{ display:flex; align-items:center; gap:var(--s1); font-weight:600; text-decoration:none }
+.about .logo img{ width:var(--s4); height:var(--s4) }   /* the project's mark: the spectral locus (web/img/locus-64.png) */
+.about a{ color:var(--ink); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:2px }
+.about a:hover,.about a:focus-visible{ text-decoration:underline }
+.about .love{ display:inline-grid; vertical-align:-.15em; --ic:12px; color:var(--soft) }   /* support: a heart, quiet until hovered */
+.about .love:hover,.about .love:focus-visible{ color:var(--ink); text-decoration:none }
+.notes{ flex:1; min-width:0; color:var(--soft) }   /* the live region stays in the page, empty, so its first note is announced */
+/* the foot: the notes, and the info mark at the panel's bottom right, on their last line */
+.foot{ display:flex; align-items:flex-end; gap:var(--s2); margin:var(--s1) 0 0 }
+.notes p{ margin:0 }
 
 .css{ display:grid; gap:var(--s1) }
-.row{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--s1) }
-.row input{ font-family:var(--font-mono) }
+.row{ display:grid; gap:var(--s1) }
+/* the value in one format, Figma's way: the format's select, then the value, then its copy button */
+.fmtrow{ grid-template-columns:auto minmax(0,1fr) }
+/* a value field with its copy button inside, at its end */
+.cpy{ display:flex; align-items:center; padding-right:0 }
+.cpy input{ flex:1; width:auto }
+.cpy .icb{ flex:none; width:var(--s6); height:100%; border-radius:0 var(--field-radius) var(--field-radius) 0 }
+.cpy .icb:hover,.cpy .icb:focus-visible{ background:none }
+.row input{ font-variant-numeric:tabular-nums }   /* the UI's own face: a whole oklch() with its alpha fits the default width */
 .row .icb[aria-label="Copied"],.row .icb[aria-label="Selected"]{ color:var(--ink) }   /* the copy glyph (the site footer's), lit while it confirms */
 
-/* the width grip: the panel's right edge, dragged to widen it (the plane grows with it) */
-.grip{ position:fixed; top:0; right:0; bottom:0; width:var(--s1); cursor:ew-resize; touch-action:none }
-.grip:hover,.grip:focus-visible,html.drag .grip.live{ background:color-mix(in oklab, var(--sel) 35%, transparent); outline:none }
+/* the size grip: two straight diagonal ticks in the panel's bottom-right corner, their ends 3 px from the bottom and
+   the right edge, the long one 12 px, the short one 8.5 px and 2 px from it, inside Figma's rounded window corner; it
+   takes presses only in its corner triangle, clear of the status line's info mark; quiet until hovered; dragged to widen, the
+   height following (the plane is square) */
+.grip{ position:fixed; right:0; bottom:0; width:var(--s5); height:var(--s5); clip-path:polygon(100% 0, 100% 100%, 0 100%); color:color-mix(in oklab, var(--soft) 55%, transparent); cursor:nwse-resize; touch-action:none }
+.grip::before{ content:''; position:absolute; inset:0; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M8.00 17.00L17.00 8.00M11.00 17.00L17.00 11.00' stroke='black' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M8.00 17.00L17.00 8.00M11.00 17.00L17.00 11.00' stroke='black' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% no-repeat }
+.grip:hover,.grip:focus-visible,html.drag .grip.live{ color:var(--ink); outline:none }
 
 /* the atlas's themed tooltip (web/js/tip.js): Figma's frame shows no native title */
 /* secondary: small; it goes when the pointer leaves its element or the panel, on any press, and when Figma takes focus */
@@ -211,32 +249,35 @@ html.drag #tip{ display:none }
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="vq-smooth" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor"/></linearGradient></defs></svg>
-<ul class="paints" id="paints" aria-label="Colors in the selection"></ul>
+<ul class="paints" id="paints" aria-label="Colors in the selection" data-i18n="aria-label:pl.paints"></ul>
 <p class="empty" id="empty">Select a layer with a solid fill, a gradient or an image.</p>
-<section class="picker" id="picker" aria-label="Picker">
+<section class="picker" id="picker" aria-label="Picker" data-i18n="aria-label:pl.picker">
 	<div class="top">
 		<button class="sel spb" id="spbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="spmenu"><span id="spname"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-		<label class="sel lens" id="quantf"><span class="face" id="quantface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="quant" aria-label="Quantize"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select></label>
-		<label class="sel lens" id="limitf"><span class="face" id="limitface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="limit" aria-label="Limit"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select></label>
+		<label class="sel lens" id="quantf"><span class="face" id="quantface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="quant" aria-label="Quantize" data-i18n="aria-label:ui.cell.draw"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select></label>
+		<label class="sel lens" id="limitf"><span class="face" id="limitface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="limit" aria-label="Limit" data-i18n="aria-label:pl.limit"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select></label>
 		<div class="spmenu" id="spmenu" hidden>
-			<div class="sphead"><label class="fld srch"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="spq" type="search" placeholder="Search spaces" aria-label="Search spaces" autocomplete="off" spellcheck="false"></label></div>
-			<div class="splist" id="splist" role="listbox" aria-label="Color spaces"></div>
+			<div class="sphead"><label class="fld srch"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="spq" type="search" placeholder="Search spaces" aria-label="Search spaces" data-i18n="placeholder:pl.menu.search aria-label:pl.menu.search" autocomplete="off" spellcheck="false"></label></div>
+			<div class="splist" id="splist" role="listbox" aria-label="Color spaces" data-i18n="aria-label:pl.menu.label"></div>
 		</div>
 	</div>
-	<div class="plw"><div class="pl" id="plane" tabindex="0" role="slider"><canvas></canvas><canvas class="density" aria-hidden="true"></canvas><i class="cx"></i></div><div class="marks" id="marks" role="group" aria-label="The document's colors"></div><div class="axes" id="axes"><button class="laby" type="button"></button><button class="labx" type="button"></button><button class="pmode" type="button" hidden></button></div></div>
+	<div class="plw"><div class="pl" id="plane" tabindex="0" role="slider"><canvas></canvas><canvas class="density" aria-hidden="true"></canvas><i class="cx"></i></div><div class="marks" id="marks" role="group" aria-label="The document's colors" data-i18n="aria-label:pl.marks"></div><div class="axes" id="axes"><button class="laby" type="button"></button><button class="labx" type="button"></button><button class="pmode" type="button" hidden></button></div></div>
 	<div class="sliders">
-		<button class="icb" id="drop" type="button" hidden aria-label="Pick a color from the screen" data-tip="Pick from the screen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button>
-		<div class="bars" id="channels" role="group" aria-label="Channels"></div>
+		<button class="icb" id="drop" type="button" hidden aria-label="Pick a color from the screen" data-tip="Pick from the screen" data-i18n="aria-label:pl.drop.label data-tip:pl.drop.tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button>
+		<div class="bars" id="channels" role="group" aria-label="Channels" data-i18n="aria-label:pl.channels"></div>
 	</div>
 </section>
 <section class="css" id="css" aria-label="CSS">
-	<div class="row"><label class="fld"><input id="css-1" readonly aria-label="CSS oklch()"></label><button class="icb" type="button" data-copy="css-1" aria-label="Copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
-	<div class="row"><label class="fld"><input id="css-2" readonly aria-label="CSS in the document's RGB"></label><button class="icb" type="button" data-copy="css-2" aria-label="Copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
-	<div class="row" id="named" hidden><label class="fld"><input id="css-3" readonly aria-label="Palette color name"></label><button class="icb" type="button" data-copy="css-3" aria-label="Copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+	<div class="row fmtrow"><label class="sel fmt"><select id="fmt" aria-label="Format" data-i18n="aria-label:pl.fmt.label"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label><div class="fld cpy"><input id="css-1" readonly aria-label="CSS"><button class="icb" type="button" data-copy="css-1" aria-label="Copy" data-i18n="aria-label:pl.copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div></div>
+	<div class="row" id="named" hidden><div class="fld cpy"><input id="css-3" readonly aria-label="Palette color name" data-i18n="aria-label:pl.name.label"><button class="icb" type="button" data-copy="css-3" aria-label="Copy" data-i18n="aria-label:pl.copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div></div>
 </section>
 <div class="status"><p class="gamut" id="gamut" role="status"></p><span class="prof" id="profile"></span></div>
-<div class="notes" id="notes" role="status"></div>
-<div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Panel width" aria-valuemin="240" aria-valuemax="560" aria-valuenow="288" tabindex="0" data-tip="Drag to widen"></div>
+<div class="about" id="about" popover>
+	<a class="logo" href="https://color-space.io/" data-open="site"><img src="/*LOCUS*/" alt="">Color Space</a>
+	<p><span data-i18n="pl.about.by">by</span> <a href="https://github.com/colorjs/color-space" data-open="github">colorjs</a> <a class="love" href="https://github.com/sponsors/dy" data-open="support" aria-label="Support" data-i18n="aria-label:pl.about.support"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg></a></p>
+</div>
+<div class="foot"><div class="notes" id="notes" role="status"></div><button class="info" id="aboutb" type="button" popovertarget="about" aria-label="About Color Space" data-tip="About" data-i18n="aria-label:pl.about.label data-tip:pl.about.tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg></button></div>
+<div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Panel width" data-i18n="aria-label:pl.grip.label" aria-valuemin="240" aria-valuemax="560" aria-valuenow="288" tabindex="0"></div>
 <script>/*BUNDLE*/</script>
 </body>
 </html>

@@ -74,13 +74,42 @@ test('vis solid: the vendored D65 spectrum reproduces the shipped D65 white poin
 
 	// the property the D65 build exists for: every colour a display can show is a colour
 	// a surface can show under the same illuminant, so the whole sRGB cube sits inside
-	// the solid the human view draws (under equal-energy E, white itself fell outside)
+	// the solid the human view draws (under equal-energy E, white itself fell outside).
+	// inVisSolid's fast accept rests on it, so it is asked of the planes themselves –
+	// through inVisSolid the shortcut would answer for it
+	const { visSolid, visibleXYZ } = await import('../web/js/core.js')
 	let out = 0
 	for (let r = 0; r <= 8; r++) for (let g = 0; g <= 8; g++) for (let b = 0; b <= 8; b++)
-		if (!inVisSolid(...space.rgb.xyz(r * 255 / 8, g * 255 / 8, b * 255 / 8))) out++
+		if (!fullSolid(visSolid, visibleXYZ)(...space.rgb.xyz(r * 255 / 8, g * 255 / 8, b * 255 / 8))) out++
 	is(out, 0, 'the whole sRGB cube lies inside the D65 object-colour solid')
 	is(inVisSolid(...whitepoint[2].D65), true, 'D65 white itself is inside')
 	is(inVisSolid(0, 100, 0), false, 'an impossible colour (pure Y, no X or Z) is outside')
+})
+
+// the full membership test – locus, then every plane – with no shortcut
+const fullSolid = (visSolid, visibleXYZ) => (X, Y, Z) =>
+	visibleXYZ(X, Y, Z) && visSolid().every(([ux, uy, uz, h]) => ux * X + uy * Y + uz * Z <= h * 1.002)
+
+// inVisSolid accepts anything linear sRGB holds without the planes: exact by convexity, given the
+// cube test above. Pin that it never changes a verdict – across all of XYZ near the solid, the
+// cube's own faces (where the shortcut's edge is), and an OKLCH sweep like the catalog strips'
+test('vis solid: the sRGB fast accept agrees with the full test', async () => {
+	const { inVisSolid, visSolid, visibleXYZ } = await import('../web/js/core.js')
+	const full = fullSolid(visSolid, visibleXYZ)
+	let seed = 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647   // Park–Miller: the same points every run
+	let n = 0, bad = 0
+	const chk = X => { n++; if (inVisSolid(...X) !== (X.every(isFinite) && full(...X))) bad++ }
+	for (let i = 0; i < 20000; i++) chk([rnd() * 110 - 5, rnd() * 110 - 5, rnd() * 120 - 5])
+	for (let i = 0; i < 20000; i++) { const c = [rnd(), rnd(), rnd()]; c[i % 3] = Math.round(c[i % 3]); chk(space.lrgb.xyz(...c)) }
+	for (let i = 0; i < 20000; i++) chk(space.oklch.xyz(rnd(), rnd() * 0.4, rnd() * 360))
+	is(bad, 0, `fast accept and full test agree on all ${n} samples`)
+	// the shortcut's own edges: black, white and every corner exactly; a hair past a face; no number at all
+	const corners = [0, 1].flatMap(r => [0, 1].flatMap(g => [0, 1].map(b => space.lrgb.xyz(r, g, b))))
+	is(corners.every(X => inVisSolid(...X)), true, 'all eight sRGB corners – black and white among them – are inside')
+	is(inVisSolid(...whitepoint[2].D65), full(...whitepoint[2].D65), 'tabulated D65 white: both tests agree')
+	for (const X of [space.lrgb.xyz(1 + 1e-9, 0.5, 0.5), space.lrgb.xyz(-1e-9, 0.5, 0.5), space.lrgb.xyz(0.5, 0.5, 1.5)]) chk(X)
+	is(bad, 0, 'just past a cube face, the full test decides')
+	is([NaN, Infinity, -Infinity].some(v => inVisSolid(v, 50, 50) || inVisSolid(50, v, 50) || inVisSolid(50, 50, v)), false, 'a non-finite coordinate is never a colour')
 })
 
 // inVisSolid is a support-function polytope that OUTER-approximates the zonoid over sampled

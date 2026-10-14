@@ -27,11 +27,13 @@ export const QI = {
 	pico8: fi(grid(4, .7)),
 	ansi: fi('<rect x="1" y="2" width="14" height="12" rx="1.5" opacity=".25"/><path d="M4 6l2.5 2L4 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="9.4" width="4" height="1.5"/>'),
 }
+// Surface (the object colors' reach) in the same frame – the hero's locus fills this very shape (js/locus.js frame back to xy)
+export const VIS16 = '4.97 13.76 4.58 13.44 3.87 12.2 3.27 10.17 2.78 7.13 2.85 4.47 3.65 3.43 5.71 4.4 7.61 6.03 9.45 7.75 11.01 9.15 11.87 10.01 12.42 10.56'
 export const LI = {
 	srgb: lim('<path d="M12.4 9.7 6.6 5.4 4.05 14z"/>'),
 	p3: lim('<path d="M13.1 9.9 6 4 4.05 14z"/>'),
 	rec2020: lim('<path d="M13.5 10.3 4.4 2.2 3.7 14.3z"/>'),
-	vis: lim('<path d="M4.97 13.76 4.58 13.44 3.87 12.2 3.27 10.17 2.78 7.13 2.85 4.47 3.65 3.43 5.71 4.4 7.61 6.03 9.45 7.75 11.01 9.15 11.87 10.01 12.42 10.56Z"/>'),
+	vis: lim(`<path d="M${VIS16}Z"/>`),
 	locus: lim(`<path d="${LOCUS}"/>`),
 }
 export const PI = {

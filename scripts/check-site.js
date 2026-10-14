@@ -50,15 +50,30 @@ try {
 	const dockAt=()=>page.evaluate(()=>{ const c=document.querySelector('.cx .cdw').getBoundingClientRect(), f=document.getElementById('hq').getBoundingClientRect(), r=document.getElementById('strip').getBoundingClientRect()
 		return { onField:Math.abs(c.top+c.height/2-(f.top+f.height/2))<2&&c.left>=f.left, inRow:c.top>=r.top&&c.bottom<=r.bottom } })
 	assert.equal((await dockAt()).onField, true, 'over the hero the color rests in the field')
-	const docked=()=>page.evaluate(()=>{ const i=getComputedStyle(document.querySelector('.hpaper>i')); return i.backgroundColor!=='rgba(0, 0, 0, 0)'&&i.borderTopColor!=='rgba(0, 0, 0, 0)' })
-	assert.equal(await docked(), false, 'over the hero the row is clear, with no edge')
+	// the row: full-bleed, its edge the window's width, paper under it always – fading out past its foot, the hero included
+	const bar=()=>page.evaluate(()=>{ const m=document.querySelector('.mhead'), e=getComputedStyle(m,'::before'), p=getComputedStyle(m,'::after'); return [Math.round(m.getBoundingClientRect().width)===document.documentElement.clientWidth||Math.round(m.getBoundingClientRect().width)===innerWidth, parseFloat(e.height)>0, +p.opacity] })
+	assert.deepEqual(await bar(), [true,true,0], 'over the hero: the row spans the window, its edge drawn, clear')
 	await page.evaluate(async()=>{ scrollTo(0,document.getElementById('hq').getBoundingClientRect().top+scrollY-120); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) })
 	assert.equal((await dockAt()).onField, true, 'scrolled, it rides with the field')
 	await page.evaluate(async()=>{ scrollTo(0,document.getElementById('cat').getBoundingClientRect().top+scrollY); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) })
 	assert.equal((await dockAt()).inRow, true, 'past the field it rests in the row')
 	await page.waitForTimeout(400)   // the stuck state is read after the scroll, and the paper eases in
-	assert.equal(await docked(), true, 'docked, the row has paper and an edge of the current color')
+	assert.deepEqual(await bar(), [true,true,1], 'docked: paper and its hairline')
 	await page.evaluate(()=>scrollTo(0,0))
+	// the hero's locus: only the horseshoe answers the pointer (its box's empty corner shows nothing); pointing inside shows
+	// the Limits' edges, the tightest under the pointer strongest, and changes nothing; a click picks that Limit – stored,
+	// filled – as the row's menu would
+	{ const box=await page.locator('.hlocus').boundingBox()
+	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])
+	  const st=()=>page.evaluate(()=>({ edges:getComputedStyle(document.querySelector('.hlocus .lims')).opacity, on:[...document.querySelectorAll('.hlocus .lims path.on')].map(e=>e.dataset.g).join(), gm:localStorage.csGm||'', fill:document.querySelector('#hl-lim path').getAttribute('d') }))
+	  await page.mouse.move(box.x+box.width-4,box.y+6); await page.waitForTimeout(300)
+	  assert.equal((await st()).edges,'0','the locus box outside the horseshoe does not answer the pointer')
+	  const before=await st(), [sx,sy]=await xy(.31,.33); await page.mouse.move(sx,sy); await page.waitForTimeout(300)
+	  const over=await st(); assert.deepEqual([over.edges,over.on,over.gm,over.fill===before.fill],['1','srgb',before.gm,true],'pointing shows the edges, sRGB under the pointer strongest – and picks nothing')
+	  await page.mouse.click(sx,sy); await page.waitForTimeout(300)
+	  const picked=await st(); assert.deepEqual([picked.gm,picked.fill!==before.fill],['srgb',true],'a click picks sRGB: stored and filled')
+	  await page.evaluate(()=>{ document.querySelector('.dpop [data-lens="g"][data-v="vis"]').click(); try{ localStorage.removeItem('csGm') }catch{} }); await page.mouse.move(2,2)   // back to the default Limit, through the row's own menu
+	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="locus"]').getAttribute('d')), true, 'Surface again: the horseshoe filled whole') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
@@ -126,7 +141,8 @@ try {
 	assert.notEqual(liveTier.immediate.thumb,liveTier.mid.thumb,'every visible slider picker follows a held drag immediately')
 	assert.notEqual(liveTier.immediate.thumbColor,liveTier.mid.thumbColor,'every visible slider picker color follows a held drag immediately')
 	assert.equal(liveTier.immediate.thumbColor.trim().toLowerCase(),liveTier.immediate.uiColor.toLowerCase(),'every visible picker wears the current displayed color')
-	assert.equal(liveTier.held.otherGradient,liveTier.immediate.otherGradient,'a held hand leaves the other spaces\' gradients still – the drag\'s frames go to the strip in hand')
+	assert.notEqual(liveTier.held.otherGradient,liveTier.immediate.otherGradient,'a held hand moves the other spaces\' gradients too – throttled, not held for the release')
+	assert.match(liveTier.held.otherGradient,/:8:(vis|off):/,'held secondary gradients take the low-cost guides – the drag\'s frames stay with the strip in hand')
 	assert.notEqual(liveTier.released.thumb,liveTier.beforeRelease.thumb,'release flushes the final picker position synchronously')
 	assert.notEqual(liveTier.released.otherGradient,liveTier.beforeRelease.otherGradient,'release repaints secondary gradients synchronously')
 	assert.match(liveTier.released.otherGradient,/:48:(vis|off):/,'released secondary sliders regain full-quality guides immediately')
@@ -226,7 +242,7 @@ try {
 		assert.equal(await nm.getAttribute('data-tip-head'), 'Björn Ottosson, 2020', 'card names carry the maker whole and the year as the tip\'s head')
 		assert.match(await nm.getAttribute('data-tip'), /CSS/, 'and what the space was made for') }
 	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /^polar\|.*perceptual\|perceptual/, 'and its tag chips, each with its icon key')
-	assert.equal(await page.locator('.fqa').count(), 10, 'the questions are all present')
+	assert.equal(await page.locator('.fqa').count(), 14, 'the questions are all present')
 	const fq = page.locator('.fqa').first()
 	await fq.locator('summary').click()
 	assert.equal(await fq.getAttribute('open'), '', 'a question unfolds')
@@ -540,6 +556,38 @@ try {
 	assert.match(await page.locator('#cval').inputValue(), /^oklab\(0\.6/, 'with the exact coordinates, in that notation')
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
+	// a plate's disc/square switch, there and back: the marker and the corner inks are the disc's own again – both were
+	// once placed and sampled before the plate repainted (the marker on the square's geometry, the letters inked from
+	// the square's corners)
+	await page.goto(`${server.origin}/hsluv?sw&cb=${Date.now()}#ff8000`, { waitUntil: 'networkidle' })
+	await page.waitForSelector('#modal:not([hidden]) .pl.polar .pmode')
+	const plate = () => page.evaluate(() => { const pl = document.querySelector('#detail .pl:has(.pmode)'), cx = pl.querySelector('.cx')
+		return [pl.classList.contains('polar'), cx.style.left, cx.style.top, ...['.laby', '.labx', '.pmode'].map(k => pl.querySelector(k).style.color)].join(' ') })
+	await page.waitForFunction(() => document.querySelector('#detail .pl.polar .laby')?.style.color)
+	await page.waitForTimeout(600)
+	const plate0 = await plate()
+	for (const polar of [false, true]) {
+		await page.locator('#detail .pl:has(.pmode) .pmode').first().click()
+		await page.waitForFunction(p => document.querySelector('#detail .pl:has(.pmode)').classList.contains('polar') === p, polar)
+		await page.waitForTimeout(600)
+	}
+	assert.equal(await plate(), plate0, 'disc → square → disc: the marker and the corner inks are the disc\'s own again')
+	await page.locator('#mx').click()
+	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
+	// a pole is a real color: HSL's L = 0 is black at every hue and saturation, so under a display limit the whole H × S
+	// slice paints solid, never as the ghost of a fold (gl.js sameGLSL); HWB's w + b > 100 fold still ghosts
+	const gm0 = await page.evaluate(() => { try { const g = localStorage.csGm; localStorage.csGm = 'srgb'; return g ?? null } catch { return null } })
+	const ghosts = async (path) => {
+		await page.goto(`${server.origin}/${path}`, { waitUntil: 'networkidle' })
+		await page.waitForFunction(() => document.querySelector('#modal:not([hidden]) #detail .pl .laby')?.style.color)
+		await page.waitForTimeout(600)
+		return page.evaluate(() => [...document.querySelectorAll('#detail .pl')].map(pl => { const cv = pl.querySelector('canvas'), d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data
+			let g = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 100 && d[i] < 160) g++
+			return g / (d.length / 4) }))
+	}
+	assert.ok((await ghosts(`hsl?sw&cb=${Date.now()}#000000`)).every(g => g < 0.01), 'HSL at black: every plate solid, no ghost')
+	assert.ok((await ghosts(`hwb?sw&cb=${Date.now()}#808080`)).every(g => g > 0.2), 'HWB at mid gray: the w + b > 100 fold still ghosts on every plate')
+	await page.evaluate(g => { try { g == null ? localStorage.removeItem('csGm') : localStorage.csGm = g } catch {} }, gm0)
 	await page.evaluate(() => location.hash = 'ff8000')   // hex notation back for the tests below
 
 	const mobile = await context.newPage()
@@ -740,7 +788,7 @@ try {
 	await lens(wire,'v','tritan'); await lens(wire,'v','none')
 	assert.deepEqual(await wire.evaluate(() => [document.documentElement.dataset.cvd, document.querySelectorAll('filter#cvd-tritan').length]), [undefined, 1], 'typical vision clears the lens; the defs mounted once')
 	// Cite: BibTeX + APA from CITATION.cff, the version package.json's
-	await wire.locator('.legal .cite').click()
+	await wire.locator('#ftr .cite').click()
 	await wire.waitForSelector('#citep:popover-open')
 	const cite = await wire.locator('#citep').innerText(), { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
 	assert.equal(cite.includes('title = {{color-space}}') && cite.includes(`version = {${version}}`), true, 'Cite: BibTeX carries the title and the package version')
@@ -763,7 +811,7 @@ try {
 	await embed.keyboard.press('Escape')
 	assert.equal(await embed.locator('#modal').isVisible(), true, 'Esc does not close an embedded card')
 	const hist = await embed.evaluate(() => history.length)
-	const famLink = embed.locator('#detail .fam a[href^="#"]').first(), famTo = (await famLink.getAttribute('href')).slice(1)
+	const famLink = embed.locator('#detail .fam a[href]').first(), famTo = await famLink.getAttribute('href')   // a space link is the space's own path (crawlable), not a #fragment
 	const [tab] = await Promise.all([wireContext.waitForEvent('page'), famLink.click()])
 	assert.equal(new URL(embed.url()).pathname === '/oklch' && await embed.evaluate(() => history.length) === hist, true, 'an in-card space link opens a new tab – the frame and its history stay put')
 	await tab.waitForURL((u) => u.protocol.startsWith('http'))

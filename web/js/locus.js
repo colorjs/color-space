@@ -11,6 +11,11 @@ const TICKS = [460, 480, 520, 540, 560, 580, 600]   // 500 would sit among the y
 const GAMUTS = [['rgb', 'sRGB'], ['p3', 'P3'], ['rec2020', 'Rec. 2020']]
 const D65 = [.3127, .329]   // CIE 15:2004 · IEC 61966-2-1
 const f = v => v.toFixed(1)
+/** A reference gamut's triangle as a path, from its shipped primaries ('' where it has none), over the mapping `P`. */
+export const gamutPath = (s, P) => { const p = primariesOf(s), pt = q => P(q).map(f).join(' '); return p ? `M${pt(p.r)}L${pt(p.g)}L${pt(p.b)}Z` : '' }
+
+/** The horseshoe itself, closed by the line of purples, as a path over the mapping `P`. */
+export const locusPath = P => 'M' + locus().map(q => P(q).map(f).join(' ')).join('L') + 'Z'
 
 /** The marks' SVG markup for a plate whose xy → user units mapping is `P` ([x, y] → [u, v], v down). */
 export function locusMarks(P) {
@@ -25,7 +30,7 @@ export function locusMarks(P) {
 	// triangles part (their green corners stand apart; their blue ones nearly meet)
 	const tri = ([s, name]) => { const p = primariesOf(s); if (!p) return ''
 		const g = P(p.g), b = P(p.b), q = [g[0] + (b[0] - g[0]) * .15, g[1] + (b[1] - g[1]) * .15], a = Math.atan2(g[1] - b[1], g[0] - b[0]) * 180 / Math.PI
-		return `<path class="lg" d="M${pt(p.r)}L${pt(p.g)}L${pt(p.b)}Z"/><text transform="translate(${f(q[0])} ${f(q[1])}) rotate(${f(a)})" y="-4" text-anchor="middle">${name}</text>` }
+		return `<path class="lg" data-g="${s}" d="${gamutPath(s, P)}"/><text class="lgn" data-g="${s}" transform="translate(${f(q[0])} ${f(q[1])}) rotate(${f(a)})" y="-4" text-anchor="middle">${name}</text>` }
 	const w = P(D65)
 	return `<path class="ll" d="M${L.map(pt).join('L')}"/><path class="lp" d="M${pt(L[L.length - 1])}L${pt(L[0])}"/>`
 		+ `<g class="lt">${TICKS.map(tick).join('')}</g>` + GAMUTS.map(tri).join('')

@@ -147,6 +147,13 @@ export function rtFaithful(s) {
 	return ok
 }
 
+// A round trip that misses on channel k is a fold only where k carries the color. At a pole – HSL's black and white,
+// any gray's hue – the channel is free: the address with k set back to its canonical value is the same color, so
+// every value of k is a real address of it, and the pole paints solid (a whole held slice at L = 0 is black, not a
+// ghost of black). A fold moves the color: HSM's mirror, HWB's w + b > 100 (its w alone set back changes the gray).
+// Same color = within ΔXYZ 0.02 + 0.2% (Y = 100 white): f32 noise, far under a visible step; NaN is never the same.
+const sameGLSL = (S, vt) => `bool same_(${vt} a, ${vt} b) { vec3 x = ${S}_xyz(a), y = ${S}_xyz(b); return length(x - y) <= 0.02 + 0.002 * length(x); }`
+
 function planeFS(s) {
 	const d = dimOf(s), vt = VT[d]
 	// Munsell's measured solid has a direct local-rim predicate in its LUT. Using
@@ -184,7 +191,7 @@ function planeFS(s) {
 			for (int k = 0; k < ${d}; k++) {
 				float dq = abs(bk[k] - v[k]);
 				${hueK >= 0 ? `if (k == ${hueK}) dq = min(dq, SPAN[k] - dq);` : ''}
-				if (!(dq <= SPAN[k] * 0.03)) al = 0.5;
+				if (!(dq <= SPAN[k] * 0.03)) { ${vt} w = v; w[k] = bk[k]; if (!same_(v, w)) al = 0.5; }
 			}
 		}`
 	const nativeRim = s === 'munsell' ? `
@@ -194,6 +201,7 @@ function planeFS(s) {
 precision highp float;
 precision highp int;
 ${lib}
+${faithful ? sameGLSL(san(s), vt) : ''}
 ${spans}
 ${locusGLSL()}
 ${namedGLSL()}
@@ -630,7 +638,7 @@ function presentKernel(cv2d, deferred) {
 		kernelPending = true; cv2d._glPending = true
 		let done = false, timer = 0
 		const drawSource = source => { if (cv2d._glRev === rev) {
-			ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(source, 0, 0) } }
+			ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(source, 0, 0); presented(cv2d) } }
 		const finish = (drain = true) => { if (done) return; done = true; clearTimeout(timer)
 			cv2d._glPending = false; kernelPending = false; if (drain) drainKernels() }
 		const failed = () => { if (done) return
@@ -644,9 +652,12 @@ function presentKernel(cv2d, deferred) {
 		try { createImageBitmap(CV).then(bitmap => { try { if (!done) drawSource(bitmap) }
 			finally { bitmap.close(); finish() } }, failed) }
 		catch { failed() }
-	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0) }
+	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0); presented(cv2d) }
 	return true
 }
+// a 'present' event on the canvas once the frame is in it: a deferred paint lands a task or more after its call, and
+// whatever reads the pixels (a label's ink) must read them then
+const presented = cv2d => cv2d.dispatchEvent(new Event('present'))
 
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false) {
 	if (!kernelTransfers) return false
@@ -1184,6 +1195,7 @@ void main() {
 precision highp float;
 precision highp int;
 ${glsl(capPairs)}
+${faithful ? sameGLSL(S, 'vec3') : ''}
 ${SOFT_DISP}
 in vec3 vV;
 uniform vec3 uMin, uMax;
@@ -1202,7 +1214,7 @@ void main() {
 	for (int k = 0; k < 3; k++) {
 		float d = abs(back[k] - vV[k]);
 		if (uMap.y == k) d = min(d, 360.0 - d);
-		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) discard;   // NaN fails too
+		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) { vec3 w = vV; w[k] = back[k]; if (!same_(vV, w)) discard; }   // NaN fails too; a pole stays (sameGLSL)
 	}` : `// canonical-roundtrip discard omitted: this space's inverse is approximate
 	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
 	O = vec4(softDisp(disp), 1.0);

@@ -1,0 +1,310 @@
+{
+  "@meta": {
+    "name": "Italiano",
+    "reviewed": null
+  },
+  "pl.about.by": {
+    "t": "di",
+    "h": "40815864"
+  },
+  "pl.about.label": {
+    "t": "Informazioni su Color Space",
+    "h": "801e0186"
+  },
+  "pl.about.support": {
+    "t": "Sostieni",
+    "h": "f32d5a3b"
+  },
+  "pl.about.tip": {
+    "t": "Informazioni",
+    "h": "6b21fb79"
+  },
+  "pl.alpha.field": {
+    "t": "Opacità in percentuale",
+    "h": "d4230810"
+  },
+  "pl.alpha.slider": {
+    "t": "Cursore dell’opacità",
+    "h": "eba4c9b9"
+  },
+  "pl.alpha.tip": {
+    "t": "Opacità, 0–100%. Trascina per regolare.",
+    "h": "16f4ce04"
+  },
+  "pl.axis.across": {
+    "t": "{name} in orizzontale",
+    "h": "ccfbeb87"
+  },
+  "pl.axis.around": {
+    "t": "{name} come angolo",
+    "h": "5b613827"
+  },
+  "pl.axis.out": {
+    "t": "{name} come raggio",
+    "h": "1965bef2"
+  },
+  "pl.axis.swap": {
+    "t": "{axis}. Fai clic per mostrare {other}",
+    "h": "689c399f"
+  },
+  "pl.axis.up": {
+    "t": "{name} in verticale",
+    "h": "1f2e239c"
+  },
+  "pl.ch.slider": {
+    "t": "Cursore {name}",
+    "h": "05035347"
+  },
+  "pl.ch.tip": {
+    "t": "{name}, {min}–{max}. Trascina per regolare.",
+    "h": "aae26ae2"
+  },
+  "pl.channels": {
+    "t": "Canali",
+    "h": "18e03e2a"
+  },
+  "pl.copy": {
+    "t": "Copia",
+    "h": "af74f7c5"
+  },
+  "pl.copy.done": {
+    "t": "Copiato",
+    "h": "8e3df45a"
+  },
+  "pl.copy.selected": {
+    "t": "Selezionato",
+    "h": "9a976fc2"
+  },
+  "pl.dot.edit": {
+    "t": "Modifica {what}",
+    "h": "ebb32732"
+  },
+  "pl.dot.paint": {
+    "t": "{layer}, {where}",
+    "h": "6d6831b8"
+  },
+  "pl.dot.src": {
+    "t": ", {type} {name}",
+    "h": "0c005667"
+  },
+  "pl.dots.others": {
+    "t": "altri colori selezionati",
+    "h": "41830e3b"
+  },
+  "pl.dots.pixels": {
+    "t": "pixel dell’immagine",
+    "h": "7125d5bd"
+  },
+  "pl.drop.label": {
+    "t": "Preleva un colore dallo schermo",
+    "h": "e43f8978"
+  },
+  "pl.drop.tip": {
+    "t": "Preleva dallo schermo",
+    "h": "f11091db"
+  },
+  "pl.empty.hint": {
+    "t": "Seleziona un livello con riempimento uniforme, sfumatura o immagine.",
+    "h": "6f0c0632"
+  },
+  "pl.empty.reading": {
+    "t": "Lettura dell’immagine…",
+    "h": "0f94976a"
+  },
+  "pl.err.dropper": {
+    "t": "Il contagocce non è disponibile qui.",
+    "h": "3625962f"
+  },
+  "pl.err.nocolor": {
+    "t": "Questi valori in {space} non corrispondono a nessun colore.",
+    "h": "016e93d5"
+  },
+  "pl.fmt.label": {
+    "t": "Formato",
+    "h": "041a5dec"
+  },
+  "pl.fmt.mapped": {
+    "t": "{value}: mappato in sRGB",
+    "h": "a1f3fded"
+  },
+  "pl.gamut.in": {
+    "t": "Rientra in {gamut}.",
+    "h": "c773cbdc"
+  },
+  "pl.gamut.out": {
+    "t": "Fuori da {gamut}, mappato nel gamut.",
+    "h": "a86a31a2"
+  },
+  "pl.gamut.out-tip": {
+    "t": "Fuori da {gamut}: viene scritto il colore più vicino in {gamut} (mappatura del gamut di CSS Color 4: croma ridotta a parità di chiarezza e tinta).",
+    "h": "9456689a"
+  },
+  "pl.gamut.snapped": {
+    "t": "Agganciato a {name}.",
+    "h": "5c74857c"
+  },
+  "pl.grip.label": {
+    "t": "Larghezza del pannello",
+    "h": "c9f20427"
+  },
+  "pl.limit": {
+    "t": "Limite",
+    "h": "24d948e4"
+  },
+  "pl.limit.file": {
+    "t": "Gamut del file",
+    "h": "e7cb55e0"
+  },
+  "pl.limit.file-is": {
+    "t": "{name} ({gamut})",
+    "h": "1fcfce27"
+  },
+  "pl.limit.file-tip": {
+    "t": "il gamut proprio del file",
+    "h": "e13926bb"
+  },
+  "pl.limit.tip": {
+    "t": "Limite: {name}, {tip}",
+    "h": "4181710c"
+  },
+  "pl.marks": {
+    "t": "Colori del documento",
+    "h": "b3146392"
+  },
+  "pl.menu.featured": {
+    "t": "In evidenza",
+    "h": "ae31ad5d"
+  },
+  "pl.menu.label": {
+    "t": "Spazi colore",
+    "h": "730220c3"
+  },
+  "pl.menu.more": {
+    "t": "Altri",
+    "h": "4bab2d8f"
+  },
+  "pl.menu.none": {
+    "t": "Nessuno spazio con questo nome",
+    "h": "caccce80"
+  },
+  "pl.menu.search": {
+    "t": "Cerca spazi",
+    "h": "8e797c41"
+  },
+  "pl.mode.square": {
+    "t": "Mostra come quadrato",
+    "h": "512e7c34"
+  },
+  "pl.mode.wheel": {
+    "t": "Mostra come ruota",
+    "h": "ee941269"
+  },
+  "pl.name.label": {
+    "t": "Nome del colore della palette",
+    "h": "848bb22a"
+  },
+  "pl.note.dev": {
+    "t": "Dev Mode è in sola lettura. Copia i valori qui sotto.",
+    "h": "b96e7905"
+  },
+  "pl.note.dots": {
+    "t": "I punti sono {list}.",
+    "h": "551ab9a8"
+  },
+  "pl.note.editing": {
+    "t": "Stai modificando la fonte ({type} {name}): cambia ogni livello che la usa.",
+    "h": "e5be5d80"
+  },
+  "pl.note.lossy": {
+    "t": "{space} non può rappresentare esattamente questo colore. Questi valori sono il suo equivalente più vicino in {space}; modificandoli viene scritto questo equivalente.",
+    "h": "3b5d84ef"
+  },
+  "pl.note.mixed": {
+    "t": "Il testo con riempimenti misti viene saltato. Seleziona un testo con un riempimento uniforme.",
+    "h": "faaa5eec"
+  },
+  "pl.note.more": {
+    "t": "Sono mostrati i primi {n} colori.",
+    "h": "12f4e326"
+  },
+  "pl.note.novalue": {
+    "t": "Questo colore non ha un valore in {space}.",
+    "h": "6785dd42"
+  },
+  "pl.note.remote": {
+    "t": "Questo colore proviene da una fonte ({type} {name}) che questo file non può modificare. Modificala dove è definita.",
+    "h": "0e0e08b2"
+  },
+  "pl.note.virtual": {
+    "t": "Seleziona un riempimento o una traccia per modificare un colore.",
+    "h": "137577e0"
+  },
+  "pl.paints": {
+    "t": "Colori nella selezione",
+    "h": "49f2849b"
+  },
+  "pl.picker": {
+    "t": "Selettore di colore",
+    "h": "b0220777"
+  },
+  "pl.plane.plane": {
+    "t": "Piano: {a} e {b}",
+    "h": "16031466"
+  },
+  "pl.plane.wheel": {
+    "t": "Ruota: {a} e {b}",
+    "h": "29862ab2"
+  },
+  "pl.profile.legacy": {
+    "t": "sRGB, legacy",
+    "h": "3704be8f"
+  },
+  "pl.profile.legacy-tip": {
+    "t": "Nessun profilo colore impostato (un file precedente alla gestione del colore): letto come sRGB",
+    "h": "b41363f4"
+  },
+  "pl.profile.tip": {
+    "t": "Profilo colore del file: valori in {name}",
+    "h": "9a8c47e4"
+  },
+  "pl.quant.565": {
+    "t": "16 bit",
+    "h": "dc40838b"
+  },
+  "pl.quant.tip": {
+    "t": "Quantizza: {name}, {tip}",
+    "h": "3099bfe2"
+  },
+  "pl.row.image": {
+    "t": "immagine",
+    "h": "0e762927"
+  },
+  "pl.row.src": {
+    "t": "{where}, fonte: {type} {name}",
+    "h": "4d82e4b1"
+  },
+  "pl.src.style": {
+    "t": "stile",
+    "h": "26ec8d00"
+  },
+  "pl.src.variable": {
+    "t": "variabile",
+    "h": "b46d0172"
+  },
+  "pl.where.fill": {
+    "t": "riempimento {n}",
+    "h": "36efc2ba"
+  },
+  "pl.where.hidden": {
+    "t": ", non visibile",
+    "h": "2b33630e"
+  },
+  "pl.where.stop": {
+    "t": ", stop {n}",
+    "h": "04957b4a"
+  },
+  "pl.where.stroke": {
+    "t": "traccia {n}",
+    "h": "376544d9"
+  }
+}

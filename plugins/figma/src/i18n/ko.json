@@ -1,0 +1,310 @@
+{
+  "@meta": {
+    "name": "한국어",
+    "reviewed": null
+  },
+  "pl.about.by": {
+    "t": "제작:",
+    "h": "40815864"
+  },
+  "pl.about.label": {
+    "t": "Color Space 정보",
+    "h": "801e0186"
+  },
+  "pl.about.support": {
+    "t": "프로젝트 후원하기",
+    "h": "f32d5a3b"
+  },
+  "pl.about.tip": {
+    "t": "정보",
+    "h": "6b21fb79"
+  },
+  "pl.alpha.field": {
+    "t": "불투명도(%)",
+    "h": "d4230810"
+  },
+  "pl.alpha.slider": {
+    "t": "불투명도 슬라이더",
+    "h": "eba4c9b9"
+  },
+  "pl.alpha.tip": {
+    "t": "불투명도, 0–100%. 끌어서 값 조절.",
+    "h": "16f4ce04"
+  },
+  "pl.axis.across": {
+    "t": "가로축: {name}",
+    "h": "ccfbeb87"
+  },
+  "pl.axis.around": {
+    "t": "각도: {name}",
+    "h": "5b613827"
+  },
+  "pl.axis.out": {
+    "t": "반지름: {name}",
+    "h": "1965bef2"
+  },
+  "pl.axis.swap": {
+    "t": "{axis}. 클릭하면 {other} 축으로 전환",
+    "h": "689c399f"
+  },
+  "pl.axis.up": {
+    "t": "세로축: {name}",
+    "h": "1f2e239c"
+  },
+  "pl.ch.slider": {
+    "t": "{name} 슬라이더",
+    "h": "05035347"
+  },
+  "pl.ch.tip": {
+    "t": "{name}, {min}–{max}. 끌어서 값 조절.",
+    "h": "aae26ae2"
+  },
+  "pl.channels": {
+    "t": "채널",
+    "h": "18e03e2a"
+  },
+  "pl.copy": {
+    "t": "복사",
+    "h": "af74f7c5"
+  },
+  "pl.copy.done": {
+    "t": "복사됨",
+    "h": "8e3df45a"
+  },
+  "pl.copy.selected": {
+    "t": "선택됨",
+    "h": "9a976fc2"
+  },
+  "pl.dot.edit": {
+    "t": "{what} 편집",
+    "h": "ebb32732"
+  },
+  "pl.dot.paint": {
+    "t": "{layer}, {where}",
+    "h": "6d6831b8"
+  },
+  "pl.dot.src": {
+    "t": ", {type} {name}",
+    "h": "0c005667"
+  },
+  "pl.dots.others": {
+    "t": "선택한 다른 색",
+    "h": "41830e3b"
+  },
+  "pl.dots.pixels": {
+    "t": "이미지 픽셀",
+    "h": "7125d5bd"
+  },
+  "pl.drop.label": {
+    "t": "화면에서 색 고르기",
+    "h": "e43f8978"
+  },
+  "pl.drop.tip": {
+    "t": "화면에서 고르기",
+    "h": "f11091db"
+  },
+  "pl.empty.hint": {
+    "t": "단색 채우기, 그레이디언트, 이미지 중 하나가 있는 레이어를 선택하세요.",
+    "h": "6f0c0632"
+  },
+  "pl.empty.reading": {
+    "t": "이미지를 읽는 중…",
+    "h": "0f94976a"
+  },
+  "pl.err.dropper": {
+    "t": "여기서는 스포이트를 쓸 수 없습니다.",
+    "h": "3625962f"
+  },
+  "pl.err.nocolor": {
+    "t": "이 {space} 값에 해당하는 색이 없습니다.",
+    "h": "016e93d5"
+  },
+  "pl.fmt.label": {
+    "t": "형식",
+    "h": "041a5dec"
+  },
+  "pl.fmt.mapped": {
+    "t": "{value}: sRGB로 색역 매핑됨",
+    "h": "a1f3fded"
+  },
+  "pl.gamut.in": {
+    "t": "{gamut} 안.",
+    "h": "c773cbdc"
+  },
+  "pl.gamut.out": {
+    "t": "{gamut} 밖, 안으로 매핑됨.",
+    "h": "a86a31a2"
+  },
+  "pl.gamut.out-tip": {
+    "t": "{gamut} 밖: 가장 가까운 {gamut} 색으로 기록합니다(CSS Color 4 색역 매핑: 명도와 색상은 그대로 두고 크로마를 줄임).",
+    "h": "9456689a"
+  },
+  "pl.gamut.snapped": {
+    "t": "{name}에 맞춤.",
+    "h": "5c74857c"
+  },
+  "pl.grip.label": {
+    "t": "패널 너비",
+    "h": "c9f20427"
+  },
+  "pl.limit": {
+    "t": "한계",
+    "h": "24d948e4"
+  },
+  "pl.limit.file": {
+    "t": "파일 색역",
+    "h": "e7cb55e0"
+  },
+  "pl.limit.file-is": {
+    "t": "{name} ({gamut})",
+    "h": "1fcfce27"
+  },
+  "pl.limit.file-tip": {
+    "t": "파일 자체의 색역",
+    "h": "e13926bb"
+  },
+  "pl.limit.tip": {
+    "t": "한계: {name}, {tip}",
+    "h": "4181710c"
+  },
+  "pl.marks": {
+    "t": "파일 안의 색",
+    "h": "b3146392"
+  },
+  "pl.menu.featured": {
+    "t": "주요",
+    "h": "ae31ad5d"
+  },
+  "pl.menu.label": {
+    "t": "색공간",
+    "h": "730220c3"
+  },
+  "pl.menu.more": {
+    "t": "기타",
+    "h": "4bab2d8f"
+  },
+  "pl.menu.none": {
+    "t": "그런 이름의 색공간이 없습니다",
+    "h": "caccce80"
+  },
+  "pl.menu.search": {
+    "t": "색공간 검색",
+    "h": "8e797c41"
+  },
+  "pl.mode.square": {
+    "t": "사각형으로 보기",
+    "h": "512e7c34"
+  },
+  "pl.mode.wheel": {
+    "t": "색상환으로 보기",
+    "h": "ee941269"
+  },
+  "pl.name.label": {
+    "t": "팔레트 색 이름",
+    "h": "848bb22a"
+  },
+  "pl.note.dev": {
+    "t": "Dev Mode는 읽기 전용입니다. 아래 값을 복사하세요.",
+    "h": "b96e7905"
+  },
+  "pl.note.dots": {
+    "t": "점은 {list}입니다.",
+    "h": "551ab9a8"
+  },
+  "pl.note.editing": {
+    "t": "{type} {name} 편집 중: 이를 사용하는 모든 레이어가 바뀝니다.",
+    "h": "e5be5d80"
+  },
+  "pl.note.lossy": {
+    "t": "{space} 색공간으로는 이 색을 정확히 담을 수 없습니다. 이 값은 가장 가까운 {space} 근사값이며, 편집하면 그 값이 기록됩니다.",
+    "h": "3b5d84ef"
+  },
+  "pl.note.mixed": {
+    "t": "채우기가 섞인 텍스트는 건너뜁니다. 채우기가 전체에서 같은 텍스트를 선택하세요.",
+    "h": "faaa5eec"
+  },
+  "pl.note.more": {
+    "t": "처음 {n}개 색만 표시합니다.",
+    "h": "12f4e326"
+  },
+  "pl.note.novalue": {
+    "t": "이 색에는 {space} 값이 없습니다.",
+    "h": "6785dd42"
+  },
+  "pl.note.remote": {
+    "t": "이 색은 {type} {name}에서 오며, 이 파일에서는 편집할 수 없습니다. 정의된 곳에서 편집하세요.",
+    "h": "0e0e08b2"
+  },
+  "pl.note.virtual": {
+    "t": "색을 편집하려면 채우기나 외곽선을 선택하세요.",
+    "h": "137577e0"
+  },
+  "pl.paints": {
+    "t": "선택 항목의 색",
+    "h": "49f2849b"
+  },
+  "pl.picker": {
+    "t": "색 선택기",
+    "h": "b0220777"
+  },
+  "pl.plane.plane": {
+    "t": "{a}·{b} 평면",
+    "h": "16031466"
+  },
+  "pl.plane.wheel": {
+    "t": "{a}·{b} 색상환",
+    "h": "29862ab2"
+  },
+  "pl.profile.legacy": {
+    "t": "sRGB(레거시)",
+    "h": "3704be8f"
+  },
+  "pl.profile.legacy-tip": {
+    "t": "색 프로파일 없음(색 관리 이전의 파일): sRGB로 읽습니다",
+    "h": "b41363f4"
+  },
+  "pl.profile.tip": {
+    "t": "파일의 색 프로파일: 값은 {name} 기준",
+    "h": "9a8c47e4"
+  },
+  "pl.quant.565": {
+    "t": "16비트",
+    "h": "dc40838b"
+  },
+  "pl.quant.tip": {
+    "t": "양자화: {name}, {tip}",
+    "h": "3099bfe2"
+  },
+  "pl.row.image": {
+    "t": "이미지",
+    "h": "0e762927"
+  },
+  "pl.row.src": {
+    "t": "{where}, 출처: {type} {name}",
+    "h": "4d82e4b1"
+  },
+  "pl.src.style": {
+    "t": "스타일",
+    "h": "26ec8d00"
+  },
+  "pl.src.variable": {
+    "t": "변수",
+    "h": "b46d0172"
+  },
+  "pl.where.fill": {
+    "t": "채우기 {n}",
+    "h": "36efc2ba"
+  },
+  "pl.where.hidden": {
+    "t": ", 숨김",
+    "h": "2b33630e"
+  },
+  "pl.where.stop": {
+    "t": ", 정지점 {n}",
+    "h": "04957b4a"
+  },
+  "pl.where.stroke": {
+    "t": "외곽선 {n}",
+    "h": "376544d9"
+  }
+}

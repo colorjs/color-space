@@ -229,7 +229,9 @@ export function buildIconFont(family = 'color-space icons', only = null) {   // 
 	let pua = 0xE000
 	const glyphs = []
 	for (const [set, icons] of Object.entries(ICONS)) {
-		const entries = typeof icons === 'string' ? [[set, icons]] : Object.entries(icons).filter(([, v]) => typeof v === 'string' && v.startsWith('<svg')).map(([k, v]) => [`${set}.${k}`, v])
+		// an icon is an SVG string; other exports (shape data, helpers) are not icons
+		const isIcon = v => typeof v === 'string' && v.startsWith('<svg')
+		const entries = typeof icons === 'string' ? (isIcon(icons) ? [[set, icons]] : []) : Object.entries(icons).filter(([, v]) => isIcon(v)).map(([k, v]) => [`${set}.${k}`, v])
 		for (const [key, svg] of entries) glyphs.push({ key, cp: SYMBOL[key] ?? pua++, ...glyph(svg) })
 	}
 	const kept = only ? glyphs.filter(g => only(g.key)) : glyphs

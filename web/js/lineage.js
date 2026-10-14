@@ -8,8 +8,8 @@
 // milestones are read off the data – CIE XYZ, CIELAB, sRGB, OKLab: their years from meta, their words from the lore.
 // A band answers the pointer within a few pixels (the bands are 3px) and draws its own milestone, the others' words
 // stepping back for it; a click, or Enter on a focused band (arrows move between them), opens its dossier. Live: the
-// bands wear the current color's OKLCH hue, the light a step of lightness – one custom property per color change; the
-// bands are written once. A superseded band's flag says why it ended, in the words of its @successor (a retired one, of its @retired).
+// bands wear the current color's OKLCH hue and, up to a cap, its chroma, the light a step of lightness – two custom
+// properties per color change; the bands are written once. A superseded band's flag says why it ended, in the words of its @successor (a retired one, of its @retired).
 import { meta } from './core.js'
 import { SPACES, sections, secName, disp, cap, ending, tagL } from './render.js'
 import LORE from './lore.js'
@@ -59,14 +59,15 @@ export function lineageHTML() {
 	// a band is a button named for its space; the one <title> (the tooltip) moves to the band picked. A band's shade is
 	// its light's, the same at every age – x already tells the age. The key: a swatch and a name per light, a toggle
 	return `<figure class="hl-fig" style="--hl-n:${LIGHT.length}" aria-label="${esc(t('ui.lineage.summary', '{n} color spaces as lines from the year each appeared, {from} to {to}. Arrow keys move between the spaces, Enter opens one.', { n: N, from: Y0, to: Y1 }))}">
+		<div class="hl-lead"><h2>${esc(t('ui.lineage.title', 'History'))}</h2></div>
 		<div class="hl-anns">${MS.map(m => `<button type="button" class="hl-ms${m.end ? ' end' : ''}${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--w:${m.w.toFixed(2)}">${flag(m.b)}</button>`).join('')}<span class="hl-ms hl-now" aria-hidden="true"></span></div>
 		<div class="hl-st"><svg class="hl-sv" viewBox="0 0 ${W} ${N}" preserveAspectRatio="none" style="--u:${N}" role="group">${MS.map(m => `<line class="hl-ld" data-s="${m.s}" x1="${+m.b.x.toFixed(2)}" x2="${+m.b.x.toFixed(2)}" y1="-3" y2="${m.b.row}"/>`).join('')}<line class="hl-ld hl-now" y1="-3"/>${BANDS.map(b => `<rect class="hl-b" x="${+b.x.toFixed(2)}" y="${b.row}" width="${+(b.e - b.x).toFixed(2)}" height="1" style="--k:${b.k}" data-s="${b.s}" role="button" tabindex="-1" aria-label="${esc(said(b))}"/>`).join('')}</svg>${MS.map(m => `<i class="hl-dm${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i>`).join('')}<i class="hl-dm hl-now"></i></div>
 		<div class="hl-ax" aria-hidden="true"><svg viewBox="0 0 ${W} 1" preserveAspectRatio="none"><path d="${DEC.map(d => `M${+X(d).toFixed(2)} 0V1`).join('')}"/></svg>${YRS.map((y, i) => `<span class="tnum${i ? i === YRS.length - 1 ? ' end' : near(y) ? ' near' : '' : ' start'}" style="--x:${(X(y) / W * 100).toFixed(2)}">${y}</span>`).join('')}</div>
 		<div class="hl-key">${LIGHT.map((l, k) => `<button type="button" class="hl-kd" data-k="${k}" aria-pressed="false" style="--k:${k}"><i></i>${esc(l())}</button>`).join('')}</div>
 	</figure>` }
 
-/** Wire the rendered section: the pointer's band, the keyboard, a pick opening its dossier (open). Returns paint(h) –
- *  the current OKLCH hue; a gray keeps the hue it had. */
+/** Wire the rendered section: the pointer's band, the keyboard, a pick opening its dossier (open). Returns paint(c, h) –
+ *  the current OKLCH chroma and hue: the bands are never more saturated than the color; a gray keeps the hue it had. */
 export function wireLineage(el, open) {
 	const fig = el.querySelector('.hl-fig'), sv = el.querySelector('.hl-sv')
 	const [fl, ld, dm] = fig.querySelectorAll('.hl-now')   // the picked band's flag, leader and rhombus
@@ -113,5 +114,7 @@ export function wireLineage(el, open) {
 	fig.addEventListener('focusin', e => { const b = e.target.closest?.('.hl-b'); if (!b) return
 		if (b !== tab) { tab.tabIndex = -1; tab = b; tab.tabIndex = 0 } pick(BAND.get(b.dataset.s)) })
 	fig.addEventListener('focusout', e => { if (!fig.contains(e.relatedTarget)) pick(null) })
-	let h0 = null
-	return (c, h) => { if ((c < .01 && h0 !== null) || !isFinite(h) || h === h0) return; h0 = h; el.style.setProperty('--hl-h', h.toFixed(1)) } }
+	let h0 = null, c0 = null
+	return (c, h) => { const cs = isFinite(c) ? c.toFixed(3) : '0'
+		if (cs !== c0) { c0 = cs; el.style.setProperty('--hl-cc', cs) }
+		if ((c < .01 && h0 !== null) || !isFinite(h) || h === h0) return; h0 = h; el.style.setProperty('--hl-h', h.toFixed(1)) } }

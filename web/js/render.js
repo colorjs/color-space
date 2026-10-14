@@ -12,13 +12,12 @@ import PURPOSE, { USE } from './purpose.js'
 import LORE from './lore.js'
 import { OI, PI, VI } from './icons.js'
 import REACH from './reach.js'
-import { t, slug, LANG } from './i18n.js'
+import { t, LANG } from './i18n.js'
+import { chEn, chKey } from './vocab.js'
+export { chEn, chKey }
 
 export const SPACES = Object.keys(space).filter(k => space[k] && space[k].name && meta[k] && meta[k].channels)
-// a channel's display name – English from the registry, translated as vocabulary (channel.<slug>)
-export const chEn = c => c.name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/(\s*\b(percentage|percent|angle in degrees|in degrees|axis|component|coordinate)\b\s*)+$/i, '').trim()
-// (a bare symbol – X, U, Z′ – is notation, not a word: it stays as it is)
-export const chKey = c => { const en = chEn(c); return /\p{L}{2}/u.test(en) ? 'channel.' + slug(en) : null }
+// a channel's display name in the page's language (web/js/vocab.js keys it)
 export const cname = c => { const k = chKey(c), en = chEn(c); return k ? t(k, en) : en }
 // display name — data.json's spaces[id].title, the one source this page, the prerender and the MCP
 // server share (scripts/generate-data.js: each description's own "Name — …", pinned where it opens
@@ -113,7 +112,9 @@ export const LIMIT = 'vis'
 export const limitFor = (cls, gm = LIMIT) => cls.ch.length > 1 ? gm : gm === 'vis' || gm === 'locus' ? 'off' : gm
 const valsAt = (s, st) => { if (!st) return null; try { return s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { return null } }
 const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.hx}" data-g="${st.hx}:0:${n}:${limitFor(cls)}"` : ''} style="--nch:${cls.ch.length}"`
-const nameBtn = s => `<button class="nm" type="button" data-tip-head="${entHead(s)}" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</button>`
+// a name is a real link to the space's own document (relative, so /de/ pages stay in German) – crawlable, and
+// middle/⌘-click opens a tab; a plain click opens the dossier in place (index.html's space-link listener)
+const nameLink = s => `<a class="nm" href="${s}" draggable="false" data-tip-head="${entHead(s)}" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</a>`
 const field = (s, c2, i, vals) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}></span>`
 const strip = (s, c2, i, vals, st, n) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${vals ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, n, limitFor(classify(s))).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${vals ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${t('ui.card.slider', '{name} slider', { name: cname(c2) })}"></div>`
 const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12
@@ -121,13 +122,13 @@ const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n 
 	const nums = `<span class="cvs">${cls.ch.map((c2, i) => field(s, c2, i, vals)).join('')}</span>`
 	const strips = `<div class="chs">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, n)).join('')}</div>`
 	return `<article class="ent ${lead ? 'lc' : 'tc'}" ${entAttrs(s, cls, vals, st, n)}>
-	 <header class="eh">${nameBtn(s)}${head}</header>
+	 <header class="eh">${nameLink(s)}${head}</header>
 	 ${lead ? `<div class="pv">${strips}${pairsOf(cls).length ? `<button type="button" class="pvs" aria-pressed="false" title="${t('ui.card.planes', 'Planes')}" aria-label="${t('ui.card.planes-label', 'Show {name} as planes', { name: disp(s) })}">${PI.planes}</button>` : ''}</div>${nums}` : strips + nums}
 	</article>` }
 // Rows: one line per space – who and why on the left, a strip per channel at full width with its number
 const row = (s, st) => { const cls = classify(s), vals = valsAt(s, st), story = lede(s)
 	return `<article class="ent lr" ${entAttrs(s, cls, vals, st, 48)}>
-	 <div class="li"><header class="eh">${nameBtn(s)}</header><span class="by">${byline(s)}</span>${story ? `<p class="for">${story}</p>` : ''}</div>
+	 <div class="li"><header class="eh">${nameLink(s)}</header><span class="by">${byline(s)}</span>${story ? `<p class="for">${story}</p>` : ''}</div>
 	 <div class="chs">${cls.ch.map((c2, i) => `<div class="lch"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym}</i>${strip(s, c2, i, vals, st, 48)}${field(s, c2, i, vals).replace(/<i class="cl"[^>]*>[^<]*<\/i>/, '')}</div>`).join('')}</div>
 	</article>` }
 // List: the spec sheet – a mini sweep of every channel, then the facts; each column sorts the whole catalog. The kinds
@@ -148,7 +149,7 @@ const CELL = { cov: s => REACH[s] ? `${Math.round(REACH[s][0] * 100)}%` : '', ge
 const colName = k => ({ name: t('ui.col.name', 'Name'), year: t('ui.col.year', 'Year'), by: t('ui.col.by', 'Made by'), ch: t('ui.col.channels', 'Channels'),
 	cov: t('ui.cell.coverage', 'Coverage'), geo: t('ui.col.shape', 'Shape'), curve: t('ui.col.curve', 'Curve'), sig: t('ui.cell.signal', 'Signal'), range: t('ui.col.range', 'Range'), white: t('ui.col.white', 'White') })[k]
 const trow = (s, st) => { const cls = classify(s), vals = valsAt(s, st)
-	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s)}</td>` : `<th scope="row" class="c-name">${nameBtn(s)}</th>`).join('')}<td class="c-kind">${['geo', 'curve', 'sig', 'range'].map(k => kindIcon(k, s)).join('')}</td></tr>` }
+	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s)}</td>` : `<th scope="row" class="c-name">${nameLink(s)}</th>`).join('')}<td class="c-kind">${['geo', 'curve', 'sig', 'range'].map(k => kindIcon(k, s)).join('')}</td></tr>` }
 const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead><tr><th class="tsw"><span class="sr">${t('ui.col.preview', 'Preview')}</span></th>${COLS.map(([k]) => `<th scope="col" class="c-${k}" aria-sort="${sort?.k === k ? (sort.d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${colName(k)}${sort?.k === k ? `<span aria-hidden="true">${sort.d > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}<th scope="col" class="c-kind"><span class="sr">${['geo', 'curve', 'sig', 'range'].map(colName).join(' · ')}</span></th></tr></thead><tbody>${spaces.map(s => trow(s, st)).join('')}</tbody></table></div>`
 // a list sorted by a column: every space in one shelf, in that order
 export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]

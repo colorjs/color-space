@@ -14,7 +14,6 @@ import { catHTML, sections, SPACES, DEFAULT, LIMIT, nextView, fpOf, disp } from 
 import { LI } from '../web/js/icons.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
-import { iconURL, START } from '../web/js/favicon.js'
 import { t, use } from '../web/js/i18n.js'
 import { apply } from './i18n.js'
 
@@ -83,13 +82,12 @@ const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { nn: spa
 const counts = (h) => h.replace(/(<span id="(nn|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
 
 export function build(out = join(root, '_site'), i18n) {
-// ── index.html: static catalog + live counts + version (from the web/ source) ──
+// ── index.html: static catalog + live counts (from the web/ source) ──
 let html = readFileSync(join(root, 'web/index.html'), 'utf8')
 const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not found: ${re}`); html = html.replace(re, repl) }
 // the catalog ships COMPLETE, in English here (stampPages re-bakes it per language)
 const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
-inject(/(<a class="ver tnum" id="ver"[^>]*>)[^<]*(<\/a>)/, `$1v${version}$2`)
 for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
 // the current-color rhombus + value carry the DEFAULT color from the first frame —
 // an unvalued <input type=color> paints BLACK until the module lands
@@ -100,8 +98,6 @@ inject(/(<input id="cval")/, `$1 value="${dhx}"`)
 // the default Limit's, the layout's the view a first visit turns to (the page opens in grid)
 inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
 { const n = nextView('grid'); inject(/(<button class="cell lens" type="button" id="c-layout")([^>]*><span class="ci">)(<\/span>)/, (m, a, b, c) => `${a} data-view="${n.v}"${b}${n.ic}${c}`) }
-// the favicon's first frame – the cloud before the module turns it (js/favicon.js)
-inject(/<link rel="icon" href="[^"]*">/, () => `<link rel="icon" href="${iconURL(START)}">`)
 // the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset — Google Dataset Search reaches the science
@@ -126,7 +122,7 @@ const line = s => { const m = meta[s] || {}
 	const ref = m.refs?.[0] ? ` | ref: ${m.refs[0]}` : ''
 	return `- ${s} — ${desc}${org} | channels: ${ch}${ref}` }
 const installName = version.includes('-') ? 'color-space@next' : 'color-space'
-const llms = `# color-space — ${spaceCount} color spaces, one tiny JS API
+const llms = `# color-space — ${spaceCount} color spaces, one JavaScript API
 
 > Converts colors between ${spaceCount} spaces using each space's conventional ranges
 > (what CSS and the defining papers use). All ${spaceCount} spaces are test-pinned: most by an
@@ -195,7 +191,10 @@ const head = (h, L, s, i18n) => {
 // one space's document from its language's index
 const spaceDoc = (html, s) => {
 	const desc = t(`space.${s}.desc`, meta[s]?.description || '').replace(/\s+/g, ' ').trim()
-	const short = desc.length > 155 ? desc.slice(0, 152).replace(/\s+\S*$/, '') + '…' : desc
+	// whole sentences up to a snippet's ~160 characters – never a cut mid-thought; a longer first sentence stays whole
+	// and search trims it, not us (a sentence ends at . ! ? before a capital – 'Rec. 709' doesn't – or at 。！？)
+	const sents = desc.split(/(?<=[.!?])\s+(?=\p{Lu})|(?<=[。！？])/u)
+	const short = sents.reduce((a, x) => !a || (a + ' ' + x).length <= 160 ? (a ? a + (/[。！？]$/.test(a) ? '' : ' ') : '') + x : a, '')
 	// searchers use the display name ("S-Gamut3.Cine"), not the slug — disp() is the
 	// site-wide derivation (description leader + pinned names); LUT-capable spaces
 	// name the artifact people actually search for

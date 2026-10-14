@@ -185,8 +185,18 @@ export function visSolid() {
 }
 /** Is this XYZ a colour a surface can show under D65 — the human solid the 3D view draws?
  *  The 0.2% slack absorbs the gap between this 2 nm integration and the tabulated white. */
+// Fast accept, exact: the sRGB cube lies inside the solid (test/cie.js pins it) and both are convex, so a colour linear
+// sRGB holds in [0,1] needs neither the locus nor the 512 planes – most of a strip's probes are such colours.
+// The map is the library's own xyz → lrgb, read off its basis once.
+let XL = null
+const inSRGB = (X, Y, Z) => {
+	const [r, g, b] = XL ??= [space.xyz.lrgb(1, 0, 0), space.xyz.lrgb(0, 1, 0), space.xyz.lrgb(0, 0, 1)]
+	for (let i = 0; i < 3; i++) { const u = r[i] * X + g[i] * Y + b[i] * Z; if (!(u >= 0 && u <= 1)) return false }
+	return true
+}
 export const inVisSolid = (X, Y, Z) => {
 	if (!(isFinite(X) && isFinite(Y) && isFinite(Z))) return false
+	if (inSRGB(X, Y, Z)) return true
 	if (!visibleXYZ(X, Y, Z)) return false   // the solid lives INSIDE the locus – its convex outer hull alone would admit slightly-imaginary neighbours
 	for (const [ux, uy, uz, h] of visSolid()) if (ux * X + uy * Y + uz * Z > h * 1.002) return false
 	return true

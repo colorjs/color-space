@@ -1,0 +1,310 @@
+{
+  "@meta": {
+    "name": "Türkçe",
+    "reviewed": null
+  },
+  "pl.about.by": {
+    "t": "Geliştiren:",
+    "h": "40815864"
+  },
+  "pl.about.label": {
+    "t": "Color Space hakkında",
+    "h": "801e0186"
+  },
+  "pl.about.support": {
+    "t": "Destekleyin",
+    "h": "f32d5a3b"
+  },
+  "pl.about.tip": {
+    "t": "Hakkında",
+    "h": "6b21fb79"
+  },
+  "pl.alpha.field": {
+    "t": "Opaklık, yüzde",
+    "h": "d4230810"
+  },
+  "pl.alpha.slider": {
+    "t": "Opaklık kaydırıcısı",
+    "h": "eba4c9b9"
+  },
+  "pl.alpha.tip": {
+    "t": "Opaklık, %0–100. Değiştirmek için sürükleyin.",
+    "h": "16f4ce04"
+  },
+  "pl.axis.across": {
+    "t": "Yatayda {name}",
+    "h": "ccfbeb87"
+  },
+  "pl.axis.around": {
+    "t": "Çember boyunca {name}",
+    "h": "5b613827"
+  },
+  "pl.axis.out": {
+    "t": "Yarıçap boyunca {name}",
+    "h": "1965bef2"
+  },
+  "pl.axis.swap": {
+    "t": "{axis}. {other} ile değiştirmek için tıklayın",
+    "h": "689c399f"
+  },
+  "pl.axis.up": {
+    "t": "Dikeyde {name}",
+    "h": "1f2e239c"
+  },
+  "pl.ch.slider": {
+    "t": "{name} kaydırıcısı",
+    "h": "05035347"
+  },
+  "pl.ch.tip": {
+    "t": "{name}, {min}–{max}. Değiştirmek için sürükleyin.",
+    "h": "aae26ae2"
+  },
+  "pl.channels": {
+    "t": "Kanallar",
+    "h": "18e03e2a"
+  },
+  "pl.copy": {
+    "t": "Kopyala",
+    "h": "af74f7c5"
+  },
+  "pl.copy.done": {
+    "t": "Kopyalandı",
+    "h": "8e3df45a"
+  },
+  "pl.copy.selected": {
+    "t": "Seçildi",
+    "h": "9a976fc2"
+  },
+  "pl.dot.edit": {
+    "t": "Düzenle: {what}",
+    "h": "ebb32732"
+  },
+  "pl.dot.paint": {
+    "t": "{layer}, {where}",
+    "h": "6d6831b8"
+  },
+  "pl.dot.src": {
+    "t": ", {type} {name}",
+    "h": "0c005667"
+  },
+  "pl.dots.others": {
+    "t": "seçili diğer renkler",
+    "h": "41830e3b"
+  },
+  "pl.dots.pixels": {
+    "t": "görüntü pikselleri",
+    "h": "7125d5bd"
+  },
+  "pl.drop.label": {
+    "t": "Ekrandan renk seç",
+    "h": "e43f8978"
+  },
+  "pl.drop.tip": {
+    "t": "Ekrandan seç",
+    "h": "f11091db"
+  },
+  "pl.empty.hint": {
+    "t": "Düz dolgu, gradyan ya da görüntü içeren bir katman seçin.",
+    "h": "6f0c0632"
+  },
+  "pl.empty.reading": {
+    "t": "Görüntü okunuyor…",
+    "h": "0f94976a"
+  },
+  "pl.err.dropper": {
+    "t": "Damlalık burada kullanılamıyor.",
+    "h": "3625962f"
+  },
+  "pl.err.nocolor": {
+    "t": "Bu {space} değerleri hiçbir renge karşılık gelmiyor.",
+    "h": "016e93d5"
+  },
+  "pl.fmt.label": {
+    "t": "Biçim",
+    "h": "041a5dec"
+  },
+  "pl.fmt.mapped": {
+    "t": "{value}: sRGB gamutuna eşlendi",
+    "h": "a1f3fded"
+  },
+  "pl.gamut.in": {
+    "t": "{gamut} içinde.",
+    "h": "c773cbdc"
+  },
+  "pl.gamut.out": {
+    "t": "{gamut} dışında, içine eşlendi.",
+    "h": "a86a31a2"
+  },
+  "pl.gamut.out-tip": {
+    "t": "{gamut} dışında: en yakın {gamut} rengi olarak yazıldı (CSS Color 4 gamut eşleme: aynı açıklık ve renk tonunda kroma azaltılır).",
+    "h": "9456689a"
+  },
+  "pl.gamut.snapped": {
+    "t": "Yaslandı: {name}.",
+    "h": "5c74857c"
+  },
+  "pl.grip.label": {
+    "t": "Panel genişliği",
+    "h": "c9f20427"
+  },
+  "pl.limit": {
+    "t": "Sınır",
+    "h": "24d948e4"
+  },
+  "pl.limit.file": {
+    "t": "Dosya gamutu",
+    "h": "e7cb55e0"
+  },
+  "pl.limit.file-is": {
+    "t": "{name} ({gamut})",
+    "h": "1fcfce27"
+  },
+  "pl.limit.file-tip": {
+    "t": "dosyanın kendi gamutu",
+    "h": "e13926bb"
+  },
+  "pl.limit.tip": {
+    "t": "Sınır: {name}, {tip}",
+    "h": "4181710c"
+  },
+  "pl.marks": {
+    "t": "Belgenin renkleri",
+    "h": "b3146392"
+  },
+  "pl.menu.featured": {
+    "t": "Öne çıkanlar",
+    "h": "ae31ad5d"
+  },
+  "pl.menu.label": {
+    "t": "Renk uzayları",
+    "h": "730220c3"
+  },
+  "pl.menu.more": {
+    "t": "Diğer",
+    "h": "4bab2d8f"
+  },
+  "pl.menu.none": {
+    "t": "Bu adla bir uzay yok",
+    "h": "caccce80"
+  },
+  "pl.menu.search": {
+    "t": "Uzay ara",
+    "h": "8e797c41"
+  },
+  "pl.mode.square": {
+    "t": "Kare olarak göster",
+    "h": "512e7c34"
+  },
+  "pl.mode.wheel": {
+    "t": "Çember olarak göster",
+    "h": "ee941269"
+  },
+  "pl.name.label": {
+    "t": "Paletteki renk adı",
+    "h": "848bb22a"
+  },
+  "pl.note.dev": {
+    "t": "Dev Mode salt okunurdur. Aşağıdaki değerleri kopyalayın.",
+    "h": "b96e7905"
+  },
+  "pl.note.dots": {
+    "t": "Noktalar: {list}.",
+    "h": "551ab9a8"
+  },
+  "pl.note.editing": {
+    "t": "Düzenleniyor: {type} {name}. Onu kullanan tüm katmanlar değişir.",
+    "h": "e5be5d80"
+  },
+  "pl.note.lossy": {
+    "t": "{space} bu rengi tam olarak tutamaz. Bu değerler en yakın {space} karşılığıdır; düzenlediğinizde bu karşılık yazılır.",
+    "h": "3b5d84ef"
+  },
+  "pl.note.mixed": {
+    "t": "Karışık dolgulu metin atlanır. Dolgusu baştan sona aynı olan bir metin seçin.",
+    "h": "faaa5eec"
+  },
+  "pl.note.more": {
+    "t": "İlk {n} renk gösteriliyor.",
+    "h": "12f4e326"
+  },
+  "pl.note.novalue": {
+    "t": "Bu rengin {space} değeri yok.",
+    "h": "6785dd42"
+  },
+  "pl.note.remote": {
+    "t": "Bu rengin kaynağı {type} {name}; bu dosya onu düzenleyemez. Tanımlandığı yerde düzenleyin.",
+    "h": "0e0e08b2"
+  },
+  "pl.note.virtual": {
+    "t": "Bir rengi düzenlemek için bir dolgu ya da kontur seçin.",
+    "h": "137577e0"
+  },
+  "pl.paints": {
+    "t": "Seçimdeki renkler",
+    "h": "49f2849b"
+  },
+  "pl.picker": {
+    "t": "Renk seçici",
+    "h": "b0220777"
+  },
+  "pl.plane.plane": {
+    "t": "{a} ve {b} düzlemi",
+    "h": "16031466"
+  },
+  "pl.plane.wheel": {
+    "t": "{a} ve {b} çemberi",
+    "h": "29862ab2"
+  },
+  "pl.profile.legacy": {
+    "t": "sRGB, eski dosya",
+    "h": "3704be8f"
+  },
+  "pl.profile.legacy-tip": {
+    "t": "Renk profili ayarlanmamış (renk yönetiminden önceki bir dosya): sRGB olarak okunur",
+    "h": "b41363f4"
+  },
+  "pl.profile.tip": {
+    "t": "Dosyanın renk profili: değerler {name} uzayında",
+    "h": "9a8c47e4"
+  },
+  "pl.quant.565": {
+    "t": "16 bit",
+    "h": "dc40838b"
+  },
+  "pl.quant.tip": {
+    "t": "Nicemleme: {name}, {tip}",
+    "h": "3099bfe2"
+  },
+  "pl.row.image": {
+    "t": "görüntü",
+    "h": "0e762927"
+  },
+  "pl.row.src": {
+    "t": "{where}, kaynak: {type} {name}",
+    "h": "4d82e4b1"
+  },
+  "pl.src.style": {
+    "t": "stil",
+    "h": "26ec8d00"
+  },
+  "pl.src.variable": {
+    "t": "değişken",
+    "h": "b46d0172"
+  },
+  "pl.where.fill": {
+    "t": "dolgu {n}",
+    "h": "36efc2ba"
+  },
+  "pl.where.hidden": {
+    "t": ", gizli",
+    "h": "2b33630e"
+  },
+  "pl.where.stop": {
+    "t": ", durak {n}",
+    "h": "04957b4a"
+  },
+  "pl.where.stroke": {
+    "t": "kontur {n}",
+    "h": "376544d9"
+  }
+}

@@ -5,6 +5,8 @@ color-space's 168 color spaces: a plane of two channels over a bar for each one,
 per pixel on the GPU and cut to the file's gamut. You can drag, type or step the values,
 and copy the color as CSS.
 
+Install it from the Figma Community: [Color Space](https://www.figma.com/community/plugin/1691970922817908383/color-space).
+
 The plugin lives in this repository but isn't part of the npm package: package.json
 `"files"` doesn't list `plugins/`.
 
@@ -33,7 +35,15 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   at one lightness (Lab, OSA-UCS…). A hue paired with chroma or saturation is drawn as the
   space's wheel. The axis letters in the plane's corners are buttons: a click swaps that axis
   for the channel held (the tip names it), so C×L becomes H×L with one click on C. A wheel's
-  corner holds the site's wheel/square switch. Both choices are saved per space.
+  corner holds the site's wheel/square switch. Both choices are saved per space. As on the
+  site's planes, a pinch (or ⌃ wheel) zooms a square plane about the pointer, the wheel pans
+  it once zoomed, and a double click shows the whole again; a wheel has no zoom. Holding ⌘
+  (Ctrl elsewhere) during a drag on the plane or a bar moves the pick a tenth as far as the
+  pointer, for fine placement; letting go of ⌘ keeps the offset it built, so the pick never
+  jumps back under the pointer. The wheel/square switch is the site's: a crossed circle, or
+  in a wheel a crossed square. The letters and the switch sit at one inset from their corners
+  and take the ink of what shows under them, black or white: the plane's pixels sampled once
+  painted, a translucent or empty corner read over the backdrop it shows through.
 - **One bar per channel.** Each bar sweeps its channel with the others held, so it shows
   what moving it would do. Drag the thumb, use the arrow keys (1% a press; Page Up/Down
   10%), or type the exact value in the field beside it.
@@ -113,11 +123,13 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   shown but locked: edit them in their library.
 - **Eyedropper.** Where the browser has the EyeDropper API, a button picks any pixel on
   screen into the current paint (through the active palette lens, if any).
-- **Copies CSS.** There are two copy fields, each with a copy button:
-  - `oklch(L C H / a)`, at three digits: L and C to three decimals, the hue to three
-    significant digits (`src/notation.js`; at most 0.004 ΔEOK from the unrounded color,
-    a fifth of a JND, which the test checks over 4000 colors)
-  - `color(display-p3 r g b / a)` in P3 files, or `#rrggbb[aa]` in sRGB files
+- **Copies CSS in one format.** Figma's way: a format select (OKLCH, OKLab, LCH, Lab, P3,
+  HSL, HWB, RGB, Hex; saved), the value, and its copy button inside the field. The value
+  comes from `src/notation.js`, the same code as the Code panel's: `oklch()` and `oklab()`
+  at three digits (L and C to three decimals, the hue to three significant digits; at most
+  0.004 ΔEOK from the unrounded color, a fifth of a JND, which the test checks over 4000
+  colors), the alpha in whole percent as Figma keeps it. The sRGB-only formats (RGB, HSL,
+  HWB, Hex) gamut-map a wider P3 color into sRGB, and the field's tooltip says so.
 - **Follows Figma's theme.** It opens with `showUI({ themeColors: true })` and uses only
   Figma's `--figma-color-*` variables for color. It takes spacing and type from the
   atlas's own tokens (`web/tokens.css`).
@@ -140,18 +152,27 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   sampled in the UI (the atlas's `extract.js`, ≤ 96 px a side) after the picker has drawn:
   every distinct color is a dot on the plane, as on the dossier, as opaque as the pixels
   sharing it, on its own full-resolution layer; their coordinates are computed in slices
-  across frames, so the picker never waits on them. With only an image selected, its pixel
+  across frames, so the picker never waits on them. Each channel's bar shows the image's
+  histogram of that channel too (the site's strip recipe: weighted by pixel count, scaled to
+  the 97th percentile), over the bar's field, or over a plain fill when the image is
+  selected alone. The plane and its dots render at up to 1024 px, so a widened panel stays
+  sharp. With only an image selected, its pixel
   nearest the mean (OkLab) stands in for a paint: the picker explores it and the CSS fields
   copy it, but nothing is written.
-- **The other colors.** The selection's other colors and the file's local color variables
-  (every mode's value) are faint 6 px dots on the plane, where each sits in this slice of the
-  space; nothing else on the page is marked. A gradient's stops are joined in order by a soft
-  white line, through the knob when a stop is current. Hovering a dot names where its color
-  lives (the layer and its fill, stroke or stop; the variable); a click writes that color.
-  The selection's dots follow edits at once; the variables refresh after each commit. A
-  short legend under the copy fields says which kinds of dots are showing ("Dots: other
-  selected colors, color variables, image pixels.").
-- **Relaunch button.** A layer the plugin has edited gets a "color-space" button in its
+- **The other colors.** The selection's other colors are faint 6 px dots on the plane, where
+  each sits in this slice of the space; nothing outside the selection is marked, the file's
+  variables included. A gradient is a soft white line through its
+  actual colors: the colors between each pair of stops mixed channel by channel in the
+  file's RGB, as Figma blends them (a linear sRGB-encoded mix, reported on
+  [Figma's forum](https://forum.figma.com/t/perceptual-gradients/11205); not in Figma's
+  docs), each placed on the plane, so the line bends wherever the space does. Hovering a
+  dot names where its color lives (the layer and its fill, stroke or stop, and its variable
+  or style). A press on a dot takes that paint up: it becomes the current paint, writing
+  nothing, and a drag from it moves it, in one undo step. The dots follow edits at once. A
+  short legend under the copy fields says which kinds of dots are showing ("Dots are other
+  selected colors and image pixels.", the list joined in the panel's
+  language by `Intl.ListFormat`); the notes run on as one paragraph.
+- **Relaunch button.** A layer the plugin has edited gets a "Color Space" button in its
   properties panel (`setRelaunchData`) that reopens the plugin on it.
 - **Follows live edits.** If you edit a selected layer's fills or strokes while the
   plugin is open, it picks up the change. It listens for `nodechange` on the current page.
@@ -159,16 +180,38 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   `loadAllPagesAsync`.
 - **Fits its content, any width.** The panel reports its height and the window follows it;
   during a drag the window only grows and settles on release. It opens 288 px wide; the grip
-  on its right edge (or its arrow keys) sets the width from 240 to 560 px, the plane growing
-  with it, and the width is saved.
+  in its bottom-right corner, two straight ticks ending 3 px from the bottom and the right
+  edge, taking presses only in the corner's triangle (or its arrow keys),
+  sets the width from 240 to 560 px, the plane growing with it, and the width is saved. The
+  height can't be set apart: it is the content's, and the plane is square. It is measured
+  from the content itself (the lowest laid-out part), not the document or the body, so a
+  host stylesheet holding those at the window's height can't keep a shrinking panel tall. The grip is a gesture like the
+  picker's: a release outside the panel that Figma's frame never reports ends it at the
+  next move.
+- **Speaks the browser's language.** Figma doesn't tell a plugin its interface language, so
+  the panel goes by the browser's first language (Figma desktop's is the system's), only
+  that one: a later preference never switches it. German, French, Spanish, Italian,
+  Portuguese, Russian, Turkish, Hindi, Japanese, Korean and Simplified Chinese have tables;
+  anything else is English. Arabic isn't offered: the panel is laid out left to right. The
+  panel's own words are in `src/i18n/<lang>.json` (the site's format; `build.js` writes
+  `src/i18n/en.json` from the call sites); the words it shares with the site (lens names,
+  families, channel names) come from `web/i18n/`. Only fresh, valid translations ship, and
+  a language ships once nearly all its words are translated. None has had a native reader's
+  review yet. The tables add about 100 KB to `ui.html`.
+- **About.** An info mark at the panel's bottom right, on the notes' last line, opens a small
+  card above it (a popover; a press elsewhere or Escape closes it): the mark and the name
+  (the site), then, right-aligned, "by colorjs" (the code) and a heart (support). Its
+  links open in the browser through `figma.openExternal`, and the main thread opens only
+  those three pages.
 - **A steady gamut status.** One line under the copy fields always says where the
-  coordinate is: "In sRGB", "Outside sRGB, mapped in" (the CSS Color 4 gamut mapping spelled
+  coordinate is: "In sRGB.", "Outside sRGB, mapped in." (the CSS Color 4 gamut mapping spelled
   out in its tooltip), or the palette it snaps to; the file's profile sits at its right. It reads the coordinate itself, not the last write, so it never flickers or changes
   height as a drag crosses the gamut.
 - **Tooltips.** Figma's frame shows no native `title`, so the plugin uses the atlas's
   themed tooltip (`web/js/tip.js`), kept secondary: small, shown while its element is
   hovered, gone when the pointer leaves it or the panel, on any press, on Escape and when
   Figma takes focus; a click on a quiet explainer (the status line, the profile) shows it;
+  a select's tip sits on the select itself and never shows over its open list;
   focus brings it only from the keyboard (a clicked button takes focus, which would
   otherwise show its tip again).
 - **Never uses the network.** The manifest sets `networkAccess` to `none`, and `ui.html`
@@ -282,9 +325,10 @@ DISPLAY_P3 file. That includes:
   buttonless move, and the next press works; blur mid-drag commits once; a bar press lands
   at its place along the knob's travel and clamps past the end; the bar's pixel under its
   knob is the coordinate's color
-- the other colors: the variable and the selection's other stop named, no style or page color
-  marked, the gradient's stops joined by one line, the color just written shown on the next
-  paint's plane, a variable's dot writing into the stop
+- the other colors: the selection's other stop named, no variable, style or page color
+  marked, the gradient's line through its mixed colors (at the stops and halfway, against the
+  library) and broken where it wraps round the hue on an H × L plane, the color just written shown on the next paint's plane, a press on a stop's dot
+  making it current without a write, a drag from a dot moving that stop in one undo step
 - a selected group: its children's colors in layer order with a hidden one skipped, a layer
   selected with its group listed once, an edit
   writing the child, a change two levels inside re-reading
@@ -292,16 +336,31 @@ DISPLAY_P3 file. That includes:
   current family open, a header folding and unfolding, a search opening only the matching
   sections, Enter, Escape, a press outside acting on nothing else
 - the plane's controls: a click on C making C×L into H×L and back, the wheel/square switch
-  saved per pair, the disc's centre showing its color on screen; the lens controls keeping
-  their width on hover and opening from the chevron; the grip and its arrow keys setting the
-  width
+  saved per pair and its round trip leaving the letters' and the switch's ink as they were, the disc's centre showing its color on screen; the lens controls keeping
+  their width on hover and opening from the chevron, a lens's tooltip on hover and none over
+  its open list; the corner grip and its arrow keys setting the width, the resize cursor kept,
+  a lost release ending the resize, a widen then a narrow bringing the height back under a
+  host stylesheet that holds the document at the window's height
 - one menu at a time: a lens closing the space menu and the space menu closing a lens; a held
   channel's drag repainting the plane at full resolution, the dots' layer too
 - the lens lists: open, each option's icon in the icon font (P3's △), the closed control
   showing the icon alone, a click on an option taking it and closing the list
 - the icon font: accepted by the browser's font sanitizer, every glyph tracing its SVG (IoU
   at 64 px), loaded in the panel
-- the tooltip: a press dismisses it; focus after a press shows none, keyboard focus does
+- the tooltip: it stays while hovered, leaves with the pointer, comes back on the next hover,
+  swaps to the next element; a press dismisses it, a click on the profile shows it; focus
+  after a press shows none, keyboard focus does
+- the plane's view: a ⌃ wheel zooming about the pointer (the middle then picks the window's
+  middle, checked against the zoom's arithmetic), the marker hiding when zoomed away from it,
+  a double click showing the whole, another pair starting whole; a ⌘-drag
+  moving the pick a tenth of the pointer's move
+- the copy field: the format select (hex saved, lab(), back to oklch()), P3 red's hex mapped
+  into sRGB with a tooltip saying so
+- languages: German, Brazilian Portuguese and Simplified Chinese browsers get their tables (the
+  plugin's words and the site's), Traditional Chinese and Dutch get English, and an English
+  browser with Russian as a second language stays English
+- the about card: opened by the info mark, its links opening the sponsor page and the code,
+  nothing else opened whatever the UI sends, Escape closing it
 - the Limit: Surface repaints the plane and names itself, the status stays in the file's
   gamut; the status naming a palette lens
 - the status line: one line in and out of the gamut, and a drag across the gamut resizing
@@ -321,6 +380,7 @@ DISPLAY_P3 file. That includes:
   raw color by its layer, a repeated name numbered; none inside: no section)
 - the three-digit `oklch()`/`oklab()`: within JND/5 of the unrounded color over 4000 sRGB
   and P3 colors
+- a P3 file's color inside sRGB, as hex and `rgb()`, converted exactly (`#ff8000` stays itself)
 - `clientStorage`, the copy fallback, and an axe structure scan
 
 Every expected number comes from the library and `src/gamut.js` in Node. The test isn't
@@ -377,21 +437,27 @@ part of `npm test`.
 
 ## Publishing (owner action)
 
-Only the repository owner can publish the plugin, with their own Figma account. Figma
-reportedly generates the plugin id when you publish (the official samples carry numeric
-ids of that kind): replace `"id"` in `manifest.json` with it before you submit. The
-`"color-space"` id is a placeholder for local import. The publishing steps, account
-requirements and review are set by Figma (see Figma's help center); they weren't verified
-here because those pages are blocked in this environment.
+Only the repository owner can publish the plugin, with their own Figma account. The
+`"id"` in `manifest.json` (`1691970922817908383`) is the one Figma assigned to the plugin
+at its first publish; every later update is published under it.
 
-The Community listing, entered on the publish form:
+The listing's text, its field values and its media order are in
+[promo/listing.md](promo/listing.md). The media are made from the plugin itself:
 
-- **Name:** color-space
-- **Tagline:** Pick color in any color space: OKLCH, Lab, HSLuv, Munsell and 160+ more
+```sh
+node plugins/figma/promo/promo.js          # the mark, the cover, a still per scene, both videos (needs ffmpeg)
+node plugins/figma/promo/promo.js shots    # or one of: icon, shots, video
+```
+
+`promo.js` makes the project's mark (the spectral locus, also `web/img/locus-*.png`), the
+cover, a still per scene and two videos: the whole tour and a 30 s cut. It runs the real `ui.html` and `code.js` on the test's mock host
+(`scripts/figma-mock.js`, shared with `check-figma.js`) on a stage (`promo/stage.html`)
+that draws a small design from the mock document's paints. The scenes are scripted
+presses and drags, so an edit in the panel shows on the design. They are not recordings
+of Figma's canvas. Real recordings from Figma can replace them, using the same shot list.
 
 Possible follow-ups:
 
-- Add the `codegen` capability, so Dev Mode's Code panel prints `oklch()` /
-  `color(display-p3 …)` for the selected node.
+- A native reader's review of each translation (`"reviewed"` in `src/i18n/<lang>.json`).
 - Port the plugin to Penpot. Penpot fills are 8-bit sRGB hex only, so a Penpot version
   couldn't write P3.
