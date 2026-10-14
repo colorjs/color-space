@@ -2001,9 +2001,9 @@ test('cvd — the SVG pipeline and simulate() reproduce colour-science (Machado)
 	is(simulate([0.2, 0.4, 0.6], 'none'), [0.2, 0.4, 0.6], 'none is identity')
 })
 
-test('track — analytics is off by default: no-ops, nothing injected; load() injects Umami once, auto-track off', async () => {
+test('track — analytics on: Umami injected once, lazily, auto-track off; events queue until it lands', async () => {
 	const { UMAMI, EVENT, track, view, load } = await import('../web/js/track.js')
-	is(UMAMI, '', 'shipped disabled')
+	is(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(UMAMI), true, 'a website id (Umami Cloud, a UUID)')
 	is([EVENT.lut('slog3', 'rec709'), EVENT.lut('slog3', 'rec709', 'davinci-resolve'), EVENT.icc('p3', 'mntr'), EVENT.drop(), EVENT.embed('oklch'), EVENT.tour(3, 'rgb'), EVENT.lang('python'), EVENT.vision('deutan')],
 		['slog3>rec709/generic', 'slog3>rec709/davinci-resolve', 'icc-download/p3-mntr', 'image-drop', 'embed-copy/oklch', 'tour-step/3-rgb', 'code-lang/python', 'vision-lens/deutan'], 'event names: the fact rides in the name (Umami bills every property as an event)')
 	is(EVENT.embed('My Photo.JPG'), 'embed-copy/my-photo-jpg', 'names are slugged — nothing raw reaches the endpoint')
@@ -2016,21 +2016,21 @@ test('track — analytics is off by default: no-ops, nothing injected; load() in
 	const added = [], sent = []
 	globalThis.document = { createElement: () => ({ dataset: {} }), head: { append: (s) => added.push(s) } }
 	try {
-		track('x>y/generic'); view('oklch'); load()
-		is(added.length, 0, 'UMAMI empty: track/view/load inject nothing')
-		load('acct'); load('acct')
-		is(added.length, 1, 'injected once')
+		globalThis.location = { pathname: '/oklch' }
+		view('rgb'); load(); load('other')
+		is(added.length, 1, 'injected once – the first hit loads it, later loads are no-ops')
 		const [s] = added
 		is([s.src, s.async, { ...s.dataset }], ['https://cloud.umami.is/script.js', true,
-			{ websiteId: 'acct', domains: 'color-space.io', autoTrack: 'false', excludeSearch: 'true', excludeHash: 'true' }], 'cloud tracker, auto-track off, production domain only, no query or hash')
-		globalThis.umami = { track: (v) => sent.push(v) }; globalThis.location = { pathname: '/oklch' }
+			{ websiteId: UMAMI, domains: 'color-space.io', autoTrack: 'false', excludeSearch: 'true', excludeHash: 'true' }], 'cloud tracker, auto-track off, production domain only, no query or hash')
+		globalThis.umami = { track: (v) => sent.push(v) }
 		s.onload()
-		is(sent.length, 1, 'the landing counts one pageview')
+		is(sent.length, 2, 'the landing counts one pageview, then the queued dossier view')
 		const pv = sent[0]({ website: 'w', url: 'https://color-space.io/oklch?find=my+text#ff8000', title: 't' })
 		is([pv.url, pv.name, pv.website], ['/oklch', undefined, 'w'], 'a pageview by path only – no name, no query, no hash')
+		is(sent[1]({ website: 'w' }).url, '/rgb', 'a dossier view: its own path')
 		// auto-track off: the tracker's own url stays the landing page's, so an event names the path it happened on
 		globalThis.location.pathname = '/slog3'; track(EVENT.lut('slog3', 'rec709'))
-		const ev = sent[1]?.({ website: 'w', url: 'https://color-space.io/oklch' })
-		is([sent.length, ev?.name, ev?.url, ev && Object.keys(ev).includes('data')], [2, 'slog3>rec709/generic', '/slog3', false], 'an event: its name on the current path, no properties')
+		const ev = sent[2]?.({ website: 'w', url: 'https://color-space.io/oklch' })
+		is([sent.length, ev?.name, ev?.url, ev && Object.keys(ev).includes('data')], [3, 'slog3>rec709/generic', '/slog3', false], 'an event: its name on the current path, no properties')
 	} finally { delete globalThis.document; delete globalThis.umami; delete globalThis.location }
 })

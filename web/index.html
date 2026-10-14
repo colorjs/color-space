@@ -75,10 +75,8 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .hlocus svg *{ vector-effect:non-scaling-stroke; stroke-width:1 }
 .hlocus .chk{ fill:url(#hl-chk); stroke:none } #hl-chk *{ stroke:none } #hl-chk rect{ fill:var(--panel) } #hl-chk path{ fill:oklch(0.5 0 0/.14) }   /* the sliders' checker (--checker), as an SVG pattern at its 12 px (JS scales it) – no stroke: the svg's ink reaches into a pattern too */
 .hlocus .all{ opacity:.5 }   /* outside the Limit: the colors half there, as on a slider */
-.hlocus :is(.ll,.lp,.lg,.lw){ display:none } .hlocus .lt path{ stroke-opacity:.35 }   /* no outlines: the ticks and the wavelengths */
 .hlocus text{ fill:var(--soft); stroke:none; font-size:11px; font-weight:600; font-variant-numeric:tabular-nums; opacity:.85 }
 :root[data-theme="dark"] :is(.hlocus,.gxy) text{ fill:var(--ink) }   /* dark paper: the labels in the ink itself (white) – the soft gray sank into the colors */
-.hlocus .lgn{ display:none } .hlocus:has(.chk:hover) .lgn{ display:inline }   /* names only when pointed at */
 .hlocus .lims{ opacity:0; transition:opacity var(--dur-short) var(--ease-out) } .hlocus:has(.chk:hover) .lims{ opacity:1 }
 .hlocus .lims path{ stroke:var(--ink); stroke-opacity:.35 } .hlocus .lims path.on{ stroke-opacity:.8; stroke-width:1.5 }   /* the theme's ink, see-through – dark on light paper, light on dark; the one under the pointer strongest */
 .hlocus svg,.hlocus svg *{ pointer-events:none } .hlocus .chk{ pointer-events:fill; cursor:pointer }   /* only the horseshoe answers the pointer, not its box: its painted shape catches it, everything over it lets it through */
@@ -957,9 +955,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 }
 @media(max-width:640px){ .props.props3{ grid-template-columns:1fr } }
 .gam2d canvas{ display:block; width:100%; height:100% }
-.gam2d .gxy{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); pointer-events:none; overflow:visible }   /* the locus's marks (js/locus.js): wavelengths, the Limit's region, D65 – hairlines over the space's own reach */
+.gam2d .gxy{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); pointer-events:none; overflow:visible }   /* the locus's marks (js/locus.js): wavelengths and D65 – hairlines over the space's own reach */
 .gxy *{ vector-effect:non-scaling-stroke; stroke-width:1 }
-.gxy :is(.ll,.lp,.lg),.gxy .lgn:not(.on){ display:none } .gxy .lt path,.gxy .lw{ stroke-opacity:.5 } .gxy .glim{ stroke-opacity:.35 }   /* no rim: the plate's colors are the horseshoe; the Limit's edge in the theme's ink, see-through */   /* the horseshoe, the space's own reach (the plate's colors) and the Limit's region – no other references */
+.gxy .lt path,.gxy .lw{ stroke-opacity:.5 }   /* no rim, no reference triangles: the plate's colors are the horseshoe and the space's own reach */
 .gxy text{ fill:var(--soft); stroke:none; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums }
 .gam2d .cx{ position:absolute; width:8px; height:8px; transform:translate(-50%,-50%) rotate(45deg); border:1.2px solid; pointer-events:none }
 .gam2d .cx.ghost{ pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
@@ -1360,7 +1358,7 @@ color-space/plugins/figma/manifest.json
 import { space, meta, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid } from './js/core.js'
 import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
-import { locusMarks, locusFill, locusPath, gamutPath } from './js/locus.js'
+import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath } from './js/locus.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
 import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful } from './js/gl.js'
@@ -1372,7 +1370,7 @@ import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's sou
 import NAMES from './js/names.js'
 import * as PALDATA from './js/palettes.js'
 import { SPACES, sections, cname, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap } from './js/render.js'
-import { OI, QI, LI, VI, PI, DL as DLI, locusShare, VIS16 } from './js/icons.js'
+import { OI, QI, LI, VI, PI, DL as DLI, locusShare } from './js/icons.js'
 import BARRED from './js/barred.js'
 import EDITORS, { SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
@@ -2560,13 +2558,10 @@ try{ localStorage.removeItem('csQ') }catch{}   // clear the mode older sessions 
 // the dossier lens: which gamut its plots and sliders are cut by ('off' = none)
 const GAMS=['srgb','p3','rec2020']
 const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:t('ui.gamut.vis','surface'), locus:t('ui.gamut.locus','light'), clip:'⚠' }   // conventional casings – brands as brands, common nouns lowercase   // surface = the Rösch–MacAdam object-color solid (what a lit surface can show); light = every real light, the full spectral locus – the true no-limit view
-// a Limit's region on the xy plate (GXY): a display's triangle; Surface – the shape its own mark draws (VIS16, the
-// icon's 16-box back to xy); Light – the whole horseshoe. The hero's locus and the dossier's plate draw these
+// a Limit's region on the xy plate (GXY): a display's triangle; Surface – the shape its own mark draws
+// (js/locus.js surfacePath); Light – the whole horseshoe. The hero's locus draws these, the Limit's region filled
 const LIMS=['srgb','p3','rec2020','vis','locus']   // narrowest first
-const LIMD=(()=>{ const vis='M'+VIS16.match(/[\d.]+ [\d.]+/g).map(p=>{ const [u,v]=p.split(' ').map(Number); return GXY([(u-1.5)/17,(15-v)/16]).map(n=>n.toFixed(1)).join(' ') }).join('L')+'Z'
-	const D={}; return g=>D[g]??=GAMS.includes(g)?gamutPath(g==='srgb'?'rgb':g,GXY):g==='vis'?vis:locusPath(GXY) })()
-// a plate's Limit: its region's edge, a display's triangle named (the marks' own label, .lgn)
-const plateLimit=svg=>{ if(!svg) return; svg.querySelector('.glim')?.setAttribute('d',LIMD(GM)); const g=GM==='srgb'?'rgb':GM; svg.querySelectorAll('.lgn').forEach(t=>t.classList.toggle('on',t.dataset.g===g)) }
+const LIMD=(()=>{ const D={}; return g=>D[g]??=GAMS.includes(g)?gamutPath(g==='srgb'?'rgb':g,GXY):g==='vis'?surfacePath(GXY):locusPath(GXY) })()
 const GAMTITLE={ srgb:t('ui.gamut.fit.srgb','fits sRGB – every standard display shows it losslessly'), p3:t('ui.gamut.fit.p3','beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it'), rec2020:t('ui.gamut.fit.rec2020','beyond P3, fits Rec.2020 – most displays clip it'), vis:t('ui.gamut.fit.vis','beyond every display, yet a lit surface can show it – inside the object-color solid'), locus:t('ui.gamut.fit.locus','no surface shows it, but it is a real light – on the spectral locus'), clip:t('ui.gamut.fit.clip','outside the locus – not a color; the preview clips') }
 // the Limit – one for every slider, plane and solid, the catalog's and the dossier's (render.js LIMIT, Surface by default)
 let GM=LIMIT; try{ if([...GAMS,'vis','locus'].includes(localStorage.csGm)) GM=localStorage.csGm }catch{}
@@ -2644,7 +2639,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	// repaint as they scroll in), the hero's locus and the dossier's plate show it. The row's menu and the locus both pick it here
 	setLimit=v=>{ GM=v; try{ localStorage.csGm=GM }catch{}
 		if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
-		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); plateLimit(detail.querySelector('.gxy')); paintLens() }
+		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); paintLens() }
 	document.addEventListener('click',e=>{ const b=e.target.closest('.dpop [data-lens]'); if(!b) return; const v=b.dataset.v
 		switch(b.dataset.lens){
 			case 'q': Q=qFromKey(v); applyView(); syncViewURL(); break
@@ -3856,7 +3851,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// gamut plate's tip (the triangle's own corners), transfer constants in the curve's
 	const primTip=prof?`\n\n${t('ui.dossier.prim','primaries, xy – computed from the shipped conversion')}${prof.adapted?t('ui.dossier.prim-adapted',', Bradford-adapted from the native {ill} white to the D65 hub (the ICC colorant convention)',{ill:prof.ill}):''}:\nR ${prof.r.map(f4).join(' ')}\nG ${prof.g.map(f4).join(' ')}\nB ${prof.b.map(f4).join(' ')}`:''
 	const trcTip=trcv?`\n\n${trcv.name}: ${trcv.par.map(([k,v])=>`${k} ${v}`).join(', ')} – ${t('ui.dossier.trc-tip','constants from the defining specification, cross-checked against the shipped conversion on the neutral axis')}`:''
-	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d" title="${t('ui.dossier.gamut-tip',"gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colors, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no color lives there.")}${primTip}"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}<path class="glim"/></svg><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
+	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d" title="${t('ui.dossier.gamut-tip',"gamut – this space's channel ranges on the CIE xy plane: vivid where it reaches real colors, ghost where the eye sees but this space doesn't, gray veil where its channel limits still encode beyond the visible – the box's shape, though no color lives there.")}${primTip}"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}</svg><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
 	const tcHTML=tcurve?`<div class="vgrp" data-f="tc"><div class="tcvw" title="${t('ui.dossier.tcurve',"transfer – the space's curve – scene-linear light across (0–1), {s}'s {y} up; the dashed diagonal is linear.",{s,y:percept?t('ui.dossier.tcurve-percept','perceptual lightness'):t('ui.dossier.tcurve-code','code value')})} ${percept?t('ui.dossier.tcurve-bow','The bow above the diagonal is why equal steps in this space look even to the eye.'):tcurve.ylab==='code'?t('ui.dossier.tcurve-rgb','RGB-model spaces map every channel through this same curve.'):t('ui.dossier.tcurve-tone',"{ch} is this space's tone channel.",{ch:tcurve.ylab})}${trcTip}"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve')}"></span></div>`:''
 	// one figure at a time by the sliders – the switch only where there is a choice; the last one chosen leads
 	const FIGS=[['3d',solidHTML,OI.component,t('ui.dossier.fig-3d','solid')],['xy',xyHTML,OI.chromaticity,t('ui.dossier.fig-xy','chromaticity')],['tc',tcHTML,OI.gamma,t('ui.dossier.fig-tc','transfer')]].filter(f=>f[1]), fig=FIGS.find(f=>f[0]===FIG)?.[0]||FIGS[0]?.[0]
@@ -4007,7 +4002,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
 	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
 	TC=tcurve; paintTC()
-	plateLimit(detail.querySelector('.gxy'))
 	const figseg=detail.querySelector('#figseg')
 	if(figseg) figseg.onclick=e=>{ const b=e.target.closest('button[data-v]'); if(!b) return; FIG=b.dataset.v; try{ localStorage.csFig=FIG }catch{}
 		detail.querySelector('#dfig').dataset.v=FIG
@@ -5200,8 +5194,8 @@ renderFast(); paintCatalogGrad()
 // Pointing shows the displays' and the horseshoe's edges and names, the tightest under the pointer darkest; a click picks
 // it, as the row's Limit menu does ──
 {	const hm=document.querySelector('#hero .hmain'), img=c=>`<image class="${c}" width="320" height="352"${c==='lim'?' clip-path="url(#hl-lim)"':''}/>`
-	const HL=LIMS.filter(g=>g!=='vis'), hd=g=>LIMD(g==='vis'?'locus':g)   // the hero's Limits: the displays' and Light – Surface spans the horseshoe in xy
-	hm.insertAdjacentHTML('beforeend',`<div class="hlocus" aria-hidden="true"><svg viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}${locusMarks(GXY)}<g class="lims">${HL.map(g=>`<path data-g="${g}" d="${LIMD(g)}"/>`).join('')}</g></svg><i class="cx"></i></div>`)
+	const HL=LIMS   // the hero's Limits: every one the row's menu offers
+	hm.insertAdjacentHTML('beforeend',`<div class="hlocus" aria-hidden="true"><svg viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}<g class="lims">${HL.map(g=>`<path data-g="${g}" d="${LIMD(g)}"/>`).join('')}${locusNames(GXY,esc(cap(GAMLABEL.vis)),esc(cap(GAMLABEL.locus)))}</g></svg><i class="cx"></i></div>`)
 	const box=hm.lastElementChild, svg=box.firstElementChild, mk=box.querySelector('.cx'), lim=svg.querySelector('#hl-lim path'), edge=Object.fromEntries([...svg.querySelectorAll('.lims path')].map(e=>[e.dataset.g,e]))   // the mark: the planes' own picker (.cx), a fixed size over a drawing that scales
 	;(window.requestIdleCallback||setTimeout)(()=>{ const u=locusFill(([a,b])=>[a*.857-.107,(1-b)*.955-.055],320,352); svg.querySelectorAll('image').forEach(i=>i.setAttribute('href',u)) })   // painted once, off the first frame
 	// the checker at the sliders' 12 px, whatever the drawing's scale
@@ -5210,7 +5204,7 @@ renderFast(); paintCatalogGrad()
 		const t=X[0]+X[1]+X[2]; mk.style.display=t>1e-6?'':'none'; if(t<=1e-6) return
 		const [x,y]=GXY([X[0]/t,X[1]/t]), c=RGB(); mk.style.left=((x-36)/290*100).toFixed(2)+'%'; mk.style.top=((y-18)/318*100).toFixed(2)+'%'   // the viewBox's crop, in percent
 		mk.style.setProperty('--tkc',hex(c)); mk.style.setProperty('--tki',ink(c)) }
-	heroLimit=()=>lim.setAttribute('d',hd(GM))
+	heroLimit=()=>lim.setAttribute('d',LIMD(GM))
 	// the tightest Limit under the pointer (narrowest first)
 	const at=e=>{ const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse()); return HL.find(g=>edge[g].isPointInFill(q)) }
 	const point=g=>{ for(const k in edge) edge[k].classList.toggle('on',k===g); box.title=g&&g!==GM?t('ui.locus.pick','Limit: {g} – click to pick it',{g:GAMLABEL[g]}):'' }

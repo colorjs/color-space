@@ -64,6 +64,7 @@ try {
 	// the Limits' edges, the tightest under the pointer strongest, and changes nothing; a click picks that Limit – stored,
 	// filled – as the row's menu would
 	{ const box=await page.locator('.hlocus').boundingBox()
+	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light'],'the outlines named – the displays, Surface and the horseshoe, Light – no wavelengths')
 	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])
 	  const st=()=>page.evaluate(()=>({ edges:getComputedStyle(document.querySelector('.hlocus .lims')).opacity, on:[...document.querySelectorAll('.hlocus .lims path.on')].map(e=>e.dataset.g).join(), gm:localStorage.csGm||'', fill:document.querySelector('#hl-lim path').getAttribute('d') }))
 	  await page.mouse.move(box.x+box.width-4,box.y+6); await page.waitForTimeout(300)
@@ -73,7 +74,7 @@ try {
 	  await page.mouse.click(sx,sy); await page.waitForTimeout(300)
 	  const picked=await st(); assert.deepEqual([picked.gm,picked.fill!==before.fill],['srgb',true],'a click picks sRGB: stored and filled')
 	  await page.evaluate(()=>{ document.querySelector('.dpop [data-lens="g"][data-v="vis"]').click(); try{ localStorage.removeItem('csGm') }catch{} }); await page.mouse.move(2,2)   // back to the default Limit, through the row's own menu
-	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="locus"]').getAttribute('d')), true, 'Surface again: the horseshoe filled whole') }
+	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface again: its own region filled, not the whole horseshoe') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
@@ -542,8 +543,8 @@ try {
 	await page.waitForFunction(()=>document.querySelector('#pl3d .mesh3')?._scale3>0)
 	assert.ok(await page.evaluate(()=>document.querySelector('#pl3d .mesh3')._scale3>0.3), 'the solid keeps its own size while the plates hide')
 	await page.locator('#figseg button[data-v="xy"]').click()
-	assert.deepEqual(await page.evaluate(()=>{ const g=document.querySelector('#gam2d'); return [document.querySelector('#dfig').dataset.v, g.clientWidth>200, g.querySelector('canvas').width>=g.clientWidth, g.querySelectorAll('.gxy .lg').length, [...g.querySelectorAll('.gxy text')].some(t=>t.textContent==='520'), getComputedStyle(document.querySelector('#pl3d')).display==='none'||!document.querySelector('#pl3d').offsetParent, localStorage.csFig] }),
-		['xy',true,true,3,true,true,'xy'], 'xy shown alone, painted at its size, ticked and three reference gamuts on it; the choice remembered')
+	assert.deepEqual(await page.evaluate(()=>{ const g=document.querySelector('#gam2d'); return [document.querySelector('#dfig').dataset.v, g.clientWidth>200, g.querySelector('canvas').width>=g.clientWidth, g.querySelectorAll('.gxy :is(.lg,.glim)').length, [...g.querySelectorAll('.gxy text')].some(t=>t.textContent==='520'), getComputedStyle(document.querySelector('#pl3d')).display==='none'||!document.querySelector('#pl3d').offsetParent, localStorage.csFig] }),
+		['xy',true,true,0,true,true,'xy'], 'xy shown alone, painted at its size, ticked, no reference triangle on it; the choice remembered')
 	await page.locator('#figseg button[data-v="3d"]').click()
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)

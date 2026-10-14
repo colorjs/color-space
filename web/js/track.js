@@ -7,10 +7,9 @@
 // @see https://github.com/umami-software/docs/blob/master/content/docs/tracker-functions.mdx
 // @see https://github.com/umami-software/umami/blob/master/src/tracker/index.ts
 //
-// OFF by default: with UMAMI empty every call below is a no-op and no script is ever requested.
-// Turn it on: create the website in Umami Cloud (domain color-space.io) and paste its website id
-// (a UUID, shown in the site's tracking code) here. The tracker then loads once, lazily – on
-// load() (called at idle to count the pageview) or on the first track()/view(). Events queue until
+// UMAMI is the website id from Umami Cloud (domain color-space.io; a UUID, shown in the site's tracking
+// code); empty, every call below is a no-op and no script is ever requested. The tracker loads once,
+// lazily – on load() (called at idle to count the pageview) or on the first track()/view(). Events queue until
 // it is in; if it is blocked (ad blockers block cloud.umami.is) they are dropped. No SRI: Umami
 // updates script.js in place.
 //
@@ -29,7 +28,7 @@
 // names are truncated). With each hit the tracker adds its default payload: hostname, language,
 // referrer, screen size, page title and URL (tracker-functions.mdx).
 
-export const UMAMI = ''
+export const UMAMI = 'cd412057-6601-45f8-b4c2-2fe0f1121065'
 
 const SRC = 'https://cloud.umami.is/script.js'
 const DOMAINS = 'color-space.io'
