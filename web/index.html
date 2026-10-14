@@ -88,6 +88,8 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 @media(max-width:1079px){ .hmain{ grid-template-columns:0 minmax(0,1fr); column-gap:0; max-width:calc(64rem - 2 * var(--gut)) } .hmain .hfield{ width:100%; margin-inline-start:0 } }   /* no rail: the catalog's one centred column – the row's color sits after Filters there, nothing to hang toward */
 .hh{ max-width:14em; margin:0; font-size:var(--text-3xl); font-weight:800; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }   /* two lines, flush left, in every language – the measure holds French's and Russian's longest in two, English balanced across two; a title, not a poster: the hero is a band over the catalog, not the first screen */
 .htitle .hh{ display:inline }   /* the title and, on its line, the plugin's announcement standing on its baseline */
+.htitle{ white-space:nowrap } .htitle .hh{ white-space:normal }   /* the announcement never leaves the title's last line: a long title breaks within itself, not before the pill */
+@media(width < 36rem){ .htitle{ white-space:normal } }   /* a phone's column can't hold a long word and the pill together */
 .hplug{ display:inline-block; overflow:hidden; vertical-align:baseline; margin-inline-start:var(--s4); text-decoration:none; white-space:nowrap }   /* the catalog's tag, Figma's mark leading; overflow other than visible puts an inline block's baseline at its bottom edge (CSS 2.2 §10.8.1) */
 .hplug .hpi{ display:flex; align-items:center; gap:var(--s2) }   /* inside the pill, the mark and the words centred on each other */
 .hplug .figma{ height:var(--s4); width:auto }
@@ -352,7 +354,7 @@ body.himg #imgfloat{ display:block }
 .hl-ms b::after{ content:'↗'; display:inline-block; width:0; text-indent:.25em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the catalog's idiom, as .nm: ↗ opens the space */
 .hl-ms:is(:hover,:focus-visible) b::after{ opacity:1 }
 .hl-ms:hover .hl-mw{ color:var(--body) }
-.hl-mw{ display:block; text-wrap:balance }
+.hl-mw{ display:block; max-width:24ch; text-wrap:balance; hyphens:auto; overflow-wrap:break-word }   /* a note's measure in every language, the room to the next flag permitting; a long word hyphenates, never crosses its line */
 /* the band picked draws its own milestone, alone: the four step back – flag, leader and rhombus – so nothing crosses it */
 :is(.hl-ms,.hl-ld,.hl-dm){ transition:opacity var(--dur-micro) var(--ease-out) }
 .hl-fig.now :is(.hl-ms,.hl-ld,.hl-dm):not(.hl-now){ opacity:0 }
@@ -5204,7 +5206,7 @@ renderFast(); paintCatalogGrad()
 		const t=X[0]+X[1]+X[2]; mk.style.display=t>1e-6?'':'none'; if(t<=1e-6) return
 		const [x,y]=GXY([X[0]/t,X[1]/t]), c=RGB(); mk.style.left=((x-36)/290*100).toFixed(2)+'%'; mk.style.top=((y-18)/318*100).toFixed(2)+'%'   // the viewBox's crop, in percent
 		mk.style.setProperty('--tkc',hex(c)); mk.style.setProperty('--tki',ink(c)) }
-	heroLimit=()=>lim.setAttribute('d',LIMD(GM))
+	heroLimit=()=>lim.setAttribute('d',LIMD(GM==='vis'?'locus':GM))   // Surface fills the whole horseshoe: in xy the object colors reach every chromaticity (dim enough) – its outline is the mark's, for picking
 	// the tightest Limit under the pointer (narrowest first)
 	const at=e=>{ const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse()); return HL.find(g=>edge[g].isPointInFill(q)) }
 	const point=g=>{ for(const k in edge) edge[k].classList.toggle('on',k===g); box.title=g&&g!==GM?t('ui.locus.pick','Limit: {g} – click to pick it',{g:GAMLABEL[g]}):'' }

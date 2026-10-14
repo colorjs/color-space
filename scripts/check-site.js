@@ -74,7 +74,7 @@ try {
 	  await page.mouse.click(sx,sy); await page.waitForTimeout(300)
 	  const picked=await st(); assert.deepEqual([picked.gm,picked.fill!==before.fill],['srgb',true],'a click picks sRGB: stored and filled')
 	  await page.evaluate(()=>{ document.querySelector('.dpop [data-lens="g"][data-v="vis"]').click(); try{ localStorage.removeItem('csGm') }catch{} }); await page.mouse.move(2,2)   // back to the default Limit, through the row's own menu
-	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface again: its own region filled, not the whole horseshoe') }
+	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="locus"]').getAttribute('d')), true, 'Surface again: the horseshoe filled whole – no hard edge at rest') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
