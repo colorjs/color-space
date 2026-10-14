@@ -63,6 +63,9 @@ try {
 	// the hero's locus: only the horseshoe answers the pointer (its box's empty corner shows nothing); pointing inside shows
 	// the Limits' edges, the tightest under the pointer strongest, and changes nothing; a click picks that Limit – stored,
 	// filled – as the row's menu would
+	// one hue wheel, centered: the top edge's 37 steps are the footer wall's second row, the current color the middle step of every row
+	assert.deepEqual(await page.evaluate(()=>{ const h=document.getElementById('strip').style.getPropertyValue('--hues'), w=document.getElementById('ftr').style.getPropertyValue('--wall'), rows=w.split(/,(?=linear-gradient)/)
+		return [rows.length, rows[1]===h, rows.map(r=>{ const st=r.slice(16,-1).split(/,(?![^(]*\))/).slice(1); return st[(st.length-1)/2].startsWith('var(--cur)') })] }), [4,true,[true,true,true,true]], 'the top edge and the footer wall: one wheel, the current color centered')
 	{ const box=await page.locator('.hlocus').boundingBox()
 	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light'],'the outlines named – the displays, Surface and the horseshoe, Light – no wavelengths')
 	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])

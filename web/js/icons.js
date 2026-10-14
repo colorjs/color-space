@@ -49,7 +49,7 @@ export const VI = {
 // what a space is and what it is for: the facets' options, the shelves' glyphs
 export const OI = {
 	// what it is for
-	picking: ic('<path d="M4 20l1-3 8.5-8.5M11.5 6.5l6 6M14 4a2.5 2.5 0 0 1 3.5 0l2.5 2.5a2.5 2.5 0 0 1 0 3.5L18 12l-6-6z"/>'),
+	picking: ic('<path d="m2 22 1-1h3l9-9M3 21v-3l9-9M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4z"/>'),   // an eyedropper: tube, bulb, collar (Lucide's pipette, ISC)
 	palettes: ic('<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.4-.5-.8-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="9.5" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/>'),
 	editing: ic('<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'),
 	compositing: ic('<path d="M12 3 3 8l9 5 9-5zM3 13l9 5 9-5"/>'),

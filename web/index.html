@@ -64,6 +64,10 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
    The field IS the current color here – its rhombus, its value the placeholder; scrolled under the row, it hands
    over to the row's own color and search ── */
 .hero{ position:relative; isolation:isolate; overflow:clip; width:100vw; margin:calc(-1 * var(--cells-h)) 0 0 calc(50% - 50vw); padding:calc(var(--cells-h) + var(--s8)) var(--gut) var(--s12) }
+/* the top line's glow: the row's edge – the same 37 hue steps round the current color, zoomed as it zooms – bled down
+   under the row and gone before the title; blurred, so the steps melt into the hue circle they sample */
+.hero::before{ content:''; position:absolute; inset:calc(-1 * var(--s8)) calc(-1 * var(--s8)) auto; height:calc(var(--s8) + var(--cells-h)); z-index:-1; background:var(--hues) center / 100% 100% no-repeat,var(--cur,transparent); filter:blur(var(--s8)); opacity:.5; mask-image:linear-gradient(rgb(0 0 0/1) calc(var(--s8) + 0/6 * var(--cells-h)),rgb(0 0 0/0.5) calc(var(--s8) + 1/6 * var(--cells-h)),rgb(0 0 0/0.25) calc(var(--s8) + 2/6 * var(--cells-h)),rgb(0 0 0/0.125) calc(var(--s8) + 3/6 * var(--cells-h)),rgb(0 0 0/0.0625) calc(var(--s8) + 4/6 * var(--cells-h)),rgb(0 0 0/0.0312) calc(var(--s8) + 5/6 * var(--cells-h)),rgb(0 0 0/0.0156) calc(var(--s8) + 6/6 * var(--cells-h)),transparent); pointer-events:none }   /* the fade exponential – halving every sixth of the row's height, as light falls off – not linear */
+@supports (animation-timeline:scroll()){ .hero::before{ animation:edge-zoom linear both; animation-timeline:scroll(root); animation-range:0 var(--hc-dock,50vh) } }
 /* the hero's locus (js/locus.js): the chromaticity diagram in the rail's column beside the words – an absolute grid child,
    its grid area its box (column 1, the four rows of words), as tall as they are and a little into the hero's padding.
    As the sliders draw a Limit: inside it the chromaticities' own colors; outside it the same colors half-transparent
@@ -1037,8 +1041,8 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .ent.barred .nm sup{ font-size:.5em; font-weight:600; vertical-align:super; color:var(--soft) }
 pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{ font-style:normal; color:var(--color-terminal-muted) }
 /* ── the footer: the motivation and the install command beside four columns of links, the maker and the license under
-   them – over the wall, the current color's hue wheel at its lightness, four rows quantized ever coarser (72 → 36 → 18 →
-   9: sampling, told once, standing still). The color's own ink (renderFast) reads on all of it ── */
+   them – over the wall, the current color's hue wheel at its lightness, four rows quantized ever coarser (5° → 10° → 20° →
+   45°: sampling, told once, standing still), the color in the middle of each as at the top edge. The color's own ink (renderFast) reads on all of it ── */
 .ftr{ display:flex; flex-direction:column; gap:var(--s12); margin-top:var(--s12); padding:calc(var(--s12) * 1.5) var(--gut) var(--s12); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
 .fbody{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
 .fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: where to go | how to get it, and who made it */
@@ -1431,13 +1435,16 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
 const ftrEl=document.getElementById('ftr'), stripEl=document.getElementById('strip')
 const catY=()=>document.getElementById('cat').getBoundingClientRect().top+scrollY-stripEl.offsetHeight   // where the catalog starts: its top right under the row; short of it, the hero is in view
-const currentStatic=[ftrEl,stripEl,document.getElementById('hcolor'),...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement], CURRENT_SETTLE=140
-// the footer's wall: the current color's hue wheel at its lightness, four rows quantized ever coarser – written once,
-// each step relative to --cur, so a color change restyles the footer alone
-// the row's edge at the top: the same steps round the current color, 37 of 10° with the color itself in the middle (CSS
-// zooms into it as the page scrolls)
-stripEl.style.setProperty('--hues',`linear-gradient(90deg,${Array.from({length:37},(_,i)=>`${i===18?'var(--cur)':`oklch(from var(--cur) l max(c, .1) calc(h + ${(i-18)*10}))`} ${(i/37*100).toFixed(3)}% ${((i+1)/37*100).toFixed(3)}%`).join(',')})`)
-ftrEl.style.setProperty('--wall',[72,36,18,9].map(n=>`linear-gradient(90deg,${Array.from({length:n},(_,i)=>`oklch(from var(--cur) l max(c, .1) calc(h + ${(i*360/n).toFixed(2)})) ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%`).join(',')})`).join(','))
+const heroEl=document.getElementById('hero'), currentStatic=[ftrEl,stripEl,heroEl,document.getElementById('hcolor'),...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement], CURRENT_SETTLE=140
+// the hue wheel round the current color, n steps (odd) at its lightness and chroma – a gray's wheel is gray: the color
+// itself in the middle, the opposite hue at both ends – written once, each step relative to --cur, so a color change
+// restyles only what wears it
+const wheel=n=>`linear-gradient(90deg,${Array.from({length:n},(_,i)=>{ const k=i-(n-1)/2
+	return `${k?`oklch(from var(--cur) l c calc(h + ${k*360/(n-1)}))`:'var(--cur)'} ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%` }).join(',')})`
+// the row's edge at the top: 37 steps of 10° (CSS zooms into the middle as the page scrolls) – and the hero's glow under it
+for(const el of [stripEl,heroEl]) el.style.setProperty('--hues',wheel(37))
+// the footer's wall: the same wheel in four rows quantized ever coarser – 5°, 10° (the top edge's own), 20°, 45°
+ftrEl.style.setProperty('--wall',[73,37,19,9].map(wheel).join(','))
 let groupTabsEl=null, codeTabsEl=null, accentT=0
 const setCurrentUI=fx=>{ if(!groupTabsEl?.isConnected) groupTabsEl=document.querySelector('.gtabs')
 	if(!codeTabsEl?.isConnected) codeTabsEl=document.getElementById('cseg')
