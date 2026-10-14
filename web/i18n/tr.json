@@ -1178,7 +1178,6 @@
 "ui.footer.suggest": {"t":"Renk uzayı öner","h":"4eccc1e0"},
 "ui.footer.support": {"t":"Sponsor ol","h":"fd0b743b"},
 "ui.footer.supported": {"t":"Destekleyenler","h":"1c163efe"},
-"ui.footer.title": {"t":"Eksiksiz bir renk uzayı koleksiyonu","h":"e8281ab7"},
 "ui.footer.verified": {"t":"Nasıl doğrulanıyor","h":"516584c6"},
 "ui.gamut.fit.clip": {"t":"lokusun dışında – bir renk değil; önizleme kırpar","h":"0cb6bc10"},
 "ui.gamut.fit.locus": {"t":"hiçbir yüzey onu gösteremez, ama gerçek bir ışıktır – spektral lokus üzerinde","h":"dd2bc811"},

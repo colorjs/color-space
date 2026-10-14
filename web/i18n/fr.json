@@ -1178,7 +1178,6 @@
 "ui.footer.suggest": {"t":"Proposer un espace","h":"4eccc1e0"},
 "ui.footer.support": {"t":"Devenir sponsor","h":"fd0b743b"},
 "ui.footer.supported": {"t":"Soutenu par","h":"1c163efe"},
-"ui.footer.title": {"t":"Une collection complète d’espaces colorimétriques","h":"e8281ab7"},
 "ui.footer.verified": {"t":"Méthode de vérification","h":"516584c6"},
 "ui.gamut.fit.clip": {"t":"hors du lieu spectral : ce n’est pas une couleur ; l’aperçu l’écrête","h":"0cb6bc10"},
 "ui.gamut.fit.locus": {"t":"aucune surface ne l’affiche, mais c’est une vraie lumière, sur le lieu spectral","h":"dd2bc811"},

@@ -49,13 +49,10 @@ body{ font-family:var(--f); font-size:16px; line-height:1.45; background:var(--p
 .tnum{ font-variant-numeric:tabular-nums }
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* said, not shown */
 a{ color:var(--ink); font-weight:500; text-decoration-thickness:1px; text-decoration-color:var(--ul); text-underline-offset:3px }
-/* a link's underline: a soft line of the text's own ink, 2 px, close under the letters; pointed at, the hue circle slides
-   in over it from the start, and on leaving slides on out past the end – its width eases, its anchor switches sides at
-   once (start while it grows, end while it shrinks), where the switch can't be seen. Backgrounds, as a decoration can't
-   be a gradient. Prose links (an <a> with no class: chrome links carry one), the hero's doors, Cite */
-:is(a:not([class]),.hsub button,.ftr .cite){ text-decoration:none; background-color:transparent; background-image:linear-gradient(90deg in oklch longer hue,oklch(.66 .19 30),oklch(.66 .19 30)),linear-gradient(var(--ul),var(--ul)); background-repeat:no-repeat; background-size:0% 2px,100% 2px; background-position:100% calc(100% - .08em),0 calc(100% - .08em); transition:background-size var(--dur-long) var(--ease-out) }
-:is(a:not([class]),.hsub button,.ftr .cite):is(:hover,:focus-visible){ background-size:100% 2px,100% 2px; background-position:0 calc(100% - .08em),0 calc(100% - .08em) }
-@media(prefers-reduced-motion:reduce){ :is(a:not([class]),.hsub button,.ftr .cite){ transition:none } }   /* every underlined link: a step bolder than prose, the same soft-ink line at the same distance (--ul); chrome links opt out with text-decoration:none */
+/* prose links (an <a> with no class: chrome links carry one), the hero's doors, Cite: a step bolder, the soft ink underline,
+   inked whole when pointed at */
+:is(a:not([class]),.hsub button,.ftr .cite){ font-weight:500; background:none; text-decoration:underline; text-decoration-thickness:max(1px,.08em); text-decoration-color:var(--ul); text-underline-offset:3px; transition:text-decoration-color var(--dur-long) var(--ease-out) }
+:is(a:not([class]),.hsub button,.ftr .cite):hover{ text-decoration-color:currentColor }   /* every underlined link: a step bolder than prose, the same soft-ink line at the same distance (--ul); chrome links opt out with text-decoration:none */
 a:hover{ text-decoration-color:currentColor }
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:var(--z-tooltip); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; text-decoration:none; padding:var(--s2) var(--s3); transform:translateY(-3.6rem); transition:transform var(--dur-micro) var(--ease-out) }
 .skip:focus{ transform:none }
@@ -217,8 +214,8 @@ body.mopen :is(.mhead,.hcolor){ animation:none }
 @supports (animation-timeline:scroll()){ .mhead::before{ background:var(--hues) center / 100% 100% no-repeat,var(--cur,var(--hair)); animation:edge-zoom linear both; animation-timeline:scroll(root); animation-range:0 var(--hc-dock,50vh) } }
 @keyframes edge-zoom{ 0%{ background-size:100% 100%,auto } 12.5%{ background-size:157% 100%,auto } 25%{ background-size:247% 100%,auto } 37.5%{ background-size:387% 100%,auto } 50%{ background-size:608% 100%,auto } 62.5%{ background-size:955% 100%,auto } 75%{ background-size:1500% 100%,auto } 87.5%{ background-size:2356% 100%,auto } 100%{ background-size:3700% 100%,auto } }   /* 37 steps: the middle one grown to the width – a geometric zoom, each eighth of the way ×1.57, so it feels even */
 body.mopen .cells{ background:var(--paper) }   /* over a card the row is paper */
-body.mopen .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-index:calc(var(--z-modal) + 2) }
-@media(min-width:1080px){ body.mopen .hcolor{ max-width:var(--maxw); margin-inline:auto } }
+body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-index:calc(var(--z-modal) + 2) }   /* a card over a docked color: the color stays in the row, live; over the hero it stays in the hero, under the card */
+@media(min-width:1080px){ body.mopen.mdock .hcolor{ max-width:var(--maxw); margin-inline:auto } }
 /* the theme and the source close the row, icons as the lenses are */
 .cells .thm{ color:var(--soft) } .cells .thm:is(:hover,:focus-visible){ color:var(--ink) }
 .thm .sun,:root[data-theme="dark"] .thm .moon{ display:none } :root[data-theme="dark"] .thm .sun{ display:block }   /* the mark is the theme it turns to – in the markup, picked by the pre-paint data-theme */
@@ -351,6 +348,8 @@ body.himg #imgfloat{ display:block }
 .hl-anns{ position:relative; height:var(--s12) }
 .hl-ms{ position:absolute; top:0; bottom:0; left:calc(var(--x) * 1%); max-width:calc(var(--w) * 1% - var(--s3)); padding:0 0 0 var(--s2); font:inherit; font-size:var(--t1); line-height:1.35; text-align:left; color:var(--soft); background:none; border:0; border-left:var(--rule-hair) solid var(--soft); cursor:pointer }
 .hl-ms.end{ left:auto; right:calc(100% - var(--x) * 1%); padding:0 var(--s2) 0 0; text-align:right; border-left:0; border-right:var(--rule-hair) solid var(--soft) }
+.hl-ms{ translate:calc(var(--rule-hair) / -2) 0 } .hl-ms.end{ translate:calc(var(--rule-hair) / 2) 0 }   /* the flag's words a hair off its line, as before */
+@container hl (width >= 56rem){ :is(.hl-ms,.hl-ms.end){ border-color:transparent } }   /* wide: the leader draws the flag's line; narrow (no leaders) the flag keeps its own */
 .hl-ms b{ display:block; font-weight:700; color:var(--ink); white-space:nowrap }
 .hl-ms b::after{ content:'↗'; display:inline-block; width:0; text-indent:.25em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the catalog's idiom, as .nm: ↗ opens the space */
 .hl-ms:is(:hover,:focus-visible) b::after{ opacity:1 }
@@ -363,14 +362,14 @@ body.himg #imgfloat{ display:block }
 .hl-ms.hl-now{ pointer-events:none }
 .hl-now b::after{ opacity:1 }
 /* the stack: one figure. Scrolled away, it is skipped – the orbit restyles the page every frame */
-.hl-st{ position:relative; padding-block:var(--hl-pad); cursor:pointer; content-visibility:auto; contain-intrinsic-block-size:auto none }
+.hl-st{ position:relative; padding-block:var(--hl-pad); cursor:pointer }   /* no content-visibility: its paint containment would clip the leaders where they rise to their flags */
 .hl-sv{ display:block; width:100%; height:calc(var(--u) * var(--hl-t)); overflow:visible; shape-rendering:crispEdges }
 :is(.hl-b,.hl-kd){ --hl-kc:oklch(calc(var(--hl-l0) + var(--hl-dl) * var(--k) / (var(--hl-n) - 1)) min(var(--hl-c), var(--hl-cc, var(--hl-c))) var(--hl-h, 42)) }   /* the current hue; the light the values describe, a step of lightness – reflected darkest, the scene lightest */
 .hl-b{ fill:var(--hl-kc); transition:opacity var(--dur-short) var(--ease-out) }
 .hl-fig .out{ opacity:0; pointer-events:none }   /* the key keeps one light: the others' bands step out, their rows kept, and their milestones with them */
 .hl-b.on{ fill:var(--ink) }
 .hl-b:focus{ outline:0 } .hl-b:focus-visible{ stroke:var(--ink); stroke-width:2px; vector-effect:non-scaling-stroke }
-.hl-ld{ stroke:var(--soft); stroke-width:var(--rule-hair); vector-effect:non-scaling-stroke }
+.hl-ld{ position:absolute; left:calc(var(--x) * 1%); top:calc(-1 * var(--s12)); width:var(--rule-hair); height:calc(var(--s12) + var(--hl-pad) + var(--y) * var(--hl-t)); translate:-50% 0; background:var(--soft); pointer-events:none }   /* a milestone's line, from its flag's top down to its band – one element, so flag and leader can't part by a pixel; placed as the rhombus is (left: x %) */
 /* where a milestone begins: the catalog's rhombus (a space), on its leader */
 .hl-dm{ position:absolute; left:calc(var(--x) * 1%); top:calc(var(--hl-pad) + (var(--y) + .5) * var(--hl-t)); width:var(--s2); height:var(--s2); translate:-50% -50%; rotate:45deg; background:var(--paper); border:var(--picker-line) solid var(--ink); pointer-events:none }
 /* the years: a tick each decade, the ends and the half-centuries named */
@@ -431,7 +430,6 @@ body.himg #imgfloat{ display:block }
 .faq::before{ content:''; position:absolute; top:0; left:clamp(1rem,3vw,2.2rem); right:clamp(1rem,3vw,2.2rem); height:1px; background:var(--hair) }
 .fqs{ min-width:0; display:grid; grid-template-columns:1fr 1fr; column-gap:var(--s8); align-items:start }   /* two FIXED halves, not balancing columns — unfolding one entry must not shuffle its neighbours across columns */
 .fqcol{ min-width:0 }
-.fqa{ max-width:68ch }
 .fqa+.fqa{ border-top:1px solid var(--hair) }   /* a soft rule BETWEEN questions only — adjacent siblings, so column tops and bottoms stay clean */
 .fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s4) 0 var(--s5) }
 .fqa summary::-webkit-details-marker{ display:none }
@@ -701,6 +699,15 @@ body.himg #imgfloat{ display:block }
    (the row's own paper masks content passing under). */
 body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 .modal[hidden]{ display:none }
+/* the card comes and goes as the menus do: a fade and a short rise – translate set only on the way, so the resting card
+   is no containing block */
+.modal{ transition:display var(--dur-short) allow-discrete }
+.mbox{ --from:0 var(--s3); transition:opacity var(--dur-short) var(--ease-out),translate var(--dur-short) var(--ease-out) }
+.modal[hidden]{ overflow:hidden }   /* leaving, the card's scroller gives up its bar at once – the page's is back, one bar, never two */
+.modal[hidden] .mbox{ opacity:0; translate:var(--from) }
+@starting-style{ .modal:not([hidden]) .mbox{ opacity:0; translate:var(--from) } }
+@media(prefers-reduced-motion:reduce){ .mbox{ --from:0 0 } }   /* still: the fade alone */
+:root[data-embed] .mbox{ transition:none }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
@@ -1033,11 +1040,10 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
    them – over the wall, the current color's hue wheel at its lightness, four rows quantized ever coarser (72 → 36 → 18 →
    9: sampling, told once, standing still). The color's own ink (renderFast) reads on all of it ── */
 .ftr{ display:flex; flex-direction:column; gap:var(--s12); margin-top:var(--s12); padding:calc(var(--s12) * 1.5) var(--gut) var(--s12); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
-.fbody,.legal{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
-.fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: what this is and how to get it | where to go */
-.flead h2{ font-size:var(--text-xl); font-weight:800; letter-spacing:-.02em; line-height:1.15; text-wrap:balance }
-.flead p{ margin-top:var(--s3); max-width:56ch; font-size:var(--t3); line-height:1.5; text-wrap:pretty }
-.finst{ width:min(28rem,100%); margin-top:var(--s6) }
+.fbody{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
+.fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: where to go | how to get it, and who made it */
+.fend{ display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:var(--s8) }   /* the install command at the top, the maker and the license at the foot – both to the right */
+.finst{ width:min(28rem,100%) }
 .finst .cpyi{ top:50%; translate:0 -50% }   /* one line of command: the copy button centred on it */
 .fcols{ display:grid; grid-template-columns:repeat(4,minmax(max-content,1fr)); gap:var(--s8) var(--s6); align-content:start }
 .fcols .plab{ color:inherit; opacity:.75; white-space:nowrap }   /* the wall's ink, a step back – every title on one line */
@@ -1045,10 +1051,10 @@ pre b{ color:color-mix(in oklab,var(--c) 72%,var(--color-terminal-ink)) } pre i{
 .fcols li{ margin-top:var(--s2); font-size:var(--t2); line-height:1.4; white-space:nowrap }
 .ftr a{ color:inherit }
 .ftr .cite{ font:inherit; font-weight:500; color:inherit; border:0; padding:0; cursor:pointer }   /* a button (it opens, not navigates) dressed as its link neighbours */
-.legal{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker on the left; the license and the dedication together on the right */
+.legal{ display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker, the license and the dedication, at the right */
 .legal span{ display:flex; gap:var(--s5) }
 @media(max-width:1079px){ .fcols{ grid-template-columns:repeat(2,minmax(max-content,1fr)) } }
-@media(max-width:740px){ .fbody{ grid-template-columns:1fr } }
+@media(max-width:740px){ .fbody{ grid-template-columns:1fr } .fend{ align-items:flex-start } .legal{ justify-content:flex-start } }
 .ftr :focus-visible{ outline-color:currentColor }
 /* Cite: a native popover – the top layer, no positioning script; the floating-panel skin (paper, --pop-shadow), the
    dossier's labels and code plates inside */
@@ -1326,18 +1332,17 @@ color-space/plugins/figma/manifest.json
 
 <footer class="ftr" id="ftr">
 	<div class="fbody">
-		<div class="flead">
-			<h2 data-i18n="ui.footer.title">Open collection of color spaces</h2>
-			<section class="finst" aria-label="install" data-i18n="aria-label:ui.footer.install-label"><div class="snipwrap"><button class="cpyi" type="button" data-copy="npmcmd" title="copy" aria-label="copy the install command" data-i18n="title:ui.copy aria-label:ui.footer.copy-npm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="npmcmd">npm install color-space</pre></div></section>
-		</div>
 		<div class="fcols">
 			<div><p class="plab" data-i18n="ui.footer.project">Project</p><ul><li><a href="https://github.com/colorjs/color-space">GitHub</a></li><li><a href="https://www.npmjs.com/package/color-space">npm</a></li><li><a href="https://github.com/colorjs" title="the colorjs family of color packages" data-i18n="title:ui.footer.colorjs">colorjs</a></li></ul></div>
 			<div><p class="plab" data-i18n="ui.footer.research">Research</p><ul><li><button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button></li><li><a href="https://github.com/colorjs/color-space/issues/new?title=Wrong%20value%3A%20" data-i18n="ui.footer.report">Report an error</a></li><li><a href="https://github.com/colorjs/color-space/issues/new?title=Space%3A%20" data-i18n="ui.footer.suggest">Suggest a space</a></li></ul></div>
 			<div><p class="plab" data-i18n="ui.footer.supported">Supported by</p><ul><li><a href="https://www.herodevs.com">HeroDevs</a></li><li><a href="https://thanks.dev">thanks.dev</a></li><li><a href="https://github.com/sponsors/dy" data-i18n="ui.footer.support">Sponsor</a></li></ul></div>
 			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li></ul></div>
 		</div>
+		<div class="fend">
+			<section class="finst" aria-label="install" data-i18n="aria-label:ui.footer.install-label"><div class="snipwrap"><button class="cpyi" type="button" data-copy="npmcmd" title="copy" aria-label="copy the install command" data-i18n="title:ui.copy aria-label:ui.footer.copy-npm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="npmcmd">npm install color-space</pre></div></section>
+			<p class="legal"><a href="https://github.com/dy" data-i18n="ui.footer.by">Made by dy</a><span><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></span></p>
+		</div>
 	</div>
-	<p class="legal"><a href="https://github.com/dy" data-i18n="ui.footer.by">Made by dy</a><span><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></span></p>
 </footer>
 
 <div class="citep" id="citep" popover role="dialog" aria-label="cite color-space" data-i18n="aria-label:ui.cite.label">
@@ -2364,18 +2369,16 @@ const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="${t('u
 const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="${t('ui.nav.next-cat','next category')}"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${icon('next2')}</button>`
 // two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
 const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="${t('ui.nav.label','adjacent color spaces')}"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
-let modalScroll=null   // the page's scroll before a card opened with the hero in view
 function openModal(s){
 	// lock body scroll without a layout jump: pad exactly the scrollbar's width
 	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
+	// a card is a plain modal: the page behind stays where it was. The pinned row stays live above it – its Limit, Quantize
+	// and Vision reach the dossier too – and the color with it once docked (.mdock); over the hero the color stays in the
+	// hero, under the card. Everything else behind the card sleeps
+	if(modal.hidden) document.body.classList.toggle('mdock',cxEl.getBoundingClientRect().top<stripEl.querySelector('.cells').getBoundingClientRect().bottom)
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
-	// the pinned row stays live above the card – its Limit, Quantize and Vision reach the dossier too. A card opened with the
-	// hero still in view first brings the catalog up: the spaces behind the card – not the hero (the page goes back on
-	// close). A name view's own first card keeps the first screen it was baked on. Everything else behind the card sleeps
-	if(modalScroll==null&&scrollY<catY()-1){ modalScroll=scrollY
-		scrollTo({top:!openModal.seen&&s===BOOT.seg?0:catY(),behavior:'instant'}) }
 	for(const el of pageShell.children) el.inert=!(el===stripEl||el.id==='hcolor'||el.matches('.dpop'))   // the row – the color and the lenses – stays live over the card
 	urlLast=spaceURL(s)+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
@@ -2411,7 +2414,6 @@ function closeModal(){ if(EMBED) return   // an embedded card is the whole docum
 	ensureCat(); modal.hidden=true; for(const el of pageShell.children) el.inert=false; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	paintCatalogVals(); paintCatalogGrad()   // the catalog slept behind the dossier — catch it up to whatever the modal picked
 	urlLast=spaceURL('')+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
-	if(modalScroll!=null){ scrollTo({top:modalScroll,behavior:'instant'}); modalScroll=null }   // back to where the card was opened from
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
 document.getElementById('mx').onclick=closeModal

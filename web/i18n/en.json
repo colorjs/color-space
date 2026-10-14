@@ -1194,7 +1194,6 @@
 "ui.footer.suggest": {"t":"Suggest a space","h":"4eccc1e0"},
 "ui.footer.support": {"t":"Sponsor","h":"fd0b743b"},
 "ui.footer.supported": {"t":"Supported by","h":"1c163efe"},
-"ui.footer.title": {"t":"Open collection of color spaces","h":"3115b2b1"},
 "ui.footer.verified": {"t":"How it’s verified","h":"516584c6"},
 "ui.gamut.fit.clip": {"t":"outside the locus – not a color; the preview clips","h":"0cb6bc10"},
 "ui.gamut.fit.locus": {"t":"no surface shows it, but it is a real light – on the spectral locus","h":"dd2bc811"},

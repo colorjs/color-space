@@ -61,7 +61,7 @@ export function lineageHTML() {
 	return `<figure class="hl-fig" style="--hl-n:${LIGHT.length}" aria-label="${esc(t('ui.lineage.summary', '{n} color spaces as lines from the year each appeared, {from} to {to}. Arrow keys move between the spaces, Enter opens one.', { n: N, from: Y0, to: Y1 }))}">
 		<div class="hl-lead"><h2>${esc(t('ui.lineage.title', 'History'))}</h2></div>
 		<div class="hl-anns">${MS.map(m => `<button type="button" class="hl-ms${m.end ? ' end' : ''}${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--w:${m.w.toFixed(2)}">${flag(m.b)}</button>`).join('')}<span class="hl-ms hl-now" aria-hidden="true"></span></div>
-		<div class="hl-st"><svg class="hl-sv" viewBox="0 0 ${W} ${N}" preserveAspectRatio="none" style="--u:${N}" role="group">${MS.map(m => `<line class="hl-ld" data-s="${m.s}" x1="${+m.b.x.toFixed(2)}" x2="${+m.b.x.toFixed(2)}" y1="-3" y2="${m.b.row}"/>`).join('')}<line class="hl-ld hl-now" y1="-3"/>${BANDS.map(b => `<rect class="hl-b" x="${+b.x.toFixed(2)}" y="${b.row}" width="${+(b.e - b.x).toFixed(2)}" height="1" style="--k:${b.k}" data-s="${b.s}" role="button" tabindex="-1" aria-label="${esc(said(b))}"/>`).join('')}</svg>${MS.map(m => `<i class="hl-dm${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i>`).join('')}<i class="hl-dm hl-now"></i></div>
+		<div class="hl-st"><svg class="hl-sv" viewBox="0 0 ${W} ${N}" preserveAspectRatio="none" style="--u:${N}" role="group">${BANDS.map(b => `<rect class="hl-b" x="${+b.x.toFixed(2)}" y="${b.row}" width="${+(b.e - b.x).toFixed(2)}" height="1" style="--k:${b.k}" data-s="${b.s}" role="button" tabindex="-1" aria-label="${esc(said(b))}"/>`).join('')}</svg>${MS.map(m => `<i class="hl-ld" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i><i class="hl-dm${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i>`).join('')}<i class="hl-ld hl-now"></i><i class="hl-dm hl-now"></i></div>
 		<div class="hl-ax" aria-hidden="true"><svg viewBox="0 0 ${W} 1" preserveAspectRatio="none"><path d="${DEC.map(d => `M${+X(d).toFixed(2)} 0V1`).join('')}"/></svg>${YRS.map((y, i) => `<span class="tnum${i ? i === YRS.length - 1 ? ' end' : near(y) ? ' near' : '' : ' start'}" style="--x:${(X(y) / W * 100).toFixed(2)}">${y}</span>`).join('')}</div>
 		<div class="hl-key">${LIGHT.map((l, k) => `<button type="button" class="hl-kd" data-k="${k}" aria-pressed="false" style="--k:${k}"><i></i>${esc(l())}</button>`).join('')}</div>
 	</figure>` }
@@ -70,7 +70,7 @@ export function lineageHTML() {
  *  the current OKLCH chroma and hue: the bands are never more saturated than the color; a gray keeps the hue it had. */
 export function wireLineage(el, open) {
 	const fig = el.querySelector('.hl-fig'), sv = el.querySelector('.hl-sv')
-	const [fl, ld, dm] = fig.querySelectorAll('.hl-now')   // the picked band's flag, leader and rhombus
+	const [fl, ld, dm] = fig.querySelectorAll('.hl-now')   // the picked band's flag, leader and rhombus (in that document order)
 	const els = new Map([...fig.querySelectorAll('.hl-b')].map(b => [b.dataset.s, b]))
 	let cur = null, tab = els.get(BANDS[0].s), only = null   // the band picked (pointer or focus) · the one Tab lands on · the light kept
 	const vis = b => only === null || b.k === only
@@ -82,10 +82,9 @@ export function wireLineage(el, open) {
 		fig.classList.toggle('now', !!e)
 		if (!e) { tip.remove(); return }
 		e.classList.add('on'); tip.textContent = said(b); e.append(tip)
-		const x = b.x / W * 100, end = b.x > W * .6, xs = (+b.x.toFixed(2)) + ''
+		const x = b.x / W * 100, end = b.x > W * .6
 		fl.innerHTML = flag(b); fl.classList.toggle('end', end); fl.style.cssText = `--x:${x.toFixed(2)};--w:${(end ? x : 100 - x).toFixed(2)}`
-		ld.setAttribute('x1', xs); ld.setAttribute('x2', xs); ld.setAttribute('y2', b.row)
-		dm.style.cssText = `--x:${x.toFixed(2)};--y:${b.row}` }
+		ld.style.cssText = dm.style.cssText = `--x:${x.toFixed(2)};--y:${b.row}` }
 	// the band nearest the pointer's row among those running at its year – a 3px band is hard to hit
 	const hit = e => { if (!e.target.closest?.('.hl-st')) return null
 		const r = sv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, u = (e.clientY - r.top) / r.height * N

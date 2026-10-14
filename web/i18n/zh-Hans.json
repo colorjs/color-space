@@ -1178,7 +1178,6 @@
 "ui.footer.suggest": {"t":"建议收录色彩空间","h":"4eccc1e0"},
 "ui.footer.support": {"t":"成为赞助者","h":"fd0b743b"},
 "ui.footer.supported": {"t":"支持者","h":"1c163efe"},
-"ui.footer.title": {"t":"完整的色彩空间合集","h":"e8281ab7"},
 "ui.footer.verified": {"t":"如何核验","h":"516584c6"},
 "ui.gamut.fit.clip": {"t":"在轨迹之外——不是颜色；预览会裁切","h":"0cb6bc10"},
 "ui.gamut.fit.locus": {"t":"没有表面能呈现它，但它是真实的光——位于光谱轨迹上","h":"dd2bc811"},

@@ -1178,7 +1178,6 @@
 "ui.footer.suggest": {"t":"색공간 제안","h":"4eccc1e0"},
 "ui.footer.support": {"t":"후원하기","h":"fd0b743b"},
 "ui.footer.supported": {"t":"후원","h":"1c163efe"},
-"ui.footer.title": {"t":"색공간을 망라한 컬렉션","h":"e8281ab7"},
 "ui.footer.verified": {"t":"검증 방법","h":"516584c6"},
 "ui.gamut.fit.clip": {"t":"궤적 밖 – 색이 아닙니다. 미리보기는 잘립니다","h":"0cb6bc10"},
 "ui.gamut.fit.locus": {"t":"어떤 물체 표면도 보여 줄 수 없지만 실재하는 빛입니다 – 스펙트럼 궤적 위","h":"dd2bc811"},
