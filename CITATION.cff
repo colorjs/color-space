@@ -13,8 +13,8 @@ authors:
 repository-code: https://github.com/colorjs/color-space
 url: https://color-space.io
 license: CC0-1.0
-version: 3.2.0
-date-released: "2026-10-13"
+version: 3.3.0
+date-released: "2026-10-14"
 keywords:
   - color
   - colour

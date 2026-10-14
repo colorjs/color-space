@@ -266,9 +266,9 @@ color-space 3.1.0.
 
 ### Added (2026-10-14)
 
-Versions: colour-science 0.4.7, OpenCV 5.0.0, numpy 2.5.4, color-space 3.2.0.
+Versions: colour-science 0.4.7, OpenCV 5.0.0, numpy 2.5.4, color-space 3.2.0 with the 3.3.0 spaces.
 
-- **29 snippets for spaces added in 3.2.0, all pass:** nine scene-linear camera gamuts
+- **29 snippets for spaces added in 3.3.0, all pass:** nine scene-linear camera gamuts
   (awg3, awg4, dwg, rwg, bmdwg, vgamut, sgamut3, dgamut, egamut), ten RGB working spaces
   (ecirgb, widegamut, colormatch, brucergb, betargb, bestrgb, donrgb4, ektaspace, russellrgb,
   dci-p3-plus), din99, din99c, hunter-rdab, msh, scam, kim2009, ipt-ragoo, ictcp-hlg (plus its

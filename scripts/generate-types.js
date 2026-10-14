@@ -287,6 +287,8 @@ export function smpte240mDecode(v: number): number;
 export function smpte240mEncode(v: number): number;
 export function pqST2084Decode(v: number): number;
 export function pqST2084Encode(v: number): number;
+export function hlgDecode(v: number): number;
+export function hlgEncode(v: number): number;
 `)
 fs.writeFileSync(path.join(dir, 'cie.d.ts'), banner + `
 export const ε: number;
@@ -297,8 +299,15 @@ export function labFInv(t: number): number;
 `)
 fs.writeFileSync(path.join(dir, 'mcp.d.ts'), banner + `
 export interface McpMessage { jsonrpc?: '2.0'; id?: string | number | null; method?: string; params?: unknown; }
-/** Handle one JSON-RPC message, writing any response to stdout. */
-export function handle(message: McpMessage): void;
+export interface McpResponse { jsonrpc: '2.0'; id: string | number | null; result?: unknown; error?: { code: number; message: string; data?: unknown }; }
+/** Handle one JSON-RPC message: its response, or undefined for a notification or a response. */
+export function handle(message: McpMessage): Promise<McpResponse | undefined>;
+/** The stdio transport: newline-delimited JSON-RPC on stdin/stdout. */
+export function serve(): Promise<void>;
+/** Streamable HTTP, stateless: a fetch handler (Node 18+, Workers, Deno, Bun). */
+export function fetch(request: Request): Promise<Response>;
+/** The fetch handler on node:http, bound to localhost. */
+export function serveHttp(port?: number, host?: string): Promise<unknown>;
 `)
 
 // lut — the .cube exporter (lut.js takes space objects, so it types against ColorSpace)

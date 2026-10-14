@@ -9,13 +9,14 @@
  *     npx color-space space oklch            → one space's dossier, JSON
  *     npx color-space spaces                 → the catalog
  *     npx -y color-space mcp                 → MCP stdio server (agent tools)
+ *     npx -y color-space mcp --http 8787     → the same over Streamable HTTP, on localhost
  */
 import space from './index.js'
 import data from './data.json' with { type: 'json' }
 import pkg from './package.json' with { type: 'json' }
 import { cube, channelwise } from './lut.js'
 import { profile } from './icc.js'
-import { serve } from './mcp.js'
+import { serve, serveHttp } from './mcp.js'
 
 const meta = data.spaces, names = Object.keys(space)
 const fail = (m) => { process.stderr.write(m + '\n'); process.exit(1) }
@@ -28,7 +29,8 @@ const usage = `color-space ${pkg.version} — ${names.length} verified color spa
   color-space icc <space>              ICC profile → stdout
   color-space space <name>             one space's dossier (JSON)
   color-space spaces                   list every space
-  color-space mcp                      MCP server on stdio (tools: convert · gamut · css · space · spaces · cube)
+  color-space mcp [--http <port>]      MCP server on stdio, or Streamable HTTP on localhost
+                                       (tools: convert · gamut · css · space · spaces · cube · shader · icc · code)
 
   color-space rgb oklch 255 128 0      → 0.7319 0.1858 52.98
   npx -y color-space mcp               → the MCP server, as agent configs launch it
@@ -57,7 +59,7 @@ const run = {
 			source: `https://github.com/colorjs/color-space/blob/master/spaces/${name}.js` }, null, 1))
 	},
 	spaces() { console.log(names.join('\n')) },
-	mcp: serve,
+	mcp(flag, port) { flag === '--http' ? serveHttp(+port || undefined) : serve() },
 }
 
 const [cmd, ...rest] = process.argv.slice(2)

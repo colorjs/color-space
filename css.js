@@ -73,3 +73,65 @@ const EPS = 1e-4
 export const exact = (space, v, srgb) => v.every(Number.isFinite)
 	&& (!FLOOR1.has(space) || v[1] >= -EPS)
 	&& (SRGB.has(space) ? !!srgb : !(space in LMAX) || (v[0] >= -EPS && v[0] <= LMAX[space] + EPS))
+
+// ── the reverse: a CSS Color 4 string → [library space id, values in its conventional ranges]
+// The notations above plus what CSS accepts besides: #rgb[a] / #rrggbb[aa], the named colors
+// and transparent, legacy comma syntax, rgba()/hsla(), percentages (each channel's own
+// reference range), `none` (= 0), hue units (deg, grad, rad, turn), color(srgb …) and
+// color(rec2020 …). Alpha is read and returned apart; it never enters the values.
+// color(rec2020 …) is CSS's 2.4-gamma signal (see the header), so it decodes to rec2020-linear –
+// the same primaries – rather than naming this library's BT.2020-OETF rec2020.
+// @see https://drafts.csswg.org/css-color-4/#color-syntax
+const PCT = { rgb: [255, 255, 255], hsl: [0, 100, 100], hwb: [0, 100, 100], lab: [100, 125, 125], lchab: [100, 150, 0], oklab: [1, 0.4, 0.4], oklch: [1, 0.4, 0] }
+const FN = { rgb: 'rgb', rgba: 'rgb', hsl: 'hsl', hsla: 'hsl', hwb: 'hwb', lab: 'lab', lch: 'lchab', oklab: 'oklab', oklch: 'oklch' }
+const HUE = { rgb: -1, hsl: 0, hwb: 0, lab: -1, lchab: 2, oklab: -1, oklch: 2 }
+const PREDEF = { srgb: ['rgb', 255], 'srgb-linear': ['lrgb', 1], 'display-p3': ['p3', 1], 'a98-rgb': ['a98rgb', 1], 'prophoto-rgb': ['prophoto', 1],
+	rec2020: ['rec2020-linear', 1], xyz: ['xyz', 100], 'xyz-d65': ['xyz', 100], 'xyz-d50': ['xyz-d50', 100] }
+const ANGLE = { deg: 1, grad: 0.9, rad: 180 / Math.PI, turn: 360 }
+const num = (t, pct) => {
+	if (t === 'none') return 0
+	const m = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)(%|deg|grad|rad|turn)?$/.exec(t)
+	if (!m) return NaN
+	const x = +m[1]
+	return m[2] === '%' ? x / 100 * pct : m[2] ? x * ANGLE[m[2]] : x
+}
+
+/**
+ * Parse a CSS color string.
+ * @param {string} str e.g. '#ff8000', 'rebeccapurple', 'oklch(70% 0.1 50)', 'color(display-p3 1 0.5 0)'
+ * @param {Record<string, number[]>} [names] the CSS named colors (web/js/names.js), for names
+ * @returns {{space: string, values: number[], alpha: number} | undefined} undefined when not a CSS color
+ */
+export const parse = (str, names) => {
+	const s = String(str).trim().toLowerCase()
+	if (s[0] === '#') {
+		const h = s.slice(1)
+		if (!/^(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(h)) return
+		const d = h.length < 5 ? [...h].map((c) => parseInt(c + c, 16)) : h.match(/../g).map((c) => parseInt(c, 16))
+		return { space: 'rgb', values: d.slice(0, 3), alpha: d.length > 3 ? d[3] / 255 : 1 }
+	}
+	if (s === 'transparent') return { space: 'rgb', values: [0, 0, 0], alpha: 0 }
+	if (names && Object.hasOwn(names, s)) return { space: 'rgb', values: names[s].slice(0, 3), alpha: 1 }
+	const m = /^([a-z][a-z0-9-]*)\(\s*(.*?)\s*\)$/.exec(s)
+	if (!m) return
+	const [main, a = '1'] = m[2].split(/\s*\/\s*/)
+	let alpha = num(a, 1)
+	let toks = main.split(/\s*,\s*|\s+/).filter(Boolean)
+	let id, k = 1, pct
+	if (m[1] === 'color') {
+		const p = PREDEF[toks[0]]
+		if (!p) return
+		;[id, k] = p; toks = toks.slice(1); pct = [1, 1, 1]
+	} else {
+		id = FN[m[1]]
+		if (!id) return
+		pct = PCT[id]
+		if (/,/.test(main) && toks.length === 4 && !/\//.test(m[2])) { alpha = num(toks[3], 1); toks.length = 3 }   // legacy rgba(r, g, b, a)
+	}
+	if (toks.length !== 3) return
+	const v = toks.map((t, i) => num(t, pct[i]) * (i === HUE[id] ? 1 : k))
+	if ((id === 'hsl' || id === 'hwb') && toks.slice(1).some((t) => !/%$/.test(t) && t !== 'none' && /,/.test(main))) return   // legacy hsl() needs percentages
+	if (id === 'rec2020-linear') for (let i = 0; i < 3; i++) v[i] = Math.sign(v[i]) * Math.abs(v[i]) ** 2.4
+	if (!v.every(Number.isFinite)) return
+	return { space: id, values: v, alpha: Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1 }
+}

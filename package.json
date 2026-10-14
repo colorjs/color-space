@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Open collection of color spaces",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "mcpName": "io.github.colorjs/color-space",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
@@ -59,6 +59,9 @@
     "docs",
     "web/js/categories.js",
     "web/js/purpose.js",
+    "web/js/names.js",
+    "web/js/python.js",
+    "skills",
     "CHANGELOG.md"
   ],
   "bin": {

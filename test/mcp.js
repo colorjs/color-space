@@ -9,6 +9,9 @@ import { readFileSync } from 'node:fs'
 import test, { is, ok } from 'tst'
 import Color from 'colorjs.io'
 import space from '../index.js'
+import { parse } from '../css.js'
+import NAMES from '../web/js/names.js'
+import { fetch as httpFetch } from '../mcp.js'
 import data from '../data.json' with { type: 'json' }
 import pkg from '../package.json' with { type: 'json' }
 
@@ -72,7 +75,7 @@ test('mcp: 2026-07-28 — discover, resultType, cache hints, version errors', as
 
 test('mcp: every tool is titled, read-only, closed, and typed', async () => {
 	const { tools } = (await call('tools/list')).result
-	is(tools.map((t) => t.name), ['convert', 'gamut', 'css', 'space', 'spaces', 'cube'], 'six tools, deterministic order')
+	is(tools.map((t) => t.name), ['convert', 'gamut', 'css', 'space', 'spaces', 'cube', 'shader', 'icc', 'code'], 'nine tools, deterministic order')
 	for (const t of tools) {
 		ok(t.title && t.annotations.title === t.title, `${t.name}: title`)
 		is([t.annotations.readOnlyHint, t.annotations.destructiveHint, t.annotations.idempotentHint, t.annotations.openWorldHint], [true, false, true, false], `${t.name}: read-only hints`)
@@ -191,6 +194,94 @@ test('mcp: space dossier carries provenance and refs', async () => {
 	is(d.family, 'Film & camera', 'family')
 	ok(d.neighbors.includes('xyz'), 'direct neighbour edge')
 	ok(Array.isArray(d.refs) && d.refs.length > 0, 'defining references present')
+})
+
+test('mcp: CSS strings parse as CSS Color 4 does (vs colorjs)', () => {
+	// every notation, units, percentages, none and legacy syntax: our parse + convert lands where colorjs.io's parser does
+	const strs = ['#f80', '#ff8000cc', 'rebeccapurple', 'rgb(255 128 0)', 'rgba(255, 128, 0, 0.5)', 'rgb(100% 50% 0% / 50%)',
+		'hsl(30 100% 50%)', 'hsl(30deg, 100%, 50%)', 'hsl(0.5turn 100% 50%)', 'hwb(1rad 10% 20%)', 'lab(54% 80 67)', 'lab(54 64% -10%)',
+		'lch(50% 50% 90)', 'oklab(0.7 0.1 -0.1)', 'oklab(70% 25% 25%)', 'oklch(70% 0.1 50)', 'oklch(0.7 25% 200grad)',
+		'color(display-p3 1 0.5 0)', 'color(srgb 100% 50% 0%)', 'color(srgb-linear 0.5 0.2 0.1)', 'color(a98-rgb 0.4 0.5 0.6)',
+		'color(prophoto-rgb 0.4 0.5 0.6)', 'color(xyz-d65 0.4 0.2 0.02)', 'color(xyz-d50 0.4 0.2 0.02)', 'color(xyz 0.4 0.2 0.02)']
+	// compared in the parsed space itself (colorjs id, scale): parsing only, no conversion in between
+	const CJ = { rgb: ['srgb', 255], hsl: ['hsl', 1], hwb: ['hwb', 1], lab: ['lab', 1], lchab: ['lch', 1], oklab: ['oklab', 1], oklch: ['oklch', 1], p3: ['p3', 1],
+		lrgb: ['srgb-linear', 1], a98rgb: ['a98rgb', 1], prophoto: ['prophoto', 1], xyz: ['xyz-d65', 100], 'xyz-d50': ['xyz-d50', 100], 'rec2020-linear': ['rec2020-linear', 1] }
+	for (const t of strs) {
+		const p = parse(t, NAMES), [id, k] = CJ[p.space], exp = new Color(t).to(id).coords.map((x) => (Number.isNaN(x) ? 0 : x) * k)
+		ok(p.values.every((v, i) => Math.abs(v - exp[i]) < 1e-9 * Math.max(1, Math.abs(exp[i]))), `${t} → ${p.space} [${p.values.map((x) => +x.toFixed(6))}] vs colorjs ${id} [${exp.map((x) => +x.toFixed(6))}]`)
+	}
+	is([parse('#ff8000cc').alpha, parse('rgba(255, 128, 0, 0.5)').alpha, parse('transparent').alpha], [0.8, 0.5, 0], 'alpha read apart')
+	is(parse('oklch(none 0.1 50)').values, [0, 0.1, 50], 'none = 0')
+	// CSS's rec2020 is BT.1886's 2.4 gamma (CSS Color 4 §10.8; colorjs 0.7 agrees, 0.5 still used the BT.2020 OETF)
+	is(parse('color(rec2020 0.6 0.4 0.2)'), { space: 'rec2020-linear', values: [0.6 ** 2.4, 0.4 ** 2.4, 0.2 ** 2.4], alpha: 1 }, 'color(rec2020) decodes 2.4 onto rec2020-linear')
+	is(parse('hsl(0.5turn 100 50)').values, [180, 100, 50], 'modern hsl() takes bare numbers as percentages (CSS Color 4 §7.1; colorjs 0.5 predates it)')
+	for (const bad of ['nope', 'rgb(1 2)', '#12345', 'hsl(30, 100, 50)', 'color(foo 1 2 3)', 'rebeccapurple']) is(parse(bad), undefined, `${bad} is not a CSS color${bad === 'rebeccapurple' ? ' without the names table' : ''}`)
+})
+
+test('mcp: a color goes in as a CSS string – convert, batches, gamut, css', async () => {
+	const c = (await tool('convert', { color: 'oklch(0.7 0.1 50)', to: 'rgb' })).structuredContent
+	is(c.colors[0].from, 'oklch', 'the string names its own space')
+	ok(c.colors[0].values.every((v, k) => near(v, space.oklch.rgb(0.7, 0.1, 50)[k])), 'same as the values route')
+	const b = (await tool('convert', { from: 'rgb', to: 'lab', colors: ['rebeccapurple', [255, 0, 0], '#00ff80'] })).structuredContent
+	is(b.colors.map((x) => x.from), ['rgb', 'rgb', 'rgb'], 'strings and tuples mix in one batch')
+	ok(b.colors[0].values.every((v, k) => near(v, space.rgb.lab(102, 51, 153)[k])), 'a named color')
+	const tup = await tool('convert', { to: 'lab', colors: [[1, 2, 3]] })
+	ok(tup.isError && /pass `from`/.test(tup.content[0].text), 'a tuple without from says so')
+	const bad = await tool('gamut', { color: 'nope' })
+	ok(bad.isError && /not a CSS color/.test(bad.content[0].text), 'an unparseable string says what parses')
+	is((await tool('gamut', { color: 'color(display-p3 1 0 0)' })).structuredContent.smallest, 'display-p3', 'gamut from a string')
+	is((await tool('css', { color: '#d18c65', notations: ['rgb'] })).structuredContent.css[0].css, 'rgb(209 140 101)', 'css from a string')
+	ok((await tool('css', { color: '#fff', from: 'rgb', values: [1, 2, 3] })).isError, 'values and color are exclusive')
+})
+
+test('mcp: shader writes the conversion in four languages', async () => {
+	const g = (await tool('shader', { from: 'rgb', to: 'oklch' })).structuredContent
+	is([g.language, g.entry], ['glsl', 'rgb_oklch'], 'GLSL by default, the entry named')
+	ok(/vec3 rgb_oklch\(vec3 c\)/.test(g.code), 'the entry function is in the source')
+	const w = (await tool('shader', { from: 'lab-d65', to: 'p3', language: 'wgsl' })).structuredContent
+	ok(/fn labd65_p3\(/.test(w.code), 'WGSL, hyphens stripped from the entry')
+	const h = (await tool('shader', { from: 'rgb', to: 'oklab', language: 'hlsl' })).structuredContent
+	ok(/float3 rgb_oklab\(/.test(h.code), 'HLSL through naga')
+	ok((await tool('shader', { from: 'rgb', to: 'oklab', language: 'cuda' })).isError, 'other languages refused')
+})
+
+test('mcp: icc returns the profile as an embedded resource', async () => {
+	const r = await tool('icc', { name: 'p3' })
+	is([r.structuredContent.class, r.structuredContent.pcs], ['mntr', 'XYZ'], 'an RGB working space: matrix + TRC display profile')
+	const blob = r.content[1].resource, bytes = Buffer.from(blob.blob, 'base64')
+	is([blob.mimeType, bytes.length], ['application/vnd.iccprofile', r.structuredContent.bytes], 'the bytes, base64')
+	is(bytes.toString('latin1', 36, 40), 'acsp', 'an ICC header')
+	const c = (await tool('icc', { name: 'oklch', grid: 9 })).structuredContent
+	is([c.class, c.pcs], ['scnr', 'Lab'], 'anything else: a CLUT on a Lab PCS')
+})
+
+test('mcp: code gives the JS call and the verified Python', async () => {
+	const r = (await tool('code', { color: '#ff8000', to: 'oklab' })).structuredContent
+	ok(r.js.includes("space.rgb.oklab(255, 128, 0)"), 'the JS call with the parsed values')
+	ok(/rgb = \[255, 128, 0\]/.test(r.python) && /v = colour\./.test(r.python), 'colour-science snippet at the same color')
+	ok(/oklab/.test(r.pythonFor), 'says which pair it is')
+	const x = (await tool('code', { from: 'oklch', to: 'lab-d65' })).structuredContent
+	ok(x.js.includes("space.oklch['lab-d65']("), 'hyphenated ids index as strings')
+	is(x.python, null, 'no sRGB side: no Python pair')
+})
+
+test('mcp: resources – the catalog and one dossier per space', async () => {
+	const l = (await call('resources/list')).result.resources
+	is(l.map((r) => r.uri), ['color-space://data.json'], 'data.json listed')
+	is((await call('resources/templates/list')).result.resourceTemplates[0].uriTemplate, 'color-space://space/{name}', 'a dossier template')
+	const d = JSON.parse((await call('resources/read', { uri: 'color-space://space/oklch' })).result.contents[0].text)
+	is([d.name, d.title], ['oklch', 'OKLCH'], 'one dossier')
+	is((await call('resources/read', { uri: 'color-space://space/nope' })).error.code, -32002, 'unknown → resource not found')
+})
+
+test('mcp: Streamable HTTP – POST JSON-RPC, 202 for notifications, CORS', async () => {
+	const post = (b) => httpFetch(new Request('http://x/', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) }))
+	const r = await post({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'convert', arguments: { color: '#ff8000', to: 'oklch' } } })
+	is([r.status, r.headers.get('access-control-allow-origin')], [200, '*'], 'JSON response, CORS open')
+	ok(near((await r.json()).result.structuredContent.colors[0].values[0], space.rgb.oklch(255, 128, 0)[0]), 'the same tools')
+	is((await post({ jsonrpc: '2.0', method: 'notifications/initialized' })).status, 202, 'a notification: accepted, no body')
+	is((await httpFetch(new Request('http://x/'))).status, 405, 'GET: no event stream here')
+	is((await httpFetch(new Request('http://x/', { method: 'POST', body: '{' }))).status, 400, 'bad JSON: parse error')
 })
 
 test('mcp: cube tool emits a parseable LUT', async () => {

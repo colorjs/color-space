@@ -35,7 +35,26 @@ img = cv2.imread('image.png')  # uint8, BGR order
 f = (img[..., ::-1] / 255).astype(np.float32)  # RGB 0–1, float32
 lin = np.where(f > 0.04045, ((f + 0.055) / 1.055) ** 2.4, f / 12.92).astype(np.float32)  # linear sRGB`
 
-export default {
+const note = (t) => t.match(/.{1,76}(?:\s|$)/g).map((l) => '# ' + l.trim())   // a caveat rides as wrapped comment lines under the line it qualifies
+
+// The snippet for space `s` at an sRGB color: the preamble once, the colour-science expression (and its
+// inverse), the OpenCV route where one held on the full 8-bit cube. The dossier's Python tab and the MCP
+// `code` tool both print this. Undefined when `s` has no verified entry.
+export const code = (s, rgb = [200, 100, 50]) => {
+	const e = ENTRIES[s], L = []
+	if (!e) return
+	if (e.colour) {
+		L.push('# ' + pip(e), PREAMBLE.replace('[200, 100, 50]', `[${rgb.join(', ')}]`), '', `# sRGB → ${s}, in color-space's ranges`, `v = ${e.colour}`)
+		if (e.caveat) L.push(...note(e.caveat))
+		if (e.inverse) L.push('', `# ${s} → sRGB 0–255`, `srgb = ${e.inverse}`)
+		if (e.inverseCaveat) L.push(...note(e.inverseCaveat))
+	}
+	if (e.opencv) L.push(...(L.length ? [''] : []), '# OpenCV, per pixel – ' + PIP_CV, PREAMBLE_CV, '', `# sRGB → ${s}`, `v = ${e.opencv}`)
+	L.push('', `# verified against color-space – ${VERIFIED}`)
+	return L.join('\n')
+}
+
+const ENTRIES = {
 	"rgb": { colour: "np.array(rgb, dtype=float)" },
 	"lrgb": { colour: "lin" },
 	"scrgb": { colour: "lin" },
@@ -197,3 +216,4 @@ export default {
 	"munsell": { colour: "(lambda m: np.array([((7 - m[3]) % 10) * 10 + m[0], m[1], m[2]]))(colour.notation.munsell.xyY_to_munsell_specification(colour.XYZ_to_xyY(XYZ)*[1, 1, 0.975]))", caveat: "Approximate: Munsell value matches, but hue and chroma interpolate the renotation data differently (up to ~0.9 hue step, ~2.2 chroma), and colour raises outside that data (e.g. value < 1).", scipy: true },
 	"yuv": { opencv: "cv2.cvtColor(f, cv2.COLOR_RGB2YUV) - [0, 0.5, 0.5]" },
 }
+export default ENTRIES

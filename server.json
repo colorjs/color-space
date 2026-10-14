@@ -9,13 +9,13 @@
     "source": "github",
     "id": "27033552"
   },
-  "version": "3.1.0",
+  "version": "3.3.0",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "color-space",
-      "version": "3.1.0",
+      "version": "3.3.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "packageArguments": [{ "type": "positional", "value": "mcp" }]

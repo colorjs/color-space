@@ -49,7 +49,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Agents
 
-MCP tools – `convert` · `gamut` · `css` · `space` · `spaces` · `cube` – so agents call verified math instead of guessing it.
+MCP tools – `convert` · `gamut` · `css` · `space` · `spaces` · `cube` · `shader` · `icc` · `code` – so agents call verified math instead of guessing it. A color goes in as any CSS string (`'#ff8000'`, `'oklch(0.7 0.1 50)'`, `'rebeccapurple'`) or as channel values; `shader` writes the conversion as GLSL, WGSL, HLSL or MSL, `code` gives the JS call and its verified colour-science equivalent.
 
 ```sh
 claude mcp add color-space -- npx -y color-space mcp                                      # Claude Code
@@ -61,6 +61,8 @@ Claude Desktop `claude_desktop_config.json`, any project `.mcp.json`:
 ```json
 { "mcpServers": { "color-space": { "command": "npx", "args": ["-y", "color-space", "mcp"] } } }
 ```
+
+Over HTTP (Streamable HTTP, stateless): `npx -y color-space mcp --http 8787` on localhost, or host `fetch` from `color-space/mcp.js` in a Worker, Deno or Bun. Skill for agents that load skills: [`skills/color-space`](skills/color-space/SKILL.md).
 
 ## Spaces
 

@@ -2793,17 +2793,9 @@ const hilite=(code,cm='//',q="'")=>code.split('\n').map(line=>{
 // loads with the first dossier, off the boot graph; a space without a verified entry gets no tab
 let PY=null, pyP=null
 const pyLoad=()=>pyP||(pyP=import('./js/python.js').then(m=>PY=m,()=>{ pyP=null; return null }))
-const pyNote=t=>t.match(/.{1,76}(?:\s|$)/g).map(l=>'# '+l.trim())   // a caveat rides as wrapped comment lines under the line it qualifies
-// the preamble once, the colour-science expression (and its inverse), the OpenCV route where one held
-// on the full 8-bit cube; the input is the current color, like the JS tab's
-const pyCode=(s,rgb)=>{ const e=PY.default[s], L=[]
-	if(e.colour){ L.push('# '+PY.pip(e), PY.PREAMBLE.replace('[200, 100, 50]',`[${rgb.join(', ')}]`), '', `# sRGB → ${s}, in color-space's ranges`, `v = ${e.colour}`)
-		if(e.caveat) L.push(...pyNote(e.caveat))
-		if(e.inverse) L.push('', `# ${s} → sRGB 0–255`, `srgb = ${e.inverse}`)
-		if(e.inverseCaveat) L.push(...pyNote(e.inverseCaveat)) }
-	if(e.opencv) L.push(...(L.length?['']:[]), '# OpenCV, per pixel – '+PY.PIP_CV, PY.PREAMBLE_CV, '', `# sRGB → ${s}`, `v = ${e.opencv}`)
-	L.push('', `# verified against color-space – ${PY.VERIFIED}`)
-	return L.join('\n') }
+// the preamble once, the colour-science expression (and its inverse), the OpenCV route – python.js's
+// code(), the MCP code tool's text too; the input is the current color, like the JS tab's
+const pyCode=(s,rgb)=>PY.code(s,rgb)
 // the embed: a name view as its card alone (?embed). The absolute address is the deployment's
 // own, read off the canonical link generate-landing stamps – never typed twice
 const SITEURL=(document.querySelector('link[rel="canonical"]')?.href||location.origin+'/').replace(/\/[^/]*$/,'')
