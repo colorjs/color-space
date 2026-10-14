@@ -5214,7 +5214,7 @@ renderFast(); paintCatalogGrad()
 		const t=X[0]+X[1]+X[2]; mk.style.display=t>1e-6?'':'none'; if(t<=1e-6) return
 		const [x,y]=GXY([X[0]/t,X[1]/t]), c=RGB(); mk.style.left=((x-36)/290*100).toFixed(2)+'%'; mk.style.top=((y-18)/318*100).toFixed(2)+'%'   // the viewBox's crop, in percent
 		mk.style.setProperty('--tkc',hex(c)); mk.style.setProperty('--tki',ink(c)) }
-	heroLimit=()=>lim.setAttribute('d',LIMD(GM==='vis'?'locus':GM))   // Surface fills the whole horseshoe: in xy the object colors reach every chromaticity (dim enough) – its outline is the mark's, for picking
+	heroLimit=()=>lim.setAttribute('d',LIMD(GM))   // every Limit fills its own region – Surface too, else picking it would show nothing
 	// the tightest Limit under the pointer (narrowest first)
 	const at=e=>{ const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse()); return HL.find(g=>edge[g].isPointInFill(q)) }
 	const point=g=>{ for(const k in edge) edge[k].classList.toggle('on',k===g); box.title=g&&g!==GM?t('ui.locus.pick','Limit: {g} – click to pick it',{g:GAMLABEL[g]}):'' }
