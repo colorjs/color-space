@@ -679,7 +679,8 @@ try {
 	await motion.locator('#cvfile').setInputFiles(resolve(SITE, 'img/wave.jpg'))
 	await motion.waitForFunction(()=>document.body.classList.contains('himg')&&document.querySelector('#detail .pl canvas.density'))
 	await motion.evaluate(()=>{ window.createImageBitmap=window.__imageBitmapOrig; delete window.__imageBitmapOrig })
-	const firstPlane=motion.locator('#detail .pl').first(), pr=await firstPlane.boundingBox()
+	const firstPlane=motion.locator('#detail .pl').first(); await firstPlane.evaluate(pl=>pl.scrollIntoView({block:'center'}))   // clear of the sticky foot nav, whatever the planes' size
+	const pr=await firstPlane.boundingBox()
 	await firstPlane.evaluate(pl=>{ const density=pl._density, dc=density.getContext('2d'), oldImage=dc.drawImage.bind(dc)
 		const mesh=document.querySelector('#detail .mesh3'), gl=mesh.getContext('webgl2'), oldArrays=gl.drawArrays.bind(gl), oldElements=gl.drawElements.bind(gl)
 		pl._dragTest={dc,oldImage,gl,oldArrays,oldElements,densityDraws:0,meshDraws:0}
@@ -698,7 +699,12 @@ try {
 	await motion.mouse.move(imageBox.x+imageBox.width*.12,imageBox.y+imageBox.height*.18); await motion.mouse.down(); await motion.mouse.move(imageBox.x+imageBox.width*.82,imageBox.y+imageBox.height*.76,{steps:12}); await motion.waitForTimeout(100)
 	const imagePlanes=await planeFields.evaluateAll((cs,before)=>cs.filter((c,i)=>c.toDataURL()!==before[i]).length,beforeImage)
 	await motion.mouse.up()
-	assert.equal(imagePlanes,3,'all plane fields repaint while an image color is still held')
+	assert.equal(await planeFields.count(),2,'the dossier draws two planes, whatever the channel count – their axes turn on a click')
+	assert.equal(imagePlanes,2,'all plane fields repaint while an image color is still held')
+	const turned=await motion.evaluate(()=>{ const pairs=()=>[...document.querySelectorAll('#detail #planes .pl')].map(p=>[+p.dataset.a,+p.dataset.b]), before=pairs()
+		document.querySelector('#detail #planes .pl .laby').click(); const after=pairs(), key=p=>p.slice().sort().join()
+		return { before, after, distinct:key(after[0])!==key(after[1]), y:after[0][1]!==before[0][1]||after[0][0]!==before[0][0] } })
+	assert.equal(turned.y&&turned.distinct,true,`an axis's name turns it, the two planes kept two different pairs (${JSON.stringify(turned)})`)
 	// Exercise the transfer watchdog last: after one intentionally stranded host promise,
 	// the app must retire this optional GPU-present path without starting another transfer.
 	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__bitmapFlight={active:0,max:0,orig,stall:true}; window.createImageBitmap=(...args)=>{ const s=window.__bitmapFlight; s.active++; s.max=Math.max(s.max,s.active)

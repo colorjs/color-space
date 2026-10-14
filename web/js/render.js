@@ -57,7 +57,7 @@ export const tagLine = v => ({
 	display: t('tagline.display', 'light a display emits'), scene: t('tagline.scene', 'light in the scene, as filmed'),
 	gamma: t('tagline.gamma', 'a power curve over linear light'), 'luma / chroma': t('tagline.luma-chroma', 'the broadcast and compression layout'), perceptual: t('tagline.perceptual', 'equal steps look equal'),
 	linear: t('tagline.linear', 'proportional to light, no curve'), PQ: t('tagline.pq', 'absolute HDR, up to 10,000 nits'), HLG: t('tagline.hlg', 'broadcast HDR that SDR can show'), log: t('tagline.log', 'a camera\'s range in few codes'),
-	D65: t('tagline.d65', 'daylight, ≈6504 K'), D50: t('tagline.d50', 'horizon daylight, ≈5003 K'), D60: t('tagline.d60', 'the ACES white, ≈6000 K'), DCI: t('tagline.dci', 'the cinema projector\'s white'),
+	D65: t('tagline.d65', 'daylight, ≈6504 K'), D50: t('tagline.d50', 'horizon daylight, ≈5003 K'), D55: t('tagline.d55', 'mid-morning daylight, ≈5503 K'), D60: t('tagline.d60', 'the ACES white, ≈6000 K'), DCI: t('tagline.dci', 'the cinema projector\'s white'),
 	C: t('tagline.c', '1931 average daylight, ≈6774 K'), E: t('tagline.e', 'equal-energy white'), A: t('tagline.a', 'tungsten light, ≈2856 K'),
 })[v] || ''
 
@@ -156,11 +156,11 @@ export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 	return [{ name: t('ui.view.all', 'All spaces'), spaces: SPACES.slice().sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * d }) }] }
 
 // the layout: one button in the pinned row, its icon the view it turns to (as a lead card's planes switch shows the
-// other face) – grid → rows → list → grid
+// other face) – grid → rows → list → grid; a phone (its one column already rows) grid → list → grid
 const VIEWS = () => [['grid', t('ui.cell.view-grid', 'Grid'), t('ui.view.grid', 'featured spaces large, the rest as tiles'), VI.grid],
 	['rows', t('ui.cell.view-rows', 'Rows'), t('ui.view.rows', 'one line per space, its strips at full width'), VI.list],
 	['list', t('ui.cell.view-list', 'List'), t('ui.view.list', 'the spec sheet – every column sorts'), VI.table]]
-export const nextView = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
+export const nextView = (view, phone) => { const V = VIEWS().filter(x => !phone || x[0] !== 'rows'), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
 	return { v, label: `${t('ui.cell.layout', 'Layout')}: ${n}`, title: `${n} – ${tip}`, ic } }
 
 // a shelf's icon on the rail: the families' glyphs, a purpose's own (the line family the menus draw); era shelves go bare

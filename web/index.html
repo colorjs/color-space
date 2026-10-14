@@ -43,6 +43,8 @@ try{ if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=docum
    page scrollbar (openModal's body{overflow:hidden}); any non-visible overflow on
    html severs it, and the page wears two scrollbars */
 body{ overflow-x:clip }
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; -webkit-tap-highlight-color:transparent }   /* iOS: no font inflation turned sideways, no gray box flashed over what a finger taps – every control answers by its own ink */
+:is(.ch,.bar2,.pl,.pl3d,.gam2d,.imgrow){ -webkit-touch-callout:none }   /* a long press on an instrument holds it – no image menu, no magnifier */
 *{ box-sizing:border-box; margin:0 }
 ::selection{ background:var(--ink); color:var(--paper) }
 pre::selection,pre ::selection{ background:var(--color-terminal-ink); color:var(--color-terminal-paper) }   /* the dark code plate inverts within its own palette — the page's ink-on-ink selection would vanish there */
@@ -104,6 +106,7 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .hplug{ display:inline-block; overflow:hidden; vertical-align:baseline; margin-inline-start:var(--s4); text-decoration:none; white-space:nowrap }   /* the catalog's tag, Figma's mark leading; overflow other than visible puts an inline block's baseline at its bottom edge (CSS 2.2 §10.8.1) */
 .hplug .hpi{ display:flex; align-items:center; gap:var(--s2) }   /* inside the pill, the mark and the words centred on each other */
 .hplug .figma{ height:var(--s4); width:auto }
+.hplug .hpn{ display:none } @media(width < 36rem){ .hplug .hpf{ display:none } .hplug .hpn{ display:inline } }   /* the whole announcement; on a phone, beside the title, its word alone – Figma's mark says the rest */
 .hplug:hover{ background:var(--hair) }
 .hsub{ max-width:50rem; margin:var(--s4) 0 var(--s6); font-size:var(--text-md); line-height:1.5; color:var(--body); text-wrap:pretty }   /* its doors are the page's links: inline, a comma stays on its word's line */
 @media(width < 36rem){ .hero{ padding-block:calc(var(--cells-h) + var(--s5)) var(--s6) } .hsub{ margin:var(--s2) 0 var(--s5); font-size:var(--text-base) } }   /* a phone: the promise a step down, closer to its title, the catalog closer under the field */
@@ -159,7 +162,11 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 :where(.dpop,.fmtp,#uppop){ --from:0 calc(-1 * var(--s1)); opacity:0; translate:var(--from); transition:opacity var(--dur-micro) var(--ease-out),translate var(--dur-micro) var(--ease-out),display var(--dur-micro) allow-discrete,overlay var(--dur-micro) allow-discrete }
 :where(.dpop,.fmtp,#uppop):popover-open{ opacity:1; translate:0 0; transition-duration:var(--dur-short) }
 @starting-style{ :where(.dpop,.fmtp,#uppop):popover-open{ opacity:0; translate:var(--from) } }
-@media(width < 36rem){ .dpop{ --from:0 100% } }
+@media(width < 36rem){ .dpop{ --from:0 100% }   /* a phone's sheet: it rises the longer way, at the long beat, and leaves at the short one; the page behind dims with it */
+	.dpop:popover-open{ transition-duration:var(--dur-long) }
+	.dpop::backdrop{ background:var(--scrim); opacity:0; transition:opacity var(--dur-short) var(--ease-out),display var(--dur-short) allow-discrete,overlay var(--dur-short) allow-discrete }
+	.dpop:popover-open::backdrop{ opacity:1; transition-duration:var(--dur-long) }
+	@starting-style{ .dpop:popover-open::backdrop{ opacity:0 } } }
 @media(prefers-reduced-motion:reduce){ :is(.dpop,.fmtp,#uppop){ --from:0 0 } }   /* still: the fade alone */
 .dpop .lnk{ font:inherit; font-size:var(--t2); font-weight:600; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-decoration-color:var(--ul); text-underline-offset:var(--ulo) }
 .dpop .lnk:hover{ color:var(--ink); text-decoration-color:currentColor }
@@ -180,7 +187,6 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .dpop .qcols{ display:grid; grid-template-columns:repeat(2,max-content); align-items:start; gap:0 var(--s4) }   /* the stepped and the palettes side by side, row for row – their marks say which is which */
 .dpop .qdist{ margin-top:var(--s4) } .dpop .qdist .opts{ grid-template-columns:repeat(2,max-content) }
 .opt:disabled{ opacity:.4; cursor:default } .opt:disabled:hover{ background:none }
-@media(width < 36rem){ .dpop .qcols{ grid-template-columns:minmax(0,1fr) } }
 .dpop .msec[hidden]{ display:none }
 .dpop .msec:not([hidden])~.msec:not([hidden]){ margin-top:var(--s4); padding-top:var(--s4); border-top:var(--rule-hair) solid var(--hair) }
 :is(#m-more,#m-view) .msec~.msec{ margin-top:0; padding-top:0; border-top:0 }   /* the wide menus: facets, or the view's settings – their sections placed, not ruled apart */
@@ -198,6 +204,8 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .mbody .fcov{ padding:var(--s2) }
 .opts.c4{ grid-template-columns:repeat(4,minmax(var(--s8),max-content)) }   /* Channels: its counts in one row, as narrow as a count – the picked one widens to hold its check */
 .opts.row{ grid-template-columns:repeat(2,max-content) }   /* Range: SDR and HDR side by side */
+@media(width < 36rem){ #m-more .opts.row{ grid-template-columns:minmax(0,1fr) }   /* a phone's Filters: a facet is half the sheet – its two options stack, never past its edge */
+	#m-view .msec>.opts,.dpop .qcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }   /* …its View: Limit's and Vision's options two a row, as Quantize's two columns are */
 .opt.num{ grid-template-columns:1fr; justify-items:center }
 .wb-hues{ --w:conic-gradient(in oklch longer hue, oklch(.72 .16 30), oklch(.72 .16 30)) }   /* a hue wheel – Vision's options draw it through their own lens */
 .fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
@@ -211,6 +219,7 @@ html{ scroll-padding-top:var(--cells-h) } :is(.mhead,.hcolor) *{ scroll-margin-t
 .mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before: clear only while the scroll timeline holds it so (dock), so an engine that drops the timeline mid-scroll leaves the row paper, never see-through */
 @supports (animation-timeline:scroll()){ .mhead::after{ animation:dock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - var(--s4)) var(--hc-dock,50vh) } }
 @keyframes dock{ from{ opacity:0 } }
+@media(max-width:1079px){ @supports (animation-timeline:scroll()){ .mhead::after{ animation-range:0 var(--s4) } } }   /* one column, no free left to keep clear: the row is paper as soon as anything scrolls under it – the hero's own words would show through it otherwise; the docked color rides over it */
 @media(min-width:1080px){ .mhead::after{ inset-inline-start:calc(max(0px,(100% - var(--maxw)) / 2) + var(--gut) + var(--railw) + var(--railgap) - var(--s3) - var(--s8)) } }   /* the paper over the spaces' column and the search field's shadow (the field hangs s3 out, its shadow ~s8 past it): the rail's column is the titles' own, a pushed title leaving through it – under the edge */
 /* past the catalog the row lets go: as the catalog's end (--cat-end, measured) passes under it, the row and its docked
    color slide up with the page, one row's height, and are gone – the history, the usage and the footer run free.
@@ -588,7 +597,7 @@ body.himg #imgfloat{ display:block }
 .tbl thead th{ font-weight:600; color:var(--soft); border-bottom-color:var(--ink) }
 .tbl thead button{ font:inherit; font-weight:650; color:inherit; background:none; border:0; padding:0; cursor:pointer }
 .tbl thead button:hover,.tbl thead th[aria-sort="ascending"],.tbl thead th[aria-sort="descending"]{ color:var(--ink) }
-.tbl tbody th{ font-weight:650 } .tbl .nm{ font-size:var(--t2); font-weight:650 }
+.tbl tbody th{ font-weight:650 } .tbl tbody .nm{ font-size:var(--t2); font-weight:650 }   /* past .ent .nm's card size – a row's name is the sheet's text */
 .tbl td{ color:var(--body) } .tbl .c-year{ font-variant-numeric:tabular-nums }
 .tbl tbody tr{ cursor:pointer } .tbl tbody tr:hover{ background:var(--sel) }   /* the whole row opens the dossier */
 .tbl tbody tr:last-child :is(th,td){ border-bottom:0 }   /* the next family's hair closes the table */
@@ -602,6 +611,9 @@ body.himg #imgfloat{ display:block }
 @container secs (width < 56rem){ .tbl :is(.c-ch,.c-white){ display:none } }
 @container secs (width < 44rem){ .tbl :is(.c-by,.c-cov){ display:none } }
 @container secs (width < 32rem){ .tbl :is(.c-kind,.tsw){ display:none } }
+/* a phone's sheet: a step smaller and tighter, so it keeps the preview, the kinds and the coverage beside the name and year */
+@media(max-width:640px){ .tbl{ font-size:var(--t1) } .tbl :is(th,td){ padding:var(--s1) } .tbl :is(.c-kind,.tsw,.c-cov){ display:table-cell }
+	.tbl .tsw{ width:3.5rem } .tbl .chs.mini{ width:3rem } .tbl .c-year{ width:2.5rem } .tbl .c-cov{ width:3.5rem } .tbl tbody .nm{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap } .tbl thead .c-cov{ overflow:visible }   /* its name runs on over the kinds' unnamed column */ .tbl .c-kind{ width:4.75rem } .tbl .ki .ic{ --ic:14px } .tbl .c-kind .ki+.ki{ margin-inline-start:var(--s1) } }
 @media(max-width:1079px){
 	.shw{ justify-content:flex-start }
 	.shw .c{ margin-inline-start:.4em }
@@ -903,7 +915,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d .hud3{ z-index:2 }
 .pl3d .marker3{ z-index:3 }
 /* full channel names, set along the direction of increase: x rightward, y upward */
-.pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }   /* corner insets match the bars' scale values — one label geometry everywhere */
+.pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }
+.pl button:is(.laby,.labx){ z-index:2; padding:0; font-family:inherit; line-height:inherit; color:inherit; background:none; border:0; cursor:pointer; pointer-events:auto; text-underline-offset:var(--ulo) } .pl button:is(.laby,.labx):hover{ text-decoration:underline }   /* the dossier's: an axis's name turns it (buildDetail) – a link's underline says so */
+@media(pointer:coarse){ .pl button:is(.laby,.labx)::before{ content:''; position:absolute; inset:calc(-1 * var(--s2)) } }   /* a finger's reach round a letter */   /* corner insets match the bars' scale values — one label geometry everywhere */
 .pl .labx{ position:absolute; right:.275rem; bottom:.175rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl .pmode{ position:absolute; bottom:.15rem; left:.25rem; z-index:2; width:1.7em; height:1.7em; display:grid; place-items:center; font-size:var(--t1); line-height:1; border:0; background:none; padding:0; color:var(--ink); opacity:.5; cursor:pointer }   /* the mode switch — ONE fixed box, so circle, square, triangle and diamond all centre on the same corner point regardless of their optical sizes */
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
@@ -1119,7 +1133,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
-		<div class="htitle"><img class="hmark" src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span data-i18n="ui.hero.plugin">New</span></span></a></span></div>
+		<div class="htitle"><img class="hmark" src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">New: Figma plugin</span><span class="hpn" data-i18n="ui.hero.plugin">New</span></span></a></span></div>
 		<p class="hsub" id="hsub" data-i18n="ui.hero.line">From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>. Ready for CSS, shaders, WASM and LUTs.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
 			<button class="hib" type="button" id="him" popovertarget="uppop" aria-expanded="false" title="read an image – its colors on every strip" aria-label="read an image" data-i18n="title:ui.hero.image-tip aria-label:ui.hero.image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></button>
@@ -1960,6 +1974,7 @@ const TAGTIP={ display:t('tip.display','display-referred – values describe lig
 	'perceptual':t('tip.perceptual','coordinates modeled on human vision – equal numeric steps aim to look equal'),
 	'D65':t('tip.d65','CIE standard illuminant D65 – average daylight, ≈6504 K; the sRGB / Rec.709 / Rec.2020 reference white. 2° standard observer'),
 	'D50':t('tip.d50','CIE standard illuminant D50 – horizon daylight, ≈5003 K; the print and ICC-PCS white. 2° standard observer'),
+	'D55':t('tip.d55','CIE daylight illuminant D55 – mid-morning daylight, ≈5503 K; the photographic daylight white (5500 K film). 2° standard observer'),
 	'D60':t('tip.d60','≈6000 K daylight – the ACES white point (x 0.32168, y 0.33767). 2° standard observer'),
 	'DCI':t('tip.dci','the cinema-projector white (x 0.314, y 0.351, SMPTE RP 431-2) – greener than daylight. 2° standard observer'),
 	'C':t('tip.c','CIE illuminant C – 1931 average-daylight approximation, ≈6774 K; legacy: NTSC 1953, the Munsell renotation. 2° standard observer'),
@@ -1997,7 +2012,7 @@ const cat=document.getElementById('cat')
 const ensureCat=()=>{ if(ensureCat.done) return; ensureCat.done=true
 	if(cat.dataset.fp!==fpOf(catHTML())){ cat.innerHTML=catHTML(DEFAULT); wireToc() }
 	wireCat()   // wireCat is the hoisted function wrapping every per-ent attachment below
-	if(VIEW!=='grid'||leadsNow()!==LEADN) rebuild() }   // the prerender is the wide grid; a visitor's own view, or a narrower grid's row, replaces it (under the hero – off the first screen)
+	if(shownView()!=='grid'||leadsNow()!==LEADN) rebuild() }   // the prerender is the wide grid; a visitor's own view, or a narrower grid's row, replaces it (under the hero – off the first screen)
 // ToC: wired and laid out PRE-PAINT by the inline script after #cat (trackAct/layoutToc/
 // wireToc are its globals; applyFilter re-enters through them). Re-wire here only for the
 // fingerprint-rebuild path, where the rail's nodes were just replaced — idempotent otherwise
@@ -2266,6 +2281,9 @@ const covTxt=()=>{ const lo=covMin*100|0, hi=covMax*100|0; return lo>0&&hi<100?`
 // the catalog's view – grid (lead cards and tiles), rows, or the list (the spec sheet, its columns sorting every
 // space) – kept for the next visit; and a list's order
 let VIEW='grid', SORT=null; try{ if(['rows','list'].includes(localStorage.csView)) VIEW=localStorage.csView }catch{}
+// a phone's one column already reads as rows – it shows the grid for them, and its switch skips them
+const PHONE=matchMedia('(max-width:640px)'), shownView=()=>VIEW==='rows'&&PHONE.matches?'grid':VIEW
+PHONE.addEventListener('change',()=>{ if(VIEW==='rows'&&ensureCat.done){ rebuild(); paintLens() } })
 // rebuild the catalog from the template – the cut, the view, a list's order – then re-wire: the fingerprint
 // rebuild's path (wireToc/wireCat), filters reapplied
 // the grid's featured row: as many lead cards as the grid has columns (CSS --cols) – two leads over three tiles on a
@@ -2274,11 +2292,11 @@ const leadsNow=()=>+getComputedStyle(cat.querySelector('.sec')||cat).getProperty
 let LEADN=LEADS   // the rendered grid's lead count – the prerender's three
 // The color is NOT baked into the markup: what is near the screen paints now, the rest as it scrolls in (io) – the
 // page's one visibility rule; a re-shelve used to sweep all 205 spaces' strips at once
-function rebuild(){ LEADN=leadsNow(); cat.innerHTML=catHTML(null,VIEW==='list'&&SORT?sorted(SORT):GROUPS[grouping](),{ view:VIEW, cut:grouping, sort:SORT, leads:LEADN }); wireToc(); wireCat(); applyFilter()
+function rebuild(){ LEADN=leadsNow(); cat.innerHTML=catHTML(null,VIEW==='list'&&SORT?sorted(SORT):GROUPS[grouping](),{ view:shownView(), cut:grouping, sort:SORT, leads:LEADN }); wireToc(); wireCat(); applyFilter()
 	const near=[...catEnts.values()].filter(e=>{ if(!e.offsetParent) return false; const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight })   // the screen now; io's margin follows at idle
 	paintCatalogVals(near); paintCatalogGrad(near,-1,undefined,false) }   // fresh strips: nothing to morph from
-new ResizeObserver(()=>{ if(VIEW==='grid'&&ensureCat.done&&leadsNow()!==LEADN) rebuild() }).observe(cat)
-function setView(v){ if(v===VIEW) return; VIEW=v; SORT=null; try{ localStorage.csView=v }catch{} rebuild(); paintLens() }
+new ResizeObserver(()=>{ if(shownView()==='grid'&&ensureCat.done&&leadsNow()!==LEADN) rebuild() }).observe(cat)
+function setView(v){ if(v===shownView()) return; VIEW=v; SORT=null; try{ localStorage.csView=v }catch{} rebuild(); paintLens() }
 cat.addEventListener('click',e=>{ const b=e.target.closest('[data-sort]'); if(!b) return; const k=b.dataset.sort
 	SORT=SORT?.k!==k?{k,d:1}:SORT.d>0?{k,d:-1}:null; rebuild() })   // a column orders every space; again, the other way; a third time, the shelves again
 // re-shelve the catalog with the chosen cut
@@ -2314,9 +2332,9 @@ const CELLS={ range:'range', geometry:'geometry', signal:'signal', encoding:'enc
 const CLABEL={ range:t('ui.cell.range','Range'), geometry:t('ui.cell.shape','Shape'), signal:t('ui.cell.signal','Signal'), encoding:t('ui.cell.curve','Tone curve'), white:t('ui.cell.white','White'), channels:t('ui.cell.channels','Channels'), coverage:t('ui.cell.coverage','Coverage'), status:t('ui.cell.status','Status') }
 const fiOf=k=>FACETS.indexOf(CELLS[k])
 const FVALS=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOTS.get(s)[fi]]))]; return nm==='channels'?v.sort():v })
-// each white as its chromaticity, so its option wears its own tint – CIE 15:2004 Table T.3 (D65, D50, C, A, E),
+// each white as its chromaticity, so its option wears its own tint – CIE 15:2004 Table T.3 (D65, D50, D55, C, A, E),
 // SMPTE ST 2065-1 (ACES ≈ D60), SMPTE RP 431-2 (DCI)
-const WHITE_XY={ D65:[0.31271,0.32902], D50:[0.34567,0.35850], D60:[0.32168,0.33767], DCI:[0.314,0.351], C:[0.31006,0.31616], A:[0.44757,0.40745], E:[1/3,1/3] }
+const WHITE_XY={ D65:[0.31271,0.32902], D50:[0.34567,0.35850], D55:[0.33242,0.34743], D60:[0.32168,0.33767], DCI:[0.314,0.351], C:[0.31006,0.31616], A:[0.44757,0.40745], E:[1/3,1/3] }
 const whiteHex=k=>{ const [x,y]=WHITE_XY[k], l=space.xyz.lrgb(x/y*100,100,(1-x-y)/y*100), m=Math.max(...l); return hex(space.lrgb.rgb(...l.map(v=>v/m)).map(v=>clamp(Math.round(v),0,255))) }
 const OPTI={ SDR:OI.sdr, HDR:OI.hdr, component:OI.component, opponent:OI.opponent, polar:OI.polar, display:OI.display, scene:OI.scene,
 	gamma:OI.gamma, linear:OI.linear, perceptual:OI.perceptual, log:OI.log, PQ:OI.pq, HLG:OI.hlg, 'luma / chroma':OI.opponent, current:OI.current, historical:OI.historical }
@@ -2386,6 +2404,7 @@ try{ const sp=new URLSearchParams(location.search), tg=sp.get('t'), cov=sp.get('
 const modal=document.getElementById('modal'), detail=document.getElementById('detail')
 // the dossier's figure by the sliders – the solid, the xy plate or the transfer curve – the last chosen, remembered
 let FIG='3d'; try{ if(['3d','xy','tc'].includes(localStorage.csFig)) FIG=localStorage.csFig }catch{}
+const PLANES={}   // the dossier's two planes per space – their channel pairs, as the axis names last turned them
 let PV=false   // a phone's dossier shows the sliders or the planes, not both – the face last chosen, from space to space
 const GXY=([x,y])=>[(x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352]   // the xy plate's mapping (gamutPos's, gamGrid's) in its 320 × 352 units
 const pageShell=document.querySelector('.page')
@@ -2664,7 +2683,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	document.getElementById('m-view').innerHTML=`<div class="mcol">${msec(t('ui.cell.draw','Quantize'),drawOpts)}</div><div class="mcol">${msec(t('ui.cell.limit','Limit'),limitOpts)}</div>`
 		+`<div class="mcol">${msec(t('ui.cell.vision','Vision'),`<div class="opts">${visionOpts()}</div>`)}</div>`   // in columns, as Filters' menu
 	paintLens=()=>{
-		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); b.setAttribute('aria-label',n.label); b.title=n.title
+		{ const b=document.getElementById('c-layout'), n=nextView(shownView(),PHONE.matches); b.setAttribute('aria-label',n.label); b.title=n.title
 			if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to – the build stamps the first visit's
 		{ const v=document.getElementById('c-view'), on=Q!=null||GM!=='vis'||VIS!=='none'; v.querySelector('b').classList.toggle('on',on); v.title=v.querySelector('small').textContent
 			if(v.dataset.g!==GM){ v.dataset.g=GM; v.querySelector('.ci').innerHTML=LI[GM] } }   // its mark: the Limit's own – the lenses work inside it (Quantize steps, Vision sees, within the limit)
@@ -3836,7 +3855,7 @@ function paint3dMarker(){ if(!mesh3||!open()||!pts3Map) return
 	ctx.save(); ctx.translate(px,py); ctx.rotate(Math.PI/4)
 	ctx.fillStyle=hex(rgb); ctx.strokeStyle='#fff'; ctx.lineWidth=.85*dp
 	const h=4*dp; ctx.fillRect(-h,-h,2*h,2*h); ctx.strokeRect(-h,-h,2*h,2*h); ctx.restore() }
-function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
+function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=s   // the dossier now drawn – a name view's baked shell is no one's until built
 	spinV3=SPIN3; snap3=null   // a fresh dossier idles in the ambient turn; a parked view survives gamut switches
 	const path=pathToRgb(s)
 	const prof=primariesOf(s), trcv=trcOf(s), f4=v=>(+v).toFixed(4)
@@ -3904,6 +3923,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
 		`<label class="bch" data-i="${i}" title="${cname(c)} · ${c.sym}"><i class="bnm">${c.sym}</i><span class="nvw"><input class="nv" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${cname(c)}"><i class="u">${unit(c)}</i><span class="stk"><button class="up" tabindex="-1">⌃</button><button class="dn" tabindex="-1">⌃</button></span></span></label>`).join('')}</div>`
 	const plotPairs=pairsFor(s)
+	// two planes, whatever the channel count: a click on an axis's name turns that axis to the next channel (with two
+	// channels, the axes swap) – every pair a click or two away; the pick kept for the space (PLANES)
+	const planeHTML=(a,b)=>`<div class="pl" data-a="${a}" data-b="${b}" title="${t('ui.dossier.plane-tip','drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset')}"><canvas width="216" height="216"></canvas><div class="cx"></div><button type="button" class="laby" data-ax="y" title="${cname(cls.ch[b])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[b].sym}</button><button type="button" class="labx" data-ax="x" title="${cname(cls.ch[a])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[a].sym}</button>${polarPl(cls,a,b)?`<button class="pmode" title="${t('ui.dossier.disc','disc ⟷ square')}"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="${t('ui.dossier.tri','triangle ⟷ square')}"></button>`:''}</div>`
 	// a phone's switch between the two faces, the sliders and the planes – the catalog cards' own, their icons (CSS shows it ≤640)
 	const pvSeg=cls.ch.length>1&&plotPairs.length?`<span class="seg figseg pvseg" id="pvseg" role="group">${[[0,PI.sliders,t('ui.card.sliders','Sliders')],[1,PI.planes,t('ui.card.planes','Planes')]].map(([k,ic,n])=>`<button type="button" data-p="${k}" title="${n}" aria-label="${n}" aria-pressed="${!!k===PV}"${!!k===PV?' class="on"':''}>${ic}</button>`).join('')}</span>`:''
 	// the space's catalog section, read straight off the catalog DOM — one source
@@ -3914,8 +3936,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 	 <section class="dpick${figHTML?'':' nod3'}${pvSeg&&PV?' pvon':''}" id="explore">
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
-		${cls.ch.length>1?`<div class="planes" id="planes">${plotPairs.map(([a,b])=>
-		`<div class="pl" data-a="${a}" data-b="${b}" title="${t('ui.dossier.plane-tip','drag to pick · pinch or ctrl+wheel to zoom, wheel to pan, double-click to reset')}"><canvas width="216" height="216"></canvas><div class="cx"></div><span class="laby" title="${cname(cls.ch[b])}">${cls.ch[b].sym}</span><span class="labx" title="${cname(cls.ch[a])}">${cls.ch[a].sym}</span>${polarPl(cls,a,b)?`<button class="pmode" title="${t('ui.dossier.disc','disc ⟷ square')}"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="${t('ui.dossier.tri','triangle ⟷ square')}"></button>`:''}</div>`).join('')}</div>`:''}
+		${cls.ch.length>1?`<div class="planes" id="planes">${(PLANES[s]??=plotPairs.slice(0,2)).map(([a,b])=>planeHTML(a,b)).join('')}</div>`:''}
 		</div>
 		${figHTML}
 	 </section>
@@ -4005,8 +4026,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 		const sync=()=>bar.classList.toggle('live',b.matches(':hover')||b.contains(document.activeElement))
 		b.addEventListener('pointerenter',sync); b.addEventListener('pointerleave',sync)
 		b.addEventListener('focusin',sync); b.addEventListener('focusout',()=>setTimeout(sync,0)) })
-	detail.querySelectorAll('.pl').forEach(pl=>wirePlane(pl))
-	detail.querySelectorAll('.pmode').forEach(b=>{ const pl2=b.closest('.pl'), a2=+pl2.dataset.a, b2=+pl2.dataset.b
+	const wireDetailPlane=pl=>{ wirePlane(pl)
+	pl.querySelectorAll('.pmode').forEach(b=>{ const pl2=b.closest('.pl'), a2=+pl2.dataset.a, b2=+pl2.dataset.b
 		const isTri=b.classList.contains('tri'), K=`${s}:${a2},${b2}`
 		const on=()=>isTri?triOn(s,a2,b2):polarOn(s,cls,a2,b2)
 		const sync=()=>b.classList.toggle('sq',on())   // the icon shows the mode a click switches TO
@@ -4016,13 +4037,16 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 			if(isTri){ TRIP[K]=!on(); try{ localStorage.csTriP=JSON.stringify(TRIP) }catch{} }
 			else{ POLARP[K]=!on(); try{ localStorage.csPolarP=JSON.stringify(POLARP) }catch{} }
 			sync(); renderFast(); queuePlaneSettle() } })
-	// hovering a slider draws that channel's LINE through the 3d solid; hovering a
-	// plane draws its SLICE – the sheet the two swept channels span at the held value
-	hover3=null
-	detail.querySelectorAll('.bar2').forEach(bar=>{
-		bar.addEventListener('pointerenter',()=>{ hover3={ i:+bar.dataset.i }; draw3d() })
-		bar.addEventListener('pointerleave',()=>{ hover3=null; draw3d() }) })
-	detail.querySelectorAll('.pl').forEach(pl=>{
+	// an axis's name turns it: the next channel the other axis doesn't hold that leaves the two planes two different
+	// pairs – where none is left (two channels, or a pair the other plane holds), the plane's axes swap
+	pl.querySelectorAll('[data-ax]').forEach(lb=>{ lb.onpointerdown=e=>e.stopPropagation()   // never a pick
+		lb.onclick=e=>{ e.stopPropagation(); const n=cls.ch.length, x=lb.dataset.ax==='x', i=[...detail.querySelectorAll('#planes .pl')].indexOf(pl)
+			let a=+pl.dataset.a, b=+pl.dataset.b; const o=PLANES[s][1-i], held=(p,q)=>o&&(o[0]===p&&o[1]===q||o[0]===q&&o[1]===p)
+			const k=[...Array(n-1)].map((_,d)=>((x?a:b)+d+1)%n).find(c=>c!==(x?b:a)&&!held(x?c:a,x?b:c))
+			if(k==null) [a,b]=[b,a]; else if(x) a=k; else b=k
+			PLANES[s][i]=[a,b]; const nw=document.createRange().createContextualFragment(planeHTML(a,b)).firstElementChild
+			pl.replaceWith(nw); wireDetailPlane(nw); planeNext=0; paintPlanes(false); renderFast() } })
+	// hovering a plane draws its SLICE in the 3d solid – the sheet the two swept channels span at the held value
 		pl.addEventListener('pointerenter',()=>{ const h={ a:+pl.dataset.a, b:+pl.dataset.b }
 			clearTimeout(hover3T)
 			const show=()=>{ if(!pl.matches(':hover')) return
@@ -4030,7 +4054,13 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]
 				hover3=h; draw3d() }
 			hover3T=setTimeout(show,PLANE_SHEET_DELAY) })
 		pl.addEventListener('pointerleave',()=>{ clearTimeout(hover3T); hover3T=0
-			if(hover3?.a===+pl.dataset.a&&hover3?.b===+pl.dataset.b){ hover3=null; draw3d() } }) })
+			if(hover3?.a===+pl.dataset.a&&hover3?.b===+pl.dataset.b){ hover3=null; draw3d() } }) }
+	detail.querySelectorAll('.pl').forEach(wireDetailPlane)
+	// hovering a slider draws that channel's LINE through the 3d solid
+	hover3=null
+	detail.querySelectorAll('.bar2').forEach(bar=>{
+		bar.addEventListener('pointerenter',()=>{ hover3={ i:+bar.dataset.i }; draw3d() })
+		bar.addEventListener('pointerleave',()=>{ hover3=null; draw3d() }) })
 	wire3d()
 	paintGamut(); paintImages()
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
@@ -4685,7 +4715,7 @@ function plateInk(pl){ const cv=pl.querySelector('canvas'), ctx=cv.getContext('2
 	at(pl.querySelector('.laby'),[[0.03,0.06],[0.08,0.06],[0.13,0.06]])
 	at(pl.querySelector('.labx'),[[0.96,0.96],[0.84,0.96],[0.72,0.96]])
 	at(pl.querySelector('.pmode'),[[0.04,0.96],[0.09,0.96],[0.04,0.91]]) }   // the mode switch inks like the letters, from its own corner
-function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)) return
+function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detail._s!==selected) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now – numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
 	const pls=[...detail.querySelectorAll('.pl')]
@@ -4936,7 +4966,7 @@ function renderFast(solid=true){
 		paintCatalogThrottledValues(dossierOpen)   // background numbers use the 100ms tier
 		throttleCatalogSecondary()   // the other spaces' strips: every frame's budget at rest, the 100 ms tier under a held hand; in full once released (settleCatalog)
 		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) }   // a card's planes follow the color as its strips do
-	if(!open()||isBarred(selected)) return   // barred cards have no live color content
+	if(!open()||isBarred(selected)||detail._s!==selected) return   // barred cards have no live color content; a baked shell waits to be built (its space isn't `selected` yet)
 	detailTk(fx,ink(frgb))   // the dossier's own frame keeps its thumbs and lanes in the FACE color
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const shown=vals
