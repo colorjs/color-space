@@ -62,6 +62,8 @@ Claude Desktop `claude_desktop_config.json`, any project `.mcp.json`:
 { "mcpServers": { "color-space": { "command": "npx", "args": ["-y", "color-space", "mcp"] } } }
 ```
 
+Claude Code plugin (the server plus a skill): `/plugin marketplace add colorjs/color-space`, then `/plugin install color-space@color-space`. Docker: `docker build -t color-space-mcp .` and run it with `docker run -i --rm color-space-mcp`.
+
 Over HTTP (Streamable HTTP, stateless): `npx -y color-space mcp --http 8787` on localhost, or host `fetch` from `color-space/mcp.js` in a Worker, Deno or Bun. Skill for agents that load skills: [`skills/color-space`](skills/color-space/SKILL.md).
 
 ## Spaces

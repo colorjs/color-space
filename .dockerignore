@@ -1,0 +1,16 @@
+# the image needs the library, its spaces and gl chunks, the web/js data modules mcp.js reads, and test/refs.js for data.json
+.git
+.github
+.work
+node_modules
+_site
+dist
+plugins
+benchmark
+docs
+web/img
+web/fonts
+web/vendor
+web/i18n
+web/workbench
+*.log

@@ -1,0 +1,17 @@
+{
+  "name": "color-space",
+  "owner": {
+    "name": "Dmitry Ivanov",
+    "url": "https://github.com/dy"
+  },
+  "metadata": {
+    "description": "color-space: verified color conversions, shaders, LUTs and ICC profiles for agents."
+  },
+  "plugins": [
+    {
+      "name": "color-space",
+      "source": "./",
+      "description": "Verified color math for 205 color spaces – MCP server and skill."
+    }
+  ]
+}
