@@ -23,9 +23,9 @@
  * @dynamic hdr
  */
 // Implementation notes:
-// Sony "Technical Summary for S-Gamut3/S-Log3".
+// Sony "Technical Summary for S-Gamut3/S-Log3". Gamut: S-Gamut3, matrix in sgamut3.js.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import sgamut3 from './sgamut3.js';
 
 const slog3 = {
 	name: 'slog3',
@@ -44,21 +44,10 @@ const encode = (l) => l >= 0.01125
 	? (420 + Math.log10((l + 0.01) / 0.19) * 261.5) / 1023
 	: (l * (171.2102946929 - 95) / 0.01125 + 95) / 1023;
 
-// S-Gamut3 linear RGB -> XYZ (D65, Y 0..1)
-const M = [
-	0.7064827132, 0.1288010498, 0.1151721641,
-	0.2709796708, 0.7866064112, -0.0575860820,
-	-0.0096778454, 0.0046000375, 1.0941355587
-];
-const MI = inv3(M);
-
-slog3.xyz = (r, g, b) => {
-	const [x, y, z] = mat3(M, decode(r), decode(g), decode(b));
-	return [x * 100, y * 100, z * 100];
-};
+slog3.xyz = (r, g, b) => sgamut3.xyz(decode(r), decode(g), decode(b));
 
 xyz.slog3 = (x, y, z) => {
-	const [r, g, b] = mat3(MI, x / 100, y / 100, z / 100);
+	const [r, g, b] = xyz.sgamut3(x, y, z);
 	return [encode(r), encode(g), encode(b)];
 };
 

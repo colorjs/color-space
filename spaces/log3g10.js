@@ -21,9 +21,9 @@
  * @dynamic hdr
  */
 // Implementation notes:
-// RED whitepaper 915-0187 Rev-C.
+// RED whitepaper 915-0187 Rev-C. Gamut: REDWideGamutRGB, matrix in rwg.js.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import rwg from './rwg.js';
 
 const log3g10 = {
 	name: 'log3g10',
@@ -47,23 +47,10 @@ const encode = (l) => {
 	return x < 0 ? x * slope : A * Math.log10(x * Bm + 1);
 };
 
-// REDWideGamutRGB linear RGB -> XYZ (D65, Y 0..1)
-// NPM recomputed full-precision from RWG primaries R(.780308,.304253)
-// G(.121595,1.493994) B(.095612,-.084589) + D65 (matches RED's published 6-decimal matrix)
-const M = [
-	0.7352752459058587, 0.0686094106139610, 0.1465712705318520,
-	0.2866940994999349, 0.8429791340169754, -0.1296732335169103,
-	-0.0796808568783677, -0.3473432169944297, 1.5160818246326759
-];
-const MI = inv3(M);
-
-log3g10.xyz = (r, g, b) => {
-	const [x, y, z] = mat3(M, decode(r), decode(g), decode(b));
-	return [x * 100, y * 100, z * 100];
-};
+log3g10.xyz = (r, g, b) => rwg.xyz(decode(r), decode(g), decode(b));
 
 xyz.log3g10 = (x, y, z) => {
-	const [r, g, b] = mat3(MI, x / 100, y / 100, z / 100);
+	const [r, g, b] = xyz.rwg(x, y, z);
 	return [encode(r), encode(g), encode(b)];
 };
 

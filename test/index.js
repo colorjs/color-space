@@ -22,7 +22,7 @@ const near = (a, b, tol) => a.flat().every((v, i) => Math.abs(v - b.flat()[i]) <
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 168, '168 spaces registered')
+	is(names.length, 205, '205 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -1585,6 +1585,35 @@ test('cam16-ucs: compression of cam16', () => {
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [200, 100, 50]])
 		is(space['cam16-ucs'].rgb(...space.rgb['cam16-ucs'](...c)).map(round(0)), c, `roundtrip ${c}`);
 });
+
+// HelmGen (Helmlab GenSpace, Yıldız 2026, arXiv:2602.23010). Points from colorjs.io 0.7.1
+// helmgen/helmgenlch, which match the author's helmlab 1.0.0 GenSpace to 1e-13 on the same
+// (Bradford-adapted) XYZ – the bona-fide row's 0.01 tolerance is too loose for a 0–1 space.
+test('helmgen: vs colorjs 0.7.1 / helmlab 1.0.0, both directions', () => {
+	const ref = [
+		[[255, 0, 0], [0.563213110724, 0.294710182285, 0.185508613794]],
+		[[0, 255, 0], [0.846401666458, -0.293474620546, 0.303816791827]],
+		[[0, 0, 255], [0.364907551514, -0.0418944409212, -0.49351915145]],
+		[[255, 255, 255], [1, 0, 0]],
+		[[128, 128, 128], [0.531347208048, 0, 0]],
+		[[100, 150, 200], [0.598153868685, -0.038721323032, -0.140145054878]],
+		[[240, 24, 120], [0.556224636182, 0.313311594129, 0.00286849178966]],
+		[[17, 17, 17], [0.0493307660888, 0, 0]],
+	]
+	for (const [rgb, lab] of ref) {
+		is(near(space.rgb.helmgen(...rgb), lab, 1e-9), true, `rgb ${rgb} -> ${lab}`)
+		is(near(space.helmgen.rgb(...lab), rgb, 1e-6), true, `${lab} -> rgb ${rgb}`)
+	}
+	is(near(space.rgb.helmgenlch(0, 0, 255), [0.364907551514, 0.495294152023, 265.147840554], 1e-8), true, 'helmgenlch blue')
+	is(space.rgb.helmgenlch(128, 128, 128)[1] < 1e-12, true, 'grays sit on the axis')
+	is(space.xyz.helmgen(0, 0, 0), [0, 0, 0], 'black is the origin')
+	// out-of-locus XYZ: negative LMS clamps to 0 before the cubic, as in both references
+	is(near(space.xyz.helmgen(0, 100, -10), [0.9136074054883159, -0.8402218494841862, 0.5328804368782758], 1e-12), true, 'imaginary XYZ matches colorjs')
+	is(near(space.xyz.helmgen(200, 120, 30), [1.1056978671396747, 0.40234516029238737, 0.2582337643897398], 1e-12), true, 'L > 1 matches colorjs')
+	// the hue twist's gate edges (L 0.37 and 1), its peak and above white, at its centre hue: the inverse is exact
+	for (const L of [0.37, 0.685, 1, 1.2])
+		is(near(space.xyz.helmgen(...space.helmgen.xyz(L, -0.0281, -0.2987)), [L, -0.0281, -0.2987], 1e-12), true, `twist round trip at L ${L}`)
+})
 
 test('okhwb: hwb analog of okhsv', () => {
 	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [200, 100, 50]])

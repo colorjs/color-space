@@ -51,6 +51,10 @@
     "t": "縦軸：{name}",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "{gamut}の色域外",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "{name}のスライダー",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}：sRGBに色域マッピング済み",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "統合",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "{gamut}の色域内。",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "ファイル内の色",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "すべての色空間",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "注目",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "系統",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "色空間",
@@ -255,10 +271,6 @@
     "t": "{a}と{b}のホイール",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB（レガシー）",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "カラープロファイル未設定（カラーマネジメント以前のファイル）：sRGBとして読み取ります",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}、{type}「{name}」から",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "色空間",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "スタイル",

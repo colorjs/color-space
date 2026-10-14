@@ -32,10 +32,11 @@ const html = readFileSync(join(ROOT, 'plugins/figma/ui.html'), 'utf8'), code = r
 
 const solid = (r, g, b, ref) => ({ type: 'SOLID', visible: true, opacity: 1, blendMode: 'NORMAL', color: { r, g, b }, ...(ref ? { boundVariables: { color: { type: 'VARIABLE_ALIAS', id: ref } } } : {}) })
 const stop = (position, r, g, b) => ({ position, color: { r, g, b, a: 1 } })
-// colors: OkLCh picks (the site's brand orange 0.72 0.16 41, its edge 0.55 0.15 38, inks at hue 250), as sRGB
-const C = { brand: [0.9641, 0.4915, 0.3102], edge: [0.7198, 0.2917, 0.1516], ink9: [0.0766, 0.1074, 0.1398], ink5: [0.3564, 0.3936, 0.4334], surface: [0.9876, 0.9794, 0.9661] }
+// colors: OkLCh picks (the site's brand orange 0.72 0.16 41, its edge 0.55 0.15 38, an accent 0.6 0.14 250, inks at hue 250), as sRGB
+const C = { brand: [0.9641, 0.4915, 0.3102], edge: [0.7198, 0.2917, 0.1516], accent: [0.1951, 0.5169, 0.8148], ink9: [0.0766, 0.1074, 0.1398], ink5: [0.3564, 0.3936, 0.4334], surface: [0.9876, 0.9794, 0.9661] }
 const variables = {
 	'V:brand': { name: 'Brand/500', collection: 'C', values: { m: { r: C.brand[0], g: C.brand[1], b: C.brand[2], a: 1 } } },
+	'V:accent': { name: 'Accent/500', collection: 'C', values: { m: { r: C.accent[0], g: C.accent[1], b: C.accent[2], a: 1 } } },
 	'V:ink9': { name: 'Ink/900', collection: 'C', values: { m: { r: C.ink9[0], g: C.ink9[1], b: C.ink9[2], a: 1 } } },
 	'V:ink5': { name: 'Ink/500', collection: 'C', values: { m: { r: C.ink5[0], g: C.ink5[1], b: C.ink5[2], a: 1 } } },
 	'V:surface': { name: 'Surface', collection: 'C', values: { m: { r: C.surface[0], g: C.surface[1], b: C.surface[2], a: 1 } } },
@@ -48,7 +49,7 @@ const nodes = [
 	node('9:4', 'Credit', 'TEXT', [solid(...C.ink5, 'V:ink5')]),
 	node('9:5', 'Button', 'RECTANGLE', [solid(...C.brand, 'V:brand')], { strokes: [solid(...C.edge)] }),
 	node('9:6', 'Tag', 'RECTANGLE', [{ type: 'GRADIENT_LINEAR', visible: true, opacity: 1, blendMode: 'NORMAL', gradientTransform: [[1, 0, 0], [0, 1, 0]], gradientStops: [stop(0, 0.9796, 0.5627, 0.099), stop(0.5, 0.8728, 0.2154, 0.5977), stop(1, 0.3791, 0.3499, 0.8834)] }]),
-	node('9:7', 'Badge', 'ELLIPSE', [solid(...C.brand, 'V:brand')]),
+	node('9:7', 'Badge', 'ELLIPSE', [solid(...C.accent, 'V:accent')]),   // its own token: a color shared with the button would be one swatch with it
 ]
 // Figma's light theme, as its panel reads them (sampled from Figma's own color picker)
 const theme = { bg: '#ffffff', 'bg-secondary': '#f5f5f5', text: '#000000e6', 'text-secondary': '#00000080', border: '#e6e6e6', 'border-selected': '#0d99ff' }
@@ -144,9 +145,10 @@ function person(page, ui, frame, video) {
 	const space = async (id, settle = 300) => {
 		if (await ui.locator('#spbtn').getAttribute('data-id') === id) return   // already there
 		await click(ui.locator('#spbtn'))
+		await ui.locator('#spq').fill('')   // the field shows the current space's name: typed over, not after
 		await ui.locator('#spq').pressSequentially(id, { delay: video ? 60 * k : 0 })
 		await wait(120)
-		await click(ui.locator(`#splist .spo[data-id="${id}"]`).first())
+		await click(ui.locator(`#spmenu .spo[data-id="${id}"]`).first())
 		await planeReady(); await wait(settle)
 	}
 	// a dot taken up and moved in toward the plane's middle (the grays), so the color stays inside the file's gamut
@@ -195,7 +197,7 @@ const SCENES = [
 			await p.planeReady()
 			await p.drag(ui.locator('#plane'), [[0.75, 0.5], [0.55, 0.62], [0.82, 0.4]], 1000)
 		} },
-	{ id: 'gamut', h: 'Gamut limits: sRGB, Display P3, Rec.2020', s: 'See which colors each display can show. Display P3 files are edited in P3.',
+	{ id: 'gamut', h: 'Gamut limits: sRGB, Display\u00a0P3, Rec.2020', s: 'See which colors each display can show. Display P3 files are edited in P3.',
 		run: async ({ ui, page, p }) => {
 			await p.click(ui.locator('#quant')); await p.click(ui.locator('#quant option[value="0"]'))
 			await p.space('oklch'); await p.cam(['panel'])
@@ -215,7 +217,7 @@ const SCENES = [
 			if (p.video) { await p.click(ui.locator('#axes .pmode')); await p.wait(500) }
 		} },
 	{ id: 'outro', short: true, h: 'Also', s: '', pills: PILLS,
-		list: ['Variables and styles, edited in place', 'Dev Mode CSS in your format', '12 languages'],
+		list: ['Zoom into the plane, hold ⌘ for fine picks', 'Variables and styles, edited in place', 'Dev Mode CSS in your format', '12 languages'],
 		run: async ({ page, p }) => { await p.cam(null); await p.wait(p.short ? 1800 : 3000) } },
 ]
 

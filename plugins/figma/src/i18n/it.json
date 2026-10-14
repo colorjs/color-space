@@ -51,6 +51,10 @@
     "t": "{name} in verticale",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "Fuori da {gamut}",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "Cursore {name}",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}: mappato in sRGB",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "Unisci",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "Rientra in {gamut}.",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "Colori del documento",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "Tutti gli spazi",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "In evidenza",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "Famiglia",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "Spazi colore",
@@ -255,10 +271,6 @@
     "t": "Ruota: {a} e {b}",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB, legacy",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "Nessun profilo colore impostato (un file precedente alla gestione del colore): letto come sRGB",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}, fonte: {type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "Spazio colore",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "stile",

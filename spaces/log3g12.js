@@ -21,24 +21,16 @@
  * @dynamic hdr
  */
 // Implementation notes:
-// Grey (18%) encodes to exactly 1/3.
+// Grey (18%) encodes to exactly 1/3. Gamut: REDWideGamutRGB, matrix in rwg.js.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import rwg from './rwg.js';
 
 const log3g12 = { name: 'log3g12', range: [[0, 1], [0, 1], [0, 1]] };
 
 const enc = x => Math.sign(x) * 0.184904 * Math.log10(Math.abs(x) * 347.189667 + 1);
 const dec = y => Math.sign(y) * (Math.pow(10, Math.abs(y) / 0.184904) - 1) / 347.189667;
 
-// REDWideGamutRGB -> XYZ (D65, Y 0..1) — same primaries as log3g10.js
-const M = [
-	0.7352752459058587, 0.0686094106139610, 0.1465712705318520,
-	0.2866940994999349, 0.8429791340169754, -0.1296732335169103,
-	-0.0796808568783677, -0.3473432169944297, 1.5160818246326759
-];
-const MI = inv3(M);
-
-log3g12.xyz = (r, g, b) => mat3(M, dec(r), dec(g), dec(b)).map(v => v * 100);
-xyz.log3g12 = (x, y, z) => mat3(MI, x / 100, y / 100, z / 100).map(enc);
+log3g12.xyz = (r, g, b) => rwg.xyz(dec(r), dec(g), dec(b));
+xyz.log3g12 = (x, y, z) => xyz.rwg(x, y, z).map(enc);
 
 export default log3g12;

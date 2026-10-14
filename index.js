@@ -173,13 +173,50 @@ import gplog2 from './spaces/gplog2.js'
 import kinelog3 from './spaces/kinelog3.js'
 import samsunglog from './spaces/samsunglog.js'
 import ilog from './spaces/ilog.js'
+import helmgen from './spaces/helmgen.js'
+import helmgenlch from './spaces/helmgenlch.js'
+import orgb from './spaces/orgb.js'
+import prismatic from './spaces/prismatic.js'
+import ihls from './spaces/ihls.js'
+import logluv from './spaces/logluv.js'
+import ydzdx from './spaces/ydzdx.js'
+import din99 from './spaces/din99.js'
+import din99c from './spaces/din99c.js'
+import hunterRdab from './spaces/hunter-rdab.js'
+import msh from './spaces/msh.js'
+import scam from './spaces/scam.js'
+import kim2009 from './spaces/kim2009.js'
+import iptRagoo from './spaces/ipt-ragoo.js'
+import ictcpHlg from './spaces/ictcp-hlg.js'
+import iptpqc2 from './spaces/iptpqc2.js'
+import iapbp from './spaces/iapbp.js'
+import awg3 from './spaces/awg3.js'
+import awg4 from './spaces/awg4.js'
+import dwg from './spaces/dwg.js'
+import rwg from './spaces/rwg.js'
+import bmdwg from './spaces/bmdwg.js'
+import vgamut from './spaces/vgamut.js'
+import sgamut3 from './spaces/sgamut3.js'
+import dgamut from './spaces/dgamut.js'
+import egamut from './spaces/egamut.js'
+import ecirgb from './spaces/ecirgb.js'
+import widegamut from './spaces/widegamut.js'
+import colormatch from './spaces/colormatch.js'
+import brucergb from './spaces/brucergb.js'
+import betargb from './spaces/betargb.js'
+import bestrgb from './spaces/bestrgb.js'
+import donrgb4 from './spaces/donrgb4.js'
+import ektaspace from './spaces/ektaspace.js'
+import russellrgb from './spaces/russellrgb.js'
+import dciP3Plus from './spaces/dci-p3-plus.js'
+import olog2 from './spaces/olog2.js'
 
 /**
  * Dict with all color spaces, graph-wired: any space converts to any other, in
  * scalar or batch form (see hub.js).
  */
 xyy.munsell = xyyMunsell
-const space = createHub([rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcrBt601_525, ycbcrBt601_625, ycbcrBt709, ycbcrBt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cctDuv, wavelength, icacb, hdrIpt, hdrLab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95, sgamut3cine, applelog2, flog2c, gplog2, kinelog3, samsunglog, ilog]);
+const space = createHub([rgb, xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcrBt601_525, ycbcrBt601_625, ycbcrBt709, ycbcrBt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3Linear, rec2020, rec2020Linear, rec2100pq, rec2100hlg, a98rgb, a98Linear, prophoto, prophotoLinear, acescg, acescc, ictcp, cam16jmh, hct, xyzD50, xyzAbsD65, labD65, gray, rg, hcl, din99oLab, din99oLch, xyb, lchD65, cam16ucs, okhwb, aces2065, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dciP3, smpteC, ipt, scrgb, rec2100Linear, din99d, ciecam02, cam02ucs, photoycc, dsh, raldesign, munsell, uv, ohta, anlab, cieRgb, ntsc, appleRgb, pal, smpte240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02lcd, cam02scd, cam16lcd, cam16scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cctDuv, wavelength, icacb, hdrIpt, hdrLab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95, sgamut3cine, applelog2, flog2c, gplog2, kinelog3, samsunglog, ilog, helmgen, helmgenlch, orgb, prismatic, ihls, logluv, ydzdx, din99, din99c, hunterRdab, msh, scam, kim2009, iptRagoo, ictcpHlg, iptpqc2, iapbp, awg3, awg4, dwg, rwg, bmdwg, vgamut, sgamut3, dgamut, egamut, ecirgb, widegamut, colormatch, brucergb, betargb, bestrgb, donrgb4, ektaspace, russellrgb, dciP3Plus, olog2]);
 export default space;
 
 /**

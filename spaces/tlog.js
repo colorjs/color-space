@@ -23,9 +23,9 @@
  */
 // Implementation notes:
 // Constants derive from w=128 (linear value mapping to 1.0), g=16 (gradient at 0),
-// o=0.075 (offset at 0). 18% grey → 0.3966.
+// o=0.075 (offset at 0). 18% grey → 0.3966. Gamut: E-Gamut, matrix in egamut.js.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import egamut from './egamut.js';
 
 const tlog = { name: 'tlog', range: [[0, 1], [0, 1], [0, 1]] };
 
@@ -37,15 +37,7 @@ const A = 1 + (a - 1) * s, B = b * s, G = gs * s;
 const enc = x => x < 0 ? G * x + o : Math.log(x + C) * B + A;
 const dec = t => t < o ? (t - o) / G : Math.exp((t - A) / B) - C;
 
-// E-Gamut linear RGB -> XYZ (D65, Y 0..1); primaries R(0.8,0.3177) G(0.18,0.9) B(0.065,-0.0805)
-const M = [
-	0.7053968500877708, 0.1640413283099190, 0.0810177486539820,
-	0.2801307240911059, 0.8202066415495949, -0.1003373656407007,
-	-0.1037815115691633, -0.0729072570266306, 1.2657465193556721
-];
-const MI = inv3(M);
-
-tlog.xyz = (r, g, b) => mat3(M, dec(r), dec(g), dec(b)).map(v => v * 100);
-xyz.tlog = (x, y, z) => mat3(MI, x / 100, y / 100, z / 100).map(enc);
+tlog.xyz = (r, g, b) => egamut.xyz(dec(r), dec(g), dec(b));
+xyz.tlog = (x, y, z) => xyz.egamut(x, y, z).map(enc);
 
 export default tlog;

@@ -51,6 +51,10 @@
     "t": "纵轴：{name}",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "超出 {gamut}",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "{name} 滑块",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}：已映射到 sRGB 色域",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "合并",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "在 {gamut} 之内。",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "文件中的颜色",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "全部色彩空间",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "精选",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "类别",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "色彩空间",
@@ -255,10 +271,6 @@
     "t": "{a}与{b}色环",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB（旧式）",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "未设置色彩配置文件（色彩管理出现之前的文件）：按 sRGB 读取",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}，来自{type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "色彩空间",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "样式",

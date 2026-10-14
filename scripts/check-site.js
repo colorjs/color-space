@@ -44,7 +44,7 @@ try {
 	page.on('pageerror', error => errors.push(error.message))
 	await page.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })   // ?sw: loopback skips the service worker for dev-freshness — the offline pin below needs it registered
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
-	assert.equal(await page.locator('.ent').count(), 168, 'catalog has all spaces')
+	assert.equal(await page.locator('.ent').count(), 205, 'catalog has all spaces')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
 	// the row's color rests in the hero's field – its rhombus on the field's middle – and, sticky, pins in the row
 	const dockAt=()=>page.evaluate(()=>{ const c=document.querySelector('.cx .cdw').getBoundingClientRect(), f=document.getElementById('hq').getBoundingClientRect(), r=document.getElementById('strip').getBoundingClientRect()
@@ -276,7 +276,7 @@ try {
 	await page.locator('.gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
-	assert.equal(await page.locator('.ent[data-s]').count(), 168, 'era regroup keeps every space')
+	assert.equal(await page.locator('.ent[data-s]').count(), 205, 'era regroup keeps every space')
 	assert.match(await page.locator('.toc .tn').first().textContent(), /2020/, 'era shelves lead the rail, newest first')
 	await lens(page,'f','scene')
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
@@ -291,10 +291,10 @@ try {
 	// other way; Grid returns. A lead card's own switch shows its channel pairs as planes
 	assert.equal(await page.locator('#m-view [data-lens="w"]').count(), 0, 'the layout is not a lens – the View menu holds Quantize, Limit and Vision')
 	await layout(page,'rows')
-	assert.equal(await page.locator('.ent.lr').count(), 168, 'Rows shows every space')
+	assert.equal(await page.locator('.ent.lr').count(), 205, 'Rows shows every space')
 	assert.equal(await page.locator('#c-layout').getAttribute('data-view'), 'list', 'the switch shows the view it turns to next')
 	await layout(page,'list')
-	assert.equal(await page.locator('.ent.tr').count(), 168, 'the List shows every space')
+	assert.equal(await page.locator('.ent.tr').count(), 205, 'the List shows every space')
 	await page.locator('[data-sort="year"]').first().click()
 	assert.equal(await page.locator('.sec').count(), 1, 'a sorted column gathers every space in one shelf')
 	const years = await page.locator('.ent.tr .c-year').allInnerTexts()
@@ -316,7 +316,7 @@ try {
 	assert.equal(await okl.locator('.pv>.chs').isVisible(), true, 'and back')
 	// the history builds as the reader nears it: one band per space, its milestones read off the data; a band opens its dossier
 	await page.locator('#lineage').scrollIntoViewIfNeeded(); await page.waitForSelector('#lineage .hl-b')
-	assert.equal(await page.locator('#lineage .hl-b').count(), 168, 'the history draws every space')
+	assert.equal(await page.locator('#lineage .hl-b').count(), 205, 'the history draws every space')
 	assert.deepEqual(await page.locator('#lineage .hl-ms[data-s]').evaluateAll(b => b.map(x => x.dataset.s)), ['xyz', 'lab', 'rgb', 'oklab'], 'its milestones: CIE XYZ, CIELAB, sRGB, OKLab')
 	await page.locator('#lineage .hl-ms[data-s="lab"]').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /CIELAB/, 'a milestone opens its dossier')

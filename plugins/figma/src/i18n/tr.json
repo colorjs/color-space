@@ -51,6 +51,10 @@
     "t": "Dikeyde {name}",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "{gamut} dışında",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "{name} kaydırıcısı",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}: sRGB gamutuna eşlendi",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "Birleştir",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "{gamut} içinde.",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "Belgenin renkleri",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "Tüm uzaylar",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "Öne çıkanlar",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "Aile",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "Renk uzayları",
@@ -255,10 +271,6 @@
     "t": "{a} ve {b} çemberi",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB, eski dosya",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "Renk profili ayarlanmamış (renk yönetiminden önceki bir dosya): sRGB olarak okunur",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}, kaynak: {type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "Renk uzayı",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "stil",

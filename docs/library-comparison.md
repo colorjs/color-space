@@ -9,7 +9,7 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
 | **Version compared** | 3.x | 4.x | 0.6.x | 3.x | 1.x |
-| **Color spaces** | **168** | ~35 | ~40 | ~15 | ~16 |
+| **Color spaces** | **205** | ~35 | ~40 | ~15 | ~16 |
 | **API value ranges** | Conventional per space | Mixed; RGB normalized | Mixed; RGB normalized | Mixed / CSS strings | Mostly normalized |
 | **CSS string parsing** | No | Yes | Yes | Yes | No |
 | **Color mixing / interpolation** | No | Yes | Yes | Yes | No |
@@ -24,7 +24,7 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | **Batch / typed-array API** | Yes (JS + WASM) | No | No | No | No (per-color `convert` into a reused `output`) |
 | **Scalar speed, M op/s²** | 5.52 | 4.46 | 0.23 | 1.19 (6 of 7) | 3.49 (3 of 7) |
 
-Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 168 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle. ²Geometric mean over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), each library over the subset it implements — color-space on chroma-js's 6 is 6.45, on texel's 3 is 2.76; median of 3 runs, 2026-10-03, Node 22.22 / Intel Xeon 2.1 GHz, versions and method in the [README](../README.md#credits) footnote. Absolute figures move with the machine; compare ratios.
+Full-library min+gz; color-space is measured from the current esbuild output, competitor figures from bundlephobia 2026-06 (culori 4.0.2, colorjs.io 0.6.1, chroma-js 3.2.0). ¹color-space's ~55 kB is **all 205 spaces** — naturally larger than the others because it has 3–5× more spaces. But it is tree-shakeable: a single space is **~2 kB** (e.g. `import oklch from 'color-space/oklch.js'` → ~1.8 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle. ²Geometric mean over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), each library over the subset it implements — color-space on chroma-js's 6 is 6.45, on texel's 3 is 2.76; median of 3 runs, 2026-10-03, Node 22.22 / Intel Xeon 2.1 GHz, versions and method in the [README](../README.md#credits) footnote. Absolute figures move with the machine; compare ratios.
 
 ---
 

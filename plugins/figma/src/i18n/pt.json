@@ -51,6 +51,10 @@
     "t": "{name} na vertical",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "Fora do {gamut}",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "controle deslizante de {name}",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}: mapeado para o sRGB",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "Mesclar",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "Dentro do {gamut}.",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "Cores do documento",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "Todos os espaços",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "Em destaque",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "Família",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "Espaços de cor",
@@ -255,10 +271,6 @@
     "t": "Círculo de {a} e {b}",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB, arquivo legado",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "Sem perfil de cor definido (arquivo anterior ao gerenciamento de cores): lido como sRGB",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}, origem: {type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "Espaço de cor",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "estilo",

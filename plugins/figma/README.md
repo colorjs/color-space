@@ -23,11 +23,12 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   profile (per Figma's docs; see Limitations). In a Display P3 file they're read as Display P3 (the library's `p3`). In an sRGB
   file they're read as sRGB (`rgb`). A legacy file, made before Figma had color
   management, is also read as sRGB and labelled "sRGB, legacy"; the tag's tooltip says so.
-- **Shows any space.** The space menu opens in the page under its button, the window growing
-  to hold it: a search, then folding sections – Featured (each family's three,
-  `web/js/categories.js`), then every family, only the current space's family open. A
-  header folds or unfolds its section; a search opens every section to its matches; ↑↓ move,
-  Enter takes, Escape or a press outside closes (that press acts on nothing else). The
+- **Shows any space.** The space's field shows its name and is the search: focused, it lists
+  the spaces in a menu under it (Figma's white one, the window growing to hold it), the current
+  one checked; a family select at the menu's top (Featured first – each family's three,
+  `web/js/categories.js` – then All spaces and every family, in a Figma menu) chooses the list,
+  as Figma's font list does its sources; typing searches every space by name or id; ↑↓ move, Enter takes, Escape or a press outside
+  closes and the field names the space again (that press acts on nothing else). The
   plugin saves the choice on your machine with `figma.clientStorage`, and the default is
   `oklch`.
 - **Picks on a plane.** Two channels are swept across a square and the rest are held. Each
@@ -59,11 +60,20 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   to in the menu goes first, so the usual picks open in about 10–50 ms. Software GL skips
   the background builds.
 - **Figma's layout and shapes.** The panel opens 288 px wide, a little wider than Figma's own picker (240), and its right edge drags it from 240 to 560 px. The
-  selection's colors head it as full-width rows, like Figma's layers, the current one on
-  Figma's quiet fill (selected, not focused). Then the space field and the two lenses, the
-  plane, and the sliders with the eyedropper beside them and each channel's value cell at
-  the end of its row; the file's color profile is said once, quietly, at the end of the
-  status line. Handles are Figma's knobs as measured on its picker, 14 px with a 2.5 px white
+  selection's colors head it as a palette, Figma's own Selection colors: a 16 px swatch per
+  color (the same opacity, a difference under a fifth of the just-noticeable one, the same
+  variable or style), each with a hairline inside its edge and a translucent one half solid, half
+  over the checker, the current one outlined; a stroke's color is a swatch like any other, and
+  hovering a swatch names every layer and place that uses it. An edit of a swatch writes all of them, one undo step. A swatch dragged onto
+  another folds into it: its paints take that color and opacity, one undo step, and the two are
+  one swatch. Then the space field and the two
+  lenses, the plane, and the sliders with the eyedropper beside them and each channel's value
+  cell at the end of its row. The status is one badge at the foot: the file's gamut (sRGB, P3),
+  ink and "Outside P3" once the coordinate leaves it; its tooltip is the breakdown – the gamut,
+  the file's profile, what the dots are, why a field is locked – read once, so it waits behind a
+  hover. An error stays in sight beside it. Screen readers hear the same words (live regions).
+  The panel's face is Inter, Figma's own, bundled (its Latin subset, 48 KB, OFL: `src/fonts`),
+  so it reads as Figma's offline; its small dropdowns are Figma's dark menus, their colors measured. Handles are Figma's knobs as measured on its picker, 14 px with a 2.5 px white
   ring around the color; bars are
   16 px pill tracks with the knob kept inside, each painted along the knob's travel so the
   knob sits on its own color.
@@ -123,8 +133,9 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   shown but locked: edit them in their library.
 - **Eyedropper.** Where the browser has the EyeDropper API, a button picks any pixel on
   screen into the current paint (through the active palette lens, if any).
-- **Copies CSS in one format.** Figma's way: a format select (OKLCH, OKLab, LCH, Lab, P3,
-  HSL, HWB, RGB, Hex; saved), the value, and its copy button inside the field. The value
+- **Copies CSS in one format.** The value's field is its format's select: a chevron opens the
+  formats (OKLCH, OKLab, LCH, Lab, P3, HSL, HWB, RGB, Hex; saved), each listed as the value it
+  gives; the copy button follows, outside the field. The value
   comes from `src/notation.js`, the same code as the Code panel's: `oklch()` and `oklab()`
   at three digits (L and C to three decimals, the hue to three significant digits; at most
   0.004 ΔEOK from the unrounded color, a fifth of a JND, which the test checks over 4000
@@ -169,9 +180,9 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   dot names where its color lives (the layer and its fill, stroke or stop, and its variable
   or style). A press on a dot takes that paint up: it becomes the current paint, writing
   nothing, and a drag from it moves it, in one undo step. The dots follow edits at once. A
-  short legend under the copy fields says which kinds of dots are showing ("Dots are other
+  line in the badge's tooltip says which kinds of dots are showing ("Dots are other
   selected colors and image pixels.", the list joined in the panel's
-  language by `Intl.ListFormat`); the notes run on as one paragraph.
+  language by `Intl.ListFormat`).
 - **Relaunch button.** A layer the plugin has edited gets a "Color Space" button in its
   properties panel (`setRelaunchData`) that reopens the plugin on it.
 - **Follows live edits.** If you edit a selected layer's fills or strokes while the
@@ -198,7 +209,7 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   families, channel names) come from `web/i18n/`. Only fresh, valid translations ship, and
   a language ships once nearly all its words are translated. None has had a native reader's
   review yet. The tables add about 100 KB to `ui.html`.
-- **About.** An info mark at the panel's bottom right, on the notes' last line, opens a small
+- **About.** An info mark at the panel's bottom right, beside the badge, opens a small
   card above it (a popover; a press elsewhere or Escape closes it): the mark and the name
   (the site), then, right-aligned, "by colorjs" (the code) and a heart (support). Its
   links open in the browser through `figma.openExternal`, and the main thread opens only
@@ -332,9 +343,11 @@ DISPLAY_P3 file. That includes:
 - a selected group: its children's colors in layer order with a hidden one skipped, a layer
   selected with its group listed once, an edit
   writing the child, a change two levels inside re-reading
-- the space menu: Featured first and open, the families holding every space once, only the
-  current family open, a header folding and unfolding, a search opening only the matching
-  sections, Enter, Escape, a press outside acting on nothing else
+- the space field: its name shown, Featured first, All spaces holding every space once, the
+  family list shown whole with All spaces and Featured parted from the families, the current
+  space checked, typing searching every space, Enter taking, Escape restoring the name, a press
+  outside acting on nothing else; the small dropdowns as Figma's menus (its measured fill and
+  highlight)
 - the plane's controls: a click on C making C×L into H×L and back, the wheel/square switch
   saved per pair and its round trip leaving the letters' and the switch's ink as they were, the disc's centre showing its color on screen; the lens controls keeping
   their width on hover and opening from the chevron, a lens's tooltip on hover and none over
@@ -354,8 +367,9 @@ DISPLAY_P3 file. That includes:
   middle, checked against the zoom's arithmetic), the marker hiding when zoomed away from it,
   a double click showing the whole, another pair starting whole; a ⌘-drag
   moving the pick a tenth of the pointer's move
-- the copy field: the format select (hex saved, lab(), back to oklch()), P3 red's hex mapped
-  into sRGB with a tooltip saying so
+- the copy field: the field as the format's select, each format listed as its value, the rows
+  lined up and fitting the panel (hex saved, lab(), back to oklch()), the copy button after it,
+  P3 red's hex mapped into sRGB with a tooltip saying so
 - languages: German, Brazilian Portuguese and Simplified Chinese browsers get their tables (the
   plugin's words and the site's), Traditional Chinese and Dutch get English, and an English
   browser with Russian as a second language stays English

@@ -1,10 +1,13 @@
-// GLSL chunk: S-Log (Sony) <-> CIE XYZ D65 0-100. S-Gamut primaries (same as S-Gamut3).
-// Mirrors slog.js raw/rawInv/enc/dec + M/MI exactly.
+// GLSL chunk: S-Log (Sony) <-> CIE XYZ D65 0-100, via S-Gamut (same primaries as
+// S-Gamut3). Mirrors slog.js raw/rawInv/enc/dec; the matrix comes from sgamut3.glsl.js
+// (requires: ['sgamut3']).
 import xyz from './xyz.glsl.js'
+import sgamut3 from './sgamut3.glsl.js'
 export default {
 	name: 'slog',
-	deps: [xyz],
+	deps: [xyz, sgamut3],
 	edges: { xyz: ['xyz_slog', 'slog_xyz'] },
+	requires: ['sgamut3'],
 	code: /* glsl */ `
 float slog_log10_(float x) { return log(x) / log(10.0); }
 float slog_raw_(float t) {
@@ -18,17 +21,10 @@ float slog_rawinv_(float y) {
 float slog_dec_(float cv) { return slog_rawinv_((cv * 1023.0 - 64.0) / 876.0) * 0.9; }
 float slog_enc_(float x) { return (slog_raw_(x / 0.9) * 876.0 + 64.0) / 1023.0; }
 vec3 slog_xyz(vec3 c) {
-	float r = slog_dec_(c.x); float g = slog_dec_(c.y); float b = slog_dec_(c.z);
-	return vec3(
-		100.0 * (0.7064827132 * r + 0.1288010498 * g + 0.1151721641 * b),
-		100.0 * (0.2709796708 * r + 0.7866064112 * g - 0.0575860820 * b),
-		100.0 * (-0.0096778454 * r + 0.0046000375 * g + 1.0941355587 * b));
+	return sgamut3_xyz(vec3(slog_dec_(c.x), slog_dec_(c.y), slog_dec_(c.z)));
 }
 vec3 xyz_slog(vec3 c) {
-	float x = c.x / 100.0; float y = c.y / 100.0; float z = c.z / 100.0;
-	float r = 1.5073998990431192 * x - 0.24582213740524175 * y - 0.17161168084331915 * z;
-	float g = -0.5181517270645519 * x + 1.3553912409400366 * y + 0.12587866812835696 * z;
-	float b = 0.01551169817958099 * x - 0.007872771439249991 * y + 0.9119163655330013 * z;
-	return vec3(slog_enc_(r), slog_enc_(g), slog_enc_(b));
+	vec3 l = xyz_sgamut3(c);
+	return vec3(slog_enc_(l.x), slog_enc_(l.y), slog_enc_(l.z));
 }`,
 }

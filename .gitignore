@@ -33,3 +33,4 @@ wasm/binary.js
 types/*.d.ts
 /.claude
 web/img/og/
+/plugins/figma/promo

@@ -22,7 +22,7 @@ const WIDTH = 288, MIN = 240, MAX_W = 560   // a little wider than Figma's own p
 let width = WIDTH, height = 560
 const editable = figma.editorType === 'figma'
 // the about card's links (package.json homepage, repository, funding): the only pages the UI may open
-const LINKS = { site: 'https://color-space.io/', github: 'https://github.com/colorjs/color-space', support: 'https://github.com/sponsors/dy' }
+const LINKS = { site: 'https://color-space.io/', github: 'https://github.com/colorjs/color-space', support: 'https://github.com/sponsors/colorjs' }
 
 // A color slot: a SOLID paint, or one stop of a gradient (stop ≥ 0)
 function slots(list) {
@@ -271,7 +271,8 @@ function panel() {
 			else if (msg.type === 'image' && typeof msg.hash === 'string') await sendImage(msg.hash)
 			else if (msg.type === 'open' && Object.prototype.hasOwnProperty.call(LINKS, msg.to)) figma.openExternal(LINKS[msg.to])
 			else if (msg.type === 'set') {
-				try { await write(msg) } finally { if (typeof msg.seq === 'number') acked = msg.seq }
+				// a swatch's paints, every one written (the panel groups the paints that share a color), one undo step
+				try { for (const t of Array.isArray(msg.targets) ? msg.targets : [msg]) await write(Object.assign({}, msg, t)) } finally { if (typeof msg.seq === 'number') acked = msg.seq }
 				// a gesture's live writes and its release are one step in Figma's undo history
 				if (msg.commit) figma.commitUndo()
 				read()   // always answer, so the UI settles even when nothing changed

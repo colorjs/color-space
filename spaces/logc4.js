@@ -20,9 +20,10 @@
  * @dynamic hdr
  */
 // Implementation notes:
-// EI-independent encoding. ARRI LogC4 Specification (2025-01-23).
+// EI-independent encoding. ARRI LogC4 Specification (2025-01-23). Gamut: ARRI Wide
+// Gamut 4 (Eq 5a), matrix in awg4.js.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import awg4 from './awg4.js';
 
 const logc4 = {
 	name: 'logc4',
@@ -46,21 +47,10 @@ const encode = (v) => v >= t
 	? (Math.log2(a * v + 64) - 6) / 14 * b + c
 	: (v - t) / s;
 
-// AWG4 linear RGB -> XYZ (D65, Y 0..1), ARRI LogC4 Spec Eq 5a
-const M = [
-	0.704858320407232064, 0.129760295170463003, 0.115837311473976537,
-	0.254524176404027025, 0.781477732712002049, -0.036001909116029039,
-	0.000000000000000000, 0.000000000000000000, 1.089057750759878429
-];
-const MI = inv3(M);
-
-logc4.xyz = (r, g, b) => {
-	const [x, y, z] = mat3(M, decode(r), decode(g), decode(b));
-	return [x * 100, y * 100, z * 100];
-};
+logc4.xyz = (r, g, b) => awg4.xyz(decode(r), decode(g), decode(b));
 
 xyz.logc4 = (x, y, z) => {
-	const [r, g, b] = mat3(MI, x / 100, y / 100, z / 100);
+	const [r, g, b] = xyz.awg4(x, y, z);
 	return [encode(r), encode(g), encode(b)];
 };
 

@@ -51,6 +51,10 @@
     "t": "{name} nach oben",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "Außerhalb von {gamut}",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "Regler {name}",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}: in sRGB eingepasst",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "Zusammenführen",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "Passt in {gamut}.",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "Farben des Dokuments",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "Alle Farbräume",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "Empfohlen",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "Familie",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "Farbräume",
@@ -255,10 +271,6 @@
     "t": "Rad: {a} und {b}",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB, veraltet",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "Kein Farbprofil festgelegt (Datei aus der Zeit vor dem Farbmanagement): als sRGB gelesen",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}, Quelle: {type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "Farbraum",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "Stil",

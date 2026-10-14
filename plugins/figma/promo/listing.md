@@ -31,7 +31,7 @@ The text and media for the plugin's Community page. Media are made from the plug
 6. `out/6-tailwind.png`: Snap to Tailwind colors
 7. `out/7-gamut.png`: Gamut limits: sRGB, Display P3, Rec.2020
 8. `out/8-views.png`: Any two channels, square or wheel
-9. `out/9-outro.png`: Also – the rest, in three lines, and Free · Offline · Open
+9. `out/9-outro.png`: Also – the rest, in four lines, and Free · Offline · Open
 
 `out/1-hook.png` is the cover's scene after a drag; it is spare.
 

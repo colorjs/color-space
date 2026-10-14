@@ -64,7 +64,7 @@ The suite runs as part of `npm test` via `test/reference.js`.
 
 ## 2. Bona-fide cited values ([test/bonafide.js](../test/bonafide.js))
 
-Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field; the six camera logs added 2026-10 — Apple Log 2, F-Log2 C, GP-Log2, KineLOG3, Samsung Log, Insta360 I-Log — were computed the same way, colour-science 0.4.7 cross-checked in Node; Samsung Log is also pinned to entries of Samsung's own log-to-linear 1D LUT): **150 cited points across 141 space labels** (`test/refs.js` — the counts in `test/bonafide.js` derive from it at run time). Together with the differential suite this covers **all 168 graph spaces — zero gaps**.
+Every space the differential suite does not cover is pinned by at least one **bona-fide reference value** — an authoritative input→output pair, never a self-referential roundtrip. The 2026-07 audit recomputed every entry from its cited source and attached the authoritative deep link (each entry's `url` field; the six camera logs added 2026-10 — Apple Log 2, F-Log2 C, GP-Log2, KineLOG3, Samsung Log, Insta360 I-Log — were computed the same way, colour-science 0.4.7 cross-checked in Node; Samsung Log is also pinned to entries of Samsung's own log-to-linear 1D LUT; the 35 spaces added 2026-10-14 – HelmGen, nine camera gamuts, O-Log2, ten RGB working spaces, DIN99/DIN99c, Hunter Rd,a,b, Msh, sCAM, Kim 2009, IPT Ragoo 2021, ICtCp HLG, IPT-PQ-C2, IaPbP, oRGB, IHLS, Prismatic, LogLuv, Y′D′zD′x – each cite the reference their row was computed with: colour-science 0.4.7, coloraide 8.13, colorjs.io 0.7.1, LibTIFF tif_luv.c, SMPTE ST 2085/2128, OPPO's O-Log2 CTL, or the paper's own equations where no implementation exists): **208 cited points across 178 space labels** (`test/refs.js` — the counts in `test/bonafide.js` derive from it at run time). Together with the differential suite this covers **all 205 graph spaces — zero gaps**.
 
 A cited anchor is exactly that — an anchor: it pins the formula at one (occasionally a few) points, which cannot exercise every nonlinear branch or boundary the way the differential grid does. The tier each space sits in is stated here so the guarantee is never stronger than the evidence.
 
@@ -72,6 +72,7 @@ Oracles, in order of preference:
 
 - **colour-science 0.4.7** (Python) — cinema/camera logs, CAM02/CAM16 families and their UCS/LCD/SCD variants, ZCAM, Hellwig2022, OSA-UCS (forward and Newton inverse), IPT, IgPgTg, Yrg, hdr-CIELab/hdr-IPT, DIN99…
 - **colorjs.io v0.5.2** — HCT, CAM16-JMh, HSLuv/HPLuv, sRGB↔XYZ anchors
+- **colorjs.io v0.7.1** – HelmGen / HelmGen LCh (Helmlab GenSpace), cross-checked against the author's helmlab 1.0.0 to 1e-13 on the same Bradford-adapted XYZ; `test/index.js` pins eight sRGB points both directions at 1e-9
 - **culori v4** — XYB, Okhsl/Okhsv, LCh(D65)
 - **Printed spec constants, hand-computed** — ITU-R BT.470/601/709/2020/2100, ITU-T T.871/H.273, SMPTE RP 431-2 / ST 2084 / 240M, IEC 61966, CIE 1960/1964/1976, ACES S-2013-001/S-2016-001, Xerox YES, Kodak PhotoYCC, Hunter Lab, vendor log-curve whitepapers (ARRI, Sony, Canon, Fujifilm, Nikon, Leica, DJI, Blackmagic, RED, Panasonic, Apple, GoPro, Kinefinity, Xiaomi, OPPO)…
 
@@ -263,6 +264,24 @@ color-space 3.1.0.
   (x 0.32168, y 0.33767), and all three agree exactly: 3e-13, or the same 10-bit code. The
   harness flagged the stale caveats, and they were removed.
 
+### Added (2026-10-14)
+
+Versions: colour-science 0.4.7, OpenCV 5.0.0, numpy 2.5.4, color-space 3.2.0.
+
+- **29 snippets for spaces added in 3.2.0, all pass:** nine scene-linear camera gamuts
+  (awg3, awg4, dwg, rwg, bmdwg, vgamut, sgamut3, dgamut, egamut), ten RGB working spaces
+  (ecirgb, widegamut, colormatch, brucergb, betargb, bestrgb, donrgb4, ektaspace, russellrgb,
+  dci-p3-plus), din99, din99c, hunter-rdab, msh, scam, kim2009, ipt-ragoo, ictcp-hlg (plus its
+  inverse), ihls and prismatic. 13 agree to better than 1e-10, and the worst is dgamut at 8.9e-5,
+  from colour's printed D-Gamut matrices.
+- **The full re-run passes:** 159 rgb → space, 36 space → sRGB and 10 OpenCV snippets, with the
+  same 6 caveats as above.
+- **No equivalent (7 more spaces):** helmgen and helmgenlch (Helmlab, 2026), orgb, iapbp, iptpqc2
+  (SMPTE ST 2128), ydzdx (colour lists SMPTE ST 2085 only as a label in its H.273 tables) and
+  logluv. colour has none of them. logluv and ydzdx can be composed from colour's u′v′ and PQ
+  (both match to 1e-14), but only by hand-coding each format's own constants. yuv and oklrab
+  are left out for the same reason.
+
 ### What the snippets encode
 
 colour-science conventions:
@@ -273,6 +292,14 @@ colour-science conventions:
 - Bradford is passed explicitly, because colour defaults to CAT02.
 - `colour.convert` is never used: it needs networkx and returns the 0–1 reference scale.
 - DIN99d applies Cui et al.'s X′ = 1.12X − 0.12Z step, which colour's `DIN99d` method leaves out.
+  DIN99c applies X′ = 1.1X − 0.1Z the same way.
+- ECI RGB v2, Best RGB, Don RGB 4, Ekta Space PS 5 and Russell RGB are built as
+  `RGB_Colourspace` from color-space's primaries (and Russell's 5500 K white). colour derives
+  the first four from colorant XYZ rounded to 3 decimals (0.670103 for ECI red), and gives Russell
+  RGB a CIE D55 white. Its stock datasets would be off by up to 4.9e-3. Bruce RGB, which colour
+  lacks, is built the same way.
+- Kim2009 takes absolute XYZ: the relative white is placed at L_w = 64/π cd/m², 5× the
+  adapting luminance, as in `spaces/kim2009.js`.
 - HCT is composed from CAM16 under Material's viewing conditions plus CIE L*, because colour
   has no HCT.
 - Munsell scales Y by 0.975, because color-space's value uses the 1943 Newhall (MgO = 100)

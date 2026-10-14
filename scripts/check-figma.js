@@ -117,11 +117,11 @@ try {
 	// the space menu, as a person uses it: open, click the space
 	// the space field, as a person uses it: type a name (or an id) the list offers
 	const frame1Fonts = page => page.frames().find(f => f !== page.mainFrame()).evaluate(async () => { await document.fonts.load('16px "color-space icons"', '▥'); return document.fonts.check('16px "color-space icons"', '▥') })
-	// the space menu, as a person uses it: open, search, click the space
+	// the space, as a person picks it: into its field, type, click the space the list offers
 	const pickSpace = async (ui, id) => {
-		if (await ui.locator('#spmenu').isHidden()) await ui.locator('#spbtn').click()
+		await ui.locator('#spq').click()
 		await ui.locator('#spq').fill(id)
-		await ui.locator(`#splist .spo[data-id="${id}"]`).first().click()   // a featured space shows twice: in Featured and its family
+		await ui.locator(`#splist .spo[data-id="${id}"]`).first().click()
 	}
 	const spaceOf = ui => ui.locator('#spbtn').getAttribute('data-id')
 	const near3 = (a, b) => a.every((v, i) => Math.abs(v - b[i]) < 1e-3)
@@ -136,7 +136,7 @@ try {
 	const selections = page => page.evaluate(() => window.__log.toUI.filter(m => m.type === 'selection').length)
 	const lastSet = page => page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set').at(-1))
 	// what the panel says: the gamut status line, then the notes
-	const notes = async ui => (await ui.locator('#gamut').innerText().catch(() => '')) + '\n' + (await ui.locator('#notes').innerText().catch(() => ''))
+	const notes = async ui => (await ui.locator('#gamut').innerText().catch(() => '')) + '\n' + (await ui.locator('#err').innerText().catch(() => '')) + '\n' + (await ui.locator('#notes').innerText().catch(() => ''))   // the status, an error, the notes
 
 	/** Type a value into channel i and commit it, then wait for the write and the re-read. */
 	async function edit(page, ui, i, value) {
@@ -234,31 +234,38 @@ try {
 		ok(fromUI[0]?.type === 'ready', 'UI says ready first')
 
 		// read → display
-		ok(await ui.locator('#profile').textContent() === 'sRGB', 'profile tag reads sRGB')
+		ok(await ui.locator('#badge').textContent() === 'sRGB' && /color profile: values are sRGB/.test(await ui.locator('#badge').getAttribute('data-tip')), 'the badge reads sRGB, its tooltip says it is the file\'s profile')
 		ok(await spaceOf(ui) === 'oklch', 'default space is oklch')
 		ok(await frame1Fonts(page), 'the lens selects\' icon font is loaded in the panel')
-		// the space menu: a search over folding sections – Featured (each family's three, open), then every family, only the
-		// current space's open; a section's header folds it; a search opens every section to its matches
+		// the space: its field shows its name; focused, it lists every space (Featured bold), the current one checked and
+		// shown; the family select narrows the list to a family; typing filters it (by name or id); the field is the search
+		ok(await ui.locator('#spq').inputValue() === 'OKLCH', `the field shows the space's name (${await ui.locator('#spq').inputValue()})`)
 		await ui.locator('#spbtn').click()
-		const secs = await ui.locator('#splist .fam').evaluateAll(hs => hs.map(h => [h.dataset.fam, h.getAttribute('aria-expanded'), +h.querySelector('.n').textContent]))
-		ok(secs[0][0] === 'Featured' && secs[0][1] === 'true' && secs[0][2] === 21, `Featured first, open, each family's three (${secs[0]})`)
-		ok(secs.slice(1).reduce((t, x) => t + x[2], 0) === Object.keys(space).length, 'the families hold every space once')
-		ok(secs.slice(1).filter(x => x[1] === 'true').map(x => x[0]).join() === 'Perceptual', 'only the current space\'s family is open')
-		ok(await ui.locator('#splist .spo').count() === 21 + secs.find(x => x[0] === 'Perceptual')[2], 'folded families show no rows')
-		await ui.locator('#splist .fam[data-fam="Film & camera"]').click()
-		ok(await ui.locator('#splist .fam[data-fam="Film & camera"]').getAttribute('aria-expanded') === 'true' && await ui.locator('#splist .spo[data-id="slog3"]').count() === 1, 'a header unfolds its family')
-		await ui.locator('#splist .fam[data-fam="Film & camera"]').click()
-		ok(await ui.locator('#splist .spo[data-id="slog3"]').count() === 0, 'and folds it back')
+		ok(await ui.locator('#spmenu').isVisible() && await ui.locator('#spq').getAttribute('aria-expanded') === 'true', 'a click in the field opens the list under it')
+		ok(await ui.locator('#spgroup').inputValue() === 'featured' && await ui.locator('#splist .spo').count() === 21 && await ui.locator('#splist .spo.feat').count() === 21, 'Featured first: each family\'s three')
+		ok(await ui.locator('#splist .spo[aria-selected="true"]').getAttribute('data-id') === 'oklch' && await ui.locator('#splist .spo[aria-selected="true"] .ok').isVisible() && await ui.locator('#splist .spo.on').getAttribute('data-id') === 'oklch', 'the current space checked, and the arrows start there')
+		await ui.locator('#spgroup').click()
+		ok(await ui.locator('#spgroup').evaluate(g => { const p = [...g.querySelectorAll('option')].at(-1).parentElement; return [...g.options].every(o => { const r = o.getBoundingClientRect(); return r.height > 0 && r.bottom <= innerHeight }) }), 'the family list shows every family at once, no scrolling')
+		await page.keyboard.press('Escape')
+		await ui.locator('#spgroup').selectOption('all')
+		ok(await ui.locator('#splist .spo').count() === Object.keys(space).length, 'All spaces: every space, once')
+		const seq = await ui.locator('#spgroup').evaluate(g => [...g.children].filter(c => c.tagName !== 'BUTTON').map(c => c.tagName === 'HR' ? '—' : c.value))
+		ok(seq.slice(0, 4).join() === 'all,—,featured,—' && seq.filter(x => x === '—').length === 2, `All spaces and Featured each parted from what follows (${seq.slice(0, 5)})`)
+		await ui.locator('#spgroup').selectOption('Film & camera')
+		const film = await ui.locator('#splist .spo').evaluateAll(es => es.map(e => e.dataset.id))
+		ok(film.includes('slog3') && !film.includes('oklch') && await ui.locator('#spmenu').isVisible(), `the family select narrows the list to a family (${film.length})`)
+		await ui.locator('#spgroup').selectOption('featured')
 		await ui.locator('#spq').fill('osa')
-		ok((await ui.locator('#splist .spo').evaluateAll(es => es.map(e => e.dataset.id))).join() === 'osaucs' && await ui.locator('#splist .fam').count() === 1, 'a search opens the sections holding matches, and only those')
+		ok((await ui.locator('#splist .spo').evaluateAll(es => es.map(e => e.dataset.id))).join() === 'osaucs', 'typing searches every space, whatever the family (OSA-UCS isn\'t featured)')
 		await ui.locator('#spq').fill('zzz')
 		ok(await ui.locator('#splist .spnone').isVisible(), 'a search with no match says so')
 		await ui.locator('#spq').fill('cam16-u')
 		await page.keyboard.press('Enter')
-		ok(await spaceOf(ui) === 'cam16-ucs' && await ui.locator('#spmenu').isHidden(), 'Enter takes the highlighted space and closes the menu')
+		ok(await spaceOf(ui) === 'cam16-ucs' && await ui.locator('#spmenu').isHidden() && await ui.locator('#spq').inputValue() === 'CAM16-UCS', `Enter takes the highlighted space, closes the menu, and the field names it (${await ui.locator('#spq').inputValue()})`)
 		await ui.locator('#spbtn').click()
+		await ui.locator('#spq').fill('lab')
 		await page.keyboard.press('Escape')
-		ok(await ui.locator('#spmenu').isHidden(), 'Escape closes the menu')
+		ok(await ui.locator('#spmenu').isHidden() && await ui.locator('#spq').inputValue() === 'CAM16-UCS' && await spaceOf(ui) === 'cam16-ucs', 'Escape closes the menu, the field names the space again, nothing taken')
 		// a press outside only closes it: the control under the press (another paint's row) doesn't act
 		await ui.locator('#spbtn').click()
 		const cur = await ui.locator('.paint[aria-pressed="true"]').getAttribute('data-key')
@@ -273,7 +280,7 @@ try {
 		// hover of the same element; any press elsewhere dismisses it; a quiet explainer (the profile) shows it on a click
 		const tipOn = () => ui.locator('#tip').evaluate(t => t.classList.contains('on'))
 		const frame1 = page.frames().find(f => f !== page.mainFrame())
-		await ui.locator('#profile').hover()
+		await ui.locator('#badge').hover()
 		await ui.locator('#tip.on').waitFor({ state: 'attached', timeout: 3000 })
 		await page.waitForTimeout(3000)
 		ok(await tipOn() && await ui.locator('#tip').evaluate(t => getComputedStyle(t).opacity) > 0.5, 'a hovered tooltip stays (no fade on its own)')
@@ -281,19 +288,19 @@ try {
 		// scrolled frame doesn't reliably produce one (it depends on timing and load), so the event itself is dispatched
 		await frame1.evaluate(() => document.documentElement.dispatchEvent(new PointerEvent('pointerleave')))
 		ok(!(await tipOn()), 'the pointer leaving the panel hides the tooltip')
-		await ui.locator('#profile').hover()
+		await ui.locator('#paints .paint').first().hover()
 		await ui.locator('#tip.on').waitFor({ state: 'attached', timeout: 3000 }).catch(() => {})
-		await ui.locator('#gamut').hover()   // onto the next element: the first one's tip goes, the next one's comes
+		await ui.locator('#badge').hover()   // onto the next element: the first one's tip goes, the next one's comes
 		await frame1.waitForFunction(() => /^In /.test(document.getElementById('tip').textContent), null, { timeout: 3000 }).catch(() => {})
-		ok(await tipOn() && /^In sRGB\.$/.test(await ui.locator('#tip').innerText()), `moving to another element swaps the tip (${await ui.locator('#tip').innerText()})`)
-		await ui.locator('#profile').hover()
+		ok(await tipOn() && /^In sRGB\.\n/.test(await ui.locator('#tip').innerText()), `moving to another element swaps the tip (${await ui.locator('#tip').innerText()})`)
+		await ui.locator('#badge').hover()
 		await ui.locator('#tip.on').waitFor({ state: 'attached', timeout: 3000 }).catch(() => {})
 		ok(await tipOn(), 'the same element hovered again shows it again')
 		const pad = async () => { const b = await ui.locator('#picker').boundingBox(); await page.mouse.click(b.x - 6, Math.max(5, b.y + 20)) }   // the panel's padding beside the picker: nothing there
 		await pad()
 		ok(!(await tipOn()), 'a press dismisses the tooltip')
-		await ui.locator('#profile').click()
-		ok(await tipOn() && /color profile/.test(await ui.locator('#tip').innerText()), 'a click on the profile shows its tooltip')
+		await ui.locator('#badge').click()
+		ok(await tipOn() && /color profile/.test(await ui.locator('#tip').innerText()), 'a click on the badge shows its tooltip')
 		await pad()
 		// focus after a press (not from the keyboard) brings no tooltip; focus from the keyboard does
 		// read the tooltip in the tick right after the focus (the hover tip waits 300 ms; a focus tip would be there at once)
@@ -314,6 +321,12 @@ try {
 		ok(hexv === '#ff8000' && await page.evaluate(() => window.__log.fromUI.some(m => m.type === 'store' && m.key === 'format' && m.value === 'hex')), `css hex, the format saved: ${hexv}`)
 		ok(await asFmt(ui, 'lab') === css('lab', space.rgb.lab(255, 127.5, 0)) && await asFmt(ui, 'oklch') === oklch3([L, C, H]), 'the format select: lab(), then back to oklch()')
 		ok(await ui.locator('#notes').innerText() === 'Dots are other selected colors.', `an in-gamut sRGB paint: only the dots' legend (${await ui.locator('#notes').innerText()})`)
+		// the status is one badge, its tooltip the breakdown – the gamut, the profile, the notes – and no lines of text
+		ok(await ui.locator('#badge').getAttribute('data-tip') === 'In sRGB.\nThe file\'s color profile: values are sRGB\nDots are other selected colors.' && await ui.locator('#err').innerText() === '', `the badge's breakdown: ${JSON.stringify(await ui.locator('#badge').getAttribute('data-tip'))}`)
+		ok(await ui.locator('#gamut').evaluate(e => e.getBoundingClientRect().width <= 1) && await ui.locator('#notes').evaluate(e => e.getBoundingClientRect().width <= 1), 'the gamut and the notes are said to screen readers, not shown')
+		// the palette: a swatch each, a stroke's a ring, the current one pressed; name and place in its tooltip
+		ok(await ui.locator('.paint.stroke').count() === 0 && await ui.locator('.paint', { hasText: 'stroke 1' }).count() === 1, 'a stroke\'s color is a swatch like any other, as in Figma\'s own')
+		ok(await ui.locator('.paint').first().getAttribute('data-tip') === 'Card\nfill 1' && await ui.locator('.paint').first().getAttribute('aria-label') === 'Card, fill 1', `a swatch's tooltip and label: ${JSON.stringify(await ui.locator('.paint').first().getAttribute('data-tip'))}`)
 
 		// theme: the panel takes Figma's colors
 		const theme = await ui.locator('body').evaluate(b => [getComputedStyle(b).backgroundColor, getComputedStyle(b).color])
@@ -339,6 +352,7 @@ try {
 		close(rgbOf({ color: set.color }), exp.rgb, 1e-12, 'sRGB gamut-mapped set color')
 		ok(set.color.r >= 0 && set.color.r <= 1 && set.color.g >= 0 && set.color.g <= 1 && set.color.b >= 0 && set.color.b <= 1, 'mapped color within [0, 1]')
 		ok(/^Outside sRGB/.test(await ui.locator('#gamut').innerText()), 'the status line says the coordinate is outside sRGB')
+		ok(await ui.locator('#badge').textContent() === 'Outside sRGB' && await ui.locator('#badge').evaluate(e => e.classList.contains('out')), 'and the badge says so, in ink')
 		ok(Math.abs((await shown(ui))[1] - 0.37) < 5e-5, 'the picked chroma stays: the coordinate, not the mapped color')
 		ok(valuesIn(profile, 'oklch', rgbOf({ color: set.color }))[1] < 0.37, 'the written color carries the reduced chroma')
 
@@ -375,10 +389,12 @@ try {
 
 		// copy: the iframe has no clipboard-write permission policy (whether Figma's does is
 		// unverified), so this exercises the select + execCommand('copy') fallback
+		// the copy button, after the format select and outside the field, copies the field's value
 		const want = await ui.locator('#css-1').inputValue()
-		await ui.locator('[data-copy="css-1"]').click()
-		await ui.locator('[data-copy="css-1"][aria-label="Copied"], [data-copy="css-1"][aria-label="Selected"]').waitFor({ timeout: 10000 }).catch(() => {})   // the label holds 1.2 s; a loaded machine can be slower than 2 s to show it
-		const copied = await ui.locator('[data-copy="css-1"]').getAttribute('aria-label')
+		ok(await ui.locator('#copyb').evaluate(b => b.getBoundingClientRect().left >= document.getElementById('fmt').closest('.fmt').getBoundingClientRect().right && !b.closest('.fld')), 'the copy button comes after the format select, outside the field')
+		await ui.locator('#copyb').click()
+		// the label holds 1.2 s: the wait itself says which one showed (a second read could come after it went)
+		const copied = await ui.locator('#copyb[aria-label="Copied"]').waitFor({ timeout: 10000 }).then(() => 'Copied', () => ui.locator('#copyb').getAttribute('aria-label'))
 		ok(copied === 'Copied', `copy button feedback: ${copied}`)
 		ok(await page.evaluate(() => navigator.clipboard.readText()) === want, 'clipboard holds the oklch() text')
 
@@ -454,7 +470,7 @@ try {
 
 		// an error from the main thread belongs to its paint: selecting another layer drops it
 		await page.evaluate(() => figma.ui.postMessage({ type: 'error', text: 'Write failed (mock).' }))
-		await ui.locator('#notes', { hasText: 'Write failed' }).waitFor()
+		await ui.locator('#err', { hasText: 'Write failed' }).waitFor()
 		n = await selections(page)
 		await page.evaluate(() => window.__select(['1:4']))
 		await settle(page, n)
@@ -482,9 +498,51 @@ try {
 		for (const to of ['evil', '__proto__', 'toString']) await page.evaluate(to => figma.ui.onmessage({ type: 'open', to }), to)
 		await page.evaluate(() => figma.ui.onmessage({ type: 'open', url: 'https://example.com' }))
 		await page.waitForTimeout(50)
-		ok(JSON.stringify(await page.evaluate(() => window.__log.opened)) === '["https://github.com/sponsors/dy","https://github.com/colorjs/color-space"]', `the card opens its own pages only: ${JSON.stringify(await page.evaluate(() => window.__log.opened))}`)
+		ok(JSON.stringify(await page.evaluate(() => window.__log.opened)) === '["https://github.com/sponsors/colorjs","https://github.com/colorjs/color-space"]', `the card opens its own pages only: ${JSON.stringify(await page.evaluate(() => window.__log.opened))}`)
 		await page.keyboard.press('Escape')
 		ok(!(await ui.locator('#about').evaluate(e => e.matches(':popover-open'))), 'Escape closes the about card')
+
+		// the palette folds: the stroke's swatch dragged onto the fill's – the stroke takes the fill's color and opacity in one
+		// write and one undo step, and the two are one swatch; an edit of that swatch then writes both, in one message
+		{
+			await ui.locator('#paints .paint').first().waitFor()
+			const fill0 = (await page.evaluate(() => window.__paints('1:1', 'fills')))[0], before = await ui.locator('#paints .paint').count()
+			const u0 = await page.evaluate(() => window.__log.undo), n0 = await selections(page)
+			const [a, b] = [await ui.locator('#paints .paint', { hasText: 'stroke 1' }).boundingBox(), await ui.locator('#paints .paint', { hasText: 'fill 1' }).first().boundingBox()]
+			await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2)
+			await page.mouse.down()
+			await page.mouse.move(a.x + a.width / 2 + 3, a.y + a.height / 2, { steps: 2 })
+			await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 6 })
+			ok(await ui.locator('#paints .paint.drop').count() === 1 && await ui.locator('#paints .paint.lift').count() === 1, 'a dragged swatch is lifted, the one under it marked')
+			ok(await ui.locator('#ghost').isVisible() && await ui.locator('#ghost.over .lbl').innerText() === 'Merge', 'its ghost follows the pointer, and says Merge over another swatch')
+			await page.mouse.up()
+			ok(await ui.locator('#ghost').isHidden(), 'the ghost goes on release')
+			await settle(page, n0)
+			await page.waitForTimeout(60)
+			const st = (await page.evaluate(() => window.__paints('1:1', 'strokes')))[0]
+			ok(near3(rgbOf(st), rgbOf(fill0)) && st.opacity === fill0.opacity && await page.evaluate(() => window.__log.undo) === u0 + 1, `folded: the stroke takes the fill's color and opacity, one undo step (${rgbOf(st)} vs ${rgbOf(fill0)})`)
+			ok(await ui.locator('#paints .paint').count() === before - 1 && (await ui.locator('#paints .paint[aria-pressed="true"]').getAttribute('data-keys')).split(' ').length === 2, 'and the two are one swatch, the current one')
+			const set = await edit(page, ui, 0, 0.4)
+			ok(set.targets?.length === 2 && set.targets.map(t => t.kind).sort().join() === 'fills,strokes', `an edit of the swatch writes both: ${JSON.stringify(set.targets)}`)
+			ok(near3(rgbOf((await page.evaluate(() => window.__paints('1:1', 'fills')))[0]), rgbOf((await page.evaluate(() => window.__paints('1:1', 'strokes')))[0])), 'and they stay one color')
+			// a translucent swatch: its color with its opacity (half of it over the checker), and opaque (the other half)
+			await ui.locator('#channels .cv[data-i="a"]').fill('50'); await ui.locator('#channels .cv[data-i="a"]').press('Tab')
+			await page.waitForTimeout(150)
+			const sw = await ui.locator('#paints .paint[aria-pressed="true"] .sw').evaluate(e => [e.style.getPropertyValue('--sw'), e.style.getPropertyValue('--swo')])
+			ok(/ \/ 0\.5\)$/.test(sw[0]) && !sw[1].includes('/'), `a translucent swatch: half with its opacity, half opaque (${sw})`)
+			ok(await ui.locator('.foot').evaluate(f => { const v = [...f.children].filter(e => e.offsetParent && e.id !== 'err' && !e.classList.contains('sr')).map(e => e.id); const b = document.getElementById('badge').getBoundingClientRect(), i = document.getElementById('aboutb').getBoundingClientRect(); return v.join() === 'badge,aboutb' && i.left - b.right < 12 && document.body.clientWidth - i.right < 16 }), 'the badge right-aligned, beside the info mark at the foot\'s right')
+			// the value's field is its format's select: a pick there changes the value, and the field holds no other control
+			ok(await ui.locator('#fmt').evaluate(sel => sel.closest('.fld') === document.getElementById('css-1').closest('.fld')), 'the format select is the value\'s own field')
+			await ui.locator('.fmt').click()
+			ok(await frame1.evaluate(() => document.getElementById('fmt').matches(':open')) && await ui.locator('#fmt option[value="hex"]').isVisible(), 'a click on the value\'s field opens its formats')
+			ok(await ui.locator('#fmt option').evaluateAll(os => os.every(o => o.scrollWidth <= o.clientWidth + 1 && o.getBoundingClientRect().right <= innerWidth)), 'every value fits its row, inside the panel')
+			ok(await ui.locator('#fmt option[value="oklch"]').textContent() === await ui.locator('#css-1').inputValue() && /^#[0-9a-f]{6}/.test(await ui.locator('#fmt option[value="hex"]').textContent()), 'each format offered as the value it gives, not its name')
+			if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-formats.png` })
+			// every row's text starts at one column: the check's column is kept on unchecked rows, once
+			const lefts = await ui.locator('#fmt option').evaluateAll(os => os.map(o => { const r = document.createRange(); r.selectNodeContents(o); return Math.round([...r.getClientRects()].at(-1).left) }))
+			ok(new Set(lefts).size === 1, `the formats' names line up, checked or not (${lefts})`)
+			await page.keyboard.press('Escape')
+		}
 
 		if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-srgb.png` })
 		ok(!errors.length, `sRGB page errors: ${errors.join(' | ')}`)
@@ -501,7 +559,7 @@ try {
 		ok(await page.evaluate(() => window.__log.resize.some(r => r[0] === 320)), 'the stored width (320) restored')
 		ok(await ui.locator('#limit').inputValue() === 'file' && /File gamut \(Display P3\)/.test(await ui.locator('#limit').getAttribute('data-tip')), 'the stored limit (the file\'s gamut) restored, naming Display P3 in a P3 file')
 		ok(await ui.locator('#limit option[value="file"] .ico').textContent() === '\u25B3', 'the File gamut option wears the P3 icon in a P3 file')
-		ok(await ui.locator('#profile').textContent() === 'Display P3', 'profile tag reads Display P3')
+		ok(await ui.locator('#badge').textContent() === 'P3', 'the badge reads P3')
 		let rgb = [1, 0, 0]
 		close(await shown(ui), valuesIn(profile, 'hct', rgb), halfStep('hct'), 'P3 read: hct values of P3 red')
 		ok(await asFmt(ui, 'p3') === 'color(display-p3 1 0 0)', 'css color(display-p3)')
@@ -510,7 +568,7 @@ try {
 		await asFmt(ui, 'oklch')
 		const [L, C, H] = space.p3.oklch(...rgb)
 		ok(await ui.locator('#css-1').inputValue() === oklch3([L, C, H]), `P3 css oklch(): ${await ui.locator('#css-1').inputValue()}`)
-		ok(await ui.locator('#notes').isHidden(), 'no notes: P3 red is inside the document gamut')
+		ok(await ui.locator('#notes').innerText() === '', 'no notes: P3 red is inside the document gamut')
 
 		await pickSpace(ui, 'oklch')
 		close(await shown(ui), valuesIn(profile, 'oklch', rgb), halfStep('oklch'), 'P3 read: oklch values')
@@ -529,7 +587,7 @@ try {
 		ok(set.profile === 'DISPLAY_P3', 'set carries the P3 profile')
 		close(rgbOf({ color: set.color }), exp.rgb, 1e-12, 'P3 set color (unmapped)')
 		close(rgbOf((await page.evaluate(() => window.__paints('2:1', 'fills')))[0]), exp.rgb, 1e-12, 'P3 fill written')
-		ok(await ui.locator('#notes').isHidden(), 'no gamut note for a P3-inside color')
+		ok(await ui.locator('#notes').innerText() === '', 'no gamut note for a P3-inside color')
 		ok(Math.abs((await shown(ui))[1] - 0.27) < 5e-5, 'C reads back 0.27')
 		rgb = exp.rgb
 
@@ -564,7 +622,7 @@ try {
 		await settle(page, n)
 		await page.waitForTimeout(30)
 		ok(JSON.stringify(await page.evaluate(() => window.__paints('2:1', 'fills'))) === JSON.stringify(before), 'stale-profile write refused')
-		ok(await ui.locator('#profile').textContent() === 'sRGB', 'UI follows the new profile')
+		ok(await ui.locator('#badge').textContent() === 'sRGB', 'UI follows the new profile')
 		ok(await ui.locator('#limit option[value="file"] .ico').textContent() === '\u25B5', 'and the File gamut option turns to the sRGB icon')
 		ok(!/Display P3/.test(await ui.locator('#gamut').innerText()), 'the status follows the new profile')
 
@@ -611,6 +669,11 @@ try {
 		const ow0 = await optW()
 		await ui.locator('#quant option[value="20"]').hover()
 		ok(await optW() === ow0, `the open list keeps its width on hover (${ow0})`)
+		if (process.env.FIGMA_SHOTS) await page.locator('iframe').screenshot({ path: `${process.env.FIGMA_SHOTS}/figma-lens.png` })
+		ok(await ui.locator('#quant legend').first().isHidden() && await ui.locator('#quant option[value="20"]').evaluate(o => o.querySelector('.nm').getBoundingClientRect().left - o.querySelector('.ico').getBoundingClientRect().right >= 3), 'the sections unlabelled, a hairline apart; each icon apart from its name')
+		ok(await frame.evaluate(async () => { await document.fonts.load('11px Inter', 'Abc'); return document.fonts.check('11px Inter', 'Abc') }) && await ui.locator('#quant option').first().evaluate(o => getComputedStyle(o).fontSize) === '11px', 'the panel speaks Inter, Figma\'s face, bundled; its menus at Figma\'s 11 px')
+		// a small dropdown's list is Figma's menu: dark, its row under the pointer on the menu's selection color
+		ok(await ui.locator('#quant option[value="20"]').evaluate(o => getComputedStyle(o).backgroundColor) === 'rgb(63, 138, 226)' && await ui.locator('#quant').evaluate(q => getComputedStyle(q).getPropertyValue('--menu-bg').trim()) === '#1e1e1e', 'Figma\'s menu: its fill and its highlight, as measured')
 		await page.waitForTimeout(500)
 		ok(!(await tipText()), `no tooltip over the open list (${await tipText()})`)
 		await page.keyboard.press('Escape')
@@ -623,6 +686,7 @@ try {
 		await page.keyboard.press('Escape')
 		// the size: the grip by the panel's corner drags its width (the height follows), saved; the resize cursor shows
 		// throughout (a picker drag hides it); here narrower, as a drag out of this mock's frame loses the pointer
+		ok(await ui.locator('.menu:not([hidden])').count() === 0 && !(await frame.evaluate(() => document.getElementById('quant').matches(':open'))), `no menu left open before the resize (${await ui.locator('.menu:not([hidden])').evaluateAll(es => es.map(e => e.id))})`)
 		const gb = await ui.locator('#grip').boundingBox(), gx = gb.x + gb.width * 0.75, gy = gb.y + gb.height * 0.75   // in the corner's triangle, where the grip takes presses
 		await page.mouse.move(gx, gy)
 		await page.mouse.down()
@@ -638,11 +702,13 @@ try {
 		ok(await page.evaluate(() => window.__stored('width')) === 288, 'the arrow key widens it by 16')
 		// a release the frame never sees (let go outside the panel): the next move without a button ends the resize, saved,
 		// and later moves resize nothing
+		await frame.waitForFunction(() => innerWidth === 288, null, { timeout: 3000 }).catch(() => {})   // the frame at its new width before the grip is measured: a press must land in its corner
 		const gr = await ui.locator('#grip').boundingBox()
 		await page.mouse.move(gr.x + gr.width * 0.75, gr.y + gr.height * 0.75)
 		await page.mouse.down()
 		await page.mouse.move(gr.x + gr.width * 0.75 - 16, gr.y + gr.height * 0.75, { steps: 2 })
 		await frame.evaluate(([x, y]) => dispatchEvent(new PointerEvent('pointermove', { pointerId: 1, buttons: 0, clientX: x, clientY: y, bubbles: true })), [gr.x - 40, gr.y - 40])
+		await page.waitForFunction(() => window.__stored('width') === 272, null, { timeout: 3000 }).catch(() => {})   // the save is a message: wait for it, as the checks above do
 		const nResize = await page.evaluate(() => window.__log.resize.length), wAfter = await page.evaluate(() => window.__stored('width'))
 		ok(!(await ui.locator('#grip').evaluate(g => g.classList.contains('live'))) && wAfter === 272, `a lost release ends the resize, saved (${wAfter})`)
 		await frame.evaluate(([x, y]) => dispatchEvent(new PointerEvent('pointermove', { pointerId: 1, buttons: 1, clientX: x, clientY: y, bubbles: true })), [gr.x - 60, gr.y])
@@ -685,7 +751,7 @@ try {
 		close(await fill(), exp.rgb, 0.003, 'drag: the fill is the picked color')
 
 		// the status line is one line in and out of the gamut, so a drag across the gamut moves nothing below it
-		const gh = () => ui.locator('#gamut').evaluate(g => [g.textContent, g.getBoundingClientRect().height])
+		const gh = () => ui.locator('#gamut').evaluate(g => [g.textContent, document.querySelector('.foot').getBoundingClientRect().height])   // the status's text, the foot's height
 		box = await ui.locator('#plane').boundingBox()
 		const r0 = await page.evaluate(() => window.__log.resize.length)
 		await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.5)
@@ -695,7 +761,7 @@ try {
 		const g2 = await gh()
 		await page.mouse.up()
 		await page.waitForTimeout(150)
-		ok(/^In sRGB\.$/.test(g1[0]) && /^Outside sRGB/.test(g2[0]) && g1[1] === g2[1], `the status crosses the gamut on one line (${g1[1]} → ${g2[1]} px)`)
+		ok(/^In sRGB\.$/.test(g1[0]) && /^Outside sRGB/.test(g2[0]) && g1[1] === g2[1], `the status crosses the gamut, the foot keeps its height (${g1[1]} → ${g2[1]} px)`)
 		ok((await page.evaluate(n => window.__log.resize.slice(n), r0)).length === 0, 'a drag across the gamut doesn\'t resize the window')
 
 		// gestures: the plane never repaints for a drag across it; the cursor hides while dragging and comes back on release
@@ -1103,7 +1169,7 @@ try {
 		ng = await selections(page)
 		await page.evaluate(() => window.__edit('5:13', 'fills', [{ type: 'SOLID', visible: true, opacity: 1, blendMode: 'NORMAL', color: { r: 0, g: 1, b: 0 } }]))
 		await settle(page, ng)
-		ok(await ui.locator('.paint', { hasText: 'Inner' }).locator('.sw').evaluate(e => e.style.background.includes(' 0 1 0')), 'a change two levels inside the group re-reads it')
+		ok(await ui.locator('.paint', { hasText: 'Inner' }).locator('.sw').evaluate(e => e.style.getPropertyValue('--sw').includes(' 0 1 0')), 'a change two levels inside the group re-reads it')
 
 		// an image alone: its pixels as dots, and the pixel nearest its mean as a paint that moves but writes nothing
 		let n = await selections(page)
@@ -1266,10 +1332,10 @@ try {
 		await page.waitForTimeout(50)
 		ok(await knob.getAttribute('aria-valuenow') === String(Math.round(fd * 100)), `a re-read trailing the release keeps the knob (${await knob.getAttribute('aria-valuenow')})`)
 		// and its color: a trailing re-read of an older color leaves the swatch and the CSS as written
-		const hex0 = await asFmt(ui, 'hex'), sw0 = await ui.locator('.paint .sw').first().evaluate(e => e.style.background)
+		const hex0 = await asFmt(ui, 'hex'), sw0 = await ui.locator('.paint .sw').first().evaluate(e => e.style.getPropertyValue('--sw'))
 		await page.evaluate(() => { const m = window.__log.toUI.filter(m => m.type === 'selection').at(-1); figma.ui.postMessage({ ...m, ack: m.ack - 1, paints: m.paints.map(p => ({ ...p, r: 0, g: 0, b: 0 })) }) })
 		await page.waitForTimeout(50)
-		ok(await ui.locator('#css-1').inputValue() === hex0 && await ui.locator('.paint .sw').first().evaluate(e => e.style.background) === sw0, `a re-read trailing a write keeps the color as written (${await ui.locator('#css-1').inputValue()} vs ${hex0})`)
+		ok(await ui.locator('#css-1').inputValue() === hex0 && await ui.locator('.paint .sw').first().evaluate(e => e.style.getPropertyValue('--sw')) === sw0, `a re-read trailing a write keeps the color as written (${await ui.locator('#css-1').inputValue()} vs ${hex0})`)
 		// a re-read that has seen every write is the truth, even when it differs (an edit made in Figma)
 		await page.evaluate(() => { const all = window.__log.toUI.filter(m => m.type === 'selection'), m = all.at(-1); figma.ui.postMessage({ ...m, ack: Math.max(...all.map(m => m.ack)), paints: m.paints.map(p => ({ ...p, r: 0, g: 0, b: 0 })) }) })
 		await page.waitForTimeout(50)
@@ -1344,7 +1410,7 @@ try {
 	{
 		const node = { id: '3:1', name: 'Swatch', type: 'RECTANGLE', fills: [solid(0.25, 0.5, 0.75)], strokes: [] }
 		const { page, ui, errors } = await open({ profile: 'LEGACY', editorType: 'dev', nodes: [node], selection: ['3:1'] })
-		ok(await ui.locator('#profile').textContent() === 'sRGB, legacy', 'LEGACY labelled as sRGB')
+		ok(await ui.locator('#badge').textContent() === 'sRGB' && /No color profile set/.test(await ui.locator('#badge').getAttribute('data-tip')), 'LEGACY labelled as sRGB, the tooltip says why')
 		close(await shown(ui), valuesIn('SRGB', 'oklch', [0.25, 0.5, 0.75]), halfStep('oklch'), 'LEGACY read as sRGB')
 		ok(await inputs(ui).first().evaluate(e => e.readOnly) && await ui.locator('#channels .cv[data-i="a"]').evaluate(e => e.readOnly), 'Dev Mode inputs, the opacity\'s too, are read-only')
 		ok(/Dev Mode is read-only/.test(await notes(ui)), 'Dev Mode note')

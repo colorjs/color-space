@@ -51,6 +51,10 @@
     "t": "{name} en ordonnée",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "Hors de {gamut}",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "Curseur {name}",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value} : valeur ramenée dans sRGB",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "Fusionner",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "Tient dans {gamut}.",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "Couleurs du document",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "Tous les espaces",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "Espaces phares",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "Famille",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "Espaces colorimétriques",
@@ -255,10 +271,6 @@
     "t": "Roue : {a} et {b}",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB, hérité",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "Aucun profil colorimétrique défini (fichier antérieur à la gestion des couleurs) : lu comme sRGB",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}, source : {type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "Espace colorimétrique",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "style",

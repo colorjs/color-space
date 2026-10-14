@@ -22,9 +22,9 @@
  * @dynamic hdr
  */
 // Implementation notes:
-// Panasonic V-Log/V-Gamut Reference Manual (2014).
+// Panasonic V-Log/V-Gamut Reference Manual (2014). Gamut: V-Gamut, matrix in vgamut.js.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import vgamut from './vgamut.js';
 
 const vlog = {
 	name: 'vlog',
@@ -43,23 +43,10 @@ const encode = (l) => l < 0.01
 	? 5.6 * l + 0.125
 	: C * Math.log10(l + B) + D;
 
-// V-Gamut linear RGB -> XYZ (D65, Y 0..1)
-// NPM recomputed full-precision from V-Gamut primaries R(.730,.280) G(.165,.840)
-// B(.100,-.030) + D65 (matches Panasonic's published 6-decimal matrix, maps white exactly)
-const M = [
-	0.6796444698784739, 0.1522114124397545, 0.1186000447334430,
-	0.2606855500903736, 0.7748944633296593, -0.0355800134200329,
-	-0.0093101982175133, -0.0046124670436289, 1.1029804160210204
-];
-const MI = inv3(M);
-
-vlog.xyz = (r, g, b) => {
-	const [x, y, z] = mat3(M, decode(r), decode(g), decode(b));
-	return [x * 100, y * 100, z * 100];
-};
+vlog.xyz = (r, g, b) => vgamut.xyz(decode(r), decode(g), decode(b));
 
 xyz.vlog = (x, y, z) => {
-	const [r, g, b] = mat3(MI, x / 100, y / 100, z / 100);
+	const [r, g, b] = xyz.vgamut(x, y, z);
 	return [encode(r), encode(g), encode(b)];
 };
 

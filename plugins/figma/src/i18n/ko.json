@@ -51,6 +51,10 @@
     "t": "세로축: {name}",
     "h": "1f2e239c"
   },
+  "pl.badge.out": {
+    "t": "{gamut} 밖",
+    "h": "40655b19"
+  },
   "pl.ch.slider": {
     "t": "{name} 슬라이더",
     "h": "05035347"
@@ -127,6 +131,10 @@
     "t": "{value}: sRGB로 색역 매핑됨",
     "h": "a1f3fded"
   },
+  "pl.fold": {
+    "t": "병합",
+    "h": "ea8f0d02"
+  },
   "pl.gamut.in": {
     "t": "{gamut} 안.",
     "h": "c773cbdc"
@@ -171,9 +179,17 @@
     "t": "파일 안의 색",
     "h": "b3146392"
   },
+  "pl.menu.all": {
+    "t": "모든 색공간",
+    "h": "625ecd25"
+  },
   "pl.menu.featured": {
     "t": "주요",
     "h": "ae31ad5d"
+  },
+  "pl.menu.group": {
+    "t": "계열",
+    "h": "4efb6cb7"
   },
   "pl.menu.label": {
     "t": "색공간",
@@ -255,10 +271,6 @@
     "t": "{a}·{b} 색상환",
     "h": "29862ab2"
   },
-  "pl.profile.legacy": {
-    "t": "sRGB(레거시)",
-    "h": "3704be8f"
-  },
   "pl.profile.legacy-tip": {
     "t": "색 프로파일 없음(색 관리 이전의 파일): sRGB로 읽습니다",
     "h": "b41363f4"
@@ -282,6 +294,10 @@
   "pl.row.src": {
     "t": "{where}, 출처: {type} {name}",
     "h": "4d82e4b1"
+  },
+  "pl.space.label": {
+    "t": "색공간",
+    "h": "3ad9b036"
   },
   "pl.src.style": {
     "t": "스타일",

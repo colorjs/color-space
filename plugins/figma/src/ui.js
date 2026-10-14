@@ -4,7 +4,8 @@
  * manifest's `ui` file as a string (__html__), so nothing can be fetched.
  *
  * The main thread (code.js) sends {type:'init'|'selection'|'error'}; the UI sends
- * {type:'ready'|'store'|'set'|'resize'} back through parent.postMessage({pluginMessage}, '*').
+ * {type:'ready'|'store'|'set'|'resize'} back through parent.postMessage({pluginMessage}, '*'). In a VS Code webview
+ * (plugins/vscode) the same messages go through acquireVsCodeApi().postMessage.
  *
  * Figma SolidPaint {r,g,b} are 0..1 in the document's color profile, so a DISPLAY_P3
  * file reads as the library's `p3` and an SRGB or LEGACY file as `rgb` (×255).
@@ -29,6 +30,7 @@ import { showTip, hideTip } from '../../../web/js/tip.js'
 import { sampleImage, paletteOf } from '../../../web/js/extract.js'
 import { gamutMap, deltaEOK, DEST, JND } from './gamut.js'
 import { cssOf, FORMATS } from './notation.js'
+import { mixer } from './mix.js'
 import { chEn, chKey } from '../../../web/js/vocab.js'
 import TABLES from 'virtual:i18n'
 
@@ -60,10 +62,11 @@ function localize() {
 	}
 }
 
+// the file's color profile: its badge (short), and what it means
 const PROFILE = {
-	DISPLAY_P3: ['Display P3', t('pl.profile.tip', 'The file\'s color profile: values are {name}', { name: 'Display P3' })],
+	DISPLAY_P3: ['P3', t('pl.profile.tip', 'The file\'s color profile: values are {name}', { name: 'Display P3' })],
 	SRGB: ['sRGB', t('pl.profile.tip', 'The file\'s color profile: values are {name}', { name: 'sRGB' })],
-	LEGACY: [t('pl.profile.legacy', 'sRGB, legacy'), t('pl.profile.legacy-tip', 'No color profile set (a file from before color management): read as sRGB')],
+	LEGACY: ['sRGB', t('pl.profile.legacy-tip', 'No color profile set (a file from before color management): read as sRGB')],
 }
 // the site's quantize lenses (web/index.html QGROUPS, QTIP), in its two columns: smooth and stepped | palettes
 // The lenses' icons are glyphs of the atlas's icon font (scripts/icon-font.js), so the closed control and the native
@@ -85,13 +88,17 @@ const CHEV = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path 
 // images: the selection's image paints [{hash, name}]; img: hash → {rgb samples, mean} once decoded; virtual: the
 // image's color when no solid or gradient is selected, a paint that moves but writes nothing.
 // mine: the current paint as this UI last wrote it, shown over any re-read that trails a newer write
-const S = { space: 'oklch', format: 'oklch', quant: 0, limit: 'file', pairs: {}, disc: {}, editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, vals: null, mine: null, own: [], lossy: false, error: '', live: false }
+// cur: the paint the host last marked current (p.current), so the panel follows that mark only when it moves
+// mates: the keys of the paints the current one shares its swatch with, an edit writes them all
+const S = { space: 'oklch', format: 'oklch', quant: 0, limit: 'file', pairs: {}, disc: {}, editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, cur: null, mates: [], vals: null, mine: null, own: [], lossy: false, error: '', live: false }
 const $ = id => document.getElementById(id)
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e }
-const post = msg => parent.postMessage({ pluginMessage: msg }, '*')
+// the host: Figma's frame, or a VS Code webview (plugins/vscode), whose only way out is its API; both speak {pluginMessage}
+const vscode = globalThis.acquireVsCodeApi?.()
+const post = msg => vscode ? vscode.postMessage({ pluginMessage: msg }) : parent.postMessage({ pluginMessage: msg }, '*')
 const keyOf = p => p.virtual ? 'virtual' : `${p.id}:${p.kind}:${p.index}:${p.stop}`
 const current = () => S.key === 'virtual' ? S.virtual : S.paints.find(p => keyOf(p) === S.key)
-const where = p => (p.kind === 'fills' ? t('pl.where.fill', 'fill {n}', { n: p.index + 1 }) : t('pl.where.stroke', 'stroke {n}', { n: p.index + 1 }))
+const where = p => (p.where || (p.kind === 'fills' ? t('pl.where.fill', 'fill {n}', { n: p.index + 1 }) : t('pl.where.stroke', 'stroke {n}', { n: p.index + 1 })))   // a host may say its own place (VS Code: an .ase swatch)
 	+ (p.stop >= 0 ? t('pl.where.stop', ', stop {n}', { n: p.stop + 1 }) : '') + (p.visible ? '' : t('pl.where.hidden', ', hidden'))
 // where a color lives: a variable or a style, named
 const srcType = s => s.type === 'variable' ? t('pl.src.variable', 'variable') : t('pl.src.style', 'style')
@@ -160,7 +167,7 @@ const FAMILIES = (() => {
 const titleOf = id => meta[id]?.title || id
 // a group's label is also a legend, which a customizable select draws (and the CSS spaces) like any other row
 const group = (label, options) => { const g = document.createElement('optgroup'); g.label = label; g.append(el('legend', null, label), ...options); return g }
-const showSpace = () => { $('spname').textContent = titleOf(S.space); $('spbtn').dataset.id = S.space }
+const showSpace = () => { $('spq').value = titleOf(S.space); $('spbtn').dataset.id = S.space }   // the field shows the space's name, until it is searched
 
 // the lenses: the site's Quantize and Limit as native selects, its two groups (steps | palettes) kept
 // the site's words (ui.gamut.*): its tips, and Surface and Light, which it writes in lower case
@@ -245,32 +252,60 @@ function opacityRow() {
 	return [bar, fld]
 }
 
-// the list is rebuilt only when its rows change; a re-read of the same rows (every write answers with one) just recolors the swatches
+// The palette: the paints grouped by color, as Figma's own Selection colors – one swatch per color, the current paint's
+// swatch pressed. One color: the same opacity and a difference under a fifth of the just-noticeable one (ΔEOK < JND/5,
+// the rounding of a three-decimal oklch(), notation.js) – so a color written in another notation (#hex beside oklch()) is
+// still the one it was written as – and the same source: a paint bound to a variable or a style is its own swatch beside
+// a raw paint of the same color. An edit of a swatch writes every paint in it; its uses ride its tooltip and its label
+// (and, hidden, its text)
+const srcOf = p => p.src ? `${p.src.type}:${p.src.name}` : ''
+function swatches() {
+	const out = []
+	for (const p of S.virtual && S.key === 'virtual' ? [S.virtual] : S.paints) {
+		if (p.virtual) { out.push([p]); continue }
+		const L = doc().dest.toOklab([p.r, p.g, p.b])
+		const g = out.find(g => !g[0].virtual && srcOf(g[0]) === srcOf(p) && Math.abs(g[0].opacity - p.opacity) <= 0.004 && deltaEOK(g.L, L) < JND / 5)
+		if (g) g.push(p); else out.push(Object.assign([p], { L }))
+	}
+	return out
+}
+// a swatch's colors: opaque (--swo) and with its opacity (--sw); a translucent one shows half each (ui.html .sw)
+const paintSw = (e, p) => { e.style.setProperty('--swo', swatch(p)); e.style.setProperty('--sw', swatch(p).replace(/\)$/, ` / ${p.opacity})`)) }
+const placeOf = p => p.virtual ? t('pl.row.image', 'image') : p.src ? p.src.name : where(p)
+const useOf = p => `${p.name}, ${placeOf(p)}`
+// the paints the current one shares its swatch with, itself among them: what an edit writes (read with the paint, kept
+// through a gesture, when the colors it writes would otherwise part and join again)
+const mates = () => { const p = current(); if (!p || p.virtual) return p ? [p] : []; const ms = S.mates.map(k => S.paints.find(q => keyOf(q) === k)).filter(Boolean); return ms.includes(p) ? ms : [p] }
+
+// the palette is rebuilt only when its swatches change; a re-read of the same ones (every write answers with one) just
+// recolors them
 function renderPaints() {
-	const list = $('paints'), focused = document.activeElement?.dataset?.key
-	const rows = S.virtual && S.key === 'virtual' ? [S.virtual] : S.paints
-	const key = rows.map(p => [keyOf(p), p.name, p.visible, p.src && p.src.name + p.src.remote].join()).join('|') + '#' + S.key
+	const list = $('paints'), focused = document.activeElement?.dataset?.key, groups = swatches()
+	const key = groups.map(g => g.map(p => [keyOf(p), p.name, p.visible, p.src && p.src.name + p.src.remote].join()).join('+')).join('|') + '#' + S.key
 	if (list._key === key) {
-		rows.forEach((p, k) => { list.children[k].querySelector('.sw').style.background = swatch(p) })
+		groups.forEach((g, k) => paintSw(list.children[k].querySelector('.sw'), g[0]))
 		return
 	}
 	list._key = key
 	list.replaceChildren()
-	for (const p of rows) {
-		const b = el('button', 'paint')
+	for (const g of groups) {
+		const p = g[0], b = el('button', 'paint')
 		b.type = 'button'
 		b.dataset.key = keyOf(p)
-		b.setAttribute('aria-pressed', String(keyOf(p) === S.key))
+		b.dataset.keys = g.map(keyOf).join(' ')
+		b.setAttribute('aria-pressed', String(g.some(q => keyOf(q) === S.key)))
 		const sw = el('span', 'sw')
-		sw.style.background = swatch(p)
-		const tail = el('span', 'src', p.virtual ? t('pl.row.image', 'image') : p.src ? p.src.name : where(p))
-		if (p.src) tail.dataset.tip = t('pl.row.src', '{where}, from the {type} {name}', { where: where(p), type: srcType(p.src), name: p.src.name })
-		b.append(sw, el('span', 'pn', p.name), tail)
+		paintSw(sw, p)
+		b.dataset.tip = g.length > 1 ? g.slice(0, 8).map(useOf).join('\n') + (g.length > 8 ? '\n…' : '')
+			: `${p.name}\n${p.src ? t('pl.row.src', '{where}, from the {type} {name}', { where: where(p), type: srcType(p.src), name: p.src.name }) : placeOf(p)}`
+		b.setAttribute('aria-label', g.map(useOf).join('; '))
+		b.append(sw, el('span', 'pn sr', g.map(q => q.name).join(', ')), el('span', 'src sr', g.map(placeOf).join(', ')))
 		const li = el('li')
 		li.append(b)
 		list.append(li)
-		if (focused && focused === b.dataset.key) b.focus()
+		if (focused && g.some(q => keyOf(q) === focused)) b.focus()
 	}
+	list.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest' })   // a long palette (a stylesheet's colors) shows the current one
 }
 
 // a library variable or style can't be edited from this file; a local one is edited where it lives
@@ -279,10 +314,11 @@ const locked = p => !p || !S.vals || (!p.virtual && (!S.editable || !!(p.src && 
 // Read the paint into vals unless it holds a color this UI just wrote (its own coordinates stay)
 function sync(force) {
 	const p = current()
-	if (!p) { S.vals = null; S.own = []; return }
+	if (!p) { S.vals = null; S.own = []; S.mates = []; return }
 	// a gesture owns the coordinates until release; after it, a re-read of a color this UI wrote keeps them too
 	if (!force && S.vals && (G || S.own.some(w => near(w, [p.r, p.g, p.b])))) return
 	S.own = []
+	S.mates = p.virtual ? [] : (swatches().find(g => g.includes(p)) || [p]).map(keyOf)
 	const v = space[doc().id][S.space](...base(p))
 	S.vals = v.every(Number.isFinite) ? v : null
 	S.lossy = false
@@ -294,16 +330,14 @@ function sync(force) {
 }
 
 function update() {
-	const p = current(), [label, tip] = PROFILE[S.profile] || [S.profile, '']
-	$('profile').textContent = label
-	$('profile').dataset.tip = tip
+	const p = current()
 	$('empty').hidden = !!p
 	// an image still on its way says so; one that couldn't be read falls back to the plain hint
 	$('empty').textContent = S.images.some(i => !S.img.has(i.hash)) ? t('pl.empty.reading', 'Reading the image…') : t('pl.empty.hint', 'Select a layer with a solid fill, a gradient or an image.')
 	for (const id of ['paints', 'picker', 'css']) $(id).hidden = !p
 	if ($('drop')) $('drop').hidden = !p || !('EyeDropper' in window) || locked(p)
 	const mixed = S.mixed ? t('pl.note.mixed', 'Text with mixed fills is skipped. Select text whose fill is the same throughout.') : ''
-	if (!p) { renderGamut(null); return renderNotes(mixed ? [mixed] : []) }
+	if (!p) { renderGamut(null); $('err').textContent = S.error; return renderNotes(mixed ? [mixed] : []) }
 
 	const v = S.vals, lock = locked(p), c = cls()
 	// the picker's ink: the current color, outlined in the ink that reads on it
@@ -331,13 +365,15 @@ function update() {
 
 	const [value, note] = cssOf(S.format, p, p.opacity, S.profile), name = nameOf(p)
 	$('css-1').value = value
+	// the formats list the value itself in each, not the format's name: the pick is the text it gives
+	for (const o of $('fmt').options) { const v = o.value === S.format ? value : cssOf(o.value, p, p.opacity, S.profile)[0]; if (o.textContent !== v) o.textContent = v }
 	$('css-1').closest('.fld').dataset.tip = note ? t('pl.fmt.mapped', '{value}: mapped into sRGB', { value }) : ''   // a wider color in an sRGB-only format says it was mapped
 	$('css-3').value = name
 	$('named').hidden = !name
 
-	// the gamut note closes the list: it comes and goes as a drag crosses the gamut, so nothing below it jumps
+	// what the badge's tooltip explains beyond the gamut; an error stays in sight, beside it
 	const notes = []
-	if (S.error) notes.push(S.error)
+	if ($('err').textContent !== S.error) $('err').textContent = S.error
 	if (!v) notes.push(t('pl.note.novalue', 'This color has no {space} value.', { space: S.space }))
 	else if (S.lossy) notes.push(t('pl.note.lossy', '{space} can\'t hold this color exactly. These values are its nearest {space} equivalent, and editing writes that.', { space: S.space }))
 	if (p.src) notes.push(p.src.remote
@@ -351,29 +387,34 @@ function update() {
 	if (S.more) notes.push(t('pl.note.more', 'Showing the first {n} paints.', { n: S.paints.length }))
 	if (mixed) notes.push(mixed)
 	renderNotes(notes)
-	renderGamut(v)
+	renderGamut(v, notes)
 	draw()
 }
 
-// the gamut status reads the coordinate itself, not the last write: steady through a drag, re-reads and lag
-function renderGamut(v) {
-	const { id, scale, name } = doc(), g = $('gamut')
-	let text = '', out = false
+// The status: the gamut, read from the coordinate itself, not the last write – steady through a drag, re-reads and lag –
+// said on the badge (the file's gamut; outside it, so) and to screen readers (#gamut); the badge's tooltip the breakdown:
+// the gamut, the profile, then the notes
+function renderGamut(v, notes = []) {
+	const { id, scale, name } = doc(), g = $('gamut'), b = $('badge'), [short, ptip] = PROFILE[S.profile] || [S.profile, '']
+	let text = '', tip = '', out = false
 	if (!v) text = ''
-	else if (lens()) text = t('pl.gamut.snapped', 'Snapped to {name}.', { name: QUANT.flat().find(q => q[0] === S.quant)[1] })
+	else if (lens()) tip = text = t('pl.gamut.snapped', 'Snapped to {name}.', { name: QUANT.flat().find(q => q[0] === S.quant)[1] })
 	else {
 		const rgb = S.space === id ? v : space[S.space][id](...v)
 		out = !rgb.every(x => Number.isFinite(x) && x >= -1e-4 * scale && x <= (1 + 1e-4) * scale)
 		text = out ? t('pl.gamut.out', 'Outside {gamut}, mapped in.', { gamut: name }) : t('pl.gamut.in', 'In {gamut}.', { gamut: name })
+		tip = out ? t('pl.gamut.out-tip', 'Outside {gamut}: written as its nearest {gamut} color (CSS Color 4 gamut mapping: chroma reduced at the same lightness and hue).', { gamut: name }) : text
 	}
-	g.classList.toggle('out', out)
 	if (g.textContent !== text) g.textContent = text
-	g.dataset.tip = out ? t('pl.gamut.out-tip', 'Outside {gamut}: written as its nearest {gamut} color (CSS Color 4 gamut mapping: chroma reduced at the same lightness and hue).', { gamut: name }) : text
+	b.hidden = !current()
+	b.classList.toggle('out', out)
+	b.textContent = out ? t('pl.badge.out', 'Outside {gamut}', { gamut: short }) : short
+	b.dataset.tip = [tip, ptip, ...notes].filter(Boolean).join('\n')
 }
 
-// #notes is a live region, so it stays in place (empty when there is nothing to say) and is
-// only rewritten when the text changes; otherwise every re-read would announce it again
-// the notes run on as one paragraph of sentences
+// #notes is a live region for screen readers (the badge's tooltip shows the same notes), so it stays in place (empty
+// when there is nothing to say) and is only rewritten when the text changes; otherwise every re-read would announce it
+// again. The notes run on as one paragraph of sentences
 function renderNotes(notes) {
 	const box = $('notes'), text = notes.join(' ')
 	if (box.textContent === text) return
@@ -543,16 +584,32 @@ function flush() { cancelAnimationFrame(qraf); qraf = 0; if (queued) post({ ...q
 function send(msg) { queued = msg; if (msg.commit) flush(); else if (!qraf) qraf = requestAnimationFrame(flush) }
 
 // write a color (the file's 0..1 channels) to the current paint; the coordinates it came from stay the UI's
+// write a color (the file's 0..1 channels) to the current swatch – the current paint and its mates, in one message and
+// one undo step; the coordinates it came from stay the UI's
+const target = q => ({ id: q.id, kind: q.kind, index: q.index, stop: q.stop })
 function write(rgb, commit) {
-	const p = current()
+	const p = current(), ms = mates()
 	S.own.push(rgb)
 	if (S.own.length > 64) S.own.shift()
-	p.r = rgb[0]; p.g = rgb[1]; p.b = rgb[2]   // shown now; the re-read confirms it
-	if (!p.virtual) S.mine = { key: S.key, r: rgb[0], g: rgb[1], b: rgb[2], opacity: p.opacity }
-	if (!p.virtual) send({ type: 'set', id: p.id, kind: p.kind, index: p.index, stop: p.stop, profile: S.profile, color: { r: rgb[0], g: rgb[1], b: rgb[2] }, opacity: p.opacity, commit: !!commit })
-	const sw = $('paints').querySelector(`[data-key="${CSS.escape(S.key)}"] .sw`)
-	if (sw) sw.style.background = swatch(p)
+	for (const q of ms) Object.assign(q, { r: rgb[0], g: rgb[1], b: rgb[2], opacity: p.opacity })   // shown now; the re-read confirms it
+	if (!p.virtual) {
+		S.mine = { keys: ms.map(keyOf), r: rgb[0], g: rgb[1], b: rgb[2], opacity: p.opacity }
+		send({ type: 'set', ...target(p), targets: ms.map(target), profile: S.profile, color: { r: rgb[0], g: rgb[1], b: rgb[2] }, opacity: p.opacity, commit: !!commit })
+	}
+	renderPaints()
 	update()
+}
+
+// A swatch dropped onto another folds into it: its paints take that swatch's color and opacity, in one undo step, and so
+// become one swatch with it, the current one. Paints that only look alike (an off-by-one #3b82f6) join this way
+function foldInto(fromKey, toKey) {
+	const all = swatches(), from = all.find(g => g.some(q => keyOf(q) === fromKey)), to = all.find(g => g.some(q => keyOf(q) === toKey))
+	if (!from || !to || from === to || !S.editable || from[0].virtual || to[0].virtual) return
+	const c = to[0]
+	for (const q of from) Object.assign(q, { r: c.r, g: c.g, b: c.b, opacity: c.opacity })
+	S.mine = { keys: from.map(keyOf), r: c.r, g: c.g, b: c.b, opacity: c.opacity }
+	send({ type: 'set', ...target(from[0]), targets: from.map(target), profile: S.profile, color: { r: c.r, g: c.g, b: c.b }, opacity: c.opacity, commit: true })
+	choose(keyOf(c))
 }
 
 function edit(next, commit) {
@@ -794,17 +851,15 @@ function placeMarks() {
 		b.onclick = () => choose(take)   // the keyboard's press
 		box.append(b)
 	}
-	// a gradient as Figma paints it: its colors between each pair of stops mixed in the file's RGB (encoded, as
-	// Figma blends them), each step placed on this plane – a soft line that bends wherever the space does. It breaks
-	// where it leaves the plane or wraps around a hue axis
+	// a gradient as it paints: its colors between each pair of stops mixed – in the file's RGB (encoded, as Figma
+	// blends them), or in the space the host names (mixer) – each step placed on this plane, a soft line that bends
+	// wherever the space does. It breaks where it leaves the plane or wraps around a hue axis
 	const lines = [], grads = new Map(), STEPS = 24
 	for (const p of S.paints) if (p.stop >= 0) { const g = `${p.id}:${p.kind}:${p.index}`; grads.set(g, [...(grads.get(g) || []), p]) }
 	for (const stops of grads.values()) {
-		const s = stops.sort((a, b) => a.stop - b.stop), pts = []
-		for (let k = 0; k + 1 < s.length; k++) for (let t = k ? 1 : 0; t <= STEPS; t++) {
-			const f = t / STEPS, mix = ch => s[k][ch] + (s[k + 1][ch] - s[k][ch]) * f
-			pts.push(at2({ r: mix('r'), g: mix('g'), b: mix('b') }))
-		}
+		const s = stops.sort((a, b) => a.stop - b.stop), pts = [], mix = mixer(s[0].mix, doc().id, doc().scale)
+		if (!mix) continue
+		for (let k = 0; k + 1 < s.length; k++) for (let t = k ? 1 : 0; t <= STEPS; t++) pts.push(at2(mix(s[k], s[k + 1], t / STEPS)))
 		let run = []
 		const end = () => { if (run.length > 1) lines.push(run.map(p => `${(p[0] * 100).toFixed(2)},${(p[1] * 100).toFixed(2)}`).join(' ')); run = [] }
 		for (const p of pts) { if (!p || (run.length && !$('plane')._polar && Math.abs(p[0] - run.at(-1)[0]) > 0.5)) end(); if (p) run.push(p) }
@@ -818,7 +873,9 @@ function placeMarks() {
 		svg.innerHTML = lines.map(l => `<polyline points="${l}"/>`).join('')
 		box.append(svg)
 	}
-	for (const p of S.paints) if (keyOf(p) !== S.key) dot(p, t('pl.dot.paint', '{layer}, {where}', { layer: p.name, where: where(p) }) + (p.src ? t('pl.dot.src', ', {type} {name}', { type: srcType(p.src), name: p.src.name }) : ''), keyOf(p))
+	// a dot per swatch – a color used in many places is one dot, naming them all
+	const named = p => t('pl.dot.paint', '{layer}, {where}', { layer: p.name, where: where(p) }) + (p.src ? t('pl.dot.src', ', {type} {name}', { type: srcType(p.src), name: p.src.name }) : '')
+	for (const g of swatches()) if (!g[0].virtual && !g.some(q => keyOf(q) === S.key)) dot(g[0], g.slice(0, 8).map(named).join('\n'), keyOf(g[0]))
 }
 
 /* ---------- an image's pixels: dots on the plane ---------- */
@@ -937,8 +994,8 @@ addEventListener('focusin', e => { if (!e.target.matches?.(':focus-visible')) e.
 
 /* ---------- copy ---------- */
 
-async function copy(button) {
-	const field = $(button.dataset.copy)
+// a field's text to the clipboard, its button saying how it went
+async function copy(field, button) {
 	let ok = false
 	try { await navigator.clipboard.writeText(field.value); ok = true }
 	catch {
@@ -968,98 +1025,109 @@ function warmFeatured() {
 	if (planeGLStatus(S.space) === 'pending') return setTimeout(warmFeatured, 100)
 	for (const f of FAMILIES) for (const id of f.feat) warmPlaneGL(id)
 }
-// the space menu: a search, then folding sections – the featured spaces, then each family (the current space's open).
-// Typing opens every section to its matches; ↑↓ move through what shows, Enter takes, Escape or a press outside closes
-const spmenu = $('spmenu'), folds = new Set()
+/*
+ * The space menu, Figma's white one, under the space's field. A press outside closes it and does nothing else (the click
+ * that follows is swallowed too: preventing a press doesn't cancel it) – unless it opens another control, a lens or the
+ * format select: one menu at a time. The window grows to hold it (fit)
+ */
+const OK = '<svg class="ic ok" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
+let swallow = false
+addEventListener('pointerdown', e => {
+	if (spmenu.hidden || e.target.closest('#spmenu, #spbtn')) return
+	if (e.target.closest('.lens, .fmt, #aboutb')) return closeSpaces()
+	e.preventDefault(); e.stopPropagation(); swallow = true; closeSpaces()
+}, true)
+addEventListener('click', e => { if (!swallow) return; swallow = false; e.preventDefault(); e.stopPropagation() }, true)
+addEventListener('pointerup', () => setTimeout(() => { swallow = false }), true)
+
+/*
+ * The space: its field shows its name and is the search. Focused, it lists the spaces under it – the featured ones, or a
+ * family's, or every one (the menu's select, as Figma's font list does its sources) – and typing searches every space by
+ * name or id; ↑↓ move, Enter
+ * takes, Escape or a press outside closes and the field shows the space's name again
+ */
+const spmenu = $('spmenu'), spq = $('spq')
+let spGroup = 'featured', typed = false   // the usual picks first; the family select opens the rest
+const GROUPS = () => [['all', t('pl.menu.all', 'All spaces'), FAMILIES.flatMap(f => f.ids)], ['featured', t('pl.menu.featured', 'Featured'), FAMILIES.flatMap(f => f.ids.filter(id => f.feat.has(id)))], ...FAMILIES.map(f => [f.name, f.label, f.ids])]
+const featured = id => FAMILIES.some(f => f.feat.has(id))
 function renderSpaceMenu() {
-	const q = $('spq').value.trim().toLowerCase(), list = $('splist'), rows = []
-	const hit = id => !q || id.includes(q) || titleOf(id).toLowerCase().includes(q)
-	const sections = [{ name: 'Featured', label: t('pl.menu.featured', 'Featured'), ids: FAMILIES.flatMap(f => f.ids.filter(id => f.feat.has(id))), feat: new Set() }, ...FAMILIES]
-	for (const f of sections) {
-		const ids = f.ids.filter(hit)
-		if (!ids.length) continue
-		const open = !!q || !folds.has(f.name), h = el('button', 'fam')
-		h.type = 'button'
-		h.dataset.fam = f.name
-		h.setAttribute('aria-expanded', String(open))
-		h.innerHTML = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
-		h.append(el('span', null, f.label), el('span', 'n', String(ids.length)))
-		rows.push(h)
-		if (open) for (const id of ids) {
-			const b = el('button', 'spo' + (f.feat.has(id) ? ' feat' : ''))
-			b.type = 'button'
-			b.dataset.id = id
-			b.setAttribute('role', 'option')
-			b.setAttribute('aria-selected', String(id === S.space))
-			b.append(el('span', 'nm', titleOf(id)), el('span', 'id', id))
-			rows.push(b)
-		}
-	}
-	list.replaceChildren(...(rows.length ? rows : [el('p', 'spnone', t('pl.menu.none', 'No space by that name'))]))
+	const g = $('spgroup')
+	// All spaces, then Featured, then the families: each of the first two parted from what follows, as Figma's font sources
+	if (!g.options.length) GROUPS().forEach(([v, label], k) => { g.append(new Option(label, v)); if (k < 2) g.append(document.createElement('hr')) })
+	g.value = spGroup
+	const q = typed ? spq.value.trim().toLowerCase() : '', list = $('splist')
+	// a search spans every space (from Featured it would find only those); without one, the chosen family's
+	const ids = (q ? GROUPS()[0] : GROUPS().find(x => x[0] === spGroup) || GROUPS()[0])[2].filter(id => !q || id.includes(q) || titleOf(id).toLowerCase().includes(q))
+	list.replaceChildren(...(ids.length ? ids.map(id => {
+		const b = el('button', 'mi spo' + (featured(id) ? ' feat' : ''))
+		b.type = 'button'
+		b.tabIndex = -1   // the field keeps the focus; the rows are reached with the arrows
+		b.dataset.id = id
+		b.setAttribute('role', 'option')
+		b.setAttribute('aria-selected', String(id === S.space))
+		b.innerHTML = OK
+		b.append(el('span', 'nm', titleOf(id)), el('span', 'id', id))
+		return b
+	}) : [el('p', 'spnone', t('pl.menu.none', 'No space by that name'))]))
 	const on = (!q && list.querySelector('[aria-selected="true"]')) || list.querySelector('.spo')
 	if (on) on.classList.add('on')
 	fit()
 }
 function openSpaces() {
-	// every family folded but the current space's (Featured stays open: the usual picks, one glance)
-	folds.clear()
-	for (const f of FAMILIES) if (!f.ids.includes(S.space)) folds.add(f.name)
-	spmenu.hidden = false
-	$('spbtn').setAttribute('aria-expanded', 'true')
-	$('spq').value = ''
+	if (!spmenu.hidden) return
+	typed = false
 	renderSpaceMenu()
+	spmenu.hidden = false
+	fit()
+	spq.setAttribute('aria-expanded', 'true')
 	$('splist').querySelector('.spo.on')?.scrollIntoView({ block: 'center' })
-	$('spq').focus()
 }
 function closeSpaces() {
-	if (spmenu.hidden) return
-	spmenu.hidden = true
-	$('spbtn').setAttribute('aria-expanded', 'false')
-	fit()
+	if (!spmenu.hidden) { spmenu.hidden = true; fit() }
+	spq.setAttribute('aria-expanded', 'false')
+	typed = false
+	showSpace()
 }
 const takeSpace = id => {
 	closeSpaces()
-	$('spbtn').focus()
 	if (id === S.space) return
 	post({ type: 'store', key: 'space', value: id })
 	useSpace(id)
 }
-$('spbtn').addEventListener('click', () => spmenu.hidden ? openSpaces() : closeSpaces())
-$('spq').addEventListener('input', renderSpaceMenu)
+spq.addEventListener('focus', () => { openSpaces(); spq.select() })   // the name selected: typing replaces it
+spq.addEventListener('click', openSpaces)
+spq.addEventListener('input', () => { typed = true; openSpaces(); renderSpaceMenu() })
+spq.addEventListener('keydown', e => {
+	if (e.key === 'Escape' && !spmenu.hidden) { e.preventDefault(); return closeSpaces() }
+	if (e.key === 'Enter') { const b = $('splist').querySelector('.spo.on'); if (b && !spmenu.hidden) { e.preventDefault(); takeSpace(b.dataset.id) } return }
+	const d = { ArrowDown: 1, ArrowUp: -1 }[e.key]
+	if (!d) return
+	e.preventDefault()
+	if (spmenu.hidden) return openSpaces()
+	const rows = [...$('splist').querySelectorAll('.spo')], k = rows.findIndex(b => b.classList.contains('on')), next = rows[Math.max(0, Math.min(rows.length - 1, k + d))]
+	if (!next) return
+	rows.forEach(b => b.classList.toggle('on', b === next))
+	next.scrollIntoView({ block: 'nearest' })
+	warmPlaneGL(next.dataset.id, true)
+})
+// focus leaving the field and its menu closes the menu
+for (const x of [$('spbtn'), spmenu]) x.addEventListener('focusout', e => { if (!e.relatedTarget?.closest?.('#spbtn, #spmenu')) closeSpaces() })
+$('spgroup').addEventListener('change', e => { spGroup = e.target.value; renderSpaceMenu(); spq.focus() })
+// a row pressed keeps the field's focus (a blur would close the menu before the click lands)
+$('splist').addEventListener('pointerdown', e => { if (e.target.closest('.spo')) e.preventDefault() })
 // a space pointed at in the menu starts compiling ahead of the rest: by the click it is often ready
 $('splist').addEventListener('pointerover', e => { const b = e.target.closest('.spo'); if (b) warmPlaneGL(b.dataset.id, true) })
-$('splist').addEventListener('click', e => {
-	const f = e.target.closest('.fam')
-	if (f) { folds.has(f.dataset.fam) ? folds.delete(f.dataset.fam) : folds.add(f.dataset.fam); renderSpaceMenu(); return }
-	const b = e.target.closest('.spo')
-	if (b) takeSpace(b.dataset.id)
+$('splist').addEventListener('click', e => { const b = e.target.closest('.spo'); if (b) takeSpace(b.dataset.id) })
+
+$('fmt').addEventListener('change', e => {
+	S.format = e.target.value
+	post({ type: 'store', key: 'format', value: S.format })
+	update()
 })
-spmenu.addEventListener('keydown', e => {
-	if (e.key === 'Escape') { e.preventDefault(); closeSpaces(); return $('spbtn').focus() }
-	const items = [...$('splist').querySelectorAll('.spo')], k = items.findIndex(b => b.classList.contains('on'))
-	if (e.key === 'Enter' && items[k] && e.target === $('spq')) { e.preventDefault(); return takeSpace(items[k].dataset.id) }
-	const d = { ArrowDown: 1, ArrowUp: -1 }[e.key]
-	if (!d || !items.length) return
-	e.preventDefault()
-	const next = items[Math.max(0, Math.min(items.length - 1, k + d))]
-	items.forEach(b => b.classList.toggle('on', b === next))
-	warmPlaneGL(next.dataset.id, true)
-	next.scrollIntoView({ block: 'nearest' })
-})
-// a press outside only closes the menu; the click that follows it is swallowed too (preventing a press doesn't cancel it)
-let swallow = false
-addEventListener('pointerdown', e => { if (spmenu.hidden || e.target.closest('#spmenu, #spbtn')) return; if (e.target.closest('.lens, .fmt, #aboutb')) return closeSpaces(); e.preventDefault(); e.stopPropagation(); swallow = true; closeSpaces() }, true)   // a lens opens in its place: one menu at a time
-addEventListener('click', e => { if (!swallow) return; swallow = false; e.preventDefault(); e.stopPropagation() }, true)
-addEventListener('pointerup', () => setTimeout(() => { swallow = false }), true)
 $('quant').addEventListener('change', e => {
 	S.quant = QKEYS.find(k => String(k) === e.target.value)
 	post({ type: 'store', key: 'quant', value: S.quant })
 	renderLenses()
-	update()
-})
-$('fmt').addEventListener('change', e => {
-	S.format = e.target.value
-	post({ type: 'store', key: 'format', value: S.format })
 	update()
 })
 $('limit').addEventListener('change', e => {
@@ -1085,13 +1153,56 @@ $('axes').addEventListener('click', e => {
 // a paint becomes the current one: from its row, or from its dot on the plane
 function choose(key) {
 	S.key = key
+	const p = current()
+	if (p && !p.virtual) post({ type: 'choose', id: p.id, kind: p.kind, index: p.index, stop: p.stop })   // a host may bring its own view to it (VS Code: the editor)
 	S.error = ''
-	for (const x of $('paints').querySelectorAll('.paint')) x.setAttribute('aria-pressed', String(x.dataset.key === key))
+	for (const x of $('paints').querySelectorAll('.paint')) x.setAttribute('aria-pressed', String(x.dataset.keys.split(' ').includes(key)))
 	sync(true)
 	update()
 }
-$('paints').addEventListener('click', e => { const b = e.target.closest('.paint'); if (b) choose(b.dataset.key) })
-$('css').addEventListener('click', e => { const b = e.target.closest('[data-copy]'); if (b) copy(b) })
+$('paints').addEventListener('click', e => { const b = e.target.closest('.paint'); if (b && !folded) choose(b.dataset.key); folded = false })
+// a swatch dragged onto another: past a few pixels the drag lifts it, the swatch under the pointer is marked, the release folds
+let lift = null, folded = false
+$('paints').addEventListener('pointerdown', e => {
+	const b = e.target.closest('.paint')
+	if (!b || e.button || !S.editable) return
+	lift = { b, x: e.clientX, y: e.clientY, id: e.pointerId, on: false, to: null }
+	try { b.setPointerCapture(e.pointerId) } catch {}
+})
+$('paints').addEventListener('pointermove', e => {
+	if (!lift || e.pointerId !== lift.id) return
+	const ghost = $('ghost')
+	if (!lift.on && Math.hypot(e.clientX - lift.x, e.clientY - lift.y) > 4) {
+		lift.on = true
+		lift.b.classList.add('lift')
+		hideTip()
+		const from = lift.b.querySelector('.sw').style, g = ghost.querySelector('.sw').style
+		for (const k of ['--sw', '--swo']) g.setProperty(k, from.getPropertyValue(k))
+		ghost.hidden = false
+	}
+	if (!lift.on) return
+	ghost.style.transform = `translate(${e.clientX + 6}px, ${e.clientY + 6}px)`   // the swatch's ghost under the pointer
+	const to = document.elementFromPoint(e.clientX, e.clientY)?.closest('.paint')
+	if (lift.to && lift.to !== to) lift.to.classList.remove('drop')
+	lift.to = to && to !== lift.b ? to : null
+	if (lift.to) lift.to.classList.add('drop')
+	ghost.classList.toggle('over', !!lift.to)   // over another swatch, the ghost says what the release does
+})
+const land = e => {
+	if (!lift || e.pointerId !== lift.id) return
+	const { b, on, to } = lift
+	lift = null
+	b.classList.remove('lift')
+	to?.classList.remove('drop')
+	$('ghost').hidden = true
+	$('ghost').classList.remove('over')
+	if (!on) return
+	folded = true   // the click that ends a drag isn't a choice
+	if (to && e.type === 'pointerup') foldInto(b.dataset.key, to.dataset.key)
+}
+$('paints').addEventListener('pointerup', land)
+$('paints').addEventListener('pointercancel', land)
+$('css').addEventListener('click', e => { const b = e.target.closest('[data-copy]'); if (b) copy($(b.dataset.copy), b) })
 // the about card's links open in the browser, through the main thread (the frame can't navigate); it opens only its own three
 $('about').addEventListener('click', e => { const a = e.target.closest('[data-open]'); if (!a) return; e.preventDefault(); post({ type: 'open', to: a.dataset.open }) })
 
@@ -1114,15 +1225,20 @@ window.addEventListener('message', e => {
 	else if (m.type === 'selection') {
 		const profile = m.profile !== S.profile
 		S.profile = m.profile
+		if (typeof m.editable === 'boolean') S.editable = m.editable   // a host whose documents differ (VS Code: a read-only one) says it per read
 		S.paints = m.paints || []
 		S.images = m.images || []
 		// a re-read that trails a newer write (live writes outrun Figma's answers, and the last one may still be on its
 		// way after release) shows the paint as written, not as it was a moment ago
-		if ((m.ack || 0) < sent && S.mine) { const p = S.paints.find(p => keyOf(p) === S.mine.key); if (p) Object.assign(p, { r: S.mine.r, g: S.mine.g, b: S.mine.b, opacity: S.mine.opacity }) }
+		if ((m.ack || 0) < sent && S.mine) for (const p of S.paints) if (S.mine.keys.includes(keyOf(p))) Object.assign(p, { r: S.mine.r, g: S.mine.g, b: S.mine.b, opacity: S.mine.opacity })
 		for (const { hash } of S.images) if (!S.img.has(hash) && !pending.has(hash)) { pending.add(hash); post({ type: 'image', hash }) }
 		S.more = m.more || 0
 		S.mixed = m.mixed || 0
 		let force = profile
+		// a host that knows where its person is (VS Code: the literal under the cursor) marks that paint current; when the
+		// mark moves, the panel follows it, and in between keeps whatever was chosen in it
+		const cur = S.paints.find(p => p.current), ck = cur ? keyOf(cur) : null
+		if (ck !== S.cur) { S.cur = ck; if (ck && ck !== S.key) { S.key = ck; S.error = ''; force = true } }
 		if (!S.paints.some(p => keyOf(p) === S.key)) {
 			S.key = S.paints.length ? keyOf(S.paints[0]) : null
 			S.error = ''   // an error belongs to the paint it came from, as on a paint click

@@ -72,8 +72,8 @@ test('hlsl/msl: snapshots (naga-wasm pinned)', async () => {
 	const sha = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16)
 	is(sha(await hlsl('rgb', 'oklch')), '4196bb0a5022fde4', 'rgb→oklch HLSL')
 	is(sha(await msl('rgb', 'oklch')), '7da6acc6927cd2b9', 'rgb→oklch MSL')
-	is(sha(await hlsl('slog3', 'rec709')), 'ea333b675d81ac3f', 'slog3→rec709 HLSL')
-	is(sha(await msl('slog3', 'rec709')), '9d74f5db5678fb54', 'slog3→rec709 MSL')
+	is(sha(await hlsl('slog3', 'rec709')), 'a762420246b1229b', 'slog3→rec709 HLSL')
+	is(sha(await msl('slog3', 'rec709')), 'e5af89adf46d18f2', 'slog3→rec709 MSL')
 })
 
 test('hlsl/msl: emit rejects other targets', async () => {

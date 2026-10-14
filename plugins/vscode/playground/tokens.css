@@ -1,0 +1,36 @@
+/* A playground for the Color Space panel (Explorer → Color Space). Every color here is on its plane at once.
+   Put the cursor on a color to edit it; select a range to narrow the set; hover a color for its other notations. */
+
+:root {
+  --brand: oklch(0.62 0.19 255);
+  --brand-soft: oklch(0.85 0.06 255);
+  --accent: #0d0d0d;
+  --accent-wide: color(display-p3 1 0.45 0);
+  --ink: rgb(20 24 31);
+  --paper: hsl(40 30% 96%);
+  --danger: lab(52% 68 48);
+  --success: lch(62% 58 145);
+  --overlay: rgba(0, 0, 0, 0.4);
+  --link: hwb(220 10% 15%);
+  --neon: oklch(0.818 0.233 145);   /* outside Display P3: the panel says so */
+}
+
+.hero {
+  background:
+    url(../../../web/img/jungle.jpg) center / cover,
+    linear-gradient(in oklch longer hue, oklch(0.8 0.15 90), oklch(0.506 0.2 295));
+}
+
+.card {
+  background: linear-gradient(#ff0000, #0000ff);   /* legacy colors: mixed in sRGB, a bent line on most planes */
+  border: 1px solid tomato;
+}
+
+.sunset {
+  background: linear-gradient(
+    in oklab,
+    #ffb347,
+    oklch(0.65 0.22 20) 40%,
+    #4b2a6b
+  );
+}
