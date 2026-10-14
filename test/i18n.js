@@ -47,6 +47,7 @@ test('i18n — markup units: the English document is the source minus its marker
 	const u = units(html).find((x) => x.key === 'ui.header.find')
 	is([u.attr, u.en], ['placeholder', 'search spaces…'], 'an attribute unit reads its own value')
 	ok(apply(html, { 'ui.header.find': 'buscar espacios…' }).includes('placeholder="buscar espacios…"'), 'a translation lands in place')
+	ok(apply(html, { 'ui.api.figma-what': '// uno – // dos' }).includes('<i>// uno –\n// dos</i>'), 'a comment that wraps in the source wraps in the translation, at its own //')
 })
 
 test('i18n — the gate: a translated language ships and survives English drift; review only adds search', () => {

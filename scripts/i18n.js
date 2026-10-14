@@ -37,7 +37,8 @@ export function units(html) {
 			} else {
 				const s = m.index + m[0].length, e = closeOf(html, m[1], s), inner = html.slice(s, e)
 				if (inner.includes('data-i18n=')) throw new Error(`i18n: ${key} – a translated element can't hold another (translate the parts, or the whole)`)
-				out.push({ key, range: [s, e], en: inner.replace(/\s+/g, ' ').trim() })
+				// a code comment that runs on to a new line in the source (`… –\n// …` in a <pre>) does so in every language
+				out.push({ key, range: [s, e], en: inner.replace(/\s+/g, ' ').trim(), ...(/\n\s*\/\/ /.test(inner) && { nl: true }) })
 			}
 		}
 	}
@@ -46,7 +47,7 @@ export function units(html) {
 // translate the marked units the table carries, then drop every marker – an empty table
 // yields the source byte-for-byte minus the data-i18n attributes (the English document)
 export function apply(html, table = {}) {
-	const edits = units(html).flatMap((u) => u.strip ? [[u.strip, '']] : table[u.key] != null ? [[u.range, table[u.key]]] : [])
+	const edits = units(html).flatMap((u) => u.strip ? [[u.strip, '']] : table[u.key] != null ? [[u.range, u.nl ? table[u.key].replace(/ \/\/ /g, '\n// ') : table[u.key]]] : [])
 	edits.sort((a, b) => b[0][0] - a[0][0])
 	for (const [[s, e], text] of edits) html = html.slice(0, s) + text + html.slice(e)
 	return html
