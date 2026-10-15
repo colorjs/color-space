@@ -1516,6 +1516,7 @@
 "ui.quant.web": {"t":"web güvenli","h":"6ad2bb99"},
 "ui.skip": {"t":"kataloğa geç","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – ele almak için tıklayın, bırakmak için Alt-tıklayın","h":"2142663e"},
+"ui.sug.forget": {"t":"unut","h":"0ebf4fd6"},
 "ui.sug.gradient": {"t":"gradyan","h":"7502dbb0"},
 "ui.sug.list": {"t":"liste","h":"38b62be4"},
 "ui.sug.recent": {"t":"son","h":"7a7d1b8a"},

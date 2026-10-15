@@ -295,6 +295,7 @@ body.cdock .hcolor>.cx.tall{ background:var(--paper); box-shadow:var(--pop-shado
 .fmtr.on i{ color:var(--paper); opacity:.7 }
 .fmtr b{ font-weight:600 }
 #csug{ box-sizing:border-box; min-width:min(19rem,calc(100% - var(--gut))); max-width:min(28rem,calc(100% - var(--gut))) }   /* % of its position-area: the field's left to the screen's right, a gutter short */ #csug b{ display:flex; align-items:center; gap:var(--s2); min-width:0 } #csug b>span:last-child{ overflow:hidden; text-overflow:ellipsis }
+#csug .sgx{ display:grid; place-items:center; width:var(--s5); height:var(--s5); margin-inline-end:calc(-1 * var(--s1)); color:var(--soft); --ic:12px } #csug .sgx:hover{ color:var(--ink) } #csug .fmtr.on .sgx{ color:var(--paper) }
 #csug .sws{ display:flex; flex:none; min-width:2.25rem; padding-inline:3px } #csug .fmtr{ --rb:var(--paper) } #csug .fmtr:hover{ --rb:var(--panel) } #csug .fmtr.on{ --rb:var(--ink) }
 #csug s{ flex:none; width:10px; height:10px; background:var(--w); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb); rotate:45deg } #csug s+s{ margin-inline-start:-3px }   /* each color its own rhombus, as the row's held stops (.pst) – many, layered as avatars are, the row's paper parting them */
 /* the palette: ONE stack — every stop in palette order, uniform slice slots, and the selected
@@ -916,8 +917,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .stov{ position:absolute; inset:0; z-index:2; pointer-events:none }
 .stov svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; fill:none }
 .stov path{ vector-effect:non-scaling-stroke; stroke:var(--stl,var(--ink)); stroke-width:1; stroke-linejoin:round; stroke-linecap:round; opacity:.85 }
-.sto,.sts b{ position:absolute; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; rotate:45deg; background:var(--w); box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab,#fff 70%,transparent); opacity:.55; pointer-events:auto; cursor:pointer; transition:opacity var(--dur-micro) var(--ease-out),scale var(--dur-micro) var(--ease-out) }   /* a color in reach, not the one in hand: faint, ringless but a hair of white – as the Figma plugin marks the document's colors */
-.sto:hover,.sts b:hover{ opacity:1; scale:1.3 }
+.sto,.sts b{ position:absolute; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; rotate:45deg; background:var(--w); box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab,#fff 70%,transparent); opacity:.55; scale:.75; pointer-events:auto; cursor:pointer; transition:opacity var(--dur-micro) var(--ease-out),scale var(--dur-micro) var(--ease-out) }   /* a color in reach, not the one in hand: faint, ringless but a hair of white – as the Figma plugin marks the document's colors */
+.sto:hover,.sts b:hover{ opacity:1; scale:1.1 }
 .sts i{ position:absolute; top:50%; height:var(--rule-hair); background:color-mix(in oklab,#fff 70%,transparent) }   /* a gradient's reach along the channel: the plain white line, as on the planes of the plugin */
 .sts{ position:absolute; inset:0; z-index:2; pointer-events:none } .sts b{ top:50% }
 .pl canvas.density{ position:absolute; inset:0; z-index:1; pointer-events:none; background:none }
@@ -1464,11 +1465,7 @@ const autoStep=t=>{ if(!autoColor) return
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
-		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join()
-		// …a pair: its partner a third of the wheel and more away, breathing against it – the two a gradient, the page's edge
-		const P={ s:'oklch', vals:[AUTO_L-0.08*Math.sin(2*r)*w, (0.16+0.05*Math.cos(3*r))*w, (h+150)%360] }
-		if(STOPS?.length===2&&GRAD) STOPS[1]=P; else{ STOPS=[master,P]; GRAD={ fn:'linear-gradient', head:'', mix:{ space:'oklch', hue:'shorter', named:true }, pos:[0,1] } }
-		STOPI=0; scheduleFast(true)
+		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true)
 		// a device that can't hold the cadence (a dossier's GL instruments on a weak GPU) PARKS
 		// the orbit once it has colored in – still ambient (virgin, URL untouched), just still
 		if(autoSlow>=4&&w===1){ autoPark=true; return } }   // parked: the color rests, and settles
@@ -1562,12 +1559,13 @@ if(cvalEl){
 		if(p){ setStops(p.stops,p.grad,tokenAt(v,cvalEl.selectionStart)?.[2]??0); scheduleFast(); if(open()) queuePlaneSettle() }   // the color the caret is in is the one in hand
 		return !!p }
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
-		cvalEl._typed=take(); fitVal(); suggest(true) })
+		cvalEl._typed=take(); fitVal(); suggest(!!cvalEl.value.trim()) })
 	// the field's suggestions, in hand: two named colors at random (the xkcd survey's), the colors last typed, a list and a
 	// gradient to start from; a word typed, the names that hold it. ↑↓ walk them, ⏎ takes one; the list never takes the focus
 	const sugEl=document.getElementById('csug'), RECENT='csRecent', XKCD=PALDATA.xkcd.filter(([n])=>!/vomit|puke|poo|barf|snot|shit/.test(n))   // the survey's own words – a few not for a first impression
 	const recent=()=>{ try{ return JSON.parse(localStorage.getItem(RECENT))||[] }catch{ return [] } }
-	const remember=v=>{ try{ localStorage.setItem(RECENT,JSON.stringify([v,...recent().filter(x=>x!==v)].slice(0,6))) }catch{} }
+	const keep=l=>{ try{ localStorage.setItem(RECENT,JSON.stringify(l)) }catch{} }
+	const remember=v=>keep([v,...recent().filter(x=>x!==v)].slice(0,4))
 	const hexesOf=v=>{ const p=parseInput(v); return p?p.stops.slice(0,4).map(c=>hex(rgbF(c.s,c.vals))):[] }
 	const row=(v,k,say=v)=>({ v, k, say, sw:hexesOf(v) })
 	const named=(n,rgb)=>{ const h=hex(rgb); return { v:NAMES[n]?n:h, k:h, say:n, sw:[h] } }   // a CSS name types as itself, any other as its hex
@@ -1575,15 +1573,20 @@ if(cvalEl){
 		if(typed){ if(!/^[a-z][a-z ]+$/.test(q)) return []
 			const by=(a,b)=>a[0].indexOf(q)-b[0].indexOf(q)||a[0].length-b[0].length, css=Object.entries(NAMES).filter(([n])=>n.includes(q)&&n!==q).sort(by)
 			return [...css,...XKCD.filter(([n])=>n.includes(q)&&n!==q&&!NAMES[n]).sort(by)].slice(0,8).map(([n,rgb])=>named(n,rgb)) }
-		const pick2=new Set(); while(pick2.size<2) pick2.add(XKCD[Math.random()*XKCD.length|0])
-		const rec=recent(), ex=['red, green, blue','linear-gradient(in oklch, #f80, #08f)'].filter(v=>!rec.includes(v))
-		return [...[...pick2].map(([n,rgb])=>named(n,rgb)),...rec.map(v=>row(v,t('ui.sug.recent','recent'))),...ex.map(v=>row(v,v.includes('gradient')?t('ui.sug.gradient','gradient'):t('ui.sug.list','list')))] }
-	const suggest=typed=>{ const rows=sugRows(typed)
-		sugEl.innerHTML=rows.map(r=>`<button class="fmtr" type="button" role="option" tabindex="-1" data-v="${esc(r.v).replace(/"/g,'&quot;')}"><b><span class="sws">${r.sw.map(h=>`<s style="--w:${h}"></s>`).join('')}</span><span>${esc(r.say)}</span></b><i>${r.k}</i></button>`).join('')
+		// the three ways in – one color (a name at random), a few, a gradient – then the last typed, each to let go of
+		const rec=recent(), [n,rgb]=sugOne||=XKCD[Math.random()*XKCD.length|0]   // one name a focus – the list redrawn keeps it
+		const main=[named(n,rgb),row('red, green, blue',t('ui.sug.list','list')),row('linear-gradient(in oklch, #f80, #08f)',t('ui.sug.gradient','gradient'))].filter(r=>!rec.includes(r.v))
+		return [...main,...rec.map(v=>({ ...row(v,t('ui.sug.recent','recent')), rec:true }))] }
+	// shown while there is nothing typed to keep – an empty field, or a name being typed; Esc shuts them till the next focus
+	const suggest=typed=>{ const rows=sugShut||(!typed&&cvalEl.value.trim())?[]:sugRows(typed)
+		sugEl.innerHTML=rows.map(r=>`<button class="fmtr" type="button" role="option" tabindex="-1" data-v="${esc(r.v).replace(/"/g,'&quot;')}"><b><span class="sws">${r.sw.map(h=>`<s style="--w:${h}"></s>`).join('')}</span><span>${esc(r.say)}</span></b>${r.rec?`<span class="sgx" role="button" aria-label="${t('ui.sug.forget','forget it')}" title="${t('ui.sug.forget','forget it')}">${icon('x')}</span>`:`<i>${r.k}</i>`}</button>`).join('')
 		if(rows.length) sugEl.showPopover?.(); else sugEl.hidePopover?.() }
+	let sugShut=false, sugOne=null
 	const pick=b=>{ cvalEl.value=b.dataset.v; cvalEl._typed=take(); sugEl.hidePopover(); cvalEl.blur() }
 	sugEl.addEventListener('pointerdown',e=>e.preventDefault())   // the field keeps the focus
-	sugEl.addEventListener('click',e=>{ const b=e.target.closest('.fmtr'); if(b) pick(b) })
+	sugEl.addEventListener('click',e=>{ const b=e.target.closest('.fmtr'); if(!b) return
+		if(e.target.closest('.sgx')){ keep(recent().filter(v=>v!==b.dataset.v)); suggest(false); return }   // a recent one let go
+		pick(b) })
 	// a press anywhere in the field's box takes the color nearest it – the whole of it, selected, and in hand; a press on
 	// the color already selected is the caret's (and a drag's from there), Tab takes the whole value. A finger: the
 	// browser focuses as it does (its keyboard follows only its own focus), the color selected on the tap's release
@@ -1605,8 +1608,8 @@ if(cvalEl){
 		if((e.key==='ArrowDown'||e.key==='ArrowUp')&&rows.length&&sugEl.matches(':popover-open')){ e.preventDefault()
 			const j=(i+(e.key==='ArrowDown'?1:rows.length-(i<0?0:1)))%rows.length; rows.forEach((b,k)=>{ b.classList.toggle('on',k===j); b.setAttribute('aria-selected',k===j) }) }
 		else if(e.key==='Enter'){ e.preventDefault(); if(i>=0) pick(rows[i]); else cvalEl.blur() }   // the field wraps, it never takes a line break
-		else if(e.key==='Escape') sugEl.hidePopover() })
-	cvalEl.addEventListener('blur',()=>{ requestAnimationFrame(fitVal); sugEl.hidePopover(); if(cvalEl._typed) remember(cvalEl.value.trim()); cvalEl._typed=false
+		else if(e.key==='Escape'&&sugEl.matches(':popover-open')){ sugShut=true; sugEl.hidePopover() } })
+	cvalEl.addEventListener('blur',()=>{ requestAnimationFrame(fitVal); sugEl.hidePopover(); sugShut=false; sugOne=null; if(cvalEl._typed) remember(cvalEl.value.trim()); cvalEl._typed=false
 		if(autoHold){ autoStart+=performance.now()-autoHold; autoHold=0 }   // the orbit goes on from where it stood
 		if(!cvalEl.value.trim()&&!virginNow()) ambient(); renderFast() })   // let go empty: no color chosen – the field invites again, animated; else settle back to canonical hex
 }
@@ -1637,7 +1640,9 @@ const tokensOf=str=>{ const g=str.match(/^\s*(?:repeating-)?(?:linear|radial|con
 	const trim=([x,y])=>{ while(x<y&&/\s/.test(str[x])) x++; while(y>x&&/\s/.test(str[y-1])) y--
 		if(g){ const m=str.slice(x,y).match(/^(.*?)(?:\s+-?[\d.]+%)+$/); if(m) y=x+m[1].length } return [x,y] }
 	const head=g&&!isCol(str.slice(...trim(parts[0])))?1:0
-	return parts.map((q,k)=>[...trim(q),k<head?null:k-head]).filter(t=>t[0]<t[1]) }
+	// words where no color is – the gradient's function, its geometry and method (`to right`, `in oklch`): each its own
+	const words=(x,y)=>[...str.slice(x,y).matchAll(/[\w-]+%?/g)].map(m=>[x+m.index,x+m.index+m[0].length,null])
+	return [...(g?words(0,a):[]),...parts.flatMap((q,k)=>k<head?words(...trim(q)):[[...trim(q),k-head]])].filter(t=>t[0]<t[1]) }
 const tokenAt=(str,p)=>tokensOf(str).find(t=>p>=t[0]&&p<=t[1])??null
 // the field's text laid out as the field lays it – an unseen twin over it: a point finds the color nearest it, and the
 // field knows its height before it takes it (it eases there)
@@ -5120,9 +5125,8 @@ function stripMarks(el,s,i){ const key=STOPS?STOPS.map((c,j)=>j===STOPI?master.v
 	const f=v=>clamp((v-c.min)/(c.max-c.min),0,1)
 	// a gradient's run on this channel: the stretches it covers, merged – a hue's step across the wrap is no stretch
 	const run=(gradIn(s)||[]).map(v=>f(v[i])), seg=[]
-	for(let k=1;k<run.length;k++){ const a=Math.min(run[k-1],run[k]), b=Math.max(run[k-1],run[k]); if(b-a>.5) continue
-		const l=seg.at(-1); if(l&&a<=l[1]+.002) l[1]=Math.max(l[1],b); else seg.push([a,b]) }
-	seg.sort((x,y)=>x[0]-y[0])
+	for(let k=1;k<run.length;k++){ const a=Math.min(run[k-1],run[k]), b=Math.max(run[k-1],run[k]); if(b-a<=.5) seg.push([a,b]) }
+	seg.sort((x,y)=>x[0]-y[0]); for(let k=1;k<seg.length;) if(seg[k][0]<=seg[k-1][1]+.002){ seg[k-1][1]=Math.max(seg[k-1][1],seg[k][1]); seg.splice(k,1) } else k++
 	const line=seg.map(([a,b])=>`<i style="left:${a*100}%;width:${(b-a)*100}%"></i>`).join('')
 	const html=STOPS.map((st,j)=>{ if(j===STOPI) return ''; const v=valsIn(st,s); if(!v) return ''
 		return `<b style="left:${f(v[i])*100}%;--w:${hex(rgbF(st.s,st.vals))}"></b>` }).join('')

@@ -1516,6 +1516,7 @@
 "ui.quant.web": {"t":"web-safe","h":"6ad2bb99"},
 "ui.skip": {"t":"aller au catalogue","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – cliquer pour la prendre en main, Alt-clic pour la lâcher","h":"2142663e"},
+"ui.sug.forget": {"t":"l’oublier","h":"0ebf4fd6"},
 "ui.sug.gradient": {"t":"dégradé","h":"7502dbb0"},
 "ui.sug.list": {"t":"liste","h":"38b62be4"},
 "ui.sug.recent": {"t":"récent","h":"7a7d1b8a"},

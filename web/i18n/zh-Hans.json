@@ -1516,6 +1516,7 @@
 "ui.quant.web": {"t":"网页安全色","h":"6ad2bb99"},
 "ui.skip": {"t":"跳到目录","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – 单击拿在手中，Alt-单击放下","h":"2142663e"},
+"ui.sug.forget": {"t":"忘掉它","h":"0ebf4fd6"},
 "ui.sug.gradient": {"t":"渐变","h":"7502dbb0"},
 "ui.sug.list": {"t":"列表","h":"38b62be4"},
 "ui.sug.recent": {"t":"最近","h":"7a7d1b8a"},
