@@ -1517,8 +1517,6 @@
 "ui.skip": {"t":"vai al catalogo","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – clic per prenderlo in mano, Alt-clic per lasciarlo","h":"2142663e"},
 "ui.sug.forget": {"t":"dimenticalo","h":"0ebf4fd6"},
-"ui.sug.list": {"t":"elenco","h":"38b62be4"},
-"ui.sug.spectrum": {"t":"spettro","h":"cd556c02"},
 "ui.theme.label": {"t":"cambia tema colore","h":"38b764d6"},
 "ui.theme.tip": {"t":"chiaro / scuro","h":"c3f76eb5"},
 "ui.theme.to-dark": {"t":"Passa al tema scuro","h":"5ec71e47"},

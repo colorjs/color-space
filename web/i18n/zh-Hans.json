@@ -1517,8 +1517,6 @@
 "ui.skip": {"t":"跳到目录","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – 单击拿在手中，Alt-单击放下","h":"2142663e"},
 "ui.sug.forget": {"t":"忘掉它","h":"0ebf4fd6"},
-"ui.sug.list": {"t":"列表","h":"38b62be4"},
-"ui.sug.spectrum": {"t":"光谱","h":"cd556c02"},
 "ui.theme.label": {"t":"切换颜色主题","h":"38b764d6"},
 "ui.theme.tip": {"t":"浅色 / 深色","h":"c3f76eb5"},
 "ui.theme.to-dark": {"t":"切换到深色主题","h":"5ec71e47"},

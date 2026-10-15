@@ -1517,8 +1517,6 @@
 "ui.skip": {"t":"カタログへスキップ","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – クリックで手に取る、Alt-クリックで手放す","h":"2142663e"},
 "ui.sug.forget": {"t":"履歴から消す","h":"0ebf4fd6"},
-"ui.sug.list": {"t":"リスト","h":"38b62be4"},
-"ui.sug.spectrum": {"t":"スペクトル","h":"cd556c02"},
 "ui.theme.label": {"t":"カラーテーマを切り替え","h":"38b764d6"},
 "ui.theme.tip": {"t":"ライト／ダーク","h":"c3f76eb5"},
 "ui.theme.to-dark": {"t":"ダークテーマに切り替え","h":"5ec71e47"},

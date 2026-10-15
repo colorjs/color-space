@@ -133,7 +133,7 @@ html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the curr
 :is(#c-view,#c-layout,.thm,.dctl){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair before each item, kept off the row's edges – none before the first of the right group */
 .cells .cell:is(:hover,[aria-expanded="true"]) :is(.ci,.ic,small){ color:var(--ink) }   /* hover inks the mark – no fill: the row stays clear, its edge seen */
 .cell .ci{ display:grid; place-items:center; color:var(--soft) }
-.cell .ci :is(.ic,.fi){ --ic:18px }
+.cell .ci :is(.ic,.fi){ --ic:18px } .cells .ic{ stroke-width:calc(2 * 1.25 / 1.5) }   /* the row's line marks drawn at the moon's 1.25px – 2 of the 24-grid is 1.5px at 18px */
 .cell .cw{ display:flex; flex-direction:column; min-width:0 }
 .cell small{ font-size:var(--t1); color:var(--soft); line-height:1.3 }
 .cell b{ max-width:8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--t2); font-weight:650; line-height:1.35 }   /* a long pick ellipsizes – its menu shows it whole */
@@ -227,7 +227,12 @@ html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the curr
 @keyframes unstick{ to{ translate:0 calc(-1 * var(--cells-h) - var(--s1)) } }
 body.mopen :is(.mhead,.hcolor){ animation:none }
 .medge{ position:absolute; z-index:1; inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); transition:height var(--dur-short) var(--ease-out) }
-.medge::after{ content:''; position:absolute; inset:0 0 calc(-1 * var(--s2)) }   /* a reach under the thin line */ .medge:hover{ height:var(--s2) }   /* pointed at, the colors in hand – their run – show wider */   /* the row's edge: the current color, always, the window's width – animated while it roams */
+.medge::after{ content:''; position:absolute; inset:0 0 calc(-1 * var(--s2)) }   /* a reach under the thin line */
+/* pointed at, the edge opens to the row's height – the colors in hand the row's ground – and the row's words and marks
+   (the docked color's too) take the ink that reads on what lies under them (--eink, js: the swatches' rule), till the
+   pointer leaves the row */
+.mhead.wide>.medge{ z-index:0; height:100% }
+:is(.mhead.wide .cells,body.cdock .hcolor.wide){ --ink:var(--eink); --body:var(--eink); --soft:color-mix(in srgb,var(--eink) 75%,transparent); --hair:color-mix(in srgb,var(--eink) 35%,transparent) }   /* the row's edge: the current color, always, the window's width – animated while it roams */
 /* …and at the page's top, the hue circle round it – the footer's steps, the current color the middle one: scrolling
    down zooms into that step until, as the color docks, it is the whole edge */
 @supports (animation-timeline:scroll()){ .medge{ background:var(--hues) center / 100% 100% no-repeat,var(--cur,var(--hair)); animation:edge-zoom linear both,restick linear both; animation-timeline:scroll(root),scroll(root); animation-range:0 var(--hc-dock,50vh),calc(var(--cat-end,100000px) - var(--cells-h)) var(--cat-end,100000px) }
@@ -258,7 +263,7 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
 .cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
-.cxw #cval{ font-size:var(--text-md); font-weight:400; line-height:1.3 }   /* the slogan's size and weight – a value read, not a label shouted */
+.cxw #cval{ font-size:var(--text-md); font-weight:500; line-height:1.3 }   /* the slogan's size, a step bolder – in the hero and docked alike */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 .hcolor #cval{ display:block; width:100%; max-width:none; height:calc(1em * 1.3); resize:none; transition:height var(--dur-short) var(--ease-out); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; field-sizing:fixed }
@@ -295,8 +300,9 @@ body.cdock .hcolor>.cx.tall{ background:var(--paper); box-shadow:var(--pop-shado
 .fmtr i{ font-style:normal; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft) }
 .fmtr.on i{ color:var(--paper); opacity:.7 }
 .fmtr b{ font-weight:600 }
-#hq{ anchor-name:--cfield } body.cdock #hq{ anchor-name:none } body.cdock .hcolor>.cx{ anchor-name:--cfield }   /* the field's frame: the hero's, or the docked color's */
-#csug{ box-sizing:border-box; position-anchor:--cfield; position-area:bottom span-right; margin:0; width:min(28rem,calc(100vw - 2 * var(--gut))); width:max(anchor-size(width),min(28rem,100vw - 2 * var(--gut))); max-width:calc(100vw - 2 * var(--gut)); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* under the field, its frame's width – a search box's list (a docked color's, a measure at least) */ #csug b{ display:flex; align-items:center; gap:var(--s2); min-width:0 } #csug b>span:last-child{ overflow:hidden; text-overflow:ellipsis }
+#hq{ anchor-name:--cfield } .hcolor>.cx{ anchor-name:--cbox }   /* the hero's frame, and the box the value is typed in – over the frame, or docked in the row */
+#csug{ box-sizing:border-box; position-anchor:--cbox; position-area:bottom span-right; margin:0; width:min(28rem,calc(100vw - 2 * var(--gut))); width:max(anchor-size(--cfield width),min(28rem,100vw - 2 * var(--gut))); max-width:calc(100vw - 2 * var(--gut)); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* right under the box typed in – never over it – the hero frame's width: a search box's list */
+body.cdock #csug{ width:max(anchor-size(--cbox width),min(28rem,100vw - 2 * var(--gut))) }   /* docked: the row's color, a measure at least */ #csug b{ display:flex; align-items:center; gap:var(--s2); min-width:0 } #csug b>span:last-child{ overflow:hidden; text-overflow:ellipsis }
 #csug .sgr{ display:flex; align-items:center; padding-inline-end:var(--s2); --rb:var(--paper) } #csug .sgr:hover{ background:var(--panel); --rb:var(--panel) } #csug .sgr:has(.on){ background:var(--ink); --rb:var(--ink); --rk:var(--paper) }   /* the row lights whole, its × in it */
 #csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3); font-size:var(--t3); background:none }
 #csug .sgx{ flex:none; --ic:12px; opacity:0 } #csug .sgr:is(:hover,:has(.on)) .sgx{ opacity:1 } #csug .sgr:has(.on) .sgx{ color:var(--paper) } @media(hover:none){ #csug .sgx{ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
@@ -1562,13 +1568,13 @@ if(cvalEl){
 	const sugEl=document.getElementById('csug'), RECENT='csRecent', XKCD=PALDATA.xkcd.filter(([n])=>!/vomit|puke|poo|barf|snot|shit/.test(n))   // the survey's own words – a few not for a first impression
 	const recent=()=>{ try{ return JSON.parse(localStorage.getItem(RECENT))||[] }catch{ return [] } }
 	const keep=l=>{ try{ localStorage.setItem(RECENT,JSON.stringify(l)) }catch{} }
-	const remember=v=>keep([v,...recent().filter(x=>x!==v)].slice(0,4))
+	const RECN=3, remember=v=>keep([v,...recent().filter(x=>x!==v)].slice(0,RECN))   // the last three typed
 	const forget=v=>{ keep(recent().filter(x=>x!==v)); suggest(false) }
 	// up to four of its colors: a list's first, a gradient's spread from end to end
 	const hexesOf=v=>{ const p=parseInput(v); if(!p) return []; const st=p.stops, n=st.length
 		return (p.grad&&n>4?[0,1,2,3].map(k=>st[Math.round(k*(n-1)/3)]):st.slice(0,4)).map(c=>hex(rgbF(c.s,c.vals))) }
-	const row=(v,k,say=v,tip='')=>({ v, k, say, tip, sw:hexesOf(v) })
-	const named=(n,rgb)=>{ const h=hex(rgb); return { v:NAMES[n]?n:h, k:h, say:n, sw:[h] } }   // a CSS name types as itself, any other as its hex
+	const row=(v,tip='')=>({ v, say:v, tip, sw:hexesOf(v) })
+	const named=(n,rgb)=>{ const h=hex(rgb); return { v:NAMES[n]?n:h, say:n, tip:h, sw:[h] } }   // a CSS name types as itself, any other as its hex
 	const any=a=>a[Math.random()*a.length|0], PALS=FANFARE.map(([n,c])=>[n,c.split(' ')])
 	const fan=n=>`${n} · color-fanfare, David Aerne`   // a palette's name and its curator, on hover
 	// a color written as a person would: three figures, not the field's fixed places
@@ -1579,20 +1585,20 @@ if(cvalEl){
 	const draw=()=>{ const one=()=>{ const h=any(any(PALS)[1]); return [h,[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))] }
 		const [h1,c1]=one(), [h2,c2]=one(), f=any(['rgb','hsl','lab','p3']), [pn,pc]=any(PALS), [mn,mc]=any(MAPS)
 		return [named(...any(XKCD)),
-			row(say3('oklch',h1,c1),'oklch'), row(say3(f,h2,c2),f),
-			row(pc.join(', '),t('ui.sug.list','list'),undefined,fan(pn)),
-			row(mc.split(' ').join('..'),mn,undefined,`${mn} · matplotlib`),
-			row('#8000ff..red in hsl longer hue',t('ui.sug.spectrum','spectrum'))] }   // violet to red, the long way round the hues – the spectrum's order
+			row(say3('oklch',h1,c1)), row(say3(f,h2,c2)),
+			row(pc.join(', '),fan(pn)),
+			row(mc.split(' ').join('..'),`${mn} · matplotlib`),
+			row('#8000ff..red in hsl longer hue')] }   // the spectrum: violet to red, the long way round the hues
 	const sugRows=typed=>{ const q=cvalEl.value.trim().toLowerCase()
 		if(typed){ if(!/^[a-z][a-z ]+$/.test(q)) return []
 			const by=(a,b)=>a[0].indexOf(q)-b[0].indexOf(q)||a[0].length-b[0].length, css=Object.entries(NAMES).filter(([n])=>n.includes(q)&&n!==q).sort(by)
 			return [...css,...XKCD.filter(([n])=>n.includes(q)&&n!==q&&!NAMES[n]).sort(by)].slice(0,8).map(([n,rgb])=>named(n,rgb)) }
-		const rec=recent()   // the ways in drawn once a focus – the list redrawn keeps them
-		return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v,''), rec:true }))] }
+		const rec=recent().slice(0,RECN)   // the ways in drawn once a focus – the list redrawn keeps them
+		return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v), rec:true }))] }
 	// shown while there is nothing typed to keep – an empty field, or a name being typed; Esc shuts them till the next focus.
 	// A row is its option and, a recent one, its × – shown as the row is pointed at or walked to, a target of its own
 	const suggest=typed=>{ const rows=sugShut||(!typed&&cvalEl.value.trim())?[]:sugRows(typed), q=v=>esc(v).replace(/"/g,'&quot;')
-		sugEl.innerHTML=rows.map(r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.tip?` title="${q(r.tip)}"`:''}><b><span class="sws">${r.sw.map((h,k,a)=>`<s style="--w:${h};--z:${a.length-k}"></s>`).join('')}</span><span>${esc(r.say)}</span></b>${r.k?`<i>${r.k}</i>`:''}</button>${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}" title="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:''}</div>`).join('')
+		sugEl.innerHTML=rows.map(r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.tip?` title="${q(r.tip)}"`:''}><b><span class="sws">${r.sw.map((h,k,a)=>`<s style="--w:${h};--z:${a.length-k}"></s>`).join('')}</span><span>${esc(r.say)}</span></b></button>${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}" title="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:''}</div>`).join('')
 		if(rows.length) sugEl.showPopover?.(); else sugEl.hidePopover?.() }
 	let sugShut=false, sugDraw=null
 	const pick=b=>{ cvalEl.value=b.dataset.v; cvalEl.setSelectionRange(0,0); cvalEl._typed=take(); sugEl.hidePopover(); cvalEl.blur() }   // the caret at the start: the first color in hand, as its swatch showed
@@ -1680,6 +1686,21 @@ const fitVal=()=>{ if(!cvalEl) return; lay(); const h=twin.offsetHeight, pad=cxE
 	if(!document.body.classList.contains('cdock')) hqEl.style.minHeight=Math.max(0,h+pad)+'px' }
 const fitField=()=>{ hcolorEl.style.setProperty('--hfw',Math.max(0,himEl.getBoundingClientRect().left-cxEl.getBoundingClientRect().left)+'px'); fitVal() }
 new ResizeObserver(fitField).observe(hqEl)
+// the row's edge pointed at opens to the row's height (.wide) – the colors in hand as the row's ground – and what sits on
+// it takes the ink that reads there: the swatches' rule (ink) on the colors under it, the row's controls and the docked
+// color each their own stretch of the edge; shut once the pointer leaves the row
+{	const edgeEl=stripEl.querySelector('.medge'), cellsEl=stripEl.querySelector('.cells')
+	// the edge's color at f of the window's width: a gradient's run, a list's bands, else the one color (the hue wheel round
+	// it zoomed to it, its lightness and chroma all along)
+	const at=f=>{ if(GRAD){ const p=gradIn('rgb'); return p[Math.round(f*(p.length-1))] }
+		if(STOPS){ const c=STOPS[Math.min(STOPS.length-1,f*STOPS.length|0)]; return rgbF(c.s,c.vals) } return RGB() }
+	const inkOver=(x0,x1)=>{ const m=[0,0,0]; for(let k=0;k<9;k++){ const c=at(clamp((x0+(x1-x0)*k/8)/innerWidth,0,1)); for(let j=0;j<3;j++) m[j]+=c[j]/9 } return ink(m) }
+	const shut=()=>{ stripEl.classList.remove('wide'); hcolorEl.classList.remove('wide') }
+	edgeEl.addEventListener('pointerenter',()=>{ const ks=[...cellsEl.children].filter(e=>e.offsetParent&&!e.matches('.fill')).map(e=>e.getBoundingClientRect()), cx=cxEl.getBoundingClientRect()
+		if(ks.length) stripEl.style.setProperty('--eink',inkOver(Math.min(...ks.map(r=>r.left)),Math.max(...ks.map(r=>r.right))))
+		hcolorEl.style.setProperty('--eink',inkOver(cx.left,cx.right)); stripEl.classList.add('wide'); hcolorEl.classList.add('wide') })
+	addEventListener('pointermove',e=>{ if(stripEl.classList.contains('wide')&&e.clientY>stripEl.getBoundingClientRect().bottom) shut() },{ passive:true })
+	document.documentElement.addEventListener('pointerleave',shut) }
 // the hero field's image button opens the sample stripe (a popover under it), not the file chooser; the chooser is the
 // stripe's last tile
 const upPop=Object.assign(document.createElement('div'),{id:'uppop',popover:'auto',ariaLabel:t('ui.img.samples','sample images')})
@@ -5247,7 +5268,7 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 	if(virgin&&cvalEl) cvalEl.placeholder=document.activeElement===cvalEl?COLOR_ASK:dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
 	if(!PDOWN&&!virgin) syncURL(hx)   // the URL keeps the exact coordinate
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
-	if(gpillEl){ const g=gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
+	if(gpillEl){ const g=!STOPS&&gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
 	if(palmEl){ const on=PALMODES.has(Q)&&!virgin   // live through drags – the address should follow the hand
 		palmEl.hidden=!on
 		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit
