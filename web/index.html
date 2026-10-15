@@ -258,13 +258,13 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
 .cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
-.cxw #cval{ font-size:var(--t3); line-height:1.3 }
+.cxw #cval{ font-size:var(--text-md); font-weight:400; line-height:1.3 }   /* the slogan's size and weight – a value read, not a label shouted */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 .hcolor #cval{ display:block; width:100%; max-width:none; height:calc(1em * 1.3); resize:none; transition:height var(--dur-short) var(--ease-out); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; field-sizing:fixed }
 body.cdock .hcolor>.cx{ width:max-content } body.cdock .hcolor .cxw{ flex:none }
 body.cdock .hcolor #cval{ width:auto; max-width:20rem; field-sizing:content; white-space:pre }
-body.cdock .hcolor>.cx:focus-within #cval{ white-space:pre-wrap }
+body.cdock .hcolor #cval:focus{ white-space:pre-wrap }   /* typed in – the notation's chevron in focus leaves it one line */
 body.cdock .hcolor>.cx.tall{ background:var(--paper); box-shadow:var(--pop-shadow) }   /* typed past its line in the row: a box over the page, as the menus are */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
@@ -333,7 +333,7 @@ body.himg #imgfloat{ display:block }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 .upbtn{ --ic:14px } .cpyi{ --ic:15px } .mnav{ --ic:20px }
 .pstack{ display:flex; align-items:center; padding:0 3px 0 4px; isolation:isolate; cursor:default }
-.hcolor :is(.pstack,.fmtf){ height:calc(var(--t3) * 1.3) }   /* a line's height, the marks centred over it: the box is the value's lines, not the native picker's hit area */
+.hcolor :is(.pstack,.fmtf){ height:calc(var(--text-md) * 1.3) }   /* a line's height, the marks centred over it: the box is the value's lines, not the native picker's hit area */
 .pst,#csug s{ position:relative; z-index:var(--z); flex:none; width:16px; height:16px; margin-inline:-2px; padding:0; border:0; background:var(--w); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)); rotate:45deg } .pst{ cursor:pointer }
 /* many colors in hand: their marks layered as avatars are, in their order – the first on top, the last under – the row's
    paper parting them; the one held ringed in ink (the slider picker's engaged ring), another ringed and lifted as it is
@@ -921,12 +921,11 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .stov{ position:absolute; inset:0; z-index:1; pointer-events:none }   /* under the held picker (.cx), as on a strip */
 .stov svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; fill:none }
 .stov path{ vector-effect:non-scaling-stroke; stroke:var(--stl,var(--ink)); stroke-width:1; stroke-linejoin:round; stroke-linecap:round }
-/* a gradient's run is secondary: half there, and parted around every mark – never under a color (the marks' holes, js) */
-:is(.stov svg,.sts u){ opacity:.5; mask-composite:intersect }
-.sto,.sts b{ position:absolute; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; rotate:45deg; background:var(--w); box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab,#fff 70%,transparent); opacity:.55; scale:.75; pointer-events:none; transition:opacity var(--dur-micro) var(--ease-out),scale var(--dur-micro) var(--ease-out) }   /* a color in reach, not the one in hand: faint, smaller, ringless but a hair of white – as the Figma plugin marks the document's colors */
-/* pointed at – the nearest to the pointer, the one a press takes (js: hot): whole, at the held picker's resting size,
-   never past it; the held picker rests meanwhile (cold). On the hero's horseshoe a mark is its own target */
-.sto.hot,.sts b.hot,.hlocus .sto:hover{ opacity:1; scale:1 }
+:is(.stov svg,.sts u){ opacity:.5 }   /* a gradient's run is secondary: half there, one unbroken line under the marks */
+.sto,.sts b{ position:absolute; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; rotate:45deg; background:var(--w); scale:.75; pointer-events:none; transition:scale var(--dur-micro) var(--ease-out),box-shadow var(--dur-micro) var(--ease-out) }   /* a color in reach, not the one in hand: smaller, plain – its own color, nothing round it */
+/* pointed at – the nearest to the pointer, the one a press takes (js: hot): the held picker's resting size, never past
+   it, a hair of white round it; the held picker rests meanwhile (cold). On the hero's horseshoe a mark is its own target */
+.sto.hot,.sts b.hot,.hlocus .sto:hover{ scale:1; box-shadow:0 0 0 var(--rule-hair) #fff }
 .hlocus .sto{ pointer-events:auto; cursor:pointer }
 :is(.ch,.bar2).cold:not(.live) .nrg{ --tks:var(--picker-size) }
 :is(.ch,.bar2).cold:not(.live) .nrg::-webkit-slider-thumb{ box-shadow:none } :is(.ch,.bar2).cold:not(.live) .nrg::-moz-range-thumb{ box-shadow:none }
@@ -1436,7 +1435,7 @@ import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import { CSS as CSSFMT, CSS_FIXED } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
 import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's source – the very bundle js/gl.js compiles, already in the graph
 import NAMES from './js/names.js'
-import { parseGradient, path as gradPath, gradientText } from './js/stops.js'
+import { parseGradient, path as gradPath, gradientText, shortText } from './js/stops.js'
 import * as PALDATA from './js/palettes.js'
 import FANFARE from './js/fanfare.js'
 import { SPACES, sections, cname, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap } from './js/render.js'
@@ -1582,8 +1581,8 @@ if(cvalEl){
 		return [named(...any(XKCD)),
 			row(say3('oklch',h1,c1),'oklch'), row(say3(f,h2,c2),f),
 			row(pc.join(', '),t('ui.sug.list','list'),undefined,fan(pn)),
-			row(`linear-gradient(in oklab, ${mc.split(' ').join(', ')})`,mn,undefined,`${mn} · matplotlib`),
-			row('linear-gradient(in hsl longer hue, #8000ff, red)',t('ui.sug.spectrum','spectrum'))] }   // violet to red, the long way round the hues – the spectrum's order
+			row(mc.split(' ').join('..'),mn,undefined,`${mn} · matplotlib`),
+			row('#8000ff..red in hsl longer hue',t('ui.sug.spectrum','spectrum'))] }   // violet to red, the long way round the hues – the spectrum's order
 	const sugRows=typed=>{ const q=cvalEl.value.trim().toLowerCase()
 		if(typed){ if(!/^[a-z][a-z ]+$/.test(q)) return []
 			const by=(a,b)=>a[0].indexOf(q)-b[0].indexOf(q)||a[0].length-b[0].length, css=Object.entries(NAMES).filter(([n])=>n.includes(q)&&n!==q).sort(by)
@@ -1648,15 +1647,18 @@ const hqEl=document.getElementById('hq'), himEl=document.getElementById('him'), 
 const isCol=x=>{ try{ return !!parseColor(x) }catch{ return false } }
 const tokensOf=str=>{ const g=str.match(/^\s*(?:repeating-)?(?:linear|radial|conic)-gradient\(/i), a=g?g[0].length:0
 	let b=g?str.lastIndexOf(')'):str.length; if(b<a) b=str.length
+	const sep=!g&&str.includes('..')?'..':','   // the short form's colors part at `..`; a list's and a gradient's at commas
 	const parts=[]; let st=a, d=0
-	for(let i=a;i<b;i++){ const c=str[i]; if(c==='(') d++; else if(c===')') d--; else if(c===','&&!d){ parts.push([st,i]); st=i+1 } }
-	parts.push([st,b])
+	for(let i=a;i<b;i++){ const c=str[i]; if(c==='(') d++; else if(c===')') d--; else if(!d&&str.startsWith(sep,i)){ parts.push([st,i]); st=i+sep.length; i+=sep.length-1 } }
+	// the method closing the short form (`… in oklch longer hue`) is no color: its words, as a gradient's head
+	const tail=sep==='..'?str.slice(st,b).match(/\s+in\s+[a-z0-9-]+(?:\s+\w+\s+hue)?\s*$/i):null, end=tail?st+tail.index:b
+	parts.push([st,end])
 	const trim=([x,y])=>{ while(x<y&&/\s/.test(str[x])) x++; while(y>x&&/\s/.test(str[y-1])) y--
-		if(g){ const m=str.slice(x,y).match(/^(.*?)(?:\s+-?[\d.]+%)+$/); if(m) y=x+m[1].length } return [x,y] }
+		if(g||sep==='..'){ const m=str.slice(x,y).match(/^(.*?)(?:\s+-?[\d.]+%)+$/); if(m) y=x+m[1].length } return [x,y] }
 	const head=g&&!isCol(str.slice(...trim(parts[0])))?1:0
 	// words where no color is – the gradient's function, its geometry and method (`to right`, `in oklch`): each its own
 	const words=(x,y)=>[...str.slice(x,y).matchAll(/[\w-]+%?/g)].map(m=>[x+m.index,x+m.index+m[0].length,null])
-	return [...(g?words(0,a):[]),...parts.flatMap((q,k)=>k<head?words(...trim(q)):[[...trim(q),k-head]])].filter(t=>t[0]<t[1]) }
+	return [...(g?words(0,a):[]),...parts.flatMap((q,k)=>k<head?words(...trim(q)):[[...trim(q),k-head]]),...words(end,b)].filter(t=>t[0]<t[1]) }
 const tokenAt=(str,p)=>tokensOf(str).find(t=>p>=t[0]&&p<=t[1])??null
 // the field's text laid out as the field lays it – an unseen twin over it: a point finds the color nearest it, and the
 // field knows its height before it takes it (it eases there)
@@ -2512,7 +2514,7 @@ const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySel
 	const cx=cxEl.getBoundingClientRect(), docked=cx.top<row.getBoundingClientRect().bottom
 	const lo=Math.min(...[row.querySelector('.qx'),cnt].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))
 	row.classList.toggle('under',docked&&lo<cx.right+8)
-	if(document.body.classList.contains('cdock')!==docked){ document.body.classList.toggle('cdock',docked); fitField() } }
+	if(document.body.classList.contains('cdock')!==docked){ document.body.classList.toggle('cdock',docked); fmtpEl?.hidePopover(); fitField() } }   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
 { const ro=new ResizeObserver(()=>fitCells()); ro.observe(stripEl); ro.observe(cxEl)
 	let rq=0; addEventListener('scroll',()=>{ rq||=requestAnimationFrame(()=>{ rq=0; fitCells() }) },{ passive:true }) }   // the color docks as the page scrolls
 // a pick filters the catalog and inks Filters' mark; Filters' name and tooltip say every pick, its × lets them go
@@ -2688,7 +2690,7 @@ const dropStop=i=>{ if(!STOPS) return; STOPS[STOPI]=master; STOPS.splice(i,1); i
 const gradObj=()=>GRAD&&{ fn:GRAD.fn, head:GRAD.head, mix:GRAD.mix, stops:STOPS.map((c,i)=>({ c, pos:GRAD.pos?.[i]??i/(STOPS.length-1) })) }
 const stopIn=(c,s)=>valsIn(c,s)
 const sayStop=c=>{ const rgb=rgbF(c.s,c.vals); return fmtAs(FMT,hex(rgb),rgb) }
-const stopsSay=()=>GRAD?gradientText(gradObj(),sayStop):STOPS.map(sayStop).join(', ')
+const stopsSay=()=>GRAD?shortText(gradObj(),sayStop)??gradientText(gradObj(),sayStop):STOPS.map(sayStop).join(', ')   // a gradient in its short form (`a..b`) where it has one
 // a gradient's run in space s – the line the planes and the solid draw – or null for a sequence
 const gradIn=s=>GRAD?gradPath(gradObj(),stopIn).map(v=>valsIn({ s:GRAD.mix.space, vals:v },s)).filter(Boolean):null
 const RXNUM=/(?<![\w-])-?\d+(?:\.\d+)?/g   // digits inside names (rec2020, display-p3) are not values
@@ -5129,10 +5131,7 @@ function markStops(host,s,at,ink){ let ov=host._ov
 	STOPS.forEach((c,j)=>{ if(j===STOPI) return; const v=valsIn(c,s); if(!v) return; const [x,y,on]=at(v); if(!on) return
 		marks.push({ j, x, y, v }); dots.push(`<i class="sto" data-j="${j}" style="left:${x}%;top:${y}%;--w:${hex(rgbF(c.s,c.vals))}"></i>`) })
 	const html=dots.join(''); if(ov._h!==html){ ov._h=html; ov.querySelectorAll('.sto').forEach(d=>d.remove()); ov.insertAdjacentHTML('beforeend',html) }
-	host._marks=marks; host._pts=hp?.[2]?[...marks,{ j:STOPI, x:hp[0], y:hp[1] }]:marks
-	ov.firstElementChild.style.maskImage=holes(host._pts) }
-// the run parted around every mark (the held picker's too): a hole the picker's size at each, the masks intersected (CSS)
-const holes=pts=>pts.map(p=>`radial-gradient(circle at ${p.x.toFixed(2)}% ${p.y.toFixed(2)}%,#0000 var(--picker-size),#000 0)`).join(',')||'none'
+	host._marks=marks; host._pts=hp?.[2]?[...marks,{ j:STOPI, x:hp[0], y:hp[1] }]:marks }
 const planeMarks=(pl,s,cls)=>markStops(pl,s,v=>planePos(pl,cls,v),fieldDark(pl)?'#16161a':'#fff')
 // what a press takes, shown before it: over a plane, a strip or a bar, the color whose mark is nearest the pointer (as
 // planeGrip and lineGrip pick it) comes forward – another's mark (hot), the held picker resting meanwhile (cold)
@@ -5157,7 +5156,7 @@ function stripMarks(el,s,i){ const key=STOPS?STOPS.map((c,j)=>j===STOPI?master.v
 	const html=STOPS.map((st,j)=>{ const v=j===STOPI?heldIn(s):valsIn(st,s); if(!v) return ''; const x=f(v[i])*100; pts.push({ j, x, y:50 })
 		return j===STOPI?'':`<b data-j="${j}" style="left:${x}%;--w:${hex(rgbF(st.s,st.vals))}"></b>` }).join('')
 	el._pts=pts
-	el.insertAdjacentHTML('beforeend',`<i class="sts" aria-hidden="true">${line&&`<u style="mask-image:${holes(pts)}">${line}</u>`}${html}</i>`) }
+	el.insertAdjacentHTML('beforeend',`<i class="sts" aria-hidden="true">${line&&`<u>${line}</u>`}${html}</i>`) }
 // a press on an instrument – a plane, a strip, a bar – beyond moving the color: the color whose mark is nearest the press
 // is the one it takes (pressed on its mark, it moves from where it is; elsewhere it comes to the press); ⌥ adds a color
 // there – on a mark, lets that one go; ⇧ at the press draws a gradient, the press one end and the release the other; ⇧

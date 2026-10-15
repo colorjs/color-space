@@ -1,10 +1,11 @@
 // Colors in hand beyond one: a SEQUENCE (a comma list – separate colors, each its own) or a GRADIENT (CSS gradient
-// syntax – stops blended along a line). The page keeps them as {s, vals} stops; this module reads and writes their text
+// syntax – stops blended along a line – or its short form, the colors joined by `..`: `red..blue`, read "red to blue"). The page keeps them as {s, vals} stops; this module reads and writes their text
 // and blends between them. Pure: no DOM, no page state – the page passes its own single-color parser in.
 //
 // A gradient blends as CSS does: in the space its color-interpolation-method names (`in oklch longer hue`), else – none
 // named – in gamma-encoded sRGB when every color is written in a legacy sRGB syntax (hex, a name, rgb(), hsl(), hwb()),
-// in Oklab otherwise. A hue channel takes the method's arc; an achromatic stop's hue is powerless and takes its
+// in Oklab otherwise. The short form is a linear gradient blended in Oklab, or in the method that closes it
+// (`red..blue in oklch longer hue`); a stop may carry its place (`red..blue 70%`). A hue channel takes the method's arc; an achromatic stop's hue is powerless and takes its
 // neighbour's, so a blend from white rotates no hue.
 // @see https://drafts.csswg.org/css-color-4/#interpolation
 // @see https://drafts.csswg.org/css-images-4/#linear-gradients
@@ -18,11 +19,13 @@ const HUES = ['shorter', 'longer', 'increasing', 'decreasing']
 const FN = /^(repeating-)?(linear|radial|conic)-gradient\(([\s\S]*)\)$/i
 const LEGACY = /^(#|rgba?\(|hsla?\(|hwb\(|[a-z]+$)/i   // hex, rgb(), hsl(), hwb() or a bare name – CSS's legacy sRGB syntaxes
 
-// top-level commas only – a color's own parens keep theirs
-export const splitTop = str => { const out = []; let d = 0, cur = ''
-	for (const c of str) { if (c === '(') d++; else if (c === ')') d = Math.max(0, d - 1)
-		if (c === ',' && !d) { out.push(cur.trim()); cur = '' } else cur += c }
+// top-level separators only (commas, or the short form's `..`) – a color's own parens keep theirs
+export const splitTop = (str, sep = ',') => { const out = []; let d = 0, cur = ''
+	for (let i = 0; i < str.length; i++) { const c = str[i]; if (c === '(') d++; else if (c === ')') d = Math.max(0, d - 1)
+		if (!d && str.startsWith(sep, i)) { out.push(cur.trim()); cur = ''; i += sep.length - 1 } else cur += c }
 	out.push(cur.trim()); return out.filter(Boolean) }
+const METHOD = /\bin\s+([a-z0-9-]+)(?:\s+(shorter|longer|increasing|decreasing)\s+hue)?/i
+const methodOf = m => ({ space: CSS_SPACE[m[1].toLowerCase()] || m[1].toLowerCase(), hue: (m[2] || 'shorter').toLowerCase(), named: true })
 
 // a part's trailing positions (`red 20%`, `red 20% 40%`) off its color; lengths other than % read as unplaced
 const stopOf = part => { const m = part.match(/^(.*?)((?:\s+-?\d*\.?\d+%)+)?$/), color = (m?.[1] || part).trim()
@@ -33,21 +36,30 @@ const stopOf = part => { const m = part.match(/^(.*?)((?:\s+-?\d*\.?\d+%)+)?$/),
  *  reads one color to the page's {s, vals} (null for none). `head` keeps the geometry (an angle, `to right`, a shape)
  *  as written; a stop with two positions is two stops. */
 export function parseGradient(str, parse) {
-	const m = str.trim().match(FN); if (!m) return null
+	const m = str.trim().match(FN); if (!m) return parseShort(str, parse)
 	const parts = splitTop(m[3]); if (parts.length < 2) return null
 	let head = '', mix = null
 	// the first part is the line's geometry and its interpolation method, when it isn't a color
-	if (!parse(stopOf(parts[0]).color)) { head = parts.shift()
-		const im = head.match(/\bin\s+([a-z0-9-]+)(?:\s+(shorter|longer|increasing|decreasing)\s+hue)?/i)
-		if (im) { const space = CSS_SPACE[im[1].toLowerCase()] || im[1].toLowerCase(); mix = { space, hue: (im[2] || 'shorter').toLowerCase(), named: true } } }
-	const stops = []
+	if (!parse(stopOf(parts[0]).color)) { head = parts.shift(); const im = head.match(METHOD); if (im) mix = methodOf(im) }
+	const stops = readStops(parts, parse); if (!stops) return null
+	mix ??= { space: stops.every(x => LEGACY.test(x.src)) ? 'rgb' : 'oklab', hue: 'shorter', named: false }
+	return { fn: (m[1] || '') + m[2].toLowerCase() + '-gradient', head, mix, stops: placed(stops) } }
+
+// the short form: `a..b..c`, a method closing it – a linear gradient, Oklab unless named
+const TAIL = /\s+(in\s+[a-z0-9-]+(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?)\s*$/i
+function parseShort(str, parse) {
+	const parts = splitTop(str.trim(), '..'); if (parts.length < 2) return null
+	const tail = parts.at(-1).match(TAIL); if (tail) parts[parts.length - 1] = parts.at(-1).slice(0, tail.index)
+	const stops = readStops(parts, parse); if (!stops) return null
+	return { fn: 'linear-gradient', head: '', mix: tail ? methodOf(tail[1].match(METHOD)) : { space: 'oklab', hue: 'shorter', named: true }, stops: placed(stops) } }
+
+// each part a color and its places; null when one isn't a color
+function readStops(parts, parse) { const stops = []
 	for (const part of parts) { const { color, pos } = stopOf(part)
 		if (!color && pos.length === 1) continue   // a bare hint: where the midpoint falls – the line stays even
 		const c = parse(color); if (!c) return null
 		if (!pos.length) stops.push({ c, pos: null, src: color }); else for (const p of pos.slice(0, 2)) stops.push({ c, pos: p, src: color }) }
-	if (stops.length < 2) return null
-	mix ??= { space: stops.every(x => LEGACY.test(x.src)) ? 'rgb' : 'oklab', hue: 'shorter', named: false }
-	return { fn: (m[1] || '') + m[2].toLowerCase() + '-gradient', head, mix, stops: placed(stops) } }
+	return stops.length < 2 ? null : stops }
 
 // CSS's stop fix-up: the ends at 0 and 1 when unplaced, every position at least the one before, the unplaced spread evenly
 const placed = stops => { const p = stops.map(x => x.pos)
@@ -82,8 +94,15 @@ export const path = (g, to, n = 24) => { const out = [], { space, hue } = g.mix
 
 /** The gradient back as text: its function, its head as written (or the method a named mix needs), each stop in the
  *  page's notation (`say`), placed where it isn't where CSS would put it unplaced. */
-export const gradientText = (g, say) => { const n = g.stops.length, even = g.stops.every((x, i) => Math.abs(x.pos - i / (n - 1)) < 1e-6)
-	const head = g.head || (g.mix.named ? `in ${CSS_NAME[g.mix.space] || g.mix.space}${g.mix.hue !== 'shorter' ? ` ${g.mix.hue} hue` : ''}` : '')
-	return `${g.fn}(${head ? head + ', ' : ''}${g.stops.map(x => say(x.c) + (even ? '' : ` ${+(x.pos * 100).toFixed(1)}%`)).join(', ')})` }
+const isEven = g => g.stops.every((x, i) => Math.abs(x.pos - i / (g.stops.length - 1)) < 1e-6)
+const stopText = (g, say, even = isEven(g)) => x => say(x.c) + (even ? '' : ` ${+(x.pos * 100).toFixed(1)}%`)
+const methodText = mx => `in ${CSS_NAME[mx.space] || mx.space}${mx.hue !== 'shorter' ? ` ${mx.hue} hue` : ''}`
+export const gradientText = (g, say) => { const head = g.head || (g.mix.named ? methodText(g.mix) : '')
+	return `${g.fn}(${head ? head + ', ' : ''}${g.stops.map(stopText(g, say)).join(', ')})` }
+
+/** The gradient in the short form when it has one – a linear gradient with no geometry (`red..blue in oklch`), its
+ *  method written unless Oklab's shorter arc; null for any other (an angle, a radial, a repeating one). */
+export const shortText = (g, say) => g.fn !== 'linear-gradient' || g.head && !/^in\s/i.test(g.head.trim()) ? null
+	: g.stops.map(stopText(g, say)).join('..') + (g.mix.space === 'oklab' && g.mix.hue === 'shorter' ? '' : ' ' + methodText(g.mix))
 
 export { HUES }
