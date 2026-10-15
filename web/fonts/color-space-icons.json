@@ -46,6 +46,5 @@
 	"QI.pico8": "25A9",
 	"QI.ansi": "25B8",
 	"VI.grid": "E01E",
-	"VI.list": "E01F",
-	"VI.table": "E020"
+	"VI.table": "E01F"
 }

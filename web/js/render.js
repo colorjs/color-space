@@ -86,7 +86,7 @@ export const ending = s => { const m = meta[s]
 export const endingSays = s => { const e = ending(s); if (!e) return ''
 	return !e.by ? t('ui.card.retired', 'Retired. {why}.', { why: e.why }) : e.y ? t('ui.card.replaced-in', 'Replaced by {s} in {y}. {why}.', { s: disp(e.by), y: e.y, why: e.why }) : t('ui.card.replaced', 'Replaced by {s}. {why}.', { s: disp(e.by), why: e.why }) }
 // the card's quick dossier — its maker whole and year (data-tip-head: the card's head may shorten or cut the maker), what
-// it was made for, as the rows view reads it (data-tip); then
+// it was made for (data-tip); then
 // the kinds the list sheet shows, each with the filters' icon, and the white (data-tip-tags: icon|label, rendered by
 // tip.js as chips — the same vocabulary the filter speaks)
 const attr = x => x.replace(/"/g, '&quot;')   // an attribute, so a translation's quote is escaped
@@ -125,12 +125,6 @@ const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n 
 	 <header class="eh">${nameLink(s)}${head}</header>
 	 ${lead ? `<div class="pv">${strips}${pairsOf(cls).length ? `<button type="button" class="pvs" aria-pressed="false" title="${t('ui.card.planes', 'Planes')}" aria-label="${t('ui.card.planes-label', 'Show {name} as planes', { name: disp(s) })}">${PI.planes}</button>` : ''}</div>${nums}` : strips + nums}
 	</article>` }
-// Rows: one line per space – who and why on the left, a strip per channel at full width with its number
-const row = (s, st) => { const cls = classify(s), vals = valsAt(s, st), story = lede(s)
-	return `<article class="ent lr" ${entAttrs(s, cls, vals, st, 48)}>
-	 <div class="li"><header class="eh">${nameLink(s)}</header><span class="by">${byline(s)}</span>${story ? `<p class="for">${story}</p>` : ''}</div>
-	 <div class="chs">${cls.ch.map((c2, i) => `<div class="lch"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym}</i>${strip(s, c2, i, vals, st, 48)}${field(s, c2, i, vals).replace(/<i class="cl"[^>]*>[^<]*<\/i>/, '')}</div>`).join('')}</div>
-	</article>` }
 // List: the spec sheet – a mini sweep of every channel, then the facts; each column sorts the whole catalog. The kinds
 // (shape, curve, signal, range) are the filters' own icons, named in their tooltips; where the sheet is narrow they
 // share one cell (.c-kind)
@@ -156,11 +150,10 @@ export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 	return [{ name: t('ui.view.all', 'All spaces'), spaces: SPACES.slice().sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * d }) }] }
 
 // the layout: one button in the pinned row, its icon the view it turns to (as a lead card's planes switch shows the
-// other face) – grid → rows → list → grid; a phone (its one column already rows) grid → list → grid
+// other face) – grid → list → grid
 const VIEWS = () => [['grid', t('ui.cell.view-grid', 'Grid'), t('ui.view.grid', 'featured spaces large, the rest as tiles'), VI.grid],
-	['rows', t('ui.cell.view-rows', 'Rows'), t('ui.view.rows', 'one line per space, its strips at full width'), VI.list],
 	['list', t('ui.cell.view-list', 'List'), t('ui.view.list', 'the spec sheet – every column sorts'), VI.table]]
-export const nextView = (view, phone) => { const V = VIEWS().filter(x => !phone || x[0] !== 'rows'), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
+export const nextView = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
 	return { v, label: `${t('ui.cell.layout', 'Layout')}: ${n}`, title: `${n} – ${tip}`, ic } }
 
 // a shelf's icon on the rail: the families' glyphs, a purpose's own (the line family the menus draw); era shelves go bare
@@ -170,13 +163,12 @@ const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.percep
 // m: optional color state to bake in ({ s, vals } — the prerender passes DEFAULT);
 // omitted (the page's fingerprint check) → the bare template, byte-stable across colors.
 // secs: the section cut to render — defaults to the family catalog; groups.js passes others.
-// o: how – view 'grid' (lead cards, tiles), 'rows' or 'list' (the spec sheet), the cut its tabs mark, a list's sort,
+// o: how – view 'grid' (lead cards, tiles) or 'list' (the spec sheet), the cut its tabs mark, a list's sort,
 // and how many lead each family in the grid – one row of them: as many as the grid's columns (the prerender: three)
 export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sort = null, leads = LEADS } = {}) => { let st = null
 	if (m) { const rgb = rgbF(m.s, m.vals); st = { rgb, hx: hex(rgb), ink: ink(rgb) } }
 	const by = t('ui.group.by', 'group the catalog by'), G = { family: t('ui.group.family', 'Family'), purpose: t('ui.group.purpose', 'Purpose'), era: t('ui.group.era', 'Era') }
-	const body = c => view === 'rows' ? `<div class="rows">${c.spaces.map(s => row(s, st)).join('')}</div>`
-		: view === 'list' ? table(c.spaces, st, sort)
+	const body = c => view === 'list' ? table(c.spaces, st, sort)
 		: `<div class="lead">
 	${c.spaces.slice(0, leads).map(s => ent(s, true, st)).join('')}
 </div>${c.spaces.length > leads ? `<div class="tiles">

@@ -9,11 +9,6 @@ const grid = (n, r) => Array.from({ length: n * n }, (_, k) => `<rect x="${1 + (
 // the spectral locus in a 16 box (CIE 1931 2° locus points, x·17+1.5, 15−y·16) and gamut triangles in the same frame
 const LOCUS = 'M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z'
 const lim = inner => fi(`<path d="${LOCUS}" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/>${inner}`)
-// a share of the visible gamut, drawn as the locus scaled about its middle: area goes as the square of the scale
-const LMID = [7.1, 9.1], locusAt = k => LOCUS.replace(/([\d.]+) ([\d.]+)/g, (_, x, y) => `${(LMID[0] + (x - LMID[0]) * k).toFixed(2)} ${(LMID[1] + (y - LMID[1]) * k).toFixed(2)}`)
-// a coverage pick as a gauge: the locus filled to its upper share – "at least N%" stays the whole locus, only a smaller
-// ceiling shrinks it
-export const locusShare = hi => lim(`<path d="${locusAt(Math.sqrt(hi))}"/>`)
 
 export const QI = {
 	smooth: fi('<rect x="1" y="5" width="14" height="6" rx="1" fill="url(#vq-smooth)"/>'),
@@ -37,14 +32,13 @@ export const LI = {
 	locus: lim(`<path d="${LOCUS}"/>`),
 }
 export const PI = {
-	sliders: fi('<rect x="1" y="2.5" width="14" height="2.6" rx=".6"/><rect x="1" y="6.7" width="14" height="2.6" rx=".6" opacity=".7"/><rect x="1" y="10.9" width="14" height="2.6" rx=".6" opacity=".45"/>'),
+	sliders: fi('<rect x="1" y="3" width="14" height="3.34"/><rect x="1" y="6.33" width="14" height="3.34" opacity=".7"/><rect x="1" y="9.66" width="14" height="3.34" opacity=".45"/>'),   // three strips touching, as a card's do
 	planes: fi('<rect x=".5" y="5" width="4.4" height="4.4" rx=".5"/><rect x="5.8" y="5" width="4.4" height="4.4" rx=".5" opacity=".7"/><rect x="11.1" y="5" width="4.4" height="4.4" rx=".5" opacity=".45"/>'),
 }
-// the layout's marks – compact, square-cornered: four tiles, two rows (the second dimmed), three lines of a sheet
+// the layout's marks – compact, square-cornered: four tiles, a two-column sheet – both in the same 10-unit square, a step inside the box
 export const VI = {
-	grid: fi('<path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/>'),
-	list: fi('<path d="M2 2.5h12v4.5H2z"/><path d="M2 9h12v4.5H2z" opacity=".45"/>'),
-	table: fi('<path d="M2 3h12v2H2zM2 7h12v2H2zM2 11h12v2H2z"/>'),
+	grid: fi('<path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/>'),
+	table: fi('<path d="M3 3h3v1.75H3zM7 3h6v1.75H7zM3 5.75h3v1.75H3zM7 5.75h6v1.75H7zM3 8.5h3v1.75H3zM7 8.5h6v1.75H7zM3 11.25h3v1.75H3zM7 11.25h6v1.75H7z"/>'),   // a sheet: a name column and a value column, four rows
 }
 // what a space is and what it is for: the facets' options, the shelves' glyphs
 export const OI = {

@@ -201,16 +201,16 @@ try {
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), false, 'coverage ≥90% drops sRGB')
 	assert.equal(await page.locator('.cells .count').innerText(), `${await page.locator('.ent:visible').count()} spaces`, 'the row\'s count is what the filters leave')
 	assert.equal(await page.evaluate(()=>[document.querySelector('#c-more b').textContent,document.getElementById('c-more').title].join('|')), '≥90%|Filters: ≥90%', 'the pick inks Filters and names itself there')
-	assert.equal(await page.locator('#c-coverage').isVisible(), true, 'the picked interval rides the row as its own cell')
+	assert.equal(await page.locator('#fclr').isVisible(), true, 'a pick shows the one × that lets the filters go')
 	// one menu holds every facet, once – the row shows only what is picked
 	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage'].filter(k=>{ const body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
 		return body.length!==1||!body[0].closest('#m-more') })),[],'each facet lives once, in the Filters menu')
 	await toCatalog(page)
-	assert.equal(await page.locator('.cells .cell:visible').count(), 6, 'the row: Filters, the picked facet, the view\'s one menu, the layout, search and the theme')
+	assert.equal(await page.locator('.cells .cell:visible').count(), 5, 'the row: Filters, search, the view\'s one menu, the layout and the theme – a pick adds no cell')
 	await page.locator('#fcov').fill('0')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'the full interval again restores the catalog')
 	assert.equal(await page.evaluate(()=>[document.querySelector('#c-more b').textContent,document.querySelector('#c-more b.on')].join('|')), '|', 'let go, Filters is plain again')
-	assert.equal(await page.evaluate(()=>[document.getElementById('c-coverage').hidden,document.getElementById('m-coverage')?.matches(':popover-open')||false].join()), 'true,false', 'and the facet leaves the row, its menu with it')
+	assert.equal(await page.evaluate(()=>document.getElementById('fclr').hidden), true, 'and the × leaves with the last pick')
 	// the interval's low end: ≤50% finds the narrow-coverage spaces and drops the wide ones
 	await page.locator('#fcov1').fill('50')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'coverage ≤50% keeps sRGB (~36%)')
@@ -285,16 +285,15 @@ try {
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
 	assert.match(await page.locator('#c-more').getAttribute('title'), /^Filters: .*Scene/, 'Filters names the picked signal')
-	assert.match(await page.locator('#c-signal').getAttribute('title'), /Scene/, 'and the picked signal rides the row as its cell')
+	await page.locator('#fclr').click(); assert.equal(await page.locator('.cells .count').innerText(), '205 spaces', 'the × lets every pick go at once')
+	await lens(page,'f','scene')   // picked again, for what follows
 	await lens(page,'f','scene')   // unpicked where it was picked – no Any
 	await page.locator('.gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
 
-	// the views: Rows and the List rebuild the same catalog; a List column orders every space in one shelf, again the
+	// the views: the List rebuilds the same catalog; a List column orders every space in one shelf, again the
 	// other way; Grid returns. A lead card's own switch shows its channel pairs as planes
 	assert.equal(await page.locator('#m-view [data-lens="w"]').count(), 0, 'the layout is not a lens – the View menu holds Quantize, Limit and Vision')
-	await layout(page,'rows')
-	assert.equal(await page.locator('.ent.lr').count(), 205, 'Rows shows every space')
 	assert.equal(await page.locator('#c-layout').getAttribute('data-view'), 'list', 'the switch shows the view it turns to next')
 	await layout(page,'list')
 	assert.equal(await page.locator('.ent.tr').count(), 205, 'the List shows every space')
@@ -699,12 +698,11 @@ try {
 	await motion.mouse.move(imageBox.x+imageBox.width*.12,imageBox.y+imageBox.height*.18); await motion.mouse.down(); await motion.mouse.move(imageBox.x+imageBox.width*.82,imageBox.y+imageBox.height*.76,{steps:12}); await motion.waitForTimeout(100)
 	const imagePlanes=await planeFields.evaluateAll((cs,before)=>cs.filter((c,i)=>c.toDataURL()!==before[i]).length,beforeImage)
 	await motion.mouse.up()
-	assert.equal(await planeFields.count(),2,'the dossier draws two planes, whatever the channel count – their axes turn on a click')
-	assert.equal(imagePlanes,2,'all plane fields repaint while an image color is still held')
+	assert.equal(imagePlanes,3,'all plane fields repaint while an image color is still held')
 	const turned=await motion.evaluate(()=>{ const pairs=()=>[...document.querySelectorAll('#detail #planes .pl')].map(p=>[+p.dataset.a,+p.dataset.b]), before=pairs()
 		document.querySelector('#detail #planes .pl .laby').click(); const after=pairs(), key=p=>p.slice().sort().join()
 		return { before, after, distinct:key(after[0])!==key(after[1]), y:after[0][1]!==before[0][1]||after[0][0]!==before[0][0] } })
-	assert.equal(turned.y&&turned.distinct,true,`an axis's name turns it, the two planes kept two different pairs (${JSON.stringify(turned)})`)
+	assert.equal(turned.y&&turned.distinct,true,`an axis's name turns it, the planes kept on different pairs (${JSON.stringify(turned)})`)
 	// Exercise the transfer watchdog last: after one intentionally stranded host promise,
 	// the app must retire this optional GPU-present path without starting another transfer.
 	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__bitmapFlight={active:0,max:0,orig,stall:true}; window.createImageBitmap=(...args)=>{ const s=window.__bitmapFlight; s.active++; s.max=Math.max(s.max,s.active)
