@@ -61,7 +61,6 @@
     "web/js/purpose.js",
     "web/js/names.js",
     "web/js/python.js",
-    "skills",
     "CHANGELOG.md"
   ],
   "bin": {

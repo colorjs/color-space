@@ -302,6 +302,6 @@ test('mcp: server.json registers this package under its mcpName', () => {
 	is([p.registryType, p.identifier, p.transport.type], ['npm', pkg.name, 'stdio'], 'the npm package over stdio')
 	is(p.packageArguments, [{ type: 'positional', value: 'mcp' }], 'npx -y color-space mcp — the bare bin is the CLI')
 	ok(!/[\^~<>*x|]/.test(s.version) && s.version === p.version, 'one pinned version (release.yml syncs it to package.json)')
-	const plugin = JSON.parse(readFileSync(new URL('../.claude-plugin/plugin.json', import.meta.url)))
-	is([plugin.name, plugin.version, plugin.mcpServers['color-space'].args], ['color-space', pkg.version, ['-y', 'color-space', 'mcp']], 'the Claude plugin wraps this version\'s server')
+	const plugin = JSON.parse(readFileSync(new URL('../plugins/claude/.claude-plugin/plugin.json', import.meta.url)))
+	is([plugin.name, plugin.version, plugin.mcpServers['color-space'].args], ['color-space', pkg.version, ['-y', `color-space@${pkg.version}`, 'mcp']], 'the Claude plugin runs this exact version (the directory requires a pinned npx package)')
 })

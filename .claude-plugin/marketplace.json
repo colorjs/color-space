@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "color-space",
-      "source": "./",
+      "source": "./plugins/claude",
       "description": "Verified color math for 205 color spaces – MCP server and skill."
     }
   ]
