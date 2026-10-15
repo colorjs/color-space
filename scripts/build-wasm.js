@@ -19,16 +19,19 @@
 //
 //   npm run build:wasm
 //
-// Run after changing wasm/batch.js. The conversion formulas there mirror the scalar
-// library and are pinned by test/wasm-batch.js.
+// Run after changing wasm/batch.js or the Munsell table in spaces/munsell.js. The
+// conversion formulas there mirror the scalar library and are pinned by test/wasm-batch.js.
 import { compile } from 'jz'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
+import { COUNTS, PACK } from '../spaces/munsell.js'
 
 // The compile contract — ONE source of truth for the build and test/wasm-standalone.js:
 // 'speed' = O3 fast-paths + SIMD; grow to the wasm32 max (4 GB) for large batches;
 // Feature switches keep the bytes portable to runtimes without tail calls or EH.
-export const WASM_OPTS = { optimize: 'speed', maxMemory: 65536, noTailCall: true }   // jz 0.9.2's public options: an object `memory` is read as a SHARED memory and imported (env.memory) – the standalone kernel must own and export its own; the math emits no exception handling (pinned in test/wasm-standalone.js)
+// `define` hands the kernel the Munsell renotation table as spaces/munsell.js holds it,
+// so the table has one source; the kernel decodes it at load.
+export const WASM_OPTS = { optimize: 'speed', maxMemory: 65536, noTailCall: true, define: { MUNSELL_COUNTS: COUNTS, MUNSELL_PACK: PACK } }   // jz 0.9.2's public options: an object `memory` is read as a SHARED memory and imported (env.memory) – the standalone kernel must own and export its own; the math emits no exception handling (pinned in test/wasm-standalone.js)
 export const wasmSource = () => readFileSync(new URL('../wasm/batch.js', import.meta.url), 'utf8')
 
 // Build only when run directly (`npm run build:wasm`) — importing stays side-effect-free.

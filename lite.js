@@ -8,9 +8,11 @@
  *     color-space/lite  the modern working set below, JS, a fraction of the bundle
  *     color-space/wasm  the same set, prebuilt WASM — faster on whole buffers
  *
- * The set is the numeric working pipeline: rgb/lrgb/xyz, the OKLab family,
- * CIE Lab/Luv + DIN99, HDR opponent spaces, and camera logs. Device cylinders
- * (HSL/HSV…) and lookup/appearance spaces live in the full catalog.
+ * The set is the working pipeline: rgb/lrgb/xyz with xyz-d50, xyY and LMS; the
+ * display RGBs (P3, Rec. 2020, Adobe RGB, ProPhoto, Rec. 709); HSL/HSV/HWB; the
+ * OKLab family; CIE Lab/Luv + DIN99; CAM16 and HCT; Y′CbCr, HDR opponent spaces,
+ * ACES and camera logs; RYB and Munsell. CMYK (four channels) and the rest live
+ * in the full catalog.
  * Parity with wasm's `spaces` list is pinned by test/batch.js.
  *
  * @module color-space/lite
@@ -43,12 +45,40 @@ import slog3 from './spaces/slog3.js'
 import vlog from './spaces/vlog.js'
 import log3g10 from './spaces/log3g10.js'
 import clog2 from './spaces/clog2.js'
+import xyzD50 from './spaces/xyz-d50.js'
+import xyy from './spaces/xyy.js'
+import lms from './spaces/lms.js'
+import p3 from './spaces/p3.js'
+import p3Linear from './spaces/p3-linear.js'
+import rec2020 from './spaces/rec2020.js'
+import rec2020Linear from './spaces/rec2020-linear.js'
+import a98rgb from './spaces/a98rgb.js'
+import a98Linear from './spaces/a98rgb-linear.js'
+import prophoto from './spaces/prophoto.js'
+import prophotoLinear from './spaces/prophoto-linear.js'
+import rec709 from './spaces/rec709.js'
+import hsl from './spaces/hsl.js'
+import hsv from './spaces/hsv.js'
+import hwb from './spaces/hwb.js'
+import cam16 from './spaces/cam16.js'
+import hct from './spaces/hct.js'
+import ycbcrBt709 from './spaces/ycbcr-bt709.js'
+import ycbcrBt2020 from './spaces/ycbcr-bt2020.js'
+import ictcpHlg from './spaces/ictcp-hlg.js'
+import acescg from './spaces/acescg.js'
+import acescct from './spaces/acescct.js'
+import acescc from './spaces/acescc.js'
+import awg3 from './spaces/awg3.js'
+import logc3 from './spaces/logc3.js'
+import ryb from './spaces/ryb.js'
+import munsell, { xyyMunsell } from './spaces/munsell.js'
 
 /**
  * Dict with the compact space set, graph-wired: any space here converts to any
  * other, in scalar or batch form (see hub.js).
  */
-const space = createHub([rgb, lrgb, xyz, oklab, oklrab, oklch, oklrch, lab, lchab, labD65, lchD65, din99oLab, din99oLch, din99d, luv, lchuv, hsluv, hpluv, jzazbz, jzczhz, ictcp, ipt, logc4, slog3, vlog, log3g10, clog2]);
+xyy.munsell = xyyMunsell
+const space = createHub([rgb, lrgb, xyz, xyzD50, xyy, lms, p3, p3Linear, rec2020, rec2020Linear, a98rgb, a98Linear, prophoto, prophotoLinear, rec709, hsl, hsv, hwb, oklab, oklrab, oklch, oklrch, lab, lchab, labD65, lchD65, din99oLab, din99oLch, din99d, luv, lchuv, hsluv, hpluv, cam16, hct, ycbcrBt709, ycbcrBt2020, jzazbz, jzczhz, ictcp, ictcpHlg, ipt, acescg, acescct, acescc, awg3, logc3, logc4, slog3, vlog, log3g10, clog2, ryb, munsell]);
 export default space;
 
 /**

@@ -19,7 +19,7 @@ npm run benchmark
 ## Libraries Compared
 
 - **color-space** (this library) - Conventional ranges, 205 color spaces
-- **color-space/lite** - the same formulas behind the 27-space hub (no HSL, no P3)
+- **color-space/lite** - the same formulas behind the 54-space hub
 - **culori** - Normalized ranges (0-1), 30 color spaces, comprehensive
 - **colorjs.io** - Normalized ranges (0-1), 40 color spaces, CSS Color spec reference
 - **@texel/color** - Normalized ranges (0-1), 16 color spaces, WebGL-focused

@@ -5,7 +5,7 @@
  * other half of the kernel: convert a whole image-sized buffer in one call, with
  * the per-pixel formulas running as a tight WASM loop (jz @ optimize:'speed' —
  * fast cbrt/pow, so even perceptual paths beat JS). Zero runtime dependency: the
- * ~45 kB module (≈33 kB wasm) is prebuilt and inlined (see scripts/build-wasm.js).
+ * ~207 kB base64 module (≈155 kB wasm) is prebuilt and inlined (see scripts/build-wasm.js).
  *
  * The API is the scalar library's, batch-shaped — same `space.from.to` addressing:
  *
@@ -26,8 +26,8 @@
  * source — a bundler tree-shakes it. A WASM binary is atomic: one module holds
  * every covered space, so there is nothing to shake and no `color-space/wasm/oklch`.
  * You still address per-space — `space.oklch.rgb` — just through the hub. (True
- * per-space compilation was measured and declined: each module re-embeds ~7-9 kB of
- * shared transcendentals, a net loss for 27 spaces.)
+ * per-space compilation was measured and declined at 27 spaces: each module re-embeds
+ * ~7-9 kB of shared transcendentals.)
  *
  * Layout: interleaved 3-channel `Float64Array`, n pixels = 3n values
  * [c0,c1,c2, c0,c1,c2, …]. Ranges match the scalar API (rgb 0-255, oklab native,
@@ -81,13 +81,37 @@ const edge = (name, a, b, c) => {
 // calling each edge in turn. polar_fwd/polar_inv are the one generic
 // cartesian<->cylindrical pair shared by every LCh-family space.
 const GRAPH = {
-	rgb: { lrgb: 'rgb_lrgb' },
-	lrgb: { rgb: 'lrgb_rgb', xyz: 'lrgb_xyz', oklab: 'lrgb_oklab' },
+	rgb: { lrgb: 'rgb_lrgb', hsl: 'rgb_hsl', hsv: 'rgb_hsv', hwb: 'rgb_hwb', ryb: 'rgb_ryb' },
+	lrgb: { rgb: 'lrgb_rgb', xyz: 'lrgb_xyz', oklab: 'lrgb_oklab', rec709: 'lrgb_rec709' },
 	xyz: {
 		lrgb: 'xyz_lrgb', lab: 'xyz_lab', 'lab-d65': 'xyz_labd65', luv: 'xyz_luv',
+		'xyz-d50': 'xyz_xyzd50', xyy: 'xyz_xyy', lms: 'xyz_lms', cam16: 'xyz_cam16', hct: 'xyz_hct',
+		p3: 'xyz_p3', 'p3-linear': 'xyz_p3linear', rec2020: 'xyz_rec2020', 'rec2020-linear': 'xyz_rec2020linear',
+		a98rgb: 'xyz_a98rgb', 'a98rgb-linear': 'xyz_a98rgblinear', prophoto: 'xyz_prophoto', 'prophoto-linear': 'xyz_prophotolinear',
 		jzazbz: 'xyz_jzazbz', ictcp: 'xyz_ictcp', ipt: 'xyz_ipt', din99d: 'xyz_din99d',
+		acescg: 'xyz_acescg', acescc: 'xyz_acescc', awg3: 'xyz_awg3', logc3: 'xyz_logc3',
 		logc4: 'xyz_logc4', slog3: 'xyz_slog3', vlog: 'xyz_vlog', log3g10: 'xyz_log3g10', clog2: 'xyz_clog2',
 	},
+	'xyz-d50': { xyz: 'xyzd50_xyz' },
+	xyy: { xyz: 'xyy_xyz', munsell: 'xyy_munsell' },
+	munsell: { xyy: 'munsell_xyy' },
+	lms: { xyz: 'lms_xyz' },
+	p3: { xyz: 'p3_xyz' },
+	'p3-linear': { xyz: 'p3linear_xyz' },
+	rec2020: { xyz: 'rec2020_xyz', 'ycbcr-bt2020': 'rec2020_ycbcrbt2020' },
+	'rec2020-linear': { xyz: 'rec2020linear_xyz', 'ictcp-hlg': 'rec2020linear_ictcphlg' },
+	a98rgb: { xyz: 'a98rgb_xyz' },
+	'a98rgb-linear': { xyz: 'a98rgblinear_xyz' },
+	prophoto: { xyz: 'prophoto_xyz' },
+	'prophoto-linear': { xyz: 'prophotolinear_xyz' },
+	rec709: { lrgb: 'rec709_lrgb', 'ycbcr-bt709': 'rec709_ycbcrbt709' },
+	'ycbcr-bt709': { rec709: 'ycbcrbt709_rec709' },
+	'ycbcr-bt2020': { rec2020: 'ycbcrbt2020_rec2020' },
+	'ictcp-hlg': { 'rec2020-linear': 'ictcphlg_rec2020linear' },
+	hsl: { rgb: 'hsl_rgb', hsv: 'hsl_hsv', hwb: 'hsl_hwb' },
+	hsv: { rgb: 'hsv_rgb', hsl: 'hsv_hsl', hwb: 'hsv_hwb' },
+	hwb: { rgb: 'hwb_rgb', hsl: 'hwb_hsl', hsv: 'hwb_hsv' },
+	ryb: { rgb: 'ryb_rgb' },
 	oklab: { lrgb: 'oklab_lrgb', oklrab: 'oklab_oklrab', oklch: 'polar_fwd' },
 	oklrab: { oklab: 'oklrab_oklab', oklrch: 'polar_fwd' },
 	oklch: { oklab: 'polar_inv' },
@@ -102,11 +126,18 @@ const GRAPH = {
 	lchuv: { luv: 'polar_inv', hsluv: 'lchuv_hsluv', hpluv: 'lchuv_hpluv' },
 	hsluv: { lchuv: 'hsluv_lchuv' },
 	hpluv: { lchuv: 'hpluv_lchuv' },
+	cam16: { xyz: 'cam16_xyz' },
+	hct: { xyz: 'hct_xyz' },
 	jzazbz: { xyz: 'jzazbz_xyz', jzczhz: 'polar_fwd' },
 	jzczhz: { jzazbz: 'polar_inv' },
 	ictcp: { xyz: 'ictcp_xyz' },
 	ipt: { xyz: 'ipt_xyz' },
 	din99d: { xyz: 'din99d_xyz' },
+	acescg: { xyz: 'acescg_xyz', acescct: 'acescg_acescct' },
+	acescct: { acescg: 'acescct_acescg' },
+	acescc: { xyz: 'acescc_xyz' },
+	awg3: { xyz: 'awg3_xyz' },
+	logc3: { xyz: 'logc3_xyz' },
 	logc4: { xyz: 'logc4_xyz' },
 	slog3: { xyz: 'slog3_xyz' },
 	vlog: { xyz: 'vlog_xyz' },

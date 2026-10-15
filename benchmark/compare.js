@@ -148,7 +148,7 @@ const tests = [
 	{
 		name: 'RGB → HSL',
 		colorSpace: (i) => { const k = at(i); return space.rgb.hsl(RGB[k], RGB[k + 1], RGB[k + 2]) },
-		lite: () => null, // device cylinders live in the full catalog
+		lite: (i) => { const k = at(i); return lite.rgb.hsl(RGB[k], RGB[k + 1], RGB[k + 2]) },
 		culori: (i) => { const k = at(i); return culori.hsl({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
 		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).hsl },
 		texel: () => null, // texel has OKHSL, not classic HSL
@@ -161,7 +161,7 @@ const tests = [
 	{
 		name: 'HSL → RGB',
 		colorSpace: (i) => { const k = at(i); return space.hsl.rgb(HSL[k], HSL[k + 1], HSL[k + 2]) },
-		lite: () => null, // device cylinders live in the full catalog
+		lite: (i) => { const k = at(i); return lite.hsl.rgb(HSL[k], HSL[k + 1], HSL[k + 2]) },
 		culori: (i) => { const k = at(i); return culori.rgb({ mode: 'hsl', h: HSL01[k], s: HSL01[k + 1], l: HSL01[k + 2] }) },
 		colorjs: (i) => { const k = at(i); return new colorjs('hsl', [HSL[k], HSL[k + 1], HSL[k + 2]]).srgb },
 		texel: () => null, // texel has OKHSL, not classic HSL
@@ -198,7 +198,7 @@ const tests = [
 	{
 		name: 'RGB → P3',
 		colorSpace: (i) => { const k = at(i); return space.rgb.p3(RGB[k], RGB[k + 1], RGB[k + 2]) },
-		lite: () => null, // p3 lives in the full catalog
+		lite: (i) => { const k = at(i); return lite.rgb.p3(RGB[k], RGB[k + 1], RGB[k + 2]) },
 		culori: (i) => { const k = at(i); return culori.p3({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
 		colorjs: (i) => { const k = at(i); return new colorjs('srgb', [RGB01[k], RGB01[k + 1], RGB01[k + 2]]).p3 },
 		texel: (i) => { const k = at(i); return texel.convert([RGB01[k], RGB01[k + 1], RGB01[k + 2]], texel.sRGB, texel.DisplayP3, texelOut) },
@@ -210,7 +210,7 @@ const tests = [
 	{
 		name: 'RGB → HSV',
 		colorSpace: (i) => { const k = at(i); return space.rgb.hsv(RGB[k], RGB[k + 1], RGB[k + 2]) },
-		lite: () => null, // device cylinders live in the full catalog
+		lite: (i) => { const k = at(i); return lite.rgb.hsv(RGB[k], RGB[k + 1], RGB[k + 2]) },
 		culori: (i) => { const k = at(i); return culori.hsv({ mode: 'rgb', r: RGB01[k], g: RGB01[k + 1], b: RGB01[k + 2] }) },
 		colorjs: () => null, // colorjs doesn't support HSV
 		texel: () => null, // texel has OKHSV, not classic HSV
