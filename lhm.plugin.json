@@ -1,0 +1,790 @@
+{
+  "identifier": "colorjs-color-space",
+  "name": "color-space",
+  "version": "3.3.0",
+  "description": "Color conversions math for 205+ color spaces, including OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs, print and appearance models. Every space is verified to an authoritative reference. A color goes in as any CSS string or as channel values. Tools: convert, gamut, css, space, spaces, cube, shader, icc and code. No API key, no configuration and no network.",
+  "author": "Dmitry Ivanov",
+  "authorUrl": "https://github.com/dy",
+  "homepage": "https://color-space.io/",
+  "icon": "https://raw.githubusercontent.com/colorjs/color-space/master/web/img/locus-400.png",
+  "category": "developer",
+  "tags": [
+    "color",
+    "color-space",
+    "color-conversion",
+    "color-science",
+    "oklch",
+    "oklab",
+    "cielab",
+    "cam16",
+    "css-color",
+    "wide-gamut",
+    "hdr",
+    "shader",
+    "lut",
+    "icc"
+  ],
+  "tools": [
+    {
+      "name": "convert",
+      "title": "Convert color",
+      "description": "Convert a color between any two of the 205 color spaces, identity included, in each space's conventional ranges (rgb 0-255, oklch L 0-1 / C 0-0.4 / H 0-360, lab L 0-100 …). The color goes in as a CSS string (`color`) or as channel values (`from` + `values`); a batch as `colors` – tuples in `from`, CSS strings, or both. Out-of-range in, unclamped out: `inRange` flags each channel against the target's conventional range (rgb below 0 means outside sRGB); null = undefined at that coordinate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "to": {
+            "type": "string",
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "description": "one color in the source space, e.g. [255, 128, 0] for rgb"
+          },
+          "color": {
+            "type": "string",
+            "description": "a CSS color instead of `from` + `values`: '#ff8000', 'rebeccapurple', 'oklch(0.7 0.1 50)', 'lab(54% 80 67)', 'color(display-p3 1 0.5 0)'"
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 1,
+                  "maxItems": 4
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 1024,
+            "description": "a batch: one tuple (in `from`) or CSS string per color, e.g. [[255, 128, 0], '#00ff80', 'oklch(0.7 0.1 50)']"
+          }
+        },
+        "required": [
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "symbol",
+                "name",
+                "min",
+                "max"
+              ],
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from",
+                "values",
+                "inRange"
+              ],
+              "properties": {
+                "from": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "inRange": {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "to",
+          "channels",
+          "colors"
+        ]
+      },
+      "annotations": {
+        "title": "Convert color",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "gamut",
+      "title": "Gamut membership",
+      "description": "Which standard display gamuts hold a color — sRGB ⊂ Display P3 ⊂ Rec. 2020, each tested in its own RGB box straight from the source space, the same ladder as the color-space.io gamut pill. `smallest` is the tightest one; null = beyond Rec. 2020. Membership only: nothing is gamut-mapped.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "description": "one color in the source space"
+          },
+          "color": {
+            "type": "string",
+            "description": "a CSS color instead of `from` + `values`: '#ff8000', 'rebeccapurple', 'oklch(0.7 0.1 50)', 'lab(54% 80 67)', 'color(display-p3 1 0.5 0)'"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "smallest": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "srgb",
+              "display-p3",
+              "rec2020",
+              null
+            ]
+          },
+          "gamuts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "gamut",
+                "space",
+                "inside",
+                "values"
+              ],
+              "properties": {
+                "gamut": {
+                  "type": "string"
+                },
+                "space": {
+                  "type": "string"
+                },
+                "white": {
+                  "type": "string"
+                },
+                "primaries": {
+                  "type": "object"
+                },
+                "inside": {
+                  "type": "boolean"
+                },
+                "values": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "smallest",
+          "gamuts"
+        ]
+      },
+      "annotations": {
+        "title": "Gamut membership",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "css",
+      "title": "CSS color strings",
+      "description": "A color as CSS Color 4 strings — rgb(), hsl(), hwb(), lab(), lch(), oklab(), oklch() and color(display-p3 | a98-rgb | prophoto-rgb | srgb-linear | xyz-d65 | xyz-d50) — plus #hex inside sRGB. Converted, never gamut-mapped: a string is null where CSS would clamp it into a different color (rgb/hsl/hwb outside sRGB, lightness out of range). `gamut` is the smallest display gamut that holds the color.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "description": "one color in the source space"
+          },
+          "color": {
+            "type": "string",
+            "description": "a CSS color instead of `from` + `values`: '#ff8000', 'rebeccapurple', 'oklch(0.7 0.1 50)', 'lab(54% 80 67)', 'color(display-p3 1 0.5 0)'"
+          },
+          "notations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "rgb",
+                "hsl",
+                "hwb",
+                "lab",
+                "lchab",
+                "oklab",
+                "oklch",
+                "p3",
+                "a98rgb",
+                "prophoto",
+                "xyz",
+                "xyz-d50",
+                "lrgb"
+              ]
+            },
+            "minItems": 1,
+            "description": "only these, by library space id (default: all)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "hex": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gamut": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "css": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "space",
+                "css"
+              ],
+              "properties": {
+                "space": {
+                  "type": "string"
+                },
+                "css": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "hex",
+          "gamut",
+          "css"
+        ]
+      },
+      "annotations": {
+        "title": "CSS color strings",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "space",
+      "title": "Space dossier",
+      "description": "The dossier of one color space: display name (as color-space.io shows it), description, channels + conventional ranges, defining references, provenance (year, author), illuminant/observer, encoding class, family and purpose, and its direct conversion neighbours.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "the space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "symbol",
+                "name",
+                "min",
+                "max"
+              ],
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "neighbors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "title",
+          "family",
+          "purpose",
+          "channels",
+          "neighbors",
+          "source"
+        ]
+      },
+      "annotations": {
+        "title": "Space dossier",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "spaces",
+      "title": "Space catalog",
+      "description": "List the 205 color spaces with display name, family, purpose, channels and one-line use. Optional filters: `query` (words matched against id, name, use line and description; best matches first), `family`, `purpose`.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "free text, e.g. 'camera log', 'cielab', 'display p3'"
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "Display & web",
+              "RGB remixes",
+              "Perceptual",
+              "Colorimetry & research",
+              "Video & broadcast",
+              "Film & camera",
+              "Print & paint"
+            ]
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "picking",
+              "palettes",
+              "editing",
+              "compositing",
+              "grading",
+              "delivery",
+              "print",
+              "difference",
+              "measurement",
+              "research"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "spaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "title",
+                "family",
+                "purpose",
+                "channels"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "family": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "channels": {
+                  "type": "string"
+                },
+                "use": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "count",
+          "spaces"
+        ]
+      },
+      "annotations": {
+        "title": "Space catalog",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "cube",
+      "title": ".cube LUT",
+      "description": "Render a conversion as a .cube LUT file (Resolve, Premiere, Final Cut, OBS, ffmpeg). The header carries the measured deviation vs the direct conversion. Pure per-channel transfers auto-emit 1D. Size ≤ 33 here (larger via the library or https://color-space.io/).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "to": {
+            "type": "string",
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 33,
+            "description": "3D lattice size (default 17)"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": ".cube LUT",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "shader",
+      "title": "Shader code",
+      "description": "The conversion as shader source – GLSL (WebGL2; WebGL1 too unless the path reads a table), WGSL (WebGPU), HLSL (DirectX, Unity, Unreal) or MSL (Metal) – with an entry function `<from>_<to>` (hyphens stripped), e.g. `vec3 rgb_oklch(vec3 c)`, plus every function on the path. Each language is differentially tested against the library and compiled on real GPUs: use it instead of writing color matrices. HLSL and MSL need the optional peer `naga-wasm` installed beside color-space.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "to": {
+            "type": "string",
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "glsl",
+              "wgsl",
+              "hlsl",
+              "msl"
+            ],
+            "description": "default glsl"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string"
+          },
+          "entry": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "language",
+          "entry",
+          "code"
+        ]
+      },
+      "annotations": {
+        "title": "Shader code",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "icc",
+      "title": "ICC profile",
+      "description": "One space as an ICC v2 profile (.icc): matrix + tone curve where the space is an RGB working space (Photoshop, OS color management), a CLUT on a Lab PCS otherwise (lcms, ArgyllCMS, ImageMagick). Returned as a base64 embedded resource; `class`, `pcs` and `bytes` describe it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "the space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "grid": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 65,
+            "description": "CLUT lattice points per channel, CLUT profiles only (default 33 for 3 channels; fewer = a smaller file)"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "class": {
+            "type": "string"
+          },
+          "pcs": {
+            "type": "string"
+          },
+          "bytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "file",
+          "class",
+          "pcs",
+          "bytes"
+        ]
+      },
+      "annotations": {
+        "title": "ICC profile",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "code",
+      "title": "Library code",
+      "description": "The conversion as code to paste: the color-space JS call with its result and – where one exists for the space on the non-sRGB side – the colour-science (Python) equivalent verified against color-space (sRGB ↔ that space), with any named caveat. The color goes in as a CSS string or as values in `from` (default: sRGB 200, 100, 50).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "to": {
+            "type": "string",
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "description": "the color in the source space"
+          },
+          "color": {
+            "type": "string",
+            "description": "a CSS color instead of `from` + `values`: '#ff8000', 'rebeccapurple', 'oklch(0.7 0.1 50)', 'lab(54% 80 67)', 'color(display-p3 1 0.5 0)'"
+          }
+        },
+        "required": [
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "js": {
+            "type": "string"
+          },
+          "python": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pythonFor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "js",
+          "python",
+          "pythonFor"
+        ]
+      },
+      "annotations": {
+        "title": "Library code",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "data.json",
+      "title": "The 205-space catalog",
+      "uri": "color-space://data.json",
+      "description": "Every space: channels and ranges, references, provenance, gamuts, cited conformance points – the language-neutral artifact.",
+      "mimeType": "application/json"
+    },
+    {
+      "name": "space",
+      "title": "Space dossier",
+      "uriTemplate": "color-space://space/{name}",
+      "description": "One space's dossier (the `space` tool's output), e.g. color-space://space/oklch",
+      "mimeType": "application/json"
+    }
+  ],
+  "prompts": []
+}
