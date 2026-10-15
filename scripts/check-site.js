@@ -51,7 +51,7 @@ try {
 		return { onField:Math.abs(c.top+c.height/2-(f.top+f.height/2))<2&&c.left>=f.left, inRow:c.top>=r.top&&c.bottom<=r.bottom } })
 	assert.equal((await dockAt()).onField, true, 'over the hero the color rests in the field')
 	// the row: full-bleed, its edge the window's width, paper under it always – fading out past its foot, the hero included
-	const bar=()=>page.evaluate(()=>{ const m=document.querySelector('.mhead'), e=getComputedStyle(m,'::before'), p=getComputedStyle(m,'::after'); return [Math.round(m.getBoundingClientRect().width)===document.documentElement.clientWidth||Math.round(m.getBoundingClientRect().width)===innerWidth, parseFloat(e.height)>0, +p.opacity] })
+	const bar=()=>page.evaluate(()=>{ const m=document.querySelector('.mhead'), e=getComputedStyle(m.querySelector('.medge')), p=getComputedStyle(m,'::after'); return [Math.round(m.getBoundingClientRect().width)===document.documentElement.clientWidth||Math.round(m.getBoundingClientRect().width)===innerWidth, parseFloat(e.height)>0, +p.opacity] })
 	assert.deepEqual(await bar(), [true,true,0], 'over the hero: the row spans the window, its edge drawn, clear')
 	await page.evaluate(async()=>{ scrollTo(0,document.getElementById('hq').getBoundingClientRect().top+scrollY-120); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) })
 	assert.equal((await dockAt()).onField, true, 'scrolled, it rides with the field')

@@ -32,7 +32,7 @@ export const LI = {
 	locus: lim(`<path d="${LOCUS}"/>`),
 }
 export const PI = {
-	sliders: fi('<rect x="1" y="3" width="14" height="3.34"/><rect x="1" y="6.33" width="14" height="3.34" opacity=".7"/><rect x="1" y="9.66" width="14" height="3.34" opacity=".45"/>'),   // three strips touching, as a card's do
+	sliders: fi('<rect x="1" y="3.8" width="14" height="2.1"/><rect x="1" y="6.95" width="14" height="2.1" opacity=".7"/><rect x="1" y="10.1" width="14" height="2.1" opacity=".45"/>'),   // three thin strips, a hair apart
 	planes: fi('<rect x=".5" y="5" width="4.4" height="4.4" rx=".5"/><rect x="5.8" y="5" width="4.4" height="4.4" rx=".5" opacity=".7"/><rect x="11.1" y="5" width="4.4" height="4.4" rx=".5" opacity=".45"/>'),
 }
 // the layout's marks – compact, square-cornered: four tiles, a two-column sheet – both in the same 10-unit square, a step inside the box
