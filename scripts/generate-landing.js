@@ -93,7 +93,7 @@ for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(<
 // an unvalued <input type=color> paints BLACK until the module lands
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
 inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
-inject(/(<input id="cval")/, `$1 value="${dhx}"`)
+inject(/(<textarea id="cval"[^>]*>)(<\/textarea>)/, `$1${dhx}$2`)
 // the row's marks from their one source (icons.js), so the stripe is whole before the module lands: the view's mark is
 // the default Limit's, the layout's the view a first visit turns to (the page opens in grid)
 inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
@@ -134,8 +134,8 @@ Batch: space[from][to](pixels) -> Float64Array  interleaved array-like, stride =
 Per space: space[name].range (channel ranges), space[name].name
 Metadata: color-space/data.json — spaces (channels, refs, illuminant, referred, dynamic, year, by, use, neighbors) + gamuts, whitepoints, CMFs, conformance
 Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space; scalar form — batch is wired by the hubs)
-Compact hub: import space from 'color-space/lite' — the 27 wasm-covered spaces in plain JS (~9 kB gzip), same two-form API
-WASM: import space, { alloc } from 'color-space/wasm' — same API, 27 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
+Compact hub: import space from 'color-space/lite' — the 54 wasm-covered spaces in plain JS (~29 kB gzip), same two-form API
+WASM: import space, { alloc } from 'color-space/wasm' — same API, 54 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (3D: Resolve, Premiere, Final Cut, OBS, ffmpeg lut3d; 1D, for transfer-only pairs: Resolve, ffmpeg lut1d; { dims: 3 } forces 3D), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to

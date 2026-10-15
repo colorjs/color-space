@@ -38,7 +38,7 @@ export const PI = {
 // the layout's marks – compact, square-cornered: four tiles, a two-column sheet – both in the same 10-unit square, a step inside the box
 export const VI = {
 	grid: fi('<path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/>'),
-	table: fi('<path d="M3 3h3v1.75H3zM7 3h6v1.75H7zM3 5.75h3v1.75H3zM7 5.75h6v1.75H7zM3 8.5h3v1.75H3zM7 8.5h6v1.75H7zM3 11.25h3v1.75H3zM7 11.25h6v1.75H7z"/>'),   // a sheet: a name column and a value column, four rows
+	table: fi('<path d="M3 3h4.5v1.75H3zM8.5 3h4.5v1.75H8.5zM3 5.75h4.5v1.75H3zM8.5 5.75h4.5v1.75H8.5zM3 8.5h4.5v1.75H3zM8.5 8.5h4.5v1.75H8.5zM3 11.25h4.5v1.75H3zM8.5 11.25h4.5v1.75H8.5z"/>'),   // a sheet: two equal columns, four rows – the grid's own square, cut into rows
 }
 // what a space is and what it is for: the facets' options, the shelves' glyphs
 export const OI = {
