@@ -3,7 +3,7 @@
 // spec's defaults: @see https://drafts.csswg.org/css-color-4/#interpolation · https://drafts.csswg.org/css-images-4/#linear-gradients
 import test, { is, ok } from 'tst'
 import Color from 'colorjs.io'
-import { parseGradient, mix, path, gradientText, shortText, splitTop } from '../web/js/stops.js'
+import { parseGradient, mix, path, gradientText, shortText, splitTop, DASH } from '../web/js/stops.js'
 
 // a stand-in for the page's single-color parser: hex and oklch() only
 const parse = s => { const h = s.match(/^#([0-9a-f]{6})$/i); if (h) return { s: 'rgb', vals: [0, 2, 4].map(i => parseInt(h[1].slice(i, i + 2), 16)) }
@@ -55,18 +55,21 @@ test('stops: the run and the text', () => {
 	is(gradientText(e, () => 'x'), 'linear-gradient(in lch, x 0%, x 70%)', 'a library id goes back to its CSS name; an uneven stop keeps its place')
 })
 
-test('stops: the short form – colors joined by `..`, a linear gradient in Oklab unless a method closes it', () => {
+test('stops: the short form – colors joined by a dash (or `..`), a linear gradient in Oklab unless a method closes it', () => {
 	const hx = c => '#' + c.vals.map(v => v.toString(16).padStart(2, '0')).join('')
-	const g = parseGradient('#ff8800..#0088ff', parse)
+	const g = parseGradient('#ff8800 – #0088ff', parse)
 	is([g.fn, g.head, g.mix, g.stops.map(x => x.pos)], ['linear-gradient', '', { space: 'oklab', hue: 'shorter', named: true }, [0, 1]])
 	is(parseGradient('#ff8800..oklch(0.7 0.1 30)..#0088ff in oklch longer hue', parse).mix, { space: 'oklch', hue: 'longer', named: true }, 'a method closes it')
 	is(parseGradient('#ff8800..#00ff00 30%..#0088ff', parse).stops.map(x => +x.pos.toFixed(4)), [0, 0.3, 1], 'a stop keeps its place')
-	is(splitTop('oklch(0.5 0.1 30)..#ff0000', '..'), ['oklch(0.5 0.1 30)', '#ff0000'], 'a color\'s own dots and parens are its own')
+	is(splitTop('oklch(0.5 0.1 30)..#ff0000', DASH), ['oklch(0.5 0.1 30)', '#ff0000'], 'a color\'s own dots and parens are its own')
+	is(splitTop('oklab(0.5 -0.1 0.1) - red – #00f—lime', DASH), ['oklab(0.5 -0.1 0.1)', 'red', '#00f', 'lime'], 'every dash joins – a value\'s own minus stays its own')
 	is(parseGradient('#ff8800..', parse), null, 'one color is no gradient')
-	is(shortText(g, hx), '#ff8800..#0088ff', 'Oklab, the shorter arc: no method written')
+	is([parseGradient('#ff8800 –', parse), parseGradient('– #ff8800', parse), parseGradient('#ff8800 -#0088ff', parse)], [null, null, null], 'a dash with one color, or unspaced, joins nothing')
+	is(shortText(parseGradient('#ff8800 - #0088ff', parse), c => '#' + c.vals.map(v => v.toString(16).padStart(2, '0')).join('')), '#ff8800 – #0088ff', 'typed with a hyphen, written with the dash')
+	is(shortText(g, hx), '#ff8800 – #0088ff', 'Oklab, the shorter arc: no method written')
 	is(gradientText(g, hx), 'linear-gradient(in oklab, #ff8800, #0088ff)', '…and as CSS, the method named – CSS would blend these hexes in sRGB')
-	is(shortText(parseGradient('linear-gradient(#ff8800, #0088ff)', parse), hx), '#ff8800..#0088ff in srgb', 'CSS\'s legacy default, said')
-	is(shortText(parseGradient('linear-gradient(in oklch longer hue, #ff8800, #0088ff)', parse), hx), '#ff8800..#0088ff in oklch longer hue')
+	is(shortText(parseGradient('linear-gradient(#ff8800, #0088ff)', parse), hx), '#ff8800 – #0088ff in srgb', 'CSS\'s legacy default, said')
+	is(shortText(parseGradient('linear-gradient(in oklch longer hue, #ff8800, #0088ff)', parse), hx), '#ff8800 – #0088ff in oklch longer hue')
 	is(shortText(parseGradient('linear-gradient(90deg, #ff8800, #0088ff)', parse), hx), null, 'geometry has no short form')
 	is(shortText(parseGradient('radial-gradient(#ff8800, #0088ff)', parse), hx), null)
 	const t = shortText(parseGradient('#ff8800..#00ff00 30%..#0088ff in oklch', parse), hx)

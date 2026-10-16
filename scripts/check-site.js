@@ -63,9 +63,11 @@ try {
 	// the hero's locus: only the horseshoe answers the pointer (its box's empty corner shows nothing); pointing inside shows
 	// the Limits' edges, the tightest under the pointer strongest, and changes nothing; a click picks that Limit – stored,
 	// filled – as the row's menu would
-	// one hue wheel, centered: the top edge's 37 steps are the footer wall's second row, the current color the middle step of every row
+	// one hue wheel, centered: the top edge's 37 steps are the footer wall's second row's – smooth at rest (no Quantize lens),
+	// each step's color at its band's middle – the current color the middle step of every row
 	assert.deepEqual(await page.evaluate(()=>{ const h=document.getElementById('strip').style.getPropertyValue('--hues'), w=document.getElementById('ftr').style.getPropertyValue('--wall'), rows=w.split(/,(?=linear-gradient)/)
-		return [rows.length, rows[1]===h, rows.map(r=>{ const st=r.slice(16,-1).split(/,(?![^(]*\))/).slice(1); return st[(st.length-1)/2].startsWith('var(--cur)') })] }), [4,true,[true,true,true,true]], 'the top edge and the footer wall: one wheel, the current color centered')
+		const stops=r=>r.slice(16,-1).split(/,(?![^(]*\))/).slice(1), color=x=>x.replace(/\s+[\d.]+%/g,''), hs=stops(h)
+		return [rows.length, hs.length, hs.map(color).join()===stops(rows[1]).map(color).join(), hs.every(x=>(x.match(/[\d.]+%/g)||[]).length===1), rows.map(r=>{ const st=stops(r); return st[(st.length-1)/2].startsWith('var(--cur)') })] }), [4,37,true,true,[true,true,true,true]], 'the top edge and the footer wall: one wheel, the current color centered – the edge smooth at rest')
 	{ const box=await page.locator('.hlocus').boundingBox()
 	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light'],'the outlines named – the displays, Surface and the horseshoe, Light – no wavelengths')
 	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])
@@ -417,7 +419,7 @@ try {
 	assert.notEqual(nativeCancel.after,nativeCancel.held,'native dossier cancellation repaints background ranges synchronously')
 	assert.match(nativeCancel.after,/:48:(vis|off):/,'native dossier cancellation restores full-quality background ranges')
 	await toCatalog(page)
-	await page.locator('#cval').fill('#234567'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#234567')
+	await page.locator('#cval').fill('#234567'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#234567'); await page.locator('#cval').press('Enter')   // typed and committed: its suggestions shut, as a hand reaching for a slider shuts them
 	assert.equal(await page.locator('#cd').inputValue(),'#234567','native pointer cancellation releases the dossier drag guard')
 	const customCancel=await smoothL.evaluate(async el=>{ const back=document.querySelector('.ent[data-s="oklab"] .ch'), r=el.getBoundingClientRect(), capture=el.setPointerCapture; el.setPointerCapture=()=>{}
 		const pointer=(type,f)=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:20,isPrimary:true,clientX:r.left+r.width*f,clientY:r.top+r.height/2}))
@@ -427,7 +429,7 @@ try {
 	assert.notEqual(customCancel.after,customCancel.held,'custom dossier cancellation repaints background ranges synchronously')
 	assert.match(customCancel.after,/:48:(vis|off):/,'custom dossier cancellation restores full-quality background ranges')
 	await toCatalog(page)
-	await page.locator('#cval').fill('#345678'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#345678')
+	await page.locator('#cval').fill('#345678'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#345678'); await page.locator('#cval').press('Enter')   // typed and committed: its suggestions shut, as a hand reaching for a slider shuts them
 	assert.equal(await page.locator('#cd').inputValue(),'#345678','custom pointer cancellation releases the dossier drag guard')
 	await mode('web')
 	const safeHex=await page.locator('#cd').inputValue(), safeRgb=[1,3,5].map(i=>parseInt(safeHex.slice(i,i+2),16))
@@ -560,8 +562,32 @@ try {
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /oklab/i, 'path + notation hash opens the dossier')
 	assert.match(await page.locator('#cval').inputValue(), /^oklab\(0\.6/, 'with the exact coordinates, in that notation')
+	// ⌥ held over an instrument: the color there weighed against the one held, as Figma measures (js/ruler.js) – on a plane
+	// the two channels' ways from the held color's mark at right angles, each with its step, a diamond at the color weighed,
+	// its ΔE2000 and contrast in a corner; on the held color's own mark, ΔE2000 near 0; ⌥ let go, all gone. On a catalog
+	// strip, the two at the pointer
+	{	const readout=()=>page.evaluate(()=>{ const r=document.querySelector('#detail .pl .ruler'); if(!r) return null
+			return { d:r.querySelector('path').getAttribute('d'), steps:[...r.querySelectorAll('.rl')].map(e=>e.textContent), knob:!r.querySelector('.rk').hidden, readout:[...r.querySelectorAll('.ro b')].map(e=>e.textContent), red:getComputedStyle(r.querySelector('.ro b')).backgroundColor } })
+		const pl=page.locator('#detail .pl').first(), cx=await pl.locator('.cx').boundingBox(), pb=await pl.boundingBox()
+		await page.keyboard.down('Alt')
+		await page.mouse.move(cx.x+cx.width/2,cx.y+cx.height/2)
+		const same=await readout()
+		await page.mouse.move(pb.x+pb.width*0.9,pb.y+pb.height*0.1)
+		const far=await readout()
+		await page.keyboard.up('Alt'); await page.mouse.move(pb.x+pb.width*0.9+1,pb.y+pb.height*0.1)
+		const gone=await readout()
+		assert.ok(same&&/^ΔE00 [\d.]+$/.test(same.readout[0])&&parseFloat(same.readout[0].slice(5))<1, `⌥ on the held color's own mark: ΔE2000 near nothing (${JSON.stringify(same)})`)
+		assert.ok(far&&/^M[\d.]+ [\d.]+(H|A)/.test(far.d)&&far.steps.every(t=>/^\S+ [+−]/.test(t))&&far.knob&&far.readout.length===2&&/^[\d.]+:1/.test(far.readout[1])&&far.red==='rgb(242, 72, 34)', `⌥ far from it on a plane: the ways with their steps, the diamond, ΔE2000 and contrast, in Figma's measuring red (${JSON.stringify(far)})`)
+		assert.ok(gone===null, `⌥ let go: the measurement gone (${JSON.stringify(gone)})`)
+	}
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
+	{	const ch=page.locator('#cat .ent .ch').first(); await ch.scrollIntoViewIfNeeded(); const b=await ch.boundingBox()
+		await page.keyboard.down('Alt'); await page.mouse.move(b.x+b.width*0.2,b.y+b.height/2)
+		const on=await page.evaluate(()=>{ const t=document.getElementById('tip'); return t.classList.contains('on')&&/^ΔE00 [\d.]+  [\d.]+:1/.test(t.textContent) })
+		await page.keyboard.up('Alt'); await page.mouse.move(b.x+b.width*0.2+1,b.y+b.height/2)
+		assert.ok(on&&!(await page.evaluate(()=>document.getElementById('tip').classList.contains('on'))), '⌥ over a catalog strip: the readout, gone with ⌥')
+	}
 	// a plate's disc/square switch, there and back: the marker and the corner inks are the disc's own again – both were
 	// once placed and sampled before the plate repainted (the marker on the square's geometry, the letters inked from
 	// the square's corners)

@@ -35,6 +35,7 @@ if(/iP(hone|od|ad)/.test(navigator.platform)||navigator.platform==='MacIntel'&&n
 let thm0; try{ thm0=localStorage.csTheme }catch{}
 document.documentElement.dataset.theme=thm0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')
 // temperature pre-paint: restore the stored --uh/--uk before first render (no warm flash)
+try{ if(localStorage.csView==='list') document.documentElement.dataset.view='list' }catch{}   // the kept layout: the row's mark for it from the first paint
 try{ if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=document.documentElement.style;s.setProperty('--uh',h);s.setProperty('--uk',k)} }catch{}
 // a deploy's first visit under the previous service worker can pair this document with that worker's cached modules;
 // once the new worker takes over, a page whose modules failed reloads – once
@@ -120,6 +121,7 @@ html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the curr
 .hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--s3)); max-width:44rem; min-height:var(--cells-h); transition:min-height var(--dur-short) var(--ease-out); margin-inline-start:calc(-1 * var(--s3)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
 .hql{ flex:1; align-self:stretch; cursor:text }   /* the frame's empty run: a click there types the color */
 .hib{ position:relative; display:grid; flex:none; place-items:center; width:var(--s12); height:var(--s12); padding:0; color:var(--soft); background:none; border:0; cursor:pointer; --ic:20px; transition:color var(--dur-micro) var(--ease-out),background-color var(--dur-micro) var(--ease-out) }   /* dim → ink, as every icon */
+.hib[hidden]{ display:none }
 .hib:hover,.hib[aria-expanded="true"]{ color:var(--ink); background:var(--panel) }
 .wdot{ display:block; flex:none; width:15px; height:15px; background:var(--w); box-shadow:inset 0 0 0 1px var(--hair); rotate:45deg; scale:.8 }   /* a color's mark: the rhombus */
 /* ── the pinned row: the page's one bar – its left free for the hero's words and the color that pins there; at its
@@ -130,6 +132,7 @@ html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the curr
 .cells{ display:flex; align-items:stretch; max-width:var(--maxw); height:var(--cells-h); margin-inline:auto; padding:0 calc(var(--gut) - var(--s3)); position:relative }   /* the cells' own inset taken from the gutter: icons and words line up with the content's edges */
 .cells .fill{ flex:1 }   /* the row's controls sit at its right end */
 .cell{ flex:none; display:flex; align-items:center; gap:var(--s2); padding:var(--s2) var(--s3); font:inherit; text-align:start; color:var(--ink); background:none; border:0; cursor:pointer; transition:background-color var(--dur-micro) var(--ease-out) }
+#c-layout i{ display:contents } :root:not([data-view="list"]) #c-layout [data-from="list"],:root[data-view="list"] #c-layout [data-from="grid"]{ display:none }   /* the build's two marks, the kept layout's shown before any script */
 :is(#c-view,#c-layout,.thm,.dctl){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair before each item, kept off the row's edges – none before the first of the right group */
 .cells .cell:is(:hover,[aria-expanded="true"]) :is(.ci,.ic,small){ color:var(--ink) }   /* hover inks the mark – no fill: the row stays clear, its edge seen */
 .cell .ci{ display:grid; place-items:center; color:var(--soft) }
@@ -153,7 +156,7 @@ html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the curr
 .count:is(:hover,[aria-expanded="true"]){ color:var(--ink) } .count:focus-visible{ outline-offset:-2px }
 .qx+.count{ padding-inline-start:0 }   /* the search's icon close to the count it narrows */
 #nn{ display:inline-block; min-width:3ch; text-align:end }   /* the number holds three digits' room – a narrower count never moves Filters, nor its open menu */
-@media(width < 30rem){ .cells .qx{ display:none } #m-more>label.msq{ display:flex; align-items:center; gap:var(--s2); padding:var(--s2); color:var(--soft); box-shadow:inset 0 calc(-1 * var(--rule-hair)) var(--hair); --ic:18px } #m-more>label.msq input{ flex:1; min-width:0; font:inherit; font-size:var(--text-md); color:var(--ink); background:none; border:0; outline:none } #gpill{ display:none } .hcolor #cval{ min-width:0 } .htitle{ font-size:var(--text-xl) } }   /* a phone's: the color yields first – its gamut tag goes, its name ellipsizes */
+@media(width < 30rem){ .cells .qx{ display:none } #m-more>label.msq{ display:flex; align-items:center; gap:var(--s2); padding:var(--s2); color:var(--soft); box-shadow:inset 0 calc(-1 * var(--rule-hair)) var(--hair); --ic:18px } #m-more>label.msq input{ flex:1; min-width:0; font:inherit; font-size:var(--text-md); color:var(--ink); background:none; border:0; outline:none } .hcolor #cval{ min-width:0 } .htitle{ font-size:var(--text-xl) } }   /* a phone's: the color yields first – its gamut tag goes, its name ellipsizes */
 /* a cell's menu: a popover under its cell (centred where anchors are unknown), its options in rows */
 .dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--cells-h) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--hair) transparent; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
 @supports (anchor-name:--a){ .dpop{ inset:auto; margin:var(--s1) 0; position-area:bottom span-right; position-try-fallbacks:flip-inline,flip-block,flip-block flip-inline } }   /* under its cell, turning left at the screen's edge, above it only where below won't hold it – decided once, so a menu never slides as it opens */
@@ -260,6 +263,7 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 .qx:focus-within input{ width:6rem } .qx input:not(:placeholder-shown){ width:auto; min-width:2ch; max-width:8rem; field-sizing:content }   /* room for a name or two, no more – nobody searches a sentence; a typed word, as wide as it is */
 .qx:not(:focus-within):has(input:placeholder-shown){ gap:0 }   /* closed, the cell is its icon alone – no gap held for a field of no width */
 .qx input::placeholder{ color:var(--soft); opacity:1 }
+#cval::placeholder{ color:color-mix(in oklab,currentColor 45%,transparent); opacity:1 }   /* the empty field's ask: the text's own ink, half there – dark on paper, light on a dark one, and whatever the row's words wear over the top edge's color */
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
 .cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
@@ -277,23 +281,18 @@ body.cdock .hcolor>.cx.tall{ background:var(--paper); box-shadow:var(--pop-shado
    tick's own 1.2px offsets. The native color input is an invisible overlay: the chip IS the
    picker, with a clean rectangular hit. */
 .cdw{ position:relative; flex:none; width:17px; height:28px; display:grid; place-items:center }
+.cdw .cdb{ position:absolute; inset:0; padding:0; border:0; background:none; cursor:pointer } .cx.empty .cdb{ cursor:text }   /* the rhombus: the color in every notation – an empty field's asks for one */
+.cx.empty .pst{ display:none } .cx.empty .cdw::before{ background:none; box-shadow:inset 0 0 0 1.5px var(--soft) }   /* no color entered, no color shown: the rhombus is the place for one */
 .cdw::before{ content:''; grid-area:1/1; width:16px; height:16px; background:var(--sw); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair); transform:rotate(45deg); pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the current color, plain – the site's color mark, no rings; a hair inside keeps a color near the paper's in sight */
-.cdw .cd{ position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
+.cdw .cd{ pointer-events:none; position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
 
 #cval{ anchor-name:--cval; field-sizing:content; min-width:4rem; max-width:20rem; font-size:var(--t4); font-weight:600; color:var(--ink); padding-inline-start:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
-.gpill{ margin-inline-start:.75em; font-size:var(--t0); font-weight:800; color:var(--soft); border:1px solid var(--hair); padding:.12em .42em; line-height:1.1; white-space:nowrap; cursor:help }   /* baseline-aligned with the value (see .cx) so it rides the text, not the padded box */
 .palm{ gap:.4em; margin-inline-start:.6em; border:0; cursor:pointer; max-width:11em; overflow:hidden }   /* rides the sup-chip recipe above – the category-count look; the address keeps its own case */
 .palm span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .palm:hover{ color:var(--ink) }
 .palm[hidden]{ display:none }   /* display:inline-flex above would otherwise defeat the hidden attr – an empty chip haunted the smooth modes */
-#gpill[data-g="clip"]{ color:var(--color-error); border-color:currentColor }   /* past the locus – the dossier's warning tone, one meaning everywhere */
 .palm:hover{ color:var(--ink) }
 /* the notation chevron: unfolds the colour in every format; picking a line sets how the field speaks */
-.fmtf{ display:flex; align-items:center }
-.fmtb{ --ic:12px; display:grid; place-items:center; width:24px; height:24px; margin-inline-start:.15em; padding:0; border:0; background:none; color:var(--soft); cursor:pointer }   /* chevron on the spinner scale — one chevron size everywhere */
-.fmtb:hover,.fmtb:focus-visible,.fmtb[aria-expanded="true"]{ color:var(--ink) }
-.fmtp{ inset:auto; margin:var(--s2) 0 0; position-anchor:--cval; position-area:bottom span-right; position-try-fallbacks:flip-inline; border:0; display:flex; flex-direction:column; min-width:19rem; padding:var(--s2); background:var(--paper); box-shadow:var(--pop-shadow) }
-.fmtp:not(:popover-open){ display:none }
 .fmtr{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s4); font:inherit; font-size:var(--t2); font-weight:600; text-align:start; color:var(--ink); background:none; border:0; padding:var(--s2) var(--s2); cursor:pointer; white-space:nowrap }
 .fmtr:hover{ background:var(--panel) }
 .fmtr.on{ background:var(--ink); color:var(--paper) }
@@ -301,12 +300,17 @@ body.cdock .hcolor>.cx.tall{ background:var(--paper); box-shadow:var(--pop-shado
 .fmtr.on i{ color:var(--paper); opacity:.7 }
 .fmtr b{ font-weight:600 }
 #hq{ anchor-name:--cfield } .hcolor>.cx{ anchor-name:--cbox }   /* the hero's frame, and the box the value is typed in – over the frame, or docked in the row */
-#csug{ box-sizing:border-box; position-anchor:--cbox; position-area:bottom span-right; margin:0; width:min(28rem,calc(100vw - 2 * var(--gut))); width:max(anchor-size(--cfield width),min(28rem,100vw - 2 * var(--gut))); max-width:calc(100vw - 2 * var(--gut)); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* right under the box typed in – never over it – the hero frame's width: a search box's list */
-body.cdock #csug{ width:max(anchor-size(--cbox width),min(28rem,100vw - 2 * var(--gut))) }   /* docked: the row's color, a measure at least */ #csug b{ display:flex; align-items:center; gap:var(--s2); min-width:0 } #csug b>span:last-child{ overflow:hidden; text-overflow:ellipsis }
+#csug{ position:absolute; top:100%; left:0; z-index:1; box-sizing:border-box; display:flex; flex-direction:column; width:var(--hqw,100%); max-width:calc(100vw - 2 * var(--gut)); padding:var(--s2); background:var(--paper); border-top:var(--rule-hair) solid var(--hair); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); clip-path:inset(0 -3rem -3rem); cursor:default }   /* the field's own lower part: a hairline under the value, the box's shadow on round it – none cast up over the field */   /* right under the box typed in – its own child, so no engine places it: never over the field – as wide as the hero's frame */
+#csug[hidden]{ display:none }
+body.cdock #csug{ width:max(100%,min(28rem,100vw - 2 * var(--gut))) }   /* docked: the row's color, a measure at least */ #csug b{ display:flex; align-items:flex-start; gap:var(--s2); min-width:0 } #csug .sgt{ display:flex; flex-direction:column; min-width:0 } #csug .sgt>*{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap } #csug .sgt small{ font-size:var(--t1); font-weight:400; line-height:1.3; color:var(--soft) } #csug .sgr:has(.on) small{ color:color-mix(in oklab,var(--paper) 70%,transparent) }   /* under each row, why it is there */
 #csug .sgr{ display:flex; align-items:center; padding-inline-end:var(--s2); --rb:var(--paper) } #csug .sgr:hover{ background:var(--panel); --rb:var(--panel) } #csug .sgr:has(.on){ background:var(--ink); --rb:var(--ink); --rk:var(--paper) }   /* the row lights whole, its × in it */
-#csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3); font-size:var(--t3); background:none }
-#csug .sgx{ flex:none; --ic:12px; opacity:0 } #csug .sgr:is(:hover,:has(.on)) .sgx{ opacity:1 } #csug .sgr:has(.on) .sgx{ color:var(--paper) } @media(hover:none){ #csug .sgx{ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
-#csug .sws{ display:flex; align-items:center; flex:none; width:calc(var(--s12) + var(--s2)); padding-inline:var(--s1); isolation:isolate }   /* room for four – the names start in one column */
+#csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3); font-size:var(--text-md); background:none } #csug .fmtr b{ font-weight:500 }   /* the field's own type: a suggestion reads as what it types */
+#csug .sgx{ flex:none; --ic:16px; width:var(--s8); height:var(--s8); opacity:0 } #csug .sgr:is(:hover,:has(.on)) .sgx{ opacity:1 } #csug .sgr:has(.on) .sgx{ color:var(--paper) } @media(hover:none){ #csug .sgx{ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
+#csug .sws{ display:flex; align-items:center; justify-content:center; flex:none; width:var(--s6); height:1.3em }   /* on the value's line, not between it and its word */
+#csug .sgt>span:first-child{ line-height:1.3 } #csug .sgt .q{ font-weight:400; color:var(--body) } #csug .sgr:has(.on) .q{ color:inherit }   /* a name: the part typed light, the rest set */
+.cvghost{ position:absolute; z-index:0; box-sizing:border-box; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--soft); pointer-events:none } .cvghost span{ color:transparent } .hcolor #cval{ position:relative; z-index:1 }   /* the first name's rest, greyed in after what is typed */   /* one color's rhombus – the text starts close, in one column; many colors stand each before its value, in the text */
+#csug .sgt s{ display:inline-block; width:12px; height:12px; margin:0 .5em 0 .3em; vertical-align:-.05em; background:var(--w); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair); rotate:45deg }   /* the column's mark, a step smaller to sit in the line */
+#csug .fmtr.cur .sgt>span:first-child{ text-decoration:underline; text-underline-offset:.2em }   /* the notation the field speaks */
 /* the palette: ONE stack — every stop in palette order, uniform slice slots, and the selected
    stop IS the row's rhombus (the native picker) riding its slot, marked by the picker's
    ring pair. Click a swatch to select it: the diamond moves to that slot; the order never
@@ -345,7 +349,7 @@ body.himg #imgfloat{ display:block }
    paper parting them; the one held ringed in ink (the slider picker's engaged ring), another ringed and lifted as it is
    pointed at. A suggestion's swatch is the same stack, its first the one that will be held */
 .pstack:has(.pst) .cdw{ z-index:var(--z); width:16px; margin-inline:-2px }
-.pstack:has(.pst) .cdw::before,.pst:is(:hover,:focus-visible),#csug s:first-child:not(:only-child){ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)) }
+.pstack:has(.pst) .cdw::before,.pst:is(:hover,:focus-visible),#csug .sws s:first-child:not(:only-child){ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)) }
 .pst:is(:hover,:focus-visible){ z-index:calc(var(--zn) + 1); outline:0 }
 /* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
    avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
@@ -358,7 +362,7 @@ body.himg #imgfloat{ display:block }
 	.ch .nrg,.bar2 .nrg{ pointer-events:none } }
 /* the empty state: nothing has been picked – the value is a placeholder, the gamut tag and the notation stay out */
 /* the chip stays VISIBLE while nothing is picked — it carries the default colour, and clicking it is a third door (the native picker) */
-.cx.inv .fmtb{ display:none }   /* nothing picked yet: the notation waits; the gamut tag and the name follow the roaming color */
+
 /* whole-viewport drop veil — pointer-events:none so the drop still lands on the page */
 #dropcast{ position:fixed; inset:0; z-index:var(--z-toast); display:grid; place-items:center; background:color-mix(in oklab, var(--paper) 84%, transparent); pointer-events:none }
 #dropcast::before{ content:''; position:absolute; inset:14px; border:2px dashed var(--ink); opacity:.35 }
@@ -503,7 +507,20 @@ body.himg #imgfloat{ display:block }
 /* themed tooltip bubble (js/tip.js upgrades every title) — the popovers' paper: light on light, dark on dark */
 #tip{ position:fixed; left:0; top:0; z-index:var(--z-tooltip); max-width:20rem; padding:.4rem .55rem; font-family:var(--f); font-size:var(--t1); font-weight:500; line-height:1.35; letter-spacing:0; text-align:left; white-space:pre-line; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); pointer-events:none; opacity:0; transform:translateY(3px); transition:opacity .12s var(--ease-out), transform .12s var(--ease-out) }
 #tip.on{ opacity:1; transform:none }
+/* every title is this bubble (js/tip.js, --tip-all), its tip at its element's middle (--tip-ax): a hairline triangle
+   (::before) with the paper over it (::after), the bubble's own edge running on into it */
+#tip{ --tip-all:1; --tip-layer:top; inset:auto; margin:0; border:0; overflow:visible }   /* in the top layer (a popover), over the open menus */
+#tip::before,#tip::after{ content:''; position:absolute; left:var(--tip-ax,50%); translate:-50% 0; clip-path:polygon(0 0,100% 0,50% 100%) }
+#tip::before{ top:100%; width:calc(var(--s3) + 2px); height:calc(var(--s2) - 1px); background:var(--hair) }
+#tip::after{ top:calc(100% - var(--rule-hair)); width:var(--s3); height:calc(var(--s2) - 2px); background:var(--paper) }
+#tip[data-side="bottom"]::before,#tip[data-side="bottom"]::after{ top:auto; clip-path:polygon(50% 0,100% 100%,0 100%) }
+#tip[data-side="bottom"]::before{ bottom:100% } #tip[data-side="bottom"]::after{ bottom:calc(100% - var(--rule-hair)) }
 #tip .th{ display:block; font-weight:650; margin-bottom:var(--s2) } #tip .th:last-child{ margin-bottom:0 }   /* a card tip's head: the maker whole, the year */
+#tip .rows{ display:grid; gap:var(--s1); min-width:12rem }   /* a tip's rows (js/tip.js data-tip-rows, tipAt) – the ⌥ readout's: a label, its value quiet at the right; the steps under them */
+#tip .row{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s4); white-space:nowrap }
+#tip .row i:empty{ display:none }
+#tip .row .as,#tip .rows ~ span{ color:var(--soft); font-variant-numeric:tabular-nums }
+#tip .rows ~ span{ display:block; margin-top:var(--s2) }
 #tip .tags{ display:flex; flex-wrap:wrap; gap:3px; margin-top:var(--s3) } #tip .tags:first-child,#tip .th+.tags{ margin-top:0 }   /* the card tip's tag row — the catalog's .tag recipe, each with the filters' icon for it */
 #tip .tags i{ display:inline-flex; align-items:center; gap:var(--s1); --ic:12px; font-style:normal; font-size:var(--t0); font-weight:800; letter-spacing:.08em; text-transform:uppercase; line-height:1.1; padding:.18em .45em; background:var(--panel) }
 .quick{ display:flex; align-items:center; justify-content:flex-end; gap:var(--s2); flex-wrap:wrap }
@@ -925,6 +942,19 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* the other colors in hand (markStops, stripMarks): each a small rhombus of its own color in the picker's ink – the held
    one stays the picker – and a gradient's run the line between them, a plain line in the image dots' ink */
 .stov{ position:absolute; inset:0; z-index:1; pointer-events:none }   /* under the held picker (.cx), as on a strip */
+/* ⌥'s measurement (js/ruler.js; the readout's), as Figma draws its own and the panel does: the two channels' ways from the
+   held color's mark at right angles in the measuring red, a step in a pill on each, the site's diamond at the color
+   weighed, its ΔE2000 and contrast in pills in a top corner */
+.pl .ruler{ position:absolute; inset:0; z-index:3; pointer-events:none }
+.pl .ruler svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
+.pl .ruler path{ fill:none; stroke:var(--redline); stroke-width:1; vector-effect:non-scaling-stroke }
+.pl .ruler .rk{ position:absolute; width:var(--picker-active-size); height:var(--picker-active-size); transform:translate(-50%,-50%) rotate(45deg); border:var(--picker-line) solid #fff; box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab,#000 40%,transparent) }
+.pl .ruler .rl,.pl .ruler .ro b{ padding:0 var(--space-3xs); border-radius:var(--space-3xs); background:var(--redline); color:#fff; font:500 var(--t0)/1.45 var(--f); white-space:nowrap }
+.pl .ruler .rl{ position:absolute; transform:translate(-50%,-50%) }
+.pl .ruler .rl[data-at="below"]{ transform:translate(-50%,var(--space-3xs)) } .pl .ruler .rl[data-at="above"]{ transform:translate(-50%,calc(-100% - var(--space-3xs))) } .pl .ruler .rl[data-at="right"]{ transform:translate(var(--space-3xs),-50%) } .pl .ruler .rl[data-at="left"]{ transform:translate(calc(-100% - var(--space-3xs)),-50%) }   /* beside its line, as Figma's */
+.pl .ruler .rl:empty{ display:none }
+.pl .ruler .ro{ position:absolute; top:var(--s1); display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-3xs) }
+.pl .ruler .ro.tr{ right:var(--s1) } .pl .ruler .ro.tl{ left:var(--s6); align-items:flex-start }
 .stov svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; fill:none }
 .stov path{ vector-effect:non-scaling-stroke; stroke:var(--stl,var(--ink)); stroke-width:1; stroke-linejoin:round; stroke-linecap:round }
 :is(.stov svg,.sts u){ opacity:.5 }   /* a gradient's run is secondary: half there, one unbroken line under the marks */
@@ -1174,13 +1204,14 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
 		<div class="htitle"><img class="hmark" src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title">Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">New: Figma plugin</span><span class="hpn" data-i18n="ui.hero.plugin">New</span></span></a></span></div>
-		<p class="hsub" id="hsub" data-i18n="ui.hero.line">An open atlas of color spaces: from <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
+		<p class="hsub" id="hsub" data-i18n="ui.hero.line">An interactive atlas of color spaces: from <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
+			<button class="hib" type="button" id="heye" hidden title="pick a color from the screen" aria-label="pick a color from the screen" data-i18n="title:ui.hero.eye aria-label:ui.hero.eye"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z"/></svg></button>
 			<button class="hib" type="button" id="him" popovertarget="uppop" aria-expanded="false" title="read an image – its colors on every strip" aria-label="read an image" data-i18n="title:ui.hero.image-tip aria-label:ui.hero.image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></button>
 		</div>
 	</div>
 </section>
-<div class="hcolor" id="hcolor"><span class="cx" title="current color – type hex or any CSS color" data-i18n="title:ui.header.color-tip"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" aria-label="current color – pick with the native picker" title="current color – pick with the native picker" data-i18n="aria-label:ui.header.pick title:ui.header.pick"></span></span><span class="cxw"><textarea id="cval" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea><div class="fmtp" id="csug" popover="manual" role="listbox" aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><span class="fmtf"><button class="fmtb" id="fmtb" type="button" popovertarget="fmtp" aria-haspopup="listbox" aria-expanded="false" title="this color in every notation" aria-label="choose the value's notation" data-i18n="title:ui.header.fmt-tip aria-label:ui.header.fmt-label"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></button><div class="fmtp" id="fmtp" popover role="listbox" aria-label="value notation" data-i18n="aria-label:ui.header.fmt-list"></div></span><button class="palm" id="palm" type="button" hidden><span></span></button><span class="gpill" id="gpill" hidden title="the tightest standard gamut that holds this color" data-i18n="title:ui.header.gamut-tip"></span></span></div>
+<div class="hcolor" id="hcolor"><span class="cx"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" tabindex="-1" aria-hidden="true"><button class="cdb" id="cdb" type="button" aria-haspopup="listbox" aria-controls="csug" aria-label="this color in every notation" data-i18n="aria-label:ui.header.fmt-tip"></button></span></span><span class="cxw"><textarea id="cval" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea></span><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><button class="palm" id="palm" type="button" hidden><span></span></button><div class="csug" id="csug" role="listbox" hidden aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span></div>
 <script>/* the sticky color starts where the hero's field is: the field's distance from the hero's foot (--hc-up), and the scroll at which it docks – its top on the page (--hc-dock), measured before first paint */{ const h=document.getElementById('hero'), q=document.getElementById('hq'), pg=document.querySelector('.page'), up=()=>{ const t=q.getBoundingClientRect().top; pg.style.setProperty('--hc-up',Math.round(h.getBoundingClientRect().bottom-t)+'px'); pg.style.setProperty('--hc-dock',Math.round(t+scrollY)+'px') }; up(); new ResizeObserver(up).observe(h) }</script>
 <div class="dpop" id="m-more" popover role="dialog" aria-labelledby="c-more"></div>
 <div class="dpop" id="m-view" popover role="dialog" aria-labelledby="c-view"></div>
@@ -1441,9 +1472,10 @@ import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import { CSS as CSSFMT, CSS_FIXED } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
 import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's source – the very bundle js/gl.js compiles, already in the graph
 import NAMES from './js/names.js'
-import { parseGradient, path as gradPath, gradientText, shortText } from './js/stops.js'
+import { parseGradient, path as gradPath, gradientText, shortText, dashAt } from './js/stops.js'
 import * as PALDATA from './js/palettes.js'
 import FANFARE from './js/fanfare.js'
+import { findNames } from './js/namesearch.js'
 import { SPACES, sections, cname, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap } from './js/render.js'
 import { OI, QI, LI, VI, PI, DL as DLI } from './js/icons.js'
 import BARRED from './js/barred.js'
@@ -1451,6 +1483,9 @@ import EDITORS, { SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
 import { track, view as countView, load as loadStats, EVENT } from './js/track.js'
 import { t, LANG, at as rootURL, langHref } from './js/i18n.js'
+import { tipAt } from './js/tip.js'
+import { measure, pills, stepText } from './js/measure.js'
+import { ruler, unruler } from './js/ruler.js'
 
 
 let master={ s:DEFAULT.s, vals:DEFAULT.vals.slice() }, selected='oklch', huePath='shorter', codeTab='js'
@@ -1465,7 +1500,7 @@ let VIRGIN=false
 // the same 24×24 grammar (test/index.js pins that they agree), so an icon is never a
 // per-use pile of stroke attributes.
 const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3.75 3.75l-2 2',
-	upload:'M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15', x:'M18 6 6 18M6 6l12 12', plus:'M12 4v16M4 12h16',
+	upload:'M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15', x:'M18 6 6 18M6 6l12 12', plus:'M12 4v16M4 12h16', again:'M20 12a8 8 0 1 1-2.34-5.66L20 8.7M20 4v4.7h-4.7',
 	prev:'M15 18l-6-6 6-6', next:'M9 6l6 6-6 6',
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
@@ -1479,7 +1514,7 @@ const SCROLL_QUIET=200; let scrollAt=-Infinity
 addEventListener('scroll',()=>{ scrollAt=performance.now() },{passive:true})
 const autoStep=t=>{ if(!autoColor) return
 	autoPark=false
-	if(!PDOWN&&!autoHold&&t-autoLast>=AUTO_FRAME){ autoSlow=t-autoLast>AUTO_FRAME*5?autoSlow+1:0; autoLast=t
+	if(!PDOWN&&!autoHold&&t-autoLast>=AUTO_FRAME){ autoSlow=t-autoLast>AUTO_FRAME*5&&document.hasFocus()&&!document.hidden?autoSlow+1:0; autoLast=t   // frames a window away from view drops are the browser's, not a slow device's
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
@@ -1488,6 +1523,10 @@ const autoStep=t=>{ if(!autoColor) return
 		// the orbit once it has colored in – still ambient (virgin, URL untouched), just still
 		if(autoSlow>=4&&w===1){ autoPark=true; return } }   // parked: the color rests, and settles
 	requestAnimationFrame(autoStep) }
+// back from another window or tab: an orbit parked meanwhile goes on
+const wake=()=>{ if(!autoColor||!autoPark||document.hidden) return; autoPark=false; autoSlow=0; autoLast=performance.now(); requestAnimationFrame(autoStep) }
+addEventListener('focus',wake); document.addEventListener('visibilitychange',wake)
+addEventListener('blur',()=>{ if(document.activeElement===cvalEl) cvalEl.blur() })   // the window let go lets the field go: its orbit, its invitation back
 // the color let go (its value emptied): the boot gray again, the hash gone, the orbit again where motion is welcome
 const ambient=()=>{ BOOT.hash=''; autoHold=0; STOPS=null; GRAD=null; STOPI=0; M0.s=DEFAULT.s; M0.vals=DEFAULT.vals.slice(); master=M0
 	urlLast=spaceURL(open()?selected:'')+keepSearch(); history.replaceState(null,'',urlLast)
@@ -1505,7 +1544,7 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // rides the current colour's place. It does NOT tint the interface (--c stays the fixed
 // brand accent) — the catalog is where the current colour lives.
 // the row's value input: live like the channel inputs — a valid CSS color applies as you type
-const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), gpillEl=document.getElementById('gpill')
+const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval')
 // the colors in hand, in their order, beside the field: the one in hand is the rhombus (the native picker), every other a
 // small rhombus of its own color – a click takes it in hand, ⌥-click lets it go
 const pstackEl=document.getElementById('pstack')
@@ -1529,10 +1568,21 @@ const heroEl=document.getElementById('hero'), currentStatic=[ftrEl,stripEl,heroE
 // the hue wheel round the current color, n steps (odd) at its lightness and chroma – a gray's wheel is gray: the color
 // itself in the middle, the opposite hue at both ends – written once, each step relative to --cur, so a color change
 // restyles only what wears it
-const wheel=n=>`linear-gradient(90deg,${Array.from({length:n},(_,i)=>{ const k=i-(n-1)/2
-	return `${k?`oklch(from var(--cur) l c calc(h + ${k*360/(n-1)}))`:'var(--cur)'} ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%` }).join(',')})`
-// the row's edge at the top: 37 steps of 10° (CSS zooms into the middle as the page scrolls) – and the hero's glow under it
-for(const el of [stripEl,heroEl]) el.style.setProperty('--hues',wheel(37))
+// …stepped (`hard`: each step a band) or smooth (each step's color at its band's middle, blended between)
+const wheel=(n,hard=true)=>`linear-gradient(90deg,${Array.from({length:n},(_,i)=>{ const k=i-(n-1)/2, c=k?`oklch(from var(--cur) l c calc(h + ${k*360/(n-1)}))`:'var(--cur)'
+	return hard?`${c} ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%`:`${c} ${((i+.5)/n*100).toFixed(3)}%` }).join(',')})`
+// the row's edge at the top – and the hero's glow under it – quantized as the strips are (the Quantize lens): smooth at
+// rest; a lattice's count of steps round the wheel; a palette's colors, each step snapped to the nearest entry. CSS zooms
+// into the middle – the color itself – as the page scrolls
+const paintHues=fx=>{ const q=Q==null||Q==='smooth'?'':Q, snap=qTriple(q), key=q+(snap?'|'+fx:'')
+	if(stripEl._hk===key) return; stripEl._hk=key
+	let g
+	if(!q) g=wheel(37,false)
+	else if(!snap){ const n=Math.max(3,+q||36); g=wheel(n%2?n:n+1) }   // a lattice of n: as many steps round the wheel
+	else{ const [L,C,h]=space.rgb.oklch(...RGB()), n=37, cs=Array.from({length:n},(_,i)=>hex(byteRGB(snap(rgbF('oklch',[L,C,h+(i-(n-1)/2)*360/(n-1)])))))
+		g=`linear-gradient(90deg,${cs.map((c,i)=>`${c} ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%`)})` }
+	for(const el of [stripEl,heroEl]) el.style.setProperty('--hues',g) }
+for(const el of [stripEl,heroEl]) el.style.setProperty('--hues',wheel(37,false))   // smooth from the first frame – the lens (Q) is read at the first render
 // the footer's wall: the same wheel in four rows quantized ever coarser – 5°, 10° (the top edge's own), 20°, 45°
 ftrEl.style.setProperty('--wall',[73,37,19,9].map(wheel).join(','))
 let groupTabsEl=null, codeTabsEl=null, accentT=0
@@ -1559,108 +1609,186 @@ if(cvalEl){
 		if(p){ setStops(p.stops,p.grad,tokenAt(v,cvalEl.selectionStart)?.[2]??0); scheduleFast(); if(open()) queuePlaneSettle() }   // the color the caret is in is the one in hand
 		return !!p }
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
-		cvalEl._typed=take(); fitVal(); suggest(!!cvalEl.value.trim()) })
-	// the field's suggestions, in hand: the ways in – a color in a few notations (a name at random – the xkcd survey's –
-	// and a palette's color in oklch() and one more), a palette as a list (color-fanfare's, js/fanfare.js), a colormap and
-	// the spectrum as gradients, drawn anew each focus – then the colors last typed, each with its × to forget it; a word
-	// typed, the names that hold it. ↑↓ walk them, ⏎ takes one, ⇧⌦ forgets the recent one walked to; the list never takes
-	// the focus
-	const sugEl=document.getElementById('csug'), RECENT='csRecent', XKCD=PALDATA.xkcd.filter(([n])=>!/vomit|puke|poo|barf|snot|shit/.test(n))   // the survey's own words – a few not for a first impression
-	const recent=()=>{ try{ return JSON.parse(localStorage.getItem(RECENT))||[] }catch{ return [] } }
-	const keep=l=>{ try{ localStorage.setItem(RECENT,JSON.stringify(l)) }catch{} }
+		before=null; PEEK=false; cvalEl._typed=take(); fitVal(); cxEl.classList.toggle('empty',!cvalEl.value.trim()); suggest(!!cvalEl.value.trim()) })
+	// the field's suggestions – a search by color, under the field. Nothing typed: the ways in (a name at random, a
+	// palette's color in a notation or two, a palette, a colormap, the spectrum) and the last typed, each with its × to
+	// forget it. A word: the names that hold it – CSS's, the xkcd survey's, meodai's color-name-list (imported once, kept
+	// offline), Tailwind's – best met first, a typo forgiven, the field greying in the rest of the first. A color: it in
+	// context – its nearest names, Itten's chords round each color typed. A row says in one word why it is there (its
+	// whole story on hover). ↑↓ walk them and the page shows each as it is walked to – Esc puts the color back – ⏎ takes
+	// one, Tab or → the greyed-in name, ⇧⌦ forgets a recent one; the list never takes the focus
+	const sugEl=document.getElementById('csug'), RECENT='csRecent', PICKS='csPicks', XKCD=PALDATA.xkcd.filter(([n])=>!/vomit|puke|poo|barf|snot|shit/.test(n))   // the survey's own words – a few not for a first impression
+	const read=(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k))??d }catch{ return d } }, store=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch{} }
+	const recent=()=>read(RECENT,[]), keep=l=>store(RECENT,l)
 	const RECN=3, remember=v=>keep([v,...recent().filter(x=>x!==v)].slice(0,RECN))   // the last three typed
+	const picks=read(PICKS,{}), rank=n=>picks[n]||0, picked=n=>{ picks[n]=(picks[n]||0)+1; store(PICKS,picks) }   // a name taken rises in the next search
 	const forget=v=>{ keep(recent().filter(x=>x!==v)); suggest(false) }
 	// up to four of its colors: a list's first, a gradient's spread from end to end
 	const hexesOf=v=>{ const p=parseInput(v); if(!p) return []; const st=p.stops, n=st.length
 		return (p.grad&&n>4?[0,1,2,3].map(k=>st[Math.round(k*(n-1)/3)]):st.slice(0,4)).map(c=>hex(rgbF(c.s,c.vals))) }
-	const row=(v,tip='')=>({ v, say:v, tip, sw:hexesOf(v) })
-	const named=(n,rgb)=>{ const h=hex(rgb); return { v:NAMES[n]?n:h, say:n, tip:h, sw:[h] } }   // a CSS name types as itself, any other as its hex
+	const W={ recent:t('ui.sug.w.recent','recent'), rainbow:t('ui.sug.w.rainbow','rainbow'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
+	const SRC={ names:'CSS', xkcd:'xkcd', meodai:'color-name-list', tailwind:'Tailwind' }   // names of their own: no translation
+	const row=(v,why='',tip='')=>({ v, say:v, why, tip, sw:hexesOf(v) })
+	const named=(n,rgb,src,tip)=>{ const h=hex(rgb); return { v:NAMES[n]?n:h, say:n, name:n, why:SRC[src], tip:tip??h, sw:[h], tok:true } }   // a CSS name types as itself, any other as its hex – in the place of the color it names
 	const any=a=>a[Math.random()*a.length|0], PALS=FANFARE.map(([n,c])=>[n,c.split(' ')])
-	const fan=n=>`${n} · color-fanfare, David Aerne`   // a palette's name and its curator, on hover
 	// a color written as a person would: three figures, not the field's fixed places
 	const say3=(f,h,rgb)=>{ const k=FMTKEY[f]||f; try{ return CSSFMT[k](toSpace(k,rgb).map(x=>Math.abs(x)<1?+x.toFixed(3):+x.toPrecision(3))) }catch{ return h } }
-	// the perceptual colormaps: five of each map's 256 entries (0, ¼, ½, ¾, 1), blended in oklab – within 0.05 ΔEok of the
-	// whole map – from matplotlib v3.9.2, lib/matplotlib/_cm_listed.py
-	const MAPS=[['viridis','#440154 #3b528b #21918c #5cc863 #fde725'],['magma','#000004 #51127c #b73779 #fb8761 #fcfdbf'],['inferno','#000004 #57106e #bc3754 #f98c0a #fcffa4'],['plasma','#0d0887 #7e03a8 #cc4778 #f89441 #f0f921'],['cividis','#00224e #434e6c #7d7c78 #bbad6d #fee838']]
-	const draw=()=>{ const one=()=>{ const h=any(any(PALS)[1]); return [h,[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))] }
-		const [h1,c1]=one(), [h2,c2]=one(), f=any(['rgb','hsl','lab','p3']), [pn,pc]=any(PALS), [mn,mc]=any(MAPS)
-		return [named(...any(XKCD)),
-			row(say3('oklch',h1,c1)), row(say3(f,h2,c2)),
-			row(pc.join(', '),fan(pn)),
-			row(mc.split(' ').join('..'),`${mn} · matplotlib`),
-			row('#8000ff..red in hsl longer hue')] }   // the spectrum: violet to red, the long way round the hues
-	const sugRows=typed=>{ const q=cvalEl.value.trim().toLowerCase()
-		if(typed){ if(!/^[a-z][a-z ]+$/.test(q)) return []
-			const by=(a,b)=>a[0].indexOf(q)-b[0].indexOf(q)||a[0].length-b[0].length, css=Object.entries(NAMES).filter(([n])=>n.includes(q)&&n!==q).sort(by)
-			return [...css,...XKCD.filter(([n])=>n.includes(q)&&n!==q&&!NAMES[n]).sort(by)].slice(0,8).map(([n,rgb])=>named(n,rgb)) }
-		const rec=recent().slice(0,RECN)   // the ways in drawn once a focus – the list redrawn keeps them
-		return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v), rec:true }))] }
-	// shown while there is nothing typed to keep – an empty field, or a name being typed; Esc shuts them till the next focus.
-	// A row is its option and, a recent one, its × – shown as the row is pointed at or walked to, a target of its own
-	const suggest=typed=>{ const rows=sugShut||(!typed&&cvalEl.value.trim())?[]:sugRows(typed), q=v=>esc(v).replace(/"/g,'&quot;')
-		sugEl.innerHTML=rows.map(r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.tip?` title="${q(r.tip)}"`:''}><b><span class="sws">${r.sw.map((h,k,a)=>`<s style="--w:${h};--z:${a.length-k}"></s>`).join('')}</span><span>${esc(r.say)}</span></b></button>${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}" title="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:''}</div>`).join('')
-		if(rows.length) sugEl.showPopover?.(); else sugEl.hidePopover?.() }
-	let sugShut=false, sugDraw=null
-	const pick=b=>{ cvalEl.value=b.dataset.v; cvalEl.setSelectionRange(0,0); cvalEl._typed=take(); sugEl.hidePopover(); cvalEl.blur() }   // the caret at the start: the first color in hand, as its swatch showed
+	// each from where it is: a palette by its name and its curator's collection (color-fanfare, David Aerne), a colormap by
+	// its name and its library (matplotlib) – the ways in drawn at random, each row with its own ↻ to draw another
+	const fan=n=>`${n} · color-fanfare`, cmap=n=>`${n} · matplotlib`
+	const one=f=>{ const [n,p]=any(PALS), h=any(p), rgb=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); return row(say3(f,h,rgb),fan(n)) }
+	const WAYS=[()=>{ const [xn,xr]=any(XKCD); return named(xn,xr,'xkcd') },
+		()=>one('oklch'), ()=>one(any(['rgb','hsl','lab','p3'])),
+		()=>{ const [pn,pc]=any(PALS); return row(pc.join(', '),fan(pn)) },
+		()=>{ const [mn,mc]=any(MAPS); return row(mc.split(' ').join(' – '),cmap(mn)) }]
+	const draw=()=>[...WAYS.map((w,k)=>({ ...w(), way:k })),row('#8000ff – red in hsl longer hue',W.rainbow)]   // the rainbow: violet to red, the long way round the hues
+	// meodai's color-name-list: imported on the first focus (its module is the build's, js/colornames.js – every name a
+	// line, then every hex), kept offline by the precache; until it lands, the search runs on the rest
+	let MEODAI=[], meodaiAt=null
+	const meodai=()=>meodaiAt??=import('./js/colornames.js').then(({ default:s })=>{ const i=s.lastIndexOf('\n'), hx=s.slice(i+1)
+		MEODAI=s.slice(0,i).split('\n').map((n,k)=>[n,[0,2,4].map(j=>parseInt(hx.substr(k*6+j,2),16))]); listNames(MEODAI)
+		if(document.activeElement===cvalEl&&!sugEl.hidden) suggest(true) }).catch(()=>{ meodaiAt=null })
+	const LISTS=()=>[['names',Object.entries(NAMES)],['xkcd',XKCD],['meodai',MEODAI],['tailwind',PALDATA.tailwind]]
+	// a color typed, it in context: the names nearest it (by ΔEok), each taking its place in the field; then Itten's
+	// chords on his RYB wheel (Itten 1961, The Art of Color – the library's ryb, his chromatic circle) round every color typed
+	const nearName=(list,o)=>{ let best=null, bd=Infinity; for(const x of list){ const k=x[2]??=space.rgb.oklab(...x[1]), d=(k[0]-o[0])**2+(k[1]-o[1])**2+(k[2]-o[2])**2; if(d<bd){ bd=d; best=x } } return best }
+	const turn=(rgb,deg)=>{ const [r,y,b]=space.rgb.ryb(...rgb).map(x=>x/255), mx=Math.max(r,y,b), d=mx-Math.min(r,y,b)
+		let h=mx===r?(y-b)/d:mx===y?(b-r)/d+2:(r-y)/d+4; h=((h*60+deg)%360+360)%360/60
+		const f=k=>{ const q=(k+h)%6; return mx-d*Math.max(0,Math.min(q,4-q,1)) }   // HSV's inverse on the pigment cube: its hue turned, its amount and spread kept
+		return space.ryb.rgb(...[f(5),f(3),f(1)].map(x=>x*255)).map(x=>clamp(x,0,255)) }
+	const CHORDS=[[t('ui.sug.chord.complementary','complementary'),[180]],[t('ui.sug.chord.split','split'),[150,210]],[t('ui.sug.chord.triad','triad'),[120,240]],[t('ui.sug.chord.square','square'),[90,180,270]]]
+	const ctxRows=()=>{ const o=space.rgb.oklab(...RGB()), say=c=>fmtAs(FMT,hex(c),c), seen=new Set()
+		const names=LISTS().filter(l=>l[1].length).map(([p,list])=>{ const x=nearName(list,o), key=x[0].toLowerCase().replace(/[\s'’-]+/g,'')
+			if(seen.has(key)) return null; seen.add(key); return named(x[0],x[1],p) }).filter(Boolean)   // the survey's "dodger blue" is CSS's dodgerblue
+		// the palettes with a color near it: color-fanfare's, the nearest few (ΔEok under 0.05)
+		const pals=PALS.map(([n,p])=>{ let d=Infinity; for(const h of p){ const k=space.rgb.oklab(...[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))); d=Math.min(d,Math.hypot(k[0]-o[0],k[1]-o[1],k[2]-o[2])) } return [d,n,p] }).filter(x=>x[0]<.05).sort((a,b)=>a[0]-b[0]).slice(0,2).map(([,n,p])=>row(p.join(', '),fan(n)))
+		const all=(STOPS||[master]).map(c=>rgbF(c.s,c.vals)), hued=c=>{ const [r,y,b]=space.rgb.ryb(...c); return Math.max(r,y,b)-Math.min(r,y,b)>=8 }   // a gray has no hue to turn
+		if(!all.some(hued)) return [...names,...pals]
+		return [...names,...pals,...CHORDS.map(([nm,dg])=>{ const cs=[], seen2=new Set()
+			for(const c of all) for(const x of [c,...(hued(c)?dg.map(g=>turn(c,g)):[])]){ const h=hex(x); if(!seen2.has(h)&&cs.length<12){ seen2.add(h); cs.push(x) } }
+			const v=cs.map(say).join(', '); return { v, say:v, why:`${nm} · Itten`, sw:cs.map(hex) } })] }
+	// a phrase read – channels named, a name told how to change: the color it came to, written out, first
+	const phraseRow=v=>{ if(parseColor(v)||parseColorList(v)||setNamed(v)) return []; const c=parsePhrase(v); if(!c) return []
+		const rgb=rgbF(c.s,c.vals), w=say3(c.s,hex(rgb),rgb)   // in its own notation where CSS has one, else hex
+		return [{ v:w, say:w, sw:[hex(rgb)], why:c.kept?.length?W.completed:W.read, tip:c.kept?.length?t('ui.sug.tip.kept','{k} kept from the color in hand',{k:c.kept.join(', ')}):'' }] }
+	const sugRows=typed=>{ const v=cvalEl.value.trim(), q=v.toLowerCase(), ok=!!parseInput(v)
+		if(!v){ const rec=recent().slice(0,RECN)   // the ways in drawn once a focus – the list redrawn keeps them
+			return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v,W.recent), rec:true }))] }
+		if(!typed) return ok?ctxRows():[]   // focused on a color: it in context
+		const word=/^[\p{L}\d'’ -]+$/u.test(q)&&!/^#?[\da-f]{3,8}$/.test(q)
+		const sets=word?[...MAPS.filter(([n])=>n.startsWith(q)).map(([n,c])=>row(c.split(' ').join(' – '),cmap(n))),...PALS.filter(([n])=>n.toLowerCase().includes(q)).slice(0,2).map(([n,p])=>row(p.join(', '),fan(n)))]:[]
+		const words=word?findNames(q,LISTS(),ok?3:8,rank).filter(x=>x.name.toLowerCase()!==q).map(x=>named(x.name,x.rgb,x.src)):[]
+		return [...(ok?phraseRow(v):[]),...sets,...words,...(ok?ctxRows():[])] }
+	// the typed part of a name light, the rest of it set – as a search engine sets what it adds
+	const hl=(s,q)=>{ const i=q?s.toLowerCase().indexOf(q):-1; return i<0?esc(s):`${esc(s.slice(0,i))}<span class="q">${esc(s.slice(i,i+q.length))}</span>${esc(s.slice(i+q.length))}` }
+	const suggest=typed=>{ const rows=sugShut?[]:sugRows(typed), q=v=>esc(v).replace(/"/g,'&quot;'), typedq=cvalEl.value.trim().toLowerCase()
+		sugEl.innerHTML=rows.map(r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws">${r.sw[0]?`<s style="--w:${r.sw[0]}"></s>`:''}</span><span class="sgt"><span>${r.sw.length>1?inline(r.say):r.name?hl(r.say,typedq):esc(r.say)}</span>${r.why?`<small>${esc(r.why)}</small>`:''}</span></b></button>${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}" aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`).join('')
+		sugEl.hidden=!rows.length; sugFmt=false; ghostOf(rows) }
+	// many colors: the first one's rhombus in the column, as one color's is; every next value with its own before it, the
+	// same mark – a list's at its commas, a gradient's at its dashes
+	const inline=v=>{ const out=[]; let d=0, cur='', k=0
+		const seg=x=>{ const m=x.match(/^(\s*)(.*?)(\s*)$/), c=m[2].split(/\s+(?:in\s|\d)/)[0], h=k++&&parseColor(c)
+			out.push(esc(m[1])+(h?`<s style="--w:${hex(rgbF(h.s,h.vals))}"></s>`:'')+esc(m[2]+m[3])) }
+		for(let i=0;i<v.length;i++){ const c=v[i]; if(c==='(') d++; else if(c===')') d--
+			const n=d?0:c===','?1:dashAt(v,i); if(n){ seg(cur); out.push(esc(v.slice(i,i+n))); i+=n-1; cur='' } else cur+=c }
+		seg(cur); return out.join('') }
+	// the first name's rest, greyed in after the caret – Tab or → at the end takes it
+	const ghost=document.createElement('div'); ghost.className='cvghost'; ghost.setAttribute('aria-hidden','true'); cvalEl.before(ghost)
+	let ghostRest=''
+	const ghostOf=rows=>{ const v=cvalEl.value, n=rows.find(r=>r.name)?.name, at=cvalEl.selectionStart===v.length&&cvalEl.selectionEnd===v.length
+		ghostRest=n&&at&&v&&n.toLowerCase().startsWith(v.toLowerCase())&&n.length>v.length?n.slice(v.length):''
+		ghost.replaceChildren(...(ghostRest?[Object.assign(document.createElement('span'),{ textContent:v }),ghostRest]:[]))
+		if(ghostRest){ const cs=getComputedStyle(cvalEl); for(const k of TWIN) ghost.style[k]=cs[k]; ghost.style.width=cvalEl.clientWidth+'px'; ghost.style.left=cvalEl.offsetLeft+'px'; ghost.style.top=cvalEl.offsetTop+'px' } }
+	let sugShut=false, sugDraw=null, sugFmt=false
+	// the color in every notation – the rhombus's list, in the field's own: a row taken is how the field speaks from then on
+	const notations=()=>{ const hx=hex(RGB())
+		sugEl.innerHTML=FMTL.map(f=>`<div class="sgr" role="none"><button class="fmtr${f===FMT?' cur':''}" type="button" role="option" tabindex="-1" data-fmt="${f}" aria-selected="${f===FMT}"><b><span class="sws"><s style="--w:${hx}"></s></span><span class="sgt"><span class="tnum">${esc(fmtAs(f,hx))}</span><small>${f}</small></span></b></button></div>`).join('')
+		sugEl.hidden=false; sugFmt=true }
+	const cdbEl=document.getElementById('cdb')
+	cdbEl?.addEventListener('click',()=>{ if(!cvalEl.value.trim()&&virginNow()) return cvalEl.focus()   // no color entered: the rhombus asks for one
+		if(sugFmt&&!sugEl.hidden){ sugEl.hidden=true; sugFmt=false } else notations() })
+	addEventListener('pointerdown',e=>{ if(sugFmt&&!sugEl.contains(e.target)&&e.target!==cdbEl){ sugEl.hidden=true; sugFmt=false } },true)
+	addEventListener('keydown',e=>{ if(e.key==='Escape'&&sugFmt){ sugEl.hidden=true; sugFmt=false } })
+	// the page scrolled away from the field: its list goes (the next key brings it back) – never left over the rows read
+	{ let y0=scrollY; addEventListener('scroll',()=>{ if(sugEl.hidden){ y0=scrollY; return } if(Math.abs(scrollY-y0)>48){ unpeek(); sugEl.hidden=true; sugFmt=false; ghostOf([]) } },{ passive:true }) }
+	// what a row puts in the field: a name, the color it names; anything else, the whole field
+	const valueOf=b=>{ const v=cvalEl.value, tk=b.hasAttribute('data-tok')&&tokenAt(v,cvalEl.selectionStart)
+		return tk&&tk[2]!=null?[v.slice(0,tk[0])+b.dataset.v+v.slice(tk[1]),tk[0]]:[b.dataset.v,0] }
+	// a row walked to shows on the page – the colors as they stood kept, Esc or the field let go untaken puts them back
+	let before=null
+	const peek=b=>{ PEEK=true; before??={ stops:STOPS&&STOPS.map(c=>({ s:c.s, vals:c.vals.slice() })), grad:GRAD&&{ ...GRAD }, i:STOPI, m:{ s:master.s, vals:master.vals.slice() } }
+		const p=parseInput(valueOf(b)[0]); if(!p) return; setStops(p.stops,p.grad,0); scheduleFast(true) }
+	const unpeek=()=>{ PEEK=false; if(!before) return; const b=before; before=null
+		if(b.stops){ STOPS=b.stops; GRAD=b.grad; STOPI=b.i; master=STOPS[STOPI] } else{ STOPS=null; GRAD=null; STOPI=0; master=b.m }
+		scheduleFast(true) }
+	const pick=b=>{ before=null; PEEK=false; const [v,at]=valueOf(b); cvalEl.value=v; cvalEl.setSelectionRange(at,at); if(b.dataset.n) picked(b.dataset.n)
+		cvalEl._typed=take(); sugEl.hidden=true; cvalEl.blur() }   // the caret at the color it put: that color in hand
+	const takeGhost=()=>{ if(!ghostRest) return false; cvalEl.value+=ghostRest; cvalEl._typed=take(); fitVal(); suggest(true); return true }
 	sugEl.addEventListener('pointerdown',e=>e.preventDefault())   // the field keeps the focus
-	sugEl.addEventListener('click',e=>{ const x=e.target.closest('.sgx'); if(x) return forget(x.dataset.v)   // a recent one let go
+	sugEl.addEventListener('click',e=>{ const f=e.target.closest('[data-fmt]'); if(f){ setFmt(f.dataset.fmt); sugEl.hidden=true; sugFmt=false; return }
+		const x=e.target.closest('.sgx'); if(x){ if(x.dataset.way!=null){ const k=+x.dataset.way, i=sugDraw.findIndex(r=>r.way===k); sugDraw[i]={ ...WAYS[k](), way:k }; return suggest(false) } return forget(x.dataset.v) }   // another drawn, or a recent one let go
 		const b=e.target.closest('.fmtr'); if(b) pick(b) })
-	// a press anywhere in the field's box takes the color nearest it – the whole of it, selected, and in hand; a press on
-	// the color already selected is the caret's (and a drag's from there), Tab the one in hand. A finger: the
-	// browser focuses as it does (its keyboard follows only its own focus), the color selected on the tap's release
+	// a row pointed at shows on the page, as one walked to does; the list left, the color as it stood. Pointed at by a
+	// pointer that moves – a list opening, or redrawn as one types, under a resting pointer previews nothing
+	sugEl.addEventListener('pointermove',e=>{ if(!e.movementX&&!e.movementY) return; const b=!sugFmt&&e.target.closest('.fmtr'); if(b&&b!==sugEl._peek){ sugEl._peek=b; peek(b) } })
+	sugEl.addEventListener('pointerleave',()=>{ sugEl._peek=null; if(!sugFmt) unpeek() })
+	// a press in the field's box, the field not yet in hand, takes the color nearest it – the whole of it, selected, and in
+	// hand (Figma's way); in the field already, the press is the caret's, as in any text – its color taken in hand on
+	// release. A finger: the browser focuses as it does (its keyboard follows only its own focus), the color selected on
+	// the tap's release
 	const grab=e=>{ if(e.button||e.shiftKey||e.target.closest('button,a,input,#csug,#fmtp')) return
-		const tk=nearestTok(e.clientX,e.clientY), on=document.activeElement===cvalEl
+		if(document.activeElement===cvalEl){ cvalEl._caret=true; return }
+		const tk=nearestTok(e.clientX,e.clientY)
 		if(e.pointerType!=='mouse'){ cvalEl._tap=tk; return }
-		if(on&&tk&&e.target===cvalEl&&cvalEl.selectionStart===tk[0]&&cvalEl.selectionEnd===tk[1]) return
 		e.preventDefault(); cvalEl._ptr=true; cvalEl.focus({ preventScroll:true }); cvalEl._ptr=false
 		if(tk){ cvalEl.setSelectionRange(tk[0],tk[1]); if(STOPS&&tk[2]!=null) pickStop(tk[2]) } }
 	for(const el of [document.querySelector('#hcolor>.cx'),document.getElementById('hq')]) el.addEventListener('pointerdown',grab)
-	cvalEl.addEventListener('click',()=>{ const tk=cvalEl._tap; cvalEl._tap=null; if(!tk) return
+	cvalEl.addEventListener('click',()=>{ if(cvalEl._caret){ cvalEl._caret=false; ghostOf([]); const k=tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]; if(STOPS&&k!=null) pickStop(k); return }
+		const tk=cvalEl._tap; cvalEl._tap=null; if(!tk) return
 		cvalEl.setSelectionRange(tk[0],tk[1]); if(STOPS&&tk[2]!=null) pickStop(tk[2]) })
-	cvalEl.addEventListener('focus',()=>{ if(!cvalEl._ptr){ const tk=tokensOf(cvalEl.value).find(t=>t[2]===(STOPS?STOPI:0)); tk&&STOPS?cvalEl.setSelectionRange(tk[0],tk[1]):cvalEl.select() } cvalEl._typed=false; fitVal(); suggest(false); if(autoColor&&!autoHold) autoHold=performance.now(); renderFast() })   // the orbit holds; the empty field asks for a color (renderFast's placeholder)
+	cvalEl.addEventListener('focus',()=>{ meodai(); if(!cvalEl._ptr){ const tk=tokensOf(cvalEl.value).find(t=>t[2]===(STOPS?STOPI:0)); tk&&STOPS?cvalEl.setSelectionRange(tk[0],tk[1]):cvalEl.select() } cvalEl._typed=false; fitVal(); suggest(false); if(autoColor&&!autoHold) autoHold=performance.now(); renderFast() })   // the orbit holds; the empty field asks for a color (renderFast's placeholder)
 	cdEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		const h=cdEl.value
 		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
 		scheduleFast(); if(open()) queuePlaneSettle() })
 	cvalEl.addEventListener('keydown',e=>{ const rows=[...sugEl.querySelectorAll('.fmtr')], i=rows.findIndex(b=>b.classList.contains('on'))
-		if((e.key==='ArrowDown'||e.key==='ArrowUp')&&rows.length&&sugEl.matches(':popover-open')){ e.preventDefault()
-			const j=(i+(e.key==='ArrowDown'?1:rows.length-(i<0?0:1)))%rows.length; rows.forEach((b,k)=>{ b.classList.toggle('on',k===j); b.setAttribute('aria-selected',k===j) }) }
+		if(e.key==='ArrowDown'&&sugEl.hidden){ e.preventDefault(); sugShut=false; suggest(true); return }   // ↓ asks for them – the color in hand in context
+		if((e.key==='ArrowDown'||e.key==='ArrowUp')&&rows.length&&!sugEl.hidden){ e.preventDefault()
+			const j=(i+(e.key==='ArrowDown'?1:rows.length-(i<0?0:1)))%rows.length; rows.forEach((b,k)=>{ b.classList.toggle('on',k===j); b.setAttribute('aria-selected',k===j) }); peek(rows[j]); ghostOf([]) }
+		else if((e.key==='Tab'&&!e.shiftKey||e.key==='ArrowRight')&&ghostRest&&takeGhost()) e.preventDefault()
 		else if(e.key==='Enter'){ e.preventDefault(); if(i>=0) pick(rows[i]); else cvalEl.blur() }   // the field wraps, it never takes a line break
 		else if(e.key==='Delete'&&e.shiftKey&&i>=0&&rows[i].nextElementSibling?.matches('.sgx')){ e.preventDefault(); forget(rows[i].dataset.v) }   // the walked-to recent one forgotten, as a browser's address bar does
-		else if(e.key==='Escape'&&sugEl.matches(':popover-open')){ sugShut=true; sugEl.hidePopover() } })
-	cvalEl.addEventListener('blur',()=>{ requestAnimationFrame(fitVal); sugEl.hidePopover(); sugShut=false; sugDraw=null; if(cvalEl._typed) remember(cvalEl.value.trim()); cvalEl._typed=false
+		else if(e.key==='Escape'&&!sugEl.hidden){ unpeek(); sugShut=true; sugEl.hidden=true; ghostOf([]) } })
+	cvalEl.addEventListener('blur',()=>{ unpeek(); requestAnimationFrame(fitVal); sugEl.hidden=true; ghostOf([]); sugShut=false; sugDraw=null; if(cvalEl._typed) remember(cvalEl.value.trim()); cvalEl._typed=false
 		if(autoHold){ autoStart+=performance.now()-autoHold; autoHold=0 }   // the orbit goes on from where it stood
 		if(!cvalEl.value.trim()&&!virginNow()) ambient(); renderFast() })   // let go empty: no color chosen – the field invites again, animated; else settle back to canonical hex
 }
 // the value's notation: a chevron by the pill unfolds the colour in every format —
 // pick the line you like and the field speaks it from then on
-const fmtbEl=document.getElementById('fmtb'), fmtpEl=document.getElementById('fmtp')
-if(fmtbEl){
-	fmtpEl.addEventListener('beforetoggle',e=>{ if(e.newState!=='open') return
-		const hx=hex(RGB())
-		fmtpEl.innerHTML=FMTL.map(f=>`<button class="fmtr${f===FMT?' on':''}" role="option" aria-selected="${f===FMT}" data-v="${f}"><i>${f}</i><b class="tnum">${fmtAs(f,hx)}</b></button>`).join('') })
-	fmtpEl.addEventListener('click',e=>{ const b=e.target.closest('.fmtr'); if(!b) return
-		setFmt(b.dataset.v); fmtpEl.hidePopover() })
-}
 // the row's empty state: the value a placeholder
 const cxEl=document.querySelector('.cx'), cvFile=document.getElementById('cvfile')
 // the value wraps as long as it runs: over the hero's field the color's box is the field's width (to its image button),
 // the field as tall as the value grows it; docked in the row, one line of its own width – taller only while typed in,
 // over the page. Two boxes in two trees (the field and the sticky color over it): their sizes meet by measure
-const hqEl=document.getElementById('hq'), himEl=document.getElementById('him'), hcolorEl=document.getElementById('hcolor')
+const hqEl=document.getElementById('hq'), hcolorEl=document.getElementById('hcolor')
+// the screen's eyedropper (Chromium's EyeDropper), beside the image: a color from anywhere on the screen, in hand
+{	const b=document.getElementById('heye')
+	if(b&&'EyeDropper' in window){ b.hidden=false
+		b.onclick=async()=>{ try{ const { sRGBHex }=await new EyeDropper().open(), c=parseColor(sRGBHex); if(!c) return
+			master={ s:c.s, vals:c.vals.slice() }; scheduleFast(); if(open()) queuePlaneSettle() }catch{} } } }   // Esc, or a page that may not: nothing picked
 // the colors in the text: each top-level part – inside a gradient's parens, a stop without its positions – as [start,
 // end, the stop's index]; a gradient's head (its geometry, its method) has no index
 const isCol=x=>{ try{ return !!parseColor(x) }catch{ return false } }
 const tokensOf=str=>{ const g=str.match(/^\s*(?:repeating-)?(?:linear|radial|conic)-gradient\(/i), a=g?g[0].length:0
 	let b=g?str.lastIndexOf(')'):str.length; if(b<a) b=str.length
-	const sep=!g&&str.includes('..')?'..':','   // the short form's colors part at `..`; a list's and a gradient's at commas
+	const short=!g&&!str.includes(',')&&[...str].some((_,i)=>dashAt(str,i))   // the short form's colors part at its dashes; a list's and a gradient's at commas
 	const parts=[]; let st=a, d=0
-	for(let i=a;i<b;i++){ const c=str[i]; if(c==='(') d++; else if(c===')') d--; else if(!d&&str.startsWith(sep,i)){ parts.push([st,i]); st=i+sep.length; i+=sep.length-1 } }
+	for(let i=a;i<b;i++){ const c=str[i]; if(c==='(') d++; else if(c===')') d--; else if(!d){ const n=short?dashAt(str,i):c===','?1:0; if(n){ parts.push([st,i]); st=i+n; i+=n-1 } } }
 	// the method closing the short form (`… in oklch longer hue`) is no color: its words, as a gradient's head
-	const tail=sep==='..'?str.slice(st,b).match(/\s+in\s+[a-z0-9-]+(?:\s+\w+\s+hue)?\s*$/i):null, end=tail?st+tail.index:b
+	const tail=short?str.slice(st,b).match(/\s+in\s+[a-z0-9-]+(?:\s+\w+\s+hue)?\s*$/i):null, end=tail?st+tail.index:b
 	parts.push([st,end])
 	const trim=([x,y])=>{ while(x<y&&/\s/.test(str[x])) x++; while(y>x&&/\s/.test(str[y-1])) y--
-		if(g||sep==='..'){ const m=str.slice(x,y).match(/^(.*?)(?:\s+-?[\d.]+%)+$/); if(m) y=x+m[1].length } return [x,y] }
+		if(g||short){ const m=str.slice(x,y).match(/^(.*?)(?:\s+-?[\d.]+%)+$/); if(m) y=x+m[1].length } return [x,y] }
 	const head=g&&!isCol(str.slice(...trim(parts[0])))?1:0
 	// words where no color is – the gradient's function, its geometry and method (`to right`, `in oklch`): each its own
 	const words=(x,y)=>[...str.slice(x,y).matchAll(/[\w-]+%?/g)].map(m=>[x+m.index,x+m.index+m[0].length,null])
@@ -1684,7 +1812,7 @@ const fitVal=()=>{ if(!cvalEl) return; lay(); const h=twin.offsetHeight, pad=cxE
 	cvalEl.style.height=h+'px'
 	cxEl.classList.toggle('tall',h>parseFloat(getComputedStyle(cvalEl).lineHeight)*1.5)
 	if(!document.body.classList.contains('cdock')) hqEl.style.minHeight=Math.max(0,h+pad)+'px' }
-const fitField=()=>{ hcolorEl.style.setProperty('--hfw',Math.max(0,himEl.getBoundingClientRect().left-cxEl.getBoundingClientRect().left)+'px'); fitVal() }
+const fitField=()=>{ hcolorEl.style.setProperty('--hqw',hqEl.getBoundingClientRect().width+'px'); hcolorEl.style.setProperty('--hfw',Math.max(0,hqEl.querySelector('.hib:not([hidden])').getBoundingClientRect().left-cxEl.getBoundingClientRect().left)+'px'); fitVal() }
 new ResizeObserver(fitField).observe(hqEl)
 // the row's edge pointed at opens to the row's height (.wide) – the colors in hand as the row's ground – and what sits on
 // it takes the ink that reads there: the swatches' rule (ink) on the colors under it, the row's controls and the docked
@@ -2018,7 +2146,7 @@ const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the c
 // the search is the VIEW's lane (?q=names&m=…) – every color/route writer passes it
 // through, shedding only the boot flags (?sw service-worker probe, ?s= 404 bounce)
 const keepSearch=()=>{ try{ const sp=new URLSearchParams(location.search); sp.delete('sw'); sp.delete('s'); const s2=sp.toString(); return s2?'?'+s2:'' }catch{ return '' } }
-let urlTT=0
+let urlTT=0, PEEK=false   // PEEK: a suggestion shown on the page, not taken
 function syncURL(hx){ const now=performance.now(), wait=250-(now-urlT)
 	if(wait>0){ clearTimeout(urlTT); urlTT=setTimeout(()=>{ if(!PDOWN) syncURL() },wait); return }   // a throttle keeps its trailing write – the last color of a burst (typing, a click) must reach the URL
 	// a hash we did not write is a NAVIGATION in flight (a FAQ specimen link, the boot
@@ -2305,10 +2433,13 @@ function planesOn(ent,on){ const s=ent.dataset.s, cls=classify(s), btn=ent.query
 	btn.setAttribute('aria-label',on?t('ui.card.sliders-label','Show {name} as sliders',{name:disp(s)}):t('ui.card.planes-label','Show {name} as planes',{name:disp(s)}))
 	if(on) paintEntPlanes(ent) }
 cat.addEventListener('click',e=>{ const b=e.target.closest('.pvs'); if(b){ const ent=b.closest('.ent'); planesOn(ent,!ent.classList.contains('pvon')) } })
+// a row's instrument's grip – its plane's or its strip's – made on first use: a press, or the ⌥ readout
+const entGrip=el=>{ const s=el.closest('.ent').dataset.s
+	return el._grip||=el.matches('.pl')?planeGrip(el,()=>s,ev=>{ const r=el.getBoundingClientRect(); return [clamp((ev.clientX-r.left)/r.width,0,1),clamp(1-(ev.clientY-r.top)/r.height,0,1)] }):lineGrip(el,()=>s,+el.dataset.i) }
 // a press on a plane picks both its channels in that space; the drag keeps picking – the release settles the catalog
 cat.addEventListener('pointerdown',e=>{ const pl=e.target.closest('.ent .pl'); if(!pl) return
 	const ent=pl.closest('.ent'), s=ent.dataset.s, a=+pl.dataset.a, b=+pl.dataset.b
-	const grip=pl._grip||=planeGrip(pl,()=>s,ev=>{ const r=pl.getBoundingClientRect(); return [clamp((ev.clientX-r.left)/r.width,0,1),clamp(1-(ev.clientY-r.top)/r.height,0,1)] })
+	const grip=entGrip(pl)
 	e.preventDefault(); if(!grip.down(e)) return
 	const at=ev=>{ const v=grip.move(ev); if(!v) return; master.vals[a]=v[0]; master.vals[b]=v[1]; scheduleFast() }
 	pl.setPointerCapture(e.pointerId); pl.classList.add('live'); dragEnt=ent; dragEntI=-1; at(e)
@@ -2375,7 +2506,7 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 		ch.addEventListener('pointerdown',e=>{
 			const rh=e.target.closest?.('.rh')
 			if(rh&&BRUSHES.has(s+'|'+i)){ rangeDrag(e,ch,s,i,rh.classList.contains('rlo')?'lo':'hi'); return }   // a half drags its own boundary
-			const grip=ch._grip||=lineGrip(ch,()=>s,i)
+			const grip=entGrip(ch)
 			// an image in: ⌥ dragged splits the picker into a start and an end – the range, not a value; ⌥ clicked adds a color
 			if(e.altKey&&HIMG){ e.preventDefault(); const e0=e; ch.setPointerCapture(e.pointerId)
 				ch.onpointermove=ev=>{ if(Math.abs(ev.clientX-e0.clientX)<=4) return; ch.onpointermove=ch.onpointerup=null; rangeDrag(e0,ch,s,i); ch.onpointermove?.(ev) }
@@ -2463,7 +2594,7 @@ function rebuild(){ LEADN=leadsNow(); cat.innerHTML=catHTML(null,VIEW==='list'&&
 	const near=[...catEnts.values()].filter(e=>{ if(!e.offsetParent) return false; const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight })   // the screen now; io's margin follows at idle
 	paintCatalogVals(near); paintCatalogGrad(near,-1,undefined,false) }   // fresh strips: nothing to morph from
 new ResizeObserver(()=>{ if(VIEW==='grid'&&ensureCat.done&&leadsNow()!==LEADN) rebuild() }).observe(cat)
-function setView(v){ if(v===VIEW) return; VIEW=v; SORT=null; try{ localStorage.csView=v }catch{} rebuild(); paintLens() }
+function setView(v){ if(v===VIEW) return; VIEW=v; SORT=null; try{ localStorage.csView=v }catch{} document.documentElement.dataset.view=v; rebuild(); paintLens() }
 cat.addEventListener('click',e=>{ const b=e.target.closest('[data-sort]'); if(!b) return; const k=b.dataset.sort
 	SORT=SORT?.k!==k?{k,d:1}:SORT.d>0?{k,d:-1}:null; rebuild() })   // a column orders every space; again, the other way; a third time, the shelves again
 // re-shelve the catalog with the chosen cut
@@ -2535,7 +2666,7 @@ const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySel
 	const cx=cxEl.getBoundingClientRect(), docked=cx.top<row.getBoundingClientRect().bottom
 	const lo=Math.min(...[row.querySelector('.qx'),cnt].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))
 	row.classList.toggle('under',docked&&lo<cx.right+8)
-	if(document.body.classList.contains('cdock')!==docked){ document.body.classList.toggle('cdock',docked); fmtpEl?.hidePopover(); fitField() } }   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
+	if(document.body.classList.contains('cdock')!==docked){ document.body.classList.toggle('cdock',docked); fitField() } }   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
 { const ro=new ResizeObserver(()=>fitCells()); ro.observe(stripEl); ro.observe(cxEl)
 	let rq=0; addEventListener('scroll',()=>{ rq||=requestAnimationFrame(()=>{ rq=0; fitCells() }) },{ passive:true }) }   // the color docks as the page scrolls
 // a pick filters the catalog and inks Filters' mark; Filters' name and tooltip say every pick, its × lets them go
@@ -2681,6 +2812,38 @@ function parseColor(str){ str=str.trim().toLowerCase()
 			const best=Math.max(...fit.map(scale)), top=fit.filter(s=>scale(s)===best)
 			return { s:top.includes(selected)?selected:top.includes(master.s)?master.s:top[0], vals:nums } } }
 	return null }
+// a color described rather than written: its channels named by letter or word, any of them – "R230 G", "red: 120,
+// green: 23", "hue 200 sat 40%" – the rest kept from the color in hand; or a name told how to change – "dark red", "pale
+// sky blue", "muted teal": lightness, chroma, warmth turned in oklch from the named color (a CSS name, the xkcd survey's)
+const CHW={ red:'r', green:'g', blue:'b', hue:'h', saturation:'s', sat:'s', lightness:'l', light:'l', value:'v', brightness:'v', chroma:'c', cyan:'c', magenta:'m', yellow:'y', black:'k', key:'k' }
+const PHRASE=['rgb','hsl','hsv','oklch','lchab','oklab','lab','cmyk']
+const MODS2={ dark:[-.15,1,0], deep:[-.1,1.15,0], light:[.12,.85,0], pale:[.18,.5,0], bright:[.06,1.25,0], vivid:[0,1.35,0], muted:[0,.5,0], dusty:[-.03,.45,0], soft:[.06,.7,0], warm:[0,1,1], cool:[0,1,-1] }
+// the perceptual colormaps, by name: five of each map's 256 entries (0, ¼, ½, ¾, 1), blended in oklab – within 0.05 ΔEok of
+// the whole map – from matplotlib v3.9.2, lib/matplotlib/_cm_listed.py
+const MAPS=[['viridis','#440154 #3b528b #21918c #5cc863 #fde725'],['magma','#000004 #51127c #b73779 #fb8761 #fcfdbf'],['inferno','#000004 #57106e #bc3754 #f98c0a #fcffa4'],['plasma','#0d0887 #7e03a8 #cc4778 #f89441 #f0f921'],['cividis','#00224e #434e6c #7d7c78 #bbad6d #fee838']]
+// a colormap's name, or a color-fanfare palette's, as its colors – a gradient, a list
+const setNamed=str=>{ const k=str.trim().toLowerCase(), m=MAPS.find(x=>x[0]===k); if(m) return m[1].split(' ').join(' – ')
+	const p=FANFARE.find(x=>x[0].toLowerCase()===k); return p?p[1].split(' ').join(', '):null }
+let XKCDN=null, LISTN=null
+const listNames=l=>{ LISTN=new Map(l.map(([n,r])=>[n.toLowerCase(),r])) }   // meodai's list, once the field has imported it
+const nameOf=w=>{ XKCDN??=new Map(PALDATA.xkcd); const r=NAMES[w.replace(/\s+/g,'')]||XKCDN.get(w)||LISTN?.get(w); return r&&{ s:'rgb', vals:r.slice() } }
+function parsePhrase(str){ str=str.trim().toLowerCase(); if(!str) return null
+	const PAIR=/([a-z]+)\s*[:=]?\s*(-?\d*\.?\d+)(%?)/g, pairs=[...str.matchAll(PAIR)].map(m=>[CHW[m[1]]||m[1],+m[2],!!m[3]])
+	if(pairs.length&&pairs.every(p=>p[0].length===1)&&!str.replace(PAIR,' ').replace(/[\s,;]+/g,' ').trim().replace(/^[a-z]+$/,'')){
+		const syms=pairs.map(p=>p[0]); if(new Set(syms).size<syms.length) return null
+		const v=y=>pairs.find(p=>p[0]===y)?.[1]
+		const sp=PHRASE.find(x=>{ const ch=classify(x).ch.map(c=>c.sym.toLowerCase()[0]); if(!syms.every(y=>ch.includes(y))) return false
+			if(x==='oklch'||x==='oklab') return !(v('l')>1.5||(x==='oklch'?v('c')>1:Math.abs(v('a')??0)>1||Math.abs(v('b')??0)>1))   // lab's scale, not oklab's
+			return true }); if(!sp) return null
+		const cls=classify(sp), vals=(master.s===sp?master.vals:valsFor(sp))?.slice(); if(!vals) return null
+		cls.ch.forEach((c,i)=>{ const p=pairs.find(q=>q[0]===c.sym.toLowerCase()[0]); if(p) vals[i]=p[2]?c.min+(c.max-c.min)*p[1]/100:p[1] })
+		return { s:sp, vals, kept:cls.ch.filter(c=>!syms.includes(c.sym.toLowerCase()[0])).map(c=>c.sym) } }
+	const whole=nameOf(str); if(whole) return whole   // a name as it stands first – the survey's own "dark red"
+	const w=str.split(/\s+/); let k=0; while(k<w.length-1&&MODS2[w[k]]) k++
+	if(!k) return null; const base=nameOf(w.slice(k).join(' ')); if(!base) return null
+	let [L,C,H]=space.rgb.oklch(...base.vals)
+	for(const m of w.slice(0,k)){ const [dl,kc,warm]=MODS2[m]; L=clamp(L+dl,0,1); C*=kc; if(warm) H+=clamp(((warm>0?60:240)-H+540)%360-180,-20,20) }
+	return { s:'oklch', vals:[L,C,(H+360)%360] } }
 // a color LIST: comma/newline/semicolon-separated at the top level (legacy rgb(255, 128, 0)
 // commas stay inside their parens), or space-separated bare hexes. Every part must parse.
 function parseColorList(str){ let parts=[], d=0, cur=''
@@ -2694,10 +2857,11 @@ function parseColorList(str){ let parts=[], d=0, cur=''
 	const cs=parts.map(parseColor)
 	return cs.every(Boolean)?cs:null }
 // what the color field reads: a gradient (CSS syntax), a list (separate colors), or one color – as stops
-const parseInput=str=>{ const g=parseGradient(str,x=>{ try{ return parseColor(x) }catch{ return null } })
+const parseInput=str=>{ const named=setNamed(str); if(named) str=named
+	const g=parseGradient(str,x=>{ try{ return parseColor(x) }catch{ return null } })
 	if(g) return { stops:g.stops.map(x=>x.c), grad:{ fn:g.fn, head:g.head, mix:g.mix, pos:g.stops.map(x=>x.pos) } }
 	const l=parseColorList(str); if(l) return { stops:l, grad:null }
-	const c=parseColor(str); return c?{ stops:[c], grad:null }:null }
+	const c=parseColor(str)||parsePhrase(str); return c?{ stops:[c], grad:null }:null }
 // the stops set: two or more are kept, one is the one color again; the stop in hand becomes master
 const setStops=(list,grad=null,i=0)=>{ if(list.length<2){ STOPS=null; GRAD=null; STOPI=0; master={ s:list[0].s, vals:list[0].vals.slice() }; return }
 	STOPS=list.map(c=>({ s:c.s, vals:c.vals.slice() })); GRAD=grad; STOPI=clamp(i,0,STOPS.length-1); master=STOPS[STOPI] }
@@ -2801,7 +2965,6 @@ const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec.2020', vis:t('ui.gamut.vis',
 // (js/locus.js surfacePath); Light – the whole horseshoe. The hero's locus draws these, the Limit's region filled
 const LIMS=['srgb','p3','rec2020','vis','locus']   // narrowest first
 const LIMD=(()=>{ const D={}; return g=>D[g]??=GAMS.includes(g)?gamutPath(g==='srgb'?'rgb':g,GXY):g==='vis'?surfacePath(GXY):locusPath(GXY) })()
-const GAMTITLE={ srgb:t('ui.gamut.fit.srgb','fits sRGB – every standard display shows it losslessly'), p3:t('ui.gamut.fit.p3','beyond sRGB, fits P3 – needs a wide-gamut display; sRGB screens clip it'), rec2020:t('ui.gamut.fit.rec2020','beyond P3, fits Rec.2020 – most displays clip it'), vis:t('ui.gamut.fit.vis','beyond every display, yet a lit surface can show it – inside the object-color solid'), locus:t('ui.gamut.fit.locus','no surface shows it, but it is a real light – on the spectral locus'), clip:t('ui.gamut.fit.clip','outside the locus – not a color; the preview clips') }
 // the Limit – one for every slider, plane and solid, the catalog's and the dossier's (render.js LIMIT, Surface by default)
 let GM=LIMIT; try{ if([...GAMS,'vis','locus'].includes(localStorage.csGm)) GM=localStorage.csGm }catch{}
 // a space's sweep lens: a 1-channel locus under a display lens is all ghost; under Surface or Light it is all in by
@@ -4396,6 +4559,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 		up.onclick=e=>{ e.stopPropagation(); spin(1) }; dn.onclick=e=>{ e.stopPropagation(); spin(-1) } })
 }
 function wireBar(el,s){
+	el._grip=lineGrip(el,()=>s,+el.dataset.i)   // a press's, and the ⌥ readout's before any press
 	const bchEl=()=>document.querySelector(`#bigch .bch[data-i="${el.dataset.i}"]`)   // the big input this bar drives
 	el.addEventListener('pointerenter',()=>bchEl()?.classList.add('on'))   // the slider points at its number – same link as the list
 	el.addEventListener('pointerleave',()=>bchEl()?.classList.remove('on'))
@@ -4404,7 +4568,7 @@ function wireBar(el,s){
 	if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a plain press on one color — its input/change pair below drives the same path
 	e.preventDefault()
 	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX
-	const grip=el._grip||=lineGrip(el,()=>s,i)
+	const grip=el._grip
 	// Dragging is continuous in every mode. The lens colors the field, but never
 	// constrains the hand; one snap happens on release, to the chosen region's center.
 	const apply=ev=>{ let v=grip.move(ev); if(v==null) return
@@ -4456,7 +4620,7 @@ function wirePlane(pl){
 			if(Math.abs(fx-0.5)*r.width/(vw.x1-vw.x0)<3) fx=0.5
 			if(Math.abs(fy-0.5)*r.height/(vw.y1-vw.y0)<3) fy=0.5 }
 		return [fx,fy] }
-	const grip=planeGrip(pl,()=>selected,frac)
+	const grip=pl._grip=planeGrip(pl,()=>selected,frac)   // a press's, and the ⌥ readout's
 	const set=e=>{ const v=grip.move(e); if(!v) return
 		const r=pl.getBoundingClientRect()
 		// Free movement while held: write the raw coordinate. The release handler
@@ -5222,7 +5386,15 @@ function planeGrip(pl,sOf,frac){ let off, prev, f0, sh
 				if(Math.abs(f[0]-f0[0])*b.width>Math.abs(f[1]-f0[1])*b.height) f[1]=f0[1]; else f[0]=f0[0] }
 			const ca=q.cls.ch[q.a], cb=q.cls.ch[q.b], val=[ca.min+(ca.max-ca.min)*f[0],cb.min+(cb.max-cb.min)*f[1]]
 			if(!fine){ const t=[]; t[q.a]=val[0]; t[q.b]=val[1]; const [x,y,on]=planePos(pl,q.cls,t), v=on&&near(x,y,q); if(v) return v }
-			return val } } }
+			return val },
+		// the color a press would add here, changing nothing: the held one with this plane's channels at the pointer – or, on
+		// another color's mark (as near as a press takes it), that color – and where it is, in % of the box (the ⌥ readout)
+		peek(e){ const q=ax(), hv=heldIn(q.s); if(!hv) return null
+			const r=pl.getBoundingClientRect(), x=(e.clientX-r.left)/r.width*100, y=(e.clientY-r.top)/r.height*100, [m,md]=nearest(pl._marks||[],k=>dist(r,k.x,k.y,x,y))
+			if(md<SNAP_PX*1.5) return { s:q.s, vals:m.v, at:[m.x,m.y] }
+			const f=frac(e), v=hv.slice(), ca=q.cls.ch[q.a], cb=q.cls.ch[q.b]
+			v[q.a]=ca.min+(ca.max-ca.min)*f[0]; v[q.b]=cb.min+(cb.max-cb.min)*f[1]
+			return { s:q.s, vals:v, at:[x,y] } } } }
 // …on a strip or a bar, channel `i`: move() answers the channel's value
 function lineGrip(el,sOf,i){ let off=0, prev=0
 	const q=()=>{ const s=sOf(); return { s, c:classify(s).ch[i] } }
@@ -5241,8 +5413,35 @@ function lineGrip(el,sOf,i){ let off=0, prev=0
 			const v=c.min+(c.max-c.min)*clamp(r+off,0,1); if(fine) return v
 			const w=el.getBoundingClientRect().width
 			for(const m of marks(s)) if(m.j!==STOPI&&Math.abs(m.v-v)/(c.max-c.min)*w<SNAP_PX) return m.v
-			return v } } }
+			return v },
+		// …the held color with this channel at the pointer, or the color on whose mark it is (the ⌥ readout)
+		peek(e){ const { s, c }=q(), hv=heldIn(s); if(!hv) return null
+			const w=el.getBoundingClientRect().width, f=fr(e), [m,md]=nearest(marks(s).filter(k=>k.j!==STOPI),k=>Math.abs((k.v-c.min)/(c.max-c.min)-f)*w)
+			if(md<SNAP_PX*1.5) return { s, vals:valsIn(STOPS[m.j],s) }
+			const v=hv.slice(); v[i]=c.min+(c.max-c.min)*f; return { s, vals:v } } } }
 const MODS=e=>e.altKey||e.shiftKey||e.metaKey||e.ctrlKey
+// ⌥ held, the pointer on an instrument – a plane, a strip, a bar – the color there (or a color in hand, on its mark) is
+// weighed against the one held, as Figma's ⌥ measures between layers (the Figma and VS Code panel's ⌥ too): on a plane,
+// its two channels' ways from the held color's mark at right angles, each with its step, a diamond at the color weighed
+// and in a top corner its ΔE2000 and the WCAG contrast (js/ruler.js, js/measure.js); on a strip or a bar, the same two at
+// the pointer. A press then adds it (or lets that mark's color go)
+{	const into=(s,to,v)=>s===to?v.slice():space[s][to](...v)
+	const weigh=(s,v)=>({ lab:into(s,'lab',v), oklab:into(s,'oklab',v), Y:into(s,'xyz',v)[1]/100 })
+	let on=null   // the instrument weighed over
+	const off=()=>{ if(!on) return; unruler(on); on=null; tipAt(null) }
+	addEventListener('pointermove',e=>{
+		const el=e.altKey&&!e.buttons?e.target.closest?.('.ent .pl,.ent .ch,#detail .pl,#detail .bar2'):null, g=el&&(el._grip||(el.closest('.ent')&&entGrip(el))), u=g?.peek?.(e)
+		if(!u) return off()
+		if(on!==el) off()
+		on=el
+		const cls=classify(u.s), held=heldIn(u.s), ro=pills(measure(weigh(master.s,master.vals),weigh(u.s,u.vals)),'de00',t('ui.measure.large','AA large'))
+		if(!el.matches('.pl')) return tipAt({ left:e.clientX, right:e.clientX, top:e.clientY, bottom:e.clientY },{ text:ro.join('  ') })
+		const a=+el.dataset.a, b=+el.dataset.b, h=hueIdx(cls), hp=planePos(el,cls,held), sp=i=>stepText(cls.ch[i],held[i],u.vals[i],i===h?cls.ch[i].max-cls.ch[i].min:0,fmtc)
+		ruler(el,{ from:hp[2]&&!el._tri?[hp[0],hp[1]]:null, to:u.at, polar:!!el._polar, steps:[sp(a),sp(b)], knob:hex(rgbOf(u.s,u.vals)), readout:ro }) },{ passive:true })
+	addEventListener('keyup',e=>{ if(e.key==='Alt') off() })
+	addEventListener('pointerdown',off,true)
+	addEventListener('blur',off)
+	document.documentElement.addEventListener('pointerleave',off) }
 function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in hand IS master – a writer that replaced master replaced it
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
@@ -5259,16 +5458,15 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 			ftrEl.style.color=wl>=0.18?'#000':'#fff' } }   // the slot's swatch + its tick-pair ring track the current color
 	// An inherited --cur on <html> made Chrome recalculate all ~8,000 elements per drag
 	// frame. Stamp only its consumers; native accent-color catches up at rest.
-	setCurrentUI(fx); heroPaint(); if(!PDOWN) lineagePaint(frgb); paintPstack(); paintBand()
+	setCurrentUI(fx); heroPaint(); if(!PDOWN) lineagePaint(frgb); paintPstack(); paintBand(); paintHues(fx)
 	// the untouched color stays an invitation (placeholder), not an asserted value — see virginNow
 	const virgin=virginNow()
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
-	if(cxEl) cxEl.classList.toggle('inv',virgin)   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
+	if(cxEl){ cxEl.classList.toggle('inv',virgin); cxEl.classList.toggle('empty',!cvalEl?.value.trim()) }   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
 	if(cvalEl&&document.activeElement!==cvalEl){ const nv=virgin?'':STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; fitVal() } }   // many colors read as the list – or the gradient – they are
 	if(virgin&&cvalEl) cvalEl.placeholder=document.activeElement===cvalEl?COLOR_ASK:dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
-	if(!PDOWN&&!virgin) syncURL(hx)   // the URL keeps the exact coordinate
+	if(!PDOWN&&!virgin&&!PEEK) syncURL(hx)   // the URL keeps the exact coordinate – a suggestion only looked at never reaches it
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
-	if(gpillEl){ const g=!STOPS&&gamutOf(); gpillEl.hidden=!g; if(g&&gpillEl.dataset.g!==g){ gpillEl.textContent=GAMLABEL[g]; gpillEl.title=GAMTITLE[g]; gpillEl.dataset.g=g } }   // LIVE through drags – the smallest set that holds the color, always beside the value; ⚠ past the locus
 	if(palmEl){ const on=PALMODES.has(Q)&&!virgin   // live through drags – the address should follow the hand
 		palmEl.hidden=!on
 		if(on){ const b=nearestIn(Q,rgb,QM)   // 8-bit memoised – repeat colors cost a Map hit

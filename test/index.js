@@ -11,6 +11,7 @@ import color from 'color-name'
 import './reference.js' // authoritative differential tests vs colorjs.io
 import './bonafide.js' // cited reference values for the non-differential spaces
 import './stops.js' // the field's gradients and lists: CSS's syntax and interpolation
+import './namesearch.js' // the color field's name search
 
 // get round fn for a precision
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision

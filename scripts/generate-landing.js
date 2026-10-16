@@ -97,7 +97,7 @@ inject(/(<textarea id="cval"[^>]*>)(<\/textarea>)/, `$1${dhx}$2`)
 // the row's marks from their one source (icons.js), so the stripe is whole before the module lands: the view's mark is
 // the default Limit's, the layout's the view a first visit turns to (the page opens in grid)
 inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
-{ const n = nextView('grid'); inject(/(<button class="cell lens" type="button" id="c-layout")([^>]*><span class="ci">)(<\/span>)/, (m, a, b, c) => `${a} data-view="${n.v}"${b}${n.ic}${c}`) }
+{ const n = nextView('grid'), l = nextView('list'); inject(/(<button class="cell lens" type="button" id="c-layout")([^>]*><span class="ci">)(<\/span>)/, (m, a, b, c) => `${a} data-view="${n.v}"${b}<i data-from="grid">${n.ic}</i><i data-from="list">${l.ic}</i>${c}`) }   // both marks: the head's pre-paint (data-view) shows the kept layout's from the first frame
 // the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset — Google Dataset Search reaches the science

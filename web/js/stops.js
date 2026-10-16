@@ -1,11 +1,12 @@
 // Colors in hand beyond one: a SEQUENCE (a comma list – separate colors, each its own) or a GRADIENT (CSS gradient
-// syntax – stops blended along a line – or its short form, the colors joined by `..`: `red..blue`, read "red to blue"). The page keeps them as {s, vals} stops; this module reads and writes their text
+// syntax – stops blended along a line – or its short form, the colors joined by a dash: `red – blue`, read "red to
+// blue"; `red - blue` and `red..blue` read the same). The page keeps them as {s, vals} stops; this module reads and writes their text
 // and blends between them. Pure: no DOM, no page state – the page passes its own single-color parser in.
 //
 // A gradient blends as CSS does: in the space its color-interpolation-method names (`in oklch longer hue`), else – none
 // named – in gamma-encoded sRGB when every color is written in a legacy sRGB syntax (hex, a name, rgb(), hsl(), hwb()),
 // in Oklab otherwise. The short form is a linear gradient blended in Oklab, or in the method that closes it
-// (`red..blue in oklch longer hue`); a stop may carry its place (`red..blue 70%`). A hue channel takes the method's arc; an achromatic stop's hue is powerless and takes its
+// (`red – blue in oklch longer hue`); a stop may carry its place (`red – blue 70%`). A hue channel takes the method's arc; an achromatic stop's hue is powerless and takes its
 // neighbour's, so a blend from white rotates no hue.
 // @see https://drafts.csswg.org/css-color-4/#interpolation
 // @see https://drafts.csswg.org/css-images-4/#linear-gradients
@@ -19,10 +20,16 @@ const HUES = ['shorter', 'longer', 'increasing', 'decreasing']
 const FN = /^(repeating-)?(linear|radial|conic)-gradient\(([\s\S]*)\)$/i
 const LEGACY = /^(#|rgba?\(|hsla?\(|hwb\(|[a-z]+$)/i   // hex, rgb(), hsl(), hwb() or a bare name – CSS's legacy sRGB syntaxes
 
-// top-level separators only (commas, or the short form's `..`) – a color's own parens keep theirs
+// the short form's joint: a dash between colors – ` – `, ` - ` (spaced, so a value's own minus stays its own), `–`, `—` –
+// or `..`; written as ` – `
+export const DASH = /\s*[–—]\s*|\s+-\s+|\.\./y, JOIN = ' – '
+// the joint at i, its length; 0 where there is none
+export const dashAt = (str, i) => { DASH.lastIndex = i; const m = DASH.exec(str); return m ? m[0].length : 0 }
+// top-level separators only (commas, or the short form's dashes) – a color's own parens keep theirs
 export const splitTop = (str, sep = ',') => { const out = []; let d = 0, cur = ''
 	for (let i = 0; i < str.length; i++) { const c = str[i]; if (c === '(') d++; else if (c === ')') d = Math.max(0, d - 1)
-		if (!d && str.startsWith(sep, i)) { out.push(cur.trim()); cur = ''; i += sep.length - 1 } else cur += c }
+		const n = d ? 0 : sep === DASH ? dashAt(str, i) : str.startsWith(sep, i) ? sep.length : 0
+		if (n) { out.push(cur.trim()); cur = ''; i += n - 1 } else cur += c }
 	out.push(cur.trim()); return out.filter(Boolean) }
 const METHOD = /\bin\s+([a-z0-9-]+)(?:\s+(shorter|longer|increasing|decreasing)\s+hue)?/i
 const methodOf = m => ({ space: CSS_SPACE[m[1].toLowerCase()] || m[1].toLowerCase(), hue: (m[2] || 'shorter').toLowerCase(), named: true })
@@ -45,10 +52,10 @@ export function parseGradient(str, parse) {
 	mix ??= { space: stops.every(x => LEGACY.test(x.src)) ? 'rgb' : 'oklab', hue: 'shorter', named: false }
 	return { fn: (m[1] || '') + m[2].toLowerCase() + '-gradient', head, mix, stops: placed(stops) } }
 
-// the short form: `a..b..c`, a method closing it – a linear gradient, Oklab unless named
+// the short form: `a – b – c`, a method closing it – a linear gradient, Oklab unless named
 const TAIL = /\s+(in\s+[a-z0-9-]+(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?)\s*$/i
 function parseShort(str, parse) {
-	const parts = splitTop(str.trim(), '..'); if (parts.length < 2) return null
+	const parts = splitTop(str.trim(), DASH); if (parts.length < 2) return null
 	const tail = parts.at(-1).match(TAIL); if (tail) parts[parts.length - 1] = parts.at(-1).slice(0, tail.index)
 	const stops = readStops(parts, parse); if (!stops) return null
 	return { fn: 'linear-gradient', head: '', mix: tail ? methodOf(tail[1].match(METHOD)) : { space: 'oklab', hue: 'shorter', named: true }, stops: placed(stops) } }
@@ -100,9 +107,9 @@ const methodText = mx => `in ${CSS_NAME[mx.space] || mx.space}${mx.hue !== 'shor
 export const gradientText = (g, say) => { const head = g.head || (g.mix.named ? methodText(g.mix) : '')
 	return `${g.fn}(${head ? head + ', ' : ''}${g.stops.map(stopText(g, say)).join(', ')})` }
 
-/** The gradient in the short form when it has one – a linear gradient with no geometry (`red..blue in oklch`), its
+/** The gradient in the short form when it has one – a linear gradient with no geometry (`red – blue in oklch`), its
  *  method written unless Oklab's shorter arc; null for any other (an angle, a radial, a repeating one). */
 export const shortText = (g, say) => g.fn !== 'linear-gradient' || g.head && !/^in\s/i.test(g.head.trim()) ? null
-	: g.stops.map(stopText(g, say)).join('..') + (g.mix.space === 'oklab' && g.mix.hue === 'shorter' ? '' : ' ' + methodText(g.mix))
+	: g.stops.map(stopText(g, say)).join(JOIN) + (g.mix.space === 'oklab' && g.mix.hue === 'shorter' ? '' : ' ' + methodText(g.mix))
 
 export { HUES }

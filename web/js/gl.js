@@ -15,6 +15,7 @@ import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
 import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid } from './core.js'
 import NAMES from './names.js'
 import * as PALS from './palettes.js'
+import { deltaE2000 } from './measure.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -218,7 +219,27 @@ uniform int uPolar;       // 1 → the field is a hue DISC: angle→a, radius→
 uniform int uTri;         // cone-family vertical section: 1 cone · 2 bicone · 3 W+B triangle
 uniform int uClu;         // color-cluster lens: 1 nearest CSS named color · 2 even OKLab grid
 uniform int uEnc;         // 1 → encode Display P3, for a display-p3 canvas; else sRGB
+uniform int uEdge;        // gamuts drawn as lines over the field, bits: 1 srgb · 2 p3 · 4 rec2020
+uniform float uEdgeW;     // its width, device px
+uniform float uEdgeA;     // its opacity
+uniform float uEdgeInk;   // its ink: 1 white, 0 black, -1 each pixel's own (white on a dark color, black on a light one)
+uniform int uCut;         // 1 → past uGam's gamut is void, not ghost: the field ends where its gamut does
 out vec4 O;
+// a gamut's edge as a line's coverage at this pixel (uEdgeW device px wide). Each channel's distance past the gamut's box
+// in encoded units – negative inside – over its screen-space rate is its distance in pixels; joined as a box's distance
+// field (the length of those past it, else the nearest), a corner where two channels leave together rounds instead of
+// spiking along its bisector. The line lies in the band just past the edge – past the gamut's pad, as the cut reads it
+// (±0.002 encoded) – so a field that only reaches the surface and stays on it (HSV at full saturation, HWB with no white:
+// on sRGB's surface throughout; a hue's sector turning there) draws none: centred on the edge, its rounding scattered a
+// line over such a field as noise, and its kinks as ticks. A channel that doesn't change across the pixel crosses
+// nothing: far inside, or far out. Exact at any resolution and antialiased; called in uniform flow (derivatives)
+float edgeCov(vec3 l) {
+	vec3 e = mix(l * 12.92, 1.055 * pow(max(l, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, l));
+	vec3 o = max(-e, e - 1.0) - 0.002, w = fwidth(o);
+	vec3 p = mix(o / max(w, vec3(1e-9)), mix(vec3(-1e9), vec3(1e9), step(0.0, o)), step(w, vec3(1e-5)));
+	float d = length(max(p, vec3(0.0))) + min(max(p.x, max(p.y, p.z)), 0.0);
+	return min(clamp(d + 0.5, 0.0, 1.0), clamp(uEdgeW + 0.5 - d, 0.0, 1.0));
+}
 void main() {
 	vec2 f = (gl_FragCoord.xy - uOff) / uRes;
 	float fa, fb;
@@ -269,11 +290,13 @@ void main() {
 	// identically; the lens only quantises the colour drawn WHERE a colour exists.
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
+	vec3 lS = xyz_lrgb(xyz), lP = xyz_p3linear(xyz), lR = xyz_rec2020linear(xyz);   // the edges' gamuts, read alike
 	${meta[s]?.method === 'chromaticity' ? `// a CHROMATICITY space discards luminance — the honest gamut question is whether the
 	// DIRECTION is displayable at any luminance: scale to peak (display lenses) and to the
 	// solid's mid-height (human lens) before the cuts, or the fixed Y=100 convention ghosts
 	// nearly the whole instrument (cct-duv read as broken)
 	lin /= max(max(lin.x, max(lin.y, lin.z)), 1e-6);
+	lS /= max(max(lS.x, max(lS.y, lS.z)), 1e-6); lP /= max(max(lP.x, max(lP.y, lP.z)), 1e-6); lR /= max(max(lR.x, max(lR.y, lR.z)), 1e-6);
 	xyz *= 50.0 / max(xyz.y, 1e-4);` : ''}
 	${meta[s]?.method === 'spectral' ? `// a SPECTRAL space's coordinate is a light — a monochromatic line, a Planckian
 	// radiator — real by definition. The locus test is vacuous (its samples sit ON the
@@ -281,7 +304,8 @@ void main() {
 	// wrong body (a laser is no reflectance, yet perfectly visible) — so no locus or
 	// solid cut, and the display ghost normalises to the direction: "can this display
 	// show that light at any exposure". Mirrors lensFor in core.js.
-	lin /= max(max(lin.x, max(lin.y, lin.z)), 1e-6);` : ''}
+	lin /= max(max(lin.x, max(lin.y, lin.z)), 1e-6);
+	lS /= max(max(lS.x, max(lS.y, lS.z)), 1e-6); lP /= max(max(lP.x, max(lP.y, lP.z)), 1e-6); lR /= max(max(lR.x, max(lR.y, lR.z)), 1e-6);` : ''}
 	if (!(lin.x > -4.0 && lin.x < ${physBound(s)}.0 && lin.y > -4.0 && lin.y < ${physBound(s)}.0 && lin.z > -4.0 && lin.z < ${physBound(s)}.0)) al = 0.0;${nativeRim}
 	${meta[s]?.method === 'spectral' ? '' : `// a chromaticity off the spectral locus is imaginary at ANY luminance – not a colour
 	// under ANY lens – so it VOIDS, always (not only under the human lens). Lab/OKLab/…
@@ -301,6 +325,15 @@ void main() {
 		vec3 enc = mix(lin * 12.92, 1.055 * pow(max(lin, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, lin));
 		if (any(lessThan(enc, vec3(-0.002))) || any(greaterThan(enc, vec3(1.002)))) al = 0.5;${rt}
 	}
+	if (uCut == 1 && al == 0.5) al = 0.0;
+	// the edges: gamuts' boundaries drawn as lines over the field (uEdge), the color painted either side, in one ink the page
+	// names (uEdgeInk) or each pixel's own – white on a dark color, black on a light one (luminance under 0.6); drawn where
+	// a color is
+	float ew = 0.0;
+	if ((uEdge & 1) != 0) ew = max(ew, edgeCov(lS));
+	if ((uEdge & 2) != 0) ew = max(ew, edgeCov(lP));
+	if ((uEdge & 4) != 0) ew = max(ew, edgeCov(lR));
+	if (al == 0.0 || isnan(ew)) ew = 0.0;
 	if (uWeb == 1) rgb = floor(rgb / 51.0 + 0.5) * 51.0;
 	// a display-p3 destination: a smooth field paints the coordinate's own P3 color, not its sRGB
 	// clip; a quantized one re-encodes its sRGB result (palette and web-safe colors are sRGB)
@@ -308,7 +341,7 @@ void main() {
 		vec3 p3c = uClu == 0 && uWeb == 0 ? ${san(s)}_p3(v) : rgb_p3(rgb);
 		rgb = any(isnan(p3c)) ? vec3(0.0) : clamp(p3c, 0.0, 1.0) * 255.0;
 	}
-	O = vec4(rgb / 255.0, al);
+	O = vec4(mix(rgb / 255.0, vec3(uEdgeInk >= 0.0 ? uEdgeInk : dot(rgb, vec3(0.2126, 0.7152, 0.0722)) < 153.0 ? 1.0 : 0.0), ew * uEdgeA), al);
 }`
 }
 
@@ -366,6 +399,7 @@ export function warmGL(s) {
 // 4 = the HUMAN lens: not a display gamut but the object-colour solid the 3D view
 // draws — see visSolidGLSL (the locus below still voids imaginary coords in EVERY lens)
 const GAMI = { srgb: 1, p3: 2, rec2020: 3, vis: 4 }
+const EDGEB = { srgb: 1, p3: 2, rec2020: 4 }   // uEdge's bits
 
 // The spectral locus as shader source: the polygon plus the even-odd test that says
 // whether a chromaticity is a colour at all. ONE law, three surfaces — the xy panel
@@ -384,23 +418,7 @@ const PALETTES={ names:{rgb:dedupe(Object.entries(NAMES).map(([n,v])=>[n,v])),N:
 const palTex=new WeakMap()   // gl → Map(pal → {idx,sites})
 // nearest-site ORDER under each metric — one source for shader and page (index.html imports these)
 export const METRICS=['oklab','de2000','de76','redmean']
-// CIEDE2000, Sharma/Wu/Dalal 2005 — reproduces their canonical pairs exactly (2.0425 · 2.8615 · 3.4412)
-const de2000=(p,s)=>{ const R=Math.PI/180
-	const C1=Math.hypot(p[1],p[2]),C2=Math.hypot(s[1],s[2]),Cm0=(C1+C2)/2
-	const G=.5*(1-Math.sqrt(Cm0**7/(Cm0**7+25**7)))
-	const A1=p[1]*(1+G),A2=s[1]*(1+G)
-	const c1=Math.hypot(A1,p[2]),c2=Math.hypot(A2,s[2])
-	const h1=c1?(Math.atan2(p[2],A1)/R+360)%360:0, h2=c2?(Math.atan2(s[2],A2)/R+360)%360:0
-	const dL=s[0]-p[0], dC=c2-c1
-	let dh=h2-h1; if(c1*c2===0) dh=0; else if(dh>180) dh-=360; else if(dh<-180) dh+=360
-	const dH=2*Math.sqrt(c1*c2)*Math.sin(dh/2*R)
-	const Lm=(p[0]+s[0])/2, cm=(c1+c2)/2
-	let hm=h1+h2; if(c1*c2!==0){ hm=(h1+h2)/2; if(Math.abs(h1-h2)>180) hm+=(h1+h2)<360?180:-180 }
-	const T=1-.17*Math.cos((hm-30)*R)+.24*Math.cos(2*hm*R)+.32*Math.cos((3*hm+6)*R)-.20*Math.cos((4*hm-63)*R)
-	const SL=1+.015*(Lm-50)**2/Math.sqrt(20+(Lm-50)**2), SC=1+.045*cm, SH=1+.015*cm*T
-	const RT=-Math.sin(2*30*Math.exp(-(((hm-275)/25)**2))*R)*2*Math.sqrt(cm**7/(cm**7+25**7))
-	return Math.sqrt((dL/SL)**2+(dC/SC)**2+(dH/SH)**2+RT*(dC/SC)*(dH/SH)) }
-export const siteDist=(m,q,s)=>m==='de2000'?de2000(q.lab,s.lab)
+export const siteDist=(m,q,s)=>m==='de2000'?deltaE2000(q.lab,s.lab)   // CIEDE2000 (measure.js: Sharma, Wu & Dalal 2005)
 	:m==='de76'?(q.lab[0]-s.lab[0])**2+(q.lab[1]-s.lab[1])**2+(q.lab[2]-s.lab[2])**2
 	:m==='redmean'?(rm=>(2+rm/256)*(q.rgb[0]-s.rgb[0])**2+4*(q.rgb[1]-s.rgb[1])**2+(2+(255-rm)/256)*(q.rgb[2]-s.rgb[2])**2)((q.rgb[0]+s.rgb[0])/2)
 	:(q.ok[0]-s.ok[0])**2+(q.ok[1]-s.ok[1])**2+(q.ok[2]-s.ok[2])**2
@@ -565,14 +583,14 @@ bool inVisSolidExact(vec3 c) {   // one-pixel-high bars: exact scalar/GPU parity
 
 // program + uniforms + draw for one plane/bar kernel
 const KV4 = [0, 0, 0, 0]   // reused held-values scratch — the atlas calls this ~60× per drag frame
-function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, ox = 0, oy = 0, enc = 0) {
+function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, ox = 0, oy = 0, enc = 0, look = null) {
 	// Flat cluster fills must survive readback byte-for-byte (marker centering uses
 	// the painted run); retain hardware dithering only for genuinely smooth fields.
 	quant ? G.disable(G.DITHER) : G.enable(G.DITHER)
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uEnc', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uEnc', 'uEdge', 'uEdgeW', 'uEdgeA', 'uEdgeInk', 'uCut', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	KV4[0] = KV4[1] = KV4[2] = KV4[3] = 0; for (let i = 0; i < Math.min(4, vals.length); i++) KV4[i] = vals[i]
 	G.uniform4f(st.u.uV, KV4[0], KV4[1], KV4[2], KV4[3])
@@ -588,6 +606,11 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.uniform1i(st.u.uTri, tri || 0)
 	G.uniform1i(st.u.uClu, PALETTES[quant] ? 1 : quant === 'jnd' ? 2 : quant === '565' ? 3 : 0)
 	G.uniform1i(st.u.uEnc, enc)
+	G.uniform1i(st.u.uEdge, (look?.edges || []).reduce((m, g) => m | (EDGEB[g] || 0), 0))
+	G.uniform1f(st.u.uEdgeW, look?.width ?? 1)
+	G.uniform1f(st.u.uEdgeA, look?.alpha ?? 1)
+	G.uniform1f(st.u.uEdgeInk, look?.ink ?? -1)
+	G.uniform1i(st.u.uCut, look?.cut ? 1 : 0)
 	// sampler units are program state and DEFAULT TO 0 — an int 3D sampler and a float 2D
 	// sampler colliding on unit 0 is GL_INVALID_OPERATION on every draw, palette bound or not
 	if (st.u.uPalIdx) G.uniform1i(st.u.uPalIdx, PAL_UNIT)
@@ -599,7 +622,7 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 
 // the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end
 const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && 'drawingBufferColorSpace' in G ? 1 : 0
-function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0) {
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0, look = null) {
 	const cs = enc ? 'display-p3' : 'srgb'
 	if (G.drawingBufferColorSpace && G.drawingBufferColorSpace !== cs) G.drawingBufferColorSpace = cs
 	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
@@ -607,7 +630,7 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.disable(G.DEPTH_TEST)
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
-	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, 0, 0, enc)
+	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, 0, 0, enc, look)
 }
 
 /**
@@ -659,16 +682,18 @@ function presentKernel(cv2d, deferred) {
 // whatever reads the pixels (a label's ink) must read them then
 const presented = cv2d => cv2d.dispatchEvent(new Event('present'))
 
-export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false) {
+// look: { edges: ['srgb' | 'p3' | 'rec2020'…], width: device px, alpha, ink: 1 white | 0 black (else each pixel's), cut } – edges draws those gamuts' boundaries as lines
+// over the field, inked against it; cut voids the field past `gamut` instead of ghosting it
+export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false, look = null) {
 	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (kernelPending) {
 		const held = vals.slice(), xr = rx.slice(), yr = ry.slice()
-		queueKernel(cv2d, () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, deferred))
+		queueKernel(cv2d, () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, deferred, look))
 		return true
 	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, encOf(cv2d))
+	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, encOf(cv2d), look)
 	return presentKernel(cv2d, deferred)
 }
 
@@ -677,17 +702,17 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
  * gamut alpha — the smooth version of the stepped CSS mask. `metric` is the palette
  * lens's distance, as for the planes – a bar and a plane of one lens agree.
  */
-export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, metric, deferred = false) {
+export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, metric, deferred = false, look = null) {
 	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
 	if (kernelPending) {
 		const held = vals.slice(), range = ri.slice()
-		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, metric, deferred))
+		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, metric, deferred, look))
 		return true
 	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric, encOf(cv2d))
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric, encOf(cv2d), look)
 	return presentKernel(cv2d, deferred)
 }
 
