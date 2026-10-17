@@ -19,6 +19,7 @@ const browser = await chromium.launch({
 })
 try {
 	const page = await browser.newPage()
+	await page.addInitScript(() => { globalThis.CS_GL = 'gpu' })   // a host without a GPU still runs the kernels under test (gl.js softGL)
 	const pageErrors = []
 	page.on('pageerror', error => pageErrors.push(error.message))
 	await page.goto(`${server.origin}/test/gl-gpu.html?cb=${Date.now()}`, { waitUntil: 'domcontentloaded' })

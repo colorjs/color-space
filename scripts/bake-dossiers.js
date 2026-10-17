@@ -50,6 +50,7 @@ export async function bakeDossiers(site, i18n) {
 		// capture, a different one per build), and their per-frame repaints – software GL here –
 		// can't starve the idle slices that wire the catalog's rows
 		const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
+		await page.addInitScript(() => { globalThis.CS_GL = 'gpu' })   // SwiftShader here: bake what a GPU shows (gl.js softGL) – the shell hydration replaces must match it
 		page.setDefaultTimeout(120000)   // a loaded machine: a page's load alone can take longer than Playwright's 30 s
 		// the page loaded and every row wired – again after a dossier that would not open (a starved machine loses one now and then: up to two reloads)
 		const ready = async () => {

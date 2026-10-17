@@ -1435,6 +1435,7 @@
 "ui.img.contrast": {"t":"Simultaneous contrast – one gray, four surrounds","h":"643067ad"},
 "ui.img.glow": {"t":"Emissive star – clipped core and chromatic glow","h":"beab694a"},
 "ui.img.pick": {"t":"press and drag to pick – the release keeps the color","h":"87b9c30e"},
+"ui.img.reading": {"t":"reading the image…","h":"86f8cbe4"},
 "ui.img.remove": {"t":"remove the image","h":"00155efd"},
 "ui.img.samples": {"t":"sample images","h":"41310b10"},
 "ui.img.target": {"t":"Color rendition target","h":"fd8661e2"},

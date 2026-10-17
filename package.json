@@ -250,7 +250,7 @@
     "esbuild": "^0.28.1",
     "jz": "^0.9.2",
     "libheif-js": "^1.19.8",
-    "lighthigh": "^1.0.0",
+    "lighthigh": "^1.0.1",
     "naga-wasm": "30.2.0",
     "nice-color-palettes": "^4.0.0",
     "playwright": "^1.61.1",

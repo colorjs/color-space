@@ -28,10 +28,15 @@ const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 const CV = typeof document !== 'undefined' ? document.createElement('canvas') : null
 const G = CV && (CV.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false }) || null)
 
-// a software rasterizer (SwiftShader, llvmpipe) spends seconds of CPU on each compile: nothing worth compiling ahead of
-// need. Asked lazily: a renderer query at load stalls the page's first frames
+// a software rasterizer behind the context (SwiftShader, llvmpipe, Microsoft's Basic Render Driver – no GPU, or a blocked
+// one) compiles a space's kernel on the CPU: lab's took 18 s, and the page froze at every wait for it (a canvas resize, a
+// status read, a readback). There the planes, bars, xy plate and solid paint by their JS paths, in milliseconds – none of
+// them a GPU kernel (hasPlaneGL, has3dGL, hasGamutGL). Asked lazily: a renderer query at load stalls the first frames.
+// globalThis.CS_GL = 'gpu', set before the page loads, keeps the kernels on such a host: the site's checks and the
+// dossier bake run headless on SwiftShader and must drive (and bake) what a GPU shows
 let soft
-export const softGL = () => soft ??= !!G && (ri => /SwiftShader|llvmpipe|software/i.test(ri ? G.getParameter(ri.UNMASKED_RENDERER_WEBGL) : G.getParameter(G.RENDERER)))(G.getExtension('WEBGL_debug_renderer_info'))
+const softRaster = () => soft ??= !!G && (ri => /SwiftShader|llvmpipe|softpipe|software|basic render/i.test(ri ? G.getParameter(ri.UNMASKED_RENDERER_WEBGL) : G.getParameter(G.RENDERER)))(G.getExtension('WEBGL_debug_renderer_info'))
+export const softGL = () => globalThis.CS_GL !== 'gpu' && softRaster()
 
 let readyCb = null
 /** Called whenever an async program finishes linking — repaint to upgrade. */
@@ -77,7 +82,7 @@ function build(gl, vsSrc, fsSrc, resolve, preLink, st) {
 }
 
 /** Is the GPU plane kernel possible for this space? */
-export const hasPlaneGL = s => kernelTransfers && !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4
+export const hasPlaneGL = s => kernelTransfers && !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4 && !softGL()
 
 // ── measured-dataset LUTs (munsell's renotation): a composed source that reads one
 // declares `uniform sampler2D <name>tex` — upload the chunk-declared data once per
@@ -394,16 +399,13 @@ export function planeGLStatus(s) {
 	return st.bad ? 'no' : st.pending ? 'pending' : 'ready'
 }
 
-// a software rasterizer behind the context (SwiftShader, llvmpipe, WARP – no GPU, or a blocked one): a first draw there
-// compiles the shader to CPU code, seconds a program, and every paint after it queues behind – priming a neighbour would
-// cost the open dossier its frames (a third of them, measured under SwiftShader), so it compiles them and draws them later
-const SOFT_GL = (() => { try { const d = G?.getExtension('WEBGL_debug_renderer_info'); return /swiftshader|llvmpipe|softpipe|software|basic render|warp/i.test(d ? G.getParameter(d.UNMASKED_RENDERER_WEBGL) : '') } catch { return false } })()
 /**
  * Start compiling a space's plane and bar program ahead of need: behind the programs asked for now, or (soon) ahead of
  * the other warm-ups. Primed on a GPU unless told not (prime false): one pixel drawn once it links – where a driver
- * builds its pipeline, a stall then rather than at the first real paint; never on a software rasterizer (SOFT_GL)
+ * builds its pipeline, a stall then rather than at the first real paint – never on a software rasterizer, kernels kept or not
+ * (CS_GL): its first draw compiles the shader on the CPU, seconds every paint after it waits behind
  */
-export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { const st = planeProg(s, soon); st.prime ||= prime && !SOFT_GL } }
+export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { const st = planeProg(s, soon); st.prime ||= prime && !softRaster() } }
 
 // A warmed program draws one pixel once it links: a driver may build the GPU pipeline only at a program's first draw
 // (Metal under ANGLE compiles its shader library there), which would otherwise stall the first real paint
@@ -773,7 +775,7 @@ export function mesh3Canvas() {
 	if (!M3CV && typeof document !== 'undefined') { M3CV = document.createElement('canvas'); M3CV.className = 'mesh3' }
 	return M3CV
 }
-export const has3dGL = s => (s === 'rgb' || (!!graph[s] && dimOf(s) === 3)) && !!(mesh3Canvas() && mesh3State(mesh3Canvas()))
+export const has3dGL = s => (s === 'rgb' || (!!graph[s] && dimOf(s) === 3)) && !softGL() && !!(mesh3Canvas() && mesh3State(mesh3Canvas()))
 
 // shared geometry, built once
 let GEO = null
@@ -1952,7 +1954,7 @@ export const gamutStatus = (s) => {
  *  (kelvin's Planckian curve, gray's neutral axis). It needs the xyz round trip;
  *  one-way spaces (wavelength) honestly have no coverage to show. */
 const gamutOK = new Map()
-export const hasGamutGL = s => { if (!G || !meta[s]?.range) return false
+export const hasGamutGL = s => { if (!G || !meta[s]?.range || softGL()) return false
 	if (!gamutOK.has(s)) { let ok = s === 'rgb'
 		if (!ok) try { glsl([['xyz', s], [s, 'xyz']]); ok = true } catch {}
 		gamutOK.set(s, ok) }

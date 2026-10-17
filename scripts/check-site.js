@@ -46,6 +46,10 @@ const toCatalog = (pg) => pg.evaluate(async () => { const y = document.getElemen
 	await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))) })   // the scroll timeline moves the row's cells on the frames after the scroll
 const server = await serve(SITE)
 const browser = await chromium.launch({ headless: true, executablePath })
+// headless Chrome rasterizes on SwiftShader, where the page paints its JS paths (gl.js softGL): every check but the one
+// below drives the GPU kernels a visitor with a GPU gets (CS_GL), the software path checked on its own
+const softContext = browser.newContext.bind(browser)
+browser.newContext = async (o) => { const c = await softContext(o); await c.addInitScript(() => { globalThis.CS_GL = 'gpu' }); return c }
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
 const errors = []
 try {
@@ -146,7 +150,7 @@ try {
 		const st=performance.now(); await new Promise(done=>{ let k=0; const tick=t=>{ set(190+(k++%45)); t-st<240?requestAnimationFrame(tick):done() }; requestAnimationFrame(tick) })
 		delete otherVal.value; const throttled={writes:writes.length,value:otherVal.value}; await pause(180); const held={thumb:otherRange.value,otherGradient:otherLane._g,rootWrites}; rootObserver.disconnect()
 		set(245); const beforeRelease={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g}
-		src.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:17,isPrimary:true})); src.dispatchEvent(new Event('change',{bubbles:true})); const released={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g,rows:rowKeys()}
+		src.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:17,isPrimary:true})); src.dispatchEvent(new Event('change',{bubbles:true})); await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); const released={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g,rows:rowKeys()}
 		await pause(500); const post={accent:getComputedStyle(document.querySelector('.dpop')).accentColor,current:getComputedStyle(document.getElementById('ftr')).backgroundColor}; return {mid,immediate,throttled,held,beforeRelease,released,post} })
 	assert.notEqual(liveTier.immediate.gradient,liveTier.mid.gradient,'current-space neighboring gradients update live')
 	assert.notEqual(liveTier.immediate.uiColor,liveTier.mid.uiColor,'scoped current-color UI stays live during a drag')
@@ -161,22 +165,22 @@ try {
 	assert.equal(liveTier.immediate.thumbColor.trim().toLowerCase(),liveTier.immediate.uiColor.toLowerCase(),'every visible picker wears the current displayed color')
 	assert.notEqual(liveTier.held.otherGradient,liveTier.immediate.otherGradient,'a held hand moves the other spaces\' gradients too – throttled, not held for the release')
 	assert.match(liveTier.held.otherGradient,/:8:(vis|off):/,'held secondary gradients take the low-cost guides – the drag\'s frames stay with the strip in hand')
-	assert.notEqual(liveTier.released.thumb,liveTier.beforeRelease.thumb,'release flushes the final picker position synchronously')
-	assert.notEqual(liveTier.released.otherGradient,liveTier.beforeRelease.otherGradient,'release repaints secondary gradients synchronously')
+	assert.notEqual(liveTier.released.thumb,liveTier.beforeRelease.thumb,'release flushes the final picker position – the frame after it lets go (the cursor back first)')
+	assert.notEqual(liveTier.released.otherGradient,liveTier.beforeRelease.otherGradient,'release repaints secondary gradients the frame after it lets go')
 	assert.match(liveTier.released.otherGradient,/:48:(vis|off):/,'released secondary sliders regain full-quality guides immediately')
 	assert.equal(liveTier.released.rows.length>1&&liveTier.released.rows.every(({s,key})=>new RegExp(`:${s==='rgb'?1:48}:(vis|off):`).test(key)),true,'release repaints every visible catalog row at its full guide count')
 	assert.equal(liveTier.post.accent,liveTier.post.current,'the menus\' native ranges wear the current color – never through an accent on <html>, which restyles the whole page')
 	const cancelled=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]'), lane=document.querySelector('.ent[data-s="p3"] .ch'), before=lane._g
 		src.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:18,isPrimary:true})); src.value=32; src.dispatchEvent(new Event('input',{bubbles:true})); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))
-		src.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:18,isPrimary:true})); return {before,after:lane._g} })
-	assert.notEqual(cancelled.after,cancelled.before,'pointer cancellation repaints catalog gradients synchronously')
+		src.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:18,isPrimary:true})); await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); return {before,after:lane._g} })
+	assert.notEqual(cancelled.after,cancelled.before,'pointer cancellation repaints catalog gradients the frame after')
 	assert.match(cancelled.after,/:48:(vis|off):/,'pointer cancellation restores full-quality guides immediately')
 	const customCatalogCancel=await page.evaluate(async()=>{ const ch=document.querySelector('.ent[data-s="rgb"] .ch'), back=document.querySelector('.ent[data-s="p3"] .ch'), r=ch.getBoundingClientRect(), capture=ch.setPointerCapture; ch.setPointerCapture=()=>{}
 		const pointer=(type,f)=>ch.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:21,isPrimary:true,clientX:r.left+r.width*f,clientY:r.top+r.height/2}))
 		pointer('pointerdown',.2); pointer('pointermove',.65); await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))); const active=ch.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
-		pointer('pointercancel',.65); ch.setPointerCapture=capture; return {active,parked:!ch.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
+		pointer('pointercancel',.65); ch.setPointerCapture=capture; await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); return {active,parked:!ch.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
 	assert.equal(customCatalogCancel.active&&customCatalogCancel.parked,true,'pointer cancellation parks a custom catalog slider')
-	assert.notEqual(customCatalogCancel.after,customCatalogCancel.held,'custom catalog cancellation repaints ranges synchronously')
+	assert.notEqual(customCatalogCancel.after,customCatalogCancel.held,'custom catalog cancellation repaints ranges the frame after')
 	assert.match(customCatalogCancel.after,/:48:(vis|off):/,'custom catalog cancellation restores full-quality ranges')
 	await toCatalog(page)
 	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
@@ -387,13 +391,13 @@ try {
 	await trigger.click()
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
-	// a plane zoomed (a pinch: ctrl+wheel) repaints its field, never the code plate: a plate's paint is a new stylesheet
-	// (lighthigh's ::highlight rules) and a stylesheet change restyles the whole page – a zoom once ran at a frame a second
-	{	await page.evaluate(() => { window.__sheets = 0; window.__sheetsMO = new MutationObserver(ms => { for (const m of ms) for (const x of m.addedNodes) if (x.dataset?.lighthigh) window.__sheets++ }); window.__sheetsMO.observe(document.head, { childList: true }) })
+	// a plane zoomed (a pinch: ctrl+wheel) repaints its field, never a stylesheet: a stylesheet changed restyles the whole
+	// page – a zoom once ran at a frame a second on a code plate re-highlighted each frame (lighthigh 1.0: a sheet a paint)
+	{	const rules = () => page.evaluate(() => document.querySelectorAll('style').length + [...document.adoptedStyleSheets].reduce((n, x) => n + x.cssRules.length, 0)), before = await rules()
 		const pb = await page.locator('#detail .pl').first().boundingBox(); await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2)
 		await page.keyboard.down('Control'); for (let k = 0; k < 6; k++) { await page.mouse.wheel(0, -40); await page.waitForTimeout(40) } await page.keyboard.up('Control')
 		await page.waitForTimeout(300)
-		assert.equal(await page.evaluate(() => { window.__sheetsMO.disconnect(); return window.__sheets }), 0, 'zooming a plane inserts no highlight stylesheet – the code plate repaints only when its text changes')
+		assert.equal(await rules(), before, 'zooming a plane adds no stylesheet or rule – the code plate repaints only when its text changes, and then moves ranges')
 		await page.keyboard.down('Control'); for (let k = 0; k < 6; k++) await page.mouse.wheel(0, 40); await page.keyboard.up('Control') }   // the view back to full by the same pinch – a press on the plane would take its color
 	// a dossier gone gives its plates' highlights back: every dossier builds its own plates, and each one's stylesheet once
 	// stayed behind it – a stylesheet more a dossier opened, each a whole-page restyle (the deploy's bake ran out its 6 h on them)
@@ -457,15 +461,17 @@ try {
 	await page.waitForTimeout(230)
 	const backHeld=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
 	assert.equal(backHeld,backMid.gradient,'a dossier drag leaves the catalog\'s gradients behind it still until release')
-	await page.mouse.up()
+	assert.equal(await page.evaluate(()=>document.querySelector('.veil').hidden),false,'a held mouse drag veils the page – one element\'s cursor:none, its marker the pointer')
+	await page.mouse.up(); assert.equal(await page.evaluate(()=>document.querySelector('.veil').hidden),true,'the release lifts the veil at once: the cursor back before any settle')
+	await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))))
 	const backReleased=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
-	assert.notEqual(backReleased,backHeld,'dossier release repaints background catalog gradients synchronously')
+	assert.notEqual(backReleased,backHeld,'dossier release repaints background catalog gradients the frame after it lets go')
 	assert.match(backReleased,/:48:(vis|off):/,'dossier release restores full-quality background gradients immediately')
 	const nativeCancel=await page.evaluate(async()=>{ const r=document.querySelector('.bar2[data-i="1"] .nrg'), bar=r.closest('.bar2'), back=document.querySelector('.ent[data-s="oklab"] .ch'), frame=()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))
 		r.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:19,isPrimary:true})); r.value=+r.min+(+r.max-+r.min)*.37; r.dispatchEvent(new Event('input',{bubbles:true})); await frame(); const active=bar.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
-		r.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:19,isPrimary:true})); return {active,parked:!bar.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
+		r.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:19,isPrimary:true})); await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); return {active,parked:!bar.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
 	assert.equal(nativeCancel.active&&nativeCancel.parked,true,'pointer cancellation parks a native dossier slider')
-	assert.notEqual(nativeCancel.after,nativeCancel.held,'native dossier cancellation repaints background ranges synchronously')
+	assert.notEqual(nativeCancel.after,nativeCancel.held,'native dossier cancellation repaints background ranges the frame after')
 	assert.match(nativeCancel.after,/:48:(vis|off):/,'native dossier cancellation restores full-quality background ranges')
 	await toCatalog(page)
 	await page.locator('#cval').fill('#234567'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#234567'); await page.locator('#cval').press('Enter')   // typed and committed: its suggestions shut, as a hand reaching for a slider shuts them
@@ -473,9 +479,9 @@ try {
 	const customCancel=await smoothL.evaluate(async el=>{ const back=document.querySelector('.ent[data-s="oklab"] .ch'), r=el.getBoundingClientRect(), capture=el.setPointerCapture; el.setPointerCapture=()=>{}
 		const pointer=(type,f)=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:20,isPrimary:true,clientX:r.left+r.width*f,clientY:r.top+r.height/2}))
 		pointer('pointerdown',.52); pointer('pointermove',.58); await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))); const active=el.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
-		pointer('pointercancel',.58); el.setPointerCapture=capture; return {active,parked:!el.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
+		pointer('pointercancel',.58); el.setPointerCapture=capture; await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); return {active,parked:!el.classList.contains('live'),held,after:back._g||back.closest('.ent').dataset.g} })
 	assert.equal(customCancel.active&&customCancel.parked,true,'pointer cancellation parks a custom dossier slider')
-	assert.notEqual(customCancel.after,customCancel.held,'custom dossier cancellation repaints background ranges synchronously')
+	assert.notEqual(customCancel.after,customCancel.held,'custom dossier cancellation repaints background ranges the frame after')
 	assert.match(customCancel.after,/:48:(vis|off):/,'custom dossier cancellation restores full-quality background ranges')
 	await toCatalog(page)
 	await page.locator('#cval').fill('#345678'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#345678'); await page.locator('#cval').press('Enter')   // typed and committed: its suggestions shut, as a hand reaching for a slider shuts them
@@ -487,8 +493,8 @@ try {
 	const lbar=page.locator('.bar2[data-i="0"]'), lr=await lbar.boundingBox()
 	await page.mouse.move(lr.x+lr.width*.27,lr.y+lr.height/2); await page.mouse.down(); await page.waitForTimeout(30)
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.27','quantized slider moves continuously while held')
-	await page.mouse.up()
-	assert.match(await page.locator('.ent[data-s="oklch"] .ch').first().evaluate(el=>el._g||el.closest('.ent').dataset.g),/^oklch\|0\.25,.*:0:48:vis:10$/,'release synchronously repaints catalog ranges from the final snapped value')
+	await page.mouse.up(); await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))))
+	assert.match(await page.locator('.ent[data-s="oklch"] .ch').first().evaluate(el=>el._g||el.closest('.ent').dataset.g),/^oklch\|0\.25,.*:0:48:vis:10$/,'release repaints catalog ranges from the final snapped value, the frame after it lets go')
 	await page.waitForTimeout(260)   // the release PARKS: a 180ms glide into the cell, so the read waits it out
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.25','quantized slider snaps to its cell center on release')
 	await page.mouse.click(lr.x+lr.width*.01,lr.y+lr.height/2); await page.waitForTimeout(260)
@@ -1004,6 +1010,20 @@ try {
 	assert.equal(rendering.samples, 38, 'one-pixel bar and plane quantization agree with the CPU at byte boundaries, under each palette distance')
 	assert.ok(rendering.changed > 0, 'contours preserve coverage and reset across RGB → OKLab → RGB on one canvas')
 	await gpu.close()
+
+	// the software path itself: on a host without a GPU (this one, without CS_GL) a dossier opens through the JS painters
+	// – no kernel compiled on the CPU (lab's froze the page 18 s), its planes painted, the solid on the one shared canvas
+	{	const sc = await softContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }), sp = await sc.newPage(), serr = []
+		sp.on('pageerror', (e) => serr.push(e.message))
+		await sp.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' }); await sp.waitForSelector('.ent[data-s="lab"] .nm')
+		const t0 = Date.now(); await sp.evaluate(() => document.querySelector('.ent[data-s="lab"] .nm').click())
+		await sp.waitForFunction(() => document.getElementById('detail')?._s === 'lab' && [...document.querySelectorAll('#detail .pl canvas:not(.density)')].every((c) => c.width > 1 && (() => { try { return c.getContext('2d').getImageData(c.width >> 1, c.height >> 1, 1, 1).data[3] > 0 } catch { return false } })()), null, { timeout: 30000, polling: 250 })
+		const opened = Date.now() - t0
+		assert.equal(await sp.evaluate(() => document.querySelectorAll('#detail .pl.polar, #detail .pl.tric, #detail .pl.triw, #detail .pl.trid').length), 0, 'no GPU: the planes are the JS painter\'s squares')
+		assert.equal(await sp.evaluate(() => document.querySelector('#pl3d .mesh3')?.isConnected && document.querySelectorAll('canvas.mesh3').length === 1), true, 'no GPU: the solid draws on the one shared canvas')
+		assert.deepEqual(serr, [], 'no GPU: no page errors')
+		console.log(`browser (no GPU): a dossier opens through its JS painters in ${opened} ms`)
+		await sc.close() }
 
 	if (errors.length) throw new Error(errors.join('\n'))
 	console.log('browser: search, coverage filter, CSS parsing, tabs, persisted theme, modal lifecycle, direct route, mobile keyboard, social image, offline shell, quantization boundaries and contour reuse pass')

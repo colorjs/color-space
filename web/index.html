@@ -115,7 +115,6 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    frame, an image on the right. As tall as the row, its box hung out by the row's inset (s3): the color lands on the
    field's pixels, and the field's on the row's */
 .hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--hang)); max-width:44rem; min-height:var(--cells-h); transition:min-height var(--dur-short) var(--ease-out); margin-inline-start:calc(-1 * var(--hang)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
-@media(min-width:641px){ .hfield{ max-width:min(44rem,50vw) } }   /* past a phone, never over half the window: the list it opens, docked too, as wide */
 .hql{ flex:1; align-self:stretch; cursor:text }   /* the frame's empty run: a click there types the color */
 .hib{ position:relative; display:grid; flex:none; place-items:center; width:var(--s12); height:var(--s12); padding:0; color:var(--soft); background:none; border:0; cursor:pointer; --ic:20px; transition:color var(--dur-micro) var(--ease-out),background-color var(--dur-micro) var(--ease-out) }   /* dim → ink, as every icon */
 #heye{ display:none }
@@ -214,7 +213,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    from the hero's foot, --hc-up), it scrolls with the field and pins at the top, at the row's free left. Over the row,
    above it; over a card, fixed where it pins */
 .hcolor{ position:sticky; top:0; z-index:calc(var(--z-sticky-nav) + 1); height:0; margin-block:calc(-1 * var(--hc-up,0px)) var(--hc-up,0px); padding-inline:var(--gut); pointer-events:none }
-.hcolor>.cx{ position:relative; box-sizing:border-box; display:flex; align-items:center; --hbn:1; width:var(--hfw,calc(min(44rem,100% - var(--railw) - var(--railgap) + var(--hang)) - var(--s1) - var(--s12) * var(--hbn))); min-height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--hang)); padding:calc((var(--cells-h) - var(--cvf) * 1.3) / 2) var(--s4) calc((var(--cells-h) - var(--cvf) * 1.3) / 2) var(--s3);   /* one line of the value centred in the row's height – a second line grows it */ cursor:text; pointer-events:auto }
+.hcolor>.cx{ position:relative; box-sizing:border-box; display:flex; align-items:center; --hbn:1; width:var(--hfw,calc(min(44rem,100% - var(--railw) - var(--railgap) + var(--hang)) - var(--s1) - var(--s12) * var(--hbn))); min-height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--hang)); padding:calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s4) calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s3);   /* one line of the value centred in the row's height – a second line grows it */ cursor:text; pointer-events:auto }
 @media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:calc(-1 * var(--hang)); width:var(--hfw,calc(min(44rem,100%) + var(--hang) - var(--s1) - var(--s12) * var(--hbn))) } }
 :root.eye .hcolor>.cx{ --hbn:2 } :root.eye #heye{ display:grid }   /* the frame's own width, the field's buttons off it – before any script measures: the first paint is the last (the eyedropper known before it, in the head) */
 .mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before: clear only while the scroll timeline holds it so (dock), so an engine that drops the timeline mid-scroll leaves the row paper, never see-through */
@@ -263,18 +262,19 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 .qx:focus-within input{ width:6rem } .qx input:not(:placeholder-shown){ width:auto; min-width:2ch; max-width:8rem; field-sizing:content }   /* room for a name or two, no more – nobody searches a sentence; a typed word, as wide as it is */
 .qx:not(:focus-within):has(input:placeholder-shown){ gap:0 }   /* closed, the cell is its icon alone – no gap held for a field of no width */
 .qx input::placeholder{ color:var(--soft); opacity:1 }
+.cx.busy #cval{ cursor:progress }   /* an image being read (imgbusy): its words in the placeholder's ink */
 #cval::placeholder{ color:color-mix(in oklab,currentColor 45%,transparent); opacity:1 }   /* the empty field's ask: the text's own ink, half there – dark on paper, light on a dark one, and whatever the row's words wear over the top edge's color */
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
 .cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
-.hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:var(--cvf0) } .hcolor:has(>.cx.long){ --cvf0:var(--t2) } body.cdock .hcolor{ --cvf:var(--t2) }   /* the value's size: the slogan's over the hero – a long one (over a line at it: js fitLong) the row's – the row's docked – one var the box's padding is cut to, so the first paint is the last */
-.cxw #cval{ font-size:var(--cvf); font-weight:500; line-height:1.3 }   /* the slogan's size, a step bolder – in the hero and docked alike */
+.hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:var(--cvf0); --cvl:1.5 } .hcolor:has(>.cx.long){ --cvf0:var(--t2) } body.cdock .hcolor{ --cvf:var(--t2) }   /* the value's size and line (--cvl: the slogan's, .hsub – the lines under its colors clear of the next line's words): the slogan's over the hero – a long one (over a line at it: js fitLong) the row's – the row's docked – one var the box's padding is cut to, so the first paint is the last */
+.cxw #cval{ font-size:var(--cvf); font-weight:500; line-height:var(--cvl) }   /* the slogan's size, a step bolder – in the hero and docked alike */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
 .cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:underline var(--ulw) transparent; text-underline-offset:var(--uvo) }   /* the field's colors underlined: unseen text, seen lines */
-.hcolor>.cx:hover .cvul u{ text-decoration-color:var(--hair) } .hcolor>.cx .cvul u:is(.on,.hot){ text-decoration-color:var(--curl) } .hcolor>.cx .cvul:has(u.hot) u.on:not(.hot){ text-decoration-color:var(--hair) }   /* pointed at, every color; the caret's, in its own – and the one an instrument's press would take (stophot), the pointer outranking the caret: one in color at a time, the caret's back to the field's half strength */
+.hcolor>.cx:hover .cvul u{ text-decoration-color:var(--ulh) } .hcolor>.cx .cvul u:is(.on,.hot){ text-decoration-color:var(--curl) } .hcolor>.cx:hover .cvul u.on:not(.hot),.hcolor>.cx .cvul:has(u.hot) u.on:not(.hot){ text-decoration-color:var(--ulh) }   /* pointed at, every color its line, as a row's pairs (.cvp) – in color only the one pointed at, kept between words; let go, the caret's – and the one an instrument's press would take (stophot): one in color at a time */
 .hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx:not(:focus-within) .cvul:not(:has(u:is(.hot,.on))){ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
-@property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.3 }
+@property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.5 }   /* one line: --cvl's (an initial value takes no var) */
 .hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
 .hcolor #cval{ display:block; width:100%; max-width:none; height:calc(var(--cvh) * 1em); resize:none; transition:--cvh var(--dur-short) var(--ease-out); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; field-sizing:fixed }
 body.cdock .hcolor>.cx{ width:var(--cdw,max-content); clip-path:inset(calc(var(--ulw) + var(--s2)) -100vw -100vh -100vw) }   /* docked, the field under the row's top edge: the edge's line and its reach over it, the edge answering the pointer there as anywhere along the row – the list under it unclipped */ body.cdock .hcolor .cxw{ flex:1 }   /* docked: as wide as the row's room – to the search – the whole of it the field's */
@@ -309,7 +309,7 @@ body.cdock .hcolor.wide :is(#cval:not(:placeholder-shown),.cvshow){ color:transp
 #hq{ anchor-name:--cfield } .hcolor>.cx{ anchor-name:--cbox }   /* the hero's frame, and the box the value is typed in – over the frame, or docked in the row */
 #csug{ position:absolute; top:100%; left:0; z-index:1; box-sizing:border-box; display:flex; flex-direction:column; width:var(--hqw,100%); max-width:calc(100vw - 2 * var(--gut)); padding:var(--s2); background:var(--paper); border-top:var(--rule-hair) solid var(--hair); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); clip-path:inset(0 -3rem -3rem); cursor:default }   /* the field's own lower part: a hairline under the value, the box's shadow on round it – none cast up over the field */   /* right under the box typed in – its own child, so no engine places it: never over the field – as wide as the hero's frame */
 #csug[hidden]{ display:none }
-.hcolor #cvx{ flex:none; height:calc(var(--cvf) * 1.3); pointer-events:auto }   /* the field's ×, the search's own (.qclr): the color let go – a line's height, never taller than the value it clears (a taller one swelled the field past its frame, the list under it a gap below) */
+.hcolor #cvx{ flex:none; height:calc(var(--cvf) * var(--cvl)); pointer-events:auto }   /* the field's ×, the search's own (.qclr): the color let go – a line's height, never taller than the value it clears (a taller one swelled the field past its frame, the list under it a gap below) */
 body:not(.cdock) .hcolor #cvx{ width:var(--s12); margin-inline-end:calc(-1 * var(--s4)); --ic:20px }   /* over the hero, a third of the field's buttons: their width and their icon's size, abutting the eyedropper as it does the image (the padding before it given back); docked, the search's own × */
 #csug .sgrec{ display:flex; flex-direction:column } #csug .sgr+.sgrec{ margin-top:var(--s2); padding-top:var(--s2); border-top:var(--rule-hair) solid var(--hair) }   /* the recent apart, under the menus' section rule (.dpop .msec) */
 body.cdock #csug{ left:min(0px,calc(100vw - var(--gut) - var(--hqw,100%) - var(--cxl,0px))) }   /* docked: as wide as the hero's field still – its rows the same – drawn back left only as far as keeps it in the window */ #csug b{ display:flex; align-items:flex-start; gap:var(--s2); min-width:0 } #csug .sgt{ display:flex; flex-direction:column; min-width:0 } #csug .sgt>*{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap } #csug .sgt :is(.src,.sgn){ font-weight:500; color:var(--body); cursor:pointer }   /* pressable, as a link reads: a step bolder and darker than the line round it */ #csug .sgt :is(.src,.sgn):hover{ color:var(--ink) }
@@ -354,12 +354,12 @@ body.himg #imgfloat{ display:block }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 .upbtn{ --ic:14px } .cpyi{ --ic:15px } .mnav{ --ic:20px }
 .pstack{ display:flex; align-items:center; justify-content:center; flex:none; box-sizing:content-box; width:var(--w4); padding:0 0 0 var(--s1); isolation:isolate; cursor:default }   /* the marks' column, four wide whatever it holds – one color at its middle, more growing out from it: the value's text at one place, a row's under it at the same */
-.hcolor :is(.pstack,.fmtf){ height:calc(var(--cvf) * 1.3) }   /* a line's height, the marks centred over it: the box is the value's lines, not the native picker's hit area */
+.hcolor :is(.pstack,.fmtf){ height:calc(var(--cvf) * var(--cvl)) }   /* a line's height, the marks centred over it: the box is the value's lines, not the native picker's hit area */
 .pst,#csug s{ position:relative; z-index:var(--z); flex:none; width:var(--mk); height:var(--mk); margin:0; padding:0; border:0; background:var(--w); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair); border-radius:50% } .pst{ cursor:pointer }
 /* many colors in hand: their marks layered in their order – the first on top, the last under – touching, as a palette's
    colors sit, each its own hair edge, no paper parting them; the one held ringed in ink (the slider picker's engaged
    ring), another ringed and lifted as it is pointed at. A suggestion's swatch is the same stack, plain – none held yet */
-.pstack:has(.pst) .cdw{ z-index:var(--z); width:var(--mk) }
+.pstack:has(.pst) .cdw{ z-index:calc(var(--zn) + 1); width:var(--mk) }   /* the held one over the others, wherever it stands in the order (a gradient's: over its pill, below) */
 /* stacked a step apart – 6px: three marks span one pill (a mark and two steps); the first at one color's own place */
 .pstack>*+*,#csug .sws>*+*{ margin-inline-start:calc(var(--step) - var(--mk)) }   /* two selectors, not :is() – its id would outweigh the pill's own placing of the held circle */
 .pst:not(.pill):is(:hover,:focus-visible,.hot){ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)) }
@@ -376,7 +376,7 @@ body.himg #imgfloat{ display:block }
 .pst.pill:is(:hover,.hot)::after{ opacity:1 }
 .pstack:has(.pill) .cdw{ z-index:1; margin-inline:calc(var(--p,0) * (var(--pw) - var(--mk)) - var(--pw)) calc((1 - var(--p,0)) * (var(--pw) - var(--mk))) }
 #csug s.pill{ width:var(--w4); border-radius:999px }
-.pst:is(:hover,:focus-visible){ z-index:calc(var(--zn) + 1); outline:0 }
+.pst:is(:hover,:focus-visible){ z-index:calc(var(--zn) + 2); outline:0 }
 /* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
    avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
 @media(pointer:coarse){ .cdw{ width:16px; height:28px }
@@ -751,14 +751,14 @@ body.himg #imgfloat{ display:block }
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:end; min-width:.9em; padding-inline-end:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
 .cv{ width:4.6rem; padding-bottom:0; font-size:inherit; color:var(--body); text-align:start }   /* no padding below: the pair's underline at --uvo, as the field's colors' */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:3ch } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
-.ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--hair) }   /* hovering a space underlines all its pairs, half-strength — full ink stays personal (hover/focus/.on below) */
+.ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--ulh) }   /* hovering a space underlines all its pairs, half-strength — full ink stays personal (hover/focus/.on below) */
 /* the CURRENT color as a line on the paper: its own hue, never so light (on dark paper, so dark) that the line is gone –
    a yellow underlines in its own deeper gold */
-:is(.cvp,.seg button,.cvul u){ --curl:oklch(from var(--cur,var(--accent)) min(l,.6) c h) }
-:root[data-theme="dark"] :is(.cvp,.seg button,.cvul u){ --curl:oklch(from var(--cur,var(--accent)) max(l,.65) c h) }
+:is(.cvp,.seg button,.cvul u,.bch){ --curl:oklch(from var(--cur,var(--accent)) min(l,.6) c h) }
+:root[data-theme="dark"] :is(.cvp,.seg button,.cvul u,.bch){ --curl:oklch(from var(--cur,var(--accent)) max(l,.65) c h) }
 .ent .cvp:hover,.ent .cvp:focus-within,.ent .cvp.on{ border-bottom-color:var(--curl) }   /* pointed, focused or slider-driven — the CURRENT color underlines what it drives */
 .ent .cvp:hover .cv,.ent .cvp:focus-within .cv,.ent .cvp.on .cv{ color:var(--ink) }
-.cvs:hover .cvp:focus-within:not(:hover),.ent:has(.cvp.on) .cvp:focus-within:not(.on){ border-bottom-color:var(--hair) }   /* one ink at a time — the pointer (on an input or its slider) outranks the focused pair, which falls back to half-strength */
+.cvs:hover .cvp:focus-within:not(:hover),.ent:has(.cvp.on) .cvp:focus-within:not(.on){ border-bottom-color:var(--ulh) }   /* one ink at a time — the pointer (on an input or its slider) outranks the focused pair, which falls back to half-strength */
 .cvs:hover .cvp:focus-within:not(:hover) .cv,.ent:has(.cvp.on) .cvp:focus-within:not(.on) .cv{ color:var(--body) }
 .bch .stk button{ opacity:.4; transition:opacity var(--dur-micro) var(--ease-out),color var(--dur-micro) var(--ease-out) }   /* always on at half strength — tablets have no hover */
 .bch .stk button:hover{ opacity:1; color:var(--ink) }
@@ -907,14 +907,14 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    code tabs are switched; the choice is remembered */
 .dfig{ display:flex; flex-direction:column; gap:var(--s3); align-items:center; min-width:0 }
 .dfig[data-v="3d"]>.vgrp:not([data-f="3d"]),.dfig[data-v="xy"]>.vgrp:not([data-f="xy"]),.dfig[data-v="tc"]>.vgrp:not([data-f="tc"]){ display:none }
-.dfig .vgrp:is(:has(.gam2d),:has(.tcvw)),.dfig :is(.gam2d,.tcvw){ max-width:none }   /* the plates take the column: the locus's marks want the room, the curve its run */
+.dfig .vgrp:is([data-f="xy"],[data-f="tc"]),.dfig :is(.gam2d,.tcvw){ max-width:none }   /* the plates take the column: the locus's marks want the room, the curve its run */
 .seg.figseg button{ display:grid; place-items:center; padding:0; border-bottom:0; --ic:18px }   /* the switch speaks in icons, the row's way – dim, inked when chosen or pointed, never moved; the names are its tooltips (.seg.figseg: past .seg button's underline and its padding, which the chosen one alone escaped) */
 .seg.figseg button.on{ position:relative; color:var(--ink) }
 .seg.figseg button.on::after{ content:''; position:absolute; inset-inline:0; bottom:calc(-1 * var(--s1)); height:var(--ulw); background:var(--ink) }   /* the chosen figure (locus, transfer, 3D) and face (sliders, planes): the tabs' ink bar, under its icon's width */
 /* each plot group is centred and exactly as wide as its plot (names live in the tooltips) */
 .vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center; width:100%; }
-.vgrp:has(.pl3d){ max-width:17rem }
-.vgrp:has(.gam2d),.vgrp:has(.tcvw){ max-width:var(--pick) }
+.vgrp[data-f="3d"]{ max-width:17rem }   /* a figure by its data-f, written with the markup – a :has() here re-matched the whole figure column at every mark a paint moved in it (20 ms a color, the dossier's) */
+.vgrp:is([data-f="xy"],[data-f="tc"]){ max-width:var(--pick) }
 .tcvw{ position:relative; width:100%; max-width:var(--pick) }
 .dstat{ display:flex; flex-direction:column; align-items:flex-end; gap:var(--s2) }
 .dstat .r{ display:flex; align-items:baseline; gap:var(--s3); flex-wrap:wrap }
@@ -938,10 +938,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:pan-y; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* dossier GPU sweep: per-pixel gamut alpha */
-.bar2 .cnm{ position:absolute; left:.225rem; top:.175rem; z-index:1; font-size:var(--t0); font-weight:700; letter-spacing:.02em; pointer-events:none }
 /* everything over a strip or a plane is white, lifted by the marks' shadow – one ink whatever the sweep beneath; on a
-   triangle or a disc the corners are paper, the page's ink there (js plateInk) */
-.bar2 :is(.cnm,.sv),.pl :is(.laby,.labx,.pmode).onf{ color:#fff }   /* top-left corner — same insets as the scale values below */
+   plane's corner over paper or the void – a triangle's, a disc's corners, the checker – the page's ink there (js plateInk) */
+.bar2 .sv,.pl :is(.laby,.labx,.pmode).onf{ color:#fff }
 .bar2 .sv{ position:absolute; bottom:.175rem; z-index:1; font-size:var(--t0); font-weight:600; opacity:.75; pointer-events:none }   /* the scale: min · mid · max hugging the bottom edge, inked per the sweep beneath */
 .bar2 .sv.lo{ left:.225rem } .bar2 .sv.md{ left:50%; transform:translateX(-50%) } .bar2 .sv.hi{ right:.275rem }
 .planes{ display:flex; gap:var(--s2) }   /* one row, always — the ≤3 pair plots share it, shrinking together */
@@ -953,8 +952,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .seg.pvseg{ display:none }
 @media(max-width:640px){ .dpick{ grid-template-columns:1fr }
 	.seg.pvseg{ display:flex } .dpick.pvon .pick,.dpick:not(.pvon) .planes{ display:none }
-	.dfig .vgrp:is(:has(.gam2d),:has(.tcvw)){ max-width:14rem; translate:-6.25% 0 }   /* the plates' frames as wide as the solid's grid draws, and centred on the column, not their boxes – the label strip at a plate's left half-shifted out (the caption rides with them) */
-	.vgrp:has(.pl3d){ translate:-4% 0 } .dfig .pl3d{ aspect-ratio:1 } .dfig .pl3d canvas{ top:-18% }   /* the solid's scene, drawn 4% right of its box to meet the plates' frames, centred too; its box square, the scene centred in it – no headroom above and below it */
+	.dfig .vgrp:is([data-f="xy"],[data-f="tc"]){ max-width:14rem; translate:-6.25% 0 }   /* the plates' frames as wide as the solid's grid draws, and centred on the column, not their boxes – the label strip at a plate's left half-shifted out (the caption rides with them) */
+	.vgrp[data-f="3d"]{ translate:-4% 0 } .dfig .pl3d{ aspect-ratio:1 } .dfig .pl3d canvas{ top:-18% }   /* the solid's scene, drawn 4% right of its box to meet the plates' frames, centred too; its box square, the scene centred in it – no headroom above and below it */
 	.dpick{ gap:var(--s3) }
 	@supports (anchor-name:--a){ .dfig{ anchor-name:--dfig } #figseg{ position:absolute; position-anchor:--dfig; bottom:anchor(bottom); left:anchor(left); z-index:calc(var(--z-raised) - 1) } }   /* the switch at the figure's bottom left, beside the plot – no row of its own */
 	.planes{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)) } .planes .pl{ max-width:none } .planes .pl:nth-child(n+3){ display:none }   /* two, side by side: planes a finger can work – their axis names turn them to the third pair */
@@ -970,7 +969,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	.chead .dctl{ flex:none; gap:var(--s1) }   /* the gamut select rides phones too — it is the dossier's one remaining lens */
 }
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
-.bch{ display:flex; align-items:baseline }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
+.bch{ display:flex; align-items:baseline; border-bottom:var(--ulw) solid transparent }   /* the pair's line, as a row's (.cvp): its slider pointed at or held (.on, js wireBar), the pair itself pointed at or focused, in the current color; the row of them pointed at, every pair's unpicked line */
+.bigch:hover .bch{ border-bottom-color:var(--ulh) } .bch:is(:hover,:focus-within,.on){ border-bottom-color:var(--curl) }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
 .bch .nvw input{ height:auto; width:4.6rem; font-size:var(--t4); font-weight:700; color:var(--ink); text-align:left }
@@ -1183,6 +1183,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dfoot{ margin:var(--s6) 0 var(--s2); font-size:var(--t1); color:var(--soft) }
 /* ── API snippet (in the intro's right column) ── */
 pre{ font-family:var(--font-mono); font-size:var(--t2); line-height:1.7; background:var(--color-terminal-paper); color:var(--color-terminal-ink); padding:var(--s4) var(--s6); overflow-x:auto; scrollbar-width:thin; scrollbar-color:transparent transparent }
+pre{ --code-kw:oklch(from var(--cur,var(--accent)) .77 min(c,.12) h); --code-str:oklch(from var(--cur,var(--accent)) .86 min(c,.065) h) }   /* a plate's words in the current color's hue, as the history's bands are – two lights over the terminal paper, the chroma held to the bands' .12 (a gray's words gray); the plate wears --cur, so a color change restyles the plate and its highlights alone (setCurrentUI) */
 code{ font-family:var(--font-mono); font-size:.88em; background:var(--panel); padding:.08em .3em }   /* inline code in prose: a soft square chip on the panel gray — the terminal black stays pre's */
 pre::-webkit-scrollbar{ height:8px }
 pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparent }
@@ -1245,7 +1246,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
 @media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:calc(100dvh - var(--cells-h)); box-shadow:none } .mnavbar.mfoot{ margin-bottom:calc(-1 * var(--dpad)) }
 	body.mopen :is(.hero,.cat,.lineage,.introcopy,.faq,.ftr){ visibility:hidden }   /* the sheet covers the page: what it covers is hidden too – a browser's see-through toolbar shows the page under it, a footer's links there */ .modal{ background:var(--paper); padding-block:var(--cells-h) 0 } }   /* a phone's sheet starts under the pinned row – the title and the ✕ in sight; the detail keeps its uniform --dpad – the sticky footer needs no reserved band */
-.sliding,.sliding *{ cursor:none!important }   /* dragging a strip or a plane: its marker is the pointer */
+.veil{ position:fixed; inset:0; z-index:var(--z-tooltip); cursor:none }   /* dragging a strip or a plane: its marker is the pointer – one element over the page, shown for the drag (the drag's own pointer capture keeps its events); a class on <html> matching every element restyled the whole page at each press and release */
 /* a right-to-left page (Arabic) mirrors the layout – the logical properties above do it – but not what is drawn: strips,
    planes and their numbers, the history's years, code and color notations run left to right in every language */
 :is(.chs,.pls,.cvs,.bch,.bar2,.dfig,.imgrow,.hl-fig,.snipwrap,pre,code,#cval,.tbl .tsw){ direction:ltr }
@@ -1572,7 +1573,7 @@ import { primariesOf, trcOf } from './js/profile.js'
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath } from './js/locus.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
-import { paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
+import { softGL, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -1664,7 +1665,7 @@ const paintPstack=()=>{ const run=GRAD&&gradIn('rgb').map(v=>hex(v)), key=!STOPS
 	if(pstackEl._k===key) return; pstackEl._k=key
 	pstackEl.querySelectorAll('.pst').forEach(b=>b.remove())
 	if(!STOPS) return
-	const n=STOPS.length; pstackEl.style.setProperty('--zn',n); pstackEl.style.setProperty('--n',n); cdwEl.style.setProperty('--z',n-STOPI)   // stacked in order: the first on top, the last under
+	const n=STOPS.length; pstackEl.style.setProperty('--zn',n); pstackEl.style.setProperty('--n',n);    // stacked in order, the first over the last – the held one over them all (.cdw)
 	if(run){ const b=document.createElement('button'); b.type='button'; b.className='pst pill'; b.style.setProperty('--w',`linear-gradient(90deg,${run.join(',')})`)   // a gradient: its run, the held one's circle on it at its stop
 		b.title=t('ui.stops.take','{c} – click to take it in hand, Alt-click to let it go',{c:stopsSay()}); b.setAttribute('aria-label',b.title)
 		cdwEl.style.setProperty('--p',GRAD.pos?.[STOPI]??STOPI/(n-1)); cdwEl.before(b); return }
@@ -1682,7 +1683,7 @@ const paintBand=()=>{ const g=STOPS&&(GRAD?`linear-gradient(90deg,${gradIn('rgb'
 	for(const el of [stripEl,heroEl]){ if(el._band===g) continue; el._band=g; el.classList.toggle('many',!!g); if(g) el.style.setProperty('--stops',g) } }
 const ftrEl=document.getElementById('ftr'), stripEl=document.getElementById('strip')
 const catY=()=>document.getElementById('cat').getBoundingClientRect().top+scrollY-stripEl.offsetHeight   // where the catalog starts: its top right under the row; short of it, the hero is in view
-const heroEl=document.getElementById('hero'), currentStatic=[ftrEl,stripEl,heroEl,document.getElementById('hcolor'),...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement], CURRENT_SETTLE=140
+const heroEl=document.getElementById('hero'), currentStatic=[ftrEl,stripEl,heroEl,document.getElementById('hcolor'),...document.querySelectorAll('.dpop'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,...document.querySelectorAll('#apitabs pre')], CURRENT_SETTLE=140
 // the hue wheel round the current color, n steps (odd) at its lightness and chroma – a gray's wheel is gray: the color
 // itself in the middle, the opposite hue at both ends – written once, each step relative to --cur, so a color change
 // restyles only what wears it
@@ -1691,10 +1692,11 @@ const wheel=(n,hard=true)=>`linear-gradient(90deg,${Array.from({length:n},(_,i)=
 	return hard?`${c} ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%`:`${c} ${((i+.5)/n*100).toFixed(3)}%` }).join(',')})`
 // the footer's wall: the same wheel in four rows quantized ever coarser – 5°, 10° (the top edge's own), 20°, 45°
 ftrEl.style.setProperty('--wall',[73,37,19,9].map(n=>wheel(n)).join(','))
-let groupTabsEl=null, codeTabsEl=null
-const setCurrentUI=fx=>{ if(!groupTabsEl?.isConnected) groupTabsEl=document.querySelector('.gtabs')
-	if(!codeTabsEl?.isConnected) codeTabsEl=document.getElementById('cseg')
-	for(const el of [...currentStatic,groupTabsEl,codeTabsEl]) if(el&&el._cur!==fx){ el._cur=fx; el.style.setProperty('--cur',fx) } }
+// …and the readers built later: the family tabs, the dossier's code tabs, its plate and its channel pairs (each dossier
+// builds its own) – looked up again once one has left the page
+let currentLive=[null]   // none found yet: the first paint looks
+const setCurrentUI=fx=>{ if(!currentLive.every(el=>el?.isConnected)) currentLive=[document.querySelector('.gtabs'),...['cseg','snip','bigch'].map(id=>document.getElementById(id))]
+	for(const el of [...currentStatic,...currentLive]) if(el&&el._cur!==fx){ el._cur=fx; el.style.setProperty('--cur',fx) } }
 // the palette-match chip: under a palette lens the row names the nearest entry –
 // the color's address IN the chosen palette – and a click snaps to it
 const palmEl=document.getElementById('palm')
@@ -1718,6 +1720,12 @@ if(cvalEl){
 		return !!p }
 	// an image taken: its prominent colors – three to five, near twins folded (js/extract.js), most present first – the
 	// field's palette; what the field held kept among the recent
+	// an image being read: the field empty, saying so, not to be typed in – then its text back as it was
+	let unread=null
+	document.addEventListener('imgbusy',e=>{ if(e.detail){ unread??={ v:cvalEl.value, p:cvalEl.placeholder }; cvalEl.value=''; cvalEl.placeholder=t('ui.img.reading','reading the image…') }
+		else if(unread){ cvalEl.value=unread.v; cvalEl.placeholder=unread.p; unread=null }
+		cvalEl.readOnly=e.detail; e.detail?cvalEl.setAttribute('aria-busy','true'):cvalEl.removeAttribute('aria-busy')
+		cxEl.classList.toggle('busy',e.detail); cxEl.classList.toggle('empty',!cvalEl.value.trim()&&!virginNow()); fitVal() })
 	document.addEventListener('imgpal',e=>{ const l=e.detail; if(!l?.length) return; const v=l.map(c=>hex(c)).join(', '), was=cvalEl.value.trim()
 		if(was&&was!==v) remember(was); shown(null); before=null; PEEK=false; cvalEl.value=v; cvalEl.setSelectionRange(0,0); cvalEl._typed=take(); fitVal(); cxEl.classList.remove('empty') })
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
@@ -2067,7 +2075,7 @@ document.addEventListener('stophot',e=>{ HOTJ=e.detail.j; if(ul) ulAt()
 // a word of the field pointed at: its color told as an instrument's would be (stophot) – its line in its own color, its
 // mark in the stack ringed; the words read off their twins (.cvul u), where the text lies
 cvalEl?.addEventListener('pointermove',e=>{ const u=[...ul.children].find(u=>[...u.getClientRects()].some(r=>e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)), j=u?+u.dataset.k:null
-	if(j!==HOTJ) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j } })) },{ passive:true })
+	if(u&&j!==HOTJ) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j } })) },{ passive:true })   // between words the last one pointed at stays – the line moves word to word, never back to the caret's
 cvalEl?.addEventListener('pointerleave',()=>{ if(HOTJ!=null) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j:null } })) })
 const lay=()=>{ const cs=getComputedStyle(cvalEl)
 	for(const el of [twin,ul]){ for(const k of TWIN) el.style[k]=cs[k]; el.style.width=cvalEl.clientWidth+'px'
@@ -2086,7 +2094,7 @@ const fitShow=()=>{ const cs=getComputedStyle(cvalEl); for(const k of TWIN) show
 // size over the hero whatever the field shows now, so the smaller size can't flip it back
 const fitLong=()=>{ if(document.body.classList.contains('cdock')) return; const cs=getComputedStyle(document.documentElement), tk=getComputedStyle(hcolorEl).getPropertyValue('--cvfh').trim()
 	const big=tk.endsWith('rem')?parseFloat(tk)*parseFloat(cs.fontSize):parseFloat(tk), f0=twin.style.fontSize; twin.style.fontSize=big+'px'
-	const long=twin.offsetHeight>big*1.3*1.5; twin.style.fontSize=f0; if(cxEl.classList.contains('long')!==long){ cxEl.classList.toggle('long',long); lay() } }
+	const long=twin.offsetHeight>big*+getComputedStyle(hcolorEl).getPropertyValue('--cvl')*1.5; twin.style.fontSize=f0; if(cxEl.classList.contains('long')!==long){ cxEl.classList.toggle('long',long); lay() } }
 const fitVal=()=>{ if(!cvalEl) return; lay(); fitLong(); fitShow(); const h=twin.offsetHeight, cs=getComputedStyle(cxEl), pad=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)   // the box round the lines, as styled – never a measure taken while the lines ease
 	cvalEl.style.setProperty('--cvh',h/parseFloat(getComputedStyle(cvalEl).fontSize))   // in its own ems: the lines it holds, at any size the docking eases it through
 	cxEl.classList.toggle('tall',h>parseFloat(getComputedStyle(cvalEl).lineHeight)*1.5)
@@ -2188,7 +2196,7 @@ let pkDrag=null
 imgPk.addEventListener('pointerdown',e=>{ pkDrag=e.pointerId; imgPk.setPointerCapture(pkDrag); pkRead(e) })   // the press picks, the drag keeps picking — the release keeps the choice
 imgPk.addEventListener('pointermove',e=>{ if(e.pointerId===pkDrag) pkRead(e) })
 const pkEnd=e=>{ if(e.pointerId!==pkDrag) return; pkDrag=null; try{ imgPk.releasePointerCapture(e.pointerId) }catch{}
-	renderFast(); if(open()){ flushCatalogValues(); queuePlaneSettle() } else settleCatalog() }
+	afterRelease(()=>{ renderFast(); if(open()){ flushCatalogValues(); queuePlaneSettle() } else settleCatalog() }) }
 imgPk.addEventListener('pointerup',pkEnd); imgPk.addEventListener('pointercancel',pkEnd)
 imgPk.title=t('ui.img.pick','press and drag to pick – the release keeps the color')
 imgX.addEventListener('click',()=>clearImage())
@@ -2209,7 +2217,11 @@ const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(
 	if(!key){ key='u:'+(f.name||'image')+':'+(f.size||0); idbPut(key,f); track(EVENT.drop()) }   // a fresh image of the visitor's own (drop, paste, picker) – counted by name only, never the file
 	mruBump(key)
 	palFromImage(f) }
-async function palFromImage(f){ try{
+// a large photo or a HEIC decodes for seconds: the field says so meanwhile (imgbusy), and has its text back before the
+// image's colors take it – what it held goes to the recent as with any other change
+const imgBusy=on=>{ IMGBUSY=on; document.dispatchEvent(new CustomEvent('imgbusy',{ detail:on })) }
+async function palFromImage(f){ let pal=null; imgBusy(true)
+	try{
 		const { sampleImage, paletteOf }=await import('./js/extract.js')   // the decode + downscale lives off the boot path
 		const samples=await sampleImage(f)
 		if(!samples.length) return toast(t('ui.toast.img-empty','no opaque pixels in that image'))
@@ -2220,17 +2232,19 @@ async function palFromImage(f){ try{
 			imgIdx=IMGS._user }
 		if(bm) IMG=bm
 		setImage(samples); if(open()) paintImages()
-		document.dispatchEvent(new CustomEvent('imgpal',{ detail:paletteOf(samples,5) }))   // its colors in hand (the field's, js: imgpal)
-		toast(t('ui.toast.img-pal','the image\'s colors, and its histogram')) }
-	catch{ toast(t('ui.toast.img-fail','could not read that image')) } }
+		pal=paletteOf(samples,5) }
+	catch{ toast(t('ui.toast.img-fail','could not read that image')) }
+	finally{ imgBusy(false) }
+	if(!pal) return
+	document.dispatchEvent(new CustomEvent('imgpal',{ detail:pal }))   // its colors in hand (the field's, js: imgpal)
+	toast(t('ui.toast.img-pal','the image\'s colors, and its histogram')) }
 let dragN=0
 addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
 addEventListener('dragleave',()=>{ if(dragN&&!--dragN&&dropEl) dropEl.hidden=true })
 addEventListener('dragover',e=>{ if(dropImg(e)) e.preventDefault() })
 addEventListener('drop',e=>{ dragN=0; if(dropEl) dropEl.hidden=true
 	if(!dropImg(e)) return
-	e.preventDefault()
-	if(e.target.closest?.('#detail')) return   // the dossier's image lens owns its own drop zone
+	e.preventDefault()   // the open dossier too: an image dropped on a card once fell through to nothing but its image row's own zone
 	const f=[...e.dataTransfer.files].find(x=>x.type.startsWith('image/')); if(f) takeImage(f) })
 addEventListener('paste',e=>{ const it=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'))
 	if(it){ e.preventDefault(); takeImage(it.getAsFile()) } })
@@ -2249,7 +2263,7 @@ const valsIn=(m,s)=>{ if(s===m.s) return m.vals
 // else in the lane.
 const HBINS=768, HSAMP=24576, HCLOUD=8192, HSLICE=8
 const ric=window.requestIdleCallback?.bind(window)||(fn=>setTimeout(()=>{ const t0=performance.now(); fn({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },40))
-let HIMG=null, hRev=0, hT=0
+let HIMG=null, hRev=0, hT=0, IMGBUSY=false   // IMGBUSY: an image being read – the field says so and waits (imgbusy)
 const histC=new Map(), histQ=new Set(), histP=new Map(), histV=new Map()   // lane curves · waiting · half-binned · the samples themselves
 const SVGNS='http://www.w3.org/2000/svg'
 // one range PER SLIDER, all live at once — channel i of space s as fractions of its range,
@@ -2701,8 +2715,8 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 	dragEnt=ent2; scheduleFast() })
 const finishCatalogRange=r=>{ const ent=r.closest('.ent'), i2=+r.dataset.i; if(ent!==dragEnt||i2!==dragEntI)return
 	const s2=ent.dataset.s
-	renderFast(); releaseDragEnt(); snapGlide(r,s2,i2); settleCatalog()
-	scheduleFast(); if(open()) paintPlanes(false) }
+	releaseDragEnt(); snapGlide(r,s2,i2)
+	afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
 cat.addEventListener('change',e=>{ if(e.target.classList?.contains('nrg')) finishCatalogRange(e.target) })
 cat.addEventListener('pointercancel',e=>{ if(e.target.classList?.contains('nrg')) finishCatalogRange(e.target) })
 // ── a lead card's planes: its channel pairs as squares, the card's own switch beside its strips (the session keeps
@@ -2738,7 +2752,7 @@ cat.addEventListener('pointerdown',e=>{ const pl=e.target.closest('.ent .pl'); i
 	const at=ev=>{ const v=grip.move(ev); if(!v) return; master.vals[a]=v[0]; master.vals[b]=v[1]; scheduleFast() }
 	pl.setPointerCapture(e.pointerId); pl.classList.add('live'); dragEnt=ent; dragEntI=-1; at(e)
 	pl.onpointermove=at
-	pl.onpointerup=pl.onpointercancel=()=>{ pl.onpointermove=pl.onpointerup=pl.onpointercancel=null; pl.classList.remove('live'); renderFast(); releaseDragEnt(); settleCatalog() } })
+	pl.onpointerup=pl.onpointercancel=()=>{ pl.onpointermove=pl.onpointerup=pl.onpointercancel=null; pl.classList.remove('live'); releaseDragEnt(); afterRelease(()=>{ renderFast(); settleCatalog() }) } })
 // a name opens its dossier – one delegated listener, live from the first frame (rows wire their own inputs at idle); in the
 // list the whole row does, its mini sweep too (the name stays the keyboard's way in)
 // a click that asks for a new tab or window (⌘/ctrl/shift/alt) – the browser follows the link's real path
@@ -2804,7 +2818,7 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			// an image in: ⌥ dragged splits the picker into a start and an end – the range, not a value; ⌥ clicked adds a color
 			if(e.altKey&&HIMG){ e.preventDefault(); const e0=e; ch.setPointerCapture(e.pointerId)
 				ch.onpointermove=ev=>{ if(Math.abs(ev.clientX-e0.clientX)<=4) return; ch.onpointermove=ch.onpointerup=null; rangeDrag(e0,ch,s,i); ch.onpointermove?.(ev) }
-				ch.onpointerup=()=>{ ch.onpointermove=ch.onpointerup=null; adopt(); if(grip.down(e0)){ const v=grip.move(e0); if(v!=null) master.vals[i]=v } renderFast(); settleCatalog() }
+				ch.onpointerup=()=>{ ch.onpointermove=ch.onpointerup=null; adopt(); if(grip.down(e0)){ const v=grip.move(e0); if(v!=null) master.vals[i]=v } afterRelease(()=>{ renderFast(); settleCatalog() }) }
 				return }
 			if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a plain press on one color — its input events drive master
 			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
@@ -2819,8 +2833,8 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			ch.onpointerup=ev=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; ch.classList.remove('live')
 				const r=ch.getBoundingClientRect(); if(!(ev?.type==='pointerup'&&ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom)) cvEl?.classList.remove('on')   // still pointed at, its number stays underlined (pointerleave takes it when the pointer goes)
 				squelch=true; setTimeout(()=>squelch=false,0)
-				renderFast(); releaseDragEnt(); snapGlide(ch.querySelector('.nrg'),s,i); settleCatalog()   // first mirror the held row, then settle every range from the released value
-				scheduleFast(); if(open()) paintPlanes(false) }
+				releaseDragEnt(); snapGlide(ch.querySelector('.nrg'),s,i)   // let go now; every range settles from the released value once the frame is shown
+				afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
 			ch.onpointercancel=ch.onpointerup }) }) }   // a cancelled touch (scroll steal) must release dragEnt too, or the catalog stays pinned to one row
 // visible rows wire NOW; the long tail wires in idle slices — ~4000 listener
 // attachments for rows nobody can see yet were the boot's single biggest task
@@ -3490,20 +3504,20 @@ const FLCSS=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" hei
 const FLMETA=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3a3f4b"/><text x="12" y="17" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13" font-weight="700" fill="#fff">{}</text></svg>')
 const FLPY=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#3776ab"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="10" font-weight="800" fill="#ffd43b">py</text></svg>')
 const FLEMBED=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#e34f26"/><text x="12" y="16" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" font-weight="700" fill="#fff">&lt;/&gt;</text></svg>')
-// the code plates' colors (js/lex.js finds the tokens): the plate's ink, the current color in two strengths for the
-// language's words and the writer's values, the muted ink for comments. lighthigh comes with the first plate painted;
+// the code plates' colors (js/lex.js finds the tokens): the plate's ink, the current color's hue in two lights for the
+// language's words and the writer's values (pre's --code-kw, --code-str), the muted ink for comments – CSS's, so the
+// rules stay three and a color change repaints them with no paint of ours. lighthigh comes with the first plate painted;
 // without the API the plates read in their one ink
-const HLT={ keyword:'color-mix(in oklab, var(--c) 72%, var(--color-terminal-ink))', string:'color-mix(in oklab, var(--c) 40%, var(--color-terminal-ink))', comment:'var(--color-terminal-muted)' }
-// each paint's undo, by plate: a plate that left the page (every dossier builds its own) gives back its stylesheet and
-// highlights at the next paint – kept, they piled up a stylesheet a dossier, each one a whole-page restyle
+const HLT={ keyword:'var(--code-kw)', string:'var(--code-str)', comment:'var(--color-terminal-muted)' }
+// each paint's undo, by plate: a plate that left the page (every dossier builds its own) gives back its ranges at the
+// next paint – kept, they piled up a dossier's worth each (lighthigh 1.0 also left a stylesheet each, a whole-page restyle)
 let LH=null; const painted=new Map()
 const paint=(el,g)=>{ if(!globalThis.Highlight||!CSS.highlights) return
 	(LH??=import('./js/lighthigh.js').then(m=>m.default,()=>null)).then(h=>{ if(!h) return
 		for(const [p,undo] of painted) if(!p.isConnected){ undo(); painted.delete(p) }
 		painted.set(el,h(el,lex(el.textContent,g),{ theme:HLT })) }) }
-// a plate's text, set and painted – only when it changed: each paint is a new stylesheet (lighthigh's ::highlight rules),
-// and a stylesheet change restyles the whole page (a zoom's frames once rewrote the same code, 26 000 elements each)
-const SNIP_AMBIENT=1000; let snipNext=0   // the orbit's numbers in the dossier's code plate: a second apart
+// a plate's text, set and painted – only when it changed: the same code is no work at all (a zoom's frames rewrote it,
+// and through lighthigh 1.0's stylesheet per paint restyled 26 000 elements each; 1.0.1 moves ranges on one shared sheet)
 const plate=(el,code,g,html=false)=>{ if(el._code===code) return; el._code=code; html?el.innerHTML=code:el.textContent=code; paint(el,g) }
 // the Python tab's data (js/python.js – snippets executed against color-space's own output)
 // loads with the first dossier, off the boot graph; a space without a verified entry gets no tab
@@ -3816,8 +3830,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// approximate inverses (hwb's clamp, coloroid's tables) still image the body fine.
 	const FOLD3D=gH&&['hsm'].includes(s)
 	const gpu3=has3dGL(s)&&!FOLD3D
-	// the GPU solid lives on ONE persistent canvas (contexts are scarce; buffers stay warm)
-	if(gpu3){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()) mc.replaceWith(mesh3Canvas()) }
+	// the GPU solid lives on ONE persistent canvas (contexts are scarce; buffers stay warm) – and so does the JS solid's
+	// WebGL1 under a software rasterizer, where the GPU one never takes it: a context there cost seconds to make, every dossier
+	if(gpu3||softGL()){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()) mc.replaceWith(mesh3Canvas()) }
 	const build=()=>{
 	const G2=gpu3?12:64
 	if(gH){ const vsf=(g3==='locus'?lightSurf:visSurf)(gpu3?12:48), gv=vsf.G
@@ -3952,7 +3967,8 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	else{ mesh3=null; const tok=++wire3dTok   // heavy JS mesh (munsell's iterative caps): build off the open path
 		setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() },30) } }
 function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
-	const gl=cv.getContext('webgl',{alpha:true,antialias:true,stencil:true})||cv.getContext('experimental-webgl',{alpha:true,antialias:true,stencil:true})
+	// multisampled on a GPU; a software rasterizer's multisampled context cost 2 s to create, every solid drawn this way
+	const opt={ alpha:true, antialias:!softGL(), stencil:true }, gl=cv.getContext('webgl',opt)||cv.getContext('experimental-webgl',opt)
 	if(!gl) return cv._gl3d=null
 	const sh=(type,src)=>{ const o=gl.createShader(type); gl.shaderSource(o,src); gl.compileShader(o)
 		return gl.getShaderParameter(o,gl.COMPILE_STATUS)?o:null }
@@ -4593,11 +4609,10 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 		<div class="irow" id="irow" title="${t('ui.dossier.interp-row','blend from the current color, in {s}',{s})}"><span class="isp" id="isp0"></span></div>
 		<button type="button" class="irow icmp" id="icmp" title="${t('ui.dossier.interp-cmp','the same blend through another space – click to compare against oklch, oklab, lab, …')}"><span class="isp" id="ispc"></span></button>
 	 </div>`
-	// the bar carries only the sweep and the symbol – the 3D frame's own labels;
+	// the bar carries only the sweep and its scale – the pair above it names the channel (its line, the bar in hand);
 	// the full name lives in the title and the big inputs row
 	const barHTML=i=>{ const c=cls.ch[i]
 		return `<div class="bar2" data-i="${i}"><div class="bg"></div><canvas class="bgc" width="512" height="1"></canvas>
-		<span class="cnm" title="${cname(c)}">${c.sym}</span>
 		<span class="sv lo tnum">${fmtn(c.min,c)}</span><span class="sv md tnum">${fmtn((c.min+c.max)/2,c)}</span><span class="sv hi tnum">${fmtn(c.max,c)}${unit(c)}</span>
 		<input type="range" class="nrg" data-i="${i}" min="${c.min}" max="${c.max}" step="any" tabindex="-1" aria-label="${t('ui.card.slider','{name} slider',{name:cname(c)})}"></div>` }
 	const bigchHTML=`<div class="bigch" id="bigch">${cls.ch.map((c,i)=>
@@ -4696,7 +4711,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 			el.classList.remove('live')
 			el._snapHint=el._dragF; snapGlide(r,s2,i); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
-			renderFast(false); queuePlaneSettle(); catUp() }
+			afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
 		detail.addEventListener('change',e=>{ if(e.target.classList?.contains('nrg')) finishRange(e.target) })
 		detail.addEventListener('pointercancel',e=>{ if(e.target.classList?.contains('nrg')) finishRange(e.target) }) }
 	// the link runs both ways: hovering or focusing a big input blinks its slider's picker
@@ -4761,9 +4776,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	if(irow2){ const nextImage=()=>{ if(!IMGS) return; imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
 		irow2.onclick=e=>{ if(e.target.closest('.imgp')===irow2.firstElementChild) nextImage() }   // only the source panel cycles
 		irow2.onkeydown=e=>{ if((e.key==='Enter'||e.key===' ')&&e.target===irow2.firstElementChild){ e.preventDefault(); nextImage() } }
-		const addImg=takeImage   // every road in is the same road: drop, paste, either picker
-		irow2.ondragover=e=>e.preventDefault()
-		irow2.ondrop=e=>{ e.preventDefault(); addImg(e.dataTransfer.files&&e.dataTransfer.files[0]) }
+		const addImg=takeImage   // every road in is the same road: drop (the page's, anywhere), paste, either picker
 		const fi=detail.querySelector('#imgfile'), fb=detail.querySelector('#imgadd')
 		if(fb) fb.onclick=()=>fi.click()
 		if(fi) fi.onchange=()=>{ addImg(fi.files&&fi.files[0]); fi.value='' } }
@@ -4907,9 +4920,9 @@ function wireBar(el,s){
 	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.onpointercancel=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
 		el._snapHint=el._dragF; snapGlide(el.querySelector('.nrg'),s,i); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
-		renderFast(false); queuePlaneSettle(); catUp() }
+		afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
 	el.onpointermove=move; el.onpointerup=up; el.onpointercancel=up }) }
-// A dossier release flushes background thumbs and gradients in the same frame.
+// A dossier release lets go at once and settles background thumbs and gradients the frame after (afterRelease).
 const catUp=()=>{ if(open()) settleCatalog() }
 let plFreeze=null   // plane being dragged in a color-cluster mode – its bitmap stays frozen
 function wirePlane(pl){
@@ -4958,7 +4971,7 @@ function wirePlane(pl){
 	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
 		snapRelease(selected,+pl.dataset.a,+pl.dataset.b)
 		pl.classList.add('parking'); setTimeout(()=>pl.classList.remove('parking'),220)   // the marker's own CSS glide
-		renderFast(false); queuePlaneSettle(); catUp() }
+		afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
 	pl.addEventListener('pointerup',end); pl.addEventListener('pointercancel',end)
 	// pinch / ctrl+wheel zooms about the cursor; plain wheel pans when zoomed; double-click resets
 	pl.addEventListener('wheel',e=>{ if(pl._polar||pl._tri){ if(e.ctrlKey) e.preventDefault(); return }   // the disc and the cone sections have no pan/zoom window – but pinch must not zoom the PAGE
@@ -5366,8 +5379,14 @@ function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv
 	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null
 	const marker=pl.querySelector('.cx'); marker.style.display=''; marker.style.left=pl._snap.left+'%'; marker.style.top=pl._snap.top+'%' }
 // a plate's corner letters and mode switch: white over the field, as every mark over it – no readback of what is painted
-function plateInk(pl){ const paper=!!(pl._polar||pl._tri)   // a triangle's, a disc's corners are paper: the page's ink there
-	for(const el of pl.querySelectorAll(':scope>:is(.laby,.labx,.pmode)')){ el.classList.toggle('onf',!paper); el.style.color=paper?'var(--ink)':'' } }   // over the field: white (.onf), whatever the sweep beneath
+// each corner mark inked by what lies under it, read off the painted field: over a color white (.onf), whatever the sweep
+// beneath; over paper or the void – a triangle's, a disc's corners, the checker where no color is, a ghost's veil – the
+// page's ink (white there all but vanished)
+function plateInk(pl){ const cv=pl.querySelector('canvas'), R=cv.getBoundingClientRect(), g=cv.getContext('2d',{ willReadFrequently:true })
+	for(const el of pl.querySelectorAll(':scope>:is(.laby,.labx,.pmode)')){ const b=el.getBoundingClientRect(); let a=0
+		if(R.width&&R.height&&cv.width>4&&cv.height>4) try{ const x=clamp(Math.round((b.left+b.width/2-R.left)/R.width*cv.width)-2,0,cv.width-5), y=clamp(Math.round((b.top+b.height/2-R.top)/R.height*cv.height)-2,0,cv.height-5)
+			const d=g.getImageData(x,y,5,5).data; for(let k=3;k<d.length;k+=4) a+=d[k]; a/=25*255 }catch{}
+		const paper=a<.5; el.classList.toggle('onf',!paper); el.style.color=paper?'var(--ink)':'' } }
 function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detail._s!==selected) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now – numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
@@ -5440,16 +5459,25 @@ const glLanded=()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
 		planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) }
 setGLReady(glLanded)
 let PDOWN=false
+const veil=document.body.appendChild(Object.assign(document.createElement('div'),{ className:'veil', hidden:true }))   // the drag's cursor: none, over everything
+let veilAt=null   // where a press on an instrument began – the veil waits for it to move
 addEventListener('pointerdown',e=>{ if(e.isPrimary){ PDOWN=true
 	if(e.target.closest?.(e.pointerType==='mouse'?'.ch,.bar2,.pl,.nv,.cv,.cd,#imgpk':'.pl,.nv,.cv,.cd,#imgpk')) autoColor=false   // a finger on a strip may be scrolling the page (pan-y): the orbit only holds still – the strip's drag, once it moves sideways, takes the color
-	if(e.pointerType==='mouse'&&e.target.closest?.('.ch:not(.mini .ch),.bar2,.pl')) document.documentElement.classList.add('sliding') } },true)
+	if(e.pointerType==='mouse'&&e.target.closest?.('.ch:not(.mini .ch),.bar2,.pl')&&!e.target.closest('button')) veilAt=[e.clientX,e.clientY] } },true)
+// the veil comes up as a drag begins – past the drags' own 3 px – never at the press: a click under it (a plate's switch,
+// a corner letter) would land on the veil, not on its button
+addEventListener('pointermove',e=>{ if(veilAt&&PDOWN&&Math.hypot(e.clientX-veilAt[0],e.clientY-veilAt[1])>3){ veil.hidden=false; veilAt=null } },{ capture:true, passive:true })
 // work a held pointer put off is owed, not dropped: the catalog's settle (1), the open planes' paint (2), a GPU program
 // that landed mid-press (4) – each done once, the frame the pointer lifts (a taken stop's strips, a plane's slice, never
 // left on the color before)
 let OWED=0
 const owe=k=>{ OWED|=k }
-const lift=()=>{ PDOWN=false; document.documentElement.classList.remove('sliding')
-	if(OWED) requestAnimationFrame(()=>{ if(PDOWN) return; const o=OWED; OWED=0
+// …and a release lets go first – the cursor back (lift), the instrument at rest, its final value shown – settling after
+// that frame is on screen: the full repaint (every row's ranges at full quality, the planes at full resolution) once held
+// the frame the cursor came back in, a third of a second. A press before then takes it over; its own release settles
+const afterRelease=fn=>requestAnimationFrame(()=>setTimeout(()=>{ if(!PDOWN) fn() }))
+const lift=()=>{ PDOWN=false; veil.hidden=true; veilAt=null
+	if(OWED) afterRelease(()=>{ const o=OWED; OWED=0
 		if(o&4) glLanded()
 		if(o&1&&!open()&&(!autoColor||autoPark)) settleCatalog()
 		if(o&2&&open()&&!isBarred(selected)) queuePlaneSettle() }) }
@@ -5574,11 +5602,20 @@ const activeCatalogEnt=()=>{ const ent=dragEnt||catEnts.get(catalogLeadSpace())
 	return ent&&screenVis.has(ent.dataset.s)?ent:null }
 const flushCatalogValues=()=>{ clearTimeout(catValueTimer); catValueTimer=0; catValueLast=performance.now()
 	vfF={}; vfM=master; const rows=screenEnts(), rgb=RGB(), qf=qTriple(Q), frgb=qf?byteRGB(qf(rgb)):rgb; paintCatalogVals(rows,{thumbs:false}); paintCatalogPickers(rows,frgb,hex(frgb)) }
-const paintCatalogThrottledValues=(all=false)=>{ const wait=CATALOG_VALUE_THROTTLE-(performance.now()-catValueLast)
+const paintCatalogThrottledValues=()=>{ const wait=CATALOG_VALUE_THROTTLE-(performance.now()-catValueLast)
 	const paint=()=>{ clearTimeout(catValueTimer); catValueTimer=0
-		vfF={}; vfM=master; const active=all?null:activeCatalogEnt(), rows=screenEnts().filter(ent=>ent!==active)
+		vfF={}; vfM=master; const active=activeCatalogEnt(), rows=screenEnts().filter(ent=>ent!==active)
 		paintCatalogVals(rows,{thumbs:false}); catValueLast=performance.now() }
 	if(wait<=0) paint(); else if(!catValueTimer) catValueTimer=setTimeout(paint,wait) }
+// the catalog behind an open dossier – the rows round the card – on the numbers' 100 ms tier, the last color always
+// landing: in the card's own frame its thumbs, marks and numbers once cost as much as the card (a word of the field
+// taken: 60 ms, half of it restyling the rows behind); the strips keep their rule (throttleCatalogSecondary), and the
+// card's close catches all of it up (closeModal)
+let behindT=0, behindLast=0
+const catalogBehind=()=>{ if(behindT) return
+	behindT=setTimeout(()=>{ behindT=0; if(!open()) return; behindLast=performance.now(); vfF={}; vfM=master
+		const rows=screenEnts(); paintCatalogPickers(rows); paintCatalogVals(rows,{thumbs:false}); throttleCatalogSecondary()
+		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) },Math.max(0,CATALOG_VALUE_THROTTLE-(performance.now()-behindLast))) }
 const secondaryCatalogEnts=active=>screenEnts().filter(ent=>ent!==active)
 const catalogGradientKey=()=>catalogLeadSpace()+'|'+master.s+'|'+master.vals.join()+'|'+qKey(Q)+'|'+(PALMODES.has(Q)?QM:'')
 function paintCatalogSecondary(){ cancelAnimationFrame(catSlowTimer); catSlowTimer=0; const t0=catSlowLast=performance.now()
@@ -5795,8 +5832,8 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 	const virgin=virginNow()
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cxEl){ cxEl.classList.toggle('inv',virgin); cxEl.classList.toggle('empty',!virgin&&!cvalEl?.value.trim()); cvxEl.hidden=virgin }   // the orbit's color shown; a typed color cleared, no color   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
-	if(cvalEl&&document.activeElement!==cvalEl){ const nv=virgin?'':SAID?.k===heldKey()?SAID.v:STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; PDOWN||autoColor?fitMoving():fitVal() } }   // many colors read as the list – or the gradient – they are
-	if(virgin&&cvalEl) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value – in hand, the color the orbit stood at, Tab takes it   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
+	if(cvalEl&&document.activeElement!==cvalEl&&!IMGBUSY){ const nv=virgin?'':SAID?.k===heldKey()?SAID.v:STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; PDOWN||autoColor?fitMoving():fitVal() } }   // many colors read as the list – or the gradient – they are
+	if(virgin&&cvalEl&&!IMGBUSY) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value – in hand, the color the orbit stood at, Tab takes it   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
 	if(!PDOWN&&!virgin&&!PEEK) syncURL(hx)   // the URL keeps the exact coordinate – a suggestion only looked at never reaches it
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
 	if(palmEl){ const b=PALMODES.has(Q)&&!virgin&&nearestIn(Q,rgb,QM), on=!!b   // live through drags – the address should follow the hand; 8-bit memoised – repeat colors cost a Map hit
@@ -5806,10 +5843,11 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 				palmEl.lastElementChild.textContent=b.n
 				palmEl.title=t('ui.palette.near','nearest {q} entry ({m}) – click to snap to {n}',{q:Q,m:MLABEL[QM],n:b.n})
 				palmEl.removeAttribute('data-tip') } } }   // re-arm the bubble with the fresh title
-	{ const active=activeCatalogEnt(), dossierOpen=open()
-		if(active&&!dossierOpen){ paintCatalogVals([active]); paintCatalogGrad([active],dragEnt?dragEntI:-1,(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,false) }
+	if(open()) catalogBehind()   // an open card's frame is the card's: the catalog round it follows a tier later
+	else{ const active=activeCatalogEnt()
+		if(active){ paintCatalogVals([active]); paintCatalogGrad([active],dragEnt?dragEntI:-1,(PDOWN||autoColor)?LIVE_RAMP_GUIDES:RAMP_GUIDES,false) }
 		paintCatalogPickers(screenEnts(),frgb,fx)   // every visible thumb follows the hand; offscreen rows catch up on entry
-		paintCatalogThrottledValues(dossierOpen)   // background numbers use the 100ms tier
+		paintCatalogThrottledValues()   // background numbers use the 100ms tier
 		throttleCatalogSecondary()   // the other spaces' strips: every frame's budget at rest, the 100 ms tier under a held hand; in full once released (settleCatalog)
 		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) }   // a card's planes follow the color as its strips do
 	if(!open()||isBarred(selected)||detail._s!==selected) return   // barred cards have no live color content; a baked shell waits to be built (its space isn't `selected` yet)
@@ -5907,9 +5945,7 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet – js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	// …the orbit's numbers there once a second (SNIP_AMBIENT), the plate's every repaint being a page restyle (plate)
-	if(snip&&!PDOWN&&!(autoColor&&performance.now()<snipNext)){ if(autoColor) snipNext=performance.now()+SNIP_AMBIENT
-		if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return
+	if(snip&&!PDOWN){ if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return
 		if(codeTab==='py'&&PY?.default[s]) plate(snip,pyCode(s,rgb.map(x=>clamp(Math.round(x),0,255))),'py')
 		else if(codeTab==='embed') plate(snip,embedCode(s),'html')   // the copy icon copies it (counted as embed-copy)
 		else if(codeTab==='css'){
