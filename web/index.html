@@ -55,7 +55,7 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; -webkit-tap-highligh
 ::selection{ background:var(--ink); color:var(--paper) }
 pre::selection,pre ::selection{ background:var(--color-terminal-ink); color:var(--color-terminal-paper) }   /* the dark code plate inverts within its own palette — the page's ink-on-ink selection would vanish there */
 body{ font-family:var(--f); font-size:var(--t3); line-height:1.45; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility }
-:focus-visible{ outline:1.5px solid var(--ring); outline-offset:2px } :where(:focus-visible){ border-radius:var(--radius-card) }   /* a thin ring in the ink's lighter shade, its corners rounded – an element's own rounding kept */
+:focus-visible{ outline:1.5px solid var(--ring); outline-offset:2px }   /* a thin ring in the ink's lighter shade */
 .page{ --railw:clamp(16rem,8rem + 12.5vw,20.5rem); --railgap:2.2rem; --eg:clamp(.6rem,1.25vw,1rem); max-width:var(--maxw); margin-inline:auto }   /* everything lives in one centred 108rem measure; the rail widens to hold the longest family title, its icon and a count; --eg: half the visual gutter between entries */
 :root{ --maxw:108rem; --gut:clamp(var(--s3),3vw,2.2rem); --secp:clamp(var(--s8),4vw,var(--s12)); --cells-h:3.5rem; --sel:color-mix(in oklab,var(--cur,var(--accent)) 14%,transparent) }   /* the page's side gutter; a section's air above and below (history, usage, questions, footer); the pinned row's height – the hero runs under it; a picked option's tint */
 .tnum{ font-variant-numeric:tabular-nums }
@@ -160,7 +160,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 /* a cell's menu: a popover under its cell (centred where anchors are unknown), its options in rows */
 .dpop{ width:max-content; max-width:calc(100vw - 2 * var(--s4)); max-height:calc(100dvh - var(--cells-h) - var(--s8)); margin:auto; padding:var(--s4); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--hair) transparent; border:0; background:var(--paper); color:var(--ink); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }   /* the hair ring keeps its edge on dark paper */
 @supports (anchor-name:--a){ .dpop{ inset:auto; margin:var(--s1) 0; position-area:bottom span-right; position-try-fallbacks:flip-inline,flip-block,flip-block flip-inline } }   /* under its cell, turning left at the screen's edge, above it only where below won't hold it – decided once, so a menu never slides as it opens */
-@supports (anchor-name:--a){ #c-view{ anchor-name:--cview } @media(width >= 36rem){ #m-more{ position-anchor:--cview; position-area:bottom left; position-try-fallbacks:none; width:fit-content; margin-inline-start:var(--s4) } } }   /* Filters' menu ends where the View cell begins – the edge the count, Filters and its × end at: a pick's × moves Filters, never its open menu; the count opens it too */
+@supports (anchor-name:--a){ #c-view{ anchor-name:--cview } @media(width >= 36rem){ #m-more{ position-anchor:--cview; position-area:bottom left; position-try-fallbacks:none; margin-inline-start:var(--s4) } } }   /* Filters' menu ends where the View cell begins – the edge the count, Filters and its × end at: a pick's × moves Filters, never its open menu; the count opens it too */
 @media(width < 36rem){ .dpop{ inset:auto 0 0 0; width:100%; max-width:none; max-height:85dvh; margin:0; padding-bottom:var(--s8); position-area:none } }   /* phones: a menu rises from the bottom edge */
 /* the dropdowns arrive softly: they fade in, settling a step down from their cell (a phone's sheet rising from the
    edge), and leave quicker than they came */
@@ -179,7 +179,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 #m-more .msq{ display:none }
 /* the menus as a set of dropdowns, one a row: the setting's name, the pick's mark and its select, the pick's line under it
    – Filters' facets and the view's settings alike, one column on any screen */
-:is(#m-more,#m-view):popover-open{ display:flex; flex-direction:column; gap:var(--s3); width:min(26rem,calc(100vw - 2 * var(--gut))) } :is(#m-more,#m-view) .mcol{ display:contents }
+:is(#m-more,#m-view){ flex-direction:column; gap:var(--s3); width:min(26rem,calc(100vw - 2 * var(--gut))) } :is(#m-more,#m-view):popover-open{ display:flex }   /* their size their own, not the open state's – one fading out as the other opens kept its size (it once fell back to the popover's, a flash) */ :is(#m-more,#m-view) .mcol{ display:contents }
 :is(#m-more,#m-view) .msec{ display:grid; grid-template-columns:6.5rem minmax(0,1fr); align-items:start; column-gap:var(--s3) }
 :is(#m-more,#m-view) .msec>header{ margin:0; min-height:var(--s8); display:flex; align-items:center; font-size:var(--t1); font-weight:600; color:var(--soft) }   /* on its control's line, the pick's line under it its own */
 :is(#m-more,#m-view) .msec>:not(header){ grid-column:2 }
@@ -193,7 +193,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 	.msel select::picker(select){ border:0; border-radius:var(--radius-card); padding:var(--s1) 0; background:var(--paper); box-shadow:var(--pop-shadow) }
 	.msel option{ display:flex; align-items:center; gap:var(--s2); padding:var(--s1) var(--s3); font-size:var(--t2); color:var(--body) } .msel option:checked{ color:var(--ink) } .msel option:hover{ background:var(--panel) }
 	.msel option .oi{ display:grid; place-items:center; width:1.25rem; --ic:18px } .msel select::picker-icon{ color:var(--soft) } }
-.mseg{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s1) var(--s3) } .mseg.figseg{ gap:var(--s1) } .mseg.figseg button{ width:var(--s8); height:var(--s8) }   /* a switch of marks – the dossier's figure switch's own idiom: dim, the pick inked and barred; its names the tooltips */
+.mseg{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s1) var(--s4); min-height:var(--s8) }   /* a switch of marks – the dossier's figure switch's own idiom: dim, the pick inked and barred; its names the tooltips */
 .mline{ display:block; min-height:1.4em; margin-top:var(--s1); font-size:var(--t1); line-height:1.4; color:var(--soft) }   /* the pick's name and line – its place kept, so a pick never moves the menu */
 .mbody .fcov{ display:block; padding:var(--s1) 0 0 } .mbody .fcov .dual{ width:100% }   /* the coverage's two thumbs the switches' width, its reading the line under */
 .wb-hues{ --w:conic-gradient(in oklch longer hue, oklch(.72 .16 30), oklch(.72 .16 30)) }   /* a hue wheel – Vision's options draw it through their own lens */
@@ -263,11 +263,11 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
 .cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:none }   /* the field's colors: unseen text, seen lines – one at a time */
-/* the field's colors underlined never: the one in hand dark, the rest grayer – pointed at, that one dark instead */
+/* the field's colors underlined never, pointed at nothing: the caret's (else the held) dark, the rest grayer */
 /* many in hand, over the hero: the twin's text is the one seen – the color in hand in ink, the others lighter – the
    field's own text unseen over it, its caret and its selection kept (docked, the row's one ink) */
 body:not(.cdock) .hcolor>.cx:not(.peek):has(.cvul.many) #cval{ color:transparent; caret-color:var(--ink) } body:not(.cdock) .hcolor>.cx:not(.peek):has(.cvul.many) #cval::selection{ color:var(--paper) }
-body:not(.cdock) .hcolor>.cx .cvul.many{ color:var(--soft) } body:not(.cdock) .hcolor>.cx .cvul.many :is(u.on,u.hot){ color:var(--ink) } body:not(.cdock) .hcolor>.cx .cvul.many:has(u.hot) u.on:not(.hot){ color:var(--soft) }
+body:not(.cdock) .hcolor>.cx .cvul.many{ color:var(--soft) } body:not(.cdock) .hcolor>.cx .cvul.many u.on{ color:var(--ink) }
 .hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx .cvul{ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 @property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.5 }   /* one line: --cvl's (an initial value takes no var) */
 .hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
@@ -353,8 +353,7 @@ body.himg #imgfloat{ display:block }
    colors sit, each its own hair edge, no paper parting them; the one held ringed in ink (the slider picker's engaged
    ring), another ringed and lifted as it is pointed at. A suggestion's swatch is the same stack, plain – none held yet */
 .pstack:has(.pst) .cdw{ z-index:calc(var(--zn) + 1); width:var(--mk) }
-.pstack:has(.pst) .cdw::before{ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair) }   /* many in hand: the held one a plain mark, its ring gone off its neighbours… */
-.pstack:has(.pst) .cdw::after{ content:''; position:absolute; left:2px; right:2px; top:calc(50% + var(--mk) / 2 + 3px); height:2px; border-radius:1px; background:var(--ink); pointer-events:none }   /* …a bar under it says which */   /* the held one over the others, wherever it stands in the order (a gradient's: over its pill, below) */
+.pstack:has(.pst) .cdw::before{ box-shadow:0 0 0 var(--picker-ring) #fff,var(--picker-shadow) }   /* many in hand: the held one in a slider thumb's dress – the white ring, the soft outline – no ink ring over its neighbours */   /* the held one over the others, wherever it stands in the order (a gradient's: over its pill, below) */
 /* stacked a step apart – 6px: three marks span one pill (a mark and two steps); the first at one color's own place */
 .pstack>*+*,#csug .sws>*+*{ margin-inline-start:calc(var(--step) - var(--mk)) }   /* two selectors, not :is() – its id would outweigh the pill's own placing of the held circle */
 .pst:not(.pill):is(:hover,:focus-visible,.hot){ z-index:calc(var(--zn) + 2); box-shadow:0 0 0 var(--picker-ring) #fff,var(--picker-shadow-on) }   /* pointed at: lifted over the others in a slider thumb's own dress – the white ring, the soft outline – no ink ring */
@@ -589,8 +588,8 @@ body.himg #imgfloat{ display:block }
 .gtabs .gtag{ position:relative; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:var(--s1) var(--s2); cursor:pointer } .gtabs .gtag:first-child{ margin-inline-start:calc(-1 * var(--s2)) }   /* the first's word on the column's edge */
 .gtabs .gtag:hover{ color:var(--body) }
 .gtabs .gtag.on{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way (.ti.act .tn) */
-.gtabs .gtag::before{ content:''; position:absolute; inset-inline:var(--s2); top:calc(-1 * var(--s1)); height:var(--ulw); background:transparent }
-.gtabs:hover .gtag::before{ background:var(--ulh) } .gtabs .gtag:is(.on,:hover)::before{ background:var(--ink) } .gtabs:has(.gtag:hover) .gtag.on:not(:hover)::before{ background:var(--ulh) }   /* and a bar over its word, the word's width – the row hangs from below, its marker faces up */
+.gtabs .gtag::before{ content:''; position:absolute; inset-inline:var(--s2); top:calc(-1 * var(--s1)); height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }
+.gtabs .gtag:hover::before{ background:var(--ulp) } .gtabs .gtag.on::before{ background:var(--ula) }   /* and a bar over its word, the word's width – the row hangs from below, its marker faces up */
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
    right of the FIRST section heading */
 .gsel{ display:none; margin-inline-start:auto; align-self:center; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* centred in the heading row — a select has no shared baseline to sit on */
@@ -901,8 +900,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dfig .vgrp:is([data-f="xy"],[data-f="tc"]),.dfig :is(.gam2d,.tcvw){ max-width:none }   /* the plates take the column: the locus's marks want the room, the curve its run */
 .seg.figseg button{ display:grid; place-items:center; padding:0; border-bottom:0; --ic:18px }   /* the switch speaks in icons, the row's way – dim, inked when chosen or pointed, never moved; the names are its tooltips (.seg.figseg: past .seg button's underline and its padding, which the chosen one alone escaped) */
 .seg.figseg button{ position:relative } .seg.figseg button.on{ color:var(--ink) }
-.seg.figseg button::after{ content:''; position:absolute; inset-inline:0; bottom:calc(-1 * var(--s1)); height:var(--ulw); background:transparent }
-.seg.figseg:hover button::after{ background:var(--ulh) } .seg.figseg button:is(.on,:hover)::after{ background:var(--ink) } .seg.figseg:has(button:hover) button.on:not(:hover)::after{ background:var(--ulh) }   /* the chosen figure (locus, transfer, 3D) and face (sliders, planes): the tabs' ink bar, under its icon's width */
+.seg.figseg button::after{ content:''; position:absolute; inset-inline:0; bottom:calc(-1 * var(--s1)); height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }
+.seg.figseg button:hover::after{ background:var(--ulp) } .seg.figseg button.on::after{ background:var(--ula) }   /* the chosen figure (locus, transfer, 3D) and face (sliders, planes): the tabs' ink bar, under its icon's width */
 /* each plot group is centred and exactly as wide as its plot (names live in the tooltips) */
 .vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center; width:100%; }
 .vgrp[data-f="3d"]{ max-width:17rem }   /* a figure by its data-f, written with the markup – a :has() here re-matched the whole figure column at every mark a paint moved in it (20 ms a color, the dossier's) */
@@ -1074,7 +1073,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:var(--ulw) solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
 .seg button:hover{ color:var(--ink) }
 .seg button.on{ color:var(--ink); border-bottom-color:var(--ula) }
-.seg:hover button{ border-bottom-color:var(--ulh) } .seg button:hover{ border-bottom-color:var(--ula) } .seg:has(button:hover) button.on:not(:hover){ border-bottom-color:var(--ulh) }   /* the active option carries the CURRENT color, like the API tabs */
+.seg button:hover:not(.on){ border-bottom-color:var(--ulp) }   /* the active option carries the CURRENT color, like the API tabs */
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
@@ -1190,10 +1189,10 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow button:hover .fl,.tabrow button.on .fl{ opacity:1; filter:none }
 .tabrow button:hover{ color:var(--body) }
 .tabrow button{ position:relative } .tabrow button.on{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way, the rail's tabs' too */
-.tabrow button::after{ content:''; position:absolute; inset-inline:var(--s2); bottom:0; height:var(--ulw); background:transparent }   /* and a bar on the side that faces its panel: under a row of tabs, the words' width */
-/* one idiom for every group of choices – tabs, switches, a row's channels: the group pointed at, each item's line unpicked
-   (--ulh); the item pointed at, else the one picked, the line itself – one at a time */
-.tabrow:hover button::after{ background:var(--ulh) } .tabrow button:is(.on,:hover)::after{ background:var(--ink) } .tabrow:has(button:hover) button.on:not(:hover)::after{ background:var(--ulh) }
+.tabrow button::after{ content:''; position:absolute; inset-inline:var(--s2); bottom:0; height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }   /* and a bar on the side that faces its panel: under a row of tabs, the words' width */
+/* one idiom for every group of choices – tabs, switches: the pick its ink bar, always; the one pointed at a soft bar of
+   its own – no other lines, nothing handed back and forth as the pointer crosses the gaps */
+.tabrow button:hover::after{ background:var(--ulp) } .tabrow button.on::after{ background:var(--ula) }
 /* the dossier's code tabs read as section-title kickers — same type treatment as the
    #image / #compare / #code headings they sit among */
 #cseg button{ text-transform:none }   /* labels read as written (abbreviations caps, words lower) — same as the main-page API tabs; overrides the .sec2 heading's uppercase */
@@ -2078,18 +2077,13 @@ const ulPaint=()=>{ const v=cvalEl.value; let at=0, h=''
 // let go, the held one, many in hand (one alone needs no mark)
 const ulAt=()=>{ const f=document.activeElement===cvalEl&&cvalEl.selectionStart===cvalEl.selectionEnd, c=f?tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]:null, k=c??(STOPS?STOPI:null)
 	ul.classList.toggle('many',!!STOPS&&ul.children.length>1)
-	for(const u of ul.children){ const j=+u.dataset.k; u.classList.toggle('on',k!=null&&j===k); u.classList.toggle('hot',HOTF&&j===HOTJ); u.classList.toggle('pt',!HOTF&&j===HOTJ) } }
-// the color a press would take (stophot): a word of the field pointed at (.hot), or its mark on an instrument (the
-// planes', strips' hot – .pt): its word lightly lined, its mark in the stack ringed – a gradient's pill at that stop
-let HOTJ=null, HOTF=false
-document.addEventListener('stophot',e=>{ HOTJ=e.detail.j; HOTF=!!e.detail.field&&HOTJ!=null; if(ul) ulAt()
+	for(const u of ul.children) u.classList.toggle('on',k!=null&&+u.dataset.k===k) }
+// the color an instrument's press would take (stophot: the planes', strips' hot): its mark in the stack lifted – a
+// gradient's pill at that stop; the field's text left as it is
+let HOTJ=null
+document.addEventListener('stophot',e=>{ HOTJ=e.detail.j
 	for(const b of pstackEl?.querySelectorAll('.pst')||[]) b.classList.toggle('hot',HOTJ!=null&&(b.classList.contains('pill')||+b.dataset.i===HOTJ))
 	const pill=pstackEl?.querySelector('.pill'); if(pill&&HOTJ!=null&&GRAD) pillHot(pill,HOTJ) })
-// a word of the field pointed at: its color told as an instrument's would be (stophot) – its line in its own color, its
-// mark in the stack ringed; the words read off their twins (.cvul u), where the text lies
-cvalEl?.addEventListener('pointermove',e=>{ const u=[...ul.children].find(u=>[...u.getClientRects()].some(r=>e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)), j=u?+u.dataset.k:null
-	if(u&&(j!==HOTJ||!HOTF)) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j, field:true } })) },{ passive:true })   // between words the last one pointed at stays – the line moves word to word, never back to the caret's
-cvalEl?.addEventListener('pointerleave',()=>{ if(HOTJ!=null) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j:null } })) })
 const lay=()=>{ const cs=getComputedStyle(cvalEl)
 	for(const el of [twin,ul]){ for(const k of TWIN) el.style[k]=cs[k]; el.style.width=cvalEl.clientWidth+'px'
 		el.style.left=cvalEl.offsetLeft+'px'; el.style.top=cvalEl.offsetTop+'px'; el.style.translate=`${-cvalEl.scrollLeft}px ${-cvalEl.scrollTop}px` }
@@ -2981,7 +2975,7 @@ const dropHTML=(key,attrs,label,opts)=>{ const esc=qesc
 	for(const o of opts){ if((o.group??null)!==g){ if(g!=null) h+='</optgroup>'; g=o.group??null; if(g!=null) h+=`<optgroup label="${esc(g)}">` }
 		const tip=o.tip??o.line; h+=`<option value="${esc(String(o.v))}"${tip?` title="${esc(tip)}"`:''}>${o.icon?`<span class="oi" aria-hidden="true">${o.icon}</span>`:''}${esc(o.name)}</option>` }   // its line its tooltip too, where it has no other; its mark drawn where the browser draws the options itself – elsewhere the parser keeps the name alone
 	if(g!=null) h+='</optgroup>'
-	return `<span class="msel"><span class="oi" aria-hidden="true"></span><select data-drop="${key}" ${attrs} aria-label="${esc(label)}">${h}</select></span><small class="mline"></small>` }
+	return `<span class="msel"><span class="oi" aria-hidden="true"></span><select data-drop="${key}" ${attrs} aria-label="${esc(label)}">${h}</select></span>${opts.some(o=>o.line)?'<small class="mline"></small>':''}` }   // a line under it only where its options have lines
 // a setting as a switch – the menus' control where every option has its mark (Limit, Vision, the facets): the marks in a
 // row, the pick inked and barred, each one's name and line its tooltip; the pick's name and line under it. A facet's pick
 // pressed again lets it go (Any)
@@ -2990,7 +2984,7 @@ const segHTML=(key,attrs,label,opts,any='')=>{ const esc=qesc; DROPS.set(key,new
 const segShow=(el,v)=>{ for(const b of el.children){ const on=b.dataset.v===String(v); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)) }
 	const o=DROPS.get(el.dataset.drop)?.get(String(v)); el.nextElementSibling.textContent=o?(o.line?`${o.name} – ${o.line}`:o.name):el.dataset.any||'' }
 const dropShow=sel=>{ const o=DROPS.get(sel.dataset.drop)?.get(sel.value), row=sel.parentElement
-	row.firstElementChild.innerHTML=o?.icon||''; row.nextElementSibling.textContent=o?.line||'' }
+	row.firstElementChild.innerHTML=o?.icon||''; const ln=row.nextElementSibling; if(ln?.classList.contains('mline')) ln.textContent=o?.line||'' }
 // a facet's section of the menu. Coverage is continuous, so it filters by interval, not options: from–to share of the
 // visible gamut (the dossier's reach number) – the low end finds the narrow-coverage spaces, the high end the wide ones
 const moreEl=document.getElementById('m-more')
