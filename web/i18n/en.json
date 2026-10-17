@@ -1369,6 +1369,7 @@
 "ui.dossier.wp-calc": {"t":"computed from the shipped conversion at Y = 1","h":"2be03797"},
 "ui.dossier.wp-cie": {"t":"CIE 15 tabulated for {ill}, 2° observer","h":"6fd66a75"},
 "ui.drop": {"t":"drop the image — every lane and plane will read it","h":"d0265e61"},
+"ui.filter.any": {"t":"Any","h":"322444d3"},
 "ui.filter.ch-n": {"t":"{n} channels","h":"e8b73d64"},
 "ui.filter.clear": {"t":"clear the search and the filters","h":"1e22f9d7"},
 "ui.filter.cov-from": {"t":"from – keep spaces reaching at least this share of visible colors","h":"777d97aa"},

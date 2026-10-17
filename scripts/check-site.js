@@ -38,7 +38,9 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 
 // a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
 // with 'f', a facet value
-const lens = (pg, k, v) => pg.evaluate(([k, v]) => document.querySelector(k === 'f' ? `.dpop [data-t="${v}"]` : `.dpop [data-lens="${k}"][data-v="${v}"]`).click(), [k, v])
+// a menu's dropdown set as a hand would: a filter's value again lets it go (Any), a view setting takes its value
+const lens = (pg, k, v) => pg.evaluate(([k, v]) => { const sel = k === 'f' ? [...document.querySelectorAll('.dpop select[data-f]')].find(s => [...s.options].some(o => o.value === v)) : document.querySelector(`.dpop select[data-lens="${k}"]`)
+	sel.value = k === 'f' && sel.value === v ? '' : v; sel.dispatchEvent(new Event('change', { bubbles: true })) }, [k, v])
 // the catalog's layout switch, in the pinned row – it offers the next view: grid → rows → list → grid
 const layout = (pg, v) => pg.locator(`#c-layout[data-view="${v}"]`).click()
 // the row's own value field shows once the hero's field has passed under the row – bring the catalog up to type in it
@@ -93,9 +95,9 @@ try {
 	  const over=await st(); assert.deepEqual([over.edges,over.on,over.gm,over.fill===before.fill],['1','',before.gm,true],'pointing shows the edges, all alike – and picks nothing')
 	  await page.mouse.move(2,2); await page.waitForTimeout(300)
 	  assert.equal((await st()).edges,'0','let go, the plain locus')
-	  await page.evaluate(()=>document.querySelector('.dpop [data-lens="g"][data-v="srgb"]').click()); await page.waitForTimeout(200)
+	  await lens(page,'g','srgb'); await page.waitForTimeout(200)
 	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="srgb"]').getAttribute('d')),true,'the Limit picked in the row\'s menu fills its own region in the locus')
-	  await page.evaluate(()=>{ document.querySelector('.dpop [data-lens="g"][data-v="vis"]').click(); try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit, through the row's own menu
+	  await lens(page,'g','vis'); await page.evaluate(()=>{ try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit, through the row's own menu
 	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface again: its own region filled') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
@@ -842,7 +844,7 @@ try {
 	assert.ok(await fresh.evaluate(()=>location.hash.length>1), 'emptied in hand, the color holds – the field is let go first')
 	await fresh.locator('#cval').blur(); await fresh.waitForFunction(()=>!location.hash,null,{timeout:5000})
 	assert.equal(await fresh.evaluate(()=>document.getElementById('cval').placeholder.length>0), true, 'emptied, the field invites again – no color chosen, no hash')
-	assert.equal(await fresh.evaluate(()=>[...document.querySelectorAll('.mdist .opt')].every(o=>o.disabled)), true, 'the palette distance is shown, disabled, until a palette is picked')
+	assert.equal(await fresh.evaluate(()=>document.querySelector('.dpop select[data-lens="m"]').disabled), true, 'the palette distance is shown, disabled, until a palette is picked')
 	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForFunction(()=>document.body.classList.contains('cdock'))   // pinned first – the check is of a pinned field (under load its docking frame can lag the 200ms this waited)
 	// a press where the field shows, as a hand presses – a locator's click first scrolls the whole element into view (the
 	// docked field's box reaches past the row's clip), which is Playwright moving the page, not the field
@@ -915,7 +917,7 @@ try {
 	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
 	// the vision lens: one root filter, defs mounted once, cited models
 	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view [data-lens="v"]')].map(o => o.textContent).join(' ')), /Machado et al\. 2009[\s\S]*Brettel et al\. 1997/, 'the vision options cite Machado 2009 and Brettel 1997 in their line – one text, no tooltip beside its')
+	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view select[data-lens="v"] option')].map(o => o.title).join(' ')), /Machado et al\. 2009[\s\S]*Brettel et al\. 1997/, 'the vision options cite Machado 2009 and Brettel 1997 in their line – one text, no tooltip beside its')
 	await lens(wire,'v','deutan')
 	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
 	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')

@@ -175,41 +175,20 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 @media(prefers-reduced-motion:reduce){ :is(.dpop,.fmtp,#uppop){ --from:0 0 } }   /* still: the fade alone */
 .dpop .lnk{ font:inherit; font-size:var(--t2); font-weight:600; color:var(--body); background:none; border:0; padding:0; cursor:pointer }   /* a link's way: bolder and darker than the menu's words, no underline */
 .dpop .lnk:hover{ color:var(--ink) }
-.opts{ display:grid; grid-template-columns:fit-content(16rem); gap:0 var(--s4) }   /* as wide as its options, up to a measure – a longer gloss wraps */
-.opts.c2{ grid-template-columns:repeat(2,fit-content(16rem)) }
-@media(width < 36rem){ .opts,.opts.c2{ grid-template-columns:minmax(0,1fr) } }
-.opt{ display:grid; grid-template-columns:1.5rem minmax(0,1fr); align-items:start; gap:0 var(--s3); width:100%; padding:var(--s2); font:inherit; text-align:start; color:var(--soft); background:none; border:0; cursor:pointer; transition:background-color var(--dur-micro) var(--ease-out) }
-.opt:hover{ background:var(--panel); color:var(--body) }
-.opt[aria-pressed="true"]{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way – and a check after its name */
-.opt[aria-pressed="true"] b::after{ content:''; display:inline-block; width:.85em; height:.85em; margin-inline-start:var(--s2); vertical-align:-.05em; background:currentColor; mask:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>') center/contain no-repeat }   /* the line family's check, as a mask – it takes the option's ink */
-.opt .oi{ display:grid; place-items:center; height:1.4em; color:var(--soft) }
-.opt .oi :is(.ic,.fi){ --ic:18px }
-.opt[aria-pressed="true"] .oi{ color:var(--ink) } .opt:not([aria-pressed="true"]) [fill="url(#vq-smooth)"]{ fill:url(#vq-smooth-soft) }   /* a gradient's currentColor is its defs' ink, not the option's – the ones not picked wear the grey twin */
-.opt b{ display:block; font-weight:650; line-height:1.4 }
-.opt small{ display:block; font-size:var(--t1); line-height:1.4; color:var(--soft) }
-.optg+.optg{ margin-top:var(--s2) }
-:is(.optg,.qdist)>.gl{ display:block; padding:var(--s2) var(--s2) var(--s1); font-size:var(--t1); font-weight:600; color:var(--soft) }
-.dpop .qcols{ display:grid; grid-template-columns:repeat(2,max-content); align-items:start; gap:0 var(--s4) }   /* the stepped and the palettes side by side, row for row – their marks say which is which */
-.dpop .qdist{ margin-top:var(--s4) } .dpop .qdist .opts{ grid-template-columns:repeat(2,max-content) }
-.opt:disabled{ opacity:.4; cursor:default } .opt:disabled:hover{ background:none }
 .dpop .msec[hidden]{ display:none }
-.dpop .msec:not([hidden])~.msec:not([hidden]){ margin-top:var(--s4); padding-top:var(--s4); border-top:var(--rule-hair) solid var(--hair) }
-:is(#m-more,#m-view) .msec~.msec{ margin-top:0; padding-top:0; border-top:0 }   /* the wide menus: facets, or the view's settings – their sections placed, not ruled apart */
 #m-more .msq{ display:none }
-/* the wide menus in columns – Filters: the short facets, the tone curve over coverage, the white; the view's settings –
-   wrapping where the screen is narrower */
-:is(#m-more,#m-view):popover-open{ display:flex; flex-wrap:wrap; gap:var(--s6) var(--s8) } :is(#m-more,#m-view) .mcol{ flex:none; display:flex; flex-direction:column; gap:var(--s4) }
-#m-more .opts.c2{ grid-template-columns:fit-content(16rem) } #m-more .opts.inl{ grid-template-columns:repeat(2,max-content) }   /* Status: in use · historical, a line each needs none – one row */
-@media(width < 36rem){ #m-view:popover-open{ display:flex; flex-direction:column; flex-wrap:nowrap; gap:var(--s4) }
-	#m-more:popover-open{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-areas:"range channels" "geometry signal" "encoding white" "coverage status"; gap:var(--s5) var(--s4) } #m-more .mcol{ display:contents }   /* a phone's Filters: the facets paired in two columns, sharing its width */
-	#m-more .msec[data-m="range"]{ grid-area:range } #m-more .msec[data-m="channels"]{ grid-area:channels } #m-more .msec[data-m="geometry"]{ grid-area:geometry } #m-more .msec[data-m="signal"]{ grid-area:signal } #m-more .msec[data-m="encoding"]{ grid-area:encoding } #m-more .msec[data-m="white"]{ grid-area:white } #m-more .msec[data-m="coverage"]{ grid-area:coverage } #m-more .msec[data-m="status"]{ grid-area:status } }
-@media(width < 30rem){ #m-more:popover-open{ grid-template-areas:"msq msq" "range channels" "geometry signal" "encoding white" "coverage status" } #m-more>label.msq{ grid-area:msq } }   /* and the search above them – the row has no room for its own */
-@media(width < 64rem){ .dpop .opt small{ display:none } }   /* a narrower screen: the options' names alone – their glosses ride the tooltips */
-.dpop .msec>header{ margin:0 0 var(--s1); padding:0 var(--s2); font-size:var(--t1); font-weight:600; color:var(--soft) }
-.mbody .fcov{ padding:var(--s2) }
-.opts.c4{ grid-template-columns:repeat(4,minmax(var(--s8),max-content)) }   /* Channels: its counts in one row, as narrow as a count – the picked one widens to hold its check */
-@media(width < 36rem){ #m-view .msec>.opts,.dpop .qcols{ grid-template-columns:repeat(2,minmax(0,1fr)) } }   /* a phone's View: Limit's and Vision's options two a row, as Quantize's two columns are */
-.opt.num{ grid-template-columns:1fr; justify-items:center }
+/* the menus as a set of dropdowns, one a row: the setting's name, the pick's mark and its select, the pick's line under it
+   – Filters' facets and the view's settings alike, one column on any screen */
+:is(#m-more,#m-view):popover-open{ display:flex; flex-direction:column; gap:var(--s3); width:min(26rem,calc(100vw - 2 * var(--gut))) } :is(#m-more,#m-view) .mcol{ display:contents }
+:is(#m-more,#m-view) .msec{ display:grid; grid-template-columns:6.5rem minmax(0,1fr); align-items:center; column-gap:var(--s3) }
+:is(#m-more,#m-view) .msec>header{ margin:0; font-size:var(--t1); font-weight:600; color:var(--soft) }
+:is(#m-more,#m-view) .msec>:not(header){ grid-column:2 }
+.msel{ display:flex; align-items:center; gap:var(--s2); min-width:0 }
+.msel .oi{ display:grid; flex:none; place-items:center; width:1.25rem; color:var(--soft) }   /* the mark's place kept where an option has none – the selects one column */ .msel .oi :is(.ic,.fi){ --ic:18px }
+.msel select{ flex:1; min-width:0; font:inherit; font-size:var(--t2); font-weight:600; color:var(--ink); background:var(--panel); border:0; border-radius:var(--radius-control); padding:var(--s1) var(--s2); cursor:pointer }
+.msel select:disabled{ opacity:.4; cursor:default }
+.mline{ display:block; margin-top:var(--s1); font-size:var(--t1); line-height:1.4; color:var(--soft) } .mline:empty{ display:none }
+.mbody .fcov{ padding:var(--s2) 0 }
 .wb-hues{ --w:conic-gradient(in oklch longer hue, oklch(.72 .16 30), oklch(.72 .16 30)) }   /* a hue wheel – Vision's options draw it through their own lens */
 .fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
 /* the current color: its mark (the picker), its value to type over, the notation, its gamut tag. It is sticky – the
@@ -2981,18 +2960,25 @@ const FVALS=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOT
 const OPTI={ SDR:OI.sdr, HDR:OI.hdr, component:OI.component, opponent:OI.opponent, polar:OI.polar, display:OI.display, scene:OI.scene,
 	gamma:OI.gamma, linear:OI.linear, perceptual:OI.perceptual, log:OI.log, PQ:OI.pq, HLG:OI.hlg, 'luma / chroma':OI.lumachroma, current:OI.current, historical:OI.historical }
 const optIcon=(fi,v)=>WHITE_XY[v]&&FACETS[fi]==='white point'?`<i class="wdot" style="--w:${whiteHex(v)}"></i>`:OPTI[v]||''
-// an option: its mark, its name, its gloss where it needs one (the whole sentence is its tooltip);
-// a count needs no gloss – Channels' options are their numbers, in one row
-const facetOpt=(fi,v)=>FACETS[fi]==='channels'?`<button class="opt num" type="button" data-f="${fi}" data-t="${v}" aria-pressed="false" title="${TAGTIP[v]||''}"><b>${v}</b></button>`
-	:`<button class="opt" type="button" data-f="${fi}" data-t="${v}" aria-pressed="false"${tagLine(v)?'':` title="${TAGTIP[v]||''}"`}><span class="oi">${optIcon(fi,v)}</span><span><b>${cap(tagL(v))}</b>${tagLine(v)?`<small>${tagLine(v)}</small>`:''}</span></button>`   // its line under it, or – none – its tip: one, never both
-const ONEC=new Set(['geometry','range'])   // one column: Shape's three, Range's two; Status's two – no line under either – side by side (.inl)
+// a setting as a dropdown – the menus' one control: the pick's mark, a native select of the options (a group an
+// optgroup), the pick's line under it. Each option {v, name, line, icon, tip, group}; the marks and lines kept by the
+// select (dropShow reads them as the pick changes)
+const DROPS=new Map()
+const dropHTML=(key,attrs,label,opts)=>{ const esc=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')   // the page's own esc comes later in the module, and keeps quotes
+	DROPS.set(key,new Map(opts.map(o=>[String(o.v),o]))); let g=null, h=''
+	for(const o of opts){ if((o.group??null)!==g){ if(g!=null) h+='</optgroup>'; g=o.group??null; if(g!=null) h+=`<optgroup label="${esc(g)}">` }
+		const tip=o.tip??o.line; h+=`<option value="${esc(String(o.v))}"${tip?` title="${esc(tip)}"`:''}>${esc(o.name)}</option>` }   // its line its tooltip too, where it has no other
+	if(g!=null) h+='</optgroup>'
+	return `<span class="msel"><span class="oi" aria-hidden="true"></span><select data-drop="${key}" ${attrs} aria-label="${esc(label)}">${h}</select></span><small class="mline"></small>` }
+const dropShow=sel=>{ const o=DROPS.get(sel.dataset.drop)?.get(sel.value), row=sel.parentElement
+	row.firstElementChild.innerHTML=o?.icon||''; row.nextElementSibling.textContent=o?.line||'' }
 // a facet's section of the menu. Coverage is continuous, so it filters by interval, not options: from–to share of the
 // visible gamut (the dossier's reach number) – the low end finds the narrow-coverage spaces, the high end the wide ones
 const moreEl=document.getElementById('m-more')
 moreEl.innerHTML=`<label class="msq"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq2" type="search" autocomplete="off" spellcheck="false" placeholder="${t('ui.header.find','search…')}" aria-label="${t('ui.header.find-tip','search the spaces by name')}"></label>`+[['signal','range','channels','geometry'],['encoding','coverage'],['white','status']].map(c=>`<div class="mcol">${c.map(k=>`<section class="msec" data-m="${k}"><header>${CLABEL[k]}</header></section>`).join('')}</div>`).join('')   // in columns: the short facets, the tone curve over coverage, the white – a phone pairs them up (CSS)
 for(const k in CELLS){ const fi=fiOf(k)
 	moreEl.querySelector(`.msec[data-m="${k}"]`).insertAdjacentHTML('beforeend',`<div class="mbody" data-m="${k}">${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span><b class="tnum" id="fcovv">${covTxt()}</b></span>`
-		:`<div class="opts${CELLS[k]==='channels'?' c4':k==='status'?' inl':ONEC.has(k)?'':' c2'}">${FVALS[fi].map(v=>facetOpt(fi,v)).join('')}</div>`}</div>`) }
+		:dropHTML('f'+fi,`data-f="${fi}"`,CLABEL[k],[{ v:'', name:t('ui.filter.any','Any') },...FVALS[fi].map(v=>({ v, name:FACETS[fi]==='channels'?v:cap(tagL(v)), line:tagLine(v), icon:optIcon(fi,v), tip:TAGTIP[v] }))])}</div>`) }
 const fcov=document.getElementById('fcov'), fcov1=document.getElementById('fcov1'), fcovv=document.getElementById('fcovv'), covD=document.querySelector('.fcov .dual')
 const isOn=k=>k==='coverage'?covOn():act[fiOf(k)].size>0
 const moreB=document.getElementById('c-more'), moreN=moreB.querySelector('b')
@@ -3017,11 +3003,11 @@ const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySel
 // a pick filters the catalog and inks Filters' mark; Filters' name and tooltip say every pick, its × lets them go
 function paintCells(){ const w=Object.keys(CELLS).filter(isOn).map(cellWords).join(' · '), nm=t('ui.cell.more-any','Filters')
 	fclrEl.hidden=!w&&!qWord
-	document.querySelectorAll('.dpop [data-f][data-t]').forEach(x=>{ const on=act[+x.dataset.f].has(x.dataset.t); x.setAttribute('aria-pressed',String(on)) })
+	document.querySelectorAll('.dpop select[data-f]').forEach(x=>{ x.value=[...act[+x.dataset.f]][0]??''; dropShow(x) })
 	covD.style.setProperty('--lo',covMin*100+'%'); covD.style.setProperty('--hi',covMax*100+'%'); fcovv.textContent=covTxt()   // the fill IS the interval, and the readout says it — full at rest, 0–100%
 	moreN.textContent=w; moreN.classList.toggle('on',!!w); moreB.title=w?`${nm}: ${w}`:nm; fitCells() }
-document.addEventListener('click',e=>{ const b=e.target.closest('.dpop [data-f][data-t]')
-	if(b){ const set=act[+b.dataset.f], v=b.dataset.t, had=set.has(v); filterKeep(()=>{ set.clear(); if(!had) set.add(v) }) } })   // one pick per facet: a pick replaces the last, the same again lets it go; Filters stays open for the next
+document.addEventListener('change',e=>{ const b=e.target.closest?.('.dpop select[data-f]')
+	if(b){ const set=act[+b.dataset.f], v=b.value; filterKeep(()=>{ set.clear(); if(v) set.add(v) }) } })   // one pick per facet – Any lets it go; Filters stays open for the next
 fcov.oninput=()=>filterKeep(()=>{ covMin=+fcov.value/100; if(covMin>covMax){ covMax=covMin; fcov1.value=covMax*100 } })
 fcov1.oninput=()=>filterKeep(()=>{ covMax=+fcov1.value/100; if(covMax<covMin){ covMin=covMax; fcov.value=covMin*100 } })
 // a popover's invoker says whether it is open – the cells style by it (toggle doesn't bubble)
@@ -3370,32 +3356,29 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 // distance), Limit (the dossier's gamut cut), Vision (a color-vision deficiency over the whole page), View ──
 {	const gamTip=g=>({ srgb:t('ui.gamut.tip.srgb','standard web gamut'), p3:t('ui.gamut.tip.p3','wide Apple-display gamut'), rec2020:t('ui.gamut.tip.rec2020','ultra-wide UHD gamut'), vis:t('ui.gamut.tip.vis','colors a lit surface can show'), locus:t('ui.gamut.tip.locus','every color a light can have') })[g]
 	const VLINE={ none:t('ui.vision.none','no simulation'), protan:t('ui.vision.protan','red-blind'), deutan:t('ui.vision.deutan','green-blind'), tritan:t('ui.vision.tritan','blue-blind') }
-	const vName=l=>cap(t(`lens.${l.id}`,l.label))   // the line says what each deficiency is; the model's citation rides the tooltip
+	// the notation every value is written in – the field's, the suggestions', a gradient's stops: one choice for all, each
+	// option the color in hand written in it (fmtSamples, as the menu opens)
+	const fmtSamples=()=>{ const c=RGB(), h=hex(c); return FMTL.map(f=>({ v:f, name:fmtAs(f,h,c) })) }
+	const row=(name,key,opts)=>`<section class="msec"><header>${name}</header>${dropHTML(key,`data-lens="${key}"`,name,opts)}</section>`
 	const qName=lb=>lb==='xkcd'||lb==='color-name-list'?lb:cap(lb)   // a brand keeps its casing
-	// an option: its mark, its name and – only where the name alone doesn't say it – a short line; the tooltip says it whole
-	const lensOpt=(k,v,name,line,icon,tip=line)=>`<button class="opt" type="button" data-lens="${k}" data-v="${v}" aria-pressed="false"${line?'':` title="${tip}"`}><span class="oi">${icon||''}</span><span><b>${name}</b>${line?`<small>${line}</small>`:''}</span></button>`
 	// a simulation's line says what it is and whose: its first author, the year (the full citation is cvd.js's)
 	const citeOf=c=>{ const m=c?.match(/^([^,&\d]+?)\s*(?:([,&])[^\d]*)?\s(\d{4})/); return m?`${m[1]}${m[2]?' et al.':''} ${m[3]}`:'' }   // Machado, Oliveira & Fernandes 2009 → Machado et al. 2009
-	const visionOpts=()=>LENSES.map(l=>lensOpt('v',l.id,vName(l),VLINE[l.id]+(l.cite?` – ${citeOf(l.cite)}`:''),`<i class="wdot wb-hues"${l.id==='none'?'':` style="filter:url(#cvd-${l.id})"`}></i>`)).join('')
-	const qOpt=([mo,lb])=>lensOpt('q',qKey(mo),qName(lb),'',QI[qKey(mo)],QTIP[qKey(mo)])
-	const drawOpts=`<div class="qcols"><div class="opts">${QGROUPS.slice(0,2).flatMap(([,os])=>os).map(qOpt).join('')}</div><div class="opts">${QGROUPS[2][1].map(qOpt).join('')}</div></div>`   // two columns, row for row: the smooth and the stepped | the palettes
-		+`<div class="qdist"><span class="gl">${t('ui.metric.title','Distance')}</span><div class="opts mdist">${METRICS.map(m2=>lensOpt('m',m2,MLABEL[m2],'','',MTIP[m2])).join('')}</div></div>`   // the distance that picks a palette's entry: 2×2, waiting for a palette
-	// the notation every value is written in – the field's, the suggestions', a gradient's stops: one choice for all
-	const FMTNAME={ hex:'Hex', rgb:'RGB', hsl:'HSL', oklch:'OKLCH', oklab:'OKLab', lab:'Lab', lch:'LCH', p3:'Display P3' }
-	const fmtOpts=`<div class="opts c2">${FMTL.map(f=>lensOpt('n',f,FMTNAME[f],'','',fmtAs(f,'#d9596b',[217,89,107]))).join('')}</div>`   // the tooltip writes a color in it
-	const limitOpts=`<div class="opts">${[...GAMS,'vis','locus'].map(g=>lensOpt('g',g,GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g],gamTip(g),LI[g])).join('')}</div>`   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
-	// the view's one menu – how values are written and seen: Format, Quantize, Limit, Vision – folded under one mark, set
-	// once (the layout is its own cell, beside it)
-	const msec=(name,body)=>`<section class="msec"><header>${name}</header>${body}</section>`
-	document.getElementById('m-view').innerHTML=`<div class="mcol">${msec(t('ui.cell.draw','Quantize'),drawOpts)}</div><div class="mcol">${msec(t('ui.cell.limit','Limit'),limitOpts)}</div>`
-		+`<div class="mcol">${msec(t('ui.cell.vision','Vision'),`<div class="opts">${visionOpts()}</div>`)}${msec(t('ui.cell.format','Format'),fmtOpts)}</div>`   // in columns, as Filters' menu
+	document.getElementById('m-view').innerHTML=[
+		row(t('ui.cell.format','Format'),'n',fmtSamples()),
+		row(t('ui.cell.draw','Quantize'),'q',QGROUPS.flatMap(([gl,os])=>os.map(([mo,lb])=>({ v:qKey(mo), name:qName(lb), icon:QI[qKey(mo)], tip:QTIP[qKey(mo)], group:gl||null })))),
+		row(t('ui.metric.title','Distance'),'m',METRICS.map(m2=>({ v:m2, name:MLABEL[m2], tip:MTIP[m2] }))),
+		row(t('ui.cell.limit','Limit'),'g',[...GAMS,'vis','locus'].map(g=>({ v:g, name:GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g], line:gamTip(g), icon:LI[g] }))),   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
+		row(t('ui.cell.vision','Vision'),'v',LENSES.map(l=>({ v:l.id, name:cap(t(`lens.${l.id}`,l.label)), line:VLINE[l.id]+(l.cite?` – ${citeOf(l.cite)}`:''), icon:`<i class="wdot wb-hues"${l.id==='none'?'':` style="filter:url(#cvd-${l.id})"`}></i>` })))].join('')
+	// the notation's options written in the color in hand, as the menu opens
+	document.getElementById('m-view').addEventListener('beforetoggle',e=>{ if(e.newState!=='open') return
+		const sel=document.querySelector('#m-view select[data-lens="n"]'); for(const o of fmtSamples()){ const op=sel.querySelector(`option[value="${o.v}"]`); if(op) op.textContent=o.name } })
 	paintLens=()=>{
 		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); b.setAttribute('aria-label',n.label); b.title=n.title
 			if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to – the build stamps the first visit's
 		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent }   // never inked; its mark the menu's own – the settings of how every value is written and seen
-		document.querySelectorAll('.mdist .opt').forEach(o=>o.disabled=!PALMODES.has(Q))   // the distance waits for a palette – shown, not offered
 		const now={ q:qKey(Q), m:QM, g:GM, v:VIS, n:FMT }
-		document.querySelectorAll('.dpop [data-lens]').forEach(b=>b.setAttribute('aria-pressed',String(now[b.dataset.lens]===b.dataset.v))) }
+		document.querySelectorAll('.dpop select[data-lens]').forEach(b=>{ b.value=now[b.dataset.lens]; dropShow(b) })
+		document.querySelector('.dpop select[data-lens="m"]').disabled=!PALMODES.has(Q) }   // the distance waits for a palette – shown, not offered
 	const applyView=()=>{ clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the menu open
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
 			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()) queuePlaneSettle() }) })
@@ -3405,7 +3388,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	setLimit=v=>{ GM=v; try{ localStorage.csGm=GM }catch{}
 		if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
 		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); paintLens() }
-	document.addEventListener('click',e=>{ const b=e.target.closest('.dpop [data-lens]'); if(!b) return; const v=b.dataset.v
+	document.addEventListener('change',e=>{ const b=e.target.closest?.('.dpop select[data-lens]'); if(!b) return; const v=b.value
 		switch(b.dataset.lens){
 			case 'q': Q=qFromKey(v); if(Q==='meodai'&&!MEODAI.length) loadMeodai().then(()=>{ sitesOf.meodai=null; if(Q==='meodai') applyView() }); applyView(); syncViewURL(); break   // the long list lands, then the lens draws with it
 			case 'm': QM=v; applyView(); syncViewURL(); break
