@@ -3580,7 +3580,7 @@ function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
 			const t0=performance.now(); draw3d()
 			// the ambient turn is a nicety: a solid that takes a beat a frame to draw (no GPU – a software rasterizer) parks
 			// rather than hold the page, which then answered nothing; the hand still turns it
-			slow=performance.now()-t0>50?slow+1:0; if(!snap3&&slow>1) spinV3=0 }   // two slow in a row: one alone is a first frame's shaders, or a collection
+			slow=performance.now()-t0>50?slow+1:0; if(!snap3&&slow>1){ spinV3=0; detail.querySelector('#pl3d')?.setAttribute('data-rest','slow') } }   // two slow in a row: one alone is a first frame's shaders, or a collection – the rest says why
 		if(snap3||spinV3) spinRaf=requestAnimationFrame(step)
 		else spinRaf=0 }
 	spinRaf=requestAnimationFrame(step) }
