@@ -80,7 +80,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    over the checker; the rim's wavelengths; no outlines, no names. Pointed at, the displays' gamuts and the horseshoe
    show their edges and names, all alike; the current color rides it as the planes' picker.
    A press anywhere in it is the home link (the Limit is the row's menu's) */
-.hmain>.hlocus{ grid-column:1; grid-row:1 / span 4; position:absolute; inset-inline-start:0; top:calc(-1 * var(--s6)); height:calc(100% + var(--s6) + var(--s8)); aspect-ratio:290/318; max-width:calc(100% - var(--s4)) }
+.hmain>.hlocus{ grid-column:1; grid-row:1 / span 4; position:absolute; inset-inline-start:0; top:calc(-1 * var(--s6)); height:17.5rem; aspect-ratio:290/318; max-width:calc(100% - var(--s4)) }   /* its own size, the words' height with one line of the field – a long value grows the field, never the drawing */
 .hlocus>svg{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); overflow:visible }
 .hlocus svg *{ vector-effect:non-scaling-stroke; stroke-width:1 }
 .hlocus .chk{ fill:url(#hl-chk); stroke:none } #hl-chk *{ stroke:none } #hl-chk rect{ fill:var(--panel) } #hl-chk path{ fill:oklch(0.5 0 0/.14) }   /* the sliders' checker (--checker), as an SVG pattern at its 12 px (JS scales it) – no stroke: the svg's ink reaches into a pattern too */
@@ -180,15 +180,22 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 /* the menus as a set of dropdowns, one a row: the setting's name, the pick's mark and its select, the pick's line under it
    – Filters' facets and the view's settings alike, one column on any screen */
 :is(#m-more,#m-view):popover-open{ display:flex; flex-direction:column; gap:var(--s3); width:min(26rem,calc(100vw - 2 * var(--gut))) } :is(#m-more,#m-view) .mcol{ display:contents }
-:is(#m-more,#m-view) .msec{ display:grid; grid-template-columns:6.5rem minmax(0,1fr); align-items:center; column-gap:var(--s3) }
-:is(#m-more,#m-view) .msec>header{ margin:0; font-size:var(--t1); font-weight:600; color:var(--soft) }
+:is(#m-more,#m-view) .msec{ display:grid; grid-template-columns:6.5rem minmax(0,1fr); align-items:start; column-gap:var(--s3) }
+:is(#m-more,#m-view) .msec>header{ margin:0; min-height:var(--s8); display:flex; align-items:center; font-size:var(--t1); font-weight:600; color:var(--soft) }   /* on its control's line, the pick's line under it its own */
 :is(#m-more,#m-view) .msec>:not(header){ grid-column:2 }
-.msel{ display:flex; align-items:center; gap:var(--s2); min-width:0 }
+.msel{ display:flex; align-items:center; gap:var(--s2); min-width:0; min-height:var(--s8) }
 .msel .oi{ display:grid; flex:none; place-items:center; width:1.25rem; color:var(--soft) }   /* the mark's place kept where an option has none – the selects one column */ .msel .oi :is(.ic,.fi){ --ic:18px }
-.msel select{ flex:1; min-width:0; font:inherit; font-size:var(--t2); font-weight:600; color:var(--ink); background:var(--panel); border:0; border-radius:var(--radius-control); padding:var(--s1) var(--s2); cursor:pointer }
+.msel select{ flex:1; min-width:0; font:inherit; font-size:var(--t2); font-weight:400; color:var(--ink); background:var(--panel); border:0; border-radius:var(--radius-control); padding:var(--s1) var(--s2); cursor:pointer }
 .msel select:disabled{ opacity:.4; cursor:default }
-.mline{ display:block; margin-top:var(--s1); font-size:var(--t1); line-height:1.4; color:var(--soft) } .mline:empty{ display:none }
-.mbody .fcov{ padding:var(--s2) 0 }
+/* where the browser draws a select's options itself (customizable select): each option its mark before its name, as the
+   switches' – elsewhere the native list, its names alone */
+@supports (appearance:base-select){ .msel select,.msel select::picker(select){ appearance:base-select }
+	.msel select::picker(select){ border:0; border-radius:var(--radius-card); padding:var(--s1) 0; background:var(--paper); box-shadow:var(--pop-shadow) }
+	.msel option{ display:flex; align-items:center; gap:var(--s2); padding:var(--s1) var(--s3); font-size:var(--t2); color:var(--body) } .msel option:checked{ color:var(--ink) } .msel option:hover{ background:var(--panel) }
+	.msel option .oi{ display:grid; place-items:center; width:1.25rem; --ic:18px } .msel select::picker-icon{ color:var(--soft) } }
+.mseg{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s1) var(--s3) } .mseg.figseg{ gap:var(--s1) } .mseg.figseg button{ width:var(--s8); height:var(--s8) }   /* a switch of marks – the dossier's figure switch's own idiom: dim, the pick inked and barred; its names the tooltips */
+.mline{ display:block; min-height:1.4em; margin-top:var(--s1); font-size:var(--t1); line-height:1.4; color:var(--soft) }   /* the pick's name and line – its place kept, so a pick never moves the menu */
+.mbody .fcov{ display:block; padding:var(--s1) 0 0 } .mbody .fcov .dual{ width:100% }   /* the coverage's two thumbs the switches' width, its reading the line under */
 .wb-hues{ --w:conic-gradient(in oklch longer hue, oklch(.72 .16 30), oklch(.72 .16 30)) }   /* a hue wheel – Vision's options draw it through their own lens */
 .fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
 /* the current color: its mark (the picker), its value to type over, the notation, its gamut tag. It is sticky – the
@@ -255,13 +262,13 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 .cxw #cval{ font-size:var(--cvf); font-weight:500; line-height:var(--cvl) }   /* the slogan's size, a step bolder – in the hero and docked alike */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
-.cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:underline var(--ulw) transparent; text-underline-offset:var(--uvo) }   /* the field's colors: unseen text, seen lines – one at a time */
-.hcolor>.cx .cvul u:is(.hot,.pt){ text-decoration-color:var(--ulp) }   /* the one pointed at – a word of the field, or its mark on an instrument (stophot) – a light line; nothing else lined */
+.cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:none }   /* the field's colors: unseen text, seen lines – one at a time */
+/* the field's colors underlined never: the one in hand dark, the rest grayer – pointed at, that one dark instead */
 /* many in hand, over the hero: the twin's text is the one seen – the color in hand in ink, the others lighter – the
    field's own text unseen over it, its caret and its selection kept (docked, the row's one ink) */
 body:not(.cdock) .hcolor>.cx:not(.peek):has(.cvul.many) #cval{ color:transparent; caret-color:var(--ink) } body:not(.cdock) .hcolor>.cx:not(.peek):has(.cvul.many) #cval::selection{ color:var(--paper) }
-body:not(.cdock) .hcolor>.cx .cvul.many{ color:var(--soft) } body:not(.cdock) .hcolor>.cx .cvul.many u.on{ color:var(--ink) }
-.hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx:not(:focus-within) .cvul:not(:has(u:is(.hot,.pt))){ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
+body:not(.cdock) .hcolor>.cx .cvul.many{ color:var(--soft) } body:not(.cdock) .hcolor>.cx .cvul.many :is(u.on,u.hot){ color:var(--ink) } body:not(.cdock) .hcolor>.cx .cvul.many:has(u.hot) u.on:not(.hot){ color:var(--soft) }
+.hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx .cvul{ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 @property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.5 }   /* one line: --cvl's (an initial value takes no var) */
 .hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
 .hcolor #cval{ display:block; width:100%; max-width:none; height:calc(var(--cvh) * 1em); resize:none; transition:--cvh var(--dur-short) var(--ease-out); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; field-sizing:fixed }
@@ -350,7 +357,7 @@ body.himg #imgfloat{ display:block }
 .pstack:has(.pst) .cdw::after{ content:''; position:absolute; left:2px; right:2px; top:calc(50% + var(--mk) / 2 + 3px); height:2px; border-radius:1px; background:var(--ink); pointer-events:none }   /* …a bar under it says which */   /* the held one over the others, wherever it stands in the order (a gradient's: over its pill, below) */
 /* stacked a step apart – 6px: three marks span one pill (a mark and two steps); the first at one color's own place */
 .pstack>*+*,#csug .sws>*+*{ margin-inline-start:calc(var(--step) - var(--mk)) }   /* two selectors, not :is() – its id would outweigh the pill's own placing of the held circle */
-.pst:not(.pill):is(:hover,:focus-visible,.hot){ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)) }
+.pst:not(.pill):is(:hover,:focus-visible,.hot){ z-index:calc(var(--zn) + 2); box-shadow:0 0 0 var(--picker-ring) #fff,var(--picker-shadow-on) }   /* pointed at: lifted over the others in a slider thumb's own dress – the white ring, the soft outline – no ink ring */
 /* a gradient is one mark: a pill of its run – two circles joined – in a suggestion; in the field the held color's
    circle rides it at its stop, as a slider's thumb rides its strip (a press on the pill takes the stop nearest it) */
 /* a mark 16px, stacked 7⅓px apart (the column 38px: 4px more room than 6px steps gave a palette); the column four marks wide – fewer run short, more draw closer to keep to it; a
@@ -360,7 +367,7 @@ body.himg #imgfloat{ display:block }
 .pst.pill{ width:var(--pw); border-radius:999px; z-index:0 }
 /* pointed at, the pill rings the stop a press would take (js: --hp, its place along the run) – the held one's ring, not
    the pill's outline */
-.pst.pill::after{ content:''; position:absolute; top:0; left:calc(var(--hp,0) * (100% - var(--mk))); width:var(--mk); height:var(--mk); border-radius:50%; background:var(--hw,transparent); box-shadow:0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)); opacity:0; pointer-events:none }
+.pst.pill::after{ content:''; position:absolute; top:0; left:calc(var(--hp,0) * (100% - var(--mk))); width:var(--mk); height:var(--mk); border-radius:50%; background:var(--hw,transparent); box-shadow:0 0 0 var(--picker-ring) #fff,var(--picker-shadow-on); opacity:0; pointer-events:none }
 .pst.pill:is(:hover,.hot)::after{ opacity:1 }
 .pstack:has(.pill) .cdw{ z-index:1; margin-inline:calc(var(--p,0) * (var(--pw) - var(--mk)) - var(--pw)) calc((1 - var(--p,0)) * (var(--pw) - var(--mk))) }
 #csug s.pill{ width:var(--w4); border-radius:999px }
@@ -737,7 +744,7 @@ body.himg #imgfloat{ display:block }
 	.ent.tc .cvs{ flex-wrap:nowrap; gap:var(--s2) } .ent.tc .cvs:has(>.cvp:nth-child(4)){ gap:0 } }   /* four numbers: the letters alone part them */
 .cvp{ position:relative; display:flex; align-items:baseline; min-width:0; border-bottom:var(--ulw) solid transparent }   /* ONE underline under letter + number; flex baselines align letter and value structurally */
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:end; min-width:.9em; padding-inline-end:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
-.cv{ width:4.6rem; padding-bottom:0; font-size:inherit; color:var(--body); text-align:start }   /* no padding below: the pair's underline at --uvo, as the field's colors' */
+.cv{ width:4.6rem; padding-bottom:0; font-size:inherit; color:var(--body); text-align:start }   /* no padding below: the pair's line its box's border, right under it */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:3ch } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
 .ent .cvp:hover,.cvp.pt{ border-bottom-color:var(--ulp) }   /* a pair pointed at – itself, or its strip or plane (.pt, js) – a lighter line; in hand – edited, its instrument pressed or held (.on) – the line itself, below */
 /* the CURRENT color as a line on the paper: its own hue, never so light (on dark paper, so dark) that the line is gone –
@@ -1706,13 +1713,13 @@ if(cvalEl){
 	// isTrusted + drag guards: renderFast mirrors the hex into these fields every frame — a
 	// synthetic input event (extension autofill and the like) or one landing mid-drag would
 	// reset master to the 8-bit hex per frame, snapping wide-gamut sliders onto the hex grid
-	const take=()=>{ const v=cvalEl.value.replace(/\s*\n\s*/g,', ')   // a palette pasted a color a line reads as a list
+	const take=()=>{ const raw=cvalEl.value, v=canonText(raw)   // every way of parting colors read as the one way it is written – a palette pasted a color a line a list
 		if(!v.trim()) return false   // emptied: the color holds while the field is in hand – the orbit waits for it to be let go (blur)
 		const p=parseInput(v)   // the page parser: hex, names, any space's function syntax – a list of them, a CSS gradient
-		if(p){ setStops(p.stops,p.grad,tokenAt(v,cvalEl.selectionStart)?.[2]??0); SAID=saidAsIs(v)?{ v:v.trim(), k:heldKey() }:null; scheduleFast(); if(open()) queuePlaneSettle() }   // the color the caret is in is the one in hand
+		if(p){ setStops(p.stops,p.grad,tokenAt(raw,cvalEl.selectionStart)?.[2]??0); SAID=saidAsIs(v)?{ v, k:heldKey() }:null; scheduleFast(); if(open()) queuePlaneSettle() }   // the color the caret is in is the one in hand; the field, let go, says it the one way (SAID)
 		else{ // a word still being typed: the page shows what the field holds – each color that reads as one, the one still a
 			// word kept as it stood at that place; one word alone, the one color in hand
-			const tks=tokensOf(v).filter(t=>t[2]!=null), at=tokenAt(v,cvalEl.selectionStart)?.[2]??0
+			const tks=tokensOf(v).filter(t=>t[2]!=null), at=tokenAt(raw,cvalEl.selectionStart)?.[2]??0
 			const list=tks.map((t,k)=>{ const x=v.slice(t[0],t[1]); try{ return parseColor(x)||parsePhrase(x)||STOPS?.[k]||(k===at?master:null) }catch{ return STOPS?.[k]||null } }).filter(Boolean)
 			if(tks.length<=1){ if(STOPS){ setStops([master]); scheduleFast() } }
 			else if(list.length){ const dash=!v.includes(','); setStops(list,list.length>1&&dash?GRAD||{ fn:'linear-gradient', head:'', mix:{ space:'oklab', hue:'shorter', named:true }, pos:list.map((_,k)=>k/(list.length-1)) }:null,Math.min(at,list.length-1)); scheduleFast() } }
@@ -1764,7 +1771,7 @@ if(cvalEl){
 	const SOURCES={ color:['meodai','tailwind','names','xkcd'], pair:['wada','lospec','chromotome','itten'], palette:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
 	const srcOf=read('csSugSrc',{}), useOf=k=>SOURCES[k].includes(srcOf[k])?srcOf[k]:SOURCES[k][0]
 	const nextSrc=k=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(useOf(k))+1)%l.length]; store('csSugSrc',srcOf) }
-	const K={ color:t('ui.sug.k.color','color'), neighbor:t('ui.sug.k.neighbor','neighbor'), pair:t('ui.sug.k.pair','pair'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), combination:t('ui.sug.k.combination','combination'), togradient:t('ui.sug.k.to-gradient','to gradient'), topalette:t('ui.sug.k.to-palette','to palette'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
+	const K={ color:t('ui.sug.k.color','color'), neighbor:t('ui.sug.k.neighbor','neighbor'), pair:t('ui.sug.k.pair','pair'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), combination:t('ui.sug.k.combination','combination'), togradient:t('ui.sug.k.to-gradient','to gradient'), topalette:t('ui.sug.k.to-palette','to palette'), mixin:t('ui.sug.k.mix-in','mixed in'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
 	const from=(kind,name,src,key)=>({ kind, name, src, key })   // "palette: triad from Itten" – the name left out where the row's own text is it; key: the kind whose source it turns
 	const nth={ color:0, pair:0, palette:0, gradient:0, next:0, recent:0 }   // which of a set's nearest the context shows – its ↻ the next
 	const row=(v,why=null)=>{ const p=parseInput(v); return { v, say:v, why, sw:hexesOf(v), run:p?.grad?runOf(p.stops,p.grad):null } }
@@ -1856,6 +1863,7 @@ if(cvalEl){
 	// a set's palettes of a size – a pair, or three to four (no principal difference between them: one row, either). Each
 	// turns among the sources that hold it (SOURCES: Wada's combinations, Lospec's and chromotome's, Itten's chords), so a
 	// turn always changes the row – none in the source (Itten), his chord of that size
+	const MIXIN=['oklch','oklab','lch','lab','srgb','srgb-linear','display-p3','a98-rgb','prophoto-rgb','rec2020','hsl','hwb','xyz','xyz-d50','xyz-d65']   // <color-space> of CSS's interpolation method, perceptual first
 	const SIZES={ pair:[2], palette:[3,4] }, palsN=(k,z)=>[k,PALS(k).filter(p=>SIZES[z].includes(p[1].length))]
 	const gradSetRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h))).join(JOIN)+' in srgb',from(K.gradient,n,src,'gradient'))   // as their makers drew them: CSS's own, sRGB
 	// a set's gradients that go somewhere: ends apart (ΔEok 0.08 or more), and between colored ends a hue that moves a third
@@ -1913,6 +1921,9 @@ if(cvalEl){
 		if(!v){ const all=recent(), rec=all.length?[all[nth.recent%all.length]]:[]   // the ways in drawn once a focus – the list redrawn keeps them; the last typed, one, its ↶ the one before
 			return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v,{ kind:K.recent }), rec:true, back:all.length>1 }))] }
 		if(!typed) return ok?ctxRows():[]   // focused on a color: it in context
+		// a gradient's method being typed (`red – blue in o…`): CSS's interpolation spaces (CSS Color 4 §12.1), as typed so far
+		const inm=v.match(/^(.*\S)\s+in(?:\s+([a-z0-9-]*))?$/i), ip=inm&&parseInput(inm[1])
+		if(ip?.grad&&ip.stops.length>1){ const q2=(inm[2]||'').toLowerCase(); return MIXIN.filter(n=>n.startsWith(q2)&&n!==q2).map(n=>row(`${inm[1]} in ${n}`,{ kind:K.mixin })) }
 		const tail=cvalEl.value.match(/^(.*\S)\s*(,|\s+to|\s*[–—]|\s*-|\.\.)\s*$/is), tp=tail&&parseInput(tail[1])   // a joint typed last: what comes next
 		if(tp) return tail[2]===','?(tp.stops.length===1||!tp.grad?nextRows(tail[1],tp.stops.at(-1)):[]):gradOnRows(tail[1],tp)
 		const word=/^[\p{L}\d'’ -]+$/u.test(q)&&!/^#?[\da-f]{3,8}$/.test(q)
@@ -2964,12 +2975,20 @@ const optIcon=(fi,v)=>WHITE_XY[v]&&FACETS[fi]==='white point'?`<i class="wdot" s
 // optgroup), the pick's line under it. Each option {v, name, line, icon, tip, group}; the marks and lines kept by the
 // select (dropShow reads them as the pick changes)
 const DROPS=new Map()
-const dropHTML=(key,attrs,label,opts)=>{ const esc=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')   // the page's own esc comes later in the module, and keeps quotes
+const qesc=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')   // the page's own esc comes later in the module, and keeps quotes
+const dropHTML=(key,attrs,label,opts)=>{ const esc=qesc
 	DROPS.set(key,new Map(opts.map(o=>[String(o.v),o]))); let g=null, h=''
 	for(const o of opts){ if((o.group??null)!==g){ if(g!=null) h+='</optgroup>'; g=o.group??null; if(g!=null) h+=`<optgroup label="${esc(g)}">` }
-		const tip=o.tip??o.line; h+=`<option value="${esc(String(o.v))}"${tip?` title="${esc(tip)}"`:''}>${esc(o.name)}</option>` }   // its line its tooltip too, where it has no other
+		const tip=o.tip??o.line; h+=`<option value="${esc(String(o.v))}"${tip?` title="${esc(tip)}"`:''}>${o.icon?`<span class="oi" aria-hidden="true">${o.icon}</span>`:''}${esc(o.name)}</option>` }   // its line its tooltip too, where it has no other; its mark drawn where the browser draws the options itself – elsewhere the parser keeps the name alone
 	if(g!=null) h+='</optgroup>'
 	return `<span class="msel"><span class="oi" aria-hidden="true"></span><select data-drop="${key}" ${attrs} aria-label="${esc(label)}">${h}</select></span><small class="mline"></small>` }
+// a setting as a switch – the menus' control where every option has its mark (Limit, Vision, the facets): the marks in a
+// row, the pick inked and barred, each one's name and line its tooltip; the pick's name and line under it. A facet's pick
+// pressed again lets it go (Any)
+const segHTML=(key,attrs,label,opts,any='')=>{ const esc=qesc; DROPS.set(key,new Map(opts.map(o=>[String(o.v),o])))
+	return `<span class="seg${opts.every(o=>o.icon)?' figseg':''} mseg" role="group" data-drop="${key}" ${attrs} aria-label="${esc(label)}"${any?` data-any="${esc(any)}"`:''}>${opts.map(o=>`<button type="button" data-v="${esc(String(o.v))}" aria-pressed="false" title="${esc(o.tip??(o.line?`${o.name} – ${o.line}`:o.name))}" aria-label="${esc(o.name)}">${o.icon||esc(o.name)}</button>`).join('')}</span><small class="mline"></small>` }
+const segShow=(el,v)=>{ for(const b of el.children){ const on=b.dataset.v===String(v); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)) }
+	const o=DROPS.get(el.dataset.drop)?.get(String(v)); el.nextElementSibling.textContent=o?(o.line?`${o.name} – ${o.line}`:o.name):el.dataset.any||'' }
 const dropShow=sel=>{ const o=DROPS.get(sel.dataset.drop)?.get(sel.value), row=sel.parentElement
 	row.firstElementChild.innerHTML=o?.icon||''; row.nextElementSibling.textContent=o?.line||'' }
 // a facet's section of the menu. Coverage is continuous, so it filters by interval, not options: from–to share of the
@@ -2977,8 +2996,8 @@ const dropShow=sel=>{ const o=DROPS.get(sel.dataset.drop)?.get(sel.value), row=s
 const moreEl=document.getElementById('m-more')
 moreEl.innerHTML=`<label class="msq"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq2" type="search" autocomplete="off" spellcheck="false" placeholder="${t('ui.header.find','search…')}" aria-label="${t('ui.header.find-tip','search the spaces by name')}"></label>`+[['signal','range','channels','geometry'],['encoding','coverage'],['white','status']].map(c=>`<div class="mcol">${c.map(k=>`<section class="msec" data-m="${k}"><header>${CLABEL[k]}</header></section>`).join('')}</div>`).join('')   // in columns: the short facets, the tone curve over coverage, the white – a phone pairs them up (CSS)
 for(const k in CELLS){ const fi=fiOf(k)
-	moreEl.querySelector(`.msec[data-m="${k}"]`).insertAdjacentHTML('beforeend',`<div class="mbody" data-m="${k}">${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span><b class="tnum" id="fcovv">${covTxt()}</b></span>`
-		:dropHTML('f'+fi,`data-f="${fi}"`,CLABEL[k],[{ v:'', name:t('ui.filter.any','Any') },...FVALS[fi].map(v=>({ v, name:FACETS[fi]==='channels'?v:cap(tagL(v)), line:tagLine(v), icon:optIcon(fi,v), tip:TAGTIP[v] }))])}</div>`) }
+	moreEl.querySelector(`.msec[data-m="${k}"]`).insertAdjacentHTML('beforeend',`<div class="mbody" data-m="${k}">${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span></span><small class="mline tnum" id="fcovv">${covTxt()}</small>`
+		:segHTML('f'+fi,`data-f="${fi}"`,CLABEL[k],FVALS[fi].map(v=>({ v, name:FACETS[fi]==='channels'?v:cap(tagL(v)), line:tagLine(v), icon:FACETS[fi]==='channels'?'':optIcon(fi,v), tip:TAGTIP[v] })),t('ui.filter.any','Any'))}</div>`) }
 const fcov=document.getElementById('fcov'), fcov1=document.getElementById('fcov1'), fcovv=document.getElementById('fcovv'), covD=document.querySelector('.fcov .dual')
 const isOn=k=>k==='coverage'?covOn():act[fiOf(k)].size>0
 const moreB=document.getElementById('c-more'), moreN=moreB.querySelector('b')
@@ -3003,11 +3022,11 @@ const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySel
 // a pick filters the catalog and inks Filters' mark; Filters' name and tooltip say every pick, its × lets them go
 function paintCells(){ const w=Object.keys(CELLS).filter(isOn).map(cellWords).join(' · '), nm=t('ui.cell.more-any','Filters')
 	fclrEl.hidden=!w&&!qWord
-	document.querySelectorAll('.dpop select[data-f]').forEach(x=>{ x.value=[...act[+x.dataset.f]][0]??''; dropShow(x) })
+	document.querySelectorAll('.dpop .mseg[data-f]').forEach(x=>segShow(x,[...act[+x.dataset.f]][0]??''))
 	covD.style.setProperty('--lo',covMin*100+'%'); covD.style.setProperty('--hi',covMax*100+'%'); fcovv.textContent=covTxt()   // the fill IS the interval, and the readout says it — full at rest, 0–100%
 	moreN.textContent=w; moreN.classList.toggle('on',!!w); moreB.title=w?`${nm}: ${w}`:nm; fitCells() }
-document.addEventListener('change',e=>{ const b=e.target.closest?.('.dpop select[data-f]')
-	if(b){ const set=act[+b.dataset.f], v=b.value; filterKeep(()=>{ set.clear(); if(v) set.add(v) }) } })   // one pick per facet – Any lets it go; Filters stays open for the next
+document.addEventListener('click',e=>{ const b=e.target.closest?.('.dpop .mseg[data-f] button')
+	if(b){ const set=act[+b.parentElement.dataset.f], v=b.dataset.v, had=set.has(v); filterKeep(()=>{ set.clear(); if(!had) set.add(v) }) } })   // one pick per facet: a pick replaces the last, the same again lets it go (Any); Filters stays open for the next
 fcov.oninput=()=>filterKeep(()=>{ covMin=+fcov.value/100; if(covMin>covMax){ covMax=covMin; fcov1.value=covMax*100 } })
 fcov1.oninput=()=>filterKeep(()=>{ covMax=+fcov1.value/100; if(covMax<covMin){ covMin=covMax; fcov.value=covMin*100 } })
 // a popover's invoker says whether it is open – the cells style by it (toggle doesn't bubble)
@@ -3181,6 +3200,24 @@ function parsePhrase(str){ str=str.trim().toLowerCase(); if(!str) return null
 	return { s:'oklch', vals:[L,C,(H+360)%360] } }
 // a color LIST: comma/newline/semicolon-separated at the top level (legacy rgb(255, 128, 0)
 // commas stay inside their parens), or space-separated bare hexes. Every part must parse.
+// the field's colors in the one way they are written – a list's parted by ", ", a gradient's by " – " (stops.js JOIN) –
+// whatever parted them as typed: a semicolon, a bar, a plus, a tab or a line; an arrow (->, →, =>, >), a dash of any
+// length, a minus sign, `to`, `..`; spaces alone between CSS colors (`red blue`, not `dark red`). A gradient's CSS
+// function, a name that holds a dash or a space (red-orange, light blue), as written; a color's own parens untouched
+const canonText=str=>{ const v=str.trim(); if(!v||/^(repeating-)?(linear|radial|conic)-gradient\(/i.test(v)||nameOf(v.toLowerCase())) return v
+	const LIST=/^\s*[,;|+\t\n]\s*/, JOINT=/^(?:\s*(?:->|=>|→|>|−|–|—)\s*|\s+-\s+|-(?=\s*[#a-z(])|\s+to\s+|\s*\.\.\s*)/i
+	let out='', d=0, words=[], cur=''
+	for(let i=0;i<v.length;i++){ const c=v[i]; if(c==='(') d++; else if(c===')') d=Math.max(0,d-1)
+		const rest=d||c==='('?null:v.slice(i), m=rest&&(rest.match(LIST)||rest.match(JOINT))
+		if(m&&m[0]==='-'){ const a=out.match(/[\w'-]*$/)[0], b=v.slice(i+1).match(/^[\w'-]*/)[0]; if(nameOf((a+'-'+b).toLowerCase())){ out+=c; continue } }   // a dash inside a name (red-orange, lemon-poppy) is the name's
+		if(m){ const sep=m[0].trim()&&!/^[,;|+]$/.test(m[0].trim())||/\sto\s/i.test(m[0])?JOIN:', '; out+=sep; i+=m[0].length-1; continue }
+		out+=c }
+	out=out.replace(/\s+(in\s+[a-z0-9-]+(?:\s+\w+\s+hue)?)$/i,' $1')   // the method closing a gradient, one space before it
+	// no part said: spaces between CSS colors, each its own
+	if(!out.includes(',')&&!out.includes(JOIN)){ const top=[]; let w='', e=0
+		for(const c of out){ if(c==='(') e++; else if(c===')') e=Math.max(0,e-1); if(!e&&/\s/.test(c)){ if(w) top.push(w); w='' } else w+=c }
+		if(w) top.push(w); if(top.length>1&&top.every(cssWord)) return top.join(', ') }
+	return out }
 function parseColorList(str){ let parts=[], d=0, cur=''
 	for(const c of str){ if(c==='(') d++; else if(c===')') d=Math.max(0,d-1)
 		if((c===','||c==='\n'||c===';')&&!d){ parts.push(cur); cur='' } else cur+=c }
@@ -3360,6 +3397,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	// option the color in hand written in it (fmtSamples, as the menu opens)
 	const fmtSamples=()=>{ const c=RGB(), h=hex(c); return FMTL.map(f=>({ v:f, name:fmtAs(f,h,c) })) }
 	const row=(name,key,opts)=>`<section class="msec"><header>${name}</header>${dropHTML(key,`data-lens="${key}"`,name,opts)}</section>`
+	const seg=(name,key,opts)=>`<section class="msec"><header>${name}</header>${segHTML(key,`data-lens="${key}"`,name,opts)}</section>`
 	const qName=lb=>lb==='xkcd'||lb==='color-name-list'?lb:cap(lb)   // a brand keeps its casing
 	// a simulation's line says what it is and whose: its first author, the year (the full citation is cvd.js's)
 	const citeOf=c=>{ const m=c?.match(/^([^,&\d]+?)\s*(?:([,&])[^\d]*)?\s(\d{4})/); return m?`${m[1]}${m[2]?' et al.':''} ${m[3]}`:'' }   // Machado, Oliveira & Fernandes 2009 → Machado et al. 2009
@@ -3367,10 +3405,11 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 		row(t('ui.cell.format','Format'),'n',fmtSamples()),
 		row(t('ui.cell.draw','Quantize'),'q',QGROUPS.flatMap(([gl,os])=>os.map(([mo,lb])=>({ v:qKey(mo), name:qName(lb), icon:QI[qKey(mo)], tip:QTIP[qKey(mo)], group:gl||null })))),
 		row(t('ui.metric.title','Distance'),'m',METRICS.map(m2=>({ v:m2, name:MLABEL[m2], tip:MTIP[m2] }))),
-		row(t('ui.cell.limit','Limit'),'g',[...GAMS,'vis','locus'].map(g=>({ v:g, name:GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g], line:gamTip(g), icon:LI[g] }))),   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
-		row(t('ui.cell.vision','Vision'),'v',LENSES.map(l=>({ v:l.id, name:cap(t(`lens.${l.id}`,l.label)), line:VLINE[l.id]+(l.cite?` – ${citeOf(l.cite)}`:''), icon:`<i class="wdot wb-hues"${l.id==='none'?'':` style="filter:url(#cvd-${l.id})"`}></i>` })))].join('')
+		seg(t('ui.cell.limit','Limit'),'g',[...GAMS,'vis','locus'].map(g=>({ v:g, name:GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g], line:gamTip(g), icon:LI[g] }))),   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
+		seg(t('ui.cell.vision','Vision'),'v',LENSES.map(l=>({ v:l.id, name:cap(t(`lens.${l.id}`,l.label)), line:VLINE[l.id]+(l.cite?` – ${citeOf(l.cite)}`:''), icon:`<i class="wdot wb-hues"${l.id==='none'?'':` style="filter:url(#cvd-${l.id})"`}></i>` })))].join('')
 	// the notation's options written in the color in hand, as the menu opens
 	document.getElementById('m-view').addEventListener('beforetoggle',e=>{ if(e.newState!=='open') return
+		if(!document.getElementById('cvd-deutan')) document.body.insertAdjacentHTML('beforeend',cvdDefs())   // Vision's marks drawn through their own lenses, before any is picked
 		const sel=document.querySelector('#m-view select[data-lens="n"]'); for(const o of fmtSamples()){ const op=sel.querySelector(`option[value="${o.v}"]`); if(op) op.textContent=o.name } })
 	paintLens=()=>{
 		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); b.setAttribute('aria-label',n.label); b.title=n.title
@@ -3378,6 +3417,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent }   // never inked; its mark the menu's own – the settings of how every value is written and seen
 		const now={ q:qKey(Q), m:QM, g:GM, v:VIS, n:FMT }
 		document.querySelectorAll('.dpop select[data-lens]').forEach(b=>{ b.value=now[b.dataset.lens]; dropShow(b) })
+		document.querySelectorAll('.dpop .mseg[data-lens]').forEach(b=>segShow(b,now[b.dataset.lens]))
 		document.querySelector('.dpop select[data-lens="m"]').disabled=!PALMODES.has(Q) }   // the distance waits for a palette – shown, not offered
 	const applyView=()=>{ clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the menu open
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
@@ -3388,8 +3428,8 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	setLimit=v=>{ GM=v; try{ localStorage.csGm=GM }catch{}
 		if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
 		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); paintLens() }
-	document.addEventListener('change',e=>{ const b=e.target.closest?.('.dpop select[data-lens]'); if(!b) return; const v=b.value
-		switch(b.dataset.lens){
+	// a view setting taken – from its select or its switch, one door
+	const pickLens=(k,v)=>{ switch(k){
 			case 'q': Q=qFromKey(v); if(Q==='meodai'&&!MEODAI.length) loadMeodai().then(()=>{ sitesOf.meodai=null; if(Q==='meodai') applyView() }); applyView(); syncViewURL(); break   // the long list lands, then the lens draws with it
 			case 'm': QM=v; applyView(); syncViewURL(); break
 			case 'g': setLimit(v); break
@@ -3401,7 +3441,9 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 				if(v==='none') delete root.dataset.cvd; else root.dataset.cvd=v
 				track(EVENT.vision(v)) } break
 			}
-		paintLens() })
+		paintLens() }
+	document.addEventListener('change',e=>{ const b=e.target.closest?.('.dpop select[data-lens]'); if(b) pickLens(b.dataset.lens,b.value) })
+	document.addEventListener('click',e=>{ const b=e.target.closest?.('.dpop .mseg[data-lens] button'); if(b) pickLens(b.parentElement.dataset.lens,b.dataset.v) })
 	// the boot URL restores a shared view – ?q=names&m=de2000 (absent params = defaults)
 	viewFromURL=()=>{ const sp=new URLSearchParams(location.search)
 		const q0=sp.get('q'), m0=sp.get('m')

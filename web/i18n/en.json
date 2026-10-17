@@ -1537,6 +1537,7 @@
 "ui.sug.k.colormap": {"t":"colormap","h":"fb1e17eb"},
 "ui.sug.k.combination": {"t":"combination","h":"77ffa6b4"},
 "ui.sug.k.gradient": {"t":"gradient","h":"7502dbb0"},
+"ui.sug.k.mix-in": {"t":"mixed in","h":"6f615e87"},
 "ui.sug.k.neighbor": {"t":"neighbor","h":"3ba2881d"},
 "ui.sug.k.pair": {"t":"pair","h":"20166cc5"},
 "ui.sug.k.palette": {"t":"palette","h":"b8a5c3c9"},

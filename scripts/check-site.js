@@ -38,9 +38,10 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 
 // a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
 // with 'f', a facet value
-// a menu's dropdown set as a hand would: a filter's value again lets it go (Any), a view setting takes its value
-const lens = (pg, k, v) => pg.evaluate(([k, v]) => { const sel = k === 'f' ? [...document.querySelectorAll('.dpop select[data-f]')].find(s => [...s.options].some(o => o.value === v)) : document.querySelector(`.dpop select[data-lens="${k}"]`)
-	sel.value = k === 'f' && sel.value === v ? '' : v; sel.dispatchEvent(new Event('change', { bubbles: true })) }, [k, v])
+// a menu's setting taken as a hand would: a switch's option pressed (a facet's again lets it go), a select's value set
+const lens = (pg, k, v) => pg.evaluate(([k, v]) => { const b = document.querySelector(k === 'f' ? `.dpop .mseg[data-f] button[data-v="${CSS.escape(v)}"]` : `.dpop .mseg[data-lens="${k}"] button[data-v="${CSS.escape(v)}"]`)
+	if (b) return b.click()
+	const sel = document.querySelector(`.dpop select[data-lens="${k}"]`); sel.value = v; sel.dispatchEvent(new Event('change', { bubbles: true })) }, [k, v])
 // the catalog's layout switch, in the pinned row – it offers the next view: grid → rows → list → grid
 const layout = (pg, v) => pg.locator(`#c-layout[data-view="${v}"]`).click()
 // the row's own value field shows once the hero's field has passed under the row – bring the catalog up to type in it
@@ -358,6 +359,17 @@ try {
 	await page.locator('#cval').press('Enter')
 	assert.equal(await page.locator('#cval').inputValue(), 'rebeccapurple', 'a CSS name typed stays the name – the field never rewrites what it was told')
 	assert.equal(await page.locator('#cd').inputValue(), '#663399', '…its color the name’s')
+	// the field's colors written the one way, whatever parted them as typed: a list's by ", ", a gradient's by " – " – a
+	// name holding a dash or a space, a CSS gradient, a color's own parens as written
+	for (const [typed, said] of [['red - blue', 'red – blue'], ['red->blue', 'red – blue'], ['red → blue', 'red – blue'], ['red > blue', 'red – blue'], ['red−blue', 'red – blue'], ['red..blue', 'red – blue'], ['red to blue', 'red – blue'],
+		['red; blue | green + gold', 'red, blue, green, gold'], ['red blue green', 'red, blue, green'], ['#f00 #00f', '#f00, #00f'], ['rgb(255 0 0) rgb(0 0 255)', 'rgb(255 0 0), rgb(0 0 255)'],
+		['red – blue - green in oklch', 'red – blue – green in oklch'], ['oklch(0.7 0.1 30) -> #00f', 'oklch(0.7 0.1 30) – #00f'], ['linear-gradient(red, blue)', 'linear-gradient(red, blue)'], ['rebeccapurple', 'rebeccapurple']]) {
+		await page.locator('#cval').fill(typed); await page.locator('#cval').press('Enter'); await page.evaluate(() => document.activeElement.blur())
+		assert.equal(await page.locator('#cval').inputValue(), said, `"${typed}" said "${said}"`) }
+	// a gradient's method being typed: CSS's interpolation spaces offered, as typed so far
+	await page.locator('#cval').click(); await page.locator('#cval').fill('red – blue in okl'); await page.waitForTimeout(300)
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#csug .sgt>span:first-child')].map(s => s.textContent)), ['red – blue in oklch', 'red – blue in oklab'], 'in okl…: oklch and oklab offered')
+	await page.locator('#cval').press('Escape'); await page.evaluate(() => document.activeElement.blur())
 	// a collection's name is a suggestion's line, never the field's: taken, the field holds its value; the color's neighbour
 	// is one row – the value, its name and collection under it – its name pressed, the next nearest; the notation is the
 	// View menu's, every value's
@@ -378,12 +390,6 @@ try {
 	await page.locator('#cval').fill('red, blue, tomato'); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.evaluate(() => { const c = document.getElementById('cval'); c.setSelectionRange(6, 6); document.dispatchEvent(new Event('selectionchange')) })
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.cvul u')].map(u => u.textContent + (u.classList.contains('on') ? '*' : ''))), ['red', 'blue*', 'tomato'], 'every color of the field underlined, the caret’s marked')
-	// underline = the active value, one idiom: a field color's line and a channel pair's lie as far below their baseline, in
-	// their own em (--uvo) – the one a text underline, the other its box's border
-	{	const [field, pair] = await page.evaluate(() => { const base = (el) => { const q = document.createElement('span'); q.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; el.append(q); const y = q.getBoundingClientRect().top; q.remove(); return y }
-			const u = getComputedStyle(document.querySelector('.cvul u')), cvp = document.querySelector('.ent .cvp'), cc = getComputedStyle(cvp)
-			return [parseFloat(u.textUnderlineOffset) / parseFloat(u.fontSize), (cvp.getBoundingClientRect().bottom - parseFloat(cc.borderBottomWidth) - base(cvp.firstElementChild)) / parseFloat(getComputedStyle(cvp.querySelector('input')).fontSize)] })
-		assert.ok(Math.abs(field - pair) < 0.03, `a field color and a channel value underlined alike (${field.toFixed(3)} em, ${pair.toFixed(3)} em below the baseline)`) }
 	await page.locator('#cval').fill('red - orange - gold - lime - teal - blue'); await page.waitForTimeout(300); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.waitForTimeout(500)
 	assert.equal(await page.evaluate(() => [...document.querySelectorAll('#csug small')].some(s => /one step on/.test(s.textContent))), false, 'six stops: no step on')
@@ -917,7 +923,7 @@ try {
 	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
 	// the vision lens: one root filter, defs mounted once, cited models
 	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view select[data-lens="v"] option')].map(o => o.title).join(' ')), /Machado et al\. 2009[\s\S]*Brettel et al\. 1997/, 'the vision options cite Machado 2009 and Brettel 1997 in their line – one text, no tooltip beside its')
+	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view .mseg[data-lens="v"] button')].map(o => o.title).join(' ')), /Machado et al\. 2009[\s\S]*Brettel et al\. 1997/, 'the vision options cite Machado 2009 and Brettel 1997 in their line – one text, no tooltip beside its')
 	await lens(wire,'v','deutan')
 	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
 	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')

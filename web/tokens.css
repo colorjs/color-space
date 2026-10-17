@@ -97,8 +97,6 @@
 	--hair:oklch(0.17 calc(0.015*var(--uk)) var(--uh)/.12);
 	--ul:color-mix(in oklab, currentColor 30%, transparent);   /* the one link underline: a third of the text's own ink, so it adapts to any context (prose, terminal, footer) and both themes */
 	--ulo:.22em;   /* …and its distance below the baseline, in the text's own em: clear of the descenders' join, as far at the hero's size as at the footer's */
-	--uvo:.38em;   /* an ACTIVE VALUE's underline – a channel pair's, a color's in the field – its distance below the baseline: one idiom, one
-	   distance, past a link's for the thicker line (--ulw). A pair's line is its box's border, so its input sits on it with no padding below */
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
@@ -112,7 +110,7 @@
 	   the text's size (an em once drew the field's line twice a tab's) – 3px, a whole pixel: a border snaps a fraction down
 	   (2.5px drew a pair's line at 2, a tab's bar at 2.5), and 2px read thin */
 	--ulh:var(--hair);   /* …and the line's unpicked colour: a group of tabs pointed at, each item's */
-	--ulp:var(--soft);   /* the line under the one pointed at – a channel, a word of the field – lighter than the one in hand */
+	--ulp:var(--hair);   /* the line under the one pointed at – a channel: soft, saying it can be edited – the one in hand the ink (--ula) */
 	--ula:var(--ink);   /* the line under the one in hand – a channel edited or held, a switch's pick: the tabs' own ink */
 	--ring:color-mix(in oklab,var(--ink) 40%,transparent);   /* the focus ring: thin, the ink's lighter shade */
 
