@@ -62,6 +62,10 @@ all 12 translations. The second pass addressed English idioms repeated throughou
 historical notes, rewrote the introductions and model explanations, and revised Russian
 terminology and prose more extensively. These were AI-assisted editorial reviews;
 they do not constitute native-speaker approval of every space description.
+The 2026-10-17 terminology pass reviewed every language's titles, catalog labels and descriptions
+for calques, checking terms against Wikipedia's interlanguage links where it was reachable (not for
+ru and ja): each hero title is now the plain search term (the kicker left empty), and category,
+purpose and grouping labels use the field's own words. It was AI-assisted too.
 `@meta.reviewed` remains `null`. The language-specific questions in `GLOSSARY.md` still need
 native readers with color-science or imaging experience.
 

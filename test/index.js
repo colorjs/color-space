@@ -131,6 +131,14 @@ test('integrity — the layout switch carries render.js\'s marks in the page its
 	is(page.includes(`data-view="${nextView('grid').v}"`) && page.includes(`<i data-from="grid">${nextView('grid').ic}</i><i data-from="list">${nextView('list').ic}</i>`), true, 'both marks, as render.js draws them, and the view a first visit turns to')
 })
 
+test('integrity — one type scale: no step redefined past tokens.css, so a phone keeps its order (a 13px t3 once set the slogan and the section titles under the 14px descriptions)', () => {
+	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8'), tokens = readFileSync(new URL('../web/tokens.css', import.meta.url), 'utf8')
+	is([...page.matchAll(/--t[0-6]\s*:/g)].length, 0, 'the page sets no --t step')
+	const steps = [...tokens.matchAll(/--t([0-6]):\s*([\d.]+)rem/g)]
+	is(steps.map((m) => +m[1]), [0, 1, 2, 3, 4, 5, 6], 'tokens.css sets each step once')
+	is(steps.every((m, k) => !k || +m[2] > +steps[k - 1][2]), true, 'each step larger than the one before')
+})
+
 test('integrity — every Usage tab opens with its title; the plates are plain text, painted by lighthigh', () => {
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
 	const panels = [...page.matchAll(/<div (?:class="export" )?id="api-panel-(\w+)" role="tabpanel"[^>]*>\s*(<\w+[^>]*>)/g)]

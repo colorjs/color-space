@@ -81,21 +81,22 @@ try {
 	assert.deepEqual(await page.evaluate(()=>{ const w=document.getElementById('ftr').style.getPropertyValue('--wall'), rows=w.split(/,(?=linear-gradient)/)
 		const stops=r=>r.slice(16,-1).split(/,(?![^(]*\))/).slice(1)
 		return [rows.length, rows.map(r=>stops(r).every(x=>(x.match(/[\d.]+%/g)||[]).length===2)), rows.map(r=>{ const st=stops(r); return st[(st.length-1)/2].startsWith('var(--cur)') }), document.getElementById('strip').style.getPropertyValue('--hues')] }), [4,[true,true,true,true],[true,true,true,true],''], 'the footer wall: one stepped wheel, the current color centered; the top edge the color alone')
+	// the hero's locus: pointed at, its Limits' edges and names, all alike; a press is the site's home – the Limit is the row's menu's
 	{ const box=await page.locator('.hlocus').boundingBox()
 	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light'],'the outlines named – the displays, Surface and the horseshoe, Light – no wavelengths')
+	  assert.deepEqual(await page.evaluate(()=>{ const a=document.querySelector('.hlocus'); return [a.tagName,a.getAttribute('href')] }),['A','./'],'the locus is the link home')
 	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])
 	  const st=()=>page.evaluate(()=>({ edges:getComputedStyle(document.querySelector('.hlocus .lims')).opacity, on:[...document.querySelectorAll('.hlocus .lims path.on')].map(e=>e.dataset.g).join(), gm:localStorage.csGm||'', fill:document.querySelector('#hl-lim path').getAttribute('d') }))
 	  await page.mouse.move(box.x+box.width-4,box.y+6); await page.waitForTimeout(300)
-	  assert.equal((await st()).edges,'0','the locus box outside the horseshoe does not answer the pointer')
+	  assert.equal((await st()).edges,'0','the locus box outside the horseshoe shows no edges')
 	  const before=await st(), [sx,sy]=await xy(.31,.33); await page.mouse.move(sx,sy); await page.waitForTimeout(300)
-	  const over=await st(); assert.deepEqual([over.edges,over.on,over.gm,over.fill===before.fill],['1','srgb',before.gm,true],'pointing shows the edges, sRGB under the pointer strongest – and picks nothing')
-	  await page.mouse.click(sx,sy); await page.waitForTimeout(300)
-	  const picked=await st(); assert.deepEqual([picked.gm,picked.fill!==before.fill],['srgb',true],'a click picks sRGB: stored and filled')
-	  { const [vx,vy]=await xy(.08,.5); await page.mouse.click(vx,vy); await page.waitForTimeout(300)
-	    const v=await st(), d=await page.evaluate(()=>[...['vis','locus'].map(g=>document.querySelector(`.hlocus .lims path[data-g="${g}"]`).getAttribute('d'))])
-	    assert.deepEqual([v.gm,v.fill===d[0],v.fill!==d[1]],['vis',true,true],'Surface picks from the band it alone holds, and shows: its own region, not Light\'s') }
-	  await page.evaluate(()=>{ document.querySelector('.dpop [data-lens="g"][data-v="vis"]').click(); try{ localStorage.removeItem('csGm') }catch{} }); await page.mouse.move(2,2)   // back to the default Limit, through the row's own menu
-	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface again: its own region filled – a pick that shows') }
+	  const over=await st(); assert.deepEqual([over.edges,over.on,over.gm,over.fill===before.fill],['1','',before.gm,true],'pointing shows the edges, all alike – and picks nothing')
+	  await page.mouse.move(2,2); await page.waitForTimeout(300)
+	  assert.equal((await st()).edges,'0','let go, the plain locus')
+	  await page.evaluate(()=>document.querySelector('.dpop [data-lens="g"][data-v="srgb"]').click()); await page.waitForTimeout(200)
+	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="srgb"]').getAttribute('d')),true,'the Limit picked in the row\'s menu fills its own region in the locus')
+	  await page.evaluate(()=>{ document.querySelector('.dpop [data-lens="g"][data-v="vis"]').click(); try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit, through the row's own menu
+	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface again: its own region filled') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
@@ -307,6 +308,15 @@ try {
 	await lens(page,'f','scene')   // unpicked where it was picked – no Any
 	await page.locator('.gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
+	// a language switch keeps ?g=: the page arrives in that cut, built once, and its tabs stay live – the arrival used to
+	// regroup, then the prerender's drift path redrew the family over it with the cut still set, so Family looked picked and Purpose did nothing
+	{	const cutContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), cut = await cutContext.newPage()
+		const shelf = () => cut.evaluate(() => document.querySelector('#cat .sec')?.dataset.k)
+		await cut.goto(`${server.origin}/ru/?sw&g=purpose&cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		assert.equal(await shelf(), 'purpose.picking', 'a shared ?g=purpose arrives in the purpose cut, translated page included')
+		await cut.locator('.gtag[data-g="family"]').click(); assert.equal(await shelf(), 'cat.display', 'its Family tab answers')
+		await cut.locator('.gtag[data-g="purpose"]').click(); assert.equal(await shelf(), 'purpose.picking', 'and its Purpose tab again')
+		await cutContext.close() }
 
 	// the views: the List rebuilds the same catalog; a List column orders every space in one shelf, again the
 	// other way; Grid returns. A lead card's own switch shows its channel pairs as planes
@@ -346,6 +356,22 @@ try {
 	await page.locator('#cval').press('Enter')
 	assert.equal(await page.locator('#cval').inputValue(), 'rebeccapurple', 'a CSS name typed stays the name – the field never rewrites what it was told')
 	assert.equal(await page.locator('#cd').inputValue(), '#663399', '…its color the name’s')
+	// a collection's name is a suggestion's line, never the field's: taken, the field holds its value; the color's neighbour
+	// is one row – the value, its name and collection under it – its name pressed, the next nearest; the notation is the
+	// View menu's, every value's
+	{	await page.locator('#cval').fill('lead'); await page.waitForFunction(() => [...document.querySelectorAll('#csug .sgn, #csug small')].some(s => /lead/i.test(s.textContent)), null, { timeout: 15000 })
+		await page.locator('#cval').press('Enter'); await page.evaluate(() => document.activeElement.blur()); await page.waitForTimeout(200)
+		assert.match(await page.locator('#cval').inputValue(), /^#[\dA-F]{6}$/i, 'a collection\'s name taken: the field holds its value, not the name')
+		await page.locator('#cval').click(); await page.waitForTimeout(400)
+		const nb = () => page.evaluate(() => { const r = [...document.querySelectorAll('#csug .sgr')].find(r => r.querySelector('.sgt small')?.textContent.includes('color-name-list')); return r && [r.querySelector('.sgt>span').textContent, r.querySelector('.sgn')?.textContent] })
+		const [v1, n1] = await nb(); assert.match(v1, /^#[\dA-F]{6}$/i, 'the neighbour row reads as a value'); assert.ok(n1, 'its name under it')
+		assert.equal(await page.evaluate(() => [...document.querySelectorAll('#csug .sgt small')].filter(s => s.textContent.includes('color-name-list')).length), 1, 'one neighbour')
+		await page.locator('#csug .sgn').first().click(); await page.waitForTimeout(200)
+		const [, n2] = await nb(); assert.notEqual(n2, n1, 'its name pressed: the next nearest')
+		await page.locator('#cval').press('Escape'); await page.evaluate(() => document.activeElement.blur())
+		await lens(page, 'n', 'oklch'); await page.waitForTimeout(200)
+		assert.match(await page.locator('#cval').inputValue(), /^oklch\(/, 'the View menu\'s Format: the field in OKLCH')
+		await lens(page, 'n', 'hex'); await page.waitForTimeout(200) }
 	// the field's words: a name holding " to " is one color, kept as typed; each color underlined, the caret's in its own
 	await page.locator('#cval').fill('red, blue, tomato'); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.evaluate(() => { const c = document.getElementById('cval'); c.setSelectionRange(6, 6); document.dispatchEvent(new Event('selectionchange')) })
@@ -646,14 +672,16 @@ try {
 		const on=await page.evaluate(()=>{ const t=document.getElementById('tip'); return t.classList.contains('on')&&/^([\d.]+:1|⚠)/.test(t.textContent) })
 		await page.keyboard.up('Alt'); await page.mouse.move(b.x+b.width*0.2+1,b.y+b.height/2)
 		assert.ok(on&&!(await page.evaluate(()=>document.getElementById('tip').classList.contains('on'))), '⌥ over a catalog strip: the readout, gone with ⌥')
-		// a strip pressed or dragged: its number stays underlined while the strip is pointed at – the release once took the
-		// underline though the pointer stayed; leaving the strip takes it
+		// a strip held: its number in the current color (.on) while the drag lasts – pointed at, before and after, the card's
+		// unpicked line alone (the slider pointed at is the card's hover; the number itself pointed at, its own color)
 		const ul=()=>ch.evaluate(c=>{ const i=+c.dataset.i, p=c.closest('.ent').querySelectorAll('.cv')[i]?.closest('.cvp'); return !!p?.classList.contains('on') })
-		await page.mouse.move(b.x+b.width*0.3,b.y+b.height/2); await page.mouse.down(); await page.mouse.move(b.x+b.width*0.4,b.y+b.height/2,{steps:3}); await page.mouse.up(); await page.waitForTimeout(80)
-		const kept=await ul()
-		await page.mouse.move(b.x+b.width*0.4,b.y-40,{steps:3}); await page.waitForTimeout(80)
-		const gone=!(await ul())
-		assert.ok(kept&&gone, `a strip dragged and let go under the pointer: its number still underlined; the pointer gone, so is the line (${[kept,gone]})`)
+		await page.mouse.move(b.x+b.width*0.3,b.y+b.height/2); await page.waitForTimeout(80)
+		const before=await ul()
+		await page.mouse.down(); await page.mouse.move(b.x+b.width*0.4,b.y+b.height/2,{steps:3})
+		const held=await ul()
+		await page.mouse.up(); await page.waitForTimeout(80)
+		const after=await ul()
+		assert.deepEqual([before,held,after],[false,true,false], 'a strip: pointed at, no pick; held, its number in the current color; let go, the unpicked line again')
 	}
 	// a plate's disc/square switch, there and back: the marker and the corner inks are the disc's own again – both were
 	// once placed and sampled before the plate repainted (the marker on the square's geometry, the letters inked from

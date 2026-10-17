@@ -78,8 +78,8 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    its grid area its box (column 1, the four rows of words), as tall as they are and a little into the hero's padding.
    As the sliders draw a Limit: inside it the chromaticities' own colors; outside it the same colors half-transparent
    over the checker; the rim's wavelengths; no outlines, no names. Pointed at, the displays' gamuts and the horseshoe
-   show their edges and names – the one under the pointer darkest – and a click picks it (Surface is the row's alone:
-   in xy, object colors span the horseshoe); the current color rides it as the planes' picker */
+   show their edges and names, all alike; the current color rides it as the planes' picker.
+   A press anywhere in it is the home link (the Limit is the row's menu's) */
 .hmain>.hlocus{ grid-column:1; grid-row:1 / span 4; position:absolute; inset-inline-start:0; top:calc(-1 * var(--s6)); height:calc(100% + var(--s6) + var(--s8)); aspect-ratio:290/318; max-width:calc(100% - var(--s4)) }
 .hlocus>svg{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--ink); overflow:visible }
 .hlocus svg *{ vector-effect:non-scaling-stroke; stroke-width:1 }
@@ -88,27 +88,30 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 .hlocus text{ fill:var(--soft); stroke:none; font-size:11px; font-weight:600; font-variant-numeric:tabular-nums; opacity:.85 }
 :root[data-theme="dark"] :is(.hlocus,.gxy) text{ fill:var(--ink) }   /* dark paper: the labels in the ink itself (white) – the soft gray sank into the colors */
 .hlocus .lims{ opacity:0; transition:opacity var(--dur-short) var(--ease-out) } .hlocus:has(.chk:hover) .lims{ opacity:1 }
-.hlocus .lims path{ stroke:var(--ink); stroke-opacity:.35 } .hlocus .lims path.on{ stroke-opacity:.8; stroke-width:1.5 }   /* the theme's ink, see-through – dark on light paper, light on dark; the one under the pointer strongest */
-.hlocus svg,.hlocus svg *{ pointer-events:none } .hlocus .chk{ pointer-events:fill; cursor:pointer }   /* only the horseshoe answers the pointer, not its box: its painted shape catches it, everything over it lets it through */
+.hlocus .lims path{ stroke:var(--ink); stroke-opacity:.35 }   /* the theme's ink, see-through – dark on light paper, light on dark */
+.hlocus svg,.hlocus svg *{ pointer-events:none } .hlocus .chk{ pointer-events:fill }   /* the horseshoe's painted shape answers the pointer, everything over it lets it through – a press anywhere in the box is the link's */
 @media(hover:hover){ .hlocus:has(.chk:hover) .cx{ box-shadow:var(--picker-shadow-on) } }
-.hlocus .cx{ pointer-events:none }   /* the mark shows, the horseshoe under it answers – pointing at the current color still reaches the Limits */   /* the planes' picker rings under the pointer, as a slider's does */
+.hlocus .cx{ pointer-events:none }   /* the mark shows, the horseshoe under it answers – pointing at the current color still reaches the Limits */
 @media(max-width:1079px){ .hmain>.hlocus{ display:none } }
 .hmain{ position:relative; display:grid; grid-template-columns:var(--railw) minmax(0,50rem); column-gap:var(--railgap); justify-items:start; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the catalog's grid: the words start where the spaces do */
 .hmain>*{ grid-column:2 }
 @media(max-width:1079px){ .hmain{ grid-template-columns:0 minmax(0,1fr); column-gap:0; max-width:calc(64rem - 2 * var(--gut)) } .hmain .hfield{ width:100%; margin-inline-start:0 } }   /* no rail: the catalog's one centred column – the row's color sits after Filters there, nothing to hang toward */
 .hh{ max-width:14em; margin:0; font-size:1em; font-weight:800; line-height:1.05; letter-spacing:-.03em; color:var(--ink); text-wrap:balance }   /* two lines, flush left, in every language – the measure holds French's and Russian's longest in two, English balanced across two; a title, not a poster: the hero is a band over the catalog, not the first screen */
 .hh .hk{ display:block; margin-bottom:var(--s2); font-size:var(--t2); font-weight:400; line-height:1.4; letter-spacing:0; color:var(--soft) }   /* the kicker: what the title is, in a description's voice over it – the rail's descriptions' size */
+.hh .hk:empty{ display:none }   /* a translated title is the search term alone (Цветовые пространства, Farbräume) – an "atlas of" kicker would leave it in the genitive */
 .htitle .hh{ display:inline }   /* the title and, on its line, the plugin's announcement standing on its baseline */
 .htitle{ font-size:var(--t6); line-height:1.05; white-space:nowrap } .htitle .hh{ white-space:normal }   /* the title's size on its line, which its mark shares */   /* the announcement never leaves the title's last line: a long title breaks within itself, not before the pill */
-@media(width < 36rem){ .htitle{ white-space:normal } }   /* a phone's column can't hold a long word and the pill together */
-/* the mark before the title – the locus, as the tab's icon draws it – where the hero's own locus has no room beside the words */
+@media(width < 36rem){ .htitle{ white-space:normal } }   /* a phone's column: a language's long title breaks within itself */
+/* the mark before the title – the locus, as the tab's icon draws it – where the hero's own locus has no room beside the
+   words; the site's home, as a mark by the title is everywhere */
 .hmark{ display:none }
-@media(max-width:1079px){ .htitle{ display:flex; align-items:center; gap:var(--s2) } .hmark{ display:block; flex:none; width:auto; height:1.5em } .htt{ min-width:0 } }   /* the mark centred on the title and its tag – on one line, or beside the two a long title takes */
+@media(max-width:1079px){ .htitle{ display:flex; align-items:center; gap:var(--s2) } .hmark{ display:block; flex:none; height:1.5em } .hmark img{ display:block; width:auto; height:100% } .htt{ min-width:0 } }   /* the mark centred on the title and its tag – on one line, or beside the two a long title takes */
 .hplug{ display:inline-block; overflow:hidden; vertical-align:baseline; margin-inline-start:var(--s4); text-decoration:none; white-space:nowrap }   /* the catalog's tag, Figma's mark leading; overflow other than visible puts an inline block's baseline at its bottom edge (CSS 2.2 §10.8.1) */
 .hplug .hpi{ display:flex; align-items:center; gap:var(--s2) }   /* inside the pill, the mark and the words centred on each other */
 .hplug .figma{ height:var(--s4); width:auto }
-.hplug .hpn{ display:none } @media(width < 36rem){ .hplug .hpf{ display:none } .hplug .hpn{ display:inline } }   /* the whole announcement; on a phone, beside the title, its word alone – Figma's mark says the rest */
+.hplug .hpn{ display:none } @media(width < 36rem){ .hplug .hpf{ display:none } .hplug .hpn{ display:inline } }   /* the whole announcement; on a phone, at the row's start, its word alone – Figma's mark says the rest */
 .hplug:hover{ background:var(--hair) }
+.cells>.hplug{ align-self:center; margin:0; margin-inline-start:var(--s3) } body.cdock .cells>.hplug{ display:none }   /* narrower (the script after the hero): at the row's start, its cells' inset on the content's edge – the title its line alone; gone with the hero, never pinned */
 .hsub{ max-width:calc(44rem - var(--s3)); margin:var(--s4) 0 var(--s6); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:balance }   /* balanced: the year span never left alone on a line; no wider than the field under it (its 44rem, hung s3 out to the left); its doors are the page's links: inline, a comma stays on its word's line */
 @media(width < 36rem){ .hero{ padding-block:calc(var(--cells-h) + var(--s5)) var(--s6) } .hsub{ margin:var(--s2) 0 var(--s5) } }   /* a phone: the promise closer to its title, the catalog closer under the field */
 /* the field: the row's own color rests in it (a view timeline carries it up into the row, below) – the field is its
@@ -116,7 +119,8 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    field's pixels, and the field's on the row's */
 .hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--hang)); max-width:44rem; min-height:var(--cells-h); transition:min-height var(--dur-short) var(--ease-out); margin-inline-start:calc(-1 * var(--hang)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
 .hql{ flex:1; align-self:stretch; cursor:text }   /* the frame's empty run: a click there types the color */
-.hib{ position:relative; display:grid; flex:none; place-items:center; width:var(--s12); height:var(--s12); padding:0; color:var(--soft); background:none; border:0; cursor:pointer; --ic:20px; transition:color var(--dur-micro) var(--ease-out),background-color var(--dur-micro) var(--ease-out) }   /* dim → ink, as every icon */
+.hib{ position:relative; display:grid; flex:none; place-items:center; width:var(--hibw); height:var(--hibw); padding:0; color:var(--soft); background:none; border:0; cursor:pointer; --ic:20px; transition:color var(--dur-micro) var(--ease-out),background-color var(--dur-micro) var(--ease-out) }   /* dim → ink, as every icon */
+:root{ --hibw:var(--s12) } @media(width < 36rem){ :root{ --hibw:var(--tap) } .hib{ --ic:18px } }   /* the field's buttons: a phone's a touch target and the row's icon, the field's words the room */
 #heye{ display:none }
 .hib:hover,.hib[aria-expanded="true"]{ color:var(--ink); background:var(--panel) }
 .wdot{ display:block; flex:none; width:15px; height:15px; background:var(--w); box-shadow:inset 0 0 0 1px var(--hair); border-radius:50%; scale:.8 }   /* a color's mark: the rhombus */
@@ -213,8 +217,8 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    from the hero's foot, --hc-up), it scrolls with the field and pins at the top, at the row's free left. Over the row,
    above it; over a card, fixed where it pins */
 .hcolor{ position:sticky; top:0; z-index:calc(var(--z-sticky-nav) + 1); height:0; margin-block:calc(-1 * var(--hc-up,0px)) var(--hc-up,0px); padding-inline:var(--gut); pointer-events:none }
-.hcolor>.cx{ position:relative; box-sizing:border-box; display:flex; align-items:center; --hbn:1; width:var(--hfw,calc(min(44rem,100% - var(--railw) - var(--railgap) + var(--hang)) - var(--s1) - var(--s12) * var(--hbn))); min-height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--hang)); padding:calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s4) calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s3);   /* one line of the value centred in the row's height – a second line grows it */ cursor:text; pointer-events:auto }
-@media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:calc(-1 * var(--hang)); width:var(--hfw,calc(min(44rem,100%) + var(--hang) - var(--s1) - var(--s12) * var(--hbn))) } }
+.hcolor>.cx{ position:relative; box-sizing:border-box; display:flex; align-items:center; --hbn:1; width:var(--hfw,calc(min(44rem,100% - var(--railw) - var(--railgap) + var(--hang)) - var(--s1) - var(--hibw) * var(--hbn))); min-height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--hang)); padding:calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s4) calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s3);   /* one line of the value centred in the row's height – a second line grows it */ cursor:text; pointer-events:auto }
+@media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:0; width:var(--hfw,calc(min(44rem,100%) - var(--s1) - var(--hibw) * var(--hbn))) } }   /* the frame unhung (.hmain .hfield), the field with it: its colors a padding inside the frame, never on its edge */
 :root.eye .hcolor>.cx{ --hbn:2 } :root.eye #heye{ display:grid }   /* the frame's own width, the field's buttons off it – before any script measures: the first paint is the last (the eyedropper known before it, in the head) */
 .mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before: clear only while the scroll timeline holds it so (dock), so an engine that drops the timeline mid-scroll leaves the row paper, never see-through */
 @supports (animation-timeline:scroll()){ .mhead::after{ animation:dock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - var(--s4)) var(--hc-dock,50vh) } }
@@ -263,11 +267,12 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 .qx:not(:focus-within):has(input:placeholder-shown){ gap:0 }   /* closed, the cell is its icon alone – no gap held for a field of no width */
 .qx input::placeholder{ color:var(--soft); opacity:1 }
 .cx.busy #cval{ cursor:progress }   /* an image being read (imgbusy): its words in the placeholder's ink */
-#cval::placeholder{ color:color-mix(in oklab,currentColor 45%,transparent); opacity:1 }   /* the empty field's ask: the text's own ink, half there – dark on paper, light on a dark one, and whatever the row's words wear over the top edge's color */
+#cval::placeholder{ color:color-mix(in oklab,currentColor 45%,transparent); opacity:1 }
+body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color chosen yet: the channels' numbers the orbit's, in the soft ink – shown, not asserted (the placeholder's half ink failed AA, 2.4:1 – a number is read); the one in hand in its own */   /* the empty field's ask: the text's own ink, half there – dark on paper, light on a dark one, and whatever the row's words wear over the top edge's color */
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
 .cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
-.hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:var(--cvf0); --cvl:1.5 } .hcolor:has(>.cx.long){ --cvf0:var(--t2) } body.cdock .hcolor{ --cvf:var(--t2) }   /* the value's size and line (--cvl: the slogan's, .hsub – the lines under its colors clear of the next line's words): the slogan's over the hero – a long one (over a line at it: js fitLong) the row's – the row's docked – one var the box's padding is cut to, so the first paint is the last */
+.hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:var(--cvf0); --cvl:1.5 } @media(width >= 48rem){ .hcolor:has(>.cx.long){ --cvf0:var(--t2) } } body.cdock .hcolor{ --cvf:var(--t2) }   /* the value's size and line (--cvl: the slogan's, .hsub – the lines under its colors clear of the next line's words): the slogan's over the hero – a long one (over a line at it: js fitLong) the row's where the field has the room – a narrower one keeps the slogan's size and line, more lines rather than smaller words – the row's docked – one var the box's padding is cut to, so the first paint is the last */
 .cxw #cval{ font-size:var(--cvf); font-weight:500; line-height:var(--cvl) }   /* the slogan's size, a step bolder – in the hero and docked alike */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
@@ -307,21 +312,19 @@ body.cdock .hcolor.wide :is(#cval:not(:placeholder-shown),.cvshow){ color:transp
 .fmtr i{ font-style:normal; font-size:var(--t0); font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--soft) }
 .fmtr b{ font-weight:600 }
 #hq{ anchor-name:--cfield } .hcolor>.cx{ anchor-name:--cbox }   /* the hero's frame, and the box the value is typed in – over the frame, or docked in the row */
-#csug{ position:absolute; top:100%; left:0; z-index:1; box-sizing:border-box; display:flex; flex-direction:column; width:var(--hqw,100%); max-width:calc(100vw - 2 * var(--gut)); padding:var(--s2); background:var(--paper); border-top:var(--rule-hair) solid var(--hair); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); clip-path:inset(0 -3rem -3rem); cursor:default }   /* the field's own lower part: a hairline under the value, the box's shadow on round it – none cast up over the field */   /* right under the box typed in – its own child, so no engine places it: never over the field – as wide as the hero's frame */
+#csug{ position:absolute; top:100%; left:0; z-index:1; box-sizing:border-box; display:flex; flex-direction:column; width:var(--hqw,100%); max-width:calc(100vw - 2 * var(--gut)); padding:var(--s2) 0; background:var(--paper); border-top:var(--rule-hair) solid var(--hair); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); clip-path:inset(0 -3rem -3rem); cursor:default }   /* the field's own lower part: a hairline under the value, the box's shadow on round it – none cast up over the field */   /* right under the box typed in – its own child, so no engine places it: never over the field – as wide as the hero's frame */
 #csug[hidden]{ display:none }
 .hcolor #cvx{ flex:none; height:calc(var(--cvf) * var(--cvl)); pointer-events:auto }   /* the field's ×, the search's own (.qclr): the color let go – a line's height, never taller than the value it clears (a taller one swelled the field past its frame, the list under it a gap below) */
-body:not(.cdock) .hcolor #cvx{ width:var(--s12); margin-inline-end:calc(-1 * var(--s4)); --ic:20px }   /* over the hero, a third of the field's buttons: their width and their icon's size, abutting the eyedropper as it does the image (the padding before it given back); docked, the search's own × */
 #csug .sgrec{ display:flex; flex-direction:column } #csug .sgr+.sgrec{ margin-top:var(--s2); padding-top:var(--s2); border-top:var(--rule-hair) solid var(--hair) }   /* the recent apart, under the menus' section rule (.dpop .msec) */
 body.cdock #csug{ left:min(0px,calc(100vw - var(--gut) - var(--hqw,100%) - var(--cxl,0px))) }   /* docked: as wide as the hero's field still – its rows the same – drawn back left only as far as keeps it in the window */ #csug b{ display:flex; align-items:flex-start; gap:var(--s2); min-width:0 } #csug .sgt{ display:flex; flex-direction:column; min-width:0 } #csug .sgt>*{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap } #csug .sgt :is(.src,.sgn){ font-weight:500; color:var(--body); cursor:pointer }   /* pressable, as a link reads: a step bolder and darker than the line round it */ #csug .sgt :is(.src,.sgn):hover{ color:var(--ink) }
 #csug .sgt small{ font-size:var(--t1); font-weight:400; line-height:1.3; color:var(--soft) }   /* under each row, why it is there */
-#csug .sgr{ display:flex; align-items:center; padding-inline-end:var(--s2); --rb:var(--paper) } #csug .sgr:is(:hover,:has(.on)){ background:var(--panel); --rb:var(--panel) }   /* the row lights whole, its × in it */
-#csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3) var(--s2) var(--s2); font-size:var(--cvf); background:none } #csug .fmtr b{ font-weight:500 }   /* the field's own type: a suggestion reads as what it types */
+#csug .sgr{ display:flex; align-items:center; padding-inline-end:var(--s4); --rb:var(--paper) } #csug .sgr:is(:hover,:has(.on)){ background:var(--panel); --rb:var(--panel) }   /* the row lights whole, its × in it */
+#csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3) var(--s2) var(--s4); font-size:var(--cvf); background:none } #csug .fmtr b{ font-weight:500 }   /* the field's own type: a suggestion reads as what it types */
 #csug :is(.sgx,.sgo){ flex:none; --ic:16px; width:var(--s8); height:var(--s8); opacity:0 } #csug .sgr:is(:hover,:has(.on)) :is(.sgx,.sgo){ opacity:1 } @media(hover:none){ #csug :is(.sgx,.sgo){ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
 #csug .sws{ display:flex; align-items:center; justify-content:center; flex:none; width:var(--w4); height:1.3em; isolation:isolate }   /* on the value's line, not between it and its word – a sequence's colors together, stacked as the field's, the first on top; the first mark under the field's own, at its left */
 #csug .sgt>span:first-child{ line-height:1.3 } #csug .sgt .q{ font-weight:400; color:var(--body) }   /* a name: the part typed light, the rest set */
 .hcolor>.cx.peek #cval{ color:transparent } .hcolor>.cx.peek .cvghost{ color:var(--soft) } body.cdock .cvghost{ overflow:hidden; text-overflow:ellipsis }   /* docked, one line: a long row shown stops at the field's end, never over the search and the count */   /* a row shown: its text in the field, as a placeholder – what is typed steps aside, kept */
 .cvghost{ position:absolute; z-index:0; box-sizing:border-box; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--soft); pointer-events:none } .cvghost span{ color:transparent } .hcolor #cval{ position:relative; z-index:1 }   /* the first name's rest, greyed in after what is typed */   /* one color's rhombus – the text starts close, in one column; many colors stand each before its value, in the text */
-#csug .fmtr.cur .sgt>span:first-child{ text-decoration:underline; text-underline-offset:var(--ulo) }   /* the notation the field speaks */
 /* the palette: ONE stack — every stop in palette order, uniform slice slots, and the selected
    stop IS the row's rhombus (the native picker) riding its slot, marked by the picker's
    ring pair. Click a swatch to select it: the diamond moves to that slot; the order never
@@ -365,14 +368,14 @@ body.himg #imgfloat{ display:block }
 .pst:not(.pill):is(:hover,:focus-visible,.hot){ box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)) }
 /* a gradient is one mark: a pill of its run – two circles joined – in a suggestion; in the field the held color's
    circle rides it at its stop, as a slider's thumb rides its strip (a press on the pill takes the stop nearest it) */
-/* a mark 16px, stacked 6px apart; the column four marks wide – fewer run short, more draw closer to keep to it; a
+/* a mark 16px, stacked 7⅓px apart (the column 38px: 4px more room than 6px steps gave a palette); the column four marks wide – fewer run short, more draw closer to keep to it; a
    gradient's pill fills it */
-:root{ --mk:16px; --step0:6px; --w4:calc(var(--mk) + 3 * var(--step0)); --hang:min(var(--s4),var(--gut)) }   /* the field's colors on the content's own edge – the cards' and the titles' –: a run of four from it, the field's border hung out by its inset and the run's (.cx's padding, #pstack's); never past the screen's edge (the owner's call, 2026-10-16, revised the same day: the colors align, not the border) */
+:root{ --mk:16px; --step0:calc(22px / 3); --w4:calc(var(--mk) + 3 * var(--step0)); --hang:min(var(--s4),var(--gut)) }   /* the field's colors on the content's own edge – the cards' and the titles' –: a run of four from it, the field's border hung out by its inset and the run's (.cx's padding, #pstack's); never past the screen's edge (the owner's call, 2026-10-16, revised the same day: the colors align, not the border) */
 :is(.pstack,#csug .sws){ --step:min(var(--step0),(var(--w4) - var(--mk)) / max(1,var(--n,2) - 1)); --pw:var(--w4) }
 .pst.pill{ width:var(--pw); border-radius:999px; z-index:0 }
 /* pointed at, the pill rings the stop a press would take (js: --hp, its place along the run) – the held one's ring, not
    the pill's outline */
-.pst.pill::after{ content:''; position:absolute; top:0; left:calc(var(--hp,0) * (100% - var(--mk))); width:var(--mk); height:var(--mk); border-radius:50%; box-shadow:0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)); opacity:0; pointer-events:none }
+.pst.pill::after{ content:''; position:absolute; top:0; left:calc(var(--hp,0) * (100% - var(--mk))); width:var(--mk); height:var(--mk); border-radius:50%; background:var(--hw,transparent); box-shadow:0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)); opacity:0; pointer-events:none }
 .pst.pill:is(:hover,.hot)::after{ opacity:1 }
 .pstack:has(.pill) .cdw{ z-index:1; margin-inline:calc(var(--p,0) * (var(--pw) - var(--mk)) - var(--pw)) calc((1 - var(--p,0)) * (var(--pw) - var(--mk))) }
 #csug s.pill{ width:var(--w4); border-radius:999px }
@@ -484,7 +487,7 @@ body.himg #imgfloat{ display:block }
 .introcopy{ grid-template-rows:auto 1fr auto } .introcopy>h2{ grid-column:1; grid-row:1; margin:0 }   /* the title's row its own height – the code's length goes to the tabs' row, under it */
 .introcopy .tabrow{ grid-column:1; grid-row:2; margin:var(--s4) 0 0; column-gap:var(--s4) }
 @media(min-width:1080px){ .introcopy .tabrow{ grid-row:1 / span 2; justify-self:end; margin:0; flex-direction:column; align-items:stretch; row-gap:var(--s4); overflow:visible }   /* the tabs start level with the code, beside the title – the column as wide as its longest, so the title stays theirs to press past; every tab that width, so the pick's bar runs down the column's edge, along the code */
-	.introcopy .tabrow button.on::after{ inset-inline:auto 0; inset-block:0 var(--s1); width:var(--ulw); height:auto }   /* a column of tabs: the bar on the column's right edge, toward the code */
+	.introcopy .tabrow button::after{ inset-inline:auto 0; inset-block:0 var(--s1); width:var(--ulw); height:auto }   /* a column of tabs: the bar on the column's right edge, toward the code */
 	.introcopy .tabrow button{ gap:var(--s3); min-height:var(--s8); padding:0 0 var(--s1); padding-inline-end:var(--s4); font-size:var(--t3); font-weight:800; letter-spacing:-.01em; line-height:1.1 }
 	.introcopy .tabrow :is(.fl,.fl svg){ width:18px; height:18px } }   /* beside the code, the tabs stand one above another, each its own width – the icons in one column at their start, the names after them, the pick's bar on the column's edge by the code; one column (a phone, a tablet), they run in a row over it */
 .introcopy .tabs>:not(.tabrow){ grid-column:2 / -1; grid-row:1 / span 2; min-width:0 }
@@ -498,7 +501,7 @@ body.himg #imgfloat{ display:block }
 .introcopy .export{ padding:0; border:0; background:none; font-family:inherit; font-size:var(--t2) }   /* the LUT and ICC tabs: prose and their controls on the page itself, no plate – they are no code */
 .introcopy .tabs pre a{ color:inherit; font-weight:700 }   /* a link in a code comment: the comment's own color, bolder – the page's ink would vanish on the dark plate */
 #api-panel-mcp pre{ white-space:pre-wrap; overflow-wrap:anywhere }   /* commands and a config: they wrap whole, the plate never scrolls sideways */   /* a touch smaller so the half-width panel holds each line whole */
-@media(max-width:1079px){ .introcopy .tabrow{ margin:var(--s4) 0 var(--s5); column-gap:var(--s6) } .introcopy .tabrow button{ padding-inline:0; padding-bottom:var(--s2) } .introcopy .tabrow button.on::after{ inset-inline:0 }   /* a row of tabs on the text's edge, no inset; the pick's bar a step under its word, the code a step further */ .introcopy>.facts{ grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:var(--s6); padding-top:var(--s6) } }   /* ≤1079 the section turns display:block (rail hidden): the title, the tabs, the code, the facts two a row under it */
+@media(max-width:1079px){ .introcopy .tabrow{ margin:var(--s4) 0 var(--s5); column-gap:var(--s6) } .introcopy .tabrow button{ padding-inline:0; padding-bottom:var(--s2) } .introcopy .tabrow button::after{ inset-inline:0 }   /* a row of tabs on the text's edge, no inset; the pick's bar a step under its word, the code a step further */ .introcopy>.facts{ grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:var(--s6); padding-top:var(--s6) } }   /* ≤1079 the section turns display:block (rail hidden): the title, the tabs, the code, the facts two a row under it */
 /* big screens: the history full-width, its title over the chart's quiet early years */
 @media(min-width:1080px){
 	.hl-fig{ position:relative }
@@ -561,7 +564,6 @@ body.himg #imgfloat{ display:block }
 .quick a,.quick button{ font:inherit; font-size:var(--t2); font-weight:800; color:var(--ink); background:var(--panel); border:0; text-decoration:none; padding:var(--s2) var(--s3); cursor:pointer }
 .quick a:hover,.quick button:hover{ background:var(--ink); color:var(--paper) }
 @media(max-width:640px){
-	:root{ --t3:13px }   /* the phone base for prose — FAQ answers, dossier copy; the UI faces (t0–t2, t4) keep their scale */
 	.prem{ margin-inline-start:.2em }
 	.frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
@@ -595,7 +597,8 @@ body.himg #imgfloat{ display:block }
 .gtabs .gtag{ position:relative; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:var(--s1) var(--s2); cursor:pointer } .gtabs .gtag:first-child{ margin-inline-start:calc(-1 * var(--s2)) }   /* the first's word on the column's edge */
 .gtabs .gtag:hover{ color:var(--body) }
 .gtabs .gtag.on{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way (.ti.act .tn) */
-.gtabs .gtag.on::before{ content:''; position:absolute; inset-inline:var(--s2); top:calc(-1 * var(--s1)); height:var(--ulw); background:var(--ink) }   /* and a bar over its word, the word's width – the row hangs from below, its marker faces up */
+.gtabs .gtag::before{ content:''; position:absolute; inset-inline:var(--s2); top:calc(-1 * var(--s1)); height:var(--ulw); background:transparent }
+.gtabs:hover .gtag::before{ background:var(--ulh) } .gtabs .gtag:is(.on,:hover)::before{ background:var(--ink) } .gtabs:has(.gtag:hover) .gtag.on:not(:hover)::before{ background:var(--ulh) }   /* and a bar over its word, the word's width – the row hangs from below, its marker faces up */
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
    right of the FIRST section heading */
 .gsel{ display:none; margin-inline-start:auto; align-self:center; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:0; cursor:pointer; field-sizing:content }   /* centred in the heading row — a select has no shared baseline to sit on */
@@ -704,7 +707,7 @@ body.himg #imgfloat{ display:block }
 .tbl tbody tr:last-child :is(th,td){ border-bottom:0 }   /* the next family's hair closes the table */
 .tbl .tsw{ width:6rem; padding-inline-end:0 }
 .chs.mini{ width:4.5rem; background:none; --ctl:5px }
-.chs.mini .nrg{ display:none } .chs.mini .ch{ cursor:inherit }   /* a picture, not a slider – the row's click is its click */
+.chs.mini .ch .nrg{ pointer-events:none; --tkb:var(--picker-small-size); --tkw:var(--picker-small-ring) } .chs.mini .ch{ cursor:inherit }   /* a picture, not a slider – the row's click is its click; the held color its picker, as a card's, the others dots */
 /* the sheet keeps what it has room for: wide, each kind its own sortable column; narrower, the kinds' icons share one
    cell; then the channels and the white go, then the maker and the coverage, then the icons and the preview */
 @container secs (width >= 76rem){ .tbl .c-kind{ display:none } }
@@ -909,8 +912,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .dfig[data-v="3d"]>.vgrp:not([data-f="3d"]),.dfig[data-v="xy"]>.vgrp:not([data-f="xy"]),.dfig[data-v="tc"]>.vgrp:not([data-f="tc"]){ display:none }
 .dfig .vgrp:is([data-f="xy"],[data-f="tc"]),.dfig :is(.gam2d,.tcvw){ max-width:none }   /* the plates take the column: the locus's marks want the room, the curve its run */
 .seg.figseg button{ display:grid; place-items:center; padding:0; border-bottom:0; --ic:18px }   /* the switch speaks in icons, the row's way – dim, inked when chosen or pointed, never moved; the names are its tooltips (.seg.figseg: past .seg button's underline and its padding, which the chosen one alone escaped) */
-.seg.figseg button.on{ position:relative; color:var(--ink) }
-.seg.figseg button.on::after{ content:''; position:absolute; inset-inline:0; bottom:calc(-1 * var(--s1)); height:var(--ulw); background:var(--ink) }   /* the chosen figure (locus, transfer, 3D) and face (sliders, planes): the tabs' ink bar, under its icon's width */
+.seg.figseg button{ position:relative } .seg.figseg button.on{ color:var(--ink) }
+.seg.figseg button::after{ content:''; position:absolute; inset-inline:0; bottom:calc(-1 * var(--s1)); height:var(--ulw); background:transparent }
+.seg.figseg:hover button::after{ background:var(--ulh) } .seg.figseg button:is(.on,:hover)::after{ background:var(--ink) } .seg.figseg:has(button:hover) button.on:not(:hover)::after{ background:var(--ulh) }   /* the chosen figure (locus, transfer, 3D) and face (sliders, planes): the tabs' ink bar, under its icon's width */
 /* each plot group is centred and exactly as wide as its plot (names live in the tooltips) */
 .vgrp{ display:flex; flex-direction:column; gap:var(--s1); align-items:center; width:100%; }
 .vgrp[data-f="3d"]{ max-width:17rem }   /* a figure by its data-f, written with the markup – a :has() here re-matched the whole figure column at every mark a paint moved in it (20 ms a color, the dossier's) */
@@ -969,8 +973,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 	.chead .dctl{ flex:none; gap:var(--s1) }   /* the gamut select rides phones too — it is the dossier's one remaining lens */
 }
 /* symbols, numbers and the gamut pills share the baseline — the channel tags NEVER wrap; the pills are the flexible guest */
-.bch{ display:flex; align-items:baseline; border-bottom:var(--ulw) solid transparent }   /* the pair's line, as a row's (.cvp): its slider pointed at or held (.on, js wireBar), the pair itself pointed at or focused, in the current color; the row of them pointed at, every pair's unpicked line */
-.bigch:hover .bch{ border-bottom-color:var(--ulh) } .bch:is(:hover,:focus-within,.on){ border-bottom-color:var(--curl) }   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
+.bch{ display:flex; align-items:baseline; border-bottom:var(--ulw) solid transparent }   /* the pair's line, as a row's (.cvp): the row of them pointed at, or the pair's slider (.pt, js wireBar), the unpicked line; the pair pointed at or focused, its slider held (.on), the current color – one at a time */
+.bigch:hover .bch,.bch.pt{ border-bottom-color:var(--ulh) } .bigch .bch:is(:hover,:focus-within,.on){ border-bottom-color:var(--curl) } .bigch:has(.bch:hover) .bch:is(:focus-within,.on):not(:hover){ border-bottom-color:var(--ulh) }   /* the row's own weight, so its hover never outranks the pair in hand; the one pointed at outranks the one focused */   /* the catalog's letter+value pair, scaled up — name and number share the baseline */
 .bch i.bnm{ font-style:normal; font-size:var(--t2); font-weight:600; color:currentColor; opacity:.42; padding-right:.35em; white-space:nowrap }   /* same treatment as the list's .cl, full name instead of the letter */
 .bch .nvw{ position:static; display:flex; align-items:center }
 .bch .nvw input{ height:auto; width:4.6rem; font-size:var(--t4); font-weight:700; color:var(--ink); text-align:left }
@@ -1028,8 +1032,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 :is(.sto,.sts b).hot,:is(.hlocus,.gam2d) .sto:hover{ width:var(--picker-size); height:var(--picker-size); background:var(--w); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow-on) }
 :is(.hlocus,.gam2d) .sto::before{ content:''; position:absolute; inset:calc(-1 * var(--s1)); border-radius:50% }
 .chs.mini .sts b:not(.hot){ width:var(--picker-dot-small-size); height:var(--picker-dot-small-size) }
+.hlocus .sto{ pointer-events:auto }
 :is(.ent.tc,.chs.mini) .sts b.hot{ width:var(--picker-small-size); height:var(--picker-small-size); border-width:var(--picker-small-ring) }
-.hlocus .sto{ pointer-events:auto; cursor:pointer }
 :is(.ch,.bar2).cold:not(.live) .nrg{ --tks:var(--picker-shadow) }
 .pl.cold:not(.live) .cx{ box-shadow:var(--picker-shadow) }
 .sts{ position:absolute; inset:0; z-index:2; pointer-events:none } .sts b{ top:50% } .sts u{ position:absolute; inset:0 }
@@ -1055,6 +1059,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl button:is(.laby,.labx){ z-index:2; padding:0; font-family:inherit; line-height:inherit; color:inherit; background:none; border:0; cursor:pointer; pointer-events:auto; text-underline-offset:var(--ulo) } .pl button:is(.laby,.labx):hover{ text-decoration:underline }   /* the dossier's: an axis's name turns it (buildDetail) – a link's underline says so */
 @media(pointer:coarse){ .pl button:is(.laby,.labx)::before{ content:''; position:absolute; inset:calc(-1 * var(--s2)) } }   /* a finger's reach round a letter */   /* corner insets match the bars' scale values — one label geometry everywhere */
 .pl .labx{ position:absolute; right:.275rem; bottom:.175rem; font-size:var(--t0); font-weight:700; pointer-events:none }
+:is(#detail,.ent):has(:is(.pl,.bar2,.ch).live) .pl>:is(.laby,.labx,.pmode){ opacity:0; pointer-events:none }   /* a picker held – on a plane or a slider: the planes' names and their mode switch step aside, the field theirs alone; back on release */
 .pl .pmode{ position:absolute; bottom:.15rem; left:.25rem; z-index:2; width:1.7em; height:1.7em; display:grid; place-items:center; font-size:var(--t1); line-height:1; border:0; background:none; padding:0; color:var(--ink); opacity:.5; cursor:pointer }   /* the mode switch — ONE fixed box, so circle, square, triangle and diamond all centre on the same corner point regardless of their optical sizes */
 .pl .pmode::before{ content:''; display:block; width:.8em; height:.8em; border:1px solid currentColor; border-radius:50%;
 	background:linear-gradient(currentColor,currentColor) 50% 0/1px 100% no-repeat,linear-gradient(currentColor,currentColor) 0 50%/100% 1px no-repeat }
@@ -1080,7 +1085,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .seg[hidden]{ display:none }   /* display:flex would otherwise defeat the hidden attr – the GL tab's language switch rests hidden under the other tabs */
 .seg button{ font:inherit; font-size:var(--t1); font-weight:700; letter-spacing:.01em; text-transform:none; border:0; border-bottom:var(--ulw) solid transparent; background:none; padding:0 0 2px; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* rest dim at AA (--ghost fell below 3:1), hover ink — the .mx idiom */
 .seg button:hover{ color:var(--ink) }
-.seg button.on{ color:var(--ink); border-bottom-color:var(--curl) }   /* the active option carries the CURRENT color, like the API tabs */
+.seg button.on{ color:var(--ink); border-bottom-color:var(--curl) }
+.seg:hover button{ border-bottom-color:var(--ulh) } .seg button:hover{ border-bottom-color:var(--curl) } .seg:has(button:hover) button.on:not(:hover){ border-bottom-color:var(--ulh) }   /* the active option carries the CURRENT color, like the API tabs */
 #toast{ position:fixed; left:50%; bottom:1.3rem; transform:translate(-50%,.6rem); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; letter-spacing:.04em; padding:var(--s2) var(--s4); opacity:0; pointer-events:none; transition:opacity var(--dur-short) var(--ease-out),transform var(--dur-short) var(--ease-out); z-index:var(--z-toast) }
 #toast.on{ opacity:1; transform:translate(-50%,0) }
 /* current-colour floater — always on top, even over the modal */
@@ -1195,8 +1201,11 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow .fl svg{ display:block; width:14px; height:14px }
 .tabrow button:hover .fl,.tabrow button.on .fl{ opacity:1; filter:none }
 .tabrow button:hover{ color:var(--body) }
-.tabrow button.on{ position:relative; color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way, the rail's tabs' too */
-.tabrow button.on::after{ content:''; position:absolute; inset-inline:var(--s2); bottom:0; height:var(--ulw); background:var(--ink) }   /* and a bar on the side that faces its panel: under a row of tabs, the words' width */
+.tabrow button{ position:relative } .tabrow button.on{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way, the rail's tabs' too */
+.tabrow button::after{ content:''; position:absolute; inset-inline:var(--s2); bottom:0; height:var(--ulw); background:transparent }   /* and a bar on the side that faces its panel: under a row of tabs, the words' width */
+/* one idiom for every group of choices – tabs, switches, a row's channels: the group pointed at, each item's line unpicked
+   (--ulh); the item pointed at, else the one picked, the line itself – one at a time */
+.tabrow:hover button::after{ background:var(--ulh) } .tabrow button:is(.on,:hover)::after{ background:var(--ink) } .tabrow:has(button:hover) button.on:not(:hover)::after{ background:var(--ulh) }
 /* the dossier's code tabs read as section-title kickers — same type treatment as the
    #image / #compare / #code headings they sit among */
 #cseg button{ text-transform:none }   /* labels read as written (abbreviations caps, words lower) — same as the main-page API tabs; overrides the .sec2 heading's uppercase */
@@ -1260,14 +1269,14 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<button class="count tnum" type="button" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="ui.header.tagline title:ui.cell.more-any"><span id="nn">205</span><span class="nnu"> spaces</span></button>
 	<button class="cell lens" type="button" id="c-more" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="title:ui.cell.more-any"><span class="ci"><!-- a funnel: Lucide's (ISC) at .82, the search glass's size --><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.36 18.63a.82.82 0 0 0 .45.73l1.64.82A.82.82 0 0 0 13.64 19.45v-5.74a1.64 1.64 0 0 1 .42-1.1L19.99 6.06A.82.82 0 0 0 19.38 4.69H4.62a.82.82 0 0 0-.61 1.37l5.93 6.55A1.64 1.64 0 0 1 10.36 13.71z"/></svg></span><span class="cw"><small data-i18n="ui.cell.more-any">Filters</small><b></b></span></button>
 	<button type="button" class="qclr fclr" id="fclr" hidden title="clear the search and the filters" aria-label="clear the search and the filters" data-i18n="title:ui.filter.clear aria-label:ui.filter.clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-	<button class="cell lens" type="button" id="c-view" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b></b></span></button>
+	<button class="cell lens" type="button" id="c-view" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h8M18 7h2M4 17h2M12 17h8"/><circle cx="15" cy="7" r="3"/><circle cx="9" cy="17" r="3"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b></b></span></button>
 	<button class="cell lens" type="button" id="c-layout" data-view="list" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"><i data-from="grid"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v1.75H3zM8.5 3h4.5v1.75H8.5zM3 5.75h4.5v1.75H3zM8.5 5.75h4.5v1.75H8.5zM3 8.5h4.5v1.75H3zM8.5 8.5h4.5v1.75H8.5zM3 11.25h4.5v1.75H3zM8.5 11.25h4.5v1.75H8.5z"/></svg></i><i data-from="list"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/></svg></i></span></button>
 	<span class="dctl"><select id="lang" aria-label="Language" title="Language" data-i18n="aria-label:ui.header.lang title:ui.header.lang"><option value="en" lang="en" selected>English</option></select></span>
 	<button class="cell thm" type="button" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"><svg class="moon" width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg><svg class="sun" width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></button>
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
-		<div class="htitle"><img class="hmark" src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span class="hk">An open atlas of</span> Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">New: Figma plugin</span><span class="hpn" data-i18n="ui.hero.plugin">New</span></span></a></span></div>
+		<div class="htitle"><a class="hmark" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home"><img src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""></a><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span class="hk">An open atlas of</span> Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">New: Figma plugin</span><span class="hpn" data-i18n="ui.hero.plugin">New</span></span></a></span></div>
 		<p class="hsub" id="hsub" data-i18n="ui.hero.line">See a <a href="#hq" data-way="color">color</a>, <a href="#hq" data-way="palette">palette</a>, <a href="#hq" data-way="gradient">gradient</a> or <a href="#hq" data-way="image">image</a> through each. From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
 			<button class="hib" type="button" id="heye" title="pick a color from the screen" aria-label="pick a color from the screen" data-i18n="title:ui.hero.eye aria-label:ui.hero.eye"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z"/></svg></button>
@@ -1275,7 +1284,8 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 		</div>
 	</div>
 </section>
-<div class="hcolor" id="hcolor"><span class="cx"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" tabindex="-1" aria-hidden="true"><button class="cdb" id="cdb" type="button" aria-haspopup="listbox" aria-controls="csug" aria-label="this color in every notation" data-i18n="aria-label:ui.header.fmt-tip"></button></span></span><span class="cxw"><textarea id="cval" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea></span><button type="button" class="qclr" id="cvx" hidden title="clear the color" aria-label="clear the color" data-i18n="title:ui.header.clear aria-label:ui.header.clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><button class="palm" id="palm" type="button" hidden><span></span></button><div class="csug" id="csug" role="listbox" hidden aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span></div>
+<script>/* the plugin's pill beside the title while the two hold one line; narrower, at the row's start (.cells>.hplug) – moved before the first paint, and back as the window widens */{ const p=document.querySelector('.hplug'), home=p?.parentElement, row=document.querySelector('.cells'), mq=matchMedia('(width < 48rem)'), put=()=>mq.matches?row.prepend(p):home.append(p); if(p&&row){ put(); mq.addEventListener('change',put) } }</script>
+<div class="hcolor" id="hcolor"><span class="cx"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" tabindex="-1" aria-hidden="true"><button class="cdb" id="cdb" type="button" aria-haspopup="listbox" aria-controls="csug" aria-label="the colors near this one" data-i18n="aria-label:ui.header.sug-tip"></button></span></span><span class="cxw"><textarea id="cval" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea></span><button type="button" class="qclr" id="cvx" hidden title="clear the color" aria-label="clear the color" data-i18n="title:ui.header.clear aria-label:ui.header.clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><button class="palm" id="palm" type="button" hidden><span></span></button><div class="csug" id="csug" role="listbox" hidden aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span></div>
 <script>/* the sticky color starts where the hero's field is: the field's distance from the hero's foot (--hc-up), and the scroll at which it docks – its top on the page (--hc-dock), measured before first paint */{ const h=document.getElementById('hero'), q=document.getElementById('hq'), pg=document.querySelector('.page'), up=()=>{ const t=q.getBoundingClientRect().top; pg.style.setProperty('--hc-up',Math.round(h.getBoundingClientRect().bottom-t)+'px'); pg.style.setProperty('--hc-dock',Math.round(t+scrollY)+'px') }; up(); new ResizeObserver(up).observe(h) }</script>
 <div class="dpop" id="m-more" popover role="dialog" aria-labelledby="c-more"></div>
 <div class="dpop" id="m-view" popover role="dialog" aria-labelledby="c-view"></div>
@@ -1631,6 +1641,10 @@ const autoStep=t=>{ if(!autoColor) return
 		// the orbit once it has colored in – still ambient (virgin, URL untouched), just still
 		if(autoSlow>=4&&w===1){ autoPark=true; return } }   // parked: the color rests, and settles
 	requestAnimationFrame(autoStep) }
+// a channel's number taken in hand holds the orbit, as the color field does: a value typed takes the color (its input's
+// scheduleFast), let go untouched the orbit goes on from where it stood – a click is a look, not a pick
+document.addEventListener('focusin',e=>{ if(autoColor&&!autoHold&&e.target.matches?.('.cv,.nv')) autoHold=performance.now() })
+document.addEventListener('focusout',e=>{ if(autoHold&&e.target.matches?.('.cv,.nv')&&!e.relatedTarget?.matches?.('#cval,.cv,.nv')){ autoStart+=performance.now()-autoHold; autoHold=0 } })
 // back from another window or tab: an orbit parked meanwhile goes on
 const wake=()=>{ if(!autoColor||!autoPark||document.hidden) return; autoPark=false; autoSlow=0; autoLast=performance.now(); requestAnimationFrame(autoStep) }
 addEventListener('focus',wake); document.addEventListener('visibilitychange',wake)
@@ -1652,10 +1666,12 @@ const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
 // rides the current colour's place. It does NOT tint the interface (--c stays the fixed
 // brand accent) — the catalog is where the current colour lives.
 // the row's value input: live like the channel inputs — a valid CSS color applies as you type
-// what the field was told: its text, kept while the colors it named are the ones in hand – a name stays a name, a
-// notation the one typed; a slider moved, a notation picked, the field speaks the page's own again
+// what the field was told: its text, kept while the colors it named are the ones in hand – a CSS value as written (a hex,
+// a notation, a CSS keyword); a collection's name (lead, from color-name-list), a phrase read (muted teal, L 0.39 C 0.083
+// H 153), a slider moved, a notation picked – the field speaks the page's own notation. Names are the suggestions' lines
 let SAID=null
-const saidAsIs=v=>tokensOf(v).filter(t=>t[2]!=null).every(([a,b])=>{ const w=v.slice(a,b).trim(); return /^#[\da-f]{3,8}$/i.test(w)||/^[a-z][\w-]*\(/i.test(w)||!!nameOf(w.toLowerCase()) })   // as written, color by color: a hex, a notation, a name; a phrase read (muted teal, L 0.39 C 0.083 H 153) the field says in its notation
+const cssWord=w=>/^#[\da-f]{3,8}$/i.test(w)||/^[a-z][\w-]*\(/i.test(w)||Object.hasOwn(NAMES,w.toLowerCase())
+const saidAsIs=v=>tokensOf(v).filter(t=>t[2]!=null).every(([a,b])=>cssWord(v.slice(a,b).trim()))
 const heldKey=()=>JSON.stringify(STOPS?[STOPS.map(c=>[c.s,c.vals]),GRAD?.pos??null]:[master.s,master.vals])
 const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=document.getElementById('cval'), cvxEl=document.getElementById('cvx')
 // the colors in hand, in their order, beside the field: the one in hand is the rhombus (the native picker), every other a
@@ -1675,7 +1691,9 @@ const paintPstack=()=>{ const run=GRAD&&gradIn('rgb').map(v=>hex(v)), key=!STOPS
 // a press on the pill takes the stop nearest it along the run
 const pillStop=(b,e)=>{ const r=b.getBoundingClientRect(), f=clamp((e.clientX-r.left-r.height/2)/(r.width-r.height),0,1), pos=GRAD.pos||evenPos(STOPS.length); return pos.reduce((j,p,k)=>Math.abs(p-f)<Math.abs(pos[j]-f)?k:j,0) }
 pstackEl?.addEventListener('click',e=>{ const b=e.target.closest('.pst'); if(!b) return; const i=b.classList.contains('pill')?pillStop(b,e):+b.dataset.i; e.altKey?dropStop(i):pickStop(i) })
-pstackEl?.addEventListener('pointermove',e=>{ const b=e.target.closest('.pill'); if(b&&GRAD) b.style.setProperty('--hp',(GRAD.pos||evenPos(STOPS.length))[pillStop(b,e)]) },{ passive:true })
+// the stop a press on the pill would take: ringed at its place along the run, in its own color – not the run's under it
+const pillHot=(b,j)=>{ const c=STOPS[j]; b.style.setProperty('--hp',(GRAD.pos||evenPos(STOPS.length))[j]); if(c) b.style.setProperty('--hw',hex(rgbF(c.s,c.vals))) }
+pstackEl?.addEventListener('pointermove',e=>{ const b=e.target.closest('.pill'); if(b&&GRAD) pillHot(b,pillStop(b,e)) },{ passive:true })
 // the page's top edge and the hero's glow under it: many colors in hand show them – a gradient its run, a list its bands –
 // the whole edge, still; one color, the hue wheel round it, zooming into it as the page scrolls (CSS)
 const paintBand=()=>{ const g=STOPS&&(GRAD?`linear-gradient(90deg,${gradIn('rgb').map(v=>hex(v))})`
@@ -1766,9 +1784,9 @@ if(cvalEl){
 	const nextSrc=k=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(useOf(k))+1)%l.length]; store('csSugSrc',srcOf) }
 	const K={ color:t('ui.sug.k.color','color'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
 	const from=(kind,name,src,key)=>({ kind, name, src, key })   // "palette: triad from Itten" – the name left out where the row's own text is it; key: the kind whose source it turns
-	const nth={ pair:0, palette:0, gradient:0, next:0 }   // which of a set's nearest the context shows – its ↻ the next
+	const nth={ color:0, pair:0, palette:0, gradient:0, next:0 }   // which of a set's nearest the context shows – its ↻ the next
 	const row=(v,why=null)=>{ const p=parseInput(v); return { v, say:v, why, sw:hexesOf(v), run:p?.grad?runOf(p.stops,p.grad):null } }
-	const named=(n,rgb,src,key)=>{ const h=hex(rgb), lc=n.toLowerCase(), c=nameOf(lc); return { v:c&&hex(c.vals)===h?lc:h, say:lc, name:lc, why:from(K.color,'',src,key), sw:[h], tok:true } }   // a name, lowercase, types as itself where it reads back as this very color (another list may hold the same name for another) – else as its hex – in the place of the color it names
+	const named=(n,rgb,src,key)=>{ const h=hex(rgb), lc=n.toLowerCase(), v=fmtAs(FMT,h,rgb); return { v, say:v, name:lc, why:from(K.color,lc,src,key), sw:[h], tok:true } }   // a collection's color: its value in the field's notation, its name and its collection under it – in the place of the color it names
 	// at random, never the same twice in a visit while there are others (each set's drawn kept, cleared once all are)
 	const drawn={}, fresh=(key,list)=>{ const seen=drawn[key]??=new Set(); if(seen.size>=list.length) seen.clear()
 		let i; do i=Math.random()*list.length|0; while(seen.has(i)); seen.add(i); return list[i] }
@@ -1789,11 +1807,8 @@ if(cvalEl){
 	// the k names nearest a color (OKLab), nearest first: [name, rgb, ΔEok]
 	const nearNames=(list,o,k)=>{ const best=[]; for(const x of list){ const q=x[2]??=space.rgb.oklab(...x[1]), d=(q[0]-o[0])**2+(q[1]-o[1])**2+(q[2]-o[2])**2
 		if(best.length<k||d<best.at(-1)[0]){ best.push([d,x]); best.sort((a,b)=>a[0]-b[0]); if(best.length>k) best.pop() } } return best.map(([d,x])=>[x[0],x[1],Math.sqrt(d)]) }
-	const nearName=(list,o)=>nearNames(list,o,1)[0]
-	// a color as a gradient's stop is said: by its name where one is it – within a just noticeable step, ΔEok 0.02 – else
-	// in the field's notation
-	const sayAs=(rgb,list)=>{ const x=nearName(list,space.rgb.oklab(...rgb)); return x&&x[2]<=.02?x[0].toLowerCase():fmtAs(FMT,hex(rgb),rgb) }
-	const nameList=()=>{ const k=useOf('color'); return COLORS(k).length?COLORS(k):COLORS('names') }
+	// a color as a row's stop is said in the field's notation
+	const sayAs=rgb=>fmtAs(FMT,hex(rgb),rgb)
 	const turn=(rgb,deg)=>{ const [r,y,b]=space.rgb.ryb(...rgb).map(x=>x/255), mx=Math.max(r,y,b), d=mx-Math.min(r,y,b)
 		let h=mx===r?(y-b)/d:mx===y?(b-r)/d+2:(r-y)/d+4; h=((h*60+deg)%360+360)%360/60
 		const f=k=>{ const q=(k+h)%6; return mx-d*Math.max(0,Math.min(q,4-q,1)) }   // HSV's inverse on the pigment cube: its hue turned, its amount and spread kept
@@ -1807,32 +1822,32 @@ if(cvalEl){
 	// a gradient from it, run in OKLCh, one way at a time – a gradient moves along one axis, it doesn't leap: its hue turned
 	// a step either way, in Okhsv (Ottosson 2021), its saturation and value kept, so the far end is as vivid in sRGB as it
 	// is (OKLCh's own turn grays a yellow at an orange's lightness); or its own hue, lighter – a light one, darker (Okhsl's
-	// lightness). Never to its opposite, never to itself: a turn too slight to see (a near gray) gives way to the tone. The
-	// far end a named color – its name, its own color; the near end the color as the field says it. Its ↻ the next
+	// lightness). Never to its opposite, never to itself: a turn too slight to see (a near gray) gives way to the tone. Both
+	// ends as the field says them. Its ↻ the next
 	const GRADN=3, dE=(a,b)=>{ const p=space.rgb.oklab(...a), q=space.rgb.oklab(...b); return Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2]) }
-	const gradRow=(rgb,k,list,own)=>{ const [h,sv,v]=space.rgb.okhsv(...rgb), [,sl,l]=space.rgb.okhsl(...rgb), lit=l>60?-25:25
+	const gradRow=(rgb,k,near)=>{ const [h,sv,v]=space.rgb.okhsv(...rgb), [,sl,l]=space.rgb.okhsl(...rgb), lit=l>60?-25:25
 		const end=w=>(w<2?space.okhsv.rgb((h+(w?315:45))%360,sv,v):space.okhsl.rgb(h,sl,l+lit)).map(x=>clamp(Math.round(x),0,255))
 		let w=hued(rgb)?k%GRADN:2; if(w<2&&dE(rgb,end(w))<.05) w=2
-		const far=nearName(list,space.rgb.oklab(...end(w))), say=w<2?t('ui.sug.grad.hue','hue {d}',{d:w?'−45°':'+45°'}):lit<0?t('ui.sug.grad.darker','darker'):t('ui.sug.grad.lighter','lighter')
-		return { ...row(`${own??sayAs(rgb,list)}${JOIN}${far[0].toLowerCase()} in oklch`,from(K.gradient,say,'okhsv','gradient')), ...hued(rgb)&&{ way:'grad', at:w } } }
+		const say=w<2?t('ui.sug.grad.hue','hue {d}',{d:w?'−45°':'+45°'}):lit<0?t('ui.sug.grad.darker','darker'):t('ui.sug.grad.lighter','lighter')
+		return { ...row(`${near??sayAs(rgb)}${JOIN}${sayAs(end(w))} in oklch`,from(K.gradient,say,'okhsv','gradient')), ...hued(rgb)&&{ way:'grad', at:w } } }
 	// a gradient in hand, one step on: its last step again – the same turn of lightness, chroma and hue (OKLCh), the way
 	// it already goes – fitted to sRGB by its chroma; a hue that leapt (a quarter of the circle or more a step) not leapt
-	// again, its lightness and chroma going on. None where it hardly moves, or meets the gamut's wall. Its own stops as
-	// the field says them; the new one a named color where one is it
-	// a stop as the field holds it: its own word as typed (tomato stays tomato) while the field's colors are these stops,
-	// one word each – else as the field's notation says it
-	const sayTyped=st=>{ const v=cvalEl.value, w=tokensOf(v).filter(t=>t[2]!=null).map(t=>v.slice(t[0],t[1]).trim()); return (c,i)=>w.length===st.length&&w[i]?w[i]:sayStop(c) }
-	const extendRow=(st,g,list,prefix)=>{ if(st.length>=6) return []; const ok=c=>space.rgb.oklch(...rgbF(c.s,c.vals)), a=ok(st.at(-2)), b=ok(st.at(-1)), dh0=((b[2]-a[2])%360+540)%360-180
+	// again, its lightness and chroma going on. None where it hardly moves, or meets the gamut's wall. Its stops as the
+	// field says them
+	// a stop as the field holds it: its own word as typed where it is a CSS value (tomato stays tomato) while the field's
+	// colors are these stops, one word each – else as the field's notation says it
+	const sayTyped=st=>{ const v=cvalEl.value, w=tokensOf(v).filter(t=>t[2]!=null).map(t=>v.slice(t[0],t[1]).trim()); return (c,i)=>w.length===st.length&&w[i]&&cssWord(w[i])?w[i]:sayStop(c) }
+	const extendRow=(st,g,prefix)=>{ if(st.length>=6) return []; const ok=c=>space.rgb.oklch(...rgbF(c.s,c.vals)), a=ok(st.at(-2)), b=ok(st.at(-1)), dh0=((b[2]-a[2])%360+540)%360-180
 		const dh=a[1]<.02||b[1]<.02||Math.abs(dh0)>=90?0:dh0, L=clamp(2*b[0]-a[0],.03,.98); let C=Math.max(0,2*b[1]-a[1]), to
 		do to=space.oklch.rgb(L,C,(b[2]+dh+360)%360); while(to.some(x=>x<-.5||x>255.5)&&(C*=.9)>.002)
 		to=to.map(x=>clamp(Math.round(x),0,255)); const last=rgbF(st.at(-1).s,st.at(-1).vals); if(dE(to,last)<.03) return []
-		const nu={ s:'rgb', vals:to }, own=sayTyped(st), say=c=>c===nu?sayAs(to,list):own(c,st.indexOf(c)), g2={ fn:'linear-gradient', head:'', mix:g.mix, stops:[...st,nu].map((c,i,l)=>({ c, pos:i/(l.length-1) })) }
-		return [{ ...row(prefix?prefix+JOIN+sayAs(to,list):shortText(g2,say)??gradientText(g2,say),from(K.gradient,t('ui.sug.grad.on','one step on'))) }] }   // typed so far (a joint closing it): the typed words, the new stop after them
+		const nu={ s:'rgb', vals:to }, own=sayTyped(st), say=c=>c===nu?sayAs(to):own(c,st.indexOf(c)), g2={ fn:'linear-gradient', head:'', mix:g.mix, stops:[...st,nu].map((c,i,l)=>({ c, pos:i/(l.length-1) })) }
+		return [{ ...row(prefix?prefix+JOIN+sayAs(to):shortText(g2,say)??gradientText(g2,say),from(K.gradient,t('ui.sug.grad.on','one step on'))) }] }   // typed so far (a joint closing it): the typed words, the new stop after them
 	// a comma typed last: the next color for the last one – Sanzo Wada's partner (a combination holding the color nearest
 	// it; its ↻ the next such), and Itten's contrasts (The Art of Color, 1961): the complementary on his wheel, light–dark
 	// (its hue, Okhsl's lightness mirrored – 30 apart at least), saturation (its hue, Okhsv's saturation a third). Each the
-	// typed text, a comma, the new color – by name where one is it
-	const nextRows=(pre,c)=>{ const rgb=rgbF(c.s,c.vals), list=nameList(), say=x=>pre+', '+sayAs(x.map(v=>clamp(Math.round(v),0,255)),list), out=[]
+	// typed text, a comma, the new color – in the field's notation
+	const nextRows=(pre,c)=>{ const rgb=rgbF(c.s,c.vals), say=x=>pre+', '+sayAs(x.map(v=>clamp(Math.round(v),0,255))), out=[]
 		if(WADA){ const o=space.rgb.oklab(...rgb), ci=WADA.colors.reduce((b,x,i)=>{ const q=okOf(x[1]), d=Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]); return d<b[0]?[d,i]:b },[Infinity,-1])[1]
 			const cs=WADA.combos.filter(([,ix])=>ix.includes(ci)); if(cs.length){ const [n,ix]=cs[nth.next%cs.length], j=ix.indexOf(ci)
 				out.push({ ...row(say(hx3(WADA.colors[ix[(j+1)%ix.length]][1])),from(K.color,'#'+n,'wada','color')), way:'near-next' }) } }
@@ -1842,23 +1857,23 @@ if(cvalEl){
 		return out }
 	// a joint typed last (to, a dash, ..): the gradient from the last color – its hue turned either way, its tone; the set's
 	// gradient nearest it, from it; a gradient typed, one step on
-	const gradOnRows=(pre,p)=>{ const list=nameList(); if(p.grad) return extendRow(p.stops,p.grad,list,pre); if(p.stops.length>1) return []
+	const gradOnRows=(pre,p)=>{ if(p.grad) return extendRow(p.stops,p.grad,pre); if(p.stops.length>1) return []
 		const rgb=rgbF(p.stops[0].s,p.stops[0].vals), o=space.rgb.oklab(...rgb), gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
-		return [...(hued(rgb)?[0,1,2]:[2]).map(w=>({ ...gradRow(rgb,w,list,pre), way:null })),
-			...ng?[{ ...row(pre+JOIN+ng[1].slice(1).map(h=>sayAs(hx3(h),list)).join(JOIN)+' in srgb',from(K.gradient,ng[0],gk,'gradient')), way:'near-gradient' }]:[]] }
+		return [...(hued(rgb)?[0,1,2]:[2]).map(w=>({ ...gradRow(rgb,w,pre), way:null })),
+			...ng?[{ ...row(pre+JOIN+ng[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN)+' in srgb',from(K.gradient,ng[0],gk,'gradient')), way:'near-gradient' }]:[]] }
 	// a palette in hand, as a gradient – its colors in order, run in OKLCh
 	const asGradRow=st=>[row(st.map(sayTyped(st)).join(JOIN)+' in oklch',from(K.gradient,t('ui.sug.grad.these','these colors')))]   // its colors exactly, as the field says them
-	const cmapRow=([n,c],src)=>row(c.split(' ').join(JOIN),from(K.colormap,n,src,'colormap'))
+	const cmapRow=([n,c],src)=>row(c.split(' ').map(h=>sayAs(hx3(h))).join(JOIN),from(K.colormap,n,src,'colormap'))
 	const hx3=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))
 	// a set's lists, each [name, hexes]: a numbered combination by its number (#280), a named one by its name
 	const PALS=k=>k==='lospec'?(LOSPEC||[]).map(([n,c])=>[n,c.split(' ')]):k==='wada'?(WADA?.combos||[]).map(([n,ix])=>['#'+n,ix.map(i=>WADA.colors[i][1])]):k==='nice'?(SETS?.nice||[]).map((p,i)=>['#'+(i+1),p.split(' ')]):k==='itten'?[]:(SETS?.[k]||[]).map(([n,c])=>[n,c.split(' ')])
 	const GRADSETS=k=>k==='okhsv'?[]:(SETS?.[k]||[]).map(([n,c])=>[n,c.split(' ')])
-	const palRow=([n,hs],src)=>row(hs.join(', '),from(K.palette,n,src,hs.length===2?'pair':'palette'))   // its source turns among its size's
+	const palRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h))).join(', '),from(K.palette,n,src,hs.length===2?'pair':'palette'))   // its source turns among its size's
 	// a set's palettes of a size – a pair, or three to four (no principal difference between them: one row, either). Each
 	// turns among the sources that hold it (SOURCES: Wada's combinations, Lospec's and chromotome's, Itten's chords), so a
 	// turn always changes the row – none in the source (Itten), his chord of that size
 	const SIZES={ pair:[2], palette:[3,4] }, palsN=(k,z)=>[k,PALS(k).filter(p=>SIZES[z].includes(p[1].length))]
-	const gradSetRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h),nameList())).join(JOIN)+' in srgb',from(K.gradient,n,src,'gradient'))   // as their makers drew them: CSS's own, sRGB
+	const gradSetRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h))).join(JOIN)+' in srgb',from(K.gradient,n,src,'gradient'))   // as their makers drew them: CSS's own, sRGB
 	// a set's gradients that go somewhere: ends apart (ΔEok 0.08 or more), and between colored ends a hue that moves a third
 	// of the circle at most – red to green is two colors, not a gradient
 	const goes=hs=>{ const a=okOf(hs[0]), b=okOf(hs.at(-1)); if(Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])<.08) return false
@@ -1877,7 +1892,7 @@ if(cvalEl){
 		...['pair','palette'].map(z=>()=>{ const [k,l]=palsN(useOf(z),z); if(l.length) return palRow(fresh(`${z}:`+k,l),k)
 			return chordN(anyHued(),z,Math.random()*4|0) }),   // a pair, then a palette of three or four – as the set holds them
 		()=>{ const k=useOf('gradient'), l=GRADSETS(k).filter(p=>goes(p[1])); if(l.length) return gradSetRow(fresh('gradient:'+k,l),k)
-			return gradRow(anyHued(),Math.random()*GRADN|0,nameList()) },   // a gradient of two before a colormap's run of five
+			return gradRow(anyHued(),Math.random()*GRADN|0) },   // a gradient of two before a colormap's run of five
 		()=>{ const k=useOf('colormap'), l=MAPSOF(k); return cmapRow(fresh('colormap:'+k,l.length?l:MAPS),l.length?k:'matplotlib') }]
 	const draw=()=>WAYS.map((w,k)=>({ ...w(), way:k }))
 	// the context is the color as it is held – while a row is shown on the page (a preview), the one it stood at
@@ -1885,18 +1900,21 @@ if(cvalEl){
 	const ctxRows=()=>{ const { rgb, many }=held(), o=space.rgb.oklab(...rgb), k0=useOf('color'), k=COLORS(k0).length?k0:'names', l=COLORS(k)   // a list not landed (offline, its module missing): CSS's, never nothing
 		// many in hand: the caret's stop by the two names nearest it, to snap a palette to a known collection; the gradient
 		// one step on (six stops at most) – a palette, as a gradient; no palette round it – it is its own
-		if(many){ const b=before, st=b?b.stops:STOPS, g=b?b.grad:GRAD, snap=nearNames(l,o,8).filter(x=>x[2]>.001).slice(0,2)   // the caret's stop snapped to a known collection: the two names nearest it – a near-twin too, the snap is the point – never the very color
-			return [...snap.map(x=>named(x[0],x[1],k,'color')),...g?extendRow(st,g,l):asGradRow(st)] }
-		// one in hand: the two names nearest it that are visibly not it (its own it already has)
-		const names=nearNames(l,o,64).filter(x=>x[2]>.02).slice(0,2).map(x=>named(x[0],x[1],k,'color'))   // past the near-twins: a common color (teal) has dozens within a step of it
+		// its neighbour in the collection in use: one, the nearest – its name pressed (or its ↻), the next nearest; many in
+		// hand, the caret's stop's – a near-twin too, the snap is the point – never the very color; one, visibly not it (past
+		// the near-twins: a common color, teal, has dozens within a step of it)
+		const nb=min=>{ const c=nearNames(l,o,64).filter(x=>x[2]>min); return c.length?[{ ...named(...c[nth.color%c.length].slice(0,2),k,'color'), way:'near-color' }]:[] }
+		if(many){ const b=before, st=b?b.stops:STOPS, g=b?b.grad:GRAD
+			return [...nb(.001),...g?extendRow(st,g):asGradRow(st)] }
+		const names=nb(.02)
 		// the palette, and the gradient, of the source in use with a color nearest it – always one, its ↻ the next nearest;
 		// Itten's a chord round it, Okhsv's its hue turned
 		const gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
 		const lead=([n,hs])=>{ const d=h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) }, i=hs.reduce((b,h,j)=>d(h)<d(hs[b])?j:b,0); return [n,[hs[i],...hs.filter((_,j)=>j!==i)]] }   // the set's colors as they are, the one nearest the held first
 		// a pair, then a triplet, with it: the set's nearest of that size, led by it – none, Itten's chord of that size round it
 		const pal=['pair','palette'].flatMap(z=>{ const [pk,l]=palsN(useOf(z),z), near=nearN(l,o,nth[z]); return near?[{ ...palRow(lead(near),pk), way:'near-'+z }]:hued(rgb)?[chordN(rgb,z,sugChord[z])]:[] })
-		const own=(v=>{ const p=v&&parseInput(v); return p&&!p.grad&&p.stops.length===1?v:null })(cvalEl.value.trim())   // the color as typed – tomato, not its hex
-		return [...names,...pal,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,l,own)] }
+		const own=(v=>{ const p=v&&cssWord(v)&&parseInput(v); return p&&!p.grad&&p.stops.length===1?v:null })(cvalEl.value.trim())   // the color as typed where it is a CSS value – tomato, not its hex
+		return [...names,...pal,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own)] }
 	// a phrase read – channels named, a name told how to change: the color it came to, written out, first
 	const phraseRow=v=>{ if(parseColor(v)||parseColorList(v)||setNamed(v)) return []; const c=parsePhrase(v); if(!c) return []
 		const rgb=rgbF(c.s,c.vals), w=say3(c.s,hex(rgb),rgb)   // in its own notation where CSS has one, else hex
@@ -1916,15 +1934,15 @@ if(cvalEl){
 		return [...(ok&&w===v?phraseRow(v):[]),...sets,...words,...(ok?ctxRows():[])] }
 	// the row's line under it: what it is, its name, where it is from – the source a button turning to the next (a press on
 	// it takes nothing)
-	const whyOf=(w,re)=>{ const sn=SRC[w.src], tail=[w.name&&(re?`<span class="sgn">${esc(w.name)}</span>`:esc(w.name)),sn&&`${esc(t('ui.sug.from','from'))} <span class="src"${w.key?` data-key="${w.key}"`:''}>${esc(sn)}</span>`].filter(Boolean).join(' ')
+	const whyOf=(w,re,q='')=>{ const sn=SRC[w.src], tail=[w.name&&(re?`<span class="sgn">${hl(w.name,q)}</span>`:hl(w.name,q)),sn&&`${esc(t('ui.sug.from','from'))} <span class="src"${w.key?` data-key="${w.key}"`:''}>${esc(sn)}</span>`].filter(Boolean).join(' ')
 		return tail||esc(w.kind) }   // what and where from – "from Tailwind", "#280 from Sanzo Wada", "viridis from matplotlib": the row's marks say the kind; a row with neither (recent, read) its kind alone
 	// the typed part of a name light, the rest of it set – as a search engine sets what it adds
 	const hl=(s,q)=>{ const i=q?s.toLowerCase().indexOf(q):-1; return i<0?esc(s):`${esc(s.slice(0,i))}<span class="q">${esc(s.slice(i,i+q.length))}</span>${esc(s.slice(i+q.length))}` }
 	const suggest=typed=>{ const rows=sugShut?[]:sugRows(typed), q=v=>esc(v).replace(/"/g,'&quot;'), typedq=cvalEl.value.trim().toLowerCase()
-		const html=r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws" style="--n:${r.run?1:r.sw.length}">${r.run?`<s class="pill" style="--w:linear-gradient(90deg,${r.run.join(',')})"></s>`:r.sw.map((h,k)=>`<s style="--w:${h};--z:${r.sw.length-k}"></s>`).join('')}</span><span class="sgt"><span>${r.name?hl(r.say,typedq):esc(r.say)}</span>${r.why?`<small>${whyOf(r.why,r.way!=null&&!r.rec)}</small>`:''}</span></b></button>${SRCURL[r.why?.src]?`<a class="qclr sgo" href="${SRCURL[r.why.src]}" target="_blank" rel="noopener" tabindex="-1" aria-label="${q(t('ui.sug.open','open {site}',{site:SRC[r.why.src]}))}">${icon('out')}</a>`:''}${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}"${r.at!=null?` data-at="${r.at}"`:''} aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`
+		const html=r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws" style="--n:${r.run?1:r.sw.length}">${r.run?`<s class="pill" style="--w:linear-gradient(90deg,${r.run.join(',')})"></s>`:r.sw.map((h,k)=>`<s style="--w:${h};--z:${r.sw.length-k}"></s>`).join('')}</span><span class="sgt"><span>${esc(r.say)}</span>${r.why?`<small>${whyOf(r.why,r.way!=null&&!r.rec,r.name?typedq:'')}</small>`:''}</span></b></button>${SRCURL[r.why?.src]?`<a class="qclr sgo" href="${SRCURL[r.why.src]}" target="_blank" rel="noopener" tabindex="-1" aria-label="${q(t('ui.sug.open','open {site}',{site:SRC[r.why.src]}))}">${icon('out')}</a>`:''}${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}"${r.at!=null?` data-at="${r.at}"`:''} aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`
 		const rec=rows.filter(r=>r.rec)   // the recent last, apart: what was typed before, not what is suggested
 		sugEl.innerHTML=rows.filter(r=>!r.rec).map(html).join('')+(rec.length?`<div class="sgrec" role="group" aria-label="${esc(K.recent)}">${rec.map(html).join('')}</div>`:'')
-		sugEl.hidden=!rows.length; sugFmt=false; ghostOf(rows) }
+		sugEl.hidden=!rows.length; ghostOf(rows) }
 	// the first name's rest, greyed in after the caret – Tab or → at the end takes it
 	const ghost=document.createElement('div'); ghost.className='cvghost'; ghost.setAttribute('aria-hidden','true'); cvalEl.before(ghost)
 	let ghostRest=''
@@ -1932,16 +1950,10 @@ if(cvalEl){
 		ghostRest=n&&at&&w&&v.trimEnd().endsWith(w)&&n.toLowerCase().startsWith(w.toLowerCase())&&n.length>w.length?n.slice(w.length):''   // the last color's word, finished
 		ghost.replaceChildren(...(ghostRest?[Object.assign(document.createElement('span'),{ textContent:v }),ghostRest]:[]))
 		if(ghostRest){ const cs=getComputedStyle(cvalEl); for(const k of TWIN) ghost.style[k]=cs[k]; ghost.style.width=cvalEl.clientWidth+'px'; ghost.style.left=cvalEl.offsetLeft+'px'; ghost.style.top=cvalEl.offsetTop+'px' } }
-	let sugShut=false, sugDraw=null, sugFmt=false, sugChord={ pair:0, palette:0 }, sugGrad=0
-	// the color in every notation – the rhombus's list, in the field's own: a row taken is how the field speaks from then on
-	const notations=()=>{ const hx=hex(RGB())
-		sugEl.innerHTML=FMTL.map(f=>`<div class="sgr" role="none"><button class="fmtr${f===FMT?' cur':''}" type="button" role="option" tabindex="-1" data-fmt="${f}" aria-selected="${f===FMT}"><b><span class="sws"><s style="--w:${hx}"></s></span><span class="sgt"><span class="tnum">${esc(fmtAs(f,hx))}</span><small>${f}</small></span></b></button></div>`).join('')
-		sugEl.hidden=false; sugFmt=true }
-	const cdbEl=document.getElementById('cdb')
-	cdbEl?.addEventListener('click',()=>{ if(!cvalEl.value.trim()&&virginNow()) return cvalEl.focus()   // no color entered: the rhombus asks for one
-		if(sugFmt&&!sugEl.hidden){ sugEl.hidden=true; sugFmt=false } else notations() })
-	addEventListener('pointerdown',e=>{ if(sugFmt&&!sugEl.contains(e.target)&&e.target!==cdbEl){ sugEl.hidden=true; sugFmt=false } },true)
-	addEventListener('keydown',e=>{ if(e.key==='Escape'&&sugFmt){ sugEl.hidden=true; sugFmt=false } })
+	let sugShut=false, sugDraw=null, sugChord={ pair:0, palette:0 }, sugGrad=0
+	// the rhombus: the color's place in the field – a press takes the field, the color in context under it (its notation
+	// is the View menu's, every value's)
+	document.getElementById('cdb')?.addEventListener('click',()=>cvalEl.focus())
 	// what a row puts in the field: a name, the color it names; anything else, the whole field
 	const valueOf=b=>{ const v=cvalEl.value, tk=b.hasAttribute('data-tok')&&tokenAt(v,cvalEl.selectionStart)
 		return tk&&tk[2]!=null?[v.slice(0,tk[0])+b.dataset.v+v.slice(tk[1]),tk[0]]:[b.dataset.v,0] }
@@ -1961,7 +1973,7 @@ if(cvalEl){
 		cvalEl._typed=take(); sugEl.hidden=true; cvalEl.blur() }   // the caret at the color it put: that color in hand
 	const takeGhost=()=>{ if(!ghostRest) return false; cvalEl.value+=ghostRest; cvalEl._typed=take(); fitVal(); suggest(true); return true }
 	sugEl.addEventListener('pointerdown',e=>e.preventDefault())   // the field keeps the focus
-	sugEl.addEventListener('click',e=>{ const f=e.target.closest('[data-fmt]'); if(f){ setFmt(f.dataset.fmt); sugEl.hidden=true; sugFmt=false; return }
+	sugEl.addEventListener('click',e=>{
 		const nm=e.target.closest('.sgt .sgn'); if(nm){ nm.closest('.sgr').querySelector('.sgx[data-way]')?.click(); return }   // the name pressed: another from its set, as its ↻ draws
 		const src=e.target.closest('.src'); if(src){ const k=src.dataset.key; if(!k) return; nextSrc(k); if(k in nth) nth[k]=0   // the next source of its kind: its rows from it, shown
 			const at=[...sugEl.querySelectorAll('.sgr')].indexOf(src.closest('.sgr'))
@@ -1974,8 +1986,8 @@ if(cvalEl){
 		const b=e.target.closest('.fmtr'); if(b) pick(b) })
 	// a row pointed at shows on the page, as one walked to does; the list left, the color as it stood. Pointed at by a
 	// pointer that moves – a list opening, or redrawn as one types, under a resting pointer previews nothing
-	sugEl.addEventListener('pointermove',e=>{ if(!e.movementX&&!e.movementY) return; const b=!sugFmt&&e.target.closest('.fmtr'); if(b&&b!==sugEl._peek){ sugEl._peek=b; peek(b) } })
-	sugEl.addEventListener('pointerleave',()=>{ sugEl._peek=null; if(!sugFmt) unpeek() })
+	sugEl.addEventListener('pointermove',e=>{ if(!e.movementX&&!e.movementY) return; const b=e.target.closest('.fmtr'); if(b&&b!==sugEl._peek){ sugEl._peek=b; peek(b) } })
+	sugEl.addEventListener('pointerleave',()=>{ sugEl._peek=null; unpeek() })
 	// a press in the field's box is a text field's: in its text, the caret (a double press, a word – the browser's); in the
 	// box round it, the field taken, the caret at its end. The color the caret lands in is the one in hand
 	const grab=e=>{ if(e.button||e.target.closest('button,a,input,#csug,#fmtp')) return
@@ -1987,7 +1999,7 @@ if(cvalEl){
 	cvalEl.addEventListener('click',()=>{ if(!cvalEl._caret) return; cvalEl._caret=false; ghostOf([]); caretTake() })
 	cvalEl.addEventListener('keyup',e=>{ if(/^(Arrow(Left|Right)|Home|End)$/.test(e.key)&&!PEEK) caretTake() })
 	// the suggestions follow the color in hand: another stop taken – by the caret, the stack, a plane's mark – its context
-	document.addEventListener('stoptake',()=>{ if(document.activeElement===cvalEl&&!sugShut&&!sugFmt&&!PEEK) suggest(false) })
+	document.addEventListener('stoptake',()=>{ if(document.activeElement===cvalEl&&!sugShut&&!PEEK) suggest(false) })
 	document.getElementById('hq')?.addEventListener('pointerenter',meodai,{ once:true })   // the names on their way as the pointer comes – in hand by the press
 	cvalEl.addEventListener('focus',()=>{ meodai(); if(!cvalEl._ptr) cvalEl.select(); cvalEl._ptr=false; cvalEl._typed=false; fitVal(); suggest(false); if(autoColor&&!autoHold) autoHold=performance.now(); renderFast() })   // the orbit holds; the empty field asks for a color (renderFast's placeholder)
 	cdEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
@@ -2071,7 +2083,7 @@ const ulAt=()=>{ const f=document.activeElement===cvalEl, c=f?tokenAt(cvalEl.val
 let HOTJ=null
 document.addEventListener('stophot',e=>{ HOTJ=e.detail.j; if(ul) ulAt()
 	for(const b of pstackEl?.querySelectorAll('.pst')||[]) b.classList.toggle('hot',HOTJ!=null&&(b.classList.contains('pill')||+b.dataset.i===HOTJ))
-	const pill=pstackEl?.querySelector('.pill'); if(pill&&HOTJ!=null&&GRAD) pill.style.setProperty('--hp',(GRAD.pos||evenPos(STOPS.length))[HOTJ]) })
+	const pill=pstackEl?.querySelector('.pill'); if(pill&&HOTJ!=null&&GRAD) pillHot(pill,HOTJ) })
 // a word of the field pointed at: its color told as an instrument's would be (stophot) – its line in its own color, its
 // mark in the stack ringed; the words read off their twins (.cvul u), where the text lies
 cvalEl?.addEventListener('pointermove',e=>{ const u=[...ul.children].find(u=>[...u.getClientRects()].some(r=>e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)), j=u?+u.dataset.k:null
@@ -2613,9 +2625,9 @@ const cat=document.getElementById('cat')
 // threw away the streamed layout). Rebuild only on drift: template/data mismatch
 // or the raw web/ source, where #cat is the empty shell
 const ensureCat=()=>{ if(ensureCat.done) return; ensureCat.done=true
+	if(VIEW!=='grid'||grouping!=='family'||leadsNow()!==LEADN) return rebuild()   // the prerender is the wide grid by family; a visitor's own view, a shared cut (?g=), or a narrower grid's row replaces it (under the hero – off the first screen)
 	if(cat.dataset.fp!==fpOf(catHTML())){ cat.innerHTML=catHTML(DEFAULT); wireToc() }
-	wireCat()   // wireCat is the hoisted function wrapping every per-ent attachment below
-	if(VIEW!=='grid'||leadsNow()!==LEADN) rebuild() }   // the prerender is the wide grid; a visitor's own view, or a narrower grid's row, replaces it (under the hero – off the first screen)
+	wireCat() }   // wireCat is the hoisted function wrapping every per-ent attachment below
 // ToC: wired and laid out PRE-PAINT by the inline script after #cat (trackAct/layoutToc/
 // wireToc are its globals; applyFilter re-enters through them). Re-wire here only for the
 // fingerprint-rebuild path, where the rail's nodes were just replaced — idempotent otherwise
@@ -2712,8 +2724,10 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 	const s=ent2.dataset.s
 	if(master.s!==s){ const mv=valsFor(s); if(!mv) return; master={ s, vals:mv } }
 	dragEntI=+r.dataset.i; master.vals[dragEntI]=+r.value
+	ent2.querySelectorAll('.cvp')[dragEntI]?.classList.add('on')   // held: its pair in the current color, as a strip's drag
 	dragEnt=ent2; scheduleFast() })
 const finishCatalogRange=r=>{ const ent=r.closest('.ent'), i2=+r.dataset.i; if(ent!==dragEnt||i2!==dragEntI)return
+	ent.querySelectorAll('.cvp')[i2]?.classList.remove('on')
 	const s2=ent.dataset.s
 	releaseDragEnt(); snapGlide(r,s2,i2)
 	afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
@@ -2809,8 +2823,6 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			hold(up,1); hold(dn,-1) } })
 	ent.querySelectorAll('.ch').forEach(ch=>{ const i=+ch.dataset.i
 		const cvEl=ent.querySelectorAll('.cv')[i]?.closest('.cvp')
-		ch.addEventListener('pointerenter',()=>cvEl?.classList.add('on'))   // the slider points at its number
-		ch.addEventListener('pointerleave',()=>cvEl?.classList.remove('on'))
 		ch.addEventListener('pointerdown',e=>{
 			const rh=e.target.closest?.('.rh')
 			if(rh&&BRUSHES.has(s+'|'+i)){ rangeDrag(e,ch,s,i,rh.classList.contains('rlo')?'lo':'hi'); return }   // a half drags its own boundary
@@ -2831,7 +2843,7 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 				jump(ev) }
 			ch.onpointermove=move
 			ch.onpointerup=ev=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; ch.classList.remove('live')
-				const r=ch.getBoundingClientRect(); if(!(ev?.type==='pointerup'&&ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom)) cvEl?.classList.remove('on')   // still pointed at, its number stays underlined (pointerleave takes it when the pointer goes)
+				cvEl?.classList.remove('on')   // let go: the pair's line back to the card's unpicked one
 				squelch=true; setTimeout(()=>squelch=false,0)
 				releaseDragEnt(); snapGlide(ch.querySelector('.nrg'),s,i)   // let go now; every range settles from the released value once the frame is shown
 				afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
@@ -3351,18 +3363,21 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	const qOpt=([mo,lb])=>lensOpt('q',qKey(mo),qName(lb),'',QI[qKey(mo)],QTIP[qKey(mo)])
 	const drawOpts=`<div class="qcols"><div class="opts">${QGROUPS.slice(0,2).flatMap(([,os])=>os).map(qOpt).join('')}</div><div class="opts">${QGROUPS[2][1].map(qOpt).join('')}</div></div>`   // two columns, row for row: the smooth and the stepped | the palettes
 		+`<div class="qdist"><span class="gl">${t('ui.metric.title','Distance')}</span><div class="opts mdist">${METRICS.map(m2=>lensOpt('m',m2,MLABEL[m2],'','',MTIP[m2])).join('')}</div></div>`   // the distance that picks a palette's entry: 2×2, waiting for a palette
+	// the notation every value is written in – the field's, the suggestions', a gradient's stops: one choice for all
+	const FMTNAME={ hex:'Hex', rgb:'RGB', hsl:'HSL', oklch:'OKLCH', oklab:'OKLab', lab:'Lab', lch:'LCH', p3:'Display P3' }
+	const fmtOpts=`<div class="opts c2">${FMTL.map(f=>lensOpt('n',f,FMTNAME[f],'','',fmtAs(f,'#d9596b',[217,89,107]))).join('')}</div>`   // the tooltip writes a color in it
 	const limitOpts=`<div class="opts">${[...GAMS,'vis','locus'].map(g=>lensOpt('g',g,GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g],gamTip(g),LI[g])).join('')}</div>`   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
-	// the view's one menu – the lenses: Quantize, Limit, Vision – folded under one mark, set once (the layout is its own cell, beside it)
+	// the view's one menu – how values are written and seen: Format, Quantize, Limit, Vision – folded under one mark, set
+	// once (the layout is its own cell, beside it)
 	const msec=(name,body)=>`<section class="msec"><header>${name}</header>${body}</section>`
 	document.getElementById('m-view').innerHTML=`<div class="mcol">${msec(t('ui.cell.draw','Quantize'),drawOpts)}</div><div class="mcol">${msec(t('ui.cell.limit','Limit'),limitOpts)}</div>`
-		+`<div class="mcol">${msec(t('ui.cell.vision','Vision'),`<div class="opts">${visionOpts()}</div>`)}</div>`   // in columns, as Filters' menu
+		+`<div class="mcol">${msec(t('ui.cell.vision','Vision'),`<div class="opts">${visionOpts()}</div>`)}${msec(t('ui.cell.format','Format'),fmtOpts)}</div>`   // in columns, as Filters' menu
 	paintLens=()=>{
 		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); b.setAttribute('aria-label',n.label); b.title=n.title
 			if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to – the build stamps the first visit's
-		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent   // never inked: its mark is the Limit picked – it says the pick, at the row's one weight
-			if(v.dataset.g!==GM){ v.dataset.g=GM; v.querySelector('.ci').innerHTML=LI[GM] } }   // its mark: the Limit's own – the lenses work inside it (Quantize steps, Vision sees, within the limit)
+		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent }   // never inked; its mark the menu's own – the settings of how every value is written and seen
 		document.querySelectorAll('.mdist .opt').forEach(o=>o.disabled=!PALMODES.has(Q))   // the distance waits for a palette – shown, not offered
-		const now={ q:qKey(Q), m:QM, g:GM, v:VIS }
+		const now={ q:qKey(Q), m:QM, g:GM, v:VIS, n:FMT }
 		document.querySelectorAll('.dpop [data-lens]').forEach(b=>b.setAttribute('aria-pressed',String(now[b.dataset.lens]===b.dataset.v))) }
 	const applyView=()=>{ clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the menu open
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
@@ -3378,6 +3393,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 			case 'q': Q=qFromKey(v); if(Q==='meodai'&&!MEODAI.length) loadMeodai().then(()=>{ sitesOf.meodai=null; if(Q==='meodai') applyView() }); applyView(); syncViewURL(); break   // the long list lands, then the lens draws with it
 			case 'm': QM=v; applyView(); syncViewURL(); break
 			case 'g': setLimit(v); break
+			case 'n': setFmt(v); break
 			// the vision lens: the whole page through a simulated eye – session-only like the quantize lens (a filter
 			// persisted into next week reads as a broken screen), never in the URL; the filter defs mount on the first pick
 			case 'v': VIS=v; { const root=document.documentElement
@@ -4642,6 +4658,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 		<div class="props">
 			<div class="pcol"><!-- the instrument: its axes, its notation, its kind – shape, signal, range, curve, white: the filters' facets, one row of their tags –, its cost, its reach, and the route down to rgb it is defined by (lineage) -->
 				<div data-k="channels"><i>${t('ui.dossier.channels','channels')}</i><div class="chlist">${cls.ch.map(c=>`<span class="cn">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
+				${L.nm?`<div data-k="etymology"><i>${t('ui.dossier.etymology','etymology')}</i><p>${L.nm}</p></div>`:''}
 				${CSSFMT[s]?`<div data-k="css"><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="${t('ui.dossier.css-tip','this color, CSS-notated – click to copy')}"></p></div>`:''}
 				${m.loss?`<div data-k="loss"><i>${t('ui.dossier.loss','loss')}</i><p>${m.lossNote?`<span class="term" title="${t(`space.${s}.loss-note`,m.lossNote)}">${tagL(m.loss)}</span>`:tagL(m.loss)}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div data-k="reach"><i>${t('ui.dossier.reach-label','reach')}</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
@@ -4651,7 +4668,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 				${m.year||m.by?`<div data-k="origin"><i>${t('ui.dossier.origin','origin')}</i><p>${HISTORICAL.has(s)?`<span class="oic" title="${TAGTIP.historical}">${OI.historical}</span>`:''}${[run(s),m.by].filter(Boolean).join(', ')}</p></div>`:''}
 				${(e=>e?`<div data-k="ending"><i>${e.by?t('ui.dossier.replaced','replaced by'):t('ui.dossier.retired','retired')}</i><p>${e.by?`<a href="${e.by}">${disp(e.by)}</a>${e.y?`, ${e.y}`:''}${e.why?` – ${e.why}`:''}`:e.why}</p></div>`:'')(ending(s))}
 				${m.aka?`<div data-k="aka"><i>${t('ui.dossier.aka','also known as')}</i><p>${m.aka.join(', ')}</p></div>`:''}
-				${L.nm?`<div data-k="etymology"><i>${t('ui.dossier.etymology','etymology')}</i><p>${L.nm}</p></div>`:''}
 				${m.refs||m.wiki?`<div data-k="reference"><i>${t('ui.dossier.reference','reference')}</i><p>${[...new Set([...(m.refs||[]),...(m.wiki?[m.wiki]:[])])].map(u=>`<a href="${u}" target="_blank">${/wikipedia\.org/.test(u)?'wikipedia':u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0]}</a>`).join(', ')}</p></div>`:''}
 				${VERIFIED.has(s)?`<div data-k="test"><i>${t('ui.dossier.test','test')}</i><p><a href="https://github.com/colorjs/color-space/blob/master/test/reference.js" target="_blank" title="${t('ui.dossier.test-tip',"this space’s bidirectional colorjs.io differential test, at 1/255 tolerance")}">${t('ui.dossier.test-link','reference values')}</a></p></div>`:''}
 				<div data-k="source"><i>${t('ui.dossier.source','source')}</i><p><a href="https://github.com/colorjs/color-space/blob/master/spaces/${s}.js" target="_blank" title="${t('ui.dossier.source-tip','the implementation – {file} on GitHub',{file:`spaces/${s}.js`})}">spaces/${s}.js</a></p></div>
@@ -4703,12 +4719,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 			const s2=selected, i=+el.dataset.i
 			if(master.s!==s2){ const mv=valsFor(s2); if(!mv) return; master={ s:s2, vals:mv } }
 			const c=classify(s2).ch[i]
-			if(dragBar!==el){ clearClusterSnaps(); dragBar=el; el.classList.add('live') }
+			if(dragBar!==el){ clearClusterSnaps(); dragBar=el; el.classList.add('live'); detail.querySelector(`#bigch .bch[data-i="${i}"]`)?.classList.add('on') }
 			master.vals[i]=+r.value; el._dragF=clamp((+r.value-c.min)/(c.max-c.min),0,1)
 			scheduleFast() })
 		const finishRange=r=>{ const el=r.closest('.bar2'); if(!el||dragBar!==el) return
 			const s2=selected, i=+el.dataset.i, c=classify(s2).ch[i]
-			el.classList.remove('live')
+			el.classList.remove('live'); detail.querySelector(`#bigch .bch[data-i="${i}"]`)?.classList.remove('on')
 			el._snapHint=el._dragF; snapGlide(r,s2,i); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 			afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
@@ -4898,8 +4914,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 function wireBar(el,s){
 	el._grip=lineGrip(el,()=>s,+el.dataset.i)   // a press's, and the ⌥ readout's before any press
 	const bchEl=()=>document.querySelector(`#bigch .bch[data-i="${el.dataset.i}"]`)   // the big input this bar drives
-	el.addEventListener('pointerenter',()=>bchEl()?.classList.add('on'))   // the slider points at its number – same link as the list
-	el.addEventListener('pointerleave',()=>bchEl()?.classList.remove('on'))
+	el.addEventListener('pointerenter',()=>bchEl()?.classList.add('pt'))   // the slider points at its number: its unpicked line – held, its color (.on)
+	el.addEventListener('pointerleave',()=>bchEl()?.classList.remove('pt'))
 	el.addEventListener('pointerdown',e=>{
 	if(e.target.closest('.nvw')) return
 	if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a plain press on one color — its input/change pair below drives the same path
@@ -4938,8 +4954,7 @@ function wirePlane(pl){
 			const px=clamp((e.clientX-r.left)/r.width,0,1)*2-1
 			const py=clamp(1-(e.clientY-r.top)/r.height,0,1)*2-1
 			fx=((-Math.atan2(py,px)/(2*Math.PI))%1+1)%1
-			fy=Math.min(1,Math.hypot(px,py))
-			if(fy*r.width/2<3) fy=0 }   // soft snap: the achromatic centre within ~3px
+			fy=Math.min(1,Math.hypot(px,py)) }   // no snap: the pointer's place is the color, as on a strip
 		else if(pl._tri){ // cone section: coordinates live in the silhouette CANVAS's frame (the box pads with slack)
 			const rc=pl.querySelector('canvas').getBoundingClientRect()
 			const py=clamp(1-(e.clientY-rc.top)/rc.height,0,1), px=clamp((e.clientX-rc.left)/rc.width,0,1)
@@ -4952,10 +4967,7 @@ function wirePlane(pl){
 		else{ // pointer → windowed fraction → global range fraction (pan-zoom aware)
 			fx=vw.x0+(vw.x1-vw.x0)*clamp((e.clientX-r.left)/r.width,0,1)
 			fy=vw.y0+(vw.y1-vw.y0)*clamp(1-(e.clientY-r.top)/r.height,0,1)
-			const fl=flip3(cls,a,b); if(fl&1) fx=1-fx; if(fl&2) fy=1-fy
-			// soft snap per axis: the range midpoint within ~3px of the pointer, zoom-aware
-			if(Math.abs(fx-0.5)*r.width/(vw.x1-vw.x0)<3) fx=0.5
-			if(Math.abs(fy-0.5)*r.height/(vw.y1-vw.y0)<3) fy=0.5 }
+			const fl=flip3(cls,a,b); if(fl&1) fx=1-fx; if(fl&2) fy=1-fy }
 		return [fx,fy] }
 	const grip=pl._grip=planeGrip(pl,()=>selected,frac)   // a press's, and the ⌥ readout's
 	const set=e=>{ const v=grip.move(e); if(!v) return
@@ -5462,7 +5474,7 @@ let PDOWN=false
 const veil=document.body.appendChild(Object.assign(document.createElement('div'),{ className:'veil', hidden:true }))   // the drag's cursor: none, over everything
 let veilAt=null   // where a press on an instrument began – the veil waits for it to move
 addEventListener('pointerdown',e=>{ if(e.isPrimary){ PDOWN=true
-	if(e.target.closest?.(e.pointerType==='mouse'?'.ch,.bar2,.pl,.nv,.cv,.cd,#imgpk':'.pl,.nv,.cv,.cd,#imgpk')) autoColor=false   // a finger on a strip may be scrolling the page (pan-y): the orbit only holds still – the strip's drag, once it moves sideways, takes the color
+	if(e.target.closest?.(e.pointerType==='mouse'?'.ch,.bar2,.pl,.cd,#imgpk':'.pl,.cd,#imgpk')) autoColor=false   // a finger on a strip may be scrolling the page (pan-y): the orbit only holds still – the strip's drag, once it moves sideways, takes the color
 	if(e.pointerType==='mouse'&&e.target.closest?.('.ch:not(.mini .ch),.bar2,.pl')&&!e.target.closest('button')) veilAt=[e.clientX,e.clientY] } },true)
 // the veil comes up as a drag begins – past the drags' own 3 px – never at the press: a click under it (a plate's switch,
 // a corner letter) would land on the veil, not on its button
@@ -5703,9 +5715,9 @@ function stripMarks(el,s,i){ const key=STOPS?STOPS.map((c,j)=>j===STOPI?master.v
 	const run=(gradIn(s)||[]).map(v=>f(v[i])), seg=[]
 	for(let k=1;k<run.length;k++){ const a=Math.min(run[k-1],run[k]), b=Math.max(run[k-1],run[k]); if(b-a<=.5) seg.push([a,b]) }
 	seg.sort((x,y)=>x[0]-y[0]); for(let k=1;k<seg.length;) if(seg[k][0]<=seg[k-1][1]+.002){ seg[k-1][1]=Math.max(seg[k-1][1],seg[k][1]); seg.splice(k,1) } else k++
-	const pts=[], mini=!!el.closest('.chs.mini'), dots=[]   // a list row's strips have no thumb: the held color a dot too
+	const pts=[], dots=[]
 	STOPS.forEach((st,j)=>{ const v=j===STOPI?heldIn(s):valsIn(st,s); if(!v) return; const x=f(v[i])*100; pts.push({ j, x, y:50 })
-		if(j!==STOPI||mini) dots.push([j,x,hex(rgbF(st.s,st.vals))]) })
+		if(j!==STOPI) dots.push([j,x,hex(rgbF(st.s,st.vals))]) })   // the held one is the strip's picker (a list row's too)
 	el._pts=pts
 	let sts=el._sts
 	if(!sts?.isConnected){ sts=el._sts=Object.assign(document.createElement('i'),{ className:'sts' }); sts.setAttribute('aria-hidden','true'); sts.append(document.createElement('u')); el.append(sts) }
@@ -5831,9 +5843,9 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 	// the untouched color stays an invitation (placeholder), not an asserted value — see virginNow
 	const virgin=virginNow()
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
-	if(cxEl){ cxEl.classList.toggle('inv',virgin); cxEl.classList.toggle('empty',!virgin&&!cvalEl?.value.trim()); cvxEl.hidden=virgin }   // the orbit's color shown; a typed color cleared, no color   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
 	if(cvalEl&&document.activeElement!==cvalEl&&!IMGBUSY){ const nv=virgin?'':SAID?.k===heldKey()?SAID.v:STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; PDOWN||autoColor?fitMoving():fitVal() } }   // many colors read as the list – or the gradient – they are
 	if(virgin&&cvalEl&&!IMGBUSY) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value – in hand, the color the orbit stood at, Tab takes it   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
+	if(cxEl){ cxEl.classList.toggle('inv',virgin); cxEl.classList.toggle('empty',!virgin&&!cvalEl?.value.trim()); cvxEl.hidden=virgin }   // after the value's write: a color just taken (the orbit's, held) is no empty field   // the orbit's color shown; a typed color cleared, no color   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
 	if(!PDOWN&&!virgin&&!PEEK) syncURL(hx)   // the URL keeps the exact coordinate – a suggestion only looked at never reaches it
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
 	if(palmEl){ const b=PALMODES.has(Q)&&!virgin&&nearestIn(Q,rgb,QM), on=!!b   // live through drags – the address should follow the hand; 8-bit memoised – repeat colors cost a Map hit
@@ -6016,8 +6028,9 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 			`space${prop(s)}.rgb(${tup})  // → [${ri.join(', ')}]\n`+inv+
 			(path&&path.length>2?`// route: ${path.join(' → ')}`:'')) } }
 	// A held plane keeps its own field fixed and alternates its two neighbouring slices;
-	// image picking changes every held coordinate, so all three slices follow live.
-	if(PDOWN&&(plFreeze||pkDrag!==null)) paintPlanes(true,true)
+	// image picking changes every held coordinate, so all three slices follow live – and a held
+	// bar the planes it slices, as a plane held moves the bars' sweeps (not on release)
+	if(PDOWN&&(plFreeze||pkDrag!==null||dragBar)) paintPlanes(true,true)
 	// The 3D marker owns a tiny overlay: held colors move it without repainting the solid,
 	// cloud, coordinate grid or guide layer. Gamut defers only its expensive validity audit.
 	if(solid){ const heldColor=PDOWN&&(dragBar||plFreeze||dragEnt||pkDrag!==null)
@@ -6134,12 +6147,12 @@ renderFast(); paintCatalogGrad()
 }
 // ── the hero's locus (CSS above): drawn in the xy plate's own units (GXY), the horseshoe's colors painted once at idle –
 // whole and half-transparent over the checker, opaque inside the Limit; the current color at its own chromaticity.
-// Pointing shows the displays' and the horseshoe's edges and names, the tightest under the pointer darkest; a click picks
-// it, as the row's Limit menu does ──
+// Pointing shows the displays' and the horseshoe's edges and names, all alike. A press is the site's home, as a mark
+// by the title is – the Limit is the row's menu's ──
 {	const hm=document.querySelector('#hero .hmain'), img=c=>`<image class="${c}" width="320" height="352"${c==='lim'?' clip-path="url(#hl-lim)"':''}/>`
 	const HL=LIMS   // the hero's Limits: every one the row's menu offers
-	hm.insertAdjacentHTML('beforeend',`<div class="hlocus" aria-hidden="true"><svg viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}<g class="lims">${HL.map(g=>`<path data-g="${g}" d="${LIMD(g)}"/>`).join('')}${locusNames(GXY,esc(cap(GAMLABEL.vis)),esc(cap(GAMLABEL.locus)))}</g></svg><i class="cx"></i></div>`)
-	const box=hm.lastElementChild, svg=box.firstElementChild, mk=box.querySelector('.cx'), lim=svg.querySelector('#hl-lim path'), edge=Object.fromEntries([...svg.querySelectorAll('.lims path')].map(e=>[e.dataset.g,e]))   // the mark: the planes' own picker (.cx), a fixed size over a drawing that scales
+	hm.insertAdjacentHTML('beforeend',`<a class="hlocus" href="./" aria-label="${esc(t('ui.hero.home','color-space home'))}"><svg aria-hidden="true" viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}<g class="lims">${HL.map(g=>`<path data-g="${g}" d="${LIMD(g)}"/>`).join('')}${locusNames(GXY,esc(cap(GAMLABEL.vis)),esc(cap(GAMLABEL.locus)))}</g></svg><i class="cx" aria-hidden="true"></i></a>`)
+	const box=hm.lastElementChild, svg=box.firstElementChild, mk=box.querySelector('.cx'), lim=svg.querySelector('#hl-lim path')   // the mark: the planes' own picker (.cx), a fixed size over a drawing that scales
 	;(window.requestIdleCallback||setTimeout)(()=>{ const u=locusFill(([a,b])=>[a*.857-.107,(1-b)*.955-.055],320,352); svg.querySelectorAll('image').forEach(i=>i.setAttribute('href',u)) })   // painted once, off the first frame
 	// the checker at the sliders' 12 px, whatever the drawing's scale
 	new ResizeObserver(()=>{ const k=svg.getScreenCTM()?.a; if(k) svg.querySelector('#hl-chk').setAttribute('patternTransform',`scale(${(1/k).toFixed(4)})`) }).observe(box)
@@ -6149,13 +6162,6 @@ renderFast(); paintCatalogGrad()
 		setTk(box,hex(c),ink(c))   // the held picker's colors on the whole drawing: every mark and the run wear its ink
 		markStops(box,'xyz',v=>{ const q2=xyOf(...v); if(!q2) return [0,0,false]; const [x2,y2]=GXY(q2); return [(x2-36)/290*100,(y2-18)/318*100,true] }) }
 	heroLimit=()=>lim.setAttribute('d',LIMD(GM))   // every Limit fills its own region – Surface too, else picking it would show nothing
-	// the tightest Limit under the pointer (narrowest first)
-	const at=e=>{ const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse()); return HL.find(g=>edge[g].isPointInFill(q)) }
-	const point=g=>{ for(const k in edge) edge[k].classList.toggle('on',k===g); box.title=g&&g!==GM?t('ui.locus.pick','Limit: {g} – click to pick it',{g:GAMLABEL[g]}):'' }
-	svg.addEventListener('pointermove',e=>point(at(e)))
-	svg.addEventListener('pointerleave',()=>point(''))
-	svg.addEventListener('click',e=>{ const g=at(e); if(g&&g!==GM){ setLimit(g); point(g) } })
-	box.addEventListener('click',e=>{ const d=e.target.closest('.sto'); if(d) pickStop(+d.dataset.j) })   // another color's mark takes it in hand
 	heroPaint(); heroLimit() }
 // ── the history: after the catalog, built as the reader nears it (its module off the boot path) ──
 {	const el=document.getElementById('lineage')
@@ -6193,7 +6199,7 @@ const route=e=>{ if(e) autoColor=false
 	urlLast=location.pathname+location.search+location.hash   // the navigation is CONSUMED – syncURL may write over it from now on
 	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
-try{ const g0=new URLSearchParams(location.search).get('g'); if(g0) regroup(g0) }catch{}   // arrival restores a shared grouping – HERE, after the catalog wiring exists (regroup rebuilds through wireCat)
+try{ const g0=new URLSearchParams(location.search).get('g'); if(GROUPS[g0]) grouping=g0 }catch{}   // arrival restores a shared grouping (a language switch keeps ?g=) – the cut only: ensureCat builds the catalog in it, once; a regroup here drew it, then the drift path redrew the default family over it while grouping stayed set, so its own tab went dead
 if(EMBED&&!known(BOOT.seg)&&!known(BOOT.q)){ EMBED=false; delete document.documentElement.dataset.embed }   // ?embed off a name view frames nothing – the full page shows
 if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat()
 else if(!EMBED) (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil (an embed never shows it, so never builds it)
