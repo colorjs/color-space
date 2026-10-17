@@ -810,7 +810,9 @@ try {
 	assert.equal(await fresh.evaluate(()=>document.getElementById('cval').placeholder.length>0), true, 'emptied, the field invites again – no color chosen, no hash')
 	assert.equal(await fresh.evaluate(()=>[...document.querySelectorAll('.mdist .opt')].every(o=>o.disabled)), true, 'the palette distance is shown, disabled, until a palette is picked')
 	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForFunction(()=>document.body.classList.contains('cdock'))   // pinned first – the check is of a pinned field (under load its docking frame can lag the 200ms this waited)
-	await fresh.locator('#cval').click(); await fresh.waitForTimeout(200)
+	// a press where the field shows, as a hand presses – a locator's click first scrolls the whole element into view (the
+	// docked field's box reaches past the row's clip), which is Playwright moving the page, not the field
+	{ const r=await fresh.locator('#cval').boundingBox(); await fresh.mouse.click(r.x+Math.min(r.width/2,40),Math.max(r.y,0)+8) } await fresh.waitForTimeout(200)
 	assert.equal(await fresh.evaluate(()=>scrollY), 900, 'focusing the pinned color does not scroll the page')
 	await freshContext.close()
 
