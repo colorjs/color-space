@@ -394,12 +394,16 @@ export function planeGLStatus(s) {
 	return st.bad ? 'no' : st.pending ? 'pending' : 'ready'
 }
 
+// a software rasterizer behind the context (SwiftShader, llvmpipe, WARP – no GPU, or a blocked one): a first draw there
+// compiles the shader to CPU code, seconds a program, and every paint after it queues behind – priming a neighbour would
+// cost the open dossier its frames (a third of them, measured under SwiftShader), so it compiles them and draws them later
+const SOFT_GL = (() => { try { const d = G?.getExtension('WEBGL_debug_renderer_info'); return /swiftshader|llvmpipe|softpipe|software|basic render|warp/i.test(d ? G.getParameter(d.UNMASKED_RENDERER_WEBGL) : '') } catch { return false } })()
 /**
  * Start compiling a space's plane and bar program ahead of need: behind the programs asked for now, or (soon) ahead of
- * the other warm-ups. Primed unless told not (prime false): one pixel drawn once it links – where a driver builds its
- * pipeline, a stall then rather than at the first real paint
+ * the other warm-ups. Primed on a GPU unless told not (prime false): one pixel drawn once it links – where a driver
+ * builds its pipeline, a stall then rather than at the first real paint; never on a software rasterizer (SOFT_GL)
  */
-export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { const st = planeProg(s, soon); st.prime ||= prime } }
+export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { const st = planeProg(s, soon); st.prime ||= prime && !SOFT_GL } }
 
 // A warmed program draws one pixel once it links: a driver may build the GPU pipeline only at a program's first draw
 // (Metal under ANGLE compiles its shader library there), which would otherwise stall the first real paint
