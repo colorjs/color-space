@@ -3570,6 +3570,7 @@ const SPIN3=matchMedia('(prefers-reduced-motion: reduce)').matches?0:0.0015
 let spinV3=SPIN3, snap3=null
 function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
 	if(!spinV3&&!snap3) return
+	detail.querySelector('#pl3d')?.removeAttribute('data-rest')   // turning again: a rest's reason is the next slow pair's to give
 	let slow=0
 	const step=()=>{ if(!open()||!mesh3){ spinRaf=0; return }
 		if(!drag3&&!PDOWN){

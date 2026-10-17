@@ -750,7 +750,7 @@ try {
 	assert.equal(parkedA.equals(parkedB),true,'a no-inertia release parks the 3D view')
 	await motion.mouse.move(sr.x+sr.width*.55,sr.y+sr.height*.5); await motion.mouse.down(); await motion.mouse.move(sr.x+sr.width*.55-45,sr.y+sr.height*.5,{steps:2}); await motion.mouse.up(); await motion.waitForTimeout(120)
 	const flickA=await solid.screenshot(); await motion.waitForTimeout(350); const flickB=await solid.screenshot()
-	assert.equal(flickA.equals(flickB),false,'a moving release keeps rotating in the chosen direction')
+	assert.equal(!flickA.equals(flickB)||await solid.getAttribute('data-rest')==='slow',true,'a moving release keeps rotating in the chosen direction – or rests where frames are too slow to turn')
 	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__imageBitmapOrig=orig; let stall=true
 		window.createImageBitmap=(source,...rest)=>{ if(stall&&source instanceof Blob){ stall=false; return new Promise(()=>{}) } return orig(source,...rest) } })
 	await motion.locator('#cvfile').setInputFiles(resolve(SITE, 'img/wave.jpg'))
