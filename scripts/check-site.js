@@ -697,8 +697,9 @@ try {
 
 	const motionContext=await browser.newContext({viewport:{width:800,height:600}}), motion=await motionContext.newPage()
 	await motion.goto(`${server.origin}/?cb=${Date.now()}`,{waitUntil:'networkidle'})
-	await motion.waitForTimeout(700)
-	assert.notEqual(await motion.locator('#cd').inputValue(),'#808080','undefined gray enters its ambient color orbit')
+	// the orbit starts a beat after load – polled, not read at a fixed moment: a loaded runner (CI's software GL) lands
+	// its first frame later than a desktop does
+	assert.ok(await motion.waitForFunction(()=>document.getElementById('cd').value!=='#808080',null,{timeout:8000}).then(()=>true,()=>false),'undefined gray enters its ambient color orbit')
 	await motion.evaluate(async()=>{ document.getElementById('cat').scrollIntoView(); await new Promise(r=>setTimeout(r,300)) })   // the catalog, under the hero
 	const ambientPicker=await motion.evaluate(()=>{ const hx=document.querySelector('#cd').value.toUpperCase()
 		const colors=[...document.querySelectorAll('.ent .nrg')].filter(el=>{ const r=el.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight }).map(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toUpperCase())
