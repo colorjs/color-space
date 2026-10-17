@@ -144,7 +144,7 @@ try {
 		src.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:17,isPrimary:true}))
 		set(160); await frame()
 		const mid={gradient:neighbor.style.background,value:otherVal.value,thumb:otherRange.value,thumbColor:getComputedStyle(otherRange).getPropertyValue('--tkc'),otherGradient:otherLane._g,uiColor:hueLine.style.getPropertyValue('--cur')}
-		set(190); await frame(); const uiColor=cur(hueLine), scoped=[hueLine,document.getElementById('ftr'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,document.querySelector('.gtabs'),src.closest('.ent').querySelector('.cvp')].filter(Boolean).map(cur)
+		set(190); await frame(); const uiColor=cur(hueLine), scoped=[hueLine,document.getElementById('ftr'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,document.querySelector('.gtabs')].filter(Boolean).map(cur)   // a channel pair wears no color: its line is the ink
 		const immediate={gradient:neighbor.style.background,currentValue:currentVal.value,thumb:otherRange.value,thumbColor:getComputedStyle(otherRange).getPropertyValue('--tkc'),otherGradient:otherLane._g,uiColor,scoped}
 		const vd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value'), writes=[]
 		Object.defineProperty(otherVal,'value',{configurable:true,get(){return vd.get.call(this)},set(v){writes.push(performance.now());vd.set.call(this,v)}})
@@ -155,7 +155,7 @@ try {
 		await pause(500); const post={accent:getComputedStyle(document.querySelector('.dpop')).accentColor,current:getComputedStyle(document.getElementById('ftr')).backgroundColor}; return {mid,immediate,throttled,held,beforeRelease,released,post} })
 	assert.notEqual(liveTier.immediate.gradient,liveTier.mid.gradient,'current-space neighboring gradients update live')
 	assert.notEqual(liveTier.immediate.uiColor,liveTier.mid.uiColor,'scoped current-color UI stays live during a drag')
-	assert.equal(liveTier.immediate.scoped.length===6&&liveTier.immediate.scoped.every(color=>color===liveTier.immediate.uiColor),true,'every static current-color consumer follows the scoped drag color')
+	assert.equal(liveTier.immediate.scoped.length===5&&liveTier.immediate.scoped.every(color=>color===liveTier.immediate.uiColor),true,'every static current-color consumer follows the scoped drag color')
 	assert.equal(liveTier.held.rootWrites,0,'a held drag never mutates inherited style on the document root')
 	assert.equal(+liveTier.immediate.currentValue,190,'the actively dragged row keeps its numeric value live')
 	assert.equal(liveTier.throttled.writes>0&&liveTier.throttled.writes<=4,true,'other-space numeric writes stay bounded to the 100ms tier during a drag burst')

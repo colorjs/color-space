@@ -178,7 +178,7 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(gl.includes('st.prime ||= prime && !softRaster()'), true, 'a warmed program is primed on a GPU only – kernels kept on SwiftShader (CS_GL: the checks, the bake) or not')
 	is(/drop-shadow|shadowBlur|text-shadow/.test(page + tokens), false, 'the marks are flat: no filter or canvas shadow to blur on every frame of a drag or the orbit')
 	is(/setTk\(cat\b|setCur\(cat\b/.test(page), false, 'no tint on the catalog itself: an inherited var there restyles every card – inside its size container, as layout')
-	is(page.includes('rows.forEach(ent=>tintRow(ent,hx,ink0))') && page.includes("tkReaders=ent=>ent._tkr??=[...ent.querySelectorAll('.nrg,.rh,.rng,.cvp')]"), true, 'each row on screen tints its readers alone – pickers, range handles, channel pairs')
+	is(page.includes('rows.forEach(ent=>tintRow(ent,hx,ink0))') && page.includes("tkReaders=ent=>ent._tkr??=[...ent.querySelectorAll('.nrg,.rh,.rng')]"), true, 'each row on screen tints its readers alone – pickers, range handles')
 	is(page.includes('paintCatalogPickers(entered)'), true, 'picker positions refresh whenever an offscreen row enters the viewport')
 	is(page.includes('function snapshot3dMask('), true, '3D sheet scenes retain the body mask that keeps their grid visible')
 	is(page.includes('class="marker3"'), true, 'the live 3D picker has an overlay independent of its static scene')

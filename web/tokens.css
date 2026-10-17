@@ -111,7 +111,10 @@
 	--ulw:2.7px;   /* the one underline WEIGHT — value-pair underlines, the field's colors and every tab's active bar: one length whatever
 	   the text's size (an em once drew the field's line twice a tab's) – 3px, a whole pixel: a border snaps a fraction down
 	   (2.5px drew a pair's line at 2, a tab's bar at 2.5), and 2px read thin */
-	--ulh:var(--hair);   /* …and the line's unpicked colour: every value under a pointed row or field, the picked one in its own (--curl) */
+	--ulh:var(--hair);   /* …and the line's unpicked colour: a group of tabs pointed at, each item's */
+	--ulp:var(--soft);   /* the line under the one pointed at – a channel, a word of the field – lighter than the one in hand */
+	--ula:var(--ink);   /* the line under the one in hand – a channel edited or held, a switch's pick: the tabs' own ink */
+	--ring:color-mix(in oklab,var(--ink) 40%,transparent);   /* the focus ring: thin, the ink's lighter shade */
 
 	--font-current:"Inter",ui-sans-serif,system-ui,sans-serif;
 	--font-display:"Hanken Grotesk","Hanken fallback",ui-sans-serif,sans-serif;
