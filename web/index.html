@@ -272,7 +272,7 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
 .cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:underline var(--ulw) transparent; text-underline-offset:var(--uvo) }   /* the field's colors underlined: unseen text, seen lines */
-.hcolor>.cx:hover .cvul u{ text-decoration-color:var(--hair) } .hcolor>.cx .cvul u:is(.on,.hot){ text-decoration-color:var(--curl) } .hcolor>.cx .cvul:has(u.hot) u.on:not(.hot){ text-decoration-color:transparent }   /* pointed at, every color; the caret's, in its own – and the one an instrument's press would take (stophot), the pointer outranking the caret: one at a time */
+.hcolor>.cx:hover .cvul u{ text-decoration-color:var(--hair) } .hcolor>.cx .cvul u:is(.on,.hot){ text-decoration-color:var(--curl) } .hcolor>.cx .cvul:has(u.hot) u.on:not(.hot){ text-decoration-color:var(--hair) }   /* pointed at, every color; the caret's, in its own – and the one an instrument's press would take (stophot), the pointer outranking the caret: one in color at a time, the caret's back to the field's half strength */
 .hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx:not(:focus-within) .cvul:not(:has(u:is(.hot,.on))){ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 @property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.3 }
 .hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
@@ -3045,7 +3045,7 @@ function openModal(s){
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
 	// warm the neighbours' programs once this space has had first claim on the GPU —
 	// prev/next then opens straight into full-quality paint (skip barred neighbours — no GL)
-	if(!b) setTimeout(()=>{ if(selected===s) for(const s2 of [ord[(k-1+n)%n],ord[(k+1)%n]]) if(!isBarred(s2)){ warmGL(s2); warmMesh3(s2,GM) } },400) }
+	if(!b) setTimeout(()=>{ if(selected===s&&!modal.hidden) for(const s2 of [ord[(k-1+n)%n],ord[(k+1)%n]]) if(!isBarred(s2)){ warmGL(s2); warmMesh3(s2,GM) } },400) }   // still open: a card shut is no walk to warm for (the build's bake opens and shuts 205 a language)
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
 	// same shape and field order as buildDetail: header → tag → description → props (channels | origin · reference)
@@ -3494,9 +3494,13 @@ const FLEMBED=FL('<svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" h
 // language's words and the writer's values, the muted ink for comments. lighthigh comes with the first plate painted;
 // without the API the plates read in their one ink
 const HLT={ keyword:'color-mix(in oklab, var(--c) 72%, var(--color-terminal-ink))', string:'color-mix(in oklab, var(--c) 40%, var(--color-terminal-ink))', comment:'var(--color-terminal-muted)' }
-let LH=null
+// each paint's undo, by plate: a plate that left the page (every dossier builds its own) gives back its stylesheet and
+// highlights at the next paint – kept, they piled up a stylesheet a dossier, each one a whole-page restyle
+let LH=null; const painted=new Map()
 const paint=(el,g)=>{ if(!globalThis.Highlight||!CSS.highlights) return
-	(LH??=import('./js/lighthigh.js').then(m=>m.default,()=>null)).then(h=>h?.(el,lex(el.textContent,g),{ theme:HLT })) }
+	(LH??=import('./js/lighthigh.js').then(m=>m.default,()=>null)).then(h=>{ if(!h) return
+		for(const [p,undo] of painted) if(!p.isConnected){ undo(); painted.delete(p) }
+		painted.set(el,h(el,lex(el.textContent,g),{ theme:HLT })) }) }
 // a plate's text, set and painted – only when it changed: each paint is a new stylesheet (lighthigh's ::highlight rules),
 // and a stylesheet change restyles the whole page (a zoom's frames once rewrote the same code, 26 000 elements each)
 const SNIP_AMBIENT=1000; let snipNext=0   // the orbit's numbers in the dossier's code plate: a second apart
