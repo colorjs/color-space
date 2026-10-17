@@ -44,7 +44,7 @@ h1{ margin:48px 0 18px; font-size:54px; line-height:1.04; letter-spacing:-0.035e
 .selbox{ position:fixed; z-index:7; pointer-events:none; border:1px solid var(--select) }
 .selbox i{ position:absolute; width:7px; height:7px; background:#fff; border:1px solid var(--select); transform:translate(-50%,-50%) }
 /* the panel, in a plain window */
-.win{ align-self:start; width:300px; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 1px 2px #0000000f, 0 18px 48px #00000024 }
+.win{ align-self:start; justify-self:start; width:fit-content; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 1px 2px #0000000f, 0 18px 48px #00000024 }
 .win header{ display:flex; align-items:center; gap:8px; height:36px; padding:0 12px; border-bottom:1px solid #e6e6e6; font-size:12px; font-weight:600 }
 .win header img{ width:14px; height:14px }
 #mount iframe{ display:block }
@@ -65,6 +65,9 @@ body.zoomed #lower{ opacity:1; transform:none }
 /* a pointer, drawn: the headless browser shows none */
 #cursor{ position:fixed; left:0; top:0; z-index:9; width:20px; height:20px; pointer-events:none; transform:translate(-2px,-2px); transition:opacity calc(.2s * var(--slow, 1)); opacity:0 }
 #cursor.on{ opacity:1 }
+/* a held key, shown beside the pointer: the headless browser shows no keyboard */
+#key{ position:fixed; left:0; top:0; z-index:9; min-width:30px; padding:4px 8px; border-radius:7px; background:#fff; border:1px solid #d6d6d6; box-shadow:0 2px 0 #d6d6d6, 0 6px 16px #0000001f; font:600 15px/1.2 Inter,ui-sans-serif,system-ui,sans-serif; text-align:center; pointer-events:none; transform:translate(18px,calc(-100% - 6px)); opacity:0; transition:opacity calc(.15s * var(--slow, 1)) }
+#key.on{ opacity:1 }
 </style>
 </head>
 <body>
@@ -87,6 +90,7 @@ body.zoomed #lower{ opacity:1; transform:none }
 	<div class="code"><header>Dev Mode · Code · CSS (Color Space) · the card, as selected</header><pre id="code"></pre></div>
 </div>
 <div id="lower"></div>
+<div id="key"></div>
 <svg id="cursor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 2l6.2 15 2.1-6.3L16.6 8.6z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
 <script>
 // how each layer shows its paints: the property its fill sets, and its stroke's
@@ -159,10 +163,12 @@ window.camera = (names, margin = 40) => {
 // the drawn pointer; over the design it hovers the deepest layer under it, as a design tool does
 window.pointer = (x, y, on = true) => {
 	const c = document.getElementById('cursor'); c.style.left = x + 'px'; c.style.top = y + 'px'; c.classList.toggle('on', on)
+	const k = document.getElementById('key'); k.style.left = x + 'px'; k.style.top = y + 'px'
 	const under = on ? document.elementsFromPoint(x, y).find(e => e.dataset && e.dataset.node) : null
 	for (const e of document.querySelectorAll('[data-node].hov')) if (e !== under) e.classList.remove('hov')
 	if (under) under.classList.add('hov')
 }
+window.keycap = t => { const k = document.getElementById('key'); if (t) k.textContent = t; k.classList.toggle('on', !!t) }
 window.showCode = text => {
 	document.getElementById('code').innerHTML = text.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 		.replace(/(\/\*.*?\*\/)/g, '<span class="c">$1</span>').replace(/^(\s*)([\w-]+):/gm, '$1<span class="p">$2</span>:')

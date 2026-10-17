@@ -27,7 +27,7 @@ vec3 rgb_hsp(vec3 c) {
 	return vec3(h * 360.0, s * 100.0, p * 100.0);
 }
 vec3 hsp_rgb(vec3 c) {
-	float h = c.x / 360.0; float s = c.y / 100.0; float p = c.z / 100.0;
+	float h = fract(c.x / 360.0); float s = c.y / 100.0; float p = c.z / 100.0;
 	float mom = 1.0 - s;
 	float r = 0.0; float g = 0.0; float b = 0.0; float part = 0.0;
 	if (mom > 0.0) {

@@ -109,7 +109,7 @@ const hslCh = (t, t1, t2) => {
   return 6 * t3 < 1 ? t1 + (t2 - t1) * 6 * t3 : 2 * t3 < 1 ? t2 : 3 * t3 < 2 ? t1 + (t2 - t1) * (2 / 3 - t3) * 6 : t1
 }
 export let hsl_rgb = (h0, s0, l0) => {
-  const h = h0 / 360, s = s0 / 100, l = l0 / 100
+  const h = (h0 / 360 % 1 + 1) % 1, s = s0 / 100, l = l0 / 100   // a turn of hue is the same hue
   if (s === 0) { const v = l * 255; return [v, v, v] }
   const t2 = l < 0.5 ? l * (1 + s) : l + s - l * s, t1 = 2 * l - t2
   return [hslCh(h + 1 / 3, t1, t2) * 255, hslCh(h, t1, t2) * 255, hslCh(h - 1 / 3, t1, t2) * 255]
@@ -138,7 +138,7 @@ const rgbHueDeg = (r0, g0, b0) => {
   return rgbHue(r, g, b, min, max, max - min) * 360
 }
 export let hsv_rgb = (h0, s0, v0) => {
-  const h = (h0 / 360) * 6, s = s0 / 100, v = v0 / 100
+  const h = (h0 / 360 % 1 + 1) % 1 * 6, s = s0 / 100, v = v0 / 100   // a turn of hue is the same hue
   const hi = Math.floor(h) % 6
   const f = h - Math.floor(h), p = v * (1 - s), q = v * (1 - (s * f)), t = v * (1 - (s * (1 - f)))
   if (hi === 0) return [v * 255, t * 255, p * 255]
@@ -147,7 +147,7 @@ export let hsv_rgb = (h0, s0, v0) => {
   if (hi === 3) return [p * 255, q * 255, v * 255]
   if (hi === 4) return [t * 255, p * 255, v * 255]
   if (hi === 5) return [v * 255, p * 255, q * 255]
-  return [NaN, NaN, NaN] // negative or NaN hue: no sector (the scalar switch leaves its result undefined)
+  return [NaN, NaN, NaN] // a NaN hue: no sector
 }
 export let rgb_hsv = (r0, g0, b0) => {
   const r = r0 / 255, g = g0 / 255, b = b0 / 255
@@ -169,7 +169,7 @@ export let hsl_hsv = (h, s0, l0) => {
   return [h, (2 * s2) / (l2 + s2) * 100, (l2 + s2) / 2 * 100]
 }
 export let hwb_rgb = (h0, w0, b0) => {
-  const h = h0 / 360, wh = w0 / 100, bl = b0 / 100
+  const h = (h0 / 360 % 1 + 1) % 1, wh = w0 / 100, bl = b0 / 100   // a turn of hue is the same hue
   const ratio = wh + bl
   // white + black ≥ 1 is achromatic: the exact gray white / (white + black) (CSS Color 4)
   if (ratio >= 1) { const gray = wh / ratio * 255; return [gray, gray, gray] }

@@ -26,6 +26,15 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 		return i >= 0 && !h.startsWith('</div>', i + 46) && !h.includes(`/spaces/${p.split('/').at(-1)}.js"`, i) }))
 	assert.deepEqual(wrong, [], 'every baked name view carries its own space\'s dossier')
 }
+// Usage's facts are the build's, the same in every stamped language: a translation keeps the span, never its number
+{	const facts = (f) => Object.fromEntries([...readFileSync(f, 'utf8').matchAll(/<span data-fact="(\w+)">([^<]*)<\/span>/g)].map((m) => [m[1], m[2]]))
+	const { spaces: WASM } = await import('../wasm/spaces.js'), en = facts(resolve(SITE, 'index.html'))
+	const langs = existsSync(resolve(SITE, 'i18n')) ? readdirSync(resolve(SITE, 'i18n')).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5) + '/') : []
+	assert.equal(en.wal, WASM.join(', '), 'Usage lists the spaces the WASM kernel carries')
+	assert.equal(+en.wan, WASM.length, '…and counts them')
+	assert.ok(+en.jskb > 0 && +en.wakb > 0, 'the weights, in kB')
+	for (const pre of langs) assert.deepEqual(facts(resolve(SITE, pre + 'index.html')), en, `${pre}: the facts the English shows`)
+}
 
 // a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
 // with 'f', a facet value
@@ -63,11 +72,11 @@ try {
 	// the hero's locus: only the horseshoe answers the pointer (its box's empty corner shows nothing); pointing inside shows
 	// the Limits' edges, the tightest under the pointer strongest, and changes nothing; a click picks that Limit – stored,
 	// filled – as the row's menu would
-	// one hue wheel, centered: the top edge's 37 steps are the footer wall's second row's – smooth at rest (no Quantize lens),
-	// each step's color at its band's middle – the current color the middle step of every row
-	assert.deepEqual(await page.evaluate(()=>{ const h=document.getElementById('strip').style.getPropertyValue('--hues'), w=document.getElementById('ftr').style.getPropertyValue('--wall'), rows=w.split(/,(?=linear-gradient)/)
-		const stops=r=>r.slice(16,-1).split(/,(?![^(]*\))/).slice(1), color=x=>x.replace(/\s+[\d.]+%/g,''), hs=stops(h)
-		return [rows.length, hs.length, hs.map(color).join()===stops(rows[1]).map(color).join(), hs.every(x=>(x.match(/[\d.]+%/g)||[]).length===1), rows.map(r=>{ const st=stops(r); return st[(st.length-1)/2].startsWith('var(--cur)') })] }), [4,37,true,true,[true,true,true,true]], 'the top edge and the footer wall: one wheel, the current color centered – the edge smooth at rest')
+	// the footer wall: one hue wheel in four rows, stepped, the current color the middle step of each; the top edge is that
+	// color alone – its preview, no wheel
+	assert.deepEqual(await page.evaluate(()=>{ const w=document.getElementById('ftr').style.getPropertyValue('--wall'), rows=w.split(/,(?=linear-gradient)/)
+		const stops=r=>r.slice(16,-1).split(/,(?![^(]*\))/).slice(1)
+		return [rows.length, rows.map(r=>stops(r).every(x=>(x.match(/[\d.]+%/g)||[]).length===2)), rows.map(r=>{ const st=stops(r); return st[(st.length-1)/2].startsWith('var(--cur)') }), document.getElementById('strip').style.getPropertyValue('--hues')] }), [4,[true,true,true,true],[true,true,true,true],''], 'the footer wall: one stepped wheel, the current color centered; the top edge the color alone')
 	{ const box=await page.locator('.hlocus').boundingBox()
 	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light'],'the outlines named – the displays, Surface and the horseshoe, Light – no wavelengths')
 	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])
@@ -130,7 +139,7 @@ try {
 		src.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:17,isPrimary:true}))
 		set(160); await frame()
 		const mid={gradient:neighbor.style.background,value:otherVal.value,thumb:otherRange.value,thumbColor:getComputedStyle(otherRange).getPropertyValue('--tkc'),otherGradient:otherLane._g,uiColor:hueLine.style.getPropertyValue('--cur')}
-		set(190); await frame(); const uiColor=cur(hueLine), scoped=[hueLine,document.getElementById('ftr'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,document.querySelector('.gtabs'),src.closest('.ent')].filter(Boolean).map(cur)
+		set(190); await frame(); const uiColor=cur(hueLine), scoped=[hueLine,document.getElementById('ftr'),document.getElementById('lutszL'),document.getElementById('api-tab-core')?.parentElement,document.querySelector('.gtabs'),src.closest('.ent').querySelector('.cvp')].filter(Boolean).map(cur)
 		const immediate={gradient:neighbor.style.background,currentValue:currentVal.value,thumb:otherRange.value,thumbColor:getComputedStyle(otherRange).getPropertyValue('--tkc'),otherGradient:otherLane._g,uiColor,scoped}
 		const vd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value'), writes=[]
 		Object.defineProperty(otherVal,'value',{configurable:true,get(){return vd.get.call(this)},set(v){writes.push(performance.now());vd.set.call(this,v)}})
@@ -224,14 +233,15 @@ try {
 
 	// each family's tooltip rides its rail button; card names carry the quick-tag
 	// dossier; the FAQ entries fold and unfold
-	assert.equal(await page.locator('.toc .tn[data-tip]').count(), 7, 'every family carries its tooltip')
-	// the rail rests by the first space: as each family reaches the pinned row, its title sits on its first space's
-	// line – every family, not only the first (a passed title steps out of sight)
-	assert.deepEqual(await page.evaluate(async()=>{ const off=[]
+	assert.equal(await page.locator('.toc .tn:is([data-tip],[data-tip-off])').count(), 7, 'every family carries its tooltip – the active one\'s parked while its description stands under it')
+	// the rail rests by the first space: as each family reaches the pinned row, its title's baseline sits on its first
+	// space name's – every family, not only the first (a passed title steps out of sight). A line's baseline: an empty
+	// inline-block's bottom, prepended to it
+	assert.deepEqual(await page.evaluate(async()=>{ const off=[], base=el=>{ const q=document.createElement('i'); q.style.cssText='display:inline-block;width:0;height:0'; el.prepend(q); const y=q.getBoundingClientRect().bottom; q.remove(); return y }
 		for(const [i,sec] of [...document.querySelectorAll('.sec')].entries()){ sec.scrollIntoView(); scrollBy(0,40); await new Promise(r=>setTimeout(r,150))
-			const t=document.querySelectorAll('.ti .tn')[i].getBoundingClientRect(), n=sec.querySelector('.ent .nm').getBoundingClientRect(), d=Math.abs(t.top+t.height/2-(n.top+40+n.height/2))
-			if(d>8||document.querySelectorAll('.ti')[i].classList.contains('past')) off.push(i+':'+Math.round(d)) }
-		return off }), [], 'each family\'s title rests on its first space\'s line')
+			const d=Math.abs(base(document.querySelectorAll('.ti .tt')[i])-(base(sec.querySelector('.ent .nm'))+40))
+			if(d>1||document.querySelectorAll('.ti')[i].classList.contains('past')) off.push(i+':'+Math.round(d)) }
+		return off }), [], 'each family\'s title rests on its first space\'s baseline')
 	// entering, the first title comes up with its first space; the waiting stack stays at the screen's foot but never
 	// rises over the first family – its box begins under that family's description
 	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelector('.sec'); scrollTo(0,sec.getBoundingClientRect().top+scrollY-56-300); await new Promise(r=>setTimeout(r,300))
@@ -250,7 +260,7 @@ try {
 	{ const nm = page.locator('.ent[data-s="oklch"] .nm')
 		assert.equal(await nm.getAttribute('data-tip-head'), 'Björn Ottosson, 2020', 'card names carry the maker whole and the year as the tip\'s head')
 		assert.match(await nm.getAttribute('data-tip'), /CSS/, 'and what the space was made for') }
-	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /^polar\|.*perceptual\|perceptual/, 'and its tag chips, each with its icon key')
+	assert.match(await page.locator('.ent[data-s="oklch"] .nm').getAttribute('data-tip-tags'), /^polar\|.*perceptual\|perceptual/i, 'and its tag chips, each with its icon key – the word in any case')
 	assert.equal(await page.locator('.fqa').count(), 14, 'the questions are all present')
 	const fq = page.locator('.fqa').first()
 	await fq.locator('summary').click()
@@ -263,11 +273,12 @@ try {
 	assert.match(decodeURIComponent(page.url()), /#oklch\(/, 'and the URL speaks that notation')
 	await toCatalog(page)
 	await page.locator('#cval').click()   // now CHANGE the color while in oklch – urlHash must write the new color back in the same notation
+	await page.locator('#cval').press('ControlOrMeta+a')   // a press places the caret, as in any field: the whole value taken to replace it
 	await page.locator('#cval').pressSequentially('coral')
 	await page.locator('#cval').press('Enter')
 	await page.waitForFunction(() => document.querySelector('#cd').value === '#ff7f50'
 		&& decodeURIComponent(location.hash).startsWith('#oklch(')
-		&& decodeURIComponent(location.hash).slice(1) === document.querySelector('#cval').value)
+		&& document.querySelector('#cval').value === 'coral')   // the URL in the notation chosen; the field keeps the name typed
 	await page.evaluate(() => location.hash = 'ff8000')   // a hex hash restores hex notation – the later canonicalize assertions read hex
 	await page.waitForFunction(()=>/^#FF8000$/i.test(document.querySelector('#cval').value))
 	assert.match(await page.locator('#cval').inputValue(), /^#FF8000$/i, 'a hex hash infers hex notation back')
@@ -329,7 +340,22 @@ try {
 	await toCatalog(page)
 	await page.locator('#cval').fill('rebeccapurple')
 	await page.locator('#cval').press('Enter')
-	assert.equal(await page.locator('#cval').inputValue(), '#663399', 'supported CSS color input canonicalizes')
+	assert.equal(await page.locator('#cval').inputValue(), 'rebeccapurple', 'a CSS name typed stays the name – the field never rewrites what it was told')
+	assert.equal(await page.locator('#cd').inputValue(), '#663399', '…its color the name’s')
+	// the field's words: a name holding " to " is one color, kept as typed; each color underlined, the caret's in its own
+	await page.locator('#cval').fill('red, blue, tomato'); await page.locator('#cval').press('Enter')
+	await page.locator('#cval').click(); await page.evaluate(() => { const c = document.getElementById('cval'); c.setSelectionRange(6, 6); document.dispatchEvent(new Event('selectionchange')) })
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.cvul u')].map(u => u.textContent + (u.classList.contains('on') ? '*' : ''))), ['red', 'blue*', 'tomato'], 'every color of the field underlined, the caret’s marked')
+	// underline = the active value, one idiom: a field color's line and a channel pair's lie as far below their baseline, in
+	// their own em (--uvo) – the one a text underline, the other its box's border
+	{	const [field, pair] = await page.evaluate(() => { const base = (el) => { const q = document.createElement('span'); q.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; el.append(q); const y = q.getBoundingClientRect().top; q.remove(); return y }
+			const u = getComputedStyle(document.querySelector('.cvul u')), cvp = document.querySelector('.ent .cvp'), cc = getComputedStyle(cvp)
+			return [parseFloat(u.textUnderlineOffset) / parseFloat(u.fontSize), (cvp.getBoundingClientRect().bottom - parseFloat(cc.borderBottomWidth) - base(cvp.firstElementChild)) / parseFloat(getComputedStyle(cvp.querySelector('input')).fontSize)] })
+		assert.ok(Math.abs(field - pair) < 0.03, `a field color and a channel value underlined alike (${field.toFixed(3)} em, ${pair.toFixed(3)} em below the baseline)`) }
+	await page.locator('#cval').fill('red - orange - gold - lime - teal - blue'); await page.waitForTimeout(300); await page.locator('#cval').press('Enter')
+	await page.locator('#cval').click(); await page.waitForTimeout(500)
+	assert.equal(await page.evaluate(() => [...document.querySelectorAll('#csug small')].some(s => /one step on/.test(s.textContent))), false, 'six stops: no step on')
+	await page.locator('#cval').press('Escape')
 
 	// catalog cells pasted without the space name: the sym sequence + value scale name the space
 	await page.locator('#cval').fill('L 0.39 C 0.083 H 153')
@@ -342,6 +368,9 @@ try {
 	await page.locator('#api-tab-wasm').click()
 	assert.equal(await page.locator('#api-tab-wasm').getAttribute('aria-selected'), 'true', 'API tabs activate')
 	assert.equal(await page.locator('#api-panel-wasm').isVisible(), true, 'active API panel is visible')
+	// a plate's colors are lighthigh's ranges over its own text – no span per token
+	await page.waitForFunction(() => [...CSS.highlights.values()].some((h) => [...h].some((r) => r.toString() === "'color-space/wasm'")), null, { timeout: 10000 })
+	assert.equal(await page.locator('#api-panel-wasm pre').first().evaluate((p) => p.childElementCount), 0, 'a plate holds its text alone')
 
 	await page.locator('#thm').click()
 	assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark', 'theme toggles')
@@ -353,15 +382,26 @@ try {
 	await toCatalog(page)
 	await page.locator('#cval').fill('#808080')
 	await page.locator('#cval').press('Enter')
+	await page.locator('.ent[data-s="oklab"]').scrollIntoViewIfNeeded()   // the lane the lens checks below must be on screen behind the card – a restored scroll left it under the fold some runs
 	const trigger = page.locator('.ent[data-s="oklch"] .nm')
 	await trigger.click()
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
+	// a plane zoomed (a pinch: ctrl+wheel) repaints its field, never the code plate: a plate's paint is a new stylesheet
+	// (lighthigh's ::highlight rules) and a stylesheet change restyles the whole page – a zoom once ran at a frame a second
+	{	await page.evaluate(() => { window.__sheets = 0; window.__sheetsMO = new MutationObserver(ms => { for (const m of ms) for (const x of m.addedNodes) if (x.dataset?.lighthigh) window.__sheets++ }); window.__sheetsMO.observe(document.head, { childList: true }) })
+		const pb = await page.locator('#detail .pl').first().boundingBox(); await page.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2)
+		await page.keyboard.down('Control'); for (let k = 0; k < 6; k++) { await page.mouse.wheel(0, -40); await page.waitForTimeout(40) } await page.keyboard.up('Control')
+		await page.waitForTimeout(300)
+		assert.equal(await page.evaluate(() => { window.__sheetsMO.disconnect(); return window.__sheets }), 0, 'zooming a plane inserts no highlight stylesheet – the code plate repaints only when its text changes')
+		await page.keyboard.down('Control'); for (let k = 0; k < 6; k++) await page.mouse.wheel(0, 40); await page.keyboard.up('Control') }   // the view back to full by the same pinch – a press on the plane would take its color
 	assert.match(await page.locator('#detail .dgrid2').evaluate(el => el.textContent), /made for\s*The polar form CSS adopted/, 'the lore line says what the space was made for, sentence-cased')
 	assert.equal(await page.locator('#cseg').evaluate(el=>getComputedStyle(el).getPropertyValue('--cur').trim().toLowerCase()),(await page.locator('#cd').inputValue()).toLowerCase(),'dynamic dossier tabs receive the scoped current color')
 	const mode=async value=>{ await lens(page,'q',value)   // Draw's menu option, through the page's own handler
 		await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))) }
 	// the void's edges (what no light can be): the catalog's hard stops where alpha crosses 0, the dossier bar's alpha < 20
+	// a space past its family's fold: the family unfolded by its "more" (a no-op once open) – a held-back tile is never painted
+	const unfold=s=>page.evaluate(s=>{ const sec=document.querySelector(`.ent[data-s="${s}"]`).closest('.sec'); if(!sec.classList.contains('open')) sec.querySelector(':scope>.more').click() },s)
 	const sliderBoundaryParity=async s=>page.evaluate(s=>[...document.querySelector(`.ent[data-s="${s}"]`).querySelectorAll('.ch')].every((ch,i)=>{ const bg=ch._gradStack?.at(-1)?.style.background||ch.style.background||''
 		const st=[...bg.matchAll(/rgb\(([^)]*)\)\s+([\d.]+)%/g)].map(m=>{ const am=m[1].match(/\/\s*([\d.]+)/); return { a:am?+am[1]:1, p:+m[2] } })
 		const css=st.filter((x,k)=>k&&Math.abs(x.p-st[k-1].p)<1e-6&&(x.a===0)!==(st[k-1].a===0)).map(x=>x.p)
@@ -500,6 +540,9 @@ try {
 	// Palette coordinates may exceed a space's declared instrument range. RGB remains
 	// authoritative across mode changes: HPLuv used to retain S=196 after even→smooth,
 	// punching transparent holes into its H×L plane.
+	// HPLuv sits past its family's fold: its "more" first – the unfolded tiles take a press like any other
+	const hpMore=page.locator('.sec:has(.ent[data-s="hpluv"])>.more'); await hpMore.click()
+	assert.equal(await page.locator('.ent[data-s="hpluv"]').isVisible(),true,'a family\'s "more" unfolds the spaces it held back')
 	await page.locator('.ent[data-s="hpluv"] .nm').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	await mode('jnd'); await mode('smooth')
 	assert.equal(+(await page.locator('#bigch .nv').nth(1).inputValue())<=100,true,'HPLuv even→smooth keeps saturation in range')
@@ -510,6 +553,7 @@ try {
 			n&&performance.now()<end?requestAnimationFrame(tick):ok(n) }; tick() }))
 	assert.equal(hpVoid,0,'HPLuv H×L plane remains complete after even→smooth')
 	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
+	await hpMore.click(); assert.equal(await page.locator('.ent[data-s="hpluv"]').isVisible(),false,'and "Fewer" folds them back')
 
 	// Munsell's legal chroma is sharply bounded. A held drag must keep the exact GPU
 	// boundary instead of swapping to a sparse CSS approximation until release.
@@ -525,7 +569,7 @@ try {
 	assert.equal(munsellLimit,true,'Munsell keeps its invalid slider span during a live drag')
 	await page.mouse.up(); await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
 
-	await page.locator('.ent[data-s="tsl"] .nm').click(); await page.waitForSelector('#detail .bar2')
+	await unfold('tsl'); await page.locator('.ent[data-s="tsl"] .nm').click(); await page.waitForSelector('#detail .bar2')   // past its family's fold, as DKL below
 	for(const [i,v] of [[2,'107'],[1,'0.63'],[0,'45']]){ await page.locator('.bar2 .nrg').nth(i).fill(v); await page.waitForTimeout(100) }
 	await page.waitForFunction(()=>document.querySelector('.ent[data-s="tsl"]')?.dataset.g?.startsWith('tsl|45,0.63,107'))
 	assert.equal(await sliderBoundaryParity('tsl'),true,'TSL T 45° S 0.63 L 107 has identical catalog and dossier limits')
@@ -533,7 +577,7 @@ try {
 
 	// DKL is contrast around a mid-linear adapting background. The old white-relative,
 	// one-sided ranges collapsed its fields into nearly flat strips.
-	await page.locator('.ent[data-s="dkl"] .nm').click(); await page.waitForSelector('#detail .pl')
+	await unfold('dkl'); await page.locator('.ent[data-s="dkl"] .nm').click(); await page.waitForSelector('#detail .pl')
 	assert.deepEqual(await page.locator('.bar2 .nrg').evaluateAll(rs=>rs.map(r=>[+r.min,+r.max])),[[-1,1],[-1.7,1.7],[-1.85,1.85]],'DKL exposes signed cardinal-axis ranges')
 	for(let i=0;i<3;i++)await page.locator('.bar2 .nrg').nth(i).fill('0')
 	await page.waitForFunction(()=>[...document.querySelectorAll('#detail .pl > canvas:first-child')].every(c=>{ const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data, colors=new Set; let opaque=0; for(let i=0;i<d.length;i+=4)if(d[i+3]>20){ opaque++; colors.add((d[i]>>4)+'|'+(d[i+1]>>4)+'|'+(d[i+2]>>4)) } return opaque>1000&&colors.size>100 }))
@@ -563,11 +607,11 @@ try {
 	assert.match(await page.locator('#dtitle').innerText(), /oklab/i, 'path + notation hash opens the dossier')
 	assert.match(await page.locator('#cval').inputValue(), /^oklab\(0\.6/, 'with the exact coordinates, in that notation')
 	// ⌥ held over an instrument: the color there weighed against the one held, as Figma measures (js/ruler.js) – on a plane
-	// the two channels' ways from the held color's mark at right angles, each with its step, a diamond at the color weighed,
-	// its ΔE2000 and contrast in a corner; on the held color's own mark, ΔE2000 near 0; ⌥ let go, all gone. On a catalog
-	// strip, the two at the pointer
+	// a solid line along each channel from the held color's mark, each with its step, and dashed ones back from the color
+	// weighed; in a corner the contrast and where the color stands; on the held color's own mark, contrast 1:1; ⌥ let go,
+	// all gone. On a catalog strip, the two at the pointer
 	{	const readout=()=>page.evaluate(()=>{ const r=document.querySelector('#detail .pl .ruler'); if(!r) return null
-			return { d:r.querySelector('path').getAttribute('d'), steps:[...r.querySelectorAll('.rl')].map(e=>e.textContent), knob:!r.querySelector('.rk').hidden, readout:[...r.querySelectorAll('.ro b')].map(e=>e.textContent), red:getComputedStyle(r.querySelector('.ro b')).backgroundColor } })
+			return { d:r.querySelector('.rs').getAttribute('d'), dash:r.querySelector('.rd').getAttribute('d'), steps:[...r.querySelectorAll('.rl')].map(e=>e.textContent), knob:!!r.querySelector('.rk'), readout:[...r.querySelectorAll('.ro b')].map(e=>e.textContent), red:getComputedStyle(r.querySelector('.ro b')).backgroundColor } })
 		const pl=page.locator('#detail .pl').first(), cx=await pl.locator('.cx').boundingBox(), pb=await pl.boundingBox()
 		await page.keyboard.down('Alt')
 		await page.mouse.move(cx.x+cx.width/2,cx.y+cx.height/2)
@@ -576,17 +620,25 @@ try {
 		const far=await readout()
 		await page.keyboard.up('Alt'); await page.mouse.move(pb.x+pb.width*0.9+1,pb.y+pb.height*0.1)
 		const gone=await readout()
-		assert.ok(same&&/^ΔE00 [\d.]+$/.test(same.readout[0])&&parseFloat(same.readout[0].slice(5))<1, `⌥ on the held color's own mark: ΔE2000 near nothing (${JSON.stringify(same)})`)
-		assert.ok(far&&/^M[\d.]+ [\d.]+(H|A)/.test(far.d)&&far.steps.every(t=>/^\S+ [+−]/.test(t))&&far.knob&&far.readout.length===2&&/^[\d.]+:1/.test(far.readout[1])&&far.red==='rgb(242, 72, 34)', `⌥ far from it on a plane: the ways with their steps, the diamond, ΔE2000 and contrast, in Figma's measuring red (${JSON.stringify(far)})`)
+		assert.ok(same&&same.readout[0]==='1.00:1', `⌥ on the held color's own mark: contrast 1:1 (${JSON.stringify(same)})`)
+		assert.ok(far&&/^M[\d.]+ [\d.]+(H|A)/.test(far.d)&&/^M/.test(far.dash)&&far.steps.every(t=>/^\S+ [+−]/.test(t))&&!far.knob&&far.readout.length>=1&&far.red==='rgb(242, 72, 34)', `⌥ far from it on a plane: solid lines with their steps, dashed ones back, no knob, the readout, in Figma's measuring red (${JSON.stringify(far)})`)
 		assert.ok(gone===null, `⌥ let go: the measurement gone (${JSON.stringify(gone)})`)
 	}
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)
 	{	const ch=page.locator('#cat .ent .ch').first(); await ch.scrollIntoViewIfNeeded(); const b=await ch.boundingBox()
 		await page.keyboard.down('Alt'); await page.mouse.move(b.x+b.width*0.2,b.y+b.height/2)
-		const on=await page.evaluate(()=>{ const t=document.getElementById('tip'); return t.classList.contains('on')&&/^ΔE00 [\d.]+  [\d.]+:1/.test(t.textContent) })
+		const on=await page.evaluate(()=>{ const t=document.getElementById('tip'); return t.classList.contains('on')&&/^([\d.]+:1|⚠)/.test(t.textContent) })
 		await page.keyboard.up('Alt'); await page.mouse.move(b.x+b.width*0.2+1,b.y+b.height/2)
 		assert.ok(on&&!(await page.evaluate(()=>document.getElementById('tip').classList.contains('on'))), '⌥ over a catalog strip: the readout, gone with ⌥')
+		// a strip pressed or dragged: its number stays underlined while the strip is pointed at – the release once took the
+		// underline though the pointer stayed; leaving the strip takes it
+		const ul=()=>ch.evaluate(c=>{ const i=+c.dataset.i, p=c.closest('.ent').querySelectorAll('.cv')[i]?.closest('.cvp'); return !!p?.classList.contains('on') })
+		await page.mouse.move(b.x+b.width*0.3,b.y+b.height/2); await page.mouse.down(); await page.mouse.move(b.x+b.width*0.4,b.y+b.height/2,{steps:3}); await page.mouse.up(); await page.waitForTimeout(80)
+		const kept=await ul()
+		await page.mouse.move(b.x+b.width*0.4,b.y-40,{steps:3}); await page.waitForTimeout(80)
+		const gone=!(await ul())
+		assert.ok(kept&&gone, `a strip dragged and let go under the pointer: its number still underlined; the pointer gone, so is the line (${[kept,gone]})`)
 	}
 	// a plate's disc/square switch, there and back: the marker and the corner inks are the disc's own again – both were
 	// once placed and sampled before the plate repainted (the marker on the square's geometry, the letters inked from
@@ -626,22 +678,21 @@ try {
 	mobile.on('pageerror', error => errors.push(`mobile: ${error.message}`))
 	await mobile.setViewportSize({ width: 390, height: 844 })
 	await mobile.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	// no folding: headings are plain titles and every row is visible by default
+	// a phone: headings are plain titles; a family shows its featured spaces and two rows of tiles, the rest behind its "more"
 	const heading = mobile.locator('.shw').first()
 	await heading.waitFor()
-	assert.equal(await heading.getAttribute('role'), null, 'mobile category heading is a plain title (folding removed)')
-	const rowsShown = await mobile.evaluate(() =>
-		[...document.querySelectorAll('.sec .ent')].slice(0, 8).every(e => e.getBoundingClientRect().height > 0))
-	assert.equal(rowsShown, true, 'mobile rows are all visible without unfolding')
+	assert.equal(await heading.getAttribute('role'), null, 'mobile category heading is a plain title')
+	const fam = await mobile.evaluate(() => { const sec = document.querySelector('.sec')
+		return { shown: [...sec.querySelectorAll('.ent')].filter(e => e.getBoundingClientRect().height > 0).map(e => e.dataset.s), more: sec.querySelector(':scope>.more')?.getBoundingClientRect().height > 0 } })
+	assert.deepEqual(fam.shown, ['rgb', 'p3', 'rec2020', 'lrgb', 'rec709'], 'a phone shows the family\'s featured spaces, then a second row of tiles')
+	assert.equal(fam.more, true, 'and the rest behind its "more"')
 	assert.equal(await mobile.locator('.sec').first().locator('.lead .ent').count(), 1, 'a phone\'s one column leads each family with one featured space')
 	// operating the grouping select must not raise its heading's explainer (tip.js stops
 	// ancestor tips at form controls) — while the heading itself still explains
 	await mobile.locator('.gsel').first().hover()
 	await mobile.waitForTimeout(450)   // past tip.js's 300ms arm delay
 	assert.equal(await mobile.locator('#tip.on').count(), 0, 'the grouping select does not raise the section tip')
-	await mobile.locator('.shw').first().hover()
-	await mobile.waitForTimeout(450)
-	assert.equal(await mobile.locator('#tip.on').count(), 1, 'the heading itself still explains')
+	assert.equal(await mobile.locator('.sec').first().locator('.stip').isVisible(), true, 'the heading still explains – its description under it, in words, not a tooltip beside them')
 	await mobile.close()
 
 	const motionContext=await browser.newContext({viewport:{width:800,height:600}}), motion=await motionContext.newPage()
@@ -665,7 +716,7 @@ try {
 	assert.deepEqual(await nameView.evaluate(()=>[Math.round(document.getElementById('strip').getBoundingClientRect().top),scrollY]),[0,0],'closing the card leaves the first screen in place')
 	await nameContext.close()
 	await toCatalog(motion)
-	await motion.locator('#cval').fill('#123456')
+	await motion.locator('#cval').fill('#123456'); await motion.locator('#cval').press('Enter')   // typed and committed – its list shut, as a reader's next press on the page shuts it
 	await motion.waitForFunction(()=>document.querySelector('#cd').value==='#123456',null,{timeout:10000})   // wait for the repaint, don't race it – a loaded runner paints later than 450ms
 	await motion.waitForTimeout(400)
 	assert.equal(await motion.locator('#cd').inputValue(),'#123456','authored color input stops the ambient orbit')   // …and it HOLDS: a still-running orbit would have moved on
@@ -748,7 +799,8 @@ try {
 	await fresh.locator('#cval').blur(); await fresh.waitForFunction(()=>!location.hash,null,{timeout:5000})
 	assert.equal(await fresh.evaluate(()=>document.getElementById('cval').placeholder.length>0), true, 'emptied, the field invites again – no color chosen, no hash')
 	assert.equal(await fresh.evaluate(()=>[...document.querySelectorAll('.mdist .opt')].every(o=>o.disabled)), true, 'the palette distance is shown, disabled, until a palette is picked')
-	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForTimeout(200); await fresh.locator('#cval').click(); await fresh.waitForTimeout(200)
+	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForFunction(()=>document.body.classList.contains('cdock'))   // pinned first – the check is of a pinned field (under load its docking frame can lag the 200ms this waited)
+	await fresh.locator('#cval').click(); await fresh.waitForTimeout(200)
 	assert.equal(await fresh.evaluate(()=>scrollY), 900, 'focusing the pinned color does not scroll the page')
 	await freshContext.close()
 
@@ -817,7 +869,7 @@ try {
 	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
 	// the vision lens: one root filter, defs mounted once, cited models
 	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
-	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view [data-lens="v"]')].map(o => o.textContent + ' ' + o.title).join(' ')), /Machado[\s\S]*doi:10\.1109\/TVCG\.2009\.113[\s\S]*Brettel[\s\S]*doi:10\.1364\/JOSAA\.14\.002647/, 'the vision options cite Machado 2009 and Brettel 1997, their DOIs in the tooltips')
+	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view [data-lens="v"]')].map(o => o.textContent).join(' ')), /Machado et al\. 2009[\s\S]*Brettel et al\. 1997/, 'the vision options cite Machado 2009 and Brettel 1997 in their line – one text, no tooltip beside its')
 	await lens(wire,'v','deutan')
 	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
 	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')

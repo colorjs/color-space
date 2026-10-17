@@ -9,8 +9,8 @@
    fall back to CSS system colors. Spacing, type and picker tokens are the atlas's own,
    copied from web/tokens.css at build time; the picker's rules mirror the dossier's
    (web/index.html .pl, .pmode, .bar2, .nrg, #tip). Layout and shapes follow Figma's own
-   color picker: the plane, the eyedropper beside the sliders, the format select beside one
-   row of values; filled fields, pill tracks, round knobs in a white ring. */
+   color picker: the space over the plane, full-width sliders, the eyedropper beside one row of values under them, the value
+   in its format; filled fields, pill tracks, round knobs in a white ring, one 12 px rhythm between the rows. */
 :root{
 	color-scheme:light dark;
 	--paper:var(--figma-color-bg, Canvas);
@@ -31,17 +31,27 @@
 	--check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;   /* .ok's path */
 	--scroll:color-mix(in oklab, var(--ink) 22%, transparent);   /* a scrollbar's thumb, on no track */
 	/* Figma's menu: dark in either theme, its own colors – Figma gives plugins no menu tokens (its documented list,
-	   developers.figma.com/docs/plugins/css-variables, has none), so they are measured on its font-source menu (2026-10):
-	   the fill #1e1e1e, the separators #444, the row under the pointer rgb(63 138 226). A host sets its own (VS Code) */
+	   developers.figma.com/docs/plugins/css-variables, has none), so they are measured on its menus (2026-10): the fill
+	   #1e1e1e, the separators #444, the row under the pointer #0d99ff – its selection blue (sampled on its Select layer
+	   menu; a macOS screenshot is tagged Display P3, its (69 151 248) is #0d99ff in sRGB – an earlier reading took a P3
+	   value for sRGB, a darker blue). A host sets its own (VS Code) */
 	--menu-bg:#1e1e1e;
 	--menu-ink:#fff;
 	--menu-soft:color-mix(in oklab, var(--menu-ink) 55%, transparent);
-	--menu-sel:rgb(63 138 226);
+	--menu-sel:#0d99ff;
 	--menu-sel-ink:#fff;
 	--menu-rule:#444;
 	--menu-edge:transparent;
 	--menu-radius:var(--s3);   /* Figma's menus are rounder than its fields */
-	--field-radius:var(--radius-card);
+	--menu-min:16rem;   /* the space menu's least width: a name and its marks in a row */
+	--field-radius:.3125rem;   /* Figma's fields', selects' and icon buttons' corners, 5 px (measured at 2×) */
+	--icon:var(--figma-color-icon, var(--ink));   /* Figma's icons: ink, not the secondary text */
+	--hover:var(--figma-color-bg-hover, var(--panel));   /* Figma's icon button under the pointer: a quiet fill */
+	--pop-radius:.8125rem;   /* Figma's floating panels' corners, 13 px (its stroke settings, measured at 2×) */
+	--ui-text:.6875rem;   /* Figma's UI3 body and menu text, 11 px – the host's size, not the catalog's type scale */
+	/* where the file holds no color (past its gamut, past the visible colors): plain black – never the checker, which says
+	   "transparent" */
+	--void:#000;
 /*TOKENS*/
 }
 /*UIFONT*/
@@ -51,37 +61,33 @@
 html{ overflow-y:auto; scrollbar-width:none }
 html::-webkit-scrollbar{ display:none }
 /* a drag hides the cursor, as Figma's own picker does: the knob is where the pointer is */
-html.drag:not(:has(#grip.live)),html.drag:not(:has(#grip.live)) *{ cursor:none !important }
-html:has(#grip.live),html:has(#grip.live) *{ cursor:nwse-resize !important }   /* resizing: the resize cursor throughout */
-body{ margin:0; padding:var(--s3); background:var(--paper); color:var(--ink); font:var(--text-xs)/1.45 Inter, var(--font-current) }   /* Figma's interface face, inlined (build.js) */
-:focus-visible{ outline:var(--rule-hair) solid var(--sel); outline-offset:var(--rule-hair) }   /* Figma's focus: its selection color at a hairline, as the fields' border takes it (.fld, .sel) – one ring for every control */
+html.drag:not(.sizing,.scrub),html.drag:not(.sizing,.scrub) *{ cursor:none !important }
+html.sizing,html.sizing *{ cursor:nwse-resize !important }
+html.scrub,html.scrub *{ cursor:ew-resize !important }   /* a cell's number scrubbed: Figma's cursor for it throughout */   /* resizing: the resize cursor throughout. Classes on the root (ui.js grab), never :has() there: a root :has() makes every change of an attribute it reads restyle the whole panel */
+body{ margin:0; padding:var(--s2) var(--s4) var(--s4); background:var(--paper); color:var(--ink); font:450 var(--ui-text)/1.45 Inter, var(--font-current); letter-spacing:.005em; -webkit-font-smoothing:antialiased }   /* Figma's interface face, inlined (build.js), as its UI3 sets its body text: 11 px, weight 450, 0.5% apart (strong: 550), grayscale-antialiased – macOS's default smoothing thickens every stem (measured beside Figma's own field: ~11% more ink) */
+:focus-visible{ outline:none }
+.tabbed :focus-visible{ outline:var(--rule-hair) solid var(--sel); outline-offset:var(--rule-hair) }   /* Figma's focus: its selection color at a hairline, as the fields' border takes it (.fld, .sel) – one ring for every control, and only on the way Tab takes (ui.js: .tabbed on the root from a Tab until a press), never where a press put the focus (a slider's knob takes it, for its arrow keys) */
 [hidden]{ display:none !important }
 button,select,input{ font:inherit; color:inherit }
 .fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 
-/* Figma's field: filled, a hairline on hover, the selection color on focus */
-.fld{ height:var(--s6); background:var(--panel); border:var(--rule-hair) solid transparent; border-radius:var(--field-radius); padding:0 var(--s2); min-width:0 }
-.fld:hover{ border-color:var(--hair) }
-.fld:focus-within{ border-color:var(--sel) }
-.fld input{ width:100%; height:100%; min-width:0; padding:0; border:0; background:none; outline:none }
-.fld input[readonly]{ color:var(--soft) }
-/* Figma's select: an outlined box on the panel, its chevron at the right */
-.sel{ position:relative; display:flex; align-items:center; gap:var(--s1); height:var(--s6); min-width:0; padding:0 var(--s2); border:var(--rule-hair) solid var(--hair); border-radius:var(--field-radius); background:var(--paper); color:var(--ink); cursor:pointer; text-align:start }
-.sel:hover{ border-color:var(--soft) }
+/* Figma's select: an outlined box on the panel, its chevron at the right; no hover of its own, as Figma's */
+.sel{ position:relative; display:flex; align-items:center; gap:var(--s1); height:var(--s6); min-width:0; padding:0 var(--s2) var(--rule-hair); border:var(--rule-hair) solid var(--hair); border-radius:var(--field-radius); background:var(--paper); color:var(--ink); cursor:pointer; text-align:start }
 .sel:focus-within,.sel:focus-visible{ border-color:var(--sel); outline:none }
-.sel .chev{ margin-left:auto; --ic:10px; color:var(--soft); pointer-events:none; flex:none }
+.chev{ --ic:24px; color:var(--icon); stroke-width:1 }   /* Figma's chevron, fitted to its 2× crop (scripts/figma-ref): a 4 × 2 px stroke of 1 px – 5 × 3 px of ink – drawn at its box's own scale */
+.sel .chev{ margin-left:auto; margin-right:calc(-1 * var(--s2) - var(--rule-hair)); pointer-events:none; flex:none }
+#spbtn .chev{ pointer-events:auto; cursor:pointer }   /* the space field's chevron opens its menu and shuts it (ui.js) */   /* its centre 12 px from the control's edge, as in the value field's 24 px cell */
 
-/* the top row: the space – a combobox whose own field is the search: focused, it lists the spaces under it (every one, or
-   a family's: the menu's select, as Figma's font list does its sources) and typing filters them – then the Quantize and
-   the Limit lens. Every control keeps its width. */
-.top{ position:relative; display:flex; align-items:center; gap:var(--s1) }
+/* the top row: the space – a combobox whose own field is the search: focused, it lists the spaces under it, over the
+   plane (every one, or a family's: the menu's select, as Figma's font list does its sources) and typing filters them –
+   then the settings mark */
+.top{ position:relative; display:flex; align-items:flex-start; gap:var(--s2); margin-bottom:var(--s2) }
 .top .spb{ flex:1; cursor:text }
 .spb input{ flex:1; min-width:0; height:100%; padding:0; border:0; background:none; color:inherit; font:inherit; outline:none; text-overflow:ellipsis }
 .lens{ flex:none; width:2.75rem; padding:0; line-height:1 }
 .lens .face{ position:absolute; left:var(--s2); font:var(--t3)/1 'color-space icons'; color:var(--soft); pointer-events:none }
 .lens > .chev{ position:absolute; right:var(--s1) }
-.lens:hover .face{ color:var(--ink) }
 /* an OS-drawn list ignores web fonts: there the native select lies transparent over the face, its options showing the
    icons' look-alike Unicode symbols */
 .lens select{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer }
@@ -99,106 +105,132 @@ button,select,input{ font:inherit; color:inherit }
 	.lens select,.lens ::picker(select),.grp select,.grp ::picker(select),.fmt select,.fmt ::picker(select){ appearance:base-select }
 	.grp > .chev{ display:none }
 	.grp select{ padding:0 }
-	.grp select > button{ display:flex; align-items:center; justify-content:space-between; width:100%; height:100%; padding:0 var(--s1) 0 var(--s2); border:0; background:none; color:inherit; font:inherit; cursor:pointer }
+	.grp select > button{ display:flex; align-items:center; justify-content:space-between; width:100%; height:100%; padding:0 var(--s2) var(--rule-hair); border:0; background:none; color:inherit; font:inherit; cursor:pointer }
 	.grp select::picker-icon,.fmt select::picker-icon{ display:none }
-	/* the format's select is drawn unseen over its field (the field shows the value and the chevron); only its list shows */
-	.fmtrow .fmt select{ opacity:1; border:0; background:none; color:transparent }
-	.fmt ::picker(select){ position-area:bottom span-right; position-try-fallbacks:flip-block, flip-inline; width:max-content; min-width:anchor-size(width); max-width:calc(100vw - 2 * var(--s1));   /* the field's width at least, its longest value (a P3 one with its alpha) at most the panel's */ }
-	.grp ::picker(select){ position-area:bottom span-right; position-try-fallbacks:flip-block; width:anchor-size(width); max-height:none }   /* every family at once, no scrolling */
+	/* the copy list's select is drawn unseen over its button; only its list shows: over the value's row, as wide (a row's
+	   value cut short past it), above it where the panel has the room – the list never stretches the window under the
+	   palette – and below where it hasn't; all of it, no scrollbars */
+	.fmt select{ opacity:1; padding:0; border:0; background:none; color:transparent; font-size:0 }
+	.fmt select:focus-visible{ outline:none }
+	.fmt ::picker(select){ position-anchor:--vals; position-area:top; position-try-fallbacks:flip-block; width:anchor-size(width); max-height:none; overflow:hidden }
+	.grp ::picker(select){ position-area:bottom span-right; position-try-fallbacks:flip-block; width:calc(anchor-size(width) - var(--pk-dx, 0px)); max-height:none }   /* every family at once, no scrolling; as wide as its control and the rows' check column */
+	/* Figma's menus open over their control, the chosen row over the control's own text, as a macOS popup menu: the list,
+	   where the select draws it, moved by the distance from that row to the control (ui.js overControl) – unseen until moved */
+	.grp ::picker(select),.lens ::picker(select){ translate:var(--pk-dx, 0px) var(--pk-dy, 0px); opacity:var(--pk-o, 1) }
 	.lens select{ opacity:1; padding:0; border:0; background:none; color:var(--soft); font:inherit }
-	.lens select:hover{ color:var(--ink) }
 	.lens select::picker-icon{ display:none }
 	.lens select > button{ display:flex; align-items:center; justify-content:space-between; width:100%; height:100%; padding:0 var(--s1) 0 var(--s2); border:0; background:none; color:inherit; font:inherit; cursor:pointer }
 	.lens selectedcontent{ display:flex; align-items:center }
 	.lens selectedcontent .nm{ display:none }
+	.pbody .lens selectedcontent{ gap:var(--s1) }
+	.pbody .lens selectedcontent .nm{ display:block }   /* in the settings, its name beside its icon, as Figma's Style shows its own */
+	.pbody .lens select > button{ padding-inline-start:var(--s1) }
 	.lens .ico{ font:var(--t3)/1 'color-space icons'; width:1.2em; text-align:center }
 	.lens ::picker(select){ position-area:bottom span-left; position-try-fallbacks:flip-block; width:10.5rem }
 	/* the small dropdowns' lists are Figma's own menus: dark, rounded, white rows; the row under the pointer or the keys on
 	   the menu's selection blue, inset from the edges; a check at the current row's left; sections parted by a hairline.
 	   Their colors are --menu-*, Figma's own (measured; see :root) */
-	/* the rhythm measured on Figma's menu (2026-10, at 2×): 6 px above the first row and below the last, 24 px rows, 7 px
-	   either side of a separator; the check's left 15.5 px from the menu's edge, 9 px wide, the text 17 px past its left */
-	.grp ::picker(select),.fmt ::picker(select),.lens ::picker(select){ margin:var(--s1) 0; padding:calc(var(--s1) + var(--space-3xs)) 0; border:var(--rule-hair) solid var(--menu-edge); border-radius:var(--menu-radius); background:var(--menu-bg); color:var(--menu-ink); box-shadow:var(--modal-shadow); -webkit-font-smoothing:antialiased }   /* light text on dark, thin as Figma draws it */
-	.grp option,.fmt option,.lens option{ display:flex; align-items:center; gap:var(--space-3xs); min-height:var(--s6); margin:0 var(--s2); padding:var(--s1) var(--s2) var(--s1) var(--s1); border-radius:var(--radius-card); font-size:var(--text-xs);   /* Figma's menu text, 11 px */ color:var(--menu-ink); white-space:nowrap }
+	/* the rhythm measured on Figma's menu (2026-10, at 2×): 24 px rows, 7 px either side of a separator; the check's left
+	   15.5 px from the menu's edge, 9 px wide, the text 17 px past its left. Above the first row and below the last as far
+	   as the rows sit in from the sides, 8 px (Figma's 6 set the lit row nearer the top than the side) */
+	.grp ::picker(select),.fmt ::picker(select),.lens ::picker(select){ margin:var(--s1) 0; padding:var(--s2) 0; border:var(--rule-hair) solid var(--menu-edge); border-radius:var(--menu-radius); background:var(--menu-bg); color:var(--menu-ink); box-shadow:var(--modal-shadow); -webkit-font-smoothing:antialiased }   /* light text on dark, thin as Figma draws it */
+	.grp option,.fmt option,.lens option{ display:flex; align-items:center; gap:var(--space-3xs); min-height:var(--s6); margin:0 var(--s2); padding:var(--s1) var(--s2) var(--s1) var(--s1); border-radius:var(--radius-card); font-size:var(--ui-text);   /* Figma's menu text, 11 px */ color:var(--menu-ink); white-space:nowrap }
 	.grp option:hover,.grp option:focus-visible,.fmt option:hover,.fmt option:focus-visible,.lens option:hover,.lens option:focus-visible{ background:var(--menu-sel); color:var(--menu-sel-ink); outline:none }
 	.grp hr,.fmt hr,.lens hr{ margin:calc(var(--s2) - var(--rule-hair)) 0; border:0; border-top:var(--rule-hair) solid var(--menu-rule) }
 	/* the check: Figma's, bold (the .ok icon's path at a heavier stroke), in the column the select keeps on every row (an
 	   unchecked row's mark is there, unseen) */
 	.grp option::checkmark,.fmt option::checkmark,.lens option::checkmark{ order:-1; content:''; flex:none; width:var(--s3); height:var(--s3); margin-inline-end:var(--space-3xs); background:currentColor; -webkit-mask:var(--check); mask:var(--check) }
-	.grp ::picker(select),.fmt ::picker(select),.lens ::picker(select){ scrollbar-width:thin; scrollbar-color:var(--menu-rule) transparent }
-	.fmt option{ font-size:var(--text-xs); padding-inline-end:var(--s1) }   /* values, at the field's own size */
+	.grp ::picker(select),.lens ::picker(select){ scrollbar-width:thin; scrollbar-color:var(--menu-rule) transparent }
+	.fmt option{ display:block; overflow:hidden; text-overflow:ellipsis; padding-inline:var(--s2); line-height:calc(var(--s6) - 2 * var(--s1)) }   /* values, a plain list – no check: the current one is the row lit on opening */
+	.fmt option::checkmark{ display:none }
 	/* the sections (steps, palettes) parted by a hairline alone, as Figma's menus: their names stay for screen readers and
 	   for an OS-drawn list, not on the page's */
 	.lens legend{ display:none }
 	.lens option .ico{ margin-inline-end:var(--s1) }   /* the icon apart from its name */
 	.lens optgroup + optgroup{ margin-top:calc(var(--s2) - var(--rule-hair)); padding-top:calc(var(--s2) - var(--rule-hair)); border-top:var(--rule-hair) solid var(--menu-rule) }   /* the second section, parted by a hairline */
 }
-/* a menu, Figma's white one (its font list): a card under its control, the window growing to hold it; rows with the check
+/* a menu, Figma's white one (its font list): a card under its control, as wide as the space's field – never narrower than
+   its least width, the row's whole width where the panel is narrow – the window growing to hold it; rows with the check
    at their left, the current row and the one under the pointer or the arrows on the panel's quiet fill */
-.menu{ position:absolute; z-index:10; top:calc(100% + var(--s1)); left:0; right:0; display:flex; flex-direction:column; max-height:22rem; border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow); overflow:hidden }
+.menu{ position:absolute; z-index:10; top:calc(100% + var(--s1)); left:0; width:max(calc(100% - var(--s6) - var(--s2)), min(100%, var(--menu-min))); display:flex; flex-direction:column; max-height:22rem; border:var(--rule-hair) solid var(--hair); border-radius:var(--pop-radius); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow); overflow:hidden }
 .mhead{ padding:var(--s2); border-bottom:var(--rule-hair) solid var(--hair) }
 .menu .rows{ overflow:auto; padding:var(--s1) 0; scrollbar-width:thin; scrollbar-color:var(--scroll) transparent }
 .mi{ display:grid; grid-template-columns:var(--s4) minmax(0,1fr) auto; align-items:center; gap:var(--s1); width:100%; min-height:var(--s6); padding:var(--s1) var(--s2); border:0; background:none; color:var(--ink); font-size:var(--t1); text-align:start; cursor:pointer }
 .mi .ok{ --ic:12px; stroke-width:3; visibility:hidden }   /* Figma's check, bold */
 .mi[aria-selected="true"] .ok,.mi[aria-checked="true"] .ok{ visibility:visible }
 .mi .nm{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.mi .id{ overflow:hidden; text-overflow:ellipsis; color:var(--soft); font-family:var(--font-mono); font-size:var(--t0); white-space:nowrap }
+.mi .kind{ display:flex; color:var(--soft) }   /* what kind of space: its shape's mark */
+.mi .kind .ic{ --ic:var(--s4); stroke-width:1.5 }   /* the site's shape marks at Figma's 1 px */
 .mi.on,.mi:hover{ background:var(--panel) }
-.spo.feat .nm{ font-weight:700 }
 .spnone{ margin:0; padding:var(--s2) var(--s3); color:var(--soft) }
 
-/* a value cell, Figma's: filled, the channel letter inside at its left (drag it to scrub, as in Figma) */
-.cvp{ display:flex; align-items:center; gap:var(--space-3xs); height:var(--s6); min-width:0; padding:0 var(--s1) 0 var(--s2); background:var(--panel); border:var(--rule-hair) solid transparent; border-radius:var(--field-radius) }
-.cvp:hover{ border-color:var(--hair) }
-.cvp:focus-within{ border-color:var(--sel) }
-.cl{ font-style:normal; font-weight:600; color:var(--soft); cursor:ew-resize; touch-action:none; user-select:none; white-space:nowrap }
-.cvp.locked .cl{ cursor:default }
-.cv{ width:100%; min-width:0; height:100%; padding:0; border:0; background:none; outline:none; font-variant-numeric:tabular-nums; text-align:end }
-.cv[readonly]{ color:var(--soft) }
-.cv::-webkit-inner-spin-button,.cv::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0 }
-.cv{ -moz-appearance:textfield; appearance:textfield }
 
-.icb{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; border-radius:var(--field-radius); background:none; color:var(--soft); cursor:pointer }
-.icb:hover,.icb:focus-visible{ color:var(--ink); background:var(--panel) }   /* dim → ink, the atlas's hover idiom */
+.icb{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; border-radius:var(--field-radius); background:none; color:var(--icon); cursor:pointer }
+.icb:hover,.icb:focus-visible{ background:var(--hover) }   /* Figma's icon button: an ink glyph, a quiet fill under the pointer */
+.icb:disabled{ opacity:.4; background:none; cursor:default }   /* nothing to pick into: the control stays, greyed */
 
 /* the layers, as Figma lists them: full-width rows, the selected one tinted with the selection color */
-.empty{ color:var(--soft); margin:0 0 var(--s3) }
+.empty{ flex:1; margin:0; padding-block:calc((var(--s6) - 1lh) / 2); color:var(--soft) }   /* nothing selected: the hint in the space's place, beside the settings, on the line of its first row */
 /* the selection's colors as a palette: a swatch per color, wrapping, the current one outlined. Its uses ride the tooltip */
-/* a swatch is --swatch across, Figma's own (16 px, as its library swatches); a host may set its own (VS Code: 12 px, a code
-   editor's color square); the palette shows three rows of them, then scrolls */
-.paints{ --swatch:var(--s4); list-style:none; display:flex; flex-wrap:wrap; gap:var(--s2); margin:0 0 var(--s3); padding:var(--space-3xs); max-height:calc(3 * var(--swatch) + 2 * var(--s2) + 2 * var(--space-3xs)); overflow:auto; scrollbar-width:thin; scrollbar-color:var(--scroll) transparent }
-.paint{ display:grid; width:var(--swatch); height:var(--swatch); padding:0; background:none; border:0; border-radius:var(--radius-control); cursor:pointer }   /* Figma's own small corners, 2 px */
+/* a swatch is --swatch across, Figma's own (16 px, 8 px apart: measured at 2× on its On this page, 2026-10); a host may set
+   its own (VS Code: 12 px, a code editor's color square) */
+.paints{ --swatch:var(--s4); --bar:calc(var(--s2) + var(--space-3xs)); list-style:none; display:grid; grid-template-columns:repeat(auto-fill, var(--swatch)); justify-content:space-between; gap:var(--s2); margin:0 calc(-1 * var(--s4)) 0 calc(-1 * var(--space-3xs)); padding:var(--space-3xs) calc(var(--s4) - var(--bar)) var(--s4) var(--space-3xs); max-height:calc(var(--space-3xs) + 3 * (var(--swatch) + var(--s2)) + var(--swatch) / 2); overflow:auto; overscroll-behavior:contain; scroll-padding-top:var(--space-3xs); position:relative }
+/* Figma's grid: the columns spread across the panel, the first and the last at its edges (the list's 2 px inset, for the
+   pressed ring, taken back by its margin). It runs to the panel's bottom edge and is cropped there, as Figma's own: three
+   rows and half a fourth show, the rest scrolls. Its scrollbar lies in the panel's right padding, at the window's edge, a
+   thumb under the pointer: drawn the bar's own width, so the columns keep theirs whether the system's scrollbars overlay or
+   take room (Chromium, Safari); elsewhere a thin one. Its bottom padding is the panel's, so a short palette ends on it and
+   a long one scrolls by whole rows to its last (a revealed swatch's row is brought to the top: no row cut at the top).
+   The swatches' screen-reader names (.sr, absolute) are placed inside the list: placed against the body, the cropped
+   rows' names reached past the window, and the panel scrolled into blank space */
+@supports selector(::-webkit-scrollbar) {
+	.paints{ --thumb:transparent; scrollbar-gutter:stable }
+	.paints:hover{ --thumb:var(--scroll) }   /* through a property: Chromium leaves a thumb styled by its list's :hover unpainted */
+	.paints::-webkit-scrollbar{ width:var(--bar) }
+	.paints::-webkit-scrollbar-thumb{ border:var(--space-3xs) solid transparent; border-radius:var(--bar); background:var(--thumb) padding-box }   /* a 6 px thumb, Figma's */
+}
+@supports not selector(::-webkit-scrollbar) {
+	.paints{ scrollbar-width:thin; scrollbar-color:transparent transparent }
+	.paints:hover{ scrollbar-color:var(--scroll) transparent }
+}
+.pal:has(> .paints[hidden]){ padding-bottom:var(--s4) }   /* no colors: the panel's bottom padding under the scope */
+.paint{ display:grid; width:var(--swatch); height:var(--swatch); padding:0; background:none; border:0; border-radius:calc(var(--swatch) * 3 / 16); cursor:pointer }   /* Figma's own corners: 3 px on its 16 px swatch (measured at 2×), in proportion on a smaller one */
 .paint[aria-pressed="true"]{ box-shadow:0 0 0 var(--rule-hair) var(--paper), 0 0 0 calc(var(--rule-hair) * 2) var(--ink) }   /* an outline, the swatch its own size */
 /* Figma's swatch: a hairline inside its edge; a translucent color half solid, half over the checker. A stroke's color is
    a swatch like any other, as in Figma's own */
 .sw{ background:linear-gradient(90deg, var(--swo, transparent) 50%, var(--sw, transparent) 50%), var(--checker); box-shadow:inset 0 0 0 var(--rule-hair) var(--edge); border-radius:inherit }
-/* a swatch dragged onto another folds into it (ui.js foldInto): lifted, it dims and its ghost follows the pointer; over
-   another swatch, that one is ringed and the ghost says what the release will do */
+/* a swatch dragged onto another folds into it (ui.js foldInto): lifted, its place stays empty and the swatch itself follows
+   the pointer, held where it was taken; over another swatch, that one is ringed and the ghost says what the release will do */
 .paint{ touch-action:none }
-.paint.lift{ opacity:.4 }
+.paint.lift{ visibility:hidden }   /* its place left empty while it is carried */
 .paint.drop{ box-shadow:0 0 0 var(--rule-hair) var(--paper), 0 0 0 calc(var(--rule-hair) * 3) var(--sel) }
-html:has(.paint.lift),html:has(.paint.lift) *{ cursor:grabbing !important }
+html.lifting,html.lifting *{ cursor:grabbing !important }
 .ghost{ position:fixed; left:0; top:0; z-index:var(--z-tooltip); display:flex; align-items:center; gap:var(--s1); pointer-events:none }
-.ghost .sw{ width:var(--s4); height:var(--s4); border-radius:var(--radius-control); box-shadow:var(--modal-shadow), inset 0 0 0 var(--rule-hair) var(--edge) }
+.ghost .sw{ width:var(--s4); height:var(--s4); border-radius:calc(var(--s4) * 3 / 16); box-shadow:var(--modal-shadow), inset 0 0 0 var(--rule-hair) var(--edge) }
 .ghost .lbl{ padding:var(--space-3xs) var(--s1); font-size:var(--t0); font-weight:500; background:var(--ink); color:var(--paper); border-radius:var(--radius-control) }
 .ghost:not(.over) .lbl{ display:none }
 
 /* ── the picker: the plane, the sliders, the values ── */
-.picker{ display:flex; flex-direction:column; gap:var(--s2); margin-bottom:var(--s2) }
-/* the plane: two channels swept, the rest held; past the file's gamut it ghosts, where no color exists it voids to the checker */
-.pl{ position:relative; width:100%; aspect-ratio:1; cursor:crosshair; touch-action:none; user-select:none; background:var(--checker); border-radius:var(--field-radius) }
+/* Figma's picker in its own rhythm (measured at 2× beside it, 2026-10): its tool row 8 px under the window's top, 24 px,
+   8 px over a divider the panel's full width, the plane 16 px under that – so the plane, the sliders, the value and the
+   palette's divider stand level with Figma's own. The space's row is that tool row; the divider is the picker's top */
+.picker{ display:flex; flex-direction:column; gap:var(--s3); margin:0 calc(-1 * var(--s4)); padding:var(--s4) var(--s4) 0; border-top:var(--rule-hair) solid var(--edge) }
+/* the plane: two channels swept, the rest held; the colors the file can hold painted, black past them (in a P3
+   file, sRGB's edge drawn as a line, as Figma does) */
+.pl{ position:relative; width:100%; aspect-ratio:1; cursor:crosshair; touch-action:none; user-select:none; background:var(--void); border-radius:var(--field-radius) }
 .pl::after,.bar2::after{ content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 var(--rule-hair) var(--edge); pointer-events:none }
 .pl canvas{ display:block; width:100%; height:100%; border-radius:var(--field-radius) }
 /* an image's pixels as dots over the field: where its colors sit in this slice of the space */
 .pl canvas.density{ position:absolute; inset:0; pointer-events:none }
 .pl.polar{ background:none }
 .pl.polar::after{ border-radius:50% }
-.pl.polar canvas:not(.density){ background:var(--checker); border-radius:50% }   /* the disc's backdrop – never the dots' layer, which would cover the field */
+.pl.polar canvas:not(.density){ background:var(--void); border-radius:50% }   /* the disc's backdrop – the field's alone, never a layer over it */
 /* over the plane (not inside the slider): the axis letters, set as on the dossier's planes and inked for the field beneath;
    a letter is a button – a click swaps that axis for the channel held. In the corner, the wheel/square switch (the site's .pmode) */
 .axes{ position:absolute; inset:0; pointer-events:none }
-.axes button{ position:absolute; pointer-events:auto; padding:var(--space-3xs) var(--s1); border:0; border-radius:var(--radius-control); background:none; font-size:var(--t0); font-weight:700; cursor:pointer }
-.axes button:hover,.axes button:focus-visible{ background:color-mix(in oklab, var(--paper) 70%, transparent); color:var(--ink) !important }
+.pl.live ~ .axes{ visibility:hidden }   /* a pick under way: the letters and the switch name no value it takes – gone till the release */
+.axes button{ position:absolute; pointer-events:auto; padding:var(--space-3xs) var(--s1); border:0; background:none; font-size:var(--ui-text); opacity:.5; cursor:pointer }   /* the panel's own text: its face, 11 px, regular */
+.axes button:hover,.axes button:focus-visible{ opacity:1 }   /* the site's switch (web/index.html .pl .pmode): half strength, whole under the pointer – letters and switch alike */
 .axes .laby{ top:var(--space-3xs); left:var(--space-3xs) }
 .axes .labx{ right:var(--space-3xs); bottom:var(--space-3xs) }
 .axes .pmode{ left:var(--space-3xs); bottom:var(--space-3xs); display:grid; place-items:center; height:calc(1.45em + var(--space-3xs) * 2) }   /* the letters' own box and inset: the icon sits as far from the corner as H or L does */
@@ -207,6 +239,11 @@ html:has(.paint.lift),html:has(.paint.lift) *{ cursor:grabbing !important }
 /* the marker: the current color in Figma's white ring */
 .pl .cx{ position:absolute; z-index:3; width:var(--knob); height:var(--knob); transform:translate(-50%,-50%); border-radius:50%; background:var(--tkc); border:var(--knob-ring); box-shadow:var(--knob-edge); pointer-events:none }
 .pl.locked{ cursor:default }
+/* zoomed in (⌃ wheel, a pinch): where the view stands in the whole, as Figma's canvas scrollbars – a 4 px thumb along the
+   bottom and one along the right edge, inside the field, a white one hairlined in black to read on any color */
+.pl .zoom{ position:absolute; z-index:2; border-radius:var(--space-3xs); background:color-mix(in oklab, #fff 55%, transparent); box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab, #000 25%, transparent); pointer-events:none }
+.pl .zx{ bottom:var(--space-3xs); height:var(--s1) }
+.pl .zy{ right:var(--space-3xs); width:var(--s1) }
 /* the document's colors: small rings where each sits on this plane, over it (not inside the slider); a click takes it */
 .plw{ position:relative }
 .plw:has(.pl[hidden]){ display:none }
@@ -214,109 +251,198 @@ html:has(.paint.lift),html:has(.paint.lift) *{ cursor:grabbing !important }
 .marks .dm{ pointer-events:auto; position:absolute; z-index:2; width:.375rem; height:.375rem; padding:0; transform:translate(-50%,-50%); border-radius:50%; border:0; box-shadow:0 0 0 var(--rule-hair) color-mix(in oklab, #fff 70%, transparent); opacity:.55; cursor:pointer }   /* a reference, not a handle: a faint dot */
 .marks .dm:hover,.marks .dm:focus-visible{ opacity:1 }
 .marks .links{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none }
+/* ⌥'s measurement (web/js/ruler.js; ui.js measureAt), Figma's: its measuring red (--redline, its ⌥ redlines' and Dev Mode's),
+   a solid hairline along each channel from the current color's mark, a dashed one from the color weighed back to each
+   line's end, a step in a red pill beside each solid one – white 11 px text, 2 px corners; the contrast and where the
+   color stands in pills in a top corner, the one away from it (the left one past the letter there) */
+.ruler{ position:absolute; inset:0; z-index:2; pointer-events:none }
+.ruler svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
+.ruler path{ fill:none; stroke:var(--redline); stroke-width:1; vector-effect:non-scaling-stroke }
+.ruler .rd{ stroke-dasharray:var(--s2) var(--s1) }   /* Figma's dash, measured off its ⌥: 8 px on, 4 off */
+.ruler .rl,.ruler .ro b{ padding:var(--space-3xs) var(--s1); border-radius:var(--space-3xs); background:var(--redline); color:#fff; font-size:var(--ui-text); font-weight:500; line-height:1.45; white-space:nowrap; -webkit-font-smoothing:antialiased }
+.ruler .rl{ position:absolute; transform:translate(-50%,-50%) }
+.ruler .rl[data-at="below"]{ transform:translate(-50%,var(--s2)) } .ruler .rl[data-at="above"]{ transform:translate(-50%,calc(-100% - var(--s2))) } .ruler .rl[data-at="right"]{ transform:translate(var(--s2),-50%) } .ruler .rl[data-at="left"]{ transform:translate(calc(-100% - var(--s2)),-50%) }   /* beside its line, 8 px off it, as Figma's */
+.ruler .rl:empty{ display:none }
+.ruler .ro{ position:absolute; top:var(--s1); display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-3xs) }
+.ruler .ro.tr{ right:var(--s1) }
+.ruler .ro.tl{ left:var(--s6); align-items:flex-start }
 .marks .links polyline{ fill:none; stroke:color-mix(in oklab, #fff 70%, transparent); stroke-width:var(--rule-hair); vector-effect:non-scaling-stroke }   /* a gradient's path through its stops: a soft white line */
 
-/* the sliders, the eyedropper beside them as in Figma; each row's value cell at its right */
-.sliders{ display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:var(--s2) }
+/* the sliders, Figma's: the channels the plane doesn't hold (one, for a three-channel space), then the opacity, each the
+   panel's full width. Figma's picker keeps 12 px between its rows (measured at 2×: plane to slider, slider to slider,
+   slider to values) */
+.chans{ display:flex; flex-direction:column; gap:var(--s3) }
+.bars{ display:grid; gap:var(--s3); margin:0; padding:0; border:0 }
+/* the eyedropper before the sliders, centred on them, as Figma's (its glyph 14 px in a 16 px box); the value under them */
+.sliders{ display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:var(--s3) }
 .sliders .icb[hidden] + .bars{ grid-column:1 / -1 }
-.bars{ display:grid; grid-template-columns:minmax(0,1fr) 4.5rem; align-items:center; gap:var(--s1) var(--s2); margin:0; padding:0; border:0 }   /* a 4 px row gap: track to track (24 − 16 + 4) equals the plane to the first track (8 + 4) */
+#drop{ --ic:16px }
+#drop .ic{ stroke-width:1.75 }   /* Figma's eyedropper, fitted to its 2× crop (scripts/figma-ref, pixel for pixel): a bulb, a collar with its lobes – the line across at its foot – a tube narrowing to a round tip; a 1 px stroke */
+/* the value under them: the space's channels as cells, Figma's split field for RGB (its export scale's, measured at 2×),
+   24 px – a cell a channel, its letter dim before its number (Figma's X, W), the opacity last in %, each a hairline
+   apart; a letter or the % scrubs its number (a drag across, Figma's ew-resize cursor); the group answers as one, a grey
+   hairline under the pointer and the selection color round it while a cell has the focus. Beside it, the copy button */
+.vals{ display:flex; align-items:center; gap:var(--s2); anchor-name:--vals }
+.fld{ display:flex; align-items:center; gap:var(--rule-hair); height:var(--s6); min-width:0 }
+.fld > *{ height:100%; background:var(--panel); outline:var(--rule-hair) solid transparent; outline-offset:calc(-1 * var(--rule-hair)) }
+.val{ flex:1 }
+.fld > .cells{ flex:1; display:grid; grid-auto-flow:column; grid-auto-columns:minmax(min-content,1fr); gap:var(--rule-hair); min-width:0; background:none; border-radius:var(--field-radius) }   /* the cells share the row equally, the opacity's as wide as a channel's – wider only where its 100 % wouldn't fit (CMYK's five at 240 px) */
+.fld > .cells:hover{ outline-color:var(--hair) }
+.fld > .cells:focus-within{ outline-color:var(--sel) }
+.cell{ display:flex; align-items:center; gap:clamp(var(--s1), calc(2.08vw - var(--space-3xs)), var(--s2)); min-width:0; padding:0 var(--space-3xs) 0 var(--s2); background:var(--panel); cursor:text }   /* the letter 4 px from its number at Figma's 288 px or narrower – so the letters keep to narrow widths – growing with the panel to Figma's own 8 at 480 */
+.cell:first-child{ border-radius:var(--field-radius) 0 0 var(--field-radius) }
+.cell:last-child{ border-radius:0 var(--field-radius) var(--field-radius) 0 }
+.cell i{ font-style:normal; color:var(--soft); cursor:ew-resize; user-select:none }
+.cell input{ flex:1; width:100%; min-width:0; padding:0; border:0; outline:0; background:none; color:inherit; font:inherit; text-overflow:clip }
+.cell input[readonly]{ color:var(--soft) }
+.cell.op{ gap:var(--space-3xs); padding-right:var(--s1) }   /* the % at the cell's right, as Figma's */
+.cell.op input{ min-width:3ch }   /* 100, whole, however narrow the row */
+.cells.tight .cell{ padding-left:var(--s1) }   /* and every number nearer its cell's edge, the % nearer its right – room for the opacity's 100 % in an equal cell at 240 px */
+.cells.tight .cell.op{ padding-right:var(--space-3xs) }
+.cells.tight .cell:not(.op) i{ display:none }   /* too narrow for every number with its letter: the numbers alone, as Figma's, each cell's name its tooltip – the opacity keeps its % */
+/* the palette: Figma's own section (On this page), last – its scope, a select, then the swatches, to the panel's edge */
+.pal{ display:flex; flex-direction:column; gap:calc(var(--s2) - var(--space-3xs)); margin:var(--s4) calc(-1 * var(--s4)) calc(-1 * var(--s4)); padding:calc(var(--s3) - var(--rule-hair)) var(--s4) 0; border-top:var(--rule-hair) solid var(--edge) }   /* Figma's section: its divider the panel's full width, 16 px under the picker, 12 px over the select (its hairline counted in), the swatches 8 px under it (their own 2 px inset, for the pressed ring, counted in) – measured at 2× */
 /* a bar: the channel swept with the others held, on the same kernel as the plane; its knob (role slider) rides inside the pill, as on Figma's sliders */
-.bar2{ position:relative; height:var(--track); cursor:ew-resize; touch-action:none; user-select:none; background:var(--checker); border-radius:var(--track) }   /* Figma's pill track */
+.bar2{ position:relative; height:var(--track); cursor:ew-resize; touch-action:none; user-select:none; background:var(--void); border-radius:var(--track) }   /* Figma's pill track */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; border-radius:var(--track) }
 .bar2 .nrg{ position:absolute; z-index:1; top:50%; left:calc(var(--knob) / 2 + var(--f, 0) * (100% - var(--knob))); width:var(--knob); height:var(--knob); transform:translate(-50%,-50%); border-radius:50%; background:var(--tkc); border:var(--knob-ring); box-shadow:var(--knob-edge) }
 .bar2:has(.nrg[aria-disabled="true"]){ cursor:default }
 /* the opacity bar, Figma's: the current color over the checker, clear to solid across the knob's travel */
 /* the image's histogram along a bar: its channel's pixels as a lane in the pill's lower part, over the field, along the
-   knob's travel (the site's .bar2 .hist: the mask carries shape and fade, the background the ink) */
-.bar2 .hist{ position:absolute; left:calc(var(--knob) / 2); right:calc(var(--knob) / 2); bottom:var(--rule-hair); height:62%; pointer-events:none; background:var(--ink); -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }
+   knob's travel, white as every mark over a field – no outline: over a light stretch of the field it fades, and the
+   held channel moved darker shows it (the mask carries shape and fade, the background the ink) */
+.bar2 .hist{ position:absolute; left:calc(var(--knob) / 2); right:calc(var(--knob) / 2); bottom:var(--rule-hair); height:62%; pointer-events:none; background:#fff; -webkit-mask-size:100% 100%; mask-size:100% 100%; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat }
 .bar2.alpha{ background:linear-gradient(90deg, transparent calc(var(--knob) / 2), var(--tkc) calc(100% - var(--knob) / 2)), var(--checker) }
 
-/* the gamut status: always one line, so it never moves anything as a drag crosses the gamut */
-/* the status: one badge, the file's gamut (soft; ink once the coordinate is outside it), its tooltip the whole breakdown –
-   the gamut, the profile, what the dots are, why a field is locked. Read once, so it waits behind a hover, not on a line.
-   A word, not a control: small soft text, no outline. The same words are said to screen readers by the live regions (.sr) */
-.badge{ flex:none; font-size:var(--t0); color:var(--soft); white-space:nowrap; cursor:help }
-.badge:hover,.badge.out{ color:var(--ink) }   /* dim → ink, the atlas's hover idiom; ink too once outside the gamut */
+/* the gamut status, said to screen readers (the plane shows the file's colors alone, so it needs no mark) */
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* said, not shown (web/index.html .sr) */
-.err{ flex:1; min-width:0; margin:0; color:var(--ink) }   /* what went wrong stays in sight: it asks for something */
-/* about: a quiet info mark at the panel's bottom right (dim → ink); it opens a small card above it – the mark and the
-   name (the site), then by colorjs (the code) and a heart (support) – that a press anywhere else or Escape closes (a popover) */
-.info{ flex:none; display:grid; place-items:center; padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:12px; anchor-name:--about }
-.info:hover,.info:focus-visible{ color:var(--ink) }
-.about{ position-anchor:--about; position-area:top span-left; inset:auto; margin:0 0 var(--s1); width:max-content; max-width:14rem; padding:var(--s2) var(--s3); border:var(--rule-hair) solid var(--hair); border-radius:var(--radius-card); background:var(--paper); color:var(--soft); box-shadow:var(--modal-shadow) }
-.about p{ margin:var(--space-3xs) 0 0 }
-.about .logo{ display:flex; align-items:center; gap:var(--s1); font-weight:600; text-decoration:none }
-.about .logo img{ width:var(--s4); height:var(--s4) }   /* the project's mark: the spectral locus (web/img/locus-64.png) */
-.about a{ color:var(--ink); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:2px }
-.about a:hover,.about a:focus-visible{ text-decoration:underline }
-.about .love{ display:inline-grid; vertical-align:-.15em; --ic:12px; color:var(--soft) }   /* support: a heart, quiet until hovered */
-.about .love:hover,.about .love:focus-visible{ color:var(--ink); text-decoration:none }
-/* the foot: the badge, an error when there is one, and the info mark at the panel's bottom right */
-.foot{ display:flex; align-items:center; gap:var(--s2); margin:var(--s2) 0 0 }
+.err{ margin:var(--s3) 0 0; color:var(--ink) }   /* what went wrong stays in sight, under the picker: it asks for something */
+.err:empty{ margin:0 }
+/* settings: a quiet mark at the top row's right (dim → ink) opening Figma's settings panel under it (its stroke settings,
+   measured at 2×: a 240 px card, 13 px corners, a 40 px head – its name, a close – and a 16 px body of label | control
+   rows, 24 px controls 8 px apart; the label column narrower than its 96 px, so Rec.2020 fits its segment). A press anywhere else or Escape closes it (a popover). The
+   rows: the gamut the fields show (a segmented control), the distance ⌥'s readout gives (another), the Quantize lens; then
+   the about line */
+.info{ flex:none; display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; border-radius:var(--field-radius); background:none; color:var(--icon); cursor:pointer; --ic:24px; anchor-name:--prm }
+.info .ic{ stroke-width:1 }   /* the glyph drawn at its box's size: Figma's 1 px rails */
+.info:hover,.info:focus-visible,.info:popover-open{ background:var(--hover) }
+.prm{ position-anchor:--prm; position-area:bottom span-left; position-try-fallbacks:flip-block; inset:auto; margin:var(--s1) 0 0; width:max-content; max-width:calc(100vw - 2 * var(--s1)); padding:0; border:0; border-radius:var(--pop-radius); background:var(--paper); color:var(--ink); box-shadow:var(--modal-shadow) }
+.phead{ display:flex; align-items:center; justify-content:space-between; height:calc(var(--s8) + var(--s2)); padding:0 var(--s2) 0 var(--s4); border-bottom:var(--rule-hair) solid var(--hair); font-weight:550 }
+.pbody{ display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:var(--s2) var(--s4); padding:var(--s4) }
+.plab{ color:var(--soft) }
+.chk{ grid-column:1 / -1; display:flex; align-items:center; gap:var(--s2); cursor:pointer }   /* a setting on or off: Figma's checkbox and its words, the row's width */
+.chk input{ appearance:none; flex:none; display:grid; width:var(--s3); height:var(--s3); margin:0; border:var(--rule-hair) solid var(--soft); border-radius:var(--space-3xs); cursor:inherit }
+.chk input:checked{ border-color:var(--sel); background:var(--sel) }   /* Figma's: its blue, the check white in it (.ok's path) */
+.chk input:checked::before{ content:''; margin:var(--rule-hair); background:#fff; -webkit-mask:var(--check); mask:var(--check) }
+.pbody .lens{ width:100% }
+/* Figma's segmented control: the panel's fill, the chosen segment the paper's, outlined, as its Join control */
+.seg{ display:flex; height:var(--s6); padding:0; border-radius:var(--field-radius); background:var(--panel) }
+.seg button{ flex:1 1 auto; min-width:0; padding:0 var(--s1); border:var(--rule-hair) solid transparent; border-radius:var(--field-radius); background:none; color:var(--soft); font:inherit; white-space:nowrap; cursor:pointer }
+.seg button:hover{ color:var(--ink) }
+.seg button[aria-checked="true"]{ border-color:var(--hair); background:var(--paper); color:var(--ink) }
+/* the keys the panel answers, as Figma's menus list a shortcut: what it does, then its keys at the right in the quiet ink */
+.phints{ display:flex; flex-direction:column; gap:var(--s2); padding:var(--s3) var(--s4) var(--s4); border-top:var(--rule-hair) solid var(--hair) }
+.phints p{ display:flex; justify-content:space-between; gap:var(--s4); margin:0 }   /* a line each, its keys at its own right */
+.phints kbd{ font:inherit; color:var(--soft); white-space:nowrap }
+.pfoot{ display:flex; align-items:center; justify-content:space-between; gap:var(--s3); padding:var(--s3) var(--s4); border-top:var(--rule-hair) solid var(--hair); color:var(--soft) }   /* one line: the name at the left, by colorjs and the heart at the right */
+.pfoot p{ margin:0 }
+.pfoot .logo{ display:flex; align-items:center; gap:var(--s1); font-weight:550; text-decoration:none }
+.pfoot .logo img{ width:var(--s4); height:var(--s4) }   /* the project's mark: the spectral locus (web/img/locus-64.png) */
+.pfoot a{ color:var(--ink); text-decoration:underline; text-decoration-color:var(--hair); text-underline-offset:2px }
+.pfoot a:hover,.pfoot a:focus-visible{ text-decoration:underline }
+.pfoot .love{ display:inline-grid; vertical-align:-.15em; --ic:12px; color:var(--soft) }   /* support: a heart, quiet until hovered */
+.pfoot .love:hover,.pfoot .love:focus-visible{ color:var(--ink); text-decoration:none }
 
-.css{ display:grid; gap:var(--s1) }
-.row{ display:grid; gap:var(--s1) }
-/* the value, its format (a select), then its copy button */
-.fmtrow{ grid-template-columns:minmax(0,1fr) auto; align-items:center }
-/* the value's field is its format's select: it shows the value and a chevron; the select lies unseen over it (an OS-drawn
-   list where the select isn't customizable) and only its list shows */
-.fmt{ position:relative; display:flex; align-items:center; gap:var(--s1); cursor:pointer }
-.fmt input{ flex:1; pointer-events:none }
-.fmt > .chev{ --ic:10px; flex:none; color:var(--soft) }
-.fmt:hover > .chev{ color:var(--ink) }
+/* the copy button: an icon button with its chevron, as Figma's that open a list – the copy mark, then the chevron at the
+   chevron's own scale (its 12 px box) – a plain list of every notation as the value it gives (the select's; it lies
+   unseen over the button, an OS-drawn list where the select isn't customizable); a pick copies it */
+.fmt{ position:relative; flex:none; display:flex; align-items:center; width:auto; padding:0 var(--space-3xs) 0 var(--s1) }
+.fmt .cp{ --ic:16px; stroke-width:1.5 }   /* a 1 px stroke, as the eyedropper's and the settings mark's */
+.fmt .chev{ --ic:var(--s3) }
+
 .fmt select{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer }
-/* a value field with its copy button inside, at its end */
-.cpy{ display:flex; align-items:center; padding-right:0 }
-.cpy input{ flex:1; width:auto }
-.cpy .icb{ flex:none; width:var(--s6); height:100%; border-radius:0 var(--field-radius) var(--field-radius) 0 }
-.cpy .icb:hover,.cpy .icb:focus-visible{ background:none }
-.row input{ font-variant-numeric:tabular-nums }   /* the UI's own face: a whole oklch() with its alpha fits the default width */
-.row .icb[aria-label="Copied"],.row .icb[aria-label="Selected"]{ color:var(--ink) }   /* the copy glyph (the site footer's), lit while it confirms */
 
 /* the size grip: two straight diagonal ticks in the panel's bottom-right corner, their ends 3 px from the bottom and
    the right edge, the long one 12 px, the short one 8.5 px and 2 px from it, inside Figma's rounded window corner; it
-   takes presses only in its corner triangle, clear of the status line's info mark; quiet until hovered; dragged to widen, the
+   takes presses only in its corner triangle, clear of the palette; quiet until hovered; dragged to widen, the
    height following (the plane is square) */
 .grip{ position:fixed; right:0; bottom:0; width:var(--s5); height:var(--s5); clip-path:polygon(100% 0, 100% 100%, 0 100%); color:color-mix(in oklab, var(--soft) 55%, transparent); cursor:nwse-resize; touch-action:none }
 .grip::before{ content:''; position:absolute; inset:0; background:currentColor; -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M8.00 17.00L17.00 8.00M11.00 17.00L17.00 11.00' stroke='black' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M8.00 17.00L17.00 8.00M11.00 17.00L17.00 11.00' stroke='black' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% no-repeat }
 .grip:hover,.grip:focus-visible,html.drag .grip.live{ color:var(--ink); outline:none }
 
-/* the atlas's themed tooltip (web/js/tip.js): Figma's frame shows no native title */
-/* secondary: small; it goes when the pointer leaves its element or the panel, on any press, and when Figma takes focus */
-#tip{ position:fixed; left:0; top:0; z-index:var(--z-tooltip); max-width:12rem; padding:var(--space-3xs) var(--s1); font-size:var(--t0); font-weight:500; line-height:1.35; white-space:pre-line; background:var(--ink); color:var(--paper); border-radius:var(--radius-control); pointer-events:none; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }
-#tip.on{ opacity:.92 }
+/* the atlas's tooltip (web/js/tip.js) dressed as Figma's (measured at 2×, 2026-10): its menus' dark fill and white text at
+   11 px, 4 × 8 px of padding, 6 px corners, under its element with a 12 × 6 px tip pointing at the element's middle.
+   Secondary: it comes after half a second's rest (Figma's own wait) and goes at once – when the pointer leaves its
+   element or the panel, on any press, and when Figma takes focus – fading in, never out */
+#tip{ --tip-side:bottom; --tip-delay:500ms; position:fixed; left:0; top:0; z-index:var(--z-tooltip); max-width:14rem; padding:var(--s1) var(--s2); font-size:var(--ui-text); line-height:1.45; white-space:pre-line; background:var(--menu-bg); color:var(--menu-ink); border-radius:calc(var(--s1) + var(--space-3xs)); -webkit-font-smoothing:antialiased; pointer-events:none; opacity:0 }
+/* the tip runs a hairline into the bubble, so the two never part at a fractional edge */
+#tip::before{ content:''; position:absolute; left:var(--tip-ax, 50%); width:var(--s3); height:calc(var(--s1) + var(--space-3xs) + var(--rule-hair)); transform:translateX(-50%); background:inherit }
+#tip[data-side="bottom"]::before{ bottom:calc(100% - var(--rule-hair)); clip-path:polygon(50% 0, 100% calc(100% - var(--rule-hair)), 100% 100%, 0 100%, 0 calc(100% - var(--rule-hair))) }
+#tip[data-side="top"]::before{ top:calc(100% - var(--rule-hair)); clip-path:polygon(0 0, 100% 0, 100% var(--rule-hair), 50% 100%, 0 var(--rule-hair)) }
+/* a list in the tip (the layers a color is on) as Figma's layer menus set one (its Select layer, at 2×): the menu's
+   rounder corners and 6 px ends, 24 px rows – the layer's icon in the quiet ink (a vector's own outline), its name on one
+   line, cut short, where on it quiet at the right; the variable or style over them. Live (a swatch's): the pointer may
+   cross into it, and a row, lit as the menu's, takes Figma to that layer */
+#tip:has(.rows){ padding:calc(var(--s1) + var(--space-3xs)) var(--s2); border-radius:var(--menu-radius); white-space:nowrap }
+#tip .th{ display:block; line-height:var(--s6); font-weight:550; overflow:hidden; text-overflow:ellipsis }
+#tip .rows{ display:block }
+#tip .row{ display:flex; align-items:center; gap:var(--s2); height:var(--s6) }
+#tip .row i{ flex:none; display:grid; width:var(--s4); height:var(--s4); color:var(--menu-soft) }
+#tip .row i:empty{ display:none }
+#tip .row svg{ width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1 }
+#tip .row svg path{ vector-effect:non-scaling-stroke }
+#tip .row .nm{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis }
+#tip .row .as{ flex:none; color:var(--menu-soft) }
+#tip.live{ --inset:calc(var(--s1) + var(--space-3xs)); pointer-events:auto; padding:var(--inset) }   /* inset alike on every side, the rows' corners its own less the inset: concentric */
+#tip.live .row{ width:100%; margin:0; padding:0 var(--s2); border:0; border-radius:calc(var(--menu-radius) - var(--inset)); background:none; color:inherit; font:inherit; text-align:start; cursor:pointer }
+#tip.live .row:hover{ background:var(--menu-sel); color:var(--menu-sel-ink) }
+#tip.live .row:hover i,#tip.live .row:hover .as{ color:inherit }
+#tip.live .th{ padding-inline:var(--s2) }
+#tip.on{ opacity:1; transition:opacity var(--dur-micro) var(--ease-out) }
 html.drag #tip{ display:none }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="vq-smooth" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor"/></linearGradient></defs></svg>
-<ul class="paints" id="paints" role="list" aria-label="Colors in the selection" data-i18n="aria-label:pl.paints"></ul>
-<p class="empty" id="empty">Select a layer with a solid fill, a gradient or an image.</p>
-<section class="picker" id="picker" aria-label="Picker" data-i18n="aria-label:pl.picker">
-	<div class="top">
-		<label class="sel spb" id="spbtn"><input id="spq" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="spmenu" aria-label="Color space" placeholder="Search spaces" data-i18n="aria-label:pl.space.label placeholder:pl.menu.search" autocomplete="off" spellcheck="false"><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-		<label class="sel lens" id="quantf"><span class="face" id="quantface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="quant" aria-label="Quantize" data-i18n="aria-label:ui.cell.draw"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select></label>
-		<label class="sel lens" id="limitf"><span class="face" id="limitface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="limit" aria-label="Limit" data-i18n="aria-label:pl.limit"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select></label>
-		<div class="menu" id="spmenu" hidden>
-			<div class="mhead"><label class="sel grp"><select id="spgroup" aria-label="Family" data-i18n="aria-label:pl.menu.group"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></select><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label></div>
-			<div class="rows" id="splist" role="listbox" aria-label="Color spaces" data-i18n="aria-label:pl.menu.label"></div>
-		</div>
+<div class="top">
+	<label class="sel spb" id="spbtn"><input id="spq" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="spmenu" aria-label="Color space" placeholder="Search spaces" data-i18n="aria-label:pl.space.label placeholder:pl.menu.search" autocomplete="off" spellcheck="false"><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg></label>
+	<div class="menu" id="spmenu" hidden>
+		<div class="mhead"><label class="sel grp"><select id="spgroup" aria-label="Family" data-i18n="aria-label:pl.menu.group"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg></button></select><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg></label></div>
+		<div class="rows" id="splist" role="listbox" aria-label="Color spaces" data-i18n="aria-label:pl.menu.label"></div>
 	</div>
-	<div class="plw"><div class="pl" id="plane" tabindex="0" role="slider"><canvas></canvas><canvas class="density" aria-hidden="true"></canvas><i class="cx"></i></div><div class="marks" id="marks" role="group" aria-label="The document's colors" data-i18n="aria-label:pl.marks"></div><div class="axes" id="axes"><button class="laby" type="button"></button><button class="labx" type="button"></button><button class="pmode" type="button" hidden></button></div></div>
-	<div class="sliders">
-		<button class="icb" id="drop" type="button" hidden aria-label="Pick a color from the screen" data-tip="Pick from the screen" data-i18n="aria-label:pl.drop.label data-tip:pl.drop.tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button>
-		<div class="bars" id="channels" role="group" aria-label="Channels" data-i18n="aria-label:pl.channels"></div>
-	</div>
-</section>
-<section class="css" id="css" aria-label="CSS">
-	<div class="row fmtrow"><label class="fld fmt"><input id="css-1" readonly aria-label="CSS" tabindex="-1"><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="fmt" aria-label="Format" data-i18n="aria-label:pl.fmt.label"></select></label><button class="icb" id="copyb" type="button" data-copy="css-1" aria-label="Copy" data-i18n="aria-label:pl.copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
-	<div class="row" id="named" hidden><div class="fld cpy"><input id="css-3" readonly aria-label="Palette color name" data-i18n="aria-label:pl.name.label"><button class="icb" type="button" data-copy="css-3" aria-label="Copy" data-i18n="aria-label:pl.copy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div></div>
-</section>
-<div class="about" id="about" popover>
-	<a class="logo" href="https://color-space.io/" data-open="site"><img src="/*LOCUS*/" alt="">Color Space</a>
-	<p><span data-i18n="pl.about.by">by</span> <a href="https://github.com/colorjs/color-space" data-open="github">colorjs</a> <a class="love" href="https://github.com/sponsors/colorjs" data-open="support" aria-label="Support" data-i18n="aria-label:pl.about.support"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg></a></p>
+	<p class="empty" id="empty">Select a layer with a solid fill, a gradient or an image.</p>
+	<button class="info" id="prmb" type="button" popovertarget="prm" aria-label="Settings" data-tip="Settings" data-i18n="aria-label:pl.prm data-tip:pl.prm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6v5M8.5 15V17M15.5 6v2M15.5 12v5"/><circle cx="8.5" cy="13" r="2"/><circle cx="15.5" cy="10" r="2"/></svg></button>
 </div>
-<div class="foot"><span class="badge" id="badge" hidden></span><p class="err" id="err" role="alert"></p><p class="sr" id="gamut" role="status"></p><div class="sr" id="notes" role="status"></div><button class="info" id="aboutb" type="button" popovertarget="about" aria-label="About Color Space" data-tip="About" data-i18n="aria-label:pl.about.label data-tip:pl.about.tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg></button></div>
+<section class="picker" id="picker" aria-label="Picker" data-i18n="aria-label:pl.picker">
+	<div class="plw"><div class="pl" id="plane" tabindex="0" role="slider"><canvas></canvas><canvas class="density" aria-hidden="true"></canvas><i class="cx"></i><i class="zoom zx" hidden></i><i class="zoom zy" hidden></i></div><div class="marks" id="marks" role="group" aria-label="The document's colors" data-i18n="aria-label:pl.marks"></div><div class="axes" id="axes"><button class="laby" type="button"></button><button class="labx" type="button"></button><button class="pmode" type="button" hidden></button></div></div>
+	<div class="chans" id="channels" role="group" aria-label="Channels" data-i18n="aria-label:pl.channels">
+		<div class="sliders"><button class="icb" id="drop" type="button" aria-label="Pick a color from the screen" data-tip="Pick from the screen" data-i18n="aria-label:pl.drop.label data-tip:pl.drop.tip"><svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><g transform="translate(22.6 5.4) rotate(45)"><path d="M-3.1 8V3a3.1 3.1 0 0 1 6.2 0V8"/><path d="M-3.1 8h-.55a1.65 1.65 0 0 0 0 3.3h7.3a1.65 1.65 0 0 0 0-3.3h-.55"/><path d="M-3.2 11.3v11l1.7 5.9a1.5 1.5 0 0 0 3 0l1.7-5.9v-11"/></g></svg></button><div class="bars" id="bars"></div></div>
+		<div class="vals"><div class="fld val" id="valf"><div class="cells" id="cells" role="group" aria-label="Value" data-i18n="aria-label:pl.value"></div></div><label class="icb fmt"><svg class="ic cp" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M5 15V5.5A1.5 1.5 0 0 1 6.5 4H15"/></svg><svg class="ic chev" viewBox="6 6 12 12" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg><select id="fmt" tabindex="-1" aria-label="Copy as" data-tip="Copy" data-i18n="aria-label:pl.copy.as data-tip:pl.copy"></select></label></div>
+	</div>
+</section>
+<div class="prm" id="prm" popover>
+	<div class="phead"><span data-i18n="pl.prm">Settings</span><button class="icb" type="button" popovertarget="prm" popovertargetaction="hide" aria-label="Close" data-i18n="aria-label:pl.close"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+	<div class="pbody">
+		<span class="plab" id="gamlab" data-i18n="pl.gamut">Gamut</span><div class="seg" id="gamseg" role="radiogroup" aria-labelledby="gamlab"><button type="button" role="radio" data-g="srgb">sRGB</button><button type="button" role="radio" data-g="p3">P3</button><button type="button" role="radio" data-g="rec2020">Rec.2020</button></div>
+		<span class="plab" data-i18n="ui.cell.draw">Quantize</span><label class="sel lens" id="quantf"><span class="face" id="quantface"></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg><select id="quant" aria-label="Quantize" data-i18n="aria-label:ui.cell.draw"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg></button></select></label>
+		<label class="chk"><input type="checkbox" id="snap" checked><span data-i18n="pl.snap">Snap to colors</span></label>
+	</div>
+	<div class="phints" id="hints"><span class="plab" data-i18n="pl.hints">Hints</span>
+		<p><span data-i18n="pl.hint.axis">Drag along one channel</span><kbd>⇧</kbd></p>
+		<p><span data-i18n="pl.hint.fine">Drag finely, no snap</span><kbd>⌘</kbd></p>
+		<p><span data-i18n="pl.hint.measure">Measure another color</span><kbd>⌥</kbd></p>
+		<p><span data-i18n="pl.hint.zoom">Zoom the plane</span><kbd>⌃ <span data-i18n="pl.key.scroll">Scroll</span></kbd></p>
+		<p><span data-i18n="pl.hint.whole">Whole plane</span><kbd data-i18n="pl.key.dblclick">Double-click</kbd></p>
+		<p><span data-i18n="pl.hint.ten">Step a value ×10</span><kbd>⇧ ↑↓</kbd></p>
+	</div>
+	<div class="pfoot"><a class="logo" href="https://color-space.io/" data-open="site"><img src="/*LOCUS*/" alt="">Color Space</a><p><span data-i18n="pl.about.by">by</span> <a href="https://github.com/colorjs/color-space" data-open="github">colorjs</a> <a class="love" href="https://github.com/sponsors/colorjs" data-open="support" aria-label="Support" data-i18n="aria-label:pl.about.support"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg></a></p></div>
+</div>
+
+<p class="err" id="err" role="alert"></p><p class="sr" id="gamut" role="status"></p><div class="sr" id="notes" role="status"></div>
+<section class="pal" id="pal">
+	<label class="sel grp scope"><select id="scope" aria-label="Which colors" data-i18n="aria-label:pl.scope"><button><selectedcontent></selectedcontent><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg></button><option value="selection" data-i18n="pl.scope.selection">In selection</option><option value="page" data-i18n="pl.scope.page">On this page</option></select><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 11 2 2 2-2"/></svg></label>
+	<ul class="paints" id="paints" role="list" aria-label="Colors in the selection" data-i18n="aria-label:pl.paints"></ul>
+</section>
 <div class="ghost" id="ghost" hidden aria-hidden="true"><span class="sw"></span><span class="lbl" data-i18n="pl.fold">Merge</span></div>
 <div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Panel width" data-i18n="aria-label:pl.grip.label" aria-valuemin="240" aria-valuemax="560" aria-valuenow="288" tabindex="0"></div>
 <script>/*BUNDLE*/</script>

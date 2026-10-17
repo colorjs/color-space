@@ -7,7 +7,7 @@
  * messages the way Figma does: figma.ui.postMessage(msg) arrives in the UI as {pluginMessage: msg}, and the
  * UI's parent.postMessage({pluginMessage}, '*') reaches figma.ui.onmessage. Paints are frozen, like Figma's.
  *
- * setup: { profile, editorType, mode, nodes, variables, styles, selection, stored, codegen, images, mount, theme, languages, css }
+ * setup: { profile, editorType, mode, nodes, variables, styles, selection, stored, codegen, images, mount, theme, languages, platform, css, viewport }
  * images: hash → [rgbA, rgbB] (a 16 px PNG, its halves in those colors), 'corrupt', or a URL whose bytes are fetched
  */
 export function host(setup) {
@@ -16,12 +16,15 @@ export function host(setup) {
 	const mixed = Symbol('figma.mixed')
 	const events = {}, pageEvents = {}, store = new Map(Object.entries(setup.stored || {}))
 	const fire = (bag, type, arg) => setTimeout(() => (bag[type] || []).forEach(f => f(arg)))   // Figma's events are async
-	const log = window.__log = { toUI: [], fromUI: [], writes: [], varWrites: [], styleWrites: [], relaunch: [], opened: [], varLookups: 0, showUI: null, undo: 0, resize: [] }
+	const log = window.__log = { toUI: [], fromUI: [], writes: [], varWrites: [], styleWrites: [], relaunch: [], opened: [], varLookups: 0, showUI: null, undo: 0, undone: 0, resize: [], selected: [], centered: [] }
 	const nodes = new Map()
 
 	for (const spec of setup.nodes) {
 		// Figma reports '' for a fill or stroke list that isn't linked to a paint style
-		const node = { id: spec.id, name: spec.name, type: spec.type, visible: spec.visible !== false, parent: null, fillStyleId: spec.fillStyleId || '', strokeStyleId: spec.strokeStyleId || '', resolvedVariableModes: spec.modes || {}, _put: {}, setRelaunchData: d => log.relaunch.push({ id: spec.id, d }) }
+		const node = { id: spec.id, name: spec.name, type: spec.type, visible: spec.visible !== false, parent: null, fillStyleId: spec.fillStyleId || '', strokeStyleId: spec.strokeStyleId || '', resolvedVariableModes: spec.modes || {}, _put: {}, setRelaunchData: d => log.relaunch.push({ id: spec.id, d }),
+			// its place on the canvas (spec.box, else a 100 px square at the origin), and a vector's paths in its own box
+			absoluteBoundingBox: spec.box || { x: 0, y: 0, width: 100, height: 100 }, width: (spec.box || {}).width || 100, height: (spec.box || {}).height || 100,
+			...(spec.type === 'VECTOR' ? { vectorPaths: spec.vectorPaths || [{ windingRule: 'NONZERO', data: 'M0 0L100 100' }] } : {}) }
 		for (const kind of ['fills', 'strokes']) {
 			if (!(kind in spec)) continue
 			let value = spec[kind] === 'mixed' ? mixed : deepFreeze(clone(spec[kind]))
@@ -41,6 +44,8 @@ export function host(setup) {
 		}
 		nodes.set(node.id, node)
 	}
+	const snapshot = () => [...nodes.values()].flatMap(n => ['fills', 'strokes'].filter(k => n._put[k]).map(k => [n, k, n[k]]))
+	const history = [snapshot()]
 	// a group or frame holds its children (spec.children: ids), each knowing its parent
 	for (const spec of setup.nodes) if (spec.children) { const g = nodes.get(spec.id); g.children = spec.children.map(id => nodes.get(id)); for (const ch of g.children) ch.parent = g }
 	// color variables (aliases included) and paint styles; remote ones throw on edit, as Figma's library tokens do
@@ -68,10 +73,17 @@ export function host(setup) {
 	}))
 
 	let iframe = null
+	// the selection: a plugin's set fires selectionchange, as Figma's does; the view, its box on the canvas – its centre set
+	// by a plugin moves it
+	let selection = (setup.selection || []).map(id => nodes.get(id))
+	const viewport = { bounds: { x: 0, y: 0, width: 1000, height: 800, ...setup.viewport }, zoom: setup.zoom ?? 1 }
+	Object.defineProperty(viewport, 'center', { get: () => ({ x: viewport.bounds.x + viewport.bounds.width / 2, y: viewport.bounds.y + viewport.bounds.height / 2 }), set: c => { log.centered.push(c); viewport.bounds = { ...viewport.bounds, x: c.x - viewport.bounds.width / 2, y: c.y - viewport.bounds.height / 2 } } })
 	const currentPage = {
-		selection: (setup.selection || []).map(id => nodes.get(id)),
+		get selection() { return selection },
+		set selection(ns) { selection = ns.slice(); log.selected.push(ns.map(n => n.id)); fire(events, 'selectionchange') },
 		on: (t, f) => { (pageEvents[t] ||= []).push(f) },
 		off: (t, f) => { pageEvents[t] = (pageEvents[t] || []).filter(g => g !== f) },
+		get children() { return [...nodes.values()].filter(n => !n.parent) },   // the page's top-level layers, in setup order
 	}
 	window.figma = {
 		editorType: setup.editorType,
@@ -90,11 +102,15 @@ export function host(setup) {
 		mixed,
 		root: { documentColorProfile: setup.profile },
 		currentPage,
+		viewport,
 		on: (t, f) => { (events[t] ||= []).push(f) },
 		getNodeByIdAsync: async id => nodes.get(id) || null,
 		getStyleByIdAsync: async id => styles.get(id) || null,
 		variables: { getVariableByIdAsync: async id => { log.varLookups++; return vars.get(id) || null }, getLocalVariablesAsync: async () => [...vars.values()].filter(v => !v.remote) },
-		commitUndo: () => { log.undo++ },
+		// the history, the nodes' own paints (not variables' or styles'): a step per commitUndo; triggerUndo restores the one
+		// before the last, as Figma's Cmd+Z does, through no setter (an undo is no plugin write)
+		commitUndo: () => { log.undo++; history.push(snapshot()) },
+		triggerUndo: () => { log.undone++; if (history.length > 1) history.pop(); for (const [n, kind, v] of history.at(-1)) if (n[kind] !== v) n._put[kind](v) },
 		openExternal: url => { log.opened.push(url) },
 		clientStorage: {
 			getAsync: async k => store.get(k),
@@ -110,6 +126,8 @@ export function host(setup) {
 			if (setup.css) doc = doc.replace('<head>', `<head><style>${setup.css}</style>`)
 			// setup.languages: the browser's languages as the panel's first script sees them (navigator.languages)
 			if (setup.languages) doc = doc.replace('<head>', `<head><script>Object.defineProperty(navigator, 'languages', { get: () => ${JSON.stringify(setup.languages)} })</script>`)
+			// setup.platform: the system the panel's first script sees (navigator.platform: 'Win32' names keys as Windows does)
+			if (setup.platform) doc = doc.replace('<head>', `<head><script>Object.defineProperty(navigator, 'platform', { get: () => ${JSON.stringify(setup.platform)} })</script>`)
 			if (options.themeColors) doc = doc.replace('<head>', `<head><style>:root{${Object.entries(theme).map(([k, v]) => `--figma-color-${k}:${v}`).join(';')}}</style>`)
 			iframe = document.createElement('iframe')
 			iframe.sandbox = 'allow-scripts'   // an opaque origin: the UI may not rely on storage or same-origin access
@@ -132,7 +150,7 @@ export function host(setup) {
 		if (figma.ui.onmessage) figma.ui.onmessage(e.data.pluginMessage, { origin: e.origin })
 	})
 	// test controls
-	window.__select = ids => { currentPage.selection = ids.map(id => nodes.get(id)); fire(events, 'selectionchange') }
+	window.__select = ids => { selection = ids.map(id => nodes.get(id)); fire(events, 'selectionchange') }
 	window.__edit = (id, kind, paints) => { nodes.get(id)[kind] = paints }   // as if the user edited in Figma
 	window.__profile = p => { figma.root.documentColorProfile = p }
 	window.__paints = (id, kind) => clone(nodes.get(id)[kind])

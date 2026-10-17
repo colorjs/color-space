@@ -20,9 +20,9 @@ const HUES = ['shorter', 'longer', 'increasing', 'decreasing']
 const FN = /^(repeating-)?(linear|radial|conic)-gradient\(([\s\S]*)\)$/i
 const LEGACY = /^(#|rgba?\(|hsla?\(|hwb\(|[a-z]+$)/i   // hex, rgb(), hsl(), hwb() or a bare name – CSS's legacy sRGB syntaxes
 
-// the short form's joint: a dash between colors – ` – `, ` - ` (spaced, so a value's own minus stays its own), `–`, `—` –
-// or `..`; written as ` – `
-export const DASH = /\s*[–—]\s*|\s+-\s+|\.\./y, JOIN = ' – '
+// the short form's joint: the word – `indigo to red`, as a gradient is said – or a dash between colors – ` – `, `–`, `—`,
+// a hyphen spaced or not (`red-blue`: one before a digit is a number's minus, not a joint) – or `..`; written as ` – `, the typographic joint
+export const DASH = /\s+to\s+|\s*[–—]\s*|\s+-\s+|-(?=\s*[#a-z(])|\.\./iy, JOIN = ' – '
 // the joint at i, its length; 0 where there is none
 export const dashAt = (str, i) => { DASH.lastIndex = i; const m = DASH.exec(str); return m ? m[0].length : 0 }
 // top-level separators only (commas, or the short form's dashes) – a color's own parens keep theirs
@@ -52,7 +52,7 @@ export function parseGradient(str, parse) {
 	mix ??= { space: stops.every(x => LEGACY.test(x.src)) ? 'rgb' : 'oklab', hue: 'shorter', named: false }
 	return { fn: (m[1] || '') + m[2].toLowerCase() + '-gradient', head, mix, stops: placed(stops) } }
 
-// the short form: `a – b – c`, a method closing it – a linear gradient, Oklab unless named
+// the short form: `a to b to c`, a method closing it – a linear gradient, Oklab unless named
 const TAIL = /\s+(in\s+[a-z0-9-]+(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?)\s*$/i
 function parseShort(str, parse) {
 	const parts = splitTop(str.trim(), DASH); if (parts.length < 2) return null

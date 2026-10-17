@@ -79,7 +79,7 @@ float hunt_coneY_(vec3 rgbA) {
 // (J, C94, h) -> XYZ: near-closed-form (see hunt.js). Q/Qw, s and the opponent direction
 // come straight from J, C, h; only the rod's Y-coupling needs a short 1-D fixed point.
 vec3 hunt_xyz(vec3 c) {
-	float J = c.x; float C = c.y; float h = c.z;
+	float J = c.x; float C = c.y; float h = fract(c.z / 360.0) * 360.0;
 	float es = hunt_ecc_(h);
 	float qr = sqrt(max(J, 0.0) / 100.0);
 	float K = spow_(max(qr * hunt_qw_(es) + 5.966759047889217, 0.0) / 1.6924388501569114, 1.0 / 0.6) / 7.0;

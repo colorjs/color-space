@@ -7,29 +7,17 @@
     "t": "作者：",
     "h": "40815864"
   },
-  "pl.about.label": {
-    "t": "Color Spaceについて",
-    "h": "801e0186"
-  },
   "pl.about.support": {
     "t": "プロジェクトを支援",
     "h": "f32d5a3b"
   },
-  "pl.about.tip": {
-    "t": "このプラグインについて",
-    "h": "6b21fb79"
-  },
-  "pl.alpha.field": {
-    "t": "不透明度（%）",
-    "h": "d4230810"
+  "pl.alpha": {
+    "t": "不透明度",
+    "h": "f0fa69f3"
   },
   "pl.alpha.slider": {
     "t": "不透明度のスライダー",
     "h": "eba4c9b9"
-  },
-  "pl.alpha.tip": {
-    "t": "不透明度、0〜100%。ドラッグで値を変更。",
-    "h": "16f4ce04"
   },
   "pl.axis.across": {
     "t": "横軸：{name}",
@@ -51,33 +39,29 @@
     "t": "縦軸：{name}",
     "h": "1f2e239c"
   },
-  "pl.badge.out": {
-    "t": "{gamut}の色域外",
-    "h": "40655b19"
-  },
   "pl.ch.slider": {
     "t": "{name}のスライダー",
     "h": "05035347"
-  },
-  "pl.ch.tip": {
-    "t": "{name}、{min}〜{max}。ドラッグで値を変更。",
-    "h": "aae26ae2"
   },
   "pl.channels": {
     "t": "チャンネル",
     "h": "18e03e2a"
   },
+  "pl.close": {
+    "t": "閉じる",
+    "h": "bbfa773e"
+  },
+  "pl.copied": {
+    "t": "{value} をコピーしました",
+    "h": "7e5f167e"
+  },
   "pl.copy": {
     "t": "コピー",
     "h": "af74f7c5"
   },
-  "pl.copy.done": {
-    "t": "コピーしました",
-    "h": "8e3df45a"
-  },
-  "pl.copy.selected": {
-    "t": "選択しました",
-    "h": "9a976fc2"
+  "pl.copy.as": {
+    "t": "形式を選んでコピー",
+    "h": "ae97334a"
   },
   "pl.dot.edit": {
     "t": "{what}を編集",
@@ -115,6 +99,10 @@
     "t": "画像を読み込んでいます…",
     "h": "0f94976a"
   },
+  "pl.err.copy": {
+    "t": "ここではクリップボードを使えません。値：{value}",
+    "h": "450d3006"
+  },
   "pl.err.dropper": {
     "t": "ここではスポイトツールを使えません。",
     "h": "3625962f"
@@ -123,9 +111,9 @@
     "t": "その{space}の値に対応する色はありません。",
     "h": "016e93d5"
   },
-  "pl.fmt.label": {
-    "t": "形式",
-    "h": "041a5dec"
+  "pl.err.value": {
+    "t": "色ではありません：{text}",
+    "h": "c39d3657"
   },
   "pl.fmt.mapped": {
     "t": "{value}：sRGBに色域マッピング済み",
@@ -135,6 +123,10 @@
     "t": "統合",
     "h": "ea8f0d02"
   },
+  "pl.gamut": {
+    "t": "色域",
+    "h": "09b42dc9"
+  },
   "pl.gamut.in": {
     "t": "{gamut}の色域内。",
     "h": "c773cbdc"
@@ -142,10 +134,6 @@
   "pl.gamut.out": {
     "t": "{gamut}の色域外、色域内にマッピング済み。",
     "h": "a86a31a2"
-  },
-  "pl.gamut.out-tip": {
-    "t": "{gamut}の色域外：最も近い{gamut}の色として書き込みます（CSS Color 4の色域マッピング：明度と色相を保ったままクロマを下げます）。",
-    "h": "9456689a"
   },
   "pl.gamut.snapped": {
     "t": "{name}に合わせました。",
@@ -155,29 +143,49 @@
     "t": "パネルの幅",
     "h": "c9f20427"
   },
-  "pl.limit": {
-    "t": "上限",
-    "h": "24d948e4"
+  "pl.hint.axis": {
+    "t": "1チャンネルに沿ってドラッグ",
+    "h": "c27bfc42"
   },
-  "pl.limit.file": {
-    "t": "ファイルの色域",
-    "h": "e7cb55e0"
+  "pl.hint.fine": {
+    "t": "細かくドラッグ、スナップなし",
+    "h": "e0d57f7d"
   },
-  "pl.limit.file-is": {
-    "t": "{name}（{gamut}）",
-    "h": "1fcfce27"
+  "pl.hint.measure": {
+    "t": "別のカラーを測る",
+    "h": "cddc738f"
   },
-  "pl.limit.file-tip": {
-    "t": "ファイル自体の色域",
-    "h": "e13926bb"
+  "pl.hint.ten": {
+    "t": "値を×10で変更",
+    "h": "60bdf5cb"
   },
-  "pl.limit.tip": {
-    "t": "上限：{name}、{tip}",
-    "h": "4181710c"
+  "pl.hint.whole": {
+    "t": "平面全体",
+    "h": "da785ad3"
+  },
+  "pl.hint.zoom": {
+    "t": "平面をズーム",
+    "h": "26fd3e84"
+  },
+  "pl.hints": {
+    "t": "ヒント",
+    "h": "eef8e89a"
+  },
+  "pl.key.dblclick": {
+    "t": "ダブルクリック",
+    "h": "1a1729fa"
+  },
+  "pl.key.scroll": {
+    "t": "スクロール",
+    "h": "090a3c80"
   },
   "pl.marks": {
     "t": "ファイル内の色",
     "h": "b3146392"
+  },
+  "pl.measure.large": {
+    "t": "AA 大",
+    "h": "b0fcb261"
   },
   "pl.menu.all": {
     "t": "すべての色空間",
@@ -211,13 +219,17 @@
     "t": "正方形で表示",
     "h": "512e7c34"
   },
+  "pl.mode.tip.square": {
+    "t": "正方形",
+    "h": "82810cb9"
+  },
+  "pl.mode.tip.wheel": {
+    "t": "ホイール",
+    "h": "0d972afc"
+  },
   "pl.mode.wheel": {
     "t": "ホイールで表示",
     "h": "ee941269"
-  },
-  "pl.name.label": {
-    "t": "パレットの色名",
-    "h": "848bb22a"
   },
   "pl.note.dev": {
     "t": "Dev Modeは読み取り専用です。下の値をコピーしてください。",
@@ -271,13 +283,9 @@
     "t": "{a}と{b}のホイール",
     "h": "29862ab2"
   },
-  "pl.profile.legacy-tip": {
-    "t": "カラープロファイル未設定（カラーマネジメント以前のファイル）：sRGBとして読み取ります",
-    "h": "b41363f4"
-  },
-  "pl.profile.tip": {
-    "t": "ファイルのカラープロファイル：値は{name}",
-    "h": "9a8c47e4"
+  "pl.prm": {
+    "t": "設定",
+    "h": "c7f73bb5"
   },
   "pl.quant.565": {
     "t": "16ビット",
@@ -291,9 +299,21 @@
     "t": "画像",
     "h": "0e762927"
   },
-  "pl.row.src": {
-    "t": "{where}、{type}「{name}」から",
-    "h": "4d82e4b1"
+  "pl.scope": {
+    "t": "表示する色",
+    "h": "87cba4d7"
+  },
+  "pl.scope.page": {
+    "t": "このページ",
+    "h": "7e439c35"
+  },
+  "pl.scope.selection": {
+    "t": "選択範囲",
+    "h": "05adeee2"
+  },
+  "pl.snap": {
+    "t": "カラーにスナップ",
+    "h": "7cd49dc0"
   },
   "pl.space.label": {
     "t": "色空間",
@@ -306,6 +326,18 @@
   "pl.src.variable": {
     "t": "バリアブル",
     "h": "b46d0172"
+  },
+  "pl.tip.more": {
+    "t": "+{n} 件",
+    "h": "85104219"
+  },
+  "pl.value": {
+    "t": "値",
+    "h": "8dce170d"
+  },
+  "pl.void": {
+    "t": "色ではありません",
+    "h": "4fd77c42"
   },
   "pl.where.fill": {
     "t": "塗り{n}",

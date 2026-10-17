@@ -40,6 +40,8 @@ const hero = (id) => readFileSync(join(root, 'web/index.html'), 'utf8').match(ne
 // the hero's own cloud (web/js/cloud.js) at rest with none picked – the wheel as laid out, the band's light, soft end –
 // drawn as blurred CSS blobs on the card
 const W = 1200, H = 630, blob = ([x, y, r], [L, C, h]) => `radial-gradient(circle ${r * W}px at ${x * W + 120}px ${y * H + 120}px, oklch(${L} ${C} ${h}), oklch(${L} ${C} ${h} / 0))`
+// the site's mark – the spectral locus, its favicon – beside the address
+const LOCUS = readFileSync(join(root, 'web/img/locus-192.png')).toString('base64')
 const CLOUD = tints({ hue: 10, L: .84, C: .13, spread: 1 }).map((t, i) => blob(BLOBS[i], t)).join(',')
 const siteHTML = `<!doctype html><meta charset="utf-8"><style>${PAPER}
 body{ position:relative; overflow:hidden; padding:0 80px; justify-content:center }
@@ -48,12 +50,12 @@ body{ position:relative; overflow:hidden; padding:0 80px; justify-content:center
 .n{ margin-bottom:26px; font-size:24px; font-weight:600; color:oklch(0.34 0.014 246) }
 h1{ max-width:760px; font-size:88px; font-weight:800; line-height:1; letter-spacing:-.04em; text-wrap:balance }
 .sub{ margin-top:30px; font-size:28px; line-height:1.42; color:oklch(0.34 0.014 246) }
-.url{ position:absolute; left:80px; bottom:44px; display:flex; align-items:center; gap:12px; font-size:24px; font-weight:700 } .url .dia{ width:14px; height:14px }
+.url{ position:absolute; left:80px; bottom:44px; display:flex; align-items:center; gap:12px; font-size:24px; font-weight:700 } .url img{ width:32px; height:32px }
 </style><body><div class="cloud"></div>
 <div class="n">${spaceCount} color spaces</div>
 <h1>${hero('hero-t')}</h1>
 <div class="sub">${hero('hsub')}</div>
-<div class="url"><span class="dia"></span>color-space.io</div>
+<div class="url"><img src="data:image/png;base64,${LOCUS}" alt="">color-space.io</div>
 </body>`
 
 // the space's signature: each channel swept across its range, the others held at

@@ -30,7 +30,7 @@ var hsv = {
 
 	rgb: function (h, s, v) {
 		// Convert from H: 0-360, S/V: 0-100 to normalized
-		h = (h / 360) * 6;
+		h = (h / 360 % 1 + 1) % 1 * 6; // a turn of hue is the same hue: any angle wraps into one turn
 		s = s / 100;
 		v = v / 100;
 

@@ -1,0 +1,14 @@
+{
+	"name": "Color Spaces – an interactive atlas",
+	"short_name": "Color Spaces",
+	"description": "An interactive atlas of color spaces: their channels, gamuts and conversions – offline once opened.",
+	"start_url": "./",
+	"scope": "./",
+	"display": "standalone",
+	"background_color": "#f6f7f9",
+	"theme_color": "#f6f7f9",
+	"icons": [
+		{ "src": "img/locus-192.png", "sizes": "192x192", "type": "image/png" },
+		{ "src": "img/locus-512.png", "sizes": "512x512", "type": "image/png" }
+	]
+}

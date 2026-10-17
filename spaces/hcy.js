@@ -36,7 +36,7 @@ const hueRgb = (H) => [
 ];
 
 hcy.rgb = (H, C, Y) => {
-	H = H / 360; C = C / 100; Y = Y / 100;
+	H = (H / 360 % 1 + 1) % 1; C = C / 100; Y = Y / 100; // a turn of hue is the same hue: any angle wraps into one turn
 
 	const [hr, hg, hb] = hueRgb(H);
 	const Z = luma(hr, hg, hb); // luma of the pure hue

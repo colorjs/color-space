@@ -41,7 +41,7 @@ export function mock() {
 		const doc = { uri: Uri.parse(u), languageId, lines: text.split('\n'), version: 1 }
 		doc.lineAt = n => ({ text: doc.lines[n] })
 		doc.getText = r => { const t = doc.lines.join('\n'); return r ? t.slice(doc.offsetAt(r.start), doc.offsetAt(r.end)) : t }
-		doc.offsetAt = p => doc.lines.slice(0, p.line).reduce((n, l) => n + l.length + 1, 0) + p.character
+		doc.offsetAt = p => doc.lines.slice(0, p.line).reduce((n, l) => n + l.length + 1, 0) + Math.min(p.character, (doc.lines[p.line] ?? '').length)   // a position past its line's end is its end, as VS Code validates it
 		doc.positionAt = o => { let line = 0; while (line < doc.lines.length - 1 && o > doc.lines[line].length) { o -= doc.lines[line].length + 1; line++ } return new Position(line, o) }
 		editor = {
 			document: doc,
@@ -102,9 +102,10 @@ export function mock() {
 			onDidChangeTextEditorSelection: on('selection'),
 			onDidChangeActiveTextEditor: on('editor'),
 			registerWebviewViewProvider: (id, provider) => { log.providers[id] = provider; return { dispose() {} } },
-			showTextDocument: async () => editor,
+			showTextDocument: async (doc, o) => { log.shown = (log.shown || 0) + 1; if (o?.selection) { editor.selections = [new Selection(o.selection.start, o.selection.end)]; fire('selection', { textEditor: editor }) } return editor },   // the editor focused; its selection, when given, set
 			showQuickPick: async (items, o) => { log.quickPick = { items, o }; return log.pickAnswer ? items.find(log.pickAnswer) : undefined },
 			showInformationMessage: async m => { log.info.push(m) },
+			setStatusBarMessage: m => { log.info.push(m); return { dispose() {} } },
 			createTextEditorDecorationType: o => ({ ...o, dispose() {} }),
 		},
 		workspace: {

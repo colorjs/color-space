@@ -23,7 +23,7 @@ vec3 rgb_hcl(vec3 c) {
 	return vec3(H * 360.0, Cadj * 100.0, L * 100.0);
 }
 vec3 hcl_rgb(vec3 c) {
-	float h = c.x / 360.0; float ch = c.y / 100.0; float l = c.z / 100.0;
+	float h = fract(c.x / 360.0); float ch = c.y / 100.0; float l = c.z / 100.0;
 	if (l == 0.0) { return vec3(0.0, 0.0, 0.0); }
 	float L = l * 0.530454533953517;
 	float Q = exp((1.0 - ch / (2.0 * L)) * (3.0 / 100.0));

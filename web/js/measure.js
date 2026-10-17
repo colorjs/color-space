@@ -1,7 +1,7 @@
 /**
  * Two colors weighed – the one in hand and another, as the ⌥ (Alt) hover reads them on the site's instruments and in the
- * Figma and VS Code panel; the distances the site's palette lenses and the panel's gamut mapping use too. Pure numbers,
- * no conversions: a color comes in as its CIELAB (D50, CSS lab()), its Oklab and its relative luminance Y.
+ * Figma and VS Code panel – and the color differences the site's palette lenses and the panel's gamut mapping use. Pure
+ * numbers, no conversions: a color comes in as its CIELAB (D50, CSS lab()), its Oklab or its relative luminance Y.
  *
  * ΔE2000 – CIEDE2000 (CIE 142-2001) on CIELAB, kL = kC = kH = 1, step for step as Sharma, Wu & Dalal give it: "The
  *   CIEDE2000 color-difference formula: implementation notes, supplementary test data, and mathematical observations",
@@ -38,8 +38,11 @@ export function deltaE2000(p, s) {
 /** WCAG 2.2's contrast ratio of two relative luminances (a luminance below 0, past the black of a wide space, is 0) */
 export const contrast = (Y1, Y2) => { const a = Math.max(Y1, 0), b = Math.max(Y2, 0); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) }
 
-/** a and b: { lab, oklab, Y } – their two distances, the distance in JNDs, their contrast */
-export const measure = (a, b) => { const deok = deltaEOK(a.oklab, b.oklab); return { de00: deltaE2000(a.lab, b.lab), deok, jnd: deok / JND, ratio: contrast(a.Y, b.Y) } }
+/** a contrast ratio as the readout gives it, with the level it reaches (large: the page's name for 3:1, AA for large text) */
+export function contrastText(ratio, large) {
+	const r = Math.floor(ratio * 100) / 100, lv = r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? large : ''
+	return `${r.toFixed(2)}:1${lv ? ` ${lv}` : ''}`
+}
 
 /** one channel's step from a to b; a hue (a channel wrapping over its span) the shorter way round */
 export const step = (a, b, span) => { const d = b - a; return span ? d - span * Math.round(d / span) : d }
@@ -50,12 +53,3 @@ export const step = (a, b, span) => { const d = b - a; return span ? d - span * 
  * (core.js fmtc). '' where it doesn't move at its printed precision
  */
 export const stepText = (c, a, b, span, fmt) => { const d = step(a, b, span), s = fmt(Math.abs(d), c); return +s ? `${c.sym} ${d < 0 ? '−' : '+'}${s}` : '' }
-
-/**
- * The readout: two pills – the distance chosen (metric 'deok' ΔEOK, else ΔE2000) and the WCAG contrast with the level it
- * reaches (large: the page's name for the 3:1 level, AA for large text)
- */
-export function pills(m, metric, large) {
-	const r = Math.floor(m.ratio * 100) / 100, lv = r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? large : ''
-	return [metric === 'deok' ? `ΔEOK ${m.deok.toFixed(3)}` : `ΔE00 ${m.de00.toFixed(1)}`, `${r.toFixed(2)}:1${lv ? ` ${lv}` : ''}`]
-}

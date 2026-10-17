@@ -75,10 +75,7 @@ for (const from of spaces) {
 		for (const to of ['rgb', 'xyz']) {
 			if (to === from || to === 'xyz' && OWN_XYZ.has(from)) continue
 			const [bad, first] = sweep(grid(from), (p) => {
-				let s
-				// the scalar hsv→rgb throws on a negative hue (no sector); the kernel answers NaN
-				try { s = space[from][to](...p) } catch { s = [NaN, NaN, NaN] }
-				const w = wasm[from][to](...p)
+				const s = space[from][to](...p), w = wasm[from][to](...p)
 				return sameColor(to, w, s) ? '' : `${fmt(p)} → wasm ${fmt(w)} vs scalar ${fmt(s)}`
 			})
 			is(bad, 0, `${from}→${to}: ${bad} of ${grid(from).length} off${first && ', first ' + first}`)

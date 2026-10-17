@@ -58,6 +58,10 @@ export function classify(name) {
 	CLASSIFIED.set(name, classified)
 	return classified
 }
+// the shape: a hue angle makes it polar – whatever its other channels are (HWB's whiteness and blackness, HCG's gray,
+// none of them a lightness); else two signed axes round a tone, opponent; else independent channels. The site's
+// catalog and the panel's space menu mark a space by it
+export const geoOf = s => { const c = classify(s); return c.angle ? 'polar' : c.archetype === 'opponent' ? 'opponent' : 'component' }
 
 // any hue-like channel is an angle wrapping over its own span — munsell's H is 0-100
 // grades, coloroid's A is 10-76, not just the 0-360 spaces. -1 = no wheel.
@@ -78,9 +82,9 @@ export const pairsOf = cls => { const n = cls.ch.length; if (n < 2) return []
 // 0..6). The printed precision IS the step.
 export const decOf = c => { const d = -Math.floor(Math.log10((c.max - c.min) / 100)); return d > 0 ? Math.min(d, 6) : 0 }
 // fixed decimals, never shed — 0.111 → 0.110 → 0.109 keeps its width, and the trailing
-// zeros tell the user what one spinner click moves
-export const fmtc = (v, c) => { if (!isFinite(v)) return ''
-	const s = v.toFixed(decOf(c)); return /^-0(\.0+)?$/.test(s) ? s.slice(1) : s }
+// zeros tell the user what one spinner click moves; d: fewer, where a field has no room for them
+export const fmtc = (v, c, d = decOf(c)) => { if (!isFinite(v)) return ''
+	const s = v.toFixed(Math.max(0, d)); return /^-0(\.0+)?$/.test(s) ? s.slice(1) : s }
 
 // convert a space's raw channel values → clamped sRGB
 // non-finite components (coordinates outside the space's domain, e.g. ICtCp I=0 with chroma) clamp to 0
@@ -110,7 +114,11 @@ export function locus() {
 	}
 	return LOCUS = pts
 }
-/** Is this chromaticity a colour at all? Even-odd crossing over the closed locus. */
+/** A chromaticity this close to the curve is on it: the standards' primaries are monochromatic lights published to three
+ *  places – Rec. 2020's 532 nm green falls 0.0007 past the CMF locus, its blue 0.0005, P3's red 0.0001, ProPhoto's red
+ *  exactly on it – and a light on the locus is real. ProPhoto's green, 0.033 past it, stays imaginary */
+export const LOCUS_EPS = 1e-3
+/** Is this chromaticity a colour at all? Even-odd crossing over the closed locus, or within LOCUS_EPS of it. */
 function visibleXY(x, y) {
 	const P = locus()
 	let c = false
@@ -118,14 +126,38 @@ function visibleXY(x, y) {
 		const a = P[i], b = P[j]
 		if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c
 	}
-	return c
+	if (c) return true
+	for (let i = 0, j = P.length - 1; i < P.length; j = i++) {   // outside: on the curve after all?
+		const [ax, ay] = P[i], ex = P[j][0] - ax, ey = P[j][1] - ay, t = Math.max(0, Math.min(1, ((x - ax) * ex + (y - ay) * ey) / (ex * ex + ey * ey)))
+		if (Math.hypot(x - ax - t * ex, y - ay - t * ey) < LOCUS_EPS) return true
+	}
+	return false
 }
+/** A color's CIE 1931 xy chromaticity, null for none (a negative light). Black holds no light, so no chromaticity of its own:
+ *  it sits where every gray does, at the white's (the library's own white, so black and the darkest gray share a point) */
+let WXY = null
+export const xyOf = (X, Y, Z) => { const s = X + Y + Z
+	if (s > 1e-6) return [X / s, Y / s]
+	if (Math.abs(X) + Math.abs(Y) + Math.abs(Z) > 1e-6) return null
+	return WXY ??= ((W) => [W[0] / (W[0] + W[1] + W[2]), W[1] / (W[0] + W[1] + W[2])])(space.rgb.xyz(255, 255, 255)) }
 /** Is this XYZ a colour at all? Black is; anything off the locus is not. */
 export const visibleXYZ = (X, Y, Z) => {
 	const s = X + Y + Z
 	if (!isFinite(s)) return false
 	if (s <= 1e-9) return X > -1e-6 && Y > -1e-6 && Z > -1e-6   // black, not a negative coordinate
 	return visibleXY(X / s, Y / s)
+}
+/**
+ * The tightest standard display gamut holding a color (space s, coordinates v): 'srgb', 'p3' or 'rec2020' – CSS Color 4's
+ * predefined spaces (#predefined), each channel within half a code value of its box, as the fields' kernel pads its cut
+ * (gl.js uGam) – 'out' past all three, null for no color at all (off the spectral locus, or no coordinates)
+ */
+export function tightGamut(s, v) {
+	const to = d => s === d ? v : space[s][d](...v)
+	try {
+		const g = [['srgb', () => to('rgb').map(u => u / 255)], ['p3', () => to('p3')], ['rec2020', () => to('rec2020')]].find(([, e]) => e().every(u => u >= -0.002 && u <= 1.002))
+		return g ? g[0] : visibleXYZ(...to('xyz')) ? 'out' : null
+	} catch { return null }
 }
 
 // ── the object-colour solid: the shape the HUMAN view actually draws ──

@@ -29,7 +29,7 @@ var hcg = {
 	rgb: function (h, c, g) {
 		// Input: H: 0-360, C/G: 0-100
 		// Normalize
-		h = h / 360;
+		h = (h / 360 % 1 + 1) % 1; // a turn of hue is the same hue: any angle wraps into one turn
 		c = c / 100;
 		g = g / 100;
 

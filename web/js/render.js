@@ -5,8 +5,8 @@
 // The prerender passes the DEFAULT color state, so values, slider gradients and tick
 // markers are baked into the static HTML — the catalog is complete at first paint,
 // before any script runs; the page's stamp-skip repaints only what actually changes.
-import { space, meta, classify, ramp, hex, toSpace, clamp, pairsOf, decOf, fmtc } from './core.js'
-export { pairsOf, decOf, fmtc }   // the dossier imports them from here with the rest of the catalog
+import { space, meta, classify, ramp, hex, toSpace, clamp, pairsOf, decOf, fmtc, geoOf } from './core.js'
+export { pairsOf, decOf, fmtc, geoOf }   // the dossier imports them from here with the rest of the catalog
 import CATS from './categories.js'
 import PURPOSE, { USE } from './purpose.js'
 import LORE from './lore.js'
@@ -53,12 +53,12 @@ export const tagL = v => ({
 // a short gloss for a tag whose name alone doesn't say it (Shape, Signal, Tone curve, White) – the filter options carry
 // it under their names, the list view's icons in their tips; SDR, HDR, In use, Historical and channel counts say themselves
 export const tagLine = v => ({
-	component: t('tagline.component', 'independent channels, no hue'), polar: t('tagline.polar', 'a hue angle and a chroma'), opponent: t('tagline.opponent', 'two axes around neutral gray'),
+	component: t('tagline.component', 'independent channels, no hue'), polar: t('tagline.polar', 'a hue angle and a chroma or saturation'), opponent: t('tagline.opponent', 'two axes around neutral gray'),
 	display: t('tagline.display', 'light a display emits'), scene: t('tagline.scene', 'light in the scene, as filmed'),
-	gamma: t('tagline.gamma', 'a power curve over linear light'), 'luma / chroma': t('tagline.luma-chroma', 'the broadcast and compression layout'), perceptual: t('tagline.perceptual', 'equal steps look equal'),
-	linear: t('tagline.linear', 'proportional to light, no curve'), PQ: t('tagline.pq', 'absolute HDR, up to 10,000 nits'), HLG: t('tagline.hlg', 'broadcast HDR that SDR can show'), log: t('tagline.log', 'a camera\'s range in few codes'),
-	D65: t('tagline.d65', 'daylight, ≈6504 K'), D50: t('tagline.d50', 'horizon daylight, ≈5003 K'), D55: t('tagline.d55', 'mid-morning daylight, ≈5503 K'), D60: t('tagline.d60', 'the ACES white, ≈6000 K'), DCI: t('tagline.dci', 'the cinema projector\'s white'),
-	C: t('tagline.c', '1931 average daylight, ≈6774 K'), E: t('tagline.e', 'equal-energy white'), A: t('tagline.a', 'tungsten light, ≈2856 K'),
+	gamma: t('tagline.gamma', 'a power curve over linear light'), 'luma / chroma': t('tagline.luma-chroma', 'luma and two color differences – broadcast, compression'), perceptual: t('tagline.perceptual', 'equal steps aim to look equal'),
+	linear: t('tagline.linear', 'proportional to light, no curve'), PQ: t('tagline.pq', 'absolute HDR to 10,000 nits – SMPTE ST 2084'), HLG: t('tagline.hlg', 'hybrid log-gamma – broadcast HDR that SDR can show'), log: t('tagline.log', 'a camera’s range in few codes'),
+	D65: t('tagline.d65', 'average daylight, ≈6504 K – the web’s and video’s white'), D50: t('tagline.d50', 'horizon daylight, ≈5003 K – print’s and ICC’s white'), D55: t('tagline.d55', 'mid-morning daylight, ≈5503 K – film’s white'), D60: t('tagline.d60', 'the ACES white, ≈6000 K'), DCI: t('tagline.dci', 'the cinema projector’s white, greener than daylight'),
+	C: t('tagline.c', '1931 average daylight, ≈6774 K – NTSC’s and Munsell’s'), E: t('tagline.e', 'equal-energy white, x = y = ⅓'), A: t('tagline.a', 'tungsten light, ≈2856 K'),
 })[v] || ''
 
 export const LEADS = 3   // lead cards per family on a wide catalog (its featured spaces – the first three); the rest are tiles
@@ -92,7 +92,7 @@ export const endingSays = s => { const e = ending(s); if (!e) return ''
 const attr = x => x.replace(/"/g, '&quot;')   // an attribute, so a translation's quote is escaped
 const entTip = s => { const p = PURPOSE[s]?.[0]; return attr([lede(s) || (p && cap(t(`purpose.${p}.use`, USE[p]))), endingSays(s)].filter(Boolean).join('\n')) }   // and, ended, how
 const entHead = s => attr([meta[s].by, run(s)].filter(Boolean).join(', '))   // the maker whole – the card's line shortens it, and a narrow card cuts it – and the year
-const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${tagL(k === 'sig' ? v + '-referred' : v)}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
+const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${cap(tagL(k === 'sig' ? v + '-referred' : v))}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
 // a lead card's story – the lore's "made for" line in the page's language, as a sentence
 const lede = s => { const f = LORE[s]?.for; if (!f) return ''; const x = cap(t(`lore.${s}.for`, f)); return /[.!?…]$/.test(x) ? x : x + '.' }
 // the maker, short (no asides in parentheses; past two names, the first et al.), then the year – the year ends the line,
@@ -101,7 +101,7 @@ const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.
 // the years it ran: from its year to its successor's – or its year alone (still current, or retired with no year to give)
 // (short: the end year's last two digits within its century, 1942–76 – a card's corner is narrow)
 export const run = (s, short) => { const y = meta[s].year, z = y && ending(s)?.y; return !y ? '' : !z ? `${y}` : `${y}–${short && String(z).slice(0, 2) === String(y).slice(0, 2) ? String(z).slice(2) : z}` }
-const byline = s => { const m = meta[s], e = ending(s); return [m.by && `<span class="au">${shortBy(m.by)}${m.year ? ',' : ''}</span>`, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.historical : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
+const byline = s => { const m = meta[s], e = ending(s), ki = kindIcon('geo', s); return [m.by ? `<span class="au">${ki}<span class="aun">${shortBy(m.by)}${m.year ? ',' : ''}</span></span>` : ki, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.historical : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
 // an entry: the featured (lead) card reads in full – name and by-line, its story, the strips, the numbers; a tile
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its
@@ -114,37 +114,47 @@ const valsAt = (s, st) => { if (!st) return null; try { return s === DEFAULT.s ?
 const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.hx}" data-g="${st.hx}:0:${n}:${limitFor(cls)}"` : ''} style="--nch:${cls.ch.length}"`
 // a name is a real link to the space's own document (relative, so /de/ pages stay in German) – crawlable, and
 // middle/⌘-click opens a tab; a plain click opens the dossier in place (index.html's space-link listener)
-const nameLink = s => `<a class="nm" href="${s}" draggable="false" data-tip-head="${entHead(s)}" data-tip="${entTip(s)}" data-tip-tags="${entTags(s)}" aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</a>`
-const field = (s, c2, i, vals) => `<span class="cvp"><i class="cl" aria-hidden="true" title="${cname(c2)}">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" title="${cname(c2)}" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}></span>`
-const strip = (s, c2, i, vals, st, n) => `<div class="ch" data-i="${i}" title="${cname(c2)}"${vals ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, n, limitFor(classify(s))).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${vals ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${t('ui.card.slider', '{name} slider', { name: cname(c2) })}"></div>`
+// a list row's name keeps only what its row's own cells don't say: the maker and the years, the kinds are cells there
+const nameLink = (s, row) => `<a class="nm" href="${s}" draggable="false"${row ? '' : ` data-tip-head="${entHead(s)}"`} data-tip="${entTip(s)}"${row ? '' : ` data-tip-tags="${entTags(s)}"`} aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</a>`
+const field = (s, c2, i, vals) => `<span class="cvp" title="${cname(c2)}"><i class="cl" aria-hidden="true">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}></span>`
+const strip = (s, c2, i, vals, st, n) => `<div class="ch" data-i="${i}"${vals ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, n, limitFor(classify(s))).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${vals ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${t('ui.card.slider', '{name} slider', { name: cname(c2) })}"></div>`
 const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12
-	const head = `<span class="by">${byline(s)}</span>`   // a tile as a lead card: the maker and the year
+	const head = `<span class="by">${byline(s)}</span>`   // a tile as a lead card: the maker and the year – first, to float at the name's first line
 	const nums = `<span class="cvs">${cls.ch.map((c2, i) => field(s, c2, i, vals)).join('')}</span>`
 	const strips = `<div class="chs">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, n)).join('')}</div>`
 	return `<article class="ent ${lead ? 'lc' : 'tc'}" ${entAttrs(s, cls, vals, st, n)}>
-	 <header class="eh">${nameLink(s)}${head}</header>
+	 <header class="eh">${head}${nameLink(s)}</header>
 	 ${lead ? `<div class="pv">${strips}${pairsOf(cls).length ? `<button type="button" class="pvs" aria-pressed="false" title="${t('ui.card.planes', 'Planes')}" aria-label="${t('ui.card.planes-label', 'Show {name} as planes', { name: disp(s) })}">${PI.planes}</button>` : ''}</div>${nums}` : strips + nums}
 	</article>` }
+// the prerender's leads past the first, again as tiles at the head of the tiles – shown where the grid has fewer columns
+// than leads (CSS, by the catalog's width): a phone's first paint is the layout its rebuild keeps, no jump. Unwired copies
+// (data-ds, not data-s) the rebuild drops
+const dupTiles = (ss, st) => ss.map((s, k) => ent(s, false, st).replace('class="ent tc"', `class="ent tc dl dl${k + 2}"`).replace(' data-s="', ' data-ds="')).join('')
 // List: the spec sheet – a mini sweep of every channel, then the facts; each column sorts the whole catalog. The kinds
-// (shape, curve, signal, range) are the filters' own icons, named in their tooltips; where the sheet is narrow they
-// share one cell (.c-kind)
-const geoOf = s => ({ polar: 'polar', opponent: 'opponent' })[classify(s).archetype] || 'component'
-const KIND = { geo: geoOf, curve: s => meta[s].encoding || '', sig: s => meta[s].referred || '', range: s => (meta[s].dynamic || 'sdr').toUpperCase() }
-const kindKey = v => v === 'luma / chroma' ? 'opponent' : v.toLowerCase()   // a kind's value → its icon in OI
+// (shape, curve, signal, range, status – a historical one marked, one in use left plain) are the filters' own icons,
+// named in their tooltips; where the sheet is narrow they share one cell (.c-kind)
+const KIND = { geo: geoOf, curve: s => meta[s].encoding || '', sig: s => meta[s].referred || '', range: s => (meta[s].dynamic || 'sdr').toUpperCase(), status: s => HISTORICAL.has(s) ? 'historical' : '', white: s => meta[s].illuminant || '' }
+const kindKey = v => v === 'luma / chroma' ? 'lumachroma' : v.toLowerCase()   // a kind's value → its icon in OI
 // a kind's icon in the list view, its tip saying what it means: the column and the kind, then the gloss
-const kindIcon = (k, s) => { const v = KIND[k](s), ic = OI[kindKey(v)], say = `${colName(k)}: ${cap(tagL(v))}`
-	return v && ic ? `<span class="ki" role="img" aria-label="${say}" data-tip-head="${say}" data-tip="${tagLine(v)}">${ic}</span>` : '' }
+// a white's mark: a dot of its own color – the white itself, at full brightness. Its CIE 1931 xy: A, C, D50, D55, D65
+// as CIE 015 and ASTM E308 tabulate them, D60 the ACES white (SMPTE ST 2065-1), DCI the projector's (SMPTE RP 431-2),
+// E the equal-energy point
+export const WHITE_XY = { D65: [0.31271, 0.32902], D50: [0.34567, 0.35850], D55: [0.33242, 0.34743], D60: [0.32168, 0.33767], DCI: [0.314, 0.351], C: [0.31006, 0.31616], A: [0.44757, 0.40745], E: [1 / 3, 1 / 3] }
+export const whiteHex = k => { const [x, y] = WHITE_XY[k], l = space.xyz.lrgb(x / y * 100, 100, (1 - x - y) / y * 100), m = Math.max(...l); return hex(space.lrgb.rgb(...l.map(v => v / m)).map(v => clamp(Math.round(v), 0, 255))) }
+// (more: a line the tip adds under the gloss – the dossier's white its XYZ). The list's cells and the dossier's head share it
+export const kindIcon = (k, s, more = '') => { const v = KIND[k](s), ic = k === 'white' ? WHITE_XY[v] && `<i class="wdot" style="--w:${whiteHex(v)}"></i>` : OI[kindKey(v)], say = `${colName(k)}: ${cap(tagL(v))}`, tip = attr([tagLine(v), more].filter(Boolean).join('\n'))
+	return v && ic ? `<span class="ki" role="img" aria-label="${say}" data-tip-head="${say}"${tip ? ` data-tip="${tip}"` : ''}>${ic}</span>` : '' }
 export const COLS = [['name', s => disp(s)], ['year', s => meta[s].year || 0], ['by', s => meta[s].by || ''], ['ch', s => classify(s).ch.map(c => c.sym).join(' ')],
 	['cov', s => REACH[s]?.[0] ?? -1], ['geo', s => tagL(geoOf(s))], ['curve', s => KIND.curve(s) && tagL(KIND.curve(s))], ['sig', s => KIND.sig(s) && tagL(KIND.sig(s))],
-	['range', KIND.range], ['white', s => meta[s].illuminant || '']]
+	['range', KIND.range], ['status', s => KIND.status(s) && tagL(KIND.status(s))], ['white', s => meta[s].illuminant || '']]
 // what a cell shows, where it isn't its sort value
-const CELL = { cov: s => REACH[s] ? `${Math.round(REACH[s][0] * 100)}%` : '', geo: s => kindIcon('geo', s), curve: s => kindIcon('curve', s), sig: s => kindIcon('sig', s), range: s => kindIcon('range', s) }
+const CELL = { cov: s => REACH[s] ? `${Math.round(REACH[s][0] * 100)}%` : '', geo: s => kindIcon('geo', s), curve: s => kindIcon('curve', s), sig: s => kindIcon('sig', s), range: s => kindIcon('range', s), status: s => kindIcon('status', s), white: s => kindIcon('white', s) + (meta[s].illuminant || '') }
 // a column's heading, in the page's language at render time
 const colName = k => ({ name: t('ui.col.name', 'Name'), year: t('ui.col.year', 'Year'), by: t('ui.col.by', 'Made by'), ch: t('ui.col.channels', 'Channels'),
-	cov: t('ui.cell.coverage', 'Coverage'), geo: t('ui.col.shape', 'Shape'), curve: t('ui.col.curve', 'Curve'), sig: t('ui.cell.signal', 'Signal'), range: t('ui.col.range', 'Range'), white: t('ui.col.white', 'White') })[k]
+	cov: t('ui.cell.coverage', 'Coverage'), geo: t('ui.col.shape', 'Shape'), curve: t('ui.col.curve', 'Curve'), sig: t('ui.cell.signal', 'Signal'), range: t('ui.col.range', 'Range'), status: t('ui.cell.status', 'Status'), white: t('ui.col.white', 'White') })[k]
 const trow = (s, st) => { const cls = classify(s), vals = valsAt(s, st)
-	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s)}</td>` : `<th scope="row" class="c-name">${nameLink(s)}</th>`).join('')}<td class="c-kind">${['geo', 'curve', 'sig', 'range'].map(k => kindIcon(k, s)).join('')}</td></tr>` }
-const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead><tr><th class="tsw"><span class="sr">${t('ui.col.preview', 'Preview')}</span></th>${COLS.map(([k]) => `<th scope="col" class="c-${k}" aria-sort="${sort?.k === k ? (sort.d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${colName(k)}${sort?.k === k ? `<span aria-hidden="true">${sort.d > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}<th scope="col" class="c-kind"><span class="sr">${['geo', 'curve', 'sig', 'range'].map(colName).join(' · ')}</span></th></tr></thead><tbody>${spaces.map(s => trow(s, st)).join('')}</tbody></table></div>`
+	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s)}</td>` : `<th scope="row" class="c-name">${nameLink(s, true)}</th>`).join('')}<td class="c-kind">${['geo', 'curve', 'sig', 'range', 'status'].map(k => kindIcon(k, s)).join('')}</td></tr>` }
+const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead><tr><th class="tsw"><span class="sr">${t('ui.col.preview', 'Preview')}</span></th>${COLS.map(([k]) => `<th scope="col" class="c-${k}" aria-sort="${sort?.k === k ? (sort.d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${colName(k)}${sort?.k === k ? `<span aria-hidden="true">${sort.d > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}<th scope="col" class="c-kind"><span class="sr">${['geo', 'curve', 'sig', 'range', 'status'].map(colName).join(' · ')}</span></th></tr></thead><tbody>${spaces.map(s => trow(s, st)).join('')}</tbody></table></div>`
 // a list sorted by a column: every space in one shelf, in that order
 export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 	return [{ name: t('ui.view.all', 'All spaces'), spaces: SPACES.slice().sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * d }) }] }
@@ -154,7 +164,7 @@ export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 const VIEWS = () => [['grid', t('ui.cell.view-grid', 'Grid'), t('ui.view.grid', 'featured spaces large, the rest as tiles'), VI.grid],
 	['list', t('ui.cell.view-list', 'List'), t('ui.view.list', 'the spec sheet – every column sorts'), VI.table]]
 export const nextView = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.findIndex(x => x[0] === view) + 1) % V.length]
-	return { v, label: `${t('ui.cell.layout', 'Layout')}: ${n}`, title: `${n} – ${tip}`, ic } }
+	return { v, label: `${t('ui.cell.layout', 'Layout')}: ${n}`, title: `${n}: ${tip}`, ic } }
 
 // a shelf's icon on the rail: the families' glyphs, a purpose's own (the line family the menus draw); era shelves go bare
 const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.perceptual': OI.opponent, 'cat.colorimetry': OI.chromaticity,
@@ -164,15 +174,24 @@ const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.percep
 // omitted (the page's fingerprint check) → the bare template, byte-stable across colors.
 // secs: the section cut to render — defaults to the family catalog; groups.js passes others.
 // o: how – view 'grid' (lead cards, tiles) or 'list' (the spec sheet), the cut its tabs mark, a list's sort,
-// and how many lead each family in the grid – one row of them: as many as the grid's columns (the prerender: three)
-export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sort = null, leads = LEADS } = {}) => { let st = null
+// and how many lead each family in the grid – one row of them: as many as the grid's columns (the prerender: three) –
+// and the families unfolded (open: their keys)
+// a long family folds past its second row of tiles (index.html's fold) and this unfolds it: the count of what it holds
+// back, by the grid's columns (1–3: a row of that many leads, two rows of one more tile each, so 3c + 2 show), each
+// number shown at its width. A family folds at a column count only where more than a row would hide – a row or less
+// shows whole (f1–f3 on the section, n1–n3 in the count); folding nowhere, it carries no control. Open, it folds back
+const folds = c => [1, 2, 3].map(k => c.spaces.length - 3 * k - 2).map((n, k) => n > k + 2 ? n : 0)
+const FOLD = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'   // the line family's chevron, turned down
+const more = (c, on) => { const n = folds(c)
+	return n.some(Boolean) ? `<button type="button" class="more" aria-expanded="${on}"><span class="mo">${t('ui.fold.more', '{n} more', { n: n.map((x, k) => x > 0 ? `<i class="n${k + 1}">${x}</i>` : '').join('') })}</span><span class="le">${t('ui.fold.fewer', 'Fewer')}</span>${FOLD}</button>` : '' }
+export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sort = null, leads = LEADS, adapt = false, open = new Set() } = {}) => { let st = null
 	if (m) { const rgb = rgbF(m.s, m.vals); st = { rgb, hx: hex(rgb), ink: ink(rgb) } }
 	const by = t('ui.group.by', 'group the catalog by'), G = { family: t('ui.group.family', 'Family'), purpose: t('ui.group.purpose', 'Purpose'), era: t('ui.group.era', 'Era') }
 	const body = c => view === 'list' ? table(c.spaces, st, sort)
 		: `<div class="lead">
 	${c.spaces.slice(0, leads).map(s => ent(s, true, st)).join('')}
-</div>${c.spaces.length > leads ? `<div class="tiles">
-	${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}
-</div>` : ''}`
+</div>${c.spaces.length > leads ? `<div class="tiles${adapt && leads > 1 ? ' dup' : ''}">
+	${adapt ? dupTiles(c.spaces.slice(1, leads), st) : ''}${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}
+</div>${more(c, open.has(c.key || c.name))}` : ''}`
 	const ti = (c, i) => `<div class="trg"><i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn"${c.tip ? ` data-tip="${secTip(c)}"` : ''}>${SHELFI[c.key] ? `<span class="fic">${SHELFI[c.key]}</span>` : ''}<span class="tt">${secName(c)}</span><span class="tc tnum">${c.spaces.length}</span></button>${c.tip ? `<p class="tip">${secTip(c)}</p>` : ''}</div></div>`
-	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec" data-sec><h2 class="shw"${c.tip ? ` data-tip="${secTip(c)}" tabindex="0"` : ''}>${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }
+	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec${view === 'grid' ? folds(c).map((n, k) => n ? ` f${k + 1}` : '').join('') + (open.has(c.key || c.name) ? ' open' : '') : ''}" data-sec data-k="${c.key || c.name}"><h2 class="shw">${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }

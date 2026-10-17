@@ -7,19 +7,22 @@ an idiom, or a JS workaround on the spot instead of reusing what already exists.
 ## Consistency — the standing rule
 
 1. **Reuse design tokens. Never hardcode.** Spacing is `--s1..--s12` / `--space-*` (0.25rem
-   four-point scale). Type is `--t0..--t4` and `--text-*`. Colors are `--ink/--soft/--body/--paper/
+   four-point scale). Type is `--t0..--t6` – one scale, seven fixed steps, each step's role named in `web/tokens.css`. Colors are `--ink/--soft/--body/--paper/
    --panel/--hair/--c`. If a value isn't a token and you're typing a raw `px`/`rem`/`oklch(...)`,
    stop — find the token that means it. New tokens only for genuinely new, reused quantities.
 
 2. **New components mirror existing ones.** Same structure, same class names, same field order.
-   The dossier modal order is canonical: **header → tag pill (`.dpills .tag`) → `.dhr` → `.dgrid2`
-   (`.desc` description | made for · used for · caveat) → `.props props3` (channels | origin ·
-   reference …)**. Any variant
+   The dossier modal order is canonical: **header → tag pill (`.dpills .tag`) → `.dhr` → `.dgrid2`,
+   two columns of their own heights: the story (`.desc`, then the record `.props`: channels · kind | origin ·
+   reference …) | the margin (made for · used for · caveat, then the downloads)**. Any variant
    (e.g. the proprietary dossier) must read as the same component, not a cousin. Match order and
    naming; don't reorder or rename.
 
 3. **Reuse idioms; don't introduce new ones.** Established affordances: `↗` = opens dossier;
-   dim→ink on hover (opacity or `--soft`→`--ink`, as on `.mx`); `.tag` pill; `.diamond` marker.
+   dim→ink on hover (opacity or `--soft`→`--ink`, as on `.mx`); `.tag` pill; the circle color mark (pickers, swatches – a rhombus read as an animation keyframe, retired 2026-10);
+   the pick in `--ink`, the rest `--soft` (the family titles' way; never inverted), plus one ink mark by kind (2026-10):
+   a tab's `--ulw` bar on the side facing its panel (under a row; right of Usage's column), an overline on the shelf
+   cut (its word's width) and the history's lights, a check after a menu option's name; the rail's family on screen is ink alone.
    Don't invent a new hover color, a new icon, or a new marker when one of these fits. No
    `text-shadow`, ever.
 

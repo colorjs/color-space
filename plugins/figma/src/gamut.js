@@ -15,8 +15,9 @@
  * rather than clamping them, so a mapped value has to be computed first.
  */
 import space from '../../../index.js'
+import { JND, deltaEOK } from '../../../web/js/measure.js'
 
-export const JND = 0.02
+export { JND, deltaEOK }   // the spec's JND and its distance (web/js/measure.js), shared with the ⌥ readout
 export const EPSILON = 0.0001
 // Float round-off from a matrix round trip, e.g. 1.0000000000002 for a primary. It is
 // far below one 16-bit code value (1/65535 ≈ 1.5e-5), so it never hides a real excursion.
@@ -24,7 +25,6 @@ const ROUNDOFF = 1e-6
 
 const inGamut = rgb => rgb.every(v => v >= -ROUNDOFF && v <= 1 + ROUNDOFF)
 const clip = rgb => rgb.map(v => v < 0 ? 0 : v > 1 ? 1 : v)
-export const deltaEOK = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
 
 /**
  * The two RGB destinations a Figma document can have. Figma SolidPaint channels are

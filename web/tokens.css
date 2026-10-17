@@ -96,7 +96,9 @@
 	--ghost:var(--color-rule-2);
 	--hair:oklch(0.17 calc(0.015*var(--uk)) var(--uh)/.12);
 	--ul:color-mix(in oklab, currentColor 30%, transparent);   /* the one link underline: a third of the text's own ink, so it adapts to any context (prose, terminal, footer) and both themes */
-	--ulo:.1em;   /* …and its distance below the baseline, in the text's own em: as close at the hero's size as at the footer's */
+	--ulo:.22em;   /* …and its distance below the baseline, in the text's own em: clear of the descenders' join, as far at the hero's size as at the footer's */
+	--uvo:.38em;   /* an ACTIVE VALUE's underline – a channel pair's, a color's in the field – its distance below the baseline: one idiom, one
+	   distance, past a link's for the thicker line (--ulw). A pair's line is its box's border, so its input sits on it with no padding below */
 	--dark:var(--color-accent-ink);
 	--c:var(--color-accent);
 	--accent:var(--ink);   /* interactive accent — active tab underline, rotator hover ring: the ink, black by default (tracks the theme, unlike the orange --c brand hue) */
@@ -135,29 +137,34 @@
 	--s8:2rem;
 	--s12:3rem;
 
-	/* One picker geometry across native slider thumbs and plane diamonds. */
-	--picker-size:var(--s2);
-	--picker-active-size:.625rem;
+	/* One picker on every instrument – a slider's thumb, a plane's, the locus's, the solid's (in canvas): the conventional
+	   one, a thick white ring round the field's own color, a soft outline round the ring so it reads on white too; engaged –
+	   pointed at, held – the outline darker, its size kept. Two states, nowhere a third. Every other mark is flat white:
+	   another color in hand a dot, a gradient's run a line, the data lanes, the labels – no shadow, nothing to blur */
+	--picker-size:.75rem;
+	--picker-ring:.15625rem;
 	--picker-line:.075rem;
+	--picker-outline:rgb(0 0 0 / .45);
+	--picker-shadow:0 0 1px var(--picker-outline);
+	--picker-shadow-on:0 0 1px 1px var(--picker-outline);
+	/* its smaller kin: the held color on a tile's thin strips; another color in hand – on a strip, a plane, the locus – a
+	   white dot, a step smaller on a list row's thinnest (the one a press would take grows to the held picker) */
+	--picker-small-size:.5rem;
+	--picker-small-ring:.125rem;
+	--picker-dot-size:.25rem;
+	--picker-dot-small-size:.1875rem;
 
 	/* ⌥'s measurements (js/ruler.js), on the site and in the panel: Figma's measuring red, its ⌥ redlines' and Dev Mode's */
 	--redline:#f24822;
 
-	--text-xs:.6875rem;
-	--text-sm:.8125rem;
-	--text-base:1rem;
-	--text-md:1.125rem;
-	--text-lg:1.375rem;
-	--text-xl:1.75rem;
-	--text-2xl:2.25rem;
-	--text-3xl:3rem;
-	--text-display:clamp(2.75rem,5vw + 1rem,5.25rem);
-	--text-stat:clamp(9rem,28vw,25rem);
-	--t0:.625rem;
-	--t1:.75rem;
-	--t2:.875rem;
-	--t3:1rem;
-	--t4:1.25rem;
+	/* the type scale – seven fixed steps, the only font sizes there are */
+	--t0:.625rem;   /* caps labels: tags, field labels, plot axes, channel names on bars */
+	--t1:.75rem;    /* detail: a card's by-line, channel letters, chips, tips, menu and suggestion sub-lines */
+	--t2:.875rem;   /* interface: values, the list, menus, section descriptions, margin notes */
+	--t3:1rem;      /* reading: the kicker, the hero's line and field, descriptions, answers */
+	--t4:1.25rem;   /* titles: cards, sections, questions */
+	--t5:1.75rem;   /* headings: the dossier's, the intro's, the hero's on a phone */
+	--t6:3rem;      /* the hero's title */
 
 	--page-max:84rem;
 	--page-gutter:clamp(1rem,4vw,3rem);
@@ -232,16 +239,6 @@
 	--space-2xl:3rem;
 	--space-3xl:4.5rem;
 	--space-4xl:7rem;
-	--text-xs:.6875rem;
-	--text-sm:.8125rem;
-	--text-base:1rem;
-	--text-md:1.0625rem;
-	--text-lg:1.25rem;
-	--text-xl:1.5rem;
-	--text-2xl:1.875rem;
-	--text-3xl:2.625rem;
-	--text-display:clamp(2.5rem,4vw + 1rem,4.75rem);
-	--text-stat:clamp(8.5rem,28vw,24rem);
 	--radius-card:0;
 	--radius-control:.125rem;
 	--page-max:86rem;

@@ -121,6 +121,7 @@ xyz.hunt = (X, Y, Z) => {
 };
 
 hunt.xyz = (J, C, h) => {
+	h = (h % 360 + 360) % 360;   // a turn of hue is the same hue: any angle wraps into one turn
 	const es = ecc(h), qr = Math.sqrt(Math.max(J, 0) / 100);
 	const Q = qr * Qw(es), K = Math.pow(Math.max(Q + N2, 0) / N1, 1 / 0.6) / 7;   // K = A + M/100, exact from J
 	const hr = h * Math.PI / 180, ch = Math.cos(hr), sh = Math.sin(hr), fac = es * (10 / 13) * Nc * Ncb;

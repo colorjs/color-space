@@ -31,7 +31,7 @@ var hsp = {
   rgb: function (h, s, p) {
     // Input: H: 0-360, S/P: 0-100
     // Normalize to 0-1
-    h = h / 360;
+    h = (h / 360 % 1 + 1) % 1; // a turn of hue is the same hue: any angle wraps into one turn
     s = s / 100;
     p = p / 100;
 

@@ -8,14 +8,17 @@
 // language the i18n plan stamps. web/ holds the source; docs/ is markdowns.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { execSync } from 'node:child_process'
+import { gzipSync } from 'node:zlib'
+import { buildSync } from 'esbuild'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES, DEFAULT, LIMIT, nextView, fpOf, disp } from '../web/js/render.js'
+import { catHTML, sections, SPACES, DEFAULT, LIMIT, fpOf, disp } from '../web/js/render.js'
 import { LI } from '../web/js/icons.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
 import { t, use } from '../web/js/i18n.js'
 import { apply } from './i18n.js'
+import { spaces as WASM } from '../wasm/spaces.js'
 
 // registry drift guards: every space carries a purpose tag from the vocabulary (else it
 // silently drops out of the purpose filter), and every catalog family carries its tooltip
@@ -73,13 +76,19 @@ export const alternates = (i18n, s = '') => {
 // Hydration contract: the baked variant may differ from the bare template ONLY in
 // attributes — an element added or dropped under `vals` would hand the page a DOM
 // its wiring doesn't expect, and the fingerprint (bare vs bare) can't see it
-const catalog = () => { const bare = catHTML(), baked = catHTML(DEFAULT)
+const catalog = () => { const bare = catHTML(undefined, undefined, { adapt: true }), baked = catHTML(DEFAULT, undefined, { adapt: true })   // adapt: the leads a narrow grid shows as tiles, ready in the first paint
 	const shape = (h) => h.replace(/<([a-z0-9]+)(\s[^>]*)?>/gi, '<$1>')
 	if (shape(bare) !== shape(baked)) throw new Error('generate-landing: catHTML(DEFAULT) changes element structure, not just attributes — hydration would desync')
 	return `<main class="cat" id="cat" data-fp="${fpOf(bare)}">${baked}</main>` }
-// the hero's facts, read off the data: how many spaces, and the years they span
-const years = SPACES.map((s) => +meta[s].year).filter(Boolean), FACT = { nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years) }   // nn: the row's count
-const counts = (h) => h.replace(/(<span id="(nn|y0|y1)">)[^<]*(<\/span>)/g, (m, a, k, b) => a + FACT[k] + b)
+// the hero's facts, read off the data: how many spaces, and the years they span – and Usage's, off the builds: the whole
+// library's weight as a bundler ships it (minified, gzipped, in kB), the WASM kernel's, and the spaces it carries.
+// The hero's by id, the rest by data-fact, filled in every language (a translation keeps the span, the number is the build's)
+const years = SPACES.map((s) => +meta[s].year).filter(Boolean), kb = (b) => Math.round(gzipSync(b, { level: 9 }).length / 1000)
+const FACT = { nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years),   // nn: the row's count
+	jskb: kb(buildSync({ entryPoints: [join(root, 'index.js')], bundle: true, minify: true, format: 'esm', write: false }).outputFiles[0].contents),
+	wakb: kb(readFileSync(join(root, 'dist/color-space.wasm'))), wan: WASM.length, wal: WASM.join(', ') }
+const counts = (h) => h.replace(/(<span (?:id="(?:nn|y0|y1)"|data-fact="\w+")>)[^<]*(<\/span>)/g, (m, a, b) => { const k = a.match(/"(\w+)"/)[1]
+	if (!(k in FACT)) throw new Error(`generate-landing: no fact "${k}"`); return a + FACT[k] + b })
 
 export function build(out = join(root, '_site'), i18n) {
 // ── index.html: static catalog + live counts (from the web/ source) ──
@@ -89,15 +98,15 @@ const inject = (re, repl) => { if (!re.test(html)) throw new Error(`anchor not f
 const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
 for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
+html = counts(html)   // Usage's facts (data-fact)
 // the current-color rhombus + value carry the DEFAULT color from the first frame —
 // an unvalued <input type=color> paints BLACK until the module lands
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
 inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
-inject(/(<textarea id="cval"[^>]*>)(<\/textarea>)/, `$1${dhx}$2`)
+inject(/(<textarea id="cval")/, `$1 placeholder="${dhx}"`)   // the boot gray as the field's hint, as the page will show it – never a value the script then empties
 // the row's marks from their one source (icons.js), so the stripe is whole before the module lands: the view's mark is
 // the default Limit's, the layout's the view a first visit turns to (the page opens in grid)
 inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
-{ const n = nextView('grid'), l = nextView('list'); inject(/(<button class="cell lens" type="button" id="c-layout")([^>]*><span class="ci">)(<\/span>)/, (m, a, b, c) => `${a} data-view="${n.v}"${b}<i data-from="grid">${n.ic}</i><i data-from="list">${l.ic}</i>${c}`) }   // both marks: the head's pre-paint (data-view) shows the kept layout's from the first frame
 // the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset — Google Dataset Search reaches the science

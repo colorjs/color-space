@@ -27,7 +27,7 @@
 
 ## Stance
 
-- **Owned surfaces stay understated** (owner's decision 2026-07-21): hero and npm description say *"An open collection of color spaces"* — no counts, evergreen. The substance (166, verification, benchmark, comparison) sits one scroll below and in docs. **Number-led selling happens in posts, never on owned surfaces.** Don't re-add it.
+- **Owned surfaces stay understated** (owner's decision 2026-07-21): the npm description says *"Open collection of color spaces"*; the hero line speaks to the visitor's act, not the product (2026-10-16): *"See a color, palette, gradient or image through color spaces from web to print, pickers to research, 1860 to 2026"* – every noun a door (the first four into the field's suggestions and image stripe, the rest into the catalog's shelves) — no counts, evergreen. The substance (166, verification, benchmark, comparison) sits one scroll below and in docs. **Number-led selling happens in posts, never on owned surfaces.** Don't re-add it.
 - **Honesty guardrail**: state verification by its exact layer; LUTs are colorimetric conversions, *not looks* — say it before anyone asks; one inflated proof point costs more than the launch earns.
 
 ## Plan

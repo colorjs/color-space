@@ -7,29 +7,17 @@
     "t": "제작:",
     "h": "40815864"
   },
-  "pl.about.label": {
-    "t": "Color Space 정보",
-    "h": "801e0186"
-  },
   "pl.about.support": {
     "t": "프로젝트 후원하기",
     "h": "f32d5a3b"
   },
-  "pl.about.tip": {
-    "t": "정보",
-    "h": "6b21fb79"
-  },
-  "pl.alpha.field": {
-    "t": "불투명도(%)",
-    "h": "d4230810"
+  "pl.alpha": {
+    "t": "불투명도",
+    "h": "f0fa69f3"
   },
   "pl.alpha.slider": {
     "t": "불투명도 슬라이더",
     "h": "eba4c9b9"
-  },
-  "pl.alpha.tip": {
-    "t": "불투명도, 0–100%. 끌어서 값 조절.",
-    "h": "16f4ce04"
   },
   "pl.axis.across": {
     "t": "가로축: {name}",
@@ -51,33 +39,29 @@
     "t": "세로축: {name}",
     "h": "1f2e239c"
   },
-  "pl.badge.out": {
-    "t": "{gamut} 밖",
-    "h": "40655b19"
-  },
   "pl.ch.slider": {
     "t": "{name} 슬라이더",
     "h": "05035347"
-  },
-  "pl.ch.tip": {
-    "t": "{name}, {min}–{max}. 끌어서 값 조절.",
-    "h": "aae26ae2"
   },
   "pl.channels": {
     "t": "채널",
     "h": "18e03e2a"
   },
+  "pl.close": {
+    "t": "닫기",
+    "h": "bbfa773e"
+  },
+  "pl.copied": {
+    "t": "{value} 복사됨",
+    "h": "7e5f167e"
+  },
   "pl.copy": {
     "t": "복사",
     "h": "af74f7c5"
   },
-  "pl.copy.done": {
-    "t": "복사됨",
-    "h": "8e3df45a"
-  },
-  "pl.copy.selected": {
-    "t": "선택됨",
-    "h": "9a976fc2"
+  "pl.copy.as": {
+    "t": "형식으로 복사",
+    "h": "ae97334a"
   },
   "pl.dot.edit": {
     "t": "{what} 편집",
@@ -115,6 +99,10 @@
     "t": "이미지를 읽는 중…",
     "h": "0f94976a"
   },
+  "pl.err.copy": {
+    "t": "여기서는 클립보드를 쓸 수 없습니다. 값: {value}",
+    "h": "450d3006"
+  },
   "pl.err.dropper": {
     "t": "여기서는 스포이트를 쓸 수 없습니다.",
     "h": "3625962f"
@@ -123,9 +111,9 @@
     "t": "이 {space} 값에 해당하는 색이 없습니다.",
     "h": "016e93d5"
   },
-  "pl.fmt.label": {
-    "t": "형식",
-    "h": "041a5dec"
+  "pl.err.value": {
+    "t": "색이 아님: {text}",
+    "h": "c39d3657"
   },
   "pl.fmt.mapped": {
     "t": "{value}: sRGB로 색역 매핑됨",
@@ -135,6 +123,10 @@
     "t": "병합",
     "h": "ea8f0d02"
   },
+  "pl.gamut": {
+    "t": "색역",
+    "h": "09b42dc9"
+  },
   "pl.gamut.in": {
     "t": "{gamut} 안.",
     "h": "c773cbdc"
@@ -142,10 +134,6 @@
   "pl.gamut.out": {
     "t": "{gamut} 밖, 안으로 매핑됨.",
     "h": "a86a31a2"
-  },
-  "pl.gamut.out-tip": {
-    "t": "{gamut} 밖: 가장 가까운 {gamut} 색으로 기록합니다(CSS Color 4 색역 매핑: 명도와 색상은 그대로 두고 크로마를 줄임).",
-    "h": "9456689a"
   },
   "pl.gamut.snapped": {
     "t": "{name}에 맞춤.",
@@ -155,29 +143,49 @@
     "t": "패널 너비",
     "h": "c9f20427"
   },
-  "pl.limit": {
-    "t": "한계",
-    "h": "24d948e4"
+  "pl.hint.axis": {
+    "t": "한 채널로만 드래그",
+    "h": "c27bfc42"
   },
-  "pl.limit.file": {
-    "t": "파일 색역",
-    "h": "e7cb55e0"
+  "pl.hint.fine": {
+    "t": "세밀하게 드래그, 스냅 없음",
+    "h": "e0d57f7d"
   },
-  "pl.limit.file-is": {
-    "t": "{name} ({gamut})",
-    "h": "1fcfce27"
+  "pl.hint.measure": {
+    "t": "다른 색상 측정",
+    "h": "cddc738f"
   },
-  "pl.limit.file-tip": {
-    "t": "파일 자체의 색역",
-    "h": "e13926bb"
+  "pl.hint.ten": {
+    "t": "값 ×10 변경",
+    "h": "60bdf5cb"
   },
-  "pl.limit.tip": {
-    "t": "한계: {name}, {tip}",
-    "h": "4181710c"
+  "pl.hint.whole": {
+    "t": "평면 전체",
+    "h": "da785ad3"
+  },
+  "pl.hint.zoom": {
+    "t": "평면 확대/축소",
+    "h": "26fd3e84"
+  },
+  "pl.hints": {
+    "t": "도움말",
+    "h": "eef8e89a"
+  },
+  "pl.key.dblclick": {
+    "t": "더블 클릭",
+    "h": "1a1729fa"
+  },
+  "pl.key.scroll": {
+    "t": "스크롤",
+    "h": "090a3c80"
   },
   "pl.marks": {
     "t": "파일 안의 색",
     "h": "b3146392"
+  },
+  "pl.measure.large": {
+    "t": "AA 큰 글자",
+    "h": "b0fcb261"
   },
   "pl.menu.all": {
     "t": "모든 색공간",
@@ -211,13 +219,17 @@
     "t": "사각형으로 보기",
     "h": "512e7c34"
   },
+  "pl.mode.tip.square": {
+    "t": "사각형",
+    "h": "82810cb9"
+  },
+  "pl.mode.tip.wheel": {
+    "t": "색상환",
+    "h": "0d972afc"
+  },
   "pl.mode.wheel": {
     "t": "색상환으로 보기",
     "h": "ee941269"
-  },
-  "pl.name.label": {
-    "t": "팔레트 색 이름",
-    "h": "848bb22a"
   },
   "pl.note.dev": {
     "t": "Dev Mode는 읽기 전용입니다. 아래 값을 복사하세요.",
@@ -271,13 +283,9 @@
     "t": "{a}·{b} 색상환",
     "h": "29862ab2"
   },
-  "pl.profile.legacy-tip": {
-    "t": "색 프로파일 없음(색 관리 이전의 파일): sRGB로 읽습니다",
-    "h": "b41363f4"
-  },
-  "pl.profile.tip": {
-    "t": "파일의 색 프로파일: 값은 {name} 기준",
-    "h": "9a8c47e4"
+  "pl.prm": {
+    "t": "설정",
+    "h": "c7f73bb5"
   },
   "pl.quant.565": {
     "t": "16비트",
@@ -291,9 +299,21 @@
     "t": "이미지",
     "h": "0e762927"
   },
-  "pl.row.src": {
-    "t": "{where}, 출처: {type} {name}",
-    "h": "4d82e4b1"
+  "pl.scope": {
+    "t": "표시할 색",
+    "h": "87cba4d7"
+  },
+  "pl.scope.page": {
+    "t": "이 페이지",
+    "h": "7e439c35"
+  },
+  "pl.scope.selection": {
+    "t": "선택 항목",
+    "h": "05adeee2"
+  },
+  "pl.snap": {
+    "t": "색상에 스냅",
+    "h": "7cd49dc0"
   },
   "pl.space.label": {
     "t": "색공간",
@@ -306,6 +326,18 @@
   "pl.src.variable": {
     "t": "변수",
     "h": "b46d0172"
+  },
+  "pl.tip.more": {
+    "t": "+{n}개 더",
+    "h": "85104219"
+  },
+  "pl.value": {
+    "t": "값",
+    "h": "8dce170d"
+  },
+  "pl.void": {
+    "t": "색이 아님",
+    "h": "4fd77c42"
   },
   "pl.where.fill": {
     "t": "채우기 {n}",

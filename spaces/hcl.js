@@ -39,7 +39,7 @@ const hcl = {
  */
 hcl.rgb = (h, c, l) => {
 	// Normalize from conventional ranges
-	h = h / 360;
+	h = (h / 360 % 1 + 1) % 1; // a turn of hue is the same hue: any angle wraps into one turn
 	c = c / 100;
 	l = l / 100;
 

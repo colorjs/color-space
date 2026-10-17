@@ -136,3 +136,32 @@ test('vis solid: the membership hull hugs the exact zonoid along the OSA-UCS blu
 	for (let g = -20; g <= 20; g++) { const X = space.osaucs.xyz(-2.3, -7.3, g); if (inVisSolid(...X) !== exact(X)) disagree++ }
 	is(disagree, 0, 'inVisSolid matches the exact solid across the OSA-UCS L=-2.3 j=-7.3 sweep')
 })
+
+// The spectral locus as a boundary: a light ON it is real. The standards' primaries are monochromatic lights published to
+// three places, so they fall a hair either side of the sampled CMF curve – Rec. 2020's (ITU-R BT.2020 Table 3: 630, 532,
+// 467 nm) and Display P3's red (SMPTE EG 432-1: DCI-P3's 615 nm) must read as colors, at black too (a bar sweeping one
+// pure primary); a primary meant past the locus stays imaginary
+test('locus: the displays\' monochromatic primaries are colors; the imaginary ones are not', async () => {
+	const { visibleXYZ, LOCUS_EPS } = await import('../web/js/core.js')
+	for (const s of ['p3', 'rec2020', 'p3-linear', 'rec2020-linear']) for (const i of [0, 1, 2]) {
+		const v = [0, 0, 0]; v[i] = 1
+		is(visibleXYZ(...space[s].xyz(...v)), true, `${s} ${'RGB'[i]} primary, alone`)
+	}
+	is(visibleXYZ(...space.prophoto.xyz(0, 1, 0)), false, 'ProPhoto green (0.1596, 0.8404) – past the locus by design')
+	is(visibleXYZ(...space.prophoto.xyz(0, 0, 1)), false, 'ProPhoto blue (0.0366, 0.0001) – past the locus by design')
+	is(visibleXYZ(...space.acescg.xyz(1, 0, 0)), false, 'ACES AP1 red (0.713, 0.293): x + y > 1, a negative Z – imaginary')
+	is(LOCUS_EPS <= 1e-3, true, 'the curve\'s reach stays under a thousandth in xy')
+	is(visibleXYZ(0, 0, 0), true, 'black is a color')
+	is(visibleXYZ(-1, 0, 0), false, 'a negative light is not')
+})
+
+// a color's chromaticity on the xy plates: black has none of its own, so it sits where every gray does – at the white
+test('locus: black plots at the white, with the grays; a negative light nowhere', async () => {
+	const { xyOf } = await import('../web/js/core.js')
+	const w = xyOf(...space.rgb.xyz(255, 255, 255)), g = xyOf(...space.rgb.xyz(1, 1, 1)), k = xyOf(0, 0, 0)
+	is(k.map((x, i) => Math.abs(x - w[i]) < 1e-12).every(Boolean), true, 'black at the white point')
+	is(g.map((x, i) => Math.abs(x - w[i]) < 1e-9).every(Boolean), true, 'the darkest gray there too')
+	is(Math.abs(w[0] - 0.3127) < 1e-3 && Math.abs(w[1] - 0.329) < 1e-3, true, 'the library\'s white is D65 (CIE 15:2004: 0.3127, 0.3290)')
+	is(xyOf(-1, -2, 0), null, 'a negative light has no chromaticity')
+	is(xyOf(1, 2, 7), [0.1, 0.2], 'any other light: X / ΣXYZ, Y / ΣXYZ')
+})

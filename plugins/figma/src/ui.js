@@ -19,16 +19,20 @@
  * while it edits, so a hue survives zero chroma and a coordinate past the gamut stays
  * under the pointer while the mapped color is written.
  */
-import { space, meta, classify, hueIdx, pairsOf, plane, ramp, decOf, fmtc } from '../../../web/js/core.js'
+import { space, meta, classify, geoOf, hueIdx, pairsOf, plane, ramp, decOf, fmtc, tightGamut } from '../../../web/js/core.js'
 import { hasPlaneGL, planeGLStatus, paintPlaneGL, paintBarGL, setGLReady, warmPlaneGL, softGL } from '../../../web/js/gl.js'
 import { quantRGB } from '../../../web/js/quant.js'
 import GLYPHS from '../../../web/fonts/color-space-icons.json'
+import { OI } from '../../../web/js/icons.js'
 import NAMES from '../../../web/js/names.js'
 import * as PALETTES from '../../../web/js/palettes.js'
 import CATS from '../../../web/js/categories.js'
-import { showTip, hideTip } from '../../../web/js/tip.js'
+import { hideTip, tipIcons, tipAt } from '../../../web/js/tip.js'
+import { contrast, contrastText, stepText } from '../../../web/js/measure.js'
+import { ruler, unruler } from '../../../web/js/ruler.js'
 import { sampleImage, paletteOf } from '../../../web/js/extract.js'
 import { gamutMap, deltaEOK, DEST, JND } from './gamut.js'
+import { parse as parseCss } from '../../../css.js'
 import { cssOf, FORMATS } from './notation.js'
 import { mixer } from './mix.js'
 import { chEn, chKey } from '../../../web/js/vocab.js'
@@ -62,12 +66,6 @@ function localize() {
 	}
 }
 
-// the file's color profile: its badge (short), and what it means
-const PROFILE = {
-	DISPLAY_P3: ['P3', t('pl.profile.tip', 'The file\'s color profile: values are {name}', { name: 'Display P3' })],
-	SRGB: ['sRGB', t('pl.profile.tip', 'The file\'s color profile: values are {name}', { name: 'sRGB' })],
-	LEGACY: ['sRGB', t('pl.profile.legacy-tip', 'No color profile set (a file from before color management): read as sRGB')],
-}
 // the site's quantize lenses (web/index.html QGROUPS, QTIP), in its two columns: smooth and stepped | palettes
 // The lenses' icons are glyphs of the atlas's icon font (scripts/icon-font.js), so the closed control and the native
 // list show the same mark; their codepoints are Unicode symbols that look alike, for a list the OS draws in its own font
@@ -80,7 +78,7 @@ const QUANT = [
 ].map(g => g.map(([v, name, tip]) => [v, name, tip, glyph(`QI.${v || 'smooth'}`)]))
 const QKEYS = QUANT.flat().map(q => q[0])
 const NAMED = { names: Object.entries(NAMES), xkcd: PALETTES.xkcd, tailwind: PALETTES.tailwind, pico8: PALETTES.pico8, ansi: PALETTES.ansi }
-const CHEV = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
+const NAME = 'name'   // the copy list's palette-name option
 
 // vals: the coordinates in S.space, the UI's own while it edits and re-read from the paint otherwise.
 // own: the colors this UI wrote recently; a re-read that returns one of them keeps vals.
@@ -90,7 +88,7 @@ const CHEV = '<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path 
 // mine: the current paint as this UI last wrote it, shown over any re-read that trails a newer write
 // cur: the paint the host last marked current (p.current), so the panel follows that mark only when it moves
 // mates: the keys of the paints the current one shares its swatch with, an edit writes them all
-const S = { space: 'oklch', format: 'oklch', quant: 0, limit: 'file', pairs: {}, disc: {}, editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, cur: null, mates: [], vals: null, mine: null, own: [], lossy: false, error: '', live: false }
+const S = { pv: 0, space: 'oklch', quant: 0, gamuts: {}, pairs: {}, disc: {}, snap: true, editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, cur: null, mates: [], vals: null, mine: null, own: [], lossy: false, error: '', live: false }
 const $ = id => document.getElementById(id)
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e }
 // the host: Figma's frame, or a VS Code webview (plugins/vscode), whose only way out is its API; both speak {pluginMessage}
@@ -119,20 +117,23 @@ const fromSrgb8 = rgb => doc().id === 'rgb' ? rgb.map(v => v / 255) : space.rgb.
 
 const swatch = p => `color(${S.profile === 'DISPLAY_P3' ? 'display-p3' : 'srgb'} ${p.r} ${p.g} ${p.b})`
 // the palette entry the paint is, under a named-palette lens
-const nameOf = p => { const list = NAMED[S.quant]; if (!list) return ''; const k = srgb8(p).join(); return (list.find(([, rgb]) => rgb.join() === k) || [''])[0] }
+const named = rgb => (NAMED[S.quant] || []).find(([, c]) => c.join() === rgb.join())?.[0] || ''   // an 8-bit sRGB color's name in the lens's palette
+const nameOf = p => tightGamut(doc().id, base(p)) === 'srgb' ? named(srgb8(p)) : ''   // past sRGB, its 8 bits are its clip's: no token
 
 /* ---------- the picker's geometry ---------- */
 
 const cls = () => classify(S.space)
-// the plane pairs: the atlas's orientation (angle across, tone up); a hue paired with a
-// channel other than the tone is the space's own wheel – hue around, that channel out
-// (wheel: the pair can be a disc; polar: it is drawn as one – the wheel/square switch, saved per space and pair, wheel by default)
+// the plane pairs: the atlas's orientation (angle across, tone up); a hue pair is the space's own wheel – hue around, the
+// other channel out (wheel: the pair can be a disc; polar: it is drawn as one – the wheel/square switch, saved per space
+// and pair)
 function pairs() {
 	const c = cls(), hi = hueIdx(c), ti = c.tone ? c.tone.i : -1
 	return pairsOf(c).map(([a, b]) => {
-		const wheel = c.ch.length === 3 && hi >= 0 && (a === hi || b === hi) && a !== ti && b !== ti
+		// any hue pair may be a disc, as on the site (web/index.html polarPl, polarOn): by default a hue with a radius (C, S)
+		// is one, a hue with the tone (L: black at the centre) a square until switched
+		const wheel = c.ch.length === 3 && hi >= 0 && (a === hi || b === hi)
 		const p = wheel ? { a: hi, b: a === hi ? b : a } : { a, b }
-		return { ...p, wheel, polar: wheel && S.disc[`${S.space}:${p.a},${p.b}`] !== false }
+		return { ...p, wheel, polar: wheel && (S.disc[`${S.space}:${p.a},${p.b}`] ?? p.b !== ti) }
 	})
 }
 // a click on an axis swaps it for the channel held: the next pair that keeps the other axis
@@ -169,11 +170,8 @@ const titleOf = id => meta[id]?.title || id
 const group = (label, options) => { const g = document.createElement('optgroup'); g.label = label; g.append(el('legend', null, label), ...options); return g }
 const showSpace = () => { $('spq').value = titleOf(S.space); $('spbtn').dataset.id = S.space }   // the field shows the space's name, until it is searched
 
-// the lenses: the site's Quantize and Limit as native selects, its two groups (steps | palettes) kept
-// the site's words (ui.gamut.*): its tips, and Surface and Light, which it writes in lower case
-const LIMITS = [['file', t('pl.limit.file', 'File gamut'), t('pl.limit.file-tip', 'the file\'s own gamut')], ['srgb', 'sRGB', t('ui.gamut.tip.srgb', 'standard web gamut')], ['p3', 'P3', t('ui.gamut.tip.p3', 'wide Apple-display gamut')], ['rec2020', 'Rec.2020', t('ui.gamut.tip.rec2020', 'ultra-wide UHD gamut')], ['vis', cap(t('ui.gamut.vis', 'surface')), t('ui.gamut.tip.vis', 'colors a lit surface can show')], ['locus', cap(t('ui.gamut.locus', 'light')), t('ui.gamut.tip.locus', 'every color a light can have')]]
-	.map(([v, name, tip]) => [v, name, tip, v === 'file' ? '' : glyph(`LI.${v}`)])
-const gamutOf = () => S.limit === 'file' ? doc().gamut : S.limit
+// the lens: the site's Quantize as a native select, its two groups (steps | palettes) kept. The fields' limit is the
+// file's own gamut, drawn as a line – no other limit to choose: an edit is written into that one
 // an option: its icon and its name as spans – a customizable select (appearance: base-select) draws them, icon in the
 // icon font; an older one reads the text, the icon's look-alike symbol then the name
 const opt = ([v, name, tip, g]) => {
@@ -182,22 +180,13 @@ const opt = ([v, name, tip, g]) => {
 	return o
 }
 function renderLenses() {
-	const q = $('quant'), l = $('limit'), f = $('fmt')
-	if (!f.options.length) f.append(...FORMATS.map(([v, name]) => new Option(name, v)))
-	f.value = S.format
-	if (!q.options.length) {
-		q.append(group(cap(t('ui.quant.steps', 'steps')), QUANT[0].map(opt)), group(t('ui.quant.palettes', 'Palettes'), QUANT[1].map(opt)))
-		l.append(...LIMITS.map(opt))
-	}
+	const q = $('quant')
+	if (!q.options.length) q.append(group(cap(t('ui.quant.steps', 'steps')), QUANT[0].map(opt)), group(t('ui.quant.palettes', 'Palettes'), QUANT[1].map(opt)))
 	q.value = String(S.quant)
-	l.value = S.limit
-	const [, qn, qt, qg] = QUANT.flat().find(x => x[0] === S.quant), [, ln, lt] = LIMITS.find(x => x[0] === S.limit)
+	const [, qn, qt, qg] = QUANT.flat().find(x => x[0] === S.quant)
 	$('quantface').textContent = qg
-	$('limitface').textContent = glyph(`LI.${gamutOf()}`)   // the file's gamut wears that gamut's icon
-	l.querySelector('option[value="file"] .ico').textContent = glyph(`LI.${doc().gamut}`)
-	// the tips sit on the selects themselves: tip.js keeps an ancestor's tip off a select, and hides a select's own while it is open
+	// the tip sits on the select itself: tip.js keeps an ancestor's tip off a select, and hides a select's own while it is open
 	$('quant').dataset.tip = t('pl.quant.tip', 'Quantize: {name}, {tip}', { name: qn, tip: qt })
-	$('limit').dataset.tip = t('pl.limit.tip', 'Limit: {name}, {tip}', { name: S.limit === 'file' ? t('pl.limit.file-is', '{name} ({gamut})', { name: ln, gamut: doc().name }) : ln, tip: lt })
 }
 
 // a field canvas in the file's color space, so a P3 file's plane shows P3 colors, not their sRGB clip
@@ -208,15 +197,16 @@ function canvas(cls) {
 	return cv
 }
 
-// the picker's DOM for the current space and file: the plane's canvas, the pair buttons and one row per channel
+// the channels the plane doesn't hold: the sliders (all of them where there is no plane)
+const held = () => { const q = pair(); return cls().ch.map((_, i) => i).filter(i => !q || (i !== q.a && i !== q.b)) }
+// The picker's DOM for the current space and file and plane: the plane's canvas; a slider per held channel (its field
+// and a knob, role slider, that the pointer and the keys drive) and the opacity's
 function renderPicker() {
 	const p = pair(), c = cls()
 	$('plane').hidden = !p
 	$('plane').querySelector('canvas').replaceWith(canvas())
-	// a row per channel: its bar (the field and a knob, role slider, that the pointer and the keys drive), then
-	// its value cell, whose letter scrubs it
-	$('channels').replaceChildren(...c.ch.flatMap((ch, i) => {
-		const bar = el('div', 'bar2'), knob = el('i', 'nrg'), bg = canvas('bgc')
+	$('bars').replaceChildren(...held().map(i => {
+		const ch = c.ch[i], bar = el('div', 'bar2'), knob = el('i', 'nrg'), bg = canvas('bgc')
 		bg.height = 1
 		Object.assign(knob, { tabIndex: 0 })
 		knob.setAttribute('role', 'slider')
@@ -224,32 +214,26 @@ function renderPicker() {
 		knob.setAttribute('aria-valuemin', String(ch.min))
 		knob.setAttribute('aria-valuemax', String(ch.max))
 		bar.dataset.i = knob.dataset.i = i
+		bar.dataset.tip = cname(ch)   // its channel, named under the pointer
 		bar.append(bg, knob)
-		const fld = el('label', 'cvp'), cv = el('input', 'cv'), l = el('i', 'cl', ch.sym)
-		Object.assign(cv, { type: 'number', step: String(10 ** -decOf(ch)), inputMode: 'decimal', spellcheck: false, autocomplete: 'off' })
-		cv.setAttribute('aria-label', cname(ch))
-		cv.dataset.i = l.dataset.i = i
-		l.dataset.tip = t('pl.ch.tip', '{name}, {min}–{max}. Drag to scrub.', { name: cap(cname(ch)), min: fmtc(ch.min, ch), max: fmtc(ch.max, ch) })
-		fld.append(l, cv)
-		return [bar, fld]
-	}), ...opacityRow())
+		return bar
+	}), opacityBar())
+	sized = null
+	$('channels')._hk = null   // new bars: their histogram lanes drawn again
 	invalidate()
 }
 
 // the opacity: Figma's checkered bar under the current color, its value in percent; a solid paint's opacity, a stop's alpha
 const A = 'a'
 const idx = d => d === A ? A : +d
-function opacityRow() {
-	const bar = el('div', 'bar2 alpha'), knob = el('i', 'nrg'), fld = el('label', 'cvp'), cv = el('input', 'cv'), l = el('i', 'cl', 'A')
+function opacityBar() {
+	const bar = el('div', 'bar2 alpha'), knob = el('i', 'nrg')
 	knob.tabIndex = 0
 	for (const [k, v] of [['role', 'slider'], ['aria-label', t('pl.alpha.slider', 'Opacity slider')], ['aria-valuemin', '0'], ['aria-valuemax', '100']]) knob.setAttribute(k, v)
-	bar.dataset.i = knob.dataset.i = cv.dataset.i = l.dataset.i = A
+	bar.dataset.i = knob.dataset.i = A
+	bar.dataset.tip = t('pl.alpha', 'Opacity')
 	bar.append(knob)
-	Object.assign(cv, { type: 'number', step: '1', min: '0', max: '100', inputMode: 'numeric', autocomplete: 'off' })
-	cv.setAttribute('aria-label', t('pl.alpha.field', 'Opacity, percent'))
-	l.dataset.tip = t('pl.alpha.tip', 'Opacity, 0–100%. Drag to scrub.')
-	fld.append(l, cv)
-	return [bar, fld]
+	return bar
 }
 
 // The palette: the paints grouped by color, as Figma's own Selection colors – one swatch per color, the current paint's
@@ -258,25 +242,87 @@ function opacityRow() {
 // still the one it was written as – and the same source: a paint bound to a variable or a style is its own swatch beside
 // a raw paint of the same color. An edit of a swatch writes every paint in it; its uses ride its tooltip and its label
 // (and, hidden, its text)
+// (and, hidden, its text). A page's thousand paints are grouped in one pass: each swatch filed under its Oklab cell, a
+// cell as wide as the difference, so a paint is only weighed against the swatches of its own cell and the ones around it –
+// the first that takes it, as a search of every swatch in order would find
 const srcOf = p => p.src ? `${p.src.type}:${p.src.name}` : ''
+let grouped = null   // the last grouping, and the paints it was of: a frame asks for it several times (the palette, the dots)
 function swatches() {
-	const out = []
+	const of = [S.paints, S.pv, S.virtual && S.key === 'virtual' && S.virtual, S.profile]
+	if (grouped && of.every((x, k) => x === grouped.of[k])) return grouped.out
+	const out = [], cells = new Map(), W = JND / 5, dest = doc().dest
+	const cell = (i, j, k) => ((i + 512) * 1024 + j + 512) * 1024 + k + 512
 	for (const p of S.virtual && S.key === 'virtual' ? [S.virtual] : S.paints) {
 		if (p.virtual) { out.push([p]); continue }
-		const L = doc().dest.toOklab([p.r, p.g, p.b])
-		const g = out.find(g => !g[0].virtual && srcOf(g[0]) === srcOf(p) && Math.abs(g[0].opacity - p.opacity) <= 0.004 && deltaEOK(g.L, L) < JND / 5)
-		if (g) g.push(p); else out.push(Object.assign([p], { L }))
+		const L = dest.toOklab([p.r, p.g, p.b]), [i, j, k] = L.map(x => Math.floor(x / W)), src = srcOf(p)
+		let g = null
+		for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) for (let dk = -1; dk <= 1; dk++)
+			for (const h of cells.get(cell(i + di, j + dj, k + dk)) || []) if ((!g || h.n < g.n) && srcOf(h[0]) === src && Math.abs(h[0].opacity - p.opacity) <= 0.004 && deltaEOK(h.L, L) < W) g = h
+		if (g) { g.push(p); continue }
+		const n = Object.assign([p], { L, n: out.length }), c = cell(i, j, k)
+		out.push(n)
+		const there = cells.get(c)
+		there ? there.push(n) : cells.set(c, [n])
 	}
+	grouped = { of, out }
 	return out
 }
 // a swatch's colors: opaque (--swo) and with its opacity (--sw); a translucent one shows half each (ui.html .sw)
-const paintSw = (e, p) => { e.style.setProperty('--swo', swatch(p)); e.style.setProperty('--sw', swatch(p).replace(/\)$/, ` / ${p.opacity})`)) }
+const paintSw = (e, p) => { const c = swatch(p), k = `${c}${p.opacity}`; if (e._c === k) return; e._c = k; e.style.setProperty('--swo', c); e.style.setProperty('--sw', c.replace(/\)$/, ` / ${p.opacity})`)) }   // untouched when unchanged: a drag's every re-read recolors only the swatch it moves
 const placeOf = p => p.virtual ? t('pl.row.image', 'image') : p.src ? p.src.name : where(p)
 const useOf = p => `${p.name}, ${placeOf(p)}`
+// A swatch's tooltip lists the layers its color is on as Figma's own layer menus do (Select layer): a row each – the
+// layer's icon, its name cut to one line, where on it at the right – three, then how many more; the variable or style it
+// comes from over them. It is live: the pointer may cross into it, and a row pressed takes the host to that layer (Figma:
+// selected, brought into view; VS Code: the literal). The icons are Figma's layer kinds (code.js sends p.layer), drawn on
+// its 16 px grid at a 1 px stroke – a vector its own outline (p.shape), as Figma's layer list draws it; a host without
+// layers (VS Code) sends none and its rows have no icon. The plane's dots have no tooltip: it covered the plane
+const ic = d => `<svg viewBox="0 0 16 16" aria-hidden="true">${d}</svg>`
+Object.assign(tipIcons, {
+	FRAME: ic('<path d="M5.5 2.5v11M10.5 2.5v11M2.5 5.5h11M2.5 10.5h11"/>'),
+	SECTION: ic('<rect x="2.5" y="4.5" width="11" height="9" rx="1"/><path d="M2.5 2.5h5"/>'),
+	GROUP: ic('<rect x="3.5" y="3.5" width="9" height="9" stroke-dasharray="1.5 1.5"/>'),
+	TEXT: ic('<path d="M3.5 5V3.5h9V5M8 3.5v9M6.5 12.5h3"/>'),   // Figma's T: its bar's ends turned down, a foot under its stem
+	RECTANGLE: ic('<rect x="3.5" y="3.5" width="9" height="9" rx="1"/>'),
+	IMAGE: ic('<rect x="2.5" y="3.5" width="11" height="9" rx="1"/><path d="m2.5 11 3-3 3 3 2-2 3 3"/><circle cx="10.5" cy="6.5" r="1"/>'),
+	ELLIPSE: ic('<circle cx="8" cy="8" r="4.5"/>'),
+	POLYGON: ic('<path d="M8 3.5 12.5 12h-9z"/>'),
+	STAR: ic('<path d="m8 3 1.5 3.2 3.5.4-2.6 2.4.7 3.5L8 10.8l-3.1 1.7.7-3.5L3 6.6l3.5-.4z"/>'),
+	LINE: ic('<path d="m3.5 12.5 9-9"/>'),
+	VECTOR: ic('<path d="M3.5 12.5C4.5 7 8 4.5 12.5 3.5"/><rect x="2.5" y="11.5" width="2" height="2"/><rect x="11.5" y="2.5" width="2" height="2"/>'),
+	BOOLEAN_OPERATION: ic('<path d="M3.5 3.5h6v3h3v6h-6v-3h-3z"/>'),
+	COMPONENT: ic('<path d="M8 2.5 9.75 4.25 8 6 6.25 4.25zM8 10l1.75 1.75L8 13.5l-1.75-1.75zM4.25 6.25 6 8 4.25 9.75 2.5 8zM11.75 6.25 13.5 8l-1.75 1.75L10 8z"/>'),
+	INSTANCE: ic('<path d="M8 2.5 13.5 8 8 13.5 2.5 8z"/>'),
+})
+tipIcons.COMPONENT_SET = tipIcons.COMPONENT
+const USES = 3
+function usesTip(b, g) {
+	const p = g[0], rows = g.slice(0, USES).map(q => [q.virtual ? 'IMAGE' : q.shape || q.layer || '', q.name, q.virtual ? placeOf(q) : where(q)])
+	if (g.length > USES) rows.push(['', t('pl.tip.more', '+{n} more', { n: g.length - USES }), ''])
+	b.dataset.tipRows = JSON.stringify(rows)
+	b.toggleAttribute('data-tip-live', !g[0].virtual)
+	if (p.src) b.dataset.tipHead = `${srcType(p.src)} ${p.src.name}`
+	else delete b.dataset.tipHead
+}
+// a color as the plane's tooltip names it: the variable or style it comes from, else the CSS name it has (tomato), else
+// the named palette's under its lens, else its value in the space's channels
+const cssName = rgb => Object.keys(NAMES).find(n => NAMES[n].join() === rgb.join()) || ''
+const colorName = (rgb8, v, g = 'srgb') => (g === 'srgb' && (cssName(rgb8) || named(rgb8))) || valueOf(SPACE, { opacity: 1 }, v)[0]   // named only in sRGB: past it, its 8 bits are its clip's
+const paintName = p => p.src ? `${srcType(p.src)} ${p.src.name}` : colorName(srgb8(p), into(doc().id, S.space, base(p)), tightGamut(doc().id, base(p)))
 // the paints the current one shares its swatch with, itself among them: what an edit writes (read with the paint, kept
 // through a gesture, when the colors it writes would otherwise part and join again)
 const mates = () => { const p = current(); if (!p || p.virtual) return p ? [p] : []; const ms = S.mates.map(k => S.paints.find(q => keyOf(q) === k)).filter(Boolean); return ms.includes(p) ? ms : [p] }
 
+// An element brought into view in its own list: that list scrolled, never the panel. scrollIntoView scrolls every scrolling
+// ancestor, the panel's document too, which then sat shifted in a window sized to its content (a long page palette).
+// 'center' centres it; 'top' brings one not wholly shown to the list's top (past its scroll-padding), so a grid's rows stay
+// whole there (the palette's); else the least scroll shows it
+function reveal(box, e, at) {
+	const b = box.getBoundingClientRect(), r = e.getBoundingClientRect(), pad = parseFloat(getComputedStyle(box).scrollPaddingTop) || 0
+	if (at === 'center') box.scrollTop += r.top - b.top - (b.height - r.height) / 2
+	else if (r.top < b.top + pad || (at === 'top' && r.bottom > b.bottom)) box.scrollTop += r.top - b.top - pad
+	else if (r.bottom > b.bottom) box.scrollTop += r.bottom - b.bottom
+}
 // the palette is rebuilt only when its swatches change; a re-read of the same ones (every write answers with one) just
 // recolors them
 function renderPaints() {
@@ -296,8 +342,7 @@ function renderPaints() {
 		b.setAttribute('aria-pressed', String(g.some(q => keyOf(q) === S.key)))
 		const sw = el('span', 'sw')
 		paintSw(sw, p)
-		b.dataset.tip = g.length > 1 ? g.slice(0, 8).map(useOf).join('\n') + (g.length > 8 ? '\n…' : '')
-			: `${p.name}\n${p.src ? t('pl.row.src', '{where}, from the {type} {name}', { where: where(p), type: srcType(p.src), name: p.src.name }) : placeOf(p)}`
+		usesTip(b, g)
 		b.setAttribute('aria-label', g.map(useOf).join('; '))
 		b.append(sw, el('span', 'pn sr', g.map(q => q.name).join(', ')), el('span', 'src sr', g.map(placeOf).join(', ')))
 		const li = el('li')
@@ -305,7 +350,6 @@ function renderPaints() {
 		list.append(li)
 		if (focused && g.some(q => keyOf(q) === focused)) b.focus()
 	}
-	list.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest' })   // a long palette (a stylesheet's colors) shows the current one
 }
 
 // a library variable or style can't be edited from this file; a local one is edited where it lives
@@ -329,13 +373,25 @@ function sync(force) {
 	S.lossy = !back.every(Number.isFinite) || deltaEOK(dest.toOklab(back.map(x => x / scale)), dest.toOklab([p.r, p.g, p.b])) >= JND
 }
 
+// a write only where the DOM differs: a write of the same value is still a mutation – a style recalc each, every frame of a
+// drag – and an attribute :has() rules read (hidden) widens it to everything they cover
+const setHidden = (e, h) => { if (e.hidden !== h) e.hidden = h }
+const setText = (e, s) => { if (e.textContent !== s) e.textContent = s }
+const setAttr = (e, k, v) => { if (e.getAttribute(k) !== v) e.setAttribute(k, v) }
 function update() {
 	const p = current()
-	$('empty').hidden = !!p
+	setHidden($('empty'), !!p)
 	// an image still on its way says so; one that couldn't be read falls back to the plain hint
-	$('empty').textContent = S.images.some(i => !S.img.has(i.hash)) ? t('pl.empty.reading', 'Reading the image…') : t('pl.empty.hint', 'Select a layer with a solid fill, a gradient or an image.')
-	for (const id of ['paints', 'picker', 'css']) $(id).hidden = !p
-	if ($('drop')) $('drop').hidden = !p || !('EyeDropper' in window) || locked(p)
+	setText($('empty'), S.images.some(i => !S.img.has(i.hash)) ? t('pl.empty.reading', 'Reading the image…') : t('pl.empty.hint', 'Select a layer with a solid fill, a gradient or an image.'))
+	for (const id of ['paints', 'picker', 'spbtn']) setHidden($(id), !p)
+	// a long palette (a page's colors, a stylesheet's) shows the current one, once it is laid out and each time it moves
+	const pl = $('paints'), on = pl.querySelector('[aria-pressed="true"]')
+	if (on && pl._shown !== S.key) { pl._shown = S.key; reveal(pl, on, 'top') }   // (and when its width re-flows the rows: see wiring)
+	// the eyedropper, before the sliders as Figma's – only where it can pick: none without the browser's EyeDropper (Figma in
+	// Firefox or Safari) or where nothing is ever written (Dev Mode), the sliders then the panel's full width; a color that
+	// can't be edited greys it (a host may leave it out, VS Code)
+	setHidden($('drop'), !('EyeDropper' in window) || !S.editable)
+	if ($('drop').disabled !== (!p || locked(p))) $('drop').disabled = !p || locked(p)
 	const mixed = S.mixed ? t('pl.note.mixed', 'Text with mixed fills is skipped. Select text whose fill is the same throughout.') : ''
 	if (!p) { renderGamut(null); $('err').textContent = S.error; return renderNotes(mixed ? [mixed] : []) }
 
@@ -344,34 +400,28 @@ function update() {
 	const pk = $('picker').style
 	pk.setProperty('--tkc', swatch(p))
 	const pct = Math.round(p.opacity * 100)
-	for (const e of $('channels').querySelectorAll(`[data-i="${A}"]`)) e.closest('.bar2, .cvp').hidden = !!p.virtual   // an image's color has no opacity to set
-	for (const input of $('channels').querySelectorAll('.cv')) {
-		input.readOnly = lock
-		input.closest('.cvp').classList.toggle('locked', lock)
-		if (input.dataset.dirty && input === document.activeElement) continue
-		input.value = input.dataset.i === A ? String(pct) : v ? fmtc(v[input.dataset.i], c.ch[input.dataset.i]) : ''
-	}
+	setHidden($('channels').querySelector(`.bar2[data-i="${A}"]`), !!p.virtual)   // an image's color has no opacity to set
 	for (const k of $('channels').querySelectorAll('.nrg')) {
 		const i = idx(k.dataset.i)
-		k.setAttribute('aria-disabled', String(lock))
-		k.hidden = !v
+		setAttr(k, 'aria-disabled', String(lock))
+		setHidden(k, !v)
 		if (!v) continue
-		if (i === A) { k.style.setProperty('--f', p.opacity); k.setAttribute('aria-valuenow', String(pct)); k.setAttribute('aria-valuetext', `${pct}%`); continue }
+		if (i === A) { k.style.setProperty('--f', p.opacity); setAttr(k, 'aria-valuenow', String(pct)); setAttr(k, 'aria-valuetext', `${pct}%`); continue }
 		k.style.setProperty('--f', clamp01(frac(i, v[i])))
-		k.setAttribute('aria-valuenow', String(v[i]))
-		k.setAttribute('aria-valuetext', `${c.ch[i].sym} ${fmtc(v[i], c.ch[i])}`)
+		setAttr(k, 'aria-valuenow', String(v[i]))
+		setAttr(k, 'aria-valuetext', `${c.ch[i].sym} ${fmtc(v[i], c.ch[i])}`)
 	}
 	placeMarker()
 
-	const [value, note] = cssOf(S.format, p, p.opacity, S.profile), name = nameOf(p)
-	$('css-1').value = value
-	// the formats list the value itself in each, not the format's name: the pick is the text it gives
-	for (const o of $('fmt').options) { const v = o.value === S.format ? value : cssOf(o.value, p, p.opacity, S.profile)[0]; if (o.textContent !== v) o.textContent = v }
-	$('css-1').closest('.fld').dataset.tip = note ? t('pl.fmt.mapped', '{value}: mapped into sRGB', { value }) : ''   // a wider color in an sRGB-only format says it was mapped
-	$('css-3').value = name
-	$('named').hidden = !name
+	// the value: the space's channels in cells, read, typed and stepped; its copy list every notation as the value it
+	// gives – and, under a named palette's lens, the palette's name for the color first
+	const vf = $('valf')
+	renderCells(p, lock)
+	vf.dataset.v = v ? JSON.stringify(v) : ''   // the coordinates unrounded, and the opacity: what the cells were written from
+	vf.dataset.a = String(p.opacity)
+	renderFormats(p, nameOf(p))
 
-	// what the badge's tooltip explains beyond the gamut; an error stays in sight, beside it
+	// what screen readers hear besides the gamut; an error stays in sight, under the picker
 	const notes = []
 	if ($('err').textContent !== S.error) $('err').textContent = S.error
 	if (!v) notes.push(t('pl.note.novalue', 'This color has no {space} value.', { space: S.space }))
@@ -387,34 +437,27 @@ function update() {
 	if (S.more) notes.push(t('pl.note.more', 'Showing the first {n} paints.', { n: S.paints.length }))
 	if (mixed) notes.push(mixed)
 	renderNotes(notes)
-	renderGamut(v, notes)
+	renderGamut(v)
 	draw()
 }
 
-// The status: the gamut, read from the coordinate itself, not the last write – steady through a drag, re-reads and lag –
-// said on the badge (the file's gamut; outside it, so) and to screen readers (#gamut); the badge's tooltip the breakdown:
-// the gamut, the profile, then the notes
-function renderGamut(v, notes = []) {
-	const { id, scale, name } = doc(), g = $('gamut'), b = $('badge'), [short, ptip] = PROFILE[S.profile] || [S.profile, '']
-	let text = '', tip = '', out = false
-	if (!v) text = ''
-	else if (lens()) tip = text = t('pl.gamut.snapped', 'Snapped to {name}.', { name: QUANT.flat().find(q => q[0] === S.quant)[1] })
-	else {
+// The status, said to screen readers (#gamut): the gamut, read from the coordinate itself, not the last write – steady
+// through a drag, re-reads and lag. The plane shows the file's colors alone, so the eye needs no mark; a coordinate typed
+// past them is written mapped in, and said so
+function renderGamut(v) {
+	const { id, scale, name } = doc(), g = $('gamut')
+	let text = ''
+	if (lens()) text = v ? t('pl.gamut.snapped', 'Snapped to {name}.', { name: QUANT.flat().find(q => q[0] === S.quant)[1] }) : ''
+	else if (v) {
 		const rgb = S.space === id ? v : space[S.space][id](...v)
-		out = !rgb.every(x => Number.isFinite(x) && x >= -1e-4 * scale && x <= (1 + 1e-4) * scale)
+		const out = !rgb.every(x => Number.isFinite(x) && x >= -1e-4 * scale && x <= (1 + 1e-4) * scale)
 		text = out ? t('pl.gamut.out', 'Outside {gamut}, mapped in.', { gamut: name }) : t('pl.gamut.in', 'In {gamut}.', { gamut: name })
-		tip = out ? t('pl.gamut.out-tip', 'Outside {gamut}: written as its nearest {gamut} color (CSS Color 4 gamut mapping: chroma reduced at the same lightness and hue).', { gamut: name }) : text
 	}
 	if (g.textContent !== text) g.textContent = text
-	b.hidden = !current()
-	b.classList.toggle('out', out)
-	b.textContent = out ? t('pl.badge.out', 'Outside {gamut}', { gamut: short }) : short
-	b.dataset.tip = [tip, ptip, ...notes].filter(Boolean).join('\n')
 }
 
-// #notes is a live region for screen readers (the badge's tooltip shows the same notes), so it stays in place (empty
-// when there is nothing to say) and is only rewritten when the text changes; otherwise every re-read would announce it
-// again. The notes run on as one paragraph of sentences
+// #notes is a live region for screen readers, so it stays in place (empty when there is nothing to say) and is only
+// rewritten when the text changes; otherwise every re-read would announce it again. The notes run on as one paragraph
 function renderNotes(notes) {
 	const box = $('notes'), text = notes.join(' ')
 	if (box.textContent === text) return
@@ -433,6 +476,7 @@ function win() {
 	if (k !== viewOf) { viewOf = k; view = WHOLE }
 	return $('plane')._polar ? WHOLE : view
 }
+const whole = (w = win()) => w.x1 - w.x0 >= 0.999 && w.y1 - w.y0 >= 0.999   // the plane shows each channel's whole range
 // a channel's fraction of its range → its fraction across the plane's screen (x) or up it (y), and back
 const onScreen = (f, ax) => { const w = win(); return ax === 'x' ? (f - w.x0) / (w.x1 - w.x0) : (f - w.y0) / (w.y1 - w.y0) }
 const offScreen = (f, ax) => { const w = win(); return ax === 'x' ? w.x0 + (w.x1 - w.x0) * f : w.y0 + (w.y1 - w.y0) * f }
@@ -450,26 +494,37 @@ function placeMarker() {
 		x = 0.5 + 0.5 * fb * Math.cos(t)
 		y = 0.5 + 0.5 * fb * Math.sin(t)
 	}
-	cx.hidden = !(x >= -1e-9 && x <= 1 + 1e-9 && y >= -1e-9 && y <= 1 + 1e-9)   // zoomed past it: no marker at the edge pretending
+	setHidden(cx, !(x >= -1e-9 && x <= 1 + 1e-9 && y >= -1e-9 && y <= 1 + 1e-9))   // zoomed past it: no marker at the edge pretending
+	// zoomed in, where the view stands in the whole: a bar along the bottom and one along the right edge, as Figma's canvas
+	// shows its own scrollbars; gone when the whole shows
+	const w = win(), [zx, zy] = pl.querySelectorAll('.zoom')
+	setHidden(zx, pl._polar || w.x1 - w.x0 > 0.999)
+	setHidden(zy, pl._polar || w.y1 - w.y0 > 0.999)
+	zx.style.left = `${w.x0 * 100}%`; zx.style.width = `${(w.x1 - w.x0) * 100}%`
+	zy.style.top = `${(1 - w.y1) * 100}%`; zy.style.height = `${(w.y1 - w.y0) * 100}%`
 	cx.style.left = `${x * 100}%`
 	cx.style.top = `${(1 - y) * 100}%`
-	// the axis letters: a click swaps that axis for the channel held (named in the tip); the wheel/square switch where a wheel exists
-	const ax = $('axes'), ps = pairs(), [lx, ly, pm] = ['.labx', '.laby', '.pmode'].map(k => ax.querySelector(k))
+	// the axis letters: a click swaps that axis for the channel held (named in the tip); the wheel/square switch where a wheel
+	// exists – rewritten only when the pair or the space changes (a drag moves the marker alone)
+	const ax = $('axes'), ps = pairs(), [lx, ly, pm] = ['.labx', '.laby', '.pmode'].map(k => ax.querySelector(k)), axKey = [S.space, q.a, q.b, q.polar, q.wheel, ps.length, LANG].join()
+	if (ax._key !== axKey) {
+	ax._key = axKey
 	const HOW = { across: t('pl.axis.across', '{name} across'), up: t('pl.axis.up', '{name} up'), around: t('pl.axis.around', '{name} around'), out: t('pl.axis.out', '{name} out') }
 	for (const [b, axis, i, how] of [[lx, 'a', q.a, q.polar ? 'around' : 'across'], [ly, 'b', q.b, q.polar ? 'out' : 'up']]) {
 		const [to] = swapAxis(axis), other = axis === 'a' ? to.a === q.b ? to.b : to.a : to.b === q.a ? to.a : to.b
 		b.textContent = c.ch[i].sym
 		const said = cap(HOW[how].replace('{name}', cname(c.ch[i])))
-		b.dataset.tip = ps.length > 1 ? t('pl.axis.swap', '{axis}. Click for {other}', { axis: said, other: cname(c.ch[other]) }) : said
-		b.setAttribute('aria-label', b.dataset.tip)
+		b.dataset.tip = cname(c.ch[i])   // the tip names the channel; the label says what a click does too
+		b.setAttribute('aria-label', ps.length > 1 ? t('pl.axis.swap', '{axis}. Click for {other}', { axis: said, other: cname(c.ch[other]) }) : said)
 		b.disabled = ps.length < 2
 	}
 	pm.hidden = !q.wheel
 	pm.setAttribute('aria-pressed', String(!!q.polar))
-	pm.dataset.tip = q.polar ? t('pl.mode.square', 'Show as a square') : t('pl.mode.wheel', 'Show as a wheel')
-	pm.setAttribute('aria-label', pm.dataset.tip)
+	pm.setAttribute('aria-label', q.polar ? t('pl.mode.square', 'Show as a square') : t('pl.mode.wheel', 'Show as a wheel'))
+	pm.dataset.tip = q.polar ? t('pl.mode.tip.square', 'Square') : t('pl.mode.tip.wheel', 'Wheel')   // its tip a word: what a click shows
 	const ab = { a: cname(c.ch[q.a]), b: cname(c.ch[q.b]) }
 	pl.setAttribute('aria-label', q.polar ? t('pl.plane.wheel', '{a} and {b} wheel', ab) : t('pl.plane.plane', '{a} and {b} plane', ab))
+	}
 	pl.setAttribute('aria-valuenow', String(+v[q.a].toFixed(4)))
 	pl.setAttribute('aria-valuetext', `${c.ch[q.a].sym} ${fmtc(v[q.a], c.ch[q.a])}, ${c.ch[q.b].sym} ${fmtc(v[q.b], c.ch[q.b])}`)
 	placeMarks()
@@ -492,18 +547,31 @@ function backdrop(el) {
 	}
 	return [128, 128, 128]
 }
+// The plane's pixels, read once per paint – through a copy on a canvas kept for reading, so the plane's own stays on the
+// GPU: a canvas read often is moved off it, and every frame the kernel then draws into it waits on a copy back
+const readCtx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
+function pixelsOf(cv) {
+	if (cv._px && cv._px.key === cv._key && cv._px.w === cv.width) return cv._px.d
+	const c = readCtx.canvas
+	c.width = cv.width; c.height = cv.height
+	readCtx.drawImage(cv, 0, 0)
+	cv._px = { key: cv._key, w: cv.width, d: readCtx.getImageData(0, 0, c.width, c.height).data }
+	return cv._px.d
+}
+// over the field a letter is white, as every mark over it (the image's dots, the histograms); over what shows past it –
+// a wheel's void corners, the panel – the ink that reads there, black or white
 function labInk(cv, label, pts) {
 	const bk = backdrop($('plane'))
-	let L = 0, k = 0
+	let L = 0, A = 0, k = 0
 	try {
-		const ctx = cv.getContext('2d')
+		const px = pixelsOf(cv)
 		for (const [fx, fy] of pts) {
-			const d = ctx.getImageData(Math.round(fx * (cv.width - 1)), Math.round(fy * (cv.height - 1)), 1, 1).data, a = d[3] / 255
+			const i = (Math.round(fy * (cv.height - 1)) * cv.width + Math.round(fx * (cv.width - 1))) * 4, d = px.subarray(i, i + 4), a = d[3] / 255
 			const [r, g, b] = [0, 1, 2].map(c => d[c] * a + bk[c] * (1 - a))
-			L += 0.2126 * r + 0.7152 * g + 0.0722 * b; k++
+			L += 0.2126 * r + 0.7152 * g + 0.0722 * b; A += a; k++
 		}
 	} catch {}
-	label.style.color = !k ? 'var(--ink)' : L / k / 255 < 0.6 ? '#fff' : '#000'
+	label.style.color = !k ? 'var(--ink)' : A / k > 0.5 || L / k / 255 < 0.6 ? '#fff' : '#000'
 }
 
 let raf = 0
@@ -512,56 +580,132 @@ const draw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; pain
 const invalidate = () => { for (const cv of document.querySelectorAll('canvas')) cv._key = ''; draw() }
 setGLReady(invalidate)
 
+// The gamut the fields show: the file's by default, or another chosen in the settings (kept per profile) – its colors
+// painted, nothing past them, every smaller standard gamut a line on them (sRGB's in a P3 file, as Figma draws it). A
+// color picked past the file's own gamut is written mapped into it
+const GAMS = ['srgb', 'p3', 'rec2020']
+const shownG = () => GAMS.includes(S.gamuts[S.profile]) ? S.gamuts[S.profile] : doc().gamut
+const GID = { srgb: ['rgb', 255], p3: ['p3', 1], rec2020: ['rec2020', 1] }
+// a coordinate inside the shown gamut, with the kernel's own pad (gl.js: ±0.002 encoded)
+function inShown(v) {
+	const [id, k] = GID[shownG()]
+	try { const c = S.space === id ? v : space[S.space][id](...v); return c.every(u => u >= -0.002 * k && u <= 1.002 * k) } catch { return false }
+}
+// a step a key would take out of the shown gamut isn't taken; one from outside it (a value typed past it) is
+const keeps = next => inShown(next) || !inShown(S.vals)
+// The field as painted, for a pointer past it: each pixel's nearest opaque one – a breadth-first pass from every opaque
+// pixel, once per paint, on the first press that needs it; a field with none (not yet painted) holds nothing back
+function nearOf(cv) {
+	const w = cv.width, h = cv.height
+	if (cv._near && cv._near.key === cv._key && cv._near.w === w) return cv._near.n
+	let n = null
+	try {
+		const a = pixelsOf(cv), q = new Int32Array(w * h)
+		n = new Int32Array(w * h).fill(-1)
+		let head = 0, tail = 0
+		for (let i = 0; i < w * h; i++) if (a[i * 4 + 3] === 255) { n[i] = i; q[tail++] = i }
+		if (!tail) n = null
+		while (head < tail) {
+			const i = q[head++], x = i % w, y = (i - x) / w
+			for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+				const X = x + dx, Y = y + dy, j = Y * w + X
+				if (X >= 0 && Y >= 0 && X < w && Y < h && n[j] < 0) { n[j] = n[i]; q[tail++] = j }
+			}
+		}
+	} catch { n = null }
+	cv._near = { key: cv._key, w, n }
+	return n
+}
+// a pointer's place on the plane (fractions across and up) held to the field: past it, its nearest pixel's centre
+function inPlane(fx, fy) {
+	const cv = $('plane').querySelector('canvas'), w = cv.width, h = cv.height, n = w && cv._key ? nearOf(cv) : null
+	if (!n) return [fx, fy]
+	const i = Math.min(h - 1, Math.max(0, Math.floor((1 - fy) * h))) * w + Math.min(w - 1, Math.max(0, Math.floor(fx * w))), j = n[i]
+	return j === i ? [fx, fy] : [(j % w + 0.5) / w, 1 - (Math.floor(j / w) + 0.5) / h]
+}
+// a bar's place (a fraction of the knob's travel) held to its field: past it, its nearest painted column
+function inBar(bar, f) {
+	const cv = bar.querySelector('canvas')
+	if (!cv || cv.hidden || !cv.width || !cv._key) return f
+	const w = cv.width, cap = bar._cap || 0, span = Math.max(1, w - 2 * cap)
+	if (cv._row?.key !== cv._key) { try { cv._row = { key: cv._key, a: cv.getContext('2d').getImageData(0, 0, w, 1).data } } catch { return f } }
+	const a = cv._row.a, x0 = cap + Math.min(span - 1, Math.max(0, Math.floor(f * span))), on = x => x >= cap && x < cap + span && a[x * 4 + 3] === 255
+	if (on(x0)) return f
+	for (let d = 1; d < span; d++) for (const x of [x0 - d, x0 + d]) if (on(x)) return (x - cap + 0.5) / span
+	return f
+}
+
+// the fields' sizes, read once a layout changes them (a ResizeObserver), never inside a frame: read after a re-read changed
+// the DOM, each would lay the whole panel out again, every frame of a drag
+let sized = null
+const sizes = () => sized ??= { plane: $('plane').querySelector('canvas').clientWidth, channels: $('channels').clientWidth, bar: $('bars').querySelector('.bar2')?.clientWidth || 0, knob: $('bars').querySelector('.nrg')?.offsetWidth || 0 }
+new ResizeObserver(() => { sized = null; draw(); fitCells() }).observe($('channels'))
 function paint() {
-	const v = S.vals, s = S.space, q = pair(), gm = gamutOf(), n = S.quant
+	// The fields paint the shown gamut's colors, and nothing past them (gl.js uCut); every smaller standard gamut is a line
+	// on them – one device pixel, at the letters' half strength and in their ink (gl.js uEdge) – but under a lens: its
+	// cells are whole colors, in a gamut or out, the boundary on their edges where the color jumps, and a line read off a
+	// pixel's rate there came out as broken white seams between cells. Without WebGL2 the CPU fields ghost past the gamut
+	// instead
+	const v = S.vals, s = S.space, q = pair(), fg = shownG(), n = S.quant, look = { edges: n ? [] : GAMS.slice(0, GAMS.indexOf(fg)), width: 1, alpha: 0.5, cut: true }
 	if (!v || !current()) return
 	const st = hasPlaneGL(s) ? planeGLStatus(s) : 'no'
 	if (q) {
 		const pl = $('plane'), cv = pl.querySelector('canvas')
-		const full = Math.min(1024, Math.round((cv.clientWidth || 256) * (devicePixelRatio || 1)))   // a widened panel keeps its pixels: the field and the image's dots stay sharp
+		const full = Math.min(1024, Math.round((sizes().plane || 256) * (devicePixelRatio || 1)))   // a widened panel keeps its pixels: the field and the image's dots stay sharp
 		// the field depends on the held channels, never on the swept two: a drag across the plane never repaints it.
 		// A held channel dragged on a bar repaints at half resolution (the dossier's live law); release settles full.
 		// the GPU paints full resolution even mid-gesture; only the CPU fallback drops to half while a held channel moves
 		const top = st === 'no' ? Math.min(full, 160) : full, w = S.live && st === 'no' ? top >> 1 : top
 		const polar = q.polar && st !== 'no'
 		pl._polar = polar
-		const [rx, ry] = shown(q), key = [s, q.a, q.b, v.map((x, k) => k === q.a || k === q.b ? '' : x), n, gm, st, polar, rx, ry].join()
+		// the gamut lines in one ink over the whole field, as the image's dots take theirs – white over a dark field, black
+		// over a light one (its mean, read after a paint): an ink by each pixel switched halfway along a line, noise
+		const ink = pl._dark === false ? 0 : 1
+		const [rx, ry] = shown(q), key = [s, q.a, q.b, v.map((x, k) => k === q.a || k === q.b ? '' : x), n, fg, st, polar, rx, ry, ink].join()
 		if (cv._key !== key || (cv.width !== top && !S.live)) {
 			if (cv.width !== w || cv.height !== w) { cv.width = w; cv.height = w }
 			pl.classList.toggle('polar', polar)
 			cv._paints = (cv._paints || 0) + 1   // repaints, counted: a drag across the plane must not repaint it (checks read this)
-			if (st === 'ready') paintPlaneGL(cv, s, v, q.a, q.b, rx, ry, gm, n, polar, 0, 'oklab', false)
-			else if (st === 'no') plane(cv.getContext('2d'), w, s, v, q.a, q.b, rx, ry, true, gm, lens() ? rgb => quantRGB(rgb, n) : n || null)
+			if (st === 'ready') paintPlaneGL(cv, s, v, q.a, q.b, rx, ry, fg, n, polar, 0, 'oklab', false, { ...look, ink })
+			else if (st === 'no') plane(cv.getContext('2d'), w, s, v, q.a, q.b, rx, ry, true, fg, lens() ? rgb => quantRGB(rgb, n) : n || null)
 			else cv.getContext('2d').clearRect(0, 0, w, w)   // linking: blank until the program lands, never a low-res preview that then sharpens
 			cv._key = st === 'pending' ? '' : key
+			placeMarker()
+		}
+		// the letters' and the switch's ink read off the field – once a gesture lets go of it (a held channel's drag repaints
+		// it every frame; reading each frame would stall the GPU)
+		if (!S.live && cv._key && cv._inked !== cv._key) {
+			cv._inked = cv._key
 			labInk(cv, $('axes').querySelector('.laby'), [[0.03, 0.06], [0.08, 0.06], [0.13, 0.06]])
 			labInk(cv, $('axes').querySelector('.labx'), [[0.96, 0.96], [0.84, 0.96], [0.72, 0.96]])
 			labInk(cv, $('axes').querySelector('.pmode'), [[0.04, 0.96], [0.09, 0.96], [0.04, 0.91]])   // the switch inks like the letters
-			pl._dark = fieldDark(cv)
-			placeMarker()
+			// the lines' ink read off the whole field only: zoomed in, the part in view would turn it at every pan, so it keeps
+			// the ink it had
+			if (whole() || pl._dark == null) pl._dark = fieldDark(cv, pl._dark)
+			if ((pl._dark === false ? 0 : 1) !== ink) { cv._key = ''; draw() }   // the field read the other way: its lines again, in its ink
 		}
 		// the dots depend on the pair and the samples, never on the held channel
 		// the image's dots: their own layer at full resolution, never touched by a gesture's repaints
-		const dc = pl.querySelector('.density'), ck = cloudReady(), dkey = [ck && ck.key, q.a, q.b, polar, full, pl._dark, rx, ry].join()
-		if (dc._key !== dkey) { dc._key = dkey; paintDensity(dc, ck, q, full, polar, pl._dark, polar ? [range(q.a), range(q.b)] : [rx, ry]) }
+		const dc = pl.querySelector('.density'), ck = cloudReady(), dkey = [ck && ck.key, q.a, q.b, polar, full, rx, ry].join()
+		if (dc._key !== dkey) { dc._key = dkey; paintDensity(dc, ck, q, full, polar, polar ? [range(q.a), range(q.b)] : [rx, ry]) }
 	}
 	// a bar keeps its knob inside the pill, as Figma's do, so the channel's range spans the knob's travel: the field is
 	// painted into that inset span and its end columns stretch over the caps, so the knob always sits on its own color
 	// an image's pixels along each bar: a histogram of the channel, a lane over the bar's field
-	const ck = cloudReady(), hk = [ck && ck.key, $('channels').clientWidth].join()
+	const ck = cloudReady(), sz = sizes(), hk = [ck && ck.key, sz.channels].join()
 	if ($('channels')._hk !== hk) { $('channels')._hk = hk; histograms(ck) }
 	for (const bar of $('channels').querySelectorAll('.bar2:not(.alpha)')) {   // the opacity bar is CSS: the color over the checker
 		const i = +bar.dataset.i, cv = bar.querySelector('canvas'), kn = bar.querySelector('.nrg')
-		const css = cv.clientWidth || 200, w = Math.min(512, Math.round(css * (devicePixelRatio || 1)))
-		const cap = Math.round((kn.offsetWidth || 18) / 2 / css * w), span = Math.max(1, w - 2 * cap)
-		const key = [s, i, v.map((x, k) => k === i ? '' : x), n, gm, st, w].join()
+		const css = sz.bar || 200, w = Math.min(512, Math.round(css * (devicePixelRatio || 1)))
+		const cap = bar._cap = Math.round((sz.knob || 18) / 2 / css * w), span = Math.max(1, w - 2 * cap)
+		const key = [s, i, v.map((x, k) => k === i ? '' : x), n, fg, st, w].join()
 		if (cv._key === key) continue
 		cv._key = st === 'pending' ? '' : key
 		if (cv.width !== w) cv.width = w
 		const src = bar._src ??= canvas()
 		src.height = 1
 		if (src.width !== span) src.width = span
-		if (st === 'ready' && paintBarGL(src, s, v, i, range(i), gm, n, 'oklab', false)) {
+		if (st === 'ready' && paintBarGL(src, s, v, i, range(i), fg, n, 'oklab', false, look)) {
 			const ctx = cv.getContext('2d')
 			ctx.clearRect(0, 0, w, 1)
 			ctx.drawImage(src, cap, 0)
@@ -570,7 +714,7 @@ function paint() {
 			cv.hidden = false; bar.style.background = ''; continue
 		}
 		cv.hidden = true
-		bar.style.background = st === 'pending' ? '' : `linear-gradient(90deg, ${ramp(s, v, i, ...range(i), 48, gm).join(',')}) center / calc(100% - var(--knob)) 100% no-repeat, var(--checker)`
+		bar.style.background = st === 'pending' ? '' : `linear-gradient(90deg, ${ramp(s, v, i, ...range(i), 48, fg).join(',')}) center / calc(100% - var(--knob)) 100% no-repeat, var(--void)`
 	}
 }
 
@@ -589,9 +733,11 @@ function send(msg) { queued = msg; if (msg.commit) flush(); else if (!qraf) qraf
 const target = q => ({ id: q.id, kind: q.kind, index: q.index, stop: q.stop })
 function write(rgb, commit) {
 	const p = current(), ms = mates()
+	rgb = inFile(rgb)
 	S.own.push(rgb)
 	if (S.own.length > 64) S.own.shift()
 	for (const q of ms) Object.assign(q, { r: rgb[0], g: rgb[1], b: rgb[2], opacity: p.opacity })   // shown now; the re-read confirms it
+	S.pv++   // the paints changed where they are: their grouping is asked again
 	if (!p.virtual) {
 		S.mine = { keys: ms.map(keyOf), r: rgb[0], g: rgb[1], b: rgb[2], opacity: p.opacity }
 		send({ type: 'set', ...target(p), targets: ms.map(target), profile: S.profile, color: { r: rgb[0], g: rgb[1], b: rgb[2] }, opacity: p.opacity, commit: !!commit })
@@ -600,15 +746,21 @@ function write(rgb, commit) {
 	update()
 }
 
-// A swatch dropped onto another folds into it: its paints take that swatch's color and opacity, in one undo step, and so
-// become one swatch with it, the current one. Paints that only look alike (an off-by-one #3b82f6) join this way
+// What a write sends is inside the file's gamut: a color read past it – a host whose colors may lie outside (VS Code: an
+// oklch() read in an sRGB document) – is mapped in as an edit would be (CSS Color 4), whatever writes it (an opacity, a merge)
+const inFile = rgb => rgb.every(u => u >= 0 && u <= 1) ? rgb : gamutMap(space[doc().id].oklch(...rgb.map(u => u * doc().scale)), doc().dest).rgb
+
+// A swatch dropped onto another merges them into the one carried: the swatch under it takes its color and opacity, in one
+// undo step, and the two become one swatch, the current one. Paints that only look alike (an off-by-one #3b82f6) join this way.
+// Both are written: a carried color the file can't hold is mapped into it, and then the carried paints take it too
 function foldInto(fromKey, toKey) {
 	const all = swatches(), from = all.find(g => g.some(q => keyOf(q) === fromKey)), to = all.find(g => g.some(q => keyOf(q) === toKey))
 	if (!from || !to || from === to || !S.editable || from[0].virtual || to[0].virtual) return
-	const c = to[0]
-	for (const q of from) Object.assign(q, { r: c.r, g: c.g, b: c.b, opacity: c.opacity })
-	S.mine = { keys: from.map(keyOf), r: c.r, g: c.g, b: c.b, opacity: c.opacity }
-	send({ type: 'set', ...target(from[0]), targets: from.map(target), profile: S.profile, color: { r: c.r, g: c.g, b: c.b }, opacity: c.opacity, commit: true })
+	const c = from[0], [r, g, b] = inFile([c.r, c.g, c.b])
+	const both = [...to, ...from]
+	for (const q of both) Object.assign(q, { r, g, b, opacity: c.opacity })
+	S.mine = { keys: both.map(keyOf), r, g, b, opacity: c.opacity }
+	send({ type: 'set', ...target(to[0]), targets: both.map(target), profile: S.profile, color: { r, g, b }, opacity: c.opacity, commit: true })
 	choose(keyOf(c))
 }
 
@@ -620,6 +772,9 @@ function edit(next, commit) {
 		const rgb = (S.space === 'rgb' ? next : space[S.space].rgb(...next)).map(byte)
 		return write(fromSrgb8(quantRGB(rgb, S.quant)), commit)
 	}
+	// stepped (10, 20 cells a channel): the color is its cell's centre's, the coordinates as the hand put them until a
+	// release lands them there too (grabPaint), as a palette lens does
+	if (steps()) next = next.map((x, i) => at(i, snap(frac(i, x))))
 	const lch = space[S.space].oklch(...next)
 	if (!lch.every(Number.isFinite)) { S.error = t('pl.err.nocolor', 'Those {space} values have no color.', { space: S.space }); return update() }
 	const { rgb } = gamutMap(lch, doc().dest)
@@ -635,12 +790,12 @@ function setAlpha(f, commit) {
 }
 // a channel's place along its bar, 0..1, and back: the opacity's is itself
 const fracAt = i => i === A ? current().opacity : clamp01(frac(i, S.vals[i]))
-const setFrac = (i, f, commit) => i === A ? setAlpha(f, commit) : set(i, at(i, snap(f)), commit)
+const setFrac = (i, f, commit) => i === A ? setAlpha(f, commit) : set(i, at(i, clamp01(f)), commit)
 // the live gesture: the plane repaints at half resolution and the window only grows until release
 const live = on => { S.live = on; if (!on) { draw(); fit() } }
 
 /*
- * One gesture at a time: a plane drag, a bar drag, a letter scrub. It holds the pointer past its
+ * One gesture at a time: a plane drag, a bar drag. It holds the pointer past its
  * element and past the panel's edge (pointer capture: a drag that leaves the plane keeps picking,
  * clamped to its edge), hides the cursor as Figma's picker does, writes live once per frame,
  * and ends exactly once however it ends — a release anywhere, a cancel, lost capture, the
@@ -654,24 +809,55 @@ function grab(el, e, move, end, still) {
 	G = { el, id: e.pointerId, move, end, moved: !still }
 	try { el.setPointerCapture(e.pointerId) } catch {}
 	document.documentElement.classList.add('drag')
+	document.documentElement.classList.toggle('sizing', el.id === 'grip')
+	document.documentElement.classList.toggle('scrub', !!el.closest('.cells'))
 	el.classList.add('live')
 	if (!still) move(e)
+	G.v0 = S.vals?.slice()   // the drag's origin, the color the press left (a dot taken up: its own): ⇧ holds a channel to it, ⌥ measures from it
 }
+// a gesture's element stays put while it runs: its box is measured once, not on every move – a read there would lay out the
+// whole panel the last re-read changed
+const rectOf = el => G?.el === el ? (G.r ??= el.getBoundingClientRect()) : el.getBoundingClientRect()
 function drop() {
 	if (!G) return
 	const { el, id, end, moved } = G
 	G = null
 	try { if (el.hasPointerCapture(id)) el.releasePointerCapture(id) } catch {}
-	document.documentElement.classList.remove('drag')
+	document.documentElement.classList.remove('drag', 'sizing', 'scrub')
 	el.classList.remove('live')
 	end(moved)
 }
 // a gesture on the current paint: live writes while it runs, then one commit – none when it never moved
-function grabPaint(el, e, move, still) {
+// – under a lens, the channels it moved (chs) landing first: stepped, on their cell's centre; under a palette, mid-run
+// (runMid) – the coordinates under the color picked, not anywhere inside its cell
+function grabPaint(el, e, move, still, chs) {
 	if (G || e.button || locked(current())) return
 	live(true)
-	grab(el, e, move, moved => { if (moved && S.vals && !locked(current())) edit(S.vals.slice(), true); live(false) }, still)
+	grab(el, e, move, moved => {
+		if (moved && S.vals && !locked(current())) {
+			if (chs && steps()) for (const i of chs()) S.vals[i] = at(i, snap(frac(i, S.vals[i])))   // a cell's centre
+			else if (chs && lens()) for (const i of chs()) S.vals[i] = runMid(i)
+			edit(S.vals.slice(), true)
+		}
+		live(false)
+	}, still)
 }
+// a coordinate's 8-bit sRGB, as a palette lens reads it (edit)
+const rgb8Of = v => (S.space === 'rgb' ? v : space[S.space].rgb(...v)).map(byte)
+// A palette lens's release, the site's: the channel let go lands on the middle of the run it was let go in – the stretch
+// along it where the lens gives the same color, the other channels held (a palette's runs are uneven: its entry's own
+// coordinates would land anywhere in the cell, or past the plane). The color stays the one picked; its coordinates stop
+// drifting inside it
+function runMid(i) {
+	const N = 256, c = cls().ch[i], v = S.vals.slice(), f0 = clamp01(frac(i, S.vals[i])), k0 = Math.min(N - 1, Math.floor(f0 * N)), shown = GAMS.indexOf(shownG())
+	// a run ends where the field does: past the shown gamut the field is void, and a landing there would sit on nothing
+	const at = k => { v[i] = c.min + (c.max - c.min) * (k + 0.5) / N; const g = tightGamut(S.space, v); return g && g !== 'out' && GAMS.indexOf(g) <= shown ? quantRGB(rgb8Of(v), S.quant).join() : '' }, want = at(k0)
+	let lo = k0, hi = k0
+	while (lo > 0 && at(lo - 1) === want) lo--
+	while (hi < N - 1 && at(hi + 1) === want) hi++
+	return c.min + (c.max - c.min) * (lo + hi + 1) / 2 / N
+}
+const planeChs = () => { const q = pair(); return q ? [q.a, q.b] : [] }
 // A release the frame never saw (the button let go outside a frame that doesn't keep capture): the next
 // pointer event without a button ends the gesture there, and a new press never finds an old one alive
 addEventListener('pointermove', e => { if (!G || e.pointerId !== G.id) return; if (!e.buttons) return drop(); G.moved = true; G.move(e) })
@@ -691,28 +877,91 @@ const finer = (e, raw) => {
 	fine = { f: fx, raw }
 	return fx
 }
-function pick(e) {
-	const pl = $('plane'), q = pair(), r = pl.getBoundingClientRect()
-	if (!q || !S.vals) return
-	const [fx, fy] = finer(e, [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height])
+// a place on the plane (fractions of its box, y up) → the coordinates there, the held channels kept
+function planeVals(fx, fy) {
+	const q = pair()
+	if (!q || !S.vals) return null
 	let fa = offScreen(fx, 'x'), fb = offScreen(fy, 'y')
-	if (pl._polar) {
+	if ($('plane')._polar) {
 		const dx = fx * 2 - 1, dy = fy * 2 - 1
 		fa = ((-Math.atan2(dy, dx) / (2 * Math.PI)) % 1 + 1) % 1
 		fb = Math.min(1, Math.hypot(dx, dy))
 	}
 	const next = S.vals.slice()
-	next[q.a] = at(q.a, snap(fa))
-	next[q.b] = at(q.b, snap(fb))
+	next[q.a] = at(q.a, clamp01(fa))   // past an edge, the edge
+	next[q.b] = at(q.b, clamp01(fb))
+	return next
+}
+// ⇧ held through a drag holds it to one channel, as Figma's and the site's planes do: the one travelled farther from where
+// the press put the color moves, the other stays (a hue the shorter way round). Else the color snaps to another color's
+// dot within a few pixels of it – the plane's two channels its, as the site's planes snap – unless ⌘ places it finely;
+// only the colors' dots: an image's pixels are no target
+const SNAP_PX = 3
+function pick(e) {
+	const r = rectOf($('plane')), q = pair()
+	if (!q || !S.vals) return
+	const next = planeVals(...inPlane(...finer(e, [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height])))   // held to the field: nothing past it is picked
+	const v0 = G?.v0
+	if (e.shiftKey && v0) {
+		const d = i => { const t = Math.abs(frac(i, next[i]) - frac(i, v0[i])); return i === hueIdx(cls()) ? Math.min(t, 1 - t) : t }
+		const keep = d(q.a) * r.width >= d(q.b) * r.height ? q.b : q.a
+		next[keep] = v0[keep]
+	} else if (S.snap && !(e.metaKey || e.ctrlKey)) {
+		const p = place(next)
+		let best = null, bd = SNAP_PX
+		if (p) for (const d of $('marks')._snap || []) { const dd = Math.hypot((d.x / 100 - p[0]) * r.width, (d.y / 100 - p[1]) * r.height); if (dd < bd) { bd = dd; best = d } }
+		if (best) { next[q.a] = best.v[q.a]; next[q.b] = best.v[q.b] }
+	}
 	edit(next)
 }
 const plane$ = $('plane')
-plane$.addEventListener('pointerdown', e => { fine = null; grabPaint(plane$, e, pick) })
+plane$.addEventListener('pointerdown', e => { fine = null; grabPaint(plane$, e, pick, false, planeChs) })
+// The plane names what lies under a resting pointer, as a tooltip does – after the tooltips' wait, and gone as the
+// pointer moves on, to come again where it rests, ⌥ held or not (it names the color ⌥ weighs): another color's dot, its
+// color (paintName); on the field, the color a press there takes – under a named palette its name (a Tailwind token),
+// else its value in the space's channels, stepped its cell's; past the field, the color the point is (a press takes
+// the field's nearest) – or, past the spectral locus, that it is no color. Past sRGB, the tightest display gamut
+// holding it (P3, Rec.2020, > Rec.2020). None off the plane, nor mid-gesture
+const GNAME = { srgb: '', p3: 'P3', rec2020: 'Rec.2020', out: '> Rec.2020' }   // where a color stands, as the tooltip says it: the settings' names (#gamseg); in sRGB nothing
+let hoverT = 0, hovering = false   // hovering: the plane's tooltip is up
+const unhover = () => { clearTimeout(hoverT); tipAt(null); hovering = false }
+function planeTip(e) {
+	const dot = e.target.closest?.('.dm'), dp = dot && S.paints.find(q => keyOf(q) === dot.dataset.key)
+	let text = '', g = 'srgb'
+	if (dp) { text = paintName(dp); g = tightGamut(doc().id, base(dp)) }
+	else if (!dot) {
+		const r = plane$.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = 1 - (e.clientY - r.top) / r.height
+		if (fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1) {
+			const [ix, iy] = inPlane(fx, fy), on = Math.hypot(ix - fx, iy - fy) <= 1.5 / r.width
+			let v = planeVals(fx, fy)
+			if (on && steps()) v = v.map((x, i) => at(i, snap(frac(i, x))))
+			if (on && lens()) { const rgb = quantRGB(rgb8Of(v), S.quant); text = named(rgb) || colorName(rgb, into('rgb', S.space, rgb)) }   // a token: 8-bit sRGB
+			else { g = tightGamut(S.space, v); text = colorName(rgb8Of(v), v, g) }
+		}
+	}
+	if (text && g === null) text = t('pl.void', 'Not a color')
+	else if (text && GNAME[g]) text += `, ${GNAME[g]}`
+	hovering = !!text
+	tipAt(text ? { left: e.clientX, right: e.clientX, top: e.clientY, bottom: e.clientY + ARROW } : null, text && { text })
+}
+{
+	const wrap = plane$.parentElement, wait = () => parseFloat(getComputedStyle($('tip')).getPropertyValue('--tip-delay')) || 500
+	wrap.addEventListener('pointermove', e => {
+		unhover()
+		if (G || e.buttons || !S.vals || e.target.closest?.('#axes')) return   // the axes' letters and switch have their own
+		const ev = { clientX: e.clientX, clientY: e.clientY, target: e.target }
+		hoverT = setTimeout(() => planeTip(ev), wait())
+	}, { passive: true })
+	wrap.addEventListener('pointerleave', unhover)
+	wrap.addEventListener('pointerdown', unhover)
+}
+const ARROW = 16   // the system's arrow cursor below its point, px: a tip at the pointer stands clear of it
+plane$.addEventListener('pointerleave', unhover)
 // the view: a pinch (⌃ wheel) zooms about the pointer, the wheel pans once zoomed, a double click shows the whole again
 plane$.addEventListener('wheel', e => {
 	if (plane$._polar) { if (e.ctrlKey) e.preventDefault(); return }   // no window on a wheel – and a pinch must not zoom the page
-	const w = win(), zoomed = w.x1 - w.x0 < 0.999 || w.y1 - w.y0 < 0.999
-	if (!e.ctrlKey && !zoomed) return
+	const w = win()
+	if (!e.ctrlKey && whole(w)) return
 	e.preventDefault()
 	const r = plane$.getBoundingClientRect(), px = clamp01((e.clientX - r.left) / r.width), py = clamp01(1 - (e.clientY - r.top) / r.height)
 	if (e.ctrlKey) {
@@ -735,21 +984,26 @@ plane$.addEventListener('keydown', e => {
 	const step = e.shiftKey && !steps() ? 0.1 : cell()
 	const next = S.vals.slice()
 	for (const [k, dk] of [[q.a, d[0]], [q.b, d[1]]]) if (dk) next[k] = at(k, snap(clamp01(frac(k, next[k])) + dk * step))
-	edit(next, true)
+	if (keeps(next)) edit(next, true)
 })
 
 // the bars: the pointer's place along the knob's travel is the value; stepped, it lands on a cell centre
+const barFrac = (bar, e) => { const r = rectOf(bar), k = sizes().knob; return (e.clientX - r.left - k / 2) / Math.max(1, r.width - k) }
 $('channels').addEventListener('pointerdown', e => {
 	const bar = e.target.closest('.bar2')
 	if (!bar) return
 	const i = idx(bar.dataset.i), kn = bar.querySelector('.nrg')
 	fine = null
 	grabPaint(bar, e, ev => {
-		const r = bar.getBoundingClientRect(), k = kn.offsetWidth
-		setFrac(i, clamp01(finer(ev, [(ev.clientX - r.left - k / 2) / Math.max(1, r.width - k)])[0]))   // ⌘ held: a tenth as far
-	})
+		const f = clamp01(finer(ev, [barFrac(bar, ev)])[0])   // ⌘ held: a tenth as far
+		setFrac(i, i === A ? f : inBar(bar, f))   // held to the field: nothing past it is picked
+	}, false, () => i === A ? [] : [i])
 	kn.focus({ preventScroll: true })
 })
+// the focus ring is the keyboard's: shown from a Tab (or ⇧Tab) on, until the next press – a press that puts the focus on a
+// knob, the plane or a field, and arrow keys after it, show none (Chrome's :focus-visible would ring them), as Figma's
+addEventListener('keydown', e => { if (e.key === 'Tab') document.documentElement.classList.add('tabbed') }, true)
+addEventListener('pointerdown', () => document.documentElement.classList.remove('tabbed'), true)
 $('channels').addEventListener('keydown', e => {
 	const t = e.target
 	if (!t.classList.contains('nrg') || !S.vals || locked(current())) return
@@ -758,44 +1012,17 @@ $('channels').addEventListener('keydown', e => {
 	const to = e.key === 'Home' ? 0 : e.key === 'End' ? 1 : d == null ? null : fracAt(i) + d * (i === A ? 0.01 : cell())
 	if (to == null) return
 	e.preventDefault()
+	if (i !== A) { const next = S.vals.slice(); next[i] = at(i, snap(clamp01(to))); if (!keeps(next)) return }
 	setFrac(i, clamp01(to), true)
-})
-
-// the values: type and commit; drag a cell's letter sideways to scrub, as on Figma's own fields — the span
-// across 300 px (Shift: 10× finer); a hue wraps, every other channel stops at its range
-const vals$ = $('channels')
-vals$.addEventListener('input', e => { if (e.target.classList.contains('cv')) e.target.dataset.dirty = '1' })
-vals$.addEventListener('change', e => {
-	const t = e.target
-	if (!t.classList.contains('cv')) return
-	delete t.dataset.dirty
-	if (t.readOnly) return
-	const v = t.valueAsNumber
-	if (!Number.isFinite(v)) return update()
-	if (t.dataset.i === A) setAlpha(v / 100, true)
-	else set(+t.dataset.i, v, true)
-})
-vals$.addEventListener('pointerdown', e => {
-	const l = e.target.closest('.cl')
-	if (!l || !S.vals) return
-	const i = idx(l.dataset.i)
-	let f = i === A ? current().opacity : frac(i, S.vals[i]), x = e.clientX
-	grabPaint(l, e, ev => {
-		f += (ev.clientX - x) / 300 * (ev.shiftKey ? 0.1 : 1)   // the step since the last event (movementX is unreliable across frames)
-		x = ev.clientX
-		f = hueIdx(cls()) === i ? ((f % 1) + 1) % 1 : clamp01(f)   // past an end the scrub holds there, and turns back at once
-		setFrac(i, f)
-	}, true)   // a press alone changes nothing
 })
 
 /* ---------- the eyedropper: any pixel on screen, in Chromium's EyeDropper ---------- */
 
 $('drop').addEventListener('click', async () => {
 	let hexc
-	try { hexc = (await new window.EyeDropper().open()).sRGBHex }
+	try { hexc = (await new window.EyeDropper().open()).sRGBHex }   // no EyeDropper at all throws too: said, not hidden
 	catch (err) {
 		if (err && err.name === 'AbortError') return   // Escape
-		$('drop').remove()   // not allowed in this frame: the button goes for good
 		S.error = t('pl.err.dropper', 'The eyedropper isn\'t available here.')
 		return update()
 	}
@@ -826,31 +1053,20 @@ function place(v) {
 	return x >= 0 && x <= 1 && y >= 0 && y <= 1 ? [x, 1 - y] : null
 }
 const at2 = c => place(space[doc().id][S.space](...base(c)))
-const hex6 = c => '#' + [c.r, c.g, c.b].map(u => Math.round(u * 255).toString(16).padStart(2, '0')).join('')
 function placeMarks() {
-	const box = $('marks'), q = pair(), cur = current(), v = S.vals
-	const key = [S.space, q && q.a, q && q.b, $('plane')._polar, JSON.stringify(win()), S.profile, S.key, S.paints.map(p => keyOf(p) + p.r + p.g + p.b).join()].join('|')
-	if (box._key === key) return
-	box._key = key
-	box.replaceChildren()
-	if (!q) return
-	// a dot: a color of the selection, taken up by a press – it becomes the current paint, and the press drags it on.
-	// Only the selection's own: nothing it doesn't hold is marked (a file's variables once were, unasked-for dots beside
-	// a single button's fill)
-	const dot = (c, tip, take) => {
-		const p = at2(c); if (!p) return
-		const b = el('button', 'dm')
-		b.type = 'button'
-		b.style.left = `${p[0] * 100}%`
-		b.style.top = `${p[1] * 100}%`
-		b.style.background = swatch(c)
-		b.dataset.tip = `${tip}\n${hex6(c)}`
-		b.dataset.key = take
-		b.setAttribute('aria-label', t('pl.dot.edit', 'Edit {what}', { what: tip }))
-		b.onpointerdown = e => { if (e.button) return; choose(take); fine = null; grabPaint(plane$, e, pick, true) }
-		b.onclick = () => choose(take)   // the keyboard's press
-		box.append(b)
-	}
+	const box = $('marks'), q = pair()
+	if (!q) { if (box._key !== '') { box._key = ''; box.replaceChildren() } return }
+	// nothing it draws can have moved – the view, the space, the other paints (a gradient's stops all count: its line runs
+	// through the current one): no work at all, as on every frame of a drag of a lone color
+	const groups = swatches(), others = groups.filter(g => !g[0].virtual && !g.some(p => keyOf(p) === S.key)), id = p => [keyOf(p), p.r, p.g, p.b, p.opacity, p.name].join()
+	const inputs = [S.space, q.a, q.b, $('plane')._polar, JSON.stringify(win()), S.profile, S.key, ...others.map(g => g.map(id).join('+')), ...S.paints.filter(p => p.stop >= 0).map(id)].join('|')
+	if (box._in === inputs) return
+	box._in = inputs
+	// what shows – a dot per other swatch (its place, its color, its label) and each gradient's line – is worked out first,
+	// and drawn only when it differs from what is drawn: a drag moves the current color alone, which has no dot
+	const named = p => t('pl.dot.paint', '{layer}, {where}', { layer: p.name, where: where(p) }) + (p.src ? t('pl.dot.src', ', {type} {name}', { type: srcType(p.src), name: p.src.name }) : '')
+	const dots = others.flatMap(g => { const v = into(doc().id, S.space, base(g[0])), at = place(v); return at ? [{ key: keyOf(g[0]), x: at[0] * 100, y: at[1] * 100, v, bg: swatch(g[0]), label: t('pl.dot.edit', 'Edit {what}', { what: g.slice(0, 8).map(named).join('; ') }) }] : [] })
+	box._snap = dots   // what a drag snaps to (pick)
 	// a gradient as it paints: its colors between each pair of stops mixed – in the file's RGB (encoded, as Figma
 	// blends them), or in the space the host names (mixer) – each step placed on this plane, a soft line that bends
 	// wherever the space does. It breaks where it leaves the plane or wraps around a hue axis
@@ -865,6 +1081,10 @@ function placeMarks() {
 		for (const p of pts) { if (!p || (run.length && !$('plane')._polar && Math.abs(p[0] - run.at(-1)[0]) > 0.5)) end(); if (p) run.push(p) }
 		end()
 	}
+	const key = JSON.stringify([dots, lines])
+	if (box._key === key) return
+	box._key = key
+	box.replaceChildren()
 	if (lines.length) {
 		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
 		svg.setAttribute('class', 'links')
@@ -873,10 +1093,81 @@ function placeMarks() {
 		svg.innerHTML = lines.map(l => `<polyline points="${l}"/>`).join('')
 		box.append(svg)
 	}
-	// a dot per swatch – a color used in many places is one dot, naming them all
-	const named = p => t('pl.dot.paint', '{layer}, {where}', { layer: p.name, where: where(p) }) + (p.src ? t('pl.dot.src', ', {type} {name}', { type: srcType(p.src), name: p.src.name }) : '')
-	for (const g of swatches()) if (!g[0].virtual && !g.some(q => keyOf(q) === S.key)) dot(g[0], g.slice(0, 8).map(named).join('\n'), keyOf(g[0]))
+	// a dot: a color of the selection, taken up by a press – it becomes the current paint, and the press drags it on.
+	// Only the selection's own: nothing it doesn't hold is marked (a file's variables once were, unasked-for dots beside
+	// a single button's fill). A color used in many places is one dot, its label naming them all
+	for (const d of dots) {
+		const b = el('button', 'dm')
+		b.type = 'button'
+		b.style.left = `${d.x}%`
+		b.style.top = `${d.y}%`
+		b.style.background = d.bg
+		b.dataset.key = d.key
+		b.setAttribute('aria-label', d.label)
+		b.onpointerdown = e => { if (e.button) return; choose(d.key); fine = null; grabPaint(plane$, e, pick, true, planeChs) }
+		b.onclick = () => choose(d.key)   // the keyboard's press
+		box.append(b)
+	}
 }
+
+/* ---------- ⌥: another color weighed against the current one ---------- */
+
+// Held ⌥ (Alt), the pointer on another color – a point of the plane, a dot, a point of a bar, a swatch – the panel weighs
+// it against the current color, as Figma's ⌥ measures between two points (web/js/ruler.js): on the plane, from the
+// current color's mark a solid line along each of its two channels to the point, each with its step, and from the point
+// dashed ones back to their ends, in Figma's measuring red; in the plane's top corner away from it, the WCAG contrast
+// (none where no color is: a point past the field is weighed too – the plane's tooltip says where a color stands) and
+// the steps of the channels off the plane; in the value field, its value. Held through a drag, the same
+// between the drag's origin (G.v0: the color the press left, the one ⇧ holds a channel to) and the color as it is. ⌥ let go, the pointer gone, a press: it ends. The pointer's
+// own ⌥ is read on each move (Figma's frame hears no key while its canvas has the focus), and the key itself where the
+// panel has it
+const into = (s, to, v) => s === to ? v.slice() : space[s][to](...v)
+const spot = v => place(v)?.map(f => f * 100)   // a color's place on the plane, % from its top-left; none off it
+// what the pointer is on, as a color: { s, v } (a space and its values) and its place on the plane (or none); nothing on
+// the current color's own swatch
+function weighed(e) {
+	const el = e.target.closest?.('.dm, .paint, .bar2, #plane')
+	if (!el || !S.vals) return null
+	if (!el.matches('.bar2, #plane')) {
+		const p = S.paints.find(q => keyOf(q) === el.dataset.key)
+		if (!p || (el.dataset.keys || '').split(' ').includes(S.key)) return null
+		return { s: doc().id, v: base(p), at: spot(into(doc().id, S.space, base(p))) }
+	}
+	if (el.matches('.bar2')) {
+		const i = idx(el.dataset.i)
+		if (i === A) return null
+		const v = S.vals.slice(); v[i] = at(i, snap(clamp01(barFrac(el, e))))
+		return { s: S.space, v }
+	}
+	const r = el.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = 1 - (e.clientY - r.top) / r.height
+	return { s: S.space, v: planeVals(fx, fy), at: [fx * 100, (1 - fy) * 100] }
+}
+let hovered = null, measuring = false   // the last move over the panel: where ⌥ reads from when the key itself comes
+function measureAt(e) {
+	const u = G ? G.v0 && S.vals && { s: S.space, v: S.vals, at: spot(S.vals) } : weighed(e)
+	if (!u || !S.vals) return unmeasure()
+	const v0 = G ? G.v0 : S.vals, own = into(u.s, S.space, u.v), c = cls(), q = pair(), h = hueIdx(c), on = q ? [q.a, q.b] : []
+	const st = i => stepText(c.ch[i], v0[i], own[i], i === h ? c.ch[i].max - c.ch[i].min : 0, fmtc)
+	const Y = (s, v) => into(s, 'xyz', v)[1] / 100
+	const readout = [tightGamut(u.s, u.v) !== null && contrastText(contrast(Y(S.space, v0), Y(u.s, u.v)), t('pl.measure.large', 'AA large')), ...c.ch.map((_, i) => i).filter(i => !on.includes(i)).map(st)].filter(Boolean)
+	measuring = true
+	if (!hovering) hideTip()   // the readout is its tip while it lasts: no element's own comes over it, nor stays once ⌥ is let go – the plane's own, naming the color weighed, stays
+	ruler($('plane').parentElement, { from: spot(v0), to: u.at || null, polar: !!$('plane')._polar, steps: u.at ? on.map(st) : [], readout })
+	if (!G) { const d = into(u.s, doc().id, u.v).map(x => x / doc().scale); showValue({ ...current(), r: d[0], g: d[1], b: d[2] }, own) }   // its value where the current one's stands, as Figma's field follows its picker
+}
+function unmeasure() {
+	if (!measuring) return
+	measuring = false
+	unruler($('plane').parentElement)
+	const p = current()
+	if (p) showValue(p)
+}
+addEventListener('pointermove', e => { hovered = e; if (e.altKey) measureAt(e); else unmeasure() }, { passive: true })
+addEventListener('keydown', e => { if (e.key === 'Alt' && hovered) measureAt(hovered) })
+addEventListener('keyup', e => { if (e.key === 'Alt') unmeasure() })
+addEventListener('pointerdown', unmeasure, true)
+addEventListener('blur', unmeasure)
+document.documentElement.addEventListener('pointerleave', () => { hovered = null; unmeasure() })
 
 /* ---------- an image's pixels: dots on the plane ---------- */
 
@@ -910,13 +1201,15 @@ async function buildCloud(key, parts) {
 	draw()
 }
 // the dots, as on the dossier's image density: a fifth-opaque square per sample, light on a dark field, dark on a light one
-function paintDensity(cv, c, q, w, polar, dark, [[a0, a1], [b0, b1]]) {
+// the image's pixels on the plane: white dots, as every mark over the field (the site's), with no outline – over a light
+// field they fade, and the held channel moved darker shows them
+function paintDensity(cv, c, q, w, polar, [[a0, a1], [b0, b1]]) {
 	const ctx = cv.getContext('2d')
 	if (cv.width !== w || cv.height !== w) { cv.width = w; cv.height = w }
 	ctx.clearRect(0, 0, w, w)
 	if (!c) return
 	const r = Math.max(2, w / 190)
-	ctx.fillStyle = dark ? '#fff' : '#16161a'
+	ctx.fillStyle = '#fff'
 	for (let k = 0; k < c.n; k++) {
 		const fa = (c.v[k * c.dim + q.a] - a0) / (a1 - a0), fb = (c.v[k * c.dim + q.b] - b0) / (b1 - b0)
 		let x = fa, y = fb
@@ -954,13 +1247,16 @@ function histograms(c) {
 		h.hidden = false
 	}
 }
-// the field's mean luminance decides the dots' ink
-function fieldDark(cv) {
+// the field's mean luminance decides its gamut lines' ink (the marks over it are white whatever it is). was: the field's
+// last reading. A margin either side of the middle: the field's lines are drawn in the ink read off
+// it, so they move its mean a little – a field right at the middle once flipped its ink at every paint, and repainted
+// without end (a green held at L 0.59 in a P3 file, Rec.2020 shown)
+function fieldDark(cv, was) {
 	try {
-		const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data
+		const d = pixelsOf(cv)
 		let L = 0, n = 0
 		for (let i = 0; i < d.length; i += 64) if (d[i + 3] > 128) { L += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]; n++ }
-		return !n || L / n < 128
+		return !n || L / n < (was == null ? 128 : was ? 136 : 120)
 	} catch { return true }
 }
 
@@ -986,25 +1282,88 @@ async function receiveImage(m) {
 	update()
 }
 
-// the tooltip stays secondary: any press dismisses it, and focus brings it only from the keyboard — a clicked button
-// takes focus, and tip.js would show its tip again. A quiet explainer (the status line, the profile) shows it on a click too
-addEventListener('pointerdown', hideTip, true)
-addEventListener('click', e => { const el = e.target.closest?.('[data-tip]'); if (el && !el.closest('button, input, select, label, a, [tabindex]')) showTip(el) })
+// the panel losing the focus – a press on Figma's own chrome, its canvas, another app – closes what floats over it: the
+// space menu, the settings, an open list (its select let go); the tooltip goes too (tip.js)
+addEventListener('blur', () => {
+	closeSpaces()
+	try { $('prm').hidePopover() } catch {}
+	// an open list (a customizable select's) has no call that closes it, and keeps open when the focus leaves: its select
+	// is taken out of the page and put back, which closes it (the element the same, its listeners kept)
+	for (const sel of document.querySelectorAll('select')) { try { if (sel.matches(':open')) { const at = sel.parentNode, next = sel.nextSibling; sel.remove(); at.insertBefore(sel, next) } } catch {} }
+})
+// the tooltip stays secondary: any press dismisses it (but one on a live tip's row: that is its use), and focus brings it
+// only from the keyboard — a clicked button takes focus, and tip.js would show its tip again
+addEventListener('pointerdown', e => { if (!e.target.closest?.('#tip')) hideTip() }, true)
 addEventListener('focusin', e => { if (!e.target.matches?.(':focus-visible')) e.stopPropagation() }, true)
+
+/* ---------- undo ---------- */
+
+// ⌘Z (Ctrl+Z) in the panel undoes the host's last step – Figma's history, or the document's – which the frame's keys never
+// reach on their own; not in a field being typed in (its text has its own undo), not with Shift (plugins get no redo).
+// The colors this UI wrote are forgotten, so the re-read that follows shows the color undone to, not the one it kept
+addEventListener('keydown', e => {
+	if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return
+	const f = e.target.closest?.('input')
+	if (f && !f.readOnly && (f.dataset.dirty || f.id === 'spq')) return
+	e.preventDefault()
+	S.own = []; S.mine = null
+	post({ type: 'undo' })
+})
 
 /* ---------- copy ---------- */
 
-// a field's text to the clipboard, its button saying how it went
-async function copy(field, button) {
+// a text to the clipboard – a row of the copy list – and the host saying so (Figma's toast, VS Code's status bar); where
+// the frame has no clipboard at all, the text stays in sight in the error line, to be selected by hand
+async function copy(text) {
 	let ok = false
-	try { await navigator.clipboard.writeText(field.value); ok = true }
+	try { await navigator.clipboard.writeText(text); ok = true }
 	catch {
-		// fallback when the iframe has no async clipboard (unverified in Figma; see README)
-		field.select()
+		// fallback when the iframe has no async clipboard (unverified in Figma; see README): a field selected, copied
+		const ta = Object.assign(document.createElement('textarea'), { value: text })
+		ta.style.cssText = 'position:fixed;opacity:0'
+		document.body.append(ta)
+		ta.select()
 		try { ok = document.execCommand('copy') } catch { ok = false }
+		ta.remove()
 	}
-	button.setAttribute('aria-label', ok ? t('pl.copy.done', 'Copied') : t('pl.copy.selected', 'Selected'))   // Selected: press ⌘C / Ctrl+C
-	setTimeout(() => button.setAttribute('aria-label', t('pl.copy', 'Copy')), 1200)
+	if (!ok) { S.error = t('pl.err.copy', 'The clipboard isn\'t available here. The value: {value}', { value: text }); update() }
+	else post({ type: 'notify', text: t('pl.copied', 'Copied {value}', { value: text }) })
+}
+
+/* ---------- the menus: over their control ---------- */
+
+// Figma's menus open over their control, the chosen row over the control's own text (a macOS popup menu). The select draws
+// its list where it anchors it; once open, the list is moved (a translate: the anchoring kept) by the distance from the
+// chosen row to the control – vertically centred on it, its text over the control's text – and held inside the window.
+// It shows only once moved
+function overControl(sel, ctrl, textLeft) {
+	const st = sel.style
+	st.setProperty('--pk-o', '0'); st.setProperty('--pk-dx', '0px'); st.setProperty('--pk-dy', '0px')
+	let k = 0
+	const place = () => {
+		const on = sel.selectedOptions[0] || sel.options[0], o = on?.getBoundingClientRect()
+		if (!sel.matches(':open') || !o?.height) return ++k < 12 ? requestAnimationFrame(place) : st.removeProperty('--pk-o')
+		const rows = [...sel.options].map(x => x.getBoundingClientRect()), c = ctrl.getBoundingClientRect(), edge = 8   // the list's padding and border round its rows, its rows' margin
+		const top = rows[0].top - edge, bottom = rows.at(-1).bottom + edge, left = rows[0].left - edge, right = rows[0].right + edge
+		const dy = Math.min(Math.max(c.top + (c.height - o.height) / 2 - o.top, 4 - top), innerHeight - 4 - bottom)
+		const range = document.createRange()
+		range.selectNodeContents(on)
+		const dx = Math.min(Math.max(textLeft() - range.getBoundingClientRect().left, 4 - left), innerWidth - 4 - right)
+		st.setProperty('--pk-dx', `${Math.round(dx)}px`)
+		st.setProperty('--pk-dy', `${Math.round(dy)}px`)
+		st.setProperty('--pk-o', '1')
+	}
+	requestAnimationFrame(place)
+}
+// a select drawn by the page (customizable): its control the outlined box it sits in, its text the shown option's. (The
+// format's list is not one: it opens above the value field, ui.html .fmt ::picker)
+function overSelects() {
+	if (!CSS.supports('appearance', 'base-select')) return
+	const textOf = sel => () => { const r = document.createRange(), sc = sel.querySelector('selectedcontent'); r.selectNodeContents(sc); return r.getBoundingClientRect().left }
+	for (const [sel, ctrl, text] of [[$('scope'), $('scope').closest('.sel'), textOf($('scope'))], [$('spgroup'), $('spgroup').closest('.sel'), textOf($('spgroup'))], [$('quant'), $('quantf'), textOf($('quant'))]]) {
+		sel.addEventListener('pointerdown', e => { if (!e.target.closest('option') && !sel.matches(':open')) overControl(sel, ctrl, text) })   // a press on a row is a pick, not an opening
+		sel.addEventListener('keydown', e => { if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key) && !sel.matches(':open')) overControl(sel, ctrl, text) })
+	}
 }
 
 /* ---------- wiring ---------- */
@@ -1027,14 +1386,15 @@ function warmFeatured() {
 }
 /*
  * The space menu, Figma's white one, under the space's field. A press outside closes it and does nothing else (the click
- * that follows is swallowed too: preventing a press doesn't cancel it) – unless it opens another control, a lens or the
- * format select: one menu at a time. The window grows to hold it (fit)
+ * that follows is swallowed too: preventing a press doesn't cancel it) – unless it opens another control, a lens, the
+ * copy list or the settings (one menu at a time), or takes the grip: the window resized at once. The window grows to
+ * hold it (fit)
  */
 const OK = '<svg class="ic ok" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
 let swallow = false
 addEventListener('pointerdown', e => {
 	if (spmenu.hidden || e.target.closest('#spmenu, #spbtn')) return
-	if (e.target.closest('.lens, .fmt, #aboutb')) return closeSpaces()
+	if (e.target.closest('.lens, .fmt, #prmb, #grip')) return closeSpaces()
 	e.preventDefault(); e.stopPropagation(); swallow = true; closeSpaces()
 }, true)
 addEventListener('click', e => { if (!swallow) return; swallow = false; e.preventDefault(); e.stopPropagation() }, true)
@@ -1050,6 +1410,9 @@ const spmenu = $('spmenu'), spq = $('spq')
 let spGroup = 'featured', typed = false   // the usual picks first; the family select opens the rest
 const GROUPS = () => [['all', t('pl.menu.all', 'All spaces'), FAMILIES.flatMap(f => f.ids)], ['featured', t('pl.menu.featured', 'Featured'), FAMILIES.flatMap(f => f.ids.filter(id => f.feat.has(id)))], ...FAMILIES.map(f => [f.name, f.label, f.ids])]
 const featured = id => FAMILIES.some(f => f.feat.has(id))
+// a space in the menu: its name and its shape's mark, the site's (core.js geoOf): a disc for a hue around, a rhombus
+// parted at its neutral for opponent spaces, a cube for the rest
+const kindOf = id => Object.assign(el('span', 'kind'), { innerHTML: OI[geoOf(id)] })
 function renderSpaceMenu() {
 	const g = $('spgroup')
 	// All spaces, then Featured, then the families: each of the first two parted from what follows, as Figma's font sources
@@ -1066,7 +1429,7 @@ function renderSpaceMenu() {
 		b.setAttribute('role', 'option')
 		b.setAttribute('aria-selected', String(id === S.space))
 		b.innerHTML = OK
-		b.append(el('span', 'nm', titleOf(id)), el('span', 'id', id))
+		b.append(el('span', 'nm', titleOf(id)), kindOf(id))
 		return b
 	}) : [el('p', 'spnone', t('pl.menu.none', 'No space by that name'))]))
 	const on = (!q && list.querySelector('[aria-selected="true"]')) || list.querySelector('.spo')
@@ -1080,7 +1443,8 @@ function openSpaces() {
 	spmenu.hidden = false
 	fit()
 	spq.setAttribute('aria-expanded', 'true')
-	$('splist').querySelector('.spo.on')?.scrollIntoView({ block: 'center' })
+	const on = $('splist').querySelector('.spo.on')
+	if (on) reveal($('splist'), on, 'center')
 }
 function closeSpaces() {
 	if (!spmenu.hidden) { spmenu.hidden = true; fit() }
@@ -1095,6 +1459,12 @@ const takeSpace = id => {
 	useSpace(id)
 }
 spq.addEventListener('focus', () => { openSpaces(); spq.select() })   // the name selected: typing replaces it
+// the field's chevron opens the menu and shuts it, as a select's does – a press there once only ever opened it again
+{
+	const chev = $('spbtn').querySelector('.chev')
+	chev.addEventListener('pointerdown', e => { e.preventDefault(); if (spmenu.hidden) { openSpaces(); spq.focus() } else { closeSpaces(); spq.blur() } })
+	chev.addEventListener('click', e => e.preventDefault())   // the label's own click would focus the field, and open it again
+}
 spq.addEventListener('click', openSpaces)
 spq.addEventListener('input', () => { typed = true; openSpaces(); renderSpaceMenu() })
 spq.addEventListener('keydown', e => {
@@ -1107,22 +1477,38 @@ spq.addEventListener('keydown', e => {
 	const rows = [...$('splist').querySelectorAll('.spo')], k = rows.findIndex(b => b.classList.contains('on')), next = rows[Math.max(0, Math.min(rows.length - 1, k + d))]
 	if (!next) return
 	rows.forEach(b => b.classList.toggle('on', b === next))
-	next.scrollIntoView({ block: 'nearest' })
-	warmPlaneGL(next.dataset.id, true)
+	reveal($('splist'), next)
+	warmSoon(next)
 })
 // focus leaving the field and its menu closes the menu
 for (const x of [$('spbtn'), spmenu]) x.addEventListener('focusout', e => { if (!e.relatedTarget?.closest?.('#spbtn, #spmenu')) closeSpaces() })
 $('spgroup').addEventListener('change', e => { spGroup = e.target.value; renderSpaceMenu(); spq.focus() })
 // a row pressed keeps the field's focus (a blur would close the menu before the click lands)
 $('splist').addEventListener('pointerdown', e => { if (e.target.closest('.spo')) e.preventDefault() })
-// a space pointed at in the menu starts compiling ahead of the rest: by the click it is often ready
-$('splist').addEventListener('pointerover', e => { const b = e.target.closest('.spo'); if (b) warmPlaneGL(b.dataset.id, true) })
+// a space rested on in the menu – pointed at or stepped to, and still there a moment later – starts compiling ahead of the
+// rest, so by the click it is often ready: compiled, not drawn (its first draw, where a driver may build its pipeline,
+// waits for the pick). Rows passing under a still pointer as the list scrolls, or under a held arrow key, warm nothing –
+// each once compiled there and then, and the scroll stalled: the wait starts again on every move and every scroll. Not on
+// a software GL, where a compile holds the page for seconds
+let warmT = 0, rest = null
+const warmSoon = b => {
+	rest = b || rest
+	clearTimeout(warmT)
+	if (rest && !softGL()) warmT = setTimeout(() => (rest.classList.contains('on') || rest.matches(':hover')) && warmPlaneGL(rest.dataset.id, true, false), 150)
+}
+$('splist').addEventListener('pointerover', e => { const b = e.target.closest('.spo'); if (b) warmSoon(b) })
+$('splist').addEventListener('scroll', () => warmSoon(), { passive: true })
 $('splist').addEventListener('click', e => { const b = e.target.closest('.spo'); if (b) takeSpace(b.dataset.id) })
 
+// the palette's scope, Figma's own pair: the selection's colors, or the page's; the host reads them anew
+$('scope').addEventListener('change', e => post({ type: 'store', key: 'scope', value: e.target.value }))
+// a row picked from the copy list is copied, and the list keeps no row picked – any row, again, copies again. The button
+// is pressed, never focused: the list, once shut, leaves no focus on it
 $('fmt').addEventListener('change', e => {
-	S.format = e.target.value
-	post({ type: 'store', key: 'format', value: S.format })
-	update()
+	const o = e.target.selectedOptions[0]
+	e.target.selectedIndex = -1
+	requestAnimationFrame(() => e.target.blur())   // after the select takes its focus back from the list
+	if (o && current()) copy(o.dataset.copy)
 })
 $('quant').addEventListener('change', e => {
 	S.quant = QKEYS.find(k => String(k) === e.target.value)
@@ -1130,10 +1516,195 @@ $('quant').addEventListener('change', e => {
 	renderLenses()
 	update()
 })
-$('limit').addEventListener('change', e => {
-	S.limit = e.target.value
-	post({ type: 'store', key: 'limit', value: S.limit })
-	renderLenses()
+/* ---------- the value: the space's channels, and a copy in any notation ---------- */
+
+// The value is the space's own channels and nothing else – a space's view is its channels: cells, Figma's split field for
+// RGB, a cell a channel, its letter dim before its number (as Figma's X and W), the opacity last in %. The copy button
+// beside them lists the color in every notation it is copied in, each row the value it gives: the channels as text,
+// each letter and number at the atlas's decimals, the opacity after a slash in % – C12 M24 Y36 K0, the print shops' way
+// of writing a CMYK build (a letter ending in a digit spaced off its number: I1 0.32) – then CSS's (notation.js)
+const SPACE = 'space'
+function valueOf(format, p, v = S.vals) {   // v: the coordinates the channels' text writes (another color's, ⌥'s)
+	if (format !== SPACE) return cssOf(format, p, p.opacity, S.profile)
+	const c = cls()
+	if (!v) return ['', '']
+	return [v.map((x, i) => `${c.ch[i].sym}${/\d$/.test(c.ch[i].sym) ? ' ' : ''}${fmtc(x, c.ch[i])}`).join(' ') + (p.opacity < 1 ? ` / ${Math.round(p.opacity * 100)}%` : ''), '']
+}
+// a cell's number: a channel at the atlas's decimals less those its cell sheds to fit (x._shed, fitCells), the opacity
+// in whole %
+const cellText = (x, p, v, shed = x._shed || 0) => { const i = idx(x.dataset.i); return i === A ? String(Math.round(p.opacity * 100)) : v ? fmtc(v[i], cls().ch[i], decOf(cls().ch[i]) - shed) : '' }
+// the cells' numbers – the current color's, or another's (⌥) – save in a cell being typed in
+function showValue(p, v = S.vals) {
+	for (const x of $('cells').querySelectorAll('input')) {
+		const text = cellText(x, p, v)
+		if (!(x.dataset.dirty && x === document.activeElement) && x.value !== text) x.value = text
+	}
+}
+// The cells, a hairline apart; the group answers as one (a grey hairline under the pointer, the selection color round it
+// while a cell has the focus). Rebuilt for another space, rewritten otherwise
+function renderCells(p, lock) {
+	const box = $('cells'), c = cls(), key = [S.space, !!p.virtual].join()
+	if (box._key !== key) {
+		box._key = key
+		const cell = (i, ch) => {
+			const l = el('label', i === A ? 'cell op' : 'cell'), x = el('input')
+			Object.assign(x, { spellcheck: false, autocomplete: 'off', inputMode: 'decimal' })
+			x.dataset.i = String(i)
+			x.setAttribute('aria-label', l.dataset.tip = i === A ? t('pl.alpha', 'Opacity') : cname(ch))
+			l.append(...(i === A ? [x, el('i', null, '%')] : [el('i', null, ch.sym), x]))
+			return l
+		}
+		box.replaceChildren(...c.ch.map((ch, i) => cell(i, ch)), ...(p.virtual ? [] : [cell(A)]))
+	}
+	for (const x of box.querySelectorAll('input')) x.readOnly = lock
+	showValue(p)
+	fitCells()
+}
+// every number with its letter, where they fit; else the numbers alone – and a number that still doesn't fit sheds a
+// decimal, up to two (C 0.088 at 240 px: 0.09), never cut – read again once the panel's width, the face (Inter, once it
+// loads) or the numbers' lengths change, never mid-gesture (a read there would lay the panel out every frame)
+function fitCells() {
+	const box = $('cells'), xs = [...box.querySelectorAll('input')], p = current()
+	if (S.live || measuring || !p) return   // ⌥'s numbers are another color's: read once they go
+	const fit = [box._key, sizes().channels, document.fonts.status, ...xs.map(x => cellText(x, p, S.vals, 0).length)].join()
+	if (box._fit === fit) return
+	box.classList.remove('tight')
+	if (!box.clientWidth) return   // not laid out yet (the panel still hidden): read once it shows
+	box._fit = fit
+	for (const x of xs) x._shed = 0
+	showValue(p)
+	const over = x => x.scrollWidth > x.clientWidth + 1
+	if (!xs.some(over)) return
+	box.classList.add('tight')
+	for (const x of xs) {
+		const i = idx(x.dataset.i), most = i === A ? 0 : Math.min(2, decOf(cls().ch[i]))
+		while (over(x) && x._shed < most) { x._shed++; if (!(x.dataset.dirty && x === document.activeElement)) x.value = cellText(x, p, S.vals) }
+	}
+}
+// the copy list: the channels' text, then the CSS notations, each as the value it gives (a wider color mapped into an
+// sRGB-only one says so beside it, the value alone copied); under a named palette's lens, the name first. Rebuilt when
+// its set of rows changes, rewritten otherwise; no row stays picked
+function renderFormats(p, name) {
+	const f = $('fmt'), rows = [...(name ? [NAME] : []), SPACE, ...FORMATS.map(x => x[0])]
+	if (f._rows !== rows.join()) {
+		f._rows = rows.join()
+		f.replaceChildren(...rows.flatMap((r, k) => [new Option('', r), ...(r === NAME || (r === SPACE && k < rows.length - 1) ? [document.createElement('hr')] : [])]))
+	}
+	if (!S.live || f.matches(':open')) for (const o of f.options) {   // a drag rewrites them on release (unless the list is open)
+		const [v, note] = o.value === NAME ? [name, ''] : valueOf(o.value, p), text = note ? t('pl.fmt.mapped', '{value}: mapped into sRGB', { value: v }) : v
+		o.dataset.copy = v
+		if (o.textContent !== text) o.textContent = text
+	}
+	if (f.selectedIndex !== -1) f.selectedIndex = -1
+}
+// a token of the value: a number (a sign, decimals, an exponent, a %) or a hex color, past the notation's name
+const TOKEN = /#[0-9a-f]{3,8}\b|-?\d*\.?\d+(?:e-?\d+)?%?/gi
+// a value's numbers past its notation's name, the channels' letters before them dropped (C12 M24 – I1 0.32 too)
+const numsOf = text => {
+	const syms = cls().ch.map(c => c.sym.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length)
+	const t = text.slice(text.indexOf('(') + 1).replace(new RegExp(`(?<![\\w.])(?:${syms.join('|')})(?=\\s*[-+.\\d])`, 'g'), ' ')
+	return [...t.matchAll(TOKEN)].map(m => m[0])
+}
+// A whole value pasted into a cell, taken: in the space's own notation (its name, or none, then its numbers – the
+// channels in order, the opacity after them, a % read as a fraction) the coordinates go through the picker as an edit
+// would; any other text is read as CSS (a pasted #hex, rgb(), oklch(), a named color) and written mapped into the
+// file's gamut
+function commitValue(text) {
+	const p = current()
+	if (!p || locked(p)) return update()
+	const head = (text.match(/^\s*([a-z][\w-]*)\s*\(/i) || [])[1]?.toLowerCase(), n = cls().ch.length
+	if (S.vals && (!head ? !/^\s*#/.test(text) : head === S.space)) {
+		const toks = numsOf(text), shown = numsOf(valueOf(SPACE, p)[0])
+		// a channel's number as shown (or as held, unrounded) is that channel untouched: its coordinate kept whole
+		const nums = toks.map((x, i) => i < n && (x === shown[i] || +x === S.vals[i]) ? S.vals[i] : i === n && x.endsWith('%') ? parseFloat(x) / 100 : parseFloat(x))   // a channel's % is its own unit (lch()'s L, hsl()'s S)
+		if (nums.length >= n && nums.slice(0, n).every(Number.isFinite)) {
+			const op = nums.length > n && Number.isFinite(nums[n]) && !p.virtual ? Math.round(clamp01(nums[n]) * 100) / 100 : p.opacity
+			S.error = ''
+			if (nums.slice(0, n).every((x, i) => x === S.vals[i])) {   // no channel moved: the opacity alone, the color as it is – or nothing at all
+				if (op !== p.opacity) { p.opacity = op; write([p.r, p.g, p.b], true) }
+				return update()
+			}
+			p.opacity = op
+			return edit(nums.slice(0, n), true)
+		}
+	}
+	const c = parseCss(text, NAMES)
+	if (!c || !space[c.space]?.oklch) { S.error = t('pl.err.value', 'Not a color: {text}', { text: text.trim() }); return update() }
+	if (!p.virtual) p.opacity = Math.round(c.alpha * 100) / 100
+	S.error = ''
+	write(gamutMap(space[c.space].oklch(...c.values), doc().dest).rgb, true)
+	sync(true)
+	update()
+}
+
+document.fonts.addEventListener('loadingdone', () => update())   // the cells' fit read again in the face that shows
+// ↑↓'s step: a channel's power of ten under a hundredth of its range – L 0.01, C 0.001, a hue 1, a byte 1
+const unitOf = ch => 10 ** Math.floor(Math.log10((ch.max - ch.min) / 100))
+// The cells take a number each, as Figma's do: typed (Enter or leaving the cell takes it; Escape puts it back), stepped
+// with ↑↓ (Shift: ten steps) and committed at once; the whole value pasted into any of them – its letters and numbers,
+// CSS, a hex – is taken whole. Focused, a cell's number is selected; a number as shown is its coordinate kept whole
+{
+	const box = $('cells')
+	function take(x) {
+		delete x.dataset.dirty
+		const p = current(), i = idx(x.dataset.i), text = x.value.trim(), toks = numsOf(text)
+		if (!p || locked(p) || !S.vals || !text) return update()   // a cell emptied: its number back
+		if (toks.length !== 1 || toks[0][0] === '#') return commitValue(text)
+		const n = parseFloat(toks[0])
+		S.error = ''
+		if (i === A) return setAlpha(n / 100, true)
+		if (toks[0] === cellText(x, p, S.vals)) return update()   // the number as shown, retyped: nothing to write
+		set(i, n, true)
+	}
+	box.addEventListener('focusin', e => { if (e.target.matches('input')) e.target.select() })
+	// a cell's letter, or the opacity's %, scrubs its number, as Figma's: a drag across moves it a step a pixel (the cell's
+	// ↑↓ step; Shift held, ten – for the moves made while it is), live, one write at the release – held to its range as a
+	// slider is, a hue around
+	box.addEventListener('pointerdown', e => {
+		const g = e.target.closest('.cell > i'), x = g?.parentElement.querySelector('input')
+		if (!x || x.readOnly || !S.vals || e.button) return
+		const i = idx(x.dataset.i), unit = i === A ? 1 : unitOf(cls().ch[i]), hue = i === hueIdx(cls())
+		let px = e.clientX, steps = 0   // the pixels moved, each counted at the rate it was moved at
+		const v0 = i === A ? current().opacity * 100 : S.vals[i], [lo, hi] = i === A ? [0, 100] : range(i)
+		grabPaint(g, e, ev => {
+			steps += (ev.clientX - px) * (ev.shiftKey ? 10 : 1)
+			px = ev.clientX
+			let v = v0 + Math.round(steps) * unit
+			if (!hue && (v < lo || v > hi)) { v = v < lo ? lo : hi; steps = (v - v0) / unit }   // held at an end, a move back moves it at once
+			if (i === A) return setAlpha(v / 100)
+			const f = frac(i, v)
+			setFrac(i, hue ? (f % 1 + 1) % 1 : clamp01(f))
+		}, true, () => i === A ? [] : [i])
+	})
+	box.addEventListener('input', e => { e.target.dataset.dirty = '1' })
+	box.addEventListener('change', e => { if (e.target.dataset.dirty) take(e.target) })
+	box.addEventListener('keydown', e => {
+		const x = e.target
+		if (!x.matches('input')) return
+		if (e.key === 'Enter') { e.preventDefault(); if (x.dataset.dirty) take(x); return x.select() }
+		if (e.key === 'Escape') { delete x.dataset.dirty; update(); x.blur(); return }
+		const d = { ArrowUp: 1, ArrowDown: -1 }[e.key]
+		if (!d) return
+		e.preventDefault()
+		if (x.readOnly || !S.vals) return
+		// from the number as shown, at its decimals, as the field's ↑↓ steps its tokens
+		const i = idx(x.dataset.i), unit = i === A ? 1 : unitOf(cls().ch[i]) * 10 ** (x._shed || 0), shown = cellText(x, current(), S.vals)
+		const n = +(parseFloat(shown) + d * (e.shiftKey ? 10 : 1) * unit).toFixed(Math.max((shown.split('.')[1] || '').length, Math.max(0, -Math.round(Math.log10(unit)))))
+		delete x.dataset.dirty
+		if (i === A) setAlpha(n / 100, true); else set(i, n, true)
+		x.select()
+	})
+}
+
+// the settings' gamut: the one the fields show, kept per profile
+function renderShown() { for (const b of $('gamseg').children) b.setAttribute('aria-checked', String(b.dataset.g === shownG())) }
+$('gamseg').addEventListener('click', e => {
+	const b = e.target.closest('[data-g]')
+	if (!b) return
+	S.gamuts = { ...S.gamuts, [S.profile]: b.dataset.g }
+	post({ type: 'store', key: 'gamuts', value: S.gamuts })
+	renderShown()
+	invalidate()
 	update()
 })
 $('axes').addEventListener('click', e => {
@@ -1147,7 +1718,7 @@ $('axes').addEventListener('click', e => {
 		S.pairs[S.space] = swapAxis(b.classList.contains('labx') ? 'a' : 'b')[1]
 		post({ type: 'store', key: 'pairs', value: S.pairs })
 	}
-	invalidate()
+	renderPicker()   // the channel held changes, and with it the slider
 	update()
 })
 // a paint becomes the current one: from its row, or from its dot on the plane
@@ -1161,12 +1732,21 @@ function choose(key) {
 	update()
 }
 $('paints').addEventListener('click', e => { const b = e.target.closest('.paint'); if (b && !folded) choose(b.dataset.key); folded = false })
+// a layer pressed in a swatch's tip: the host goes to it (Figma: selects it and brings it into view; VS Code: its
+// literal); its "+N more", to the rest of them
+$('paints').addEventListener('tiprow', e => {
+	const keys = e.target.dataset.keys.split(' '), i = e.detail.i, ps = (i < USES ? [keys[i]] : keys.slice(USES)).map(k => S.paints.find(q => keyOf(q) === k)).filter(Boolean)
+	if (!ps.length) return
+	choose(keyOf(ps[0]))   // that layer's color the current one, kept as the selection becomes that layer
+	post({ type: 'goto', targets: ps.map(p => ({ id: p.id, kind: p.kind, index: p.index, stop: p.stop })) })
+})
 // a swatch dragged onto another: past a few pixels the drag lifts it, the swatch under the pointer is marked, the release folds
 let lift = null, folded = false
 $('paints').addEventListener('pointerdown', e => {
 	const b = e.target.closest('.paint')
 	if (!b || e.button || !S.editable) return
-	lift = { b, x: e.clientX, y: e.clientY, id: e.pointerId, on: false, to: null }
+	const r = b.getBoundingClientRect()
+	lift = { b, x: e.clientX, y: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, w: r.width, id: e.pointerId, on: false, to: null }   // where on it the pointer took it
 	try { b.setPointerCapture(e.pointerId) } catch {}
 })
 $('paints').addEventListener('pointermove', e => {
@@ -1175,13 +1755,15 @@ $('paints').addEventListener('pointermove', e => {
 	if (!lift.on && Math.hypot(e.clientX - lift.x, e.clientY - lift.y) > 4) {
 		lift.on = true
 		lift.b.classList.add('lift')
+		document.documentElement.classList.add('lifting')
 		hideTip()
 		const from = lift.b.querySelector('.sw').style, g = ghost.querySelector('.sw').style
 		for (const k of ['--sw', '--swo']) g.setProperty(k, from.getPropertyValue(k))
+		g.width = g.height = `${lift.w}px`
 		ghost.hidden = false
 	}
 	if (!lift.on) return
-	ghost.style.transform = `translate(${e.clientX + 6}px, ${e.clientY + 6}px)`   // the swatch's ghost under the pointer
+	ghost.style.transform = `translate(${e.clientX - lift.dx}px, ${e.clientY - lift.dy}px)`   // the swatch itself under the pointer, held where it was taken
 	const to = document.elementFromPoint(e.clientX, e.clientY)?.closest('.paint')
 	if (lift.to && lift.to !== to) lift.to.classList.remove('drop')
 	lift.to = to && to !== lift.b ? to : null
@@ -1193,6 +1775,7 @@ const land = e => {
 	const { b, on, to } = lift
 	lift = null
 	b.classList.remove('lift')
+	document.documentElement.classList.remove('lifting')
 	to?.classList.remove('drop')
 	$('ghost').hidden = true
 	$('ghost').classList.remove('over')
@@ -1202,9 +1785,17 @@ const land = e => {
 }
 $('paints').addEventListener('pointerup', land)
 $('paints').addEventListener('pointercancel', land)
-$('css').addEventListener('click', e => { const b = e.target.closest('[data-copy]'); if (b) copy($(b.dataset.copy), b) })
 // the about card's links open in the browser, through the main thread (the frame can't navigate); it opens only its own three
-$('about').addEventListener('click', e => { const a = e.target.closest('[data-open]'); if (!a) return; e.preventDefault(); post({ type: 'open', to: a.dataset.open }) })
+$('prm').addEventListener('click', e => { const a = e.target.closest('[data-open]'); if (!a) return; e.preventDefault(); post({ type: 'open', to: a.dataset.open }) })
+$('prm').addEventListener('toggle', e => { if (e.newState === 'open') hideTip() })   // the settings open over the panel: no tip left behind them
+// the hints' keys as the keyboard names them: a Mac's glyphs, else their names, Ctrl for ⌘ (the panel reads either:
+// e.metaKey || e.ctrlKey) – a glyph before more, joined to it with +
+if (!/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) {
+	const K = { '⌘': 'Ctrl', '⌥': 'Alt', '⇧': 'Shift', '⌃': 'Ctrl' }
+	for (const k of $('hints').querySelectorAll('kbd')) for (const n of k.childNodes) if (n.nodeType === 3) n.data = n.data.replace(/([⌘⌥⇧⌃])( ?)/g, (_, c, more) => K[c] + (more && '+'))
+}
+// the settings' snap, as Figma's own: a drag on the plane meets another color's dot (pick) – or, off, passes it; kept
+$('snap').addEventListener('change', e => { S.snap = e.target.checked; post({ type: 'store', key: 'snap', value: S.snap }) })
 
 window.addEventListener('message', e => {
 	const m = e.data && e.data.pluginMessage
@@ -1212,12 +1803,15 @@ window.addEventListener('message', e => {
 	if (m.type === 'init') {
 		S.editable = !!m.editable
 		if (QKEYS.includes(m.quant)) S.quant = m.quant
-		if (LIMITS.some(l => l[0] === m.limit)) S.limit = m.limit
-		if (FORMATS.some(f => f[0] === m.format)) S.format = m.format
+		if (m.gamuts && typeof m.gamuts === 'object') S.gamuts = m.gamuts
+		if (m.scope === 'selection' || m.scope === 'page') $('scope').value = m.scope   // which colors the palette holds (the host reads them)
 		if (m.pairs && typeof m.pairs === 'object') S.pairs = m.pairs
 		if (m.disc && typeof m.disc === 'object') S.disc = m.disc
+		if (typeof m.snap === 'boolean') S.snap = m.snap
+		$('snap').checked = S.snap
 		if (m.width > 0) post({ type: 'resize', width: m.width })   // the width this person dragged it to
 		renderLenses()
+		renderShown()
 		const id = space[m.space] && meta[m.space] ? m.space : S.space
 		useSpace(id)
 		warmFeatured()
@@ -1248,7 +1842,7 @@ window.addEventListener('message', e => {
 		if (!S.paints.length) refreshVirtual()
 		renderPaints()
 		sync(force)
-		if (profile) { renderPicker(); renderLenses() }   // the fields' canvases take the new color space; nothing else needs a repaint: their keys say what changed
+		if (profile) { renderPicker(); renderLenses(); renderShown() }   // the fields' canvases take the new color space; nothing else needs a repaint: their keys say what changed
 		update()
 	}
 	else if (m.type === 'image') receiveImage(m)
@@ -1287,18 +1881,25 @@ let height = 0
 // the window back. Fixed and hidden elements (the grip, the tooltip) and popovers don't count
 const flow = () => [...document.body.children].filter(e => e.offsetParent !== null && !e.matches('[popover]'))
 function fit() {
-	const pad = parseFloat(getComputedStyle(document.body).paddingBottom) || 0
-	const bottom = Math.max(spmenu.hidden ? 0 : spmenu.getBoundingClientRect().bottom, ...flow().map(e => e.getBoundingClientRect().bottom))
-	const h = Math.ceil(bottom + scrollY + pad)
+	// each part's bottom and the body's padding under it – less what its own margin takes back (the palette runs into the
+	// padding, to the window's edge, where it is cropped as Figma's own)
+	const pad = parseFloat(getComputedStyle(document.body).paddingBottom) || 0, under = e => Math.max(0, pad + Math.min(0, parseFloat(getComputedStyle(e).marginBottom) || 0))
+	const bottom = Math.max(spmenu.hidden ? 0 : spmenu.getBoundingClientRect().bottom + pad, ...flow().map(e => e.getBoundingClientRect().bottom + under(e)))
+	const h = Math.ceil(bottom + scrollY)
 	if (h === height || (S.live && h < height)) return
 	height = h
 	post({ type: 'resize', height: h })
 }
 { const ro = new ResizeObserver(fit); for (const e of document.body.children) ro.observe(e) }   // each part, not the body: the body may be held tall
+// a new width re-flows the palette's rows (the stored width comes after the first read, and the grip drags it): the current
+// swatch brought back into sight
+{ let w = 0; new ResizeObserver(([e]) => { const pl = $('paints'), on = pl.querySelector('[aria-pressed="true"]'); if (e.contentRect.width !== w && (w = e.contentRect.width) && on) reveal(pl, on, 'top') }).observe($('paints')) }
 addEventListener('resize', () => grip.setAttribute('aria-valuenow', String(innerWidth)))
 
 localize()
+overSelects()
 renderLenses()
+renderShown()
 showSpace()
 renderPicker()
 update()

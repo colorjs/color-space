@@ -27,7 +27,7 @@ var hsl = {
 
 	rgb: function (h, s, l) {
 		// Convert from H: 0-360, S/L: 0-100 to normalized 0-1
-		h = h / 360;
+		h = (h / 360 % 1 + 1) % 1; // a turn of hue is the same hue: any angle wraps into one turn
 		s = s / 100;
 		l = l / 100;
 

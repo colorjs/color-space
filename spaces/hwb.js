@@ -27,7 +27,7 @@ var hwb = {
 	range: [[0, 360], [0, 100], [0, 100]],
 	rgb: function (h, wh, bl) {
 		// Convert from H: 0-360, W/B: 0-100 to normalized
-		h = h / 360;
+		h = (h / 360 % 1 + 1) % 1; // a turn of hue is the same hue: any angle wraps into one turn
 		wh = wh / 100;
 		bl = bl / 100;
 

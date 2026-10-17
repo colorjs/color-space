@@ -19,7 +19,7 @@ vec3 rgb_hwb(vec3 c) {
 	return vec3(h * 360.0, mn * 100.0, (1.0 - mx) * 100.0);
 }
 vec3 hwb_rgb(vec3 c) {
-	float h = c.x / 360.0; float wh = c.y / 100.0; float bl = c.z / 100.0;
+	float h = fract(c.x / 360.0); float wh = c.y / 100.0; float bl = c.z / 100.0;
 	float ratio = wh + bl;
 	if (ratio > 1.0) {
 		wh = wh / ratio;

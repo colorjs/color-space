@@ -12,6 +12,8 @@ import './reference.js' // authoritative differential tests vs colorjs.io
 import './bonafide.js' // cited reference values for the non-differential spaces
 import './stops.js' // the field's gradients and lists: CSS's syntax and interpolation
 import './namesearch.js' // the color field's name search
+import './nearest.js' // the large palettes' nearest-site search
+import './lex.js' // the code plates' lexer
 
 // get round fn for a precision
 const round = (precision = 0) => v => Math.round(v * 10 ** precision) / 10 ** precision
@@ -122,6 +124,21 @@ test('integrity — no CSS comment or stray brace in the page swallows rules', (
 	is([depth, lowest], [0, 0], 'every CSS brace pairs – none closes a block that never opened')
 })
 
+// the layout switch shows its mark at first paint from the page as it stands – web/ served unbuilt, no script yet: both
+// marks in the markup, CSS picking one by the head's data-view. They must be render.js's own, never a copy that drifts
+test('integrity — the layout switch carries render.js\'s marks in the page itself', async () => {
+	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8'), { nextView } = await import('../web/js/render.js')
+	is(page.includes(`data-view="${nextView('grid').v}"`) && page.includes(`<i data-from="grid">${nextView('grid').ic}</i><i data-from="list">${nextView('list').ic}</i>`), true, 'both marks, as render.js draws them, and the view a first visit turns to')
+})
+
+test('integrity — every Usage tab opens with its title; the plates are plain text, painted by lighthigh', () => {
+	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
+	const panels = [...page.matchAll(/<div (?:class="export" )?id="api-panel-(\w+)" role="tabpanel"[^>]*>\s*(<\w+[^>]*>)/g)]
+	is(panels.length, 7, 'the seven tabs')
+	for (const [, p, first] of panels) is(/^<h3 data-i18n="ui\.api\.[\w-]+-title">$/.test(first), true, `${p}: its title first`)
+	is(/<pre[^>]*>(?:(?!<\/pre>)[\s\S])*<(?:b|i)>/.test(page), false, 'no tag colors a plate: lighthigh paints its text in place')
+})
+
 test('integrity — tiered site rendering keeps animation off the expensive paths', () => {
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
 	const render = readFileSync(new URL('../web/js/render.js', import.meta.url), 'utf8')
@@ -147,8 +164,9 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(page.includes('HCLOUD=8192'), true, 'image clouds have a bounded display sample budget')
 	is(page.includes("cv.className='density'"), true, 'plane histograms live on a static overlay, separate from field repaints')
 	is(page.includes('paintPlanes(true,true)'), true, 'plane and image picks repaint the dependent plane fields while held')
-	is(tokens.includes('--picker-active-size:.625rem')&&tokens.includes('--picker-line:.075rem'), true, 'slider and plane pickers share one geometry token set')
-	is(page.includes('.pl:hover .cx,.pl.live .cx{ width:var(--picker-active-size)'), true, 'plane attention uses the slider picker size and outline tokens')
+	is(tokens.includes('--picker-size:.75rem')&&tokens.includes('--picker-ring:.15625rem')&&tokens.includes('--picker-shadow-on:')&&!tokens.includes('active-size'), true, 'slider and plane pickers share one geometry token set – the white ring\'s, one size: engaging deepens its shadow, never grows it')
+	is(page.includes('.pl.live .cx{ box-shadow:var(--picker-shadow-on) }')&&page.includes('.ch.live .nrg,.bar2.live .nrg{ --tks:var(--picker-shadow-on) }')&&page.includes(':is(.pl,.hlocus,.gam2d) .cx{'), true, 'plane, locus and xy plate engage as the slider thumb does: the same deeper shadow, the size kept')
+	is(/drop-shadow|shadowBlur|text-shadow/.test(page + tokens), false, 'the marks are flat: no filter or canvas shadow to blur on every frame of a drag or the orbit')
 	is(page.includes('setTk(cat,hx,ink0); setCur(cat,hx); clearMotionTk()'), true, 'one inherited settle keeps every catalog picker color current')
 	is(page.includes('motionTkEnts.add(ent)'), true, 'drag frames scope picker-color invalidation to visible rows')
 	is(page.includes('paintCatalogPickers(entered)'), true, 'picker positions refresh whenever an offscreen row enters the viewport')
@@ -301,6 +319,29 @@ test('polar forms declare their Cartesian base\'s white point', () => {
 
 // The kelvin pair round-trips on the whole locus (the McCamy inverse drifted
 // ~4800 K at 25000 K); off-locus stays a projection.
+// a hue is a turn: every space with a hue channel reads h ± 360 and h ± 720 as h – CSS's hue wraps the same way
+// (css-color-4 #hue-syntax); HSV once threw on a negative hue, and HSL, HWB, HCG, HCY, HSP, HCL and Hunt read an angle
+// past a turn as another color
+test('hue — an angle past one turn is the same hue, in every space with one', () => {
+	const misses = []
+	for (const [id, s] of Object.entries(space)) {
+		if (!s.range || typeof s.rgb !== 'function') continue
+		s.range.forEach(([lo, hi], k) => {
+			if (lo !== 0 || hi !== 360) return
+			for (const h of [10, 100, 200, 300, 359]) {
+				const v = s.range.map(([a, b]) => a + (b - a) * 0.45); v[k] = h
+				const want = s.rgb(...v)
+				for (const turn of [-720, -360, 360, 720]) {
+					const w = v.slice(); w[k] = h + turn
+					let got; try { got = s.rgb(...w) } catch (e) { misses.push(`${id} h=${h + turn}: throws ${e.message}`); continue }
+					if (got.some((u, j) => !(Math.abs(u - want[j]) <= 1e-6 * Math.max(1, Math.abs(want[j]))))) misses.push(`${id} h=${h + turn}: ${got.map(x => +x.toFixed(3))} vs ${want.map(x => +x.toFixed(3))}`)
+				}
+			}
+		})
+	}
+	is(misses.slice(0, 12), [], `${misses.length} misses`)
+})
+
 test('kelvin — exact round-trip on the Planckian locus, 1000–25000 K', () => {
 	for (const T of [1000, 1667, 2856, 5000, 6504, 10000, 17000, 25000])
 		is(Math.abs(space.xyz.kelvin(...space.kelvin.xyz(T))[0] - T) < 0.01, true, `round-trip at ${T} K`)
@@ -1921,6 +1962,28 @@ test('historical — the catalog reads the library: replaced (@successor) or ret
 	is([run('panalog'), ending('panalog').y, !!ending('panalog').why], ['2005', undefined, true], 'a retired one keeps its year alone, and says why')
 	is(ending('oklab'), null, 'a current space has no ending')
 	is([run('anlab', true), run('cmy', true), run('cie-rgb')], ['1942–76', '1868–1906', '1931'], 'a card shortens an end year within its century; one replaced the year it came reads that year alone')
+})
+
+test('shape — a hue angle is polar, whatever its other channels; the curated cylindrical spaces all read polar', async () => {
+	const { geoOf } = await import('../web/js/render.js')
+	is(['hwb', 'okhwb', 'hcg', 'hsp', 'hsm', 'ostwald'].map(geoOf), Array(6).fill('polar'), 'no lightness channel (whiteness/blackness, gray, a magnitude) still polar – the case that fell to component')
+	is(['hsl', 'oklch', 'lab', 'orgb', 'rgb', 'xyz', 'prismatic'].map(geoOf), ['polar', 'polar', 'opponent', 'opponent', 'component', 'component', 'component'], 'tone + hue, opponent axes, independent channels')
+	// Msh's hue runs 0–2π: classify reads only a 0–360 channel as an angle (the page's hue maths – rotateHue, the planes'
+	// wrap – work in degrees), so it is the one cylindrical space the shape misses
+	is(Object.keys(meta).filter(n => meta[n].method === 'cylindrical' && geoOf(n) !== 'polar'), ['msh'], 'every space data.json calls cylindrical is polar – but Msh, whose hue is in radians')
+	// every card's maker line leads with its shape's mark, inside the maker's span – lead cards and tiles alike
+	const { catHTML } = await import('../web/js/render.js'), html = catHTML()
+	const mark = s => new RegExp(`data-s="${s}"[\\s\\S]*?<span class="by"><span class="au"><span class="ki"[^>]*aria-label="([^"]+)"`).exec(html)?.[1]
+	is(['hwb', 'lab', 'rgb', 'p3-linear'].map(mark), ['Shape: Polar', 'Shape: Opponent', 'Shape: Component', 'Shape: Component'], 'the mark first, its kind named, before the maker – a lead (rgb, hwb, lab) and a tile (p3-linear)')
+})
+
+test('white — each white marked in its own color, in the list beside its name; none where a space has none', async () => {
+	const { whiteHex, catHTML } = await import('../web/js/render.js'), b = h => parseInt(h.slice(5, 7), 16)
+	is(whiteHex('D65'), '#FFFFFF', 'D65 is sRGB’s own white (IEC 61966-2-1)')
+	is(b(whiteHex('D50')) < 255 && b(whiteHex('A')) < b(whiteHex('D50')), true, 'lower color temperatures read warmer: A (≈2856 K) below D50 (≈5003 K) in blue')
+	const cells = catHTML(null, undefined, { view: 'list' }).match(/<td class="c-white">[\s\S]*?<\/td>/g)
+	is(cells[0].includes('<i class="wdot" style="--w:#FFFFFF"></i></span>D65'), true, 'sRGB: its dot, then its name')
+	is(cells.filter(c => c === '<td class="c-white"></td>').length, Object.keys(meta).filter(n => !meta[n].illuminant).length, 'a space with no white: an empty cell, no mark')
 })
 
 test('editors — a plain 3D cube for every editor; 65 only where allowed; shaper only for Resolve', async () => {

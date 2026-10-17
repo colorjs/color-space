@@ -274,7 +274,9 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 
 const executablePath = [process.env.CHROME_PATH, chromium.executablePath(), '/usr/bin/google-chrome'].find(p => p && existsSync(p))
 if (!executablePath) throw new Error('Chromium is not installed; run `npx playwright install chromium` or set CHROME_PATH')
-const browser = await chromium.launch({ headless: true, executablePath })
+// the system's scrollbars, as a mouse-driven Mac or Windows draws them: they take room (Playwright hides them by default,
+// which once let a palette lose its last column to one unseen)
+const browser = await chromium.launch({ headless: true, executablePath, ignoreDefaultArgs: ['--hide-scrollbars'] })
 const ORIGIN = 'http://localhost:9'
 const WEB = fileURLToPath(new URL('../web/', import.meta.url))   // a stylesheet there names web/img/ by relative url()
 // a few of VS Code's theme variables, as the workbench sets them on a webview's <html> (Dark Modern and Light Modern)
@@ -313,15 +315,17 @@ async function session({ text, theme = 'dark', uri = `file://${WEB}a.css`, langu
 	const sel = () => toUI.filter(x => x.type === 'selection')
 	return { m, page, errors, toUI, store, sel, line: n => m.editor.document.lines[n], close: () => context.close() }
 }
-const inputs = page => page.locator('#channels .cv:not([data-i="a"])')
-const shown = async page => (await inputs(page).evaluateAll(els => els.map(e => e.value))).map(Number)
-const held = async page => (await page.locator('#channels .nrg:not([data-i="a"])').evaluateAll(els => els.map(e => e.getAttribute('aria-valuenow')))).map(Number)   // the coordinates held, unrounded
+// the value field: the coordinates it was written from (unrounded) and the opacity ride on it
+const held = async page => { const d = await page.locator('#valf').getAttribute('data-v'); return d ? JSON.parse(d) : [] }
+const shown = held
 const pressed = page => page.locator('#paints .paint[aria-pressed="true"] .pn').innerText()
 async function type(s, i, value) {
 	const n = s.sel().length, w = s.m.log.edits.length
-	const f = i === 'a' ? s.page.locator('#channels .cv[data-i="a"]') : inputs(s.page).nth(i)
-	await f.fill(String(value))
-	await f.press('Tab')
+	// typed as a person would: the space's own notation with that channel (or the opacity, 'a', in percent) replaced, Enter
+	const sp = await s.page.locator('#spbtn').getAttribute('data-id'), v = await held(s.page), a = +(await s.page.locator('#valf').getAttribute('data-a')), f = s.page.locator('#cells input').first()   // a whole value pasted into a cell
+	if (i !== 'a') v[i] = +value
+	await f.fill(`${sp}(${v.join(' ')} / ${i === 'a' ? +value / 100 : a})`)
+	await f.press('Enter')
 	await until(() => s.m.log.edits.length > w && s.sel().length > n)
 	await s.page.waitForTimeout(40)
 }
@@ -360,15 +364,37 @@ try {
 		ok(last.paints.length === 11 && last.paints.filter(p => p.current).length === 1 && last.paints[0].current, `the document's 11 literals, the cursor's current: ${last.paints.length}`)
 		ok(last.profile === 'DISPLAY_P3' && last.editable === true && last.images.length === 1 && last.images[0].name === 'locus-64.png', `P3, editable, one image: ${JSON.stringify(last.images)}`)
 		ok(await s.page.locator('#paints .paint').count() === 10 && await pressed(s.page) === 'color', 'the palette: a swatch per color (the two #ff0000 are one), the current one pressed')
-		ok(await s.page.locator('#paints .paint', { hasText: 'line 4, stop 1' }).getAttribute('data-tip') === 'background, line 4, stop 1\nbackground, line 6, stop 1', 'a color used twice: one swatch, its tooltip naming both uses')
-		ok(await s.page.locator('#paints .paint[aria-pressed="true"]').getAttribute('data-tip') === 'color\nline 1', 'its tooltip: what it sets, and its line')
+		// a swatch's tooltip lists its uses as the Figma panel lists layers – what each sets and its line, no layer icon – then its hex
+		const twice = await s.page.locator('#paints .paint', { hasText: 'line 4, stop 1' }).evaluate(b => [b.dataset.tipRows, b.dataset.tip])
+		ok(twice[0] === JSON.stringify([['', 'background', 'line 4, stop 1'], ['', 'background', 'line 6, stop 1']]) && twice[1] === undefined, `a color used twice: one swatch, its tooltip naming both uses (${twice})`)
+		const cur = await s.page.locator('#paints .paint[aria-pressed="true"]').evaluate(b => [b.dataset.tipRows, b.dataset.tip])
+		ok(cur[0] === JSON.stringify([['', 'color', 'line 1']]) && cur[1] === undefined, `its tooltip: what it sets, and its line (${cur})`)
+		// ⌥ over another color's swatch: Figma's measurement on the plane (solid lines from the current color's mark, dashed
+		// ones back from the color weighed; the contrast), gone with ⌥
+		await s.page.keyboard.down('Alt')
+		await s.page.locator('#paints .paint', { hasText: 'line 4, stop 1' }).hover()
+		const alt = await s.page.evaluate(() => { const r = document.querySelector('.plw > .ruler'); return r && [r.querySelector('.rs').getAttribute('d'), [...r.querySelectorAll('.ro b')].map(b => b.textContent), r.querySelector('.rd').getAttribute('d')] })
+		await s.page.keyboard.up('Alt')
+		await s.page.mouse.move(1, 1)
+		const gone = await s.page.evaluate(() => !document.querySelector('.plw > .ruler'))
+		ok(alt && /^M/.test(alt[0]) && /^M/.test(alt[2]) && /^[\d.]+:1/.test(alt[1][0]) && gone, `⌥ over a swatch: the measurement on the plane, gone with ⌥ (${JSON.stringify(alt)}, ${gone})`)
+		// a use pressed in a swatch's tip: the editor goes to its literal, the cursor at it
+		await s.page.locator('#paints .paint', { hasText: 'line 4, stop 1' }).evaluate(b => b.dispatchEvent(new CustomEvent('tiprow', { bubbles: true, detail: { i: 1 } })))
+		await s.page.waitForTimeout(150)
+		const goneTo = s.m.vscode.window.activeTextEditor.selections[0].active.line
+		const nBack = s.sel().length
+		s.m.select([0, 14, 0, 14])   // the cursor back on line 1's literal, for what follows
+		await until(() => s.sel().length > nBack)
+		await s.page.waitForTimeout(80)
+		ok(s.m.log.shown >= 1 && goneTo === 5, `a use pressed in a swatch's tip: the editor focused, the cursor at its literal on line 6 (${s.m.log.shown}, line ${goneTo + 1})`)
 		ok(s.m.log.marked?.length === 1 && s.m.log.marked[0].start.line === 0 && s.m.log.marked[0].start.character === 11, 'the current literal is outlined in the editor')
 		ok(await s.page.locator('#spbtn').getAttribute('data-id') === 'oklch', 'the panel opens in OKLCH')
 		const v = await shown(s.page)
 		ok(Math.abs(v[0] - 0.7) < 1e-3 && Math.abs(v[1] - 0.15) < 1e-3 && Math.abs(v[2] - 40) < 0.05, `the literal's values: ${v}`)
-		ok(await s.page.locator('#badge').textContent() === 'P3' && /^In Display P3/.test(await s.page.locator('#gamut').innerText()), 'the badge and the gamut status')
-		ok(/^In Display P3\.\nEdits are written inside Display P3\nDots are the other colors and image pixels\.$/.test(await s.page.locator('#badge').getAttribute('data-tip')), `the badge's breakdown, in VS Code's words: ${JSON.stringify(await s.page.locator('#badge').getAttribute('data-tip'))}`)
+		ok(/^In Display P3/.test(await s.page.locator('#gamut').innerText()), 'the status: in the edit gamut (P3)')
+		ok(await s.page.locator('#notes').innerText() === 'Dots are the other colors and image pixels.', `the notes, said to screen readers, in VS Code's words: ${await s.page.locator('#notes').innerText()}`)
 		ok(await s.page.locator('#grip').isHidden(), 'no size grip: the sidebar sets the width')
+		ok(await s.page.locator('#spq').evaluate(q => q.scrollWidth <= q.clientWidth + 1) && await s.page.locator('#cells input').evaluateAll(xs => xs.every(c => c.scrollWidth <= c.clientWidth + 1)), 'in the workbench\'s face too, the space\'s name and every value fit')
 		ok(!(await s.page.content()).includes('font-family:Inter;') && /-apple-system/.test(await s.page.evaluate(() => getComputedStyle(document.body).fontFamily)), 'VS Code: the workbench\'s face, Inter not bundled')
 		ok(await s.page.locator('#marks .dm').count() >= 5, `the other colors are dots: ${await s.page.locator('#marks .dm').count()}`)
 		// the image a url() names: its pixels read, as histograms along the bars
@@ -402,7 +428,7 @@ try {
 		// the cursor moves to #ff8000: the panel follows it; a #hex edits in sRGB and stays #hex
 		await moveTo(s, 1, 20)
 		ok(await pressed(s.page) === 'background', `the cursor's literal becomes current: ${await pressed(s.page)}`)
-		ok(s.sel().at(-1).profile === 'SRGB' && await s.page.locator('#badge').textContent() === 'sRGB', `a #hex literal edits in sRGB: ${s.sel().at(-1).profile} ${await s.page.locator('#badge').textContent()}`)
+		ok(s.sel().at(-1).profile === 'SRGB' && /sRGB/.test(await s.page.locator('#gamut').innerText()), `a #hex literal edits in sRGB: ${s.sel().at(-1).profile}`)
 		await useSpace(s.page, 'oklch')
 		const before = await held(s.page)
 		await type(s, 2, 200)
@@ -412,7 +438,7 @@ try {
 
 		// legacy rgba(): its commas and its alpha; the opacity field sets the alpha
 		await moveTo(s, 1, 55)
-		ok(await s.page.locator('#channels .cv[data-i="a"]').inputValue() === '50', 'rgba(…, 0.5) shows opacity 50')
+		ok(await s.page.locator('#valf').getAttribute('data-a') === '0.5', 'rgba(…, 0.5) shows opacity 50%')
 		await type(s, 'a', 25)
 		ok(/border: 1px solid rgba\(0, 128, 255, 0\.25\);/.test(s.line(1)), `opacity 25 writes rgba(0, 128, 255, 0.25): ${s.line(1)}`)
 
@@ -423,6 +449,13 @@ try {
 		ok(Math.abs(v2[0] - 0.7) < 1e-3 && Math.abs(v2[1] - 0.35) < 1e-3 && Math.abs(v2[2] - 150) < 0.05, `oklch(0.7 0.35 150) reads exactly: ${v2}`)
 		ok(/^Outside Display P3/.test(await s.page.locator('#gamut').innerText()), `and is said to be outside Display P3: ${await s.page.locator('#gamut').innerText()}`)
 		ok(s.line(2) === kept, 'reading writes nothing')
+		// an edit of its opacity alone writes it, mapped into Display P3 as any write is (it once sent the color unmapped,
+		// which the host refused: nothing written); then the line as it was, for the checks after
+		await type(s, 'a', 50)
+		const op = scan(s.line(2))[0]
+		ok(op && op.nt.fn === 'oklch' && Math.abs(op.alpha - 0.5) < 1e-3 && deltaEOK(space.oklch.oklab(...op.v), space.p3.oklab(...space.oklch.p3(...op.v).map(u => Math.min(1, Math.max(0, u))))) < 0.02 / 5, `opacity 50 on a literal past P3 writes it, mapped into P3 (its P3 clip within a fifth of a JND: the rounding of three digits), at 0.5: ${s.line(2)}`)
+		await s.m.editor.edit(b => b.replace(new s.m.vscode.Range(2, 0, 2, s.line(2).length), kept))
+		await moveTo(s, 2, 15); await moveTo(s, 2, 14)
 
 		// the gamut setting: sRGB
 		let n = s.sel().length
@@ -474,8 +507,9 @@ try {
 		await type(s, 0, 0.5)
 		const both = s.m.log.edits.at(-1)
 		ok(both.reps.length === 2 && both.reps.every(r => r.text.startsWith('#')) && new Set(both.reps.map(r => r.text)).size === 1 && both.before && both.after, `the two #ff0000 written as one, one undo step: ${JSON.stringify(both.reps)}`)
-		// fold: --brand's swatch dropped onto the rgba() border's – --brand takes its color, in its own notation (oklch), and
-		// the two are one swatch
+		// fold: line 1's oklch() swatch dropped onto the rgba() border's – the two merge into the one carried: an oklch() past
+		// sRGB, mapped into the sRGB the border is written in, and line 1 takes that mapped color too, each literal in its own
+		// notation, in one edit; the two are one swatch
 		const nS = await s.page.locator('#paints .paint').count(), w1 = s.m.log.edits.length
 		const [fa, fb] = [await s.page.locator('#paints .paint').first().boundingBox(), await s.page.locator('#paints .paint', { hasText: 'border' }).boundingBox()]
 		await s.page.mouse.move(fa.x + fa.width / 2, fa.y + fa.height / 2); await s.page.mouse.down()
@@ -484,8 +518,14 @@ try {
 		await until(() => s.m.log.edits.length > w1)
 		await s.page.waitForTimeout(80)
 		const folded = scan(s.line(0))[0], border = scan(s.line(1)).find(l => l.nt.fn === 'rgb')
-		ok(folded && folded.nt.fn === 'oklch' && border && deltaEOK(space.oklch.oklab(...folded.v), space.rgb.oklab(...border.v)) < 0.005 && Math.abs(folded.alpha - border.alpha) < 0.002, `folded: line 1 takes the border's color as an oklch(): ${s.line(0)} vs ${s.line(1)}`)
+		ok(folded && folded.nt.fn === 'oklch' && border && deltaEOK(space.oklch.oklab(...folded.v), space.rgb.oklab(...border.v)) < 0.005 && border.alpha === 1 && folded.alpha === 1 && s.m.log.edits.length === w1 + 1, `folded: the border takes line 1's color (mapped into sRGB) and its opacity, line 1 the same color as an oklch(), one edit: ${s.line(0)} vs ${s.line(1)}`)
 		ok(await s.page.locator('#paints .paint').count() === nS - 1, `and the palette has one swatch fewer (${nS} → ${await s.page.locator('#paints .paint').count()})`)
+		// ⌘Z in the panel: the document's own undo – its editor shown, the workbench's undo run on it, the panel focused again
+		const op0 = s.m.log.opened.length
+		await s.page.locator('#plane').focus()
+		await s.page.keyboard.press('ControlOrMeta+z')
+		await until(() => s.m.log.opened.length >= op0 + 2)
+		ok(JSON.stringify(s.m.log.opened.slice(op0)) === '["undo","colorSpace.picker.focus"]', `⌘Z: undo, then the panel again (${s.m.log.opened.slice(op0)})`)
 		// a drag that lands on no other swatch – onto itself, or off the palette – folds nothing
 		const w2 = s.m.log.edits.length, fc = await s.page.locator('#paints .paint').first().boundingBox()
 		for (const [x, y] of [[fc.x + fc.width / 2 + 1, fc.y + fc.height / 2], [fc.x + fc.width / 2, fc.y + 200]]) {
@@ -495,9 +535,15 @@ try {
 		await s.page.waitForTimeout(80)
 		ok(s.m.log.edits.length === w2 && await s.page.locator('#paints .paint.lift, #paints .paint.drop').count() === 0, 'a drag onto itself or off the palette folds nothing, and leaves no lifted or marked swatch')
 
-		// a range: only the literals inside it, as rows and dots; the url() outside it isn't read
+		// the palette's scope: the file's colors (the default) whatever is selected; In selection: a range's literals only, as
+		// swatches and dots, the url() outside it not read
+		ok(await s.page.locator('#scope').inputValue() === 'page' && await s.page.locator('#scope option[value="page"]').textContent() === 'In this file', 'the palette starts on the file\'s colors: In this file')
 		n = s.sel().length
 		s.m.select([0, 0, 2, 30])
+		await until(() => s.sel().length > n)
+		ok(s.sel().at(-1).paints.length === 11, 'a range selected: the file\'s colors all the same')
+		n = s.sel().length
+		await s.page.locator('#scope').selectOption('selection')
 		await until(() => s.sel().length > n)
 		await s.page.waitForTimeout(80)
 		ok(s.sel().at(-1).paints.length === 4 && await s.page.locator('#paints .paint').count() === 3 && s.sel().at(-1).images.length === 0, `a selected range: its 4 literals – 3 swatches, line 1 folded into the border above – no image (${s.sel().at(-1).paints.length})`)
@@ -514,9 +560,10 @@ try {
 		// Convert Color To…: the selected literals rewritten
 		s.m.select([1, 0, 1, 80])
 		s.m.log.pickAnswer = i => i.fn === 'oklch'
+		const alphas0 = scan(s.line(1)).map(l => l.alpha)
 		await s.m.log.commands['colorSpace.convert']()
 		const conv = scan(s.line(1))
-		ok(conv.length === 2 && conv.every(l => l.nt.fn === 'oklch') && /\/ 0\.25\)/.test(s.line(1)), `Convert to OKLCH rewrites both, alpha kept: ${s.line(1)}`)
+		ok(conv.length === 2 && conv.every(l => l.nt.fn === 'oklch') && conv.every((l, k) => Math.abs(l.alpha - alphas0[k]) < 1e-3), `Convert to OKLCH rewrites both, alpha kept (${alphas0}): ${s.line(1)}`)
 		ok(s.m.log.quickPick.items.length === 9, 'the formats offered: the panel\'s nine')
 
 		// an image open in its own tab: its pixels, no paint to edit
@@ -524,11 +571,23 @@ try {
 		s.m.setTab(`file://${WEB}img/jungle.jpg`)
 		await until(() => s.sel().length > n)
 		ok(s.sel().at(-1).paints.length === 0 && s.sel().at(-1).images[0]?.name === 'jungle.jpg', 'an open image: its pixels, no literals')
-		ok(await until(() => s.page.locator('#paints .paint').count().then(c => c === 1)) && /pixels are shown here/.test(await s.page.locator('#notes').innerText()), `its color stands in, not editable: ${await s.page.locator('#notes').innerText()}`)
+		const shownImg = await until(() => s.page.locator('#paints .paint').count().then(c => c === 1), 10000)   // decoding the image: 0.6–2 s on a loaded machine
+		ok(shownImg && /pixels are shown here/.test(await s.page.locator('#notes').innerText()), `its color stands in, not editable: ${await s.page.locator('#notes').innerText()}`)
+		const opI = s.m.log.opened.length
+		await s.page.locator('#plane').focus(); await s.page.keyboard.press('ControlOrMeta+z')
+		await s.page.waitForTimeout(100)
+		ok(!s.m.log.opened.slice(opI).includes('undo'), '⌘Z over an image: no document to undo, nothing run')
 		n = s.sel().length
 		s.m.setTab(null)
 		await until(() => s.sel().length > n)
-		ok(s.sel().at(-1).paints.length === 2, 'back to the document: the range on line 2, its two literals')
+		ok(s.sel().at(-1).paints.length === 2, `back to the document: the range on line 2, its two literals (${s.sel().at(-1).paints.map(p => p.name)})`)
+		// In selection with nothing selected and the cursor off a color: no colors, and the scope select still there to leave it
+		n = s.sel().length
+		s.m.select([0, 1, 0, 1])
+		await until(() => s.sel().length > n)
+		ok(s.sel().at(-1).paints.length === 0 && await s.page.locator('#scope').isVisible(), 'In selection, the cursor off a color: an empty palette, its scope select still offered')
+		await s.page.locator('#scope').selectOption('page')
+		await until(() => s.sel().at(-1).paints.length > 0)
 
 		// the MCP server: the bundled mcp.js, run by the editor's own Node
 		const defs = s.m.log.mcp.p.provideMcpServerDefinitions()
@@ -606,7 +665,7 @@ try {
 	{
 		const s = await session({ text: CSS, uri: 'git:/a.css', selections: [[0, 14, 0, 14]], theme: 'light' })
 		ok(s.sel().at(-1).editable === false && /read-only/.test(await s.page.locator('#notes').innerText()), `read-only: ${await s.page.locator('#notes').innerText()}`)
-		ok(await inputs(s.page).first().evaluate(e => e.readOnly), 'its fields are read-only')
+		ok(await s.page.locator('#cells input').evaluateAll(xs => xs.every(e => e.readOnly)), 'its cells are read-only')
 		if (process.env.VSCODE_SHOTS) await s.page.screenshot({ path: `${process.env.VSCODE_SHOTS}/vscode-light.png`, fullPage: true })
 		ok(!s.errors.length, `read-only page errors: ${s.errors.join(' | ')}`)
 		await s.close()

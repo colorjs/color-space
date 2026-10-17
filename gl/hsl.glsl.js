@@ -34,7 +34,7 @@ vec3 rgb_hsl(vec3 c) {
 	return vec3(h * 360.0, s * 100.0, l * 100.0);
 }
 vec3 hsl_rgb(vec3 c) {
-	float h = c.x / 360.0; float s = c.y / 100.0; float l = c.z / 100.0;
+	float h = fract(c.x / 360.0); float s = c.y / 100.0; float l = c.z / 100.0;
 	if (s == 0.0) { float v = l * 255.0; return vec3(v, v, v); }
 	float t2 = l + s - l * s;
 	if (l < 0.5) { t2 = l * (1.0 + s); }

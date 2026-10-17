@@ -7,29 +7,17 @@
     "t": "Geliştiren:",
     "h": "40815864"
   },
-  "pl.about.label": {
-    "t": "Color Space hakkında",
-    "h": "801e0186"
-  },
   "pl.about.support": {
     "t": "Destekleyin",
     "h": "f32d5a3b"
   },
-  "pl.about.tip": {
-    "t": "Hakkında",
-    "h": "6b21fb79"
-  },
-  "pl.alpha.field": {
-    "t": "Opaklık, yüzde",
-    "h": "d4230810"
+  "pl.alpha": {
+    "t": "Opaklık",
+    "h": "f0fa69f3"
   },
   "pl.alpha.slider": {
     "t": "Opaklık kaydırıcısı",
     "h": "eba4c9b9"
-  },
-  "pl.alpha.tip": {
-    "t": "Opaklık, %0–100. Değiştirmek için sürükleyin.",
-    "h": "16f4ce04"
   },
   "pl.axis.across": {
     "t": "Yatayda {name}",
@@ -51,33 +39,29 @@
     "t": "Dikeyde {name}",
     "h": "1f2e239c"
   },
-  "pl.badge.out": {
-    "t": "{gamut} dışında",
-    "h": "40655b19"
-  },
   "pl.ch.slider": {
     "t": "{name} kaydırıcısı",
     "h": "05035347"
-  },
-  "pl.ch.tip": {
-    "t": "{name}, {min}–{max}. Değiştirmek için sürükleyin.",
-    "h": "aae26ae2"
   },
   "pl.channels": {
     "t": "Kanallar",
     "h": "18e03e2a"
   },
+  "pl.close": {
+    "t": "Kapat",
+    "h": "bbfa773e"
+  },
+  "pl.copied": {
+    "t": "{value} kopyalandı",
+    "h": "7e5f167e"
+  },
   "pl.copy": {
     "t": "Kopyala",
     "h": "af74f7c5"
   },
-  "pl.copy.done": {
-    "t": "Kopyalandı",
-    "h": "8e3df45a"
-  },
-  "pl.copy.selected": {
-    "t": "Seçildi",
-    "h": "9a976fc2"
+  "pl.copy.as": {
+    "t": "Farklı kopyala",
+    "h": "ae97334a"
   },
   "pl.dot.edit": {
     "t": "Düzenle: {what}",
@@ -115,6 +99,10 @@
     "t": "Görüntü okunuyor…",
     "h": "0f94976a"
   },
+  "pl.err.copy": {
+    "t": "Pano burada kullanılamıyor. Değer: {value}",
+    "h": "450d3006"
+  },
   "pl.err.dropper": {
     "t": "Damlalık burada kullanılamıyor.",
     "h": "3625962f"
@@ -123,9 +111,9 @@
     "t": "Bu {space} değerleri hiçbir renge karşılık gelmiyor.",
     "h": "016e93d5"
   },
-  "pl.fmt.label": {
-    "t": "Biçim",
-    "h": "041a5dec"
+  "pl.err.value": {
+    "t": "Renk değil: {text}",
+    "h": "c39d3657"
   },
   "pl.fmt.mapped": {
     "t": "{value}: sRGB gamutuna eşlendi",
@@ -135,6 +123,10 @@
     "t": "Birleştir",
     "h": "ea8f0d02"
   },
+  "pl.gamut": {
+    "t": "Gam",
+    "h": "09b42dc9"
+  },
   "pl.gamut.in": {
     "t": "{gamut} içinde.",
     "h": "c773cbdc"
@@ -142,10 +134,6 @@
   "pl.gamut.out": {
     "t": "{gamut} dışında, içine eşlendi.",
     "h": "a86a31a2"
-  },
-  "pl.gamut.out-tip": {
-    "t": "{gamut} dışında: en yakın {gamut} rengi olarak yazıldı (CSS Color 4 gamut eşleme: aynı açıklık ve renk tonunda kroma azaltılır).",
-    "h": "9456689a"
   },
   "pl.gamut.snapped": {
     "t": "Yaslandı: {name}.",
@@ -155,29 +143,49 @@
     "t": "Panel genişliği",
     "h": "c9f20427"
   },
-  "pl.limit": {
-    "t": "Sınır",
-    "h": "24d948e4"
+  "pl.hint.axis": {
+    "t": "Tek kanalda sürükle",
+    "h": "c27bfc42"
   },
-  "pl.limit.file": {
-    "t": "Dosya gamutu",
-    "h": "e7cb55e0"
+  "pl.hint.fine": {
+    "t": "İnce sürükle, yaslamasız",
+    "h": "e0d57f7d"
   },
-  "pl.limit.file-is": {
-    "t": "{name} ({gamut})",
-    "h": "1fcfce27"
+  "pl.hint.measure": {
+    "t": "Başka bir rengi ölç",
+    "h": "cddc738f"
   },
-  "pl.limit.file-tip": {
-    "t": "dosyanın kendi gamutu",
-    "h": "e13926bb"
+  "pl.hint.ten": {
+    "t": "Değeri ×10 değiştir",
+    "h": "60bdf5cb"
   },
-  "pl.limit.tip": {
-    "t": "Sınır: {name}, {tip}",
-    "h": "4181710c"
+  "pl.hint.whole": {
+    "t": "Tüm düzlem",
+    "h": "da785ad3"
+  },
+  "pl.hint.zoom": {
+    "t": "Düzlemi yakınlaştır",
+    "h": "26fd3e84"
+  },
+  "pl.hints": {
+    "t": "İpuçları",
+    "h": "eef8e89a"
+  },
+  "pl.key.dblclick": {
+    "t": "Çift tıklama",
+    "h": "1a1729fa"
+  },
+  "pl.key.scroll": {
+    "t": "Kaydır",
+    "h": "090a3c80"
   },
   "pl.marks": {
     "t": "Belgenin renkleri",
     "h": "b3146392"
+  },
+  "pl.measure.large": {
+    "t": "AA büyük",
+    "h": "b0fcb261"
   },
   "pl.menu.all": {
     "t": "Tüm uzaylar",
@@ -211,13 +219,17 @@
     "t": "Kare olarak göster",
     "h": "512e7c34"
   },
+  "pl.mode.tip.square": {
+    "t": "Kare",
+    "h": "82810cb9"
+  },
+  "pl.mode.tip.wheel": {
+    "t": "Çember",
+    "h": "0d972afc"
+  },
   "pl.mode.wheel": {
     "t": "Çember olarak göster",
     "h": "ee941269"
-  },
-  "pl.name.label": {
-    "t": "Paletteki renk adı",
-    "h": "848bb22a"
   },
   "pl.note.dev": {
     "t": "Dev Mode salt okunurdur. Aşağıdaki değerleri kopyalayın.",
@@ -271,13 +283,9 @@
     "t": "{a} ve {b} çemberi",
     "h": "29862ab2"
   },
-  "pl.profile.legacy-tip": {
-    "t": "Renk profili ayarlanmamış (renk yönetiminden önceki bir dosya): sRGB olarak okunur",
-    "h": "b41363f4"
-  },
-  "pl.profile.tip": {
-    "t": "Dosyanın renk profili: değerler {name} uzayında",
-    "h": "9a8c47e4"
+  "pl.prm": {
+    "t": "Ayarlar",
+    "h": "c7f73bb5"
   },
   "pl.quant.565": {
     "t": "16 bit",
@@ -291,9 +299,21 @@
     "t": "görüntü",
     "h": "0e762927"
   },
-  "pl.row.src": {
-    "t": "{where}, kaynak: {type} {name}",
-    "h": "4d82e4b1"
+  "pl.scope": {
+    "t": "Hangi renkler",
+    "h": "87cba4d7"
+  },
+  "pl.scope.page": {
+    "t": "Bu sayfada",
+    "h": "7e439c35"
+  },
+  "pl.scope.selection": {
+    "t": "Seçimde",
+    "h": "05adeee2"
+  },
+  "pl.snap": {
+    "t": "Renklere yasla",
+    "h": "7cd49dc0"
   },
   "pl.space.label": {
     "t": "Renk uzayı",
@@ -306,6 +326,18 @@
   "pl.src.variable": {
     "t": "değişken",
     "h": "b46d0172"
+  },
+  "pl.tip.more": {
+    "t": "+{n} tane daha",
+    "h": "85104219"
+  },
+  "pl.value": {
+    "t": "Değer",
+    "h": "8dce170d"
+  },
+  "pl.void": {
+    "t": "Renk değil",
+    "h": "4fd77c42"
   },
   "pl.where.fill": {
     "t": "dolgu {n}",

@@ -99,6 +99,10 @@ const errMsg = (e) => e === Infinity ? 'non-finite output where JS is finite' : 
 const san = (s) => s.replace(/-/g, '')
 
 // ---- contract lint: the chunk dialect stays translatable ----
+test('gl: every space of the registry converts in a shader – the Usage tab says all of them', () => {
+	is(Object.keys(data.spaces).filter((s) => !(s in graph)).join(', '), '', 'no space without its GLSL')
+})
+
 test('gl: chunks obey the dialect contract', () => {
 	const bad = [], fns = new Map()
 	for (const name in chunks) {
@@ -199,6 +203,29 @@ test('gl: composed rgb → space → rgb across the graph', () => {
 		}
 	}
 	is(misses.slice(0, 20), [], `composed paths match scalar lib (${misses.length} misses)`)
+})
+
+// a hue is a turn: a chunk's path out of a hue space reads h ± 360 and h ± 720 as h, as the scalar library does (each
+// wraps the angle on entry) – once the scalar threw on a negative HSV hue, and HSL, HWB, HCY, HSP, HCL, Hunt read one
+// past a turn as another color
+test('gl: a hue past one turn is the same hue', () => {
+	const misses = []
+	for (const name in graph) {
+		const ks = (meta[name]?.range || []).map((_, k) => k).filter(k => isHue(name, k))
+		let inv
+		if (!ks.length || typeof space.rgb[name] !== 'function') continue
+		try { inv = glsl(name, 'rgb') } catch { continue }
+		const entry = evalGlsl(inv)[`${san(name)}_rgb`]
+		for (const s of RGB_SAMPLES) {
+			const mid = space.rgb[name](...s), exp = space[name].rgb(...mid)
+			for (const k of ks) for (const turn of [-720, -360, 360, 720]) {
+				const v = mid.slice(); v[k] += turn
+				const got = unpack(entry(pack(v)))
+				for (let c = 0; c < 3; c++) if (chanErr(got[c], exp[c], false) > tolOf(name, 'rgb')) misses.push(`${name}→rgb [${v.map(x => +x.toFixed(2))}] ch${c}: ${got[c]} vs ${exp[c]}`)
+			}
+		}
+	}
+	is(misses.slice(0, 20), [], `hue turns read as one (${misses.length} misses)`)
 })
 
 // ---- float32 tier: the same dialect, every op rounded to binary32 ----

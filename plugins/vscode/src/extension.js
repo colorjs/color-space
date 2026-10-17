@@ -29,7 +29,7 @@ const MAX = 100   // color slots sent at once, as the Figma panel's
 const IMAGES = 4   // images read at once, as the Figma panel's
 const TEXT = 2e6   // characters of a document read: a huge minified file stops there
 const BYTES = 32 << 20   // the largest image file read
-const PREFS = ['space', 'quant', 'limit', 'pairs', 'disc', 'format']   // what the panel may keep (globalState)
+const PREFS = ['space', 'quant', 'gamuts', 'pairs', 'disc', 'snap', 'scope']   // what the panel may keep (globalState)
 const LINKS = { site: 'https://color-space.io/', github: 'https://github.com/colorjs/color-space', support: 'https://github.com/sponsors/colorjs' }
 // where the color keywords count: in a stylesheet `red` is a color, in code or prose it's too often a word
 const STYLESHEETS = new Set(['css', 'scss', 'sass', 'less', 'stylus', 'postcss'])
@@ -150,8 +150,10 @@ class Picker {
 		if (file && file.ase) return this.readAse(file.ase)
 		const img = file && file.image, ed = file ? null : vscode.window.activeTextEditor
 		const doc = ed && ed.document, all = doc ? targets(doc) : { lits: [], refs: [] }
-		const ranges = ed ? ed.selections.filter(s => !s.isEmpty) : []
-		const lits = ranges.length ? all.lits.filter(l => inRanges(doc, ranges, l)) : all.lits
+		// the palette's scope: the file's colors (the default), or the selection's – those in the selected ranges, or under
+		// the cursors where nothing is selected
+		const ranges = ed ? ed.selections.filter(s => !s.isEmpty) : [], inSel = this.ctx.globalState.get('pref.scope') === 'selection'
+		const lits = !inSel ? all.lits : ranges.length ? all.lits.filter(l => inRanges(doc, ranges, l)) : ed ? selected(ed) : []
 		const cur = ed && ed.selection.isEmpty ? at(doc, lits, ed.selection.active) : null
 		// the profile: the current literal's (a #hex edits in sRGB, an oklch() in the configured gamut), else all of them
 		const profile = profileOf(cur ? [cur] : lits, gamut()), sent = new Map()
@@ -163,7 +165,7 @@ class Picker {
 			return p
 		})
 		const images = img ? [img] : []
-		for (const r of all.refs) if (images.length < IMAGES && (!ranges.length || inRanges(doc, ranges, r))) {
+		for (const r of all.refs) if (images.length < IMAGES && (!inSel || inRanges(doc, ranges, r))) {
 			const src = imageOf(doc, r.ref)
 			if (src && !images.some(i => i.hash === src.hash)) images.push(src)
 		}
@@ -193,10 +195,14 @@ class Picker {
 		if (msg.type === 'ready') {
 			const init = { type: 'init', editable: true }
 			for (const k of PREFS) init[k] = state.get(`pref.${k}`)
+			init.scope ??= 'page'   // the file's colors, until the selection's are chosen
 			this.post(init)
 			this.read()
 		}
-		else if (msg.type === 'store' && PREFS.includes(msg.key)) await state.update(`pref.${msg.key}`, msg.value)
+		else if (msg.type === 'store' && PREFS.includes(msg.key)) {
+			await state.update(`pref.${msg.key}`, msg.value)
+			if (msg.key === 'scope') this.read()   // the palette's colors, read anew
+		}
 		else if (msg.type === 'open' && Object.hasOwn(LINKS, msg.to)) await vscode.env.openExternal(vscode.Uri.parse(LINKS[msg.to]))
 		else if (msg.type === 'image') {
 			const src = this.images.get(msg.hash)
@@ -205,9 +211,24 @@ class Picker {
 			this.post({ type: 'image', hash: msg.hash, bytes: bytes ? new Uint8Array(bytes) : null })   // always answer: the panel waits on it
 		}
 		else if (msg.type === 'choose') this.reveal(msg)
+		else if (msg.type === 'goto' && Array.isArray(msg.targets)) {   // a use pressed in a swatch's tip: its literal, the cursor at it, in the editor
+			const f = msg.targets[0] && this.find(msg.targets[0])
+			if (!f) return
+			const at = rangeOf(f.ed.document, f.lit).start
+			this.reveal(msg.targets[0])
+			await vscode.window.showTextDocument(f.ed.document, { viewColumn: f.ed.viewColumn, selection: new vscode.Range(at, at), preserveFocus: false })
+		}
 		else if (msg.type === 'set') {
 			try { await this.write(msg) } finally { if (typeof msg.seq === 'number') this.acked = msg.seq }
 			this.read()   // always answer, so the panel settles even when nothing changed
+		}
+		else if (msg.type === 'notify' && typeof msg.text === 'string') vscode.window.setStatusBarMessage(msg.text.slice(0, 160), 2500)   // a copy made: the status bar says so
+		else if (msg.type === 'undo') {   // ⌘Z in the panel: the document's own undo (the workbench's runs on the focused editor), then back
+			const ed = vscode.window.activeTextEditor
+			if (!ed || !this.last || ed.document.uri.toString() !== this.last.uri) return
+			await vscode.window.showTextDocument(ed.document, { viewColumn: ed.viewColumn, preserveFocus: false })
+			await vscode.commands.executeCommand('undo')
+			await vscode.commands.executeCommand('colorSpace.picker.focus')
 		}
 	}
 	// the literal this paint key named in the last read, if the document still holds it there

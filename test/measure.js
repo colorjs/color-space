@@ -1,14 +1,17 @@
-// The ⌥ readout's numbers (web/js/measure.js): CIEDE2000 against the test data of its implementation notes, and every
-// measure against colorjs.io – an independent implementation – on colors across sRGB and past it.
+// The ⌥ readout's numbers (web/js/measure.js, core.js tightGamut): CIEDE2000 against the test data of its implementation
+// notes, every measure against colorjs.io – an independent implementation – on colors across sRGB and past it, and the
+// gamut a color stands in against CSS Color 4's predefined spaces.
 //
 // @see G. Sharma, W. Wu, E. N. Dalal, "The CIEDE2000 color-difference formula: implementation notes, supplementary test
 //      data, and mathematical observations", Color Res. Appl. 30(1):21–30, 2005, Table 1
 // @see https://drafts.csswg.org/css-color-4/#color-difference-OK (ΔEOK) and #css-gamut-mapping (JND = 0.02)
 // @see https://www.w3.org/TR/WCAG22/#dfn-contrast-ratio, SC 1.4.3, 1.4.6, 1.4.11 (the levels)
+// @see https://drafts.csswg.org/css-color-4/#predefined (sRGB, display-p3, rec2020: the gamuts the readout names)
 import test, { ok, is } from 'tst'
 import Color from 'colorjs.io'
 import space from '../index.js'
-import { deltaE2000, deltaEOK, contrast, measure, step, stepText, pills, JND } from '../web/js/measure.js'
+import { deltaE2000, deltaEOK, contrast, contrastText, step, stepText, JND } from '../web/js/measure.js'
+import { tightGamut } from '../web/js/core.js'
 
 // Table 1: [L1, a1, b1, L2, a2, b2, ΔE00]
 const SHARMA = [
@@ -42,6 +45,7 @@ const theirs = ([s, v]) => new Color(s === 'p3' ? 'p3' : 'rec2020', v)
 
 // the formulas alone: colorjs.io's own coordinates in, its measures out – they agree to rounding
 const cjs = C => ({ lab: C.to('lab').coords, oklab: C.to('oklab').coords, Y: C.to('xyz-d65').coords[1] })
+const measure = (a, b) => ({ de00: deltaE2000(a.lab, b.lab), deok: deltaEOK(a.oklab, b.oklab), ratio: contrast(a.Y, b.Y) })
 test('measure: ΔE2000, ΔEOK and WCAG contrast are colorjs.io\'s (deltaE2000, deltaEOK, contrastWCAG21) on its own coordinates', () => {
 	let w = [0, 0, 0]
 	for (let k = 0; k + 1 < colors.length; k++) {
@@ -72,7 +76,7 @@ test('measure: the JND is CSS Color 4\'s, and ΔEOK counts in it', () => {
 	is(JND, 0.02)
 	const a = { lab: [50, 0, 0], oklab: [0.5, 0, 0], Y: 0.2 }, b = { lab: [50, 0, 0], oklab: [0.5, 0.06, 0.08], Y: 0.2 }
 	is(deltaEOK(a.oklab, b.oklab), 0.1)
-	ok(Math.abs(measure(a, b).jnd - 5) < 1e-12, '0.1 is five JNDs')
+	ok(Math.abs(deltaEOK(a.oklab, b.oklab) / JND - 5) < 1e-12, '0.1 is five JNDs')
 })
 
 test('measure: a hue steps the shorter way round; a step prints at its channel\'s precision, a still one not at all', () => {
@@ -86,12 +90,28 @@ test('measure: a hue steps the shorter way round; a step prints at its channel\'
 	is(stepText(L, 0.5, 0.5002, 0, fmt), '', 'under its printed precision: still')
 })
 
-test('measure: the readout – the distance chosen, the contrast\'s level only once reached', () => {
-	const m = (deok, ratio) => ({ de00: 12.345, deok, jnd: deok / JND, ratio })
-	is(pills(m(0.1, 2), 'de00', 'AA large')[0], 'ΔE00 12.3')
-	is(pills(m(0.1234, 2), 'deok', 'AA large')[0], 'ΔEOK 0.123')
-	is(pills(m(0.1, 4.499), 'de00', 'AA large')[1], '4.49:1 AA large', '4.499 is not 4.5')
-	is(pills(m(0.1, 4.5), 'de00', 'AA large')[1], '4.50:1 AA')
-	is(pills(m(0.1, 7), 'de00', 'AA large')[1], '7.00:1 AAA')
-	is(pills(m(0.1, 2.99), 'de00', 'AA large')[1], '2.99:1')
+test('measure: the readout\'s contrast – its level only once reached', () => {
+	is(contrastText(4.499, 'AA large'), '4.49:1 AA large', '4.499 is not 4.5')
+	is(contrastText(4.5, 'AA large'), '4.50:1 AA')
+	is(contrastText(7, 'AA large'), '7.00:1 AAA')
+	is(contrastText(6.999, 'AA large'), '6.99:1 AA', '6.999 is not 7')
+	is(contrastText(2.99, 'AA large'), '2.99:1')
+	is(contrastText(21, 'AA large'), '21.00:1 AAA')
+})
+
+// where a color stands: the tightest of CSS Color 4's predefined RGB gamuts holding it, each primary in its own gamut
+// and out of the smaller one; past Rec. 2020 a light still on the spectral locus; off it, no color
+test('measure: the gamut a color stands in – sRGB, P3, Rec.2020, outside them, or no color at all', () => {
+	is(tightGamut('rgb', [255, 0, 0]), 'srgb', 'sRGB red')
+	is(tightGamut('rgb', [128, 128, 128]), 'srgb', 'a grey')
+	is(tightGamut('p3', [1, 0, 0]), 'p3', 'P3 red: past sRGB')
+	is(tightGamut('p3', [0, 1, 0]), 'p3', 'P3 green')
+	is(tightGamut('rec2020', [0, 1, 0]), 'rec2020', 'Rec. 2020 green: past P3 (a primary on the locus itself)')
+	is(tightGamut('rec2020', [0, 0, 1]), 'rec2020', 'Rec. 2020 blue')
+	is(tightGamut('p3', [1.001, 0, 0]), 'p3', 'under half a code value past a face is inside it, as the fields pad their cut')
+	is(tightGamut('p3', [1.003, 0, 0]), 'out', 'past that, outside every box – yet P3 red brighter than P3 holds is the same 615 nm light, on the locus: a color still')
+	is(tightGamut('prophoto', [0, 1, 0]), null, 'ProPhoto green (0.1596, 0.8404), 0.033 past the locus: no light has it')
+	is(tightGamut('xyz', [20, 40, 1]), 'out', 'xy (0.328, 0.656): a green past Rec. 2020, on the locus')
+	is(tightGamut('xyz', [0, 50, 0]), null, 'xy (0, 1): no light has it')
+	is(tightGamut('rgb', [NaN, 0, 0]), null, 'no coordinates, no color')
 })

@@ -7,29 +7,17 @@
     "t": "von",
     "h": "40815864"
   },
-  "pl.about.label": {
-    "t": "Über Color Space",
-    "h": "801e0186"
-  },
   "pl.about.support": {
     "t": "Unterstützen",
     "h": "f32d5a3b"
   },
-  "pl.about.tip": {
-    "t": "Info",
-    "h": "6b21fb79"
-  },
-  "pl.alpha.field": {
-    "t": "Deckkraft in Prozent",
-    "h": "d4230810"
+  "pl.alpha": {
+    "t": "Deckkraft",
+    "h": "f0fa69f3"
   },
   "pl.alpha.slider": {
     "t": "Deckkraftregler",
     "h": "eba4c9b9"
-  },
-  "pl.alpha.tip": {
-    "t": "Deckkraft, 0–100 %. Zum Einstellen ziehen.",
-    "h": "16f4ce04"
   },
   "pl.axis.across": {
     "t": "{name} nach rechts",
@@ -51,33 +39,29 @@
     "t": "{name} nach oben",
     "h": "1f2e239c"
   },
-  "pl.badge.out": {
-    "t": "Außerhalb von {gamut}",
-    "h": "40655b19"
-  },
   "pl.ch.slider": {
     "t": "Regler {name}",
     "h": "05035347"
-  },
-  "pl.ch.tip": {
-    "t": "{name}, {min}–{max}. Zum Einstellen ziehen.",
-    "h": "aae26ae2"
   },
   "pl.channels": {
     "t": "Kanäle",
     "h": "18e03e2a"
   },
+  "pl.close": {
+    "t": "Schließen",
+    "h": "bbfa773e"
+  },
+  "pl.copied": {
+    "t": "{value} kopiert",
+    "h": "7e5f167e"
+  },
   "pl.copy": {
     "t": "Kopieren",
     "h": "af74f7c5"
   },
-  "pl.copy.done": {
-    "t": "Kopiert",
-    "h": "8e3df45a"
-  },
-  "pl.copy.selected": {
-    "t": "Markiert",
-    "h": "9a976fc2"
+  "pl.copy.as": {
+    "t": "Kopieren als",
+    "h": "ae97334a"
   },
   "pl.dot.edit": {
     "t": "{what} bearbeiten",
@@ -115,6 +99,10 @@
     "t": "Bild wird eingelesen…",
     "h": "0f94976a"
   },
+  "pl.err.copy": {
+    "t": "Die Zwischenablage ist hier nicht verfügbar. Der Wert: {value}",
+    "h": "450d3006"
+  },
   "pl.err.dropper": {
     "t": "Die Pipette ist hier nicht verfügbar.",
     "h": "3625962f"
@@ -123,9 +111,9 @@
     "t": "Diese Werte in {space} ergeben keine Farbe.",
     "h": "016e93d5"
   },
-  "pl.fmt.label": {
-    "t": "Format",
-    "h": "041a5dec"
+  "pl.err.value": {
+    "t": "Keine Farbe: {text}",
+    "h": "c39d3657"
   },
   "pl.fmt.mapped": {
     "t": "{value}: in sRGB eingepasst",
@@ -135,6 +123,10 @@
     "t": "Zusammenführen",
     "h": "ea8f0d02"
   },
+  "pl.gamut": {
+    "t": "Farbumfang",
+    "h": "09b42dc9"
+  },
   "pl.gamut.in": {
     "t": "Passt in {gamut}.",
     "h": "c773cbdc"
@@ -142,10 +134,6 @@
   "pl.gamut.out": {
     "t": "Außerhalb von {gamut}, eingepasst.",
     "h": "a86a31a2"
-  },
-  "pl.gamut.out-tip": {
-    "t": "Außerhalb von {gamut}: Geschrieben wird die nächstliegende Farbe in {gamut} (Gamut-Mapping nach CSS Color 4: Buntheit verringert bei gleicher Helligkeit und gleichem Buntton).",
-    "h": "9456689a"
   },
   "pl.gamut.snapped": {
     "t": "Eingerastet: {name}.",
@@ -155,29 +143,49 @@
     "t": "Panelbreite",
     "h": "c9f20427"
   },
-  "pl.limit": {
-    "t": "Grenze",
-    "h": "24d948e4"
+  "pl.hint.axis": {
+    "t": "Entlang eines Kanals ziehen",
+    "h": "c27bfc42"
   },
-  "pl.limit.file": {
-    "t": "Farbumfang der Datei",
-    "h": "e7cb55e0"
+  "pl.hint.fine": {
+    "t": "Fein ziehen, ohne Einrasten",
+    "h": "e0d57f7d"
   },
-  "pl.limit.file-is": {
-    "t": "{name} ({gamut})",
-    "h": "1fcfce27"
+  "pl.hint.measure": {
+    "t": "Andere Farbe messen",
+    "h": "cddc738f"
   },
-  "pl.limit.file-tip": {
-    "t": "der eigene Farbumfang der Datei",
-    "h": "e13926bb"
+  "pl.hint.ten": {
+    "t": "Wert ×10 ändern",
+    "h": "60bdf5cb"
   },
-  "pl.limit.tip": {
-    "t": "Grenze: {name}, {tip}",
-    "h": "4181710c"
+  "pl.hint.whole": {
+    "t": "Ganze Fläche",
+    "h": "da785ad3"
+  },
+  "pl.hint.zoom": {
+    "t": "Fläche zoomen",
+    "h": "26fd3e84"
+  },
+  "pl.hints": {
+    "t": "Tipps",
+    "h": "eef8e89a"
+  },
+  "pl.key.dblclick": {
+    "t": "Doppelklick",
+    "h": "1a1729fa"
+  },
+  "pl.key.scroll": {
+    "t": "Scrollen",
+    "h": "090a3c80"
   },
   "pl.marks": {
     "t": "Farben des Dokuments",
     "h": "b3146392"
+  },
+  "pl.measure.large": {
+    "t": "AA groß",
+    "h": "b0fcb261"
   },
   "pl.menu.all": {
     "t": "Alle Farbräume",
@@ -211,13 +219,17 @@
     "t": "Als Quadrat zeigen",
     "h": "512e7c34"
   },
+  "pl.mode.tip.square": {
+    "t": "Quadrat",
+    "h": "82810cb9"
+  },
+  "pl.mode.tip.wheel": {
+    "t": "Rad",
+    "h": "0d972afc"
+  },
   "pl.mode.wheel": {
     "t": "Als Rad zeigen",
     "h": "ee941269"
-  },
-  "pl.name.label": {
-    "t": "Name der Palettenfarbe",
-    "h": "848bb22a"
   },
   "pl.note.dev": {
     "t": "Der Dev Mode ist schreibgeschützt. Kopieren Sie die Werte unten.",
@@ -271,13 +283,9 @@
     "t": "Rad: {a} und {b}",
     "h": "29862ab2"
   },
-  "pl.profile.legacy-tip": {
-    "t": "Kein Farbprofil festgelegt (Datei aus der Zeit vor dem Farbmanagement): als sRGB gelesen",
-    "h": "b41363f4"
-  },
-  "pl.profile.tip": {
-    "t": "Farbprofil der Datei: Werte in {name}",
-    "h": "9a8c47e4"
+  "pl.prm": {
+    "t": "Einstellungen",
+    "h": "c7f73bb5"
   },
   "pl.quant.565": {
     "t": "16 Bit",
@@ -291,9 +299,21 @@
     "t": "Bild",
     "h": "0e762927"
   },
-  "pl.row.src": {
-    "t": "{where}, Quelle: {type} {name}",
-    "h": "4d82e4b1"
+  "pl.scope": {
+    "t": "Welche Farben",
+    "h": "87cba4d7"
+  },
+  "pl.scope.page": {
+    "t": "Auf dieser Seite",
+    "h": "7e439c35"
+  },
+  "pl.scope.selection": {
+    "t": "In der Auswahl",
+    "h": "05adeee2"
+  },
+  "pl.snap": {
+    "t": "An Farben einrasten",
+    "h": "7cd49dc0"
   },
   "pl.space.label": {
     "t": "Farbraum",
@@ -306,6 +326,18 @@
   "pl.src.variable": {
     "t": "Variable",
     "h": "b46d0172"
+  },
+  "pl.tip.more": {
+    "t": "+{n} weitere",
+    "h": "85104219"
+  },
+  "pl.value": {
+    "t": "Wert",
+    "h": "8dce170d"
+  },
+  "pl.void": {
+    "t": "Keine Farbe",
+    "h": "4fd77c42"
   },
   "pl.where.fill": {
     "t": "Füllung {n}",

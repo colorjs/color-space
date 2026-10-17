@@ -17,6 +17,7 @@ export const QI = {
 	jnd: fi('<rect x="1.5" y="4" width="6" height="8"/><rect x="8.5" y="4" width="6" height="8" opacity=".62"/>'),
 	web: fi([3.5, 8, 12.5].flatMap(y => [3.5, 8, 12.5].map(x => `<circle cx="${x}" cy="${y}" r="1.5"/>`)).join('')),
 	names: fi('<path d="M1.5 3.5A1 1 0 0 1 2.5 2.5H8l6.5 6.5-5.5 5.5L2.5 8V3.5z"/><circle cx="5" cy="5" r="1.2" style="fill:var(--paper)"/>'),
+	meodai: fi('<path d="M1.5 6A1 1 0 0 1 2.5 5H6l5.5 5.5-4 4L1.5 8.5z" opacity=".5"/><path d="M4.5 2.5a1 1 0 0 1 1-1H10l5 5-4.5 4.5-6-6z"/><circle cx="7" cy="4" r="1" style="fill:var(--paper)"/>'),   // many names: the tag, stacked
 	xkcd: fi('<path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v6a1.5 1.5 0 0 1-1.5 1.5H7L4 14v-3h-.5A1.5 1.5 0 0 1 2 9.5z"/>'),
 	tailwind: fi([0, 1, 2, 3, 4].map(k => `<rect x="2" y="${1.5 + k * 2.7}" width="12" height="2.2" opacity="${(.25 + k * .19).toFixed(2)}"/>`).join('')),
 	pico8: fi(grid(4, .7)),
@@ -57,8 +58,8 @@ export const OI = {
 	sdr: ic('<circle cx="12" cy="12" r="4"/><path d="M12 5.5v1M12 17.5v1M5.5 12h1M17.5 12h1"/>'),
 	hdr: ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>'),
 	component: ic('<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z M4 7.5l8 4.5 8-4.5M12 12v9"/>'),
-	opponent: ic('<path d="M12 3v18M4 12h16"/><ellipse cx="12" cy="12" rx="8" ry="3.2"/>'),
-	polar: ic('<circle cx="12" cy="12" r="8"/><path d="M12 12l6.2-4.2M12 12V4"/>'),
+	opponent: ic('<path d="M12 3.5 19.5 12 12 20.5 4.5 12zM12 3.5v17"/>'),   // a rhombus parted at the neutral into its opposing halves: two signed axes
+	polar: ic('<circle cx="12" cy="12" r="8"/><path d="M12 12 17.66 6.34"/>'),   // polar coordinates: the disc, a radius from its centre to the rim – a color's angle and its distance out
 	display: ic('<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>'),
 	scene: ic('<rect x="3" y="7" width="13" height="10" rx="1.5"/><path d="M16 10.5 21 8v8l-5-2.5"/>'),
 	gamma: ic('<path d="M4 4v16h16"/><path d="M4 20C5.5 11 11 6.5 20 5"/>'),
@@ -67,6 +68,7 @@ export const OI = {
 	log: ic('<path d="M4 4v16h16"/><path d="M4 16.5C7 9 11 7 20 5.5"/>'),
 	pq: ic('<path d="M4 4v16h16"/><path d="M4 20C5 12 7 8 11 6.5S17 5 20 4.5"/>'),
 	hlg: ic('<path d="M4 4v16h16"/><path d="M4 20Q6.5 11 11 10T20 5"/>'),
+	lumachroma: ic('<path d="M4 4v16h16"/><path d="M4 20C5.5 11 11 6.5 20 5"/><path d="M8 16h3.5M13.5 16H17"/>'),   // a tone curve (the luma) over two short levels around the middle (its two chroma differences): Y′CbCr's layout
 	current: ic('<path d="M3 12h4l3-8 4 16 3-8h4"/>'),   // a pulse: alive, in use today
 	historical: ic('<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'),   // the archive box: put away – the filter's mark and a retired card's, one sign
 	chromaticity: ic('<path d="M7 20 5.5 17 4.3 12 4.5 6 6 4 9.5 5.5 13.5 9 17 12.5 20 15.5z"/>'),

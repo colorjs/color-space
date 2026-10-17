@@ -12,10 +12,11 @@
 // fallback; numeric and palette lenses run here too. Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
-import { physBound, space, meta, pathToRgb, classify, locus, d65, visSolid } from './core.js'
+import { physBound, space, meta, pathToRgb, classify, locus, LOCUS_EPS, d65, visSolid } from './core.js'
 import NAMES from './names.js'
 import * as PALS from './palettes.js'
 import { deltaE2000 } from './measure.js'
+import { okGrid, nearestK } from './nearest.js'
 
 const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
@@ -225,20 +226,39 @@ uniform float uEdgeA;     // its opacity
 uniform float uEdgeInk;   // its ink: 1 white, 0 black, -1 each pixel's own (white on a dark color, black on a light one)
 uniform int uCut;         // 1 → past uGam's gamut is void, not ghost: the field ends where its gamut does
 out vec4 O;
-// a gamut's edge as a line's coverage at this pixel (uEdgeW device px wide). Each channel's distance past the gamut's box
-// in encoded units – negative inside – over its screen-space rate is its distance in pixels; joined as a box's distance
-// field (the length of those past it, else the nearest), a corner where two channels leave together rounds instead of
-// spiking along its bisector. The line lies in the band just past the edge – past the gamut's pad, as the cut reads it
-// (±0.002 encoded) – so a field that only reaches the surface and stays on it (HSV at full saturation, HWB with no white:
-// on sRGB's surface throughout; a hue's sector turning there) draws none: centred on the edge, its rounding scattered a
-// line over such a field as noise, and its kinks as ticks. A channel that doesn't change across the pixel crosses
-// nothing: far inside, or far out. Exact at any resolution and antialiased; called in uniform flow (derivatives)
+// a gamut's edge as a line's coverage at this pixel (uEdgeW device px wide), lying just past the edge – from half a pixel
+// out. Each channel's distance past its face of the gamut's box, in encoded units over its screen-space gradient, is its
+// distance in pixels, the face a straight line there; the pixel's distance to the gamut is to the polygon those faces
+// bound: the foot on a face it is past, or a corner where two meet (the nearest of those inside the rest) – so the line
+// keeps its width at a slant and hugs a sharp corner (a hue's cusp) instead of spurring past it. Only a pixel whose
+// centre is past the gamut takes any of it: a field that reaches the surface and stays on it (HSV and HSL at full
+// saturation, HWB with no white: on sRGB's surface throughout) draws none, nor a tick where a channel runs down to the
+// surface and turns there (a hue's sector) – read off one pixel's gradient, such a turn looks like a crossing a fraction
+// of a pixel away. A channel that doesn't change across the pixel has no face there: inside, or far out (no line).
+// Antialiased; called in uniform flow (derivatives)
 float edgeCov(vec3 l) {
 	vec3 e = mix(l * 12.92, 1.055 * pow(max(l, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, l));
-	vec3 o = max(-e, e - 1.0) - 0.002, w = fwidth(o);
-	vec3 p = mix(o / max(w, vec3(1e-9)), mix(vec3(-1e9), vec3(1e9), step(0.0, o)), step(w, vec3(1e-5)));
-	float d = length(max(p, vec3(0.0))) + min(max(p.x, max(p.y, p.z)), 0.0);
-	return min(clamp(d + 0.5, 0.0, 1.0), clamp(uEdgeW + 0.5 - d, 0.0, 1.0));
+	vec3 o = max(-e, e - 1.0), gx = dFdx(o), gy = dFdy(o), w = sqrt(gx * gx + gy * gy), still = step(w, vec3(1e-5));
+	if (dot(still, step(0.002, o)) > 0.0) return 0.0;
+	vec3 s3 = mix(o / max(w, vec3(1e-9)), vec3(-1e9), still);
+	if (max(s3.x, max(s3.y, s3.z)) <= 0.0) return 0.0;
+	float s[3] = float[3](s3.x, s3.y, s3.z);
+	vec2 n[3] = vec2[3](vec2(gx.x, gy.x) / max(w.x, 1e-9), vec2(gx.y, gy.y) / max(w.y, 1e-9), vec2(gx.z, gy.z) / max(w.z, 1e-9));
+	float d = 1e9;
+	for (int i = 0; i < 3; i++) {   // the foot on a face passed, if inside the others
+		vec2 q = -s[i] * n[i];
+		bool in1 = s[i] > 0.0;
+		for (int k = 0; k < 3; k++) if (k != i && s[k] + dot(n[k], q) > 1e-3) in1 = false;
+		if (in1) d = min(d, s[i]);
+	}
+	for (int i = 0; i < 2; i++) for (int j = i + 1; j < 3; j++) {   // a corner of two faces, if inside the third
+		float det = n[i].x * n[j].y - n[i].y * n[j].x;
+		if (s[i] < -1e8 || s[j] < -1e8 || abs(det) < 1e-4) continue;
+		vec2 q = vec2(s[j] * n[i].y - s[i] * n[j].y, s[i] * n[j].x - s[j] * n[i].x) / det;
+		if (s[3 - i - j] + dot(n[3 - i - j], q) <= 1e-3) d = min(d, length(q));
+	}
+	if (d > 1e8) d = max(s3.x, max(s3.y, s3.z));
+	return clamp(min(min(d, 1.0), min(uEdgeW, uEdgeW + 1.0 - d)), 0.0, 1.0);   // the pixel [d ± ½] over the line [½, uEdgeW + ½]
 }
 void main() {
 	vec2 f = (gl_FragCoord.xy - uOff) / uRes;
@@ -374,8 +394,12 @@ export function planeGLStatus(s) {
 	return st.bad ? 'no' : st.pending ? 'pending' : 'ready'
 }
 
-/** Start compiling a space's plane and bar program ahead of need: behind the programs asked for now, or (soon) ahead of the other warm-ups. */
-export const warmPlaneGL = (s, soon) => { if (hasPlaneGL(s)) planeProg(s, soon).prime = true }
+/**
+ * Start compiling a space's plane and bar program ahead of need: behind the programs asked for now, or (soon) ahead of
+ * the other warm-ups. Primed unless told not (prime false): one pixel drawn once it links – where a driver builds its
+ * pipeline, a stall then rather than at the first real paint
+ */
+export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { const st = planeProg(s, soon); st.prime ||= prime } }
 
 // A warmed program draws one pixel once it links: a driver may build the GPU pipeline only at a program's first draw
 // (Metal under ANGLE compiles its shader library there), which would otherwise stall the first real paint
@@ -410,12 +434,14 @@ const EDGEB = { srgb: 1, p3: 2, rec2020: 4 }   // uEdge's bits
 // input once. A compact RGB lattice supplies 27 nearby candidates, whose exact
 // OKLab distances keep edges smooth without scanning hundreds of sites per pixel.
 // Small palettes are both cheaper and exact as a direct texture loop.
-const PAL_UNIT=7, SITE_UNIT=6, PAL_DIRECT=32
+const PAL_UNIT=7, SITE_UNIT=6, PAL_DIRECT=32, PAL_W=2048   // PAL_W: the sites texture's width – a long palette wraps onto more rows (WebGL2 promises 2048)
 const dedupe=(list)=>[...new Map(list.map(([,rgb])=>[rgb.join(','),rgb])).values()]
 const PALETTES={ names:{rgb:dedupe(Object.entries(NAMES).map(([n,v])=>[n,v])),N:65},
 	xkcd:{rgb:dedupe(PALS.xkcd),N:33}, tailwind:{rgb:dedupe(PALS.tailwind),N:49},
 	pico8:{rgb:dedupe(PALS.pico8),N:65}, ansi:{rgb:dedupe(PALS.ansi),N:49} }
 const palTex=new WeakMap()   // gl → Map(pal → {idx,sites})
+/** a palette the page brings once it has it (meodai's color-name-list, imported on demand): its colors, its lattice's N */
+export const addPalette=(id,rgb,N=65)=>{ PALETTES[id]??={ rgb:dedupe(rgb.map(c=>[0,c])), N } }
 // nearest-site ORDER under each metric — one source for shader and page (index.html imports these)
 export const METRICS=['oklab','de2000','de76','redmean']
 export const siteDist=(m,q,s)=>m==='de2000'?deltaE2000(q.lab,s.lab)   // CIEDE2000 (measure.js: Sharma, Wu & Dalal 2005)
@@ -437,11 +463,15 @@ const palData=(p,metric='oklab')=>{ const P=PALETTES[p]
 		// re-ranks its candidates under TRUE ΔE2000 anyway (the lattice proposes, the
 		// pixel decides — the machinery's standing fast-not-exhaustive contract).
 		const K=8, kd=new Float64Array(K), ki=new Int32Array(K)
+		// a long palette (thousands of sites) proposes from its OKLab grid (js/nearest.js) – the nearest in OKLab, or under
+		// another metric the eight nearest, re-ranked exactly – where a scan of every site per cell would take seconds
+		const grid=P.sites.length>2000&&okGrid(P.sites)
 		if(!direct) for(let z=0;z<N;z++)for(let y=0;y<N;y++)for(let x=0;x<N;x++){
 			const rgb=[x,y,z].map(v=>Math.round(v/(N-1)*255))
 			const q={rgb,ok:space.rgb.oklab(...rgb),lab:space.rgb.lab(...rgb)}
 			let bi=0, bd=Infinity
-			if(metric==='de2000'&&P.sites.length>K){
+			if(grid){ const near=nearestK(grid,q.ok,metric==='oklab'?1:K); for(const i of near){ const d=siteDist(metric,q,P.sites[i]); if(d<bd){bd=d;bi=i} } }
+			else if(metric==='de2000'&&P.sites.length>K){
 				kd.fill(Infinity)
 				for(let i=0;i<P.sites.length;i++){ const s=P.sites[i]
 					const d=(q.lab[0]-s.lab[0])**2+(q.lab[1]-s.lab[1])**2+(q.lab[2]-s.lab[2])**2
@@ -450,13 +480,15 @@ const palData=(p,metric='oklab')=>{ const P=PALETTES[p]
 			else for(let i=0;i<P.sites.length;i++){ const d=siteDist(metric,q,P.sites[i]); if(d<bd){bd=d;bi=i} }
 			out[o++]=bi }
 		P.lat[metric]={N,out} }
-	if(!P.siteData){ const sd=new Float32Array(P.sites.length*3*3)
-		P.sites.forEach((s,i)=>{ sd.set(s.ok,i*3); sd.set(s.rgb,(P.sites.length+i)*3); sd.set(s.lab,(P.sites.length*2+i)*3) })
-		P.siteData=sd }
-	return { sites:P.sites, siteData:P.siteData, texN:P.lat[metric].N, data:P.lat[metric].out } }
+	// the sites texture: rows of PAL_W sites, three a band – OKLab, RGB, CIELAB – a band for each PAL_W sites (siteAt_)
+	if(!P.siteData){ const n=P.sites.length, W=Math.min(n,PAL_W), H=Math.ceil(n/PAL_W)*3, sd=new Float32Array(W*H*3)
+		P.sites.forEach((s,i)=>{ const x=i%PAL_W, b=Math.floor(i/PAL_W)*3; sd.set(s.ok,((b)*W+x)*3); sd.set(s.rgb,((b+1)*W+x)*3); sd.set(s.lab,((b+2)*W+x)*3) })
+		P.siteData=sd; P.siteW=W; P.siteH=H }
+	return { sites:P.sites, siteData:P.siteData, siteW:P.siteW, siteH:P.siteH, texN:P.lat[metric].N, data:P.lat[metric].out } }
 let PAL_SRC=null
 const namedGLSL=()=>PAL_SRC??=`uniform highp usampler3D uPalIdx;   // per-cell nearest-site index, the ACTIVE palette×metric lattice
-uniform highp sampler2D uPalSites;  // row 0: sites in OKLab · row 1: RGB · row 2: CIELAB
+uniform highp sampler2D uPalSites;  // bands of three rows, ${PAL_W} sites a band: OKLab · RGB · CIELAB
+ivec2 siteAt_(int i, int k) { return ivec2(i % ${PAL_W}, i / ${PAL_W} * 3 + k); }
 uniform int uMetric;                // 0 oklab · 1 de2000 · 2 de76 · 3 redmean – METRICS order, page and shader alike
 float de2000_(vec3 p, vec3 s) {   // CIEDE2000, Sharma/Wu/Dalal 2005 – mirrors the JS above line for line
 	float R = 0.01745329252;
@@ -487,12 +519,12 @@ float de2000_(vec3 p, vec3 s) {   // CIEDE2000, Sharma/Wu/Dalal 2005 – mirrors
 	return sqrt(qa * qa + qb * qb + qc * qc + RT * qb * qc);
 }
 float siteDist_(vec3 rgb, vec3 okp, vec3 labp, int i) {
-	if (uMetric == 1) return de2000_(labp, texelFetch(uPalSites, ivec2(i, 2), 0).rgb);
-	if (uMetric == 2) { vec3 d = labp - texelFetch(uPalSites, ivec2(i, 2), 0).rgb; return dot(d, d); }
-	if (uMetric == 3) { vec3 sr = texelFetch(uPalSites, ivec2(i, 1), 0).rgb;
+	if (uMetric == 1) return de2000_(labp, texelFetch(uPalSites, siteAt_(i, 2), 0).rgb);
+	if (uMetric == 2) { vec3 d = labp - texelFetch(uPalSites, siteAt_(i, 2), 0).rgb; return dot(d, d); }
+	if (uMetric == 3) { vec3 sr = texelFetch(uPalSites, siteAt_(i, 1), 0).rgb;
 		float rm = (rgb.r + sr.r) * 0.5; vec3 d = rgb - sr;
 		return (2.0 + rm / 256.0) * d.r * d.r + 4.0 * d.g * d.g + (2.0 + (255.0 - rm) / 256.0) * d.b * d.b; }
-	vec3 d = okp - texelFetch(uPalSites, ivec2(i, 0), 0).rgb; return dot(d, d);
+	vec3 d = okp - texelFetch(uPalSites, siteAt_(i, 0), 0).rgb; return dot(d, d);
 }
 vec3 named_(vec3 rgb) {
 	int S = textureSize(uPalSites, 0).x;
@@ -504,7 +536,7 @@ vec3 named_(vec3 rgb) {
 		for (int i = 0; i < ${PAL_DIRECT}; i++) { if (i >= S) break;
 			float ds = siteDist_(rgb, okp, labp, i); if (ds < bd) { bd = ds; bi = i; }
 		}
-		return texelFetch(uPalSites, ivec2(bi, 1), 0).rgb;
+		return texelFetch(uPalSites, siteAt_(bi, 1), 0).rgb;
 	}
 	int N = textureSize(uPalIdx, 0).x;
 	vec3 p = clamp(rgb, 0.0, 255.0) / 255.0 * float(N - 1);
@@ -514,7 +546,7 @@ vec3 named_(vec3 rgb) {
 		int i = int(texelFetch(uPalIdx, q, 0).r);
 		float ds = siteDist_(rgb, okp, labp, i); if (ds < bd) { bd = ds; bi = i; }
 	}
-	return texelFetch(uPalSites, ivec2(bi, 1), 0).rgb;
+	return texelFetch(uPalSites, siteAt_(bi, 1), 0).rgb;
 }`
 function bindPalette(gl,locIdx,locSites,pal,metric='oklab'){ if(!locIdx) return
 	let m=palTex.get(gl); if(!m){ m=new Map(); palTex.set(gl,m) }
@@ -527,12 +559,12 @@ function bindPalette(gl,locIdx,locSites,pal,metric='oklab'){ if(!locIdx) return
 		gl.texImage3D(gl.TEXTURE_3D,0,gl.R16UI,P.texN,P.texN,P.texN,0,gl.RED_INTEGER,gl.UNSIGNED_SHORT,P.data)
 		for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_R,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_3D,k,v)
 		gl.activeTexture(gl.TEXTURE0+SITE_UNIT); gl.bindTexture(gl.TEXTURE_2D,t.sites)
-		gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,P.sites.length,3,0,gl.RGB,gl.FLOAT,P.siteData)
+		gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB32F,P.siteW,P.siteH,0,gl.RGB,gl.FLOAT,P.siteData)
 		for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D,k,v) }
 	else{ gl.activeTexture(gl.TEXTURE0+PAL_UNIT); gl.bindTexture(gl.TEXTURE_3D,t.idx)
 		gl.activeTexture(gl.TEXTURE0+SITE_UNIT); gl.bindTexture(gl.TEXTURE_2D,t.sites) }
 	gl.uniform1i(locIdx,PAL_UNIT); if(locSites) gl.uniform1i(locSites,SITE_UNIT); gl.activeTexture(gl.TEXTURE0) }
-const Q3I = { web: 101, names: 102, xkcd: 102, tailwind: 102, pico8: 102, ansi: 102, jnd: 103, 565: 104 }
+const Q3I = { web: 101, names: 102, meodai: 102, xkcd: 102, tailwind: 102, pico8: 102, ansi: 102, jnd: 103, 565: 104 }
 const q3Mode = q => typeof q === 'number' ? q : Q3I[q] || 0
 const quant3GLSL = () => `${namedGLSL()}
 vec3 quant3_(vec3 c, int mode) {
@@ -547,13 +579,18 @@ vec3 quant3_(vec3 c, int mode) {
 
 let LOCUS_SRC = null
 const locusGLSL = () => LOCUS_SRC ??= ((P) => `const vec2 LOC[${P.length}] = vec2[${P.length}](${P.map((q) => `vec2(${q[0].toFixed(5)}, ${q[1].toFixed(5)})`).join(', ')});
-bool inside(vec2 p) {   // even-odd over the closed locus + purple line
+bool inside(vec2 p) {   // even-odd over the closed locus + purple line; on the curve within LOCUS_EPS is on it (core.js)
 	bool c = false;
 	for (int i = 0, j = ${P.length} - 1; i < ${P.length}; j = i++) {
 		vec2 a = LOC[i], b2 = LOC[j];
 		if ((a.y > p.y) != (b2.y > p.y) && p.x < (b2.x - a.x) * (p.y - a.y) / (b2.y - a.y) + a.x) c = !c;
 	}
-	return c;
+	if (c) return true;
+	for (int i = 0, j = ${P.length} - 1; i < ${P.length}; j = i++) {   // only a point outside pays for the distance
+		vec2 a = LOC[i], e = LOC[j] - a, q = p - a;
+		if (length(q - e * clamp(dot(q, e) / dot(e, e), 0.0, 1.0)) < ${LOCUS_EPS}) return true;
+	}
+	return false;
 }
 bool visXYZ(vec3 c) {   // black is a colour; a chromaticity off the locus is imaginary
 	float s = c.x + c.y + c.z;
@@ -620,12 +657,17 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.drawArrays(G.TRIANGLES, 0, 3)
 }
 
+// CV only grows: a resize reallocates its drawing buffer – a stall on every switch between a plane's size and a bar's,
+// which alternate on every frame of a drag or a zoom. Each draw takes its w × h at the buffer's bottom-left, the
+// viewport's origin; cutCV is that rectangle in the canvas's image (top-left origin) – what every blit copies out
+const fitCV = (w, h) => { if (CV.width < w) CV.width = w; if (CV.height < h) CV.height = h }
+const cutCV = (w, h) => [0, CV.height - h, w, h]
 // the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end
 const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && 'drawingBufferColorSpace' in G ? 1 : 0
 function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0, look = null) {
 	const cs = enc ? 'display-p3' : 'srgb'
 	if (G.drawingBufferColorSpace && G.drawingBufferColorSpace !== cs) G.drawingBufferColorSpace = cs
-	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	fitCV(w, h)
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
 	G.clearColor(0, 0, 0, 0)
@@ -672,10 +714,10 @@ function presentKernel(cv2d, deferred) {
 			for (const queued of kernelQueue.keys()) queued._glQueued = null
 			kernelQueue.clear(); finish(false); queueMicrotask(() => readyCb && readyCb()) }
 		timer = setTimeout(failed, KERNEL_BITMAP_TIMEOUT)
-		try { createImageBitmap(CV).then(bitmap => { try { if (!done) drawSource(bitmap) }
+		try { createImageBitmap(CV, ...cutCV(cv2d.width, cv2d.height)).then(bitmap => { try { if (!done) drawSource(bitmap) }
 			finally { bitmap.close(); finish() } }, failed) }
 		catch { failed() }
-	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, 0, 0); presented(cv2d) }
+	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, ...cutCV(cv2d.width, cv2d.height), 0, 0, cv2d.width, cv2d.height); presented(cv2d) }
 	return true
 }
 // a 'present' event on the canvas once the frame is in it: a deferred paint lands a task or more after its call, and
@@ -1726,7 +1768,7 @@ export function paintGamutGL(cv2d, s) {
 	const st = gamutProg(s)
 	if (!st || st.bad || st.pending) return false
 	const w = cv2d.width, h = cv2d.height
-	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	fitCV(w, h)
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
 	G.clearColor(0, 0, 0, 0)
@@ -1737,7 +1779,7 @@ export function paintGamutGL(cv2d, s) {
 	G.drawArrays(G.TRIANGLES, 0, 3)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, w, h)
-	ctx.drawImage(CV, 0, 0)
+	ctx.drawImage(CV, ...cutCV(w, h), 0, 0, w, h)
 	return true
 }
 /** xy position of a chromaticity inside the panel (for the marker), 0..1 each. */
@@ -1796,7 +1838,7 @@ export function paintHeroGL(cv2d, spec, cusp) {
 	const st = heroProg(spec)
 	if (!st || st.bad || st.pending) return false
 	const w = cv2d.width, h = cv2d.height
-	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	fitCV(w, h)
 	G.viewport(0, 0, w, h)
 	G.disable(G.DEPTH_TEST)
 	G.useProgram(st.pr)
@@ -1804,7 +1846,7 @@ export function paintHeroGL(cv2d, spec, cusp) {
 	G.uniform2f(st.u.uRes, w, h)
 	if (st.u.uCusp && cusp) G.uniform1fv(st.u.uCusp, cusp)
 	G.drawArrays(G.TRIANGLES, 0, 3)
-	cv2d.getContext('2d').drawImage(CV, 0, 0)
+	cv2d.getContext('2d').drawImage(CV, ...cutCV(w, h), 0, 0, w, h)
 	return true
 }
 
@@ -1861,7 +1903,7 @@ export function paintImageChanGL(cv2d, s, image, keep, neutral) {
 	const st = imgProg(s)
 	if (!st || st.bad || st.pending) return false
 	const w = cv2d.width, h = cv2d.height
-	if (CV.width !== w || CV.height !== h) { CV.width = w; CV.height = h }
+	fitCV(w, h)
 	if (!IMGTEX) IMGTEX = G.createTexture()
 	G.activeTexture(G.TEXTURE0)
 	G.bindTexture(G.TEXTURE_2D, IMGTEX)
@@ -1887,7 +1929,7 @@ export function paintImageChanGL(cv2d, s, image, keep, neutral) {
 	G.drawArrays(G.TRIANGLES, 0, 3)
 	const ctx = cv2d.getContext('2d')
 	ctx.clearRect(0, 0, w, h)
-	ctx.drawImage(CV, 0, 0)
+	ctx.drawImage(CV, ...cutCV(w, h), 0, 0, w, h)
 	return true
 }
 export const imageChanStatus = (s) => {

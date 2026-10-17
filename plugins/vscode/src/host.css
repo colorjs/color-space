@@ -1,9 +1,9 @@
 /* VS Code: the panel (plugins/figma/src/ui.html) in a webview view, dressed as the workbench's own controls. Its theme
    tokens take the workbench's (the --vscode-* variables every webview gets), and so do its font (at the panel's compact
-   size: its value cells are measured for it), its corners
+   size), its corners
    (2 px), its dropdowns and their lists (the workbench's menus), the space menu and tooltips (the editor's widgets). The host's own chrome is off: the view's width
    is the sidebar's, so there is no size grip; the view scrolls with a visible scrollbar like any other; and there is no
-   eyedropper – a code editor's colors are typed, not picked off the screen, and the bars take its width. */
+   eyedropper – a code editor's colors are typed, not picked off the screen, and the values take its width. */
 :root{
 	--figma-color-bg:var(--vscode-sideBar-background, var(--vscode-editor-background));
 	--figma-color-bg-secondary:var(--vscode-input-background);
@@ -22,10 +22,12 @@
 	--menu-radius:var(--radius-card);
 }
 body{ font-family:var(--vscode-font-family) }   /* the workbench's face, not Figma's Inter */
-html:has(body.vscode-light){ color-scheme:light }
-html:has(body.vscode-dark),html:has(body.vscode-high-contrast){ color-scheme:dark }
-html{ scrollbar-width:thin }
-.fld,.cvp{ border-color:var(--vscode-input-border, transparent) }   /* a field as the workbench draws its inputs: Light Modern's are white on a near-white sidebar */
+/* the workbench's scheme on the body – never a root :has(): one there makes every change of an attribute a :has() reads
+   restyle the whole panel, each frame of a drag – and the view's scrollbar in the workbench's own slider color */
+body.vscode-light{ color-scheme:light }
+body.vscode-dark,body.vscode-high-contrast{ color-scheme:dark }
+html{ scrollbar-width:thin; scrollbar-color:var(--vscode-scrollbarSlider-background, var(--scroll)) transparent }
+.fld > *{ outline-color:var(--vscode-input-border, transparent) }   /* a field as the workbench draws its inputs, outlined: Light Modern's are white on a near-white sidebar */
 .paints{ --swatch:var(--s3) }   /* a code editor's color square */
 .grip,#drop{ display:none }
 .sliders .bars{ grid-column:1 / -1 }

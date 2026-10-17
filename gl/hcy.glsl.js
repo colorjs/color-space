@@ -29,7 +29,7 @@ vec3 rgb_hcy(vec3 c) {
 	return vec3(H * 360.0, C * 100.0, Y * 100.0);
 }
 vec3 hcy_rgb(vec3 c) {
-	float H = c.x / 360.0; float C = c.y / 100.0; float Y = c.z / 100.0;
+	float H = fract(c.x / 360.0); float C = c.y / 100.0; float Y = c.z / 100.0;
 	float hr = hcy_hr_(H); float hg = hcy_hg_(H); float hb = hcy_hb_(H);
 	float Z = hcy_luma_(hr, hg, hb);
 	if (Y < Z) {
