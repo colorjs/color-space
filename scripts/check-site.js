@@ -395,6 +395,15 @@ try {
 		await page.waitForTimeout(300)
 		assert.equal(await page.evaluate(() => { window.__sheetsMO.disconnect(); return window.__sheets }), 0, 'zooming a plane inserts no highlight stylesheet – the code plate repaints only when its text changes')
 		await page.keyboard.down('Control'); for (let k = 0; k < 6; k++) await page.mouse.wheel(0, 40); await page.keyboard.up('Control') }   // the view back to full by the same pinch – a press on the plane would take its color
+	// a dossier gone gives its plates' highlights back: every dossier builds its own plates, and each one's stylesheet once
+	// stayed behind it – a stylesheet more a dossier opened, each a whole-page restyle (the deploy's bake ran out its 6 h on them)
+	{	const reopen = (s) => page.evaluate((s) => new Promise((ok) => { document.getElementById('mx').click(); document.querySelector(`.ent[data-s="${s}"] .nm`).click()
+			requestAnimationFrame(() => requestAnimationFrame(ok)) }), s)
+		const held = () => page.evaluate(() => [document.querySelectorAll('style[data-lighthigh]').length, CSS.highlights.size])
+		await reopen('lab'); const n0 = await held()
+		for (const s of ['hsl', 'xyz', 'oklab', 'lab']) await reopen(s)
+		assert.deepEqual(await held(), n0, 'reopened dossiers hold no more highlight stylesheets or highlights than one did')
+		await reopen('oklch'); await page.waitForFunction(() => /OKLCH/i.test(document.getElementById('dtitle')?.textContent)) }
 	assert.match(await page.locator('#detail .dgrid2').evaluate(el => el.textContent), /made for\s*The polar form CSS adopted/, 'the lore line says what the space was made for, sentence-cased')
 	assert.equal(await page.locator('#cseg').evaluate(el=>getComputedStyle(el).getPropertyValue('--cur').trim().toLowerCase()),(await page.locator('#cd').inputValue()).toLowerCase(),'dynamic dossier tabs receive the scoped current color')
 	const mode=async value=>{ await lens(page,'q',value)   // Draw's menu option, through the page's own handler
