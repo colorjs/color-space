@@ -277,7 +277,7 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
 .cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:underline var(--ulw) transparent; text-underline-offset:var(--uvo) }   /* the field's colors underlined: unseen text, seen lines */
-.hcolor>.cx:hover .cvul u{ text-decoration-color:var(--ulh) } .hcolor>.cx .cvul u:is(.on,.hot){ text-decoration-color:var(--curl) } .hcolor>.cx:hover .cvul u.on:not(.hot),.hcolor>.cx .cvul:has(u.hot) u.on:not(.hot){ text-decoration-color:var(--ulh) }   /* pointed at, every color its line, as a row's pairs (.cvp) – in color only the one pointed at, kept between words; let go, the caret's – and the one an instrument's press would take (stophot): one in color at a time */
+.hcolor>.cx:hover .cvul u{ text-decoration-color:var(--ulh) } .hcolor>.cx .cvul u:is(.on,.hot){ text-decoration-color:var(--curl) } .hcolor>.cx .cvul u.pt:not(.on){ text-decoration-color:var(--ulh) } .hcolor>.cx:hover .cvul u.on:not(.hot),.hcolor>.cx .cvul:has(u.hot) u.on:not(.hot){ text-decoration-color:var(--ulh) }   /* pointed at, every color its line, as a row's pairs (.cvp) – in color only the one pointed at, kept between words; let go, the caret's – and the one an instrument's press would take (stophot): one in color at a time */
 .hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx:not(:focus-within) .cvul:not(:has(u:is(.hot,.on))){ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 @property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.5 }   /* one line: --cvl's (an initial value takes no var) */
 .hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
@@ -287,7 +287,7 @@ body.cdock .hcolor #cval{ width:100%; max-width:none; white-space:pre; overflow-
 /* the field's height eases in lines, not in pixels: a line more or less glides; a size change (docking) is at once,
    as its padding's is – a pixel height eased behind an instant padding swelled the frame, and the locus with it */
 body.cdock .hcolor>.cx:not(:focus-within) #cval:not(:placeholder-shown){ color:transparent } .cvshow{ display:none } .hcolor :is(#cval,.cvshow){ color:var(--ink) }   /* the value in the row's ink – over the opened edge, the ink that reads on it (--eink), as the row's other words */
-body.cdock .hcolor.wide :is(#cval:not(:placeholder-shown),.cvshow){ color:transparent; background:var(--einks); background-clip:text; caret-color:var(--eink) }   /* over the opened edge each glyph its own ink – the color under it decides (--einks, js) */ body.cdock .hcolor>.cx:not(:focus-within) .cvshow{ position:absolute; display:block; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none }   /* docked, not in hand: the value on one line, cut with an ellipsis – a press opens it whole */
+body.cdock .hcolor.wide>.cx:focus-within #cval:not(:placeholder-shown),body.cdock .hcolor.wide>.cx:not(:focus-within) .cvshow{ color:transparent; background:var(--einks); background-clip:text; caret-color:var(--eink) }   /* over the opened edge each glyph its own ink – the color under it decides (--einks, js) – on the one text shown: the field in hand, else its one-line copy (the field itself unseen, as unopened) */ body.cdock .hcolor>.cx:not(:focus-within) .cvshow{ position:absolute; display:block; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none }   /* docked, not in hand: the value on one line, cut with an ellipsis – a press opens it whole */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
 /* the current colour's chip — a rhombus wearing the slider tick's engaged ring pair at the
@@ -754,7 +754,7 @@ body.himg #imgfloat{ display:block }
 .cl{ font-style:normal; font-size:var(--t1); font-weight:600; color:currentColor; opacity:.42; text-align:end; min-width:.9em; padding-inline-end:.35em }   /* the channel's letter, in flow — right-aligned in its slot, wider letters just widen the pair */
 .cv{ width:4.6rem; padding-bottom:0; font-size:inherit; color:var(--body); text-align:start }   /* no padding below: the pair's underline at --uvo, as the field's colors' */
 @supports(field-sizing:content){ .cv{ field-sizing:content; width:auto; min-width:3ch } }   /* the box hugs the value — kelvin isn't cramped, rgb isn't hollow */
-.ent:hover .cvp,.ent:focus-within .cvp{ border-bottom-color:var(--ulh) }   /* hovering a space underlines all its pairs, half-strength — full ink stays personal (hover/focus/.on below) */
+.cvs:hover .cvp,.cvp.pt{ border-bottom-color:var(--ulh) }   /* the pairs pointed at, each its unpicked line; an instrument pointed at, the pairs it holds (.pt, js) – pressed, held or focused, the pair's own color (.on, below) */
 /* the CURRENT color as a line on the paper: its own hue, never so light (on dark paper, so dark) that the line is gone –
    a yellow underlines in its own deeper gold */
 :is(.cvp,.seg button,.cvul u,.bch){ --curl:oklch(from var(--cur,var(--accent)) min(l,.6) c h) }
@@ -1255,6 +1255,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 input:focus-visible{ outline:none }   /* the ink underline is the input's focus signal — no ring */
 @media(max-width:640px){ .dcols{ columns:1 } .mbox{ width:100%; margin:0; min-height:calc(100dvh - var(--cells-h)); box-shadow:none } .mnavbar.mfoot{ margin-bottom:calc(-1 * var(--dpad)) }
 	body.mopen :is(.hero,.cat,.lineage,.introcopy,.faq,.ftr){ visibility:hidden }   /* the sheet covers the page: what it covers is hidden too – a browser's see-through toolbar shows the page under it, a footer's links there */ .modal{ background:var(--paper); padding-block:var(--cells-h) 0 } }   /* a phone's sheet starts under the pinned row – the title and the ✕ in sight; the detail keeps its uniform --dpad – the sticky footer needs no reserved band */
+:is(.ch:not(.mini .ch),.bar2,.pl):active:not(:has(button:active)),:is(.ch:not(.mini .ch),.bar2,.pl):active:not(:has(button:active)) *{ cursor:none }   /* pressed: the instrument's marker is the pointer at once – the veil takes over as it moves (a press on its switch keeps the pointer) */
 .veil{ position:fixed; inset:0; z-index:var(--z-tooltip); cursor:none }   /* dragging a strip or a plane: its marker is the pointer – one element over the page, shown for the drag (the drag's own pointer capture keeps its events); a class on <html> matching every element restyled the whole page at each press and release */
 /* a right-to-left page (Arabic) mirrors the layout – the logical properties above do it – but not what is drawn: strips,
    planes and their numbers, the history's years, code and color notations run left to right in every language */
@@ -1619,7 +1620,7 @@ let VIRGIN=false
 // the same 24×24 grammar (test/index.js pins that they agree), so an icon is never a
 // per-use pile of stroke attributes.
 const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3.75 3.75l-2 2',
-	upload:'M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15', x:'M18 6 6 18M6 6l12 12', out:'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5', plus:'M12 4v16M4 12h16', again:'M20 12a8 8 0 1 1-2.34-5.66L20 8.7M20 4v4.7h-4.7',
+	upload:'M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15', x:'M18 6 6 18M6 6l12 12', out:'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5', plus:'M12 4v16M4 12h16', back:'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11', again:'M20 12a8 8 0 1 1-2.34-5.66L20 8.7M20 4v4.7h-4.7',
 	prev:'M15 18l-6-6 6-6', next:'M9 6l6 6-6 6',
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
@@ -1750,8 +1751,9 @@ if(cvalEl){
 		shown(null); before=null; PEEK=false; cvalEl._typed=take(); fitVal(); cxEl.classList.toggle('empty',!cvalEl.value.trim()&&!virginNow()); suggest(!!cvalEl.value.trim()) })
 	// the field's suggestions – a search by color, under the field, from sources of record only, nothing curated to a
 	// taste. Nothing typed: the ways in – a color, a pair, a palette of three or four, a gradient of two, a
-	// colormap – each from its kind's source, its ↻ to draw another – then the last two typed,
-	// each with its × to forget it. A word: the names that hold it – CSS's, color-name-list's (imported once, kept
+	// colormap – each from its kind's source, its ↻ to draw another – then the last typed, its ↶ the one before,
+	// its × to forget it. Every row's line says what it is first – color, neighbor, pair, palette, gradient, colormap,
+	// combination – then its name and source. A word: the names that hold it – CSS's, color-name-list's (imported once, kept
 	// offline), Tailwind's – best met first, a typo forgiven, the field greying in the rest of the first. A color: it in
 	// context – its nearest names, and with one color, a chord round it. Under each, what it is and where it is from: the
 	// source a link to it. ↑↓ walk them and the page shows each as it is walked to or pointed at – Esc puts the color back
@@ -1759,7 +1761,7 @@ if(cvalEl){
 	const sugEl=document.getElementById('csug'), RECENT='csRecent', PICKS='csPicks'
 	const read=(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k))??d }catch{ return d } }, store=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch{} }
 	const recent=()=>read(RECENT,[]), keep=l=>store(RECENT,l)
-	const RECN=2, remember=v=>keep([v,...recent().filter(x=>x!==v)].slice(0,RECN))   // the last two typed
+	const RECN=8, remember=v=>keep([v,...recent().filter(x=>x!==v)].slice(0,RECN))   // the last eight typed – one shown, its ↶ the one before
 	const picks=read(PICKS,{}), rank=n=>picks[n.toLowerCase()]||0, picked=n=>{ const k=n.toLowerCase(); picks[k]=(picks[k]||0)+1; store(PICKS,picks) }   // a name taken rises in the next search – in any case it was listed in
 	const forget=v=>{ keep(recent().filter(x=>x!==v)); suggest(false) }
 	// up to four of its colors: a list's first, a gradient's spread from end to end
@@ -1782,11 +1784,11 @@ if(cvalEl){
 	const SOURCES={ color:['meodai','tailwind','names','xkcd'], pair:['wada','lospec','chromotome','itten'], palette:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
 	const srcOf=read('csSugSrc',{}), useOf=k=>SOURCES[k].includes(srcOf[k])?srcOf[k]:SOURCES[k][0]
 	const nextSrc=k=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(useOf(k))+1)%l.length]; store('csSugSrc',srcOf) }
-	const K={ color:t('ui.sug.k.color','color'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
+	const K={ color:t('ui.sug.k.color','color'), neighbor:t('ui.sug.k.neighbor','neighbor'), pair:t('ui.sug.k.pair','pair'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), combination:t('ui.sug.k.combination','combination'), togradient:t('ui.sug.k.to-gradient','to gradient'), topalette:t('ui.sug.k.to-palette','to palette'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
 	const from=(kind,name,src,key)=>({ kind, name, src, key })   // "palette: triad from Itten" – the name left out where the row's own text is it; key: the kind whose source it turns
-	const nth={ color:0, pair:0, palette:0, gradient:0, next:0 }   // which of a set's nearest the context shows – its ↻ the next
+	const nth={ color:0, pair:0, palette:0, gradient:0, next:0, recent:0 }   // which of a set's nearest the context shows – its ↻ the next
 	const row=(v,why=null)=>{ const p=parseInput(v); return { v, say:v, why, sw:hexesOf(v), run:p?.grad?runOf(p.stops,p.grad):null } }
-	const named=(n,rgb,src,key)=>{ const h=hex(rgb), lc=n.toLowerCase(), v=fmtAs(FMT,h,rgb); return { v, say:v, name:lc, why:from(K.color,lc,src,key), sw:[h], tok:true } }   // a collection's color: its value in the field's notation, its name and its collection under it – in the place of the color it names
+	const named=(n,rgb,src,key,kind=K.color)=>{ const h=hex(rgb), lc=n.toLowerCase(), v=fmtAs(FMT,h,rgb); return { v, say:v, name:lc, why:from(kind,lc,src,key), sw:[h], tok:true } }   // a collection's color: its value in the field's notation, its name and its collection under it – in the place of the color it names
 	// at random, never the same twice in a visit while there are others (each set's drawn kept, cleared once all are)
 	const drawn={}, fresh=(key,list)=>{ const seen=drawn[key]??=new Set(); if(seen.size>=list.length) seen.clear()
 		let i; do i=Math.random()*list.length|0; while(seen.has(i)); seen.add(i); return list[i] }
@@ -1816,7 +1818,7 @@ if(cvalEl){
 	const CHORDS=[[t('ui.sug.chord.complementary','complementary'),[180]],[t('ui.sug.chord.split','split'),[150,210]],[t('ui.sug.chord.triad','triad'),[120,240]],[t('ui.sug.chord.square','square'),[90,180,270]]]
 	const hued=c=>{ const [r,y,b]=space.rgb.ryb(...c); return Math.max(r,y,b)-Math.min(r,y,b)>=8 }   // a gray has no hue to turn
 	const chord=(rgb,k,key)=>{ const [nm,dg]=CHORDS[k%CHORDS.length], v=[rgb,...dg.map(g=>turn(rgb,g))].map(c=>fmtAs(FMT,hex(c),c)).join(', ')
-		return { ...row(v,from(K.palette,nm,'itten',key)), at:k%CHORDS.length } }
+		return { ...row(v,from(K.combination,nm,'itten',key)), at:k%CHORDS.length } }
 	// a chord of a size – the pair his complementary, three or four his split, his triad, his square – the i-th, its ↻ the next
 	const chordN=(rgb,z,i)=>{ const ks=CHORDS.flatMap(([,dg],j)=>SIZES[z].includes(dg.length+1)?[j]:[]); return { ...chord(rgb,ks[i%ks.length],z), at:i%ks.length, way:'chord'+z } }
 	// a gradient from it, run in OKLCh, one way at a time – a gradient moves along one axis, it doesn't leap: its hue turned
@@ -1862,13 +1864,15 @@ if(cvalEl){
 		return [...(hued(rgb)?[0,1,2]:[2]).map(w=>({ ...gradRow(rgb,w,pre), way:null })),
 			...ng?[{ ...row(pre+JOIN+ng[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN)+' in srgb',from(K.gradient,ng[0],gk,'gradient')), way:'near-gradient' }]:[]] }
 	// a palette in hand, as a gradient – its colors in order, run in OKLCh
-	const asGradRow=st=>[row(st.map(sayTyped(st)).join(JOIN)+' in oklch',from(K.gradient,t('ui.sug.grad.these','these colors')))]   // its colors exactly, as the field says them
+	const asGradRow=st=>[row(st.map(sayTyped(st)).join(JOIN)+' in oklch',{ kind:K.togradient })]   // its colors exactly, as the field says them
+	// a gradient in hand, as a palette – its stops, the list they are
+	const asPalRow=st=>[row(st.map(sayStop).join(', '),{ kind:K.topalette })]
 	const cmapRow=([n,c],src)=>row(c.split(' ').map(h=>sayAs(hx3(h))).join(JOIN),from(K.colormap,n,src,'colormap'))
 	const hx3=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))
 	// a set's lists, each [name, hexes]: a numbered combination by its number (#280), a named one by its name
 	const PALS=k=>k==='lospec'?(LOSPEC||[]).map(([n,c])=>[n,c.split(' ')]):k==='wada'?(WADA?.combos||[]).map(([n,ix])=>['#'+n,ix.map(i=>WADA.colors[i][1])]):k==='nice'?(SETS?.nice||[]).map((p,i)=>['#'+(i+1),p.split(' ')]):k==='itten'?[]:(SETS?.[k]||[]).map(([n,c])=>[n,c.split(' ')])
 	const GRADSETS=k=>k==='okhsv'?[]:(SETS?.[k]||[]).map(([n,c])=>[n,c.split(' ')])
-	const palRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h))).join(', '),from(K.palette,n,src,hs.length===2?'pair':'palette'))   // its source turns among its size's
+	const palRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h))).join(', '),from(hs.length===2?K.pair:K.palette,n,src,hs.length===2?'pair':'palette'))   // its source turns among its size's
 	// a set's palettes of a size – a pair, or three to four (no principal difference between them: one row, either). Each
 	// turns among the sources that hold it (SOURCES: Wada's combinations, Lospec's and chromotome's, Itten's chords), so a
 	// turn always changes the row – none in the source (Itten), his chord of that size
@@ -1903,18 +1907,21 @@ if(cvalEl){
 		// its neighbour in the collection in use: one, the nearest – its name pressed (or its ↻), the next nearest; many in
 		// hand, the caret's stop's – a near-twin too, the snap is the point – never the very color; one, visibly not it (past
 		// the near-twins: a common color, teal, has dozens within a step of it)
-		const nb=min=>{ const c=nearNames(l,o,64).filter(x=>x[2]>min); return c.length?[{ ...named(...c[nth.color%c.length].slice(0,2),k,'color'), way:'near-color' }]:[] }
-		if(many){ const b=before, st=b?b.stops:STOPS, g=b?b.grad:GRAD
-			return [...nb(.001),...g?extendRow(st,g):asGradRow(st)] }
-		const names=nb(.02)
-		// the palette, and the gradient, of the source in use with a color nearest it – always one, its ↻ the next nearest;
-		// Itten's a chord round it, Okhsv's its hue turned
-		const gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
+		const nb=min=>{ const c=nearNames(l,o,64).filter(x=>x[2]>min); return c.length?[{ ...named(...c[nth.color%c.length].slice(0,2),k,'color',K.neighbor), way:'near-color' }]:[] }
 		const lead=([n,hs])=>{ const d=h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) }, i=hs.reduce((b,h,j)=>d(h)<d(hs[b])?j:b,0); return [n,[hs[i],...hs.filter((_,j)=>j!==i)]] }   // the set's colors as they are, the one nearest the held first
-		// a pair, then a triplet, with it: the set's nearest of that size, led by it – none, Itten's chord of that size round it
-		const pal=['pair','palette'].flatMap(z=>{ const [pk,l]=palsN(useOf(z),z), near=nearN(l,o,nth[z]); return near?[{ ...palRow(lead(near),pk), way:'near-'+z }]:hued(rgb)?[chordN(rgb,z,sugChord[z])]:[] })
+		// a pair, a palette of three or four with it: the set's nearest of that size, led by it; Itten's chords on his wheel
+		// round it – the combination, its ↻ the next chord
+		const setRow=z=>{ const [pk,l2]=palsN(useOf(z),z), near=nearN(l2,o,nth[z]); return near?[{ ...palRow(lead(near),pk), way:'near-'+z }]:[] }
+		const combo=hued(rgb)?[{ ...chord(rgb,sugChord.c,null), way:'chordc' }]:[]
+		// many in hand: its neighbour; a pair, the palette it could grow into; a gradient, one step on and its stops as a
+		// palette; a list, as a gradient; and the chord round the caret's color
+		if(many){ const b=before, st=b?b.stops:STOPS, g=b?b.grad:GRAD
+			return [...nb(.001),...!g&&st.length===2?setRow('palette'):[],...g?[...extendRow(st,g),...asPalRow(st)]:asGradRow(st),...combo] }
+		// one in hand: its neighbour, a pair and a palette with it, the gradient from it (the source's nearest, else its
+		// hue turned in Okhsv), the chord round it
+		const gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
 		const own=(v=>{ const p=v&&cssWord(v)&&parseInput(v); return p&&!p.grad&&p.stops.length===1?v:null })(cvalEl.value.trim())   // the color as typed where it is a CSS value – tomato, not its hex
-		return [...names,...pal,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own)] }
+		return [...nb(.02),...setRow('pair'),...setRow('palette'),ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own),...combo] }
 	// a phrase read – channels named, a name told how to change: the color it came to, written out, first
 	const phraseRow=v=>{ if(parseColor(v)||parseColorList(v)||setNamed(v)) return []; const c=parsePhrase(v); if(!c) return []
 		const rgb=rgbF(c.s,c.vals), w=say3(c.s,hex(rgb),rgb)   // in its own notation where CSS has one, else hex
@@ -1923,8 +1930,8 @@ if(cvalEl){
 	// nearest of the color it already is
 	const typedAt=()=>{ const v=cvalEl.value, tk=tokenAt(v,cvalEl.selectionStart); return (tk&&tk[2]!=null?v.slice(tk[0],tk[1]):v).trim() }
 	const sugRows=typed=>{ const v=cvalEl.value.trim(), w=typedAt(), q=w.toLowerCase(), ok=!!parseInput(w)
-		if(!v){ const rec=recent().slice(0,RECN)   // the ways in drawn once a focus – the list redrawn keeps them
-			return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v,{ kind:K.recent }), rec:true }))] }
+		if(!v){ const all=recent(), rec=all.length?[all[nth.recent%all.length]]:[]   // the ways in drawn once a focus – the list redrawn keeps them; the last typed, one, its ↶ the one before
+			return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v,{ kind:K.recent }), rec:true, back:all.length>1 }))] }
 		if(!typed) return ok?ctxRows():[]   // focused on a color: it in context
 		const tail=cvalEl.value.match(/^(.*\S)\s*(,|\s+to|\s*[–—]|\s*-|\.\.)\s*$/is), tp=tail&&parseInput(tail[1])   // a joint typed last: what comes next
 		if(tp) return tail[2]===','?(tp.stops.length===1||!tp.grad?nextRows(tail[1],tp.stops.at(-1)):[]):gradOnRows(tail[1],tp)
@@ -1935,11 +1942,11 @@ if(cvalEl){
 	// the row's line under it: what it is, its name, where it is from – the source a button turning to the next (a press on
 	// it takes nothing)
 	const whyOf=(w,re,q='')=>{ const sn=SRC[w.src], tail=[w.name&&(re?`<span class="sgn">${hl(w.name,q)}</span>`:hl(w.name,q)),sn&&`${esc(t('ui.sug.from','from'))} <span class="src"${w.key?` data-key="${w.key}"`:''}>${esc(sn)}</span>`].filter(Boolean).join(' ')
-		return tail||esc(w.kind) }   // what and where from – "from Tailwind", "#280 from Sanzo Wada", "viridis from matplotlib": the row's marks say the kind; a row with neither (recent, read) its kind alone
+		return w.kind&&tail?`${esc(w.kind)}: ${tail}`:tail||esc(w.kind) }   // what and where from – "from Tailwind", "#280 from Sanzo Wada", "viridis from matplotlib": the row's marks say the kind; a row with neither (recent, read) its kind alone
 	// the typed part of a name light, the rest of it set – as a search engine sets what it adds
 	const hl=(s,q)=>{ const i=q?s.toLowerCase().indexOf(q):-1; return i<0?esc(s):`${esc(s.slice(0,i))}<span class="q">${esc(s.slice(i,i+q.length))}</span>${esc(s.slice(i+q.length))}` }
 	const suggest=typed=>{ const rows=sugShut?[]:sugRows(typed), q=v=>esc(v).replace(/"/g,'&quot;'), typedq=cvalEl.value.trim().toLowerCase()
-		const html=r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws" style="--n:${r.run?1:r.sw.length}">${r.run?`<s class="pill" style="--w:linear-gradient(90deg,${r.run.join(',')})"></s>`:r.sw.map((h,k)=>`<s style="--w:${h};--z:${r.sw.length-k}"></s>`).join('')}</span><span class="sgt"><span>${esc(r.say)}</span>${r.why?`<small>${whyOf(r.why,r.way!=null&&!r.rec,r.name?typedq:'')}</small>`:''}</span></b></button>${SRCURL[r.why?.src]?`<a class="qclr sgo" href="${SRCURL[r.why.src]}" target="_blank" rel="noopener" tabindex="-1" aria-label="${q(t('ui.sug.open','open {site}',{site:SRC[r.why.src]}))}">${icon('out')}</a>`:''}${r.rec?`<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}"${r.at!=null?` data-at="${r.at}"`:''} aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`
+		const html=r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws" style="--n:${r.run?1:r.sw.length}">${r.run?`<s class="pill" style="--w:linear-gradient(90deg,${r.run.join(',')})"></s>`:r.sw.map((h,k)=>`<s style="--w:${h};--z:${r.sw.length-k}"></s>`).join('')}</span><span class="sgt"><span>${esc(r.say)}</span>${r.why?`<small>${whyOf(r.why,r.way!=null&&!r.rec,r.name?typedq:'')}</small>`:''}</span></b></button>${SRCURL[r.why?.src]?`<a class="qclr sgo" href="${SRCURL[r.why.src]}" target="_blank" rel="noopener" tabindex="-1" aria-label="${q(t('ui.sug.open','open {site}',{site:SRC[r.why.src]}))}">${icon('out')}</a>`:''}${r.rec?`${r.back?`<button class="qclr sgx sgb" type="button" tabindex="-1" aria-label="${t('ui.sug.back','the one before')}">${icon('back')}</button>`:''}<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}"${r.at!=null?` data-at="${r.at}"`:''} aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`
 		const rec=rows.filter(r=>r.rec)   // the recent last, apart: what was typed before, not what is suggested
 		sugEl.innerHTML=rows.filter(r=>!r.rec).map(html).join('')+(rec.length?`<div class="sgrec" role="group" aria-label="${esc(K.recent)}">${rec.map(html).join('')}</div>`:'')
 		sugEl.hidden=!rows.length; ghostOf(rows) }
@@ -1950,7 +1957,7 @@ if(cvalEl){
 		ghostRest=n&&at&&w&&v.trimEnd().endsWith(w)&&n.toLowerCase().startsWith(w.toLowerCase())&&n.length>w.length?n.slice(w.length):''   // the last color's word, finished
 		ghost.replaceChildren(...(ghostRest?[Object.assign(document.createElement('span'),{ textContent:v }),ghostRest]:[]))
 		if(ghostRest){ const cs=getComputedStyle(cvalEl); for(const k of TWIN) ghost.style[k]=cs[k]; ghost.style.width=cvalEl.clientWidth+'px'; ghost.style.left=cvalEl.offsetLeft+'px'; ghost.style.top=cvalEl.offsetTop+'px' } }
-	let sugShut=false, sugDraw=null, sugChord={ pair:0, palette:0 }, sugGrad=0
+	let sugShut=false, sugDraw=null, sugChord={ pair:0, palette:0, c:0 }, sugGrad=0
 	// the rhombus: the color's place in the field – a press takes the field, the color in context under it (its notation
 	// is the View menu's, every value's)
 	document.getElementById('cdb')?.addEventListener('click',()=>cvalEl.focus())
@@ -1979,6 +1986,7 @@ if(cvalEl){
 			const at=[...sugEl.querySelectorAll('.sgr')].indexOf(src.closest('.sgr'))
 			if(!cvalEl.value.trim()&&sugDraw) sugDraw=sugDraw.map(r=>r.why?.key===k?{ ...WAYS[r.way](), way:r.way }:r)   // every drawn row of that kind – a pair and a triplet alike
 			suggest(!!cvalEl.value.trim()&&cvalEl._typed); const b=sugEl.querySelectorAll('.sgr')[at]?.querySelector('.fmtr'); if(b){ sugEl._peek=b; peek(b) } return }
+		if(e.target.closest('.sgb')){ nth.recent++; suggest(false); return }   // the recent one before it
 		const x=e.target.closest('.sgx'); if(x){ if(x.dataset.way==null) return forget(x.dataset.v)   // a recent one let go
 			const k=x.dataset.way, at=[...sugEl.querySelectorAll('.sgr')].indexOf(x.closest('.sgr'))
 			if(k.startsWith('chord')) sugChord[k.slice(5)]=+x.dataset.at+1; else if(k==='grad') sugGrad=(+x.dataset.at+1)%GRADN; else if(k.startsWith('near-')) nth[k.slice(5)]++; else if(!sugDraw) return; else{ const i=sugDraw.findIndex(r=>r.way===+k); sugDraw[i]={ ...WAYS[+k](), way:+k } }
@@ -2074,20 +2082,22 @@ ul?.setAttribute('aria-hidden','true'); cvalEl?.after(ul)
 const ulPaint=()=>{ const v=cvalEl.value; let at=0, h=''
 	for(const [a,b,k] of tokensOf(v)){ if(k==null) continue; const c=STOPS?STOPS[k]:master; h+=esc(v.slice(at,a))+`<u data-k="${k}"${c?` style="--cur:${hex(rgbF(c.s,c.vals))}"`:''}>${esc(v.slice(a,b))}</u>`; at=b }
 	ul.innerHTML=h+esc(v.slice(at)); ulAt() }
-// the color in hand marked among the field's colors: in the field, the one the caret is in – the one being typed – else
-// the held one; let go, the held one, many in hand (one alone needs no mark)
-const ulAt=()=>{ const f=document.activeElement===cvalEl, c=f?tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]:null, k=c??(STOPS?STOPI:null)
-	for(const u of ul.children){ u.classList.toggle('on',k!=null&&+u.dataset.k===k); u.classList.toggle('hot',HOTJ!=null&&+u.dataset.k===HOTJ) } }
-// the color an instrument's press would take (stophot, js: the planes', strips' hot): its word underlined in its own
-// color, its mark in the stack ringed – a gradient's pill at that stop – the same color wherever it is shown
-let HOTJ=null
-document.addEventListener('stophot',e=>{ HOTJ=e.detail.j; if(ul) ulAt()
+// the color in hand marked among the field's colors: in the field, the one the caret is in – the one being typed (a
+// selection across colors takes none: the held one stays the mark, as it stays the color in hand) – else the held one;
+// let go, the held one, many in hand (one alone needs no mark)
+const ulAt=()=>{ const f=document.activeElement===cvalEl&&cvalEl.selectionStart===cvalEl.selectionEnd, c=f?tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]:null, k=c??(STOPS?STOPI:null)
+	for(const u of ul.children){ const j=+u.dataset.k; u.classList.toggle('on',k!=null&&j===k); u.classList.toggle('hot',HOTF&&j===HOTJ); u.classList.toggle('pt',!HOTF&&j===HOTJ) } }
+// the color a press would take (stophot): a word of the field pointed at – its line in its own color (.hot); an
+// instrument's mark pointed at (the planes', strips' hot) – its word's line unpicked (.pt), pointed at, not taken; either,
+// its mark in the stack ringed – a gradient's pill at that stop
+let HOTJ=null, HOTF=false
+document.addEventListener('stophot',e=>{ HOTJ=e.detail.j; HOTF=!!e.detail.field&&HOTJ!=null; if(ul) ulAt()
 	for(const b of pstackEl?.querySelectorAll('.pst')||[]) b.classList.toggle('hot',HOTJ!=null&&(b.classList.contains('pill')||+b.dataset.i===HOTJ))
 	const pill=pstackEl?.querySelector('.pill'); if(pill&&HOTJ!=null&&GRAD) pillHot(pill,HOTJ) })
 // a word of the field pointed at: its color told as an instrument's would be (stophot) – its line in its own color, its
 // mark in the stack ringed; the words read off their twins (.cvul u), where the text lies
 cvalEl?.addEventListener('pointermove',e=>{ const u=[...ul.children].find(u=>[...u.getClientRects()].some(r=>e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)), j=u?+u.dataset.k:null
-	if(u&&j!==HOTJ) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j } })) },{ passive:true })   // between words the last one pointed at stays – the line moves word to word, never back to the caret's
+	if(u&&(j!==HOTJ||!HOTF)) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j, field:true } })) },{ passive:true })   // between words the last one pointed at stays – the line moves word to word, never back to the caret's
 cvalEl?.addEventListener('pointerleave',()=>{ if(HOTJ!=null) document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j:null } })) })
 const lay=()=>{ const cs=getComputedStyle(cvalEl)
 	for(const el of [twin,ul]){ for(const k of TWIN) el.style[k]=cs[k]; el.style.width=cvalEl.clientWidth+'px'
@@ -2724,10 +2734,8 @@ cat.addEventListener('input',e=>{ const r=e.target; if(!r.classList?.contains('n
 	const s=ent2.dataset.s
 	if(master.s!==s){ const mv=valsFor(s); if(!mv) return; master={ s, vals:mv } }
 	dragEntI=+r.dataset.i; master.vals[dragEntI]=+r.value
-	ent2.querySelectorAll('.cvp')[dragEntI]?.classList.add('on')   // held: its pair in the current color, as a strip's drag
 	dragEnt=ent2; scheduleFast() })
 const finishCatalogRange=r=>{ const ent=r.closest('.ent'), i2=+r.dataset.i; if(ent!==dragEnt||i2!==dragEntI)return
-	ent.querySelectorAll('.cvp')[i2]?.classList.remove('on')
 	const s2=ent.dataset.s
 	releaseDragEnt(); snapGlide(r,s2,i2)
 	afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
@@ -2759,8 +2767,16 @@ cat.addEventListener('click',e=>{ const b=e.target.closest('.pvs'); if(b){ const
 const entGrip=el=>{ const s=el.closest('.ent').dataset.s
 	return el._grip||=el.matches('.pl')?planeGrip(el,()=>s,ev=>{ const r=el.getBoundingClientRect(); return [clamp((ev.clientX-r.left)/r.width,0,1),clamp(1-(ev.clientY-r.top)/r.height,0,1)] }):lineGrip(el,()=>s,+el.dataset.i) }
 // a press on a plane picks both its channels in that space; the drag keeps picking – the release settles the catalog
+// the pairs an instrument holds – a strip's one, a plane's two: pointed at, their unpicked line (.pt); pressed, at once and
+// until the release, their own color (.on)
+const pairsMark=(els,k,on)=>{ for(const e of els) e?.classList.toggle(k,on) }
+const heldTill=els=>{ pairsMark(els,'on',true)
+	const off=()=>{ pairsMark(els,'on',false); removeEventListener('pointerup',off,true); removeEventListener('pointercancel',off,true) }
+	addEventListener('pointerup',off,true); addEventListener('pointercancel',off,true) }   // a finger's scroll steals it: cancelled, let go too
+const plPairs=pl=>{ const cv=pl.closest('.ent').querySelectorAll('.cvp'); return [cv[+pl.dataset.a],cv[+pl.dataset.b]] }
+for(const [ev,on] of [['pointerover',true],['pointerout',false]]) cat.addEventListener(ev,e=>{ const pl=e.target.closest?.('.ent .pl'); if(pl&&!pl.contains(e.relatedTarget)) pairsMark(plPairs(pl),'pt',on) })
 cat.addEventListener('pointerdown',e=>{ const pl=e.target.closest('.ent .pl'); if(!pl) return
-	const ent=pl.closest('.ent'), s=ent.dataset.s, a=+pl.dataset.a, b=+pl.dataset.b
+	const ent=pl.closest('.ent'), s=ent.dataset.s, a=+pl.dataset.a, b=+pl.dataset.b; heldTill(plPairs(pl))
 	const grip=entGrip(pl)
 	e.preventDefault(); if(!grip.down(e)) return
 	const at=ev=>{ const v=grip.move(ev); if(!v) return; master.vals[a]=v[0]; master.vals[b]=v[1]; scheduleFast() }
@@ -2823,7 +2839,8 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			hold(up,1); hold(dn,-1) } })
 	ent.querySelectorAll('.ch').forEach(ch=>{ const i=+ch.dataset.i
 		const cvEl=ent.querySelectorAll('.cv')[i]?.closest('.cvp')
-		ch.addEventListener('pointerdown',e=>{
+		ch.addEventListener('pointerenter',()=>pairsMark([cvEl],'pt',true)); ch.addEventListener('pointerleave',()=>pairsMark([cvEl],'pt',false))
+		ch.addEventListener('pointerdown',e=>{ heldTill([cvEl])
 			const rh=e.target.closest?.('.rh')
 			if(rh&&BRUSHES.has(s+'|'+i)){ rangeDrag(e,ch,s,i,rh.classList.contains('rlo')?'lo':'hi'); return }   // a half drags its own boundary
 			const grip=entGrip(ch)
@@ -2839,11 +2856,10 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 			adopt(); if(!grip.down(e)){ renderFast(); return }
 			ch.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
 			dragEnt=ent; dragEntI=i; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; cvEl?.classList.add('on'); ch.classList.add('live') }
+			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; ch.classList.add('live') }
 				jump(ev) }
 			ch.onpointermove=move
 			ch.onpointerup=ev=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; ch.classList.remove('live')
-				cvEl?.classList.remove('on')   // let go: the pair's line back to the card's unpicked one
 				squelch=true; setTimeout(()=>squelch=false,0)
 				releaseDragEnt(); snapGlide(ch.querySelector('.nrg'),s,i)   // let go now; every range settles from the released value once the frame is shown
 				afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
@@ -4719,12 +4735,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 			const s2=selected, i=+el.dataset.i
 			if(master.s!==s2){ const mv=valsFor(s2); if(!mv) return; master={ s:s2, vals:mv } }
 			const c=classify(s2).ch[i]
-			if(dragBar!==el){ clearClusterSnaps(); dragBar=el; el.classList.add('live'); detail.querySelector(`#bigch .bch[data-i="${i}"]`)?.classList.add('on') }
+			if(dragBar!==el){ clearClusterSnaps(); dragBar=el; el.classList.add('live') }
 			master.vals[i]=+r.value; el._dragF=clamp((+r.value-c.min)/(c.max-c.min),0,1)
 			scheduleFast() })
 		const finishRange=r=>{ const el=r.closest('.bar2'); if(!el||dragBar!==el) return
 			const s2=selected, i=+el.dataset.i, c=classify(s2).ch[i]
-			el.classList.remove('live'); detail.querySelector(`#bigch .bch[data-i="${i}"]`)?.classList.remove('on')
+			el.classList.remove('live')
 			el._snapHint=el._dragF; snapGlide(r,s2,i); dragBar=null
 			const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s2)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 			afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
@@ -4918,6 +4934,7 @@ function wireBar(el,s){
 	el.addEventListener('pointerleave',()=>bchEl()?.classList.remove('pt'))
 	el.addEventListener('pointerdown',e=>{
 	if(e.target.closest('.nvw')) return
+	heldTill([bchEl()])
 	if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a plain press on one color — its input/change pair below drives the same path
 	e.preventDefault()
 	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX
@@ -4931,9 +4948,9 @@ function wireBar(el,s){
 	if(!adoptS(s)||!grip.down(e)){ renderFast(); return }
 	clearClusterSnaps(); el.setPointerCapture(e.pointerId)   // capture from the down, like the planes – a fast flick would otherwise escape the bar before the first move and stall the drag
 	dragBar=el; apply(e)   // the press itself picks – dragBar from the down, so a focused input tracks the click too (a press is not typing)
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; bchEl()?.classList.add('on'); el.classList.add('live') }
+	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; el.classList.add('live') }
 		apply(ev) }
-	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.onpointercancel=null; el.style.cursor=''; bchEl()?.classList.remove('on'); el.classList.remove('live')
+	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.onpointercancel=null; el.style.cursor=''; el.classList.remove('live')
 		el._snapHint=el._dragF; snapGlide(el.querySelector('.nrg'),s,i); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 		afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
@@ -4942,11 +4959,8 @@ function wireBar(el,s){
 const catUp=()=>{ if(open()) settleCatalog() }
 let plFreeze=null   // plane being dragged in a color-cluster mode – its bitmap stays frozen
 function wirePlane(pl){
-	// corner-label ink samples this canvas every repaint – declare the readback before first paint
-	pl.querySelector('canvas').getContext('2d',{willReadFrequently:true})
-	// …once the kernel's frame has landed in it (a GPU paint presents asynchronously; sampled sooner, the corners still
-	// held the previous view – a disc inked from the square it replaced)
-	pl.querySelector('canvas').addEventListener('present',()=>{ if(!PDOWN) plateInk(pl) })
+	// the field's canvas left on the GPU: nothing reads it every paint (the corner inks ask the lens – plateInk), so a
+	// kernel's frame copies across with no readback; the palette snap's one read (centerPlaneMarker) pays its own
 	const frac=e=>{ const cls=classify(selected), a=+pl.dataset.a, b=+pl.dataset.b
 		const r=pl.getBoundingClientRect(), vw=pl._vw
 		let fx,fy
@@ -4979,7 +4993,9 @@ function wirePlane(pl){
 		plFreeze=pl   // the active plane's bitmap depends only on held channels – never repaint it mid-drag
 		scheduleFast() }
 	pl._vw={x0:0,x1:1,y0:0,y1:1}
-	pl.addEventListener('pointerdown',e=>{ clearClusterSnaps(); if(!grip.down(e)) return; pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
+	const pairs=()=>[pl.dataset.a,pl.dataset.b].map(i=>detail.querySelector(`#bigch .bch[data-i="${i}"]`))   // the plane's two channels' pairs
+	pl.addEventListener('pointerenter',()=>pairsMark(pairs(),'pt',true)); pl.addEventListener('pointerleave',()=>pairsMark(pairs(),'pt',false))
+	pl.addEventListener('pointerdown',e=>{ if(e.target.closest('button')) return; heldTill(pairs()); clearClusterSnaps(); if(!grip.down(e)) return; pl.setPointerCapture(e.pointerId); pl.style.cursor='none'; pl.classList.add('live'); set(e); pl.onpointermove=set })
 	const end=()=>{ pl.onpointermove=null; pl.style.cursor=''; pl.classList.remove('live'); plFreeze=null
 		snapRelease(selected,+pl.dataset.a,+pl.dataset.b)
 		pl.classList.add('parking'); setTimeout(()=>pl.classList.remove('parking'),220)   // the marker's own CSS glide
@@ -5281,11 +5297,13 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 					if(Math.max(...c)-Math.min(...c)<24){ const v=toSpace(s,[228,26,26])
 						cls.ch.forEach((ch,i)=>{ if(i!==cls.angle.i&&isFinite(v[i])) neu[i]=v[i] }) } }catch{} }
 			paintImageChanGL(cv,s,IMG,keep,neu)
-			// the label wears no plate – ink it by the corner it sits on
-			try{ const d2=cv.getContext('2d').getImageData(0,0,Math.max(1,W>>3),Math.max(1,H>>3)).data
-				let r=0,g2=0,b2=0,k=0
-				for(let q=0;q<d2.length;q+=4){ r+=d2[q]; g2+=d2[q+1]; b2+=d2[q+2]; k++ }
-				d.querySelector('.implb').style.color=k?ink([r/k,g2/k,b2/k]):'#fff' }catch{} }
+			// the label wears no plate – ink it by the corner it sits on, read back at idle: a GPU canvas's read waits for the
+			// GPU (60 ms a panel), so it never sits in the paint – a step to the next space once stalled a third of a second on it
+			ric(()=>{ if(selected!==s||!cv.isConnected) return
+				try{ const d2=cv.getContext('2d').getImageData(0,0,Math.max(1,W>>3),Math.max(1,H>>3)).data
+					let r=0,g2=0,b2=0,k=0
+					for(let q=0;q<d2.length;q+=4){ r+=d2[q]; g2+=d2[q+1]; b2+=d2[q+2]; k++ }
+					d.querySelector('.implb').style.color=k?ink([r/k,g2/k,b2/k]):'#fff' }catch{} }) }
 		step() }) }
 
 // ── the image as a FIELD: a plane is already a 2-D slice of a space, so painting the
@@ -5391,14 +5409,18 @@ function centerPlaneMarker(pl,target){ const cv=pl.querySelector('canvas'), w=cv
 	pl._snap={left:(px-pr.left)/pr.width*100,top:(py-pr.top)/pr.height*100,key:target.join(',')}; pl._snapSeed=null
 	const marker=pl.querySelector('.cx'); marker.style.display=''; marker.style.left=pl._snap.left+'%'; marker.style.top=pl._snap.top+'%' }
 // a plate's corner letters and mode switch: white over the field, as every mark over it – no readback of what is painted
-// each corner mark inked by what lies under it, read off the painted field: over a color white (.onf), whatever the sweep
-// beneath; over paper or the void – a triangle's, a disc's corners, the checker where no color is, a ghost's veil – the
-// page's ink (white there all but vanished)
-function plateInk(pl){ const cv=pl.querySelector('canvas'), R=cv.getBoundingClientRect(), g=cv.getContext('2d',{ willReadFrequently:true })
-	for(const el of pl.querySelectorAll(':scope>:is(.laby,.labx,.pmode)')){ const b=el.getBoundingClientRect(); let a=0
-		if(R.width&&R.height&&cv.width>4&&cv.height>4) try{ const x=clamp(Math.round((b.left+b.width/2-R.left)/R.width*cv.width)-2,0,cv.width-5), y=clamp(Math.round((b.top+b.height/2-R.top)/R.height*cv.height)-2,0,cv.height-5)
-			const d=g.getImageData(x,y,5,5).data; for(let k=3;k<d.length;k+=4) a+=d[k]; a/=25*255 }catch{}
-		const paper=a<.5; el.classList.toggle('onf',!paper); el.style.color=paper?'var(--ink)':'' } }
+// each corner mark inked by what lies under it: over a color white (.onf), whatever the sweep beneath; over paper or the
+// void – a triangle's, a disc's corners, the checker where no color is, a ghost's veil – the page's ink (white there all
+// but vanished). Asked of the lens the field is painted with, at the mark's place – no pixel read back from the canvas
+// (a readback at every paint cost the orbit a third of its frames)
+function plateInk(pl){ const s=selected, cls=classify(s), vals=valsFor(s), a=+pl.dataset.a, b=+pl.dataset.b, poly=!!(pl._polar||pl._tri)
+	const lens=!poly&&vals&&lensFor(s,gmFor(cls)), vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}, fl=flip3(cls,a,b), R=pl.getBoundingClientRect()
+	for(const el of pl.querySelectorAll(':scope>:is(.laby,.labx,.pmode)')){ let paper=poly
+		if(!poly&&lens&&R.width){ const r=el.getBoundingClientRect(), px=clamp((r.left+r.width/2-R.left)/R.width,0,1), py=clamp(1-(r.top+r.height/2-R.top)/R.height,0,1)
+			let fx=vw.x0+(vw.x1-vw.x0)*px, fy=vw.y0+(vw.y1-vw.y0)*py; if(fl&1) fx=1-fx; if(fl&2) fy=1-fy
+			const v=vals.slice(), ca=cls.ch[a], cb=cls.ch[b]; v[a]=ca.min+(ca.max-ca.min)*fx; v[b]=cb.min+(cb.max-cb.min)*fy
+			paper=lens(v)<1 }   // the void (0), a ghost's veil (½): paper's ink
+		el.classList.toggle('onf',!paper); el.style.color=paper?'var(--ink)':'' } }
 function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detail._s!==selected) return
 	const s=selected, cls=classify(s), vals=valsFor(s)
 	const glq=Q??0   // every lens rides the GPU now – numeric steps (uQ), web-safe (uWeb), named/even clusters (uClu); the JS plane() stays only for no-WebGL2
@@ -5444,7 +5466,8 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detai
 		const resW=tri===3?Math.round(res*0.8660254):res, resH=tri===1?Math.round(res*0.8660254):res
 		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
 		if(!(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM,!HIMG&&!qTriple(Q))))
-			{ plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q); if(!PDOWN) plateInk(pl) }   // the GPU's paint lands later: its 'present' inks (wirePlane)
+			plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q)
+		if(!PDOWN) plateInk(pl)   // its marks inked for the mode and window it is painted in
 		if(HIMG){ if(!livePick) paintPlaneDensityLayer(pl,s,a,b,cls,cv.width,cv.height) }
 		else if(pl._density) pl._density.style.display='none' })
 	if(HIMG&&!histV.has(s)&&!histP.has(s)&&!histQ.has(s)){ histQ.add(s); histSoon() }   // the open space earns its samples too, not just the rows on screen

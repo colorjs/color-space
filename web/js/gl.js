@@ -424,6 +424,10 @@ function primeKernel(s, st) {
 export function warmGL(s) {
 	warmPlaneGL(s)
 	if (has3dGL(s)) mesh3Progs(mesh3State(mesh3Canvas()), s)
+	// the dossier's other kernels too – the xy plate's and the image panels' – linking in the background: their first use
+	// waited on the link (getUniformLocation), half a second a step to the next space
+	if (hasGamutGL(s)) gamutProg(s)
+	if (hasPlaneGL(s)) imgProg(s)
 }
 
 // 4 = the HUMAN lens: not a display gamut but the object-colour solid the 3D view
