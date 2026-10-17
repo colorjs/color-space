@@ -1548,7 +1548,7 @@
 "ui.toast.img-empty": {"t":"no opaque pixels in that image","h":"1bb61356"},
 "ui.toast.img-fail": {"t":"could not read that image","h":"8e42f6ec"},
 "ui.toast.img-load": {"t":"could not load that image","h":"3bca736b"},
-"ui.toast.img-read": {"t":"histogram from the image","h":"c7f430a6"},
+"ui.toast.img-pal": {"t":"the image's colors, and its histogram","h":"214791bf"},
 "ui.toast.lut": {"t":"LUT saved","h":"f15986a4"},
 "ui.toast.no-icc": {"t":"No profile for this space","h":"535af4b6"},
 "ui.toast.no-lut": {"t":"No LUT for this pair","h":"5e8f6645"},

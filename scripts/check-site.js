@@ -147,7 +147,7 @@ try {
 		delete otherVal.value; const throttled={writes:writes.length,value:otherVal.value}; await pause(180); const held={thumb:otherRange.value,otherGradient:otherLane._g,rootWrites}; rootObserver.disconnect()
 		set(245); const beforeRelease={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g}
 		src.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:17,isPrimary:true})); src.dispatchEvent(new Event('change',{bubbles:true})); const released={value:otherVal.value,thumb:otherRange.value,otherGradient:otherLane._g,rows:rowKeys()}
-		await pause(500); const post={accent:document.documentElement.style.accentColor,current:getComputedStyle(document.getElementById('ftr')).backgroundColor}; return {mid,immediate,throttled,held,beforeRelease,released,post} })
+		await pause(500); const post={accent:getComputedStyle(document.querySelector('.dpop')).accentColor,current:getComputedStyle(document.getElementById('ftr')).backgroundColor}; return {mid,immediate,throttled,held,beforeRelease,released,post} })
 	assert.notEqual(liveTier.immediate.gradient,liveTier.mid.gradient,'current-space neighboring gradients update live')
 	assert.notEqual(liveTier.immediate.uiColor,liveTier.mid.uiColor,'scoped current-color UI stays live during a drag')
 	assert.equal(liveTier.immediate.scoped.length===6&&liveTier.immediate.scoped.every(color=>color===liveTier.immediate.uiColor),true,'every static current-color consumer follows the scoped drag color')
@@ -165,7 +165,7 @@ try {
 	assert.notEqual(liveTier.released.otherGradient,liveTier.beforeRelease.otherGradient,'release repaints secondary gradients synchronously')
 	assert.match(liveTier.released.otherGradient,/:48:(vis|off):/,'released secondary sliders regain full-quality guides immediately')
 	assert.equal(liveTier.released.rows.length>1&&liveTier.released.rows.every(({s,key})=>new RegExp(`:${s==='rgb'?1:48}:(vis|off):`).test(key)),true,'release repaints every visible catalog row at its full guide count')
-	assert.equal(liveTier.post.accent,liveTier.post.current,'native accent color catches up after release')
+	assert.equal(liveTier.post.accent,liveTier.post.current,'the menus\' native ranges wear the current color – never through an accent on <html>, which restyles the whole page')
 	const cancelled=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]'), lane=document.querySelector('.ent[data-s="p3"] .ch'), before=lane._g
 		src.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:18,isPrimary:true})); src.value=32; src.dispatchEvent(new Event('input',{bubbles:true})); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))
 		src.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:18,isPrimary:true})); return {before,after:lane._g} })
@@ -181,13 +181,13 @@ try {
 	await toCatalog(page)
 	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
 	assert.equal(await page.locator('#cd').inputValue(),'#123456','pointer cancellation releases the catalog drag guard')
-	await page.waitForFunction(()=>document.documentElement._accent==='#123456')   // the typed color's own root accent lands CURRENT_SETTLE after its frame – let it, or it counts inside the burst below
+	await page.waitForTimeout(400)   // the typed color's own frame and settle – past them, or they count inside the burst below
 	const nonPointerRoot=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]'); let writes=0
 		const observer=new MutationObserver(()=>writes++); observer.observe(document.documentElement,{attributes:true,attributeFilter:['style']})
 		for(let n=0;n<12;n++){ src.value=40+n*10; src.dispatchEvent(new Event('input',{bubbles:true})); await new Promise(r=>requestAnimationFrame(r)) }
 		const during=writes; src.dispatchEvent(new Event('change',{bubbles:true})); await new Promise(r=>setTimeout(r,250)); observer.disconnect(); return {during,after:writes} })
 	assert.equal(nonPointerRoot.during,0,'a rapid non-pointer input burst does not mutate inherited root style')
-	assert.equal(nonPointerRoot.after,1,'the native root accent updates once after the input burst settles')
+	assert.equal(nonPointerRoot.after,0,'nor after it settles – the root never wears the color (an inherited style there restyles the whole page); the menus\' native ranges take it from their own --cur')
 
 	// the row's search: words narrow the catalog as typed; Esc empties it and lets the search go
 	const search = page.locator('#fq')

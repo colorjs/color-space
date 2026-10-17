@@ -63,7 +63,7 @@ body{ font-family:var(--f); font-size:var(--t3); line-height:1.45; background:va
 a{ color:var(--ink); font-weight:500; text-decoration:none }   /* a link: a step bolder than its text and darker – the ink – never underlined: the underline marks the pick (tabs, the shelf cut) */
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:var(--z-tooltip); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; text-decoration:none; padding:var(--s2) var(--s3); transform:translateY(-3.6rem); transition:transform var(--dur-micro) var(--ease-out) }
 .skip:focus{ transform:none }
-html{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the current color too */
+html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the current color too – the menus' ranges, the only native ones, in the --cur their menu already wears: an accent on <html> restyled the whole page at every settle */
 :where(body *):not(.mhead,.mhead *,.hcolor,.hcolor *){ scroll-margin-top:var(--cells-h) }   /* whatever scrolls into view lands under the pinned row, not behind it – the row's own controls excepted: a page-wide scroll padding counts them as covered by themselves, and focusing the search scrolled the page */
 /* ── the hero: the promise, one field for a color or a space's name, the colors used before – on the paper itself, the
    color its one color. As tall as what it says – the catalog shows under it on the first screen; the row runs over its
@@ -1691,14 +1691,10 @@ const wheel=(n,hard=true)=>`linear-gradient(90deg,${Array.from({length:n},(_,i)=
 	return hard?`${c} ${(i/n*100).toFixed(3)}% ${((i+1)/n*100).toFixed(3)}%`:`${c} ${((i+.5)/n*100).toFixed(3)}%` }).join(',')})`
 // the footer's wall: the same wheel in four rows quantized ever coarser – 5°, 10° (the top edge's own), 20°, 45°
 ftrEl.style.setProperty('--wall',[73,37,19,9].map(n=>wheel(n)).join(','))
-let groupTabsEl=null, codeTabsEl=null, accentT=0
+let groupTabsEl=null, codeTabsEl=null
 const setCurrentUI=fx=>{ if(!groupTabsEl?.isConnected) groupTabsEl=document.querySelector('.gtabs')
 	if(!codeTabsEl?.isConnected) codeTabsEl=document.getElementById('cseg')
-	for(const el of [...currentStatic,groupTabsEl,codeTabsEl]) if(el&&el._cur!==fx){ el._cur=fx; el.style.setProperty('--cur',fx) }
-	if(PDOWN||autoColor){ if(accentT){ clearTimeout(accentT); accentT=0 } return }
-	clearTimeout(accentT); accentT=0; if(document.documentElement._accent===fx)return
-	accentT=setTimeout(()=>{ accentT=0; if(PDOWN||autoColor)return
-		document.documentElement._accent=fx; document.documentElement.style.accentColor=fx },CURRENT_SETTLE) }
+	for(const el of [...currentStatic,groupTabsEl,codeTabsEl]) if(el&&el._cur!==fx){ el._cur=fx; el.style.setProperty('--cur',fx) } }
 // the palette-match chip: under a palette lens the row names the nearest entry –
 // the color's address IN the chosen palette – and a click snaps to it
 const palmEl=document.getElementById('palm')
@@ -1720,10 +1716,14 @@ if(cvalEl){
 			if(tks.length<=1){ if(STOPS){ setStops([master]); scheduleFast() } }
 			else if(list.length){ const dash=!v.includes(','); setStops(list,list.length>1&&dash?GRAD||{ fn:'linear-gradient', head:'', mix:{ space:'oklab', hue:'shorter', named:true }, pos:list.map((_,k)=>k/(list.length-1)) }:null,Math.min(at,list.length-1)); scheduleFast() } }
 		return !!p }
+	// an image taken: its prominent colors – three to five, near twins folded (js/extract.js), most present first – the
+	// field's palette; what the field held kept among the recent
+	document.addEventListener('imgpal',e=>{ const l=e.detail; if(!l?.length) return; const v=l.map(c=>hex(c)).join(', '), was=cvalEl.value.trim()
+		if(was&&was!==v) remember(was); shown(null); before=null; PEEK=false; cvalEl.value=v; cvalEl.setSelectionRange(0,0); cvalEl._typed=take(); fitVal(); cxEl.classList.remove('empty') })
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		shown(null); before=null; PEEK=false; cvalEl._typed=take(); fitVal(); cxEl.classList.toggle('empty',!cvalEl.value.trim()&&!virginNow()); suggest(!!cvalEl.value.trim()) })
 	// the field's suggestions – a search by color, under the field, from sources of record only, nothing curated to a
-	// taste. Nothing typed: the ways in – a color, a pair, a triplet and a four (palettes), a gradient of two, a
+	// taste. Nothing typed: the ways in – a color, a pair, a palette of three or four, a gradient of two, a
 	// colormap – each from its kind's source, its ↻ to draw another – then the last two typed,
 	// each with its × to forget it. A word: the names that hold it – CSS's, color-name-list's (imported once, kept
 	// offline), Tailwind's – best met first, a typo forgiven, the field greying in the rest of the first. A color: it in
@@ -1753,12 +1753,12 @@ if(cvalEl){
 		matlab:'https://www.mathworks.com/help/matlab/ref/colormap.html', plotly:'https://plotly.com/javascript/colorscales/', cmocean:'https://matplotlib.org/cmocean/', wada:'https://sanzo-wada.dmbk.io/', lospec:'https://lospec.com/palette-list',
 		nice:'https://github.com/Experience-Monks/nice-color-palettes', chromotome:'https://github.com/kgolid/chromotome', itten:'https://en.wikipedia.org/wiki/Johannes_Itten', uigradients:'https://uigradients.com/',
 		webgradients:'https://webgradients.com/', okhsv:'https://bottosson.github.io/posts/colorpicker/' }
-	const SOURCES={ color:['meodai','tailwind','names','xkcd'], palette2:['wada','lospec','chromotome','itten'], palette3:['wada','lospec','chromotome','itten'], palette4:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
+	const SOURCES={ color:['meodai','tailwind','names','xkcd'], pair:['wada','lospec','chromotome','itten'], palette:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
 	const srcOf=read('csSugSrc',{}), useOf=k=>SOURCES[k].includes(srcOf[k])?srcOf[k]:SOURCES[k][0]
 	const nextSrc=k=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(useOf(k))+1)%l.length]; store('csSugSrc',srcOf) }
 	const K={ color:t('ui.sug.k.color','color'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
 	const from=(kind,name,src,key)=>({ kind, name, src, key })   // "palette: triad from Itten" – the name left out where the row's own text is it; key: the kind whose source it turns
-	const nth={ p2:0, p3:0, p4:0, gradient:0, next:0 }   // which of a set's nearest the context shows – its ↻ the next
+	const nth={ pair:0, palette:0, gradient:0, next:0 }   // which of a set's nearest the context shows – its ↻ the next
 	const row=(v,why=null)=>{ const p=parseInput(v); return { v, say:v, why, sw:hexesOf(v), run:p?.grad?runOf(p.stops,p.grad):null } }
 	const named=(n,rgb,src,key)=>{ const h=hex(rgb), lc=n.toLowerCase(), c=nameOf(lc); return { v:c&&hex(c.vals)===h?lc:h, say:lc, name:lc, why:from(K.color,'',src,key), sw:[h], tok:true } }   // a name, lowercase, types as itself where it reads back as this very color (another list may hold the same name for another) – else as its hex – in the place of the color it names
 	// at random, never the same twice in a visit while there are others (each set's drawn kept, cleared once all are)
@@ -1794,8 +1794,8 @@ if(cvalEl){
 	const hued=c=>{ const [r,y,b]=space.rgb.ryb(...c); return Math.max(r,y,b)-Math.min(r,y,b)>=8 }   // a gray has no hue to turn
 	const chord=(rgb,k,key)=>{ const [nm,dg]=CHORDS[k%CHORDS.length], v=[rgb,...dg.map(g=>turn(rgb,g))].map(c=>fmtAs(FMT,hex(c),c)).join(', ')
 		return { ...row(v,from(K.palette,nm,'itten',key)), at:k%CHORDS.length } }
-	// a chord of n colors – the pair his complementary, the triplet his split and his triad – the i-th of that size, its ↻ the next
-	const chordN=(rgb,n,i)=>{ const ks=CHORDS.flatMap(([,dg],j)=>dg.length+1===n?[j]:[]); return { ...chord(rgb,ks[i%ks.length],'palette'+n), at:i%ks.length, way:'chord'+n } }
+	// a chord of a size – the pair his complementary, three or four his split, his triad, his square – the i-th, its ↻ the next
+	const chordN=(rgb,z,i)=>{ const ks=CHORDS.flatMap(([,dg],j)=>SIZES[z].includes(dg.length+1)?[j]:[]); return { ...chord(rgb,ks[i%ks.length],z), at:i%ks.length, way:'chord'+z } }
 	// a gradient from it, run in OKLCh, one way at a time – a gradient moves along one axis, it doesn't leap: its hue turned
 	// a step either way, in Okhsv (Ottosson 2021), its saturation and value kept, so the far end is as vivid in sRGB as it
 	// is (OKLCh's own turn grays a yellow at an orange's lightness); or its own hue, lighter – a light one, darker (Okhsl's
@@ -1845,11 +1845,11 @@ if(cvalEl){
 	// a set's lists, each [name, hexes]: a numbered combination by its number (#280), a named one by its name
 	const PALS=k=>k==='lospec'?(LOSPEC||[]).map(([n,c])=>[n,c.split(' ')]):k==='wada'?(WADA?.combos||[]).map(([n,ix])=>['#'+n,ix.map(i=>WADA.colors[i][1])]):k==='nice'?(SETS?.nice||[]).map((p,i)=>['#'+(i+1),p.split(' ')]):k==='itten'?[]:(SETS?.[k]||[]).map(([n,c])=>[n,c.split(' ')])
 	const GRADSETS=k=>k==='okhsv'?[]:(SETS?.[k]||[]).map(([n,c])=>[n,c.split(' ')])
-	const palRow=([n,hs],src)=>row(hs.join(', '),from(K.palette,n,src,'palette'+hs.length))   // its source turns among its size's
-	// a set's palettes of n colors – a pair, a triplet, a four. Each size turns among the sources that hold it (SOURCES:
-	// Wada's combinations are twos, threes and fours; chromotome's every size; Itten's chords), so a turn always changes
-	// the row – none in the source (Itten), his chord of that size
-	const palsN=(k,n)=>[k,PALS(k).filter(p=>p[1].length===n)]
+	const palRow=([n,hs],src)=>row(hs.join(', '),from(K.palette,n,src,hs.length===2?'pair':'palette'))   // its source turns among its size's
+	// a set's palettes of a size – a pair, or three to four (no principal difference between them: one row, either). Each
+	// turns among the sources that hold it (SOURCES: Wada's combinations, Lospec's and chromotome's, Itten's chords), so a
+	// turn always changes the row – none in the source (Itten), his chord of that size
+	const SIZES={ pair:[2], palette:[3,4] }, palsN=(k,z)=>[k,PALS(k).filter(p=>SIZES[z].includes(p[1].length))]
 	const gradSetRow=([n,hs],src)=>row(hs.map(h=>sayAs(hx3(h),nameList())).join(JOIN)+' in srgb',from(K.gradient,n,src,'gradient'))   // as their makers drew them: CSS's own, sRGB
 	// a set's gradients that go somewhere: ends apart (ΔEok 0.08 or more), and between colored ends a hue that moves a third
 	// of the circle at most – red to green is two colors, not a gradient
@@ -1866,8 +1866,8 @@ if(cvalEl){
 	const anyHued=()=>{ let c; do c=fresh('color:meodai',MEODAI.length?MEODAI:Object.entries(NAMES))[1]; while(!hued(c)); return c }
 	// the four ways in, each from its kind's source in use, drawn at random and fresh: a color, a palette, a colormap, a gradient
 	const WAYS=[()=>{ const k0=useOf('color'), k=COLORS(k0).length?k0:'names', [n,rgb]=fresh('color:'+k,COLORS(k)); return named(n,rgb,k,'color') },
-		...[2,3,4].map(n=>()=>{ const [k,l]=palsN(useOf('palette'+n),n); if(l.length) return palRow(fresh(`palette${n}:`+k,l),k)
-			return chordN(anyHued(),n,Math.random()*4|0) }),   // a pair, a triplet, a four – each size its own sources
+		...['pair','palette'].map(z=>()=>{ const [k,l]=palsN(useOf(z),z); if(l.length) return palRow(fresh(`${z}:`+k,l),k)
+			return chordN(anyHued(),z,Math.random()*4|0) }),   // a pair, then a palette of three or four – as the set holds them
 		()=>{ const k=useOf('gradient'), l=GRADSETS(k).filter(p=>goes(p[1])); if(l.length) return gradSetRow(fresh('gradient:'+k,l),k)
 			return gradRow(anyHued(),Math.random()*GRADN|0,nameList()) },   // a gradient of two before a colormap's run of five
 		()=>{ const k=useOf('colormap'), l=MAPSOF(k); return cmapRow(fresh('colormap:'+k,l.length?l:MAPS),l.length?k:'matplotlib') }]
@@ -1886,7 +1886,7 @@ if(cvalEl){
 		const gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
 		const lead=([n,hs])=>{ const d=h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) }, i=hs.reduce((b,h,j)=>d(h)<d(hs[b])?j:b,0); return [n,[hs[i],...hs.filter((_,j)=>j!==i)]] }   // the set's colors as they are, the one nearest the held first
 		// a pair, then a triplet, with it: the set's nearest of that size, led by it – none, Itten's chord of that size round it
-		const pal=[2,3,4].flatMap(n=>{ const [pk,l]=palsN(useOf('palette'+n),n), near=nearN(l,o,nth['p'+n]); return near?[{ ...palRow(lead(near),pk), way:'near-p'+n }]:hued(rgb)?[chordN(rgb,n,sugChord[n])]:[] })
+		const pal=['pair','palette'].flatMap(z=>{ const [pk,l]=palsN(useOf(z),z), near=nearN(l,o,nth[z]); return near?[{ ...palRow(lead(near),pk), way:'near-'+z }]:hued(rgb)?[chordN(rgb,z,sugChord[z])]:[] })
 		const own=(v=>{ const p=v&&parseInput(v); return p&&!p.grad&&p.stops.length===1?v:null })(cvalEl.value.trim())   // the color as typed – tomato, not its hex
 		return [...names,...pal,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,l,own)] }
 	// a phrase read – channels named, a name told how to change: the color it came to, written out, first
@@ -1924,7 +1924,7 @@ if(cvalEl){
 		ghostRest=n&&at&&w&&v.trimEnd().endsWith(w)&&n.toLowerCase().startsWith(w.toLowerCase())&&n.length>w.length?n.slice(w.length):''   // the last color's word, finished
 		ghost.replaceChildren(...(ghostRest?[Object.assign(document.createElement('span'),{ textContent:v }),ghostRest]:[]))
 		if(ghostRest){ const cs=getComputedStyle(cvalEl); for(const k of TWIN) ghost.style[k]=cs[k]; ghost.style.width=cvalEl.clientWidth+'px'; ghost.style.left=cvalEl.offsetLeft+'px'; ghost.style.top=cvalEl.offsetTop+'px' } }
-	let sugShut=false, sugDraw=null, sugFmt=false, sugChord={ 2:0, 3:0, 4:0 }, sugGrad=0
+	let sugShut=false, sugDraw=null, sugFmt=false, sugChord={ pair:0, palette:0 }, sugGrad=0
 	// the color in every notation – the rhombus's list, in the field's own: a row taken is how the field speaks from then on
 	const notations=()=>{ const hx=hex(RGB())
 		sugEl.innerHTML=FMTL.map(f=>`<div class="sgr" role="none"><button class="fmtr${f===FMT?' cur':''}" type="button" role="option" tabindex="-1" data-fmt="${f}" aria-selected="${f===FMT}"><b><span class="sws"><s style="--w:${hx}"></s></span><span class="sgt"><span class="tnum">${esc(fmtAs(f,hx))}</span><small>${f}</small></span></b></button></div>`).join('')
@@ -1955,7 +1955,7 @@ if(cvalEl){
 	sugEl.addEventListener('pointerdown',e=>e.preventDefault())   // the field keeps the focus
 	sugEl.addEventListener('click',e=>{ const f=e.target.closest('[data-fmt]'); if(f){ setFmt(f.dataset.fmt); sugEl.hidden=true; sugFmt=false; return }
 		const nm=e.target.closest('.sgt .sgn'); if(nm){ nm.closest('.sgr').querySelector('.sgx[data-way]')?.click(); return }   // the name pressed: another from its set, as its ↻ draws
-		const src=e.target.closest('.src'); if(src){ const k=src.dataset.key; if(!k) return; nextSrc(k); if(k.startsWith('palette')) nth['p'+k.slice(7)]=0; else if(k in nth) nth[k]=0   // the next source of its kind: its rows from it, shown
+		const src=e.target.closest('.src'); if(src){ const k=src.dataset.key; if(!k) return; nextSrc(k); if(k in nth) nth[k]=0   // the next source of its kind: its rows from it, shown
 			const at=[...sugEl.querySelectorAll('.sgr')].indexOf(src.closest('.sgr'))
 			if(!cvalEl.value.trim()&&sugDraw) sugDraw=sugDraw.map(r=>r.why?.key===k?{ ...WAYS[r.way](), way:r.way }:r)   // every drawn row of that kind – a pair and a triplet alike
 			suggest(!!cvalEl.value.trim()&&cvalEl._typed); const b=sugEl.querySelectorAll('.sgr')[at]?.querySelector('.fmtr'); if(b){ sugEl._peek=b; peek(b) } return }
@@ -2054,8 +2054,9 @@ ul?.setAttribute('aria-hidden','true'); cvalEl?.after(ul)
 const ulPaint=()=>{ const v=cvalEl.value; let at=0, h=''
 	for(const [a,b,k] of tokensOf(v)){ if(k==null) continue; const c=STOPS?STOPS[k]:master; h+=esc(v.slice(at,a))+`<u data-k="${k}"${c?` style="--cur:${hex(rgbF(c.s,c.vals))}"`:''}>${esc(v.slice(a,b))}</u>`; at=b }
 	ul.innerHTML=h+esc(v.slice(at)); ulAt() }
-// the color in hand marked among the field's colors – always, many in hand; one alone, while the caret is in it
-const ulAt=()=>{ const k=STOPS?STOPI:document.activeElement===cvalEl?tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]:null
+// the color in hand marked among the field's colors: in the field, the one the caret is in – the one being typed – else
+// the held one; let go, the held one, many in hand (one alone needs no mark)
+const ulAt=()=>{ const f=document.activeElement===cvalEl, c=f?tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]:null, k=c??(STOPS?STOPI:null)
 	for(const u of ul.children){ u.classList.toggle('on',k!=null&&+u.dataset.k===k); u.classList.toggle('hot',HOTJ!=null&&+u.dataset.k===HOTJ) } }
 // the color an instrument's press would take (stophot, js: the planes', strips' hot): its word underlined in its own
 // color, its mark in the stack ringed – a gradient's pill at that stop – the same color wherever it is shown
@@ -2195,8 +2196,9 @@ cvFile?.addEventListener('change',()=>{ const f2=cvFile.files?.[0]; if(f2) takeI
 // ── drop an image anywhere (or paste one): it becomes the app-wide source ──
 const dropEl=document.getElementById('dropcast')
 const dropImg=e=>[...(e.dataTransfer?.items||[])].some(x=>x.kind==='file'&&x.type.startsWith('image/'))
-// a dropped image becomes a SOURCE, not a palette: it takes its own rhombus in the
-// pinned row and speaks through every strip's histogram — the colors you picked stay yours
+// a dropped image becomes a SOURCE and a palette: it takes its own rhombus in the pinned row and speaks through every
+// strip's histogram, and its prominent colors – three to five – become the field's (what the field held kept among the
+// recent)
 // ONE image for the whole app, whichever door it came through: the samples behind every
 // histogram and scope, the bitmap the dossier's lens decomposes, and the row's rhombus
 const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(f.name||''))) return   // HEIC often arrives typeless
@@ -2208,7 +2210,7 @@ const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(
 	mruBump(key)
 	palFromImage(f) }
 async function palFromImage(f){ try{
-		const { sampleImage }=await import('./js/extract.js')   // the decode + downscale lives off the boot path
+		const { sampleImage, paletteOf }=await import('./js/extract.js')   // the decode + downscale lives off the boot path
 		const samples=await sampleImage(f)
 		if(!samples.length) return toast(t('ui.toast.img-empty','no opaque pixels in that image'))
 		// The one capped full decode drives the floater, dossier source and histogram —
@@ -2217,7 +2219,9 @@ async function palFromImage(f){ try{
 		if(IMGS&&bm){ if(IMGS._user!=null) IMGS[IMGS._user]=bm; else { IMGS.push(bm); IMGS._user=IMGS.length-1 }
 			imgIdx=IMGS._user }
 		if(bm) IMG=bm
-		setImage(samples); if(open()) paintImages(); toast(t('ui.toast.img-read','histogram from the image')) }
+		setImage(samples); if(open()) paintImages()
+		document.dispatchEvent(new CustomEvent('imgpal',{ detail:paletteOf(samples,5) }))   // its colors in hand (the field's, js: imgpal)
+		toast(t('ui.toast.img-pal','the image\'s colors, and its histogram')) }
 	catch{ toast(t('ui.toast.img-fail','could not read that image')) } }
 let dragN=0
 addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
@@ -5092,11 +5096,10 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC) return
 	// the y labels, frame flush to the right edge – the two grids sit pixel-aligned.
 	// The backing renders at display resolution (a downscaled fixed canvas softened the
 	// hairlines lighter than the 3D grid's); logical coordinates stay 320×176.
-	// its width from an observer, never read in the frame (a layout read mid-drag restyles the page); 0, hidden: nothing to
-	// draw – the observer paints it the moment it shows
-	if(!tcv._ro){ tcv._ro=new ResizeObserver(([e])=>{ const w=e.contentRect.width; if(w!==tcv._cw){ tcv._cw=w; if(w) paintTC() } }); tcv._ro.observe(tcv); return }
-	if(!tcv._cw) return
-	const kb=tcv._cw*(devicePixelRatio||1)/320
+	// its width from an observer, never read in the frame (a layout read mid-drag restyles the page) – until it reports
+	// (or while hidden), the plot's own 320; the caption under it follows either way
+	if(!tcv._ro){ tcv._ro=new ResizeObserver(([e])=>{ const w=e.contentRect.width; if(w!==tcv._cw){ tcv._cw=w; if(w) paintTC() } }); tcv._ro.observe(tcv) }
+	const kb=(tcv._cw||320)*(devicePixelRatio||1)/320
 	if(kb&&Math.abs(tcv.width-320*kb)>1){ tcv.width=Math.round(320*kb); tcv.height=Math.round(176*kb) }
 	const c2=tcv.getContext('2d'), W=320, H=176, L=40, B=21, T=1   // pads match the CIE plate's strips
 	c2.setTransform(tcv.width/320,0,0,tcv.width/320,0,0)
@@ -5492,7 +5495,6 @@ function paintCatalogGrad(ents,skipI=-1,guides=(PDOWN||autoColor)?LIVE_RAMP_GUID
 		if(complete) ent.dataset.g=gkey }) }
 // Every native picker stays live. Inactive numbers update every 100ms; secondary
 // gradients cycle through low-cost guides while held and repaint in full on release.
-const motionTkEnts=new Set()
 // the picker in a canvas (the solid, the transfer curve) – the DOM's and the thumbs' exactly: the current color (fill),
 // the white ring round it at the tokens' sizes, its soft outline a hair's line round the ring; another color in hand
 // the flat white dot. No canvas shadow: its blur is paid on every stroke of every frame. k: canvas units per CSS pixel
@@ -5511,23 +5513,21 @@ const drawPicker=(ctx,x,y,k,dot=false,fill)=>{ const P=pickerPx()
 const setTk=(root,hx,ink0)=>{ if(root._tk===hx)return; root._tk=hx
 	root.style.setProperty('--tkc',hx); root.style.setProperty('--tki',ink0); root.style.setProperty('--tkv',ink0==='#fff'?'var(--dark)':'#fff') }
 const setCur=(root,hx)=>{ if(root._cur===hx)return; root._cur=hx; root.style.setProperty('--cur',hx) }
-// in motion (a drag, the orbit) a row's tint goes to its readers alone – its pickers and range handles (--tk*), its
-// channel pairs' underline (--cur, through --curl), a few elements – never to the row: an inherited var on the row
-// restyles its every descendant on every frame. The settle (stampTk) then hands the one inherited tint back to the catalog
+// a row's tint goes to its readers alone – its pickers and range handles (--tk*), its channel pairs' underline (--cur,
+// through --curl), a few elements – never to the row or the catalog: an inherited var there restyles every card under it
+// (inside the catalog's size container, as part of layout: a color taken from the set once waited 60 ms on it). Rows on
+// screen take it with every paint; a row coming on screen, as it enters (paintCatalogPickers)
 const tkReaders=ent=>ent._tkr??=[...ent.querySelectorAll('.nrg,.rh,.rng,.cvp')]
 const tintRow=(ent,hx,ink0)=>{ if(!ent._tkr?.length||ent._tkr.some(el=>!el.isConnected)) ent._tkr=null
-	for(const el of tkReaders(ent)) el.classList.contains('cvp')?setCur(el,hx):setTk(el,hx,ink0); motionTkEnts.add(ent) }
-const clearMotionTk=()=>{ for(const ent of motionTkEnts) for(const el of ent._tkr||[]){ el._tk=el._cur=''; for(const p of ['--tkc','--tki','--tkv','--cur']) el.style.removeProperty(p) } motionTkEnts.clear() }
-const stampTk=(hx,ink0)=>{ if(PDOWN||autoColor)return   // changing inherited vars on every row forces a page-wide style recalc per frame
-	setTk(cat,hx,ink0); setCur(cat,hx); clearMotionTk() }
+	for(const el of tkReaders(ent)) el.classList.contains('cvp')?setCur(el,hx):setTk(el,hx,ink0) }
 const detailTk=(hx,ink0)=>{ detail.querySelectorAll('.bar2,.pl,.gam2d').forEach(root=>setTk(root,hx,ink0)) }
 function paintCatalogVals(ents,{values=true,thumbs=true}={}){ const rgb=RGB(), exact=master.s+'|'+master.vals.join()
 	// the pickers' fill is the FACE color – under a palette-class lens that is the snapped
 	// entry, not the raw coordinate (a P3 green thumb once outshone its tailwind pick)
 	const qf3=qTriple(Q), frgb2=qf3?byteRGB(qf3(rgb)):rgb, hx=hex(frgb2), ink0=ink(frgb2)
-	if(thumbs) stampTk(hx,ink0)
 	if(open()) detailTk(hx,ink0)
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
+		if(thumbs) tintRow(ent,hx,ink0)
 		const key=exact, cvs=ent._cvs??=ent.querySelectorAll('.cv')
 		const vals=valsFor(s), cls=classify(s)
 		if(values&&(ent._vv!==key||ent.contains(document.activeElement))){
@@ -5557,9 +5557,8 @@ function paintCatalogVals(ents,{values=true,thumbs=true}={}){ const rgb=RGB(), e
 			if(vals){ const nr=ch._nrg??=ch.querySelector('.nrg')
 				if(nr){ if(!nr._glide&&!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i] } } }) }) }
 function paintCatalogPickers(ents,rgb,hx){ if(!rgb){ const raw=RGB(), qf=qTriple(Q); rgb=qf?byteRGB(qf(raw)):raw; hx=hex(rgb) }
-	const ink0=ink(rgb), rows=ents||screenEnts(), moving=PDOWN||autoColor
-	if(moving) rows.forEach(ent=>tintRow(ent,hx,ink0))
-	else stampTk(hx,ink0)   // one inherited settle makes every current and future catalog picker correct
+	const ink0=ink(rgb), rows=ents||screenEnts()
+	rows.forEach(ent=>tintRow(ent,hx,ink0))
 	;rows.forEach(ent=>{ const vals=valsFor(ent.dataset.s); if(!vals)return
 		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ const nr=ch._nrg??=ch.querySelector('.nrg'); if(!nr)return
 			if(!nr._glide&&!(PDOWN&&ent===dragEnt&&i===dragEntI&&document.activeElement===nr)&&+nr.value!==vals[i]) nr.value=vals[i]

@@ -1551,6 +1551,7 @@
 "ui.toast.img-empty": {"t":"nenhum pixel opaco nessa imagem","h":"1bb61356"},
 "ui.toast.img-fail": {"t":"não foi possível ler essa imagem","h":"8e42f6ec"},
 "ui.toast.img-load": {"t":"não foi possível carregar essa imagem","h":"3bca736b"},
+"ui.toast.img-pal": {"t":"as cores da imagem e o seu histograma","h":"214791bf"},
 "ui.toast.img-read": {"t":"histograma da imagem","h":"c7f430a6"},
 "ui.toast.lut": {"t":"LUT salva","h":"f15986a4"},
 "ui.toast.no-icc": {"t":"Nenhum perfil para este espaço","h":"535af4b6"},

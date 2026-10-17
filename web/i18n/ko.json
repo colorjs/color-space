@@ -1551,6 +1551,7 @@
 "ui.toast.img-empty": {"t":"이 이미지에는 불투명한 픽셀이 없습니다","h":"1bb61356"},
 "ui.toast.img-fail": {"t":"이미지를 읽을 수 없습니다","h":"8e42f6ec"},
 "ui.toast.img-load": {"t":"이미지를 불러올 수 없습니다","h":"3bca736b"},
+"ui.toast.img-pal": {"t":"이미지의 색과 히스토그램","h":"214791bf"},
 "ui.toast.img-read": {"t":"이미지에서 얻은 히스토그램","h":"c7f430a6"},
 "ui.toast.lut": {"t":"LUT 저장됨","h":"f15986a4"},
 "ui.toast.no-icc": {"t":"이 색공간용 프로파일이 없습니다","h":"535af4b6"},

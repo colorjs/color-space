@@ -1551,6 +1551,7 @@
 "ui.toast.img-empty": {"t":"bu görüntüde opak piksel yok","h":"1bb61356"},
 "ui.toast.img-fail": {"t":"bu görüntü okunamadı","h":"8e42f6ec"},
 "ui.toast.img-load": {"t":"bu görüntü yüklenemedi","h":"3bca736b"},
+"ui.toast.img-pal": {"t":"görüntünün renkleri ve histogramı","h":"214791bf"},
 "ui.toast.img-read": {"t":"görüntüden histogram çıkarıldı","h":"c7f430a6"},
 "ui.toast.lut": {"t":"LUT kaydedildi","h":"f15986a4"},
 "ui.toast.no-icc": {"t":"Bu uzay için profil yok","h":"535af4b6"},

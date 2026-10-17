@@ -1551,6 +1551,7 @@
 "ui.toast.img-empty": {"t":"keine deckenden Pixel in diesem Bild","h":"1bb61356"},
 "ui.toast.img-fail": {"t":"Bild konnte nicht gelesen werden","h":"8e42f6ec"},
 "ui.toast.img-load": {"t":"Bild konnte nicht geladen werden","h":"3bca736b"},
+"ui.toast.img-pal": {"t":"die Farben des Bildes und sein Histogramm","h":"214791bf"},
 "ui.toast.img-read": {"t":"Histogramm aus dem Bild","h":"c7f430a6"},
 "ui.toast.lut": {"t":"LUT gespeichert","h":"f15986a4"},
 "ui.toast.no-icc": {"t":"Kein Profil für diesen Farbraum","h":"535af4b6"},
