@@ -4,10 +4,10 @@
 * [ ] JZ v1 build wasm
 
 * [ ] Website video
+  * [ ] 205 spaces, dossier for each
   * [ ] Creating a gradient in oklch via plane curves
   * [ ] Analyzing image palette
   * [ ] Exploring palettes, gradients composition
-  * [ ] 205 spaces, dossier for each
   * [ ] JS, WASM, LUT, ICC
 
 * [ ] VS Code plugin
