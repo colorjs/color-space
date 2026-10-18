@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"Uzaylar","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"dönüştürdüğü renk uzayları","h":"9c936991"},
 "compare.col.speed": {"t":"Hız","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"color-space’e göre saniyedeki JS çağrısı, npm run benchmark (2026-10-03, ortak 7 dönüşüm üzerinde; texel kendi 3’ü, chroma-js kendi 6’sı üzerinde; colorjs.io nesne API’si üzerinden)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"color-space’e göre saniyedeki JS çağrısı, npm run benchmark (2026-10-18, ortak 7 dönüşüm üzerinde; texel kendi 3’ü, chroma-js kendi 6’sı üzerinde; colorjs.io nesne API’si üzerinden)","h":"f331323c"},
 "compare.col.targets": {"t":"Hedefler","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"nerede çalıştığı ya da ne ürettiği","h":"91a00552"},
 "compare.col.tool": {"t":"Araç","h":"9a830c71"},

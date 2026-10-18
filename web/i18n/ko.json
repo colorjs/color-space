@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"색공간","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"변환하는 색공간","h":"9c936991"},
 "compare.col.speed": {"t":"속도","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"color-space 대비 초당 JS 호출 수, npm run benchmark (2026-10-03, 공통 변환 7개 기준; texel은 자체 3개, chroma-js는 자체 6개 기준; colorjs.io는 객체 API 사용)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"color-space 대비 초당 JS 호출 수, npm run benchmark (2026-10-18, 공통 변환 7개 기준; texel은 자체 3개, chroma-js는 자체 6개 기준; colorjs.io는 객체 API 사용)","h":"f331323c"},
 "compare.col.targets": {"t":"타깃","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"실행 환경 또는 출력 형식","h":"91a00552"},
 "compare.col.tool": {"t":"도구","h":"9a830c71"},

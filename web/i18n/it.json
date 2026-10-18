@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"Spazi","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"spazi colore che converte","h":"9c936991"},
 "compare.col.speed": {"t":"Velocità","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"chiamate JS al secondo rispetto a color-space, npm run benchmark (2026-10-03, sulle sue 7 conversioni in comune; texel sulle sue 3, chroma-js sulle sue 6; colorjs.io tramite la sua API a oggetti)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"chiamate JS al secondo rispetto a color-space, npm run benchmark (2026-10-18, sulle sue 7 conversioni in comune; texel sulle sue 3, chroma-js sulle sue 6; colorjs.io tramite la sua API a oggetti)","h":"f331323c"},
 "compare.col.targets": {"t":"Target","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"dove gira o cosa produce","h":"91a00552"},
 "compare.col.tool": {"t":"Strumento","h":"9a830c71"},

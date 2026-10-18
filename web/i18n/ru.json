@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"Пространства","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"цветовые пространства, которые он преобразует","h":"9c936991"},
 "compare.col.speed": {"t":"Скорость","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"вызовы JS в секунду в сравнении с color-space, npm run benchmark (2026-10-03, на 7 общих преобразованиях; texel – на своих 3, chroma-js – на своих 6; colorjs.io – через объектный API)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"вызовы JS в секунду в сравнении с color-space, npm run benchmark (2026-10-18, на 7 общих преобразованиях; texel – на своих 3, chroma-js – на своих 6; colorjs.io – через объектный API)","h":"f331323c"},
 "compare.col.targets": {"t":"Платформы","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"где работает или что создаёт","h":"91a00552"},
 "compare.col.tool": {"t":"Инструмент","h":"9a830c71"},

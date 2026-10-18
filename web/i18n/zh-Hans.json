@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"色彩空间","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"可转换的色彩空间","h":"9c936991"},
 "compare.col.speed": {"t":"速度","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"相对 color-space 的每秒 JS 调用次数，npm run benchmark（2026-10-03，基于共有的 7 个转换；texel 基于其 3 个，chroma-js 基于其 6 个；colorjs.io 通过其对象 API）","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"相对 color-space 的每秒 JS 调用次数，npm run benchmark（2026-10-18，基于共有的 7 个转换；texel 基于其 3 个，chroma-js 基于其 6 个；colorjs.io 通过其对象 API）","h":"f331323c"},
 "compare.col.targets": {"t":"目标平台","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"运行环境或输出格式","h":"91a00552"},
 "compare.col.tool": {"t":"工具","h":"9a830c71"},

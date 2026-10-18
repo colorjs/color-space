@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"Farbräume","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"Farbräume, die es umrechnet","h":"9c936991"},
 "compare.col.speed": {"t":"Geschwindigkeit","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"JS-Aufrufe pro Sekunde im Vergleich zu color-space, npm run benchmark (2026-10-03, über die 7 gemeinsamen Umrechnungen; texel über seine 3, chroma-js über seine 6; colorjs.io über seine Objekt-API)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"JS-Aufrufe pro Sekunde im Vergleich zu color-space, npm run benchmark (2026-10-18, über die 7 gemeinsamen Umrechnungen; texel über seine 3, chroma-js über seine 6; colorjs.io über seine Objekt-API)","h":"f331323c"},
 "compare.col.targets": {"t":"Ziele","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"wo es läuft oder was es erzeugt","h":"91a00552"},
 "compare.col.tool": {"t":"Werkzeug","h":"9a830c71"},

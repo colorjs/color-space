@@ -12,5 +12,6 @@ export const κ = 24389 / 27;    // (29/3)³   the linear toe's slope·116
 /** Forward companding f(t): normalised tristimulus ratio → lightness space. */
 export const labF = (t) => t > ε ? Math.cbrt(t) : (κ * t + 16) / 116;
 
-/** Inverse companding f⁻¹(ft): lightness space → normalised tristimulus ratio. */
-export const labFInv = (ft) => ft > ε3 ? ft ** 3 : (116 * ft - 16) / κ;
+/** Inverse companding f⁻¹(ft): lightness space → normalised tristimulus ratio.
+ *  The cube is multiplied out: V8 reduces x ** 2 to a multiply, not x ** 3 (5× slower on Node 22). */
+export const labFInv = (ft) => ft > ε3 ? ft * ft * ft : (116 * ft - 16) / κ;

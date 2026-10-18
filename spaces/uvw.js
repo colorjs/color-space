@@ -58,7 +58,7 @@ xyz.uvw = (x, y, z, i, o) => {
 uvw.xyz = (u, v, w, i, o) => {
 	const [xn, yn, zn] = whitepoint[o ?? 2][i ?? 'D65'];
 	const [un, vn] = uv(xn, yn, zn);
-	const y = ((w + 17) / 25) ** 3; // Y in 0-100
+	const t = (w + 17) / 25, y = t * t * t; // Y in 0-100
 	// W*=0 carries no chromaticity (U*=V*=0 there) -> achromatic at this Y
 	const _u = w === 0 ? un : u / (13 * w) + un;
 	const _v = w === 0 ? vn : v / (13 * w) + vn;

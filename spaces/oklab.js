@@ -39,10 +39,10 @@ oklab.rgb = (l, a, b) => {
 	const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
 	const s_ = l - 0.0894841775 * a - 1.291485548 * b;
 
-	// 2. cube -> linear LMS
-	const l3 = l_ ** 3;
-	const m3 = m_ ** 3;
-	const s3 = s_ ** 3;
+	// 2. cube -> linear LMS (multiplied out, as cie.js's labFInv: V8 doesn't reduce x ** 3)
+	const l3 = l_ * l_ * l_;
+	const m3 = m_ * m_ * m_;
+	const s3 = s_ * s_ * s_;
 
 	// 3. LMS -> linear sRGB, then gamma-encode + scale to 0-255 via lrgb
 	return lrgb.rgb(

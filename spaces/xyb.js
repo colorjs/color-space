@@ -52,7 +52,7 @@ const xyb = {
 		b = b !== undefined ? b : 0;
 
 		// Inverse transfer function (gamma = 3)
-		const transfer = v => Math.pow(v + bias_cbrt, 3);
+		const transfer = v => { const t = v + bias_cbrt; return t * t * t };
 
 		// Reconstruct LMS
 		const l = transfer(x + y) - bias;

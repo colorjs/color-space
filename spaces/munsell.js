@@ -218,12 +218,13 @@ vec3 xyy_munsell(vec3 c) {
 }
 
 // Newhall 1943 value function V->Y (matches the renotation table's Y column)
-const valueToY = V => 1.2219 * V - 0.23111 * V ** 2 + 0.23951 * V ** 3 - 0.021009 * V ** 4 + 0.0008404 * V ** 5;
+// Y = 1.2219V − 0.23111V² + 0.23951V³ − 0.021009V⁴ + 0.0008404V⁵, in Horner form (V8 reduces V ** 2 to a multiply, not V ** 3…5)
+const valueToY = V => V * (1.2219 + V * (-0.23111 + V * (0.23951 + V * (-0.021009 + V * 0.0008404))));
 const YtoValue = Y => {
 	let V = 10 * Math.cbrt(Math.max(Y, 0) / 100);
 	for (let i = 0; i < 40; i++) {
 		const f = valueToY(V) - Y;
-		const d = 1.2219 - 0.46222 * V + 0.71853 * V ** 2 - 0.084036 * V ** 3 + 0.004202 * V ** 4;
+		const d = 1.2219 + V * (-0.46222 + V * (0.71853 + V * (-0.084036 + V * 0.004202)));
 		V -= f / d; if (Math.abs(f) < 1e-9) break;
 	}
 	return V;

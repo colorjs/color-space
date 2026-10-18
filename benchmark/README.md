@@ -43,7 +43,7 @@ The benchmark measures the speed of common color space conversions:
 8. **RGB → HSV** - sRGB to HSV conversion
 9. **RGB → HEX** - sRGB to hexadecimal string
 
-Each case is warmed with 20,000 calls, then timed as the median of 7 rounds of 100,000 calls. Inputs rotate through a fixed 256-color table, precomputed in each library's own units: with literal arguments V8 can inline a pure conversion and fold it to a constant, which times code that no longer runs (on Node 22, d3-color rgb → lab measured 47 M op/s on literals vs 2.6 M on varied input).
+Each case is warmed with 20,000 calls, then timed as the median of 7 rounds of 100,000 calls, in process CPU time (all its threads, GC included) rather than wall-clock time, so time the process spends descheduled on a busy machine doesn't count (contention for caches and cores still does). Inputs rotate through a fixed 256-color table, precomputed in each library's own units: with literal arguments V8 can inline a pure conversion and fold it to a constant, which times code that no longer runs (on Node 22, d3-color rgb → lab measured 47 M op/s on literals vs 2.6 M on varied input).
 
 **Note**: Not all libraries support all color spaces. Unsupported conversions are omitted, never timed.
 

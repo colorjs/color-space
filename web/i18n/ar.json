@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"الفضاءات","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"الفضاءات اللونية التي تحوّل بينها","h":"9c936991"},
 "compare.col.speed": {"t":"السرعة","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"استدعاءات JS في الثانية مقارنةً بـ color-space، npm run benchmark (2026-10-03، على التحويلات السبعة المشتركة؛ texel على تحويلاته الثلاثة، وchroma-js على الستة؛ وcolorjs.io عبر واجهة API الكائنية)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"استدعاءات JS في الثانية مقارنةً بـ color-space، npm run benchmark (2026-10-18، على التحويلات السبعة المشتركة؛ texel على تحويلاته الثلاثة، وchroma-js على الستة؛ وcolorjs.io عبر واجهة API الكائنية)","h":"f331323c"},
 "compare.col.targets": {"t":"المنصات","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"أين يعمل أو ماذا يُنتج","h":"91a00552"},
 "compare.col.tool": {"t":"الأداة","h":"9a830c71"},

@@ -35,7 +35,7 @@ const M2i = inv3(M2);
 
 const eps = 216 / 24389;
 const f = x => x <= eps ? x * 24389 / 2700 : 1.16 * Math.cbrt(x) - 0.16;
-const fInv = v => v <= 216 / 24389 * 24389 / 2700 ? v * 2700 / 24389 : Math.pow((v + 0.16) / 1.16, 3);
+const fInv = v => { if (v <= 216 / 24389 * 24389 / 2700) return v * 2700 / 24389; const t = (v + 0.16) / 1.16; return t * t * t };
 
 xyz.srlab2 = (X, Y, Z) => mat3(M2, ...mat3(M1, X / Wn[0], Y / Wn[1], Z / Wn[2]).map(f));
 srlab2.xyz = (L, a, b) => mat3(M1i, ...mat3(M2i, L, a, b).map(fInv)).map((v, i) => v * Wn[i]);

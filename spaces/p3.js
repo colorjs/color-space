@@ -21,8 +21,10 @@
  * @referred display
  * @dynamic sdr
  */
-import p3Linear from './p3-linear.js';
-import xyz from './xyz.js';
+import p3Linear, { M as M_P3 } from './p3-linear.js';
+import xyz, { M_LRGB_INV } from './xyz.js';
+import rgb from './rgb.js';
+import { mat3, mul3, inv3 } from '../math.js';
 import { srgbToLinear, linearToSrgb } from '../transfers.js';
 
 const p3 = {
@@ -37,5 +39,22 @@ xyz.p3 = (x, y, z) => {
 	const [lr, lg, lb] = xyz['p3-linear'](x, y, z);
 	return [linearToSrgb(lr), linearToSrgb(lg), linearToSrgb(lb)];
 }
+
+// ── the display route, composed in source (as lab.js composes its own): sRGB and P3
+// share the transfer and the D65 white, so linear P3 → XYZ → linear sRGB pre-multiplies
+// into one matrix and the 0-100 XYZ convention cancels out of the seam — one multiply
+// per call instead of two hops through XYZ
+const M_P3_LRGB = mul3(M_LRGB_INV, M_P3);   // linear P3 → linear sRGB
+const M_LRGB_P3 = inv3(M_P3_LRGB);          // derived exact inverse
+
+p3.rgb = (r, g, b) => {
+	const v = mat3(M_P3_LRGB, srgbToLinear(r), srgbToLinear(g), srgbToLinear(b));
+	return [255 * linearToSrgb(v[0]), 255 * linearToSrgb(v[1]), 255 * linearToSrgb(v[2])];
+};
+
+rgb.p3 = (r, g, b) => {
+	const v = mat3(M_LRGB_P3, srgbToLinear(r / 255), srgbToLinear(g / 255), srgbToLinear(b / 255));
+	return [linearToSrgb(v[0]), linearToSrgb(v[1]), linearToSrgb(v[2])];
+};
 
 export default p3;

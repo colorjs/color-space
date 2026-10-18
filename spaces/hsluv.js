@@ -35,7 +35,7 @@ import { ε as EPSILON, κ as KAPPA } from '../cie.js';
 // to 0 or 1; the matrix is the library's XYZ→linear-sRGB (single source of truth).
 function getBounds(L) {
 	const bounds = [];
-	const sub1 = Math.pow(L + 16, 3) / 1560896;
+	const L16 = L + 16, sub1 = L16 * L16 * L16 / 1560896;
 	const sub2 = sub1 > EPSILON ? sub1 : L / KAPPA;
 	for (let c = 0; c < 3; c++) {
 		const m1 = M_LRGB_INV[c * 3], m2 = M_LRGB_INV[c * 3 + 1], m3 = M_LRGB_INV[c * 3 + 2];

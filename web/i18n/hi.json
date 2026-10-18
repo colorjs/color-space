@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"स्पेस","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"जिन कलर स्पेस को यह कन्वर्ट करता है","h":"9c936991"},
 "compare.col.speed": {"t":"गति","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"color-space की तुलना में प्रति सेकंड JS कॉल, npm run benchmark (2026-10-03, 7 साझा कन्वर्शन पर; texel अपने 3 पर, chroma-js अपने 6 पर; colorjs.io अपने ऑब्जेक्ट API से)","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"color-space की तुलना में प्रति सेकंड JS कॉल, npm run benchmark (2026-10-18, 7 साझा कन्वर्शन पर; texel अपने 3 पर, chroma-js अपने 6 पर; colorjs.io अपने ऑब्जेक्ट API से)","h":"f331323c"},
 "compare.col.targets": {"t":"टारगेट","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"यह कहाँ चलता है या क्या बनाता है","h":"91a00552"},
 "compare.col.tool": {"t":"टूल","h":"9a830c71"},

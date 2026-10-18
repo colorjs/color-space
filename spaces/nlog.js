@@ -28,7 +28,7 @@ const nlog = { name: 'nlog', range: [[0, 1], [0, 1], [0, 1]] };
 
 const c1 = 0.328, c2 = 452 / 1023, a = 650 / 1023, b = 0.0075, c = 150 / 1023, d = 619 / 1023;
 const enc = x => x < c1 ? a * Math.cbrt(x + b) : c * Math.log(x) + d;
-const dec = y => y < c2 ? Math.pow(y / a, 3) - b : Math.exp((y - d) / c);
+const dec = y => { if (y < c2) { const t = y / a; return t * t * t - b } return Math.exp((y - d) / c) };
 
 nlog['rec2020-linear'] = (r, g, b) => [dec(r), dec(g), dec(b)];
 rec2020Linear.nlog = (r, g, b) => [enc(r), enc(g), enc(b)];

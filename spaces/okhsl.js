@@ -154,9 +154,10 @@ function multiply_v3_m3x3(v, m) {
 export function oklabToLinearRGB(lab, lmsToRgb) {
 	var lms = multiply_v3_m3x3(lab, LabtoLMS_M);
 
-	lms[0] = lms[0] ** 3;
-	lms[1] = lms[1] ** 3;
-	lms[2] = lms[2] ** 3;
+	var l = lms[0], m = lms[1], s = lms[2];
+	lms[0] = l * l * l;
+	lms[1] = m * m * m;
+	lms[2] = s * s * s;
 
 	return multiply_v3_m3x3(lms, lmsToRgb);
 }
@@ -213,9 +214,9 @@ function findGamutIntersection(a, b, l1, c1, l0, lmsToRgb, okCoeff, cusp) {
 		var m_ = L + C * km;
 		var s_ = L + C * ks;
 
-		var l = l_ ** 3;
-		var m = m_ ** 3;
-		var s = s_ ** 3;
+		var l = l_ * l_ * l_;
+		var m = m_ * m_ * m_;
+		var s = s_ * s_ * s_;
 
 		var ldt = 3 * ldt_ * l_ ** 2;
 		var mdt = 3 * mdt_ * m_ ** 2;
@@ -315,9 +316,9 @@ function computeMaxSaturation(a, b, lmsToRgb, okCoeff) {
 	var m_ = 1.0 + sat * km;
 	var s_ = 1.0 + sat * ks;
 
-	var l = l_ ** 3;
-	var m = m_ ** 3;
-	var s = s_ ** 3;
+	var l = l_ * l_ * l_;
+	var m = m_ * m_ * m_;
+	var s = s_ * s_ * s_;
 
 	var lds = 3.0 * kl * l_ ** 2;
 	var mds = 3.0 * km * m_ ** 2;

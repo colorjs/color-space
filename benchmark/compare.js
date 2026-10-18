@@ -53,15 +53,18 @@ async function loadLibraries() {
 
 // Benchmark utilities — warm first, then report the median of seven samples.
 // `sink` makes each call's observable result escape the timed loop; unsupported
-// cases return null and are never timed.
+// cases return null and are never timed. Time is the process's CPU time (all its
+// threads, GC included), not the wall clock: time spent descheduled on a busy machine
+// doesn't count (contention for caches and cores still does).
 let sink
+const now = () => { const c = process.cpuUsage(); return (c.user + c.system) / 1000 }   // ms
 function benchmark(name, fn, iterations = 100000, rounds = 7) {
 	for (let i = 0; i < Math.min(iterations, 20000); i++) sink = fn(i)
 	const samples = []
 	for (let round = 0; round < rounds; round++) {
-		const start = performance.now()
+		const start = now()
 		for (let i = 0; i < iterations; i++) sink = fn(i)
-		samples.push(performance.now() - start)
+		samples.push(now() - start)
 	}
 	samples.sort((a, b) => a - b)
 	const total = samples[samples.length >> 1]
@@ -316,9 +319,9 @@ async function runBenchmarks() {
 		const wasm = await import('../wasm.js').catch(() => null)
 		const rows = []
 		const bb = (library, fn, arg = src) => { fn(arg)   // warm + JIT
-			const R = 3, t0 = performance.now()
+			const R = 3, t0 = now()
 			for (let i = 0; i < R; i++) fn(arg)
-			const ms = (performance.now() - t0) / R
+			const ms = (now() - t0) / R
 			rows.push({ library, opsPerSec: PX / ms * 1000, perOp: ms * 1000 / PX }) }
 		bb('color-space (JS)', b => space.rgb.oklab(b))
 		// WASM converts its alloc()'d buffer in place, so each call first refills it with
@@ -339,7 +342,7 @@ async function runBenchmarks() {
 		// color-space/wasm range. Same source, same refill-then-convert idiom as above.
 		if (wasm) {
 			const buf = wasm.alloc(PX), ratios = []
-			const ms = (fn) => { fn(); const t0 = performance.now(); for (let i = 0; i < 3; i++) fn(); return (performance.now() - t0) / 3 }
+			const ms = (fn) => { fn(); const t0 = now(); for (let i = 0; i < 3; i++) fn(); return (now() - t0) / 3 }
 			for (const to of wasm.spaces) {
 				if (to === 'rgb' || typeof wasm.default.rgb[to] !== 'function') continue
 				ratios.push([to, ms(() => space.rgb[to](src)) / ms(() => { buf.set(src); wasm.default.rgb[to](buf) })])

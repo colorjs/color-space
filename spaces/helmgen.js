@@ -124,7 +124,7 @@ helmgen.xyz = (L, a, b) => {
 	[a, b] = twist(L, a, b, true);
 	[a, b] = chroma(a, b, 1 / CP);
 	const c = neutral(mat3(M2_INV, lInv(L), a, b));
-	const [x, y, z] = mat3(M1_INV, c[0] ** 3 + ALPHA * c[0], c[1] ** 3 + ALPHA * c[1], c[2] ** 3 + ALPHA * c[2]);
+	const [x, y, z] = mat3(M1_INV, c[0] * c[0] * c[0] + ALPHA * c[0], c[1] * c[1] * c[1] + ALPHA * c[1], c[2] * c[2] * c[2] + ALPHA * c[2]);
 	return [x * 100, y * 100, z * 100];
 };
 

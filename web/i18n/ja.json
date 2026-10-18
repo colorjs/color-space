@@ -139,7 +139,7 @@
 "compare.col.spaces": {"t":"色空間","h":"9b584b52"},
 "compare.col.spaces-tip": {"t":"変換できる色空間","h":"9c936991"},
 "compare.col.speed": {"t":"速度","h":"2d2cb022"},
-"compare.col.speed-tip": {"t":"color-spaceと比べた1秒あたりのJS呼び出し回数、npm run benchmark（2026-10-03、共通する7つの変換で計測。texelは対応する3つ、chroma-jsは6つで計測し、colorjs.ioはオブジェクトAPI経由）","h":"e51f7a4e"},
+"compare.col.speed-tip": {"t":"color-spaceと比べた1秒あたりのJS呼び出し回数、npm run benchmark（2026-10-18、共通する7つの変換で計測。texelは対応する3つ、chroma-jsは6つで計測し、colorjs.ioはオブジェクトAPI経由）","h":"f331323c"},
 "compare.col.targets": {"t":"ターゲット","h":"d35260a0"},
 "compare.col.targets-tip": {"t":"動作環境または出力形式","h":"91a00552"},
 "compare.col.tool": {"t":"ツール","h":"9a830c71"},
