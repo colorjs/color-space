@@ -2,8 +2,8 @@
 // Generate the social cards — one Playwright screenshot per self-contained page,
 // so cards can never drift from the site they represent.
 //
-//   web/img/og.png       the 1200×630 site card: the hero's locus beside its title
-//                        and line, in the page's own stylesheet and modules –
+//   web/img/og.png       the 1200×630 site card: the hero's locus beside the name,
+//                        the atlas in two lines and its facts, in the page's own stylesheet and modules –
 //                        re-rendered by the build once older than what it shows
 //   web/img/og/<s>.jpg   a card per space: display name, its use line, and the
 //                        space's own channel-gradient signature — stamped into
@@ -25,36 +25,40 @@ import { heroLocus } from '../web/js/locus.js'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-// the space cards' chrome — the site's paper, Inter and accent, so every card is family
+// the space cards' chrome — the site's paper, Inter and mark, so every card is family
 const INTER = readFileSync(join(root, 'web/fonts/inter-latin.woff2')).toString('base64')
 const PAPER = `@font-face{ font-family:Inter; font-weight:400 800; src:url(data:font/woff2;base64,${INTER}) format('woff2') }
 *{ margin:0; box-sizing:border-box }
 body{ width:1200px; height:630px; padding:56px 60px 48px; display:flex; flex-direction:column;
-	font-family:Inter,-apple-system,'Helvetica Neue',Arial,sans-serif; background:oklch(0.978 0.004 245); color:oklch(0.17 0.015 248) }
-.dia{ width:22px; height:22px; transform:rotate(45deg); background:oklch(0.69 0.16 42); flex:none }`
+	font-family:Inter,-apple-system,'Helvetica Neue',Arial,sans-serif; background:oklch(0.978 0.004 245); color:oklch(0.17 0.015 248) }`
+const MARK = `data:image/png;base64,${readFileSync(join(root, 'web/img/locus-192.png')).toString('base64')}`   // the site's mark, the favicon
 
-// the site card: the hero as the page draws it – its locus (js/locus.js: the horseshoe filled, the Limits named, the
-// current color on it), its title and line read from web/index.html (the years from the data, as the landing stamps
-// them) – in the page's own stylesheet, at the hero's own sizes: a 600 × 315 page shot at 2×. Only the card's
-// layout is its own. Served from the repo under a routed origin, so its modules import as the page's do
+// the site card: the film's opening frame – the hero's locus at rest (js/locus.js: the horseshoe filled, the current
+// color on it) beside the name, the atlas in two lines and its three facts – in the page's own stylesheet and
+// tokens: a 600 × 315 page shot at 2×. The count and the years from the data, as the landing stamps them. Served from the
+// repo under a routed origin, so its modules import as the page's do
 const ORIGIN = 'http://og.local', K = 2
 const years = SPACES.map((s) => +meta[s].year).filter(Boolean), Y = { y0: Math.min(...years), y1: Math.max(...years) }
+const HUES = 'linear-gradient(to right in oklch longer hue, oklch(0.75 0.125 30), oklch(0.75 0.125 30))'   // the top line: the hue wheel whole, at one lightness and chroma – the most chroma sRGB holds at every hue at L 0.75
 const siteHTML = () => { const index = readFileSync(join(root, 'web/index.html'), 'utf8')
-	const hero = (id) => index.match(new RegExp(`id="${id}"[^>]*>([\\s\\S]*?)</(h1|p)>`))[1].replace(/(<span id="(y0|y1)">)[^<]*/g, (m, a, k) => a + Y[k])
-	const [, kicker, title] = hero('hero-t').match(/^(<span class="hk">[^<]*<\/span>)\s*([\s\S]*)$/)   // the kicker its own row, over the title
+	const shield = index.match(/<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5[\s\S]*?<\/svg>/)?.[0]
+	if (!shield) throw new Error('generate-og: the intro\'s shield mark (Reference-tested) is gone from web/index.html')   // the intro's own marks: Reference-tested's shield, Public domain's turned ©
 	return `<!doctype html><html lang="en"><meta charset="utf-8"><link href="./tokens.css" rel="stylesheet"><style>${index.match(/<style>([\s\S]*?)<\/style>/)[1]}</style><style>
 body{ overflow:hidden }
 .hero{ display:grid; place-items:center; width:auto; height:100vh; margin:0; padding:0 }   /* the page's hero – the top line's glow under it – the card its frame */
-.og{ display:grid; grid-template-columns:auto auto; column-gap:var(--s8) }   /* the locus as tall as the title and its line, the kicker over them standing clear, the pair centred */
-.og .hlocus{ grid-area:2 / 1 } .og>:not(.hlocus){ grid-column:2 }
-.hlocus{ position:relative; display:block; height:100%; aspect-ratio:290/318; --tkc:var(--c) }
-.hlocus .lims{ opacity:1 }   /* the Limits named, as at the page's first paint */
-.og .hh{ font-size:var(--t6) }
-.og .hsub{ margin-bottom:0; contain:inline-size }   /* the line wraps to the title's measure, never sets it */
-.ft{ position:absolute; bottom:var(--s6); display:flex; gap:var(--s4); font-size:var(--t2); color:var(--soft) } .ft b{ color:var(--ink) }   /* at the card's foot, on the words' edge (its static place) */
-</style><body style="--cur:var(--c)"><div class="mtop"></div>
+.og{ display:grid; grid-template-columns:auto auto; column-gap:var(--s8) }   /* the locus as tall as the words beside it, the pair centred */
+.hlocus{ position:relative; display:block; align-self:center; height:80%; aspect-ratio:290/318; --tkc:var(--c) }   /* at rest – the colors, no outlines – a little under the words' height */
+.ow .kick{ margin:0 0 var(--s1); font-size:var(--t3); color:var(--soft) }
+.ow .hh{ font-size:var(--t6) }
+.ow .sl{ margin:var(--s3) 0 0; font-size:var(--t3); line-height:1.4; color:var(--body) } .ow .sl span{ display:block; white-space:nowrap }
+.ow .facts{ display:flex; gap:var(--s5); margin:var(--s5) 0 0; padding:0; list-style:none; font-size:var(--t2); font-weight:650; color:var(--ink) }
+.ow .facts li{ display:flex; align-items:center; gap:var(--s2) } .ow .facts .ic{ --ic:1.1em; width:var(--ic); height:var(--ic) }
+.ow .facts .pdm{ width:1.1em; text-align:center; rotate:180deg; font-weight:500 }
+</style><body style="--cur:${HUES}"><div class="mtop"></div>
 <section class="hero"><div class="og">${heroLocus('', 'Surface', 'Light').replace('class="hlocus"', 'class="hlocus lit"')}
-<p class="hh">${kicker}</p><div><h1 class="hh">${title}</h1><p class="hsub">${hero('hsub')}</p><div class="ft"><b>color-space.io</b>${spaceCount} color spaces</div></div></div></section>
+<div class="ow"><p class="kick">A reference guide</p><h1 class="hh">color-space.io</h1>
+<p class="sl"><span>Open atlas of color spaces: from web to print,</span><span>pickers to research, ${Y.y0} to ${Y.y1}.</span></p>
+<ul class="facts"><li>${spaceCount} spaces</li><li>${shield}verified</li><li><span class="pdm" aria-hidden="true">©</span>public domain</li></ul></div></div></section>
 <script type="module">
 import { locusFill, limPath, GXY } from './js/locus.js'
 import { space, xyOf } from './js/core.js'
@@ -118,18 +122,18 @@ export const cardHTML = (s) => {
 	const bars = ch.map((c, i) => `<div class="bar"><span title="${esc(c.name)}">${esc(c.symbol)}</span><i style="background:${gradient(s, i)}"></i></div>`).join('')
 	return `<!doctype html><meta charset="utf-8"><style>${PAPER}
 h1{ font-weight:800; letter-spacing:-.02em }
-.sub{ display:flex; align-items:flex-start; gap:16px; margin-top:22px; font-size:28px; line-height:1.35; color:oklch(0.34 0.014 246); max-width:1000px } .sub .dia{ margin-top:8px }
+.sub{ margin-top:22px; font-size:28px; line-height:1.35; color:oklch(0.34 0.014 246); max-width:1000px }
 .bars{ flex:1; min-height:0; margin:44px 0 28px; display:flex; flex-direction:column; gap:14px }
 .bar{ flex:1; display:flex; align-items:stretch; gap:18px; min-height:0 }
 .bar span{ flex:none; width:44px; align-self:center; font-size:26px; font-weight:700; color:oklch(0.52 0.012 246); text-align:right }
 .bar i{ flex:1 }
-.foot{ margin-top:auto; display:flex; justify-content:space-between; align-items:baseline; font-size:24px; color:oklch(0.52 0.012 246) }
-.foot .rng{ font-weight:400 } .foot .url{ font-weight:700 }
+.foot{ margin-top:auto; display:flex; justify-content:space-between; align-items:center; font-size:24px; color:oklch(0.52 0.012 246) }
+.foot .rng{ display:flex; gap:36px } .foot .url{ display:flex; align-items:center; gap:12px; font-weight:700 } .foot .url img{ width:34px; height:34px }
 </style><body>
 <h1 style="font-size:${h1px}px">${esc(name)}</h1>
-<div class="sub"><span class="dia"></span>${esc(sub) || `${ch.length}-channel color space`}</div>
+<div class="sub">${esc(sub) || `${ch.length}-channel color space`}</div>
 <div class="bars">${bars}</div>
-<div class="foot"><span class="rng">${esc(ch.map(fmtRange).join(' · '))}</span><span class="url">color-space.io/${s}</span></div>
+<div class="foot"><span class="rng">${ch.map(c => `<span>${esc(fmtRange(c))}</span>`).join('')}</span><span class="url"><img src="${MARK}" alt="">color-space.io/${s}</span></div>
 </body>`
 }
 

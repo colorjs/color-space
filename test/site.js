@@ -158,3 +158,12 @@ test('integrity — display names read as names; nbh keeps them whole', async ()
 	is(nbh('Adams–Nickerson Lab'), 'Adams–Nickerson Lab', 'an en dash is not a hyphen')
 	is(SPACES.every(s => { const d = disp(s), n = nbh(d); return n.length === d.length && n.replace(/\u2011/g, '-') === d }), true, 'every name: hyphens swap 1:1, nothing else changes')
 })
+
+// a space's social card: its ranges set apart by space, not dots; the site's mark at the link; no retired rhombus
+test('integrity — space cards: ranges without dots, the mark before the link', async () => {
+	const { cardHTML } = await import('../scripts/generate-og.js')
+	const html = cardHTML('oklch')
+	is(html.includes(' · '), false, 'no middle dot between the channel ranges')
+	is(/<span class="url"><img src="data:image\/png;base64,/.test(html), true, 'the site mark leads the link')
+	is(html.includes('class="dia"'), false, 'no rhombus before the description')
+})
