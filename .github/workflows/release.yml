@@ -50,11 +50,12 @@ jobs:
             exit 1
           fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-      - name: Build and verify source, browsers, GPU and packed consumers
+      # the library's gate alone – the site (its build, browsers, accessibility) is pages.yml's
+      - name: Build and verify the library, GPU kernels and packed consumers
         run: |
           npm run prepare
-          npm run landing
           npm test
+          npm run test:gpu
           npm run test:package
           npm audit --omit=dev
       # MCP Registry (stable releases only): io.github.colorjs/color-space, granted to this
@@ -85,7 +86,7 @@ jobs:
           fi
       - name: Publish the tested commit with provenance
         if: steps.registry.outputs.exists != 'true'
-        run: npm publish --access public --provenance --tag "${{ inputs['dist-tag'] }}"
+        run: npm publish --ignore-scripts --access public --provenance --tag "${{ inputs['dist-tag'] }}"   # the gate above ran; publish what it tested, not a second run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Align next with the stable release

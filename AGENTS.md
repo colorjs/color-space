@@ -47,6 +47,7 @@ not math), never "not convertible."
 ## Verify before "done"
 
 Rebuild (`npm run landing`), then check visually via Playwright (cache-bust every nav with
-`?cb=<digits>`; `pkill -f mcp-chrome-<id>` if the session wedges). Run `npm test` — 0 `not ok`.
+`?cb=<digits>`; `pkill -f mcp-chrome-<id>` if the session wedges). Run `npm test` (the library) and `npm run test:site` (the page, its build, browsers,
+accessibility) — 0 `not ok`.
 Confirm div-balance and `node --check` on the extracted module. UI: z-index, clipping, focus,
 the full open→interact→close lifecycle. Cite an authoritative source for any reference value/range.

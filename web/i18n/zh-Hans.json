@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"另外 {n} 个","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES 变换","h":"79d7553e"},
 "ui.footer.atlas": {"t":"跨学科色彩空间的开放交互式图谱与参考手册：涵盖屏幕、印刷介质与颜色科学。始于 2016 年色彩空间转换算法的收集整理。","h":"25accd4b"},
-"ui.footer.by": {"t":"由 <a href=\"https://github.com/dy\">dy</a> 制作","h":"007c3588"},
+"ui.footer.by": {"t":"由 <a href=\"https://github.com/dy\">dy</a> 为 <a href=\"https://github.com/colorjs\">colorjs</a> 制作","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0——公有领域","h":"35b20f84"},
 "ui.footer.checked": {"t":"对照基准","h":"f61493ee"},
 "ui.footer.cite": {"t":"引用","h":"17fafd97"},

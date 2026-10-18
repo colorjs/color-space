@@ -35,24 +35,26 @@ body{ width:1200px; height:630px; padding:56px 60px 48px; display:flex; flex-dir
 
 // the site card: the hero as the page draws it – its locus (js/locus.js: the horseshoe filled, the Limits named, the
 // current color on it), its title and line read from web/index.html (the years from the data, as the landing stamps
-// them) – in the page's own stylesheet, at the hero's own sizes: an 800 × 420 page shot at 1.5×. Only the card's
+// them) – in the page's own stylesheet, at the hero's own sizes: a 600 × 315 page shot at 2×. Only the card's
 // layout is its own. Served from the repo under a routed origin, so its modules import as the page's do
-const ORIGIN = 'http://og.local', K = 1.5
+const ORIGIN = 'http://og.local', K = 2
 const years = SPACES.map((s) => +meta[s].year).filter(Boolean), Y = { y0: Math.min(...years), y1: Math.max(...years) }
 const siteHTML = () => { const index = readFileSync(join(root, 'web/index.html'), 'utf8')
 	const hero = (id) => index.match(new RegExp(`id="${id}"[^>]*>([\\s\\S]*?)</(h1|p)>`))[1].replace(/(<span id="(y0|y1)">)[^<]*/g, (m, a, k) => a + Y[k])
+	const [, kicker, title] = hero('hero-t').match(/^(<span class="hk">[^<]*<\/span>)\s*([\s\S]*)$/)   // the kicker its own row, over the title
 	return `<!doctype html><html lang="en"><meta charset="utf-8"><link href="./tokens.css" rel="stylesheet"><style>${index.match(/<style>([\s\S]*?)<\/style>/)[1]}</style><style>
-body{ display:grid; place-items:center; height:100vh; overflow:hidden }
-.og{ display:flex; gap:var(--s12) }   /* the locus and the words beside it, as tall as it, the pair centred */
-.hlocus{ position:relative; display:block; flex:none; height:17.5rem; aspect-ratio:290/318; --tkc:var(--c) }
+body{ overflow:hidden }
+.hero{ display:grid; place-items:center; width:auto; height:100vh; margin:0; padding:0 }   /* the page's hero – the top line's glow under it – the card its frame */
+.og{ display:grid; grid-template-columns:auto auto; column-gap:var(--s8) }   /* the locus as tall as the title and its line, the kicker over them standing clear, the pair centred */
+.og .hlocus{ grid-area:2 / 1 } .og>:not(.hlocus){ grid-column:2 }
+.hlocus{ position:relative; display:block; height:100%; aspect-ratio:290/318; --tkc:var(--c) }
 .hlocus .lims{ opacity:1 }   /* the Limits named, as at the page's first paint */
-.ow{ display:flex; flex-direction:column; justify-content:space-between }
-.ow .hh{ font-size:var(--t6) }
-.ow .hsub{ margin-bottom:0; contain:inline-size }   /* the line wraps to the title's measure, never sets it */
-.ow .ft{ display:flex; gap:var(--s4); font-size:var(--t2); color:var(--soft) } .ow .ft b{ color:var(--ink) }
+.og .hh{ font-size:var(--t6) }
+.og .hsub{ margin-bottom:0; contain:inline-size }   /* the line wraps to the title's measure, never sets it */
+.ft{ position:absolute; bottom:var(--s6); display:flex; gap:var(--s4); font-size:var(--t2); color:var(--soft) } .ft b{ color:var(--ink) }   /* at the card's foot, on the words' edge (its static place) */
 </style><body style="--cur:var(--c)"><div class="mtop"></div>
-<div class="og">${heroLocus('', 'Surface', 'Light').replace('class="hlocus"', 'class="hlocus lit"')}
-<div class="ow"><div><h1 class="hh">${hero('hero-t')}</h1><p class="hsub">${hero('hsub')}</p></div><div class="ft"><b>color-space.io</b>${spaceCount} color spaces</div></div></div>
+<section class="hero"><div class="og">${heroLocus('', 'Surface', 'Light').replace('class="hlocus"', 'class="hlocus lit"')}
+<p class="hh">${kicker}</p><div><h1 class="hh">${title}</h1><p class="hsub">${hero('hsub')}</p><div class="ft"><b>color-space.io</b>${spaceCount} color spaces</div></div></div></section>
 <script type="module">
 import { locusFill, limPath, GXY } from './js/locus.js'
 import { space, xyOf } from './js/core.js'

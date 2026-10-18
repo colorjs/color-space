@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"他 {n} 件","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES変換","h":"79d7553e"},
 "ui.footer.atlas": {"t":"ディスプレイから印刷、色彩科学までを網羅する、オープンインタラクティブアトラス兼リファレンス。色空間変換のコレクションとして2016年に開始。","h":"25accd4b"},
-"ui.footer.by": {"t":"制作：<a href=\"https://github.com/dy\">dy</a>","h":"007c3588"},
+"ui.footer.by": {"t":"<a href=\"https://github.com/colorjs\">colorjs</a> のために <a href=\"https://github.com/dy\">dy</a> が制作","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0：パブリックドメイン","h":"35b20f84"},
 "ui.footer.checked": {"t":"照合先","h":"f61493ee"},
 "ui.footer.cite": {"t":"引用","h":"17fafd97"},

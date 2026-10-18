@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"{n} more","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES transforms","h":"79d7553e"},
 "ui.footer.atlas": {"t":"An open interactive atlas and reference guide to cross-disciplinary color spaces, from web to print and vision science. Started in 2016 as a collection of color-space conversions.","h":"25accd4b"},
-"ui.footer.by": {"t":"Made by <a href=\"https://github.com/dy\">dy</a>","h":"007c3588"},
+"ui.footer.by": {"t":"Made by <a href=\"https://github.com/dy\">dy</a> for <a href=\"https://github.com/colorjs\">colorjs</a>","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – public domain","h":"35b20f84"},
 "ui.footer.checked": {"t":"Checked against","h":"f61493ee"},
 "ui.footer.cite": {"t":"Cite","h":"17fafd97"},

@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"ещё {n}","h":"84ab0eec"},
 "ui.footer.aces": {"t":"Преобразования ACES","h":"79d7553e"},
 "ui.footer.atlas": {"t":"Открытый интерактивный атлас и справочник междисциплинарных цветовых пространств: от веб-сайтов до полиграфии и теории цвета. Проект начался в 2016 году как коллекция преобразований цвета.","h":"25accd4b"},
-"ui.footer.by": {"t":"Автор: <a href=\"https://github.com/dy\">dy</a>","h":"007c3588"},
+"ui.footer.by": {"t":"Сделано <a href=\"https://github.com/dy\">dy</a> для <a href=\"https://github.com/colorjs\">colorjs</a>","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – общественное достояние","h":"35b20f84"},
 "ui.footer.checked": {"t":"Сверено с","h":"f61493ee"},
 "ui.footer.cite": {"t":"Цитировать","h":"17fafd97"},

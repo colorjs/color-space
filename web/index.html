@@ -144,7 +144,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 .cells .fill{ flex:1 }   /* the row's controls sit at its right end */
 .cell{ flex:none; display:flex; align-items:center; gap:var(--s2); padding:var(--s2) var(--s3); font:inherit; text-align:start; color:var(--ink); background:none; border:0; cursor:pointer; transition:background-color var(--dur-micro) var(--ease-out) }
 #c-layout i{ display:contents } :root:not([data-view="list"]) #c-layout [data-from="list"],:root[data-view="list"] #c-layout [data-from="grid"]{ display:none }   /* the build's two marks, the kept layout's shown before any script */
-:is(#c-view,#c-layout,.thm,.dctl){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair before each item, kept off the row's edges – none before the first of the right group */
+:is(#c-view,#c-layout,.thm,.gh,.dctl){ background:linear-gradient(var(--hair),var(--hair)) left center / var(--rule-hair) 50% no-repeat }   /* a short hair before each item, kept off the row's edges – none before the first of the right group */
 .cells .cell:is(:hover,[aria-expanded="true"]) :is(.ci,.ic,small){ color:var(--ink) }   /* hover inks the mark – no fill: the row stays clear, its edge seen */
 .cell .ci{ display:grid; place-items:center; color:var(--soft) }
 .cell .ci :is(.ic,.fi){ --ic:18px } .cells .ic{ stroke-width:calc(2 * 1.25 / 1.5) }   /* the row's line marks drawn at the moon's 1.25px – 2 of the 24-grid is 1.5px at 18px */
@@ -256,7 +256,8 @@ body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-inde
 	body.mopen.mdock .hcolor:has(#csug:not([hidden])){ z-index:calc(var(--z-modal) + 2) } }   /* the field's suggestions over the card – another color picked by the dossier's light */
 @media(min-width:1080px){ body.mopen.mdock .hcolor{ max-width:var(--maxw); margin-inline:auto } }
 /* the theme and the source close the row, icons as the lenses are */
-.cells .thm{ color:var(--soft) } .cells .thm:is(:hover,:focus-visible){ color:var(--ink) }
+.cells :is(.thm,.gh){ color:var(--soft) } .cells :is(.thm,.gh):is(:hover,:focus-visible){ color:var(--ink) } .cells .gh{ --ic:16px }
+@media(width < 48rem){ .cells .gh{ display:none } }   /* a phone's row is full: the source lives in the footer */
 .thm .sun,:root[data-theme="dark"] .thm .moon{ display:none } :root[data-theme="dark"] .thm .sun{ display:block }   /* the mark is the theme it turns to – in the markup, picked by the pre-paint data-theme */
 /* the language select (stamped by the build where there is a language to choose), before search: a cell as the
    lenses are – the mark alone, as wide as theirs – with the native select unseen over it, its own menu, keys and name */
@@ -588,7 +589,7 @@ body.himg #imgfloat{ display:block }
 	.prem{ margin-inline-start:.2em }
 	.frow{ grid-template-columns:4.25rem minmax(0,1fr) }
 }
-@media(pointer:coarse){ .cells .thm{ min-width:var(--tap); justify-content:center } .mnav,.seg button,.sec2 .upbtn{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }   /* tabrow buttons stay at their book padding — main-page and dossier tabs share the one .tabrow recipe untouched */
+@media(pointer:coarse){ .cells :is(.thm,.gh){ min-width:var(--tap); justify-content:center } .mnav,.seg button,.sec2 .upbtn{ min-height:var(--tap) } .mx{ width:var(--tap); height:var(--tap) } .pl .pmode{ width:var(--tap); height:var(--tap) }   /* tabrow buttons stay at their book padding — main-page and dossier tabs share the one .tabrow recipe untouched */
 	.dpop .tag{ min-height:24px; min-width:24px }   /* chips at their catalog size — 24px is the WCAG 2.5.8 floor, not the 44px inflation */
 }   /* the 16px zoom-kill floor lives at the stylesheet's END — here it lost the cascade to every later input rule */
 /* ── catalog ── */
@@ -1271,8 +1272,8 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .fcols li{ margin-top:var(--s2); font-size:var(--t2); line-height:1.4; white-space:nowrap }
 .ftr a{ color:inherit }
 .ftr .cite{ font:inherit; font-weight:500; color:inherit; background:none; border:0; padding:0; cursor:pointer }   /* a button (it opens, not navigates) dressed as its link neighbours */
-.legal{ display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker, the license and the dedication, at the right */
-.legal span{ display:flex; gap:var(--s5) } .legal .lby{ display:inline }   /* the maker's line: the words plain, the name the link */
+.legal{ display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker, the version, the license and the dedication, one line at the right */
+.legal>span{ display:flex; gap:var(--s5) } .legal .lby{ display:inline }   /* the maker's line: the words plain, the name the link */
 @media(max-width:1079px){ .fcols{ grid-template-columns:repeat(2,minmax(max-content,1fr)) } .fbody{ grid-template-columns:minmax(0,1fr) } .fend{ display:contents } .fatlas{ order:-1; text-align:left; max-width:40rem } .legal{ justify-content:flex-start } }   /* narrower: one column, the atlas said first, the links, the maker last */
 @media(max-width:740px){ .fbody{ grid-template-columns:1fr; gap:var(--s6) } .fend{ align-items:flex-start; gap:var(--s6) } .fcols{ row-gap:var(--s6) } .fatlas{ text-align:left; max-width:none } .legal{ align-self:stretch; justify-content:center } }   /* one column: closer, the maker and the license its centred last line */
 .ftr :focus-visible{ outline-color:currentColor }
@@ -1303,6 +1304,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<button class="cell lens" type="button" id="c-layout" data-view="list" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"><i data-from="grid"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v1.75H3zM8.5 3h4.5v1.75H8.5zM3 5.75h4.5v1.75H3zM8.5 5.75h4.5v1.75H8.5zM3 8.5h4.5v1.75H3zM8.5 8.5h4.5v1.75H8.5zM3 11.25h4.5v1.75H3zM8.5 11.25h4.5v1.75H8.5z"/></svg></i><i data-from="list"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/></svg></i></span></button>
 	<span class="dctl"><select id="lang" aria-label="Language" title="Language" data-i18n="aria-label:ui.header.lang title:ui.header.lang"><option value="en" lang="en" selected>English</option></select></span>
 	<button class="cell thm" type="button" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"><svg class="moon" width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg><svg class="sun" width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></button>
+	<a class="cell gh" href="https://github.com/colorjs/color-space" title="GitHub" aria-label="GitHub"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
@@ -1614,7 +1616,7 @@ color-space/plugins/figma/manifest.json
 		</div>
 		<div class="fend">
 			<p class="fatlas" data-i18n="ui.footer.atlas">An open interactive atlas and reference guide to cross-disciplinary color spaces, from web to print and vision science. Started in 2016 as a collection of color-space conversions.</p>
-			<p class="legal"><span class="lby" data-i18n="ui.footer.by">Made by <a href="https://github.com/dy">dy</a></span><span><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></span></p>
+			<p class="legal"><span class="lby" data-i18n="ui.footer.by">Made by <a href="https://github.com/dy">dy</a> for <a href="https://github.com/colorjs">colorjs</a></span><span><a class="tnum" href="https://github.com/colorjs/color-space/releases">v<span data-fact="ver">3.4.0</span></a><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></span></p>
 		</div>
 	</div>
 </footer>

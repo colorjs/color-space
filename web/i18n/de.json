@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"{n} weitere","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES-Transformationen","h":"79d7553e"},
 "ui.footer.atlas": {"t":"Ein offener interaktiver Atlas und Farbraum-Referenz: von Bildschirmen über Druck bis zur Farbwissenschaft. Begonnen 2016 als Sammlung von Farbraumumrechnungen.","h":"25accd4b"},
-"ui.footer.by": {"t":"Von <a href=\"https://github.com/dy\">dy</a>","h":"007c3588"},
+"ui.footer.by": {"t":"Von <a href=\"https://github.com/dy\">dy</a> für <a href=\"https://github.com/colorjs\">colorjs</a>","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – gemeinfrei","h":"35b20f84"},
 "ui.footer.checked": {"t":"Abgeglichen mit","h":"f61493ee"},
 "ui.footer.cite": {"t":"Zitieren","h":"17fafd97"},

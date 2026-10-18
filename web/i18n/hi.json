@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"{n} और","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES ट्रांसफ़ॉर्म","h":"79d7553e"},
 "ui.footer.atlas": {"t":"डिजिटल स्क्रीन से लेकर प्रिंट और रंग विज्ञान तक, अंतःविषय कलर स्पेस का खुला इंटरैक्टिव एटलस और संदर्भ गाइड। कलर-स्पेस रूपांतरणों के संग्रह के रूप में 2016 में शुरू हुआ।","h":"25accd4b"},
-"ui.footer.by": {"t":"<a href=\"https://github.com/dy\">dy</a> द्वारा निर्मित","h":"007c3588"},
+"ui.footer.by": {"t":"<a href=\"https://github.com/colorjs\">colorjs</a> के लिए <a href=\"https://github.com/dy\">dy</a> द्वारा निर्मित","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – पब्लिक डोमेन","h":"35b20f84"},
 "ui.footer.checked": {"t":"इनसे मिलान","h":"f61493ee"},
 "ui.footer.cite": {"t":"हवाला दें","h":"17fafd97"},

@@ -44,6 +44,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # deploy gate — source, browser/GPU, accessibility and packed consumers
       - run: npm test
+      - run: npm run test:gpu
+      - run: npm run test:site
       - run: npm run test:package
       - run: npm run landing
       - uses: actions/upload-pages-artifact@v3

@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"altri {n}","h":"84ab0eec"},
 "ui.footer.aces": {"t":"Trasformazioni ACES","h":"79d7553e"},
 "ui.footer.atlas": {"t":"Un atlante interattivo aperto e guida di riferimento per spazi colore interdisciplinari, dagli schermi alla stampa e alla scienza del colore. Nato nel 2016 come raccolta di conversioni di spazi colore.","h":"25accd4b"},
-"ui.footer.by": {"t":"Realizzato da <a href=\"https://github.com/dy\">dy</a>","h":"007c3588"},
+"ui.footer.by": {"t":"Realizzato da <a href=\"https://github.com/dy\">dy</a> per <a href=\"https://github.com/colorjs\">colorjs</a>","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – pubblico dominio","h":"35b20f84"},
 "ui.footer.checked": {"t":"Confrontato con","h":"f61493ee"},
 "ui.footer.cite": {"t":"Cita","h":"17fafd97"},

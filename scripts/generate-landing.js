@@ -87,7 +87,7 @@ const catalog = () => { const bare = catHTML(undefined, undefined, { adapt: true
 const years = SPACES.map((s) => +meta[s].year).filter(Boolean), kb = (b) => Math.round(gzipSync(b, { level: 9 }).length / 1000)
 const FACT = { nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years),   // nn: the row's count
 	jskb: kb(buildSync({ entryPoints: [join(root, 'index.js')], bundle: true, minify: true, format: 'esm', write: false }).outputFiles[0].contents),
-	wakb: kb(readFileSync(join(root, 'dist/color-space.wasm'))), wan: WASM.length, wal: WASM.join(', ') }
+	wakb: kb(readFileSync(join(root, 'dist/color-space.wasm'))), wan: WASM.length, wal: WASM.join(', '), ver: version }   // ver: the footer's
 const counts = (h) => h.replace(/(<span (?:id="(?:nn|y0|y1)"|data-fact="\w+")>)[^<]*(<\/span>)/g, (m, a, b) => { const k = a.match(/"(\w+)"/)[1]
 	if (!(k in FACT)) throw new Error(`generate-landing: no fact "${k}"`); return a + FACT[k] + b })
 

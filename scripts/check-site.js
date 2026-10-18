@@ -225,7 +225,7 @@ try {
 	assert.deepEqual(await page.evaluate(()=>['range','geometry','signal','encoding','white','channels','coverage'].filter(k=>{ const body=document.querySelectorAll(`.mbody[data-m="${k}"]`)
 		return body.length!==1||!body[0].closest('#m-more') })),[],'each facet lives once, in the Filters menu')
 	await toCatalog(page)
-	assert.equal(await page.locator('.cells .cell:visible').count(), 5, 'the row: Filters, search, the view\'s one menu, the layout and the theme – a pick adds no cell')
+	assert.equal(await page.locator('.cells .cell:visible').count(), 6, 'the row: Filters, search, the view\'s one menu, the layout, the theme and the source – a pick adds no cell')
 	await page.locator('#fcov').fill('0')
 	assert.equal(await page.locator('.ent[data-s="rgb"]').isVisible(), true, 'the full interval again restores the catalog')
 	assert.equal(await page.evaluate(()=>[document.querySelector('#c-more b').textContent,document.querySelector('#c-more b.on')].join('|')), '|', 'let go, Filters is plain again')

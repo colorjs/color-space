@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"{n}개 더","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES 변환","h":"79d7553e"},
 "ui.footer.atlas": {"t":"화면부터 인쇄, 색채 과학까지 아우르는 오픈 인터랙티브 아틀라스이자 레퍼런스 가이드. 색 공간 변환 모음으로 2016년에 시작되었습니다.","h":"25accd4b"},
-"ui.footer.by": {"t":"<a href=\"https://github.com/dy\">dy</a> 제작","h":"007c3588"},
+"ui.footer.by": {"t":"<a href=\"https://github.com/colorjs\">colorjs</a>를 위해 <a href=\"https://github.com/dy\">dy</a> 제작","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – 퍼블릭 도메인","h":"35b20f84"},
 "ui.footer.checked": {"t":"대조 기준","h":"f61493ee"},
 "ui.footer.cite": {"t":"인용","h":"17fafd97"},

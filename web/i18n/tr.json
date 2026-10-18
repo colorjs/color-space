@@ -1419,7 +1419,7 @@
 "ui.fold.more": {"t":"{n} tane daha","h":"84ab0eec"},
 "ui.footer.aces": {"t":"ACES dönüşümleri","h":"79d7553e"},
 "ui.footer.atlas": {"t":"Ekranlardan baskıya ve renk bilimine uzanan açık etkileşimli atlas ve başvuru rehberi. 2016 yılında renk uzayı dönüşümleri koleksiyonu olarak başladı.","h":"25accd4b"},
-"ui.footer.by": {"t":"<a href=\"https://github.com/dy\">dy</a> tarafından yapıldı","h":"007c3588"},
+"ui.footer.by": {"t":"<a href=\"https://github.com/colorjs\">colorjs</a> için <a href=\"https://github.com/dy\">dy</a> tarafından yapıldı","h":"3e696fd2"},
 "ui.footer.cc0": {"t":"CC0 1.0 – kamu malı","h":"35b20f84"},
 "ui.footer.checked": {"t":"Doğrulama","h":"f61493ee"},
 "ui.footer.cite": {"t":"Atıf","h":"17fafd97"},
