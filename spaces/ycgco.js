@@ -13,6 +13,7 @@
  * @year 2003
  * @by Malvar & Sullivan (Microsoft)
  * @use Low-complexity reversible luma/chroma transform used in H.264/AVC and HEVC coding; current, specific coding modes.
+ * @aka YCoCg
  * @channel {Y} 0 1 Luma
  * @channel {Cg} -0.5 0.5 Green-magenta chroma
  * @channel {Co} -0.5 0.5 Orange-blue chroma

@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="page.title">Color spaces – an open atlas of formulas and conversions | color-space</title>
-<meta name="description" content="An open collection of color spaces with conventional ranges, cited references, and one conversion API. Zero dependencies, public domain." data-i18n="content:page.desc">
+<title data-i18n="page.title">Color spaces – complete list of 205 spaces, converter &amp; formulas | color-space</title>
+<meta name="description" content="An open collection of 205 color spaces: complete list, conversion formulas, conventional ranges, 3D charts and LUT export. Zero dependencies, public domain." data-i18n="content:page.desc">
 <link rel="canonical" href="https://color-space.io/">
-<meta property="og:title" content="Color spaces – an open atlas of formulas and conversions | color-space" data-i18n="content:page.title">
-<meta property="og:description" content="An open collection of color spaces. Convert any space to any other with conventional ranges and independently anchored formulas." data-i18n="content:page.og-desc">
+<meta property="og:title" content="Color spaces – complete list of 205 spaces, converter &amp; formulas | color-space" data-i18n="content:page.title">
+<meta property="og:description" content="An open collection of 205 color spaces. Convert any space to any other with conventional ranges, formulas and 3D charts." data-i18n="content:page.og-desc">
 <meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="color-space – color spaces in one open collection" data-i18n="content:page.og-alt">
@@ -117,7 +117,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 /* the field: the row's own color rests in it (a view timeline carries it up into the row, below) – the field is its
    frame, an image on the right. As tall as the row, its box hung out by the row's inset (s3): the color lands on the
    field's pixels, and the field's on the row's */
-.hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--hang)); max-width:44rem; min-height:var(--cells-h); transition:min-height var(--dur-short) var(--ease-out); margin-inline-start:calc(-1 * var(--hang)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
+.hfield{ position:relative; display:flex; align-items:center; width:calc(100% + var(--hang)); max-width:44rem; min-height:var(--cells-h); margin-inline-start:calc(-1 * var(--hang)); padding:0 var(--s1) 0 0; background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
 .hql{ flex:1; align-self:stretch; cursor:text }   /* the frame's empty run: a click there types the color */
 .hib{ position:relative; display:grid; flex:none; place-items:center; width:var(--hibw); height:var(--hibw); padding:0; color:var(--soft); background:none; border:0; cursor:pointer; --ic:20px; transition:color var(--dur-micro) var(--ease-out),background-color var(--dur-micro) var(--ease-out) }   /* dim → ink, as every icon */
 :root{ --hibw:var(--s12) } @media(width < 36rem){ :root{ --hibw:var(--tap) } .hib{ --ic:18px } }   /* the field's buttons: a phone's a touch target and the row's icon, the field's words the room */
@@ -150,7 +150,6 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 /* the search, the count and Filters: what narrows the catalog and how many spaces it leaves – "⌕ 32 spaces ⧩ ×": the
    picks are named by Filters' inked mark and its tooltip, and one × lets the search and every pick go. search · count ·
    Filters | view | layout | language | theme, on every screen, always pinned; the row's left is the color's */
-.cells.under :is(.qx,.count){ visibility:hidden }   /* under the docked color: out of sight, their room kept – nothing shifts as it comes and goes */
 .cells .fclr{ align-self:center; margin-inline:calc(-1 * var(--s2)) var(--s2) }   /* the ×, close to the Filters it clears, clear of the view's hair after it */
 .count{ flex:none; padding:0 0 0 var(--s3); font:inherit; font-size:var(--t2); font-weight:700; color:var(--body); white-space:nowrap; background:none; border:0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* how many the filters leave – a door to them, as Filters is */
 .count:is(:hover,[aria-expanded="true"]){ color:var(--ink) } .count:focus-visible{ outline-offset:-2px }
@@ -177,25 +176,25 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 .dpop .lnk:hover{ color:var(--ink) }
 .dpop .msec[hidden]{ display:none }
 #m-more .msq{ display:none }
-/* the menus as a set of dropdowns, one a row: the setting's name, the pick's mark and its select, the pick's line under it
-   – Filters' facets and the view's settings alike, one column on any screen */
-:is(#m-more,#m-view){ flex-direction:column; gap:var(--s3); width:min(26rem,calc(100vw - 2 * var(--gut))) } :is(#m-more,#m-view):popover-open{ display:flex }   /* their size their own, not the open state's – one fading out as the other opens kept its size (it once fell back to the popover's, a flash) */ :is(#m-more,#m-view) .mcol{ display:contents }
-:is(#m-more,#m-view) .msec{ display:grid; grid-template-columns:6.5rem minmax(0,1fr); align-items:start; column-gap:var(--s3) }
-:is(#m-more,#m-view) .msec>header{ margin:0; min-height:var(--s8); display:flex; align-items:center; font-size:var(--t1); font-weight:600; color:var(--soft) }   /* on its control's line, the pick's line under it its own */
-:is(#m-more,#m-view) .msec>:not(header){ grid-column:2 }
-.msel{ display:flex; align-items:center; gap:var(--s2); min-width:0; min-height:var(--s8) }
-.msel .oi{ display:grid; flex:none; place-items:center; width:1.25rem; color:var(--soft) }   /* the mark's place kept where an option has none – the selects one column */ .msel .oi :is(.ic,.fi){ --ic:18px }
-.msel select{ flex:1; min-width:0; font:inherit; font-size:var(--t2); font-weight:400; color:var(--ink); background:var(--panel); border:0; border-radius:var(--radius-control); padding:var(--s1) var(--s2); cursor:pointer }
-.msel select:disabled{ opacity:.4; cursor:default }
-/* where the browser draws a select's options itself (customizable select): each option its mark before its name, as the
-   switches' – elsewhere the native list, its names alone */
-@supports (appearance:base-select){ .msel select,.msel select::picker(select){ appearance:base-select }
-	.msel select::picker(select){ border:0; border-radius:var(--radius-card); padding:var(--s1) 0; background:var(--paper); box-shadow:var(--pop-shadow) }
-	.msel option{ display:flex; align-items:center; gap:var(--s2); padding:var(--s1) var(--s3); font-size:var(--t2); color:var(--body) } .msel option:checked{ color:var(--ink) } .msel option:hover{ background:var(--panel) }
-	.msel option .oi{ display:grid; place-items:center; width:1.25rem; --ic:18px } .msel select::picker-icon{ color:var(--soft) } }
-.mseg{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s1) var(--s4); min-height:var(--s8) }   /* a switch of marks – the dossier's figure switch's own idiom: dim, the pick inked and barred; its names the tooltips */
-.mline{ display:block; min-height:1.4em; margin-top:var(--s1); font-size:var(--t1); line-height:1.4; color:var(--soft) }   /* the pick's name and line – its place kept, so a pick never moves the menu */
-.mbody .fcov{ display:block; padding:var(--s1) 0 0 } .mbody .fcov .dual{ width:100% }   /* the coverage's two thumbs the switches' width, its reading the line under */
+/* the menus one grid of settings, a setting a row: its name, then its options – each its mark and its one word, the pick
+   inked and barred (the tabs' bar, the option's width), the one pointed at a soft bar of its own; a word more in its
+   tooltip. One grid for the menu (the sections display:contents), so every name shares one column – no subgrid:
+   Chrome's renderer crashed on a subgridded popover fading out (its display transition), every close of View */
+:is(#m-more,#m-view){ grid-template-columns:max-content max-content; gap:var(--s5) var(--s6); align-items:baseline; width:max-content; max-width:calc(100vw - 2 * var(--gut)) } :is(#m-more,#m-view):popover-open{ display:grid }   /* their size their own, not the open state's – one fading out as the other opens kept its size */
+:is(#m-more,#m-view) :is(.mcol,.mbody,.msec){ display:contents } :is(#m-more,#m-view) .msec[hidden]{ display:none } #m-more>.msq{ grid-column:1 / -1 }
+:is(#m-more,#m-view) .msec>header{ grid-column:1; margin:0; font-size:var(--t2); font-weight:600; color:var(--soft) }
+:is(#m-more,#m-view) :is(.mseg,.msel,.fcov){ grid-column:2 }
+.msel{ position:relative; display:flex; align-items:center; justify-self:start; color:var(--soft) }
+.msel select{ field-sizing:content; min-width:0; appearance:none; font:inherit; font-size:var(--t2); color:var(--ink); background:var(--panel); border:0; border-radius:var(--radius-control); padding:2px var(--s5) 2px var(--s2); cursor:pointer }   /* as wide as the pick, where the browser sizes a field to its content */
+.msel>.ic{ position:absolute; right:var(--s1); --ic:12px; pointer-events:none } .msel:is(:hover,:focus-within)>.ic{ color:var(--ink) }   /* the row's own chevron (the downloads' menus'), not the browser's */
+.mseg{ display:grid; grid-template-columns:repeat(var(--cols,2),max-content); gap:var(--s1) var(--s5); align-items:baseline; justify-items:start } .mseg .mbr{ grid-column:1 / -1; height:0 }   /* two to a row (a count, four); a group its own rows */
+.mseg button{ display:flex; gap:var(--s2); padding:0; font:inherit; font-size:var(--t2); color:var(--soft); background:none; border:0; white-space:nowrap; cursor:pointer; transition:color var(--dur-micro) var(--ease-out); --ic:16px }
+.mseg button>span{ position:relative; align-self:baseline; min-inline-size:var(--mk); padding-bottom:var(--s1); text-align:center } .mseg button>:not(span){ flex:none; align-self:center }   /* the word on the name's baseline, the mark centred on the word */
+.mseg button>span::after{ content:''; position:absolute; inset-inline:0; bottom:0; height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }
+.mseg button:hover{ color:var(--ink) } .mseg button:hover>span::after{ background:var(--ulp) } .mseg button.on{ color:var(--ink) } .mseg button.on>span::after{ background:var(--ula) }   /* the bar under the word alone – a letter's or a digit's a mark wide */
+.mseg button:disabled{ opacity:.4; cursor:default } .mseg button:disabled>span::after{ background:transparent }
+.mseg .wdot{ width:var(--mk); height:var(--mk); scale:1 }   /* a white's mark a picker's size */
+.mbody .fcov{ display:flex; gap:var(--s3) } .mbody .fcov .dual{ flex:none; width:8rem } .mbody .fcov .dual{ align-self:center } .mbody .fcov b{ align-self:baseline; font-size:var(--t2); font-weight:400; text-align:start }   /* the coverage's two thumbs a short run, its reading after them */
 .wb-hues{ --w:conic-gradient(in oklch longer hue, oklch(.72 .16 30), oklch(.72 .16 30)) }   /* a hue wheel – Vision's options draw it through their own lens */
 .fi{ flex:none; width:var(--ic,14px); height:var(--ic,14px) }
 /* the current color: its mark (the picker), its value to type over, the notation, its gamut tag. It is sticky – the
@@ -203,8 +202,8 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
    from the hero's foot, --hc-up), it scrolls with the field and pins at the top, at the row's free left. Over the row,
    above it; over a card, fixed where it pins */
 .hcolor{ position:sticky; top:0; z-index:calc(var(--z-sticky-nav) + 1); height:0; margin-block:calc(-1 * var(--hc-up,0px)) var(--hc-up,0px); padding-inline:var(--gut); pointer-events:none }
-.hcolor>.cx{ position:relative; box-sizing:border-box; display:flex; align-items:center; --hbn:1; width:var(--hfw,calc(min(44rem,100% - var(--railw) - var(--railgap) + var(--hang)) - var(--s1) - var(--hibw) * var(--hbn))); min-height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--hang)); padding:calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s4) calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s3);   /* one line of the value centred in the row's height – a second line grows it */ cursor:text; pointer-events:auto }
-@media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:0; width:var(--hfw,calc(min(44rem,100%) - var(--s1) - var(--hibw) * var(--hbn))) } }   /* the frame unhung (.hmain .hfield), the field with it: its colors a padding inside the frame, never on its edge */
+.hcolor>.cx{ position:relative; box-sizing:border-box; display:flex; align-items:center; --hbn:1; --cxw0:var(--hfw,calc(min(44rem,100% - var(--railw) - var(--railgap) + var(--hang)) - var(--s1) - var(--hibw) * var(--hbn))); width:var(--cxw0); min-height:var(--cells-h); margin-inline-start:calc(var(--railw) + var(--railgap) - var(--hang)); padding:calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s4) calc((var(--cells-h) - var(--cvf) * var(--cvl)) / 2) var(--s3);   /* one line of the value centred in the row's height – a second line grows it */ cursor:text; pointer-events:auto }
+@media(max-width:1079px){ .hcolor{ max-width:64rem; margin-inline:auto } .hcolor>.cx{ margin-inline-start:0; --cxw0:var(--hfw,calc(min(44rem,100%) - var(--s1) - var(--hibw) * var(--hbn))) } }   /* the frame unhung (.hmain .hfield), the field with it: its colors a padding inside the frame, never on its edge */
 :root.eye .hcolor>.cx{ --hbn:2 } :root.eye #heye{ display:grid }   /* the frame's own width, the field's buttons off it – before any script measures: the first paint is the last (the eyedropper known before it, in the head) */
 .mhead::after{ content:''; position:absolute; z-index:-1; inset:0; background:var(--paper); pointer-events:none }   /* paper – once the field has passed under the row (--hc-dock), not before: clear only while the scroll timeline holds it so (dock), so an engine that drops the timeline mid-scroll leaves the row paper, never see-through */
 @supports (animation-timeline:scroll()){ .mhead::after{ animation:dock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - var(--s4)) var(--hc-dock,50vh) } }
@@ -217,12 +216,18 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 @supports (animation-timeline:scroll()){ :is(.mhead,.hcolor){ animation:unstick linear both; animation-timeline:scroll(root); animation-range:calc(var(--cat-end,100000px) - var(--cells-h)) var(--cat-end,100000px) }
 	/* the value eases to the row's size as the field rises into it – the scroll itself drives it, no script's frame late */
 	.hcolor{ animation:unstick linear both,cvdock linear both; animation-timeline:scroll(root),scroll(root); animation-range:calc(var(--cat-end,100000px) - var(--cells-h)) var(--cat-end,100000px),calc(var(--hc-dock,50vh) - 2 * var(--s12)) var(--hc-dock,50vh) } }
+/* …and the field's width with it, the hero's frame to the row's room (--cdw, js: to the search) – over a card, where the
+   timeline stands down, docked the row's room at once. No timeline (Firefox): the scroll's own progress through the same
+   range (--cvdp, js, a frame per scroll) drives the size and the width alike – eased, not flipped, there too */
+@supports (animation-timeline:scroll()){ .hcolor>.cx{ animation:cxdock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - 2 * var(--s12)) var(--hc-dock,50vh) } }
+@keyframes cxdock{ to{ width:var(--cdw,var(--cxw0)) } }
+body.mopen .hcolor>.cx{ animation:none } body.mopen.cdock .hcolor>.cx{ width:var(--cdw,max-content) }
+@supports not (animation-timeline:scroll()){ html .hcolor{ --cvf:calc(var(--cvf0) + (var(--t2) - var(--cvf0)) * var(--cvdp,0)) } .hcolor>.cx{ width:calc(var(--cxw0) + (var(--cdw,var(--cxw0)) - var(--cxw0)) * var(--cvdp,0)) } }
 @property --cvf{ syntax:'<length>'; inherits:true; initial-value:16px }   /* registered (px: an initial value must not lean on the root's size) – so it eases, not flips */
 @keyframes cvdock{ from{ --cvf:var(--cvf0) } to{ --cvf:var(--t2) } }
 @keyframes unstick{ to{ translate:0 calc(-1 * var(--cells-h) - var(--s1)) } }
 body.mopen :is(.mhead,.hcolor){ animation:none }
 .medge{ position:absolute; z-index:1; inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); transition:height var(--dur-short) var(--ease-out) }
-.medge::after{ content:''; position:absolute; inset:0 0 calc(-1 * var(--s2)) }   /* a reach under the thin line */
 /* pointed at, the edge opens to the row's height – the colors in hand the row's ground – and the row's words and marks
    (the docked color's too) take the ink that reads on what lies under them (--eink, js: the swatches' rule), till the
    pointer leaves the row */
@@ -258,26 +263,26 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
 .cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
-.hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:var(--cvf0); --cvl:1.5 } @media(width >= 48rem){ .hcolor:has(>.cx.long){ --cvf0:var(--t2) } } body.cdock .hcolor{ --cvf:var(--t2) }   /* the value's size and line (--cvl: the slogan's, .hsub – the lines under its colors clear of the next line's words): the slogan's over the hero – a long one (over a line at it: js fitLong) the row's where the field has the room – a narrower one keeps the slogan's size and line, more lines rather than smaller words – the row's docked – one var the box's padding is cut to, so the first paint is the last */
+.hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:var(--cvf0); --cvl:1.5 } @media(width >= 48rem){ .hcolor:has(>.cx.long){ --cvf0:var(--t2) } } body.mopen.cdock .hcolor{ --cvf:var(--t2) }   /* the value's size and line (--cvl: the slogan's, .hsub – the lines under its colors clear of the next line's words): the slogan's over the hero – a long one (over a line at it: js fitLong) the row's where the field has the room – a narrower one keeps the slogan's size and line, more lines rather than smaller words – the row's docked – one var the box's padding is cut to, so the first paint is the last */
 .cxw #cval{ font-size:var(--cvf); font-weight:500; line-height:var(--cvl) }   /* the slogan's size, a step bolder – in the hero and docked alike */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
 .cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
-.cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent } .cvul u{ text-decoration:none }   /* the field's colors: unseen text, seen lines – one at a time */
-/* the field's colors underlined never, pointed at nothing: the caret's (else the held) dark, the rest grayer */
-/* many in hand, over the hero: the twin's text is the one seen – the color in hand in ink, the others lighter – the
-   field's own text unseen over it, its caret and its selection kept (docked, the row's one ink) */
-body:not(.cdock) .hcolor>.cx:not(.peek):has(.cvul.many) #cval{ color:transparent; caret-color:var(--ink) } body:not(.cdock) .hcolor>.cx:not(.peek):has(.cvul.many) #cval::selection{ color:var(--paper) }
-body:not(.cdock) .hcolor>.cx .cvul.many{ color:var(--soft) } body:not(.cdock) .hcolor>.cx .cvul.many u.on{ color:var(--ink) }
-.hcolor>.cx.peek .cvul,body.cdock .hcolor>.cx .cvul{ display:none }   /* a row shown, or docked and let go: no lines under text that isn't there */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
+.cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent }   /* the field's text again, under it */
+/* many in hand: the twin's text the one seen – the others grayer, the color in hand (the caret's, else the held) dark,
+   by a highlight – the field's own text unseen over it, its caret and its selection kept; docked and let go, its
+   one-line copy the same. Over the opened edge (.wide) every glyph keeps the ink the edge under it gives */
+.hcolor:not(.wide)>.cx:not(.peek):has(.cvul.many) #cval{ color:transparent; caret-color:var(--ink) } .hcolor:not(.wide)>.cx:not(.peek):has(.cvul.many) #cval::selection{ color:var(--paper) }
+.hcolor:not(.wide)>.cx :is(.cvul,.cvshow).many{ color:var(--soft) } :is(.cvul,.cvshow)::highlight(cv-held){ color:var(--ink) } .hcolor.wide .cvshow::highlight(cv-held){ color:transparent }
+.hcolor>.cx.peek .cvul,.hcolor.wide .cvul,.hcolor>.cx:not(:focus-within) .cvul{ display:none }   /* a row shown, let go, or over the opened edge: no second text */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 @property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.5 }   /* one line: --cvl's (an initial value takes no var) */
 .hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
-.hcolor #cval{ display:block; width:100%; max-width:none; height:calc(var(--cvh) * 1em); resize:none; transition:--cvh var(--dur-short) var(--ease-out); overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; field-sizing:fixed }
-body.cdock .hcolor>.cx{ width:var(--cdw,max-content); clip-path:inset(calc(var(--ulw) + var(--s2)) -100vw -100vh -100vw) }   /* docked, the field under the row's top edge: the edge's line and its reach over it, the edge answering the pointer there as anywhere along the row – the list under it unclipped */ body.cdock .hcolor .cxw{ flex:1 }   /* docked: as wide as the row's room – to the search – the whole of it the field's */
-body.cdock .hcolor #cval{ width:100%; max-width:none; white-space:pre; overflow-x:auto; scrollbar-width:none }   /* docked: the row's own size – the value shrinks into it as the page scrolls */
+.hcolor #cval{ display:block; width:100%; max-width:none; height:calc(var(--cvh) * 1em); resize:none; overflow:hidden; white-space:pre-wrap; overflow-wrap:anywhere; field-sizing:fixed }
+body.cdock .hcolor:not(.wide)>.cx{ background:var(--paper) }   /* docking, the field in paper over the row's search and count – they stay, under it */ body.cdock .hcolor>.cx{ clip-path:inset(calc(var(--ulw) + var(--s2)) -100vw -100vh -100vw) }   /* docked, the field under the row's top edge: the edge's line and its reach over it, the edge answering the pointer there as anywhere along the row – the list under it unclipped */ body.cdock .hcolor .cxw{ flex:1 }   /* docked: as wide as the row's room – to the search – the whole of it the field's */
+body.cdock .hcolor #cval{ width:100%; max-width:none }   /* docked: the row's own size – the value shrinks into it as the page scrolls; in hand it wraps there, as over the hero, its lines down over the page */
 /* the field's height eases in lines, not in pixels: a line more or less glides; a size change (docking) is at once,
    as its padding's is – a pixel height eased behind an instant padding swelled the frame, and the locus with it */
-body.cdock .hcolor>.cx:not(:focus-within) #cval:not(:placeholder-shown){ color:transparent } .cvshow{ display:none } .hcolor :is(#cval,.cvshow){ color:var(--ink) }   /* the value in the row's ink – over the opened edge, the ink that reads on it (--eink), as the row's other words */
-body.cdock .hcolor.wide>.cx:focus-within #cval:not(:placeholder-shown),body.cdock .hcolor.wide>.cx:not(:focus-within) .cvshow{ color:transparent; background:var(--einks); background-clip:text; caret-color:var(--eink) }   /* over the opened edge each glyph its own ink – the color under it decides (--einks, js) – on the one text shown: the field in hand, else its one-line copy (the field itself unseen, as unopened) */ body.cdock .hcolor>.cx:not(:focus-within) .cvshow{ position:absolute; display:block; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none }   /* docked, not in hand: the value on one line, cut with an ellipsis – a press opens it whole */
+.hcolor>.cx:not(:focus-within) #cval:not(:placeholder-shown){ color:transparent } .cvshow{ display:none } .hcolor #cval,.hcolor .cvshow{ color:var(--ink) }   /* the value in the row's ink – over the opened edge, the ink that reads on it (--eink), as the row's other words */
+body.cdock .hcolor.wide>.cx:focus-within #cval:not(:placeholder-shown),body.cdock .hcolor.wide>.cx:not(:focus-within) .cvshow{ color:transparent; background:var(--einks); background-clip:text; caret-color:var(--eink) }   /* over the opened edge each glyph its own ink – the color under it decides (--einks, js) – on the one text shown: the field in hand, else its one-line copy (the field itself unseen, as unopened) */ .hcolor>.cx:not(:focus-within) .cvshow{ position:absolute; display:block; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none }   /* not in hand – over the hero or docked: the value on one line, cut with an ellipsis – a press opens it whole, its lines */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
 /* the current colour's chip — a rhombus wearing the slider tick's engaged ring pair at the
@@ -285,8 +290,8 @@ body.cdock .hcolor.wide>.cx:focus-within #cval:not(:placeholder-shown),body.cdoc
    picker, with a clean rectangular hit. */
 .cdw{ position:relative; flex:none; width:17px; height:28px; display:grid; place-items:center }
 .cdw .cdb{ position:absolute; inset:0; padding:0; border:0; background:none; cursor:pointer } .cx.empty:not(.peek) .cdb{ cursor:text }   /* the rhombus: the color in every notation – an empty field's asks for one */
-.cx.empty:not(.peek) .pst{ display:none } .cx.empty:not(.peek) .cdw::before{ background:none; box-shadow:inset 0 0 0 var(--picker-line) var(--soft) }   /* the place for a color: a mark's own size, hollow */   /* no color entered, no color shown: the mark is the place for one, its ring where a color's is; a suggestion looked at shows its color in it */
-.cdw::before{ content:''; grid-area:1/1; width:16px; height:16px; background:var(--sw); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair),0 0 0 1.5px var(--rb,var(--paper)),0 0 0 calc(1.5px + var(--picker-line)) var(--rk,var(--ink)); border-radius:50%; pointer-events:none; transition:transform var(--dur-micro) var(--ease-out) }   /* the color in hand at the others' own size, an outline round it – one color or many, one size; a hair inside keeps a color near the paper's in sight */
+.cx.empty:not(.peek) .pst{ display:none } .cx.empty:not(.peek) .cdw::before{ background:none; box-shadow:inset 0 0 0 var(--picker-line) var(--soft); scale:1 }   /* the place for a color: a mark's own size, hollow */   /* no color entered, no color shown: the mark is the place for one, its ring where a color's is; a suggestion looked at shows its color in it */
+.cdw::before{ content:''; grid-area:1/1; width:var(--mk); height:var(--mk); background:var(--sw); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair); border-radius:50%; scale:var(--mark-on); pointer-events:none; transition:scale var(--dur-micro) var(--ease-out) }   /* the color in hand: a mark a step bigger (--mark-on), its hair edge – one color or one of many, the same */
 .cdw .cd{ pointer-events:none; position:absolute; inset:0; width:100%; height:100%; padding:0; margin:0; opacity:0; appearance:none; -webkit-appearance:none; border:0; background:none; cursor:pointer }
 
 #cval{ anchor-name:--cval; field-sizing:content; min-width:4rem; max-width:20rem; font-size:var(--t4); font-weight:600; color:var(--ink); padding-inline-start:.5em; padding-bottom:0 }   /* no bottom padding: the box hugs the text, so align-items:center lands rhombus + pill on the text's centre */   /* hugs its text (so the gamut pill sits right after) yet still grows to paste color(prophoto-rgb 0.729 0.486 0.29) up to the max */
@@ -304,13 +309,14 @@ body.cdock .hcolor.wide>.cx:focus-within #cval:not(:placeholder-shown),body.cdoc
 #hq{ anchor-name:--cfield } .hcolor>.cx{ anchor-name:--cbox }   /* the hero's frame, and the box the value is typed in – over the frame, or docked in the row */
 #csug{ position:absolute; top:100%; left:0; z-index:1; box-sizing:border-box; display:flex; flex-direction:column; width:var(--hqw,100%); max-width:calc(100vw - 2 * var(--gut)); padding:var(--s2) 0; background:var(--paper); border-top:var(--rule-hair) solid var(--hair); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow); clip-path:inset(0 -3rem -3rem); cursor:default }   /* the field's own lower part: a hairline under the value, the box's shadow on round it – none cast up over the field */   /* right under the box typed in – its own child, so no engine places it: never over the field – as wide as the hero's frame */
 #csug[hidden]{ display:none }
-.hcolor #cvx{ flex:none; height:calc(var(--cvf) * var(--cvl)); pointer-events:auto }   /* the field's ×, the search's own (.qclr): the color let go – a line's height, never taller than the value it clears (a taller one swelled the field past its frame, the list under it a gap below) */
+.cvwarn{ position:absolute; z-index:1; left:calc(50% + var(--mk) / 4); top:calc(50% - var(--mk) * 3 / 4); display:grid; color:var(--soft); --ic:12px; pointer-events:auto; cursor:help } .cvwarn .ic{ fill:var(--paper) } .cvwarn:hover{ color:var(--ink) } .cvwarn[hidden]{ display:none }   /* the held color past the Limit picked (or no color at all): a warning at its mark's shoulder – one color or a list, it marks the one in hand – its tooltip saying which */
+.hcolor #cvx{ flex:none; height:calc(var(--cvf) * var(--cvl)); pointer-events:auto } .hcolor>.cx:is(:not(:hover,:focus-within),:has(#cval:placeholder-shown)) #cvx{ visibility:hidden }   /* there while the field is in hand or pointed at – hero and docked alike */   /* the field's ×, the search's own (.qclr): the color let go – a line's height, never taller than the value it clears (a taller one swelled the field past its frame, the list under it a gap below) */
 #csug .sgrec{ display:flex; flex-direction:column } #csug .sgr+.sgrec{ margin-top:var(--s2); padding-top:var(--s2); border-top:var(--rule-hair) solid var(--hair) }   /* the recent apart, under the menus' section rule (.dpop .msec) */
-body.cdock #csug{ left:min(0px,calc(100vw - var(--gut) - var(--hqw,100%) - var(--cxl,0px))) }   /* docked: as wide as the hero's field still – its rows the same – drawn back left only as far as keeps it in the window */ #csug b{ display:flex; align-items:flex-start; gap:var(--s2); min-width:0 } #csug .sgt{ display:flex; flex-direction:column; min-width:0 } #csug .sgt>*{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap } #csug .sgt :is(.src,.sgn){ font-weight:500; color:var(--body); cursor:pointer }   /* pressable, as a link reads: a step bolder and darker than the line round it */ #csug .sgt :is(.src,.sgn):hover{ color:var(--ink) }
+body.cdock #csug{ left:min(0px,calc(100vw - var(--gut) - var(--hqw,100%) - var(--cxl,0px))) }   /* docked: as wide as the hero's field still – its rows the same – drawn back left only as far as keeps it in the window */ #csug b{ display:flex; align-items:flex-start; gap:var(--s2); min-width:0 } #csug .sgt{ display:flex; flex-direction:column; min-width:0 } #csug .sgt>*{ white-space:normal; overflow-wrap:anywhere }   /* a row's value whole, over as many lines as it takes */ #csug .sgt :is(.src,.sgn){ font-weight:500; color:var(--body); cursor:pointer }   /* pressable, as a link reads: a step bolder and darker than the line round it */ #csug .sgt :is(.src,.sgn):hover{ color:var(--ink) }
 #csug .sgt small{ font-size:var(--t1); font-weight:400; line-height:1.3; color:var(--soft) }   /* under each row, why it is there */
 #csug .sgr{ display:flex; align-items:center; padding-inline-end:var(--s4); --rb:var(--paper) } #csug .sgr:is(:hover,:has(.on)){ background:var(--panel); --rb:var(--panel) }   /* the row lights whole, its × in it */
 #csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3) var(--s2) var(--s4); font-size:var(--cvf); background:none } #csug .fmtr b{ font-weight:500 }   /* the field's own type: a suggestion reads as what it types */
-#csug :is(.sgx,.sgo){ flex:none; --ic:16px; width:var(--s8); height:var(--s8); opacity:0 } #csug .sgr:is(:hover,:has(.on)) :is(.sgx,.sgo){ opacity:1 } @media(hover:none){ #csug :is(.sgx,.sgo){ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
+#csug :is(.sgx,.sgo){ flex:none; --ic:14px; width:var(--s8); height:var(--s8); opacity:0 } #csug .sgr:is(:hover,:has(.on)) :is(.sgx,.sgo){ opacity:1 } @media(hover:none){ #csug :is(.sgx,.sgo){ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
 #csug .sws{ display:flex; align-items:center; justify-content:center; flex:none; width:var(--w4); height:1.3em; isolation:isolate }   /* on the value's line, not between it and its word – a sequence's colors together, stacked as the field's, the first on top; the first mark under the field's own, at its left */
 #csug .sgt>span:first-child{ line-height:1.3 } #csug .sgt .q{ font-weight:400; color:var(--body) }   /* a name: the part typed light, the rest set */
 .hcolor>.cx.peek #cval{ color:transparent } .hcolor>.cx.peek .cvghost{ color:var(--soft) } body.cdock .cvghost{ overflow:hidden; text-overflow:ellipsis }   /* docked, one line: a long row shown stops at the field's end, never over the search and the count */   /* a row shown: its text in the field, as a placeholder – what is typed steps aside, kept */
@@ -345,18 +351,19 @@ body.himg #imgfloat{ display:block }
 .imgw::before{ content:''; grid-area:1/1; width:12px; height:12px; background:var(--thumb) center/cover; border:1.2px solid var(--paper); box-shadow:0 0 0 1.2px var(--ink); border-radius:50%; transition:transform var(--dur-micro) var(--ease-out) }
 .imgw:hover::before,.imgw:focus-visible::before{ transform:scale(1.14) }
 .ic{ flex:none; width:var(--ic,14px); height:var(--ic,14px); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
+.ic.ix path{ vector-effect:non-scaling-stroke; stroke-width:1.25px }   /* the page's one cross – the field's, the filters', a row's, the image's, the dossier's – one line at any size: the row's marks' 1.25px */
 .upbtn{ --ic:14px } .cpyi{ --ic:15px } .mnav{ --ic:20px }
 .pstack{ display:flex; align-items:center; justify-content:center; flex:none; box-sizing:content-box; width:var(--w4); padding:0 0 0 var(--s1); isolation:isolate; cursor:default }   /* the marks' column, four wide whatever it holds – one color at its middle, more growing out from it: the value's text at one place, a row's under it at the same */
 .hcolor :is(.pstack,.fmtf){ height:calc(var(--cvf) * var(--cvl)) }   /* a line's height, the marks centred over it: the box is the value's lines, not the native picker's hit area */
 .pst,#csug s{ position:relative; z-index:var(--z); flex:none; width:var(--mk); height:var(--mk); margin:0; padding:0; border:0; background:var(--w); box-shadow:inset 0 0 0 var(--rule-hair) var(--hair); border-radius:50% } .pst{ cursor:pointer }
 /* many colors in hand: their marks layered in their order – the first on top, the last under – touching, as a palette's
-   colors sit, each its own hair edge, no paper parting them; the one held ringed in ink (the slider picker's engaged
-   ring), another ringed and lifted as it is pointed at. A suggestion's swatch is the same stack, plain – none held yet */
+   colors sit, each its own hair edge, no paper parting them; the one held over them and a step bigger, another so as it
+   is pointed at. A suggestion's swatch is the same stack, plain – none held yet */
 .pstack:has(.pst) .cdw{ z-index:calc(var(--zn) + 1); width:var(--mk) }
-.pstack:has(.pst) .cdw::before{ box-shadow:0 0 0 var(--picker-ring) #fff,var(--picker-shadow) }   /* many in hand: the held one in a slider thumb's dress – the white ring, the soft outline – no ink ring over its neighbours */   /* the held one over the others, wherever it stands in the order (a gradient's: over its pill, below) */
 /* stacked a step apart – 6px: three marks span one pill (a mark and two steps); the first at one color's own place */
 .pstack>*+*,#csug .sws>*+*{ margin-inline-start:calc(var(--step) - var(--mk)) }   /* two selectors, not :is() – its id would outweigh the pill's own placing of the held circle */
-.pst:not(.pill):is(:hover,:focus-visible,.hot){ z-index:calc(var(--zn) + 2); box-shadow:0 0 0 var(--picker-ring) #fff,var(--picker-shadow-on) }   /* pointed at: lifted over the others in a slider thumb's own dress – the white ring, the soft outline – no ink ring */
+.pst:not(.pill){ transition:scale var(--dur-micro) var(--ease-out) }
+.pst:not(.pill):is(:hover,:focus-visible,.hot){ z-index:calc(var(--zn) + 2); scale:var(--mark-on) } .pstack:has(.pst:not(.pill):is(:hover,:focus-visible,.hot)) .cdw::before{ scale:1 }   /* pointed at – here, or its stop on a strip or a plane (.hot) – it is dressed as the held one, over them all and a step bigger, the held one back to the others' size: one look for held and pointed, eased between */
 /* a gradient is one mark: a pill of its run – two circles joined – in a suggestion; in the field the held color's
    circle rides it at its stop, as a slider's thumb rides its strip (a press on the pill takes the stop nearest it) */
 /* a mark 16px, stacked 7⅓px apart (the column 38px: 4px more room than 6px steps gave a palette); the column four marks wide – fewer run short, more draw closer to keep to it; a
@@ -370,7 +377,7 @@ body.himg #imgfloat{ display:block }
 .pst.pill:is(:hover,.hot)::after{ opacity:1 }
 .pstack:has(.pill) .cdw{ z-index:1; margin-inline:calc(var(--p,0) * (var(--pw) - var(--mk)) - var(--pw)) calc((1 - var(--p,0)) * (var(--pw) - var(--mk))) }
 #csug s.pill{ width:var(--w4); border-radius:999px }
-.pst:is(:hover,:focus-visible){ z-index:calc(var(--zn) + 2); outline:0 }
+.pst:hover{ z-index:calc(var(--zn) + 2) }
 /* slice hit-boxes: each swatch owns exactly its advance column (the exposed-sliver convention of
    avatar stacks) while the rhombus paints past it — overlap order follows DOM, no click stealing */
 @media(pointer:coarse){ .cdw{ width:16px; height:28px }
@@ -399,9 +406,9 @@ body.himg #imgfloat{ display:block }
 .fcov .dual{ position:relative; flex:1; min-width:0; display:flex; align-items:center; --lo:0%; --hi:100% }   /* two thumbs, one hand-painted track: ink BETWEEN the thumbs, hair outside — the native progress fill (left-of-thumb) reads backwards for an interval */
 .fcov .dual input{ width:100%; margin:0; appearance:none; background:none; height:18px }
 .fcov .dual input::-webkit-slider-runnable-track{ height:5px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }   /* the header line's weight — a bar with two stops riding it */
-.fcov .dual input::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--ink); margin-top:-4.5px; cursor:pointer }
+.fcov .dual input::-webkit-slider-thumb{ -webkit-appearance:none; width:var(--mk); height:var(--mk); border-radius:50%; background:var(--ink); margin-top:calc((5px - var(--mk)) / 2); cursor:pointer }
 .fcov .dual input::-moz-range-track{ height:5px; background:linear-gradient(90deg,var(--hair) var(--lo),var(--ink) var(--lo) var(--hi),var(--hair) var(--hi)) }
-.fcov .dual input::-moz-range-thumb{ width:14px; height:14px; border:0; border-radius:50%; background:var(--ink); cursor:pointer }
+.fcov .dual input::-moz-range-thumb{ width:var(--mk); height:var(--mk); border:0; border-radius:50%; background:var(--ink); cursor:pointer }
 .fcov .dual input::-moz-range-progress{ background:none }
 .fcov .dual input:last-child{ position:absolute; inset:0; pointer-events:none }
 .fcov .dual input:last-child::-webkit-slider-runnable-track{ background:none }
@@ -464,10 +471,10 @@ body.himg #imgfloat{ display:block }
 }
 @container hl (width < 67.5rem){ .hl-ax span.near{ display:none } }   /* 1900 crowds 1860 once the axis is under 45rem */
 /* the key: a swatch and a name per light, a toggle – dim to ink, as the catalog's; one picked, the rest's swatches fade */
-.hl-key{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:var(--s2) var(--s4); margin-top:var(--s2) }   /* at the right, under the years most spaces arrived in – the key beside what it keys */
+.hl-key{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:var(--s2) var(--s4); margin-top:var(--s4) }   /* at the right, under the years most spaces arrived in – the key beside what it keys */
 .hl-kd{ position:relative; display:inline-flex; align-items:center; gap:var(--s2); padding:0; font:inherit; font-size:var(--t1); line-height:1; color:var(--soft); background:none; border:0; cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
 .hl-kd:hover,.hl-kd[aria-pressed="true"]{ color:var(--ink) }
-.hl-kd[aria-pressed="true"]::before{ content:''; position:absolute; inset-inline:0; top:calc(-1 * var(--s2)); height:var(--ulw); background:var(--ink) }   /* the picked light: a bar over it, a step clear of its swatch and name */
+.hl-kd>span{ position:relative } .hl-kd>span::before{ content:''; position:absolute; inset-inline:0; top:calc(-1 * var(--s2)); height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) } .hl-kd:hover>span::before{ background:var(--ulp) } .hl-kd[aria-pressed="true"]>span::before{ background:var(--ula) }   /* the picked light: a bar over its name – not its swatch – a step clear of it; the one pointed at a soft one */
 .hl-kd i{ flex:none; width:var(--s3); height:var(--s3); background:var(--hl-kc); transition:opacity var(--dur-micro) var(--ease-out) }
 .hl-key:has([aria-pressed="true"]) .hl-kd:not([aria-pressed="true"]) i{ opacity:.35 }
 /* first-time orientation: the instrument should explain itself before the grid starts */
@@ -478,8 +485,7 @@ body.himg #imgfloat{ display:block }
 .introcopy{ grid-template-rows:auto 1fr auto } .introcopy>h2{ grid-column:1; grid-row:1; margin:0 }   /* the title's row its own height – the code's length goes to the tabs' row, under it */
 .introcopy .tabrow{ grid-column:1; grid-row:2; margin:var(--s4) 0 0; column-gap:var(--s4) }
 @media(min-width:1080px){ .introcopy .tabrow{ grid-row:1 / span 2; justify-self:end; margin:0; flex-direction:column; align-items:stretch; row-gap:var(--s4); overflow:visible }   /* the tabs start level with the code, beside the title – the column as wide as its longest, so the title stays theirs to press past; every tab that width, so the pick's bar runs down the column's edge, along the code */
-	.introcopy .tabrow button::after{ inset-inline:auto 0; inset-block:0 var(--s1); width:var(--ulw); height:auto }   /* a column of tabs: the bar on the column's right edge, toward the code */
-	.introcopy .tabrow button{ gap:var(--s3); min-height:var(--s8); padding:0 0 var(--s1); padding-inline-end:var(--s4); font-size:var(--t3); font-weight:800; letter-spacing:-.01em; line-height:1.1 }
+	.introcopy .tabrow button{ --tbg:var(--s2); gap:var(--s3); min-height:var(--s8); padding:0 0 var(--tbg); padding-inline-end:var(--s4); font-size:var(--t3); font-weight:800; letter-spacing:-.01em; line-height:1.1 }
 	.introcopy .tabrow :is(.fl,.fl svg){ width:18px; height:18px } }   /* beside the code, the tabs stand one above another, each its own width – the icons in one column at their start, the names after them, the pick's bar on the column's edge by the code; one column (a phone, a tablet), they run in a row over it */
 .introcopy .tabs>:not(.tabrow){ grid-column:2 / -1; grid-row:1 / span 2; min-width:0 }
 .introcopy>.facts{ grid-column:1 / -1; grid-row:3; grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:var(--s8); padding-top:var(--s8); border-top:var(--rule-hair) solid var(--hair) }   /* what the library is, under a rule: the code's tabs end above it */
@@ -492,7 +498,7 @@ body.himg #imgfloat{ display:block }
 .introcopy .export{ padding:0; border:0; background:none; font-family:inherit; font-size:var(--t2) }   /* the LUT and ICC tabs: prose and their controls on the page itself, no plate – they are no code */
 .introcopy .tabs pre a{ color:inherit; font-weight:700 }   /* a link in a code comment: the comment's own color, bolder – the page's ink would vanish on the dark plate */
 #api-panel-mcp pre{ white-space:pre-wrap; overflow-wrap:anywhere }   /* commands and a config: they wrap whole, the plate never scrolls sideways */   /* a touch smaller so the half-width panel holds each line whole */
-@media(max-width:1079px){ .introcopy .tabrow{ margin:var(--s4) 0 var(--s5); column-gap:var(--s6) } .introcopy .tabrow button{ padding-inline:0; padding-bottom:var(--s2) } .introcopy .tabrow button::after{ inset-inline:0 }   /* a row of tabs on the text's edge, no inset; the pick's bar a step under its word, the code a step further */ .introcopy>.facts{ grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:var(--s6); padding-top:var(--s6) } }   /* ≤1079 the section turns display:block (rail hidden): the title, the tabs, the code, the facts two a row under it */
+@media(max-width:1079px){ .introcopy .tabrow{ margin:var(--s4) 0 var(--s5); column-gap:var(--s6) } .introcopy .tabrow button{ --tbg:var(--s2); padding-inline:0; padding-bottom:var(--tbg) }   /* a row of tabs on the text's edge, no inset; the pick's bar a step under its word, the code a step further */ .introcopy>.facts{ grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:var(--s6); padding-top:var(--s6) } }   /* ≤1079 the section turns display:block (rail hidden): the title, the tabs, the code, the facts two a row under it */
 /* big screens: the history full-width, its title over the chart's quiet early years */
 @media(min-width:1080px){
 	.hl-fig{ position:relative }
@@ -698,7 +704,7 @@ body.himg #imgfloat{ display:block }
 .tbl tbody tr:last-child :is(th,td){ border-bottom:0 }   /* the next family's hair closes the table */
 .tbl .tsw{ width:6rem; padding-inline-end:0 }
 .chs.mini{ width:4.5rem; background:none; --ctl:5px }
-.chs.mini .ch .nrg{ pointer-events:none; --tkb:var(--picker-small-size); --tkw:var(--picker-small-ring) } .chs.mini .ch{ cursor:inherit }   /* a picture, not a slider – the row's click is its click; the held color its picker, as a card's, the others dots */
+.chs.mini .ch .nrg{ pointer-events:none; --tkb:var(--picker-mini-size); --tkw:var(--picker-mini-ring) } .chs.mini .ch{ cursor:inherit }   /* a picture, not a slider – the row's click is its click; the held color its picker, as a card's, the others dots */
 /* the sheet keeps what it has room for: wide, each kind its own sortable column; narrower, the kinds' icons share one
    cell; then the channels and the white go, then the maker and the coverage, then the icons and the preview */
 @container secs (width >= 76rem){ .tbl .c-kind{ display:none } }
@@ -718,7 +724,7 @@ body.himg #imgfloat{ display:block }
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
 .nm::after{ content:'↗'; display:inline-block; width:0; text-indent:.3em; white-space:nowrap; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* a zero-width box the glyph overflows: the hidden mark claims no line width, so it never pushes a name onto a second line */
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
-.ent .eh{ position:relative; min-width:0; --nmf:var(--t4); --nml:1.15; font-size:var(--nmf); line-height:var(--nml) }   /* the maker and year float at the first line's end and the name flows round them: a second line takes the card's whole width, never a third for want of it. The head's lines are the name's own */
+.ent .eh{ position:relative; min-width:0; text-wrap:pretty; --nmf:var(--t4); --nml:1.15; font-size:var(--nmf); line-height:var(--nml) }   /* the maker and year float at the first line's end and the name flows round them: a second line takes the card's whole width, never a third for want of it. The head's lines are the name's own */
 .ent.tc .eh{ --nmf:var(--t3); --nml:1.25 }
 .ent .eh .nm{ padding-inline-end:1.1em }   /* room for the ↗ its hover shows, in its own em: the maker never sits under it */
 .ent .eh .nm::before{ content:''; position:absolute; inset:0 }   /* the whole head – the name, the year, the maker – opens the card */
@@ -835,8 +841,8 @@ body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
-/* close ✕ — same style as the proprietary dialog's: quiet, top-right, inks on hover */
-.mx{ position:absolute; top:calc(var(--dpad) - 10px); inset-inline-end:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; font:inherit; font-size:var(--t4); line-height:1; font-weight:500; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
+/* close × — the page's one cross (.ix), a size up: quiet, top-right, inks on hover */
+.mx{ position:absolute; top:calc(var(--dpad) - 10px); inset-inline-end:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; --ic:18px; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--ink) }
 /* embed (/<name>?embed, attribute set by the head script before first paint): the dossier card
    alone fills the frame – no header, catalog, FAQ, footer, scrim or close; prev/next would
@@ -879,7 +885,7 @@ body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) }
 .dctl select:focus-visible{ outline:none; color:var(--ink) }
 .dctl select:disabled{ opacity:.32; cursor:default }   /* the metric without a palette — present, inert */   /* no focus rectangle around the bare select — a colour shift instead */
 .dh h1{ margin:0; font-size:var(--t5); font-weight:800; letter-spacing:-.02em; line-height:1 }
-.dh .dcat{ display:block; margin-bottom:.5rem; font-size:var(--t2); font-weight:400; letter-spacing:0; color:var(--soft) }   /* the catalog section — plain, mixed-case, tracking reset to 0 (the h1's -.02em would otherwise inherit) */
+.dh .dcat{ flex-basis:100%; margin:0 0 calc(.5rem - var(--s1)); font-size:var(--t2); line-height:1; color:var(--soft) }   /* the catalog section over the title, a line of its own – out of the h1, so the kinds follow the name, not the section's width */
 .dh h1 .htag{ margin-inline-start:var(--s3); display:inline-block; overflow:hidden; vertical-align:baseline }   /* inline-block + clipped overflow makes the pill's own baseline its bottom edge, so it sits ON the title's baseline */
 .dpills{ display:flex; gap:var(--s2); flex-wrap:wrap; margin:var(--s3) 0 var(--s4) }
 /* one tag recipe — modal title pills, the hero space label, the header gamut chips all share it */
@@ -1189,10 +1195,10 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow button:hover .fl,.tabrow button.on .fl{ opacity:1; filter:none }
 .tabrow button:hover{ color:var(--body) }
 .tabrow button{ position:relative } .tabrow button.on{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way, the rail's tabs' too */
-.tabrow button::after{ content:''; position:absolute; inset-inline:var(--s2); bottom:0; height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }   /* and a bar on the side that faces its panel: under a row of tabs, the words' width */
+.tabrow button>span:not(.fl){ position:relative } .tabrow button>span:not(.fl)::after{ content:''; position:absolute; inset-inline:0; bottom:calc(-1 * var(--tbg,var(--s1))); height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }   /* and a bar under its word, the word's width – not its mark's – a step under it (--tbg: the tab's own padding under) */
 /* one idiom for every group of choices – tabs, switches: the pick its ink bar, always; the one pointed at a soft bar of
    its own – no other lines, nothing handed back and forth as the pointer crosses the gaps */
-.tabrow button:hover::after{ background:var(--ulp) } .tabrow button.on::after{ background:var(--ula) }
+.tabrow button:hover>span:not(.fl)::after{ background:var(--ulp) } .tabrow button.on>span:not(.fl)::after{ background:var(--ula) }
 /* the dossier's code tabs read as section-title kickers — same type treatment as the
    #image / #compare / #code headings they sit among */
 #cseg button{ text-transform:none }   /* labels read as written (abbreviations caps, words lower) — same as the main-page API tabs; overrides the .sec2 heading's uppercase */
@@ -1221,6 +1227,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .fbody{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
 .fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: where to go | how to get it, and who made it */
 .fend{ display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; gap:var(--s8) }   /* the maker and the license at the foot, to the right (the install command lives in Usage's JS tab) */
+.fatlas{ font-size:var(--t2); line-height:1.5; opacity:.72; text-align:right; max-width:24rem; margin:0 }
 .finst{ width:min(28rem,100%) } .introcopy .finst{ margin-bottom:var(--s5) }   /* the install command, then the code */
 .finst .cpyi{ top:50%; translate:0 -50% }   /* one line of command: the copy button centred on it */
 .fcols{ display:grid; grid-template-columns:repeat(4,minmax(max-content,1fr)); gap:var(--s8) var(--s6); align-content:start }
@@ -1232,7 +1239,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .legal{ display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker, the license and the dedication, at the right */
 .legal span{ display:flex; gap:var(--s5) } .legal .lby{ display:inline }   /* the maker's line: the words plain, the name the link */
 @media(max-width:1079px){ .fcols{ grid-template-columns:repeat(2,minmax(max-content,1fr)) } }
-@media(max-width:740px){ .fbody{ grid-template-columns:1fr; gap:var(--s6) } .fend{ align-items:flex-start; gap:var(--s6) } .fcols{ row-gap:var(--s6) } .legal{ align-self:stretch; justify-content:center } }   /* one column: closer, the maker and the license its centred last line */
+@media(max-width:740px){ .fbody{ grid-template-columns:1fr; gap:var(--s6) } .fend{ align-items:flex-start; gap:var(--s6) } .fcols{ row-gap:var(--s6) } .fatlas{ text-align:left; max-width:none } .legal{ align-self:stretch; justify-content:center } }   /* one column: closer, the maker and the license its centred last line */
 .ftr :focus-visible{ outline-color:currentColor }
 /* Cite: a native popover – the top layer, no positioning script; the floating-panel skin (paper, --pop-shadow), the
    dossier's labels and code plates inside */
@@ -1256,7 +1263,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<label class="cell qx" title="search the spaces by name" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq" type="search" placeholder="search…" autocomplete="off" spellcheck="false" aria-label="search the spaces by name" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-tip"></label>
 	<button class="count tnum" type="button" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="ui.header.tagline title:ui.cell.more-any"><span id="nn">205</span><span class="nnu"> spaces</span></button>
 	<button class="cell lens" type="button" id="c-more" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="title:ui.cell.more-any"><span class="ci"><!-- a funnel: Lucide's (ISC) at .82, the search glass's size --><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.36 18.63a.82.82 0 0 0 .45.73l1.64.82A.82.82 0 0 0 13.64 19.45v-5.74a1.64 1.64 0 0 1 .42-1.1L19.99 6.06A.82.82 0 0 0 19.38 4.69H4.62a.82.82 0 0 0-.61 1.37l5.93 6.55A1.64 1.64 0 0 1 10.36 13.71z"/></svg></span><span class="cw"><small data-i18n="ui.cell.more-any">Filters</small><b></b></span></button>
-	<button type="button" class="qclr fclr" id="fclr" hidden title="clear the search and the filters" aria-label="clear the search and the filters" data-i18n="title:ui.filter.clear aria-label:ui.filter.clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+	<button type="button" class="qclr fclr" id="fclr" hidden title="clear the search and the filters" aria-label="clear the search and the filters" data-i18n="title:ui.filter.clear aria-label:ui.filter.clear"><svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
 	<button class="cell lens" type="button" id="c-view" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h8M18 7h2M4 17h2M12 17h8"/><circle cx="15" cy="7" r="3"/><circle cx="9" cy="17" r="3"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b></b></span></button>
 	<button class="cell lens" type="button" id="c-layout" data-view="list" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"><i data-from="grid"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v1.75H3zM8.5 3h4.5v1.75H8.5zM3 5.75h4.5v1.75H3zM8.5 5.75h4.5v1.75H8.5zM3 8.5h4.5v1.75H3zM8.5 8.5h4.5v1.75H8.5zM3 11.25h4.5v1.75H3zM8.5 11.25h4.5v1.75H8.5z"/></svg></i><i data-from="list"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/></svg></i></span></button>
 	<span class="dctl"><select id="lang" aria-label="Language" title="Language" data-i18n="aria-label:ui.header.lang title:ui.header.lang"><option value="en" lang="en" selected>English</option></select></span>
@@ -1264,7 +1271,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
-		<div class="htitle"><a class="hmark" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home"><img src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""></a><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span class="hk">An open atlas of</span> Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">New: Figma plugin</span><span class="hpn" data-i18n="ui.hero.plugin">New</span></span></a></span></div>
+		<div class="htitle"><a class="hmark" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home"><img src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""></a><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span class="hk">Reference guide to</span> Color Spaces</h1><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" title="Figma plugin" aria-label="New: Figma plugin" data-i18n="title:ui.hero.plugin-tip aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">New: Figma plugin</span><span class="hpn" data-i18n="ui.hero.plugin">New</span></span></a></span></div>
 		<p class="hsub" id="hsub" data-i18n="ui.hero.line">See a <a href="#hq" data-way="color">color</a>, <a href="#hq" data-way="palette">palette</a>, <a href="#hq" data-way="gradient">gradient</a> or <a href="#hq" data-way="image">image</a> through each. From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
 			<button class="hib" type="button" id="heye" title="pick a color from the screen" aria-label="pick a color from the screen" data-i18n="title:ui.hero.eye aria-label:ui.hero.eye"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z"/></svg></button>
@@ -1273,7 +1280,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	</div>
 </section>
 <script>/* the plugin's pill beside the title while the two hold one line; narrower, at the row's start (.cells>.hplug) – moved before the first paint, and back as the window widens */{ const p=document.querySelector('.hplug'), home=p?.parentElement, row=document.querySelector('.cells'), mq=matchMedia('(width < 48rem)'), put=()=>mq.matches?row.prepend(p):home.append(p); if(p&&row){ put(); mq.addEventListener('change',put) } }</script>
-<div class="hcolor" id="hcolor"><span class="cx"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" tabindex="-1" aria-hidden="true"><button class="cdb" id="cdb" type="button" aria-haspopup="listbox" aria-controls="csug" aria-label="the colors near this one" data-i18n="aria-label:ui.header.sug-tip"></button></span></span><span class="cxw"><textarea id="cval" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea></span><button type="button" class="qclr" id="cvx" hidden title="clear the color" aria-label="clear the color" data-i18n="title:ui.header.clear aria-label:ui.header.clear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><button class="palm" id="palm" type="button" hidden><span></span></button><div class="csug" id="csug" role="listbox" hidden aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span></div>
+<div class="hcolor" id="hcolor"><span class="cx"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" tabindex="-1" aria-hidden="true"><button class="cdb" id="cdb" type="button" aria-haspopup="listbox" aria-controls="csug" aria-label="the colors near this one" data-i18n="aria-label:ui.header.sug-tip"></button><span class="cvwarn" id="cvwarn" role="img" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg></span></span></span><span class="cxw"><textarea id="cval" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea></span><button type="button" class="qclr" id="cvx" hidden title="clear the color" aria-label="clear the color" data-i18n="title:ui.header.clear aria-label:ui.header.clear"><svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><button class="palm" id="palm" type="button" hidden><span></span></button><div class="csug" id="csug" role="listbox" hidden aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span></div>
 <script>/* the sticky color starts where the hero's field is: the field's distance from the hero's foot (--hc-up), and the scroll at which it docks – its top on the page (--hc-dock), measured before first paint */{ const h=document.getElementById('hero'), q=document.getElementById('hq'), pg=document.querySelector('.page'), up=()=>{ const t=q.getBoundingClientRect().top; pg.style.setProperty('--hc-up',Math.round(h.getBoundingClientRect().bottom-t)+'px'); pg.style.setProperty('--hc-dock',Math.round(t+scrollY)+'px') }; up(); new ResizeObserver(up).observe(h) }</script>
 <div class="dpop" id="m-more" popover role="dialog" aria-labelledby="c-more"></div>
 <div class="dpop" id="m-view" popover role="dialog" aria-labelledby="c-view"></div>
@@ -1389,7 +1396,7 @@ document.fonts?.ready.then(()=>{ layoutToc.settled=true; sizeTiles(); layoutToc(
 <section class="introcopy" aria-labelledby="introcopy-title">
 	<h2 id="introcopy-title" data-i18n="ui.intro.title">Usage</h2>
 	<div class="tabs" id="apitabs">
-		<div class="tabrow" role="tablist" aria-label="API runtime examples" data-i18n="aria-label:ui.api.tabs"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span>JS</button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span>WASM</button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span>GL</button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span>LUT</button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span>ICC</button><button id="api-tab-mcp" role="tab" aria-selected="false" aria-controls="api-panel-mcp" data-p="mcp" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#2b2a28"/><text x="12" y="15.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="7" font-weight="800" fill="#fff">MCP</text></svg></span>MCP</button><button id="api-tab-figma" role="tab" aria-selected="false" aria-controls="api-panel-figma" data-p="figma" tabindex="-1"><span class="fl"><svg  viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg></span>Figma</button></div>
+		<div class="tabrow" role="tablist" aria-label="API runtime examples" data-i18n="aria-label:ui.api.tabs"><button class="on" id="api-tab-core" role="tab" aria-selected="true" aria-controls="api-panel-core" data-p="core"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#f7df1e"/><text x="21" y="20.5" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800" fill="#0b0b0b">JS</text></svg></span><span>JS</span></button><button id="api-tab-wasm" role="tab" aria-selected="false" aria-controls="api-panel-wasm" data-p="wasm" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#654ff0"/><text x="12" y="16.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" letter-spacing="-.5" fill="#fff">wa</text></svg></span><span>WASM</span></button><button id="api-tab-gl" role="tab" aria-selected="false" aria-controls="api-panel-gl" data-p="gl" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fl-glsl" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5f6d"/><stop offset=".5" stop-color="#845ec2"/><stop offset="1" stop-color="#00c2d1"/></linearGradient></defs><rect width="24" height="24" fill="url(#fl-glsl)"/></svg></span><span>GL</span></button><button id="api-tab-lut" role="tab" aria-selected="false" aria-controls="api-panel-lut" data-p="lut" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#16161a"/><g fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"><path d="M12 5l6 3.4v7L12 19l-6-3.6v-7z"/><path d="M12 12v7M12 12l6-3.5M12 12L6 8.5"/></g></svg></span><span>LUT</span></button><button id="api-tab-icc" role="tab" aria-selected="false" aria-controls="api-panel-icc" data-p="icc" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#fff"/><circle cx="9.5" cy="10" r="4.6" fill="#e5372c" fill-opacity=".85"/><circle cx="14.5" cy="10" r="4.6" fill="#2ca24a" fill-opacity=".85"/><circle cx="12" cy="14.6" r="4.6" fill="#2f6fed" fill-opacity=".85"/></svg></span><span>ICC</span></button><button id="api-tab-mcp" role="tab" aria-selected="false" aria-controls="api-panel-mcp" data-p="mcp" tabindex="-1"><span class="fl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" fill="#2b2a28"/><text x="12" y="15.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="7" font-weight="800" fill="#fff">MCP</text></svg></span><span>MCP</span></button><button id="api-tab-figma" role="tab" aria-selected="false" aria-controls="api-panel-figma" data-p="figma" tabindex="-1"><span class="fl"><svg  viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg></span><span>Figma</span></button></div>
 		<div id="api-panel-core" role="tabpanel" aria-labelledby="api-tab-core" data-p="core"><h3 data-i18n="ui.api.core-title">JavaScript</h3>
 		<p class="exlede" data-i18n="ui.api.core-lede">The whole library: <span data-fact="nn">205</span> spaces, <span data-fact="jskb">63</span> kB gzipped – every space to every other, both ways.</p>
 		<div class="snipwrap finst"><button class="cpyi" type="button" data-copy="npmcmd" title="copy" aria-label="copy the install command" data-i18n="title:ui.copy aria-label:ui.footer.copy-npm"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="npmcmd">npm install color-space</pre></div>
@@ -1493,7 +1500,7 @@ color-space/plugins/figma/manifest.json
 	<div class="fqs">
 		<div class="fqcol">
 		<details class="fqa"><summary data-i18n="faq.what.q">What is a color space?</summary>
-		<p data-i18n="faq.what.p1">A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. The same orange is <a href="#rgb(255 128 0)" title="make this the current color"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color"><code>[49, 36.7, 4.5]</code></a>. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
+		<p data-i18n="faq.what.p1">A coordinate system for color: axes, ranges, and a rule tying the numbers to measurable light. Human vision is trichromatic — the retina has three types of cone cells (S, M, L) — so three coordinates are the minimum needed to describe any color a human eye can perceive. The same orange is <a href="#rgb(255 128 0)" title="make this the current color"><code>rgb(255 128 0)</code></a>, <a href="#oklch(0.732 0.186 53)" title="make this the current color"><code>oklch(0.732 0.186 53)</code></a> and XYZ <a href="#color(xyz-d65 0.49 0.367 0.045)" title="make this the current color"><code>[49, 36.7, 4.5]</code></a>. A palette is a handful of chosen colors; a space is a way to write down any color at all.</p></details>
 		<details class="fqa"><summary data-i18n="faq.model.q">Color model or color space – what's the difference?</summary>
 		<p data-i18n="faq.model.p1">A color model is a shape for the numbers: RGB says three primaries, HSL says hue, saturation and lightness, CMYK says four inks. A color space ties a model to measurable light – which primaries, which white, which curve – so each set of numbers names exactly one color. <code>rgb(255 0 0)</code> is a different red in <a href="rgb">sRGB</a>, <a href="p3">Display P3</a> and <a href="a98rgb">Adobe RGB</a>: one model, three spaces.</p>
 		<p data-i18n="faq.model.p2">Everyday usage calls both spaces – so does CSS's <code>color-mix(in hsl, …)</code>, and so does this catalog. A model without an anchor of its own borrows one: <a href="hsl">HSL</a> and <a href="hsv">HSV</a> here reshape sRGB, as in CSS.</p></details>
@@ -1515,6 +1522,8 @@ color-space/plugins/figma/manifest.json
 		<p data-i18n="faq.muddy.p1">Because they're computed in gamma-encoded sRGB, where averaging two colors' numbers produces darker, duller light than actually mixing their light would. Interpolating in <a href="oklab">OKLab</a> avoids this; in CSS that's <code>linear-gradient(in oklab, red, blue)</code>. Every dossier's <em>interpolate</em> row draws the same blend through two spaces side by side, so you can see the difference before choosing.</p></details>
 		<details class="fqa"><summary data-i18n="faq.log.q">How do I convert S-Log3 or another camera log to Rec. 709?</summary>
 		<p data-i18n="faq.log.p1">Open your camera's log space, such as <a href="slog3">S-Log3</a>, <a href="logc4">LogC4</a> or <a href="applelog">Apple Log</a>. In its <em>conversion LUT</em> block, choose <a href="rec709">Rec. 709</a> and your editor: DaVinci Resolve, Premiere Pro, Final Cut Pro, OBS, ffmpeg and others. Your browser writes the <code>.cube</code> file. It is a technical conversion with no tone mapping: highlights above diffuse white clip, and the look is yours to add.</p></details>
+		<details class="fqa"><summary data-i18n="faq.compare.q">How does color-space compare to colorjs.io, culori, or chroma-js?</summary>
+		<p data-i18n="faq.compare.p1">Scope, runtimes, and range conventions. <code>color-space</code> covers <span data-fact="nn">205</span> spaces — 3 to 10× more than any other library, including camera logs (ARRI, Sony, RED, Canon, Apple Log), broadcast formats (YCbCr, YCoCg), and spectral systems. It is pure math with zero dependencies, tree-shakeable to ~2&nbsp;kB per space, and ships with typed-array batching, precompiled <a href="#api-panel-wasm">WebAssembly</a>, and <a href="#api-panel-gl">GPU shaders</a> (GLSL/WGSL). It keeps each space’s conventional ranges (RGB 0–255, Lab L 0–100, hue 0–360°) rather than normalizing to 0–1. For high-level CSS string parsing or gamut mapping, libraries like <a href="https://colorjs.io">colorjs.io</a> and <a href="https://culorijs.org">culori</a> are purpose-built; for comprehensive mathematical conversions, shaders, and raw speed, use <code>color-space</code>.</p></details>
 		</div>
 		<div class="fqcol">
 		<details class="fqa"><summary data-i18n="faq.gamut.q">What does “out of gamut” mean?</summary>
@@ -1529,6 +1538,8 @@ color-space/plugins/figma/manifest.json
 		<p data-i18n="faq.exact.p3">If the numbers differ from another library's, compare ranges: this one keeps each space's conventional ranges – RGB 0–255, Lab lightness 0–100, hue 0–360 – where many flatten everything to 0–1. Every card shows its ranges; in code they're <code>space.oklch.range</code>.</p></details>
 		<details class="fqa"><summary data-i18n="faq.css.q">Which of these can CSS write?</summary>
 		<p data-i18n="faq.css.p1">Natively <code>rgb()</code>, <code>hsl()</code>, <code>hwb()</code>, <code>lab()</code>, <code>lch()</code>, <code>oklab()</code>, <code>oklch()</code>, plus <code>color()</code> for Display P3, Adobe RGB, ProPhoto, linear sRGB and XYZ (D65 and D50). CSS's <code>rec2020</code> is a pure 2.4 gamma, not the BT.2020 curve of this catalog's <a href="rec2020">Rec. 2020</a> – the same numbers would name a different color. Each dossier's <em>css</em> tab writes the current color in copyable form; spaces CSS lacks ship as ICC profiles or LUTs instead.</p></details>
+		<details class="fqa"><summary data-i18n="faq.runtimes.q">Can I use these conversions in shaders, video editors, or outside JavaScript?</summary>
+		<p data-i18n="faq.runtimes.p1">Yes. For GPU shaders, <code>color-space/gl</code> provides ready-to-use GLSL and WGSL functions for WebGL and WebGPU. For video grading, the catalog generates verified 1D and 3D <code>.cube</code> LUTs directly in your browser for DaVinci Resolve, Premiere Pro, Final Cut Pro, OBS, and ffmpeg. And for non-JS languages, the standalone WebAssembly build (<code>color-space/wasm</code>) runs in Python, Rust, Go, or C++ via wasmtime or wasmer with zero dependencies.</p></details>
 		<details class="fqa"><summary data-i18n="faq.cvd.q">How do colors look to color-blind people?</summary>
 		<p data-i18n="faq.cvd.p1">Open <em>View</em> and pick a <em>Vision</em>: red-blind (protanopia), green-blind (deuteranopia) or blue-blind (tritanopia). The catalog redraws as that eye sees it, so you can check that the colors of a palette stay apart. About 1 in 12 men have a color vision deficiency, <a href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/color-blindness">by the NEI's count</a>.</p></details>
 		<details class="fqa"><summary data-i18n="faq.pantone.q">Where's Pantone, NCS, RAL?</summary>
@@ -1548,6 +1559,7 @@ color-space/plugins/figma/manifest.json
 			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li></ul></div>
 		</div>
 		<div class="fend">
+			<p class="fatlas" data-i18n="ui.footer.atlas">An open interactive atlas and reference guide to cross-disciplinary color spaces, from web and screens to print and vision science. Started in 2016 as a personal hobby to collect every known color space.</p>
 			<p class="legal"><span class="lby" data-i18n="ui.footer.by">Made by <a href="https://github.com/dy">dy</a></span><span><a href="https://github.com/colorjs/color-space/blob/master/license.md" title="CC0 1.0 – public domain" data-i18n="title:ui.footer.cc0">CC0</a><a href="https://github.com/krishnized/license" title="Krishnized license">ॐ</a></span></p>
 		</div>
 	</div>
@@ -1562,10 +1574,10 @@ color-space/plugins/figma/manifest.json
 <div id="toast" role="status" aria-live="polite" data-i18n="ui.toast.copied">Copied</div>
 <div id="dropcast" hidden aria-hidden="true"><span data-i18n="ui.drop">drop the image — every lane and plane will read it</span></div>
 <div class="modal" id="modal" role="dialog" aria-labelledby="dtitle" hidden>
-	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier" data-i18n="title:ui.modal.close aria-label:ui.modal.close-label">✕</button><a class="embl" id="embl" href="./" target="_blank" rel="noopener" title="open this space on color-space.io, in a new tab" data-i18n="title:ui.modal.site">color-space.io ↗</a><div class="detail" id="detail" tabindex="-1"></div></div>
+	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier" data-i18n="title:ui.modal.close aria-label:ui.modal.close-label"><svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><a class="embl" id="embl" href="./" target="_blank" rel="noopener" title="open this space on color-space.io, in a new tab" data-i18n="title:ui.modal.site">color-space.io ↗</a><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
-import { space, meta, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, tightGamut, xyOf } from './js/core.js'
+import { space, meta, dirOnly, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, tightGamut, xyOf } from './js/core.js'
 import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath } from './js/locus.js'
@@ -1610,7 +1622,7 @@ const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3
 	upload:'M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15', x:'M18 6 6 18M6 6l12 12', out:'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5', plus:'M12 4v16M4 12h16', back:'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11', again:'M20 12a8 8 0 1 1-2.34-5.66L20 8.7M20 4v4.7h-4.7',
 	prev:'M15 18l-6-6 6-6', next:'M9 6l6 6-6 6',
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
-const icon=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
+const icon=n=>`<svg class="ic${n==='x'?' ix':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
 const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
@@ -1665,6 +1677,15 @@ const cdEl=document.getElementById('cd'), cdwEl=cdEl?.closest('.cdw'), cvalEl=do
 // the colors in hand, in their order, beside the field: the one in hand is the rhombus (the native picker), every other a
 // small rhombus of its own color – a click takes it in hand, ⌥-click lets it go
 const pstackEl=document.getElementById('pstack')
+// the held color against the Limit picked (GM): past it, a warning by the field – "outside P3"; past every light, "not a
+// color". The displays' by the tightest gamut holding it (core.js tightGamut, CSS Color 4's predefined spaces); Surface by
+// the object-colour solid, Light by the spectral locus
+const cvwarnEl=document.getElementById('cvwarn')
+const paintWarn=()=>{ if(!cvwarnEl) return; let say=''
+	if(!virginNow()) try{ const s=master.s, v=master.vals, tg=tightGamut(s,v), X=(()=>{ try{ return s==='xyz'?v:space[s].xyz(...v) }catch{ return null } })()
+		if(tg===null||!X||!visibleXYZ(...X)) say=t('ui.field.not-color','Not a color')
+		else if(GM==='vis'?!inVisSolid(...X):GM==='locus'?false:['srgb','p3','rec2020'].indexOf(tg)<0||['srgb','p3','rec2020'].indexOf(tg)>['srgb','p3','rec2020'].indexOf(GM)) say=t('ui.field.outside','Outside {g}',{g:cap(GAMLABEL[GM])}) }catch{}   // the Limit's names land later in the boot: a first paint before them says nothing
+	if(cvwarnEl._say===say) return; cvwarnEl._say=say; cvwarnEl.hidden=!say; cvwarnEl.title=say; cvwarnEl.setAttribute('aria-label',say) }
 const paintPstack=()=>{ const run=GRAD&&gradIn('rgb').map(v=>hex(v)), key=!STOPS?'':run?run.join()+'@'+STOPI:STOPS.map((c,i)=>i===STOPI?'@':hex(rgbF(c.s,c.vals))).join(',')
 	if(pstackEl._k===key) return; pstackEl._k=key
 	pstackEl.querySelectorAll('.pst').forEach(b=>b.remove())
@@ -1731,7 +1752,7 @@ if(cvalEl){
 		else if(unread){ cvalEl.value=unread.v; cvalEl.placeholder=unread.p; unread=null }
 		cvalEl.readOnly=e.detail; e.detail?cvalEl.setAttribute('aria-busy','true'):cvalEl.removeAttribute('aria-busy')
 		cxEl.classList.toggle('busy',e.detail); cxEl.classList.toggle('empty',!cvalEl.value.trim()&&!virginNow()); fitVal() })
-	document.addEventListener('imgpal',e=>{ const l=e.detail; if(!l?.length) return; const v=l.map(c=>hex(c)).join(', '), was=cvalEl.value.trim()
+	document.addEventListener('imgpal',e=>{ const l=e.detail; if(!l?.length) return; const v=l.map(c=>fmtAs(FMT,hex(c),c)).join(', '), was=cvalEl.value.trim()   // in the notation picked (View's Format)
 		if(was&&was!==v) remember(was); shown(null); before=null; PEEK=false; cvalEl.value=v; cvalEl.setSelectionRange(0,0); cvalEl._typed=take(); fitVal(); cxEl.classList.remove('empty') })
 	cvalEl.addEventListener('input',e=>{ if(!e.isTrusted||dragBar||dragEnt) return
 		shown(null); before=null; PEEK=false; cvalEl._typed=take(); fitVal(); cxEl.classList.toggle('empty',!cvalEl.value.trim()&&!virginNow()); suggest(!!cvalEl.value.trim()) })
@@ -1772,7 +1793,7 @@ if(cvalEl){
 	const nextSrc=k=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(useOf(k))+1)%l.length]; store('csSugSrc',srcOf) }
 	const K={ color:t('ui.sug.k.color','color'), neighbor:t('ui.sug.k.neighbor','neighbor'), pair:t('ui.sug.k.pair','pair'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), combination:t('ui.sug.k.combination','combination'), togradient:t('ui.sug.k.to-gradient','to gradient'), topalette:t('ui.sug.k.to-palette','to palette'), mixin:t('ui.sug.k.mix-in','mixed in'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
 	const from=(kind,name,src,key)=>({ kind, name, src, key })   // "palette: triad from Itten" – the name left out where the row's own text is it; key: the kind whose source it turns
-	const nth={ color:0, pair:0, palette:0, gradient:0, next:0, recent:0 }   // which of a set's nearest the context shows – its ↻ the next
+	const nth={ color:0, pair:0, palette:0, gradient:0, colormap:0, next:0, recent:0 }   // which of a set's nearest the context shows – its ↻ the next
 	const row=(v,why=null)=>{ const p=parseInput(v); return { v, say:v, why, sw:hexesOf(v), run:p?.grad?runOf(p.stops,p.grad):null } }
 	const named=(n,rgb,src,key,kind=K.color)=>{ const h=hex(rgb), lc=n.toLowerCase(), v=fmtAs(FMT,h,rgb); return { v, say:v, name:lc, why:from(kind,lc,src,key), sw:[h], tok:true } }   // a collection's color: its value in the field's notation, its name and its collection under it – in the place of the color it names
 	// at random, never the same twice in a visit while there are others (each set's drawn kept, cleared once all are)
@@ -1831,23 +1852,26 @@ if(cvalEl){
 		to=to.map(x=>clamp(Math.round(x),0,255)); const last=rgbF(st.at(-1).s,st.at(-1).vals); if(dE(to,last)<.03) return []
 		const nu={ s:'rgb', vals:to }, own=sayTyped(st), say=c=>c===nu?sayAs(to):own(c,st.indexOf(c)), g2={ fn:'linear-gradient', head:'', mix:g.mix, stops:[...st,nu].map((c,i,l)=>({ c, pos:i/(l.length-1) })) }
 		return [{ ...row(prefix?prefix+JOIN+sayAs(to):shortText(g2,say)??gradientText(g2,say),from(K.gradient,t('ui.sug.grad.on','one step on'))) }] }   // typed so far (a joint closing it): the typed words, the new stop after them
-	// a comma typed last: the next color for the last one – Sanzo Wada's partner (a combination holding the color nearest
-	// it; its ↻ the next such), and Itten's contrasts (The Art of Color, 1961): the complementary on his wheel, light–dark
-	// (its hue, Okhsl's lightness mirrored – 30 apart at least), saturation (its hue, Okhsv's saturation a third). Each the
-	// typed text, a comma, the new color – in the field's notation
-	const nextRows=(pre,c)=>{ const rgb=rgbF(c.s,c.vals), say=x=>pre+', '+sayAs(x.map(v=>clamp(Math.round(v),0,255))), out=[]
-		if(WADA){ const o=space.rgb.oklab(...rgb), ci=WADA.colors.reduce((b,x,i)=>{ const q=okOf(x[1]), d=Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]); return d<b[0]?[d,i]:b },[Infinity,-1])[1]
+	// a comma typed last: the list grown from its last color as one color is met – Sanzo Wada's partner for it (a pair: a
+	// combination holding the color nearest it), a palette that holds it, Itten's chord round it (The Art of Color, 1961),
+	// the gradient run out of it – each its ↻ the next; the typed text, then the new colors in the field's notation
+	const nextRows=(pre,c)=>{ const rgb=rgbF(c.s,c.vals), o=space.rgb.oklab(...rgb), add=hs=>pre+', '+hs.map(h=>sayAs(hx3(h))).join(', '), out=[]
+		if(WADA){ const ci=WADA.colors.reduce((b,x,i)=>{ const q=okOf(x[1]), d=Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]); return d<b[0]?[d,i]:b },[Infinity,-1])[1]
 			const cs=WADA.combos.filter(([,ix])=>ix.includes(ci)); if(cs.length){ const [n,ix]=cs[nth.next%cs.length], j=ix.indexOf(ci)
-				out.push({ ...row(say(hx3(WADA.colors[ix[(j+1)%ix.length]][1])),from(K.color,'#'+n,'wada','color')), way:'near-next' }) } }
-		if(hued(rgb)) out.push(row(say(turn(rgb,180)),from(K.color,t('ui.sug.chord.complementary','complementary'),'itten')))
-		const [h,sl,l]=space.rgb.okhsl(...rgb), l2=Math.abs(100-l-l)>=30?100-l:l<50?l+30:l-30; out.push(row(say(space.okhsl.rgb(h,sl,clamp(l2,4,96))),from(K.color,t('ui.sug.itten.light','light–dark'),'itten')))
-		const [,sv,v]=space.rgb.okhsv(...rgb); if(sv>=20) out.push(row(say(space.okhsv.rgb(h,sv/3,v)),from(K.color,t('ui.sug.itten.sat','saturation'),'itten')))
+				out.push({ ...row(add([WADA.colors[ix[(j+1)%ix.length]][1]]),from(K.pair,'#'+n,'wada')), way:'near-next' }) } }
+		{ const [pk,l2]=palsN(useOf('palette'),'palette'), near=nearN(l2,o,nth.palette); if(near){ const [n,hs]=leadOf(near,o); out.push({ ...row(add(hs.slice(1)),from(K.palette,n,pk,'palette')), way:'near-palette' }) } }
+		if(hued(rgb)){ const ch=chord(rgb,sugChord.c,null); out.push({ ...row(pre+', '+ch.v.split(', ').slice(1).join(', '),ch.why), at:ch.at, way:'chordc' }) }
+		out.push({ ...gradRow(rgb,sugGrad,pre) })   // the list's last color run out into a gradient
 		return out }
-	// a joint typed last (to, a dash, ..): the gradient from the last color – its hue turned either way, its tone; the set's
-	// gradient nearest it, from it; a gradient typed, one step on
+	// the set's colors as they are, the one nearest the color first
+	const leadOf=([n,hs],o)=>{ const d=h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) }, i=hs.reduce((b,h,j)=>d(h)<d(hs[b])?j:b,0); return [n,[hs[i],...hs.filter((_,j)=>j!==i)]] }
+	// a joint typed last (to, a dash, ..): the gradient from the last color – its hue turned (Okhsv) or its tone, a colormap
+	// from it, the set's gradient nearest it – each its ↻ the next; a gradient typed, one step on
 	const gradOnRows=(pre,p)=>{ if(p.grad) return extendRow(p.stops,p.grad,pre); if(p.stops.length>1) return []
 		const rgb=rgbF(p.stops[0].s,p.stops[0].vals), o=space.rgb.oklab(...rgb), gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
-		return [...(hued(rgb)?[0,1,2]:[2]).map(w=>({ ...gradRow(rgb,w,pre), way:null })),
+		const mk=useOf('colormap'), nm=nearGrad(MAPSOF(mk).length?MAPSOF(mk).map(([n,c])=>[n,c.split(' ')]):MAPS.map(([n,c])=>[n,c.split(' ')]),o,nth.colormap,()=>true)
+		return [gradRow(rgb,sugGrad,pre),
+			...nm?[{ ...row(pre+JOIN+nm[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN),from(K.colormap,nm[0],MAPSOF(mk).length?mk:'matplotlib','colormap')), way:'near-colormap' }]:[],
 			...ng?[{ ...row(pre+JOIN+ng[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN)+' in srgb',from(K.gradient,ng[0],gk,'gradient')), way:'near-gradient' }]:[]] }
 	// a palette in hand, as a gradient – its colors in order, run in OKLCh
 	const asGradRow=st=>[row(st.map(sayTyped(st)).join(JOIN)+' in oklch',{ kind:K.togradient })]   // its colors exactly, as the field says them
@@ -1871,7 +1895,7 @@ if(cvalEl){
 		if(Math.hypot(a[1],a[2])<.04||Math.hypot(b[1],b[2])<.04) return true
 		return Math.abs(((Math.atan2(a[2],a[1])-Math.atan2(b[2],b[1]))*180/Math.PI%360+540)%360-180)<=120 }
 	// the k-th nearest by an end, turned to start at it: a gradient from the color held
-	const nearGrad=(sets,o,k)=>{ const d=sets.filter(p=>goes(p[1])).map(p=>{ const [a,b]=[p[1][0],p[1].at(-1)].map(h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) })
+	const nearGrad=(sets,o,k,ok=goes)=>{ const d=sets.filter(p=>ok(p[1])).map(p=>{ const [a,b]=[p[1][0],p[1].at(-1)].map(h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) })
 		return [Math.min(a,b),b<a?[p[0],p[1].slice().reverse()]:p] }).sort((x,y)=>x[0]-y[0]); return d.length?d[k%d.length][1]:null }
 	// the k-th nearest list of a set to a color (OKLab): the lists ordered by their color nearest it
 	const okOf=(m=>h=>m.get(h)??m.set(h,space.rgb.oklab(...hx3(h))).get(h))(new Map())
@@ -1895,7 +1919,7 @@ if(cvalEl){
 		// hand, the caret's stop's – a near-twin too, the snap is the point – never the very color; one, visibly not it (past
 		// the near-twins: a common color, teal, has dozens within a step of it)
 		const nb=min=>{ const c=nearNames(l,o,64).filter(x=>x[2]>min); return c.length?[{ ...named(...c[nth.color%c.length].slice(0,2),k,'color',K.neighbor), way:'near-color' }]:[] }
-		const lead=([n,hs])=>{ const d=h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) }, i=hs.reduce((b,h,j)=>d(h)<d(hs[b])?j:b,0); return [n,[hs[i],...hs.filter((_,j)=>j!==i)]] }   // the set's colors as they are, the one nearest the held first
+		const lead=x=>leadOf(x,o)
 		// a pair, a palette of three or four with it: the set's nearest of that size, led by it; Itten's chords on his wheel
 		// round it – the combination, its ↻ the next chord
 		const setRow=z=>{ const [pk,l2]=palsN(useOf(z),z), near=nearN(l2,o,nth[z]); return near?[{ ...palRow(lead(near),pk), way:'near-'+z }]:[] }
@@ -1903,12 +1927,12 @@ if(cvalEl){
 		// many in hand: its neighbour; a pair, the palette it could grow into; a gradient, one step on and its stops as a
 		// palette; a list, as a gradient; and the chord round the caret's color
 		if(many){ const b=before, st=b?b.stops:STOPS, g=b?b.grad:GRAD
-			return [...nb(.001),...!g&&st.length===2?setRow('palette'):[],...g?[...extendRow(st,g),...asPalRow(st)]:asGradRow(st),...combo] }
+			return [...nb(.001),...!g&&st.length===2?setRow('palette'):[],...combo,...g?[...extendRow(st,g),...asPalRow(st)]:asGradRow(st)] }
 		// one in hand: its neighbour, a pair and a palette with it, the gradient from it (the source's nearest, else its
 		// hue turned in Okhsv), the chord round it
 		const gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
 		const own=(v=>{ const p=v&&cssWord(v)&&parseInput(v); return p&&!p.grad&&p.stops.length===1?v:null })(cvalEl.value.trim())   // the color as typed where it is a CSS value – tomato, not its hex
-		return [...nb(.02),...setRow('pair'),...setRow('palette'),ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own),...combo] }
+		return [...nb(.02),...setRow('pair'),...setRow('palette'),...combo,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own)] }
 	// a phrase read – channels named, a name told how to change: the color it came to, written out, first
 	const phraseRow=v=>{ if(parseColor(v)||parseColorList(v)||setNamed(v)) return []; const c=parsePhrase(v); if(!c) return []
 		const rgb=rgbF(c.s,c.vals), w=say3(c.s,hex(rgb),rgb)   // in its own notation where CSS has one, else hex
@@ -1920,9 +1944,11 @@ if(cvalEl){
 		if(!v){ const all=recent(), rec=all.length?[all[nth.recent%all.length]]:[]   // the ways in drawn once a focus – the list redrawn keeps them; the last typed, one, its ↶ the one before
 			return [...(sugDraw||=draw()).filter(r=>!rec.includes(r.v)),...rec.map(v=>({ ...row(v,{ kind:K.recent }), rec:true, back:all.length>1 }))] }
 		if(!typed) return ok?ctxRows():[]   // focused on a color: it in context
-		// a gradient's method being typed (`red – blue in o…`): CSS's interpolation spaces (CSS Color 4 §12.1), as typed so far
+		// a gradient's method being typed (`red – blue in o…`): CSS's interpolation spaces (CSS Color 4 §12.1), as typed so far;
+		// one typed whole (`in oklch`), the others – the ones it begins first
 		const inm=v.match(/^(.*\S)\s+in(?:\s+([a-z0-9-]*))?$/i), ip=inm&&parseInput(inm[1])
-		if(ip?.grad&&ip.stops.length>1){ const q2=(inm[2]||'').toLowerCase(); return MIXIN.filter(n=>n.startsWith(q2)&&n!==q2).map(n=>row(`${inm[1]} in ${n}`,{ kind:K.mixin })) }
+		if(ip?.grad&&ip.stops.length>1){ const q2=(inm[2]||'').toLowerCase(), on=n=>n!==q2&&n.startsWith(q2)
+			return [...MIXIN.filter(on),...MIXIN.includes(q2)?MIXIN.filter(n=>n!==q2&&!on(n)):[]].map(n=>row(`${inm[1]} in ${n}`,{ kind:K.mixin })) }
 		const tail=cvalEl.value.match(/^(.*\S)\s*(,|\s+to|\s*[–—]|\s*-|\.\.)\s*$/is), tp=tail&&parseInput(tail[1])   // a joint typed last: what comes next
 		if(tp) return tail[2]===','?(tp.stops.length===1||!tp.grad?nextRows(tail[1],tp.stops.at(-1)):[]):gradOnRows(tail[1],tp)
 		const word=/^[\p{L}\d'’ -]+$/u.test(q)&&!/^#?[\da-f]{3,8}$/.test(q)
@@ -2022,7 +2048,7 @@ if(cvalEl){
 		else if(e.key==='Tab'&&!e.shiftKey&&!cvalEl.value&&virginNow()&&cvalEl.placeholder){ e.preventDefault(); before=null; PEEK=false; cvalEl.value=cvalEl.placeholder; cvalEl._typed=take(); fitVal(); cxEl.classList.remove('empty'); suggest(false) }   // the orbit's color, held as the placeholder, taken
 		else if(e.key==='Enter'){ e.preventDefault(); if(i>=0) pick(rows[i]); else cvalEl.blur() }   // the field wraps, it never takes a line break
 		else if(e.key==='Delete'&&e.shiftKey&&i>=0&&rows[i].nextElementSibling?.matches('.sgx')){ e.preventDefault(); forget(rows[i].dataset.v) }   // the walked-to recent one forgotten, as a browser's address bar does
-		else if(e.key==='Escape'&&!sugEl.hidden){ unpeek(); sugShut=true; sugEl.hidden=true; ghostOf([]) } })
+		else if(e.key==='Escape'){ if(!sugEl.hidden){ unpeek(); sugShut=true; sugEl.hidden=true; ghostOf([]) } cvalEl.blur() } })   // Esc lets the field go, its list with it
 	// the field's ×: the color let go – nothing chosen, the field invites again, the orbit back (as the field let go empty)
 	cvxEl.addEventListener('click',()=>{ unpeek(); cvalEl.value=''; cvalEl._typed=false; sugEl.hidden=true; ghostOf([]); ambient(); renderFast(); fitVal() })
 	cvalEl.addEventListener('blur',()=>{ unpeek(); requestAnimationFrame(fitVal); sugEl.hidden=true; ghostOf([]); sugShut=false; sugDraw=null; if(cvalEl._typed) remember(cvalEl.value.trim()); cvalEl._typed=false
@@ -2064,20 +2090,21 @@ const tokenAt=(str,p)=>tokensOf(str).find(t=>p>=t[0]&&p<=t[1])??null
 const twin=cvalEl&&Object.assign(document.createElement('div'),{ className:'cvtwin' })
 twin?.setAttribute('aria-hidden','true'); cvalEl?.after(twin)
 const TWIN=['fontFamily','fontSize','fontWeight','fontVariantNumeric','lineHeight','letterSpacing','paddingLeft','paddingRight','whiteSpace','overflowWrap','wordBreak']
-// …and its seen twin under the text, the lines under its colors – as a space's channel pairs are underlined (.cvp):
-// the field pointed at, every color in it at half strength; the caret in one, that one in its own color
+// …and its seen twin under the text: the field's text, one string, the color in hand inked over the rest by a highlight
+// (the CSS Custom Highlight API's range, no word wrapped) – its docked one-line copy (below) the same
 const ul=cvalEl&&Object.assign(document.createElement('div'),{ className:'cvul' })
 ul?.setAttribute('aria-hidden','true'); cvalEl?.after(ul)
-// each color of the text in its own <u>, its color the stop's (one color: the one in hand); the words round them plain
-const ulPaint=()=>{ const v=cvalEl.value; let at=0, h=''
-	for(const [a,b,k] of tokensOf(v)){ if(k==null) continue; const c=STOPS?STOPS[k]:master; h+=esc(v.slice(at,a))+`<u data-k="${k}"${c?` style="--cur:${hex(rgbF(c.s,c.vals))}"`:''}>${esc(v.slice(a,b))}</u>`; at=b }
-	ul.innerHTML=h+esc(v.slice(at)); ulAt() }
+const showEl=cvalEl&&Object.assign(document.createElement('div'),{ className:'cvshow' }); showEl?.setAttribute('aria-hidden','true'); cvalEl?.after(showEl)
+const HELD=globalThis.Highlight&&new Highlight(); if(HELD) CSS.highlights.set('cv-held',HELD)
+const ulPaint=()=>{ ul.textContent=cvalEl.value; ulAt() }
 // the color in hand marked among the field's colors: in the field, the one the caret is in – the one being typed (a
 // selection across colors takes none: the held one stays the mark, as it stays the color in hand) – else the held one;
-// let go, the held one, many in hand (one alone needs no mark)
-const ulAt=()=>{ const f=document.activeElement===cvalEl&&cvalEl.selectionStart===cvalEl.selectionEnd, c=f?tokenAt(cvalEl.value,cvalEl.selectionStart)?.[2]:null, k=c??(STOPS?STOPI:null)
-	ul.classList.toggle('many',!!STOPS&&ul.children.length>1)
-	for(const u of ul.children) u.classList.toggle('on',k!=null&&+u.dataset.k===k) }
+// many in hand only (one alone needs no mark)
+const ulAt=()=>{ const v=cvalEl.value, f=document.activeElement===cvalEl&&cvalEl.selectionStart===cvalEl.selectionEnd, ws=tokensOf(v).filter(w=>w[2]!=null)
+	const many=!!STOPS&&ws.length>1, c=f?tokenAt(v,cvalEl.selectionStart)?.[2]:null, k=c??(STOPS?STOPI:null), w=many&&ws.find(w=>w[2]===k)
+	for(const el of [ul,showEl]) el.classList.toggle('many',many)
+	HELD?.clear(); if(!w||!HELD) return
+	for(const el of [ul,showEl]){ const n=el.firstChild; if(n?.length>=w[1]){ const r=new Range(); r.setStart(n,w[0]); r.setEnd(n,w[1]); HELD.add(r) } } }
 // the color an instrument's press would take (stophot: the planes', strips' hot): its mark in the stack lifted – a
 // gradient's pill at that stop; the field's text left as it is
 let HOTJ=null
@@ -2094,15 +2121,14 @@ cvalEl?.addEventListener('scroll',()=>{ for(const el of [twin,ul]) el.style.tran
 cvalEl?.addEventListener('blur',ulAt)
 // …and docked, not in hand, the value shown on one line, cut short with an ellipsis (a textarea can't) – over the field,
 // whose own text steps aside
-const showEl=cvalEl&&Object.assign(document.createElement('div'),{ className:'cvshow' }); showEl?.setAttribute('aria-hidden','true'); cvalEl?.after(showEl)
 const fitShow=()=>{ const cs=getComputedStyle(cvalEl); for(const k of TWIN) showEl.style[k]=cs[k]; showEl.style.whiteSpace='nowrap'
-	Object.assign(showEl.style,{ inset:'auto', left:cvalEl.offsetLeft+'px', top:cvalEl.offsetTop+'px', width:cvalEl.offsetWidth+'px' }); showEl.textContent=cvalEl.value }
+	Object.assign(showEl.style,{ inset:'auto', left:cvalEl.offsetLeft+'px', top:cvalEl.offsetTop+'px', width:cvalEl.offsetWidth+'px' }); showEl.textContent=cvalEl.value; ulAt() }
 // a value longer than a line at the slogan's size (a long gradient, a list) said at the row's – decided at the slogan's
 // size over the hero whatever the field shows now, so the smaller size can't flip it back
 const fitLong=()=>{ if(document.body.classList.contains('cdock')) return; const cs=getComputedStyle(document.documentElement), tk=getComputedStyle(hcolorEl).getPropertyValue('--cvfh').trim()
 	const big=tk.endsWith('rem')?parseFloat(tk)*parseFloat(cs.fontSize):parseFloat(tk), f0=twin.style.fontSize; twin.style.fontSize=big+'px'
 	const long=twin.offsetHeight>big*+getComputedStyle(hcolorEl).getPropertyValue('--cvl')*1.5; twin.style.fontSize=f0; if(cxEl.classList.contains('long')!==long){ cxEl.classList.toggle('long',long); lay() } }
-const fitVal=()=>{ if(!cvalEl) return; lay(); fitLong(); fitShow(); const h=twin.offsetHeight, cs=getComputedStyle(cxEl), pad=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)   // the box round the lines, as styled – never a measure taken while the lines ease
+const fitVal=()=>{ if(!cvalEl) return; lay(); fitLong(); fitShow(); const h=document.activeElement===cvalEl?twin.offsetHeight:parseFloat(getComputedStyle(cvalEl).lineHeight), cs=getComputedStyle(cxEl), pad=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)   // the box round the lines, as styled – never a measure taken while the lines ease
 	cvalEl.style.setProperty('--cvh',h/parseFloat(getComputedStyle(cvalEl).fontSize))   // in its own ems: the lines it holds, at any size the docking eases it through
 	cxEl.classList.toggle('tall',h>parseFloat(getComputedStyle(cvalEl).lineHeight)*1.5)
 	if(!document.body.classList.contains('cdock')) hqEl.style.minHeight=Math.max(0,h+pad)+'px' }
@@ -2186,7 +2212,7 @@ document.body.append(upPop); (window.requestIdleCallback||setTimeout)(()=>{ upB?
 // the image go. It outlives the dossier's scrim. ──
 const imgPk=Object.assign(document.createElement('canvas'),{id:'imgpk'})
 const imgFl=Object.assign(document.createElement('div'),{id:'imgfloat'})
-const imgX=Object.assign(document.createElement('button'),{id:'imgx',type:'button',title:t('ui.img.remove','remove the image'),ariaLabel:t('ui.img.remove','remove the image'),innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'})
+const imgX=Object.assign(document.createElement('button'),{id:'imgx',type:'button',title:t('ui.img.remove','remove the image'),ariaLabel:t('ui.img.remove','remove the image'),innerHTML:'<svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'})
 imgFl.append(imgPk,imgX); document.body.append(imgFl)
 const pkShow=()=>{ const src=HIMG?.src; if(!src) return
 	const W=Math.round(Math.min(280,Math.max(180,src.width),innerWidth*.3)), H=Math.round(W*src.height/src.width)
@@ -2965,33 +2991,27 @@ const FVALS=FACETS.map((nm,fi)=>{ const v=[...new Set(SPACES.flatMap(s=>[...SLOT
 const OPTI={ SDR:OI.sdr, HDR:OI.hdr, component:OI.component, opponent:OI.opponent, polar:OI.polar, display:OI.display, scene:OI.scene,
 	gamma:OI.gamma, linear:OI.linear, perceptual:OI.perceptual, log:OI.log, PQ:OI.pq, HLG:OI.hlg, 'luma / chroma':OI.lumachroma, current:OI.current, historical:OI.historical }
 const optIcon=(fi,v)=>WHITE_XY[v]&&FACETS[fi]==='white point'?`<i class="wdot" style="--w:${whiteHex(v)}"></i>`:OPTI[v]||''
-// a setting as a dropdown – the menus' one control: the pick's mark, a native select of the options (a group an
-// optgroup), the pick's line under it. Each option {v, name, line, icon, tip, group}; the marks and lines kept by the
-// select (dropShow reads them as the pick changes)
+// a setting as a dropdown – Format's: a native select of the options (a group an optgroup), each {v, name, tip, group}
 const DROPS=new Map()
 const qesc=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')   // the page's own esc comes later in the module, and keeps quotes
-const dropHTML=(key,attrs,label,opts)=>{ const esc=qesc
-	DROPS.set(key,new Map(opts.map(o=>[String(o.v),o]))); let g=null, h=''
+const dropHTML=(key,attrs,label,opts)=>{ const esc=qesc; let g=null, h=''
 	for(const o of opts){ if((o.group??null)!==g){ if(g!=null) h+='</optgroup>'; g=o.group??null; if(g!=null) h+=`<optgroup label="${esc(g)}">` }
-		const tip=o.tip??o.line; h+=`<option value="${esc(String(o.v))}"${tip?` title="${esc(tip)}"`:''}>${o.icon?`<span class="oi" aria-hidden="true">${o.icon}</span>`:''}${esc(o.name)}</option>` }   // its line its tooltip too, where it has no other; its mark drawn where the browser draws the options itself – elsewhere the parser keeps the name alone
+		h+=`<option value="${esc(String(o.v))}"${o.tip?` title="${esc(o.tip)}"`:''}>${esc(o.name)}</option>` }
 	if(g!=null) h+='</optgroup>'
-	return `<span class="msel"><span class="oi" aria-hidden="true"></span><select data-drop="${key}" ${attrs} aria-label="${esc(label)}">${h}</select></span>${opts.some(o=>o.line)?'<small class="mline"></small>':''}` }   // a line under it only where its options have lines
-// a setting as a switch – the menus' control where every option has its mark (Limit, Vision, the facets): the marks in a
-// row, the pick inked and barred, each one's name and line its tooltip; the pick's name and line under it. A facet's pick
-// pressed again lets it go (Any)
-const segHTML=(key,attrs,label,opts,any='')=>{ const esc=qesc; DROPS.set(key,new Map(opts.map(o=>[String(o.v),o])))
-	return `<span class="seg${opts.every(o=>o.icon)?' figseg':''} mseg" role="group" data-drop="${key}" ${attrs} aria-label="${esc(label)}"${any?` data-any="${esc(any)}"`:''}>${opts.map(o=>`<button type="button" data-v="${esc(String(o.v))}" aria-pressed="false" title="${esc(o.tip??(o.line?`${o.name} – ${o.line}`:o.name))}" aria-label="${esc(o.name)}">${o.icon||esc(o.name)}</button>`).join('')}</span><small class="mline"></small>` }
-const segShow=(el,v)=>{ for(const b of el.children){ const on=b.dataset.v===String(v); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)) }
-	const o=DROPS.get(el.dataset.drop)?.get(String(v)); el.nextElementSibling.textContent=o?(o.line?`${o.name} – ${o.line}`:o.name):el.dataset.any||'' }
-const dropShow=sel=>{ const o=DROPS.get(sel.dataset.drop)?.get(sel.value), row=sel.parentElement
-	row.firstElementChild.innerHTML=o?.icon||''; const ln=row.nextElementSibling; if(ln?.classList.contains('mline')) ln.textContent=o?.line||'' }
+	return `<span class="msel"><select data-drop="${key}" ${attrs} aria-label="${esc(label)}">${h}</select><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5"/></svg></span>` }   // the downloads' chevron
+// a setting as its options in view – Quantize, Distance, Limit, Vision, every facet: each its mark and its word, two to a
+// row (cols: a count's four), the pick inked and barred, a word more its tooltip – none where the word says it all. A
+// facet's pick pressed again lets it go (Any)
+const segHTML=(key,attrs,label,opts,cols=2)=>{ const esc=qesc; let g
+	return `<span class="mseg" role="group" data-drop="${key}" ${attrs} aria-label="${esc(label)}"${cols===2?'':` style="--cols:${cols}"`}>${opts.map((o,k)=>(k&&o.group!==g?'<i class="mbr"></i>':'')+(g=o.group,`<button type="button" data-v="${esc(String(o.v))}" aria-pressed="false"${o.tip?` title="${esc(cap(o.tip))}"`:''}>${o.icon||''}<span>${esc(o.name)}</span></button>`)).join('')}</span>` }
+const segShow=(el,v)=>{ for(const b of el.querySelectorAll('button')){ const on=b.dataset.v===String(v); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)) } }
 // a facet's section of the menu. Coverage is continuous, so it filters by interval, not options: from–to share of the
 // visible gamut (the dossier's reach number) – the low end finds the narrow-coverage spaces, the high end the wide ones
 const moreEl=document.getElementById('m-more')
 moreEl.innerHTML=`<label class="msq"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq2" type="search" autocomplete="off" spellcheck="false" placeholder="${t('ui.header.find','search…')}" aria-label="${t('ui.header.find-tip','search the spaces by name')}"></label>`+[['signal','range','channels','geometry'],['encoding','coverage'],['white','status']].map(c=>`<div class="mcol">${c.map(k=>`<section class="msec" data-m="${k}"><header>${CLABEL[k]}</header></section>`).join('')}</div>`).join('')   // in columns: the short facets, the tone curve over coverage, the white – a phone pairs them up (CSS)
 for(const k in CELLS){ const fi=fiOf(k)
-	moreEl.querySelector(`.msec[data-m="${k}"]`).insertAdjacentHTML('beforeend',`<div class="mbody" data-m="${k}">${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span></span><small class="mline tnum" id="fcovv">${covTxt()}</small>`
-		:segHTML('f'+fi,`data-f="${fi}"`,CLABEL[k],FVALS[fi].map(v=>({ v, name:FACETS[fi]==='channels'?v:cap(tagL(v)), line:tagLine(v), icon:FACETS[fi]==='channels'?'':optIcon(fi,v), tip:TAGTIP[v] })),t('ui.filter.any','Any'))}</div>`) }
+	moreEl.querySelector(`.msec[data-m="${k}"]`).insertAdjacentHTML('beforeend',`<div class="mbody" data-m="${k}">${k==='coverage'?`<span class="fcov"><span class="dual"><input type="range" id="fcov" min="0" max="95" step="5" value="0" aria-label="${t('ui.filter.cov-from-label','minimum share of the visible gamut')}" title="${t('ui.filter.cov-from','from – keep spaces reaching at least this share of visible colors')}"><input type="range" id="fcov1" min="5" max="100" step="5" value="100" aria-label="${t('ui.filter.cov-to-label','maximum share of the visible gamut')}" title="${t('ui.filter.cov-to','to – keep spaces reaching at most this share')}"></span><b class="tnum" id="fcovv">${covTxt()}</b></span>`
+		:segHTML('f'+fi,`data-f="${fi}"`,CLABEL[k],FVALS[fi].map(v=>({ v, name:FACETS[fi]==='channels'?v:cap(tagL(v)), icon:FACETS[fi]==='channels'?'':optIcon(fi,v), tip:tagLine(v) })),FACETS[fi]==='channels'?4:2)}</div>`) }
 const fcov=document.getElementById('fcov'), fcov1=document.getElementById('fcov1'), fcovv=document.getElementById('fcovv'), covD=document.querySelector('.fcov .dual')
 const isOn=k=>k==='coverage'?covOn():act[fiOf(k)].size>0
 const moreB=document.getElementById('c-more'), moreN=moreB.querySelector('b')
@@ -3003,14 +3023,19 @@ fclrEl.onclick=()=>filterKeep(()=>{ act.forEach(a=>a.clear()); covMin=0; covMax=
 const filterKeep=change=>{ const r=document.documentElement; r.style.overflowAnchor='none'; change(); applyFilter(); requestAnimationFrame(()=>r.style.overflowAnchor='') }
 const cellWords=k=>{ if(k==='coverage') return covTxt()
 	const v=[...act[fiOf(k)]][0]; return FACETS[fiOf(k)]==='channels'?t('ui.filter.ch-n','{n} channels',{n:v}):cap(tagL(v)) }
-// The search and the count step aside (.under, their room kept) while the docked color reaches them – a narrow row,
-// scrolled. One element's place against another's is a measure, not CSS's
+// The docked field's room: to the search, a gap short – and where it starts. One element's place against another's is a
+// measure, not CSS's
 const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySelector('.count')
 	const cx=cxEl.getBoundingClientRect(), docked=cx.top<row.getBoundingClientRect().bottom
 	const lo=Math.min(...[row.querySelector('.qx'),cnt].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))
-	row.classList.toggle('under',docked&&lo<cx.right+8)
-	if(docked){ hcolorEl.style.setProperty('--cdw',Math.max(160,lo-cx.left-12)+'px'); hcolorEl.style.setProperty('--cxl',cx.left+'px') }   // the field to the search, a gap short; where it starts, for its list to stay in the window
+	hcolorEl.style.setProperty('--cdw',Math.max(160,lo-cx.left-12)+'px'); hcolorEl.style.setProperty('--cxl',cx.left+'px')   // the field to the search, a gap short – docked, and the width it eases to as it docks; where it starts, for its list to stay in the window
 	if(document.body.classList.contains('cdock')!==docked){ document.body.classList.toggle('cdock',docked); fitField() } }   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
+// no scroll timeline (Firefox): the dock's progress read from the scroll, a frame per scroll – the size and the width
+// the timeline would ease (cvdock, cxdock), eased the same
+if(!CSS.supports('animation-timeline:scroll()')){ const pg=document.querySelector('.page'), rs=getComputedStyle(document.documentElement); let raf=0
+	const step=()=>{ raf=0; const run=2*parseFloat(rs.getPropertyValue('--s12'))*parseFloat(rs.fontSize), d=parseFloat(pg.style.getPropertyValue('--hc-dock'))||innerHeight/2
+		hcolorEl.style.setProperty('--cvdp',clamp((scrollY-d+run)/run,0,1).toFixed(3)) }
+	addEventListener('scroll',()=>{ raf||=requestAnimationFrame(step) },{ passive:true }); addEventListener('resize',step); step() }
 { const ro=new ResizeObserver(()=>fitCells()); ro.observe(stripEl); ro.observe(cxEl)
 	let rq=0; addEventListener('scroll',()=>{ rq||=requestAnimationFrame(()=>{ rq=0; fitCells() }) },{ passive:true }) }   // the color docks as the page scrolls
 // a pick filters the catalog and inks Filters' mark; Filters' name and tooltip say every pick, its × lets them go
@@ -3309,18 +3334,18 @@ const QGROUPS=[['',[[null,t('ui.quant.smooth','smooth')]]],
 	[t('ui.quant.steps','steps'),[[10,t('ui.quant.10','10-step')],[20,t('ui.quant.20','20-step')],['565','16-bit'],['jnd','JND']]],
 	[t('ui.quant.palettes','Palettes'),[['web',t('ui.quant.web','web-safe')],['names',t('ui.quant.names','CSS names')],['meodai','color-name-list'],['xkcd','xkcd'],['tailwind','Tailwind'],['pico8','PICO-8'],['ansi','ANSI']]]]   // brands keep their own casing – xkcd lowercase
 const QSEG=QGROUPS.flatMap(([,o])=>o)
-const QTIP={ 'smooth':t('ui.quant.tip.smooth','continuous, unquantized'),
-	'10':t('ui.quant.tip.10','10 native-channel cell centers'),
-	'20':t('ui.quant.tip.20','20 native-channel cell centers'),
-	'565':t('ui.quant.tip.565','16-bit RGB565 depth'),
+const QTIP={ 'smooth':'',
+	'10':t('ui.quant.tip.10','10 cells a channel'),
+	'20':t('ui.quant.tip.20','20 cells a channel'),
+	'565':t('ui.quant.tip.565','RGB565'),
 	'jnd':t('ui.quant.tip.jnd','just-noticeable OKLab steps'),
-	'web':t('ui.quant.tip.web','216 web-safe colors'),
+	'web':t('ui.quant.tip.web','216 colors'),
 	'names':t('ui.quant.tip.names','CSS named colors'),
-	'meodai':t('ui.quant.tip.meodai','about 32,000 names – meodai’s color-name-list'),
-	'xkcd':t('ui.quant.tip.xkcd','xkcd survey names'),
-	'tailwind':t('ui.quant.tip.tailwind','Tailwind tokens'),
-	'pico8':t('ui.quant.tip.pico8','PICO-8 palette'),
-	'ansi':t('ui.quant.tip.ansi','terminal 256 palette') }
+	'meodai':t('ui.quant.tip.meodai','about 32,000 names, meodai’s'),
+	'xkcd':t('ui.quant.tip.xkcd','the xkcd color survey'),
+	'tailwind':'',
+	'pico8':'',
+	'ansi':t('ui.quant.tip.ansi','the terminal’s 256') }
 const qKey=v=>v==null?'smooth':String(v)
 const qFromKey=v=>v==='smooth'?null:v==='10'?10:v==='20'?20:v
 let dragBar=null   // the slider being dragged — its own background stays frozen
@@ -3352,7 +3377,7 @@ const gamLin={ srgb:X=>space.xyz.lrgb(...X), p3:X=>space.xyz['p3-linear'](...X),
 const inGam=(s,vv,g=GM)=>{ if(s==='rgb') return true
 	try{ const X=s==='xyz'?vv:space[s].xyz(...vv)
 		if(g==='locus') return visibleXYZ(...X)   // any real light – the locus is the only wall
-		if(meta[s]?.method==='chromaticity'){ // luminance is discarded by the SPACE — test the direction: displayable at ANY luminance (the fixed Y=100 convention read as 'broken' ghost)
+		if(dirOnly(s)){ // luminance is discarded by the SPACE — test the direction: displayable at ANY luminance (the fixed Y=100 convention read as 'broken' ghost)
 			if(g==='vis'){ const t=50/Math.max(X[1],1e-4); return inVisSolid(X[0]*t,50,X[2]*t) }
 			const L=gamLin[g](X), m=Math.max(L[0],L[1],L[2])
 			return m>0&&L.every(u=>u>=-0.005*m) }
@@ -3385,8 +3410,8 @@ const qTriple=v=> PALMODES.has(v)? t=>nearestIn(v,t)?.rgb??t   // a list not yet
 let viewFromURL=null   // assigned by the injection below; the boot route calls it before first paint
 // ── how the catalog is drawn: the row's lens cells over their menus – Quantize (the quantize lens and its palette
 // distance), Limit (the dossier's gamut cut), Vision (a color-vision deficiency over the whole page), View ──
-{	const gamTip=g=>({ srgb:t('ui.gamut.tip.srgb','standard web gamut'), p3:t('ui.gamut.tip.p3','wide Apple-display gamut'), rec2020:t('ui.gamut.tip.rec2020','ultra-wide UHD gamut'), vis:t('ui.gamut.tip.vis','colors a lit surface can show'), locus:t('ui.gamut.tip.locus','every color a light can have') })[g]
-	const VLINE={ none:t('ui.vision.none','no simulation'), protan:t('ui.vision.protan','red-blind'), deutan:t('ui.vision.deutan','green-blind'), tritan:t('ui.vision.tritan','blue-blind') }
+{	const gamTip=g=>({ srgb:t('ui.gamut.tip.srgb','the web’s, most screens'), p3:t('ui.gamut.tip.p3','wide-gamut screens'), rec2020:t('ui.gamut.tip.rec2020','UHD video'), vis:t('ui.gamut.tip.vis','what a lit surface can show'), locus:t('ui.gamut.tip.locus','any light') })[g]
+	const VLINE={ protan:t('ui.vision.protan','red-blind'), deutan:t('ui.vision.deutan','green-blind'), tritan:t('ui.vision.tritan','blue-blind') }
 	// the notation every value is written in – the field's, the suggestions', a gradient's stops: one choice for all, each
 	// option the color in hand written in it (fmtSamples, as the menu opens)
 	const fmtSamples=()=>{ const c=RGB(), h=hex(c); return FMTL.map(f=>({ v:f, name:fmtAs(f,h,c) })) }
@@ -3397,10 +3422,10 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	const citeOf=c=>{ const m=c?.match(/^([^,&\d]+?)\s*(?:([,&])[^\d]*)?\s(\d{4})/); return m?`${m[1]}${m[2]?' et al.':''} ${m[3]}`:'' }   // Machado, Oliveira & Fernandes 2009 → Machado et al. 2009
 	document.getElementById('m-view').innerHTML=[
 		row(t('ui.cell.format','Format'),'n',fmtSamples()),
-		row(t('ui.cell.draw','Quantize'),'q',QGROUPS.flatMap(([gl,os])=>os.map(([mo,lb])=>({ v:qKey(mo), name:qName(lb), icon:QI[qKey(mo)], tip:QTIP[qKey(mo)], group:gl||null })))),
-		row(t('ui.metric.title','Distance'),'m',METRICS.map(m2=>({ v:m2, name:MLABEL[m2], tip:MTIP[m2] }))),
-		seg(t('ui.cell.limit','Limit'),'g',[...GAMS,'vis','locus'].map(g=>({ v:g, name:GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g], line:gamTip(g), icon:LI[g] }))),   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
-		seg(t('ui.cell.vision','Vision'),'v',LENSES.map(l=>({ v:l.id, name:cap(t(`lens.${l.id}`,l.label)), line:VLINE[l.id]+(l.cite?` – ${citeOf(l.cite)}`:''), icon:`<i class="wdot wb-hues"${l.id==='none'?'':` style="filter:url(#cvd-${l.id})"`}></i>` })))].join('')
+		seg(t('ui.cell.draw','Quantize'),'q',QGROUPS.flatMap(([,os],gi)=>os.map(([mo,lb])=>({ v:qKey(mo), name:qName(lb), icon:QI[qKey(mo)], tip:QTIP[qKey(mo)], group:gi===QGROUPS.length-1 })))),   // the smooth and the stepped | the palettes
+		seg(t('ui.metric.title','Distance'),'m',METRICS.map(m2=>({ v:m2, name:MLABEL[m2], tip:MTIP[m2] }))),
+		seg(t('ui.cell.limit','Limit'),'g',[...GAMS,'vis','locus'].map(g=>({ v:g, name:GAMLABEL[g]===GAMLABEL[g].toLowerCase()?cap(GAMLABEL[g]):GAMLABEL[g], tip:gamTip(g), icon:LI[g] }))),   // a common noun capitalized, a brand as it is (sRGB, not SRGB)
+		seg(t('ui.cell.vision','Vision'),'v',LENSES.map(l=>({ v:l.id, name:l.id==='none'?t('ui.vision.typical','Typical'):cap(t(`lens.${l.id}`,l.label)), tip:l.cite?`${VLINE[l.id]} – ${citeOf(l.cite)}`:'', icon:`<i class="wdot wb-hues"${l.id==='none'?'':` style="filter:url(#cvd-${l.id})"`}></i>` })))].join('')
 	// the notation's options written in the color in hand, as the menu opens
 	document.getElementById('m-view').addEventListener('beforetoggle',e=>{ if(e.newState!=='open') return
 		if(!document.getElementById('cvd-deutan')) document.body.insertAdjacentHTML('beforeend',cvdDefs())   // Vision's marks drawn through their own lenses, before any is picked
@@ -3410,9 +3435,9 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 			if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to – the build stamps the first visit's
 		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent }   // never inked; its mark the menu's own – the settings of how every value is written and seen
 		const now={ q:qKey(Q), m:QM, g:GM, v:VIS, n:FMT }
-		document.querySelectorAll('.dpop select[data-lens]').forEach(b=>{ b.value=now[b.dataset.lens]; dropShow(b) })
+		document.querySelectorAll('.dpop select[data-lens]').forEach(b=>{ b.value=now[b.dataset.lens] })
 		document.querySelectorAll('.dpop .mseg[data-lens]').forEach(b=>segShow(b,now[b.dataset.lens]))
-		document.querySelector('.dpop select[data-lens="m"]').disabled=!PALMODES.has(Q) }   // the distance waits for a palette – shown, not offered
+		for(const b of document.querySelectorAll('.dpop .mseg[data-lens="m"] button')) b.disabled=!PALMODES.has(Q) }   // the distance waits for a palette – shown, not offered
 	const applyView=()=>{ clearClusterSnaps(); clusterize()   // state snaps synchronously; painting never holds the menu open
 		cancelAnimationFrame(qRaf); qRaf=requestAnimationFrame(()=>{ renderFast()
 			qRaf=requestAnimationFrame(()=>{ qRaf=0; if(open()) queuePlaneSettle() }) })
@@ -3421,7 +3446,7 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	// repaint as they scroll in), the hero's locus and the dossier's plate show it. The row's menu and the locus both pick it here
 	setLimit=v=>{ GM=v; try{ localStorage.csGm=GM }catch{}
 		if(open()){ wire3d(); renderFast(); queuePlaneSettle() }
-		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); paintLens() }
+		paintCatalogGrad(); planeEnts.forEach(paintEntPlanes); heroLimit(); paintLens(); paintWarn() }
 	// a view setting taken – from its select or its switch, one door
 	const pickLens=(k,v)=>{ switch(k){
 			case 'q': Q=qFromKey(v); if(Q==='meodai'&&!MEODAI.length) loadMeodai().then(()=>{ sitesOf.meodai=null; if(Q==='meodai') applyView() }); applyView(); syncViewURL(); break   // the long list lands, then the lens draws with it
@@ -4610,7 +4635,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	const L0=LORE[s]||{}, L={ ...L0, for:L0.for&&t(`lore.${s}.for`,L0.for), sin:L0.sin&&t(`lore.${s}.sin`,L0.sin), nm:L0.nm&&t(`lore.${s}.nm`,L0.nm) }, RCH=REACH[s]   // the lore in the page's language (lore.<id>.*), English per key until translated
 	const RCHTIP=t('ui.dossier.reach-tip','share of visible colors this space can encode – Monte-Carlo volume of the optimal-color solid in CIELAB; sRGB measures ≈36% by the same yardstick')
 	const reachTxt=RCH?t('ui.dossier.reach','{p}% of visible colors',{p:Math.round(RCH[0]*100)}):''
-	const enc=encodingOf(s), avoid=avoidOf(s,L)
+	const enc=encodingOf(s), avoid=avoidOf(s,L)||(m.lossNote?t(`space.${s}.loss-note`,m.lossNote):'')   // the caveat: the lore's, else what a round trip loses – one place for a space's limits, no row of its own
 	// the transfer curve — how a neutral linear ramp maps to this space's tone.
 	// Measured, not assumed: every non-hue channel is sampled along the grey axis; the
 	// tone carrier is the one that responds monotonically over >5% of its own range —
@@ -4677,7 +4702,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	const pvSeg=cls.ch.length>1&&plotPairs.length?`<span class="seg figseg pvseg" id="pvseg" role="group">${[[0,PI.sliders,t('ui.card.sliders','Sliders')],[1,PI.planes,t('ui.card.planes','Planes')]].map(([k,ic,n])=>`<button type="button" data-p="${k}" title="${n}" aria-label="${n}" aria-pressed="${!!k===PV}"${!!k===PV?' class="on"':''}>${ic}</button>`).join('')}</span>`:''
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dsec=activeSecs().find(c2=>c2.spaces.includes(s)), dcat=dsec?secName(dsec):''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
-	detail.innerHTML=`<div class="dh"><h1 id="dtitle">${dcat?`<span class="dcat">${dcat}</span>`:''}${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p></div>
+	detail.innerHTML=`<div class="dh">${dcat?`<p class="dcat">${dcat}</p>`:''}<h1 id="dtitle">${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}${pvSeg}${figSeg}</div>
 	 <section class="dpick${figHTML?'':' nod3'}${pvSeg&&PV?' pvon':''}" id="explore">
@@ -4696,7 +4721,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 				<div data-k="channels"><i>${t('ui.dossier.channels','channels')}</i><div class="chlist">${cls.ch.map(c=>`<span class="cn">${cname(c)}, <i class="csym">${c.sym}</i></span><span class="tnum rmn">${fmtn(c.min,c)}</span><span class="rsep">…</span><span class="tnum rmx">${fmtn(c.max,c)}${unit(c)}</span>`).join('')}</div></div>
 				${L.nm?`<div data-k="etymology"><i>${t('ui.dossier.etymology','etymology')}</i><p>${L.nm}</p></div>`:''}
 				${CSSFMT[s]?`<div data-k="css"><i>css</i><p class="cssv tnum" id="cssv" role="button" tabindex="0" title="${t('ui.dossier.css-tip','this color, CSS-notated – click to copy')}"></p></div>`:''}
-				${m.loss?`<div data-k="loss"><i>${t('ui.dossier.loss','loss')}</i><p>${m.lossNote?`<span class="term" title="${t(`space.${s}.loss-note`,m.lossNote)}">${tagL(m.loss)}</span>`:tagL(m.loss)}</p></div>`:''}
 				${RCH&&!hasPlaneGL(s)?`<div data-k="reach"><i>${t('ui.dossier.reach-label','reach')}</i><p title="${RCHTIP}">${reachTxt}</p></div>`:''}
 				${path&&path.length>1?`<div data-k="lineage"><i title="${t('ui.dossier.lineage-tip','the conversion route down to rgb – each space is defined through the next')}">${t('ui.dossier.lineage','lineage')}</i><p class="fam">${path.map((p,i)=>i?`<a href="${p}">${disp(p)}</a>`:disp(p)).join(' → ')}</p></div>`:''}
 			</div>
@@ -4721,7 +4745,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	 ${hasPlaneGL(s)?`<h2 class="sec2" id="image"><span class="term" title="${t('ui.dossier.image-tip','each panel keeps one channel and neutralizes the rest – what that channel alone carries')}">${t('ui.dossier.image','image')}</span><button class="upbtn" id="imgadd" title="${t('ui.dossier.img-open-tip','open an image of yours – or just drop one anywhere')}" aria-label="${t('ui.dossier.img-open','open an image')}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15"/></svg></button><input type="file" id="imgfile" accept="image/*" hidden></h2>
 	 <div class="imgrow" id="imgrow" title="${t('ui.dossier.img-row','click the source panel for the next test image · drop your own image anywhere')}"></div>`:''}
 	 ${interpHTML}
-	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="${t('ui.dossier.code-tabs','code backends')}"><button data-t="js" class="on" aria-pressed="true">${FLJS}JS</button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}WASM</button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}GL</button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}JSON</button><button data-t="css" aria-pressed="false">${FLCSS}CSS</button><button data-t="embed" aria-pressed="false">${FLEMBED}${t('ui.dossier.embed','embed')}</button></span></h2>
+	 <h2 class="sec2" id="code"><span class="tabrow" id="cseg" role="group" aria-label="${t('ui.dossier.code-tabs','code backends')}"><button data-t="js" class="on" aria-pressed="true">${FLJS}<span>JS</span></button>${wasmSpaces.includes(s)?`<button data-t="wasm" aria-pressed="false">${FLWASM}<span>WASM</span></button>`:''}${hasPlaneGL(s)?`<button data-t="gl" aria-pressed="false">${FLGL}<span>GL</span></button>`:''}<button data-t="meta" aria-pressed="false">${FLMETA}<span>JSON</span></button><button data-t="css" aria-pressed="false">${FLCSS}<span>CSS</span></button><button data-t="embed" aria-pressed="false">${FLEMBED}<span>${t('ui.dossier.embed','embed')}</span></button></span></h2>
 	 ${hasPlaneGL(s)?`<span class="seg" id="glseg" role="group" aria-label="${t('ui.dossier.shader','shader language')}" hidden>${Object.entries(SHL).map(([l,n])=>`<button type="button" data-l="${l}" aria-pressed="${l===shLang}"${l===shLang?' class="on"':''}>${n}</button>`).join('')}</span>`:''}
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="${t('ui.copy','copy')}"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
 	 ${MNAV('mfoot',1)}`
@@ -5886,6 +5910,7 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
 	if(cvalEl&&document.activeElement!==cvalEl&&!IMGBUSY){ const nv=virgin?'':SAID?.k===heldKey()?SAID.v:STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; PDOWN||autoColor?fitMoving():fitVal() } }   // many colors read as the list – or the gradient – they are
 	if(virgin&&cvalEl&&!IMGBUSY) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value – in hand, the color the orbit stood at, Tab takes it   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
+	paintWarn()
 	if(cxEl){ cxEl.classList.toggle('inv',virgin); cxEl.classList.toggle('empty',!virgin&&!cvalEl?.value.trim()); cvxEl.hidden=virgin }   // after the value's write: a color just taken (the orbit's, held) is no empty field   // the orbit's color shown; a typed color cleared, no color   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
 	if(!PDOWN&&!virgin&&!PEEK) syncURL(hx)   // the URL keeps the exact coordinate – a suggestion only looked at never reaches it
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }

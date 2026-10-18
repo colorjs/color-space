@@ -10,6 +10,7 @@
  * @year 2012
  * @by ITU-R
  * @use Wide-gamut color space for UHDTV 4K/8K broadcast and HDR; current standard.
+ * @aka BT.2020; ITU-R BT.2020
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

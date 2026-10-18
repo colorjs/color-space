@@ -109,16 +109,34 @@ inject(/(<textarea id="cval")/, `$1 placeholder="${dhx}"`)   // the boot gray as
 inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
 // the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
-// the registry as a schema.org Dataset — Google Dataset Search reaches the science
-// crowd; homepage only (stampSpacePages strips it — a copy on every space page would read as spam)
-const ld = { '@context': 'https://schema.org', '@type': 'Dataset',
-	name: 'color-space — color space registry',
-	description: `Machine-readable registry of ${spaceCount} color spaces: channels and conventional ranges, conversion-graph edges, gamut primaries, white points, CIE 1931 2° color-matching functions, provenance and cited conformance anchors.`,
-	url: SITE, sameAs: 'https://github.com/colorjs/color-space',
-	license: 'https://creativecommons.org/publicdomain/zero/1.0/', isAccessibleForFree: true,
-	creator: { '@type': 'Person', name: 'Dmitry Ivanov' },
-	keywords: ['color space', 'color conversion', 'colorimetry', 'OKLCH', 'CIELAB', 'CAM16', 'ACES', 'LUT', 'ICC'],
-	distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${SITE}/data.json` }] }
+// the registry as a schema.org Dataset + WebApplication + FAQPage — Google Dataset Search
+// and rich FAQ snippets; homepage only (stampSpacePages strips it — a copy on every space page would read as spam)
+const faqMatch = html.match(/<section class="faq"[\s\S]*?<\/section>/)
+const faqQuestions = faqMatch ? [...faqMatch[0].matchAll(/<details class="fqa"><summary[^>]*>([^<]+)<\/summary>([\s\S]*?)<\/details>/g)].map(m => ({
+	'@type': 'Question',
+	name: m[1].trim(),
+	acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() }
+})) : []
+const ld = { '@context': 'https://schema.org', '@graph': [
+	{ '@type': 'Dataset',
+		name: 'color-space — color space registry',
+		alternateName: ['colour-space', 'color-space.io'],
+		description: `Machine-readable registry of ${spaceCount} color spaces: channels and conventional ranges, conversion-graph edges, gamut primaries, white points, CIE 1931 2° color-matching functions, provenance and cited conformance anchors.`,
+		url: SITE, sameAs: 'https://github.com/colorjs/color-space',
+		license: 'https://creativecommons.org/publicdomain/zero/1.0/', isAccessibleForFree: true,
+		creator: { '@type': 'Person', name: 'Dmitry Ivanov' },
+		keywords: ['color space', 'colour space', 'color spaces', 'colour spaces', 'list of color spaces', 'all color spaces', 'color space conversion', 'color space converter', 'color space chart', '3D color space', 'colorimetry', 'OKLCH', 'CIELAB', 'CAM16', 'ACES', 'LUT', 'ICC', 'CMYK'],
+		distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${SITE}/data.json` }] },
+	{ '@type': 'WebApplication',
+		name: 'color-space',
+		alternateName: ['color-space.io', 'colour-space'],
+		url: SITE,
+		applicationCategory: 'MultimediaApplication',
+		operatingSystem: 'Any',
+		description: `Online color space converter, 3D gamut visualizer and atlas for ${spaceCount} color spaces.`,
+		offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
+	...(faqQuestions.length ? [{ '@type': 'FAQPage', mainEntity: faqQuestions }] : [])
+] }
 inject(/(<link rel="canonical" href="[^"]*">)/, `$1<script type="application/ld+json" id="ld-dataset">${JSON.stringify(ld)}</script>`)
 writeFileSync(join(out, 'index.html'), html)
 
@@ -215,6 +233,7 @@ const spaceDoc = (html, s) => {
 	h = swap(h, /<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, '<main class="cat" id="cat"></main>')
 	h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(lut ? t('page.space.title-lut', '{name} color space — channels, ranges, conversion LUT | color-space', { name })
 		: t('page.space.title', '{name} color space — channels, ranges, conversion | color-space', { name }))}</title>`)
+	h = swap(h, /<h1 class="hh" id="hero-t"[^>]*>[\s\S]*?<\/h1>/, () => `<h1 class="hh" id="hero-t"><span class="hk">${esc(t('page.space.kicker', 'Color space'))}</span> ${esc(name)}</h1>`)
 	h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
 	h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t('page.space.og-title', '{name} color space — color-space', { name }))}">`)
 	h = swap(h, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(short)}">`)

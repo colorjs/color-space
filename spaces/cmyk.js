@@ -13,6 +13,7 @@
  * @year 1906
  * @by Eagle Printing Ink Co.
  * @use Subtractive four-ink model for offset / digital printing; the current prepress standard.
+ * @aka print color space; printing
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage
  * @channel {Y} 0 100 Yellow percentage

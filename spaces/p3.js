@@ -9,6 +9,7 @@
  * @year 2015
  * @by Apple
  * @use Wide-gamut display space for Apple devices; current default on iPhone/iPad/Mac, standardized in CSS Color 4.
+ * @aka Display P3; DCI-P3 D65
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

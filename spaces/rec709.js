@@ -10,6 +10,7 @@
  * @year 1990
  * @by ITU-R (CCIR)
  * @use Reference gamut/transfer curve for HD video production and broadcast; current HDTV standard.
+ * @aka BT.709; ITU-R BT.709
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

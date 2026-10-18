@@ -11,6 +11,7 @@
  * @year 1931
  * @by CIE
  * @use Relative-luminance channel derived from linear RGB; current basis for WCAG contrast-ratio calculations.
+ * @aka grey; grayscale; greyscale
  * @channel {Y} 0 1 Relative luminance
  * @method matrix
  * @encoding linear

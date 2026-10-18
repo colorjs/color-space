@@ -10,6 +10,7 @@
  * @year 1998
  * @by Larson (SGI)
  * @use HDR image storage in TIFF (SGILOG compression, 32-bit LogLuv); legacy, still read and written by LibTIFF.
+ * @aka LogLuv TIFF; TIFF
  * @channel {Le} 12288 17408 Log luminance, 256·log₂Y + 16384
  * @channel {ue} 0 255 u′ chromaticity × 410
  * @channel {ve} 0 255 v′ chromaticity × 410
