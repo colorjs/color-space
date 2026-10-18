@@ -5,13 +5,13 @@
     "url": "https://github.com/dy"
   },
   "metadata": {
-    "description": "color-space: verified color conversions, shaders, LUTs and ICC profiles for agents."
+    "description": "color-space: color conversions tested against cited sources, shaders, LUTs and ICC profiles for agents."
   },
   "plugins": [
     {
       "name": "color-space",
       "source": "./plugins/claude",
-      "description": "Verified color math for 205 color spaces – MCP server and skill."
+      "description": "Color math for 205 color spaces, tested against cited sources – MCP server and skill."
     }
   ]
 }

@@ -56,6 +56,8 @@ const coloroid = {
 	// xλ=Xλ/eλ, yλ=Yλ/eλ). The prior table had the yλ column shifted by one row
 	// (each row held the next row's yλ) plus isolated xλ mis-reads at A=24/34/54;
 	// these are the authoritative values from the data block below. Round-trips exactly.
+	// A=24 is the printed xλ, yλ, eλ: its ȳλ is misprinted 0.774014 for 0.744014
+	// (docs/errata.md), which a row rebuilt from ȳλ carries 0.0136 off in xy.
 	table: [
 		//A    angle  eλ        xλ       yλ
 		[10, 59.0, 1.724349, 0.44988, 0.54894],
@@ -69,7 +71,7 @@ const coloroid = {
 		[21, 31.5, 1.798664, 0.54065, 0.45855],
 		[22, 28.0, 1.794819, 0.55368, 0.44559],
 		[23, 24.4, 1.789610, 0.56680, 0.43255],
-		[24, 20.6, 1.809483, 0.57166, 0.42775],
+		[24, 20.6, 1.779484, 0.58128, 0.41811],
 		[25, 16.6, 1.760983, 0.59766, 0.40176],
 		[26, 12.3, 1.723443, 0.61652, 0.38295],
 		[30, 7.7, 1.652891, 0.63896, 0.36062],
@@ -140,6 +142,7 @@ Coloroid table source
 Some negative angle typos are fixed.
 Angle typo on the A=62 is fixed.
 xλ typo on A=73 is fixed.
+ȳλ typo on A=24 is fixed: printed 0.774014, its xλ, yλ and eλ follow from 0.744014.
 
 
 Beware, tg/ctg values don’t agree with angle.
@@ -159,7 +162,7 @@ A   λ       ф     tg ф    ctg ф   xλ       yλ       zλ       xλ      yλ
 21  584.46   31.5  0.6128         0.972454 0.824779 0.001431 0.54137 0.45783 1.798665
 22  586.43   28.0  0.5317         0.993753 0.799758 0.001308 0.55367 0.44559 1.794822
 23  588.59   24.4  0.4536         1.014350 0.774090 0.001170 0.56680 0.43253 1.789610
-24  591.06   20.6  0.3759         1.034402 0.774014 0.001067 0.58128 0.41811 1.779484
+24  591.06   20.6  0.3759         1.034402 0.744014 0.001067 0.58128 0.41811 1.779484
 25  594.00   16.6  0.2974         1.052466 0.707496 0.001021 0.59766 0.40176 1.760984
 26  597.74   12.3  0.2180         1.062544 0.660001 0.000898 0.61653 0.38300 1.723444
 30  602.72    7.7  0.1352         1.056125 0.596070 0.000696 0.63896 0.36061 1.652892

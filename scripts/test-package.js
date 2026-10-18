@@ -46,6 +46,7 @@ import lite from 'color-space/lite'
 import wasm, { convertBatch } from 'color-space/wasm'
 import wasmSpaces from 'color-space/wasm/spaces'
 import data from 'color-space/data.json' with { type: 'json' }
+import conformance from 'color-space/conformance.json' with { type: 'json' }
 import chunk from 'color-space/gl/oklch'
 import { glsl } from 'color-space/gl'
 import allGlsl from 'color-space/gl/all'
@@ -55,6 +56,8 @@ import { profile } from 'color-space/icc'
 
 assert.equal(Object.keys(space).length, 205)
 assert.equal(Object.keys(data.spaces).length, 205)
+assert.deepEqual(conformance.rows, data.conformance)
+assert.ok(conformance.rows.every(r => space[r.f][r.t] && ['published', 'implementation', 'computed'].includes(r.kind)))
 assert.equal(lite.rgb.oklch(255, 0, 0).length, 3)
 assert.equal(wasm.rgb.oklch(255, 0, 0).length, 3)
 assert.equal(convertBatch('rgb', 'oklch', [255, 0, 0]).length, 3)
@@ -69,7 +72,7 @@ assert.ok(readFileSync(new URL('./node_modules/color-space/dist/color-space.wasm
 const pkg = JSON.parse(readFileSync(new URL('./node_modules/color-space/package.json', import.meta.url)))
 const failures = []
 for (const [key, target] of Object.entries(pkg.exports)) {
-  if (target === null || key.includes('*') || key === './color-space.wasm' || key === './data.json') continue
+  if (target === null || key.includes('*') || key === './color-space.wasm' || key.endsWith('.json')) continue
   const spec = key === '.' ? 'color-space' : 'color-space/' + key.slice(2)
   try { await import(spec) } catch (error) { failures.push(spec + ': ' + error.message) }
 }

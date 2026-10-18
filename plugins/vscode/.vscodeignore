@@ -1,5 +1,7 @@
 **
 !dist/**
+!l10n/**
 !package.json
+!package.nls*.json
 !README.md
 !LICENSE.md

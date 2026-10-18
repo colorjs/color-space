@@ -4,6 +4,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import space from '../index.js'
 import test, { is } from 'tst'
 import './stops.js' // the field's gradients and lists: CSS's syntax and interpolation
+import './sweep.js' // the catalog's strips: one sweepCSS, and the pool that runs it off the main thread
 import './namesearch.js' // the color field's name search
 import './nearest.js' // the large palettes' nearest-site search
 import './lex.js' // the code plates' lexer
@@ -21,6 +22,10 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	const unmapped = Object.keys(space).filter(n => !map.includes(`/${n}</loc>`))
 	is(unmapped, [], 'every space is in the sitemap')
 	is(existsSync(`${site}/llms.txt`) && existsSync(`${site}/robots.txt`), true, 'llms + robots staged')
+	// the cited rows ship beside the page for other libraries' tests, and llms.txt points agents at them and the errata
+	const conf = JSON.parse(readFileSync(`${site}/conformance.json`, 'utf8')), llmsTxt = readFileSync(`${site}/llms.txt`, 'utf8')
+	is(conf.rows.length > 200 && conf.rows.every(r => r.src && r.url && r.kind), true, 'conformance.json staged: every row with its source, link and kind')
+	is(['conformance.json', 'docs/errata.md'].every(f => llmsTxt.includes(f)), true, 'llms.txt names conformance.json and the errata')
 	is(['target.jpg','colormaps.png','glow.png','wave.jpg'].filter(n=>!existsSync(`${site}/img/${n}`)), [], 'the four raster histogram specimens ship with the site')
 	// per-space pages are atlas copies with their own head — pin the stamp, not the body
 	// (the dossier's Wikipedia link is JS-rendered; one-article-per-space is pinned below)
@@ -76,6 +81,43 @@ test('integrity — the layout switch carries render.js\'s marks in the page its
 	is(page.includes(`data-view="${nextView('grid').v}"`) && page.includes(`<i data-from="grid">${nextView('grid').ic}</i><i data-from="list">${nextView('list').ic}</i>`), true, 'both marks, as render.js draws them, and the view a first visit turns to')
 })
 
+// a family folds past two rows of tiles at most (render.js folds): at k columns, k leads and rows of k + 1 tiles; two rows
+// where five or more stay behind them, one where fewer would; the fold's line names exactly the held-back ones, once
+test('catalog — a family folds past two rows at most, its line naming what it holds back', async () => {
+	const { catHTML, sections } = await import('../web/js/render.js')
+	const html = catHTML(null, sections), sec = k => html.match(new RegExp(`<section class="([^"]*)" data-sec data-k="${k}">([\\s\\S]*?)</section>`))
+	for (const c of sections) { const [, cls, body] = sec(c.key), n = c.spaces.length, names = [...body.matchAll(/<li class="fn([^"]*)"><a class="nm" href="([^"]+)"/g)]
+		for (const k of [1, 2, 3]) { const two = n - 3 * k - 2, held = names.filter(m => m[1].split(' ').includes(`h${k}`)).map(m => m[2])
+			const r = two <= 0 ? 0 : two >= 5 ? 2 : 1, at = k + r * (k + 1)
+			is([cls.includes(` f${k}`), cls.includes(` g${k}`)], [r === 2, r === 1], `${c.key} at ${k} columns: ${r || 'no'} fold row(s)`)
+			is(held.slice().sort(), r ? c.spaces.slice(at).sort() : [], `${c.key} at ${k} columns: the line names the ${r ? n - at : 0} held back, each once`)
+			if (r) is(body.includes(`<i class="n${k}">${n - at}</i>`), true, `${c.key} at ${k} columns: its count`) } }
+	is(sec('cat.remixes')[1], 'sec f1 g2 g3', 'RGB remixes (12): two rows on a phone (7 behind), one where two would leave fewer than five')
+	is(sec('cat.surface')[1].includes(' f3') || sec('cat.surface')[1].includes(' g3'), false, 'a family that fits two rows carries no fold')
+	const wide = [...sec('cat.display')[2].matchAll(/<li class="fn[^"]*\bh3\b[^"]*"><a class="nm" href="([^"]+)"/g)].map(m => m[1])   // the desktop's line
+	is([wide[0], wide.at(-1)], ['scrgb', 'prophoto-linear'], 'the line leads with a maker not yet met, a variant (a name another space\'s and a word) last')
+})
+
+// the list: the name, then its numbers, then the facts – the coverage last before the kinds' one cell; a retired space's
+// year its archive box beside it (no status column of its own); the kinds four marks, never the status's
+test('catalog — the list reads name, channels, facts; a retired year wears its box', async () => {
+	const { catHTML, sections, HISTORICAL } = await import('../web/js/render.js')
+	const html = catHTML(null, sections, { view: 'list' }), head = html.match(/<thead><tr>([\s\S]*?)<\/tr><\/thead>/)[1]
+	is([...head.matchAll(/<th[^>]*class="([^"]+)"/g)].map(m => m[1]), ['tsw', 'c-name', 'c-ch', 'c-year', 'c-by', 'c-white', 'c-cov', 'c-geo', 'c-curve', 'c-sig', 'c-range', 'c-kind'], 'the columns in order')
+	const row = s => html.match(new RegExp(`<tr class="ent tr" data-s="${s}"[\\s\\S]*?</tr>`))[0], year = s => row(s).match(/<td class="c-year">([\s\S]*?)<\/td>/)[1]
+	const old = [...HISTORICAL][0]
+	is([/class="ki"/.test(year(old)), /class="ki"/.test(year('oklch'))], [true, false], `${old}'s year wears the archive box, OKLCH's none`)
+	is([...row('oklch').match(/<td class="c-kind">([\s\S]*?)<\/td>/)[1].matchAll(/class="ki"/g)].length, 4, 'the kinds cell: shape, curve, signal, range')
+	is(/<td class="c-ch"><span class="cvs">(?:<span class="cvp"[\s\S]*?<\/span>){3}<\/span><\/td>/.test(row('oklch')), true, 'OKLCH\'s channels: three fields')
+})
+
+// the first paint is the source's own – the locus, the field's hint and swatch, the view mark – current with locus.js
+test('integrity — the page carries its first paint, current', async () => {
+	const { firstPaint, SRC } = await import('../scripts/first-paint.js'), page = readFileSync(SRC, 'utf8')
+	is(firstPaint(page) === page, true, 'node scripts/first-paint.js leaves web/index.html as it is')
+	is([/<a class="hlocus"[^>]*style="--tkc:#808080"/.test(page), /<i class="cx" aria-hidden="true" style="left:41\.63%;top:60\.52%">/.test(page), page.includes('<textarea id="cval" placeholder="#808080"'), page.includes('<i class="mtop" id="mtop" style="--cur:#808080"')], [true, true, true, true], 'the boot gray: its mark at D65 (0.3127, 0.3290 – IEC 61966-2-1), the field\'s hint, the top line')
+})
+
 test('integrity — one type scale: no step redefined past tokens.css, so a phone keeps its order (a 13px t3 once set the slogan and the section titles under the 14px descriptions)', () => {
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8'), tokens = readFileSync(new URL('../web/tokens.css', import.meta.url), 'utf8')
 	is([...page.matchAll(/--t[0-6]\s*:/g)].length, 0, 'the page sets no --t step')
@@ -87,7 +129,7 @@ test('integrity — one type scale: no step redefined past tokens.css, so a phon
 test('integrity — every Usage tab opens with its title; the plates are plain text, painted by lighthigh', () => {
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
 	const panels = [...page.matchAll(/<div (?:class="export" )?id="api-panel-(\w+)" role="tabpanel"[^>]*>\s*(<\w+[^>]*>)/g)]
-	is(panels.length, 7, 'the seven tabs')
+	is(panels.length, 8, 'the eight tabs')
 	for (const [, p, first] of panels) is(/^<h3 data-i18n="ui\.api\.[\w-]+-title">$/.test(first), true, `${p}: its title first`)
 	is(/<pre[^>]*>(?:(?!<\/pre>)[\s\S])*<(?:b|i)>/.test(page), false, 'no tag colors a plate: lighthigh paints its text in place')
 })
@@ -100,14 +142,18 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(render.includes("DEFAULT = { s: 'rgb', vals: [128, 128, 128] }"), true, 'undefined color starts neutral gray')
 	is(page.includes('scheduleFast(true)'), true, 'undefined color enters the ambient tier')
 	is(page.includes('CATALOG_VALUE_THROTTLE=100'), true, 'inactive catalog numbers use the 100ms tier')
-	is(page.includes('CATALOG_FRAME_BUDGET=6') && page.includes('requestAnimationFrame(paintCatalogSecondary)'), true, 'secondary slider gradients repaint within a per-frame budget')
+	const sweep = readFileSync(new URL('../web/js/sweep.js', import.meta.url), 'utf8'), worker = readFileSync(new URL('../web/js/sweep-worker.js', import.meta.url), 'utf8')
+	is(sweep.includes("new Worker(new URL('./sweep-worker.js', import.meta.url), { type: 'module' })") && worker.includes("import { sweepCSS } from './sweep.js'"), true, 'catalog strips are computed off the main thread, by the page\'s own sweepCSS')
+	is(worker.includes("postMessage('ready')") && sweep.includes("if (data !== 'ready')"), true, 'a worker is sent nothing before it says it is ready – a module awaiting its data drops early messages')
+	is(page.includes('paintCatalogGrad(screenEnts())') && page.includes('paintCatalogGrad([active],true)'), true, 'every strip on screen is asked for on every change; the row in hand paints in its own frame')
 	is(page.includes('lens=gmFor(cls)'), true, 'main sliders render under the one Limit the dossier shares')
 	is(render.includes("export const LIMIT = 'vis'") && render.includes('limitFor(cls)'), true, 'prerendered main sliders ship under the default Limit')
 	is(page.includes('document.documentElement.style.setProperty(\'--cur\''), false, 'live color does not invalidate the whole document through an inherited custom property')
 	is(page.includes('paintCatalogPickers(screenEnts(),frgb,fx)'), true, 'every visible picker position and color follows a held gesture')
-	is(page.includes('moving?SECONDARY_RAMP_GUIDES:RAMP_GUIDES,!moving'), true, 'secondary gradients use cheaper guides, set without a cross-fade, while colors are moving')
-	is(page.includes('throttleCatalogSecondary()') && page.includes('if(open()||catSlowPending||catSlowHeld) return'), true, 'a held hand repaints the other strips throttled – one pass at a time, on the 100ms tier – and in full on release')
-	is(page.includes('paintCatalogGrad(rows,-1,RAMP_GUIDES,true)'), true, 'release repaints every secondary gradient immediately at full quality')
+	is(/LIVE_RAMP_GUIDES|SECONDARY_RAMP_GUIDES|throttleCatalogSecondary|CATALOG_FRAME_BUDGET/.test(page), false, 'strips keep one quality and no throttle: moving or at rest, a strip is the same 48 guides')
+	is(page.includes('morph=!(PDOWN||autoColor)'), true, 'strips are set without a cross-fade while a color moves')
+	is(page.includes("@property --cur{ syntax:'*'; inherits:false }"), true, 'the current color restyles its readers, never their subtrees')
+	is(page.includes('t-scrollAt<SCROLL_QUIET'), true, 'the orbit holds while the page scrolls')
 	is(page.includes("cat.addEventListener('pointercancel'"), true, 'cancelled native catalog drags use the release path')
 	is(page.includes("detail.addEventListener('pointercancel'"), true, 'cancelled native dossier drags use the release path')
 	is(page.includes('el.onpointermove=move; el.onpointerup=up; el.onpointercancel=up'), true, 'cancelled custom dossier drags use the release path')
@@ -155,8 +201,10 @@ test('integrity — display names read as names; nbh keeps them whole', async ()
 	is(nbh('BT.601 525-line Y′CbCr'), 'BT.601 525\u2011line Y′CbCr', 'between digit and letter too')
 	is(nbh(''), '', 'empty stays empty')
 	is(nbh('-a a- a--b'), '-a a- a--b', 'edge and doubled hyphens stay breakable')
-	is(nbh('Adams–Nickerson Lab'), 'Adams–Nickerson Lab', 'an en dash is not a hyphen')
-	is(SPACES.every(s => { const d = disp(s), n = nbh(d); return n.length === d.length && n.replace(/\u2011/g, '-') === d }), true, 'every name: hyphens swap 1:1, nothing else changes')
+	is(nbh('Adams–Nickerson Lab'), 'Adams–Nickerson\u00a0Lab', 'an en dash is not a hyphen')
+	is([nbh('ARRI Wide Gamut 3'), nbh('Display P3'), nbh('Rec. 709')], ['ARRI Wide Gamut\u00a03', 'Display\u00a0P3', 'Rec.\u00a0709'], 'a short last word holds to the one before it')
+	is([nbh('CIE 1931 sRGB'), nbh('HSL'), nbh('ARRI Wide Gamut <mark>3</mark>')], ['CIE 1931 sRGB', 'HSL', 'ARRI Wide Gamut <mark>3</mark>'], 'a longer last word, a single word and a marked one stay as they are')
+	is(SPACES.every(s => { const d = disp(s), n = nbh(d); return n.length === d.length && n.replace(/\u2011/g, '-').replace(/\u00a0/g, ' ') === d }), true, 'every name: hyphens and a short last word\'s space swap 1:1, nothing else changes')
 })
 
 // a space's social card: its ranges set apart by space, not dots; the site's mark at the link; no retired rhombus

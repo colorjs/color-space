@@ -1,0 +1,134 @@
+{
+  "@meta": {
+    "name": "Português",
+    "reviewed": null
+  },
+  "l10n:(line {0})": {
+    "t": "(linha {0})",
+    "h": "20b14f9d"
+  },
+  "l10n:Convert {0} colors to…": {
+    "t": "Converter {0} cores para…",
+    "h": "5127d7ea"
+  },
+  "l10n:Convert {0} to…": {
+    "t": "Converter {0} para…",
+    "h": "d7c280ed"
+  },
+  "l10n:In sRGB": {
+    "t": "Dentro do sRGB",
+    "h": "79d4bf40"
+  },
+  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
+    "t": "Fora do Display P3 (hex: mapeado para o sRGB)",
+    "h": "f00fddd9"
+  },
+  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
+    "t": "Fora do sRGB, dentro do Display P3 (hex: mapeado para o sRGB)",
+    "h": "6bcc306e"
+  },
+  "l10n:Pick in Color Space": {
+    "t": "Escolher no Color Space",
+    "h": "aca4f0eb"
+  },
+  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
+    "t": "Coloque o cursor sobre uma cor CSS ou selecione um texto com cores CSS.",
+    "h": "fa671cd4"
+  },
+  "nls:command.convert": {
+    "t": "Converter Cor para…",
+    "h": "bbdf2a89"
+  },
+  "nls:command.pick": {
+    "t": "Escolher Cor",
+    "h": "aa15a325"
+  },
+  "nls:description": {
+    "t": "Todas as cores do seu arquivo em um só plano, em OKLCH, HCT, CAM16, Display P3 ou qualquer um de 205 espaços de cor: CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, design tokens, temas e paletas, com cada cor regravada na sua própria notação.",
+    "h": "d583de89"
+  },
+  "nls:gamut.description": {
+    "t": "O gamut em que o seletor grava, nas notações que podem expressar cores de um gamut mais amplo (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` e `hwb()` são sempre gravados dentro do sRGB.",
+    "h": "e83f271c"
+  },
+  "nls:gamut.p3": {
+    "t": "Display P3: o gamut amplo das telas atuais da Apple e de muitas outras",
+    "h": "8f99baf8"
+  },
+  "nls:gamut.srgb": {
+    "t": "sRGB: o gamut padrão da web",
+    "h": "513ae0ad"
+  },
+  "nls:shaders.description": {
+    "t": "Define se vetores 0–1 em shaders (`vec3`/`vec4` em GLSL, `vec3f` em WGSL, `float3` em HLSL e Metal) são cores e como lê-los. Desativado por padrão: um vetor é uma posição com a mesma frequência que uma cor.",
+    "h": "ae2d8ca8"
+  },
+  "nls:shaders.linear": {
+    "t": "vec3(1.0, 0.5, 0.0) e similares são sRGB em luz linear",
+    "h": "01333491"
+  },
+  "nls:shaders.off": {
+    "t": "Vetores de shader não são lidos como cores",
+    "h": "752c47eb"
+  },
+  "nls:shaders.srgb": {
+    "t": "vec3(1.0, 0.5, 0.0) e similares são sRGB codificado com gama",
+    "h": "7b7d9db8"
+  },
+  "nls:view.name": {
+    "t": "Color Space",
+    "h": "1a1a59a9"
+  },
+  "pl.dots.others": {
+    "t": "as outras cores",
+    "h": "83231868"
+  },
+  "pl.empty.hint": {
+    "t": "Nenhuma cor aqui. Coloque o cursor sobre uma cor em uma folha de estilo, código ou tema, ou abra uma imagem.",
+    "h": "7b18d6fa"
+  },
+  "pl.gamut.out": {
+    "t": "Fora do {gamut}; ao editar, é mapeada para dentro.",
+    "h": "afb6b216"
+  },
+  "pl.note.dev": {
+    "t": "Este documento é somente leitura. Copie os valores abaixo.",
+    "h": "a6027103"
+  },
+  "pl.note.editing": {
+    "t": "Editando {type} {name}: todos os lugares que a usam mudam.",
+    "h": "e8e9c43e"
+  },
+  "pl.note.mixed": {
+    "t": "Algumas cores aqui não são lidas: esta biblioteca não oferece suporte ao espaço de cor delas (uma amostra .ase em CMYK, Lab ou Gray; uma cor do iTerm2 sem Color Space).",
+    "h": "0de68562"
+  },
+  "pl.note.more": {
+    "t": "Mostrando as primeiras {n} cores.",
+    "h": "3f994db4"
+  },
+  "pl.note.virtual": {
+    "t": "Os pixels de uma imagem são mostrados aqui, não editados.",
+    "h": "2776985c"
+  },
+  "pl.paints": {
+    "t": "Cores no documento",
+    "h": "8fc80c91"
+  },
+  "pl.scope.page": {
+    "t": "Neste arquivo",
+    "h": "6283815b"
+  },
+  "pl.src.variable": {
+    "t": "variável",
+    "h": "b46d0172"
+  },
+  "pl.where.fill": {
+    "t": "linha {n}",
+    "h": "966d414d"
+  },
+  "pl.where.stroke": {
+    "t": "linha {n}",
+    "h": "966d414d"
+  }
+}

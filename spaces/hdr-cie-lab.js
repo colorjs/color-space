@@ -32,8 +32,9 @@ const hdrLab = { name: 'hdr-cie-lab', range: [[0, 100], [-100, 100], [-100, 100]
 const Wn = [95.0456, 100, 108.9058]; // D65 (0-100)
 const e = 0.58 / (1.25 - 0.25 * (0.2 / 0.184)) / (Math.log(318) / Math.log(100)); // 0.4739 (Fairchild 2011)
 const ke = Math.pow(2, e);
-const light = v => 247 * Math.pow(v, e) / (Math.pow(v, e) + ke);
-const lightInv = L => Math.pow(L * ke / (247 - L), 1 / e);
+// Michaelis-Menten lightness plus the 0.02 offset the paper specifies (Fairchild & Wyble 2010, p. 322)
+const light = v => 247 * Math.pow(v, e) / (Math.pow(v, e) + ke) + 0.02;
+const lightInv = L => Math.pow((L - 0.02) * ke / (247 - (L - 0.02)), 1 / e);
 
 xyz['hdr-cie-lab'] = (X, Y, Z) => {
 	const L = light(Y / Wn[1]);

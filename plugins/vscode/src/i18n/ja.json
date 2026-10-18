@@ -1,0 +1,134 @@
+{
+  "@meta": {
+    "name": "日本語",
+    "reviewed": null
+  },
+  "l10n:(line {0})": {
+    "t": "（{0}行目）",
+    "h": "20b14f9d"
+  },
+  "l10n:Convert {0} colors to…": {
+    "t": "{0}色を次の形式に変換…",
+    "h": "5127d7ea"
+  },
+  "l10n:Convert {0} to…": {
+    "t": "{0}を次の形式に変換…",
+    "h": "d7c280ed"
+  },
+  "l10n:In sRGB": {
+    "t": "sRGBの色域内",
+    "h": "79d4bf40"
+  },
+  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
+    "t": "Display P3の色域外（hex：sRGBに色域マッピング済み）",
+    "h": "f00fddd9"
+  },
+  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
+    "t": "sRGBの色域外、Display P3の色域内（hex：sRGBに色域マッピング済み）",
+    "h": "6bcc306e"
+  },
+  "l10n:Pick in Color Space": {
+    "t": "Color Spaceで選択",
+    "h": "aca4f0eb"
+  },
+  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
+    "t": "CSSの色にカーソルを置くか、CSSの色を含むテキストを選択してください。",
+    "h": "fa671cd4"
+  },
+  "nls:command.convert": {
+    "t": "色を次の形式に変換…",
+    "h": "bbdf2a89"
+  },
+  "nls:command.pick": {
+    "t": "色を選択",
+    "h": "aa15a325"
+  },
+  "nls:description": {
+    "t": "ファイル内のすべての色を1つの平面に。OKLCH、HCT、CAM16、Display P3など、205の色空間のどれでも扱えます。CSS、Swift、Flutter、Compose、Unity、Godot、Unreal、デザイントークン、テーマ、パレットの色は、それぞれ元の表記で書き戻します。",
+    "h": "d583de89"
+  },
+  "nls:gamut.description": {
+    "t": "より広い色域の色を表せる表記（`oklch()`、`lab()`、`color(display-p3 …)`など）で、カラーピッカーが書き込む色域。`#hex`、`rgb()`、`hsl()`、`hwb()`は常にsRGBの範囲内で書き込みます。",
+    "h": "e83f271c"
+  },
+  "nls:gamut.p3": {
+    "t": "Display P3：現行のApple製ディスプレイをはじめ、多くのディスプレイが持つ広色域",
+    "h": "8f99baf8"
+  },
+  "nls:gamut.srgb": {
+    "t": "sRGB：Webの標準色域",
+    "h": "513ae0ad"
+  },
+  "nls:shaders.description": {
+    "t": "シェーダー内の0〜1のベクトル（GLSLの`vec3`/`vec4`、WGSLの`vec3f`、HLSLとMetalの`float3`）を色とみなすかどうかと、その読み方。既定ではオフです。ベクトルは位置を表すことも同じくらい多いためです。",
+    "h": "ae2d8ca8"
+  },
+  "nls:shaders.linear": {
+    "t": "vec3(1.0, 0.5, 0.0)などはリニア光のsRGB",
+    "h": "01333491"
+  },
+  "nls:shaders.off": {
+    "t": "シェーダーのベクトルを色として読み取らない",
+    "h": "752c47eb"
+  },
+  "nls:shaders.srgb": {
+    "t": "vec3(1.0, 0.5, 0.0)などはガンマ符号化されたsRGB",
+    "h": "7b7d9db8"
+  },
+  "nls:view.name": {
+    "t": "Color Space",
+    "h": "1a1a59a9"
+  },
+  "pl.dots.others": {
+    "t": "ほかの色",
+    "h": "83231868"
+  },
+  "pl.empty.hint": {
+    "t": "ここには色がありません。スタイルシート、コード、テーマ内の色にカーソルを置くか、画像を開いてください。",
+    "h": "7b18d6fa"
+  },
+  "pl.gamut.out": {
+    "t": "{gamut}の色域外。編集時は色域内にマッピングします。",
+    "h": "afb6b216"
+  },
+  "pl.note.dev": {
+    "t": "このドキュメントは読み取り専用です。下の値をコピーしてください。",
+    "h": "a6027103"
+  },
+  "pl.note.editing": {
+    "t": "{type}「{name}」を編集中：使われているすべての箇所が変わります。",
+    "h": "e8e9c43e"
+  },
+  "pl.note.mixed": {
+    "t": "ここには読み取れない色があります。このライブラリが対応していない色空間の色です（CMYK、Lab、Grayの.aseスウォッチや、Color SpaceのないiTerm2の色）。",
+    "h": "0de68562"
+  },
+  "pl.note.more": {
+    "t": "最初の{n}色を表示しています。",
+    "h": "3f994db4"
+  },
+  "pl.note.virtual": {
+    "t": "画像のピクセルは表示のみで、編集はできません。",
+    "h": "2776985c"
+  },
+  "pl.paints": {
+    "t": "ドキュメント内の色",
+    "h": "8fc80c91"
+  },
+  "pl.scope.page": {
+    "t": "このファイル",
+    "h": "6283815b"
+  },
+  "pl.src.variable": {
+    "t": "変数",
+    "h": "b46d0172"
+  },
+  "pl.where.fill": {
+    "t": "{n}行目",
+    "h": "966d414d"
+  },
+  "pl.where.stroke": {
+    "t": "{n}行目",
+    "h": "966d414d"
+  }
+}

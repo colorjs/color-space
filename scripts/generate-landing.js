@@ -12,10 +12,9 @@ import { gzipSync } from 'node:zlib'
 import { buildSync } from 'esbuild'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES, DEFAULT, LIMIT, fpOf, disp } from '../web/js/render.js'
-import { LI } from '../web/js/icons.js'
-import { heroLocus } from '../web/js/locus.js'
-import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
+import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
+import { firstPaint } from './first-paint.js'
+import { meta, spaceCount, LUTOK } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
 import { t, use } from '../web/js/i18n.js'
 import { apply } from './i18n.js'
@@ -100,16 +99,9 @@ const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
 for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
 html = counts(html)   // Usage's facts (data-fact)
-// the current-color rhombus + value carry the DEFAULT color from the first frame —
-// an unvalued <input type=color> paints BLACK until the module lands
-const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
-// the hero's locus drawn into the page: its outlines at the first paint, before any script (the page adopts it, js)
-inject(/(<div class="hfield" id="hq">[\s\S]*?\n\t\t<\/div>\n)(\t<\/div>\n<\/section>)/, (m, a, b) => `${a}\t\t${heroLocus('color-space home', 'Surface', 'Light')}\n${b}`)
-inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
-inject(/(<textarea id="cval")/, `$1 placeholder="${dhx}"`)   // the boot gray as the field's hint, as the page will show it – never a value the script then empties
-// the row's marks from their one source (icons.js), so the stripe is whole before the module lands: the view's mark is
-// the default Limit's, the layout's the view a first visit turns to (the page opens in grid)
-inject(/(<button class="cell lens" type="button" id="c-view")([^>]*><span class="ci">)[\s\S]*?(<\/span>)/, (m, a, b, c) => `${a} data-g="${LIMIT}"${b}${LI[LIMIT]}${c}`)
+// the first paint – the hero's locus, the field's swatch and hint, the row's view mark – is the source's own (web/
+// index.html, before any script, built or not): stale there, the build stops
+if (firstPaint(html) !== html) throw new Error('web/index.html: its first-paint markup is stale – run: node scripts/first-paint.js')
 // the meta descriptions carry no live count by design — the counts live in #nn and the per-space stamps
 html = html.replace(/any of \d+ × \d+ pairs/g, `any of ${spaceCount} × ${spaceCount - 1} pairs`)
 // the registry as a schema.org Dataset + WebApplication + FAQPage — Google Dataset Search
@@ -129,7 +121,7 @@ const ld = { '@context': 'https://schema.org', '@graph': [
 		license: 'https://creativecommons.org/publicdomain/zero/1.0/', isAccessibleForFree: true,
 		creator: { '@type': 'Person', name: 'Dmitry Ivanov' },
 		keywords: ['color space', 'colour space', 'color spaces', 'colour spaces', 'list of color spaces', 'all color spaces', 'color space conversion', 'color space converter', 'color space chart', '3D color space', 'colorimetry', 'OKLCH', 'CIELAB', 'CAM16', 'ACES', 'LUT', 'ICC', 'CMYK'],
-		distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${SITE}/data.json` }] },
+		distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${SITE}/data.json` }, { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${SITE}/conformance.json` }] },
 	{ '@type': 'WebApplication',
 		name: 'color-space',
 		alternateName: ['color-space.io', 'colour-space'],
@@ -167,8 +159,11 @@ Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space; scalar f
 Compact hub: import space from 'color-space/lite' — the 54 wasm-covered spaces in plain JS (~29 kB gzip), same two-form API
 WASM: import space, { alloc } from 'color-space/wasm' — same API, 54 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (3D: Resolve, Premiere, Final Cut, OBS, ffmpeg lut3d; 1D, for transfer-only pairs: Resolve, ffmpeg lut1d; { dims: 3 } forces 3D), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
+OCIO export: import { colorspace } from 'color-space/ocio': colorspace(space.sgamut3cine) -> an OpenColorIO 2 ColorSpace entry (LogCamera, Exponent and Matrix transforms, no LUT file), to ACES2065-1 or { reference: 'xyz-d65' }; 53 spaces, null where OCIO's native transforms can't carry a curve exactly
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
-Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
+Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries with their RGB → XYZ matrix and its inverse (SMPTE RP 177), white points as the specs print them, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
+Conformance: color-space/conformance.json (${SITE}/conformance.json): every cited input → output row with its source, link and kind (published, implementation, computed), each channel within 1e-4 of its span, a test oracle for any color library
+Errata: https://github.com/colorjs/color-space/blob/master/docs/errata.md: errors found or confirmed in published sources, each with its proof
 MCP: npx -y color-space mcp — zero-dep stdio server; tools: convert (batches, per-channel range flags) / gamut (sRGB ⊂ Display P3 ⊂ Rec. 2020 membership) / css (CSS Color 4 strings) / space / spaces (search by name, family, purpose) / cube, so agents call the library instead of guessing color math
 Site: https://color-space.io/
 Repo: https://github.com/colorjs/color-space

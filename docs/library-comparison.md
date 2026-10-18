@@ -84,11 +84,13 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 color-space v3 includes a differential test suite (`test/reference.js`) that validates 29 spaces against colorjs.io in both directions through sRGB. This catches self-cancelling round-trip bugs (a forward and inverse error that cancel each other in A→B→A tests). The tolerance is 1/255 (sub-perceptual). Spaces covered: srgb-linear, display-p3 (+ linear), rec2020 (+ linear), a98rgb (+ linear), prophoto (+ linear), xyz-d65, xyz-d50, lab (D50), LUV, LCHuv, OKLab, OKLCH, HSL, HSV, HWB, Jzazbz, JzCzHz, ICtCp, ACEScg, ACEScc, CAM16, Rec. 2100 PQ/HLG.
 
+Separately, 178 spaces carry at least one cited input→output value from their defining document or a named reference implementation (216 rows), published as [`conformance.json`](https://color-space.io/conformance.json) for any library's own tests. Camera logs with an official Academy transform are also checked against the ACES CTLs ([formula-verification.md](formula-verification.md#camera-log-verification-against-official-aces-transforms)).
+
 ---
 
 ## Choose X if…
 
-**color-space** — you need conversion formulas across a broad or unusual range of spaces (video, film, appearance, historical, research) and want to build your own pipeline on top. You do not need parsing, interpolation, or delta-E — just correct, well-ranged math.
+**color-space** — you need conversion formulas across a broad or unusual range of spaces (video, film, appearance, historical, research) and want to build your own pipeline on top. `color-space/util` adds parsing, mixing, ΔE and contrast; gamut mapping is not included.
 
 **culori** — you are building CSS-adjacent tooling, color pickers, design system utilities, or gradient engines. You want interpolation, gamut mapping, and delta-E included, with a normalized API that works uniformly across spaces.
 
@@ -102,14 +104,11 @@ color-space v3 includes a differential test suite (`test/reference.js`) that val
 
 ## What color-space is not
 
-color-space is a conversion kernel, not a color toolkit. It deliberately omits:
+color-space is a conversion kernel, not a color toolkit. `color-space/util` carries only the tools the atlas itself uses: CSS parsing and formatting, mixing, the tightest display gamut, visibility, ΔE (CIEDE2000, ΔEOK), WCAG contrast and color-vision simulation. It deliberately omits:
 
-- CSS color string parsing (e.g., `'oklch(65% 0.2 180)'` → channels)
-- Color mixing and interpolation
-- Gamut mapping and gamut-membership testing
-- Delta-E color difference metrics
-- WCAG contrast calculation
+- Gamut mapping (`util.gamut` names the gamut a color fits; it moves nothing)
 - Palette and scale generation
+- Color objects, alpha handling, a fluent API
 
 These belong to the application layer. culori, colorjs.io, and chroma-js implement them well and could use color-space as a conversion substrate.
 
@@ -126,4 +125,4 @@ These belong to the application layer. culori, colorjs.io, and chroma-js impleme
 
 ---
 
-*Data current as of July 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*
+*Data current as of October 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*

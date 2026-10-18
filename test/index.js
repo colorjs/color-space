@@ -8,6 +8,8 @@ import data from '../data.json' with { type: 'json' }
 const meta = data.spaces
 import test, { is } from 'tst'
 import color from 'color-name'
+import { mat3, mul3 } from '../math.js'
+import { bradfordAdaptation } from '../spaces/xyz.js'
 import './reference.js' // authoritative differential tests vs colorjs.io
 import './bonafide.js' // cited reference values for the non-differential spaces
 
@@ -259,14 +261,77 @@ test('integrity — space.range literal matches @channel-derived data range', ()
 
 // @gamut resolves to primaries + white in meta; for D65 gamuts the declared primary
 // chromaticities must match each space's live R/G/B → XYZ (guards a transcription slip).
+// Each primary is read through the space's own codes, so log and scene spaces count too:
+// the space encodes black to its code of linear 0 and the hub's D65 white (Y 100) to its
+// code of linear 1; xy of the decoded (1, 0, 0) etc. is the primary. A display space's
+// codes are 0 and its full scale, as before.
 test('integrity — @gamut primaries match live conversions (D65)', () => {
-	const chroma = (n, rgb) => { const X = space[n].xyz(...rgb); const s = X[0] + X[1] + X[2]; return [X[0] / s, X[1] / s] }
+	const xy = X => { const s = X[0] + X[1] + X[2]; return [X[0] / s, X[1] / s] }, W = space.lrgb.xyz(1, 1, 1)
 	for (const n of Object.keys(meta).filter(n => meta[n].gamut)) {
 		is(!!meta[n].primaries, true, `${n} @gamut resolves primaries`)
 		if (meta[n].white !== 'D65' || typeof space[n].xyz !== 'function') continue
-		const p = meta[n].primaries, live = { r: chroma(n, [1, 0, 0]), g: chroma(n, [0, 1, 0]), b: chroma(n, [0, 0, 1]) }
-		for (const ch of ['r', 'g', 'b']) for (let k = 0; k < 2; k++)
-			is(Math.abs(p[ch][k] - live[ch][k]) < 5e-4, true, `${n} ${ch}.${'xy'[k]} ${p[ch][k]} vs live ${live[ch][k].toFixed(4)}`)
+		const p = meta[n].primaries, lo = space.xyz[n](0, 0, 0), hi = space.xyz[n](...W)
+		;['r', 'g', 'b'].forEach((ch, i) => {
+			const live = xy(space[n].xyz(...lo.map((v, j) => j === i ? hi[j] : v)))
+			for (let k = 0; k < 2; k++)
+				is(Math.abs(p[ch][k] - live[k]) < 5e-4, true, `${n} ${ch}.${'xy'[k]} ${p[ch][k]} vs live ${live[k].toFixed(4)}`)
+		})
+	}
+})
+
+// The RGB → XYZ matrix data.json publishes per gamut is SMPTE RP 177's, from the cited
+// primaries and the white as printed: pinned to CSS Color 4's sample code, then to every
+// gamut space's live conversion – Bradford-adapted to the D65 hub where its white differs.
+// ACESproxy is left out: S-2013-001 rounds its codes to integers and clamps them at 64.
+test('integrity — gamut matrices: RP 177 from the primaries, as the spaces convert', () => {
+	const near = (a, b, e) => a.every((v, i) => Math.abs(v - b[i]) < e)
+	const M = n => data.gamuts[meta[n].gamut].matrix
+	is(Object.values(data.gamuts).every(g => near(mul3(g.matrix, g.inverse), [1, 0, 0, 0, 1, 0, 0, 0, 1], 1e-12)), true, 'every inverse inverts its matrix')
+	is(near(data.gamuts.srgb.matrix, [506752 / 1228815, 87881 / 245763, 12673 / 70218, 87098 / 409605, 175762 / 245763, 12673 / 175545, 7918 / 409605, 87881 / 737289, 1001167 / 1053270], 1e-12), true, 'sRGB = CSS Color 4 lin_sRGB_to_XYZ')
+	is(near(data.gamuts.prophoto.matrix, [0.7977666449006423, 0.1351812974005331, 0.0313477341283922, 0.2880748288194013, 0.711835234241873, 0.0000899369387256, 0, 0, 0.8251046025104602], 1e-12), true, 'ProPhoto = CSS Color 4 lin_ProPhoto_to_XYZ')
+	const XYZ = ([x, y]) => [x / y, 1, (1 - x - y) / y], hub = XYZ(data.whites.D65)
+	for (const n of Object.keys(meta).filter(n => meta[n].gamut && n !== 'acesproxy' && typeof space[n].xyz === 'function')) {
+		const w = data.whites[meta[n].white], A = meta[n].white === 'D65' ? M(n) : mul3(bradfordAdaptation(XYZ(w), hub), M(n))
+		const lo = space.xyz[n](0, 0, 0), hi = space.xyz[n](...mat3(A, 1, 1, 1).map(v => v * 100))
+		const col = i => space[n].xyz(...lo.map((v, j) => j === i ? hi[j] : v)).map(v => v / 100)
+		const err = Math.max(...[0, 1, 2].flatMap(i => col(i).map((v, k) => Math.abs(v - A[k * 3 + i]))))
+		is(err < 1e-4, true, `${n}: live columns = ${meta[n].white === 'D65' ? '' : 'Bradford · '}RP 177, ${err.toExponential(1)}`)
+	}
+})
+
+// the site reads primaries off the conversions too (profile.js: the dossier, the gamut outlines) – through
+// each space's own codes, so a log space's triangle is its gamut, not its code-0 corners
+// a transfer curve's printed formula is the curve: the dossier renders profile.js's expression x, and evaluated
+// it must give what f gives – the function the shipped conversion is checked against – to 1e-5
+test('integrity — the dossier\'s transfer formulas evaluate to their curves', async () => {
+	const { CURVES } = await import('../web/js/profile.js'), { evaluate, formula } = await import('../web/js/definition.js')
+	for (const [k, c] of Object.entries(CURVES)) {
+		let worst = 0
+		for (let i = 0; i <= 400; i++) { const V = c.dom === 'abs' ? -0.35 + i / 400 * 1.8 : i / 400, b = c.f(V); worst = Math.max(worst, Math.abs(evaluate(c, V) - b) / Math.max(1e-3, Math.abs(b))) }
+		is(worst < 1e-5 && formula(c).length >= 1 && !/·/.test(c.name + (c.spec || '')), true, `${k}: formula = curve (${worst.toExponential(1)})`)
+	}
+	is(formula(CURVES.srgb).map(([, w]) => w), ['<var>V</var> ≤ 0.04045', '<var>V</var> > 0.04045'], 'two branches, the second under the negated comparison')
+	const { constants } = await import('../web/js/definition.js'), throws = x => { try { formula({ x }); return false } catch { return true } }
+	is([formula({ x: 'V' }), evaluate({ x: '2 ** 3 ** 2' }, 0), evaluate({ x: '2 ** (-16)' }, 0), evaluate({ x: 'V >= 1 ? 1 : V * 2' }, 0.25)], [[['<var>V</var>', '']], 512, 2 ** -16, 0.5], 'a bare V, ** right-associative, a negative exponent, a branch')
+	is(['V +', 'V V', 'V <= .5', '(V', 'Math.max(V)'].map(throws), [true, true, true, true, true], 'a formula it can\'t read throws – never a silent partial parse')
+	is(constants({ k: { m1: 0.5, a: 2 } }), '<var>m<sub>1</sub></var> = 0.5, <var>a</var> = 2', 'constants as the formula names them')
+})
+
+// the matrix as the site hands it over: read back in each language's own order, it is data.json's
+test('integrity — the OCIO tab\'s matrix pair: a row-major 4×4, both ways', async () => {
+	const { definitionOf, ocioMatrix } = await import('../web/js/definition.js')
+	const g = definitionOf('prophoto'), txt = ocioMatrix('prophoto', g), nums = (t) => [...t.matchAll(/(?<![\w.])-?\d+(?:\.\d+)?(?:e-?\d+)?(?![\w.])/g)].map(m => +m[0])
+	const near = (a, b) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) < 1e-9)
+	const o = nums(txt.split('\n').filter(l => !/^\s*#/.test(l)).join('\n').split('direction')[0].split('- !<MatrixTransform>')[1])
+	is(near(o, [...g.matrix.slice(0, 3), 0, ...g.matrix.slice(3, 6), 0, ...g.matrix.slice(6), 0, 0, 0, 0, 1]), true, 'row-major 4×4')
+	is([txt.includes('direction: inverse'), /D50 white/.test(txt) && /no chromatic adaptation/.test(txt), txt.includes('https://color-space.io/prophoto')], [true, true, true], 'the inverse by direction; a non-D65 white named, no adaptation applied; the page named')
+})
+
+test('integrity — the site\'s computed primaries are the declared ones (D65)', async () => {
+	const { primariesOf } = await import('../web/js/profile.js')
+	for (const n of Object.keys(meta).filter(n => meta[n].gamut && meta[n].white === 'D65' && n !== 'acesproxy')) {
+		const p = primariesOf(n), d = meta[n].primaries
+		is(!!p && ['r', 'g', 'b'].every(k => Math.abs(p[k][0] - d[k][0]) < 5e-4 && Math.abs(p[k][1] - d[k][1]) < 5e-4), true, `${n} primariesOf`)
 	}
 })
 
@@ -1795,6 +1860,10 @@ test('coloroid: corrected Nemcsics table (ATV exact)', () => {
 	// Nemcsics 1980: A=70,T=70,V=60 -> xyY [0.235644, 0.641004, 36]
 	is(space.coloroid.xyy(70, 70, 60).map(round(5)), [0.23564, 0.64100, 36]);
 	is(space.xyy.coloroid(...space.coloroid.xyy(40, 50, 60)).map(round(2)), [40, 50, 60], 'ATV roundtrip');
+	// A=24: Nemcsics 1979 Table I prints ȳλ 0.774014, a misprint for 0.744014 – the row's own printed
+	// xλ 0.58128, yλ 0.41811 and eλ 1.779484 follow from 0.744014 (docs/errata.md); a row rebuilt
+	// from the misprint lands at 0.57166, 0.42775
+	is(space.coloroid.table.find(r => r[0] === 24), [24, 20.6, 1.779484, 0.58128, 0.41811], 'A=24 as printed, not rebuilt from the misprinted ȳλ')
 });
 
 test('yccbccrc: constant-luminance (BT.2020 Table 4)', () => {

@@ -5,8 +5,8 @@
 // The prerender passes the DEFAULT color state, so values, slider gradients and tick
 // markers are baked into the static HTML — the catalog is complete at first paint,
 // before any script runs; the page's stamp-skip repaints only what actually changes.
-import { space, meta, classify, ramp, hex, toSpace, clamp, pairsOf, decOf, fmtc, geoOf } from './core.js'
-export { pairsOf, decOf, fmtc, geoOf }   // the dossier imports them from here with the rest of the catalog
+import { space, meta, classify, ramp, hex, toSpace, clamp, pairsOf, decOf, fmtc, geoOf, rgbF } from './core.js'
+export { pairsOf, decOf, fmtc, geoOf, rgbF }   // the dossier imports them from here with the rest of the catalog
 import CATS from './categories.js'
 import PURPOSE, { USE } from './purpose.js'
 import LORE from './lore.js'
@@ -25,8 +25,9 @@ export const cname = c => { const k = chKey(c), en = chEn(c); return k ? t(k, en
 export const disp = s => meta[s]?.title || s.toUpperCase()
 // set a display name for wrapping: word-internal hyphens turn non-breaking (U+2011, one code
 // unit for one, so match offsets from disp() still land) – a wrapped name breaks at spaces,
-// never as "Linear- / light sRGB"
-export const nbh = t => t.replace(/(\w)-(?=\w)/g, '$1\u2011')
+// never as "Linear- / light sRGB"; a short last word holds to the one before it, never
+// alone on a line ("ARRI Wide Gamut / 3", "Display / P3")
+export const nbh = t => t.replace(/(\w)-(?=\w)/g, '$1\u2011').replace(/ (?=\S{1,3}$)/, '\u00a0')
 export const unit = c => c.max === 360 ? '°' : (c.min === 0 && c.max === 100 ? '%' : '')
 const mapped = new Set(CATS.flatMap(c => c.spaces))
 export const sections = [...CATS.map(c => ({ key: 'cat.' + c.id, name: c.name, tip: c.tip, spaces: c.spaces.filter(s => SPACES.includes(s)) })),
@@ -67,7 +68,6 @@ export const LEADS = 3   // lead cards per family on a wide catalog (its feature
 export const DEFAULT = { s: 'rgb', vals: [128, 128, 128] }
 
 // ── shared value/color formatting (page + prerender must agree byte-for-byte) ──
-export const rgbF = (s, v) => (s === 'rgb' ? v : space[s].rgb(...v)).map(x => isFinite(x) ? clamp(x, 0, 255) : 0)
 export const lum = c => 0.2126 * c[0] / 255 + 0.7152 * c[1] / 255 + 0.0722 * c[2] / 255
 export const ink = c => lum(c) < 0.6 ? '#fff' : 'var(--dark)'
 
@@ -144,17 +144,21 @@ export const whiteHex = k => { const [x, y] = WHITE_XY[k], l = space.xyz.lrgb(x 
 // (more: a line the tip adds under the gloss – the dossier's white its XYZ). The list's cells and the dossier's head share it
 export const kindIcon = (k, s, more = '') => { const v = KIND[k](s), ic = k === 'white' ? WHITE_XY[v] && `<i class="wdot" style="--w:${whiteHex(v)}"></i>` : OI[kindKey(v)], say = `${colName(k)}: ${cap(tagL(v))}`, tip = attr([tagLine(v), more].filter(Boolean).join('\n'))
 	return v && ic ? `<span class="ki" role="img" aria-label="${say}" data-tip-head="${say}"${tip ? ` data-tip="${tip}"` : ''}>${ic}</span>` : '' }
-export const COLS = [['name', s => disp(s)], ['year', s => meta[s].year || 0], ['by', s => meta[s].by || ''], ['ch', s => classify(s).ch.map(c => c.sym).join(' ')],
-	['cov', s => REACH[s]?.[0] ?? -1], ['geo', s => tagL(geoOf(s))], ['curve', s => KIND.curve(s) && tagL(KIND.curve(s))], ['sig', s => KIND.sig(s) && tagL(KIND.sig(s))],
-	['range', KIND.range], ['status', s => KIND.status(s) && tagL(KIND.status(s))], ['white', s => meta[s].illuminant || '']]
-// what a cell shows, where it isn't its sort value
-const CELL = { cov: s => REACH[s] ? `${Math.round(REACH[s][0] * 100)}%` : '', geo: s => kindIcon('geo', s), curve: s => kindIcon('curve', s), sig: s => kindIcon('sig', s), range: s => kindIcon('range', s), status: s => kindIcon('status', s), white: s => kindIcon('white', s) + (meta[s].illuminant || '') }
+// the columns: the name, then the color's own numbers in it, then the facts – the coverage last before the kinds, its
+// heading running on over their unnamed column
+export const COLS = [['name', s => disp(s)], ['ch', s => classify(s).ch.map(c => c.sym).join(' ')], ['year', s => meta[s].year || 0], ['by', s => meta[s].by || ''],
+	['white', s => meta[s].illuminant || ''], ['cov', s => REACH[s]?.[0] ?? -1], ['geo', s => tagL(geoOf(s))], ['curve', s => KIND.curve(s) && tagL(KIND.curve(s))],
+	['sig', s => KIND.sig(s) && tagL(KIND.sig(s))], ['range', KIND.range]]
+const KINDS = ['geo', 'curve', 'sig', 'range']
+// what a cell shows, where it isn't its sort value – the channels the tiles' numbers, each its letter and its field; a
+// retired space's year its archive box beside it, as a card's by-line shows it
+const CELL = { year: s => (meta[s].year || '') + kindIcon('status', s), ch: (s, vals) => `<span class="cvs">${classify(s).ch.map((c2, i) => field(s, c2, i, vals)).join('')}</span>`, cov: s => REACH[s] ? `${Math.round(REACH[s][0] * 100)}%` : '', geo: s => kindIcon('geo', s), curve: s => kindIcon('curve', s), sig: s => kindIcon('sig', s), range: s => kindIcon('range', s), status: s => kindIcon('status', s), white: s => kindIcon('white', s) + (meta[s].illuminant || '') }
 // a column's heading, in the page's language at render time
 const colName = k => ({ name: t('ui.col.name', 'Name'), year: t('ui.col.year', 'Year'), by: t('ui.col.by', 'Made by'), ch: t('ui.col.channels', 'Channels'),
 	cov: t('ui.cell.coverage', 'Coverage'), geo: t('ui.col.shape', 'Shape'), curve: t('ui.col.curve', 'Curve'), sig: t('ui.cell.signal', 'Signal'), range: t('ui.col.range', 'Range'), status: t('ui.cell.status', 'Status'), white: t('ui.col.white', 'White') })[k]
 const trow = (s, st) => { const cls = classify(s), vals = valsAt(s, st)
-	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s)}</td>` : `<th scope="row" class="c-name">${nameLink(s, true)}</th>`).join('')}<td class="c-kind">${['geo', 'curve', 'sig', 'range', 'status'].map(k => kindIcon(k, s)).join('')}</td></tr>` }
-const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead><tr><th class="tsw"><span class="sr">${t('ui.col.preview', 'Preview')}</span></th>${COLS.map(([k]) => `<th scope="col" class="c-${k}" aria-sort="${sort?.k === k ? (sort.d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${colName(k)}${sort?.k === k ? `<span aria-hidden="true">${sort.d > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}<th scope="col" class="c-kind"><span class="sr">${['geo', 'curve', 'sig', 'range', 'status'].map(colName).join(' · ')}</span></th></tr></thead><tbody>${spaces.map(s => trow(s, st)).join('')}</tbody></table></div>`
+	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s, vals)}</td>` : `<th scope="row" class="c-name">${nameLink(s, true)}</th>`).join('')}<td class="c-kind">${KINDS.map(k => kindIcon(k, s)).join('')}</td></tr>` }
+const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead><tr><th class="tsw"><span class="sr">${t('ui.col.preview', 'Preview')}</span></th>${COLS.map(([k]) => `<th scope="col" class="c-${k}" aria-sort="${sort?.k === k ? (sort.d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${colName(k)}${sort?.k === k ? `<span aria-hidden="true">${sort.d > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}<th scope="col" class="c-kind"><span class="sr">${KINDS.map(colName).join(' · ')}</span></th></tr></thead><tbody>${spaces.map(s => trow(s, st)).join('')}</tbody></table></div>`
 // a list sorted by a column: every space in one shelf, in that order
 export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
 	return [{ name: t('ui.view.all', 'All spaces'), spaces: SPACES.slice().sort((a, b) => { const x = f(a), y = f(b); return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * d }) }] }
@@ -176,14 +180,26 @@ const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.percep
 // o: how – view 'grid' (lead cards, tiles) or 'list' (the spec sheet), the cut its tabs mark, a list's sort,
 // and how many lead each family in the grid – one row of them: as many as the grid's columns (the prerender: three) –
 // and the families unfolded (open: their keys)
-// a long family folds past its second row of tiles (index.html's fold) and this unfolds it: the count of what it holds
-// back, by the grid's columns (1–3: a row of that many leads, two rows of one more tile each, so 3c + 2 show), each
-// number shown at its width. A family folds at a column count only where more than a row would hide – a row or less
-// shows whole (f1–f3 on the section, n1–n3 in the count); folding nowhere, it carries no control. Open, it folds back
-const folds = c => [1, 2, 3].map(k => c.spaces.length - 3 * k - 2).map((n, k) => n > k + 2 ? n : 0)
+// a long family folds (index.html's fold) and this unfolds it: at k columns (1–3) a row of k leads, then rows of k + 1
+// tiles – never more than two: two where five or more stay behind them (f1–f3 on the section), one where fewer would
+// (g1–g3), the fold's line naming the rest; all shown where all fit in two rows – no control. Each width its own count
+// (n1–n3); open, it folds back. A fold: its rows, the index the held-back run starts at, how many it holds
+const folds = c => [1, 2, 3].map(k => { if (c.spaces.length <= 3 * k + 2) return null
+	const r = c.spaces.length - 3 * k - 2 >= 5 ? 2 : 1, at = k + r * (k + 1); return { r, at, n: c.spaces.length - at } })
 const FOLD = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'   // the line family's chevron, turned down
-const more = (c, on) => { const n = folds(c)
-	return n.some(Boolean) ? `<button type="button" class="more" aria-expanded="${on}"><span class="mo">${t('ui.fold.more', '{n} more', { n: n.map((x, k) => x > 0 ? `<i class="n${k + 1}">${x}</i>` : '').join('') })}</span><span class="le">${t('ui.fold.fewer', 'Fewer')}</span>${FOLD}</button>` : '' }
+// the fold names what it holds back in one line, in the tiles' titles (each its dossier's link), the count at its end –
+// the tiles' last child: folded, a row of its own; open, the last column's foot – beside the last tile where it has room;
+// a name held back at k columns carries hk. The line leads with the family's
+// variety: a maker not yet met in the family before one already seen, a variant last – a name that is another space's
+// and a word more (Linear-light ProPhoto RGB, CIELAB D65); otherwise the family's order
+const words = s => disp(s).split(/\s+/), VARIANT = new Map()
+const variant = s => { if (!VARIANT.has(s)) { const A = words(s); VARIANT.set(s, SPACES.some(p => { const B = words(p); return B.length < A.length && A.some((_, i) => B.every((w, j) => A[i + j] === w)) })) } return VARIANT.get(s) }
+const maker = s => (meta[s].by || s).replace(/\s*\([^)]*\)/g, '').split(/\s*[,&;/]\s*|\s+et al\.?/)[0].trim()
+const heldOrder = (ss, from) => { const met = {}, at = ss.map((s, i) => ({ s, i, v: +variant(s), m: met[maker(s)] = (met[maker(s)] ?? -1) + 1 }))
+	return at.slice(from).sort((a, b) => a.v - b.v || a.m - b.m || a.i - b.i) }
+const held = F => ({ s, i }) => `<li class="fn${F.map((f, k) => f && i >= f.at ? ` h${k + 1}` : '').join('')}">${nameLink(s)}</li>`
+const more = (c, on) => { const F = folds(c), fs = F.filter(Boolean)
+	return fs.length ? `<div class="fold"><ul class="fns">${heldOrder(c.spaces, Math.min(...fs.map(f => f.at))).map(held(F)).join('')}</ul><button type="button" class="more" aria-expanded="${on}"><span class="mo">${t('ui.fold.more', '{n} more', { n: F.map((f, k) => f ? `<i class="n${k + 1}">${f.n}</i>` : '').join('') })}</span><span class="le">${t('ui.fold.less', 'Less')}</span>${FOLD}</button></div>` : '' }
 export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sort = null, leads = LEADS, adapt = false, open = new Set() } = {}) => { let st = null
 	if (m) { const rgb = rgbF(m.s, m.vals); st = { rgb, hx: hex(rgb), ink: ink(rgb) } }
 	const by = t('ui.group.by', 'group the catalog by'), G = { family: t('ui.group.family', 'Family'), purpose: t('ui.group.purpose', 'Purpose'), era: t('ui.group.era', 'Era'), author: t('ui.group.author', 'Author') }
@@ -191,7 +207,7 @@ export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sor
 		: `<div class="lead">
 	${c.spaces.slice(0, leads).map(s => ent(s, true, st)).join('')}
 </div>${c.spaces.length > leads ? `<div class="tiles${adapt && leads > 1 ? ' dup' : ''}">
-	${adapt ? dupTiles(c.spaces.slice(1, leads), st) : ''}${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}
-</div>${more(c, open.has(c.key || c.name))}` : ''}`
+	${adapt ? dupTiles(c.spaces.slice(1, leads), st) : ''}${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}${more(c, open.has(c.key || c.name))}
+</div>` : ''}`
 	const ti = (c, i) => `<div class="trg"><i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn"${c.tip ? ` data-tip="${secTip(c)}"` : ''}>${SHELFI[c.key] ? `<span class="fic">${SHELFI[c.key]}</span>` : ''}<span class="tt">${secName(c)}</span><span class="tc tnum">${c.spaces.length}</span></button>${c.tip ? `<p class="tip">${secTip(c)}</p>` : ''}</div></div>`
-	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'author', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec${view === 'grid' ? folds(c).map((n, k) => n ? ` f${k + 1}` : '').join('') + (open.has(c.key || c.name) ? ' open' : '') : ''}" data-sec data-k="${c.key || c.name}"><h2 class="shw">${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }
+	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${['family', 'purpose', 'author', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec${view === 'grid' ? folds(c).map((f, k) => f ? ` ${f.r > 1 ? 'f' : 'g'}${k + 1}` : '').join('') + (open.has(c.key || c.name) ? ' open' : '') : ''}" data-sec data-k="${c.key || c.name}"><h2 class="shw">${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }

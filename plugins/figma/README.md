@@ -427,11 +427,12 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   11 px text, 4 × 8 px of padding, 6 px corners, under its element with a 12 × 6 px tip
   pointing at the element's middle (a page asks for the side with `--tip-side`, and for its
   wait with `--tip-delay`, half a second here; `tip.js` sets the side it took and the tip's
-  place). It stays secondary: shown while its element is hovered, gone at once when the pointer
-  leaves it or the panel, on any press (but one on a live tip's row), on Escape and when Figma
-  takes focus; `tip.js` can also show a list of rows (`data-tip-rows`, a row's icon a name in
-  its set or a path of its own), live ones that the pointer may cross into (`data-tip-live`,
-  a pressed row told to its element as a `tiprow` event), and a tip at a point (`tipAt`);
+  place). It stays secondary: shown while its element is hovered, and for its linger (`--tip-linger`,
+  500 ms) once the pointer leaves – the pointer may cross into it to read or copy it – gone when
+  the pointer has left both, on Escape and when Figma takes focus; `tip.js` can also show a list
+  of rows (`data-tip-rows`, a row's icon a name in its set or a path of its own), live ones whose
+  rows are buttons (`data-tip-live`, a pressed row told to its element as a `tiprow` event), and
+  a tip at a point (`tipAt`);
   a select's tip sits on the select itself and never shows over its open list;
   focus brings it only from the keyboard (a clicked button takes focus, which would
   otherwise show its tip again).

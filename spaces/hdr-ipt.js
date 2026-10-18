@@ -36,9 +36,10 @@ const M2i = inv3(M2);
 
 const e = 0.59 / (1.25 - 0.25 * (0.2 / 0.184)) / (Math.log(318) / Math.log(100)); // 0.4820 (Fairchild 2011)
 const ke = Math.pow(2, e);
-// Michaelis-Menten lightness; Vmax=247 (colour-science's default — its hdr-IPT call omits the method arg)
-const light = v => 247 * Math.pow(Math.abs(v), e) / (Math.pow(Math.abs(v), e) + ke) * Math.sign(v);
-const lightInv = L => Math.sign(L) * Math.pow(Math.abs(L) * ke / (247 - Math.abs(L)), 1 / e);
+// Michaelis-Menten lightness; Vmax=247 (colour-science's default — its hdr-IPT call omits the method arg),
+// odd-extended, plus the 0.02 offset the paper specifies (Fairchild & Wyble 2010, p. 322) – only I carries it
+const light = v => 247 * Math.pow(Math.abs(v), e) / (Math.pow(Math.abs(v), e) + ke) * Math.sign(v) + 0.02;
+const lightInv = L => { const l = L - 0.02; return Math.sign(l) * Math.pow(Math.abs(l) * ke / (247 - Math.abs(l)), 1 / e) };
 
 xyz['hdr-ipt'] = (X, Y, Z) => mat3(M2, ...mat3(M1, X / 100, Y / 100, Z / 100).map(light));
 hdrIpt.xyz = (I, p, t) => mat3(M1i, ...mat3(M2i, I, p, t).map(lightInv)).map(v => v * 100);

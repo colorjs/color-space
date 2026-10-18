@@ -52,6 +52,7 @@
     "/*.js",
     "spaces",
     "data.json",
+    "conformance.json",
     "wasm",
     "gl",
     "types",
@@ -96,6 +97,14 @@
       "types": "./types/lut.d.ts",
       "default": "./lut.js"
     },
+    "./ocio": {
+      "types": "./types/ocio.d.ts",
+      "default": "./ocio.js"
+    },
+    "./ocio.js": {
+      "types": "./types/ocio.d.ts",
+      "default": "./ocio.js"
+    },
     "./icc": {
       "types": "./types/icc.d.ts",
       "default": "./icc.js"
@@ -105,6 +114,7 @@
       "default": "./icc.js"
     },
     "./data.json": "./data.json",
+    "./conformance.json": "./conformance.json",
     "./data": null,
     "./wasm": {
       "types": "./types/wasm.d.ts",
@@ -277,7 +287,7 @@
     }
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/measure.js && node test/util.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/hlsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && npm run test:types",
+    "test": "node test && node test/cie.js && node test/measure.js && node test/util.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/hlsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && npm run test:types && node test/ocio.js",
     "test:site": "node test/site.js && node test/i18n.js && npm run test:browser && npm run test:a11y",
     "test:types": "tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck false test/types/smoke.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck false test/types/smoke.ts",
     "test:package": "node scripts/test-package.js",
@@ -287,6 +297,7 @@
     "test:figma": "node scripts/check-figma.js",
     "test:vscode": "node scripts/check-vscode.js",
     "benchmark": "node benchmark/compare.js",
+    "signals": "node scripts/signals.js",
     "types": "node scripts/generate-types.js",
     "data": "node scripts/generate-data.js",
     "landing": "node scripts/build-site.js",

@@ -9,11 +9,21 @@
  *
  * Values: CSS Color 4 §12 predefined spaces (sRGB, display-p3, a98-rgb, prophoto-rgb,
  * rec2020), SMPTE RP 431-2 (DCI-P3), the ACES spec (AP0/AP1), ITU-R BT.470 (NTSC/PAL),
- * SMPTE C, and CIE 1931 (CIE RGB, white E). The D65 primaries are checked in the test
- * suite against each space's live R/G/B → XYZ chromaticities.
+ * SMPTE C, and CIE 1931 (CIE RGB, white E). Camera gamuts from their vendors' documents,
+ * cited in each space's file: Sony's Technical Summary for S-Gamut3.Cine/S-Log3 and
+ * S-Gamut3/S-Log3 (S-Gamut3, S-Gamut3.Cine), the Apple Log 2 White Paper (Sept 2025, Apple
+ * Wide Gamut), Fujifilm's F-Log2 C Data Sheet Ver.1.0 (F-Gamut C), Kinefinity's KineLog3
+ * Technical Specifications (2025-09-24, revised; Kinefinity Wide Gamut). Canon's Cinema
+ * Gamut, like DCI-P3+, comes from colour-science 0.4.7, citing Canon's 2014 EOS C500
+ * firmware page: Canon's Wide Color Gamuts white paper (2014) names it but prints no
+ * coordinates; the Canon Log matrices reproduce the values exactly. The D65 primaries are
+ * checked in the test suite against each space's live chromaticities, read through its
+ * own codes (log curves included).
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined}
  */
+import { mat3, inv3 } from './math.js';
+
 const P = (r, g, b) => ({ r, g, b });
 
 const gamut = {
@@ -47,9 +57,38 @@ const gamut = {
 	bmdwg: { primaries: P([0.7177215, 0.3171181], [0.2280410, 0.8615690], [0.1005841, -0.0820452]), white: 'D65' },
 	vgamut: { primaries: P([0.730, 0.280], [0.165, 0.840], [0.100, -0.030]), white: 'D65' },
 	sgamut3: { primaries: P([0.730, 0.280], [0.140, 0.855], [0.100, -0.050]), white: 'D65' },
+	sgamut3cine: { primaries: P([0.766, 0.275], [0.225, 0.800], [0.089, -0.087]), white: 'D65' },
+	'cinema-gamut': { primaries: P([0.74, 0.27], [0.17, 1.14], [0.08, -0.10]), white: 'D65' },
+	'apple-wg': { primaries: P([0.725, 0.301], [0.221, 0.814], [0.068, -0.076]), white: 'D65' },
+	'fgamut-c': { primaries: P([0.7347, 0.2653], [0.0263, 0.9737], [0.1173, -0.0224]), white: 'D65' },
+	kwg: { primaries: P([0.7571, 0.2282], [0.2139, 1.1480], [0.0536, -0.2236]), white: 'D65' },
 	dgamut: { primaries: P([0.71, 0.31], [0.21, 0.88], [0.09, -0.08]), white: 'D65' },
 	egamut: { primaries: P([0.8, 0.3177], [0.18, 0.9], [0.065, -0.0805]), white: 'D65' }
 };
 
+/**
+ * The white points the gamuts name, as CIE xy: CIE 15:2004 Table T.3 (2° observer) to the
+ * four decimals the RGB specifications print (IEC 61966-2-1 and ITU-R BT.709 for D65,
+ * ISO 22028-2 for D50), SMPTE RP 431-2 for DCI, SMPTE ST 2065-1 for ACES.
+ */
+const whites = {
+	D65: [0.3127, 0.3290], D50: [0.3457, 0.3585], D55: [0.3324, 0.3474], C: [0.3101, 0.3162],
+	E: [1 / 3, 1 / 3], DCI: [0.314, 0.351], ACES: [0.32168, 0.33767]
+};
+
+/**
+ * A gamut's linear RGB → XYZ matrix (row-major, white Y = 1, its own white, no adaptation):
+ * the normalized primary matrix of SMPTE RP 177.
+ * @param {{ primaries: { r: number[], g: number[], b: number[] }, white: string }} g
+ * @returns {number[]}
+ */
+const matrix = ({ primaries: { r, g, b }, white }) => {
+	const [xw, yw] = whites[white], col = ([x, y]) => [x / y, 1, (1 - x - y) / y];
+	const [R, G, B] = [col(r), col(g), col(b)];
+	const P = [R[0], G[0], B[0], R[1], G[1], B[1], R[2], G[2], B[2]];
+	const [sr, sg, sb] = mat3(inv3(P), xw / yw, 1, (1 - xw - yw) / yw);
+	return [P[0] * sr, P[1] * sg, P[2] * sb, P[3] * sr, P[4] * sg, P[5] * sb, P[6] * sr, P[7] * sg, P[8] * sb];
+};
+
 export default gamut;
-export { gamut };
+export { gamut, whites, matrix };

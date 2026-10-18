@@ -48,7 +48,7 @@ const fill = ({ head, rows, text, tags, live }) => {
 	if (head) tip.append(Object.assign(document.createElement('b'), { className: 'th', textContent: head }))   // an optional heading line, set apart
 	// optional rows – data-tip-rows, JSON [[icon, label, aside], …] – a list as a menu sets one: an icon, a label on one
 	// line, a quiet aside at its right (the layers a color is used on). Text throughout, so a name can't inject markup.
-	// Live (data-tip-live), the rows are buttons: the pointer may cross into the tip, and a row pressed tells the element
+	// Live (data-tip-live), the rows are buttons: a row pressed tells the element
 	// (a 'tiprow' event, its index in detail.i), then the tip goes
 	if (rows?.length) {
 		const box = span('rows', '')
@@ -89,7 +89,7 @@ const top = () => { if (top.v == null) { top.v = getComputedStyle(tip).getProper
 const hide = () => { retitle.disconnect(); if (top.v && tip.matches(':popover-open')) tip.hidePopover(); tip.classList.remove('on', 'live'); tip.setAttribute('aria-hidden', 'true'); tip.inert = true; target = point = null; focused = false; clearTimeout(timer); clearTimeout(grace); grace = 0 }
 // a live tip's row pressed: its element told, the tip gone. The press keeps the focus where it was (a focus moving would end
 // the tip before the click)
-tip.addEventListener('pointerdown', (e) => e.preventDefault())
+tip.addEventListener('pointerdown', (e) => { if (e.target.closest('.row')) e.preventDefault() })   // a row's press; its text is still the reader's to select
 tip.addEventListener('click', (e) => {
 	const row = e.target.closest('.row'), el = target
 	if (!row || !el) return
@@ -138,24 +138,27 @@ const find = (e) => {
 	return sel && (el !== sel || isOpen(sel)) ? null : el
 }
 
+// a tip lingers: off its element it stays the page's linger (#tip{--tip-linger}, else 500 ms), and the pointer may cross
+// into it – to read it, to select and copy what it says (WCAG 1.4.13: hoverable, persistent); back on either, it stays
+const linger = () => parseFloat(getComputedStyle(tip).getPropertyValue('--tip-linger')) || 500
+const stay = () => { clearTimeout(grace); grace = 0 }, leave = () => { grace ||= setTimeout(hide, linger()) }
 addEventListener('pointerover', (e) => {
 	if (e.pointerType === 'touch') return   // a finger has no hover: a tip on touch is a bubble over what it presses
+	if (tip.contains(e.target)) return stay()
 	const el = find(e)
 	if (point || !el || (el === target && tip.classList.contains('on')) || !helpful(el)) return
-	if (target && el !== target) hide()   // another element: the last one's tip goes now (a live one's breath too)
+	if (target && el !== target) hide()   // another element: the last one's tip goes now, its linger too
 	arm(el)
 	target = el; watch(el)
 	clearTimeout(timer)
 	timer = setTimeout(show, parseFloat(getComputedStyle(tip).getPropertyValue('--tip-delay')) || 300)   // the page's wait (#tip{--tip-delay}), else 300 ms
 }, { passive: true })
 addEventListener('pointerout', (e) => {
-	// only dismiss when the pointer actually leaves the target (not onto its own children) – or, for a live tip, leaves
-	// both it and its element; the gap between the two is crossed within a breath
+	// gone only when the pointer has left both the element (not onto its own children) and the tip, for the linger
 	if (!target) return
-	const to = e.relatedTarget, live = tip.classList.contains('live')
-	if (target.contains(to) || (live && tip.contains(to))) { clearTimeout(grace); grace = 0; return }
-	if (live) { grace ||= setTimeout(hide, 150); return }   // one breath from the first step out, however many elements it crosses
-	hide()
+	const to = e.relatedTarget
+	if (target.contains(to) || tip.contains(to)) return stay()
+	leave()
 }, { passive: true })
 // a tip on focus is the keyboard's: shown only when a key moved the focus there (Tab), never a press's – a button clicked,
 // a knob a page focuses after a press (Chrome's :focus-visible would count that one: the press was taken over), whose tip
@@ -163,14 +166,15 @@ addEventListener('pointerout', (e) => {
 addEventListener('keydown', () => { keyed = true }, true)
 addEventListener('pointerdown', () => { keyed = false }, true)
 addEventListener('focusin', (e) => { const el = find(e); if (keyed && !point && el && helpful(el) && !e.target.matches('input, textarea, [contenteditable]')) { arm(el); target = el; show(); focused = true } })
-addEventListener('focusout', (e) => { if (!tip.contains(e.relatedTarget)) hide() })
+addEventListener('focusout', (e) => { if (!tip.contains(e.relatedTarget) && !tip.matches(':hover')) hide() })   // a press in the tip (selecting its words) is no leaving
 addEventListener('scroll', hide, true)
 // a pointer's tip ends with the next move off its element, however the leaving went unreported: its element taken out of
 // the page under the pointer (a list re-rendered, a mark redrawn), a pointerout an embedding frame or a control's own
-// internals never sent – such a tip once hung until the pointer came back. A live tip keeps its breath for the crossing
+// internals never sent – such a tip once hung until the pointer came back. It keeps its linger for the crossing
 addEventListener('pointermove', (e) => {
 	if (!target || focused) return
-	if (!target.isConnected || (!target.contains(e.target) && !tip.classList.contains('live'))) hide()
+	if (!target.isConnected) return hide()
+	target.contains(e.target) || tip.contains(e.target) ? grace && stay() : leave()
 }, { passive: true })
 // the pointer leaving the page (an embedding frame may never report a pointerout for it) or the window losing focus
 document.documentElement.addEventListener('pointerleave', hide)

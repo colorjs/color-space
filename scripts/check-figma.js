@@ -902,9 +902,9 @@ try {
 		await ui.locator('#paints .paint').first().hover()
 		await fr.waitForFunction(() => document.getElementById('tip').classList.contains('on'), null, { timeout: 3000 }).catch(() => {})
 		await page.mouse.move(ib.x + 3, ib.y + 20)   // the panel's padding: nothing there
-		await page.waitForTimeout(200)   // a live tip's breath for the pointer to cross into it
+		await page.waitForTimeout(650)   // past the tip's linger (tip.js, 500 ms) – the pointer's time to cross into it
 		const gone = await tipState()
-		ok(!gone.on && gone.opacity === 0, `leaving the swatch: the tooltip gone in a breath, no fade (${JSON.stringify(gone)})`)
+		ok(!gone.on && gone.opacity === 0, `leaving the swatch: the tooltip gone after its linger, no fade (${JSON.stringify(gone)})`)
 		// a press's focus shows no tip: a button clicked once showed its tip at once and kept it while the focus stayed (the
 		// settings mark under an open panel); the keyboard's focus does show it
 		await ui.locator('#prmb').click(); await page.waitForTimeout(100)

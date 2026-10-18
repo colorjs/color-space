@@ -74,16 +74,3 @@ Curation — this is the Wikipedia-grade layer we're missing
 
 ## One move
 > the definitive, beautiful home of every color language — an encyclopedia you can't stop touching. Own the meaning of color spaces, not the feature count. The competitive claim ("every space, verified") lives in one honest line near the install command for the people comparing libraries — and then you never mention competitors again
-
-## From landing-alt (retired 2026-07) - not reference, but possible ideas
-Salvage list from the alt landing experiment (Hallmark almanac/editorial theme) — the ideas, not the markup:
-
-* **Field-guide framing** — "color-space *field guide*" wordmark; hero = one huge tabular number + unit ("156 registered spaces") with count-up animation; stat-led macrostructure.
-* **Specimen flow** — one 2D OKLCH hue×lightness canvas field (drag + arrow keys, real `role=slider` with `aria-valuetext`), CSS-string entry, native picker chip; everything below reads *the same stimulus*.
-* **Curated translation sheet** — show *six useful coordinates* for the current color (not all 156), with "N shown · browse all 156 ↗". Curation as the default view; the atlas as the deep end.
-* **Taxonomy as control** — family chips don't just filter a list, they *swap which conversions the live specimen shows*. The map edits the instrument.
-* **Dossier follows selection** — clicking a conversion row loads that space's dossier in place (class line · name · description · facts `<dl>`).
-* **Evidence spec-sheet** — a five-row limits table: Coverage (156) · Routes (**24,180 ordered pairs** — a concrete, computable stat) · Verification (1/255 differential) · Package (0 deps) · Scope (conversion kernel, application layer excluded). Honest-limits framing beats feature lists.
-* **Runtime workbench** — one tabbed code panel (JS/WASM/Shaders/LUT) + a single copy button, instead of four scattered snippets.
-* **Noscript honesty** — "The live specimen needs JavaScript. The full atlas remains readable without it."
-* **Type palette** (if the editorial direction returns): Hanken Grotesk (UI) + IBM Plex Mono (numbers/code) + Newsreader (serif accents); slate-250 anchor hue; sticky section heads with heading + one-line standfirst.

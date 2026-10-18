@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "displayName": "Color Space",
-  "description": "Every color in your file on one plane, in OKLCH, HCT, CAM16, Display P3 or any of 168 color spaces: CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, design tokens, themes and palettes, written back in their own notation.",
+  "description": "%description%",
   "version": "0.1.0",
   "publisher": "colorjs",
   "license": "CC0-1.0",
@@ -15,14 +15,18 @@
   "keywords": ["color", "color picker", "oklch", "css", "display p3", "swiftui", "flutter", "design tokens", "color space", "gamut"],
   "type": "module",
   "main": "./dist/extension.cjs",
+  "l10n": "./l10n",
   "activationEvents": ["onStartupFinished"],
   "contributes": {
+    "viewsContainers": {
+      "secondarySidebar": [{ "id": "colorSpace", "title": "%view.name%", "icon": "dist/locus.svg" }]
+    },
     "views": {
-      "explorer": [{ "type": "webview", "id": "colorSpace.picker", "name": "Color Space", "icon": "dist/locus.svg" }]
+      "colorSpace": [{ "type": "webview", "id": "colorSpace.picker", "name": "%view.name%", "icon": "dist/locus.svg" }]
     },
     "commands": [
-      { "command": "colorSpace.pick", "title": "Pick Color", "category": "Color Space" },
-      { "command": "colorSpace.convert", "title": "Convert Color To…", "category": "Color Space" }
+      { "command": "colorSpace.pick", "title": "%command.pick%", "category": "Color Space" },
+      { "command": "colorSpace.convert", "title": "%command.convert%", "category": "Color Space" }
     ],
     "configuration": {
       "title": "Color Space",
@@ -30,16 +34,16 @@
         "colorSpace.gamut": {
           "type": "string",
           "enum": ["p3", "srgb"],
-          "enumDescriptions": ["Display P3: the wide gamut of current Apple and many other displays", "sRGB: the standard web gamut"],
+          "enumDescriptions": ["%gamut.p3%", "%gamut.srgb%"],
           "default": "p3",
-          "markdownDescription": "The gamut the picker writes in, for notations that can name wider colors (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` and `hwb()` are always written inside sRGB."
+          "markdownDescription": "%gamut.description%"
         },
         "colorSpace.shaders": {
           "type": "string",
           "enum": ["off", "srgb", "linear"],
-          "enumDescriptions": ["Shader vectors aren't read as colors", "vec3(1.0, 0.5, 0.0) and its kin are gamma-encoded sRGB", "vec3(1.0, 0.5, 0.0) and its kin are linear-light sRGB"],
+          "enumDescriptions": ["%shaders.off%", "%shaders.srgb%", "%shaders.linear%"],
           "default": "off",
-          "markdownDescription": "Whether 0–1 vectors in shaders (`vec3`/`vec4` in GLSL, `vec3f` in WGSL, `float3` in HLSL and Metal) are colors, and how to read them. Off by default: a vector is as often a position."
+          "markdownDescription": "%shaders.description%"
         }
       }
     },

@@ -13,7 +13,8 @@ import { msl } from 'color-space/gl/msl'
 import { emit, load, NAGA_WASM, type NagaWasm } from 'color-space/gl/naga'
 import { table, verify, cube } from 'color-space/lut'
 import { clut, colorants, kind, profile } from 'color-space/icc'
-import gamut, { gamut as namedGamut } from 'color-space/gamuts.js'
+import { colorspace } from 'color-space/ocio'
+import gamut, { gamut as namedGamut, whites, matrix } from 'color-space/gamuts.js'
 import whitepoint, { whitepoint as namedWhitepoint } from 'color-space/whitepoints.js'
 import { cartToPolar, inv3, mat3, polarToCart, spow } from 'color-space/util.js'
 import { parse, format, mix, gamut as tightest, visible, deltaE, contrast, cvd } from 'color-space/util'
@@ -70,6 +71,7 @@ const profileBytes: Uint8Array = profile(space.oklch, { xyz: space.xyz, grid: 17
 const profileKind: 'mntr' | 'spac' | 'scnr' | null = kind(space.oklch, { xyz: space.xyz })
 const lut = clut(space.oklch, { xyz: space.xyz, grid: 9 })
 const cols = colorants(space.p3)
+const ocioEntry: string | null = colorspace(space.slog3, { reference: 'xyz-d65' }) ?? colorspace('acescg')
 
 const msg: McpMessage = { jsonrpc: '2.0', id: 1, method: 'ping' }
 if (false) handle(msg)
@@ -85,7 +87,7 @@ console.log(
 	lite.rgb.oklch(255, 0, 0), wb, ws, wbatch, copied, wasmSpaces,
 	lean, leanW, full, fullW, translated, chunkName, chunks, graph, luts, glSpaces, toHlsl, toMsl, viaNaga, notGlsl,
 	tab, stats, cubeText, profileBytes, profileKind, lut, cols,
-	gamut, namedGamut, whitepoint, namedWhitepoint,
+	gamut, namedGamut, whitepoint, namedWhitepoint, whites.D65 satisfies [number, number], matrix(gamut.srgb) satisfies number[],
 	mat3([1, 0, 0, 0, 1, 0, 0, 0, 1], 1, 2, 3), inv3([1, 0, 0, 0, 1, 0, 0, 0, 1]),
 	parse('#ff8000')?.values, format('oklch', [0.7, 0.1, 50]), mix('oklch', [0.5, 0.1, 350], [0.7, 0.1, 10], 0.5, 'longer'), tightest('rgb', [255, 0, 0]), visible('rgb', [1, 2, 3]),
 	deltaE('rgb', [255, 0, 0], [250, 0, 0], 'ok'), contrast('rgb', [255, 255, 255], [0, 0, 0]), cvd('rgb', [255, 0, 0], 'protan'),

@@ -4,44 +4,85 @@
  *
  * - panel.html: the Figma plugin's panel (plugins/figma/build.js panel()), with VS Code's words for what differs –
  *   a document's lines and literals where Figma has layers and fills – and src/host.css, the workbench's theme.
- *   English only for now: the panel's translations say Figma's words.
  * - extension.cjs: src/extension.js and the library, CommonJS for the extension host (vscode stays external).
  * - mcp.mjs: the library's MCP server (mcp.js) as one file, run by the editor's Node for its agents.
  * - LICENSE.md beside package.json: the repository's license.md, which the package must carry.
- * - icon.png (the project's mark, web/img/locus-512.png) and locus.svg (the view's, shown where it is moved to a bar of
- *   its own: the spectral locus as a line, web/js/locus.js).
+ * - icon.png (the project's mark, web/img/locus-512.png) and locus.svg (the view's: the spectral locus as a line,
+ *   web/js/locus.js).
+ *
+ * Languages, the ones VS Code shows its interface in that the panel speaks: the panel's own (plugins/figma/build.js
+ * figmaTables()) with VS Code's words in place of Figma's, and the extension's words outside the panel – its hover and
+ * command messages (vscode.l10n: l10n/bundle.l10n.<locale>.json) and its manifest's (package.nls.<locale>.json). All of
+ * VS Code's own words are written to src/i18n/en.json and translated in src/i18n/<lang>.json, the site's format
+ * (web/i18n/README.md); fresh, valid translations only. A language ships once nearly all of them are translated (COVER);
+ * one that isn't stays English throughout, never half Figma's words.
  *
  *   node plugins/vscode/build.js      (npm run build:vscode)
  */
 import { build } from 'esbuild'
-import { mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync, copyFileSync, readdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { panel } from '../figma/build.js'
+import { panel, figmaTables } from '../figma/build.js'
 import { locusPath } from '../../web/js/locus.js'
+import { hash, status, COVER } from '../../scripts/i18n.js'
+import { format } from '../../scripts/i18n-extract.js'
 
 const here = p => fileURLToPath(new URL(p, import.meta.url))
 const root = p => fileURLToPath(new URL('../../' + p, import.meta.url))
+const fail = msg => { console.error(`build:vscode: ${msg}`); process.exit(1) }
 mkdirSync(here('dist'), { recursive: true })
 
-// the panel's words where VS Code isn't Figma: the colors are a document's, a color's place is a line, the profile is the
-// gamut edits are written in
+// the panel's words where VS Code isn't Figma: the colors are a document's, a color's place is a line, a variable is a
+// stylesheet's, used by var()s, the profile is the gamut edits are written in
 const WORDS = {
-	'pl.empty.hint': 'No colors here. Open a stylesheet, code or a theme with colors, or an image.',
+	'pl.empty.hint': 'No colors here. Put the cursor on a color in a stylesheet, code or theme, or open an image.',
 	'pl.paints': 'Colors in the document',
 	'pl.scope.page': 'In this file',
+	'pl.src.variable': 'variable',   // a CSS or Sass variable: some languages name Figma's variables apart (ja バリアブル, 変数 here)
 	'pl.where.fill': 'line {n}',
 	'pl.where.stroke': 'line {n}',
 	'pl.dots.others': 'the other colors',
 	'pl.gamut.out': 'Outside {gamut}; edits map it in.',
 	'pl.note.dev': 'This document is read-only. Copy the values below.',
+	'pl.note.editing': 'Editing the {type} {name}: every use of it changes.',
 	'pl.note.more': 'Showing the first {n} colors.',
 	'pl.note.mixed': 'Some colors here aren\'t read: their color space isn\'t one this library has (an .ase swatch in CMYK, Lab or Gray; an iTerm2 color without a Color Space).',
 	'pl.note.virtual': 'An image\'s pixels are shown here, not edited.',
 }
+// the extension's words outside the panel: its messages (src/extension.js l10n('…'), keyed by their English, as
+// vscode.l10n keys them) and its manifest's (package.nls.json)
+const HOST = Object.fromEntries([...readFileSync(here('src/extension.js'), 'utf8').matchAll(/\bl10n\(\s*'((?:[^'\\]|\\.)*)'/g)].map(m => { const en = m[1].replace(/\\(.)/g, '$1'); return [`l10n:${en}`, en] }))
+const NLS = JSON.parse(readFileSync(here('package.nls.json'), 'utf8'))
+if (!Object.keys(HOST).length) fail('no l10n(…) messages found in src/extension.js')
+const ALL = { ...WORDS, ...HOST, ...Object.fromEntries(Object.entries(NLS).map(([k, v]) => [`nls:${k}`, v])) }
+// the panel's language codes → VS Code's display-language ids (vscode.env.language), where they differ
+const LOCALE = { pt: 'pt-br', 'zh-Hans': 'zh-cn' }
 
-const html = await panel({ tables: { en: WORDS }, css: readFileSync(here('src/host.css'), 'utf8'), inter: false })   // the workbench's own face, not Figma's
+const en = Object.fromEntries(Object.keys(ALL).sort().map(k => [k, { t: ALL[k], h: hash(ALL[k]) }]))
+mkdirSync(here('src/i18n'), { recursive: true })
+writeFileSync(here('src/i18n/en.json'), format({ name: 'English', source: 'generated by plugins/vscode/build.js – edit the English where it lives (WORDS there, l10n(…) in src/extension.js, package.nls.json), never here' }, en))
+const figma = figmaTables(), tables = { en: WORDS }, shipped = []
+for (const f of readdirSync(here('src/i18n')).filter(f => f.endsWith('.json') && f !== 'en.json').sort()) {
+	const code = f.slice(0, -5), st = status(en, JSON.parse(readFileSync(here(`src/i18n/${f}`), 'utf8')), [])
+	console.log(`plugins/vscode i18n ${code}: ${st.ok.length} ok · ${st.stale.length} stale · ${st.missing.length} missing · ${st.invalid.length} invalid`)
+	if (!figma[code] || st.ok.length + st.stale.length < COVER * Object.keys(en).length) continue   // the panel's not shipped, or too little translated: English throughout
+	const word = k => st.table[k] ?? ALL[k]   // a stale or missing word reads English, never Figma's
+	tables[code] = { ...figma[code], ...Object.fromEntries(Object.keys(WORDS).map(k => [k, word(k)])) }
+	const loc = LOCALE[code] || code
+	shipped.push([loc, Object.fromEntries(Object.keys(HOST).filter(k => st.table[k]).map(k => [ALL[k], st.table[k]])), Object.fromEntries(Object.keys(NLS).filter(k => st.table[`nls:${k}`]).map(k => [k, st.table[`nls:${k}`]]))])
+}
+// the host's files, rewritten whole: a language dropped leaves none behind
+rmSync(here('l10n'), { recursive: true, force: true })
+mkdirSync(here('l10n'))
+for (const f of readdirSync(here('.')).filter(f => /^package\.nls\..+\.json$/.test(f))) rmSync(here(f))
+for (const [loc, bundle, nls] of shipped) {
+	writeFileSync(here(`l10n/bundle.l10n.${loc}.json`), JSON.stringify(bundle, null, '\t') + '\n')
+	writeFileSync(here(`package.nls.${loc}.json`), JSON.stringify(nls, null, '\t') + '\n')
+}
+
+const html = await panel({ tables, css: readFileSync(here('src/host.css'), 'utf8'), inter: false })   // the workbench's own face, not Figma's
 writeFileSync(here('dist/panel.html'), html)
-console.log(`plugins/vscode/dist/panel.html  ${(html.length / 1024).toFixed(1)} KB`)
+console.log(`plugins/vscode/dist/panel.html  ${(html.length / 1024).toFixed(1)} KB  (${Object.keys(tables).join(' ')})`)
 
 await build({
 	entryPoints: [here('src/extension.js')],

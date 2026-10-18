@@ -28,6 +28,7 @@ _site
 
 # generated artifacts — produced by `prepare` (npm install / publish) and CI, never committed
 /data.json
+/conformance.json
 /dist/
 wasm/binary.js
 types/*.d.ts
@@ -35,3 +36,4 @@ types/*.d.ts
 web/img/og/
 /plugins/figma/promo
 /videos
+/.playwright-mcp

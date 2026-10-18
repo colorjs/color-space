@@ -15,7 +15,7 @@
  * @use Internal perceptual color space of the JPEG XL codec; current, used under the hood, not for authoring.
  * @channel {X} -0.0154 0.0281 Red-green
  * @channel {Y} 0 0.8453 Luminance
- * @channel {B} -0.2778 0.388 Blue
+ * @channel {B} -0.2778 0.388 Blue − Y
  * @method opponent
  * @encoding perceptual
  * @referred display
@@ -25,6 +25,9 @@
 // Transfer function uses a perceptual gamma of 3 (cube-root forward, cube inverse),
 // biased by a small additive constant so it stays well-defined near zero. Ported from
 // culori's implementation.
+// B is stored as B − Y, the form JPEG XL codes by default (chroma from luma:
+// kYToBRatio = 1 in libjxl lib/jxl/cms/opsin_params.h), as culori does: neutrals give
+// B = 0. libjxl's raw XYB keeps B = S′ (white → [0, 0.8453, 0.8453]); add Y back to B.
 
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';

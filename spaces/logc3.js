@@ -18,6 +18,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding log
+ * @gamut awg3
  * @illuminant D65
  * @observer 2
  * @referred scene

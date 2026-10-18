@@ -17,6 +17,7 @@
  * @channel {B} -0.35828683 1.4679963120447153 Blue
  * @method transfer
  * @encoding log
+ * @gamut ap1
  * @referred scene
  * @dynamic hdr
  */

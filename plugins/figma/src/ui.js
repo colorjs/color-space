@@ -43,11 +43,12 @@ import TABLES from 'virtual:i18n'
 // Figma doesn't tell a plugin the language of its own interface, so the panel goes by the browser's first language
 // (Figma desktop's is the system's): only that one, never a later preference – a second language a person reads is no
 // sign the panel should speak it – where build.js compiled a table for it (the site's words for what both say, the
-// plugin's own for the rest, fresh translations only); anything else is English. Every call site carries its English,
-// as on the site (web/js/i18n.js)
+// plugin's own for the rest, fresh translations only); anything else is English. A host that knows its interface's
+// language says it on the page (<html data-lang>: VS Code's, zh-cn or pt-br). Every call site carries its English, as on
+// the site (web/js/i18n.js)
 const pickLang = () => {
-	const l = String((navigator.languages || [])[0] || navigator.language || 'en'), [base, region] = l.split('-')
-	if (base === 'zh') return /^(TW|HK|MO|Hant)$/.test(region || '') || !TABLES['zh-Hans'] ? 'en' : 'zh-Hans'   // Simplified only
+	const l = String(document.documentElement.dataset.lang || (navigator.languages || [])[0] || navigator.language || 'en'), [base, region] = l.split('-')
+	if (base === 'zh') return /^(TW|HK|MO|Hant)$/i.test(region || '') || !TABLES['zh-Hans'] ? 'en' : 'zh-Hans'   // Simplified only
 	return TABLES[l] ? l : TABLES[base] ? base : 'en'
 }
 const LANG = pickLang(), DICT = TABLES[LANG] || {}

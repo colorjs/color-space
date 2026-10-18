@@ -10,6 +10,7 @@
  * scene-referred master.
  *
  * @see {@link https://www.ilkeratalay.com/colorspacesfaq.php} Bourgin Color Spaces FAQ §8.10
+ * @see {@link https://web.archive.org/web/20250802212221/https://poynton.ca/notes/TIDV/Errata/Errata_1.html} Poynton, errata to A Technical Introduction to Digital Video
  * @wiki {@link https://en.wikipedia.org/wiki/Photo_CD#Encoding}
  * @year 1992
  * @by Kodak
@@ -29,7 +30,9 @@
 // 0.114). The 8-bit storage form places neutral at C1=156, C2=137 — asymmetric
 // because the encodable film gamut is asymmetric in B-Y/R-Y. Scene reference white
 // (linear 1,1,1) maps to luma 182 (Poynton's widely-cited "189" is a typo, corrected
-// to 182 in his own 1996 errata: 255/1.402 = 181.88).
+// to 182 in his own errata to the first printing, entry of 1998-10-16: 255/1.402 = 181.88).
+// Bourgin's FAQ §8.10 prints the curve's offset as 0.999; it is Rec. 709's 0.099, so
+// that f(1) = 1 (docs/errata.md).
 import lrgb from './lrgb.js';
 
 const photoycc = { name: 'photoycc',

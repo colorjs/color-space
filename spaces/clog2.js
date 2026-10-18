@@ -15,6 +15,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding log
+ * @gamut cinema-gamut
  * @illuminant D65
  * @observer 2
  * @referred scene

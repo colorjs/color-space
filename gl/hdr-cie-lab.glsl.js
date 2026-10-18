@@ -12,12 +12,13 @@ float hdrcielab_light_(float v) {
 	float e = hdrcielab_e_();
 	float p = spow_(v, e);
 	float ke = spow_(2.0, e);
-	return 247.0 * p / (p + ke);
+	return 247.0 * p / (p + ke) + 0.02;
 }
 float hdrcielab_lightinv_(float L) {
 	float e = hdrcielab_e_();
 	float ke = spow_(2.0, e);
-	return spow_(L * ke / (247.0 - L), 1.0 / e);
+	float l = L - 0.02;
+	return spow_(l * ke / (247.0 - l), 1.0 / e);
 }
 vec3 xyz_hdrcielab(vec3 c) {
 	float L = hdrcielab_light_(c.y / 100.0);

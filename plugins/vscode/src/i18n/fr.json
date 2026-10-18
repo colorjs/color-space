@@ -1,0 +1,134 @@
+{
+  "@meta": {
+    "name": "Français",
+    "reviewed": null
+  },
+  "l10n:(line {0})": {
+    "t": "(ligne {0})",
+    "h": "20b14f9d"
+  },
+  "l10n:Convert {0} colors to…": {
+    "t": "Convertir {0} couleurs en…",
+    "h": "5127d7ea"
+  },
+  "l10n:Convert {0} to…": {
+    "t": "Convertir {0} en…",
+    "h": "d7c280ed"
+  },
+  "l10n:In sRGB": {
+    "t": "Tient dans sRGB",
+    "h": "79d4bf40"
+  },
+  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
+    "t": "Hors de Display P3 (hex : valeur ramenée dans sRGB)",
+    "h": "f00fddd9"
+  },
+  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
+    "t": "Hors de sRGB, tient dans Display P3 (hex : valeur ramenée dans sRGB)",
+    "h": "6bcc306e"
+  },
+  "l10n:Pick in Color Space": {
+    "t": "Choisir dans Color Space",
+    "h": "aca4f0eb"
+  },
+  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
+    "t": "Placez le curseur sur une couleur CSS ou sélectionnez du texte contenant des couleurs CSS.",
+    "h": "fa671cd4"
+  },
+  "nls:command.convert": {
+    "t": "Convertir la couleur en…",
+    "h": "bbdf2a89"
+  },
+  "nls:command.pick": {
+    "t": "Choisir une couleur",
+    "h": "aa15a325"
+  },
+  "nls:description": {
+    "t": "Toutes les couleurs de votre fichier sur un seul plan, en OKLCH, HCT, CAM16, Display P3 ou dans l’un des 205 espaces colorimétriques : CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, design tokens, thèmes et palettes, chaque couleur réécrite dans sa propre notation.",
+    "h": "d583de89"
+  },
+  "nls:gamut.description": {
+    "t": "Le gamut dans lequel le sélecteur écrit, pour les notations capables d’exprimer les couleurs d’un gamut plus large (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` et `hwb()` sont toujours écrits dans sRGB.",
+    "h": "e83f271c"
+  },
+  "nls:gamut.p3": {
+    "t": "Display P3 : le gamut étendu des écrans Apple actuels et de bien d’autres",
+    "h": "8f99baf8"
+  },
+  "nls:gamut.srgb": {
+    "t": "sRGB : le gamut standard du web",
+    "h": "513ae0ad"
+  },
+  "nls:shaders.description": {
+    "t": "Détermine si les vecteurs 0–1 des shaders (`vec3`/`vec4` en GLSL, `vec3f` en WGSL, `float3` en HLSL et Metal) sont des couleurs, et comment les lire. Désactivé par défaut : un vecteur est aussi souvent une position.",
+    "h": "ae2d8ca8"
+  },
+  "nls:shaders.linear": {
+    "t": "vec3(1.0, 0.5, 0.0) et ses semblables sont du sRGB en lumière linéaire",
+    "h": "01333491"
+  },
+  "nls:shaders.off": {
+    "t": "Les vecteurs des shaders ne sont pas lus comme des couleurs",
+    "h": "752c47eb"
+  },
+  "nls:shaders.srgb": {
+    "t": "vec3(1.0, 0.5, 0.0) et ses semblables sont du sRGB encodé en gamma",
+    "h": "7b7d9db8"
+  },
+  "nls:view.name": {
+    "t": "Color Space",
+    "h": "1a1a59a9"
+  },
+  "pl.dots.others": {
+    "t": "les autres couleurs",
+    "h": "83231868"
+  },
+  "pl.empty.hint": {
+    "t": "Aucune couleur ici. Placez le curseur sur une couleur dans une feuille de style, du code ou un thème, ou ouvrez une image.",
+    "h": "7b18d6fa"
+  },
+  "pl.gamut.out": {
+    "t": "Hors de {gamut} ; une modification la ramène dans le gamut.",
+    "h": "afb6b216"
+  },
+  "pl.note.dev": {
+    "t": "Ce document est en lecture seule. Copiez les valeurs ci-dessous.",
+    "h": "a6027103"
+  },
+  "pl.note.editing": {
+    "t": "Vous modifiez la {type} {name} : toutes ses utilisations changent.",
+    "h": "e8e9c43e"
+  },
+  "pl.note.mixed": {
+    "t": "Certaines couleurs ici ne sont pas lues : cette bibliothèque ne prend pas en charge leur espace colorimétrique (une nuance .ase en CMYK, Lab ou Gray ; une couleur iTerm2 sans Color Space).",
+    "h": "0de68562"
+  },
+  "pl.note.more": {
+    "t": "Affichage des {n} premières couleurs.",
+    "h": "3f994db4"
+  },
+  "pl.note.virtual": {
+    "t": "Les pixels d’une image s’affichent ici, sans être modifiés.",
+    "h": "2776985c"
+  },
+  "pl.paints": {
+    "t": "Couleurs du document",
+    "h": "8fc80c91"
+  },
+  "pl.scope.page": {
+    "t": "Dans ce fichier",
+    "h": "6283815b"
+  },
+  "pl.src.variable": {
+    "t": "variable",
+    "h": "b46d0172"
+  },
+  "pl.where.fill": {
+    "t": "ligne {n}",
+    "h": "966d414d"
+  },
+  "pl.where.stroke": {
+    "t": "ligne {n}",
+    "h": "966d414d"
+  }
+}

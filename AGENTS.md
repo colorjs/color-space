@@ -13,8 +13,9 @@ an idiom, or a JS workaround on the spot instead of reusing what already exists.
 
 2. **New components mirror existing ones.** Same structure, same class names, same field order.
    The dossier modal order is canonical: **header → tag pill (`.dpills .tag`) → `.dhr` → `.dgrid2`,
-   two columns of their own heights: the story (`.desc`, then the record `.props`: channels · kind | origin ·
-   reference …) | the margin (made for · used for · caveat, then the downloads)**. Any variant
+   two columns of their own heights: the story (`.desc`, then the record `.props`: channels (its label's tip saying
+   what it is), kind …, the primaries | origin, reference, test, source, the matrix with its copy beside its label) |
+   the margin (made for · used for · caveat, then the downloads, then the report line)**; the transfer's formula under its plot (the figure's transfer). Any variant
    (e.g. the proprietary dossier) must read as the same component, not a cousin. Match order and
    naming; don't reorder or rename.
 
@@ -51,3 +52,9 @@ Rebuild (`npm run landing`), then check visually via Playwright (cache-bust ever
 accessibility) — 0 `not ok`.
 Confirm div-balance and `node --check` on the extracted module. UI: z-index, clipping, focus,
 the full open→interact→close lifecycle. Cite an authoritative source for any reference value/range.
+
+## Commits
+
+The owner is the sole author. Never commit under an agent's identity (no `--author`, no
+`Claude <noreply@anthropic.com>` git user), no `Co-Authored-By` lines for agents, no
+"Generated with" lines. 24 commits of 2026-10 went in as Claude – don't add more.

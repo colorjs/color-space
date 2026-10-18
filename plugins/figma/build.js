@@ -22,8 +22,8 @@
  *   translations only, inlined; a language ships once its own words are nearly all translated (COVER).
  * - src/code.js and the library become plugins/figma/code.js, the main thread.
  *
- * The panel itself (steps 1–3) is exported as panel(): another host (plugins/vscode) builds the same panel with its
- * own word tables and stylesheet.
+ * The panel itself (steps 1–3) is exported as panel(), its languages as figmaTables(): another host (plugins/vscode)
+ * builds the same panel with its own words in those tables and its own stylesheet.
  *
  *   node plugins/figma/build.js      (npm run build:figma)
  */
@@ -123,7 +123,7 @@ export async function panel({ tables = {}, css = '', inter = true } = {}) {
 }
 
 // The Figma panel's languages: its own words written to src/i18n/en.json, each translation that covers them inlined
-function figmaTables() {
+export function figmaTables() {
 	const SHARED = /^(ui\.quant\.|ui\.gamut\.|ui\.cell\.draw$|cat\.|channel\.)/   // the site's words the panel says too
 	const template = readFileSync(here('src/ui.html'), 'utf8'), uiSrc = readFileSync(here('src/ui.js'), 'utf8')
 	const words = {}

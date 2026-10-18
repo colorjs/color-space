@@ -6,16 +6,18 @@
  * catalog without transcribing papers: per-space metadata + conventional ranges,
  * the conversion-graph topology (each space's hand-written neighbour edges),
  * gamut primaries, CIE whitepoints, and the cited conformance triples the test
- * suite pins the formulas to. Run: npm run data
+ * suite pins the formulas to; conformance.json carries those rows alone, for other
+ * libraries' own tests. Run: npm run data
  */
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import space from '../index.js'
-import gamut from '../gamuts.js'
+import gamut, { whites, matrix } from '../gamuts.js'
+import { inv3 } from '../math.js'
 import whitepoint from '../whitepoints.js'
 import { CMF } from '../spaces/wavelength.js'
-import { REF } from '../test/refs.js'
+import { REF, TOL } from '../test/refs.js'
 
 // Parse JSDoc from file — the space doc is the block carrying @channel tags
 // (falling back to the first block), so helper docs above it can't shadow it.
@@ -164,7 +166,9 @@ const data = {
 	version,
 	count: names.length,
 	spaces,
-	gamuts: gamut,
+	// each gamut's linear RGB → XYZ (row-major, white Y = 1, its own white): RP 177 from the primaries; inverse: XYZ → RGB
+	gamuts: Object.fromEntries(Object.entries(gamut).map(([k, g]) => { const m = matrix(g); return [k, { ...g, matrix: m, inverse: inv3(m) }] })),
+	whites,
 	whitepoints: whitepoint,
 	// CIE 1931 2° color-matching functions, 380–700 nm at 5 nm, standard ȳ(555)=1
 	// normalization — the table wavelength.js/dsh.js/ostwald.js compute from;
@@ -176,4 +180,14 @@ const data = {
 }
 
 fs.writeFileSync(path.join(root, 'data.json'), JSON.stringify(data, null, 1) + '\n')
+
+// conformance.json — the same rows alone, for any color library's own test suite
+fs.writeFileSync(path.join(root, 'conformance.json'), JSON.stringify({
+	name: 'color-space conformance',
+	version,
+	about: `Cited reference conversions: space[f][t](...in) ≈ out, in each space's conventional ranges (data.json spaces[*].channels), within ${TOL} × the span of each channel of t, or a row's own tol (a number, or per channel with null for the default). kind: published, printed by the cited source; implementation, computed by the named implementation (colour-science, colorjs.io, culori …) from the cited definition; computed, plain arithmetic from the definition.`,
+	license: 'CC0-1.0',
+	tolerance: TOL,
+	rows: REF,
+}, null, 1) + '\n')
 console.log(`data.json: ${names.length} spaces, ${Object.keys(gamut).length} gamuts, ${REF.length} conformance points · v${version}`)

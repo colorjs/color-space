@@ -1,11 +1,11 @@
-# color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space)
+# color-space [![test](https://github.com/colorjs/color-space/actions/workflows/test.yml/badge.svg)](https://github.com/colorjs/color-space/actions/workflows/test.yml) [![npm](https://img.shields.io/npm/v/color-space)](https://npmjs.org/color-space) [![size](https://img.shields.io/bundlephobia/minzip/color-space/latest)](https://bundlephobia.com/package/color-space) [![VS Code](https://img.shields.io/badge/VS_Code-extension-007acc)](https://marketplace.visualstudio.com/items?itemName=colorjs.color-space)
 
 <a href="https://color-space.io/"><img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/></a>
 
 **Open collection of color spaces.** <br/>
-* Verified formulas
+* Formulas tested against cited sources
 * Conventional ranges
-* JS / WASM / GLSL / LUT / ICC
+* JS with TypeScript types / WASM / GLSL / LUT / ICC / OCIO
 
 **[Atlas →](https://color-space.io/)**
 
@@ -42,8 +42,10 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL · `await hlsl('rgb', 'oklch')` · needs the optional peer `naga-wasm` (it declares Node ≥ 24.12; CI runs it on 22, where npm only warns)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
+* `color-space/ocio` – OpenColorIO colorspaces for Blender, Nuke, Resolve, Houdini: `colorspace(space.sgamut3cine)`, curve and matrix from native transforms, 53 spaces, each checked against the library to 1e-6
 * `color-space/util` – `parse` · `format` CSS colors, `mix`, `gamut`, `visible`, `deltaE`, `contrast` (WCAG), `cvd` (color-vision simulation) · `deltaE('rgb', [255, 0, 0], [250, 0, 0])`
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
+* `color-space/conformance.json` – Cited reference conversions, each with its source, to test any color library against
 * `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default) · `cube` · `icc` · `space` · `spaces` · `mcp` (MCP server for [agents](#agents))
 
 [Upgrading from v2?](docs/migration.md)
@@ -100,9 +102,13 @@ Over HTTP (Streamable HTTP, stateless): `npx -y color-space mcp --http 8787` on 
 
 ## Motivation
 
-A complete collection of color spaces: one minimal API, verified formulas. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well. Side effects: corrected papers, color education, test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
+A complete collection of color spaces: one minimal API, formulas tested against their sources. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well. Side effects: [errata in papers](docs/errata.md), color education, test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
 
 It is not a color toolbox — gamut mapping, palettes, alpha stay out; the few tools the atlas itself uses (parsing, mixing, ΔE, contrast, color-vision simulation) are `color-space/util`. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
+
+## Contributing
+
+A wrong value or a missing space: [open an issue](https://github.com/colorjs/color-space/issues/new/choose) with the document that defines it. How a space is added and checked: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits
 

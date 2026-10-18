@@ -53,11 +53,14 @@ export const GXY = ([x, y]) => [(x + 0.107) / 0.857 * 320, (1 - (y + 0.055) / 0.
 export const limPath = (g, P) => g === 'vis' ? surfacePath(P) : g === 'locus' ? locusPath(P) : gamutPath(g === 'srgb' ? 'rgb' : g, P)
 export const HERO_LIMS = ['srgb', 'p3', 'rec2020', 'vis', 'locus']   // narrowest first
 /** The hero's locus: its outlines and names, the checker and the fill's places (painted later) – one markup for the
- *  build's first paint and the page's own (`home`, `surface`, `light`: its label and two names, markup-safe). */
-export const heroLocus = (home, surface, light) => {
+ *  build's first paint and the page's own (`home`, `surface`, `light`: its label and two names, markup-safe); `mark`
+ *  ({ xy, hx }), the build's: the boot color's mark in place before any script. */
+export const heroLocus = (home, surface, light, mark) => { const at = mark && heroAt(mark.xy)
 	const img = c => `<image class="${c}" width="320" height="352"${c === 'lim' ? ' clip-path="url(#hl-lim)"' : ''}/>`
-	return `<a class="hlocus" href="./" aria-label="${home}" data-i18n="aria-label:ui.hero.home"><svg aria-hidden="true" viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}<g class="lims">${heroNames(surface, light)}</g></svg><i class="cx" aria-hidden="true"></i></a>`
+	return `<a class="hlocus" href="./" aria-label="${home}" data-i18n="aria-label:ui.hero.home"${mark ? ` style="--tkc:${mark.hx}"` : ''}><svg aria-hidden="true" viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}<g class="lims">${heroNames(surface, light)}</g></svg><i class="cx" aria-hidden="true"${at ? ` style="left:${at[0].toFixed(2)}%;top:${at[1].toFixed(2)}%"` : ''}></i></a>`
 }
+/** A chromaticity's place on the hero's drawing, in percent of its box (the viewBox's crop). */
+export const heroAt = q => { const [x, y] = GXY(q); return [(x - 36) / 290 * 100, (y - 18) / 318 * 100] }
 /** …its outlines and their names alone (the names in the page's language). */
 export const heroNames = (surface, light) => HERO_LIMS.map(g => `<path data-g="${g}" d="${limPath(g, GXY)}"/>`).join('') + locusNames(GXY, surface, light)
 

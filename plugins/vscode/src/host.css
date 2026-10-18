@@ -1,9 +1,10 @@
 /* VS Code: the panel (plugins/figma/src/ui.html) in a webview view, dressed as the workbench's own controls. Its theme
    tokens take the workbench's (the --vscode-* variables every webview gets), and so do its font (at the panel's compact
    size), its corners
-   (2 px), its dropdowns and their lists (the workbench's menus), the space menu and tooltips (the editor's widgets). The host's own chrome is off: the view's width
-   is the sidebar's, so there is no size grip; the view scrolls with a visible scrollbar like any other; and there is no
-   eyedropper – a code editor's colors are typed, not picked off the screen, and the values take its width. */
+   (2 px), its dropdowns and their lists (the workbench's menus), the space menu and tooltips (the editor's widgets). The
+   view's width is the sidebar's, so there is no size grip; the view scrolls with a visible scrollbar like any other. The
+   eyedropper stays: the webview has the browser's EyeDropper, and a color on screen – the running app, a mockup, a
+   screenshot – is often the one a stylesheet needs. */
 :root{
 	--figma-color-bg:var(--vscode-sideBar-background, var(--vscode-editor-background));
 	--figma-color-bg-secondary:var(--vscode-input-background);
@@ -29,8 +30,7 @@ body.vscode-dark,body.vscode-high-contrast{ color-scheme:dark }
 html{ scrollbar-width:thin; scrollbar-color:var(--vscode-scrollbarSlider-background, var(--scroll)) transparent }
 .fld > *{ outline-color:var(--vscode-input-border, transparent) }   /* a field as the workbench draws its inputs, outlined: Light Modern's are white on a near-white sidebar */
 .paints{ --swatch:var(--s3) }   /* a code editor's color square */
-.grip,#drop{ display:none }
-.sliders .bars{ grid-column:1 / -1 }
+.grip{ display:none }
 .sel{ background:var(--vscode-dropdown-background); color:var(--vscode-dropdown-foreground) }
 .menu{ background:var(--vscode-editorWidget-background); border-color:var(--vscode-editorWidget-border, var(--vscode-widget-border)) }
 .mi.on,.mi:hover{ background:var(--vscode-list-hoverBackground) }

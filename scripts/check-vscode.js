@@ -15,7 +15,9 @@
  *    re-read for oklch(), #hex, legacy rgba() and a gradient stop, one undo step per gesture, a paint chosen in the panel
  *    bringing the editor to it, gradient lines in their space, images from url()s, data: URLs and an open image tab, an
  *    out-of-gamut literal, a read-only document, the gamut setting, the hover, the convert command, the stored
- *    preferences and the MCP server definition.
+ *    preferences and the MCP server definition; variables (custom properties, Sass, aliases) edited where they live
+ *    from a cursor on a use; VS Code's display language reaching the panel; the manifest (its view container, its
+ *    %keys%, the translations it packs); the eyedropper.
  *
  *   node scripts/check-vscode.js      (npm run test:vscode)
  *
@@ -23,7 +25,7 @@
  * VSCODE_SHOTS=<dir> saves the panel in a dark and a light theme.
  */
 import { execFileSync, spawn } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -272,6 +274,20 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 
 /* ---------- 2. the extension ---------- */
 
+// the manifest: the panel in a container of its own in the secondary side bar (a VS Code without that container moves
+// it to the Explorer); every %key% it names in package.nls.json, every translation's key one of those; each l10n bundle
+// keyed by a message src/extension.js asks for; the package carries them
+{
+	const c = pkg.contributes, nls = JSON.parse(readFileSync(dir + 'package.nls.json', 'utf8'))
+	ok(c.viewsContainers.secondarySidebar[0].id === 'colorSpace' && c.views.colorSpace[0].id === 'colorSpace.picker' && c.views.colorSpace[0].type === 'webview', 'the panel: a webview view in its own secondary side bar container')
+	const keys = [...JSON.stringify(pkg).matchAll(/"%([\w.]+)%"/g)].map(m => m[1])
+	ok(keys.length >= 10 && keys.every(k => typeof nls[k] === 'string'), `the manifest's %keys% in package.nls.json: ${keys.filter(k => !(k in nls))}`)
+	const msgs = new Set([...readFileSync(dir + 'src/extension.js', 'utf8').matchAll(/\bl10n\(\s*'((?:[^'\\]|\\.)*)'/g)].map(m => m[1].replace(/\\(.)/g, '$1')))
+	for (const f of readdirSync(dir).filter(f => /^package\.nls\..+\.json$/.test(f))) ok(Object.keys(JSON.parse(readFileSync(dir + f, 'utf8'))).every(k => k in nls), `${f}: every key the manifest's`)
+	for (const f of readdirSync(dir + 'l10n')) ok(Object.keys(JSON.parse(readFileSync(dir + 'l10n/' + f, 'utf8'))).every(k => msgs.has(k)), `l10n/${f}: every key a message the extension asks for`)
+	ok(['!l10n/**', '!package.nls*.json'].every(l => readFileSync(dir + '.vscodeignore', 'utf8').split('\n').includes(l)), 'the package carries the translations')
+}
+
 const executablePath = [process.env.CHROME_PATH, chromium.executablePath(), '/usr/bin/google-chrome'].find(p => p && existsSync(p))
 if (!executablePath) throw new Error('Chromium is not installed; run `npx playwright install chromium` or set CHROME_PATH')
 // the system's scrollbars, as a mouse-driven Mac or Windows draws them: they take room (Playwright hides them by default,
@@ -287,8 +303,8 @@ const THEMES = {
 
 const until = async (f, ms = 3000) => { const t = Date.now(); while (!(await f())) { if (Date.now() - t > ms) return false; await new Promise(r => setTimeout(r, 15)) } return true }
 
-async function session({ text, theme = 'dark', uri = `file://${WEB}a.css`, languageId, selections, state = {} }) {
-	const m = mock()
+async function session({ text, theme = 'dark', uri = `file://${WEB}a.css`, languageId, selections, state = {}, language }) {
+	const m = mock({ language })
 	const ext = requireWith(dir + 'dist/extension.cjs', m.vscode)
 	const store = new Map(Object.entries(state))
 	const ctx = { subscriptions: [], asAbsolutePath: p => dir + p, globalState: { get: k => store.get(k), update: async (k, v) => { store.set(k, v) } }, extension: { packageJSON: pkg } }
@@ -306,7 +322,7 @@ async function session({ text, theme = 'dark', uri = `file://${WEB}a.css`, langu
 	m.view.bridge = { toPage: msg => { toUI.push(msg.pluginMessage); const pm = msg.pluginMessage, b = pm.bytes; page.evaluate(([d, b]) => { if (b) d.pluginMessage.bytes = new Uint8Array(b); window.dispatchEvent(new MessageEvent('message', { data: d })) }, [b ? { pluginMessage: { ...pm, bytes: null } } : msg, b ? [...b] : null]).catch(() => {}) } }
 	const [cls, vars] = THEMES[theme]
 	const html = m.view.webview.html
-		.replace('<html lang="en">', `<html lang="en" style="${Object.entries(vars).map(([k, v]) => `--vscode-${k}:${v}`).join(';')}">`)
+		.replace('<html lang="en"', `<html lang="en" style="${Object.entries(vars).map(([k, v]) => `--vscode-${k}:${v}`).join(';')}"`)
 		.replace('<body>', `<body class="${cls}">`)
 	await page.route(ORIGIN + '/**', route => route.fulfill({ contentType: 'text/html', body: html }))
 	await page.goto(`${ORIGIN}/?cb=${Date.now()}`)
@@ -394,6 +410,7 @@ try {
 		ok(/^In Display P3/.test(await s.page.locator('#gamut').innerText()), 'the status: in the edit gamut (P3)')
 		ok(await s.page.locator('#notes').innerText() === 'Dots are the other colors and image pixels.', `the notes, said to screen readers, in VS Code's words: ${await s.page.locator('#notes').innerText()}`)
 		ok(await s.page.locator('#grip').isHidden(), 'no size grip: the sidebar sets the width')
+		ok(await s.page.locator('#drop').isVisible() === await s.page.evaluate(() => 'EyeDropper' in window), 'the eyedropper wherever the webview has one (VS Code\'s has)')
 		ok(await s.page.locator('#spq').evaluate(q => q.scrollWidth <= q.clientWidth + 1) && await s.page.locator('#cells input').evaluateAll(xs => xs.every(c => c.scrollWidth <= c.clientWidth + 1)), 'in the workbench\'s face too, the space\'s name and every value fit')
 		ok(!(await s.page.content()).includes('font-family:Inter;') && /-apple-system/.test(await s.page.evaluate(() => getComputedStyle(document.body).fontFamily)), 'VS Code: the workbench\'s face, Inter not bundled')
 		ok(await s.page.locator('#marks .dm').count() >= 5, `the other colors are dots: ${await s.page.locator('#marks .dm').count()}`)
@@ -669,6 +686,84 @@ try {
 		if (process.env.VSCODE_SHOTS) await s.page.screenshot({ path: `${process.env.VSCODE_SHOTS}/vscode-light.png`, fullPage: true })
 		ok(!s.errors.length, `read-only page errors: ${s.errors.join(' | ')}`)
 		await s.close()
+	}
+
+	// variables, Figma's tokens: a custom property's or a Sass variable's literal is the variable, edited where it lives; a
+	// cursor on a use of it – var(), an alias's var(), $accent – picks that literal; a range picks those its uses hold; the
+	// hover over a use shows the literal that holds it. @media is no variable
+	{
+		const VARS = [
+			':root { --brand: oklch(0.62 0.19 255); --button: var(--brand); }',
+			'.dark { --brand: #3366ff; }',
+			'.btn { color: var(--button); outline: 1px solid var(--brand, #000); }',
+			'$accent: #ff8000 !default;',
+			'.x { fill: $accent; @media print { fill: black; } }',
+		].join('\n')
+		const s = await session({ text: VARS, uri: `file://${WEB}a.scss`, languageId: 'scss', selections: [[2, 18, 2, 18]] })
+		const last = s.sel().at(-1), vars = last.paints.filter(p => p.src)
+		ok(JSON.stringify(vars.map(p => [p.src.type, p.src.name, p.index, p.name])) === JSON.stringify([['variable', '--brand', 0, '--brand'], ['variable', '--brand', 1, '--brand'], ['variable', '$accent', 3, '$accent']]), `the variables' literals, named by them: ${JSON.stringify(vars.map(p => [p.src.name, p.index]))}`)
+		ok(last.paints.length === 5 && !last.paints.find(p => p.index === 2).src, 'a var()\'s fallback is a literal of its own, no variable')
+		const cur = last.paints.find(p => p.current)
+		ok(cur && cur.src?.name === '--brand' && cur.index === 0, `the cursor on var(--button), an alias of --brand: --brand's first literal is current (${JSON.stringify(cur && [cur.name, cur.index])})`)
+		ok(/Editing the variable --brand: every use of it changes\./.test(await s.page.locator('#notes').innerText()), `the panel says a variable is edited: ${await s.page.locator('#notes').innerText()}`)
+		await type(s, 0, 0.5)
+		ok(s.line(0) === ':root { --brand: oklch(0.5 0.19 255); --button: var(--brand); }' && s.line(2) === VARS.split('\n')[2], `an edit writes the variable's literal, the use untouched: ${s.line(0)}`)
+		const h = s.m.log.hover.provideHover(s.m.editor.document, new s.m.vscode.Position(2, 18))
+		ok(h && h.contents.value.startsWith('`--brand: oklch(0.5 0.19 255)` (line 1)') && h.range.start.character === 14 && h.range.end.character === 27, `the hover over var(--button): the literal that holds it (${h && h.contents.value.split('\n')[0]}, ${h && h.range.start.character}–${h && h.range.end.character})`)
+		await moveTo(s, 4, 13)
+		ok(s.sel().at(-1).paints.find(p => p.current)?.src?.name === '$accent', 'the cursor on $accent: its literal current')
+		let n = s.sel().length
+		await s.page.locator('#scope').selectOption('selection')
+		await until(() => s.sel().length > n)
+		n = s.sel().length
+		s.m.select([2, 0, 2, 70])
+		await until(() => s.sel().length > n)
+		ok(JSON.stringify(s.sel().at(-1).paints.map(p => [p.name, p.index])) === JSON.stringify([['--brand', 0], ['--brand', 1], ['outline', 2]]), `In selection, a range of uses: the literals they hold, light and dark, and its own fallback (${JSON.stringify(s.sel().at(-1).paints.map(p => [p.name, p.index]))})`)
+		await s.page.locator('#scope').selectOption('page')
+		ok(!s.errors.length, `variables page errors: ${s.errors.join(' | ')}`)
+		await s.close()
+	}
+
+	// variables that aren't: a cycle of aliases, a literal that is part of a value (a shadow's, a color with a stop), a
+	// var() of nothing; $x outside a stylesheet (a TypeScript template), where --x still is one. Read through the hover,
+	// which names the literal a use stands for, and the paints' src
+	{
+		const m = mock(), ext = requireWith(dir + 'dist/extension.cjs', m.vscode), sent = []
+		m.open([
+			':root { --a: var(--b); --b: var(--a); --shadow: 0 0 4px #000; --tint: #fff 50%; }',
+			'.x { color: var(--a); border-color: var(--shadow); fill: var(--nope); }',
+		].join('\n'))
+		ext.activate({ subscriptions: [], asAbsolutePath: p => dir + p, globalState: { get() {}, update: async () => {} }, extension: { packageJSON: pkg } })
+		const hv = (l, c) => m.log.hover.provideHover(m.editor.document, new m.vscode.Position(l, c))
+		ok([hv(1, 18), hv(1, 40), hv(1, 61)].every(h => !h), 'a cycle of aliases, a shadow\'s color, a var() of nothing: no literal stands for them')
+		m.log.providers['colorSpace.picker'].resolveWebviewView(m.view)
+		m.view.bridge = { toPage: msg => sent.push(msg.pluginMessage) }
+		await m.view.receive({ pluginMessage: { type: 'ready' } })
+		const ps = sent.find(x => x.type === 'selection').paints
+		ok(ps.length === 2 && ps.every(p => !p.src), `#000 in a shadow, #fff with a stop: literals, no variables (${JSON.stringify(ps.map(p => [p.name, p.src]))})`)
+		m.open('const css = `--brand: #fff; $accent: #000; color: var(--brand); fill: $accent;`', { uri: 'file:///a.ts', languageId: 'typescript' })
+		const brand = m.log.hover.provideHover(m.editor.document, new m.vscode.Position(0, 50)), accent = m.log.hover.provideHover(m.editor.document, new m.vscode.Position(0, 72))
+		ok(brand && brand.contents.value.startsWith('`--brand: #fff`') && !accent, `in a TypeScript template: var(--brand) stands for its literal, $accent is no variable (${brand && brand.contents.value.split('\n')[0]}, ${!!accent})`)
+		m.open('<div style="--brand: #0af"><p style="color: var(--brand)"></p></div>', { uri: 'file:///a.html', languageId: 'html' })
+		const attr = m.log.hover.provideHover(m.editor.document, new m.vscode.Position(0, 50))
+		ok(attr && attr.contents.value.startsWith('`--brand: #0af`'), `in a style attribute too: ${attr && attr.contents.value.split('\n')[0]}`)
+	}
+
+	// VS Code's display language: the host names it on the page, and the panel speaks it – VS Code's own words where they
+	// differ from Figma's; one it has no table for (Traditional Chinese, zh-tw) is English
+	{
+		const shipped = readdirSync(dir + 'l10n').map(f => f.match(/^bundle\.l10n\.(.+)\.json$/)?.[1]).filter(Boolean)
+		const code = { 'pt-br': 'pt', 'zh-cn': 'zh-Hans' }
+		ok(['pt-br', 'zh-cn'].every(l => shipped.includes(l)), `the bundles named by VS Code's ids, pt-br and zh-cn: ${shipped}`)
+		for (const loc of ['de', 'pt-br', 'zh-cn', 'zh-tw']) {
+			const s = await session({ text: CSS, language: loc })
+			const lang = await s.page.evaluate(() => [document.documentElement.dataset.lang, document.documentElement.lang])
+			const tr = loc === 'zh-tw' ? null : JSON.parse(readFileSync(dir + `src/i18n/${code[loc] || loc}.json`, 'utf8'))
+			const page = await s.page.locator('#scope option[value="page"]').textContent()
+			ok(lang[0] === loc && lang[1] === (tr ? code[loc] || loc : 'en') && page === (tr ? tr['pl.scope.page'].t : 'In this file'), `VS Code in ${loc}: the panel in ${lang[1]}, "${page}"`)
+			ok(!s.errors.length, `${loc} page errors: ${s.errors.join(' | ')}`)
+			await s.close()
+		}
 	}
 
 	// a stored space opens the panel in it; a document without colors: the hint

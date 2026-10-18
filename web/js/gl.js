@@ -641,6 +641,11 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 // viewport's origin; cutCV is that rectangle in the canvas's image (top-left origin) – what every blit copies out
 const fitCV = (w, h) => { if (CV.width < w) CV.width = w; if (CV.height < h) CV.height = h }
 const cutCV = (w, h) => [0, CV.height - h, w, h]
+/** Grow the shared kernel canvas ahead of its first use, at idle: each growth reallocates the drawing buffer – 50 ms a time
+ *  that once landed inside a dossier's first open. To the dossier's largest plate, the xy plate's (≈ 420 × 462 CSS px at
+ *  the widest), at the screen's density. On a GPU only: a software rasterizer paints the JS paths */
+export const warmKernels = () => { if (!G || !kernelTransfers || softGL()) return
+	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.ceil(420 * d)), Math.min(2048, Math.ceil(462 * d))) }
 // the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end
 const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && 'drawingBufferColorSpace' in G ? 1 : 0
 function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0, look = null) {

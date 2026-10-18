@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `color-space/conformance.json`: the cited reference conversions, each with its source, link and kind, for any library's tests.
+- `color-space/ocio`: `colorspace(space)`, a space as an OpenColorIO 2 colorspace from native transforms only, to ACES2065-1 or CIE XYZ D65; 53 spaces, checked against the library to 1e-6 and loaded by OpenColorIO 2.6.
+- `gamuts.js` exports `whites` (the specs' white xy) and `matrix` (SMPTE RP 177); data.json carries each gamut's RGB → XYZ matrix and its inverse.
+- Primaries for 34 camera-log spaces (`@gamut`); new gamuts S-Gamut3.Cine, Cinema Gamut, Apple Wide Gamut, F-Gamut C, Kinefinity Wide Gamut.
+
+### Fixed
+
+- hdr-CIELAB and hdr-IPT add the 0.02 lightness offset of Fairchild & Wyble 2010 (L and I rise by 0.02).
+- Coloroid A=24 takes the printed limit color; it was rebuilt from a misprinted ȳλ, 0.0136 off in xy.
+- XYB's B channel is named Blue − Y, the form it holds.
+
 ## [3.4.0] - 2026-10-18
 
 ### Added

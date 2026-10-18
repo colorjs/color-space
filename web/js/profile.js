@@ -16,12 +16,13 @@ export function primariesOf(s) {
 	try {
 		const m = meta[s]
 		if ((m.method === 'transfer' || m.method === 'matrix') && m.channels.length === 3 && space[s].xyz) {
-			const R = space[s].range, corner = v => space[s].xyz(...v)
+			// read through the space's own codes: black gives the code of linear 0, the hub white the
+			// code of linear 1 – a log curve's code 0 is not black (S-Log3's is −0.014 linear)
+			const lo = space.xyz[s](0, 0, 0), hi = space.xyz[s](...space.lrgb.xyz(1, 1, 1))
+			const corner = i => space[s].xyz(...lo.map((v, j) => j === i ? hi[j] : v))
 			const xy = X => { const t = X[0] + X[1] + X[2]; return t ? [X[0]/t, X[1]/t] : null }
-			const r = xy(corner([R[0][1], R[1][0], R[2][0]]))
-			const g = xy(corner([R[0][0], R[1][1], R[2][0]]))
-			const b = xy(corner([R[0][0], R[1][0], R[2][1]]))
-			const wc = corner([R[0][1], R[1][1], R[2][1]])
+			const r = xy(corner(0)), g = xy(corner(1)), b = xy(corner(2))
+			const wc = space[s].xyz(...hi)
 			if (r && g && b && wc.every(isFinite) && wc[1]) {
 				const adapted = !!(m.illuminant && m.illuminant !== 'D65')
 				out = { r, g, b, adapted, ill: m.illuminant,
@@ -33,41 +34,44 @@ export function primariesOf(s) {
 	PRIM.set(s, out); return out
 }
 
-// ── transfer-curve constants, ColorSync's TRC tags — curated from the defining specs and
-// VERIFIED against the shipped implementation on the neutral axis before they may render.
-// decode() maps the encoded value to linear; comparison is shape-normalized (y/y(1)), so
-// scene-referred headroom and Y-scale conventions cancel out. dom:'abs' marks curves whose
-// native domain is the channel's own range (the ACES logs), not the normalized 0..1 value. ──
+// ── transfer curves, curated from the defining specs and VERIFIED against the shipped
+// implementation on the neutral axis before they may render. f maps the encoded value to
+// linear; comparison is shape-normalized (y/y(1)), so scene-referred headroom and Y-scale
+// conventions cancel out. x is the same curve as the dossier prints it – a JS expression of
+// the code value V, its named constants in k (definition.js renders it; test/index.js holds it
+// to f). dom:'abs' marks curves whose native domain is the channel's own range (the ACES logs). ──
 export const CURVES = {
-	srgb:   { name: 'sRGB piecewise · IEC 61966-2-1', par: [['γ','2.4'],['offset','0.055'],['slope','12.92'],['cut','0.04045']],
+	srgb:   { name: 'sRGB piecewise', spec: 'IEC 61966-2-1', x: 'V <= 0.04045 ? V / 12.92 : ((V + 0.055) / 1.055) ** 2.4',
 		f: E => E <= 0.04045 ? E/12.92 : ((E+0.055)/1.055)**2.4 },
-	bt709:  { name: 'BT.709 / BT.2020 OETF · ITU-R', par: [['α','1.099'],['β','0.018'],['γ','0.45'],['slope','4.5']],
+	bt709:  { name: 'BT.709 and BT.2020', spec: 'ITU-R BT.709-6', x: 'V < 0.081 ? V / 4.5 : ((V + 0.099) / 1.099) ** (1 / 0.45)',
 		f: E => E < 0.081 ? E/4.5 : ((E+0.099)/1.099)**(1/0.45) },
-	s240:   { name: 'SMPTE 240M OETF', par: [['α','1.1115'],['β','0.0228'],['γ','0.45'],['slope','4.0']],
+	s240:   { name: 'SMPTE 240M', spec: 'SMPTE ST 240', x: 'V < 0.0912 ? V / 4 : ((V + 0.1115) / 1.1115) ** (1 / 0.45)',
 		f: E => E < 4*0.0228 ? E/4 : ((E+0.1115)/1.1115)**(1/0.45) },
-	g22a:   { name: 'pure gamma · Adobe RGB (1998)', par: [['γ','2.19921875 (563/256)']], f: E => E**2.19921875 },
-	g18:    { name: 'pure gamma', par: [['γ','1.8']], f: E => E**1.8 },
-	g22:    { name: 'pure gamma', par: [['γ','2.2']], f: E => E**2.2 },
-	g26:    { name: 'pure gamma · SMPTE RP 431-2', par: [['γ','2.6']], f: E => E**2.6 },
-	romm:   { name: 'ROMM piecewise · ISO 22028-2', par: [['γ','1.8'],['slope','16'],['cut','0.001953']],
+	g22a:   { name: 'Pure gamma, 563/256', spec: 'Adobe RGB (1998)', x: 'V ** 2.19921875', f: E => E**2.19921875 },
+	g18:    { name: 'Pure gamma', x: 'V ** 1.8', f: E => E**1.8 },
+	g22:    { name: 'Pure gamma', x: 'V ** 2.2', f: E => E**2.2 },
+	g26:    { name: 'Pure gamma', spec: 'SMPTE RP 431-2', x: 'V ** 2.6', f: E => E**2.6 },
+	romm:   { name: 'ROMM piecewise', spec: 'ISO 22028-2', x: 'V < 0.03125 ? V / 16 : V ** 1.8',
 		f: E => E < 16/512 ? E/16 : E**1.8 },
-	rimm:   { name: 'RIMM scene · ISO 22028-3', par: [['α','1.099'],['β','0.018'],['γ','0.45'],['clip','2.0']],
+	rimm:   { name: 'RIMM scene curve', spec: 'ISO 22028-3', x: 's * V < 0.081 ? s * V / 4.5 : ((s * V + 0.099) / 1.099) ** (1 / 0.45)', k: { s: 1.4022786 },
 		f: E => { const V = 1.099*2**0.45 - 0.099, e = E*V
 			return e < 4.5*0.018 ? e/4.5 : ((e+0.099)/1.099)**(1/0.45) } },
-	pq:     { name: 'PQ · SMPTE ST 2084', par: [['m₁','0.15930'],['m₂','78.84375'],['c₁','0.8359375'],['c₂','18.8515625'],['c₃','18.6875']],
+	pq:     { name: 'PQ', spec: 'SMPTE ST 2084', x: '(Math.max(V ** (1 / m2) - c1, 0) / (c2 - c3 * V ** (1 / m2))) ** (1 / m1)',
+		k: { m1: 0.1593017578125, m2: 78.84375, c1: 0.8359375, c2: 18.8515625, c3: 18.6875 },
 		f: E => { const m1 = 0.1593017578125, m2 = 78.84375, c1 = 0.8359375, c2 = 18.8515625, c3 = 18.6875
 			const p = E**(1/m2); return (Math.max(p - c1, 0)/(c2 - c3*p))**(1/m1) } },
-	hlg:    { name: 'HLG · ARIB STD-B67 / BT.2100', par: [['a','0.17883277'],['b','0.28466892'],['c','0.55991073']],
+	hlg:    { name: 'HLG', spec: 'ARIB STD-B67, ITU-R BT.2100', x: 'V <= 0.5 ? V * V / 3 : (Math.exp((V - c) / a) + b) / 12', k: { a: 0.17883277, b: 0.28466892, c: 0.55991073 },
 		f: E => E <= .5 ? E*E/3 : (Math.exp((E - 0.55991073)/0.17883277) + 0.28466892)/12 },
-	logc3:  { name: 'ARRI LogC3 (EI 800)', par: [['cut','0.010591'],['a','5.555556'],['b','0.052272'],['c','0.247190'],['d','0.385537']],
+	logc3:  { name: 'ARRI LogC3, EI 800', spec: 'ARRI', x: 'V > 0.149658 ? (10 ** ((V - d) / c) - b) / a : (V - f) / e',
+		k: { a: 5.555556, b: 0.052272, c: 0.24719, d: 0.385537, e: 5.367655, f: 0.092809 },
 		f: E => E > 5.367655*0.010591 + 0.092809 ? (10**((E - 0.385537)/0.247190) - 0.052272)/5.555556 : (E - 0.092809)/5.367655 },
-	slog3:  { name: 'Sony S-Log3', par: [['pivot','420/1023'],['slope','261.5'],['toe','95/1023']],
+	slog3:  { name: 'Sony S-Log3', spec: 'Sony technical summary', x: 'V >= 0.1673609 ? 10 ** ((1023 * V - 420) / 261.5) * 0.19 - 0.01 : (1023 * V - 95) * 0.01125 / 76.2102947',
 		f: E => E >= 171.2102946929/1023 ? (10**((E*1023 - 420)/261.5))*(0.18 + 0.01) - 0.01 : (E*1023 - 95)*0.01125000/(171.2102946929 - 95) },
-	acescc: { name: 'ACEScc · S-2014-003', dom: 'abs', par: [['base','log₂'],['scale','17.52'],['offset','9.72']],
+	acescc: { name: 'ACEScc', spec: 'ACES S-2014-003', dom: 'abs', x: 'V < -0.3013699 ? (2 ** (17.52 * V - 9.72) - 2 ** (-16)) * 2 : 2 ** (17.52 * V - 9.72)',
 		f: E => E < (9.72 - 15)/17.52 ? (2**(E*17.52 - 9.72) - 2**-16)*2 : 2**(E*17.52 - 9.72) },
-	acescct: { name: 'ACEScct · S-2016-001', dom: 'abs', par: [['toe slope','10.5402'],['toe cut','0.155251'],['scale','17.52'],['offset','9.72']],
+	acescct: { name: 'ACEScct', spec: 'ACES S-2016-001', dom: 'abs', x: 'V <= 0.1552511 ? (V - 0.0729055) / 10.5402377 : 2 ** (17.52 * V - 9.72)',
 		f: E => E <= 0.155251141552511 ? (E - 0.0729055341958355)/10.5402377416545 : 2**(E*17.52 - 9.72) },
-	cineon: { name: 'Cineon printing density', par: [['white','685'],['black','95'],['γ','0.6']],
+	cineon: { name: 'Cineon printing density', spec: 'Kodak', x: '(10 ** ((1023 * V - 685) * 0.002 / 0.6) - b) / (1 - b)', k: { b: 0.0107977516 },
 		f: E => { const bo = 10**((95 - 685)*0.002/0.6); return (10**((E*1023 - 685)*0.002/0.6) - bo)/(1 - bo) } },
 }
 // pal is deliberately unmapped: the implementation carries pure γ 2.2 while ITU-R BT.470

@@ -2,7 +2,7 @@
   "identifier": "colorjs-color-space",
   "name": "color-space",
   "version": "3.4.0",
-  "description": "Color conversions math for 205+ color spaces, including OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs, print and appearance models. Every space is verified to an authoritative reference. A color goes in as any CSS string or as channel values. Tools: convert, gamut, css, space, spaces, cube, shader, icc and code. No API key, no configuration and no network.",
+  "description": "Color conversions math for 205+ color spaces, including OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs, print and appearance models. Every space is tested against a cited reference value. A color goes in as any CSS string or as channel values. Tools: convert, gamut, css, space, spaces, cube, shader, icc and code. No API key, no configuration and no network.",
   "author": "Dmitry Ivanov",
   "authorUrl": "https://github.com/dy",
   "homepage": "https://color-space.io/",

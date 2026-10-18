@@ -18,13 +18,14 @@ float hdript_light_(float v) {
 	float ke = pow(2.0, e);
 	float av = abs(v);
 	float p = pow(av, e);
-	return 247.0 * p / (p + ke) * sign(v);
+	return 247.0 * p / (p + ke) * sign(v) + 0.02;
 }
 float hdript_lightinv_(float L) {
 	float e = hdript_e_();
 	float ke = pow(2.0, e);
-	float aL = abs(L);
-	return sign(L) * pow(aL * ke / (247.0 - aL), 1.0 / e);
+	float l = L - 0.02;
+	float aL = abs(l);
+	return sign(l) * pow(aL * ke / (247.0 - aL), 1.0 / e);
 }
 vec3 xyz_hdript(vec3 c) {
 	float x = c.x / 100.0; float y = c.y / 100.0; float z = c.z / 100.0;

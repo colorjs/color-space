@@ -255,15 +255,19 @@ export default whitepoint;
 export { whitepoint };
 `)
 fs.writeFileSync(path.join(dir, 'gamuts.d.ts'), banner + `
-/** RGB working-space gamuts: primary chromaticities + white point name. */
-declare const gamut: {
-	[space: string]: {
-		primaries: { r: [number, number]; g: [number, number]; b: [number, number] };
-		white: string;
-	};
+/** An RGB working-space gamut: primary chromaticities + white point name. */
+type Gamut = {
+	primaries: { r: [number, number]; g: [number, number]; b: [number, number] };
+	white: string;
 };
+/** RGB working-space gamuts by name. */
+declare const gamut: { [space: string]: Gamut };
+/** The named white points as CIE xy, as the RGB specifications print them. */
+declare const whites: { [name: string]: [number, number] };
+/** A gamut's linear RGB → XYZ matrix (row-major, white Y = 1, its own white): SMPTE RP 177. */
+declare function matrix(g: Gamut): number[];
 export default gamut;
-export { gamut };
+export { gamut, whites, matrix };
 `)
 
 // the toolkit (util.js) and the spaces' numeric primitives it re-exports (math.js)
@@ -387,11 +391,18 @@ export function kind(s: ColorSpace, opts?: Pick<IccOptions, 'xyz'>): 'mntr' | 's
 export function profile(s: ColorSpace, opts?: IccOptions): Uint8Array;
 `)
 
+// ocio: an OpenColorIO 2.x colorspace entry from native transforms, or null where none is exact
+fs.writeFileSync(path.join(dir, 'ocio.d.ts'), banner + `import { ColorSpace } from './color-space.js';
+
+/** Render a space (object or id) as one OpenColorIO 2.x \`- !<ColorSpace>\` entry; null where OCIO's native transforms can't express it exactly. */
+export function colorspace(s: ColorSpace | string, opts?: { reference?: 'aces2065-1' | 'xyz-d65' }): string | null;
+`)
+
 // remove stale: wrong-extension .ts and orphans without a .js
 const KEEP = [
 	'color-space.d.ts', 'index.d.ts', 'lite.d.ts', 'hub.d.ts', 'wasm.d.ts', 'wasm-spaces.d.ts',
 	'gl.d.ts', 'gl-all.d.ts', 'gl-wgsl.d.ts', 'gl-translate.d.ts', 'gl-chunk.d.ts', 'gl-util.d.ts', 'gl-naga.d.ts', 'gl-hlsl.d.ts', 'gl-msl.d.ts',
-	'whitepoints.d.ts', 'gamuts.d.ts', 'util.d.ts', 'transfers.d.ts', 'cie.d.ts', 'mcp.d.ts', 'lut.d.ts', 'icc.d.ts',
+	'whitepoints.d.ts', 'gamuts.d.ts', 'util.d.ts', 'transfers.d.ts', 'cie.d.ts', 'mcp.d.ts', 'lut.d.ts', 'icc.d.ts', 'ocio.d.ts',
 ]
 for (const f of fs.readdirSync(dir)) {
 	if (f.endsWith('.ts') && !f.endsWith('.d.ts')) fs.unlinkSync(path.join(dir, f)) // lrgb.ts, xvycc.ts, …
@@ -401,4 +412,4 @@ for (const f of fs.readdirSync(dir)) {
 	}
 }
 
-console.log(`generated ${names.length} space d.ts + exact hub/wasm/gl/lut/icc/tool declarations`)
+console.log(`generated ${names.length} space d.ts + exact hub/wasm/gl/lut/icc/ocio/tool declarations`)

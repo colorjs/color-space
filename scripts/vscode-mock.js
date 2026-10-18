@@ -5,14 +5,15 @@
  * It holds one text editor at a time (open(text, opts)), whose edit() applies replacements, records the undo stops it
  * was asked for, moves the selections as VS Code does (a position inside a replaced range lands at its end, one after
  * it on the same line shifts) and fires the document and selection events; and one active tab (setTab: an image open in
- * VS Code's image preview, a custom editor). file: URIs read the real disk. Its webview view hands the page's messages
- * to the extension and the extension's to the page through `bridge` (set by the check: { toPage(msg) }).
+ * VS Code's image preview, a custom editor). file: URIs read the real disk. VS Code's display language is `language`
+ * (env.language; l10n.t answers in English). Its webview view hands the page's messages to the extension and the
+ * extension's to the page through `bridge` (set by the check: { toPage(msg) }).
  */
 import Module from 'node:module'
 import { posix } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'
 
-export function mock() {
+export function mock({ language = 'en' } = {}) {
 	const handlers = { selection: [], editor: [], document: [], config: [], tabs: [] }
 	const fire = (k, e) => handlers[k].forEach(f => f(e))
 	const on = k => f => { handlers[k].push(f); return { dispose() {} } }
@@ -124,7 +125,8 @@ export function mock() {
 			registerCommand: (id, f) => { log.commands[id] = f; return { dispose() {} } },
 			executeCommand: async (id, ...a) => { log.opened.push(id); return log.commands[id]?.(...a) },
 		},
-		env: { openExternal: async u => { log.opened.push(u.toString()) } },
+		env: { language, openExternal: async u => { log.opened.push(u.toString()) } },
+		l10n: { t: (s, ...a) => s.replace(/\{(\d+)\}/g, (m, i) => i in a ? String(a[i]) : m) },   // English: the message itself, its {0}… filled
 		lm: { registerMcpServerDefinitionProvider: (id, p) => { log.mcp = { id, p }; return { dispose() {} } } },
 	}
 	return { vscode, log, open, select, setTab, setGamut, view, get editor() { return editor } }

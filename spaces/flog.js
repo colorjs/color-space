@@ -17,6 +17,7 @@
  * @channel {B} 0 1 Blue
  * @method transfer
  * @encoding log
+ * @gamut rec2020
  * @illuminant D65
  * @observer 2
  * @referred scene

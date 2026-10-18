@@ -226,7 +226,7 @@ export default {
 	ryb: { for: 'the painter’s wheel every kindergarten teaches', sin: 'no standard exists – every RYB implementation mixes differently' },
 
 	// ── specialty & research ──
-	xyb: { for: 'the codec’s cone-based space – built to hide compression error, not to look at', nm: 'X ≈ L−M opponent · Y luminance-ish · B for blue (S-cone)' },
+	xyb: { for: 'the codec’s cone-based space – built to hide compression error, not to look at', nm: 'X ≈ L−M opponent · Y luminance-ish · B for blue (S-cone), stored as B − Y' },
 	osaucs: { for: 'the most uniform lattice ever measured – thirty years of committee judgments', sin: 'no closed-form inverse, and its √2 lattice neighbors make it a dataset more than a picker', nm: 'L·j·g: j is yellowness (jaune), g greenness' },
 	tsl: { for: 'skin detection – chromaticity warped so faces cluster tightly', nm: 'tint · saturation · lightness' },
 	yes: { for: 'a luma plus two chroma axes used in early face-detection work', nm: 'Y luminance · E green-red · S blue-yellow chrominance' },

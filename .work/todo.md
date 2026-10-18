@@ -10,15 +10,15 @@
   * [ ] Exploring palettes, gradients composition
   * [ ] JS, WASM, LUT, ICC
 
-* [ ] VS Code plugin
-
-* [ ] Plugins
+* [ ] Plugins – deferred until the Figma plugin is published and has installs (review 2026-10-18)
   * [ ] Penpot plugin
   * [ ] Framer, Sketch plugins
   * [ ] Photoshop, Illustrator UXP
   * [ ] Corel draw?
   * [ ] PhotoCraft and other alternatives?
   * [ ] Resolve, film
+
+* [ ] VS Code plugin
 
 * [x] Figma plugin:
   * [x] Screenshots, text, donation button, icon
@@ -38,7 +38,7 @@
   * [x] Translations
   * [ ] Publish
 
-* [ ] MCP registers
+* [ ] MCP registers – the open ones deferred until an eval shows where the server pays off (plugins/claude/evals: +0.02 on common conversions); no paid listings (review 2026-10-18)
   1. [x] Claude plugin directory	https://claude.ai/directory/manage	Submit new → Plugin bundle. Repo colorjs/color-space, Plugin path plugins/claude. Needs a paid plan and your GitHub connected.
   2. [ ] Smithery	https://smithery.ai/new	Log in. For a local server it wants an MCPB bundle (smithery mcp publish) or a hosted URL.
   3. [x] mcpservers.org	https://mcpservers.org/submit	Free form. Registry name: io.github.colorjs/color-space. Remote: no.
@@ -49,3 +49,5 @@
   8. [x] Glama	https://glama.ai/mcp/servers	Check after the registry entry. If it's missing, use "Add Server" (GitHub login). glama.json already names you as maintainer.
   9. [x] LobeHub	https://lobehub.com/mcp	Submission flow unclear; check the page.
   10. [x]	mcp.directory	https://mcp.directory/submit	Web form.
+
+* [ ] transition to fully reactive sprae (preact-signals?) to compare reactivity and size

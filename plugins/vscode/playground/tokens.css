@@ -1,5 +1,6 @@
-/* A playground for the Color Space panel (Explorer → Color Space). Every color here is on its plane at once.
-   Put the cursor on a color to edit it; select a range to narrow the set; hover a color for its other notations. */
+/* A playground for the Color Space panel (the secondary side bar → Color Space). Every color here is on its plane
+   at once. Put the cursor on a color to edit it; select a range to narrow the set; hover a color for its other
+   notations. */
 
 :root {
   --brand: oklch(0.62 0.19 255);
@@ -33,4 +34,10 @@
     oklch(0.65 0.22 20) 40%,
     #4b2a6b
   );
+}
+
+.button {
+  background: var(--brand);   /* the cursor here picks --brand itself: an edit changes every use */
+  color: var(--paper);
+  outline: 2px solid var(--brand-soft);
 }

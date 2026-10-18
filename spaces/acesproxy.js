@@ -15,6 +15,7 @@
  * @channel {B} 0.0626 0.9189 Blue
  * @method transfer
  * @encoding log
+ * @gamut ap1
  * @illuminant D60
  * @observer 2
  * @referred scene

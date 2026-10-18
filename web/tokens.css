@@ -90,6 +90,7 @@
 	/* Backwards-compatible aliases used by the current single-file atlas. */
 	--paper:var(--color-paper);
 	--panel:var(--color-paper-2);
+	--code-kw-l:.47; --code-str-l:.53;   /* a code plate's keyword and string lights, over the panel gray: dark on light paper (AA there) */
 	--ink:var(--color-ink);
 	--body:var(--color-ink-2);
 	--soft:var(--color-muted);
@@ -208,6 +209,7 @@
 	--uh:255;
 	--color-paper:oklch(0.185 calc(0.01*var(--uk)) var(--uh));
 	--color-paper-2:oklch(0.243 calc(0.012*var(--uk)) var(--uh));
+	--code-kw-l:.8; --code-str-l:.87;   /* …light over the dark panel */
 	--color-paper-3:oklch(0.275 calc(0.014*var(--uk)) var(--uh));
 	--color-ink:oklch(0.93 calc(0.005*var(--uk)) var(--uh));
 	--color-ink-2:oklch(0.79 calc(0.008*var(--uk)) var(--uh));

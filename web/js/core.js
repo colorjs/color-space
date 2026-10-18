@@ -108,7 +108,39 @@ export const physBound = name => (meta[name]?.referred === 'scene' || meta[name]
 // This is deliberately NOT the object-colour (Rösch–MacAdam) solid the 3D shape is built
 // from: that solid is a bounded REFLECTIVE gamut under illuminant E, and a colour above
 // its ceiling — a bright emissive white, a laser — is still perfectly visible.
-export const { locus, LOCUS_EPS, xyOf, visibleXYZ, tightGamut } = visibility(space)   // the page's registry through the one law (visible.js) color-space/util asks of the package's
+const LAW = visibility(space)   // the page's registry through the one law (visible.js) color-space/util asks of the package's
+export const { locus, LOCUS_EPS, xyOf, tightGamut } = LAW
+// …asked hundreds of times a strip, so answered from a grid over the locus's box, built once and exactly: a cell no edge of
+// the locus comes within LOCUS_EPS + its half-diagonal of holds one answer everywhere – no edge crosses it, no point of it
+// lies near the curve – and that answer is the law's own even-odd count along the row of cell centres (the same crossings,
+// the same arithmetic); a cell an edge comes near asks the law itself. Past the box padded by 2·EPS, nothing is a colour.
+// Black, a negative light, NaN: the law itself. Built in a few ms: a cell classified one by one on demand cost the hero's
+// horseshoe, which samples the whole plane once, more than the law it was to save
+const VN = 512
+let VG = null
+const segDist = (px, py, ax, ay, bx, by) => { const ex = bx - ax, ey = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * ex + (py - ay) * ey) / (ex * ex + ey * ey)))
+	return Math.hypot(px - ax - t * ex, py - ay - t * ey) }
+const vgrid = () => VG ??= (() => { const P = locus(), pad = 2 * LOCUS_EPS, n = P.length
+	let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
+	for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y) }
+	x0 -= pad; y0 -= pad
+	const dx = (x1 + pad - x0) / VN, dy = (y1 + pad - y0) / VN, c = new Uint8Array(VN * VN)   // 1 in · 2 out · 3 near the curve
+	for (let j = 0; j < VN; j++) { const y = y0 + (j + .5) * dy, xs = []
+		for (let i = 0, k = n - 1; i < n; k = i++) { const a = P[i], b = P[k]; if ((a[1] > y) !== (b[1] > y)) xs.push((b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) }
+		for (let i = 0; i < VN; i++) { const x = x0 + (i + .5) * dx; let inn = false; for (const xc of xs) if (x < xc) inn = !inn; c[i * VN + j] = inn ? 1 : 2 } }
+	const r = LOCUS_EPS + Math.hypot(dx, dy) / 2 + 1e-12, at = (v, o, d) => Math.min(VN - 1, Math.max(0, Math.floor((v - o) / d)))
+	for (let i = 0, k = n - 1; i < n; k = i++) { const [ax, ay] = P[i], [bx, by] = P[k]
+		for (let u = at(Math.min(ax, bx) - r, x0, dx) - 1, u1 = at(Math.max(ax, bx) + r, x0, dx) + 1; u <= u1; u++) if (u >= 0 && u < VN)
+			for (let v = at(Math.min(ay, by) - r, y0, dy) - 1, v1 = at(Math.max(ay, by) + r, y0, dy) + 1; v <= v1; v++)
+				if (v >= 0 && v < VN && segDist(x0 + (u + .5) * dx, y0 + (v + .5) * dy, ax, ay, bx, by) <= r) c[u * VN + v] = 3 }
+	return { x0, y0, dx, dy, c } })()
+export const visibleXYZ = (X, Y, Z) => {
+	const s = X + Y + Z
+	if (!(s > 1e-9)) return LAW.visibleXYZ(X, Y, Z)
+	const g = vgrid(), i = Math.floor((X / s - g.x0) / g.dx), j = Math.floor((Y / s - g.y0) / g.dy)
+	if (i < 0 || j < 0 || i >= VN || j >= VN) return false
+	const c = g.c[i * VN + j]
+	return c === 3 ? LAW.visibleXYZ(X, Y, Z) : c === 1 }
 
 // ── the object-colour solid: the shape the HUMAN view actually draws ──
 // CIE Standard Illuminant D65, relative spectral power at 5 nm, normalised to 100 at
@@ -180,9 +212,33 @@ export const inVisSolid = (X, Y, Z) => {
 	if (!(isFinite(X) && isFinite(Y) && isFinite(Z))) return false
 	if (inSRGB(X, Y, Z)) return true
 	if (!visibleXYZ(X, Y, Z)) return false   // the solid lives INSIDE the locus – its convex outer hull alone would admit slightly-imaginary neighbours
+	const s = X + Y + Z
+	if (s > 1e-9) { const g = sgrid(), i = Math.floor((X / s - g.x0) / g.dx), j = Math.floor((Y / s - g.y0) / g.dy)
+		if (i >= 0 && j >= 0 && i < SN && j < SN) { const k = i * SN + j
+			if (g.lo[k] || ++g.n[k] > 2 && scell(g, i, j, k)) {
+				if (s <= g.lo[k] * (1 - 1e-9)) return true
+				if (s > g.hi[k] * (1 + 1e-9)) return false } } }
 	for (const [ux, uy, uz, h] of visSolid()) if (ux * X + uy * Y + uz * Z > h * 1.002) return false
 	return true
 }
+// The polytope along a chromaticity c = (x, y, 1−x−y): X = s·c passes every plane while s ≤ T(c), the least 1.002·h / n·c
+// over the planes with n·c > 0. n·c is linear in (x, y), so a grid cell's corners bound it – and with it T, from below
+// (each plane's least ratio over the cell) and above (its greatest, where n·c stays positive). Under the low bound a colour
+// is inside, past the high one outside, rigorously – a 1e-9 band absorbs the rounding of the two forms; the thin band between
+// the bounds, and any chromaticity off the grid, take the 512 planes as before. A cell is bounded on its third ask – four
+// corners cost what four tests do: a strip's probes return to the same cells again and again, a plate sampled once does not
+const SN = 256
+let SG = null
+const sgrid = () => SG ??= { x0: -0.01, y0: -0.01, dx: 0.76 / SN, dy: 0.86 / SN, lo: new Float64Array(SN * SN), hi: new Float64Array(SN * SN), n: new Uint8Array(SN * SN) }
+const scell = (g, i, j, k) => { const xs = [g.x0 + i * g.dx, g.x0 + (i + 1) * g.dx], ys = [g.y0 + j * g.dy, g.y0 + (j + 1) * g.dy]
+	let lo = Infinity, hi = Infinity
+	for (const [ux, uy, uz, h] of visSolid()) { let L = Infinity, U = -Infinity
+		for (const x of xs) for (const y of ys) { const d = ux * x + uy * y + uz * (1 - x - y); if (d < L) L = d; if (d > U) U = d }
+		if (U > 0) lo = Math.min(lo, h * 1.002 / U)
+		if (L > 0) hi = Math.min(hi, h * 1.002 / L) }
+	g.lo[k] = lo > 0 ? lo : Number.MIN_VALUE; g.hi[k] = hi; return true }   // 0 marks a cell not yet bounded – a bound itself never is
+/** A space's coordinates as displayable 8-bit-range sRGB: clamped into 0–255, a non-finite channel 0. */
+export const rgbF = (s, v) => (s === 'rgb' ? v : space[s].rgb(...v)).map(x => isFinite(x) ? clamp(x, 0, 255) : 0)
 export const rgbOf = (name, v) => name === 'rgb' ? v.map(px) : space[name].rgb(...v).map(px)
 export const toSpace = (name, rgb) => name === 'rgb' ? rgb.slice() : space.rgb[name](...rgb)
 
@@ -292,6 +348,7 @@ export const lensFor = (name, gamut) => {
 		else if (spectral) { const pk = Math.max(lin[0], lin[1], lin[2], 1e-6); lin = lin.map(u => u / pk) }
 		if (!lin.every(u => u > -4 && u < PB)) return 0
 		if (spectral) return vis || !disp || shows(lin) ? 1 : 0.5
+		if (vis && inSRGB(...X)) return 1   // sRGB's own: inside the solid, so inside the locus too – neither test asked
 		if (!visibleXYZ(...X)) return 0
 		if (vis) return inVisSolid(...X) ? 1 : 0.5   // beyond the surface solid yet real – the limit ghosts, only non-colors void
 		if (disp) return !shows(lin) || (rt && fold(v)) ? 0.5 : 1

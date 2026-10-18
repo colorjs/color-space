@@ -164,3 +164,33 @@ test('visible: the boundary sits exactly on the locus', () => {
 	is(inOk, P.length, `every vertex nudged 4% inward is a colour (${inOk}/${P.length})`)
 	is(outOk, P.length, `every vertex nudged 4% outward is not (${outOk}/${P.length})`)
 })
+
+// core.js answers the locus and the solid from lazily classified grids – a strip asks them hundreds of times, the catalog
+// thousands a frame. Exactness is the contract: the fast answers must be the law's, bit for bit, everywhere – and hardest
+// where the grids hand over, along the curve and the solid's surface. The references: the law itself (visible.js, the one
+// color-space/util asks) and the solid's 512-plane support test as written, sRGB's own fast accept included
+test('visible: the grids answer exactly as the law', async () => {
+	const { default: visibility } = await import('../web/js/visible.js')
+	const { visSolid } = await import('../web/js/core.js')
+	const law = visibility(space).visibleXYZ, B = [space.xyz.lrgb(1, 0, 0), space.xyz.lrgb(0, 1, 0), space.xyz.lrgb(0, 0, 1)]
+	const inSRGB = (X, Y, Z) => [0, 1, 2].every(i => { const u = B[0][i] * X + B[1][i] * Y + B[2][i] * Z; return u >= 0 && u <= 1 })
+	const solid = (X, Y, Z) => isFinite(X) && isFinite(Y) && isFinite(Z) && (inSRGB(X, Y, Z) || law(X, Y, Z) && visSolid().every(([ux, uy, uz, h]) => !(ux * X + uy * Y + uz * Z > h * 1.002)))
+	let seed = 7; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647
+	const T = c => Math.min(...visSolid().map(([ux, uy, uz, h]) => { const d = ux * c[0] + uy * c[1] + uz * c[2]; return d > 0 ? h * 1.002 / d : Infinity }))
+	const P = locus(), pts = []
+	for (let k = 0; k < 60000; k++) { const x = rnd() * .8, y = rnd() * .9 + 1e-3, Y = rnd() ** .5 * 110; pts.push(at(x, y, Y)) }   // everywhere
+	for (let k = 0; k < 30000; k++) { const a = P[k % P.length], b = P[(k + 1) % P.length], t = rnd(), e = (rnd() - .5) * 4e-3   // along the curve and the line of purples, within ±2·EPS
+		pts.push(at(a[0] + (b[0] - a[0]) * t + e, a[1] + (b[1] - a[1]) * t + (rnd() - .5) * 4e-3, rnd() * 100 + 1)) }
+	for (let k = 0; k < 30000; k++) { const x = .15 + rnd() * .5, y = .05 + rnd() * .65, c = [x, y, 1 - x - y], s = T(c) * (1 + (rnd() - .5) * (k % 3 ? 2e-2 : 2e-8))   // at the solid's surface, to a hair
+		pts.push([s * c[0], s * c[1], s * c[2]]) }
+	pts.push([0, 0, 0], [1e-12, 1e-12, 1e-12], [-1e-7, 0, 0], [NaN, 1, 1], [Infinity, 1, 1], [-5, 50, 20])
+	let locusOff = 0, solidOff = 0
+	for (let pass = 0; pass < 3; pass++)   // a solid cell is bounded on its third ask: the last pass answers from the bounds
+		for (const p of pts) { if (visibleXYZ(...p) !== law(...p)) locusOff++; if (inVisSolid(...p) !== solid(...p)) solidOff++ }
+	is(locusOff, 0, `the locus grid: ${pts.length} points, three times over, none answered otherwise`)
+	is(solidOff, 0, `the solid's bounds: ${pts.length} points, three times over, none answered otherwise`)
+	// the human lens takes a color sRGB holds as inside without asking the locus: sRGB's triangle lies inside it
+	let out = 0
+	for (let k = 0; k < 20000; k++) { const X = space.lrgb.xyz(rnd(), rnd(), rnd()); if (inSRGB(...X) && !law(...X)) out++ }
+	is(out, 0, 'every color sRGB holds is inside the locus')
+})

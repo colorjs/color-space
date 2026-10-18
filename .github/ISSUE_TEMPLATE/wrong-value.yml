@@ -1,0 +1,34 @@
+name: Wrong value
+description: A conversion returns a number that disagrees with a published source
+labels: [bug]
+body:
+  - type: input
+    id: space
+    attributes:
+      label: Space and direction
+      placeholder: e.g. rgb → oklch, or slog3 → rec709
+    validations:
+      required: true
+  - type: textarea
+    id: values
+    attributes:
+      label: Input, what color-space returns, what you expect
+      placeholder: |
+        space.rgb.oklch(255, 128, 0)
+        returns […]
+        expected […]
+      render: js
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Where the expected value is printed
+      description: A paper, standard or vendor document (with table, equation or page), or a named implementation and its version.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: color-space version
+      placeholder: e.g. 3.4.0

@@ -1,0 +1,30 @@
+name: New color space
+description: Propose a space the catalog lacks
+labels: [feature]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      placeholder: e.g. Canon Log 3 / Cinema Gamut
+    validations:
+      required: true
+  - type: input
+    id: document
+    attributes:
+      label: Defining document
+      description: The paper, standard or vendor document that defines it (a link).
+    validations:
+      required: true
+  - type: textarea
+    id: values
+    attributes:
+      label: Reference values
+      description: At least one input → output printed in that document, so the implementation can be checked against it.
+    validations:
+      required: true
+  - type: textarea
+    id: use
+    attributes:
+      label: Who uses it
+      description: Cameras, software, standards or fields where it appears.
