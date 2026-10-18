@@ -57,7 +57,7 @@ Do not translate this as all such coordinates producing one identical gray.
 | tone curve | curva de tom | curva tonal | ton eğrisi | тональная кривая | 色调曲线 | トーンカーブ | منحنى الدرجات | Tonwertkurve | courbe tonale | curva tonale | 톤 커브 | टोन कर्व |
 | log curve | curva log | curva log | log eğrisi | логарифмическая кривая | Log 曲线（对数曲线） | ログカーブ | منحنى log (لوغاريتمي) | Log-Kurve | courbe log | curva log | 로그 커브 | लॉग कर्व |
 | gamma (encoding) | gama | gamma | gama | гамма | 伽马 | ガンマ | غاما | Gamma (gammakodiert) | gamma (le gamma) | gamma (la gamma) | 감마 | गामा |
-| linear light | luz linear | luz lineal | doğrusal ışık | линейный свет | 线性光 | リニア光 | الضوء الخطي | lineares Licht | lumière linéaire | luce lineare | 선형 광 | लीनियर लाइट |
+| linear light | luz linear | luz lineal | doğrusal ışık | линейные значения (X in linear light: линейная форма X; compositing: в линейном пространстве; never «в линейном свете», the name of Photoshop's blend mode; scene-linear stays «линейный свет сцены») | 线性光 | リニア光 | الضوء الخطي | lineares Licht | lumière linéaire | luce lineare | 선형 광 | लीनियर लाइट |
 | encoding | codificação | codificación | kodlama | кодирование | 编码 | 符号化 | الترميز | Kodierung | encodage | codifica | 인코딩 | एन्कोडिंग |
 | scene-referred | referido à cena | referido a la escena | sahneye dayalı | привязанный к сцене (scene-referred) | 场景参考 | シーン参照 | منسوب إلى المشهد | szenenbezogen | référé à la scène | riferito alla scena | 장면 기준 | सीन-रेफ़र्ड |
 | display-referred | referido ao display | referido a la pantalla | ekrana dayalı | привязанный к дисплею (display-referred) | 显示参考 | ディスプレイ参照 | منسوب إلى الشاشة | displaybezogen | référé à l’affichage | riferito al display | 디스플레이 기준 | डिस्प्ले-रेफ़र्ड |

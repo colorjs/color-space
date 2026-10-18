@@ -66,6 +66,11 @@ The 2026-10-17 terminology pass reviewed every language's titles, catalog labels
 for calques, checking terms against Wikipedia's interlanguage links where it was reachable (not for
 ru and ja): each hero title is now the plain search term (the kicker left empty), and category,
 purpose and grouping labels use the field's own words. It was AI-assisted too.
+The 2026-10-18 calque pass read every string of every language against the English: sentences
+mirrored from English («равные шаги выглядят равными», «предсказание восприятия», a gamut "under" a
+log curve), literal metaphors and personified spaces were rewritten in each field's own register,
+one recurring English formula settled once per language, and the meaning errors found on the way
+fixed (three coordinates "suffice" where English says the minimum needed). AI-assisted as well.
 `@meta.reviewed` remains `null`. The language-specific questions in `GLOSSARY.md` still need
 native readers with color-science or imaging experience.
 
