@@ -25,7 +25,7 @@
 // and colour-science out_reflection): 18% gray→Y18, 90% card→Y90, perfect white→Y100.
 // Canon IT 202007.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const clog2 = {
 	name: 'clog2',

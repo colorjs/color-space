@@ -21,7 +21,7 @@
  * @dynamic hdr
  */
 import xyz from './xyz.js';
-import { spow } from '../util.js';
+import { spow } from '../math.js';
 
 const jzazbz = {
 	name: 'jzazbz',

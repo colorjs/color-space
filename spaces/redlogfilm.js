@@ -25,7 +25,7 @@
 // Exactly the Cineon curve: black 95 / white 685 over 10 bits. 18% grey → 0.4573,
 // as Cineon.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const redlogfilm = { name: 'redlogfilm', range: [[0, 1], [0, 1], [0, 1]] };
 

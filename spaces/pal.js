@@ -25,7 +25,7 @@
 // Green primary at (0.29, 0.60) vs sRGB's (0.30, 0.60) - the source of the gamut
 // difference from Rec. 709. Matrix derived from the primaries.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
 
 const pal = { name: 'pal', range: [[0, 1], [0, 1], [0, 1]] };

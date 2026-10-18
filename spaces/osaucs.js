@@ -26,7 +26,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 // OSA-UCS defines no fixed coordinate range — MacAdam's 1974 transform is unbounded, and the
 // conventional [-10,10] held barely a third of sRGB in chroma (which reaches ~±19 in j/g), so

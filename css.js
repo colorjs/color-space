@@ -48,6 +48,12 @@ const table = (f) => { const fn = (name, d, k = 1) => (v) => `color(${name} ${v.
 export const CSS = table(trim)
 /** the same notations at fixed places (40.0%, not 40%) – for a value shown live, whose length must not jump */
 export const CSS_FIXED = table(keep)
+/** …and at the atlas's display places: OKLab and OKLCH a place shorter (4; a hue 2) – measured over a 3-step sRGB grid, a
+ *  round trip lands on the same 8-bit color for 99.7% (OKLab) and 99.9% (OKLCH) of colors, never more than a level off;
+ *  every other notation as CSS_FIXED */
+export const CSS_DISPLAY = { ...CSS_FIXED,
+	oklab: (v) => `oklab(${keep(v[0], 4)} ${keep(v[1], 4)} ${keep(v[2], 4)})`,
+	oklch: (v) => `oklch(${keep(v[0], 4)} ${keep(v[1], 4)} ${keep(v[2], 2)})` }
 
 /** the library spaces CSS can write natively */
 export const CSSABLE = new Set(Object.keys(CSS))

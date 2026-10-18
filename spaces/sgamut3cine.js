@@ -28,7 +28,7 @@
 // Curve is S-Log3 (see slog3.js); matrix matches colour-science
 // RGB_COLOURSPACE_S_GAMUT3_CINE.matrix_RGB_to_XYZ to 1e-10.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const sgamut3cine = {
 	name: 'sgamut3cine',

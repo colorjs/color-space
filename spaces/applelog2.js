@@ -31,7 +31,7 @@
 // outside the gamut, so this is not a superset of Apple Log's container.
 import xyz from './xyz.js';
 import { enc, dec } from './applelog.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const applelog2 = { name: 'applelog2', range: [[0, 1], [0, 1], [0, 1]] };
 

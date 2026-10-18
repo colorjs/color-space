@@ -31,7 +31,7 @@
 // a cardinal axis” definition. Combined RGB-cube corners legitimately exceed one on an
 // opponent coordinate, hence the minimal cube-covering ±1.70 / ±1.85 instrument ranges.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const dkl = { name: 'dkl', range: [[-1, 1], [-1.7, 1.7], [-1.85, 1.85]] };
 

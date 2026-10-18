@@ -24,7 +24,7 @@
 // Implementation notes:
 // XYZ(D65) -> LMS via M1, signed power 0.43, then LMS' -> IPT via M2.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const ipt = {
 	name: 'ipt',

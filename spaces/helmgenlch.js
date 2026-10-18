@@ -18,7 +18,7 @@
  * @dynamic sdr
  */
 import helmgen from './helmgen.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 const helmgenlch = { name: 'helmgenlch', range: [[0, 1], [0, 0.65], [0, 360]] };
 

@@ -22,7 +22,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const p3Linear = {
 	name: 'p3-linear',

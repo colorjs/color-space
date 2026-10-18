@@ -34,7 +34,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Imports
 
-* `color-space` – All 205 interconnected spaces · 55 kB gzip
+* `color-space` – All 205 interconnected spaces · 62 kB gzip
 * `color-space/<name>.js` – One standalone space
 * `color-space/lite` – 54-space working set · 29 kB gzip
 * `color-space/wasm` – lite set as WASM · bare `.wasm` included
@@ -42,6 +42,7 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL · `await hlsl('rgb', 'oklch')` · needs the optional peer `naga-wasm` (it declares Node ≥ 24.12; CI runs it on 22, where npm only warns)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
+* `color-space/util` – `parse` · `format` CSS colors, `mix`, `gamut`, `visible`, `deltaE`, `contrast` (WCAG), `cvd` (color-vision simulation) · `deltaE('rgb', [255, 0, 0], [250, 0, 0])`
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
 * `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default) · `cube` · `icc` · `space` · `spaces` · `mcp` (MCP server for [agents](#agents))
 
@@ -101,7 +102,7 @@ Over HTTP (Streamable HTTP, stateless): `npx -y color-space mcp --http 8787` on 
 
 A complete collection of color spaces: one minimal API, verified formulas. While alternatives focus on digital color spaces, this project takes broader perspective, covering historical and cross-disciplinary spaces as well. Side effects: corrected papers, color education, test cases for JS→WASM compilers ([porffor](https://github.com/CanadaHonk/porffor), [jz](https://github.com/dy/jz)).
 
-It is not a color toolbox — parsing, interpolation, ΔE, gamut mapping, contrast, palettes, alpha stay out. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
+It is not a color toolbox — gamut mapping, palettes, alpha stay out; the few tools the atlas itself uses (parsing, mixing, ΔE, contrast, color-vision simulation) are `color-space/util`. Pantone, NCS, RAL Classic, and similar licensed swatch catalogs aren't open and stay out as well.
 
 ## Credits
 
@@ -113,9 +114,9 @@ Thanks to the researchers, theorists, specifiers, implementors and the libraries
 | color-space/lite | 54 | Conventional | logs · HDR · CAM16 | JS · 29 kB gzip | 3.01 ² |
 | color-space/wasm | 54 | Conventional | logs · HDR · CAM16 | WASM | 1.38–4.78× JS batches ³ |
 | [culori](https://github.com/Evercoder/culori) | 30 | 0–1 | ❌ | JS | 4.46 |
-| [colorjs.io](https://colorjs.io/) | ~40 | 0–1 | some | JS | 0.23 |
+| [colorjs.io](https://colorjs.io/) | 51 | 0–1 | some | JS | 0.23 |
 | [texel/color](https://github.com/texel-org/color) | ~16 | 0–1 | ❌ | JS | 3.49 ² |
-| [chroma-js](https://github.com/gka/chroma.js) | ~12 | mixed | ❌ | JS | 1.19 ² |
+| [chroma-js](https://github.com/gka/chroma.js) | 11 | mixed | ❌ | JS | 1.19 ² |
 | [d3-color](https://github.com/d3/d3-color) | 6 | mixed | ❌ | JS | 9.35 ² |
 
 <sup>¹ geometric mean, million scalar calls per second over the 7 shared [`npm run benchmark`](benchmark/) conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), inputs rotating through a 256-color table; median of 3 runs on 2026-10-03 as the benchmark prints it, Node 22.22 / Intel Xeon 2.1 GHz (4 vCPU), culori 4.0.2 · colorjs.io 0.5.2 · @texel/color 1.1.11 · chroma-js 3.2.0 · d3-color 3.1.0. Absolute figures move with the machine; the ratios are the claim · ² measured on the subset it implements — color-space on the same subset: lite's 4 (lab, oklab; measured before lite gained hsl and p3) 3.09 · texel's 3 (oklab, p3) 2.76 · chroma-js's 6 6.45 · d3-color's 4 (lab, hsl) 9.28 · ³ WASM speedup over the JS batch API, rgb → each of the 26 targets it had then over 1M pixels (the 27 added since are not yet measured), per-target medians of 3 further runs the same day (lowest on Jzazbz and JzCzHz)</sup>

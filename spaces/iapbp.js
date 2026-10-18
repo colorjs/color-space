@@ -38,7 +38,7 @@
 // −0.47; bp: red +0.60, cyan −0.34) – the axes are rotated against IPT's P/T.
 import xyz from './xyz.js';
 import whitepoint from '../whitepoints.js';
-import { mat3, inv3, spow } from '../util.js';
+import { mat3, inv3, spow } from '../math.js';
 
 const iapbp = { name: 'iapbp', range: [[0, 1], [-1, 1], [-1, 1]] };
 

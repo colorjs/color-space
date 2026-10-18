@@ -144,6 +144,9 @@
 	   one, a thick white ring round the field's own color, a soft outline round the ring so it reads on white too; engaged –
 	   pointed at, held – the outline darker, its size kept. Two states, nowhere a third. Every other mark is flat white:
 	   another color in hand a dot, a gradient's run a line, the data lanes, the labels – no shadow, nothing to blur */
+	/* a color's mark in a field's stack (the color field, a suggestion): the one in hand – alone or one of many – or pointed
+	   at, the same mark a step bigger, its hair edge, no ring */
+	--mark-on:1.25;
 	--picker-size:.75rem;
 	--picker-ring:.15625rem;
 	--picker-line:.075rem;
@@ -154,6 +157,8 @@
 	   white dot, a step smaller on a list row's thinnest (the one a press would take grows to the held picker) */
 	--picker-small-size:.5rem;
 	--picker-small-ring:.125rem;
+	--picker-mini-size:.375rem;   /* a list row's held picker, on its strips a few pixels tall */
+	--picker-mini-ring:.09375rem;
 	--picker-dot-size:.25rem;
 	--picker-dot-small-size:.1875rem;
 

@@ -22,7 +22,7 @@
 // Implementation notes:
 // y = ln(x·112 + 1)/ln(113). 18% grey → 0.6456.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const protune = { name: 'protune', range: [[0, 1], [0, 1], [0, 1]] };
 

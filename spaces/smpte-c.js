@@ -24,7 +24,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { bt709Encode as encode, bt709Decode as decode } from '../transfers.js';
 
 const smpteC = {

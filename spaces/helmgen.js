@@ -31,7 +31,7 @@
 // h = 264.5°, gated by sin²(π·t) over L 0.37–1. Ranges: a/b ±0.6 and C 0.65 hold the
 // Rec.2020 cube (measured |a|,|b| ≤ 0.54, C ≤ 0.64), as Color.js declares.
 import xyz, { bradfordAdaptation } from './xyz.js';
-import { mat3, mul3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../math.js';
 
 const helmgen = { name: 'helmgen', range: [[0, 1], [-0.6, 0.6], [-0.6, 0.6]] };
 

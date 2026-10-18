@@ -28,7 +28,7 @@
 // MI = inv3(M). The single owner of this matrix: log3g10.js and log3g12.js compose
 // their curves with these edges.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const rwg = {
 	name: 'rwg',

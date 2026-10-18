@@ -1,7 +1,7 @@
 {
   "name": "color-space",
   "description": "Open collection of color spaces",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "mcpName": "io.github.colorjs/color-space",
   "author": "Dmitry Ivanov <df.creative@gmail.com>",
   "type": "module",
@@ -60,6 +60,9 @@
     "web/js/categories.js",
     "web/js/purpose.js",
     "web/js/names.js",
+    "web/js/measure.js",
+    "web/js/cvd.js",
+    "web/js/visible.js",
     "web/js/python.js",
     "CHANGELOG.md"
   ],
@@ -208,6 +211,10 @@
       "types": "./types/whitepoints.d.ts",
       "default": "./whitepoints.js"
     },
+    "./util": {
+      "types": "./types/util.d.ts",
+      "default": "./util.js"
+    },
     "./util.js": {
       "types": "./types/util.d.ts",
       "default": "./util.js"
@@ -270,7 +277,7 @@
     }
   },
   "scripts": {
-    "test": "node test && node test/cie.js && node test/measure.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/hlsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && node test/i18n.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
+    "test": "node test && node test/cie.js && node test/measure.js && node test/util.js && node test/aces-vendor.js && node test/batch.js && node test/wasm-batch.js && node test/wasm-standalone.js && node test/gl.js && node test/wgsl.js && node test/hlsl.js && node test/visible.js && node test/lut.js && node test/lut-ffmpeg.js && node test/icc.js && node test/icc-colorsync.js && node test/mcp.js && node test/cli.js && node test/i18n.js && npm run test:types && npm run test:gpu && npm run test:browser && npm run test:a11y",
     "test:types": "tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck false test/types/smoke.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck false test/types/smoke.ts",
     "test:package": "node scripts/test-package.js",
     "test:gpu": "node scripts/check-gl-gpu.js",

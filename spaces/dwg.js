@@ -31,7 +31,7 @@
 // primaries) to 5e-9. The single owner of these matrices: davinci.js composes its
 // curve with these edges.
 import xyz from './xyz.js';
-import { mat3 } from '../util.js';
+import { mat3 } from '../math.js';
 
 const dwg = {
 	name: 'dwg',

@@ -33,7 +33,7 @@
 // M50 = normalized primary matrix (SMPTE RP 177) to D50, Bradford-adapted to the D65 hub with
 // xyz.js bradford.D50_D65 (CSS Color 4), the adaptation prophoto-linear.js and lab.js use.
 import xyz, { bradford } from './xyz.js';
-import { mat3, mul3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
 
 const ektaspace = { name: 'ektaspace', range: [[0, 1], [0, 1], [0, 1]] };

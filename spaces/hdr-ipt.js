@@ -25,7 +25,7 @@
 // lightness whose exponent adapts to scene luminance. Baked to the standard surround
 // Y_s=0.2 / Y_abs=100 cd/m² (Fairchild 2011), giving ε=0.4820209.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const hdrIpt = { name: 'hdr-ipt', range: [[0, 100], [-100, 100], [-100, 100]] };
 

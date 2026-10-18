@@ -23,7 +23,7 @@
  * @dynamic sdr
  */
 import din99oLab from './din99o-lab.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 const din99oLch = {
 	name: 'din99o-lch',

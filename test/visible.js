@@ -131,6 +131,27 @@ test('sliders: a spectral space is fully visible under the human lens', () => {
 	is(lensFor('wavelength', 'srgb')([550]), 0.5, 'a monochromatic 550 nm line ghosts under sRGB')
 })
 
+test('visible: a chromaticity space carrying luminance is cut at the luminance it holds', () => {
+	// xyY, u′v′Y, Yrg, DSH, MacLeod–Boynton hold Y in a channel: an sRGB color is inside sRGB at its own luminance, and the
+	// same chromaticity past the luminance its peak channel allows is not (sRGB, IEC 61966-2-1: #009A6B's linear G is
+	// 0.3231 at Y = 24.17, so G reaches 1 at Y ≈ 74.8). The direction law (any luminance) is the 2-channel spaces' alone
+	for (const s of ['xyy', 'uv', 'yrg', 'dsh', 'macboyn']) for (const c of [[0, 154, 107], [128, 128, 128], [51, 102, 204]])
+		is(lensFor(s, 'srgb')(space.rgb[s](...c)), 1, `${s}: rgb(${c}) is in sRGB at its own luminance`)
+	const [x, y] = space.rgb.xyy(0, 154, 107)
+	is(lensFor('xyy', 'srgb')([x, y, 50]), 1, 'xyY: #009A6B\'s chromaticity at Y 50 – within sRGB')
+	is(lensFor('xyy', 'srgb')([x, y, 90]), 0.5, 'xyY: at Y 90 – past sRGB\'s peak for that chromaticity, ghosted')
+	is(lensFor('rg', 'srgb')(space.rgb.rg(0, 154, 107)), 1, 'rg (no luminance): the direction law still')
+})
+
+test('visible: the display lens is the kernel\'s – its encoded pad, its round trip', () => {
+	// half a code value in ENCODED units (gl.js uGam): a linear light of −0.001 is −13 code values below black, not in sRGB –
+	// a ±0.005 linear pad let it in. A fold (HWB's w + b > 100: a gray whose numbers read back as another address) ghosts
+	is(lensFor('lrgb', 'srgb')([-0.001, 0.5, 0.5]), 0.5, 'a slightly negative linear channel: past sRGB')
+	is(lensFor('lrgb', 'srgb')([0.5, 0.5, 0.5]), 1, 'a linear gray: in')
+	is(lensFor('hwb', 'srgb')([0, 70, 60]), 0.5, 'hwb w + b > 100: a fold, ghosted')
+	is(lensFor('hwb', 'srgb')([0, 20, 20]), 1, 'hwb inside: a color')
+})
+
 test('visible: the boundary sits exactly on the locus', () => {
 	// nudge each vertex toward / away from equal-energy white: in is a colour, out is not
 	const P = locus(), E = [1 / 3, 1 / 3]

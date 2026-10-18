@@ -23,7 +23,7 @@
  * @dynamic sdr
  */
 import lab from './lab.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 
 //cylindrical lab

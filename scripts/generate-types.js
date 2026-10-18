@@ -266,8 +266,17 @@ export default gamut;
 export { gamut };
 `)
 
-// numeric primitives
+// the toolkit (util.js) and the spaces' numeric primitives it re-exports (math.js)
 fs.writeFileSync(path.join(dir, 'util.d.ts'), banner + `
+export function parse(str: string): { space: string; values: number[]; alpha: number } | undefined;
+export function format(space: string, values: readonly number[]): string | undefined;
+export function mix(space: string, a: readonly number[], b: readonly number[], t?: number, hue?: 'shorter' | 'longer'): number[];
+export function gamut(space: string, values: readonly number[]): 'srgb' | 'p3' | 'rec2020' | 'out' | null;
+export function visible(space: string, values: readonly number[]): boolean;
+export function deltaE(space: string, a: readonly number[], b: readonly number[], method?: '2000' | 'ok'): number;
+export function contrast(space: string, a: readonly number[], b: readonly number[]): number;
+export function cvd(space: string, values: readonly number[], kind: 'protan' | 'deutan' | 'tritan' | 'none'): number[];
+export function mul3(a: readonly number[], b: readonly number[]): number[];
 export function mat3(m: readonly number[], x: number, y: number, z: number): [number, number, number];
 export function inv3(m: readonly number[]): number[];
 export function spow(a: number, b: number): number;

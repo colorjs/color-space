@@ -20,7 +20,7 @@
  * @dynamic hdr
  */
 import jzazbz from './jzazbz.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 const jzczhz = {
 	name: 'jzczhz',

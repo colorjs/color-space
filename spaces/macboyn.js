@@ -32,7 +32,7 @@
 // convention, and inverts to XYZ [0,0,0] exactly (every chromaticity does at Y = 0).
 import xyz from './xyz.js';
 import whitepoint from '../whitepoints.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const macboyn = { name: 'macboyn', range: [[0.4, 1], [0, 1], [0, 100]] };
 

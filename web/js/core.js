@@ -2,6 +2,7 @@
 // Metadata drives everything: type each channel, then sample gamut-correct fields.
 import space from '../../dist/color-space.js'
 import data from './data.js'
+import visibility from './visible.js'
 
 export { data }
 export const meta = data.spaces
@@ -92,6 +93,10 @@ const px = x => isFinite(x) ? clamp(Math.round(x), 0, 255) : 0
 
 // how much linear light a coordinate may claim before it's formula noise:
 // scene-referred / HDR spaces really reach hundreds of diffuse whites, SDR display spaces don't
+// a chromaticity space that cannot say luminance – two channels (rg, maxwell, cct-duv): its gamut is a direction's,
+// displayable at ANY luminance. One that carries luminance in a channel (xyY, u′v′Y, Yrg, DSH, MacLeod–Boynton, LogLuv,
+// prismatic) is asked as any other space, at the luminance it holds – the direction law there ghosted every held color
+export const dirOnly = name => meta[name]?.method === 'chromaticity' && space[name]?.range?.length < 3
 export const physBound = name => (meta[name]?.referred === 'scene' || meta[name]?.dynamic === 'hdr') ? 500 : 4
 
 // ── the spectral locus: the boundary of colour itself ──
@@ -103,62 +108,7 @@ export const physBound = name => (meta[name]?.referred === 'scene' || meta[name]
 // This is deliberately NOT the object-colour (Rösch–MacAdam) solid the 3D shape is built
 // from: that solid is a bounded REFLECTIVE gamut under illuminant E, and a colour above
 // its ceiling — a bright emissive white, a laser — is still perfectly visible.
-let LOCUS = null
-export function locus() {
-	if (LOCUS) return LOCUS
-	const pts = []
-	for (let nm = 380; nm <= 700; nm += 5) {
-		const [X, Y, Z] = space.wavelength.xyz(nm)
-		const s = X + Y + Z
-		pts.push([X / s, Y / s])
-	}
-	return LOCUS = pts
-}
-/** A chromaticity this close to the curve is on it: the standards' primaries are monochromatic lights published to three
- *  places – Rec. 2020's 532 nm green falls 0.0007 past the CMF locus, its blue 0.0005, P3's red 0.0001, ProPhoto's red
- *  exactly on it – and a light on the locus is real. ProPhoto's green, 0.033 past it, stays imaginary */
-export const LOCUS_EPS = 1e-3
-/** Is this chromaticity a colour at all? Even-odd crossing over the closed locus, or within LOCUS_EPS of it. */
-function visibleXY(x, y) {
-	const P = locus()
-	let c = false
-	for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
-		const a = P[i], b = P[j]
-		if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c
-	}
-	if (c) return true
-	for (let i = 0, j = P.length - 1; i < P.length; j = i++) {   // outside: on the curve after all?
-		const [ax, ay] = P[i], ex = P[j][0] - ax, ey = P[j][1] - ay, t = Math.max(0, Math.min(1, ((x - ax) * ex + (y - ay) * ey) / (ex * ex + ey * ey)))
-		if (Math.hypot(x - ax - t * ex, y - ay - t * ey) < LOCUS_EPS) return true
-	}
-	return false
-}
-/** A color's CIE 1931 xy chromaticity, null for none (a negative light). Black holds no light, so no chromaticity of its own:
- *  it sits where every gray does, at the white's (the library's own white, so black and the darkest gray share a point) */
-let WXY = null
-export const xyOf = (X, Y, Z) => { const s = X + Y + Z
-	if (s > 1e-6) return [X / s, Y / s]
-	if (Math.abs(X) + Math.abs(Y) + Math.abs(Z) > 1e-6) return null
-	return WXY ??= ((W) => [W[0] / (W[0] + W[1] + W[2]), W[1] / (W[0] + W[1] + W[2])])(space.rgb.xyz(255, 255, 255)) }
-/** Is this XYZ a colour at all? Black is; anything off the locus is not. */
-export const visibleXYZ = (X, Y, Z) => {
-	const s = X + Y + Z
-	if (!isFinite(s)) return false
-	if (s <= 1e-9) return X > -1e-6 && Y > -1e-6 && Z > -1e-6   // black, not a negative coordinate
-	return visibleXY(X / s, Y / s)
-}
-/**
- * The tightest standard display gamut holding a color (space s, coordinates v): 'srgb', 'p3' or 'rec2020' – CSS Color 4's
- * predefined spaces (#predefined), each channel within half a code value of its box, as the fields' kernel pads its cut
- * (gl.js uGam) – 'out' past all three, null for no color at all (off the spectral locus, or no coordinates)
- */
-export function tightGamut(s, v) {
-	const to = d => s === d ? v : space[s][d](...v)
-	try {
-		const g = [['srgb', () => to('rgb').map(u => u / 255)], ['p3', () => to('p3')], ['rec2020', () => to('rec2020')]].find(([, e]) => e().every(u => u >= -0.002 && u <= 1.002))
-		return g ? g[0] : visibleXYZ(...to('xyz')) ? 'out' : null
-	} catch { return null }
-}
+export const { locus, LOCUS_EPS, xyOf, visibleXYZ, tightGamut } = visibility(space)   // the page's registry through the one law (visible.js) color-space/util asks of the package's
 
 // ── the object-colour solid: the shape the HUMAN view actually draws ──
 // CIE Standard Illuminant D65, relative spectral power at 5 nm, normalised to 100 at
@@ -261,6 +211,43 @@ export function wheelCoord(cls, rgb) {
 	return { tone: v[cls.tone.i], chroma: Math.hypot(a, b), hue: h }
 }
 
+// The canonical-roundtrip lens presumes a faithful inverse: space→rgb→clamp→space
+// must return the coordinate it left for every REAL (in-gamut) address. Folds fail
+// it DEEP — hwb's w+b>100 collapse, hsm's mirror land 20–50% of span away — and
+// deserve the ghost. But a space whose inverse is only approximate (coloroid's
+// inconsistent hue table, oklch's achromatic hue) fails SHALLOW, a few % past the
+// 3% law, and there the lens measures imprecision, not aliasing: at f32 the
+// boundary flickers pixel-to-pixel into salt-noise dots over real colors. Probed
+// here once per space in f64 over an off-lattice grid: failures with a shallow
+// median (< 15% of span) mean no folds to catch — the lens is omitted.
+const rtFaith = new Map()
+export function rtFaithful(s) {
+	if (rtFaith.has(s)) return rtFaith.get(s)
+	let ok = true
+	try {
+		const ch = space[s].range, d = ch.length, spans = ch.map(([a, b]) => b - a)
+		const errs = [], N = 9
+		for (let n = 0; n < N ** d; n++) {
+			let m = n; const v = ch.map((r, k) => { const t = ((m % N) + 0.37) / N; m = Math.floor(m / N); return r[0] + spans[k] * t })
+			let rgb; try { rgb = space[s].rgb(...v) } catch { continue }
+			if (!rgb.every(u => u >= -0.5 && u <= 255.5)) continue
+			let bk; try { bk = space.rgb[s](...rgb.map(u => u < 0 ? 0 : u > 255 ? 255 : u)) } catch { continue }
+			if (!bk.every(isFinite)) { errs.push(1); continue }
+			const e = Math.max(...bk.map((b, k) => { let dd = Math.abs(b - v[k]); if (ch[k][1] === 360) dd = Math.min(dd, 360 - dd); return dd / spans[k] }))
+			if (e > 0.03) errs.push(e)
+		}
+		errs.sort((a, b) => a - b)
+		ok = !errs.length || errs[Math.floor((errs.length - 1) / 2)] >= 0.15
+	} catch { ok = true }
+	rtFaith.set(s, ok)
+	return ok
+}
+
+/** Does a display hold this linear light? Within half a code value of its box, in ENCODED units – the kernel's pad (gl.js
+ *  uGam): a linear pad is ~16 code values near black. */
+const enc = u => u < 0.0031308 ? 12.92 * u : 1.055 * u ** (1 / 2.4) - 0.055
+export const displays = lin => lin.every(u => { const e = enc(u); return e >= -0.002 && e <= 1.002 })
+
 // per-value gamut alpha under a lens — the SAME laws the GPU kernel and plane() apply:
 // non-physical linear light voids, imaginary chromaticity voids ('off' stops HERE — the
 // kernel's uGam=0: the widest honest sweep, bounded only by what is a colour at all),
@@ -276,7 +263,7 @@ export const lensFor = (name, gamut) => {
 		? v => v[2] <= space.munsell.maxChroma(v[0], v[1]) + 1e-4 : null
 	// a chromaticity space discards luminance — the honest question is whether the
 	// DIRECTION is displayable at any luminance (the GPU kernel's normalisation)
-	const chrom = meta[name]?.method === 'chromaticity'
+	const chrom = dirOnly(name)
 	// a SPECTRAL space's coordinate is a light — a monochromatic line (wavelength), a
 	// Planckian radiator (kelvin) — real by definition. The locus test is vacuous there
 	// (its samples sit ON the locus polygon, where even-odd flips at random) and the
@@ -284,6 +271,19 @@ export const lensFor = (name, gamut) => {
 	// visible) — so the human lens shows all of it, and the display ghost normalises to
 	// the direction: "can this display show that light at any exposure".
 	const spectral = meta[name]?.method === 'spectral'
+	const shows = displays
+	// …and, as the kernel's round-trip lens, a coordinate that converts to a displayable color yet reads back as another
+	// address (HWB's w + b > 100, HSM's mirror) ghosts: into the gamut and back, a channel 3% of its span off and the
+	// color moved (ΔXYZ past 0.02 + 0.2%) is a fold, not a color of the shown volume
+	const ch = space[name].range, rt = disp && ch.length <= 3 && name !== 'munsell' && rtFaithful(name)
+	const D = { srgb: ['rgb', 255], p3: ['p3', 1], rec2020: ['rec2020', 1] }[gamut], hk = rt ? classify(name).angle?.i ?? -1 : -1
+	const fold = v => { let c0 = space[name][D[0]](...v)
+		if (chrom) { const pk = Math.max(...c0, 1e-5); c0 = c0.map(u => u * D[1] / pk) }
+		const bk = space[D[0]][name](...c0.map(u => Math.min(D[1], Math.max(0, u)))), X = toXyz(...v)
+		return ch.some(([a, b], k) => { let dq = Math.abs(bk[k] - v[k]); if (k === hk) dq = Math.min(dq, b - a - dq)
+			if (dq <= (b - a) * 0.03) return false
+			const w = v.slice(); w[k] = bk[k]; const Y = toXyz(...w)
+			return !(Math.hypot(X[0] - Y[0], X[1] - Y[1], X[2] - Y[2]) <= 0.02 + 0.002 * Math.hypot(...X)) }) }
 	return v => { try {
 		if (nativeRim && !nativeRim(v)) return 0   // measured Munsell solid, not its global C≤38 storage box
 		let X = toXyz(...v), lin = gLin(...X)
@@ -291,10 +291,10 @@ export const lensFor = (name, gamut) => {
 			const t = 50 / Math.max(X[1], 1e-4); X = [X[0] * t, 50, X[2] * t] }
 		else if (spectral) { const pk = Math.max(lin[0], lin[1], lin[2], 1e-6); lin = lin.map(u => u / pk) }
 		if (!lin.every(u => u > -4 && u < PB)) return 0
-		if (spectral) return vis || !disp || lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
+		if (spectral) return vis || !disp || shows(lin) ? 1 : 0.5
 		if (!visibleXYZ(...X)) return 0
 		if (vis) return inVisSolid(...X) ? 1 : 0.5   // beyond the surface solid yet real – the limit ghosts, only non-colors void
-		if (disp) return lin.every(u => u >= -0.005 && u <= 1.005) ? 1 : 0.5
+		if (disp) return !shows(lin) || (rt && fold(v)) ? 0.5 : 1
 		return 1
 	} catch { return 0 } }
 }
@@ -364,16 +364,7 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 	const qf = typeof quant === 'function' ? quant : null   // function quant maps a whole [r,g,b] triple
 	const qc = typeof quant === 'number' ? f => (Math.min(quant - 1, Math.floor(f * quant)) + 0.5) / quant : null
 	const q = quant === 'web' ? v => Math.round(v / 51) * 51 : null
-	const toXyz = name !== 'rgb' && space[name].xyz
-	const lens = gamut && gamut !== 'off'
-	// the human lens ghosts nothing (imaginary already voids for every lens, below) — so
-	// it just keeps the sRGB linear map for the physical-ceiling test, no display gamut
-	const vis = gamut === 'vis'
-	const gLin = toXyz && space.xyz[{ srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[lens && !vis ? gamut : 'srgb']]
-	// physical ceiling: scene-referred / HDR spaces really carry big light (camera logs
-	// decode to linear 8…460); an SDR display space past ~4× diffuse white is formula
-	// noise (Luv's v'→0 pole, CAM16 divergence), not color
-	const PB = physBound(name)
+	const L = lensFor(name, gamut ?? 'off')   // the planes' one law (the kernel's, lensFor's): no copy of it here
 	for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
 		const v = vals.slice()
 		let fx = x / (s - 1), fy = (flipY ? (s - 1 - y) : y) / (s - 1)
@@ -381,13 +372,7 @@ export function plane(ctx, s, name, vals, cx, cy, rx, ry, flipY = true, gamut = 
 		v[cx] = rx[0] + (rx[1] - rx[0]) * fx
 		v[cy] = ry[0] + (ry[1] - ry[0]) * fy
 		let rgb = rgbOf(name, v); const i = (y * s + x) * 4
-		let a = 255
-		if (gLin) { try { const X = toXyz(...v), lin = gLin(...X)
-			if (!lin.every(u => u > -4 && u < PB)) a = 0
-			else if (!visibleXYZ(...X)) a = 0   // imaginary chromaticity: not a colour at any luminance, under ANY lens or render mode
-			else if (vis && !inVisSolid(...X)) a = 128   // beyond the SURFACE solid yet real – the limit ghosts, like every display lens
-			else if (lens && !vis && !lin.every(u => u >= -0.005 && u <= 1.005)) a = 128
-		} catch { a = 0 } }
+		const a = L ? Math.round(L(v) * 255) : 255   // lensFor's law – the kernel's – per pixel
 		if (qf) rgb = qf(rgb)
 		d[i] = q ? q(rgb[0]) : rgb[0]; d[i + 1] = q ? q(rgb[1]) : rgb[1]; d[i + 2] = q ? q(rgb[2]) : rgb[2]; d[i + 3] = a
 	}

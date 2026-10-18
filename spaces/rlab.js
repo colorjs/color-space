@@ -29,7 +29,7 @@
 // example: adapting white = CIE Illuminant A [109.85, 100, 35.58], Y_n = 31.83 cd/m²,
 // σ = 1/2.3 (average surround), D = 1 (hard-copy/reflective viewing).
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const rlab = { name: 'rlab', range: [[0, 100], [-125, 125], [-125, 125]] };
 

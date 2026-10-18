@@ -26,7 +26,7 @@
 // for θ < 0; eq. 6 rotates the chroma pair to θo; eq. 7 is the inverse remap. Ranges per §3.3:
 // L′ 0-1, Cyb and Crg -1..1. Input is the library's sRGB (0-255), the paper's R′G′B′.
 import rgb from './rgb.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const orgb = { name: 'orgb', range: [[0, 1], [-1, 1], [-1, 1]] };
 

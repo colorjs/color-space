@@ -36,7 +36,7 @@
 // J = 0 gives M = 0 (colour's sdiv zero conversion). M reaches ≈ 19.9 over sRGB and ≈ 23.5
 // over BT.2020 under these conditions, hence 0–25.
 import sucs from './sucs.js';
-import { spow, cartToPolar, polarToCart } from '../util.js';
+import { spow, cartToPolar, polarToCart } from '../math.js';
 
 const scam = { name: 'scam', range: [[0, 100], [0, 25], [0, 360]] };
 

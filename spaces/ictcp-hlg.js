@@ -33,7 +33,7 @@
 // analytic b = 1 − 4a, c = 0.5 − a·ln(4a); this file keeps Note 5c's rounded values, as
 // rec2100-hlg.js does.
 import rec2020Linear from './rec2020-linear.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { hlgEncode, hlgDecode } from '../transfers.js';
 
 const ictcpHlg = { name: 'ictcp-hlg', range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]] };

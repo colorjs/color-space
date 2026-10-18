@@ -21,7 +21,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const a98Linear = {
 	name: 'a98rgb-linear',

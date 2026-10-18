@@ -32,7 +32,7 @@
 // 0.7347) and blue (y < 0). The spec's "0% → IRE 0.09" is a typo: d = 0.092864 is
 // 9.29 IRE (18% → 39.19, 90% → 57.22 match its 39.2 and 57.2).
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const kinelog3 = { name: 'kinelog3', range: [[0, 1], [0, 1], [0, 1]] };
 

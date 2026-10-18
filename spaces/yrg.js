@@ -29,7 +29,7 @@
 // r ∈ [0.028, 0.638], g ∈ [0.214, 0.775] between the primaries). Pure black has no
 // chromaticity and carries the affine origin (r, g) = (0.0206, −0.0515), just outside.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const yrg = { name: 'yrg', range: [[0, 1.06], [0.02, 0.64], [0.21, 0.78]] };
 

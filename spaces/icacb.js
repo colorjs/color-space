@@ -24,7 +24,7 @@
 // instead of deep in the PQ toe. colour-science's XYZ_to_ICaCb feeds relative XYZ
 // straight into PQ (1 unit = 1 cd/m²) and differs by exactly that scaling.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { pqST2084Encode, pqST2084Decode } from '../transfers.js';
 
 const icacb = { name: 'icacb', range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]] };

@@ -39,7 +39,7 @@
 // The inverse [A, a, b] -> L'M'S' matrix is derived (the paper's appendix prints it
 // rounded to 4 decimals). With D < 1 the white keeps M ≈ 4.
 import xyz from './xyz.js';
-import { mat3, mul3, inv3, spow, cartToPolar, polarToCart } from '../util.js';
+import { mat3, mul3, inv3, spow, cartToPolar, polarToCart } from '../math.js';
 
 const kim2009 = { name: 'kim2009', range: [[-110, 110], [0, 110], [0, 360]] };
 

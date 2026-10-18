@@ -33,7 +33,7 @@
 // Nayatani's other lightness correlate L*_P = Q + 50 puts black at −19 and only serves as
 // the chroma anchor here, so it stays internal.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const nayatani95 = { name: 'nayatani95', range: [[0, 100], [0, 190], [0, 360]] };
 

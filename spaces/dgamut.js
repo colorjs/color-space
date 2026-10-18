@@ -30,7 +30,7 @@
 // decimals too. The single owner of this matrix: dlog.js composes its curve with these
 // edges.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const dgamut = {
 	name: 'dgamut',

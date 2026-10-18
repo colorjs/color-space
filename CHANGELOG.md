@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2026-10-18
+
+### Added
+
+- `color-space/util`: the tools the atlas uses – `parse` and `format` CSS colors, `mix` in any space, `gamut` (the tightest of sRGB, P3, Rec. 2020), `visible`, `deltaE` (CIEDE2000, ΔEOK), `contrast` (WCAG 2.2), `cvd` (protanopia, deuteranopia, tritanopia) – each over a space id and its conventional values.
+
+### Changed
+
+- The spaces' numeric helpers move to `math.js`; `color-space/util.js` still exports them.
+- DCDM is tagged as a gamma encoding (its 1/2.6 power), not a log one.
+
 ## [3.0.0] - 2026-07-20
 
 ### Breaking Changes

@@ -27,7 +27,7 @@
 // CIECAM reference viewing conditions — D65 white, L_A = 318.31 cd/m², Y_b = 20,
 // average surround — not CAM16's Material Design conditions.
 import xyz from './xyz.js';
-import { mat3, spow } from '../util.js';
+import { mat3, spow } from '../math.js';
 import { environment, adapt, unadapt, cat16, cat16Inv, m1, constrain } from './cam16.js';
 
 const hellwig = { name: 'hellwig2022', range: [[0, 100], [0, 60], [0, 360]] };

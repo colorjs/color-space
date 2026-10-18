@@ -28,7 +28,7 @@
 // three ≈ black. RGB→RYB is the numerical (Newton) inverse and best-fits colors
 // outside the artists' gamut.
 import rgb from './rgb.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const ryb = { name: 'ryb', range: [[0, 255], [0, 255], [0, 255]] };
 

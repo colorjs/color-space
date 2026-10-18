@@ -35,7 +35,7 @@
 // 0.204] (green → red); the ε-floored pure black sits at l ≈ −10.39, below the
 // nominal range.
 import rgb from './rgb.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const lalphabeta = { name: 'lalphabeta', range: [[-6, 0], [-1, 0.9], [-0.21, 0.21]] };
 

@@ -12,6 +12,7 @@
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
  * @wiki {@link https://en.wikipedia.org/wiki/HSLuv}
+ * @aka HUSL
  * @year 2012
  * @by Alexei Boronine
  * @use Perceptually even saturation across hues for design/palette tools; current, actively maintained (renamed from HUSL in 2018).

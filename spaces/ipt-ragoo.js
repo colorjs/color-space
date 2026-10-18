@@ -27,7 +27,7 @@
 // decimals as printed). Same constants as colour-science 0.4.7 XYZ_to_IPT_Ragoo2021.
 // Inverses are derived.
 import xyz from './xyz.js';
-import { mat3, inv3, spow } from '../util.js';
+import { mat3, inv3, spow } from '../math.js';
 
 const iptRagoo = { name: 'ipt-ragoo', range: [[0, 1], [-1, 1], [-1, 1]] };
 

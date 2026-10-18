@@ -25,7 +25,7 @@
  */
 import xyz, { bradford, M_LRGB_INV } from './xyz.js';
 import rgb from './rgb.js';
-import { mat3, mul3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../math.js';
 import { srgbToLinear, linearToSrgb } from '../transfers.js';
 import { labF, labFInv } from '../cie.js';
 

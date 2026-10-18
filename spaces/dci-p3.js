@@ -25,7 +25,7 @@
 // Implementation notes:
 // DCI white point: x 0.314, y 0.351.
 import xyz from './xyz.js';
-import { mat3, inv3, spow } from '../util.js';
+import { mat3, inv3, spow } from '../math.js';
 
 const dciP3 = {
 	name: 'dci-p3',

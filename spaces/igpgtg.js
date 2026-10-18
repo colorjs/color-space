@@ -25,7 +25,7 @@
 // XYZ -> bespoke LMS, per-cone scaling [18.36, 21.46, 19435], signed power 0.427,
 // then a fixed opponent matrix to Ig/Pg/Tg.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const igpgtg = { name: 'igpgtg', range: [[0, 1], [-1, 1], [-1, 1]] };
 

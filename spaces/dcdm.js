@@ -15,7 +15,7 @@
  * @channel {Y} 0 1 Y′
  * @channel {Z} 0 1 Z′
  * @method transfer
- * @encoding log
+ * @encoding gamma
  * @illuminant D65
  * @observer 2
  * @referred display

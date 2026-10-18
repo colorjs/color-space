@@ -26,7 +26,7 @@
 // scaling. Ranges follow jzazbz: the [0,1] Iz spans up to the 10 000 cd/m² PQ peak (SDR
 // white lands at Iz ≈ 0.394).
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const izazbz = { name: 'izazbz', range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]] };
 

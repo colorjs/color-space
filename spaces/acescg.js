@@ -21,7 +21,7 @@
  * @dynamic hdr
  */
 import xyz, { bradfordAdaptation } from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const acescg = {
 	name: 'acescg',

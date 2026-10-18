@@ -27,7 +27,7 @@
 // RGB_COLOURSPACES['V-Gamut'] print it to 6 decimals (agree to 5e-7). MI = inv3(M).
 // The single owner of this matrix: vlog.js composes its curve with these edges.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const vgamut = {
 	name: 'vgamut',

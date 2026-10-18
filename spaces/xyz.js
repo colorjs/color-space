@@ -25,7 +25,7 @@
 // Values are on a 0-100 scale (Y = 100 at white).
 import rgb from './rgb.js';
 import lrgb from './lrgb.js';
-import { mat3, mul3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../math.js';
 
 
 

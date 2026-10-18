@@ -10,6 +10,7 @@
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
+ * @aka HUSLp
  * @year 2012
  * @by Alexei Boronine
  * @use Guaranteed-in-gamut pastel companion to HSLuv for palette tools; current, maintained alongside HSLuv.

@@ -24,7 +24,7 @@
 // https://bottosson.github.io/posts/colorpicker/
 
 import oklrab from './oklrab.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 var oklrch = {
 	name: 'oklrch',

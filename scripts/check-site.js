@@ -296,7 +296,7 @@ try {
 	// the shelf cut lives at the rail's FOOT now — tabs regroup without the panel;
 	// the filters then compose on the rebuilt DOM (scene-referred × era = the
 	// camera-log timeline), and the header chips restore every layer
-	assert.equal(await page.locator('.gtag').count(), 3, 'the rail offers the three cuts')
+	assert.equal(await page.locator('.gtag').count(), 4, 'the rail offers the four cuts – family, purpose, author, era')
 	await page.locator('.gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
@@ -311,6 +311,9 @@ try {
 	await lens(page,'f','scene')   // unpicked where it was picked – no Any
 	await page.locator('.gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
+	await page.locator('.gtag[data-g="author"]').click()
+	assert.deepEqual(await page.evaluate(() => { const k = [...document.querySelectorAll('#cat .sec')].map(s => s.dataset.k); return [k[0], k.at(-1), document.querySelectorAll('#cat .sec .ent').length] }), ['author.cie', 'author.people', 205], 'the Author cut: the CIE first, the researchers last, every space shelved once')
+	await page.locator('.gtag[data-g="family"]').click()
 	// a language switch keeps ?g=: the page arrives in that cut, built once, and its tabs stay live – the arrival used to
 	// regroup, then the prerender's drift path redrew the family over it with the cut still set, so Family looked picked and Purpose did nothing
 	{	const cutContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), cut = await cutContext.newPage()
@@ -369,6 +372,9 @@ try {
 	// a gradient's method being typed: CSS's interpolation spaces offered, as typed so far
 	await page.locator('#cval').click(); await page.locator('#cval').fill('red – blue in okl'); await page.waitForTimeout(300)
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#csug .sgt>span:first-child')].map(s => s.textContent)), ['red – blue in oklch', 'red – blue in oklab'], 'in okl…: oklch and oklab offered')
+	await page.locator('#cval').fill('red – blue in oklch'); await page.waitForTimeout(300)
+	{ const got = await page.evaluate(() => [...document.querySelectorAll('#csug .sgt>span:first-child')].map(s => s.textContent))
+		assert.equal(got[0], 'red – blue in oklab', 'in oklch typed whole: the other spaces offered, oklab first'); assert.ok(got.length > 5 && !got.includes('red – blue in oklch'), 'every other interpolation space, not the one typed') }
 	await page.locator('#cval').press('Escape'); await page.evaluate(() => document.activeElement.blur())
 	// a collection's name is a suggestion's line, never the field's: taken, the field holds its value; the color's neighbour
 	// is one row – the value, its name and collection under it – its name pressed, the next nearest; the notation is the
@@ -385,11 +391,16 @@ try {
 		await page.locator('#cval').press('Escape'); await page.evaluate(() => document.activeElement.blur())
 		await lens(page, 'n', 'oklch'); await page.waitForTimeout(200)
 		assert.match(await page.locator('#cval').inputValue(), /^oklch\(/, 'the View menu\'s Format: the field in OKLCH')
+		await page.evaluate(() => document.dispatchEvent(new CustomEvent('imgpal', { detail: [[255, 0, 0], [0, 0, 255]] }))); await page.waitForTimeout(200)
+		assert.match(await page.locator('#cval').inputValue(), /^oklch\([^)]*\), oklch\(/, 'an image\'s palette written in the Format picked')
 		await lens(page, 'n', 'hex'); await page.waitForTimeout(200) }
-	// the field's words: a name holding " to " is one color, kept as typed; each color underlined, the caret's in its own
+	// the field's words: a name holding " to " is one color, kept as typed; the caret's color inked among the others
+	{ await page.locator('#cval').fill('red – orange – gold – lime – teal – blue – navy – purple – magenta – crimson – maroon – olive – khaki'); await page.locator('#cval').press('Enter'); await page.evaluate(() => document.activeElement.blur()); await page.waitForTimeout(300)
+		const [h, lh] = await page.evaluate(() => { const c = document.getElementById('cval'); return [c.offsetHeight, parseFloat(getComputedStyle(c).lineHeight)] })
+		assert.ok(h < lh * 1.5, 'a long value let go: one line, cut short') }
 	await page.locator('#cval').fill('red, blue, tomato'); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.evaluate(() => { const c = document.getElementById('cval'); c.setSelectionRange(6, 6); document.dispatchEvent(new Event('selectionchange')) })
-	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.cvul u')].map(u => u.textContent + (u.classList.contains('on') ? '*' : ''))), ['red', 'blue*', 'tomato'], 'every color of the field underlined, the caret’s marked')
+	assert.deepEqual(await page.evaluate(() => [document.querySelector('.cvul').childNodes.length, [...CSS.highlights.get('cv-held')].map(r => r.toString())[0], document.querySelector('.cvul').classList.contains('many')]), [1, 'blue', true], 'the field\'s twin one string, the caret\'s color its highlight')
 	await page.locator('#cval').fill('red - orange - gold - lime - teal - blue'); await page.waitForTimeout(300); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.waitForTimeout(500)
 	assert.equal(await page.evaluate(() => [...document.querySelectorAll('#csug small')].some(s => /one step on/.test(s.textContent))), false, 'six stops: no step on')
@@ -591,7 +602,7 @@ try {
 	// punching transparent holes into its H×L plane.
 	// HPLuv sits past its family's fold: its "more" first – the unfolded tiles take a press like any other
 	const hpMore=page.locator('.sec:has(.ent[data-s="hpluv"])>.more'); await hpMore.click()
-	assert.equal(await page.locator('.ent[data-s="hpluv"]').isVisible(),true,'a family\'s "more" unfolds the spaces it held back')
+	assert.equal(await page.locator('.ent[data-s="atd95"]').isVisible(),true,'a family\'s "more" unfolds the spaces it held back')   // its last – HPLuv now leads the secondaries
 	await page.locator('.ent[data-s="hpluv"] .nm').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	await mode('jnd'); await mode('smooth')
 	assert.equal(+(await page.locator('#bigch .nv').nth(1).inputValue())<=100,true,'HPLuv even→smooth keeps saturation in range')
@@ -602,7 +613,7 @@ try {
 			n&&performance.now()<end?requestAnimationFrame(tick):ok(n) }; tick() }))
 	assert.equal(hpVoid,0,'HPLuv H×L plane remains complete after even→smooth')
 	await page.locator('#mx').click(); await page.waitForFunction(()=>document.querySelector('#modal')?.hidden === true)
-	await hpMore.click(); assert.equal(await page.locator('.ent[data-s="hpluv"]').isVisible(),false,'and "Fewer" folds them back')
+	await hpMore.click(); assert.equal(await page.locator('.ent[data-s="atd95"]').isVisible(),false,'and "Fewer" folds them back')
 
 	// Munsell's legal chroma is sharply bounded. A held drag must keep the exact GPU
 	// boundary instead of swapping to a sparse CSS approximation until release.
@@ -850,7 +861,11 @@ try {
 	assert.ok(await fresh.evaluate(()=>location.hash.length>1), 'emptied in hand, the color holds – the field is let go first')
 	await fresh.locator('#cval').blur(); await fresh.waitForFunction(()=>!location.hash,null,{timeout:5000})
 	assert.equal(await fresh.evaluate(()=>document.getElementById('cval').placeholder.length>0), true, 'emptied, the field invites again – no color chosen, no hash')
-	assert.equal(await fresh.evaluate(()=>document.querySelector('.dpop select[data-lens="m"]').disabled), true, 'the palette distance is shown, disabled, until a palette is picked')
+	await fresh.locator('#cval').focus(); await fresh.waitForTimeout(100)
+	assert.equal(await fresh.evaluate(()=>getComputedStyle(document.getElementById('cvx')).visibility), 'hidden', 'the placeholder alone in hand: no × – nothing to clear')
+	await fresh.locator('#cval').press('Escape'); await fresh.waitForTimeout(100)
+	assert.notEqual(await fresh.evaluate(()=>document.activeElement?.id), 'cval', 'Esc lets the field go')
+	assert.equal(await fresh.evaluate(()=>[...document.querySelectorAll('.dpop .mseg[data-lens="m"] button')].every(b=>b.disabled)), true, 'the palette distance is shown, disabled, until a palette is picked')
 	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForFunction(()=>document.body.classList.contains('cdock'))   // pinned first – the check is of a pinned field (under load its docking frame can lag the 200ms this waited)
 	// a press where the field shows, as a hand presses – a locator's click first scrolls the whole element into view (the
 	// docked field's box reaches past the row's clip), which is Playwright moving the page, not the field
@@ -921,9 +936,17 @@ try {
 	await wire.waitForFunction(() => /hsluv/i.test(document.getElementById('dtitle')?.textContent || ''))
 	await wire.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))))
 	assert.equal(await wire.locator('#cseg [data-t="py"]').count(), 0, 'no Python tab where no verified equivalent exists')
+	// a tab's bar under its word alone, the word's width – not its mark – in the dossier and in Usage alike
+	const wordBar = (pg, sel) => pg.evaluate((sel) => { const w = document.querySelector(sel), a = w && getComputedStyle(w, '::after'); return !!w && a.backgroundColor !== 'rgba(0, 0, 0, 0)' && Math.abs(parseFloat(a.width) - w.getBoundingClientRect().width) < 1 }, sel)
+	assert.ok(await wordBar(wire, '#cseg button.on>span:not(.fl)'), 'the code tab picked: its bar under its word')
+	assert.ok(await wire.evaluate(() => document.querySelector('.dh .dkinds').getBoundingClientRect().left - document.getElementById('dtitle').getBoundingClientRect().right < 24), 'the kinds right after the name, not past the family line')
+	assert.equal(await wire.locator('.props [data-k="loss"]').count(), 0, 'no loss row – a round trip\'s loss is the caveat')
 	// the vision lens: one root filter, defs mounted once, cited models
 	await wire.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+	assert.ok(await wordBar(wire, '#api-tab-core>span:not(.fl)'), 'Usage\'s tab picked: its bar under its word')
 	assert.match(await wire.evaluate(() => [...document.querySelectorAll('#m-view .mseg[data-lens="v"] button')].map(o => o.title).join(' ')), /Machado et al\. 2009[\s\S]*Brettel et al\. 1997/, 'the vision options cite Machado 2009 and Brettel 1997 in their line – one text, no tooltip beside its')
+	await wire.evaluate(() => document.querySelector('.fqa a[data-lens="v"][data-v="protan"]').click()); await wire.waitForTimeout(200)
+	assert.equal(await wire.evaluate(() => document.querySelector('#m-view .mseg[data-lens="v"] button.on')?.dataset.v), 'protan', 'an answer\'s link sets the Vision it names')
 	await lens(wire,'v','deutan')
 	assert.equal(await wire.evaluate(() => document.documentElement.dataset.cvd), 'deutan', 'vision lens sets data-cvd on the root')
 	assert.equal(await wire.locator('filter#cvd-deutan[color-interpolation-filters="linearRGB"]').count(), 1, 'the deutan filter is mounted, in linear light')

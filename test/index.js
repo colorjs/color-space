@@ -2,7 +2,7 @@
 // http://www.easyrgb.com/index.php?X=CALC#Result
 // http://colormine.org/convert/luv-to-rgb
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import space from '../index.js';
 import data from '../data.json' with { type: 'json' }
 const meta = data.spaces
@@ -92,6 +92,9 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	// stays on the index alone (a copy on every space page would read as spam)
 	is(slogPage.includes('<meta property="og:image" content="https://color-space.io/img/og/slog3.jpg">'), true, 'space page carries its own social card')
 	is(existsSync(`${site}/img/og/slog3.jpg`), true, 'the card image ships with the site')
+	const card = readFileSync(`${site}/img/og.png`), head = readFileSync(`${site}/index.html`, 'utf8')   // PNG's IHDR: width, height at bytes 16, 20
+	is([card.readUInt32BE(16), card.readUInt32BE(20)], ['width', 'height'].map(d => +head.match(new RegExp(`og:image:${d}" content="(\\d+)"`))[1]), 'the site card is the size its meta declares')
+	is(statSync(new URL('../web/img/og.png', import.meta.url)).mtimeMs >= statSync(new URL('../web/index.html', import.meta.url)).mtimeMs, true, 'the build re-renders the site card once the page it shows is newer')
 	is(map.includes('<image:loc>https://color-space.io/img/og/slog3.jpg</image:loc>'), true, 'sitemap lists the card image')
 	is(map.includes('<lastmod>'), true, 'sitemap carries lastmod dates')
 	is(readFileSync(`${site}/index.html`, 'utf8').includes('"@type":"Dataset"'), true, 'index carries the Dataset JSON-LD')

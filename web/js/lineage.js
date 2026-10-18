@@ -29,7 +29,7 @@ const WIDE = new Set(['rgb'])   // sRGB's flag faces CIELAB's across the middle:
 // the light: the print-and-paint family reflects it; the rest read @referred and @dynamic – scene-referred is the scene's
 // light, whatever its range; display-referred is an SDR or an HDR display's
 const PRINT = sections.find(c => c.key === 'cat.surface')
-const LIGHT = [() => secName(PRINT), () => 'SDR', () => 'HDR', () => tagL('scene-referred')]
+const LIGHT = [() => secName(PRINT), () => 'SDR', () => 'HDR', () => cap(tagL('scene-referred'))]
 const light = s => PRINT.spaces.includes(s) ? 0 : meta[s].referred === 'scene' ? 3 : meta[s].dynamic === 'hdr' ? 2 : 1
 const BANDS = SPACES.map((s, i) => ({ s, y: yearOf(s), i, z: meta[s].successor ? yearOf(meta[s].successor) : 0, k: light(s) }))
 	.sort((a, b) => a.y - b.y || a.i - b.i)
@@ -41,11 +41,11 @@ const DEC = []; for (let d = Math.ceil(Y0 / 10) * 10; d <= Y1; d += 10) DEC.push
 const YRS = [...new Set([Y0, ...DEC.filter(d => d % 50 === 0 && X(d) > 20 && X(d) < 980), Y1])]
 const near = y => y !== Y0 && y !== Y1 && (X(y) < 80 || X(y) > 920)   // a half-century this close to an end gives way on a narrow axis
 const span = b => b.z > b.y ? `${b.y}–${b.z}` : `${b.y}`   // a space replaced the year it appeared (CIE RGB) reads its year alone
-const said = b => `${disp(b.s)} · ${span(b)} · ${LIGHT[b.k]()}`
+const said = b => `${disp(b.s)}, ${span(b)}, ${LIGHT[b.k]()}`   // a band's name to a screen reader – the eye reads its flag
 // a milestone's flag: its years and name, and the first clause of what the lore says it was for – or, superseded, why
 const flag = b => { const e = ending(b.s), f = LORE[b.s]?.for
 	const w = e?.why || (f ? cap(t(`lore.${b.s}.for`, f).split(' – ')[0]) : '')   // a note is written as it reads – sRGB stays sRGB
-	return `<b><span class="tnum">${span(b)}</span> ${esc(disp(b.s))}</b><span class="hl-mw">${esc(w)}</span>` }
+	return `<b><span class="tnum">${span(b)}</span> ${esc(disp(b.s))}</b><span class="hl-mk">${esc(LIGHT[b.k]())}</span><span class="hl-mw">${esc(w)}</span>` }   // years and name, its light, what it was for
 
 /** The section's markup, in the page's language. */
 export function lineageHTML() {
@@ -56,14 +56,14 @@ export function lineageHTML() {
 		return { s, b, x: b.x / W * 100, end: b.x > W * .6 } })
 	MS.forEach((m, i) => { const a = MS[i - 1], z = MS[i + 1]
 		m.w = m.end ? (!a ? m.x : a.end ? m.x - a.x : (m.x - a.x) / 2) : (!z ? 100 - m.x : z.end ? (z.x - m.x) / 2 : z.x - m.x) })
-	// a band is a button named for its space; the one <title> (the tooltip) moves to the band picked. A band's shade is
+	// a band is a button named for its space – no tooltip: its flag over the chart says it. A band's shade is
 	// its light's, the same at every age – x already tells the age. The key: a swatch and a name per light, a toggle
 	return `<figure class="hl-fig" style="--hl-n:${LIGHT.length}" aria-label="${esc(t('ui.lineage.summary', '{n} color spaces as lines from the year each appeared, {from} to {to}. Arrow keys move between the spaces, Enter opens one.', { n: N, from: Y0, to: Y1 }))}">
 		<div class="hl-lead"><h2>${esc(t('ui.lineage.title', 'History'))}</h2></div>
 		<div class="hl-anns">${MS.map(m => `<button type="button" class="hl-ms${m.end ? ' end' : ''}${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--w:${m.w.toFixed(2)}">${flag(m.b)}</button>`).join('')}<span class="hl-ms hl-now" aria-hidden="true"></span></div>
 		<div class="hl-st"><svg class="hl-sv" viewBox="0 0 ${W} ${N}" preserveAspectRatio="none" style="--u:${N}" role="group">${BANDS.map(b => `<rect class="hl-b" x="${+b.x.toFixed(2)}" y="${b.row}" width="${+(b.e - b.x).toFixed(2)}" height="1" style="--k:${b.k}" data-s="${b.s}" role="button" tabindex="-1" aria-label="${esc(said(b))}"/>`).join('')}</svg>${MS.map(m => `<i class="hl-ld${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i><i class="hl-dm${WIDE.has(m.s) ? ' wide' : ''}" data-s="${m.s}" style="--x:${m.x.toFixed(2)};--y:${m.b.row}"></i>`).join('')}<i class="hl-ld hl-now"></i><i class="hl-dm hl-now"></i></div>
 		<div class="hl-ax" aria-hidden="true"><svg viewBox="0 0 ${W} 1" preserveAspectRatio="none"><path d="${DEC.map(d => `M${+X(d).toFixed(2)} 0V1`).join('')}"/></svg>${YRS.map((y, i) => `<span class="tnum${i ? i === YRS.length - 1 ? ' end' : near(y) ? ' near' : '' : ' start'}" style="--x:${(X(y) / W * 100).toFixed(2)}">${y}</span>`).join('')}</div>
-		<div class="hl-key">${LIGHT.map((l, k) => `<button type="button" class="hl-kd" data-k="${k}" aria-pressed="false" style="--k:${k}"><i></i>${esc(l())}</button>`).join('')}</div>
+		<div class="hl-key">${LIGHT.map((l, k) => `<button type="button" class="hl-kd" data-k="${k}" aria-pressed="false" style="--k:${k}"><i></i><span>${esc(l())}</span></button>`).join('')}</div>
 	</figure>` }
 
 /** Wire the rendered section: the pointer's band, the keyboard, a pick opening its dossier (open). Returns paint(c, h) –
@@ -76,12 +76,11 @@ export function wireLineage(el, open) {
 	const vis = b => only === null || b.k === only
 	const next = (list, i, d) => { for (let j = i + d; j >= 0 && j < list.length; j += d) if (vis(list[j])) return list[j] }   // the next band shown, skipping the hidden
 	tab.tabIndex = 0
-	const tip = document.createElementNS('http://www.w3.org/2000/svg', 'title')
 	const pick = b => { const e = b && els.get(b.s); if (e === cur) return
 		cur?.classList.remove('on'); cur = e
 		fig.classList.toggle('now', !!e)
-		if (!e) { tip.remove(); return }
-		e.classList.add('on'); tip.textContent = said(b); e.append(tip)
+		if (!e) return
+		e.classList.add('on')
 		const x = b.x / W * 100, end = b.x > W * .6
 		fl.innerHTML = flag(b); fl.classList.toggle('end', end); fl.style.cssText = `--x:${x.toFixed(2)};--w:${(end ? x : 100 - x).toFixed(2)}`
 		ld.style.cssText = dm.style.cssText = `--x:${x.toFixed(2)};--y:${b.row}` }

@@ -25,7 +25,7 @@
 // XYZ -> LMS (Hunt-Pointer-Estevez-like matrix) -> signed power 0.43 -> fixed
 // opponent matrix to I (lightness), a, b.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const sucs = { name: 'sucs', range: [[0, 100], [-50, 50], [-50, 50]] };
 

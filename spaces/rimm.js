@@ -25,7 +25,7 @@
 // Matrix = ProPhoto (ROMM) primaries, Bradford-adapted D50->D65. OETF clips at
 // E_clip = 2.0 (one stop above diffuse white), which encodes to ~0.713.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const rimm = { name: 'rimm', range: [[0, 1], [0, 1], [0, 1]] };
 

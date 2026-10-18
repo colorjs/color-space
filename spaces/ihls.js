@@ -31,7 +31,7 @@
 // RGB; here the input is gamma-encoded sRGB like the other HLS-family spaces, so Y is luma Y′
 // (§10 allows any amplitude measure that is a linear combination of R, G, B).
 import rgb from './rgb.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const ihls = { name: 'ihls', range: [[0, 360], [0, 1], [0, 1]] };
 

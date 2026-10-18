@@ -30,7 +30,7 @@
 // conditions XYZ_w=[256,264,202] → J≈100. Chaining from rgb maps a relative color into
 // this absolute frame, so the result is "ZCAM of a dim sample".
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const zcam = { name: 'zcam', range: [[0, 100], [0, 100], [0, 360]] };
 

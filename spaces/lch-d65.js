@@ -21,7 +21,7 @@
  * @dynamic sdr
  */
 import labD65 from './lab-d65.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 const lchD65 = {
 	name: 'lch-d65',

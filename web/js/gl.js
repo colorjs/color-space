@@ -12,7 +12,8 @@
 // fallback; numeric and palette lenses run here too. Measured-dataset spaces (munsell)
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
-import { physBound, space, meta, pathToRgb, classify, locus, LOCUS_EPS, d65, visSolid } from './core.js'
+import { physBound, dirOnly, rtFaithful, space, meta, pathToRgb, classify, locus, LOCUS_EPS, d65, visSolid } from './core.js'
+export { rtFaithful }
 import NAMES from './names.js'
 import * as PALS from './palettes.js'
 import { deltaE2000 } from './measure.js'
@@ -122,38 +123,6 @@ const QMAX = 4, compileQ = []
 let compiling = 0
 const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift()() }
 
-// The canonical-roundtrip lens presumes a faithful inverse: space→rgb→clamp→space
-// must return the coordinate it left for every REAL (in-gamut) address. Folds fail
-// it DEEP — hwb's w+b>100 collapse, hsm's mirror land 20–50% of span away — and
-// deserve the ghost. But a space whose inverse is only approximate (coloroid's
-// inconsistent hue table, oklch's achromatic hue) fails SHALLOW, a few % past the
-// 3% law, and there the lens measures imprecision, not aliasing: at f32 the
-// boundary flickers pixel-to-pixel into salt-noise dots over real colors. Probed
-// here once per space in f64 over an off-lattice grid: failures with a shallow
-// median (< 15% of span) mean no folds to catch — the lens is omitted.
-const rtFaith = new Map()
-export function rtFaithful(s) {
-	if (rtFaith.has(s)) return rtFaith.get(s)
-	let ok = true
-	try {
-		const ch = space[s].range, d = ch.length, spans = ch.map(([a, b]) => b - a)
-		const errs = [], N = 9
-		for (let n = 0; n < N ** d; n++) {
-			let m = n; const v = ch.map((r, k) => { const t = ((m % N) + 0.37) / N; m = Math.floor(m / N); return r[0] + spans[k] * t })
-			let rgb; try { rgb = space[s].rgb(...v) } catch { continue }
-			if (!rgb.every(u => u >= -0.5 && u <= 255.5)) continue
-			let bk; try { bk = space.rgb[s](...rgb.map(u => u < 0 ? 0 : u > 255 ? 255 : u)) } catch { continue }
-			if (!bk.every(isFinite)) { errs.push(1); continue }
-			const e = Math.max(...bk.map((b, k) => { let dd = Math.abs(b - v[k]); if (ch[k][1] === 360) dd = Math.min(dd, 360 - dd); return dd / spans[k] }))
-			if (e > 0.03) errs.push(e)
-		}
-		errs.sort((a, b) => a - b)
-		ok = !errs.length || errs[Math.floor((errs.length - 1) / 2)] >= 0.15
-	} catch { ok = true }
-	rtFaith.set(s, ok)
-	return ok
-}
-
 // A round trip that misses on channel k is a fold only where k carries the color. At a pole – HSL's black and white,
 // any gray's hue – the channel is free: the address with k set back to its canonical value is the same color, so
 // every value of k is a real address of it, and the pole paints solid (a whole held slice at L = 0 is black, not a
@@ -187,7 +156,7 @@ function planeFS(s) {
 	const rt = !faithful ? '' : `
 		else {
 			${vt} bk;
-			${meta[s]?.method === 'chromaticity' ? `// a chromaticity space discards luminance: its Y=100 convention overflows every
+			${dirOnly(s) ? `// a chromaticity space discards luminance: its Y=100 convention overflows every
 			// display encoding, so the clamp below would MOVE every value and ghost the whole
 			// instrument — normalise the direction to peak first, then the round trip is fair
 			if (uGam == 1) { vec3 c0 = ${san(s)}_rgb(v); c0 *= 255.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = rgb_${san(s)}(clamp(c0, 0.0, 255.0)); }
@@ -316,7 +285,7 @@ void main() {
 	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
 	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
 	vec3 lS = xyz_lrgb(xyz), lP = xyz_p3linear(xyz), lR = xyz_rec2020linear(xyz);   // the edges' gamuts, read alike
-	${meta[s]?.method === 'chromaticity' ? `// a CHROMATICITY space discards luminance — the honest gamut question is whether the
+	${dirOnly(s) ? `// a CHROMATICITY space discards luminance — the honest gamut question is whether the
 	// DIRECTION is displayable at any luminance: scale to peak (display lenses) and to the
 	// solid's mid-height (human lens) before the cuts, or the fixed Y=100 convention ghosts
 	// nearly the whole instrument (cct-duv read as broken)

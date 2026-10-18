@@ -21,7 +21,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const srlab2 = { name: 'srlab2', range: [[0, 100], [-125, 125], [-125, 125]] };
 

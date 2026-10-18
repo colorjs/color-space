@@ -16,6 +16,7 @@ import { clut, colorants, kind, profile } from 'color-space/icc'
 import gamut, { gamut as namedGamut } from 'color-space/gamuts.js'
 import whitepoint, { whitepoint as namedWhitepoint } from 'color-space/whitepoints.js'
 import { cartToPolar, inv3, mat3, polarToCart, spow } from 'color-space/util.js'
+import { parse, format, mix, gamut as tightest, visible, deltaE, contrast, cvd } from 'color-space/util'
 import { linearToSrgb, srgbToLinear } from 'color-space/transfers.js'
 import { labF, labFInv, ε, ε3, κ } from 'color-space/cie.js'
 import { createHub, registerSpace, validate, wire } from 'color-space/hub.js'
@@ -86,6 +87,8 @@ console.log(
 	tab, stats, cubeText, profileBytes, profileKind, lut, cols,
 	gamut, namedGamut, whitepoint, namedWhitepoint,
 	mat3([1, 0, 0, 0, 1, 0, 0, 0, 1], 1, 2, 3), inv3([1, 0, 0, 0, 1, 0, 0, 0, 1]),
+	parse('#ff8000')?.values, format('oklch', [0.7, 0.1, 50]), mix('oklch', [0.5, 0.1, 350], [0.7, 0.1, 10], 0.5, 'longer'), tightest('rgb', [255, 0, 0]), visible('rgb', [1, 2, 3]),
+	deltaE('rgb', [255, 0, 0], [250, 0, 0], 'ok'), contrast('rgb', [255, 255, 255], [0, 0, 0]), cvd('rgb', [255, 0, 0], 'protan'),
 	spow(-2, 3), cartToPolar(1, 2, 3), polarToCart(1, 2, 30),
 	srgbToLinear(0.5), linearToSrgb(0.5), labF(0.5), labFInv(0.5), ε, ε3, κ,
 )

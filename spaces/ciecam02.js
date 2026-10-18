@@ -30,7 +30,7 @@
 // (XYZ [95.05, 100, 108.88]), La = 318.31 cd/m², Yb = 20, average surround — matching
 // the CIECAM02 reference implementation.
 import xyz from './xyz.js';
-import { spow } from '../util.js';
+import { spow } from '../math.js';
 
 const mv = (m, v) => [
 	m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],

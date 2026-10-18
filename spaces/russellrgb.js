@@ -31,7 +31,7 @@
 // M = Bradford(white -> D65, xyz.js bradfordAdaptation) x normalized primary matrix (SMPTE RP
 // 177), as dci-p3.js adapts DCI white; MI = inv3(M).
 import xyz, { bradfordAdaptation } from './xyz.js';
-import { mat3, mul3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
 
 const russellrgb = { name: 'russellrgb', range: [[0, 1], [0, 1], [0, 1]] };

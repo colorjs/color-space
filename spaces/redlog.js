@@ -23,7 +23,7 @@
 // Implementation notes:
 // 10-bit log curve. Black offset 10^(−1023/511). 18% grey → 0.6376.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const redlog = { name: 'redlog', range: [[0, 1], [0, 1], [0, 1]] };
 

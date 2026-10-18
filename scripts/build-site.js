@@ -95,10 +95,10 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	if (!existsSync(join(i18n, 'en.json')) || readFileSync(join(i18n, 'en.json'), 'utf8') !== await catalog())
 		throw new Error(`build-site: ${join(i18n, 'en.json')} is stale — the English changed; run: npm run i18n`)
 	const lang = plan(i18n, SPACES)
-	// social cards first — they render into web/img/og (gitignored cache; only
-	// missing/stale cards bake) so the cpSync below ships them with the rest
-	const { spaceCards } = await import('./generate-og.js')
-	await spaceCards()
+	// social cards first — the site's (web/img/og.png) and the spaces' (web/img/og, gitignored
+	// cache); only missing/stale cards bake, so the cpSync below ships them with the rest
+	const { siteCard, spaceCards } = await import('./generate-og.js')
+	await siteCard(); await spaceCards()
 	rmSync(out, { recursive: true, force: true })
 	mkdirSync(out, { recursive: true })
 	// sources: the web/ tree verbatim (index.html template, tokens.css, js/, img/, 404)

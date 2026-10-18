@@ -33,7 +33,7 @@
 // M = Bradford(DCI -> D65 white, xyz.js bradfordAdaptation) x normalized primary matrix
 // (SMPTE RP 177), the construction dci-p3.js uses; MI = inv3(M).
 import xyz, { bradfordAdaptation } from './xyz.js';
-import { mat3, mul3, inv3 } from '../util.js';
+import { mat3, mul3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
 
 const dciP3Plus = { name: 'dci-p3-plus', range: [[0, 1], [0, 1], [0, 1]] };

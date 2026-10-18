@@ -25,7 +25,7 @@
 // Implementation notes:
 // v1.2 constants. ÷0.9 reflection convention. 18% grey → 0.3434.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const clog = { name: 'clog', range: [[0, 1], [0, 1], [0, 1]] };
 

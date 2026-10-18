@@ -23,7 +23,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
 
 const appleRgb = { name: 'apple-rgb', range: [[0, 1], [0, 1], [0, 1]] };

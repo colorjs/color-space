@@ -9,6 +9,6 @@ The plugin adds two things:
 
 ## What it runs
 
-The server runs locally over stdio: Claude Code starts it with npx, which downloads the pinned npm package `color-space@3.3.0` (zero dependencies, public domain) once. After that it needs no network, no API key and no configuration. It reads no files, stores nothing and sends no data anywhere: every tool is pure computation on the values you pass.
+The server runs locally over stdio: Claude Code starts it with npx, which downloads the pinned npm package `color-space@3.4.0` (zero dependencies, public domain) once. After that it needs no network, no API key and no configuration. It reads no files, stores nothing and sends no data anywhere: every tool is pure computation on the values you pass.
 
 Library, CLI and catalog: https://github.com/colorjs/color-space · https://color-space.io

@@ -40,7 +40,7 @@
 // the near-black plane gaps the LM basin used to void. Machine-exact for J ≥ 1; below
 // that the preimage is degenerate and the fixed point returns a bounded near-black value.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const hunt = { name: 'hunt', range: [[0, 100], [0, 120], [0, 360]] };
 

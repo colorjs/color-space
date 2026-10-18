@@ -28,7 +28,7 @@
 // Primaries are monochromatic lines at 700 / 546.1 / 435.8 nm. Matrix derived via
 // the Lindbloom method, Bradford-adapted from illuminant E to D65.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const cieRgb = { name: 'cie-rgb', range: [[0, 1], [0, 1], [0, 1]] };
 

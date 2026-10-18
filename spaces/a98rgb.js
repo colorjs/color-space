@@ -23,7 +23,7 @@
  */
 import a98Linear from './a98rgb-linear.js';
 import xyz from './xyz.js';
-import { spow } from '../util.js';
+import { spow } from '../math.js';
 
 const a98rgb = {
 	name: 'a98rgb',

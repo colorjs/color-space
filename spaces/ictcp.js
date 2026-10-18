@@ -20,7 +20,7 @@
  * @dynamic hdr
  */
 import xyz from './xyz.js';
-import { mat3 } from '../util.js';
+import { mat3 } from '../math.js';
 import { pqST2084Encode, pqST2084Decode } from '../transfers.js';
 
 const ictcp = {

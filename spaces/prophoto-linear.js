@@ -22,7 +22,7 @@
  * @dynamic sdr
  */
 import xyz, { bradford } from './xyz.js';
-import { mat3 } from '../util.js';
+import { mat3 } from '../math.js';
 
 const prophotoLinear = {
 	name: 'prophoto-linear',

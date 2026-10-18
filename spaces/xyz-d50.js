@@ -20,7 +20,7 @@
  * @dynamic sdr
  */
 import xyz, { bradford } from './xyz.js';
-import { mat3 } from '../util.js';
+import { mat3 } from '../math.js';
 
 const xyzD50 = {
 	name: 'xyz-d50',

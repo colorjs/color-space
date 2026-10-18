@@ -33,7 +33,7 @@
 // Year given is the patent priority date (2015-04-22). Profile 5 streams also carry per-scene
 // reshaping in the RPU; this is the plain ST 2128 representation without it.
 import rec2020Linear from './rec2020-linear.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { pqST2084Encode, pqST2084Decode } from '../transfers.js';
 
 const iptpqc2 = { name: 'iptpqc2', range: [[0, 1], [-0.5, 0.5], [-0.5, 0.5]] };

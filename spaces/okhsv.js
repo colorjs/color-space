@@ -25,7 +25,7 @@
 
 import oklab from './oklab.js';
 import rgb from './rgb.js';
-import { spow } from '../util.js';
+import { spow } from '../math.js';
 import {
 	tau,
 	toe,

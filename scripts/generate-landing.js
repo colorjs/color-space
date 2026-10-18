@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { catHTML, sections, SPACES, DEFAULT, LIMIT, fpOf, disp } from '../web/js/render.js'
 import { LI } from '../web/js/icons.js'
+import { heroLocus } from '../web/js/locus.js'
 import { meta, spaceCount, LUTOK, rgbOf, hex } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
 import { t, use } from '../web/js/i18n.js'
@@ -102,6 +103,8 @@ html = counts(html)   // Usage's facts (data-fact)
 // the current-color rhombus + value carry the DEFAULT color from the first frame —
 // an unvalued <input type=color> paints BLACK until the module lands
 const dhx = hex(rgbOf(DEFAULT.s, DEFAULT.vals))
+// the hero's locus drawn into the page: its outlines at the first paint, before any script (the page adopts it, js)
+inject(/(<div class="hfield" id="hq">[\s\S]*?\n\t\t<\/div>\n)(\t<\/div>\n<\/section>)/, (m, a, b) => `${a}\t\t${heroLocus('color-space home', 'Surface', 'Light')}\n${b}`)
 inject(/(<input type="color" class="cd" id="cd")/, `$1 value="${dhx.toLowerCase()}"`)
 inject(/(<textarea id="cval")/, `$1 placeholder="${dhx}"`)   // the boot gray as the field's hint, as the page will show it – never a value the script then empties
 // the row's marks from their one source (icons.js), so the stripe is whole before the module lands: the view's mark is

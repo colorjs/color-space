@@ -29,7 +29,7 @@
 // CreativePro, 2000-06-20 ("This month BruceRGB celebrates its second birthday").
 // M = normalized primary matrix (SMPTE RP 177), MI = inv3(M).
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
 
 const brucergb = { name: 'brucergb', range: [[0, 1], [0, 1], [0, 1]] };

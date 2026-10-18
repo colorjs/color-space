@@ -25,7 +25,7 @@
 // Implementation notes:
 // OETF is a 0.45-power curve with a linear toe near black.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 import { smpte240mEncode as enc, smpte240mDecode as dec } from '../transfers.js';
 
 const smpte240m = { name: 'smpte-240m', range: [[0, 1], [0, 1], [0, 1]] };

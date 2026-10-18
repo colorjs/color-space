@@ -22,7 +22,7 @@
  * @dynamic hdr
  */
 import acescg from './acescg.js';
-import { mat3 } from '../util.js';
+import { mat3 } from '../math.js';
 
 const aces2065 = {
 	name: 'aces2065-1',

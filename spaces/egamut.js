@@ -27,7 +27,7 @@
 // MI = inv3(M). The single owner of this matrix: tlog.js composes its curve with these
 // edges. E-Gamut 2 (FilmLight's later, wider gamut) is not used by any curve here.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const egamut = {
 	name: 'egamut',

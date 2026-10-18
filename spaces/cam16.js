@@ -25,7 +25,7 @@
  * @dynamic sdr
  */
 import xyz from './xyz.js';
-import { mat3, spow } from '../util.js';
+import { mat3, spow } from '../math.js';
 
 /* Utilities */
 const copySign = (a, b) => Math.sign(b) * Math.abs(a);

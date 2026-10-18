@@ -47,6 +47,20 @@ export function locusNames(P, surface, light) {
 		+ edge(SURF[t - 1], SURF[t - 2], .3, surface) + edge(at(510), at(500), .5, light)
 }
 
+/** The xy plate's mapping (gamutPos's, gamGrid's): xy → its 320 × 352 units, v down. */
+export const GXY = ([x, y]) => [(x + 0.107) / 0.857 * 320, (1 - (y + 0.055) / 0.955) * 352]
+/** A Limit's outline over `P`: a display's triangle, Surface's region, the horseshoe's own. */
+export const limPath = (g, P) => g === 'vis' ? surfacePath(P) : g === 'locus' ? locusPath(P) : gamutPath(g === 'srgb' ? 'rgb' : g, P)
+export const HERO_LIMS = ['srgb', 'p3', 'rec2020', 'vis', 'locus']   // narrowest first
+/** The hero's locus: its outlines and names, the checker and the fill's places (painted later) – one markup for the
+ *  build's first paint and the page's own (`home`, `surface`, `light`: its label and two names, markup-safe). */
+export const heroLocus = (home, surface, light) => {
+	const img = c => `<image class="${c}" width="320" height="352"${c === 'lim' ? ' clip-path="url(#hl-lim)"' : ''}/>`
+	return `<a class="hlocus" href="./" aria-label="${home}" data-i18n="aria-label:ui.hero.home"><svg aria-hidden="true" viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="${locusPath(GXY)}"/>${img('all')}${img('lim')}<g class="lims">${heroNames(surface, light)}</g></svg><i class="cx" aria-hidden="true"></i></a>`
+}
+/** …its outlines and their names alone (the names in the page's language). */
+export const heroNames = (surface, light) => HERO_LIMS.map(g => `<path data-g="${g}" d="${limPath(g, GXY)}"/>`).join('') + locusNames(GXY, surface, light)
+
 /** The horseshoe filled – each chromaticity in its own color, at sRGB's full saturation (clipped: the display shows what it
  *  can), nothing past the locus – as a PNG for an `<image>`, `w` × `h` pixels over the plate's `P` mapping inverted by `Q`. */
 export function locusFill(Q, w, h) {

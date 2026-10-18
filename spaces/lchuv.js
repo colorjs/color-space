@@ -23,7 +23,7 @@
  */
 import luv from './luv.js';
 import xyz from './xyz.js';
-import { cartToPolar, polarToCart } from '../util.js';
+import { cartToPolar, polarToCart } from '../math.js';
 
 // cylindrical luv
 var lchuv = {

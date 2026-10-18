@@ -30,7 +30,7 @@
 // v/(200+|v|) response — is per-channel monotone or linear, hence analytically
 // invertible. Output is the stage-2 final responses (A₂, T₂, D₂).
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const atd95 = { name: 'atd95', range: [[0, 0.05], [-0.01, 0.08], [-0.03, 0.06]] };
 

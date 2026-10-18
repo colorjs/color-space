@@ -32,7 +32,7 @@
 // RGB_COLOURSPACES['ARRI Wide Gamut 3'] carries – the two agree to 5e-7. MI = inv3(M).
 // The single owner of this matrix: logc3.js composes its curve with these edges.
 import xyz from './xyz.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const awg3 = {
 	name: 'awg3',

@@ -27,7 +27,7 @@
 // equals colour-science 0.4.7 RGB_COLOURSPACES['F-Gamut C'].matrix_RGB_to_XYZ.
 import xyz from './xyz.js';
 import { enc, dec } from './flog2.js';
-import { mat3, inv3 } from '../util.js';
+import { mat3, inv3 } from '../math.js';
 
 const flog2c = { name: 'flog2c', range: [[0, 1], [0, 1], [0, 1]] };
 
