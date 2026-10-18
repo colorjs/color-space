@@ -79,11 +79,19 @@ Do not translate this as all such coordinates producing one identical gray.
 
 - Quotation marks: pt “ ”, es « », tr “ ”, ru « » (inner „ “). Never a straight double quote – it would end an HTML attribute.
 - Numbers keep the English decimal point (0.18, 2.4): they are read beside code and notations that need it.
+- The clause dash is each language's own, never the English em dash copied over:
+  es – the raya in pairs, attached to the aside («Emilio —un gran amigo— vino»), the closing one kept before
+  a full stop ([RAE, DPD «raya»](https://www.rae.es/dpd/raya)); a single explanatory dash becomes a colon,
+  semicolon or comma, since Spanish has none. pt – the travessão, spaced (— ); the meia-risca never replaces
+  it ([Manual de Comunicação do Senado](https://www12.senado.leg.br/manualdecomunicacao/estilos/travessao)).
+  zh-Hans, ja – the double dash ——, unspaced ([GB/T 15834-2011](https://www.w3.org/zh-hans/news/2013/translation-of-gb-t-15834-2011-part-5/),
+  [JLREQ](https://www.w3.org/TR/jlreq/)). ru, de, fr, it, tr, ar, hi, ko – the spaced en dash (–). Ranges and
+  compounds keep the unspaced en dash everywhere (1931–1976, 0–1).
 - Names stay as they are: space names (OKLCH, CIELAB, S-Log3), standards (ITU-R BT.709, SMPTE ST 2084),
   people, companies, products, file formats (.cube, .icc), code and color notations (oklch(0.7 0.1 50)).
 - Interface labels in sentence case; Turkish suffixes on names and abbreviations take the typographic
   apostrophe (sRGB’de, OKLCH’nin), and capitals follow Turkish (i → İ).
-- ru: ё where it belongs (трёх-, ещё); every dash is the English's en dash (–), never —; names of spaces
+- ru: ё where it belongs (трёх-, ещё); every dash is the en dash (–), never —; names of spaces
   decline only through a generic word (в пространстве OKLCH, not в OKLCH-е); «вы» lowercase; interface labels short, imperative or nominal (Найти, Скачать).
 - es is neutral Spanish for Spain and Latin America alike; where usage splits (etalonaje / corrección de
   color), the first term above is the one used.

@@ -50,6 +50,21 @@ test('i18n — markup units: the English document is the source minus its marker
 	ok(apply('<pre><i data-i18n="k">// one –\n// two</i></pre>', { k: '// uno – // dos' }).includes('<i>// uno –\n// dos</i>'), 'a comment that wraps in the source wraps in the translation, at its own //')
 })
 
+// GLOSSARY.md "Conventions": the clause dash is each language's own – the English em dash never copied over
+test('i18n — each language writes its own clause dash, and the history cuts a note at it', async () => {
+	const { CLAUSE } = await import('../web/js/lineage.js')
+	const ENDASH = ['ar', 'de', 'fr', 'hi', 'it', 'ko', 'ru', 'tr']
+	const wrong = { es: /\s[–—]\s/, pt: /\s–\s/, ja: /\s[–—]\s|(?<!—)—(?!—)/, 'zh-Hans': /\s[–—]\s|(?<!—)—(?!—)/, ...Object.fromEntries(ENDASH.map((c) => [c, /—/])) }
+	for (const [code, rx] of Object.entries(wrong)) {
+		const file = JSON.parse(readFileSync(join(DIR, `${code}.json`), 'utf8'))
+		is(Object.keys(file).filter((k) => k !== '@meta' && rx.test(file[k].t)), [], `${code}: no foreign clause dash`)
+	}
+	const first = (s) => s.split(CLAUSE)[0]
+	is(['for print – the D50 white', 'para impresión —el blanco D50—', 'para impressão — o branco D50', '用于印刷——D50 白', '印刷用——D50の白'].map(first),
+		['for print', 'para impresión', 'para impressão', '用于印刷', '印刷用'], 'the clause dash of en, es, pt, zh-Hans and ja ends the first clause')
+	is(['1931–1976', 'red–green axis', 'no dash at all', ''].map(first), ['1931–1976', 'red–green axis', 'no dash at all', ''], 'a range, a compound and a dashless note stay whole')
+})
+
 test('i18n — the gate: a translated language ships and survives English drift; review only adds search', () => {
 	const drop = (k) => (f) => { delete f[k]; return f }, stale = (k) => (f) => { f[k].h = '00000000'; return f }
 	const pages = (f) => status(en, f, SPACES).pages

@@ -42,9 +42,11 @@ const YRS = [...new Set([Y0, ...DEC.filter(d => d % 50 === 0 && X(d) > 20 && X(d
 const near = y => y !== Y0 && y !== Y1 && (X(y) < 80 || X(y) > 920)   // a half-century this close to an end gives way on a narrow axis
 const span = b => b.z > b.y ? `${b.y}–${b.z}` : `${b.y}`   // a space replaced the year it appeared (CIE RGB) reads its year alone
 const said = b => `${disp(b.s)}, ${span(b)}, ${LIGHT[b.k]()}`   // a band's name to a screen reader – the eye reads its flag
-// a milestone's flag: its years and name, and the first clause of what the lore says it was for – or, superseded, why
+// a milestone's flag: its years and name, and the first clause of what the lore says it was for – or, superseded, why.
+// The clause ends at the language's own dash (GLOSSARY.md): the spaced en or em dash, the opening raya, the double dash
+export const CLAUSE = /\s[–—]\s|\s—(?=\S)|——/
 const flag = b => { const e = ending(b.s), f = LORE[b.s]?.for
-	const w = e?.why || (f ? cap(t(`lore.${b.s}.for`, f).split(' – ')[0]) : '')   // a note is written as it reads – sRGB stays sRGB
+	const w = e?.why || (f ? cap(t(`lore.${b.s}.for`, f).split(CLAUSE)[0]) : '')   // a note is written as it reads – sRGB stays sRGB
 	return `<b><span class="tnum">${span(b)}</span> ${esc(disp(b.s))}</b><span class="hl-mk">${esc(LIGHT[b.k]())}</span><span class="hl-mw">${esc(w)}</span>` }   // years and name, its light, what it was for
 
 /** The section's markup, in the page's language. */
