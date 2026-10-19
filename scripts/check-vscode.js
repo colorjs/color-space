@@ -77,7 +77,7 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 		() => `lch(${r(0, 100, 2)}% ${pick([`${r(0, 150, 2)}`, `${r(0, 100, 1)}%`])} ${hue()}${alpha()})`,
 		() => `oklab(${pick([`${r(0, 1, 4)}`, `${r(0, 100, 2)}%`])} ${pick([`${r(-0.4, 0.4, 4)}`, `${r(-100, 100, 1)}%`])} ${r(-0.4, 0.4, 4)}${alpha()})`,
 		() => `oklch(${pick([`${r(0, 1, 4)}`, `${r(0, 100, 2)}%`])} ${pick([`${r(0, 0.4, 4)}`, `${r(0, 100, 1)}%`])} ${hue()}${alpha()})`,
-		() => `color(${pick(['srgb', 'srgb-linear', 'display-p3', 'a98-rgb', 'prophoto-rgb'])} ${r(0, 1, 4)} ${pick([`${r(0, 1, 4)}`, `${r(0, 100, 1)}%`])} ${r(0, 1, 4)}${alpha()})`,
+		() => `color(${pick(['srgb', 'srgb-linear', 'display-p3', 'a98-rgb', 'prophoto-rgb', 'rec2020'])} ${r(0, 1, 4)} ${pick([`${r(0, 1, 4)}`, `${r(0, 100, 1)}%`])} ${r(0, 1, 4)}${alpha()})`,
 		() => `color(${pick(['xyz', 'xyz-d65', 'xyz-d50'])} ${r(0, 0.95, 4)} ${r(0, 1, 4)} ${r(0, 0.82, 4)}${alpha()})`,
 	]
 	const corpus = [...Object.keys(NAMES), 'transparent', 'RebeccaPurple', 'RGB(10 20 30)', 'OKLCH(0.5 0.1 200)']
@@ -87,6 +87,8 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 		const l = one(s)
 		if (!l) { missed.push(s); continue }
 		let ref; try { ref = new Color(s) } catch (e) { missed.push(`${s} (colorjs.io: ${e.message})`); continue }
+		// colorjs.io 0.5 still decodes color(rec2020 …) with the BT.2020 OETF; CSS Color 4 now gives it a pure 2.4 gamma
+		if (ref.space.id === 'rec2020') ref = new Color('rec2020-linear', ref.coords.map(v => Math.sign(v) * Math.abs(v) ** 2.4), ref.alpha)
 		const d = deltaEOK(oklabOf(l), ref.to('oklab').coords.map(v => +v || 0))
 		if (d > worst) { worst = d; bad = s }
 		if (Math.abs(l.alpha - +ref.alpha) > 1e-9) alphaBad.push(`${s}: ${l.alpha} vs ${+ref.alpha}`)
@@ -133,10 +135,12 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 	ok(v('hsl(120 50 25 / 0.5)') === v('hsl(120 50% 25% / 0.5)') && v('hwb(30 10 20)') === v('hwb(30 10% 20%)'), `modern hsl()/hwb() take numbers: ${v('hsl(120 50 25 / 0.5)')} · ${v('hwb(30 10 20)')}`)
 	// `none` is a missing component, 0 for conversion (#missing)
 	ok(v('oklch(0.5 none none)') === '0.5 0 0 1' && v('rgb(none 128 0 / none)') === '0 128 0 0', `none reads as 0: ${v('oklch(0.5 none none)')} · ${v('rgb(none 128 0 / none)')}`)
+	// color(rec2020 …) is CSS's 2.4-gamma rec2020: the library's rec2020-display, not its BT.2020-OETF rec2020
+	ok(one('color(rec2020 1 0.5 0)')?.space === 'rec2020-display' && v('color(rec2020 1 0.5 0)') === '1 0.5 0 1', `color(rec2020 …) reads as rec2020-display: ${one('color(rec2020 1 0.5 0)')?.space} ${v('color(rec2020 1 0.5 0)')}`)
 	// not literals: the forms CSS rejects (#rgb-functions: legacy syntax takes no `none`, no mixed numbers and
 	// percentages, no mixed commas and spaces; #the-hsl-notation: legacy hsl() takes percentages), what only a browser can
-	// resolve (var(), calc(), relative `from`), and color(rec2020 …), whose transfer this library doesn't share (css.js)
-	const NOT = ['rgb(1, 2 3)', 'rgb(1, none, 3)', 'rgb(10%, 20, 30)', 'hsl(10, 20, 30)', 'rgb(var(--x))', 'rgb(calc(1) 2 3)', 'oklch(from #f00 l c h)', 'color(rec2020 1 0 0)', 'hwb(1, 2%, 3%)', 'lab(1 2)', 'oklch(0.5 0.1 40deg 1)', 'rgb(1 2 3 /)', 'color(display-p3 1 0 0deg)', 'oklch(0.5 0.1deg 40)']
+	// resolve (var(), calc(), relative `from`)
+	const NOT = ['rgb(1, 2 3)', 'rgb(1, none, 3)', 'rgb(10%, 20, 30)', 'hsl(10, 20, 30)', 'rgb(var(--x))', 'rgb(calc(1) 2 3)', 'oklch(from #f00 l c h)', 'hwb(1, 2%, 3%)', 'lab(1 2)', 'oklch(0.5 0.1 40deg 1)', 'rgb(1 2 3 /)', 'color(display-p3 1 0 0deg)', 'oklch(0.5 0.1deg 40)']
 	const found = NOT.filter(s => scan(s).some(l => l.text === s))
 	ok(!found.length, `invalid or unresolvable forms are not literals: ${found.join(' | ')}`)
 	// the smallest forms and the empty ones: #rgb and a bare rgb() are literals; nothing, an empty function, a lone # are not
@@ -164,7 +168,7 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 	ok(g.length === 3 && stopsOf(0).length === 3 && stopsOf(1).length === 2 && stopsOf(2).length === 2, `three gradients, their stops: ${g.map((_, k) => stopsOf(k).length)}`)
 	ok(JSON.stringify(mixOf(g[0], stopsOf(0))) === '{"space":"oklch","hue":"longer"}', `in oklch longer hue: ${JSON.stringify(mixOf(g[0], stopsOf(0)))}`)
 	ok(JSON.stringify(mixOf(g[1], stopsOf(1))) === '{"space":"rgb","hue":"shorter"}', `legacy colors only: sRGB: ${JSON.stringify(mixOf(g[1], stopsOf(1)))}`)
-	ok(mixOf(g[2], stopsOf(2)) === null, 'in rec2020: no mix the library can draw')
+	ok(JSON.stringify(mixOf(g[2], stopsOf(2))) === '{"space":"rec2020-display","hue":"shorter"}', `in rec2020: CSS's 2.4-gamma rec2020: ${JSON.stringify(mixOf(g[2], stopsOf(2)))}`)
 	ok(JSON.stringify(mixOf({ in: null, hue: 'shorter' }, [one('#f00'), one('oklch(0.5 0.1 40)')])) === '{"space":"oklab","hue":"shorter"}', 'a modern color among them: Oklab')
 	ok(nameAt(text, stopsOf(0)[2].start) === 'background' && nameAt(text, stopsOf(0)[0].start) === 'background', 'a stop on its own line is named by its declaration, as one on the gradient\'s line')
 	const multi = 'a {\n  background:\n    url(x.png),\n    linear-gradient(#fff, #000);\n}', after = 'a { color: red; }\n#fff'
@@ -520,13 +524,13 @@ try {
 		// gradients: their stops, named by the gradient's property, mixed in its space
 		const stops = s.sel().at(-1).paints.filter(p => p.id === s.sel().at(-1).paints.find(q => q.stop === 2)?.id)
 		ok(stops.length === 3 && stops.every(p => p.name === 'background' && p.index === 3 && JSON.stringify(p.mix) === '{"space":"oklab","hue":"shorter"}'), `the multi-line gradient: 3 stops on line 4, in oklab: ${JSON.stringify(stops.map(p => [p.name, p.index, p.stop, p.mix]))}`)
-		ok(s.sel().at(-1).paints.filter(p => p.mix === null).length === 2, 'the rec2020 gradient: stops, but no line')
+		ok(s.sel().at(-1).paints.filter(p => p.mix?.space === 'rec2020-display').length === 2, 'the rec2020 gradient: its stops mixed in rec2020-display')
 		await moveTo(s, 3, 55)
 		await useSpace(s.page, 'oklab')
 		const lines = await polylines(s.page)
 		// on OKLab's a × b plane a gradient mixed in OKLab runs straight between its stops; one mixed in sRGB bends
 		const runs = lines.map(pts => [pts.slice(0, 25), pts.slice(24)])
-		ok(lines.length === 2, `two gradients drawn (rec2020's not): ${lines.length}`)
+		ok(lines.length === 3, `three gradients drawn, rec2020's too: ${lines.length}`)
 		const [okRun, srgbRun] = lines.map(pts => bow(pts.slice(0, 25)))
 		ok(okRun < 0.3, `the oklab gradient is straight on the a × b plane: strays ${okRun.toFixed(2)}%`)
 		ok(srgbRun > 2, `the sRGB one bends: strays ${srgbRun.toFixed(2)}%`)

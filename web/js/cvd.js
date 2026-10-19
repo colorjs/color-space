@@ -38,7 +38,7 @@ export const BRETTEL_TRITAN = {
 
 const MACHADO_CITE = 'Machado, Oliveira & Fernandes 2009, severity 1.0, doi:10.1109/TVCG.2009.113'
 export const LENSES = [
-	{ id: 'none', label: 'Typical vision' },
+	{ id: 'none', label: 'Typical' },
 	{ id: 'protan', label: 'Protanopia', cite: MACHADO_CITE },
 	{ id: 'deutan', label: 'Deuteranopia', cite: MACHADO_CITE },
 	{ id: 'tritan', label: 'Tritanopia', cite: 'Brettel, Viénot & Mollon 1997, doi:10.1364/JOSAA.14.002647' },

@@ -33,6 +33,12 @@ named by its BCP 47 tag: `pt.json`, `es.json`, `zh-Hans.json`.
 
 ## Translation quality
 
+The register: short, scientific, open – the serious, exact language of the field, written to be
+understood, as a good popular-science or university text in that language reads. Accessible and
+educative; never dry officialese, never chatty or flippant. Short by cutting words, not by going
+colloquial. A reference work keeps its native name for one (Справочник, Referenz, リファレンス),
+whatever shorter word the English uses.
+
 Translate the action or explanation, not the English sentence structure. Read interface text
 in place: an image button loads an image, a search hint shows matching spaces, and a table can
 be sorted by column. English shorthand such as “test-pinned”, “the field growing”, or “a model
@@ -43,6 +49,18 @@ conventional technical terminology and the language's own sentence structure. Do
 over English marketing formulas or personification: “ready for” can become a statement of
 support, “a space that keeps its promises” should explain which quantities it preserves, and
 “the average CRT, standardized” describes standardized display characteristics.
+
+Keep labels to a few words where the meaning allows it. Name the quantity or action;
+put definitions in the existing tooltip or description. Preserve scientific distinctions:
+a code value is not a physical measurement, and luma is not luminance. Do not abbreviate
+a term into an unexplained acronym just to make it fit.
+
+Prefer the language's ordinary words for opening images, editing, conversion and output.
+Keep established technical loans when replacing them would be less clear or less precise.
+Explain implementation terms only where they help the reader: “variant with adjustable
+parameters”, not “parameterized legacy node”; “linear segment near black”, not a literal
+translation of the English curve metaphor. Read labels with their adjacent controls,
+and update references to renamed sections in the FAQ.
 
 - Follow `GLOSSARY.md` for technical distinctions. Lightness, luminance, brightness, chroma,
   saturation and chromaticity are not interchangeable. Keep established loanwords where the
@@ -77,6 +95,13 @@ authors; PAL's BT.470 gamma 2.8; CCT measured in CIE 1960 uv, among others), and
 changed string in all 12 languages from the new English, the glossary's terms kept. AI-assisted too.
 `@meta.reviewed` remains `null`. The language-specific questions in `GLOSSARY.md` still need
 native readers with color-science or imaging experience.
+
+The subsequent register pass covered recurring labels and explanations in all 14 available
+translations, including Ukrainian. It shortened channel names, clarified conversion and LUT
+labels, removed internal implementation jargon and literal curve metaphors, and revised
+selected Russian descriptions and Hindi interface vocabulary. The corresponding English
+ACES and BT.709 descriptions were corrected at their source. This was an AI-assisted
+editorial pass, not an exhaustive native-speaker review.
 
 ## Workflow
 

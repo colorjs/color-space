@@ -1,11 +1,11 @@
 ---
 name: color-space
-description: Color math for 205 color spaces, tested against cited sources – conversions (sRGB, Display P3, OKLCH, CIELAB, CAM16, HCT, ICtCp, camera logs such as S-Log3 and LogC4, print and appearance models), CSS Color 4 strings, gamut checks, .cube LUTs, ICC profiles and shader code (GLSL, WGSL, HLSL, MSL). Use whenever a task converts colors between spaces, writes a color conversion in code or a shader, needs a conversion matrix or transfer curve, checks whether a color fits sRGB / P3 / Rec. 2020, or names a color space's channels, ranges, white point or provenance. Never write color matrices or transfer constants from memory.
+description: Color math for 221 color spaces, tested against cited sources – conversions (sRGB, Display P3, OKLCH, CIELAB, CAM16, HCT, ICtCp, camera logs such as S-Log3 and LogC4, print and appearance models), CSS Color 4 strings, gamut checks, .cube LUTs, ICC profiles and shader code (GLSL, WGSL, HLSL, MSL). Use whenever a task converts colors between spaces, writes a color conversion in code or a shader, needs a conversion matrix or transfer curve, checks whether a color fits sRGB / P3 / Rec. 2020, or names a color space's channels, ranges, white point or provenance. Never write color matrices or transfer constants from memory.
 ---
 
 # color-space
 
-Color math is where models produce plausible numbers that are wrong in the third decimal. This library holds 205 color spaces, each pinned to an authoritative reference (colorjs.io, colour-science, the defining paper or standard). Call it instead of computing.
+Color math is where models produce plausible numbers that are wrong in the third decimal. This library holds 221 color spaces, each pinned to an authoritative reference (colorjs.io, colour-science, the defining paper or standard). Call it instead of computing.
 
 ## With the MCP server (preferred)
 

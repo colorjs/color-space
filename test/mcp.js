@@ -154,7 +154,8 @@ test('mcp: css writes CSS Color 4 strings, null where CSS would clamp', async ()
 	is(at('rgb'), `rgb(${space.oklch.rgb(0.7, 0.15, 150).map(Math.round).join(' ')})`, 'rgb()')
 	ok(/^lab\(\d+(\.\d{1,3})?% -?\d+(\.\d{1,3})? -?\d+(\.\d{1,3})?\)$/.test(at('lab')), 'lab() with a percent lightness, ≤ 3 places')
 	ok(/^color\(display-p3 [\d.]+ [\d.]+ [\d.]+\)$/.test(at('p3')), 'color(display-p3 …)')
-	ok(!c.css.some((x) => x.space === 'rec2020'), 'no color(rec2020): CSS now defines it with a 2.4 gamma, not our BT.2020 OETF')
+	ok(!c.css.some((x) => x.space === 'rec2020'), 'rec2020 writes no CSS: its BT.2020 OETF is not CSS\'s rec2020')
+	is(at('rec2020-display'), `color(rec2020 ${space.oklch['rec2020-display'](0.7, 0.15, 150).map((x) => +x.toFixed(5)).join(' ')})`, 'color(rec2020 …) comes from rec2020-display (BT.1886 gamma 2.4), 5 places')
 	const wide = (await tool('css', { from: 'oklch', values: [0.7, 0.25, 150] })).structuredContent
 	is(wide.hex, null, 'no hex outside sRGB')
 	is(wide.css.filter((x) => x.css === null).map((x) => x.space), ['rgb', 'hsl', 'hwb'], 'the sRGB functions would clamp — null, never a wrong color')
@@ -166,7 +167,9 @@ test('mcp: css writes CSS Color 4 strings, null where CSS would clamp', async ()
 	for (const rgb of [[5, 5, 5], [1, 2, 3], [11, 251, 5], [248, 1, 213], [9, 241, 87]]) {
 		const r = (await tool('css', { from: 'rgb', values: rgb })).structuredContent
 		for (const { css } of r.css) {
-			const back = new Color(css).to('srgb').coords.map((x) => x * 255)
+			// colorjs 0.5 still decodes color(rec2020 …) with the BT.2020 OETF – that one goes back through css.js's parse
+			const p = /^color\(rec2020 /.test(css) && parse(css)
+			const back = p ? space[p.space].rgb(...p.values) : new Color(css).to('srgb').coords.map((x) => x * 255)
 			ok(back.every((x, k) => Math.abs(x - rgb[k]) < 0.5), `${css} → rgb(${rgb})`)
 		}
 	}
@@ -180,8 +183,8 @@ test('mcp: spaces searches by query, family and purpose', async () => {
 	ok(all.spaces.every((s) => s.family && Array.isArray(s.purpose)), 'family and purpose on every entry')
 	const p3 = (await tool('spaces', { query: 'Display P3' })).structuredContent
 	is(p3.spaces[0].name, 'p3', 'a display name finds its space first')
-	const logs = (await tool('spaces', { family: 'Film & camera', purpose: 'grading', query: 'sony' })).structuredContent
-	ok(logs.count > 0 && logs.spaces.every((s) => s.family === 'Film & camera' && s.purpose.includes('grading')), 'filters combine')
+	const logs = (await tool('spaces', { family: 'Camera', purpose: 'grading', query: 'sony' })).structuredContent
+	ok(logs.count > 0 && logs.spaces.every((s) => s.family === 'Camera' && s.purpose.includes('grading')), 'filters combine')
 	ok(logs.spaces.some((s) => s.name === 'slog3'), 'Sony logs found')
 	ok((await tool('spaces', { family: 'Nope' })).isError, 'an unknown family is a tool error')
 })
@@ -191,7 +194,7 @@ test('mcp: space dossier carries provenance and refs', async () => {
 	const d = r.structuredContent
 	is(JSON.parse(r.content[0].text), d, 'structured = text')
 	is(d.year, 2014, 'year'); is(d.by, 'Sony', 'author')
-	is(d.family, 'Film & camera', 'family')
+	is(d.family, 'Camera', 'family')
 	ok(d.neighbors.includes('xyz'), 'direct neighbour edge')
 	ok(Array.isArray(d.refs) && d.refs.length > 0, 'defining references present')
 })
@@ -202,18 +205,20 @@ test('mcp: CSS strings parse as CSS Color 4 does (vs colorjs)', () => {
 		'hsl(30 100% 50%)', 'hsl(30deg, 100%, 50%)', 'hsl(0.5turn 100% 50%)', 'hwb(1rad 10% 20%)', 'lab(54% 80 67)', 'lab(54 64% -10%)',
 		'lch(50% 50% 90)', 'oklab(0.7 0.1 -0.1)', 'oklab(70% 25% 25%)', 'oklch(70% 0.1 50)', 'oklch(0.7 25% 200grad)',
 		'color(display-p3 1 0.5 0)', 'color(srgb 100% 50% 0%)', 'color(srgb-linear 0.5 0.2 0.1)', 'color(a98-rgb 0.4 0.5 0.6)',
-		'color(prophoto-rgb 0.4 0.5 0.6)', 'color(xyz-d65 0.4 0.2 0.02)', 'color(xyz-d50 0.4 0.2 0.02)', 'color(xyz 0.4 0.2 0.02)']
+		'color(prophoto-rgb 0.4 0.5 0.6)', 'color(xyz-d65 0.4 0.2 0.02)', 'color(xyz-d50 0.4 0.2 0.02)', 'color(xyz 0.4 0.2 0.02)',
+		'color(rec2020 0.6 0.4 0.2)', 'color(rec2020 -0.1 50% 1.2)']
 	// compared in the parsed space itself (colorjs id, scale): parsing only, no conversion in between
 	const CJ = { rgb: ['srgb', 255], hsl: ['hsl', 1], hwb: ['hwb', 1], lab: ['lab', 1], lchab: ['lch', 1], oklab: ['oklab', 1], oklch: ['oklch', 1], p3: ['p3', 1],
-		lrgb: ['srgb-linear', 1], a98rgb: ['a98rgb', 1], prophoto: ['prophoto', 1], xyz: ['xyz-d65', 100], 'xyz-d50': ['xyz-d50', 100], 'rec2020-linear': ['rec2020-linear', 1] }
+		lrgb: ['srgb-linear', 1], a98rgb: ['a98rgb', 1], prophoto: ['prophoto', 1], xyz: ['xyz-d65', 100], 'xyz-d50': ['xyz-d50', 100], 'rec2020-display': ['rec2020', 1] }
 	for (const t of strs) {
 		const p = parse(t, NAMES), [id, k] = CJ[p.space], exp = new Color(t).to(id).coords.map((x) => (Number.isNaN(x) ? 0 : x) * k)
 		ok(p.values.every((v, i) => Math.abs(v - exp[i]) < 1e-9 * Math.max(1, Math.abs(exp[i]))), `${t} → ${p.space} [${p.values.map((x) => +x.toFixed(6))}] vs colorjs ${id} [${exp.map((x) => +x.toFixed(6))}]`)
 	}
 	is([parse('#ff8000cc').alpha, parse('rgba(255, 128, 0, 0.5)').alpha, parse('transparent').alpha], [0.8, 0.5, 0], 'alpha read apart')
 	is(parse('oklch(none 0.1 50)').values, [0, 0.1, 50], 'none = 0')
-	// CSS's rec2020 is BT.1886's 2.4 gamma (CSS Color 4 §10.8; colorjs 0.7 agrees, 0.5 still used the BT.2020 OETF)
-	is(parse('color(rec2020 0.6 0.4 0.2)'), { space: 'rec2020-linear', values: [0.6 ** 2.4, 0.4 ** 2.4, 0.2 ** 2.4], alpha: 1 }, 'color(rec2020) decodes 2.4 onto rec2020-linear')
+	// CSS's rec2020 is BT.1886's 2.4 gamma (CSS Color 4 §10.8; colorjs 0.7 agrees, 0.5 still used the BT.2020 OETF): rec2020-display
+	is(parse('color(rec2020 0.6 0.4 0.2)'), { space: 'rec2020-display', values: [0.6, 0.4, 0.2], alpha: 1 }, 'color(rec2020) names rec2020-display, not the BT.2020-OETF rec2020')
+	is(space['rec2020-display']['rec2020-linear'](0.6, 0.4, 0.2), [0.6 ** 2.4, 0.4 ** 2.4, 0.2 ** 2.4], '…whose linear light is the 2.4 power')
 	is(parse('hsl(0.5turn 100 50)').values, [180, 100, 50], 'modern hsl() takes bare numbers as percentages (CSS Color 4 §7.1; colorjs 0.5 predates it)')
 	for (const bad of ['nope', 'rgb(1 2)', '#12345', 'hsl(30, 100, 50)', 'color(foo 1 2 3)', 'rebeccapurple']) is(parse(bad), undefined, `${bad} is not a CSS color${bad === 'rebeccapurple' ? ' without the names table' : ''}`)
 })

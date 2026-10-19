@@ -14,6 +14,21 @@ export default {
 float osaucs_k_(float x, float y) {
 	return 4.4934 * x * x + 4.3034 * y * y - 4.276 * x * y - 1.3744 * x - 2.56439 * y + 1.8103;
 }
+float osaucs_light_(float Y0) {
+	return 5.9 * (cbrt_(Y0) - 2.0 / 3.0 + 0.042 * cbrt_(Y0 - 30.0));
+}
+float osaucs_root_(float L_) {
+	float u = L_ / 5.9 + 2.0 / 3.0;
+	float tLo = 0.0;
+	float tHi = u + 1.0;
+	if (tHi < 2.0) { tHi = 2.0; }
+	float t = 0.0;
+	for (int i = 0; i < 80; i++) {
+		t = (tLo + tHi) / 2.0;
+		if (t + 0.042 * cbrt_(t * t * t - 30.0) < u) { tLo = t; } else { tHi = t; }
+	}
+	return (tLo + tHi) / 2.0;
+}
 float osaucs_cg_(float a, float b, float w) {
 	return 0.06943947311904933 * a - 0.028634834275896633 * b + 1.0000000000000002 * w;
 }
@@ -49,7 +64,7 @@ vec3 xyz_osaucs(vec3 c) {
 	if (sum != 0.0) { x = X / sum; y = Y / sum; }
 	float Y0 = osaucs_k_(x, y) * Y;
 	float cr0 = cbrt_(Y0);
-	float L_ = 5.9 * (cr0 - 2.0 / 3.0 + 0.042 * cbrt_(Y0 - 30.0));
+	float L_ = osaucs_light_(Y0);
 	float L = (L_ - 14.3993) / 1.4142135623730951;
 	float C = L_ / (5.9 * (cr0 - 2.0 / 3.0));
 	float R = cbrt_(0.799 * X + 0.4194 * Y - 0.1648 * Z);
@@ -62,16 +77,7 @@ vec3 xyz_osaucs(vec3 c) {
 vec3 osaucs_xyz(vec3 c) {
 	float L = c.x; float j = c.y; float g = c.z;
 	float L_ = L * 1.4142135623730951 + 14.3993;
-	float u = L_ / 5.9 + 2.0 / 3.0;
-	float tLo = 0.0;
-	float tHi = u + 1.0;
-	if (tHi < 2.0) { tHi = 2.0; }
-	float t = 0.0;
-	for (int i = 0; i < 80; i++) {
-		t = (tLo + tHi) / 2.0;
-		if (t + 0.042 * cbrt_(t * t * t - 30.0) < u) { tLo = t; } else { tHi = t; }
-	}
-	t = (tLo + tHi) / 2.0;
+	float t = osaucs_root_(L_);
 	float Y0 = t * t * t;
 	float C = L_ / (5.9 * (t - 2.0 / 3.0));
 	float a = g / C;

@@ -23,9 +23,9 @@ const san = s => s.replace(/-/g, '')
 const dimOf = s => chunks[s]?.dim || 3
 const VT = { 1: 'float', 2: 'vec2', 3: 'vec3', 4: 'vec4' }
 
-// one shared WebGL2 canvas renders dossier planes and bars, then transfers their
-// settled image into the visible 2D canvases. Interactive gestures defer those transfers;
-// the directly-presented 3D canvas remains independent.
+// one shared WebGL2 canvas renders dossier planes and bars, then copies them out into the
+// visible 2D canvases – a task's draws together, one image (cellFor); the directly-presented
+// 3D canvas remains independent.
 const CV = typeof document !== 'undefined' ? document.createElement('canvas') : null
 const G = CV && (CV.getContext('webgl2', { alpha: true, premultipliedAlpha: false, antialias: false }) || null)
 
@@ -86,7 +86,7 @@ function build(gl, vsSrc, fsSrc, resolve, preLink, st) {
 }
 
 /** Is the GPU plane kernel possible for this space? */
-export const hasPlaneGL = s => kernelTransfers && !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4 && !softGL()
+export const hasPlaneGL = s => !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >= 2 && dimOf(s) <= 4 && !softGL()
 
 // ── measured-dataset LUTs (munsell's renotation): a composed source that reads one
 // declares `uniform sampler2D <name>tex` — upload the chunk-declared data once per
@@ -382,7 +382,7 @@ export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { con
 // A warmed program draws one pixel once it links: a driver may build the GPU pipeline only at a program's first draw
 // (Metal under ANGLE compiles its shader library there), which would otherwise stall the first real paint
 function primeKernel(s, st) {
-	if (kernelPending) return setTimeout(() => primeKernel(s, st), 50)   // a transfer still reads the shared canvas
+	flushCells()   // a pixel at CV's origin: the open batch's cells go out first
 	const ch = s === 'rgb' ? [0, 1, 2].map(() => ({ min: 0, max: 255 })) : classify(s).ch.slice(0, dimOf(s))
 	drawKernel(st, 1, 1, ch.map(c => (c.min + c.max) / 2), 0, 1, [ch[0].min, ch[0].max], [ch[1].min, ch[1].max], 'srgb', 0, false, 0, 'oklab')
 }
@@ -647,19 +647,25 @@ const cutCV = (w, h) => [0, CV.height - h, w, h]
 /** Grow the shared kernel canvas ahead of its first use, at idle: each growth reallocates the drawing buffer – 50 ms a time
  *  that once landed inside a dossier's first open. To the dossier's largest plate, the xy plate's (≈ 420 × 462 CSS px at
  *  the widest), at the screen's density. On a GPU only: a software rasterizer paints the JS paths */
-export const warmKernels = () => { if (!G || !kernelTransfers || softGL() || globalThis.matchMedia?.('(pointer: coarse)').matches) return   // a phone keeps its GPU memory for a card it may never open
+export const warmKernels = () => { if (!G || softGL() || globalThis.matchMedia?.('(pointer: coarse)').matches) return   // a phone keeps its GPU memory for a card it may never open
 	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.ceil(420 * d)), Math.min(2048, Math.ceil(462 * d))) }
-// the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end
-const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && 'drawingBufferColorSpace' in G ? 1 : 0
-function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0, look = null) {
-	const cs = enc ? 'display-p3' : 'srgb'
-	if (G.drawingBufferColorSpace && G.drawingBufferColorSpace !== cs) G.drawingBufferColorSpace = cs
-	fitCV(w, h)
-	G.viewport(0, 0, w, h)
+// the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end: the kernel encodes them
+// (uEnc) into CV's sRGB buffer, and they go across as they are – read out, put in as a P3 image (flushCells), never a
+// color-managed copy. CV's buffer itself stays sRGB: switched to display-p3 and back, Chromium went on copying it out as
+// P3 – an sRGB file's fields after a P3 one came out oversaturated (183, 39, 0 for 168, 53, 0)
+const P3RAW = typeof ImageData === 'function' && 'colorSpace' in ImageData.prototype
+const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && P3RAW ? 1 : 0
+// at: the draw's cell of CV (cellFor), its bottom-left in GL's own coordinates; none, the buffer's own bottom-left
+function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc = 0, look = null, at = null) {
+	const x = at ? at.x : 0, y = at ? at.y : 0
+	if (!at) fitCV(w, h)
+	G.viewport(x, y, w, h)
 	G.disable(G.DEPTH_TEST)
+	G.enable(G.SCISSOR_TEST); G.scissor(x, y, w, h)   // the clear is the cell's alone: the frame's other cells stand
 	G.clearColor(0, 0, 0, 0)
 	G.clear(G.COLOR_BUFFER_BIT)
-	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, 0, 0, enc, look)
+	G.disable(G.SCISSOR_TEST)
+	kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, x, y, enc, look)
 }
 
 /**
@@ -667,63 +673,56 @@ function drawKernel(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
  * Call only when planeGLStatus(s) is 'ready'. quant is a numeric lattice or one
  * of the output-palette/JND/RGB565 lenses; every lens stays on the GPU path.
  */
-// CV is one mutable WebGL source: only one asynchronous snapshot may read it at a
-// time. Otherwise a second plane/bar redraw can resize CV while Chromium's first
-// createImageBitmap is still copying it (software GL can stall that promise forever).
-// Keep only the newest waiting render per destination canvas; drain them fairly.
-let kernelPending = false, kernelTransfers = true
-const KERNEL_BITMAP_TIMEOUT = 1000   // a broken software-GL snapshot must not pin every later plane/bar
-const kernelQueue = new Map()
-function queueKernel(cv2d, next) { kernelQueue.set(cv2d, next); cv2d._glQueued = next }
-function drainKernels() {
-	if (kernelPending || !kernelQueue.size) return
-	const [cv2d, next] = kernelQueue.entries().next().value
-	kernelQueue.delete(cv2d); cv2d._glQueued = null
-	if (cv2d.isConnected) next()
-	if (!kernelPending && kernelQueue.size) queueMicrotask(drainKernels)
+// A task's planes and bars share one copy out of CV: each draws into a cell of its own – shelves from the bottom-left –
+// and once the task's draws are done (a microtask) every canvas takes its cell, all from the one image CV holds then.
+// Safari waits on each copy out of a WebGL canvas, ~10 ms, synchronous or not (an asynchronous snapshot only moved the
+// wait to the next draw): five a frame made a dossier's slider drag 8 fps. A batch never grows CV (a growth clears it):
+// its first cell sizes it, a cell past it sends the batch out first
+let cells = null
+function cellFor(w, h, enc) {
+	if (cells && cells.enc !== enc) flushCells()   // one encoding a batch: its cells go out one way
+	if (cells && cells.x + w > CV.width) { cells.x = 0; cells.y += cells.row; cells.row = 0 }   // the next shelf
+	if (cells && (cells.y + h > CV.height || w > CV.width)) flushCells()
+	if (!cells) { fitCV(Math.min(2048, Math.max(w, 1536)), Math.min(2048, Math.max(h, 512)))   // three full plates a shelf
+		cells = { list: [], x: 0, y: 0, row: 0, enc }; queueMicrotask(flushCells) }
+	const at = { x: cells.x, y: cells.y }
+	cells.x += w; cells.row = Math.max(cells.row, h)
+	return at
 }
-function presentKernel(cv2d, deferred) {
-	const ctx = cv2d.getContext('2d'), rev = (cv2d._glRev || 0) + 1
-	if (!ctx) return false
-	cv2d._glRev = rev
-	if (deferred && typeof createImageBitmap === 'function') {
-		kernelPending = true; cv2d._glPending = true
-		let done = false, timer = 0
-		const drawSource = source => { if (cv2d._glRev === rev) {
-			ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(source, 0, 0); presented(cv2d) } }
-		const finish = (drain = true) => { if (done) return; done = true; clearTimeout(timer)
-			cv2d._glPending = false; kernelPending = false; if (drain) drainKernels() }
-		const failed = () => { if (done) return
-			// If the host cannot snapshot this WebGL canvas, drawing that same source
-			// synchronously can wedge the renderer too. Retire the kernel transfer path,
-			// discard its bounded queue, and ask the page to repaint via its JS/CSS fallback.
-			kernelTransfers = false
-			for (const queued of kernelQueue.keys()) queued._glQueued = null
-			kernelQueue.clear(); finish(false); queueMicrotask(() => readyCb && readyCb()) }
-		timer = setTimeout(failed, KERNEL_BITMAP_TIMEOUT)
-		try { createImageBitmap(CV, ...cutCV(cv2d.width, cv2d.height)).then(bitmap => { try { if (!done) drawSource(bitmap) }
-			finally { bitmap.close(); finish() } }, failed) }
-		catch { failed() }
-	} else { cv2d._glQueued = null; ctx.clearRect(0, 0, cv2d.width, cv2d.height); ctx.drawImage(CV, ...cutCV(cv2d.width, cv2d.height), 0, 0, cv2d.width, cv2d.height); presented(cv2d) }
+// deferred: the copy may wait for the task's other draws; else it is made now – what reads the canvas next reads it painted
+function presentKernel(cv2d, deferred, at) {
+	if (!cv2d.getContext('2d')) return false
+	cells.list.push({ cv2d, rev: cv2d._glRev = (cv2d._glRev || 0) + 1, x: at.x, y: at.y, w: cv2d.width, h: cv2d.height })
+	if (!deferred) flushCells()
 	return true
 }
-// a 'present' event on the canvas once the frame is in it: a deferred paint lands a task or more after its call, and
-// whatever reads the pixels (a label's ink) must read them then
+function flushCells() {
+	const b = cells; cells = null
+	if (!b) return
+	const H = CV.height
+	for (const c of b.list) { const d = c.cv2d
+		if (d._glRev !== c.rev) continue   // painted again in the batch: the newer cell is its
+		const ctx = d.getContext('2d')
+		if (b.enc) { const px = new Uint8ClampedArray(c.w * c.h * 4), row = c.w * 4
+			G.readPixels(c.x, c.y, c.w, c.h, G.RGBA, G.UNSIGNED_BYTE, px)
+			const img = new ImageData(c.w, c.h, { colorSpace: 'display-p3' })
+			for (let y = 0; y < c.h; y++) img.data.set(px.subarray((c.h - 1 - y) * row, (c.h - y) * row), y * row)   // GL's rows run bottom up
+			ctx.putImageData(img, 0, 0) }
+		else { ctx.clearRect(0, 0, d.width, d.height); ctx.drawImage(CV, c.x, H - c.y - c.h, c.w, c.h, 0, 0, d.width, d.height) }
+		presented(d) }
+}
+// a 'present' event on the canvas once the frame is in it: a deferred paint lands at its task's end, and whatever reads
+// the pixels (a label's ink) must read them then
 const presented = cv2d => cv2d.dispatchEvent(new Event('present'))
 
 // look: { edges: ['srgb' | 'p3' | 'rec2020'…], width: device px, alpha, ink: 1 white | 0 black (else each pixel's), cut } – edges draws those gamuts' boundaries as lines
 // over the field, inked against it; cut voids the field past `gamut` instead of ghosting it
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false, look = null) {
-	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
-	if (kernelPending) {
-		const held = vals.slice(), xr = rx.slice(), yr = ry.slice()
-		queueKernel(cv2d, () => paintPlaneGL(cv2d, s, held, a, b, xr, yr, gamut, quant, polar, tri, metric, deferred, look))
-		return true
-	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, encOf(cv2d), look)
-	return presentKernel(cv2d, deferred)
+	const enc = encOf(cv2d), at = cellFor(cv2d.width, cv2d.height, enc)
+	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc, look, at)
+	return presentKernel(cv2d, deferred, at)
 }
 
 /**
@@ -732,17 +731,12 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
  * lens's distance, as for the planes – a bar and a plane of one lens agree.
  */
 export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, metric, deferred = false, look = null) {
-	if (!kernelTransfers) return false
 	const st = planeProg(s)
 	if (!st.pr || st.bad || st.pending) return false
 	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
-	if (kernelPending) {
-		const held = vals.slice(), range = ri.slice()
-		queueKernel(cv2d, () => paintBarGL(cv2d, s, held, i, range, gamut, quant, metric, deferred, look))
-		return true
-	}
-	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric, encOf(cv2d), look)
-	return presentKernel(cv2d, deferred)
+	const enc = encOf(cv2d), at = cellFor(cv2d.width, cv2d.height, enc)
+	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric, enc, look, at)
+	return presentKernel(cv2d, deferred, at)
 }
 
 // ── 3D solid: static cube-surface lattice, converted rgb→space in the VERTEX
@@ -1752,6 +1746,7 @@ void main() {
 /** Paint the xy-diagram gamut panel for a space ('pending'/'no' → false). */
 export function paintGamutGL(cv2d, s) {
 	if (!G) return false
+	flushCells()   // it draws at CV's origin: an open batch's cells go out first
 	const st = gamutProg(s)
 	if (!st || st.bad || st.pending) return false
 	const w = cv2d.width, h = cv2d.height
@@ -1822,6 +1817,7 @@ ${spec.sat == null ? `	float fi = clamp(hq, 0.0, 1.0) * 63.0;
 /** Paint the hue bands for a space spec; cusp = Float32Array(64) of per-hue tones (unbounded specs). */
 export function paintHeroGL(cv2d, spec, cusp) {
 	if (!G) return false
+	flushCells()   // it draws at CV's origin: an open batch's cells go out first
 	const st = heroProg(spec)
 	if (!st || st.bad || st.pending) return false
 	const w = cv2d.width, h = cv2d.height
@@ -1887,6 +1883,7 @@ let IMGTEX = null, IMGKEY = null
  */
 export function paintImageChanGL(cv2d, s, image, keep, neutral) {
 	if (!G) return false
+	flushCells()   // it draws at CV's origin: an open batch's cells go out first
 	const st = imgProg(s)
 	if (!st || st.bad || st.pending) return false
 	const w = cv2d.width, h = cv2d.height

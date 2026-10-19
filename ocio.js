@@ -153,6 +153,8 @@ const S = {
 	// camera logs
 	slog3: ['S-Log3 S-Gamut3', 'sgamut3', SLOG3],
 	sgamut3cine: ['S-Log3 S-Gamut3.Cine', 'sgamut3cine', SLOG3],
+	'sgamut3-venice': ['S-Log3 Venice S-Gamut3', 'sgamut3-venice', SLOG3],
+	'sgamut3cine-venice': ['S-Log3 Venice S-Gamut3.Cine', 'sgamut3cine-venice', SLOG3],
 	slog2: ['S-Log2 S-Gamut', 'sgamut3', slog(155 / 219)],
 	slog: ['S-Log S-Gamut', 'sgamut3', slog(1)],
 	// ARRI, ALEXA LogC Curve – Usage in VFX (2017-03), EI 800:

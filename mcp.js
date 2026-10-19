@@ -171,7 +171,7 @@ const TOOLS = [
 	},
 	{
 		name: 'css', title: 'CSS color strings',
-		description: `A color as CSS Color 4 strings — rgb(), hsl(), hwb(), lab(), lch(), oklab(), oklch() and color(display-p3 | a98-rgb | prophoto-rgb | srgb-linear | xyz-d65 | xyz-d50) — plus #hex inside sRGB. Converted, never gamut-mapped: a string is null where CSS would clamp it into a different color (rgb/hsl/hwb outside sRGB, lightness out of range). \`gamut\` is the smallest display gamut that holds the color.`,
+		description: `A color as CSS Color 4 strings — rgb(), hsl(), hwb(), lab(), lch(), oklab(), oklch() and color(display-p3 | a98-rgb | prophoto-rgb | rec2020 | srgb-linear | xyz-d65 | xyz-d50) — plus #hex inside sRGB. Converted, never gamut-mapped: a string is null where CSS would clamp it into a different color (rgb/hsl/hwb outside sRGB, lightness out of range). \`gamut\` is the smallest display gamut that holds the color.`,
 		inputSchema: { type: 'object', additionalProperties: false, properties: {
 			from: SPACE('source'), values: { ...COLOR, description: 'one color in the source space' }, color: CSSCOLOR,
 			notations: { type: 'array', items: { type: 'string', enum: [...CSSABLE] }, minItems: 1, description: 'only these, by library space id (default: all)' },

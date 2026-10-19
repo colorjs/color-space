@@ -48,7 +48,7 @@ export const tagL = v => ({
 	gamma: t('tag.gamma', 'gamma'), linear: t('tag.linear', 'linear'), perceptual: t('tag.perceptual', 'perceptual'), log: t('tag.log', 'log'),
 	display: t('tag.display', 'display'), scene: t('tag.scene', 'scene'), 'display-referred': t('tag.display-referred', 'display-referred'),
 	'scene-referred': t('tag.scene-referred', 'scene-referred'), polar: t('tag.polar', 'polar'), component: t('tag.component', 'component'),
-	'luma / chroma': t('tag.luma-chroma-pair', 'luma / chroma'), historical: t('tag.historical', 'historical'), current: t('tag.current', 'in use'),
+	'luma / chroma': t('tag.luma-chroma-pair', 'luma / chroma'), historical: t('tag.historical', 'historical'), current: t('tag.current', 'current'),
 	projective: t('tag.projective', 'projective'), lookup: t('tag.lookup', 'lookup'), quantized: t('tag.quantized', 'quantized'),
 })[v] ?? v
 // a short gloss for a tag whose name alone doesn't say it (Shape, Signal, Tone curve, White) – the filter options carry
@@ -95,6 +95,9 @@ const entHead = s => attr([meta[s].by, run(s)].filter(Boolean).join(', '))   // 
 const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${cap(tagL(k === 'sig' ? v + '-referred' : v))}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
 // a lead card's story – the lore's "made for" line in the page's language, as a sentence
 // a fragment closed as a sentence, with the language's own full stop – 。 in ja and zh-Hans, । in hi
+// an aside after a name, set off by the language's own clause dash (GLOSSARY.md): —— in ja and zh-Hans, the unspaced
+// em dash in id, the spaced travessão in pt, a colon in es (Spanish has no single dash)
+export const aside = x => ({ ja: '——', 'zh-Hans': '——', id: '—', pt: ' — ', es: ': ' }[LANG] ?? ' – ') + x
 export const close = x => /[.!?…。！？।؟]$/u.test(x) ? x : x + ({ ja: '。', 'zh-Hans': '。', hi: '।' }[LANG] || '.')
 const lede = s => { const f = LORE[s]?.for; if (!f) return ''; return close(cap(t(`lore.${s}.for`, f))) }
 // the maker, short (no asides in parentheses; past two names, the first et al.), then the year – the year ends the line,

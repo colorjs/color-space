@@ -140,7 +140,14 @@ const TITLE = {
 	xvycc: 'xvYCC', yccbccrc: 'YcCbcCrc', jpeg: 'JPEG YCbCr', 'ycbcr-bt2020': 'BT.2020 Y′CbCr',
 	'ycbcr-bt601-525': 'BT.601 525-line Y′CbCr', 'ycbcr-bt601-625': 'BT.601 625-line Y′CbCr',
 	macboyn: 'MacLeod–Boynton', lalphabeta: 'lαβ',
-	davinci: 'DaVinci Intermediate', orgb: 'oRGB', prismatic: 'Prismatic', logluv: 'LogLuv', ydzdx: 'Y′D′zD′x', din99: 'DIN99', din99c: 'DIN99c', 'hunter-rdab': 'Hunter Rd,a,b', msh: 'Msh', scam: 'sCAM', kim2009: 'Kim 2009', 'ipt-ragoo': 'IPT Ragoo 2021', 'ictcp-hlg': 'ICtCp HLG', iptpqc2: 'IPT-PQ-C2', iapbp: 'IaPbP', awg3: 'ARRI Wide Gamut 3', awg4: 'ARRI Wide Gamut 4', dwg: 'DaVinci Wide Gamut', rwg: 'REDWideGamutRGB', bmdwg: 'Blackmagic Wide Gamut', vgamut: 'V-Gamut', sgamut3: 'S-Gamut3', dgamut: 'D-Gamut', egamut: 'E-Gamut', ecirgb: 'ECI RGB v2', widegamut: 'Adobe Wide Gamut RGB', colormatch: 'ColorMatch RGB', brucergb: 'Bruce RGB', betargb: 'Beta RGB', bestrgb: 'Best RGB', donrgb4: 'Don RGB 4', ektaspace: 'Ekta Space PS 5', russellrgb: 'Russell RGB', 'dci-p3-plus': 'DCI-P3+', olog2: 'O-Log2' }
+	davinci: 'DaVinci Intermediate', orgb: 'oRGB', prismatic: 'Prismatic', logluv: 'LogLuv', ydzdx: 'Y′D′zD′x', din99: 'DIN99', din99c: 'DIN99c', 'hunter-rdab': 'Hunter Rd,a,b', msh: 'Msh', scam: 'sCAM', kim2009: 'Kim 2009', 'ipt-ragoo': 'IPT Ragoo 2021', 'ictcp-hlg': 'ICtCp HLG', iptpqc2: 'IPT-PQ-C2', iapbp: 'IaPbP', awg3: 'ARRI Wide Gamut 3', awg4: 'ARRI Wide Gamut 4', dwg: 'DaVinci Wide Gamut', rwg: 'REDWideGamutRGB', bmdwg: 'Blackmagic Wide Gamut', vgamut: 'V-Gamut', sgamut3: 'S-Gamut3', dgamut: 'D-Gamut', egamut: 'E-Gamut', ecirgb: 'ECI RGB v2', widegamut: 'Adobe Wide Gamut RGB', colormatch: 'ColorMatch RGB', brucergb: 'Bruce RGB', betargb: 'Beta RGB', bestrgb: 'Best RGB', donrgb4: 'Don RGB 4', ektaspace: 'Ekta Space PS 5', russellrgb: 'Russell RGB', 'dci-p3-plus': 'DCI-P3+', olog2: 'O-Log2',
+	'hellwig2022-hk': 'Hellwig 2022 HK', 'aces2-jmh': 'ACES 2.0 JMh',
+	'helmlab-metric': 'Helmlab MetricSpace', cubehelix: 'Cubehelix',
+	'rec709-display': 'Rec. 709 display', 'rgb-display': 'sRGB 2.2 display', 'rec2020-display': 'Rec. 2020 display', ycxcz: 'YyCxCz', 'poirson-wandell': 'Poirson–Wandell opponent',
+	'osaucs-ee': 'Log-compressed OSA-UCS',
+	'sgamut3-venice': 'Venice S-Gamut3', 'sgamut3cine-venice': 'Venice S-Gamut3.Cine', adx10: 'ADX10', adx16: 'ADX16',
+	ciecam16: 'CIECAM16', ciecam97s: 'CIECAM97s',
+}
 const titleOf = (id, description = '') => TITLE[id] || (m => m && m[1].length <= 40 ? m[1] : id.toUpperCase())(description.match(/^(.+?) — /))
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')

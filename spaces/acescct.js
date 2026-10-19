@@ -1,10 +1,7 @@
 /**
- * ACEScct — the Academy Color Encoding System's other grading space, sharing
- * ACEScg's AP1 primaries and ACEScc's log2 curve but adding a linear toe near black.
- * That toe keeps traditional lift/gamma/gain color-corrector controls behaving the
- * way colorists expect instead of exaggerating noise in the shadows, which is why
- * ACEScct is generally preferred over ACEScc on control surfaces built for legacy
- * grading tools.
+ * ACEScct is an ACES space for color grading. It uses ACEScg's AP1 primaries and
+ * ACEScc's log2 curve, with an added linear segment near black. This segment adjusts
+ * the response of shadows to lift/gamma/gain controls to suit traditional grading tools.
  *
  * @see {@link https://docs.acescentral.com/encodings/acescct/}
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScc_&_ACEScct}

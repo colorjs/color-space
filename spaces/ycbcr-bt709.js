@@ -1,8 +1,7 @@
 /**
- * ITU-R BT.709 Y′CbCr — the explicit studio-range digital component encoding for
- * HDTV. Unlike the legacy parameterised `ycbcr` node, this space fixes the standard:
- * BT.709 primaries/OETF, Kr=0.2126, Kb=0.0722, and 8-bit legal ranges Y′ 16–235,
- * Cb/Cr 16–240.
+ * ITU-R BT.709 Y′CbCr is a digital video encoding for HDTV. It uses BT.709 primaries
+ * and OETF, with fixed coefficients Kr=0.2126 and Kb=0.0722.
+ * The 8-bit code ranges are Y′ 16–235 and Cb/Cr 16–240.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @wiki {@link https://en.wikipedia.org/wiki/YCbCr}

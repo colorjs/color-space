@@ -9,16 +9,16 @@
  * round trip for rgb()/hsl()/hwb() (#serializing-sRGB-values), ≥ 3 places for lab()/lch()
  * (#serializing-lab-lch), ≥ 5 for oklab()/oklch() (#serializing-oklab-oklch), and the
  * predefined-precision table for color() — 10 bits display-p3 / a98-rgb, 12 srgb-linear /
- * prophoto-rgb, 16 xyz (#serializing-color-function-values); prophoto-rgb carries one more
- * place, which an 8-bit sRGB round trip needs (measured: every notation returns 8-bit sRGB
- * within half a level). Trailing zeros dropped, as CSS serializes them.
+ * prophoto-rgb / rec2020, 16 xyz (#serializing-color-function-values); prophoto-rgb and rec2020
+ * carry one more place, which an 8-bit sRGB round trip needs (measured: every notation returns
+ * 8-bit sRGB within half a level). Trailing zeros dropped, as CSS serializes them.
  * @see https://drafts.csswg.org/css-color-4/
  *
  * lab()/lch() are D50 like this library's lab/lchab; color() takes the predefined RGB
  * spaces as 0–1 and xyz as Y = 1 (ours is 0–100, hence /100).
- * Not here: rec2020. The CSS Color 4 draft now defines color(rec2020 …) with a pure 2.4
- * gamma (BT.1886), while this library's rec2020 carries the BT.2020 OETF — the same
- * numbers would name a different color.
+ * color(rec2020 …) is rec2020-display: the CSS Color 4 draft defines it with a pure 2.4 gamma
+ * (BT.1886 Annex 1, black lift 0). This library's rec2020 carries the BT.2020 OETF, so the same
+ * numbers there would name a different color.
  * @see https://drafts.csswg.org/css-color-4/#predefined-rec2020
  */
 
@@ -39,6 +39,7 @@ const table = (f) => { const fn = (name, d, k = 1) => (v) => `color(${name} ${v.
 	p3: fn('display-p3', 4),
 	a98rgb: fn('a98-rgb', 4),
 	prophoto: fn('prophoto-rgb', 5),
+	'rec2020-display': fn('rec2020', 5),
 	xyz: fn('xyz-d65', 5, 100),
 	'xyz-d50': fn('xyz-d50', 5, 100),
 	lrgb: fn('srgb-linear', 4),
@@ -85,14 +86,14 @@ export const exact = (space, v, srgb) => v.every(Number.isFinite)
 // and transparent, legacy comma syntax, rgba()/hsla(), percentages (each channel's own
 // reference range), `none` (= 0), hue units (deg, grad, rad, turn), color(srgb …) and
 // color(rec2020 …). Alpha is read and returned apart; it never enters the values.
-// color(rec2020 …) is CSS's 2.4-gamma signal (see the header), so it decodes to rec2020-linear –
-// the same primaries – rather than naming this library's BT.2020-OETF rec2020.
+// color(rec2020 …) is CSS's 2.4-gamma signal (see the header): rec2020-display, not this
+// library's BT.2020-OETF rec2020.
 // @see https://drafts.csswg.org/css-color-4/#color-syntax
 const PCT = { rgb: [255, 255, 255], hsl: [0, 100, 100], hwb: [0, 100, 100], lab: [100, 125, 125], lchab: [100, 150, 0], oklab: [1, 0.4, 0.4], oklch: [1, 0.4, 0] }
 const FN = { rgb: 'rgb', rgba: 'rgb', hsl: 'hsl', hsla: 'hsl', hwb: 'hwb', lab: 'lab', lch: 'lchab', oklab: 'oklab', oklch: 'oklch' }
 const HUE = { rgb: -1, hsl: 0, hwb: 0, lab: -1, lchab: 2, oklab: -1, oklch: 2 }
 const PREDEF = { srgb: ['rgb', 255], 'srgb-linear': ['lrgb', 1], 'display-p3': ['p3', 1], 'a98-rgb': ['a98rgb', 1], 'prophoto-rgb': ['prophoto', 1],
-	rec2020: ['rec2020-linear', 1], xyz: ['xyz', 100], 'xyz-d65': ['xyz', 100], 'xyz-d50': ['xyz-d50', 100] }
+	rec2020: ['rec2020-display', 1], xyz: ['xyz', 100], 'xyz-d65': ['xyz', 100], 'xyz-d50': ['xyz-d50', 100] }
 const ANGLE = { deg: 1, grad: 0.9, rad: 180 / Math.PI, turn: 360 }
 const num = (t, pct) => {
 	if (t === 'none') return 0
@@ -137,7 +138,6 @@ export const parse = (str, names) => {
 	if (toks.length !== 3) return
 	const v = toks.map((t, i) => num(t, pct[i]) * (i === HUE[id] ? 1 : k))
 	if ((id === 'hsl' || id === 'hwb') && toks.slice(1).some((t) => !/%$/.test(t) && t !== 'none' && /,/.test(main))) return   // legacy hsl() needs percentages
-	if (id === 'rec2020-linear') for (let i = 0; i < 3; i++) v[i] = Math.sign(v[i]) * Math.abs(v[i]) ** 2.4
 	if (!v.every(Number.isFinite)) return
 	return { space: id, values: v, alpha: Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1 }
 }

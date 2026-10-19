@@ -43,8 +43,9 @@ const near = y => y !== Y0 && y !== Y1 && (X(y) < 80 || X(y) > 920)   // a half-
 const span = b => b.z > b.y ? `${b.y}–${b.z}` : `${b.y}`   // a space replaced the year it appeared (CIE RGB) reads its year alone
 const said = b => `${disp(b.s)}, ${span(b)}, ${LIGHT[b.k]()}`   // a band's name to a screen reader – the eye reads its flag
 // a milestone's flag: its years and name, and the first clause of what the lore says it was for – or, superseded, why.
-// The clause ends at the language's own dash (GLOSSARY.md): the spaced en or em dash, the opening raya, the double dash
-export const CLAUSE = /\s[–—]\s|\s—(?=\S)|——/
+// The clause ends at the language's own dash (GLOSSARY.md): the spaced en or em dash, the opening raya, the double dash,
+// the unspaced em dash between words (Indonesian's tanda pisah)
+export const CLAUSE = /\s[–—]\s|\s—(?=\S)|——|(?<=\p{L})—(?=\p{L})/u
 const flag = b => { const e = ending(b.s), f = LORE[b.s]?.for
 	const w = e?.why || (f ? cap(t(`lore.${b.s}.for`, f).split(CLAUSE)[0]) : '')   // a note is written as it reads – sRGB stays sRGB
 	return `<b><span class="tnum">${span(b)}</span> ${esc(disp(b.s))}</b><span class="hl-mk">${esc(LIGHT[b.k]())}</span><span class="hl-mw">${esc(w)}</span>` }   // years and name, its light, what it was for

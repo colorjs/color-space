@@ -53,15 +53,15 @@ test('i18n — markup units: the English document is the source minus its marker
 // GLOSSARY.md "Conventions": the clause dash is each language's own – the English em dash never copied over
 test('i18n — each language writes its own clause dash, and the history cuts a note at it', async () => {
 	const { CLAUSE } = await import('../web/js/lineage.js')
-	const ENDASH = ['ar', 'de', 'fr', 'hi', 'it', 'ko', 'ru', 'tr']
-	const wrong = { es: /\s[–—]\s/, pt: /\s–\s/, ja: /\s[–—]\s|(?<!—)—(?!—)/, 'zh-Hans': /\s[–—]\s|(?<!—)—(?!—)/, ...Object.fromEntries(ENDASH.map((c) => [c, /—/])) }
+	const ENDASH = ['ar', 'de', 'fr', 'hi', 'it', 'ko', 'ru', 'tr', 'uk']
+	const wrong = { es: /\s[–—]\s/, pt: /\s–\s/, id: /\s[–—]\s|\s—|—\s/, ja: /\s[–—]\s|(?<!—)—(?!—)/, 'zh-Hans': /\s[–—]\s|(?<!—)—(?!—)/, ...Object.fromEntries(ENDASH.map((c) => [c, /—/])) }
 	for (const [code, rx] of Object.entries(wrong)) {
 		const file = JSON.parse(readFileSync(join(DIR, `${code}.json`), 'utf8'))
 		is(Object.keys(file).filter((k) => k !== '@meta' && rx.test(file[k].t)), [], `${code}: no foreign clause dash`)
 	}
 	const first = (s) => s.split(CLAUSE)[0]
-	is(['for print – the D50 white', 'para impresión —el blanco D50—', 'para impressão — o branco D50', '用于印刷——D50 白', '印刷用——D50の白'].map(first),
-		['for print', 'para impresión', 'para impressão', '用于印刷', '印刷用'], 'the clause dash of en, es, pt, zh-Hans and ja ends the first clause')
+	is(['for print – the D50 white', 'para impresión —el blanco D50—', 'para impressão — o branco D50', '用于印刷——D50 白', '印刷用——D50の白', 'untuk cetak—putih D50'].map(first),
+		['for print', 'para impresión', 'para impressão', '用于印刷', '印刷用', 'untuk cetak'], 'the clause dash of en, es, pt, zh-Hans, ja and id ends the first clause')
 	is(['1931–1976', 'red–green axis', 'no dash at all', ''].map(first), ['1931–1976', 'red–green axis', 'no dash at all', ''], 'a range, a compound and a dashless note stay whole')
 })
 
@@ -140,7 +140,7 @@ test('i18n — runtime: per-key fallback, root-relative loads, the select keeps 
 		await page.waitForSelector('.ent[data-s="oklch"] .nm')
 		is(await page.evaluate(() => document.documentElement.lang), 'en-XA', 'the document speaks its language')
 		const names = await page.locator('.ti .tt').evaluateAll((b) => b.map((x) => x.textContent))
-		is([names[0], names[1]], ['Display & web', pseudo('RGB remixes')], 'stale key → English, fresh key → translation, side by side')
+		is([names[0], names[1]], ['Display & web', pseudo('Cylindrical')], 'stale key → English, fresh key → translation, side by side')
 		is(await page.locator('.gtag[data-g="era"]').textContent(), 'Era', 'a missing key reads English')
 		await page.locator('.ent[data-s="oklch"] .nm').click()
 		await page.waitForFunction(() => location.pathname.endsWith('/en-XA/oklch'))

@@ -1,6 +1,6 @@
 # color-space
 
-Color math for Claude: conversions between 205 color spaces – OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs such as S-Log3 and LogC4, print and appearance models – each pinned to an authoritative reference (colorjs.io, colour-science, the defining paper or standard).
+Color math for Claude: conversions between 221 color spaces – OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs such as S-Log3 and LogC4, print and appearance models – each pinned to an authoritative reference (colorjs.io, colour-science, the defining paper or standard).
 
 The plugin adds two things:
 

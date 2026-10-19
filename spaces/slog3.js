@@ -33,20 +33,20 @@ const slog3 = {
 const breakpoint = 171.2102946929 / 1023; // encoded-domain linear/log boundary
 
 // S-Log3 -> scene-linear reflectance
-const decode = (v) => v >= breakpoint
+export const dec = (v) => v >= breakpoint
 	? Math.pow(10, (v * 1023 - 420) / 261.5) * 0.19 - 0.01
 	: (v * 1023 - 95) * 0.01125 / (171.2102946929 - 95);
 
 // scene-linear -> S-Log3
-const encode = (l) => l >= 0.01125
+export const enc = (l) => l >= 0.01125
 	? (420 + Math.log10((l + 0.01) / 0.19) * 261.5) / 1023
 	: (l * (171.2102946929 - 95) / 0.01125 + 95) / 1023;
 
-slog3.xyz = (r, g, b) => sgamut3.xyz(decode(r), decode(g), decode(b));
+slog3.xyz = (r, g, b) => sgamut3.xyz(dec(r), dec(g), dec(b));
 
 xyz.slog3 = (x, y, z) => {
 	const [r, g, b] = xyz.sgamut3(x, y, z);
-	return [encode(r), encode(g), encode(b)];
+	return [enc(r), enc(g), enc(b)];
 };
 
 export default slog3;

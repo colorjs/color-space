@@ -68,7 +68,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As implemented:** XYZ → CIELAB → `Lab_to_DIN99`. The X′ step is missing.
 - **Correct:** Cui et al. 2002 ([doi:10.1002/col.10066](https://doi.org/10.1002/col.10066)) apply X′ = 1.1·X − 0.1·Z (DIN99c) or X′ = 1.12·X − 0.12·Z (DIN99d) to the sample and to the white before CIELAB. As implemented, sRGB blue's DIN99c a99 is 31.86 instead of 14.29. For the docstring's XYZ, DIN99d a99 is 31.42 instead of 35.07.
 - **Proof:** `spaces/din99d.js:27-30` and `spaces/din99c.js:24-31`. The tests `din99d: DIN99d (Cui 2002, with X-correction)` and `bona-fide reference values` (entries `din99c`, `din99d`) pin it.
-- **Status:** found here. Not reported. The colour-science source was re-checked online and 0.4.7 was run. Cui et al. 2002 is paywalled and was not re-checked online; the X′ step is also described in [de.wikipedia's DIN99 article](https://de.wikipedia.org/wiki/DIN99-Farbraum).
+- **Status:** found here. Reported: [colour-science/colour#1424](https://github.com/colour-science/colour/issues/1424) (2026-10-19). The colour-science source was re-checked online and 0.4.7 was run. Cui et al. 2002 is paywalled and was not re-checked online; the X′ step is also described in [de.wikipedia's DIN99 article](https://de.wikipedia.org/wiki/DIN99-Farbraum).
 
 ### colour-science: ECI RGB v2, Best RGB, Don RGB 4 and Ekta Space PS 5 primaries
 
@@ -76,7 +76,49 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As implemented:** primaries are xy computed from colorant XYZ rounded to 3 decimals. For example, the ECI red is 0.670103 = 0.650/0.970.
 - **Correct:** the designers' values. eciRGB uses R(0.67, 0.33) G(0.21, 0.71) B(0.14, 0.08), the [ICC registry](https://registry.color.org/rgb-registry/ecirgb) values per ISO 22028-4. The other three use the values that [Lindbloom's table](http://www.brucelindbloom.com/WorkingSpaceInfo.html) prints and that the profiles' colorant tags give. The largest xy errors are 3.3e-4 for ECI RGB v2, 8.4e-4 for Best RGB, 4.3e-4 for Don RGB 4 and 4.8e-4 for Ekta Space PS 5.
 - **Proof:** `spaces/ecirgb.js:24-27`, `spaces/bestrgb.js:24-28`, `spaces/donrgb4.js:24-27` and `spaces/ektaspace.js:24-28` hold the designers' values. The `bona-fide reference values` entries for these spaces were computed from them. Their tolerance (0.01 + 0.2%) would also pass colour-science's stock values for three of the four spaces, so no test pins the difference yet.
-- **Status:** found here. Not reported. The colour-science sources, Lindbloom's table and the ICC registry were re-checked online. The ICC profile tags were not.
+- **Status:** found here. Reported: [colour-science/colour#1425](https://github.com/colour-science/colour/issues/1425) (2026-10-19). The colour-science sources, Lindbloom's table and the ICC registry were re-checked online. The ICC profile tags were not.
+
+### CIE TC1-34 1998 / Fairchild: CIECAM97s Table 4.1 and its spreadsheet, eccentricity and hue quadrature from blue to red
+
+- **Source:** CIE TC1-34, "The CIE 1997 Interim Colour Appearance Model (Simple Version), CIECAM97s", final draft, April 1998 (published as CIE 131-1998), §2.3 eqs. 2.21–2.22 and Appendix Table 4.1 ([PDF](http://markfairchild.org/PDFs/CIECAM97s_TC_Draft.pdf)); M. D. Fairchild, AppModEx.xls, sheet CIECAM97s, the spreadsheet of those examples the report points to ([xls](http://markfairchild.org/files/AppModEx.xls), saved 2021-08-27).
+- **As computed:** for hues between blue (237.53°) and red (20.14° + 360°) the spreadsheet does not apply eqs. 2.21–2.22 across the interval; it splits it at 360° with e = 0.856 and H = 385.9 there. Table 4.1 prints Case 4's H as 307 (the spreadsheet's 306.87). The spreadsheet also uses the 4-decimal print of M_B⁻¹ (eq. 2.2) in eq. 2.13, which turns the near-neutral Case 1 to h 212.28, C 0.498, against the table's 219.4 and 0.47.
+- **Correct:** eq. 2.21 gives e = 0.85649 at 360° and eq. 2.22 gives H = 380.21 (385.9 is what eq. 2.22 gives at 360° with red's e of 0.8 replaced by blue's 1.2); Case 4's H is 306.42, which rounds to 306. The rounded e lowers C and M by up to 0.04 % in that interval (Case 2, the spreadsheet's matrices held: C 61.9618 against 61.9628 by eq. 2.21). With the exact inverse of M_B, Case 1 gives h 219.43 and C 0.474, as the table prints. Table 4.1's s for Cases 2 and 4 (146.98, 180.56) is not reproduced by any of these variants; the equations give 147.00 and 180.58.
+- **Proof:** `spaces/ciecam97s.js` (implementation notes). The test `ciecam97s: CIE TC1-34 Table 4.1 (CIE 131), all four cases` pins J, Q, h, C and M of the four cases to the table, and Case 1 in the space; the bona-fide row pins Case 1's h 219.4. H is not computed by color-space, so no test pins it.
+- **Status:** found here (2026-10). Not reported. Re-checked online against the PDF and the spreadsheet.
+
+### colour-science: Hellwig 2022 inverse from J_HK and M
+
+- **Source:** colour-science 0.4.7 and develop (2026-10-19), `colour.Hellwig2022_to_XYZ` ([source](https://github.com/colour-science/colour/blob/develop/colour/appearance/hellwig2022.py)). It cites Hellwig, Stolitzka & Fairchild (2022) for the J_HK correlate.
+- **As implemented:** when the specification gives J_HK, it computes J = J_HK − f(h)·spow(C, 0.587) from the specification's own C, before C is derived from M. Given only M, C is NaN, colour's `spow` returns 0 for it, and J = J_HK: the Helmholtz–Kohlrausch term is dropped without a warning.
+- **Correct:** C = 35·M/A_w first (it depends on M alone), then J = J_HK − f(h)·C^0.587. Under hellwig2022.js's conditions, sRGB red (XYZ 41.23908, 21.263901, 1.933082 → J_HK 53.540234, M 86.355273, h 27.402503) inverts to XYZ (50.913, 27.829, 4.031) instead of the input; with C passed as well, it returns the input to 1e-13. The docstring's own example passes C, so it does not show the fault.
+- **Proof:** `spaces/hellwig2022-hk.js` (implementation notes) inverts in closed form. The test `bona-fide reference values` (entries `hellwig2022-hk`, hellwig2022-hk → xyz) pins the inverse against coloraide 8.13.1, which derives C from M first.
+- **Status:** found here. Reported: [colour-science/colour#1423](https://github.com/colour-science/colour/issues/1423) (2026-10-19). colour-science 0.4.7 was run, and the develop source was re-checked online on 2026-10-19.
+
+### Yıldız 2026: Helmlab, §3.1 Stage 10 (neutral correction)
+
+- **Source:** G. Yıldız, "Helmlab: A Data-Driven Analytical Color Space for UI Design Systems", arXiv:2602.23010v3 (2026-05-06), §3.1 Stage 10 and §2 "Achromatic integrity" ([arXiv](https://arxiv.org/abs/2602.23010)); the same text is in the repository's paper/helmlab.tex at the helmlab 1.0.0 release ([a0d7389](https://github.com/Grkmyldz148/helmlab/blob/a0d7389df929eb6b303673276019a7fcea58584c/paper/helmlab.tex)).
+- **As printed:** the correction's PCHIP curve runs "384 gray levels (Y ∈ [0.001, 2.59])" through stages 1–9, "with constant clamping beyond the gray-axis L peak (L_peak ≈ 1.29)"; grays keep chroma < 1e-5 on the 21-step ramp, "worst-case ≈ 3 × 10⁻⁵ for grays at L < 0.05".
+- **As released:** helmlab 1.0.0 (Python `MetricSpace._build_neutral_lut`, npm `neutral-lut.json` from `scripts/generate-nc-lut.py`, the code the author's reference values come from) samples Y = 0, ten steps 0.001–0.01, twenty 0.01–0.1 and 226 from 0.1 to 2.0 (255 distinct levels). Gray L rises monotonically with Y – 1.341 at Y = 2, 1.574 at Y = 2.6 – so there is no peak; the curve is held flat from L 1.341 to 2.59. Past black, the first sample is Y = 0.001 (L 0.067), as in the printed range, so between L 0 and 0.067 the curve only interpolates.
+- **Consequence:** grays keep up to 3.3e-5 of chroma for Y 0.01–1, 9e-5 for Y 0.001–0.01, 8e-4 below Y = 0.001 (6.3e-4 at sRGB 1/255) and up to 0.073 above Y = 2, where the flat tail no longer follows the gray axis.
+- **Proof:** `spaces/helmlab-metric.js` rebuilds the curve as released (implementation notes) and matches neutral-lut.json to 5e-13 and the author's npm MetricSpace to 7e-13; the test `helmlab-metric: vs helmlab 1.0.0, both directions` pins grays from 10/255 up to under 5e-5 of chroma. The residuals above were measured with it.
+- **Status:** found here, 2026-10-19. The library follows the released code, since the author's reference values come from it. Reported: [Grkmyldz148/helmlab#4](https://github.com/Grkmyldz148/helmlab/issues/4) (2026-10-19).
+
+### Johnson & Fairchild 2003: S-CIELAB opponent matrix, eq. 1
+
+- **Source:** G. M. Johnson and M. D. Fairchild, "A top down description of S-CIELAB and CIEDE2000", *Color Research & Application* 28(6):425–435, 2003, eq. 1 ([doi:10.1002/col.10195](https://doi.org/10.1002/col.10195); [author copy](https://www.cis.rit.edu/people/faculty/johnson/pub/ciede_scielab.pdf)).
+- **As printed:** A = 0.297X + 0.72Y − 0.107Z and C1 = −0.449X + 0.29Y − 0.077Z.
+- **Correct:** 0.279 (0.2787336) and +0.077 (+0.0771569), as in Xuemei Zhang's S-CIELAB code, cmatrix.m `'xyz2opp'` ([ISETCam @ 17146a9f](https://github.com/ISET/isetcam/blob/17146a9f0470cc89b58d583851f680187268506d/metrics/scielab/cmatrix.m)). The other seven coefficients match the code to the printed digits.
+- **Why:** the XYZ matrix is Poirson & Wandell's cone-opponent matrix (printed beside it as the second matrix of eq. 1) applied to Smith–Pokorny cones. A least-squares scale per cone reproduces all nine code entries within 0.007 and predicts 0.282 and +0.081; 0.297 is 0.015 off and −0.077 has the wrong sign.
+- **Proof:** `spaces/poirson-wandell.js` (implementation notes). The bona-fide rows for `poirson-wandell` are computed from the code's matrix; the paper's values are not pinned.
+- **Status:** found here (2026-10-19). Not reported. Zhang & Wandell's 1996 SID digest, which first printed the matrix, was not checked (not available online).
+
+### CSS Color 4 (Editor's Draft, 2026-10-09): §2 leaf example, the rec2020 value
+
+- **Source:** CSS Color Module Level 4, Editor's Draft of 9 October 2026, §2 "Color Terminology", the example of a leaf measured as lch(51.2345% 21.2 130) and written in five RGB spaces ([draft](https://drafts.csswg.org/css-color-4/#terminology)).
+- **As printed:** color(rec2020 0.6295 0.9657 0.3633).
+- **Correct:** color(rec2020 0.47428 0.52316 0.41425), by the draft's own §19 sample code (`lin_2020`/`gam_2020`, gamma 2.4) and colorjs.io 0.7.1. The printed green, 0.9657, is a near-saturated value for a color of chroma 21. The example's sRGB, display-p3, a98-rgb and prophoto-rgb values agree with the sample code to 5e-5.
+- **Proof:** none pinned in this library; `rec2020-display` is pinned to the same draft's §10.1 lime example instead.
+- **Status:** found here (2026-10-19). Reported: [w3c/csswg-drafts#14631](https://github.com/w3c/csswg-drafts/issues/14631).
 
 ## Citation fixes
 

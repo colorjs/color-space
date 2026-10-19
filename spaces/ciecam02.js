@@ -10,7 +10,7 @@
  * @year 2002
  * @by CIE
  * @use Gamut mapping and cross-media reproduction.
- * @successor cam16 CAM16 uses one matrix where it used two, and avoids its computational failures
+ * @successor ciecam16 CIECAM16 uses one matrix where it used two, and avoids its computational failures
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

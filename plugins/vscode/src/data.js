@@ -8,7 +8,7 @@
  *                         The gray spaces aren't read: their gamma isn't one this library has
  *   Design tokens         DTCG 2025.10 (designtokens.org/tr/2025.10/color): "$value": { "colorSpace", "components": [ … ],
  *                         "alpha"?, "hex"? } – components as CSS Color 4 numbers (srgb 0–1, hsl 0–360/0–100, lab 0–100…),
- *                         `none` as "none"; an edit updates the hex fallback too. rec2020 isn't read (css.js: transfer)
+ *                         `none` as "none"; an edit updates the hex fallback too. rec2020 reads as rec2020-display (css.js)
  *   iTerm2 themes         .itermcolors: <dict> per color with Red/Green/Blue/Alpha Component <real> 0–1 and Color Space
  *                         <string>sRGB | P3</string>. A color without a Color Space is iTerm2's old "Calibrated" (a device
  *                         space): not read
@@ -73,7 +73,7 @@ WRITE.colorset = (nt, to, alpha, text) => {
 // colorSpace → [library space, its scale over the token's numbers, places written, bound]
 const DTCG = {
 	'srgb': ['rgb', 255, 4, 'srgb'], 'srgb-linear': ['lrgb', 1, 4, null], 'display-p3': ['p3', 1, 4, 'p3'], 'a98-rgb': ['a98rgb', 1, 4, null],
-	'prophoto-rgb': ['prophoto', 1, 5, null], 'hsl': ['hsl', 1, 2, 'srgb'], 'hwb': ['hwb', 1, 2, 'srgb'], 'lab': ['lab', 1, 3, null],
+	'prophoto-rgb': ['prophoto', 1, 5, null], 'rec2020': ['rec2020-display', 1, 5, null], 'hsl': ['hsl', 1, 2, 'srgb'], 'hwb': ['hwb', 1, 2, 'srgb'], 'lab': ['lab', 1, 3, null],
 	'lch': ['lchab', 1, 3, null], 'oklab': ['oklab', 1, 4, null], 'oklch': ['oklch', 1, 4, null], 'xyz-d65': ['xyz', 100, 5, null], 'xyz-d50': ['xyz-d50', 100, 5, null],
 }
 function tokens(text) {

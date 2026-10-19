@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- 16 spaces, 221 in all: CIECAM16 (CIE 248:2022), CIECAM97s (CIE 131-1998), ACES 2.0 JMh, Hellwig 2022 with the Helmholtz–Kohlrausch lightness, Helmlab MetricSpace, log-compressed OSA-UCS (Oleari 2009), Cubehelix (d3's three-channel space), display-referred Rec. 709 and Rec. 2020 (BT.1886, γ 2.4) and sRGB (γ 2.2), YyCxCz, the Poirson–Wandell opponent space of S-CIELAB, Venice S-Gamut3 and S-Gamut3.Cine, ADX10 and ADX16.
 - `color-space/conformance.json`: the cited reference conversions, each with its source, link and kind, for any library's tests.
-- `color-space/ocio`: `colorspace(space)`, a space as an OpenColorIO 2 colorspace from native transforms only, to ACES2065-1 or CIE XYZ D65; 53 spaces, checked against the library to 1e-6 and loaded by OpenColorIO 2.6.
+- `color-space/ocio`: `colorspace(space)`, a space as an OpenColorIO 2 colorspace from native transforms only, to ACES2065-1 or CIE XYZ D65; 55 spaces, checked against the library to 1e-6 and loaded by OpenColorIO 2.6.
 - `gamuts.js` exports `whites` (the specs' white xy) and `matrix` (SMPTE RP 177); data.json carries each gamut's RGB → XYZ matrix and its inverse.
 - Primaries for 34 camera-log spaces (`@gamut`); new gamuts S-Gamut3.Cine, Cinema Gamut, Apple Wide Gamut, F-Gamut C, Kinefinity Wide Gamut.
+
+### Changed
+
+- `color(rec2020 …)` parses to and formats from `rec2020-display` (CSS Color 4's BT.1886 γ 2.4), at 5 decimals; it decoded to `rec2020-linear` before.
 
 ### Fixed
 

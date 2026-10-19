@@ -10,8 +10,8 @@
  * them: rgb() to [0, 255], a negative saturation or chroma to 0, lab/lch lightness to [0, 100], oklab/oklch to [0, 1],
  * alpha to [0, 1]). Anything else inside the parentheses – var(), calc(), relative `from` syntax – is not a literal.
  *
- * Not here: color(rec2020 …). CSS now defines it with a pure 2.4 gamma, while this library's rec2020 carries the
- * BT.2020 OETF (css.js), so the same numbers would name a different color.
+ * color(rec2020 …) is the library's rec2020-display: CSS defines it with a pure 2.4 gamma (BT.1886), while the
+ * library's rec2020 carries the BT.2020 OETF (css.js), so the same numbers there would name a different color.
  */
 import space from '../../../index.js'
 import { CSS } from '../../../css.js'
@@ -25,7 +25,7 @@ export const clamp = (x, lo, hi) => x < lo ? lo : x > hi ? hi : x
 // color(<ident> …): the library space, the scale of its channels (CSS's 1 → ours), the places css.js writes
 const PREDEFINED = {
 	'srgb': ['rgb', 255, 4], 'srgb-linear': ['lrgb', 1, 4], 'display-p3': ['p3', 1, 4], 'a98-rgb': ['a98rgb', 1, 4],
-	'prophoto-rgb': ['prophoto', 1, 5], 'xyz': ['xyz', 100, 5], 'xyz-d65': ['xyz', 100, 5], 'xyz-d50': ['xyz-d50', 100, 5],
+	'prophoto-rgb': ['prophoto', 1, 5], 'rec2020': ['rec2020-display', 1, 5], 'xyz': ['xyz', 100, 5], 'xyz-d65': ['xyz', 100, 5], 'xyz-d50': ['xyz-d50', 100, 5],
 }
 const ANGLE = { '': 1, deg: 1, rad: 180 / Math.PI, grad: 0.9, turn: 360 }
 // CSS's legacy notations: bound to sRGB, they can't name a wider color (and a gradient of them mixes in sRGB)
@@ -158,8 +158,8 @@ export function gradients(text) {
 	return out
 }
 
-// <color-space> of a color interpolation method → the library space; rec2020 isn't here (its transfer differs, see above)
-const MIX = { srgb: 'rgb', 'srgb-linear': 'lrgb', 'display-p3': 'p3', 'a98-rgb': 'a98rgb', 'prophoto-rgb': 'prophoto', lab: 'lab', lch: 'lchab', oklab: 'oklab', oklch: 'oklch', xyz: 'xyz', 'xyz-d65': 'xyz', 'xyz-d50': 'xyz-d50', hsl: 'hsl', hwb: 'hwb' }
+// <color-space> of a color interpolation method → the library space (rec2020 is rec2020-display, see above)
+const MIX = { srgb: 'rgb', 'srgb-linear': 'lrgb', 'display-p3': 'p3', 'a98-rgb': 'a98rgb', 'prophoto-rgb': 'prophoto', rec2020: 'rec2020-display', lab: 'lab', lch: 'lchab', oklab: 'oklab', oklch: 'oklch', xyz: 'xyz', 'xyz-d65': 'xyz', 'xyz-d50': 'xyz-d50', hsl: 'hsl', hwb: 'hwb' }
 /**
  * The space a gradient mixes its stops in, as the panel draws it: { space, hue }, or null for a space the library can't
  * mix in. CSS Color 4 #interpolation-space: the space its `in` names, else Oklab – except that colors in the legacy

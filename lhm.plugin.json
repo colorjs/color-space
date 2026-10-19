@@ -2,7 +2,7 @@
   "identifier": "colorjs-color-space",
   "name": "color-space",
   "version": "3.4.0",
-  "description": "Color conversions math for 205+ color spaces, including OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs, print and appearance models. Every space is tested against a cited reference value. A color goes in as any CSS string or as channel values. Tools: convert, gamut, css, space, spaces, cube, shader, icc and code. No API key, no configuration and no network.",
+  "description": "Color conversions math for 221+ color spaces, including OKLCH, CIELAB, CAM16, HCT, Display P3, Rec. 2020, camera logs, print and appearance models. Every space is tested against a cited reference value. A color goes in as any CSS string or as channel values. Tools: convert, gamut, css, space, spaces, cube, shader, icc and code. No API key, no configuration and no network.",
   "author": "Dmitry Ivanov",
   "authorUrl": "https://github.com/dy",
   "homepage": "https://color-space.io/",
@@ -28,17 +28,17 @@
     {
       "name": "convert",
       "title": "Convert color",
-      "description": "Convert a color between any two of the 205 color spaces, identity included, in each space's conventional ranges (rgb 0-255, oklch L 0-1 / C 0-0.4 / H 0-360, lab L 0-100 …). The color goes in as a CSS string (`color`) or as channel values (`from` + `values`); a batch as `colors` – tuples in `from`, CSS strings, or both. Out-of-range in, unclamped out: `inRange` flags each channel against the target's conventional range (rgb below 0 means outside sRGB); null = undefined at that coordinate.",
+      "description": "Convert a color between any two of the 221 color spaces, identity included, in each space's conventional ranges (rgb 0-255, oklch L 0-1 / C 0-0.4 / H 0-360, lab L 0-100 …). The color goes in as a CSS string (`color`) or as channel values (`from` + `values`); a batch as `colors` – tuples in `from`, CSS strings, or both. Out-of-range in, unclamped out: `inRange` flags each channel against the target's conventional range (rgb below 0 means outside sRGB); null = undefined at that coordinate.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "from": {
             "type": "string",
-            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "to": {
             "type": "string",
-            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "values": {
             "type": "array",
@@ -170,7 +170,7 @@
         "properties": {
           "from": {
             "type": "string",
-            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "values": {
             "type": "array",
@@ -271,7 +271,7 @@
         "properties": {
           "from": {
             "type": "string",
-            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "values": {
             "type": "array",
@@ -372,7 +372,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "the space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "the space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           }
         },
         "required": [
@@ -455,7 +455,7 @@
     {
       "name": "spaces",
       "title": "Space catalog",
-      "description": "List the 205 color spaces with display name, family, purpose, channels and one-line use. Optional filters: `query` (words matched against id, name, use line and description; best matches first), `family`, `purpose`.",
+      "description": "List the 221 color spaces with display name, family, purpose, channels and one-line use. Optional filters: `query` (words matched against id, name, use line and description; best matches first), `family`, `purpose`.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -558,11 +558,11 @@
         "properties": {
           "from": {
             "type": "string",
-            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "to": {
             "type": "string",
-            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "size": {
             "type": "integer",
@@ -594,11 +594,11 @@
         "properties": {
           "from": {
             "type": "string",
-            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "to": {
             "type": "string",
-            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "language": {
             "type": "string",
@@ -653,7 +653,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "the space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "the space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "grid": {
             "type": "integer",
@@ -711,11 +711,11 @@
         "properties": {
           "from": {
             "type": "string",
-            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "source space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "to": {
             "type": "string",
-            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 205)"
+            "description": "target space id, e.g. 'rgb', 'oklch', 'lab', 'slog3', 'rec709' (the 'spaces' tool lists all 221)"
           },
           "values": {
             "type": "array",

@@ -41,7 +41,7 @@ Channel names, refs, provenance: `color-space/data.json`. Aliases are gone — u
 ### 5. `ciecam` and `cubehelix` removed; `munsell` works now
 
 - `ciecam` (a one-way stub) → full bidirectional `ciecam02`, plus the CAM16 family.
-- `cubehelix` is a colormap, not a space — removed, no replacement.
+- v2's `cubehelix` (one channel: a fraction along Green's helix) is gone. `cubehelix` is back as d3-color's three-channel (H, S, L) space, which converts both ways; the v2 call `cubehelix.rgb(f, { start, rotation, hue, gamma })` is `space.cubehelix.rgb(120·start − 120 + 360·rotation·f, hue / 2, f ** gamma)` clamped to 0–255 (v2 defaults: start 0, rotation 0.5, hue 1, gamma 1).
 - v2 `munsell` was a broken stub; v3 implements the 1943 renotation bidirectionally.
 
 ### 6. Custom spaces connect both ways
@@ -62,7 +62,7 @@ Disconnected, duplicate and reserved names are rejected; neither input is mutate
 
 ### 7. New since v2
 
-205 spaces (v2: 41) · any-to-any by shortest path · `lite` / `wasm` / `gl` / `lut` / `icc` tiers · `data.json`, `gamuts.js`, `whitepoints.js`.
+221 spaces (v2: 41) · any-to-any by shortest path · `lite` / `wasm` / `gl` / `lut` / `icc` tiers · `data.json`, `gamuts.js`, `whitepoints.js`.
 
 ## From v1 to v2
 

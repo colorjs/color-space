@@ -185,7 +185,7 @@ const KIND = (ops) => ops.find((o) => o.type !== 'MatrixTransform')?.type ?? 'Ma
 // --- tests ------------------------------------------------------------------------------------
 
 test('ocio: the supported set', () => {
-	is(IDS.length, 53, `${IDS.length} of ${Object.keys(space).length} spaces have an exact native snippet`)
+	is(IDS.length, 55, `${IDS.length} of ${Object.keys(space).length} spaces have an exact native snippet`)
 	for (const id of ['xyz', 'acescg', 'aces2065-1', 'sgamut3cine', 'slog3', 'logc3', 'logc4', 'vlog', 'log3g10', 'acescct', 'davinci', 'bmdfilm', 'rec2020', 'a98rgb', 'ecirgb', 'olog2'])
 		ok(IDS.includes(id), `${id} has a snippet`)
 	is(colorspace(space.slog3), colorspace('slog3'), 'space object and id give the same snippet')

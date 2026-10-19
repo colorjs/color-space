@@ -60,7 +60,7 @@ try {
 	page.on('pageerror', error => errors.push(error.message))
 	await page.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })   // ?sw: loopback skips the service worker for dev-freshness — the offline pin below needs it registered
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
-	assert.equal(await page.locator('.ent').count(), 205, 'catalog has all spaces')
+	assert.equal(await page.locator('.ent').count(), 221, 'catalog has all spaces')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
 	// the row's color rests in the hero's field – its rhombus on the field's middle – and, sticky, pins in the row
 	const dockAt=()=>page.evaluate(()=>{ const c=document.querySelector('.cx .cdw').getBoundingClientRect(), f=document.getElementById('hq').getBoundingClientRect(), r=document.getElementById('strip').getBoundingClientRect()
@@ -328,19 +328,19 @@ try {
 	await page.locator('.gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtag[data-g="era"]').click()
-	assert.equal(await page.locator('.ent[data-s]').count(), 205, 'era regroup keeps every space')
+	assert.equal(await page.locator('.ent[data-s]').count(), 221, 'era regroup keeps every space')
 	assert.match(await page.locator('.toc .tn').first().textContent(), /2020/, 'era shelves lead the rail, newest first')
 	await lens(page,'f','scene')
 	assert.equal(await page.locator('.ent[data-s="slog3"]').isVisible(), true, 'signal filter composes with the era cut')
 	assert.equal(await page.locator('.ent[data-s="hsl"]').isVisible(), false, 'and still drops non-matches there')
 	assert.match(await page.locator('#c-more').getAttribute('title'), /^Filters: .*Scene/, 'Filters names the picked signal')
-	await page.locator('#fclr').click(); assert.equal(await page.locator('.cells .count').innerText(), '205 spaces', 'the × lets every pick go at once')
+	await page.locator('#fclr').click(); assert.equal(await page.locator('.cells .count').innerText(), '221 spaces', 'the × lets every pick go at once')
 	await lens(page,'f','scene')   // picked again, for what follows
 	await lens(page,'f','scene')   // unpicked where it was picked – no Any
 	await page.locator('.gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
 	await page.locator('.gtag[data-g="author"]').click()
-	assert.deepEqual(await page.evaluate(() => { const k = [...document.querySelectorAll('#cat .sec')].map(s => s.dataset.k); return [k[0], k.at(-1), document.querySelectorAll('#cat .sec .ent').length] }), ['author.cie', 'author.people', 205], 'the Author cut: the CIE first, the researchers last, every space shelved once')
+	assert.deepEqual(await page.evaluate(() => { const k = [...document.querySelectorAll('#cat .sec')].map(s => s.dataset.k); return [k[0], k.at(-1), document.querySelectorAll('#cat .sec .ent').length] }), ['author.cie', 'author.people', 221], 'the Author cut: the CIE first, the researchers last, every space shelved once')
 	await page.locator('.gtag[data-g="family"]').click()
 	// a language switch keeps ?g=: the page arrives in that cut, built once, and its tabs stay live – the arrival used to
 	// regroup, then the prerender's drift path redrew the family over it with the cut still set, so Family looked picked and Purpose did nothing
@@ -357,7 +357,7 @@ try {
 	assert.equal(await page.locator('#m-view [data-lens="w"]').count(), 0, 'the layout is not a lens – the View menu holds Quantize, Limit and Vision')
 	assert.equal(await page.locator('#c-layout').getAttribute('data-view'), 'list', 'the switch shows the view it turns to next')
 	await layout(page,'list')
-	assert.equal(await page.locator('.ent.tr').count(), 205, 'the List shows every space')
+	assert.equal(await page.locator('.ent.tr').count(), 221, 'the List shows every space')
 	await page.locator('[data-sort="year"]').first().click()
 	assert.equal(await page.locator('.sec').count(), 1, 'a sorted column gathers every space in one shelf')
 	const years = await page.locator('.ent.tr .c-year').allInnerTexts()
@@ -379,7 +379,7 @@ try {
 	assert.equal(await okl.locator('.pv>.chs').isVisible(), true, 'and back')
 	// the history builds as the reader nears it: one band per space, its milestones read off the data; a band opens its dossier
 	await page.locator('#lineage').scrollIntoViewIfNeeded(); await page.waitForSelector('#lineage .hl-b')
-	assert.equal(await page.locator('#lineage .hl-b').count(), 205, 'the history draws every space')
+	assert.equal(await page.locator('#lineage .hl-b').count(), 221, 'the history draws every space')
 	assert.deepEqual(await page.locator('#lineage .hl-ms[data-s]').evaluateAll(b => b.map(x => x.dataset.s)), ['xyz', 'lab', 'rgb', 'oklab'], 'its milestones: CIE XYZ, CIELAB, sRGB, OKLab')
 	await page.locator('#lineage .hl-ms[data-s="lab"]').click(); await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /CIELAB/, 'a milestone opens its dossier')
@@ -807,6 +807,22 @@ try {
 	  assert.equal(glided,false,'a pointer gliding along a name raises no tip')
 	  assert.equal(rested,true,'resting on it, its tip')
 	  assert.equal(pressed,false,'a press hides it, and it stays hidden while the pointer stays') }
+	// a slider's drag let go off the card keeps the card (the release over the veil once clicked the body: a backdrop close),
+	// a right press on a slider hides no cursor and leaves no drag, and a press and release off the card still close it
+	{ await page.evaluate(()=>document.querySelector('.ent[data-s="oklch"] .nm').click()); await page.locator('#detail .bar2').first().waitFor()
+	  const keep={}
+	  for(const sel of ['#detail .bar2 .nrg','#detail .bar2 .bg']){ const b=await page.locator(sel).first().boundingBox(), y=b.y+b.height/2
+		await page.mouse.move(b.x+b.width*.5,y); await page.mouse.down(); await page.mouse.move(b.x+b.width*.3,y,{steps:5}); await page.mouse.move(20,y,{steps:8}); await page.mouse.up(); await page.waitForTimeout(150)
+		keep[sel]=await page.evaluate(()=>!document.getElementById('modal').hidden&&!document.querySelector('#detail .bar2.live')) }
+	  assert.deepEqual(keep,{'#detail .bar2 .nrg':true,'#detail .bar2 .bg':true},`a slider's drag let go off the card: the card stays, the drag ends (${JSON.stringify(keep)})`)
+	  const b=await page.locator('#detail .bar2 .bg').first().boundingBox(), y=b.y+b.height/2
+	  await page.mouse.move(b.x+b.width*.5,y); await page.mouse.down({button:'right'}); await page.mouse.move(b.x+b.width*.7,y,{steps:5})
+	  const right=await page.evaluate(()=>({ veil:!document.querySelector('.veil').hidden, cursor:getComputedStyle(document.querySelector('#detail .bar2')).cursor, live:!!document.querySelector('#detail .bar2.live') }))
+	  await page.mouse.up({button:'right'}); await page.keyboard.press('Escape')
+	  assert.deepEqual(right,{ veil:false, cursor:'ew-resize', live:false },'a right press on a slider starts no drag and hides no cursor')
+	  await page.evaluate(()=>{ if(document.getElementById('modal').hidden) document.querySelector('.ent[data-s="oklch"] .nm').click() }); await page.locator('#detail .bar2').first().waitFor()
+	  await page.mouse.click(12,Math.round((await page.evaluate(()=>innerHeight))*.6)); await page.waitForTimeout(150)
+	  assert.equal(await page.evaluate(()=>document.getElementById('modal').hidden),true,'a press and release off the card close it') }
 	const mobile = await context.newPage()
 	mobile.on('pageerror', error => errors.push(`mobile: ${error.message}`))
 	await mobile.setViewportSize({ width: 390, height: 844 })
@@ -819,7 +835,7 @@ try {
 		return { shown: [...sec.querySelectorAll('.ent')].filter(e => e.getBoundingClientRect().height > 0).map(e => e.dataset.s), more: sec.querySelector('.fold .more')?.getBoundingClientRect().height > 0, names: [...sec.querySelectorAll('.fns .nm')].filter(e => e.getBoundingClientRect().width > 0).length } })
 	assert.deepEqual(fam.shown, ['rgb', 'p3', 'rec2020', 'lrgb', 'rec709'], 'a phone shows the family\'s featured spaces, then a second row of tiles')
 	assert.equal(fam.more, true, 'and the rest behind its "more"')
-	assert.equal(fam.names, 23, 'its line naming every one it holds back')
+	assert.equal(fam.names, 26, 'its line naming every one it holds back')
 	assert.equal(await mobile.locator('.sec').first().locator('.lead .ent').count(), 1, 'a phone\'s one column leads each family with one featured space')
 	// operating the grouping select must not raise its heading's explainer (tip.js stops
 	// ancestor tips at form controls) — while the heading itself still explains
@@ -937,16 +953,17 @@ try {
 		document.querySelector('#detail #planes .pl .laby').click(); const after=pairs(), key=p=>p.slice().sort().join()
 		return { before, after, distinct:key(after[0])!==key(after[1]), y:after[0][1]!==before[0][1]||after[0][0]!==before[0][0] } })
 	assert.equal(turned.y&&turned.distinct,true,`an axis's name turns it, the planes kept on different pairs (${JSON.stringify(turned)})`)
-	// Exercise the transfer watchdog last: after one intentionally stranded host promise,
-	// the app must retire this optional GPU-present path without starting another transfer.
-	await motion.evaluate(()=>{ const orig=createImageBitmap; window.__bitmapFlight={active:0,max:0,orig,stall:true}; window.createImageBitmap=(...args)=>{ const s=window.__bitmapFlight; s.active++; s.max=Math.max(s.max,s.active)
-		if(s.stall){ s.stall=false; return new Promise(()=>{}) }   // software-GL hosts can strand one snapshot forever
-		try{ return orig(...args).finally(()=>s.active--) }catch(error){ s.active--; throw error } } })
-	const memoryPlane=motion.locator('#detail .pl').first(), mr=await memoryPlane.boundingBox()
-	await motion.mouse.move(mr.x+mr.width*.25,mr.y+mr.height*.55); await motion.mouse.down(); await motion.mouse.move(mr.x+mr.width*.7,mr.y+mr.height*.3,{steps:24}); await motion.mouse.up(); await motion.waitForTimeout(120)
-	await motion.waitForFunction(()=>[...document.querySelectorAll('#detail canvas')].every(c=>!c._glPending&&!c._glQueued))
-	const bitmapFlight=await motion.evaluate(()=>{ const s=window.__bitmapFlight; window.createImageBitmap=s.orig; delete window.__bitmapFlight; return {max:s.max,active:s.active,stall:s.stall} })
-	assert.equal(bitmapFlight.max<=1&&bitmapFlight.active<=1&&(!bitmapFlight.stall||bitmapFlight.max===0),true,'a stalled host snapshot falls back without starting another shared-kernel transfer')
+	// a drag's planes and bars leave the shared kernel canvas once a task: every copy out of it (a drawImage of that detached
+	// WebGL canvas) comes after the task's last kernel draw – a copy between two draws is another wait on the GPU (Safari:
+	// ~10 ms each, five a frame once)
+	await motion.evaluate(()=>{ const s=window.__copies={ n:0, bursts:0, drew:false }, di=CanvasRenderingContext2D.prototype.drawImage, da=WebGL2RenderingContext.prototype.drawArrays
+		s.restore=()=>{ CanvasRenderingContext2D.prototype.drawImage=di; WebGL2RenderingContext.prototype.drawArrays=da }
+		CanvasRenderingContext2D.prototype.drawImage=function(src,...r){ if(src instanceof HTMLCanvasElement&&!src.isConnected&&src.getContext('2d')===null){ s.n++; if(s.drew){ s.bursts++; s.drew=false } } return di.call(this,src,...r) }
+		WebGL2RenderingContext.prototype.drawArrays=function(...a){ if(!this.canvas.isConnected) s.drew=true; return da.apply(this,a) } })
+	const copyBar=await motion.locator('#detail .bar2').first().boundingBox()
+	await motion.mouse.move(copyBar.x+copyBar.width*.2,copyBar.y+copyBar.height/2); await motion.mouse.down(); await motion.mouse.move(copyBar.x+copyBar.width*.8,copyBar.y+copyBar.height/2,{steps:24}); await motion.mouse.up(); await motion.waitForTimeout(120)
+	const copies=await motion.evaluate(()=>{ const s=window.__copies; s.restore(); delete window.__copies; return { n:s.n, bursts:s.bursts } })
+	assert.equal(copies.bursts>0&&copies.n>=2*copies.bursts,true,`a slider drag's planes and bars copy out of the kernel canvas together, once a task (${JSON.stringify(copies)})`)
 	await motionContext.close()
 	// a value emptied lets the color go once the field is let go; the distance waits for a palette; the row's own field focuses where it is
 	const freshContext=await browser.newContext({viewport:{width:1440,height:800},reducedMotion:'reduce'}), fresh=await freshContext.newPage(); await fresh.goto(`${server.origin}/?cb=${Date.now()}`,{waitUntil:'networkidle'})

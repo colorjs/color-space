@@ -326,7 +326,7 @@ try {
 		ok(await ui.locator('#splist .spo').count() === Object.keys(space).length, 'All spaces: every space, once')
 		const seq = await ui.locator('#spgroup').evaluate(g => [...g.children].filter(c => c.tagName !== 'BUTTON').map(c => c.tagName === 'HR' ? '—' : c.value))
 		ok(seq.slice(0, 4).join() === 'all,—,featured,—' && seq.filter(x => x === '—').length === 2, `All spaces and Featured each parted from what follows (${seq.slice(0, 5)})`)
-		await ui.locator('#spgroup').selectOption('Film & camera')
+		await ui.locator('#spgroup').selectOption('Camera')
 		const film = await ui.locator('#splist .spo').evaluateAll(es => es.map(e => e.dataset.id))
 		ok(film.includes('slog3') && !film.includes('oklch') && await ui.locator('#spmenu').isVisible(), `the family select narrows the list to a family (${film.length})`)
 		await ui.locator('#spgroup').selectOption('featured')

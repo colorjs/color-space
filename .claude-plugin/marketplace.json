@@ -11,7 +11,7 @@
     {
       "name": "color-space",
       "source": "./plugins/claude",
-      "description": "Color math for 205 color spaces, tested against cited sources – MCP server and skill."
+      "description": "Color math for 221 color spaces, tested against cited sources – MCP server and skill."
     }
   ]
 }

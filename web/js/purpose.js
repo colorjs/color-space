@@ -2,7 +2,7 @@
 // families say what a space IS; this says what you reach for it to do). Curated
 // from meta.use, one or two tags per space; the vocabulary stays small enough to
 // read as chips. ORDER is the display order: maker tasks first, science last.
-export const ORDER = ['picking', 'palettes', 'editing', 'compositing', 'grading', 'delivery', 'print', 'difference', 'measurement', 'research']
+export const ORDER = ['picking', 'palettes', 'editing', 'compositing', 'grading', 'delivery', 'print', 'difference', 'research']
 
 // one line per tag — the filter chips' tooltips AND the purpose-grouped shelf tooltips
 export const TIPS = {
@@ -14,49 +14,54 @@ export const TIPS = {
 	delivery: 'publishing to screens, files and streams – the encodings content ships in',
 	print: 'inks, paints and surface-color specification – subtractive and atlas systems',
 	difference: 'quantifying how far apart two colors look – ΔE metrics and their spaces',
-	measurement: 'colorimetry – specifying and measuring color itself, the reference layer',
-	research: 'vision science and imaging research – physiological and experimental coordinates',
+	research: 'colorimetry and vision research – the reference coordinates, physiological and experimental ones',
 }
 
 // the 3–4 word answer to "used for?" — the catalog card tip's second breath
 export const USE = {
 	picking: 'color picker controls', palettes: 'palettes and gradients', editing: 'image-editing headroom',
 	compositing: 'linear-light compositing', grading: 'capture and grading', delivery: 'screen and stream delivery',
-	print: 'print and surface color', difference: 'color-difference metrics', measurement: 'colorimetric reference',
-	research: 'vision research',
+	print: 'print and surface color', difference: 'color-difference metrics',
+	research: 'colorimetry and vision research',
 }
 
 export default {
 	// ── display & web ──
 	rgb: ['delivery'], p3: ['delivery'], rec2020: ['delivery'], rec709: ['delivery'],
+	'rec709-display': ['delivery'],
+	'rgb-display': ['delivery'],
 	'dci-p3': ['delivery'], ntsc: ['delivery'], pal: ['delivery'], 'smpte-240m': ['delivery'], ecirgb: ['editing', 'print'], widegamut: ['editing'], colormatch: ['editing', 'print'], brucergb: ['editing', 'print'], betargb: ['editing'], bestrgb: ['editing'], donrgb4: ['editing'], ektaspace: ['editing'], russellrgb: ['editing', 'print'],
 	lrgb: ['compositing'], 'p3-linear': ['compositing'], 'a98rgb-linear': ['compositing'],
 	'prophoto-linear': ['compositing'], 'rec2020-linear': ['compositing', 'grading'], scrgb: ['compositing'],
+	'rec2020-display': ['delivery'],
 	prophoto: ['editing'], a98rgb: ['editing', 'print'], 'apple-rgb': ['editing'], rimm: ['editing'],
-	'cie-rgb': ['measurement'],
+	'cie-rgb': ['research'],
 	// ── cylindrical ──
 	hsl: ['picking'], hsv: ['picking'], hwb: ['picking'], hcg: ['picking'], hcl: ['picking'],
 	hsp: ['picking'], hcy: ['picking'], hsi: ['research'], ihls: ['research'], hsm: ['research'], orgb: ['editing'], prismatic: ['editing'],
+	cubehelix: ['palettes'],
 	// ── perceptual — modern ──
 	oklch: ['palettes'], oklab: ['palettes'], hct: ['palettes'], oklrab: ['palettes'], oklrch: ['palettes'],
 	helmgen: ['palettes'], helmgenlch: ['palettes'],
+	'helmlab-metric': ['difference'],
 	okhsl: ['picking'], okhsv: ['picking'], okhwb: ['picking'],
 	srlab2: ['difference'], sucs: ['difference'], igpgtg: ['difference'], prolab: ['research'],
 	// ── perceptual — CIE classic ──
-	lab: ['measurement', 'difference'], luv: ['measurement', 'difference'],
+	lab: ['difference'], luv: ['difference'],
 	lchab: ['palettes'], lchuv: ['palettes'], 'lab-d65': ['difference'], 'lch-d65': ['palettes'], msh: ['palettes'],
 	hsluv: ['picking', 'palettes'], hpluv: ['picking', 'palettes'], din99: ['difference'],
 	'din99o-lab': ['difference'], 'din99o-lch': ['difference'], din99c: ['difference'], din99d: ['difference'],
-	labh: ['difference'], 'hunter-rdab': ['measurement'], anlab: ['difference'], ucs: ['measurement'], uvw: ['measurement'],
+	'osaucs-ee': ['difference'],
+	labh: ['difference'], 'hunter-rdab': ['research'], anlab: ['difference'], ucs: ['research'], uvw: ['research'],
 	// ── HDR & wide gamut ──
 	ictcp: ['grading', 'difference'], 'ictcp-hlg': ['delivery'], iptpqc2: ['delivery'], jzazbz: ['difference'], jzczhz: ['editing'],
 	'rec2100-pq': ['delivery'], 'rec2100-hlg': ['delivery'], 'rec2100-linear': ['compositing', 'grading'],
 	ipt: ['research'], 'ipt-ragoo': ['research'], izazbz: ['research'], 'hdr-ipt': ['research'], iapbp: ['research'], 'hdr-cie-lab': ['research'], icacb: ['research'], ydzdx: ['delivery'],
 	// ── colorimetry & vision ──
-	xyz: ['measurement'], xyy: ['measurement'], 'xyz-d50': ['measurement', 'print'], 'xyz-abs-d65': ['measurement'], logluv: ['delivery'],
-	uv: ['measurement'], 'cct-duv': ['measurement'], kelvin: ['measurement'], wavelength: ['measurement'],
-	dsh: ['measurement'], gray: ['measurement'],
-	lms: ['research', 'measurement'], maxwell: ['research'], macboyn: ['research'], dkl: ['research'],
+	xyz: ['research'], xyy: ['research'], 'xyz-d50': ['research', 'print'], 'xyz-abs-d65': ['research'], logluv: ['delivery'],
+	uv: ['research'], 'cct-duv': ['research'], kelvin: ['research'], wavelength: ['research'],
+	dsh: ['research'], gray: ['research'],
+	lms: ['research'], maxwell: ['research'], macboyn: ['research'], dkl: ['research'],
 	rg: ['research'], yrg: ['grading'],
 	// ── video & broadcast ──
 	'ycbcr-bt709': ['delivery'], 'ycbcr-bt2020': ['delivery'], 'ycbcr-bt601-525': ['delivery'],
@@ -67,21 +72,31 @@ export default {
 	acescg: ['compositing', 'grading'], 'aces2065-1': ['grading'], acescc: ['grading'], acescct: ['grading'],
 	acesproxy: ['grading'], logc3: ['grading'], awg3: ['compositing', 'grading'], logc4: ['grading'], awg4: ['compositing', 'grading'], slog: ['grading'], slog2: ['grading'],
 	slog3: ['grading'], sgamut3: ['compositing', 'grading'], sgamut3cine: ['grading'], vlog: ['grading'], vgamut: ['compositing', 'grading'], log3g10: ['grading'], rwg: ['compositing', 'grading'], log3g12: ['grading'],
+	'sgamut3-venice': ['grading'],
+	'sgamut3cine-venice': ['grading'],
 	clog: ['grading'], clog2: ['grading'], clog3: ['grading'], 'dci-p3-plus': ['grading'], flog: ['grading'], flog2: ['grading'], flog2c: ['grading'],
 	nlog: ['grading'], applelog: ['grading'], applelog2: ['grading'], bmdfilm: ['grading'], bmdwg: ['compositing', 'grading'], dlog: ['grading'], dgamut: ['compositing', 'grading'], tlog: ['grading'], egamut: ['compositing', 'grading'],
 	kinelog3: ['grading'], gplog2: ['grading'], ilog: ['grading'], samsunglog: ['grading'],
 	davinci: ['grading'], dwg: ['compositing', 'grading'], cineon: ['grading'], llog: ['grading'], protune: ['grading'], milog: ['grading'],
+	adx10: ['grading'],
+	adx16: ['grading'],
 	olog: ['grading'], olog2: ['grading'], redlog: ['grading'], redlogfilm: ['grading'], panalog: ['grading'], viperlog: ['grading'],
 	filmicpro: ['grading'], dcdm: ['delivery'], erimm: ['editing'],
 	// ── appearance models ──
 	cam16: ['research'], ciecam02: ['research'], zcam: ['research'], hellwig2022: ['research'], scam: ['research'], kim2009: ['research'],
+	ciecam16: ['research'],
+	ciecam97s: ['research'],
+	'hellwig2022-hk': ['research'],
+	'aces2-jmh': ['delivery'],
 	rlab: ['research'], llab: ['research'], nayatani95: ['research'], hunt: ['research'], atd95: ['research'],
 	'cam16-ucs': ['difference'], 'cam02-ucs': ['difference'], 'cam16-lcd': ['difference'],
 	'cam16-scd': ['difference'], 'cam02-lcd': ['difference'], 'cam02-scd': ['difference'],
 	// ── print & physical ──
-	cmyk: ['print'], cmy: ['print'], munsell: ['print', 'measurement'], ryb: ['print'],
+	cmyk: ['print'], cmy: ['print'], munsell: ['print'], ryb: ['print'],
 	'ral-design': ['print'], coloroid: ['print'], ostwald: ['print'],
 	// ── specialty & research ──
 	xyb: ['delivery'], osaucs: ['difference'], tsl: ['research'], yes: ['research'],
 	ohta: ['research'], lalphabeta: ['research'],
+	ycxcz: ['difference', 'research'],
+	'poirson-wandell': ['difference', 'research'],
 }

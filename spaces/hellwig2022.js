@@ -40,7 +40,7 @@ const env = environment(white.map(c => c / 100), 318.31, 20, 'average', false);
 // offset (verified: J=41.7312, Q=55.852 vs colour-science). No n_bb scaling (the CAM16→
 // Hellwig change).
 const rgbAW = adapt(mat3(cat16, ...white).map((c, i) => c * env.dRgb[i]), env.fl);
-const Aw = 2 * rgbAW[0] + rgbAW[1] + 0.05 * rgbAW[2];
+export const Aw = 2 * rgbAW[0] + rgbAW[1] + 0.05 * rgbAW[2];
 
 // Hellwig 4-harmonic eccentricity factor (h in radians)
 const ecc = h => -0.0582 * Math.cos(h) - 0.0258 * Math.cos(2 * h) - 0.1347 * Math.cos(3 * h) + 0.0289 * Math.cos(4 * h)

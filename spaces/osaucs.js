@@ -52,8 +52,23 @@ const A_AUG_INV = inv3([
 ]);
 
 // OSA modified-luminance factor K(x,y) (Y0 = K·Y)
-const Kfactor = (x, y) =>
+export const Kfactor = (x, y) =>
 	4.4934 * x * x + 4.3034 * y * y - 4.276 * x * y - 1.3744 * x - 2.56439 * y + 1.8103;
+
+// MacAdam's lightness L' of the modified luminance Y0, before the offset and the 1/√2 scale
+export const lightness = (Y0) => 5.9 * (Math.cbrt(Y0) - 2 / 3 + 0.042 * Math.cbrt(Y0 - 30));
+
+// its inverse as t = ∛Y0: L'/5.9 + 2/3 = φ(t) = t + 0.042·∛(t³-30). φ is strictly increasing
+// but has a VERTICAL tangent at t³ = 30 (Y0 = 30, i.e. L ≈ 0), where Newton stalls – so bisect.
+export const lightnessRoot = (L_) => {
+	var u = L_ / 5.9 + 2 / 3;
+	var tLo = 0, tHi = Math.max(u + 1, 2), t;
+	for (var i = 0; i < 80; i++) {
+		t = (tLo + tHi) / 2;
+		if (t + 0.042 * Math.cbrt(t * t * t - 30) < u) tLo = t; else tHi = t;
+	}
+	return (tLo + tHi) / 2;
+};
 
 /**
  * XYZ (0-100) -> OSA-UCS Ljg
@@ -69,7 +84,7 @@ xyz.osaucs = function (X, Y, Z) {
 	var Y0 = Kfactor(x, y) * Y;
 
 	// signed cube root throughout (MacAdam 1974 / colour-science use spow)
-	var L_ = 5.9 * (Math.cbrt(Y0) - 2 / 3 + 0.042 * Math.cbrt(Y0 - 30));
+	var L_ = lightness(Y0);
 	var L = (L_ - 14.3993) / Math.SQRT2;
 
 	var C = L_ / (5.9 * (Math.cbrt(Y0) - 2 / 3));
@@ -91,17 +106,9 @@ xyz.osaucs = function (X, Y, Z) {
  * @see {@link https://colour.readthedocs.io/en/develop/_modules/colour/models/osa_ucs.html}
  */
 osaucs.xyz = function (L, j, g) {
-	// recover L' and the lightness root t = ∛Y0 from L' = 5.9(t - 2/3 + 0.042·∛(t³-30)).
-	// φ(t) = t + 0.042·∛(t³-30) is strictly increasing but has a VERTICAL tangent at
-	// t³ = 30 (Y0 = 30, i.e. L ≈ 0), where Newton stalls — so bisect instead.
+	// recover L' and the lightness root t = ∛Y0
 	var L_ = L * Math.SQRT2 + 14.3993;
-	var u = L_ / 5.9 + 2 / 3; // u = φ(t)
-	var tLo = 0, tHi = Math.max(u + 1, 2), t;
-	for (var i = 0; i < 80; i++) {
-		t = (tLo + tHi) / 2;
-		if (t + 0.042 * Math.cbrt(t * t * t - 30) < u) tLo = t; else tHi = t;
-	}
-	t = (tLo + tHi) / 2;
+	var t = lightnessRoot(L_);
 	var Y0 = t * t * t;
 	var C = L_ / (5.9 * (t - 2 / 3));
 	var a = g / C, b = j / C; // g = C·a, j = C·b

@@ -24,7 +24,7 @@ const near = (a, b, tol) => a.flat().every((v, i) => Math.abs(v - b.flat()[i]) <
 // left 35 files unparseable and hcy without an export).
 test('integrity — every space loads, registers, and is named consistently', () => {
 	const names = Object.keys(space)
-	is(names.length, 205, '205 spaces registered')
+	is(names.length, 221, '221 spaces registered')
 	is(names.filter(n => space[n].name !== n), [], 'every space.name matches its registry key')
 	// reachability: the BFS graph wiring must connect rgb to EVERY space (both directions)
 	const unreachable = names.filter(n => n !== 'rgb' && (typeof space.rgb[n] !== 'function' || typeof space[n].rgb !== 'function'))
@@ -2008,7 +2008,7 @@ test('cvd — filter values are the published matrices, row-major 4×5, in linea
 	is(p1[3], [7.92482, -5.66475, -2.26007, 1, -0.2], 'separation-plane selector row')
 	is(svg.match(/color-interpolation-filters="linearRGB"/g).length, 3, 'linearRGB set explicitly on every filter')
 	is(/display\s*:\s*none/.test(svg) || !/width:0;height:0/.test(svg), false, 'zero-size container, never display:none')
-	is(LENSES.map((l) => [l.id, l.label]), [['none', 'Typical vision'], ['protan', 'Protanopia'], ['deutan', 'Deuteranopia'], ['tritan', 'Tritanopia']], 'lens options')
+	is(LENSES.map((l) => [l.id, l.label]), [['none', 'Typical'], ['protan', 'Protanopia'], ['deutan', 'Deuteranopia'], ['tritan', 'Tritanopia']], 'lens options')
 	is([LENSES[1].cite, LENSES[3].cite].map((c) => c.match(/doi:\S+/)[0]), ['doi:10.1109/TVCG.2009.113', 'doi:10.1364/JOSAA.14.002647'], 'citations')
 })
 
@@ -2057,8 +2057,8 @@ test('track — analytics on: Umami injected once, lazily, auto-track off; event
 	// Umami truncates event names past 50 characters (docs track-events.mdx) – the longest real ids fit
 	const { default: EDITORS } = await import('../web/js/editors.js'), { LENSES } = await import('../web/js/cvd.js')
 	const long = (xs) => xs.reduce((a, b) => b.length > a.length ? b : a, '')
-	const id = long(Object.keys(data.spaces)), ed = long(EDITORS.map((e) => e.id))
-	const worst = [EVENT.lut(id, id, ed), EVENT.icc(id, 'mntr'), EVENT.embed(id), EVENT.tour(99, id), EVENT.vision(long(LENSES.map((l) => l.id)))]
+	const id = long(Object.keys(data.spaces)), id2 = long(Object.keys(data.spaces).filter((n) => n !== id)), ed = long(EDITORS.map((e) => e.id))
+	const worst = [EVENT.lut(id, id2, ed), EVENT.icc(id, 'mntr'), EVENT.embed(id), EVENT.tour(99, id), EVENT.vision(long(LENSES.map((l) => l.id)))]
 	is(worst.filter((n) => n.length > 50), [], `longest names ≤ 50: ${worst.map((n) => n.length).join(', ')}`)
 	const added = [], sent = []
 	globalThis.document = { createElement: () => ({ dataset: {} }), head: { append: (s) => added.push(s) } }
@@ -2080,4 +2080,177 @@ test('track — analytics on: Umami injected once, lazily, auto-track off; event
 		const ev = sent[2]?.({ website: 'w', url: 'https://color-space.io/oklch' })
 		is([sent.length, ev?.name, ev?.url, ev && Object.keys(ev).includes('data')], [3, 'slog3>rec709/generic', '/slog3', false], 'an event: its name on the current path, no properties')
 	} finally { delete globalThis.document; delete globalThis.umami; delete globalThis.location }
+})
+
+// ACES 2.0 JMh (aces-core CTL init_JMhParams(AP0)): RGB 1.0 is the 100 cd/m² reference white, J 100 and M 0 under
+// full adaptation; scene light past it reads J > 100 and comes back exactly; black is 0, 0, 0 both ways
+test('aces2-jmh: reference white J 100, HDR and black round-trip exactly', () => {
+	is(space['aces2065-1']['aces2-jmh'](1, 1, 1).slice(0, 2).map(round(9)), [100, 0], 'ACES2065-1 [1, 1, 1] → J 100, M 0')
+	is(space['aces2065-1']['aces2-jmh'](0, 0, 0), [0, 0, 0], 'black → 0, 0, 0')
+	is(space['aces2-jmh']['aces2065-1'](0, 0, 0), [0, 0, 0], '0, 0, 0 → black')
+	for (const c of [[0.5, 0.25, 0.1], [0.02, 0.4, 0.9], [8, 3, 0.2], [-0.05, 0.3, 0.2]])
+		is(near(space['aces2-jmh']['aces2065-1'](...space['aces2065-1']['aces2-jmh'](...c)), c, 1e-12), true, `round trip ${c}`)
+	is(space['aces2065-1']['aces2-jmh'](8, 3, 0.2)[0] > 100, true, 'light past the reference white reads J > 100')
+})
+
+// Hellwig, Stolitzka & Fairchild 2022: only J moves, by f(h)·C^0.587; the inverse is closed-form
+test('hellwig2022-hk: the H–K term on J only, exact inverse', () => {
+	const X = [41.23908, 21.263901, 1.933082]
+	const [J, M, h] = space.xyz.hellwig2022(...X), hk = space.xyz['hellwig2022-hk'](...X)
+	is(hk.slice(1), [M, h], 'M and h are Hellwig 2022\'s')
+	is(round(6)(hk[0] - J), 7.042561, 'sRGB red: J_HK − J = 7.042561 (colour-science 0.4.7: 53.540234 − 46.497673)')
+	is(near(space['hellwig2022-hk'].hellwig2022(...hk), [J, M, h], 1e-12), true, 'back to Hellwig 2022 exactly')
+	for (const x of [X, [18.05, 7.22, 95.05], [19.01, 20, 21.78], [0, 0, 0]])
+		is(near(space['hellwig2022-hk'].xyz(...space.xyz['hellwig2022-hk'](...x)), x, 1e-10), true, `XYZ ${x} round trip`)
+})
+
+// Helmlab MetricSpace (Yıldız 2026, arXiv:2602.23010v3, v21). Points from the author's helmlab 1.0.0
+// (npm): new Helmlab().metric.space – neutral correction and −28.2° rotation on, the coordinates its
+// Helmlab class reports – fed the library's XYZ Bradford-adapted to Helmlab's ASTM D65; the bona-fide
+// rows' 1e-4 of span is too loose for this.
+test('helmlab-metric: vs helmlab 1.0.0, both directions', () => {
+	const ref = [
+		[[255, 0, 0], [0.920702655896, 0.743986299027, -0.406410318397]],
+		[[0, 255, 0], [0.740573819232, -0.394915003531, 0.735493186271]],
+		[[0, 0, 255], [0.762312843611, -0.363320633597, -0.365407869278]],
+		[[255, 255, 255], [1.12114923197, 9.25658782603e-10, 8.78777259421e-12]],
+		[[128, 128, 128], [0.777880922585, 7.45513222382e-8, -2.5367479762e-7]],
+		[[100, 150, 200], [0.685628512164, -0.247417833562, -0.166133187789]],
+		[[240, 24, 120], [0.984731580006, 0.370086431996, -0.433246510258]],
+		[[17, 17, 17], [0.154768872176, -1.06067463097e-9, -1.98323039494e-8]],
+	]
+	for (const [rgb, lab] of ref) {
+		is(near(space.rgb['helmlab-metric'](...rgb), lab, 1e-9), true, `rgb ${rgb} -> ${lab}`)
+		is(near(space['helmlab-metric'].rgb(...lab), rgb, 1e-6), true, `${lab} -> rgb ${rgb}`)
+	}
+	is(space.xyz['helmlab-metric'](0, 0, 0), [0, 0, 0], 'black is the origin')
+	// out-of-locus XYZ (signed powers) and L > 1, as the author's
+	is(near(space.xyz['helmlab-metric'](0, 100, -10), [0.814780194011, -0.786943972746, 1.12509717377], 1e-9), true, 'imaginary XYZ matches helmlab')
+	is(near(space.xyz['helmlab-metric'](200, 120, 30), [1.86555122993, 0.0773726702452, -0.144430314949], 1e-9), true, 'L > 1 matches helmlab')
+	// the neutral correction puts grays on the axis; Color.js 0.7.1 and coloraide 8.13 skip it (their mid gray: a, b ≈ 0.236, 0.167)
+	for (let v = 10; v < 256; v += 15) is(Math.hypot(...space.rgb['helmlab-metric'](v, v, v).slice(1)) < 5e-5, true, `gray ${v} on the axis`)
+	// round trips through the curve's flat tail (gray L above 1.34) and far outside the cube
+	for (const X of [[237.6, 250, 272.3], [300, 200, 20], [5, 0.2, 40]])
+		is(near(space['helmlab-metric'].xyz(...space.xyz['helmlab-metric'](...X)), X, 1e-9), true, `round trip ${X}`)
+})
+
+// Cubehelix (h, s, l): d3-color 3.1.0's space over Green 2011's helix; culori 4.0.2 and coloraide
+// 8.13.1 agree with d3 to 1e-13. Green's own scheme, eq. 2 / Appendix A, is a line in it.
+test('cubehelix: vs d3-color 3.1.0, both directions; Green 2011 eq. 2', () => {
+	const ref = [
+		[[255, 0, 0], [351.8102617708, 1.948897645372, 0.2999994453152]],
+		[[0, 255, 0], [109.9591652188, 1.921618741732, 0.5900010051127]],
+		[[0, 0, 255], [236.9421716773, 4.61438686804, 0.109999549572]],
+		[[255, 255, 0], [56.94217167732, 4.61438686804, 0.890000450428]],
+		[[100, 150, 200], [206.1810216946, 0.5753933675873, 0.5509804125994]],
+		[[240, 24, 120], [322.5275818549, 1.326478427663, 0.3896464194]],
+		[[33, 180, 90], [131.2283584147, 0.8895858495469, 0.4941181257929]],
+	]
+	for (const [rgb, hsl] of ref) {
+		is(near(space.rgb.cubehelix(...rgb), hsl, 1e-9), true, `rgb ${rgb} -> ${hsl}`)
+		is(near(space.cubehelix.rgb(...hsl), rgb, 1e-8), true, `${hsl} -> rgb ${rgb}`)
+	}
+	// grays have no helix angle: H = S = 0 (d3: NaN, culori: undefined), L the gray itself
+	for (const v of [0, 17, 128, 255]) is(space.rgb.cubehelix(v, v, v), [0, 0, v / 255], `gray ${v}`)
+	// Green's Fortran CUBHLX: start s, rotations r, hue h, gamma γ at fraction λ is
+	// H = 120s − 120 + 360rλ, S = h/2, L = λ^γ
+	const green = (s, r, h, g, f) => {
+		const a = 2 * Math.PI * (s / 3 + 1 + r * f), l = f ** g, amp = h * l * (1 - l) / 2
+		return [l + amp * (-0.14861 * Math.cos(a) + 1.78277 * Math.sin(a)), l + amp * (-0.29227 * Math.cos(a) - 0.90649 * Math.sin(a)), l + amp * 1.97294 * Math.cos(a)].map(v => v * 255)
+	}
+	for (const [s, r, h, g] of [[0.5, -1.5, 1.2, 1], [0.5, -1.5, 1, 1], [2, 0.7, 0.8, 1.5]])
+		for (const f of [0.1, 0.25, 0.5, 0.9])
+			is(near(space.cubehelix.rgb(120 * s - 120 + 360 * r * f, h / 2, f ** g), green(s, r, h, g, f), 1e-9), true, `Green (${s}, ${r}, ${h}, ${g}) at ${f}`)
+})
+
+// BT.1886 (Lb = 0) and the sRGB reference display decode with a pure power, sign-symmetric past 0–1
+// (CSS Color 4 lin_2020); the camera curves they sit beside are different colors at the same numbers
+test('display-referred RGB: pure-power decodes, apart from the camera and piecewise curves', () => {
+	is(space['rec2020-display']['rec2020-linear'](0.5, -0.5, 1).map(round(12)), [0.5 ** 2.4, -(0.5 ** 2.4), 1].map(round(12)), 'rec2020-display: sign·|V|^2.4, as CSS lin_2020')
+	is(space['rec709-display'].lrgb(0.5, 0.5, 0.5).map(round(12)), space['rec2020-display']['rec2020-linear'](0.5, 0.5, 0.5).map(round(12)), 'rec709-display: the same BT.1886 curve')
+	is(round(4)(space.rec2020['rec2020-linear'](0.5, 0.5, 0.5)[0] / space['rec2020-display']['rec2020-linear'](0.5, 0.5, 0.5)[0]), 1.3708, 'the inverse BT.2020 OETF gives signal 0.5 37 % more light than BT.1886')
+	is(space['rgb-display'].lrgb(0.1, 0.1, 0.1).map(round(5)), [0.00631, 0.00631, 0.00631], 'rgb-display: 0.1^2.2')
+	is(space.rgb.lrgb(25.5, 25.5, 25.5).map(round(5)), [0.01002, 0.01002, 0.01002], '…against the piecewise sRGB decode at the same signal')
+	for (const id of ['rec709-display', 'rec2020-display', 'rgb-display']) {
+		is(space[id].rgb(...space.rgb[id](200, 100, 50)).map(round(9)), [200, 100, 50], `${id} round-trips sRGB`)
+		is(space[id].rgb(...space.rgb[id](0, 0, 0)).map(round(9)), [0, 0, 0], `${id} keeps black`)
+	}
+})
+
+// YyCxCz is CIELAB without the cube root (white → 100, 0, 0); the Poirson–Wandell channels are a
+// fixed linear map of XYZ, not normalized to a white
+test('ycxcz and poirson-wandell: linear in XYZ', () => {
+	is(space.xyz.ycxcz(95.04559270516717, 100, 108.90577507598783).map(round(9)), [100, 0, 0], 'D65 white → Yy 100, Cx = Cz = 0')
+	is(space.xyz.ycxcz(0, 0, 0), [-16, 0, 0], 'black → Yy −16')
+	const a = [20, 30, 40], b = [50, 40, 10], mid = a.map((x, i) => (x + b[i]) / 2)
+	for (const id of ['ycxcz', 'poirson-wandell']) {
+		const [p, q, m] = [a, b, mid].map((v) => space.xyz[id](...v))
+		is(m.map(round(9)), p.map((x, i) => round(9)((x + q[i]) / 2)), `${id}: the XYZ midpoint maps to the midpoint (filtering commutes)`)
+		is(space[id].xyz(...p).map(round(9)), a, `${id} round-trips XYZ`)
+	}
+	is(space.xyz['poirson-wandell'](95.04559270516717, 100, 108.90577507598783).map(round(3)), [87.069, -5.271, 3.744], 'D65 is not neutral in O2, O3')
+})
+
+// Log-compressed OSA-UCS (Oleari, Melgosa & Huertas 2009): the compression is radial, so hue is kept –
+// G_E, J_E carry the signs of Oleari's G, J, which track MacAdam's g, j (osaucs) away from the darkest steps
+test('osaucs-ee: hue kept – G_E, J_E share the signs of OSA-UCS g, j', () => {
+	for (const c of [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [0, 255, 255], [255, 0, 255], [200, 100, 50], [33, 180, 90], [100, 150, 200]]) {
+		const [, j, g] = space.rgb.osaucs(...c), [, G, J] = space.rgb['osaucs-ee'](...c)
+		is([Math.sign(G), Math.sign(J)], [Math.sign(g), Math.sign(j)], `${c}`)
+	}
+})
+
+test('osaucs-ee: closed-form inverse round-trips, black and the 10° white neutral', () => {
+	for (const X of [[20.654008, 12.197225, 5.136952], [41.24, 21.26, 1.93], [18.05, 7.22, 95.05], [4.75, 5, 5.44], [0.03, 0.03, 0.03], [95.0456, 100, 108.9058]]) {
+		const back = space['osaucs-ee'].xyz(...space.xyz['osaucs-ee'](...X))
+		is(near(back, X, 1e-9), true, `roundtrip ${X}`)
+	}
+	is(space.xyz['osaucs-ee'](0, 0, 0).map(round(2)), [-80.51, 0, 0], 'black: G = J = 0, L_E finite')
+	is(near(space['osaucs-ee'].xyz(...space.xyz['osaucs-ee'](0, 0, 0)), [0, 0, 0], 1e-12), true, 'black inverts to black')
+	// the 0.9366, 0.9807 normalizers are the D65 10° white's A/B, B/C; this library's 2° white sits ~1.4 off
+	const [, G10, J10] = space.xyz['osaucs-ee'](94.809667674, 100, 107.305135952)
+	is(Math.hypot(G10, J10) < 0.01, true, 'D65 10° white neutral')
+	const [, G2, J2] = space.xyz['osaucs-ee'](95.0456, 100, 108.9058)
+	is(Math.hypot(G2, J2).toFixed(2), '1.37', 'D65 2° white: C_E 1.37 (OSA-UCS is defined on 10° data)')
+})
+
+test('ciecam16: CIE 248 f_e – J continuous and rising across q_L = 0.26 and q_U = 150, exact inverse on every branch', async () => {
+	// a gray ramp (D65 white × s): each adapted cone signal of the white (≈ 100) crosses both thresholds
+	const { environment, cat16 } = await import('../spaces/cam16.js')
+	const env = environment([0.9505, 1, 1.0888], 318.31, 20, 'average', false)
+	const w = mat3(cat16, 95.05, 100, 108.88).map((v, i) => v * env.dRgb[i])
+	const J = s => space.xyz.ciecam16(95.05 * s, 100 * s, 108.88 * s)[0]
+	for (const q of [0.26, 150]) for (const wi of w)
+		is(Math.abs(J(q / wi * (1 + 1e-12)) - J(q / wi * (1 - 1e-12))) < 1e-9, true, `J continuous where a cone signal crosses ${q}`)
+	const falls = []
+	for (let s = 1 / 4096, prev = 0; s <= 2.5; s += 1 / 4096) { const j = J(s); if (!(j > prev)) falls.push(s); prev = j }
+	is(falls, [], 'J rises along the ramp, Y 0–250')
+	for (const X of [[0.1901, 0.2, 0.2178], [0.05, 0.03, 0.6], [190.1, 200, 217.8], [300, 200, 60], [-0.5, 1, 2], [19.01, 20, 21.78]])
+		is(near(space.ciecam16.xyz(...space.xyz.ciecam16(...X)), X, 1e-10 * Math.max(1, ...X)), true, `round trip ${X}`)
+	// inside the band CIECAM16 is CAM16 under the same conditions (colour-science 0.4.7 XYZ_to_CAM16)
+	is(space.xyz.ciecam16(41.23908, 21.263901, 1.933082).map(round(4)), [46.4977, 118.7405, 27.4025])
+})
+
+test('ciecam97s: CIE TC1-34 Table 4.1 (CIE 131), all four cases', async () => {
+	const { environment, toCiecam97s, fromCiecam97s } = await import('../spaces/ciecam97s.js')
+	const D65 = [95.05, 100, 108.88], A = [109.85, 100, 35.58]
+	// [XYZ, white, L_A, Table 4.1 as printed: J, Q, h, C, M, one unit of h's last printed digit] (Y_b 20, average)
+	const cases = [
+		[[19.01, 20, 21.78], D65, 318.31, [42.44, 32.86, 219.4, 0.47, 0.49], 0.1],
+		[[57.06, 43.06, 31.96], D65, 31.83, [65.27, 31.88, 19.35, 61.97, 56.52], 0.01],
+		[[3.53, 6.56, 2.14], A, 318.31, [21.04, 20.53, 175.4, 72.99, 74.70], 0.1],
+		[[19.01, 20, 21.78], A, 31.83, [39.88, 22.96, 250.8, 66.85, 60.98], 0.1],
+	]
+	for (const [X, W, L, table, hTol] of cases) {
+		const e = environment(W, L, 20), r = toCiecam97s(X, e), got = [r.J, r.Q, r.h, r.C, r.M]
+		// one unit of the printed last digit: the table's own last digits wobble by one (its s does
+		// more – Cases 2 and 4 print 146.98 and 180.56, eq. 2.26 gives 147.00 and 180.58)
+		got.forEach((v, i) => is(Math.abs(v - table[i]) <= (i === 2 ? hTol : 0.01), true, `${X} under ${W}: ${'JQhCM'[i]} ${v} vs Table 4.1 ${table[i]}`))
+		is(near(fromCiecam97s(r.J, r.M, r.h, e), X, 1e-12 * 100), true, `${X}: exact inverse`)
+	}
+	// Case 1 is near-neutral: its hue turns 7° when M_B^-1 is the 4-decimal print instead of the inverse
+	is(space.xyz.ciecam97s(19.01, 20, 21.78).map(round(2)), [42.44, 0.49, 219.43], 'Case 1 in the space itself')
+	is(space.xyz.ciecam97s(0, 0, 0)[0].toFixed(4), '2.2449', 'black sits at J ≈ 2.24: the noise term 2.05 is 1 short of 3.05')
+	for (const c of [[255, 0, 0], [0, 0, 255], [0, 128, 255], [128, 128, 128], [200, 100, 50], [0, 0, 0], [255, 255, 255]])
+		is(near(space.ciecam97s.rgb(...space.rgb.ciecam97s(...c)), c, 1e-9), true, `roundtrip ${c}`)
 })

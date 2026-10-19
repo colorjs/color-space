@@ -269,9 +269,25 @@ import ektaspace from './ektaspace.glsl.js'
 import russellrgb from './russellrgb.glsl.js'
 import dci_p3_plus from './dci-p3-plus.glsl.js'
 import olog2 from './olog2.glsl.js'
+import hellwig2022_hk from './hellwig2022-hk.glsl.js'
+import aces2_jmh from './aces2-jmh.glsl.js'
+import cubehelix from './cubehelix.glsl.js'
+import helmlab_metric from './helmlab-metric.glsl.js'
+import rec709_display from './rec709-display.glsl.js'
+import rec2020_display from './rec2020-display.glsl.js'
+import rgb_display from './rgb-display.glsl.js'
+import ycxcz from './ycxcz.glsl.js'
+import poirson_wandell from './poirson-wandell.glsl.js'
+import osaucs_ee from './osaucs-ee.glsl.js'
+import adx10 from './adx10.glsl.js'
+import adx16 from './adx16.glsl.js'
+import sgamut3_venice from './sgamut3-venice.glsl.js'
+import sgamut3cine_venice from './sgamut3cine-venice.glsl.js'
+import ciecam16 from './ciecam16.glsl.js'
+import ciecam97s from './ciecam97s.glsl.js'
 
 /** The full registry: every chunk, ready-composed (lean tier: color-space/gl). */
-const reg = compose([xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcr_bt601_525, ycbcr_bt601_625, ycbcr_bt709, ycbcr_bt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3_linear, rec2020, rec2020_linear, rec2100_pq, rec2100_hlg, a98rgb, a98rgb_linear, prophoto, prophoto_linear, acescg, acescc, ictcp, cam16, hct, xyz_d50, xyz_abs_d65, lab_d65, gray, rg, hcl, din99o_lab, din99o_lch, xyb, lch_d65, cam16_ucs, okhwb, aces2065_1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci_p3, smpte_c, ipt, scrgb, rec2100_linear, din99d, ciecam02, cam02_ucs, photoycc, dsh, ral_design, munsell, uv, ohta, anlab, cie_rgb, ntsc, apple_rgb, pal, smpte_240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02_lcd, cam02_scd, cam16_lcd, cam16_scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cct_duv, wavelength, icacb, hdr_ipt, hdr_cie_lab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95, sgamut3cine, applelog2, flog2c, gplog2, kinelog3, samsunglog, ilog, helmgen, helmgenlch, orgb, prismatic, ihls, logluv, ydzdx, din99, din99c, hunter_rdab, msh, scam, kim2009, ipt_ragoo, ictcp_hlg, iptpqc2, iapbp, awg3, awg4, dwg, rwg, bmdwg, vgamut, sgamut3, dgamut, egamut, ecirgb, widegamut, colormatch, brucergb, betargb, bestrgb, donrgb4, ektaspace, russellrgb, dci_p3_plus, olog2])
+const reg = compose([xyz, hsl, hsv, hsi, hwb, cmyk, cmy, xyy, yiq, yuv, ydbdr, ycgco, ypbpr, ycbcr, ycbcr_bt601_525, ycbcr_bt601_625, ycbcr_bt709, ycbcr_bt2020, xvycc, yccbccrc, ucs, uvw, jpeg, lab, labh, lms, maxwell, lchab, luv, lchuv, hsluv, hpluv, coloroid, hcg, hcy, tsl, yes, osaucs, hsp, hsm, lrgb, oklab, oklch, okhsl, okhsv, oklrab, oklrch, jzazbz, jzczhz, p3, p3_linear, rec2020, rec2020_linear, rec2100_pq, rec2100_hlg, a98rgb, a98rgb_linear, prophoto, prophoto_linear, acescg, acescc, ictcp, cam16, hct, xyz_d50, xyz_abs_d65, lab_d65, gray, rg, hcl, din99o_lab, din99o_lch, xyb, lch_d65, cam16_ucs, okhwb, aces2065_1, acescct, rec709, logc4, slog3, vlog, log3g10, clog2, dci_p3, smpte_c, ipt, scrgb, rec2100_linear, din99d, ciecam02, cam02_ucs, photoycc, dsh, ral_design, munsell, uv, ohta, anlab, cie_rgb, ntsc, apple_rgb, pal, smpte_240m, rimm, cineon, logc3, slog2, clog, clog3, bmdfilm, flog, flog2, nlog, applelog, cam02_lcd, cam02_scd, cam16_lcd, cam16_scd, prolab, dlog, sucs, hellwig2022, izazbz, zcam, macboyn, kelvin, cct_duv, wavelength, icacb, hdr_ipt, hdr_cie_lab, srlab2, dkl, rlab, ryb, davinci, tlog, dcdm, lalphabeta, yrg, igpgtg, slog, acesproxy, redlog, redlogfilm, log3g12, panalog, viperlog, llog, protune, milog, olog, filmicpro, erimm, llab, nayatani95, hunt, ostwald, atd95, sgamut3cine, applelog2, flog2c, gplog2, kinelog3, samsunglog, ilog, helmgen, helmgenlch, orgb, prismatic, ihls, logluv, ydzdx, din99, din99c, hunter_rdab, msh, scam, kim2009, ipt_ragoo, ictcp_hlg, iptpqc2, iapbp, awg3, awg4, dwg, rwg, bmdwg, vgamut, sgamut3, dgamut, egamut, ecirgb, widegamut, colormatch, brucergb, betargb, bestrgb, donrgb4, ektaspace, russellrgb, dci_p3_plus, olog2, hellwig2022_hk, aces2_jmh, cubehelix, helmlab_metric, rec709_display, rec2020_display, rgb_display, ycxcz, poirson_wandell, osaucs_ee, adx10, adx16, sgamut3_venice, sgamut3cine_venice, ciecam16, ciecam97s])
 
 /** All chunks by space name (rgb is the root — it has no chunk of its own). */
 export const chunks = reg.chunks

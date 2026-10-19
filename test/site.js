@@ -99,10 +99,10 @@ test('catalog — a family folds past two rows at most, its line naming what it 
 			is([cls.includes(` f${k}`), cls.includes(` g${k}`)], [r === 2, r === 1], `${c.key} at ${k} columns: ${r || 'no'} fold row(s)`)
 			is(held.slice().sort(), r ? c.spaces.slice(at).sort() : [], `${c.key} at ${k} columns: the line names the ${r ? n - at : 0} held back, each once`)
 			if (r) is(body.includes(`<i class="n${k}">${n - at}</i>`), true, `${c.key} at ${k} columns: its count`) } }
-	is(sec('cat.remixes')[1], 'sec f1 g2 g3', 'RGB remixes (12): two rows on a phone (7 behind), one where two would leave fewer than five')
+	is(sec('cat.remixes')[1], 'sec f1 g2', 'Cylindrical (11): two rows on a phone (6 behind), one at two columns, where two would leave fewer than five')
 	is(sec('cat.surface')[1].includes(' f3') || sec('cat.surface')[1].includes(' g3'), false, 'a family that fits two rows carries no fold')
 	const wide = [...sec('cat.display')[2].matchAll(/<li class="fn[^"]*\bh3\b[^"]*"><a class="nm" href="([^"]+)"/g)].map(m => m[1])   // the desktop's line
-	is([wide[0], wide.at(-1)], ['scrgb', 'prophoto-linear'], 'the line leads with a maker not yet met, a variant (a name another space\'s and a word) last')
+	is([wide[0], wide.at(-1)], ['cie-rgb', 'rec709-display'], 'the line leads with a maker not yet met, a variant (a name another space\'s and a word) last')
 })
 
 // the list: the name, then its numbers, then the facts – the coverage last before the kinds' one cell; a retired space's
@@ -161,6 +161,7 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(page.includes('morph=!(PDOWN||autoColor)'), true, 'strips are set without a cross-fade while a color moves')
 	is(page.includes("@property --cur{ syntax:'*'; inherits:false }"), true, 'the current color restyles its readers, never their subtrees')
 	is(page.includes('t-scrollAt<SCROLL_QUIET'), true, 'the orbit holds while the page scrolls')
+	is(page.includes('autoGap/=2') && page.includes('autoFt=0; autoFtAt=t }'), true, 'the orbit\'s pace comes back after a slow spell, and a scroll\'s frames never count against it')
 	is(page.includes("cat.addEventListener('pointercancel'"), true, 'cancelled native catalog drags use the release path')
 	is(page.includes("detail.addEventListener('pointercancel'"), true, 'cancelled native dossier drags use the release path')
 	is(page.includes('el.onpointermove=move; el.onpointerup=up; el.onpointercancel=up'), true, 'cancelled custom dossier drags use the release path')
@@ -181,7 +182,7 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(page.includes('function snapshot3dMask('), true, '3D sheet scenes retain the body mask that keeps their grid visible')
 	is(page.includes('class="marker3"'), true, 'the live 3D picker has an overlay independent of its static scene')
 	is(page.includes('if(heldColor) paint3dMarker()'), true, 'held colors move only the 3D marker rather than repainting the cloud and grid')
-	is(gl.includes('_glQueued'), true, 'deferred plane transfers coalesce instead of accumulating bitmap promises')
+	is(gl.includes('function cellFor(') && (gl.match(/cellFor\(cv2d\.width/g) || []).length === 2, true, 'a task\'s planes and bars draw into cells of one kernel canvas and copy out of it together')
 	is(gl.includes('0.24 * (1.0 - r * r)'), true, '3D cloud points accumulate translucently instead of painting opaque white')
 })
 

@@ -1,9 +1,7 @@
 /**
- * ACEScc — the Academy Color Encoding System's log grading space, on ACEScg's AP1 primaries.
- * Its pure log2 curve maps exposure stops to code values the way film-trained colorists
- * expect. Unlike ACEScct, it has no linear toe near black, favoring mathematical purity over
- * legacy grading-control behavior. Graded footage goes back to ACEScg or ACES2065-1 for the
- * final render.
+ * ACEScc is a logarithmic ACES space for color grading, with the same AP1 primaries as ACEScg.
+ * Its curve is based on log2 and, unlike ACEScct, has no linear segment near black.
+ * After grading, footage is converted back to ACEScg or ACES2065-1 for the final render.
  *
  * @see {@link https://docs.acescentral.com/encodings/acescc/}
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScc_&_ACEScct}
