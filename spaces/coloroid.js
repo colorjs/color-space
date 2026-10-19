@@ -42,7 +42,7 @@ import whitepoint from '../whitepoints.js';
 
 const coloroid = {
 	name: 'coloroid',
-	range: [[10, 76], [0, 100], [0, 100]],
+	range: [[10, 77], [0, 100], [0, 100]],
 	// min: [1, 0, 0],
 	// max: [48, 100, 100],
 
