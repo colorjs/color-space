@@ -106,9 +106,11 @@ const byline = s => { const m = meta[s], e = ending(s), ki = kindIcon('geo', s);
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its
 // channels' .ch strips and .cv numbers in channel order – the painters and the wiring read nothing else
-// the Limit every slider and plane is cut by – Surface by default: the widest reflective view that still reads as a
-// compact body. A 1-channel sweep under Surface or Light is all in by definition (a display limit still cuts it)
-export const LIMIT = 'vis'
+// the Limit every slider and plane is cut by – by default the display's own gamut (index.html: P3 where the screen shows
+// it), sRGB where nothing says more – the prerender's, so a first paint is the one the page keeps there: no colors shown
+// that the screen can only clip. A 1-channel sweep under Surface or Light is all in by definition (a display limit still
+// cuts it)
+export const LIMIT = 'srgb'
 export const limitFor = (cls, gm = LIMIT) => cls.ch.length > 1 ? gm : gm === 'vis' || gm === 'locus' ? 'off' : gm
 const valsAt = (s, st) => { if (!st) return null; try { return s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { return null } }
 const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.hx}" data-g="${st.hx}:0:${n}:${limitFor(cls)}"` : ''} style="--nch:${cls.ch.length}"`

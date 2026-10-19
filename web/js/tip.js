@@ -14,7 +14,7 @@ tip.setAttribute('aria-hidden', 'true')
 tip.inert = true   // hidden, nothing in it takes focus (a live tip's rows are buttons)
 document.body.appendChild(tip)
 
-let target = null, timer = 0, grace = 0, point = null   // point: the place a tip stands at in place of an element (tipAt)
+let target = null, timer = 0, grace = 0, point = null, pressed = null   // point: the place a tip stands at in place of an element (tipAt); pressed: an element pressed, tipless till the pointer leaves it
 let keyed = false, focused = false   // the last input a key (not a press); the tip shown for a focus, not the pointer
 
 // above its element (its box, r), or under it where a page's CSS asks (#tip{--tip-side:bottom}); flipped when it would
@@ -142,18 +142,25 @@ const find = (e) => {
 // into it – to read it, to select and copy what it says (WCAG 1.4.13: hoverable, persistent); back on either, it stays
 const linger = () => parseFloat(getComputedStyle(tip).getPropertyValue('--tip-linger')) || 500
 const stay = () => { clearTimeout(grace); grace = 0 }, leave = () => { grace ||= setTimeout(hide, linger()) }
+// each element's tip its own: it comes once the pointer has RESTED on it the page's wait (#tip{--tip-delay}, else 300 ms) –
+// every move over it starts the wait again, so a pointer crossing the catalog raises none, and the next element never
+// inherits the last one's shown state: its own full wait, from rest (popoff's rule)
+const delay = () => delay.v ??= parseFloat(getComputedStyle(tip).getPropertyValue('--tip-delay')) || 300
 addEventListener('pointerover', (e) => {
 	if (e.pointerType === 'touch') return   // a finger has no hover: a tip on touch is a bubble over what it presses
 	if (tip.contains(e.target)) return stay()
 	const el = find(e)
-	if (point || !el || (el === target && tip.classList.contains('on')) || !helpful(el)) return
+	if (point || !el || el === pressed || (el === target && tip.classList.contains('on')) || !helpful(el)) return
 	if (target && el !== target) hide()   // another element: the last one's tip goes now, its linger too
 	arm(el)
 	target = el; watch(el)
 	clearTimeout(timer)
-	timer = setTimeout(show, parseFloat(getComputedStyle(tip).getPropertyValue('--tip-delay')) || 300)   // the page's wait (#tip{--tip-delay}), else 300 ms
+	timer = setTimeout(show, delay())
 }, { passive: true })
+// a press: what it does is under way, its tip in the way – gone, and none again till the pointer has left it
+addEventListener('pointerdown', (e) => { if (target && !focused && target.contains(e.target)) { pressed = target; hide() } }, true)
 addEventListener('pointerout', (e) => {
+	if (pressed && !pressed.contains(e.relatedTarget)) pressed = null
 	// gone only when the pointer has left both the element (not onto its own children) and the tip, for the linger
 	if (!target) return
 	const to = e.relatedTarget
@@ -174,6 +181,7 @@ addEventListener('scroll', hide, true)
 addEventListener('pointermove', (e) => {
 	if (!target || focused) return
 	if (!target.isConnected) return hide()
+	if (!tip.classList.contains('on') && !point && target.contains(e.target) && (e.movementX || e.movementY)) { clearTimeout(timer); timer = setTimeout(show, delay()) }   // still moving over it: the wait starts again
 	target.contains(e.target) || tip.contains(e.target) ? grace && stay() : leave()
 }, { passive: true })
 // the pointer leaving the page (an embedding frame may never report a pointerout for it) or the window losing focus

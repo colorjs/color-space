@@ -109,7 +109,7 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 .hh .hk:empty{ display:none }   /* a translated title is the search term alone (Цветовые пространства, Farbräume) – an "atlas of" kicker would leave it in the genitive */
 .htitle .hh{ display:inline }   /* the title on its line, its mark beside it */
 .htitle{ font-size:var(--t6); line-height:1.05; white-space:nowrap } .htitle .hh{ white-space:normal }   /* the title's size on its line, which its mark shares – a long title breaks within itself */
-@media(width < 36rem){ .htitle{ white-space:normal } }   /* a phone's column: a language's long title breaks within itself */
+@media(width < 36rem){ .htitle{ white-space:normal } .hh .hk{ margin-bottom:0 } }   /* a phone's column: a language's long title breaks within itself; the kicker on the title's own shoulder – at the phone's smaller title its gap read as a second line's */
 /* the mark before the title – the locus, as the tab's icon draws it – where the hero's own locus has no room beside the
    words; the site's home, as a mark by the title is everywhere */
 .hmark{ display:none }
@@ -117,9 +117,10 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 .hplug{ display:inline-block; overflow:hidden; text-decoration:none; white-space:nowrap }   /* the catalog's tag, the tool's mark leading */
 .hplug .hpi{ display:flex; align-items:center; gap:var(--s2) }   /* inside the pill, the mark and the words centred on each other */
 .hplug .hpi svg{ flex:none; height:var(--s4); width:auto }   /* the mark keeps its shape: a pill squeezed in a full row clips it, never squashes it to nothing */
-@media(width < 48rem){ .hplug .hpf{ display:none } } @media(width < 36rem){ .cells>.hplug{ padding-inline:var(--s1) } }   /* its name and mark; narrower, its mark alone – a chip as close round it as the cells' icons */
-.hplug:hover{ background:var(--hair) }
-.cells>.hplug{ align-self:center; translate:0 calc((var(--t2) - var(--t0)) * .364); margin:0; margin-inline-start:var(--s3) } @media(min-width:1080px){ .cells>.hplug:first-child{ margin-inline-start:calc(var(--railw) + var(--railgap) + var(--s3)) } } .cells>.hplug+.hplug{ margin-inline-start:var(--s1) } @container style(--dk:1){ .cells>.hplug{ display:none } }   /* the plugin and the extension at the row's start – where the spaces' column starts, past the rail, the title's own edge – their words on the count's baseline (centred, a smaller size sits higher by the difference times Inter's (ascent − descent) / 2, .364 em); gone with the hero, never pinned */
+@media(width < 48rem){ .hplug .hpf{ display:none } } @media(width < 36rem){ .hplug{ padding-inline:var(--s1) } }   /* its name and mark; narrower, its mark alone – a chip as close round it as the cells' icons */
+.hplugs>.hplug{ color:var(--ink); background:oklch(from var(--hair) l c h / calc(alpha / 2)) } .hplugs>.hplug:hover{ background:var(--hair) } .hplugs.wide{ z-index:calc(var(--z-sticky-nav) + 1) } .hplugs.wide>.hplug{ color:var(--eink) }   /* see-through and light, the page's ink: over the paper, or the current color's glow under the row, never a gray chip with pale words; the row's edge opened (.wide, js), over its color, in the ink that reads on it */
+.hplugs{ position:absolute; top:calc(-1 * var(--cells-h) - var(--s8)); height:var(--cells-h); display:flex; align-items:center; gap:var(--s1) } .hplugs>.hplug{ translate:0 calc((var(--t2) - var(--t0)) * .364) } @media(width < 36rem){ .hplugs{ top:calc(-1 * var(--cells-h) - var(--s5)) } }   /* the plugin and the extension in the row's band, at the title's edge (the grid's second column) – their words on the count's baseline (centred, a smaller size sits higher by the difference times Inter's (ascent − descent) / 2, .364 em). On the page, not in the row: they scroll away with the hero, under the row, never pinned */
+.mhead{ pointer-events:none } .mhead :is(.medge,.cells>:not(.fill)){ pointer-events:auto } @container style(--dk:1){ .mhead{ pointer-events:auto } }   /* the row's empty band lets the pointer through to them – its controls and its edge answer; docked, the row is the row's, all of it */
 .hsub{ max-width:calc(44rem - var(--s3)); margin:var(--s4) 0 var(--s6); font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:balance }   /* balanced: the year span never left alone on a line; no wider than the field under it (its 44rem, hung s3 out to the left); its doors are the page's links: inline, a comma stays on its word's line */
 @media(width < 36rem){ .hero{ padding-block:calc(var(--cells-h) + var(--s5)) var(--s6) } .hsub{ margin:var(--s2) 0 var(--s5) } }   /* a phone: the promise closer to its title, the catalog closer under the field */
 /* the field: the row's own color rests in it (a view timeline carries it up into the row, below) – the field is its
@@ -230,6 +231,10 @@ html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) 
 @supports (animation-timeline:scroll()){ .hcolor>.cx{ animation:cxdock linear both; animation-timeline:scroll(root); animation-range:calc(var(--hc-dock,50vh) - 2 * var(--s12)) var(--hc-dock,50vh) } }
 @keyframes cxdock{ to{ width:var(--cdw,var(--cxw0)) } }
 body.mopen .hcolor>.cx{ animation:none } @container style(--dk:1){ body.mopen .hcolor>.cx{ width:var(--cdw,max-content) } }
+/* a phone: nothing moves as the page scrolls – the color keeps one size and one width in the hero and in the row (its room
+   to Filters, --cdw), so its clear × stays put; the count gives that room up (Filters' mark stays); its colors nearer the
+   edge, its suggestions' with them; over a card the row stays above the sheet, all of it */
+@media(max-width:640px){ html .hcolor{ --cvf:var(--cvf0) !important } .hcolor>.cx{ width:var(--cdw,var(--cxw0)) !important; padding-inline:0 } #csug .fmtr{ padding-inline-start:var(--s1) } html .hcolor #cvx{ width:var(--s6); margin-inline-end:0 } .cells>.count{ display:none } body.mopen .mhead{ z-index:calc(var(--z-modal) + 1) } }
 @supports not (animation-timeline:scroll()){ @media(min-width:1080px){ .mhead::after{ background-position-y:calc((1 - var(--cvdp,1)) * 100%) } } html .hcolor{ --cvf:calc(var(--cvf0) + (var(--t2) - var(--cvf0)) * var(--cvdp,0)) } .hcolor>.cx{ width:calc(var(--cxw0) + (var(--cdw,var(--cxw0)) - var(--cxw0)) * var(--cvdp,0)) } }
 @property --cvf{ syntax:'<length>'; inherits:true; initial-value:16px }   /* registered (px: an initial value must not lean on the root's size) – so it eases, not flips */
 @keyframes cvdock{ from{ --cvf:var(--cvf0) } to{ --cvf:var(--t2) } }
@@ -462,7 +467,7 @@ body.himg #imgfloat{ display:block }
 .hl-ms b{ display:block; font-weight:700; color:var(--ink); white-space:nowrap }
 :where(p,li,dd,figcaption,.tip){ text-wrap:pretty }   /* running text: no lone word on a last line (never over a float – the cards' heads keep their own wrap) */
 .hl-ms.end b::after{ margin-inline-end:0 }   /* a flag ending on its line keeps the arrow's room, the arrow clear of the line */
-.hl-ms b::after{ content:'↗'; display:inline; padding-inline-start:.25em; margin-inline-end:-1.015em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the catalog's idiom, as .nm: ↗ opens the space */
+.hl-ms b::after{ content:'↗'; position:absolute; padding-inline-start:.25em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the catalog's idiom, as .nm: ↗ opens the space – out of flow at its static place, so an end-aligned name keeps its edge */
 .hl-ms:is(:hover,:focus-visible) b::after{ opacity:1 }
 .hl-ms:hover .hl-mw{ color:var(--body) }
 .hl-mk{ display:block } .hl-mw{ display:block; max-width:24ch; text-wrap:balance; hyphens:auto; overflow-wrap:break-word }   /* a note's measure in every language, the room to the next flag permitting; a long word hyphenates, never crosses its line */
@@ -575,7 +580,7 @@ body.himg #imgfloat{ display:block }
 #tip.on{ opacity:1; transform:none; pointer-events:auto }   /* shown, it takes the pointer: read, selected, copied (js/tip.js linger) */
 /* every title is this bubble (js/tip.js, --tip-all), its tip at its element's middle (--tip-ax): a hairline triangle
    (::before) with the paper over it (::after), the bubble's own edge running on into it */
-#tip{ --tip-all:1; --tip-layer:top; inset:auto; margin:0; border:0; overflow:visible }   /* in the top layer (a popover), over the open menus */
+#tip{ --tip-all:1; --tip-layer:top; --tip-delay:600ms; inset:auto; margin:0; border:0; overflow:visible }   /* in the top layer (a popover), over the open menus; every tip on the page waits 600 ms (js/tip.js) – at 300 a pointer crossing the catalog raised one per name it passed */
 #tip::before,#tip::after{ content:''; position:absolute; left:var(--tip-ax,50%); translate:-50% 0; clip-path:polygon(0 0,100% 0,50% 100%) }
 #tip::before{ top:100%; width:calc(var(--s3) + 2px); height:calc(var(--s2) - 1px); background:var(--hair) }
 #tip::after{ top:calc(100% - var(--rule-hair)); width:var(--s3); height:calc(var(--s2) - 2px); background:var(--paper) }
@@ -698,22 +703,22 @@ body.himg #imgfloat{ display:block }
 	body:not(.flt) .sec.f3:not(.open)>.tiles:not(.dup)>.ent:nth-child(n+9),body:not(.flt) .sec.f3:not(.open)>.tiles.dup>.ent:nth-child(n+11),
 	body:not(.flt) .sec.g3:not(.open)>.tiles:not(.dup)>.ent:nth-child(n+5),body:not(.flt) .sec.g3:not(.open)>.tiles.dup>.ent:nth-child(n+7){ display:none }
 	.more .n3{ display:inline } .sec:not(.f3,.g3) .fold,.fn:not(.h3){ display:none } }
-/* the fold, the tiles' last child: folded, a row of the held-back names in a line, as their tiles title them, the control
+/* the fold, the tiles' last child: folded, a row of the held-back names in a line, a step under their tiles' titles, the control
    at its end – the shelf tabs' voice, soft until pointed at; open, the control alone at the bottom right, its chevron
    turned */
 .fold{ grid-column:1 / -1; display:flex; align-items:baseline; justify-content:flex-end; gap:var(--s6) } .sec.open .fold{ grid-column:-2 / -1; align-self:end } .sec.open .more{ padding-block:0 }   /* open, at the last column's foot: beside the last tile where the row has room, else a line of its own – at the right either way */
-.fns{ display:flex; flex:1; gap:var(--s6); min-width:0; margin:0; padding:0; list-style:none; overflow-x:auto; scrollbar-width:none; overscroll-behavior-x:contain; white-space:nowrap; mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent) }   /* one line of every name it holds, scrolled sideways – fading at the end it runs on past, the field's way (cvfl, cvfr) */
+.fns{ display:flex; flex:1; gap:var(--s6); min-width:0; margin:0; padding:0; font-size:var(--t2); line-height:1.25; list-style:none; overflow-x:auto; scrollbar-width:none; overscroll-behavior-x:contain; white-space:nowrap; mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent) }   /* one line of every name it holds, scrolled sideways – fading at the end it runs on past, the field's way (cvfl, cvfr); a step under a tile's names, the line sized as they are, so their ↗ rides their baseline */
 .fns::-webkit-scrollbar{ display:none }
 @supports (animation-timeline:scroll()){ .fns{ animation:cvfl linear both,cvfr linear both; animation-timeline:scroll(self inline),scroll(self inline); animation-range:0 var(--s1),calc(100% - var(--s1)) 100% } }
 @supports not (animation-timeline:scroll()){ .fns{ --fr:var(--s8) } }
 .fn,.fn .nm{ flex:none; white-space:nowrap }   /* a name never wraps – the line crops it, fading (a text-wrap set above would reopen the wrap: both named) */
-.more{ display:inline-flex; flex:none; align-items:center; gap:var(--s1); font:inherit; font-size:var(--t3); font-weight:650; line-height:1.25; color:var(--soft); background:none; border:0; padding:var(--s1) 0; cursor:pointer; --ic:16px; transition:color var(--dur-micro) var(--ease-out) }
+.more{ display:inline-flex; flex:none; align-items:center; gap:var(--s1); font:inherit; font-size:var(--t2); font-weight:650; line-height:1.25; color:var(--soft); background:none; border:0; padding:var(--s1) 0; cursor:pointer; --ic:16px; transition:color var(--dur-micro) var(--ease-out) }
 .more:is(:hover,:focus-visible){ color:var(--ink) }
 .more i{ display:none; font-style:normal } .more .ic{ transition:rotate var(--dur-short) var(--ease-out) } .more[aria-expanded="true"] .ic{ rotate:180deg }
 .sec.open .more .mo,.sec:not(.open) .more .le,body.flt .fold,.sec.open .fns{ display:none }
 .shw,.stip{ display:none }   /* mobile section headings and their descriptions — the rail carries both on desktop */
 @media(max-width:1079px){ .cat,.introcopy,.faq,.compare{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
-	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 0; font-size:var(--t3); font-weight:800; letter-spacing:-.01em }
+	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 0; font-size:var(--t4); font-weight:800; letter-spacing:-.01em }   /* a family's title as large as its spaces' (a lead card's, t4) – a smaller heading over them read as a caption, not the shelf they are on */
 	.stip{ display:block; max-width:var(--measure); margin:var(--s1) 0 var(--s5); font-size:var(--t2); line-height:1.45; color:var(--soft) }
 	.sec{ padding:var(--s6) 0 var(--s6) }
 	.sec:first-of-type{ padding-top:var(--s6) } }   /* the first family breathes below the pinned row */
@@ -759,7 +764,8 @@ body.himg #imgfloat{ display:block }
 .compare .fav{ flex:none; display:block; width:var(--s4); height:var(--s4); border-radius:var(--radius-control); object-fit:contain }
 .compare [data-t] .fl{ display:inline-flex; vertical-align:middle; width:14px; height:14px; margin-inline-end:var(--s1) } .compare [data-t] .fl svg{ display:block; width:14px; height:14px }   /* a target its Usage tab's mark */
 .compare .vsnote{ max-width:none; margin:var(--s3) 0 0; font-size:var(--t1); line-height:1.5; color:var(--soft); text-align:end }   /* the legend: small, at the sheet's right */
-.vsd>summary{ display:flex; flex-wrap:wrap; align-items:center; gap:var(--s2) var(--s3); list-style:none; cursor:pointer } .vsd .vsl{ flex-basis:100%; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--soft) } .vsd>summary:hover .vsl{ color:var(--body) } .vsd>summary::-webkit-details-marker{ display:none }   /* the sheet on request: its title the control, the fold's chevron after it – turned as it opens */
+.vsd>summary{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s2) var(--s3); list-style:none; cursor:pointer } .vsd>summary::-webkit-details-marker{ display:none } .vsd h2{ display:flex; align-items:center; gap:var(--s3) } .vsd .vsl{ flex-basis:100%; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--soft) } .vsd>summary:hover .vsl{ color:var(--body) }   /* the sheet on request: its title the control, the fold's chevron after it – turned as it opens – and what it holds said under it */
+@media(min-width:1080px){ .vsd>summary{ display:grid; grid-template-columns:calc(var(--railw) + var(--railgap) - var(--s8)) minmax(0,1fr); column-gap:var(--s8) } .vsd .vsl{ grid-column:2 } }   /* the page's columns: the title in the rail's, what it holds where the spaces start, its first line on the title's baseline */
 .vsd>summary .ic{ --ic:var(--s6); color:var(--soft); transition:rotate var(--dur-short) var(--ease-out),color var(--dur-micro) var(--ease-out) } .vsd>summary:hover .ic{ color:var(--ink) } .vsd[open]>summary .ic{ rotate:180deg }
 .tbl tbody tr:last-child :is(th,td){ border-bottom:0 }   /* the next family's hair closes the table */
 .tbl .tsw{ width:6rem; padding-inline-end:0 }
@@ -782,16 +788,16 @@ body.himg #imgfloat{ display:block }
 /* hover keeps the catalog flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
 /* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
-.nm::after{ content:'↗'; display:inline; padding-inline-start:.3em; margin-inline-end:-1.065em; white-space:nowrap; font-size:1em; line-height:1; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* inline, its width given back by its margin (the pad and Inter's ↗, .765em): the hidden mark claims no line width, and – no box of its own – it holds to the last word, never a line alone */
+.nm::after{ content:'↗'; position:absolute; padding-inline-start:.3em; white-space:nowrap; font-size:1em; line-height:inherit; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* out of flow at its static place – right after the last word, on its line: the hidden mark claims no width, in a name's measure or its line's alignment (a give-back margin under-measured names and, in Safari, shifted an end-aligned one) */
 .nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
 .ent .eh{ position:relative; display:flex; align-items:baseline; min-width:0; --nmf:var(--t4); --nml:1.15; font-size:var(--nmf); line-height:var(--nml) }   /* the name first, the maker and year at the first line's end in what it leaves: the name wraps only where it can't keep a line beside the year – never for the maker, who steps aside whole (.by .au). The head's lines are the name's own */
 .ent .eh .nm{ flex:0 1 auto }
 .ent.tc .eh{ --nmf:var(--t3); --nml:1.25 }
-.ent .eh .nm{ padding-inline-end:1.1em } .ent .eh .nm::after{ position:absolute; margin-inline-end:0 }   /* room for the ↗ its hover shows, in its own em: the maker never sits under it – the ↗ at its static place after the last word, out of the name's measured width (its give-back margin under-measured the name by a few pixels, and a head's flex row wrapped it) */
+.ent .eh .nm{ padding-inline-end:1.1em }   /* room for the ↗ its hover shows, in its own em: the maker never sits under it */
 .ent .eh .nm::before{ content:''; position:absolute; inset:0 }   /* the whole head – the name, the year, the maker – opens the card */
 @media(pointer:coarse){ .ent .eh .nm::before{ inset:calc(-1 * var(--s2)) 0 } }   /* a finger's target reaches into the air around the head, not the head itself: a taller name pushed its strips away */
 .ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; text-decoration:none; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
-:is(.ent.tc .eh,.fns) .nm{ font-size:var(--t3); font-weight:650; line-height:1.25 }
+.ent.tc .eh .nm{ font-size:var(--t3) } :is(.ent.tc .eh,.fns) .nm{ font-weight:650; line-height:1.25 }
 .by{ order:1; flex:1 1 0; display:flex; justify-content:flex-end; align-items:baseline; gap:var(--s1); margin-inline-start:var(--s2); font-size:var(--t1); line-height:1.2; color:var(--soft); white-space:nowrap }   /* the maker and year: what the name leaves of its first line */
 .by::before{ content:'\200b'; width:0; margin-inline-end:calc(-1 * var(--s1)); font-size:var(--nmf); line-height:var(--nml) }   /* a strut of the name's own line: the maker's baseline is the name's */
 .by .ki{ display:inline-grid; align-self:center; margin-inline-end:var(--s1); --ic:12px } .by .au{ flex:1 1 0; display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; min-width:0; height:1lh; overflow:hidden; contain:inline-size } .by .au>.ki{ height:1lh } .by .tnum{ flex:none }   /* the shape's mark leads the maker, as the list shows it – inside its line, so it stays by the name it marks; the maker's box claims no width of its own (contain) – it takes what the name and the year leave, and a maker with no room there wraps to the line the box hides: shown whole or not at all, never cut, never the name's wrap */
@@ -991,7 +997,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 [data-k="origin"] .oic{ display:inline-grid; vertical-align:-.2em; margin-inline-end:var(--s1); color:var(--soft); --ic:1.15em }   /* a historical space’s origin opens on the archive mark – the catalog’s, the filter’s */
 @media(max-width:640px){ .props,.props.props3{ grid-template-columns:1fr }
 	.dh h1{ font-size:var(--t4) } .dhr{ margin:var(--s3) 0 var(--s4) }   /* a phone: the title a step down, closer to what it names */
-	.props .pcol:has(>[data-k="source"]){ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s6) var(--s4) } .props .pcol>:is([data-k="origin"],[data-k="ending"],[data-k="aka"],[data-k="etymology"],[data-k="matrix"],[data-k="transfer"]){ grid-column:1 / -1 }   /* the record's short facts – reference, test, source – two a row; its sentences whole */ }
+	.props:not(.dside){ grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s6) var(--s4) } .props:not(.dside)>.pcol{ display:contents }   /* a phone's record: one grid of pairs across both columns – origin | etymology, reference | test, primaries | matrix – the long items each a row */
+	.props:not(.dside) :where([data-k]){ order:9; min-width:0 } .props [data-k="channels"]{ order:1; grid-column:1 / -1 } .props [data-k="origin"]{ order:2 } .props [data-k="etymology"]{ order:3 } .props :is([data-k="ending"],[data-k="aka"],[data-k="lineage"],[data-k="reach"]){ order:4; grid-column:1 / -1 } .props [data-k="reference"]{ order:5 } .props [data-k="test"]{ order:6 } .props [data-k="source"]{ order:7 } .props [data-k="primaries"]{ order:10; grid-column:1 } .props [data-k="matrix"]{ order:11 } .props [data-k="transfer"]{ order:12; grid-column:1 / -1 } }
 .pick{ display:flex; flex-direction:column; gap:var(--s2) }   /* same gap as between planes; no overflow clip so the picker shows whole at the edges */
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:pan-y; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
@@ -1006,15 +1013,15 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* ── the picker hero: value inputs above the sliders and planes, the solid beside ── */
 .dpick{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:var(--dcol); align-items:start; margin:var(--s2) 0 var(--s8) }
 .dpick.nod3{ grid-template-columns:1fr }   /* no 3D — sliders + planes take the whole measure */
-/* a phone: one face at a time – the sliders or the planes, switched where the figure's switch stood (.pvseg, the
-   catalog cards' icons); the figure under them, centred, its plates at the solid's grid size, its own switch at its bottom left */
-.seg.pvseg{ display:none }
+/* a phone: the sliders, the planes under them, then the figure, centred, its plates at the solid's grid size, its own
+   switch at its bottom right; the three figures one height – switching never moves what follows */
 @media(max-width:640px){ .dpick{ grid-template-columns:1fr }
-	.seg.pvseg{ display:flex } .dpick.pvon .pick,.dpick:not(.pvon) .planes{ display:none }
 	.dfig .vgrp:is([data-f="xy"],[data-f="tc"]){ max-width:14rem; translate:-6.25% 0 }   /* the plates' frames as wide as the solid's grid draws, and centred on the column, not their boxes – the label strip at a plate's left half-shifted out (the caption rides with them) */
 	.vgrp[data-f="3d"]{ translate:-4% 0 } .dfig .pl3d{ aspect-ratio:1 } .dfig .pl3d canvas{ top:-18% }   /* the solid's scene, drawn 4% right of its box to meet the plates' frames, centred too; its box square, the scene centred in it – no headroom above and below it */
-	.dpick{ gap:var(--s3) }
-	@supports (anchor-name:--a){ .dfig{ anchor-name:--dfig } #figseg{ position:absolute; position-anchor:--dfig; bottom:anchor(bottom); left:anchor(left); z-index:calc(var(--z-raised) - 1) } }   /* the switch at the figure's bottom left, beside the plot – no row of its own */
+	.dpick{ gap:var(--s3) } .dfig{ min-height:17rem; justify-content:center }   /* the tallest of the three (the solid's square, the locus's plate) – the shorter centred in it */
+	.dfig .vgrp[data-f="tc"]{ max-width:none; translate:none } .dfig .vgrp[data-f="tc"]>:not(.tform){ max-width:14rem; translate:-6.25% 0 } .vgrp[data-f="tc"] .tform{ align-self:center; justify-items:center }   /* the curve's plot as the other plates are, its formula under it at the column's width, centred */
+	.dgrid2 .props :is(.xylist,.mtx){ font-size:var(--t1); column-gap:var(--s2) }   /* the primaries and the matrix side by side, each in a half */
+	@supports (anchor-name:--a){ .dfig{ anchor-name:--dfig } #figseg{ position:absolute; position-anchor:--dfig; bottom:anchor(bottom); right:anchor(right); z-index:calc(var(--z-raised) - 1) } }   /* the switch at the figure's bottom right, beside the plot – no row of its own */
 	.planes{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)) } .planes .pl{ max-width:none } .planes .pl:nth-child(n+3){ display:none }   /* two, side by side: planes a finger can work – their axis names turn them to the third pair */
 	.dpick{ margin-block:0 var(--s5) } .chead .seg button{ margin-block:calc((var(--s6) - var(--tap)) / 2) }   /* the numbers close over the sliders: the switch's touch target overhangs its row, it doesn't widen it */
  }
@@ -1058,7 +1065,6 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .props :is(.xylist,.mtx,.tform){ font-size:var(--t2) }   /* the definition's numbers a step down from the record's words: dense figures, each its column's last */
 .vgrp[data-f="tc"] .tform{ align-self:stretch; font-size:var(--t1); color:var(--body) }   /* the curve's formula under its plot */
 @media(min-width:641px){ .dfig:is([data-v="xy"],[data-v="tc"]){ align-items:flex-start } .vgrp:is([data-f="xy"],[data-f="tc"]){ align-items:flex-start } .vgrp:is([data-f="xy"],[data-f="tc"]) .grch{ left:12.5%; text-align:start } .vgrp[data-f="tc"] .tform{ padding-inline-start:12.5% } }   /* the plates at the column's start, their caption and the curve's formula on the frame's left edge (past the 12.5% label strip) – a left edge the eye can follow down; the solid stays centred */
-@media(max-width:640px){ .dfig .vgrp.tf{ display:grid; grid-template-columns:minmax(0,14rem) minmax(0,1fr); column-gap:var(--s4); align-items:start; max-width:none; translate:none } .vgrp[data-f="tc"] .tform{ grid-column:2; grid-row:1; justify-self:end; align-content:start; text-align:end } .vgrp.tf .grch{ grid-column:2; grid-row:2; justify-self:end; left:0; text-align:end } }   /* a phone: the plot at the left, the formula beside it at the right and the current reading under it – the figure's switch keeps the plot's foot */
 .tform{ display:grid; gap:var(--s1) } .tform .tw{ display:inline-block; margin-inline-start:var(--s2); color:var(--soft); white-space:nowrap }   /* the curve's formula, a branch a line, its condition after it, whole */
 .drep{ font-size:var(--t2); color:var(--soft) } .drep:hover,.drep:focus-visible{ color:var(--ink) }   /* an action, not a fact: quiet until pointed at */
 .pl{ position:relative; flex:1 1 0; min-width:0; max-width:18.6rem; aspect-ratio:1; cursor:crosshair; touch-action:none; background:var(--checker) }
@@ -1268,6 +1274,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .tabrow button:hover>span:not(.fl)::after{ background:var(--ulp) } .tabrow button.on>span:not(.fl)::after{ background:var(--ula) }
 /* the dossier's code tabs read as section-title kickers — same type treatment as the
    #image / #compare / #code headings they sit among */
+@media(max-width:640px){ :is(.tabrow,.introcopy .tabrow) button{ --tbg:calc(var(--s1) / 2) } }   /* a phone's tabs: the pick's bar close under its word, the row no taller than it needs */
 #cseg button{ text-transform:none }   /* labels read as written (abbreviations caps, words lower) — same as the main-page API tabs; overrides the .sec2 heading's uppercase */
 #cseg .fl{ width:12px; height:12px } #cseg .fl svg{ width:12px; height:12px }
 /* lut/icc tabs are live exporters — real controls, so they sit on the regular surface, not the dark code panel */
@@ -1308,7 +1315,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .legal{ display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; gap:var(--s2) var(--s5); margin-block:0; font-size:var(--t2) }   /* the maker, the version, the license and the dedication, one line at the right */
 .legal>span{ display:flex; gap:var(--s5) } .legal .lby{ display:inline }   /* the maker's line: the words plain, the name the link */
 @media(max-width:1079px){ .fcols{ grid-template-columns:repeat(2,minmax(max-content,1fr)) } .fbody{ grid-template-columns:minmax(0,1fr) } .fend{ display:contents } .fatlas{ order:-1; text-align:left; max-width:40rem } .legal{ justify-content:flex-start } }   /* narrower: one column, the atlas said first, the links, the maker last */
-@media(max-width:740px){ .fbody{ grid-template-columns:1fr; gap:var(--s6) } .fend{ align-items:flex-start; gap:var(--s6) } .fcols{ row-gap:var(--s6) } .fatlas{ text-align:left; max-width:none } .legal{ align-self:stretch; justify-content:center } }   /* one column: closer, the maker and the license its centred last line */
+@media(max-width:740px){ .fbody{ grid-template-columns:1fr; gap:var(--s6) } .fend{ align-items:flex-start; gap:var(--s6) } .fcols{ row-gap:var(--s6) } .fatlas{ text-align:left; max-width:none } .legal{ align-self:stretch; justify-content:flex-start } .legal .lby{ display:inline-block } .legal .lby::first-letter{ text-transform:uppercase } }   /* one column: closer, the maker and the license its last line, on the text's edge – the maker's words open it, capitalized */
 .ftr :focus-visible{ outline-color:currentColor }
 /* Cite: a native popover – the top layer, no positioning script; the floating-panel skin (paper, --pop-shadow), the
    dossier's labels and code plates inside */
@@ -1327,13 +1334,13 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 <body>
 <a class="skip" href="#cat" data-i18n="ui.skip">skip to catalog</a>
 <div class="page">
-<i class="mtop" id="mtop" style="--cur:#808080" aria-hidden="true"></i><div class="mhead" id="strip"><i class="medge" aria-hidden="true"></i><div class="cells" role="group" aria-label="the color, filters and view" data-i18n="aria-label:ui.cells.label"><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" aria-label="Figma plugin" data-i18n="aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">Figma plugin</span></span></a><a class="tag hplug" href="https://marketplace.visualstudio.com/items?itemName=colorjs.color-space" aria-label="VS Code extension" data-i18n="aria-label:ui.hero.vscode-label"><span class="hpi"><svg viewBox="6 6 84 84" aria-hidden="true"><path fill="#0065a9" d="M87.028 15.069 69.72 6.735a5.232 5.232 0 0 0-5.97 1.015L7.09 59.41a3.5 3.5 0 0 0 .005 5.176l4.628 4.207a3.5 3.5 0 0 0 4.47.199l68.23-51.761C86.713 15.494 90 17.127 90 20v-.2a5.25 5.25 0 0 0-2.972-4.731Z"/><path fill="#007acc" d="M87.028 80.931 69.72 89.265a5.232 5.232 0 0 1-5.97-1.015L7.09 36.59a3.5 3.5 0 0 1 .005-5.176l4.628-4.207a3.5 3.5 0 0 1 4.47-.199l68.23 51.761C86.713 80.506 90 78.873 90 76v.201a5.25 5.25 0 0 1-2.972 4.73Z"/><path fill="#1f9cf0" d="M69.72 89.266a5.235 5.235 0 0 1-5.97-1.016c1.937 1.937 5.25.565 5.25-2.175V9.925c0-2.74-3.313-4.112-5.25-2.175a5.235 5.235 0 0 1 5.97-1.016l17.305 8.322A5.25 5.25 0 0 1 90 19.787v56.426a5.25 5.25 0 0 1-2.975 4.732l-17.304 8.321Z"/></svg><span class="hpf">VS Code</span></span></a>
+<i class="mtop" id="mtop" style="--cur:#808080" aria-hidden="true"></i><div class="mhead" id="strip"><i class="medge" aria-hidden="true"></i><div class="cells" role="group" aria-label="the color, filters and view" data-i18n="aria-label:ui.cells.label">
 	<span class="fill"></span>
 	<label class="cell qx" title="search the spaces by name" data-i18n="title:ui.header.find-tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="fq" type="search" placeholder="search…" autocomplete="off" spellcheck="false" aria-label="search the spaces by name" data-i18n="placeholder:ui.header.find aria-label:ui.header.find-tip"></label>
 	<button class="count tnum" type="button" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="ui.header.tagline title:ui.cell.more-any"><span id="nn">205</span><span class="nnu"> spaces</span></button>
 	<button class="cell lens" type="button" id="c-more" popovertarget="m-more" aria-expanded="false" title="Filters" data-i18n="title:ui.cell.more-any"><span class="ci"><!-- a funnel: Lucide's (ISC) at .82, the search glass's size --><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.36 18.63a.82.82 0 0 0 .45.73l1.64.82A.82.82 0 0 0 13.64 19.45v-5.74a1.64 1.64 0 0 1 .42-1.1L19.99 6.06A.82.82 0 0 0 19.38 4.69H4.62a.82.82 0 0 0-.61 1.37l5.93 6.55A1.64 1.64 0 0 1 10.36 13.71z"/></svg></span><span class="cw"><small data-i18n="ui.cell.more-any">Filters</small><b></b></span></button>
 	<button type="button" class="qclr fclr" id="fclr" hidden title="clear the search and the filters" aria-label="clear the search and the filters" data-i18n="title:ui.filter.clear aria-label:ui.filter.clear"><svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-	<button class="cell lens" type="button" id="c-view" data-g="vis" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/><path d="M4.97 13.76 4.58 13.44 3.87 12.2 3.27 10.17 2.78 7.13 2.85 4.47 3.65 3.43 5.71 4.4 7.61 6.03 9.45 7.75 11.01 9.15 11.87 10.01 12.42 10.56Z"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b></b></span></button>
+	<button class="cell lens" type="button" id="c-view" data-g="srgb" popovertarget="m-view" aria-expanded="false"><span class="ci"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.46 14.9 3.95 14.5 3.05 12.9 2.27 10.3 1.64 6.4 1.74 3 2.76 1.66 5.4 2.9 7.84 5 10.2 7.2 12.2 9 13.3 10.1 14 10.8Z" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/><path d="M12.4 9.7 6.6 5.4 4.05 14z"/></svg></span><span class="cw"><small data-i18n="ui.cell.view">View</small><b></b></span></button>
 	<button class="cell lens" type="button" id="c-layout" data-view="list" aria-label="Layout" title="Layout" data-i18n="aria-label:ui.cell.layout title:ui.cell.layout"><span class="ci"><i data-from="grid"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v1.75H3zM8.5 3h4.5v1.75H8.5zM3 5.75h4.5v1.75H3zM8.5 5.75h4.5v1.75H8.5zM3 8.5h4.5v1.75H3zM8.5 8.5h4.5v1.75H8.5zM3 11.25h4.5v1.75H3zM8.5 11.25h4.5v1.75H8.5z"/></svg></i><i data-from="list"><svg class="fi" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/></svg></i></span></button>
 	<span class="dctl"><select id="lang" aria-label="Language" title="Language" data-i18n="aria-label:ui.header.lang title:ui.header.lang"><option value="en" lang="en" selected>English</option></select></span>
 	<button class="cell thm" type="button" id="thm" aria-label="toggle color theme" aria-pressed="false" title="light / dark" data-i18n="aria-label:ui.theme.label title:ui.theme.tip"><svg class="moon" width="12.5" height="12.5" viewBox="2 2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg><svg class="sun" width="13.75" height="13.75" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></button>
@@ -1341,6 +1348,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 </div></div>
 <section class="hero" id="hero" aria-labelledby="hero-t">
 	<div class="hmain">
+		<div class="hplugs"><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" aria-label="Figma plugin" data-i18n="aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">Figma plugin</span></span></a><a class="tag hplug" href="https://marketplace.visualstudio.com/items?itemName=colorjs.color-space" aria-label="VS Code extension" data-i18n="aria-label:ui.hero.vscode-label"><span class="hpi"><svg viewBox="6 6 84 84" aria-hidden="true"><path fill="#0065a9" d="M87.028 15.069 69.72 6.735a5.232 5.232 0 0 0-5.97 1.015L7.09 59.41a3.5 3.5 0 0 0 .005 5.176l4.628 4.207a3.5 3.5 0 0 0 4.47.199l68.23-51.761C86.713 15.494 90 17.127 90 20v-.2a5.25 5.25 0 0 0-2.972-4.731Z"/><path fill="#007acc" d="M87.028 80.931 69.72 89.265a5.232 5.232 0 0 1-5.97-1.015L7.09 36.59a3.5 3.5 0 0 1 .005-5.176l4.628-4.207a3.5 3.5 0 0 1 4.47-.199l68.23 51.761C86.713 80.506 90 78.873 90 76v.201a5.25 5.25 0 0 1-2.972 4.73Z"/><path fill="#1f9cf0" d="M69.72 89.266a5.235 5.235 0 0 1-5.97-1.016c1.937 1.937 5.25.565 5.25-2.175V9.925c0-2.74-3.313-4.112-5.25-2.175a5.235 5.235 0 0 1 5.97-1.016l17.305 8.322A5.25 5.25 0 0 1 90 19.787v56.426a5.25 5.25 0 0 1-2.975 4.732l-17.304 8.321Z"/></svg><span class="hpf">VS Code</span></span></a></div>
 		<div class="htitle"><a class="hmark" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home"><img src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""></a><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span class="hk">A reference guide to</span> Color Spaces</h1></span></div>
 		<p class="hsub" id="hsub" data-i18n="ui.hero.line">See a <a href="#hq" data-way="color">color</a>, <a href="#hq" data-way="palette">palette</a>, <a href="#hq" data-way="gradient">gradient</a> or <a href="#hq" data-way="image">image</a> in every color space. From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
@@ -1624,7 +1632,7 @@ ext install colorjs.color-space
 	</div>
 </section>
 <section class="compare" id="vs" aria-labelledby="vs-t"><details class="vsd">
-	<summary><h2 id="vs-t" data-i18n="compare.title">Alternatives</h2><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span class="vsl" data-i18n="compare.lede">Other color libraries and references beside color-space: what each converts, its toolkit, size and speed.</span></summary>
+	<summary><h2 id="vs-t"><span data-i18n="compare.title">Alternatives</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></h2><span class="vsl" data-i18n="compare.lede">Choosing a color library? color-space converts the most spaces of any listed here, camera logs and video included, each in both directions. The table shows where another tool fits better.</span></summary>
 	<div class="tblw">
 	<table class="tbl">
 		<thead><tr><th scope="col" data-i18n="compare.col.tool">Tool</th><th scope="col" title="color spaces it converts" data-i18n="compare.col.spaces title:compare.col.spaces-tip">Spaces</th><th scope="col" title="distinct camera log curves" data-i18n="compare.col.logs title:compare.col.logs-tip">Camera logs</th><th scope="col" title="luma plus two color differences: Y′CbCr, YCoCg, ICtCp – video and image codecs" data-i18n="compare.col.luma title:compare.col.luma-tip">Luma–chroma</th><th scope="col" title="the scale of sRGB channels" data-i18n="compare.col.rgb title:compare.col.rgb-tip">sRGB</th><th scope="col" title="parse: reads CSS color strings · gamut: maps colors into a gamut · CVD: color-vision-deficiency simulation" data-i18n="compare.col.kit title:compare.col.kit-tip">Toolkit</th><th scope="col" title="whole JS package, minified and gzipped (esbuild, gzip -9)" data-i18n="compare.col.size title:compare.col.size-tip">Size</th><th scope="col" title="JS calls per second against color-space, npm run benchmark (2026-10-18, its 7 shared conversions; texel over its 3, chroma-js its 6; colorjs.io through its object API)" data-i18n="compare.col.speed title:compare.col.speed-tip">Speed</th><th scope="col" title="where it runs or what it writes" data-i18n="compare.col.targets title:compare.col.targets-tip">Targets</th></tr></thead>
@@ -1725,28 +1733,30 @@ const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic${n==='x'?' ix':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
-const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34   // AUTO_SLOW: the frame, in ms, the orbit parks past – sustained, under 30 fps it is a cost, not an invitation
+const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34   // twenty steps a second – ten read as a stutter. AUTO_SLOW: the frame, in ms, past which the orbit eases off (autoGap doubles, twice, then parks) – sustained, under 30 fps: a slow engine (Safari, a phone) steps less often, a fast one keeps the pace
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
-let autoColor=false, autoPark=false, autoStart=0, autoLast=0, autoJ='', autoF=0, autoFt=0, autoHold=0   // autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
+let autoColor=false, autoPark=false, autoStart=0, autoLast=0, autoJ='', autoF=0, autoFt=0, autoGap=AUTO_FRAME, autoHold=0   // autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
 // the page's last scroll: a card's hover warm-up waits a scroll out (wireEnt)
 const SCROLL_QUIET=200; let scrollAt=-Infinity
 addEventListener('scroll',()=>{ scrollAt=performance.now() },{passive:true})
 const autoStep=t=>{ if(!autoColor) return
 	autoPark=false
-	// the page's pace: its frames' running mean (the last ten or so) – counted only in view: frames a window away from view
-	// drops are the browser's, not a slow device's
-	autoFt=autoF&&document.hasFocus()&&!document.hidden?autoFt*.9+Math.min(t-autoF,250)*.1:0; autoF=t
+	// the page's pace: its frames' running mean (the last ten or so) – counted once the color has come in (the boot's own
+	// frames are the page's, not the orbit's: they once parked Safari's orbit at its start) and only in view: frames a
+	// window away from view drops are the browser's, not a slow device's
+	autoFt=autoF&&t-autoStart>=AUTO_FADE&&document.hasFocus()&&!document.hidden?autoFt*.9+Math.min(t-autoF,250)*.1:0; autoF=t
 	// the page scrolling: the orbit holds where it stands – a scroll's frames paint the rows it brings in, not every strip
 	// again – and goes on from there once the page rests
 	if(!autoHold&&t-scrollAt<SCROLL_QUIET){ autoStart+=t-autoLast; autoLast=t }
-	else if(!PDOWN&&!autoHold&&t-autoLast>=AUTO_FRAME){ autoLast=t
+	else if(!PDOWN&&!autoHold&&t-autoLast>=autoGap){ autoLast=t
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
 		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true)
-		// a device that can't hold the pace (a weak CPU, a dossier's GL instruments on a weak GPU) PARKS the orbit once it has
-		// colored in – still ambient (virgin, URL untouched), just still
-		if(autoFt>AUTO_SLOW&&w===1){ autoPark=true; autoF=0; return } }   // parked: the color rests, and settles
+		// a device that can't hold the pace (a weak CPU, a dossier's GL instruments on a weak GPU) steps less often – twice
+		// the gap, then twice again – and, still slow at four tenths of a second a step, PARKS: still ambient (virgin, URL
+		// untouched), just still
+		if(autoFt>AUTO_SLOW){ autoFt=0; if(autoGap<4*AUTO_FRAME) autoGap*=2; else{ autoPark=true; autoF=0; return } } }   // parked: the color rests, and settles
 	requestAnimationFrame(autoStep) }
 // a channel's number taken in hand holds the orbit, as the color field does: a value typed takes the color (its input's
 // scheduleFast), let go untouched the orbit goes on from where it stood – a click is a look, not a pick
@@ -2211,7 +2221,7 @@ const ulAt=()=>{ const v=cvalEl.value, f=document.activeElement===cvalEl&&cvalEl
 	ul.classList.toggle('many',many)
 	HELD?.clear(); if(!w||!HELD) return
 	const n=ul.firstChild; if(n?.length>=w[1]){ const r=new Range(); r.setStart(n,w[0]); r.setEnd(n,w[1]); HELD.add(r) } }
-// the color an instrument's press would take (stophot: the planes', strips' hot): its mark in the stack lifted – a
+// the color a dot of the horseshoe or the xy plate is pointed at for (stophot): its mark in the stack lifted – a
 // gradient's pill at that stop; the field's text left as it is
 let HOTJ=null
 document.addEventListener('stophot',e=>{ HOTJ=e.detail.j
@@ -2243,16 +2253,17 @@ new ResizeObserver(fitField).observe(hqEl)
 // the row's edge pointed at opens to the row's height (.wide) – the colors in hand as the row's ground – and what sits on
 // it takes the ink that reads there: the swatches' rule (ink) on the colors under it, the row's controls and the docked
 // color each their own stretch of the edge; shut once the pointer leaves the row
-{	const edgeEl=stripEl.querySelector('.medge'), cellsEl=stripEl.querySelector('.cells')
+{	const edgeEl=stripEl.querySelector('.medge'), cellsEl=stripEl.querySelector('.cells'), plugsEl=document.querySelector('.hplugs')
 	// the edge's color at f of the window's width: a gradient's run, a list's bands, else the one color (the hue wheel round
 	// it zoomed to it, its lightness and chroma all along)
 	const at=f=>{ if(GRAD){ const p=gradIn('rgb'); return p[Math.round(f*(p.length-1))] }
 		if(STOPS){ const c=STOPS[Math.min(STOPS.length-1,f*STOPS.length|0)]; return rgbF(c.s,c.vals) } return RGB() }
 	const inkOver=(x0,x1)=>{ const m=[0,0,0]; for(let k=0;k<9;k++){ const c=at(clamp((x0+(x1-x0)*k/8)/innerWidth,0,1)); for(let j=0;j<3;j++) m[j]+=c[j]/9 } return ink(m) }
-	const shut=()=>{ stripEl.classList.remove('wide'); hcolorEl.classList.remove('wide') }
+	const shut=()=>{ for(const el of [stripEl,hcolorEl,plugsEl]) el?.classList.remove('wide') }
 	edgeEl.addEventListener('pointerenter',()=>{ const ks=[...cellsEl.children].filter(e=>e.offsetParent&&!e.matches('.fill')).map(e=>e.getBoundingClientRect()), cx=cxEl.getBoundingClientRect()
 		if(ks.length) stripEl.style.setProperty('--eink',inkOver(Math.min(...ks.map(r=>r.left)),Math.max(...ks.map(r=>r.right))))
 		hcolorEl.style.setProperty('--eink',inkOver(cx.left,cx.right)); stripEl.classList.add('wide'); hcolorEl.classList.add('wide')
+		if(plugsEl){ const p=plugsEl.getBoundingClientRect(); plugsEl.style.setProperty('--eink',inkOver(p.left,p.right)); plugsEl.classList.add('wide') }   // the plugins over the opened edge too, in the ink that reads on its color under them
 		// the value's own words, each glyph the ink that reads on the color right under it – a colormap's dark ends and light
 		// middle under one line of text: the ink in steps along the value's box (--einks, the text's fill)
 		const v=cvalEl.getBoundingClientRect(), N=48; let st=[], prev=null
@@ -2961,17 +2972,24 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 				ch.onpointermove=ev=>{ if(Math.abs(ev.clientX-e0.clientX)<=4) return; ch.onpointermove=ch.onpointerup=null; rangeDrag(e0,ch,s,i); ch.onpointermove?.(ev) }
 				ch.onpointerup=()=>{ ch.onpointermove=ch.onpointerup=null; adopt(); if(grip.down(e0)){ const v=grip.move(e0); if(v!=null) master.vals[i]=v } afterRelease(()=>{ renderFast(); settleCatalog() }) }
 				return }
-			if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a plain press on one color — its input events drive master
+			if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a mouse's plain press on one color — its input events drive master; a finger's press is this path's (CSS)
 			e.preventDefault()   // no focus on drag — the .on underline links slider to number; focus (and the popover) stays a deliberate tap on the input
-			let moved=false; const x0=e.clientX
+			let moved=false; const x0=e.clientX, y0=e.clientY, finger=e.pointerType!=='mouse'
 			const jump=ev=>{ const v=grip.move(ev); if(v==null) return; master.vals[i]=v; scheduleFast() }
-			adopt(); if(!grip.down(e)){ renderFast(); return }
-			ch.setPointerCapture(e.pointerId)   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
-			dragEnt=ent; dragEntI=i; jump(e)   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
-			const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; ch.classList.add('live') }
+			// a finger is the page's scroll until it goes sideways (pan-y) – then the strip's, wholly: no scroll takes it back
+			const keep=ev=>{ if(ev.cancelable) ev.preventDefault() }
+			const take=(ev,hold=true)=>{ adopt(); if(!grip.down(e)){ renderFast(); return false }
+				if(hold){ ch.setPointerCapture(e.pointerId); if(finger) ch.addEventListener('touchmove',keep,{ passive:false }) }   // capture from the down, like the planes — a fast flick would otherwise escape the bar before the first move and stall the drag
+				dragEnt=ent; dragEntI=i; jump(ev); return true }   // the press itself picks — dragEnt from the down, so a focused input tracks the click too (a press is not typing)
+			const off=()=>{ ch.onpointermove=ch.onpointerup=ch.onpointercancel=null; ch.removeEventListener('touchmove',keep); ch.style.cursor=''; ch.classList.remove('live') }
+			const held=()=>dragEnt===ent&&dragEntI===i
+			if(!finger&&!take(e)) return
+			ch.onpointermove=ev=>{ if(!held()){ const dx=Math.abs(ev.clientX-x0), dy=Math.abs(ev.clientY-y0); if(dx<=4&&dy<=4) return
+					if(dy>=dx||!take(ev)){ off(); return } }   // a finger going up or down: the page's scroll, the color untouched
+				if(!moved&&Math.abs(ev.clientX-x0)>4){ moved=true; ch.style.cursor='none'; ch.classList.add('live') }
 				jump(ev) }
-			ch.onpointermove=move
-			ch.onpointerup=ev=>{ ch.onpointermove=null; ch.onpointerup=null; ch.onpointercancel=null; ch.style.cursor=''; ch.classList.remove('live')
+			ch.onpointerup=ev=>{ off()
+				if(!held()&&(ev.type!=='pointerup'||!take(e,false))) return   // a finger's tap picks where it lands; a scroll picked nothing
 				squelch=true; setTimeout(()=>squelch=false,0)
 				releaseDragEnt(); snapGlide(ch.querySelector('.nrg'),s,i)   // let go now; every range settles from the released value once the frame is shown
 				afterRelease(()=>{ renderFast(); settleCatalog(); scheduleFast(); if(open()) paintPlanes(false) }) }
@@ -3128,10 +3146,10 @@ const cellWords=k=>{ if(k==='coverage') return covTxt()
 // The docked field's room: to the search, a gap short – and where it starts. One element's place against another's is a
 // measure, not CSS's
 const pageEl=document.querySelector('.page')
-const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cnt=row.querySelector('.count')
+const fitCells=()=>{ const row=stripEl.querySelector('.cells')
 	const cx=cxEl.getBoundingClientRect(), docked=cx.top<row.getBoundingClientRect().bottom
-	const lo=Math.min(...[row.querySelector('.qx'),cnt].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))
-	hcolorEl.style.setProperty('--cdw',Math.max(160,lo-cx.left-12)+'px'); hcolorEl.style.setProperty('--cxl',cx.left+'px')   // the field to the search, a gap short – docked, and the width it eases to as it docks; where it starts, for its list to stay in the window
+	const lo=Math.min(...[...row.querySelectorAll('.fill~*')].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))   // the first of the row's controls shown: the search, the count – on a phone, where both give way, Filters
+	hcolorEl.style.setProperty('--cdw',Math.max(120,lo-cx.left-12)+'px'); hcolorEl.style.setProperty('--cxl',cx.left+'px')   // the field to the search, a gap short – docked, and the width it eases to as it docks; where it starts, for its list to stay in the window
 	pageEl.style.setProperty('--dk',+docked)   // the docked look's flag where the scroll can't set it (CSS: --dk)
 	if(document.body.classList.contains('cdock')!==docked){ document.body.classList.toggle('cdock',docked); fitField() } }   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
 // no scroll timeline (Firefox): the dock's progress read from the scroll, a frame per scroll – the size and the width
@@ -3168,7 +3186,6 @@ const modal=document.getElementById('modal'), detail=document.getElementById('de
 // the dossier's figure by the sliders – the solid, the xy plate or the transfer curve – the last chosen, remembered
 let FIG='3d'; try{ if(['3d','xy','tc'].includes(localStorage.csFig)) FIG=localStorage.csFig }catch{}
 const PLANES={}   // the dossier's planes per space – their channel pairs, as the axis names last turned them
-let PV=false   // a phone's dossier shows the sliders or the planes, not both – the face last chosen, from space to space
 const pageShell=document.querySelector('.page')
 // where the catalog ends on the page – the row lets go there (CSS: unstick); re-measured as the catalog or anything above it changes size
 { const cat=document.getElementById('cat'), mark=()=>pageShell.style.setProperty('--cat-end',Math.round(cat.getBoundingClientRect().bottom+scrollY)+'px'), ro=new ResizeObserver(mark); ro.observe(cat); ro.observe(document.getElementById('hero')) }
@@ -3470,8 +3487,10 @@ const GAMLABEL={ srgb:'sRGB', p3:'P3', rec2020:'Rec. 2020', vis:t('ui.gamut.vis'
 // (js/locus.js surfacePath); Light – the whole horseshoe. The hero's locus draws these, the Limit's region filled
 const LIMS=HERO_LIMS   // narrowest first
 const LIMD=(()=>{ const D={}; return g=>D[g]??=limPath(g,GXY) })()
-// the Limit – one for every slider, plane and solid, the catalog's and the dossier's (render.js LIMIT, Surface by default)
-let GM=LIMIT; try{ if([...GAMS,'vis','locus'].includes(localStorage.csGm)) GM=localStorage.csGm }catch{}
+// the Limit – one for every slider, plane and solid, the catalog's and the dossier's: the one picked, else the display's
+// own – P3 where the screen shows it (CSS color-gamut), else sRGB (render.js LIMIT, the prerender's)
+const SHOWS=matchMedia('(color-gamut: p3)').matches?'p3':LIMIT
+let GM=SHOWS; try{ if([...GAMS,'vis','locus'].includes(localStorage.csGm)) GM=localStorage.csGm }catch{}
 // a space's sweep lens: a 1-channel locus under a display lens is all ghost; under Surface or Light it is all in by
 // definition, so the discretized solid must not test its rim
 const gmFor=cls=>limitFor(cls,GM)
@@ -3500,7 +3519,9 @@ const qTriple=v=> PALMODES.has(v)? t=>nearestIn(v,t)?.rgb??t   // a list not yet
 let viewFromURL=null   // assigned by the injection below; the boot route calls it before first paint
 // ── how the catalog is drawn: the row's lens cells over their menus – Quantize (the quantize lens and its palette
 // distance), Limit (the dossier's gamut cut), Vision (a color-vision deficiency over the whole page), View ──
-{	const gamTip=g=>({ srgb:t('ui.gamut.tip.srgb','the web’s, most screens'), p3:t('ui.gamut.tip.p3','wide-gamut screens'), rec2020:t('ui.gamut.tip.rec2020','UHD video'), vis:t('ui.gamut.tip.vis','what a lit surface can show'), locus:t('ui.gamut.tip.locus','any light') })[g]
+{	// a Limit past what this screen shows says so: its colors drawn there are the screen's nearest – clipped
+	const gamTip=g=>[({ srgb:t('ui.gamut.tip.srgb','the web’s, most screens'), p3:t('ui.gamut.tip.p3','wide-gamut screens'), rec2020:t('ui.gamut.tip.rec2020','UHD video'), vis:t('ui.gamut.tip.vis','what a lit surface can show'), locus:t('ui.gamut.tip.locus','any light') })[g],
+		g!=='srgb'&&g!==SHOWS&&t('ui.gamut.clipped','past your display: shown clipped')].filter(Boolean).join('\n')
 	const VLINE={ protan:t('ui.vision.protan','red-blind'), deutan:t('ui.vision.deutan','green-blind'), tritan:t('ui.vision.tritan','blue-blind') }
 	// the notation every value is written in – the field's, the suggestions', a gradient's stops: one choice for all, each
 	// option the color in hand written in it (fmtSamples, as the menu opens)
@@ -4763,7 +4784,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 		const xys=[['R',G.primaries.r],['G',G.primaries.g],['B',G.primaries.b],['W',G.wxy,G.white]], d=Math.max(...xys.flatMap(([,xy])=>xy.map(dec))), wk=G.white==='ACES'?'D60':G.white
 		const xy=v=>p(v)+(Number.isInteger(+p(v))?' ':'')+' '.repeat(d-dec(v))
 		return { prim:`<div data-k="primaries">${lab(t('ui.dossier.primaries','primaries'),t('ui.dossier.prim-tip','where its red, green, blue and white sit on the CIE xy chart, as the defining document gives them'))}<div class="xylist tnum">${xys.map(([k,v,n])=>`${n&&WHITE_XY[wk]?`<span class="wk" title="${qesc(t('ui.dossier.white','white point'))}"><i class="wdot" style="--w:${whiteHex(wk)}"></i></span>`:`<i class="csym">${k}</i>`}<span><i class="csym xk">x</i>${xy(v[0])}</span><span><i class="csym xk">y</i>${xy(v[1])}</span><span>${n||''}</span>`).join('')}</div></div>`, mtx:`<div data-k="matrix"><span class="dlab">${lab(t('ui.dossier.matrix','matrix'),t('ui.dossier.matrix-tip','the matrix that turns linear RGB into CIE XYZ: decode the curve, then XYZ = M × RGB, white Y = 1'))}<button class="cpyi" type="button" data-copy="mtxc" title="${qesc(t('ui.dossier.matrix-copy','copy the matrix, ten decimals'))}" aria-label="${qesc(t('ui.dossier.matrix-copy','copy the matrix, ten decimals'))}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></span><div class="mtx tnum">${G.matrix.map(v=>`<span>${(Math.abs(v)<5e-5?0:v).toFixed(4)}</span>`).join('')}</div><pre id="mtxc" hidden>${[0,3,6].map(r=>G.matrix.slice(r,r+3).map(v=>+v.toFixed(10)).join('\t')).join('\n')}</pre></div>` } })():{ prim:'', mtx:'' }
-	const tcHTML=tcurve?`<div class="vgrp${tformHTML?' tf':''}" data-f="tc"><div class="tcvw"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve')}"></span>${tformHTML}</div>`:''
+	const tcHTML=tcurve?`<div class="vgrp" data-f="tc"><div class="tcvw"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color, met on the curve by its linear luminance – the diamond; the hollow notch is 18% gray (middle gray), a fixed landmark on the curve')}"></span>${tformHTML}</div>`:''
 	// one figure at a time by the sliders – the switch only where there is a choice; the last one chosen leads
 	const FIGS=[['3d',solidHTML,OI.component,t('ui.dossier.fig-3d','solid')],['xy',xyHTML,OI.chromaticity,t('ui.dossier.fig-xy','chromaticity')],['tc',tcHTML,OI.gamma,t('ui.dossier.fig-tc','transfer')]].filter(f=>f[1]), fig=FIGS.find(f=>f[0]===FIG)?.[0]||FIGS[0]?.[0]
 	const figHTML=FIGS.length?`<div class="dfig" id="dfig" data-v="${fig}">${FIGS.map(f=>f[1]).join('')}</div>`:''
@@ -4785,14 +4806,12 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	// a plane per pair (a phone shows two – CSS); a click on an axis's name turns that axis to the next channel – every pair
 	// a click or two away on a phone's two; the pick kept for the space (PLANES)
 	const planeHTML=(a,b)=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><button type="button" class="laby" data-ax="y" title="${cname(cls.ch[b])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[b].sym}</button><button type="button" class="labx" data-ax="x" title="${cname(cls.ch[a])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[a].sym}</button>${polarPl(cls,a,b)?`<button class="pmode" title="${t('ui.dossier.disc','disc ↔ square')}"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="${t('ui.dossier.tri','triangle ↔ square')}"></button>`:''}</div>`
-	// a phone's switch between the two faces, the sliders and the planes – the catalog cards' own, their icons (CSS shows it ≤640)
-	const pvSeg=cls.ch.length>1&&plotPairs.length?`<span class="seg figseg pvseg" id="pvseg" role="group">${[[0,PI.sliders,t('ui.card.sliders','Sliders')],[1,PI.planes,t('ui.card.planes','Planes')]].map(([k,ic,n])=>`<button type="button" data-p="${k}" title="${n}" aria-label="${n}" aria-pressed="${!!k===PV}"${!!k===PV?' class="on"':''}>${ic}</button>`).join('')}</span>`:''
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dsec=activeSecs().find(c2=>c2.spaces.includes(s)), dcat=dsec?secName(dsec):''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
 	detail.innerHTML=`<div class="dh">${dcat?`<p class="dcat">${dcat}</p>`:''}<h1 id="dtitle">${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p></div>
 	 <hr class="dhr">
-	 <div class="chead">${bigchHTML}${pvSeg}${figSeg}</div>
-	 <section class="dpick${figHTML?'':' nod3'}${pvSeg&&PV?' pvon':''}" id="explore">
+	 <div class="chead">${bigchHTML}${figSeg}</div>
+	 <section class="dpick${figHTML?'':' nod3'}" id="explore">
 		<div class="dmain">
 		<div class="pick" id="pick">${cls.ch.map((c,i)=>barHTML(i)).join('')}</div>
 		${cls.ch.length>1?`<div class="planes" id="planes">${(PLANES[s]??=plotPairs.slice()).map(([a,b])=>planeHTML(a,b)).join('')}</div>`:''}
@@ -4928,11 +4947,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
 	// the transfer curve: code value over scene-linear light, dashed diagonal = linear
 	TC=tcurve; paintTC()
-	const pvseg=detail.querySelector('#pvseg')
-	if(pvseg) pvseg.onclick=e=>{ const b=e.target.closest('button[data-p]'); if(!b) return; PV=b.dataset.p==='1'
-		detail.querySelector('#explore').classList.toggle('pvon',PV)
-		pvseg.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })
-		if(PV){ planeNext=0; paintPlanes(false) } renderFast() }   // planes shown are painted at their size – hidden, they had none
 	const figseg=detail.querySelector('#figseg')
 	if(figseg) figseg.onclick=e=>{ const b=e.target.closest('button[data-v]'); if(!b) return; FIG=b.dataset.v; try{ localStorage.csFig=FIG }catch{}
 		detail.querySelector('#dfig').dataset.v=FIG
@@ -5068,9 +5082,9 @@ function wireBar(el,s){
 	el.addEventListener('pointerdown',e=>{
 	if(e.target.closest('.nvw')) return
 	heldTill([bchEl()])
-	if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a plain press on one color — its input/change pair below drives the same path
+	if(e.target.classList?.contains('nrg')&&!STOPS&&!MODS(e)) return   // the native range owns a mouse's plain press on one color — its input/change pair below drives the same path; a finger's is this path's (CSS)
 	e.preventDefault()
-	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX
+	const cls=classify(s), i=+el.dataset.i, c=cls.ch[i]; let moved=false; const x0=e.clientX, y0=e.clientY, finger=e.pointerType!=='mouse'
 	const grip=el._grip
 	// Dragging is continuous in every mode. The lens colors the field, but never
 	// constrains the hand; one snap happens on release, to the chosen region's center.
@@ -5078,12 +5092,19 @@ function wireBar(el,s){
 		if(Math.abs(v-(c.min+c.max)/2)/(c.max-c.min)*el.getBoundingClientRect().width<1) v=(c.min+c.max)/2
 		master.vals[i]=v; el._dragF=clamp((v-c.min)/(c.max-c.min),0,1)
 		scheduleFast() }
-	if(!adoptS(s)||!grip.down(e)){ renderFast(); return }
-	clearClusterSnaps(); el.setPointerCapture(e.pointerId)   // capture from the down, like the planes – a fast flick would otherwise escape the bar before the first move and stall the drag
-	dragBar=el; apply(e)   // the press itself picks – dragBar from the down, so a focused input tracks the click too (a press is not typing)
-	const move=ev=>{ if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; el.classList.add('live') }
+	// a finger is the card's scroll until it goes sideways (pan-y) – then the bar's, wholly: no scroll takes it back
+	const keep=ev=>{ if(ev.cancelable) ev.preventDefault() }
+	const take=(ev,hold=true)=>{ if(!adoptS(s)||!grip.down(e)){ renderFast(); return false }
+		clearClusterSnaps(); if(hold){ el.setPointerCapture(e.pointerId); if(finger) el.addEventListener('touchmove',keep,{ passive:false }) }   // capture from the down, like the planes – a fast flick would otherwise escape the bar before the first move and stall the drag
+		dragBar=el; apply(ev); return true }   // the press itself picks – dragBar from the down, so a focused input tracks the click too (a press is not typing)
+	const off=()=>{ el.onpointermove=el.onpointerup=el.onpointercancel=null; el.removeEventListener('touchmove',keep); el.style.cursor=''; el.classList.remove('live') }
+	if(!finger&&!take(e)) return
+	const move=ev=>{ if(dragBar!==el){ const dx=Math.abs(ev.clientX-x0), dy=Math.abs(ev.clientY-y0); if(dx<=3&&dy<=3) return
+			if(dy>=dx||!take(ev)){ off(); return } }   // a finger going up or down: the card's scroll, the color untouched
+		if(!moved&&Math.abs(ev.clientX-x0)>3){ moved=true; el.style.cursor='none'; el.classList.add('live') }
 		apply(ev) }
-	const up=()=>{ el.onpointermove=null; el.onpointerup=null; el.onpointercancel=null; el.style.cursor=''; el.classList.remove('live')
+	const up=ev=>{ off()
+		if(dragBar!==el&&(ev.type!=='pointerup'||!take(e,false))) return   // a finger's tap picks where it lands; a scroll picked nothing
 		el._snapHint=el._dragF; snapGlide(el.querySelector('.nrg'),s,i); dragBar=null
 		const vin=detail.querySelector(`#bigch .bch[data-i="${i}"] .nv`), vv=valsFor(s)?.[i]; if(vin&&isFinite(vv)) vin.value=vv.toFixed(decOf(c))
 		afterRelease(()=>{ renderFast(false); queuePlaneSettle(); catUp() }) }
@@ -5422,6 +5443,8 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row) retu
 				d.append(cv,lb); row.append(d) }
 			row._n=n+1 }
 		const W=Math.min(640,Math.round(300*(devicePixelRatio||1))), H=Math.round(W*IMG.height/IMG.width)
+		if(row._im===IMG&&row._w===W) return   // this image painted (or painting) in this card's space already: a second call – a program landing, a lens – asks nothing again
+		row._im=IMG; row._w=W
 		let base; try{ base=toSpace(s,[128,128,128]) }catch{ base=cls.ch.map(c=>(c.min+c.max)/2) }
 		// ONE PANEL PER FRAME: each is a full GPU pass, and doing all of them in one go is what
 		// made choosing an image sit still for a second. The row says it is working until the
@@ -5634,11 +5657,20 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detai
 // A program landing upgrades an open dossier only. Catalog strips are CSS and never join
 // a shader-compile burst; a neighbour finishing cannot interrupt an active gesture.
 let glupT=0
-const glLanded=()=>{ if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
+// …only what the landed kind paints (gl.js setGLReady): a space's four programs land one by one, and each once repainted
+// the whole card – its planes, bars, plate and image panels, three or four times a step to the next space
+let glKinds=new Set(), glCards=new Set()
+const glLanded=(k,sp)=>{ if(k==='plane'&&sp) glCards.add(sp)   // a card's planes, whatever space the dossier shows
+	if(!sp||sp===selected) glKinds.add(k||'*')   // a neighbour's program warmed ahead repaints nothing of this card
+	if(glupT) return; glupT=requestAnimationFrame(()=>{ glupT=0
 	if(PDOWN){ owe(4); return }
-	planeEnts.forEach(paintEntPlanes)   // a card's planes, the moment their program lands
-	if(open()&&!isBarred(selected)){ const mesh=detail.querySelector('.mesh3'); if(mesh) mesh._sceneKey=''
-		planeNext=0; paintPlanes(false); paintGamut(); paintImages(); renderFast() } }) }
+	const K=glKinds, all=K.has('*'), C=glCards; glKinds=new Set(); glCards=new Set()
+	for(const ent of planeEnts) if(all||C.has(ent.dataset.s)) paintEntPlanes(ent)   // a card's planes, the moment their program lands
+	if(!open()||isBarred(selected)) return
+	if(all||K.has('mesh')){ const mesh=detail.querySelector('.mesh3'); if(mesh) mesh._sceneKey='' }
+	if(all||K.has('plane')){ planeNext=0; paintPlanes(false); renderFast() } else if(K.has('mesh')) draw3d()   // the planes end on the solid, renderFast the bars
+	if(all||K.has('gamut')) paintGamut()
+	if(all||K.has('img')) paintImages() }) }
 setGLReady(glLanded)
 let PDOWN=false
 const veil=document.body.appendChild(Object.assign(document.createElement('div'),{ className:'veil', hidden:true }))   // the drag's cursor: none, over everything
@@ -5832,16 +5864,17 @@ function markStops(host,s,at){ let ov=host._ov
 	host._marks=marks; host._pts=hp?.[2]?[...marks,{ j:STOPI, x:hp[0], y:hp[1] }]:marks }
 const planeMarks=(pl,s,cls)=>markStops(pl,s,v=>planePos(pl,cls,v))
 // what a press takes, shown before it: over a plane, a strip or a bar, the color whose mark is nearest the pointer (as
-// planeGrip and lineGrip pick it) comes forward – another's mark (hot), the held picker resting meanwhile (cold)
+// planeGrip and lineGrip pick it) comes forward – another's mark (hot), the held picker resting meanwhile (cold) – on that
+// instrument alone: a pointer crossing the sliders lit the field's words and the stack's marks one after another, noise
 {	let hotEl=null
-	// the color a press would take, told to the page (stophot: its stop, or null) – the field marks its word, the stack its
-	// mark: the same color, wherever it is shown
+	// the color a dot of the horseshoe or the xy plate stands for, told to the page (stophot: its stop, or null) – the field
+	// marks its word, the stack its mark: the same color, wherever it is shown
 	const tell=j=>{ if(tell.j===j) return; tell.j=j; document.dispatchEvent(new CustomEvent('stophot',{ detail:{ j } })) }
 	const off=()=>{ tell(null); if(!hotEl) return; hotEl.classList.remove('cold'); hotEl.querySelectorAll('.hot').forEach(d=>d.classList.remove('hot')); hotEl=null }
 	document.addEventListener('pointermove',e=>{ const h=STOPS&&!e.buttons?e.target.closest?.('.ch,.bar2,.pl'):null
 		if(h!==hotEl) off(); if(!h?._pts?.length) return
 		const r=h.getBoundingClientRect(), [m]=nearest(h._pts,p=>Math.hypot(r.left+p.x/100*r.width-e.clientX,r.top+p.y/100*r.height-e.clientY))
-		hotEl=h; h.classList.toggle('cold',m.j!==STOPI); h.querySelectorAll('.sto,.sts b').forEach(d=>d.classList.toggle('hot',+d.dataset.j===m.j)); tell(m.j) },{ passive:true })   // the held one too: its word lit as another's is
+		hotEl=h; h.classList.toggle('cold',m.j!==STOPI); h.querySelectorAll('.sto,.sts b').forEach(d=>d.classList.toggle('hot',+d.dataset.j===m.j)) },{ passive:true })
 	// the horseshoe's and the xy plate's dots are their own targets: pointed at, told the same
 	document.addEventListener('pointerover',e=>{ const d=e.target.closest?.(':is(.hlocus,.gam2d) .sto'); if(d) tell(+d.dataset.j) })
 	document.addEventListener('pointerout',e=>{ if(e.target.closest?.(':is(.hlocus,.gam2d) .sto')&&!e.relatedTarget?.closest?.(':is(.hlocus,.gam2d) .sto')) tell(null) })
@@ -6290,7 +6323,7 @@ renderFast(); paintCatalogGrad()
 	heroPaint=()=>{ let X; try{ X=master.s==='xyz'?master.vals:space[master.s].xyz(...master.vals) }catch{} if(!X?.every(isFinite)) X=space.rgb.xyz(...RGB())
 		const q=xyOf(...X); mk.style.display=q?'':'none'; if(!q) return
 		const [l,tp]=heroAt(q), c=RGB(); mk.style.left=l.toFixed(2)+'%'; mk.style.top=tp.toFixed(2)+'%'
-		setTk(box,hex(c),ink(c))   // the held picker's colors on the whole drawing: every mark and the run wear its ink
+		setTk(mk,hex(c),ink(c))   // the held picker's colors on its mark, the drawing's one reader: written on the drawing, they restyled the whole svg each step of the orbit – in Safari, a third of its frame
 		markStops(box,'xyz',v=>{ const q2=xyOf(...v); return q2?[...heroAt(q2),true]:[0,0,false] }) }
 	heroLimit=()=>lim.setAttribute('d',LIMD(GM))   // every Limit fills its own region – Surface too, else picking it would show nothing
 	heroPaint(); heroLimit() }

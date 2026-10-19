@@ -40,7 +40,10 @@ const softRaster = () => soft ??= !!G && (ri => /SwiftShader|llvmpipe|softpipe|s
 export const softGL = () => globalThis.CS_GL !== 'gpu' && softRaster()
 
 let readyCb = null
-/** Called whenever an async program finishes linking — repaint to upgrade. */
+/** Called whenever an async program finishes linking — repaint to upgrade. Told which kind landed ('plane' – the planes and
+ *  the bars, 'mesh' – the solid, 'gamut' – the xy plate, 'img' – the image panels; none: repaint all) and for which space,
+ *  so a space's four programs landing one by one never repaint the whole card four times, and a neighbour's warmed ahead
+ *  never repaints this one at all */
 export const setGLReady = fn => { readyCb = fn }
 
 // async link tracking: create+link now, read status later (no compile stall).
@@ -62,7 +65,7 @@ function pollLinks() {
 			st.bad = true
 		} else st.resolve && st.resolve(st)
 		st.onSettle && st.onSettle()
-		readyCb && readyCb()
+		readyCb && readyCb(st.kind, st.space)
 	}
 	if (linking.size) linkT = setTimeout(pollLinks, 25)
 }
@@ -342,7 +345,7 @@ void main() {
 function planeProg(s, soon) {
 	let st = planeProgs.get(s)
 	if (!st) {
-		st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${s}` }
+		st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${s}`, kind: 'plane', space: s }
 		planeProgs.set(s, st)
 		st.job = () => {
 			st.job = null
@@ -644,7 +647,7 @@ const cutCV = (w, h) => [0, CV.height - h, w, h]
 /** Grow the shared kernel canvas ahead of its first use, at idle: each growth reallocates the drawing buffer – 50 ms a time
  *  that once landed inside a dossier's first open. To the dossier's largest plate, the xy plate's (≈ 420 × 462 CSS px at
  *  the widest), at the screen's density. On a GPU only: a software rasterizer paints the JS paths */
-export const warmKernels = () => { if (!G || !kernelTransfers || softGL()) return
+export const warmKernels = () => { if (!G || !kernelTransfers || softGL() || globalThis.matchMedia?.('(pointer: coarse)').matches) return   // a phone keeps its GPU memory for a card it may never open
 	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.ceil(420 * d)), Math.min(2048, Math.ceil(462 * d))) }
 // the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end
 const encOf = cv2d => cv2d.getContext('2d')?.getContextAttributes?.().colorSpace === 'display-p3' && 'drawingBufferColorSpace' in G ? 1 : 0
@@ -1274,14 +1277,14 @@ void main() {
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
 			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
-		}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS))
+		}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS), { kind: 'mesh', space: s })
 		bake.lutN = lutNames(vs)
 		// The draw program is shared across gamuts but not spaces: native 10/20 cells
 		// need this space's own inverse to color each section by its coordinate center.
 		if (!st.draws.has(s)) st.draws.set(s,build(gl, DRAW_VS, fsSurf, (o) => {
 			o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
 			uset(o)
-		}))
+		}, null, { kind: 'mesh', space: s }))
 		const draw=st.draws.get(s)
 		// Native 10/20 coloring runs space→RGB in the DRAW fragment shader. Measured
 		// spaces therefore need their LUT here too; without it Munsell sections read
@@ -1289,7 +1292,7 @@ void main() {
 		draw.lutN = lutNames(fsSurf)
 		const caps = !fsCap || s === src ? null : build(gl, vsCap, fsCap, (o) => {
 			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o)
-		})
+		}, null, { kind: 'mesh', space: s })
 		if (caps) caps.lutN = lutNames(fsCap)
 		out = { bake, caps, draw }
 	} catch(e) { console.warn(`color-space/gl solid ${s}:`,e.message); out = null }
@@ -1740,7 +1743,7 @@ void main() {
 }`
 	const st = build(G, FSQ_VS, fs, (o) => {
 		o.u = { uRes: G.getUniformLocation(o.pr, 'uRes') }
-	})
+	}, null, { kind: 'gamut', space: s })
 	st.lutN = lutNames(fs)
 	gamutProgs.set(s, st)
 	return st
@@ -1871,7 +1874,7 @@ void main() {
 }`
 	const st = build(G, FSQ_VS, fs, (o) => {
 		o.u = Object.fromEntries(['uTex', 'uRes', 'uN', 'uKeep'].map(n => [n, G.getUniformLocation(o.pr, n)]))
-	})
+	}, null, { kind: 'img', space: s })
 	st.lutN = lutNames(fs)
 	imgProgs.set(s, st)
 	return st

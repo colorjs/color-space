@@ -147,7 +147,7 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(worker.includes("postMessage('ready')") && sweep.includes("if (data !== 'ready')"), true, 'a worker is sent nothing before it says it is ready – a module awaiting its data drops early messages')
 	is(page.includes('paintCatalogGrad(screenEnts())') && page.includes('paintCatalogGrad([active],true)'), true, 'every strip on screen is asked for on every change; the row in hand paints in its own frame')
 	is(page.includes('lens=gmFor(cls)'), true, 'main sliders render under the one Limit the dossier shares')
-	is(render.includes("export const LIMIT = 'vis'") && render.includes('limitFor(cls)'), true, 'prerendered main sliders ship under the default Limit')
+	is(render.includes("export const LIMIT = 'srgb'") && render.includes('limitFor(cls)'), true, 'prerendered main sliders ship under the default Limit')
 	is(page.includes('document.documentElement.style.setProperty(\'--cur\''), false, 'live color does not invalidate the whole document through an inherited custom property')
 	is(page.includes('paintCatalogPickers(screenEnts(),frgb,fx)'), true, 'every visible picker position and color follows a held gesture')
 	is(/LIVE_RAMP_GUIDES|SECONDARY_RAMP_GUIDES|throttleCatalogSecondary|CATALOG_FRAME_BUDGET/.test(page), false, 'strips keep one quality and no throttle: moving or at rest, a strip is the same 48 guides')

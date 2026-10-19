@@ -53,7 +53,7 @@ export const sweepCSS = ({ s, vals, i, min, max, n, gm, q, t }) => typeof q === 
 // page's lists (run) – and every wish where module workers can't start, run here, a frame's budget at a time.
 // paint(el, css, key, fade) lays an answer on; done(el) says a strip was painted here, now – what is still wished drops.
 export const sweeps = (paint, budget = 6) => {
-	const N = clamp((globalThis.navigator?.hardwareConcurrency || 4) - 2, 1, 4)
+	const N = globalThis.matchMedia?.('(pointer: coarse)').matches ? 2 : clamp((globalThis.navigator?.hardwareConcurrency || 4) - 2, 1, 4)   // a phone: two – each worker holds the library and its data again, and a phone's screen shows a third of the strips
 	const wish = new Map(), here = new Map(), out = new Map(), idle = []   // el → wish, for a worker · el → wish, for the page · id → wish in flight · workers ready
 	let workers = null, seq = 0, id = 0, raf = 0, soon = false, ready = false
 	const land = (w, css) => { const el = w.el; if (!(w.seq > (el._sweep || 0))) return; el._sweep = w.seq; paint(el, css, w.key, w.fade) }

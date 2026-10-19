@@ -104,7 +104,7 @@
 	--pop-shadow:0 .5rem 1.6rem oklch(0 0 0/.14);
 	--scrim:oklch(0 0 0/.24);   /* the page dimmed under a phone's menu sheet */
 	--modal-shadow:0 1rem 4rem oklch(0 0 0/.28);   /* the dossier's card over the page: lifted further than a panel, no scrim needed */   /* the shared floating-panel shadow: filter dropdown, slider popover — no border, just lift */
-	--checker:repeating-conic-gradient(oklch(0.5 0 0/.14) 0% 25%, transparent 0% 50%) 0 0/12px 12px var(--panel);   /* the void/alpha backdrop — dossier bars, card strips, planes */
+	--checker:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAARUlEQVR42u3WQQ0AIAwDQIYWnE3XnCEGE3sQuApoLumnMZqSmaujZ47LAgQEBAQEBAT0Oyi6nl5VbZMBAQEBAQEBAT0IOg1/BZT+V2lKAAAAAElFTkSuQmCC) 0 0/12px 12px var(--panel);   /* the void/alpha backdrop — dossier bars, card strips, planes: oklch(0.5 0 0 / .14) squares (#636363) on the panel, a 12 px tile – a bitmap (36 px, its 6 px squares on whole device pixels at 1×, 2× and 3×), not a conic gradient: Safari paints a gradient on the CPU, every square of every strip each time a strip changes (an SVG tile, worse still) */
 	--lift:var(--color-lift);
 	--uline:currentColor;   /* link hover underline — the text's own ink, never the accent */
 	--ulw:2.7px;   /* the one underline WEIGHT — value-pair underlines, the field's colors and every tab's active bar: one length whatever
