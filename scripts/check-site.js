@@ -835,7 +835,7 @@ try {
 		return { shown: [...sec.querySelectorAll('.ent')].filter(e => e.getBoundingClientRect().height > 0).map(e => e.dataset.s), more: sec.querySelector('.fold .more')?.getBoundingClientRect().height > 0, names: [...sec.querySelectorAll('.fns .nm')].filter(e => e.getBoundingClientRect().width > 0).length } })
 	assert.deepEqual(fam.shown, ['rgb', 'p3', 'rec2020', 'lrgb', 'rec709'], 'a phone shows the family\'s featured spaces, then a second row of tiles')
 	assert.equal(fam.more, true, 'and the rest behind its "more"')
-	assert.equal(fam.names, 26, 'its line naming every one it holds back')
+	assert.equal(fam.names, 27, 'its line naming every one it holds back')
 	assert.equal(await mobile.locator('.sec').first().locator('.lead .ent').count(), 1, 'a phone\'s one column leads each family with one featured space')
 	// operating the grouping select must not raise its heading's explainer (tip.js stops
 	// ancestor tips at form controls) — while the heading itself still explains
